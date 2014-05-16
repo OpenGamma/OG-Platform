@@ -317,7 +317,7 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
     /**
      * Processes the field data.
      * 
-     * @param refData the per identifier reference data result, not null
+     * @param refData  the per identifier reference data result, not null
      * @param element the bloomberg element, not null
      */
     protected void parseFieldData(ReferenceData refData, Element element) {
@@ -328,7 +328,7 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
     /**
      * Processes the an error affecting a single field on a one identifier.
      * 
-     * @param refData the per identifier reference data result, not null
+     * @param refData  the per identifier reference data result, not null
      * @param fieldExceptionArray the bloomberg data, not null
      */
     protected void parseFieldExceptions(ReferenceData refData, Element fieldExceptionArray) {
@@ -347,8 +347,8 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
     /**
      * Processes the EID data.
      * 
-     * @param refData the per identifier reference data result, not null
-     * @param eidElement the bloomberg element, not null
+     * @param refData  the per identifier reference data result, not null
+     * @param eidElement  the bloomberg element, not null
      */
     protected void parseEidData(ReferenceData refData, Element eidElement) {
       for (int i = 0; i < eidElement.numValues(); i++) {
@@ -365,13 +365,17 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
     /**
      * Creates an instance from a Bloomberg element.
      * 
-     * @param field the field, null if linked to the identifier rather than a field
-     * @param element the element, not null
+     * @param field  the field, null if linked to the identifier rather than a field
+     * @param element  the element, not null
      * @return the error, not null
      */
-    public ReferenceDataError buildError(String field, Element element) {
-      return new ReferenceDataError(field, element.getElementAsInt32("code"), element.getElementAsString("category"), element.getElementAsString("subcategory"),
-          element.getElementAsString("message"));
+    protected ReferenceDataError buildError(String field, Element element) {
+      return new ReferenceDataError(
+          field,
+          element.getElementAsInt32(BloombergConstants.CODE),
+          element.getElementAsString(BloombergConstants.CATEGORY),
+          element.getElementAsString(BloombergConstants.SUBCATEGORY),
+          element.getElementAsString(BloombergConstants.MESSAGE));
     }
 
   }

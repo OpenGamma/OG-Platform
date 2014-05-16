@@ -276,6 +276,8 @@ public final class BloombergConstants {
   public static final Name ERROR_INFO = new Name("errorInfo");
   public static final Name REASON = new Name("reason");
   public static final Name CATEGORY = new Name("category");
+  public static final Name CODE = new Name("code");
+  public static final Name MESSAGE = new Name("message");
   public static final Name DESCRIPTION = new Name("description");
   public static final Name AUTHORIZATION_SUCCESS = new Name("AuthorizationSuccess");
   public static final Name AUTHORIZATION_FAILURE = new Name("AuthorizationFailure");

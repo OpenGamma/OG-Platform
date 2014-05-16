@@ -121,7 +121,7 @@ public abstract class AbstractBloombergLiveDataServer extends StandardLiveDataSe
     return returnValue;
   }
 
-  // broken out from AbstractReferenceDataProvider to reduce scope of permission denied field
+  // broken out from AbstractReferenceDataProvider to handle errors differently
   private Map<String, FudgeMsg> queryRefData(ReferenceDataProviderGetRequest request) {
     Set<String> identifiers = ImmutableSet.copyOf(request.getIdentifiers()); // copy to avoid implementation bugs
     Set<String> fields = ImmutableSet.copyOf(request.getFields()); // copy to avoid implementation bugs
@@ -135,36 +135,44 @@ public abstract class AbstractBloombergLiveDataServer extends StandardLiveDataSe
         if (data.getErrors().isEmpty()) {
           map.put(identifier, data.getFieldValues());
         } else {
-          if (data.isIdentifierError()) {
-            // whole response is in error
-            // entitlement errors are handled, other errors will look like missing data
-            MutableFudgeMsg values = OpenGammaFudgeContext.getInstance().newMessage();
-            for (ReferenceDataError error : data.getErrors()) {
-              if (error.isEntitlementError()) {
-                String message = error.getMessage();
-                if (message.startsWith("Security Entitlement Check Failed! ")) {
-                  message = message.substring("Security Entitlement Check Failed! ".length());
-                }
-                values.add(PermissionUtils.LIVE_DATA_PERMISSION_DENIED_FIELD, "Permission denied (Bloomberg): " + message);
-              } else {
-                // any unknown error and we return nothing
-                break;
-              }
-            }
-            map.put(identifier, values);
-          } else { 
-            MutableFudgeMsg values = OpenGammaFudgeContext.getInstance().newMessage(data.getFieldValues());
-            for (String field : fields) {
-              if (data.isError(field)) {
-                values.remove(field);
-              }
-            }
-            map.put(identifier, values);
+          FudgeMsg fieldValues = handleRefDataError(data, fields);
+          if (fieldValues != null) {
+            map.put(identifier, fieldValues);
           }
         }
       }
     }
     return map;
+  }
+
+  // handle errors in reference data, notably permission denied
+  protected FudgeMsg handleRefDataError(ReferenceData data, Set<String> fields) {
+    if (data.isIdentifierError()) {
+      // whole response is in error
+      // entitlement errors are handled, other errors will look like missing data
+      for (ReferenceDataError error : data.getErrors()) {
+        if (error.isEntitlementError()) {
+          String message = error.getMessage();
+          if (message.startsWith("Security Entitlement Check Failed! ")) {
+            message = message.substring("Security Entitlement Check Failed! ".length());
+          }
+          MutableFudgeMsg values = OpenGammaFudgeContext.getInstance().newMessage();
+          values.add(PermissionUtils.LIVE_DATA_PERMISSION_DENIED_FIELD, "Permission denied (Bloomberg): " + message);
+          // only return first entitlement error
+          return values;
+        }
+      }
+      // null used to remove result entirely, effectively indicating missing data
+      return null;
+    }
+    // some fields are in error, so ensure they are not present
+    MutableFudgeMsg values = OpenGammaFudgeContext.getInstance().newMessage(data.getFieldValues());
+    for (String field : fields) {
+      if (data.isError(field)) {
+        values.remove(field);
+      }
+    }
+    return values;
   }
 
   public synchronized NormalizationRuleResolver getNormalizationRules() {
