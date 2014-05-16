@@ -13,7 +13,11 @@
           <li><a href="${uriObj.base()}">${text}</a></li>
         </#if>
       </#macro>
+<#if analyticsUri?has_content>
+      <@link text="Analytics" uriObj=analyticsUri!""/>
+<#else>
       <li><a href="/">Analytics</a></li>
+</#if>
       <@link text="Configuration" uriObj=configUris!""/>
       <@link text="Conventions" uriObj=conventionUris!""/>
       <@link text="Exchanges" uriObj=exchangeUris!""/>

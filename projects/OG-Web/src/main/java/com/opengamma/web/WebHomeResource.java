@@ -6,7 +6,9 @@
 package com.opengamma.web;
 
 import java.net.URI;
+import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.servlet.ServletContext;
 import javax.ws.rs.GET;
@@ -20,7 +22,6 @@ import org.joda.beans.Bean;
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableList.Builder;
 import com.opengamma.web.config.WebConfigData;
 import com.opengamma.web.config.WebConfigUris;
 import com.opengamma.web.config.WebConfigsResource;
@@ -70,13 +71,10 @@ import com.opengamma.web.user.WebUsersResource;
 @Path("/")
 public class WebHomeResource extends AbstractSingletonWebResource {
 
-  
-  private final Set<Class<?>> _publishedTypes;
-  
-  private static final ImmutableList<ResourceConfig> s_resourceConfigs;
-  
+  private static final ImmutableList<ResourceConfig> RESOURCE_CONFIGS;
+  private static final List<ResourceConfig> s_resourceConfigs = new CopyOnWriteArrayList<>();
   static {
-    Builder<ResourceConfig> builder = ImmutableList.builder();
+    ImmutableList.Builder<ResourceConfig> builder = ImmutableList.builder();
     builder.add(new ResourceConfig(WebConfigsResource.class, WebConfigData.class, WebConfigUris.class, "configUris"));
     builder.add(new ResourceConfig(WebConventionsResource.class, WebConventionData.class, WebConventionUris.class, "conventionUris"));
     builder.add(new ResourceConfig(WebExchangesResource.class, WebExchangeData.class, WebExchangeUris.class, "exchangeUris"));
@@ -91,10 +89,29 @@ public class WebHomeResource extends AbstractSingletonWebResource {
     builder.add(new ResourceConfig(WebSecuritiesResource.class, WebSecuritiesData.class, WebSecuritiesUris.class, "securityUris"));
     builder.add(new ResourceConfig(WebMarketDataSnapshotsResource.class, WebMarketDataSnapshotData.class, WebMarketDataSnapshotUris.class, "snapshotUris"));
     builder.add(new ResourceConfig(WebUsersResource.class, WebUserData.class, WebUserUris.class, "userUris"));
-    s_resourceConfigs = builder.build();
+    RESOURCE_CONFIGS = builder.build();
   }
-  
-  
+
+  private final Set<Class<?>> _publishedTypes;
+
+  /**
+   * Registers a new home page link.
+   * <p>
+   * This method is not intended for general use and may disappear without warning in the future.
+   * 
+   * @param resourceType  the resource type
+   * @param dataType  the type of the web data class
+   * @param urisType  the type of the web uri class
+   * @param name  the name exposed to Freemarker
+   */
+  public static void registerHomePageLink(
+      Class<?> resourceType, Class<? extends Bean> dataType, Class<?> urisType, String name) {
+    
+    ResourceConfig config = new ResourceConfig(resourceType, dataType, urisType, name);
+    s_resourceConfigs.add(config);
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Creates the resource.
    * @param publishedTypes 
@@ -123,11 +140,15 @@ public class WebHomeResource extends AbstractSingletonWebResource {
     FlexiBean out = super.createRootData(uriInfo);
     out.put("uris", new WebHomeUris(uriInfo));
     
-    for (ResourceConfig config : s_resourceConfigs) {
+    for (ResourceConfig config : RESOURCE_CONFIGS) {
       if (_publishedTypes.contains(config._resourceType)) {
         Object uriObj = createUriObj(config, uriInfo);
         out.put(config._name, uriObj);
       }
+    }
+    for (ResourceConfig config : s_resourceConfigs) {
+      Object uriObj = createUriObj(config, uriInfo);
+      out.put(config._name, uriObj);
     }
     return out;
   }
