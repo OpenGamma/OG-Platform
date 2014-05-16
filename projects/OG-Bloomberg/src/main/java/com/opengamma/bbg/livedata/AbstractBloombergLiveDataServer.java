@@ -156,6 +156,9 @@ public abstract class AbstractBloombergLiveDataServer extends StandardLiveDataSe
           if (message.startsWith("Security Entitlement Check Failed! ")) {
             message = message.substring("Security Entitlement Check Failed! ".length());
           }
+          // need to communicate error message via the API available
+          // using LIVE_DATA_PERMISSION_DENIED_FIELD is not ideal but best avaiable option
+          // solution is a much larger rewrite
           MutableFudgeMsg values = OpenGammaFudgeContext.getInstance().newMessage();
           values.add(PermissionUtils.LIVE_DATA_PERMISSION_DENIED_FIELD, "Permission denied (Bloomberg): " + message);
           // only return first entitlement error

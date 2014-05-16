@@ -222,7 +222,7 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
      * @param dataFields the datafields, not null
      * @return the bloomberg request, not null
      */
-    protected Request createRequest(Set<String> identifiers, Set<String> dataFields) {
+    private Request createRequest(Set<String> identifiers, Set<String> dataFields) {
       // create request
       Request request = getService().createRequest(BLOOMBERG_REFERENCE_DATA_REQUEST);
       Element securitiesElem = request.getElement(BLOOMBERG_SECURITIES_REQUEST);
@@ -259,7 +259,7 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
      * @param resultElements the result elements from Bloomberg, not null
      * @return the parsed result, not null
      */
-    protected ReferenceDataProviderGetResult parse(Set<String> securityKeys, Set<String> fields, List<Element> resultElements) {
+    private ReferenceDataProviderGetResult parse(Set<String> securityKeys, Set<String> fields, List<Element> resultElements) {
       ReferenceDataProviderGetResult result = new ReferenceDataProviderGetResult();
       for (Element resultElem : resultElements) {
         if (resultElem.hasElement(RESPONSE_ERROR)) {
@@ -304,7 +304,7 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
      * @param securityKey  the security identifier, not null
      * @param element the bloomberg element, not null
      */
-    protected void parseIdentifierError(ReferenceData refData, String securityKey, Element element) {
+    private void parseIdentifierError(ReferenceData refData, String securityKey, Element element) {
       ReferenceDataError error = buildError(null, element);
       if (error.isEntitlementError()) {
         getLogger().warn("Bloomberg referenceData security error: {} {}", securityKey, error.getMessage());
@@ -320,7 +320,7 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
      * @param refData  the per identifier reference data result, not null
      * @param element the bloomberg element, not null
      */
-    protected void parseFieldData(ReferenceData refData, Element element) {
+    private void parseFieldData(ReferenceData refData, Element element) {
       FudgeMsg fieldData = BloombergDataUtils.parseElement(element);
       refData.setFieldValues(fieldData);
     }
@@ -331,7 +331,7 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
      * @param refData  the per identifier reference data result, not null
      * @param fieldExceptionArray the bloomberg data, not null
      */
-    protected void parseFieldExceptions(ReferenceData refData, Element fieldExceptionArray) {
+    private void parseFieldExceptions(ReferenceData refData, Element fieldExceptionArray) {
       int numExceptions = fieldExceptionArray.numValues();
       if (numExceptions > 0) {
         getLogger().warn("Bloomberg referenceData field exceptions: {}", fieldExceptionArray);
@@ -350,7 +350,7 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
      * @param refData  the per identifier reference data result, not null
      * @param eidElement  the bloomberg element, not null
      */
-    protected void parseEidData(ReferenceData refData, Element eidElement) {
+    private void parseEidData(ReferenceData refData, Element eidElement) {
       for (int i = 0; i < eidElement.numValues(); i++) {
         refData.getEidValues().add(eidElement.getValueAsInt32(i));
       }
@@ -369,7 +369,7 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
      * @param element  the element, not null
      * @return the error, not null
      */
-    protected ReferenceDataError buildError(String field, Element element) {
+    private ReferenceDataError buildError(String field, Element element) {
       return new ReferenceDataError(
           field,
           element.getElementAsInt32(BloombergConstants.CODE),
