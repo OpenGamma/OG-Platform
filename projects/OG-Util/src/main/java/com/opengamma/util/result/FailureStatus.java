@@ -11,6 +11,13 @@ package com.opengamma.util.result;
 public enum FailureStatus implements ResultStatus {
 
   /**
+   * No applicable result can be calculated.
+   * This is used to indicate a result that was not or could not be calculated,
+   * but where calculation was not desired or applicable. This might occur in a
+   * grid of results where not every column is applicable for a specific row.
+   */
+  NOT_APPLICABLE,
+  /**
    * Some data required for the function was missing and therefore it could not
    * be successfully completed.
    */
@@ -41,7 +48,12 @@ public enum FailureStatus implements ResultStatus {
   /**
    * The user has insufficient permissions to view the result.
    */
-  PERMISSION_DENIED;
+  PERMISSION_DENIED,
+  /**
+   * The input was invalid.
+   * This is used if no configured function matched the specified input object.
+   */
+  INVALID_INPUT;
 
   //-------------------------------------------------------------------------
   /**
