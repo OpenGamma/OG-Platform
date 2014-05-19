@@ -20,6 +20,7 @@ import static com.opengamma.financial.analytics.model.curve.CurveCalculationProp
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -28,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
@@ -50,6 +52,7 @@ import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.model.multicurve.MultiCurveUtils;
 import com.opengamma.financial.security.swap.BondTotalReturnSwapSecurity;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -123,34 +126,34 @@ public class BondTotalReturnSwapYCNSFunction extends BondTotalReturnSwapFunction
 
       @Override
       public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Map<ValueSpecification, ValueRequirement> inputs) {
-        final Set<String> currencies = new HashSet<>();
-        final Set<String> curveNames = new HashSet<>();
         final Set<String> functionNames = new HashSet<>();
+        List<Pair<String, String>> ccyCurvePairs = Lists.newArrayList();
         for (final Map.Entry<ValueSpecification, ValueRequirement> entry : inputs.entrySet()) {
           final ValueSpecification specification = entry.getKey();
           if (specification.getValueName().equals(CURVE_BUNDLE)) {
             final ValueProperties constraints = specification.getProperties();
-            currencies.addAll(constraints.getValues(CURVE_SENSITIVITY_CURRENCY));
-            curveNames.addAll(constraints.getValues(CURVE));
+            for (String ccy : constraints.getValues(CURVE_SENSITIVITY_CURRENCY)) {
+              for (String curve : constraints.getValues(CURVE)) {
+                ccyCurvePairs.add(ObjectsPair.of(ccy, curve));
+              }
+            }
             functionNames.add(constraints.getSingleValue(FUNCTION));
           }
         }
-        if (currencies.isEmpty() || curveNames.isEmpty()) {
+        if (ccyCurvePairs.isEmpty()) {
           s_logger.error("Could not get currencies or curve name properties; have not been set in function(s) called {}", functionNames);
           return null;
         }
         final Set<ValueSpecification> results = new HashSet<>();
-        for (final String currency : currencies) {
-          for (final String curveName : curveNames) {
-            final ValueProperties properties = createValueProperties()
-                .with(PROPERTY_CURVE_TYPE, DISCOUNTING)
-                .withAny(CURVE_EXPOSURES)
-                .with(CURRENCY, currency)
-                .with(CURVE_SENSITIVITY_CURRENCY, currency)
-                .with(CURVE, curveName)
-                .get();
-            results.add(new ValueSpecification(YIELD_CURVE_NODE_SENSITIVITIES, target.toSpecification(), properties));
-          }
+        for (Pair<String, String> ccyCurvePair : ccyCurvePairs) {
+          final ValueProperties properties = createValueProperties()
+              .with(PROPERTY_CURVE_TYPE, DISCOUNTING)
+              .withAny(CURVE_EXPOSURES)
+              .with(CURRENCY, ccyCurvePair.getFirst())
+              .with(CURVE_SENSITIVITY_CURRENCY, ccyCurvePair.getFirst())
+              .with(CURVE, ccyCurvePair.getSecond())
+              .get();
+          results.add(new ValueSpecification(YIELD_CURVE_NODE_SENSITIVITIES, target.toSpecification(), properties));
         }
         return results;
       }
