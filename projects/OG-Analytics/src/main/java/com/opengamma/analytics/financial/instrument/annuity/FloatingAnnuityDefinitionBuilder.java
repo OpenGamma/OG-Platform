@@ -18,6 +18,7 @@ import com.opengamma.analytics.financial.instrument.payment.CouponDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingFlatSpreadDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingSimpleSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborGearingDefinition;
@@ -932,6 +933,24 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
             compoundFixingEndDates,
             compoundFixingYearFractions,
             _spread,
+            initialCompoundRate);
+      } else if (CompoundingMethod.SPREAD_EXCLUSIVE == _compoundingMethod) {
+        coupon = CouponIborCompoundingSimpleSpreadDefinition.from(
+            getCurrency(), 
+            paymentDate, 
+            accrualStartDate, 
+            accrualEndDate, 
+            accrualYearFraction, 
+            notional, 
+            ((IborIndex) _index),
+            compoundAccrualStartDates, 
+            compoundAccrualEndDates, 
+            compoundAccrualYearFractions, 
+            compoundFixingDates, 
+            compoundFixingStartDates, 
+            compoundFixingEndDates, 
+            compoundFixingYearFractions, 
+            _spread, 
             initialCompoundRate);
       } else {
         coupon = CouponIborCompoundingSpreadDefinition.from(
