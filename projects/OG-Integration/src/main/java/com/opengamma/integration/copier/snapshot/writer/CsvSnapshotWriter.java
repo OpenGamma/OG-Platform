@@ -35,7 +35,7 @@ import com.opengamma.util.tuple.Pair;
  */
 public class CsvSnapshotWriter implements SnapshotWriter {
 
-  private CsvSheetWriter _sheetWriter;
+  private final CsvSheetWriter _sheetWriter;
   private static final Logger s_logger = LoggerFactory.getLogger(CsvSnapshotWriter.class);
 
   public CsvSnapshotWriter(String filename) {
@@ -58,7 +58,7 @@ public class CsvSnapshotWriter implements SnapshotWriter {
 
       Pair<String, String> ordinals = MarketDataSnapshotToolUtils.ordinalsAsString(entry.getKey());
       String surfaceX  = ordinals.getFirst();
-      String surfaceY  = ordinals.getFirst();
+      String surfaceY  = ordinals.getSecond();
 
       tempRow.put(SnapshotColumns.SURFACE_X.get(), surfaceX);
       tempRow.put(SnapshotColumns.SURFACE_Y.get(), surfaceY);
