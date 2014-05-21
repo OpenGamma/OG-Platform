@@ -13,6 +13,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.volatilityswap.FXVolatilitySwap;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -64,6 +65,7 @@ public class FXVolatilitySwapDefinition extends VolatilitySwapDefinition {
   public Currency getBaseCurrency() {
     return _baseCurrency;
   }
+
   /**
    * Gets the counter currency.
    * @return the counter currency
@@ -91,9 +93,9 @@ public class FXVolatilitySwapDefinition extends VolatilitySwapDefinition {
   @Override
   public FXVolatilitySwap toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "date");
-    final double timeToObservationStart = TimeCalculator.getTimeBetween(date, getObservationStartDate());
-    final double timeToObservationEnd = TimeCalculator.getTimeBetween(date, getObservationEndDate());
-    final double timeToMaturity = TimeCalculator.getTimeBetween(date, getMaturityDate());
+    final double timeToObservationStart = TimeCalculator.getTimeBetween(date, getObservationStartDate(), DayCountFactory.of("Business/252"), getCalendar());
+    final double timeToObservationEnd = TimeCalculator.getTimeBetween(date, getObservationEndDate(), DayCountFactory.of("Business/252"), getCalendar());
+    final double timeToMaturity = TimeCalculator.getTimeBetween(date, getMaturityDate(), DayCountFactory.of("Business/252"), getCalendar());
     return new FXVolatilitySwap(timeToObservationStart, timeToObservationEnd, getObservationFrequency(), timeToMaturity,
         getVolatilityStrike(), getVolatilityNotional(), getCurrency(), _baseCurrency, _counterCurrency, getAnnualizationFactor());
   }
@@ -106,6 +108,7 @@ public class FXVolatilitySwapDefinition extends VolatilitySwapDefinition {
     result = prime * result + _counterCurrency.hashCode();
     return result;
   }
+
   @Override
   public boolean equals(final Object obj) {
     if (this == obj) {
