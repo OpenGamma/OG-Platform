@@ -17,7 +17,7 @@ import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.provider.description.volatilityswap.CarrLeeFXData;
-import com.opengamma.analytics.financial.volatilityswap.CarrLeeFXVolatilitySwapVegaCalculator;
+import com.opengamma.analytics.financial.volatilityswap.CarrLeeFXVolatilitySwapThetaCalculator;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -35,7 +35,7 @@ import com.opengamma.engine.value.ValueSpecification;
 public class CarrLeeThetaFXVolatilitySwapFunction extends CarrLeeFXVolatilitySwapFunction {
 
   /** The theta calculator */
-  private static final InstrumentDerivativeVisitor<CarrLeeFXData, Double> CALCULATOR = new CarrLeeFXVolatilitySwapVegaCalculator();
+  private static final InstrumentDerivativeVisitor<CarrLeeFXData, Double> CALCULATOR = new CarrLeeFXVolatilitySwapThetaCalculator();
 
   /**
    * Sets the value requirement to {@link ValueRequirementNames#THETA}.
