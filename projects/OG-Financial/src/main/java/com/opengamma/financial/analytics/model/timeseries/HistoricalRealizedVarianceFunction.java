@@ -18,6 +18,7 @@ import java.util.Set;
 import org.threeten.bp.LocalDate;
 
 import com.google.common.collect.Iterables;
+import com.opengamma.analytics.financial.volatilityswap.RealizedVolatilityCalculator;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.statistics.descriptive.SampleVarianceCalculator;
 import com.opengamma.engine.ComputationTarget;
@@ -41,7 +42,7 @@ import com.opengamma.util.money.UnorderedCurrencyPair;
  */
 public class HistoricalRealizedVarianceFunction extends AbstractFunction.NonCompiledInvoker {
   /** The historical variance calculator */
-  private static final Function1D<double[], Double> CALCULATOR = new SampleVarianceCalculator();
+  private static final RealizedVolatilityCalculator CALCULATOR = new RealizedVolatilityCalculator();
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
@@ -67,7 +68,7 @@ public class HistoricalRealizedVarianceFunction extends AbstractFunction.NonComp
     if (history.isEmpty()) {
       return Collections.singleton(new ComputedValue(spec, 0.));
     }
-    final double variance = CALCULATOR.evaluate(history.valuesArrayFast());
+    final double variance = CALCULATOR.getRealizedVariance(history.valuesArrayFast());
     return Collections.singleton(new ComputedValue(spec, variance));
   }
 
