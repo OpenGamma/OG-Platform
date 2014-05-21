@@ -60,7 +60,7 @@ public class FXVolatilitySwapDefinitionTest extends AnalyticsTestBase {
     super(FXVolatilitySwapDefinition.class,
         new Object[] {CCY, BASE, COUNTER, VOL_STRIKE, VOL_NOTIONAL, T_PLUS_2D, T_PLUS_5Y, NOW, T_PLUS_5Y, OBSERVATION_FREQUENCY, OBS_PER_YEAR, WEEKENDS },
         new Class[] {Currency.class, Currency.class, Currency.class, double.class, double.class,
-          ZonedDateTime.class, ZonedDateTime.class, ZonedDateTime.class, ZonedDateTime.class, PeriodFrequency.class, double.class, Calendar.class },
+            ZonedDateTime.class, ZonedDateTime.class, ZonedDateTime.class, ZonedDateTime.class, PeriodFrequency.class, double.class, Calendar.class },
         new boolean[] {true, true, true, false, false, true, true, true, true, true, false, true });
   }
 
@@ -140,11 +140,11 @@ public class FXVolatilitySwapDefinitionTest extends AnalyticsTestBase {
     final FXVolatilitySwap volatilitySwap = DEFINITION.toDerivative(NOW);
     assertEquals(OBS_PER_YEAR, volatilitySwap.getAnnualizationFactor());
     assertEquals(CCY, volatilitySwap.getCurrency());
-    assertEquals(5, volatilitySwap.getTimeToObservationEnd(), 0);
-    assertEquals(2. / 365, volatilitySwap.getTimeToObservationStart(), 0);
+    assertEquals(5.174603174603175, volatilitySwap.getTimeToObservationEnd(), 1.e-12);
+    assertEquals(1. / 252, volatilitySwap.getTimeToObservationStart(), 0);
     assertEquals(OBSERVATION_FREQUENCY, volatilitySwap.getObservationFrequency());
-    assertEquals(5, volatilitySwap.getTimeToMaturity(), 0);
-    assertEquals(VOL_NOTIONAL, volatilitySwap.getVolatilityNotional(), 0);
+    assertEquals(5.174603174603175, volatilitySwap.getTimeToMaturity(), 1.e-12);
+    assertEquals(VOL_NOTIONAL, volatilitySwap.getVolatilityNotional(), 1.e-12);
     assertEquals(VOL_STRIKE, volatilitySwap.getVolatilityStrike());
     assertEquals(volatilitySwap, DEFINITION.toDerivative(NOW));
     assertEquals(volatilitySwap, DEFINITION.toDerivative(NOW, "A", "B"));
@@ -163,10 +163,10 @@ public class FXVolatilitySwapDefinitionTest extends AnalyticsTestBase {
     final FXVolatilitySwap volatilitySwap = definition.toDerivative(NOW.plusYears(1));
     assertEquals(OBS_PER_YEAR, volatilitySwap.getAnnualizationFactor());
     assertEquals(CCY, volatilitySwap.getCurrency());
-    assertEquals(4, volatilitySwap.getTimeToObservationEnd(), 0);
-    assertEquals(-1 + 2 / 365., volatilitySwap.getTimeToObservationStart(), 0);
+    assertEquals(5.7976190476190474, volatilitySwap.getTimeToObservationEnd(), 1.e-12);
+    assertEquals(-1.4404761904761905, volatilitySwap.getTimeToObservationStart(), 1.e-12);
     assertEquals(OBSERVATION_FREQUENCY, volatilitySwap.getObservationFrequency());
-    assertEquals(4, volatilitySwap.getTimeToMaturity(), 0);
+    assertEquals(5.7976190476190474, volatilitySwap.getTimeToMaturity(), 1.e-12);
     assertEquals(VOL_NOTIONAL, volatilitySwap.getVolatilityNotional());
     assertEquals(VOL_STRIKE, volatilitySwap.getVolatilityStrike(), 0);
     assertEquals(volatilitySwap, definition.toDerivative(NOW.plusYears(1), "A", "B"));
