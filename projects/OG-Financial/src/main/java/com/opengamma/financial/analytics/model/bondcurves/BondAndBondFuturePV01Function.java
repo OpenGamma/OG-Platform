@@ -82,7 +82,7 @@ public class BondAndBondFuturePV01Function extends BondAndBondFutureFromCurvesFu
     }
     if (!curveNameFound) {
       final ValueSpecification spec = new ValueSpecification(PV01, target.toSpecification(), properties.copy().with(CURVE, desiredCurveName).get());
-      return Collections.singleton(new ComputedValue(spec, 0));
+      return Collections.singleton(new ComputedValue(spec, .0));
     }
     return results;
   }
