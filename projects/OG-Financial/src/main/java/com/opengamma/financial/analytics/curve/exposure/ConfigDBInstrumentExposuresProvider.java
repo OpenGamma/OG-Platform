@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.security.SecuritySource;
@@ -83,11 +85,13 @@ public class ConfigDBInstrumentExposuresProvider implements InstrumentExposuresP
     final List<String> exposureFunctionNames = exposures.getExposureFunctions();
     List<ExternalId> ids = null;
     final Set<String> curveConstructionConfigurationNames = new HashSet<>();
+    Multimap<String, ExternalId> functionToIds = HashMultimap.create();
     for (final String exposureFunctionName : exposureFunctionNames) {
       final ExposureFunction exposureFunction = ExposureFunctionFactory.getExposureFunction(_securitySource, exposureFunctionName);
       ids = security.accept(exposureFunction);
       if (ids != null) {
         final Map<ExternalId, String> idsToNames = exposures.getIdsToNames();
+        functionToIds.putAll(exposureFunctionName, ids);
         for (final ExternalId id : ids) {
           final String name = idsToNames.get(id);
           if (name == null) {
@@ -100,8 +104,8 @@ public class ConfigDBInstrumentExposuresProvider implements InstrumentExposuresP
         }
       }
     }
-    throw new OpenGammaRuntimeException("Could not find a matching list of ids for " + security + " from "
-        + instrumentExposureConfigurationName);
+    throw new OpenGammaRuntimeException("Could not find a matching list of ids for " + security.getClass().getSimpleName() + "/" + security.getExternalIdBundle() + " from ExposureFunctions object '"
+        + instrumentExposureConfigurationName + "'. Ids attempted for referenced functions: " + functionToIds);
   }
 
 }
