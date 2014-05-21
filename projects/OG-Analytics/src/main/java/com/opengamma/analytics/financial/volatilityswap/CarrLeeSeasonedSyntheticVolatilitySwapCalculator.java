@@ -80,7 +80,7 @@ public class CarrLeeSeasonedSyntheticVolatilitySwapCalculator {
 
     final double rate = interestRate - dividend;
     final double forward = spot * Math.exp(rate * timeToExpiry);
-    ArgumentChecker.isTrue((callStrikes[0] > forward && putStrikes[nPuts - 1] < forward), "Max(putStrikes) < forward < Min(callStrikes) should hold");
+    ArgumentChecker.isTrue((callStrikes[0] >= forward && putStrikes[nPuts - 1] <= forward), "Max(putStrikes) <= forward <= Min(callStrikes) should hold");
 
     final double u = 100. / Math.sqrt(timeToExpiry + timeFromInception);
     final double us = 100. / Math.sqrt(timeFromInception);
@@ -117,10 +117,14 @@ public class CarrLeeSeasonedSyntheticVolatilitySwapCalculator {
 
     for (int i = 0; i < nOptions; ++i) {
       final double logKF = Math.log(strikes[i] / forward);
-      final double bound = 50. / Math.sqrt(resRV);
-      final Function1D<Double, Double> funcFin = integrandFin(logKF, resRV);
-      final Function1D<Double, Double> funcInf = integrandInf(logKF, resRV);
-      res[i] = reFac * Math.exp(0.5 * logKF) * (INTEGRATOR.integrate(funcFin, 0., 0.5 * Math.PI) + INTEGRATOR.integrate(funcInf, 0., bound)) / strikes[i] / strikes[i];
+      if (Math.abs(logKF) < EPS) {
+        res[i] = reFac * Math.sqrt(2. * Math.PI / resRV) / strikes[i] / strikes[i];
+      } else {
+        final double bound = 50. / Math.sqrt(resRV);
+        final Function1D<Double, Double> funcFin = integrandFin(logKF, resRV);
+        final Function1D<Double, Double> funcInf = integrandInf(logKF, resRV);
+        res[i] = reFac * Math.exp(0.5 * logKF) * (INTEGRATOR.integrate(funcFin, 0., 0.5 * Math.PI) + INTEGRATOR.integrate(funcInf, 0., bound)) / strikes[i] / strikes[i];
+      }
     }
 
     return res;
