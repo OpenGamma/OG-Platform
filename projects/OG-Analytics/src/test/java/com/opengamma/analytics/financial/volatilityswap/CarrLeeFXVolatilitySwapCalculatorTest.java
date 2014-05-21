@@ -6,6 +6,7 @@
 package com.opengamma.analytics.financial.volatilityswap;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Arrays;
@@ -115,6 +116,11 @@ public class CarrLeeFXVolatilitySwapCalculatorTest {
     final FXVolatilitySwap swap2 = new FXVolatilitySwap(1.e-4, timeToExpiry, PeriodFrequency.DAILY, timeToExpiry, spot, 1, base, base, counter, 252);
     assertEquals(swap1.accept(cal, data).getFairValue(), swap2.accept(cal, data).getFairValue(), 1.e-6);
 
+    final double[] strikeRange = new double[] {spot * 0.8, spot * 1.2 };
+    final CarrLeeFXVolatilitySwapCalculator cal1 = new CarrLeeFXVolatilitySwapCalculator(150, strikeRange);
+    swap.accept(cal1, data);
+    assertEquals(6., swap.accept(cal1, data).getFairValue(), eps * 10.0);
+
     /*
      * Error test
      */
@@ -122,70 +128,115 @@ public class CarrLeeFXVolatilitySwapCalculatorTest {
       new CarrLeeFXVolatilitySwapCalculator(0.1, 0.1, 10);
       throw new RuntimeException();
     } catch (final Exception e) {
-      assertTrue(e instanceof IllegalArgumentException);
+      assertEquals("-1 < lowestPutDelta < 0 should be true", e.getMessage());
     }
     try {
       new CarrLeeFXVolatilitySwapCalculator(-2.1, 0.1, 10);
       throw new RuntimeException();
     } catch (final Exception e) {
-      assertTrue(e instanceof IllegalArgumentException);
+      assertEquals("-1 < lowestPutDelta < 0 should be true", e.getMessage());
     }
     try {
       new CarrLeeFXVolatilitySwapCalculator(-0.1, -0.1, 10);
       throw new RuntimeException();
     } catch (final Exception e) {
-      assertTrue(e instanceof IllegalArgumentException);
+      assertEquals("0 < highestCallDelta < 1 should be true", e.getMessage());
     }
     try {
       new CarrLeeFXVolatilitySwapCalculator(-0.1, 3.1, 10);
       throw new RuntimeException();
     } catch (final Exception e) {
-      assertTrue(e instanceof IllegalArgumentException);
+      assertEquals("0 < highestCallDelta < 1 should be true", e.getMessage());
     }
     try {
       new CarrLeeFXVolatilitySwapCalculator(-0.1, 0.1, 1);
       throw new RuntimeException();
     } catch (final Exception e) {
-      assertTrue(e instanceof IllegalArgumentException);
+      assertEquals("numPoints should be greater than 2", e.getMessage());
+    }
+    try {
+      new CarrLeeFXVolatilitySwapCalculator(1, new double[] {1.1, 1.4 });
+      throw new RuntimeException();
+    } catch (final Exception e) {
+      assertEquals("numPoints should be greater than 2", e.getMessage());
+    }
+    try {
+      new CarrLeeFXVolatilitySwapCalculator(10, new double[] {1.1, 1.4, 1.5 });
+      throw new RuntimeException();
+    } catch (final Exception e) {
+      assertEquals("length of strikeRange should be 2", e.getMessage());
+    }
+    try {
+      new CarrLeeFXVolatilitySwapCalculator(10, new double[] {1.4, 1.1 });
+      throw new RuntimeException();
+    } catch (final Exception e) {
+      assertEquals("upper bound should be greater than lower bound", e.getMessage());
     }
 
-    //    try {
-    //      cal.fairValueSeasoned(spot, -timeToExpiry, timeFromInception, dr, fr, realizedVar, smile);
-    //      throw new RuntimeException();
-    //    } catch (final Exception e) {
-    //      assertTrue(e instanceof IllegalArgumentException);
-    //    }
-    //    try {
-    //      cal.fairValueSeasoned(spot, timeToExpiry, -timeFromInception, dr, fr, realizedVar, smile);
-    //      throw new RuntimeException();
-    //    } catch (final Exception e) {
-    //      assertTrue(e instanceof IllegalArgumentException);
-    //    }
-    //    try {
-    //      cal.fairValueSeasoned(-spot, timeToExpiry, timeFromInception, dr, fr, realizedVar, smile);
-    //      throw new RuntimeException();
-    //    } catch (final Exception e) {
-    //      assertTrue(e instanceof IllegalArgumentException);
-    //    }
-    //    try {
-    //      cal.fairValueSeasoned(spot, timeToExpiry, timeFromInception, dr, fr, -realizedVar, smile);
-    //      throw new RuntimeException();
-    //    } catch (final Exception e) {
-    //      assertTrue(e instanceof IllegalArgumentException);
-    //    }
+    try {
+      final FXVolatilitySwap swapNegativeTime = new FXVolatilitySwap(0., timeToExpiry, PeriodFrequency.DAILY, -timeToExpiry, spot, 1, base, base, counter, 252);
+      swapNegativeTime.accept(cal, data);
+      throw new RuntimeException();
+    } catch (final Exception e) {
+      assertEquals("timeToExpiry should be positive", e.getMessage());
+    }
+    try {
+      final FXMatrix fxMatrixNegativeSpot = new FXMatrix(base, counter, -spot);
+      final MulticurveProviderDiscount curvesNegativeSpot = new MulticurveProviderDiscount(discountingCurves, new LinkedHashMap<IborIndex, YieldAndDiscountCurve>(),
+          new LinkedHashMap<IndexON, YieldAndDiscountCurve>(), fxMatrixNegativeSpot);
+      final CarrLeeFXData dataNegativeSpot = new CarrLeeFXData(Pairs.of(base, counter), smile, curvesNegativeSpot, realizedVar);
+      swap.accept(cal, dataNegativeSpot);
+      throw new RuntimeException();
+    } catch (final Exception e) {
+      assertEquals("spot should be positive", e.getMessage());
+    }
+    try {
+      final CarrLeeFXVolatilitySwapCalculator calBadRange = new CarrLeeFXVolatilitySwapCalculator(10, new double[] {10.1, 10.4 });
+      swap.accept(calBadRange, data);
+      throw new RuntimeException();
+    } catch (final Exception e) {
+      assertEquals("forward is outside of strike range", e.getMessage());
+    }
+    try {
+      final CarrLeeFXVolatilitySwapCalculator calBadRange = new CarrLeeFXVolatilitySwapCalculator(10, new double[] {0.1, 0.3 });
+      swap.accept(calBadRange, data);
+      throw new RuntimeException();
+    } catch (final Exception e) {
+      assertEquals("forward is outside of strike range", e.getMessage());
+    }
+  }
 
-    //    try {
-    //      cal.fairValueNew(spot, -timeToExpiry, dr, fr, smile);
-    //      throw new RuntimeException();
-    //    } catch (final Exception e) {
-    //      assertTrue(e instanceof IllegalArgumentException);
-    //    }
-    //    try {
-    //      cal.fairValueNew(-spot, timeToExpiry, dr, fr, smile);
-    //      throw new RuntimeException();
-    //    } catch (final Exception e) {
-    //      assertTrue(e instanceof IllegalArgumentException);
-    //    }
+  /**
+   * 
+   */
+  public void hashCodeAndEquals() {
+    final CarrLeeFXVolatilitySwapCalculator defaultCal = new CarrLeeFXVolatilitySwapCalculator();
+    final CarrLeeFXVolatilitySwapCalculator baseCal = new CarrLeeFXVolatilitySwapCalculator(-0.1, 0.1, 50);
+    final CarrLeeFXVolatilitySwapCalculator lowerCal = new CarrLeeFXVolatilitySwapCalculator(-0.2, 0.1, 50);
+    final CarrLeeFXVolatilitySwapCalculator upperCal = new CarrLeeFXVolatilitySwapCalculator(-0.1, 0.3, 50);
+    final CarrLeeFXVolatilitySwapCalculator pointsCal = new CarrLeeFXVolatilitySwapCalculator(-0.1, 0.1, 150);
+    final CarrLeeFXVolatilitySwapCalculator strikeBaseCal = new CarrLeeFXVolatilitySwapCalculator(50, new double[] {0.5, 1.5 });
+    final CarrLeeFXVolatilitySwapCalculator strikeIdCal = new CarrLeeFXVolatilitySwapCalculator(50, new double[] {0.5, 1.5 });
+    final CarrLeeFXVolatilitySwapCalculator strikeCal = new CarrLeeFXVolatilitySwapCalculator(50, new double[] {0.5, 2.5 });
+
+    assertTrue(defaultCal.equals(defaultCal));
+
+    assertTrue(defaultCal.hashCode() == baseCal.hashCode());
+    assertTrue(defaultCal.equals(baseCal));
+    assertTrue(baseCal.equals(defaultCal));
+
+    assertFalse(defaultCal.equals(lowerCal));
+    assertFalse(defaultCal.equals(upperCal));
+    assertFalse(defaultCal.equals(pointsCal));
+    assertFalse(defaultCal.equals(strikeBaseCal));
+    assertFalse(strikeBaseCal.equals(strikeCal));
+
+    assertTrue(strikeBaseCal.hashCode() == strikeIdCal.hashCode());
+    assertTrue(strikeBaseCal.equals(strikeIdCal));
+    assertTrue(strikeIdCal.equals(strikeBaseCal));
+
+    assertFalse(defaultCal.equals(null));
+    assertFalse(defaultCal.equals(new double[] {}));
   }
 
 }
