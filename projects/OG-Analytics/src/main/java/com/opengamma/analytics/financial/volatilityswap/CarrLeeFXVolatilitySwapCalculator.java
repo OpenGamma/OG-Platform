@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.financial.volatilityswap;
 
+import java.util.Arrays;
+
 import com.google.common.primitives.Doubles;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTermStructureParameters;
@@ -31,6 +33,8 @@ public class CarrLeeFXVolatilitySwapCalculator extends InstrumentDerivativeVisit
   private final double _highestCallDelta;
   private final int _numPoints;
 
+  private final double[] _strikeRange;
+
   /**
    * Default constructor
    */
@@ -51,6 +55,24 @@ public class CarrLeeFXVolatilitySwapCalculator extends InstrumentDerivativeVisit
     _lowestPutDelta = lowestPutDelta;
     _highestCallDelta = highestCallDelta;
     _numPoints = numPoints;
+    _strikeRange = null;
+  }
+
+  /**
+   * Constructor specifying number of strikes and strike range by strike values
+   * @param numPoints The number of strikes between the lowest strike and the highest strike is (numPoints + 1)
+   * @param strikeRange {minimum strike, maximum strike}
+   */
+  public CarrLeeFXVolatilitySwapCalculator(final int numPoints, final double[] strikeRange) {
+    ArgumentChecker.isTrue(numPoints > 2, "numPoints should be greater than 2");
+    ArgumentChecker.notNull(strikeRange, "strikeRange");
+    ArgumentChecker.isTrue(strikeRange.length == 2, "length of strikeRange should be 2");
+    ArgumentChecker.isTrue(strikeRange[0] < strikeRange[1], "upper bound should be greater than lower bound");
+
+    _lowestPutDelta = 0.0;
+    _highestCallDelta = 0.0;
+    _numPoints = numPoints;
+    _strikeRange = Arrays.copyOf(strikeRange, 2);
   }
 
   @Override
@@ -72,15 +94,22 @@ public class CarrLeeFXVolatilitySwapCalculator extends InstrumentDerivativeVisit
     final double forward = spot * foreignDF / domesticDF;
     final double timeFromInception = swap.getTimeToObservationStart() < 0 ? Math.abs(swap.getTimeToObservationStart()) : 0;
     final double[] strikeRange;
-    if (swap.getTimeToObservationStart() < 0) {
-      if (data.getRealizedVariance() == null) {
-        throw new IllegalStateException("Trying to price a seasoned swap but have null realized variance in the market data object");
+
+    if (_strikeRange == null) {
+      if (swap.getTimeToObservationStart() < 0) {
+        if (data.getRealizedVariance() == null) {
+          throw new IllegalStateException("Trying to price a seasoned swap but have null realized variance in the market data object");
+        }
+        final double reference = 3.0 * Math.sqrt(data.getRealizedVariance() * timeFromInception) / 100.;
+        strikeRange = getStrikeRange(timeToExpiry, data.getVolatilityData(), forward, reference);
+      } else {
+        strikeRange = getStrikeRange(timeToExpiry, data.getVolatilityData(), forward, 0.);
       }
-      final double reference = 3.0 * Math.sqrt(data.getRealizedVariance() * timeFromInception) / 100.;
-      strikeRange = getStrikeRange(timeToExpiry, data.getVolatilityData(), forward, reference);
     } else {
-      strikeRange = getStrikeRange(timeToExpiry, data.getVolatilityData(), forward, 0.);
+      strikeRange = Arrays.copyOf(_strikeRange, 2);
+      ArgumentChecker.isTrue((forward > strikeRange[0] && forward < strikeRange[1]), "forward is outside of strike range");
     }
+
     final double deltaK = (strikeRange[1] - strikeRange[0]) / _numPoints;
     final double[] strikes = new double[_numPoints + 1];
     for (int i = 0; i < _numPoints; ++i) {
@@ -157,6 +186,47 @@ public class CarrLeeFXVolatilitySwapCalculator extends InstrumentDerivativeVisit
         return -NORMAL.getPDF(d1) / strike / sigRootT;
       }
     };
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    long temp;
+    temp = Double.doubleToLongBits(_highestCallDelta);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_lowestPutDelta);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + _numPoints;
+    result = prime * result + Arrays.hashCode(_strikeRange);
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (!(obj instanceof CarrLeeFXVolatilitySwapCalculator)) {
+      return false;
+    }
+    CarrLeeFXVolatilitySwapCalculator other = (CarrLeeFXVolatilitySwapCalculator) obj;
+    if (Double.doubleToLongBits(_highestCallDelta) != Double.doubleToLongBits(other._highestCallDelta)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_lowestPutDelta) != Double.doubleToLongBits(other._lowestPutDelta)) {
+      return false;
+    }
+    if (_numPoints != other._numPoints) {
+      return false;
+    }
+    if (!Arrays.equals(_strikeRange, other._strikeRange)) {
+      return false;
+    }
+    return true;
   }
 
 }
