@@ -21,6 +21,7 @@ public class CarrLeeFXVolatilitySwapVegaCalculator extends InstrumentDerivativeV
   private static final CarrLeeNewlyIssuedSyntheticVolatilitySwapCalculator NEW_CALCULATOR = new CarrLeeNewlyIssuedSyntheticVolatilitySwapCalculator();
   private static final CarrLeeSeasonedSyntheticVolatilitySwapCalculator SEASONED_CALCULATOR = new CarrLeeSeasonedSyntheticVolatilitySwapCalculator();
 
+  private final CarrLeeFXVolatilitySwapCalculator _cal;
   private final double _bumpVol;
 
   /**
@@ -28,7 +29,7 @@ public class CarrLeeFXVolatilitySwapVegaCalculator extends InstrumentDerivativeV
    * Note that fractional volatility is bumped
    */
   public CarrLeeFXVolatilitySwapVegaCalculator() {
-    _bumpVol = DEFAULT_BUMP;
+    this(DEFAULT_BUMP);
   }
 
   /**
@@ -37,6 +38,18 @@ public class CarrLeeFXVolatilitySwapVegaCalculator extends InstrumentDerivativeV
    */
   public CarrLeeFXVolatilitySwapVegaCalculator(final double bump) {
     _bumpVol = bump;
+    _cal = new CarrLeeFXVolatilitySwapCalculator();
+  }
+
+  /**
+   * Constructor specifying bump amount
+   * @param bump The bump amount
+   * @param cal Base calculator
+   */
+  public CarrLeeFXVolatilitySwapVegaCalculator(final double bump, final CarrLeeFXVolatilitySwapCalculator cal) {
+    ArgumentChecker.notNull(cal, "cal");
+    _bumpVol = bump;
+    _cal = cal;
   }
 
   /**
@@ -109,9 +122,44 @@ public class CarrLeeFXVolatilitySwapVegaCalculator extends InstrumentDerivativeV
     ArgumentChecker.notNull(swap, "swap");
     ArgumentChecker.notNull(data, "data");
 
-    final CarrLeeFXVolatilitySwapCalculator calculator = new CarrLeeFXVolatilitySwapCalculator();
-    final VolatilitySwapCalculatorResultWithStrikes result = calculator.visitFXVolatilitySwap(swap, data);
+    final VolatilitySwapCalculatorResultWithStrikes result = _cal.visitFXVolatilitySwap(swap, data);
     return getFXVolatilitySwapVega(result, swap, data);
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    long temp;
+    temp = Double.doubleToLongBits(_bumpVol);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + ((_cal == null) ? 0 : _cal.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (!(obj instanceof CarrLeeFXVolatilitySwapVegaCalculator)) {
+      return false;
+    }
+    CarrLeeFXVolatilitySwapVegaCalculator other = (CarrLeeFXVolatilitySwapVegaCalculator) obj;
+    if (Double.doubleToLongBits(_bumpVol) != Double.doubleToLongBits(other._bumpVol)) {
+      return false;
+    }
+    if (_cal == null) {
+      if (other._cal != null) {
+        return false;
+      }
+    } else if (!_cal.equals(other._cal)) {
+      return false;
+    }
+    return true;
   }
 
 }

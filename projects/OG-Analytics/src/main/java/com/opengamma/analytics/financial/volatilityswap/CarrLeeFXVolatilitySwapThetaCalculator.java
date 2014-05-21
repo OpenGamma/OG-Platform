@@ -14,7 +14,23 @@ import com.opengamma.util.ArgumentChecker;
  * Compute theta of forward volatility based on finite difference method
  */
 public class CarrLeeFXVolatilitySwapThetaCalculator extends InstrumentDerivativeVisitorAdapter<CarrLeeFXData, Double> {
-  private static final CarrLeeFXVolatilitySwapCalculator CALCULATOR = new CarrLeeFXVolatilitySwapCalculator();
+  private final CarrLeeFXVolatilitySwapCalculator _cal;
+
+  /**
+   * Constructor using default calculator
+   */
+  public CarrLeeFXVolatilitySwapThetaCalculator() {
+    _cal = new CarrLeeFXVolatilitySwapCalculator();
+  }
+
+  /**
+   * Constructor specifying base calculator
+   * @param cal Base calculator
+   */
+  public CarrLeeFXVolatilitySwapThetaCalculator(final CarrLeeFXVolatilitySwapCalculator cal) {
+    ArgumentChecker.notNull(cal, "cal");
+    _cal = cal;
+  }
 
   /**
    * Theta calculator for FX volatility swap based on "bump and reprice" using {@link VolatilitySwapCalculatorResultWithStrikes}, 
@@ -49,7 +65,7 @@ public class CarrLeeFXVolatilitySwapThetaCalculator extends InstrumentDerivative
 
     final FXVolatilitySwap timeBumpedSwap = new FXVolatilitySwap(bumpedTimeToObservationStart, swap.getTimeToObservationEnd() - timeBumpAmount, swap.getObservationFrequency(),
         swap.getTimeToMaturity() - timeBumpAmount, swap.getVolatilityStrike(), swap.getVolatilityNotional(), swap.getCurrency(), swap.getBaseCurrency(), swap.getCounterCurrency(), aFac);
-    final VolatilitySwapCalculatorResult timeBumpedRes = CALCULATOR.visitFXVolatilitySwap(timeBumpedSwap, data);
+    final VolatilitySwapCalculatorResult timeBumpedRes = _cal.visitFXVolatilitySwap(timeBumpedSwap, data);
     final double timeBumpedFV = timeBumpedRes.getFairValue();
 
     return timeBumpedFV - baseFV;
@@ -60,9 +76,38 @@ public class CarrLeeFXVolatilitySwapThetaCalculator extends InstrumentDerivative
     ArgumentChecker.notNull(swap, "swap");
     ArgumentChecker.notNull(data, "data");
 
-    final CarrLeeFXVolatilitySwapCalculator calculator = new CarrLeeFXVolatilitySwapCalculator();
-    final VolatilitySwapCalculatorResultWithStrikes result = calculator.visitFXVolatilitySwap(swap, data);
+    final VolatilitySwapCalculatorResultWithStrikes result = _cal.visitFXVolatilitySwap(swap, data);
     return getFXVolatilitySwapTheta(result, swap, data);
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((_cal == null) ? 0 : _cal.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (!(obj instanceof CarrLeeFXVolatilitySwapThetaCalculator)) {
+      return false;
+    }
+    CarrLeeFXVolatilitySwapThetaCalculator other = (CarrLeeFXVolatilitySwapThetaCalculator) obj;
+    if (_cal == null) {
+      if (other._cal != null) {
+        return false;
+      }
+    } else if (!_cal.equals(other._cal)) {
+      return false;
+    }
+    return true;
   }
 
 }

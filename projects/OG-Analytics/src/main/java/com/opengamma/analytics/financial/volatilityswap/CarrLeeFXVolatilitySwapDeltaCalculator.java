@@ -23,15 +23,15 @@ import com.opengamma.util.ArgumentChecker;
 public class CarrLeeFXVolatilitySwapDeltaCalculator extends InstrumentDerivativeVisitorAdapter<CarrLeeFXData, Double> {
 
   private static final double DEFAULT_BUMP = 1.0e-5;
-  private static final CarrLeeFXVolatilitySwapCalculator CALCULATOR = new CarrLeeFXVolatilitySwapCalculator();
 
+  private final CarrLeeFXVolatilitySwapCalculator _cal;
   private final double _bumpSpot;
 
   /**
    * Constructor using default bump amount
    */
   public CarrLeeFXVolatilitySwapDeltaCalculator() {
-    _bumpSpot = DEFAULT_BUMP;
+    this(DEFAULT_BUMP);
   }
 
   /**
@@ -40,6 +40,18 @@ public class CarrLeeFXVolatilitySwapDeltaCalculator extends InstrumentDerivative
    */
   public CarrLeeFXVolatilitySwapDeltaCalculator(final double bump) {
     _bumpSpot = bump;
+    _cal = new CarrLeeFXVolatilitySwapCalculator();
+  }
+
+  /**
+   * Constructor specifying bump amount and base calculator
+   * @param bump The bump amount
+   * @param cal Base calculator
+   */
+  public CarrLeeFXVolatilitySwapDeltaCalculator(final double bump, final CarrLeeFXVolatilitySwapCalculator cal) {
+    ArgumentChecker.notNull(cal, "cal");
+    _bumpSpot = bump;
+    _cal = cal;
   }
 
   /**
@@ -58,7 +70,7 @@ public class CarrLeeFXVolatilitySwapDeltaCalculator extends InstrumentDerivative
     final double baseFV = result.getFairValue();
 
     final CarrLeeFXData spotBumpedData = getSpotBumpedData(data);
-    final VolatilitySwapCalculatorResult spotBumpedRes = CALCULATOR.visitFXVolatilitySwap(swap, spotBumpedData);
+    final VolatilitySwapCalculatorResult spotBumpedRes = _cal.visitFXVolatilitySwap(swap, spotBumpedData);
     final double spotBumpedFV = spotBumpedRes.getFairValue();
 
     return (spotBumpedFV - baseFV) / _bumpSpot;
@@ -69,8 +81,7 @@ public class CarrLeeFXVolatilitySwapDeltaCalculator extends InstrumentDerivative
     ArgumentChecker.notNull(swap, "swap");
     ArgumentChecker.notNull(data, "data");
 
-    final CarrLeeFXVolatilitySwapCalculator calculator = new CarrLeeFXVolatilitySwapCalculator();
-    final VolatilitySwapCalculatorResultWithStrikes result = calculator.visitFXVolatilitySwap(swap, data);
+    final VolatilitySwapCalculatorResultWithStrikes result = _cal.visitFXVolatilitySwap(swap, data);
     return getFXVolatilitySwapDelta(result, swap, data);
   }
 
@@ -92,6 +103,42 @@ public class CarrLeeFXVolatilitySwapDeltaCalculator extends InstrumentDerivative
       return new CarrLeeFXData(data.getCurrencyPair(), data.getVolatilityData(), spotBumpedCurves);
     }
     return new CarrLeeFXData(data.getCurrencyPair(), data.getVolatilityData(), spotBumpedCurves, data.getRealizedVariance());
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    long temp;
+    temp = Double.doubleToLongBits(_bumpSpot);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + ((_cal == null) ? 0 : _cal.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (!(obj instanceof CarrLeeFXVolatilitySwapDeltaCalculator)) {
+      return false;
+    }
+    CarrLeeFXVolatilitySwapDeltaCalculator other = (CarrLeeFXVolatilitySwapDeltaCalculator) obj;
+    if (Double.doubleToLongBits(_bumpSpot) != Double.doubleToLongBits(other._bumpSpot)) {
+      return false;
+    }
+    if (_cal == null) {
+      if (other._cal != null) {
+        return false;
+      }
+    } else if (!_cal.equals(other._cal)) {
+      return false;
+    }
+    return true;
   }
 
 }
