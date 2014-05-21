@@ -27,7 +27,7 @@ public class VolatilitySwapFiniteDifferenceGreeksCalculator {
   private static final double DEFAULT_BUMP = 1.0e-5;
   private static final CarrLeeNewlyIssuedSyntheticVolatilitySwapCalculator NEW_CALCULATOR = new CarrLeeNewlyIssuedSyntheticVolatilitySwapCalculator();
   private static final CarrLeeSeasonedSyntheticVolatilitySwapCalculator SEASONED_CALCULATOR = new CarrLeeSeasonedSyntheticVolatilitySwapCalculator();
-  private static final CarrLeeFXVolatilitySwapCalculator COMBINED_CALCULATOR = new CarrLeeFXVolatilitySwapCalculator();
+  private final CarrLeeFXVolatilitySwapCalculator _combinedCal;
 
   private final double _bumpSpot;
   private final double _bumpVol;
@@ -36,8 +36,7 @@ public class VolatilitySwapFiniteDifferenceGreeksCalculator {
    * Constructor using default bump amount
    */
   public VolatilitySwapFiniteDifferenceGreeksCalculator() {
-    _bumpSpot = DEFAULT_BUMP;
-    _bumpVol = _bumpSpot * 1.0e-2;
+    this(DEFAULT_BUMP);
   }
 
   /**
@@ -47,6 +46,18 @@ public class VolatilitySwapFiniteDifferenceGreeksCalculator {
   public VolatilitySwapFiniteDifferenceGreeksCalculator(final double bump) {
     _bumpSpot = bump;
     _bumpVol = _bumpSpot * 1.0e-2;
+    _combinedCal = new CarrLeeFXVolatilitySwapCalculator();
+  }
+
+  /**
+   * Constructor specifying bump amount and base calculator
+   * @param bump The bump amount
+   * @param baseCal Base calculator
+   */
+  public VolatilitySwapFiniteDifferenceGreeksCalculator(final double bump, final CarrLeeFXVolatilitySwapCalculator baseCal) {
+    _bumpSpot = bump;
+    _bumpVol = _bumpSpot * 1.0e-2;
+    _combinedCal = baseCal;
   }
 
   /**
@@ -106,11 +117,11 @@ public class VolatilitySwapFiniteDifferenceGreeksCalculator {
 
     final FXVolatilitySwap timeBumpedSwap = new FXVolatilitySwap(bumpedTimeToObservationStart, swap.getTimeToObservationEnd() - timeBumpAmount, swap.getObservationFrequency(),
         swap.getTimeToMaturity() - timeBumpAmount, swap.getVolatilityStrike(), swap.getVolatilityNotional(), swap.getCurrency(), swap.getBaseCurrency(), swap.getCounterCurrency(), aFac);
-    final VolatilitySwapCalculatorResult timeBumpedRes = COMBINED_CALCULATOR.visitFXVolatilitySwap(timeBumpedSwap, data);
+    final VolatilitySwapCalculatorResult timeBumpedRes = _combinedCal.visitFXVolatilitySwap(timeBumpedSwap, data);
     final double timeBumpedFV = timeBumpedRes.getFairValue();
 
     final CarrLeeFXData spotBumpedData = getSpotBumpedData(data);
-    final VolatilitySwapCalculatorResult spotBumpedRes = COMBINED_CALCULATOR.visitFXVolatilitySwap(swap, spotBumpedData);
+    final VolatilitySwapCalculatorResult spotBumpedRes = _combinedCal.visitFXVolatilitySwap(swap, spotBumpedData);
     final double spotBumpedFV = spotBumpedRes.getFairValue();
 
     if (rv == null) {
@@ -142,8 +153,7 @@ public class VolatilitySwapFiniteDifferenceGreeksCalculator {
     ArgumentChecker.notNull(swap, "swap");
     ArgumentChecker.notNull(data, "data");
 
-    final CarrLeeFXVolatilitySwapCalculator calculator = new CarrLeeFXVolatilitySwapCalculator();
-    final VolatilitySwapCalculatorResultWithStrikes result = calculator.visitFXVolatilitySwap(swap, data);
+    final VolatilitySwapCalculatorResultWithStrikes result = _combinedCal.visitFXVolatilitySwap(swap, data);
     return getFXVolatilitySwapGreeks(result, swap, data);
   }
 
@@ -165,6 +175,47 @@ public class VolatilitySwapFiniteDifferenceGreeksCalculator {
       return new CarrLeeFXData(data.getCurrencyPair(), data.getVolatilityData(), spotBumpedCurves);
     }
     return new CarrLeeFXData(data.getCurrencyPair(), data.getVolatilityData(), spotBumpedCurves, data.getRealizedVariance());
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    long temp;
+    temp = Double.doubleToLongBits(_bumpSpot);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_bumpVol);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + ((_combinedCal == null) ? 0 : _combinedCal.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (!(obj instanceof VolatilitySwapFiniteDifferenceGreeksCalculator)) {
+      return false;
+    }
+    VolatilitySwapFiniteDifferenceGreeksCalculator other = (VolatilitySwapFiniteDifferenceGreeksCalculator) obj;
+    if (Double.doubleToLongBits(_bumpSpot) != Double.doubleToLongBits(other._bumpSpot)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_bumpVol) != Double.doubleToLongBits(other._bumpVol)) {
+      return false;
+    }
+    if (_combinedCal == null) {
+      if (other._combinedCal != null) {
+        return false;
+      }
+    } else if (!_combinedCal.equals(other._combinedCal)) {
+      return false;
+    }
+    return true;
   }
 
 }
