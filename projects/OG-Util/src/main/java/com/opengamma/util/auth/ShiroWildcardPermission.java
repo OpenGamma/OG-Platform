@@ -123,13 +123,13 @@ final class ShiroWildcardPermission implements Permission {
   // this permission is the permission I have
   // the other permission is the permission being checked
   @Override
-  public boolean implies(Permission permission) {
-    if (permission instanceof ShiroWildcardPermission == false) {
+  public boolean implies(Permission requiredPermission) {
+    if (requiredPermission instanceof ShiroWildcardPermission == false) {
       return false;
     }
-    ShiroWildcardPermission perm = (ShiroWildcardPermission) permission;
+    ShiroWildcardPermission requiredPerm = (ShiroWildcardPermission) requiredPermission;
     List<Set<String>> thisSegments = _segments;
-    List<Set<String>> otherSegments = perm._segments;
+    List<Set<String>> otherSegments = requiredPerm._segments;
     if (thisSegments.size() > otherSegments.size()) {
       return false;
     }

@@ -12,7 +12,6 @@ import java.util.Map;
 import org.apache.shiro.authc.credential.DefaultPasswordService;
 import org.apache.shiro.authc.credential.PasswordMatcher;
 import org.apache.shiro.authc.credential.PasswordService;
-import org.apache.shiro.authz.ModularRealmAuthorizer;
 import org.apache.shiro.cache.MemoryConstrainedCacheManager;
 import org.apache.shiro.crypto.hash.DefaultHashService;
 import org.apache.shiro.mgt.SecurityManager;
@@ -171,12 +170,12 @@ public class ShiroSecurityComponentFactory extends AbstractComponentFactory {
     realm.setAuthenticationCachingEnabled(true);
     realm.setAuthorizationCachingEnabled(true);
     realm.setCredentialsMatcher(pwMatcher);
+    realm.setPermissionResolver(AuthUtils.getPermissionResolver());
     // security manager
     DefaultWebSecurityManager sm = new DefaultWebSecurityManager();
     sm.setRealm(realm);
+    sm.setAuthorizer(realm);  // replace ModularRealmAuthorizer as not needed
     sm.setCacheManager(new MemoryConstrainedCacheManager());
-    // unchecked cast to cause RuntimeException if Apache Shiro changed
-    ((ModularRealmAuthorizer) sm.getAuthorizer()).setPermissionResolver(AuthUtils.getPermissionResolver());
     return sm;
   }
 

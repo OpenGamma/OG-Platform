@@ -5,15 +5,14 @@
  */
 package com.opengamma.util.auth;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import org.apache.shiro.authz.AuthorizationException;
 import org.apache.shiro.authz.Permission;
+import org.apache.shiro.authz.UnauthenticatedException;
+import org.apache.shiro.authz.UnauthorizedException;
 import org.apache.shiro.authz.permission.InvalidPermissionStringException;
 import org.apache.shiro.authz.permission.PermissionResolver;
 
@@ -21,6 +20,8 @@ import com.google.common.base.Throwables;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.opengamma.util.ArgumentChecker;
 
@@ -116,13 +117,13 @@ public final class ShiroPermissionResolver implements PermissionResolver {
    * @return the set of permission objects, not null
    * @throws InvalidPermissionStringException if the permission string is invalid
    */
-  public List<Permission> resolvePermissions(String... permissionStrings) {
+  public ImmutableList<Permission> resolvePermissions(String... permissionStrings) {
     ArgumentChecker.notNull(permissionStrings, "permissionStrings");
-    List<Permission> permissions = new ArrayList<>(permissionStrings.length);
+    ImmutableList.Builder<Permission> builder = ImmutableList.builder();
     for (String permissionString : permissionStrings) {
-      permissions.add(resolvePermission(permissionString));
+      builder.add(resolvePermission(permissionString));
     }
-    return permissions;
+    return builder.build();
   }
 
   /**
@@ -134,13 +135,104 @@ public final class ShiroPermissionResolver implements PermissionResolver {
    * @return the set of permission objects, not null
    * @throws InvalidPermissionStringException if the permission string is invalid
    */
-  public Set<Permission> resolvePermissions(Collection<String> permissionStrings) {
+  public ImmutableSet<Permission> resolvePermissions(Collection<String> permissionStrings) {
     ArgumentChecker.notNull(permissionStrings, "permissionStrings");
-    Set<Permission> permissions = new HashSet<>();
+    ImmutableSet.Builder<Permission> builder = ImmutableSet.builder();
     for (String permissionString : permissionStrings) {
-      permissions.add(resolvePermission(permissionString));
+      builder.add(resolvePermission(permissionString));
     }
-    return permissions;
+    return builder.build();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Checks if the subject permissions grant all the required permissions.
+   * <p>
+   * The first collection contains the set of permissions held by the subject.
+   * The second collection contains the permissions that are required.
+   * This returns true if the set of subject permissions grants all the required permissions.
+   * 
+   * @param subjectPermissions  the set of permissions held by the subject, not null
+   * @param requiredPermissions  the permissions that are required, not null
+   * @return true if all the required permissions are granted
+   */
+  public boolean isPermittedAll(Collection<Permission> subjectPermissions, Collection<Permission> requiredPermissions) {
+    // try bulk check
+    for (Permission subjectPermission : subjectPermissions) {
+      if (subjectPermission instanceof ExtendedPermission) {
+        ExtendedPermission subjectPerm = (ExtendedPermission) subjectPermission;
+        Boolean implied = subjectPerm.checkImpliesAll(requiredPermissions, false);
+        if (implied != null) {
+          return implied.booleanValue();
+        }
+      }
+    }
+    // normal non-bulk check
+    for (Permission requiredPermission : requiredPermissions) {
+      if (implies(subjectPermissions, requiredPermission) == false) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  // does one of the subject permissions imply the required permission
+  private boolean implies(Collection<? extends Permission> subjectPermissions, Permission requiredPermission) {
+    for (Permission subjectPermission : subjectPermissions) {
+      if (subjectPermission.implies(requiredPermission)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Checks if the subject permissions grant all the required permissions.
+   * <p>
+   * The first collection contains the set of permissions held by the subject.
+   * The second collection contains the permissions that are required.
+   * This returns true if the set of subject permissions grants all the required permissions.
+   * 
+   * @param subjectPermissions  the set of permissions held by the subject, not null
+   * @param requiredPermissions  the permissions that are required, not null
+   * @throws UnauthenticatedException if permission was denied due to invalid user authentication
+   * @throws UnauthorizedException if the user does not have the requested permission
+   * @throws AuthorizationException if permission was denied due to some other issue
+   */
+  public void checkPermissions(Collection<Permission> subjectPermissions, Collection<Permission> requiredPermissions) {
+    // try bulk check
+    for (Permission subjectPermission : subjectPermissions) {
+      if (subjectPermission instanceof ExtendedPermission) {
+        ExtendedPermission subjectPerm = (ExtendedPermission) subjectPermission;
+        Boolean implied = subjectPerm.checkImpliesAll(requiredPermissions, true);
+        if (implied != null) {
+          if (implied) {
+            return;
+          }
+          throw new UnauthorizedException("Permission denied: " + requiredPermissions);
+        }
+      }
+    }
+    // normal non-bulk check
+    for (Permission requiredPermission : requiredPermissions) {
+      checkImplies(subjectPermissions, requiredPermission);
+    }
+  }
+
+  // does one of the subject permissions imply the required permission, exception if not
+  private void checkImplies(Collection<? extends Permission> subjectPermissions, Permission requiredPermission) {
+    for (Permission subjectPermission : subjectPermissions) {
+      if (subjectPermission instanceof ExtendedPermission) {
+        if (((ExtendedPermission) subjectPermission).checkImplies(requiredPermission)) {
+          return;
+        }
+      } else {
+        if (subjectPermission.implies(requiredPermission)) {
+          return;
+        }
+      }
+    }
+    throw new UnauthorizedException("Permission denied: " + requiredPermission);
   }
 
   //-------------------------------------------------------------------------

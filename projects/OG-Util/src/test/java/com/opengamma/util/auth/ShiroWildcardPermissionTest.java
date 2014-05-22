@@ -167,7 +167,7 @@ public class ShiroWildcardPermissionTest {
   public void test_permissions(String perm1, String perm2, boolean impliesForward, boolean impliesBackward) {
     Permission sp1 = ShiroWildcardPermission.of(perm1);
     Permission sp2 = ShiroWildcardPermission.of(perm2);
-    assertEquals("Foward", impliesForward, sp1.implies(sp2));
+    assertEquals("Forward", impliesForward, sp1.implies(sp2));
     assertEquals("Backward", impliesBackward, sp2.implies(sp1));
   }
 
