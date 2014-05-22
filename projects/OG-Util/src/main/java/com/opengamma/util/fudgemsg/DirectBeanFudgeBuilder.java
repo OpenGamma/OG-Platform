@@ -7,6 +7,7 @@ package com.opengamma.util.fudgemsg;
 
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -31,7 +32,13 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.SortedSetMultimap;
+import com.google.common.collect.TreeMultimap;
 
 /**
  * Builder to convert DirectBean to and from Fudge.
@@ -83,6 +90,9 @@ public final class DirectBeanFudgeBuilder<T extends Bean> implements FudgeBuilde
           } else if (obj instanceof Map<?, ?>) {
             MutableFudgeMsg subMsg = buildMessageMap(serializer, bean.getClass(), prop, (Map<?, ?>) obj);
             msg.add(prop.name(), null, FudgeWireType.SUB_MESSAGE, subMsg);
+          } else if (obj instanceof Multimap<?, ?>) {
+            MutableFudgeMsg subMsg = buildMessageMultimap(serializer, bean.getClass(), prop, (Multimap<?, ?>) obj);
+            msg.add(prop.name(), null, FudgeWireType.SUB_MESSAGE, subMsg);
           } else {
             serializer.addToMessageWithClassHeaders(msg, prop.name(), null, obj, prop.propertyType()); // ignores null
           }
@@ -109,11 +119,24 @@ public final class DirectBeanFudgeBuilder<T extends Bean> implements FudgeBuilde
     return msg;
   }
 
-  private MutableFudgeMsg buildMessageMap(FudgeSerializer serializer, Class<?> beanType, MetaProperty<?> prop, Map<?, ?> map) {
+  private MutableFudgeMsg buildMessageMap(FudgeSerializer serializer, Class<?> beanType, MetaProperty<?> prop,
+                                          Map<?, ?> map) {
+    return buildMessageMapFromEntries(map.entrySet(), serializer, beanType, prop);
+  }
+
+  private MutableFudgeMsg buildMessageMultimap(FudgeSerializer serializer, Class<?> beanType, MetaProperty<?> prop,
+                                               Multimap<?, ?> multimap) {
+    return buildMessageMapFromEntries(multimap.entries(), serializer, beanType, prop);
+  }
+
+  private MutableFudgeMsg buildMessageMapFromEntries(Collection<? extends Map.Entry<?, ?>> entries,
+                                                     FudgeSerializer serializer,
+                                                     Class<?> beanType,
+                                                     MetaProperty<?> prop) {
     Class<?> keyType = JodaBeanUtils.mapKeyType(prop, beanType);
     Class<?> valueType = JodaBeanUtils.mapValueType(prop, beanType);
     MutableFudgeMsg msg = serializer.newMessage();
-    for (Map.Entry<?, ?> entry : map.entrySet()) {
+    for (Map.Entry<?, ?> entry : entries) {
       if (entry.getKey() == null) {
         msg.add(null, 1, FudgeWireType.INDICATOR, IndicatorType.INSTANCE);
       } else if (keyType == null) {
@@ -151,17 +174,33 @@ public final class DirectBeanFudgeBuilder<T extends Bean> implements FudgeBuilde
             } else if (SortedSet.class.isAssignableFrom(mp.propertyType())) {
               value = field.getValue();
               if (value instanceof FudgeMsg) {
-                value = buildObjectSet(deserializer, mp, _metaBean.beanType(), (FudgeMsg) value, new TreeSet<Object>());
+                value = buildObjectSet(deserializer, mp, _metaBean.beanType(), (FudgeMsg) value, new TreeSet<>());
               }
             } else if (Set.class.isAssignableFrom(mp.propertyType())) {
               value = field.getValue();
               if (value instanceof FudgeMsg) {
-                value = buildObjectSet(deserializer, mp, _metaBean.beanType(), (FudgeMsg) value, new LinkedHashSet<Object>());
+                value = buildObjectSet(deserializer, mp, _metaBean.beanType(), (FudgeMsg) value, new LinkedHashSet<>());
               }
             } else if (Map.class.isAssignableFrom(mp.propertyType())) {
               value = field.getValue();
               if (value instanceof FudgeMsg) {
                 value = buildObjectMap(deserializer, mp, _metaBean.beanType(), (FudgeMsg) value);
+              }
+            } else if (ListMultimap.class.isAssignableFrom(mp.propertyType())) {
+              value = field.getValue();
+              if (value instanceof FudgeMsg) {
+                value = buildObjectMultimap(deserializer, mp, _metaBean.beanType(), (FudgeMsg) value, ArrayListMultimap.create());
+              }
+            } else if (SortedSetMultimap.class.isAssignableFrom(mp.propertyType())) {
+              value = field.getValue();
+              if (value instanceof FudgeMsg) {
+                value = buildObjectMultimap(deserializer, mp, _metaBean.beanType(), (FudgeMsg) value, TreeMultimap.create());
+              }
+            } else if (Multimap.class.isAssignableFrom(mp.propertyType())) {
+              // In the absence of other information we'll create a hash multimap
+              value = field.getValue();
+              if (value instanceof FudgeMsg) {
+                value = buildObjectMultimap(deserializer, mp, _metaBean.beanType(), (FudgeMsg) value, HashMultimap.create());
               }
             }
             if (value == null) {
@@ -219,8 +258,8 @@ public final class DirectBeanFudgeBuilder<T extends Bean> implements FudgeBuilde
     Class<?> valueType = JodaBeanUtils.mapValueType(prop, type);
     boolean valueAbstractOrInterface = (valueType == null || valueType.isInterface() || Modifier.isAbstract(valueType.getModifiers()));
     Map<Object, Object> map = Maps.newHashMap();  // should be Map<keyType,contentType>
-    Queue<Object> keys = new LinkedList<Object>();
-    Queue<Object> values = new LinkedList<Object>();
+    Queue<Object> keys = new LinkedList<>();
+    Queue<Object> values = new LinkedList<>();
     for (FudgeField field : msg) {
       if (field.getOrdinal() == 1) {
         Object fieldValue = (keyAbstractOrInterface ? deserializer.fieldValueToObject(field) : deserializer.fieldValueToObject(keyType, field));
@@ -251,6 +290,51 @@ public final class DirectBeanFudgeBuilder<T extends Bean> implements FudgeBuilde
       }
     }
     return map;
+  }
+
+  @SuppressWarnings("unchecked")
+  private Multimap<Object, Object> buildObjectMultimap(FudgeDeserializer deserializer,
+                                                       MetaProperty<?> prop,
+                                                       Class<?> type,
+                                                       FudgeMsg msg,
+                                                       Multimap multimap) {
+
+    Class<?> keyType = JodaBeanUtils.mapKeyType(prop, type);
+    boolean keyAbstractOrInterface = (keyType == null || keyType.isInterface() || Modifier.isAbstract(keyType.getModifiers()));
+    Class<?> valueType = JodaBeanUtils.mapValueType(prop, type);
+    boolean valueAbstractOrInterface = (valueType == null || valueType.isInterface() || Modifier.isAbstract(valueType.getModifiers()));
+    Queue<Object> keys = new LinkedList<>();
+    Queue<Object> values = new LinkedList<>();
+    for (FudgeField field : msg) {
+      if (field.getOrdinal() == 1) {
+        Object fieldValue = (keyAbstractOrInterface ? deserializer.fieldValueToObject(field) : deserializer.fieldValueToObject(keyType, field));
+        if (fieldValue instanceof IndicatorType) {
+          fieldValue = null;
+        }
+        if (values.isEmpty()) {
+          // no values ready, so store the key till next time
+          keys.add(fieldValue);
+        } else {
+          // store key along with next value
+          multimap.put(fieldValue, values.remove());
+        }
+      } else if (field.getOrdinal() == 2) {
+        Object fieldValue = (valueAbstractOrInterface ? deserializer.fieldValueToObject(field) : deserializer.fieldValueToObject(valueType, field));
+        if (fieldValue instanceof IndicatorType) {
+          fieldValue = null;
+        }
+        if (keys.isEmpty()) {
+          // no keys ready, so store the value till next time
+          values.add(fieldValue);
+        } else {
+          // store value along with next key
+          multimap.put(keys.remove(), fieldValue);
+        }
+      } else {
+        throw new IllegalArgumentException("Sub-message doesn't contain a map (bad field " + field + ")");
+      }
+    }
+    return multimap;
   }
 
 }
