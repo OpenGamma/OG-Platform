@@ -30,8 +30,10 @@ import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.provider.permission.PermissionCheckProvider;
 import com.opengamma.provider.permission.impl.DataPermissionCheckProviderResource;
+import com.opengamma.provider.permission.impl.ProviderBasedPermissionResolver;
 import com.opengamma.provider.permission.impl.RemotePermissionCheckProvider;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.auth.AuthUtils;
 
 /**
  * Component factory for the Bloomberg permission check provider.
@@ -77,10 +79,15 @@ public class BloombergBpipePermissionCheckProviderComponentFactory extends Abstr
     info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemotePermissionCheckProvider.class);
     info.addAttribute(ComponentInfoAttributes.ACCEPTED_TYPES, BloombergPermissions.BLOOMBERG_PREFIX);
 
-    BloombergBpipePermissionCheckProvider provider = new BloombergBpipePermissionCheckProvider(getBloombergConnector(), getIdentityExpiryTime());
+    BloombergBpipePermissionCheckProvider provider = new BloombergBpipePermissionCheckProvider(
+        getBloombergConnector(), getIdentityExpiryTime());
     repo.registerComponent(info, provider);
     if (isPublishRest()) {
       repo.getRestComponents().publish(info, new DataPermissionCheckProviderResource(provider));
+    }
+    if (AuthUtils.isPermissive() == false) {
+      AuthUtils.getPermissionResolver().register(
+          new ProviderBasedPermissionResolver(BloombergPermissions.BLOOMBERG_PREFIX, provider));
     }
   }
 
