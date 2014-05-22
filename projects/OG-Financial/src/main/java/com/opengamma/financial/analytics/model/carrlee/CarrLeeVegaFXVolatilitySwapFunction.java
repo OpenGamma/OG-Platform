@@ -46,7 +46,7 @@ public class CarrLeeVegaFXVolatilitySwapFunction extends CarrLeeFXVolatilitySwap
 
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
-    return new CarrLeeFXVolatilitySwapCompiledFunction(getTargetToDefinitionConverter(context), getDefinitionToDerivativeConverter(context), true) {
+    return new CarrLeeFXVolatilitySwapCompiledFunction(getTargetToDefinitionConverter(context), getDefinitionToDerivativeConverter(context), false) {
 
       @SuppressWarnings("synthetic-access")
       @Override
