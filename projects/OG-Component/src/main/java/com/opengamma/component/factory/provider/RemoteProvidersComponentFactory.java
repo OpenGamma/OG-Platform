@@ -95,7 +95,8 @@ public class RemoteProvidersComponentFactory extends AbstractComponentFactory {
     if (AuthUtils.isPermissive() == false && info.getAttributes().containsKey(ComponentInfoAttributes.ACCEPTED_TYPES)) {
       String[] permissionPrefixes = StringUtils.split(info.getAttribute(ComponentInfoAttributes.ACCEPTED_TYPES), ',');
       for (String permissionPrefix : permissionPrefixes) {
-        AuthUtils.getPermissionResolver().registerPrefix(permissionPrefix, new ProviderBasedPermissionResolver(provider));
+        AuthUtils.getPermissionResolver().register(
+            new ProviderBasedPermissionResolver(permissionPrefix, provider));
       }
     }
   }

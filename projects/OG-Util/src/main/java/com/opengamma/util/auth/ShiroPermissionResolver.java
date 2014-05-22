@@ -5,9 +5,10 @@
  */
 package com.opengamma.util.auth;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Map.Entry;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -57,7 +58,7 @@ public final class ShiroPermissionResolver implements PermissionResolver {
    * A pluggable set of resolvers by prefix.
    * Registration should occur only during startup, but still need concurrent map.
    */
-  private final ConcurrentMap<String, PermissionResolver> _prefixResolvers = new ConcurrentHashMap<>(16, 0.75f, 1);
+  private final ConcurrentMap<String, PrefixedPermissionResolver> _prefixed = new ConcurrentHashMap<>(16, 0.75f, 1);
 
   /**
    * Creates an instance.
@@ -67,16 +68,18 @@ public final class ShiroPermissionResolver implements PermissionResolver {
 
   //-------------------------------------------------------------------------
   /**
-   * Registers a prefix that maps to a different permission resolver.
+   * Registers a factory that handles permissions with a specific prefix.
+   * <p>
+   * This allows different implementations of the {@code Permission} interface
+   * to be created based on a prefix.
    * 
-   * @param prefix  the permission prefix, not null
    * @param resolver  the permission resolver, not null
    * @throws IllegalArgumentException if the prefix is already registered
    */
-  public void registerPrefix(String prefix, PermissionResolver resolver) {
-    ArgumentChecker.notNull(prefix, "prefix");
+  public void register(PrefixedPermissionResolver resolver) {
     ArgumentChecker.notNull(resolver, "resolver");
-    PermissionResolver existing = _prefixResolvers.putIfAbsent(prefix, resolver);
+    ArgumentChecker.notNull(resolver.getPrefix(), "resovler.prefix");
+    PrefixedPermissionResolver existing = _prefixed.putIfAbsent(resolver.getPrefix(), resolver);
     if (existing != null && existing.equals(resolver) == false) {
       throw new IllegalArgumentException("Prefix is already registered");
     }
@@ -113,6 +116,24 @@ public final class ShiroPermissionResolver implements PermissionResolver {
    * @return the set of permission objects, not null
    * @throws InvalidPermissionStringException if the permission string is invalid
    */
+  public List<Permission> resolvePermissions(String... permissionStrings) {
+    ArgumentChecker.notNull(permissionStrings, "permissionStrings");
+    List<Permission> permissions = new ArrayList<>(permissionStrings.length);
+    for (String permissionString : permissionStrings) {
+      permissions.add(resolvePermission(permissionString));
+    }
+    return permissions;
+  }
+
+  /**
+   * Resolves a set of permissions from string to object form.
+   * <p>
+   * The returned set of permissions may be smaller than the input set.
+   * 
+   * @param permissionStrings  the set of permission strings, not null
+   * @return the set of permission objects, not null
+   * @throws InvalidPermissionStringException if the permission string is invalid
+   */
   public Set<Permission> resolvePermissions(Collection<String> permissionStrings) {
     ArgumentChecker.notNull(permissionStrings, "permissionStrings");
     Set<Permission> permissions = new HashSet<>();
@@ -131,17 +152,17 @@ public final class ShiroPermissionResolver implements PermissionResolver {
    * <p>
    * This is called directly from the cache.
    * 
-   * @param permissionStr  the permission string, not null
+   * @param permissionString  the permission string, not null
    * @return the new permission object, not null
    * @throws InvalidPermissionStringException if the permission string is invalid
    */
-  private Permission doResolvePermission(String permissionStr) {
-    for (Entry<String, PermissionResolver> entry : _prefixResolvers.entrySet()) {
-      if (permissionStr.startsWith(entry.getKey())) {
-        return entry.getValue().resolvePermission(permissionStr);
+  private Permission doResolvePermission(String permissionString) {
+    for (PrefixedPermissionResolver prefixedResolver : _prefixed.values()) {
+      if (permissionString.startsWith(prefixedResolver.getPrefix())) {
+        return prefixedResolver.resolvePermission(permissionString);
       }
     }
-    return ShiroWildcardPermission.of(permissionStr);
+    return ShiroWildcardPermission.of(permissionString);
   }
 
 }
