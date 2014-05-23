@@ -79,7 +79,6 @@ public final class ShiroPermissionResolver implements PermissionResolver {
    */
   public void register(PrefixedPermissionResolver resolver) {
     ArgumentChecker.notNull(resolver, "resolver");
-    ArgumentChecker.notNull(resolver.getPrefix(), "resovler.prefix");
     PrefixedPermissionResolver existing = _prefixed.putIfAbsent(resolver.getPrefix(), resolver);
     if (existing != null && existing.equals(resolver) == false) {
       throw new IllegalArgumentException("Prefix is already registered");
