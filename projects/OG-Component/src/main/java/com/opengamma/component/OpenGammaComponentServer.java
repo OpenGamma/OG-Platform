@@ -371,10 +371,10 @@ public class OpenGammaComponentServer {
    */
   protected void checkSecurityManager() {
     try {
-      if (AuthUtils.isPermissive()) {
-        _logger.logWarn("*********************************************************");
-        _logger.logWarn(" Warning: Server running with permissive SecurityManager ");
-        _logger.logWarn("*********************************************************");
+      if (AuthUtils.isDefault()) {
+        _logger.logWarn("*****************************************************************");
+        _logger.logWarn(" Warning: Server running with default permissive SecurityManager ");
+        _logger.logWarn("*****************************************************************");
       }
     } catch (UnavailableSecurityManagerException ex) {
       _logger.logError("***************************************************");

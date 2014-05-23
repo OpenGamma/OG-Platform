@@ -5,8 +5,6 @@
  */
 package com.opengamma.util;
 
-import com.opengamma.util.auth.AuthUtils;
-
 /**
  * Utility method to be run at system startup.
  */
@@ -31,8 +29,6 @@ public final class StartupUtils {
       if (System.getProperties().containsKey("org.terracotta.quartz.skipUpdateCheck") == false) {
         System.setProperty("org.terracotta.quartz.skipUpdateCheck", "true");
       }
-      // setup permissive security manager
-      AuthUtils.initPermissive();
       
     } catch (SecurityException ex) {
       // ignore silently

@@ -8,11 +8,13 @@ package com.opengamma.util.auth;
 import java.util.Set;
 
 import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.UnavailableSecurityManagerException;
+import org.apache.shiro.ShiroException;
 import org.apache.shiro.authz.AuthorizationException;
 import org.apache.shiro.authz.Permission;
 import org.apache.shiro.authz.permission.PermissionResolver;
+import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.subject.Subject;
+import org.apache.shiro.util.ThreadContext;
 
 import com.opengamma.util.ArgumentChecker;
 
@@ -21,12 +23,17 @@ import com.opengamma.util.ArgumentChecker;
  * <p>
  * This class is used instead of the standard Apache Shiro {@code SecurityUtils}.
  */
-public final class AuthUtils extends SecurityUtils {
+public final class AuthUtils {
 
   /**
    * The singleton permission resolver.
    */
   private static final ShiroPermissionResolver s_permissionResolver = new ShiroPermissionResolver();
+
+  // always setup a security manager
+  static {
+    SecurityUtils.setSecurityManager(PermissiveSecurityManager.DEFAULT);
+  }
 
   /**
    * Restricted constructor.
@@ -52,11 +59,44 @@ public final class AuthUtils extends SecurityUtils {
 
   //-------------------------------------------------------------------------
   /**
+   * Gets the single shared security manager.
+   * <p>
+   * The shared security manager is used as a fallback when there is no manager
+   * in the {@link ThreadContext}.
+   * This will return a permissive security manager by default.
+   * 
+   * @return the security manager, not null
+   */
+  public static SecurityManager getSecurityManager() {
+    return SecurityUtils.getSecurityManager();
+  }
+
+  /**
+   * Sets the single shared security manager.
+   * <p>
+   * The shared security manager is used as a fallback when there is no manager
+   * in the {@link ThreadContext}.
+   * This method can only be called if the current manager is permissive.
+   * 
+   * @param securityManager  the new security manager, not null
+   */
+  public static void initSecurityManager(SecurityManager securityManager) {
+    if (isPermissive()) {
+      SecurityUtils.setSecurityManager(securityManager);
+    } else {
+      throw new ShiroException("A security manager cannot be changed once set");
+    }
+  }
+
+  /**
    * Initializes the authentication and authorization system to permissive mode.
    * Permissive mode has a logged on user with all permissions granted.
+   * <p>
+   * This is used during startup to deliberately select a mode of operation
+   * where security is switched off.
    */
-  public static void initPermissive() {
-    setSecurityManager(new PermissiveSecurityManager());
+  public static void initSecurityManagerPermissive() {
+    initSecurityManager(new PermissiveSecurityManager());
   }
 
   /**
@@ -64,10 +104,19 @@ public final class AuthUtils extends SecurityUtils {
    * Permissive mode has a logged on user with all permissions granted.
    * 
    * @return true if permissive
-   * @throws UnavailableSecurityManagerException if no security manager is installed
    */
   public static boolean isPermissive() {
     return getSecurityManager() instanceof PermissiveSecurityManager;
+  }
+
+  /**
+   * Checks if the authentication and authorization system is still in the
+   * default permissive mode.
+   * 
+   * @return true if the security manager has not been set
+   */
+  public static boolean isDefault() {
+    return getSecurityManager() == PermissiveSecurityManager.DEFAULT;
   }
 
   //-------------------------------------------------------------------------

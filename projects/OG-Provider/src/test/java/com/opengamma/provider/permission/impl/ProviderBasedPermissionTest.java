@@ -11,7 +11,10 @@ import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
 
 import org.apache.shiro.authz.Permission;
+import org.apache.shiro.mgt.DefaultSecurityManager;
+import org.apache.shiro.util.ThreadContext;
 import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.opengamma.core.user.UserPrincipals;
@@ -21,19 +24,17 @@ import com.opengamma.provider.permission.PermissionCheckProvider;
 import com.opengamma.util.auth.AuthUtils;
 import com.opengamma.util.auth.ShiroPermissionResolver;
 import com.opengamma.util.test.TestGroup;
-import com.opengamma.util.test.TestUtils;
 
 /**
  * Test.
  */
-@Test(groups = TestGroup.UNIT)
+@Test(groups = TestGroup.UNIT, singleThreaded = true)
 public class ProviderBasedPermissionTest {
 
   private static final Permission SHIRO_PERM = new ShiroPermissionResolver().resolvePermission("Data:12345");
   private static final ExternalIdBundle USER_BUNDLE = ExternalIdBundle.of("DATAUSER", "TEST");
   private static final UserPrincipals PRINCIPALS;
   static {
-    TestUtils.initSecurity();
     SimpleUserPrincipals principals = new SimpleUserPrincipals();
     principals.setUserName("Tester");
     principals.setAlternateIds(USER_BUNDLE);
@@ -41,9 +42,15 @@ public class ProviderBasedPermissionTest {
     PRINCIPALS = principals;
   }
 
+  @BeforeMethod
+  public void setUp() {
+    ThreadContext.bind(new DefaultSecurityManager());
+  }
+
   @AfterMethod
   public void tearDown() {
-    AuthUtils.getSubject().getSession().removeAttribute(UserPrincipals.ATTRIBUTE_KEY);
+    ThreadContext.unbindSubject();
+    ThreadContext.unbindSecurityManager();
   }
 
   @Test

@@ -21,7 +21,12 @@ import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 /**
  * An Apache Shiro {@code SecurityManager} that permits everything.
  */
-public class PermissiveSecurityManager extends DefaultWebSecurityManager {
+public final class PermissiveSecurityManager extends DefaultWebSecurityManager {
+
+  /**
+   * The default security manager
+   */
+  static final PermissiveSecurityManager DEFAULT = new PermissiveSecurityManager();
 
   /**
    * Creates an instance.
@@ -46,7 +51,7 @@ public class PermissiveSecurityManager extends DefaultWebSecurityManager {
   /**
    * An Apache Shiro {@code Realm} that permits everything.
    */
-  public class PermissiveRealm extends AuthorizingRealm {
+  class PermissiveRealm extends AuthorizingRealm {
 
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {

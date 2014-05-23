@@ -32,7 +32,6 @@ import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.impl.AbstractSecurityLoader;
 import com.opengamma.master.security.impl.InMemorySecurityMaster;
 import com.opengamma.util.test.TestGroup;
-import com.opengamma.util.test.TestUtils;
 import com.opengamma.web.FreemarkerOutputter;
 import com.opengamma.web.MockUriInfo;
 import com.opengamma.web.WebResourceTestUtils;
@@ -54,7 +53,6 @@ public abstract class AbstractWebSecurityResourceTestCase extends AbstractSecuri
 
   @BeforeMethod(groups = TestGroup.UNIT)
   public void setUp() throws Exception {
-    TestUtils.initSecurity();
     _uriInfo = new MockUriInfo(true);
     _secMaster = new InMemorySecurityMaster();
     _secLoader = new AbstractSecurityLoader() {

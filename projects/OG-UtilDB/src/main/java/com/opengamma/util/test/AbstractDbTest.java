@@ -68,7 +68,6 @@ public abstract class AbstractDbTest implements TableCreationCallback {
    */
   @BeforeClass(alwaysRun = true)
   public final void setUpClass() throws Exception {
-    TestUtils.initSecurity();
     doSetUpClass();
   }
 

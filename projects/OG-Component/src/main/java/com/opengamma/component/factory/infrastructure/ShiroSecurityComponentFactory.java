@@ -97,10 +97,10 @@ public class ShiroSecurityComponentFactory extends AbstractComponentFactory {
       ArgumentChecker.notNull(getPrivateSalt(), "privateSalt");
       PasswordService pwService = initPasswordService(repo);
       SecurityManager securityManager = initSecurityManager(repo, pwService);
-      AuthUtils.setSecurityManager(securityManager);
+      AuthUtils.initSecurityManager(securityManager);
     } else {
       SecurityManager securityManager = initPermissiveSecurityManager(repo);
-      AuthUtils.setSecurityManager(securityManager);
+      AuthUtils.initSecurityManager(securityManager);
     }
   }
 
