@@ -5,6 +5,7 @@
  */
 package com.opengamma.integration.marketdata.manipulator.dsl;
 
+import static com.opengamma.engine.value.ValueRequirementNames.BLACK_VOLATILITY_SURFACE;
 import static com.opengamma.engine.value.ValueRequirementNames.INTERPOLATED_VOLATILITY_SURFACE;
 import static com.opengamma.engine.value.ValueRequirementNames.VOLATILITY_SURFACE;
 
@@ -18,7 +19,6 @@ import com.opengamma.engine.marketdata.manipulator.DistinctMarketDataSelector;
 import com.opengamma.engine.marketdata.manipulator.SelectorResolver;
 import com.opengamma.engine.value.SurfaceAndCubePropertyNames;
 import com.opengamma.engine.value.ValuePropertyNames;
-import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
@@ -28,7 +28,9 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class VolatilitySurfaceSelector implements DistinctMarketDataSelector {
 
-  private static final ImmutableSet<String> s_compatibleVRNames = ImmutableSet.of(INTERPOLATED_VOLATILITY_SURFACE, VOLATILITY_SURFACE);
+  private static final ImmutableSet<String> s_compatibleVRNames = ImmutableSet.of(INTERPOLATED_VOLATILITY_SURFACE, 
+                                                                                  VOLATILITY_SURFACE, 
+                                                                                  BLACK_VOLATILITY_SURFACE);
   
   
   private final Set<String> _calcConfigNames;
