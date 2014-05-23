@@ -6,6 +6,26 @@ These release notes cover changes from v2.1 to v2.2.
 Upgrading from 2.1.0
 ====================
 
+To 2.2.0-M24
+------------
+
+* Bug
+    * [PLAT-6481] - CsvSnapshotWriter prints the same X axis label in Y column
+    * [PLAT-6497] - Assertion message is incorrect for CouponFloatingDefinition constructor
+    * [PLAT-6511] - VolatilitySurfaceSelector does not support value requirement name 'BlackVolatilitySurface'
+    * [PLAT-6522] - Class conversion issue occurs where no curve exposure exists for Bond PV01s
+    * [PLAT-6523] - Useless error is thrown by ConfigDBInstrumentExposuresProvider when exposure can't be resolved
+    * [PLAT-6528] - Failure constructor loses underlying exception
+* Improvement
+    * [PLAT-6525] - Add multimap support to fudge/joda conversion
+    * [PLAT-6530] - Provide mechanism to avoid security warning on startup
+* New Feature
+    * [PLAT-6514] - Add BucketedPV01 for BondTRS
+    * [PLAT-6515] - Add currency exposure for BondTRS
+* Sub-task
+    * [PLAT-6496] - OG-Analytics: Coupon Ibor Compounding with Spread Simple Interest - updating floating annuity definition builder
+
+
 To 2.2.0-M23
 ------------
 
