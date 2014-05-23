@@ -24,11 +24,13 @@ import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.curve.Curve;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 import com.opengamma.analytics.math.interpolation.StepInterpolator1D;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.test.TestGroup;
+import com.opengamma.util.tuple.Pairs;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class InterpolatedFromCurvesDoublesSurfaceTest {
   private static final String NAME = "L";
   private static final ConstantDoublesCurve C1 = ConstantDoublesCurve.from(3.);
@@ -291,12 +293,12 @@ public class InterpolatedFromCurvesDoublesSurfaceTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullX2() {
-    SURFACE.getZValue(Pair.of((Double) null, 2.));
+    SURFACE.getZValue(Pairs.of((Double) null, 2.));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullY2() {
-    SURFACE.getZValue(Pair.of(1., (Double) null));
+    SURFACE.getZValue(Pairs.of(1., (Double) null));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

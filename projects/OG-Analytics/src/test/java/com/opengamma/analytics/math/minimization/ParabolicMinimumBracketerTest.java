@@ -12,10 +12,12 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.math.FunctionUtils;
 import com.opengamma.analytics.math.MathException;
 import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class ParabolicMinimumBracketerTest extends MinimumBracketerTestCase {
   private static final MinimumBracketer BRACKETER = new ParabolicMinimumBracketer();
   private static final Function1D<Double, Double> LINEAR = new Function1D<Double, Double>() {

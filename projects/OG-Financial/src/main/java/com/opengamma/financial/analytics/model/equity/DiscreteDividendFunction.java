@@ -15,7 +15,6 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.equity.variance.pricing.AffineDividends;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.core.id.ExternalSchemes;
@@ -68,24 +67,25 @@ public class DiscreteDividendFunction extends AbstractFunction.NonCompiledInvoke
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
     
-    // The frequency sets up an interval
-    final int nDividendsPerYear = 4; 
-    final Object dividendFrequencyInput = inputs.getValue(MarketDataRequirementNames.DIVIDEND_FREQUENCY);
-    if (dividendFrequencyInput != null && !dividendFrequencyInput.equals(4.0)) {
-      s_logger.warn("Unrecognized dividend frequency. Trivial to add handling for this. Defaulting to 4 / year.");
+    // The frequency sets up an interval 
+    Double nDividendsPerYear = (Double) inputs.getValue(MarketDataRequirementNames.DIVIDEND_FREQUENCY);
+    if (nDividendsPerYear == null) {
+      s_logger.debug("No dividend frequency - defaulting to 4 per year");
+      nDividendsPerYear = 4.0;
     }
     final double dividendInterval = 1.0 / nDividendsPerYear;
     final int nDividends = (int) Math.ceil(getDividendHorizon() * nDividendsPerYear);
     
     // The next dividend date anchors the vector of dividend times
-    final double firstDivTime;
+    double firstDivTime;
     final Object nextDividendInput = inputs.getValue(MarketDataRequirementNames.NEXT_DIVIDEND_DATE);
     if (nextDividendInput != null) {
       final LocalDate nextDividendDate = DateUtils.toLocalDate(nextDividendInput);
       final LocalDate valuationDate = ZonedDateTime.now(executionContext.getValuationClock()).toLocalDate();
       firstDivTime = TimeCalculator.getTimeBetween(valuationDate, nextDividendDate);
       if (firstDivTime < 0.0) {
-        throw new OpenGammaRuntimeException("Next_Dividend Date is in the past. Shall we estimate next future date and continue?");
+        s_logger.warn("Next_Dividend Date is in the past. We will estimate next future date and continue. See [ACTIV-62]");
+        firstDivTime = dividendInterval; // TODO: Review [ACTIV-62]
       }
     } else {
       firstDivTime = dividendInterval;
@@ -151,7 +151,12 @@ public class DiscreteDividendFunction extends AbstractFunction.NonCompiledInvoke
   public boolean canHandleMissingInputs() {
     return true;
   }
-
+  
+  @Override
+  public boolean canHandleMissingRequirements() {
+    return true;
+  }
+  
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.AFFINE_DIVIDENDS, target.toSpecification(), getValuePropertiesBuilder().get()));

@@ -5,12 +5,13 @@
  */
 package com.opengamma.web.analytics.blotter;
 
-import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 import java.util.Map;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
+import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
 import org.testng.annotations.Test;
@@ -62,7 +63,7 @@ public class BeanBuildingVisitorTest {
     BeanBuilder<ManageableSecurity> beanBuilder =
         (BeanBuilder<ManageableSecurity>) new BeanTraverser(s_securityTypeFilter).traverse(metaBean, visitor);
     ManageableSecurity security = beanBuilder.build();
-    assertEquals(BlotterTestUtils.FX_FORWARD, security);
+    assertTrue(JodaBeanUtils.equalIgnoring(BlotterTestUtils.FX_FORWARD, security, ManageableSecurity.meta().uniqueId()));
   }
 
   /**
@@ -77,6 +78,6 @@ public class BeanBuildingVisitorTest {
     BeanBuilder<ManageableSecurity> beanBuilder =
         (BeanBuilder<ManageableSecurity>) new BeanTraverser(s_securityTypeFilter).traverse(metaBean, visitor);
     ManageableSecurity security = beanBuilder.build();
-    assertEquals(BlotterTestUtils.SWAP, security);
+    assertTrue(JodaBeanUtils.equalIgnoring(BlotterTestUtils.SWAP, security, ManageableSecurity.meta().uniqueId()));
   }
 }

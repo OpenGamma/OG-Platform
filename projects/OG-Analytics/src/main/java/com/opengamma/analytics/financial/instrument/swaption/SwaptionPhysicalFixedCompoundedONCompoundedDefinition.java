@@ -39,6 +39,10 @@ public final class SwaptionPhysicalFixedCompoundedONCompoundedDefinition impleme
    */
   private final boolean _isLong;
   /**
+   * Flag indicating if the option is a call (true) or put (false).
+   */
+  private final boolean _isCall;
+  /**
    * The swaption expiry.
    */
   private final Expiry _expiry;
@@ -52,12 +56,14 @@ public final class SwaptionPhysicalFixedCompoundedONCompoundedDefinition impleme
   private final ZonedDateTime _settlementDate;
 
   /**
-   * Constructor from the expiry date, the underlying swap and the long/short flqg.
+   * Constructor from the expiry date, the underlying swap and the long/short flag.
    * @param expiryDate The expiry date.
    * @param underlyingSwap The underlying swap.
+   * @param isCall The call / put flag.
    * @param isLong The long (true) / short (false) flag.
    */
-  private SwaptionPhysicalFixedCompoundedONCompoundedDefinition(final ZonedDateTime expiryDate, final SwapFixedCompoundedONCompoundedDefinition underlyingSwap, final boolean isLong) {
+  private SwaptionPhysicalFixedCompoundedONCompoundedDefinition(final ZonedDateTime expiryDate, final SwapFixedCompoundedONCompoundedDefinition underlyingSwap,
+      final boolean isCall, final boolean isLong) {
     ArgumentChecker.notNull(expiryDate, "expiry date");
     ArgumentChecker.notNull(underlyingSwap, "underlying swap");
     final AnnuityDefinition<CouponFixedAccruedCompoundingDefinition> fixedLeg = underlyingSwap.getFixedLeg();
@@ -65,6 +71,7 @@ public final class SwaptionPhysicalFixedCompoundedONCompoundedDefinition impleme
     _currency = fixedLeg.getCurrency();
     _settlementDate = fixedLeg.getNthPayment(0).getAccrualStartDate();
     _isLong = isLong;
+    _isCall = isCall;
     _expiry = new Expiry(expiryDate);
   }
 
@@ -73,13 +80,15 @@ public final class SwaptionPhysicalFixedCompoundedONCompoundedDefinition impleme
    * strike can be different for each coupon and need to be computed at the pricing method level.
    * @param expiryDate The expiry date.
    * @param underlyingSwap The underlying swap.
+   * @param isCall The call / put flag
    * @param isLong The long (true) / short (false) flag.
    * @return The swaption.
    */
-  public static SwaptionPhysicalFixedCompoundedONCompoundedDefinition from(final ZonedDateTime expiryDate, final SwapFixedCompoundedONCompoundedDefinition underlyingSwap, final boolean isLong) {
+  public static SwaptionPhysicalFixedCompoundedONCompoundedDefinition from(final ZonedDateTime expiryDate, final SwapFixedCompoundedONCompoundedDefinition underlyingSwap,
+      final boolean isCall, final boolean isLong) {
     ArgumentChecker.notNull(expiryDate, "expiry date");
     ArgumentChecker.notNull(underlyingSwap, "underlying swap");
-    return new SwaptionPhysicalFixedCompoundedONCompoundedDefinition(expiryDate, underlyingSwap, isLong);
+    return new SwaptionPhysicalFixedCompoundedONCompoundedDefinition(expiryDate, underlyingSwap, isCall, isLong);
   }
 
   /**
@@ -91,11 +100,19 @@ public final class SwaptionPhysicalFixedCompoundedONCompoundedDefinition impleme
   }
 
   /**
-   * Gets the _isLong flag.
-   * @return The Long (true)/Short (false) flag.
+   * Gets the long / short flag.
+   * @return True if the option is long
    */
   public boolean isLong() {
     return _isLong;
+  }
+
+  /**
+   * Gets the call / put flag.
+   * @return True if the option is a call
+   */
+  public boolean isCall() {
+    return _isCall;
   }
 
   /**
@@ -126,14 +143,12 @@ public final class SwaptionPhysicalFixedCompoundedONCompoundedDefinition impleme
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     ArgumentChecker.notNull(visitor, "visitor");
     return null;
-//    return visitor.visitSwaptionPhysicalFixedIborDefinition(this, data);
   }
 
   @Override
   public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
     ArgumentChecker.notNull(visitor, "visitor");
     return null;
-//    return visitor.visitSwaptionPhysicalFixedIborDefinition(this);
   }
 
   /**
@@ -151,7 +166,7 @@ public final class SwaptionPhysicalFixedCompoundedONCompoundedDefinition impleme
     final double settlementTime = TimeCalculator.getTimeBetween(dateTime, _settlementDate);
     final Swap<CouponFixedAccruedCompounding, CouponONCompounded> underlyingSwap = (Swap<CouponFixedAccruedCompounding, CouponONCompounded>)
         _underlyingSwap.toDerivative(dateTime, yieldCurveNames);
-    return SwaptionPhysicalFixedCompoundedONCompounded.from(expiryTime, underlyingSwap, settlementTime, _isLong);
+    return SwaptionPhysicalFixedCompoundedONCompounded.from(expiryTime, underlyingSwap, settlementTime, _isCall, _isLong);
   }
 
   @Override
@@ -163,7 +178,7 @@ public final class SwaptionPhysicalFixedCompoundedONCompoundedDefinition impleme
     final double settlementTime = TimeCalculator.getTimeBetween(dateTime, _settlementDate);
     final Swap<CouponFixedAccruedCompounding, CouponONCompounded> underlyingSwap = (Swap<CouponFixedAccruedCompounding, CouponONCompounded>)
         _underlyingSwap.toDerivative(dateTime);
-    return SwaptionPhysicalFixedCompoundedONCompounded.from(expiryTime, underlyingSwap, settlementTime, _isLong);
+    return SwaptionPhysicalFixedCompoundedONCompounded.from(expiryTime, underlyingSwap, settlementTime, _isCall, _isLong);
   }
 
   /**
@@ -181,7 +196,7 @@ public final class SwaptionPhysicalFixedCompoundedONCompoundedDefinition impleme
     final double settlementTime = TimeCalculator.getTimeBetween(dateTime, _settlementDate);
     final Swap<CouponFixedAccruedCompounding, CouponONCompounded> underlyingSwap = (Swap<CouponFixedAccruedCompounding, CouponONCompounded>)
         _underlyingSwap.toDerivative(dateTime, new ZonedDateTimeDoubleTimeSeries[] {ts}, yieldCurveNames);
-    return SwaptionPhysicalFixedCompoundedONCompounded.from(expiryTime, underlyingSwap, settlementTime, _isLong);
+    return SwaptionPhysicalFixedCompoundedONCompounded.from(expiryTime, underlyingSwap, settlementTime, _isCall, _isLong);
   }
 
   @Override
@@ -193,7 +208,7 @@ public final class SwaptionPhysicalFixedCompoundedONCompoundedDefinition impleme
     final double settlementTime = TimeCalculator.getTimeBetween(dateTime, _settlementDate);
     final Swap<CouponFixedAccruedCompounding, CouponONCompounded> underlyingSwap = (Swap<CouponFixedAccruedCompounding, CouponONCompounded>)
         _underlyingSwap.toDerivative(dateTime, new ZonedDateTimeDoubleTimeSeries[] {ts});
-    return SwaptionPhysicalFixedCompoundedONCompounded.from(expiryTime, underlyingSwap, settlementTime, _isLong);
+    return SwaptionPhysicalFixedCompoundedONCompounded.from(expiryTime, underlyingSwap, settlementTime, _isCall, _isLong);
   }
 
   @Override
@@ -201,6 +216,7 @@ public final class SwaptionPhysicalFixedCompoundedONCompoundedDefinition impleme
     final int prime = 31;
     int result = 1;
     result = prime * result + _expiry.hashCode();
+    result = prime * result + (_isCall ? 1231 : 1237);
     result = prime * result + (_isLong ? 1231 : 1237);
     result = prime * result + _underlyingSwap.hashCode();
     return result;
@@ -222,6 +238,9 @@ public final class SwaptionPhysicalFixedCompoundedONCompoundedDefinition impleme
       return false;
     }
     if (_isLong != other._isLong) {
+      return false;
+    }
+    if (_isCall != other._isCall) {
       return false;
     }
     if (!ObjectUtils.equals(_underlyingSwap, other._underlyingSwap)) {

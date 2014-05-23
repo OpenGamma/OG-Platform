@@ -5,13 +5,11 @@
  */
 package com.opengamma.integration.tool.marketdata;
 
-
 import static com.google.common.collect.Sets.newHashSet;
 import static com.opengamma.lambdava.streams.Lambdava.functional;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -47,38 +45,33 @@ import com.opengamma.master.config.impl.ConfigSearchIterator;
 import com.opengamma.scripts.Scriptable;
 import com.opengamma.util.money.Currency;
 
-
 /**
  */
 @Scriptable
 public class CurveHtsResolverTool extends AbstractTool<IntegrationToolContext> {
-  /**
-   * Logger.
-   */
+
+  /** Logger. */
   private static Logger s_logger = LoggerFactory.getLogger(CurveHtsResolverTool.class);
 
-  /** Portfolio name option flag*/
+  /** Portfolio name option flag */
   private static final String CURVE_NAME_OPT = "n";
   /** Write option flag */
   private static final String WRITE_OPT = "w";
   /** Verbose option flag */
   private static final String VERBOSE_OPT = "v";
-  /** Time series data provider option flag*/
+  /** Time series data provider option flag */
   private static final String TIME_SERIES_DATAPROVIDER_OPT = "p";
-  /** Time series data field option flag*/
+  /** Time series data field option flag */
   private static final String TIME_SERIES_DATAFIELD_OPT = "d";
 
   //-------------------------------------------------------------------------
-
   /**
    * Main method to run the tool.
-   * No arguments are needed.
-   *
-   * @param args  the arguments, unused
+   * 
+   * @param args  the standard tool arguments, not null
    */
-  public static void main(final String[] args) {  // CSIGNORE
-    new CurveHtsResolverTool().initAndRun(args, IntegrationToolContext.class);
-    System.exit(0);
+  public static void main(final String[] args) { // CSIGNORE
+    new CurveHtsResolverTool().invokeAndTerminate(args);
   }
 
   //-------------------------------------------------------------------------
@@ -114,11 +107,9 @@ public class CurveHtsResolverTool extends AbstractTool<IntegrationToolContext> {
     curveNodesExternalIds = getCurveRequiredExternalIds(configSource, curveNames, dates);
 
     // Load the required time series
-    loadHistoricalData(
-        getCommandLine().hasOption(WRITE_OPT),
-        getCommandLine().getOptionValues(TIME_SERIES_DATAFIELD_OPT) == null ? new String[] {"PX_LAST"} : getCommandLine().getOptionValues(TIME_SERIES_DATAFIELD_OPT),
-        getCommandLine().getOptionValue(TIME_SERIES_DATAPROVIDER_OPT) == null ? "CMPL" : getCommandLine().getOptionValue(TIME_SERIES_DATAPROVIDER_OPT),
-        initialRateExternalIds,
+    loadHistoricalData(getCommandLine().hasOption(WRITE_OPT), getCommandLine().getOptionValues(TIME_SERIES_DATAFIELD_OPT) == null ? new String[] {"PX_LAST" } : getCommandLine()
+        .getOptionValues(TIME_SERIES_DATAFIELD_OPT),
+        getCommandLine().getOptionValue(TIME_SERIES_DATAPROVIDER_OPT) == null ? "CMPL" : getCommandLine().getOptionValue(TIME_SERIES_DATAPROVIDER_OPT), initialRateExternalIds,
         curveNodesExternalIds);
   }
 
@@ -127,7 +118,7 @@ public class CurveHtsResolverTool extends AbstractTool<IntegrationToolContext> {
     final DefaultConventionBundleSource cbs = new DefaultConventionBundleSource(cbm);
     final Set<ExternalId> externalInitialRateId = newHashSet();
     for (final Currency currency : currencies) {
-      for (final String swapType : new String[]{"SWAP", "3M_SWAP", "6M_SWAP"}) {
+      for (final String swapType : new String[] {"SWAP", "3M_SWAP", "6M_SWAP" }) {
         final String product = currency.getCode() + "_" + swapType;
         final ConventionBundle convention = cbs.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, product));
         if (convention != null) {
@@ -148,6 +139,7 @@ public class CurveHtsResolverTool extends AbstractTool<IntegrationToolContext> {
 
   /**
    * Generate quarterly dates +/- 2 years around today to cover futures from past and near future
+   * 
    * @return list of dates
    */
   private List<LocalDate> buildDates() {
@@ -163,6 +155,7 @@ public class CurveHtsResolverTool extends AbstractTool<IntegrationToolContext> {
 
   /**
    * Get all the curve definition config object names specified by glob expression.
+   * 
    * @param configMaster
    * @param nameExpr glob type expression - e.g. blah*
    * @return list of names of config objects matching glob expression
@@ -179,6 +172,7 @@ public class CurveHtsResolverTool extends AbstractTool<IntegrationToolContext> {
 
   /**
    * For a given list of curve names, on a given list of dates, get the superset of all ids required by those curves.
+   * 
    * @param configSource
    * @param names
    * @param dates
@@ -194,7 +188,7 @@ public class CurveHtsResolverTool extends AbstractTool<IntegrationToolContext> {
         for (LocalDate date : dates) {
           s_logger.info("Processing curve date " + date);
           try {
-            final InterpolatedYieldCurveSpecification curveSpec = builder.buildCurve(date, curveDefinition);
+            final InterpolatedYieldCurveSpecification curveSpec = builder.buildCurve(date, curveDefinition, VersionCorrection.LATEST);
             for (final FixedIncomeStripWithIdentifier strip : curveSpec.getStrips()) {
               s_logger.info("Processing strip " + strip.getSecurity());
               externalIds.add(strip.getSecurity());
@@ -211,10 +205,8 @@ public class CurveHtsResolverTool extends AbstractTool<IntegrationToolContext> {
   }
 
   private void loadHistoricalData(final boolean write, final String[] dataFields, final String dataProvider, final Set<ExternalId>... externalIdSets) {
-    final BloombergHistoricalTimeSeriesLoader loader = new BloombergHistoricalTimeSeriesLoader(
-        getToolContext().getHistoricalTimeSeriesMaster(),
-        getToolContext().getHistoricalTimeSeriesProvider(),
-        new BloombergIdentifierProvider(getToolContext().getBloombergReferenceDataProvider()));
+    final BloombergHistoricalTimeSeriesLoader loader = new BloombergHistoricalTimeSeriesLoader(getToolContext().getHistoricalTimeSeriesMaster(), getToolContext()
+        .getHistoricalTimeSeriesProvider(), new BloombergIdentifierProvider(getToolContext().getBloombergReferenceDataProvider()));
 
     for (final Set<ExternalId> externalIds : externalIdSets) {
       if (externalIds.size() > 0) {
@@ -233,27 +225,20 @@ public class CurveHtsResolverTool extends AbstractTool<IntegrationToolContext> {
 
     final Options options = super.createOptions(contextProvided);
 
-    final Option curveNameOption = new Option(
-        CURVE_NAME_OPT, "name", true, "The name of the yield curve definition for which to resolve time series");
+    final Option curveNameOption = new Option(CURVE_NAME_OPT, "name", true, "The name of the yield curve definition for which to resolve time series");
     curveNameOption.setRequired(true);
     options.addOption(curveNameOption);
 
-    final Option writeOption = new Option(
-        WRITE_OPT, "write", false,
-        "Actually persists the time series to the database if specified, otherwise pretty-prints without persisting");
+    final Option writeOption = new Option(WRITE_OPT, "write", false, "Actually persists the time series to the database if specified, otherwise pretty-prints without persisting");
     options.addOption(writeOption);
 
-    final Option verboseOption = new Option(
-        VERBOSE_OPT, "verbose", false,
-        "Displays progress messages on the terminal");
+    final Option verboseOption = new Option(VERBOSE_OPT, "verbose", false, "Displays progress messages on the terminal");
     options.addOption(verboseOption);
 
-    final Option timeSeriesDataProviderOption = new Option(
-        TIME_SERIES_DATAPROVIDER_OPT, "provider", true, "The name of the time series data provider");
+    final Option timeSeriesDataProviderOption = new Option(TIME_SERIES_DATAPROVIDER_OPT, "provider", true, "The name of the time series data provider");
     options.addOption(timeSeriesDataProviderOption);
 
-    final Option timeSeriesDataFieldOption = new Option(
-        TIME_SERIES_DATAFIELD_OPT, "field", true, "The name(s) of the time series data field(s)");
+    final Option timeSeriesDataFieldOption = new Option(TIME_SERIES_DATAFIELD_OPT, "field", true, "The name(s) of the time series data field(s)");
     options.addOption(timeSeriesDataFieldOption);
 
     return options;

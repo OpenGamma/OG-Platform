@@ -65,7 +65,7 @@ import com.opengamma.util.tuple.Pair;
       if (pairFields.size() != matricesFields.size()) {
         throw new OpenGammaRuntimeException("Should never happen");
       }
-      final Map<DoublesPair, DoubleMatrix2D> inverseJacobians = new HashMap<DoublesPair, DoubleMatrix2D>();
+      final Map<DoublesPair, DoubleMatrix2D> inverseJacobians = new HashMap<>();
       for (int i = 0; i < pairFields.size(); i++) {
         final DoubleMatrix2D matrix = deserializer.fieldValueToObject(DoubleMatrix2D.class, matricesFields.get(i));
         inverseJacobians.put((DoublesPair) deserializer.fieldValueToObject(Pair.class, pairFields.get(i)), matrix);
@@ -119,7 +119,7 @@ import com.opengamma.util.tuple.Pair;
       if (pairFields.size() != matricesFields.size()) {
         throw new OpenGammaRuntimeException("Should never happen");
       }
-      final Map<DoublesPair, DoubleMatrix2D> inverseJacobians = new HashMap<DoublesPair, DoubleMatrix2D>();
+      final Map<DoublesPair, DoubleMatrix2D> inverseJacobians = new HashMap<>();
       for (int i = 0; i < pairFields.size(); i++) {
         final DoubleMatrix2D matrix = deserializer.fieldValueToObject(DoubleMatrix2D.class, matricesFields.get(i));
         inverseJacobians.put((DoublesPair) deserializer.fieldValueToObject(Pair.class, pairFields.get(i)), matrix);
@@ -157,28 +157,23 @@ import com.opengamma.util.tuple.Pair;
       final List<FudgeField> tenorPairFields = message.getAllByName(TENOR_PAIR_FIELD_NAME);
       final List<FudgeField> externalIdsFields = message.getAllByName(EXTERNAL_IDS_ARRAY_FIELD_NAME);
       final List<FudgeField> relativeStrikesFields = message.getAllByName(RELATIVE_STRIKES_ARRAY_FIELD_NAME);
-      final Map<Pair<Tenor, Tenor>, ExternalId[]> externalIds = new HashMap<Pair<Tenor, Tenor>, ExternalId[]>();
-      final Map<Pair<Tenor, Tenor>, Double[]> relativeStrikes = new HashMap<Pair<Tenor, Tenor>, Double[]>();
+      final Map<Pair<Tenor, Tenor>, Double[]> relativeStrikes = new HashMap<>();
       if (tenorPairFields.size() != externalIdsFields.size() || tenorPairFields.size() != relativeStrikesFields.size()) {
         throw new OpenGammaRuntimeException("Should never happen");
       }
       for (int i = 0; i < tenorPairFields.size(); i++) {
         final Pair<Tenor, Tenor> tenors = deserializer.fieldValueToObject(Pair.class, tenorPairFields.get(i));
-        final List<ExternalId> externalIdList = deserializer.fieldValueToObject(List.class, externalIdsFields.get(i));
         final List<Double> relativeStrikesList = deserializer.fieldValueToObject(List.class, relativeStrikesFields.get(i));
-        externalIds.put(tenors, externalIdList.toArray(new ExternalId[externalIdList.size()]));
         relativeStrikes.put(tenors, relativeStrikesList.toArray(new Double[relativeStrikesList.size()]));
       }
-      return new FittedSmileDataPoints(externalIds, relativeStrikes);
+      return new FittedSmileDataPoints(relativeStrikes);
     }
 
     @Override
     protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final FittedSmileDataPoints object) {
-      final Map<Pair<Tenor, Tenor>, ExternalId[]> externalIds = object.getExternalIds();
       final Map<Pair<Tenor, Tenor>, Double[]> relativeStrikes = object.getFittedPoints();
-      for (final Map.Entry<Pair<Tenor, Tenor>, ExternalId[]> entry : externalIds.entrySet()) {
+      for (final Map.Entry<Pair<Tenor, Tenor>, Double[]> entry : relativeStrikes.entrySet()) {
         message.add(TENOR_PAIR_FIELD_NAME, null, FudgeSerializer.addClassHeader(serializer.objectToFudgeMsg(entry.getKey()), Pair.class));
-        serializer.addToMessageObject(message, EXTERNAL_IDS_ARRAY_FIELD_NAME, null, Arrays.asList(entry.getValue()), List.class);
         serializer.addToMessageObject(message, RELATIVE_STRIKES_ARRAY_FIELD_NAME, null, Arrays.asList(relativeStrikes.get(entry.getKey())), List.class);
       }
     }
@@ -193,7 +188,7 @@ import com.opengamma.util.tuple.Pair;
     public SurfaceFittedSmileDataPoints buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       final List<FudgeField> tFields = message.getAllByName(T_FIELD_NAME);
       final List<FudgeField> kFields = message.getAllByName(K_FIELD_NAME);
-      final Map<Double, List<Double>> map = new HashMap<Double, List<Double>>();
+      final Map<Double, List<Double>> map = new HashMap<>();
       for (int i = 0; i < tFields.size(); i++) {
         final Double t = deserializer.fieldValueToObject(Double.class, tFields.get(i));
         final List<Double> ks = deserializer.fieldValueToObject(List.class, kFields.get(i));

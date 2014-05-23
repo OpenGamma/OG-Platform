@@ -36,12 +36,14 @@ public class GaussHermiteWeightAndAbscissaFunction implements QuadratureWeightAn
     Validate.isTrue(n > 0);
     final double[] x = new double[n];
     final double[] w = new double[n];
-    final int m = (n + 1) / 2;
+    final boolean odd = n % 2 != 0;
+    final int m = (n + 1) / 2 - (odd ? 1 : 0);
     final Pair<DoubleFunction1D, DoubleFunction1D>[] polynomials = HERMITE.getPolynomialsAndFirstDerivative(n);
     final Pair<DoubleFunction1D, DoubleFunction1D> pair = polynomials[n];
     final DoubleFunction1D function = pair.getFirst();
     final DoubleFunction1D derivative = pair.getSecond();
     double root = 0;
+
     for (int i = 0; i < m; i++) {
       root = getInitialRootGuess(root, i, n, x);
       root = ROOT_FINDER.getRoot(function, derivative, root);
@@ -50,6 +52,10 @@ public class GaussHermiteWeightAndAbscissaFunction implements QuadratureWeightAn
       x[n - 1 - i] = root;
       w[i] = 2. / (dp * dp);
       w[n - 1 - i] = w[i];
+    }
+    if (odd) {
+      final double dp = derivative.evaluate(0.0);
+      w[m] = 2. / dp / dp;
     }
     return new GaussianQuadratureData(x, w);
   }
@@ -62,11 +68,11 @@ public class GaussHermiteWeightAndAbscissaFunction implements QuadratureWeightAn
       return previousRoot - 1.14 * Math.pow(n, 0.426) / previousRoot;
     }
     if (i == 2) {
-      return 1.86 * previousRoot - 0.86 * x[0];
+      return 1.86 * previousRoot + 0.86 * x[0];
     }
     if (i == 3) {
-      return 1.91 * previousRoot - 0.91 * x[1];
+      return 1.91 * previousRoot + 0.91 * x[1];
     }
-    return 2 * previousRoot - x[i - 2];
+    return 2 * previousRoot + x[i - 2];
   }
 }

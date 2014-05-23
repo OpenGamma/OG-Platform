@@ -52,7 +52,7 @@ public class MulticurveSensitivityUtils {
             sensi += list.get(looplist).second;
           }
         }
-        listClean.add(new DoublesPair(time, sensi));
+        listClean.add(DoublesPair.of(time.doubleValue(), sensi));
       }
       result.put(entry.getKey(), listClean);
     }
@@ -78,12 +78,12 @@ public class MulticurveSensitivityUtils {
       for (final Double time : set) {
         double sensi = 0;
         for (int looplist = 0; looplist < list.size(); looplist++) {
-          if (Double.doubleToLongBits(list.get(looplist).getFirst()) == Double.doubleToLongBits(time)) {
+          if (Double.doubleToLongBits(list.get(looplist).getFirstDouble()) == Double.doubleToLongBits(time)) {
             sensi += list.get(looplist).second;
           }
         }
         if (Math.abs(sensi) > tolerance) {
-          listClean.add(new DoublesPair(time, sensi));
+          listClean.add(DoublesPair.of(time.doubleValue(), sensi));
         }
       }
       result.put(entry.getKey(), listClean);
@@ -99,18 +99,18 @@ public class MulticurveSensitivityUtils {
       final List<ForwardSensitivity> listClean = new ArrayList<>();
       final Set<Triple<Double, Double, Double>> set = new TreeSet<>();
       for (final ForwardSensitivity pair : list) {
-        set.add(new Triple<>(pair.getStartTime(), pair.getEndTime(), pair.getAccrualFactor()));
+        set.add(Triple.of(pair.getStartTime(), pair.getEndTime(), pair.getAccrualFactor()));
       }
       for (final Triple<Double, Double, Double> time : set) {
         double sensi = 0;
         for (int looplist = 0; looplist < list.size(); looplist++) {
           final ForwardSensitivity fwdSensitivity = list.get(looplist);
-          final Triple<Double, Double, Double> triple = new Triple<>(fwdSensitivity.getStartTime(), fwdSensitivity.getEndTime(), fwdSensitivity.getAccrualFactor());
+          final Triple<Double, Double, Double> triple = Triple.of(fwdSensitivity.getStartTime(), fwdSensitivity.getEndTime(), fwdSensitivity.getAccrualFactor());
           if (triple.equals(time)) {
             sensi += list.get(looplist).getValue();
           }
         }
-        listClean.add(new ForwardSensitivity(time.getFirst(), time.getSecond(), time.getThird(), sensi));
+        listClean.add(new SimplyCompoundedForwardSensitivity(time.getFirst(), time.getSecond(), time.getThird(), sensi));
       }
       result.put(entry.getKey(), listClean);
     }
@@ -125,19 +125,19 @@ public class MulticurveSensitivityUtils {
       final List<ForwardSensitivity> listClean = new ArrayList<>();
       final Set<Triple<Double, Double, Double>> set = new TreeSet<>();
       for (final ForwardSensitivity pair : list) {
-        set.add(new Triple<>(pair.getStartTime(), pair.getEndTime(), pair.getAccrualFactor()));
+        set.add(Triple.of(pair.getStartTime(), pair.getEndTime(), pair.getAccrualFactor()));
       }
       for (final Triple<Double, Double, Double> time : set) {
         double sensi = 0;
         for (int looplist = 0; looplist < list.size(); looplist++) {
           final ForwardSensitivity fwdSensitivity = list.get(looplist);
-          final Triple<Double, Double, Double> triple = new Triple<>(fwdSensitivity.getStartTime(), fwdSensitivity.getEndTime(), fwdSensitivity.getAccrualFactor());
+          final Triple<Double, Double, Double> triple = Triple.of(fwdSensitivity.getStartTime(), fwdSensitivity.getEndTime(), fwdSensitivity.getAccrualFactor());
           if (triple.equals(time)) {
             sensi += list.get(looplist).getValue();
           }
         }
         if (Math.abs(sensi) > tolerance) {
-          listClean.add(new ForwardSensitivity(time.getFirst(), time.getSecond(), time.getThird(), sensi));
+          listClean.add(new SimplyCompoundedForwardSensitivity(time.getFirst(), time.getSecond(), time.getThird(), sensi));
         }
       }
       result.put(entry.getKey(), listClean);
@@ -266,7 +266,7 @@ public class MulticurveSensitivityUtils {
     ArgumentChecker.notNull(sensitivity, "sensitivity");
     final List<DoublesPair> curveSensi = new ArrayList<>();
     for (final DoublesPair pair : sensitivity) {
-      curveSensi.add(new DoublesPair(pair.first, pair.second * factor));
+      curveSensi.add(DoublesPair.of(pair.first, pair.second * factor));
     }
     return curveSensi;
   }
@@ -297,7 +297,7 @@ public class MulticurveSensitivityUtils {
     for (final DoublesPair pair : sensi1) {
       for (int i = 0; i < length2; ++i) {
         if (pair.first == sensi2.get(i).first) {
-          curveSensi.add(new DoublesPair(pair.first, pair.second * sensi2.get(i).second));
+          curveSensi.add(DoublesPair.of(pair.first, pair.second * sensi2.get(i).second));
         }
       }
     }
@@ -309,7 +309,7 @@ public class MulticurveSensitivityUtils {
     for (final Map.Entry<String, List<ForwardSensitivity>> entry : map.entrySet()) {
       final List<ForwardSensitivity> curveSensi = new ArrayList<>();
       for (final ForwardSensitivity pair : entry.getValue()) {
-        curveSensi.add(new ForwardSensitivity(pair.getStartTime(), pair.getEndTime(), pair.getAccrualFactor(), pair.getValue() * factor));
+        curveSensi.add(new SimplyCompoundedForwardSensitivity(pair.getStartTime(), pair.getEndTime(), pair.getAccrualFactor(), pair.getValue() * factor));
       }
       result.put(entry.getKey(), curveSensi);
     }
@@ -332,7 +332,7 @@ public class MulticurveSensitivityUtils {
         for (final ForwardSensitivity pair1 : entry.getValue()) {
           for (int i = 0; i < length2; ++i) {
             if (pair1.getStartTime() == map2.get(name).get(i).getStartTime() && pair1.getEndTime() == map2.get(name).get(i).getEndTime()) {
-              curveSensi.add(new ForwardSensitivity(pair1.getStartTime(), pair1.getEndTime(), pair1.getAccrualFactor(), pair1.getValue() * map2.get(name).get(i).getValue()));
+              curveSensi.add(new SimplyCompoundedForwardSensitivity(pair1.getStartTime(), pair1.getEndTime(), pair1.getAccrualFactor(), pair1.getValue() * map2.get(name).get(i).getValue()));
             }
           }
         }

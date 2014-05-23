@@ -22,11 +22,13 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the construction of Federal Funds Futures transactions.
  */
+@Test(groups = TestGroup.UNIT)
 public class FederalFundsFutureTransactionDefinitionTest {
 
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
@@ -61,7 +63,7 @@ public class FederalFundsFutureTransactionDefinitionTest {
    * Tests the getter methods.
    */
   public void getter() {
-    assertEquals("Fed fund future transaction definition: getter", FUTURE_SECURITY_DEFINITION, FUTURE_TRANSACTION_DEFINITION.getUnderlyingFuture());
+    assertEquals("Fed fund future transaction definition: getter", FUTURE_SECURITY_DEFINITION, FUTURE_TRANSACTION_DEFINITION.getUnderlyingSecurity());
     assertEquals("Fed fund future transaction definition: getter", QUANTITY, FUTURE_TRANSACTION_DEFINITION.getQuantity());
     assertEquals("Fed fund future transaction definition: getter", TRADE_DATE, FUTURE_TRANSACTION_DEFINITION.getTradeDate());
     assertEquals("Fed fund future transaction definition: getter", TRADE_PRICE, FUTURE_TRANSACTION_DEFINITION.getTradePrice());

@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 import de.odysseus.el.ExpressionFactoryImpl;
 import de.odysseus.el.util.SimpleContext;
@@ -278,13 +279,14 @@ public class ELExpressionParser extends UserExpressionParser {
         operation = elParse(source.substring(closeBracket + 1));
         tail = "";
       }
-      return Pair.<UserExpression, String>of(new IfExpression(condition, operation), tail);
+      UserExpression expr = new IfExpression(condition, operation);
+      return Pairs.of(expr, tail);
     } else {
       final int semiColon = findSemiColon(source, 0);
       if (semiColon == -1) {
-        return Pair.of(elParse(source), "");
+        return Pairs.of(elParse(source), "");
       } else {
-        return Pair.of(elParse(source.substring(0, semiColon)), source.substring(semiColon + 1));
+        return Pairs.of(elParse(source.substring(0, semiColon)), source.substring(semiColon + 1));
       }
     }
   }

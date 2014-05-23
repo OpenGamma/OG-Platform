@@ -10,6 +10,12 @@ import static org.testng.AssertJUnit.assertFalse;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class NormalDistributionTest extends ProbabilityDistributionTestCase {
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1, ENGINE);
   private static final double[] X = new double[] {0, 0.1, 0.4, 0.8, 1, 1.32, 1.78, 2, 2.36, 2.88, 3, 3.5, 4, 4.5, 5 };

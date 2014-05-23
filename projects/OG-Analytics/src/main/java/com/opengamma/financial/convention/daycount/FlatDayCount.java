@@ -27,7 +27,7 @@ public class FlatDayCount extends StatelessDayCount {
   }
 
   @Override
-  public String getConventionName() {
+  public String getName() {
     return "Flat";
   }
 

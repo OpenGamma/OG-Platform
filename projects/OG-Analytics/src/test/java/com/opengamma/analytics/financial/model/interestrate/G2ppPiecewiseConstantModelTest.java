@@ -13,11 +13,13 @@ import org.testng.internal.junit.ArrayAsserts;
 
 import com.opengamma.analytics.financial.model.interestrate.definition.G2ppPiecewiseConstantParameters;
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
 
 /**
  * Tests related to the construction of the G2++ model with piecewise constant volatility. The computation of several model related factors are also tested.
  */
+@Test(groups = TestGroup.UNIT)
 public class G2ppPiecewiseConstantModelTest {
 
   private static final double[] MEAN_REVERSION = new double[] {0.01, 0.30 };

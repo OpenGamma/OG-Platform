@@ -10,10 +10,12 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests related to the "time/square of value" interpolator.
  */
+@Test(groups = TestGroup.UNIT)
 public class TimeSquareInterpolator1DTest {
 
   private static final Interpolator1D INTERPOLATOR = new TimeSquareInterpolator1D();

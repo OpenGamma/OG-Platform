@@ -84,7 +84,10 @@ public final class OpenGammaFudgeContext {
       Set<ClassLoader> loaders = new HashSet<>();
       loaders.add(OpenGammaFudgeContext.class.getClassLoader());
       try {
-        loaders.add(Thread.currentThread().getContextClassLoader());
+        ClassLoader loader = Thread.currentThread().getContextClassLoader();
+        if (loader != null) {
+          loaders.add(loader);
+        }
       } catch (Exception ex) {
         // ignore
       }

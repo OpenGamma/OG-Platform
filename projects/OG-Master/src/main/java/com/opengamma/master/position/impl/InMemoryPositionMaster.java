@@ -6,6 +6,8 @@
 package com.opengamma.master.position.impl;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -110,9 +112,13 @@ public class InMemoryPositionMaster extends SimpleAbstractInMemoryMaster<Positio
   }
 
   private PositionDocument clonePositionDocument(final PositionDocument document) {
-    final PositionDocument clone = JodaBeanUtils.clone(document);
-    clone.setPosition(new ManageablePosition(document.getPosition()));
-    return clone;
+    if (isCloneResults()) {
+      final PositionDocument clone = JodaBeanUtils.clone(document);
+      clone.setPosition(new ManageablePosition(document.getPosition()));
+      return clone;
+    } else {
+      return document;
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -239,6 +245,12 @@ public class InMemoryPositionMaster extends SimpleAbstractInMemoryMaster<Positio
         list.add(clonePositionDocument(doc));
       }
     }
+    Collections.sort(list, new Comparator<PositionDocument>() {
+      @Override
+      public int compare(PositionDocument obj1, PositionDocument obj2) {
+        return obj1.getObjectId().compareTo(obj2.getObjectId());
+      }
+    });
     final PositionSearchResult result = new PositionSearchResult();
     result.setPaging(Paging.of(request.getPagingRequest(), list));
     result.getDocuments().addAll(request.getPagingRequest().select(list));

@@ -96,11 +96,11 @@ public final class ParRateCurveSensitivityCalculator extends InstrumentDerivativ
       if (!CompareUtils.closeEquals(ta, tb, 1e-16)) {
         throw new IllegalArgumentException("year fraction is zero, but payment time not equal the trade time");
       }
-      temp.add(new DoublesPair(ta, 1.0));
+      temp.add(DoublesPair.of(ta, 1.0));
     } else {
       final double ratio = curve.getDiscountFactor(ta) / curve.getDiscountFactor(tb) / yearFrac;
-      temp.add(new DoublesPair(ta, -ta * ratio));
-      temp.add(new DoublesPair(tb, tb * ratio));
+      temp.add(DoublesPair.of(ta, -ta * ratio));
+      temp.add(DoublesPair.of(tb, tb * ratio));
     }
     result.put(curveName, temp);
     return result;
@@ -119,13 +119,13 @@ public final class ParRateCurveSensitivityCalculator extends InstrumentDerivativ
 
   @Override
   public Map<String, List<DoublesPair>> visitInterestRateFutureTransaction(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
-    final String curveName = future.getForwardCurveName();
+    final String curveName = future.getUnderlyingSecurity().getForwardCurveName();
     final YieldAndDiscountCurve curve = curves.getCurve(curveName);
-    final double ta = future.getFixingPeriodStartTime();
-    final double tb = future.getFixingPeriodEndTime();
-    final double ratio = curve.getDiscountFactor(ta) / curve.getDiscountFactor(tb) / future.getFixingPeriodAccrualFactor();
-    final DoublesPair s1 = new DoublesPair(ta, -ta * ratio);
-    final DoublesPair s2 = new DoublesPair(tb, tb * ratio);
+    final double ta = future.getUnderlyingSecurity().getFixingPeriodStartTime();
+    final double tb = future.getUnderlyingSecurity().getFixingPeriodEndTime();
+    final double ratio = curve.getDiscountFactor(ta) / curve.getDiscountFactor(tb) / future.getUnderlyingSecurity().getFixingPeriodAccrualFactor();
+    final DoublesPair s1 = DoublesPair.of(ta, -ta * ratio);
+    final DoublesPair s2 = DoublesPair.of(tb, tb * ratio);
     final List<DoublesPair> temp = new ArrayList<>();
     temp.add(s1);
     temp.add(s2);
@@ -176,11 +176,11 @@ public final class ParRateCurveSensitivityCalculator extends InstrumentDerivativ
     final double fwdFX = fx.accept(PRC_CALCULATOR, curves);
     final double t = fx.getPaymentTime();
     List<DoublesPair> temp = new ArrayList<>();
-    temp.add(new DoublesPair(t, t * fwdFX));
+    temp.add(DoublesPair.of(t, t * fwdFX));
     final Map<String, List<DoublesPair>> senseD = new HashMap<>();
     senseD.put(fx.getPaymentCurrency1().getFundingCurveName(), temp);
     temp = new ArrayList<>();
-    temp.add(new DoublesPair(t, -t * fwdFX));
+    temp.add(DoublesPair.of(t, -t * fwdFX));
     final Map<String, List<DoublesPair>> senseF = new HashMap<>();
     senseF.put(fx.getPaymentCurrency2().getFundingCurveName(), temp);
 
@@ -201,8 +201,8 @@ public final class ParRateCurveSensitivityCalculator extends InstrumentDerivativ
     final double tb = payment.getFixingPeriodEndTime();
     final double delta = payment.getFixingAccrualFactor();
     final double ratio = curve.getDiscountFactor(ta) / curve.getDiscountFactor(tb) / delta;
-    final DoublesPair s1 = new DoublesPair(ta, -ta * ratio);
-    final DoublesPair s2 = new DoublesPair(tb, tb * ratio);
+    final DoublesPair s1 = DoublesPair.of(ta, -ta * ratio);
+    final DoublesPair s2 = DoublesPair.of(tb, tb * ratio);
     final List<DoublesPair> temp = new ArrayList<>();
     temp.add(s1);
     temp.add(s2);
@@ -243,10 +243,10 @@ public final class ParRateCurveSensitivityCalculator extends InstrumentDerivativ
         final int m = list.size();
         for (int i = 0; i < (m - 1); i++) {
           final DoublesPair pair = list.get(i);
-          temp.add(new DoublesPair(pair.getFirst(), factor * pair.getSecond()));
+          temp.add(DoublesPair.of(pair.getFirstDouble(), factor * pair.getSecondDouble()));
         }
         final DoublesPair pair = list.get(m - 1);
-        temp.add(new DoublesPair(pair.getFirst(), principlePayment.getPaymentTime() * df / a + factor * pair.getSecond()));
+        temp.add(DoublesPair.of(pair.getFirstDouble(), principlePayment.getPaymentTime() * df / a + factor * pair.getSecondDouble()));
         result.put(name, temp);
       }
     }

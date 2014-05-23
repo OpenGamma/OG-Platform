@@ -23,7 +23,7 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * Method to compute the price for an interest rate future with discounting (like a forward).
  * No convexity adjustment is done.
- * @deprecated Use {@link com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureSecurityDiscountingMethod}
+ * @deprecated Use {@link com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureSecurityDiscountingMethodDeprecated}
  */
 @Deprecated
 public final class InterestRateFutureSecurityDiscountingMethod extends InterestRateFutureSecurityMethod {
@@ -84,8 +84,8 @@ public final class InterestRateFutureSecurityDiscountingMethod extends InterestR
     final Map<String, List<DoublesPair>> resultMap = new HashMap<>();
     final List<DoublesPair> listForward = new ArrayList<>();
     final List<DoublesPair> listFunding = new ArrayList<>();
-    listForward.add(new DoublesPair(future.getFixingPeriodStartTime(), -future.getFixingPeriodStartTime() * dfForwardStart * dfForwardStartBar));
-    listForward.add(new DoublesPair(future.getFixingPeriodEndTime(), -future.getFixingPeriodEndTime() * dfForwardEnd * dfForwardEndBar));
+    listForward.add(DoublesPair.of(future.getFixingPeriodStartTime(), -future.getFixingPeriodStartTime() * dfForwardStart * dfForwardStartBar));
+    listForward.add(DoublesPair.of(future.getFixingPeriodEndTime(), -future.getFixingPeriodEndTime() * dfForwardEnd * dfForwardEndBar));
     resultMap.put(future.getDiscountingCurveName(), listFunding);
     resultMap.put(future.getForwardCurveName(), listForward);
     final InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultMap);
@@ -121,8 +121,8 @@ public final class InterestRateFutureSecurityDiscountingMethod extends InterestR
     final double ta = future.getFixingPeriodStartTime();
     final double tb = future.getFixingPeriodEndTime();
     final double ratio = curve.getDiscountFactor(ta) / curve.getDiscountFactor(tb) / future.getFixingPeriodAccrualFactor();
-    final DoublesPair s1 = new DoublesPair(ta, -ta * ratio);
-    final DoublesPair s2 = new DoublesPair(tb, tb * ratio);
+    final DoublesPair s1 = DoublesPair.of(ta, -ta * ratio);
+    final DoublesPair s2 = DoublesPair.of(tb, tb * ratio);
     final List<DoublesPair> temp = new ArrayList<>();
     temp.add(s1);
     temp.add(s2);

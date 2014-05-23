@@ -1,0 +1,1364 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fudgeEnvelope>
+   <snapshotName type="string">Futures Snapshot</snapshotName>
+   <viewName type="string">Futures View</viewName>
+   <valuationTime type="datetime">2013-12-13T16:29:38.409Z</valuationTime>
+   <calculationResults type="message">
+      <values type="message">
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">Present Value</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <path type="message">
+               <fudgeField type="string">Futures Portfolio</fudgeField>
+            </path>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <Aggregation type="string">Full</Aggregation>
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">Sum(Present Value)</Function>
+                  <Currency type="string">USD</Currency>
+                  <PositionCount type="string">7</PositionCount>
+               </with>
+            </specification_properties>
+            <target_name type="string">Futures Portfolio</target_name>
+            <target_type type="string">PORTFOLIO_NODE</target_type>
+            <value type="double">1753746.2180530734</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">PV01</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <targetId type="string">DbPos~3107</targetId>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">MarkToMarketPV01FuturesFunction</Function>
+                  <Currency type="string">USD</Currency>
+               </with>
+            </specification_properties>
+            <target_name type="string">34 x E Mini S&amp;P 500 2014-06-21 Future</target_name>
+            <target_type type="string">TRADE</target_type>
+            <value type="double">145.48993932219864</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">PV01</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <targetId type="string">DbPos~3106</targetId>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">PositionTradeScaling for PV01</Function>
+                  <Currency type="string">USD</Currency>
+               </with>
+            </specification_properties>
+            <target_name type="string">34 x E Mini S&amp;P 500 2014-06-21 Future</target_name>
+            <target_type type="string">POSITION</target_type>
+            <value type="double">145.48993932219864</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">PV01</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <targetId type="string">DbPos~3109</targetId>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">MarkToMarketPV01FuturesFunction</Function>
+                  <Currency type="string">USD</Currency>
+               </with>
+            </specification_properties>
+            <target_name type="string">10 x E Mini S&amp;P 500 2014-12-21 Future</target_name>
+            <target_type type="string">TRADE</target_type>
+            <value type="double">81.77897260273971</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">PV01</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <targetId type="string">DbPos~3108</targetId>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">PositionTradeScaling for PV01</Function>
+                  <Currency type="string">USD</Currency>
+               </with>
+            </specification_properties>
+            <target_name type="string">10 x E Mini S&amp;P 500 2014-12-21 Future</target_name>
+            <target_type type="string">POSITION</target_type>
+            <value type="double">81.77897260273971</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">Present Value</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <targetId type="string">DbPos~3109</targetId>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">MarkToMarketPresentValueFuturesFunction</Function>
+                  <Currency type="string">USD</Currency>
+               </with>
+            </specification_properties>
+            <target_name type="string">10 x E Mini S&amp;P 500 2014-12-21 Future</target_name>
+            <target_type type="string">TRADE</target_type>
+            <value type="double">-6534.671356732247</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">Present Value</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <targetId type="string">DbPos~3108</targetId>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">PositionTradeScaling for Present Value</Function>
+                  <Currency type="string">USD</Currency>
+               </with>
+            </specification_properties>
+            <target_name type="string">10 x E Mini S&amp;P 500 2014-12-21 Future</target_name>
+            <target_type type="string">POSITION</target_type>
+            <value type="double">-6534.671356732247</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">Present Value</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <targetId type="string">DbPos~3107</targetId>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">MarkToMarketPresentValueFuturesFunction</Function>
+                  <Currency type="string">USD</Currency>
+               </with>
+            </specification_properties>
+            <target_name type="string">34 x E Mini S&amp;P 500 2014-06-21 Future</target_name>
+            <target_type type="string">TRADE</target_type>
+            <value type="double">5822.9680072885685</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">Present Value</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <targetId type="string">DbPos~3106</targetId>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">PositionTradeScaling for Present Value</Function>
+                  <Currency type="string">USD</Currency>
+               </with>
+            </specification_properties>
+            <target_name type="string">34 x E Mini S&amp;P 500 2014-06-21 Future</target_name>
+            <target_type type="string">POSITION</target_type>
+            <value type="double">5822.9680072885685</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">PV01</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <targetId type="string">DbPos~3110</targetId>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">PositionTradeScaling for PV01</Function>
+                  <Currency type="string">USD</Currency>
+               </with>
+            </specification_properties>
+            <target_name type="string">41 x Russell 2000 Index Mini ($100) 2014-06-21 Future</target_name>
+            <target_type type="string">POSITION</target_type>
+            <value type="double">215.8619267293175</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">PV01</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <targetId type="string">DbPos~3111</targetId>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">MarkToMarketPV01FuturesFunction</Function>
+                  <Currency type="string">USD</Currency>
+               </with>
+            </specification_properties>
+            <target_name type="string">41 x Russell 2000 Index Mini ($100) 2014-06-21 Future</target_name>
+            <target_type type="string">TRADE</target_type>
+            <value type="double">215.8619267293175</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">PV01</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <targetId type="string">DbPos~3112</targetId>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">PositionTradeScaling for PV01</Function>
+                  <Currency type="string">USD</Currency>
+               </with>
+            </specification_properties>
+            <target_name type="string">18 x Russell 2000 Index Mini ($100) 2014-09-21 Future</target_name>
+            <target_type type="string">POSITION</target_type>
+            <value type="double">279.75059070719504</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">Present Value</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <targetId type="string">DbPos~3111</targetId>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">MarkToMarketPresentValueFuturesFunction</Function>
+                  <Currency type="string">USD</Currency>
+               </with>
+            </specification_properties>
+            <target_name type="string">41 x Russell 2000 Index Mini ($100) 2014-06-21 Future</target_name>
+            <target_type type="string">TRADE</target_type>
+            <value type="double">16423.63233805644</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">Present Value</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <targetId type="string">DbPos~3112</targetId>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">PositionTradeScaling for Present Value</Function>
+                  <Currency type="string">USD</Currency>
+               </with>
+            </specification_properties>
+            <target_name type="string">18 x Russell 2000 Index Mini ($100) 2014-09-21 Future</target_name>
+            <target_type type="string">POSITION</target_type>
+            <value type="double">1835872.655461327</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">Present Value</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <targetId type="string">DbPos~3110</targetId>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">PositionTradeScaling for Present Value</Function>
+                  <Currency type="string">USD</Currency>
+               </with>
+            </specification_properties>
+            <target_name type="string">41 x Russell 2000 Index Mini ($100) 2014-06-21 Future</target_name>
+            <target_type type="string">POSITION</target_type>
+            <value type="double">16423.63233805644</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">Forward</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <targetId type="string">DbPos~3117</targetId>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">MarkToMarketForwardFuturesFunction</Function>
+               </with>
+            </specification_properties>
+            <target_name type="string">-2 x S&amp;P 500 2014-06-21 Future</target_name>
+            <target_type type="string">TRADE</target_type>
+            <value type="double">1624.5</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">Forward</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <targetId type="string">DbPos~3119</targetId>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">MarkToMarketForwardFuturesFunction</Function>
+               </with>
+            </specification_properties>
+            <target_name type="string">-2 x S&amp;P 500 2014-09-21 Future</target_name>
+            <target_type type="string">TRADE</target_type>
+            <value type="double">1613.4695948984631</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">Forward</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <targetId type="string">DbPos~3113</targetId>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">MarkToMarketForwardFuturesFunction</Function>
+               </with>
+            </specification_properties>
+            <target_name type="string">18 x Russell 2000 Index Mini ($100) 2014-09-21 Future</target_name>
+            <target_type type="string">TRADE</target_type>
+            <value type="double">2011.602947362612</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">Forward</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <targetId type="string">DbPos~3115</targetId>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">MarkToMarketForwardFuturesFunction</Function>
+               </with>
+            </specification_properties>
+            <target_name type="string">50 x E Mini S&amp;P 500 2014-09-20 Future</target_name>
+            <target_type type="string">TRADE</target_type>
+            <value type="double">1610.9752250629479</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">ValueRho</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <targetId type="string">DbPos~3106</targetId>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">PositionTradeScaling for ValueRho</Function>
+                  <Currency type="string">USD</Currency>
+               </with>
+            </specification_properties>
+            <target_name type="string">34 x E Mini S&amp;P 500 2014-06-21 Future</target_name>
+            <target_type type="string">POSITION</target_type>
+            <value type="double">1454899.3932219862</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">ValueDelta</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <targetId type="string">DbPos~3106</targetId>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">PositionTradeScaling for ValueDelta</Function>
+                  <Currency type="string">USD</Currency>
+               </with>
+            </specification_properties>
+            <target_name type="string">34 x E Mini S&amp;P 500 2014-06-21 Future</target_name>
+            <target_type type="string">POSITION</target_type>
+            <value type="double">2794938.308031711</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">ValueDelta</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <targetId type="string">DbPos~3107</targetId>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">MarkToMarketValueDeltaFuturesFunction</Function>
+                  <Currency type="string">USD</Currency>
+               </with>
+            </specification_properties>
+            <target_name type="string">34 x E Mini S&amp;P 500 2014-06-21 Future</target_name>
+            <target_type type="string">TRADE</target_type>
+            <value type="double">2794938.308031711</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">ValueRho</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <targetId type="string">DbPos~3107</targetId>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">MarkToMarketValueRhoFuturesFunction</Function>
+                  <Currency type="string">USD</Currency>
+               </with>
+            </specification_properties>
+            <target_name type="string">34 x E Mini S&amp;P 500 2014-06-21 Future</target_name>
+            <target_type type="string">TRADE</target_type>
+            <value type="double">1454899.3932219862</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">ValueRho</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <targetId type="string">DbPos~3108</targetId>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">PositionTradeScaling for ValueRho</Function>
+                  <Currency type="string">USD</Currency>
+               </with>
+            </specification_properties>
+            <target_name type="string">10 x E Mini S&amp;P 500 2014-12-21 Future</target_name>
+            <target_type type="string">POSITION</target_type>
+            <value type="double">817789.7260273971</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">ValueDelta</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <targetId type="string">DbPos~3108</targetId>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">PositionTradeScaling for ValueDelta</Function>
+                  <Currency type="string">USD</Currency>
+               </with>
+            </specification_properties>
+            <target_name type="string">10 x E Mini S&amp;P 500 2014-12-21 Future</target_name>
+            <target_type type="string">POSITION</target_type>
+            <value type="double">800250.0</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">ValueDelta</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <targetId type="string">DbPos~3109</targetId>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">MarkToMarketValueDeltaFuturesFunction</Function>
+                  <Currency type="string">USD</Currency>
+               </with>
+            </specification_properties>
+            <target_name type="string">10 x E Mini S&amp;P 500 2014-12-21 Future</target_name>
+            <target_type type="string">TRADE</target_type>
+            <value type="double">800250.0</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">ValueRho</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <targetId type="string">DbPos~3109</targetId>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">MarkToMarketValueRhoFuturesFunction</Function>
+                  <Currency type="string">USD</Currency>
+               </with>
+            </specification_properties>
+            <target_name type="string">10 x E Mini S&amp;P 500 2014-12-21 Future</target_name>
+            <target_type type="string">TRADE</target_type>
+            <value type="double">817789.7260273971</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">ValueRho</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <targetId type="string">DbPos~3110</targetId>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">PositionTradeScaling for ValueRho</Function>
+                  <Currency type="string">USD</Currency>
+               </with>
+            </specification_properties>
+            <target_name type="string">41 x Russell 2000 Index Mini ($100) 2014-06-21 Future</target_name>
+            <target_type type="string">POSITION</target_type>
+            <value type="double">2158619.267293175</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">ValueDelta</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <targetId type="string">DbPos~3110</targetId>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">PositionTradeScaling for ValueDelta</Function>
+                  <Currency type="string">USD</Currency>
+               </with>
+            </specification_properties>
+            <target_name type="string">41 x Russell 2000 Index Mini ($100) 2014-06-21 Future</target_name>
+            <target_type type="string">POSITION</target_type>
+            <value type="double">4146821.2240105732</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">ValueRho</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <path type="message">
+               <fudgeField type="string">Futures Portfolio</fudgeField>
+            </path>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <Aggregation type="string">Full</Aggregation>
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">Sum(ValueRho)</Function>
+                  <Currency type="string">USD</Currency>
+                  <PositionCount type="string">7</PositionCount>
+               </with>
+            </specification_properties>
+            <target_name type="string">Futures Portfolio</target_name>
+            <target_type type="string">PORTFOLIO_NODE</target_type>
+            <value type="double">9283289.314781737</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">ValueRho</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <targetId type="string">DbPos~3112</targetId>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">PositionTradeScaling for ValueRho</Function>
+                  <Currency type="string">USD</Currency>
+               </with>
+            </specification_properties>
+            <target_name type="string">18 x Russell 2000 Index Mini ($100) 2014-09-21 Future</target_name>
+            <target_type type="string">POSITION</target_type>
+            <value type="double">2797505.9070719504</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">ValueDelta</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <targetId type="string">DbPos~3112</targetId>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">PositionTradeScaling for ValueDelta</Function>
+                  <Currency type="string">USD</Currency>
+               </with>
+            </specification_properties>
+            <target_name type="string">18 x Russell 2000 Index Mini ($100) 2014-09-21 Future</target_name>
+            <target_type type="string">POSITION</target_type>
+            <value type="double">3620885.3052527015</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">ValueRho</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <targetId type="string">DbPos~3111</targetId>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">MarkToMarketValueRhoFuturesFunction</Function>
+                  <Currency type="string">USD</Currency>
+               </with>
+            </specification_properties>
+            <target_name type="string">41 x Russell 2000 Index Mini ($100) 2014-06-21 Future</target_name>
+            <target_type type="string">TRADE</target_type>
+            <value type="double">2158619.267293175</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">ValueDelta</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <targetId type="string">DbPos~3111</targetId>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">MarkToMarketValueDeltaFuturesFunction</Function>
+                  <Currency type="string">USD</Currency>
+               </with>
+            </specification_properties>
+            <target_name type="string">41 x Russell 2000 Index Mini ($100) 2014-06-21 Future</target_name>
+            <target_type type="string">TRADE</target_type>
+            <value type="double">4146821.2240105732</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">ValueRho</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <targetId type="string">DbPos~3118</targetId>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">PositionTradeScaling for ValueRho</Function>
+                  <Currency type="string">USD</Currency>
+               </with>
+            </specification_properties>
+            <target_name type="string">-2 x S&amp;P 500 2014-09-21 Future</target_name>
+            <target_type type="string">POSITION</target_type>
+            <value type="double">-623285.5147415982</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">ValueDelta</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <targetId type="string">DbPos~3118</targetId>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">PositionTradeScaling for ValueDelta</Function>
+                  <Currency type="string">USD</Currency>
+               </with>
+            </specification_properties>
+            <target_name type="string">-2 x S&amp;P 500 2014-09-21 Future</target_name>
+            <target_type type="string">POSITION</target_type>
+            <value type="double">-806734.7974492316</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">ValueDelta</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <targetId type="string">DbPos~3117</targetId>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">MarkToMarketValueDeltaFuturesFunction</Function>
+                  <Currency type="string">USD</Currency>
+               </with>
+            </specification_properties>
+            <target_name type="string">-2 x S&amp;P 500 2014-06-21 Future</target_name>
+            <target_type type="string">TRADE</target_type>
+            <value type="double">-812250.0</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">ValueRho</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <targetId type="string">DbPos~3117</targetId>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">MarkToMarketValueRhoFuturesFunction</Function>
+                  <Currency type="string">USD</Currency>
+               </with>
+            </specification_properties>
+            <target_name type="string">-2 x S&amp;P 500 2014-06-21 Future</target_name>
+            <target_type type="string">TRADE</target_type>
+            <value type="double">-422815.06849315064</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">ValueDelta</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <targetId type="string">DbPos~3119</targetId>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">MarkToMarketValueDeltaFuturesFunction</Function>
+                  <Currency type="string">USD</Currency>
+               </with>
+            </specification_properties>
+            <target_name type="string">-2 x S&amp;P 500 2014-09-21 Future</target_name>
+            <target_type type="string">TRADE</target_type>
+            <value type="double">-806734.7974492316</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">ValueRho</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <targetId type="string">DbPos~3119</targetId>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">MarkToMarketValueRhoFuturesFunction</Function>
+                  <Currency type="string">USD</Currency>
+               </with>
+            </specification_properties>
+            <target_name type="string">-2 x S&amp;P 500 2014-09-21 Future</target_name>
+            <target_type type="string">TRADE</target_type>
+            <value type="double">-623285.5147415982</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">ValueRho</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <targetId type="string">DbPos~3114</targetId>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">PositionTradeScaling for ValueRho</Function>
+                  <Currency type="string">USD</Currency>
+               </with>
+            </specification_properties>
+            <target_name type="string">50 x E Mini S&amp;P 500 2014-09-20 Future</target_name>
+            <target_type type="string">POSITION</target_type>
+            <value type="double">3100575.6044019754</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">ValueDelta</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <targetId type="string">DbPos~3114</targetId>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">PositionTradeScaling for ValueDelta</Function>
+                  <Currency type="string">USD</Currency>
+               </with>
+            </specification_properties>
+            <target_name type="string">50 x E Mini S&amp;P 500 2014-09-20 Future</target_name>
+            <target_type type="string">POSITION</target_type>
+            <value type="double">4027438.0626573693</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">ValueDelta</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <targetId type="string">DbPos~3113</targetId>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">MarkToMarketValueDeltaFuturesFunction</Function>
+                  <Currency type="string">USD</Currency>
+               </with>
+            </specification_properties>
+            <target_name type="string">18 x Russell 2000 Index Mini ($100) 2014-09-21 Future</target_name>
+            <target_type type="string">TRADE</target_type>
+            <value type="double">3620885.3052527015</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">ValueRho</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <targetId type="string">DbPos~3113</targetId>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">MarkToMarketValueRhoFuturesFunction</Function>
+                  <Currency type="string">USD</Currency>
+               </with>
+            </specification_properties>
+            <target_name type="string">18 x Russell 2000 Index Mini ($100) 2014-09-21 Future</target_name>
+            <target_type type="string">TRADE</target_type>
+            <value type="double">2797505.9070719504</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">ValueRho</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <targetId type="string">DbPos~3116</targetId>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">PositionTradeScaling for ValueRho</Function>
+                  <Currency type="string">USD</Currency>
+               </with>
+            </specification_properties>
+            <target_name type="string">-2 x S&amp;P 500 2014-06-21 Future</target_name>
+            <target_type type="string">POSITION</target_type>
+            <value type="double">-422815.06849315064</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">ValueDelta</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <targetId type="string">DbPos~3116</targetId>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">PositionTradeScaling for ValueDelta</Function>
+                  <Currency type="string">USD</Currency>
+               </with>
+            </specification_properties>
+            <target_name type="string">-2 x S&amp;P 500 2014-06-21 Future</target_name>
+            <target_type type="string">POSITION</target_type>
+            <value type="double">-812250.0</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">ValueRho</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <targetId type="string">DbPos~3115</targetId>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">MarkToMarketValueRhoFuturesFunction</Function>
+                  <Currency type="string">USD</Currency>
+               </with>
+            </specification_properties>
+            <target_name type="string">50 x E Mini S&amp;P 500 2014-09-20 Future</target_name>
+            <target_type type="string">TRADE</target_type>
+            <value type="double">3100575.6044019754</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">ValueDelta</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <targetId type="string">DbPos~3115</targetId>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">MarkToMarketValueDeltaFuturesFunction</Function>
+                  <Currency type="string">USD</Currency>
+               </with>
+            </specification_properties>
+            <target_name type="string">50 x E Mini S&amp;P 500 2014-09-20 Future</target_name>
+            <target_type type="string">TRADE</target_type>
+            <value type="double">4027438.0626573693</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">PV01</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <path type="message">
+               <fudgeField type="string">Futures Portfolio</fudgeField>
+            </path>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <Aggregation type="string">Full</Aggregation>
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">Sum(PV01)</Function>
+                  <Currency type="string">USD</Currency>
+                  <PositionCount type="string">7</PositionCount>
+               </with>
+            </specification_properties>
+            <target_name type="string">Futures Portfolio</target_name>
+            <target_type type="string">PORTFOLIO_NODE</target_type>
+            <value type="double">928.3289314781734</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">Forward</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <targetId type="string">DbPos~3107</targetId>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">MarkToMarketForwardFuturesFunction</Function>
+               </with>
+            </specification_properties>
+            <target_name type="string">34 x E Mini S&amp;P 500 2014-06-21 Future</target_name>
+            <target_type type="string">TRADE</target_type>
+            <value type="double">1644.0813576657122</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">Forward</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <targetId type="string">DbPos~3109</targetId>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">MarkToMarketForwardFuturesFunction</Function>
+               </with>
+            </specification_properties>
+            <target_name type="string">10 x E Mini S&amp;P 500 2014-12-21 Future</target_name>
+            <target_type type="string">TRADE</target_type>
+            <value type="double">1600.5</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">ValueDelta</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <path type="message">
+               <fudgeField type="string">Futures Portfolio</fudgeField>
+            </path>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <Aggregation type="string">Full</Aggregation>
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">Sum(ValueDelta)</Function>
+                  <Currency type="string">USD</Currency>
+                  <PositionCount type="string">7</PositionCount>
+               </with>
+            </specification_properties>
+            <target_name type="string">Futures Portfolio</target_name>
+            <target_type type="string">PORTFOLIO_NODE</target_type>
+            <value type="double">1.3771348102503123E7</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">PV01</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <targetId type="string">DbPos~3113</targetId>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">MarkToMarketPV01FuturesFunction</Function>
+                  <Currency type="string">USD</Currency>
+               </with>
+            </specification_properties>
+            <target_name type="string">18 x Russell 2000 Index Mini ($100) 2014-09-21 Future</target_name>
+            <target_type type="string">TRADE</target_type>
+            <value type="double">279.75059070719504</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">Present Value</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <targetId type="string">DbPos~3119</targetId>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">MarkToMarketPresentValueFuturesFunction</Function>
+                  <Currency type="string">USD</Currency>
+               </with>
+            </specification_properties>
+            <target_name type="string">-2 x S&amp;P 500 2014-09-21 Future</target_name>
+            <target_type type="string">TRADE</target_type>
+            <value type="double">-61171.885175496296</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">PV01</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <targetId type="string">DbPos~3114</targetId>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">PositionTradeScaling for PV01</Function>
+                  <Currency type="string">USD</Currency>
+               </with>
+            </specification_properties>
+            <target_name type="string">50 x E Mini S&amp;P 500 2014-09-20 Future</target_name>
+            <target_type type="string">POSITION</target_type>
+            <value type="double">310.0575604401975</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">PV01</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <targetId type="string">DbPos~3115</targetId>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">MarkToMarketPV01FuturesFunction</Function>
+                  <Currency type="string">USD</Currency>
+               </with>
+            </specification_properties>
+            <target_name type="string">50 x E Mini S&amp;P 500 2014-09-20 Future</target_name>
+            <target_type type="string">TRADE</target_type>
+            <value type="double">310.0575604401975</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">Present Value</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <targetId type="string">DbPos~3117</targetId>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">MarkToMarketPresentValueFuturesFunction</Function>
+                  <Currency type="string">USD</Currency>
+               </with>
+            </specification_properties>
+            <target_name type="string">-2 x S&amp;P 500 2014-06-21 Future</target_name>
+            <target_type type="string">TRADE</target_type>
+            <value type="double">1117.166017358386</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">PV01</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <targetId type="string">DbPos~3116</targetId>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">PositionTradeScaling for PV01</Function>
+                  <Currency type="string">USD</Currency>
+               </with>
+            </specification_properties>
+            <target_name type="string">-2 x S&amp;P 500 2014-06-21 Future</target_name>
+            <target_type type="string">POSITION</target_type>
+            <value type="double">-42.281506849315065</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">Present Value</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <targetId type="string">DbPos~3118</targetId>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">PositionTradeScaling for Present Value</Function>
+                  <Currency type="string">USD</Currency>
+               </with>
+            </specification_properties>
+            <target_name type="string">-2 x S&amp;P 500 2014-09-21 Future</target_name>
+            <target_type type="string">POSITION</target_type>
+            <value type="double">-61171.885175496296</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">Present Value</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <targetId type="string">DbPos~3115</targetId>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">MarkToMarketPresentValueFuturesFunction</Function>
+                  <Currency type="string">USD</Currency>
+               </with>
+            </specification_properties>
+            <target_name type="string">50 x E Mini S&amp;P 500 2014-09-20 Future</target_name>
+            <target_type type="string">TRADE</target_type>
+            <value type="double">-37783.64723872869</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">PV01</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <targetId type="string">DbPos~3117</targetId>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">MarkToMarketPV01FuturesFunction</Function>
+                  <Currency type="string">USD</Currency>
+               </with>
+            </specification_properties>
+            <target_name type="string">-2 x S&amp;P 500 2014-06-21 Future</target_name>
+            <target_type type="string">TRADE</target_type>
+            <value type="double">-42.281506849315065</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">Present Value</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <targetId type="string">DbPos~3116</targetId>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">PositionTradeScaling for Present Value</Function>
+                  <Currency type="string">USD</Currency>
+               </with>
+            </specification_properties>
+            <target_name type="string">-2 x S&amp;P 500 2014-06-21 Future</target_name>
+            <target_type type="string">POSITION</target_type>
+            <value type="double">1117.166017358386</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">PV01</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <targetId type="string">DbPos~3118</targetId>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">PositionTradeScaling for PV01</Function>
+                  <Currency type="string">USD</Currency>
+               </with>
+            </specification_properties>
+            <target_name type="string">-2 x S&amp;P 500 2014-09-21 Future</target_name>
+            <target_type type="string">POSITION</target_type>
+            <value type="double">-62.328551474159816</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">Present Value</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <targetId type="string">DbPos~3113</targetId>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">MarkToMarketPresentValueFuturesFunction</Function>
+                  <Currency type="string">USD</Currency>
+               </with>
+            </specification_properties>
+            <target_name type="string">18 x Russell 2000 Index Mini ($100) 2014-09-21 Future</target_name>
+            <target_type type="string">TRADE</target_type>
+            <value type="double">1835872.655461327</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">PV01</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <targetId type="string">DbPos~3119</targetId>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">MarkToMarketPV01FuturesFunction</Function>
+                  <Currency type="string">USD</Currency>
+               </with>
+            </specification_properties>
+            <target_name type="string">-2 x S&amp;P 500 2014-09-21 Future</target_name>
+            <target_type type="string">TRADE</target_type>
+            <value type="double">-62.328551474159816</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">Present Value</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <targetId type="string">DbPos~3114</targetId>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">PositionTradeScaling for Present Value</Function>
+                  <Currency type="string">USD</Currency>
+               </with>
+            </specification_properties>
+            <target_name type="string">50 x E Mini S&amp;P 500 2014-09-20 Future</target_name>
+            <target_type type="string">POSITION</target_type>
+            <value type="double">-37783.64723872869</value>
+         </fudgeField2>
+         <fudgeField1 ordinal="1" type="message">
+            <calcConfigName type="string">Default</calcConfigName>
+            <valueName type="string">Forward</valueName>
+            <properties type="message">
+               <fudgeField0 ordinal="0" type="string">com.opengamma.engine.value.ValueProperties$EmptyValueProperties</fudgeField0>
+            </properties>
+            <targetId type="string">DbPos~3111</targetId>
+         </fudgeField1>
+         <fudgeField2 ordinal="2" type="message">
+            <specification_properties type="message">
+               <with type="message">
+                  <CalculationMethod type="string">MarkToMarket</CalculationMethod>
+                  <Function type="string">MarkToMarketForwardFuturesFunction</Function>
+               </with>
+            </specification_properties>
+            <target_name type="string">41 x Russell 2000 Index Mini ($100) 2014-06-21 Future</target_name>
+            <target_type type="string">TRADE</target_type>
+            <value type="double">1011.4198107342861</value>
+         </fudgeField2>
+      </values>
+      <viewDefinitionName type="string">Futures View</viewDefinitionName>
+      <snapshotName type="string">Futures Snapshot</snapshotName>
+      <valuationTime type="datetime">2013-12-13T16:29:38.409Z</valuationTime>
+      <version type="string">Golden Copy</version>
+   </calculationResults>
+</fudgeEnvelope>
+

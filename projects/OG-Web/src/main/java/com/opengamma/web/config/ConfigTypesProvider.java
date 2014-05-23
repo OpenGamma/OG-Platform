@@ -5,9 +5,9 @@
  */
 package com.opengamma.web.config;
 
-import java.lang.annotation.Annotation;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.fudgemsg.AnnotationReflector;
 import org.slf4j.Logger;
@@ -39,6 +39,10 @@ public final class ConfigTypesProvider {
    * Map of config descriptions.
    */
   private final ImmutableSortedMap<String, String> _configDescriptionMap;
+  /**
+   * Map of config groups.
+   */
+  private final Map<String, Map<String, String>> _configGroupMap;
 
   //-------------------------------------------------------------------------
   /**
@@ -55,19 +59,21 @@ public final class ConfigTypesProvider {
    * Restricted constructor
    */
   private ConfigTypesProvider() {
+    _configGroupMap = new TreeMap<>();
     Map<String, Class<?>> result = Maps.newHashMap();
     ImmutableSortedMap.Builder<String, String> descriptions = ImmutableSortedMap.naturalOrder();
     AnnotationReflector reflector = AnnotationReflector.getDefaultReflector();
     Set<Class<?>> configClasses = reflector.getReflector().getTypesAnnotatedWith(Config.class);
     for (Class<?> configClass : configClasses) {
-      Annotation annotation = configClass.getAnnotation(Config.class);
-      if (annotation instanceof Config) {
-        Config configValueAnnotation = (Config) annotation;
+      Config configValueAnnotation = configClass.getAnnotation(Config.class);
+      if (configValueAnnotation != null) {
         // extract config type
         Class<?> configType = configValueAnnotation.searchType();
         if (configType == Object.class) {
           configType = configClass;
         }
+        // extract grouping
+        String group = configValueAnnotation.group();
         // extract description
         String description = configValueAnnotation.description();
         if (description.length() == 0) {
@@ -79,10 +85,19 @@ public final class ConfigTypesProvider {
           s_logger.warn("Two classes exist with the same name: " + configType.getSimpleName());
         }
         descriptions.put(configType.getSimpleName(), description);
+        if (_configGroupMap.containsKey(group)) {
+          _configGroupMap.get(group).put(configType.getSimpleName(), description);
+        } else {
+          Map<String, String> value = new TreeMap<>();
+          value.put(configType.getSimpleName(), description);
+          _configGroupMap.put(group, value);
+        }
+
       }
     }
     _configTypeMap = ImmutableSortedMap.copyOf(result);
     _configDescriptionMap = descriptions.build();
+
   }
 
   //-------------------------------------------------------------------------
@@ -111,6 +126,15 @@ public final class ConfigTypesProvider {
    */
   public ImmutableSortedMap<String, String> getDescriptionMap() {
     return _configDescriptionMap;
+  }
+
+  /**
+   * Gets the map of config groups by short key.
+   *
+   * @return the map, not null
+   */
+  public Map<String, Map<String, String>> getGroupMap() {
+    return _configGroupMap;
   }
 
   /**

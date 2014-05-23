@@ -8,6 +8,7 @@ package com.opengamma.analytics.financial.model.finitedifference;
 import static org.testng.AssertJUnit.assertEquals;
 
 import org.apache.commons.lang.Validate;
+import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
@@ -17,11 +18,13 @@ import com.opengamma.analytics.math.cube.FunctionalDoublesCube;
 import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * @deprecated This class tests deprecated functionality
  */
 @Deprecated
+@Test(groups = TestGroup.UNIT)
 public class SpreadOptionPDETestCase {
 
   private static BoundaryCondition2D A_LOWER;

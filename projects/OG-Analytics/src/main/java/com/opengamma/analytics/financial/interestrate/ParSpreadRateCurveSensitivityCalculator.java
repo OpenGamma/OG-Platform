@@ -102,7 +102,7 @@ public final class ParSpreadRateCurveSensitivityCalculator extends InstrumentDer
 
   @Override
   public InterestRateCurveSensitivity visitInterestRateFutureTransaction(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
-    return METHOD_IR_FUTURES_SECURITY.parRateCurveSensitivity(future.getUnderlying(), curves);
+    return METHOD_IR_FUTURES_SECURITY.parRateCurveSensitivity(future.getUnderlyingSecurity(), curves);
   }
 
   @Override

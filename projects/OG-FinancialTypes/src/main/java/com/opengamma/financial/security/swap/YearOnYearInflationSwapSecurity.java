@@ -7,6 +7,7 @@ package com.opengamma.financial.security.swap;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -19,6 +20,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.financial.security.FinancialSecurityVisitor;
+import com.opengamma.master.security.SecurityDescription;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.Tenor;
 
@@ -26,6 +28,7 @@ import com.opengamma.util.time.Tenor;
  * A security for a zero-coupon inflation swap.
  */
 @BeanDefinition
+@SecurityDescription(type = YearOnYearInflationSwapSecurity.SECURITY_TYPE, description = "Year on year inflation swap")
 public class YearOnYearInflationSwapSecurity extends SwapSecurity {
 
   /** Serialization version */
@@ -93,51 +96,6 @@ public class YearOnYearInflationSwapSecurity extends SwapSecurity {
     return YearOnYearInflationSwapSecurity.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 45907375:  // maturityTenor
-        return getMaturityTenor();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 45907375:  // maturityTenor
-        setMaturityTenor((Tenor) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_maturityTenor, "maturityTenor");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      YearOnYearInflationSwapSecurity other = (YearOnYearInflationSwapSecurity) obj;
-      return JodaBeanUtils.equal(getMaturityTenor(), other.getMaturityTenor()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMaturityTenor());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the maturity tenor of the swap.
@@ -162,6 +120,51 @@ public class YearOnYearInflationSwapSecurity extends SwapSecurity {
    */
   public final Property<Tenor> maturityTenor() {
     return metaBean().maturityTenor().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public YearOnYearInflationSwapSecurity clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      YearOnYearInflationSwapSecurity other = (YearOnYearInflationSwapSecurity) obj;
+      return JodaBeanUtils.equal(getMaturityTenor(), other.getMaturityTenor()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMaturityTenor());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(64);
+    buf.append("YearOnYearInflationSwapSecurity{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("maturityTenor").append('=').append(JodaBeanUtils.toString(getMaturityTenor())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -223,6 +226,32 @@ public class YearOnYearInflationSwapSecurity extends SwapSecurity {
      */
     public final MetaProperty<Tenor> maturityTenor() {
       return _maturityTenor;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 45907375:  // maturityTenor
+          return ((YearOnYearInflationSwapSecurity) bean).getMaturityTenor();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 45907375:  // maturityTenor
+          ((YearOnYearInflationSwapSecurity) bean).setMaturityTenor((Tenor) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((YearOnYearInflationSwapSecurity) bean)._maturityTenor, "maturityTenor");
+      super.validate(bean);
     }
 
   }

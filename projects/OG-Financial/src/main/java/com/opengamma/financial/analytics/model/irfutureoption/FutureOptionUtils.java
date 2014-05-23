@@ -12,17 +12,18 @@ import org.threeten.bp.temporal.TemporalAdjuster;
 import org.threeten.bp.temporal.TemporalAdjusters;
 
 import com.opengamma.analytics.util.time.TimeCalculator;
-import com.opengamma.financial.convention.IMMFutureAndFutureOptionMonthlyExpiryCalculator;
-import com.opengamma.financial.convention.IMMFutureAndFutureOptionQuarterlyExpiryCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.financial.convention.expirycalc.IMMFutureAndFutureOptionMonthlyExpiryCalculator;
+import com.opengamma.financial.convention.expirycalc.IMMFutureAndFutureOptionQuarterlyExpiryCalculator;
 
 /**
  * Utility Class for computing Expiries of IR Future Options from ordinals (i.e. nth future after valuationDate)
  */
 public class FutureOptionUtils {
   private static final TemporalAdjuster THIRD_WED_ADJUSTER = TemporalAdjusters.dayOfWeekInMonth(3, DayOfWeek.WEDNESDAY);
-  private static final Calendar WEEKDAYS = new MondayToFridayCalendar("MTWThF");
+  /** Calendar containing weekdays */
+  public static final Calendar WEEKDAYS = new MondayToFridayCalendar("MTWThF");
   /**
    * Compute time between now and future or future option's settlement date,
    * typically two business days before the third Wednesday of the expiry month.

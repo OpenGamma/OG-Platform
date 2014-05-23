@@ -27,6 +27,7 @@ import org.threeten.bp.Year;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * RESTful resource for a version of a holiday.
@@ -80,11 +81,11 @@ public class WebHolidayVersionResource extends AbstractWebHolidayResource {
         if (dates.get(pos).getYear() == year) {
           continue;
         }
-        map.add(Pair.of(Year.of(year), dates.subList(start, pos)));
+        map.add(Pairs.of(Year.of(year), dates.subList(start, pos)));
         year = dates.get(pos).getYear();
         start = pos;
       }
-      map.add(Pair.of(Year.of(year), dates.subList(start, pos)));
+      map.add(Pairs.of(Year.of(year), dates.subList(start, pos)));
     }
     out.put("holidayDatesByYear", map);
     return out;

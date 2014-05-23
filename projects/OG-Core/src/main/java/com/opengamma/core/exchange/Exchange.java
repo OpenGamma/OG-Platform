@@ -25,6 +25,18 @@ import com.opengamma.util.PublicAPI;
 public interface Exchange extends UniqueIdentifiable, ExternalBundleIdentifiable {
 
   /**
+   * Gets the external identifier bundle that defines the exchange.
+   * <p>
+   * Each external system has one or more identifiers by which they refer to the exchange.
+   * Some of these may be unique within that system, while others may be more descriptive.
+   * This bundle stores the set of these external identifiers.
+   * 
+   * @return the bundle defining the exchange, not null
+   */
+  @Override  // override for Javadoc
+  ExternalIdBundle getExternalIdBundle();
+
+  /**
    * Gets the region external identifier bundle that defines where the exchange is located.
    * 
    * @return the region key identifier bundle of the exchange, null if no location

@@ -13,10 +13,12 @@ import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.math.regression.LeastSquaresRegressionResult;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.precise.instant.ImmutableInstantDoubleTimeSeries;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class CAPMFromRegressionCalculatorTest {
   private static final DoubleTimeSeries<?> MARKET;
   private static final DoubleTimeSeries<?> ASSET_1;

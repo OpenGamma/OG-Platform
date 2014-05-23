@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -88,68 +89,6 @@ public class BondFutureSecurity extends FutureSecurity {
     return BondFutureSecurity.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1396196922:  // basket
-        return getBasket();
-      case 1755448466:  // firstDeliveryDate
-        return getFirstDeliveryDate();
-      case -233366664:  // lastDeliveryDate
-        return getLastDeliveryDate();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1396196922:  // basket
-        setBasket((List<BondFutureDeliverable>) newValue);
-        return;
-      case 1755448466:  // firstDeliveryDate
-        setFirstDeliveryDate((ZonedDateTime) newValue);
-        return;
-      case -233366664:  // lastDeliveryDate
-        setLastDeliveryDate((ZonedDateTime) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_basket, "basket");
-    JodaBeanUtils.notNull(_firstDeliveryDate, "firstDeliveryDate");
-    JodaBeanUtils.notNull(_lastDeliveryDate, "lastDeliveryDate");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      BondFutureSecurity other = (BondFutureSecurity) obj;
-      return JodaBeanUtils.equal(getBasket(), other.getBasket()) &&
-          JodaBeanUtils.equal(getFirstDeliveryDate(), other.getFirstDeliveryDate()) &&
-          JodaBeanUtils.equal(getLastDeliveryDate(), other.getLastDeliveryDate()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBasket());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFirstDeliveryDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getLastDeliveryDate());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the deliverables.
@@ -161,9 +100,10 @@ public class BondFutureSecurity extends FutureSecurity {
 
   /**
    * Sets the deliverables.
-   * @param basket  the new value of the property
+   * @param basket  the new value of the property, not null
    */
   public void setBasket(List<BondFutureDeliverable> basket) {
+    JodaBeanUtils.notNull(basket, "basket");
     this._basket.clear();
     this._basket.addAll(basket);
   }
@@ -226,6 +166,57 @@ public class BondFutureSecurity extends FutureSecurity {
    */
   public final Property<ZonedDateTime> lastDeliveryDate() {
     return metaBean().lastDeliveryDate().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public BondFutureSecurity clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      BondFutureSecurity other = (BondFutureSecurity) obj;
+      return JodaBeanUtils.equal(getBasket(), other.getBasket()) &&
+          JodaBeanUtils.equal(getFirstDeliveryDate(), other.getFirstDeliveryDate()) &&
+          JodaBeanUtils.equal(getLastDeliveryDate(), other.getLastDeliveryDate()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getBasket());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFirstDeliveryDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getLastDeliveryDate());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(128);
+    buf.append("BondFutureSecurity{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("basket").append('=').append(JodaBeanUtils.toString(getBasket())).append(',').append(' ');
+    buf.append("firstDeliveryDate").append('=').append(JodaBeanUtils.toString(getFirstDeliveryDate())).append(',').append(' ');
+    buf.append("lastDeliveryDate").append('=').append(JodaBeanUtils.toString(getLastDeliveryDate())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -320,6 +311,45 @@ public class BondFutureSecurity extends FutureSecurity {
      */
     public final MetaProperty<ZonedDateTime> lastDeliveryDate() {
       return _lastDeliveryDate;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1396196922:  // basket
+          return ((BondFutureSecurity) bean).getBasket();
+        case 1755448466:  // firstDeliveryDate
+          return ((BondFutureSecurity) bean).getFirstDeliveryDate();
+        case -233366664:  // lastDeliveryDate
+          return ((BondFutureSecurity) bean).getLastDeliveryDate();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1396196922:  // basket
+          ((BondFutureSecurity) bean).setBasket((List<BondFutureDeliverable>) newValue);
+          return;
+        case 1755448466:  // firstDeliveryDate
+          ((BondFutureSecurity) bean).setFirstDeliveryDate((ZonedDateTime) newValue);
+          return;
+        case -233366664:  // lastDeliveryDate
+          ((BondFutureSecurity) bean).setLastDeliveryDate((ZonedDateTime) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((BondFutureSecurity) bean)._basket, "basket");
+      JodaBeanUtils.notNull(((BondFutureSecurity) bean)._firstDeliveryDate, "firstDeliveryDate");
+      JodaBeanUtils.notNull(((BondFutureSecurity) bean)._lastDeliveryDate, "lastDeliveryDate");
+      super.validate(bean);
     }
 
   }

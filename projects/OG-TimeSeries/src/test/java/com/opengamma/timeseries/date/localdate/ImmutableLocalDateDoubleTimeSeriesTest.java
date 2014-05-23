@@ -235,6 +235,227 @@ public class ImmutableLocalDateDoubleTimeSeriesTest extends LocalDateDoubleTimeS
   }
 
   //-------------------------------------------------------------------------
+  public void test_subSeries_byLocalDates_single() {
+    final LocalDateDoubleTimeSeries dts = ImmutableLocalDateDoubleTimeSeries.builder()
+        .put(LocalDate.of(2010, 2, 8), 2d)
+        .put(LocalDate.of(2010, 3, 8), 3d)
+        .put(LocalDate.of(2010, 4, 8), 5d)
+        .put(LocalDate.of(2010, 5, 8), 8d)
+        .put(LocalDate.of(2010, 6, 8), 9d)
+        .build();
+    final LocalDateDoubleTimeSeries singleMiddle = dts.subSeries(LocalDate.of(2010, 3, 8), LocalDate.of(2010, 3, 9));
+    assertEquals(1, singleMiddle.size());
+    assertEquals(LocalDate.of(2010, 3, 8), singleMiddle.getTimeAtIndex(0));
+    assertEquals(Double.valueOf(3d), singleMiddle.getValueAtIndex(0));
+    
+    final LocalDateDoubleTimeSeries singleStart = dts.subSeries(LocalDate.of(2010, 2, 8), LocalDate.of(2010, 2, 9));
+    assertEquals(1, singleStart.size());
+    assertEquals(LocalDate.of(2010, 2, 8), singleStart.getTimeAtIndex(0));
+    assertEquals(Double.valueOf(2d), singleStart.getValueAtIndex(0));
+    
+    final LocalDateDoubleTimeSeries singleEnd = dts.subSeries(LocalDate.of(2010, 6, 8), LocalDate.of(2010, 6, 9));
+    assertEquals(1, singleEnd.size());
+    assertEquals(LocalDate.of(2010, 6, 8), singleEnd.getTimeAtIndex(0));
+    assertEquals(Double.valueOf(9d), singleEnd.getValueAtIndex(0));
+  }
+
+  public void test_subSeries_byLocalDates_empty() {
+    final LocalDateDoubleTimeSeries dts = ImmutableLocalDateDoubleTimeSeries.builder()
+        .put(LocalDate.of(2010, 2, 8), 2d)
+        .put(LocalDate.of(2010, 3, 8), 3d)
+        .put(LocalDate.of(2010, 4, 8), 5d)
+        .build();
+    final LocalDateDoubleTimeSeries sub = dts.subSeries(LocalDate.of(2010, 3, 8), LocalDate.of(2010, 3, 8));
+    assertEquals(0, sub.size());
+  }
+
+  public void test_subSeries_byLocalDates_range() {
+    final LocalDateDoubleTimeSeries dts = ImmutableLocalDateDoubleTimeSeries.builder()
+        .put(LocalDate.of(2010, 2, 8), 2d)
+        .put(LocalDate.of(2010, 3, 8), 3d)
+        .put(LocalDate.of(2010, 4, 8), 5d)
+        .put(LocalDate.of(2010, 5, 8), 8d)
+        .put(LocalDate.of(2010, 6, 8), 9d)
+        .build();
+    final LocalDateDoubleTimeSeries middle = dts.subSeries(LocalDate.of(2010, 3, 8), LocalDate.of(2010, 5, 9));
+    assertEquals(3, middle.size());
+    assertEquals(LocalDate.of(2010, 3, 8), middle.getTimeAtIndex(0));
+    assertEquals(Double.valueOf(3d), middle.getValueAtIndex(0));
+    assertEquals(LocalDate.of(2010, 4, 8), middle.getTimeAtIndex(1));
+    assertEquals(Double.valueOf(5d), middle.getValueAtIndex(1));
+    assertEquals(LocalDate.of(2010, 5, 8), middle.getTimeAtIndex(2));
+    assertEquals(Double.valueOf(8d), middle.getValueAtIndex(2));
+    
+    final LocalDateDoubleTimeSeries fromStart = dts.subSeries(LocalDate.of(2010, 2, 8), LocalDate.of(2010, 4, 9));
+    assertEquals(3, fromStart.size());
+    assertEquals(LocalDate.of(2010, 2, 8), fromStart.getTimeAtIndex(0));
+    assertEquals(Double.valueOf(2d), fromStart.getValueAtIndex(0));
+    assertEquals(LocalDate.of(2010, 3, 8), fromStart.getTimeAtIndex(1));
+    assertEquals(Double.valueOf(3d), fromStart.getValueAtIndex(1));
+    assertEquals(LocalDate.of(2010, 4, 8), fromStart.getTimeAtIndex(2));
+    assertEquals(Double.valueOf(5d), fromStart.getValueAtIndex(2));
+    
+    final LocalDateDoubleTimeSeries preStart = dts.subSeries(LocalDate.of(2010, 1, 8), LocalDate.of(2010, 3, 9));
+    assertEquals(2, preStart.size());
+    assertEquals(LocalDate.of(2010, 2, 8), preStart.getTimeAtIndex(0));
+    assertEquals(Double.valueOf(2d), preStart.getValueAtIndex(0));
+    assertEquals(LocalDate.of(2010, 3, 8), preStart.getTimeAtIndex(1));
+    assertEquals(Double.valueOf(3d), preStart.getValueAtIndex(1));
+    
+    final LocalDateDoubleTimeSeries postEnd = dts.subSeries(LocalDate.of(2010, 5, 8), LocalDate.of(2010, 12, 9));
+    assertEquals(2, postEnd.size());
+    assertEquals(LocalDate.of(2010, 5, 8), postEnd.getTimeAtIndex(0));
+    assertEquals(Double.valueOf(8d), postEnd.getValueAtIndex(0));
+    assertEquals(LocalDate.of(2010, 6, 8), postEnd.getTimeAtIndex(1));
+    assertEquals(Double.valueOf(9d), postEnd.getValueAtIndex(1));
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_subSeries_byLocalDates_badRange1() {
+    final LocalDateDoubleTimeSeries dts = ImmutableLocalDateDoubleTimeSeries.builder()
+        .put(LocalDate.of(2010, 2, 8), 2d)
+        .put(LocalDate.of(2010, 3, 8), 3d)
+        .put(LocalDate.of(2010, 4, 8), 5d)
+        .put(LocalDate.of(2010, 5, 8), 8d)
+        .put(LocalDate.of(2010, 6, 8), 9d)
+        .build();
+    dts.subSeries(LocalDate.of(2010, 3, 8), LocalDate.of(2010, 3, 7));
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_subSeries_byLocalDates_badRange2() {
+    final LocalDateDoubleTimeSeries dts = ImmutableLocalDateDoubleTimeSeries.builder()
+        .put(LocalDate.of(2010, 2, 8), 2d)
+        .put(LocalDate.of(2010, 3, 8), 3d)
+        .put(LocalDate.of(2010, 4, 8), 5d)
+        .put(LocalDate.of(2010, 5, 8), 8d)
+        .put(LocalDate.of(2010, 6, 8), 9d)
+        .build();
+    dts.subSeries(LocalDate.of(2010, 3, 8), LocalDate.of(2010, 2, 7));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_subSeries_byLocalDatesAndBooleans_trueTrue() {
+    final LocalDateDoubleTimeSeries dts = ImmutableLocalDateDoubleTimeSeries.builder()
+        .put(LocalDate.of(2010, 2, 8), 2d)
+        .put(LocalDate.of(2010, 3, 8), 3d)
+        .put(LocalDate.of(2010, 4, 8), 5d)
+        .build();
+    final LocalDateDoubleTimeSeries sub1 = dts.subSeries(LocalDate.of(2010, 3, 8), true, LocalDate.of(2010, 3, 8), true);
+    assertEquals(1, sub1.size());
+    assertEquals(LocalDate.of(2010, 3, 8), sub1.getTimeAtIndex(0));
+    assertEquals(Double.valueOf(3d), sub1.getValueAtIndex(0));
+  }
+
+  public void test_subSeries_byLocalDatesAndBooleans_trueFalse() {
+    final LocalDateDoubleTimeSeries dts = ImmutableLocalDateDoubleTimeSeries.builder()
+        .put(LocalDate.of(2010, 2, 8), 2d)
+        .put(LocalDate.of(2010, 3, 8), 3d)
+        .put(LocalDate.of(2010, 4, 8), 5d)
+        .build();
+    final LocalDateDoubleTimeSeries sub1 = dts.subSeries(LocalDate.of(2010, 3, 8), true, LocalDate.of(2010, 3, 8), false);
+    assertEquals(0, sub1.size());
+    
+    final LocalDateDoubleTimeSeries sub2 = dts.subSeries(LocalDate.of(2010, 3, 8), true, LocalDate.of(2010, 3, 9), false);
+    assertEquals(1, sub2.size());
+    assertEquals(LocalDate.of(2010, 3, 8), sub2.getTimeAtIndex(0));
+    assertEquals(Double.valueOf(3d), sub2.getValueAtIndex(0));
+    
+    final LocalDateDoubleTimeSeries sub3 = dts.subSeries(LocalDate.of(2010, 3, 7), true, LocalDate.of(2010, 3, 8), false);
+    assertEquals(0, sub3.size());
+  }
+
+  public void test_subSeries_byLocalDatesAndBooleans_falseTrue() {
+    final LocalDateDoubleTimeSeries dts = ImmutableLocalDateDoubleTimeSeries.builder()
+        .put(LocalDate.of(2010, 2, 8), 2d)
+        .put(LocalDate.of(2010, 3, 8), 3d)
+        .put(LocalDate.of(2010, 4, 8), 5d)
+        .build();
+    final LocalDateDoubleTimeSeries sub1 = dts.subSeries(LocalDate.of(2010, 3, 8), false, LocalDate.of(2010, 3, 8), true);
+    assertEquals(0, sub1.size());
+    
+    final LocalDateDoubleTimeSeries sub2 = dts.subSeries(LocalDate.of(2010, 3, 8), false, LocalDate.of(2010, 3, 9), true);
+    assertEquals(0, sub2.size());
+    
+    final LocalDateDoubleTimeSeries sub3 = dts.subSeries(LocalDate.of(2010, 3, 7), false, LocalDate.of(2010, 3, 8), true);
+    assertEquals(1, sub3.size());
+    assertEquals(LocalDate.of(2010, 3, 8), sub3.getTimeAtIndex(0));
+    assertEquals(Double.valueOf(3d), sub3.getValueAtIndex(0));
+  }
+
+  public void test_subSeries_byLocalDatesAndBooleans_falseFalse() {
+    final LocalDateDoubleTimeSeries dts = ImmutableLocalDateDoubleTimeSeries.builder()
+        .put(LocalDate.of(2010, 2, 8), 2d)
+        .put(LocalDate.of(2010, 3, 8), 3d)
+        .put(LocalDate.of(2010, 4, 8), 5d)
+        .build();
+    final LocalDateDoubleTimeSeries sub1 = dts.subSeries(LocalDate.of(2010, 3, 8), false, LocalDate.of(2010, 3, 8), false);
+    assertEquals(0, sub1.size());
+    
+    final LocalDateDoubleTimeSeries sub2 = dts.subSeries(LocalDate.of(2010, 3, 8), false, LocalDate.of(2010, 3, 9), false);
+    assertEquals(0, sub2.size());
+    
+    final LocalDateDoubleTimeSeries sub3 = dts.subSeries(LocalDate.of(2010, 3, 7), false, LocalDate.of(2010, 3, 8), false);
+    assertEquals(0, sub3.size());
+    
+    final LocalDateDoubleTimeSeries sub4 = dts.subSeries(LocalDate.of(2010, 3, 7), false, LocalDate.of(2010, 3, 9), false);
+    assertEquals(1, sub4.size());
+    assertEquals(LocalDate.of(2010, 3, 8), sub4.getTimeAtIndex(0));
+    assertEquals(Double.valueOf(3d), sub4.getValueAtIndex(0));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_subSeries_byLocalDatesAndBooleans_maxSimple() {
+    final LocalDateDoubleTimeSeries dts = ImmutableLocalDateDoubleTimeSeries.builder()
+        .put(LocalDate.of(2010, 2, 8), 2d)
+        .put(LocalDate.of(2010, 3, 8), 3d)
+        .put(LocalDate.of(2010, 4, 8), 5d)
+        .build();
+    final LocalDateDoubleTimeSeries sub1 = dts.subSeries(LocalDate.of(2010, 3, 9), true, LocalDate.MAX, false);
+    assertEquals(1, sub1.size());
+    assertEquals(LocalDate.of(2010, 4, 8), sub1.getTimeAtIndex(0));
+    assertEquals(Double.valueOf(5d), sub1.getValueAtIndex(0));
+    
+    final LocalDateDoubleTimeSeries sub2 = dts.subSeries(LocalDate.of(2010, 3, 9), true, LocalDate.MAX, true);
+    assertEquals(1, sub2.size());
+    assertEquals(LocalDate.of(2010, 4, 8), sub2.getTimeAtIndex(0));
+    assertEquals(Double.valueOf(5d), sub2.getValueAtIndex(0));
+  }
+
+  public void test_subSeries_byLocalDatesAndBooleans_maxComplex() {
+    final LocalDateDoubleTimeSeries dts = ImmutableLocalDateDoubleTimeSeries.builder()
+        .put(LocalDate.of(2010, 2, 8), 2d)
+        .put(LocalDate.of(2010, 3, 8), 3d)
+        .put(LocalDate.MAX, 5d)
+        .build();
+    final LocalDateDoubleTimeSeries sub1 = dts.subSeries(LocalDate.of(2010, 3, 7), true, LocalDate.MAX, false);
+    assertEquals(1, sub1.size());
+    assertEquals(LocalDate.of(2010, 3, 8), sub1.getTimeAtIndex(0));
+    assertEquals(Double.valueOf(3d), sub1.getValueAtIndex(0));
+    
+    final LocalDateDoubleTimeSeries sub2 = dts.subSeries(LocalDate.of(2010, 3, 7), true, LocalDate.MAX, true);
+    assertEquals(2, sub2.size());
+    assertEquals(LocalDate.of(2010, 3, 8), sub2.getTimeAtIndex(0));
+    assertEquals(Double.valueOf(3d), sub2.getValueAtIndex(0));
+    assertEquals(LocalDate.MAX, sub2.getTimeAtIndex(1));
+    assertEquals(Double.valueOf(5d), sub2.getValueAtIndex(1));
+    
+    final LocalDateDoubleTimeSeries sub3 = dts.subSeries(LocalDate.MAX, true, LocalDate.MAX, true);
+    assertEquals(1, sub3.size());
+    assertEquals(LocalDate.MAX, sub3.getTimeAtIndex(0));
+    assertEquals(Double.valueOf(5d), sub3.getValueAtIndex(0));
+    
+    final LocalDateDoubleTimeSeries sub4 = dts.subSeries(LocalDate.MAX, false, LocalDate.MAX, true);
+    assertEquals(0, sub4.size());
+    
+    final LocalDateDoubleTimeSeries sub5 = dts.subSeries(LocalDate.MAX, true, LocalDate.MAX, false);
+    assertEquals(0, sub5.size());
+    
+    final LocalDateDoubleTimeSeries sub6 = dts.subSeries(LocalDate.MAX, false, LocalDate.MAX, false);
+    assertEquals(0, sub6.size());
+  }
+
+  //-------------------------------------------------------------------------
   public void test_toString() {
     LocalDateDoubleTimeSeries ts= ImmutableLocalDateDoubleTimeSeries.of(LocalDate.of(2012, 6, 30), 2.0);
     assertEquals("ImmutableLocalDateDoubleTimeSeries[(2012-06-30, 2.0)]", ts.toString());

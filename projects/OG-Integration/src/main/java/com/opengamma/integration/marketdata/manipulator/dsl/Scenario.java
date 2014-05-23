@@ -12,7 +12,10 @@ import java.util.Objects;
 import java.util.Set;
 
 import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.format.DateTimeFormatter;
+import org.threeten.bp.format.DateTimeParseException;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableSet;
@@ -26,11 +29,15 @@ import com.opengamma.engine.marketdata.manipulator.ScenarioDefinition;
 import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.OpenGammaClock;
 
 /**
  * Encapsulates a set of transformations to apply to market data when a calculation cycle is run.
  */
 public class Scenario {
+
+  /** For parsing valuation time. */
+  private static final DateTimeFormatter s_dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
   /** Manipulators keyed by the selectors for the items they apply to. */
   private final ListMultimap<DistinctMarketDataSelector, StructureManipulator<?>> _manipulations = ArrayListMultimap.create();
@@ -65,13 +72,15 @@ public class Scenario {
     _name = name;
   }
 
-
-
   /**
    * @return A object for specifying which curves should be transformed
    */
   public YieldCurveSelector.Builder curve() {
     return new YieldCurveSelector.Builder(this);
+  }
+
+  public YieldCurveDataSelectorBuilder curveData() {
+    return new YieldCurveDataSelectorBuilder(this);
   }
 
   /**
@@ -86,6 +95,10 @@ public class Scenario {
    */
   public VolatilitySurfaceSelector.Builder surface() {
     return new VolatilitySurfaceSelector.Builder(this);
+  }
+
+  public SpotRateSelectorBuilder spotRate() {
+    return new SpotRateSelectorBuilder(this);
   }
 
   /**
@@ -107,6 +120,22 @@ public class Scenario {
   public Scenario valuationTime(Instant valuationTime) {
     ArgumentChecker.notNull(valuationTime, "valuationTime");
     _valuationTime = valuationTime;
+    return this;
+  }
+
+  /**
+   * Updates this scenario to use the specified valuation time.
+   * @param valuationTime The valuation time
+   * @return The modified scenario
+   */
+  public Scenario valuationTime(String valuationTime) {
+    try {
+      LocalDateTime localTime = LocalDateTime.parse(valuationTime, s_dateFormatter);
+      _valuationTime = ZonedDateTime.of(localTime, OpenGammaClock.getZone()).toInstant();
+    } catch (DateTimeParseException e) {
+      throw new IllegalArgumentException("Valuation time isn't in a valid format. Expected format " +
+                                             "'yyyy-MM-dd HH:mm', value: " + valuationTime);
+    }
     return this;
   }
 

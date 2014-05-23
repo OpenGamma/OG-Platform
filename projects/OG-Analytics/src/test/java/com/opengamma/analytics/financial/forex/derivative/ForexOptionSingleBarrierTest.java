@@ -16,10 +16,12 @@ import com.opengamma.analytics.financial.model.option.definition.Barrier.Barrier
 import com.opengamma.analytics.financial.model.option.definition.Barrier.KnockType;
 import com.opengamma.analytics.financial.model.option.definition.Barrier.ObservationType;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class ForexOptionSingleBarrierTest {
   private static final Currency CCY1 = Currency.AUD;
   private static final Currency CCY2 = Currency.CAD;

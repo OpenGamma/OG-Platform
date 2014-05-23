@@ -38,6 +38,16 @@ import com.opengamma.util.tuple.Triple;
   private final Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>> _resolved;
   private final ValueSpecification _resolvedOutput;
 
+  /**
+   * Creates a new instance.
+   * <p>
+   * The {@code resolvedOutput} parameter must be normalized.
+   * 
+   * @param task the resolve task this step is part of, not null
+   * @param base the superclass data, not null
+   * @param resolved the resolved function information, not null
+   * @param resolvedOutput the provisional resolved value specification, not null
+   */
   public FunctionApplicationStep(final ResolveTask task, final FunctionIterationStep.IterationBaseStep base,
       final Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>> resolved, final ValueSpecification resolvedOutput) {
     super(task, base);
@@ -170,6 +180,7 @@ import com.opengamma.util.tuple.Triple;
     // The worker reference is not ref-counted
     private final FunctionApplicationWorker _worker;
 
+    // TODO: Verify that valueSpecification is normalized
     private PumpingState(final ResolveTask task, final FunctionIterationStep.IterationBaseStep base, final ValueSpecification valueSpecification,
         final Collection<ValueSpecification> outputs, final ParameterizedFunction function, final FunctionApplicationWorker worker) {
       super(task, base);
@@ -292,6 +303,16 @@ import com.opengamma.util.tuple.Triple;
       return true;
     }
 
+    /**
+     * Late resolution based on the resolved inputs gives a different output, so we must create a new worker to produce that value.
+     * <p>
+     * The {@code resolvedOutput} value specification must be a normalized/canonical form.
+     * 
+     * @param context the graph builder context, not null
+     * @param inputs the resolved inputs and the requirements they satisfy, not null
+     * @param resolvedOutput the new resolved output as it should appear from the substitute, not null
+     * @param resolvedOutputs the full set of resolved outputs, not null
+     */
     private boolean produceSubstitute(final GraphBuildingContext context, final Map<ValueSpecification, ValueRequirement> inputs, final ValueSpecification resolvedOutput,
         final Set<ValueSpecification> resolvedOutputs) {
       if (inputs.containsKey(resolvedOutput)) {
@@ -428,6 +449,18 @@ import com.opengamma.util.tuple.Triple;
       getWorker().discard(context);
     }
 
+    /**
+     * Checks whether any additional requirements are required, resolving them if necessary, and formalizing the result of this resolution if successful.
+     * <p>
+     * The {@code resolvedOutput} specification must be a normalized/canonical form.
+     * 
+     * @param context the graph building context, not null
+     * @param substituteWorker the alternative worker, if the late resolution was different to the provisional resolution
+     * @param inputs the function inputs and the requirements they resolved, not null and not containing null
+     * @param resolvedOutput the resolved value specification, as it will appear in the dependency graph, not null
+     * @param resolvedOutputs the function outputs as they will appear in the dependency graph, not null and not containing null
+     * @param lastWorkerResult true if this is known to be the last result, otherwise false
+     */
     private boolean getAdditionalRequirementsAndPushResults(final GraphBuildingContext context, final FunctionApplicationWorker substituteWorker,
         final Map<ValueSpecification, ValueRequirement> inputs, final ValueSpecification resolvedOutput, final Set<ValueSpecification> resolvedOutputs, final boolean lastWorkerResult) {
       // the substituteWorker is not ref-counted from here
@@ -544,6 +577,18 @@ import com.opengamma.util.tuple.Triple;
       }
     }
 
+    /**
+     * Formalizes the resolved result and passes it to any consumers waiting for the resolution.
+     * <p>
+     * The {@code resolvedOutput} specification must be a normalized/canonical form.
+     * 
+     * @param context the graph building context, not null
+     * @param substituteWorker the alternative worker, if the late resolution was different to the provisional resolution
+     * @param inputs the function inputs and the requirements they resolved, not null and not containing null
+     * @param resolvedOutput the resolved value specification, as it will appear in the dependency graph, not null
+     * @param resolvedOutputs the function outputs as they will appear in the dependency graph, not null and not containing null
+     * @param lastWorkerResult true if this is known to be the last result, otherwise false
+     */
     private boolean pushResult(final GraphBuildingContext context, final FunctionApplicationWorker substituteWorker, final Map<ValueSpecification, ValueRequirement> inputs,
         final ValueSpecification resolvedOutput, final Set<ValueSpecification> resolvedOutputs, final boolean lastWorkerResult) {
       // the substituteWorker is not ref-counted from here
@@ -575,13 +620,6 @@ import com.opengamma.util.tuple.Triple;
     }
 
     public void finished(final GraphBuildingContext context, final int refCounts) {
-      if (s_logger.isInfoEnabled()) {
-        if (getWorker().getResults().length == 0) {
-          s_logger.info("Application of {} to produce {} failed; rescheduling for next resolution", getFunction(), getValueSpecification());
-        } else {
-          s_logger.info("Application of {} to produce {} complete; rescheduling for next resolution", getFunction(), getValueSpecification());
-        }
-      }
       context.discardTaskProducing(getValueSpecification(), getTask());
       // Release any ref-counts held by the worker on the task
       for (int i = 0; i < refCounts; i++) {

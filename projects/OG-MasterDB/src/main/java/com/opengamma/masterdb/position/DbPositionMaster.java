@@ -64,6 +64,7 @@ import com.opengamma.util.db.DbMapSqlParameterSource;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.paging.Paging;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * A position master implementation using a database for persistence.
@@ -116,7 +117,10 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
     ArgumentChecker.notNull(request.getVersionCorrection(), "request.versionCorrection");
     s_logger.debug("search {}", request);
 
-    final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());
+    VersionCorrection vc = request.getVersionCorrection();
+    if (vc.containsLatest()) {
+      vc = vc.withLatestFixed(now());
+    }
     final PositionSearchResult result = new PositionSearchResult(vc);
 
     final ExternalIdSearch securityIdSearch = request.getSecurityIdSearch();
@@ -129,7 +133,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
       return result;
     }
 
-    final DbMapSqlParameterSource args = new DbMapSqlParameterSource().addTimestamp("version_as_of_instant", vc.getVersionAsOf()).addTimestamp("corrected_to_instant", vc.getCorrectedTo())
+    final DbMapSqlParameterSource args = createParameterSource().addTimestamp("version_as_of_instant", vc.getVersionAsOf()).addTimestamp("corrected_to_instant", vc.getCorrectedTo())
         .addValueNullIgnored("min_quantity", request.getMinQuantity()).addValueNullIgnored("max_quantity", request.getMaxQuantity())
         .addValueNullIgnored("security_id_value", getDialect().sqlWildcardAdjustValue(request.getSecurityIdValue()));
     if (request.getPositionProviderId() != null) {
@@ -227,15 +231,15 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
       ArgumentChecker.notNull(trade.getCounterpartyExternalId(), "position.trade.counterpartyexternalid");
       ArgumentChecker.notNull(trade.getTradeDate(), "position.trade.tradedate");
     }
-    
+
     try (Timer.Context context = _insertTimer.time()) {
       final long positionId = nextId("pos_master_seq");
       final long positionOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : positionId);
       final UniqueId positionUid = createUniqueId(positionOid, positionId);
       final ManageablePosition position = document.getPosition();
-      
+
       // the arguments for inserting into the position table
-      final DbMapSqlParameterSource docArgs = new DbMapSqlParameterSource().addValue("position_id", positionId).addValue("position_oid", positionOid)
+      final DbMapSqlParameterSource docArgs = createParameterSource().addValue("position_id", positionId).addValue("position_oid", positionOid)
           .addTimestamp("ver_from_instant", document.getVersionFromInstant()).addTimestampNullFuture("ver_to_instant", document.getVersionToInstant())
           .addTimestamp("corr_from_instant", document.getCorrectionFromInstant())
           .addTimestampNullFuture("corr_to_instant", document.getCorrectionToInstant())
@@ -244,30 +248,30 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
               position.getProviderId() != null ? position.getProviderId().getScheme().getName() : null, Types.VARCHAR)
           .addValue("provider_value",
               position.getProviderId() != null ? position.getProviderId().getValue() : null, Types.VARCHAR);
-      
+
       // the arguments for inserting into the pos_attribute table
       final List<DbMapSqlParameterSource> posAttrList = Lists.newArrayList();
       for (final Entry<String, String> entry : position.getAttributes().entrySet()) {
         final long posAttrId = nextId("pos_trade_attr_seq");
-        final DbMapSqlParameterSource posAttrArgs = new DbMapSqlParameterSource().addValue("attr_id", posAttrId)
+        final DbMapSqlParameterSource posAttrArgs = createParameterSource().addValue("attr_id", posAttrId)
             .addValue("pos_id", positionId)
             .addValue("pos_oid", positionOid)
             .addValue("key", entry.getKey())
             .addValue("value", entry.getValue());
         posAttrList.add(posAttrArgs);
       }
-      
+
       // the arguments for inserting into the idkey tables
       final List<DbMapSqlParameterSource> posAssocList = new ArrayList<DbMapSqlParameterSource>();
       final Set<Pair<String, String>> schemeValueSet = Sets.newHashSet();
       for (final ExternalId id : position.getSecurityLink().getAllExternalIds()) {
-        final DbMapSqlParameterSource assocArgs = new DbMapSqlParameterSource().addValue("position_id", positionId)
+        final DbMapSqlParameterSource assocArgs = createParameterSource().addValue("position_id", positionId)
             .addValue("key_scheme", id.getScheme().getName())
             .addValue("key_value", id.getValue());
         posAssocList.add(assocArgs);
-        schemeValueSet.add(Pair.of(id.getScheme().getName(), id.getValue()));
+        schemeValueSet.add(Pairs.of(id.getScheme().getName(), id.getValue()));
       }
-      
+
       // the arguments for inserting into the trade table
       final List<DbMapSqlParameterSource> tradeList = Lists.newArrayList();
       final List<DbMapSqlParameterSource> tradeAssocList = Lists.newArrayList();
@@ -276,8 +280,8 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
         final long tradeId = nextId("pos_master_seq");
         final long tradeOid = (trade.getUniqueId() != null ? extractOid(trade.getUniqueId()) : tradeId);
         final ExternalId counterpartyId = trade.getCounterpartyExternalId();
-        
-        final DbMapSqlParameterSource tradeArgs = new DbMapSqlParameterSource().addValue("trade_id", tradeId)
+
+        final DbMapSqlParameterSource tradeArgs = createParameterSource().addValue("trade_id", tradeId)
             .addValue("trade_oid", tradeOid)
             .addValue("position_id", positionId)
             .addValue("position_oid", positionOid)
@@ -289,9 +293,9 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
             .addValue("cparty_scheme", counterpartyId.getScheme().getName())
             .addValue("cparty_value", counterpartyId.getValue())
             .addValue("provider_scheme",
-                position.getProviderId() != null ? position.getProviderId().getScheme().getName() : null, Types.VARCHAR)
+                trade.getProviderId() != null ? trade.getProviderId().getScheme().getName() : null, Types.VARCHAR)
             .addValue("provider_value",
-                position.getProviderId() != null ? position.getProviderId().getValue() : null, Types.VARCHAR)
+                trade.getProviderId() != null ? trade.getProviderId().getValue() : null, Types.VARCHAR)
             .addValue("premium_value", trade.getPremium(), Types.DOUBLE)
             .addValue("premium_currency",
                 trade.getPremiumCurrency() != null ? trade.getPremiumCurrency().getCode() : null, Types.VARCHAR)
@@ -300,36 +304,36 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
             .addValue("premium_zone_offset",
                 trade.getPremiumTime() != null ? trade.getPremiumTime().getOffset().getTotalSeconds() : null, Types.INTEGER);
         tradeList.add(tradeArgs);
-        
+
         // trade attributes
         final Map<String, String> attributes = new HashMap<String, String>(trade.getAttributes());
         for (final Entry<String, String> entry : attributes.entrySet()) {
           final long tradeAttrId = nextId("pos_trade_attr_seq");
-          final DbMapSqlParameterSource tradeAttributeArgs = new DbMapSqlParameterSource().addValue("attr_id", tradeAttrId)
+          final DbMapSqlParameterSource tradeAttributeArgs = createParameterSource().addValue("attr_id", tradeAttrId)
               .addValue("trade_id", tradeId)
               .addValue("trade_oid", tradeOid)
               .addValue("key", entry.getKey())
               .addValue("value", entry.getValue());
           tradeAttributeList.add(tradeAttributeArgs);
         }
-        
+
         // set the trade uniqueId
         final UniqueId tradeUid = createUniqueId(tradeOid, tradeId);
         IdUtils.setInto(trade, tradeUid);
         trade.setParentPositionId(positionUid);
         for (final ExternalId id : trade.getSecurityLink().getAllExternalIds()) {
-          final DbMapSqlParameterSource assocArgs = new DbMapSqlParameterSource().addValue("trade_id", tradeId)
+          final DbMapSqlParameterSource assocArgs = createParameterSource().addValue("trade_id", tradeId)
               .addValue("key_scheme", id.getScheme().getName())
               .addValue("key_value", id.getValue());
           tradeAssocList.add(assocArgs);
-          schemeValueSet.add(Pair.of(id.getScheme().getName(), id.getValue()));
+          schemeValueSet.add(Pairs.of(id.getScheme().getName(), id.getValue()));
         }
       }
-      
+
       final List<DbMapSqlParameterSource> idKeyList = new ArrayList<DbMapSqlParameterSource>();
       final String sqlSelectIdKey = getElSqlBundle().getSql("SelectIdKey");
       for (final Pair<String, String> pair : schemeValueSet) {
-        final DbMapSqlParameterSource idkeyArgs = new DbMapSqlParameterSource().addValue("key_scheme", pair.getFirst())
+        final DbMapSqlParameterSource idkeyArgs = createParameterSource().addValue("key_scheme", pair.getFirst())
             .addValue("key_value", pair.getSecond());
         if (getJdbcTemplate().queryForList(sqlSelectIdKey, idkeyArgs).isEmpty()) {
           // select avoids creating unecessary id, but id may still not be used
@@ -338,7 +342,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
           idKeyList.add(idkeyArgs);
         }
       }
-      
+
       final String sqlDoc = getElSqlBundle().getSql("Insert", docArgs);
       final String sqlIdKey = getElSqlBundle().getSql("InsertIdKey");
       final String sqlPosition2IdKey = getElSqlBundle().getSql("InsertPosition2IdKey");
@@ -353,7 +357,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
       getJdbcTemplate().batchUpdate(sqlTrade2IdKey, tradeAssocList.toArray(new DbMapSqlParameterSource[tradeAssocList.size()]));
       getJdbcTemplate().batchUpdate(sqlPositionAttributes, posAttrList.toArray(new DbMapSqlParameterSource[posAttrList.size()]));
       getJdbcTemplate().batchUpdate(sqlTradeAttributes, tradeAttributeList.toArray(new DbMapSqlParameterSource[tradeAttributeList.size()]));
-      
+
       // set the uniqueId
       position.setUniqueId(positionUid);
       document.setUniqueId(positionUid);
@@ -385,7 +389,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
   protected ManageableTrade getTradeByInstants(final UniqueId uniqueId, final Instant versionAsOf, final Instant correctedTo) {
     s_logger.debug("getTradeByLatest {}", uniqueId);
     final Instant now = now();
-    final DbMapSqlParameterSource args = new DbMapSqlParameterSource().addValue("trade_oid", extractOid(uniqueId))
+    final DbMapSqlParameterSource args = createParameterSource().addValue("trade_oid", extractOid(uniqueId))
         .addTimestamp("version_as_of_instant", Objects.firstNonNull(versionAsOf, now))
         .addTimestamp("corrected_to_instant", Objects.firstNonNull(correctedTo, now));
     final PositionDocumentExtractor extractor = new PositionDocumentExtractor();
@@ -406,7 +410,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
    */
   protected ManageableTrade getTradeById(final UniqueId uniqueId) {
     s_logger.debug("getTradeById {}", uniqueId);
-    final DbMapSqlParameterSource args = new DbMapSqlParameterSource().addValue("trade_id", extractRowId(uniqueId));
+    final DbMapSqlParameterSource args = createParameterSource().addValue("trade_id", extractRowId(uniqueId));
     final PositionDocumentExtractor extractor = new PositionDocumentExtractor();
     final NamedParameterJdbcOperations namedJdbc = getDbConnector().getJdbcTemplate();
     final String sql = getElSqlBundle().getSql("GetTradeById", args);

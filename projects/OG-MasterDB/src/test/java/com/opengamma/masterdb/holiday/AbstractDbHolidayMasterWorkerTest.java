@@ -68,18 +68,22 @@ public abstract class AbstractDbHolidayMasterWorkerTest extends AbstractDbTest {
   private void init() {
     _holMaster = new DbHolidayMaster(getDbConnector());
     
-//    id bigint not null,
-//    oid bigint not null,
-//    ver_from_instant timestamp not null,
-//    ver_to_instant timestamp not null,
-//    name varchar(255) not null,
-//    hol_type varchar(255) not null,
+//    id bigint NOT NULL,
+//    oid bigint NOT NULL,
+//    ver_from_instant timestamp without time zone NOT NULL,
+//    ver_to_instant timestamp without time zone NOT NULL,
+//    corr_from_instant timestamp without time zone NOT NULL,
+//    corr_to_instant timestamp without time zone NOT NULL,
+//    name varchar(255) NOT NULL,
 //    provider_scheme varchar(255),
 //    provider_value varchar(255),
+//    hol_type varchar(255) NOT NULL,
 //    region_scheme varchar(255),
 //    region_value varchar(255),
 //    exchange_scheme varchar(255),
 //    exchange_value varchar(255),
+//    custom_scheme varchar(255),
+//    custom_value varchar(255),
 //    currency_iso varchar(255),
     Instant now = Instant.now();
     _holMaster.setClock(Clock.fixed(now, ZoneOffset.UTC));
@@ -88,18 +92,18 @@ public abstract class AbstractDbHolidayMasterWorkerTest extends AbstractDbTest {
     s_logger.debug("test data now:   {}", _version1Instant);
     s_logger.debug("test data later: {}", _version2Instant);
     final JdbcOperations template = _holMaster.getDbConnector().getJdbcOperations();
-    template.update("INSERT INTO hol_holiday VALUES (?,?,?,?,?, ?,?,?,?,?, ?,?,?,?,?)",
+    template.update("INSERT INTO hol_holiday VALUES (?,?,?,?,?, ?,?,?,?,?, ?,?,?,?,?, ?,?)",
         101, 101, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP,
-        "TestHoliday101", "COPP_CLARK", "1", "CURRENCY", null, null, null, null, "GBP");
-    template.update("INSERT INTO hol_holiday VALUES (?,?,?,?,?, ?,?,?,?,?, ?,?,?,?,?)",
+        "TestHoliday101", "COPP_CLARK", "1", "CURRENCY", null, null, null, null, null, null, "GBP");
+    template.update("INSERT INTO hol_holiday VALUES (?,?,?,?,?, ?,?,?,?,?, ?,?,?,?,?, ?,?)",
         102, 102, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP,
-        "TestHoliday102", "COPP_CLARK", "2", "CURRENCY", null, null, null, null, "EUR");
-    template.update("INSERT INTO hol_holiday VALUES (?,?,?,?,?, ?,?,?,?,?, ?,?,?,?,?)",
+        "TestHoliday102", "COPP_CLARK", "2", "CURRENCY", null, null, null, null, null, null, "EUR");
+    template.update("INSERT INTO hol_holiday VALUES (?,?,?,?,?, ?,?,?,?,?, ?,?,?,?,?, ?,?)",
         201, 201, toSqlTimestamp(_version1Instant), toSqlTimestamp(_version2Instant), toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP,
-        "TestHoliday201", "COPP_CLARK", "3", "CURRENCY", null, null, null, null, "GBP");
-    template.update("INSERT INTO hol_holiday VALUES (?,?,?,?,?, ?,?,?,?,?, ?,?,?,?,?)",
+        "TestHoliday201", "COPP_CLARK", "3", "CURRENCY", null, null, null, null, null, null, "GBP");
+    template.update("INSERT INTO hol_holiday VALUES (?,?,?,?,?, ?,?,?,?,?, ?,?,?,?,?, ?,?)",
         202, 201, toSqlTimestamp(_version2Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version2Instant), MAX_SQL_TIMESTAMP,
-        "TestHoliday202", "COPP_CLARK", "3", "CURRENCY", null, null, null, null, "GBP");
+        "TestHoliday202", "COPP_CLARK", "3", "CURRENCY", null, null, null, null, null, null, "GBP");
     _totalHolidays = 3;
 //    holiday_id bigint not null,
 //    hol_date date not null,

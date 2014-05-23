@@ -9,6 +9,8 @@ import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.opengamma.core.position.Portfolio;
@@ -26,7 +28,6 @@ import com.opengamma.engine.target.resolver.UnorderedCurrencyPairResolver;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
-import com.opengamma.util.WeakInstanceCache;
 import com.opengamma.util.credit.CreditCurveIdentifier;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
@@ -42,7 +43,24 @@ public abstract class ComputationTargetType implements Serializable {
   /**
    * Try to keep the instances unique. This reduces the operating memory footprint.
    */
-  private static final WeakInstanceCache<ComputationTargetType> s_computationTargetTypes = new WeakInstanceCache<ComputationTargetType>();
+  private static final ConcurrentMap<?, ?> s_computationTargetTypes = new ConcurrentHashMap<Object, Object>() {
+
+    private static final long serialVersionUID = 1L;
+
+    @Override
+    public Object get(final Object type) {
+      Object instance = super.get(type);
+      if (instance != null) {
+        return instance;
+      }
+      instance = super.putIfAbsent(type, type);
+      if (instance != null) {
+        return instance;
+      }
+      return type;
+    }
+
+  };
 
   /**
    * A map of classes to the computation target types. This is to optimize the {@link #of(Class)} method for common cases used during target resolution. To modify the map, use a copy-and-replace
@@ -122,7 +140,10 @@ public abstract class ComputationTargetType implements Serializable {
   @Deprecated
   public static final ComputationTargetType LEGACY_PRIMITIVE = PRIMITIVE.or(CURRENCY).or(UNORDERED_CURRENCY_PAIR);
 
-  /* package */ComputationTargetType() {
+  private final int _hashCode;
+
+  /* package */ComputationTargetType(final int hashCode) {
+    _hashCode = hashCode;
   }
 
   private static <T extends UniqueIdentifiable> ComputationTargetType defaultType(final Class<T> clazz, final String name) {
@@ -141,7 +162,7 @@ public abstract class ComputationTargetType implements Serializable {
   }
 
   private static ComputationTargetType of(final Class<? extends UniqueIdentifiable> clazz, final String name, final boolean nameWellKnown) {
-    return s_computationTargetTypes.get(new ClassComputationTargetType(clazz, name, nameWellKnown));
+    return (ComputationTargetType) s_computationTargetTypes.get(new ClassComputationTargetType(clazz, name, nameWellKnown));
   }
 
   public static <T extends UniqueIdentifiable> ComputationTargetType of(final Class<T> clazz) {
@@ -164,7 +185,7 @@ public abstract class ComputationTargetType implements Serializable {
 
   public ComputationTargetType containing(final ComputationTargetType inner) {
     ArgumentChecker.notNull(inner, "inner");
-    return s_computationTargetTypes.get(new NestedComputationTargetType(this, inner));
+    return (ComputationTargetType) s_computationTargetTypes.get(new NestedComputationTargetType(this, inner));
   }
 
   public ComputationTargetType or(final Class<? extends UniqueIdentifiable> clazz) {
@@ -179,7 +200,7 @@ public abstract class ComputationTargetType implements Serializable {
    */
   public ComputationTargetType or(final ComputationTargetType alternative) {
     ArgumentChecker.notNull(alternative, "alternative");
-    return s_computationTargetTypes.get(new MultipleComputationTargetType(this, alternative));
+    return (ComputationTargetType) s_computationTargetTypes.get(new MultipleComputationTargetType(this, alternative));
   }
 
   /**
@@ -192,7 +213,7 @@ public abstract class ComputationTargetType implements Serializable {
    */
   public static ComputationTargetType multiple(final ComputationTargetType... alternatives) {
     ArgumentChecker.notNull(alternatives, "alternatives");
-    return s_computationTargetTypes.get(new MultipleComputationTargetType(alternatives));
+    return (ComputationTargetType) s_computationTargetTypes.get(new MultipleComputationTargetType(alternatives));
   }
 
   /**
@@ -338,7 +359,9 @@ public abstract class ComputationTargetType implements Serializable {
   public abstract boolean equals(Object o);
 
   @Override
-  public abstract int hashCode();
+  public final int hashCode() {
+    return _hashCode;
+  }
 
   /**
    * Tests if the leaf target type(s) matches the given type. {@code x.isTargetType(y) == y.isCompatible(x) }

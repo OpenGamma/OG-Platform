@@ -15,6 +15,10 @@ import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.AbstractPortfolioNodeTraversalCallback;
 import com.opengamma.id.UniqueId;
 
+/**
+ * Traverses a portfolio, gathering identifiers corresponding to {@link PortfolioNode}, {@link Position} and {@link Trade} entities. These are targets that may potentially create terminal output
+ * requirements from on a view definition.
+ */
 /* package */class PortfolioIdentifierGatherer extends AbstractPortfolioNodeTraversalCallback {
 
   private final ConcurrentMap<UniqueId, Boolean> _identifiers = new ConcurrentHashMap<UniqueId, Boolean>();

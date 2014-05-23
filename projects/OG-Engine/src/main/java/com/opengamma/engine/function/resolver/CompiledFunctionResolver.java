@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.Iterator;
 
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueSpecification;
@@ -39,5 +40,13 @@ public interface CompiledFunctionResolver {
    * @return the full set of resolution rules, not null
    */
   Collection<ResolutionRule> getAllResolutionRules();
+
+  /**
+   * Returns a specific compiled function definition based on an identifier.
+   * 
+   * @param uniqueId the identifier of the function, not null
+   * @return the compiled function definition, or null if the function was not published by a resolution rule used by this resolver
+   */
+  CompiledFunctionDefinition getFunction(String uniqueId);
 
 }

@@ -22,6 +22,9 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
+import com.opengamma.master.security.SecuritySearchRequest;
+import com.opengamma.master.security.SecuritySearchResult;
+import com.opengamma.master.security.SecuritySearchSortOrder;
 import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.TestGroup;
 
@@ -125,6 +128,75 @@ public class ModifySecurityDbSecurityMasterWorkerAddTest extends AbstractDbSecur
     ManageableSecurity security = new ManageableSecurity();
     SecurityDocument doc = new SecurityDocument(security);
     _secMaster.add(doc);
+  }
+
+  @Test
+  public void test_add_searchByAttribute() {
+    ManageableSecurity security = new ManageableSecurity(null, "TestSecurity", "EQUITY", ExternalIdBundle.of("A", "B"));
+    security.addAttribute("city", "London");
+    security.addAttribute("office", "Southern");
+    SecurityDocument added = _secMaster.add(new SecurityDocument(security));
+    
+    ManageableSecurity security2 = new ManageableSecurity(null, "TestSecurity2", "EQUITY", ExternalIdBundle.of("A", "B"));
+    security2.addAttribute("office", "Southern");
+    SecurityDocument added2 = _secMaster.add(new SecurityDocument(security2));
+    
+    SecuritySearchRequest searchRequest = new SecuritySearchRequest();
+    searchRequest.addAttribute("city", "London");
+    SecuritySearchResult searchResult = _secMaster.search(searchRequest);
+    assertEquals(1, searchResult.getDocuments().size());
+    assertEquals(added, searchResult.getDocuments().get(0));
+    
+    searchRequest = new SecuritySearchRequest();
+    searchRequest.setSortOrder(SecuritySearchSortOrder.NAME_ASC);
+    searchRequest.addAttribute("office", "Southern");
+    searchResult = _secMaster.search(searchRequest);
+    assertEquals(2, searchResult.getDocuments().size());
+    assertEquals(added, searchResult.getDocuments().get(0));
+    assertEquals(added2, searchResult.getDocuments().get(1));
+    
+    searchRequest = new SecuritySearchRequest();
+    searchRequest.addAttribute("city", "London");
+    searchRequest.addAttribute("office", "*thern");
+    searchResult = _secMaster.search(searchRequest);
+    assertEquals(1, searchResult.getDocuments().size());
+    assertEquals(added, searchResult.getDocuments().get(0));
+  }
+
+  @Test
+  public void test_addWithPermission_add() {
+    Instant now = Instant.now(_secMaster.getClock());
+
+    ManageableSecurity security = new ManageableSecurity(null, "TestSecurity", "EQUITY", ExternalIdBundle.of("A", "B"));
+    security.getRequiredPermissions().add("A");
+    security.getRequiredPermissions().add("B");
+    SecurityDocument doc = new SecurityDocument();
+    doc.setSecurity(security);
+    SecurityDocument test = _secMaster.add(doc);
+
+    UniqueId uniqueId = test.getUniqueId();
+    assertNotNull(uniqueId);
+    assertEquals("DbSec", uniqueId.getScheme());
+    assertTrue(uniqueId.isVersioned());
+    assertTrue(Long.parseLong(uniqueId.getValue()) >= 1000);
+    assertEquals("0", uniqueId.getVersion());
+    assertEquals(now, test.getVersionFromInstant());
+    assertEquals(null, test.getVersionToInstant());
+    assertEquals(now, test.getCorrectionFromInstant());
+    assertEquals(null, test.getCorrectionToInstant());
+    ManageableSecurity testSecurity = test.getSecurity();
+    assertNotNull(testSecurity);
+    assertEquals(uniqueId, testSecurity.getUniqueId());
+    assertEquals("TestSecurity", security.getName());
+    assertEquals("EQUITY", security.getSecurityType());
+    ExternalIdBundle idKey = security.getExternalIdBundle();
+    assertNotNull(idKey);
+    assertEquals(1, idKey.size());
+    assertEquals(ExternalId.of("A", "B"), idKey.getExternalIds().iterator().next());
+    assertNotNull(security.getRequiredPermissions());
+    assertEquals(2, security.getRequiredPermissions().size());
+    assertTrue(security.getRequiredPermissions().contains("A"));
+    assertTrue(security.getRequiredPermissions().contains("B"));
   }
 
 }

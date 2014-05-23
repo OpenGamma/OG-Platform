@@ -10,6 +10,7 @@ import java.util.Map;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -122,65 +123,6 @@ public class NonDeliverableFXDigitalOptionSecurityBean extends SecurityBean {
   @Override
   public NonDeliverableFXDigitalOptionSecurityBean.Meta metaBean() {
     return NonDeliverableFXDigitalOptionSecurityBean.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -984864697:  // putAmount
-        return getPutAmount();
-      case 1066661974:  // callAmount
-        return getCallAmount();
-      case -1289159373:  // expiry
-        return getExpiry();
-      case 516393024:  // putCurrency
-        return getPutCurrency();
-      case 643534991:  // callCurrency
-        return getCallCurrency();
-      case -225763273:  // paymentCurrency
-        return getPaymentCurrency();
-      case -295948169:  // settlementDate
-        return getSettlementDate();
-      case -1180327226:  // isLong
-        return getIsLong();
-      case -141503783:  // deliverInCallCurrency
-        return isDeliverInCallCurrency();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -984864697:  // putAmount
-        setPutAmount((Double) newValue);
-        return;
-      case 1066661974:  // callAmount
-        setCallAmount((Double) newValue);
-        return;
-      case -1289159373:  // expiry
-        setExpiry((ExpiryBean) newValue);
-        return;
-      case 516393024:  // putCurrency
-        setPutCurrency((CurrencyBean) newValue);
-        return;
-      case 643534991:  // callCurrency
-        setCallCurrency((CurrencyBean) newValue);
-        return;
-      case -225763273:  // paymentCurrency
-        setPaymentCurrency((CurrencyBean) newValue);
-        return;
-      case -295948169:  // settlementDate
-        setSettlementDate((ZonedDateTimeBean) newValue);
-        return;
-      case -1180327226:  // isLong
-        setIsLong((Boolean) newValue);
-        return;
-      case -141503783:  // deliverInCallCurrency
-        setDeliverInCallCurrency((Boolean) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
   }
 
   //-----------------------------------------------------------------------
@@ -409,6 +351,12 @@ public class NonDeliverableFXDigitalOptionSecurityBean extends SecurityBean {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public NonDeliverableFXDigitalOptionSecurityBean clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code NonDeliverableFXDigitalOptionSecurityBean}.
    */
@@ -595,6 +543,66 @@ public class NonDeliverableFXDigitalOptionSecurityBean extends SecurityBean {
      */
     public final MetaProperty<Boolean> deliverInCallCurrency() {
       return _deliverInCallCurrency;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -984864697:  // putAmount
+          return ((NonDeliverableFXDigitalOptionSecurityBean) bean).getPutAmount();
+        case 1066661974:  // callAmount
+          return ((NonDeliverableFXDigitalOptionSecurityBean) bean).getCallAmount();
+        case -1289159373:  // expiry
+          return ((NonDeliverableFXDigitalOptionSecurityBean) bean).getExpiry();
+        case 516393024:  // putCurrency
+          return ((NonDeliverableFXDigitalOptionSecurityBean) bean).getPutCurrency();
+        case 643534991:  // callCurrency
+          return ((NonDeliverableFXDigitalOptionSecurityBean) bean).getCallCurrency();
+        case -225763273:  // paymentCurrency
+          return ((NonDeliverableFXDigitalOptionSecurityBean) bean).getPaymentCurrency();
+        case -295948169:  // settlementDate
+          return ((NonDeliverableFXDigitalOptionSecurityBean) bean).getSettlementDate();
+        case -1180327226:  // isLong
+          return ((NonDeliverableFXDigitalOptionSecurityBean) bean).getIsLong();
+        case -141503783:  // deliverInCallCurrency
+          return ((NonDeliverableFXDigitalOptionSecurityBean) bean).isDeliverInCallCurrency();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -984864697:  // putAmount
+          ((NonDeliverableFXDigitalOptionSecurityBean) bean).setPutAmount((Double) newValue);
+          return;
+        case 1066661974:  // callAmount
+          ((NonDeliverableFXDigitalOptionSecurityBean) bean).setCallAmount((Double) newValue);
+          return;
+        case -1289159373:  // expiry
+          ((NonDeliverableFXDigitalOptionSecurityBean) bean).setExpiry((ExpiryBean) newValue);
+          return;
+        case 516393024:  // putCurrency
+          ((NonDeliverableFXDigitalOptionSecurityBean) bean).setPutCurrency((CurrencyBean) newValue);
+          return;
+        case 643534991:  // callCurrency
+          ((NonDeliverableFXDigitalOptionSecurityBean) bean).setCallCurrency((CurrencyBean) newValue);
+          return;
+        case -225763273:  // paymentCurrency
+          ((NonDeliverableFXDigitalOptionSecurityBean) bean).setPaymentCurrency((CurrencyBean) newValue);
+          return;
+        case -295948169:  // settlementDate
+          ((NonDeliverableFXDigitalOptionSecurityBean) bean).setSettlementDate((ZonedDateTimeBean) newValue);
+          return;
+        case -1180327226:  // isLong
+          ((NonDeliverableFXDigitalOptionSecurityBean) bean).setIsLong((Boolean) newValue);
+          return;
+        case -141503783:  // deliverInCallCurrency
+          ((NonDeliverableFXDigitalOptionSecurityBean) bean).setDeliverInCallCurrency((Boolean) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

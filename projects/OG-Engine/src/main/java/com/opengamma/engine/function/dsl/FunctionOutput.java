@@ -5,10 +5,18 @@
  */
 package com.opengamma.engine.function.dsl;
 
-
+/**
+ * A function output gate.
+ */
 public class FunctionOutput extends FunctionGate<FunctionOutput> {
+
+  /**
+   * Creates an instance.
+   * 
+   * @param name  the name
+   */
   public FunctionOutput(String name) {
     super(name);
   }
-  
+
 }

@@ -27,10 +27,12 @@ import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the different curve generators types.
  */
+@Test(groups = TestGroup.UNIT)
 @SuppressWarnings("deprecation")
 public class GeneratorCurveTest {
 

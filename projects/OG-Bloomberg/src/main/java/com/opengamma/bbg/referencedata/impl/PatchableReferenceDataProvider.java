@@ -21,6 +21,7 @@ import com.opengamma.bbg.referencedata.ReferenceDataProviderGetRequest;
 import com.opengamma.bbg.referencedata.ReferenceDataProviderGetResult;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * A decorator for a ReferenceDataProvider that allows you to override the results
@@ -53,7 +54,7 @@ public class PatchableReferenceDataProvider extends AbstractReferenceDataProvide
    * @param result  the object to return as a result (must be possible to Fudge encode with standard OG dictionary)
    */
   public void setPatch(String security, String field, Object result) {
-    _patches.put(Pair.of(security, field), result);
+    _patches.put(Pairs.of(security, field), result);
     _securities.add(security);
   }
 
@@ -69,11 +70,11 @@ public class PatchableReferenceDataProvider extends AbstractReferenceDataProvide
         FudgeMsg fieldData = refData.getFieldValues();
         MutableFudgeMsg alteredFieldData = OpenGammaFudgeContext.getInstance().newMessage(fieldData);
         for (String field : request.getFields()) {
-          if (_patches.containsKey(Pair.of(identifier, field))) {
+          if (_patches.containsKey(Pairs.of(identifier, field))) {
             if (alteredFieldData.hasField(field)) {
               alteredFieldData.remove(field);
             }
-            alteredFieldData.add(field, _patches.get(Pair.of(identifier, field)));
+            alteredFieldData.add(field, _patches.get(Pairs.of(identifier, field)));
             refData.removeErrors(field);
           }
         }

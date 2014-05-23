@@ -12,7 +12,7 @@ import org.fudgemsg.wire.types.FudgeWireType;
 import org.testng.annotations.Test;
 
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 import com.opengamma.util.test.TestGroup;
 
@@ -22,7 +22,7 @@ import com.opengamma.util.test.TestGroup;
 @Test(groups = TestGroup.UNIT)
 public class DayCountFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
 
-  private static final DayCount s_ref = DayCountFactory.INSTANCE.getDayCount("Act/360");
+  private static final DayCount s_ref = DayCounts.ACT_360;
 
   @Test
   public void testCycle() {
@@ -32,7 +32,7 @@ public class DayCountFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
   @Test
   public void testFromString() {
     assertEquals(s_ref, getFudgeContext().getFieldValue(DayCount.class,
-        UnmodifiableFudgeField.of(FudgeWireType.STRING, s_ref.getConventionName())));
+        UnmodifiableFudgeField.of(FudgeWireType.STRING, s_ref.getName())));
   }
 
 }

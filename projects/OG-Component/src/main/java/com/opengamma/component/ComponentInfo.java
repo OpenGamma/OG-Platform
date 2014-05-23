@@ -8,14 +8,15 @@ package com.opengamma.component;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
@@ -27,7 +28,7 @@ import com.opengamma.util.ArgumentChecker;
  * Information about a principal component of the OpenGamma system.
  */
 @BeanDefinition
-public class ComponentInfo extends DirectBean {
+public class ComponentInfo implements Bean {
 
   /**
    * The component type representing the available functionality.
@@ -111,6 +112,7 @@ public class ComponentInfo extends DirectBean {
    * 
    * @param key  the attribute key, not null
    * @return the value of the attribute, not null
+   * @throws IllegalArgumentException if there is no attribute mapped to the key
    */
   public String getAttribute(String key) {
     String attr = _attributes.get(key);
@@ -140,71 +142,13 @@ public class ComponentInfo extends DirectBean {
   }
 
   @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 3575610:  // type
-        return getType();
-      case -281470431:  // classifier
-        return getClassifier();
-      case 116076:  // uri
-        return getUri();
-      case 405645655:  // attributes
-        return getAttributes();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 3575610:  // type
-        setType((Class<?>) newValue);
-        return;
-      case -281470431:  // classifier
-        setClassifier((String) newValue);
-        return;
-      case 116076:  // uri
-        setUri((URI) newValue);
-        return;
-      case 405645655:  // attributes
-        setAttributes((Map<String, String>) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
+  public <R> Property<R> property(String propertyName) {
+    return metaBean().<R>metaProperty(propertyName).createProperty(this);
   }
 
   @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_type, "type");
-    JodaBeanUtils.notNull(_classifier, "classifier");
-    JodaBeanUtils.notNull(_attributes, "attributes");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      ComponentInfo other = (ComponentInfo) obj;
-      return JodaBeanUtils.equal(getType(), other.getType()) &&
-          JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
-          JodaBeanUtils.equal(getUri(), other.getUri()) &&
-          JodaBeanUtils.equal(getAttributes(), other.getAttributes());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUri());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAttributes());
-    return hash;
+  public Set<String> propertyNames() {
+    return metaBean().metaPropertyMap().keySet();
   }
 
   //-----------------------------------------------------------------------
@@ -301,9 +245,10 @@ public class ComponentInfo extends DirectBean {
 
   /**
    * Sets the extensible set of attributes that help describe the component.
-   * @param attributes  the new value of the property
+   * @param attributes  the new value of the property, not null
    */
   public void setAttributes(Map<String, String> attributes) {
+    JodaBeanUtils.notNull(attributes, "attributes");
     this._attributes.clear();
     this._attributes.putAll(attributes);
   }
@@ -314,6 +259,57 @@ public class ComponentInfo extends DirectBean {
    */
   public final Property<Map<String, String>> attributes() {
     return metaBean().attributes().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public ComponentInfo clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      ComponentInfo other = (ComponentInfo) obj;
+      return JodaBeanUtils.equal(getType(), other.getType()) &&
+          JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
+          JodaBeanUtils.equal(getUri(), other.getUri()) &&
+          JodaBeanUtils.equal(getAttributes(), other.getAttributes());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUri());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getAttributes());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(160);
+    buf.append("ComponentInfo{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("type").append('=').append(JodaBeanUtils.toString(getType())).append(',').append(' ');
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("uri").append('=').append(JodaBeanUtils.toString(getUri())).append(',').append(' ');
+    buf.append("attributes").append('=').append(JodaBeanUtils.toString(getAttributes())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -425,6 +421,49 @@ public class ComponentInfo extends DirectBean {
      */
     public final MetaProperty<Map<String, String>> attributes() {
       return _attributes;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 3575610:  // type
+          return ((ComponentInfo) bean).getType();
+        case -281470431:  // classifier
+          return ((ComponentInfo) bean).getClassifier();
+        case 116076:  // uri
+          return ((ComponentInfo) bean).getUri();
+        case 405645655:  // attributes
+          return ((ComponentInfo) bean).getAttributes();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 3575610:  // type
+          ((ComponentInfo) bean).setType((Class<?>) newValue);
+          return;
+        case -281470431:  // classifier
+          ((ComponentInfo) bean).setClassifier((String) newValue);
+          return;
+        case 116076:  // uri
+          ((ComponentInfo) bean).setUri((URI) newValue);
+          return;
+        case 405645655:  // attributes
+          ((ComponentInfo) bean).setAttributes((Map<String, String>) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((ComponentInfo) bean)._type, "type");
+      JodaBeanUtils.notNull(((ComponentInfo) bean)._classifier, "classifier");
+      JodaBeanUtils.notNull(((ComponentInfo) bean)._attributes, "attributes");
     }
 
   }

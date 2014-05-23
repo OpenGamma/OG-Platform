@@ -89,7 +89,7 @@ public class TwoStateMarkovChainLocalVolFitter {
     //      public Double evaluate(Double... ts) {
     //        double t = ts[0];
     //        double s = ts[1];
-    //        return GRID_INTERPOLATOR2D.interpolate(dataBundle, new DoublesPair(t, s));
+    //        return GRID_INTERPOLATOR2D.interpolate(dataBundle, DoublesPair.of(t, s));
     //      }
     //    };
     // BlackVolatilitySurface marketVolSurface = new BlackVolatilitySurface(FunctionalDoublesSurface.from(mrkVolFunc));
@@ -250,7 +250,7 @@ public class TwoStateMarkovChainLocalVolFitter {
   //      System.out.print(t);
   //      for (int i = 0; i < 101; i++) {
   //        double k = kMin + (kMax - kMin) * i / 100.;
-  //        DoublesPair tk = new DoublesPair(t, k);
+  //        DoublesPair tk = DoublesPair.of(t, k);
   //
   //        System.out.print("\t" + GRID_INTERPOLATOR2D.interpolate(dataBundle, tk));
   //      }
@@ -355,7 +355,7 @@ public class TwoStateMarkovChainLocalVolFitter {
           }
           if (eNu > 0.0 && overlay > 0.0) {
             final double lVOverlay = mrkLV * mrkLV / overlay / overlay / eNu;
-            res.put(new DoublesPair(t, s), Math.sqrt(lVOverlay));
+            res.put(DoublesPair.of(t, s), Math.sqrt(lVOverlay));
           }
         }
       }
@@ -368,7 +368,7 @@ public class TwoStateMarkovChainLocalVolFitter {
     final Iterator<Pair<double[], Double>> iter = from.iterator();
     while (iter.hasNext()) {
       final Pair<double[], Double> temp = iter.next();
-      res.put(new DoublesPair(temp.getFirst()[0], temp.getFirst()[1]), temp.getSecond());
+      res.put(DoublesPair.of(temp.getFirst()[0], temp.getFirst()[1]), temp.getSecond());
     }
 
     return res;

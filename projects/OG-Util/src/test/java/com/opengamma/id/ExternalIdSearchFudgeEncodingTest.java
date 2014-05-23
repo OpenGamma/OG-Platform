@@ -19,17 +19,17 @@ import com.opengamma.util.test.TestGroup;
 public class ExternalIdSearchFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
 
   public void test_empty() {
-    ExternalIdSearch object = new ExternalIdSearch();
+    ExternalIdSearch object = ExternalIdSearch.of();
     assertEncodeDecodeCycle(ExternalIdSearch.class, object);
   }
 
   public void test_id() {
-    ExternalIdSearch object = new ExternalIdSearch(ExternalId.of("A", "B"));
+    ExternalIdSearch object = ExternalIdSearch.of(ExternalId.of("A", "B"));
     assertEncodeDecodeCycle(ExternalIdSearch.class, object);
   }
 
   public void test_full() {
-    ExternalIdSearch object = new ExternalIdSearch(Arrays.asList(ExternalId.of("A", "B")), ExternalIdSearchType.EXACT);
+    ExternalIdSearch object = ExternalIdSearch.of(ExternalIdSearchType.EXACT, Arrays.asList(ExternalId.of("A", "B")));
     assertEncodeDecodeCycle(ExternalIdSearch.class, object);
   }
 

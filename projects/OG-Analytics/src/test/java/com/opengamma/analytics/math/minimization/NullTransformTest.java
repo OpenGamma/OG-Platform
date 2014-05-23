@@ -10,9 +10,12 @@ import static org.testng.AssertJUnit.assertFalse;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class NullTransformTest extends ParameterLimitsTransformTestCase {
   private static final ParameterLimitsTransform NULL_TRANSFORM = new NullTransform();
 

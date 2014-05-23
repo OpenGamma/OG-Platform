@@ -5,6 +5,9 @@
  */
 package com.opengamma.integration.marketdata.manipulator.dsl;
 
+import static com.opengamma.engine.value.ValueRequirementNames.INTERPOLATED_VOLATILITY_SURFACE;
+import static com.opengamma.engine.value.ValueRequirementNames.VOLATILITY_SURFACE;
+
 import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -13,18 +16,21 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceKey;
 import com.opengamma.engine.marketdata.manipulator.DistinctMarketDataSelector;
 import com.opengamma.engine.marketdata.manipulator.SelectorResolver;
-import com.opengamma.engine.marketdata.manipulator.StructureIdentifier;
-import com.opengamma.engine.marketdata.manipulator.StructureType;
+import com.opengamma.engine.value.SurfaceAndCubePropertyNames;
+import com.opengamma.engine.value.ValuePropertyNames;
+import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * Selects volatility surfaces for manipulation.
  */
-/* package */ class VolatilitySurfaceSelector implements DistinctMarketDataSelector {
+public class VolatilitySurfaceSelector implements DistinctMarketDataSelector {
 
-  private static final Set<StructureType> STRUCTURE_TYPES = ImmutableSet.of(StructureType.VOLATILITY_SURFACE,
-                                                                            StructureType.INTERPOLATED_VOLATILITY_SURFACE);
-
+  private static final ImmutableSet<String> s_compatibleVRNames = ImmutableSet.of(INTERPOLATED_VOLATILITY_SURFACE, VOLATILITY_SURFACE);
+  
+  
   private final Set<String> _calcConfigNames;
   private final Set<String> _names;
   private final PatternWrapper _nameMatchPattern;
@@ -55,17 +61,16 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public DistinctMarketDataSelector findMatchingSelector(StructureIdentifier<?> structureId,
+  public DistinctMarketDataSelector findMatchingSelector(ValueSpecification valueSpecification,
                                                          String calculationConfigurationName,
                                                          SelectorResolver resolver) {
     if (_calcConfigNames != null && !_calcConfigNames.contains(calculationConfigurationName)) {
       return null;
     }
-    Object value = structureId.getValue();
-    if (!(value instanceof VolatilitySurfaceKey)) {
+    if (!s_compatibleVRNames.contains(valueSpecification.getValueName())) {
       return null;
     }
-    VolatilitySurfaceKey key = (VolatilitySurfaceKey) value;
+    VolatilitySurfaceKey key = createKey(valueSpecification);
     if (!contains(_names, key.getName())) {
       return null;
     }
@@ -87,9 +92,13 @@ import com.opengamma.util.ArgumentChecker;
     return this;
   }
 
-  @Override
-  public Set<StructureType> getApplicableStructureTypes() {
-    return STRUCTURE_TYPES;
+  private static VolatilitySurfaceKey createKey(ValueSpecification valueSpecification) {
+    UniqueId uniqueId = valueSpecification.getTargetSpecification().getUniqueId();
+    String surface = valueSpecification.getProperties().getStrictValue(ValuePropertyNames.SURFACE);
+    String instrumentType = valueSpecification.getProperties().getStrictValue("InstrumentType");
+    String quoteType = valueSpecification.getProperties().getStrictValue(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE);
+    String quoteUnits = valueSpecification.getProperties().getStrictValue(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_UNITS);
+    return VolatilitySurfaceKey.of(uniqueId, surface, instrumentType, quoteType, quoteUnits);
   }
 
   private static boolean contains(Set<String> set, String str) {

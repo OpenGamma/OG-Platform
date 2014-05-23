@@ -25,7 +25,7 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.Multipl
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
@@ -35,19 +35,21 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
-import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Test related to the method for Forex transaction by discounting on each payment.
  */
+@Test(groups = TestGroup.UNIT)
 public class ForexForwardPointsMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountForexDataSets.createMulticurvesEURUSD();
   private static final Currency CUR_1 = Currency.EUR;
   private static final Currency CUR_2 = Currency.USD;
-  private static final Pair<Currency, Currency> PAIR = new ObjectsPair<>(CUR_1, CUR_2);
+  private static final Pair<Currency, Currency> PAIR = Pairs.of(CUR_1, CUR_2);
   private static final Calendar CALENDAR = new MondayToFridayCalendar("CAL");
   private static final ZonedDateTime PAYMENT_DATE = DateUtils.getUTCDate(2013, 6, 26);
   private static final double NOMINAL_1 = 100000000;
@@ -186,21 +188,21 @@ public class ForexForwardPointsMethodTest {
   public void presentValueCurveSensitivity() {
     final MultipleCurrencyParameterSensitivity pvpsExact = PS_FFP_C.calculateSensitivity(FX, MULTICURVES_FWD, MULTICURVES.getAllNames());
     final MultipleCurrencyParameterSensitivity pvpsFD = PS_FFP_FDC.calculateSensitivity(FX, MULTICURVES_FWD);
-    AssertSensivityObjects.assertEquals("ForexForwardPointsMethod: presentValueCurveSensitivity ", pvpsExact, pvpsFD, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("ForexForwardPointsMethod: presentValueCurveSensitivity ", pvpsExact, pvpsFD, TOLERANCE_PV_DELTA);
   }
 
   @Test
   public void presentValueCurveSensitivityMethodVsCalculator() {
     final MultipleCurrencyMulticurveSensitivity pvcsMethod1 = METHOD_FX_PTS.presentValueCurveSensitivity(FX, MULTICURVES, FWD_RATES, PAIR);
     final MultipleCurrencyMulticurveSensitivity pvcsMethod2 = METHOD_FX_PTS.presentValueCurveSensitivity(FX, MULTICURVES_FWD);
-    AssertSensivityObjects.assertEquals("ForexForwardPointsMethod: presentValueCurveSensitivity", pvcsMethod1, pvcsMethod2, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("ForexForwardPointsMethod: presentValueCurveSensitivity", pvcsMethod1, pvcsMethod2, TOLERANCE_PV_DELTA);
   }
 
   @Test
   public void presentValueCurveSensitivityIndirectOrderMethodVsCalculator() {
     final MultipleCurrencyMulticurveSensitivity pvcsMethod1 = METHOD_FX_PTS.presentValueCurveSensitivity(FX_INDIRECT, MULTICURVES, FWD_RATES, PAIR);
     final MultipleCurrencyMulticurveSensitivity pvcsMethod2 = METHOD_FX_PTS.presentValueCurveSensitivity(FX_INDIRECT, MULTICURVES_FWD);
-    AssertSensivityObjects.assertEquals("ForexForwardPointsMethod: presentValueCurveSensitivity", pvcsMethod1, pvcsMethod2, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("ForexForwardPointsMethod: presentValueCurveSensitivity", pvcsMethod1, pvcsMethod2, TOLERANCE_PV_DELTA);
   }
 
 }

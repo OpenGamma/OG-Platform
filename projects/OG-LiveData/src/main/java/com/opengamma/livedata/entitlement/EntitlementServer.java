@@ -62,12 +62,9 @@ public class EntitlementServer implements FudgeRequestReceiver {
     ArrayList<EntitlementResponse> responses = new ArrayList<EntitlementResponse>();
     for (LiveDataSpecification spec : entitlementRequest.getLiveDataSpecifications()) {
       boolean isEntitled = isEntitledMap.get(spec);
-      EntitlementResponse response;
-      if (isEntitled) {
-        response = new EntitlementResponse(spec, true);
-      } else {
-        response = new EntitlementResponse(spec, false, entitlementRequest.getUser() + " is not entitled to " + spec);
-      }
+      EntitlementResponse response = isEntitled ?
+          new EntitlementResponse(spec, true) :
+          new EntitlementResponse(spec, false, entitlementRequest.getUser() + " is not entitled to " + spec);
       responses.add(response);
     }
     EntitlementResponseMsg response = new EntitlementResponseMsg(responses);

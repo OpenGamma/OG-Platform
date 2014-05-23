@@ -58,7 +58,7 @@ public class ZeroDepositConverter extends FinancialSecurityVisitorAdapter<Instru
     final DayCount daycount = convention.getDayCount();
     final InterestRate rate = new ContinuousInterestRate(security.getRate());
     final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, currency);
-    return DepositZeroDefinition.from(currency, startDate, endDate, daycount, rate, calendar);
+    return DepositZeroDefinition.from(currency, startDate, endDate, daycount, rate, calendar, daycount);
   }
 
   @Override
@@ -76,7 +76,7 @@ public class ZeroDepositConverter extends FinancialSecurityVisitorAdapter<Instru
     final DayCount daycount = convention.getDayCount();
     final InterestRate rate = new PeriodicInterestRate(security.getRate(), (int) security.getCompoundingPeriodsPerYear());
     final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, currency);
-    return DepositZeroDefinition.from(currency, startDate, endDate, daycount, rate, calendar);
+    return DepositZeroDefinition.from(currency, startDate, endDate, daycount, rate, calendar, daycount);
   }
 
 }

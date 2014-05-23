@@ -6,7 +6,6 @@
 package com.opengamma.engine.view;
 
 import com.opengamma.engine.depgraph.DependencyGraph;
-import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.PublicAPI;
 
@@ -24,12 +23,7 @@ public enum ResultOutputMode {
   NONE {
 
     @Override
-    public boolean shouldOutputResult(ValueSpecification outputSpecification, DependencyGraph dependencyGraph) {
-      return false;
-    }
-
-    @Override
-    public boolean shouldOutputFromNode(DependencyNode dependencyNode) {
+    public boolean shouldOutputResult(final ValueSpecification outputSpecification, final DependencyGraph dependencyGraph) {
       return false;
     }
 
@@ -42,13 +36,8 @@ public enum ResultOutputMode {
   TERMINAL_OUTPUTS {
 
     @Override
-    public boolean shouldOutputResult(ValueSpecification outputSpecification, DependencyGraph dependencyGraph) {
-      return dependencyGraph.getTerminalOutputSpecifications().contains(outputSpecification);
-    }
-
-    @Override
-    public boolean shouldOutputFromNode(DependencyNode dependencyNode) {
-      return dependencyNode.hasTerminalOutputValues();
+    public boolean shouldOutputResult(final ValueSpecification outputSpecification, final DependencyGraph dependencyGraph) {
+      return dependencyGraph.getTerminalOutputs().containsKey(outputSpecification);
     }
 
   },
@@ -60,13 +49,8 @@ public enum ResultOutputMode {
   ALL {
 
     @Override
-    public boolean shouldOutputResult(ValueSpecification outputSpecification, DependencyGraph dependencyGraph) {
+    public boolean shouldOutputResult(final ValueSpecification outputSpecification, final DependencyGraph dependencyGraph) {
       return true;
-    }
-
-    @Override
-    public boolean shouldOutputFromNode(DependencyNode dependencyNode) {
-      return dependencyNode.getOutputValues().size() > 0;
     }
 
   };
@@ -78,14 +62,6 @@ public enum ResultOutputMode {
    * @param dependencyGraph the dependency graph to which the output value belongs, not null
    * @return <code>true</code> if the output should be included in the results, <code>false</code> otherwise.
    */
-  public abstract boolean shouldOutputResult(ValueSpecification outputSpecification, DependencyGraph dependencyGraph);
-
-  /**
-   * Indicates whether a particular dependency node produces any outputs that should be included in the results.
-   * 
-   * @param dependencyNode the dependency node, not null
-   * @return <code>true</code> if any outputs are produced that should be included in the results, <code>false</code> otherwise.
-   */
-  public abstract boolean shouldOutputFromNode(DependencyNode dependencyNode);
+  public abstract boolean shouldOutputResult(final ValueSpecification outputSpecification, final DependencyGraph dependencyGraph);
 
 }

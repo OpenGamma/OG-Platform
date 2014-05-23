@@ -40,10 +40,10 @@ public class RemoteViewProcessor implements ViewProcessor {
 
   /**
    * Constructs an instance.
-   *
-   * @param baseUri  the base URI of the remote view processor
-   * @param jmsConnector  the JMS connector
-   * @param heartbeatScheduler  the scheduler to be used to send heartbeats to the remote view processor
+   * 
+   * @param baseUri the base URI of the remote view processor
+   * @param jmsConnector the JMS connector
+   * @param heartbeatScheduler the scheduler to be used to send heartbeats to the remote view processor
    */
   public RemoteViewProcessor(URI baseUri, JmsConnector jmsConnector, ScheduledExecutorService heartbeatScheduler) {
     _baseUri = baseUri;
@@ -51,7 +51,7 @@ public class RemoteViewProcessor implements ViewProcessor {
     _client = FudgeRestClient.create();
     _jmsConnector = jmsConnector;
   }
-  
+
   @Override
   public String getName() {
     URI uri = UriBuilder.fromUri(_baseUri).path(DataViewProcessorResource.PATH_NAME).build();
@@ -74,7 +74,7 @@ public class RemoteViewProcessor implements ViewProcessor {
   @Override
   public ViewProcess getViewProcess(UniqueId viewProcessId) {
     URI uri = DataViewProcessorResource.uriViewProcess(_baseUri, viewProcessId);
-    return new RemoteViewProcess(uri);
+    return new RemoteViewProcess(uri, _client);
   }
 
   //-------------------------------------------------------------------------
@@ -100,13 +100,12 @@ public class RemoteViewProcessor implements ViewProcessor {
   @Override
   public EngineResourceManager<ViewCycle> getViewCycleManager() {
     URI uri = UriBuilder.fromUri(_baseUri).path(DataViewProcessorResource.PATH_CYCLES).build();
-    return new RemoteViewCycleManager(uri, _heartbeatScheduler);
-  }
-  
-  //-------------------------------------------------------------------------
-  public MarketDataSnapshotter getMarketDataSnapshotter() {
-    URI uri = UriBuilder.fromUri(_baseUri).path(DataViewProcessorResource.PATH_SNAPSHOTTER).build();
-    return new RemoteMarketDataSnapshotter(uri);
+    return new RemoteViewCycleManager(uri, _heartbeatScheduler, _client);
   }
 
+  //-------------------------------------------------------------------------
+  public MarketDataSnapshotter getMarketDataSnapshotter(MarketDataSnapshotter.Mode mode) {
+    URI uri = DataViewProcessorResource.uriSnapshotter(_baseUri, mode);
+    return new RemoteMarketDataSnapshotter(uri, _client);
+  }
 }

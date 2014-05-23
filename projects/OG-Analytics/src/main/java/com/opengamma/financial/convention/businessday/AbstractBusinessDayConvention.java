@@ -34,6 +34,19 @@ public abstract class AbstractBusinessDayConvention implements BusinessDayConven
 
   @Override
   public String toString() {
-    return "BusinessDayConvention [" + getConventionName() + "]";
+    return "BusinessDayConvention [" + getName() + "]";
   }
+
+  /**
+   * Gets the name of the convention.
+   * 
+   * @return the name, not null
+   * @deprecated use getName()
+   */
+  @Override
+  @Deprecated
+  public String getConventionName() {
+    return getName();
+  }
+
 }

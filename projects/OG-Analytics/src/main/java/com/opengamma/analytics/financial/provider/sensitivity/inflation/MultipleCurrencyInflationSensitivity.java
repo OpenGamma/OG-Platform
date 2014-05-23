@@ -14,6 +14,7 @@ import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
@@ -55,6 +56,22 @@ public class MultipleCurrencyInflationSensitivity {
     ArgumentChecker.notNull(sensitivity, "Sensitivity");
     final TreeMap<Currency, InflationSensitivity> map = new TreeMap<>();
     map.put(ccy, sensitivity);
+    return new MultipleCurrencyInflationSensitivity(map);
+  }
+
+  /**
+   * Create a new inflation multiple currency sensitivity form a multicurve multiple currency sensitivity.
+   * @param multicurveSensitivity The multiple currency sensitivity
+   * @return The infaltion multiple currency sensitivity.
+   */
+  public static MultipleCurrencyInflationSensitivity of(final MultipleCurrencyMulticurveSensitivity multicurveSensitivity) {
+    ArgumentChecker.notNull(multicurveSensitivity, "Multicurve Sensitivity");
+    final TreeMap<Currency, InflationSensitivity> map = new TreeMap<>();
+    final Set<Currency> ccySet = multicurveSensitivity.getCurrencies();
+    for (final Currency currency : ccySet) {
+      final InflationSensitivity sensi = InflationSensitivity.of(multicurveSensitivity.getSensitivity(currency));
+      map.put(currency, sensi);
+    }
     return new MultipleCurrencyInflationSensitivity(map);
   }
 

@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
+import com.opengamma.analytics.financial.forex.method.FXMatrixUtils;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -31,6 +32,8 @@ public class ProviderUtils {
     ArgumentChecker.notNull(providers, "providers");
     ArgumentChecker.notEmpty(providers, "providers");
     final MulticurveProviderDiscount result = new MulticurveProviderDiscount();
+    FXMatrix matrix = new FXMatrix();
+    int loop = 0;
     for (final MulticurveProviderDiscount provider : providers) {
       for (final Map.Entry<Currency, YieldAndDiscountCurve> entry : provider.getDiscountingCurves().entrySet()) {
         result.setCurve(entry.getKey(), entry.getValue());
@@ -41,17 +44,14 @@ public class ProviderUtils {
       for (final Map.Entry<IndexON, YieldAndDiscountCurve> entry : provider.getForwardONCurves().entrySet()) {
         result.setCurve(entry.getKey(), entry.getValue());
       }
-      final FXMatrix matrix = provider.getFxRates();
-      final Collection<Currency> currencies = matrix.getCurrencies().keySet();
-      final Iterator<Currency> iterator = currencies.iterator();
-      if (currencies.size() > 0) {
-        final Currency initialCurrency = iterator.next();
-        while (iterator.hasNext()) {
-          final Currency otherCurrency = iterator.next();
-          result.getFxRates().addCurrency(initialCurrency, otherCurrency, matrix.getFxRate(initialCurrency, otherCurrency));
-        }
+      if (loop == 0) {
+        matrix = new FXMatrix(provider.getFxRates());
+        loop++;
+      } else {
+        matrix = FXMatrixUtils.merge(matrix, provider.getFxRates());
       }
     }
+    result.setForexMatrix(matrix);
     return result;
   }
 
@@ -102,15 +102,8 @@ public class ProviderUtils {
     ArgumentChecker.notNull(provider, "provider");
     ArgumentChecker.notNull(matrix, "matrix");
     final MulticurveProviderDiscount result = provider.copy();
-    final Collection<Currency> currencies = matrix.getCurrencies().keySet();
-    final Iterator<Currency> iterator = currencies.iterator();
-    if (currencies.size() > 0) {
-      final Currency initialCurrency = iterator.next();
-      while (iterator.hasNext()) {
-        final Currency otherCurrency = iterator.next();
-        result.getFxRates().addCurrency(initialCurrency, otherCurrency, matrix.getFxRate(initialCurrency, otherCurrency));
-      }
-    }
+    final FXMatrix fxMatrix = FXMatrixUtils.merge(provider.getFxRates(), matrix);
+    result.setForexMatrix(fxMatrix);
     return result;
   }
 
@@ -124,15 +117,9 @@ public class ProviderUtils {
     ArgumentChecker.notNull(provider, "provider");
     ArgumentChecker.notNull(matrix, "matrix");
     final HullWhiteOneFactorProviderDiscount result = provider.copy();
-    final Collection<Currency> currencies = matrix.getCurrencies().keySet();
-    final Iterator<Currency> iterator = currencies.iterator();
-    if (currencies.size() > 0) {
-      final Currency initialCurrency = iterator.next();
-      while (iterator.hasNext()) {
-        final Currency otherCurrency = iterator.next();
-        result.getMulticurveProvider().getFxRates().addCurrency(initialCurrency, otherCurrency, matrix.getFxRate(initialCurrency, otherCurrency));
-      }
-    }
+    final FXMatrix fxMatrix = FXMatrixUtils.merge(provider.getMulticurveProvider().getFxRates(), matrix);
+    result.getMulticurveProvider().setForexMatrix(fxMatrix);
     return result;
   }
+
 }

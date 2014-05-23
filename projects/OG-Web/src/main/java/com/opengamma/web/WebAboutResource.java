@@ -21,7 +21,7 @@ import org.joda.beans.impl.flexi.FlexiBean;
  * RESTful resource for the about page.
  */
 @Path("/about")
-public class WebAboutResource extends AbstractWebResource {
+public class WebAboutResource extends AbstractSingletonWebResource {
 
   /**
    * Creates the resource.
@@ -33,27 +33,22 @@ public class WebAboutResource extends AbstractWebResource {
   @GET
   @Produces(MediaType.TEXT_HTML)
   public String get(@Context ServletContext servletContext, @Context UriInfo uriInfo) {
-    FreemarkerOutputter freemarker = new FreemarkerOutputter(servletContext);
-    FlexiBean out = freemarker.createRootData();
-    out = createRootData(out, uriInfo, servletContext);
-    return freemarker.build("about.ftl", out);
+    FlexiBean out = createRootData(servletContext, uriInfo);
+    return getFreemarker(servletContext).build("about.ftl", out);
   }
 
   //-------------------------------------------------------------------------
   /**
    * Creates the output root data.
    * 
-   * @param out  the root data to populate, not null
    * @param uriInfo  the URI information, not null
    * @param servletContext  the servlet context, not null
    * @return the output root data, not null
    */
-  protected FlexiBean createRootData(FlexiBean out, UriInfo uriInfo, ServletContext servletContext) {
+  protected FlexiBean createRootData(ServletContext servletContext, UriInfo uriInfo) {
+    FlexiBean out = super.createRootData(uriInfo);
     out.put("uris", new WebHomeUris(uriInfo));
-    
-    out.put("baseUri", uriInfo.getBaseUri().toString());
     out.put("about", new WebAbout(servletContext));
-    
     return out;
   }
 

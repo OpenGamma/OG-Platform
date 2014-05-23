@@ -10,6 +10,7 @@
     <table>
       <tr><td>OpenGamma version</td><td>${about.openGammaVersion}</td></tr>
       <tr><td>OpenGamma build</td><td>${about.openGammaBuild}</td></tr>
+      <tr><td>OpenGamma build ID</td><td>${about.openGammaBuildId}</td></tr>
       <tr><td>&nbsp;</td><td>&nbsp;</td></tr>
       <tr><td>Time</td><td>${now.toInstant()} (UTC)</td></tr>
       <tr><td>Zoned time</td><td>${now}</td></tr>
@@ -74,12 +75,14 @@
 </#list>
     </ul>
   </p>
+</@section>
+<#-- SECTION Links -->
+<@section title="Links">
   <p>
-    Please choose one of the following options:
-    <ul>
-      <li><a href="${uris.home()}">Return home</a></li>
-      <li><a href="components">View the components</a></li>
-    </ul>
+    <a href="${uris.home()}">Return home</a><br />
+<#if userSecurity.isPermitted('WebComponents:view')>
+    <a href="${uris.components()}">View the components</a><br />
+</#if>
   </p>
 </@section>
 <p>

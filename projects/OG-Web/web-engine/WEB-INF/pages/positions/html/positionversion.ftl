@@ -1,5 +1,5 @@
 <#escape x as x?html>
-<@page title="Position - ${position.name}">
+<@page title="Position - ${position.name}" jquery=true aceXmlEditor=true>
 
 <@section css="info" if=deleted>
   <p>This position has been deleted</p>
@@ -38,6 +38,12 @@ ${id.scheme.name} - ${id.value},
       </td>
       <td>${item.counterpartyExternalId}</td>
   </@table>
+</@subsection>
+
+<#-- SUBSECTION Xml -->
+<@subsection title="Xml">
+  <div id="ace-xml-editor"></div>
+<#noescape><@xmlEditorScript  xmlValue="${positionXml!''}" readOnly=true></@xmlEditorScript></#noescape>
 </@subsection>
 </@section>
 

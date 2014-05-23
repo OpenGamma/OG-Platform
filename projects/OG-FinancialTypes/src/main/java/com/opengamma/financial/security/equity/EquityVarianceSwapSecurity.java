@@ -7,6 +7,7 @@ package com.opengamma.financial.security.equity;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -22,12 +23,14 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.id.ExternalId;
+import com.opengamma.master.security.SecurityDescription;
 import com.opengamma.util.money.Currency;
 
 /**
  * A security for equity variance swaps.
  */
 @BeanDefinition
+@SecurityDescription(type = EquityVarianceSwapSecurity.SECURITY_TYPE, description = "Equity variance swap")
 public class EquityVarianceSwapSecurity extends FinancialSecurity {
 
   /** Serialization version. */
@@ -139,127 +142,6 @@ public class EquityVarianceSwapSecurity extends FinancialSecurity {
   @Override
   public EquityVarianceSwapSecurity.Meta metaBean() {
     return EquityVarianceSwapSecurity.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -2099525766:  // spotUnderlyingId
-        return getSpotUnderlyingId();
-      case 575402001:  // currency
-        return getCurrency();
-      case -891985998:  // strike
-        return getStrike();
-      case 1585636160:  // notional
-        return getNotional();
-      case 1488612956:  // parameterizedAsVariance
-        return isParameterizedAsVariance();
-      case 663363412:  // annualizationFactor
-        return getAnnualizationFactor();
-      case -1644595926:  // firstObservationDate
-        return getFirstObservationDate();
-      case -1362285436:  // lastObservationDate
-        return getLastObservationDate();
-      case -295948169:  // settlementDate
-        return getSettlementDate();
-      case -690339025:  // regionId
-        return getRegionId();
-      case -213041520:  // observationFrequency
-        return getObservationFrequency();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -2099525766:  // spotUnderlyingId
-        setSpotUnderlyingId((ExternalId) newValue);
-        return;
-      case 575402001:  // currency
-        setCurrency((Currency) newValue);
-        return;
-      case -891985998:  // strike
-        setStrike((Double) newValue);
-        return;
-      case 1585636160:  // notional
-        setNotional((Double) newValue);
-        return;
-      case 1488612956:  // parameterizedAsVariance
-        setParameterizedAsVariance((Boolean) newValue);
-        return;
-      case 663363412:  // annualizationFactor
-        setAnnualizationFactor((Double) newValue);
-        return;
-      case -1644595926:  // firstObservationDate
-        setFirstObservationDate((ZonedDateTime) newValue);
-        return;
-      case -1362285436:  // lastObservationDate
-        setLastObservationDate((ZonedDateTime) newValue);
-        return;
-      case -295948169:  // settlementDate
-        setSettlementDate((ZonedDateTime) newValue);
-        return;
-      case -690339025:  // regionId
-        setRegionId((ExternalId) newValue);
-        return;
-      case -213041520:  // observationFrequency
-        setObservationFrequency((Frequency) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_spotUnderlyingId, "spotUnderlyingId");
-    JodaBeanUtils.notNull(_currency, "currency");
-    JodaBeanUtils.notNull(_firstObservationDate, "firstObservationDate");
-    JodaBeanUtils.notNull(_lastObservationDate, "lastObservationDate");
-    JodaBeanUtils.notNull(_settlementDate, "settlementDate");
-    JodaBeanUtils.notNull(_regionId, "regionId");
-    JodaBeanUtils.notNull(_observationFrequency, "observationFrequency");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      EquityVarianceSwapSecurity other = (EquityVarianceSwapSecurity) obj;
-      return JodaBeanUtils.equal(getSpotUnderlyingId(), other.getSpotUnderlyingId()) &&
-          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getStrike(), other.getStrike()) &&
-          JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
-          JodaBeanUtils.equal(isParameterizedAsVariance(), other.isParameterizedAsVariance()) &&
-          JodaBeanUtils.equal(getAnnualizationFactor(), other.getAnnualizationFactor()) &&
-          JodaBeanUtils.equal(getFirstObservationDate(), other.getFirstObservationDate()) &&
-          JodaBeanUtils.equal(getLastObservationDate(), other.getLastObservationDate()) &&
-          JodaBeanUtils.equal(getSettlementDate(), other.getSettlementDate()) &&
-          JodaBeanUtils.equal(getRegionId(), other.getRegionId()) &&
-          JodaBeanUtils.equal(getObservationFrequency(), other.getObservationFrequency()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSpotUnderlyingId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStrike());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNotional());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isParameterizedAsVariance());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAnnualizationFactor());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFirstObservationDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getLastObservationDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getObservationFrequency());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -548,6 +430,81 @@ public class EquityVarianceSwapSecurity extends FinancialSecurity {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public EquityVarianceSwapSecurity clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      EquityVarianceSwapSecurity other = (EquityVarianceSwapSecurity) obj;
+      return JodaBeanUtils.equal(getSpotUnderlyingId(), other.getSpotUnderlyingId()) &&
+          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
+          JodaBeanUtils.equal(getStrike(), other.getStrike()) &&
+          JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
+          (isParameterizedAsVariance() == other.isParameterizedAsVariance()) &&
+          JodaBeanUtils.equal(getAnnualizationFactor(), other.getAnnualizationFactor()) &&
+          JodaBeanUtils.equal(getFirstObservationDate(), other.getFirstObservationDate()) &&
+          JodaBeanUtils.equal(getLastObservationDate(), other.getLastObservationDate()) &&
+          JodaBeanUtils.equal(getSettlementDate(), other.getSettlementDate()) &&
+          JodaBeanUtils.equal(getRegionId(), other.getRegionId()) &&
+          JodaBeanUtils.equal(getObservationFrequency(), other.getObservationFrequency()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSpotUnderlyingId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getStrike());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getNotional());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isParameterizedAsVariance());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getAnnualizationFactor());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFirstObservationDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getLastObservationDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getObservationFrequency());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(384);
+    buf.append("EquityVarianceSwapSecurity{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("spotUnderlyingId").append('=').append(JodaBeanUtils.toString(getSpotUnderlyingId())).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
+    buf.append("strike").append('=').append(JodaBeanUtils.toString(getStrike())).append(',').append(' ');
+    buf.append("notional").append('=').append(JodaBeanUtils.toString(getNotional())).append(',').append(' ');
+    buf.append("parameterizedAsVariance").append('=').append(JodaBeanUtils.toString(isParameterizedAsVariance())).append(',').append(' ');
+    buf.append("annualizationFactor").append('=').append(JodaBeanUtils.toString(getAnnualizationFactor())).append(',').append(' ');
+    buf.append("firstObservationDate").append('=').append(JodaBeanUtils.toString(getFirstObservationDate())).append(',').append(' ');
+    buf.append("lastObservationDate").append('=').append(JodaBeanUtils.toString(getLastObservationDate())).append(',').append(' ');
+    buf.append("settlementDate").append('=').append(JodaBeanUtils.toString(getSettlementDate())).append(',').append(' ');
+    buf.append("regionId").append('=').append(JodaBeanUtils.toString(getRegionId())).append(',').append(' ');
+    buf.append("observationFrequency").append('=').append(JodaBeanUtils.toString(getObservationFrequency())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code EquityVarianceSwapSecurity}.
    */
@@ -766,6 +723,88 @@ public class EquityVarianceSwapSecurity extends FinancialSecurity {
      */
     public final MetaProperty<Frequency> observationFrequency() {
       return _observationFrequency;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -2099525766:  // spotUnderlyingId
+          return ((EquityVarianceSwapSecurity) bean).getSpotUnderlyingId();
+        case 575402001:  // currency
+          return ((EquityVarianceSwapSecurity) bean).getCurrency();
+        case -891985998:  // strike
+          return ((EquityVarianceSwapSecurity) bean).getStrike();
+        case 1585636160:  // notional
+          return ((EquityVarianceSwapSecurity) bean).getNotional();
+        case 1488612956:  // parameterizedAsVariance
+          return ((EquityVarianceSwapSecurity) bean).isParameterizedAsVariance();
+        case 663363412:  // annualizationFactor
+          return ((EquityVarianceSwapSecurity) bean).getAnnualizationFactor();
+        case -1644595926:  // firstObservationDate
+          return ((EquityVarianceSwapSecurity) bean).getFirstObservationDate();
+        case -1362285436:  // lastObservationDate
+          return ((EquityVarianceSwapSecurity) bean).getLastObservationDate();
+        case -295948169:  // settlementDate
+          return ((EquityVarianceSwapSecurity) bean).getSettlementDate();
+        case -690339025:  // regionId
+          return ((EquityVarianceSwapSecurity) bean).getRegionId();
+        case -213041520:  // observationFrequency
+          return ((EquityVarianceSwapSecurity) bean).getObservationFrequency();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -2099525766:  // spotUnderlyingId
+          ((EquityVarianceSwapSecurity) bean).setSpotUnderlyingId((ExternalId) newValue);
+          return;
+        case 575402001:  // currency
+          ((EquityVarianceSwapSecurity) bean).setCurrency((Currency) newValue);
+          return;
+        case -891985998:  // strike
+          ((EquityVarianceSwapSecurity) bean).setStrike((Double) newValue);
+          return;
+        case 1585636160:  // notional
+          ((EquityVarianceSwapSecurity) bean).setNotional((Double) newValue);
+          return;
+        case 1488612956:  // parameterizedAsVariance
+          ((EquityVarianceSwapSecurity) bean).setParameterizedAsVariance((Boolean) newValue);
+          return;
+        case 663363412:  // annualizationFactor
+          ((EquityVarianceSwapSecurity) bean).setAnnualizationFactor((Double) newValue);
+          return;
+        case -1644595926:  // firstObservationDate
+          ((EquityVarianceSwapSecurity) bean).setFirstObservationDate((ZonedDateTime) newValue);
+          return;
+        case -1362285436:  // lastObservationDate
+          ((EquityVarianceSwapSecurity) bean).setLastObservationDate((ZonedDateTime) newValue);
+          return;
+        case -295948169:  // settlementDate
+          ((EquityVarianceSwapSecurity) bean).setSettlementDate((ZonedDateTime) newValue);
+          return;
+        case -690339025:  // regionId
+          ((EquityVarianceSwapSecurity) bean).setRegionId((ExternalId) newValue);
+          return;
+        case -213041520:  // observationFrequency
+          ((EquityVarianceSwapSecurity) bean).setObservationFrequency((Frequency) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((EquityVarianceSwapSecurity) bean)._spotUnderlyingId, "spotUnderlyingId");
+      JodaBeanUtils.notNull(((EquityVarianceSwapSecurity) bean)._currency, "currency");
+      JodaBeanUtils.notNull(((EquityVarianceSwapSecurity) bean)._firstObservationDate, "firstObservationDate");
+      JodaBeanUtils.notNull(((EquityVarianceSwapSecurity) bean)._lastObservationDate, "lastObservationDate");
+      JodaBeanUtils.notNull(((EquityVarianceSwapSecurity) bean)._settlementDate, "settlementDate");
+      JodaBeanUtils.notNull(((EquityVarianceSwapSecurity) bean)._regionId, "regionId");
+      JodaBeanUtils.notNull(((EquityVarianceSwapSecurity) bean)._observationFrequency, "observationFrequency");
+      super.validate(bean);
     }
 
   }

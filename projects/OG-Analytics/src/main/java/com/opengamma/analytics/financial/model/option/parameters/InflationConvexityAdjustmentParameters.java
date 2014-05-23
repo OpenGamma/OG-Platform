@@ -7,6 +7,8 @@ package com.opengamma.analytics.financial.model.option.parameters;
 
 import java.util.Arrays;
 
+import org.apache.commons.lang.ObjectUtils;
+
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.math.curve.Curve;
 import com.opengamma.analytics.math.surface.Surface;
@@ -46,7 +48,7 @@ public class InflationConvexityAdjustmentParameters {
   private final IndexPrice _index;
 
   /**
-   * Constructor from the parameter surfaces. 
+   * Constructor from the parameter surfaces.
    * @param inflationTime the inflation times.
    * @param atmVolatility The atm Black volatility curve.
    * @param liborCorrelation the inter libor correlation
@@ -123,11 +125,11 @@ public class InflationConvexityAdjustmentParameters {
     final int prime = 31;
     int result = 1;
     result = prime * result + Arrays.hashCode(_atmVolatility);
-    result = prime * result + ((_index == null) ? 0 : _index.hashCode());
+    result = prime * result + _index.hashCode();
     result = prime * result + Arrays.hashCode(_inflationTime);
-    result = prime * result + ((_liborCorrelation == null) ? 0 : _liborCorrelation.hashCode());
-    result = prime * result + ((_priceIndexCorrelation == null) ? 0 : _priceIndexCorrelation.hashCode());
-    result = prime * result + ((_priceIndexRateCorrelation == null) ? 0 : _priceIndexRateCorrelation.hashCode());
+    result = prime * result + _liborCorrelation.hashCode();
+    result = prime * result + _priceIndexCorrelation.hashCode();
+    result = prime * result + _priceIndexRateCorrelation.hashCode();
     return result;
   }
 
@@ -136,45 +138,26 @@ public class InflationConvexityAdjustmentParameters {
     if (this == obj) {
       return true;
     }
-    if (obj == null) {
-      return false;
-    }
-    if (getClass() != obj.getClass()) {
+    if (!(obj instanceof InflationConvexityAdjustmentParameters)) {
       return false;
     }
     final InflationConvexityAdjustmentParameters other = (InflationConvexityAdjustmentParameters) obj;
-    if (!Arrays.equals(_atmVolatility, other._atmVolatility)) {
-      return false;
-    }
-    if (_index == null) {
-      if (other._index != null) {
-        return false;
-      }
-    } else if (!_index.equals(other._index)) {
-      return false;
-    }
     if (!Arrays.equals(_inflationTime, other._inflationTime)) {
       return false;
     }
-    if (_liborCorrelation == null) {
-      if (other._liborCorrelation != null) {
-        return false;
-      }
-    } else if (!_liborCorrelation.equals(other._liborCorrelation)) {
+    if (!Arrays.equals(_atmVolatility, other._atmVolatility)) {
       return false;
     }
-    if (_priceIndexCorrelation == null) {
-      if (other._priceIndexCorrelation != null) {
-        return false;
-      }
-    } else if (!_priceIndexCorrelation.equals(other._priceIndexCorrelation)) {
+    if (!ObjectUtils.equals(_index, other._index)) {
       return false;
     }
-    if (_priceIndexRateCorrelation == null) {
-      if (other._priceIndexRateCorrelation != null) {
-        return false;
-      }
-    } else if (!_priceIndexRateCorrelation.equals(other._priceIndexRateCorrelation)) {
+    if (!ObjectUtils.equals(_liborCorrelation, other._liborCorrelation)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_priceIndexCorrelation, other._priceIndexCorrelation)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_priceIndexRateCorrelation, other._priceIndexRateCorrelation)) {
       return false;
     }
     return true;

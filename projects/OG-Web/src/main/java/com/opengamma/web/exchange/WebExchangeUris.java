@@ -34,6 +34,14 @@ public class WebExchangeUris {
    * Gets the URI.
    * @return the URI
    */
+  public URI base() {
+    return exchanges();
+  }
+
+  /**
+   * Gets the URI.
+   * @return the URI
+   */
   public URI exchanges() {
     return WebExchangesResource.uri(_data);
   }

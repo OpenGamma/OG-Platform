@@ -72,7 +72,7 @@ public class DataReferenceDataProviderResource extends AbstractDataResource {
   @Path("referenceDataGet")
   public Response getHistoricalTimeSeries(ReferenceDataProviderGetRequest request) {
     ReferenceDataProviderGetResult result = getReferenceDataProvider().getReferenceData(request);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   //-------------------------------------------------------------------------

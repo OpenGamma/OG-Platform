@@ -5,9 +5,12 @@
  */
 package com.opengamma.integration.marketdata.manipulator.dsl;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.opengamma.integration.marketdata.manipulator.dsl.volsurface.VolatilitySurfaceConstantMultiplicativeShift;
+import com.opengamma.integration.marketdata.manipulator.dsl.volsurface.VolatilitySurfaceIndexShifts;
 import com.opengamma.integration.marketdata.manipulator.dsl.volsurface.VolatilitySurfaceMultipleAdditiveShifts;
 import com.opengamma.integration.marketdata.manipulator.dsl.volsurface.VolatilitySurfaceMultipleMultiplicativeShifts;
 import com.opengamma.integration.marketdata.manipulator.dsl.volsurface.VolatilitySurfaceParallelShift;
@@ -18,10 +21,11 @@ import com.opengamma.util.ArgumentChecker;
 /**
  *
  */
-/* package */ class VolatilitySurfaceManipulatorBuilder {
+public class VolatilitySurfaceManipulatorBuilder {
 
   /** Selector whose selected items will be modified by the manipulators from this builder. */
   private final VolatilitySurfaceSelector _selector;
+
   /** The scenario to which manipulations are added. */
   private final Scenario _scenario;
 
@@ -32,31 +36,85 @@ import com.opengamma.util.ArgumentChecker;
     _selector = selector;
   }
 
+  public VolatilitySurfaceManipulatorBuilder shifts(ScenarioShiftType shiftType, VolatilitySurfaceShift... shifts) {
+    _scenario.add(_selector, VolatilitySurfaceShiftManipulator.create(shiftType, Arrays.asList(shifts)));
+    return this;
+  }
+
+  public VolatilitySurfaceManipulatorBuilder parallelShift(ScenarioShiftType shiftType, Number shift) {
+    if (shiftType == ScenarioShiftType.ABSOLUTE) {
+      _scenario.add(_selector, new VolatilitySurfaceParallelShift(shift.doubleValue()));
+    } else {
+      _scenario.add(_selector, new VolatilitySurfaceConstantMultiplicativeShift(shift.doubleValue() + 1));
+    }
+    return this;
+  }
+
+  /**
+   * Creates {@link VolatilitySurfaceIndexShifts} which specifies surface shifts by expiry index.
+   *
+   * @param shiftType absolute or relative
+   * @param shifts the shift amounts to apply at each point on the surface
+   * @return this builder
+   */
+  public VolatilitySurfaceManipulatorBuilder indexShifts(ScenarioShiftType shiftType, Number... shifts) {
+    List<Double> shiftList = new ArrayList<>(shifts.length);
+    for (Number shift : shifts) {
+      shiftList.add(shift.doubleValue());
+    }
+    _scenario.add(_selector, new VolatilitySurfaceIndexShifts(shiftType, shiftList));
+    return this;
+  }
+
+  /**
+   * @deprecated Use {@link #parallelShift} with {@link ScenarioShiftType#ABSOLUTE}
+   */
+  @Deprecated
   public VolatilitySurfaceManipulatorBuilder parallelShift(Number shift) {
     _scenario.add(_selector, new VolatilitySurfaceParallelShift(shift.doubleValue()));
     return this;
   }
 
-  public VolatilitySurfaceManipulatorBuilder singleAdditiveShift(Number x, Number y, Number shift) {
-    _scenario.add(_selector, new VolatilitySurfaceSingleAdditiveShift(x.doubleValue(), y.doubleValue(), shift.doubleValue()));
-    return this;
-  }
-
-  public VolatilitySurfaceManipulatorBuilder multipleAdditiveShifts(List<Number> x, List<Number> y, List<Number> shifts) {
-    _scenario.add(_selector, new VolatilitySurfaceMultipleAdditiveShifts(array(x), array(y), array(shifts)));
-    return this;
-  }
-
+  /**
+   * @deprecated Use {@link #parallelShift} with {@link ScenarioShiftType#RELATIVE}
+   */
+  @Deprecated
   public VolatilitySurfaceManipulatorBuilder constantMultiplicativeShift(Number shift) {
     _scenario.add(_selector, new VolatilitySurfaceConstantMultiplicativeShift(shift.doubleValue()));
     return this;
   }
 
+  /**
+   * @deprecated Use {@link #shifts)} with {@link ScenarioShiftType#ABSOLUTE} and one shift
+   */
+  @Deprecated
+  public VolatilitySurfaceManipulatorBuilder singleAdditiveShift(Number x, Number y, Number shift) {
+    _scenario.add(_selector, new VolatilitySurfaceSingleAdditiveShift(x.doubleValue(), y.doubleValue(), shift.doubleValue()));
+    return this;
+  }
+
+  /**
+   * @deprecated Use {@link #shifts)} with {@link ScenarioShiftType#ABSOLUTE} and multiple shifts
+   */
+  @Deprecated
+  public VolatilitySurfaceManipulatorBuilder multipleAdditiveShifts(List<Number> x, List<Number> y, List<Number> shifts) {
+    _scenario.add(_selector, new VolatilitySurfaceMultipleAdditiveShifts(array(x), array(y), array(shifts)));
+    return this;
+  }
+
+  /**
+   * @deprecated Use {@link #shifts)} with {@link ScenarioShiftType#RELATIVE} and one shift
+   */
+  @Deprecated
   public VolatilitySurfaceManipulatorBuilder singleMultiplicativeShift(Number x, Number y, Number shift) {
     _scenario.add(_selector, new VolatilitySurfaceSingleMultiplicativeShift(x.doubleValue(), y.doubleValue(), shift.doubleValue()));
     return this;
   }
 
+  /**
+   * @deprecated Use {@link #shifts)} with {@link ScenarioShiftType#RELATIVE} and multiple shifts
+   */
+  @Deprecated
   public VolatilitySurfaceManipulatorBuilder multipleMultiplicativeShifts(List<Number> x, List<Number> y, List<Number> shifts) {
     _scenario.add(_selector, new VolatilitySurfaceMultipleMultiplicativeShifts(array(x), array(y), array(shifts)));
     return this;
@@ -69,5 +127,13 @@ import com.opengamma.util.ArgumentChecker;
       array[index++] = value.doubleValue();
     }
     return array;
+  }
+
+  /* package */ VolatilitySurfaceSelector getSelector() {
+    return _selector;
+  }
+
+  /* package */ Scenario getScenario() {
+    return _scenario;
   }
 }

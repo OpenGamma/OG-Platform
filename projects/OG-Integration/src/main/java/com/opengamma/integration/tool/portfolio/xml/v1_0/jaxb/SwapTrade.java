@@ -15,6 +15,7 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -117,53 +118,6 @@ public class SwapTrade extends Trade {
     return SwapTrade.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -930389515:  // effectiveDate
-        return getEffectiveDate();
-      case -318692264:  // swapLegs
-        return getSwapLegs();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -930389515:  // effectiveDate
-        setEffectiveDate((LocalDate) newValue);
-        return;
-      case -318692264:  // swapLegs
-        setSwapLegs((List<SwapLeg>) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      SwapTrade other = (SwapTrade) obj;
-      return JodaBeanUtils.equal(getEffectiveDate(), other.getEffectiveDate()) &&
-          JodaBeanUtils.equal(getSwapLegs(), other.getSwapLegs()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getEffectiveDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSwapLegs());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the effectiveDate.
@@ -212,6 +166,54 @@ public class SwapTrade extends Trade {
    */
   public final Property<List<SwapLeg>> swapLegs() {
     return metaBean().swapLegs().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public SwapTrade clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      SwapTrade other = (SwapTrade) obj;
+      return JodaBeanUtils.equal(getEffectiveDate(), other.getEffectiveDate()) &&
+          JodaBeanUtils.equal(getSwapLegs(), other.getSwapLegs()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getEffectiveDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSwapLegs());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(96);
+    buf.append("SwapTrade{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("effectiveDate").append('=').append(JodaBeanUtils.toString(getEffectiveDate())).append(',').append(' ');
+    buf.append("swapLegs").append('=').append(JodaBeanUtils.toString(getSwapLegs())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -290,6 +292,32 @@ public class SwapTrade extends Trade {
      */
     public final MetaProperty<List<SwapLeg>> swapLegs() {
       return _swapLegs;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -930389515:  // effectiveDate
+          return ((SwapTrade) bean).getEffectiveDate();
+        case -318692264:  // swapLegs
+          return ((SwapTrade) bean).getSwapLegs();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -930389515:  // effectiveDate
+          ((SwapTrade) bean).setEffectiveDate((LocalDate) newValue);
+          return;
+        case -318692264:  // swapLegs
+          ((SwapTrade) bean).setSwapLegs((List<SwapLeg>) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

@@ -16,12 +16,15 @@ import com.opengamma.core.position.impl.SimplePositionComparator;
 import com.opengamma.core.security.Security;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
+import com.opengamma.financial.security.bond.BillSecurity;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
+import com.opengamma.financial.security.bond.FloatingRateNoteSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.bond.InflationBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
+import com.opengamma.financial.security.cash.CashBalanceSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.cds.CDSSecurity;
@@ -33,15 +36,22 @@ import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
 import com.opengamma.financial.security.cds.StandardFixedRecoveryCDSSecurity;
 import com.opengamma.financial.security.cds.StandardRecoveryLockCDSSecurity;
 import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
+import com.opengamma.financial.security.credit.IndexCDSDefinitionSecurity;
+import com.opengamma.financial.security.credit.IndexCDSSecurity;
+import com.opengamma.financial.security.credit.LegacyCDSSecurity;
+import com.opengamma.financial.security.credit.StandardCDSSecurity;
 import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
+import com.opengamma.financial.security.equity.AmericanDepositaryReceiptSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
+import com.opengamma.financial.security.equity.ExchangeTradedFundSecurity;
 import com.opengamma.financial.security.forward.AgricultureForwardSecurity;
 import com.opengamma.financial.security.forward.EnergyForwardSecurity;
 import com.opengamma.financial.security.forward.MetalForwardSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
+import com.opengamma.financial.security.fra.ForwardRateAgreementSecurity;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.future.DeliverableSwapFutureSecurity;
@@ -55,7 +65,9 @@ import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.financial.security.fx.FXVolatilitySwapSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
+import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
 import com.opengamma.financial.security.option.CreditDefaultSwapOptionSecurity;
@@ -64,6 +76,7 @@ import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSe
 import com.opengamma.financial.security.option.EquityIndexFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
+import com.opengamma.financial.security.option.EquityWarrantSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
@@ -72,6 +85,8 @@ import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
+import com.opengamma.financial.security.swap.BondTotalReturnSwapSecurity;
+import com.opengamma.financial.security.swap.EquityTotalReturnSwapSecurity;
 import com.opengamma.financial.security.swap.ForwardSwapSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.financial.security.swap.YearOnYearInflationSwapSecurity;
@@ -121,6 +136,15 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
   /* package */static final String CDX = "CDS Indices";
   /* package */static final String CREDIT_DEFAULT_SWAP_OPTIONS = "CDS Options";
   /* package */static final String INFLATION_SWAPS = "Inflation Swaps";
+  /* package */static final String FX_VOLATILITY_SWAPS = "FX Volatility Swaps";
+  /* package */static final String EXCHANGE_TRADED_FUNDS = "Exchange-Traded Funds";
+  /* package */static final String ADRS = "American Depositary Receipts";
+  /* package */static final String EQUITY_WARRANTS = "Equity Warrants";
+  /* package */static final String BILLS = "Bills";
+  /* package */static final String FLOATING_RATE_NOTES = "Floating Rate Notes";
+  /* package */static final String CASH_BALANCE = "Cash Balance";
+  /* package */static final String EQUITY_TRS = "Equity Total Return Swap";
+  /* package */static final String BOND_TRS = "Bond Total Return Swap";
 
   private final Comparator<Position> _comparator = new SimplePositionComparator();
 
@@ -128,8 +152,8 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
       NONDELIVERABLE_FX_DIGITAL_OPTIONS, FX_FORWARDS, NONDELIVERABLE_FX_FORWARDS, BONDS, CASH, EQUITIES,
       FRAS, FUTURES, EQUITY_INDEX_OPTIONS, EQUITY_OPTIONS, EQUITY_BARRIER_OPTIONS,
       EQUITY_VARIANCE_SWAPS, SWAPTIONS, IRFUTURE_OPTIONS, EQUITY_INDEX_DIVIDEND_FUTURE_OPTIONS,
-      SWAPS, CAP_FLOOR, CAP_FLOOR_CMS_SPREAD, EQUITY_INDEX_FUTURE_OPTIONS, INFLATION_SWAPS,
-      UNKNOWN);
+      SWAPS, CAP_FLOOR, CAP_FLOOR_CMS_SPREAD, EQUITY_INDEX_FUTURE_OPTIONS, INFLATION_SWAPS, FX_VOLATILITY_SWAPS,
+      EXCHANGE_TRADED_FUNDS, ADRS, EQUITY_WARRANTS, FLOATING_RATE_NOTES, EQUITY_TRS, BOND_TRS, UNKNOWN);
 
   private final boolean _includeEmptyCategories;
 
@@ -165,6 +189,11 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
       return finSec.accept(new FinancialSecurityVisitor<String>() {
 
         @Override
+        public String visitBillSecurity(final BillSecurity security) {
+          return BILLS;
+        }
+
+        @Override
         public String visitGovernmentBondSecurity(final GovernmentBondSecurity security) {
           return BONDS;
         }
@@ -185,6 +214,11 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
         }
 
         @Override
+        public String visitCashBalanceSecurity(final CashBalanceSecurity security) {
+          return CASH_BALANCE;
+        }
+
+        @Override
         public String visitCashSecurity(final CashSecurity security) {
           return CASH;
         }
@@ -201,6 +235,11 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
 
         @Override
         public String visitFRASecurity(final FRASecurity security) {
+          return FRAS;
+        }
+
+        @Override
+        public String visitForwardRateAgreementSecurity(final ForwardRateAgreementSecurity security) {
           return FRAS;
         }
 
@@ -463,6 +502,66 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
         @Override
         public String visitYearOnYearInflationSwapSecurity(final YearOnYearInflationSwapSecurity security) {
           return INFLATION_SWAPS;
+        }
+
+        @Override
+        public String visitInterestRateSwapSecurity(final InterestRateSwapSecurity security) {
+          return SWAPS;
+        }
+
+        @Override
+        public String visitFXVolatilitySwapSecurity(final FXVolatilitySwapSecurity security) {
+          return FX_VOLATILITY_SWAPS;
+        }
+
+        @Override
+        public String visitExchangeTradedFundSecurity(final ExchangeTradedFundSecurity security) {
+          return EXCHANGE_TRADED_FUNDS;
+        }
+
+        @Override
+        public String visitAmericanDepositaryReceiptSecurity(final AmericanDepositaryReceiptSecurity security) {
+          return ADRS;
+        }
+
+        @Override
+        public String visitEquityWarrantSecurity(final EquityWarrantSecurity security) {
+          return EQUITY_WARRANTS;
+        }
+
+        @Override
+        public String visitFloatingRateNoteSecurity(final FloatingRateNoteSecurity security) {
+          return FLOATING_RATE_NOTES;
+        }
+
+        @Override
+        public String visitEquityTotalReturnSwapSecurity(final EquityTotalReturnSwapSecurity security) {
+          return EQUITY_TRS;
+        }
+
+        @Override
+        public String visitBondTotalReturnSwapSecurity(final BondTotalReturnSwapSecurity security) {
+          return BOND_TRS;
+        }
+
+        @Override
+        public String visitStandardCDSSecurity(final StandardCDSSecurity security) {
+          return CDS;
+        }
+
+        @Override
+        public String visitLegacyCDSSecurity(final LegacyCDSSecurity security) {
+          return CDS;
+        }
+
+        @Override
+        public String visitIndexCDSSecurity(final IndexCDSSecurity security) {
+          return CDX;
+        }
+
+        @Override
+        public String visitIndexCDSDefinitionSecurity(final IndexCDSDefinitionSecurity security) {
+          return CDX;
         }
       });
     } else {

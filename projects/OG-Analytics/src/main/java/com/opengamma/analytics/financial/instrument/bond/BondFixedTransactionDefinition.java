@@ -12,6 +12,7 @@ import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinitio
 import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefinition;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedTransaction;
+import com.opengamma.analytics.financial.interestrate.bond.provider.BondSecurityDiscountingMethod;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.daycount.AccruedInterestCalculator;
 import com.opengamma.util.ArgumentChecker;
@@ -20,6 +21,11 @@ import com.opengamma.util.ArgumentChecker;
  * Describes a transaction on a fixed coupon bond issue.
  */
 public class BondFixedTransactionDefinition extends BondTransactionDefinition<PaymentFixedDefinition, CouponFixedDefinition> {
+
+  /**
+   * The method to compute price from yield.
+   */
+  private static final BondSecurityDiscountingMethod METHOD_BOND = BondSecurityDiscountingMethod.getInstance();
 
   /**
    * Accrued interest at settlement date.
@@ -31,10 +37,10 @@ public class BondFixedTransactionDefinition extends BondTransactionDefinition<Pa
    * @param underlyingBond The fixed coupon bond underlying the transaction.
    * @param quantity The number of bonds purchased (can be negative or positive).
    * @param settlementDate Transaction settlement date.
-   * @param dirtyPrice The (dirty) price of the transaction in relative term (i.e. 0.90 if the dirty price is 90% of nominal).
+   * @param cleanPrice The (clean) price of the transaction in relative term (i.e. 0.90 if the dirty price is 90% of nominal).
    */
-  public BondFixedTransactionDefinition(final BondFixedSecurityDefinition underlyingBond, final double quantity, final ZonedDateTime settlementDate, final double dirtyPrice) {
-    super(underlyingBond, quantity, settlementDate, dirtyPrice);
+  public BondFixedTransactionDefinition(final BondFixedSecurityDefinition underlyingBond, final double quantity, final ZonedDateTime settlementDate, final double cleanPrice) {
+    super(underlyingBond, quantity, settlementDate, cleanPrice);
     _accruedInterestAtSettlement = 0;
     final int nbCoupon = underlyingBond.getCoupons().getNumberOfPayments();
     final double accruedInterest = AccruedInterestCalculator.getAccruedInterest(getUnderlyingBond().getDayCount(), getCouponIndex(), nbCoupon, getPreviousAccrualDate(),
@@ -45,6 +51,22 @@ public class BondFixedTransactionDefinition extends BondTransactionDefinition<Pa
     } else {
       _accruedInterestAtSettlement = accruedInterest;
     }
+  }
+
+  /**
+   * Builder of a fixed coupon bond transaction from the underlying bond and the conventional yield at settlement date.
+   * @param underlyingBond The fixed coupon bond underlying the transaction.
+   * @param quantity The number of bonds purchased (can be negative or positive).
+   * @param settlementDate Transaction settlement date.
+   * @param yield The yield quoted in the underlying bond convention at settlement date. The yield is in decimal, i.e. 0.0525 for 5.25%.
+   * @return The fixed coupon bond.
+   */
+  public static BondFixedTransactionDefinition fromYield(final BondFixedSecurityDefinition underlyingBond, final double quantity, final ZonedDateTime settlementDate, final double yield) {
+    ArgumentChecker.notNull(settlementDate, "settlement date");
+    ArgumentChecker.notNull(underlyingBond, "underlying bond");
+    BondFixedSecurity security = underlyingBond.toDerivative(settlementDate, settlementDate);
+    double cleanPrice = METHOD_BOND.cleanPriceFromYield(security, yield);
+    return new BondFixedTransactionDefinition(underlyingBond, quantity, settlementDate, cleanPrice);
   }
 
   /**
@@ -113,7 +135,7 @@ public class BondFixedTransactionDefinition extends BondTransactionDefinition<Pa
     }
     final double notionalStandard = getUnderlyingBond().getCoupons().getNthPayment(couponIndex).getNotional();
     double price;
-    if (getSettlementDate().isBefore(date)) { // If settlement already took place, the price is set to 0.
+    if (getSettlementDate().toLocalDate().isBefore(date.toLocalDate())) { //Implementation note: If settlement already took place (in day terms), the price is set to 0.
       price = 0.0;
     } else {
       price = getPrice();

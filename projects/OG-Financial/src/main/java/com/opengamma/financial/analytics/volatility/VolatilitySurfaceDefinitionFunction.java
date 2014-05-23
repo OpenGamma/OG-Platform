@@ -14,7 +14,6 @@ import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
@@ -27,7 +26,6 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.equity.EquitySecurityUtils;
 import com.opengamma.financial.analytics.volatility.surface.ConfigDBVolatilitySurfaceDefinitionSource;
@@ -40,10 +38,15 @@ import com.opengamma.util.money.UnorderedCurrencyPair;
  */
 public class VolatilitySurfaceDefinitionFunction extends AbstractFunction {
 
+  private ConfigDBVolatilitySurfaceDefinitionSource _volatilitySurfaceDefinitionSource;
+
+  @Override
+  public void init(final FunctionCompilationContext context) {
+    _volatilitySurfaceDefinitionSource = ConfigDBVolatilitySurfaceDefinitionSource.init(context, this);
+  }
+
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext outerContext, final Instant atInstant) {
-    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(outerContext);
-    final ConfigDBVolatilitySurfaceDefinitionSource source = new ConfigDBVolatilitySurfaceDefinitionSource(configSource);
     final ZonedDateTime atZDT = ZonedDateTime.ofInstant(atInstant, ZoneOffset.UTC);
     return new AbstractInvokingCompiledFunction(atZDT.with(LocalTime.MIDNIGHT), atZDT.plusDays(1).with(LocalTime.MIDNIGHT).minusNanos(1000000)) {
 
@@ -58,11 +61,11 @@ public class VolatilitySurfaceDefinitionFunction extends AbstractFunction {
           final UnorderedCurrencyPair pair = UnorderedCurrencyPair.of(target.getUniqueId());
           String name = pair.getFirstCurrency().getCode() + pair.getSecondCurrency().getCode();
           String fullDefinitionName = surfaceName + "_" + name;
-          definition = source.getDefinition(fullDefinitionName, instrumentType);
+          definition = _volatilitySurfaceDefinitionSource.getDefinition(fullDefinitionName, instrumentType);
           if (definition == null) {
             name = pair.getSecondCurrency().getCode() + pair.getFirstCurrency().getCode();
             fullDefinitionName = surfaceName + "_" + name;
-            definition = source.getDefinition(fullDefinitionName, instrumentType);
+            definition = _volatilitySurfaceDefinitionSource.getDefinition(fullDefinitionName, instrumentType);
             if (definition == null) {
               throw new OpenGammaRuntimeException("Could not get volatility surface definition named " + fullDefinitionName);
             }
@@ -70,22 +73,20 @@ public class VolatilitySurfaceDefinitionFunction extends AbstractFunction {
         } else if (instrumentType.equals(InstrumentTypeProperties.EQUITY_OPTION) || instrumentType.equals(InstrumentTypeProperties.EQUITY_FUTURE_OPTION)) {
           //FIXME: Modify to take ExternalId to avoid incorrect cast to UniqueId
           final String fullDefinitionName = surfaceName + "_" + EquitySecurityUtils.getTrimmedTarget(UniqueId.parse(target.getValue().toString()));
-          definition = source.getDefinition(fullDefinitionName, instrumentType);
+          definition = _volatilitySurfaceDefinitionSource.getDefinition(fullDefinitionName, instrumentType);
           if (definition == null) {
             throw new OpenGammaRuntimeException("Could not get volatility surface definition named " + fullDefinitionName + " for instrument type " + instrumentType);
           }
         } else {
           final String fullDefinitionName = surfaceName + "_" + target.getUniqueId().getValue();
-          definition = source.getDefinition(fullDefinitionName, instrumentType);
+          definition = _volatilitySurfaceDefinitionSource.getDefinition(fullDefinitionName, instrumentType);
           if (definition == null) {
             throw new OpenGammaRuntimeException("Could not get volatility surface definition named " + fullDefinitionName + " for instrument type " + instrumentType);
           }
         }
         @SuppressWarnings("synthetic-access")
-        final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.VOLATILITY_SURFACE_DEFINITION, target.toSpecification(),
-            createValueProperties()
-            .with(ValuePropertyNames.SURFACE, surfaceName)
-            .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, instrumentType).get());
+        final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.VOLATILITY_SURFACE_DEFINITION, target.toSpecification(), createValueProperties()
+            .with(ValuePropertyNames.SURFACE, surfaceName).with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, instrumentType).get());
         return Collections.singleton(new ComputedValue(spec, definition));
       }
 
@@ -97,11 +98,8 @@ public class VolatilitySurfaceDefinitionFunction extends AbstractFunction {
       @SuppressWarnings("synthetic-access")
       @Override
       public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-        return Collections.singleton(new ValueSpecification(ValueRequirementNames.VOLATILITY_SURFACE_DEFINITION, target.toSpecification(),
-            createValueProperties()
-            .withAny(ValuePropertyNames.SURFACE)
-            .withAny(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE)
-            .get()));
+        return Collections.singleton(new ValueSpecification(ValueRequirementNames.VOLATILITY_SURFACE_DEFINITION, target.toSpecification(), createValueProperties()
+            .withAny(ValuePropertyNames.SURFACE).withAny(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE).get()));
       }
 
       @Override

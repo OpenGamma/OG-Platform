@@ -35,7 +35,7 @@ import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
 import com.opengamma.util.test.TestGroup;
 
 /**
- *
+ * Test.
  */
 @Test(groups = TestGroup.UNIT_SLOW)
 public class VarianceSwapWithDividendsTest {

@@ -75,7 +75,7 @@
         padding: 4px 7px 3px 7px;
     }
 
-    .OG-masthead .og-active.og-configs:after {
+    .OG-masthead .og-active.og-menu-button:after {
         border-top-color: #47494a;
     }
 
@@ -84,11 +84,12 @@
     }
 
 /* Configs */
-    .OG-masthead .og-configs {
+    .OG-masthead .og-menu-button {
         position: relative;
+        padding-right: 21px;
     }
 
-    .OG-masthead .og-configs:after {
+    .OG-masthead .og-menu-button:after {
         content: '';
         position: absolute;
         top: 9px;
@@ -101,13 +102,9 @@
         -moz-transform: scale(.9999); /* Temporary fix for FF until mozilla patch bug */
     }
 
-    .OG-masthead .og-configs {
-        padding-right: 21px;
-    }
-
 /* Hover */
-    .OG-masthead .og-active:hover.og-configs:after,
-    .OG-masthead .og-active-menu.og-configs:after {
+    .OG-masthead .og-active:hover.og-menu-button:after,
+    .OG-masthead .og-active-menu.og-menu-button:after {
         border-top-color: #fff;
     }
 
@@ -150,6 +147,10 @@
         color: #fff;
     }
 
+    .OG-masthead .og-menu header {
+        margin-top: 6px;
+    }
+
     .OG-masthead .og-menu ul {
         padding-left: 10px;
     }
@@ -175,10 +176,5 @@
         border-bottom: 1px solid #fff;
     }
 
-    .OG-masthead .og-menu header {
-        margin-top: 20px;
-    }
 
-    .OG-masthead .og-menu tr:first-child header {
-        margin-top: 0;
-    }
+

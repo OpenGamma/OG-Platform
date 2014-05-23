@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.fudgemsg;
 
-import java.util.ArrayList;
+import java.lang.reflect.Array;
 import java.util.List;
 
 import org.fudgemsg.FudgeField;
@@ -25,10 +25,15 @@ import com.opengamma.util.money.Currency;
  */
 @FudgeBuilderFor(VolatilitySurfaceDefinition.class)
 public class VolatilitySurfaceDefinitionFudgeBuilder implements FudgeBuilder<VolatilitySurfaceDefinition<?, ?>> {
+  /** The target field */
   private static final String TARGET_FIELD = "target";
+  /** The currency field (kept in for backwards compatibility */
   private static final String CURRENCY_FIELD = "currency";
+  /** The definition name field */
   private static final String NAME_FIELD = "name";
+  /** The xs field */
   private static final String XS_FIELD = "xs";
+  /** The ys field */
   private static final String YS_FIELD = "ys";
 
   @Override
@@ -72,18 +77,24 @@ public class VolatilitySurfaceDefinitionFudgeBuilder implements FudgeBuilder<Vol
     }
     final String name = message.getString(NAME_FIELD);
     final List<FudgeField> xsFields = message.getAllByName(XS_FIELD);
-    final List<Object> xs = new ArrayList<>();
+    final Object firstX = deserializer.fieldValueToObject(xsFields.get(0));
+    final Object[] xs = (Object[]) Array.newInstance(firstX.getClass(), xsFields.size());
+    int i = 0;
     for (final FudgeField xField : xsFields) {
       final Object x = deserializer.fieldValueToObject(xField);
-      xs.add(x);
+      xs[i] = x;
+      i++;
     }
     final List<FudgeField> ysFields = message.getAllByName(YS_FIELD);
-    final List<Object> ys = new ArrayList<>();
+    final Object firstY = deserializer.fieldValueToObject(ysFields.get(0));
+    final Object[] ys = (Object[]) Array.newInstance(firstY.getClass(), ysFields.size());
+    int j = 0;
     for (final FudgeField yField : ysFields) {
       final Object y = deserializer.fieldValueToObject(yField);
-      ys.add(y);
+      ys[j] = y;
+      j++;
     }
-    return new VolatilitySurfaceDefinition<>(name, target, xs.toArray(), ys.toArray());
+    return new VolatilitySurfaceDefinition<>(name, target, xs, ys);
   }
 
 }

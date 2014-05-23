@@ -43,7 +43,7 @@ public class ForexDefinition implements InstrumentDefinition<InstrumentDerivativ
     ArgumentChecker.notNull(currency1, "Currency 1");
     ArgumentChecker.notNull(currency2, "Currency 2");
     ArgumentChecker.notNull(exchangeDate, "Exchange date");
-    ArgumentChecker.isTrue(fxRate > 0, "FX rate must be positive");
+    ArgumentChecker.isTrue(fxRate > 0, "FX rate for {}/{} on {} must be positive. Found {}.", currency1, currency2, exchangeDate, fxRate);
     _paymentCurrency1 = new PaymentFixedDefinition(currency1, exchangeDate, amountCurrency1);
     _paymentCurrency2 = new PaymentFixedDefinition(currency2, exchangeDate, -amountCurrency1 * fxRate);
   }
@@ -56,8 +56,12 @@ public class ForexDefinition implements InstrumentDefinition<InstrumentDerivativ
   public ForexDefinition(final PaymentFixedDefinition paymentCurrency1, final PaymentFixedDefinition paymentCurrency2) {
     ArgumentChecker.notNull(paymentCurrency1, "Payment 1");
     ArgumentChecker.notNull(paymentCurrency2, "Payment 2");
-    ArgumentChecker.isTrue(paymentCurrency1.getPaymentDate().equals(paymentCurrency2.getPaymentDate()), "Payments on different date");
-    ArgumentChecker.isTrue((paymentCurrency1.getReferenceAmount() * paymentCurrency2.getReferenceAmount()) <= 0, "Payments with same sign");
+    ZonedDateTime paymentDate1 = paymentCurrency1.getPaymentDate();
+    ZonedDateTime paymentDate2 = paymentCurrency2.getPaymentDate();
+    ArgumentChecker.isTrue(paymentDate1.equals(paymentDate2), "Payments on different date. {} and {}.", paymentCurrency1, paymentCurrency2);
+    double referenceAmount1 = paymentCurrency1.getReferenceAmount();
+    double referenceAmount2 = paymentCurrency2.getReferenceAmount();
+    ArgumentChecker.isTrue((referenceAmount1 * referenceAmount2) <= 0, "Payments with same sign. {} and {}", paymentCurrency1, paymentCurrency2);
     this._paymentCurrency1 = paymentCurrency1;
     this._paymentCurrency2 = paymentCurrency2;
   }
@@ -76,7 +80,6 @@ public class ForexDefinition implements InstrumentDefinition<InstrumentDerivativ
     ArgumentChecker.notNull(currency1, "Currency 1");
     ArgumentChecker.notNull(currency2, "Currency 2");
     ArgumentChecker.notNull(exchangeDate, "Exchange date");
-    ArgumentChecker.isTrue(amountCurrency1 * amountCurrency2 <= 0, "Amounts should have different signs");
     final PaymentFixedDefinition paymentCurrency1 = new PaymentFixedDefinition(currency1, exchangeDate, amountCurrency1);
     final PaymentFixedDefinition paymentCurrency2 = new PaymentFixedDefinition(currency2, exchangeDate, amountCurrency2);
     return new ForexDefinition(paymentCurrency1, paymentCurrency2);

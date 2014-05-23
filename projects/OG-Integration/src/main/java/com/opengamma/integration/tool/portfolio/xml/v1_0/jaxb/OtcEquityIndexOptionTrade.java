@@ -6,6 +6,7 @@
 package com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb;
 
 import java.math.BigDecimal;
+import java.util.Map;
 import java.util.Set;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -14,22 +15,22 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.threeten.bp.LocalDate;
 
 import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.conversion.OtcEquityIndexOptionTradeSecurityExtractor;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.conversion.TradeSecurityExtractor;
 import com.opengamma.util.money.Currency;
-import java.util.Map;
-import org.joda.beans.BeanBuilder;
-import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaProperty;
-import org.joda.beans.Property;
-import org.joda.beans.impl.direct.DirectBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaProperty;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -110,109 +111,6 @@ public class OtcEquityIndexOptionTrade extends Trade {
   @Override
   public OtcEquityIndexOptionTrade.Meta metaBean() {
     return OtcEquityIndexOptionTrade.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1373587791:  // optionType
-        return getOptionType();
-      case 244977400:  // buySell
-        return getBuySell();
-      case -771625640:  // underlyingId
-        return getUnderlyingId();
-      case 1585636160:  // notional
-        return getNotional();
-      case -1573783695:  // notionalCurrency
-        return getNotionalCurrency();
-      case -891985998:  // strike
-        return getStrike();
-      case -466331342:  // exerciseType
-        return getExerciseType();
-      case -816738431:  // expiryDate
-        return getExpiryDate();
-      case -952649470:  // expiryCalendars
-        return getExpiryCalendars();
-      case 697909708:  // settlementCalendars
-        return getSettlementCalendars();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1373587791:  // optionType
-        setOptionType((OptionType) newValue);
-        return;
-      case 244977400:  // buySell
-        setBuySell((BuySell) newValue);
-        return;
-      case -771625640:  // underlyingId
-        setUnderlyingId((IdWrapper) newValue);
-        return;
-      case 1585636160:  // notional
-        setNotional((BigDecimal) newValue);
-        return;
-      case -1573783695:  // notionalCurrency
-        setNotionalCurrency((Currency) newValue);
-        return;
-      case -891985998:  // strike
-        setStrike((BigDecimal) newValue);
-        return;
-      case -466331342:  // exerciseType
-        setExerciseType((ExerciseType) newValue);
-        return;
-      case -816738431:  // expiryDate
-        setExpiryDate((LocalDate) newValue);
-        return;
-      case -952649470:  // expiryCalendars
-        setExpiryCalendars((Set<Calendar>) newValue);
-        return;
-      case 697909708:  // settlementCalendars
-        setSettlementCalendars((Set<Calendar>) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      OtcEquityIndexOptionTrade other = (OtcEquityIndexOptionTrade) obj;
-      return JodaBeanUtils.equal(getOptionType(), other.getOptionType()) &&
-          JodaBeanUtils.equal(getBuySell(), other.getBuySell()) &&
-          JodaBeanUtils.equal(getUnderlyingId(), other.getUnderlyingId()) &&
-          JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
-          JodaBeanUtils.equal(getNotionalCurrency(), other.getNotionalCurrency()) &&
-          JodaBeanUtils.equal(getStrike(), other.getStrike()) &&
-          JodaBeanUtils.equal(getExerciseType(), other.getExerciseType()) &&
-          JodaBeanUtils.equal(getExpiryDate(), other.getExpiryDate()) &&
-          JodaBeanUtils.equal(getExpiryCalendars(), other.getExpiryCalendars()) &&
-          JodaBeanUtils.equal(getSettlementCalendars(), other.getSettlementCalendars()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getOptionType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBuySell());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNotional());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNotionalCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStrike());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExerciseType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExpiryDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExpiryCalendars());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementCalendars());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -466,6 +364,78 @@ public class OtcEquityIndexOptionTrade extends Trade {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public OtcEquityIndexOptionTrade clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      OtcEquityIndexOptionTrade other = (OtcEquityIndexOptionTrade) obj;
+      return JodaBeanUtils.equal(getOptionType(), other.getOptionType()) &&
+          JodaBeanUtils.equal(getBuySell(), other.getBuySell()) &&
+          JodaBeanUtils.equal(getUnderlyingId(), other.getUnderlyingId()) &&
+          JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
+          JodaBeanUtils.equal(getNotionalCurrency(), other.getNotionalCurrency()) &&
+          JodaBeanUtils.equal(getStrike(), other.getStrike()) &&
+          JodaBeanUtils.equal(getExerciseType(), other.getExerciseType()) &&
+          JodaBeanUtils.equal(getExpiryDate(), other.getExpiryDate()) &&
+          JodaBeanUtils.equal(getExpiryCalendars(), other.getExpiryCalendars()) &&
+          JodaBeanUtils.equal(getSettlementCalendars(), other.getSettlementCalendars()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getOptionType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getBuySell());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getNotional());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getNotionalCurrency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getStrike());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExerciseType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExpiryDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExpiryCalendars());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementCalendars());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(352);
+    buf.append("OtcEquityIndexOptionTrade{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("optionType").append('=').append(JodaBeanUtils.toString(getOptionType())).append(',').append(' ');
+    buf.append("buySell").append('=').append(JodaBeanUtils.toString(getBuySell())).append(',').append(' ');
+    buf.append("underlyingId").append('=').append(JodaBeanUtils.toString(getUnderlyingId())).append(',').append(' ');
+    buf.append("notional").append('=').append(JodaBeanUtils.toString(getNotional())).append(',').append(' ');
+    buf.append("notionalCurrency").append('=').append(JodaBeanUtils.toString(getNotionalCurrency())).append(',').append(' ');
+    buf.append("strike").append('=').append(JodaBeanUtils.toString(getStrike())).append(',').append(' ');
+    buf.append("exerciseType").append('=').append(JodaBeanUtils.toString(getExerciseType())).append(',').append(' ');
+    buf.append("expiryDate").append('=').append(JodaBeanUtils.toString(getExpiryDate())).append(',').append(' ');
+    buf.append("expiryCalendars").append('=').append(JodaBeanUtils.toString(getExpiryCalendars())).append(',').append(' ');
+    buf.append("settlementCalendars").append('=').append(JodaBeanUtils.toString(getSettlementCalendars())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code OtcEquityIndexOptionTrade}.
    */
@@ -670,6 +640,72 @@ public class OtcEquityIndexOptionTrade extends Trade {
      */
     public final MetaProperty<Set<Calendar>> settlementCalendars() {
       return _settlementCalendars;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1373587791:  // optionType
+          return ((OtcEquityIndexOptionTrade) bean).getOptionType();
+        case 244977400:  // buySell
+          return ((OtcEquityIndexOptionTrade) bean).getBuySell();
+        case -771625640:  // underlyingId
+          return ((OtcEquityIndexOptionTrade) bean).getUnderlyingId();
+        case 1585636160:  // notional
+          return ((OtcEquityIndexOptionTrade) bean).getNotional();
+        case -1573783695:  // notionalCurrency
+          return ((OtcEquityIndexOptionTrade) bean).getNotionalCurrency();
+        case -891985998:  // strike
+          return ((OtcEquityIndexOptionTrade) bean).getStrike();
+        case -466331342:  // exerciseType
+          return ((OtcEquityIndexOptionTrade) bean).getExerciseType();
+        case -816738431:  // expiryDate
+          return ((OtcEquityIndexOptionTrade) bean).getExpiryDate();
+        case -952649470:  // expiryCalendars
+          return ((OtcEquityIndexOptionTrade) bean).getExpiryCalendars();
+        case 697909708:  // settlementCalendars
+          return ((OtcEquityIndexOptionTrade) bean).getSettlementCalendars();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1373587791:  // optionType
+          ((OtcEquityIndexOptionTrade) bean).setOptionType((OptionType) newValue);
+          return;
+        case 244977400:  // buySell
+          ((OtcEquityIndexOptionTrade) bean).setBuySell((BuySell) newValue);
+          return;
+        case -771625640:  // underlyingId
+          ((OtcEquityIndexOptionTrade) bean).setUnderlyingId((IdWrapper) newValue);
+          return;
+        case 1585636160:  // notional
+          ((OtcEquityIndexOptionTrade) bean).setNotional((BigDecimal) newValue);
+          return;
+        case -1573783695:  // notionalCurrency
+          ((OtcEquityIndexOptionTrade) bean).setNotionalCurrency((Currency) newValue);
+          return;
+        case -891985998:  // strike
+          ((OtcEquityIndexOptionTrade) bean).setStrike((BigDecimal) newValue);
+          return;
+        case -466331342:  // exerciseType
+          ((OtcEquityIndexOptionTrade) bean).setExerciseType((ExerciseType) newValue);
+          return;
+        case -816738431:  // expiryDate
+          ((OtcEquityIndexOptionTrade) bean).setExpiryDate((LocalDate) newValue);
+          return;
+        case -952649470:  // expiryCalendars
+          ((OtcEquityIndexOptionTrade) bean).setExpiryCalendars((Set<Calendar>) newValue);
+          return;
+        case 697909708:  // settlementCalendars
+          ((OtcEquityIndexOptionTrade) bean).setSettlementCalendars((Set<Calendar>) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

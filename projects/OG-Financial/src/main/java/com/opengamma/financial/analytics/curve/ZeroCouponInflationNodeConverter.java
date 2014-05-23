@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.analytics.curve;
 
-import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZonedDateTime;
@@ -18,27 +17,24 @@ import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZer
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedInflationZeroCouponDefinition;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
+import com.opengamma.core.security.Security;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.analytics.conversion.CalendarUtils;
 import com.opengamma.financial.analytics.ircurve.strips.ZeroCouponInflationNode;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
-import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.convention.InflationLegConvention;
 import com.opengamma.financial.convention.PriceIndexConvention;
 import com.opengamma.financial.convention.SwapFixedLegConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.security.index.PriceIndex;
 import com.opengamma.id.ExternalId;
-import com.opengamma.timeseries.DoubleTimeSeries;
-import com.opengamma.timeseries.date.localdate.LocalDateDoubleEntryIterator;
-import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
-import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
-import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
-import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeriesBuilder;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
@@ -46,6 +42,8 @@ import com.opengamma.util.money.Currency;
  *
  */
 public class ZeroCouponInflationNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinition<?>> {
+  /** The security source */
+  private final SecuritySource _securitySource;
   /** The convention source */
   private final ConventionSource _conventionSource;
   /** The holiday source */
@@ -62,6 +60,7 @@ public class ZeroCouponInflationNodeConverter extends CurveNodeVisitorAdapter<In
   private final HistoricalTimeSeriesBundle _timeSeries;
 
   /**
+   * @param securitySource The security source. Not null.
    * @param conventionSource The convention source, not null
    * @param holidaySource The holiday source, not null
    * @param regionSource The region source, not null
@@ -70,8 +69,9 @@ public class ZeroCouponInflationNodeConverter extends CurveNodeVisitorAdapter<In
    * @param valuationTime The valuation time, not null
    * @param timeSeries The time series, not null
    */
-  public ZeroCouponInflationNodeConverter(final ConventionSource conventionSource, final HolidaySource holidaySource, final RegionSource regionSource,
+  public ZeroCouponInflationNodeConverter(final SecuritySource securitySource, final ConventionSource conventionSource, final HolidaySource holidaySource, final RegionSource regionSource,
       final SnapshotDataBundle marketData, final ExternalId dataId, final ZonedDateTime valuationTime, final HistoricalTimeSeriesBundle timeSeries) {
+    ArgumentChecker.notNull(securitySource, "security source");
     ArgumentChecker.notNull(conventionSource, "convention source");
     ArgumentChecker.notNull(holidaySource, "holiday source");
     ArgumentChecker.notNull(regionSource, "region source");
@@ -79,6 +79,7 @@ public class ZeroCouponInflationNodeConverter extends CurveNodeVisitorAdapter<In
     ArgumentChecker.notNull(dataId, "data id");
     ArgumentChecker.notNull(valuationTime, "valuation time");
     ArgumentChecker.notNull(timeSeries, "time series");
+    _securitySource = securitySource;
     _conventionSource = conventionSource;
     _holidaySource = holidaySource;
     _regionSource = regionSource;
@@ -88,24 +89,27 @@ public class ZeroCouponInflationNodeConverter extends CurveNodeVisitorAdapter<In
     _timeSeries = timeSeries;
   }
 
-  @SuppressWarnings({"synthetic-access" })
   @Override
   public InstrumentDefinition<?> visitZeroCouponInflationNode(final ZeroCouponInflationNode inflationNode) {
     final Double rate = _marketData.getDataPoint(_dataId);
     if (rate == null) {
       throw new OpenGammaRuntimeException("Could not get market data for " + _dataId);
     }
-    final SwapFixedLegConvention fixedLegConvention = _conventionSource.getConvention(SwapFixedLegConvention.class, inflationNode.getFixedLegConvention());
-    if (fixedLegConvention == null) {
-      throw new OpenGammaRuntimeException("Convention with id " + inflationNode.getFixedLegConvention() + " was null");
+    final SwapFixedLegConvention fixedLegConvention = _conventionSource.getSingle(inflationNode.getFixedLegConvention(), SwapFixedLegConvention.class);
+    final InflationLegConvention inflationLegConvention = _conventionSource.getSingle(inflationNode.getInflationLegConvention(), InflationLegConvention.class);
+    final Security sec = _securitySource.getSingle(inflationLegConvention.getPriceIndexConvention().toBundle());
+    if (sec == null) {
+      throw new OpenGammaRuntimeException("CurveNodeCurrencyVisitor.visitInflationLegConvention: index with id " + inflationLegConvention.getPriceIndexConvention()
+          + " was null");
     }
-    final InflationLegConvention inflationLegConvention = _conventionSource.getConvention(InflationLegConvention.class, inflationNode.getInflationLegConvention());
-    if (inflationLegConvention == null) {
-      throw new OpenGammaRuntimeException("Convention with id " + inflationNode.getInflationLegConvention() + " was null");
+    if (!(sec instanceof PriceIndex)) {
+      throw new OpenGammaRuntimeException("CurveNodeCurrencyVisitor.visitInflationLegConvention: index with id " + inflationLegConvention.getPriceIndexConvention()
+          + " not of type PriceIndex");
     }
-    final PriceIndexConvention priceIndexConvention = _conventionSource.getConvention(PriceIndexConvention.class, inflationLegConvention.getPriceIndexConvention());
+    final PriceIndex indexSecurity = (PriceIndex) sec;
+    final PriceIndexConvention priceIndexConvention = _conventionSource.getSingle(indexSecurity.getConventionId(), PriceIndexConvention.class);
     if (priceIndexConvention == null) {
-      throw new OpenGammaRuntimeException("Convention with id " + inflationLegConvention.getPriceIndexConvention() + " was null");
+      throw new OpenGammaRuntimeException("CurveNodeCurrencyVisitor.visitInflationLegConvention: Convention with id " + indexSecurity.getConventionId() + " was null");
     }
     final int settlementDays = fixedLegConvention.getSettlementDays();
     final Period tenor = inflationNode.getTenor().getPeriod();
@@ -125,37 +129,23 @@ public class ZeroCouponInflationNodeConverter extends CurveNodeVisitorAdapter<In
     if (ts == null) {
       throw new OpenGammaRuntimeException("Could not get price index time series with id " + priceIndexConvention.getPriceIndexId());
     }
-    final LocalDateDoubleTimeSeries localDateTS = ts.getTimeSeries();
-    final DoubleTimeSeries<ZonedDateTime> priceIndexTimeSeries = convertTimeSeries(zone, localDateTS);
     final int conventionalMonthLag = inflationLegConvention.getMonthLag();
     final int monthLag = inflationLegConvention.getMonthLag();
-    final IndexPrice index = new IndexPrice(priceIndexConvention.getName(), currency);
+
+    final IndexPrice indexPrice = new IndexPrice(indexSecurity.getName(), currency);
     switch (inflationNode.getInflationNodeType()) {
-      case INTERPOLATED:
-      {
+      case INTERPOLATED: {
         final CouponInflationZeroCouponInterpolationDefinition inflationCoupon = CouponInflationZeroCouponInterpolationDefinition.from(settlementDate, paymentDate,
-            -notional, index, conventionalMonthLag, monthLag, false);
+            -notional, indexPrice, conventionalMonthLag, monthLag, false);
         return new SwapFixedInflationZeroCouponDefinition(fixedCoupon, inflationCoupon, calendar);
       }
-      case MONTHLY:
-      {
+      case MONTHLY: {
         final CouponInflationZeroCouponMonthlyDefinition inflationCoupon = CouponInflationZeroCouponMonthlyDefinition.from(settlementDate, paymentDate, -notional,
-            index, conventionalMonthLag, monthLag, false);
+            indexPrice, conventionalMonthLag, monthLag, false);
         return new SwapFixedInflationZeroCouponDefinition(fixedCoupon, inflationCoupon, calendar);
       }
       default:
         throw new OpenGammaRuntimeException("Could not handle inflation nodes of type " + inflationNode.getInflationNodeType());
     }
-  }
-
-  private static ZonedDateTimeDoubleTimeSeries convertTimeSeries(final ZoneId timeZone, final LocalDateDoubleTimeSeries localDateTS) {
-    // FIXME Converting a daily historical time series to an arbitrary time - should not happen
-    final ZonedDateTimeDoubleTimeSeriesBuilder bld = ImmutableZonedDateTimeDoubleTimeSeries.builder(timeZone);
-    for (final LocalDateDoubleEntryIterator it = localDateTS.iterator(); it.hasNext(); ) {
-      final LocalDate date = it.nextTime();
-      final ZonedDateTime zdt = date.atStartOfDay(timeZone);
-      bld.put(zdt, it.currentValueFast());
-    }
-    return bld.build();
   }
 }

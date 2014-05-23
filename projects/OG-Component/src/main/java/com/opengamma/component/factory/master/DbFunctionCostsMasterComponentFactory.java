@@ -8,6 +8,7 @@ package com.opengamma.component.factory.master;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -20,17 +21,23 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
+import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.engine.calcnode.stats.DataFunctionCostsMasterResource;
 import com.opengamma.engine.calcnode.stats.FunctionCostsMaster;
 import com.opengamma.engine.calcnode.stats.RemoteFunctionCostsMaster;
 import com.opengamma.enginedb.stats.DbFunctionCostsMaster;
+import com.opengamma.master.AbstractMaster;
+import com.opengamma.util.db.DbConnector;
 
 /**
  * Component factory for the database function costs master.
+ * 
+ * Note, does not extend from {@link AbstractDbMasterComponentFactory} since it doesn't produce
+ * true master instances of type {@link AbstractMaster}.
  */
 @BeanDefinition
-public class DbFunctionCostsMasterComponentFactory extends AbstractDbMasterComponentFactory {
+public class DbFunctionCostsMasterComponentFactory extends AbstractComponentFactory { //TODO - use schema-based master
 
   /**
    * The classifier that the factory should publish under.
@@ -43,6 +50,30 @@ public class DbFunctionCostsMasterComponentFactory extends AbstractDbMasterCompo
   @PropertyDefinition
   private boolean _publishRest = true;
 
+  /**
+   * The database connector.
+   */
+  @PropertyDefinition
+  private DbConnector _dbConnector;
+  
+  /**
+   * The flag determining whether to enforce the schema version, preventing the server from starting if the version
+   * does not match the expected version.
+   */
+  @PropertyDefinition
+  private boolean _enforceSchemaVersion = true;
+  /**
+   * The flag determining whether to manage the database objects automatically.
+   * <p>
+   * The database objects will be created if they do not exist, and will be upgraded if their version is older than the
+   * server expects. Database objects will never be deleted and the server will fail to start if the database is found
+   * in an unexpected state.
+   * <p>
+   * This flag is intended for use with temporary user databases. 
+   */
+  @PropertyDefinition
+  private boolean _autoSchemaManagement;
+
   //-------------------------------------------------------------------------
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
@@ -50,9 +81,16 @@ public class DbFunctionCostsMasterComponentFactory extends AbstractDbMasterCompo
     
     // create
     DbFunctionCostsMaster master = new DbFunctionCostsMaster(getDbConnector());
-    checkSchema(master.getSchemaVersion(), "eng");
+    
+    OGSchema ogSchema = OGSchema.on(getDbConnector())
+                        .enforcingSchemaVersion(isEnforceSchemaVersion())
+                        .withAutoSchemaManagement(isAutoSchemaManagement())
+                        .build();
+    
+    ogSchema.checkSchema(master.getSchemaVersion(), "eng");
     
     // register
+    
     info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
     info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteFunctionCostsMaster.class);
     repo.registerComponent(info, master);
@@ -80,58 +118,6 @@ public class DbFunctionCostsMasterComponentFactory extends AbstractDbMasterCompo
   @Override
   public DbFunctionCostsMasterComponentFactory.Meta metaBean() {
     return DbFunctionCostsMasterComponentFactory.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        return getClassifier();
-      case -614707837:  // publishRest
-        return isPublishRest();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        setClassifier((String) newValue);
-        return;
-      case -614707837:  // publishRest
-        setPublishRest((Boolean) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_classifier, "classifier");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      DbFunctionCostsMasterComponentFactory other = (DbFunctionCostsMasterComponentFactory) obj;
-      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
-          JodaBeanUtils.equal(isPublishRest(), other.isPublishRest()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -187,9 +173,162 @@ public class DbFunctionCostsMasterComponentFactory extends AbstractDbMasterCompo
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the database connector.
+   * @return the value of the property
+   */
+  public DbConnector getDbConnector() {
+    return _dbConnector;
+  }
+
+  /**
+   * Sets the database connector.
+   * @param dbConnector  the new value of the property
+   */
+  public void setDbConnector(DbConnector dbConnector) {
+    this._dbConnector = dbConnector;
+  }
+
+  /**
+   * Gets the the {@code dbConnector} property.
+   * @return the property, not null
+   */
+  public final Property<DbConnector> dbConnector() {
+    return metaBean().dbConnector().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the flag determining whether to enforce the schema version, preventing the server from starting if the version
+   * does not match the expected version.
+   * @return the value of the property
+   */
+  public boolean isEnforceSchemaVersion() {
+    return _enforceSchemaVersion;
+  }
+
+  /**
+   * Sets the flag determining whether to enforce the schema version, preventing the server from starting if the version
+   * does not match the expected version.
+   * @param enforceSchemaVersion  the new value of the property
+   */
+  public void setEnforceSchemaVersion(boolean enforceSchemaVersion) {
+    this._enforceSchemaVersion = enforceSchemaVersion;
+  }
+
+  /**
+   * Gets the the {@code enforceSchemaVersion} property.
+   * does not match the expected version.
+   * @return the property, not null
+   */
+  public final Property<Boolean> enforceSchemaVersion() {
+    return metaBean().enforceSchemaVersion().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the flag determining whether to manage the database objects automatically.
+   * <p>
+   * The database objects will be created if they do not exist, and will be upgraded if their version is older than the
+   * server expects. Database objects will never be deleted and the server will fail to start if the database is found
+   * in an unexpected state.
+   * <p>
+   * This flag is intended for use with temporary user databases.
+   * @return the value of the property
+   */
+  public boolean isAutoSchemaManagement() {
+    return _autoSchemaManagement;
+  }
+
+  /**
+   * Sets the flag determining whether to manage the database objects automatically.
+   * <p>
+   * The database objects will be created if they do not exist, and will be upgraded if their version is older than the
+   * server expects. Database objects will never be deleted and the server will fail to start if the database is found
+   * in an unexpected state.
+   * <p>
+   * This flag is intended for use with temporary user databases.
+   * @param autoSchemaManagement  the new value of the property
+   */
+  public void setAutoSchemaManagement(boolean autoSchemaManagement) {
+    this._autoSchemaManagement = autoSchemaManagement;
+  }
+
+  /**
+   * Gets the the {@code autoSchemaManagement} property.
+   * <p>
+   * The database objects will be created if they do not exist, and will be upgraded if their version is older than the
+   * server expects. Database objects will never be deleted and the server will fail to start if the database is found
+   * in an unexpected state.
+   * <p>
+   * This flag is intended for use with temporary user databases.
+   * @return the property, not null
+   */
+  public final Property<Boolean> autoSchemaManagement() {
+    return metaBean().autoSchemaManagement().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public DbFunctionCostsMasterComponentFactory clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      DbFunctionCostsMasterComponentFactory other = (DbFunctionCostsMasterComponentFactory) obj;
+      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
+          (isPublishRest() == other.isPublishRest()) &&
+          JodaBeanUtils.equal(getDbConnector(), other.getDbConnector()) &&
+          (isEnforceSchemaVersion() == other.isEnforceSchemaVersion()) &&
+          (isAutoSchemaManagement() == other.isAutoSchemaManagement()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDbConnector());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isEnforceSchemaVersion());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isAutoSchemaManagement());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(192);
+    buf.append("DbFunctionCostsMasterComponentFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("publishRest").append('=').append(JodaBeanUtils.toString(isPublishRest())).append(',').append(' ');
+    buf.append("dbConnector").append('=').append(JodaBeanUtils.toString(getDbConnector())).append(',').append(' ');
+    buf.append("enforceSchemaVersion").append('=').append(JodaBeanUtils.toString(isEnforceSchemaVersion())).append(',').append(' ');
+    buf.append("autoSchemaManagement").append('=').append(JodaBeanUtils.toString(isAutoSchemaManagement())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code DbFunctionCostsMasterComponentFactory}.
    */
-  public static class Meta extends AbstractDbMasterComponentFactory.Meta {
+  public static class Meta extends AbstractComponentFactory.Meta {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -206,12 +345,30 @@ public class DbFunctionCostsMasterComponentFactory extends AbstractDbMasterCompo
     private final MetaProperty<Boolean> _publishRest = DirectMetaProperty.ofReadWrite(
         this, "publishRest", DbFunctionCostsMasterComponentFactory.class, Boolean.TYPE);
     /**
+     * The meta-property for the {@code dbConnector} property.
+     */
+    private final MetaProperty<DbConnector> _dbConnector = DirectMetaProperty.ofReadWrite(
+        this, "dbConnector", DbFunctionCostsMasterComponentFactory.class, DbConnector.class);
+    /**
+     * The meta-property for the {@code enforceSchemaVersion} property.
+     */
+    private final MetaProperty<Boolean> _enforceSchemaVersion = DirectMetaProperty.ofReadWrite(
+        this, "enforceSchemaVersion", DbFunctionCostsMasterComponentFactory.class, Boolean.TYPE);
+    /**
+     * The meta-property for the {@code autoSchemaManagement} property.
+     */
+    private final MetaProperty<Boolean> _autoSchemaManagement = DirectMetaProperty.ofReadWrite(
+        this, "autoSchemaManagement", DbFunctionCostsMasterComponentFactory.class, Boolean.TYPE);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
-        "publishRest");
+        "publishRest",
+        "dbConnector",
+        "enforceSchemaVersion",
+        "autoSchemaManagement");
 
     /**
      * Restricted constructor.
@@ -226,6 +383,12 @@ public class DbFunctionCostsMasterComponentFactory extends AbstractDbMasterCompo
           return _classifier;
         case -614707837:  // publishRest
           return _publishRest;
+        case 39794031:  // dbConnector
+          return _dbConnector;
+        case 2128193333:  // enforceSchemaVersion
+          return _enforceSchemaVersion;
+        case 1236703379:  // autoSchemaManagement
+          return _autoSchemaManagement;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -260,6 +423,76 @@ public class DbFunctionCostsMasterComponentFactory extends AbstractDbMasterCompo
      */
     public final MetaProperty<Boolean> publishRest() {
       return _publishRest;
+    }
+
+    /**
+     * The meta-property for the {@code dbConnector} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<DbConnector> dbConnector() {
+      return _dbConnector;
+    }
+
+    /**
+     * The meta-property for the {@code enforceSchemaVersion} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Boolean> enforceSchemaVersion() {
+      return _enforceSchemaVersion;
+    }
+
+    /**
+     * The meta-property for the {@code autoSchemaManagement} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Boolean> autoSchemaManagement() {
+      return _autoSchemaManagement;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          return ((DbFunctionCostsMasterComponentFactory) bean).getClassifier();
+        case -614707837:  // publishRest
+          return ((DbFunctionCostsMasterComponentFactory) bean).isPublishRest();
+        case 39794031:  // dbConnector
+          return ((DbFunctionCostsMasterComponentFactory) bean).getDbConnector();
+        case 2128193333:  // enforceSchemaVersion
+          return ((DbFunctionCostsMasterComponentFactory) bean).isEnforceSchemaVersion();
+        case 1236703379:  // autoSchemaManagement
+          return ((DbFunctionCostsMasterComponentFactory) bean).isAutoSchemaManagement();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          ((DbFunctionCostsMasterComponentFactory) bean).setClassifier((String) newValue);
+          return;
+        case -614707837:  // publishRest
+          ((DbFunctionCostsMasterComponentFactory) bean).setPublishRest((Boolean) newValue);
+          return;
+        case 39794031:  // dbConnector
+          ((DbFunctionCostsMasterComponentFactory) bean).setDbConnector((DbConnector) newValue);
+          return;
+        case 2128193333:  // enforceSchemaVersion
+          ((DbFunctionCostsMasterComponentFactory) bean).setEnforceSchemaVersion((Boolean) newValue);
+          return;
+        case 1236703379:  // autoSchemaManagement
+          ((DbFunctionCostsMasterComponentFactory) bean).setAutoSchemaManagement((Boolean) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((DbFunctionCostsMasterComponentFactory) bean)._classifier, "classifier");
+      super.validate(bean);
     }
 
   }

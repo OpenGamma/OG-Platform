@@ -10,9 +10,12 @@ import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class ConstantCurveShiftFunctionTest {
   private static final ConstantCurveShiftFunction F = new ConstantCurveShiftFunction();
   private static final double Y = 3;

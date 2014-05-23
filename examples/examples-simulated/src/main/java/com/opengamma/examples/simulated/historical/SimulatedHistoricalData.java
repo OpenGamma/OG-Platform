@@ -22,6 +22,7 @@ import au.com.bytecode.opencsv.CSVReader;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * An ultra-simple historical data simulator, we load the initial values from a CSV file (with a header row) and the format:
@@ -78,7 +79,7 @@ public class SimulatedHistoricalData {
           final String valueStr = line[3];
           final Double value = Double.parseDouble(valueStr);
           final ExternalId id = ExternalId.of(scheme, identifier);
-          finishValues.put(Pair.of(id, fieldName), value);
+          finishValues.put(Pairs.of(id, fieldName), value);
         }
       }
     } catch (final FileNotFoundException e) {

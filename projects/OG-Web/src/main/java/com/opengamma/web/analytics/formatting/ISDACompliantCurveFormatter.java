@@ -8,8 +8,7 @@ package com.opengamma.web.analytics.formatting;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantCurve;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantYieldCurve;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCurve;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
@@ -35,7 +34,7 @@ class ISDACompliantCurveFormatter extends AbstractFormatter<ISDACompliantCurve> 
   public List<Double[]> formatCell(ISDACompliantCurve value, ValueSpecification valueSpec, Object inlineKey) {
     List<Double[]> data = new ArrayList<>();
     double[] xData = value.getT();
-    double[] yData = value.getR();
+    double[] yData = value.getKnotZeroRates();
     for (int i = 0; i < xData.length; i++) {
       data.add(new Double[] {xData[i], yData[i] });
     }

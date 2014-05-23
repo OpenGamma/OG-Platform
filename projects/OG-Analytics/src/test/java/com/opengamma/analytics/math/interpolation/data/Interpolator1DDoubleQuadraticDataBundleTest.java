@@ -15,10 +15,12 @@ import java.util.Arrays;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.function.RealPolynomialFunction1D;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class Interpolator1DDoubleQuadraticDataBundleTest {
   private static final RealPolynomialFunction1D QUADRATIC = new RealPolynomialFunction1D(new double[] {2, 3, 4});
   private static final Interpolator1DDoubleQuadraticDataBundle DATA;

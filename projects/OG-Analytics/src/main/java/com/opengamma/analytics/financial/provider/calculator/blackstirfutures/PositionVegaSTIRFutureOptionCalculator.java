@@ -8,13 +8,13 @@ package com.opengamma.analytics.financial.provider.calculator.blackstirfutures;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
 import com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureOptionMarginTransactionBlackSmileMethod;
-import com.opengamma.analytics.financial.provider.description.interestrate.BlackSTIRFuturesSmileProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.BlackSTIRFuturesProviderInterface;
 
 /**
  * Calculates the position vega (first derivative of the price with respect to the implied volatility) for interest rate
  * future options.
  */
-public final class PositionVegaSTIRFutureOptionCalculator extends InstrumentDerivativeVisitorAdapter<BlackSTIRFuturesSmileProviderInterface, Double> {
+public final class PositionVegaSTIRFutureOptionCalculator extends InstrumentDerivativeVisitorAdapter<BlackSTIRFuturesProviderInterface, Double> {
   /**
    * The unique instance of the calculator.
    */
@@ -40,7 +40,7 @@ public final class PositionVegaSTIRFutureOptionCalculator extends InstrumentDeri
   private static final InterestRateFutureOptionMarginTransactionBlackSmileMethod METHOD_STIR = InterestRateFutureOptionMarginTransactionBlackSmileMethod.getInstance();
 
   @Override
-  public Double visitInterestRateFutureOptionMarginTransaction(final InterestRateFutureOptionMarginTransaction futures, final BlackSTIRFuturesSmileProviderInterface black) {
+  public Double visitInterestRateFutureOptionMarginTransaction(final InterestRateFutureOptionMarginTransaction futures, final BlackSTIRFuturesProviderInterface black) {
     return METHOD_STIR.presentValueVega(futures, black);
   }
 }

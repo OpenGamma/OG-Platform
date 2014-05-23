@@ -36,10 +36,12 @@ import org.threeten.bp.LocalDate;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class NettedFixedCashFlowVisitorTest {
   private static final InstrumentDefinitionVisitor<DoubleTimeSeries<LocalDate>, Map<LocalDate, MultipleCurrencyAmount>> VISITOR = NettedFixedCashFlowVisitor.getVisitor();
   private static final Set<InstrumentDefinition<?>> NO_NETTING_PAY_INSTRUMENTS = new HashSet<>();

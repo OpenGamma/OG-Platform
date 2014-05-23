@@ -14,11 +14,13 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.curve.interestrate.sensitivity.ParameterSensitivityCalculator;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * @deprecated This class tests deprecated functionality.
  */
 @Deprecated
+@Test(groups = TestGroup.UNIT)
 public class ParSpreadRateParameterSensitivityTest extends ParameterSensitivityCalculatorTestBase {
 
   private static ParSpreadRateCalculator VALUE_CALCULATOR = ParSpreadRateCalculator.getInstance();

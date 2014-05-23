@@ -5,8 +5,10 @@
  */
 package com.opengamma.financial.analytics.model.sabrcube.defaultproperties;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -16,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.value.SurfaceAndCubePropertyNames;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -28,7 +31,7 @@ import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.money.Currency;
 
 /**
  * Default properties for SABR functions.
@@ -36,7 +39,9 @@ import com.opengamma.util.tuple.Pair;
  */
 @Deprecated
 public class SABRNoExtrapolationDefaults extends DefaultPropertyFunction {
+  /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(SABRNoExtrapolationDefaults.class);
+  /** The value requirements for which these defaults apply */
   private static final String[] VALUE_REQUIREMENTS = new String[] {
     ValueRequirementNames.PRESENT_VALUE,
     ValueRequirementNames.PRESENT_VALUE_CURVE_SENSITIVITY,
@@ -46,21 +51,59 @@ public class SABRNoExtrapolationDefaults extends DefaultPropertyFunction {
     ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
     ValueRequirementNames.VEGA_QUOTE_CUBE
   };
+  /** The SABR surface fitting method */
   private final String _fittingMethod;
-  private final Map<String, Pair<String, String>> _currencyCurveConfigAndCubeNames;
+  /**
+   * A map from currency to (curve config, cube definition, cube specification, forward swap surface definition,
+   * forward swap surface specification) names
+   */
+  private final Map<String, List<String>> _currencyAndConfigNames;
 
-  public SABRNoExtrapolationDefaults(final String fittingMethod, final String... currencyCurveConfigAndCubeNames) {
-    super(FinancialSecurityTypes.SWAPTION_SECURITY.or(FinancialSecurityTypes.SWAP_SECURITY).or(FinancialSecurityTypes.CAP_FLOOR_SECURITY).or(FinancialSecurityTypes.CAP_FLOOR_CMS_SPREAD_SECURITY),
+  /**
+   * @param fittingMethod The fitting method name, not null
+   * @param currencyAndConfigNames A list of either (currency, curve config, cube) triples or
+   * (currency, cube definition name, cube specification name, forward surface definition name,
+   * forward surface specification name) tuples, not null
+   */
+  public SABRNoExtrapolationDefaults(final String fittingMethod, final String... currencyAndConfigNames) {
+    super(FinancialSecurityTypes.SWAPTION_SECURITY
+        .or(FinancialSecurityTypes.SWAP_SECURITY)
+        .or(FinancialSecurityTypes.CAP_FLOOR_SECURITY)
+        .or(FinancialSecurityTypes.CAP_FLOOR_CMS_SPREAD_SECURITY),
         true);
-    ArgumentChecker.notNull(fittingMethod, "fitting method");
-    ArgumentChecker.notNull(currencyCurveConfigAndCubeNames, "currency, curve config and surface names");
+    ArgumentChecker.notNull(fittingMethod, "fittingMethod");
+    ArgumentChecker.notNull(currencyAndConfigNames, "currencyAndConfigNames");
     _fittingMethod = fittingMethod;
-    final int nPairs = currencyCurveConfigAndCubeNames.length;
-    ArgumentChecker.isTrue(nPairs % 3 == 0, "Must have one curve config and surface name per currency");
-    _currencyCurveConfigAndCubeNames = new HashMap<>();
-    for (int i = 0; i < currencyCurveConfigAndCubeNames.length; i += 3) {
-      final Pair<String, String> pair = Pair.of(currencyCurveConfigAndCubeNames[i + 1], currencyCurveConfigAndCubeNames[i + 2]);
-      _currencyCurveConfigAndCubeNames.put(currencyCurveConfigAndCubeNames[i], pair);
+    final int nConfigs = currencyAndConfigNames.length;
+    _currencyAndConfigNames = new HashMap<>();
+    boolean oldConfigs = true;
+    ArgumentChecker.isTrue(nConfigs % 3 == 0, "Incorrect number of default arguments");
+    for (int i = 0; i < nConfigs; i += 3) {
+      // Sets cube definition and specification and forward surface definition and specification names equal
+      // to the argument after the curve config. This will not work correctly all of the time (e.g. if some
+      // of the cube / surface config names could be parsed as a currency ISO. This code is here to maintain
+      // backwards compatibility with code in SABRFunction that did not set these properties explicitly
+      try {
+        Currency.of(currencyAndConfigNames[i]);
+      } catch (final IllegalArgumentException e) {
+        oldConfigs = false;
+        break;
+      }
+    }
+    if (oldConfigs) {
+      for (int i = 0; i < nConfigs; i += 3) {
+        final String cubeAndSurfaceName = currencyAndConfigNames[i + 2];
+        final List<String> configs = Arrays.asList(currencyAndConfigNames[i + 1], cubeAndSurfaceName, cubeAndSurfaceName,
+            cubeAndSurfaceName, cubeAndSurfaceName);
+        _currencyAndConfigNames.put(currencyAndConfigNames[i], configs);
+      }
+    } else {
+      ArgumentChecker.isTrue(nConfigs % 6 == 0, "Incorrect number of default arguments");
+      for (int i = 0; i < nConfigs; i += 6) {
+        final List<String> configs = Arrays.asList(currencyAndConfigNames[i + 1], currencyAndConfigNames[i + 2], currencyAndConfigNames[i + 3],
+            currencyAndConfigNames[i + 4], currencyAndConfigNames[i + 5]);
+        _currencyAndConfigNames.put(currencyAndConfigNames[i], configs);
+      }
     }
   }
 
@@ -72,39 +115,54 @@ public class SABRNoExtrapolationDefaults extends DefaultPropertyFunction {
         return false;
       }
       final InterestRateInstrumentType type = SwapSecurityUtils.getSwapType((SwapSecurity) security);
-      if ((type != InterestRateInstrumentType.SWAP_FIXED_CMS) && (type != InterestRateInstrumentType.SWAP_CMS_CMS) && (type != InterestRateInstrumentType.SWAP_IBOR_CMS)) {
+      if ((type != InterestRateInstrumentType.SWAP_FIXED_CMS) &&
+          (type != InterestRateInstrumentType.SWAP_CMS_CMS) &&
+          (type != InterestRateInstrumentType.SWAP_IBOR_CMS)) {
         return false;
       }
     }
     final String currencyName = FinancialSecurityUtils.getCurrency(security).getCode();
-    return _currencyCurveConfigAndCubeNames.containsKey(currencyName);
+    return _currencyAndConfigNames.containsKey(currencyName);
   }
 
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
     for (final String valueRequirement : VALUE_REQUIREMENTS) {
       defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.CURVE_CALCULATION_CONFIG);
-      defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.CUBE);
+      defaults.addValuePropertyName(valueRequirement, SurfaceAndCubePropertyNames.PROPERTY_CUBE_DEFINITION);
+      defaults.addValuePropertyName(valueRequirement, SurfaceAndCubePropertyNames.PROPERTY_CUBE_SPECIFICATION);
+      defaults.addValuePropertyName(valueRequirement, SurfaceAndCubePropertyNames.PROPERTY_SURFACE_DEFINITION);
+      defaults.addValuePropertyName(valueRequirement, SurfaceAndCubePropertyNames.PROPERTY_SURFACE_SPECIFICATION);
       defaults.addValuePropertyName(valueRequirement, SmileFittingPropertyNamesAndValues.PROPERTY_FITTING_METHOD);
     }
   }
 
   @Override
-  protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
+  protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue,
+      final String propertyName) {
+    final String currencyName = FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode();
+    if (!_currencyAndConfigNames.containsKey(currencyName)) {
+      s_logger.error("Could not get configs for currency " + currencyName + "; should never happen");
+      return null;
+    }
     if (SmileFittingPropertyNamesAndValues.PROPERTY_FITTING_METHOD.equals(propertyName)) {
       return Collections.singleton(_fittingMethod);
     }
-    final String currencyName = FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode();
-    if (!_currencyCurveConfigAndCubeNames.containsKey(currencyName)) {
-      s_logger.error("Could not config and surface names for currency " + currencyName + "; should never happen");
-      return null;
-    }
-    final Pair<String, String> pair = _currencyCurveConfigAndCubeNames.get(currencyName);
+    final List<String> configs = _currencyAndConfigNames.get(currencyName);
     if (ValuePropertyNames.CURVE_CALCULATION_CONFIG.equals(propertyName)) {
-      return Collections.singleton(pair.getFirst());
+      return Collections.singleton(configs.get(0));
     }
-    if (ValuePropertyNames.CUBE.equals(propertyName)) {
-      return Collections.singleton(pair.getSecond());
+    if (SurfaceAndCubePropertyNames.PROPERTY_CUBE_DEFINITION.equals(propertyName)) {
+      return Collections.singleton(configs.get(1));
+    }
+    if (SurfaceAndCubePropertyNames.PROPERTY_CUBE_SPECIFICATION.equals(propertyName)) {
+      return Collections.singleton(configs.get(2));
+    }
+    if (SurfaceAndCubePropertyNames.PROPERTY_SURFACE_DEFINITION.equals(propertyName)) {
+      return Collections.singleton(configs.get(3));
+    }
+    if (SurfaceAndCubePropertyNames.PROPERTY_SURFACE_SPECIFICATION.equals(propertyName)) {
+      return Collections.singleton(configs.get(4));
     }
     return null;
   }

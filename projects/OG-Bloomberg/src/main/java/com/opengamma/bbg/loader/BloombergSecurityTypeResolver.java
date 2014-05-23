@@ -64,27 +64,33 @@ public class BloombergSecurityTypeResolver implements SecurityTypeResolver {
     addValidTypes(s_swapTypes, NonLoadedSecurityTypes.VALID_BASIS_SWAP_SECURITY_TYPES, SecurityType.BASIS_SWAP);
     addValidTypes(s_swapTypes, NonLoadedSecurityTypes.VALID_INFLATION_SWAP_TYPES, SecurityType.INFLATION_SWAP);
   }
-  
+
   private static final Map<String, SecurityType> s_miscTypes = Maps.newConcurrentMap();
   static {
     addValidTypes(s_miscTypes, EquityLoader.VALID_SECURITY_TYPES, SecurityType.EQUITY);
     addValidTypes(s_miscTypes, BondLoader.VALID_SECURITY_TYPES, SecurityType.BOND);
-    addValidTypes(s_miscTypes, NonLoadedSecurityTypes.VALID_BILL_TYPES, SecurityType.BILL);
     addValidTypes(s_miscTypes, NonLoadedSecurityTypes.VALID_EQUITY_INDEX_SECURITY_TYPES, SecurityType.EQUITY_INDEX);
     addValidTypes(s_miscTypes, NonLoadedSecurityTypes.VALID_FORWARD_CROSS_SECURITY_TYPES, SecurityType.FORWARD_CROSS);
     addValidTypes(s_miscTypes, NonLoadedSecurityTypes.VALID_FRA_SECURITY_TYPES, SecurityType.FRA);
+    addValidTypes(s_miscTypes, IndexLoader.VALID_SECURITY_TYPES, SecurityType.INDEX);
     addValidTypes(s_miscTypes, NonLoadedSecurityTypes.VALID_RATE_TYPES, SecurityType.RATE);
     addValidTypes(s_miscTypes, NonLoadedSecurityTypes.VALID_SPOT_RATE_TYPES, SecurityType.SPOT_RATE);
     addValidTypes(s_miscTypes, NonLoadedSecurityTypes.VALID_VOLATILITY_QUOTE_TYPES, SecurityType.VOLATILITY_QUOTE);
     addValidTypes(s_miscTypes, NonLoadedSecurityTypes.VALID_FX_FORWARD_TYPES, SecurityType.FX_FORWARD);
   }
-  
+
+  private static final Map<String, SecurityType> s_type2Types = Maps.newConcurrentMap();
+  static {
+    addValidTypes(s_type2Types, BillLoader.VALID_SECURITY_TYPES2, SecurityType.BILL);
+  }
+
   //private static final Map<String, SecurityType> s_cdsTypes = Maps.newConcurrentMap();
   static {
     addValidTypes(s_swapTypes, NonLoadedSecurityTypes.VALID_CDS_TYPES, SecurityType.CREDIT_DEFAULT_SWAP);
   }
 
-  private static final Set<String> BBG_FIELDS = Sets.newHashSet(BloombergConstants.FIELD_SECURITY_TYPE, BloombergConstants.FIELD_FUTURES_CATEGORY, BloombergConstants.FIELD_NAME);
+  private static final Set<String> BBG_FIELDS = Sets.newHashSet(BloombergConstants.FIELD_SECURITY_TYPE, BloombergConstants.FIELD_FUTURES_CATEGORY, BloombergConstants.FIELD_NAME,
+      BloombergConstants.FIELD_SECURITY_TYPE2);
 
   private final ReferenceDataProvider _referenceDataProvider;
 
@@ -93,28 +99,29 @@ public class BloombergSecurityTypeResolver implements SecurityTypeResolver {
    * 
    * @param referenceDataProvider the reference data provider, not null
    */
-  public BloombergSecurityTypeResolver(ReferenceDataProvider referenceDataProvider) {
+  public BloombergSecurityTypeResolver(final ReferenceDataProvider referenceDataProvider) {
     ArgumentChecker.notNull(referenceDataProvider, "referenceDataProvider");
     _referenceDataProvider = referenceDataProvider;
   }
 
   @Override
-  public Map<ExternalIdBundle, SecurityType> getSecurityType(Collection<ExternalIdBundle> identifiers) {
+  public Map<ExternalIdBundle, SecurityType> getSecurityType(final Collection<ExternalIdBundle> identifiers) {
     ArgumentChecker.notNull(identifiers, "identifiers");
 
     final Map<ExternalIdBundle, SecurityType> result = Maps.newHashMap();
 
     final BiMap<String, ExternalIdBundle> bundle2Bbgkey = BloombergDataUtils.convertToBloombergBuidKeys(identifiers, _referenceDataProvider);
 
-    Map<String, FudgeMsg> securityTypeResult = ReferenceDataProviderUtils.getFields(bundle2Bbgkey.keySet(), BBG_FIELDS, _referenceDataProvider);
+    final Map<String, FudgeMsg> securityTypeResult = ReferenceDataProviderUtils.getFields(bundle2Bbgkey.keySet(), BBG_FIELDS, _referenceDataProvider);
 
-    for (ExternalIdBundle identifierBundle : identifiers) {
-      String bbgKey = bundle2Bbgkey.inverse().get(identifierBundle);
+    for (final ExternalIdBundle identifierBundle : identifiers) {
+      final String bbgKey = bundle2Bbgkey.inverse().get(identifierBundle);
       if (bbgKey != null) {
-        FudgeMsg fudgeMsg = securityTypeResult.get(bbgKey);
+        final FudgeMsg fudgeMsg = securityTypeResult.get(bbgKey);
         if (fudgeMsg != null) {
-          String bbgSecurityType = fudgeMsg.getString(BloombergConstants.FIELD_SECURITY_TYPE);
-          String futureCategory = fudgeMsg.getString(BloombergConstants.FIELD_FUTURES_CATEGORY);
+          final String bbgSecurityType = fudgeMsg.getString(BloombergConstants.FIELD_SECURITY_TYPE);
+          final String bbgSecurityType2 = fudgeMsg.getString(BloombergConstants.FIELD_SECURITY_TYPE2);
+          final String futureCategory = fudgeMsg.getString(BloombergConstants.FIELD_FUTURES_CATEGORY);
 
           SecurityType securityType = null;
           if (bbgSecurityType != null) {
@@ -125,12 +132,14 @@ public class BloombergSecurityTypeResolver implements SecurityTypeResolver {
 
               // Special case handling for EQUITY_INDEX_DIVIDEND_FUTURE_OPTION which we
               // are otherwise unable to distinguish from EQUITY_INDEX_FUTURE_OPTION
-              String name = fudgeMsg.getString(BloombergConstants.FIELD_NAME);
+              final String name = fudgeMsg.getString(BloombergConstants.FIELD_NAME);
               securityType = isEquityIndexFutureDividendOption(futureCategory, name) ?
                   SecurityType.EQUITY_INDEX_DIVIDEND_FUTURE_OPTION :
-                  s_optionTypes.get(futureCategory);
+                    s_optionTypes.get(futureCategory);
             } else if (bbgSecurityType.toUpperCase().endsWith("SWAP")) {
-              securityType = s_swapTypes.get(bbgSecurityType);            
+              securityType = s_swapTypes.get(bbgSecurityType);
+            } else if (bbgSecurityType2 != null && bbgSecurityType2.toUpperCase().contains("BILL")) {
+              securityType = s_type2Types.get(bbgSecurityType2);
             } else {
               securityType = s_miscTypes.get(bbgSecurityType);
             }
@@ -147,12 +156,12 @@ public class BloombergSecurityTypeResolver implements SecurityTypeResolver {
     return result;
   }
 
-  private boolean isEquityIndexFutureDividendOption(String futureCategory, String name) {
+  private boolean isEquityIndexFutureDividendOption(final String futureCategory, final String name) {
     return name != null && "Equity Index".equals(futureCategory) && name.toUpperCase().contains("DIVIDEND");
   }
 
   private static void addValidTypes(final Map<String, SecurityType> sFuturetypes, final Set<String> validSecurityTypes, final SecurityType securityType) {
-    for (String bbgSecType : validSecurityTypes) {
+    for (final String bbgSecType : validSecurityTypes) {
       sFuturetypes.put(bbgSecType, securityType);
     }
   }

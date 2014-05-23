@@ -45,7 +45,7 @@ public final class PriceIndexMaster {
         new IndexPrice("EUR HICP", Currency.EUR));
     _priceIndex.put(
         "UKRPI",
-        new IndexPrice("UK RPI", Currency.EUR));
+        new IndexPrice("UK RPI", Currency.GBP));
     _priceIndex.put(
         "FRCPI",
         new IndexPrice("FR CPI", Currency.EUR));

@@ -25,7 +25,7 @@ public class EquityVarianceSwapSummaryFactory implements SummaryFactory<EquityVa
         .with(SummaryField.UNDERLYING, security.getSpotUnderlyingId())
         .with(SummaryField.START, security.getFirstObservationDate())
         .with(SummaryField.MATURITY, security.getLastObservationDate())
-        .with(SummaryField.FREQUENCY, security.getObservationFrequency().getConventionName()).build();
+        .with(SummaryField.FREQUENCY, security.getObservationFrequency().getName()).build();
   }
 
 }

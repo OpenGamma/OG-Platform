@@ -9,6 +9,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Class that performs integration using Gaussian quadrature.
@@ -30,6 +31,7 @@ import com.opengamma.analytics.math.function.Function1D;
 public abstract class GaussianQuadratureIntegrator1D extends Integrator1D<Double, Double> {
   private final int _n;
   private final QuadratureWeightAndAbscissaFunction _generator;
+  final GaussianQuadratureData _quadrature;
 
   /**
    * @param n The number of sample points to be used in the integration, not negative or zero
@@ -40,6 +42,7 @@ public abstract class GaussianQuadratureIntegrator1D extends Integrator1D<Double
     Validate.notNull(generator, "generating function");
     _n = n;
     _generator = generator;
+    _quadrature = _generator.generate(_n);
   }
 
   /**
@@ -51,13 +54,24 @@ public abstract class GaussianQuadratureIntegrator1D extends Integrator1D<Double
     Validate.notNull(lower);
     Validate.notNull(upper);
     final Function1D<Double, Double> integral = getIntegralFunction(function, lower, upper);
-    final GaussianQuadratureData quadrature = _generator.generate(_n);
-    final double[] abscissas = quadrature.getAbscissas();
+    return integrateFromPolyFunc(integral);
+  }
+
+  /**
+   * If a function $g(x)$ can be written as $W(x)f(x)$, where the weight function $W(x)$ corresponds to one of the Gaussian quadrature forms, then we may
+   * approximate the integral of $g(x)$ over a specific range as $\int^b_a g(x) dx =\int^b_a W(x)f(x) dx \approx \sum_{i=0}^{N-1} w_i f(x_i)$, were the abscissas $x_i$
+   * and the weights $w_i$ have been precomputed. This is accurate if $f(x)$ can be approximated by a polynomial. 
+   * @param polyFunction The function $f(x)$ rather than the full function $g(x) = W(x)f(x)$ This should be well approximated by a polynomial.
+   * @return The integral 
+   */
+  public double integrateFromPolyFunc(final Function1D<Double, Double> polyFunction) {
+    ArgumentChecker.notNull(polyFunction, "polyFunction");
+    final double[] abscissas = _quadrature.getAbscissas();
     final int n = abscissas.length;
-    final double[] weights = quadrature.getWeights();
+    final double[] weights = _quadrature.getWeights();
     double sum = 0;
     for (int i = 0; i < n; i++) {
-      sum += integral.evaluate(abscissas[i]) * weights[i];
+      sum += polyFunction.evaluate(abscissas[i]) * weights[i];
     }
     return sum;
   }

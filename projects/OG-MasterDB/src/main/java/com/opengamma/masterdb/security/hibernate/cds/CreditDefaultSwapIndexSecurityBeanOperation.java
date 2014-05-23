@@ -47,11 +47,11 @@ public final class CreditDefaultSwapIndexSecurityBeanOperation extends AbstractS
     bean.setAdjustEffectiveDate(security.isAdjustEffectiveDate());
     bean.setAdjustMaturityDate(security.isAdjustMaturityDate());
     bean.setBusinessDayConvention(
-        secMasterSession.getOrCreateBusinessDayConventionBean(security.getBusinessDayConvention().getConventionName()));
+        secMasterSession.getOrCreateBusinessDayConventionBean(security.getBusinessDayConvention().getName()));
     bean.setBuy(security.isBuy());
     bean.setCouponFrequency(
-        secMasterSession.getOrCreateFrequencyBean(security.getCouponFrequency().getConventionName()));
-    bean.setDayCount(secMasterSession.getOrCreateDayCountBean(security.getDayCount().getConventionName()));
+        secMasterSession.getOrCreateFrequencyBean(security.getCouponFrequency().getName()));
+    bean.setDayCount(secMasterSession.getOrCreateDayCountBean(security.getDayCount().getName()));
     bean.setEffectiveDate(dateTimeWithZoneToZonedDateTimeBean(security.getEffectiveDate()));
     bean.setImmAdjustMaturityDate(security.isImmAdjustMaturityDate());
     bean.setIncludeAccruedPremium(security.isIncludeAccruedPremium());

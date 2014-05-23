@@ -25,8 +25,8 @@ public class Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle implements
   private final PiecewisePolynomialResult[] _polyDw;
   private final Interpolator1DDataBundle _underlyingData;
 
-  private final double _eps;
-  private final double _small;
+  private static final double EPS = 1.e-7;
+  private static final double SMALL = 1.e-14;
 
   /**
    * Constructor where coefficients for interpolant and its node sensitivity are computed 
@@ -36,9 +36,6 @@ public class Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle implements
   public Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle(final Interpolator1DDataBundle underlyingData, final PiecewisePolynomialInterpolator method) {
     ArgumentChecker.notNull(underlyingData, "underlying data");
     ArgumentChecker.notNull(method, "method");
-
-    _eps = 1.e-7;
-    _small = 1.e-14;
 
     _underlyingData = underlyingData;
     _poly = method.interpolate(underlyingData.getKeys(), underlyingData.getValues());
@@ -50,8 +47,8 @@ public class Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle implements
     double[] yValuesUp = Arrays.copyOf(yValues, nData);
     double[] yValuesDw = Arrays.copyOf(yValues, nData);
     for (int i = 0; i < nData; ++i) {
-      yValuesUp[i] = Math.abs(yValues[i]) < _small ? _eps : yValues[i] * (1. + _eps);
-      yValuesDw[i] = Math.abs(yValues[i]) < _small ? -_eps : yValues[i] * (1. - _eps);
+      yValuesUp[i] = Math.abs(yValues[i]) < SMALL ? EPS : yValues[i] * (1. + EPS);
+      yValuesDw[i] = Math.abs(yValues[i]) < SMALL ? -EPS : yValues[i] * (1. - EPS);
       _polyUp[i] = method.interpolate(underlyingData.getKeys(), yValuesUp);
       _polyDw[i] = method.interpolate(underlyingData.getKeys(), yValuesDw);
       yValuesUp[i] = yValues[i];
@@ -85,10 +82,10 @@ public class Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle implements
 
   /**
    * Access a fixed parameter for the finite difference approximation
-   * @return _eps
+   * @return EPS
    */
   public double getEps() {
-    return _eps;
+    return EPS;
   }
 
   /**
@@ -96,7 +93,7 @@ public class Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle implements
    * @return SMALL
    */
   public double getSmall() {
-    return _small;
+    return SMALL;
   }
 
   /**
@@ -198,4 +195,35 @@ public class Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle implements
   public void setYValueAtIndex(int index, double y) {
     throw new NotImplementedException();
   }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + _poly.hashCode();
+    result = prime * result + _underlyingData.hashCode();
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (!(obj instanceof Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle)) {
+      return false;
+    }
+    Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle other = (Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle) obj;
+    if (!_underlyingData.equals(other._underlyingData)) {
+      return false;
+    }
+    if (!_poly.equals(other._poly)) {
+      return false;
+    }
+    return true;
+  }
+
 }

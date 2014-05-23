@@ -75,16 +75,46 @@ public abstract class AbstractDataResource {
 
   //-------------------------------------------------------------------------
   /**
+   * Creates the RESTful "ok" response object for an object, converting null to a 404.
+   * <p>
+   * The response object is suitable for conversion to Fudge or Joda-Beans mime types.
+   * 
+   * @param value  the value to contain in the response, or null to trigger a 404
+   * @return the response, not null
+   */
+  protected Response responseOkObject(final Object value) {
+    responseNullTo404(value);
+    return Response.ok(wrap(value)).build();
+  }
+
+  /**
+   * Creates the RESTful "created" response object for an object, converting null to a 404.
+   * <p>
+   * The response object is suitable for conversion to Fudge or Joda-Beans mime types.
+   * 
+   * @param uri  the URI that was created, may be null if value is null
+   * @param value  the value to contain in the response, or null to trigger a 404
+   * @return the response, not null
+   */
+  protected Response responseCreatedObject(final URI uri, final Object value) {
+    responseNullTo404(value);
+    return Response.created(uri).entity(wrap(value)).build();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Creates the RESTful "ok" response object using Fudge, converting null to a 404.
    * <p>
    * The response will be converted to XML or JSON formatted Fudge on demand.
    * 
    * @param value  the value to contain in the response, or null to trigger a 404
    * @return the response, not null
+   * @deprecated Use {@code responseOkObject}
    */
+  @Deprecated
   protected Response responseOkFudge(final Object value) {
     responseNullTo404(value);
-    return Response.ok(encode(value)).build();
+    return Response.ok(wrap(value)).build();
   }
 
   /**
@@ -95,10 +125,12 @@ public abstract class AbstractDataResource {
    * @param uri  the URI that was created, may be null if value is null
    * @param value  the value to contain in the response, or null to trigger a 404
    * @return the response, not null
+   * @deprecated Use {@code responseOkObject}
    */
+  @Deprecated
   protected Response responseCreatedFudge(final URI uri, final Object value) {
     responseNullTo404(value);
-    return Response.created(uri).entity(encode(value)).build();
+    return Response.created(uri).entity(wrap(value)).build();
   }
 
   //-------------------------------------------------------------------------
@@ -114,11 +146,11 @@ public abstract class AbstractDataResource {
     }
   }
 
-  private Object encode(Object value) {
+  private Object wrap(Object value) {
     if (value instanceof FudgeMsgEnvelope || value instanceof FudgeMsg || value instanceof Bean) {
       return value;
     }
-    return new FudgeResponse(value);
+    return FudgeResponse.of(value);
   }
 
   //-------------------------------------------------------------------------

@@ -176,7 +176,7 @@ public class QueryHolidayDbHolidayMasterWorkerSearchTest extends AbstractDbHolid
   @Test
   public void test_search_regionEmptyBundle() {
     HolidaySearchRequest request = new HolidaySearchRequest();
-    request.setRegionExternalIdSearch(new ExternalIdSearch());
+    request.setRegionExternalIdSearch(ExternalIdSearch.of());
     HolidaySearchResult test = _holMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -194,7 +194,7 @@ public class QueryHolidayDbHolidayMasterWorkerSearchTest extends AbstractDbHolid
   @Test
   public void test_search_exchange_empty() {
     HolidaySearchRequest request = new HolidaySearchRequest();
-    request.setExchangeExternalIdSearch(new ExternalIdSearch());
+    request.setExchangeExternalIdSearch(ExternalIdSearch.of());
     HolidaySearchResult test = _holMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());

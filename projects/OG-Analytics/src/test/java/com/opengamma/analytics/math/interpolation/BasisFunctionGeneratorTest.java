@@ -18,10 +18,12 @@ import cern.jet.random.engine.MersenneTwister64;
 
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
+import com.opengamma.util.test.TestGroup;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class BasisFunctionGeneratorTest {
   private static final Logger s_logger = LoggerFactory.getLogger(BasisFunctionGeneratorTest.class);
   private static final Boolean PRINT = false;

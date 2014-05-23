@@ -13,10 +13,12 @@ import com.opengamma.analytics.financial.equity.future.derivative.EquityIndexDiv
 import com.opengamma.analytics.financial.future.MarkToMarketFuturesCalculator;
 import com.opengamma.analytics.financial.simpleinstruments.pricing.SimpleFutureDataBundle;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Checks the wiring of the EquityFuturesPresentValueCalculator
  */
+@Test(groups = TestGroup.UNIT)
 public class EquityFuturesPresentValueCalculatorTest {
   private static final MarkToMarketFuturesCalculator PVC = MarkToMarketFuturesCalculator.PresentValueCalculator.getInstance();
 

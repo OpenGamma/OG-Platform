@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.config.Config;
+import com.opengamma.core.config.ConfigGroups;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueId;
@@ -37,7 +38,7 @@ import com.opengamma.util.tuple.Pair;
  * and computed.
  */
 @PublicAPI
-@Config(description = "View definition")
+@Config(description = "View definition", group = ConfigGroups.VIEWS)
 public class ViewDefinition implements Serializable, UniqueIdentifiable, MutableUniqueIdentifiable {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ViewDefinition.class);

@@ -7,6 +7,7 @@ package com.opengamma.financial.security.option;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -20,6 +21,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.id.ExternalId;
+import com.opengamma.master.security.SecurityDescription;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
 
@@ -27,6 +29,7 @@ import com.opengamma.util.time.Expiry;
  * A security for equity options with a single barrier.
  */
 @BeanDefinition
+@SecurityDescription(type = EquityBarrierOptionSecurity.SECURITY_TYPE, description = "Equity barrier option")
 public class EquityBarrierOptionSecurity extends FinancialSecurity {
 
   /** Serialization version. */
@@ -149,145 +152,6 @@ public class EquityBarrierOptionSecurity extends FinancialSecurity {
   @Override
   public EquityBarrierOptionSecurity.Meta metaBean() {
     return EquityBarrierOptionSecurity.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1373587791:  // optionType
-        return getOptionType();
-      case -891985998:  // strike
-        return getStrike();
-      case 575402001:  // currency
-        return getCurrency();
-      case -771625640:  // underlyingId
-        return getUnderlyingId();
-      case -466331342:  // exerciseType
-        return getExerciseType();
-      case -1289159373:  // expiry
-        return getExpiry();
-      case 1257391553:  // pointValue
-        return getPointValue();
-      case 1989774883:  // exchange
-        return getExchange();
-      case 1029043089:  // barrierType
-        return getBarrierType();
-      case 502579592:  // barrierDirection
-        return getBarrierDirection();
-      case -1483652190:  // monitoringType
-        return getMonitoringType();
-      case 1178782005:  // samplingFrequency
-        return getSamplingFrequency();
-      case 1827586573:  // barrierLevel
-        return getBarrierLevel();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1373587791:  // optionType
-        setOptionType((OptionType) newValue);
-        return;
-      case -891985998:  // strike
-        setStrike((Double) newValue);
-        return;
-      case 575402001:  // currency
-        setCurrency((Currency) newValue);
-        return;
-      case -771625640:  // underlyingId
-        setUnderlyingId((ExternalId) newValue);
-        return;
-      case -466331342:  // exerciseType
-        setExerciseType((ExerciseType) newValue);
-        return;
-      case -1289159373:  // expiry
-        setExpiry((Expiry) newValue);
-        return;
-      case 1257391553:  // pointValue
-        setPointValue((Double) newValue);
-        return;
-      case 1989774883:  // exchange
-        setExchange((String) newValue);
-        return;
-      case 1029043089:  // barrierType
-        setBarrierType((BarrierType) newValue);
-        return;
-      case 502579592:  // barrierDirection
-        setBarrierDirection((BarrierDirection) newValue);
-        return;
-      case -1483652190:  // monitoringType
-        setMonitoringType((MonitoringType) newValue);
-        return;
-      case 1178782005:  // samplingFrequency
-        setSamplingFrequency((SamplingFrequency) newValue);
-        return;
-      case 1827586573:  // barrierLevel
-        setBarrierLevel((Double) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_optionType, "optionType");
-    JodaBeanUtils.notNull(_currency, "currency");
-    JodaBeanUtils.notNull(_underlyingId, "underlyingId");
-    JodaBeanUtils.notNull(_exerciseType, "exerciseType");
-    JodaBeanUtils.notNull(_expiry, "expiry");
-    JodaBeanUtils.notNull(_exchange, "exchange");
-    JodaBeanUtils.notNull(_barrierType, "barrierType");
-    JodaBeanUtils.notNull(_barrierDirection, "barrierDirection");
-    JodaBeanUtils.notNull(_monitoringType, "monitoringType");
-    JodaBeanUtils.notNull(_samplingFrequency, "samplingFrequency");
-    JodaBeanUtils.notNull(_barrierLevel, "barrierLevel");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      EquityBarrierOptionSecurity other = (EquityBarrierOptionSecurity) obj;
-      return JodaBeanUtils.equal(getOptionType(), other.getOptionType()) &&
-          JodaBeanUtils.equal(getStrike(), other.getStrike()) &&
-          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getUnderlyingId(), other.getUnderlyingId()) &&
-          JodaBeanUtils.equal(getExerciseType(), other.getExerciseType()) &&
-          JodaBeanUtils.equal(getExpiry(), other.getExpiry()) &&
-          JodaBeanUtils.equal(getPointValue(), other.getPointValue()) &&
-          JodaBeanUtils.equal(getExchange(), other.getExchange()) &&
-          JodaBeanUtils.equal(getBarrierType(), other.getBarrierType()) &&
-          JodaBeanUtils.equal(getBarrierDirection(), other.getBarrierDirection()) &&
-          JodaBeanUtils.equal(getMonitoringType(), other.getMonitoringType()) &&
-          JodaBeanUtils.equal(getSamplingFrequency(), other.getSamplingFrequency()) &&
-          JodaBeanUtils.equal(getBarrierLevel(), other.getBarrierLevel()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getOptionType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStrike());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExerciseType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExpiry());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPointValue());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExchange());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBarrierType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBarrierDirection());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMonitoringType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSamplingFrequency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBarrierLevel());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -627,6 +491,87 @@ public class EquityBarrierOptionSecurity extends FinancialSecurity {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public EquityBarrierOptionSecurity clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      EquityBarrierOptionSecurity other = (EquityBarrierOptionSecurity) obj;
+      return JodaBeanUtils.equal(getOptionType(), other.getOptionType()) &&
+          JodaBeanUtils.equal(getStrike(), other.getStrike()) &&
+          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
+          JodaBeanUtils.equal(getUnderlyingId(), other.getUnderlyingId()) &&
+          JodaBeanUtils.equal(getExerciseType(), other.getExerciseType()) &&
+          JodaBeanUtils.equal(getExpiry(), other.getExpiry()) &&
+          JodaBeanUtils.equal(getPointValue(), other.getPointValue()) &&
+          JodaBeanUtils.equal(getExchange(), other.getExchange()) &&
+          JodaBeanUtils.equal(getBarrierType(), other.getBarrierType()) &&
+          JodaBeanUtils.equal(getBarrierDirection(), other.getBarrierDirection()) &&
+          JodaBeanUtils.equal(getMonitoringType(), other.getMonitoringType()) &&
+          JodaBeanUtils.equal(getSamplingFrequency(), other.getSamplingFrequency()) &&
+          JodaBeanUtils.equal(getBarrierLevel(), other.getBarrierLevel()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getOptionType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getStrike());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExerciseType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExpiry());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPointValue());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExchange());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getBarrierType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getBarrierDirection());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMonitoringType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSamplingFrequency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getBarrierLevel());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(448);
+    buf.append("EquityBarrierOptionSecurity{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("optionType").append('=').append(JodaBeanUtils.toString(getOptionType())).append(',').append(' ');
+    buf.append("strike").append('=').append(JodaBeanUtils.toString(getStrike())).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
+    buf.append("underlyingId").append('=').append(JodaBeanUtils.toString(getUnderlyingId())).append(',').append(' ');
+    buf.append("exerciseType").append('=').append(JodaBeanUtils.toString(getExerciseType())).append(',').append(' ');
+    buf.append("expiry").append('=').append(JodaBeanUtils.toString(getExpiry())).append(',').append(' ');
+    buf.append("pointValue").append('=').append(JodaBeanUtils.toString(getPointValue())).append(',').append(' ');
+    buf.append("exchange").append('=').append(JodaBeanUtils.toString(getExchange())).append(',').append(' ');
+    buf.append("barrierType").append('=').append(JodaBeanUtils.toString(getBarrierType())).append(',').append(' ');
+    buf.append("barrierDirection").append('=').append(JodaBeanUtils.toString(getBarrierDirection())).append(',').append(' ');
+    buf.append("monitoringType").append('=').append(JodaBeanUtils.toString(getMonitoringType())).append(',').append(' ');
+    buf.append("samplingFrequency").append('=').append(JodaBeanUtils.toString(getSamplingFrequency())).append(',').append(' ');
+    buf.append("barrierLevel").append('=').append(JodaBeanUtils.toString(getBarrierLevel())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code EquityBarrierOptionSecurity}.
    */
@@ -877,6 +822,102 @@ public class EquityBarrierOptionSecurity extends FinancialSecurity {
      */
     public final MetaProperty<Double> barrierLevel() {
       return _barrierLevel;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1373587791:  // optionType
+          return ((EquityBarrierOptionSecurity) bean).getOptionType();
+        case -891985998:  // strike
+          return ((EquityBarrierOptionSecurity) bean).getStrike();
+        case 575402001:  // currency
+          return ((EquityBarrierOptionSecurity) bean).getCurrency();
+        case -771625640:  // underlyingId
+          return ((EquityBarrierOptionSecurity) bean).getUnderlyingId();
+        case -466331342:  // exerciseType
+          return ((EquityBarrierOptionSecurity) bean).getExerciseType();
+        case -1289159373:  // expiry
+          return ((EquityBarrierOptionSecurity) bean).getExpiry();
+        case 1257391553:  // pointValue
+          return ((EquityBarrierOptionSecurity) bean).getPointValue();
+        case 1989774883:  // exchange
+          return ((EquityBarrierOptionSecurity) bean).getExchange();
+        case 1029043089:  // barrierType
+          return ((EquityBarrierOptionSecurity) bean).getBarrierType();
+        case 502579592:  // barrierDirection
+          return ((EquityBarrierOptionSecurity) bean).getBarrierDirection();
+        case -1483652190:  // monitoringType
+          return ((EquityBarrierOptionSecurity) bean).getMonitoringType();
+        case 1178782005:  // samplingFrequency
+          return ((EquityBarrierOptionSecurity) bean).getSamplingFrequency();
+        case 1827586573:  // barrierLevel
+          return ((EquityBarrierOptionSecurity) bean).getBarrierLevel();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1373587791:  // optionType
+          ((EquityBarrierOptionSecurity) bean).setOptionType((OptionType) newValue);
+          return;
+        case -891985998:  // strike
+          ((EquityBarrierOptionSecurity) bean).setStrike((Double) newValue);
+          return;
+        case 575402001:  // currency
+          ((EquityBarrierOptionSecurity) bean).setCurrency((Currency) newValue);
+          return;
+        case -771625640:  // underlyingId
+          ((EquityBarrierOptionSecurity) bean).setUnderlyingId((ExternalId) newValue);
+          return;
+        case -466331342:  // exerciseType
+          ((EquityBarrierOptionSecurity) bean).setExerciseType((ExerciseType) newValue);
+          return;
+        case -1289159373:  // expiry
+          ((EquityBarrierOptionSecurity) bean).setExpiry((Expiry) newValue);
+          return;
+        case 1257391553:  // pointValue
+          ((EquityBarrierOptionSecurity) bean).setPointValue((Double) newValue);
+          return;
+        case 1989774883:  // exchange
+          ((EquityBarrierOptionSecurity) bean).setExchange((String) newValue);
+          return;
+        case 1029043089:  // barrierType
+          ((EquityBarrierOptionSecurity) bean).setBarrierType((BarrierType) newValue);
+          return;
+        case 502579592:  // barrierDirection
+          ((EquityBarrierOptionSecurity) bean).setBarrierDirection((BarrierDirection) newValue);
+          return;
+        case -1483652190:  // monitoringType
+          ((EquityBarrierOptionSecurity) bean).setMonitoringType((MonitoringType) newValue);
+          return;
+        case 1178782005:  // samplingFrequency
+          ((EquityBarrierOptionSecurity) bean).setSamplingFrequency((SamplingFrequency) newValue);
+          return;
+        case 1827586573:  // barrierLevel
+          ((EquityBarrierOptionSecurity) bean).setBarrierLevel((Double) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((EquityBarrierOptionSecurity) bean)._optionType, "optionType");
+      JodaBeanUtils.notNull(((EquityBarrierOptionSecurity) bean)._currency, "currency");
+      JodaBeanUtils.notNull(((EquityBarrierOptionSecurity) bean)._underlyingId, "underlyingId");
+      JodaBeanUtils.notNull(((EquityBarrierOptionSecurity) bean)._exerciseType, "exerciseType");
+      JodaBeanUtils.notNull(((EquityBarrierOptionSecurity) bean)._expiry, "expiry");
+      JodaBeanUtils.notNull(((EquityBarrierOptionSecurity) bean)._exchange, "exchange");
+      JodaBeanUtils.notNull(((EquityBarrierOptionSecurity) bean)._barrierType, "barrierType");
+      JodaBeanUtils.notNull(((EquityBarrierOptionSecurity) bean)._barrierDirection, "barrierDirection");
+      JodaBeanUtils.notNull(((EquityBarrierOptionSecurity) bean)._monitoringType, "monitoringType");
+      JodaBeanUtils.notNull(((EquityBarrierOptionSecurity) bean)._samplingFrequency, "samplingFrequency");
+      JodaBeanUtils.notNull(((EquityBarrierOptionSecurity) bean)._barrierLevel, "barrierLevel");
+      super.validate(bean);
     }
 
   }

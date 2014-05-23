@@ -34,16 +34,18 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.Multipl
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.sabrcap.ParameterSensitivitySABRCapDiscountInterpolatedFDCalculator;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Test related to the pricing and sensitivity of the Ibor cap/floor with the SABR model and extrapolation for high strikes.
  */
+@Test(groups = TestGroup.UNIT)
 public class CapFloorIborSABRExtrapolationRightMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
@@ -104,9 +106,9 @@ public class CapFloorIborSABRExtrapolationRightMethodTest {
   public void presentValueBelowCutOff() {
     final MultipleCurrencyAmount methodPrice = METHOD_CAP_X.presentValue(CAP_LONG, SABR_MULTICURVES);
     final double df = MULTICURVES.getDiscountFactor(EUR, CAP_LONG.getPaymentTime());
-    final double forward = MULTICURVES.getForwardRate(EURIBOR3M, CAP_LONG.getFixingPeriodStartTime(), CAP_LONG.getFixingPeriodEndTime(), CAP_LONG.getFixingAccrualFactor());
+    final double forward = MULTICURVES.getSimplyCompoundForwardRate(EURIBOR3M, CAP_LONG.getFixingPeriodStartTime(), CAP_LONG.getFixingPeriodEndTime(), CAP_LONG.getFixingAccrualFactor());
     final double maturity = CAP_LONG.getFixingPeriodEndTime() - CAP_LONG.getFixingPeriodStartTime();
-    final DoublesPair expiryMaturity = new DoublesPair(CAP_LONG.getFixingTime(), maturity);
+    final DoublesPair expiryMaturity = DoublesPair.of(CAP_LONG.getFixingTime(), maturity);
     final double alpha = SABR_PARAMETERS.getAlpha(expiryMaturity);
     final double beta = SABR_PARAMETERS.getBeta(expiryMaturity);
     final double rho = SABR_PARAMETERS.getRho(expiryMaturity);
@@ -125,9 +127,9 @@ public class CapFloorIborSABRExtrapolationRightMethodTest {
   public void presentValueAboveCutOff() {
     final MultipleCurrencyAmount methodPrice = METHOD_CAP_X.presentValue(CAP_HIGH_LONG, SABR_MULTICURVES);
     final double df = MULTICURVES.getDiscountFactor(EUR, CAP_HIGH_LONG.getPaymentTime());
-    final double forward = MULTICURVES.getForwardRate(EURIBOR3M, CAP_HIGH_LONG.getFixingPeriodStartTime(), CAP_HIGH_LONG.getFixingPeriodEndTime(), CAP_HIGH_LONG.getFixingAccrualFactor());
+    final double forward = MULTICURVES.getSimplyCompoundForwardRate(EURIBOR3M, CAP_HIGH_LONG.getFixingPeriodStartTime(), CAP_HIGH_LONG.getFixingPeriodEndTime(), CAP_HIGH_LONG.getFixingAccrualFactor());
     final double maturity = CAP_HIGH_LONG.getFixingPeriodEndTime() - CAP_LONG.getFixingPeriodStartTime();
-    final DoublesPair expiryMaturity = new DoublesPair(CAP_HIGH_LONG.getFixingTime(), maturity);
+    final DoublesPair expiryMaturity = DoublesPair.of(CAP_HIGH_LONG.getFixingTime(), maturity);
     final double alpha = SABR_PARAMETERS.getAlpha(expiryMaturity);
     final double beta = SABR_PARAMETERS.getBeta(expiryMaturity);
     final double rho = SABR_PARAMETERS.getRho(expiryMaturity);
@@ -202,7 +204,7 @@ public class CapFloorIborSABRExtrapolationRightMethodTest {
   public void presentValueCurveSensitivityBelowCutOff() {
     final MultipleCurrencyParameterSensitivity pvpsExact = PS_SS_C.calculateSensitivity(CAP_LONG, SABR_MULTICURVES, SABR_MULTICURVES.getMulticurveProvider().getAllNames());
     final MultipleCurrencyParameterSensitivity pvpsFD = PS_SS_FDC.calculateSensitivity(CAP_LONG, SABR_MULTICURVES);
-    AssertSensivityObjects.assertEquals("SwaptionPhysicalFixedIborSABRMethod: presentValueCurveSensitivity ", pvpsExact, pvpsFD, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("SwaptionPhysicalFixedIborSABRMethod: presentValueCurveSensitivity ", pvpsExact, pvpsFD, TOLERANCE_PV_DELTA);
   }
 
   @Test
@@ -212,7 +214,7 @@ public class CapFloorIborSABRExtrapolationRightMethodTest {
   public void testPresentValueSensitivityAboveCutOff() {
     final MultipleCurrencyParameterSensitivity pvpsExact = PS_SS_C.calculateSensitivity(CAP_HIGH_LONG, SABR_MULTICURVES, SABR_MULTICURVES.getMulticurveProvider().getAllNames());
     final MultipleCurrencyParameterSensitivity pvpsFD = PS_SS_FDC.calculateSensitivity(CAP_HIGH_LONG, SABR_MULTICURVES);
-    AssertSensivityObjects.assertEquals("SwaptionPhysicalFixedIborSABRMethod: presentValueCurveSensitivity ", pvpsExact, pvpsFD, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("SwaptionPhysicalFixedIborSABRMethod: presentValueCurveSensitivity ", pvpsExact, pvpsFD, TOLERANCE_PV_DELTA);
   }
 
   @Test
@@ -222,7 +224,7 @@ public class CapFloorIborSABRExtrapolationRightMethodTest {
   public void presentValueCurveSensitivityMethodVsCalculator() {
     final MultipleCurrencyMulticurveSensitivity pvsMethod = METHOD_CAP_X.presentValueCurveSensitivity(CAP_HIGH_LONG, SABR_MULTICURVES);
     final MultipleCurrencyMulticurveSensitivity pvsCalculator = CAP_HIGH_LONG.accept(PVCSSCXC, SABR_MULTICURVES);
-    AssertSensivityObjects.assertEquals("Cap/floor: SABR with extrapolation pv curve sensitivity - Method vs Calculator", pvsMethod, pvsCalculator, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("Cap/floor: SABR with extrapolation pv curve sensitivity - Method vs Calculator", pvsMethod, pvsCalculator, TOLERANCE_PV_DELTA);
   }
 
   @Test
@@ -239,7 +241,7 @@ public class CapFloorIborSABRExtrapolationRightMethodTest {
     // SABR sensitivity vs finite difference
     final double shift = 0.0001;
     final double shiftAlpha = 0.00001;
-    final DoublesPair expectedExpiryTenor = new DoublesPair(CAP_LONG.getFixingTime(), CAP_LONG.getFixingPeriodEndTime() - CAP_LONG.getFixingPeriodStartTime());
+    final DoublesPair expectedExpiryTenor = DoublesPair.of(CAP_LONG.getFixingTime(), CAP_LONG.getFixingPeriodEndTime() - CAP_LONG.getFixingPeriodStartTime());
     // Alpha sensitivity vs finite difference computation
     final SABRInterestRateParameters sabrParameterAlphaBumped = SABRDataSets.createSABR1AlphaBumped(shiftAlpha);
     final SABRCapProviderDiscount sabrBundleAlphaBumped = new SABRCapProviderDiscount(MULTICURVES, sabrParameterAlphaBumped, EURIBOR3M);
@@ -280,7 +282,7 @@ public class CapFloorIborSABRExtrapolationRightMethodTest {
     // SABR sensitivity vs finite difference
     final double shift = 0.0001;
     final double shiftAlpha = 0.00001;
-    final DoublesPair expectedExpiryTenor = new DoublesPair(CAP_HIGH_LONG.getFixingTime(), CAP_HIGH_LONG.getFixingPeriodEndTime() - CAP_HIGH_LONG.getFixingPeriodStartTime());
+    final DoublesPair expectedExpiryTenor = DoublesPair.of(CAP_HIGH_LONG.getFixingTime(), CAP_HIGH_LONG.getFixingPeriodEndTime() - CAP_HIGH_LONG.getFixingPeriodStartTime());
     // Alpha sensitivity vs finite difference computation
     final SABRInterestRateParameters sabrParameterAlphaBumped = SABRDataSets.createSABR1AlphaBumped(shiftAlpha);
     final SABRCapProviderDiscount sabrBundleAlphaBumped = new SABRCapProviderDiscount(MULTICURVES, sabrParameterAlphaBumped, EURIBOR3M);

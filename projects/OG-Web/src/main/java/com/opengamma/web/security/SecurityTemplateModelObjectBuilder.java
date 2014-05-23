@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.core.legalentity.LegalEntity;
 import com.opengamma.core.security.Security;
 import com.opengamma.financial.security.FinancialSecurityVisitorSameValueAdapter;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
@@ -58,10 +59,9 @@ import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.financial.security.swap.YearOnYearInflationSwapSecurity;
 import com.opengamma.financial.security.swap.ZeroCouponInflationSwapSecurity;
 import com.opengamma.id.ExternalId;
-import com.opengamma.master.orgs.ManageableOrganization;
-import com.opengamma.master.orgs.OrganizationMaster;
-import com.opengamma.master.orgs.OrganizationSearchRequest;
-import com.opengamma.master.orgs.OrganizationSearchResult;
+import com.opengamma.master.legalentity.LegalEntityMaster;
+import com.opengamma.master.legalentity.LegalEntitySearchRequest;
+import com.opengamma.master.legalentity.LegalEntitySearchResult;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.time.Tenor;
@@ -69,19 +69,19 @@ import com.opengamma.util.time.Tenor;
 /**
  * Builds the model object used in the security freemarker templates
  */
-/*package*/ class SecurityTemplateModelObjectBuilder extends FinancialSecurityVisitorSameValueAdapter<Void> {
+public class SecurityTemplateModelObjectBuilder extends FinancialSecurityVisitorSameValueAdapter<Void> {
 
   private static final Logger s_logger = LoggerFactory.getLogger(SecurityTemplateModelObjectBuilder.class);
   
   private final FlexiBean _out;
   private final SecurityMaster _securityMaster;
-  private final OrganizationMaster _organizationMaster;
+  private final LegalEntityMaster _legalEntityMaster;
   
-  SecurityTemplateModelObjectBuilder(final FlexiBean out, final SecurityMaster securityMaster, final OrganizationMaster organizationMaster) {
+  SecurityTemplateModelObjectBuilder(final FlexiBean out, final SecurityMaster securityMaster, final LegalEntityMaster legalEntityMaster) {
     super(null);
     _out = out;
     _securityMaster = securityMaster;
-    _organizationMaster = organizationMaster;
+    _legalEntityMaster = legalEntityMaster;
   }
   
   private void addFutureSecurityType(final String futureType) {
@@ -118,8 +118,8 @@ import com.opengamma.util.time.Tenor;
     addFutureSecurityType("BondFuture");
     Map<String, String> basket = new TreeMap<String, String>();
     for (BondFutureDeliverable bondFutureDeliverable : security.getBasket()) {
-      String identifierValue = bondFutureDeliverable.getIdentifiers().getValue(ExternalSchemes.BLOOMBERG_BUID);
-      basket.put(ExternalSchemes.BLOOMBERG_BUID.getName() + "-" + identifierValue, String.valueOf(bondFutureDeliverable.getConversionFactor()));
+      String identifierValue = bondFutureDeliverable.getIdentifiers().getValue(ExternalSchemes.BLOOMBERG_TICKER);
+      basket.put(ExternalSchemes.BLOOMBERG_TICKER.getName() + "-" + identifierValue, String.valueOf(bondFutureDeliverable.getConversionFactor()));
     }
     _out.put("basket", basket);
     return null;
@@ -259,11 +259,12 @@ import com.opengamma.util.time.Tenor;
   public Void visitCreditDefaultSwapOptionSecurity(CreditDefaultSwapOptionSecurity security) {
     ExternalId underlyingId = security.getUnderlyingId();
     if (underlyingId != null) {
-      OrganizationSearchRequest request = new OrganizationSearchRequest();
+      LegalEntitySearchRequest request = new LegalEntitySearchRequest();
       if (underlyingId.getScheme().equals(ExternalSchemes.MARKIT_RED_CODE)) {
-        request.setObligorREDCode(underlyingId.getValue());
-        OrganizationSearchResult searchResult = _organizationMaster.search(request);
-        ManageableOrganization organization = searchResult.getSingleOrganization();
+        request.addExternalId(underlyingId);
+
+        LegalEntitySearchResult searchResult = _legalEntityMaster.search(request);
+        LegalEntity organization = searchResult.getSingleLegalEntity();
         if (organization != null) {
           _out.put("underlyingOrganization", organization);
         }

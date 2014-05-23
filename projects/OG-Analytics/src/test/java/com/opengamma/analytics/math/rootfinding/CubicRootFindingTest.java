@@ -11,10 +11,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.function.RealPolynomialFunction1D;
 import com.opengamma.analytics.math.number.ComplexNumber;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class CubicRootFindingTest {
   private static final CubicRootFinder CUBIC = new CubicRootFinder();
   private static final CubicRealRootFinder REAL_ONLY_CUBIC = new CubicRealRootFinder();

@@ -15,12 +15,14 @@ import com.opengamma.analytics.financial.model.interestrate.definition.StandardD
 import com.opengamma.analytics.financial.model.tree.RecombiningBinomialTree;
 import com.opengamma.analytics.financial.model.volatility.curve.VolatilityCurve;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Triple;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class BlackDermanToyYieldOnlyInterestRateModelTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)

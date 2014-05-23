@@ -6,28 +6,48 @@
 package com.opengamma.financial.analytics.forwardcurve;
 
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.function.FunctionDefinition;
+import com.opengamma.financial.config.ConfigSourceQuery;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.util.ArgumentChecker;
 
 /**
  *
  */
 public class ConfigDBForwardSwapCurveSpecificationSource implements ForwardCurveSpecificationSource {
-  private static final String SUFFIX = "_FORWARD_SWAP";
-  private final ConfigSource _configSource;
 
+  private static final String SUFFIX = "_FORWARD_SWAP";
+
+  private final ConfigSourceQuery<ForwardSwapCurveSpecification> _query;
+
+  /**
+   * @param configSource the config source, not null
+   * @deprecated Use {@link ConfigDBForwardSwapCurveSpecificationSource(ConfigSource,VersionCorrection)} or {@link #init} instead.
+   */
+  @Deprecated
   public ConfigDBForwardSwapCurveSpecificationSource(final ConfigSource configSource) {
-    ArgumentChecker.notNull(configSource, "config source");
-    _configSource = configSource;
+    this(configSource, VersionCorrection.LATEST);
+  }
+
+  public ConfigDBForwardSwapCurveSpecificationSource(final ConfigSource configSource, final VersionCorrection versionCorrection) {
+    this(new ConfigSourceQuery<>(configSource, ForwardSwapCurveSpecification.class, versionCorrection));
+  }
+
+  private ConfigDBForwardSwapCurveSpecificationSource(final ConfigSourceQuery<ForwardSwapCurveSpecification> query) {
+    _query = query;
+  }
+
+  public static ConfigDBForwardSwapCurveSpecificationSource init(final FunctionCompilationContext context, final FunctionDefinition function) {
+    return new ConfigDBForwardSwapCurveSpecificationSource(ConfigSourceQuery.init(context, function, ForwardSwapCurveSpecification.class));
   }
 
   @Override
   public ForwardSwapCurveSpecification getSpecification(final String name, final String currency) {
-    return _configSource.getLatestByName(ForwardSwapCurveSpecification.class, name + "_" + currency + SUFFIX);
+    return _query.get(name + "_" + currency + SUFFIX);
   }
 
   @Override
   public ForwardSwapCurveSpecification getSpecification(final String name, final String currency, final VersionCorrection versionCorrection) {
-    return _configSource.getSingle(ForwardSwapCurveSpecification.class, name + "_" + currency + SUFFIX, versionCorrection);
+    return _query.get(name + "_" + currency + SUFFIX, versionCorrection);
   }
 }

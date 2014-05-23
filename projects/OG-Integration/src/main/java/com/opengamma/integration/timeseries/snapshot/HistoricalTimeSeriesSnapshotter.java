@@ -6,6 +6,7 @@
 package com.opengamma.integration.timeseries.snapshot;
 
 import com.opengamma.component.OpenGammaComponentServer;
+import com.opengamma.util.ShutdownUtils;
 
 /**
  * Historical timeseries snapshotter.
@@ -25,7 +26,7 @@ public class HistoricalTimeSeriesSnapshotter extends OpenGammaComponentServer {
       args = new String[] {"-v", "classpath:/htssnapshot/hts-snapshot.properties"};
     }
     if (!new HistoricalTimeSeriesSnapshotter().run(args)) {
-      System.exit(-1);
+      ShutdownUtils.exit(-1);
     }
   }
 }

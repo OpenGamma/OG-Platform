@@ -15,6 +15,8 @@ import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureTra
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureTransaction;
+import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteDiscountingCalculator;
+import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadRateDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
@@ -23,14 +25,19 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ParameterSensitivityMulticurveDiscountInterpolatedFDCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
+/**
+ * Test related to Fed Funds futures pricing.
+ */
+@Test(groups = TestGroup.UNIT)
 public class FederalFundsFutureTransactionDiscountingMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
@@ -70,8 +77,12 @@ public class FederalFundsFutureTransactionDiscountingMethodTest {
   private static final ParameterSensitivityParameterCalculator<MulticurveProviderInterface> PSC = new ParameterSensitivityParameterCalculator<>(PVCSDC);
   private static final ParameterSensitivityMulticurveDiscountInterpolatedFDCalculator PSC_DSC_FD = new ParameterSensitivityMulticurveDiscountInterpolatedFDCalculator(PVDC, SHIFT);
 
+  private static final ParSpreadMarketQuoteDiscountingCalculator PSMQDC = ParSpreadMarketQuoteDiscountingCalculator.getInstance();
+  private static final ParSpreadRateDiscountingCalculator PSRDC = ParSpreadRateDiscountingCalculator.getInstance();
+
   private static final double TOLERANCE_PV = 1.0E-2;
   private static final double TOLERANCE_PV_DELTA = 1.0E+2;
+  private static final double TOLERANCE_RATE = 1.0E-8;
 
   @Test
   public void presentValueFromPrice() {
@@ -93,7 +104,28 @@ public class FederalFundsFutureTransactionDiscountingMethodTest {
   public void presentValueCurveSensitivity() {
     final MultipleCurrencyParameterSensitivity pvpsDepositExact = PSC.calculateSensitivity(FUTURE_TRANSACTION, MULTICURVES, MULTICURVES.getAllNames());
     final MultipleCurrencyParameterSensitivity pvpsDepositFD = PSC_DSC_FD.calculateSensitivity(FUTURE_TRANSACTION, MULTICURVES);
-    AssertSensivityObjects.assertEquals("CashDiscountingProviderMethod: presentValueCurveSensitivity ", pvpsDepositExact, pvpsDepositFD, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("FederalFundsFutureTransactionDiscountingMethod: presentValueCurveSensitivity ", pvpsDepositExact, pvpsDepositFD, TOLERANCE_PV_DELTA);
+  }
+
+  @Test
+  /**
+   * Test the par spread to market quotes.
+   */
+  public void parSpreadMarketQuote() {
+    final double parSpreadMQ = FUTURE_TRANSACTION.accept(PSMQDC, MULTICURVES);
+    final FederalFundsFutureTransaction futures0 = new FederalFundsFutureTransaction(FUTURE_SECURITY, QUANTITY, FUTURE_TRANSACTION.getReferencePrice() + parSpreadMQ);
+    final MultipleCurrencyAmount pv0 = METHOD_TRANSACTION.presentValue(futures0, MULTICURVES);
+    assertEquals("FederalFundsFutureTransactionDiscountingMethod: par spread market quote", pv0.getAmount(USD), 0, TOLERANCE_PV);
+  }
+
+  @Test
+  /**
+   * Test the par spread to rate.
+   */
+  public void parSpreadRate() {
+    final double parSpreadRate = FUTURE_TRANSACTION.accept(PSRDC, MULTICURVES);
+    final double parSpreadMQ = FUTURE_TRANSACTION.accept(PSMQDC, MULTICURVES);
+    assertEquals("FederalFundsFutureTransactionDiscountingMethod: par spread market quote", -parSpreadMQ, parSpreadRate, TOLERANCE_RATE);
   }
 
 }

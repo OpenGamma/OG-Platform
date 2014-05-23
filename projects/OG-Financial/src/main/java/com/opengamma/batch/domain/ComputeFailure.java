@@ -7,6 +7,7 @@ package com.opengamma.batch.domain;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -57,72 +58,6 @@ public class ComputeFailure extends DirectBean {
   @Override
   public ComputeFailure.Meta metaBean() {
     return ComputeFailure.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 3355:  // id
-        return getId();
-      case -62789869:  // functionId
-        return getFunctionId();
-      case -71056791:  // exceptionClass
-        return getExceptionClass();
-      case -268220238:  // exceptionMsg
-        return getExceptionMsg();
-      case 2026279837:  // stackTrace
-        return getStackTrace();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 3355:  // id
-        setId((Long) newValue);
-        return;
-      case -62789869:  // functionId
-        setFunctionId((String) newValue);
-        return;
-      case -71056791:  // exceptionClass
-        setExceptionClass((String) newValue);
-        return;
-      case -268220238:  // exceptionMsg
-        setExceptionMsg((String) newValue);
-        return;
-      case 2026279837:  // stackTrace
-        setStackTrace((String) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      ComputeFailure other = (ComputeFailure) obj;
-      return JodaBeanUtils.equal(getId(), other.getId()) &&
-          JodaBeanUtils.equal(getFunctionId(), other.getFunctionId()) &&
-          JodaBeanUtils.equal(getExceptionClass(), other.getExceptionClass()) &&
-          JodaBeanUtils.equal(getExceptionMsg(), other.getExceptionMsg()) &&
-          JodaBeanUtils.equal(getStackTrace(), other.getStackTrace());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFunctionId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExceptionClass());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExceptionMsg());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStackTrace());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -251,6 +186,60 @@ public class ComputeFailure extends DirectBean {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public ComputeFailure clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      ComputeFailure other = (ComputeFailure) obj;
+      return (getId() == other.getId()) &&
+          JodaBeanUtils.equal(getFunctionId(), other.getFunctionId()) &&
+          JodaBeanUtils.equal(getExceptionClass(), other.getExceptionClass()) &&
+          JodaBeanUtils.equal(getExceptionMsg(), other.getExceptionMsg()) &&
+          JodaBeanUtils.equal(getStackTrace(), other.getStackTrace());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFunctionId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExceptionClass());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExceptionMsg());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getStackTrace());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(192);
+    buf.append("ComputeFailure{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("id").append('=').append(JodaBeanUtils.toString(getId())).append(',').append(' ');
+    buf.append("functionId").append('=').append(JodaBeanUtils.toString(getFunctionId())).append(',').append(' ');
+    buf.append("exceptionClass").append('=').append(JodaBeanUtils.toString(getExceptionClass())).append(',').append(' ');
+    buf.append("exceptionMsg").append('=').append(JodaBeanUtils.toString(getExceptionMsg())).append(',').append(' ');
+    buf.append("stackTrace").append('=').append(JodaBeanUtils.toString(getStackTrace())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code ComputeFailure}.
    */
@@ -373,6 +362,46 @@ public class ComputeFailure extends DirectBean {
      */
     public final MetaProperty<String> stackTrace() {
       return _stackTrace;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 3355:  // id
+          return ((ComputeFailure) bean).getId();
+        case -62789869:  // functionId
+          return ((ComputeFailure) bean).getFunctionId();
+        case -71056791:  // exceptionClass
+          return ((ComputeFailure) bean).getExceptionClass();
+        case -268220238:  // exceptionMsg
+          return ((ComputeFailure) bean).getExceptionMsg();
+        case 2026279837:  // stackTrace
+          return ((ComputeFailure) bean).getStackTrace();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 3355:  // id
+          ((ComputeFailure) bean).setId((Long) newValue);
+          return;
+        case -62789869:  // functionId
+          ((ComputeFailure) bean).setFunctionId((String) newValue);
+          return;
+        case -71056791:  // exceptionClass
+          ((ComputeFailure) bean).setExceptionClass((String) newValue);
+          return;
+        case -268220238:  // exceptionMsg
+          ((ComputeFailure) bean).setExceptionMsg((String) newValue);
+          return;
+        case 2026279837:  // stackTrace
+          ((ComputeFailure) bean).setStackTrace((String) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

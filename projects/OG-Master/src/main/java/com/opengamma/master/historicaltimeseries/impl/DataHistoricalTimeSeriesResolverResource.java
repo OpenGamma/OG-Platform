@@ -132,7 +132,7 @@ public class DataHistoricalTimeSeriesResolverResource extends AbstractDataResour
       }
       return responseOk(response);
     }
-    
+
     @GET
     @Path("adjustment")
     public Response adjustment(@QueryParam("id") List<String> idStrs) {
@@ -152,5 +152,5 @@ public class DataHistoricalTimeSeriesResolverResource extends AbstractDataResour
   public Resolve resolve() {
     return new Resolve(null, null, null, null, null, null);
   }
-  
+
 }

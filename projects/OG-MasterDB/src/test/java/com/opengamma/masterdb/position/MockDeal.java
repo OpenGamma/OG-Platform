@@ -21,6 +21,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.master.position.Deal;
 import com.opengamma.util.ArgumentChecker;
+import org.joda.beans.Bean;
 
 /**
  * Mock deal for testing purpose
@@ -54,6 +55,7 @@ import com.opengamma.util.ArgumentChecker;
   public static MockDeal.Meta meta() {
     return MockDeal.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(MockDeal.Meta.INSTANCE);
   }
@@ -61,51 +63,6 @@ import com.opengamma.util.ArgumentChecker;
   @Override
   public MockDeal.Meta metaBean() {
     return MockDeal.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1357581393:  // propertyOne
-        return getPropertyOne();
-      case 1357586487:  // propertyTwo
-        return getPropertyTwo();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1357581393:  // propertyOne
-        setPropertyOne((String) newValue);
-        return;
-      case 1357586487:  // propertyTwo
-        setPropertyTwo((String) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      MockDeal other = (MockDeal) obj;
-      return JodaBeanUtils.equal(getPropertyOne(), other.getPropertyOne()) &&
-          JodaBeanUtils.equal(getPropertyTwo(), other.getPropertyTwo());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPropertyOne());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPropertyTwo());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -156,6 +113,51 @@ import com.opengamma.util.ArgumentChecker;
    */
   public final Property<String> propertyTwo() {
     return metaBean().propertyTwo().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public MockDeal clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      MockDeal other = (MockDeal) obj;
+      return JodaBeanUtils.equal(getPropertyOne(), other.getPropertyOne()) &&
+          JodaBeanUtils.equal(getPropertyTwo(), other.getPropertyTwo());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPropertyOne());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPropertyTwo());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(96);
+    buf.append("MockDeal{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("propertyOne").append('=').append(JodaBeanUtils.toString(getPropertyOne())).append(',').append(' ');
+    buf.append("propertyTwo").append('=').append(JodaBeanUtils.toString(getPropertyTwo())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -233,6 +235,31 @@ import com.opengamma.util.ArgumentChecker;
      */
     public final MetaProperty<String> propertyTwo() {
       return _propertyTwo;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1357581393:  // propertyOne
+          return ((MockDeal) bean).getPropertyOne();
+        case 1357586487:  // propertyTwo
+          return ((MockDeal) bean).getPropertyTwo();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1357581393:  // propertyOne
+          ((MockDeal) bean).setPropertyOne((String) newValue);
+          return;
+        case 1357586487:  // propertyTwo
+          ((MockDeal) bean).setPropertyTwo((String) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

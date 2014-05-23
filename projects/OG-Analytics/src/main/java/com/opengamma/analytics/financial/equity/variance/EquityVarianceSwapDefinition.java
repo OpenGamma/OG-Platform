@@ -8,6 +8,7 @@ package com.opengamma.analytics.financial.equity.variance;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.analytics.financial.instrument.InstrumentDefinitionUtils;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.varianceswap.VarianceSwapDefinition;
 import com.opengamma.analytics.util.time.TimeCalculator;
@@ -129,7 +130,7 @@ public class EquityVarianceSwapDefinition extends VarianceSwapDefinition {
     }
     final double[] observations = realizedTS.valuesArrayFast();
     final double[] observationWeights = {}; // TODO Case 2011-06-29 Calendar Add functionality for non-trivial weighting of observations
-    final int nGoodBusinessDays = countExpectedGoodDays(getObsStartDate().toLocalDate(), valueDate.toLocalDate(), getCalendar(), getObsFreq());
+    final int nGoodBusinessDays = InstrumentDefinitionUtils.countExpectedGoodDays(getObsStartDate().toLocalDate(), valueDate.toLocalDate(), getCalendar(), getObsFreq());
     final int nObsDisrupted = nGoodBusinessDays - observations.length;
     ArgumentChecker.isTrue(nObsDisrupted >= 0, "Have more observations {} than good business days {}", observations.length, nGoodBusinessDays);
     return new EquityVarianceSwap(timeToObsStart, timeToObsEnd, timeToSettlement, getVarStrike(), getVarNotional(), getCurrency(),
@@ -166,13 +167,12 @@ public class EquityVarianceSwapDefinition extends VarianceSwapDefinition {
     }
     final double[] observations = realizedTS.valuesArrayFast();
     final double[] observationWeights = {}; // TODO Case 2011-06-29 Calendar Add functionality for non-trivial weighting of observations
-    final int nGoodBusinessDays = countExpectedGoodDays(getObsStartDate().toLocalDate(), valueDate.toLocalDate(), getCalendar(), getObsFreq());
+    final int nGoodBusinessDays = InstrumentDefinitionUtils.countExpectedGoodDays(getObsStartDate().toLocalDate(), valueDate.toLocalDate(), getCalendar(), getObsFreq());
     final int nObsDisrupted = nGoodBusinessDays - observations.length;
     ArgumentChecker.isTrue(nObsDisrupted >= 0, "Have more observations {} than good business days {}", observations.length, nGoodBusinessDays);
     return new EquityVarianceSwap(timeToObsStart, timeToObsEnd, timeToSettlement, getVarStrike(), getVarNotional(), getCurrency(),
         getAnnualizationFactor(), getObsExpected(), nObsDisrupted, observations, observationWeights, correctForDividends());
   }
-
 
   @Override
   public int hashCode() {

@@ -9,10 +9,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
@@ -49,12 +47,16 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
  */
 public class YieldCurveInstrumentConversionHistoricalTimeSeriesFunction extends AbstractFunction.NonCompiledInvoker {
 
-  private InterestRateInstrumentTradeOrSecurityConverter _securityConverter;
   private FixedIncomeConverterDataProvider _definitionConverter;
   private CurveCalculationConfigSource _curveCalculationConfig;
 
-  protected InterestRateInstrumentTradeOrSecurityConverter getSecurityConverter() {
-    return _securityConverter;
+  protected InterestRateInstrumentTradeOrSecurityConverter getSecurityConverter(final FunctionExecutionContext context) {
+    final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(context);
+    final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(context);
+    final ConventionBundleSource conventionSource = OpenGammaExecutionContext.getConventionBundleSource(context);
+    final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(context);
+    return new InterestRateInstrumentTradeOrSecurityConverter(holidaySource, conventionSource, regionSource, securitySource, true, context.getComputationTargetResolver()
+        .getVersionCorrection());
   }
 
   protected FixedIncomeConverterDataProvider getDefinitionConverter() {
@@ -67,16 +69,11 @@ public class YieldCurveInstrumentConversionHistoricalTimeSeriesFunction extends 
 
   @Override
   public void init(final FunctionCompilationContext context) {
-    final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
-    final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
-    final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
+    final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context); // TODO [PLAT-5966] Remove
     final HistoricalTimeSeriesResolver timeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
-    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
-    _securityConverter = new InterestRateInstrumentTradeOrSecurityConverter(holidaySource, conventionSource, regionSource, securitySource, true);
-    _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver);
-    _curveCalculationConfig = new ConfigDBCurveCalculationConfigSource(configSource);
-    ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
+    _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource, securitySource, timeSeriesResolver);
+    _curveCalculationConfig = ConfigDBCurveCalculationConfigSource.init(context, this);
   }
 
   @Override
@@ -86,19 +83,18 @@ public class YieldCurveInstrumentConversionHistoricalTimeSeriesFunction extends 
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    return Collections.singleton(new ValueSpecification(ValueRequirementNames.YIELD_CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES, target.toSpecification(),
-        createValueProperties()
-            .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG).get()));
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.YIELD_CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES, target.toSpecification(), createValueProperties()
+        .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG).get()));
   }
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    final Set<String> curveCalculationConfigs = desiredValue.getConstraints().getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
-    if ((curveCalculationConfigs == null) || (curveCalculationConfigs.size() != 1)) {
+    final String curveCalculationConfigName = desiredValue.getConstraints().getStrictValue(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
+    if (curveCalculationConfigName == null) {
       return null;
     }
     final Set<ValueRequirement> requirements = new HashSet<>();
-    final MultiCurveCalculationConfig curveCalculationConfig = getCurveCalculationConfig().getConfig(Iterables.getOnlyElement(curveCalculationConfigs));
+    final MultiCurveCalculationConfig curveCalculationConfig = getCurveCalculationConfig().getConfig(curveCalculationConfigName);
     for (final String curveName : curveCalculationConfig.getYieldCurveNames()) {
       final ValueProperties properties = ValueProperties.with(ValuePropertyNames.CURVE, curveName).get();
       requirements.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, target.toSpecification(), properties));
@@ -113,6 +109,7 @@ public class YieldCurveInstrumentConversionHistoricalTimeSeriesFunction extends 
     final Set<ValueRequirement> timeSeriesRequirements = new HashSet<>();
     final HistoricalTimeSeriesBundle timeSeries = new HistoricalTimeSeriesBundle();
     final ComputationTargetSpecification targetSpec = target.toSpecification();
+    final InterestRateInstrumentTradeOrSecurityConverter securityConverter = getSecurityConverter(executionContext);
     for (final ComputedValue input : inputs.getAllValues()) {
       if (!input.getSpecification().getValueName().equals(ValueRequirementNames.YIELD_CURVE_SPEC)) {
         continue;
@@ -120,7 +117,7 @@ public class YieldCurveInstrumentConversionHistoricalTimeSeriesFunction extends 
       final String curveName = input.getSpecification().getProperty(ValuePropertyNames.CURVE);
       final InterpolatedYieldCurveSpecificationWithSecurities curve = (InterpolatedYieldCurveSpecificationWithSecurities) input.getValue();
       for (final FixedIncomeStripWithSecurity strip : curve.getStrips()) {
-        final InstrumentDefinition<?> definition = getSecurityConverter().visit(strip.getSecurity());
+        final InstrumentDefinition<?> definition = securityConverter.visit(strip.getSecurity());
         final Set<ValueRequirement> requirements = getDefinitionConverter().getConversionTimeSeriesRequirements(strip.getSecurity(), definition);
         if (requirements == null) {
           throw new OpenGammaRuntimeException("Can't get time series requirements for " + strip + " on " + curveName);
@@ -138,7 +135,8 @@ public class YieldCurveInstrumentConversionHistoricalTimeSeriesFunction extends 
       }
     }
     final ValueProperties properties = createValueProperties().with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName).get();
-    return Collections.singleton(new ComputedValue(new ValueSpecification(ValueRequirementNames.YIELD_CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES, targetSpec, properties), timeSeries));
+    return Collections
+        .singleton(new ComputedValue(new ValueSpecification(ValueRequirementNames.YIELD_CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES, targetSpec, properties), timeSeries));
   }
 
 }

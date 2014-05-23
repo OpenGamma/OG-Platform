@@ -23,5 +23,6 @@
     "securities": [
         {"scheme": "BLOOMBERG_TICKER", "value": "AAPL US Equity" }
     ],
-    "attributes": {}
+    "attributes": {},
+    "xml":"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<bean type=\"com.opengamma.master.position.ManageablePosition\">\n <uniqueId>MemPos~1<\/uniqueId>\n <quantity>50<\/quantity>\n <securityLink>\n  <externalId>\n   <externalIds>\n    <item>BLOOMBERG_TICKER~AAPL US Equity<\/item>\n   <\/externalIds>\n  <\/externalId>\n <\/securityLink>\n <trades>\n  <item>\n   <uniqueId>MemPos~2<\/uniqueId>\n   <parentPositionId>MemPos~1<\/parentPositionId>\n   <quantity>50<\/quantity>\n   <securityLink>\n    <externalId>\n     <externalIds>\n      <item>BLOOMBERG_TICKER~AAPL US Equity<\/item>\n     <\/externalIds>\n    <\/externalId>\n   <\/securityLink>\n   <counterpartyExternalId>COUNTER_PARTY~BACS<\/counterpartyExternalId>\n   <tradeDate>2011-12-07<\/tradeDate>\n   <tradeTime>15:04+01:00<\/tradeTime>\n   <premium>10.0<\/premium>\n   <premiumCurrency>USD<\/premiumCurrency>\n   <premiumDate>2011-12-08<\/premiumDate>\n   <premiumTime>15:04+01:00<\/premiumTime>\n   <attributes\/>\n  <\/item>\n <\/trades>\n <attributes\/>\n<\/bean>\n"
 }

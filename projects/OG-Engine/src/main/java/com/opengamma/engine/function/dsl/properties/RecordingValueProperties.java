@@ -8,9 +8,12 @@ package com.opengamma.engine.function.dsl.properties;
 import com.opengamma.lambdava.streams.Stream;
 import com.opengamma.lambdava.streams.StreamI;
 
-public class RecordingValueProperties {
+/**
+ * Properties.
+ */
+public final class RecordingValueProperties {
 
-  StreamI<ValuePropertiesModifier> _recordedValueProperties = Stream.empty();
+  private StreamI<ValuePropertiesModifier> _recordedValueProperties = Stream.empty();
   private String _copiedFrom;
 
   private RecordingValueProperties(String copiedFrom) {

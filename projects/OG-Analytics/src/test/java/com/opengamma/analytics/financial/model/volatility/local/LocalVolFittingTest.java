@@ -59,12 +59,14 @@ import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResults;
 import com.opengamma.analytics.math.statistics.leastsquare.NonLinearLeastSquareWithPenalty;
 import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
 import com.opengamma.analytics.math.surface.Surface;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * This is a very basic attempt at PLAT-2215 (Local Volatility Calibration from Forward PDE). This does not converge. It is not clear if this is because the method is
  * unsound or the implementation is faulty
  */
+@Test(groups = TestGroup.UNIT)
 public class LocalVolFittingTest {
   private final MatrixAlgebra _algebra = new ColtMatrixAlgebra();
   private static ParameterLimitsTransform TRANSFORM = new SingleRangeLimitTransform(0.0, LimitType.GREATER_THAN);
@@ -400,7 +402,7 @@ public class LocalVolFittingTest {
 
       @Override
       public Double evaluate(final Double... x) {
-        final DoublesPair data = new DoublesPair(x[0], x[1]);
+        final DoublesPair data = DoublesPair.of(x[0].doubleValue(), x[1].doubleValue());
         return INTERPOLATOR.interpolate(idb, data);
       }
     };

@@ -7,6 +7,7 @@ package com.opengamma.financial.security.fx;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -21,12 +22,14 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.id.ExternalId;
+import com.opengamma.master.security.SecurityDescription;
 import com.opengamma.util.money.Currency;
 
 /**
  * A security for FX forwards.
  */
 @BeanDefinition
+@SecurityDescription(type = FXForwardSecurity.SECURITY_TYPE, description = "Fx forward")
 public class FXForwardSecurity extends FinancialSecurity {
 
   /** Serialization version. */
@@ -109,89 +112,6 @@ public class FXForwardSecurity extends FinancialSecurity {
   @Override
   public FXForwardSecurity.Meta metaBean() {
     return FXForwardSecurity.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -295641895:  // payCurrency
-        return getPayCurrency();
-      case -1338781920:  // payAmount
-        return getPayAmount();
-      case -1228590060:  // receiveCurrency
-        return getReceiveCurrency();
-      case 984267035:  // receiveAmount
-        return getReceiveAmount();
-      case 1652755475:  // forwardDate
-        return getForwardDate();
-      case -690339025:  // regionId
-        return getRegionId();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -295641895:  // payCurrency
-        setPayCurrency((Currency) newValue);
-        return;
-      case -1338781920:  // payAmount
-        setPayAmount((Double) newValue);
-        return;
-      case -1228590060:  // receiveCurrency
-        setReceiveCurrency((Currency) newValue);
-        return;
-      case 984267035:  // receiveAmount
-        setReceiveAmount((Double) newValue);
-        return;
-      case 1652755475:  // forwardDate
-        setForwardDate((ZonedDateTime) newValue);
-        return;
-      case -690339025:  // regionId
-        setRegionId((ExternalId) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_payCurrency, "payCurrency");
-    JodaBeanUtils.notNull(_receiveCurrency, "receiveCurrency");
-    JodaBeanUtils.notNull(_forwardDate, "forwardDate");
-    JodaBeanUtils.notNull(_regionId, "regionId");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      FXForwardSecurity other = (FXForwardSecurity) obj;
-      return JodaBeanUtils.equal(getPayCurrency(), other.getPayCurrency()) &&
-          JodaBeanUtils.equal(getPayAmount(), other.getPayAmount()) &&
-          JodaBeanUtils.equal(getReceiveCurrency(), other.getReceiveCurrency()) &&
-          JodaBeanUtils.equal(getReceiveAmount(), other.getReceiveAmount()) &&
-          JodaBeanUtils.equal(getForwardDate(), other.getForwardDate()) &&
-          JodaBeanUtils.equal(getRegionId(), other.getRegionId()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPayCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPayAmount());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getReceiveCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getReceiveAmount());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getForwardDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionId());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -349,6 +269,66 @@ public class FXForwardSecurity extends FinancialSecurity {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public FXForwardSecurity clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      FXForwardSecurity other = (FXForwardSecurity) obj;
+      return JodaBeanUtils.equal(getPayCurrency(), other.getPayCurrency()) &&
+          JodaBeanUtils.equal(getPayAmount(), other.getPayAmount()) &&
+          JodaBeanUtils.equal(getReceiveCurrency(), other.getReceiveCurrency()) &&
+          JodaBeanUtils.equal(getReceiveAmount(), other.getReceiveAmount()) &&
+          JodaBeanUtils.equal(getForwardDate(), other.getForwardDate()) &&
+          JodaBeanUtils.equal(getRegionId(), other.getRegionId()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPayCurrency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPayAmount());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getReceiveCurrency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getReceiveAmount());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getForwardDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionId());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(224);
+    buf.append("FXForwardSecurity{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("payCurrency").append('=').append(JodaBeanUtils.toString(getPayCurrency())).append(',').append(' ');
+    buf.append("payAmount").append('=').append(JodaBeanUtils.toString(getPayAmount())).append(',').append(' ');
+    buf.append("receiveCurrency").append('=').append(JodaBeanUtils.toString(getReceiveCurrency())).append(',').append(' ');
+    buf.append("receiveAmount").append('=').append(JodaBeanUtils.toString(getReceiveAmount())).append(',').append(' ');
+    buf.append("forwardDate").append('=').append(JodaBeanUtils.toString(getForwardDate())).append(',').append(' ');
+    buf.append("regionId").append('=').append(JodaBeanUtils.toString(getRegionId())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code FXForwardSecurity}.
    */
@@ -487,6 +467,60 @@ public class FXForwardSecurity extends FinancialSecurity {
      */
     public final MetaProperty<ExternalId> regionId() {
       return _regionId;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -295641895:  // payCurrency
+          return ((FXForwardSecurity) bean).getPayCurrency();
+        case -1338781920:  // payAmount
+          return ((FXForwardSecurity) bean).getPayAmount();
+        case -1228590060:  // receiveCurrency
+          return ((FXForwardSecurity) bean).getReceiveCurrency();
+        case 984267035:  // receiveAmount
+          return ((FXForwardSecurity) bean).getReceiveAmount();
+        case 1652755475:  // forwardDate
+          return ((FXForwardSecurity) bean).getForwardDate();
+        case -690339025:  // regionId
+          return ((FXForwardSecurity) bean).getRegionId();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -295641895:  // payCurrency
+          ((FXForwardSecurity) bean).setPayCurrency((Currency) newValue);
+          return;
+        case -1338781920:  // payAmount
+          ((FXForwardSecurity) bean).setPayAmount((Double) newValue);
+          return;
+        case -1228590060:  // receiveCurrency
+          ((FXForwardSecurity) bean).setReceiveCurrency((Currency) newValue);
+          return;
+        case 984267035:  // receiveAmount
+          ((FXForwardSecurity) bean).setReceiveAmount((Double) newValue);
+          return;
+        case 1652755475:  // forwardDate
+          ((FXForwardSecurity) bean).setForwardDate((ZonedDateTime) newValue);
+          return;
+        case -690339025:  // regionId
+          ((FXForwardSecurity) bean).setRegionId((ExternalId) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((FXForwardSecurity) bean)._payCurrency, "payCurrency");
+      JodaBeanUtils.notNull(((FXForwardSecurity) bean)._receiveCurrency, "receiveCurrency");
+      JodaBeanUtils.notNull(((FXForwardSecurity) bean)._forwardDate, "forwardDate");
+      JodaBeanUtils.notNull(((FXForwardSecurity) bean)._regionId, "regionId");
+      super.validate(bean);
     }
 
   }

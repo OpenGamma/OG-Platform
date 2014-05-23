@@ -98,7 +98,7 @@ public class YieldPeriodicCurve extends YieldAndDiscountCurve {
   @Override
   public double getPeriodicInterestRate(final double t, final int compoundingPeriodsPerYear) {
     if (compoundingPeriodsPerYear == _compoundingPeriodsPerYear) {
-      _curve.getYValue(t);
+      return _curve.getYValue(t);
     }
     final InterestRate rc = new PeriodicInterestRate(_curve.getYValue(t), _compoundingPeriodsPerYear);
     // Implementation note: rate in the composition of the storage.
@@ -136,6 +136,14 @@ public class YieldPeriodicCurve extends YieldAndDiscountCurve {
    */
   public Curve<Double, Double> getCurve() {
     return _curve;
+  }
+  
+  /**
+   * Returns the number of compounding periods per year.
+   * @return the number of compounding periods per year.
+   */
+  public int getCompoundingPeriodsPerYear() {
+    return _compoundingPeriodsPerYear;
   }
 
   @Override

@@ -37,6 +37,7 @@ import com.opengamma.examples.bloomberg.loader.ExampleVanillaFxOptionPortfolioLo
 import com.opengamma.examples.bloomberg.loader.ExampleViewsPopulator;
 import com.opengamma.examples.bloomberg.loader.FXSpotRateHistoricalDataLoader;
 import com.opengamma.financial.analytics.volatility.surface.FXOptionVolatilitySurfaceConfigPopulator;
+import com.opengamma.financial.convention.initializer.DefaultConventionMasterInitializer;
 import com.opengamma.financial.currency.CurrencyMatrixConfigPopulator;
 import com.opengamma.financial.currency.CurrencyPairsConfigPopulator;
 import com.opengamma.financial.generator.AbstractPortfolioGeneratorTool;
@@ -47,6 +48,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.integration.tool.IntegrationToolContext;
 import com.opengamma.master.config.ConfigMaster;
+import com.opengamma.master.convention.ConventionMaster;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.SecuritySearchRequest;
@@ -79,27 +81,24 @@ public class ExampleDatabasePopulator extends AbstractTool<IntegrationToolContex
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(ExampleDatabasePopulator.class);
 
-  //-------------------------------------------------------------------------
-  /**
-   * Main method to run the tool. No arguments are needed.
-   *
-   * @param args  the arguments, unused
-   */
-  public static void main(final String[] args) { // CSIGNORE
-    s_logger.info("Populating example database");
-    try {
-      new ExampleDatabasePopulator().initAndRun(args, TOOLCONTEXT_EXAMPLE_PROPERTIES, null, IntegrationToolContext.class);
-    } catch (final Exception ex) {
-      s_logger.error("Caught exception", ex);
-      ex.printStackTrace();
-    }
-  }
-
   private final Set<ExternalIdBundle> _futuresToLoad = new HashSet<>();
   private final Set<ExternalId> _historicalDataToLoad = new HashSet<>();
 
+  //-------------------------------------------------------------------------
+  /**
+   * Main method to run the tool.
+   * 
+   * @param args  the standard tool arguments, not null
+   */
+  public static void main(final String[] args) { // CSIGNORE
+    s_logger.info("Populating example database");
+    new ExampleDatabasePopulator().invokeAndTerminate(args, TOOLCONTEXT_EXAMPLE_PROPERTIES, null);
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   protected void doRun() {
+    loadConventions();
     loadCurrencyConfiguration();
     loadCurveAndSurfaceDefinitions();
     loadCurveCalculationConfigurations();
@@ -163,6 +162,17 @@ public class ExampleDatabasePopulator extends AbstractTool<IntegrationToolContex
     final BloombergExamplePortfolioGeneratorTool tool = new BloombergExamplePortfolioGeneratorTool();
     tool.setCounterPartyGenerator(new StaticNameGenerator(AbstractPortfolioGeneratorTool.DEFAULT_COUNTER_PARTY));
     return tool;
+  }
+
+  private void loadConventions() {
+    final Log log = new Log("Creating convention data");
+    try {
+      ConventionMaster master = getToolContext().getConventionMaster();
+      DefaultConventionMasterInitializer.INSTANCE.init(master);
+      log.done();
+    } catch (final RuntimeException t) {
+      log.fail(t);
+    }
   }
 
   private void loadCurrencyConfiguration() {

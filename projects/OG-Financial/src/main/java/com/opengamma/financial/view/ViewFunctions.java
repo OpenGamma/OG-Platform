@@ -28,6 +28,8 @@ public class ViewFunctions extends AbstractFunctionConfigurationBean {
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
     functions.add(functionConfiguration(HistoricalViewEvaluationFunction.class));
+    functions.add(functionConfiguration(MergedOutputPositionFunction.class));
+    functions.add(functionConfiguration(MergedOutputLinearAggregationPortfolioNodeFunction.class));
   }
 
 }

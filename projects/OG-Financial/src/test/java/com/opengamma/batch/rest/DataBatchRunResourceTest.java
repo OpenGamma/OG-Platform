@@ -37,6 +37,7 @@ import com.opengamma.util.paging.Paging;
 import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
@@ -61,7 +62,8 @@ public class DataBatchRunResourceTest {
       newHashSet(new RiskRunProperty()),
       false,
       VersionCorrection.LATEST,
-      UniqueId.of("Scheme", "view-def")
+      UniqueId.of("Scheme", "view-def"),
+      "cycle_name"
     );
     
     _underlying = mock(BatchMaster.class);
@@ -94,11 +96,12 @@ public class DataBatchRunResourceTest {
     List<ViewResultEntry> viewResultEntries = newArrayList(mockViewResultEntry);
     Paging paging = Paging.of(pagingRequest, viewResultEntries);
     
-    when(_underlying.getBatchValues(_riskRunId, pagingRequest)).thenReturn(Pair.of(viewResultEntries, paging));
+    when(_underlying.getBatchValues(_riskRunId, pagingRequest)).thenReturn(Pairs.of(viewResultEntries, paging));
     Response response = _resource.getBatchValues(pagingRequest);
     
-    FudgeResponse entity = (FudgeResponse) response.getEntity();
-    Pair<List<ViewResultEntry>, Paging> result = (Pair<List<ViewResultEntry>, Paging>) entity.getValue();
+    Object entity = response.getEntity();
+    entity = FudgeResponse.unwrap(entity);
+    Pair<List<ViewResultEntry>, Paging> result = (Pair<List<ViewResultEntry>, Paging>) entity;
     
     assertEquals(Status.OK.getStatusCode(), response.getStatus());
     assertSame(result.getFirst().size(), 1);

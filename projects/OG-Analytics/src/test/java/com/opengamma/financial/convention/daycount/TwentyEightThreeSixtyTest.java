@@ -9,9 +9,12 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class TwentyEightThreeSixtyTest extends DayCountTestCase {
   private static final TwentyEightThreeSixty DC = new TwentyEightThreeSixty();
 
@@ -23,7 +26,7 @@ public class TwentyEightThreeSixtyTest extends DayCountTestCase {
   @Test
   public void test() {
     assertEquals(COUPON * DC.getDayCountFraction(D1, D2), DC.getAccruedInterest(D1, D2, D3, COUPON, PAYMENTS), 0);
-    assertEquals(DC.getConventionName(), "28/360");
+    assertEquals(DC.getName(), "28/360");
     final LocalDate d1 = LocalDate.of(2012, 7, 2);
     final LocalDate d2 = LocalDate.of(2012, 7, 28);
     final LocalDate d3 = LocalDate.of(2012, 8, 2);

@@ -13,6 +13,7 @@ import java.util.Set;
 import net.sf.ehcache.CacheManager;
 
 import org.apache.commons.lang.text.StrBuilder;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -176,102 +177,6 @@ public class PriorityResolvingCombiningLiveDataServerComponentFactory extends Ab
   @Override
   public PriorityResolvingCombiningLiveDataServerComponentFactory.Meta metaBean() {
     return PriorityResolvingCombiningLiveDataServerComponentFactory.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 39794031:  // dbConnector
-        return getDbConnector();
-      case -1452875317:  // cacheManager
-        return getCacheManager();
-      case 1984149838:  // server1
-        return getServer1();
-      case 1984149839:  // server2
-        return getServer2();
-      case 1984149840:  // server3
-        return getServer3();
-      case 1984149841:  // server4
-        return getServer4();
-      case 1984149842:  // server5
-        return getServer5();
-      case 1984149843:  // server6
-        return getServer6();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 39794031:  // dbConnector
-        setDbConnector((DbConnector) newValue);
-        return;
-      case -1452875317:  // cacheManager
-        setCacheManager((CacheManager) newValue);
-        return;
-      case 1984149838:  // server1
-        setServer1((ComponentInfo) newValue);
-        return;
-      case 1984149839:  // server2
-        setServer2((ComponentInfo) newValue);
-        return;
-      case 1984149840:  // server3
-        setServer3((ComponentInfo) newValue);
-        return;
-      case 1984149841:  // server4
-        setServer4((ComponentInfo) newValue);
-        return;
-      case 1984149842:  // server5
-        setServer5((ComponentInfo) newValue);
-        return;
-      case 1984149843:  // server6
-        setServer6((ComponentInfo) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_dbConnector, "dbConnector");
-    JodaBeanUtils.notNull(_cacheManager, "cacheManager");
-    JodaBeanUtils.notNull(_server1, "server1");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      PriorityResolvingCombiningLiveDataServerComponentFactory other = (PriorityResolvingCombiningLiveDataServerComponentFactory) obj;
-      return JodaBeanUtils.equal(getDbConnector(), other.getDbConnector()) &&
-          JodaBeanUtils.equal(getCacheManager(), other.getCacheManager()) &&
-          JodaBeanUtils.equal(getServer1(), other.getServer1()) &&
-          JodaBeanUtils.equal(getServer2(), other.getServer2()) &&
-          JodaBeanUtils.equal(getServer3(), other.getServer3()) &&
-          JodaBeanUtils.equal(getServer4(), other.getServer4()) &&
-          JodaBeanUtils.equal(getServer5(), other.getServer5()) &&
-          JodaBeanUtils.equal(getServer6(), other.getServer6()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDbConnector());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getServer1());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getServer2());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getServer3());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getServer4());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getServer5());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getServer6());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -478,6 +383,72 @@ public class PriorityResolvingCombiningLiveDataServerComponentFactory extends Ab
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public PriorityResolvingCombiningLiveDataServerComponentFactory clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      PriorityResolvingCombiningLiveDataServerComponentFactory other = (PriorityResolvingCombiningLiveDataServerComponentFactory) obj;
+      return JodaBeanUtils.equal(getDbConnector(), other.getDbConnector()) &&
+          JodaBeanUtils.equal(getCacheManager(), other.getCacheManager()) &&
+          JodaBeanUtils.equal(getServer1(), other.getServer1()) &&
+          JodaBeanUtils.equal(getServer2(), other.getServer2()) &&
+          JodaBeanUtils.equal(getServer3(), other.getServer3()) &&
+          JodaBeanUtils.equal(getServer4(), other.getServer4()) &&
+          JodaBeanUtils.equal(getServer5(), other.getServer5()) &&
+          JodaBeanUtils.equal(getServer6(), other.getServer6()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDbConnector());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getServer1());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getServer2());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getServer3());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getServer4());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getServer5());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getServer6());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(288);
+    buf.append("PriorityResolvingCombiningLiveDataServerComponentFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("dbConnector").append('=').append(JodaBeanUtils.toString(getDbConnector())).append(',').append(' ');
+    buf.append("cacheManager").append('=').append(JodaBeanUtils.toString(getCacheManager())).append(',').append(' ');
+    buf.append("server1").append('=').append(JodaBeanUtils.toString(getServer1())).append(',').append(' ');
+    buf.append("server2").append('=').append(JodaBeanUtils.toString(getServer2())).append(',').append(' ');
+    buf.append("server3").append('=').append(JodaBeanUtils.toString(getServer3())).append(',').append(' ');
+    buf.append("server4").append('=').append(JodaBeanUtils.toString(getServer4())).append(',').append(' ');
+    buf.append("server5").append('=').append(JodaBeanUtils.toString(getServer5())).append(',').append(' ');
+    buf.append("server6").append('=').append(JodaBeanUtils.toString(getServer6())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code PriorityResolvingCombiningLiveDataServerComponentFactory}.
    */
@@ -648,6 +619,69 @@ public class PriorityResolvingCombiningLiveDataServerComponentFactory extends Ab
      */
     public final MetaProperty<ComponentInfo> server6() {
       return _server6;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 39794031:  // dbConnector
+          return ((PriorityResolvingCombiningLiveDataServerComponentFactory) bean).getDbConnector();
+        case -1452875317:  // cacheManager
+          return ((PriorityResolvingCombiningLiveDataServerComponentFactory) bean).getCacheManager();
+        case 1984149838:  // server1
+          return ((PriorityResolvingCombiningLiveDataServerComponentFactory) bean).getServer1();
+        case 1984149839:  // server2
+          return ((PriorityResolvingCombiningLiveDataServerComponentFactory) bean).getServer2();
+        case 1984149840:  // server3
+          return ((PriorityResolvingCombiningLiveDataServerComponentFactory) bean).getServer3();
+        case 1984149841:  // server4
+          return ((PriorityResolvingCombiningLiveDataServerComponentFactory) bean).getServer4();
+        case 1984149842:  // server5
+          return ((PriorityResolvingCombiningLiveDataServerComponentFactory) bean).getServer5();
+        case 1984149843:  // server6
+          return ((PriorityResolvingCombiningLiveDataServerComponentFactory) bean).getServer6();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 39794031:  // dbConnector
+          ((PriorityResolvingCombiningLiveDataServerComponentFactory) bean).setDbConnector((DbConnector) newValue);
+          return;
+        case -1452875317:  // cacheManager
+          ((PriorityResolvingCombiningLiveDataServerComponentFactory) bean).setCacheManager((CacheManager) newValue);
+          return;
+        case 1984149838:  // server1
+          ((PriorityResolvingCombiningLiveDataServerComponentFactory) bean).setServer1((ComponentInfo) newValue);
+          return;
+        case 1984149839:  // server2
+          ((PriorityResolvingCombiningLiveDataServerComponentFactory) bean).setServer2((ComponentInfo) newValue);
+          return;
+        case 1984149840:  // server3
+          ((PriorityResolvingCombiningLiveDataServerComponentFactory) bean).setServer3((ComponentInfo) newValue);
+          return;
+        case 1984149841:  // server4
+          ((PriorityResolvingCombiningLiveDataServerComponentFactory) bean).setServer4((ComponentInfo) newValue);
+          return;
+        case 1984149842:  // server5
+          ((PriorityResolvingCombiningLiveDataServerComponentFactory) bean).setServer5((ComponentInfo) newValue);
+          return;
+        case 1984149843:  // server6
+          ((PriorityResolvingCombiningLiveDataServerComponentFactory) bean).setServer6((ComponentInfo) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((PriorityResolvingCombiningLiveDataServerComponentFactory) bean)._dbConnector, "dbConnector");
+      JodaBeanUtils.notNull(((PriorityResolvingCombiningLiveDataServerComponentFactory) bean)._cacheManager, "cacheManager");
+      JodaBeanUtils.notNull(((PriorityResolvingCombiningLiveDataServerComponentFactory) bean)._server1, "server1");
+      super.validate(bean);
     }
 
   }

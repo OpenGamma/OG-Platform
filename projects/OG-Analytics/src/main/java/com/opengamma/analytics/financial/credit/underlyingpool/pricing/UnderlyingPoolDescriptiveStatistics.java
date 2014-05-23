@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -42,7 +42,7 @@ public class UnderlyingPoolDescriptiveStatistics {
 
     for (int i = 0; i < numberOfObligorsInPool; i++) {
 
-      if (underlyingPool.getObligors()[i].getHasDefaulted() == true) {
+      if (underlyingPool.getObligors()[i].isHasDefaulted() == true) {
         numberOfDefaultedNames++;
       }
     }

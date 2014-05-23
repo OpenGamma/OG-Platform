@@ -8,11 +8,14 @@ package com.opengamma.batch.domain;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.opengamma.lambdava.streams.Lambdava.functional;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import com.opengamma.engine.value.ValueProperties;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -27,6 +30,8 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import com.opengamma.engine.value.ValueProperties;
 
 /**
  * Data model for a set of risk value properties.
@@ -60,13 +65,14 @@ public class RiskValueProperties extends DirectBean {
   public static String synthesize(ValueProperties requirement) {
     try {
       JSONObject json = new JSONObject();
-
-      if (ValueProperties.InfinitePropertiesImpl.class.isInstance(requirement)) {
+      if (ValueProperties.all() == requirement) {
         json.put("infinity", true).toString();
-      } else if (ValueProperties.NearlyInfinitePropertiesImpl.class.isInstance(requirement)) {
-        ValueProperties.NearlyInfinitePropertiesImpl nearlyInifite = (ValueProperties.NearlyInfinitePropertiesImpl) requirement;
+      } else if (ValueProperties.isNearInfiniteProperties(requirement)) {
+        //ValueProperties.NearlyInfinitePropertiesImpl nearlyInifite = (ValueProperties.NearlyInfinitePropertiesImpl) requirement;
+        final List<String> nearlyInfinite = new ArrayList<String>(ValueProperties.all().getUnsatisfied(requirement));
+        Collections.sort(nearlyInfinite);
         JSONArray without = new JSONArray();
-        for (String value : functional(nearlyInifite.getWithout()).sort()) {
+        for (String value : nearlyInfinite) {
           without.put(escape(ESCAPE_PATTERN, value));
         }
         json.put("without", without);
@@ -194,51 +200,6 @@ public class RiskValueProperties extends DirectBean {
     return RiskValueProperties.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 3355:  // id
-        return getId();
-      case 1545026985:  // syntheticForm
-        return getSyntheticForm();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 3355:  // id
-        setId((Integer) newValue);
-        return;
-      case 1545026985:  // syntheticForm
-        setSyntheticForm((String) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      RiskValueProperties other = (RiskValueProperties) obj;
-      return JodaBeanUtils.equal(getId(), other.getId()) &&
-          JodaBeanUtils.equal(getSyntheticForm(), other.getSyntheticForm());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSyntheticForm());
-    return hash;
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the id.
@@ -287,6 +248,51 @@ public class RiskValueProperties extends DirectBean {
    */
   public final Property<String> syntheticForm() {
     return metaBean().syntheticForm().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public RiskValueProperties clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      RiskValueProperties other = (RiskValueProperties) obj;
+      return (getId() == other.getId()) &&
+          JodaBeanUtils.equal(getSyntheticForm(), other.getSyntheticForm());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSyntheticForm());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(96);
+    buf.append("RiskValueProperties{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("id").append('=').append(JodaBeanUtils.toString(getId())).append(',').append(' ');
+    buf.append("syntheticForm").append('=').append(JodaBeanUtils.toString(getSyntheticForm())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -364,6 +370,31 @@ public class RiskValueProperties extends DirectBean {
      */
     public final MetaProperty<String> syntheticForm() {
       return _syntheticForm;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 3355:  // id
+          return ((RiskValueProperties) bean).getId();
+        case 1545026985:  // syntheticForm
+          return ((RiskValueProperties) bean).getSyntheticForm();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 3355:  // id
+          ((RiskValueProperties) bean).setId((Integer) newValue);
+          return;
+        case 1545026985:  // syntheticForm
+          ((RiskValueProperties) bean).setSyntheticForm((String) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

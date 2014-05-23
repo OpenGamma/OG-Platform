@@ -25,12 +25,14 @@ import com.opengamma.analytics.financial.provider.description.interestrate.SABRS
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests the method for interest rate future option with SABR volatility parameter surfaces.
  */
+@Test(groups = TestGroup.UNIT)
 public class InterestRateFutureOptionMarginSecuritySABRMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
@@ -53,7 +55,7 @@ public class InterestRateFutureOptionMarginSecuritySABRMethodTest {
   private static final InterestRateFutureSecurity EDU2 = EDU2_DEFINITION.toDerivative(REFERENCE_DATE);
   // Option
   private static final ZonedDateTime EXPIRATION_DATE = DateUtils.getUTCDate(2011, 9, 16);
-  private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+  private static final DayCount ACT_ACT = DayCounts.ACT_ACT_ISDA;
   private static final double EXPIRATION_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE, EXPIRATION_DATE);
   private static final boolean IS_CALL = true;
   private static final InterestRateFutureOptionMarginSecurity OPTION_EDU2 = new InterestRateFutureOptionMarginSecurity(EDU2, EXPIRATION_TIME, STRIKE, IS_CALL);
@@ -68,7 +70,7 @@ public class InterestRateFutureOptionMarginSecuritySABRMethodTest {
   public void priceFromFuturePriceMidCurve() {
     final double priceFuture = 0.9905;
     final double priceOption = METHOD_OPT_FUT_SEC_SABR.priceFromFuturePrice(OPTION_EDU2, SABR_MULTICURVES, priceFuture);
-    final double delay = EDU2.getLastTradingTime() - EXPIRATION_TIME;
+    final double delay = EDU2.getTradingLastTime() - EXPIRATION_TIME;
     final double volatility = SABR_PARAMETERS.getVolatility(EXPIRATION_TIME, delay, 1 - STRIKE, 1 - priceFuture);
     final BlackPriceFunction blackFunction = new BlackPriceFunction();
     final BlackFunctionData dataBlack = new BlackFunctionData(1 - priceFuture, 1.0, volatility);

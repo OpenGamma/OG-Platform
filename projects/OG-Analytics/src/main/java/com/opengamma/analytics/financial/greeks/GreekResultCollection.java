@@ -19,6 +19,7 @@ import org.apache.commons.lang.StringUtils;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * 
@@ -167,7 +168,7 @@ public class GreekResultCollection implements Iterable<Pair<Greek, Double>> {
     @Override
     public Pair<Greek, Double> next() {
       final Map.Entry<Greek, Double> nextEntry = _backingIterator.next();
-      return Pair.<Greek, Double>of(nextEntry.getKey(), nextEntry.getValue());
+      return Pairs.<Greek, Double>of(nextEntry.getKey(), nextEntry.getValue());
     }
 
     @Override

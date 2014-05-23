@@ -20,6 +20,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractRemoteClient;
 import com.opengamma.util.time.LocalDateRange;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Provides access to a remote time-series provider.
@@ -68,7 +69,7 @@ public class RemoteHistoricalTimeSeriesProvider extends AbstractRemoteClient imp
     if (series == null || series.isEmpty()) {
       return null;
     }
-    return Pair.of(series.getLatestTime(), series.getLatestValue());
+    return Pairs.of(series.getLatestTime(), series.getLatestValueFast());
   }
 
   @Override

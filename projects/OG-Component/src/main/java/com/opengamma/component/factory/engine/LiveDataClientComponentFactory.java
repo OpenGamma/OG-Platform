@@ -8,6 +8,7 @@ package com.opengamma.component.factory.engine;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -88,83 +89,6 @@ public class LiveDataClientComponentFactory extends AbstractComponentFactory {
   @Override
   public LiveDataClientComponentFactory.Meta metaBean() {
     return LiveDataClientComponentFactory.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        return getClassifier();
-      case -1495762275:  // jmsConnector
-        return getJmsConnector();
-      case 1191816722:  // subscriptionTopic
-        return getSubscriptionTopic();
-      case 397583362:  // entitlementTopic
-        return getEntitlementTopic();
-      case 1497737619:  // heartbeatTopic
-        return getHeartbeatTopic();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        setClassifier((String) newValue);
-        return;
-      case -1495762275:  // jmsConnector
-        setJmsConnector((JmsConnector) newValue);
-        return;
-      case 1191816722:  // subscriptionTopic
-        setSubscriptionTopic((String) newValue);
-        return;
-      case 397583362:  // entitlementTopic
-        setEntitlementTopic((String) newValue);
-        return;
-      case 1497737619:  // heartbeatTopic
-        setHeartbeatTopic((String) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_classifier, "classifier");
-    JodaBeanUtils.notNull(_jmsConnector, "jmsConnector");
-    JodaBeanUtils.notNull(_subscriptionTopic, "subscriptionTopic");
-    JodaBeanUtils.notNull(_entitlementTopic, "entitlementTopic");
-    JodaBeanUtils.notNull(_heartbeatTopic, "heartbeatTopic");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      LiveDataClientComponentFactory other = (LiveDataClientComponentFactory) obj;
-      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
-          JodaBeanUtils.equal(getJmsConnector(), other.getJmsConnector()) &&
-          JodaBeanUtils.equal(getSubscriptionTopic(), other.getSubscriptionTopic()) &&
-          JodaBeanUtils.equal(getEntitlementTopic(), other.getEntitlementTopic()) &&
-          JodaBeanUtils.equal(getHeartbeatTopic(), other.getHeartbeatTopic()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsConnector());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSubscriptionTopic());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getEntitlementTopic());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHeartbeatTopic());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -298,6 +222,63 @@ public class LiveDataClientComponentFactory extends AbstractComponentFactory {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public LiveDataClientComponentFactory clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      LiveDataClientComponentFactory other = (LiveDataClientComponentFactory) obj;
+      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
+          JodaBeanUtils.equal(getJmsConnector(), other.getJmsConnector()) &&
+          JodaBeanUtils.equal(getSubscriptionTopic(), other.getSubscriptionTopic()) &&
+          JodaBeanUtils.equal(getEntitlementTopic(), other.getEntitlementTopic()) &&
+          JodaBeanUtils.equal(getHeartbeatTopic(), other.getHeartbeatTopic()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsConnector());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSubscriptionTopic());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getEntitlementTopic());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getHeartbeatTopic());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(192);
+    buf.append("LiveDataClientComponentFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("jmsConnector").append('=').append(JodaBeanUtils.toString(getJmsConnector())).append(',').append(' ');
+    buf.append("subscriptionTopic").append('=').append(JodaBeanUtils.toString(getSubscriptionTopic())).append(',').append(' ');
+    buf.append("entitlementTopic").append('=').append(JodaBeanUtils.toString(getEntitlementTopic())).append(',').append(' ');
+    buf.append("heartbeatTopic").append('=').append(JodaBeanUtils.toString(getHeartbeatTopic())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code LiveDataClientComponentFactory}.
    */
@@ -420,6 +401,56 @@ public class LiveDataClientComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<String> heartbeatTopic() {
       return _heartbeatTopic;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          return ((LiveDataClientComponentFactory) bean).getClassifier();
+        case -1495762275:  // jmsConnector
+          return ((LiveDataClientComponentFactory) bean).getJmsConnector();
+        case 1191816722:  // subscriptionTopic
+          return ((LiveDataClientComponentFactory) bean).getSubscriptionTopic();
+        case 397583362:  // entitlementTopic
+          return ((LiveDataClientComponentFactory) bean).getEntitlementTopic();
+        case 1497737619:  // heartbeatTopic
+          return ((LiveDataClientComponentFactory) bean).getHeartbeatTopic();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          ((LiveDataClientComponentFactory) bean).setClassifier((String) newValue);
+          return;
+        case -1495762275:  // jmsConnector
+          ((LiveDataClientComponentFactory) bean).setJmsConnector((JmsConnector) newValue);
+          return;
+        case 1191816722:  // subscriptionTopic
+          ((LiveDataClientComponentFactory) bean).setSubscriptionTopic((String) newValue);
+          return;
+        case 397583362:  // entitlementTopic
+          ((LiveDataClientComponentFactory) bean).setEntitlementTopic((String) newValue);
+          return;
+        case 1497737619:  // heartbeatTopic
+          ((LiveDataClientComponentFactory) bean).setHeartbeatTopic((String) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((LiveDataClientComponentFactory) bean)._classifier, "classifier");
+      JodaBeanUtils.notNull(((LiveDataClientComponentFactory) bean)._jmsConnector, "jmsConnector");
+      JodaBeanUtils.notNull(((LiveDataClientComponentFactory) bean)._subscriptionTopic, "subscriptionTopic");
+      JodaBeanUtils.notNull(((LiveDataClientComponentFactory) bean)._entitlementTopic, "entitlementTopic");
+      JodaBeanUtils.notNull(((LiveDataClientComponentFactory) bean)._heartbeatTopic, "heartbeatTopic");
+      super.validate(bean);
     }
 
   }

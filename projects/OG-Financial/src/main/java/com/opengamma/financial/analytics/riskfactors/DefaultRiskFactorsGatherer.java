@@ -79,6 +79,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Default implementation of {@link RiskFactorsGatherer}.
@@ -712,7 +713,7 @@ public class DefaultRiskFactorsGatherer extends FinancialSecurityVisitorAdapter<
       constraints.with(ValuePropertyNames.CURRENCY, getConfigProvider().getCurrencyOverride().getCode());
     }
     constraints.with(ValuePropertyNames.AGGREGATION, MissingInputsFunction.AGGREGATION_STYLE_MISSING).withOptional(ValuePropertyNames.AGGREGATION);
-    return Pair.of(valueName, constraints.get());
+    return Pairs.of(valueName, constraints.get());
   }
 
   private ValueRequirement getValueRequirement(final Position position, final String valueName, final ValueProperties constraints) {

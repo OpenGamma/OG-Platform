@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.apache.commons.lang.text.StrBuilder;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -266,83 +267,6 @@ public class SimplePosition extends DirectBean
     return SimplePosition.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -294460212:  // uniqueId
-        return getUniqueId();
-      case -1285004149:  // quantity
-        return getQuantity();
-      case 807992154:  // securityLink
-        return getSecurityLink();
-      case -865715313:  // trades
-        return getTrades();
-      case 405645655:  // attributes
-        return getAttributes();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -294460212:  // uniqueId
-        setUniqueId((UniqueId) newValue);
-        return;
-      case -1285004149:  // quantity
-        setQuantity((BigDecimal) newValue);
-        return;
-      case 807992154:  // securityLink
-        setSecurityLink((SecurityLink) newValue);
-        return;
-      case -865715313:  // trades
-        setTrades((Collection<Trade>) newValue);
-        return;
-      case 405645655:  // attributes
-        setAttributes((Map<String, String>) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_uniqueId, "uniqueId");
-    JodaBeanUtils.notNull(_quantity, "quantity");
-    JodaBeanUtils.notNull(_securityLink, "securityLink");
-    JodaBeanUtils.notNull(_trades, "trades");
-    JodaBeanUtils.notNull(_attributes, "attributes");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      SimplePosition other = (SimplePosition) obj;
-      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
-          JodaBeanUtils.equal(getQuantity(), other.getQuantity()) &&
-          JodaBeanUtils.equal(getSecurityLink(), other.getSecurityLink()) &&
-          JodaBeanUtils.equal(getTrades(), other.getTrades()) &&
-          JodaBeanUtils.equal(getAttributes(), other.getAttributes());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getQuantity());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityLink());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTrades());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAttributes());
-    return hash;
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the unique identifier of the position.
@@ -437,9 +361,10 @@ public class SimplePosition extends DirectBean
   /**
    * Sets the trades that the make up the position, not null.
    * An empty list usually means that trade data is unavailable.
-   * @param trades  the new value of the property
+   * @param trades  the new value of the property, not null
    */
   public void setTrades(Collection<Trade> trades) {
+    JodaBeanUtils.notNull(trades, "trades");
     this._trades.clear();
     this._trades.addAll(trades);
   }
@@ -468,9 +393,10 @@ public class SimplePosition extends DirectBean
    * Sets the general purpose position attributes.
    * These can be used to add arbitrary additional information to the object
    * and for aggregating in portfolios.
-   * @param attributes  the new value of the property
+   * @param attributes  the new value of the property, not null
    */
   public void setAttributes(Map<String, String> attributes) {
+    JodaBeanUtils.notNull(attributes, "attributes");
     this._attributes.clear();
     this._attributes.putAll(attributes);
   }
@@ -483,6 +409,39 @@ public class SimplePosition extends DirectBean
    */
   public final Property<Map<String, String>> attributes() {
     return metaBean().attributes().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public SimplePosition clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      SimplePosition other = (SimplePosition) obj;
+      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
+          JodaBeanUtils.equal(getQuantity(), other.getQuantity()) &&
+          JodaBeanUtils.equal(getSecurityLink(), other.getSecurityLink()) &&
+          JodaBeanUtils.equal(getTrades(), other.getTrades()) &&
+          JodaBeanUtils.equal(getAttributes(), other.getAttributes());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getQuantity());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityLink());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTrades());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getAttributes());
+    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -610,6 +569,56 @@ public class SimplePosition extends DirectBean
      */
     public final MetaProperty<Map<String, String>> attributes() {
       return _attributes;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          return ((SimplePosition) bean).getUniqueId();
+        case -1285004149:  // quantity
+          return ((SimplePosition) bean).getQuantity();
+        case 807992154:  // securityLink
+          return ((SimplePosition) bean).getSecurityLink();
+        case -865715313:  // trades
+          return ((SimplePosition) bean).getTrades();
+        case 405645655:  // attributes
+          return ((SimplePosition) bean).getAttributes();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          ((SimplePosition) bean).setUniqueId((UniqueId) newValue);
+          return;
+        case -1285004149:  // quantity
+          ((SimplePosition) bean).setQuantity((BigDecimal) newValue);
+          return;
+        case 807992154:  // securityLink
+          ((SimplePosition) bean).setSecurityLink((SecurityLink) newValue);
+          return;
+        case -865715313:  // trades
+          ((SimplePosition) bean).setTrades((Collection<Trade>) newValue);
+          return;
+        case 405645655:  // attributes
+          ((SimplePosition) bean).setAttributes((Map<String, String>) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((SimplePosition) bean)._uniqueId, "uniqueId");
+      JodaBeanUtils.notNull(((SimplePosition) bean)._quantity, "quantity");
+      JodaBeanUtils.notNull(((SimplePosition) bean)._securityLink, "securityLink");
+      JodaBeanUtils.notNull(((SimplePosition) bean)._trades, "trades");
+      JodaBeanUtils.notNull(((SimplePosition) bean)._attributes, "attributes");
     }
 
   }

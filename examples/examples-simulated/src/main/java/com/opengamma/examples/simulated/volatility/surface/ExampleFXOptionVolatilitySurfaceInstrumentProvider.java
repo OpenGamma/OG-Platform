@@ -24,11 +24,11 @@ public class ExampleFXOptionVolatilitySurfaceInstrumentProvider implements Surfa
   /** The ticker scheme */
   private static final ExternalScheme SCHEME = ExternalSchemes.OG_SYNTHETIC_TICKER;
   /** The prefix */
-  private final String _fxPrefix; 
+  private final String _fxPrefix;
   /** The postfix */
-  private final String _postfix; 
+  private final String _postfix;
   /** The data field name */
-  private final String _dataFieldName; 
+  private final String _dataFieldName;
 
   /**
    * @param fxPrefix The prefix, not null

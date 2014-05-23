@@ -22,6 +22,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.sensitivities.RawSecurityUtils;
 import com.opengamma.financial.sensitivities.SecurityEntryData;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
@@ -80,7 +81,7 @@ public class ExternallyProvidedSecurityMarkFunction extends AbstractFunction.Non
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.SECURITY;
+    return FinancialSecurityTypes.RAW_SECURITY;
   }
 
 }

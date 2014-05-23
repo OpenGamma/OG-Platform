@@ -53,8 +53,6 @@ public class CreditInstrumentPropertyNamesAndValues {
   public static final String PROPERTY_RECOVERY_RATE_CURVE_BUMP = "RecoveryRateCurveBump";
   /** Property name for the recovery rate bump type */
   public static final String PROPERTY_RECOVERY_RATE_BUMP_TYPE = "RecoveryRateCurveBumpType";
-  /** Property name for the price type */
-  public static final String PROPERTY_CDS_PRICE_TYPE = "CDSPriceType";
 
   /** Property value indicating that CDX are to be priced as a single-name CDS */
   public static final String CDX_AS_SINGLE_NAME_ISDA = "AsSingleNameISDA";

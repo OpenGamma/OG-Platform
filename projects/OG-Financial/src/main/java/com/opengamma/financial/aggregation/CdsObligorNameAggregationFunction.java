@@ -1,19 +1,19 @@
 /**
- * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 package com.opengamma.financial.aggregation;
 
-import com.opengamma.core.obligor.definition.Obligor;
-import com.opengamma.core.organization.OrganizationSource;
+import com.opengamma.core.legalentity.LegalEntity;
+import com.opengamma.core.legalentity.LegalEntitySource;
 import com.opengamma.core.security.SecuritySource;
 
 /**
  * Aggregation function which which extract the short name from the reference
  * entity on a CDS security.
  */
-public class CdsObligorNameAggregationFunction extends AbstractRedCodeHandlingCdsAggregationFunction<Obligor> {
+public class CdsObligorNameAggregationFunction extends AbstractRedCodeHandlingCdsAggregationFunction<LegalEntity> {
 
   /**
    * Function name.
@@ -24,16 +24,16 @@ public class CdsObligorNameAggregationFunction extends AbstractRedCodeHandlingCd
    * Creates an instance.
    * 
    * @param securitySource  the security source, not null
-   * @param organizationSource  the organization source, not null
+   * @param legalEntitySource  the organization source, not null
    */
-  public CdsObligorNameAggregationFunction(SecuritySource securitySource, OrganizationSource organizationSource) {
-    super(NAME, securitySource, new CdsObligorExtractor(organizationSource));
+  public CdsObligorNameAggregationFunction(SecuritySource securitySource, LegalEntitySource legalEntitySource) {
+    super(NAME, securitySource, new CdsObligorExtractor(legalEntitySource));
   }
 
   //-------------------------------------------------------------------------
   @Override
-  protected String handleExtractedData(Obligor obligor) {
-    return obligor.getObligorShortName();
+  protected String handleExtractedData(LegalEntity legalEntity) {
+    return legalEntity.getName();
   }
 
 }

@@ -15,9 +15,9 @@ import org.threeten.bp.Period;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.analytics.ircurve.IndexType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
@@ -38,10 +38,10 @@ public class USConventions {
    */
   public static synchronized void addFixedIncomeInstrumentConventions(final ConventionBundleMaster conventionMaster) {
     ArgumentChecker.notNull(conventionMaster, "convention master");
-    final BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
-    final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
-    final DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-    final DayCount thirty360 = DayCountFactory.INSTANCE.getDayCount("30/360");
+    final BusinessDayConvention modified = BusinessDayConventions.MODIFIED_FOLLOWING;
+    final BusinessDayConvention following = BusinessDayConventions.FOLLOWING;
+    final DayCount act360 = DayCounts.ACT_360;
+    final DayCount thirty360 = DayCounts.THIRTY_U_360;
     final Frequency annual = PeriodFrequency.ANNUAL;
     final Frequency semiAnnual = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.SEMI_ANNUAL_NAME);
     final Frequency quarterly = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.QUARTERLY_NAME);
@@ -183,7 +183,7 @@ public class USConventions {
         null, 2, false, usgb);
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("USD_BASIS_SWAP")), "USD_BASIS_SWAP", act360, modified, quarterly, 2,
         null, usgb, act360, modified, quarterly, 2, null, usgb);
-    
+
     // Inflation
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("CPURNSA Index"), simpleNameSecurityId("USD CPI")),
         "USD CPI", act360, modified, Period.ofMonths(1), 2, false, us);
@@ -246,6 +246,17 @@ public class USConventions {
   }
 
   /**
+   * Adds conventions for GBP government bonds.
+   * @param conventionMaster The convention master, not null
+   */
+  public static void addInflationBondConvention(final ConventionBundleMaster conventionMaster) {
+    ArgumentChecker.notNull(conventionMaster, "convention master");
+    final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
+    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("US_INFLATION_BOND_CONVENTION")), "US_INFLATION_BOND_CONVENTION", false,
+        true, 6, 0, true);
+  }
+
+  /**
    * Add conventions for USD bond futures
    * @param conventionMaster The convention master, not null
    */
@@ -253,7 +264,7 @@ public class USConventions {
     ArgumentChecker.notNull(conventionMaster, "convention master");
     final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("USD_BOND_FUTURE_DELIVERABLE_CONVENTION")),
-        "USD_BOND_FUTURE_DELIVERABLE_CONVENTION", true, true, 0, 0, DayCountFactory.INSTANCE.getDayCount("Actual/360"), BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"),
+        "USD_BOND_FUTURE_DELIVERABLE_CONVENTION", true, true, 0, 0, DayCounts.ACT_360, BusinessDayConventions.FOLLOWING,
         SimpleYieldConvention.MONEY_MARKET);
   }
 

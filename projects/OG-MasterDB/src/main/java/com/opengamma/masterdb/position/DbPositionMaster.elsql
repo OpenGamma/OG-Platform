@@ -181,7 +181,7 @@
   WHERE ver_from_instant <= :version_as_of_instant AND ver_to_instant > :version_as_of_instant
     AND corr_from_instant <= :corrected_to_instant AND corr_to_instant > :corrected_to_instant
     @AND(:sql_search_position_ids)
-      oid IN ( @INCLUDE(:sql_search_position_ids) )
+      oid IN ( @VALUE(:sql_search_position_ids) )
     @AND(:min_quantity)
       quantity >= :min_quantity
     @AND(:max_quantity)
@@ -194,7 +194,7 @@
       oid IN (SELECT DISTINCT position_oid FROM pos_trade
         WHERE provider_scheme = :trade_provider_scheme AND provider_value = :trade_provider_value)
     @AND(:sql_search_trade_ids)
-      oid IN (SELECT DISTINCT position_oid FROM pos_trade WHERE oid IN ( @INCLUDE(:sql_search_trade_ids) ))
+      oid IN (SELECT DISTINCT position_oid FROM pos_trade WHERE oid IN ( @VALUE(:sql_search_trade_ids) ))
     @AND(:security_id_value)
       id IN ( @INCLUDE(SelectSecurityKeyValue) )
     @AND(:sql_search_security_ids_type = EXACT)
@@ -294,7 +294,7 @@
   FROM
     pos_idkey
   WHERE
-    @INCLUDE(:sql_search_security_ids)
+    @VALUE(:sql_search_security_ids)
 
 
 -- ==========================================================================
@@ -403,9 +403,11 @@
 @NAME(InsertTrade)
   INSERT INTO pos_trade
     (id, oid, position_id, position_oid, quantity, trade_date, trade_time, zone_offset, cparty_scheme, cparty_value,
+    provider_scheme, provider_value,
     premium_value, premium_currency, premium_date, premium_time, premium_zone_offset)
   VALUES
     (:trade_id, :trade_oid, :position_id, :position_oid, :quantity, :trade_date, :trade_time, :zone_offset, :cparty_scheme, :cparty_value,
+    :provider_scheme, :provider_value,
     :premium_value, :premium_currency, :premium_date, :premium_time, :premium_zone_offset)
 
 

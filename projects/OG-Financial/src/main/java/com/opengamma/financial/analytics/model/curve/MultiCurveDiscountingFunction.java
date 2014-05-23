@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
@@ -31,6 +33,7 @@ import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
@@ -43,18 +46,27 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.Multicu
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.util.time.TimeCalculator;
+import com.opengamma.core.DateSet;
+import com.opengamma.core.config.ConfigSource;
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
+import com.opengamma.core.security.Security;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
+import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.OpenGammaExecutionContext;
+import com.opengamma.financial.analytics.curve.CalendarSwapNodeConverter;
 import com.opengamma.financial.analytics.curve.CashNodeConverter;
+import com.opengamma.financial.analytics.curve.ConverterUtils;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.curve.CurveGroupConfiguration;
@@ -69,23 +81,31 @@ import com.opengamma.financial.analytics.curve.IborCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.InterpolatedCurveDefinition;
 import com.opengamma.financial.analytics.curve.OvernightCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.RateFutureNodeConverter;
+import com.opengamma.financial.analytics.curve.RollDateFRANodeConverter;
+import com.opengamma.financial.analytics.curve.RollDateSwapNodeConverter;
 import com.opengamma.financial.analytics.curve.SwapNodeConverter;
+import com.opengamma.financial.analytics.curve.ThreeLegBasisSwapNodeConverter;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeVisitor;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
-import com.opengamma.financial.convention.ConventionSource;
+import com.opengamma.financial.config.ConfigSourceQuery;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.OvernightIndexConvention;
+import com.opengamma.financial.security.index.OvernightIndex;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Produces yield curves using the discounting method.
  */
 public class MultiCurveDiscountingFunction extends
-  MultiCurveFunction<MulticurveProviderInterface, MulticurveDiscountBuildingRepository, GeneratorYDCurve, MulticurveSensitivity> {
+    MultiCurveFunction<MulticurveProviderInterface, MulticurveDiscountBuildingRepository, GeneratorYDCurve, MulticurveSensitivity> {
+  /** The logger */
+  private static final Logger s_logger = LoggerFactory.getLogger(MultiCurveDiscountingFunction.class);
   /** The calculator */
   private static final ParSpreadMarketQuoteDiscountingCalculator PSMQC = ParSpreadMarketQuoteDiscountingCalculator.getInstance();
   /** The sensitivity calculator */
@@ -101,7 +121,29 @@ public class MultiCurveDiscountingFunction extends
   @Override
   public CompiledFunctionDefinition getCompiledFunction(final ZonedDateTime earliestInvokation, final ZonedDateTime latestInvokation, final String[] curveNames,
       final Set<ValueRequirement> exogenousRequirements, final CurveConstructionConfiguration curveConstructionConfiguration) {
-    return new MyCompiledFunctionDefinition(earliestInvokation, latestInvokation, curveNames, exogenousRequirements, curveConstructionConfiguration);
+    return new MyCompiledFunctionDefinition(earliestInvokation, latestInvokation, curveNames, exogenousRequirements, curveConstructionConfiguration, null);
+  }
+
+  @Override
+  public CompiledFunctionDefinition getCompiledFunction(final ZonedDateTime earliestInvokation, final ZonedDateTime latestInvokation, final String[] curveNames,
+      final Set<ValueRequirement> exogenousRequirements, final CurveConstructionConfiguration curveConstructionConfiguration, final String[] currencies) {
+    return new MyCompiledFunctionDefinition(earliestInvokation, latestInvokation, curveNames, exogenousRequirements, curveConstructionConfiguration,
+        currencies);
+  }
+
+  @Override
+  protected InstrumentDerivativeVisitor<MulticurveProviderInterface, Double> getCalculator() {
+    return PSMQC;
+  }
+
+  @Override
+  protected InstrumentDerivativeVisitor<MulticurveProviderInterface, MulticurveSensitivity> getSensitivityCalculator() {
+    return PSMQCSC;
+  }
+
+  @Override
+  protected String getCurveTypeProperty() {
+    return DISCOUNTING;
   }
 
   /**
@@ -120,16 +162,31 @@ public class MultiCurveDiscountingFunction extends
      */
     protected MyCompiledFunctionDefinition(final ZonedDateTime earliestInvokation, final ZonedDateTime latestInvokation, final String[] curveNames,
         final Set<ValueRequirement> exogenousRequirements, final CurveConstructionConfiguration curveConstructionConfiguration) {
-      super(earliestInvokation, latestInvokation, curveNames, ValueRequirementNames.YIELD_CURVE, exogenousRequirements);
+      this(earliestInvokation, latestInvokation, curveNames, exogenousRequirements, curveConstructionConfiguration, null);
+    }
+
+    /**
+     * @param earliestInvokation The earliest time for which this function is valid, null if there is no bound
+     * @param latestInvokation The latest time for which this function is valid, null if there is no bound
+     * @param curveNames The names of the curves produced by this function, not null
+     * @param exogenousRequirements The exogenous requirements, not null
+     * @param curveConstructionConfiguration The curve construction configuration, not null
+     * @param currencies The set of currencies to which the curves produce sensitivities
+     */
+    protected MyCompiledFunctionDefinition(final ZonedDateTime earliestInvokation, final ZonedDateTime latestInvokation, final String[] curveNames,
+        final Set<ValueRequirement> exogenousRequirements, final CurveConstructionConfiguration curveConstructionConfiguration,
+        final String[] currencies) {
+      super(earliestInvokation, latestInvokation, curveNames, ValueRequirementNames.YIELD_CURVE, exogenousRequirements, currencies);
       ArgumentChecker.notNull(curveConstructionConfiguration, "curve construction configuration");
       _curveConstructionConfiguration = curveConstructionConfiguration;
     }
 
     @Override
-    @SuppressWarnings("synthetic-access")
     protected Pair<MulticurveProviderInterface, CurveBuildingBlockBundle> getCurves(final FunctionInputs inputs, final ZonedDateTime now,
-        final MulticurveDiscountBuildingRepository builder, final MulticurveProviderInterface knownData, final ConventionSource conventionSource,
-        final HolidaySource holidaySource, final RegionSource regionSource) {
+        final MulticurveDiscountBuildingRepository builder, final MulticurveProviderInterface knownData, final FunctionExecutionContext context,
+        final FXMatrix fx) {
+      final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(context);
+      final ConventionSource conventionSource = OpenGammaExecutionContext.getConventionSource(context);
       final ValueProperties curveConstructionProperties = ValueProperties.builder()
           .with(CURVE_CONSTRUCTION_CONFIG, _curveConstructionConfiguration.getName())
           .get();
@@ -149,9 +206,9 @@ public class MultiCurveDiscountingFunction extends
         @SuppressWarnings("unchecked")
         final SingleCurveBundle<GeneratorYDCurve>[] singleCurves = new SingleCurveBundle[nCurves];
         int j = 0;
-        for (final Map.Entry<String, List<CurveTypeConfiguration>> entry : group.getTypesForCurves().entrySet()) {
-          final List<IborIndex> iborIndex = new ArrayList<>();
-          final List<IndexON> overnightIndex = new ArrayList<>();
+        for (final Map.Entry<String, List<? extends CurveTypeConfiguration>> entry : group.getTypesForCurves().entrySet()) {
+          final List<IborIndex> iborIndexList = new ArrayList<>();
+          final List<IndexON> overnightIndexList = new ArrayList<>();
           final String curveName = entry.getKey();
           final ValueProperties properties = ValueProperties.builder().with(CURVE, curveName).get();
           final CurveSpecification specification =
@@ -169,9 +226,9 @@ public class MultiCurveDiscountingFunction extends
             if (marketData == null) {
               throw new OpenGammaRuntimeException("Could not get market data for " + node.getIdentifier());
             }
-            parameterGuessForCurves[k] = 0.02; // For FX forward, the FX rate is not a good initial guess. // TODO: change this // marketData
-            final InstrumentDefinition<?> definitionForNode = node.getCurveNode().accept(getCurveNodeConverter(conventionSource, holidaySource, regionSource,
-                snapshot, node.getIdentifier(), timeSeries, now));
+            parameterGuessForCurves[k] = 0.02; // TODO: [PlAT-5883] Get a better starting point.
+            final InstrumentDefinition<?> definitionForNode = node.getCurveNode().accept(getCurveNodeConverter(context,
+                snapshot, node.getIdentifier(), timeSeries, now, fx));
             derivativesForCurve[k++] = getCurveNodeConverter(conventionSource).getDerivative(node, definitionForNode, now, timeSeries);
           } // Node points - end
           for (final CurveTypeConfiguration type : entry.getValue()) { // Type - start
@@ -186,29 +243,30 @@ public class MultiCurveDiscountingFunction extends
               }
             } else if (type instanceof IborCurveTypeConfiguration) {
               final IborCurveTypeConfiguration ibor = (IborCurveTypeConfiguration) type;
-              final IborIndexConvention iborIndexConvention = conventionSource.getConvention(IborIndexConvention.class, ibor.getConvention());
-              if (iborIndexConvention == null) {
-                throw new OpenGammaRuntimeException("Ibor index convention called " + ibor.getConvention() + " was null");
+              final Security sec = securitySource.getSingle(ibor.getConvention().toBundle());
+              if (sec == null) {
+                throw new OpenGammaRuntimeException("Cannot find Ibor index " + ibor.getConvention());
               }
-              final int spotLag = iborIndexConvention.getSettlementDays();
-              iborIndex.add(new IborIndex(iborIndexConvention.getCurrency(), ibor.getTenor().getPeriod(), spotLag, iborIndexConvention.getDayCount(),
-                  iborIndexConvention.getBusinessDayConvention(), iborIndexConvention.isIsEOM(), iborIndexConvention.getName()));
+              final com.opengamma.financial.security.index.IborIndex indexSecurity = (com.opengamma.financial.security.index.IborIndex) sec;
+              final IborIndexConvention indexConvention = conventionSource.getSingle(indexSecurity.getConventionId(), IborIndexConvention.class);
+              iborIndexList.add(ConverterUtils.indexIbor(indexSecurity.getName(), indexConvention, indexSecurity.getTenor()));
             } else if (type instanceof OvernightCurveTypeConfiguration) {
               final OvernightCurveTypeConfiguration overnight = (OvernightCurveTypeConfiguration) type;
-              final OvernightIndexConvention overnightConvention = conventionSource.getConvention(OvernightIndexConvention.class, overnight.getConvention());
-              if (overnightConvention == null) {
-                throw new OpenGammaRuntimeException("Overnight convention called " + overnight.getConvention() + " was null");
+              final OvernightIndex overnightIndex = (OvernightIndex) securitySource.getSingle(overnight.getConvention().toBundle());
+              if (overnightIndex == null) {
+                throw new OpenGammaRuntimeException("Cannot find overnight index " + overnight.getConvention());
               }
-              overnightIndex.add(new IndexON(overnightConvention.getName(), overnightConvention.getCurrency(), overnightConvention.getDayCount(), overnightConvention.getPublicationLag()));
+              final OvernightIndexConvention overnightConvention = conventionSource.getSingle(overnightIndex.getConventionId(), OvernightIndexConvention.class);
+              overnightIndexList.add(ConverterUtils.indexON(overnightIndex.getName(), overnightConvention));
             } else {
               throw new OpenGammaRuntimeException("Cannot handle " + type.getClass());
             }
           } // type - end
-          if (!iborIndex.isEmpty()) {
-            forwardIborMap.put(curveName, iborIndex.toArray(new IborIndex[iborIndex.size()]));
+          if (!iborIndexList.isEmpty()) {
+            forwardIborMap.put(curveName, iborIndexList.toArray(new IborIndex[iborIndexList.size()]));
           }
-          if (!overnightIndex.isEmpty()) {
-            forwardONMap.put(curveName, overnightIndex.toArray(new IndexON[overnightIndex.size()]));
+          if (!overnightIndexList.isEmpty()) {
+            forwardONMap.put(curveName, overnightIndexList.toArray(new IndexON[overnightIndexList.size()]));
           }
           final GeneratorYDCurve generator = getGenerator(definition, now.toLocalDate());
           singleCurves[j++] = new SingleCurveBundle<>(curveName, derivativesForCurve, generator.initialGuess(parameterGuessForCurves), generator);
@@ -219,23 +277,8 @@ public class MultiCurveDiscountingFunction extends
       //TODO this is only in here because the code in analytics doesn't use generics properly
       final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> temp = builder.makeCurvesFromDerivatives(curveBundles,
           (MulticurveProviderDiscount) knownData, discountingMap, forwardIborMap, forwardONMap, getCalculator(), getSensitivityCalculator());
-      final Pair<MulticurveProviderInterface, CurveBuildingBlockBundle> result = Pair.of((MulticurveProviderInterface) temp.getFirst(), temp.getSecond());
+      final Pair<MulticurveProviderInterface, CurveBuildingBlockBundle> result = Pairs.of((MulticurveProviderInterface) temp.getFirst(), temp.getSecond());
       return result;
-    }
-
-    @Override
-    protected InstrumentDerivativeVisitor<MulticurveProviderInterface, Double> getCalculator() {
-      return PSMQC;
-    }
-
-    @Override
-    protected InstrumentDerivativeVisitor<MulticurveProviderInterface, MulticurveSensitivity> getSensitivityCalculator() {
-      return PSMQCSC;
-    }
-
-    @Override
-    protected String getCurveTypeProperty() {
-      return DISCOUNTING;
     }
 
     @Override
@@ -280,15 +323,25 @@ public class MultiCurveDiscountingFunction extends
     }
 
     @Override
-    protected CurveNodeVisitor<InstrumentDefinition<?>> getCurveNodeConverter(final ConventionSource conventionSource, final HolidaySource holidaySource,
-        final RegionSource regionSource, final SnapshotDataBundle marketData, final ExternalId dataId, final HistoricalTimeSeriesBundle historicalData,
-        final ZonedDateTime valuationTime) {
+    protected CurveNodeVisitor<InstrumentDefinition<?>> getCurveNodeConverter(final FunctionExecutionContext context,
+        final SnapshotDataBundle marketData, final ExternalId dataId, final HistoricalTimeSeriesBundle historicalData,
+        final ZonedDateTime valuationTime, final FXMatrix fx) {
+      final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(context);
+      final ConventionSource conventionSource = OpenGammaExecutionContext.getConventionSource(context);
+      final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(context);
+      final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(context);
+      final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(context);
+      final ConfigSourceQuery<DateSet> dateSetQuery = new ConfigSourceQuery<>(configSource, DateSet.class, VersionCorrection.of(valuationTime.toInstant(), valuationTime.toInstant()));
       return CurveNodeVisitorAdapter.<InstrumentDefinition<?>>builder()
-          .cashNodeVisitor(new CashNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
-          .fraNode(new FRANodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
+          .cashNodeVisitor(new CashNodeConverter(securitySource, conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
+          .calendarSwapNode(new CalendarSwapNodeConverter(securitySource, conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime, dateSetQuery))
+          .fraNode(new FRANodeConverter(securitySource, conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .fxForwardNode(new FXForwardNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
-          .rateFutureNode(new RateFutureNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
-          .swapNode(new SwapNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
+          .immFRANode(new RollDateFRANodeConverter(securitySource, conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
+          .immSwapNode(new RollDateSwapNodeConverter(securitySource, conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
+          .rateFutureNode(new RateFutureNodeConverter(securitySource, conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
+          .swapNode(new SwapNodeConverter(securitySource, conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime, fx))
+          .threeLegBasisSwapNode(new ThreeLegBasisSwapNodeConverter(securitySource, conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .create();
     }
 
@@ -301,12 +354,19 @@ public class MultiCurveDiscountingFunction extends
       result.add(new ComputedValue(jacobianSpec, pair.getSecond()));
       for (final String curveName : getCurveNames()) {
         final ValueProperties curveProperties = bundleProperties.copy()
+            .withoutAny(CURVE)
             .with(CURVE, curveName)
             .get();
-        final ValueSpecification curveSpec = new ValueSpecification(YIELD_CURVE, ComputationTargetSpecification.NULL, curveProperties);
-        result.add(new ComputedValue(curveSpec, provider.getCurve(curveName)));
+        final YieldAndDiscountCurve curve = provider.getCurve(curveName);
+        if (curve == null) {
+          s_logger.error("Could not get curve called {} from configuration {}", curveName, getCurveConstructionConfigurationName());
+        } else {
+          final ValueSpecification curveSpec = new ValueSpecification(YIELD_CURVE, ComputationTargetSpecification.NULL, curveProperties);
+          result.add(new ComputedValue(curveSpec, curve));
+        }
       }
       return result;
     }
+
   }
 }

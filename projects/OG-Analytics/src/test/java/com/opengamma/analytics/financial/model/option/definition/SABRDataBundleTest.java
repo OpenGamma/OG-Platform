@@ -15,11 +15,13 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class SABRDataBundleTest {
   private static final YieldCurve CURVE = YieldCurve.from(ConstantDoublesCurve.from(0.03));
   private static final YieldCurve OTHER_CURVE = YieldCurve.from(ConstantDoublesCurve.from(0.035));

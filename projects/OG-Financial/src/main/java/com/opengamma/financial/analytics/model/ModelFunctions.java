@@ -16,7 +16,12 @@ import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.engine.function.config.SimpleFunctionConfigurationSource;
 import com.opengamma.financial.analytics.model.black.BlackDiscountingPricingFunctions;
 import com.opengamma.financial.analytics.model.bond.BondFunctions;
+import com.opengamma.financial.analytics.model.bondcleanprice.BondCleanPriceFunctions;
+import com.opengamma.financial.analytics.model.bondcurves.BondCurveFunctions;
+import com.opengamma.financial.analytics.model.bondcurves.inflationbondcurves.InflationBondCurveFunctions;
 import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionFunctions;
+import com.opengamma.financial.analytics.model.bondyield.BondYieldFunctions;
+import com.opengamma.financial.analytics.model.carrlee.CarrLeeFunctions;
 import com.opengamma.financial.analytics.model.cds.CDSFunctions;
 import com.opengamma.financial.analytics.model.credit.CreditFunctions;
 import com.opengamma.financial.analytics.model.curve.CurveFunctions;
@@ -39,6 +44,8 @@ import com.opengamma.financial.analytics.model.sabrcube.SABRCubeFunctions;
 import com.opengamma.financial.analytics.model.sensitivities.SensitivitiesFunctions;
 import com.opengamma.financial.analytics.model.simpleinstrument.SimpleInstrumentFunctions;
 import com.opengamma.financial.analytics.model.swaption.SwaptionFunctions;
+import com.opengamma.financial.analytics.model.timeseries.TimeSeriesFunctions;
+import com.opengamma.financial.analytics.model.trs.TotalReturnSwapFunctions;
 import com.opengamma.financial.analytics.model.var.VaRFunctions;
 import com.opengamma.financial.analytics.model.volatility.VolatilityFunctions;
 
@@ -59,28 +66,101 @@ public class ModelFunctions extends AbstractFunctionConfigurationBean {
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
     functions.add(functionConfiguration(MarginPriceFunction.class));
+    functions.add(functionConfiguration(PVCashBalanceFunction.class));
+    functions.add(functionConfiguration(FXCurrencyExposureFunction.class));
+    /*functions.add(functionConfiguration(InflationBondFromCurvesFunction.class));*/
+
   }
 
+  /**
+   * Adds deprecated bond functions.
+   * @return A configuration source containing deprecated bond functions
+   * @deprecated The new versions of these functions are added in {{@link #bondCleanPriceFunctionConfiguration()}
+   */
+  @Deprecated
   protected FunctionConfigurationSource bondFunctionConfiguration() {
     return BondFunctions.instance();
   }
 
+  /**
+   * Adds deprecated bond functions.
+   * @return A configuration source containing deprecated bond future functions
+   * @deprecated The functions that are added are deprecated
+   */
+  @Deprecated
   protected FunctionConfigurationSource bondFutureOptionFunctionConfiguration() {
     return BondFutureOptionFunctions.instance();
   }
 
+  /**
+   * Adds functions that produce bond analytics from the clean price.
+   * @return A configuration source containing bond functions
+   */
+  protected FunctionConfigurationSource bondCleanPriceFunctionConfiguration() {
+    return BondCleanPriceFunctions.instance();
+  }
+
+  /**
+   * Adds functions that produce bond analytics from yield curves.
+   * @return A configuration source containing bond functions
+   */
+  protected FunctionConfigurationSource bondCurveFunctionConfiguration() {
+    return BondCurveFunctions.instance();
+  }
+
+  /**
+   * Adds functions that produce bond analytics from yield curves.
+   * @return A configuration source containing bond functions
+   */
+  protected FunctionConfigurationSource inflationbondCurveFunctionConfiguration() {
+    return InflationBondCurveFunctions.instance();
+  }
+
+  /**
+   * Adds functions that produce bond analytics from the clean price.
+   * @return A configuration source containing bond functions
+   */
+  protected FunctionConfigurationSource bondYieldFunctionConfiguration() {
+    return BondYieldFunctions.instance();
+  }
+
+  /**
+   * Adds functions that produce analytics for volatility swaps using the Carr-Lee
+   * model.
+   * @return A configuration source containing pricing and analytics functions
+   */
+  protected FunctionConfigurationSource carrLeeFunctionConfiguration() {
+    return CarrLeeFunctions.instance();
+  }
+
+  /**
+   * Adds CDS functions.
+   * @return A configuration source containing CDS functions
+   */
   protected FunctionConfigurationSource cdsFunctionConfiguration() {
     return CDSFunctions.instance();
   }
 
+  /**
+   * Adds credit functions.
+   * @return A configuration source containing credit functions
+   */
   protected FunctionConfigurationSource creditFunctionConfiguration() {
     return CreditFunctions.instance();
   }
 
+  /**
+   * Adds functions that produce curves.
+   * @return A configuration source containing curve functions
+   */
   protected FunctionConfigurationSource curveFunctionConfiguration() {
     return CurveFunctions.instance();
   }
 
+  /**
+   * Adds equity functions.
+   * @return A configuration source containing equity functions
+   */
   protected FunctionConfigurationSource equityFunctionConfiguration() {
     return EquityFunctions.instance();
   }
@@ -233,11 +313,32 @@ public class ModelFunctions extends AbstractFunctionConfigurationBean {
     return com.opengamma.financial.analytics.model.curve.future.FutureFunctions.instance();
   }
 
+  /**
+   * Adds time series functions.
+   * @return A configuration source containing time series functions
+   */
+  protected FunctionConfigurationSource timeSeriesFunctionConfiguration() {
+    return TimeSeriesFunctions.instance();
+  }
+
+  /**
+   * Adds total return swap functions.
+   * @return A configuration source containing total return swap functions
+   */
+  protected FunctionConfigurationSource totalReturnSwapFunctionConfiguration() {
+    return TotalReturnSwapFunctions.instance();
+  }
+
   @Override
   protected FunctionConfigurationSource createObject() {
     return CombiningFunctionConfigurationSource.of(super.createObject(),
         bondFunctionConfiguration(),
         bondFutureOptionFunctionConfiguration(),
+        bondCleanPriceFunctionConfiguration(),
+        bondCurveFunctionConfiguration(),
+        inflationbondCurveFunctionConfiguration(),
+        bondYieldFunctionConfiguration(),
+        carrLeeFunctionConfiguration(),
         cdsFunctionConfiguration(),
         creditFunctionConfiguration(),
         curveFunctionConfiguration(),
@@ -266,7 +367,9 @@ public class ModelFunctions extends AbstractFunctionConfigurationBean {
         fxPricingFunctionConfiguration(),
         blackDiscountingFunctionConfiguration(),
         sabrDiscountingFunctionConfiguration(),
-        g2ppPricingFunctionConfiguration());
+        g2ppPricingFunctionConfiguration(),
+        timeSeriesFunctionConfiguration(),
+        totalReturnSwapFunctionConfiguration());
   }
 
 }
