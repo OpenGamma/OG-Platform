@@ -48,24 +48,18 @@ public final class Failure implements ImmutableBean {
   private final ThrowableDetails _causeDetails;
 
   @ImmutableConstructor
-  Failure(FailureStatus status, String message, ThrowableDetails causeDetails) {
+  private Failure(FailureStatus status, String message, ThrowableDetails causeDetails) {
     _status = ArgumentChecker.notNull(status, "status");
     _message = ArgumentChecker.notEmpty(message, "message");
     _causeDetails = causeDetails;
   }
 
   Failure(FailureStatus status, String message, Exception cause) {
-    _status = ArgumentChecker.notNull(status, "status");
-    _message = ArgumentChecker.notEmpty(message, "message");
-    if (cause != null) {
-      _causeDetails = ThrowableDetails.of(cause);
-    } else {
-      _causeDetails = null;
-    }
+    this(status, message, ThrowableDetails.of(ArgumentChecker.notNull(cause, "cause")));
   }
 
   Failure(FailureStatus failureStatus, Exception cause) {
-    this(failureStatus, getMessage(ArgumentChecker.notNull(cause, "cause")), (ThrowableDetails) null);
+    this(failureStatus, getMessage(cause), cause);
   }
 
   Failure(FailureStatus failureStatus, String message) {
@@ -73,7 +67,7 @@ public final class Failure implements ImmutableBean {
   }
 
   Failure(Exception cause, String message) {
-    this(FailureStatus.ERROR, message, ArgumentChecker.notNull(cause, "cause"));
+    this(FailureStatus.ERROR, message, cause);
   }
 
   Failure(Exception cause) {
@@ -81,13 +75,13 @@ public final class Failure implements ImmutableBean {
   }
 
   /**
-   * Extracts the mesage from an exception.
+   * Extracts the message from an exception.
    * 
-   * @param cause  an exception that caused a failure, not null
+   * @param cause  an exception that caused a failure
    * @return the exception's message or it's simple class name if it doesn't have one
    */
   private static String getMessage(Exception cause) {
-    String message = cause.getMessage();
+    String message = ArgumentChecker.notNull(cause, "cause").getMessage();
     return !StringUtils.isEmpty(message) ? message : cause.getClass().getSimpleName();
   }
 
