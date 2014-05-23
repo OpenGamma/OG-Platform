@@ -8,7 +8,7 @@
   <parent>
     <groupId>com.opengamma.platform</groupId>
     <artifactId>examples</artifactId>
-    <version>2.2.0-M20p04-SNAPSHOT</version>
+    <version>2.2.0-M20p04</version>
     <relativePath>..</relativePath>
   </parent>
   <artifactId>examples-bloomberg</artifactId>
