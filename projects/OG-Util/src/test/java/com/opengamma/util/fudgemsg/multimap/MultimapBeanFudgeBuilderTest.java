@@ -17,11 +17,12 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.SortedSetMultimap;
 import com.google.common.collect.TreeMultimap;
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the Multimap support in joda-beans/fudge.
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class MultimapBeanFudgeBuilderTest extends AbstractFudgeBuilderTestCase {
 
   public void test_empty_simple_multimap() {
