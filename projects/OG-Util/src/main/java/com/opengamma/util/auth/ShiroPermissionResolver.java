@@ -6,13 +6,13 @@
 package com.opengamma.util.auth;
 
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map.Entry;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import org.apache.shiro.authz.AuthorizationException;
 import org.apache.shiro.authz.Permission;
+import org.apache.shiro.authz.UnauthenticatedException;
+import org.apache.shiro.authz.UnauthorizedException;
 import org.apache.shiro.authz.permission.InvalidPermissionStringException;
 import org.apache.shiro.authz.permission.PermissionResolver;
 
@@ -20,6 +20,8 @@ import com.google.common.base.Throwables;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.opengamma.util.ArgumentChecker;
 
@@ -57,7 +59,7 @@ public final class ShiroPermissionResolver implements PermissionResolver {
    * A pluggable set of resolvers by prefix.
    * Registration should occur only during startup, but still need concurrent map.
    */
-  private final ConcurrentMap<String, PermissionResolver> _prefixResolvers = new ConcurrentHashMap<>(16, 0.75f, 1);
+  private final ConcurrentMap<String, PrefixedPermissionResolver> _prefixed = new ConcurrentHashMap<>(16, 0.75f, 1);
 
   /**
    * Creates an instance.
@@ -67,16 +69,17 @@ public final class ShiroPermissionResolver implements PermissionResolver {
 
   //-------------------------------------------------------------------------
   /**
-   * Registers a prefix that maps to a different permission resolver.
+   * Registers a factory that handles permissions with a specific prefix.
+   * <p>
+   * This allows different implementations of the {@code Permission} interface
+   * to be created based on a prefix.
    * 
-   * @param prefix  the permission prefix, not null
    * @param resolver  the permission resolver, not null
    * @throws IllegalArgumentException if the prefix is already registered
    */
-  public void registerPrefix(String prefix, PermissionResolver resolver) {
-    ArgumentChecker.notNull(prefix, "prefix");
+  public void register(PrefixedPermissionResolver resolver) {
     ArgumentChecker.notNull(resolver, "resolver");
-    PermissionResolver existing = _prefixResolvers.putIfAbsent(prefix, resolver);
+    PrefixedPermissionResolver existing = _prefixed.putIfAbsent(resolver.getPrefix(), resolver);
     if (existing != null && existing.equals(resolver) == false) {
       throw new IllegalArgumentException("Prefix is already registered");
     }
@@ -113,13 +116,122 @@ public final class ShiroPermissionResolver implements PermissionResolver {
    * @return the set of permission objects, not null
    * @throws InvalidPermissionStringException if the permission string is invalid
    */
-  public Set<Permission> resolvePermissions(Collection<String> permissionStrings) {
+  public ImmutableList<Permission> resolvePermissions(String... permissionStrings) {
     ArgumentChecker.notNull(permissionStrings, "permissionStrings");
-    Set<Permission> permissions = new HashSet<>();
+    ImmutableList.Builder<Permission> builder = ImmutableList.builder();
     for (String permissionString : permissionStrings) {
-      permissions.add(resolvePermission(permissionString));
+      builder.add(resolvePermission(permissionString));
     }
-    return permissions;
+    return builder.build();
+  }
+
+  /**
+   * Resolves a set of permissions from string to object form.
+   * <p>
+   * The returned set of permissions may be smaller than the input set.
+   * 
+   * @param permissionStrings  the set of permission strings, not null
+   * @return the set of permission objects, not null
+   * @throws InvalidPermissionStringException if the permission string is invalid
+   */
+  public ImmutableSet<Permission> resolvePermissions(Collection<String> permissionStrings) {
+    ArgumentChecker.notNull(permissionStrings, "permissionStrings");
+    ImmutableSet.Builder<Permission> builder = ImmutableSet.builder();
+    for (String permissionString : permissionStrings) {
+      builder.add(resolvePermission(permissionString));
+    }
+    return builder.build();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Checks if the subject permissions grant all the required permissions.
+   * <p>
+   * The first collection contains the set of permissions held by the subject.
+   * The second collection contains the permissions that are required.
+   * This returns true if the set of subject permissions grants all the required permissions.
+   * 
+   * @param subjectPermissions  the set of permissions held by the subject, not null
+   * @param requiredPermissions  the permissions that are required, not null
+   * @return true if all the required permissions are granted
+   */
+  public boolean isPermittedAll(Collection<Permission> subjectPermissions, Collection<Permission> requiredPermissions) {
+    // try bulk check
+    for (Permission subjectPermission : subjectPermissions) {
+      if (subjectPermission instanceof ExtendedPermission) {
+        ExtendedPermission subjectPerm = (ExtendedPermission) subjectPermission;
+        Boolean implied = subjectPerm.checkImpliesAll(requiredPermissions, false);
+        if (implied != null) {
+          return implied.booleanValue();
+        }
+      }
+    }
+    // normal non-bulk check
+    for (Permission requiredPermission : requiredPermissions) {
+      if (implies(subjectPermissions, requiredPermission) == false) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  // does one of the subject permissions imply the required permission
+  private boolean implies(Collection<? extends Permission> subjectPermissions, Permission requiredPermission) {
+    for (Permission subjectPermission : subjectPermissions) {
+      if (subjectPermission.implies(requiredPermission)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Checks if the subject permissions grant all the required permissions.
+   * <p>
+   * The first collection contains the set of permissions held by the subject.
+   * The second collection contains the permissions that are required.
+   * This returns true if the set of subject permissions grants all the required permissions.
+   * 
+   * @param subjectPermissions  the set of permissions held by the subject, not null
+   * @param requiredPermissions  the permissions that are required, not null
+   * @throws UnauthenticatedException if permission was denied due to invalid user authentication
+   * @throws UnauthorizedException if the user does not have the requested permission
+   * @throws AuthorizationException if permission was denied due to some other issue
+   */
+  public void checkPermissions(Collection<Permission> subjectPermissions, Collection<Permission> requiredPermissions) {
+    // try bulk check
+    for (Permission subjectPermission : subjectPermissions) {
+      if (subjectPermission instanceof ExtendedPermission) {
+        ExtendedPermission subjectPerm = (ExtendedPermission) subjectPermission;
+        Boolean implied = subjectPerm.checkImpliesAll(requiredPermissions, true);
+        if (implied != null) {
+          if (implied) {
+            return;
+          }
+          throw new UnauthorizedException("Permission denied: " + requiredPermissions);
+        }
+      }
+    }
+    // normal non-bulk check
+    for (Permission requiredPermission : requiredPermissions) {
+      checkImplies(subjectPermissions, requiredPermission);
+    }
+  }
+
+  // does one of the subject permissions imply the required permission, exception if not
+  private void checkImplies(Collection<? extends Permission> subjectPermissions, Permission requiredPermission) {
+    for (Permission subjectPermission : subjectPermissions) {
+      if (subjectPermission instanceof ExtendedPermission) {
+        if (((ExtendedPermission) subjectPermission).checkImplies(requiredPermission)) {
+          return;
+        }
+      } else {
+        if (subjectPermission.implies(requiredPermission)) {
+          return;
+        }
+      }
+    }
+    throw new UnauthorizedException("Permission denied: " + requiredPermission);
   }
 
   //-------------------------------------------------------------------------
@@ -131,17 +243,17 @@ public final class ShiroPermissionResolver implements PermissionResolver {
    * <p>
    * This is called directly from the cache.
    * 
-   * @param permissionStr  the permission string, not null
+   * @param permissionString  the permission string, not null
    * @return the new permission object, not null
    * @throws InvalidPermissionStringException if the permission string is invalid
    */
-  private Permission doResolvePermission(String permissionStr) {
-    for (Entry<String, PermissionResolver> entry : _prefixResolvers.entrySet()) {
-      if (permissionStr.startsWith(entry.getKey())) {
-        return entry.getValue().resolvePermission(permissionStr);
+  private Permission doResolvePermission(String permissionString) {
+    for (PrefixedPermissionResolver prefixedResolver : _prefixed.values()) {
+      if (permissionString.startsWith(prefixedResolver.getPrefix())) {
+        return prefixedResolver.resolvePermission(permissionString);
       }
     }
-    return ShiroPermission.of(permissionStr);
+    return ShiroWildcardPermission.of(permissionString);
   }
 
 }

@@ -26,7 +26,7 @@ import com.google.common.collect.ImmutableSet;
  * This is a faster version of {@link WildcardPermission}.
  * See {@link ShiroPermissionResolver} for public access.
  */
-final class ShiroPermission implements Permission {
+final class ShiroWildcardPermission implements Permission {
 
   /**
    * The wildcard segment.
@@ -54,7 +54,7 @@ final class ShiroPermission implements Permission {
    * @throws InvalidPermissionStringException if the permission string is invalid
    */
   static Permission of(String permissionString) {
-    return new ShiroPermission(permissionString);
+    return new ShiroWildcardPermission(permissionString);
   }
 
   //-------------------------------------------------------------------------
@@ -64,7 +64,7 @@ final class ShiroPermission implements Permission {
    * @param permissionString  the permission string, not null
    * @throws InvalidPermissionStringException if the permission string is invalid
    */
-  private ShiroPermission(final String permissionString) {
+  private ShiroWildcardPermission(final String permissionString) {
     String permStr = StringUtils.stripToNull(permissionString);
     if (permStr == null) {
       throw new InvalidPermissionStringException("Permission string must not be blank: " + permissionString, permissionString);
@@ -123,13 +123,13 @@ final class ShiroPermission implements Permission {
   // this permission is the permission I have
   // the other permission is the permission being checked
   @Override
-  public boolean implies(Permission permission) {
-    if (permission instanceof ShiroPermission == false) {
+  public boolean implies(Permission requiredPermission) {
+    if (requiredPermission instanceof ShiroWildcardPermission == false) {
       return false;
     }
-    ShiroPermission perm = (ShiroPermission) permission;
+    ShiroWildcardPermission requiredPerm = (ShiroWildcardPermission) requiredPermission;
     List<Set<String>> thisSegments = _segments;
-    List<Set<String>> otherSegments = perm._segments;
+    List<Set<String>> otherSegments = requiredPerm._segments;
     if (thisSegments.size() > otherSegments.size()) {
       return false;
     }
@@ -147,8 +147,8 @@ final class ShiroPermission implements Permission {
   //-------------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
-    if (obj instanceof ShiroPermission) {
-      ShiroPermission other = (ShiroPermission) obj;
+    if (obj instanceof ShiroWildcardPermission) {
+      ShiroWildcardPermission other = (ShiroWildcardPermission) obj;
       return _segments.equals(other._segments);
     }
     return false;

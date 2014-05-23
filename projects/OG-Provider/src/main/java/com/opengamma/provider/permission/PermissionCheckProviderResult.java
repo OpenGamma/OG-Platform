@@ -5,6 +5,7 @@
  */
 package com.opengamma.provider.permission;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -36,6 +37,7 @@ import com.opengamma.util.PublicSPI;
  * It also contains error fields that provide more detail.
  * The map of checked permissions will contain no true values if there are errors
  * and will typically be empty.
+ * As such, there is no need for an {@code isErrors()} method.
  * <p>
  * This class is immutable and thread-safe.
  */
@@ -98,6 +100,23 @@ public final class PermissionCheckProviderResult implements ImmutableBean {
    * <p>
    * This method returns false rather than throwing an exception.
    * 
+   * @param requestedPermissions  the requested permissions, not null
+   * @return true if permitted, false if not
+   */
+  public boolean isPermittedAll(Collection<String> requestedPermissions) {
+    for (String requestedPermission : requestedPermissions) {
+      if (isPermitted(requestedPermission) == false) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Checks if the specified permission is true or false.
+   * <p>
+   * This method returns false rather than throwing an exception.
+   * 
    * @param requestedPermission  the requested permission, not null
    * @return true if permitted, false if not
    */
@@ -127,6 +146,7 @@ public final class PermissionCheckProviderResult implements ImmutableBean {
     }
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Checks if any errors occurred, throwing an exception if there were errors.
    * <p>
