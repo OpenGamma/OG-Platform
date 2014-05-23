@@ -8,8 +8,6 @@ package com.opengamma.util.fudgemsg.multimap;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
-import org.testng.annotations.Test;
-
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ListMultimap;
@@ -17,12 +15,10 @@ import com.google.common.collect.SortedSetMultimap;
 import com.google.common.collect.TreeMultimap;
 import com.opengamma.util.fudgemsg.FlexiBeanFudgeBuilder;
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
-import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the {@link FlexiBeanFudgeBuilder} class.
  */
-@Test(groups = TestGroup.UNIT)
 public class MultimapBeanFudgeBuilderTest extends AbstractFudgeBuilderTestCase {
 
   public void test_empty_simple_multimap() {
