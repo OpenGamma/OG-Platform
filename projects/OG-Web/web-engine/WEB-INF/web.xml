@@ -75,7 +75,12 @@
     </init-param>
   </servlet>
 
-  <!-- Apache Shiro security -->
+  <!-- Session timeout -->
+  <session-config>
+    <session-timeout>20</session-timeout>
+  </session-config>
+
+  <!-- Apache Shiro auth -->
   <listener>
     <listener-class>com.opengamma.web.ShiroSecurityEnvironmentLoader</listener-class>
   </listener>

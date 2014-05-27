@@ -142,6 +142,12 @@ public class UserSourceRealm extends AuthorizingRealm {
 
   //-------------------------------------------------------------------------
   @Override
+  public boolean isAuthenticationCachingEnabled() {
+    // additional work performed in doGetAuthenticationInfo() which must not be skipped by caching
+    return false;
+  }
+
+  @Override
   public boolean supports(AuthenticationToken token) {
     return token instanceof UsernamePasswordToken;
   }
