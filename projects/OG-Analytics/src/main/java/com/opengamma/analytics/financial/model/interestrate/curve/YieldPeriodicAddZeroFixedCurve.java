@@ -32,8 +32,21 @@ public class YieldPeriodicAddZeroFixedCurve extends YieldAndDiscountAddZeroFixed
    * If 1 the rates are added, if -1, they are subtracted (curve - curveFixed).
    */
   private final double _sign;
-    
-  public YieldPeriodicAddZeroFixedCurve(String name, boolean subtract, YieldPeriodicCurve curve, YieldCurve curveFixed) {
+
+  /**
+   * Constructor for periodic yield curve that takes a base curve and a fixed curve. The new curve interest rate 
+   * (zero-coupon continuously compounded) will be the sum (or the difference) of the different underlying curves. There
+   * will be sensitivity to the base curve only, not to the fixed curve.
+   * @param name the curve name.
+   * @param subtract if true, the rate of all curves, except the first one, will be subtracted from the first one. If 
+   *  false, all the rates are added.
+   * @param curve the main curve.
+   * @param curveFixed the fixed curve (as a spread).
+   */
+  public YieldPeriodicAddZeroFixedCurve(String name,
+                                        boolean subtract,
+                                        YieldPeriodicCurve curve,
+                                        YieldCurve curveFixed) {
     super(name, subtract, curve, curveFixed);
     _baseCurve = curve.getCurve();
     _fixedCurve = curveFixed.getCurve();
@@ -64,9 +77,9 @@ public class YieldPeriodicAddZeroFixedCurve extends YieldAndDiscountAddZeroFixed
     if (compoundingPeriodsPerYear == _compoundingPeriodsPerYear) {
       return baseIR;
     }
-    final InterestRate rc = new PeriodicInterestRate(baseIR, _compoundingPeriodsPerYear);
-    // Implementation note: rate in the composition of the storage.
-    final InterestRate rq = rc.toPeriodic(compoundingPeriodsPerYear);
-    return rq.getRate();
+    final InterestRate baseRate = new PeriodicInterestRate(baseIR, _compoundingPeriodsPerYear);
+    // rate in the composition of the storage.
+    final InterestRate periodicRate = baseRate.toPeriodic(compoundingPeriodsPerYear);
+    return periodicRate.getRate();
   }
 }
