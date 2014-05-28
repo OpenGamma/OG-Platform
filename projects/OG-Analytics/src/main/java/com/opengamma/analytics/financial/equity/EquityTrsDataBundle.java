@@ -11,10 +11,14 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * Data bundle with one equity price and a multi-curve provider.
  */
 public class EquityTrsDataBundle {
+
+  /** The equity price **/
   private final double _spotEquity;
+  // TODO: Should this be replace by a map of LegalEntity/price (to be able to handle several equities in the same object).
+  /** The multi-curve provider */
   private final MulticurveProviderInterface _curves;
 
   public EquityTrsDataBundle(final double spotEquity, final MulticurveProviderInterface curves) {
@@ -70,6 +74,5 @@ public class EquityTrsDataBundle {
     }
     return true;
   }
-
 
 }

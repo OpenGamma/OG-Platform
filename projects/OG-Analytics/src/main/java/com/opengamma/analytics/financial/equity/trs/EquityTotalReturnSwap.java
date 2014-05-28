@@ -19,7 +19,8 @@ import com.opengamma.util.money.Currency;
  * Description of an equity total return swap.
  */
 public class EquityTotalReturnSwap extends TotalReturnSwap {
-  /** The asset */
+
+  /** The equity asset */
   private final Equity _equity;
   /** The notional amount */
   private final double _notionalAmount;
