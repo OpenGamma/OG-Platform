@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.google.common.collect.HashMultimap;
+import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.ConfigSource;
@@ -85,7 +85,7 @@ public class ConfigDBInstrumentExposuresProvider implements InstrumentExposuresP
     final List<String> exposureFunctionNames = exposures.getExposureFunctions();
     List<ExternalId> ids = null;
     final Set<String> curveConstructionConfigurationNames = new HashSet<>();
-    Multimap<String, ExternalId> functionToIds = HashMultimap.create();
+    Multimap<String, ExternalId> functionToIds = LinkedHashMultimap.create();
     for (final String exposureFunctionName : exposureFunctionNames) {
       final ExposureFunction exposureFunction = ExposureFunctionFactory.getExposureFunction(_securitySource, exposureFunctionName);
       ids = security.accept(exposureFunction);
@@ -95,7 +95,7 @@ public class ConfigDBInstrumentExposuresProvider implements InstrumentExposuresP
         for (final ExternalId id : ids) {
           final String name = idsToNames.get(id);
           if (name == null) {
-            break;
+            continue;
           }
           curveConstructionConfigurationNames.add(name);
         }
