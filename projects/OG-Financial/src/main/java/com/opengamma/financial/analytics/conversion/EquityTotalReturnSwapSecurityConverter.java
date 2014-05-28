@@ -78,7 +78,7 @@ public class EquityTotalReturnSwapSecurityConverter extends FinancialSecurityVis
     final LocalDate startDate = security.getEffectiveDate();
     final LocalDate endDate = security.getMaturityDate();
     final NotionalExchange notionalExchange = NotionalExchange.NO_EXCHANGE;
-    final AnnuityDefinition<? extends PaymentDefinition> annuityDefinition = AnnuityUtils.buildFloatingAnnuityDefinition(_conventionSource, _holidaySource, isPayer,
+    final AnnuityDefinition<? extends PaymentDefinition> annuityDefinition = AnnuityUtils.buildFloatingAnnuityDefinition(_conventionSource, _holidaySource, _securitySource, isPayer,
         startDate, endDate, notionalExchange, fundingLeg);
     final EquitySecurity equity = (EquitySecurity) underlying;
     final LegalEntity legalEntity = getLegalEntityForEquity(equity);

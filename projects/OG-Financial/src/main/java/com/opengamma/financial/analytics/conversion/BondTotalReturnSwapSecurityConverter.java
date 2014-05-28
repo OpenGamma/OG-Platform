@@ -93,7 +93,7 @@ public class BondTotalReturnSwapSecurityConverter extends FinancialSecurityVisit
     final LocalDate startDate = security.getEffectiveDate();
     final LocalDate endDate = security.getMaturityDate();
     final NotionalExchange notionalExchange = NotionalExchange.builder().exchangeFinalNotional(true).build(); //NotionalExchange.NO_EXCHANGE;
-    final AnnuityDefinition<? extends PaymentDefinition> annuityDefinition = AnnuityUtils.buildFloatingAnnuityDefinition(_conventionSource, _holidaySource, isPayer,
+    final AnnuityDefinition<? extends PaymentDefinition> annuityDefinition = AnnuityUtils.buildFloatingAnnuityDefinition(_conventionSource, _holidaySource, _securitySource, isPayer,
         startDate, endDate, notionalExchange, fundingLeg);
     final BondSecurity bond = (BondSecurity) underlying;
     final BondConvention convention = getConvention(bond, _conventionSource);
