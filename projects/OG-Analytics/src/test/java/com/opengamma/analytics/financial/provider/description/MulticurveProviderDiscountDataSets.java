@@ -12,6 +12,7 @@ import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.temporal.TemporalAdjusters;
 
+import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexIborMaster;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
@@ -57,6 +58,10 @@ public class MulticurveProviderDiscountDataSets {
   private static final Calendar CALENDAR_EUR = new MondayToFridayCalendar("EUR");
   private static final Calendar CALENDAR_CAD = new MondayToFridayCalendar("CAD");
   private static final Calendar CALENDAR_AUD = new MondayToFridayCalendar("AUD");
+  private static final FXMatrix FX_MATRIX = new FXMatrix(Currency.GBP, Currency.USD, 1.60);
+  static {
+    FX_MATRIX.addCurrency(Currency.EUR, Currency.USD, 1.40);
+  }
 
   private static final double[] USD_DSC_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0 };
   private static final double[] USD_DSC_RATE = new double[] {0.0100, 0.0120, 0.0120, 0.0140, 0.0140, 0.0140 };
@@ -142,6 +147,7 @@ public class MulticurveProviderDiscountDataSets {
   private static final IborIndex AUDBB6M = MASTER_IBOR_INDEX.getIndex("AUDBB6M");
   private static final IndexON EONIA = IndexONMaster.getInstance().getIndex("EONIA");
   private static final IndexON FEDFUND = IndexONMaster.getInstance().getIndex("FED FUND");
+  private static final IndexON SONIA = IndexONMaster.getInstance().getIndex("SONIA");
   private static final IndexON BRAZIL_CDI = IndexONMaster.getInstance().getIndex("CDI");
 
   private static final String NAME_EUR_PRICE_INDEX = "EUR HICP";
@@ -220,6 +226,8 @@ public class MulticurveProviderDiscountDataSets {
     MULTICURVES_GBP_USD.setCurve(USDLIBOR3M, USD_FWD3);
     MULTICURVES_GBP_USD.setCurve(USDLIBOR6M, USD_FWD6);
     MULTICURVES_GBP_USD.setCurve(Currency.GBP, CURVE_GBP_30);
+    MULTICURVES_GBP_USD.setCurve(SONIA, CURVE_GBP_30);
+    MULTICURVES_GBP_USD.setForexMatrix(FX_MATRIX);
   }
 
   private static final MulticurveProviderDiscount MULTICURVES_USD_WITHOUT_DISCOUNT = new MulticurveProviderDiscount();
