@@ -8,6 +8,7 @@ package com.opengamma.analytics.financial.model.interestrate.curve;
 import com.opengamma.analytics.financial.interestrate.InterestRate;
 import com.opengamma.analytics.financial.interestrate.PeriodicInterestRate;
 import com.opengamma.analytics.math.curve.Curve;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * YieldPeriodicCurve created by adding the periodic compounded rate of two curves. One curve is fixed and there is no sensitivity to that curve.
@@ -48,6 +49,8 @@ public class YieldPeriodicAddZeroFixedCurve extends YieldAndDiscountAddZeroFixed
                                         YieldPeriodicCurve curve,
                                         YieldCurve curveFixed) {
     super(name, subtract, curve, curveFixed);
+    ArgumentChecker.notNull(curve, "curve");
+    ArgumentChecker.notNull(curveFixed, "curveFixed");
     _baseCurve = curve.getCurve();
     _fixedCurve = curveFixed.getCurve();
     _compoundingPeriodsPerYear = curve.getCompoundingPeriodsPerYear();
