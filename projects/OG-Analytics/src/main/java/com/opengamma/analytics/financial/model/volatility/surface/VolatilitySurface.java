@@ -62,29 +62,53 @@ public class VolatilitySurface implements VolatilityModel<DoublesPair> {
   }
 
   public VolatilitySurface withParallelShift(final double shift) {
-    return new VolatilitySurface(SurfaceShiftFunctionFactory.getShiftedSurface(_surface, shift, true));
+    return new VolatilitySurface(getParallelShiftedSurface(shift));
   }
 
   public VolatilitySurface withSingleAdditiveShift(final double x, final double y, final double shift) {
-    return new VolatilitySurface(SurfaceShiftFunctionFactory.getShiftedSurface(_surface, x, y, shift, true));
+    return new VolatilitySurface(getSingleAdditiveShiftSurface(x, y, shift));
   }
 
   public VolatilitySurface withMultipleAdditiveShifts(final double[] x, final double[] y, final double[] shifts) {
-    return new VolatilitySurface(SurfaceShiftFunctionFactory.getShiftedSurface(_surface, x, y, shifts, true));
+    return new VolatilitySurface(getMultipleAdditiveShiftsSurface(x, y, shifts));
   }
 
   public VolatilitySurface withConstantMultiplicativeShift(final double shift) {
-    return new VolatilitySurface(SurfaceShiftFunctionFactory.getShiftedSurface(_surface, shift, false));
+    return new VolatilitySurface(getConstantMultiplicativeShiftSurface(shift));
   }
 
   public VolatilitySurface withSingleMultiplicativeShift(final double x, final double y, final double shift) {
-    return new VolatilitySurface(SurfaceShiftFunctionFactory.getShiftedSurface(_surface, x, y, shift, false));
+    return new VolatilitySurface(getSingleMultiplicativeShiftSurface(x, y, shift));
   }
 
   public VolatilitySurface withMultipleMultiplicativeShifts(final double[] x, final double[] y, final double[] shifts) {
-    return new VolatilitySurface(SurfaceShiftFunctionFactory.getShiftedSurface(_surface, x, y, shifts, false));
+    return new VolatilitySurface(getMultipleMultiplicativeShiftsSurface(x, y, shifts));
   }
 
+  protected Surface<Double, Double, Double> getParallelShiftedSurface(final double shift) {
+    return SurfaceShiftFunctionFactory.getShiftedSurface(_surface, shift, true);
+  }
+
+  protected Surface<Double, Double, Double> getSingleAdditiveShiftSurface(final double x, final double y, final double shift) {
+    return SurfaceShiftFunctionFactory.getShiftedSurface(_surface, x, y, shift, true);
+  }
+
+  protected Surface<Double, Double, Double> getMultipleAdditiveShiftsSurface(final double[] x, final double[] y, final double[] shifts) {
+    return SurfaceShiftFunctionFactory.getShiftedSurface(_surface, x, y, shifts, true);
+  }
+
+  protected Surface<Double, Double, Double> getConstantMultiplicativeShiftSurface(final double shift) {
+    return SurfaceShiftFunctionFactory.getShiftedSurface(_surface, shift, false);
+  }
+
+  protected Surface<Double, Double, Double> getSingleMultiplicativeShiftSurface(final double x, final double y, final double shift) {
+    return SurfaceShiftFunctionFactory.getShiftedSurface(_surface, x, y, shift, false);
+  }
+
+  protected Surface<Double, Double, Double> getMultipleMultiplicativeShiftsSurface(final double[] x, final double[] y, final double[] shifts) {
+    return SurfaceShiftFunctionFactory.getShiftedSurface(_surface, x, y, shifts, false);
+  }
+  
   @Override
   public int hashCode() {
     final int prime = 31;
