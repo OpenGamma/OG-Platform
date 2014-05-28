@@ -30,17 +30,28 @@ public class FunctionalSurfaceMultiplicativeShiftFunction implements SurfaceShif
   public FunctionalDoublesSurface evaluate(final FunctionalDoublesSurface surface, final double percentage, final String newName) {
     Validate.notNull(surface, "surface");
     final Function<Double, Double> f = surface.getFunction();
-    final Function<Double, Double> shiftedFunction = new Function<Double, Double>() {
-
-      @Override
-      public Double evaluate(final Double... xy) {
-        return f.evaluate(xy) * (1 + percentage);
-      }
-
-    };
+    final Function<Double, Double> shiftedFunction = new ShiftedFunction(percentage, f);
     return FunctionalDoublesSurface.from(shiftedFunction, newName);
   }
 
+  
+  private static class ShiftedFunction implements Function<Double, Double> {
+    
+    private final double _percentage;
+    private final Function<Double, Double> _f;
+    
+    public ShiftedFunction(double percentage, Function<Double, Double> f) {
+      this._percentage = percentage;
+      this._f = f;
+    }
+
+    @Override
+    public Double evaluate(final Double... xy) {
+      return _f.evaluate(xy) * (1 + _percentage);
+    }
+    
+  }
+  
   /**
    * {@inheritDoc}
    * @return Not supported
