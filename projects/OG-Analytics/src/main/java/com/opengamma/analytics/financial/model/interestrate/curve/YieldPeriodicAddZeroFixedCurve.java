@@ -55,31 +55,31 @@ public class YieldPeriodicAddZeroFixedCurve extends YieldAndDiscountAddZeroFixed
   }
 
   @Override
-  public double getInterestRate(final Double time) {
+  public double getInterestRate(Double time) {
     final double rate = _baseCurve.getYValue(time) + _sign * _fixedCurve.getYValue(time);
     return _compoundingPeriodsPerYear * Math.log(1 + rate / _compoundingPeriodsPerYear);
   }
 
   @Override
-  public double getForwardRate(final double t) {
+  public double getForwardRate(double t) {
     return _baseCurve.getYValue(t) + _sign * _fixedCurve.getYValue(t);
   }
 
   @Override
-  public double getDiscountFactor(final double t) {
+  public double getDiscountFactor(double t) {
     final double rate = _baseCurve.getYValue(t) + _sign * _fixedCurve.getYValue(t);
     return Math.pow(1 + rate / _compoundingPeriodsPerYear, -_compoundingPeriodsPerYear * t);
   }
 
   @Override
-  public double getPeriodicInterestRate(final double t, final int compoundingPeriodsPerYear) {
+  public double getPeriodicInterestRate(double t, int compoundingPeriodsPerYear) {
     double baseIR = _baseCurve.getYValue(t) + _sign * _fixedCurve.getYValue(t);
     if (compoundingPeriodsPerYear == _compoundingPeriodsPerYear) {
       return baseIR;
     }
-    final InterestRate baseRate = new PeriodicInterestRate(baseIR, _compoundingPeriodsPerYear);
+    InterestRate baseRate = new PeriodicInterestRate(baseIR, _compoundingPeriodsPerYear);
     // rate in the composition of the storage.
-    final InterestRate periodicRate = baseRate.toPeriodic(compoundingPeriodsPerYear);
+    InterestRate periodicRate = baseRate.toPeriodic(compoundingPeriodsPerYear);
     return periodicRate.getRate();
   }
 }
