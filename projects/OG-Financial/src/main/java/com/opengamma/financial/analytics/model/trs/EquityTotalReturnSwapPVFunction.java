@@ -16,10 +16,10 @@ import org.threeten.bp.Instant;
 import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.equity.EquityTrsDataBundle;
-import com.opengamma.analytics.financial.equity.trs.EqyTrsPresentValueCalculator;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.provider.calculator.equity.PresentValueEquityDiscountingCalculator;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -38,7 +38,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 public class EquityTotalReturnSwapPVFunction extends EquityTotalReturnSwapFunction {
   /** The calculator */
   private static final InstrumentDerivativeVisitor<EquityTrsDataBundle, MultipleCurrencyAmount> CALCULATOR =
-      EqyTrsPresentValueCalculator.getInstance();
+      PresentValueEquityDiscountingCalculator.getInstance();
 
   /**
    * Sets the value requirement to {@link ValueRequirementNames#PRESENT_VALUE}.
