@@ -31,7 +31,9 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
  * @param <A> the type of the first side of the pair
  * @param <B> the type of the second side of the pair
  */
-public final class ObjectsPair<A, B> extends Pair<A, B> implements Serializable {
+public final class ObjectsPair<A, B>
+    extends Pair<A, B>
+    implements Serializable {
   // this ImmutableBean is not auto-generated
 
   /** Serialization version. */

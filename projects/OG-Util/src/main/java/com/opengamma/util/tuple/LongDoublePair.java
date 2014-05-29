@@ -33,7 +33,10 @@ import com.opengamma.util.ArgumentChecker;
  * <p>
  * This class is immutable and thread-safe.
  */
-public class LongDoublePair extends Pair<Long, Double> implements Long2DoubleMap.Entry {
+public class LongDoublePair
+    extends Pair<Long, Double>
+    implements Long2DoubleMap.Entry {
+  // this ImmutableBean is not auto-generated
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;

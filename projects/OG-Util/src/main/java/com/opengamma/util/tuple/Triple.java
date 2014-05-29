@@ -39,7 +39,8 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
  * @param <B> the second element type
  * @param <C> the third element type
  */
-public final class Triple<A, B, C> implements ImmutableBean, Comparable<Triple<A, B, C>>, Serializable {
+public final class Triple<A, B, C>
+    implements ImmutableBean, Comparable<Triple<A, B, C>>, Serializable {
   // this ImmutableBean is not auto-generated
 
   /** Serialization version. */
@@ -122,7 +123,7 @@ public final class Triple<A, B, C> implements ImmutableBean, Comparable<Triple<A
    */
   @SuppressWarnings("unchecked")
   public <T> List<T> toList() {
-    ArrayList<Object> list = new ArrayList<Object>();
+    ArrayList<Object> list = new ArrayList<>();
     list.add(getFirst());
     list.add(getSecond());
     list.add(getThird());
@@ -149,15 +150,21 @@ public final class Triple<A, B, C> implements ImmutableBean, Comparable<Triple<A
 
   //-------------------------------------------------------------------------
   /**
-   * Compares the pair based on the first element followed by the second element.
+   * Compares the triple based on the first element followed by the second
+   * element followed by the third element.
+   * <p>
+   * The element types must be {@code Comparable}.
    * 
    * @param other  the other pair, not null
    * @return negative if this is less, zero if equal, positive if greater
    */
   @Override
   public int compareTo(Triple<A, B, C> other) {
-    return new CompareToBuilder().append(_first, other._first)
-        .append(_second, other._second).append(_third, other._third).toComparison();
+    return new CompareToBuilder()
+        .append(_first, other._first)
+        .append(_second, other._second)
+        .append(_third, other._third)
+        .toComparison();
   }
 
   @Override

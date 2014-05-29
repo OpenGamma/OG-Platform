@@ -39,7 +39,8 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
  * @param <B> the second element type
  * @param <C> the third element type
  */
-public final class AbstractTriple<A, B, C> implements ImmutableBean, Comparable<AbstractTriple<A, B, C>>, Serializable {
+public final class AbstractTriple<A, B, C>
+    implements ImmutableBean, Comparable<AbstractTriple<A, B, C>>, Serializable {
   // this ImmutableBean is not auto-generated
 
   /** Serialization version. */

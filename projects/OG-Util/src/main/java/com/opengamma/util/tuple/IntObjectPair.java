@@ -31,7 +31,9 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
  *
  * @param <T> the type of the second side of the pair
  */
-public class IntObjectPair<T> extends Pair<Integer, T> implements Int2ObjectMap.Entry<T> {
+public class IntObjectPair<T>
+    extends Pair<Integer, T>
+    implements Int2ObjectMap.Entry<T> {
   // this ImmutableBean is not auto-generated
 
   /** Serialization version. */

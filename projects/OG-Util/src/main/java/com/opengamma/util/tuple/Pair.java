@@ -31,7 +31,9 @@ import com.opengamma.util.PublicAPI;
  * @param <B> the second element type
  */
 @PublicAPI
-public abstract class Pair<A, B> implements ImmutableBean, Map.Entry<A, B>, Comparable<Pair<A, B>>, Serializable {
+public abstract class Pair<A, B>
+    implements ImmutableBean, Map.Entry<A, B>, Comparable<Pair<A, B>>, Serializable {
+  // this ImmutableBean is not auto-generated
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -211,15 +213,23 @@ public abstract class Pair<A, B> implements ImmutableBean, Map.Entry<A, B>, Comp
   //-------------------------------------------------------------------------
   /**
    * Compares the pair based on the first element followed by the second element.
-   * The types must be {@code Comparable}.
+   * <p>
+   * A Pair <i>(x<sub>1</sub>, y<sub>1</sub>)</i> is less than another pair
+   * <i>(x<sub>2</sub>, y<sub>2</sub>)</i> if one of these is true:<br />
+   * <i>x<sub>1</sub> &lt; x<sub>2</sub></i><br>
+   * <i>x<sub>1</sub> = x<sub>2</sub></i> and <i>y<sub>1</sub> &lt; y<sub>2</sub></i>
+   * <p>
+   * The element types must be {@code Comparable}.
    * 
    * @param other  the other pair, not null
    * @return negative if this is less, zero if equal, positive if greater
    */
   @Override
   public int compareTo(Pair<A, B> other) {
-    return new CompareToBuilder().append(getFirst(), other.getFirst())
-        .append(getSecond(), other.getSecond()).toComparison();
+    return new CompareToBuilder()
+        .append(getFirst(), other.getFirst())
+        .append(getSecond(), other.getSecond())
+        .toComparison();
   }
 
   @Override

@@ -33,7 +33,9 @@ import com.opengamma.util.ArgumentChecker;
  * <p>
  * This class is immutable and thread-safe.
  */
-public class IntDoublePair extends Pair<Integer, Double> implements Int2DoubleMap.Entry {
+public class IntDoublePair
+    extends Pair<Integer, Double>
+    implements Int2DoubleMap.Entry {
   // this ImmutableBean is not auto-generated
 
   /** Serialization version. */

@@ -40,7 +40,8 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
  * @param <C> the third element type
  * @param <D> the fourth element type
  */
-public final class Quadruple<A, B, C, D> implements ImmutableBean, Comparable<Quadruple<A, B, C, D>>, Serializable {
+public final class Quadruple<A, B, C, D>
+    implements ImmutableBean, Comparable<Quadruple<A, B, C, D>>, Serializable {
   // this ImmutableBean is not auto-generated
 
   /** Serialization version. */
@@ -146,15 +147,22 @@ public final class Quadruple<A, B, C, D> implements ImmutableBean, Comparable<Qu
 
   //-------------------------------------------------------------------------
   /**
-   * Compares the pair based on the first element followed by the second element.
+   * Compares the quadruple based on the first element followed by the second
+   * element followed by the third element followed by the fourth element.
+   * <p>
+   * The element types must be {@code Comparable}.
    *
    * @param other  the other pair, not null
    * @return negative if this is less, zero if equal, positive if greater
    */
   @Override
   public int compareTo(Quadruple<A, B, C, D> other) {
-    return new CompareToBuilder().append(_first, other._first)
-        .append(_second, other._second).append(_third, other._third).append(_fourth, other._fourth).toComparison();
+    return new CompareToBuilder()
+        .append(_first, other._first)
+        .append(_second, other._second)
+        .append(_third, other._third)
+        .append(_fourth, other._fourth)
+        .toComparison();
   }
 
   @Override
