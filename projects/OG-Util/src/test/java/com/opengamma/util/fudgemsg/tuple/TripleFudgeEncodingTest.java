@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.util.tuple;
+package com.opengamma.util.fudgemsg.tuple;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
@@ -17,6 +17,7 @@ import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.time.ExpiryAccuracy;
 import com.opengamma.util.time.Tenor;
+import com.opengamma.util.tuple.Triple;
 
 /**
  * Test Fudge encoding.

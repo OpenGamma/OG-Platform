@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.util.tuple;
+package com.opengamma.util.fudgemsg.tuple;
 
 import static org.testng.Assert.assertEquals;
 
@@ -14,9 +14,17 @@ import org.threeten.bp.LocalDate;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.fudgemsg.tuple.ObjectsPairFudgeBuilder;
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Tenor;
+import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.util.tuple.IntDoublePair;
+import com.opengamma.util.tuple.IntObjectPair;
+import com.opengamma.util.tuple.LongDoublePair;
+import com.opengamma.util.tuple.LongObjectPair;
+import com.opengamma.util.tuple.ObjectsPair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Test Fudge encoding.
