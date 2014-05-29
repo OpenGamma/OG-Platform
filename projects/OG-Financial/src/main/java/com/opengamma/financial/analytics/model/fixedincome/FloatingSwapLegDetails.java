@@ -33,6 +33,7 @@ import com.opengamma.util.time.Tenor;
  * <p>
  * <li></li>
  */
+@Deprecated
 @BeanDefinition
 public class  FloatingSwapLegDetails extends DirectBean implements Serializable {
   /**

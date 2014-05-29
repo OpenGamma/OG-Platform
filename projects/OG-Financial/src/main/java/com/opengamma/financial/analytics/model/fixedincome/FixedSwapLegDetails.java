@@ -41,6 +41,7 @@ import com.opengamma.util.money.CurrencyAmount;
  * <p>
  * There is an entry for each coupon in a fixed leg.
  */
+@Deprecated
 @BeanDefinition
 public class FixedSwapLegDetails extends DirectBean implements Serializable {
   /**
