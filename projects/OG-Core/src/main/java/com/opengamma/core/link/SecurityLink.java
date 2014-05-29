@@ -26,6 +26,7 @@ public abstract class SecurityLink<T extends Security> implements Link<T> {
    * and VersionCorrectionProvider necessary to resolve the provided bundle into
    * the target object.
    *
+   * @param <S> type of the security
    * @param bundle the external id bundle to be resolved into the target object, not null
    * @param type the type of object being linked to, not null
    * @return a security link, not null

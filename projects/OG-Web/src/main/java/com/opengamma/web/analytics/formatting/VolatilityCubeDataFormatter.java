@@ -9,8 +9,9 @@ import com.opengamma.core.marketdatasnapshot.VolatilityCubeData;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
- *
+ * Formatter for {@code VolatilityCubeData}.
  */
+@SuppressWarnings("rawtypes")
 /* package */class VolatilityCubeDataFormatter extends AbstractFormatter<VolatilityCubeData> {
 
   /* package */VolatilityCubeDataFormatter() {

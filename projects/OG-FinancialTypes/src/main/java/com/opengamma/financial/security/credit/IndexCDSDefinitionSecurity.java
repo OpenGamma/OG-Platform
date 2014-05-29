@@ -131,9 +131,20 @@ public class IndexCDSDefinitionSecurity extends FinancialSecurity {
    * @param calendars the holiday calendars, not null
    * @param businessDayConvention the business day convention, not null
    */
-  public IndexCDSDefinitionSecurity(final ExternalIdBundle ids, final LocalDate startDate, final String version, final String series, final String family, final Currency currency, final Double recoveryRate,
-                                    final Frequency couponFrequency, final Double coupon, final CDSIndexTerms terms, final CDSIndexComponentBundle components,
-                                    final Set<ExternalId> calendars, final BusinessDayConvention businessDayConvention) {
+  public IndexCDSDefinitionSecurity(
+      ExternalIdBundle ids,
+      LocalDate startDate,
+      String version,
+      String series,
+      String family,
+      Currency currency,
+      Double recoveryRate,
+      Frequency couponFrequency,
+      Double coupon,
+      CDSIndexTerms terms,
+      CDSIndexComponentBundle components,
+      Set<ExternalId> calendars,
+      BusinessDayConvention businessDayConvention) {
     super(SECURITY_TYPE);
     setExternalIdBundle(ids);
     setStartDate(startDate);
@@ -168,10 +179,21 @@ public class IndexCDSDefinitionSecurity extends FinancialSecurity {
    * @param calendars the holiday calendars, not null
    * @param businessDayConvention the business day convention, not null
    */
-  public IndexCDSDefinitionSecurity(final ExternalIdBundle ids, final String name, final LocalDate startDate, final String version, final String series,
-                                    final String family, final Currency currency, final Double recoveryRate, final Frequency couponFrequency,
-                                    final Double coupon, final CDSIndexTerms terms, final CDSIndexComponentBundle components,
-                                    final Set<ExternalId> calendars, final BusinessDayConvention businessDayConvention) {
+  public IndexCDSDefinitionSecurity(
+      ExternalIdBundle ids,
+      String name,
+      LocalDate startDate,
+      String version,
+      String series,
+      String family,
+      Currency currency,
+      Double recoveryRate,
+      Frequency couponFrequency,
+      Double coupon,
+      CDSIndexTerms terms,
+      CDSIndexComponentBundle components,
+      Set<ExternalId> calendars,
+      BusinessDayConvention businessDayConvention) {
     super(SECURITY_TYPE);
     setExternalIdBundle(ids);
     setName(name);

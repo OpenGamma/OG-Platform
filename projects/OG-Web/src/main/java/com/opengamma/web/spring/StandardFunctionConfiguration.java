@@ -1251,6 +1251,7 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
         return d;
       }
     }));
+    @SuppressWarnings("unused")
     final Object temp = getCurrencyInfo(new Function1<CurrencyInfo, com.opengamma.financial.analytics.model.sabrcube.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo>() {
       @Override
       public com.opengamma.financial.analytics.model.sabrcube.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo execute(final CurrencyInfo i) {

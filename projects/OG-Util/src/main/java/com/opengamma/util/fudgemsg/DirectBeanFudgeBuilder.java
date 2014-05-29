@@ -292,7 +292,7 @@ public final class DirectBeanFudgeBuilder<T extends Bean> implements FudgeBuilde
     return map;
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "rawtypes" })
   private Multimap<Object, Object> buildObjectMultimap(FudgeDeserializer deserializer,
                                                        MetaProperty<?> prop,
                                                        Class<?> type,

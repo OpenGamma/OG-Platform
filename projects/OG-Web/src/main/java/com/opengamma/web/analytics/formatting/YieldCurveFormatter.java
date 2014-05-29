@@ -8,9 +8,6 @@ package com.opengamma.web.analytics.formatting;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
@@ -22,8 +19,6 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveInterpolatingFunction
  *
  */
 /* package */ class YieldCurveFormatter extends AbstractFormatter<YieldCurve> {
-
-  private static final Logger s_logger = LoggerFactory.getLogger(YieldCurveFormatter.class);
 
   /* package */ YieldCurveFormatter() {
     super(YieldCurve.class);

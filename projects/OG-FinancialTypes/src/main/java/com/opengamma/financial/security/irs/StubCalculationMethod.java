@@ -104,6 +104,8 @@ public final class StubCalculationMethod implements ImmutableBean {
 
   /**
    * Validate inputs.
+   * 
+   * @return this stub calculation method
    */
   public StubCalculationMethod validate() {
     switch (getType()) {

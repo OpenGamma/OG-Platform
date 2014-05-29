@@ -6,7 +6,6 @@
 package com.opengamma.web.analytics.push;
 
 import java.io.IOException;
-import java.security.Principal;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;

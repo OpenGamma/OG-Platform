@@ -11,6 +11,7 @@ import com.opengamma.engine.value.ValueSpecification;
 /**
  * Converter for {@link VolatilityCubeData} objects.
  */
+@SuppressWarnings("rawtypes")
 public class VolatilityCubeDataConverter implements ResultConverter<VolatilityCubeData> {
 
   @Override
