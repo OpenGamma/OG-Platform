@@ -32,5 +32,8 @@ public class CarrLeeFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(CarrLeePresentValueFXVolatilitySwapFunction.class));
     functions.add(functionConfiguration(CarrLeeThetaFXVolatilitySwapFunction.class));
     functions.add(functionConfiguration(CarrLeeVegaFXVolatilitySwapFunction.class));
+    functions.add(functionConfiguration(CarrLeeValueDeltaFXVolatilitySwapFunction.class));
+    functions.add(functionConfiguration(CarrLeeValueThetaFXVolatilitySwapFunction.class));
+    functions.add(functionConfiguration(CarrLeeValueVegaFXVolatilitySwapFunction.class));
   }
 }
