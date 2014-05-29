@@ -363,12 +363,6 @@ public final class MultipleCurrencyAmount implements ImmutableBean,
     return _currencyAmountMap.values().toString();
   }
 
-  @ImmutableConstructor
-  private MultipleCurrencyAmount(SortedMap<Currency, CurrencyAmount> currencyAmountMap) {
-    JodaBeanUtils.notNull(currencyAmountMap, "currencyAmountMap");
-    this._currencyAmountMap = ImmutableSortedMap.copyOfSorted(currencyAmountMap);
-  }
-
   private MultipleCurrencyAmount(ImmutableSortedMap<Currency, CurrencyAmount> currencyAmountMap) {
     JodaBeanUtils.notNull(currencyAmountMap, "currencyAmountMap");
     this._currencyAmountMap = currencyAmountMap;
@@ -386,6 +380,12 @@ public final class MultipleCurrencyAmount implements ImmutableBean,
 
   static {
     JodaBeanUtils.registerMetaBean(MultipleCurrencyAmount.Meta.INSTANCE);
+  }
+
+  private MultipleCurrencyAmount(
+      SortedMap<Currency, CurrencyAmount> currencyAmountMap) {
+    JodaBeanUtils.notNull(currencyAmountMap, "currencyAmountMap");
+    this._currencyAmountMap = ImmutableSortedMap.copyOfSorted(currencyAmountMap);
   }
 
   @Override

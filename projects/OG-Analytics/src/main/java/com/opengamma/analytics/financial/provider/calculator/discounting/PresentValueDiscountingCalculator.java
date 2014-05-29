@@ -252,8 +252,8 @@ public final class PresentValueDiscountingCalculator extends InstrumentDerivativ
     ArgumentChecker.notNull(multicurve, "multicurve");
     MultipleCurrencyAmount pv = annuity.getNthPayment(0).accept(this, multicurve);
     Pricer pricer = new Pricer(pv);
-    for (int loopp = 1; loopp < annuity.getNumberOfPayments(); loopp++) {
-      pricer.plus(annuity.getNthPayment(loopp).accept(this, multicurve));
+    for (int i = 1; i < annuity.getNumberOfPayments(); i++) {
+      pricer.plus(annuity.getNthPayment(i).accept(this, multicurve));
     }
     return pricer.getSum();
   }
@@ -353,20 +353,21 @@ public final class PresentValueDiscountingCalculator extends InstrumentDerivativ
 
     /**
      * Add the amount to the existing sum
-     * @param newpv the amount to add
+     * @param amountToAdd the amount to add
      */
-    public void plus(MultipleCurrencyAmount newpv) {
+    public void plus(MultipleCurrencyAmount amountToAdd) {
+      ArgumentChecker.notNull(amountToAdd, "amountToAdd");
       if (_optimisedCurrency == null) {
-        _currencyAmount = _currencyAmount.plus(newpv);
-        return;
+        _currencyAmount = _currencyAmount.plus(amountToAdd);
+      } else {
+        CurrencyAmount optimisedAmount = amountToAdd.getCurrencyAmount(_optimisedCurrency);
+        if (optimisedAmount != null && amountToAdd.size() == 1) {
+          // we only have the optimised currency so just update the running total
+          _singleCurrencySubsequentAmounts += optimisedAmount.getAmount();
+          return;
+        }
+        _currencyAmount = _currencyAmount.plus(amountToAdd);
       }
-      CurrencyAmount optimisedAmount = newpv.getCurrencyAmount(_optimisedCurrency);
-      if (optimisedAmount != null && newpv.size() == 1) {
-        // we only have the optimised currency so just update the running total
-        _singleCurrencySubsequentAmounts += optimisedAmount.getAmount();
-        return;
-      }
-      _currencyAmount = _currencyAmount.plus(newpv);
     }
 
     /**
