@@ -29,7 +29,9 @@ import com.opengamma.util.ArgumentChecker;
  * <p>
  * This class allows information about an arbitrary {@link Throwable} instance
  * to be stored and serialized.
+ * @deprecated use {@link Failure} fields to store details of throwables that cause failures
  */
+@Deprecated
 @BeanDefinition
 public final class ThrowableDetails implements ImmutableBean {
 
