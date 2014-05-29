@@ -11,6 +11,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Custom JSON builder to convert VolatilityCubeDefinition to JSON object and back again
  */
+@SuppressWarnings("rawtypes")
 public final class VolatilityCubeDefinitionJSONBuilder extends AbstractJSONBuilder<VolatilityCubeDefinition> {
      
   /**

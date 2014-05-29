@@ -33,6 +33,7 @@ import com.opengamma.engine.view.cycle.ViewCycle;
   /** The grid structure. */
   private final DependencyGraphGridStructure _structure;
   private final FunctionRepository _functions;
+  @SuppressWarnings("unused")
   private final ValueMappings _valueMappings;
 
   /** Mutable variable for keeping track of the index of the last row */

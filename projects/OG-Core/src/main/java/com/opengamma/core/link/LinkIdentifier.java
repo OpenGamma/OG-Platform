@@ -47,11 +47,13 @@ public final class LinkIdentifier<I, T> implements ImmutableBean {
   /**
    * Create a new link identifier for the combination of type and id.
    *
+   * @param <I> the identifier for the linked object
+   * @param <T> the type of the object being linked to
    * @param identifier the identifier of the object being linked to
    * @param type the type of the object being linked to
    * @return a new instance
    */
-  public static <T, I> LinkIdentifier<I, T> of(I identifier, Class<T> type) {
+  public static <I, T> LinkIdentifier<I, T> of(I identifier, Class<T> type) {
     return new LinkIdentifier<>(identifier, type);
   }
 

@@ -27,7 +27,6 @@ import com.opengamma.web.analytics.AnalyticsNodeJsonWriter;
 import com.opengamma.web.analytics.DependencyGraphGridStructure;
 import com.opengamma.web.analytics.GridColumnsJsonWriter;
 import com.opengamma.web.analytics.PortfolioGridStructure;
-import com.opengamma.web.json.ValueRequirementJSONBuilder;
 
 /**
  * Writes an instance of {@link PortfolioGridStructure} to JSON.
@@ -43,6 +42,7 @@ public class DependencyGraphGridStructureMessageBodyWriter implements MessageBod
   /** Field name for the JSON. */
   private static final String CALC_CONFIG_NAME = "calcConfigName";
   /** Field name for the JSON. */
+  @SuppressWarnings("unused")
   private static final String VALUE_REQUIREMENT = "valueRequirement";
 
   private final GridColumnsJsonWriter _writer;
@@ -77,7 +77,7 @@ public class DependencyGraphGridStructureMessageBodyWriter implements MessageBod
                       OutputStream entityStream) throws IOException, WebApplicationException {
     Object[] rootNode = AnalyticsNodeJsonWriter.getJsonStructure(gridStructure.getRootNode());
     List<Map<String, Object>> columns = _writer.getJsonStructure(gridStructure.getColumnStructure().getGroups());
-    ValueRequirementJSONBuilder jsonBuilder = new ValueRequirementJSONBuilder();
+    //ValueRequirementJSONBuilder jsonBuilder = new ValueRequirementJSONBuilder();
     //String valueReqStr = jsonBuilder.toJSON(gridStructure.getRootRequirement());
     //JSONObject valueReqJson;
     //try {

@@ -55,7 +55,7 @@ public class WebLegalEntityResource extends AbstractWebLegalEntityResource {
   @GET
   @Produces(MediaType.TEXT_HTML)
   public String getHTML() {
-    final ManageableLegalEntity legalEntity = data().getLegalEntity().getLegalEntity();
+    //final ManageableLegalEntity legalEntity = data().getLegalEntity().getLegalEntity();
 
     //RootPortfolio rp = new RootPortfolio();
     //rp.setPortfolio(ObjectId.parse("DbPrt~1042"));

@@ -22,6 +22,7 @@ import com.opengamma.util.SingletonFactoryBean;
 /**
  * Creates a FunctionResolver for the demo, prioritizing the functions
  */
+@SuppressWarnings("deprecation")
 public class DemoFunctionResolverFactoryBean extends SingletonFactoryBean<FunctionResolver> {
 
   private CompiledFunctionService _functionCompilationService;

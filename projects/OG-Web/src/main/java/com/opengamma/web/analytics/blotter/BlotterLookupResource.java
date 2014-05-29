@@ -184,6 +184,7 @@ public class BlotterLookupResource {
   @GET
   @Path("idschemes")
   @Produces(MediaType.APPLICATION_JSON)
+  @SuppressWarnings("deprecation")
   public String getIdSchemes() {
     Map<String, ExternalScheme> schemes = Maps.newHashMap();
     schemes.put("ISIN", ExternalSchemes.ISIN);

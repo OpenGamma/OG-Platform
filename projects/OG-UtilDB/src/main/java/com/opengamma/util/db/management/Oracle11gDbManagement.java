@@ -9,7 +9,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.Collection;
 
 import org.hibernate.dialect.Dialect;
@@ -19,14 +18,10 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.test.TestProperties;
 
 /**
- * Database management for Postgres databases.
+ * Database management for Oracle databases.
  */
 public final class Oracle11gDbManagement extends AbstractDbManagement {
 
-  /**
-   * The default schema.
-   */
-  private static final String ORACLE11G_DEFAULT_SCHEMA = "dbo";
   /**
    * Singleton instance.
    */
@@ -62,7 +57,6 @@ public final class Oracle11gDbManagement extends AbstractDbManagement {
     return _hibernateDialect;
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public Class<?> getJDBCDriverClass() {
     try {
@@ -165,8 +159,6 @@ public final class Oracle11gDbManagement extends AbstractDbManagement {
   @Override
   public void dropSchema(String catalog, String schema) {
     // Does not handle triggers or stored procedures yet
-    ArrayList<String> script = new ArrayList<String>();
-
     Connection conn = null;
     try {
       if (!getCatalogCreationStrategy().catalogExists(catalog)) {
