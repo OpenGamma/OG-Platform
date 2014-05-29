@@ -27,54 +27,70 @@ import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
+ * Generates random historical time series data.
  */
 public class SimulatedHistoricalDataGenerator extends SimulatedHistoricalData {
 
   private static final Logger s_logger = LoggerFactory.getLogger(SimulatedHistoricalDataGenerator.class);
 
+  /** Master for writing the generated time series data. */
   private final HistoricalTimeSeriesMaster _htsMaster;
 
-  private static final int TS_LENGTH = 30; // length of timeseries in months (2.5 years)
+  /** Default length of time series to load in months (2.5 years). */
+  private static final int TS_LENGTH = 30;
 
-  public SimulatedHistoricalDataGenerator(final HistoricalTimeSeriesMaster htsMaster) {
-    ArgumentChecker.notNull(htsMaster, "htsMaster");
-    _htsMaster = htsMaster;
+  /** Length of time series to load in months. */
+  private final int _timeSeriesLengthMonths;
+
+  /**
+   * @param timeSeriesMaster master for writing the generated time series data
+   */
+  public SimulatedHistoricalDataGenerator(HistoricalTimeSeriesMaster timeSeriesMaster) {
+    this(timeSeriesMaster, TS_LENGTH);
   }
 
-  public static ManageableHistoricalTimeSeriesInfo getSimulatedTimeSeriesInfo(final String dataField, final ExternalId identifier) {
-    final ManageableHistoricalTimeSeriesInfo info = new ManageableHistoricalTimeSeriesInfo();
-    info.setName(dataField + " " + identifier);
-    info.setDataField(dataField);
-    info.setDataSource(OG_DATA_SOURCE);
-    info.setDataProvider(OG_DATA_PROVIDER);
-    info.setObservationTime(HistoricalTimeSeriesConstants.LONDON_CLOSE);
-    final ExternalIdWithDates id = ExternalIdWithDates.of(identifier, null, null);
-    final ExternalIdBundleWithDates bundle = ExternalIdBundleWithDates.of(id);
-    info.setExternalIdBundle(bundle);
-    return info;
+  /**
+   * @param timeSeriesMaster master for writing the generated time series data
+   * @param timeSeriesLengthMonths length in months of the time series
+   */
+  public SimulatedHistoricalDataGenerator(HistoricalTimeSeriesMaster timeSeriesMaster, int timeSeriesLengthMonths) {
+    _htsMaster = ArgumentChecker.notNull(timeSeriesMaster, "timeSeriesMaster");
+    _timeSeriesLengthMonths = ArgumentChecker.notNegativeOrZero(timeSeriesLengthMonths, "timeSeriesLengthMonths");
   }
 
   public void run() {
-    final Random random = new Random(); // noMarket need for SecureRandom here..
-    final StringBuilder buf = new StringBuilder("loading ").append(getFinishValues().size()).append(" timeseries");
-    for (final Entry<Pair<ExternalId, String>, Double> entry : getFinishValues().entrySet()) {
-      final ExternalId identifier = entry.getKey().getFirst();
-      final String dataField = entry.getKey().getSecond();
-      final Double finishValue = entry.getValue();
-      final ManageableHistoricalTimeSeriesInfo info = getSimulatedTimeSeriesInfo(dataField, identifier);
+    Random random = new Random(); // noMarket need for SecureRandom here..
+    StringBuilder buf = new StringBuilder("loading ").append(getFinishValues().size()).append(" timeseries");
+    for (Entry<Pair<ExternalId, String>, Double> entry : getFinishValues().entrySet()) {
+      ExternalId identifier = entry.getKey().getFirst();
+      String dataField = entry.getKey().getSecond();
+      Double finishValue = entry.getValue();
+      ManageableHistoricalTimeSeriesInfo info = getSimulatedTimeSeriesInfo(dataField, identifier);
       buf.append("\t").append(identifier).append(" ").append(dataField).append("\n");
-      final HistoricalTimeSeriesInfoDocument addedDoc = _htsMaster.add(new HistoricalTimeSeriesInfoDocument(info));
-      final LocalDateDoubleTimeSeries timeSeries = getHistoricalDataPoints(random, finishValue, TS_LENGTH);
+      HistoricalTimeSeriesInfoDocument addedDoc = _htsMaster.add(new HistoricalTimeSeriesInfoDocument(info));
+      LocalDateDoubleTimeSeries timeSeries = getHistoricalDataPoints(random, finishValue, _timeSeriesLengthMonths);
       _htsMaster.updateTimeSeriesDataPoints(addedDoc.getInfo().getTimeSeriesObjectId(), timeSeries);
     }
     s_logger.info(buf.toString());
   }
 
-  public static LocalDateDoubleTimeSeries getHistoricalDataPoints(final Random random, final Double finishValue, final int tsLength) {
-    final LocalDateDoubleTimeSeriesBuilder bld = ImmutableLocalDateDoubleTimeSeries.builder();
+  private static ManageableHistoricalTimeSeriesInfo getSimulatedTimeSeriesInfo(String dataField, ExternalId identifier) {
+    ManageableHistoricalTimeSeriesInfo info = new ManageableHistoricalTimeSeriesInfo();
+    info.setName(dataField + " " + identifier);
+    info.setDataField(dataField);
+    info.setDataSource(OG_DATA_SOURCE);
+    info.setDataProvider(OG_DATA_PROVIDER);
+    info.setObservationTime(HistoricalTimeSeriesConstants.LONDON_CLOSE);
+    ExternalIdWithDates id = ExternalIdWithDates.of(identifier, null, null);
+    ExternalIdBundleWithDates bundle = ExternalIdBundleWithDates.of(id);
+    info.setExternalIdBundle(bundle);
+    return info;
+  }
+
+  private static LocalDateDoubleTimeSeries getHistoricalDataPoints(Random random, Double finishValue, int tsLength) {
+    LocalDateDoubleTimeSeriesBuilder bld = ImmutableLocalDateDoubleTimeSeries.builder();
     LocalDate now = LocalDate.now();
-    final LocalDate stopDate = DateUtils.previousWeekDay(now.minusMonths(tsLength));
+    LocalDate stopDate = DateUtils.previousWeekDay(now.minusMonths(tsLength));
     double currentValue = finishValue;
     do {
       currentValue = wiggleValue(random, currentValue, finishValue);
@@ -85,3 +101,4 @@ public class SimulatedHistoricalDataGenerator extends SimulatedHistoricalData {
   }
 
 }
+
