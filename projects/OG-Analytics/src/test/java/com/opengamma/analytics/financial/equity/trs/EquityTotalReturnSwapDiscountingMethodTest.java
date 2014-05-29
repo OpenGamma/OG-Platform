@@ -183,6 +183,9 @@ public class EquityTotalReturnSwapDiscountingMethodTest {
     // Method vs Calculator
     MultipleCurrencyAmount pvCalculatorPay = TRS_PAY_ON_REC_1.accept(PVEDC, EQUITY_MULTICURVE);
     assertEquals("BondTRSDiscountingMethod: present value", pvCalculatorPay.getAmount(GBP), pvComputedPay.getAmount(GBP), TOLERANCE_PV);
+    // Asset exposure
+    MultipleCurrencyAmount ae = METHOD_TRS_EQT.assetExposure(TRS_PAY_ON_REC_1, EQUITY_MULTICURVE);
+    assertEquals("BondTRSDiscountingMethod: asset exposure", pvEquity.getAmount(GBP), ae.getAmount(GBP), TOLERANCE_PV);
   }
 
   @Test
@@ -200,6 +203,9 @@ public class EquityTotalReturnSwapDiscountingMethodTest {
     // Currency exposure
     MultipleCurrencyAmount ceComputedRec = METHOD_TRS_EQT.currencyExposure(TRS_PAY_ON_REC_2, EQUITY_MULTICURVE);
     assertEquals("BondTRSDiscountingMethod: currency exposure", pvComputed.getAmount(GBP), ceComputedRec.getAmount(GBP), TOLERANCE_PV);
+    // Asset exposure
+    MultipleCurrencyAmount ae = METHOD_TRS_EQT.assetExposure(TRS_PAY_ON_REC_2, EQUITY_MULTICURVE);
+    assertEquals("BondTRSDiscountingMethod: asset exposure", pvEquity.getAmount(GBP), ae.getAmount(GBP), TOLERANCE_PV);
   }
 
   @Test
@@ -228,6 +234,9 @@ public class EquityTotalReturnSwapDiscountingMethodTest {
     // Method vs Calculator
     MultipleCurrencyAmount pvCalculatorRec = TRS_REC_IBOR_PAY_1.accept(PVEDC, EQUITY_MULTICURVE);
     assertEquals("BondTRSDiscountingMethod: present value", pvCalculatorRec.getAmount(USD), pvComputedRec.getAmount(USD), TOLERANCE_PV);
+    // Asset exposure
+    MultipleCurrencyAmount ae = METHOD_TRS_EQT.assetExposure(TRS_REC_IBOR_PAY_1, EQUITY_MULTICURVE);
+    assertEquals("BondTRSDiscountingMethod: asset exposure", pvEquityGbp.getAmount(GBP), ae.getAmount(GBP), TOLERANCE_PV);
   }
 
   @Test
@@ -253,6 +262,9 @@ public class EquityTotalReturnSwapDiscountingMethodTest {
     assertEquals("BondTRSDiscountingMethod: currency exposure", MULTICURVE.getFxRates().convert(ceComputedRec, GBP).getAmount(),
         MULTICURVE.getFxRates().convert(pvComputedRec, GBP).getAmount(), TOLERANCE_PV); // CE and PV total should be the same; only conversion is different
     assertEquals("BondTRSDiscountingMethod: currency exposure", pvEquityGbp.getAmount(GBP), ceComputedRec.getAmount(GBP), TOLERANCE_PV);
+    // Asset exposure
+    MultipleCurrencyAmount ae = METHOD_TRS_EQT.assetExposure(TRS_REC_IBOR_PAY_2, EQUITY_MULTICURVE);
+    assertEquals("BondTRSDiscountingMethod: asset exposure", pvEquityGbp.getAmount(GBP), ae.getAmount(GBP), TOLERANCE_PV);
   }
 
   @Test

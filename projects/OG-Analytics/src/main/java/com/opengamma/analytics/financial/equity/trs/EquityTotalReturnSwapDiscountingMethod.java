@@ -70,16 +70,16 @@ public final class EquityTotalReturnSwapDiscountingMethod {
     ArgumentChecker.notNull(trs, "equity TRS");
     ArgumentChecker.notNull(equityMulticurves, "multi-curve provider with equity price");
     ArgumentChecker.isTrue(trs.getDividendPercentage() == 1.0, "equity TRS dividend ration should be 1.0");
+    MultipleCurrencyAmount equityPv = MultipleCurrencyAmount.of(trs.getEquity().getCurrency(),
+        equityMulticurves.getSpotEquity() * trs.getEquity().getNumberOfShares());
     // First coupon ON or Ibor: Payment up to the fist payment taken into account OR Only one payment left
     if ((trs.getFundingLeg().getNumberOfPayments() == 1) ||
         (trs.getFundingLeg().getNthPayment(0) instanceof CouponIbor) || (trs.getFundingLeg().getNthPayment(0) instanceof CouponIborSpread)
         || (trs.getFundingLeg().getNthPayment(0) instanceof CouponON) || (trs.getFundingLeg().getNthPayment(0) instanceof CouponONSpread)) {
       MultipleCurrencyAmount previousFixingPv = MultipleCurrencyAmount.of(trs.getNotionalCurrency(),
           -trs.getNotionalAmount() * equityMulticurves.getCurves().getDiscountFactor(trs.getNotionalCurrency(), trs.getFundingLeg().getNthPayment(0).getPaymentTime()));
-      MultipleCurrencyAmount equityPV = MultipleCurrencyAmount.of(trs.getEquity().getCurrency(),
-          equityMulticurves.getSpotEquity() * trs.getEquity().getNumberOfShares());
       final MultipleCurrencyAmount fundingLegPV = trs.getFundingLeg().getNthPayment(0).accept(PVDC, equityMulticurves.getCurves());
-      return previousFixingPv.plus(equityMulticurves.getCurves().getFxRates().convert(equityPV, trs.getNotionalCurrency())).plus(fundingLegPV);
+      return previousFixingPv.plus(equityMulticurves.getCurves().getFxRates().convert(equityPv, trs.getNotionalCurrency())).plus(fundingLegPV);
     }
     // Second coupons fixed or Ibor: Payment up to the end of the second period taken into account.
     if ((trs.getFundingLeg().getNthPayment(1) instanceof CouponFixed)
@@ -87,8 +87,6 @@ public final class EquityTotalReturnSwapDiscountingMethod {
         || (trs.getFundingLeg().getNthPayment(1) instanceof CouponONSpread)) {
       MultipleCurrencyAmount previousFixingPv = MultipleCurrencyAmount.of(trs.getNotionalCurrency(),
           -trs.getNotionalAmount() * equityMulticurves.getCurves().getDiscountFactor(trs.getNotionalCurrency(), trs.getFundingLeg().getNthPayment(1).getPaymentTime()));
-      MultipleCurrencyAmount equityPv = MultipleCurrencyAmount.of(trs.getEquity().getCurrency(),
-          equityMulticurves.getSpotEquity() * trs.getEquity().getNumberOfShares());
       final MultipleCurrencyAmount fundingLegPv0 = trs.getFundingLeg().getNthPayment(0).accept(PVDC, equityMulticurves.getCurves());
       final MultipleCurrencyAmount fundingLegPv1 = trs.getFundingLeg().getNthPayment(1).accept(PVDC, equityMulticurves.getCurves());
       return previousFixingPv.plus(equityMulticurves.getCurves().getFxRates().convert(equityPv, trs.getNotionalCurrency())).plus(fundingLegPv0).plus(fundingLegPv1);
@@ -97,10 +95,8 @@ public final class EquityTotalReturnSwapDiscountingMethod {
     if (trs.getFundingLeg().getNthPayment(0) instanceof CouponFixed) {
       MultipleCurrencyAmount previousFixingPv = MultipleCurrencyAmount.of(trs.getNotionalCurrency(),
           -trs.getNotionalAmount() * equityMulticurves.getCurves().getDiscountFactor(trs.getNotionalCurrency(), trs.getFundingLeg().getNthPayment(0).getPaymentTime()));
-      MultipleCurrencyAmount equityPV = MultipleCurrencyAmount.of(trs.getEquity().getCurrency(),
-          equityMulticurves.getSpotEquity() * trs.getEquity().getNumberOfShares());
       final MultipleCurrencyAmount fundingLegPV = trs.getFundingLeg().getNthPayment(0).accept(PVDC, equityMulticurves.getCurves());
-      return previousFixingPv.plus(equityMulticurves.getCurves().getFxRates().convert(equityPV, trs.getNotionalCurrency())).plus(fundingLegPV);
+      return previousFixingPv.plus(equityMulticurves.getCurves().getFxRates().convert(equityPv, trs.getNotionalCurrency())).plus(fundingLegPV);
     }
     // Other cases not covered by the pricing method.
     throw new NotImplementedException("Pricing of equity TRS not implemented for those types of coupons");
@@ -116,15 +112,15 @@ public final class EquityTotalReturnSwapDiscountingMethod {
   public MultipleCurrencyAmount presentValueAssetLeg(final EquityTotalReturnSwap trs, final EquityTrsDataBundle equityMulticurves) {
     ArgumentChecker.notNull(trs, "equity TRS");
     ArgumentChecker.notNull(equityMulticurves, "multi-curve provider with equity price");
+    MultipleCurrencyAmount equityPv = MultipleCurrencyAmount.of(trs.getEquity().getCurrency(),
+        equityMulticurves.getSpotEquity() * trs.getEquity().getNumberOfShares());
     // First coupon ON or Ibor: Payment up to the fist payment taken into account OR Only one payment left
     if ((trs.getFundingLeg().getNumberOfPayments() == 1) ||
         (trs.getFundingLeg().getNthPayment(0) instanceof CouponIbor) || (trs.getFundingLeg().getNthPayment(0) instanceof CouponIborSpread)
         || (trs.getFundingLeg().getNthPayment(0) instanceof CouponON) || (trs.getFundingLeg().getNthPayment(0) instanceof CouponONSpread)) {
       MultipleCurrencyAmount previousFixingPv = MultipleCurrencyAmount.of(trs.getNotionalCurrency(),
           -trs.getNotionalAmount() * equityMulticurves.getCurves().getDiscountFactor(trs.getNotionalCurrency(), trs.getFundingLeg().getNthPayment(0).getPaymentTime()));
-      MultipleCurrencyAmount equityPV = MultipleCurrencyAmount.of(trs.getEquity().getCurrency(),
-          equityMulticurves.getSpotEquity() * trs.getEquity().getNumberOfShares());
-      return previousFixingPv.plus(equityMulticurves.getCurves().getFxRates().convert(equityPV, trs.getNotionalCurrency()));
+      return previousFixingPv.plus(equityMulticurves.getCurves().getFxRates().convert(equityPv, trs.getNotionalCurrency()));
     }
     // Second coupons fixed or Ibor: Payment up to the end of the second period taken into account.
     if ((trs.getFundingLeg().getNthPayment(1) instanceof CouponFixed)
@@ -132,17 +128,13 @@ public final class EquityTotalReturnSwapDiscountingMethod {
         || (trs.getFundingLeg().getNthPayment(1) instanceof CouponONSpread)) {
       MultipleCurrencyAmount previousFixingPv = MultipleCurrencyAmount.of(trs.getNotionalCurrency(),
           -trs.getNotionalAmount() * equityMulticurves.getCurves().getDiscountFactor(trs.getNotionalCurrency(), trs.getFundingLeg().getNthPayment(1).getPaymentTime()));
-      MultipleCurrencyAmount equityPv = MultipleCurrencyAmount.of(trs.getEquity().getCurrency(),
-          equityMulticurves.getSpotEquity() * trs.getEquity().getNumberOfShares());
       return previousFixingPv.plus(equityMulticurves.getCurves().getFxRates().convert(equityPv, trs.getNotionalCurrency()));
     }
     // First coupon is fixed (and the second one is not fixed or ON): in an already fixed Libor coupon: Payment up to the fist payment taken into account
     if (trs.getFundingLeg().getNthPayment(0) instanceof CouponFixed) {
       MultipleCurrencyAmount previousFixingPv = MultipleCurrencyAmount.of(trs.getNotionalCurrency(),
           -trs.getNotionalAmount() * equityMulticurves.getCurves().getDiscountFactor(trs.getNotionalCurrency(), trs.getFundingLeg().getNthPayment(0).getPaymentTime()));
-      MultipleCurrencyAmount equityPV = MultipleCurrencyAmount.of(trs.getEquity().getCurrency(),
-          equityMulticurves.getSpotEquity() * trs.getEquity().getNumberOfShares());
-      return previousFixingPv.plus(equityMulticurves.getCurves().getFxRates().convert(equityPV, trs.getNotionalCurrency()));
+      return previousFixingPv.plus(equityMulticurves.getCurves().getFxRates().convert(equityPv, trs.getNotionalCurrency()));
     }
     // Other cases not covered by the pricing method.
     throw new NotImplementedException("Pricing of equity TRS not implemented for those types of coupons");
@@ -190,16 +182,16 @@ public final class EquityTotalReturnSwapDiscountingMethod {
   public MultipleCurrencyAmount currencyExposure(final EquityTotalReturnSwap trs, final EquityTrsDataBundle equityMulticurves) {
     ArgumentChecker.notNull(trs, "equity TRS");
     ArgumentChecker.notNull(equityMulticurves, "multi-curve provider with equity price");
+    MultipleCurrencyAmount equityPv = MultipleCurrencyAmount.of(trs.getEquity().getCurrency(),
+        equityMulticurves.getSpotEquity() * trs.getEquity().getNumberOfShares());
     // First coupon ON or Ibor: Payment up to the fist payment taken into account OR Only one payment left
     if ((trs.getFundingLeg().getNumberOfPayments() == 1) ||
         (trs.getFundingLeg().getNthPayment(0) instanceof CouponIbor) || (trs.getFundingLeg().getNthPayment(0) instanceof CouponIborSpread)
         || (trs.getFundingLeg().getNthPayment(0) instanceof CouponON) || (trs.getFundingLeg().getNthPayment(0) instanceof CouponONSpread)) {
       MultipleCurrencyAmount previousFixingPv = MultipleCurrencyAmount.of(trs.getNotionalCurrency(),
           -trs.getNotionalAmount() * equityMulticurves.getCurves().getDiscountFactor(trs.getNotionalCurrency(), trs.getFundingLeg().getNthPayment(0).getPaymentTime()));
-      MultipleCurrencyAmount equityPV = MultipleCurrencyAmount.of(trs.getEquity().getCurrency(),
-          equityMulticurves.getSpotEquity() * trs.getEquity().getNumberOfShares());
       final MultipleCurrencyAmount fundingLegPV = trs.getFundingLeg().getNthPayment(0).accept(PVDC, equityMulticurves.getCurves());
-      return previousFixingPv.plus(equityPV).plus(fundingLegPV);
+      return previousFixingPv.plus(equityPv).plus(fundingLegPV);
     }
     // Second coupons fixed or Ibor: Payment up to the end of the second period taken into account.
     if ((trs.getFundingLeg().getNthPayment(1) instanceof CouponFixed)
@@ -207,8 +199,6 @@ public final class EquityTotalReturnSwapDiscountingMethod {
         || (trs.getFundingLeg().getNthPayment(1) instanceof CouponONSpread)) {
       MultipleCurrencyAmount previousFixingPv = MultipleCurrencyAmount.of(trs.getNotionalCurrency(),
           -trs.getNotionalAmount() * equityMulticurves.getCurves().getDiscountFactor(trs.getNotionalCurrency(), trs.getFundingLeg().getNthPayment(1).getPaymentTime()));
-      MultipleCurrencyAmount equityPv = MultipleCurrencyAmount.of(trs.getEquity().getCurrency(),
-          equityMulticurves.getSpotEquity() * trs.getEquity().getNumberOfShares());
       final MultipleCurrencyAmount fundingLegPv0 = trs.getFundingLeg().getNthPayment(0).accept(PVDC, equityMulticurves.getCurves());
       final MultipleCurrencyAmount fundingLegPv1 = trs.getFundingLeg().getNthPayment(1).accept(PVDC, equityMulticurves.getCurves());
       return previousFixingPv.plus(equityPv).plus(fundingLegPv0).plus(fundingLegPv1);
@@ -217,13 +207,26 @@ public final class EquityTotalReturnSwapDiscountingMethod {
     if (trs.getFundingLeg().getNthPayment(0) instanceof CouponFixed) {
       MultipleCurrencyAmount previousFixingPv = MultipleCurrencyAmount.of(trs.getNotionalCurrency(),
           -trs.getNotionalAmount() * equityMulticurves.getCurves().getDiscountFactor(trs.getNotionalCurrency(), trs.getFundingLeg().getNthPayment(0).getPaymentTime()));
-      MultipleCurrencyAmount equityPV = MultipleCurrencyAmount.of(trs.getEquity().getCurrency(),
-          equityMulticurves.getSpotEquity() * trs.getEquity().getNumberOfShares());
       final MultipleCurrencyAmount fundingLegPV = trs.getFundingLeg().getNthPayment(0).accept(PVDC, equityMulticurves.getCurves());
-      return previousFixingPv.plus(equityPV).plus(fundingLegPV);
+      return previousFixingPv.plus(equityPv).plus(fundingLegPV);
     }
     // Other cases not covered by the pricing method.
     throw new NotImplementedException("Pricing of equity TRS not implemented for those types of coupons");
+  }
+
+  /**
+   * Computes the exposure to the asset (equity) underlying the TRS. The exposure is reported in the equity currency.
+   * @param trs The equity total return swap.
+   * @param equityMulticurves The multi-curves provider with equity price.
+   * @return The present value.
+   */
+  public MultipleCurrencyAmount assetExposure(final EquityTotalReturnSwap trs, final EquityTrsDataBundle equityMulticurves) {
+    ArgumentChecker.notNull(trs, "equity TRS");
+    ArgumentChecker.notNull(equityMulticurves, "multi-curve provider with equity price");
+    ArgumentChecker.isTrue(trs.getDividendPercentage() == 1.0, "equity TRS dividend ration should be 1.0");
+    MultipleCurrencyAmount equityPV = MultipleCurrencyAmount.of(trs.getEquity().getCurrency(),
+        equityMulticurves.getSpotEquity() * trs.getEquity().getNumberOfShares());
+    return equityPV;
   }
 
   /**
