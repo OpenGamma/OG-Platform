@@ -24,6 +24,7 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.opengamma.OpenGammaRuntimeException;
@@ -504,63 +505,72 @@ public class NonVersionedRedisHistoricalTimeSeriesSource implements HistoricalTi
     return getHistoricalTimeSeries(uniqueId, start, includeStart, end, includeEnd);
   }
 
-  // ------------------------------------------------------------------------
-  // UNSUPPORTED OPERATIONS:
-  // ------------------------------------------------------------------------
+  public HistoricalTimeSeries getHistoricalTimeSeries(String dataField, ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String resolutionKey, LocalDate start,
+                                                      boolean includeStart, LocalDate end, boolean includeEnd) {
+    UniqueId uniqueId = toUniqueId(identifierBundle);
+    return getHistoricalTimeSeries(uniqueId, start, includeStart, end, includeEnd);
+  }
 
   public HistoricalTimeSeries getHistoricalTimeSeries(UniqueId uniqueId, LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd, int maxPoints) {
-    throw new UnsupportedOperationException("Unsupported operation.");
+    return getHistoricalTimeSeries(uniqueId, start, includeStart, end, includeEnd);
   }
 
   public HistoricalTimeSeries getHistoricalTimeSeries(ExternalIdBundle identifierBundle, String dataSource, String dataProvider, String dataField, LocalDate start, boolean includeStart,
       LocalDate end, boolean includeEnd, int maxPoints) {
-    throw new UnsupportedOperationException("Unsupported operation.");
+    UniqueId uniqueId = toUniqueId(identifierBundle);
+    return getHistoricalTimeSeries(uniqueId, start, includeStart, end, includeEnd);
   }
 
   public HistoricalTimeSeries getHistoricalTimeSeries(ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField, LocalDate start,
       boolean includeStart, LocalDate end, boolean includeEnd) {
-    throw new UnsupportedOperationException("Unsupported operation.");
+    UniqueId uniqueId = toUniqueId(identifierBundle);
+    return getHistoricalTimeSeries(uniqueId, start, includeStart, end, includeEnd);
   }
 
   public HistoricalTimeSeries getHistoricalTimeSeries(ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField, LocalDate start,
       boolean includeStart, LocalDate end, boolean includeEnd, int maxPoints) {
-    throw new UnsupportedOperationException("Unsupported operation.");
+    UniqueId uniqueId = toUniqueId(identifierBundle);
+    return getHistoricalTimeSeries(uniqueId, start, includeStart, end, includeEnd);
   }
 
   public Pair<LocalDate, Double> getLatestDataPoint(ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField, LocalDate start,
       boolean includeStart, LocalDate end, boolean includeEnd) {
-    throw new UnsupportedOperationException("Unsupported operation.");
+    UniqueId uniqueId = toUniqueId(identifierBundle);
+    return getLatestDataPoint(uniqueId, start, includeStart, end, includeEnd);
   }
 
   public Pair<LocalDate, Double> getLatestDataPoint(ExternalIdBundle identifierBundle, String dataSource, String dataProvider, String dataField, LocalDate start, boolean includeStart, LocalDate end,
       boolean includeEnd) {
-    throw new UnsupportedOperationException("Unsupported operation.");
-  }
-
-  public HistoricalTimeSeries getHistoricalTimeSeries(String dataField, ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String resolutionKey, LocalDate start,
-      boolean includeStart, LocalDate end, boolean includeEnd) {
-    throw new UnsupportedOperationException("Unsupported operation.");
+    UniqueId uniqueId = toUniqueId(identifierBundle);
+    return getLatestDataPoint(uniqueId, start, includeStart, end, includeEnd);
   }
 
   public HistoricalTimeSeries getHistoricalTimeSeries(String dataField, ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String resolutionKey, LocalDate start,
       boolean includeStart, LocalDate end, boolean includeEnd, int maxPoints) {
-    throw new UnsupportedOperationException("Unsupported operation.");
+    UniqueId uniqueId = toUniqueId(identifierBundle);
+    return getHistoricalTimeSeries(uniqueId, start, includeStart, end, includeEnd);
   }
 
-  public Pair<LocalDate, Double> getLatestDataPoint(
-      String dataField, ExternalIdBundle identifierBundle, String resolutionKey,
+  public Pair<LocalDate, Double> getLatestDataPoint(String dataField, ExternalIdBundle identifierBundle, String resolutionKey,
       LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
-    throw new UnsupportedOperationException("Unsupported operation.");
+    UniqueId uniqueId = toUniqueId(identifierBundle);
+    return getLatestDataPoint(uniqueId, start, includeStart, end, includeEnd);
   }
 
   public Pair<LocalDate, Double> getLatestDataPoint(String dataField, ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String resolutionKey, LocalDate start, boolean includeStart,
       LocalDate end, boolean includeEnd) {
-    throw new UnsupportedOperationException("Unsupported operation.");
+    UniqueId uniqueId = toUniqueId(identifierBundle);
+    return getLatestDataPoint(uniqueId, start, includeStart, end, includeEnd);
   }
 
   public Map<ExternalIdBundle, HistoricalTimeSeries> getHistoricalTimeSeries(Set<ExternalIdBundle> identifierSet, String dataSource, String dataProvider, String dataField, LocalDate start,
       boolean includeStart, LocalDate end, boolean includeEnd) {
-    throw new UnsupportedOperationException("Unsupported operation.");
+    ImmutableMap.Builder<ExternalIdBundle, HistoricalTimeSeries> map = ImmutableMap.builder();
+    for (ExternalIdBundle bundle : identifierSet) {
+      HistoricalTimeSeries series = getHistoricalTimeSeries(bundle, dataSource, dataProvider, dataField, start, includeStart, end, includeEnd);
+      map.put(bundle, series);
+    }
+    return map.build();
   }
 
   @Override
