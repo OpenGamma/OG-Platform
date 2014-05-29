@@ -49,7 +49,7 @@ public final class Failure implements ImmutableBean {
   @PropertyDefinition(validate = "notNull")
   private final String _stackTrace;
   /**
-   * The type of the throwable that caused the failure, null if it wasn't caused by a throwable.
+   * The type of the exception that caused the failure, null if it wasn't caused by an exception.
    */
   @PropertyDefinition
   private final Class<? extends Exception> _causeType;
@@ -183,8 +183,8 @@ public final class Failure implements ImmutableBean {
   //-----------------------------------------------------------------------
   /**
    * Gets stack trace where the failure occurred.
-   * If the failure was caused by a {@code Throwable} this field is null as the stack trace is already available.
-   * Otherwise it's the location where the failure was created.
+   * If the failure was caused by an {@code Exception} its stack trace is used, otherwise it's the
+   * location where the failure was created.
    * @return the value of the property, not null
    */
   public String getStackTrace() {
@@ -193,7 +193,7 @@ public final class Failure implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the type of the throwable that caused the failure, null if it wasn't caused by a throwable.
+   * Gets the type of the exception that caused the failure, null if it wasn't caused by an exception.
    * @return the value of the property
    */
   public Class<? extends Exception> getCauseType() {
