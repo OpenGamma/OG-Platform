@@ -7,8 +7,6 @@ package com.opengamma.analytics.financial.equity.trs;
 
 import com.opengamma.analytics.financial.equity.EquityTrsDataBundle;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
-import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
-import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
@@ -32,10 +30,16 @@ public final class EqyTrsFundingLegPresentValueCalculator extends InstrumentDeri
   private EqyTrsFundingLegPresentValueCalculator() {
   }
 
+  /**
+   * The methods used by the different instruments.
+   */
+  private static final EquityTotalReturnSwapDiscountingMethod METHOD_TRS = EquityTotalReturnSwapDiscountingMethod.getInstance();
+
+  //     -----     TRS     -----
+
   @Override
-  public MultipleCurrencyAmount visitEquityTotalReturnSwap(final EquityTotalReturnSwap equityTrs, final EquityTrsDataBundle data) {
-    ArgumentChecker.notNull(equityTrs, "equityTrs");
-    ArgumentChecker.notNull(data, "data");
-    return equityTrs.getFundingLeg().accept(PresentValueDiscountingCalculator.getInstance(), data.getCurves());
+  public MultipleCurrencyAmount visitEquityTotalReturnSwap(final EquityTotalReturnSwap trs, final EquityTrsDataBundle multicurve) {
+    return METHOD_TRS.presentValueFundingLeg(trs, multicurve);
   }
+
 }
