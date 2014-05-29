@@ -185,8 +185,8 @@ public class ZSpreadCalculatorTest {
     }
     final MulticurveProviderDiscount multicurves = new MulticurveProviderDiscount(MULTI_CURVES.copy());
     multicurves.replaceCurve(Currency.EUR, YieldCurve.from(InterpolatedDoublesCurve.from(T, rSpread, INTERPOLATOR)));
-    assertEquals(price, PAYMENTS.accept(PV_CALCULATOR, multicurves).getAmount(Currency.EUR), 1e-15);
-    assertEquals(price, CALCULATOR.calculatePriceForZSpread(PAYMENTS, MULTI_CURVES, zSpread), 1e-15);
+    assertEquals(price, PAYMENTS.accept(PV_CALCULATOR, multicurves).getAmount(Currency.EUR), 1e-12);
+    assertEquals(price, CALCULATOR.calculatePriceForZSpread(PAYMENTS, MULTI_CURVES, zSpread), 1e-12);
   }
 
   @Test
