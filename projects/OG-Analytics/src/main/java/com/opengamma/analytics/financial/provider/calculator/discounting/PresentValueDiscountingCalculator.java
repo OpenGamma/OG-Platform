@@ -69,6 +69,8 @@ import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedC
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapMultileg;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
+import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
@@ -249,10 +251,11 @@ public final class PresentValueDiscountingCalculator extends InstrumentDerivativ
     ArgumentChecker.notNull(annuity, "Annuity");
     ArgumentChecker.notNull(multicurve, "multicurve");
     MultipleCurrencyAmount pv = annuity.getNthPayment(0).accept(this, multicurve);
+    Pricer pricer = new Pricer(pv);
     for (int loopp = 1; loopp < annuity.getNumberOfPayments(); loopp++) {
-      pv = pv.plus(annuity.getNthPayment(loopp).accept(this, multicurve));
+      pricer.plus(annuity.getNthPayment(loopp).accept(this, multicurve));
     }
-    return pv;
+    return pricer.getSum();
   }
 
   @Override
@@ -316,6 +319,67 @@ public final class PresentValueDiscountingCalculator extends InstrumentDerivativ
   @Override
   public MultipleCurrencyAmount visitForexNonDeliverableForward(final ForexNonDeliverableForward derivative, final MulticurveProviderInterface multicurves) {
     return METHOD_FOREX_NDF.presentValue(derivative, multicurves);
+  }
+
+  /**
+   * Pricer that keeps a running sum. It is optimised for the most common case of a series of multi currency amounts in
+   * the same currency.
+   */
+  private class Pricer {
+    // we pull out a single currency value and keep a running sum for it. This saves creating multiple transient
+    // MCA object.
+    /** running total (less the initial coupon amount) for optimised currency */
+    private double _singleCurrencySubsequentAmounts;
+    /** the currency we have optimised */
+    private Currency _optimisedCurrency;
+    /** holds the running sum - excluding subsequent payments in the optimised currency */
+    private MultipleCurrencyAmount _currencyAmount;
+    // the total amount is _singleCurrencySubsequentAmounts + _currencyAmount
+
+    /**
+     * Create a pricing object
+     * @param amount the initial amount in the series of payments
+     */
+    public Pricer(MultipleCurrencyAmount amount) {
+      ArgumentChecker.notNull(amount, "amount");
+      if (amount.size() > 0) {
+        // optimise the pricing of this currency by skipping intermediate MCA objects
+        CurrencyAmount currencyAmount = amount.iterator().next();
+        _singleCurrencySubsequentAmounts = 0.0;
+        _optimisedCurrency = currencyAmount.getCurrency();
+      }
+      _currencyAmount = amount;
+    }
+
+    /**
+     * Add the amount to the existing sum
+     * @param newpv the amount to add
+     */
+    public void plus(MultipleCurrencyAmount newpv) {
+      if (_optimisedCurrency == null) {
+        _currencyAmount = _currencyAmount.plus(newpv);
+        return;
+      }
+      CurrencyAmount optimisedAmount = newpv.getCurrencyAmount(_optimisedCurrency);
+      if (optimisedAmount != null && newpv.size() == 1) {
+        // we only have the optimised currency so just update the running total
+        _singleCurrencySubsequentAmounts += optimisedAmount.getAmount();
+        return;
+      }
+      _currencyAmount = _currencyAmount.plus(newpv);
+    }
+
+    /**
+     * Get the sum of all the payments
+     * @return the sum
+     */
+    public MultipleCurrencyAmount getSum() {
+      if (_optimisedCurrency == null) {
+        return _currencyAmount;
+      }
+      return _currencyAmount.plus(_optimisedCurrency, _singleCurrencySubsequentAmounts);
+    }
+
   }
 
 }
