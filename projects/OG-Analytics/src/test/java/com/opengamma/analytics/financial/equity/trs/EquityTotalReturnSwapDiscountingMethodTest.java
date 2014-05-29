@@ -152,6 +152,12 @@ public class EquityTotalReturnSwapDiscountingMethodTest {
   private static final double TOLERANCE_PV = 1.0E-2;
   private static final double TOLERANCE_PV_DELTA = 1.0E+2;
 
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void dividednRatio() {
+    EquityTotalReturnSwap wrongRatio = new EquityTotalReturnSwap(EFFECTIVE_TIME_1_1, TERMINATION_TIME_1_1, FUNDING_LEG_ON_REC_1, EQUITY_PAY, -NOTIONAL_TRS_GBP, GBP, 0.5);
+    METHOD_TRS_EQT.presentValue(wrongRatio, EQUITY_MULTICURVE);
+  }
+
   @Test
   /** Test present value and currency exposure for an example where the funding and equity are in the same currency. 
    * The TRS is paid or received. There is only one ON coupon in the funding. The valuation date is before the TRS effective date  */
@@ -234,10 +240,9 @@ public class EquityTotalReturnSwapDiscountingMethodTest {
     MultipleCurrencyAmount pvEquityGbp = MultipleCurrencyAmount.of(GBP, NB_SHARES * EQUITY_PRICE);
     CurrencyAmount pvEquityUsd = MULTICURVE.getFxRates().convert(pvEquityGbp, USD);
     MultipleCurrencyAmount pvPreviousFixing = MultipleCurrencyAmount.of(USD,
-        -NOTIONAL_TRS_USD * MULTICURVE.getDiscountFactor(USD, TRS_REC_IBOR_PAY_2.getFundingLeg().getNthPayment(1).getPaymentTime()));
+        -NOTIONAL_TRS_USD * MULTICURVE.getDiscountFactor(USD, TRS_REC_IBOR_PAY_2.getFundingLeg().getNthPayment(0).getPaymentTime()));
     MultipleCurrencyAmount pvFunding0 = FUNDING_LEG_IBOR_PAY_2.getNthPayment(0).accept(PVDC, MULTICURVE);
-    MultipleCurrencyAmount pvFunding1 = FUNDING_LEG_IBOR_PAY_2.getNthPayment(1).accept(PVDC, MULTICURVE);
-    MultipleCurrencyAmount pvExpected = pvPreviousFixing.plus(pvFunding0).plus(pvFunding1).plus(pvEquityUsd);
+    MultipleCurrencyAmount pvExpected = pvPreviousFixing.plus(pvFunding0).plus(pvEquityUsd);
     assertEquals("BondTRSDiscountingMethod: present value", pvExpected.getAmount(USD), pvComputedRec.getAmount(USD), TOLERANCE_PV);
     MultipleCurrencyAmount pvAssetLeg = METHOD_TRS_EQT.presentValueAssetLeg(TRS_REC_IBOR_PAY_2, EQUITY_MULTICURVE);
     MultipleCurrencyAmount pvFundingLeg = METHOD_TRS_EQT.presentValueFundingLeg(TRS_REC_IBOR_PAY_2, EQUITY_MULTICURVE);
@@ -255,8 +260,8 @@ public class EquityTotalReturnSwapDiscountingMethodTest {
    * The TRS is paid. There are 3 Libor coupons in the funding. The valuation date is after the TRS effective date, in the first funding period.  */
   public void presentValueCurveSensitivityIborDiffCurrencyAfterEffective() {
     MultipleCurrencyMulticurveSensitivity pvcsComputedRec = METHOD_TRS_EQT.presentValueCurveSensitivity(TRS_REC_IBOR_PAY_2, EQUITY_MULTICURVE).cleaned();
-    double amount = -NOTIONAL_TRS_USD * MULTICURVE.getDiscountFactor(USD, TRS_REC_IBOR_PAY_2.getFundingLeg().getNthPayment(1).getPaymentTime());
-    double time = TRS_REC_IBOR_PAY_2.getFundingLeg().getNthPayment(1).getPaymentTime();
+    double amount = -NOTIONAL_TRS_USD * MULTICURVE.getDiscountFactor(USD, TRS_REC_IBOR_PAY_2.getFundingLeg().getNthPayment(0).getPaymentTime());
+    double time = TRS_REC_IBOR_PAY_2.getFundingLeg().getNthPayment(0).getPaymentTime();
     final Map<String, List<DoublesPair>> mapDsc = new HashMap<>();
     final DoublesPair s = DoublesPair.of(time, -time * amount);
     final List<DoublesPair> list = new ArrayList<>();
@@ -265,8 +270,7 @@ public class EquityTotalReturnSwapDiscountingMethodTest {
     MultipleCurrencyMulticurveSensitivity pvcsPreviousFixing = new MultipleCurrencyMulticurveSensitivity();
     pvcsPreviousFixing = pvcsPreviousFixing.plus(USD, MulticurveSensitivity.ofYieldDiscounting(mapDsc));
     MultipleCurrencyMulticurveSensitivity pvcsFunding0 = FUNDING_LEG_IBOR_PAY_2.getNthPayment(0).accept(PVCSDC, MULTICURVE);
-    MultipleCurrencyMulticurveSensitivity pvcsFunding1 = FUNDING_LEG_IBOR_PAY_2.getNthPayment(1).accept(PVCSDC, MULTICURVE);
-    MultipleCurrencyMulticurveSensitivity pvcsExpected = pvcsPreviousFixing.plus(pvcsFunding0).plus(pvcsFunding1).cleaned();
+    MultipleCurrencyMulticurveSensitivity pvcsExpected = pvcsPreviousFixing.plus(pvcsFunding0).cleaned();
     AssertSensitivityObjects.assertEquals("", pvcsExpected, pvcsComputedRec, TOLERANCE_PV_DELTA);
   }
 
