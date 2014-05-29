@@ -198,6 +198,31 @@ public class IntDoublePair
 
   //-------------------------------------------------------------------------
   @Override
+  public int compareTo(Pair<Integer, Double> other) {
+    if (other instanceof IntDoublePair) {
+      return compareTo((IntDoublePair) other);
+    }
+    return super.compareTo(other);
+  }
+
+  /**
+   * Compares this pair to another.
+   * <p>
+   * This compares the first elements, then the second elements.
+   * 
+   * @param other  the other pair
+   * @return negative if this is less, zero if equal, positive if greater
+   */
+  public int compareTo(IntDoublePair other) {
+    int cmp = Integer.compare(first, other.first);
+    if (cmp == 0) {
+      cmp = Double.compare(second, other.second);
+    }
+    return cmp;
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
   public boolean equals(Object obj) {
     if (this == obj) {
       return true;

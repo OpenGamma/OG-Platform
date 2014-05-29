@@ -6,6 +6,7 @@
 package com.opengamma.util.tuple;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
@@ -59,6 +60,43 @@ public class DoublesPairTest {
   public void testSetValue_primitives() {
     DoublesPair pair = DoublesPair.of(2.1d, -0.3d);
     pair.setValue(1.2d);
+  }
+
+  //-------------------------------------------------------------------------
+  public void compareTo_DoublesPair() {
+    DoublesPair p12 = DoublesPair.of(1d, 2d);
+    DoublesPair p13 = DoublesPair.of(1d, 3d);
+    DoublesPair p21 = DoublesPair.of(2d, 1d);
+    
+    assertTrue(p12.compareTo(p12) == 0);
+    assertTrue(p12.compareTo(p13) < 0);
+    assertTrue(p12.compareTo(p21) < 0);
+    
+    assertTrue(p13.compareTo(p12) > 0);
+    assertTrue(p13.compareTo(p13) == 0);
+    assertTrue(p13.compareTo(p21) < 0);
+    
+    assertTrue(p21.compareTo(p12) > 0);
+    assertTrue(p21.compareTo(p13) > 0);
+    assertTrue(p21.compareTo(p21) == 0);
+  }
+
+  public void compareTo_DoublesPairAsPair() {
+    Pair<Double, Double> p12 = DoublesPair.of(1d, 2d);
+    Pair<Double, Double> p13 = DoublesPair.of(1d, 3d);
+    Pair<Double, Double> p21 = DoublesPair.of(2d, 1d);
+    
+    assertTrue(p12.compareTo(p12) == 0);
+    assertTrue(p12.compareTo(p13) < 0);
+    assertTrue(p12.compareTo(p21) < 0);
+    
+    assertTrue(p13.compareTo(p12) > 0);
+    assertTrue(p13.compareTo(p13) == 0);
+    assertTrue(p13.compareTo(p21) < 0);
+    
+    assertTrue(p21.compareTo(p12) > 0);
+    assertTrue(p21.compareTo(p13) > 0);
+    assertTrue(p21.compareTo(p21) == 0);
   }
 
   //-------------------------------------------------------------------------

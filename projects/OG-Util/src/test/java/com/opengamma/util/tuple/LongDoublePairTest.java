@@ -63,7 +63,43 @@ public class LongDoublePairTest {
   }
 
   //-------------------------------------------------------------------------
-  public void compareTo() {
+  public void compareTo_IntDoublePair() {
+    LongDoublePair p12 = LongDoublePair.of(1L, 2d);
+    LongDoublePair p13 = LongDoublePair.of(1L, 3d);
+    LongDoublePair p21 = LongDoublePair.of(2L, 1d);
+    
+    assertTrue(p12.compareTo(p12) == 0);
+    assertTrue(p12.compareTo(p13) < 0);
+    assertTrue(p12.compareTo(p21) < 0);
+    
+    assertTrue(p13.compareTo(p12) > 0);
+    assertTrue(p13.compareTo(p13) == 0);
+    assertTrue(p13.compareTo(p21) < 0);
+    
+    assertTrue(p21.compareTo(p12) > 0);
+    assertTrue(p21.compareTo(p13) > 0);
+    assertTrue(p21.compareTo(p21) == 0);
+  }
+
+  public void compareTo_IntDoublePairAsPair() {
+    Pair<Long, Double> p12 = LongDoublePair.of(1L, 2d);
+    Pair<Long, Double> p13 = LongDoublePair.of(1L, 3d);
+    Pair<Long, Double> p21 = LongDoublePair.of(2L, 1d);
+    
+    assertTrue(p12.compareTo(p12) == 0);
+    assertTrue(p12.compareTo(p13) < 0);
+    assertTrue(p12.compareTo(p21) < 0);
+    
+    assertTrue(p13.compareTo(p12) > 0);
+    assertTrue(p13.compareTo(p13) == 0);
+    assertTrue(p13.compareTo(p21) < 0);
+    
+    assertTrue(p21.compareTo(p12) > 0);
+    assertTrue(p21.compareTo(p13) > 0);
+    assertTrue(p21.compareTo(p21) == 0);
+  }
+
+  public void compareTo_comparatorFirstThenSecond() {
     LongDoublePair ab = LongDoublePair.of(1L, 1.7d);
     LongDoublePair ac = LongDoublePair.of(1L, 1.9d);
     LongDoublePair ba = LongDoublePair.of(2L, 1.5d);
