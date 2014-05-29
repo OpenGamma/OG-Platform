@@ -240,20 +240,13 @@ public class ResultTest {
   //-------------------------------------------------------------------------
   @Test
   public void failureDeduplicateFailure() {
-    Result<Object> failure1 = Result.failure(FailureStatus.MISSING_DATA, "failure");
-    Result<Object> failure2 = Result.failure(FailureStatus.MISSING_DATA, "failure");
-    Result<Object> failure3 = Result.failure(FailureStatus.MISSING_DATA, "failure");
-    Failure failure = failure1.getFailures().iterator().next();
-    
-    Result<Object> test1 = Result.failure(failure1, failure2);
+    Result<Object> result = Result.failure(FailureStatus.MISSING_DATA, "failure");
+    Failure failure = result.getFailures().iterator().next();
+
+    Result<Object> test1 = Result.failure(result, result);
     assertEquals(1, test1.getFailures().size());
     assertEquals(ImmutableSet.of(failure), test1.getFailures());
     assertEquals("failure", test1.getFailureMessage());
-    
-    Result<Object> test2 = Result.failure(test1, failure3);
-    assertEquals(1, test2.getFailures().size());
-    assertEquals(ImmutableSet.of(failure), test2.getFailures());
-    assertEquals("failure", test2.getFailureMessage());
   }
 
   @Test
