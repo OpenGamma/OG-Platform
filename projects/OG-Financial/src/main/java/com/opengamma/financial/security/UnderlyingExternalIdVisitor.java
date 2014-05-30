@@ -284,7 +284,10 @@ public final class UnderlyingExternalIdVisitor extends FinancialSecurityVisitorA
 
   @Override
   public Void visitIndexCDSSecurity(final IndexCDSSecurity security) {
-    _underlyings.add(security.getUnderlyingIndex().toBundle());
+    final ExternalIdBundle identifier = security.getUnderlyingIndex().resolve().getExternalIdBundle();
+    if (identifier != null) {
+      _underlyings.add(identifier);
+    }
     return null;
   }
 }

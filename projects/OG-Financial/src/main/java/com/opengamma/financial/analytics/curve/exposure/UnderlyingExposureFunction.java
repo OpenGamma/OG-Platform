@@ -557,7 +557,7 @@ public class UnderlyingExposureFunction implements ExposureFunction {
 
   @Override
   public List<ExternalId> visitIndexCDSSecurity(IndexCDSSecurity security) {
-    return Arrays.asList(security.getUnderlyingIndex());
+    return security.getUnderlyingIndex().resolve().getExternalIdBundle().getExternalIds().asList();
   }
 
   @Override

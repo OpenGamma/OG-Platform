@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -19,6 +19,8 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.threeten.bp.LocalDate;
 
+import com.opengamma.core.link.ResolvableSecurityLink;
+import com.opengamma.core.link.SecurityLink;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.swap.InterestRateNotional;
@@ -59,7 +61,7 @@ public class IndexCDSSecurity extends FinancialSecurity {
    * The reference entity. The underlying index identifier for the CDS Index.
    */
   @PropertyDefinition(validate = "notNull")
-  private ExternalId _underlyingIndex;
+  private SecurityLink<IndexCDSDefinitionSecurity> _underlyingIndex;
 
   /**
    * The index tenor, must be listed in the index definition
@@ -91,10 +93,54 @@ public class IndexCDSSecurity extends FinancialSecurity {
    * @param tradeDate the trade date, not null
    * @param notional the notional, not null
    */
+  public IndexCDSSecurity(ExternalIdBundle id, final boolean buy, final SecurityLink<IndexCDSDefinitionSecurity> underlyingIndex, final Tenor indexTenor,
+                          final LocalDate tradeDate, final InterestRateNotional notional) {
+    super(SECURITY_TYPE);
+    setExternalIdBundle(id);
+    setBuyProtection(buy);
+    setUnderlyingIndex(underlyingIndex);
+    setIndexTenor(indexTenor);
+    setTradeDate(tradeDate);
+    setNotional(notional);
+  }
+
+  /**
+   * An Index CDS
+   *
+   * @param id identifier for this index cds, not null
+   * @param buy is protection being bought, not null
+   * @param underlyingIndex the underling index definition identifier, not null
+   * @param indexTenor the unerlying index tenor, not null
+   * @param tradeDate the trade date, not null
+   * @param notional the notional, not null
+   */
   public IndexCDSSecurity(ExternalIdBundle id, final boolean buy, final ExternalId underlyingIndex, final Tenor indexTenor,
                           final LocalDate tradeDate, final InterestRateNotional notional) {
     super(SECURITY_TYPE);
     setExternalIdBundle(id);
+    setBuyProtection(buy);
+    setUnderlyingIndex(SecurityLink.<IndexCDSDefinitionSecurity>resolvable(underlyingIndex));
+    setIndexTenor(indexTenor);
+    setTradeDate(tradeDate);
+    setNotional(notional);
+  }
+
+  /**
+   * An Index CDS
+   *
+   * @param id identifier for this index cds, not null
+   * @param name the descriptive name for the security, not null
+   * @param buy is protection being bought, not null
+   * @param underlyingIndex the underling index definition (generally a RED code), not null
+   * @param indexTenor the unerlying index tenor, not null
+   * @param tradeDate the trade date, not null
+   * @param notional the notional, not null
+   */
+  public IndexCDSSecurity(ExternalIdBundle id, String name, final boolean buy, final SecurityLink<IndexCDSDefinitionSecurity> underlyingIndex, final Tenor indexTenor,
+                          final LocalDate tradeDate, final InterestRateNotional notional) {
+    super(SECURITY_TYPE);
+    setExternalIdBundle(id);
+    setName(name);
     setBuyProtection(buy);
     setUnderlyingIndex(underlyingIndex);
     setIndexTenor(indexTenor);
@@ -119,7 +165,7 @@ public class IndexCDSSecurity extends FinancialSecurity {
     setExternalIdBundle(id);
     setName(name);
     setBuyProtection(buy);
-    setUnderlyingIndex(underlyingIndex);
+    setUnderlyingIndex(SecurityLink.<IndexCDSDefinitionSecurity>resolvable(underlyingIndex));
     setIndexTenor(indexTenor);
     setTradeDate(tradeDate);
     setNotional(notional);
@@ -206,7 +252,7 @@ public class IndexCDSSecurity extends FinancialSecurity {
    * Gets the reference entity. The underlying index identifier for the CDS Index.
    * @return the value of the property, not null
    */
-  public ExternalId getUnderlyingIndex() {
+  public SecurityLink<IndexCDSDefinitionSecurity> getUnderlyingIndex() {
     return _underlyingIndex;
   }
 
@@ -214,7 +260,7 @@ public class IndexCDSSecurity extends FinancialSecurity {
    * Sets the reference entity. The underlying index identifier for the CDS Index.
    * @param underlyingIndex  the new value of the property, not null
    */
-  public void setUnderlyingIndex(ExternalId underlyingIndex) {
+  public void setUnderlyingIndex(SecurityLink<IndexCDSDefinitionSecurity> underlyingIndex) {
     JodaBeanUtils.notNull(underlyingIndex, "underlyingIndex");
     this._underlyingIndex = underlyingIndex;
   }
@@ -223,7 +269,7 @@ public class IndexCDSSecurity extends FinancialSecurity {
    * Gets the the {@code underlyingIndex} property.
    * @return the property, not null
    */
-  public final Property<ExternalId> underlyingIndex() {
+  public final Property<SecurityLink<IndexCDSDefinitionSecurity>> underlyingIndex() {
     return metaBean().underlyingIndex().createProperty(this);
   }
 
@@ -359,8 +405,9 @@ public class IndexCDSSecurity extends FinancialSecurity {
     /**
      * The meta-property for the {@code underlyingIndex} property.
      */
-    private final MetaProperty<ExternalId> _underlyingIndex = DirectMetaProperty.ofReadWrite(
-        this, "underlyingIndex", IndexCDSSecurity.class, ExternalId.class);
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<SecurityLink<IndexCDSDefinitionSecurity>> _underlyingIndex = DirectMetaProperty.ofReadWrite(
+        this, "underlyingIndex", IndexCDSSecurity.class, (Class) SecurityLink.class);
     /**
      * The meta-property for the {@code indexTenor} property.
      */
@@ -441,7 +488,7 @@ public class IndexCDSSecurity extends FinancialSecurity {
      * The meta-property for the {@code underlyingIndex} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ExternalId> underlyingIndex() {
+    public final MetaProperty<SecurityLink<IndexCDSDefinitionSecurity>> underlyingIndex() {
       return _underlyingIndex;
     }
 
@@ -479,6 +526,7 @@ public class IndexCDSSecurity extends FinancialSecurity {
       return super.propertyGet(bean, propertyName, quiet);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
@@ -489,7 +537,7 @@ public class IndexCDSSecurity extends FinancialSecurity {
           ((IndexCDSSecurity) bean).setBuyProtection((Boolean) newValue);
           return;
         case -834075787:  // underlyingIndex
-          ((IndexCDSSecurity) bean).setUnderlyingIndex((ExternalId) newValue);
+          ((IndexCDSSecurity) bean).setUnderlyingIndex((SecurityLink<IndexCDSDefinitionSecurity>) newValue);
           return;
         case 736548110:  // indexTenor
           ((IndexCDSSecurity) bean).setIndexTenor((Tenor) newValue);
