@@ -10,6 +10,7 @@ import static com.opengamma.analytics.financial.credit.isdastandardmodel.Doubles
 import static com.opengamma.analytics.math.utilities.Epsilon.epsilon;
 import static com.opengamma.analytics.math.utilities.Epsilon.epsilonP;
 
+import com.opengamma.analytics.math.MathException;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.rootfinding.BracketRoot;
 import com.opengamma.analytics.math.rootfinding.BrentSingleRootFinder;
@@ -99,10 +100,17 @@ public class FastCreditCurveBuilder extends ISDACompliantCreditCurveBuilder {
 
       switch (getArbHanding()) {
         case Ignore: {
-          final double minValue = 0.0;
-          final double[] bracket = BRACKER.getBracketedPoints(func, 0.8 * guess[i], 1.25 * guess[i], minValue, Double.POSITIVE_INFINITY);
-          final double zeroRate = ROOTFINDER.getRoot(func, bracket[0], bracket[1]);
-          creditCurve = creditCurve.withRate(zeroRate, i);
+          try {
+            double[] bracket = BRACKER.getBracketedPoints(func, 0.8 * guess[i], 1.25 * guess[i], Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+            double zeroRate = bracket[0] > bracket[1] ? ROOTFINDER.getRoot(func, bracket[1], bracket[0]) : ROOTFINDER.getRoot(func, bracket[0], bracket[1]); //Negative guess handled
+            creditCurve = creditCurve.withRate(zeroRate, i);
+          } catch (final MathException e) { //handling bracketing failure due to small survival probability
+            if (Math.abs(func.evaluate(creditCurve.getZeroRateAtIndex(i - 1))) < 1.e-12) {
+              creditCurve = creditCurve.withRate(creditCurve.getZeroRateAtIndex(i - 1), i);
+            } else {
+              throw new MathException(e);
+            }
+          }
           break;
         }
         case Fail: {
