@@ -1,6 +1,7 @@
 package com.opengamma.financial.analytics.model.curve;
 
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
+import static com.opengamma.engine.value.ValuePropertyNames.CURVE_SENSITIVITY_CURRENCY;
 import static com.opengamma.engine.value.ValueRequirementNames.CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES;
 import static com.opengamma.engine.value.ValueRequirementNames.FX_MATRIX;
 
@@ -67,7 +68,6 @@ import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
@@ -102,10 +102,36 @@ public class IssuerProviderInterpolatedFunction extends
     return new IssuerProviderInterpolatedCompiledFunctionDefinition(earliestInvocation, latestInvocation, curveNames, exogenousRequirements, curveConstructionConfiguration);
   }
 
+  @Override
+  public CompiledFunctionDefinition getCompiledFunction(ZonedDateTime earliestInvocation, ZonedDateTime latestInvocation, String[] curveNames, Set<ValueRequirement> exogenousRequirements,
+                                                        CurveConstructionConfiguration curveConstructionConfiguration, String[] currencies) {
+    return new IssuerProviderInterpolatedCompiledFunctionDefinition(earliestInvocation, latestInvocation, curveNames, exogenousRequirements, curveConstructionConfiguration, currencies);
+  }
+
   private class IssuerProviderInterpolatedCompiledFunctionDefinition extends CurveCompiledFunctionDefinition {
     
     /** The curve construction configuration */
     private final CurveConstructionConfiguration _curveConstructionConfiguration;
+
+    /**
+     * @param earliestInvocation The earliest time for which this function is valid, null if there is no bound
+     * @param latestInvocation The latest time for which this function is valid, null if there is no bound
+     * @param curveNames The names of the curves produced by this function, not null
+     * @param exogenousRequirements The exogenous requirements, not null
+     * @param curveConstructionConfiguration The curve construction configuration, not null
+     * @param currencies The set of currencies to which the curves produce sensitivities
+     */
+    public IssuerProviderInterpolatedCompiledFunctionDefinition(
+        ZonedDateTime earliestInvocation,
+        ZonedDateTime latestInvocation,
+        String[] curveNames,
+        Set<ValueRequirement> exogenousRequirements,
+        CurveConstructionConfiguration curveConstructionConfiguration,
+        String[] currencies) {
+      super(earliestInvocation, latestInvocation, curveNames, ValueRequirementNames.YIELD_CURVE, exogenousRequirements, currencies);
+      ArgumentChecker.notNull(curveConstructionConfiguration, "curve construction configuration");
+      _curveConstructionConfiguration = curveConstructionConfiguration;
+    }
 
     @Override
     public boolean canHandleMissingRequirements() {
@@ -116,7 +142,14 @@ public class IssuerProviderInterpolatedFunction extends
     public boolean canHandleMissingInputs() {
       return true;
     }
-    
+
+    /**
+     * @param earliestInvocation The earliest time for which this function is valid, null if there is no bound
+     * @param latestInvocation The latest time for which this function is valid, null if there is no bound
+     * @param curveNames The names of the curves produced by this function, not null
+     * @param exogenousRequirements The exogenous requirements, not null
+     * @param curveConstructionConfiguration The curve construction configuration, not null
+     */
     public IssuerProviderInterpolatedCompiledFunctionDefinition(final ZonedDateTime earliestInvocation,
                                                                 final ZonedDateTime latestInvocation,
                                                                 final String[] curveNames,
@@ -303,6 +336,7 @@ public class IssuerProviderInterpolatedFunction extends
         final ValueProperties curveProperties = bundleProperties.copy()
             .with(CurveCalculationPropertyNamesAndValues.PROPERTY_CURVE_TYPE, getCurveTypeProperty())
             .withoutAny(ValuePropertyNames.CURVE)
+            .withoutAny(CURVE_SENSITIVITY_CURRENCY)
             .with(ValuePropertyNames.CURVE, curveName)
             .get();
         final YieldAndDiscountCurve curve = provider.getIssuerCurve(curveName);

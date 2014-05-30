@@ -7,6 +7,7 @@ package com.opengamma.financial.analytics.model.curve;
 
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CONSTRUCTION_CONFIG;
+import static com.opengamma.engine.value.ValuePropertyNames.CURVE_SENSITIVITY_CURRENCY;
 import static com.opengamma.engine.value.ValueRequirementNames.JACOBIAN_BUNDLE;
 import static com.opengamma.engine.value.ValueRequirementNames.YIELD_CURVE;
 import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.DISCOUNTING;
@@ -358,6 +359,7 @@ public class IssuerProviderDiscountingFunction extends
       for (final String curveName : getCurveNames()) {
         final ValueProperties curveProperties = bundleProperties.copy()
             .withoutAny(CURVE)
+            .withoutAny(CURVE_SENSITIVITY_CURRENCY)
             .with(CURVE, curveName)
             .get();
         YieldAndDiscountCurve curve = provider.getIssuerCurve(curveName);

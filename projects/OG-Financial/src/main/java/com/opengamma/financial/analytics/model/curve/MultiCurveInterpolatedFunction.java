@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.model.curve;
 
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
+import static com.opengamma.engine.value.ValuePropertyNames.CURVE_SENSITIVITY_CURRENCY;
 import static com.opengamma.engine.value.ValueRequirementNames.CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES;
 import static com.opengamma.engine.value.ValueRequirementNames.FX_MATRIX;
 import static com.opengamma.engine.value.ValueRequirementNames.YIELD_CURVE;
@@ -114,12 +115,37 @@ public class MultiCurveInterpolatedFunction extends
     return new MultiCurveInterpolatedCompiledFunctionDefinition(earliestInvocation, latestInvocation, curveNames, exogenousRequirements, curveConstructionConfiguration);
   }
 
+  @Override
+  public CompiledFunctionDefinition getCompiledFunction(ZonedDateTime earliestInvocation, ZonedDateTime latestInvocation, String[] curveNames,
+                                                        Set<ValueRequirement> exogenousRequirements, CurveConstructionConfiguration curveConstructionConfiguration,
+                                                        String[] currencies) {
+    return new MultiCurveInterpolatedCompiledFunctionDefinition(earliestInvocation, latestInvocation, curveNames, exogenousRequirements, curveConstructionConfiguration, currencies);
+  }
+
   /**
    * Compiled function implementation.
    */
   protected class MultiCurveInterpolatedCompiledFunctionDefinition extends CurveCompiledFunctionDefinition {
     /** The curve construction configuration */
     private final CurveConstructionConfiguration _curveConstructionConfiguration;
+
+    /**
+     * @param earliestInvocation The earliest time for which this function is valid, null if there is no bound
+     * @param latestInvocation The latest time for which this function is valid, null if there is no bound
+     * @param curveNames The names of the curves produced by this function, not null
+     * @param exogenousRequirements The exogenous requirements, not null
+     * @param curveConstructionConfiguration The curve construction configuration, not null
+     * @param currencies The set of currencies to which the curves produce sensitivities
+     */
+    protected MultiCurveInterpolatedCompiledFunctionDefinition(ZonedDateTime earliestInvocation, ZonedDateTime latestInvocation,
+                                                            String[] curveNames, Set<ValueRequirement> exogenousRequirements,
+                                                            CurveConstructionConfiguration curveConstructionConfiguration,
+                                                            String[] currencies) {
+      super(earliestInvocation, latestInvocation, curveNames, ValueRequirementNames.YIELD_CURVE, exogenousRequirements, currencies);
+      ArgumentChecker.notNull(curveConstructionConfiguration, "curve construction configuration");
+      _curveConstructionConfiguration = curveConstructionConfiguration;
+    }
+
     @Override
     public boolean canHandleMissingRequirements() {
       return true;
@@ -329,6 +355,7 @@ public class MultiCurveInterpolatedFunction extends
         final ValueProperties curveProperties = bundleProperties.copy()
             .with(CurveCalculationPropertyNamesAndValues.PROPERTY_CURVE_TYPE, getCurveTypeProperty())
             .withoutAny(CURVE)
+            .withoutAny(CURVE_SENSITIVITY_CURRENCY)
             .with(CURVE, curveName)
             .get();
         final YieldAndDiscountCurve curve = provider.getCurve(curveName);

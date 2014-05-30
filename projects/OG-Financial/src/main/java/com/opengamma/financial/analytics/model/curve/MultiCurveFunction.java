@@ -270,18 +270,31 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
       final T knownData = getKnownData(inputs);
       final Clock snapshotClock = executionContext.getValuationClock();
       final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
-      final ValueProperties bundleProperties = desiredValues.iterator().next().getConstraints().copy()
+
+      //To ensure that the ValueProperties matches the one created in getBundleProperties, the currencies are extracted
+      //from the fx matrix and given to the ValueProperties if they exist. This change results in the base classes
+      //needing to remove the curve sensitivity currencies from the curve ValueProperties
+      Set<String> currencies = new HashSet();
+      for (Currency currency : fxMatrix.getCurrencies().keySet()) {
+        currencies.add(currency.toString());
+      }
+      String[] sensitivityCurrencies = currencies.toArray(new String[currencies.size()]);
+      final ValueProperties.Builder propertiesBuilder = desiredValues.iterator().next().getConstraints().copy()
           .withoutAny(CURVE)
-          .with(CURVE, Arrays.asList(_curveNames))
-          .get();
-      final double absoluteTolerance = Double.parseDouble(Iterables.getOnlyElement(bundleProperties.getValues(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE)));
-      final double relativeTolerance = Double.parseDouble(Iterables.getOnlyElement(bundleProperties.getValues(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE)));
-      final int maxIterations = Integer.parseInt(Iterables.getOnlyElement(bundleProperties.getValues(PROPERTY_ROOT_FINDER_MAX_ITERATIONS)));
+          .with(CURVE, Arrays.asList(_curveNames));
+      if (!currencies.isEmpty()) {
+        propertiesBuilder.with(CURVE_SENSITIVITY_CURRENCY, sensitivityCurrencies);
+      }
+      ValueProperties properties  = propertiesBuilder.get();
+
+      final double absoluteTolerance = Double.parseDouble(Iterables.getOnlyElement(properties.getValues(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE)));
+      final double relativeTolerance = Double.parseDouble(Iterables.getOnlyElement(properties.getValues(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE)));
+      final int maxIterations = Integer.parseInt(Iterables.getOnlyElement(properties.getValues(PROPERTY_ROOT_FINDER_MAX_ITERATIONS)));
       final U builder = getBuilder(absoluteTolerance, relativeTolerance, maxIterations);
       final Pair<T, CurveBuildingBlockBundle> pair = getCurves(inputs, now, builder, knownData, executionContext, fxMatrix);
-      final ValueSpecification bundleSpec = new ValueSpecification(CURVE_BUNDLE, ComputationTargetSpecification.NULL, bundleProperties);
-      final ValueSpecification jacobianSpec = new ValueSpecification(JACOBIAN_BUNDLE, ComputationTargetSpecification.NULL, bundleProperties);
-      return getResults(bundleSpec, jacobianSpec, bundleProperties, pair);
+      final ValueSpecification bundleSpec = new ValueSpecification(CURVE_BUNDLE, ComputationTargetSpecification.NULL, properties);
+      final ValueSpecification jacobianSpec = new ValueSpecification(JACOBIAN_BUNDLE, ComputationTargetSpecification.NULL, properties);
+      return getResults(bundleSpec, jacobianSpec, properties, pair);
     }
 
     @Override

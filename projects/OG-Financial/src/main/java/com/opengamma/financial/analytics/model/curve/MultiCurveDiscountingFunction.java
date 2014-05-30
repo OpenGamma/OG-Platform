@@ -7,9 +7,9 @@ package com.opengamma.financial.analytics.model.curve;
 
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CONSTRUCTION_CONFIG;
+import static com.opengamma.engine.value.ValuePropertyNames.CURVE_SENSITIVITY_CURRENCY;
 import static com.opengamma.engine.value.ValueRequirementNames.YIELD_CURVE;
 import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.DISCOUNTING;
-import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -98,6 +98,8 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
+
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
 /**
  * Produces yield curves using the discounting method.
@@ -355,6 +357,7 @@ public class MultiCurveDiscountingFunction extends
       for (final String curveName : getCurveNames()) {
         final ValueProperties curveProperties = bundleProperties.copy()
             .withoutAny(CURVE)
+            .withoutAny(CURVE_SENSITIVITY_CURRENCY)
             .with(CURVE, curveName)
             .get();
         final YieldAndDiscountCurve curve = provider.getCurve(curveName);

@@ -7,6 +7,7 @@ package com.opengamma.financial.analytics.model.curve;
 
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CONSTRUCTION_CONFIG;
+import static com.opengamma.engine.value.ValuePropertyNames.CURVE_SENSITIVITY_CURRENCY;
 import static com.opengamma.engine.value.ValueRequirementNames.CURVE_DEFINITION;
 import static com.opengamma.engine.value.ValueRequirementNames.CURVE_MARKET_DATA;
 import static com.opengamma.engine.value.ValueRequirementNames.CURVE_SPECIFICATION;
@@ -136,6 +137,13 @@ public class InflationIssuerProviderDiscountingFunction extends
     return new MyCompiledFunctionDefinition(earliestInvokation, latestInvokation, curveNames, exogenousRequirements, curveConstructionConfiguration);
   }
 
+  @Override
+  public CompiledFunctionDefinition getCompiledFunction(ZonedDateTime earliestInvokation, ZonedDateTime latestInvokation, String[] curveNames,
+                                                        Set<ValueRequirement> exogenousRequirements, CurveConstructionConfiguration curveConstructionConfiguration,
+                                                        String[] currencies) {
+    return new MyCompiledFunctionDefinition(earliestInvokation, latestInvokation, curveNames, exogenousRequirements, curveConstructionConfiguration, currencies);
+  }
+
   protected InstrumentDerivativeVisitor<InflationIssuerProviderInterface, Double> getCalculatorWithoutIssuer() {
     return PSIMQCWI;
   }
@@ -179,6 +187,25 @@ public class InflationIssuerProviderDiscountingFunction extends
     protected MyCompiledFunctionDefinition(final ZonedDateTime earliestInvokation, final ZonedDateTime latestInvokation, final String[] curveNames,
         final Set<ValueRequirement> exogenousRequirements, final CurveConstructionConfiguration curveConstructionConfiguration) {
       super(earliestInvokation, latestInvokation, curveNames, ValueRequirementNames.PRICE_INDEX_CURVE, exogenousRequirements);
+      ArgumentChecker.notNull(curveConstructionConfiguration, "curve construction configuration");
+      _curveConstructionConfiguration = curveConstructionConfiguration;
+    }
+
+    /**
+     * @param earliestInvokation The earliest time for which this function is valid, null if there is no bound
+     * @param latestInvokation The latest time for which this function is valid, null if there is no bound
+     * @param curveNames The names of the curves produced by this function, not null
+     * @param exogenousRequirements The exogenous requirements, not null
+     * @param curveConstructionConfiguration The curve construction configuration, not null
+     * @param currencies The set of currencies to which the curves produce sensitivities
+     */
+    protected MyCompiledFunctionDefinition(ZonedDateTime earliestInvokation,
+                                        ZonedDateTime latestInvokation,
+                                        String[] curveNames,
+                                        Set<ValueRequirement> exogenousRequirements,
+                                        CurveConstructionConfiguration curveConstructionConfiguration,
+                                        String[] currencies) {
+      super(earliestInvokation, latestInvokation, curveNames, ValueRequirementNames.PRICE_INDEX_CURVE, exogenousRequirements, currencies);
       ArgumentChecker.notNull(curveConstructionConfiguration, "curve construction configuration");
       _curveConstructionConfiguration = curveConstructionConfiguration;
     }
@@ -363,6 +390,7 @@ public class InflationIssuerProviderDiscountingFunction extends
       for (final String curveName : getCurveNames()) {
         final ValueProperties curveProperties = bundleProperties.copy()
             .withoutAny(CURVE)
+            .withoutAny(CURVE_SENSITIVITY_CURRENCY)
             .with(CURVE, curveName)
             .get();
         final PriceIndexCurve curve = provider.getInflationProvider().getCurve(curveName);
