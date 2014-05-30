@@ -236,7 +236,7 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
    */
   public double dirtyRealPriceFromCleanRealPrice(final BondCapitalIndexedSecurity<?> bond, final double cleanPrice) {
     final double notional = bond.getCoupon().getNthPayment(0).getNotional();
-    return cleanPrice - bond.getAccruedInterest() / notional;
+    return cleanPrice + bond.getAccruedInterest() / notional;
   }
 
   /**
