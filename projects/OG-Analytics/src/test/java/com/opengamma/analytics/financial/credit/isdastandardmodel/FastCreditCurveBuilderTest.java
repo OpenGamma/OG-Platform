@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.credit.isdastandardmodel;
 
+import static com.opengamma.analytics.financial.credit.isdastandardmodel.IMMDateLogic.getPrevIMMDate;
 import static com.opengamma.financial.convention.businessday.BusinessDayDateUtils.addWorkDays;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
@@ -190,4 +191,69 @@ public class FastCreditCurveBuilderTest extends CreditCurveCalibrationTest {
 
   }
 
+  /**
+   * 
+   */
+  public void viaConverterTest() {
+    LocalDate tradeDate = LocalDate.of(2014, 5, 22);
+    double recovery = 0.25;
+    CDSAnalyticFactory immCDSFact = new CDSAnalyticFactory(recovery);
+
+    LocalDate spotDate = LocalDate.of(2014, 5, 27);
+    String[] yieldCurvePoints = new String[] {"1M", "2M", "3M", "6M", "1Y", "2Y", "3Y", "4Y", "5Y", "6Y", "7Y", "8Y", "9Y", "10Y", "12Y", "15Y", "20Y", "25Y", "30Y" };
+    String[] yieldCurveInstruments = new String[] {"M", "M", "M", "M", "M", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S" };
+    double[] rates = new double[] {0.001, 0.002, 0.0025, 0.003, 0.0052, 0.0053, 0.00851, 0.0125, 0.016, 0.02, 0.02, 0.022, 0.024, 0.025, 0.02, 0.031,
+        0.030, 0.031, 0.0323 };
+    ISDACompliantYieldCurve yieldCurve = makeYieldCurve(tradeDate, spotDate, yieldCurvePoints, yieldCurveInstruments, rates, ACT360, D30360, Period.ofMonths(6));
+    LocalDate end = LocalDate.of(2014, 6, 20);
+    double spF = 6.726 * 1.e-4;
+    double spS = 6.727 * 1.e-4;
+
+    CDSAnalytic cds = immCDSFact.makeCDS(tradeDate, getPrevIMMDate(tradeDate), end);
+    double coupon = 500. * 1.e-4;
+    MarketQuoteConverter conv = new MarketQuoteConverter();
+    double[] resS = conv.parSpreadsToQuotedSpreads(new CDSAnalytic[] {cds }, coupon, yieldCurve, new double[] {spS });
+    double[] resF = conv.parSpreadsToQuotedSpreads(new CDSAnalytic[] {cds }, coupon, yieldCurve, new double[] {spF });
+    assertEquals(resS[0], resF[0], 1.e-5);
+  }
+
+  /**
+   * 
+   */
+  public void viaImpliedSpreadTest() {
+
+    LocalDate tradeDate = LocalDate.of(2014, 5, 16);
+    double recoveryF = 0.248;
+    double recoveryS = 0.247;
+    CDSAnalyticFactory nonImmCDSFactS = new CDSAnalyticFactory(recoveryS, Period.ofMonths(6));
+    CDSAnalyticFactory nonImmCDSFactF = new CDSAnalyticFactory(recoveryF, Period.ofMonths(6));
+
+    LocalDate spotDate = LocalDate.of(2014, Month.MAY, 20);
+    String[] yieldCurvePoints = new String[] {"1M", "2M", "3M", "6M", "1Y", "2Y", "3Y", "4Y", "5Y", "6Y", "7Y", "8Y", "9Y", "10Y", "12Y", "15Y", "20Y", "25Y", "30Y" };
+    String[] yieldCurveInstruments = new String[] {"M", "M", "M", "M", "M", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S" };
+    double[] rates = new double[] {0.00151, 0.0018, 0.0026, 0.0031, 0.0052, 0.0053, 0.00851, 0.0125, 0.016, 0.02, 0.02, 0.022, 0.024, 0.025, 0.02, 0.031,
+        0.030, 0.031, 0.0323 };
+    ISDACompliantYieldCurve yieldCurve = makeYieldCurve(tradeDate, spotDate, yieldCurvePoints, yieldCurveInstruments, rates, ACT360, D30360, Period.ofMonths(6));
+
+    LocalDate end = LocalDate.of(2014, 5, 20);
+    double puf = 1.101e-2;
+    double coupon = 500.0 * 1.0e-4;
+
+    Period[] buckets = new Period[] {Period.ofMonths(6), Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5), Period.ofYears(6),
+        Period.ofYears(7), Period.ofYears(8), Period.ofYears(9), Period.ofYears(10), Period.ofYears(12), Period.ofYears(15), Period.ofYears(20), Period.ofYears(25), Period.ofYears(30) };
+    CDSAnalytic cdsS = nonImmCDSFactS.makeCDS(tradeDate, getPrevIMMDate(tradeDate), end);
+    CDSAnalytic[] bucketCDSS = nonImmCDSFactS.makeIMMCDS(tradeDate, buckets);
+    CDSAnalytic cdsF = nonImmCDSFactF.makeCDS(tradeDate, getPrevIMMDate(tradeDate), end);
+    CDSAnalytic[] bucketCDSF = nonImmCDSFactF.makeIMMCDS(tradeDate, buckets);
+    double bump = 1.e-4;
+    FiniteDifferenceSpreadSensitivityCalculator cs01Cal = new FiniteDifferenceSpreadSensitivityCalculator();
+
+    PointsUpFront pufC = new PointsUpFront(coupon, puf);
+    double[] resS = cs01Cal.bucketedCS01FromPUF(cdsS, pufC, yieldCurve, bucketCDSS, bump);
+    double[] resF = cs01Cal.bucketedCS01FromPUF(cdsF, pufC, yieldCurve, bucketCDSF, bump);
+
+    for (int i = 0; i < resS.length; ++i) {
+      assertEquals(resS[i], resF[i], 1.e-5);
+    }
+  }
 }
