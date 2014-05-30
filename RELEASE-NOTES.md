@@ -6,6 +6,24 @@ These release notes cover changes from v2.1 to v2.2.
 Upgrading from 2.1.0
 ====================
 
+To 2.2.0-M25
+------------
+
+* Bug
+    * [PLAT-6534] - Handle user session timeout
+    * [PLAT-6535] - NonVersionedRedisConfigSource does not add unique id on results collection
+* Improvement
+    * [PLAT-6510] - Bulk permission checks
+    * [PLAT-6543] - Move cashflows to Platform
+    * [PLAT-6544] - Include stack trace in Failure even if it wasn't caused by an exception
+    * [PLAT-6545] - MultiplecurrencyAmount: Reduce redundant map copies
+    * [PLAT-6546] - Speed up curve lookup by optimising curve type hashCode
+    * [PLAT-6547] - Speed up annuity pricing by avoiding intermediate objects
+* Task
+    * [PLAT-6549] - Implement all NonVersionedRedisHistoricalTimeSeriesSource methods 
+    * [PLAT-6551] - Increase ZSpread test tolerance
+
+
 To 2.2.0-M24
 ------------
 
