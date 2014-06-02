@@ -607,21 +607,11 @@ public final class ValueRequirementNames {
   /**
    * The details of a swap pay leg.
    */
-  @Deprecated
   public static final String SWAP_PAY_LEG_DETAILS = "Swap Pay Leg Details";
   /**
    * The details of a swap receive leg.
    */
-  @Deprecated
   public static final String SWAP_RECEIVE_LEG_DETAILS = "Swap Receive Leg Details";
-  /**
-   * The cash flows of a swap pay leg
-   */
-  public static final String SWAP_PAY_LEG_CASHFLOWS = "Swap Pay Leg Cashflows";
-  /**
-   * The cash flows of a swap receive leg
-   */
-  public static final String SWAP_RECEIVE_LEG_CASHFLOWS = "Swap Receive Leg Cashflows";
   /**
    * The rate that prices a cash-flow based fixed-income instrument to zero.
    */
