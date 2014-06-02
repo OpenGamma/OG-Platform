@@ -606,22 +606,24 @@ public final class ValueRequirementNames {
   public static final String RECEIVE_LEG_PRESENT_VALUE = "Swap Receive Leg Present Value";
   /**
    * The details of a swap pay leg.
+   * @deprecated Should use {@link #SWAP_PAY_LEG_CASHFLOWS}
    */
   @Deprecated
   public static final String SWAP_PAY_LEG_DETAILS = "Swap Pay Leg Details";
   /**
    * The details of a swap receive leg.
+   * @deprecated Should use {@link #SWAP_RECEIVE_LEG_CASHFLOWS}
    */
   @Deprecated
   public static final String SWAP_RECEIVE_LEG_DETAILS = "Swap Receive Leg Details";
   /**
    * The cash flows of a swap pay leg
    */
-  public static final String SWAP_PAY_LEG_CASHFLOWS = "Swap Pay Leg Cashflows";
+  public static final String SWAP_PAY_LEG_CASHFLOWS = "Pay Leg Cash Flow Details";
   /**
    * The cash flows of a swap receive leg
    */
-  public static final String SWAP_RECEIVE_LEG_CASHFLOWS = "Swap Receive Leg Cashflows";
+  public static final String SWAP_RECEIVE_LEG_CASHFLOWS = "Receive Leg Cash Flow Details";
   /**
    * The rate that prices a cash-flow based fixed-income instrument to zero.
    */
