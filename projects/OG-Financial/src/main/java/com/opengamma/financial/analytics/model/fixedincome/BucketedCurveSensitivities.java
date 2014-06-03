@@ -37,6 +37,14 @@ public final class BucketedCurveSensitivities implements ImmutableBean {
   @PropertyDefinition(validate = "notNull")
   private final Map<Pair<String, Currency>, DoubleLabelledMatrix1D> _sensitivities;
 
+  /**
+   * Create curve sensitivities from an input map.
+   *
+   *
+   * @param sensitivities the sensitivities as a map keyed by a {@link Pair} of curve name and currency,
+   * and holding the curve sensitivities
+   * @return the sensitivities object
+   */
   public static BucketedCurveSensitivities of(Map<Pair<String, Currency>, DoubleLabelledMatrix1D> sensitivities) {
     return builder().sensitivities(sensitivities).build();
   }
