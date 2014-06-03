@@ -34,12 +34,14 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 @BeanDefinition
 public final class BucketedCurveSensitivities implements ImmutableBean {
 
+  /**
+   * Sensitivities as a map keyed by a {@link Pair} of curve name and currency, and holding the curve sensitivities
+   */
   @PropertyDefinition(validate = "notNull")
   private final Map<Pair<String, Currency>, DoubleLabelledMatrix1D> _sensitivities;
 
   /**
    * Create curve sensitivities from an input map.
-   *
    *
    * @param sensitivities the sensitivities as a map keyed by a {@link Pair} of curve name and currency,
    * and holding the curve sensitivities
@@ -94,7 +96,7 @@ public final class BucketedCurveSensitivities implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the sensitivities.
+   * Gets sensitivities as a map keyed by a {@link Pair} of curve name and currency, and holding the curve sensitivities
    * @return the value of the property, not null
    */
   public Map<Pair<String, Currency>, DoubleLabelledMatrix1D> getSensitivities() {
