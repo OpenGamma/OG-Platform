@@ -25,7 +25,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.threeten.bp.Instant;
 
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.util.tuple.Pair;
@@ -96,10 +96,10 @@ public final class CalculationDifference implements ImmutableBean {
     _valuationTime = valuationTime;
     _baseVersion = baseVersion;
     _testVersion = testVersion;
-    _onlyBase = ImmutableMap.copyOf(onlyBase);
-    _onlyTest = ImmutableMap.copyOf(onlyTest);
-    _different = ImmutableMap.copyOf(different);
-    _differentProperties = ImmutableMap.copyOf(differentProperties);
+    _onlyBase = ImmutableSortedMap.copyOf(onlyBase);
+    _onlyTest = ImmutableSortedMap.copyOf(onlyTest);
+    _different = ImmutableSortedMap.copyOf(different);
+    _differentProperties = ImmutableSortedMap.copyOf(differentProperties);
     if (_different.isEmpty() && _onlyBase.isEmpty() && _onlyTest.isEmpty()) {
       if (_differentProperties.isEmpty()) {
         _status = TestStatus.PASS;
