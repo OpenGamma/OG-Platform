@@ -10,7 +10,6 @@ import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,18 +51,14 @@ public class GoldenCopyCreationTool extends AbstractTool<IntegrationToolContext>
   //-------------------------------------------------------------------------
   @Override
   protected void doRun() throws Exception {
-    
     CommandLine commandLine = getCommandLine();
-    
     String regressionDirectory = commandLine.getOptionValue("db-dump-output-dir");
-
     GoldenCopyCreator goldenCopyCreator = new GoldenCopyCreator(getToolContext());
-    
     String[] viewSnapshotPairs = commandLine.getArgs();
-    
     validateAsFilesystemNames(viewSnapshotPairs);
-    
-    Preconditions.checkArgument(viewSnapshotPairs.length % 2 == 0, "Should be an even number of view/snapshot pairs. Found %s", Arrays.toString(viewSnapshotPairs));
+    Preconditions.checkArgument(viewSnapshotPairs.length % 2 == 0,
+                                "Should be an even number of view/snapshot pairs. Found %s",
+                                Arrays.toString(viewSnapshotPairs));
     
     for (int i = 0; i < viewSnapshotPairs.length; i += 2) {
       String viewName = viewSnapshotPairs[i];
@@ -74,15 +69,14 @@ public class GoldenCopyCreationTool extends AbstractTool<IntegrationToolContext>
       new GoldenCopyPersistenceHelper(new File(regressionDirectory)).save(goldenCopy);
       s_logger.info("Persisted golden copy for {} against snapshot {}", viewName, snapshotName);
     }
-    
-    RegressionIO io = ZipFileRegressionIO.createWriter(new File(regressionDirectory, GoldenCopyDumpCreator.DB_DUMP_ZIP), new FudgeXMLFormat());
+    File dumpFile = new File(regressionDirectory, GoldenCopyDumpCreator.DB_DUMP_ZIP);
+    RegressionIO io = ZipFileRegressionIO.createWriter(dumpFile, new FudgeXMLFormat());
     IntegrationToolContext tc = getToolContext();
 
     GoldenCopyDumpCreator goldenCopyDumpCreator = new GoldenCopyDumpCreator(io, tc);
     
     s_logger.info("Persisting db dump with tracked data");
     goldenCopyDumpCreator.execute();
-    
   }
 
   @Override
@@ -92,15 +86,14 @@ public class GoldenCopyCreationTool extends AbstractTool<IntegrationToolContext>
     return options;
   }
 
-
-  @SuppressWarnings("static-access")
   private static Option createDbDumpOutputDirectory() {
-    return OptionBuilder.isRequired(true)
-        .hasArg(true)
-        .withArgName("outputdir")
-        .withDescription("Where to write the golden copy(ies) and the corresponding dump.")
-        .withLongOpt("db-dump-output-dir")
-        .create("o");
+    String description = "Where to write the golden copy(ies) and the corresponding dump.";
+    String argName = "outputdir";
+    String longOpt = "db-dump-output-dir";
+    Option option = new Option("o", longOpt, true, description);
+    option.setRequired(true);
+    option.setArgName(argName);
+    return option;
   }
   
   private void validateAsFilesystemNames(String[] names) {

@@ -9,12 +9,18 @@ import static com.google.common.collect.Iterables.transform;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
@@ -55,8 +61,6 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Dumps all the data required to run views from the database into Fudge XML files.
- * <p>
- * TODO split this up to allow a subset of data to be dumped and restored?
  */
 /* package */class DatabaseDump {
 
@@ -75,52 +79,90 @@ import com.opengamma.util.ArgumentChecker;
   private final MasterQueryManager _masterQueryManager;
   private final LegalEntityMaster _legalEntityMaster;
   private final IdMappings _idMappings;
+  private final Map<String, AtomicInteger> _nextIdByType = new HashMap<>();
 
-  private int _nextId;
-
-  /* package */DatabaseDump(String outputDir, SecurityMaster securityMaster, PositionMaster positionMaster, PortfolioMaster portfolioMaster, ConfigMaster configMaster,
-      HistoricalTimeSeriesMaster timeSeriesMaster, HolidayMaster holidayMaster, ExchangeMaster exchangeMaster, MarketDataSnapshotMaster snapshotMaster, LegalEntityMaster legalEntityMaster,
-      ConventionMaster conventionMaster) {
-    this(outputDir, securityMaster, positionMaster, portfolioMaster, configMaster, timeSeriesMaster, holidayMaster,
-        exchangeMaster, snapshotMaster, legalEntityMaster, conventionMaster, MasterQueryManager.queryAll());
+  /* package */ DatabaseDump(String outputDir,
+                            SecurityMaster securityMaster,
+                            PositionMaster positionMaster,
+                            PortfolioMaster portfolioMaster,
+                            ConfigMaster configMaster,
+                            HistoricalTimeSeriesMaster timeSeriesMaster,
+                            HolidayMaster holidayMaster,
+                            ExchangeMaster exchangeMaster,
+                            MarketDataSnapshotMaster snapshotMaster,
+                            LegalEntityMaster legalEntityMaster,
+                            ConventionMaster conventionMaster) {
+    this(outputDir,
+         securityMaster,
+         positionMaster,
+         portfolioMaster,
+         configMaster,
+         timeSeriesMaster,
+         holidayMaster,
+         exchangeMaster,
+         snapshotMaster,
+         legalEntityMaster,
+         conventionMaster,
+         MasterQueryManager.queryAll());
   }
 
-  /* package */DatabaseDump(String outputDir, SecurityMaster securityMaster, PositionMaster positionMaster, PortfolioMaster portfolioMaster, ConfigMaster configMaster,
-      HistoricalTimeSeriesMaster timeSeriesMaster, HolidayMaster holidayMaster, ExchangeMaster exchangeMaster, MarketDataSnapshotMaster snapshotMaster, LegalEntityMaster legalEntityMaster,
-      ConventionMaster conventionMaster, MasterQueryManager masterFilterManager) {
-    this(new SubdirsRegressionIO(new File(outputDir), new FudgeXMLFormat(), true), securityMaster, positionMaster, portfolioMaster, configMaster, timeSeriesMaster, holidayMaster,
-        exchangeMaster, snapshotMaster, legalEntityMaster, conventionMaster, masterFilterManager);
+  /* package */ DatabaseDump(String outputDir,
+                            SecurityMaster securityMaster,
+                            PositionMaster positionMaster,
+                            PortfolioMaster portfolioMaster,
+                            ConfigMaster configMaster,
+                            HistoricalTimeSeriesMaster timeSeriesMaster,
+                            HolidayMaster holidayMaster,
+                            ExchangeMaster exchangeMaster,
+                            MarketDataSnapshotMaster snapshotMaster,
+                            LegalEntityMaster legalEntityMaster,
+                            ConventionMaster conventionMaster,
+                            MasterQueryManager masterFilterManager) {
+    this(new SubdirsRegressionIO(new File(outputDir), new FudgeXMLFormat(), true),
+         securityMaster,
+         positionMaster,
+         portfolioMaster,
+         configMaster,
+         timeSeriesMaster,
+         holidayMaster,
+         exchangeMaster,
+         snapshotMaster,
+         legalEntityMaster,
+         conventionMaster,
+         masterFilterManager);
   }
 
-  /* package */DatabaseDump(RegressionIO io, SecurityMaster securityMaster, PositionMaster positionMaster, PortfolioMaster portfolioMaster, ConfigMaster configMaster,
-      HistoricalTimeSeriesMaster timeSeriesMaster, HolidayMaster holidayMaster, ExchangeMaster exchangeMaster, MarketDataSnapshotMaster snapshotMaster, LegalEntityMaster legalEntityMaster,
-      ConventionMaster conventionMaster, MasterQueryManager masterQueryManager) {
-    ArgumentChecker.notNull(io, "io");
-    ArgumentChecker.notNull(securityMaster, "securityMaster");
-    ArgumentChecker.notNull(positionMaster, "positionMaster");
-    ArgumentChecker.notNull(portfolioMaster, "portfolioMaster");
-    ArgumentChecker.notNull(configMaster, "configMaster");
-    ArgumentChecker.notNull(timeSeriesMaster, "timeSeriesMaster");
-    ArgumentChecker.notNull(masterQueryManager, "_masterFilterManager");
-    _io = io;
-    _legalEntityMaster = legalEntityMaster;
-    _snapshotMaster = snapshotMaster;
-    _exchangeMaster = exchangeMaster;
-    _holidayMaster = holidayMaster;
-    _timeSeriesMaster = timeSeriesMaster;
-    _positionMaster = positionMaster;
-    _portfolioMaster = portfolioMaster;
-    _configMaster = configMaster;
-    _securityMaster = securityMaster;
-    _masterQueryManager = masterQueryManager;
-    _conventionMaster = conventionMaster;
+  /* package */ DatabaseDump(RegressionIO io,
+                            SecurityMaster securityMaster,
+                            PositionMaster positionMaster,
+                            PortfolioMaster portfolioMaster,
+                            ConfigMaster configMaster,
+                            HistoricalTimeSeriesMaster timeSeriesMaster,
+                            HolidayMaster holidayMaster,
+                            ExchangeMaster exchangeMaster,
+                            MarketDataSnapshotMaster snapshotMaster,
+                            LegalEntityMaster legalEntityMaster,
+                            ConventionMaster conventionMaster,
+                            MasterQueryManager masterQueryManager) {
+    _io = ArgumentChecker.notNull(io, "io");
+    _legalEntityMaster = ArgumentChecker.notNull(legalEntityMaster, "legalEntityMaster");
+    _snapshotMaster = ArgumentChecker.notNull(snapshotMaster, "snapshotMaster");
+    _exchangeMaster = ArgumentChecker.notNull(exchangeMaster, "exchangeMaster");
+    _holidayMaster = ArgumentChecker.notNull(holidayMaster, "holidayMaster");
+    _timeSeriesMaster = ArgumentChecker.notNull(timeSeriesMaster, "timeSeriesMaster");
+    _positionMaster = ArgumentChecker.notNull(positionMaster, "positionMaster");
+    _portfolioMaster = ArgumentChecker.notNull(portfolioMaster, "portfolioMaster");
+    _configMaster = ArgumentChecker.notNull(configMaster, "configMaster");
+    _securityMaster = ArgumentChecker.notNull(securityMaster, "securityMaster");
+    _masterQueryManager = ArgumentChecker.notNull(masterQueryManager, "masterQueryManager");
+    _conventionMaster = ArgumentChecker.notNull(conventionMaster, "conventionMaster");
+
     ConfigItem<IdMappings> mappingsConfigItem = RegressionUtils.loadIdMappings(_configMaster);
     if (mappingsConfigItem != null) {
       _idMappings = mappingsConfigItem.getValue();
     } else {
       _idMappings = new IdMappings();
     }
-    _nextId = _idMappings.getMaxId() + 1;
     s_logger.info("Dumping database to {}", _io.getBaseFile().getAbsolutePath());
   }
 
@@ -229,16 +271,19 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   private Map<ObjectId, Integer> write(Iterable<? extends UniqueIdentifiable> objects, String type, String prefix) throws IOException {
+    List<UniqueIdentifiable> sortedObjects = Lists.newArrayList(objects);
+    // sort the objects so two dumps of the same database put the same objects in the same files
+    Collections.sort(sortedObjects, new UniqueIdentifiableComparator());
     s_logger.info("Writing {} to {}", type, _io.getBaseFile().getAbsolutePath());
     final Map<ObjectId, Integer> ids = Maps.newHashMap();
     final Map<String, Object> toWrite = Maps.newHashMap();
     int count = 0;
-    for (UniqueIdentifiable object : objects) {
+    for (UniqueIdentifiable object : sortedObjects) {
       ObjectId objectId = object.getUniqueId().getObjectId();
       Integer previousId = _idMappings.getId(objectId);
       int id;
       if (previousId == null) {
-        id = _nextId++;
+        id = getNextId(type);
         ids.put(objectId, id);
       } else {
         id = previousId;
@@ -287,8 +332,7 @@ import com.opengamma.util.ArgumentChecker;
       ManageableHistoricalTimeSeriesInfo info = infoDoc.getInfo();
       ManageableHistoricalTimeSeries timeSeries =
           _timeSeriesMaster.getTimeSeries(info.getTimeSeriesObjectId(), VersionCorrection.LATEST);
-      TimeSeriesWithInfo timeSeriesWithInfo = new TimeSeriesWithInfo(info, timeSeries);
-      return timeSeriesWithInfo;
+      return new TimeSeriesWithInfo(info, timeSeries);
     }
   }
 
@@ -327,4 +371,21 @@ import com.opengamma.util.ArgumentChecker;
     }
   }
 
+  private class UniqueIdentifiableComparator implements Comparator<UniqueIdentifiable> {
+
+    @Override
+    public int compare(UniqueIdentifiable o1, UniqueIdentifiable o2) {
+      return o1.getUniqueId().compareTo(o2.getUniqueId());
+    }
+  }
+
+  private int getNextId(String type) {
+    AtomicInteger nextId = _nextIdByType.get(type);
+
+    if (nextId == null) {
+      nextId = new AtomicInteger();
+      _nextIdByType.put(type, nextId);
+    }
+    return nextId.getAndIncrement();
+  }
 }

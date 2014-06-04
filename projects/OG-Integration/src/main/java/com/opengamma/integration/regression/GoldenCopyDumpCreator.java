@@ -73,16 +73,16 @@ class GoldenCopyDumpCreator {
 
   public GoldenCopyDumpCreator(RegressionIO regressionIO, IntegrationToolContext tc) {
     _regressionIO = regressionIO;
-    _securityMaster =     (DataTrackingSecurityMaster) tc.getSecurityMaster();
-    _positionMaster =     (DataTrackingPositionMaster) tc.getPositionMaster();
-    _portfolioMaster =    (DataTrackingPortfolioMaster) tc.getPortfolioMaster();
-    _configMaster =       (DataTrackingConfigMaster) tc.getConfigMaster();
-    _timeSeriesMaster =   (DataTrackingHistoricalTimeSeriesMaster) tc.getHistoricalTimeSeriesMaster();
-    _holidayMaster =      (DataTrackingHolidayMaster) tc.getHolidayMaster();
-    _exchangeMaster =     (DataTrackingExchangeMaster) tc.getExchangeMaster();
-    _snapshotMaster =     (DataTrackingMarketDataSnapshotMaster) tc.getMarketDataSnapshotMaster();
+    _securityMaster = (DataTrackingSecurityMaster) tc.getSecurityMaster();
+    _positionMaster = (DataTrackingPositionMaster) tc.getPositionMaster();
+    _portfolioMaster = (DataTrackingPortfolioMaster) tc.getPortfolioMaster();
+    _configMaster = (DataTrackingConfigMaster) tc.getConfigMaster();
+    _timeSeriesMaster = (DataTrackingHistoricalTimeSeriesMaster) tc.getHistoricalTimeSeriesMaster();
+    _holidayMaster = (DataTrackingHolidayMaster) tc.getHolidayMaster();
+    _exchangeMaster = (DataTrackingExchangeMaster) tc.getExchangeMaster();
+    _snapshotMaster = (DataTrackingMarketDataSnapshotMaster) tc.getMarketDataSnapshotMaster();
     _legalEntityMaster = (DataTrackingLegalEntityMaster) tc.getLegalEntityMaster();
-    _conventionMaster =   (DataTrackingConventionMaster) tc.getConventionMaster();
+    _conventionMaster = (DataTrackingConventionMaster) tc.getConventionMaster();
     _referenceDataProvider = (InMemoryCachingReferenceDataProvider) tc.getBloombergReferenceDataProvider();
   }
 

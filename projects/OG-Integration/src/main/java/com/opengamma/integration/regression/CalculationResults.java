@@ -32,6 +32,7 @@ import org.threeten.bp.Instant;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.core.position.PortfolioNode;
@@ -110,7 +111,8 @@ public final class CalculationResults implements ImmutableBean {
         valueMap.put(key, CalculatedValue.of(computedValue.getValue(), valueSpec.getProperties(), targetType, targetName));
       }
     }
-    return new CalculationResults(valueMap, viewDef.getViewDefinition().getName(), snapshotName, valuationTime, version);
+    Map<CalculationResultKey, CalculatedValue> sortedValueMap = ImmutableSortedMap.copyOf(valueMap);
+    return new CalculationResults(sortedValueMap, viewDef.getViewDefinition().getName(), snapshotName, valuationTime, version);
   }
 
   private static String getTargetName(UniqueId targetId,
