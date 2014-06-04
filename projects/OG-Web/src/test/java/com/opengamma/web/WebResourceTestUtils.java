@@ -10,6 +10,7 @@ import static org.testng.AssertJUnit.assertNotNull;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -153,10 +154,10 @@ public final class WebResourceTestUtils {
     return sec;
   }
   
-  public static JSONObject loadJson(String filePath) throws IOException, JSONException {
+  public static JSONObject loadJson(String filePath) throws IOException, JSONException, URISyntaxException {
     URL jsonResource = ClassLoader.getSystemResource(filePath);
     assertNotNull(jsonResource);
-    String jsonText = FileUtils.readFileToString(new File(jsonResource.getPath()));
+    String jsonText = FileUtils.readFileToString(new File(jsonResource.toURI()));
     return new JSONObject(jsonText);
   }
 
@@ -164,8 +165,8 @@ public final class WebResourceTestUtils {
   public static void assertJSONObjectEquals(final JSONObject expectedJson, final JSONObject actualJson) throws Exception {
     assertNotNull(expectedJson);
     assertNotNull(actualJson);
-    String expectedSorted = JSONValue.toJSONString((Map) new JSONParser().parse(expectedJson.toString(), s_sortedJSONObjectFactory));
-    String actualSorted = JSONValue.toJSONString((Map) new JSONParser().parse(actualJson.toString(), s_sortedJSONObjectFactory));
+    String expectedSorted = JSONValue.toJSONString(new JSONParser().parse(expectedJson.toString(), s_sortedJSONObjectFactory));
+    String actualSorted = JSONValue.toJSONString(new JSONParser().parse(actualJson.toString(), s_sortedJSONObjectFactory));
     assertEquals(expectedSorted, actualSorted);
   }
 

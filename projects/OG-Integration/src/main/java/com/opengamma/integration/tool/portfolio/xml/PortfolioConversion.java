@@ -7,6 +7,7 @@ package com.opengamma.integration.tool.portfolio.xml;
 
 import java.io.File;
 import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.net.URL;
 
 import javax.xml.bind.JAXBContext;
@@ -33,12 +34,17 @@ public abstract class PortfolioConversion {
    * The directory holding the schema.
    */
   public static final File SCHEMA_DIRECTORY;
+
   static {
     URL resource = PortfolioConversion.class.getClassLoader().getResource(SCHEMA_LOCATION);
     if (resource == null) {
       throw new OpenGammaRuntimeException("File not found in classpath: " + SCHEMA_LOCATION);
     }
-    SCHEMA_DIRECTORY = new File(resource.getFile());
+    try {
+      SCHEMA_DIRECTORY = new File(resource.toURI());
+    } catch (URISyntaxException e) {
+      throw new OpenGammaRuntimeException("File not found in classpath: " + SCHEMA_LOCATION);
+    }
   }
   /**
    * The XML locator for the schema.
