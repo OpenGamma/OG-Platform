@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.google.common.collect.Sets;
+import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.convention.ConventionSource;
@@ -178,7 +179,12 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
     try {
       final FinancialConvention convention = _conventionSource.getSingle(node.getConvention(), FinancialConvention.class);
       return convention.accept(this);
-    } catch (final Exception e) { // If the convention is not found, try with the security
+    } catch (DataNotFoundException e) {
+      // If the convention is not found in the convention source
+      // then try with the security source. This is a workaround
+      // for the fact that at one time conventions were stored in
+      // in the security source and so may still be there on
+      // some installations
       final Security security = _securitySource.getSingle(node.getConvention().toBundle());
       if (security == null) {
         throw new OpenGammaRuntimeException("Cash node in curve points to " + node.getConvention() + " which has not been loaded. Load by putting identifier into 'Add security' dialog.");
