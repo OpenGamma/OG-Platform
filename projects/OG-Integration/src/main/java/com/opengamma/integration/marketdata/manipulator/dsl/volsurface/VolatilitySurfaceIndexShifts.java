@@ -26,10 +26,15 @@ import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
+import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.SmileSurfaceDataBundle;
+import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceMoneynessFcnBackedByGrid;
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
+import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
 import com.opengamma.analytics.math.surface.Surface;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator;
@@ -43,6 +48,8 @@ import com.opengamma.util.ArgumentChecker;
  */
 @BeanDefinition
 public final class VolatilitySurfaceIndexShifts implements StructureManipulator<VolatilitySurface>, ImmutableBean {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(VolatilitySurfaceIndexShifts.class);
 
   @PropertyDefinition(validate = "notNull")
   private final ScenarioShiftType _shiftType;
@@ -71,7 +78,59 @@ public final class VolatilitySurfaceIndexShifts implements StructureManipulator<
                                    ValueSpecification valueSpecification,
                                    FunctionExecutionContext executionContext) {
     Surface<Double, Double, Double> surface = volSurface.getSurface();
-    // find the unique x values. these correspond to the indices in the list of shifts
+
+    if (volSurface instanceof BlackVolatilitySurfaceMoneynessFcnBackedByGrid) {
+      BlackVolatilitySurfaceMoneynessFcnBackedByGrid blackSurface = (BlackVolatilitySurfaceMoneynessFcnBackedByGrid) volSurface;
+      SmileSurfaceDataBundle shiftedSurfaceData = shiftSurfaceData(blackSurface.getGridData());
+      return blackSurface.getInterpolator().getVolatilitySurface(shiftedSurfaceData);
+    } else if (!(surface instanceof FunctionalDoublesSurface)) {
+      return shiftNonFunctionalSurface(volSurface);
+    } else {
+      s_logger.warn("Unable to shift surface of type {}/{}",
+                    volSurface.getClass().getName(),
+                    surface.getClass().getName());
+      return volSurface;
+    }
+  }
+
+  /**
+   * Returns a copy of the surface data with shifts applied.
+   *
+   * @param surfaceData surface data
+   * @return a copy of the surface data with shifts applied
+   */
+  public SmileSurfaceDataBundle shiftSurfaceData(SmileSurfaceDataBundle surfaceData) {
+    SmileSurfaceDataBundle shiftedData = surfaceData;
+    int nShifts = Math.min(_shifts.size(), shiftedData.getNumExpiries());
+
+    for (int i = 0; i < nShifts; i++) {
+      double[] strikes = shiftedData.getStrikes()[i];
+
+      for (int j = 0; j < strikes.length; j++) {
+        Double shiftAmount;
+
+        if (_shiftType == ScenarioShiftType.ABSOLUTE) {
+          shiftAmount = _shifts.get(i);
+        } else {
+          double vol = shiftedData.getVolatilities()[i][j];
+          shiftAmount = vol * _shifts.get(i);
+        }
+        shiftedData = shiftedData.withBumpedPoint(i, j, shiftAmount);
+      }
+    }
+    return shiftedData;
+  }
+
+  /**
+   * Returns a shifted volatility surface.
+   * The surface returned by {@link VolatilitySurface#getSurface()} must not be an instance of
+   * {@link FunctionalDoublesSurface}.
+   *
+   * @param volSurface the base surface
+   * @return the surface with a shift applied
+   */
+  private VolatilitySurface shiftNonFunctionalSurface(VolatilitySurface volSurface) {
+    Surface<Double, Double, Double> surface = volSurface.getSurface();
     Double[] xData = surface.getXData();
     Set<Double> xValues = Sets.newTreeSet(Arrays.asList(xData));
     // map the values to indices so we can find the shift at each point
