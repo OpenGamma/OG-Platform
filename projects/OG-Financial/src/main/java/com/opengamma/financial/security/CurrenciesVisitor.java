@@ -529,7 +529,7 @@ public class CurrenciesVisitor extends FinancialSecurityVisitorSameValueAdapter<
   @Override
   public Collection<Currency> visitEquityTotalReturnSwapSecurity(final EquityTotalReturnSwapSecurity security) {
     final Set<Currency> currencies = new HashSet<>();
-    currencies.add(security.getNotionalCurrency());
+    currencies.add(security.getEquityCurrency());
     currencies.add(security.getFundingLeg().getNotional().getCurrency());
     return currencies;
   }
