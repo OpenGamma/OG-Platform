@@ -69,7 +69,7 @@ public class EquityTotalReturnSwapCurrencyExposureFunction extends EquityTotalRe
       public Set<ValueRequirement> getFXRequirements(FinancialSecurity security,
                                                      SecuritySource securitySource) {
         Set<ValueRequirement> reqs = super.getFXRequirements(security, securitySource);
-        System.out.println(reqs.toString());
+//        System.out.println(reqs.toString());
         return reqs;
       }
 
