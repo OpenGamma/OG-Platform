@@ -65,11 +65,11 @@ public final class BondTrsConstantSpreadHorizonCalculator extends HorizonCalcula
     final IssuerProviderInterface dataTomorrow = (IssuerProviderInterface) CURVE_ROLLDOWN.rollDown(data, shiftTime);
     final MultipleCurrencyAmount fundingLegPvTomorrow = instrumentTomorrow.getFundingLeg().accept(PV_CALCULATOR, dataTomorrow);
     final MultipleCurrencyAmount fundingLegPvToday = instrumentToday.getFundingLeg().accept(PV_CALCULATOR, data);
-    final MultipleCurrencyAmount bondLegPvTomorrow = instrumentTomorrow.getAsset().accept(PV_CALCULATOR, dataTomorrow);
-    final MultipleCurrencyAmount bondLegPvToday = instrumentToday.getAsset().accept(PV_CALCULATOR, data);
+    final MultipleCurrencyAmount bondLegPvTomorrow = instrumentTomorrow.getAsset().accept(PV_CALCULATOR, dataTomorrow).multipliedBy(instrumentTomorrow.getQuantity());
+    final MultipleCurrencyAmount bondLegPvToday = instrumentToday.getAsset().accept(PV_CALCULATOR, data).multipliedBy(instrumentToday.getQuantity());
     final Currency assetCurrency = instrumentToday.getAsset().getCurrency();
     final Currency fundingCurrency = instrumentToday.getFundingLeg().getCurrency();
-    final double fxRate = data.getMulticurveProvider().getFxRate(assetCurrency, fundingCurrency);
+    final double fxRate = data.getMulticurveProvider().getFxRate(fundingCurrency, assetCurrency);
     final MultipleCurrencyAmount pvToday = bondLegPvToday.plus(CurrencyAmount.of(assetCurrency, fundingLegPvToday.getAmount(fundingCurrency) * fxRate));
     final MultipleCurrencyAmount pvTomorrow = bondLegPvTomorrow.plus(CurrencyAmount.of(assetCurrency, fundingLegPvTomorrow.getAmount(fundingCurrency) * fxRate));
     return subtract(pvTomorrow, pvToday);
