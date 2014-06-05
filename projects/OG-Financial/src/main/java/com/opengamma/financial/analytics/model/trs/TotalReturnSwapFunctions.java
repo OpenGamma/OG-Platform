@@ -46,5 +46,6 @@ public class TotalReturnSwapFunctions extends AbstractFunctionConfigurationBean 
     functions.add(functionConfiguration(EquityTotalReturnSwapPVFunction.class));
     functions.add(functionConfiguration(EquityTotalReturnSwapValueDeltaFunction.class));
     functions.add(functionConfiguration(EquityTotalReturnSwapConstantSpreadThetaFunction.class));
+    functions.add(functionConfiguration(EquityTotalReturnSwapCurrencyExposureFunction.class));
   }
 }
