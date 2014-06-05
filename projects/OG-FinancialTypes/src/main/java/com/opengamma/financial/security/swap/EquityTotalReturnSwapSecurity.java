@@ -56,6 +56,9 @@ public class EquityTotalReturnSwapSecurity extends TotalReturnSwapSecurity {
   @PropertyDefinition(validate = "notNull")
   private Currency _notionalCurrency;
 
+  @PropertyDefinition()
+  private Currency _equityCurrency;
+
   /**
    * The notional amount.
    */
@@ -88,15 +91,25 @@ public class EquityTotalReturnSwapSecurity extends TotalReturnSwapSecurity {
    * @param paymentFrequency The payment frequency, not null
    * @param rollConvention The payment roll convention, not null
    */
+
   public EquityTotalReturnSwapSecurity(final FloatingInterestRateSwapLeg fundingLeg, final ExternalIdBundle assetId,
       final LocalDate effectiveDate, final LocalDate maturityDate, final Double numberOfShares, final Currency notionalCurrency,
       final Double notionalAmount, final int paymentSettlementDays, final BusinessDayConvention paymentBusinessDayConvention,
       final Frequency paymentFrequency, final RollConvention rollConvention) {
+    this(fundingLeg, assetId, effectiveDate, maturityDate, numberOfShares, notionalCurrency, notionalAmount, paymentSettlementDays, paymentBusinessDayConvention, paymentFrequency, rollConvention,
+        notionalCurrency);
+  }
+
+  public EquityTotalReturnSwapSecurity(final FloatingInterestRateSwapLeg fundingLeg, final ExternalIdBundle assetId,
+      final LocalDate effectiveDate, final LocalDate maturityDate, final Double numberOfShares, final Currency notionalCurrency,
+      final Double notionalAmount, final int paymentSettlementDays, final BusinessDayConvention paymentBusinessDayConvention,
+      final Frequency paymentFrequency, final RollConvention rollConvention, final Currency equityCurrency) {
     super(SECURITY_TYPE, fundingLeg, assetId, effectiveDate, maturityDate, paymentSettlementDays, paymentBusinessDayConvention,
         paymentFrequency, rollConvention);
     setNumberOfShares(numberOfShares);
     setNotionalCurrency(notionalCurrency);
     setNotionalAmount(notionalAmount);
+    setEquityCurrency(equityCurrency);
   }
 
   @Override
@@ -178,6 +191,31 @@ public class EquityTotalReturnSwapSecurity extends TotalReturnSwapSecurity {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the equityCurrency.
+   * @return the value of the property
+   */
+  public Currency getEquityCurrency() {
+    return _equityCurrency;
+  }
+
+  /**
+   * Sets the equityCurrency.
+   * @param equityCurrency  the new value of the property
+   */
+  public void setEquityCurrency(Currency equityCurrency) {
+    this._equityCurrency = equityCurrency;
+  }
+
+  /**
+   * Gets the the {@code equityCurrency} property.
+   * @return the property, not null
+   */
+  public final Property<Currency> equityCurrency() {
+    return metaBean().equityCurrency().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the notional amount.
    * @return the value of the property, not null
    */
@@ -243,6 +281,7 @@ public class EquityTotalReturnSwapSecurity extends TotalReturnSwapSecurity {
       EquityTotalReturnSwapSecurity other = (EquityTotalReturnSwapSecurity) obj;
       return JodaBeanUtils.equal(getNumberOfShares(), other.getNumberOfShares()) &&
           JodaBeanUtils.equal(getNotionalCurrency(), other.getNotionalCurrency()) &&
+          JodaBeanUtils.equal(getEquityCurrency(), other.getEquityCurrency()) &&
           JodaBeanUtils.equal(getNotionalAmount(), other.getNotionalAmount()) &&
           JodaBeanUtils.equal(getDividendPercentage(), other.getDividendPercentage()) &&
           super.equals(obj);
@@ -255,6 +294,7 @@ public class EquityTotalReturnSwapSecurity extends TotalReturnSwapSecurity {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getNumberOfShares());
     hash += hash * 31 + JodaBeanUtils.hashCode(getNotionalCurrency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getEquityCurrency());
     hash += hash * 31 + JodaBeanUtils.hashCode(getNotionalAmount());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDividendPercentage());
     return hash ^ super.hashCode();
@@ -262,7 +302,7 @@ public class EquityTotalReturnSwapSecurity extends TotalReturnSwapSecurity {
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(160);
+    StringBuilder buf = new StringBuilder(192);
     buf.append("EquityTotalReturnSwapSecurity{");
     int len = buf.length();
     toString(buf);
@@ -278,6 +318,7 @@ public class EquityTotalReturnSwapSecurity extends TotalReturnSwapSecurity {
     super.toString(buf);
     buf.append("numberOfShares").append('=').append(JodaBeanUtils.toString(getNumberOfShares())).append(',').append(' ');
     buf.append("notionalCurrency").append('=').append(JodaBeanUtils.toString(getNotionalCurrency())).append(',').append(' ');
+    buf.append("equityCurrency").append('=').append(JodaBeanUtils.toString(getEquityCurrency())).append(',').append(' ');
     buf.append("notionalAmount").append('=').append(JodaBeanUtils.toString(getNotionalAmount())).append(',').append(' ');
     buf.append("dividendPercentage").append('=').append(JodaBeanUtils.toString(getDividendPercentage())).append(',').append(' ');
   }
@@ -303,6 +344,11 @@ public class EquityTotalReturnSwapSecurity extends TotalReturnSwapSecurity {
     private final MetaProperty<Currency> _notionalCurrency = DirectMetaProperty.ofReadWrite(
         this, "notionalCurrency", EquityTotalReturnSwapSecurity.class, Currency.class);
     /**
+     * The meta-property for the {@code equityCurrency} property.
+     */
+    private final MetaProperty<Currency> _equityCurrency = DirectMetaProperty.ofReadWrite(
+        this, "equityCurrency", EquityTotalReturnSwapSecurity.class, Currency.class);
+    /**
      * The meta-property for the {@code notionalAmount} property.
      */
     private final MetaProperty<Double> _notionalAmount = DirectMetaProperty.ofReadWrite(
@@ -319,6 +365,7 @@ public class EquityTotalReturnSwapSecurity extends TotalReturnSwapSecurity {
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "numberOfShares",
         "notionalCurrency",
+        "equityCurrency",
         "notionalAmount",
         "dividendPercentage");
 
@@ -335,6 +382,8 @@ public class EquityTotalReturnSwapSecurity extends TotalReturnSwapSecurity {
           return _numberOfShares;
         case -1573783695:  // notionalCurrency
           return _notionalCurrency;
+        case -434479626:  // equityCurrency
+          return _equityCurrency;
         case -902123592:  // notionalAmount
           return _notionalAmount;
         case -1094565911:  // dividendPercentage
@@ -376,6 +425,14 @@ public class EquityTotalReturnSwapSecurity extends TotalReturnSwapSecurity {
     }
 
     /**
+     * The meta-property for the {@code equityCurrency} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Currency> equityCurrency() {
+      return _equityCurrency;
+    }
+
+    /**
      * The meta-property for the {@code notionalAmount} property.
      * @return the meta-property, not null
      */
@@ -399,6 +456,8 @@ public class EquityTotalReturnSwapSecurity extends TotalReturnSwapSecurity {
           return ((EquityTotalReturnSwapSecurity) bean).getNumberOfShares();
         case -1573783695:  // notionalCurrency
           return ((EquityTotalReturnSwapSecurity) bean).getNotionalCurrency();
+        case -434479626:  // equityCurrency
+          return ((EquityTotalReturnSwapSecurity) bean).getEquityCurrency();
         case -902123592:  // notionalAmount
           return ((EquityTotalReturnSwapSecurity) bean).getNotionalAmount();
         case -1094565911:  // dividendPercentage
@@ -415,6 +474,9 @@ public class EquityTotalReturnSwapSecurity extends TotalReturnSwapSecurity {
           return;
         case -1573783695:  // notionalCurrency
           ((EquityTotalReturnSwapSecurity) bean).setNotionalCurrency((Currency) newValue);
+          return;
+        case -434479626:  // equityCurrency
+          ((EquityTotalReturnSwapSecurity) bean).setEquityCurrency((Currency) newValue);
           return;
         case -902123592:  // notionalAmount
           ((EquityTotalReturnSwapSecurity) bean).setNotionalAmount((Double) newValue);
