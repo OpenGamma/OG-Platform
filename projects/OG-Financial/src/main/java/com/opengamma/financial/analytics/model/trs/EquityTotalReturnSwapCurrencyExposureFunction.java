@@ -17,7 +17,6 @@ import com.opengamma.analytics.financial.equity.trs.EqyTrsCurrencyExposureCalcul
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -27,7 +26,6 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
@@ -53,29 +51,6 @@ public class EquityTotalReturnSwapCurrencyExposureFunction extends EquityTotalRe
                                                      false) {
 
       @Override
-      public Set<ValueSpecification> getResults(FunctionCompilationContext context,
-                                                ComputationTarget target) {
-        Set<ValueSpecification> results = super.getResults(context, target);
-        return results;
-      }
-
-      @Override
-      public Set<ValueRequirement> getRequirements(FunctionCompilationContext context,
-                                                   ComputationTarget target,
-                                                   ValueRequirement desiredValue) {
-        Set<ValueRequirement> reqs = super.getRequirements(context, target, desiredValue);
-        return reqs;
-      }
-
-      @Override
-      public Set<ValueRequirement> getFXRequirements(FinancialSecurity security,
-                                                     SecuritySource securitySource) {
-        Set<ValueRequirement> reqs = super.getFXRequirements(security, securitySource);
-        return reqs;
-      }
-
-
-      @Override
       protected Set<ComputedValue> getValues(FunctionExecutionContext executionContext,
                                              FunctionInputs inputs,
                                              ComputationTarget target,
@@ -91,12 +66,8 @@ public class EquityTotalReturnSwapCurrencyExposureFunction extends EquityTotalRe
                                                                          desiredValue.getConstraints()), exposure);
           results.add(result);
         }
-
         return results;
       }
     };
   }
-
-
-
 }
