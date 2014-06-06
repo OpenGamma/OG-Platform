@@ -98,6 +98,15 @@ public class EquityTotalReturnSwapPV01Function extends EquityTotalReturnSwapFunc
         return super.getRequirements(context, target, desiredValue);
       }
 
+      @SuppressWarnings("synthetic-access")
+      @Override
+      public Set<ValueSpecification> getResults(FunctionCompilationContext compilationContext,
+                                                ComputationTarget target,
+                                                Map<ValueSpecification, ValueRequirement> inputs) {
+        Set<ValueSpecification> spec = super.getResults(compilationContext, target, inputs);
+        return spec;
+      }
+
       @Override
       protected Collection<ValueProperties.Builder> getResultProperties(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
         final EquityTotalReturnSwapSecurity security = (EquityTotalReturnSwapSecurity) target.getTrade().getSecurity();
