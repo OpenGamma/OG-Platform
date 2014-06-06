@@ -6,6 +6,32 @@ These release notes cover changes from v2.1 to v2.2.
 Upgrading from 2.1.0
 ====================
 
+To 2.2.0-M26
+------------
+
+* Bug
+
+    * [PLAT-6554] - Accrued interest for inflation bonds is not scaled
+    * [PLAT-6563] - CurveNodeCurrencyVisitor.visitCashNode catches Exception which leads to strange behaviour
+    * [PLAT-6576] - Index shifts can't be applied to black volatility surfaces
+    * [PLAT-6580] - BondCapitalIndexedSecurityDefinition generates flows with adjusted periodic rate rather than actual rate
+    * [PLAT-6581] - BondCapitalIndexedSecurityDiscountingMethod uses wrong price to calculate yield for government inflation bonds
+
+* Improvement
+
+    * [PLAT-6550] - Enhance and tidy tuple library
+    * [PLAT-6557] - Add object for holding bucketed pv01 results
+    * [PLAT-6558] - Regression test report entries should be ordered
+    * [PLAT-6568] - Add factory for FloatingIndex
+    * [PLAT-6574] - Add validation of swap objects
+    * [PLAT-6579] - Exclude aggregate values from regression test results
+
+* Task
+
+    * [PLAT-6553] - Convert IndexCDSSecurity to use SecurityLink
+    * [PLAT-6569] - Fix jenkins CI build
+
+
 To 2.2.0-M25
 ------------
 
