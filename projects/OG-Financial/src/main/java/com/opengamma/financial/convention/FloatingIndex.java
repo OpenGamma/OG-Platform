@@ -21,7 +21,7 @@ import com.opengamma.util.money.Currency;
  * In order to create a floating index rate (e.g. {@see FloatingInterestRateLeg#setFloatingReferenceRateId(ExternalId)})
  * you should get the floating index, and then call foo.
  */
-public enum FloatingIndex {
+public enum FloatingIndex implements NamedInstance {
   /**
    * The AUD-AONIA-OIS-COMPOUND index.
    */
@@ -163,12 +163,12 @@ public enum FloatingIndex {
    */
   ZAR_JIBAR_SAFEX(Currency.of("ZAR"), "JIBAR", "ZAR-JIBAR-SAFEX"),
   ;
-  
+
   private final Currency _currency;
   private final String _indexName;
   private final String _isdaName;
   private final ExternalId _externalId;
-  
+
   private FloatingIndex(Currency currency, String indexName, String isdaName) {
     ArgumentChecker.notNull(currency, "currency");
     ArgumentChecker.notNull(indexName, "indexName");
@@ -201,6 +201,11 @@ public enum FloatingIndex {
    */
   public String getIsdaName() {
     return _isdaName;
+  }
+
+  @Override
+  public String getName() {
+    return getIsdaName();
   }
   
   public ExternalId toRawExternalId() {
@@ -274,5 +279,5 @@ public enum FloatingIndex {
     }
     return ExternalId.of(_externalId.getScheme(), idValue);
   }
-  
+
 }
