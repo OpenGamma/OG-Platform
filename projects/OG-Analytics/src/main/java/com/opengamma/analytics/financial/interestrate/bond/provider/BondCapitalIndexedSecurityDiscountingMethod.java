@@ -464,8 +464,13 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
   public double yieldRealFromCurves(final BondCapitalIndexedSecurity<?> bond, final InflationIssuerProviderInterface provider) {
     ArgumentChecker.notNull(bond, "Bond");
     ArgumentChecker.notNull(provider, "inflation and multi-curves provider");
-    final double dirtyRealPrice = dirtyRealPriceFromCurves(bond, provider);
-    final double yield = yieldRealFromDirtyRealPrice(bond, dirtyRealPrice);
+    double dirtyPrice;
+    if (bond.getYieldConvention().equals(INDEX_LINKED_FLOAT)) {
+      dirtyPrice = dirtyNominalPriceFromCurves(bond, provider);
+    } else {
+      dirtyPrice = dirtyRealPriceFromCurves(bond, provider);
+    }
+    final double yield = yieldRealFromDirtyRealPrice(bond, dirtyPrice);
     return yield;
   }
 
