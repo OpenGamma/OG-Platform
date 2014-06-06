@@ -25,6 +25,7 @@ import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -37,6 +38,9 @@ public class EquityTotalReturnSwapCurrencyExposureFunction extends EquityTotalRe
   private static final InstrumentDerivativeVisitor<EquityTrsDataBundle, MultipleCurrencyAmount> CALCULATOR =
       EqyTrsCurrencyExposureCalculator.getInstance();
 
+  /**
+   * Sets the value requirement to {@link ValueRequirementNames#FX_CURRENCY_EXPOSURE}.
+   */
   public EquityTotalReturnSwapCurrencyExposureFunction() {
     super(FX_CURRENCY_EXPOSURE);
   }
@@ -52,7 +56,6 @@ public class EquityTotalReturnSwapCurrencyExposureFunction extends EquityTotalRe
       public Set<ValueSpecification> getResults(FunctionCompilationContext context,
                                                 ComputationTarget target) {
         Set<ValueSpecification> results = super.getResults(context, target);
-        //System.out.println(results.toString());
         return results;
       }
 
@@ -61,7 +64,6 @@ public class EquityTotalReturnSwapCurrencyExposureFunction extends EquityTotalRe
                                                    ComputationTarget target,
                                                    ValueRequirement desiredValue) {
         Set<ValueRequirement> reqs = super.getRequirements(context, target, desiredValue);
-        //System.out.println(reqs.toString());
         return reqs;
       }
 
@@ -69,7 +71,6 @@ public class EquityTotalReturnSwapCurrencyExposureFunction extends EquityTotalRe
       public Set<ValueRequirement> getFXRequirements(FinancialSecurity security,
                                                      SecuritySource securitySource) {
         Set<ValueRequirement> reqs = super.getFXRequirements(security, securitySource);
-//        System.out.println(reqs.toString());
         return reqs;
       }
 
