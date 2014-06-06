@@ -14,7 +14,6 @@ import static com.opengamma.financial.analytics.model.curve.CurveCalculationProp
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import org.threeten.bp.Instant;
@@ -37,6 +36,7 @@ import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
@@ -55,7 +55,7 @@ public class EquityTotalReturnSwapBCSFunction extends EquityTotalReturnSwapFunct
       new MarketQuoteSensitivityBlockCalculator<>(PSC);
 
   /**
-   *
+   * Sets the value requirement to {@link ValueRequirementNames#BLOCK_CURVE_SENSITIVITIES}.
    */
   public EquityTotalReturnSwapBCSFunction() {
     super(BLOCK_CURVE_SENSITIVITIES);
@@ -91,24 +91,6 @@ public class EquityTotalReturnSwapBCSFunction extends EquityTotalReturnSwapFunct
           result.add(new ComputedValue(spec, sensitivities));
         }
         return result;
-      }
-
-      @Override
-      public Set<ValueRequirement> getRequirements(FunctionCompilationContext compilationContext,
-                                                   ComputationTarget target,
-                                                   ValueRequirement desiredValue) {
-        Set<ValueRequirement> req = super.getRequirements(compilationContext, target, desiredValue);
-        return req;
-      }
-
-      @SuppressWarnings("synthetic-access")
-      @Override
-      public Set<ValueSpecification> getResults(FunctionCompilationContext compilationContext,
-                                                ComputationTarget target,
-                                                Map<ValueSpecification,
-                                                ValueRequirement> inputs) {
-        Set<ValueSpecification> spec = super.getResults(compilationContext, target, inputs);
-        return spec;
       }
 
       @Override

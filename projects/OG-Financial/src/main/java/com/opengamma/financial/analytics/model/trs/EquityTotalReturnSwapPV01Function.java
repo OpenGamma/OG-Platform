@@ -103,16 +103,6 @@ public class EquityTotalReturnSwapPV01Function extends EquityTotalReturnSwapFunc
 
       @SuppressWarnings("synthetic-access")
       @Override
-      public Set<ValueSpecification> getResults(FunctionCompilationContext compilationContext,
-                                                ComputationTarget target,
-                                                Map<ValueSpecification,
-                                                ValueRequirement> inputs) {
-        Set<ValueSpecification> spec = super.getResults(compilationContext, target, inputs);
-        return spec;
-      }
-
-      @SuppressWarnings("synthetic-access")
-      @Override
       protected Collection<ValueProperties.Builder> getResultProperties(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
         final ValueProperties.Builder properties = createValueProperties()
             .with(PROPERTY_CURVE_TYPE, DISCOUNTING)

@@ -61,7 +61,7 @@ public class EquityTotalReturnSwapYCNSFunction extends EquityTotalReturnSwapFunc
   private static final Logger s_logger = LoggerFactory.getLogger(EquityTotalReturnSwapYCNSFunction.class);
 
   /**
-   *
+   * Sets the value requirement to {@link ValueRequirementNames#YIELD_CURVE_NODE_SENSITIVITIES}
    */
   public EquityTotalReturnSwapYCNSFunction() {
     super(YIELD_CURVE_NODE_SENSITIVITIES);
@@ -108,12 +108,6 @@ public class EquityTotalReturnSwapYCNSFunction extends EquityTotalReturnSwapFunc
         return results;
       }
 
-      @Override
-      public Set<ValueSpecification> getResults(FunctionCompilationContext context,
-                                                ComputationTarget target) {
-        Set<ValueSpecification> spec = super.getResults(context, target);
-        return spec;
-      }
 
       @Override
       public Set<ValueRequirement> getRequirements(FunctionCompilationContext context,
@@ -128,8 +122,7 @@ public class EquityTotalReturnSwapYCNSFunction extends EquityTotalReturnSwapFunc
             ImmutableSet.of(new ValueRequirement(ValueRequirementNames.BLOCK_CURVE_SENSITIVITIES,
                                                  target.toSpecification(),
                                                  builder.get()));
-        Set<ValueRequirement> reqs = Sets.union(bcsReq, super.getRequirements(context, target, desiredValue));
-        return reqs;
+        return Sets.union(bcsReq, super.getRequirements(context, target, desiredValue));
       }
 
       @Override
