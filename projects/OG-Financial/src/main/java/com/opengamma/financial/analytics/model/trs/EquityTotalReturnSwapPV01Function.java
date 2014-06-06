@@ -7,7 +7,11 @@ package com.opengamma.financial.analytics.model.trs;
 
 import static com.opengamma.engine.value.ValuePropertyNames.CURRENCY;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
+import static com.opengamma.engine.value.ValuePropertyNames.CURVE_EXPOSURES;
+import static com.opengamma.engine.value.ValuePropertyNames.CURVE_SENSITIVITY_CURRENCY;
 import static com.opengamma.engine.value.ValueRequirementNames.PV01;
+import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.DISCOUNTING;
+import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.PROPERTY_CURVE_TYPE;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -37,7 +41,6 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.security.swap.EquityTotalReturnSwapSecurity;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
@@ -102,23 +105,25 @@ public class EquityTotalReturnSwapPV01Function extends EquityTotalReturnSwapFunc
       @Override
       public Set<ValueSpecification> getResults(FunctionCompilationContext compilationContext,
                                                 ComputationTarget target,
-                                                Map<ValueSpecification, ValueRequirement> inputs) {
+                                                Map<ValueSpecification,
+                                                ValueRequirement> inputs) {
         Set<ValueSpecification> spec = super.getResults(compilationContext, target, inputs);
         return spec;
       }
 
+      @SuppressWarnings("synthetic-access")
       @Override
       protected Collection<ValueProperties.Builder> getResultProperties(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
-        final EquityTotalReturnSwapSecurity security = (EquityTotalReturnSwapSecurity) target.getTrade().getSecurity();
-        final Collection<ValueProperties.Builder> properties = super.getResultProperties(compilationContext, target);
-        final Collection<ValueProperties.Builder> result = new HashSet<>();
-        for (final ValueProperties.Builder builder : properties) {
-          result.add(builder
-              .with(CURRENCY, security.getFundingLeg().getNotional().getCurrency().getCode())
-              .withAny(CURVE));
-        }
-        return result;
+        final ValueProperties.Builder properties = createValueProperties()
+            .with(PROPERTY_CURVE_TYPE, DISCOUNTING)
+            .withAny(CURVE_EXPOSURES)
+            .withAny(CURVE_SENSITIVITY_CURRENCY)
+            .withoutAny(CURRENCY)
+            .withAny(CURRENCY)
+            .withAny(CURVE);
+        return Collections.singleton(properties);
       }
+
     };
   }
 
