@@ -105,7 +105,8 @@ public class EquityTotalReturnSwapBCSFunction extends EquityTotalReturnSwapFunct
       @Override
       public Set<ValueSpecification> getResults(FunctionCompilationContext compilationContext,
                                                 ComputationTarget target,
-                                                Map<ValueSpecification, ValueRequirement> inputs) {
+                                                Map<ValueSpecification,
+                                                ValueRequirement> inputs) {
         Set<ValueSpecification> spec = super.getResults(compilationContext, target, inputs);
         return spec;
       }
