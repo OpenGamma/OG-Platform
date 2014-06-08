@@ -74,7 +74,7 @@ $.register_module({
                     // window.parent to window, we use document because IE8 doesn't know true from false)
 
 		    is_child = (window.parent.document !== window.document) ||
-			window.opener;
+			(window.opener && window.opener.og);
 		    // try-catch so that permission denied error is caught
 		    // if opengamma is called from external web page.
 		    try {
