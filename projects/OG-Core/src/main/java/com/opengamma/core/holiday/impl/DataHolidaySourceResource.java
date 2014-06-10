@@ -6,6 +6,7 @@
 package com.opengamma.core.holiday.impl;
 
 import java.net.URI;
+import java.util.Collection;
 import java.util.List;
 
 import javax.ws.rs.GET;
@@ -107,7 +108,7 @@ public class DataHolidaySourceResource extends AbstractDataResource {
 
   /**
    * Builds a URI.
-   * 
+   *
    * @param baseUri  the base URI, not null
    * @param objectId  the object identifier, may be null
    * @param vc  the version-correction, null means latest
@@ -122,6 +123,47 @@ public class DataHolidaySourceResource extends AbstractDataResource {
     return bld.build(objectId);
   }
 
+  /**
+   * Builds a URI.
+   *
+   * @param baseUri  the base URI, not null
+   * @param currency  the currency, not null
+   * @return the URI, not null
+   */
+  public static URI uriGet(URI baseUri, Currency currency) {
+    return UriBuilder.fromUri(baseUri).path("holidaySearches/retrieve")
+        .queryParam("currency", ArgumentChecker.notNull(currency, "currency").getCode())
+        .build();
+  }
+
+  /**
+   * Builds a URI.
+   *
+   * @param baseUri  the base URI, not null
+   * @param holidayType  the holiday type, not null
+   * @param regionOrExchangeIds  the ids, not null
+   * @return the URI, not null
+   */
+  public static URI uriGet(URI baseUri, HolidayType holidayType, ExternalIdBundle regionOrExchangeIds) {
+    return UriBuilder.fromUri(baseUri).path("holidaySearches/retrieve")
+        .queryParam("holidayType", ArgumentChecker.notNull(holidayType, "holidayType").name())
+        .queryParam("id", ArgumentChecker.notNull(regionOrExchangeIds, "regionOrExchangeIds").toStringList().toArray())
+        .build();
+  }
+
+  @GET
+  @Path("holidaySearches/retrieve")
+  public Response get(
+      @QueryParam("holidayType") HolidayType holidayType,
+      @QueryParam("currency") String currencyCode,
+      @QueryParam("id") List<String> externalIdStrs) {
+
+    Collection<Holiday> result = holidayType == HolidayType.CURRENCY ?
+        getHolidaySource().get(Currency.of(currencyCode)) :
+        getHolidaySource().get(holidayType, ExternalIdBundle.parse(externalIdStrs));
+    return responseOkObject(result);
+  }
+
   // deprecated
   //-------------------------------------------------------------------------
   @GET
@@ -131,7 +173,7 @@ public class DataHolidaySourceResource extends AbstractDataResource {
       @QueryParam("holidayType") HolidayType holidayType,
       @QueryParam("currency") String currencyCode,
       @QueryParam("id") List<String> externalIdStrs) {
-    
+
     LocalDate date = LocalDate.parse(localDateStr);
     if (holidayType == HolidayType.CURRENCY) {
       boolean result = getHolidaySource().isHoliday(date, Currency.of(currencyCode));
@@ -145,7 +187,7 @@ public class DataHolidaySourceResource extends AbstractDataResource {
 
   /**
    * Builds a URI.
-   * 
+   *
    * @param baseUri  the base URI, not null
    * @param date  the date, not null
    * @param holidayType  the holiday type, not null
@@ -154,9 +196,9 @@ public class DataHolidaySourceResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriSearchCheck(URI baseUri, LocalDate date, HolidayType holidayType, Currency currency, ExternalIdBundle regionOrExchangeIds) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("holidaySearches/check");
-    bld.queryParam("date", date.toString());
-    bld.queryParam("holidayType", holidayType.name());
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("holidaySearches/check")
+        .queryParam("date", date.toString())
+        .queryParam("holidayType", holidayType.name());
     if (currency != null) {
       bld.queryParam("currency", currency.getCode());
     }
@@ -165,5 +207,4 @@ public class DataHolidaySourceResource extends AbstractDataResource {
     }
     return bld.build();
   }
-
 }

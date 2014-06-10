@@ -1529,6 +1529,17 @@ public class CurveNodeToDefinitionConverterTest {
     }
 
     @Override
+    public Collection<Holiday> get(HolidayType holidayType,
+                                   ExternalIdBundle regionOrExchangeIds) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Collection<Holiday> get(Currency currency) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
     public Map<UniqueId, Holiday> get(final Collection<UniqueId> uniqueIds) {
       return Collections.emptyMap();
     }

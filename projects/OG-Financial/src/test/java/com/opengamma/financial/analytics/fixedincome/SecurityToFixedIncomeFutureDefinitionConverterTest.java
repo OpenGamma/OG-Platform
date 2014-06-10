@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.fixedincome;
 
+import java.util.Collection;
 import java.util.Collections;
 
 import org.mockito.Mockito;
@@ -52,6 +53,17 @@ public class SecurityToFixedIncomeFutureDefinitionConverterTest {
 
     @Override
     public Holiday get(final ObjectId objectId, final VersionCorrection versionCorrection) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Collection<Holiday> get(HolidayType holidayType,
+                                   ExternalIdBundle regionOrExchangeIds) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Collection<Holiday> get(Currency currency) {
       throw new UnsupportedOperationException();
     }
 
