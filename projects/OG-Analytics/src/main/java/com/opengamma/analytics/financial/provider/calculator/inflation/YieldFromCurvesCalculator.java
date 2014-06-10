@@ -37,7 +37,7 @@ public final class YieldFromCurvesCalculator extends InstrumentDerivativeVisitor
   public Double visitBondCapitalIndexedTransaction(final BondCapitalIndexedTransaction<?> bond, final InflationIssuerProviderInterface issuer) {
     ArgumentChecker.notNull(bond, "bond");
     ArgumentChecker.notNull(issuer, "Issuer provider");
-    return METHOD_BOND_SECURITY.yieldRealFromCurves(bond.getBondTransaction(), issuer);
+    return METHOD_BOND_SECURITY.yieldRealFromCurves(bond.getBondStandard(), issuer);
   }
 
   @Override
