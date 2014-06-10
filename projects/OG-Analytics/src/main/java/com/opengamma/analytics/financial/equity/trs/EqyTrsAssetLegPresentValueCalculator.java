@@ -7,14 +7,13 @@ package com.opengamma.analytics.financial.equity.trs;
 
 import com.opengamma.analytics.financial.equity.EquityTrsDataBundle;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
-import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
  * Calculates the present value of the asset leg of an equity total return swap.
  */
 public final class EqyTrsAssetLegPresentValueCalculator extends InstrumentDerivativeVisitorAdapter<EquityTrsDataBundle, MultipleCurrencyAmount> {
+
   /** The singleton instance */
   private static final EqyTrsAssetLegPresentValueCalculator INSTANCE = new EqyTrsAssetLegPresentValueCalculator();
 
@@ -32,10 +31,16 @@ public final class EqyTrsAssetLegPresentValueCalculator extends InstrumentDeriva
   private EqyTrsAssetLegPresentValueCalculator() {
   }
 
+  /**
+   * The methods used by the different instruments.
+   */
+  private static final EquityTotalReturnSwapDiscountingMethod METHOD_TRS = EquityTotalReturnSwapDiscountingMethod.getInstance();
+
+  //     -----     TRS     -----
+
   @Override
-  public MultipleCurrencyAmount visitEquityTotalReturnSwap(final EquityTotalReturnSwap equityTrs, final EquityTrsDataBundle data) {
-    ArgumentChecker.notNull(equityTrs, "equityTrs");
-    ArgumentChecker.notNull(data, "data");
-    return MultipleCurrencyAmount.of(CurrencyAmount.of(equityTrs.getNotionalCurrency(), data.getSpotEquity() * equityTrs.getEquity().getNumberOfShares()));
+  public MultipleCurrencyAmount visitEquityTotalReturnSwap(final EquityTotalReturnSwap trs, final EquityTrsDataBundle multicurve) {
+    return METHOD_TRS.presentValueAssetLeg(trs, multicurve);
   }
+
 }

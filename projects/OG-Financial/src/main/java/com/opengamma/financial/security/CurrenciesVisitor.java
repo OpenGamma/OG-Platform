@@ -14,6 +14,7 @@ import java.util.Set;
 
 import org.fudgemsg.FudgeMsgEnvelope;
 
+import com.opengamma.core.link.SecurityLink;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.security.bond.BillSecurity;
@@ -529,7 +530,8 @@ public class CurrenciesVisitor extends FinancialSecurityVisitorSameValueAdapter<
   @Override
   public Collection<Currency> visitEquityTotalReturnSwapSecurity(final EquityTotalReturnSwapSecurity security) {
     final Set<Currency> currencies = new HashSet<>();
-    currencies.add(security.getNotionalCurrency());
+    EquitySecurity equity = SecurityLink.resolvable(security.getAssetId(), EquitySecurity.class).resolve();
+    currencies.add(equity.getCurrency());
     currencies.add(security.getFundingLeg().getNotional().getCurrency());
     return currencies;
   }

@@ -5,16 +5,26 @@
  */
 package com.opengamma.analytics.financial.equity;
 
+import java.util.List;
+import java.util.Set;
+
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
- *
+ * Data bundle with one equity price and a multi-curve provider.
  */
-public class EquityTrsDataBundle {
+public class EquityTrsDataBundle implements ParameterProviderInterface {
+
+  /** The equity price **/
   private final double _spotEquity;
+  // TODO: Should this be replace by a map of LegalEntity/price (to be able to handle several equities in the same object).
+  /** The multi-curve provider */
   private final MulticurveProviderInterface _curves;
 
   public EquityTrsDataBundle(final double spotEquity, final MulticurveProviderInterface curves) {
@@ -71,5 +81,29 @@ public class EquityTrsDataBundle {
     return true;
   }
 
+  @Override
+  public ParameterProviderInterface copy() {
+    final MulticurveProviderInterface multicurveProvider = _curves.copy();
+    return new EquityTrsDataBundle(_spotEquity, multicurveProvider);
+  }
 
+  @Override
+  public MulticurveProviderInterface getMulticurveProvider() {
+    return _curves.getMulticurveProvider();
+  }
+
+  @Override
+  public double[] parameterSensitivity(String name, List<DoublesPair> pointSensitivity) {
+    return _curves.parameterSensitivity(name, pointSensitivity);
+  }
+
+  @Override
+  public double[] parameterForwardSensitivity(String name, List<ForwardSensitivity> pointSensitivity) {
+    return _curves.parameterForwardSensitivity(name, pointSensitivity);
+  }
+
+  @Override
+  public Set<String> getAllCurveNames() {
+    return _curves.getAllCurveNames();
+  }
 }

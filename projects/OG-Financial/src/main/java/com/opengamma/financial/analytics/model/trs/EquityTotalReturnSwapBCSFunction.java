@@ -14,20 +14,17 @@ import static com.opengamma.financial.analytics.model.curve.CurveCalculationProp
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
 
+import com.opengamma.analytics.financial.equity.EquityTrsDataBundle;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.provider.calculator.equity.PresentValueCurveSensitivityEquityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.generic.MarketQuoteSensitivityBlockCalculator;
-import com.opengamma.analytics.financial.provider.calculator.issuer.PresentValueCurveSensitivityIssuerCalculator;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
-import com.opengamma.analytics.financial.provider.description.interestrate.ParameterIssuerProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
@@ -39,42 +36,45 @@ import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.security.swap.BondTotalReturnSwapSecurity;
 
 /**
- * 
+ * Block Curve Sensitivity for Equity Total Return Swap
  */
-public class BondTotalReturnSwapBCSFunction extends BondTotalReturnSwapFunction {
-  
-  private static final Logger s_logger = LoggerFactory.getLogger(BondTotalReturnSwapBCSFunction.class);
-  
-  /** The curve sensitivity calculator */
-  private static final InstrumentDerivativeVisitor<ParameterIssuerProviderInterface, MultipleCurrencyMulticurveSensitivity> PVCSDC =
-      PresentValueCurveSensitivityIssuerCalculator.getInstance();
+public class EquityTotalReturnSwapBCSFunction extends EquityTotalReturnSwapFunction {
+
+   /** The curve sensitivity calculator */
+  private static final InstrumentDerivativeVisitor<EquityTrsDataBundle, MultipleCurrencyMulticurveSensitivity> PVCSEDC =
+      PresentValueCurveSensitivityEquityDiscountingCalculator.getInstance();
   /** The parameter sensitivity calculator */
-  private static final ParameterSensitivityParameterCalculator<ParameterIssuerProviderInterface> PSC =
-      new ParameterSensitivityParameterCalculator<>(PVCSDC);
+  private static final ParameterSensitivityParameterCalculator<EquityTrsDataBundle> PSC =
+      new ParameterSensitivityParameterCalculator<>(PVCSEDC);
   /** The market quote sensitivity calculator */
-  private static final MarketQuoteSensitivityBlockCalculator<ParameterIssuerProviderInterface> CALCULATOR =
+  private static final MarketQuoteSensitivityBlockCalculator<EquityTrsDataBundle> CALCULATOR =
       new MarketQuoteSensitivityBlockCalculator<>(PSC);
 
   /**
-   * 
+   * Sets the value requirement to {@link ValueRequirementNames#BLOCK_CURVE_SENSITIVITIES}.
    */
-  public BondTotalReturnSwapBCSFunction() {
+  public EquityTotalReturnSwapBCSFunction() {
     super(BLOCK_CURVE_SENSITIVITIES);
   }
   
   @Override
   public CompiledFunctionDefinition compile(FunctionCompilationContext context, Instant atInstant) {
-    return new BondTotalReturnSwapCompiledFunction(getTargetToDefinitionConverter(context), 
-                                                   getDefinitionToDerivativeConverter(context), true) {
+    return new EquityTotalReturnSwapCompiledFunction(getTargetToDefinitionConverter(context),
+                                                     getDefinitionToDerivativeConverter(context),
+                                                     true) {
 
       @Override
-      protected Set<ComputedValue> getValues(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues,
-          InstrumentDerivative derivative, FXMatrix fxMatrix) {
-        ParameterIssuerProviderInterface issuerCurves = getMergedWithIssuerProviders(inputs, fxMatrix);
+      protected Set<ComputedValue> getValues(FunctionExecutionContext executionContext,
+                                             FunctionInputs inputs,
+                                             ComputationTarget target,
+                                             Set<ValueRequirement> desiredValues,
+                                             InstrumentDerivative derivative,
+                                             FXMatrix fxMatrix) {
+        EquityTrsDataBundle data = getDataBundle(inputs, fxMatrix);
         CurveBuildingBlockBundle blocks = new CurveBuildingBlockBundle();
         for (ComputedValue cv : inputs.getAllValues()) {
           if (JACOBIAN_BUNDLE.equals(cv.getSpecification().getValueName())) {
@@ -83,41 +83,24 @@ public class BondTotalReturnSwapBCSFunction extends BondTotalReturnSwapFunction 
         }
         
         Set<ComputedValue> result = new HashSet<>();
-        MultipleCurrencyParameterSensitivity sensitivities = CALCULATOR.fromInstrument(derivative, issuerCurves, blocks);
+        MultipleCurrencyParameterSensitivity sensitivities = CALCULATOR.fromInstrument(derivative, data, blocks);
         for (ValueRequirement desiredValue : desiredValues) {
-          final ValueSpecification spec = new ValueSpecification(BLOCK_CURVE_SENSITIVITIES, target.toSpecification(), desiredValue.getConstraints().copy().get());
+          final ValueSpecification spec = new ValueSpecification(BLOCK_CURVE_SENSITIVITIES,
+                                                                 target.toSpecification(),
+                                                                 desiredValue.getConstraints().copy().get());
           result.add(new ComputedValue(spec, sensitivities));
         }
         return result;
-      }
-      
-      @Override
-      public Set<ValueRequirement> getRequirements(FunctionCompilationContext compilationContext,
-                                                   ComputationTarget target,
-                                                   ValueRequirement desiredValue) {
-        return super.getRequirements(compilationContext, target, desiredValue);
-      }
-
-      @SuppressWarnings("synthetic-access")
-      @Override
-      public Set<ValueSpecification> getResults(FunctionCompilationContext compilationContext,
-                                                ComputationTarget target,
-                                                Map<ValueSpecification, ValueRequirement> inputs) {
-        return super.getResults(compilationContext, target, inputs);
       }
 
       @Override
       protected Collection<ValueProperties.Builder> getResultProperties(FunctionCompilationContext compilationContext,
                                                                         ComputationTarget target) {
-        return Collections.singleton(createValueProperties()
+        ValueProperties.Builder properties = createValueProperties()
             .with(PROPERTY_CURVE_TYPE, DISCOUNTING)
             .withAny(CURVE_EXPOSURES)
-            .withAny(PROPERTY_CURVE_TYPE));
-      }
-
-      @Override
-      protected String getCurrencyOfResult(BondTotalReturnSwapSecurity security) {
-        throw new IllegalStateException("BondTotalReturnSwapBCSFunction does not set the Currency property in this method");
+            .withAny(PROPERTY_CURVE_TYPE);
+        return Collections.singleton(properties);
       }
     };
   }
