@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalTime;
@@ -129,6 +130,9 @@ import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.impl.InMemoryConfigMaster;
 import com.opengamma.master.config.impl.MasterConfigSource;
+import com.opengamma.service.ServiceContext;
+import com.opengamma.service.ThreadLocalServiceContext;
+import com.opengamma.service.VersionCorrectionProvider;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
@@ -405,6 +409,25 @@ public class CurveNodeToDefinitionConverterTest {
     CONFIG_MASTER.add(new ConfigDocument(ConfigItem.of(ecbCalendar, "ECB Settlement Calendar")));
   }
 
+  @BeforeMethod
+  public static void setUp() {
+    VersionCorrectionProvider versionCorrectionProvider = new VersionCorrectionProvider() {
+      @Override
+      public VersionCorrection getPortfolioVersionCorrection() {
+        return VersionCorrection.LATEST;
+      }
+
+      @Override
+      public VersionCorrection getConfigVersionCorrection() {
+        return VersionCorrection.LATEST;
+      }
+    };
+    ServiceContext serviceContext = ServiceContext.of(VersionCorrectionProvider.class, versionCorrectionProvider)
+        .with(ConventionSource.class, CONVENTION_SOURCE)
+        .with(SecuritySource.class, SECURITY_SOURCE);
+    ThreadLocalServiceContext.init(serviceContext);
+  }
+
   @Test(expectedExceptions = OpenGammaRuntimeException.class)
   public void testNoConventionForCash() {
     final ExternalId marketDataId = ExternalId.of(SCHEME, "Data");
@@ -417,7 +440,8 @@ public class CurveNodeToDefinitionConverterTest {
     cashNode.accept(converter);
   }
 
-  @Test(expectedExceptions = OpenGammaRuntimeException.class)
+  // TODO - ideally this would throw a different exception - see PLAT-6588
+  @Test(expectedExceptions = ClassCastException.class)
   public void testWrongConventionTypeForCash() {
     final ExternalId marketDataId = ExternalId.of(SCHEME, "Data");
     final SnapshotDataBundle marketValues = new SnapshotDataBundle();
@@ -1459,7 +1483,7 @@ public class CurveNodeToDefinitionConverterTest {
 
     @Override
     public Security getSingle(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
-      return null;
+      return _map.containsKey(bundle) ? _map.get(bundle) : null;
     }
 
     @Override
