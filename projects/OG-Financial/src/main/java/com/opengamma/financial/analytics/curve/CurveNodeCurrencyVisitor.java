@@ -178,13 +178,13 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
   public Set<Currency> visitCashNode(final CashNode node) {
     try {
       final FinancialConvention convention = _conventionSource.getSingle(node.getConvention(), FinancialConvention.class);
+      if (convention == null) {
+        System.out.println("here");
+      }
       return convention.accept(this);
     } catch (DataNotFoundException e) {
       // If the convention is not found in the convention source
-      // then try with the security source. This is a workaround
-      // for the fact that at one time conventions were stored in
-      // in the security source and so may still be there on
-      // some installations
+      // then try with the security source.
       final Security security = _securitySource.getSingle(node.getConvention().toBundle());
       if (security == null) {
         throw new OpenGammaRuntimeException("Cash node in curve points to " + node.getConvention() + " which has not been loaded. Load by putting identifier into 'Add security' dialog.");

@@ -15,17 +15,16 @@ import org.slf4j.LoggerFactory;
 import org.threeten.bp.DayOfWeek;
 import org.threeten.bp.LocalDate;
 
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
-
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
+import com.google.common.collect.ImmutableList;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.holiday.Holiday;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
@@ -35,6 +34,10 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.GUIDGenerator;
 import com.opengamma.util.metric.OpenGammaMetricRegistry;
 import com.opengamma.util.money.Currency;
+
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.exceptions.JedisConnectionException;
 
 /*
  * REDIS DATA STRUCTURES:
@@ -412,6 +415,94 @@ public class NonVersionedRedisHolidaySource implements HolidaySource {
     }
     
     return false;
+  }
+
+  @Override
+  public Collection<Holiday> get(HolidayType holidayType,
+                                 ExternalIdBundle regionOrExchangeIds) {
+    ArgumentChecker.notNull(holidayType, "holidayType");
+    ArgumentChecker.notNull(regionOrExchangeIds, "regionOrExchangeIds");
+
+    Jedis jedis = getJedisPool().getResource();
+    try {
+      for (ExternalId externalId : regionOrExchangeIds) {
+        String uniqueIdText = jedis.hget(toRedisKey(externalId, holidayType), UNIQUE_ID);
+        if (uniqueIdText == null) {
+          continue;
+        }
+        UniqueId uniqueId = UniqueId.parse(uniqueIdText);
+        String uniqueIdKey = toRedisKey(uniqueId);
+        Map<String, String> hash = jedis.hgetAll(uniqueIdKey);
+        if (holidayType.name().equals(hash.get(TYPE))) {
+          String daysKey = uniqueIdKey + "-DAYS";
+          Set<String> dates = jedis.zrange(daysKey, 0, -1);
+
+          SimpleHoliday holiday = new SimpleHoliday();
+          holiday.setUniqueId(uniqueId);
+          holiday.setType(holidayType);
+          holiday.setExchangeExternalId(regionOrExchangeIds.getExternalId(ExternalScheme.of(EXCHANGE_SCHEME)));
+          holiday.setRegionExternalId(regionOrExchangeIds.getExternalId(ExternalScheme.of(REGION_SCHEME)));
+          holiday.setHolidayDates(parseHolidayDates(dates));
+          return ImmutableList.<Holiday>of(holiday);
+        }
+      }
+
+      return ImmutableList.of();
+    } catch (JedisConnectionException e) {
+      s_logger.error("Unable to get holiday - " + holidayType + " - " + regionOrExchangeIds, e);
+      getJedisPool().returnBrokenResource(jedis);
+      // Prevent returning the resource twice when the finally block runs
+      jedis = null;
+      throw new OpenGammaRuntimeException("Unable to get holiday - " + holidayType + " - " + regionOrExchangeIds, e);
+    } finally {
+      if (jedis != null) {
+        getJedisPool().returnResource(jedis);
+      }
+    }
+  }
+
+  @Override
+  public Collection<Holiday> get(Currency currency) {
+    ArgumentChecker.notNull(currency, "currency");
+
+    Jedis jedis = getJedisPool().getResource();
+    try {
+
+      String currencyIdKey = toRedisKey(currency);
+      String uniqueIdText = jedis.hget(currencyIdKey, UNIQUE_ID);
+      if (uniqueIdText != null) {
+        UniqueId uniqueId = UniqueId.parse(uniqueIdText);
+        String daysKey = toRedisKey(uniqueId) + "-DAYS";
+        Set<String> dates = jedis.zrange(daysKey, 0, -1);
+
+        SimpleHoliday holiday = new SimpleHoliday();
+        holiday.setUniqueId(uniqueId);
+        holiday.setType(HolidayType.CURRENCY);
+        holiday.setCurrency(currency);
+        holiday.setHolidayDates(parseHolidayDates(dates));
+        return ImmutableList.<Holiday>of(holiday);
+      } else {
+        return ImmutableList.of();
+      }
+    } catch (JedisConnectionException e) {
+      s_logger.error("Unable to get holiday - " + currency, e);
+      getJedisPool().returnBrokenResource(jedis);
+      // Prevent returning the resource twice when the finally block runs
+      jedis = null;
+      throw new OpenGammaRuntimeException("Unable to get holiday - " + currency, e);
+    } finally {
+      if (jedis != null) {
+        getJedisPool().returnResource(jedis);
+      }
+    }
+  }
+
+  private ImmutableList<LocalDate> parseHolidayDates(Set<String> dates) {
+    ImmutableList.Builder<LocalDate> builder = ImmutableList.builder();
+    for (String date : dates) {
+      builder.add(LocalDate.parse(date));
+    }
+    return builder.build();
   }
 
   @Override

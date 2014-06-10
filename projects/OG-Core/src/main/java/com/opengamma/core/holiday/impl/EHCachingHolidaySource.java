@@ -9,10 +9,7 @@ import static com.opengamma.util.ehcache.EHCacheUtils.putException;
 import static com.opengamma.util.ehcache.EHCacheUtils.putValue;
 
 import java.util.Arrays;
-
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Element;
+import java.util.Collection;
 
 import org.threeten.bp.LocalDate;
 
@@ -24,6 +21,10 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.money.Currency;
+
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
 
 /**
  * An EHCache based {@link HolidaySource}. This is better than having no cache but is not very efficient. Also does not listen for changes to the underlying data.
@@ -51,7 +52,7 @@ public class EHCachingHolidaySource extends AbstractEHCachingSource<Holiday, Hol
       return (Boolean) EHCacheUtils.get(e);
     }
     try {
-      return (Boolean) putValue(key, getUnderlying().isHoliday(dateToCheck, currency), getCache());
+      return putValue(key, getUnderlying().isHoliday(dateToCheck, currency), getCache());
     } catch (RuntimeException ex) {
       return (Boolean) putException(key, ex, getCache());
     }
@@ -65,9 +66,39 @@ public class EHCachingHolidaySource extends AbstractEHCachingSource<Holiday, Hol
       return (Boolean) EHCacheUtils.get(e);
     }
     try {
-      return (Boolean) putValue(key, getUnderlying().isHoliday(dateToCheck, holidayType, regionOrExchangeIds), getCache());
+      return putValue(key, getUnderlying().isHoliday(dateToCheck, holidayType, regionOrExchangeIds), getCache());
     } catch (RuntimeException ex) {
       return (Boolean) putException(key, ex, getCache());
+    }
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public Collection<Holiday> get(HolidayType holidayType,
+                                 ExternalIdBundle regionOrExchangeIds) {
+    Object key = Arrays.asList(holidayType, regionOrExchangeIds);
+    Element e = getCache().get(key);
+    if (e != null) {
+      return (Collection<Holiday>) EHCacheUtils.get(e);
+    }
+    try {
+      return putValue(key, getUnderlying().get(holidayType, regionOrExchangeIds), getCache());
+    } catch (RuntimeException ex) {
+      return (Collection<Holiday>) putException(key, ex, getCache());
+    }
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public Collection<Holiday> get(Currency currency) {
+    Element e = getCache().get(currency);
+    if (e != null) {
+      return (Collection<Holiday>) EHCacheUtils.get(e);
+    }
+    try {
+      return putValue(currency, getUnderlying().get(currency), getCache());
+    } catch (RuntimeException ex) {
+      return (Collection<Holiday>) putException(currency, ex, getCache());
     }
   }
 
@@ -79,7 +110,7 @@ public class EHCachingHolidaySource extends AbstractEHCachingSource<Holiday, Hol
       return (Boolean) EHCacheUtils.get(e);
     }
     try {
-      return (Boolean) putValue(key, getUnderlying().isHoliday(dateToCheck, holidayType, regionOrExchangeId), getCache());
+      return putValue(key, getUnderlying().isHoliday(dateToCheck, holidayType, regionOrExchangeId), getCache());
     } catch (RuntimeException ex) {
       return (Boolean) putException(key, ex, getCache());
     }
