@@ -36,9 +36,8 @@ public class BondCapitalIndexedSecurity<C extends Coupon> extends BondSecurity<C
    * The real accrual factor to the first coupon. Used for yield computation.
    */
   private final double _factorToNextCoupon;
-
   /**
-   * The real accrual factor to the first coupon. Used for yield computation.
+   * Ratio of the current coupon period up to the next coupon. Used for yield computation.
    */
   private final double _ratioPeriodToNextCoupon;
   /**
@@ -54,12 +53,10 @@ public class BondCapitalIndexedSecurity<C extends Coupon> extends BondSecurity<C
    * The last known fixing of the price index.
    */
   private final double _lastIndexKnownFixing;
-
   /**
    * The fixing time last known fixing of the price index.
    */
   private final double _lastKnownFixingTime;
-
   /**
    * The index ratio.
    */
@@ -182,7 +179,7 @@ public class BondCapitalIndexedSecurity<C extends Coupon> extends BondSecurity<C
   }
 
   /**
-   * Gets the index value at the start of the bond.
+   * Gets the index value xxx
    * @return The index value.
    */
   public double getLastIndexKnownFixing() {
@@ -190,7 +187,7 @@ public class BondCapitalIndexedSecurity<C extends Coupon> extends BondSecurity<C
   }
 
   /**
-   * Gets the index value at the start of the bond.
+   * Gets the index value xxx
    * @return The index value.
    */
   public double getLastButOneIndexKnownFixing() {
@@ -198,7 +195,7 @@ public class BondCapitalIndexedSecurity<C extends Coupon> extends BondSecurity<C
   }
 
   /**
-   * Gets the index value at the start of the bond.
+   * Gets the index value at xxx
    * @return The index value.
    */
   public double getLastKnownFixingTime() {
@@ -206,7 +203,7 @@ public class BondCapitalIndexedSecurity<C extends Coupon> extends BondSecurity<C
   }
 
   /**
-   * Gets the index value at the start of the bond.
+   * Gets the index value xxx
    * @return The index value.
    */
   public double getIndexRatio() {
@@ -221,14 +218,6 @@ public class BondCapitalIndexedSecurity<C extends Coupon> extends BondSecurity<C
     return _settlement;
   }
 
-  //  /**
-  //   * Returns the issuer/currency pair for the bond.
-  //   * @return The pair.
-  //   */
-  //  public Pair<String, Currency> getIssuerCurrency() {
-  //    return ObjectsPair.of(getIssuer(), getCurrency());
-  //  }
-
   @Override
   public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
     ArgumentChecker.notNull(visitor, "visitor");
@@ -241,9 +230,6 @@ public class BondCapitalIndexedSecurity<C extends Coupon> extends BondSecurity<C
     return visitor.visitBondCapitalIndexedSecurity(this);
   }
 
-  /* (non-Javadoc)
-   * @see java.lang.Object#hashCode()
-   */
   @Override
   public int hashCode() {
     final int prime = 31;

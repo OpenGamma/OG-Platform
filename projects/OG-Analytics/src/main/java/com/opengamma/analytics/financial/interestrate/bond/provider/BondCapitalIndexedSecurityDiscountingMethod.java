@@ -278,8 +278,7 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
     }
 
     if (yieldConvention.equals(INDEX_LINKED_FLOAT)) {
-
-      final double realRate = ((CouponInflationGearing) bond.getCoupon().getNthPayment(1)).getFactor() / bond.getCouponPerYear();
+      final double realRate = ((CouponInflationGearing) bond.getCoupon().getNthPayment(1)).getFactor();
       final double firstYearFraction = bond.getCoupon().getNthPayment(0).getPaymentYearFraction();
       double firstCouponEndFixingTime = 0.0;
       double firstCouponPayementTime = 0.0;
@@ -291,12 +290,11 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
         firstCouponPayementTime = ((CouponInflationZeroCouponMonthlyGearing) bond.getCoupon().getNthPayment(1)).getPaymentTime();
       }
       final double lag = firstCouponPayementTime - firstCouponEndFixingTime;
-
       final double v = 1 / (1 + yield / bond.getCouponPerYear());
       final double rpibase = bond.getIndexStartValue();
       final double rpiLast = bond.getLastIndexKnownFixing();
       final double indexRatio = rpiLast / rpibase;
-      final int nbMonth = (int) Math.max((bond.getLastKnownFixingTime() - bond.getCoupon().getNthPayment(0).getPaymentTime() + lag) * 12, 0.0);
+      final int nbMonth = (int) Math.max(Math.round((bond.getLastKnownFixingTime() - bond.getCoupon().getNthPayment(0).getPaymentTime() + lag) * 12), 0.0);
       final double u = Math.pow(1 / (1 + .03), .5);
       final double a = indexRatio * Math.pow(u, 2.0 * nbMonth / 12.0);
       final double firstCashFlow = firstYearFraction * realRate * indexRatio;
@@ -312,7 +310,8 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
     }
     if (yieldConvention.equals(UK_IL_BOND)) {
       final double firstYearFraction = bond.getCoupon().getNthPayment(0).getPaymentYearFraction();
-      final double realRate = ((CouponInflationGearing) bond.getCoupon().getNthPayment(1)).getFactor() / bond.getCouponPerYear();
+      final double realRate = ((CouponInflationGearing) bond.getCoupon().getNthPayment(1)).getFactor();
+      // Real rate adjusted by the number of coupons, i.e. annual rate / 2 for UK bonds
       final double firstCashFlow = firstYearFraction * realRate;
       final double v = 1 / (1 + yield / bond.getCouponPerYear());
       if (bond.getCoupon().getNumberOfPayments() == 1) {
@@ -341,7 +340,6 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
       return cleanNominalPriceFromDirtyNominalPrice(bond, dirtyPrice);
     }
     return cleanRealPriceFromDirtyRealPrice(bond, dirtyPrice);
-
   }
 
   /**
@@ -397,8 +395,6 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
     };
     final double[] range = BRACKETER.getBracketedPoints(priceResidual, -0.05, 0.10);
     final double yield = ROOT_FINDER.getRoot(priceResidual, range[0], range[1]);
-    double clean = cleanPriceFromYield(bond, yield);
-    clean = clean + 1;
     return yield;
   }
 

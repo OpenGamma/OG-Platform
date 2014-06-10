@@ -45,8 +45,8 @@ public final class CleanRealPriceFromCurvesCalculator extends InstrumentDerivati
     ArgumentChecker.notNull(bond, "bond");
     ArgumentChecker.notNull(issuer, "Issuer provider");
     if (bond.getBondTransaction().getYieldConvention().equals(INDEX_LINKED_FLOAT)) {
-      return METHOD_BOND_SECURITY.cleanNominalPriceFromCurves(bond.getBondTransaction(), issuer) * 100;
+      return METHOD_BOND_SECURITY.cleanNominalPriceFromCurves(bond.getBondStandard(), issuer) * 100;
     }
-    return METHOD_BOND_SECURITY.cleanRealPriceFromCurves(bond.getBondTransaction(), issuer) * 100;
+    return METHOD_BOND_SECURITY.cleanRealPriceFromCurves(bond.getBondStandard(), issuer) * 100;
   }
 }

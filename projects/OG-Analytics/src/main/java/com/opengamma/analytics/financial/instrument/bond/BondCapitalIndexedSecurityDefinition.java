@@ -9,9 +9,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
-import org.threeten.bp.temporal.ChronoUnit;
 import org.threeten.bp.temporal.TemporalAdjusters;
-import org.threeten.bp.temporal.TemporalUnit;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
@@ -195,7 +193,7 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
    * @param maturityDate The bond maturity date.
    * @param couponPeriod The period between coupon payments.
    * @param notional The bond notional.
-   * @param realRate The bond nominal rate.
+   * @param realRate The bond nominal rate (annual).
    * @param businessDay The business day convention to compute the payment days.
    * @param settlementDays Standard number of days between trade date and trade settlement. Used for clean price and yield computation.
    * @param calendar The payment calendar.
@@ -221,7 +219,7 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
    * @param maturityDate The bond maturity date.
    * @param couponPeriod The period between coupon payments.
    * @param notional The bond notional.
-   * @param realRate The bond nominal rate.
+   * @param realRate The bond nominal rate (annual).
    * @param businessDay The business day convention to compute the payment days.
    * @param settlementDays Standard number of days between trade date and trade settlement. Used for clean price and yield computation.
    * @param calendar The payment calendar.
@@ -241,15 +239,15 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
     final AnnuityDefinition<CouponInflationZeroCouponMonthlyGearingDefinition> nominalAnnuity = new AnnuityDefinition<>(
         new CouponInflationZeroCouponMonthlyGearingDefinition[] {nominalPayment }, calendar);
     // Coupon construction
-
+    long couponPerYear = 12 / couponPeriod.toTotalMonths();
     final ZonedDateTime[] paymentDatesUnadjusted = ScheduleCalculator.getUnadjustedDateSchedule(startDate, maturityDate, couponPeriod, true, false);
     final ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(paymentDatesUnadjusted, businessDay, calendar, false);
     final CouponInflationZeroCouponMonthlyGearingDefinition[] coupons = new CouponInflationZeroCouponMonthlyGearingDefinition[paymentDates.length];
     coupons[0] = CouponInflationZeroCouponMonthlyGearingDefinition.from(paymentDates[0], startDate, paymentDatesUnadjusted[0], notional, priceIndex, indexStartValue, monthLag, monthLag, true,
-        realRate);
+        realRate / couponPerYear);
     for (int loopcpn = 1; loopcpn < paymentDates.length; loopcpn++) {
       coupons[loopcpn] = CouponInflationZeroCouponMonthlyGearingDefinition.from(paymentDates[loopcpn], paymentDatesUnadjusted[loopcpn - 1], paymentDatesUnadjusted[loopcpn], notional, priceIndex,
-          indexStartValue, monthLag, monthLag, true, realRate);
+          indexStartValue, monthLag, monthLag, true, realRate / couponPerYear);
     }
     final AnnuityDefinition<CouponInflationZeroCouponMonthlyGearingDefinition> couponAnnuity = new AnnuityDefinition<>(coupons, calendar);
     return new BondCapitalIndexedSecurityDefinition<>(nominalAnnuity, couponAnnuity, indexStartValue, DEFAULT_EX_COUPON_DAYS, settlementDays,
@@ -267,7 +265,7 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
    * @param maturityDate The bond maturity date.
    * @param couponPeriod The period between coupon payments.
    * @param notional The bond notional.
-   * @param realRate The bond nominal rate.
+   * @param realRate The bond nominal rate (annual).
    * @param businessDay The business day convention to compute the payment days.
    * @param settlementDays Standard number of days between trade date and trade settlement. Used for clean price and yield computation.
    * @param calendar The payment calendar.
@@ -296,7 +294,7 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
    * @param maturityDate The bond maturity date.
    * @param couponPeriod The period between coupon payments.
    * @param notional The bond notional.
-   * @param realRate The bond nominal rate.
+   * @param realRate The bond nominal rate (annual).
    * @param businessDay The business day convention to compute the payment days.
    * @param settlementDays Standard number of days between trade date and trade settlement. Used for clean price and yield computation.
    * @param calendar The payment calendar.
@@ -316,16 +314,17 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
     final AnnuityDefinition<CouponInflationZeroCouponMonthlyGearingDefinition> nominalAnnuity = new AnnuityDefinition<>(
         new CouponInflationZeroCouponMonthlyGearingDefinition[] {nominalPayment }, calendar);
     // Coupon construction
+    long couponPerYear = 12 / couponPeriod.toTotalMonths();
     final ZonedDateTime[] paymentDatesUnadjusted = ScheduleCalculator.getUnadjustedDateSchedule(firstCouponDate, maturityDate, couponPeriod, true, false);
     final ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(paymentDatesUnadjusted, businessDay, calendar, false);
     final CouponInflationZeroCouponMonthlyGearingDefinition[] coupons = new CouponInflationZeroCouponMonthlyGearingDefinition[paymentDates.length + 1];
     coupons[0] = CouponInflationZeroCouponMonthlyGearingDefinition.from(ScheduleCalculator.getAdjustedDate(firstCouponDate, 0, calendar), startDate, firstCouponDate, notional, priceIndex,
-        indexStartValue, monthLag, monthLag, true, realRate);
+        indexStartValue, monthLag, monthLag, true, realRate / couponPerYear);
     coupons[1] = CouponInflationZeroCouponMonthlyGearingDefinition.from(paymentDates[0], firstCouponDate, paymentDatesUnadjusted[0], notional, priceIndex, indexStartValue, monthLag, monthLag,
-        true, realRate);
+        true, realRate / couponPerYear);
     for (int loopcpn = 1; loopcpn < paymentDates.length; loopcpn++) {
       coupons[loopcpn + 1] = CouponInflationZeroCouponMonthlyGearingDefinition.from(paymentDates[loopcpn], paymentDatesUnadjusted[loopcpn - 1], paymentDatesUnadjusted[loopcpn], notional, priceIndex,
-          indexStartValue, monthLag, monthLag, true, realRate);
+          indexStartValue, monthLag, monthLag, true, realRate / couponPerYear);
     }
     final AnnuityDefinition<CouponInflationZeroCouponMonthlyGearingDefinition> couponAnnuity = new AnnuityDefinition<>(coupons, calendar);
     return new BondCapitalIndexedSecurityDefinition<>(nominalAnnuity, couponAnnuity, indexStartValue, DEFAULT_EX_COUPON_DAYS, settlementDays,
@@ -342,7 +341,7 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
    * @param firstCouponDate The bond first coupon date. Used for short/long first coupon.
    * @param maturityDate The bond maturity date.
    * @param couponPeriod The period between coupon payments.
-   * @param realRate The bond nominal rate.
+   * @param realRate The bond nominal rate (annual).
    * @param businessDay The business day convention to compute the payment days.
    * @param settlementDays Standard number of days between trade date and trade settlement. Used for clean price and yield computation.
    * @param calendar The payment calendar.
@@ -370,7 +369,7 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
    * @param maturityDate The bond maturity date.
    * @param couponPeriod The period between coupon payments.
    * @param notional The bond notional.
-   * @param realRate The bond nominal rate.
+   * @param realRate The bond nominal rate (annual).
    * @param businessDay The business day convention to compute the payment days.
    * @param settlementDays Standard number of days between trade date and trade settlement. Used for clean price and yield computation.
    * @param calendar The payment calendar.
@@ -398,7 +397,7 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
    * @param maturityDate The bond maturity date.
    * @param couponPeriod The period between coupon payments.
    * @param notional The bond notional.
-   * @param realRate The bond nominal rate.
+   * @param realRate The bond nominal rate (annual).
    * @param businessDay The business day convention to compute the payment days.
    * @param settlementDays Standard number of days between trade date and trade settlement. Used for clean price and yield computation.
    * @param calendar The payment calendar.
@@ -418,14 +417,15 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
     final AnnuityDefinition<CouponInflationZeroCouponInterpolationGearingDefinition> nominalAnnuity = new AnnuityDefinition<>(
         new CouponInflationZeroCouponInterpolationGearingDefinition[] {nominalPayment }, calendar);
     // Coupon construction
+    long couponPerYear = 12 / couponPeriod.toTotalMonths();
     final ZonedDateTime[] paymentDatesUnadjusted = ScheduleCalculator.getUnadjustedDateSchedule(startDate, maturityDate, couponPeriod, true, true);
     final ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(paymentDatesUnadjusted, businessDay, calendar, false);
     final CouponInflationZeroCouponInterpolationGearingDefinition[] coupons = new CouponInflationZeroCouponInterpolationGearingDefinition[paymentDates.length];
     coupons[0] = CouponInflationZeroCouponInterpolationGearingDefinition.from(paymentDates[0], startDate, paymentDatesUnadjusted[0], notional, priceIndex, indexStartValue, monthLag, monthLag,
-        true, realRate);
+        true, realRate / couponPerYear);
     for (int loopcpn = 1; loopcpn < paymentDates.length; loopcpn++) {
       coupons[loopcpn] = CouponInflationZeroCouponInterpolationGearingDefinition.from(paymentDates[loopcpn], paymentDatesUnadjusted[loopcpn - 1], paymentDatesUnadjusted[loopcpn], notional,
-          priceIndex, indexStartValue, monthLag, monthLag, true, realRate);
+          priceIndex, indexStartValue, monthLag, monthLag, true, realRate / couponPerYear);
     }
     final AnnuityDefinition<CouponInflationZeroCouponInterpolationGearingDefinition> couponAnnuity = new AnnuityDefinition<>(coupons, calendar);
     return new BondCapitalIndexedSecurityDefinition<>(nominalAnnuity, couponAnnuity, indexStartValue, DEFAULT_EX_COUPON_DAYS, settlementDays,
@@ -590,7 +590,6 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
     } else {
       throw new OpenGammaRuntimeException("Unsupported coupon type " + getNominal().getNthPayment(0).getClass());
     }
-
     return new BondCapitalIndexedSecurity<>(nominalStandard, couponStandard, settlementTime, accruedInterest, factorToNextCoupon, ratioPeriodToNextCoupon, _yieldConvention, _couponPerYear,
         settlement, _indexStartValue, lasKnownIndexFixing, lasKnownFixingTime, indexRatio, getIssuerEntity());
   }
@@ -613,10 +612,9 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
     final ZonedDateTime previousAccrualDate = getCoupons().getNthPayment(couponIndex).getAccrualStartDate();
     final ZonedDateTime nextAccrualDate = getCoupons().getNthPayment(couponIndex).getAccrualEndDate();
     final CouponInflationGearing currentCoupon = ((CouponInflationGearing) getCoupons().getNthPayment(couponIndex));
-    final double accruedInterest = AccruedInterestCalculator.getAccruedInterest(getDayCount(), couponIndex, nbCoupon, previousAccrualDate, date, nextAccrualDate, currentCoupon.getFactor() *
-        getCouponPerYear(),
-        getCouponPerYear(), isEOM()) *
-        getCoupons().getNthPayment(couponIndex).getNotional();
+    final double accruedInterest = AccruedInterestCalculator.getAccruedInterest(getDayCount(), couponIndex, nbCoupon, previousAccrualDate, date, nextAccrualDate,
+        currentCoupon.getFactor() * getCouponPerYear(), getCouponPerYear(), isEOM()) * getCoupons().getNthPayment(couponIndex).getNotional();
+    // The factor contains the amount, i.e. the coupon rate over the period (not annualized)
     if (getExCouponDays() != 0 && nextAccrualDate.minusDays(getExCouponDays()).isBefore(date)) {
       result = accruedInterest - currentCoupon.getFactor();
     } else {

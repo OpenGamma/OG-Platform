@@ -63,13 +63,12 @@ public final class YieldFromCleanPriceCalculator extends InstrumentDerivativeVis
   }
 
   @Override
-  public Double visitBondCapitalIndexedTransaction(final BondCapitalIndexedTransaction bond, final Double yield) {
+  public Double visitBondCapitalIndexedTransaction(final BondCapitalIndexedTransaction bond, final Double cleanPrice) {
     ArgumentChecker.notNull(bond, "bond");
-    ArgumentChecker.notNull(yield, "yield");
+    ArgumentChecker.notNull(cleanPrice, "clean price");
     ArgumentChecker.notNull(bond.getBondStandard() instanceof BondCapitalIndexedSecurity<?>, "the bond should be a BondCapitalIndexedSecurity");
-
     final BondCapitalIndexedSecurity<?> bondSecurity = (BondCapitalIndexedSecurity<?>) bond.getBondStandard();
-    return METHOD_INFLATION_BOND_SECURITY.yieldRealFromCleanPrice(bondSecurity, yield);
+    return METHOD_INFLATION_BOND_SECURITY.yieldRealFromCleanPrice(bondSecurity, cleanPrice);
   }
 
 }

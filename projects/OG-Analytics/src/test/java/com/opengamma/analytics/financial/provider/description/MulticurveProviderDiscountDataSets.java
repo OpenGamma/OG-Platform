@@ -244,27 +244,37 @@ public class MulticurveProviderDiscountDataSets {
   // Implementation note : we have had the value of November 2001 for test purpose.
   private static final double[] UKRPI_VALUE_2001 = new double[] {217.9 };
   private static final double[] UKRPI_VALUE_2010 = new double[] {217.9, 219.2, 220.7, 222.8, 223.6, 224.1, 223.6, 224.5, 225.3, 225.8, 226.8, 228.4 };
-  private static final double[] UKRPI_VALUE_2011 = new double[] {229, 231.3, 232.5, 234.4, 235.2, 235.2, 234.7, 236.1, 237.9, 238.0, 238.5, 239.4 };
+  private static final double[] UKRPI_VALUE_2011 = new double[] {229.0, 231.3, 232.5, 234.4, 235.2, 235.2, 234.7, 236.1, 237.9, 238.0, 238.5, 239.4 };
   private static final double[] UKRPI_VALUE_2012 = new double[] {238.0, 239.9, 240.8, 242.5, 242.4, 241.8, 242.1, 243.0, 244.2, 245.6, 245.6, 246.8 };
-  private static final double[] UKRPI_VALUE_2013 = new double[] {245.8 };
-  private static final double[] UKRPI_VALUE = new double[1 + 3 * 12 + UKRPI_VALUE_2013.length];
+  private static final double[] UKRPI_VALUE_2013 = new double[] {245.8, 247.6, 248.7, 249.5, 250.0, 249.7, 249.7, 251.0, 251.9, 251.9, 252.1, 253.4 };
+  private static final double[] UKRPI_VALUE_2014 = new double[] {252.6, 254.2, 254.8, 255.7 };
+  private static final double[] UKRPI_VALUE = new double[1 + 4 * 12 + UKRPI_VALUE_2014.length];
   static {
     System.arraycopy(UKRPI_VALUE_2001, 0, UKRPI_VALUE, 0, 1);
     System.arraycopy(UKRPI_VALUE_2010, 0, UKRPI_VALUE, 1, 12);
     System.arraycopy(UKRPI_VALUE_2011, 0, UKRPI_VALUE, 13, 12);
     System.arraycopy(UKRPI_VALUE_2012, 0, UKRPI_VALUE, 25, 12);
-    System.arraycopy(UKRPI_VALUE_2013, 0, UKRPI_VALUE, 37, UKRPI_VALUE_2013.length);
+    System.arraycopy(UKRPI_VALUE_2013, 0, UKRPI_VALUE, 37, 12);
+    System.arraycopy(UKRPI_VALUE_2014, 0, UKRPI_VALUE, 49, UKRPI_VALUE_2014.length);
   }
-  private static final ZonedDateTime[] UKRPI_DATE = new ZonedDateTime[] {DateUtils.getUTCDate(2001, 11, 30), DateUtils.getUTCDate(2009, 12, 31), DateUtils.getUTCDate(2010, 1, 31),
-    DateUtils.getUTCDate(2010, 2, 28),
-    DateUtils.getUTCDate(2010, 3, 31), DateUtils.getUTCDate(2010, 4, 30), DateUtils.getUTCDate(2010, 5, 31), DateUtils.getUTCDate(2010, 6, 30), DateUtils.getUTCDate(2010, 7, 31),
-    DateUtils.getUTCDate(2010, 8, 31), DateUtils.getUTCDate(2010, 9, 30), DateUtils.getUTCDate(2010, 10, 31), DateUtils.getUTCDate(2010, 11, 30), DateUtils.getUTCDate(2010, 12, 31),
+  private static final ZonedDateTime[] UKRPI_DATE = new ZonedDateTime[] {DateUtils.getUTCDate(2001, 11, 30),
+    DateUtils.getUTCDate(2010, 1, 31), DateUtils.getUTCDate(2010, 2, 28), DateUtils.getUTCDate(2010, 3, 31),
+    DateUtils.getUTCDate(2010, 4, 30), DateUtils.getUTCDate(2010, 5, 31), DateUtils.getUTCDate(2010, 6, 30),
+    DateUtils.getUTCDate(2010, 7, 31), DateUtils.getUTCDate(2010, 8, 31), DateUtils.getUTCDate(2010, 9, 30),
+    DateUtils.getUTCDate(2010, 10, 31), DateUtils.getUTCDate(2010, 11, 30), DateUtils.getUTCDate(2010, 12, 31),
     DateUtils.getUTCDate(2011, 1, 31), DateUtils.getUTCDate(2011, 2, 28), DateUtils.getUTCDate(2011, 3, 31), DateUtils.getUTCDate(2011, 4, 30), DateUtils.getUTCDate(2011, 5, 31),
     DateUtils.getUTCDate(2011, 6, 30), DateUtils.getUTCDate(2011, 7, 31), DateUtils.getUTCDate(2011, 8, 31), DateUtils.getUTCDate(2011, 9, 30), DateUtils.getUTCDate(2011, 10, 30),
-    DateUtils.getUTCDate(2011, 11, 30), DateUtils.getUTCDate(2011, 12, 31), DateUtils.getUTCDate(2012, 1, 31), DateUtils.getUTCDate(2012, 2, 29), DateUtils.getUTCDate(2012, 3, 31),
-    DateUtils.getUTCDate(2012, 4, 30), DateUtils.getUTCDate(2012, 5, 31), DateUtils.getUTCDate(2012, 6, 30), DateUtils.getUTCDate(2012, 7, 31), DateUtils.getUTCDate(2012, 8, 31),
-    DateUtils.getUTCDate(2012, 9, 30), DateUtils.getUTCDate(2012, 10, 31), DateUtils.getUTCDate(2012, 11, 30),
-    DateUtils.getUTCDate(2012, 12, 31) };
+    DateUtils.getUTCDate(2011, 11, 30), DateUtils.getUTCDate(2011, 12, 31),
+    DateUtils.getUTCDate(2012, 1, 31), DateUtils.getUTCDate(2012, 2, 29), DateUtils.getUTCDate(2012, 3, 31),
+    DateUtils.getUTCDate(2012, 4, 30), DateUtils.getUTCDate(2012, 5, 31), DateUtils.getUTCDate(2012, 6, 30),
+    DateUtils.getUTCDate(2012, 7, 31), DateUtils.getUTCDate(2012, 8, 31), DateUtils.getUTCDate(2012, 9, 30),
+    DateUtils.getUTCDate(2012, 10, 31), DateUtils.getUTCDate(2012, 11, 30), DateUtils.getUTCDate(2012, 12, 31),
+    DateUtils.getUTCDate(2013, 1, 31), DateUtils.getUTCDate(2013, 2, 28), DateUtils.getUTCDate(2013, 3, 31),
+    DateUtils.getUTCDate(2013, 4, 30), DateUtils.getUTCDate(2013, 5, 31), DateUtils.getUTCDate(2013, 6, 30),
+    DateUtils.getUTCDate(2013, 7, 31), DateUtils.getUTCDate(2013, 8, 31), DateUtils.getUTCDate(2013, 9, 30),
+    DateUtils.getUTCDate(2013, 10, 31), DateUtils.getUTCDate(2013, 11, 30), DateUtils.getUTCDate(2013, 12, 31),
+    DateUtils.getUTCDate(2014, 1, 31), DateUtils.getUTCDate(2014, 2, 28), DateUtils.getUTCDate(2014, 3, 31),
+    DateUtils.getUTCDate(2014, 4, 30) };
   private static final ZonedDateTimeDoubleTimeSeries UKRPI_TIME_SERIES = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(UKRPI_DATE, UKRPI_VALUE);
   // US : CPI-U 2009-2011
   private static final double[] USCPI_VALUE_2005 = new double[] {211.143, 212.193, 212.709, 213.240, 213.856, 215.693, 215.351, 215.834, 215.969, 216.177, 216.330, 215.949, 214.537 };
