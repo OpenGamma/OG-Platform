@@ -6,7 +6,6 @@
 package com.opengamma.core.holiday.impl;
 
 import java.util.Collection;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -41,7 +40,7 @@ public class CachedHolidaySource extends AbstractSource<Holiday> implements Holi
   private final HolidaySource _underlying;
   private final ConcurrentMap<UniqueId, Object> _getHoliday1 = new ConcurrentHashMap<>();
   private final Map2<VersionCorrection, ObjectId, Object> _getHoliday2 = new HashMap2<>(HashMap2.WEAK_KEYS);
-  private final Map<Currency, Object> _getHoliday3 = new ConcurrentHashMap<>();
+  private final ConcurrentMap<Currency, Object> _getHoliday3 = new ConcurrentHashMap<>();
   private final Map2<HolidayType, ExternalIdBundle, Object> _getHoliday4 = new HashMap2<>(HashMap2.WEAK_KEYS);
   private final ConcurrentMap<Currency, ConcurrentMap<LocalDate, Object>> _isHoliday1 = new ConcurrentHashMap<>();
   private final Map3<LocalDate, HolidayType, ExternalIdBundle, Object> _isHoliday2 = new HashMap3<>();
