@@ -62,6 +62,17 @@ public class TestConventionSource implements ConventionSource {
   }
 
   @Override
+  public Convention getSingle(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
+    for (ExternalId id : bundle) {
+      Convention convention = _conventions.get(id);
+      if (convention != null) {
+        return convention;
+      }
+    }
+    throw new DataNotFoundException("No convention found: " + bundle);
+  }
+
+  @Override
   public Map<ExternalIdBundle, Collection<Convention>> getAll(Collection<ExternalIdBundle> bundles, VersionCorrection versionCorrection) {
     return null;
   }
@@ -118,11 +129,6 @@ public class TestConventionSource implements ConventionSource {
 
   @Override
   public Convention getSingle(ExternalIdBundle bundle) {
-    return null;
-  }
-
-  @Override
-  public Convention getSingle(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
     return null;
   }
 
