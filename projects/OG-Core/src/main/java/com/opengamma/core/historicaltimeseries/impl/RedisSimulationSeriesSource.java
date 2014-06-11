@@ -55,7 +55,7 @@ import com.opengamma.util.ArgumentChecker;
  * See <a href="http://jira.opengamma.com/browse/PLAT-3385">PLAT-3385</a> for the original
  * requirement.
  */
-public class RedisSimulationSeriesSource extends NonVersionedRedisHistoricalTimeSeriesSource {
+public class RedisSimulationSeriesSource extends NonVersionedRedisHistoricalTimeSeriesSource implements SimulationSeriesSource {
   private static final Logger s_logger = LoggerFactory.getLogger(RedisSimulationSeriesSource.class);
   private LocalDate _currentSimulationExecutionDate = LocalDate.now();
 
