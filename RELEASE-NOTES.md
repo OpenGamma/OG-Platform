@@ -6,6 +6,14 @@ These release notes cover changes from v2.1 to v2.2.
 Upgrading from 2.1.0
 ====================
 
+To 2.2.0-M25p01
+------------
+
+* Bug
+    * [PLAT-6529] - Fix marketdata and fullstack config for deployment template
+    * [PLAT-6554] - Accrued interest for inflation bonds is not scaled
+    * [PLAT-6584] - Z-spread for inflation bonds mishandles the index ratio
+
 To 2.2.0-M25
 ------------
 
