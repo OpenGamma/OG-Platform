@@ -5,6 +5,7 @@
  */
 package com.opengamma.master.holiday.impl;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -13,15 +14,21 @@ import java.util.concurrent.ConcurrentMap;
 import org.threeten.bp.DayOfWeek;
 import org.threeten.bp.LocalDate;
 
+import com.google.common.collect.ImmutableList;
 import com.opengamma.core.holiday.Holiday;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractMasterSource;
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.HolidayMaster;
 import com.opengamma.master.holiday.HolidaySearchRequest;
+import com.opengamma.master.holiday.HolidaySearchResult;
+import com.opengamma.service.ServiceContext;
+import com.opengamma.service.ThreadLocalServiceContext;
+import com.opengamma.service.VersionCorrectionProvider;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
 import com.opengamma.util.money.Currency;
@@ -56,22 +63,52 @@ public class MasterHolidaySource extends AbstractMasterSource<Holiday, HolidayDo
     _cacheHolidayCalendars = cacheCalendars;
   }
 
-  //-------------------------------------------------------------------------
   @Override
-  public boolean isHoliday(final LocalDate dateToCheck, final Currency currency) {
-    HolidaySearchRequest request = new HolidaySearchRequest(currency);
+  public Collection<Holiday> get(HolidayType holidayType,
+                                 ExternalIdBundle regionOrExchangeIds) {
+    HolidaySearchRequest request = createNonCurrencySearchRequest(holidayType, regionOrExchangeIds);
+    return processDocuments(getMaster().search(request));
+  }
+
+  @Override
+  public Collection<Holiday> get(Currency currency) {
+    HolidaySearchRequest request = createCurrencySearchRequest(currency);
+    return processDocuments(getMaster().search(request));
+  }
+
+  private Collection<Holiday> processDocuments(HolidaySearchResult search) {
+    return ImmutableList.<Holiday>copyOf(search.getHolidays());
+  }
+
+  @Override
+  public boolean isHoliday(LocalDate dateToCheck, Currency currency) {
+    HolidaySearchRequest request = createCurrencySearchRequest(currency);
     return isHoliday(request, dateToCheck);
   }
 
   @Override
-  public boolean isHoliday(final LocalDate dateToCheck, final HolidayType holidayType, final ExternalIdBundle regionOrExchangeIds) {
-    HolidaySearchRequest request = getSearchRequest(holidayType, regionOrExchangeIds);
+  public boolean isHoliday(LocalDate dateToCheck, HolidayType holidayType, ExternalIdBundle regionOrExchangeIds) {
+    HolidaySearchRequest request = createNonCurrencySearchRequest(holidayType, regionOrExchangeIds);
     return isHoliday(request, dateToCheck);
   }
 
-  protected HolidaySearchRequest getSearchRequest(final HolidayType holidayType, final ExternalIdBundle regionOrExchangeIds) {
-    HolidaySearchRequest request = new HolidaySearchRequest(holidayType, regionOrExchangeIds);
-    return request;
+  private VersionCorrection getVersionCorrection() {
+    ServiceContext serviceContext = ThreadLocalServiceContext.getInstance();
+    return serviceContext.get(VersionCorrectionProvider.class).getConfigVersionCorrection();
+  }
+
+  private HolidaySearchRequest createCurrencySearchRequest(Currency currency) {
+    return createdVersionCorrectedSearchRequest(new HolidaySearchRequest(currency));
+  }
+
+  private HolidaySearchRequest createNonCurrencySearchRequest(HolidayType holidayType,
+                                                              ExternalIdBundle regionOrExchangeIds) {
+    return createdVersionCorrectedSearchRequest(new HolidaySearchRequest(holidayType, regionOrExchangeIds));
+  }
+
+  private HolidaySearchRequest createdVersionCorrectedSearchRequest(HolidaySearchRequest searchRequest) {
+    searchRequest.setVersionCorrection(getVersionCorrection());
+    return searchRequest;
   }
 
   @Override

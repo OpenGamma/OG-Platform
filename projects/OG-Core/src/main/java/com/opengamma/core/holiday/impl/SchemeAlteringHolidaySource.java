@@ -66,8 +66,7 @@ public class SchemeAlteringHolidaySource implements HolidaySource {
   
   protected ExternalId translateExternalId(ExternalId externalId) {
     String newScheme = translateScheme(externalId.getScheme().getName());
-    ExternalId translatedId = ExternalId.of(newScheme, externalId.getValue());
-    return translatedId;
+    return ExternalId.of(newScheme, externalId.getValue());
   }
   
   @Override
@@ -88,6 +87,17 @@ public class SchemeAlteringHolidaySource implements HolidaySource {
   @Override
   public Map<ObjectId, Holiday> get(Collection<ObjectId> objectIds, VersionCorrection versionCorrection) {
     return getUnderlying().get(objectIds, versionCorrection);
+  }
+
+  @Override
+  public Collection<Holiday> get(HolidayType holidayType,
+                                 ExternalIdBundle regionOrExchangeIds) {
+    return getUnderlying().get(holidayType, regionOrExchangeIds);
+  }
+
+  @Override
+  public Collection<Holiday> get(Currency currency) {
+    return getUnderlying().get(currency);
   }
 
   @Override

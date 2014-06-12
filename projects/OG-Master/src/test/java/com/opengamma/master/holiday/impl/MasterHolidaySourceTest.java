@@ -13,10 +13,13 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.Collections;
 
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDate;
 
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.holiday.Holiday;
 import com.opengamma.core.holiday.HolidayType;
@@ -30,6 +33,9 @@ import com.opengamma.master.holiday.HolidayMaster;
 import com.opengamma.master.holiday.HolidaySearchRequest;
 import com.opengamma.master.holiday.HolidaySearchResult;
 import com.opengamma.master.holiday.ManageableHoliday;
+import com.opengamma.service.ServiceContext;
+import com.opengamma.service.ThreadLocalServiceContext;
+import com.opengamma.service.VersionCorrectionProvider;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
 
@@ -48,6 +54,26 @@ public class MasterHolidaySourceTest {
   private static final ExternalIdBundle BUNDLE = ExternalIdBundle.of(ID);
   private static final Instant NOW = Instant.now();
   private static final VersionCorrection VC = VersionCorrection.of(NOW.minusSeconds(2), NOW.minusSeconds(1));
+
+  @BeforeMethod
+  public static void setUp() {
+    ThreadLocalServiceContext.init(ServiceContext.of(VersionCorrectionProvider.class, new VersionCorrectionProvider() {
+      @Override
+      public VersionCorrection getPortfolioVersionCorrection() {
+        return VersionCorrection.LATEST;
+      }
+
+      @Override
+      public VersionCorrection getConfigVersionCorrection() {
+        return VersionCorrection.LATEST;
+      }
+    }));
+  }
+
+  @AfterMethod
+  public static void tearDown() {
+    ThreadLocalServiceContext.init(ServiceContext.of(ImmutableMap.<Class<?>, Object>of()));
+  }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_constructor_nullMaster() throws Exception {
