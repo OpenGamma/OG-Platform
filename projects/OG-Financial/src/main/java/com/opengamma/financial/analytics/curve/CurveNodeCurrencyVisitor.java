@@ -178,9 +178,6 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
   public Set<Currency> visitCashNode(final CashNode node) {
     try {
       final FinancialConvention convention = _conventionSource.getSingle(node.getConvention(), FinancialConvention.class);
-      if (convention == null) {
-        System.out.println("here");
-      }
       return convention.accept(this);
     } catch (DataNotFoundException e) {
       // If the convention is not found in the convention source

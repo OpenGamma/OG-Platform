@@ -18,6 +18,7 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * A region source that delegates to an another source, but which ensures that
@@ -35,7 +36,7 @@ public class NarrowingRegionSource implements RegionSource {
    * @param delegate the source to delegate to, not null
    */
   public NarrowingRegionSource(RegionSource delegate) {
-    _delegate = delegate;
+    _delegate = ArgumentChecker.notNull(delegate, "delegate");
   }
 
   @Override

@@ -19,6 +19,7 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -37,7 +38,7 @@ public class NarrowingHolidaySource implements HolidaySource {
    * @param delegate the source to delegate to, not null
    */
   public NarrowingHolidaySource(HolidaySource delegate) {
-    _delegate = delegate;
+    _delegate = ArgumentChecker.notNull(delegate, "delegate");
   }
 
   @Override
