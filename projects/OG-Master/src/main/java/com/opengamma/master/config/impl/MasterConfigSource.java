@@ -18,7 +18,6 @@ import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.master.VersionedSource;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
@@ -30,42 +29,23 @@ import com.opengamma.util.PublicSPI;
  * A {@code ConfigSource} implemented using an underlying {@code ConfigMaster}.
  * <p>
  * The {@link ConfigSource} interface provides securities to the engine via a narrow API. This class provides the source on top of a standard {@link ConfigMaster}.
- * <p>
- * This implementation supports the concept of fixing the version. This allows the version to be set in the constructor, and applied automatically to the methods. Some methods on {@code ConfigSource}
- * specify their own version requirements, which are respected.
  */
 @PublicSPI
-@SuppressWarnings("deprecation")
-public class MasterConfigSource extends AbstractSource<ConfigItem<?>> implements ConfigSource, VersionedSource {
+public class MasterConfigSource extends AbstractSource<ConfigItem<?>> implements ConfigSource {
 
   /**
    * The config master.
    */
   private final ConfigMaster _configMaster;
-  /**
-   * The version-correction locator to search at, null to not override versions.
-   */
-  private volatile VersionCorrection _versionCorrection;
 
   /**
-   * Creates an instance with an underlying config master which does not override versions.
+   * Creates an instance with an underlying config master.
    * 
    * @param configMaster the config master, not null
    */
   public MasterConfigSource(final ConfigMaster configMaster) {
-    this(configMaster, null);
-  }
-
-  /**
-   * Creates an instance with an underlying config master optionally overriding the requested version.
-   * 
-   * @param configMaster the config master, not null
-   * @param versionCorrection the version-correction locator to search at, null to not override versions
-   */
-  public MasterConfigSource(final ConfigMaster configMaster, final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(configMaster, "configMaster");
     _configMaster = configMaster;
-    _versionCorrection = versionCorrection;
   }
 
   //-------------------------------------------------------------------------
@@ -79,15 +59,6 @@ public class MasterConfigSource extends AbstractSource<ConfigItem<?>> implements
   }
 
   /**
-   * Gets the version-correction locator to search at.
-   * 
-   * @return the version-correction locator to search at, null if not overriding versions
-   */
-  public VersionCorrection getVersionCorrection() {
-    return _versionCorrection;
-  }
-
-  /**
    * Gets the change manager.
    * 
    * @return the change manager, not null
@@ -95,16 +66,6 @@ public class MasterConfigSource extends AbstractSource<ConfigItem<?>> implements
   @Override
   public ChangeManager changeManager() {
     return getMaster().changeManager();
-  }
-
-  /**
-   * Sets the version-correction locator to search at.
-   * 
-   * @param versionCorrection the version-correction locator to search at, null to not override versions
-   */
-  @Override
-  public void setVersionCorrection(final VersionCorrection versionCorrection) {
-    _versionCorrection = versionCorrection;
   }
 
   //-------------------------------------------------------------------------
@@ -118,7 +79,6 @@ public class MasterConfigSource extends AbstractSource<ConfigItem<?>> implements
   public <R> List<ConfigItem<R>> search(final ConfigSearchRequest<R> request) {
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getType(), "request.type");
-    request.setVersionCorrection(getVersionCorrection());
     final ConfigSearchResult<R> searchResult = getMaster().search(request);
     return searchResult.getValues();
   }
@@ -199,11 +159,7 @@ public class MasterConfigSource extends AbstractSource<ConfigItem<?>> implements
   //-------------------------------------------------------------------------
   @Override
   public String toString() {
-    String str = "MasterConfigSource[" + getMaster();
-    if (getVersionCorrection() != null) {
-      str += ",versionCorrection=" + getVersionCorrection();
-    }
-    return str + "]";
+    return "MasterConfigSource[" + getMaster() + "]";
   }
 
 }

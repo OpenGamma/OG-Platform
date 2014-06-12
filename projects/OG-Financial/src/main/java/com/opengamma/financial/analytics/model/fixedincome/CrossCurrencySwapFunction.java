@@ -22,7 +22,6 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
@@ -40,7 +39,6 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.BondFutureSecurityConverter;
 import com.opengamma.financial.analytics.conversion.BondSecurityConverter;
 import com.opengamma.financial.analytics.conversion.CashSecurityConverter;
@@ -83,6 +81,7 @@ public abstract class CrossCurrencySwapFunction extends AbstractFunction.NonComp
   private FinancialSecurityVisitor<InstrumentDefinition<?>> _visitor;
   /** Converts definitions to derivatives */
   private FixedIncomeConverterDataProvider _definitionConverter;
+  private ConfigDBCurveCalculationConfigSource _curveCalculationConfigSource;
 
   /**
    * @param valueRequirements The value requirements, not null
@@ -96,8 +95,8 @@ public abstract class CrossCurrencySwapFunction extends AbstractFunction.NonComp
   public void init(final FunctionCompilationContext context) {
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
-    final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
+    final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context); // TODO [PLAT-5966] Remove
     final HistoricalTimeSeriesResolver timeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
     final CashSecurityConverter cashConverter = new CashSecurityConverter(holidaySource, regionSource);
     final FRASecurityConverterDeprecated fraConverter = new FRASecurityConverterDeprecated(holidaySource, regionSource, conventionSource);
@@ -105,31 +104,28 @@ public abstract class CrossCurrencySwapFunction extends AbstractFunction.NonComp
     final BondSecurityConverter bondConverter = new BondSecurityConverter(holidaySource, conventionSource, regionSource);
     final InterestRateFutureSecurityConverterDeprecated irFutureConverter = new InterestRateFutureSecurityConverterDeprecated(holidaySource, conventionSource, regionSource);
     final BondFutureSecurityConverter bondFutureConverter = new BondFutureSecurityConverter(securitySource, bondConverter);
-    _visitor = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder().cashSecurityVisitor(cashConverter).fraSecurityVisitor(fraConverter)
-        .swapSecurityVisitor(swapConverter).interestRateFutureSecurityVisitor(irFutureConverter).bondSecurityVisitor(bondConverter)
-        .bondFutureSecurityVisitor(bondFutureConverter).create();
-    _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver);
-    ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
+    _visitor = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder().cashSecurityVisitor(cashConverter).fraSecurityVisitor(fraConverter).swapSecurityVisitor(swapConverter)
+        .interestRateFutureSecurityVisitor(irFutureConverter).bondSecurityVisitor(bondConverter).bondFutureSecurityVisitor(bondFutureConverter).create();
+    _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource, securitySource, timeSeriesResolver);
+    _curveCalculationConfigSource = ConfigDBCurveCalculationConfigSource.init(context, this);
   }
 
   @Override
-  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
-      final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues)
+      throws AsynchronousExecution {
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
     final HistoricalTimeSeriesBundle timeSeries = HistoricalTimeSeriesFunctionUtils.getHistoricalTimeSeriesInputs(executionContext, inputs);
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     //TODO won't need to call into database again when calculation configurations are a requirement
-    final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
-    final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
     final String payCurveCalculationConfigName = desiredValue.getConstraint(ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG);
-    final MultiCurveCalculationConfig payCurveCalculationConfig = curveCalculationConfigSource.getConfig(payCurveCalculationConfigName);
+    final MultiCurveCalculationConfig payCurveCalculationConfig = _curveCalculationConfigSource.getConfig(payCurveCalculationConfigName);
     if (payCurveCalculationConfig == null) {
       throw new OpenGammaRuntimeException("Could not find curve calculation configuration named " + payCurveCalculationConfigName);
     }
     final String receiveCurveCalculationConfigName = desiredValue.getConstraint(ValuePropertyNames.RECEIVE_CURVE_CALCULATION_CONFIG);
-    final MultiCurveCalculationConfig receiveCurveCalculationConfig = curveCalculationConfigSource.getConfig(receiveCurveCalculationConfigName);
+    final MultiCurveCalculationConfig receiveCurveCalculationConfig = _curveCalculationConfigSource.getConfig(receiveCurveCalculationConfigName);
     if (receiveCurveCalculationConfig == null) {
       throw new OpenGammaRuntimeException("Could not find curve calculation configuration named " + receiveCurveCalculationConfigName);
     }
@@ -163,13 +159,11 @@ public abstract class CrossCurrencySwapFunction extends AbstractFunction.NonComp
     }
     final String[] curveNamesArray = curveNames.toArray(new String[0]);
     final InstrumentDerivative derivative = _definitionConverter.convert(security, definition, now, curveNamesArray, timeSeries);
-    final YieldCurveBundle payCurveBundle = YieldCurveFunctionUtils.getAllYieldCurves(inputs, payCurveCalculationConfig, curveCalculationConfigSource);
-    final YieldCurveBundle receiveCurveBundle = YieldCurveFunctionUtils.getAllYieldCurves(inputs, receiveCurveCalculationConfig, curveCalculationConfigSource);
+    final YieldCurveBundle payCurveBundle = YieldCurveFunctionUtils.getAllYieldCurves(inputs, payCurveCalculationConfig, _curveCalculationConfigSource);
+    final YieldCurveBundle receiveCurveBundle = YieldCurveFunctionUtils.getAllYieldCurves(inputs, receiveCurveCalculationConfig, _curveCalculationConfigSource);
     final YieldCurveBundle bundle = new YieldCurveBundle(payCurveBundle);
     bundle.addAll(receiveCurveBundle);
-    final ValueProperties properties = desiredValues.iterator().next().getConstraints().copy()
-        .with(ValuePropertyNames.FUNCTION, getUniqueId())
-        .get();
+    final ValueProperties properties = desiredValues.iterator().next().getConstraints().copy().with(ValuePropertyNames.FUNCTION, getUniqueId()).get();
     return getComputedValues(derivative, bundle, target.toSpecification(), properties);
   }
 
@@ -216,15 +210,13 @@ public abstract class CrossCurrencySwapFunction extends AbstractFunction.NonComp
     }
     final String payCurveCalculationConfigName = Iterables.getOnlyElement(payCurveCalculationConfigs);
     final String receiveCurveCalculationConfigName = Iterables.getOnlyElement(receiveCurveCalculationConfigs);
-    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
-    final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
-    final MultiCurveCalculationConfig payCurveCalculationConfig = curveCalculationConfigSource.getConfig(payCurveCalculationConfigName);
+    final MultiCurveCalculationConfig payCurveCalculationConfig = _curveCalculationConfigSource.getConfig(payCurveCalculationConfigName);
     if (payCurveCalculationConfig == null) {
       s_logger.info("Could not find curve calculation configuration named " + payCurveCalculationConfigName);
       return null;
     }
-    final MultiCurveCalculationConfig receiveCurveCalculationConfig = curveCalculationConfigSource.getConfig(receiveCurveCalculationConfigName);
+    final MultiCurveCalculationConfig receiveCurveCalculationConfig = _curveCalculationConfigSource.getConfig(receiveCurveCalculationConfigName);
     if (receiveCurveCalculationConfig == null) {
       s_logger.info("Could not find curve calculation configuration named " + receiveCurveCalculationConfigName);
       return null;
@@ -250,8 +242,8 @@ public abstract class CrossCurrencySwapFunction extends AbstractFunction.NonComp
       return null;
     }
     final Set<ValueRequirement> requirements = new HashSet<>();
-    requirements.addAll(YieldCurveFunctionUtils.getCurveRequirements(payCurveCalculationConfig, curveCalculationConfigSource));
-    requirements.addAll(YieldCurveFunctionUtils.getCurveRequirements(receiveCurveCalculationConfig, curveCalculationConfigSource));
+    requirements.addAll(YieldCurveFunctionUtils.getCurveRequirements(payCurveCalculationConfig, _curveCalculationConfigSource));
+    requirements.addAll(YieldCurveFunctionUtils.getCurveRequirements(receiveCurveCalculationConfig, _curveCalculationConfigSource));
     try {
       final Set<ValueRequirement> timeSeriesRequirements = _definitionConverter.getConversionTimeSeriesRequirements(security, security.accept(_visitor));
       if (timeSeriesRequirements == null) {
@@ -296,12 +288,9 @@ public abstract class CrossCurrencySwapFunction extends AbstractFunction.NonComp
     if (receiveCurveCalculationConfig == null) {
       return null;
     }
-    final ValueProperties properties = createValueProperties()
-        .with(ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG, payCurveCalculationConfig)
-        .with(ValuePropertyNames.RECEIVE_CURVE_CALCULATION_CONFIG, receiveCurveCalculationConfig)
-        .with(ValuePropertyNames.PAY_CURVE, payLegCurveNames)
-        .with(ValuePropertyNames.RECEIVE_CURVE, receiveLegCurveNames)
-        .get();
+    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG, payCurveCalculationConfig)
+        .with(ValuePropertyNames.RECEIVE_CURVE_CALCULATION_CONFIG, receiveCurveCalculationConfig).with(ValuePropertyNames.PAY_CURVE, payLegCurveNames)
+        .with(ValuePropertyNames.RECEIVE_CURVE, receiveLegCurveNames).get();
     final Set<ValueSpecification> results = new HashSet<>();
     final ComputationTargetSpecification targetSpec = target.toSpecification();
     for (final String valueRequirement : _valueRequirements) {

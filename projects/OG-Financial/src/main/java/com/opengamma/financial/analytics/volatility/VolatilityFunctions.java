@@ -14,6 +14,7 @@ import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationBundle;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.engine.function.config.SimpleFunctionConfigurationSource;
+import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeFunctions;
 import com.opengamma.financial.analytics.volatility.surface.SurfaceFunctions;
 
 /**
@@ -36,16 +37,27 @@ public class VolatilityFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(VolatilitySurfaceDefinitionFunction.class));
   }
 
+  /**
+   * Returns volatility cube functions.
+   * @return A list of volatility cube functions
+   */
   protected FunctionConfigurationSource cubeFunctionConfiguration() {
-    // TODO
-    return new SimpleFunctionConfigurationSource(new FunctionConfigurationBundle(Collections.<FunctionConfiguration>emptyList()));
+    return VolatilityCubeFunctions.instance();
   }
 
+  /**
+   * Returns an empty list
+   * @return An empty list
+   */
   protected FunctionConfigurationSource fittedResultsFunctionConfiguration() {
     // TODO
     return new SimpleFunctionConfigurationSource(new FunctionConfigurationBundle(Collections.<FunctionConfiguration>emptyList()));
   }
 
+  /**
+   * Returns surface functions.
+   * @return A list of surface functions
+   */
   protected FunctionConfigurationSource surfaceFunctionConfiguration() {
     return SurfaceFunctions.instance();
   }

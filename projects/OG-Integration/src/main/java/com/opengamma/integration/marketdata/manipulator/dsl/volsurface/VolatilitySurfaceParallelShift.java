@@ -13,7 +13,9 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
+import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator;
+import com.opengamma.engine.value.ValueSpecification;
 
 /**
 *
@@ -29,7 +31,9 @@ public class VolatilitySurfaceParallelShift implements StructureManipulator<Vola
   }
 
   @Override
-  public VolatilitySurface execute(VolatilitySurface surface) {
+  public VolatilitySurface execute(VolatilitySurface surface,
+                                   ValueSpecification valueSpecification,
+                                   FunctionExecutionContext executionContext) {
     return surface.withParallelShift(_shift);
   }
 

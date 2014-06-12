@@ -35,7 +35,7 @@ public final class BundleUtils {
       if (node instanceof Bundle) {
         Bundle nodeBundle = (Bundle) node;
         buf.append("@import url('");
-        buf.append(webBundleUris.bundle(DeployMode.DEV, nodeBundle.getId()));
+        buf.append(webBundleUris.bundle(DeployMode.DEV, nodeBundle.getId()).getPath());
         buf.append("');\n");
       }
       if (node instanceof Fragment) {

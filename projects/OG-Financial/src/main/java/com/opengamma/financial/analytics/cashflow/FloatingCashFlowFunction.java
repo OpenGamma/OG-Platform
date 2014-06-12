@@ -22,6 +22,7 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
@@ -52,6 +53,7 @@ import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  *
@@ -72,7 +74,8 @@ public abstract class FloatingCashFlowFunction extends AbstractFunction {
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
-    final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
+    final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
+    final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context); // TODO [PLAT-5966] Remove
     final HistoricalTimeSeriesResolver timeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
     final CurrencyPairs baseQuotePairs = OpenGammaCompilationContext.getCurrencyPairsSource(context).getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
     final CashSecurityConverter cashConverter = new CashSecurityConverter(holidaySource, regionSource);
@@ -83,7 +86,7 @@ public abstract class FloatingCashFlowFunction extends AbstractFunction {
     final ForexSecurityConverter fxConverter = new ForexSecurityConverter(baseQuotePairs);
     return new Compiled(FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder().cashSecurityVisitor(cashConverter).fraSecurityVisitor(fraConverter)
         .swapSecurityVisitor(swapConverter).interestRateFutureSecurityVisitor(irFutureConverter).bondSecurityVisitor(bondConverter).fxForwardVisitor(fxConverter)
-        .nonDeliverableFxForwardVisitor(fxConverter).create(), new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver));
+        .nonDeliverableFxForwardVisitor(fxConverter).create(), new FixedIncomeConverterDataProvider(conventionSource, securitySource, timeSeriesResolver));
   }
 
   /**
@@ -127,13 +130,13 @@ public abstract class FloatingCashFlowFunction extends AbstractFunction {
       final InstrumentDefinition<?> definition = security.accept(_visitor);
       final Map<LocalDate, MultipleCurrencyAmount> cashFlows;
       if (inputs.getAllValues().isEmpty()) {
-        cashFlows = new TreeMap<LocalDate, MultipleCurrencyAmount>(definition.accept(_cashFlowVisitor));
+        cashFlows = new TreeMap<>(definition.accept(_cashFlowVisitor));
       } else {
         final HistoricalTimeSeries fixingSeries = (HistoricalTimeSeries) Iterables.getOnlyElement(inputs.getAllValues()).getValue();
         if (fixingSeries == null) {
-          cashFlows = new TreeMap<LocalDate, MultipleCurrencyAmount>(definition.accept(_cashFlowVisitor));
+          cashFlows = new TreeMap<>(definition.accept(_cashFlowVisitor));
         } else {
-          cashFlows = new TreeMap<LocalDate, MultipleCurrencyAmount>(definition.accept(_cashFlowVisitor, fixingSeries.getTimeSeries()));
+          cashFlows = new TreeMap<>(definition.accept(_cashFlowVisitor, fixingSeries.getTimeSeries()));
         }
       }
       final String label = security.accept(CashFlowFunctionHelper.getReferenceIndexVisitor());
@@ -142,7 +145,7 @@ public abstract class FloatingCashFlowFunction extends AbstractFunction {
         final MultipleCurrencyAmount mca = entry.getValue();
         final List<Pair<CurrencyAmount, String>> list = Lists.newArrayListWithCapacity(mca.size());
         for (final CurrencyAmount ca : mca) {
-          list.add(Pair.of(ca, label));
+          list.add(Pairs.of(ca, label));
         }
         result.put(entry.getKey(), list);
       }

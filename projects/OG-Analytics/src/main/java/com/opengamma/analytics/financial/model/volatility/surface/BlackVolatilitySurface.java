@@ -23,7 +23,7 @@ public abstract class BlackVolatilitySurface<T extends StrikeType> extends Volat
   }
 
   public double getVolatility(final double t, final T s) {
-    final DoublesPair temp = new DoublesPair(t, s.value());
+    final DoublesPair temp = DoublesPair.of(t, s.value());
     return getVolatility(temp);
   }
 
@@ -39,5 +39,35 @@ public abstract class BlackVolatilitySurface<T extends StrikeType> extends Volat
   public abstract <S, U> U accept(final BlackVolatilitySurfaceVisitor<S, U> visitor, final S data);
 
   public abstract <U> U accept(final BlackVolatilitySurfaceVisitor<?, U> visitor);
+  
+  @Override
+  public VolatilitySurface withParallelShift(final double shift) {
+    return withSurface(getParallelShiftedSurface(shift));
+  }
 
+  @Override
+  public VolatilitySurface withSingleAdditiveShift(final double x, final double y, final double shift) {
+    return withSurface(getSingleAdditiveShiftSurface(x, y, shift));
+  }
+
+  @Override
+  public VolatilitySurface withMultipleAdditiveShifts(final double[] x, final double[] y, final double[] shifts) {
+    return withSurface(getMultipleAdditiveShiftsSurface(x, y, shifts));
+  }
+
+  @Override
+  public VolatilitySurface withConstantMultiplicativeShift(final double shift) {
+    return withSurface(getConstantMultiplicativeShiftSurface(shift));
+  }
+
+  @Override
+  public VolatilitySurface withSingleMultiplicativeShift(final double x, final double y, final double shift) {
+    return withSurface(getSingleMultiplicativeShiftSurface(x, y, shift));
+  }
+
+  @Override
+  public VolatilitySurface withMultipleMultiplicativeShifts(final double[] x, final double[] y, final double[] shifts) {
+    return withSurface(getMultipleMultiplicativeShiftsSurface(x, y, shifts));
+  }
+  
 }

@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.analytics.volatility.surface;
 
-import com.opengamma.financial.convention.ExchangeTradedInstrumentExpiryCalculator;
+import com.opengamma.financial.convention.expirycalc.ExchangeTradedInstrumentExpiryCalculator;
 
 /**
  * Provides instruments for each point on the surface and provides a strike value above which calls are used

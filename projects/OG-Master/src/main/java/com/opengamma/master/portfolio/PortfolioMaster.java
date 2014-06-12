@@ -6,9 +6,8 @@
 package com.opengamma.master.portfolio;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.core.change.ChangeProvider;
 import com.opengamma.id.UniqueId;
-import com.opengamma.master.AbstractMaster;
+import com.opengamma.master.AbstractChangeProvidingMaster;
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -18,7 +17,7 @@ import com.opengamma.util.PublicSPI;
  * This interface provides methods that allow the master to be searched and updated.
  */
 @PublicSPI
-public interface PortfolioMaster extends AbstractMaster<PortfolioDocument>, ChangeProvider {
+public interface PortfolioMaster extends AbstractChangeProvidingMaster<PortfolioDocument> {
 
   /**
    * Searches for portfolios matching the specified search criteria.

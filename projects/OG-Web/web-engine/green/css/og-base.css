@@ -1,0 +1,230 @@
+/**
+ * Common styles for all sections
+ *
+ * @copyright 2009 - 2010 by OpenGamma Inc
+ * @license See distribution for license
+ *
+ * @colordef #e1e9ec; Light blue 
+ * @colordef #f9fbfb; Light grey  
+ *
+ * @todo introduce some namespacing
+ * @todo further refactor inefficient selectors 
+ * @todo modularize css into separate files
+ */
+
+
+
+/*
+ * Primitives 
+ * @todo move to og.common.primitives.css
+ */
+
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+table {
+  border-collapse:collapse;
+  margin-left: 4px;
+}
+
+table,
+table th,
+table td {
+  border: 1px solid #e1e9ec;
+  font-size: 12px;
+}
+
+table th,
+table td {
+  padding: 2px 4px;
+}
+
+table th {
+  background-color: #e1e9ec;
+}
+
+img {
+  border: 0;
+  margin: 0;
+}
+
+
+/*
+ * Header 
+ * @todo move to og.common.header.css
+ */
+
+#header, #header TABLE {
+  background-color: #e1e9ec;
+  border-bottom: 2px solid #59ac7c;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+#header #logo {
+  width: 30%;
+  margin: 0;
+  padding: 0;
+}
+
+#header #logo a {
+  margin: 0;
+  padding: 0;
+}
+
+#header #logo img {
+  padding: 4px 0px 4px 24px;
+}
+
+#header #topright {
+  text-align: right;
+  padding-right: 24px;
+  font-family: Arial,sans-serif;
+  font-size: 12px;
+}
+
+
+/*
+ * Body
+ * @todo move to og.common.body.css
+ */
+
+#body {
+  color: #475562;
+  font-family: Arial,sans-serif;
+  font-size: 12px;
+  margin: 0;
+  line-height: 1.6;
+  padding: 12px;
+}
+
+
+
+/*
+ * Main form container 
+ * @todo move to ~og.common.forms.container.css
+ */
+
+.section {
+  -moz-border-radius: 5px;
+  border: 1px solid #59ac7c;
+  border-radius: 5px;
+  margin: 0 0 8px 0;
+  padding: 4px;
+}
+
+.section h2 {
+  -moz-border-radius: 2px;
+  background-color: #59ac7c;
+  border-radius: 2px;
+  color: #f9fbfb;
+  font-size: 16px;
+  margin: 0 0 4px 0;
+  padding: 2px 4px;
+}
+
+.subsection {
+  padding: 4px 0px 2px;
+}
+
+.subsection h3 {
+  -moz-border-radius: 2px;
+  background-color: #727f84;
+  border-radius: 2px;
+  color: #f9fbfb;
+  font-size: 14px;
+  margin: 0 0 4px 0;
+  padding: 2px 4px;
+}
+
+.row {
+  display: block;
+  padding: 1px 0px;
+}
+
+.lbl {
+  color: #777;
+  display: inline-block;
+  width: 240px;
+  float:left;
+}
+
+.dat {
+  color: #000;
+  width: 100%;
+}
+
+
+
+/*
+ * Common paginator 
+ * @todo move to ~og.common.paginator.css
+ */
+
+.paging {
+  clear: both;
+  display: block;
+  margin-left: 180px;
+  padding-top: 4px;
+}
+
+.paging div {
+  display: inline;
+}
+
+.paging .item {
+  border: 1px solid #e1e9ec;
+  display: inline;
+  margin: 0 2px;
+  padding: 2px;
+}
+
+.paging .current {
+  color: #e44;
+  font-weight: bold;
+}
+
+.paging .active {
+  color: #44e;
+}
+
+.paging .inactive {
+  color: #ccc;
+}
+
+.paging a {
+  text-decoration: none;
+}
+
+#ace-xml-editor {
+  height: 500px;
+  width: 100%;
+}
+
+/*
+ * Common errors 
+ * @todo move to og.common.errors.css
+ */
+
+.err {
+  color: red;
+}
+.section.err {
+  border-color: #0D49A8;
+  background-color: #FFCCCB;
+  color: black;
+}
+.section.info {
+  border-color: #0D49A8;
+  background-color: #C6D8F5;
+  color: black;
+}
+
+.hide {
+  padding: 5px 4px 2px 5px;
+  cursor: pointer;
+}

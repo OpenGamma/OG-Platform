@@ -23,28 +23,28 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Issue
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
-import com.opengamma.util.tuple.ObjectsPair;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * Tests related to the bond future figures computed with the Hull-White one factor model for the delivery option.
  */
 @SuppressWarnings("deprecation")
+@Test(groups = TestGroup.UNIT)
 public class BondFutureHullWhiteMethodTest {
 
-  private final static IssuerProviderDiscount ISSUER_MULTICURVES = IssuerProviderDiscountDataSets.createIssuerProvider();
+  private final static IssuerProviderDiscount ISSUER_MULTICURVES = IssuerProviderDiscountDataSets.getIssuerSpecificProvider();
   private final static String[] ISSUER_NAMES = IssuerProviderDiscountDataSets.getIssuerNames();
 
   // 5-Year U.S. Treasury Note Futures: FVU1
@@ -52,9 +52,8 @@ public class BondFutureHullWhiteMethodTest {
   private static final Period PAYMENT_TENOR = Period.ofMonths(6);
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final String US_GOVT = ISSUER_NAMES[0];
-  private static final Pair<String, Currency> ISSUER_CCY = new ObjectsPair<>(US_GOVT, USD);
-  private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA");
-  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  private static final DayCount DAY_COUNT = DayCounts.ACT_ACT_ICMA;
+  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventions.FOLLOWING;
   private static final boolean IS_EOM = false;
   private static final int SETTLEMENT_DAYS = 1;
   private static final YieldConvention YIELD_CONVENTION = YieldConventionFactory.INSTANCE.getYieldConvention("STREET CONVENTION");
@@ -81,7 +80,7 @@ public class BondFutureHullWhiteMethodTest {
   private static final double NOTIONAL = 100000;
   private static final double REF_PRICE = 0.0;
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 6, 20);
-  private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+  private static final DayCount ACT_ACT = DayCounts.ACT_ACT_ISDA;
   private static final double LAST_TRADING_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE, LAST_TRADING_DATE);
   private static final double FIRST_NOTICE_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE, FIRST_NOTICE_DATE);
   private static final double LAST_NOTICE_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE, LAST_NOTICE_DATE);
@@ -99,8 +98,7 @@ public class BondFutureHullWhiteMethodTest {
   private static final BondFuture BOND_FUTURE_DERIV = new BondFuture(LAST_TRADING_TIME, FIRST_NOTICE_TIME, LAST_NOTICE_TIME, FIRST_DELIVERY_TIME, LAST_DELIVERY_TIME, NOTIONAL, BASKET,
       CONVERSION_FACTOR, REF_PRICE);
   private static final HullWhiteOneFactorPiecewiseConstantParameters PARAMETERS_HW = HullWhiteDataSets.createHullWhiteParameters();
-  private static final HullWhiteIssuerProviderDiscount HW_ISSUER = new HullWhiteIssuerProviderDiscount(ISSUER_MULTICURVES, PARAMETERS_HW, ISSUER_CCY);
-
+  private static final HullWhiteIssuerProviderDiscount HW_ISSUER = new HullWhiteIssuerProviderDiscount(ISSUER_MULTICURVES, PARAMETERS_HW);
   private static final BondFutureHullWhiteMethod METHOD_HW = BondFutureHullWhiteMethod.getInstance();
 
   private static final double TOLERANCE_PV = 1.0E-2;
@@ -108,7 +106,7 @@ public class BondFutureHullWhiteMethodTest {
 
   @Test
   public void price() {
-    final HullWhiteIssuerProviderDiscount hwIssuer6 = new HullWhiteIssuerProviderDiscount(IssuerProviderDiscountDataSets.createIssuerProvider6(), PARAMETERS_HW, ISSUER_CCY);
+    final HullWhiteIssuerProviderDiscount hwIssuer6 = new HullWhiteIssuerProviderDiscount(IssuerProviderDiscountDataSets.createIssuerProvider6(), PARAMETERS_HW);
     final double priceComputed = METHOD_HW.price(BOND_FUTURE_DERIV, hwIssuer6);
     final double priceExpected = 1.00; // Rates are at 6%
     assertEquals("Bond future security Discounting Method: price from curves", priceExpected, priceComputed, 5.0E-3);
@@ -183,7 +181,7 @@ public class BondFutureHullWhiteMethodTest {
     final MultipleCurrencyMulticurveSensitivity pvcsComputed = METHOD_HW.presentValueCurveSensitivity(BOND_FUTURE_DERIV, HW_ISSUER);
     final MulticurveSensitivity pcsSecurity = METHOD_HW.priceCurveSensitivity(BOND_FUTURE_DERIV, HW_ISSUER);
     final MultipleCurrencyMulticurveSensitivity pvcsExpected = MultipleCurrencyMulticurveSensitivity.of(USD, pcsSecurity.multipliedBy(NOTIONAL));
-    AssertSensivityObjects.assertEquals("Bond future transaction Discounting Method: present value curve sensitivity", pvcsExpected.cleaned(), pvcsComputed.cleaned(), TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("Bond future transaction Discounting Method: present value curve sensitivity", pvcsExpected.cleaned(), pvcsComputed.cleaned(), TOLERANCE_PV_DELTA);
   }
 
 }

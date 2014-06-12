@@ -72,7 +72,7 @@ public class ExampleDatabaseCreator {
   }
 
   //-------------------------------------------------------------------------
-  private void run(String configFile) throws Exception {
+  public void run(String configFile) throws Exception {
     Resource res = ResourceUtils.createResource(configFile);
     Properties props = new Properties();
     try (InputStream in = res.getInputStream()) {

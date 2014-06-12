@@ -13,17 +13,29 @@ import static org.threeten.bp.temporal.ChronoField.SECOND_OF_MINUTE;
 import static org.threeten.bp.temporal.ChronoField.YEAR;
 
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
+import org.apache.commons.lang.math.NumberUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.threeten.bp.LocalDate;
 import org.threeten.bp.OffsetDateTime;
 import org.threeten.bp.ZoneId;
 import org.threeten.bp.format.DateTimeFormatter;
 import org.threeten.bp.format.DateTimeFormatterBuilder;
 import org.threeten.bp.format.SignStyle;
 
+import com.opengamma.core.marketdatasnapshot.ValueSnapshot;
+import com.opengamma.financial.analytics.volatility.surface.BloombergFXOptionVolatilitySurfaceInstrumentProvider;
+import com.opengamma.integration.copier.snapshot.SnapshotColumns;
 import com.opengamma.integration.tool.marketdata.SnapshotUtils.VersionInfo;
+import com.opengamma.util.time.Tenor;
+import com.opengamma.util.tuple.ObjectsPair;
+import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Utility methods for the MarketDataSnapshot Import/Export tools
@@ -40,7 +52,8 @@ public class MarketDataSnapshotToolUtils {
   /** Snapshot query option flag */
   private static final String SNAPSHOT_QUERY_OPTION = "q";
   /** Snapshot version list option flag */
-  private static final String SNAPSHOT_VERSION_LIST_OPTION = "v";  
+  private static final String SNAPSHOT_VERSION_LIST_OPTION = "v";
+  private static final Logger s_logger = LoggerFactory.getLogger(MarketDataSnapshotToolUtils.class);
   
   public static Option createSnapshotListOption() {
     final Option option = new Option(SNAPSHOT_LIST_OPTION, "snapshot-list", false, "List the snapshots available");
@@ -174,4 +187,124 @@ public class MarketDataSnapshotToolUtils {
     String repeat = org.apache.commons.lang.StringUtils.repeat(" ", n);
     System.out.print(repeat);
   }
+
+
+  public static ValueSnapshot createValueSnapshot(String market, String override) {
+    Object marketValue = null;
+    Object overrideValue = null;
+
+    // marketValue can only be Double, LocalDate, empty or (FudgeMsg which is special cased for Market_All)
+    if (market != null && !market.isEmpty()) {
+      if (NumberUtils.isNumber(market)) {
+        marketValue = NumberUtils.createDouble(market);
+      } else {
+        try {
+          marketValue = LocalDate.parse(market);
+        } catch (IllegalArgumentException e)  {
+          s_logger.error("Market value {} should be a Double, LocalDate or empty.", market);
+        }
+      }
+    }
+
+    //overrideValue can only be Double, LocalDate or empty
+    if (override != null && !override.isEmpty()) {
+      if (NumberUtils.isNumber(override)) {
+        overrideValue = NumberUtils.createDouble(override);
+      } else {
+        try {
+          overrideValue = LocalDate.parse(override);
+        } catch (IllegalArgumentException e)  {
+          s_logger.error("Override value {} should be a Double, LocalDate or empty.", override);
+        }
+      }
+    }
+
+    return ValueSnapshot.of(marketValue, overrideValue);
+  }
+
+  private static Boolean isTenor(String tenor) {
+    try {
+      Tenor.parse(tenor);
+      return true;
+    } catch (IllegalArgumentException e)  {
+      return false;
+    }
+  }
+
+  public static Pair<Object, Object> createOrdinatePair(String xValue, String yValue) {
+    String[] yValues = yValue.split("\\|");
+    Object surfaceX = null;
+    Object surfaceY = null;
+
+    if (xValue != null) {
+      if (NumberUtils.isNumber(xValue)) {
+        surfaceX = NumberUtils.createDouble(xValue);
+      } else if (isTenor(xValue)) {
+        surfaceX = Tenor.parse(xValue);
+      } else {
+        s_logger.error("Volatility surface X ordinate {} should be a Double, Tenor or empty.", xValue);
+      }
+    }
+
+    if (yValues != null) {
+      if (yValues.length > 1) {
+        try {
+          surfaceY = createYOrdinatePair(yValues);
+        } catch (IllegalArgumentException e)  {
+          s_logger.error("Volatility surface Y ordinate {} should be a Double, Pair<Number, FXVolQuoteType> or empty.", xValue);
+        }
+      } else if (yValues.length == 1) {
+        if (NumberUtils.isNumber(yValues[0])) {
+          surfaceY = NumberUtils.createDouble(yValues[0]);
+        } else if (isTenor(yValues[0])) {
+          surfaceY = Tenor.parse(yValues[0]);
+        }
+      }
+    }
+
+    return Pairs.of(surfaceX, surfaceY);
+  }
+
+  // Bloomberg FX option volatility surface codes given a tenor, quote type (ATM, butterfly, risk reversal) and distance from ATM.
+  private static Pair<Number, BloombergFXOptionVolatilitySurfaceInstrumentProvider.FXVolQuoteType> createYOrdinatePair(String[] yPair) {
+    Number firstElement = null;
+    BloombergFXOptionVolatilitySurfaceInstrumentProvider.FXVolQuoteType secondElement = null;
+    if (NumberUtils.isNumber(yPair[0])) {
+      firstElement = NumberUtils.createDouble(yPair[0]);
+    }
+    switch (yPair[1]) {
+      case "ATM":
+        secondElement = BloombergFXOptionVolatilitySurfaceInstrumentProvider.FXVolQuoteType.ATM;
+        break;
+      case "RISK_REVERSAL":
+        secondElement = BloombergFXOptionVolatilitySurfaceInstrumentProvider.FXVolQuoteType.RISK_REVERSAL;
+        break;
+      case "BUTTERFLY":
+        secondElement = BloombergFXOptionVolatilitySurfaceInstrumentProvider.FXVolQuoteType.BUTTERFLY;
+        break;
+    }
+    return Pairs.of(firstElement, secondElement);
+  }
+
+  public static Pair<String, String> ordinalsAsString(Pair<Object, Object> rawOrdinates) {
+    String surfaceX;
+    if (rawOrdinates.getFirst() instanceof Tenor) {
+      surfaceX = ((Tenor) rawOrdinates.getFirst()).toFormattedString();
+    } else {
+      surfaceX = rawOrdinates.getFirst().toString();
+    }
+
+    String surfaceY;
+    if (rawOrdinates.getSecond() instanceof Pair) {
+      surfaceY = ((Pair) rawOrdinates.getSecond()).getFirst() + "|" + ((Pair) rawOrdinates.getSecond()).getSecond();
+    } else if (rawOrdinates.getSecond() instanceof Tenor) {
+      surfaceY = ((Tenor) rawOrdinates.getSecond()).toFormattedString();
+    } else {
+      surfaceY = rawOrdinates.getSecond().toString();
+    }
+
+    return ObjectsPair.of(surfaceX, surfaceY);
+  }
+
+
 }

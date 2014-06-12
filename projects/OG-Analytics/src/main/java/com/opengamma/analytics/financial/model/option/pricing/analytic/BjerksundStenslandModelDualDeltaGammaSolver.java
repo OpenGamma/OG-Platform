@@ -39,7 +39,7 @@ public class BjerksundStenslandModelDualDeltaGammaSolver {
   static double[] getCallDualDeltaGamma(final double s0, final double k, final double r, final double b, final double t, final double sigma) {
 
     final double[] res = new double[3];
-    //European option case
+    //    European option case
     if (b >= r) {
       final double expbt = Math.exp(b * t);
       final double fwd = s0 * expbt;
@@ -47,6 +47,7 @@ public class BjerksundStenslandModelDualDeltaGammaSolver {
       res[0] = df * BlackFormulaRepository.price(fwd, k, t, sigma, true);
       res[1] = df * BlackFormulaRepository.dualDelta(fwd, k, t, sigma, true);
       res[2] = df * BlackFormulaRepository.dualGamma(fwd, k, t, sigma);
+      //      }
       return res;
     }
 
@@ -55,8 +56,8 @@ public class BjerksundStenslandModelDualDeltaGammaSolver {
     final double beta = y + Math.sqrt(y * y + 2. * r / sigmaSq);
 
     final double[] b0 = new double[3];
-    b0[0] = Math.max(k, r * k / (r - b));
-    b0[1] = Math.max(1., r / (r - b));
+    b0[0] = Math.max(k, r * k / Math.abs(r - b));
+    b0[1] = Math.max(1., r / Math.abs(r - b));
     b0[2] = 0.;
 
     final double[] bInfinity = new double[3];
@@ -67,13 +68,13 @@ public class BjerksundStenslandModelDualDeltaGammaSolver {
     final double[] h2 = getHDualDeltaGamma(b, t, sigma, k, b0, bInfinity);
     final double[] x2 = getXDualDeltaGamma(b0, bInfinity, h2);
 
-    //early exercise
-    if (s0 >= x2[0]) {
-      res[0] = s0 - k;
-      res[1] = -1.0;
-      res[2] = 0.0;
-      return res;
-    }
+    //    early exercise
+    //    if (s0 >= x2[0]) {
+    //      res[0] = s0 - k;
+    //      res[1] = -1.0;
+    //      res[2] = 0.0;
+    //      return res;
+    //    }
 
     final double[] kDual = {k, 1., 0. };
 

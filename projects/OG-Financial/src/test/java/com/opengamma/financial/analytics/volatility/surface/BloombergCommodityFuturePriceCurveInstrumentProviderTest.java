@@ -12,9 +12,9 @@ import org.threeten.bp.LocalDate;
 
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.value.MarketDataRequirementNames;
-import com.opengamma.financial.convention.SoybeanFutureExpiryCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.financial.convention.expirycalc.SoybeanFutureExpiryCalculator;
 import com.opengamma.financial.fudgemsg.FinancialTestBase;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.test.TestGroup;

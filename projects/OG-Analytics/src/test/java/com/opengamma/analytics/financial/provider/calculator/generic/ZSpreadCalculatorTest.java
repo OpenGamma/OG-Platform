@@ -35,14 +35,16 @@ import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class ZSpreadCalculatorTest {
   private static final String CURVE_NAME = "Discounting";
   private static final PresentValueDiscountingCalculator PV_CALCULATOR = PresentValueDiscountingCalculator.getInstance();
@@ -95,10 +97,10 @@ public class ZSpreadCalculatorTest {
     discounting.put(Currency.EUR, YieldCurve.from(InterpolatedDoublesCurve.from(T, R1, INTERPOLATOR)));
     discounting.put(Currency.USD, YieldCurve.from(InterpolatedDoublesCurve.from(T, R2, INTERPOLATOR)));
     final Map<IborIndex, YieldAndDiscountCurve> forwardIbor = new HashMap<>();
-    forwardIbor.put(new IborIndex(Currency.EUR, Period.ofMonths(6), n, DayCountFactory.INSTANCE.getDayCount("Act/360"),
-        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("None"), false, "Ibor"), YieldCurve.from(InterpolatedDoublesCurve.from(T, R3, INTERPOLATOR)));
+    forwardIbor.put(new IborIndex(Currency.EUR, Period.ofMonths(6), n, DayCounts.ACT_360,
+        BusinessDayConventions.NONE, false, "Ibor"), YieldCurve.from(InterpolatedDoublesCurve.from(T, R3, INTERPOLATOR)));
     final Map<IndexON, YieldAndDiscountCurve> forwardON = new HashMap<>();
-    forwardON.put(new IndexON("ON", Currency.EUR, DayCountFactory.INSTANCE.getDayCount("Act/360"), 0), YieldCurve.from(InterpolatedDoublesCurve.from(T, R4, INTERPOLATOR)));
+    forwardON.put(new IndexON("ON", Currency.EUR, DayCounts.ACT_360, 0), YieldCurve.from(InterpolatedDoublesCurve.from(T, R4, INTERPOLATOR)));
     MULTI_CURVES = new MulticurveProviderDiscount(discounting, forwardIbor, forwardON, fxMatrix);
     PAYMENTS = new Annuity<>(rateAtYield);
   }
@@ -183,8 +185,8 @@ public class ZSpreadCalculatorTest {
     }
     final MulticurveProviderDiscount multicurves = new MulticurveProviderDiscount(MULTI_CURVES.copy());
     multicurves.replaceCurve(Currency.EUR, YieldCurve.from(InterpolatedDoublesCurve.from(T, rSpread, INTERPOLATOR)));
-    assertEquals(price, PAYMENTS.accept(PV_CALCULATOR, multicurves).getAmount(Currency.EUR), 1e-15);
-    assertEquals(price, CALCULATOR.calculatePriceForZSpread(PAYMENTS, MULTI_CURVES, zSpread), 1e-15);
+    assertEquals(price, PAYMENTS.accept(PV_CALCULATOR, multicurves).getAmount(Currency.EUR), 1e-12);
+    assertEquals(price, CALCULATOR.calculatePriceForZSpread(PAYMENTS, MULTI_CURVES, zSpread), 1e-12);
   }
 
   @Test

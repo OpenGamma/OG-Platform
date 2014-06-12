@@ -5,10 +5,15 @@
  */
 package com.opengamma.analytics.util.time;
 
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
+
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.analytics.env.AnalyticsEnvironment;
+import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.ArgumentChecker;
@@ -20,10 +25,55 @@ import com.opengamma.util.ArgumentChecker;
 public final class TimeCalculator {
   /**
    * The day count used to convert to time.
+   * @deprecated Should use {@link AnalyticsEnvironment} in preference. Will be removed in a later version.
    */
-  private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+  @Deprecated
+  private static final DayCount MODEL_DAYCOUNT;
+
+  static {
+    /*
+     * Initialise MODEL_DAYCOUNT to what is set in TimeCalculator.properties.
+     * Deprecated, maintained for backwards compatibility.
+     */
+    String modelDayCount = null;
+    try {
+      final ResourceBundle conventions = ResourceBundle.getBundle(TimeCalculator.class.getName());
+      modelDayCount = conventions.getString("MODEL_DAYCOUNT");
+    } catch (final MissingResourceException ex) {
+      // pass
+    }
+    if (modelDayCount != null && DayCountFactory.of(modelDayCount) != null) {
+      MODEL_DAYCOUNT = DayCountFactory.of(modelDayCount);
+    } else {
+      MODEL_DAYCOUNT = null;
+    }
+  }
 
   private TimeCalculator() {
+  }
+
+  /**
+   * Computes the time between two dates using a user-supplied day count convention. Dates can be in any order.
+   * If date1 is after date2, the result will be negative.
+   * @param date1 The first date.
+   * @param date2 The second date.
+   * @param dayCount The day count
+   * @param calendar the calendar
+   * @return The time.
+   */
+  public static double getTimeBetween(final ZonedDateTime date1, final ZonedDateTime date2, final DayCount dayCount, final Calendar calendar) {
+    ArgumentChecker.notNull(date1, "date1");
+    ArgumentChecker.notNull(date1, "date2");
+    ArgumentChecker.notNull(dayCount, "day count");
+    // Implementation note: here we convert date2 to the same zone as date1 so we don't accidentally gain or lose a day.
+    final ZonedDateTime rebasedDate2 = date2.withZoneSameInstant(date1.getZone());
+
+    final boolean timeIsNegative = date1.isAfter(rebasedDate2); // date1 >= date2
+
+    if (!timeIsNegative) {
+      return dayCount.getDayCountFraction(date1, rebasedDate2, calendar);
+    }
+    return -1.0 * dayCount.getDayCountFraction(rebasedDate2, date1, calendar);
   }
 
   /**
@@ -56,7 +106,8 @@ public final class TimeCalculator {
    * @return The time.
    */
   public static double getTimeBetween(final ZonedDateTime date1, final ZonedDateTime date2) {
-    return getTimeBetween(date1, date2, ACT_ACT);
+    final DayCount dayCount = MODEL_DAYCOUNT != null ? MODEL_DAYCOUNT : AnalyticsEnvironment.getInstance().getModelDayCount();
+    return getTimeBetween(date1, date2, dayCount);
   }
 
   /**

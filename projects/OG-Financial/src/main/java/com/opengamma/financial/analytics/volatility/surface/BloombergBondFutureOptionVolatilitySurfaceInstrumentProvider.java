@@ -9,8 +9,8 @@ import java.text.DecimalFormat;
 
 import org.threeten.bp.LocalDate;
 
-import com.opengamma.financial.convention.BondFutureOptionExpiryCalculator;
-import com.opengamma.financial.convention.ExchangeTradedInstrumentExpiryCalculator;
+import com.opengamma.financial.convention.expirycalc.BondFutureOptionExpiryCalculator;
+import com.opengamma.financial.convention.expirycalc.ExchangeTradedInstrumentExpiryCalculator;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 

@@ -1,68 +1,95 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.credit.obligor;
 
 /**
- * Enumerate the geographical region of the reference entity (doesn't have to be the same as the legal domicile)
+ * Enumerate the geographical region of the reference entity (doesn't have to be the same as the legal domicile).
+ * @deprecated Regions have been promoted to objects. See (@link com.opengamma.analytics.financial.obligor.Region}.
+ * These objects are creates with a name only and no currency or country information.
  */
+@Deprecated
 public enum Region {
   /**
-   * 
+   *
    */
-  AFRICA,
+  AFRICA("Africa"),
   /**
-   * 
+   *
    */
-  ASIA,
+  ASIA("Asia"),
   /**
-   * 
+   *
    */
-  CARIBBEAN,
+  CARIBBEAN("Caribbean"),
   /**
-   * 
+   *
    */
-  EASTERNEUROPE,
+  EASTERNEUROPE("Eastern Europe"),
   /**
-   * 
+   *
    */
-  EUROPE,
+  EUROPE("Europe"),
   /**
-   * 
+   *
    */
-  INDIA,
+  INDIA("India"),
   /**
-   * 
+   *
    */
-  LATINAMERICA,
+  LATINAMERICA("Latin America"),
   /**
-   * 
+   *
    */
-  MIDDLEEAST,
+  MIDDLEEAST("Middle East"),
   /**
-   * 
+   *
    */
-  NORTHAMERICA,
+  NORTHAMERICA("North America"),
   /**
-   * 
+   *
    */
-  OCEANIA,
+  OCEANIA("Oceania"),
   /**
-   * 
+   *
    */
-  OFFSHORE,
+  OFFSHORE("Offshore"),
   /**
-   * 
+   *
    */
-  PACIFIC,
+  PACIFIC("Pacific"),
   /**
-   * 
+   *
    */
-  SUPRA,
+  SUPRA("Supra"),
   /**
-   * 
+   *
    */
-  NONE;
+  NONE("None");
+
+  /** The region name */
+  private final String _name;
+
+  /**
+   * @param name The region name
+   */
+  private Region(final String name) {
+    _name = name;
+  }
+
+  /**
+   * Delegates to {@link com.opengamma.analytics.financial.legalentity.Sector}, with
+   * the name set to the name of the enum value and no classifications set.
+   * @return A sector object
+   */
+  public com.opengamma.analytics.financial.legalentity.Region toRegion() {
+    return com.opengamma.analytics.financial.legalentity.Region.of(_name);
+  }
+
+  @Override
+  public String toString() {
+    return _name;
+  }
 }

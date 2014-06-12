@@ -12,10 +12,12 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class YieldSensitivityCalculatorTest {
   private static YieldSensitivityCalculator YSC = YieldSensitivityCalculator.getInstance();
   private static final Currency CUR = Currency.EUR;

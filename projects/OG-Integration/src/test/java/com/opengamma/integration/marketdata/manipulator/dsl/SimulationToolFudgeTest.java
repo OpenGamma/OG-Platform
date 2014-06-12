@@ -18,7 +18,12 @@ import com.opengamma.engine.marketdata.manipulator.MarketDataSelector;
 import com.opengamma.engine.view.execution.ArbitraryViewCycleExecutionSequence;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.test.TestGroup;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class SimulationToolFudgeTest {
 
   /**

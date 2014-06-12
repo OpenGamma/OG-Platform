@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics;
@@ -143,27 +143,6 @@ public class DoubleLabelledMatrix3DTest {
     assertEquals(values[3][3][5], 6., 0.5);
     assertEquals(values[3][4][2], 7., 0.5);
     assertEquals(values[3][4][5], 8., 0.5);
-  }
-
-  @SuppressWarnings("unused")
-  private static void print(final double[][][] v) {
-    for (double[][] slice : v) {
-      print(slice);
-      System.out.println();
-    }
-  }
-
-  private static void print(final double[][] v) {
-    for (double[] row : v) {
-      print(row);
-      System.out.println();
-    }
-  }
-
-  private static void print(final double[] v) {
-    for (double d : v) {
-      System.out.print(" " + d);
-    }
   }
 
 }

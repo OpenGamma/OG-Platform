@@ -33,7 +33,7 @@ public class PriceSurface {
    * @return The price of a European call
    */
   public Double getPrice(final double t, final double k) {
-    DoublesPair pair = new DoublesPair(t, k);
+    DoublesPair pair = DoublesPair.of(t, k);
     return _surface.getZValue(pair);
   }
 

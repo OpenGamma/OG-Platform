@@ -18,10 +18,12 @@ import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.analytics.math.number.ComplexNumber;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class FFTPricerTest {
   private static final Interpolator1D INTERPOLATOR = Interpolator1DFactory.getInterpolator("DoubleQuadratic");
   private static final double FORWARD = 100;

@@ -13,13 +13,16 @@ import com.opengamma.analytics.financial.interestrate.bond.provider.BondTransact
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositCounterpart;
 import com.opengamma.analytics.financial.interestrate.cash.provider.DepositCounterpartDiscountingMethod;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator;
-import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterIssuerProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 
 /**
- * Calculates the present value of an ...
+ * Calculates the sensitivity of the par spread (to the market quote) of issuer-specific
+ * instruments to the curves used in pricing by discounting. This calculator requires the
+ * transaction version of instruments like bonds and bills, as the purchase price
+ * information is necessary to calculate a meaningful par spread.
  */
-public final class ParSpreadMarketQuoteCurveSensitivityIssuerDiscountingCalculator extends InstrumentDerivativeVisitorDelegate<IssuerProviderInterface, MulticurveSensitivity> {
+public final class ParSpreadMarketQuoteCurveSensitivityIssuerDiscountingCalculator extends InstrumentDerivativeVisitorDelegate<ParameterIssuerProviderInterface, MulticurveSensitivity> {
 
   /**
    * The unique instance of the calculator.
@@ -35,36 +38,36 @@ public final class ParSpreadMarketQuoteCurveSensitivityIssuerDiscountingCalculat
   }
 
   /**
-   * Constructor.
+   * Private constructor.
    */
   private ParSpreadMarketQuoteCurveSensitivityIssuerDiscountingCalculator() {
     super(new IssuerProviderAdapter<>(ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator.getInstance()));
   }
 
-  /**
-   * Pricing methods.
-   */
+  /** Calculator for deposits */
   private static final DepositCounterpartDiscountingMethod METHOD_DEPO_CTPY = DepositCounterpartDiscountingMethod.getInstance();
+  /** Calculator for bill transactions */
   private static final BillTransactionDiscountingMethod METHOD_BILL_TR = BillTransactionDiscountingMethod.getInstance();
+  /** Calculator for bond transactions */
   private static final BondTransactionDiscountingMethod METHOD_BOND_TR = BondTransactionDiscountingMethod.getInstance();
 
   //     -----     Deposit     -----
 
   @Override
-  public MulticurveSensitivity visitDepositCounterpart(final DepositCounterpart deposit, final IssuerProviderInterface issuercurves) {
-    return METHOD_DEPO_CTPY.parSpreadCurveSensitivity(deposit, issuercurves);
+  public MulticurveSensitivity visitDepositCounterpart(final DepositCounterpart deposit, final ParameterIssuerProviderInterface issuercurves) {
+    return METHOD_DEPO_CTPY.parSpreadCurveSensitivity(deposit, issuercurves.getIssuerProvider());
   }
 
   //     -----     Bond/Bill     -----
 
   @Override
-  public MulticurveSensitivity visitBillTransaction(final BillTransaction bill, final IssuerProviderInterface issuercurves) {
-    return METHOD_BILL_TR.parSpreadCurveSensitivity(bill, issuercurves);
+  public MulticurveSensitivity visitBillTransaction(final BillTransaction bill, final ParameterIssuerProviderInterface issuercurves) {
+    return METHOD_BILL_TR.parSpreadCurveSensitivity(bill, issuercurves.getIssuerProvider());
   }
 
   @Override
-  public MulticurveSensitivity visitBondFixedTransaction(final BondFixedTransaction bond, final IssuerProviderInterface issuercurves) {
-    return METHOD_BOND_TR.parSpreadCurveSensitivity(bond, issuercurves);
+  public MulticurveSensitivity visitBondFixedTransaction(final BondFixedTransaction bond, final ParameterIssuerProviderInterface issuercurves) {
+    return METHOD_BOND_TR.parSpreadCurveSensitivity(bond, issuercurves.getIssuerProvider());
   }
 
 }

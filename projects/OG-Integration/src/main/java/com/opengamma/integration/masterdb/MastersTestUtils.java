@@ -1,14 +1,15 @@
 /**
- * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 package com.opengamma.integration.masterdb;
 
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.legalentity.LegalEntitySource;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
-import com.opengamma.core.organization.OrganizationSource;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
@@ -20,6 +21,7 @@ import com.opengamma.financial.currency.CurrencyPairsConfigPopulator;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.impl.InMemoryConfigMaster;
 import com.opengamma.master.config.impl.MasterConfigSource;
+import com.opengamma.master.convention.ConventionMaster;
 import com.opengamma.master.exchange.ExchangeMaster;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.holiday.HolidayMaster;
@@ -47,6 +49,7 @@ public abstract class MastersTestUtils {
     _memConfigSource = new MasterConfigSource(cfgMaster);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Gets the config master.
    *
@@ -65,6 +68,7 @@ public abstract class MastersTestUtils {
     return _memConfigSource;
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Gets the config master.
    *
@@ -72,6 +76,7 @@ public abstract class MastersTestUtils {
    */
   public abstract ConfigMaster getConfigMaster();
 
+  //-------------------------------------------------------------------------
   /**
    * Gets the region source.
    *
@@ -79,13 +84,15 @@ public abstract class MastersTestUtils {
    */
   public abstract RegionSource getRegionSource();
 
+  //-------------------------------------------------------------------------
   /**
    * Gets the organization source.
    *
    * @return the organization source, not null
    */
-  public abstract OrganizationSource getOrganizationSource();
+  public abstract LegalEntitySource getLegalEntitySource();
 
+  //-------------------------------------------------------------------------
   /**
    * Gets the security source.
    *
@@ -100,6 +107,22 @@ public abstract class MastersTestUtils {
    */
   public abstract SecurityMaster getSecurityMaster();
 
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the convention source.
+   *
+   * @return the convention source, not null
+   */
+  public abstract ConventionSource getConventionSource();
+
+  /**
+   * Gets the convention master.
+   *
+   * @return the convention master, not null
+   */
+  public abstract ConventionMaster getConventionMaster();
+
+  //-------------------------------------------------------------------------
   /**
    * Gets the snapshot source.
    *
@@ -108,12 +131,13 @@ public abstract class MastersTestUtils {
   public abstract MarketDataSnapshotSource getSnapshotSource();
 
   /**
-   * Gets the exchange master.
+   * Gets the snapshot master.
    *
-   * @return the exchange master, not null
+   * @return the snapshot master, not null
    */
-  public abstract ExchangeMaster getExchangeMaster();
+  public abstract MarketDataSnapshotMaster getMarketDataSnapshotMaster();
 
+  //-------------------------------------------------------------------------
   /**
    * Gets the exchange source.
    *
@@ -122,12 +146,13 @@ public abstract class MastersTestUtils {
   public abstract ExchangeSource getExchangeSource();
 
   /**
-   * Gets the holiday master.
+   * Gets the exchange master.
    *
-   * @return the holiday master, not null
+   * @return the exchange master, not null
    */
-  public abstract HolidayMaster getHolidayMaster();
+  public abstract ExchangeMaster getExchangeMaster();
 
+  //-------------------------------------------------------------------------
   /**
    * Gets the holiday source.
    *
@@ -136,11 +161,27 @@ public abstract class MastersTestUtils {
   public abstract HolidaySource getHolidaySource();
 
   /**
+   * Gets the holiday master.
+   *
+   * @return the holiday master, not null
+   */
+  public abstract HolidayMaster getHolidayMaster();
+
+  //-------------------------------------------------------------------------
+  /**
    * Gets the portfolio master.
    *
    * @return the portfolio master, not null
    */
   public abstract PortfolioMaster getPortfolioMaster();
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the position source.
+   *
+   * @return the position source
+   */
+  public abstract PositionSource getPositionSource();
 
   /**
    * Gets the position master.
@@ -149,20 +190,7 @@ public abstract class MastersTestUtils {
    */
   public abstract PositionMaster getPositionMaster();
 
-  /**
-   * Gets the positionSource.
-   *
-   * @return the positionSource
-   */
-  public abstract PositionSource getPositionSource();
-
-  /**
-   * Gets the market datasnapshot master.
-   *
-   * @return the marketdatasnapshot master, not null
-   */
-  public abstract MarketDataSnapshotMaster getMarketDataSnapshotMaster();
-
+  //-------------------------------------------------------------------------
   /**
    * Gets the time-series master.
    *

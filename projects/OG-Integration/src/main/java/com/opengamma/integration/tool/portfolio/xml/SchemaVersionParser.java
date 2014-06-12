@@ -22,7 +22,7 @@ import com.opengamma.OpenGammaRuntimeException;
 
 /**
  * Performs a parse of an XML document (via the provided Reader), in order to extract the
- * schema version. A StAX parser {@see http://docs.oracle.com/javase/tutorial/jaxp/stax/index.html} is
+ * schema version. A StAX parser {@see http://docs.oracle.com/javase/tutorial/jaxp/stax/login.html} is
  * used so that the whole document is not read into memory when all the should be required is the
  * first few lines of the document.
  */
@@ -108,6 +108,8 @@ public class SchemaVersionParser {
 
   private XMLEventReader createXmlEventReader() throws XMLStreamException {
     XMLInputFactory factory = XMLInputFactory.newFactory();
+    factory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
+    factory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
     return factory.createXMLEventReader(_reader);
   }
 }

@@ -101,7 +101,7 @@ public class DataHolidayResource extends AbstractDocumentDataResource<HolidayDoc
       throw new IllegalArgumentException("Document objectId does not match URI");
     }
     HolidayHistoryResult result = getMaster().history(request);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   @GET

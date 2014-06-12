@@ -13,10 +13,12 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.math.matrix.CommonsMatrixAlgebra;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.matrix.MatrixAlgebra;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class QRDecompositionCommonsTest {
   private static final MatrixAlgebra ALGEBRA = new CommonsMatrixAlgebra();
   private static final Decomposition<QRDecompositionResult> QR = new QRDecompositionCommons();

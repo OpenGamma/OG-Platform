@@ -16,14 +16,16 @@ import java.util.Map;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Triple;
 
 /**
- *
+ * Abstract test.
  */
-public class DoublesSurfaceTestCase {
+@Test(groups = TestGroup.UNIT)
+public abstract class DoublesSurfaceTestCase {
   static final String NAME = "a";
   static final double[] X_PRIMITIVE;
   static final double[] Y_PRIMITIVE;

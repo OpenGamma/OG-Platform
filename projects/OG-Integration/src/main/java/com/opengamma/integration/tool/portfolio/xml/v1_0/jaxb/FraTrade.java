@@ -11,6 +11,7 @@ import java.util.Map;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -107,122 +108,6 @@ public class FraTrade extends Trade {
   @Override
   public FraTrade.Meta metaBean() {
     return FraTrade.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1346793388:  // payFixed
-        return isPayFixed();
-      case -930389515:  // effectiveDate
-        return getEffectiveDate();
-      case -1540873516:  // paymentDate
-        return getPaymentDate();
-      case 1255202043:  // fixingDate
-        return getFixingDate();
-      case -690339025:  // regionId
-        return getRegionId();
-      case 272763090:  // terminationDate
-        return getTerminationDate();
-      case 575402001:  // currency
-        return getCurrency();
-      case 1585636160:  // notional
-        return getNotional();
-      case 3493088:  // rate
-        return getRate();
-      case -1002835891:  // businessDayConvention
-        return getBusinessDayConvention();
-      case 1905311443:  // dayCount
-        return getDayCount();
-      case 261547301:  // fixingIndex
-        return getFixingIndex();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1346793388:  // payFixed
-        setPayFixed((Boolean) newValue);
-        return;
-      case -930389515:  // effectiveDate
-        setEffectiveDate((LocalDate) newValue);
-        return;
-      case -1540873516:  // paymentDate
-        setPaymentDate((LocalDate) newValue);
-        return;
-      case 1255202043:  // fixingDate
-        setFixingDate((LocalDate) newValue);
-        return;
-      case -690339025:  // regionId
-        setRegionId((IdWrapper) newValue);
-        return;
-      case 272763090:  // terminationDate
-        setTerminationDate((LocalDate) newValue);
-        return;
-      case 575402001:  // currency
-        setCurrency((Currency) newValue);
-        return;
-      case 1585636160:  // notional
-        setNotional((BigDecimal) newValue);
-        return;
-      case 3493088:  // rate
-        setRate((BigDecimal) newValue);
-        return;
-      case -1002835891:  // businessDayConvention
-        setBusinessDayConvention((String) newValue);
-        return;
-      case 1905311443:  // dayCount
-        setDayCount((String) newValue);
-        return;
-      case 261547301:  // fixingIndex
-        setFixingIndex((FixingIndex) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      FraTrade other = (FraTrade) obj;
-      return JodaBeanUtils.equal(isPayFixed(), other.isPayFixed()) &&
-          JodaBeanUtils.equal(getEffectiveDate(), other.getEffectiveDate()) &&
-          JodaBeanUtils.equal(getPaymentDate(), other.getPaymentDate()) &&
-          JodaBeanUtils.equal(getFixingDate(), other.getFixingDate()) &&
-          JodaBeanUtils.equal(getRegionId(), other.getRegionId()) &&
-          JodaBeanUtils.equal(getTerminationDate(), other.getTerminationDate()) &&
-          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
-          JodaBeanUtils.equal(getRate(), other.getRate()) &&
-          JodaBeanUtils.equal(getBusinessDayConvention(), other.getBusinessDayConvention()) &&
-          JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
-          JodaBeanUtils.equal(getFixingIndex(), other.getFixingIndex()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(isPayFixed());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getEffectiveDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFixingDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTerminationDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNotional());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBusinessDayConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDayCount());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFixingIndex());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -526,6 +411,84 @@ public class FraTrade extends Trade {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public FraTrade clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      FraTrade other = (FraTrade) obj;
+      return (isPayFixed() == other.isPayFixed()) &&
+          JodaBeanUtils.equal(getEffectiveDate(), other.getEffectiveDate()) &&
+          JodaBeanUtils.equal(getPaymentDate(), other.getPaymentDate()) &&
+          JodaBeanUtils.equal(getFixingDate(), other.getFixingDate()) &&
+          JodaBeanUtils.equal(getRegionId(), other.getRegionId()) &&
+          JodaBeanUtils.equal(getTerminationDate(), other.getTerminationDate()) &&
+          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
+          JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
+          JodaBeanUtils.equal(getRate(), other.getRate()) &&
+          JodaBeanUtils.equal(getBusinessDayConvention(), other.getBusinessDayConvention()) &&
+          JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
+          JodaBeanUtils.equal(getFixingIndex(), other.getFixingIndex()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(isPayFixed());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getEffectiveDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFixingDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTerminationDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getNotional());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getBusinessDayConvention());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDayCount());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFixingIndex());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(416);
+    buf.append("FraTrade{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("payFixed").append('=').append(JodaBeanUtils.toString(isPayFixed())).append(',').append(' ');
+    buf.append("effectiveDate").append('=').append(JodaBeanUtils.toString(getEffectiveDate())).append(',').append(' ');
+    buf.append("paymentDate").append('=').append(JodaBeanUtils.toString(getPaymentDate())).append(',').append(' ');
+    buf.append("fixingDate").append('=').append(JodaBeanUtils.toString(getFixingDate())).append(',').append(' ');
+    buf.append("regionId").append('=').append(JodaBeanUtils.toString(getRegionId())).append(',').append(' ');
+    buf.append("terminationDate").append('=').append(JodaBeanUtils.toString(getTerminationDate())).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
+    buf.append("notional").append('=').append(JodaBeanUtils.toString(getNotional())).append(',').append(' ');
+    buf.append("rate").append('=').append(JodaBeanUtils.toString(getRate())).append(',').append(' ');
+    buf.append("businessDayConvention").append('=').append(JodaBeanUtils.toString(getBusinessDayConvention())).append(',').append(' ');
+    buf.append("dayCount").append('=').append(JodaBeanUtils.toString(getDayCount())).append(',').append(' ');
+    buf.append("fixingIndex").append('=').append(JodaBeanUtils.toString(getFixingIndex())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code FraTrade}.
    */
@@ -760,6 +723,81 @@ public class FraTrade extends Trade {
      */
     public final MetaProperty<FixingIndex> fixingIndex() {
       return _fixingIndex;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1346793388:  // payFixed
+          return ((FraTrade) bean).isPayFixed();
+        case -930389515:  // effectiveDate
+          return ((FraTrade) bean).getEffectiveDate();
+        case -1540873516:  // paymentDate
+          return ((FraTrade) bean).getPaymentDate();
+        case 1255202043:  // fixingDate
+          return ((FraTrade) bean).getFixingDate();
+        case -690339025:  // regionId
+          return ((FraTrade) bean).getRegionId();
+        case 272763090:  // terminationDate
+          return ((FraTrade) bean).getTerminationDate();
+        case 575402001:  // currency
+          return ((FraTrade) bean).getCurrency();
+        case 1585636160:  // notional
+          return ((FraTrade) bean).getNotional();
+        case 3493088:  // rate
+          return ((FraTrade) bean).getRate();
+        case -1002835891:  // businessDayConvention
+          return ((FraTrade) bean).getBusinessDayConvention();
+        case 1905311443:  // dayCount
+          return ((FraTrade) bean).getDayCount();
+        case 261547301:  // fixingIndex
+          return ((FraTrade) bean).getFixingIndex();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1346793388:  // payFixed
+          ((FraTrade) bean).setPayFixed((Boolean) newValue);
+          return;
+        case -930389515:  // effectiveDate
+          ((FraTrade) bean).setEffectiveDate((LocalDate) newValue);
+          return;
+        case -1540873516:  // paymentDate
+          ((FraTrade) bean).setPaymentDate((LocalDate) newValue);
+          return;
+        case 1255202043:  // fixingDate
+          ((FraTrade) bean).setFixingDate((LocalDate) newValue);
+          return;
+        case -690339025:  // regionId
+          ((FraTrade) bean).setRegionId((IdWrapper) newValue);
+          return;
+        case 272763090:  // terminationDate
+          ((FraTrade) bean).setTerminationDate((LocalDate) newValue);
+          return;
+        case 575402001:  // currency
+          ((FraTrade) bean).setCurrency((Currency) newValue);
+          return;
+        case 1585636160:  // notional
+          ((FraTrade) bean).setNotional((BigDecimal) newValue);
+          return;
+        case 3493088:  // rate
+          ((FraTrade) bean).setRate((BigDecimal) newValue);
+          return;
+        case -1002835891:  // businessDayConvention
+          ((FraTrade) bean).setBusinessDayConvention((String) newValue);
+          return;
+        case 1905311443:  // dayCount
+          ((FraTrade) bean).setDayCount((String) newValue);
+          return;
+        case 261547301:  // fixingIndex
+          ((FraTrade) bean).setFixingIndex((FixingIndex) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

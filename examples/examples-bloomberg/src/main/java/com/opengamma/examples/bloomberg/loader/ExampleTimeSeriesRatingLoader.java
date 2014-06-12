@@ -12,9 +12,6 @@ import static com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSerie
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.opengamma.bbg.BloombergConstants;
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.config.impl.ConfigItem;
@@ -34,19 +31,13 @@ import com.opengamma.scripts.Scriptable;
 @Scriptable
 public class ExampleTimeSeriesRatingLoader extends AbstractTool<IntegrationToolContext> {
 
-  /** Logger. */
-  @SuppressWarnings("unused")
-  private static final Logger s_logger = LoggerFactory.getLogger(ExampleTimeSeriesRatingLoader.class);
-
-  //-------------------------------------------------------------------------
   /**
    * Main method to run the tool.
-   *
-   * @param args  the arguments, unused
+   * 
+   * @param args  the standard tool arguments, not null
    */
   public static void main(final String[] args) {  // CSIGNORE
-    new ExampleTimeSeriesRatingLoader().initAndRun(args, IntegrationToolContext.class);
-    System.exit(0);
+    new ExampleTimeSeriesRatingLoader().invokeAndTerminate(args);
   }
 
   //-------------------------------------------------------------------------
@@ -54,11 +45,11 @@ public class ExampleTimeSeriesRatingLoader extends AbstractTool<IntegrationToolC
   protected void doRun() {
     final ConfigMaster configMaster = getToolContext().getConfigMaster();
     final List<HistoricalTimeSeriesRatingRule> rules = new ArrayList<>();
-    rules.add(new HistoricalTimeSeriesRatingRule(DATA_SOURCE_NAME, "BLOOMBERG", 2));
-    rules.add(new HistoricalTimeSeriesRatingRule(DATA_SOURCE_NAME, BloombergConstants.BLOOMBERG_DATA_SOURCE_NAME, 1));
-    rules.add(new HistoricalTimeSeriesRatingRule(DATA_PROVIDER_NAME, "UNKNOWN", 2));
-    rules.add(new HistoricalTimeSeriesRatingRule(DATA_PROVIDER_NAME, BloombergConstants.BLOOMBERG_DATA_SOURCE_NAME, 1));
-    final HistoricalTimeSeriesRating ratingConfig = new HistoricalTimeSeriesRating(rules);
+    rules.add(HistoricalTimeSeriesRatingRule.of(DATA_SOURCE_NAME, "BLOOMBERG", 2));
+    rules.add(HistoricalTimeSeriesRatingRule.of(DATA_SOURCE_NAME, BloombergConstants.BLOOMBERG_DATA_SOURCE_NAME, 1));
+    rules.add(HistoricalTimeSeriesRatingRule.of(DATA_PROVIDER_NAME, "UNKNOWN", 2));
+    rules.add(HistoricalTimeSeriesRatingRule.of(DATA_PROVIDER_NAME, BloombergConstants.BLOOMBERG_DATA_SOURCE_NAME, 1));
+    final HistoricalTimeSeriesRating ratingConfig = HistoricalTimeSeriesRating.of(rules);
     final ConfigItem<HistoricalTimeSeriesRating> configDoc = ConfigItem.of(ratingConfig, DEFAULT_CONFIG_NAME, HistoricalTimeSeriesRating.class);
     ConfigMasterUtils.storeByName(configMaster, configDoc);
   }

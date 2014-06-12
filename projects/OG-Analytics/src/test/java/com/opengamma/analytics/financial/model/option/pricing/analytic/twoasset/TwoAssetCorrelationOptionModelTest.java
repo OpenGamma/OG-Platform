@@ -17,12 +17,14 @@ import com.opengamma.analytics.financial.model.option.definition.twoasset.TwoAss
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class TwoAssetCorrelationOptionModelTest {
   private static final double S1 = 52;
   private static final double S2 = 65;

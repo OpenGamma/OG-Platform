@@ -5,95 +5,109 @@
  */
 package com.opengamma.engine.marketdata.manipulator;
 
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.Pair;
 
 /**
- * Responsible for extracting structured objects from a dependency graph. E.g. yield curve,
- * volatility surface etc. The caller is able to specify what types of structure they are
- * interested in to avoid extraction of
+ * Responsible for extracting structured objects from a dependency graph.
+ * E.g. yield curve, volatility surface etc. The caller is able to specify what types of structure they are
+ * interested in to avoid extraction of.
  */
 public class DependencyGraphStructureExtractor {
 
-  /**
-   * Logger for the class.
-   */
-  private static final Logger s_logger = LoggerFactory.getLogger(DependencyGraphStructureExtractor.class);
+  private final String _calcConfigName;
+
+  private final MarketDataSelector _selector;
+
+  private final SelectorResolver _selectorResolver;
+
+  private final Map<ValueSpecification, DependencyNode> _graphValues = new HashMap<>();
+
+  private final List<Pair<ValueSpecification, ValueSpecification>> _terminalValueRename = new LinkedList<>();
+
+  private final Map<DistinctMarketDataSelector, Set<ValueSpecification>> _selectorMapping;
+
+  private int _nodeDelta;
 
   /**
-   * The dependency graph to examine for structures.
+   * Create an extractor which will extract all structures matching the passed name.
+   * 
+   * @param calcConfigName the calculation configuration name, not null
+   * @param selector the structures to be extracted, not null
+   * @param selectorResolver the selector resolver, not null
+   * @param selectorMapping populated with details of the manipulations inserted into the graph, not null
    */
-  private final DependencyGraph _graph;
-
-
-  private final Map<String, NodeExtractor<?>> _nodeExtractors;
-
-  /**
-   * Create an extractor which will extract all structures matching the passed name in the graph.
-   *
-   * @param graph the graph to examine
-   * @param requiredStructureTypes the set of structure types to be extracted, neither null nor empty
-   */
-  public DependencyGraphStructureExtractor(DependencyGraph graph,
-                                           Set<StructureType> requiredStructureTypes) {
-
-    ArgumentChecker.notNull(graph, "graph");
-    ArgumentChecker.notEmpty(requiredStructureTypes, "requiredStructureTypes");
-
-    _graph = graph;
-    _nodeExtractors = buildExtractors(requiredStructureTypes);
+  public DependencyGraphStructureExtractor(final String calcConfigName,
+                                           final MarketDataSelector selector,
+                                           final SelectorResolver selectorResolver,
+                                           final Map<DistinctMarketDataSelector, Set<ValueSpecification>> selectorMapping) {
+    ArgumentChecker.notNull(calcConfigName, "calcConfigName");
+    ArgumentChecker.notNull(selector, "selectors");
+    ArgumentChecker.notNull(selectorResolver, "selectorResolver");
+    _calcConfigName = calcConfigName;
+    _selector = selector;
+    _selectorResolver = selectorResolver;
+    _selectorMapping = selectorMapping;
   }
 
-  private Map<String, NodeExtractor<?>> buildExtractors(Set<StructureType> requiredStructureTypes) {
-
-    Map<String, NodeExtractor<?>> extractors = new HashMap<>();
-    for (StructureType structureType : requiredStructureTypes) {
-      NodeExtractor<?> nodeExtractor = structureType.getNodeExtractor();
-      if (nodeExtractor == null) {
-        s_logger.warn("No extractor is currently available for structure type: {} - unable to perform manipulation", structureType);
-      } else {
-        extractors.put(nodeExtractor.getSpecificationName(), nodeExtractor);
-      }
+  /**
+   * Tests if structure extraction is required for the given value specification.
+   * 
+   * @param valueSpecification the original value specification, not null
+   * @return the set of value specifications associated with the manipulator; this should be updated with the rewritten value from the proxy node
+   */
+  // REVIEW Chris 2014-01-14 - Mutating the return value outside this class isn't great design. too obscure
+  public Set<ValueSpecification> extractStructure(final ValueSpecification valueSpecification) {
+    final DistinctMarketDataSelector matchingSelector =
+        _selector.findMatchingSelector(valueSpecification, _calcConfigName, _selectorResolver);
+    if (matchingSelector == null) {
+      return null;
     }
-    return Collections.unmodifiableMap(extractors);
-  }
-
-  /**
-   * Extracts the structures (yield curves, vol surfaces etc) that are being used by
-   * the dependency graphs. Returns a map containing an id for the structure
-   * and the graph node where the structure is created.
-   *
-   * @return map of structured type key to the relevant dependency node
-   */
-  public Map<StructureIdentifier<?>, DependencyNode> extractStructures() {
-
-    Map<StructureIdentifier<?>, DependencyNode> structures = new HashMap<>();
-
-    for (DependencyNode node : _graph.getDependencyNodes()) {
-
-      for (ValueSpecification valueSpecification : node.getOutputValues()) {
-
-        String valueName = valueSpecification.getValueName();
-        if (_nodeExtractors.containsKey(valueName)) {
-
-          StructureIdentifier<?> id = _nodeExtractors.get(valueName).getStructuredIdentifier(node);
-          if (id != null) {
-            structures.put(id, node);
-          }
-        }
-      }
+    Set<ValueSpecification> values = _selectorMapping.get(matchingSelector);
+    if (values == null) {
+      values = new HashSet<>();
+      _selectorMapping.put(matchingSelector, values);
     }
-
-    return Collections.unmodifiableMap(structures);
+    return values;
   }
+
+  public void storeProduction(final ValueSpecification valueSpec, final DependencyNode node) {
+    _graphValues.put(valueSpec, node);
+  }
+
+  public DependencyNode getProduction(final ValueSpecification valueSpec) {
+    return _graphValues.get(valueSpec);
+  }
+
+  public void addProxyValue(final ValueSpecification originalValue, final ValueSpecification proxyValue) {
+    _terminalValueRename.add(Pair.of(originalValue, proxyValue));
+    _nodeDelta++;
+  }
+
+  public void removeProxyValue(final ValueSpecification originalValue, final ValueSpecification proxyValue) {
+    _terminalValueRename.remove(Pair.of(proxyValue, originalValue));
+    _nodeDelta--;
+  }
+
+  public Iterable<Pair<ValueSpecification, ValueSpecification>> getTerminalValueRenames() {
+    return _terminalValueRename;
+  }
+
+  public boolean hasTerminalValueRenames() {
+    return !_terminalValueRename.isEmpty();
+  }
+
+  public int getNodeDelta() {
+    return _nodeDelta;
+  }
+
 }

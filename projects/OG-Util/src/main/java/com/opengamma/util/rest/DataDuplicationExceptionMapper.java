@@ -5,9 +5,10 @@
  */
 package com.opengamma.util.rest;
 
-import javax.ws.rs.core.Response;
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
 import com.opengamma.DataDuplicationException;
@@ -17,8 +18,7 @@ import com.opengamma.DataDuplicationException;
  */
 @Provider
 public class DataDuplicationExceptionMapper
-    extends AbstractExceptionMapper
-    implements ExceptionMapper<DataDuplicationException> {
+    extends AbstractSpecificExceptionMapper<DataDuplicationException> {
 
   /**
    * Creates the mapper.
@@ -29,8 +29,9 @@ public class DataDuplicationExceptionMapper
 
   //-------------------------------------------------------------------------
   @Override
-  public Response toResponse(final DataDuplicationException exception) {
-    return createResponse(exception);
+  protected String buildHtmlErrorPage(DataDuplicationException exception) {
+    Map<String, String> data = new HashMap<>();
+    return createHtmlErrorPage("error-dataduplication.html", data);
   }
 
 }

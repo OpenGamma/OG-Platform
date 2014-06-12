@@ -7,6 +7,7 @@ package com.opengamma.batch.domain;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -70,51 +71,6 @@ public class CalculationConfiguration extends DirectBean {
     return CalculationConfiguration.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 3355:  // id
-        return getId();
-      case 3373707:  // name
-        return getName();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 3355:  // id
-        setId((Integer) newValue);
-        return;
-      case 3373707:  // name
-        setName((String) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      CalculationConfiguration other = (CalculationConfiguration) obj;
-      return JodaBeanUtils.equal(getId(), other.getId()) &&
-          JodaBeanUtils.equal(getName(), other.getName());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    return hash;
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the identifier.
@@ -163,6 +119,51 @@ public class CalculationConfiguration extends DirectBean {
    */
   public final Property<String> name() {
     return metaBean().name().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public CalculationConfiguration clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      CalculationConfiguration other = (CalculationConfiguration) obj;
+      return (getId() == other.getId()) &&
+          JodaBeanUtils.equal(getName(), other.getName());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(96);
+    buf.append("CalculationConfiguration{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("id").append('=').append(JodaBeanUtils.toString(getId())).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -240,6 +241,31 @@ public class CalculationConfiguration extends DirectBean {
      */
     public final MetaProperty<String> name() {
       return _name;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 3355:  // id
+          return ((CalculationConfiguration) bean).getId();
+        case 3373707:  // name
+          return ((CalculationConfiguration) bean).getName();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 3355:  // id
+          ((CalculationConfiguration) bean).setId((Integer) newValue);
+          return;
+        case 3373707:  // name
+          ((CalculationConfiguration) bean).setName((String) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

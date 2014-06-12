@@ -1,15 +1,16 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
 package com.opengamma.financial;
 
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
-import com.opengamma.core.organization.OrganizationSource;
+import com.opengamma.core.legalentity.LegalEntitySource;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
@@ -20,7 +21,6 @@ import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitio
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationBuilder;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
 import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.SingletonFactoryBean;
 
@@ -33,7 +33,7 @@ public class OpenGammaCompilationContextFactoryBean extends SingletonFactoryBean
   private SecuritySource _securitySource;
   private PositionSource _positionSource;
   private RegionSource _regionSource;
-  private OrganizationSource _organizationSource;
+  private LegalEntitySource _legalEntitySource;
   private ConventionBundleSource _conventionBundleSource;
   private InterpolatedYieldCurveDefinitionSource _interpolatedYieldCurveDefinitionSource;
   private InterpolatedYieldCurveSpecificationBuilder _interpolatedYieldCurveSpecificationBuilder;
@@ -61,12 +61,12 @@ public class OpenGammaCompilationContextFactoryBean extends SingletonFactoryBean
     return _positionSource;
   }
 
-  public void setOrganizationSource(final OrganizationSource organizationSource) {
-    _organizationSource = organizationSource;
+  public void setLegalEntitySource(final LegalEntitySource legalEntitySource) {
+    _legalEntitySource = legalEntitySource;
   }
 
-  public OrganizationSource getOrganizationSource() {
-    return _organizationSource;
+  public LegalEntitySource getLegalEntitySource() {
+    return _legalEntitySource;
   }
 
   public void setComputationTargetResolver(final ComputationTargetResolver targetResolver) {
@@ -201,8 +201,8 @@ public class OpenGammaCompilationContextFactoryBean extends SingletonFactoryBean
     if (getHistoricalTimeSeriesResolver() != null) {
       OpenGammaCompilationContext.setHistoricalTimeSeriesResolver(context, getHistoricalTimeSeriesResolver());
     }
-    if (getOrganizationSource() != null) {
-      context.setOrganizationSource(getOrganizationSource());
+    if (getLegalEntitySource() != null) {
+      context.setLegalEntitySource(getLegalEntitySource());
     }
     context.setSecuritySource(getSecuritySource());
     context.setRawComputationTargetResolver(getComputationTargetResolver());

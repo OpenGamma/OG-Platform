@@ -254,16 +254,12 @@
   </bean>
   <bean id="functionCompilation" class="com.opengamma.engine.function.CompiledFunctionService">
     <constructor-arg>
-      <bean class="com.opengamma.engine.function.config.FunctionRepositoryFactoryBean">
-        <property name="functionConfigurationSource">
-          <bean class="com.opengamma.financial.function.rest.RemoteFunctionConfigurationSource">
-            <constructor-arg>
-              <bean class="com.opengamma.transport.jaxrs.UriEndPointUriFactoryBean">
-                <property name="uri" value="${opengamma.engine.configuration.url}/functionRepositoryConfiguration" />
-              </bean>
-            </constructor-arg>
+      <bean class="com.opengamma.financial.function.rest.RemoteFunctionConfigurationSource">
+        <constructor-arg>
+          <bean class="com.opengamma.transport.jaxrs.UriEndPointUriFactoryBean">
+            <property name="uri" value="${opengamma.engine.configuration.url}/functionRepositoryConfiguration" />
           </bean>
-        </property>
+        </constructor-arg>
       </bean>
     </constructor-arg>
     <constructor-arg>

@@ -7,6 +7,7 @@ package com.opengamma.financial.security.bond;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -91,52 +92,6 @@ public class BondSecuritySearchRequest extends SecuritySearchRequest {
     return BondSecuritySearchRequest.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1459772644:  // issuerName
-        return getIssuerName();
-      case 1459974547:  // issuerType
-        return getIssuerType();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1459772644:  // issuerName
-        setIssuerName((String) newValue);
-        return;
-      case 1459974547:  // issuerType
-        setIssuerType((String) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      BondSecuritySearchRequest other = (BondSecuritySearchRequest) obj;
-      return JodaBeanUtils.equal(getIssuerName(), other.getIssuerName()) &&
-          JodaBeanUtils.equal(getIssuerType(), other.getIssuerType()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIssuerName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIssuerType());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the issuer name of the bond, wildcards allowed, null not to match on issuer name.
@@ -185,6 +140,54 @@ public class BondSecuritySearchRequest extends SecuritySearchRequest {
    */
   public final Property<String> issuerType() {
     return metaBean().issuerType().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public BondSecuritySearchRequest clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      BondSecuritySearchRequest other = (BondSecuritySearchRequest) obj;
+      return JodaBeanUtils.equal(getIssuerName(), other.getIssuerName()) &&
+          JodaBeanUtils.equal(getIssuerType(), other.getIssuerType()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getIssuerName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getIssuerType());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(96);
+    buf.append("BondSecuritySearchRequest{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("issuerName").append('=').append(JodaBeanUtils.toString(getIssuerName())).append(',').append(' ');
+    buf.append("issuerType").append('=').append(JodaBeanUtils.toString(getIssuerType())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -262,6 +265,31 @@ public class BondSecuritySearchRequest extends SecuritySearchRequest {
      */
     public final MetaProperty<String> issuerType() {
       return _issuerType;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1459772644:  // issuerName
+          return ((BondSecuritySearchRequest) bean).getIssuerName();
+        case 1459974547:  // issuerType
+          return ((BondSecuritySearchRequest) bean).getIssuerType();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1459772644:  // issuerName
+          ((BondSecuritySearchRequest) bean).setIssuerName((String) newValue);
+          return;
+        case 1459974547:  // issuerType
+          ((BondSecuritySearchRequest) bean).setIssuerType((String) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

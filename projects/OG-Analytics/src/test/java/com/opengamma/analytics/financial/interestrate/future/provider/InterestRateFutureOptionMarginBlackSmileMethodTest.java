@@ -20,22 +20,27 @@ import com.opengamma.analytics.financial.provider.calculator.blackstirfutures.Pr
 import com.opengamma.analytics.financial.provider.calculator.blackstirfutures.PresentValueCurveSensitivityBlackSTIRFutureOptionCalculator;
 import com.opengamma.analytics.financial.provider.description.BlackDataSets;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
+import com.opengamma.analytics.financial.provider.description.interestrate.BlackSTIRFuturesProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackSTIRFuturesSmileProviderDiscount;
-import com.opengamma.analytics.financial.provider.description.interestrate.BlackSTIRFuturesSmileProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.sensitivity.blackstirfutures.ParameterSensitivityBlackSTIRFuturesDiscountInterpolatedFDCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.analytics.util.amount.SurfaceValue;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class InterestRateFutureOptionMarginBlackSmileMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
@@ -55,7 +60,7 @@ public class InterestRateFutureOptionMarginBlackSmileMethodTest {
   private static final String NAME = "ERU2";
   private static final double STRIKE = 0.9850;
   private static final InterestRateFutureSecurityDefinition ERU2_DEFINITION = new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, EURIBOR3M, NOTIONAL, FUTURE_FACTOR, NAME, TARGET);
-  private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 8, 18);
+  private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 8, 18, 10, 0);
   private static final InterestRateFutureSecurity ERU2 = ERU2_DEFINITION.toDerivative(REFERENCE_DATE);
   // Option
   private static final ZonedDateTime EXPIRATION_DATE = DateUtils.getUTCDate(2011, 9, 16);
@@ -84,7 +89,7 @@ public class InterestRateFutureOptionMarginBlackSmileMethodTest {
   private static final PresentValueBlackSTIRFutureOptionCalculator PVBFC = PresentValueBlackSTIRFutureOptionCalculator.getInstance();
   private static final PresentValueCurveSensitivityBlackSTIRFutureOptionCalculator PVCSBFC = PresentValueCurveSensitivityBlackSTIRFutureOptionCalculator.getInstance();
   private static final double SHIFT = 1.0E-6;
-  private static final ParameterSensitivityParameterCalculator<BlackSTIRFuturesSmileProviderInterface> PSHWC = new ParameterSensitivityParameterCalculator<>(
+  private static final ParameterSensitivityParameterCalculator<BlackSTIRFuturesProviderInterface> PSHWC = new ParameterSensitivityParameterCalculator<>(
       PVCSBFC);
   private static final ParameterSensitivityBlackSTIRFuturesDiscountInterpolatedFDCalculator PSHWC_DSC_FD = new ParameterSensitivityBlackSTIRFuturesDiscountInterpolatedFDCalculator(PVBFC, SHIFT);
 
@@ -137,7 +142,7 @@ public class InterestRateFutureOptionMarginBlackSmileMethodTest {
   public void presentValueCurveSensitivity() {
     final MultipleCurrencyParameterSensitivity pvpsDepositExact = PSHWC.calculateSensitivity(TRANSACTION_1, BLACK_MULTICURVES, BLACK_MULTICURVES.getMulticurveProvider().getAllNames());
     final MultipleCurrencyParameterSensitivity pvpsDepositFD = PSHWC_DSC_FD.calculateSensitivity(TRANSACTION_1, BLACK_MULTICURVES);
-    AssertSensivityObjects.assertEquals("CashDiscountingProviderMethod: presentValueCurveSensitivity ", pvpsDepositExact, pvpsDepositFD, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("CashDiscountingProviderMethod: presentValueCurveSensitivity ", pvpsDepositExact, pvpsDepositFD, TOLERANCE_PV_DELTA);
   }
 
   @Test
@@ -153,7 +158,7 @@ public class InterestRateFutureOptionMarginBlackSmileMethodTest {
     final double priceMinus = METHOD_SECURITY_OPTION_BLACK.price(OPTION_ERU2, blackMinus);
     final double priceSensiExpected = (pricePlus - priceMinus) / (2 * VOL_SHIFT);
     final SurfaceValue priceSensiComputed = METHOD_SECURITY_OPTION_BLACK.priceBlackSensitivity(OPTION_ERU2, BLACK_MULTICURVES);
-    final DoublesPair point = new DoublesPair(OPTION_ERU2.getExpirationTime(), STRIKE);
+    final DoublesPair point = DoublesPair.of(OPTION_ERU2.getExpirationTime(), STRIKE);
     assertEquals("Future option with Black volatilities: option security vol sensi", priceSensiExpected, priceSensiComputed.getMap().get(point), TOLERANCE_PRICE_DELTA);
     assertEquals("Future option with Black volatilities: option security vol sensi", 1, priceSensiComputed.getMap().size());
   }

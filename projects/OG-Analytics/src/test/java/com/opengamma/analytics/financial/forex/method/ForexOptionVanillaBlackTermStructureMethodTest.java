@@ -29,7 +29,7 @@ import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.B
 import com.opengamma.analytics.financial.model.volatility.curve.BlackForexTermStructureParameters;
 import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTermStructureParametersStrikeInterpolation;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
@@ -37,28 +37,30 @@ import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
-import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * @deprecated The class tests deprecated code
  */
 @Deprecated
+@Test(groups = TestGroup.UNIT)
 public class ForexOptionVanillaBlackTermStructureMethodTest {
   // General
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
-  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventions.MODIFIED_FOLLOWING;
   private static final int SETTLEMENT_DAYS = 2;
   // Vol data
   private static final Currency EUR = Currency.EUR;
   private static final Currency USD = Currency.USD;
-  private static final Pair<Currency, Currency> CURRENCY_PAIR = Pair.of(EUR, USD);
+  private static final Pair<Currency, Currency> CURRENCY_PAIR = Pairs.of(EUR, USD);
   private static final double SPOT = 1.40;
   private static final FXMatrix FX_MATRIX = new FXMatrix(EUR, USD, SPOT);
   private static final Period[] EXPIRY_PERIOD = new Period[] {Period.ofMonths(3), Period.ofMonths(6), Period.ofYears(1), Period.ofYears(2), Period.ofYears(5) };
@@ -85,7 +87,7 @@ public class ForexOptionVanillaBlackTermStructureMethodTest {
   private static final Map<String, Currency> CURVE_CURRENCY = TestsDataSetsForex.curveCurrency();
   private static final YieldCurveBundle CURVES_FX = new YieldCurveBundle(CURVES.getCurvesMap(), FX_MATRIX, CURVE_CURRENCY);
   private static final String[] CURVES_NAME = TestsDataSetsForex.curveNames();
-  private static final ObjectsPair<Currency, Currency> CCY = new ObjectsPair<>(EUR, USD);
+  private static final Pair<Currency, Currency> CCY = Pairs.of(EUR, USD);
   private static final BlackForexTermStructureParameters BLACK_TS_VOL = new BlackForexTermStructureParameters(TERM_STRUCTURE_VOL);
   private static final YieldCurveWithBlackForexTermStructureBundle BUNDLE_BLACK_TS = new YieldCurveWithBlackForexTermStructureBundle(CURVES, BLACK_TS_VOL, CURRENCY_PAIR);
   private static final BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
@@ -167,7 +169,7 @@ public class ForexOptionVanillaBlackTermStructureMethodTest {
     pvcsTS = pvcsTS.cleaned();
     MultipleCurrencyInterestRateCurveSensitivity pvcsSmile = METHOD_SMILE.presentValueCurveSensitivity(CALL_LONG, BUNDLE_SMILE);
     pvcsSmile = pvcsSmile.cleaned();
-    AssertSensivityObjects.assertEquals("Forex vanilla option: present value curve sensitivity vs flat smile", pvcsTS, pvcsSmile, TOLERANCE_PV);
+    AssertSensitivityObjects.assertEquals("Forex vanilla option: present value curve sensitivity vs flat smile", pvcsTS, pvcsSmile, TOLERANCE_PV);
   }
 
   @Test
@@ -177,7 +179,7 @@ public class ForexOptionVanillaBlackTermStructureMethodTest {
   public void presentValueCurveSensitivityMethodVsCalculator() {
     final MultipleCurrencyInterestRateCurveSensitivity pvcsMethod = METHOD_BLACK_TS.presentValueCurveSensitivity(CALL_LONG, BUNDLE_BLACK_TS);
     final MultipleCurrencyInterestRateCurveSensitivity pvcsCalculator = CALL_LONG.accept(PVCSC_BLACK_TS, BUNDLE_BLACK_TS);
-    AssertSensivityObjects.assertEquals("Forex vanilla option: present value curve sensitivity Method vs Calculator", pvcsMethod, pvcsCalculator, TOLERANCE_PV);
+    AssertSensitivityObjects.assertEquals("Forex vanilla option: present value curve sensitivity Method vs Calculator", pvcsMethod, pvcsCalculator, TOLERANCE_PV);
   }
 
   @Test

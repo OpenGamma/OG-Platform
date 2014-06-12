@@ -10,9 +10,12 @@ import static org.testng.AssertJUnit.assertFalse;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class GammaDistributionTest extends ProbabilityDistributionTestCase {
   private static final double K = 1;
   private static final double THETA = 0.5;

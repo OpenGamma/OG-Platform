@@ -32,8 +32,8 @@ public class SABRRightExtrapolationVegaDefaults extends SABRRightExtrapolationDe
 
   public SABRRightExtrapolationVegaDefaults(final String fittingMethod, final String cutoff, final String mu,
       final String xInterpolator, final String xLeftExtrapolator, final String xRightExtrapolator, final String yInterpolator, final String yLeftExtrapolator,
-      final String yRightExtrapolator, final String... currencyCurveConfigAndCubeNames) {
-    super(fittingMethod, cutoff, mu, currencyCurveConfigAndCubeNames);
+      final String yRightExtrapolator, final String... currencyAndConfigNames) {
+    super(fittingMethod, cutoff, mu, currencyAndConfigNames);
     ArgumentChecker.notNull(xInterpolator, "x interpolator");
     ArgumentChecker.notNull(xLeftExtrapolator, "x left extrapolator");
     ArgumentChecker.notNull(xRightExtrapolator, "x right extrapolator");

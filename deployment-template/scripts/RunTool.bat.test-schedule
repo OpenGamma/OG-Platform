@@ -1,0 +1,49 @@
+Notes for testing the RunTool.bat wrapper. The wrapper should be a best efforts attempt to run the
+scripts if the ZIP was just unpacked onto a Windows workstation or server. It is NOT used when the
+platform is installed from an MSI.
+
+Clear environment of any:
+	JAVA_HOME
+	JRE_HOME
+	JAVA_CMD
+	CLASSPATH
+	JAVA_OPTS
+	MEM_OPTS
+	GC_OPTS
+
+Uncomment "set" in at the end of the script; it will report out the environment variables
+
+1a.	No Java executable on the path
+	Expect: error message, exit code 1805
+
+1b.	Java.exe executable on the path
+	Expect: successful invocation with default MEM and GC opts and CLASSPATH
+
+2.	Set CLASSPATH to something in the environment, eg C:\
+	Expect: successful invocation with CLASSPATH containing C:\ as well as OG paths
+
+3a.	Create INSTALL_DIR\scripts\setenv.bat file containing:
+		set MEM_OPTS=-Xms128m
+		set GC_OPTS=-Xincgc
+	Expect: successful invocation with custom MEM and GC opts
+
+3b.	Set JAVA_OPTS to something in the environment, eg -ea
+	Expect: successful invocation with additional "-ea" opts
+
+4a.	Set JAVA_HOME to something invalid
+	Expect: error message, exit code 3
+
+4b.	Set JAVA_HOME to something valid
+	Expect: successful invocation
+
+5a.	Set JRE_HOME to something invalid
+	Expect: error message, exit code 3
+
+5b.	Set JRE_HOME to something valid
+	Expect: successful invocation
+
+6a.	Set JAVA_CMD to something invalid
+	Expect: error message, exit code 3
+
+6b.	Set JAVA_CMD to something valid (full path, with extension)
+	Expect: successful invocation

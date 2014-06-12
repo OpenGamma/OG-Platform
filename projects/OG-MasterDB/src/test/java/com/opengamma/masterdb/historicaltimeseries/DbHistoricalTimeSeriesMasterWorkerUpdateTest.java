@@ -6,6 +6,9 @@
 package com.opengamma.masterdb.historicaltimeseries;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +19,7 @@ import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDate;
 
+import com.google.common.collect.Sets;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.elsql.ElSqlBundle;
 import com.opengamma.elsql.ElSqlConfig;
@@ -27,6 +31,7 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocumen
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoHistoryRequest;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoHistoryResult;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
+import com.opengamma.util.OpenGammaClock;
 import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.TestGroup;
 
@@ -141,6 +146,64 @@ public class DbHistoricalTimeSeriesMasterWorkerUpdateTest extends AbstractDbHist
     HistoricalTimeSeriesInfoHistoryRequest search = new HistoricalTimeSeriesInfoHistoryRequest(base.getUniqueId(), null, now);
     HistoricalTimeSeriesInfoHistoryResult searchResult = _htsMaster.history(search);
     assertEquals(2, searchResult.getDocuments().size());
+  }
+
+  @Test
+  public void test_update_Permission() throws Exception {
+    _htsMaster.setClock(OpenGammaClock.getInstance());
+
+    UniqueId baseUniqueId = UniqueId.of("DbHts", "101", "0");
+    HistoricalTimeSeriesInfoDocument baseDoc = _htsMaster.get(baseUniqueId);
+    assertEquals(baseUniqueId, baseDoc.getUniqueId());
+    ManageableHistoricalTimeSeriesInfo baseInfo = baseDoc.getValue();
+    assertEquals(baseUniqueId, baseInfo.getUniqueId());
+    assertTrue(baseInfo.getRequiredPermissions().isEmpty());
+
+    ManageableHistoricalTimeSeriesInfo input = baseInfo.clone();
+    input.setName("A1");
+    input.setRequiredPermissions(Sets.newHashSet("A"));
+
+    Thread.sleep(100);
+    HistoricalTimeSeriesInfoDocument updated = _htsMaster.update(new HistoricalTimeSeriesInfoDocument(input));
+    ManageableHistoricalTimeSeriesInfo updatedInfo = updated.getValue();
+    assertFalse(baseDoc.getUniqueId().equals(updated.getUniqueId()));
+    assertEquals(baseInfo.getDataField(), updatedInfo.getDataField());
+    assertEquals(baseInfo.getDataProvider(), updatedInfo.getDataProvider());
+    assertEquals(baseInfo.getDataSource(), updatedInfo.getDataSource());
+    assertEquals(baseInfo.getExternalIdBundle(), updatedInfo.getExternalIdBundle());
+    assertEquals("A1", updatedInfo.getName());
+    assertEquals(baseInfo.getObservationTime(), updatedInfo.getObservationTime());
+    assertEquals(baseInfo.getTimeSeriesObjectId(), updatedInfo.getTimeSeriesObjectId());
+    assertNotNull(updatedInfo.getRequiredPermissions());
+    assertEquals(1, updatedInfo.getRequiredPermissions().size());
+    assertTrue(updatedInfo.getRequiredPermissions().contains("A"));
+
+    assertEquals(updated, _htsMaster.get(updated.getUniqueId()));
+
+    input = updatedInfo.clone();
+    input.setName("A2");
+    input.setRequiredPermissions(Sets.newHashSet("A", "B"));
+    Thread.sleep(100);
+    updated = _htsMaster.update(new HistoricalTimeSeriesInfoDocument(input));
+    updatedInfo = updated.getValue();
+    assertFalse(baseDoc.getUniqueId().equals(updated.getUniqueId()));
+    assertEquals(baseInfo.getDataField(), updatedInfo.getDataField());
+    assertEquals(baseInfo.getDataProvider(), updatedInfo.getDataProvider());
+    assertEquals(baseInfo.getDataSource(), updatedInfo.getDataSource());
+    assertEquals(baseInfo.getExternalIdBundle(), updatedInfo.getExternalIdBundle());
+    assertEquals("A2", updatedInfo.getName());
+    assertEquals(baseInfo.getObservationTime(), updatedInfo.getObservationTime());
+    assertEquals(baseInfo.getTimeSeriesObjectId(), updatedInfo.getTimeSeriesObjectId());
+    assertNotNull(updatedInfo.getRequiredPermissions());
+    assertEquals(2, updatedInfo.getRequiredPermissions().size());
+    assertTrue(updatedInfo.getRequiredPermissions().contains("A"));
+    assertTrue(updatedInfo.getRequiredPermissions().contains("B"));
+
+    assertEquals(updated, _htsMaster.get(updated.getUniqueId()));
+
+    HistoricalTimeSeriesInfoHistoryRequest search = new HistoricalTimeSeriesInfoHistoryRequest(baseDoc.getUniqueId(), null, Instant.now(_htsMaster.getClock()));
+    HistoricalTimeSeriesInfoHistoryResult searchResult = _htsMaster.history(search);
+    assertEquals(3, searchResult.getDocuments().size());
   }
 
   @Test

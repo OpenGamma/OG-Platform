@@ -19,10 +19,8 @@ import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * An in-memory implementation of {@link FunctionRepository}.
- * This can either be used as-is through a factory which scans available functions,
- * or it can be used as a cache on top of a more costly function repository. 
- *
+ * An in-memory implementation of {@link FunctionRepository}. This can either be used as-is through a factory which scans available functions, or it can be used as a cache on top of a more costly
+ * function repository.
  */
 public class InMemoryFunctionRepository implements FunctionRepository {
 
@@ -105,9 +103,13 @@ public class InMemoryFunctionRepository implements FunctionRepository {
     return Collections.unmodifiableCollection(_functions.values());
   }
 
+  @Override
+  public FunctionDefinition getFunction(final String uniqueId) {
+    return _functions.get(uniqueId);
+  }
+
   /**
-   * This method is primarily useful for testing, as otherwise it will be
-   * done explicitly by the {@link ViewProcessor} on startup.
+   * This method is primarily useful for testing, as otherwise it will be done explicitly by the {@link ViewProcessor} on startup.
    * 
    * @param compilationContext The context to provide to each function.
    */

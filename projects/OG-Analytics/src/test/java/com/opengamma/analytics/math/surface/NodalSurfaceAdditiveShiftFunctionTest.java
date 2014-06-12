@@ -10,9 +10,12 @@ import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class NodalSurfaceAdditiveShiftFunctionTest {
   private static final double[] X = new double[] {0, 0, 0, 1, 1, 1, 2, 2, 2};
   private static final double[] Y = new double[] {0, 1, 2, 0, 1, 2, 0, 1, 2};

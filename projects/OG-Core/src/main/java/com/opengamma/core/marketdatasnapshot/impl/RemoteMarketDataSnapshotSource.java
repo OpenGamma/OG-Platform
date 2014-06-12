@@ -10,6 +10,7 @@ import java.net.URI;
 import com.opengamma.core.AbstractRemoteSource;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotChangeListener;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
+import com.opengamma.core.marketdatasnapshot.NamedSnapshot;
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
@@ -58,4 +59,22 @@ public class RemoteMarketDataSnapshotSource extends AbstractRemoteSource<Structu
     throw new UnsupportedOperationException();
   }
 
+  @Override
+  public <S extends NamedSnapshot> S getSingle(Class<S> type,
+                                               String snapshotName,
+                                               VersionCorrection versionCorrection) {
+    ArgumentChecker.notNull(type, "type");
+    ArgumentChecker.notNull(snapshotName, "snapshotName");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+
+    URI uri = DataMarketDataSnapshotSourceResource.uriSearchSingle(getBaseUri(), type, snapshotName, versionCorrection);
+    NamedSnapshot snapshot = accessRemote(uri).get(NamedSnapshot.class);
+
+    if (type.isAssignableFrom(snapshot.getClass())) {
+      return type.cast(snapshot);
+    } else {
+      throw new IllegalArgumentException("The requested object is of type: " +
+                                             snapshot.getClass().getName() + ", not " + type.getName());
+    }
+  }
 }

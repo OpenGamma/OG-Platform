@@ -11,9 +11,12 @@ import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class GaussianQuadratureDataTest {
   private static final double[] X = new double[] {1, 2, 3, 4};
   private static final double[] W = new double[] {6, 7, 8, 9};

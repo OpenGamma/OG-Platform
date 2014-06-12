@@ -11,6 +11,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -185,9 +186,9 @@ public class PositionSearchRequest extends AbstractSearchRequest {
   public void addSecurityExternalIds(ExternalId... securityIds) {
     ArgumentChecker.notNull(securityIds, "securityIds");
     if (getSecurityIdSearch() == null) {
-      setSecurityIdSearch(new ExternalIdSearch(securityIds));
+      setSecurityIdSearch(ExternalIdSearch.of(securityIds));
     } else {
-      getSecurityIdSearch().addExternalIds(securityIds);
+      setSecurityIdSearch(getSecurityIdSearch().withExternalIdsAdded(securityIds));
     }
   }
 
@@ -201,9 +202,22 @@ public class PositionSearchRequest extends AbstractSearchRequest {
   public void addSecurityExternalIds(Iterable<ExternalId> securityIds) {
     ArgumentChecker.notNull(securityIds, "securityIds");
     if (getSecurityIdSearch() == null) {
-      setSecurityIdSearch(new ExternalIdSearch(securityIds));
+      setSecurityIdSearch(ExternalIdSearch.of(securityIds));
     } else {
-      getSecurityIdSearch().addExternalIds(securityIds);
+      setSecurityIdSearch(getSecurityIdSearch().withExternalIdsAdded(securityIds));
+    }
+  }
+
+  /**
+   * Sets the search type to use in {@code ExternalIdSearch} for securities.
+   * 
+   * @param type  the type to set, not null
+   */
+  public void setSecurityExternalIdSearchType(ExternalIdSearchType type) {
+    if (getSecurityIdSearch() == null) {
+      setSecurityIdSearch(ExternalIdSearch.of(type));
+    } else {
+      setSecurityIdSearch(getSecurityIdSearch().withSearchType(type));
     }
   }
 
@@ -256,95 +270,6 @@ public class PositionSearchRequest extends AbstractSearchRequest {
   @Override
   public PositionSearchRequest.Meta metaBean() {
     return PositionSearchRequest.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -88800304:  // positionObjectIds
-        return getPositionObjectIds();
-      case 572505589:  // tradeObjectIds
-        return getTradeObjectIds();
-      case 1137408515:  // securityIdSearch
-        return getSecurityIdSearch();
-      case -930478666:  // securityIdValue
-        return getSecurityIdValue();
-      case 680799477:  // positionProviderId
-        return getPositionProviderId();
-      case -293554320:  // tradeProviderId
-        return getTradeProviderId();
-      case 69860605:  // minQuantity
-        return getMinQuantity();
-      case 747293199:  // maxQuantity
-        return getMaxQuantity();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -88800304:  // positionObjectIds
-        setPositionObjectIds((Set<ObjectId>) newValue);
-        return;
-      case 572505589:  // tradeObjectIds
-        setTradeObjectIds((Set<ObjectId>) newValue);
-        return;
-      case 1137408515:  // securityIdSearch
-        setSecurityIdSearch((ExternalIdSearch) newValue);
-        return;
-      case -930478666:  // securityIdValue
-        setSecurityIdValue((String) newValue);
-        return;
-      case 680799477:  // positionProviderId
-        setPositionProviderId((ExternalId) newValue);
-        return;
-      case -293554320:  // tradeProviderId
-        setTradeProviderId((ExternalId) newValue);
-        return;
-      case 69860605:  // minQuantity
-        setMinQuantity((BigDecimal) newValue);
-        return;
-      case 747293199:  // maxQuantity
-        setMaxQuantity((BigDecimal) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      PositionSearchRequest other = (PositionSearchRequest) obj;
-      return JodaBeanUtils.equal(getPositionObjectIds(), other.getPositionObjectIds()) &&
-          JodaBeanUtils.equal(getTradeObjectIds(), other.getTradeObjectIds()) &&
-          JodaBeanUtils.equal(getSecurityIdSearch(), other.getSecurityIdSearch()) &&
-          JodaBeanUtils.equal(getSecurityIdValue(), other.getSecurityIdValue()) &&
-          JodaBeanUtils.equal(getPositionProviderId(), other.getPositionProviderId()) &&
-          JodaBeanUtils.equal(getTradeProviderId(), other.getTradeProviderId()) &&
-          JodaBeanUtils.equal(getMinQuantity(), other.getMinQuantity()) &&
-          JodaBeanUtils.equal(getMaxQuantity(), other.getMaxQuantity()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPositionObjectIds());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTradeObjectIds());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityIdSearch());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityIdValue());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPositionProviderId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTradeProviderId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMinQuantity());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMaxQuantity());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -559,6 +484,72 @@ public class PositionSearchRequest extends AbstractSearchRequest {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public PositionSearchRequest clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      PositionSearchRequest other = (PositionSearchRequest) obj;
+      return JodaBeanUtils.equal(getPositionObjectIds(), other.getPositionObjectIds()) &&
+          JodaBeanUtils.equal(getTradeObjectIds(), other.getTradeObjectIds()) &&
+          JodaBeanUtils.equal(getSecurityIdSearch(), other.getSecurityIdSearch()) &&
+          JodaBeanUtils.equal(getSecurityIdValue(), other.getSecurityIdValue()) &&
+          JodaBeanUtils.equal(getPositionProviderId(), other.getPositionProviderId()) &&
+          JodaBeanUtils.equal(getTradeProviderId(), other.getTradeProviderId()) &&
+          JodaBeanUtils.equal(getMinQuantity(), other.getMinQuantity()) &&
+          JodaBeanUtils.equal(getMaxQuantity(), other.getMaxQuantity()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPositionObjectIds());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTradeObjectIds());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityIdSearch());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityIdValue());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPositionProviderId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTradeProviderId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMinQuantity());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMaxQuantity());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(288);
+    buf.append("PositionSearchRequest{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("positionObjectIds").append('=').append(JodaBeanUtils.toString(getPositionObjectIds())).append(',').append(' ');
+    buf.append("tradeObjectIds").append('=').append(JodaBeanUtils.toString(getTradeObjectIds())).append(',').append(' ');
+    buf.append("securityIdSearch").append('=').append(JodaBeanUtils.toString(getSecurityIdSearch())).append(',').append(' ');
+    buf.append("securityIdValue").append('=').append(JodaBeanUtils.toString(getSecurityIdValue())).append(',').append(' ');
+    buf.append("positionProviderId").append('=').append(JodaBeanUtils.toString(getPositionProviderId())).append(',').append(' ');
+    buf.append("tradeProviderId").append('=').append(JodaBeanUtils.toString(getTradeProviderId())).append(',').append(' ');
+    buf.append("minQuantity").append('=').append(JodaBeanUtils.toString(getMinQuantity())).append(',').append(' ');
+    buf.append("maxQuantity").append('=').append(JodaBeanUtils.toString(getMaxQuantity())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code PositionSearchRequest}.
    */
@@ -731,6 +722,62 @@ public class PositionSearchRequest extends AbstractSearchRequest {
      */
     public final MetaProperty<BigDecimal> maxQuantity() {
       return _maxQuantity;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -88800304:  // positionObjectIds
+          return ((PositionSearchRequest) bean).getPositionObjectIds();
+        case 572505589:  // tradeObjectIds
+          return ((PositionSearchRequest) bean).getTradeObjectIds();
+        case 1137408515:  // securityIdSearch
+          return ((PositionSearchRequest) bean).getSecurityIdSearch();
+        case -930478666:  // securityIdValue
+          return ((PositionSearchRequest) bean).getSecurityIdValue();
+        case 680799477:  // positionProviderId
+          return ((PositionSearchRequest) bean).getPositionProviderId();
+        case -293554320:  // tradeProviderId
+          return ((PositionSearchRequest) bean).getTradeProviderId();
+        case 69860605:  // minQuantity
+          return ((PositionSearchRequest) bean).getMinQuantity();
+        case 747293199:  // maxQuantity
+          return ((PositionSearchRequest) bean).getMaxQuantity();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -88800304:  // positionObjectIds
+          ((PositionSearchRequest) bean).setPositionObjectIds((Set<ObjectId>) newValue);
+          return;
+        case 572505589:  // tradeObjectIds
+          ((PositionSearchRequest) bean).setTradeObjectIds((Set<ObjectId>) newValue);
+          return;
+        case 1137408515:  // securityIdSearch
+          ((PositionSearchRequest) bean).setSecurityIdSearch((ExternalIdSearch) newValue);
+          return;
+        case -930478666:  // securityIdValue
+          ((PositionSearchRequest) bean).setSecurityIdValue((String) newValue);
+          return;
+        case 680799477:  // positionProviderId
+          ((PositionSearchRequest) bean).setPositionProviderId((ExternalId) newValue);
+          return;
+        case -293554320:  // tradeProviderId
+          ((PositionSearchRequest) bean).setTradeProviderId((ExternalId) newValue);
+          return;
+        case 69860605:  // minQuantity
+          ((PositionSearchRequest) bean).setMinQuantity((BigDecimal) newValue);
+          return;
+        case 747293199:  // maxQuantity
+          ((PositionSearchRequest) bean).setMaxQuantity((BigDecimal) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

@@ -5,10 +5,12 @@
  */
 package com.opengamma.util.beancompare;
 
+import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 
 import org.joda.beans.Bean;
@@ -33,7 +35,46 @@ public class BeanCompareTest {
   private static final String NAME = "name";
 
   @Test
-  public void propertyComparators() {
+  @SuppressWarnings("deprecation")
+  public void equalIgnoring() {
+    UniqueId uid1 = UniqueId.of("uid", "123");
+    UniqueId uid2 = UniqueId.of("uid", "124");
+    ExternalIdBundle eid1 = ExternalIdBundle.of(ExternalId.of("eid1", "321"));
+    ExternalIdBundle eid2 = ExternalIdBundle.of(ExternalId.of("eid1", "321"));
+    Bean bean1 = createBean(uid1, eid1, "name1");
+    Bean bean2 = createBean(uid2, eid2, "name1");
+    assertFalse(BeanCompare.equalIgnoring(bean1, bean2));
+    assertTrue(BeanCompare.equalIgnoring(bean1, bean2, bean1.metaBean().metaProperty(UNIQUE_ID)));
+  }
+
+  @Test
+  public void propertyComparators_same() {
+    UniqueId uid1 = UniqueId.of("uid", "123");
+    UniqueId uid2 = UniqueId.of("uid", "123");
+    ExternalIdBundle eid1 = ExternalIdBundle.of(ExternalId.of("eid1", "321"));
+    ExternalIdBundle eid2 = ExternalIdBundle.of(ExternalId.of("eid1", "321"));
+    Bean bean1 = createBean(uid1, eid1, "name1");
+    Bean bean2 = createBean(uid2, eid2, "name1");
+    BeanCompare beanCompare = new BeanCompare();
+    List<BeanDifference<?>> diff = beanCompare.compare(bean1, bean2);
+    assertTrue(diff.isEmpty());
+  }
+
+  @Test
+  public void propertyComparators_different() {
+    UniqueId uid1 = UniqueId.of("uid", "123");
+    UniqueId uid2 = UniqueId.of("uid", "123");
+    ExternalIdBundle eid1 = ExternalIdBundle.of(ExternalId.of("eid1", "321"));
+    ExternalIdBundle eid2 = ExternalIdBundle.of(ExternalId.of("eid2", "abc"));
+    Bean bean1 = createBean(uid1, eid1, "name1");
+    Bean bean2 = createBean(uid2, eid2, "name1");
+    BeanCompare beanCompare = new BeanCompare();
+    List<BeanDifference<?>> diff = beanCompare.compare(bean1, bean2);
+    assertFalse(diff.isEmpty());
+  }
+
+  @Test
+  public void propertyComparators_ignoreDifferences() {
     Comparator<Object> alwaysEqualComparator = new Comparator<Object>() {
       @Override
       public int compare(Object notUsed1, Object notUsed2) {
@@ -54,7 +95,8 @@ public class BeanCompareTest {
             externalIdMeta, alwaysEqualComparator);
     BeanCompare beanCompare = new BeanCompare(comparators, Collections.<Class<?>, Comparator<Object>>emptyMap());
     // same despite different IDs
-    assertTrue(beanCompare.compare(bean1, bean2).isEmpty());
+    List<BeanDifference<?>> diff = beanCompare.compare(bean1, bean2);
+    assertTrue(diff.toString(), diff.isEmpty());
   }
 
   private static Bean createBean(UniqueId uniqueId, ExternalIdBundle idBundle, String name) {
@@ -67,4 +109,5 @@ public class BeanCompareTest {
     bean.propertySet(NAME, name);
     return bean;
   }
+
 }

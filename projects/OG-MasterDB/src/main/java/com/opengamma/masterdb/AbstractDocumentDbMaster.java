@@ -57,7 +57,9 @@ import com.opengamma.util.paging.PagingRequest;
  *
  * @param <D>  the type of the document
  */
-public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> extends AbstractDbMaster implements AbstractMaster<D>, MetricProducer {
+public abstract class AbstractDocumentDbMaster<D extends AbstractDocument>
+    extends AbstractDbMaster
+    implements AbstractMaster<D>, MetricProducer, ConfigurableDbChangeProvidingMaster {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractDocumentDbMaster.class);
@@ -114,6 +116,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
    *
    * @return the change manager, not null
    */
+  @Override
   public ChangeManager getChangeManager() {
     return _changeManager;
   }
@@ -123,6 +126,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
    *
    * @param changeManager  the change manager, not null
    */
+  @Override
   public void setChangeManager(final ChangeManager changeManager) {
     ArgumentChecker.notNull(changeManager, "changeManager");
     _changeManager = changeManager;
@@ -200,7 +204,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
    */
   protected DbMapSqlParameterSource argsGetByOidInstants(final ObjectIdentifiable objectId, final VersionCorrection versionCorrection) {
     final long docOid = extractOid(objectId);
-    final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
+    final DbMapSqlParameterSource args = createParameterSource()
       .addValue("doc_oid", docOid)
       .addTimestamp("version_as_of", versionCorrection.getVersionAsOf())
       .addTimestamp("corrected_to", versionCorrection.getCorrectedTo());
@@ -242,7 +246,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
    * @return the SQL arguments, not null
    */
   protected DbMapSqlParameterSource argsGetById(final UniqueId uniqueId) {
-    final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
+    final DbMapSqlParameterSource args = createParameterSource()
       .addValue("doc_oid", extractOid(uniqueId))
       .addValue("doc_id", extractRowId(uniqueId));
     return args;
@@ -287,7 +291,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
    * @return the SQL arguments, not null
    */
   protected DbMapSqlParameterSource argsHistory(final AbstractHistoryRequest request) {
-    final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
+    final DbMapSqlParameterSource args = createParameterSource()
       .addValue("doc_oid", extractOid(request.getObjectId()))
       .addTimestampNullIgnored("versions_from_instant", request.getVersionsFromInstant())
       .addTimestampNullIgnored("versions_to_instant", request.getVersionsToInstant())
@@ -952,7 +956,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
    * @param document  the document to update, not null
    */
   protected void updateVersionToInstant(final D document) {
-    final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
+    final DbMapSqlParameterSource args = createParameterSource()
       .addValue("doc_id", extractRowId(document.getUniqueId()))
       .addTimestamp("ver_to_instant", document.getVersionToInstant())
       .addValue("max_instant", DbDateUtils.MAX_SQL_TIMESTAMP);
@@ -985,7 +989,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
    * @param document  the document to update, not null
    */
   protected void updateCorrectionToInstant(final AbstractDocument document) {
-    final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
+    final DbMapSqlParameterSource args = createParameterSource()
       .addValue("doc_id", extractRowId(document.getUniqueId()))
       .addTimestamp("corr_to_instant", document.getCorrectionToInstant())
       .addValue("max_instant", DbDateUtils.MAX_SQL_TIMESTAMP);

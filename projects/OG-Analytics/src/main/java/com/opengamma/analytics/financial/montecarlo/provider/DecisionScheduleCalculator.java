@@ -91,7 +91,7 @@ public class DecisionScheduleCalculator extends InstrumentDerivativeVisitorAdapt
     final double[][] impactTime = new double[1][];
     impactTime[0] = new double[] {fixingStartTime, fixingEndTime, paymentTime};
     final double[][] impactAmount = new double[1][];
-    double forward = multicurves.getForwardRate(payment.getIndex(), payment.getFixingPeriodStartTime(), payment.getFixingPeriodEndTime(), payment.getFixingAccrualFactor());
+    double forward = multicurves.getSimplyCompoundForwardRate(payment.getIndex(), payment.getFixingPeriodStartTime(), payment.getFixingPeriodEndTime(), payment.getFixingAccrualFactor());
     final double beta = (1.0 + payment.getFixingAccrualFactor() * forward) * multicurves.getDiscountFactor(payment.getCurrency(), payment.getFixingPeriodEndTime())
         / multicurves.getDiscountFactor(payment.getCurrency(), payment.getFixingPeriodStartTime());
     impactAmount[0] = new double[] {beta, -1.0, 1.0};

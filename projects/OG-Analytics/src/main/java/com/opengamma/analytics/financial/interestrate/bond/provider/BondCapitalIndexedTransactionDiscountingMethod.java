@@ -21,6 +21,19 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 public final class BondCapitalIndexedTransactionDiscountingMethod {
 
   /**
+   * The unique instance of the class.
+   */
+  private static final BondCapitalIndexedTransactionDiscountingMethod INSTANCE = new BondCapitalIndexedTransactionDiscountingMethod();
+
+  /**
+   * Return the class instance.
+   * @return The instance.
+   */
+  public static BondCapitalIndexedTransactionDiscountingMethod getInstance() {
+    return INSTANCE;
+  }
+
+  /**
    * The present value inflation calculator (for the different parts of the bond transaction).
    */
   private static final PresentValueDiscountingInflationCalculator PVIC = PresentValueDiscountingInflationCalculator.getInstance();
@@ -53,7 +66,7 @@ public final class BondCapitalIndexedTransactionDiscountingMethod {
   public MultipleCurrencyAmount presentValueFromCleanPriceReal(final BondCapitalIndexedTransaction<Coupon> bond, final InflationIssuerProviderInterface provider, final double cleanPriceReal) {
     Validate.notNull(bond, "Coupon");
     Validate.notNull(provider, "Provider");
-    final MultipleCurrencyAmount pvBond = METHOD_SECURITY.presentValueFromCleanPriceReal(bond.getBondTransaction(), provider, cleanPriceReal);
+    final MultipleCurrencyAmount pvBond = METHOD_SECURITY.presentValueFromCleanRealPrice(bond.getBondTransaction(), provider, cleanPriceReal);
     final MultipleCurrencyAmount pvSettlement = bond.getBondTransaction().getSettlement().accept(PVIC, provider.getInflationProvider()).multipliedBy(
         bond.getQuantity() * bond.getBondTransaction().getCoupon().getNthPayment(0).getNotional());
     return pvBond.plus(pvSettlement);

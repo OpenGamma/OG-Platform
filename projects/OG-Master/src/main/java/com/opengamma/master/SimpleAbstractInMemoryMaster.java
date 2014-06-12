@@ -57,6 +57,12 @@ public abstract class SimpleAbstractInMemoryMaster<D extends AbstractDocument>
   protected final ChangeManager _changeManager;  // CSIGNORE
 
   /**
+   * Whether all documents should be cloned on return. True by default.
+   */
+  private boolean _cloneResults = true;
+
+  
+  /**
    * Creates an instance.
    * 
    * @param defaultOidScheme  the default object identifier scheme, not null
@@ -95,6 +101,24 @@ public abstract class SimpleAbstractInMemoryMaster<D extends AbstractDocument>
     ArgumentChecker.notNull(changeManager, "changeManager");
     _objectIdSupplier = objectIdSupplier;
     _changeManager = changeManager;
+  }
+
+  /**
+   * Whether to clone all results when searching. True by default.
+   * 
+   * @return whether results are cloned.
+   */
+  public boolean isCloneResults() {
+    return _cloneResults;
+  }
+
+  /**
+   * Specify whether to clone all results when searching. True by default.
+   *
+   * @param cloneResults whether to clone results when searching.
+   */
+  public void setCloneResults(boolean cloneResults) {
+    _cloneResults = cloneResults;
   }
 
   //-------------------------------------------------------------------------
@@ -154,8 +178,20 @@ public abstract class SimpleAbstractInMemoryMaster<D extends AbstractDocument>
       Instant versionFromInstant = functional(orderedReplacementDocuments).first().getVersionFromInstant();
       Instant versionToInstant = functional(orderedReplacementDocuments).last().getVersionToInstant();
       changeManager().entityChanged(ChangeType.CHANGED, objectId.getObjectId(), versionFromInstant, versionToInstant, now);
+      
+      updateCaches(objectId, lastReplacementDocument);
+      
       return ImmutableList.of(lastReplacementDocument.getUniqueId());
     }
+  }
+  
+  /**
+   * Subclasses that support additional caching should override this method.
+   * 
+   * @param replacedObject The version removed (possibly null)
+   * @param updatedDocument  The version added (possibly null)
+   */
+  protected void updateCaches(ObjectIdentifiable replacedObject, D updatedDocument) {
   }
 
   //-------------------------------------------------------------------------

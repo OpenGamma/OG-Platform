@@ -58,7 +58,7 @@ public class LiveMarketDataPermissionProvider implements MarketDataPermissionPro
     }
     if (!failures.isEmpty()) {
       s_logger.warn("User {} does not have permission to access {} out of {} market data values",
-          new Object[] {user, failures.size(), specifications.size() });
+                    user, failures.size(), specifications.size());
       s_logger.info("User {} does not have permission to access {}", user, failures);
     }
     return failures;

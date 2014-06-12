@@ -7,6 +7,12 @@ package com.opengamma.analytics.math.minimization;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class NelderMeadDownhillSimplexMinimizerTest extends MultidimensionalMinimizerTestCase {
 
   private static final double EPS = 1e-8;

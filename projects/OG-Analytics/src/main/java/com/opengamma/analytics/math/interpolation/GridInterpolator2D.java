@@ -95,7 +95,7 @@ public class GridInterpolator2D extends Interpolator2D {
       final double[] yValues = entry.getValue().getKeys();
       for (j = 0; j < yValues.length; j++) {
         sense = xSense[i] * temp[i][j];
-        res.put(new DoublesPair(entry.getKey(), yValues[j]), sense);
+        res.put(DoublesPair.of(entry.getKey().doubleValue(), yValues[j]), sense);
       }
       i++;
     }

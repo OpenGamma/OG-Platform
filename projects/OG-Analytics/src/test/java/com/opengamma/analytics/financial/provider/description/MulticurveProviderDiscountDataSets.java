@@ -12,11 +12,15 @@ import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.temporal.TemporalAdjusters;
 
+import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexIborMaster;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.index.IndexONMaster;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
+import com.opengamma.analytics.financial.legalentity.LegalEntity;
+import com.opengamma.analytics.financial.legalentity.LegalEntityFilter;
+import com.opengamma.analytics.financial.legalentity.LegalEntityShortName;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
@@ -31,7 +35,7 @@ import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.timeseries.DoubleTimeSeries;
@@ -39,8 +43,8 @@ import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeri
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
-import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Sets of market data used in tests.
@@ -53,6 +57,11 @@ public class MulticurveProviderDiscountDataSets {
   private static final Calendar CALENDAR_USD = new MondayToFridayCalendar("USD");
   private static final Calendar CALENDAR_EUR = new MondayToFridayCalendar("EUR");
   private static final Calendar CALENDAR_CAD = new MondayToFridayCalendar("CAD");
+  private static final Calendar CALENDAR_AUD = new MondayToFridayCalendar("AUD");
+  private static final FXMatrix FX_MATRIX = new FXMatrix(Currency.GBP, Currency.USD, 1.60);
+  static {
+    FX_MATRIX.addCurrency(Currency.EUR, Currency.USD, 1.40);
+  }
 
   private static final double[] USD_DSC_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0 };
   private static final double[] USD_DSC_RATE = new double[] {0.0100, 0.0120, 0.0120, 0.0140, 0.0140, 0.0140 };
@@ -89,6 +98,19 @@ public class MulticurveProviderDiscountDataSets {
   private static final String CAD_FWD3_NAME = "CAD CDOR3M 3M";
   private static final YieldAndDiscountCurve CAD_FWD3 = new YieldCurve(CAD_FWD3_NAME, new InterpolatedDoublesCurve(CAD_FWD3_TIME, CAD_FWD3_RATE, LINEAR_FLAT, true, CAD_FWD3_NAME));
 
+  private static final double[] AUD_DSC_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0 };
+  private static final double[] AUD_DSC_RATE = new double[] {0.0100, 0.0120, 0.0120, 0.0140, 0.0140, 0.0140 };
+  private static final String AUD_DSC_NAME = "AUD Dsc";
+  private static final YieldAndDiscountCurve AUD_DSC = new YieldCurve(AUD_DSC_NAME, new InterpolatedDoublesCurve(AUD_DSC_TIME, AUD_DSC_RATE, LINEAR_FLAT, true, AUD_DSC_NAME));
+  private static final double[] AUD_FWD3_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0 };
+  private static final double[] AUD_FWD3_RATE = new double[] {0.0150, 0.0125, 0.0150, 0.0175, 0.0150, 0.0150 };
+  private static final String AUD_FWD3_NAME = "AUD AUDBB3M 3M";
+  private static final YieldAndDiscountCurve AUD_FWD3 = new YieldCurve(AUD_FWD3_NAME, new InterpolatedDoublesCurve(AUD_FWD3_TIME, AUD_FWD3_RATE, LINEAR_FLAT, true, AUD_FWD3_NAME));
+  private static final double[] AUD_FWD6_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0 };
+  private static final double[] AUD_FWD6_RATE = new double[] {0.0150, 0.0125, 0.0150, 0.0175, 0.0150, 0.0150 };
+  private static final String AUD_FWD6_NAME = "AUD AUDBB6M 6M";
+  private static final YieldAndDiscountCurve AUD_FWD6 = new YieldCurve(AUD_FWD6_NAME, new InterpolatedDoublesCurve(AUD_FWD6_TIME, AUD_FWD6_RATE, LINEAR_FLAT, true, AUD_FWD6_NAME));
+
   private static final String ISSUER_NAME = "Corporate";
   private static final double[] EUR_ISSUER_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0 };
   private static final double[] EUR_ISSUER_RATE = new double[] {0.0250, 0.0225, 0.0250, 0.0275, 0.0250, 0.0250 };
@@ -110,16 +132,25 @@ public class MulticurveProviderDiscountDataSets {
   private static final double[] USD30_RATE = new double[] {0.030, 0.030 };
   private static final YieldAndDiscountCurve CURVE_USD_30 = new YieldCurve(USD30, new InterpolatedDoublesCurve(USD30_TIME, USD30_RATE, LINEAR_FLAT, true, USD30));
 
+  private static final String AUD30 = "AUD 3.00";
+  private static final double[] AUD30_TIME = new double[] {0.0, 10.0 };
+  private static final double[] AUD30_RATE = new double[] {0.030, 0.030 };
+  private static final YieldAndDiscountCurve CURVE_AUD_30 = new YieldCurve(AUD30, new InterpolatedDoublesCurve(AUD30_TIME, AUD30_RATE, LINEAR_FLAT, true, AUD30));
+
   private static final IndexIborMaster MASTER_IBOR_INDEX = IndexIborMaster.getInstance();
   private static final IborIndex USDLIBOR3M = MASTER_IBOR_INDEX.getIndex("USDLIBOR3M");
   private static final IborIndex USDLIBOR6M = MASTER_IBOR_INDEX.getIndex("USDLIBOR6M");
   private static final IborIndex EURIBOR3M = MASTER_IBOR_INDEX.getIndex("EURIBOR3M");
   private static final IborIndex EURIBOR6M = MASTER_IBOR_INDEX.getIndex("EURIBOR6M");
   private static final IborIndex CADCDOR3M = MASTER_IBOR_INDEX.getIndex("CADCDOR3M");
+  private static final IborIndex AUDBB3M = MASTER_IBOR_INDEX.getIndex("AUDBB3M");
+  private static final IborIndex AUDBB6M = MASTER_IBOR_INDEX.getIndex("AUDBB6M");
   private static final IndexON EONIA = IndexONMaster.getInstance().getIndex("EONIA");
   private static final IndexON FEDFUND = IndexONMaster.getInstance().getIndex("FED FUND");
+  private static final IndexON SONIA = IndexONMaster.getInstance().getIndex("SONIA");
+  private static final IndexON BRAZIL_CDI = IndexONMaster.getInstance().getIndex("CDI");
 
-  private static final String NAME_EUR_PRICE_INDEX = "Euro HICP x";
+  private static final String NAME_EUR_PRICE_INDEX = "EUR HICP";
   private static final IndexPrice PRICE_INDEX_EUR = new IndexPrice(NAME_EUR_PRICE_INDEX, Currency.EUR);
   private static final double[] INDEX_VALUE_EUR = new double[] {113.11, 113.10, 115.12, 123.23, 133.33, 155.55, 175.55, 195.55 }; // May11, June11, 1Y, 5Y, 10Y, 20Y
   private static final double[] TIME_VALUE_EUR = new double[] {-4.0 / 12.0, -2.0 / 12.0, 9.0 / 12.0, 4.0 + 9.0 / 12.0, 9.0 + 9.0 / 12.0, 19.0 + 9.0 / 12.0, 29.0 + 9.0 / 12.0, 39.0 + 9.0 / 12.0 };
@@ -134,20 +165,32 @@ public class MulticurveProviderDiscountDataSets {
   private static final PriceIndexCurve PRICE_INDEX_CURVE_GBP = new PriceIndexCurve(CURVE_GBP);
 
   private static final String NAME_USD_PRICE_INDEX = "US CPI-U";
-  private static final IndexPrice PRICE_INDEX_USD = new IndexPrice(NAME_USD_PRICE_INDEX, Currency.EUR);
+  private static final IndexPrice PRICE_INDEX_USD = new IndexPrice(NAME_USD_PRICE_INDEX, Currency.USD);
   private static final double[] INDEX_VALUE_USD = new double[] {225.964, 225.722, 230.0, 251.1, 280.2, 452.7 }; // May11, June11, 1Y, 5Y, 10Y, 20Y, 50Y
   private static final double[] TIME_VALUE_USD = new double[] {-8.0 / 12.0, 4.0 / 12.0, 4.0 + 4.0 / 12.0, 9.0 + 4.0 / 12.0, 19.0 + 4.0 / 12.0, 49.0 + 4.0 / 12.0 };
   private static final InterpolatedDoublesCurve CURVE_USD = InterpolatedDoublesCurve.from(TIME_VALUE_USD, INDEX_VALUE_USD, new LinearInterpolator1D(), NAME_USD_PRICE_INDEX);
   private static final PriceIndexCurve PRICE_INDEX_CURVE_USD = new PriceIndexCurve(CURVE_USD);
   private static final int MONTH_LAG_US = 3;
   private static final int SPOT_LAG_US = 1;
-  private static final BusinessDayConvention BUSINESS_DAY_USD = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  private static final BusinessDayConvention BUSINESS_DAY_USD = BusinessDayConventions.FOLLOWING;
 
-  private static final String ISSUER_UK_GOVT = "UK GOVT";
-  private static final String ISSUER_US_GOVT = "US GOVT";
+  private static final String NAME_AUD_PRICE_INDEX = "AUD CPI";
+  private static final IndexPrice PRICE_INDEX_AUD = new IndexPrice(NAME_AUD_PRICE_INDEX, Currency.AUD);
+  private static final double[] INDEX_VALUE_AUD = new double[] {113.10, 115.12, 123.23, 133.33, 155.55, 175.55, 195.55 }; // May11, June11, 1Y, 5Y, 10Y, 20Y
+  private static final double[] TIME_VALUE_AUD = new double[] {-3.0 / 12.0, 9.0 / 12.0, 4.0 + 9.0 / 12.0, 9.0 + 9.0 / 12.0, 19.0 + 9.0 / 12.0, 29.0 + 9.0 / 12.0, 39.0 + 9.0 / 12.0 };
+  private static final InterpolatedDoublesCurve CURVE_AUD = InterpolatedDoublesCurve.from(TIME_VALUE_AUD, INDEX_VALUE_AUD, new LinearInterpolator1D(), NAME_AUD_PRICE_INDEX);
+  private static final PriceIndexCurve PRICE_INDEX_CURVE_AUD = new PriceIndexCurve(CURVE_AUD);
+
+  private static final LegalEntityFilter<LegalEntity> META = new LegalEntityShortName();
+  private static final Pair<Object, LegalEntityFilter<LegalEntity>> ISSUER_UK_GOVT = Pairs.of((Object) "UK GOVT", META);
+  private static final Pair<Object, LegalEntityFilter<LegalEntity>> ISSUER_US_GOVT = Pairs.of((Object) "US GOVT", META);
+  private static final Pair<Object, LegalEntityFilter<LegalEntity>> ISSUER_AUD_GOVT = Pairs.of((Object) "AUD GOVT", META);
 
   private static final InflationIssuerProviderDiscount MARKET_1 = new InflationIssuerProviderDiscount();
   static {
+    MARKET_1.setCurve(Currency.AUD, AUD_DSC);
+    MARKET_1.setCurve(AUDBB3M, AUD_FWD3);
+    MARKET_1.setCurve(AUDBB6M, AUD_FWD6);
     MARKET_1.setCurve(Currency.USD, USD_DSC);
     MARKET_1.setCurve(Currency.EUR, EUR_DSC);
     MARKET_1.setCurve(Currency.GBP, CURVE_GBP_35);
@@ -158,8 +201,10 @@ public class MulticurveProviderDiscountDataSets {
     MARKET_1.setCurve(PRICE_INDEX_EUR, PRICE_INDEX_CURVE_EUR);
     MARKET_1.setCurve(PRICE_INDEX_GBP, PRICE_INDEX_CURVE_GBP);
     MARKET_1.setCurve(PRICE_INDEX_USD, PRICE_INDEX_CURVE_USD);
-    MARKET_1.setCurve(ISSUER_UK_GOVT, Currency.GBP, CURVE_GBP_30);
-    MARKET_1.setCurve(ISSUER_US_GOVT, Currency.EUR, CURVE_USD_30);
+    MARKET_1.setCurve(PRICE_INDEX_AUD, PRICE_INDEX_CURVE_AUD);
+    MARKET_1.setCurve(ISSUER_UK_GOVT, CURVE_GBP_30);
+    MARKET_1.setCurve(ISSUER_US_GOVT, CURVE_USD_30);
+    MARKET_1.setCurve(ISSUER_AUD_GOVT, CURVE_AUD_30);
   }
 
   private static final MulticurveProviderDiscount MULTICURVES_EUR_USD = new MulticurveProviderDiscount();
@@ -174,6 +219,17 @@ public class MulticurveProviderDiscountDataSets {
     MULTICURVES_EUR_USD.setCurve(EURIBOR6M, EUR_FWD6);
   }
 
+  private static final MulticurveProviderDiscount MULTICURVES_GBP_USD = new MulticurveProviderDiscount();
+  static {
+    MULTICURVES_GBP_USD.setCurve(Currency.USD, USD_DSC);
+    MULTICURVES_GBP_USD.setCurve(FEDFUND, USD_DSC);
+    MULTICURVES_GBP_USD.setCurve(USDLIBOR3M, USD_FWD3);
+    MULTICURVES_GBP_USD.setCurve(USDLIBOR6M, USD_FWD6);
+    MULTICURVES_GBP_USD.setCurve(Currency.GBP, CURVE_GBP_30);
+    MULTICURVES_GBP_USD.setCurve(SONIA, CURVE_GBP_30);
+    MULTICURVES_GBP_USD.setForexMatrix(FX_MATRIX);
+  }
+
   private static final MulticurveProviderDiscount MULTICURVES_USD_WITHOUT_DISCOUNT = new MulticurveProviderDiscount();
 
   private static final MulticurveProviderDiscount MULTICURVES_CAD = new MulticurveProviderDiscount();
@@ -182,9 +238,9 @@ public class MulticurveProviderDiscountDataSets {
     MULTICURVES_CAD.setCurve(CADCDOR3M, CAD_FWD3);
   }
 
-  private static final Map<Pair<String, Currency>, YieldAndDiscountCurve> ISSUER_CURVES = new LinkedHashMap<>();
+  private static final Map<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> ISSUER_CURVES = new LinkedHashMap<>();
   static {
-    ISSUER_CURVES.put(new ObjectsPair<>(ISSUER_NAME, EURIBOR3M.getCurrency()), EUR_ISSUER);
+    ISSUER_CURVES.put(Pairs.of((Object) ISSUER_NAME, META), EUR_ISSUER);
   }
   private static final IssuerProviderDiscount PROVIDER_ISSUER = new IssuerProviderDiscount(MULTICURVES_EUR_USD, ISSUER_CURVES);
 
@@ -196,27 +252,37 @@ public class MulticurveProviderDiscountDataSets {
   // Implementation note : we have had the value of November 2001 for test purpose.
   private static final double[] UKRPI_VALUE_2001 = new double[] {217.9 };
   private static final double[] UKRPI_VALUE_2010 = new double[] {217.9, 219.2, 220.7, 222.8, 223.6, 224.1, 223.6, 224.5, 225.3, 225.8, 226.8, 228.4 };
-  private static final double[] UKRPI_VALUE_2011 = new double[] {229, 231.3, 232.5, 234.4, 235.2, 235.2, 234.7, 236.1, 237.9, 238.0, 238.5, 239.4 };
+  private static final double[] UKRPI_VALUE_2011 = new double[] {229.0, 231.3, 232.5, 234.4, 235.2, 235.2, 234.7, 236.1, 237.9, 238.0, 238.5, 239.4 };
   private static final double[] UKRPI_VALUE_2012 = new double[] {238.0, 239.9, 240.8, 242.5, 242.4, 241.8, 242.1, 243.0, 244.2, 245.6, 245.6, 246.8 };
-  private static final double[] UKRPI_VALUE_2013 = new double[] {245.8 };
-  private static final double[] UKRPI_VALUE = new double[1 + 3 * 12 + UKRPI_VALUE_2013.length];
+  private static final double[] UKRPI_VALUE_2013 = new double[] {245.8, 247.6, 248.7, 249.5, 250.0, 249.7, 249.7, 251.0, 251.9, 251.9, 252.1, 253.4 };
+  private static final double[] UKRPI_VALUE_2014 = new double[] {252.6, 254.2, 254.8, 255.7 };
+  private static final double[] UKRPI_VALUE = new double[1 + 4 * 12 + UKRPI_VALUE_2014.length];
   static {
     System.arraycopy(UKRPI_VALUE_2001, 0, UKRPI_VALUE, 0, 1);
     System.arraycopy(UKRPI_VALUE_2010, 0, UKRPI_VALUE, 1, 12);
     System.arraycopy(UKRPI_VALUE_2011, 0, UKRPI_VALUE, 13, 12);
     System.arraycopy(UKRPI_VALUE_2012, 0, UKRPI_VALUE, 25, 12);
-    System.arraycopy(UKRPI_VALUE_2013, 0, UKRPI_VALUE, 37, UKRPI_VALUE_2013.length);
+    System.arraycopy(UKRPI_VALUE_2013, 0, UKRPI_VALUE, 37, 12);
+    System.arraycopy(UKRPI_VALUE_2014, 0, UKRPI_VALUE, 49, UKRPI_VALUE_2014.length);
   }
-  private static final ZonedDateTime[] UKRPI_DATE = new ZonedDateTime[] {DateUtils.getUTCDate(2001, 11, 30), DateUtils.getUTCDate(2009, 12, 31), DateUtils.getUTCDate(2010, 1, 31),
-    DateUtils.getUTCDate(2010, 2, 28),
-    DateUtils.getUTCDate(2010, 3, 31), DateUtils.getUTCDate(2010, 4, 30), DateUtils.getUTCDate(2010, 5, 31), DateUtils.getUTCDate(2010, 6, 30), DateUtils.getUTCDate(2010, 7, 31),
-    DateUtils.getUTCDate(2010, 8, 31), DateUtils.getUTCDate(2010, 9, 30), DateUtils.getUTCDate(2010, 10, 31), DateUtils.getUTCDate(2010, 11, 30), DateUtils.getUTCDate(2010, 12, 31),
+  private static final ZonedDateTime[] UKRPI_DATE = new ZonedDateTime[] {DateUtils.getUTCDate(2001, 11, 30),
+    DateUtils.getUTCDate(2010, 1, 31), DateUtils.getUTCDate(2010, 2, 28), DateUtils.getUTCDate(2010, 3, 31),
+    DateUtils.getUTCDate(2010, 4, 30), DateUtils.getUTCDate(2010, 5, 31), DateUtils.getUTCDate(2010, 6, 30),
+    DateUtils.getUTCDate(2010, 7, 31), DateUtils.getUTCDate(2010, 8, 31), DateUtils.getUTCDate(2010, 9, 30),
+    DateUtils.getUTCDate(2010, 10, 31), DateUtils.getUTCDate(2010, 11, 30), DateUtils.getUTCDate(2010, 12, 31),
     DateUtils.getUTCDate(2011, 1, 31), DateUtils.getUTCDate(2011, 2, 28), DateUtils.getUTCDate(2011, 3, 31), DateUtils.getUTCDate(2011, 4, 30), DateUtils.getUTCDate(2011, 5, 31),
     DateUtils.getUTCDate(2011, 6, 30), DateUtils.getUTCDate(2011, 7, 31), DateUtils.getUTCDate(2011, 8, 31), DateUtils.getUTCDate(2011, 9, 30), DateUtils.getUTCDate(2011, 10, 30),
-    DateUtils.getUTCDate(2011, 11, 30), DateUtils.getUTCDate(2011, 12, 31), DateUtils.getUTCDate(2012, 1, 31), DateUtils.getUTCDate(2012, 2, 29), DateUtils.getUTCDate(2012, 3, 31),
-    DateUtils.getUTCDate(2012, 4, 30), DateUtils.getUTCDate(2012, 5, 31), DateUtils.getUTCDate(2012, 6, 30), DateUtils.getUTCDate(2012, 7, 31), DateUtils.getUTCDate(2012, 8, 31),
-    DateUtils.getUTCDate(2012, 9, 30), DateUtils.getUTCDate(2012, 10, 31), DateUtils.getUTCDate(2012, 11, 30),
-    DateUtils.getUTCDate(2012, 12, 31) };
+    DateUtils.getUTCDate(2011, 11, 30), DateUtils.getUTCDate(2011, 12, 31),
+    DateUtils.getUTCDate(2012, 1, 31), DateUtils.getUTCDate(2012, 2, 29), DateUtils.getUTCDate(2012, 3, 31),
+    DateUtils.getUTCDate(2012, 4, 30), DateUtils.getUTCDate(2012, 5, 31), DateUtils.getUTCDate(2012, 6, 30),
+    DateUtils.getUTCDate(2012, 7, 31), DateUtils.getUTCDate(2012, 8, 31), DateUtils.getUTCDate(2012, 9, 30),
+    DateUtils.getUTCDate(2012, 10, 31), DateUtils.getUTCDate(2012, 11, 30), DateUtils.getUTCDate(2012, 12, 31),
+    DateUtils.getUTCDate(2013, 1, 31), DateUtils.getUTCDate(2013, 2, 28), DateUtils.getUTCDate(2013, 3, 31),
+    DateUtils.getUTCDate(2013, 4, 30), DateUtils.getUTCDate(2013, 5, 31), DateUtils.getUTCDate(2013, 6, 30),
+    DateUtils.getUTCDate(2013, 7, 31), DateUtils.getUTCDate(2013, 8, 31), DateUtils.getUTCDate(2013, 9, 30),
+    DateUtils.getUTCDate(2013, 10, 31), DateUtils.getUTCDate(2013, 11, 30), DateUtils.getUTCDate(2013, 12, 31),
+    DateUtils.getUTCDate(2014, 1, 31), DateUtils.getUTCDate(2014, 2, 28), DateUtils.getUTCDate(2014, 3, 31),
+    DateUtils.getUTCDate(2014, 4, 30) };
   private static final ZonedDateTimeDoubleTimeSeries UKRPI_TIME_SERIES = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(UKRPI_DATE, UKRPI_VALUE);
   // US : CPI-U 2009-2011
   private static final double[] USCPI_VALUE_2005 = new double[] {211.143, 212.193, 212.709, 213.240, 213.856, 215.693, 215.351, 215.834, 215.969, 216.177, 216.330, 215.949, 214.537 };
@@ -294,6 +360,29 @@ public class MulticurveProviderDiscountDataSets {
     DateUtils.getUTCDate(2012, 10, 30), DateUtils.getUTCDate(2012, 11, 30), DateUtils.getUTCDate(2012, 12, 31) };
   private static final ZonedDateTimeDoubleTimeSeries EUROHICPX_TIME_SERIES = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(EUROHICPX_DATE, EUROHICPX_VALUE);
 
+  // Australia : AUD CPI 2009-2013
+  private static final double[] AUDCPI_VALUE_2008 = new double[] {90.3, 91.6, 92.7, 92.4 };
+  private static final double[] AUDCPI_VALUE_2009 = new double[] {92.5, 92.9, 93.8, 94.3 };
+  private static final double[] AUDCPI_VALUE_2010 = new double[] {95.2, 95.8, 96.5, 96.9 };
+  private static final double[] AUDCPI_VALUE_2011 = new double[] {98.3, 99.2, 99.8, 99.8 };
+  private static final double[] AUDCPI_VALUE_2012 = new double[] {99.9, 100.4, 101.8, 102.0 };
+  private static final double[] AUDCPI_VALUE_2013 = new double[] {102.4, 102.8, 104.0 };
+  private static final double[] AUDCPI_VALUE = new double[5 * 4 + AUDCPI_VALUE_2013.length];
+  static {
+    System.arraycopy(AUDCPI_VALUE_2008, 0, AUDCPI_VALUE, 0, 4);
+    System.arraycopy(AUDCPI_VALUE_2009, 0, AUDCPI_VALUE, 4, 4);
+    System.arraycopy(AUDCPI_VALUE_2010, 0, AUDCPI_VALUE, 8, 4);
+    System.arraycopy(AUDCPI_VALUE_2011, 0, AUDCPI_VALUE, 12, 4);
+    System.arraycopy(AUDCPI_VALUE_2012, 0, AUDCPI_VALUE, 16, 4);
+    System.arraycopy(AUDCPI_VALUE_2013, 0, AUDCPI_VALUE, 20, AUDCPI_VALUE_2013.length);
+  }
+  private static final ZonedDateTime[] AUDCPI_DATE = new ZonedDateTime[] {DateUtils.getUTCDate(2008, 3, 31), DateUtils.getUTCDate(2008, 6, 30), DateUtils.getUTCDate(2008, 9, 30),
+    DateUtils.getUTCDate(2008, 12, 31), DateUtils.getUTCDate(2009, 3, 31), DateUtils.getUTCDate(2009, 6, 30), DateUtils.getUTCDate(2009, 9, 30), DateUtils.getUTCDate(2009, 12, 31),
+    DateUtils.getUTCDate(2010, 3, 31), DateUtils.getUTCDate(2010, 6, 30), DateUtils.getUTCDate(2010, 9, 30), DateUtils.getUTCDate(2010, 12, 31), DateUtils.getUTCDate(2011, 3, 31),
+    DateUtils.getUTCDate(2011, 6, 30), DateUtils.getUTCDate(2011, 9, 30), DateUtils.getUTCDate(2011, 12, 31), DateUtils.getUTCDate(2012, 3, 31), DateUtils.getUTCDate(2012, 6, 30),
+    DateUtils.getUTCDate(2012, 9, 30), DateUtils.getUTCDate(2012, 12, 31), DateUtils.getUTCDate(2013, 3, 31), DateUtils.getUTCDate(2013, 6, 30), DateUtils.getUTCDate(2013, 9, 30), };
+  private static final ZonedDateTimeDoubleTimeSeries AUDCPI_TIME_SERIES = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(AUDCPI_DATE, AUDCPI_VALUE);
+
   /**
    * Returns a market with three currencies (EUR, USD, GBP), three Ibor indexes (Euribor3M, Euribor6M, UsdLibor3M) and three inflation (Euro HICP x, UK RPI and US CPI-U).
    * @return The market.
@@ -314,13 +403,16 @@ public class MulticurveProviderDiscountDataSets {
     market.setCurve(Currency.USD, USD_DSC);
     market.setCurve(Currency.EUR, EUR_DSC);
     market.setCurve(Currency.GBP, CURVE_GBP_35);
+    market.setCurve(Currency.AUD, AUD_DSC);
     market.setCurve(USDLIBOR3M, USD_FWD3);
     market.setCurve(EURIBOR3M, EUR_FWD3);
     market.setCurve(EURIBOR6M, EUR_FWD6);
+    market.setCurve(AUDBB3M, AUD_FWD3);
+    market.setCurve(AUDBB6M, AUD_FWD6);
     market.setCurve(PRICE_INDEX_EUR, PRICE_INDEX_CURVE_EUR);
     market.setCurve(PRICE_INDEX_GBP, PRICE_INDEX_CURVE_GBP);
-    market.setCurve(ISSUER_UK_GOVT, Currency.GBP, CURVE_GBP_30);
-    market.setCurve(ISSUER_US_GOVT, Currency.GBP, CURVE_USD_30);
+    market.setCurve(ISSUER_UK_GOVT, CURVE_GBP_30);
+    market.setCurve(ISSUER_US_GOVT, CURVE_USD_30);
     final ZonedDateTime spotUs = ScheduleCalculator.getAdjustedDate(pricingDate, SPOT_LAG_US, CALENDAR_USD);
     final ZonedDateTime referenceInterpolatedDate = spotUs.minusMonths(MONTH_LAG_US);
     final ZonedDateTime[] referenceDate = new ZonedDateTime[2];
@@ -370,6 +462,14 @@ public class MulticurveProviderDiscountDataSets {
   }
 
   /**
+   * Returns a multi-curves provider with two currencies (GBP, USD), four Ibor indexes (UsdLibor3M, UsdLibor6M).
+   * @return The provider.
+   */
+  public static MulticurveProviderDiscount createMulticurveGbpUsd() {
+    return MULTICURVES_GBP_USD;
+  }
+
+  /**
    * Returns a multi-curves provider with two currencies USD without discount curve, four Ibor indexes (Euribor3M, Euribor6M, UsdLibor3M, UsdLibor6M).
    * @return The provider.
    */
@@ -383,6 +483,19 @@ public class MulticurveProviderDiscountDataSets {
    */
   public static MulticurveProviderDiscount createMulticurveCad() {
     return MULTICURVES_CAD;
+  }
+
+  /**
+   * Returns a multi-curves provider with one currency (EUR), two Ibor index (EURIBOR3M and EURIBOR6M).
+   * @return The provider.
+   */
+  public static MulticurveProviderDiscount createMulticurveEUR() {
+    final MulticurveProviderDiscount provideurEUR = new MulticurveProviderDiscount();
+    provideurEUR.setCurve(Currency.EUR, EUR_DSC);
+    provideurEUR.setCurve(EONIA, EUR_DSC);
+    provideurEUR.setCurve(EURIBOR3M, EUR_FWD3);
+    provideurEUR.setCurve(EURIBOR6M, EUR_FWD6);
+    return provideurEUR;
   }
 
   /**
@@ -417,8 +530,16 @@ public class MulticurveProviderDiscountDataSets {
     return EUROHICPX_TIME_SERIES;
   }
 
+  /**
+   * Returns the EURO HICP-X time series (2009-2011).
+   * @return The time series.
+   */
+  public static DoubleTimeSeries<ZonedDateTime> audCPIFrom2009() {
+    return AUDCPI_TIME_SERIES;
+  }
+
   public static IndexPrice[] getPriceIndexes() {
-    return new IndexPrice[] {PRICE_INDEX_EUR, PRICE_INDEX_GBP, PRICE_INDEX_USD };
+    return new IndexPrice[] {PRICE_INDEX_EUR, PRICE_INDEX_GBP, PRICE_INDEX_USD, PRICE_INDEX_AUD };
   }
 
   public static IborIndex[] getIndexesIborMulticurveEurUsd() {
@@ -430,11 +551,11 @@ public class MulticurveProviderDiscountDataSets {
   }
 
   public static IndexON[] getIndexesON() {
-    return new IndexON[] {FEDFUND, EONIA };
+    return new IndexON[] {FEDFUND, EONIA, BRAZIL_CDI };
   }
 
   public static String[] getIssuerNames() {
-    return new String[] {ISSUER_US_GOVT, ISSUER_UK_GOVT, ISSUER_NAME };
+    return new String[] {(String) ISSUER_US_GOVT.getKey(), (String) ISSUER_UK_GOVT.getKey(), ISSUER_NAME, (String) ISSUER_AUD_GOVT.getKey() };
   }
 
   public static Calendar getCADCalendar() {
@@ -447,5 +568,9 @@ public class MulticurveProviderDiscountDataSets {
 
   public static Calendar getUSDCalendar() {
     return CALENDAR_USD;
+  }
+
+  public static Calendar getAUDCalendar() {
+    return CALENDAR_AUD;
   }
 }

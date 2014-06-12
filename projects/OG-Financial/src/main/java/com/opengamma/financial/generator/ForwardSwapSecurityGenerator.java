@@ -26,7 +26,6 @@ import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.id.ExternalId;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Tenor;
 
 /**

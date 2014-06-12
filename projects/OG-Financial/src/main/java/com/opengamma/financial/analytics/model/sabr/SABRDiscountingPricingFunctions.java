@@ -23,10 +23,12 @@ public class SABRDiscountingPricingFunctions extends AbstractFunctionConfigurati
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
     functions.add(functionConfiguration(NoExtrapolationSABRDiscountingBCSFunction.class));
+    functions.add(functionConfiguration(NoExtrapolationSABRDiscountingImpliedVolFunction.class));
     functions.add(functionConfiguration(NoExtrapolationSABRDiscountingPVFunction.class));
     functions.add(functionConfiguration(NoExtrapolationSABRDiscountingPV01Function.class));
     functions.add(functionConfiguration(NoExtrapolationSABRDiscountingYCNSFunction.class));
     functions.add(functionConfiguration(RightExtrapolationSABRDiscountingBCSFunction.class));
+    functions.add(functionConfiguration(RightExtrapolationSABRDiscountingImpliedVolFunction.class));
     functions.add(functionConfiguration(RightExtrapolationSABRDiscountingPVFunction.class));
     functions.add(functionConfiguration(RightExtrapolationSABRDiscountingPV01Function.class));
     functions.add(functionConfiguration(RightExtrapolationSABRDiscountingYCNSFunction.class));

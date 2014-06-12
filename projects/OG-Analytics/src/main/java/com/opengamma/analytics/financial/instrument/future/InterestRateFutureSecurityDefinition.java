@@ -11,7 +11,6 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.ExpiredException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
-import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
@@ -23,13 +22,8 @@ import com.opengamma.util.money.Currency;
 /**
  * Description of an interest rate future security.
  */
-public class InterestRateFutureSecurityDefinition implements InstrumentDefinitionWithData<InterestRateFutureSecurity, Double> {
-  // TODO: Change to InstrumentDefinition (not WithData).
+public class InterestRateFutureSecurityDefinition extends FuturesSecurityDefinition<InterestRateFutureSecurity> {
 
-  /**
-   * Future last trading date. Usually the date for which the third Wednesday of the month is the spot date.
-   */
-  private final ZonedDateTime _lastTradingDate;
   /**
    * Ibor index associated to the future.
    */
@@ -60,7 +54,9 @@ public class InterestRateFutureSecurityDefinition implements InstrumentDefinitio
   private final String _name;
   /**
    * The holiday calendar.
+   *  @deprecated Deprecated since 2.2.0.M17
    */
+  @Deprecated
   private final Calendar _calendar;
 
   /**
@@ -76,6 +72,7 @@ public class InterestRateFutureSecurityDefinition implements InstrumentDefinitio
    */
   public InterestRateFutureSecurityDefinition(final ZonedDateTime lastTradingDate, final ZonedDateTime fixingPeriodStartDate, final ZonedDateTime fixingPeriodEndDate, final IborIndex iborIndex,
       final double notional, final double paymentAccrualFactor, final String name, final Calendar calendar) {
+    super(lastTradingDate);
     ArgumentChecker.notNull(lastTradingDate, "Last trading date");
     ArgumentChecker.notNull(fixingPeriodStartDate, "Fixing period start date");
     ArgumentChecker.notNull(fixingPeriodEndDate, "Fixing period end date");
@@ -84,7 +81,6 @@ public class InterestRateFutureSecurityDefinition implements InstrumentDefinitio
     ArgumentChecker.notNegativeOrZero(paymentAccrualFactor, "payment accrual factor");
     ArgumentChecker.notNull(name, "Name");
     ArgumentChecker.notNull(calendar, "calendar");
-    _lastTradingDate = lastTradingDate;
     _fixingPeriodStartDate = fixingPeriodStartDate;
     _fixingPeriodEndDate = fixingPeriodEndDate;
     _fixingPeriodAccrualFactor = iborIndex.getDayCount().getDayCountFraction(_fixingPeriodStartDate, _fixingPeriodEndDate, calendar);
@@ -101,17 +97,17 @@ public class InterestRateFutureSecurityDefinition implements InstrumentDefinitio
    * @param iborIndex Ibor index associated to the future.
    * @param notional Future notional.
    * @param paymentAccrualFactor Future payment accrual factor.
-   * @param calendar The holiday calendar for the ibor leg.
    * @param name Future name.
+   * @param calendar The holiday calendar for the index.
    */
-  public InterestRateFutureSecurityDefinition(final ZonedDateTime lastTradingDate, final IborIndex iborIndex, final double notional, final double paymentAccrualFactor, final String name,
-      final Calendar calendar) {
+  public InterestRateFutureSecurityDefinition(final ZonedDateTime lastTradingDate, final IborIndex iborIndex, final double notional, final double paymentAccrualFactor,
+      final String name, final Calendar calendar) {
+    super(lastTradingDate);
     ArgumentChecker.notNull(lastTradingDate, "Last trading date");
     ArgumentChecker.notNull(iborIndex, "Ibor index");
     ArgumentChecker.notNull(name, "Name");
-    _lastTradingDate = lastTradingDate;
     _iborIndex = iborIndex;
-    _fixingPeriodStartDate = ScheduleCalculator.getAdjustedDate(_lastTradingDate, _iborIndex.getSpotLag(), calendar);
+    _fixingPeriodStartDate = ScheduleCalculator.getAdjustedDate(lastTradingDate, _iborIndex.getSpotLag(), calendar);
     _fixingPeriodEndDate = ScheduleCalculator
         .getAdjustedDate(_fixingPeriodStartDate, _iborIndex.getTenor(), _iborIndex.getBusinessDayConvention(), calendar, _iborIndex.isEndOfMonth());
     _fixingPeriodAccrualFactor = _iborIndex.getDayCount().getDayCountFraction(_fixingPeriodStartDate, _fixingPeriodEndDate, calendar);
@@ -140,17 +136,11 @@ public class InterestRateFutureSecurityDefinition implements InstrumentDefinitio
     return new InterestRateFutureSecurityDefinition(lastTradingDate, fixingPeriodStartDate, fixingPeriodEndDate, iborIndex, notional, paymentAccrualFactor, name, calendar);
   }
 
-  /** Scales notional to 1.0 in curve fitting to provide better conditioning of the Jacobian */
+  /** Scales notional to 1.0 in curve fitting to provide better conditioning of the Jacobian
+   * @deprecated Deprecated since 2.2.0.M17 */
+  @Deprecated
   public void setUnitNotional() {
     _notional = 1.0;
-  }
-
-  /**
-   * Gets the future last trading date.
-   * @return The last trading date.
-   */
-  public ZonedDateTime getLastTradingDate() {
-    return _lastTradingDate;
   }
 
   /**
@@ -228,7 +218,9 @@ public class InterestRateFutureSecurityDefinition implements InstrumentDefinitio
   /**
    * Gets the holiday calendar.
    * @return The holiday calendar
+   * @deprecated Deprecated since 2.2.0.M17
    */
+  @Deprecated
   public Calendar getCalendar() {
     return _calendar;
   }
@@ -257,16 +249,6 @@ public class InterestRateFutureSecurityDefinition implements InstrumentDefinitio
     return future;
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public InterestRateFutureSecurity toDerivative(final ZonedDateTime date, final Double data, final String... yieldCurveNames) {
-    return toDerivative(date, yieldCurveNames); //TODO Should disappear.
-  }
-
   @Override
   public InterestRateFutureSecurity toDerivative(final ZonedDateTime dateTime) {
     ArgumentChecker.notNull(dateTime, "date");
@@ -284,11 +266,6 @@ public class InterestRateFutureSecurityDefinition implements InstrumentDefinitio
   }
 
   @Override
-  public InterestRateFutureSecurity toDerivative(final ZonedDateTime date, final Double data) {
-    return toDerivative(date); //TODO Should disappear.
-  }
-
-  @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitInterestRateFutureSecurityDefinition(this, data);
@@ -302,8 +279,8 @@ public class InterestRateFutureSecurityDefinition implements InstrumentDefinitio
 
   @Override
   public String toString() {
-    String result = "IRFuture Security: " + _name;
-    result += " Last trading date: " + _lastTradingDate.toString();
+    String result = "STIRFuture Security: " + _name;
+    result += " Last trading date: " + this.getLastTradingDate().toString();
     result += " Ibor Index: " + _iborIndex.getName();
     result += " Notional: " + _notional;
     return result;
@@ -312,14 +289,13 @@ public class InterestRateFutureSecurityDefinition implements InstrumentDefinitio
   @Override
   public int hashCode() {
     final int prime = 31;
-    int result = 1;
+    int result = super.hashCode();
     long temp;
     temp = Double.doubleToLongBits(_fixingPeriodAccrualFactor);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     result = prime * result + _fixingPeriodEndDate.hashCode();
     result = prime * result + _fixingPeriodStartDate.hashCode();
     result = prime * result + _iborIndex.hashCode();
-    result = prime * result + _lastTradingDate.hashCode();
     result = prime * result + _name.hashCode();
     temp = Double.doubleToLongBits(_notional);
     result = prime * result + (int) (temp ^ (temp >>> 32));
@@ -333,6 +309,9 @@ public class InterestRateFutureSecurityDefinition implements InstrumentDefinitio
     if (this == obj) {
       return true;
     }
+    if (!super.equals(obj)) {
+      return false;
+    }
     if (obj == null) {
       return false;
     }
@@ -341,9 +320,6 @@ public class InterestRateFutureSecurityDefinition implements InstrumentDefinitio
     }
     final InterestRateFutureSecurityDefinition other = (InterestRateFutureSecurityDefinition) obj;
     if (!ObjectUtils.equals(_iborIndex, other._iborIndex)) {
-      return false;
-    }
-    if (!ObjectUtils.equals(_lastTradingDate, other._lastTradingDate)) {
       return false;
     }
     if (!ObjectUtils.equals(_name, other._name)) {

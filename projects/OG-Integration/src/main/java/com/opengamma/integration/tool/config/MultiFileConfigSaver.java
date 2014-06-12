@@ -17,6 +17,7 @@ import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.wire.FudgeMsgWriter;
 import org.fudgemsg.wire.xml.FudgeXMLStreamWriter;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -88,7 +89,8 @@ public class MultiFileConfigSaver extends DirectBean {
     File directory = new File(getDestinationDirectory(), clazz.getName());
     directory.mkdir();
     for (ConfigDocument document : latest) {
-      File documentFile = new File(directory, document.getName() + ".xml");
+      //TODO: Should properly encode file name from name
+      File documentFile = new File(directory, document.getName().trim().replace("/", "") + ".xml");
       System.out.println("-- Creating file " + documentFile.getAbsolutePath());
       FileOutputStream fos = new FileOutputStream(documentFile);
       FudgeXMLStreamWriter xmlStreamWriter = new FudgeXMLStreamWriter(OpenGammaFudgeContext.getInstance(), new OutputStreamWriter(fos));
@@ -118,51 +120,6 @@ public class MultiFileConfigSaver extends DirectBean {
   @Override
   public MultiFileConfigSaver.Meta metaBean() {
     return MultiFileConfigSaver.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 807184895:  // destinationDirectory
-        return getDestinationDirectory();
-      case 10395716:  // configMaster
-        return getConfigMaster();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 807184895:  // destinationDirectory
-        setDestinationDirectory((File) newValue);
-        return;
-      case 10395716:  // configMaster
-        setConfigMaster((ConfigMaster) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      MultiFileConfigSaver other = (MultiFileConfigSaver) obj;
-      return JodaBeanUtils.equal(getDestinationDirectory(), other.getDestinationDirectory()) &&
-          JodaBeanUtils.equal(getConfigMaster(), other.getConfigMaster());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDestinationDirectory());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigMaster());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -213,6 +170,51 @@ public class MultiFileConfigSaver extends DirectBean {
    */
   public final Property<ConfigMaster> configMaster() {
     return metaBean().configMaster().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public MultiFileConfigSaver clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      MultiFileConfigSaver other = (MultiFileConfigSaver) obj;
+      return JodaBeanUtils.equal(getDestinationDirectory(), other.getDestinationDirectory()) &&
+          JodaBeanUtils.equal(getConfigMaster(), other.getConfigMaster());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDestinationDirectory());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigMaster());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(96);
+    buf.append("MultiFileConfigSaver{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("destinationDirectory").append('=').append(JodaBeanUtils.toString(getDestinationDirectory())).append(',').append(' ');
+    buf.append("configMaster").append('=').append(JodaBeanUtils.toString(getConfigMaster())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -290,6 +292,31 @@ public class MultiFileConfigSaver extends DirectBean {
      */
     public final MetaProperty<ConfigMaster> configMaster() {
       return _configMaster;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 807184895:  // destinationDirectory
+          return ((MultiFileConfigSaver) bean).getDestinationDirectory();
+        case 10395716:  // configMaster
+          return ((MultiFileConfigSaver) bean).getConfigMaster();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 807184895:  // destinationDirectory
+          ((MultiFileConfigSaver) bean).setDestinationDirectory((File) newValue);
+          return;
+        case 10395716:  // configMaster
+          ((MultiFileConfigSaver) bean).setConfigMaster((ConfigMaster) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

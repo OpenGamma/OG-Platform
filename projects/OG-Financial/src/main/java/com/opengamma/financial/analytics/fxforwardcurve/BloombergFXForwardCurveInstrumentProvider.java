@@ -5,12 +5,14 @@
  */
 package com.opengamma.financial.analytics.fxforwardcurve;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.value.MarketDataRequirementNames;
+import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.ircurve.IndexType;
 import com.opengamma.financial.analytics.ircurve.strips.DataFieldType;
 import com.opengamma.id.ExternalId;
@@ -19,41 +21,97 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.Tenor;
 
 /**
- *
+ * Generates FX forward and (optionally) FX spot tickers for constructing FX forward rate curves.
  */
 public class BloombergFXForwardCurveInstrumentProvider implements FXForwardCurveInstrumentProvider {
+  /** The default data field */
   private static final String DATA_FIELD = MarketDataRequirementNames.MARKET_VALUE;
+  /** The default data field type */
   private static final DataFieldType FIELD_TYPE = DataFieldType.OUTRIGHT;
+  /** The default scheme */
   private static final ExternalScheme SCHEME = ExternalSchemes.BLOOMBERG_TICKER;
+  /** The FX forward ticker prefix */
   private final String _prefix;
+  /** The FX forward ticker postfix */
   private final String _postfix;
+  /** The FX spot rate prefix */
   private final String _spotPrefix;
+  /** The data field name */
   private final String _dataFieldName;
+  /** The FX spot rate ticker */
   private final String _spotName;
+  /** The FX spot rate external id */
   private final ExternalId _spotId;
+  /** True if the BBG spot rate is to be used */
+  private final boolean _useSpotRateFromGraph;
 
+  /**
+   * Constructor where only FX forward ticker information is supplied. This sets the {@link #_useSpotRateFromGraph}
+   * field to true, which means that the FX spot rate will be supplied by {@link ValueRequirementNames#SPOT_RATE}.
+   * @param prefix The FX forward prefix, not null 
+   * @param postfix The FX forward postfix, not null
+   * @param dataFieldName The Bloomberg data field name, not null
+   */
+  public BloombergFXForwardCurveInstrumentProvider(final String prefix, final String postfix, final String dataFieldName) {
+    ArgumentChecker.notNull(prefix, "prefix");
+    ArgumentChecker.notNull(postfix, "postfix");
+    ArgumentChecker.notNull(dataFieldName, "dataFieldName");
+    _prefix = prefix;
+    _postfix = postfix;
+    _dataFieldName = dataFieldName;
+    _spotPrefix = null;
+    _spotName = null;
+    _spotId = null;
+    _useSpotRateFromGraph = true;
+  }
+
+  /**
+   * Constructor where the FX forward ticker and FX spot rate ticker information is supplied. This sets the
+   * {@link #_useSpotRateFromGraph} field to false, which means that the FX spot rate will be requested from
+   * the Bloomberg ticker.
+   * @param prefix The FX forward prefix, not null
+   * @param postfix The FX forward postfix, not null 
+   * @param spotPrefix The FX spot prefix, not null
+   * @param dataFieldName The FX spot data field name, not null
+   */
   public BloombergFXForwardCurveInstrumentProvider(final String prefix, final String postfix, final String spotPrefix, final String dataFieldName) {
     ArgumentChecker.notNull(prefix, "prefix");
     ArgumentChecker.notNull(postfix, "postfix");
-    ArgumentChecker.notNull(spotPrefix, "spot prefix");
-    ArgumentChecker.notNull(dataFieldName, "data field name");
+    ArgumentChecker.notNull(spotPrefix, "spotPrefix");
+    ArgumentChecker.notNull(dataFieldName, "dataFieldName");
     _prefix = prefix;
     _postfix = postfix;
     _spotPrefix = spotPrefix;
     _dataFieldName = dataFieldName;
     _spotName = spotPrefix + " " + _postfix;
     _spotId = ExternalId.of(SCHEME, _spotName);
+    _useSpotRateFromGraph = false;
   }
 
+  /**
+   * Gets the FX forward ticker prefix.
+   * @return The FX forward ticker prefix
+   */
   public String getPrefix() {
     return _prefix;
   }
 
+  /**
+   * Gets the FX forward ticker postfix.
+   * @return The FX forward ticker postfix
+   */
   public String getPostfix() {
     return _postfix;
   }
 
+  /**
+   * Gets the FX spot ticker prefix.
+   * @return The FX spot ticker prefix
+   */
   public String getSpotPrefix() {
+    if (_useSpotRateFromGraph) {
+      throw new IllegalStateException("This configuration does not support FX spot rate tickers");
+    }
     return _spotPrefix;
   }
 
@@ -62,12 +120,22 @@ public class BloombergFXForwardCurveInstrumentProvider implements FXForwardCurve
     return _dataFieldName;
   }
 
+  /**
+   * Gets the spot ticker value e.g. EUR Curncy.
+   * @return The spot ticker value.
+   */
   public String getSpotName() {
+    if (_useSpotRateFromGraph) {
+      throw new IllegalStateException("This configuration does not support FX spot rate tickers");
+    }
     return _spotName;
   }
 
   @Override
   public ExternalId getSpotInstrument() {
+    if (_useSpotRateFromGraph) {
+      throw new IllegalStateException("This configuration does not support FX spot rate tickers");
+    }
     return _spotId;
   }
 
@@ -79,6 +147,11 @@ public class BloombergFXForwardCurveInstrumentProvider implements FXForwardCurve
   @Override
   public DataFieldType getDataFieldType() {
     return FIELD_TYPE;
+  }
+
+  @Override
+  public boolean useSpotRateFromGraph() {
+    return _useSpotRateFromGraph;
   }
 
   @Override
@@ -140,6 +213,11 @@ public class BloombergFXForwardCurveInstrumentProvider implements FXForwardCurve
   }
 
   @Override
+  public ExternalId getInstrument(final LocalDate curveDate, final Tenor startTenor, final int startIMMPeriods, final int endIMMPeriods) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public int hashCode() {
     return getPrefix().hashCode() + getPostfix().hashCode() + getDataFieldName().hashCode();
   }
@@ -153,9 +231,11 @@ public class BloombergFXForwardCurveInstrumentProvider implements FXForwardCurve
       return false;
     }
     final BloombergFXForwardCurveInstrumentProvider other = (BloombergFXForwardCurveInstrumentProvider) obj;
+    if (!_useSpotRateFromGraph && !ObjectUtils.equals(getSpotPrefix(), other.getSpotPrefix())) {
+      return false;
+    }
     return getPrefix().equals(other.getPrefix()) &&
         getPostfix().equals(other.getPostfix()) &&
-        getSpotPrefix().equals(other.getSpotPrefix()) &&
         getDataFieldName().equals(other.getDataFieldName());
   }
 

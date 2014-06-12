@@ -28,15 +28,16 @@ import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillTransaction;
 import com.opengamma.analytics.financial.interestrate.method.SensitivityFiniteDifference;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -45,13 +46,14 @@ import com.opengamma.util.tuple.DoublesPair;
  * @deprecated This class tests deprecated functionality
  */
 @Deprecated
+@Test(groups = TestGroup.UNIT)
 public class BillTransactionDiscountingMethodTest {
 
   private final static Currency EUR = Currency.EUR;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("TARGET");
   private final static ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2012, 1, 17);
 
-  private static final DayCount ACT360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+  private static final DayCount ACT360 = DayCounts.ACT_360;
   private static final int SETTLEMENT_DAYS = 2;
   private static final YieldConvention YIELD_CONVENTION = YieldConventionFactory.INSTANCE.getYieldConvention("INTEREST@MTY");
 
@@ -140,7 +142,7 @@ public class BillTransactionDiscountingMethodTest {
   public void presentValueCurveSensitivityMethodVsCalculator() {
     final InterestRateCurveSensitivity pvcsMethod = METHOD_TRANSACTION.presentValueCurveSensitivity(BILL_TRA, CURVE_BUNDLE);
     final InterestRateCurveSensitivity pvcsCalculator = new InterestRateCurveSensitivity(BILL_TRA.accept(PVCSC, CURVE_BUNDLE));
-    AssertSensivityObjects.assertEquals("Bill Security: discounting method - curve sensitivity", pvcsMethod, pvcsCalculator, TOLERANCE_PV);
+    AssertSensitivityObjects.assertEquals("Bill Security: discounting method - curve sensitivity", pvcsMethod, pvcsCalculator, TOLERANCE_PV);
   }
 
   @Test
@@ -197,7 +199,7 @@ public class BillTransactionDiscountingMethodTest {
   public void parSpreadCurveSensitivityMethodVsCalculator() {
     final InterestRateCurveSensitivity pscsMethod = METHOD_TRANSACTION.parSpreadCurveSensitivity(BILL_TRA, CURVE_BUNDLE);
     final InterestRateCurveSensitivity pscsCalculator = BILL_TRA.accept(PSMQCSC, CURVE_BUNDLE);
-    AssertSensivityObjects.assertEquals("parSpread: curve sensitivity - fwd", pscsMethod, pscsCalculator, TOLERANCE_SPREAD_DELTA);
+    AssertSensitivityObjects.assertEquals("parSpread: curve sensitivity - fwd", pscsMethod, pscsCalculator, TOLERANCE_SPREAD_DELTA);
   }
 
 }

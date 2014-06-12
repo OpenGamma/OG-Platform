@@ -171,6 +171,18 @@ public class CubeValue {
     return true;
   }
 
+  /**
+   * Collapse the object to a single value. The points on which the amounts occur are ignored and the values summed.
+   * @return The value.
+   */
+  public double toSingleValue() {
+    double amount = 0;
+    for (final Triple<Double, Double, Double> point : _data.keySet()) {
+      amount += _data.get(point);
+    }
+    return amount;
+  }
+
   @Override
   public String toString() {
     return _data.toString();

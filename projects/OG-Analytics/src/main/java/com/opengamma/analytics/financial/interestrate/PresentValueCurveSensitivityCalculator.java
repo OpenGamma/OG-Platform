@@ -279,7 +279,7 @@ public class PresentValueCurveSensitivityCalculator extends InstrumentDerivative
    * @return The sensitivity.
    */
   public static Map<String, List<DoublesPair>> discountFactorSensitivity(final String curveName, final YieldAndDiscountCurve curve, final double time) {
-    final DoublesPair s = new DoublesPair(time, -time * curve.getDiscountFactor(time));
+    final DoublesPair s = DoublesPair.of(time, -time * curve.getDiscountFactor(time));
     final List<DoublesPair> list = new ArrayList<>();
     list.add(s);
     final Map<String, List<DoublesPair>> result = new HashMap<>();

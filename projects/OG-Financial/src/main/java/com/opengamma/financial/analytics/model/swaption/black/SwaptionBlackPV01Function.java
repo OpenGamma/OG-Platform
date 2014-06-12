@@ -28,8 +28,12 @@ import com.opengamma.financial.security.FinancialSecurityUtils;
  */
 @Deprecated
 public class SwaptionBlackPV01Function extends SwaptionBlackCurveSpecificFunction {
+  /** The PV01 calculator */
   private static final PV01Calculator CALCULATOR = new PV01Calculator(PresentValueCurveSensitivityBlackCalculator.getInstance());
 
+  /**
+   * Sets the value requirement name to {@link ValueRequirementNames#PV01}
+   */
   public SwaptionBlackPV01Function() {
     super(ValueRequirementNames.PV01);
   }

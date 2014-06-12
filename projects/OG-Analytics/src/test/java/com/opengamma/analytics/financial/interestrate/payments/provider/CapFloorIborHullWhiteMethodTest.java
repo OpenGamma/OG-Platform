@@ -28,18 +28,20 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 import com.opengamma.analytics.financial.provider.sensitivity.hullwhite.ParameterSensitivityHullWhiteDiscountInterpolatedFDCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.analytics.math.random.NormalRandomNumberGenerator;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests on the Hull-White one factor method to price Cap/Floor on Ibor.
  */
+@Test(groups = TestGroup.UNIT)
 public class CapFloorIborHullWhiteMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
@@ -89,7 +91,7 @@ public class CapFloorIborHullWhiteMethodTest {
     final double alpha0 = MODEL.alpha(HW_PARAMETERS, 0.0, theta, tp, t0);
     final double alpha1 = MODEL.alpha(HW_PARAMETERS, 0.0, theta, tp, t1);
     final double ptp = MULTICURVES.getDiscountFactor(EUR, tp);
-    final double forward = MULTICURVES.getForwardRate(EURIBOR3M, t0, t1, CAP_LONG.getFixingAccrualFactor());
+    final double forward = MULTICURVES.getSimplyCompoundForwardRate(EURIBOR3M, t0, t1, CAP_LONG.getFixingAccrualFactor());
     double kappa = Math.log((1.0 + deltaF * STRIKE) / (1.0 + deltaF * forward));
     kappa += -(alpha1 * alpha1 - alpha0 * alpha0) / 2.0;
     kappa /= alpha1 - alpha0;
@@ -117,7 +119,7 @@ public class CapFloorIborHullWhiteMethodTest {
   public void presentValueCurveSensitivity() {
     final MultipleCurrencyParameterSensitivity pvpsExact = PS_HW_C.calculateSensitivity(CAP_LONG, HW_MULTICURVES, HW_MULTICURVES.getMulticurveProvider().getAllNames());
     final MultipleCurrencyParameterSensitivity pvpsFD = PS_HW_FDC.calculateSensitivity(CAP_LONG, HW_MULTICURVES);
-    AssertSensivityObjects.assertEquals("SwaptionPhysicalFixedIborSABRMethod: presentValueCurveSensitivity ", pvpsExact, pvpsFD, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("SwaptionPhysicalFixedIborSABRMethod: presentValueCurveSensitivity ", pvpsExact, pvpsFD, TOLERANCE_PV_DELTA);
   }
 
   @Test

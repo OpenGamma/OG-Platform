@@ -12,10 +12,12 @@ import java.util.Arrays;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test interpolateWithSensitivity method via PiecewisePolynomialInterpolator1D
  */
+@Test(groups = TestGroup.UNIT)
 public class MonotonicityPreservingQuinticSplineInterpolator1DTest {
 
   private static final MonotonicityPreservingQuinticSplineInterpolator INTERP_NAT = new MonotonicityPreservingQuinticSplineInterpolator(new NaturalSplineInterpolator());

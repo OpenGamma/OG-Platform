@@ -13,7 +13,6 @@ import java.util.Map;
 
 import com.opengamma.core.change.AggregatingChangeManager;
 import com.opengamma.core.change.ChangeManager;
-import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdSchemeDelegator;
@@ -61,7 +60,7 @@ public class DelegatingPositionMaster extends UniqueIdSchemeDelegator<PositionMa
   public DelegatingPositionMaster(PositionMaster defaultMaster, Map<String, PositionMaster> schemePrefixToMasterMap) {
     super(defaultMaster, schemePrefixToMasterMap);
     AggregatingChangeManager changeManager = new AggregatingChangeManager();
-    
+
     // REVIEW jonathan 2012-08-03 -- this assumes that the delegating master lasts for the lifetime of the engine as we
     // never detach from the underlying change managers.
     changeManager.addChangeManager(defaultMaster.changeManager());
@@ -81,11 +80,12 @@ public class DelegatingPositionMaster extends UniqueIdSchemeDelegator<PositionMa
   @Override
   public PositionSearchResult search(PositionSearchRequest request) {
     ArgumentChecker.notNull(request, "request");
-    Collection<ObjectId> ids = request.getPositionObjectIds();
-    if (ids == null || ids.isEmpty()) {
+    String uniqueIdScheme = request.getUniqueIdScheme();
+
+    if (uniqueIdScheme == null) {
       return getDefaultDelegate().search(request);
     }
-    return chooseDelegate(ids.iterator().next().getScheme()).search(request);
+    return chooseDelegate(uniqueIdScheme).search(request);
   }
 
   @Override
@@ -104,7 +104,12 @@ public class DelegatingPositionMaster extends UniqueIdSchemeDelegator<PositionMa
   @Override
   public PositionDocument add(PositionDocument document) {
     ArgumentChecker.notNull(document, "document");
-    return getDefaultDelegate().add(document);
+    
+    UniqueId uniqueId = document.getUniqueId();
+    if (uniqueId == null) {
+      return getDefaultDelegate().add(document);
+    }
+    return chooseDelegate(uniqueId.getScheme()).add(document);
   }
 
   @Override
@@ -176,7 +181,7 @@ public class DelegatingPositionMaster extends UniqueIdSchemeDelegator<PositionMa
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     chooseDelegate(uniqueId.getScheme()).removeVersion(uniqueId);
   }
-  
+
   @Override
   public Map<UniqueId, PositionDocument> get(Collection<UniqueId> uniqueIds) {
     Map<UniqueId, PositionDocument> resultMap = newHashMap();

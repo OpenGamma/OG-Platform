@@ -6,6 +6,7 @@
 package com.opengamma.master.security.impl;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -18,12 +19,14 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.ChangeType;
+import com.opengamma.core.security.Security;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdSupplier;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.SimpleAbstractInMemoryMaster;
+import com.opengamma.master.impl.InMemoryExternalIdCache;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityHistoryRequest;
@@ -51,6 +54,8 @@ public class InMemorySecurityMaster
    * The default scheme used for each {@link ObjectId}.
    */
   public static final String DEFAULT_OID_SCHEME = "MemSec";
+  
+  private final InMemoryExternalIdCache<Security, SecurityDocument> _externalIdCache = new InMemoryExternalIdCache<Security, SecurityDocument>(); 
 
   /**
    * Creates an instance.
@@ -87,6 +92,17 @@ public class InMemorySecurityMaster
     super(objectIdSupplier, changeManager);
   }
 
+  @Override
+  protected void updateCaches(ObjectIdentifiable replacedObject, SecurityDocument updatedDocument) {
+    if (replacedObject != null) {
+      _externalIdCache.remove(((SecurityDocument) replacedObject).getSecurity());
+    }
+    if (updatedDocument != null) {
+      SecurityDocument updatedSecurityDocument = (SecurityDocument) updatedDocument;
+      _externalIdCache.add(updatedSecurityDocument.getSecurity(), updatedSecurityDocument);
+    }
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public SecurityMetaDataResult metaData(final SecurityMetaDataRequest request) {
@@ -106,8 +122,16 @@ public class InMemorySecurityMaster
   @Override
   public SecuritySearchResult search(final SecuritySearchRequest request) {
     ArgumentChecker.notNull(request, "request");
+    
+    Collection<SecurityDocument> docsToSearch = null;
+    if (request.getExternalIdSearch() != null) {
+      docsToSearch = _externalIdCache.getMatches(request.getExternalIdSearch());
+    } else {
+      docsToSearch = _store.values(); 
+    }
+    
     final List<SecurityDocument> list = new ArrayList<SecurityDocument>();
-    for (SecurityDocument doc : _store.values()) {
+    for (SecurityDocument doc : docsToSearch) {
       if (request.matches(doc)) {
         list.add(doc);
       }
@@ -154,6 +178,7 @@ public class InMemorySecurityMaster
     doc.setCorrectionFromInstant(now);
     _store.put(objectId, doc);
     _changeManager.entityChanged(ChangeType.ADDED, objectId, doc.getVersionFromInstant(), doc.getVersionToInstant(), now);
+    _externalIdCache.add(doc.getSecurity(), doc);
     return doc;
   }
 
@@ -178,6 +203,8 @@ public class InMemorySecurityMaster
       throw new IllegalArgumentException("Concurrent modification");
     }
     _changeManager.entityChanged(ChangeType.CHANGED, uniqueId.getObjectId(), storedDocument.getVersionFromInstant(), document.getVersionToInstant(), now);
+    _externalIdCache.remove(storedDocument.getSecurity());
+    _externalIdCache.add(document.getSecurity(), document);
     return document;
   }
 
@@ -185,10 +212,12 @@ public class InMemorySecurityMaster
   @Override
   public void remove(final ObjectIdentifiable objectIdentifiable) {
     ArgumentChecker.notNull(objectIdentifiable, "objectIdentifiable");
-    if (_store.remove(objectIdentifiable.getObjectId()) == null) {
+    SecurityDocument removedDocument = _store.remove(objectIdentifiable.getObjectId()); 
+    if (removedDocument == null) {
       throw new DataNotFoundException("Security not found: " + objectIdentifiable);
     }
     _changeManager.entityChanged(ChangeType.REMOVED, objectIdentifiable.getObjectId(), null, null, Instant.now());
+    _externalIdCache.remove(removedDocument.getSecurity());
   }
 
   //-------------------------------------------------------------------------

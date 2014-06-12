@@ -21,7 +21,7 @@ import com.opengamma.OpenGammaRuntimeException;
 /**
  * Standard provider of exchange data based on a CSV file.
  */
-public class DefaultExchangeDataProvider implements ExchangeDataProvider {
+public final class DefaultExchangeDataProvider implements ExchangeDataProvider {
 
   private static final DefaultExchangeDataProvider INSTANCE = new DefaultExchangeDataProvider();
   private static final String EXCHANGE_ISO_FILE = "ISO10383MIC.csv";

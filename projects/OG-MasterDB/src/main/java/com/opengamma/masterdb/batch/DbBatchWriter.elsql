@@ -393,5 +393,9 @@
     COUNT(id)
   FROM
     rsk_value
-    
+
+-- ==========================================================================
+@NAME(DeleteMarketDataValue)
+  DELETE FROM rsk_live_data_snapshot_entry_insertion
+    WHERE id in (INSERTION_IDS)
 -- ==========================================================================

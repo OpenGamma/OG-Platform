@@ -12,6 +12,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Here we use the following notation
@@ -19,6 +20,7 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
  * delta_i = (yValues[i+1] - yValues[i])/h_i
  * d_i = dF(x)/dx |x=xValues[i] where F(x) is the piecewise interpolation function
  */
+@Test(groups = TestGroup.UNIT)
 public class PiecewiseCubicHermiteSplineInterpolatorTest {
 
   private static final double EPS = 1e-14;
@@ -254,18 +256,19 @@ public class PiecewiseCubicHermiteSplineInterpolatorTest {
       assertEquals(result.getKnots().getData()[j], xValues[j]);
     }
   }
-  
-  @Test //(enabled=false)
+
+  @Test
+  //(enabled=false)
   public void monotonicTest() {
     final boolean print = false; //turn to false before pushing 
     if (print) {
       System.out.println(" PiecewiseCubicHermiteSplineInterpolatorTest");
     }
 
-   PiecewiseCubicHermiteSplineInterpolator interpolator = new PiecewiseCubicHermiteSplineInterpolator();
+    PiecewiseCubicHermiteSplineInterpolator interpolator = new PiecewiseCubicHermiteSplineInterpolator();
 
-    final double[] xValues = new double[] {0., 0.3, 0.6, 1.5, 2.7, 3.4, 4.8, 5.9};
-    final double[] yValues = new double[] {1.0, 1.2, 1.5, 2.0, 2.1, 3.0, 3.1, 3.3};
+    final double[] xValues = new double[] {0., 0.3, 0.6, 1.5, 2.7, 3.4, 4.8, 5.9 };
+    final double[] yValues = new double[] {1.0, 1.2, 1.5, 2.0, 2.1, 3.0, 3.1, 3.3 };
     final int nPts = 300;
     double old = yValues[0] * xValues[0];
     for (int i = 0; i < nPts; ++i) {
@@ -278,7 +281,6 @@ public class PiecewiseCubicHermiteSplineInterpolatorTest {
       old = value;
     }
   }
-
 
   /**
    * 

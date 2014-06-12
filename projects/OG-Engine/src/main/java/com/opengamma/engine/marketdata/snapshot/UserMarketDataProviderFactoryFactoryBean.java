@@ -37,6 +37,7 @@ public class UserMarketDataProviderFactoryFactoryBean extends SingletonFactoryBe
   }
 
   /**
+   * @return the filter
    * @deprecated see PLAT-1459
    */
   @Deprecated
@@ -46,6 +47,7 @@ public class UserMarketDataProviderFactoryFactoryBean extends SingletonFactoryBe
   }
 
   /**
+   * @param baseMarketDataAvailability  the filter
    * @deprecated see PLAT-1459
    */
   @Deprecated

@@ -72,7 +72,7 @@ public class DataSecurityEnhancerResource extends AbstractDataResource {
   @Path("securityEnhance")
   public Response getSecurity(SecurityEnhancerRequest request) {
     SecurityEnhancerResult result = getSecurityEnhancer().enhanceSecurities(request);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   //-------------------------------------------------------------------------

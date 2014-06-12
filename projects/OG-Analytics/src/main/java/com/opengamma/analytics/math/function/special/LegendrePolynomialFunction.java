@@ -9,6 +9,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.math.function.DoubleFunction1D;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * 
@@ -39,13 +40,13 @@ public class LegendrePolynomialFunction extends OrthogonalPolynomialFunctionGene
     DoubleFunction1D p, dp;
     for (int i = 0; i <= n; i++) {
       if (i == 0) {
-        polynomials[i] = Pair.of(getOne(), getZero());
+        polynomials[i] = Pairs.of(getOne(), getZero());
       } else if (i == 1) {
-        polynomials[i] = Pair.of(getX(), getOne());
+        polynomials[i] = Pairs.of(getX(), getOne());
       } else {
         p = (polynomials[i - 1].getFirst().multiply(getX()).multiply(2 * i - 1).subtract(polynomials[i - 2].getFirst().multiply(i - 1))).multiply(1. / i);
         dp = p.derivative();
-        polynomials[i] = Pair.of(p, dp);
+        polynomials[i] = Pairs.of(p, dp);
       }
     }
     return polynomials;

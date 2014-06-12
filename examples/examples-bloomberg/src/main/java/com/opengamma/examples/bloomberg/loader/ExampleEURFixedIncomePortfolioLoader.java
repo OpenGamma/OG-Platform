@@ -25,9 +25,9 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.security.FinancialSecurity;
@@ -53,6 +53,7 @@ import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.scripts.Scriptable;
 import com.opengamma.util.GUIDGenerator;
+import com.opengamma.util.ShutdownUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
@@ -67,16 +68,17 @@ import com.opengamma.util.time.Expiry;
  */
 @Scriptable
 public class ExampleEURFixedIncomePortfolioLoader extends AbstractTool<IntegrationToolContext> {
+
   /** The currency */
   private static final Currency CURRENCY = Currency.EUR;
   /** Act/360 day-count */
-  private static final DayCount ACT_360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+  private static final DayCount ACT_360 = DayCounts.ACT_360;
   /** Quarterly frequency */
   private static final Frequency QUARTERLY = PeriodFrequency.QUARTERLY;
   /** Semi-annual frequency */
   private static final Frequency SEMI_ANNUAL = PeriodFrequency.SEMI_ANNUAL;
   /** Modified following business day convention */
-  private static final BusinessDayConvention MODIFIED_FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  private static final BusinessDayConvention MODIFIED_FOLLOWING = BusinessDayConventions.MODIFIED_FOLLOWING;
   /** The holiday region */
   private static final ExternalId REGION = ExternalSchemes.financialRegionId("EU");
   /** The 3m ibor ticker */
@@ -114,18 +116,25 @@ public class ExampleEURFixedIncomePortfolioLoader extends AbstractTool<Integrati
     MONTHS.put(Month.DECEMBER, "Z");
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Main method to run the tool.
-   * No arguments are needed.
-   *
-   * @param args  the arguments, unused
+   * 
+   * @param args  the standard tool arguments, not null
    */
   public static void main(final String[] args) {  // CSIGNORE
-    new ExampleTimeSeriesRatingLoader().initAndRun(args, IntegrationToolContext.class);
-    new ExampleEURFixedIncomePortfolioLoader().initAndRun(args, IntegrationToolContext.class);
-    System.exit(0);
+    try {
+      boolean success =
+          new ExampleTimeSeriesRatingLoader().initAndRun(args, IntegrationToolContext.class) &&
+          new ExampleEURFixedIncomePortfolioLoader().initAndRun(args, IntegrationToolContext.class);
+      ShutdownUtils.exit(success ? 0 : -1);
+    } catch (Throwable ex) {
+      ex.printStackTrace();
+      ShutdownUtils.exit(-2);
+    }
   }
 
+  //-------------------------------------------------------------------------
   @Override
   protected void doRun() throws Exception {
     final Random random = new Random(3457);

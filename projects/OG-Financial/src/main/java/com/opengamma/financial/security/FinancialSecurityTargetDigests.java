@@ -11,12 +11,15 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.target.digest.SecurityTypeTargetDigests;
 import com.opengamma.engine.target.digest.TargetDigests;
+import com.opengamma.financial.security.bond.BillSecurity;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
+import com.opengamma.financial.security.bond.FloatingRateNoteSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.bond.InflationBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
+import com.opengamma.financial.security.cash.CashBalanceSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.cds.CDSSecurity;
@@ -28,15 +31,22 @@ import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
 import com.opengamma.financial.security.cds.StandardFixedRecoveryCDSSecurity;
 import com.opengamma.financial.security.cds.StandardRecoveryLockCDSSecurity;
 import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
+import com.opengamma.financial.security.credit.IndexCDSDefinitionSecurity;
+import com.opengamma.financial.security.credit.IndexCDSSecurity;
+import com.opengamma.financial.security.credit.LegacyCDSSecurity;
+import com.opengamma.financial.security.credit.StandardCDSSecurity;
 import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
+import com.opengamma.financial.security.equity.AmericanDepositaryReceiptSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
+import com.opengamma.financial.security.equity.ExchangeTradedFundSecurity;
 import com.opengamma.financial.security.forward.AgricultureForwardSecurity;
 import com.opengamma.financial.security.forward.EnergyForwardSecurity;
 import com.opengamma.financial.security.forward.MetalForwardSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
+import com.opengamma.financial.security.fra.ForwardRateAgreementSecurity;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.future.DeliverableSwapFutureSecurity;
@@ -50,7 +60,9 @@ import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.financial.security.fx.FXVolatilitySwapSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
+import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
 import com.opengamma.financial.security.option.CreditDefaultSwapOptionSecurity;
@@ -59,6 +71,7 @@ import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSe
 import com.opengamma.financial.security.option.EquityIndexFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
+import com.opengamma.financial.security.option.EquityWarrantSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
@@ -67,7 +80,9 @@ import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
+import com.opengamma.financial.security.swap.BondTotalReturnSwapSecurity;
 import com.opengamma.financial.security.swap.CommodityNotional;
+import com.opengamma.financial.security.swap.EquityTotalReturnSwapSecurity;
 import com.opengamma.financial.security.swap.ForwardSwapSecurity;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.NotionalVisitor;
@@ -320,6 +335,13 @@ public class FinancialSecurityTargetDigests extends SecurityTypeTargetDigests im
     return _capFloorSecurity.get(security.getCurrency());
   }
 
+  private final Digests _cashBalanceSecurity = new Digests("Security");
+
+  @Override
+  public Object visitCashBalanceSecurity(final CashBalanceSecurity security) {
+    return _cashBalanceSecurity.get(security.getCurrency());
+  }
+
   private final Digests _cashSecurity = new Digests("Security");
 
   @Override
@@ -425,6 +447,13 @@ public class FinancialSecurityTargetDigests extends SecurityTypeTargetDigests im
     return _fraSecurity.get(security.getCurrency());
   }
 
+  private final Digests _forwardRateAgreementSecurity = new Digests("Security");
+
+  @Override
+  public Object visitForwardRateAgreementSecurity(final ForwardRateAgreementSecurity security) {
+    return _forwardRateAgreementSecurity.get(security.getCurrency());
+  }
+
   private final Digests _fxBarrierOptionSecurity = new Digests("Security");
 
   @Override
@@ -458,6 +487,13 @@ public class FinancialSecurityTargetDigests extends SecurityTypeTargetDigests im
   @Override
   public Object visitForwardSwapSecurity(final ForwardSwapSecurity security) {
     return _forwardSwapSecurity.get(pair(security.getPayLeg().getNotional().accept(this), security.getReceiveLeg().getNotional().accept(this)));
+  }
+
+  private final Digests _billSecurity = new Digests("Security");
+
+  @Override
+  public Object visitBillSecurity(final BillSecurity security) {
+    return _billSecurity.get(security.getCurrency());
   }
 
   private final Digests _governmentBondSecurity = new Digests("Security");
@@ -530,11 +566,71 @@ public class FinancialSecurityTargetDigests extends SecurityTypeTargetDigests im
     return _swapSecurity.get(pair(security.getPayLeg().getNotional().accept(this), security.getReceiveLeg().getNotional().accept(this)));
   }
 
+  @Override
+  public Object visitInterestRateSwapSecurity(final InterestRateSwapSecurity security) {
+    return _swapSecurity.get(pair(security.getPayLeg().getNotional().accept(this), security.getReceiveLeg().getNotional().accept(this)));
+  }
+
   private final Digests _swaptionSecurity = new Digests("Security");
 
   @Override
   public Object visitSwaptionSecurity(final SwaptionSecurity security) {
     return _swaptionSecurity.get(security.getCurrency());
+  }
+
+  private final Digests _fxVolatilitySwapSecurity = new Digests("Security");
+
+  @Override
+  public Object visitFXVolatilitySwapSecurity(final FXVolatilitySwapSecurity security) {
+    return _fxVolatilitySwapSecurity.get(security.getCurrency());
+  }
+
+  private final Digests _floatingRateNoteSecurity = new Digests("Security");
+
+  @Override
+  public Object visitFloatingRateNoteSecurity(final FloatingRateNoteSecurity security) {
+    return _floatingRateNoteSecurity.get(security.getCurrency());
+  }
+
+  private final Digests _equityTRSSecurity = new Digests("Security");
+
+  @Override
+  public Object visitEquityTotalReturnSwapSecurity(final EquityTotalReturnSwapSecurity security) {
+    return _equityTRSSecurity.get(pair(security.getNotionalCurrency(), security.getFundingLeg().getNotional().accept(this)));
+  }
+
+  private final Digests _bondTRSSecurity = new Digests("Security");
+
+  @Override
+  public Object visitBondTotalReturnSwapSecurity(final BondTotalReturnSwapSecurity security) {
+    return _bondTRSSecurity.get(pair(security.getNotionalCurrency(), security.getFundingLeg().getNotional().accept(this)));
+  }
+
+  private final Digests _standardCDSSecurity = new Digests("Security");
+
+  @Override
+  public Object visitStandardCDSSecurity(StandardCDSSecurity security) {
+    return _standardCDSSecurity.get(security.getNotional().accept(this));
+  }
+  private final Digests _legacyCDSSecurity = new Digests("Security");
+
+  @Override
+  public Object visitLegacyCDSSecurity(LegacyCDSSecurity security) {
+    return _legacyCDSSecurity.get(security.getNotional().accept(this));
+  }
+
+  private final Digests _indexCDSSecurity = new Digests("Security");
+
+  @Override
+  public Object visitIndexCDSSecurity(IndexCDSSecurity security) {
+    return _indexCDSSecurity.get(security.getNotional().accept(this));
+  }
+
+  private final Digests _indexCDSDefSecurity = new Digests("Security");
+
+  @Override
+  public Object visitIndexCDSDefinitionSecurity(IndexCDSDefinitionSecurity security) {
+    return _indexCDSDefSecurity.get(security.getCurrency());
   }
 
   // NotionalVisitor
@@ -567,6 +663,21 @@ public class FinancialSecurityTargetDigests extends SecurityTypeTargetDigests im
   @Override
   public Object visitYearOnYearInflationSwapSecurity(final YearOnYearInflationSwapSecurity security) {
     throw new UnsupportedOperationException("Cannot handle year-on-year inflation swap securities");
+  }
+
+  @Override
+  public Object visitExchangeTradedFundSecurity(final ExchangeTradedFundSecurity security) {
+    throw new UnsupportedOperationException("Cannot handle exchange traded fund securities");
+  }
+
+  @Override
+  public Object visitAmericanDepositaryReceiptSecurity(final AmericanDepositaryReceiptSecurity security) {
+    throw new UnsupportedOperationException("Cannot handle ADR securities");
+  }
+
+  @Override
+  public Object visitEquityWarrantSecurity(final EquityWarrantSecurity security) {
+    throw new UnsupportedOperationException("Cannot handle equity warrant securities");
   }
 
 }

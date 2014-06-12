@@ -1,0 +1,33 @@
+<article>
+  ${header}
+  <section>
+    <div class="OG-details-content OG-js-details-panel">
+      <section class="og-js-identifiers"></section>
+      <section>
+        <table class="OG-table">
+          <col style="width: 40%" />
+          <col style="width: 60%" />
+          <thead>
+            <tr>
+              <th><span><em>${securityType}</em></span></th><th>&nbsp;</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span>Convention Identifier</span></td>
+              <td class="OG-js-underlying-id">${conventionId}</td>
+            </tr>
+            {{if indexFamilyId}}
+              <tr>
+                <td><span>Index Family Identifier</span></td>
+                <td class="OG-js-underlying-id">${indexFamilyId}</td>
+              </tr>
+            {{/if}}
+          </tbody>
+        </table>
+      </section>
+      <section class="OG-timeseries-container"></section>
+      ${attributes}
+    </div>
+  </section>
+</article>

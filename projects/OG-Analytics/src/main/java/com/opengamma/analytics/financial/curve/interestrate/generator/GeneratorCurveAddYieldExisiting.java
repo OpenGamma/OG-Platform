@@ -75,7 +75,6 @@ public class GeneratorCurveAddYieldExisiting extends GeneratorYDCurve {
       final YieldAndDiscountCurve existingCurve = ((MulticurveProviderDiscount) multicurve).getCurve(_existingCurveName);
       final YieldAndDiscountCurve newCurve = _generator.generateCurve(name + "-0", multicurve, parameters);
       return new YieldAndDiscountAddZeroSpreadCurve(name, _substract, existingCurve, newCurve);
-
     }
     throw new UnsupportedOperationException("Cannot generate curves for a GeneratorCurveAddYieldExisiting");
   }

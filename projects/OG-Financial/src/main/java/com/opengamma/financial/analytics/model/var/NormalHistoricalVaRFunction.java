@@ -29,6 +29,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.timeseries.DoubleTimeSeries;
 
 /**
@@ -148,10 +149,13 @@ public class NormalHistoricalVaRFunction extends AbstractFunction.NonCompiledInv
     }
     String pnlContributionName = pnlContributionNames != null ? pnlContributionNames.iterator().next() : DEFAULT_PNL_CONTRIBUTIONS;
     final ValueProperties.Builder properties = ValueProperties.builder()
-        .with(ValuePropertyNames.SAMPLING_PERIOD, samplingPeriodName.iterator().next())
         .with(ValuePropertyNames.SCHEDULE_CALCULATOR, scheduleCalculatorName.iterator().next())
         .with(ValuePropertyNames.SAMPLING_FUNCTION, samplingFunctionName.iterator().next())
         .with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, pnlContributionName); //TODO
+    if (desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY) == null) {
+      properties.with(ValuePropertyNames.SAMPLING_PERIOD, samplingPeriodName.iterator().next());
+    }
+    copyOptional(desiredValue.getConstraints(), properties);
     final Set<String> desiredCurrencyValues = desiredValue.getConstraints().getValues(ValuePropertyNames.CURRENCY);
     if (desiredCurrencyValues == null || desiredCurrencyValues.isEmpty()) {
       properties.withAny(ValuePropertyNames.CURRENCY);
@@ -179,14 +183,15 @@ public class NormalHistoricalVaRFunction extends AbstractFunction.NonCompiledInv
     if (currency == null) {
       return null;
     }
-    final ValueProperties properties = getResultProperties(currency, input.getProperty(ValuePropertyNames.AGGREGATION), input.getProperty(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS));
+    final ValueProperties properties = getResultProperties(
+        input.getProperties(), currency, input.getProperty(ValuePropertyNames.AGGREGATION), input.getProperty(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS));
     // see note above in other getResults().
     final ValueSpecification varSpecification = new ValueSpecification(ValueRequirementNames.HISTORICAL_VAR, target.toSpecification(), properties);
     final ValueSpecification stddevSpecification = new ValueSpecification(ValueRequirementNames.HISTORICAL_VAR_STDDEV, target.toSpecification(), properties);
     return Sets.newHashSet(varSpecification, stddevSpecification);
   }
 
-  private ValueProperties getResultProperties(final String currency, final String aggregationStyle, final String pnlContribution) {
+  private ValueProperties getResultProperties(ValueProperties priceTsProperties, final String currency, final String aggregationStyle, final String pnlContribution) {
     final ValueProperties.Builder properties = createValueProperties()
         .with(ValuePropertyNames.CURRENCY, currency)
         .withAny(ValuePropertyNames.SAMPLING_PERIOD)
@@ -198,6 +203,7 @@ public class NormalHistoricalVaRFunction extends AbstractFunction.NonCompiledInv
         .withAny(ValuePropertyNames.HORIZON)
         .with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, pnlContribution)
         .with(PROPERTY_VAR_DISTRIBUTION, NORMAL_VAR);
+    copyOptional(priceTsProperties, properties);
     if (aggregationStyle != null) {
       properties.with(ValuePropertyNames.AGGREGATION, aggregationStyle);
     }
@@ -232,10 +238,18 @@ public class NormalHistoricalVaRFunction extends AbstractFunction.NonCompiledInv
         new DoubleTimeSeriesStatisticsCalculator(StatisticsCalculatorFactory.getCalculator(stdDevCalculatorNames.iterator().next()));
     return new NormalLinearVaRCalculator<DoubleTimeSeries<?>>(meanCalculator, stdDevCalculator);
   }
+  
+  private ValueProperties.Builder copyOptional(ValueProperties origProps, ValueProperties.Builder propBuilder) {
+    for (String prop: origProps.getProperties()) {
+      if (origProps.isOptional(prop)) {
+        propBuilder.withOptional(prop).with(prop, origProps.getSingleValue(prop));
+      }
+    }
+    return propBuilder;
+  }
 
   @Override
   public ComputationTargetType getTargetType() {
     return ComputationTargetType.PORTFOLIO_NODE.or(ComputationTargetType.POSITION);
   }
-
 }

@@ -3,7 +3,7 @@
 ${ogStyle.print('og_all.css', 'all',false)}
 <style type="text/css">
     body {background: #fff;}
-    div {margin-bottom: 20px}
+    div {margin-bottom: 9px}
     small {font-size: 10px;}
     input[type=text] {width: 200px}
     td {vertical-align: top;}
@@ -39,6 +39,16 @@ ${ogStyle.print('og_all.css', 'all',false)}
           <div>
             <label>
               Data Provider: <br /><input type="text" name="dataProvider"><br />
+            </label>
+          </div>
+          <div>
+            <label>
+              Date Format: <br />
+              <select name="dateFormat">
+                <option value="ISO">ISO Format (yyyy-MM-dd or yyyyMMdd)</option>
+                <option value="US">US Format (MM-dd-yyyy or MM/dd/yyyy)</option>
+                <option value="UK">UK Format (dd-MM-yyyy or dd/MM/yyyy)</option>
+              </select>
             </label>
           </div>
         </td>

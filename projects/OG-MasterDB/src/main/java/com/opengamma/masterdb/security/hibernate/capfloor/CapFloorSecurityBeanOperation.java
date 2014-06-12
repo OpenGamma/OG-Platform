@@ -43,14 +43,14 @@ public final class CapFloorSecurityBeanOperation extends AbstractSecurityBeanOpe
 
   @Override
   public CapFloorSecurityBean createBean(final OperationContext context, HibernateSecurityMasterDao secMasterSession, CapFloorSecurity security) {
-    validateDayCount(security.getDayCount().getConventionName());
-    validateFrequency(security.getFrequency().getConventionName());
+    validateDayCount(security.getDayCount().getName());
+    validateFrequency(security.getFrequency().getName());
     
     final CapFloorSecurityBean bean = new CapFloorSecurityBean();
     bean.setCap(security.isCap());
     bean.setCurrency(secMasterSession.getOrCreateCurrencyBean(security.getCurrency().getCode()));
-    bean.setDayCount(secMasterSession.getOrCreateDayCountBean(security.getDayCount().getConventionName()));
-    bean.setFrequency(secMasterSession.getOrCreateFrequencyBean(security.getFrequency().getConventionName()));
+    bean.setDayCount(secMasterSession.getOrCreateDayCountBean(security.getDayCount().getName()));
+    bean.setFrequency(secMasterSession.getOrCreateFrequencyBean(security.getFrequency().getName()));
     bean.setIbor(security.isIbor());
     bean.setMaturityDate(dateTimeWithZoneToZonedDateTimeBean(security.getMaturityDate()));
     bean.setNotional(security.getNotional());

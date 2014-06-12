@@ -5,8 +5,15 @@
  */
 package com.opengamma.financial.security;
 
+import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.financial.analytics.model.equity.SecurityMarketPriceFunction;
+import com.opengamma.financial.security.bond.CorporateBondSecurity;
+import com.opengamma.financial.security.bond.GovernmentBondSecurity;
+import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
+import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
+import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
 import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
@@ -20,12 +27,16 @@ import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 
 /**
  * This visitor returns true if the FinancialSecurity is market traded.
- * In our context, this means that a MarketDataRequirementNames.MARKET_VALUE is available.
- * When "Security Market Price" is chosen in a View Configuration, (ValueRequirementNames.SECURITY_MARKET_PRICE)
- * SecurityMarketPriceFunction provides the price.
+ * In our context, this means that a MarketDataRequirementNames.MARKET_VALUE is available
+ * for a security.<p>
+ * When {@link ValueRequirementNames#SECURITY_MARKET_PRICE} is chosen in a View Configuration,
+ * {@link SecurityMarketPriceFunction} provides the price.
  */
 public class MarketSecurityVisitor extends FinancialSecurityVisitorSameValueAdapter<Boolean> {
 
+  /**
+   * Sets the default return value to false.
+   */
   public MarketSecurityVisitor() {
     super(false);
   }
@@ -40,17 +51,17 @@ public class MarketSecurityVisitor extends FinancialSecurityVisitorSameValueAdap
   public Boolean visitIndexFutureSecurity(final IndexFutureSecurity security) {
     return true;
   }
-  
+
   @Override
   public Boolean visitEquityFutureSecurity(final EquityFutureSecurity security) {
     return true;
   }
-  
+
   @Override
   public Boolean visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
     return true;
   }
-  
+
   @Override
   public Boolean visitEquitySecurity(final EquitySecurity security) {
     return true;
@@ -60,7 +71,7 @@ public class MarketSecurityVisitor extends FinancialSecurityVisitorSameValueAdap
   public Boolean visitEquityIndexOptionSecurity(final EquityIndexOptionSecurity security) {
     return true;
   }
-  
+
   @Override
   public Boolean visitEquityIndexFutureOptionSecurity(final EquityIndexFutureOptionSecurity security) {
     return true;
@@ -88,6 +99,31 @@ public class MarketSecurityVisitor extends FinancialSecurityVisitorSameValueAdap
 
   @Override
   public Boolean visitEquityIndexDividendFutureOptionSecurity(final EquityIndexDividendFutureOptionSecurity security) {
+    return true;
+  }
+
+  @Override
+  public Boolean visitBondFutureSecurity(final BondFutureSecurity security) {
+    return true;
+  }
+
+  @Override
+  public Boolean visitCorporateBondSecurity(final CorporateBondSecurity security) {
+    return true;
+  }
+
+  @Override
+  public Boolean visitGovernmentBondSecurity(final GovernmentBondSecurity security) {
+    return true;
+  }
+
+  @Override
+  public Boolean visitMunicipalBondSecurity(final MunicipalBondSecurity security) {
+    return true;
+  }
+  
+  @Override
+  public Boolean visitEquityIndexDividendFutureSecurity(final EquityIndexDividendFutureSecurity security) {
     return true;
   }
 }

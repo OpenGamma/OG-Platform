@@ -35,7 +35,7 @@ public class ThirtyEPlusThreeSixtyISDA extends ThirtyThreeSixtyTypeDayCount {
   }
 
   @Override
-  public String getConventionName() {
+  public String getName() {
     return "30E+/360 ISDA";
   }
 

@@ -5,13 +5,9 @@
  */
 package com.opengamma.core.obligor.definition;
 
-import com.opengamma.core.obligor.CreditRating;
-import com.opengamma.core.obligor.CreditRatingFitch;
-import com.opengamma.core.obligor.CreditRatingMoodys;
-import com.opengamma.core.obligor.CreditRatingStandardAndPoors;
-import com.opengamma.core.obligor.Region;
-import com.opengamma.core.obligor.Sector;
-import com.opengamma.util.ArgumentChecker;
+import java.util.Map;
+
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -24,7 +20,13 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import java.util.Map;
+import com.opengamma.core.obligor.CreditRating;
+import com.opengamma.core.obligor.CreditRatingFitch;
+import com.opengamma.core.obligor.CreditRatingMoodys;
+import com.opengamma.core.obligor.CreditRatingStandardAndPoors;
+import com.opengamma.core.obligor.Region;
+import com.opengamma.core.obligor.Sector;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Class for defining the characteristics of an obligor in a derivative contract
@@ -167,138 +169,6 @@ public class Obligor extends DirectBean {
   @Override
   public Obligor.Meta metaBean() {
     return Obligor.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 896190372:  // obligorTicker
-        return getObligorTicker();
-      case -1066272179:  // obligorShortName
-        return getObligorShortName();
-      case -823370556:  // obligorREDCode
-        return getObligorREDCode();
-      case 957861636:  // compositeRating
-        return getCompositeRating();
-      case 1421672549:  // impliedRating
-        return getImpliedRating();
-      case 1016935655:  // moodysCreditRating
-        return getMoodysCreditRating();
-      case 1963211373:  // standardAndPoorsCreditRating
-        return getStandardAndPoorsCreditRating();
-      case 1612838220:  // fitchCreditRating
-        return getFitchCreditRating();
-      case 1706701094:  // hasDefaulted
-        return isHasDefaulted();
-      case -906274970:  // sector
-        return getSector();
-      case -934795532:  // region
-        return getRegion();
-      case 957831062:  // country
-        return getCountry();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 896190372:  // obligorTicker
-        setObligorTicker((String) newValue);
-        return;
-      case -1066272179:  // obligorShortName
-        setObligorShortName((String) newValue);
-        return;
-      case -823370556:  // obligorREDCode
-        setObligorREDCode((String) newValue);
-        return;
-      case 957861636:  // compositeRating
-        setCompositeRating((CreditRating) newValue);
-        return;
-      case 1421672549:  // impliedRating
-        setImpliedRating((CreditRating) newValue);
-        return;
-      case 1016935655:  // moodysCreditRating
-        setMoodysCreditRating((CreditRatingMoodys) newValue);
-        return;
-      case 1963211373:  // standardAndPoorsCreditRating
-        setStandardAndPoorsCreditRating((CreditRatingStandardAndPoors) newValue);
-        return;
-      case 1612838220:  // fitchCreditRating
-        setFitchCreditRating((CreditRatingFitch) newValue);
-        return;
-      case 1706701094:  // hasDefaulted
-        setHasDefaulted((Boolean) newValue);
-        return;
-      case -906274970:  // sector
-        setSector((Sector) newValue);
-        return;
-      case -934795532:  // region
-        setRegion((Region) newValue);
-        return;
-      case 957831062:  // country
-        setCountry((String) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_obligorTicker, "obligorTicker");
-    JodaBeanUtils.notNull(_obligorShortName, "obligorShortName");
-    JodaBeanUtils.notNull(_obligorREDCode, "obligorREDCode");
-    JodaBeanUtils.notNull(_compositeRating, "compositeRating");
-    JodaBeanUtils.notNull(_impliedRating, "impliedRating");
-    JodaBeanUtils.notNull(_moodysCreditRating, "moodysCreditRating");
-    JodaBeanUtils.notNull(_standardAndPoorsCreditRating, "standardAndPoorsCreditRating");
-    JodaBeanUtils.notNull(_fitchCreditRating, "fitchCreditRating");
-    JodaBeanUtils.notNull(_hasDefaulted, "hasDefaulted");
-    JodaBeanUtils.notNull(_sector, "sector");
-    JodaBeanUtils.notNull(_region, "region");
-    JodaBeanUtils.notNull(_country, "country");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      Obligor other = (Obligor) obj;
-      return JodaBeanUtils.equal(getObligorTicker(), other.getObligorTicker()) &&
-          JodaBeanUtils.equal(getObligorShortName(), other.getObligorShortName()) &&
-          JodaBeanUtils.equal(getObligorREDCode(), other.getObligorREDCode()) &&
-          JodaBeanUtils.equal(getCompositeRating(), other.getCompositeRating()) &&
-          JodaBeanUtils.equal(getImpliedRating(), other.getImpliedRating()) &&
-          JodaBeanUtils.equal(getMoodysCreditRating(), other.getMoodysCreditRating()) &&
-          JodaBeanUtils.equal(getStandardAndPoorsCreditRating(), other.getStandardAndPoorsCreditRating()) &&
-          JodaBeanUtils.equal(getFitchCreditRating(), other.getFitchCreditRating()) &&
-          JodaBeanUtils.equal(isHasDefaulted(), other.isHasDefaulted()) &&
-          JodaBeanUtils.equal(getSector(), other.getSector()) &&
-          JodaBeanUtils.equal(getRegion(), other.getRegion()) &&
-          JodaBeanUtils.equal(getCountry(), other.getCountry());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getObligorTicker());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getObligorShortName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getObligorREDCode());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCompositeRating());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getImpliedRating());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMoodysCreditRating());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStandardAndPoorsCreditRating());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFitchCreditRating());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isHasDefaulted());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSector());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRegion());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCountry());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -614,6 +484,81 @@ public class Obligor extends DirectBean {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public Obligor clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      Obligor other = (Obligor) obj;
+      return JodaBeanUtils.equal(getObligorTicker(), other.getObligorTicker()) &&
+          JodaBeanUtils.equal(getObligorShortName(), other.getObligorShortName()) &&
+          JodaBeanUtils.equal(getObligorREDCode(), other.getObligorREDCode()) &&
+          JodaBeanUtils.equal(getCompositeRating(), other.getCompositeRating()) &&
+          JodaBeanUtils.equal(getImpliedRating(), other.getImpliedRating()) &&
+          JodaBeanUtils.equal(getMoodysCreditRating(), other.getMoodysCreditRating()) &&
+          JodaBeanUtils.equal(getStandardAndPoorsCreditRating(), other.getStandardAndPoorsCreditRating()) &&
+          JodaBeanUtils.equal(getFitchCreditRating(), other.getFitchCreditRating()) &&
+          (isHasDefaulted() == other.isHasDefaulted()) &&
+          JodaBeanUtils.equal(getSector(), other.getSector()) &&
+          JodaBeanUtils.equal(getRegion(), other.getRegion()) &&
+          JodaBeanUtils.equal(getCountry(), other.getCountry());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getObligorTicker());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getObligorShortName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getObligorREDCode());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCompositeRating());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getImpliedRating());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMoodysCreditRating());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getStandardAndPoorsCreditRating());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFitchCreditRating());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isHasDefaulted());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSector());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRegion());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCountry());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(416);
+    buf.append("Obligor{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("obligorTicker").append('=').append(JodaBeanUtils.toString(getObligorTicker())).append(',').append(' ');
+    buf.append("obligorShortName").append('=').append(JodaBeanUtils.toString(getObligorShortName())).append(',').append(' ');
+    buf.append("obligorREDCode").append('=').append(JodaBeanUtils.toString(getObligorREDCode())).append(',').append(' ');
+    buf.append("compositeRating").append('=').append(JodaBeanUtils.toString(getCompositeRating())).append(',').append(' ');
+    buf.append("impliedRating").append('=').append(JodaBeanUtils.toString(getImpliedRating())).append(',').append(' ');
+    buf.append("moodysCreditRating").append('=').append(JodaBeanUtils.toString(getMoodysCreditRating())).append(',').append(' ');
+    buf.append("standardAndPoorsCreditRating").append('=').append(JodaBeanUtils.toString(getStandardAndPoorsCreditRating())).append(',').append(' ');
+    buf.append("fitchCreditRating").append('=').append(JodaBeanUtils.toString(getFitchCreditRating())).append(',').append(' ');
+    buf.append("hasDefaulted").append('=').append(JodaBeanUtils.toString(isHasDefaulted())).append(',').append(' ');
+    buf.append("sector").append('=').append(JodaBeanUtils.toString(getSector())).append(',').append(' ');
+    buf.append("region").append('=').append(JodaBeanUtils.toString(getRegion())).append(',').append(' ');
+    buf.append("country").append('=').append(JodaBeanUtils.toString(getCountry())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code Obligor}.
    */
@@ -848,6 +793,97 @@ public class Obligor extends DirectBean {
      */
     public final MetaProperty<String> country() {
       return _country;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 896190372:  // obligorTicker
+          return ((Obligor) bean).getObligorTicker();
+        case -1066272179:  // obligorShortName
+          return ((Obligor) bean).getObligorShortName();
+        case -823370556:  // obligorREDCode
+          return ((Obligor) bean).getObligorREDCode();
+        case 957861636:  // compositeRating
+          return ((Obligor) bean).getCompositeRating();
+        case 1421672549:  // impliedRating
+          return ((Obligor) bean).getImpliedRating();
+        case 1016935655:  // moodysCreditRating
+          return ((Obligor) bean).getMoodysCreditRating();
+        case 1963211373:  // standardAndPoorsCreditRating
+          return ((Obligor) bean).getStandardAndPoorsCreditRating();
+        case 1612838220:  // fitchCreditRating
+          return ((Obligor) bean).getFitchCreditRating();
+        case 1706701094:  // hasDefaulted
+          return ((Obligor) bean).isHasDefaulted();
+        case -906274970:  // sector
+          return ((Obligor) bean).getSector();
+        case -934795532:  // region
+          return ((Obligor) bean).getRegion();
+        case 957831062:  // country
+          return ((Obligor) bean).getCountry();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 896190372:  // obligorTicker
+          ((Obligor) bean).setObligorTicker((String) newValue);
+          return;
+        case -1066272179:  // obligorShortName
+          ((Obligor) bean).setObligorShortName((String) newValue);
+          return;
+        case -823370556:  // obligorREDCode
+          ((Obligor) bean).setObligorREDCode((String) newValue);
+          return;
+        case 957861636:  // compositeRating
+          ((Obligor) bean).setCompositeRating((CreditRating) newValue);
+          return;
+        case 1421672549:  // impliedRating
+          ((Obligor) bean).setImpliedRating((CreditRating) newValue);
+          return;
+        case 1016935655:  // moodysCreditRating
+          ((Obligor) bean).setMoodysCreditRating((CreditRatingMoodys) newValue);
+          return;
+        case 1963211373:  // standardAndPoorsCreditRating
+          ((Obligor) bean).setStandardAndPoorsCreditRating((CreditRatingStandardAndPoors) newValue);
+          return;
+        case 1612838220:  // fitchCreditRating
+          ((Obligor) bean).setFitchCreditRating((CreditRatingFitch) newValue);
+          return;
+        case 1706701094:  // hasDefaulted
+          ((Obligor) bean).setHasDefaulted((Boolean) newValue);
+          return;
+        case -906274970:  // sector
+          ((Obligor) bean).setSector((Sector) newValue);
+          return;
+        case -934795532:  // region
+          ((Obligor) bean).setRegion((Region) newValue);
+          return;
+        case 957831062:  // country
+          ((Obligor) bean).setCountry((String) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((Obligor) bean)._obligorTicker, "obligorTicker");
+      JodaBeanUtils.notNull(((Obligor) bean)._obligorShortName, "obligorShortName");
+      JodaBeanUtils.notNull(((Obligor) bean)._obligorREDCode, "obligorREDCode");
+      JodaBeanUtils.notNull(((Obligor) bean)._compositeRating, "compositeRating");
+      JodaBeanUtils.notNull(((Obligor) bean)._impliedRating, "impliedRating");
+      JodaBeanUtils.notNull(((Obligor) bean)._moodysCreditRating, "moodysCreditRating");
+      JodaBeanUtils.notNull(((Obligor) bean)._standardAndPoorsCreditRating, "standardAndPoorsCreditRating");
+      JodaBeanUtils.notNull(((Obligor) bean)._fitchCreditRating, "fitchCreditRating");
+      JodaBeanUtils.notNull(((Obligor) bean)._hasDefaulted, "hasDefaulted");
+      JodaBeanUtils.notNull(((Obligor) bean)._sector, "sector");
+      JodaBeanUtils.notNull(((Obligor) bean)._region, "region");
+      JodaBeanUtils.notNull(((Obligor) bean)._country, "country");
     }
 
   }

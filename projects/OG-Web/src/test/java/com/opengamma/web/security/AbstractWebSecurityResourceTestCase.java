@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -22,8 +22,8 @@ import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.test.AbstractSecurityTestCaseAdapter;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.impl.InMemoryHistoricalTimeSeriesMaster;
-import com.opengamma.master.orgs.OrganizationMaster;
-import com.opengamma.master.orgs.impl.InMemoryOrganizationMaster;
+import com.opengamma.master.legalentity.LegalEntityMaster;
+import com.opengamma.master.legalentity.impl.InMemoryLegalEntityMaster;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityLoader;
 import com.opengamma.master.security.SecurityLoaderRequest;
@@ -49,11 +49,11 @@ public abstract class AbstractWebSecurityResourceTestCase extends AbstractSecuri
   protected WebSecuritiesResource _webSecuritiesResource;
   protected Map<Class<?>, List<FinancialSecurity>> _securities = Maps.newHashMap();
   protected UriInfo _uriInfo;
-  protected OrganizationMaster _orgMaster;
+  protected LegalEntityMaster _orgMaster;
 
   @BeforeMethod(groups = TestGroup.UNIT)
   public void setUp() throws Exception {
-    _uriInfo = new MockUriInfo();
+    _uriInfo = new MockUriInfo(true);
     _secMaster = new InMemorySecurityMaster();
     _secLoader = new AbstractSecurityLoader() {
       @Override
@@ -61,7 +61,7 @@ public abstract class AbstractWebSecurityResourceTestCase extends AbstractSecuri
         throw new UnsupportedOperationException("load security not supported");
       }
     };
-    _orgMaster = new InMemoryOrganizationMaster();
+    _orgMaster = new InMemoryLegalEntityMaster();
     
     HistoricalTimeSeriesMaster htsMaster = new InMemoryHistoricalTimeSeriesMaster();
     addSecurity(WebResourceTestUtils.getEquitySecurity());

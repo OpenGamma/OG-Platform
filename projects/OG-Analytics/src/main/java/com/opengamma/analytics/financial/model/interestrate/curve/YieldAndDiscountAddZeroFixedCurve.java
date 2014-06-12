@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.model.interestrate.curve;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
 
@@ -14,7 +15,7 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * YieldAndDiscountCurve created by adding the zero-coupon continuously compounded rate of two curves. One curve is fixed and there is no sensitivity to that curve.
- * In general the fixed curve represent a static adjustment like a saisonality adjustment.
+ * In general the fixed curve represent a static adjustment like a seasonality adjustment.
  * The term "fixed" for the second curve means that no parameter is associated to that curve.
  */
 public class YieldAndDiscountAddZeroFixedCurve extends YieldAndDiscountCurve {
@@ -70,11 +71,36 @@ public class YieldAndDiscountAddZeroFixedCurve extends YieldAndDiscountCurve {
   }
 
   @Override
+  public int getNumberOfIntrinsicParameters(final Set<String> curvesNames) {
+    int result = 0;
+    if (!curvesNames.contains(_curve.getName())) {
+      result += _curve.getNumberOfParameters();
+    }
+    return result;
+  }
+
+  @Override
   public List<String> getUnderlyingCurvesNames() {
     final List<String> names = new ArrayList<>();
     names.add(_curve.getName());
     names.add(_curveFixed.getName());
     return names;
+  }
+
+  /**
+   * Gets of the curve.
+   * @return The curves
+   */
+  public YieldAndDiscountCurve getCurve() {
+    return _curve;
+  }
+
+  /**
+   * Gets of the fixed curve.
+   * @return The curves
+   */
+  public YieldAndDiscountCurve getCurveFixed() {
+    return _curveFixed;
   }
 
   @Override

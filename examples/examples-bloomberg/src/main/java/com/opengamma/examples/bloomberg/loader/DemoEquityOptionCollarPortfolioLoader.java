@@ -63,6 +63,7 @@ import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.scripts.Scriptable;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * A portfolio loader which generates a sensible portfolio of liquid equities and options on them Also see DemoEquityOptionPortfolioLoader.
@@ -109,13 +110,12 @@ public class DemoEquityOptionCollarPortfolioLoader extends AbstractTool<Integrat
 
   //-------------------------------------------------------------------------
   /**
-   * Main method to run the tool. No arguments are needed.
-   *
-   * @param args the arguments, unused
+   * Main method to run the tool.
+   * 
+   * @param args  the standard tool arguments, not null
    */
   public static void main(final String[] args) { // CSIGNORE
-    final boolean success = new DemoEquityOptionCollarPortfolioLoader().initAndRun(args, IntegrationToolContext.class);
-    System.exit(success ? 0 : 1);
+    new DemoEquityOptionCollarPortfolioLoader().invokeAndTerminate(args);
   }
 
   //-------------------------------------------------------------------------
@@ -264,12 +264,12 @@ public class DemoEquityOptionCollarPortfolioLoader extends AbstractTool<Integrat
         final double key = option.getStrike();
         Pair<BloombergTickerParserEQOption, BloombergTickerParserEQOption> pair = optionsByStrike.get(key);
         if (pair == null) {
-          pair = Pair.of(null, null);
+          pair = Pairs.ofNulls();
         }
         if (option.getOptionType() == OptionType.CALL) {
-          pair = Pair.of(option, pair.getSecond());
+          pair = Pairs.of(option, pair.getSecond());
         } else {
-          pair = Pair.of(pair.getFirst(), option);
+          pair = Pairs.of(pair.getFirst(), option);
         }
         optionsByStrike.put(key, pair);
       }

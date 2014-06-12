@@ -10,6 +10,7 @@ import java.util.Map;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -116,65 +117,6 @@ public class SwaptionSecurityBean extends SecurityBean {
   @Override
   public SwaptionSecurityBean.Meta metaBean() {
     return SwaptionSecurityBean.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1289159373:  // expiry
-        return getExpiry();
-      case -1770633379:  // underlying
-        return getUnderlying();
-      case -871053882:  // cashSettled
-        return getCashSettled();
-      case 116685664:  // longShort
-        return getLongShort();
-      case 106443605:  // payer
-        return getPayer();
-      case 575402001:  // currency
-        return getCurrency();
-      case 1585636160:  // notional
-        return getNotional();
-      case -266326457:  // optionExerciseType
-        return getOptionExerciseType();
-      case -295948169:  // settlementDate
-        return getSettlementDate();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1289159373:  // expiry
-        setExpiry((ExpiryBean) newValue);
-        return;
-      case -1770633379:  // underlying
-        setUnderlying((ExternalIdBean) newValue);
-        return;
-      case -871053882:  // cashSettled
-        setCashSettled((Boolean) newValue);
-        return;
-      case 116685664:  // longShort
-        setLongShort((Boolean) newValue);
-        return;
-      case 106443605:  // payer
-        setPayer((Boolean) newValue);
-        return;
-      case 575402001:  // currency
-        setCurrency((CurrencyBean) newValue);
-        return;
-      case 1585636160:  // notional
-        setNotional((Double) newValue);
-        return;
-      case -266326457:  // optionExerciseType
-        setOptionExerciseType((OptionExerciseType) newValue);
-        return;
-      case -295948169:  // settlementDate
-        setSettlementDate((ZonedDateTimeBean) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
   }
 
   //-----------------------------------------------------------------------
@@ -403,6 +345,12 @@ public class SwaptionSecurityBean extends SecurityBean {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public SwaptionSecurityBean clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code SwaptionSecurityBean}.
    */
@@ -589,6 +537,66 @@ public class SwaptionSecurityBean extends SecurityBean {
      */
     public final MetaProperty<ZonedDateTimeBean> settlementDate() {
       return _settlementDate;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1289159373:  // expiry
+          return ((SwaptionSecurityBean) bean).getExpiry();
+        case -1770633379:  // underlying
+          return ((SwaptionSecurityBean) bean).getUnderlying();
+        case -871053882:  // cashSettled
+          return ((SwaptionSecurityBean) bean).getCashSettled();
+        case 116685664:  // longShort
+          return ((SwaptionSecurityBean) bean).getLongShort();
+        case 106443605:  // payer
+          return ((SwaptionSecurityBean) bean).getPayer();
+        case 575402001:  // currency
+          return ((SwaptionSecurityBean) bean).getCurrency();
+        case 1585636160:  // notional
+          return ((SwaptionSecurityBean) bean).getNotional();
+        case -266326457:  // optionExerciseType
+          return ((SwaptionSecurityBean) bean).getOptionExerciseType();
+        case -295948169:  // settlementDate
+          return ((SwaptionSecurityBean) bean).getSettlementDate();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1289159373:  // expiry
+          ((SwaptionSecurityBean) bean).setExpiry((ExpiryBean) newValue);
+          return;
+        case -1770633379:  // underlying
+          ((SwaptionSecurityBean) bean).setUnderlying((ExternalIdBean) newValue);
+          return;
+        case -871053882:  // cashSettled
+          ((SwaptionSecurityBean) bean).setCashSettled((Boolean) newValue);
+          return;
+        case 116685664:  // longShort
+          ((SwaptionSecurityBean) bean).setLongShort((Boolean) newValue);
+          return;
+        case 106443605:  // payer
+          ((SwaptionSecurityBean) bean).setPayer((Boolean) newValue);
+          return;
+        case 575402001:  // currency
+          ((SwaptionSecurityBean) bean).setCurrency((CurrencyBean) newValue);
+          return;
+        case 1585636160:  // notional
+          ((SwaptionSecurityBean) bean).setNotional((Double) newValue);
+          return;
+        case -266326457:  // optionExerciseType
+          ((SwaptionSecurityBean) bean).setOptionExerciseType((OptionExerciseType) newValue);
+          return;
+        case -295948169:  // settlementDate
+          ((SwaptionSecurityBean) bean).setSettlementDate((ZonedDateTimeBean) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

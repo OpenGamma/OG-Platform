@@ -39,5 +39,9 @@ public enum HolidayType {
    * such as when the central bank or clearing agency is closed.
    */
   CURRENCY,
+  /**
+   * A custom holiday type.
+   */
+  CUSTOM
 
 }

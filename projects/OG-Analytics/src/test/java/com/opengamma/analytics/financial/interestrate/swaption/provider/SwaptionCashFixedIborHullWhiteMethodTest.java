@@ -31,17 +31,19 @@ import com.opengamma.analytics.financial.provider.sensitivity.hullwhite.Paramete
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the pricing of cash-settled swaption in Hull-White one factor model.
  */
+@Test(groups = TestGroup.UNIT)
 public class SwaptionCashFixedIborHullWhiteMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
@@ -58,7 +60,7 @@ public class SwaptionCashFixedIborHullWhiteMethodTest {
   private static final int SWAP_TENOR_YEAR = 5;
   private static final Period SWAP_TENOR = Period.ofYears(SWAP_TENOR_YEAR);
   private static final Period FIXED_PAYMENT_PERIOD = Period.ofMonths(12);
-  private static final DayCount FIXED_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("30/360");
+  private static final DayCount FIXED_DAY_COUNT = DayCounts.THIRTY_U_360;
   private static final IndexSwap CMS_INDEX = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, EURIBOR6M, SWAP_TENOR, CALENDAR);
   private static final ZonedDateTime EXPIRY_DATE = DateUtils.getUTCDate(2016, 7, 7);
   private static final ZonedDateTime SETTLEMENT_DATE = ScheduleCalculator.getAdjustedDate(EXPIRY_DATE, EURIBOR6M.getSpotLag(), CALENDAR);
@@ -68,10 +70,10 @@ public class SwaptionCashFixedIborHullWhiteMethodTest {
   private static final SwapFixedIborDefinition SWAP_PAYER_DEFINITION = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, RATE, FIXED_IS_PAYER, CALENDAR);
   private static final SwapFixedIborDefinition SWAP_RECEIVER_DEFINITION = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, RATE, !FIXED_IS_PAYER, CALENDAR);
   private static final boolean IS_LONG = true;
-  private static final SwaptionCashFixedIborDefinition SWAPTION_PAYER_LONG_DEFINITION = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, SWAP_PAYER_DEFINITION, IS_LONG);
-  private static final SwaptionCashFixedIborDefinition SWAPTION_RECEIVER_LONG_DEFINITION = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, SWAP_RECEIVER_DEFINITION, IS_LONG);
-  private static final SwaptionCashFixedIborDefinition SWAPTION_PAYER_SHORT_DEFINITION = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, SWAP_PAYER_DEFINITION, !IS_LONG);
-  private static final SwaptionCashFixedIborDefinition SWAPTION_RECEIVER_SHORT_DEFINITION = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, SWAP_RECEIVER_DEFINITION, !IS_LONG);
+  private static final SwaptionCashFixedIborDefinition SWAPTION_PAYER_LONG_DEFINITION = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, SWAP_PAYER_DEFINITION, true, IS_LONG);
+  private static final SwaptionCashFixedIborDefinition SWAPTION_RECEIVER_LONG_DEFINITION = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, SWAP_RECEIVER_DEFINITION, false, IS_LONG);
+  private static final SwaptionCashFixedIborDefinition SWAPTION_PAYER_SHORT_DEFINITION = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, SWAP_PAYER_DEFINITION, true, !IS_LONG);
+  private static final SwaptionCashFixedIborDefinition SWAPTION_RECEIVER_SHORT_DEFINITION = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, SWAP_RECEIVER_DEFINITION, false, !IS_LONG);
   //to derivatives
   private static final SwapFixedCoupon<Coupon> SWAP_PAYER = SWAP_PAYER_DEFINITION.toDerivative(REFERENCE_DATE);
   private static final SwaptionCashFixedIbor SWAPTION_PAYER_LONG = SWAPTION_PAYER_LONG_DEFINITION.toDerivative(REFERENCE_DATE);
@@ -112,7 +114,7 @@ public class SwaptionCashFixedIborHullWhiteMethodTest {
   public void scaling() {
     final double scale = 12.3;
     final SwapFixedIborDefinition scaledSwapDefinition = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, scale * NOTIONAL, RATE, FIXED_IS_PAYER, CALENDAR);
-    final SwaptionCashFixedIborDefinition scaledSwaptionDefinition = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, scaledSwapDefinition, IS_LONG);
+    final SwaptionCashFixedIborDefinition scaledSwaptionDefinition = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, scaledSwapDefinition, true, IS_LONG);
     final SwaptionCashFixedIbor scaledSwaption = scaledSwaptionDefinition.toDerivative(REFERENCE_DATE);
     final MultipleCurrencyAmount pvOriginal = METHOD_HW_INTEGRATION.presentValue(SWAPTION_PAYER_LONG, HW_MULTICURVES);
     final MultipleCurrencyAmount pvScaled = METHOD_HW_INTEGRATION.presentValue(scaledSwaption, HW_MULTICURVES);
@@ -189,13 +191,13 @@ public class SwaptionCashFixedIborHullWhiteMethodTest {
     final double[] pvReceiverIntegration = new double[strikeRel.length];
     for (int loopstrike = 0; loopstrike < strikeRel.length; loopstrike++) {
       final SwapFixedIborDefinition swapStrikePayerDefinition = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, bp1, forward + strikeRel[loopstrike], FIXED_IS_PAYER, CALENDAR);
-      final SwaptionCashFixedIborDefinition swaptionStrikePayerDefinition = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, swapStrikePayerDefinition, IS_LONG);
+      final SwaptionCashFixedIborDefinition swaptionStrikePayerDefinition = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, swapStrikePayerDefinition, true, IS_LONG);
       final SwaptionCashFixedIbor swaptionStrikePayer = swaptionStrikePayerDefinition.toDerivative(REFERENCE_DATE);
       pvPayerApproximation[loopstrike] = METHOD_HW_APPROXIMATION.presentValue(swaptionStrikePayer, HW_MULTICURVES).getAmount(EUR);
       pvPayerIntegration[loopstrike] = METHOD_HW_INTEGRATION.presentValue(swaptionStrikePayer, HW_MULTICURVES).getAmount(EUR);
       assertEquals("Swaption cash - Hull-White - present value - explicit/numerical integration", pvPayerApproximation[loopstrike], pvPayerIntegration[loopstrike], errorLimit);
       final SwapFixedIborDefinition swapStrikeReceiverDefinition = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, bp1, forward + strikeRel[loopstrike], !FIXED_IS_PAYER, CALENDAR);
-      final SwaptionCashFixedIborDefinition swaptionStrikeReceiverDefinition = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, swapStrikeReceiverDefinition, IS_LONG);
+      final SwaptionCashFixedIborDefinition swaptionStrikeReceiverDefinition = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, swapStrikeReceiverDefinition, false, IS_LONG);
       final SwaptionCashFixedIbor swaptionStrikeReceiver = swaptionStrikeReceiverDefinition.toDerivative(REFERENCE_DATE);
       pvReceiverApproximation[loopstrike] = METHOD_HW_APPROXIMATION.presentValue(swaptionStrikeReceiver, HW_MULTICURVES).getAmount(EUR);
       pvReceiverIntegration[loopstrike] = METHOD_HW_INTEGRATION.presentValue(swaptionStrikeReceiver, HW_MULTICURVES).getAmount(EUR);
@@ -210,7 +212,7 @@ public class SwaptionCashFixedIborHullWhiteMethodTest {
   public void presentValueCurveSensitivity() {
     final MultipleCurrencyParameterSensitivity pvpsExact = PS_HW_C.calculateSensitivity(SWAPTION_RECEIVER_SHORT, HW_MULTICURVES, HW_MULTICURVES.getMulticurveProvider().getAllNames());
     final MultipleCurrencyParameterSensitivity pvpsFD = PS_HW_FDC.calculateSensitivity(SWAPTION_RECEIVER_SHORT, HW_MULTICURVES);
-    AssertSensivityObjects.assertEquals("SwaptionPhysicalFixedIborSABRMethod: presentValueCurveSensitivity ", pvpsExact, pvpsFD, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("SwaptionPhysicalFixedIborSABRMethod: presentValueCurveSensitivity ", pvpsExact, pvpsFD, TOLERANCE_PV_DELTA);
   }
 
   @Test(enabled = false)

@@ -8,6 +8,7 @@ package com.opengamma.batch.domain;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -63,65 +64,6 @@ public class RiskRunProperty extends DirectBean {
   @Override
   public RiskRunProperty.Meta metaBean() {
     return RiskRunProperty.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 3355:  // id
-        return getId();
-      case 1211740476:  // riskRun
-        return getRiskRun();
-      case 1357577290:  // propertyKey
-        return getPropertyKey();
-      case -1028251492:  // propertyValue
-        return getPropertyValue();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 3355:  // id
-        setId((Integer) newValue);
-        return;
-      case 1211740476:  // riskRun
-        setRiskRun((RiskRun) newValue);
-        return;
-      case 1357577290:  // propertyKey
-        setPropertyKey((String) newValue);
-        return;
-      case -1028251492:  // propertyValue
-        setPropertyValue((String) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      RiskRunProperty other = (RiskRunProperty) obj;
-      return JodaBeanUtils.equal(getId(), other.getId()) &&
-          JodaBeanUtils.equal(getRiskRun(), other.getRiskRun()) &&
-          JodaBeanUtils.equal(getPropertyKey(), other.getPropertyKey()) &&
-          JodaBeanUtils.equal(getPropertyValue(), other.getPropertyValue());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRiskRun());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPropertyKey());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPropertyValue());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -222,6 +164,57 @@ public class RiskRunProperty extends DirectBean {
    */
   public final Property<String> propertyValue() {
     return metaBean().propertyValue().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public RiskRunProperty clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      RiskRunProperty other = (RiskRunProperty) obj;
+      return (getId() == other.getId()) &&
+          JodaBeanUtils.equal(getRiskRun(), other.getRiskRun()) &&
+          JodaBeanUtils.equal(getPropertyKey(), other.getPropertyKey()) &&
+          JodaBeanUtils.equal(getPropertyValue(), other.getPropertyValue());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRiskRun());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPropertyKey());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPropertyValue());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(160);
+    buf.append("RiskRunProperty{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("id").append('=').append(JodaBeanUtils.toString(getId())).append(',').append(' ');
+    buf.append("riskRun").append('=').append(JodaBeanUtils.toString(getRiskRun())).append(',').append(' ');
+    buf.append("propertyKey").append('=').append(JodaBeanUtils.toString(getPropertyKey())).append(',').append(' ');
+    buf.append("propertyValue").append('=').append(JodaBeanUtils.toString(getPropertyValue())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -331,6 +324,41 @@ public class RiskRunProperty extends DirectBean {
      */
     public final MetaProperty<String> propertyValue() {
       return _propertyValue;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 3355:  // id
+          return ((RiskRunProperty) bean).getId();
+        case 1211740476:  // riskRun
+          return ((RiskRunProperty) bean).getRiskRun();
+        case 1357577290:  // propertyKey
+          return ((RiskRunProperty) bean).getPropertyKey();
+        case -1028251492:  // propertyValue
+          return ((RiskRunProperty) bean).getPropertyValue();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 3355:  // id
+          ((RiskRunProperty) bean).setId((Integer) newValue);
+          return;
+        case 1211740476:  // riskRun
+          ((RiskRunProperty) bean).setRiskRun((RiskRun) newValue);
+          return;
+        case 1357577290:  // propertyKey
+          ((RiskRunProperty) bean).setPropertyKey((String) newValue);
+          return;
+        case -1028251492:  // propertyValue
+          ((RiskRunProperty) bean).setPropertyValue((String) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

@@ -17,13 +17,13 @@ import com.opengamma.util.PublicAPI;
 public interface ExternalBundleIdentifiable {
 
   /**
-   * Gets the external identifier bundle that define the security.
+   * Gets the external identifier bundle that defines the object.
    * <p>
-   * Each external system has one or more identifiers by which they refer to the security.
+   * Each external system has one or more identifiers by which they refer to the object.
    * Some of these may be unique within that system, while others may be more descriptive.
    * This bundle stores the set of these external identifiers.
    * 
-   * @return the bundle defining the security, not null
+   * @return the bundle defining the object, not null
    */
   ExternalIdBundle getExternalIdBundle();
 

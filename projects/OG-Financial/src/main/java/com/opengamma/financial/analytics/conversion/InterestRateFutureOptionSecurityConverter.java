@@ -12,10 +12,10 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureOptionMarginSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureOptionPremiumSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureSecurityDefinition;
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
@@ -42,7 +42,7 @@ public class InterestRateFutureOptionSecurityConverter extends FinancialSecurity
   public InterestRateFutureOptionSecurityConverter(final HolidaySource holidaySource, final ConventionSource conventionSource, final RegionSource regionSource,
       final SecuritySource securitySource) {
     ArgumentChecker.notNull(securitySource, "security source");
-    _underlyingConverter = new InterestRateFutureSecurityConverter(holidaySource, conventionSource, regionSource);
+    _underlyingConverter = new InterestRateFutureSecurityConverter(securitySource, holidaySource, conventionSource, regionSource);
     _securitySource = securitySource;
   }
 

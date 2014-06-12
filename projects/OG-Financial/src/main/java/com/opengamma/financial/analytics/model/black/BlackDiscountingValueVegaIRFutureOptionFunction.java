@@ -17,7 +17,7 @@ import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.provider.calculator.blackstirfutures.PresentValueBlackSensitivityBlackSTIRFutureOptionCalculator;
-import com.opengamma.analytics.financial.provider.description.interestrate.BlackSTIRFuturesSmileProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.BlackSTIRFuturesProviderInterface;
 import com.opengamma.analytics.util.amount.SurfaceValue;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
@@ -36,7 +36,7 @@ import com.opengamma.engine.value.ValueSpecification;
  */
 public class BlackDiscountingValueVegaIRFutureOptionFunction extends BlackDiscountingIRFutureOptionFunction {
   /** The value vega calculator */
-  private static final InstrumentDerivativeVisitor<BlackSTIRFuturesSmileProviderInterface, SurfaceValue> CALCULATOR =
+  private static final InstrumentDerivativeVisitor<BlackSTIRFuturesProviderInterface, SurfaceValue> CALCULATOR =
       PresentValueBlackSensitivityBlackSTIRFutureOptionCalculator.getInstance();
 
   /**
@@ -54,7 +54,7 @@ public class BlackDiscountingValueVegaIRFutureOptionFunction extends BlackDiscou
       protected Set<ComputedValue> getValues(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
           final ComputationTarget target, final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative,
           final FXMatrix fxMatrix) {
-        final BlackSTIRFuturesSmileProviderInterface blackData = getBlackSurface(executionContext, inputs, target, fxMatrix);
+        final BlackSTIRFuturesProviderInterface blackData = getBlackSurface(executionContext, inputs, target, fxMatrix);
         final SurfaceValue sensitivities = derivative.accept(CALCULATOR, blackData);
         final double vega = sensitivities.toSingleValue();
         final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);

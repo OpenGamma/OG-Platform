@@ -80,7 +80,7 @@ public abstract class SimpleFutureFunction extends NonCompiledInvoker {
     final InterestRateFutureSecurityConverterDeprecated irFutureConverter = new InterestRateFutureSecurityConverterDeprecated(holidaySource, conventionSource, regionSource);
     final BondSecurityConverter bondConverter = new BondSecurityConverter(holidaySource, conventionSource, regionSource);
     final BondFutureSecurityConverter bondFutureConverter = new BondFutureSecurityConverter(securitySource, bondConverter);
-    _converter = new FutureSecurityConverterDeprecated(irFutureConverter, bondFutureConverter);
+    _converter = new FutureSecurityConverterDeprecated(bondFutureConverter);
   }
 
   @Override

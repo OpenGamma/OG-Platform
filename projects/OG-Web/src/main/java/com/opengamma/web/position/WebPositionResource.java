@@ -5,6 +5,12 @@
  */
 package com.opengamma.web.position;
 
+import static org.apache.commons.lang.StringEscapeUtils.escapeJavaScript;
+import static org.apache.commons.lang.StringUtils.defaultString;
+import static org.apache.commons.lang.StringUtils.replace;
+import static org.apache.commons.lang.StringUtils.trimToEmpty;
+import static org.apache.commons.lang.StringUtils.trimToNull;
+
 import java.math.BigDecimal;
 import java.net.URI;
 import java.util.Collection;
@@ -21,9 +27,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
+import org.joda.beans.Bean;
 import org.joda.beans.impl.flexi.FlexiBean;
+import org.threeten.bp.format.DateTimeFormatter;
 
 import com.google.common.base.Objects;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
@@ -35,6 +42,8 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
+import com.opengamma.master.position.PositionMaster;
+import com.opengamma.util.JodaBeanSerialization;
 
 /**
  * RESTful resource for a position.
@@ -69,47 +78,59 @@ public class WebPositionResource extends AbstractWebPositionResource {
   @PUT
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   @Produces(MediaType.TEXT_HTML)
-  public Response putHTML(
-      @FormParam("quantity") String quantityStr) {
+  public Response putHTML(@FormParam(POSITION_XML) String positionXml) {
     PositionDocument doc = data().getPosition();
     if (doc.isLatest() == false) {
       return Response.status(Status.FORBIDDEN).entity(getHTML()).build();
     }
-    quantityStr = StringUtils.replace(StringUtils.trimToNull(quantityStr), ",", "");
-    BigDecimal quantity = quantityStr != null && NumberUtils.isNumber(quantityStr) ? new BigDecimal(quantityStr) : null;
-    if (quantity == null) {
+    positionXml = trimToNull(positionXml);
+    if (positionXml == null) {
       FlexiBean out = createRootData();
-      if (quantityStr == null) {
-        out.put("err_quantityMissing", true);
-      } else {
-        out.put("err_quantityNotNumeric", true);
-      }
+      out.put("err_xmlMissing", true);
+      out.put(POSITION_XML, defaultString(positionXml));
       String html = getFreemarker().build(HTML_DIR + "position-update.ftl", out);
       return Response.ok(html).build();
     }
-    URI uri = updatePosition(doc, quantity, null);
+    URI uri = updatePosition(positionXml);
     return Response.seeOther(uri).build();
+  }
+
+  private URI updatePosition(String positionXml) {
+    Bean positionBean = JodaBeanSerialization.deserializer().xmlReader().read(positionXml);
+    PositionMaster positionMaster = data().getPositionMaster();
+    positionMaster.update(new PositionDocument((ManageablePosition) positionBean));
+    return WebPositionResource.uri(data());
   }
 
   @PUT
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   @Produces(MediaType.APPLICATION_JSON)
-  public Response putJSON(
-      @FormParam("quantity") String quantityStr, @FormParam("tradesJson") String tradesJson) {
+  public Response putJSON(@FormParam("quantity") String quantityStr, 
+      @FormParam("tradesJson") String tradesJson, 
+      @FormParam("type") String type, 
+      @FormParam(POSITION_XML) String positionXml) {
+    
     PositionDocument doc = data().getPosition();
     if (doc.isLatest() == false) {
       return Response.status(Status.FORBIDDEN).entity(getHTML()).build();
     }
-    quantityStr = StringUtils.replace(StringUtils.trimToNull(quantityStr), ",", "");
-    tradesJson = StringUtils.trimToNull(tradesJson);
-    Collection<ManageableTrade> trades = null;
-    if (tradesJson != null) {
-      trades = parseTrades(tradesJson);
-    } else {
-      trades = Collections.<ManageableTrade>emptyList();
+    type = defaultString(trimToNull(type));
+    switch (type) {
+      case "xml":
+        updatePosition(trimToEmpty(positionXml));
+        break;
+      default:
+        quantityStr = replace(trimToNull(quantityStr), ",", "");
+        tradesJson = trimToNull(tradesJson);
+        Collection<ManageableTrade> trades = null;
+        if (tradesJson != null) {
+          trades = parseTrades(tradesJson);
+        } else {
+          trades = Collections.<ManageableTrade>emptyList();
+        }
+        BigDecimal quantity = quantityStr != null && NumberUtils.isNumber(quantityStr) ? new BigDecimal(quantityStr) : null;
+        updatePosition(doc, quantity, trades);
     }
-    BigDecimal quantity = quantityStr != null && NumberUtils.isNumber(quantityStr) ? new BigDecimal(quantityStr) : null;
-    updatePosition(doc, quantity, trades);
     return Response.ok().build();
   }
 
@@ -162,6 +183,8 @@ public class WebPositionResource extends AbstractWebPositionResource {
    */
   protected FlexiBean createRootData() {
     FlexiBean out = super.createRootData();
+    out.put("timeFormatterJson", DateTimeFormatter.ofPattern("HH:mm:ss"));
+    out.put("offsetFormatterJson", DateTimeFormatter.ofPattern("Z"));
     PositionDocument doc = data().getPosition();
     
     // REVIEW jonathan 2012-01-12 -- we are throwing away any adjuster that may be required, e.g. to apply
@@ -186,8 +209,8 @@ public class WebPositionResource extends AbstractWebPositionResource {
     out.put("timeSeriesId", tsObjectId);
     out.put("deleted", !doc.isLatest());
     out.put("attributes", doc.getPosition().getAttributes());
-    TradeAttributesModel tradeAttributesModel = getTradeAttributesModel();
-    out.put("tradeAttrModel", tradeAttributesModel);
+    out.put("tradeAttrModel", getTradeAttributesModel());
+    out.put(POSITION_XML, escapeJavaScript(defaultString(getPositionXml(doc.getPosition()))));
     return out;
   }
 

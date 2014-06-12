@@ -118,14 +118,10 @@ public abstract class SpringFactoryBean<T> extends DirectBean implements Factory
     return SpringFactoryBean.Meta.INSTANCE;
   }
 
+  //-----------------------------------------------------------------------
   @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    super.propertySet(propertyName, newValue, quiet);
+  public SpringFactoryBean<T> clone() {
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override
@@ -143,6 +139,22 @@ public abstract class SpringFactoryBean<T> extends DirectBean implements Factory
   public int hashCode() {
     int hash = getClass().hashCode();
     return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(32);
+    buf.append("SpringFactoryBean{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
   }
 
   //-----------------------------------------------------------------------

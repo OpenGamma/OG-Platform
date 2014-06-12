@@ -29,6 +29,13 @@ public final class WebPushServletContextUtils {
   private WebPushServletContextUtils() {
   }
 
+  public static boolean isConnectionManagerAvailable(ServletContext servletContext) {
+    ArgumentChecker.notNull(servletContext, "servletContext");
+    ConnectionManager mgr = (ConnectionManager) servletContext.getAttribute(CONNECTION_MANAGER_KEY);
+    return mgr != null;
+  }
+
+  
   //-------------------------------------------------------------------------
   /**
    * Gets the manager from the context.

@@ -24,7 +24,9 @@ import com.opengamma.util.ArgumentChecker;
  * @author Martin Traverse, Niels Stchedroff (Riskcare)
  * @see InstrumentDerivative
  * @see ISDACDSDefinition
+ * @deprecated Use classes from isdastandardmodel
  */
+@Deprecated
 public class ISDACDSDerivative implements InstrumentDerivative {
 
   private final String _discountCurveName;
@@ -74,11 +76,9 @@ public class ISDACDSDerivative implements InstrumentDerivative {
    * @deprecated Use the constructor that does not take curve names.
    */
   @Deprecated
-  public ISDACDSDerivative(final String discountCurveName, final String spreadCurveName, final ISDACDSPremium premium,
-      final double startTime, final double maturity, final double stepinTime, final double settlementTime,
-      final double notional, final double spread, final double recoveryRate, final double accruedInterest,
-      final boolean accrualOnDefault, final boolean payOnDefault, final boolean protectStart,
-      final Frequency couponFrequency, final Convention convention, final StubType stubType) {
+  public ISDACDSDerivative(final String discountCurveName, final String spreadCurveName, final ISDACDSPremium premium, final double startTime, final double maturity, final double stepinTime,
+      final double settlementTime, final double notional, final double spread, final double recoveryRate, final double accruedInterest, final boolean accrualOnDefault, final boolean payOnDefault,
+      final boolean protectStart, final Frequency couponFrequency, final Convention convention, final StubType stubType) {
 
     _discountCurveName = discountCurveName;
     _spreadCurveName = spreadCurveName;
@@ -123,9 +123,8 @@ public class ISDACDSDerivative implements InstrumentDerivative {
    * @param convention The convention data
    * @param stubType the premium schedule stub type
    */
-  public ISDACDSDerivative(final ISDACDSPremium premium, final double startTime, final double maturity, final double stepinTime, final double settlementTime,
-      final double notional, final double spread, final double recoveryRate, final double accruedInterest,
-      final boolean accrualOnDefault, final boolean payOnDefault, final boolean protectStart,
+  public ISDACDSDerivative(final ISDACDSPremium premium, final double startTime, final double maturity, final double stepinTime, final double settlementTime, final double notional,
+      final double spread, final double recoveryRate, final double accruedInterest, final boolean accrualOnDefault, final boolean payOnDefault, final boolean protectStart,
       final Frequency couponFrequency, final Convention convention, final StubType stubType) {
 
     _discountCurveName = null;
@@ -151,7 +150,7 @@ public class ISDACDSDerivative implements InstrumentDerivative {
     _convention = convention;
     _stubType = stubType;
   }
-  
+
   @Override
   public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
     ArgumentChecker.notNull(visitor, "visitor");

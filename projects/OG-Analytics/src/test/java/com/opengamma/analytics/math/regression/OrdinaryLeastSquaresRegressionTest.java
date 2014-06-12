@@ -14,6 +14,12 @@ import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
+import com.opengamma.util.test.TestGroup;
+
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class OrdinaryLeastSquaresRegressionTest {
   private static final LeastSquaresRegression REGRESSION = new OrdinaryLeastSquaresRegression();
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister.DEFAULT_SEED);

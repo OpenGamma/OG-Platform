@@ -12,8 +12,7 @@ $.register_module({
             get: common.not_available_get,
             put: function (config, promise) {
                 config = config || {};
-                var promise = promise || new common.Promise,
-                    root = this.root, method = [root], data = {}, meta,
+                var promise = promise || new common.Promise, root = this.root, method = [root], data = {}, meta,
                     fields = [
                         'viewdefinition', 'aggregators', 'providers', 'valuation', 'version', 'correction', 'blotter'
                     ],
@@ -22,7 +21,7 @@ $.register_module({
                         'portfolioVersionTime', 'portfolioCorrectionTime', 'blotter'
                     ];
                 if (!api.id) return setTimeout((function (context) {                    // if handshake isn't
-                    return function () {api.views.put.call(context, config, promise);}; // complete, return a
+                    return function () {api.views.put.call(context, config, promise); }; // complete, return a
                 })(this), STALL), promise;                                              // promise and try again
                 meta = check({
                     bundle: {method: root + '#put', config: config},
@@ -50,6 +49,21 @@ $.register_module({
                 meta.type = 'DELETE';
                 method = method.concat(view_id);
                 return api.request(method, {data: {}, meta: meta});
+            },
+            error : {
+                root: 'views/{{view_id}}/errors',
+                get: function (config) {
+                    config = config || {};
+                    var root = this.root, method = root.split('/'), data = {}, meta;
+                    meta = check({
+                    bundle: {method: root + '#get', config: config},
+                    required: [{all_of: ['view_id']}]
+                    });
+                    method[1] = config.view_id;
+                    return api.request(method, {data: data, meta: meta});
+                },
+                put: common.not_available_put,
+                del: common.not_available_del
             },
             status: {
                 root: 'views/{{view_id}}/pauseOrResume',
@@ -105,7 +119,7 @@ $.register_module({
                     put: function (config) {
                         config = config || {};
                         var promise = new common.Promise, root = this.root, method = root.split('/'),
-                            data = {}, meta, fields = ['view_id', 'grid_type', 'row', 'col'],
+                            data = {}, meta, fields = ['view_id', 'grid_type', 'colset', 'req'],
                         meta = check({
                             bundle: {method: root + '#put', config: config}, required: [{all_of: fields}]
                         });
@@ -222,10 +236,29 @@ $.register_module({
                             meta = check({
                                  bundle: {method: root + '#get', config: config},
                                  required: [{all_of: ['view_id', 'grid_type', 'viewport_id']}]
-                             });
+                            });
                             method[1] = config.view_id;
                             method[2] = config.grid_type;
                             method[4] = config.viewport_id;
+                            return api.request(method, {data: data, meta: meta});
+                        },
+                        put: common.not_available_put,
+                        del: common.not_available_del
+                    },
+                    valuereq: {
+                        root: 'views/{{view_id}}/{{grid_type}}/viewports/{{viewport_id}}/valuereq/{{row}}/{{col}}',
+                        get: function (config) {
+                            config = config || {};
+                            var root = this.root, method = root.split('/'), data = {}, meta;
+                            meta = check({
+                                bundle: {method: root + '#get', config: config},
+                                required: [{all_of: ['view_id', 'grid_type', 'viewport_id', 'row', 'col']}]
+                            });
+                            method[1] = config.view_id;
+                            method[2] = config.grid_type;
+                            method[4] = config.viewport_id;
+                            method[6] = config.row;
+                            method[7] = config.col;
                             return api.request(method, {data: data, meta: meta});
                         },
                         put: common.not_available_put,

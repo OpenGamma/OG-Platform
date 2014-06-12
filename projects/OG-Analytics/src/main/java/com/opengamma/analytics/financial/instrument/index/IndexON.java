@@ -25,6 +25,10 @@ public class IndexON extends IndexDeposit {
    * It does not represent the standard number of days between the trade date and the settlement date.
    */
   private final int _publicationLag;
+  /**
+   * {@link IndexON} is used as a key within the curve system, thus {@link #hashCode()} needs to be fast.
+   */
+  private final int _hashCode;
 
   /**
    * Index constructor from all the details.
@@ -39,6 +43,7 @@ public class IndexON extends IndexDeposit {
     ArgumentChecker.isTrue(publicationLag == 0 || publicationLag == 1, "Attempted to construct an IndexON with publicationLag other than 0 or 1");
     _publicationLag = publicationLag;
     _dayCount = dayCount;
+    _hashCode = generateHashCode();
   }
 
   /**
@@ -59,11 +64,15 @@ public class IndexON extends IndexDeposit {
 
   @Override
   public String toString() {
-    return super.toString() + "-" + _dayCount.getConventionName();
+    return super.toString() + "-" + _dayCount.getName();
   }
 
   @Override
   public int hashCode() {
+    return _hashCode;
+  }
+
+  private int generateHashCode() {
     final int prime = 31;
     int result = super.hashCode();
     result = prime * result + _dayCount.hashCode();

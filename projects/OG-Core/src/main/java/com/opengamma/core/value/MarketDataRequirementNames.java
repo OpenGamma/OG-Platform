@@ -125,7 +125,7 @@ public interface MarketDataRequirementNames {
   String NEXT_DIVIDEND_DATE = "Market_NextDividendDate";
   
   /**
-   * Estimated frequency of dividend payments, as an enum 
+   * Estimated frequency of dividend payments, as the number of payments per year
    */
   String DIVIDEND_FREQUENCY = "Market_DividendFrequency";
 

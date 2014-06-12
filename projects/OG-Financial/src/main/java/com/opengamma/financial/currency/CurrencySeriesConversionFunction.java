@@ -27,6 +27,7 @@ import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValueProperties.Builder;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -44,6 +45,8 @@ import com.opengamma.util.time.Tenor;
 public class CurrencySeriesConversionFunction extends AbstractFunction.NonCompiledInvoker {
 
   private static final String CURRENCY_INJECTION_PROPERTY = ValuePropertyNames.OUTPUT_RESERVED_PREFIX + "Currency";
+
+  private static final String CONVERSION_METHOD_VALUE = "Series";
 
   private static final Logger s_logger = LoggerFactory.getLogger(CurrencySeriesConversionFunction.class);
 
@@ -75,8 +78,11 @@ public class CurrencySeriesConversionFunction extends AbstractFunction.NonCompil
   }
 
   private ValueRequirement getInputValueRequirement(final ComputationTargetSpecification targetSpec, final ValueRequirement desiredValue) {
-    return new ValueRequirement(desiredValue.getValueName(), targetSpec, desiredValue.getConstraints().copy().withoutAny(CURRENCY_INJECTION_PROPERTY)
-        .withAny(ValuePropertyNames.CURRENCY).get());
+    Builder properties = desiredValue.getConstraints().copy()
+        .withoutAny(CURRENCY_INJECTION_PROPERTY)
+        .withoutAny(ValuePropertyNames.CONVERSION_METHOD)
+        .withAny(ValuePropertyNames.CURRENCY);
+    return new ValueRequirement(desiredValue.getValueName(), targetSpec, properties.get());
   }
 
   private ValueRequirement getInputValueRequirement(final ComputationTargetSpecification targetSpec, final ValueRequirement desiredValue, final String forceCurrency) {
@@ -234,7 +240,10 @@ public class CurrencySeriesConversionFunction extends AbstractFunction.NonCompil
       // Resolved output is the input with the currency wild-carded, and the function ID the same (this is so that after composition the node might
       // be removed from the graph)
       final ValueSpecification value = input.getKey();
-      return Collections.singleton(new ValueSpecification(value.getValueName(), value.getTargetSpecification(), value.getProperties().copy().withAny(ValuePropertyNames.CURRENCY).get()));
+      Builder properties = value.getProperties().copy()
+          .withAny(ValuePropertyNames.CURRENCY)
+          .with(ValuePropertyNames.CONVERSION_METHOD, CONVERSION_METHOD_VALUE);
+      return Collections.singleton(new ValueSpecification(value.getValueName(), value.getTargetSpecification(), properties.get()));
     }
     // The input was requested with the converted currency, so return the same specification to remove this node from the graph
     return Collections.singleton(input.getKey());

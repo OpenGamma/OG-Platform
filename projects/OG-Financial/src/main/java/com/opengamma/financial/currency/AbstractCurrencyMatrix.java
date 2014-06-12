@@ -13,7 +13,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
-import com.opengamma.core.config.Config;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
@@ -22,7 +21,6 @@ import com.opengamma.util.money.Currency;
 /**
  * A simple base class for a {@link CurrencyMatrix}.
  */
-@Config(searchType = CurrencyMatrix.class, description = "Currency matrix")
 public abstract class AbstractCurrencyMatrix implements CurrencyMatrix, MutableUniqueIdentifiable {
 
   private final ConcurrentHashMap<Currency, ConcurrentHashMap<Currency, CurrencyMatrixValue>> _values = new ConcurrentHashMap<Currency, ConcurrentHashMap<Currency, CurrencyMatrixValue>>();

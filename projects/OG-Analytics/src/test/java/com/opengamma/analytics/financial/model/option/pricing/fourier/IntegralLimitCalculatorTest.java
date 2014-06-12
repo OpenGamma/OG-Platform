@@ -5,7 +5,12 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.math.ComplexMathUtils;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.number.ComplexNumber;
+import com.opengamma.util.test.TestGroup;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class IntegralLimitCalculatorTest {
   private static final Function1D<ComplexNumber, ComplexNumber> PSI = new Function1D<ComplexNumber, ComplexNumber>() {
 

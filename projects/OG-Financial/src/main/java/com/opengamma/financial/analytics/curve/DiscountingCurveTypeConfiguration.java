@@ -7,6 +7,7 @@ package com.opengamma.financial.analytics.curve;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -66,51 +67,6 @@ public class DiscountingCurveTypeConfiguration extends CurveTypeConfiguration {
     return DiscountingCurveTypeConfiguration.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -925155509:  // reference
-        return getReference();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -925155509:  // reference
-        setReference((String) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_reference, "reference");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      DiscountingCurveTypeConfiguration other = (DiscountingCurveTypeConfiguration) obj;
-      return JodaBeanUtils.equal(getReference(), other.getReference()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getReference());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the reference.
@@ -135,6 +91,51 @@ public class DiscountingCurveTypeConfiguration extends CurveTypeConfiguration {
    */
   public final Property<String> reference() {
     return metaBean().reference().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public DiscountingCurveTypeConfiguration clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      DiscountingCurveTypeConfiguration other = (DiscountingCurveTypeConfiguration) obj;
+      return JodaBeanUtils.equal(getReference(), other.getReference()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getReference());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(64);
+    buf.append("DiscountingCurveTypeConfiguration{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("reference").append('=').append(JodaBeanUtils.toString(getReference())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -196,6 +197,32 @@ public class DiscountingCurveTypeConfiguration extends CurveTypeConfiguration {
      */
     public final MetaProperty<String> reference() {
       return _reference;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -925155509:  // reference
+          return ((DiscountingCurveTypeConfiguration) bean).getReference();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -925155509:  // reference
+          ((DiscountingCurveTypeConfiguration) bean).setReference((String) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((DiscountingCurveTypeConfiguration) bean)._reference, "reference");
+      super.validate(bean);
     }
 
   }

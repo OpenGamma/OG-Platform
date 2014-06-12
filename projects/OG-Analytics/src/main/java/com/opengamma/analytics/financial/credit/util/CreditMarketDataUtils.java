@@ -11,7 +11,9 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Class to check the efficacy of user input CDS spread data (e.g. that tenors of calibrating instruments are in ascending order)
+ *@deprecated this will be deleted 
  */
+@Deprecated
 public class CreditMarketDataUtils {
   private static final double TOLERANCE = 1e-15;
 

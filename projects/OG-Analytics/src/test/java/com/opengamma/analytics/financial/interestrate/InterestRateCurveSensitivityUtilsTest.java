@@ -17,17 +17,19 @@ import java.util.Map;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class InterestRateCurveSensitivityUtilsTest {
 
   @Test
   public void testCleanList1() {
     final List<DoublesPair> old = new ArrayList<>();
-    old.add(new DoublesPair(0.23, 12.3));
+    old.add(DoublesPair.of(0.23, 12.3));
 
     final List<DoublesPair> res = clean(old, 1e-9, 1e-12);
     assertEquals(old.size(), res.size());
@@ -41,19 +43,19 @@ public class InterestRateCurveSensitivityUtilsTest {
   @Test
   public void testCleanList2() {
     final List<DoublesPair> old = new ArrayList<>();
-    old.add(new DoublesPair(0.23, 12.3));
-    old.add(new DoublesPair(0.231, -12.3));
-    old.add(new DoublesPair(1.23, 1.0));
-    old.add(new DoublesPair(0.23, -12.3));
-    old.add(new DoublesPair(1.23, 3.24));
-    old.add(new DoublesPair(1.78, -3.24));
-    old.add(new DoublesPair(1.23, -1.0));
-    old.add(new DoublesPair(1.23, 1.0));
+    old.add(DoublesPair.of(0.23, 12.3));
+    old.add(DoublesPair.of(0.231, -12.3));
+    old.add(DoublesPair.of(1.23, 1.0));
+    old.add(DoublesPair.of(0.23, -12.3));
+    old.add(DoublesPair.of(1.23, 3.24));
+    old.add(DoublesPair.of(1.78, -3.24));
+    old.add(DoublesPair.of(1.23, -1.0));
+    old.add(DoublesPair.of(1.23, 1.0));
 
     final List<DoublesPair> expected = new ArrayList<>();
-    expected.add(new DoublesPair(0.231, -12.3));
-    expected.add(new DoublesPair(1.23, 4.24));
-    expected.add(new DoublesPair(1.78, -3.24));
+    expected.add(DoublesPair.of(0.231, -12.3));
+    expected.add(DoublesPair.of(1.23, 4.24));
+    expected.add(DoublesPair.of(1.78, -3.24));
 
     final List<DoublesPair> res = clean(old, 1e-9, 1e-12);
     assertEquals(expected.size(), res.size());
@@ -69,23 +71,23 @@ public class InterestRateCurveSensitivityUtilsTest {
     final String c1 = "c1";
     final String c2 = "c2";
     final List<DoublesPair> l1 = new ArrayList<>();
-    l1.add(new DoublesPair(0.23, 12.3));
-    l1.add(new DoublesPair(0.231, -12.3));
-    l1.add(new DoublesPair(1.23, 1.0));
+    l1.add(DoublesPair.of(0.23, 12.3));
+    l1.add(DoublesPair.of(0.231, -12.3));
+    l1.add(DoublesPair.of(1.23, 1.0));
     final Map<String, List<DoublesPair>> m = new HashMap<>();
     m.put(c1, l1);
     final List<DoublesPair> l2 = new ArrayList<>();
-    l2.add(new DoublesPair(0.23, -12.3));
-    l2.add(new DoublesPair(1.23, 3.24));
-    l2.add(new DoublesPair(1.78, -3.24));
-    l2.add(new DoublesPair(1.23, -1.0));
-    l2.add(new DoublesPair(1.23, 1.0));
+    l2.add(DoublesPair.of(0.23, -12.3));
+    l2.add(DoublesPair.of(1.23, 3.24));
+    l2.add(DoublesPair.of(1.78, -3.24));
+    l2.add(DoublesPair.of(1.23, -1.0));
+    l2.add(DoublesPair.of(1.23, 1.0));
     m.put(c2, l2);
 
     final List<DoublesPair> e2 = new ArrayList<>();
-    e2.add(new DoublesPair(0.23, -12.3));
-    e2.add(new DoublesPair(1.23, 3.24));
-    e2.add(new DoublesPair(1.78, -3.24));
+    e2.add(DoublesPair.of(0.23, -12.3));
+    e2.add(DoublesPair.of(1.23, 3.24));
+    e2.add(DoublesPair.of(1.78, -3.24));
 
     final Map<String, List<DoublesPair>> res = clean(m, 1e-9, 1e-12);
     assertSensitivityEquals(l1, res.get(c1), 1e-9);
@@ -95,19 +97,19 @@ public class InterestRateCurveSensitivityUtilsTest {
   @Test
   public void testAddSensitivityList() {
     final List<DoublesPair> l1 = new ArrayList<>();
-    l1.add(new DoublesPair(0.23, 12.3));
-    l1.add(new DoublesPair(0.23, -2.6));
-    l1.add(new DoublesPair(0.35, 2.3));
+    l1.add(DoublesPair.of(0.23, 12.3));
+    l1.add(DoublesPair.of(0.23, -2.6));
+    l1.add(DoublesPair.of(0.35, 2.3));
     final List<DoublesPair> l2 = new ArrayList<>();
-    l2.add(new DoublesPair(0.35, 12.3));
-    l2.add(new DoublesPair(1.23, -2.6));
+    l2.add(DoublesPair.of(0.35, 12.3));
+    l2.add(DoublesPair.of(1.23, -2.6));
     final List<DoublesPair> res = addSensitivity(l1, l2);
     final ArrayList<DoublesPair> expected = new ArrayList<>(); //Note: no cleaning is done with AddSensitivity
-    expected.add(new DoublesPair(0.23, 12.3));
-    expected.add(new DoublesPair(0.23, -2.6));
-    expected.add(new DoublesPair(0.35, 2.3));
-    expected.add(new DoublesPair(0.35, 12.3));
-    expected.add(new DoublesPair(1.23, -2.6));
+    expected.add(DoublesPair.of(0.23, 12.3));
+    expected.add(DoublesPair.of(0.23, -2.6));
+    expected.add(DoublesPair.of(0.35, 2.3));
+    expected.add(DoublesPair.of(0.35, 12.3));
+    expected.add(DoublesPair.of(1.23, -2.6));
 
     assertEquals(expected.size(), res.size());
 
@@ -120,15 +122,15 @@ public class InterestRateCurveSensitivityUtilsTest {
   @Test
   public void testAddSensitivityMap() {
     final List<DoublesPair> l1 = new ArrayList<>();
-    l1.add(new DoublesPair(0.23, 12.3));
-    l1.add(new DoublesPair(0.23, -2.6));
-    l1.add(new DoublesPair(0.35, 2.3));
+    l1.add(DoublesPair.of(0.23, 12.3));
+    l1.add(DoublesPair.of(0.23, -2.6));
+    l1.add(DoublesPair.of(0.35, 2.3));
     final List<DoublesPair> l2 = new ArrayList<>();
-    l2.add(new DoublesPair(0.35, 12.3));
-    l2.add(new DoublesPair(1.23, -2.6));
+    l2.add(DoublesPair.of(0.35, 12.3));
+    l2.add(DoublesPair.of(1.23, -2.6));
     final List<DoublesPair> l3 = new ArrayList<>();
-    l3.add(new DoublesPair(0.35, 12.3));
-    l3.add(new DoublesPair(1.23, -2.6));
+    l3.add(DoublesPair.of(0.35, 12.3));
+    l3.add(DoublesPair.of(1.23, -2.6));
     final String c1 = "C1";
     final String c2 = "C2";
     final Map<String, List<DoublesPair>> m1 = new HashMap<>();
@@ -146,9 +148,9 @@ public class InterestRateCurveSensitivityUtilsTest {
   @Test
   public void testMultiplySensitivityList() {
     final List<DoublesPair> l1 = new ArrayList<>();
-    l1.add(new DoublesPair(0.23, 2.3));
-    l1.add(new DoublesPair(0.23, -2.6));
-    l1.add(new DoublesPair(-0.35, 2.3));
+    l1.add(DoublesPair.of(0.23, 2.3));
+    l1.add(DoublesPair.of(0.23, -2.6));
+    l1.add(DoublesPair.of(-0.35, 2.3));
     final List<DoublesPair> res = multiplySensitivity(l1, 2.0);
     assertEquals(l1.size(), res.size());
     for (int i = 0; i < res.size(); i++) {
@@ -161,12 +163,12 @@ public class InterestRateCurveSensitivityUtilsTest {
     final String c1 = "c1";
     final String c2 = "c2";
     final List<DoublesPair> l1 = new ArrayList<>();
-    l1.add(new DoublesPair(0.23, 2.3));
+    l1.add(DoublesPair.of(0.23, 2.3));
     final Map<String, List<DoublesPair>> m = new HashMap<>();
     m.put(c1, l1);
     final List<DoublesPair> l2 = new ArrayList<>();
-    l2.add(new DoublesPair(0.23, -2.6));
-    l2.add(new DoublesPair(-0.35, 2.3));
+    l2.add(DoublesPair.of(0.23, -2.6));
+    l2.add(DoublesPair.of(-0.35, 2.3));
     m.put(c2, l2);
     final Map<String, List<DoublesPair>> res = multiplySensitivity(m, 2.0);
     assertSensitivityEquals(multiplySensitivity(l1, 2.0), res.get(c1), 1e-9); // multiplySensitivity on list tested

@@ -21,23 +21,25 @@ import com.opengamma.analytics.financial.provider.description.MulticurveProvider
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests the zero-coupon inflation constructors.
  */
+@Test(groups = TestGroup.UNIT)
 public class CouponInflationZeroCouponInterpolationDefinitionTest {
   private static final IndexPrice[] PRICE_INDEXES = MulticurveProviderDiscountDataSets.getPriceIndexes();
   private static final IndexPrice PRICE_INDEX_EUR = PRICE_INDEXES[0];
   private static final Currency CUR = PRICE_INDEX_EUR.getCurrency();
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
-  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventions.MODIFIED_FOLLOWING;
   private static final boolean EOM = true;
   private static final ZonedDateTime START_DATE = DateUtils.getUTCDate(2008, 8, 18);
   private static final int COUPON_TENOR_YEAR = 10;
@@ -49,8 +51,8 @@ public class CouponInflationZeroCouponInterpolationDefinitionTest {
   private static final double INDEX_MAY_2008 = 108.48129032258066; // May index: 108.23 - June Index = 108.64
   private static final ZonedDateTime[] REFERENCE_START_DATE = new ZonedDateTime[2];
   static {
-    REFERENCE_START_DATE[0] = START_DATE.minusMonths(MONTH_LAG).with(TemporalAdjusters.lastDayOfMonth());
-    REFERENCE_START_DATE[1] = START_DATE.minusMonths(MONTH_LAG - 1).with(TemporalAdjusters.lastDayOfMonth());
+    REFERENCE_START_DATE[0] = START_DATE.minusMonths(MONTH_LAG).with(TemporalAdjusters.lastDayOfMonth()).withHour(0).withMinute(0);
+    REFERENCE_START_DATE[1] = START_DATE.minusMonths(MONTH_LAG - 1).with(TemporalAdjusters.lastDayOfMonth()).withHour(0).withMinute(0);
   }
   private static final ZonedDateTime[] REFERENCE_END_DATE = new ZonedDateTime[2];
   static {

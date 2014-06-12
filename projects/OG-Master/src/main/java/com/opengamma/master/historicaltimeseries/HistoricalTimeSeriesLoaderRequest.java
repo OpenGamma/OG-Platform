@@ -8,6 +8,7 @@ package com.opengamma.master.historicaltimeseries;
 import java.util.Map;
 import java.util.Set;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -133,77 +134,10 @@ public class HistoricalTimeSeriesLoaderRequest extends DirectBean {
     return HistoricalTimeSeriesLoaderRequest.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1153096979:  // externalIds
-        return getExternalIds();
-      case 339742651:  // dataProvider
-        return getDataProvider();
-      case -386794640:  // dataField
-        return getDataField();
-      case -2129778896:  // startDate
-        return getStartDate();
-      case -1607727319:  // endDate
-        return getEndDate();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1153096979:  // externalIds
-        setExternalIds((Set<ExternalId>) newValue);
-        return;
-      case 339742651:  // dataProvider
-        setDataProvider((String) newValue);
-        return;
-      case -386794640:  // dataField
-        setDataField((String) newValue);
-        return;
-      case -2129778896:  // startDate
-        setStartDate((LocalDate) newValue);
-        return;
-      case -1607727319:  // endDate
-        setEndDate((LocalDate) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      HistoricalTimeSeriesLoaderRequest other = (HistoricalTimeSeriesLoaderRequest) obj;
-      return JodaBeanUtils.equal(getExternalIds(), other.getExternalIds()) &&
-          JodaBeanUtils.equal(getDataProvider(), other.getDataProvider()) &&
-          JodaBeanUtils.equal(getDataField(), other.getDataField()) &&
-          JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
-          JodaBeanUtils.equal(getEndDate(), other.getEndDate());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIds());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDataProvider());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDataField());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStartDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getEndDate());
-    return hash;
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the set of time-series external identifiers to load.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public Set<ExternalId> getExternalIds() {
     return _externalIds;
@@ -211,9 +145,10 @@ public class HistoricalTimeSeriesLoaderRequest extends DirectBean {
 
   /**
    * Sets the set of time-series external identifiers to load.
-   * @param externalIds  the new value of the property
+   * @param externalIds  the new value of the property, not null
    */
   public void setExternalIds(Set<ExternalId> externalIds) {
+    JodaBeanUtils.notNull(externalIds, "externalIds");
     this._externalIds.clear();
     this._externalIds.addAll(externalIds);
   }
@@ -324,6 +259,60 @@ public class HistoricalTimeSeriesLoaderRequest extends DirectBean {
    */
   public final Property<LocalDate> endDate() {
     return metaBean().endDate().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public HistoricalTimeSeriesLoaderRequest clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      HistoricalTimeSeriesLoaderRequest other = (HistoricalTimeSeriesLoaderRequest) obj;
+      return JodaBeanUtils.equal(getExternalIds(), other.getExternalIds()) &&
+          JodaBeanUtils.equal(getDataProvider(), other.getDataProvider()) &&
+          JodaBeanUtils.equal(getDataField(), other.getDataField()) &&
+          JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
+          JodaBeanUtils.equal(getEndDate(), other.getEndDate());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIds());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDataProvider());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDataField());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getStartDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getEndDate());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(192);
+    buf.append("HistoricalTimeSeriesLoaderRequest{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("externalIds").append('=').append(JodaBeanUtils.toString(getExternalIds())).append(',').append(' ');
+    buf.append("dataProvider").append('=').append(JodaBeanUtils.toString(getDataProvider())).append(',').append(' ');
+    buf.append("dataField").append('=').append(JodaBeanUtils.toString(getDataField())).append(',').append(' ');
+    buf.append("startDate").append('=').append(JodaBeanUtils.toString(getStartDate())).append(',').append(' ');
+    buf.append("endDate").append('=').append(JodaBeanUtils.toString(getEndDate())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -450,6 +439,52 @@ public class HistoricalTimeSeriesLoaderRequest extends DirectBean {
      */
     public final MetaProperty<LocalDate> endDate() {
       return _endDate;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1153096979:  // externalIds
+          return ((HistoricalTimeSeriesLoaderRequest) bean).getExternalIds();
+        case 339742651:  // dataProvider
+          return ((HistoricalTimeSeriesLoaderRequest) bean).getDataProvider();
+        case -386794640:  // dataField
+          return ((HistoricalTimeSeriesLoaderRequest) bean).getDataField();
+        case -2129778896:  // startDate
+          return ((HistoricalTimeSeriesLoaderRequest) bean).getStartDate();
+        case -1607727319:  // endDate
+          return ((HistoricalTimeSeriesLoaderRequest) bean).getEndDate();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1153096979:  // externalIds
+          ((HistoricalTimeSeriesLoaderRequest) bean).setExternalIds((Set<ExternalId>) newValue);
+          return;
+        case 339742651:  // dataProvider
+          ((HistoricalTimeSeriesLoaderRequest) bean).setDataProvider((String) newValue);
+          return;
+        case -386794640:  // dataField
+          ((HistoricalTimeSeriesLoaderRequest) bean).setDataField((String) newValue);
+          return;
+        case -2129778896:  // startDate
+          ((HistoricalTimeSeriesLoaderRequest) bean).setStartDate((LocalDate) newValue);
+          return;
+        case -1607727319:  // endDate
+          ((HistoricalTimeSeriesLoaderRequest) bean).setEndDate((LocalDate) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((HistoricalTimeSeriesLoaderRequest) bean)._externalIds, "externalIds");
     }
 
   }

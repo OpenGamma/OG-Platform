@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -151,7 +151,7 @@ public abstract class AbstractPortfolioGeneratorTool {
       securityGenerator.setHistoricalSource(getToolContext().getHistoricalTimeSeriesSource());
       securityGenerator.setExchangeMaster(getToolContext().getExchangeMaster());
       securityGenerator.setRegionSource(getToolContext().getRegionSource());
-      securityGenerator.setOrganizationSource(getToolContext().getOrganizationSource());
+      securityGenerator.setLegalEntitySource(getToolContext().getLegalEntitySource());
       securityGenerator.setSecurityMaster(getToolContext().getSecurityMaster());
       securityGenerator.setHistoricalTimeSeriesMaster(getToolContext().getHistoricalTimeSeriesMaster());
     }

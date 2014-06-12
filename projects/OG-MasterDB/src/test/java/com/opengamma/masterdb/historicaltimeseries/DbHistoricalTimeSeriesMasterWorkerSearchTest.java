@@ -117,8 +117,7 @@ public class DbHistoricalTimeSeriesMasterWorkerSearchTest extends AbstractDbHist
   @Test
   public void test_search_noKeys_Exact_noMatch() {
     HistoricalTimeSeriesInfoSearchRequest request = new HistoricalTimeSeriesInfoSearchRequest();
-    request.setExternalIdSearch(new ExternalIdSearch());
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.EXACT);
+    request.setExternalIdSearch(ExternalIdSearch.of(ExternalIdSearchType.EXACT));
     HistoricalTimeSeriesInfoSearchResult test = _htsMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -127,8 +126,7 @@ public class DbHistoricalTimeSeriesMasterWorkerSearchTest extends AbstractDbHist
   @Test
   public void test_search_noKeys_All_noMatch() {
     HistoricalTimeSeriesInfoSearchRequest request = new HistoricalTimeSeriesInfoSearchRequest();
-    request.setExternalIdSearch(new ExternalIdSearch());
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.ALL);
+    request.setExternalIdSearch(ExternalIdSearch.of(ExternalIdSearchType.ALL));
     HistoricalTimeSeriesInfoSearchResult test = _htsMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -137,8 +135,7 @@ public class DbHistoricalTimeSeriesMasterWorkerSearchTest extends AbstractDbHist
   @Test
   public void test_search_noKeys_Any_noMatch() {
     HistoricalTimeSeriesInfoSearchRequest request = new HistoricalTimeSeriesInfoSearchRequest();
-    request.setExternalIdSearch(new ExternalIdSearch());
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.ANY);
+    request.setExternalIdSearch(ExternalIdSearch.of(ExternalIdSearchType.ANY));
     HistoricalTimeSeriesInfoSearchResult test = _htsMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -147,8 +144,7 @@ public class DbHistoricalTimeSeriesMasterWorkerSearchTest extends AbstractDbHist
   @Test
   public void test_search_noKeys_None_noMatch() {
     HistoricalTimeSeriesInfoSearchRequest request = new HistoricalTimeSeriesInfoSearchRequest();
-    request.setExternalIdSearch(new ExternalIdSearch());
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.NONE);
+    request.setExternalIdSearch(ExternalIdSearch.of(ExternalIdSearchType.NONE));
     HistoricalTimeSeriesInfoSearchResult test = _htsMaster.search(request);
     
     assertEquals(_totalHistoricalTimeSeries, test.getDocuments().size());
@@ -260,7 +256,7 @@ public class DbHistoricalTimeSeriesMasterWorkerSearchTest extends AbstractDbHist
   public void test_search_oneKey_All_1() {
     HistoricalTimeSeriesInfoSearchRequest request = new HistoricalTimeSeriesInfoSearchRequest();
     request.addExternalId(ExternalId.of("TICKER", "V501"));
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.ALL);
+    request.setExternalIdSearchType(ExternalIdSearchType.ALL);
     HistoricalTimeSeriesInfoSearchResult test = _htsMaster.search(request);
     
     assertEquals(1, test.getDocuments().size());
@@ -271,7 +267,7 @@ public class DbHistoricalTimeSeriesMasterWorkerSearchTest extends AbstractDbHist
   public void test_search_oneKey_All_1_noMatch() {
     HistoricalTimeSeriesInfoSearchRequest request = new HistoricalTimeSeriesInfoSearchRequest();
     request.addExternalId(ExternalId.of("A", "Z"));
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.ALL);
+    request.setExternalIdSearchType(ExternalIdSearchType.ALL);
     HistoricalTimeSeriesInfoSearchResult test = _htsMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -282,7 +278,7 @@ public class DbHistoricalTimeSeriesMasterWorkerSearchTest extends AbstractDbHist
   public void test_search_twoKeys_All_2() {
     HistoricalTimeSeriesInfoSearchRequest request = new HistoricalTimeSeriesInfoSearchRequest();
     request.addExternalIds(ExternalId.of("TICKER", "V501"), ExternalId.of("NASDAQ", "V502"));
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.ALL);
+    request.setExternalIdSearchType(ExternalIdSearchType.ALL);
     HistoricalTimeSeriesInfoSearchResult test = _htsMaster.search(request);
     
     assertEquals(1, test.getDocuments().size());
@@ -293,7 +289,7 @@ public class DbHistoricalTimeSeriesMasterWorkerSearchTest extends AbstractDbHist
   public void test_search_twoKeys_All_2_noMatch() {
     HistoricalTimeSeriesInfoSearchRequest request = new HistoricalTimeSeriesInfoSearchRequest();
     request.addExternalIds(ExternalId.of("TICKER", "V501"), ExternalId.of("A", "D"));
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.ALL);
+    request.setExternalIdSearchType(ExternalIdSearchType.ALL);
     HistoricalTimeSeriesInfoSearchResult test = _htsMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -304,7 +300,7 @@ public class DbHistoricalTimeSeriesMasterWorkerSearchTest extends AbstractDbHist
   public void test_search_oneKey_None() {
     HistoricalTimeSeriesInfoSearchRequest request = new HistoricalTimeSeriesInfoSearchRequest();
     request.addExternalId(ExternalId.of("TICKER", "V501"));
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.NONE);
+    request.setExternalIdSearchType(ExternalIdSearchType.NONE);
     HistoricalTimeSeriesInfoSearchResult test = _htsMaster.search(request);
     
     assertEquals(2, test.getDocuments().size());
@@ -318,7 +314,7 @@ public class DbHistoricalTimeSeriesMasterWorkerSearchTest extends AbstractDbHist
     request.addExternalId(ExternalId.of("TICKER", "V501"));
     request.addExternalId(ExternalId.of("TICKER", "V503"));
     request.addExternalId(ExternalId.of("TICKER", "V505"));
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.NONE);
+    request.setExternalIdSearchType(ExternalIdSearchType.NONE);
     HistoricalTimeSeriesInfoSearchResult test = _htsMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -329,7 +325,7 @@ public class DbHistoricalTimeSeriesMasterWorkerSearchTest extends AbstractDbHist
   public void test_search_twoKeys_Exact() {
     HistoricalTimeSeriesInfoSearchRequest request = new HistoricalTimeSeriesInfoSearchRequest();
     request.addExternalIds(ExternalId.of("TICKER", "V501"), ExternalId.of("NASDAQ", "V502"));
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.EXACT);
+    request.setExternalIdSearchType(ExternalIdSearchType.EXACT);
     HistoricalTimeSeriesInfoSearchResult test = _htsMaster.search(request);
     
     assertEquals(1, test.getDocuments().size());
@@ -340,7 +336,7 @@ public class DbHistoricalTimeSeriesMasterWorkerSearchTest extends AbstractDbHist
   public void test_search_threeKeys_Exact_noMatch() {
     HistoricalTimeSeriesInfoSearchRequest request = new HistoricalTimeSeriesInfoSearchRequest();
     request.addExternalId(ExternalId.of("TICKER", "V501"));
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.EXACT);
+    request.setExternalIdSearchType(ExternalIdSearchType.EXACT);
     HistoricalTimeSeriesInfoSearchResult test = _htsMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());

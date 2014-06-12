@@ -65,10 +65,7 @@ public class PriceIndexCurveAddSeasonalCurve extends PriceIndexCurve {
 
   @Override
   public List<String> getUnderlyingCurvesNames() {
-    final List<String> names = new ArrayList<>();
-    names.add(_curve.getName());
-    names.add(_seasonalCurve.getName());
-    return names;
+    return new ArrayList<>();
   }
 
   @Override

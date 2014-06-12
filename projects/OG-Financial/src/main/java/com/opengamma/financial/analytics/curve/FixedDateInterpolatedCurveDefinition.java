@@ -6,28 +6,30 @@
 package com.opengamma.financial.analytics.curve;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
-import org.joda.beans.BeanDefinition;
-import org.joda.beans.PropertyDefinition;
-import org.threeten.bp.LocalDate;
-
-import com.opengamma.core.config.Config;
-import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
-import java.util.Map;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.threeten.bp.LocalDate;
+
+import com.opengamma.core.config.Config;
+import com.opengamma.core.config.ConfigGroups;
+import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
 
 /**
  * Definition for interpolated curves where some of the node dates are fixed.
  */
 @BeanDefinition
-@Config(description = "Fixed date interpolated curve definition")
+@Config(description = "Fixed date interpolated curve definition", group = ConfigGroups.CURVES)
 public class FixedDateInterpolatedCurveDefinition extends InterpolatedCurveDefinition {
 
   /** Serialization verison. */
@@ -103,52 +105,6 @@ public class FixedDateInterpolatedCurveDefinition extends InterpolatedCurveDefin
     return FixedDateInterpolatedCurveDefinition.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1682421617:  // fixedDates
-        return getFixedDates();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1682421617:  // fixedDates
-        setFixedDates((List<LocalDate>) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_fixedDates, "fixedDates");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      FixedDateInterpolatedCurveDefinition other = (FixedDateInterpolatedCurveDefinition) obj;
-      return JodaBeanUtils.equal(getFixedDates(), other.getFixedDates()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFixedDates());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the fixed curve dates.
@@ -173,6 +129,51 @@ public class FixedDateInterpolatedCurveDefinition extends InterpolatedCurveDefin
    */
   public final Property<List<LocalDate>> fixedDates() {
     return metaBean().fixedDates().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public FixedDateInterpolatedCurveDefinition clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      FixedDateInterpolatedCurveDefinition other = (FixedDateInterpolatedCurveDefinition) obj;
+      return JodaBeanUtils.equal(getFixedDates(), other.getFixedDates()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFixedDates());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(64);
+    buf.append("FixedDateInterpolatedCurveDefinition{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("fixedDates").append('=').append(JodaBeanUtils.toString(getFixedDates())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -235,6 +236,33 @@ public class FixedDateInterpolatedCurveDefinition extends InterpolatedCurveDefin
      */
     public final MetaProperty<List<LocalDate>> fixedDates() {
       return _fixedDates;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1682421617:  // fixedDates
+          return ((FixedDateInterpolatedCurveDefinition) bean).getFixedDates();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1682421617:  // fixedDates
+          ((FixedDateInterpolatedCurveDefinition) bean).setFixedDates((List<LocalDate>) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((FixedDateInterpolatedCurveDefinition) bean)._fixedDates, "fixedDates");
+      super.validate(bean);
     }
 
   }

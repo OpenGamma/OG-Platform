@@ -5,13 +5,14 @@
  */
 package com.opengamma.analytics.financial.model.interestrate.curve;
 
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import com.opengamma.util.ArgumentChecker;
-
-import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
 /**
  * YieldAndDiscountCurve created by adding the zero-coupon continuously compounded rate of other curves.
@@ -31,13 +32,13 @@ public class YieldAndDiscountAddZeroSpreadCurve extends YieldAndDiscountCurve {
    * Constructor from an array of curves.
    * The new curve interest rate (zero-coupon continuously compounded) will be the sum (or the difference) of the different underlying curves.
    * @param name The curve name.
-   * @param substract If true, the rate of all curves, except the first one, will be subtracted from the first one. If false, all the rates are added.
+   * @param subtract If true, the rate of all curves, except the first one, will be subtracted from the first one. If false, all the rates are added.
    * @param curves The array of underlying curves.
    */
-  public YieldAndDiscountAddZeroSpreadCurve(final String name, final boolean substract, final YieldAndDiscountCurve... curves) {
+  public YieldAndDiscountAddZeroSpreadCurve(final String name, final boolean subtract, final YieldAndDiscountCurve... curves) {
     super(name);
     ArgumentChecker.notNull(curves, "Curves");
-    _sign = substract ? -1.0 : 1.0;
+    _sign = subtract ? -1.0 : 1.0;
     _curves = curves;
   }
 
@@ -86,6 +87,17 @@ public class YieldAndDiscountAddZeroSpreadCurve extends YieldAndDiscountCurve {
   }
 
   @Override
+  public int getNumberOfIntrinsicParameters(final Set<String> curvesNames) {
+    int result = 0;
+    for (final YieldAndDiscountCurve curve : _curves) {
+      if (!curvesNames.contains(curve.getName())) {
+        result += curve.getNumberOfParameters();
+      }
+    }
+    return result;
+  }
+
+  @Override
   public List<String> getUnderlyingCurvesNames() {
     final List<String> names = new ArrayList<>();
     for (final YieldAndDiscountCurve curve : _curves) {
@@ -94,10 +106,19 @@ public class YieldAndDiscountAddZeroSpreadCurve extends YieldAndDiscountCurve {
     return names;
   }
 
+  /**
+   * Gets all of the curves.
+   * @return The curves
+   */
   public YieldAndDiscountCurve[] getCurves() {
     return _curves;
   }
 
+  /**
+   * Returns +1 if the curves are to be added to the base curve or -1 if the curves are to be subtracted
+   * from the base curve
+   * @return +/-1 depending on the operation
+   */
   public double getSign() {
     return _sign;
   }

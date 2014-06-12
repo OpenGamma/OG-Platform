@@ -67,7 +67,7 @@ public final class MarketQuoteSensitivityBlockCalculator {
         final int start = unitPair.getFirst().getStart(name2);
         final double[] sensiName2 = new double[nbParameters];
         System.arraycopy(oneCurveSensiArray, start, sensiName2, 0, nbParameters);
-        oneCurveSensiMap.put(new ObjectsPair<>(name2, nameCcy.getSecond()), new DoubleMatrix1D(sensiName2));
+        oneCurveSensiMap.put(ObjectsPair.of(name2, nameCcy.getSecond()), new DoubleMatrix1D(sensiName2));
       }
       final MultipleCurrencyParameterSensitivity sensiName = new MultipleCurrencyParameterSensitivity(oneCurveSensiMap);
       result = result.plus(sensiName);

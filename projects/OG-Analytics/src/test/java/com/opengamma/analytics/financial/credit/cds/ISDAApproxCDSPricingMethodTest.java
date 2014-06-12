@@ -12,10 +12,12 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.schedule.NoHolidayCalendar;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test cases taken from the ISDA example C code and Excel sheet
  */
+@Test(groups = TestGroup.UNIT)
 public class ISDAApproxCDSPricingMethodTest extends ISDAApproxCDSPricingMethodTestData {
 
   /**

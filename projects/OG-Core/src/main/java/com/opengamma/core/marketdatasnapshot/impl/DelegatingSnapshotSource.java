@@ -13,6 +13,7 @@ import java.util.Map;
 
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotChangeListener;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
+import com.opengamma.core.marketdatasnapshot.NamedSnapshot;
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
@@ -98,5 +99,13 @@ public class DelegatingSnapshotSource extends UniqueIdSchemeDelegator<MarketData
   @Override
   public void removeChangeListener(UniqueId uniqueId, MarketDataSnapshotChangeListener listener) {
     chooseDelegate(uniqueId.getScheme()).removeChangeListener(uniqueId, listener);
+  }
+
+  @Override
+  public <S extends NamedSnapshot> S getSingle(Class<S> type,
+                                               String snapshotName,
+                                               VersionCorrection versionCorrection) {
+    // As we have noi information about the scheme we can't do anything but use the default
+    return getDefaultDelegate().getSingle(type, snapshotName, versionCorrection);
   }
 }

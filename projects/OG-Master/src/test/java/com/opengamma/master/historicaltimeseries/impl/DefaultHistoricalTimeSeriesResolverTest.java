@@ -62,20 +62,17 @@ public class DefaultHistoricalTimeSeriesResolverTest {
 
   private HistoricalTimeSeriesRating createRules() {
     List<HistoricalTimeSeriesRatingRule> rules = new ArrayList<HistoricalTimeSeriesRatingRule>();
-    rules.add(new HistoricalTimeSeriesRatingRule(DATA_SOURCE_NAME, "BLOOMBERG", 3));
-    rules.add(new HistoricalTimeSeriesRatingRule(DATA_SOURCE_NAME, "REUTERS", 2));
-    rules.add(new HistoricalTimeSeriesRatingRule(DATA_SOURCE_NAME, "JPM", 1));
-    rules.add(new HistoricalTimeSeriesRatingRule(DATA_SOURCE_NAME, "XXX", 0));
-    rules.add(new HistoricalTimeSeriesRatingRule(DATA_SOURCE_NAME, STAR_VALUE, 0));
-    
-    rules.add(new HistoricalTimeSeriesRatingRule(DATA_PROVIDER_NAME, "CMPL", 3));
-    rules.add(new HistoricalTimeSeriesRatingRule(DATA_PROVIDER_NAME, "CMPT", 2));
-    rules.add(new HistoricalTimeSeriesRatingRule(DATA_PROVIDER_NAME, "CMPN", 1));
-    rules.add(new HistoricalTimeSeriesRatingRule(DATA_PROVIDER_NAME, "EXCH_LSE", 0));
-    rules.add(new HistoricalTimeSeriesRatingRule(DATA_PROVIDER_NAME, STAR_VALUE, 0));
-    
-    HistoricalTimeSeriesRating config = new HistoricalTimeSeriesRating(rules);
-    return config;
+    rules.add(HistoricalTimeSeriesRatingRule.of(DATA_SOURCE_NAME, "BLOOMBERG", 3));
+    rules.add(HistoricalTimeSeriesRatingRule.of(DATA_SOURCE_NAME, "REUTERS", 2));
+    rules.add(HistoricalTimeSeriesRatingRule.of(DATA_SOURCE_NAME, "JPM", 1));
+    rules.add(HistoricalTimeSeriesRatingRule.of(DATA_SOURCE_NAME, "XXX", 0));
+    rules.add(HistoricalTimeSeriesRatingRule.of(DATA_SOURCE_NAME, STAR_VALUE, 0));
+    rules.add(HistoricalTimeSeriesRatingRule.of(DATA_PROVIDER_NAME, "CMPL", 3));
+    rules.add(HistoricalTimeSeriesRatingRule.of(DATA_PROVIDER_NAME, "CMPT", 2));
+    rules.add(HistoricalTimeSeriesRatingRule.of(DATA_PROVIDER_NAME, "CMPN", 1));
+    rules.add(HistoricalTimeSeriesRatingRule.of(DATA_PROVIDER_NAME, "EXCH_LSE", 0));
+    rules.add(HistoricalTimeSeriesRatingRule.of(DATA_PROVIDER_NAME, STAR_VALUE, 0));
+    return HistoricalTimeSeriesRating.of(rules);
   }
 
   @AfterMethod

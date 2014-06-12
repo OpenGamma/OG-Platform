@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.model.interestrate.curve;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
@@ -108,6 +109,15 @@ public class PriceIndexCurve {
    * @return The number of parameters
    */
   public int getNumberOfParameters() {
+    return _curve.size();
+  }
+
+  /**
+   * Return the number of intrinsic parameters for the definition of the curve. Which is the total number of parameters minus the parameters of the curves in curvesNames (If they are in curves).
+   *  @param curvesNames The list of curves names.
+   *  @return The number of parameters.
+   */
+  public int getNumberOfIntrinsicParameters(final Set<String> curvesNames) {
     return _curve.size();
   }
 

@@ -26,16 +26,17 @@ public class PortfolioCopyMoveTool extends AbstractTool<IntegrationToolContext> 
   private static final String NEW_PORTFOLIO_NAME = "m";
   private static final String COPY_OPT = "d";
 
+  //-------------------------------------------------------------------------
   /**
-   * Runs the tool.
-   *
-   * @param args  empty arguments
+   * Main method to run the tool.
+   * 
+   * @param args  the standard tool arguments, not null
    */
   public static void main(String[] args) {  // CSIGNORE
-    boolean success = new PortfolioCopyMoveTool().initAndRun(args, IntegrationToolContext.class);
-    System.exit(success ? 0 : 1);
+    new PortfolioCopyMoveTool().invokeAndTerminate(args);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   protected void doRun() {
     PortfolioSearchRequest portfolioSearchRequest = new PortfolioSearchRequest();

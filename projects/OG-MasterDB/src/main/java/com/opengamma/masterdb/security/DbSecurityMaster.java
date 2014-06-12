@@ -15,6 +15,7 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -58,12 +59,10 @@ import com.opengamma.util.paging.Paging;
 /**
  * A security master implementation using a database for persistence.
  * <p>
- * This is a full implementation of the security master using an SQL database.
- * Full details of the API are in {@link SecurityMaster}.
+ * This is a full implementation of the security master using an SQL database. Full details of the API are in {@link SecurityMaster}.
  * <p>
- * The SQL is stored externally in {@code DbSecurityMaster.elsql}.
- * Alternate databases or specific SQL requirements can be handled using database
- * specific overrides, such as {@code DbSecurityMaster-MySpecialDB.elsql}.
+ * The SQL is stored externally in {@code DbSecurityMaster.elsql}. Alternate databases or specific SQL requirements can be handled using database specific overrides, such as
+ * {@code DbSecurityMaster-MySpecialDB.elsql}.
  * <p>
  * This class is mutable but must be treated as immutable after configuration.
  */
@@ -78,6 +77,11 @@ public class DbSecurityMaster
    * The default scheme for unique identifiers.
    */
   public static final String IDENTIFIER_SCHEME_DEFAULT = "DbSec";
+
+  /**
+   * Permission key prefix
+   */
+  private static final String PERMISSION_KEY_PREFIX = "Permission~";
 
   /**
    * SQL order by.
@@ -110,7 +114,7 @@ public class DbSecurityMaster
   /**
    * Creates an instance.
    * 
-   * @param dbConnector  the database connector, not null
+   * @param dbConnector the database connector, not null
    */
   public DbSecurityMaster(final DbConnector dbConnector) {
     super(dbConnector, IDENTIFIER_SCHEME_DEFAULT);
@@ -137,7 +141,7 @@ public class DbSecurityMaster
   /**
    * Sets the detail provider.
    * 
-   * @param detailProvider  the detail provider, not null
+   * @param detailProvider the detail provider, not null
    */
   public void setDetailProvider(SecurityMasterDetailProvider detailProvider) {
     ArgumentChecker.notNull(detailProvider, "detailProvider");
@@ -149,10 +153,13 @@ public class DbSecurityMaster
   @Override
   public SecurityMetaDataResult metaData(SecurityMetaDataRequest request) {
     ArgumentChecker.notNull(request, "request");
-    
+
     Timer.Context context = _metaDataTimer.time();
     try {
       SecurityMetaDataResult result = new SecurityMetaDataResult();
+      if (!matchesUniqueIdScheme(request)) {
+        return result;
+      }
       if (request.isSecurityTypes()) {
         final String sql = getElSqlBundle().getSql("SelectTypes");
         List<String> securityTypes = getJdbcTemplate().getJdbcOperations().queryForList(sql, String.class);
@@ -167,6 +174,10 @@ public class DbSecurityMaster
     }
   }
 
+  private boolean matchesUniqueIdScheme(SecurityMetaDataRequest request) {
+    return request.getUniqueIdScheme() == null || getUniqueIdScheme().equals(request.getUniqueIdScheme());
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public SecuritySearchResult search(final SecuritySearchRequest request) {
@@ -174,25 +185,34 @@ public class DbSecurityMaster
     ArgumentChecker.notNull(request.getPagingRequest(), "request.pagingRequest");
     ArgumentChecker.notNull(request.getVersionCorrection(), "request.versionCorrection");
     s_logger.debug("search {}", request);
+
+    VersionCorrection vc = request.getVersionCorrection();
+    if (vc.containsLatest()) {
+      vc = vc.withLatestFixed(now());
+    }
     
-    final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());
     final SecuritySearchResult result = new SecuritySearchResult(vc);
     
+    if (!matchesUniqueIdScheme(request)) {
+      return result;
+    }
+    
     final ExternalIdSearch externalIdSearch = request.getExternalIdSearch();
+    final Map<String, String> attributes = request.getAttributes();
     final List<ObjectId> objectIds = request.getObjectIds();
     if ((objectIds != null && objectIds.size() == 0) ||
         (ExternalIdSearch.canMatch(request.getExternalIdSearch()) == false)) {
       result.setPaging(Paging.of(request.getPagingRequest(), 0));
       return result;
     }
-    
-    final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
-      .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
-      .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
-      .addValueNullIgnored("name", getDialect().sqlWildcardAdjustValue(request.getName()))
-      .addValueNullIgnored("sec_type", request.getSecurityType())
-      .addValueNullIgnored("external_id_scheme", getDialect().sqlWildcardAdjustValue(request.getExternalIdScheme()))
-      .addValueNullIgnored("external_id_value", getDialect().sqlWildcardAdjustValue(request.getExternalIdValue()));
+
+    final DbMapSqlParameterSource args = createParameterSource()
+        .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
+        .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
+        .addValueNullIgnored("name", getDialect().sqlWildcardAdjustValue(request.getName()))
+        .addValueNullIgnored("sec_type", request.getSecurityType())
+        .addValueNullIgnored("external_id_scheme", getDialect().sqlWildcardAdjustValue(request.getExternalIdScheme()))
+        .addValueNullIgnored("external_id_value", getDialect().sqlWildcardAdjustValue(request.getExternalIdValue()));
     if (externalIdSearch != null && externalIdSearch.alwaysMatches() == false) {
       int i = 0;
       for (ExternalId id : externalIdSearch) {
@@ -203,6 +223,15 @@ public class DbSecurityMaster
       args.addValue("sql_search_external_ids_type", externalIdSearch.getSearchType());
       args.addValue("sql_search_external_ids", sqlSelectIdKeys(externalIdSearch));
       args.addValue("id_search_size", externalIdSearch.getExternalIds().size());
+    }
+    if (attributes.size() > 0) {
+      int i = 0;
+      for (Entry<String, String> entry : attributes.entrySet()) {
+        args.addValue("attr_key" + i, entry.getKey());
+        args.addValue("attr_value" + i, getDialect().sqlWildcardAdjustValue(entry.getValue()));
+        i++;
+      }
+      args.addValue("attr_search_size", attributes.size());
     }
     if (objectIds != null) {
       StringBuilder buf = new StringBuilder(objectIds.size() * 10);
@@ -216,18 +245,23 @@ public class DbSecurityMaster
     args.addValue("sort_order", ORDER_BY_MAP.get(request.getSortOrder()));
     args.addValue("paging_offset", request.getPagingRequest().getFirstItem());
     args.addValue("paging_fetch", request.getPagingRequest().getPagingSize());
-    
-    final SecurityMasterDetailProvider detailProvider = getDetailProvider();  // lock against change
+
+    final SecurityMasterDetailProvider detailProvider = getDetailProvider(); // lock against change
     if (detailProvider != null) {
       detailProvider.extendSearch(request, args);
     }
-    
-    String[] sql = {getElSqlBundle().getSql("Search", args), getElSqlBundle().getSql("SearchCount", args)};
+
+    String[] sql = {getElSqlBundle().getSql("Search", args), getElSqlBundle().getSql("SearchCount", args) };
     doSearch(request.getPagingRequest(), sql, args, new SecurityDocumentExtractor(), result);
     if (request.isFullDetail()) {
       loadDetail(detailProvider, result.getDocuments());
     }
+
     return result;
+  }
+
+  private boolean matchesUniqueIdScheme(final SecuritySearchRequest request) {
+    return request.getUniqueIdScheme() == null || getUniqueIdScheme().equals(request.getUniqueIdScheme());
   }
 
   /**
@@ -235,7 +269,7 @@ public class DbSecurityMaster
    * <p>
    * This is too complex for the elsql mechanism.
    * 
-   * @param idSearch  the identifier search, not null
+   * @param idSearch the identifier search, not null
    * @return the SQL, not null
    */
   protected String sqlSelectIdKeys(final ExternalIdSearch idSearch) {
@@ -276,8 +310,8 @@ public class DbSecurityMaster
   /**
    * Loads the detail of the security for the document.
    * 
-   * @param detailProvider  the detail provider, null ignored
-   * @param docs  the documents to load detail for, not null
+   * @param detailProvider the detail provider, null ignored
+   * @param docs the documents to load detail for, not null
    */
   protected void loadDetail(final SecurityMasterDetailProvider detailProvider, final List<SecurityDocument> docs) {
     if (detailProvider != null) {
@@ -293,7 +327,7 @@ public class DbSecurityMaster
   /**
    * Inserts a new document.
    * 
-   * @param document  the document, not null
+   * @param document the document, not null
    * @return the new document, not null
    */
   @Override
@@ -302,21 +336,21 @@ public class DbSecurityMaster
     ArgumentChecker.notNull(document.getSecurity().getName(), "document.security.name");
     ArgumentChecker.notNull(document.getSecurity().getSecurityType(), "document.security.securityTYpe");
     ArgumentChecker.notNull(document.getSecurity().getExternalIdBundle(), "document.security.externalIdBundle");
-    
+
     Timer.Context context = _insertTimer.time();
     try {
       final long docId = nextId("sec_security_seq");
       final long docOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : docId);
       // the arguments for inserting into the security table
-      final DbMapSqlParameterSource docArgs = new DbMapSqlParameterSource()
-        .addValue("doc_id", docId)
-        .addValue("doc_oid", docOid)
-        .addTimestamp("ver_from_instant", document.getVersionFromInstant())
-        .addTimestampNullFuture("ver_to_instant", document.getVersionToInstant())
-        .addTimestamp("corr_from_instant", document.getCorrectionFromInstant())
-        .addTimestampNullFuture("corr_to_instant", document.getCorrectionToInstant())
-        .addValue("name", document.getSecurity().getName())
-        .addValue("sec_type", document.getSecurity().getSecurityType());
+      final DbMapSqlParameterSource docArgs = createParameterSource()
+          .addValue("doc_id", docId)
+          .addValue("doc_oid", docOid)
+          .addTimestamp("ver_from_instant", document.getVersionFromInstant())
+          .addTimestampNullFuture("ver_to_instant", document.getVersionToInstant())
+          .addTimestamp("corr_from_instant", document.getCorrectionFromInstant())
+          .addTimestampNullFuture("corr_to_instant", document.getCorrectionToInstant())
+          .addValue("name", document.getSecurity().getName())
+          .addValue("sec_type", document.getSecurity().getSecurityType());
       if (document.getSecurity() instanceof RawSecurity) {
         docArgs.addValue("detail_type", "R");
       } else if (document.getSecurity().getClass() == ManageableSecurity.class) {
@@ -329,18 +363,18 @@ public class DbSecurityMaster
       final List<DbMapSqlParameterSource> idKeyList = new ArrayList<DbMapSqlParameterSource>();
       final String sqlSelectIdKey = getElSqlBundle().getSql("SelectIdKey");
       for (ExternalId id : document.getSecurity().getExternalIdBundle()) {
-        final DbMapSqlParameterSource assocArgs = new DbMapSqlParameterSource()
-          .addValue("doc_id", docId)
-          .addValue("key_scheme", id.getScheme().getName())
-          .addValue("key_value", id.getValue());
+        final DbMapSqlParameterSource assocArgs = createParameterSource()
+            .addValue("doc_id", docId)
+            .addValue("key_scheme", id.getScheme().getName())
+            .addValue("key_value", id.getValue());
         assocList.add(assocArgs);
         if (getJdbcTemplate().queryForList(sqlSelectIdKey, assocArgs).isEmpty()) {
           // select avoids creating unnecessary id, but id may still not be used
           final long idKeyId = nextId("sec_idkey_seq");
-          final DbMapSqlParameterSource idkeyArgs = new DbMapSqlParameterSource()
-            .addValue("idkey_id", idKeyId)
-            .addValue("key_scheme", id.getScheme().getName())
-            .addValue("key_value", id.getValue());
+          final DbMapSqlParameterSource idkeyArgs = createParameterSource()
+              .addValue("idkey_id", idKeyId)
+              .addValue("key_scheme", id.getScheme().getName())
+              .addValue("key_value", id.getValue());
           idKeyList.add(idkeyArgs);
         }
       }
@@ -354,7 +388,7 @@ public class DbSecurityMaster
       final UniqueId uniqueId = createUniqueId(docOid, docId);
       document.getSecurity().setUniqueId(uniqueId);
       document.setUniqueId(uniqueId);
-      
+
       // store the detail
       if (document.getSecurity() instanceof RawSecurity) {
         storeRawSecurityDetail((RawSecurity) document.getSecurity());
@@ -364,24 +398,36 @@ public class DbSecurityMaster
           detailProvider.storeSecurityDetail(document.getSecurity());
         }
       }
-      
+
       // store attributes
       Map<String, String> attributes = new HashMap<String, String>(document.getSecurity().getAttributes());
       final List<DbMapSqlParameterSource> securityAttributeList = Lists.newArrayList();
       for (Map.Entry<String, String> entry : attributes.entrySet()) {
         final long securityAttrId = nextId("sec_security_attr_seq");
-        final DbMapSqlParameterSource attributeArgs = new DbMapSqlParameterSource()
-                .addValue("attr_id", securityAttrId)
-                .addValue("security_id", docId)
-                .addValue("security_oid", docOid)
-                .addValue("key", entry.getKey())
-                .addValue("value", entry.getValue());
+        final DbMapSqlParameterSource attributeArgs = createParameterSource()
+            .addValue("attr_id", securityAttrId)
+            .addValue("security_id", docId)
+            .addValue("security_oid", docOid)
+            .addValue("key", entry.getKey())
+            .addValue("value", entry.getValue());
+        securityAttributeList.add(attributeArgs);
+      }
+      // store permissions as attributes
+      int count = 0;
+      for (String permission : document.getSecurity().getRequiredPermissions()) {
+        final long securityAttrId = nextId("sec_security_attr_seq");
+        final DbMapSqlParameterSource attributeArgs = createParameterSource()
+            .addValue("attr_id", securityAttrId)
+            .addValue("security_id", docId)
+            .addValue("security_oid", docOid)
+            .addValue("key", PERMISSION_KEY_PREFIX + count++)
+            .addValue("value", permission);
         securityAttributeList.add(attributeArgs);
       }
       final String sqlAttributes = getElSqlBundle().getSql("InsertAttributes");
       getJdbcTemplate().batchUpdate(sqlAttributes, securityAttributeList.toArray(new DbMapSqlParameterSource[securityAttributeList.size()]));
       return document;
-      
+
     } finally {
       context.stop();
     }
@@ -389,9 +435,9 @@ public class DbSecurityMaster
   }
 
   private void storeRawSecurityDetail(RawSecurity security) {
-    final DbMapSqlParameterSource rawArgs = new DbMapSqlParameterSource()
-      .addValue("security_id", extractRowId(security.getUniqueId()))
-      .addValue("raw_data", new SqlLobValue(security.getRawData(), getDialect().getLobHandler()), Types.BLOB);
+    final DbMapSqlParameterSource rawArgs = createParameterSource()
+        .addValue("security_id", extractRowId(security.getUniqueId()))
+        .addValue("raw_data", new SqlLobValue(security.getRawData(), getDialect().getLobHandler()), Types.BLOB);
     final String sqlRaw = getElSqlBundle().getSql("InsertRaw", rawArgs);
     getJdbcTemplate().update(sqlRaw, rawArgs);
   }
@@ -419,11 +465,15 @@ public class DbSecurityMaster
           ExternalId id = ExternalId.of(idScheme, idValue);
           _security.setExternalIdBundle(_security.getExternalIdBundle().withExternalId(id));
         }
-        
+
         final String securityAttrKey = rs.getString("SECURITY_ATTR_KEY");
         final String securityAttrValue = rs.getString("SECURITY_ATTR_VALUE");
         if (securityAttrKey != null && securityAttrValue != null) {
-          _security.addAttribute(securityAttrKey, securityAttrValue);
+          if (securityAttrKey.startsWith(PERMISSION_KEY_PREFIX)) {
+            _security.getRequiredPermissions().add(securityAttrValue);
+          } else {
+            _security.addAttribute(securityAttrKey, securityAttrValue);
+          }
         }
       }
       return _documents;
@@ -444,7 +494,7 @@ public class DbSecurityMaster
         byte[] rawData = lob.getBlobAsBytes(rs, "RAW_DATA");
         _security = new RawSecurity(type, rawData);
         _security.setUniqueId(uniqueId);
-        _security.setName(name);  
+        _security.setName(name);
       } else {
         _security = new ManageableSecurity(uniqueId, name, type, ExternalIdBundle.EMPTY);
       }

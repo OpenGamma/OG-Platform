@@ -57,7 +57,7 @@ public final class InterestRateFutureOptionMarginTransactionSABRMethod extends I
   public MultipleCurrencyAmount presentValueFromFuturePrice(final InterestRateFutureOptionMarginTransaction transaction, final SABRSTIRFuturesProviderInterface sabrData, final double priceFuture) {
     ArgumentChecker.notNull(transaction, "Transaction on option on STIR futures");
     ArgumentChecker.notNull(sabrData, "SABR / multi-curves provider");
-    double priceSecurity = getSecurityMethod().priceFromFuturePrice(transaction.getUnderlyingOption(), sabrData, priceFuture);
+    double priceSecurity = getSecurityMethod().priceFromFuturePrice(transaction.getUnderlyingSecurity(), sabrData, priceFuture);
     MultipleCurrencyAmount priceTransaction = presentValueFromPrice(transaction, priceSecurity);
     return priceTransaction;
   }
@@ -69,9 +69,9 @@ public final class InterestRateFutureOptionMarginTransactionSABRMethod extends I
    * @return The present value curve sensitivity.
    */
   public PresentValueSABRSensitivityDataBundle presentValueSABRSensitivity(final InterestRateFutureOptionMarginTransaction transaction, final SABRSTIRFuturesProviderInterface sabrData) {
-    PresentValueSABRSensitivityDataBundle securitySensitivity = getSecurityMethod().priceSABRSensitivity(transaction.getUnderlyingOption(), sabrData);
-    securitySensitivity = securitySensitivity.multiplyBy(transaction.getQuantity() * transaction.getUnderlyingOption().getUnderlyingFuture().getNotional()
-        * transaction.getUnderlyingOption().getUnderlyingFuture().getPaymentAccrualFactor());
+    PresentValueSABRSensitivityDataBundle securitySensitivity = getSecurityMethod().priceSABRSensitivity(transaction.getUnderlyingSecurity(), sabrData);
+    securitySensitivity = securitySensitivity.multiplyBy(transaction.getQuantity() * transaction.getUnderlyingSecurity().getUnderlyingFuture().getNotional()
+        * transaction.getUnderlyingSecurity().getUnderlyingFuture().getPaymentAccrualFactor());
     return securitySensitivity;
   }
 

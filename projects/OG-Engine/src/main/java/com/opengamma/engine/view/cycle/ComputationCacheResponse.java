@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -62,45 +63,6 @@ public class ComputationCacheResponse extends DirectBean {
     return ComputationCacheResponse.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1097546742:  // results
-        return getResults();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1097546742:  // results
-        setResults((List<Pair<ValueSpecification, Object>>) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      ComputationCacheResponse other = (ComputationCacheResponse) obj;
-      return JodaBeanUtils.equal(getResults(), other.getResults());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getResults());
-    return hash;
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the results obtained from the computation caches.
@@ -124,6 +86,48 @@ public class ComputationCacheResponse extends DirectBean {
    */
   public final Property<List<Pair<ValueSpecification, Object>>> results() {
     return metaBean().results().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public ComputationCacheResponse clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      ComputationCacheResponse other = (ComputationCacheResponse) obj;
+      return JodaBeanUtils.equal(getResults(), other.getResults());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getResults());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(64);
+    buf.append("ComputationCacheResponse{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("results").append('=').append(JodaBeanUtils.toString(getResults())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -186,6 +190,27 @@ public class ComputationCacheResponse extends DirectBean {
      */
     public final MetaProperty<List<Pair<ValueSpecification, Object>>> results() {
       return _results;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1097546742:  // results
+          return ((ComputationCacheResponse) bean).getResults();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1097546742:  // results
+          ((ComputationCacheResponse) bean).setResults((List<Pair<ValueSpecification, Object>>) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

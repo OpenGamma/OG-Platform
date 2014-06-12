@@ -19,12 +19,14 @@ import com.opengamma.analytics.math.function.RealPolynomialFunction1D;
 import com.opengamma.analytics.math.rootfinding.CubicRealRootFinder;
 import com.opengamma.analytics.math.rootfinding.QuadraticRealRootFinder;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class SABRATMVolatilityCalibrationFunctionTest {
   private static final double BETA = 1;
   private static final double RHO = 0.3;

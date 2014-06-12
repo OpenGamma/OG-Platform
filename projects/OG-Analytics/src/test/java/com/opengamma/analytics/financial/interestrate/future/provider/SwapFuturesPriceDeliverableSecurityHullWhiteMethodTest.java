@@ -35,14 +35,16 @@ import com.opengamma.analytics.financial.provider.sensitivity.hullwhite.SimplePa
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimpleParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.SimpleParameterSensitivityParameterCalculator;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the pricing of deliverable interest rate swap futures as traded on CME.
  */
+@Test(groups = TestGroup.UNIT)
 public class SwapFuturesPriceDeliverableSecurityHullWhiteMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
@@ -91,7 +93,7 @@ public class SwapFuturesPriceDeliverableSecurityHullWhiteMethodTest {
     final double[] df = new double[nbCfe];
     for (int loopcf = 0; loopcf < nbCfe; loopcf++) {
       df[loopcf] = MULTICURVES.getDiscountFactor(USD, cfe.getNthPayment(loopcf).getPaymentTime());
-      adj[loopcf] = MODEL.futuresConvexityFactor(PARAMETERS_HW, SWAP_FUTURES_SECURITY.getLastTradingTime(), cfe.getNthPayment(loopcf).getPaymentTime(), SWAP_FUTURES_SECURITY.getDeliveryTime());
+      adj[loopcf] = MODEL.futuresConvexityFactor(PARAMETERS_HW, SWAP_FUTURES_SECURITY.getTradingLastTime(), cfe.getNthPayment(loopcf).getPaymentTime(), SWAP_FUTURES_SECURITY.getDeliveryTime());
       assertTrue("DeliverableSwapFuturesSecurityHullWhiteMethod: price", adj[loopcf] <= 1.0);
     }
     double priceExpected = 1.0;
@@ -112,12 +114,11 @@ public class SwapFuturesPriceDeliverableSecurityHullWhiteMethodTest {
     assertEquals("DeliverableSwapFuturesSecurityDefinition: convexity adjustment", caCalculator, convexityAdjustment, TOLERANCE_PRICE);
   }
 
-  @Test(enabled = false)
-  // TODO
+  @Test
   public void priceCurveSensitivity() {
     final SimpleParameterSensitivity pcsExact = PS_MQ_C.calculateSensitivity(SWAP_FUTURES_SECURITY, HW_MULTICURVES, MULTICURVES.getAllNames());
     final SimpleParameterSensitivity pcsFD = PS_MQ_FDC.calculateSensitivity(SWAP_FUTURES_SECURITY, HW_MULTICURVES);
-    AssertSensivityObjects.assertEquals("DeliverableSwapFuturesSecurityHullWhiteMethod: priceCurveSensitivity", pcsExact, pcsFD, TOLERANCE_PRICE_DELTA);
+    AssertSensitivityObjects.assertEquals("DeliverableSwapFuturesSecurityHullWhiteMethod: priceCurveSensitivity", pcsExact, pcsFD, TOLERANCE_PRICE_DELTA);
   }
 
 }

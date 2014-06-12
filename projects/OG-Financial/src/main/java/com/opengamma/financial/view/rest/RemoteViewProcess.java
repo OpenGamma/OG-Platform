@@ -24,43 +24,47 @@ public class RemoteViewProcess implements ViewProcess {
 
   private final URI _baseUri;
   private final FudgeRestClient _client;
-  
+
   public RemoteViewProcess(URI baseUri) {
-    _baseUri = baseUri;
-    _client = FudgeRestClient.create();
+    this(baseUri, FudgeRestClient.create());
   }
-  
+
+  public RemoteViewProcess(URI baseUri, FudgeRestClient client) {
+    _baseUri = baseUri;
+    _client = client;
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public UniqueId getUniqueId() {
     URI uri = UriBuilder.fromUri(_baseUri).path(DataViewProcessResource.PATH_UNIQUE_ID).build();
     return _client.accessFudge(uri).get(UniqueId.class);
   }
-  
+
   @Override
   public UniqueId getDefinitionId() {
     URI uri = UriBuilder.fromUri(_baseUri).path(DataViewProcessResource.PATH_DEFINITION_ID).build();
     return _client.accessFudge(uri).get(UniqueId.class);
   }
-  
+
   @Override
   public ViewDefinition getLatestViewDefinition() {
     URI uri = UriBuilder.fromUri(_baseUri).path(DataViewProcessResource.PATH_DEFINITION).build();
     return _client.accessFudge(uri).get(ViewDefinition.class);
   }
-  
+
   @Override
   public ViewProcessState getState() {
     URI uri = UriBuilder.fromUri(_baseUri).path(DataViewProcessResource.PATH_STATE).build();
     return _client.accessFudge(uri).get(ViewProcessState.class);
   }
-  
+
   @Override
   public MarketDataInjector getLiveDataOverrideInjector() {
     URI uri = UriBuilder.fromUri(_baseUri).path(DataViewProcessResource.PATH_LIVE_DATA_OVERRIDE_INJECTOR).build();
-    return new RemoteLiveDataInjector(uri);
+    return new RemoteLiveDataInjector(uri, _client);
   }
-  
+
   @Override
   public void shutdown() {
     _client.accessFudge(_baseUri).delete();

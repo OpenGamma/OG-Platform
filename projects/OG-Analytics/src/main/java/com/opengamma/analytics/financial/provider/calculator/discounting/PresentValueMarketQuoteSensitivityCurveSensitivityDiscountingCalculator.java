@@ -17,7 +17,10 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompounding;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingFlatSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONArithmeticAverageSpreadSimplified;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
@@ -65,7 +68,7 @@ public final class PresentValueMarketQuoteSensitivityCurveSensitivityDiscounting
     final double dfBar = coupon.getPaymentYearFraction() * coupon.getNotional() * mqsBar;
     final Map<String, List<DoublesPair>> resultMapDsc = new HashMap<>();
     final List<DoublesPair> listDiscounting = new ArrayList<>();
-    listDiscounting.add(new DoublesPair(coupon.getPaymentTime(), -coupon.getPaymentTime() * df * dfBar));
+    listDiscounting.add(DoublesPair.of(coupon.getPaymentTime(), -coupon.getPaymentTime() * df * dfBar));
     //    resultMapDsc.put(coupon.getFundingCurveName(), listDiscounting);
     resultMapDsc.put(multicurve.getName(coupon.getCurrency()), listDiscounting);
     return MulticurveSensitivity.ofYieldDiscounting(resultMapDsc);
@@ -73,6 +76,16 @@ public final class PresentValueMarketQuoteSensitivityCurveSensitivityDiscounting
 
   @Override
   public MulticurveSensitivity visitCouponFixed(final CouponFixed coupon, final MulticurveProviderInterface multicurve) {
+    return visitCoupon(coupon, multicurve);
+  }
+
+  @Override
+  public MulticurveSensitivity visitCouponONSpread(final CouponONSpread coupon, final MulticurveProviderInterface multicurve) {
+    return visitCoupon(coupon, multicurve);
+  }
+
+  @Override
+  public MulticurveSensitivity visitCouponONArithmeticAverageSpreadSimplified(final CouponONArithmeticAverageSpreadSimplified coupon, final MulticurveProviderInterface multicurve) {
     return visitCoupon(coupon, multicurve);
   }
 
@@ -88,6 +101,12 @@ public final class PresentValueMarketQuoteSensitivityCurveSensitivityDiscounting
 
   @Override
   public MulticurveSensitivity visitCouponIborCompounding(final CouponIborCompounding coupon, final MulticurveProviderInterface multicurve) {
+    return visitCoupon(coupon, multicurve);
+  }
+
+  @Override
+  public MulticurveSensitivity visitCouponIborCompoundingFlatSpread(final CouponIborCompoundingFlatSpread coupon, final MulticurveProviderInterface multicurve) {
+    // TODO: [PLAT-5978] Change to exact sensitivity.
     return visitCoupon(coupon, multicurve);
   }
 

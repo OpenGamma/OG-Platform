@@ -88,20 +88,16 @@ public final class ParSpreadInflationMarketQuoteCurveSensitivityDiscountingCalcu
     ArgumentChecker.notNull(swap, "Swap");
     if (swap.getFirstLeg().getNumberOfPayments() == 1 && swap.getFirstLeg().getNthPayment(0) instanceof CouponFixedCompounding) {
       // Implementation note: check if the swap is an inflation swap.
-      final InflationSensitivity pvcis = swap.getSecondLeg().accept(PVISC, inflation).getSensitivity(swap.getSecondLeg().getCurrency());
-      final MulticurveSensitivity pvcs = swap.getFirstLeg().accept(PVSC, inflation.getMulticurveProvider()).getSensitivity(swap.getFirstLeg().getCurrency());
 
       final CouponFixedCompounding cpn = (CouponFixedCompounding) swap.getFirstLeg().getNthPayment(0);
       final double pvInflationLeg = swap.getSecondLeg().accept(PVIC, inflation).getAmount(swap.getSecondLeg().getCurrency());
       final double discountFactor = inflation.getDiscountFactor(swap.getFirstLeg().getCurrency(), cpn.getPaymentTime());
       final double tenor = cpn.getPaymentAccrualFactors().length;
-
       final double notional = ((CouponInflation) swap.getSecondLeg().getNthPayment(0)).getNotional();
-      final double intermediateVariable = (1 / tenor) * Math.pow(pvInflationLeg / discountFactor / notional + 1, 1 / tenor - 1) / (discountFactor * notional);
-      final MulticurveSensitivity modifiedpvcs = pvcs.multipliedBy(-pvInflationLeg * intermediateVariable / discountFactor);
+      final double intermediateVariable = (1 / tenor) * Math.pow(pvInflationLeg / discountFactor / notional + 1, 1 / tenor - 1);
+      final InflationSensitivity pvcis = swap.getSecondLeg().accept(PVISC, inflation).getSensitivity(swap.getSecondLeg().getCurrency()).multipliedBy(1 / discountFactor / notional);
       final InflationSensitivity modifiedpvcis = pvcis.multipliedBy(intermediateVariable);
-
-      return InflationSensitivity.of(modifiedpvcs.plus(modifiedpvcis.getMulticurveSensitivity()), modifiedpvcis.getPriceCurveSensitivities());
+      return InflationSensitivity.ofPriceIndex(modifiedpvcis.getPriceCurveSensitivities());
     }
     final Currency ccy1 = swap.getFirstLeg().getCurrency();
     final MultipleCurrencyMulticurveSensitivity pvcs = swap.accept(PVCSMC, inflation.getMulticurveProvider());

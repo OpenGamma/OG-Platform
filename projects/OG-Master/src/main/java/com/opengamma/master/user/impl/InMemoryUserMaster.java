@@ -9,23 +9,18 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.threeten.bp.Instant;
-
-import com.google.common.base.Supplier;
-import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeManager;
-import com.opengamma.core.change.ChangeType;
+import com.opengamma.core.user.UserAccount;
+import com.opengamma.core.user.impl.SimpleUserAccount;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdSupplier;
-import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
-import com.opengamma.id.VersionCorrection;
-import com.opengamma.master.SimpleAbstractInMemoryMaster;
-import com.opengamma.master.user.ManageableOGUser;
-import com.opengamma.master.user.UserDocument;
-import com.opengamma.master.user.UserHistoryRequest;
-import com.opengamma.master.user.UserHistoryResult;
+import com.opengamma.master.user.HistoryEvent;
+import com.opengamma.master.user.ManageableUser;
+import com.opengamma.master.user.RoleMaster;
+import com.opengamma.master.user.UserEventHistoryRequest;
+import com.opengamma.master.user.UserEventHistoryResult;
 import com.opengamma.master.user.UserMaster;
 import com.opengamma.master.user.UserSearchRequest;
 import com.opengamma.master.user.UserSearchResult;
@@ -36,18 +31,24 @@ import com.opengamma.util.paging.Paging;
  * A simple, in-memory implementation of {@code UserMaster}.
  * <p>
  * This master does not support versioning of users.
- * <p>
- * This implementation does not copy stored elements, making it thread-hostile.
- * As such, this implementation is currently most useful for testing scenarios.
  */
 public class InMemoryUserMaster
-    extends SimpleAbstractInMemoryMaster<UserDocument>
+    extends AbstractInMemoryMaster<ManageableUser>
     implements UserMaster {
 
   /**
    * The default scheme used for each {@link ObjectId}.
    */
   public static final String DEFAULT_OID_SCHEME = "MemUsr";
+  /**
+   * The scheme used for removed users.
+   */
+  public static final ManageableUser REMOVED = new ManageableUser("%REMOVED%");
+
+  /**
+   * The role master.
+   */
+  private final RoleMaster _roleMaster;
 
   /**
    * Creates an instance.
@@ -57,20 +58,11 @@ public class InMemoryUserMaster
   }
 
   /**
-   * Creates an instance specifying the change manager.
-   *
-   * @param changeManager  the change manager, not null
-   */
-  public InMemoryUserMaster(final ChangeManager changeManager) {
-    this(new ObjectIdSupplier(DEFAULT_OID_SCHEME), changeManager);
-  }
-
-  /**
    * Creates an instance specifying the supplier of object identifiers.
    *
    * @param objectIdSupplier  the supplier of object identifiers, not null
    */
-  public InMemoryUserMaster(final Supplier<ObjectId> objectIdSupplier) {
+  public InMemoryUserMaster(final ObjectIdSupplier objectIdSupplier) {
     this(objectIdSupplier, new BasicChangeManager());
   }
 
@@ -80,127 +72,118 @@ public class InMemoryUserMaster
    * @param objectIdSupplier  the supplier of object identifiers, not null
    * @param changeManager  the change manager, not null
    */
-  public InMemoryUserMaster(final Supplier<ObjectId> objectIdSupplier, final ChangeManager changeManager) {
-    super(objectIdSupplier, changeManager);
+  public InMemoryUserMaster(final ObjectIdSupplier objectIdSupplier, final ChangeManager changeManager) {
+    super("User", REMOVED, objectIdSupplier, changeManager);
+    _roleMaster = new InMemoryRoleMaster(new ObjectIdSupplier(objectIdSupplier.getScheme() + "Role"));
   }
 
   //-------------------------------------------------------------------------
   @Override
-  protected void validateDocument(UserDocument document) {
-    ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getUser(), "document.user");
+  String extractName(ManageableUser user) {
+    return user.getUserName();
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public UserSearchResult search(final UserSearchRequest request) {
+  public boolean nameExists(String userName) {
+    ArgumentChecker.notNull(userName, "userName");
+    return super.nameExists(userName);
+  }
+
+  @Override
+  public ManageableUser getByName(String userName) {
+    ArgumentChecker.notNull(userName, "userName");
+    return super.getByName(userName);
+  }
+
+  @Override
+  public ManageableUser getById(ObjectId objectId) {
+    ArgumentChecker.notNull(objectId, "objectId");
+    return super.getById(objectId);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public UniqueId add(ManageableUser user) {
+    ArgumentChecker.notNull(user, "user");
+    return super.add(user);
+  }
+
+  @Override
+  public UniqueId update(ManageableUser user) {
+    ArgumentChecker.notNull(user, "user");
+    return super.update(user);
+  }
+
+  @Override
+  public UniqueId save(ManageableUser user) {
+    ArgumentChecker.notNull(user, "user");
+    return super.save(user);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public void removeByName(String userName) {
+    ArgumentChecker.notNull(userName, "userName");
+    super.removeByName(userName);
+  }
+
+  @Override
+  public void removeById(ObjectId objectId) {
+    ArgumentChecker.notNull(objectId, "objectId");
+    super.removeById(objectId);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public UserSearchResult search(UserSearchRequest request) {
     ArgumentChecker.notNull(request, "request");
-    final List<UserDocument> list = new ArrayList<UserDocument>();
-    for (UserDocument doc : _store.values()) {
-      if (request.matches(doc)) {
-        list.add(doc);
+    List<ManageableUser> list = new ArrayList<>();
+    for (ManageableUser user : getStoredValues()) {
+      if (request.matches(user)) {
+        list.add(user);
       }
     }
     Collections.sort(list, request.getSortOrder());
-    
-    UserSearchResult result = new UserSearchResult();
-    result.setPaging(Paging.of(request.getPagingRequest(), list));
-    result.getDocuments().addAll(request.getPagingRequest().select(list));
-    return result;
+    Paging paging = Paging.of(request.getPagingRequest(), list);
+    return new UserSearchResult(paging, request.getPagingRequest().select(list));
   }
 
-  //-------------------------------------------------------------------------
   @Override
-  public UserDocument get(final UniqueId uniqueId) {
-    return get(uniqueId, VersionCorrection.LATEST);
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public UserDocument get(final ObjectIdentifiable objectId, final VersionCorrection versionCorrection) {
-    ArgumentChecker.notNull(objectId, "objectId");
-    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
-    final UserDocument document = _store.get(objectId.getObjectId());
-    if (document == null) {
-      throw new DataNotFoundException("User not found: " + objectId);
-    }
-    return document;
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public UserDocument add(final UserDocument document) {
-    ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getUser(), "document.user");
-    
-    final ObjectId objectId = _objectIdSupplier.get();
-    final UniqueId uniqueId = objectId.atVersion("");
-    final ManageableOGUser user = document.getUser().clone();
-    user.setUniqueId(uniqueId);
-    document.setUniqueId(uniqueId);
-    final Instant now = Instant.now();
-    final UserDocument doc = new UserDocument(user);
-    doc.setVersionFromInstant(now);
-    doc.setCorrectionFromInstant(now);
-    _store.put(objectId, doc);
-    _changeManager.entityChanged(ChangeType.ADDED, objectId, doc.getVersionFromInstant(), doc.getVersionToInstant(), now);
-    return doc;
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public UserDocument update(final UserDocument document) {
-    ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
-    ArgumentChecker.notNull(document.getUser(), "document.user");
-    
-    final UniqueId uniqueId = document.getUniqueId();
-    final Instant now = Instant.now();
-    final UserDocument storedDocument = _store.get(uniqueId.getObjectId());
-    if (storedDocument == null) {
-      throw new DataNotFoundException("User not found: " + uniqueId);
-    }
-    document.setVersionFromInstant(now);
-    document.setVersionToInstant(null);
-    document.setCorrectionFromInstant(now);
-    document.setCorrectionToInstant(null);
-    document.setUniqueId(uniqueId.withVersion(""));
-    if (_store.replace(uniqueId.getObjectId(), storedDocument, document) == false) {
-      throw new IllegalArgumentException("Concurrent modification");
-    }
-    _changeManager.entityChanged(ChangeType.CHANGED, document.getObjectId(), storedDocument.getVersionFromInstant(), document.getVersionToInstant(), now);
-    return document;
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public void remove(ObjectIdentifiable objectIdentifiable) {
-    ArgumentChecker.notNull(objectIdentifiable, "objectIdentifiable");
-    if (_store.remove(objectIdentifiable.getObjectId()) == null) {
-      throw new DataNotFoundException("User not found: " + objectIdentifiable);
-    }
-    _changeManager.entityChanged(ChangeType.REMOVED, objectIdentifiable.getObjectId(), null, null, Instant.now());
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public UserDocument correct(final UserDocument document) {
-    return update(document);
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public UserHistoryResult history(final UserHistoryRequest request) {
+  public UserEventHistoryResult eventHistory(UserEventHistoryRequest request) {
     ArgumentChecker.notNull(request, "request");
-    ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
+    List<HistoryEvent> history = super.eventHistory(request.getObjectId(), request.getUserName());
+    return new UserEventHistoryResult(history);
+  }
 
-    final UserHistoryResult result = new UserHistoryResult();
-    final UserDocument doc = get(request.getObjectId(), VersionCorrection.LATEST);
-    if (doc != null) {
-      result.getDocuments().add(doc);
-    }
-    result.setPaging(Paging.ofAll(result.getDocuments()));
-    return result;
+  //-------------------------------------------------------------------------
+  @Override
+  public UserAccount getAccount(String userName) {
+    ArgumentChecker.notNull(userName, "userName");
+    ManageableUser user = getByName0(userName);
+    SimpleUserAccount account = new SimpleUserAccount(user.getUserName());
+    account.setPasswordHash(user.getPasswordHash());
+    account.setAlternateIds(user.getAlternateIds());
+    account.setEmailAddress(user.getEmailAddress());
+    account.setProfile(user.getProfile());
+    return roleMaster().resolveAccount(account);
+  }
+
+  @Override
+  public RoleMaster roleMaster() {
+    return _roleMaster;
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public final ChangeManager changeManager() {
+    return getChangeManager();
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public String toString() {
+    return String.format("%s[size=%d]", getClass().getSimpleName(), getStoredValues().size());
   }
 
 }

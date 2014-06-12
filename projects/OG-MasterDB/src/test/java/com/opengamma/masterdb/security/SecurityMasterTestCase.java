@@ -15,6 +15,8 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
+import org.joda.beans.Bean;
+import org.joda.beans.test.BeanAssert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -142,7 +144,7 @@ public class SecurityMasterTestCase extends SecurityTestCase {
     // retrieve by unique identifier
     sec = getSecurity(uniqueId);
     normalizeSecurity(sec);
-    assertEquals(security, sec);
+    BeanAssert.assertBeanEquals(security, (Bean) sec);
     ExternalIdBundle bundle = null;
     if (security.getExternalIdBundle().size() > 0) {
       final Iterator<ExternalId> iterator = security.getExternalIdBundle().iterator();

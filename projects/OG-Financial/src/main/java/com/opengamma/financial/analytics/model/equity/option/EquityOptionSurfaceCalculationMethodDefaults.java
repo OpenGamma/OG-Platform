@@ -21,54 +21,55 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
 import com.opengamma.financial.property.DefaultPropertyFunction;
+import com.opengamma.financial.property.StaticDefaultPropertyFunction;
 import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * Populates {@link EquityOptionFunction}, including {@link EquityVanillaBarrierOptionBlackFunction}, with defaults appropriate for pricing using an interpolated Black lognormal volatility surface.
  */
-public abstract class EquityOptionSurfaceCalculationMethodDefaults extends DefaultPropertyFunction {
+public abstract class EquityOptionSurfaceCalculationMethodDefaults extends StaticDefaultPropertyFunction {
   /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(EquityOptionSurfaceCalculationMethodDefaults.class);
   /** Map of id name to surface calculation method */
-  private final Map<String, String> _idToSurfaceCalculationMethod;
+  private final Map<String, Set<String>> _idToSurfaceCalculationMethod;
   /** The priority of this set of defaults */
   private final PriorityClass _priority;
 
   /** The value requirement names for which these defaults apply */
   private static final String[] s_valueNames = new String[] {
-    ValueRequirementNames.PRESENT_VALUE,
-    ValueRequirementNames.VEGA_QUOTE_MATRIX,
-    ValueRequirementNames.VALUE_VEGA,
-    ValueRequirementNames.IMPLIED_VOLATILITY,
-    ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
-    ValueRequirementNames.FORWARD,
-    ValueRequirementNames.SPOT,
-    ValueRequirementNames.VALUE_DELTA,
-    ValueRequirementNames.VALUE_GAMMA,
-    ValueRequirementNames.VALUE_VOMMA,
-    ValueRequirementNames.VALUE_VANNA,
-    ValueRequirementNames.VALUE_RHO,
-    ValueRequirementNames.VALUE_CARRY_RHO,
-    ValueRequirementNames.VALUE_THETA,
-    ValueRequirementNames.VALUE_DUAL_DELTA,
-    ValueRequirementNames.DELTA,
-    ValueRequirementNames.GAMMA,
-    ValueRequirementNames.VOMMA,
-    ValueRequirementNames.VANNA,
-    ValueRequirementNames.RHO,
-    ValueRequirementNames.CARRY_RHO,
-    ValueRequirementNames.THETA,
-    ValueRequirementNames.DUAL_DELTA,
-    ValueRequirementNames.VEGA,
-    ValueRequirementNames.BARRIER_DISTANCE,
-    ValueRequirementNames.PNL, // Produced by EquityOption*ScenarioFunction
-    ValueRequirementNames.POSITION_DELTA,
-    ValueRequirementNames.POSITION_GAMMA,
-    ValueRequirementNames.POSITION_RHO,
-    ValueRequirementNames.POSITION_THETA,
-    ValueRequirementNames.POSITION_VEGA,
-    ValueRequirementNames.POSITION_WEIGHTED_VEGA
+      ValueRequirementNames.PRESENT_VALUE,
+      ValueRequirementNames.VEGA_QUOTE_MATRIX,
+      ValueRequirementNames.VALUE_VEGA,
+      ValueRequirementNames.IMPLIED_VOLATILITY,
+      ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
+      ValueRequirementNames.FORWARD,
+      ValueRequirementNames.SPOT,
+      ValueRequirementNames.VALUE_DELTA,
+      ValueRequirementNames.VALUE_GAMMA,
+      ValueRequirementNames.VALUE_VOMMA,
+      ValueRequirementNames.VALUE_VANNA,
+      ValueRequirementNames.VALUE_RHO,
+      ValueRequirementNames.VALUE_CARRY_RHO,
+      ValueRequirementNames.VALUE_THETA,
+      ValueRequirementNames.VALUE_DUAL_DELTA,
+      ValueRequirementNames.DELTA,
+      ValueRequirementNames.GAMMA,
+      ValueRequirementNames.VOMMA,
+      ValueRequirementNames.VANNA,
+      ValueRequirementNames.RHO,
+      ValueRequirementNames.CARRY_RHO,
+      ValueRequirementNames.THETA,
+      ValueRequirementNames.DUAL_DELTA,
+      ValueRequirementNames.VEGA,
+      ValueRequirementNames.BARRIER_DISTANCE,
+      ValueRequirementNames.PNL, // Produced by EquityOption*ScenarioFunction
+      ValueRequirementNames.POSITION_DELTA,
+      ValueRequirementNames.POSITION_GAMMA,
+      ValueRequirementNames.POSITION_RHO,
+      ValueRequirementNames.POSITION_THETA,
+      ValueRequirementNames.POSITION_VEGA,
+      ValueRequirementNames.POSITION_WEIGHTED_VEGA
   };
 
   /**
@@ -78,17 +79,16 @@ public abstract class EquityOptionSurfaceCalculationMethodDefaults extends Defau
   public EquityOptionSurfaceCalculationMethodDefaults(final String priority, final String... perIdConfig) {
     super(FinancialSecurityTypes.EQUITY_INDEX_OPTION_SECURITY
         .or(FinancialSecurityTypes.EQUITY_BARRIER_OPTION_SECURITY)
-        .or(FinancialSecurityTypes.EQUITY_OPTION_SECURITY), true);
+        .or(FinancialSecurityTypes.EQUITY_OPTION_SECURITY), ValuePropertyNames.SURFACE_CALCULATION_METHOD, true, s_valueNames);
     ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(perIdConfig, "per id configuration");
     _priority = PriorityClass.valueOf(priority);
-
     final int nPairs = perIdConfig.length;
     ArgumentChecker.isTrue(nPairs % 2 == 0, "Must have surface calculation method per id");
     _idToSurfaceCalculationMethod = Maps.newHashMap();
     for (int i = 0; i < perIdConfig.length; i += 2) {
       final String id = perIdConfig[i].toUpperCase();
-      _idToSurfaceCalculationMethod.put(id, perIdConfig[i + 1]);
+      _idToSurfaceCalculationMethod.put(id, Collections.singleton(perIdConfig[i + 1]));
     }
   }
 
@@ -100,24 +100,18 @@ public abstract class EquityOptionSurfaceCalculationMethodDefaults extends Defau
   }
 
   @Override
-  protected void getDefaults(final PropertyDefaults defaults) {
-    for (final String valueName : s_valueNames) {
-      defaults.addValuePropertyName(valueName, ValuePropertyNames.SURFACE_CALCULATION_METHOD);
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+    if (desiredValue.getConstraints().isDefined(ValuePropertyNames.CALCULATION_METHOD)) {
+      return super.getRequirements(context, target, desiredValue);
+    } else {
+      return null;
     }
   }
 
   @Override
-  protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
+  protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final String id = getId(target.getSecurity());
-    if (!_idToSurfaceCalculationMethod.containsKey(id)) {
-      s_logger.error("Could not find defaults for {}", id);
-      return null;
-    }
-    if (ValuePropertyNames.SURFACE_CALCULATION_METHOD.equals(propertyName)) {
-      return Collections.singleton(_idToSurfaceCalculationMethod.get(id));
-    }
-    s_logger.error("Cannot get a default value for {}", propertyName);
-    return null;
+    return _idToSurfaceCalculationMethod.get(id);
   }
 
   @Override

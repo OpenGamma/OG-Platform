@@ -5,9 +5,10 @@
  */
 package com.opengamma.util.rest;
 
-import javax.ws.rs.core.Response;
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
 import com.opengamma.DataNotFoundException;
@@ -17,8 +18,7 @@ import com.opengamma.DataNotFoundException;
  */
 @Provider
 public class DataNotFoundExceptionMapper
-    extends AbstractExceptionMapper
-    implements ExceptionMapper<DataNotFoundException> {
+    extends AbstractSpecificExceptionMapper<DataNotFoundException> {
 
   /**
    * Creates the mapper.
@@ -29,12 +29,9 @@ public class DataNotFoundExceptionMapper
 
   //-------------------------------------------------------------------------
   @Override
-  public Response toResponse(final DataNotFoundException exception) {
-    return createResponse(exception);
-  }
-
-  protected void logRestfulError(final Throwable exception) {
-    s_logger.debug("RESTful web-service exception caught and tunnelled to client", exception);
+  protected String buildHtmlErrorPage(DataNotFoundException exception) {
+    Map<String, String> data = new HashMap<>();
+    return createHtmlErrorPage("error-datanotfound.html", data);
   }
 
 }

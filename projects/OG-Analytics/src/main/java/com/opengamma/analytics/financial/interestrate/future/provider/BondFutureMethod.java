@@ -10,7 +10,9 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
  * Methods for the pricing of bond futures generic to all models.
+ * @deprecated Use the {@link BondFuturesTransactionMethod}.
  */
+@Deprecated
 public abstract class BondFutureMethod {
 
   /**

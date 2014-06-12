@@ -8,6 +8,7 @@ package com.opengamma.master.security;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -109,29 +110,70 @@ public class SecurityLoaderResult extends DirectBean {
     return SecurityLoaderResult.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1819569153:  // resultMap
-        return getResultMap();
-      case 1550085628:  // securityMap
-        return getSecurityMap();
-    }
-    return super.propertyGet(propertyName, quiet);
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the unique IDs of the securities that were obtained.
+   * The bundle is the original search key, it is not updated with additional external IDs.
+   * @return the value of the property, not null
+   */
+  public Map<ExternalIdBundle, UniqueId> getResultMap() {
+    return _resultMap;
   }
 
-  @SuppressWarnings("unchecked")
+  /**
+   * Sets the unique IDs of the securities that were obtained.
+   * The bundle is the original search key, it is not updated with additional external IDs.
+   * @param resultMap  the new value of the property, not null
+   */
+  public void setResultMap(Map<ExternalIdBundle, UniqueId> resultMap) {
+    JodaBeanUtils.notNull(resultMap, "resultMap");
+    this._resultMap.clear();
+    this._resultMap.putAll(resultMap);
+  }
+
+  /**
+   * Gets the the {@code resultMap} property.
+   * The bundle is the original search key, it is not updated with additional external IDs.
+   * @return the property, not null
+   */
+  public final Property<Map<ExternalIdBundle, UniqueId>> resultMap() {
+    return metaBean().resultMap().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the loaded securities, keyed by unique ID.
+   * This map is optional, and is only returned if the flag in the request is set to true.
+   * @return the value of the property, not null
+   */
+  public Map<UniqueId, Security> getSecurityMap() {
+    return _securityMap;
+  }
+
+  /**
+   * Sets the loaded securities, keyed by unique ID.
+   * This map is optional, and is only returned if the flag in the request is set to true.
+   * @param securityMap  the new value of the property, not null
+   */
+  public void setSecurityMap(Map<UniqueId, Security> securityMap) {
+    JodaBeanUtils.notNull(securityMap, "securityMap");
+    this._securityMap.clear();
+    this._securityMap.putAll(securityMap);
+  }
+
+  /**
+   * Gets the the {@code securityMap} property.
+   * This map is optional, and is only returned if the flag in the request is set to true.
+   * @return the property, not null
+   */
+  public final Property<Map<UniqueId, Security>> securityMap() {
+    return metaBean().securityMap().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
   @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1819569153:  // resultMap
-        setResultMap((Map<ExternalIdBundle, UniqueId>) newValue);
-        return;
-      case 1550085628:  // securityMap
-        setSecurityMap((Map<UniqueId, Security>) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
+  public SecurityLoaderResult clone() {
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override
@@ -155,62 +197,22 @@ public class SecurityLoaderResult extends DirectBean {
     return hash;
   }
 
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the unique IDs of the securities that were obtained.
-   * The bundle is the original search key, it is not updated with additional external IDs.
-   * @return the value of the property
-   */
-  public Map<ExternalIdBundle, UniqueId> getResultMap() {
-    return _resultMap;
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(96);
+    buf.append("SecurityLoaderResult{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
   }
 
-  /**
-   * Sets the unique IDs of the securities that were obtained.
-   * The bundle is the original search key, it is not updated with additional external IDs.
-   * @param resultMap  the new value of the property
-   */
-  public void setResultMap(Map<ExternalIdBundle, UniqueId> resultMap) {
-    this._resultMap.clear();
-    this._resultMap.putAll(resultMap);
-  }
-
-  /**
-   * Gets the the {@code resultMap} property.
-   * The bundle is the original search key, it is not updated with additional external IDs.
-   * @return the property, not null
-   */
-  public final Property<Map<ExternalIdBundle, UniqueId>> resultMap() {
-    return metaBean().resultMap().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the loaded securities, keyed by unique ID.
-   * This map is optional, and is only returned if the flag in the request is set to true.
-   * @return the value of the property
-   */
-  public Map<UniqueId, Security> getSecurityMap() {
-    return _securityMap;
-  }
-
-  /**
-   * Sets the loaded securities, keyed by unique ID.
-   * This map is optional, and is only returned if the flag in the request is set to true.
-   * @param securityMap  the new value of the property
-   */
-  public void setSecurityMap(Map<UniqueId, Security> securityMap) {
-    this._securityMap.clear();
-    this._securityMap.putAll(securityMap);
-  }
-
-  /**
-   * Gets the the {@code securityMap} property.
-   * This map is optional, and is only returned if the flag in the request is set to true.
-   * @return the property, not null
-   */
-  public final Property<Map<UniqueId, Security>> securityMap() {
-    return metaBean().securityMap().createProperty(this);
+  protected void toString(StringBuilder buf) {
+    buf.append("resultMap").append('=').append(JodaBeanUtils.toString(getResultMap())).append(',').append(' ');
+    buf.append("securityMap").append('=').append(JodaBeanUtils.toString(getSecurityMap())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -290,6 +292,38 @@ public class SecurityLoaderResult extends DirectBean {
      */
     public final MetaProperty<Map<UniqueId, Security>> securityMap() {
       return _securityMap;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1819569153:  // resultMap
+          return ((SecurityLoaderResult) bean).getResultMap();
+        case 1550085628:  // securityMap
+          return ((SecurityLoaderResult) bean).getSecurityMap();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1819569153:  // resultMap
+          ((SecurityLoaderResult) bean).setResultMap((Map<ExternalIdBundle, UniqueId>) newValue);
+          return;
+        case 1550085628:  // securityMap
+          ((SecurityLoaderResult) bean).setSecurityMap((Map<UniqueId, Security>) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((SecurityLoaderResult) bean)._resultMap, "resultMap");
+      JodaBeanUtils.notNull(((SecurityLoaderResult) bean)._securityMap, "securityMap");
     }
 
   }

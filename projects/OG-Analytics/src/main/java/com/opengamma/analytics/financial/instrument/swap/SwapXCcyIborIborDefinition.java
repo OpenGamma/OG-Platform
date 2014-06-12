@@ -12,11 +12,12 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinitionBuilder;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapXCcyIborIbor;
-import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponDefinition;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
+import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
@@ -31,7 +32,7 @@ public class SwapXCcyIborIborDefinition extends SwapDefinition {
    * @param firstLeg The first Ibor leg.
    * @param secondLeg The second Ibor leg.
    */
-  public SwapXCcyIborIborDefinition(final AnnuityDefinition<PaymentDefinition> firstLeg, final AnnuityDefinition<PaymentDefinition> secondLeg) {
+  public SwapXCcyIborIborDefinition(final AnnuityDefinition<CouponDefinition> firstLeg, final AnnuityDefinition<CouponDefinition> secondLeg) {
     super(firstLeg, secondLeg);
   }
 
@@ -78,10 +79,10 @@ public class SwapXCcyIborIborDefinition extends SwapDefinition {
     ArgumentChecker.notNull(maturityDate, "Maturity date");
     ArgumentChecker.notNull(generator, "Swap generator");
     // TODO: create a mechanism for the simultaneous payments on both legs, i.e. joint calendar
-    final AnnuityDefinition<PaymentDefinition> firstLegNotional = AnnuityDefinitionBuilder.annuityIborSpreadWithNotionalFrom(settlementDate, maturityDate,
-        notional1, generator.getIborIndex1(), spread1, isPayer, generator.getCalendar1());
-    final AnnuityDefinition<PaymentDefinition> secondLegNotional = AnnuityDefinitionBuilder.annuityIborSpreadWithNotionalFrom(settlementDate, maturityDate,
-        notional2, generator.getIborIndex2(), spread2, !isPayer, generator.getCalendar2());
+    final AnnuityDefinition<CouponDefinition> firstLegNotional = AnnuityDefinitionBuilder.couponIborSpreadWithNotional(settlementDate, maturityDate,
+        notional1, spread1, generator.getIborIndex1(), isPayer, generator.getCalendar1(), StubType.SHORT_START, 0, true, true);
+    final AnnuityDefinition<CouponDefinition> secondLegNotional = AnnuityDefinitionBuilder.couponIborSpreadWithNotional(settlementDate, maturityDate,
+        notional2, spread2, generator.getIborIndex2(), !isPayer, generator.getCalendar2(), StubType.SHORT_START, 0, true, true);
     return new SwapXCcyIborIborDefinition(firstLegNotional, secondLegNotional);
   }
 

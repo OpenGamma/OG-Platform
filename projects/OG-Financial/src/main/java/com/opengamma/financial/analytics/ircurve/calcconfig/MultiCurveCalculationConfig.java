@@ -12,6 +12,7 @@ import java.util.Map;
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.core.config.Config;
+import com.opengamma.core.config.ConfigGroups;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 import com.opengamma.util.ArgumentChecker;
@@ -19,7 +20,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-@Config(description = "Multi curve calculation config")
+@Config(description = "Multi curve calculation config", group = ConfigGroups.CURVES_LEGACY)
 public class MultiCurveCalculationConfig {
   //TODO check inputs for instrument exposures - need some or all of yield curve names in the array of names
   private final String _calculationConfigName;
@@ -140,7 +141,7 @@ public class MultiCurveCalculationConfig {
         if (!other._exogenousConfigAndCurveNames.containsKey(entry.getKey())) {
           return false;
         }
-        if (!Arrays.deepEquals(entry.getValue(), _exogenousConfigAndCurveNames.get(entry.getKey()))) {
+        if (!Arrays.deepEquals(entry.getValue(), other._exogenousConfigAndCurveNames.get(entry.getKey()))) {
           return false;
         }
       }

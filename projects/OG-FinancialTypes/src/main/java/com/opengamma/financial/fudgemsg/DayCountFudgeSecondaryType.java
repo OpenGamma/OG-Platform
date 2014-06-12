@@ -32,12 +32,12 @@ public final class DayCountFudgeSecondaryType extends SecondaryFieldType<DayCoun
 
   @Override
   public String secondaryToPrimary(DayCount object) {
-    return object.getConventionName();
+    return object.getName();
   }
 
   @Override
   public DayCount primaryToSecondary(final String string) {
-    return DayCountFactory.INSTANCE.getDayCount(string);
+    return DayCountFactory.of(string);
   }
 
 }

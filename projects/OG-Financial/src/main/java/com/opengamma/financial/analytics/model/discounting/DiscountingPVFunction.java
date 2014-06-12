@@ -30,11 +30,10 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
+import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
-import com.opengamma.financial.security.cash.CashSecurity;
-import com.opengamma.financial.security.fra.FRASecurity;
-import com.opengamma.financial.security.future.FederalFundsFutureSecurity;
-import com.opengamma.financial.security.future.InterestRateFutureSecurity;
+import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -59,33 +58,39 @@ public class DiscountingPVFunction extends DiscountingFunction {
     return new DiscountingCompiledFunction(getTargetToDefinitionConverter(context), getDefinitionToDerivativeConverter(context), true) {
 
       @Override
-      public boolean canApplyTo(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
+      public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
         final Security security = target.getTrade().getSecurity();
-        if (security instanceof SwapSecurity) {
-          if (InterestRateInstrumentType.isFixedIncomeInstrumentType((SwapSecurity) security)) {
-            return InterestRateInstrumentType.getInstrumentTypeFromSecurity((SwapSecurity) security) != InterestRateInstrumentType.SWAP_CROSS_CURRENCY;
-          }
+        if (security instanceof FXForwardSecurity) {
           return false;
         }
-        return security instanceof CashSecurity ||
-            security instanceof FRASecurity ||
-            security instanceof SwapSecurity ||
-            security instanceof InterestRateFutureSecurity ||
-            security instanceof FederalFundsFutureSecurity;
+        return super.canApplyTo(context, target);
       }
 
+      @SuppressWarnings("synthetic-access")
       @Override
       protected Set<ComputedValue> getValues(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
           final ComputationTarget target, final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative,
           final FXMatrix fxMatrix) {
         final MulticurveProviderInterface data = getMergedProviders(inputs, fxMatrix);
+        final FinancialSecurity security = (FinancialSecurity) target.getTrade().getSecurity();
+        final InterestRateInstrumentType type = InterestRateInstrumentType.getInstrumentTypeFromSecurity(security);
+        final MultipleCurrencyAmount mca = derivative.accept(CALCULATOR, data);
         final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
         final ValueProperties properties = desiredValue.getConstraints().copy().get();
-        final Currency currency = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity());
-        final MultipleCurrencyAmount mca = derivative.accept(CALCULATOR, data);
         final ValueSpecification spec = new ValueSpecification(PRESENT_VALUE, target.toSpecification(), properties);
+        final Currency currency;
+        if (type == InterestRateInstrumentType.SWAP_CROSS_CURRENCY) {
+          final SwapSecurity swapSecurity = (SwapSecurity) security;
+          currency = ((InterestRateNotional) swapSecurity.getPayLeg().getNotional()).getCurrency();
+          final Currency otherCurrency = ((InterestRateNotional) swapSecurity.getReceiveLeg().getNotional()).getCurrency();
+          final double fx = data.getFxRate(otherCurrency, currency);
+          final double pv = mca.getAmount(currency) + fx * mca.getAmount(otherCurrency);
+          return Collections.singleton(new ComputedValue(spec, pv));
+        }
+        currency = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity());
         return Collections.singleton(new ComputedValue(spec, mca.getAmount(currency)));
       }
+
     };
   }
 }

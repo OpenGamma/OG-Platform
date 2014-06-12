@@ -9,9 +9,12 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Tests related to the Normal option pricing data sets.
  */
+@Test(groups = TestGroup.UNIT)
 public class NormalFunctionDataTest {
 
   private static final double FORWARD = 0.05;

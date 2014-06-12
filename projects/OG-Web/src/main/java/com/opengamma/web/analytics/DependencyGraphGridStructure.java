@@ -25,6 +25,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 import com.opengamma.web.analytics.formatting.TypeFormatter;
 
 /**
@@ -49,10 +50,8 @@ public class DependencyGraphGridStructure implements GridStructure {
   /** Map of target types to displayable names. */
   private static final ComputationTargetTypeMap<String> TARGET_TYPE_NAMES = createTargetTypeNames();
 
-  /** The {@link ValueRequirement} that requested the root node. */
-  private final ValueRequirement _rootRequirement;
   /** {@link ValueSpecification}s for all rows in the grid in row index order. */
-  private final List<ValueSpecification> _valueSpecs;
+  private final List<ValueSpecification> _valueSpecifications;
   /** Function names for all rows in the grid in row index order. */
   private final List<String> _fnNames;
   /** For looking up calculation targets using their specification. */
@@ -70,18 +69,15 @@ public class DependencyGraphGridStructure implements GridStructure {
 
   /* package */ DependencyGraphGridStructure(AnalyticsNode root,
                                              String calcConfigName,
-                                             ValueRequirement rootRequirement,
-                                             List<ValueSpecification> valueSpecs,
+                                             List<ValueSpecification> valueSpecifications,
                                              List<String> fnNames,
                                              ComputationTargetResolver targetResolver) {
-    ArgumentChecker.notNull(valueSpecs, "valueSpecs");
+    ArgumentChecker.notNull(valueSpecifications, "valueSpecifications");
     ArgumentChecker.notNull(fnNames, "fnNames");
-    ArgumentChecker.notNull(rootRequirement, "rootRequirement");
     ArgumentChecker.notNull(targetResolver, "targetResolver");
     _root = root;
     _calcConfigName = calcConfigName;
-    _rootRequirement = rootRequirement;
-    _valueSpecs = Collections.unmodifiableList(valueSpecs);
+    _valueSpecifications = Collections.unmodifiableList(valueSpecifications);
     _fnNames = Collections.unmodifiableList(fnNames);
     _computationTargetResolver = targetResolver;
     // fixed column group with one column for the row label
@@ -104,7 +100,7 @@ public class DependencyGraphGridStructure implements GridStructure {
    * @return The value specifications used to calculate the values
    */
   /* package */ List<ValueSpecification> getValueSpecifications() {
-    return _valueSpecs;
+    return _valueSpecifications;
   }
 
   /**
@@ -133,7 +129,7 @@ public class DependencyGraphGridStructure implements GridStructure {
     } else {
       state = Viewport.State.FRESH_DATA;
     }
-    return Pair.of(newResults, state);
+    return Pairs.of(newResults, state);
   }
 
   /**
@@ -155,7 +151,7 @@ public class DependencyGraphGridStructure implements GridStructure {
    */
   private GridColumn column(String header, Class<?> type, int colIndex) {
     DependencyGraphCellRenderer renderer = new DependencyGraphCellRenderer(colIndex,
-                                                                           _valueSpecs,
+                                                                           _valueSpecifications,
                                                                            _fnNames,
                                                                            _computationTargetResolver,
                                                                            _calcConfigName);
@@ -164,7 +160,7 @@ public class DependencyGraphGridStructure implements GridStructure {
 
   @Override
   public int getRowCount() {
-    return _valueSpecs.size();
+    return _valueSpecifications.size();
   }
 
   @Override
@@ -188,12 +184,17 @@ public class DependencyGraphGridStructure implements GridStructure {
   }
 
   @Override
-  public Pair<String, ValueSpecification> getTargetForCell(int row, int col) {
+  public Pair<String, ValueRequirement> getValueRequirementForCell(int row, int col) {
+    // there is no value requirement available here
+    return null;
+  }
+
+  public Pair<String, ValueSpecification> getValueSpecificationForCell(int row, int col) {
     if (_calcConfigName == null || col != VALUE_COL) {
       return null;
     }
-    ValueSpecification valueSpec = _valueSpecs.get(row);
-    return valueSpec != null ? Pair.of(_calcConfigName, valueSpec) : null;
+    ValueSpecification valueSpec = _valueSpecifications.get(row);
+    return valueSpec != null ? Pairs.of(_calcConfigName, valueSpec) : null;
   }
 
   /**
@@ -212,13 +213,6 @@ public class DependencyGraphGridStructure implements GridStructure {
     map.put(ComputationTargetType.NULL, "Prim");
     map.put(ComputationTargetType.TRADE, "Trade");
     return map;
-  }
-
-  /**
-   * @return The {@link ValueRequirement} that requested the root node.
-   */
-  public ValueRequirement getRootRequirement() {
-    return _rootRequirement;
   }
 
   /**
@@ -331,8 +325,7 @@ public class DependencyGraphGridStructure implements GridStructure {
   @Override
   public String toString() {
     return "DependencyGraphGridStructure [" +
-        "_rootRequirement=" + _rootRequirement +
-        ", _valueSpecs=" + _valueSpecs +
+        ", _valueSpecifications=" + _valueSpecifications +
         ", _fnNames=" + _fnNames +
         ", _computationTargetResolver=" + _computationTargetResolver +
         ", _root=" + _root +

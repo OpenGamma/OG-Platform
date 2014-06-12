@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -69,58 +70,11 @@ public class SecurityMetaDataResult extends AbstractMetaDataResult {
     return SecurityMetaDataResult.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -714180327:  // securityTypes
-        return getSecurityTypes();
-      case -233564169:  // schemaVersion
-        return getSchemaVersion();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -714180327:  // securityTypes
-        setSecurityTypes((List<String>) newValue);
-        return;
-      case -233564169:  // schemaVersion
-        setSchemaVersion((String) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      SecurityMetaDataResult other = (SecurityMetaDataResult) obj;
-      return JodaBeanUtils.equal(getSecurityTypes(), other.getSecurityTypes()) &&
-          JodaBeanUtils.equal(getSchemaVersion(), other.getSchemaVersion()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityTypes());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSchemaVersion());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the list of valid security types.
    * This is only populated if requested.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public List<String> getSecurityTypes() {
     return _securityTypes;
@@ -129,9 +83,10 @@ public class SecurityMetaDataResult extends AbstractMetaDataResult {
   /**
    * Sets the list of valid security types.
    * This is only populated if requested.
-   * @param securityTypes  the new value of the property
+   * @param securityTypes  the new value of the property, not null
    */
   public void setSecurityTypes(List<String> securityTypes) {
+    JodaBeanUtils.notNull(securityTypes, "securityTypes");
     this._securityTypes.clear();
     this._securityTypes.addAll(securityTypes);
   }
@@ -171,6 +126,54 @@ public class SecurityMetaDataResult extends AbstractMetaDataResult {
    */
   public final Property<String> schemaVersion() {
     return metaBean().schemaVersion().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public SecurityMetaDataResult clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      SecurityMetaDataResult other = (SecurityMetaDataResult) obj;
+      return JodaBeanUtils.equal(getSecurityTypes(), other.getSecurityTypes()) &&
+          JodaBeanUtils.equal(getSchemaVersion(), other.getSchemaVersion()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityTypes());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSchemaVersion());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(96);
+    buf.append("SecurityMetaDataResult{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("securityTypes").append('=').append(JodaBeanUtils.toString(getSecurityTypes())).append(',').append(' ');
+    buf.append("schemaVersion").append('=').append(JodaBeanUtils.toString(getSchemaVersion())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -249,6 +252,38 @@ public class SecurityMetaDataResult extends AbstractMetaDataResult {
      */
     public final MetaProperty<String> schemaVersion() {
       return _schemaVersion;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -714180327:  // securityTypes
+          return ((SecurityMetaDataResult) bean).getSecurityTypes();
+        case -233564169:  // schemaVersion
+          return ((SecurityMetaDataResult) bean).getSchemaVersion();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -714180327:  // securityTypes
+          ((SecurityMetaDataResult) bean).setSecurityTypes((List<String>) newValue);
+          return;
+        case -233564169:  // schemaVersion
+          ((SecurityMetaDataResult) bean).setSchemaVersion((String) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((SecurityMetaDataResult) bean)._securityTypes, "securityTypes");
+      super.validate(bean);
     }
 
   }

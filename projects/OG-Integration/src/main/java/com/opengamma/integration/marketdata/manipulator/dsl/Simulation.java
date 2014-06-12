@@ -125,6 +125,7 @@ public class Simulation {
         params.put(unusedSelector, EmptyFunctionParameters.INSTANCE);
       }
       ViewCycleExecutionOptions scenarioOptions = baseOptions.copy()
+          .setName(definition.getName())
           .setFunctionParameters(params)
           .setValuationTime(scenario.getValuationTime())
           .setResolverVersionCorrection(scenario.getResolverVersionCorrection())
@@ -266,7 +267,7 @@ public class Simulation {
       if (batchMode) {
         executionOptions = ExecutionOptions.batch(sequence, baseOptions);
       } else if (listener != null) {
-        executionOptions = ExecutionOptions.of(sequence, executionFlags);
+        executionOptions = ExecutionOptions.of(sequence, baseOptions, executionFlags);
       } else {
         s_logger.warn("Not running in batch mode and no listener specified, the results would be ignored. Exiting.");
         return;
@@ -295,8 +296,15 @@ public class Simulation {
     return _resolverVersionCorrection;
   }
 
+  /**
+   * @return The scenarios keyed by name. The map's iterator returns the scenarios in the order they were created.
+   */
   /* package */ Map<String, Scenario> getScenarios() {
     return Collections.unmodifiableMap(_scenarios);
+  }
+
+  /* package */ List<String> getScenarioNames() {
+    return Lists.newArrayList(_scenarios.keySet());
   }
 
   @Override

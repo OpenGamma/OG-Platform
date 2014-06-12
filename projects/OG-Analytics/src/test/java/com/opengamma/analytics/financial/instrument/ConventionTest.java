@@ -12,19 +12,21 @@ import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class ConventionTest {
   private static final int SETTLEMENT_DAYS = 2;
-  private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  private static final DayCount DAY_COUNT = DayCounts.ACT_360;
+  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventions.FOLLOWING;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final String NAME = "CONVENTION";
   private static final Convention CONVENTION = new Convention(SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, CALENDAR, NAME);
@@ -70,15 +72,20 @@ public class ConventionTest {
     assertEquals(CONVENTION.hashCode(), other.hashCode());
     other = new Convention(SETTLEMENT_DAYS + 1, DAY_COUNT, BUSINESS_DAY, CALENDAR, NAME);
     assertFalse(CONVENTION.equals(other));
-    other = new Convention(SETTLEMENT_DAYS, DayCountFactory.INSTANCE.getDayCount("Actual/365"), BUSINESS_DAY, CALENDAR, NAME);
+    other = new Convention(SETTLEMENT_DAYS, DayCounts.ACT_365, BUSINESS_DAY, CALENDAR, NAME);
     assertFalse(CONVENTION.equals(other));
-    other = new Convention(SETTLEMENT_DAYS, DAY_COUNT, BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("None"), CALENDAR, NAME);
+    other = new Convention(SETTLEMENT_DAYS, DAY_COUNT, BusinessDayConventions.NONE, CALENDAR, NAME);
     assertFalse(CONVENTION.equals(other));
     other = new Convention(SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, new Calendar() {
 
       @Override
       public boolean isWorkingDay(final LocalDate date) {
         return false;
+      }
+
+      @Override
+      public String getName() {
+        return null;
       }
 
       @Override

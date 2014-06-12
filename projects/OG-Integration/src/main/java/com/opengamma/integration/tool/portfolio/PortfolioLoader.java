@@ -15,12 +15,12 @@ import com.opengamma.integration.copier.portfolio.PortfolioCopierVisitor;
 import com.opengamma.integration.copier.portfolio.QuietPortfolioCopierVisitor;
 import com.opengamma.integration.copier.portfolio.SimplePortfolioCopier;
 import com.opengamma.integration.copier.portfolio.VerbosePortfolioCopierVisitor;
-import com.opengamma.integration.copier.portfolio.reader.PortfolioReader;
-import com.opengamma.integration.copier.portfolio.reader.SingleSheetSimplePortfolioReader;
-import com.opengamma.integration.copier.portfolio.reader.ZippedPortfolioReader;
-import com.opengamma.integration.copier.portfolio.writer.MasterPortfolioWriter;
-import com.opengamma.integration.copier.portfolio.writer.PortfolioWriter;
-import com.opengamma.integration.copier.portfolio.writer.PrettyPrintingPortfolioWriter;
+import com.opengamma.integration.copier.portfolio.reader.PositionReader;
+import com.opengamma.integration.copier.portfolio.reader.SingleSheetSimplePositionReader;
+import com.opengamma.integration.copier.portfolio.reader.ZippedPositionReader;
+import com.opengamma.integration.copier.portfolio.writer.MasterPositionWriter;
+import com.opengamma.integration.copier.portfolio.writer.PositionWriter;
+import com.opengamma.integration.copier.portfolio.writer.PrettyPrintingPositionWriter;
 import com.opengamma.integration.copier.sheet.SheetFormat;
 import com.opengamma.integration.tool.portfolio.xml.SchemaRegister;
 import com.opengamma.integration.tool.portfolio.xml.XmlFileReader;
@@ -126,13 +126,13 @@ public class PortfolioLoader {
    */
   public void execute() {
 
-    for (PortfolioReader portfolioReader : constructPortfolioReaders(_fileName, _securityType, _ignoreVersion)) {
+    for (PositionReader positionReader : constructPortfolioReaders(_fileName, _securityType, _ignoreVersion)) {
 
       // Get the name of the portfolio from the reader if it supplies one
-      String name = portfolioReader.getPortfolioName();
+      String name = positionReader.getPortfolioName();
 
       String portfolioName = name != null ? name : _suggestedPortfolioName;
-      PortfolioWriter portfolioWriter =
+      PositionWriter positionWriter =
           constructPortfolioWriter(_toolContext, portfolioName, _write, _mergePositions, _keepCurrentPositions);
       SimplePortfolioCopier portfolioCopier = new SimplePortfolioCopier(_structure);
 
@@ -141,15 +141,15 @@ public class PortfolioLoader {
           _verbose ? new VerbosePortfolioCopierVisitor() : new QuietPortfolioCopierVisitor();
 
       // Call the portfolio loader with the supplied arguments
-      portfolioCopier.copy(portfolioReader, portfolioWriter, portfolioCopierVisitor);
+      portfolioCopier.copy(positionReader, positionWriter, portfolioCopierVisitor);
 
       // close stuff
-      portfolioReader.close();
-      portfolioWriter.close();
+      positionReader.close();
+      positionWriter.close();
     }
   }
 
-  private PortfolioWriter constructPortfolioWriter(ToolContext toolContext,
+  private PositionWriter constructPortfolioWriter(ToolContext toolContext,
                                                    String portfolioName,
                                                    boolean write,
                                                    boolean mergePositions,
@@ -163,7 +163,7 @@ public class PortfolioLoader {
       }
 
       // Create a portfolio writer to persist imported positions, trades and securities to the OG masters
-      return new MasterPortfolioWriter(portfolioName,
+      return new MasterPositionWriter(portfolioName,
                                        toolContext.getPortfolioMaster(),
                                        toolContext.getPositionMaster(),
                                        toolContext.getSecurityMaster(),
@@ -174,11 +174,11 @@ public class PortfolioLoader {
     } else {
 
       // Create a dummy portfolio writer to pretty-print instead of persisting
-      return new PrettyPrintingPortfolioWriter(true);
+      return new PrettyPrintingPositionWriter(true);
     }
   }
 
-  private Iterable<? extends PortfolioReader> constructPortfolioReaders(String filename, String securityType, boolean ignoreVersion) {
+  private Iterable<? extends PositionReader> constructPortfolioReaders(String filename, String securityType, boolean ignoreVersion) {
 
     switch (SheetFormat.of(filename)) {
 
@@ -189,9 +189,9 @@ public class PortfolioLoader {
           throw new OpenGammaRuntimeException("Could not import as no asset class was specified for file " + filename);
         } else {
 //          if (securityType.equalsIgnoreCase("exchangetraded")) {
-//            return new SingleSheetSimplePortfolioReader(filename, new ExchangeTradedRowParser(s_context.getBloombergSecuritySource()));
+//            return new SingleSheetSimplePositionReader(filename, new ExchangeTradedRowParser(s_context.getBloombergSecuritySource()));
 //          } else {
-          return ImmutableList.of(new SingleSheetSimplePortfolioReader(filename, securityType));
+          return ImmutableList.of(new SingleSheetSimplePositionReader(filename, securityType));
 //          }
         }
       case XML:
@@ -204,7 +204,7 @@ public class PortfolioLoader {
 
       case ZIP:
         // Create zipped multi-asset class loader
-        return ImmutableList.of(new ZippedPortfolioReader(filename, ignoreVersion));
+        return ImmutableList.of(new ZippedPositionReader(filename, ignoreVersion));
 
       default:
         throw new OpenGammaRuntimeException("Input filename should end in .CSV, .XLS, .XML or .ZIP");

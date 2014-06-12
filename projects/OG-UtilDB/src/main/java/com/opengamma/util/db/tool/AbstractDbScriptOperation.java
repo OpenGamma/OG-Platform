@@ -9,6 +9,8 @@ import java.io.File;
 import java.util.List;
 import java.util.Set;
 
+import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.util.db.script.DbSchemaGroupMetadata;
 import com.opengamma.util.db.script.DbScript;
 import com.opengamma.util.db.script.DbScriptUtils;
 
@@ -30,7 +32,11 @@ public abstract class AbstractDbScriptOperation<T extends DbToolContext> extends
   }
   
   protected DbScript getCreationScript(String groupName) {
-    return DbScriptUtils.getDbSchemaGroupMetadata(groupName).getCreateScript(getDatabaseName());
+    DbSchemaGroupMetadata dbSchemaGroupMetadata = DbScriptUtils.getDbSchemaGroupMetadata(groupName);
+    if (dbSchemaGroupMetadata == null) {
+      throw new OpenGammaRuntimeException("No metadata found for schema " + groupName);
+    }
+    return dbSchemaGroupMetadata.getCreateScript(getDatabaseName());
   }
   
   protected List<DbScript> getMigrationScripts(String groupName) {

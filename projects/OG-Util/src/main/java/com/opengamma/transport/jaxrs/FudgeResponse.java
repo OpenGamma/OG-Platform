@@ -15,13 +15,40 @@ public final class FudgeResponse {
   /**
    * The wrapped value.
    */
-  private Object _value;
+  private final Object _value;
+
+  //-------------------------------------------------------------------------
+  /**
+   * Unwraps an object by checking if it is a {@code FudgeResponse}.
+   * 
+   * @param value  the value to unwrap, not null
+   * @return the unwrapped value or the input value, not null
+   */
+  public static Object unwrap(Object value) {
+    if (value instanceof FudgeResponse) {
+      value = ((FudgeResponse) value).getValue();
+    }
+    return value;
+  }
 
   /**
    * Creates an instance.
    * 
    * @param value  the value to return, not null
+   * @return the wrapper, not null
    */
+  public static FudgeResponse of(Object value) {
+    return new FudgeResponse(value);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Creates an instance.
+   * 
+   * @param value  the value to return, not null
+   * @deprecated Use factory method
+   */
+  @Deprecated
   public FudgeResponse(Object value) {
     _value = value;
   }
@@ -59,7 +86,7 @@ public final class FudgeResponse {
 
   @Override
   public String toString() {
-    return "FudgeWrapper[" + _value + "]";
+    return "FudgeResponse[" + _value + "]";
   }
 
 }

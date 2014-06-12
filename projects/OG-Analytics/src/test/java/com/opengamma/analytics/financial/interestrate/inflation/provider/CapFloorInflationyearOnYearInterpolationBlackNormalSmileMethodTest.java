@@ -31,25 +31,27 @@ import com.opengamma.analytics.financial.provider.sensitivity.inflation.Paramete
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterInflationSensitivityParameterCalculator;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  *  Tests the present value and its sensitivities for year on year cap/floor with reference index on the first of the month.
  */
+@Test(groups = TestGroup.UNIT)
 public class CapFloorInflationyearOnYearInterpolationBlackNormalSmileMethodTest {
 
   private static final InflationIssuerProviderDiscount MARKET = MulticurveProviderDiscountDataSets.createMarket1();
   private static final IndexPrice[] PRICE_INDEXES = MARKET.getPriceIndexes().toArray(new IndexPrice[MARKET.getPriceIndexes().size()]);
   private static final IndexPrice PRICE_INDEX_EUR = PRICE_INDEXES[0];
   private static final Calendar CALENDAR_EUR = MulticurveProviderDiscountDataSets.getEURCalendar();
-  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventions.MODIFIED_FOLLOWING;
   private static final ZonedDateTime START_DATE = DateUtils.getUTCDate(2008, 8, 18);
   private static final Period COUPON_TENOR = Period.ofYears(10);
   private static final ZonedDateTime PAYMENT_DATE = ScheduleCalculator.getAdjustedDate(START_DATE, COUPON_TENOR, BUSINESS_DAY, CALENDAR_EUR);
@@ -89,10 +91,10 @@ public class CapFloorInflationyearOnYearInterpolationBlackNormalSmileMethodTest 
   */
   private static final NormalPriceFunction NORMAL_FUNCTION = new NormalPriceFunction();
 
-  @Test
   /**
    * Tests the present value.
    */
+  @Test
   public void presentValue() {
     final MultipleCurrencyAmount pv = METHOD.presentValue(YEAR_ON_YEAR_CAP, BLACK_INFLATION);
     final double df = MARKET.getCurve(YEAR_ON_YEAR_CAP.getCurrency()).getDiscountFactor(YEAR_ON_YEAR_CAP.getPaymentTime());
@@ -112,26 +114,26 @@ public class CapFloorInflationyearOnYearInterpolationBlackNormalSmileMethodTest 
     assertEquals("Year on year coupon inflation DiscountingMethod: Present value", pvExpected, pv.getAmount(YEAR_ON_YEAR_CAP.getCurrency()), TOLERANCE_PV);
   }
 
-  @Test
   /**
     * Tests the present value: Method vs Calculator.
     */
+  @Test
   public void presentValueMethodVsCalculator() {
     final MultipleCurrencyAmount pvMethod = METHOD.presentValue(YEAR_ON_YEAR_CAP, BLACK_INFLATION);
     final MultipleCurrencyAmount pvCalculator = YEAR_ON_YEAR_CAP.accept(PVIC, BLACK_INFLATION);
     assertEquals("Year on year coupon inflation DiscountingMethod: Present value", pvMethod, pvCalculator);
   }
 
-  @Test
   /**
     * Test the present value curves sensitivity.
     */
+  @Test
   public void presentValueCurveSensitivity() {
 
     final MultipleCurrencyParameterSensitivity pvicsFD = PS_PV_FDC.calculateSensitivity(YEAR_ON_YEAR_CAP, BLACK_INFLATION);
-    final MultipleCurrencyParameterSensitivity pvicsExact = PSC.calculateSensitivity(YEAR_ON_YEAR_CAP, BLACK_INFLATION, MARKET.getAllNames());
+    final MultipleCurrencyParameterSensitivity pvicsExact = PSC.calculateSensitivity(YEAR_ON_YEAR_CAP, BLACK_INFLATION);
 
-    AssertSensivityObjects.assertEquals("Year on year coupon inflation DiscountingMethod: presentValueCurveSensitivity ", pvicsExact, pvicsFD, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("Year on year coupon inflation DiscountingMethod: presentValueCurveSensitivity ", pvicsExact, pvicsFD, TOLERANCE_PV_DELTA);
 
   }
 
@@ -139,7 +141,7 @@ public class CapFloorInflationyearOnYearInterpolationBlackNormalSmileMethodTest 
   public void presentValueMarketSensitivityMethodVsCalculatorNoNotional() {
     final MultipleCurrencyInflationSensitivity pvcisMethod = METHOD.presentValueCurveSensitivity(YEAR_ON_YEAR_CAP, BLACK_INFLATION);
     final MultipleCurrencyInflationSensitivity pvcisCalculator = YEAR_ON_YEAR_CAP.accept(PVCSDC, BLACK_INFLATION);
-    AssertSensivityObjects.assertEquals("Year on year coupon inflation DiscountingMethod: presentValueMarketSensitivity", pvcisMethod, pvcisCalculator, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("Year on year coupon inflation DiscountingMethod: presentValueMarketSensitivity", pvcisMethod, pvcisCalculator, TOLERANCE_PV_DELTA);
   }
 
 }
