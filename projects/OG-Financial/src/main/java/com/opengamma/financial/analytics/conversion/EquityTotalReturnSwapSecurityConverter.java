@@ -16,10 +16,9 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.equity.EquityDefinition;
-import com.opengamma.analytics.financial.equity.trs.EquityTotalReturnSwapDefinition;
+import com.opengamma.analytics.financial.equity.trs.definition.EquityTotalReturnSwapDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
-import com.opengamma.analytics.financial.instrument.bond.BondTotalReturnSwapDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.analytics.financial.legalentity.GICSCode;
 import com.opengamma.analytics.financial.legalentity.LegalEntity;
@@ -34,13 +33,11 @@ import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.irs.FloatingInterestRateSwapLeg;
 import com.opengamma.financial.security.irs.NotionalExchange;
 import com.opengamma.financial.security.irs.PayReceiveType;
-import com.opengamma.financial.security.swap.BondTotalReturnSwapSecurity;
 import com.opengamma.financial.security.swap.EquityTotalReturnSwapSecurity;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Converts {@link BondTotalReturnSwapSecurity} and {@link EquityTotalReturnSwapSecurity} classes to
- * {@link BondTotalReturnSwapDefinition}s and {@link EquityTotalReturnSwapDefinition} respectively,
+ * Converts {@link EquityTotalReturnSwapSecurity} classes to {@link EquityTotalReturnSwapDefinition},
  * which are required for use in the analytics library.
  */
 public class EquityTotalReturnSwapSecurityConverter extends FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> {

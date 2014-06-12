@@ -224,7 +224,7 @@ public class SwapCalculatorTest {
   public void presentValuePerformance() {
 
     long startTime, endTime;
-    final int nbTest = 10;
+    final int nbTest = 100;
 
     final PresentValueDiscountingCalculator pvdCalculator = PresentValueDiscountingCalculator.getInstance();
     final PresentValueCurveSensitivityDiscountingCalculator pvcsdCalculator = PresentValueCurveSensitivityDiscountingCalculator.getInstance();
@@ -253,7 +253,7 @@ public class SwapCalculatorTest {
     }
     endTime = System.currentTimeMillis();
     System.out.println("SwapCalculatorTest: " + nbTest + " x " + nbSwap + " swaps (5Y/Q) - present value " + (endTime - startTime) + " ms");
-    // Performance note: Discounting price: 13-Mar-2013: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: xx ms for 100x100 swaps.
+    // Performance note: Discounting price: 11-Jun-2014: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 225 ms for 100x100 swaps.
 
     startTime = System.currentTimeMillis(); // Swap construction + PV
     for (int looptest = 0; looptest < nbTest; looptest++) {
@@ -268,18 +268,19 @@ public class SwapCalculatorTest {
     }
     endTime = System.currentTimeMillis();
     System.out.println("SwapCalculatorTest: " + nbTest + " x " + nbSwap + " swaps (5Y/Q) - construction + present value " + (endTime - startTime) + " ms");
-    // Performance note: Discounting price: 13-Mar-2013: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: xx ms for 100x100 swaps.
+    // Performance note: Discounting price: 11-Jun-2014: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 1280 ms for 100x100 swaps.
 
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
       for (int loops = 0; loops < nbSwap; loops++) {
         pv[loops] = swap[loops].accept(pvdCalculator, MULTICURVES);
         pvcs[loops] = swap[loops].accept(pvcsdCalculator, MULTICURVES);
+
       }
     }
     endTime = System.currentTimeMillis();
     System.out.println("SwapCalculatorTest: " + nbTest + " x " + nbSwap + " swaps (5Y/Q) - present value + present value curve sensitivity " + (endTime - startTime) + " ms");
-    // Performance note: Discounting price: 13-Mar-2013: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: xx ms for 100x100 swaps.
+    // Performance note: Discounting price: 11-Jun-2014: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 930 ms for 100x100 swaps.
 
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
@@ -290,7 +291,7 @@ public class SwapCalculatorTest {
     }
     endTime = System.currentTimeMillis();
     System.out.println("SwapCalculatorTest: " + nbTest + " x " + nbSwap + " swaps (5Y/Q) - present value + present value parameters sensitivity " + (endTime - startTime) + " ms");
-    // Performance note: Discounting price: 13-Mar-2013: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: xx ms for 100x100 swaps.
+    // Performance note: Discounting price: 11-Jun-2014: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 1325 ms for 100x100 swaps.
 
   }
 

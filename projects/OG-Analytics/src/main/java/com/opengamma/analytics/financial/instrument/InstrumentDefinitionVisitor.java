@@ -33,7 +33,7 @@ import com.opengamma.analytics.financial.equity.future.definition.VolatilityInde
 import com.opengamma.analytics.financial.equity.option.EquityIndexFutureOptionDefinition;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOptionDefinition;
 import com.opengamma.analytics.financial.equity.option.EquityOptionDefinition;
-import com.opengamma.analytics.financial.equity.trs.EquityTotalReturnSwapDefinition;
+import com.opengamma.analytics.financial.equity.trs.definition.EquityTotalReturnSwapDefinition;
 import com.opengamma.analytics.financial.equity.variance.EquityVarianceSwapDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexNonDeliverableForwardDefinition;

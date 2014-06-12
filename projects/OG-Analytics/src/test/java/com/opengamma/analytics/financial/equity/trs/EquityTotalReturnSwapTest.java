@@ -13,6 +13,7 @@ import org.threeten.bp.ZonedDateTime;
 import com.google.common.collect.Sets;
 import com.opengamma.analytics.financial.datasets.CalendarGBP;
 import com.opengamma.analytics.financial.equity.Equity;
+import com.opengamma.analytics.financial.equity.trs.definition.EquityTotalReturnSwap;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;

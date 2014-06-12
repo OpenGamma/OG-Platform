@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.equity.trs;
+package com.opengamma.analytics.financial.equity.trs.definition;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.threeten.bp.ZonedDateTime;

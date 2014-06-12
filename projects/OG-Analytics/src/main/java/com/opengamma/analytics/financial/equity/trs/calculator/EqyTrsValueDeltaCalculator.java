@@ -3,12 +3,12 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.equity.trs;
+package com.opengamma.analytics.financial.equity.trs.calculator;
 
 import com.opengamma.analytics.financial.equity.EquityTrsDataBundle;
+import com.opengamma.analytics.financial.equity.trs.definition.EquityTotalReturnSwap;
+import com.opengamma.analytics.financial.equity.trs.method.EquityTotalReturnSwapDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
-import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
@@ -32,11 +32,15 @@ public final class EqyTrsValueDeltaCalculator extends InstrumentDerivativeVisito
   private EqyTrsValueDeltaCalculator() {
   }
 
+  /**
+   * The methods used by the different instruments.
+   */
+  private static final EquityTotalReturnSwapDiscountingMethod METHOD_TRS = EquityTotalReturnSwapDiscountingMethod.getInstance();
+
+  //     -----     TRS     -----
+
   @Override
   public MultipleCurrencyAmount visitEquityTotalReturnSwap(final EquityTotalReturnSwap equityTrs, final EquityTrsDataBundle data) {
-    ArgumentChecker.notNull(equityTrs, "equityTrs");
-    ArgumentChecker.notNull(data, "data");
-    final CurrencyAmount equityValueDelta = CurrencyAmount.of(equityTrs.getNotionalCurrency(), -(data.getSpotEquity() * equityTrs.getEquity().getNumberOfShares()));
-    return MultipleCurrencyAmount.of(equityValueDelta);
+    return METHOD_TRS.assetExposure(equityTrs, data);
   }
 }

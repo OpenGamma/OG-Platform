@@ -14,7 +14,6 @@ import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.equity.trs.EquityTotalReturnSwapDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefinition;
@@ -41,7 +40,6 @@ import com.opengamma.financial.security.irs.FloatingInterestRateSwapLeg;
 import com.opengamma.financial.security.irs.NotionalExchange;
 import com.opengamma.financial.security.irs.PayReceiveType;
 import com.opengamma.financial.security.swap.BondTotalReturnSwapSecurity;
-import com.opengamma.financial.security.swap.EquityTotalReturnSwapSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
@@ -49,8 +47,7 @@ import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
 
 /**
- * Converts {@link BondTotalReturnSwapSecurity} and {@link EquityTotalReturnSwapSecurity} classes to
- * {@link BondTotalReturnSwapDefinition}s and {@link EquityTotalReturnSwapDefinition} respectively,
+ * Converts {@link BondTotalReturnSwapSecurity} classes to {@link BondTotalReturnSwapDefinition},
  * which are required for use in the analytics library.
  */
 public class BondTotalReturnSwapSecurityConverter extends FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> {
