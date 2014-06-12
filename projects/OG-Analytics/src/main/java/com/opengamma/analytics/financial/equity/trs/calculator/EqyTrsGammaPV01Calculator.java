@@ -3,9 +3,10 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.equity.trs;
+package com.opengamma.analytics.financial.equity.trs.calculator;
 
 import com.opengamma.analytics.financial.equity.EquityTrsDataBundle;
+import com.opengamma.analytics.financial.equity.trs.definition.EquityTotalReturnSwap;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.provider.calculator.discounting.GammaPV01CurveParametersCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueCurveSensitivityDiscountingCalculator;

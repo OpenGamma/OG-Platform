@@ -48,6 +48,7 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.CashFlowSecurityConverter;
 import com.opengamma.financial.analytics.conversion.CashSecurityConverter;
+import com.opengamma.financial.analytics.conversion.DefaultTradeConverter;
 import com.opengamma.financial.analytics.conversion.DeliverableSwapFutureSecurityConverter;
 import com.opengamma.financial.analytics.conversion.DeliverableSwapFutureTradeConverter;
 import com.opengamma.financial.analytics.conversion.FRASecurityConverter;
@@ -60,7 +61,6 @@ import com.opengamma.financial.analytics.conversion.InterestRateFutureTradeConve
 import com.opengamma.financial.analytics.conversion.InterestRateSwapSecurityConverter;
 import com.opengamma.financial.analytics.conversion.NonDeliverableFXForwardSecurityConverter;
 import com.opengamma.financial.analytics.conversion.SwapSecurityConverter;
-import com.opengamma.financial.analytics.conversion.DefaultTradeConverter;
 import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfigurationSource;
@@ -268,6 +268,7 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
         requirements.addAll(getFXRequirements(security, securitySource));
         final Set<ValueRequirement> timeSeriesRequirements = getTimeSeriesRequirements(context, target);
         if (timeSeriesRequirements == null) {
+          s_logger.error("getRequirements returned null as timeSeriesRequirements is null for {}", security);
           return null;
         }
         requirements.addAll(timeSeriesRequirements);

@@ -16,7 +16,7 @@ import org.threeten.bp.Instant;
 import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.equity.EquityTrsDataBundle;
-import com.opengamma.analytics.financial.equity.trs.EqyTrsAssetLegPresentValueCalculator;
+import com.opengamma.analytics.financial.equity.trs.calculator.EqyTrsAssetLegPresentValueCalculator;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;

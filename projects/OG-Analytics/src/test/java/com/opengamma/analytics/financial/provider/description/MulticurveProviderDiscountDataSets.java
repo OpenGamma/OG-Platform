@@ -63,12 +63,12 @@ public class MulticurveProviderDiscountDataSets {
     FX_MATRIX.addCurrency(Currency.EUR, Currency.USD, 1.40);
   }
 
-  private static final double[] USD_DSC_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0 };
-  private static final double[] USD_DSC_RATE = new double[] {0.0100, 0.0120, 0.0120, 0.0140, 0.0140, 0.0140 };
+  private static final double[] USD_DSC_TIME = new double[] {0.0, 1.0 / 12.0, 2.0 / 12.0, 0.25, 0.5, 1.0, 2.0, 5.0, 10.0, 12.0, 15.0, 20.0, 25.0, 30.0, 50.0 };
+  private static final double[] USD_DSC_RATE = new double[] {0.0100, 0.0120, 0.0120, 0.0120, 0.0120, 0.0120, 0.0140, 0.0140, 0.0140, 0.0140, 0.0140, 0.0140, 0.0140, 0.0140, 0.0140 };
   private static final String USD_DSC_NAME = "USD Dsc";
   private static final YieldAndDiscountCurve USD_DSC = new YieldCurve(USD_DSC_NAME, new InterpolatedDoublesCurve(USD_DSC_TIME, USD_DSC_RATE, LINEAR_FLAT, true, USD_DSC_NAME));
-  private static final double[] USD_FWD3_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0 };
-  private static final double[] USD_FWD3_RATE = new double[] {0.0150, 0.0125, 0.0150, 0.0175, 0.0150, 0.0150 };
+  private static final double[] USD_FWD3_TIME = new double[] {0.25, 0.5, 0.75, 1.0, 2.0, 3.0, 4.0, 5.0, 7.0, 10.0, 12.0, 15.0, 20.0, 25.0, 30.0, 50.0 };
+  private static final double[] USD_FWD3_RATE = new double[] {0.0150, 0.0125, 0.0125, 0.0150, 0.0150, 0.0150, 0.0150, 0.0175, 0.0150, 0.0150, 0.0150, 0.0150, 0.0150, 0.0150, 0.0150, 0.0150 };
   private static final String USD_FWD3_NAME = "USD LIBOR 3M";
   private static final YieldAndDiscountCurve USD_FWD3 = new YieldCurve(USD_FWD3_NAME, new InterpolatedDoublesCurve(USD_FWD3_TIME, USD_FWD3_RATE, LINEAR_FLAT, true, USD_FWD3_NAME));
   private static final double[] USD_FWD6_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0 };

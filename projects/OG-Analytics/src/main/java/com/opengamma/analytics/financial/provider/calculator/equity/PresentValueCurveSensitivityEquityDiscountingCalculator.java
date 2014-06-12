@@ -6,8 +6,8 @@
 package com.opengamma.analytics.financial.provider.calculator.equity;
 
 import com.opengamma.analytics.financial.equity.EquityTrsDataBundle;
-import com.opengamma.analytics.financial.equity.trs.EquityTotalReturnSwap;
-import com.opengamma.analytics.financial.equity.trs.EquityTotalReturnSwapDiscountingMethod;
+import com.opengamma.analytics.financial.equity.trs.definition.EquityTotalReturnSwap;
+import com.opengamma.analytics.financial.equity.trs.method.EquityTotalReturnSwapDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 

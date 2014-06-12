@@ -3,10 +3,11 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.equity.trs;
+package com.opengamma.analytics.financial.equity.trs.calculator;
 
 import com.opengamma.analytics.financial.equity.EquityTrsDataBundle;
-import com.opengamma.analytics.financial.forex.method.FXMatrix;
+import com.opengamma.analytics.financial.equity.trs.definition.EquityTotalReturnSwap;
+import com.opengamma.analytics.financial.equity.trs.method.EquityTotalReturnSwapDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
@@ -19,8 +20,6 @@ public final class EqyTrsCurrencyExposureCalculator extends InstrumentDerivative
    * The unique instance of the calculator.
    */
   private static final EqyTrsCurrencyExposureCalculator INSTANCE = new EqyTrsCurrencyExposureCalculator();
-
-  private static final EquityTotalReturnSwapDiscountingMethod PV_CAL = EquityTotalReturnSwapDiscountingMethod.getInstance();
 
   /**
    * Gets the calculator instance.
@@ -36,12 +35,15 @@ public final class EqyTrsCurrencyExposureCalculator extends InstrumentDerivative
   private EqyTrsCurrencyExposureCalculator() {
   }
 
+  /**
+   * The methods used by the different instruments.
+   */
+  private static final EquityTotalReturnSwapDiscountingMethod METHOD_TRS = EquityTotalReturnSwapDiscountingMethod.getInstance();
+
+  //     -----     TRS     -----
+
   @Override
   public MultipleCurrencyAmount visitEquityTotalReturnSwap(final EquityTotalReturnSwap trs, final EquityTrsDataBundle multicurve) {
-    MultipleCurrencyAmount pv = PV_CAL.presentValue(trs, multicurve);
-
-    FXMatrix fxMatrix = multicurve.getCurves().getFxRates();
-    MultipleCurrencyAmount pvEquity = MultipleCurrencyAmount.of(trs.getEquity().getCurrency(), multicurve.getSpotEquity() * trs.getEquity().getNumberOfShares());
-    return pv.plus(fxMatrix.convert(pvEquity, trs.getEquity().getCurrency()));
+    return METHOD_TRS.currencyExposure(trs, multicurve);
   }
 }
