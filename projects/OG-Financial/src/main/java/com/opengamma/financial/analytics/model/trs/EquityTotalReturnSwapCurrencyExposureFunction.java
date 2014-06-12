@@ -13,7 +13,7 @@ import org.threeten.bp.Instant;
 
 import com.google.common.collect.Sets;
 import com.opengamma.analytics.financial.equity.EquityTrsDataBundle;
-import com.opengamma.analytics.financial.equity.trs.EqyTrsCurrencyExposureCalculator;
+import com.opengamma.analytics.financial.equity.trs.calculator.EqyTrsCurrencyExposureCalculator;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;

@@ -16,7 +16,7 @@ import org.threeten.bp.Instant;
 import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.equity.EquityTrsDataBundle;
-import com.opengamma.analytics.financial.equity.trs.EqyTrsValueDeltaCalculator;
+import com.opengamma.analytics.financial.equity.trs.calculator.EqyTrsValueDeltaCalculator;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
@@ -30,10 +30,11 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
- * Calculates the value delta of an equity total return swap security.
+ * Calculates the value delta of an equity total return swap security, i.e. the exposure to the underlying equity.
  */
 public class EquityTotalReturnSwapValueDeltaFunction extends EquityTotalReturnSwapFunction {
   /** The calculator */
@@ -60,10 +61,11 @@ public class EquityTotalReturnSwapValueDeltaFunction extends EquityTotalReturnSw
         final EquityTrsDataBundle data = getDataBundle(inputs, fxMatrix);
         final MultipleCurrencyAmount valueDelta = derivative.accept(CALCULATOR, data);
         final String expectedCurrency = spec.getProperty(CURRENCY);
-        if (valueDelta.size() != 1 || !(expectedCurrency.equals(valueDelta.getCurrencyAmounts()[0].getCurrency().getCode()))) {
-          throw new OpenGammaRuntimeException("Expecting a single result in " + expectedCurrency);
+        if (expectedCurrency == null) {
+          throw new OpenGammaRuntimeException("Expected currency is null");
         }
-        return Collections.singleton(new ComputedValue(spec, valueDelta.getCurrencyAmounts()[0].getAmount()));
+        double pvConverted = fxMatrix.convert(valueDelta, Currency.of(expectedCurrency)).getAmount();
+        return Collections.singleton(new ComputedValue(spec, pvConverted));
       }
 
     };
