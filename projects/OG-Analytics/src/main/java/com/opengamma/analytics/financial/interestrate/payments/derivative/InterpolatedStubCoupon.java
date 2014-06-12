@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.interestrate.payments.derivative;
 
+import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexDeposit;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.provider.calculator.discounting.InterpolatedStubCouponVisitor;
@@ -23,22 +24,30 @@ public abstract class InterpolatedStubCoupon<C extends DepositIndexCoupon<I>, I 
   
   private final double _firstInterpolatedYearFraction;
   
+  private final IborIndex _firstStubIndex;
+  
   private final double _secondInterpolatedTime;
   
   private final double _secondInterpolatedYearFraction;
+  
+  private final IborIndex _secondStubIndex;
   
   protected InterpolatedStubCoupon(
       C fullCoupon,
       double firstInterpolatedTime,
       double firstInterpolatedYearFraction,
+      IborIndex firstStubIndex,
       double secondInterpolatedTime,
-      double secondInterpolatedYearFraction) {
+      double secondInterpolatedYearFraction,
+      IborIndex secondStubIndex) {
     super(fullCoupon.getCurrency(), fullCoupon.getPaymentTime(), fullCoupon.getPaymentYearFraction(), fullCoupon.getNotional());
     _fullCoupon = fullCoupon;
     _firstInterpolatedTime = firstInterpolatedTime;
     _firstInterpolatedYearFraction = firstInterpolatedYearFraction;
+    _firstStubIndex = firstStubIndex;
     _secondInterpolatedTime = secondInterpolatedTime;
     _secondInterpolatedYearFraction = secondInterpolatedYearFraction;
+    _secondStubIndex = secondStubIndex;
   }
   
   public C getFullCoupon() {
@@ -57,12 +66,20 @@ public abstract class InterpolatedStubCoupon<C extends DepositIndexCoupon<I>, I 
     return _firstInterpolatedYearFraction;
   }
   
+  public IborIndex getFirstStubIndex() {
+    return _firstStubIndex;
+  }
+  
   public double getSecondInterpolatedTime() {
     return _secondInterpolatedTime;
   }
   
   public double getSecondInterpolatedYearFraction() {
     return _secondInterpolatedYearFraction;
+  }
+  
+  public IborIndex getSecondStubIndex() {
+    return _secondStubIndex;
   }
 
   @Override
