@@ -6,28 +6,41 @@ These release notes cover changes from v2.1 to v2.2.
 Upgrading from 2.1.0
 ====================
 
+To 2.2.0-M27
+------------
+
+* Bug
+    * [PLAT-6583] - Bad SQL grammer in Marketdatasnapshotmaster
+    * [PLAT-6584] - Z-spread for inflation bonds mishandles the index ratio
+* Improvement
+    * [PLAT-6587] - Document deployment template and ensure relevant release notes are available
+    * [PLAT-6590] - Move RedisSimulationSource behind an interface
+* New Feature
+    * [PLAT-6589] - A new test group is required for regression tests
+* Task
+    * [PLAT-6559] - PV - Equity TRS - FX Matrix does not store currency of underlying
+    * [PLAT-6560] - PV01 - Equity TRS - Implement engine function
+    * [PLAT-6561] - Bucketed PV01 - Equity TRS - Implement engine function
+    * [PLAT-6562] - FX Currency Exposure - Equity TRS - Implement engine function
+
+
 To 2.2.0-M26
 ------------
 
 * Bug
-
     * [PLAT-6554] - Accrued interest for inflation bonds is not scaled
     * [PLAT-6563] - CurveNodeCurrencyVisitor.visitCashNode catches Exception which leads to strange behaviour
     * [PLAT-6576] - Index shifts can't be applied to black volatility surfaces
     * [PLAT-6580] - BondCapitalIndexedSecurityDefinition generates flows with adjusted periodic rate rather than actual rate
     * [PLAT-6581] - BondCapitalIndexedSecurityDiscountingMethod uses wrong price to calculate yield for government inflation bonds
-
 * Improvement
-
     * [PLAT-6550] - Enhance and tidy tuple library
     * [PLAT-6557] - Add object for holding bucketed pv01 results
     * [PLAT-6558] - Regression test report entries should be ordered
     * [PLAT-6568] - Add factory for FloatingIndex
     * [PLAT-6574] - Add validation of swap objects
     * [PLAT-6579] - Exclude aggregate values from regression test results
-
 * Task
-
     * [PLAT-6553] - Convert IndexCDSSecurity to use SecurityLink
     * [PLAT-6569] - Fix jenkins CI build
 
