@@ -25,6 +25,8 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PV01CurveParametersCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueCurveSensitivityDiscountingCalculator;
@@ -36,6 +38,11 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
+import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
+import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
+import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
+import com.opengamma.analytics.math.interpolation.Interpolator1D;
+import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
@@ -152,7 +159,6 @@ public class SwapCalculatorTest {
    */
   public void parSpreadIborIborBeforeFirstFixing() {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 5, 14);
-    @SuppressWarnings("unchecked")
     final Swap<? extends Payment, ? extends Payment> swap = new Swap<>((Annuity<Payment>) SWAP_IBOR_IBORSPREAD_DEFINITION.getFirstLeg().toDerivative(referenceDate),
         (Annuity<Payment>) SWAP_IBOR_IBORSPREAD_DEFINITION.getSecondLeg().toDerivative(referenceDate));
     final double parSpread = swap.accept(PSMQDC, MULTICURVES);
@@ -337,4 +343,37 @@ public class SwapCalculatorTest {
   //    assertEquals("ThetaCalculator: fixed-coupon swap", pvTomorrow - (pvToday - todayCash), theta.getAmount(USDLIBOR3M.getCurrency()), TOLERANCE_PV);
   //    assertEquals("ThetaCalculator: fixed-coupon swap", 1, theta.getCurrencyAmounts().length);
   //  }
+
+  // Create a very simplified example of swap and curve to produce a detailed workout of AD for curve sensitivity
+  private static final Interpolator1D LINEAR_FLAT = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
+      Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+  private static final double[] CURVE_TIME = new double[] {0.25, 0.50, 1.00, 2.00 };
+  private static final double[] CURVE_RATE = new double[] {0.01, 0.0125, 0.0150, 0.0175 };
+  private static final String CURVE_NAME = "USD All";
+  private static final YieldAndDiscountCurve CURVE_SIMPLE = new YieldCurve(CURVE_NAME, new InterpolatedDoublesCurve(CURVE_TIME, CURVE_RATE, LINEAR_FLAT, true, CURVE_NAME));
+  private static final MulticurveProviderDiscount MULTICURVE_SIMPLIFIED = new MulticurveProviderDiscount();
+  static {
+    MULTICURVE_SIMPLIFIED.setCurve(Currency.USD, CURVE_SIMPLE);
+    MULTICURVE_SIMPLIFIED.setCurve(USDLIBOR3M, CURVE_SIMPLE);
+  }
+  private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2014, 6, 13);
+  private static final ZonedDateTime SPOT_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, USDLIBOR3M.getSpotLag(), NYC);
+  private static final Period SWAP_SIMPLE_START = Period.ofMonths(6);
+  private static final Period SWAP_SIMPLE_TENOR = Period.ofYears(1);
+  private static final ZonedDateTime SETTLEMENT_DATE_SIMPLE = ScheduleCalculator.getAdjustedDate(SPOT_DATE, SWAP_SIMPLE_START, USDLIBOR3M, NYC);
+  private static final double NOTIONAL_SIMPLE = 100000000; //100m
+  private static final double RATE_FIXED_SIMPLE = 0.0200;
+  private static final SwapFixedIborDefinition SWAP_SIMPLE_DEFINITION = SwapFixedIborDefinition.from(SETTLEMENT_DATE_SIMPLE, SWAP_SIMPLE_TENOR, USD6MLIBOR3M, NOTIONAL_SIMPLE, RATE_FIXED_SIMPLE, true);
+  private static final SwapFixedCoupon<Coupon> SWAP_SIMPLE = SWAP_SIMPLE_DEFINITION.toDerivative(REFERENCE_DATE);
+
+  private static final PresentValueCurveSensitivityDiscountingCalculator PVCSDC = PresentValueCurveSensitivityDiscountingCalculator.getInstance();
+  private static final ParameterSensitivityParameterCalculator<MulticurveProviderInterface> PSC = new ParameterSensitivityParameterCalculator<>(PVCSDC);
+
+  @SuppressWarnings("unused")
+  @Test(enabled = false)
+  public void workoutADExample() {
+    MultipleCurrencyMulticurveSensitivity pvcs = SWAP_SIMPLE.accept(PVCSDC, MULTICURVE_SIMPLIFIED);
+    MultipleCurrencyParameterSensitivity ps = PSC.calculateSensitivity(SWAP_SIMPLE, MULTICURVE_SIMPLIFIED);
+  }
+
 }
