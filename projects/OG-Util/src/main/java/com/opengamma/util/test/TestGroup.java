@@ -31,6 +31,11 @@ public final class TestGroup {
    * Integration tests are complex tests linking different parts of the system.
    */
   public static final String INTEGRATION = "integration";
+  /**
+   * TestNG 'regression' group.
+   * Regression tests compare the output for a whole view against a dataset that is known to be correct.
+   */
+  public static final String REGRESSION = "regression";
 
   /**
    * Restricted constructor.

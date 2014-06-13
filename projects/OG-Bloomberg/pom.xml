@@ -52,7 +52,7 @@
   </dependencies>
 
   <properties>
-    <tests.testng.excludedgroups>integration, unitdb, unitslow, bbgSecurityLoaderTests, bbgSecurityFutureTests, bbgSubscriptionTests</tests.testng.excludedgroups>
+    <tests.testng.excludedgroups>integration, unitdb, unitslow, bbgSecurityLoaderTests, bbgSecurityFutureTests, bbgSubscriptionTests, regression</tests.testng.excludedgroups>
     <fudge.proto.equals>false</fudge.proto.equals>
     <fudge.proto.hashCode>false</fudge.proto.hashCode>
   </properties>
