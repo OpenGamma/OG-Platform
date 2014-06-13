@@ -1166,7 +1166,7 @@
         </property>
       </activation>
       <properties>
-        <tests.testng.includedgroups>unit,integration,unitdb,unitslow</tests.testng.includedgroups>
+        <tests.testng.includedgroups>unit,integration,unitdb,unitslow,regression</tests.testng.includedgroups>
         <tests.testng.excludedgroups>none</tests.testng.excludedgroups>
       </properties>
     </profile>
@@ -1258,7 +1258,7 @@
     <tests.testng.parallel>classes</tests.testng.parallel>
     <tests.testng.threads>4</tests.testng.threads>
     <tests.testng.includedgroups>unit</tests.testng.includedgroups>
-    <tests.testng.excludedgroups>integration,unitdb,unitslow</tests.testng.excludedgroups>
+    <tests.testng.excludedgroups>integration,unitdb,unitslow,regression</tests.testng.excludedgroups>
     <!-- Fudge properties -->
     <fudge.proto.verbose>false</fudge.proto.verbose>
     <fudge.proto.listFiles>false</fudge.proto.listFiles>
