@@ -42,7 +42,6 @@ import com.opengamma.financial.analytics.curve.CurveGroupConfiguration;
 import com.opengamma.financial.analytics.curve.CurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.exposure.ConfigDBInstrumentExposuresProvider;
 import com.opengamma.financial.analytics.curve.exposure.InstrumentExposuresProvider;
-import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -105,9 +104,8 @@ public class BondZSpreadFromCleanPriceFunction extends BondFromCleanPriceAndCurv
       return null;
     }
     final String curveExposureConfig = desiredValue.getConstraint(CURVE_EXPOSURES);
-    final FinancialSecurity security = (FinancialSecurity) target.getTrade().getSecurity();
     final String curve = Iterables.getOnlyElement(curves);
-    final Set<String> curveConstructionConfigurationNames = _instrumentExposuresProvider.getCurveConstructionConfigurationsForConfig(curveExposureConfig, security);
+    final Set<String> curveConstructionConfigurationNames = _instrumentExposuresProvider.getCurveConstructionConfigurationsForConfig(curveExposureConfig, target.getTrade());
     boolean curveNameFound = false;
     for (final String curveConstructionConfigurationName : curveConstructionConfigurationNames) {
       final CurveConstructionConfiguration curveConstructionConfiguration = _curveConstructionConfigurationSource.getCurveConstructionConfiguration(curveConstructionConfigurationName);

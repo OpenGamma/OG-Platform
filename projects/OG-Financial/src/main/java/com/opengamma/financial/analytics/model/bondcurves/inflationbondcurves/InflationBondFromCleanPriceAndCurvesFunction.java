@@ -124,7 +124,7 @@ public abstract class InflationBondFromCleanPriceAndCurvesFunction extends Abstr
     final Set<ValueRequirement> requirements = new HashSet<>();
     requirements.add(new ValueRequirement(MARKET_VALUE, ComputationTargetSpecification.of(security), ValueProperties.builder().get()));
     try {
-      final Set<String> curveConstructionConfigurationNames = _instrumentExposuresProvider.getCurveConstructionConfigurationsForConfig(curveExposureConfig, security);
+      final Set<String> curveConstructionConfigurationNames = _instrumentExposuresProvider.getCurveConstructionConfigurationsForConfig(curveExposureConfig, target.getTrade());
       for (final String curveConstructionConfigurationName : curveConstructionConfigurationNames) {
         final ValueProperties properties = ValueProperties.builder()
             .with(CURVE_CONSTRUCTION_CONFIG, curveConstructionConfigurationName)

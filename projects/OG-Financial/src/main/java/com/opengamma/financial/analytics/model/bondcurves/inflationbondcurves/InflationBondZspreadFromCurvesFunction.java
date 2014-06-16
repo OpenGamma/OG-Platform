@@ -43,7 +43,6 @@ import com.opengamma.financial.analytics.curve.CurveGroupConfiguration;
 import com.opengamma.financial.analytics.curve.CurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.exposure.ConfigDBInstrumentExposuresProvider;
 import com.opengamma.financial.analytics.curve.exposure.InstrumentExposuresProvider;
-import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -90,7 +89,11 @@ public class InflationBondZspreadFromCurvesFunction extends InflationBondFromCle
       throw new OpenGammaRuntimeException("Could not find key for " + legalEntity);
     }
     final InflationIssuerProviderDiscount curvesWithReplacement = ((InflationIssuerProviderDiscount) issuerCurves).withIssuerCurve(keyOfCurveToReplace, curve);
-    final double zSpread = 10000 * CALCULATOR.zSpreadFromCurvesAndCleanPriceDirect(bond.getBondStandard(), curvesWithReplacement, cleanPrice);
+    final double zSpread = CALCULATOR.zSpreadFromCurvesAndCleanPriceDirect(bond.getBondStandard(), curvesWithReplacement, cleanPrice);
+    double price = CALCULATOR.cleanPriceFromZSpread(bond.getBondStandard(), curvesWithReplacement, zSpread);
+    double price2 = CALCULATOR.cleanPriceFromZSpread(bond.getBondStandard(), curvesWithReplacement, 0);
+    double price3 = CALCULATOR.cleanPriceFromZSpread(bond.getBondStandard(), issuerCurves, zSpread);
+    double price4 = CALCULATOR.cleanPriceFromZSpread(bond.getBondStandard(), issuerCurves, 0);
     return Collections.singleton(new ComputedValue(spec, zSpread));
   }
 
@@ -106,9 +109,8 @@ public class InflationBondZspreadFromCurvesFunction extends InflationBondFromCle
       return null;
     }
     final String curveExposureConfig = desiredValue.getConstraint(CURVE_EXPOSURES);
-    final FinancialSecurity security = (FinancialSecurity) target.getTrade().getSecurity();
     final String curve = Iterables.getOnlyElement(curves);
-    final Set<String> curveConstructionConfigurationNames = _instrumentExposuresProvider.getCurveConstructionConfigurationsForConfig(curveExposureConfig, security);
+    final Set<String> curveConstructionConfigurationNames = _instrumentExposuresProvider.getCurveConstructionConfigurationsForConfig(curveExposureConfig, target.getTrade());
     boolean curveNameFound = false;
     for (final String curveConstructionConfigurationName : curveConstructionConfigurationNames) {
       final CurveConstructionConfiguration curveConstructionConfiguration = _curveConstructionConfigurationSource.getCurveConstructionConfiguration(curveConstructionConfigurationName);

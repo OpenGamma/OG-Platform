@@ -130,7 +130,7 @@ public abstract class InflationBondFromCurvesFunction<S extends InflationIssuerP
     final Set<ValueRequirement> requirements = new HashSet<>();
     try {
       for (final String curveExposureConfig : curveExposureConfigs) {
-        final Set<String> curveConstructionConfigurationNames = _instrumentExposuresProvider.getCurveConstructionConfigurationsForConfig(curveExposureConfig, security);
+        final Set<String> curveConstructionConfigurationNames = _instrumentExposuresProvider.getCurveConstructionConfigurationsForConfig(curveExposureConfig, target.getTrade());
         if (curveConstructionConfigurationNames == null) {
           s_logger.error("Could not get curve construction configuration names for curve exposure configuration called {}", curveExposureConfig);
           return null;
