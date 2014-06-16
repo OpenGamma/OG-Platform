@@ -33,6 +33,7 @@ import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.rolldate.GeneralRollDateAdjuster;
+import com.opengamma.util.GUIDGenerator;
 
 /**
  * Generates an annuity of floating rate coupons.
@@ -605,7 +606,26 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
             _adjustedFixingDateParameters.getCalendar()); // This is using the fixing calendar instead of the reset calendar
         double secondInterpolatedYearFraction = AnnuityDefinitionBuilder.getDayCountFraction(((IborIndex) _index).getTenor(), _adjustedFixingDateParameters.getCalendar(), getDayCount(), couponStub.getStubType(), couponStub.getStubType(),
                                                                                              compoundingFixingStartDates[0], secondInterpolatedDate, isFirstCoupon, isLastCoupon);
-
+        
+        //Create any necessary indices for the purposes of interpolating a stub
+        IborIndex tradeIndex = (IborIndex) _index;
+        Period tradeIndexPeriod = tradeIndex.getTenor();
+        
+        IborIndex firstStubIndex;
+        IborIndex secondStubIndex;
+        
+        if (tradeIndexPeriod.equals(couponStub.getFirstInterpPeriod())) {
+          firstStubIndex = (IborIndex) _index;
+          secondStubIndex = createIborIndexForStub(tradeIndex, couponStub.getSecondInterpPeriod());
+          
+        } else if (tradeIndexPeriod.equals(couponStub.getSecondInterpPeriod())) {
+          firstStubIndex = createIborIndexForStub(tradeIndex, couponStub.getFirstInterpPeriod());
+          secondStubIndex = (IborIndex) _index;            
+        } else {
+          firstStubIndex = createIborIndexForStub(tradeIndex, couponStub.getFirstInterpPeriod());
+          secondStubIndex = createIborIndexForStub(tradeIndex, couponStub.getSecondInterpPeriod());
+        }        
+        
         coupon = getIborCompoundingInterpolatedStubDefinition(
             notional,
             paymentDate,
@@ -622,8 +642,10 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
             couponStub.getStubRate(),
             firstInterpolatedDate,
             firstInterpolatedYearFraction,
+            firstStubIndex,
             secondInterpolatedDate,
-            secondInterpolatedYearFraction);
+            secondInterpolatedYearFraction,
+            secondStubIndex);
       } else {
         // Check for fixed stub rate and use first over interpolated periods
         coupon = getIborCompoundingDefinition(
@@ -713,7 +735,28 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
               _adjustedFixingDateParameters.getCalendar()); // This is using the fixing calendar instead of the reset calendar
           double secondInterpolatedYearFraction = AnnuityDefinitionBuilder.getDayCountFraction(Period.ZERO.equals(getAccrualPeriodFrequency()) ? Period.ofYears(1) : getAccrualPeriodFrequency(), _adjustedResetDateParameters.getCalendar(), getDayCount(), couponStub.getStubType(), couponStub.getStubType(),
                                                                                                fixingPeriodStartDate, secondInterpolatedDate, isFirstCoupon, isLastCoupon);
-
+          
+          
+          
+          //Create any necessary indices for the purposes of interpolating a stub
+          IborIndex tradeIndex = (IborIndex) _index;
+          Period tradeIndexPeriod = tradeIndex.getTenor();
+          
+          IborIndex firstStubIndex;
+          IborIndex secondStubIndex;
+          
+          if (tradeIndexPeriod.equals(couponStub.getFirstInterpPeriod())) {
+            firstStubIndex = (IborIndex) _index;
+            secondStubIndex = createIborIndexForStub(tradeIndex, couponStub.getSecondInterpPeriod());
+            
+          } else if (tradeIndexPeriod.equals(couponStub.getSecondInterpPeriod())) {
+            firstStubIndex = createIborIndexForStub(tradeIndex, couponStub.getFirstInterpPeriod());
+            secondStubIndex = (IborIndex) _index;            
+          } else {
+            firstStubIndex = createIborIndexForStub(tradeIndex, couponStub.getFirstInterpPeriod());
+            secondStubIndex = createIborIndexForStub(tradeIndex, couponStub.getSecondInterpPeriod());
+          }
+                              
           coupon = getIborInterpolatedStubDefinition(
               notional,
               paymentDate,
@@ -727,8 +770,10 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
               couponStub.getStubRate(),
               firstInterpolatedDate,
               firstInterpolatedYearFraction,
+              firstStubIndex,
               secondInterpolatedDate,
-              secondInterpolatedYearFraction);
+              secondInterpolatedYearFraction,
+              secondStubIndex);
         } else {
           ZonedDateTime actualFixingPeriodEndDate;
           if (couponStub != null && couponStub.getEffectiveDate() != null && isFirstCoupon) {
@@ -891,10 +936,12 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
       double initialRate,
       ZonedDateTime firstInterpolatedDate,
       double firstInterpolatedYearFraction,
+      IborIndex firstStubIndex,
       ZonedDateTime secondInterpolatedDate,
-      double secondInterpolatedYearFraction) {
+      double secondInterpolatedYearFraction,
+      IborIndex secondStubIndex) {
     final CouponDefinition coupon = getIborDefinition(notional, paymentDate, accrualStartDate, accrualEndDate, accrualYearFraction, fixingDate, fixingPeriodStartDate, fixingPeriodEndDate, fixingPeriodYearFraction);
-    return InterpolatedStubCouponDefinition.from(coupon, firstInterpolatedDate, firstInterpolatedYearFraction, secondInterpolatedDate, secondInterpolatedYearFraction);
+    return InterpolatedStubCouponDefinition.from(coupon, firstInterpolatedDate, firstInterpolatedYearFraction, firstStubIndex, secondInterpolatedDate, secondInterpolatedYearFraction, secondStubIndex);
   }
   
   private CouponDefinition getIborCompoundingDefinition(
@@ -1008,9 +1055,24 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
       double initialCompoundRate,
       ZonedDateTime firstInterpolatedDate,
       double firstInterpolatedYearFraction,
+      IborIndex firstStubIndex,
       ZonedDateTime secondInterpolatedDate,
-      double secondInterpolatedYearFraction) {
+      double secondInterpolatedYearFraction,
+      IborIndex secondStubIndex) {
     final CouponDefinition coupon = getIborCompoundingDefinition(notional, paymentDate, accrualStartDate, accrualEndDate, accrualYearFraction, compoundAccrualStartDates, compoundAccrualEndDates, compoundAccrualYearFractions, compoundFixingDates, compoundFixingStartDates, compoundFixingEndDates, compoundFixingYearFractions, initialCompoundRate);
-    return InterpolatedStubCouponDefinition.from(coupon, firstInterpolatedDate, firstInterpolatedYearFraction, secondInterpolatedDate, secondInterpolatedYearFraction);
+    return InterpolatedStubCouponDefinition.from(coupon, firstInterpolatedDate, firstInterpolatedYearFraction, firstStubIndex, secondInterpolatedDate, secondInterpolatedYearFraction, secondStubIndex);
   }
+  
+  private IborIndex createIborIndexForStub(IborIndex index, Period newIndexPeriod) {
+    
+    IborIndex newIndex = new IborIndex(index.getCurrency(),
+                                       newIndexPeriod,
+                                       index.getSpotLag(),
+                                       index.getDayCount(),
+                                       index.getBusinessDayConvention(),
+                                       index.isEndOfMonth(),
+                                       index.getCurrency() + newIndexPeriod.toString() + GUIDGenerator.generate());
+    return newIndex;
+  }
+  
 }

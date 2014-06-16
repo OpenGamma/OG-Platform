@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.interestrate.payments.derivative;
 
+import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.provider.calculator.discounting.InterpolatedStubCouponVisitor;
 
@@ -17,9 +18,11 @@ public final class OvernightInterpolatedStubCoupon extends InterpolatedStubCoupo
       DepositIndexCoupon<IndexON> fullCoupon,
       double firstInterpolatedTime,
       double firstInterpolatedYearFraction,
+      IborIndex firstStubIndex,
       double secondInterpolatedTime,
-      double secondInterpolatedYearFraction) {
-    super(fullCoupon, firstInterpolatedTime, firstInterpolatedYearFraction, secondInterpolatedTime, secondInterpolatedYearFraction);
+      double secondInterpolatedYearFraction,
+      IborIndex secondStubIndex) {
+    super(fullCoupon, firstInterpolatedTime, firstInterpolatedYearFraction, firstStubIndex, secondInterpolatedTime, secondInterpolatedYearFraction, secondStubIndex);
   }
 
   @Override

@@ -17,18 +17,22 @@ public final class IborInterpolatedStubCompoundingCoupon extends InterpolatedStu
       final DepositIndexCompoundingCoupon<IborIndex> fullCoupon,
       final double firstInterpolatedTime,
       final double firstInterpolatedYearFraction,
+      final IborIndex firstStubIndex,
       final double secondInterpolatedTime,
-      final double secondInterpolatedYearFraction) {
-    super(fullCoupon, firstInterpolatedTime, firstInterpolatedYearFraction, secondInterpolatedTime, secondInterpolatedYearFraction);
+      final double secondInterpolatedYearFraction,
+      final IborIndex secondStubIndex) {
+    super(fullCoupon, firstInterpolatedTime, firstInterpolatedYearFraction, firstStubIndex, secondInterpolatedTime, secondInterpolatedYearFraction, secondStubIndex);
   }
   
   public static IborInterpolatedStubCompoundingCoupon from(
       final DepositIndexCompoundingCoupon<IborIndex> fullCoupon,
       final double firstInterpolatedTime,
       final double firstInterpolatedYearFraction,
+      final IborIndex firstStubIndex,
       final double secondInterpolatedTime,
-      final double secondInterpolatedYearFraction) {
-    return new IborInterpolatedStubCompoundingCoupon(fullCoupon, firstInterpolatedTime, firstInterpolatedYearFraction, secondInterpolatedTime, secondInterpolatedYearFraction);
+      final double secondInterpolatedYearFraction,
+      final IborIndex secondStubIndex) {
+    return new IborInterpolatedStubCompoundingCoupon(fullCoupon, firstInterpolatedTime, firstInterpolatedYearFraction, firstStubIndex, secondInterpolatedTime, secondInterpolatedYearFraction, secondStubIndex);
   }
 
   @Override
