@@ -303,6 +303,7 @@ public final class StubCalculationMethod implements ImmutableBean {
     return _lastStubEndDate;
   }
 
+
   //-----------------------------------------------------------------------
   /**
    * Gets the External Id which corresponds to the first index rate. This is an optional field.
@@ -311,6 +312,7 @@ public final class StubCalculationMethod implements ImmutableBean {
   public ExternalId getFirstStubStartReferenceRateId() {
     return _firstStubStartReferenceRateId;
   }
+
 
   //-----------------------------------------------------------------------
   /**
@@ -321,6 +323,7 @@ public final class StubCalculationMethod implements ImmutableBean {
     return _firstStubEndReferenceRateId;
   }
 
+
   //-----------------------------------------------------------------------
   /**
    * Gets the External Id which corresponds to the start index rate for the last stub. This is an optional field.
@@ -329,6 +332,7 @@ public final class StubCalculationMethod implements ImmutableBean {
   public ExternalId getLastStubStartReferenceRateId() {
     return _lastStubStartReferenceRateId;
   }
+
 
   //-----------------------------------------------------------------------
   /**
@@ -384,13 +388,14 @@ public final class StubCalculationMethod implements ImmutableBean {
     hash += hash * 31 + JodaBeanUtils.hashCode(getFirstStubStartReferenceRateId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getFirstStubEndReferenceRateId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getLastStubStartReferenceRateId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getLastStubStartReferenceRateId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getLastStubEndReferenceRateId());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(320);
+    StringBuilder buf = new StringBuilder(448);
     buf.append("StubCalculationMethod{");
     buf.append("type").append('=').append(getType()).append(',').append(' ');
     buf.append("firstStubRate").append('=').append(getFirstStubRate()).append(',').append(' ');
@@ -494,12 +499,12 @@ public final class StubCalculationMethod implements ImmutableBean {
           return _firstStubEndDate;
         case -1589587419:  // lastStubEndDate
           return _lastStubEndDate;
-        case -80328414:  // firstStubStartReferenceRateId
-          return _firstStubStartReferenceRateId;
         case -336301303:  // firstStubEndReferenceRateId
           return _firstStubEndReferenceRateId;
         case -1989003512:  // lastStubStartReferenceRateId
           return _lastStubStartReferenceRateId;
+        case -80328414:  // firstStubStartReferenceRateId
+          return _firstStubStartReferenceRateId;
         case 1409196655:  // lastStubEndReferenceRateId
           return _lastStubEndReferenceRateId;
       }
@@ -569,9 +574,10 @@ public final class StubCalculationMethod implements ImmutableBean {
     public MetaProperty<ExternalId> firstStubStartReferenceRateId() {
       return _firstStubStartReferenceRateId;
     }
-
+    
     /**
-     * The meta-property for the {@code firstStubEndReferenceRateId} property.
+     * The meta-property for the {@code firstStubEndIndex} property.
+>>>>>>> 7e78bf109edd49e6354a457dc1f376815fb8dae8
      * @return the meta-property, not null
      */
     public MetaProperty<ExternalId> firstStubEndReferenceRateId() {
@@ -579,6 +585,7 @@ public final class StubCalculationMethod implements ImmutableBean {
     }
 
     /**
+     * The meta-property for the {@code lastStubEndReferenceRateId} property.
      * The meta-property for the {@code lastStubStartReferenceRateId} property.
      * @return the meta-property, not null
      */
@@ -611,7 +618,7 @@ public final class StubCalculationMethod implements ImmutableBean {
         case -80328414:  // firstStubStartReferenceRateId
           return ((StubCalculationMethod) bean).getFirstStubStartReferenceRateId();
         case -336301303:  // firstStubEndReferenceRateId
-          return ((StubCalculationMethod) bean).getFirstStubEndReferenceRateId();
+          return ((StubCalculationMethod) bean).getFirstStubEndReferenceRateId();       
         case -1989003512:  // lastStubStartReferenceRateId
           return ((StubCalculationMethod) bean).getLastStubStartReferenceRateId();
         case 1409196655:  // lastStubEndReferenceRateId
@@ -663,6 +670,9 @@ public final class StubCalculationMethod implements ImmutableBean {
       this._lastStubRate = beanToCopy.getLastStubRate();
       this._firstStubEndDate = beanToCopy.getFirstStubEndDate();
       this._lastStubEndDate = beanToCopy.getLastStubEndDate();
+      this._firstStubStartReferenceRateId = beanToCopy.getFirstStubStartReferenceRateId();
+      this._firstStubEndReferenceRateId = beanToCopy.getFirstStubEndReferenceRateId();
+      this._lastStubStartReferenceRateId = beanToCopy.getLastStubStartReferenceRateId();
       this._firstStubStartReferenceRateId = beanToCopy.getFirstStubStartReferenceRateId();
       this._firstStubEndReferenceRateId = beanToCopy.getFirstStubEndReferenceRateId();
       this._lastStubStartReferenceRateId = beanToCopy.getLastStubStartReferenceRateId();
@@ -865,7 +875,7 @@ public final class StubCalculationMethod implements ImmutableBean {
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(320);
+      StringBuilder buf = new StringBuilder(448);
       buf.append("StubCalculationMethod.Builder{");
       buf.append("type").append('=').append(JodaBeanUtils.toString(_type)).append(',').append(' ');
       buf.append("firstStubRate").append('=').append(JodaBeanUtils.toString(_firstStubRate)).append(',').append(' ');
@@ -874,7 +884,7 @@ public final class StubCalculationMethod implements ImmutableBean {
       buf.append("lastStubEndDate").append('=').append(JodaBeanUtils.toString(_lastStubEndDate)).append(',').append(' ');
       buf.append("firstStubStartReferenceRateId").append('=').append(JodaBeanUtils.toString(_firstStubStartReferenceRateId)).append(',').append(' ');
       buf.append("firstStubEndReferenceRateId").append('=').append(JodaBeanUtils.toString(_firstStubEndReferenceRateId)).append(',').append(' ');
-      buf.append("lastStubStartReferenceRateId").append('=').append(JodaBeanUtils.toString(_lastStubStartReferenceRateId)).append(',').append(' ');
+      buf.append("lastStubStartReferenceRateId").append('=').append(JodaBeanUtils.toString(_lastStubStartReferenceRateId)).append(',').append(' ');     
       buf.append("lastStubEndReferenceRateId").append('=').append(JodaBeanUtils.toString(_lastStubEndReferenceRateId));
       buf.append('}');
       return buf.toString();
