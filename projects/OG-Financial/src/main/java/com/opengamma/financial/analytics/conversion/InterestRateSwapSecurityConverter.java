@@ -315,6 +315,18 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
         ((IborIndexConvention) iborConvention).isIsEOM(),
         floatLeg.getFloatingReferenceRateId().getValue());
   }
+  
+  private IndexDeposit getIborIndex(ExternalId indexId) {
+    // try security lookup
+    final Security sec = _securitySource.getSingle(indexId.toBundle());
+    if (sec != null) {
+      final com.opengamma.financial.security.index.IborIndex indexSecurity = (com.opengamma.financial.security.index.IborIndex) sec;
+      IborIndexConvention indexConvention = _conventionSource.getSingle(indexSecurity.getConventionId(), IborIndexConvention.class);
+      return ConverterUtils.indexIbor(indexSecurity.getName(), indexConvention, indexSecurity.getTenor());
+    } else {
+      throw new OpenGammaRuntimeException("Unable to resolve an Index for: " + indexId.toString()); 
+    }
+  }
 
   private RollDateAdjuster getRollDateAdjuster(InterestRateSwapLeg leg) {
     //Impl note: We set months to adjust to 0 as the roll period is set by the specific period variables.
@@ -419,25 +431,38 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
 
       // first stub
       double firstStubRate = stubCalcMethod.hasFirstStubRate() ? stubCalcMethod.getFirstStubRate() : Double.NaN;
-      LocalDate firstStubDate = stubCalcMethod.getFirstStubEndDate();
-      Tenor firstStubStartIndex = stubCalcMethod.getFirstStubStartIndex();
+      LocalDate firstStubDate = stubCalcMethod.getFirstStubEndDate();      
       ExternalId firstStubStartReferenceRateId = stubCalcMethod.getFirstStubStartReferenceRateId();
-      Tenor firstStubEndIndex = stubCalcMethod.getFirstStubEndIndex();
+      
+      IborIndex firstStubStartIndex = null;
+      if (stubCalcMethod.hasFirstStubStartReferenceRateId()) {
+        firstStubStartIndex = (IborIndex) getIborIndex(firstStubStartReferenceRateId);
+      }
+      IborIndex firstStubEndIndex = null;
       ExternalId firstStubEndReferenceRateId = stubCalcMethod.getFirstStubEndReferenceRateId();
-
+      if (stubCalcMethod.hasFirstStubEndReferenceRateId()) {
+        firstStubEndIndex = (IborIndex) getIborIndex(firstStubEndReferenceRateId);
+      }
+      
       // last stub
       double finalStubRate = stubCalcMethod.hasLastStubRate() ? stubCalcMethod.getLastStubRate() : Double.NaN;
       LocalDate finalStubDate = stubCalcMethod.getLastStubEndDate();
-      Tenor lastStubStartIndex = stubCalcMethod.getLastStubStartIndex();
       ExternalId lastStubStartReferenceRateId = stubCalcMethod.getLastStubStartReferenceRateId();
-      Tenor lastStubEndIndex = stubCalcMethod.getLastStubEndIndex();
+      IborIndex lastStubStartIndex = null;
+      if (stubCalcMethod.hasLastStubStartReferenceRateId()) {
+        lastStubStartIndex = (IborIndex) getIborIndex(lastStubStartReferenceRateId);  
+      }      
+      IborIndex lastStubEndIndex = null;
       ExternalId lastStubEndReferenceRateId = stubCalcMethod.getLastStubEndReferenceRateId();
+      if (stubCalcMethod.hasLastStubEndReferenceRateId()) {
+        lastStubEndIndex = (IborIndex) getIborIndex(lastStubEndReferenceRateId);  
+      }      
 
       if (StubType.BOTH == stubType) {
         if (!Double.isNaN(firstStubRate)) {
           startStub = new CouponStub(stubType, firstStubDate, stubCalcMethod.getFirstStubRate());
         } else if (firstStubStartIndex != null && firstStubEndIndex != null) {
-          startStub = new CouponStub(stubType, firstStubDate, firstStubStartIndex.getPeriod(), firstStubStartReferenceRateId, firstStubEndIndex.getPeriod(), firstStubEndReferenceRateId);
+          startStub = new CouponStub(stubType, firstStubDate, firstStubStartIndex, firstStubEndIndex);
         } else {
           startStub = new CouponStub(stubType, firstStubDate);
         }
@@ -445,7 +470,7 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
         if (!Double.isNaN(finalStubRate)) {
           endStub = new CouponStub(stubType, finalStubDate, stubCalcMethod.getLastStubRate());
         } else if (lastStubStartIndex != null && lastStubEndIndex != null) {
-          endStub = new CouponStub(stubType, finalStubDate, lastStubStartIndex.getPeriod(), lastStubStartReferenceRateId, lastStubEndIndex.getPeriod(), lastStubEndReferenceRateId);
+          endStub = new CouponStub(stubType, finalStubDate, lastStubStartIndex, lastStubEndIndex);
         } else {
           endStub = new CouponStub(stubType, finalStubDate);
         }
@@ -454,7 +479,7 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
         if (!Double.isNaN(firstStubRate)) {
           startStub = new CouponStub(stubType, firstStubDate, firstStubRate);
         } else if (firstStubStartIndex != null && firstStubEndIndex != null) {
-          startStub = new CouponStub(stubType, firstStubStartIndex.getPeriod(), firstStubStartReferenceRateId, firstStubEndIndex.getPeriod(), firstStubEndReferenceRateId);
+          startStub = new CouponStub(stubType, firstStubStartIndex, firstStubEndIndex);
         } else {
           startStub = new CouponStub(stubType);
         }
@@ -462,7 +487,7 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
         if (!Double.isNaN(finalStubRate)) {
           endStub = new CouponStub(stubType, finalStubDate, finalStubRate);
         } else if (lastStubStartIndex != null && lastStubEndIndex != null) {
-          endStub = new CouponStub(stubType, lastStubStartIndex.getPeriod(), lastStubStartReferenceRateId, lastStubEndIndex.getPeriod(), lastStubEndReferenceRateId);
+          endStub = new CouponStub(stubType, lastStubStartIndex, lastStubEndIndex);
         } else {
           endStub = new CouponStub(stubType);
         }

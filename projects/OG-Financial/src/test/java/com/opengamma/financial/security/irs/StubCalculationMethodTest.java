@@ -3,6 +3,7 @@ package com.opengamma.financial.security.irs;
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
@@ -21,36 +22,34 @@ public class StubCalculationMethodTest {
   ExternalId _secondStubStartIndexId = ExternalId.of(ExternalScheme.of("CONVENTION"), USD_LIBOR2M);
   ExternalId secondStubEndIndexId = _firstStubEndReferenceRateId;
   
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test(expectedExceptions = OpenGammaRuntimeException.class)
   private void shortStartStubIllegalDefnTest() {
     
     StubCalculationMethod.Builder stubBuilder = StubCalculationMethod.builder()
         .type(StubType.SHORT_START)
-        .firstStubStartIndex(Tenor.ONE_MONTH)
-        .firstStubEndIndex(Tenor.THREE_MONTHS);
+        .firstStubEndReferenceRateId(_firstStubEndReferenceRateId);
     
     StubCalculationMethod stub = stubBuilder.build();
     stub.validate();
   }
   
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test(expectedExceptions = OpenGammaRuntimeException.class)
   private void longStartStubIllegalDefnTest() {
     
     StubCalculationMethod.Builder stubBuilder = StubCalculationMethod.builder()
         .type(StubType.LONG_START)
-        .firstStubStartIndex(Tenor.THREE_MONTHS)
-        .firstStubEndIndex(Tenor.SIX_MONTHS);
+        .firstStubStartReferenceRateId(_firstStubStartReferenceRateId);
     
     StubCalculationMethod stub = stubBuilder.build();
     stub.validate();
   }
   
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test(expectedExceptions = OpenGammaRuntimeException.class)
   private void shortEndStubIllegalDefnTest() {
     
     StubCalculationMethod.Builder stubBuilder = StubCalculationMethod.builder()
         .type(StubType.SHORT_END)
-        .firstStubStartIndex(Tenor.ONE_WEEK);
+        .lastStubStartReferenceRateId(_secondStubStartIndexId);
     
     StubCalculationMethod stub = stubBuilder.build();
     stub.validate();
@@ -60,7 +59,7 @@ public class StubCalculationMethodTest {
   private void longEndStubIllegalDefnTest() {
     
     StubCalculationMethod.Builder stubBuilder = StubCalculationMethod.builder()
-        .firstStubEndIndex(Tenor.THREE_MONTHS);
+        .firstStubEndReferenceRateId(_firstStubEndReferenceRateId);
     
     StubCalculationMethod stub = stubBuilder.build();
     stub.validate();
@@ -71,9 +70,7 @@ public class StubCalculationMethodTest {
     
     StubCalculationMethod.Builder stubBuilder = StubCalculationMethod.builder()
         .type(StubType.SHORT_START)
-        .firstStubStartIndex(Tenor.ONE_MONTH)
         .firstStubStartReferenceRateId(_firstStubStartReferenceRateId)
-        .firstStubEndIndex(Tenor.THREE_MONTHS)
         .firstStubEndReferenceRateId(_firstStubEndReferenceRateId);
     StubCalculationMethod stub = stubBuilder.build();
     stub.validate();
@@ -85,14 +82,10 @@ public class StubCalculationMethodTest {
     StubCalculationMethod.Builder stubBuilder = StubCalculationMethod.builder()
         .type(StubType.BOTH)
         .firstStubEndDate(LocalDate.of(2014, 06, 18))
-        .firstStubStartIndex(Tenor.ONE_MONTH)
         .firstStubStartReferenceRateId(_firstStubStartReferenceRateId)
-        .firstStubEndIndex(Tenor.THREE_MONTHS)
         .firstStubEndReferenceRateId(_firstStubEndReferenceRateId)
         .lastStubEndDate(LocalDate.of(2016, 06, 18))
-        .lastStubStartIndex(Tenor.TWO_MONTHS)
         .lastStubStartReferenceRateId(_secondStubStartIndexId)
-        .lastStubEndIndex(Tenor.THREE_MONTHS)
         .lastStubEndReferenceRateId(secondStubEndIndexId);
     StubCalculationMethod stub = stubBuilder.build();
     stub.validate();
