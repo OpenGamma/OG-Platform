@@ -23,6 +23,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.threeten.bp.LocalDate;
 
 import com.opengamma.financial.convention.StubType;
+import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.Tenor;
 
@@ -67,7 +68,13 @@ public final class StubCalculationMethod implements ImmutableBean {
    */
   @PropertyDefinition
   private final Tenor _firstStubStartIndex;
-
+  
+  /**
+   *  The External Id which corresponds to the first index rate. This is an optional field.
+   */
+  @PropertyDefinition
+  private final ExternalId _firstStubStartReferenceRateId;
+  
   /**
    *  The last index rate to interpolate to for the first stub. This is an optional field.
    */
@@ -75,16 +82,34 @@ public final class StubCalculationMethod implements ImmutableBean {
   private final Tenor _firstStubEndIndex;
 
   /**
+   *  The External Id which corresponds to the end index rate for the first stub. This is an optional field.
+   */
+  @PropertyDefinition
+  private final ExternalId _firstStubEndReferenceRateId;
+  
+  /**
    *  The first index rate to interpolate from for the first stub. This is an optional field.
    */
   @PropertyDefinition
   private final Tenor _lastStubStartIndex;
-
+  
+  /**
+   *  The External Id which corresponds to the start index rate for the last stub. This is an optional field.
+   */
+  @PropertyDefinition
+  private final ExternalId _lastStubStartReferenceRateId;
+  
   /**
    *  The last index rate to interpolate from for the last stub. This is an optional field.
    */
   @PropertyDefinition
   private final Tenor _lastStubEndIndex;
+  
+  /**
+   *  The External Id which corresponds to the end index rate for the last stub. This is an optional field.
+   */
+  @PropertyDefinition
+  private final ExternalId _lastStubEndReferenceRateId;  
   
   /**
    * Returns whether the first stub rate has been set.
@@ -112,8 +137,32 @@ public final class StubCalculationMethod implements ImmutableBean {
       case BOTH:
         ArgumentChecker.notNull(getFirstStubEndDate(), "Dual stub must have a first stub period end date");
         ArgumentChecker.notNull(getLastStubEndDate(), "Dual stub must have a last stub period end date");
+        if (getFirstStubStartIndex() != null) {
+          validateReferenceRateExists(getType(), getFirstStubStartIndex(), getFirstStubStartReferenceRateId());
+        } else if (getFirstStubEndIndex() != null) {
+          validateReferenceRateExists(getType(), getFirstStubEndIndex(), getFirstStubEndReferenceRateId());
+        }
         break;
     }
+    if (getFirstStubStartIndex() != null) {
+      validateReferenceRateExists(getType(), getFirstStubStartIndex(), getFirstStubStartReferenceRateId());
+    } else if (getFirstStubEndIndex() != null) {
+      validateReferenceRateExists(getType(), getFirstStubEndIndex(), getFirstStubEndReferenceRateId());
+    } else if (getLastStubStartIndex() != null) {
+      validateReferenceRateExists(getType(), getLastStubStartIndex(), getLastStubStartReferenceRateId());
+    } else if (getLastStubEndIndex() != null) {
+      validateReferenceRateExists(getType(), getLastStubEndIndex(), getLastStubEndReferenceRateId());
+    }      
+    return this;
+  }
+  
+  /**
+   * Validates that for the passed stub index tenor - a corresponding ExternalId exists.
+   * 
+   * @return this stub calculation method
+   */
+  public StubCalculationMethod validateReferenceRateExists(StubType stubType, Tenor stubIndexTenor, ExternalId referenceRateId) {    
+    ArgumentChecker.notNull(referenceRateId, String.format("%s : must have a corresponding External Id defined for tenor : %s", stubType.toString(), stubIndexTenor.toString()));
     return this;
   }
 
@@ -146,9 +195,13 @@ public final class StubCalculationMethod implements ImmutableBean {
       LocalDate firstStubEndDate,
       LocalDate lastStubEndDate,
       Tenor firstStubStartIndex,
+      ExternalId firstStubStartReferenceRateId,
       Tenor firstStubEndIndex,
+      ExternalId firstStubEndReferenceRateId,
       Tenor lastStubStartIndex,
-      Tenor lastStubEndIndex) {
+      ExternalId lastStubStartReferenceRateId,
+      Tenor lastStubEndIndex,
+      ExternalId lastStubEndReferenceRateId) {
     JodaBeanUtils.notNull(type, "type");
     this._type = type;
     this._firstStubRate = firstStubRate;
@@ -156,9 +209,13 @@ public final class StubCalculationMethod implements ImmutableBean {
     this._firstStubEndDate = firstStubEndDate;
     this._lastStubEndDate = lastStubEndDate;
     this._firstStubStartIndex = firstStubStartIndex;
+    this._firstStubStartReferenceRateId = firstStubStartReferenceRateId;
     this._firstStubEndIndex = firstStubEndIndex;
+    this._firstStubEndReferenceRateId = firstStubEndReferenceRateId;
     this._lastStubStartIndex = lastStubStartIndex;
+    this._lastStubStartReferenceRateId = lastStubStartReferenceRateId;
     this._lastStubEndIndex = lastStubEndIndex;
+    this._lastStubEndReferenceRateId = lastStubEndReferenceRateId;
   }
 
   @Override
@@ -256,6 +313,42 @@ public final class StubCalculationMethod implements ImmutableBean {
   public Tenor getLastStubEndIndex() {
     return _lastStubEndIndex;
   }
+  
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the ExternalId which corresponds to the first index rate used to interpolate the beginning of the first stub. This is an optional field.
+   * @return the value of the property
+   */
+  public ExternalId getFirstStubStartReferenceRateId() {
+    return _firstStubStartReferenceRateId;
+  }
+  
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the ExternalId which corresponds to the second index rate used to interpolate the end of the first stub. This is an optional field.
+   * @return the value of the property
+   */
+  public ExternalId getFirstStubEndReferenceRateId() {
+    return _firstStubEndReferenceRateId;
+  }
+  
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the ExternalId which corresponds to the first index rate used to interpolate the beginning of the last stub. This is an optional field.
+   * @return the value of the property
+   */
+  public ExternalId getLastStubStartReferenceRateId() {
+    return _lastStubStartReferenceRateId;
+  }
+  
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the ExternalId which corresponds to the second index rate used to interpolate the end of the last stub. This is an optional field.
+   * @return the value of the property
+   */
+  public ExternalId getLastStubEndReferenceRateId() {
+    return _lastStubEndReferenceRateId;
+  }
 
   //-----------------------------------------------------------------------
   /**
@@ -284,9 +377,13 @@ public final class StubCalculationMethod implements ImmutableBean {
           JodaBeanUtils.equal(getFirstStubEndDate(), other.getFirstStubEndDate()) &&
           JodaBeanUtils.equal(getLastStubEndDate(), other.getLastStubEndDate()) &&
           JodaBeanUtils.equal(getFirstStubStartIndex(), other.getFirstStubStartIndex()) &&
-          JodaBeanUtils.equal(getFirstStubEndIndex(), other.getFirstStubEndIndex()) &&
+          JodaBeanUtils.equal(getFirstStubStartReferenceRateId(), other.getFirstStubStartReferenceRateId()) &&
+          JodaBeanUtils.equal(getFirstStubEndReferenceRateId(), other.getFirstStubEndReferenceRateId()) &&
+          JodaBeanUtils.equal(getFirstStubEndIndex(), other.getFirstStubEndIndex()) &&                    
           JodaBeanUtils.equal(getLastStubStartIndex(), other.getLastStubStartIndex()) &&
-          JodaBeanUtils.equal(getLastStubEndIndex(), other.getLastStubEndIndex());
+          JodaBeanUtils.equal(getLastStubEndIndex(), other.getLastStubEndIndex()) &&
+          JodaBeanUtils.equal(getLastStubStartReferenceRateId(), other.getLastStubStartReferenceRateId()) &&
+          JodaBeanUtils.equal(getLastStubEndReferenceRateId(), other.getLastStubEndReferenceRateId());
     }
     return false;
   }
@@ -301,6 +398,10 @@ public final class StubCalculationMethod implements ImmutableBean {
     hash += hash * 31 + JodaBeanUtils.hashCode(getLastStubEndDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getFirstStubStartIndex());
     hash += hash * 31 + JodaBeanUtils.hashCode(getFirstStubEndIndex());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFirstStubStartReferenceRateId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFirstStubEndReferenceRateId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getLastStubStartReferenceRateId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getLastStubEndReferenceRateId());            
     hash += hash * 31 + JodaBeanUtils.hashCode(getLastStubStartIndex());
     hash += hash * 31 + JodaBeanUtils.hashCode(getLastStubEndIndex());
     return hash;
@@ -316,9 +417,13 @@ public final class StubCalculationMethod implements ImmutableBean {
     buf.append("firstStubEndDate").append('=').append(getFirstStubEndDate()).append(',').append(' ');
     buf.append("lastStubEndDate").append('=').append(getLastStubEndDate()).append(',').append(' ');
     buf.append("firstStubStartIndex").append('=').append(getFirstStubStartIndex()).append(',').append(' ');
+    buf.append("firstStubStartReferenceRateId").append('=').append(getFirstStubStartReferenceRateId()).append(',').append(' ');
     buf.append("firstStubEndIndex").append('=').append(getFirstStubEndIndex()).append(',').append(' ');
+    buf.append("firstStubEndReferenceRateId").append('=').append(getFirstStubEndReferenceRateId()).append(',').append(' ');
     buf.append("lastStubStartIndex").append('=').append(getLastStubStartIndex()).append(',').append(' ');
+    buf.append("lastStubStartReferenceRateId").append('=').append(getLastStubStartReferenceRateId()).append(',').append(' ');
     buf.append("lastStubEndIndex").append('=').append(JodaBeanUtils.toString(getLastStubEndIndex()));
+    buf.append("lastStubEndReferenceRateId").append('=').append(getLastStubEndReferenceRateId()).append(',').append(' ');
     buf.append('}');
     return buf.toString();
   }
@@ -364,20 +469,40 @@ public final class StubCalculationMethod implements ImmutableBean {
     private final MetaProperty<Tenor> _firstStubStartIndex = DirectMetaProperty.ofImmutable(
         this, "firstStubStartIndex", StubCalculationMethod.class, Tenor.class);
     /**
+     * The meta-property for the {@code firstStubStartReferenceRateId} property.
+     */
+    private final MetaProperty<ExternalId> _firstStubStartReferenceRateId = DirectMetaProperty.ofImmutable(
+        this, "firstStubStartReferenceRateId", StubCalculationMethod.class, ExternalId.class);
+    /**
      * The meta-property for the {@code firstStubEndIndex} property.
      */
     private final MetaProperty<Tenor> _firstStubEndIndex = DirectMetaProperty.ofImmutable(
         this, "firstStubEndIndex", StubCalculationMethod.class, Tenor.class);
+    /**
+     * The meta-property for the {@code firstStubEndReferenceRateId} property.
+     */
+    private final MetaProperty<ExternalId> _firstStubEndReferenceRateId = DirectMetaProperty.ofImmutable(
+        this, "firstStubEndReferenceRateId", StubCalculationMethod.class, ExternalId.class);
     /**
      * The meta-property for the {@code lastStubStartIndex} property.
      */
     private final MetaProperty<Tenor> _lastStubStartIndex = DirectMetaProperty.ofImmutable(
         this, "lastStubStartIndex", StubCalculationMethod.class, Tenor.class);
     /**
+     * The meta-property for the {@code lastStubStartReferenceRateId} property.
+     */
+    private final MetaProperty<ExternalId> _lastStubStartReferenceRateId = DirectMetaProperty.ofImmutable(
+        this, "lastStubStartReferenceRateId", StubCalculationMethod.class, ExternalId.class);
+    /**
      * The meta-property for the {@code lastStubEndIndex} property.
      */
     private final MetaProperty<Tenor> _lastStubEndIndex = DirectMetaProperty.ofImmutable(
         this, "lastStubEndIndex", StubCalculationMethod.class, Tenor.class);
+    /**
+     * The meta-property for the {@code lastStubEndReferenceRateId} property.
+     */
+    private final MetaProperty<ExternalId> _lastStubEndReferenceRateId = DirectMetaProperty.ofImmutable(
+        this, "lastStubEndReferenceRateId", StubCalculationMethod.class, ExternalId.class);
     /**
      * The meta-properties.
      */
@@ -389,9 +514,13 @@ public final class StubCalculationMethod implements ImmutableBean {
         "firstStubEndDate",
         "lastStubEndDate",
         "firstStubStartIndex",
+        "firstStubStartReferenceRateId",
         "firstStubEndIndex",
+        "firstStubEndReferenceRateId",
         "lastStubStartIndex",
-        "lastStubEndIndex");
+        "lastStubStartReferenceRateId",
+        "lastStubEndIndex",
+        "lastStubEndReferenceRateId");
 
     /**
      * Restricted constructor.
@@ -561,9 +690,13 @@ public final class StubCalculationMethod implements ImmutableBean {
     private LocalDate _firstStubEndDate;
     private LocalDate _lastStubEndDate;
     private Tenor _firstStubStartIndex;
+    private ExternalId _firstStubStartReferenceRateId;
     private Tenor _firstStubEndIndex;
+    private ExternalId _firstStubEndReferenceRateId;
     private Tenor _lastStubStartIndex;
+    private ExternalId _lastStubStartReferenceRateId;
     private Tenor _lastStubEndIndex;
+    private ExternalId _lastStubEndReferenceRateId;
 
     /**
      * Restricted constructor.
@@ -683,9 +816,13 @@ public final class StubCalculationMethod implements ImmutableBean {
           _firstStubEndDate,
           _lastStubEndDate,
           _firstStubStartIndex,
+          _firstStubStartReferenceRateId,
           _firstStubEndIndex,
+          _firstStubEndReferenceRateId,
           _lastStubStartIndex,
-          _lastStubEndIndex);
+          _lastStubStartReferenceRateId,
+          _lastStubEndIndex,
+          _lastStubEndReferenceRateId);
     }
 
     //-----------------------------------------------------------------------
@@ -779,6 +916,46 @@ public final class StubCalculationMethod implements ImmutableBean {
       this._lastStubEndIndex = lastStubEndIndex;
       return this;
     }
+    
+    /**
+     * Sets the {@code firstStubStartReferenceRateId} property in the builder.
+     * @param firstStubStartReferenceRateId  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder firstStubStartReferenceRateId(ExternalId firstStubStartReferenceRateId) {
+      this._firstStubStartReferenceRateId = firstStubStartReferenceRateId;
+      return this;
+    }
+    
+    /**
+     * Sets the {@code firstStubEndReferenceRateId} property in the builder.
+     * @param firstStubEndReferenceRateId  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder firstStubEndReferenceRateId(ExternalId firstStubEndReferenceRateId) {
+      this._firstStubEndReferenceRateId = firstStubEndReferenceRateId;
+      return this;
+    }
+    
+    /**
+     * Sets the {@code lastStubStartReferenceRateId} property in the builder.
+     * @param lastStubStartReferenceRateId  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder lastStubStartReferenceRateId(ExternalId lastStubStartReferenceRateId) {
+      this._lastStubStartReferenceRateId = lastStubStartReferenceRateId;
+      return this;
+    }
+    
+    /**
+     * Sets the {@code lastStubEndReferenceRateId} property in the builder.
+     * @param lastStubEndReferenceRateId  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder lastStubEndReferenceRateId(ExternalId lastStubEndReferenceRateId) {
+      this._lastStubEndReferenceRateId = lastStubEndReferenceRateId;
+      return this;
+    }
 
     //-----------------------------------------------------------------------
     @Override
@@ -791,9 +968,13 @@ public final class StubCalculationMethod implements ImmutableBean {
       buf.append("firstStubEndDate").append('=').append(JodaBeanUtils.toString(_firstStubEndDate)).append(',').append(' ');
       buf.append("lastStubEndDate").append('=').append(JodaBeanUtils.toString(_lastStubEndDate)).append(',').append(' ');
       buf.append("firstStubStartIndex").append('=').append(JodaBeanUtils.toString(_firstStubStartIndex)).append(',').append(' ');
+      buf.append("firstStubStartReferenceRateId").append('=').append(JodaBeanUtils.toString(_firstStubStartReferenceRateId)).append(',').append(' ');
       buf.append("firstStubEndIndex").append('=').append(JodaBeanUtils.toString(_firstStubEndIndex)).append(',').append(' ');
+      buf.append("firstStubEndReferenceRateId").append('=').append(JodaBeanUtils.toString(_firstStubEndReferenceRateId)).append(',').append(' ');
       buf.append("lastStubStartIndex").append('=').append(JodaBeanUtils.toString(_lastStubStartIndex)).append(',').append(' ');
+      buf.append("lastStubStartReferenceRateId").append('=').append(JodaBeanUtils.toString(_lastStubStartReferenceRateId)).append(',').append(' ');
       buf.append("lastStubEndIndex").append('=').append(JodaBeanUtils.toString(_lastStubEndIndex));
+      buf.append("lastStubEndReferenceRateId").append('=').append(JodaBeanUtils.toString(_lastStubEndReferenceRateId)).append(',').append(' ');
       buf.append('}');
       return buf.toString();
     }

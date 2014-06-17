@@ -18,6 +18,7 @@ import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.rolldate.RollDateAdjuster;
+import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -34,7 +35,9 @@ public abstract class AbstractAnnuityDefinitionBuilder<T extends AbstractAnnuity
     private double _stubRate = Double.NaN;
     private LocalDate _effectiveDate;
     private Period _firstInterpPeriod;
+    private ExternalId _firstReferenceRateId;
     private Period _secondInterpPeriod;
+    private ExternalId _secondReferenceRateId;
     
     public CouponStub(StubType stubType) {
       _stubType = stubType;
@@ -51,17 +54,21 @@ public abstract class AbstractAnnuityDefinitionBuilder<T extends AbstractAnnuity
       _stubRate = stubRate;
     }
     
-    public CouponStub(StubType stubType, Period firstInterpPeriod, Period secondInterpPeriod) {
+    public CouponStub(StubType stubType, Period firstInterpPeriod, ExternalId firstReferenceRateId, Period secondInterpPeriod, ExternalId secondReferenceRateId) {
       _stubType = stubType;
       _firstInterpPeriod = firstInterpPeriod;
+      _firstReferenceRateId = firstReferenceRateId;
       _secondInterpPeriod = secondInterpPeriod;
+      _secondReferenceRateId = secondReferenceRateId;
     }
     
-    public CouponStub(StubType stubType, LocalDate effectiveDate, Period firstInterpPeriod, Period secondInterpPeriod) {
+    public CouponStub(StubType stubType, LocalDate effectiveDate, Period firstInterpPeriod, ExternalId firstReferenceRateId, Period secondInterpPeriod, ExternalId secondReferenceRateId) {
       _stubType = stubType;
       _effectiveDate = effectiveDate;
       _firstInterpPeriod = firstInterpPeriod;
+      _firstReferenceRateId = firstReferenceRateId;
       _secondInterpPeriod = secondInterpPeriod;
+      _secondReferenceRateId = secondReferenceRateId;
     }
     
     public StubType getStubType() {
@@ -84,8 +91,16 @@ public abstract class AbstractAnnuityDefinitionBuilder<T extends AbstractAnnuity
       return _firstInterpPeriod;
     }
     
+    public ExternalId getFirstReferenceRateId() {
+      return _firstReferenceRateId;
+    }
+            
     public Period getSecondInterpPeriod() {
       return _secondInterpPeriod;
+    }
+    
+    public ExternalId getSecondReferenceRateId() {
+      return _secondReferenceRateId;
     }
     
     public boolean isInterpolated() {
