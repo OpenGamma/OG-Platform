@@ -606,8 +606,7 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
         double secondInterpolatedYearFraction = AnnuityDefinitionBuilder.getDayCountFraction(((IborIndex) _index).getTenor(), _adjustedFixingDateParameters.getCalendar(), getDayCount(), couponStub.getStubType(), couponStub.getStubType(),
                                                                                              compoundingFixingStartDates[0], secondInterpolatedDate, isFirstCoupon, isLastCoupon);
         
-                                    
-        coupon = getIborCompoundingInterpolatedStubDefinition(
+       coupon = getIborCompoundingInterpolatedStubDefinition(
             notional,
             paymentDate,
             adjustedAccrualStartDate,

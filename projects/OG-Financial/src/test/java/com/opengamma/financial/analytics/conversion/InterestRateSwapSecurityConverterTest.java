@@ -717,5 +717,15 @@ public class InterestRateSwapSecurityConverterTest {
     public Holiday get(ObjectId objectId, VersionCorrection versionCorrection) {
       throw new UnsupportedOperationException();
     }
+
+    @Override
+    public Collection<Holiday> get(HolidayType holidayType, ExternalIdBundle regionOrExchangeIds) {
+      return null;
+    }
+
+    @Override
+    public Collection<Holiday> get(Currency currency) {
+      return null;
+    }
   }
 }

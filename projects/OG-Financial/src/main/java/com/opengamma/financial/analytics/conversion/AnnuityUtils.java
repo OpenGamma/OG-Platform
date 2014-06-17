@@ -165,7 +165,7 @@ public class AnnuityUtils {
     StubCalculationMethod stubCalcMethod = leg.getStubCalculationMethod();
     if (stubCalcMethod != null) {
       stubCalcMethod.validate();
-      Pair<CouponStub, CouponStub> stubs = parseStubs(leg.getStubCalculationMethod(), securitySource, conventionSource);
+      final Pair<CouponStub, CouponStub> stubs = parseStubs(leg.getStubCalculationMethod(), securitySource, conventionSource);
       startStub = stubs.getFirst();
       endStub = stubs.getSecond();                   
     }
@@ -224,7 +224,7 @@ public class AnnuityUtils {
    * @return A fixed annuity definition. The coupons are not necessarily the same type.
    */
   public static AnnuityDefinition<?> buildFixedAnnuityDefinition(final SecuritySource securitySource, final HolidaySource holidaySource, final ConventionSource conventionSource, final boolean payer, final LocalDate startDate,
-      final LocalDate endDate, final NotionalExchange notionalExchange, final InterestRateSwapLeg leg) {
+     final LocalDate endDate, final NotionalExchange notionalExchange, final InterestRateSwapLeg leg) {
     ArgumentChecker.notNull(securitySource, "securitySource");
     ArgumentChecker.notNull(holidaySource, "holidaySource");
     ArgumentChecker.notNull(conventionSource, "conventionSource");
@@ -273,7 +273,7 @@ public class AnnuityUtils {
       endStub = stubs.getSecond();                   
     }
         
-    final List<Double> notionalList = leg.getNotional().getNotionals();
+   final List<Double> notionalList = leg.getNotional().getNotionals();
     double[] notionalSchedule;
     if (notionalList.isEmpty()) {
       notionalSchedule = new double[] {(payer ? -1 : 1) * leg.getNotional().getInitialAmount()};
@@ -392,7 +392,7 @@ public class AnnuityUtils {
         startStub = new CouponStub(stubType);
         endStub = new CouponStub(stubType);
       }
-    }
+   }
     return Pairs.of(startStub, endStub);
   }
   
@@ -425,6 +425,9 @@ public class AnnuityUtils {
         indexId.getValue());
   }
   
+
+  
+
 
   /**
    * Returns a notional provider that will supply absolute notionals (i.e. will convert relative
