@@ -30,6 +30,7 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
@@ -60,10 +61,11 @@ public class EquityTotalReturnSwapAssetLegPVFunction extends EquityTotalReturnSw
         final EquityTrsDataBundle data = getDataBundle(inputs, fxMatrix);
         final MultipleCurrencyAmount pv = derivative.accept(CALCULATOR, data);
         final String expectedCurrency = spec.getProperty(CURRENCY);
-        if (pv.size() != 1 || !(expectedCurrency.equals(pv.getCurrencyAmounts()[0].getCurrency().getCode()))) {
-          throw new OpenGammaRuntimeException("Expecting a single result in " + expectedCurrency);
+        if (expectedCurrency == null) {
+          throw new OpenGammaRuntimeException("Expected currency is null");
         }
-        return Collections.singleton(new ComputedValue(spec, pv.getCurrencyAmounts()[0].getAmount()));
+        double pvConverted = fxMatrix.convert(pv, Currency.of(expectedCurrency)).getAmount();
+        return Collections.singleton(new ComputedValue(spec, pvConverted));
       }
     };
   }
