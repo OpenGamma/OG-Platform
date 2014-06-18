@@ -54,6 +54,8 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
  * 
  */
 
+//TODO: Fix class type handling, currently can only hold one item per name - even if different classes
+// This was a solution to allowing objects to be looked up via any superclass (including Object)
 
 /**
  * A lightweight {@link ConfigSource} that cannot handle any versioning, and
@@ -199,7 +201,10 @@ public class NonVersionedRedisConfigSource implements ConfigSource {
     try {
       jedis.sadd(_allClassesKey, clazz.getName());
       jedis.sadd(classKeyName, configName);
+      // This allows lookup for type Object to work. Note this implies the same config name cannot be used twice
+      jedis.sadd(Object.class.getName(), configName);
       jedis.hset(classNameRedisKey, "UniqueId", uniqueId.toString());
+      jedis.hset(getClassNameRedisKey(Object.class, configName), "UniqueId", uniqueId.toString());
       jedis.hset(uniqueIdKey, DATA_NAME_AS_BYTES, objectAsBytes);
       jedis.hset(uniqueIdKey, CLASS_NAME_AS_BYTES, clazz.getName().getBytes(Charsets.UTF_8));
       jedis.hset(uniqueIdKey, ITEM_NAME_AS_BYTES, configName.getBytes(Charsets.UTF_8));
@@ -326,7 +331,17 @@ public class NonVersionedRedisConfigSource implements ConfigSource {
           dataAsBytes = jedis.hget(uniqueIdKey, DATA_NAME_AS_BYTES);
         }
       } else {
-        s_logger.debug("No config named {} for class {}", configName, clazz);
+        // try fallback lookup to see if known by another compatible class
+        if (jedis.sismember(Object.class.getName(), configName)) {
+          String uniqueIdText = jedis.hget(getClassNameRedisKey(Object.class, configName), "UniqueId");
+          if (uniqueIdText != null) {
+            uniqueId = UniqueId.parse(uniqueIdText);
+            byte[] uniqueIdKey = getUniqueIdKey(uniqueId);
+            dataAsBytes = jedis.hget(uniqueIdKey, DATA_NAME_AS_BYTES);
+          }
+        } else {
+          s_logger.debug("No config named {} for class {}", configName, clazz);
+        }
       }
       
       getJedisPool().returnResource(jedis);
