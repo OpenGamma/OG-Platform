@@ -18,7 +18,9 @@ import com.opengamma.analytics.financial.instrument.annuity.FixedAnnuityDefiniti
 import com.opengamma.analytics.financial.instrument.annuity.FloatingAnnuityDefinitionBuilder;
 import com.opengamma.analytics.financial.instrument.annuity.OffsetAdjustedDateParameters;
 import com.opengamma.analytics.financial.instrument.annuity.OffsetType;
+import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexDeposit;
+import com.opengamma.core.convention.Convention;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.security.Security;
@@ -28,6 +30,7 @@ import com.opengamma.financial.convention.HolidaySourceCalendarAdapter;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.OvernightIndexConvention;
 import com.opengamma.financial.convention.StubType;
+import com.opengamma.financial.convention.VanillaIborLegConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.rolldate.EndOfMonthRollDateAdjuster;
@@ -45,7 +48,6 @@ import com.opengamma.financial.security.lookup.irs.InterestRateSwapNotionalAmoun
 import com.opengamma.financial.security.swap.FloatingRateType;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
 
@@ -53,11 +55,12 @@ import com.opengamma.util.tuple.Pairs;
  * Class containing utility methods for generating annuities from swap legs.
  */
 public class AnnuityUtils {
-
+  
   /**
    * Builds a floating annuity definition from an {@link InterestRateSwapLeg}.
    * @param conventionSource The convention source, not null
    * @param holidaySource The holiday source, not null
+   * @param securitySource The security source, not null
    * @param payer True if the swap is a payer (i.e. pays a fixed rate)
    * @param startDate The start date, not null
    * @param endDate The end date, not null
@@ -69,7 +72,7 @@ public class AnnuityUtils {
       final boolean payer, final LocalDate startDate, final LocalDate endDate, final NotionalExchange notionalExchange, final InterestRateSwapLeg leg) {
     ArgumentChecker.notNull(conventionSource, "conventionSource");
     ArgumentChecker.notNull(holidaySource, "holidaySource");
-    ArgumentChecker.notNull(securitySource, "holidaySource");
+    ArgumentChecker.notNull(securitySource, "securitySource");
     ArgumentChecker.notNull(startDate, "startDate");
     ArgumentChecker.notNull(endDate, "endDate");
     ArgumentChecker.notNull(notionalExchange, "notionalExchange");
@@ -156,10 +159,16 @@ public class AnnuityUtils {
       default:
         throw new OpenGammaRuntimeException("Unsupported compounding method");
     }
-
-    final Pair<CouponStub, CouponStub> stubs = parseStubs(leg.getStubCalculationMethod());
-    final CouponStub startStub = stubs.getFirst();
-    final CouponStub endStub = stubs.getSecond();
+    
+    CouponStub startStub = null;
+    CouponStub endStub = null;
+    StubCalculationMethod stubCalcMethod = leg.getStubCalculationMethod();
+    if (stubCalcMethod != null) {
+      stubCalcMethod.validate();
+      final Pair<CouponStub, CouponStub> stubs = parseStubs(leg.getStubCalculationMethod(), securitySource, conventionSource);
+      startStub = stubs.getFirst();
+      endStub = stubs.getSecond();                   
+    }
 
     final List<Double> notionalList = leg.getNotional().getNotionals();
     double[] notionalSchedule;
@@ -199,10 +208,14 @@ public class AnnuityUtils {
         initialRate(floatLeg.getCustomRates() != null ? floatLeg.getCustomRates().getInitialRate() : Double.NaN).
         build();
   }
+  
+
 
   /**
    * Builds a fixed annuity definition from an {@link InterestRateSwapLeg}.
+   * @param securitySource The security source, not null
    * @param holidaySource The holiday source, not null
+   * @param conventionSource The convention source, not null
    * @param payer True if the swap is a payer (i.e. pays a fixed rate)
    * @param startDate The start date, not null
    * @param endDate The end date, not null
@@ -210,9 +223,11 @@ public class AnnuityUtils {
    * @param leg The interest rate swap leg, not null
    * @return A fixed annuity definition. The coupons are not necessarily the same type.
    */
-  public static AnnuityDefinition<?> buildFixedAnnuityDefinition(final HolidaySource holidaySource, final boolean payer, final LocalDate startDate,
-      final LocalDate endDate, final NotionalExchange notionalExchange, final InterestRateSwapLeg leg) {
+  public static AnnuityDefinition<?> buildFixedAnnuityDefinition(final SecuritySource securitySource, final HolidaySource holidaySource, final ConventionSource conventionSource, final boolean payer, final LocalDate startDate,
+     final LocalDate endDate, final NotionalExchange notionalExchange, final InterestRateSwapLeg leg) {
+    ArgumentChecker.notNull(securitySource, "securitySource");
     ArgumentChecker.notNull(holidaySource, "holidaySource");
+    ArgumentChecker.notNull(conventionSource, "conventionSource");
     ArgumentChecker.notNull(startDate, "startDate");
     ArgumentChecker.notNull(endDate, "endDate");
     ArgumentChecker.notNull(notionalExchange, "notionalExchange");
@@ -247,12 +262,18 @@ public class AnnuityUtils {
     } else {
       rollDateAdjuster = leg.getRollConvention().getRollDateAdjuster(0);
     }
-
-    final Pair<CouponStub, CouponStub> stubs = parseStubs(leg.getStubCalculationMethod());
-    final CouponStub startStub = stubs.getFirst();
-    final CouponStub endStub = stubs.getSecond();
-
-    final List<Double> notionalList = leg.getNotional().getNotionals();
+        
+    CouponStub startStub = null;
+    CouponStub endStub = null;
+    StubCalculationMethod stubCalcMethod = leg.getStubCalculationMethod();
+    if (stubCalcMethod != null) {
+      stubCalcMethod.validate();
+      final Pair<CouponStub, CouponStub> stubs = parseStubs(leg.getStubCalculationMethod(), securitySource, conventionSource);
+      startStub = stubs.getFirst();
+      endStub = stubs.getSecond();                   
+    }
+        
+   final List<Double> notionalList = leg.getNotional().getNotionals();
     double[] notionalSchedule;
     if (notionalList.isEmpty()) {
       notionalSchedule = new double[] {(payer ? -1 : 1) * leg.getNotional().getInitialAmount()};
@@ -288,33 +309,57 @@ public class AnnuityUtils {
   /**
    * Converts the {@link StubCalculationMethod} to a {@link CouponStub}.
    * @param stubCalcMethod The stub calculation method, not null
+   * @param securitySource The security source to perform a lookup of indices, not null
+   * @param conventionSource The convention source to perform a lookup of conventions for backwards compatibility, not null
    * @return A pair of front and back stubs
    */
-  public static Pair<CouponStub, CouponStub> parseStubs(final StubCalculationMethod stubCalcMethod) {
+  public static Pair<CouponStub, CouponStub> parseStubs(final StubCalculationMethod stubCalcMethod, SecuritySource securitySource, ConventionSource conventionSource) {
+    
+  //Walk the stub to determine the details; when done - build a CouponStub with those details    
     CouponStub startStub = null;
     CouponStub endStub = null;
-
+    
     if (stubCalcMethod != null) {
       stubCalcMethod.validate();
-      final StubType stubType = stubCalcMethod.getType();
+      StubType stubType = stubCalcMethod.getType();
 
       // first stub
-      final double firstStubRate = stubCalcMethod.hasFirstStubRate() ? stubCalcMethod.getFirstStubRate() : Double.NaN;
-      final LocalDate firstStubDate = stubCalcMethod.getFirstStubEndDate();
-      final Tenor firstStubStartIndex = stubCalcMethod.getFirstStubStartIndex();
-      final Tenor firstStubEndIndex = stubCalcMethod.getFirstStubEndIndex();
+      double firstStubRate = stubCalcMethod.hasFirstStubRate() ? stubCalcMethod.getFirstStubRate() : Double.NaN;
+      LocalDate firstStubDate = stubCalcMethod.getFirstStubEndDate();
+      
+      ExternalId firstStubStartReferenceRateId = stubCalcMethod.getFirstStubStartReferenceRateId();
+      IborIndex firstStubStartIndex = null;
+      if (stubCalcMethod.hasFirstStubStartReferenceRateId()) {
+        firstStubStartIndex = (IborIndex) getIborIndex(firstStubStartReferenceRateId, securitySource, conventionSource);
+      }
+      ExternalId firstStubEndReferenceRateId = stubCalcMethod.getFirstStubEndReferenceRateId();
+      IborIndex firstStubEndIndex = null;      
+      if (stubCalcMethod.hasFirstStubEndReferenceRateId()) {
+        firstStubEndIndex = (IborIndex) getIborIndex(firstStubEndReferenceRateId, securitySource, conventionSource);
+      }
 
       // last stub
-      final double finalStubRate = stubCalcMethod.hasLastStubRate() ? stubCalcMethod.getLastStubRate() : Double.NaN;
-      final LocalDate finalStubDate = stubCalcMethod.getLastStubEndDate();
-      final Tenor lastStubStartIndex = stubCalcMethod.getLastStubStartIndex();
-      final Tenor lastStubEndIndex = stubCalcMethod.getLastStubEndIndex();
-
+      double finalStubRate = stubCalcMethod.hasLastStubRate() ? stubCalcMethod.getLastStubRate() : Double.NaN;
+      LocalDate finalStubDate = stubCalcMethod.getLastStubEndDate();
+      
+      ExternalId lastStubStartReferenceRateId = stubCalcMethod.getLastStubStartReferenceRateId();      
+      IborIndex lastStubStartIndex = null;
+      if (stubCalcMethod.hasLastStubStartReferenceRateId()) {
+        lastStubStartIndex = (IborIndex) getIborIndex(lastStubStartReferenceRateId, securitySource, conventionSource); 
+      }
+            
+      ExternalId lastStubEndReferenceRateId = stubCalcMethod.getLastStubEndReferenceRateId();
+      IborIndex lastStubEndIndex = null;
+      if (stubCalcMethod.hasLastStubEndReferenceRateId()) {
+        lastStubEndIndex = (IborIndex) getIborIndex(lastStubEndReferenceRateId, securitySource, conventionSource); 
+      }
+       
+      //Determine the stub type and build with any subtleties encountered 
       if (StubType.BOTH == stubType) {
         if (!Double.isNaN(firstStubRate)) {
           startStub = new CouponStub(stubType, firstStubDate, stubCalcMethod.getFirstStubRate());
         } else if (firstStubStartIndex != null && firstStubEndIndex != null) {
-          startStub = new CouponStub(stubType, firstStubDate, firstStubStartIndex.getPeriod(), firstStubEndIndex.getPeriod());
+          startStub = new CouponStub(stubType, firstStubDate, firstStubStartIndex, firstStubEndIndex);
         } else {
           startStub = new CouponStub(stubType, firstStubDate);
         }
@@ -322,7 +367,7 @@ public class AnnuityUtils {
         if (!Double.isNaN(finalStubRate)) {
           endStub = new CouponStub(stubType, finalStubDate, stubCalcMethod.getLastStubRate());
         } else if (lastStubStartIndex != null && lastStubEndIndex != null) {
-          endStub = new CouponStub(stubType, finalStubDate, lastStubStartIndex.getPeriod(), lastStubEndIndex.getPeriod());
+          endStub = new CouponStub(stubType, finalStubDate, lastStubStartIndex, lastStubEndIndex);
         } else {
           endStub = new CouponStub(stubType, finalStubDate);
         }
@@ -331,7 +376,7 @@ public class AnnuityUtils {
         if (!Double.isNaN(firstStubRate)) {
           startStub = new CouponStub(stubType, firstStubDate, firstStubRate);
         } else if (firstStubStartIndex != null && firstStubEndIndex != null) {
-          startStub = new CouponStub(stubType, firstStubStartIndex.getPeriod(), firstStubEndIndex.getPeriod());
+          startStub = new CouponStub(stubType, firstStubStartIndex, firstStubEndIndex);
         } else {
           startStub = new CouponStub(stubType);
         }
@@ -339,7 +384,7 @@ public class AnnuityUtils {
         if (!Double.isNaN(finalStubRate)) {
           endStub = new CouponStub(stubType, finalStubDate, finalStubRate);
         } else if (lastStubStartIndex != null && lastStubEndIndex != null) {
-          endStub = new CouponStub(stubType, lastStubStartIndex.getPeriod(), lastStubEndIndex.getPeriod());
+          endStub = new CouponStub(stubType, lastStubStartIndex, lastStubEndIndex);
         } else {
           endStub = new CouponStub(stubType);
         }
@@ -347,10 +392,42 @@ public class AnnuityUtils {
         startStub = new CouponStub(stubType);
         endStub = new CouponStub(stubType);
       }
-
-    }
+   }
     return Pairs.of(startStub, endStub);
   }
+  
+  private static IndexDeposit getIborIndex(ExternalId indexId, SecuritySource securitySource, ConventionSource conventionSource) {
+    // try security lookup
+    final Security sec = securitySource.getSingle(indexId.toBundle());
+    if (sec != null) {
+      final com.opengamma.financial.security.index.IborIndex indexSecurity = (com.opengamma.financial.security.index.IborIndex) sec;
+      IborIndexConvention indexConvention = conventionSource.getSingle(indexSecurity.getConventionId(), IborIndexConvention.class);
+      return ConverterUtils.indexIbor(indexSecurity.getName(), indexConvention, indexSecurity.getTenor());
+    }
+    
+    // Fallback to convention lookup for old behaviour
+    Convention iborLegConvention = conventionSource.getSingle(indexId);
+    if (!(iborLegConvention instanceof VanillaIborLegConvention)) {
+      throw new OpenGammaRuntimeException("Could not resolve an index convention for rate reference id: " + indexId.getValue());
+    }
+    Convention iborConvention = conventionSource.getSingle(((VanillaIborLegConvention) iborLegConvention).getIborIndexConvention());
+    if (iborConvention == null) {
+      throw new OpenGammaRuntimeException("Convention not found for " + ((VanillaIborLegConvention) iborLegConvention).getIborIndexConvention());
+    }
+    IborIndexConvention iborIndexConvention = (IborIndexConvention) iborConvention;
+
+    return new IborIndex(iborIndexConvention.getCurrency(),
+        ((VanillaIborLegConvention) iborLegConvention).getResetTenor().getPeriod(),
+        iborIndexConvention.getSettlementDays(),  // fixing lag
+        iborIndexConvention.getDayCount(),
+        iborIndexConvention.getBusinessDayConvention(),
+        ((IborIndexConvention) iborConvention).isIsEOM(),
+        indexId.getValue());
+  }
+  
+
+  
+
 
   /**
    * Returns a notional provider that will supply absolute notionals (i.e. will convert relative
