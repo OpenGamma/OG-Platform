@@ -38,7 +38,7 @@ public class RedisSimulationSeriesResolver extends HistoricalTimeSeriesResolverW
   }
   
   @Override
-  public HistoricalTimeSeriesResolutionResult resolve(ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField,
+  public HistoricalTimeSeriesResolutionResult resolve(final ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, final String dataSource, final String dataProvider, final String dataField,
                                                       String resolutionKey) {
     if (identifierBundle.isEmpty()) {
       return null; // is this the correct action?
@@ -47,6 +47,7 @@ public class RedisSimulationSeriesResolver extends HistoricalTimeSeriesResolverW
     }
     ExternalId externalId = identifierBundle.getExternalIds().iterator().next();
     if (!MarketDataRequirementNames.MARKET_VALUE.equals(dataField)) {
+      //TODO: Should store field name with the series so fields other than Market_Value can be used.
       //s_logger.warn("Redis simulation asked for {} for {}, can only handle market value.", dataField, externalId);
       return null;
     }
@@ -74,7 +75,7 @@ public class RedisSimulationSeriesResolver extends HistoricalTimeSeriesResolverW
 
       @Override
       public ExternalIdBundleWithDates getExternalIdBundle() {
-        throw new UnsupportedOperationException("Unsupported operation.");
+        return ExternalIdBundleWithDates.of(identifierBundle);
       }
 
       @Override
@@ -84,27 +85,27 @@ public class RedisSimulationSeriesResolver extends HistoricalTimeSeriesResolverW
 
       @Override
       public String getDataField() {
-        throw new UnsupportedOperationException("Unsupported operation.");
+        return dataField;
       }
 
       @Override
       public String getDataSource() {
-        throw new UnsupportedOperationException("Unsupported operation.");
+        return dataSource;
       }
 
       @Override
       public String getDataProvider() {
-        throw new UnsupportedOperationException("Unsupported operation.");
+        return dataProvider;
       }
 
       @Override
       public String getObservationTime() {
-        throw new UnsupportedOperationException("Unsupported operation.");
+        return null;
       }
 
       @Override
       public ObjectId getTimeSeriesObjectId() {
-        throw new UnsupportedOperationException("Unsupported operation.");
+        return uniqueId.getObjectId();
       }
 
     };
