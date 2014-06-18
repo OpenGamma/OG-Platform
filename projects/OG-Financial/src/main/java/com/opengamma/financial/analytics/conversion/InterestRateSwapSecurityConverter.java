@@ -443,7 +443,8 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
   /**
    * Converts the StubCalculationMethod to CouponStubs.
    */
-  private Pair<CouponStub, CouponStub> parseStubs(final StubCalculationMethod stubCalcMethod) {
+   /* Testing >> private to package protected*/
+  Pair<CouponStub, CouponStub> parseStubs(final StubCalculationMethod stubCalcMethod) {
     CouponStub startStub = null;
     CouponStub endStub = null;
 
