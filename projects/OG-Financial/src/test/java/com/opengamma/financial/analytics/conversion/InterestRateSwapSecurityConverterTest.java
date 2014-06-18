@@ -3,14 +3,16 @@ package com.opengamma.financial.analytics.conversion;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import org.threeten.bp.DayOfWeek;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.Period;
@@ -38,8 +40,6 @@ import com.opengamma.financial.convention.SwapFixedLegConvention;
 import com.opengamma.financial.convention.VanillaIborLegConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
-import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
@@ -60,7 +60,6 @@ import com.opengamma.util.tuple.Pair;
 
 public class InterestRateSwapSecurityConverterTest {
 
-  private static final MondayToFridayCalendar CALENDAR = new MondayToFridayCalendar("Weekend");
   private static final String SCHEME = "Test";
   private static final BusinessDayConvention MODIFIED_FOLLOWING = BusinessDayConventions.MODIFIED_FOLLOWING;
   private static final DayCount ACT_360 = DayCounts.ACT_360;
@@ -642,46 +641,81 @@ public class InterestRateSwapSecurityConverterTest {
     }
     
   }
+  
+  public static class MyHolidaySource extends AbstractSource<Holiday> implements HolidaySource {
 
-  private static class MyHolidaySource extends AbstractSource<Holiday> implements HolidaySource {
-    private static final Calendar WEEKEND_HOLIDAY = new MondayToFridayCalendar("D");
-    
+    /**
+     * Map of exception dates and whether they are working or non-working.
+     */
+    private final ConcurrentMap<LocalDate, Boolean> _nonWorkingDay = new ConcurrentHashMap<>();
+
+    public MyHolidaySource() {
+      int startYear = 2013;
+      int endYear = 2063;
+      for (int loopy = startYear; loopy <= endYear; loopy++) {
+        addNonWorkingDay(LocalDate.of(loopy, 1, 1));
+        addNonWorkingDay(LocalDate.of(loopy, 7, 4));
+        addNonWorkingDay(LocalDate.of(loopy, 12, 25));
+      }
+      addNonWorkingDay(LocalDate.of(2015, 1, 19));
+      addNonWorkingDay(LocalDate.of(2015, 2, 16));
+      addNonWorkingDay(LocalDate.of(2015, 5, 25));
+      addNonWorkingDay(LocalDate.of(2015, 9, 7));
+      addNonWorkingDay(LocalDate.of(2015, 10, 12));
+      addNonWorkingDay(LocalDate.of(2015, 11, 11));
+      addNonWorkingDay(LocalDate.of(2015, 11, 26));
+      addNonWorkingDay(LocalDate.of(2016, 1, 18));
+      addNonWorkingDay(LocalDate.of(2016, 2, 15));
+      addNonWorkingDay(LocalDate.of(2016, 5, 30));
+      addNonWorkingDay(LocalDate.of(2016, 9, 5));
+      addNonWorkingDay(LocalDate.of(2016, 10, 10));
+      addNonWorkingDay(LocalDate.of(2016, 11, 11));
+      addNonWorkingDay(LocalDate.of(2016, 11, 24));
+      addNonWorkingDay(LocalDate.of(2016, 12, 26));
+      addNonWorkingDay(LocalDate.of(2017, 1, 2));
+      addNonWorkingDay(LocalDate.of(2017, 1, 16));
+      addNonWorkingDay(LocalDate.of(2017, 2, 20));
+      addNonWorkingDay(LocalDate.of(2017, 5, 29));
+      addNonWorkingDay(LocalDate.of(2017, 9, 4));
+      addNonWorkingDay(LocalDate.of(2017, 10, 9));
+      addNonWorkingDay(LocalDate.of(2017, 11, 23));
+    }
+
+    private void addNonWorkingDay(LocalDate date) {
+      _nonWorkingDay.put(date, true);
+    }
+
+    private boolean isHoliday(LocalDate dateToCheck) {
+      DayOfWeek day = dateToCheck.getDayOfWeek();
+      if (day.equals(DayOfWeek.SATURDAY) || day.equals(DayOfWeek.SUNDAY)) {
+        return true;
+      }
+      return _nonWorkingDay.containsKey(dateToCheck);
+    }
+
     @Override
-    public Holiday get(final UniqueId uniqueId) {
+    public boolean isHoliday(LocalDate dateToCheck, Currency currency) {
+      return isHoliday(dateToCheck);
+    }
+
+    @Override
+    public boolean isHoliday(LocalDate dateToCheck, HolidayType holidayType, ExternalIdBundle regionOrExchangeIds) {
+      return isHoliday(dateToCheck);
+    }
+
+    @Override
+    public boolean isHoliday(LocalDate dateToCheck, HolidayType holidayType, ExternalId regionOrExchangeId) {
+      return isHoliday(dateToCheck);
+    }
+
+    @Override
+    public Holiday get(UniqueId uniqueId) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public Holiday get(final ObjectId objectId, final VersionCorrection versionCorrection) {
+    public Holiday get(ObjectId objectId, VersionCorrection versionCorrection) {
       throw new UnsupportedOperationException();
     }
-
-    @Override
-    public boolean isHoliday(final LocalDate dateToCheck, final Currency currency) {
-      return WEEKEND_HOLIDAY.isWorkingDay(dateToCheck);
-    }
-
-    @Override
-    public boolean isHoliday(final LocalDate dateToCheck, final HolidayType holidayType,
-        final ExternalIdBundle regionOrExchangeIds) {
-      return WEEKEND_HOLIDAY.isWorkingDay(dateToCheck);
-    }
-
-    @Override
-    public boolean isHoliday(final LocalDate dateToCheck, final HolidayType holidayType,
-        final ExternalId regionOrExchangeId) {
-      return WEEKEND_HOLIDAY.isWorkingDay(dateToCheck);
-    }
-
-    @Override
-    public Map<UniqueId, Holiday> get(Collection<UniqueId> uniqueIds) {
-      return null;
-    }
-
-    @Override
-    public Map<ObjectId, Holiday> get(Collection<ObjectId> objectIds, VersionCorrection versionCorrection) {
-      return null;
-    }
-
   }
 }
