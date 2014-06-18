@@ -309,7 +309,6 @@ public final class StubCalculationMethod implements ImmutableBean {
     return _lastStubEndDate;
   }
 
-
   //-----------------------------------------------------------------------
   /**
    * Gets the External Id which corresponds to the first index rate. This is an optional field.
@@ -318,7 +317,6 @@ public final class StubCalculationMethod implements ImmutableBean {
   public ExternalId getFirstStubStartReferenceRateId() {
     return _firstStubStartReferenceRateId;
   }
-
 
   //-----------------------------------------------------------------------
   /**
@@ -329,16 +327,14 @@ public final class StubCalculationMethod implements ImmutableBean {
     return _firstStubEndReferenceRateId;
   }
 
-
   //-----------------------------------------------------------------------
   /**
-   * Gets the External Id which corresponds to the end index rate for the first stub. This is an optional field.
+   * Gets the External Id which corresponds to the start index rate for the last stub. This is an optional field.
    * @return the value of the property
    */
   public ExternalId getLastStubStartReferenceRateId() {
     return _lastStubStartReferenceRateId;
   }
-
 
   //-----------------------------------------------------------------------
   /**
@@ -393,7 +389,6 @@ public final class StubCalculationMethod implements ImmutableBean {
     hash += hash * 31 + JodaBeanUtils.hashCode(getLastStubEndDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getFirstStubStartReferenceRateId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getFirstStubEndReferenceRateId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getLastStubStartReferenceRateId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getLastStubStartReferenceRateId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getLastStubEndReferenceRateId());
     return hash;
@@ -505,12 +500,12 @@ public final class StubCalculationMethod implements ImmutableBean {
           return _firstStubEndDate;
         case -1589587419:  // lastStubEndDate
           return _lastStubEndDate;
+        case -80328414:  // firstStubStartReferenceRateId
+          return _firstStubStartReferenceRateId;
         case -336301303:  // firstStubEndReferenceRateId
           return _firstStubEndReferenceRateId;
         case -1989003512:  // lastStubStartReferenceRateId
           return _lastStubStartReferenceRateId;
-        case -80328414:  // firstStubStartReferenceRateId
-          return _firstStubStartReferenceRateId;
         case 1409196655:  // lastStubEndReferenceRateId
           return _lastStubEndReferenceRateId;
       }
@@ -580,7 +575,7 @@ public final class StubCalculationMethod implements ImmutableBean {
     public MetaProperty<ExternalId> firstStubStartReferenceRateId() {
       return _firstStubStartReferenceRateId;
     }
-    
+
     /**
      * The meta-property for the {@code firstStubEndReferenceRateId} property.
      * @return the meta-property, not null
@@ -597,7 +592,7 @@ public final class StubCalculationMethod implements ImmutableBean {
       return _lastStubStartReferenceRateId;
     }
 
-   /**
+    /**
      * The meta-property for the {@code lastStubEndReferenceRateId} property.
      * @return the meta-property, not null
      */
