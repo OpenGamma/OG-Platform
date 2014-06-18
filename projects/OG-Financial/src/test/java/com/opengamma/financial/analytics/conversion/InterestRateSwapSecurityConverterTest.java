@@ -20,6 +20,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.annuity.AbstractAnnuityDefinitionBuilder.CouponStub;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexDeposit;
+import com.opengamma.core.AbstractSource;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.convention.Convention;
 import com.opengamma.core.convention.ConventionSource;
@@ -125,7 +126,7 @@ public class InterestRateSwapSecurityConverterTest {
 
     SECURITY_SOURCE = new MySecuritySource(SECURITY_MAP);
     CONVENTION_SOURCE = new TestConventionSource(CONVENTIONS);
-    HOLIDAY_SOURCE = new MyHolidaySource(new ExternalId[] {US}, new Calendar[] {CALENDAR});
+    HOLIDAY_SOURCE = new MyHolidaySource();
   }
 
 
@@ -642,63 +643,44 @@ public class InterestRateSwapSecurityConverterTest {
     
   }
 
-
-  /**
-   * A simplified local version of a HolidaySource for tests.
-   */
-  private static class MyHolidaySource implements HolidaySource {
-    private final Map<ExternalIdBundle, Calendar> _map;
-
-    public MyHolidaySource(final ExternalId[] ids, final Calendar[] calendars) {
-      _map = new HashMap<>();
-      init(ids, calendars, _map);
-    }
-
-    public MyHolidaySource(final ExternalId[] ids, final Calendar[] calendars, final Map<ExternalIdBundle, Calendar> map) {
-      _map = map;
-      init(ids, calendars, map);
-    }
-
-    private static void init(final ExternalId[] ids, final Calendar[] calendars, final Map<ExternalIdBundle, Calendar> map) {
-      final int nbRegion = calendars.length;
-      for(int loopc=0; loopc<nbRegion; loopc++) {
-        map.put(ExternalIdBundle.of(ids[loopc]), calendars[loopc]);
-      }
-    }
-
+  private static class MyHolidaySource extends AbstractSource<Holiday> implements HolidaySource {
+    private static final Calendar WEEKEND_HOLIDAY = new MondayToFridayCalendar("D");
+    
     @Override
     public Holiday get(final UniqueId uniqueId) {
-      return null;
+      throw new UnsupportedOperationException();
     }
 
     @Override
     public Holiday get(final ObjectId objectId, final VersionCorrection versionCorrection) {
-      return null;
-    }
-
-    @Override
-    public Map<UniqueId, Holiday> get(final Collection<UniqueId> uniqueIds) {
-      return Collections.emptyMap();
-    }
-
-    @Override
-    public Map<ObjectId, Holiday> get(final Collection<ObjectId> objectIds, final VersionCorrection versionCorrection) {
-      return Collections.emptyMap();
+      throw new UnsupportedOperationException();
     }
 
     @Override
     public boolean isHoliday(final LocalDate dateToCheck, final Currency currency) {
-      return false;
+      return WEEKEND_HOLIDAY.isWorkingDay(dateToCheck);
     }
 
     @Override
-    public boolean isHoliday(final LocalDate dateToCheck, final HolidayType holidayType, final ExternalIdBundle regionOrExchangeIds) {
-      return !_map.get(regionOrExchangeIds).isWorkingDay(dateToCheck);
+    public boolean isHoliday(final LocalDate dateToCheck, final HolidayType holidayType,
+        final ExternalIdBundle regionOrExchangeIds) {
+      return WEEKEND_HOLIDAY.isWorkingDay(dateToCheck);
     }
 
     @Override
-    public boolean isHoliday(final LocalDate dateToCheck, final HolidayType holidayType, final ExternalId regionOrExchangeId) {
-      return false;
+    public boolean isHoliday(final LocalDate dateToCheck, final HolidayType holidayType,
+        final ExternalId regionOrExchangeId) {
+      return WEEKEND_HOLIDAY.isWorkingDay(dateToCheck);
+    }
+
+    @Override
+    public Map<UniqueId, Holiday> get(Collection<UniqueId> uniqueIds) {
+      return null;
+    }
+
+    @Override
+    public Map<ObjectId, Holiday> get(Collection<ObjectId> objectIds, VersionCorrection versionCorrection) {
+      return null;
     }
 
   }

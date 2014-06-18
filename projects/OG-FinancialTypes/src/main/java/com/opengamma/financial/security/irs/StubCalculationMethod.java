@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import org.apache.commons.collections.functors.NonePredicate;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
@@ -156,8 +157,7 @@ public final class StubCalculationMethod implements ImmutableBean {
           throw new OpenGammaRuntimeException("Dual stub has a last stub start reference rate identifier without a stub end reference rate");
         } else if (hasLastStubEndReferenceRateId() && !hasLastStubStartReferenceRateId()) {
           throw new OpenGammaRuntimeException("Dual stub has a last stub end reference rate identifier without a stub start reference rate");
-        }
-        
+        }        
         break;
         
       case SHORT_START:
@@ -194,7 +194,7 @@ public final class StubCalculationMethod implements ImmutableBean {
         if (hasLastStubEndReferenceRateId() && !hasLastStubStartReferenceRateId()) {
           throw new OpenGammaRuntimeException("Stub has a last stub end reference rate identifier without a stub start reference rate");
         }
-        break;        
+        break;
     }
     return this;
   }

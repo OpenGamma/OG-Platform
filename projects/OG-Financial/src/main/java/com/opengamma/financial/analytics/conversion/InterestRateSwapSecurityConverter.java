@@ -219,9 +219,15 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
         throw new OpenGammaRuntimeException("Unsupported compounding method");
     }
 
-    Pair<CouponStub, CouponStub> stubs = parseStubs(leg.getStubCalculationMethod());
-    CouponStub startStub = stubs.getFirst();
-    CouponStub endStub = stubs.getSecond();
+    
+    CouponStub startStub = null;
+    CouponStub endStub = null;
+    StubCalculationMethod stubCalcMethod = leg.getStubCalculationMethod();
+    if (stubCalcMethod != null) {
+      final Pair<CouponStub, CouponStub> stubs = parseStubs(stubCalcMethod);
+      startStub = stubs.getFirst();
+      endStub = stubs.getSecond();      
+    }
 
     List<Double> notionalList = leg.getNotional().getNotionals();
     double[] notionalSchedule;
@@ -447,75 +453,77 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
   Pair<CouponStub, CouponStub> parseStubs(final StubCalculationMethod stubCalcMethod) {
     CouponStub startStub = null;
     CouponStub endStub = null;
-
-    stubCalcMethod.validate();
-    StubType stubType = stubCalcMethod.getType();
-
-    // first stub
-    double firstStubRate = stubCalcMethod.hasFirstStubRate() ? stubCalcMethod.getFirstStubRate() : Double.NaN;
-    LocalDate firstStubDate = stubCalcMethod.getFirstStubEndDate();      
-    ExternalId firstStubStartReferenceRateId = stubCalcMethod.getFirstStubStartReferenceRateId();
     
-    IborIndex firstStubStartIndex = null;
-    if (stubCalcMethod.hasFirstStubStartReferenceRateId()) {
-      firstStubStartIndex = (IborIndex) getIborIndex(firstStubStartReferenceRateId);
-    }
-    IborIndex firstStubEndIndex = null;
-    ExternalId firstStubEndReferenceRateId = stubCalcMethod.getFirstStubEndReferenceRateId();
-    if (stubCalcMethod.hasFirstStubEndReferenceRateId()) {
-      firstStubEndIndex = (IborIndex) getIborIndex(firstStubEndReferenceRateId);
-    }
-    
-    // last stub
-    double finalStubRate = stubCalcMethod.hasLastStubRate() ? stubCalcMethod.getLastStubRate() : Double.NaN;
-    LocalDate finalStubDate = stubCalcMethod.getLastStubEndDate();
-    ExternalId lastStubStartReferenceRateId = stubCalcMethod.getLastStubStartReferenceRateId();
-    IborIndex lastStubStartIndex = null;
-    if (stubCalcMethod.hasLastStubStartReferenceRateId()) {
-      lastStubStartIndex = (IborIndex) getIborIndex(lastStubStartReferenceRateId);  
-    }      
-    IborIndex lastStubEndIndex = null;
-    ExternalId lastStubEndReferenceRateId = stubCalcMethod.getLastStubEndReferenceRateId();
-    if (stubCalcMethod.hasLastStubEndReferenceRateId()) {
-      lastStubEndIndex = (IborIndex) getIborIndex(lastStubEndReferenceRateId);  
-    }      
+    if (stubCalcMethod != null) {
+      stubCalcMethod.validate();
+      StubType stubType = stubCalcMethod.getType();
 
-    if (StubType.BOTH == stubType) {
-      if (!Double.isNaN(firstStubRate)) {
-        startStub = new CouponStub(stubType, firstStubDate, stubCalcMethod.getFirstStubRate());
-      } else if (firstStubStartIndex != null && firstStubEndIndex != null) {
-        startStub = new CouponStub(stubType, firstStubDate, firstStubStartIndex, firstStubEndIndex);
-      } else {
-        startStub = new CouponStub(stubType, firstStubDate);
+      // first stub
+      double firstStubRate = stubCalcMethod.hasFirstStubRate() ? stubCalcMethod.getFirstStubRate() : Double.NaN;
+      LocalDate firstStubDate = stubCalcMethod.getFirstStubEndDate();      
+      ExternalId firstStubStartReferenceRateId = stubCalcMethod.getFirstStubStartReferenceRateId();
+      
+      IborIndex firstStubStartIndex = null;
+      if (stubCalcMethod.hasFirstStubStartReferenceRateId()) {
+        firstStubStartIndex = (IborIndex) getIborIndex(firstStubStartReferenceRateId);
       }
-
-      if (!Double.isNaN(finalStubRate)) {
-        endStub = new CouponStub(stubType, finalStubDate, stubCalcMethod.getLastStubRate());
-      } else if (lastStubStartIndex != null && lastStubEndIndex != null) {
-        endStub = new CouponStub(stubType, finalStubDate, lastStubStartIndex, lastStubEndIndex);
-      } else {
-        endStub = new CouponStub(stubType, finalStubDate);
+      IborIndex firstStubEndIndex = null;
+      ExternalId firstStubEndReferenceRateId = stubCalcMethod.getFirstStubEndReferenceRateId();
+      if (stubCalcMethod.hasFirstStubEndReferenceRateId()) {
+        firstStubEndIndex = (IborIndex) getIborIndex(firstStubEndReferenceRateId);
       }
+      
+      // last stub
+      double finalStubRate = stubCalcMethod.hasLastStubRate() ? stubCalcMethod.getLastStubRate() : Double.NaN;
+      LocalDate finalStubDate = stubCalcMethod.getLastStubEndDate();
+      ExternalId lastStubStartReferenceRateId = stubCalcMethod.getLastStubStartReferenceRateId();
+      IborIndex lastStubStartIndex = null;
+      if (stubCalcMethod.hasLastStubStartReferenceRateId()) {
+        lastStubStartIndex = (IborIndex) getIborIndex(lastStubStartReferenceRateId);  
+      }      
+      IborIndex lastStubEndIndex = null;
+      ExternalId lastStubEndReferenceRateId = stubCalcMethod.getLastStubEndReferenceRateId();
+      if (stubCalcMethod.hasLastStubEndReferenceRateId()) {
+        lastStubEndIndex = (IborIndex) getIborIndex(lastStubEndReferenceRateId);  
+      }      
 
-    } else if (StubType.LONG_START == stubType || StubType.SHORT_START == stubType) {
-      if (!Double.isNaN(firstStubRate)) {
-        startStub = new CouponStub(stubType, firstStubDate, firstStubRate);
-      } else if (firstStubStartIndex != null && firstStubEndIndex != null) {
-        startStub = new CouponStub(stubType, firstStubStartIndex, firstStubEndIndex);
-      } else {
+      if (StubType.BOTH == stubType) {
+        if (!Double.isNaN(firstStubRate)) {
+          startStub = new CouponStub(stubType, firstStubDate, stubCalcMethod.getFirstStubRate());
+        } else if (firstStubStartIndex != null && firstStubEndIndex != null) {
+          startStub = new CouponStub(stubType, firstStubDate, firstStubStartIndex, firstStubEndIndex);
+        } else {
+          startStub = new CouponStub(stubType, firstStubDate);
+        }
+
+        if (!Double.isNaN(finalStubRate)) {
+          endStub = new CouponStub(stubType, finalStubDate, stubCalcMethod.getLastStubRate());
+        } else if (lastStubStartIndex != null && lastStubEndIndex != null) {
+          endStub = new CouponStub(stubType, finalStubDate, lastStubStartIndex, lastStubEndIndex);
+        } else {
+          endStub = new CouponStub(stubType, finalStubDate);
+        }
+
+      } else if (StubType.LONG_START == stubType || StubType.SHORT_START == stubType) {
+        if (!Double.isNaN(firstStubRate)) {
+          startStub = new CouponStub(stubType, firstStubDate, firstStubRate);
+        } else if (firstStubStartIndex != null && firstStubEndIndex != null) {
+          startStub = new CouponStub(stubType, firstStubStartIndex, firstStubEndIndex);
+        } else {
+          startStub = new CouponStub(stubType);
+        }
+      } else if (StubType.LONG_END == stubType || StubType.SHORT_END == stubType) {
+        if (!Double.isNaN(finalStubRate)) {
+          endStub = new CouponStub(stubType, finalStubDate, finalStubRate);
+        } else if (lastStubStartIndex != null && lastStubEndIndex != null) {
+          endStub = new CouponStub(stubType, lastStubStartIndex, lastStubEndIndex);
+        } else {
+          endStub = new CouponStub(stubType);
+        }
+      } else if (stubType != null) {
         startStub = new CouponStub(stubType);
-      }
-    } else if (StubType.LONG_END == stubType || StubType.SHORT_END == stubType) {
-      if (!Double.isNaN(finalStubRate)) {
-        endStub = new CouponStub(stubType, finalStubDate, finalStubRate);
-      } else if (lastStubStartIndex != null && lastStubEndIndex != null) {
-        endStub = new CouponStub(stubType, lastStubStartIndex, lastStubEndIndex);
-      } else {
         endStub = new CouponStub(stubType);
-      }
-    } else if (stubType != null) {
-      startStub = new CouponStub(stubType);
-      endStub = new CouponStub(stubType);
+      }      
     }
     return Pairs.of(startStub, endStub);
   }
