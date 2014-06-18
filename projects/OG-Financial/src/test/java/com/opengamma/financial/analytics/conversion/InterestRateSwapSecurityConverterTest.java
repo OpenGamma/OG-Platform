@@ -125,7 +125,7 @@ public class InterestRateSwapSecurityConverterTest {
 
     SECURITY_SOURCE = new MySecuritySource(SECURITY_MAP);
     CONVENTION_SOURCE = new TestConventionSource(CONVENTIONS);
-    HOLIDAY_SOURCE = new MyHolidaySource();
+    HOLIDAY_SOURCE = new MockHolidaySource();
   }
 
 
@@ -642,14 +642,14 @@ public class InterestRateSwapSecurityConverterTest {
     
   }
   
-  public static class MyHolidaySource extends AbstractSource<Holiday> implements HolidaySource {
+  public static class MockHolidaySource extends AbstractSource<Holiday> implements HolidaySource {
 
     /**
      * Map of exception dates and whether they are working or non-working.
      */
     private final ConcurrentMap<LocalDate, Boolean> _nonWorkingDay = new ConcurrentHashMap<>();
 
-    public MyHolidaySource() {
+    public MockHolidaySource() {
       int startYear = 2013;
       int endYear = 2063;
       for (int loopy = startYear; loopy <= endYear; loopy++) {

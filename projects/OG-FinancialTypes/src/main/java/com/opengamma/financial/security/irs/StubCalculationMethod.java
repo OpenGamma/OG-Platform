@@ -401,7 +401,7 @@ public final class StubCalculationMethod implements ImmutableBean {
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(448);
+    StringBuilder buf = new StringBuilder(320);
     buf.append("StubCalculationMethod{");
     buf.append("type").append('=').append(getType()).append(',').append(' ');
     buf.append("firstStubRate").append('=').append(getFirstStubRate()).append(',').append(' ');
@@ -595,6 +595,14 @@ public final class StubCalculationMethod implements ImmutableBean {
      */
     public MetaProperty<ExternalId> lastStubStartReferenceRateId() {
       return _lastStubStartReferenceRateId;
+    }
+
+   /**
+     * The meta-property for the {@code lastStubEndReferenceRateId} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<ExternalId> lastStubEndReferenceRateId() {
+      return _lastStubEndReferenceRateId;
     }
 
     //-----------------------------------------------------------------------
@@ -868,7 +876,7 @@ public final class StubCalculationMethod implements ImmutableBean {
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(448);
+      StringBuilder buf = new StringBuilder(320);
       buf.append("StubCalculationMethod.Builder{");
       buf.append("type").append('=').append(JodaBeanUtils.toString(_type)).append(',').append(' ');
       buf.append("firstStubRate").append('=').append(JodaBeanUtils.toString(_firstStubRate)).append(',').append(' ');
