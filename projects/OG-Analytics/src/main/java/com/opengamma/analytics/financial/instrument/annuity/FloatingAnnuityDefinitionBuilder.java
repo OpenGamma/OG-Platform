@@ -523,7 +523,6 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
                                                                               couponStub != null ? couponStub.getStubType() : StubType.NONE, couponStub != null ? couponStub.getStubType() : StubType.NONE,
                                                                               adjustedAccrualStartDate, adjustedAccrualEndDate, isFirstCoupon, isLastCoupon);
 
-
     final CouponDefinition coupon;
     if (isCompounding()) {
       // This is common to compounding coupons
@@ -607,8 +606,7 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
         double secondInterpolatedYearFraction = AnnuityDefinitionBuilder.getDayCountFraction(((IborIndex) _index).getTenor(), _adjustedFixingDateParameters.getCalendar(), getDayCount(), couponStub.getStubType(), couponStub.getStubType(),
                                                                                              compoundingFixingStartDates[0], secondInterpolatedDate, isFirstCoupon, isLastCoupon);
         
-                            
-        
+                                    
         coupon = getIborCompoundingInterpolatedStubDefinition(
             notional,
             paymentDate,
@@ -904,9 +902,7 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
       IborIndex secondStubIndex) {
     //Apply equal weightings for both stub tenors
     double weighting = 0.5;
-    //final CouponDefinition coupon = getIborDefinition(notional, paymentDate, accrualStartDate, accrualEndDate, accrualYearFraction, fixingDate, fixingPeriodStartDate, fixingPeriodEndDate, fixingPeriodYearFraction);
-    return CouponIborAverageDefinition.from(paymentDate, accrualStartDate, accrualEndDate, accrualYearFraction, notional, fixingDate, firstStubIndex, secondStubIndex, weighting, weighting, getFixingCalendar(), getFixingCalendar());
-        //InterpolatedStubCouponDefinition.from(coupon, firstInterpolatedDate, firstInterpolatedYearFraction, secondInterpolatedDate, secondInterpolatedYearFraction);
+    return CouponIborAverageDefinition.from(paymentDate, accrualStartDate, accrualEndDate, accrualYearFraction, notional, fixingDate, firstStubIndex, secondStubIndex, weighting, weighting, getFixingCalendar(), getFixingCalendar());        
   }
   
   private CouponDefinition getIborCompoundingDefinition(
@@ -1026,7 +1022,6 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
       IborIndex secondStubIndex) {
     double weighting = 0.5;
     final CouponDefinition coupon = getIborCompoundingDefinition(notional, paymentDate, accrualStartDate, accrualEndDate, accrualYearFraction, compoundAccrualStartDates, compoundAccrualEndDates, compoundAccrualYearFractions, compoundFixingDates, compoundFixingStartDates, compoundFixingEndDates, compoundFixingYearFractions, initialCompoundRate);
-    return CouponIborAverageDefinition.from(coupon, compoundFixingDates[0] , firstStubIndex, secondStubIndex, weighting, weighting, getFixingCalendar(), getFixingCalendar()); 
-    //InterpolatedStubCouponDefinition.from(coupon, firstInterpolatedDate, firstInterpolatedYearFraction, secondInterpolatedDate, secondInterpolatedYearFraction);
+    return CouponIborAverageDefinition.from(coupon, compoundFixingDates[0] , firstStubIndex, secondStubIndex, weighting, weighting, getFixingCalendar(), getFixingCalendar());     
   }
 }
