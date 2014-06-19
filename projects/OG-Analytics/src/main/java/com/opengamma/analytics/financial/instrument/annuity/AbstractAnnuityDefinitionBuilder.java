@@ -13,11 +13,13 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.NotionalProvider;
+import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.rolldate.RollDateAdjuster;
+import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -33,8 +35,8 @@ public abstract class AbstractAnnuityDefinitionBuilder<T extends AbstractAnnuity
     private StubType _stubType;
     private double _stubRate = Double.NaN;
     private LocalDate _effectiveDate;
-    private Period _firstInterpPeriod;
-    private Period _secondInterpPeriod;
+    private IborIndex _firstIborIndex;
+    private IborIndex _secondIborIndex;    
     
     public CouponStub(StubType stubType) {
       _stubType = stubType;
@@ -51,17 +53,17 @@ public abstract class AbstractAnnuityDefinitionBuilder<T extends AbstractAnnuity
       _stubRate = stubRate;
     }
     
-    public CouponStub(StubType stubType, Period firstInterpPeriod, Period secondInterpPeriod) {
+    public CouponStub(StubType stubType, IborIndex firstStubIndex, IborIndex secondStubIndex) {
       _stubType = stubType;
-      _firstInterpPeriod = firstInterpPeriod;
-      _secondInterpPeriod = secondInterpPeriod;
+      _firstIborIndex = firstStubIndex;
+      _secondIborIndex = secondStubIndex;
     }
     
-    public CouponStub(StubType stubType, LocalDate effectiveDate, Period firstInterpPeriod, Period secondInterpPeriod) {
+    public CouponStub(StubType stubType, LocalDate effectiveDate, IborIndex firstStubIndex, IborIndex secondStubIndex) {
       _stubType = stubType;
       _effectiveDate = effectiveDate;
-      _firstInterpPeriod = firstInterpPeriod;
-      _secondInterpPeriod = secondInterpPeriod;
+      _firstIborIndex = firstStubIndex;
+      _secondIborIndex = secondStubIndex;
     }
     
     public StubType getStubType() {
@@ -80,29 +82,17 @@ public abstract class AbstractAnnuityDefinitionBuilder<T extends AbstractAnnuity
       return _effectiveDate;
     }
     
-    public Period getFirstInterpPeriod() {
-      return _firstInterpPeriod;
+    public IborIndex getFirstIborIndex() {
+      return _firstIborIndex;
     }
     
-    public Period getSecondInterpPeriod() {
-      return _secondInterpPeriod;
+    public IborIndex getSecondIborIndex() {
+      return _secondIborIndex;
     }
     
     public boolean isInterpolated() {
-      return _firstInterpPeriod != null && _secondInterpPeriod != null
-          && !_firstInterpPeriod.equals(_secondInterpPeriod);
-    }
-    
-    /**
-     * Returns the effective period to calculate the forward rate from. This is only returned when both the first and second
-     * interpolation periods are not null and the same period, otherwise null is returned.
-     * @return the effective period to calculate the forward rate from.
-     */
-    public Period getEffectivePeriod() {
-      if (_firstInterpPeriod != null && _secondInterpPeriod != null && _firstInterpPeriod.equals(_secondInterpPeriod)) {
-        return _firstInterpPeriod;
-      }
-      return null;
+      return _firstIborIndex != null && _secondIborIndex != null
+          && !_firstIborIndex.equals(_secondIborIndex);
     }
   }
   
