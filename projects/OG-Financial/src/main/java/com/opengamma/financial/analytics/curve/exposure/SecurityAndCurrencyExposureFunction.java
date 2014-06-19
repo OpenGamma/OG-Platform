@@ -69,7 +69,7 @@ public class SecurityAndCurrencyExposureFunction implements ExposureFunction {
     @Override
     public List<ExternalId> visit(FinancialSecurity security) {
       final Collection<Currency> currencies = FinancialSecurityUtils.getCurrencies(security, _securitySource);
-      if (currencies.isEmpty()) {
+      if (currencies == null || currencies.isEmpty()) {
         return null;
       }
       final List<ExternalId> result = new ArrayList<>();

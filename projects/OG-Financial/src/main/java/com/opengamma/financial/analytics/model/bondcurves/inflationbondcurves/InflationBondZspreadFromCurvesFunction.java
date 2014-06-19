@@ -90,10 +90,6 @@ public class InflationBondZspreadFromCurvesFunction extends InflationBondFromCle
     }
     final InflationIssuerProviderDiscount curvesWithReplacement = ((InflationIssuerProviderDiscount) issuerCurves).withIssuerCurve(keyOfCurveToReplace, curve);
     final double zSpread = CALCULATOR.zSpreadFromCurvesAndCleanPriceDirect(bond.getBondStandard(), curvesWithReplacement, cleanPrice);
-    double price = CALCULATOR.cleanPriceFromZSpread(bond.getBondStandard(), curvesWithReplacement, zSpread);
-    double price2 = CALCULATOR.cleanPriceFromZSpread(bond.getBondStandard(), curvesWithReplacement, 0);
-    double price3 = CALCULATOR.cleanPriceFromZSpread(bond.getBondStandard(), issuerCurves, zSpread);
-    double price4 = CALCULATOR.cleanPriceFromZSpread(bond.getBondStandard(), issuerCurves, 0);
     return Collections.singleton(new ComputedValue(spec, zSpread));
   }
 
