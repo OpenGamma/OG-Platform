@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.auth.AuthUtils;
 import com.opengamma.web.analytics.push.ConnectionManager;
 import com.opengamma.web.analytics.push.LongPollingServlet;
 import com.sun.jersey.api.core.HttpContext;
@@ -105,7 +106,7 @@ public class EntitySubscriptionFilter implements ResourceFilter {
       if (clientId == null) {
         return response;
       }
-      String userId = FilterUtils.getUserId(_httpContext);
+      String userId = (AuthUtils.isPermissive() ? null : FilterUtils.getUserId(_httpContext));
       subscribe(userId, clientId, _servletRequest.getRequestURI(), _httpContext.getUriInfo().getPathParameters());
       return response;
     }

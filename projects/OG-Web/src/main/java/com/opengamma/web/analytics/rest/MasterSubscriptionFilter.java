@@ -9,6 +9,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.opengamma.util.auth.AuthUtils;
 import com.opengamma.web.analytics.push.ConnectionManager;
 import com.opengamma.web.analytics.push.LongPollingServlet;
 import com.sun.jersey.api.core.HttpContext;
@@ -87,7 +88,7 @@ public class MasterSubscriptionFilter implements ResourceFilter {
       if (clientId == null) {
         return response;
       }
-      String userId = FilterUtils.getUserId(_httpContext);
+      String userId = (AuthUtils.isPermissive() ? null : FilterUtils.getUserId(_httpContext));
       String url = _servletRequest.getRequestURI();
       // TODO should we only subscribe if there were query params, i.e. it was a search request, not just a request for the search page
       for (MasterType masterType : _masterTypes) {
