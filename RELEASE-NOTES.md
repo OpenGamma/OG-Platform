@@ -6,6 +6,12 @@ These release notes cover changes from v2.1 to v2.2.
 Upgrading from 2.1.0
 ====================
 
+To 2.2.0-M27p01
+------------
+
+* Improvement
+    * [PLAT-6603] - Stub interpolation uses different indices
+
 To 2.2.0-M27
 ------------
 
