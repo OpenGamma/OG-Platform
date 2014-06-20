@@ -6,6 +6,23 @@ These release notes cover changes from v2.1 to v2.2.
 Upgrading from 2.1.0
 ====================
 
+To 2.2.0-M28
+------------
+
+** Bug
+    * [PLAT-6601] - Add get/setPermissions to ManageableSecurity for backwards compatibility
+    * [PLAT-6607] - Handle permissive user without error
+
+
+** Improvement
+    * [PLAT-6603] - Stub interpolation uses different indices
+    * [PLAT-6605] - Improve redis timeseries resolver
+    * [PLAT-6606] - Allow redis config source lookups for type Object
+
+** New Feature
+    * [PLAT-6595] - Allow ExposureFunction setup by counterparty (Development and Unit test)
+
+
 To 2.2.0-M27
 ------------
 
