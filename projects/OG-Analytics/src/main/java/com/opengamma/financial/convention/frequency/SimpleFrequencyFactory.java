@@ -56,7 +56,6 @@ public final class SimpleFrequencyFactory
     addInstance(SimpleFrequency.NEVER, "1t");
     addInstance(SimpleFrequency.ANNUAL, "12m", "1y", "Yearly");
     addInstance(SimpleFrequency.SEMI_ANNUAL, "6m", "Half Yearly");
-    addInstance(SimpleFrequency.FIVE_MONTHS, "5m");
     addInstance(SimpleFrequency.QUARTERLY, "3m");
     addInstance(SimpleFrequency.BIMONTHLY, "2m");
     addInstance(SimpleFrequency.MONTHLY, "1m");
@@ -65,12 +64,13 @@ public final class SimpleFrequencyFactory
     addInstance(SimpleFrequency.WEEKLY, "1w");
     addInstance(SimpleFrequency.DAILY, "1d");
     addInstance(SimpleFrequency.CONTINUOUS);
-    addInstance(SimpleFrequency.FOUR_MONTHS);
-    addInstance(SimpleFrequency.SEVEN_MONTHS);
-    addInstance(SimpleFrequency.EIGHT_MONTHS);
-    addInstance(SimpleFrequency.NINE_MONTHS);
-    addInstance(SimpleFrequency.TEN_MONTHS);
-    addInstance(SimpleFrequency.ELEVEN_MONTHS);
+    addInstance(SimpleFrequency.FOUR_MONTHS, "4m");
+    addInstance(SimpleFrequency.FIVE_MONTHS, "5m");
+    addInstance(SimpleFrequency.SEVEN_MONTHS, "7m");
+    addInstance(SimpleFrequency.EIGHT_MONTHS, "8m");
+    addInstance(SimpleFrequency.NINE_MONTHS, "9m");
+    addInstance(SimpleFrequency.TEN_MONTHS, "10m");
+    addInstance(SimpleFrequency.ELEVEN_MONTHS, "11m");
     storeByPeriodCount(SimpleFrequency.DAILY,
                        SimpleFrequency.WEEKLY,
                        SimpleFrequency.BIWEEKLY,
