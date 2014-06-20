@@ -44,6 +44,8 @@ public class ExposureFunctionFactory {
         return new SecurityExposureFunction();
       case SecurityTypeExposureFunction.NAME:
         return new SecurityTypeExposureFunction();
+      case TradeAttributeExposureFunction.NAME:
+        return new TradeAttributeExposureFunction();
       case UnderlyingExposureFunction.NAME:
         return new UnderlyingExposureFunction(securitySource);
       default:
