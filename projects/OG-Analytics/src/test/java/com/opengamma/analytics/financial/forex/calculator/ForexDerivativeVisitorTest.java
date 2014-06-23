@@ -57,6 +57,7 @@ import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponIborRatchet;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillSecurity;
+import com.opengamma.analytics.financial.interestrate.bond.definition.BillTotalReturnSwap;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillTransaction;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedTransaction;
@@ -1511,6 +1512,16 @@ public class ForexDerivativeVisitorTest {
 
     @Override
     public String visitCouponIborCompoundingSimpleSpread(CouponIborCompoundingSimpleSpread payment, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitBillTotalReturnSwap(BillTotalReturnSwap totalReturnSwap) {
+      return null;
+    }
+
+    @Override
+    public String visitBillTotalReturnSwap(BillTotalReturnSwap totalReturnSwap, T data) {
       return null;
     }
 

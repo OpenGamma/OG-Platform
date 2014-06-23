@@ -44,6 +44,7 @@ import com.opengamma.analytics.financial.forex.definition.ForexOptionVanillaDefi
 import com.opengamma.analytics.financial.forex.definition.ForexSwapDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BillSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.bond.BillTotalReturnSwapDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BillTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BondCapitalIndexedSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BondCapitalIndexedTransactionDefinition;
@@ -1276,6 +1277,16 @@ public abstract class InstrumentDefinitionVisitorSameMethodAdapter<DATA_TYPE, RE
 
   @Override
   public RESULT_TYPE visitBondTotalReturnSwapDefinition(final BondTotalReturnSwapDefinition totalReturnSwap, final DATA_TYPE data) {
+    return visit(totalReturnSwap, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitBillTotalReturnSwapDefinition(final BillTotalReturnSwapDefinition totalReturnSwap) {
+    return visit(totalReturnSwap);
+  }
+
+  @Override
+  public RESULT_TYPE visitBillTotalReturnSwapDefinition(final BillTotalReturnSwapDefinition totalReturnSwap, final DATA_TYPE data) {
     return visit(totalReturnSwap, data);
   }
 
