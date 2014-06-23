@@ -16,7 +16,7 @@ import com.opengamma.analytics.financial.instrument.index.IndexDeposit;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.payment.CouponDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
-import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageIndexDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingFlatSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingSimpleSpreadDefinition;
@@ -901,7 +901,7 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
       IborIndex secondStubIndex) {
     //Apply equal weightings for both stub tenors
     double weighting = 0.5;
-    return CouponIborAverageDefinition.from(paymentDate, accrualStartDate, accrualEndDate, accrualYearFraction, notional, fixingDate, firstStubIndex, secondStubIndex, weighting, weighting, getFixingCalendar(), getFixingCalendar());        
+    return CouponIborAverageIndexDefinition.from(paymentDate, accrualStartDate, accrualEndDate, accrualYearFraction, notional, fixingDate, firstStubIndex, secondStubIndex, weighting, weighting, getFixingCalendar(), getFixingCalendar());        
   }
   
   private CouponDefinition getIborCompoundingDefinition(
@@ -1021,6 +1021,6 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
       IborIndex secondStubIndex) {
     double weighting = 0.5;
     final CouponDefinition coupon = getIborCompoundingDefinition(notional, paymentDate, accrualStartDate, accrualEndDate, accrualYearFraction, compoundAccrualStartDates, compoundAccrualEndDates, compoundAccrualYearFractions, compoundFixingDates, compoundFixingStartDates, compoundFixingEndDates, compoundFixingYearFractions, initialCompoundRate);
-    return CouponIborAverageDefinition.from(coupon, compoundFixingDates[0] , firstStubIndex, secondStubIndex, weighting, weighting, getFixingCalendar(), getFixingCalendar());     
+    return CouponIborAverageIndexDefinition.from(coupon, compoundFixingDates[0] , firstStubIndex, secondStubIndex, weighting, weighting, getFixingCalendar(), getFixingCalendar());     
   }
 }

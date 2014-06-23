@@ -26,10 +26,10 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * Class describing an average Ibor-like floating coupon (weighted mean of two different Ibor).
+ * Class describing an average Ibor-like floating coupon (weighted mean of two different indexes).
  */
 
-public class CouponIborAverageDefinition extends CouponFloatingDefinition {
+public class CouponIborAverageIndexDefinition extends CouponFloatingDefinition {
 
   /**
    * Ibor-like index1 on which the coupon fixes. The index currency should be the same as the coupon currency.
@@ -89,7 +89,7 @@ public class CouponIborAverageDefinition extends CouponFloatingDefinition {
    * @param iborCalendar1 The holiday calendar for the first ibor index.
    * @param iborCalendar2 The holiday calendar for the second ibor index.
    */
-  public CouponIborAverageDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate,
+  public CouponIborAverageIndexDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate,
       final double paymentAccrualFactor, final double notional, final ZonedDateTime fixingDate, final IborIndex index1, final IborIndex index2, final double weight1,
       final double weight2, final Calendar iborCalendar1, final Calendar iborCalendar2) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, paymentAccrualFactor, notional, fixingDate);
@@ -131,7 +131,7 @@ public class CouponIborAverageDefinition extends CouponFloatingDefinition {
    * @param weight1 The weight of the first index.
    * @param weight2 The weight of the second index.
    */
-  public CouponIborAverageDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate,
+  public CouponIborAverageIndexDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate,
       final double paymentAccrualFactor, final double notional, final ZonedDateTime fixingDate, final ZonedDateTime fixingPeriodStartDate1,
       final ZonedDateTime fixingPeriodEndDate1, final double fixingPeriodAccrualFactor1, final ZonedDateTime fixingPeriodStartDate2,
       final ZonedDateTime fixingPeriodEndDate2, final double fixingPeriodAccrualFactor2, final IborIndex index1, final IborIndex index2, final double weight1,
@@ -170,13 +170,13 @@ public class CouponIborAverageDefinition extends CouponFloatingDefinition {
    * @param iborCalendar2 The calendar associated to the second index.
    * @return The Ibor coupon.
    */
-  public static CouponIborAverageDefinition from(final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate,
+  public static CouponIborAverageIndexDefinition from(final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate,
       final double paymentAccrualFactor, final double notional, final ZonedDateTime fixingDate, final IborIndex index1, final IborIndex index2, final double weight1,
       final double weight2, final Calendar iborCalendar1, final Calendar iborCalendar2) {
     ArgumentChecker.notNull(index1, "index1");
     ArgumentChecker.notNull(index2, "index2");
     ArgumentChecker.isTrue(index1.getCurrency().equals(index2.getCurrency()), "index1 currency different from index2 currency");
-    return new CouponIborAverageDefinition(index1.getCurrency(), paymentDate, accrualStartDate, accrualEndDate, paymentAccrualFactor, notional, fixingDate, index1,
+    return new CouponIborAverageIndexDefinition(index1.getCurrency(), paymentDate, accrualStartDate, accrualEndDate, paymentAccrualFactor, notional, fixingDate, index1,
         index2, weight1, weight2, iborCalendar1, iborCalendar2);
   }
 
@@ -192,14 +192,14 @@ public class CouponIborAverageDefinition extends CouponFloatingDefinition {
    * @param iborCalendar2 The calendar associated to the second index.
    * @return The Ibor coupon.
    */
-  public static CouponIborAverageDefinition from(final CouponDefinition coupon, final ZonedDateTime fixingDate, final IborIndex index1, final IborIndex index2,
+  public static CouponIborAverageIndexDefinition from(final CouponDefinition coupon, final ZonedDateTime fixingDate, final IborIndex index1, final IborIndex index2,
       final double weight1, final double weight2, final Calendar iborCalendar1, final Calendar iborCalendar2) {
     ArgumentChecker.notNull(coupon, "coupon");
     ArgumentChecker.notNull(fixingDate, "fixing date");
     ArgumentChecker.notNull(index1, "index1");
     ArgumentChecker.notNull(index2, "index1");
     ArgumentChecker.isTrue(index1.getCurrency().equals(index2.getCurrency()), "index1 currency different from index2 currency");
-    return new CouponIborAverageDefinition(index1.getCurrency(), coupon.getPaymentDate(), coupon.getAccrualStartDate(), coupon.getAccrualEndDate(),
+    return new CouponIborAverageIndexDefinition(index1.getCurrency(), coupon.getPaymentDate(), coupon.getAccrualStartDate(), coupon.getAccrualEndDate(),
         coupon.getPaymentYearFraction(), coupon.getNotional(), fixingDate, index1, index2, weight1, weight2, iborCalendar1, iborCalendar2);
   }
 
@@ -288,8 +288,8 @@ public class CouponIborAverageDefinition extends CouponFloatingDefinition {
    * @param notional The notional.
    * @return The coupon.
    */
-  public CouponIborAverageDefinition withNotional(final double notional) {
-    return new CouponIborAverageDefinition(getCurrency(), getPaymentDate(), getAccrualStartDate(), getAccrualEndDate(), getPaymentYearFraction(), notional,
+  public CouponIborAverageIndexDefinition withNotional(final double notional) {
+    return new CouponIborAverageIndexDefinition(getCurrency(), getPaymentDate(), getAccrualStartDate(), getAccrualEndDate(), getPaymentYearFraction(), notional,
         getFixingDate(), _fixingPeriodStartDate1, _fixingPeriodEndDate1, _fixingPeriodAccrualFactor1, _fixingPeriodStartDate2, _fixingPeriodEndDate2,
         _fixingPeriodAccrualFactor2, _index1, _index2, _weight1, _weight2);
   }
@@ -420,7 +420,7 @@ public class CouponIborAverageDefinition extends CouponFloatingDefinition {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final CouponIborAverageDefinition other = (CouponIborAverageDefinition) obj;
+    final CouponIborAverageIndexDefinition other = (CouponIborAverageIndexDefinition) obj;
     if (Double.doubleToLongBits(_fixingPeriodAccrualFactor1) != Double.doubleToLongBits(other._fixingPeriodAccrualFactor1)) {
       return false;
     }

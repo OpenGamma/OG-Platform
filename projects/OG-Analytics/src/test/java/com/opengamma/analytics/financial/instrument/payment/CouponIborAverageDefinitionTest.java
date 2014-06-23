@@ -65,9 +65,9 @@ public class CouponIborAverageDefinitionTest {
   private static final double WEIGHT_1 = 23;
   private static final double WEIGHT_2 = -.03;
 
-  private static final CouponIborAverageDefinition IBOR_AVERAGE_COUPON_DEFINITION_1 = new CouponIborAverageDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR,
+  private static final CouponIborAverageIndexDefinition IBOR_AVERAGE_COUPON_DEFINITION_1 = new CouponIborAverageIndexDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR,
       NOTIONAL, FIXING_DATE, INDEX_1, INDEX_2, WEIGHT_1, WEIGHT_2, CALENDAR, CALENDAR);
-  private static final CouponIborAverageDefinition IBOR_AVERAGE_COUPON_DEFINITION_2 = CouponIborAverageDefinition.from(PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR,
+  private static final CouponIborAverageIndexDefinition IBOR_AVERAGE_COUPON_DEFINITION_2 = CouponIborAverageIndexDefinition.from(PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR,
       NOTIONAL, FIXING_DATE, INDEX_1, INDEX_2, WEIGHT_1, WEIGHT_2, CALENDAR, CALENDAR);
   private static final double FIXING_RATE = .005;
   private static final DoubleTimeSeries<ZonedDateTime> FIXING_TS = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {FIXING_DATE }, new double[] {FIXING_RATE });
@@ -75,59 +75,59 @@ public class CouponIborAverageDefinitionTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testDifferentCurrencies() {
-    new CouponIborAverageDefinition(Currency.AUD, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL,
+    new CouponIborAverageIndexDefinition(Currency.AUD, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL,
         FIXING_DATE, INDEX_1, INDEX_2, WEIGHT_1, WEIGHT_2, CALENDAR, CALENDAR);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testDifferentCurrenciesBetweenIndices() {
-    new CouponIborAverageDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL,
+    new CouponIborAverageIndexDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL,
         FIXING_DATE, new IborIndex(Currency.AUD, TENOR_1, SETTLEMENT_DAYS, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM, "Index"), INDEX_2, WEIGHT_1, WEIGHT_2, CALENDAR, CALENDAR);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullIndex1() {
-    new CouponIborAverageDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE, null,
+    new CouponIborAverageIndexDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE, null,
         INDEX_2, WEIGHT_1, WEIGHT_2, CALENDAR, CALENDAR);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullIndex2() {
-    new CouponIborAverageDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE, INDEX_1,
+    new CouponIborAverageIndexDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE, INDEX_1,
         null, WEIGHT_1, WEIGHT_2, CALENDAR, CALENDAR);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullAccrualStartDate() {
-    CouponIborAverageDefinition.from(PAYMENT_DATE, null, ACCRUAL_END_DATE, ACCRUAL_FACTOR,
+    CouponIborAverageIndexDefinition.from(PAYMENT_DATE, null, ACCRUAL_END_DATE, ACCRUAL_FACTOR,
         NOTIONAL, FIXING_DATE, INDEX_1, INDEX_2, WEIGHT_1, WEIGHT_2, CALENDAR, CALENDAR);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullAccrualEndDate1() {
-    CouponIborAverageDefinition.from(PAYMENT_DATE, ACCRUAL_START_DATE, null, ACCRUAL_FACTOR,
+    CouponIborAverageIndexDefinition.from(PAYMENT_DATE, ACCRUAL_START_DATE, null, ACCRUAL_FACTOR,
         NOTIONAL, FIXING_DATE, INDEX_1, INDEX_2, WEIGHT_1, WEIGHT_2, CALENDAR, CALENDAR);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFixingDate() {
-    CouponIborAverageDefinition.from(null, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE, INDEX_1, INDEX_2, WEIGHT_1, WEIGHT_2, CALENDAR, CALENDAR);
+    CouponIborAverageIndexDefinition.from(null, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE, INDEX_1, INDEX_2, WEIGHT_1, WEIGHT_2, CALENDAR, CALENDAR);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testfromNullIndex1again() {
-    CouponIborAverageDefinition.from(PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR,
+    CouponIborAverageIndexDefinition.from(PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR,
         NOTIONAL, FIXING_DATE, null, INDEX_2, WEIGHT_1, WEIGHT_2, CALENDAR, CALENDAR);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullIndex2again() {
-    CouponIborAverageDefinition.from(PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE, INDEX_1, null, WEIGHT_1, WEIGHT_2, CALENDAR, CALENDAR);
+    CouponIborAverageIndexDefinition.from(PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE, INDEX_1, null, WEIGHT_1, WEIGHT_2, CALENDAR, CALENDAR);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testFixingAfterPayment() {
-    CouponIborAverageDefinition.from(FIXING_DATE.minusDays(1), ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE, INDEX_1, INDEX_2, WEIGHT_1, WEIGHT_2, CALENDAR, CALENDAR);
+    CouponIborAverageIndexDefinition.from(FIXING_DATE.minusDays(1), ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE, INDEX_1, INDEX_2, WEIGHT_1, WEIGHT_2, CALENDAR, CALENDAR);
   }
 
   @Test
@@ -161,29 +161,29 @@ public class CouponIborAverageDefinitionTest {
 
   @Test
   public void testEqualHash() {
-    CouponIborAverageDefinition other = new CouponIborAverageDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE, INDEX_1, INDEX_2, WEIGHT_1,
+    CouponIborAverageIndexDefinition other = new CouponIborAverageIndexDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE, INDEX_1, INDEX_2, WEIGHT_1,
         WEIGHT_2, CALENDAR, CALENDAR);
     assertEquals(IBOR_AVERAGE_COUPON_DEFINITION_1, other);
     assertEquals(IBOR_AVERAGE_COUPON_DEFINITION_1.hashCode(), other.hashCode());
-    other = new CouponIborAverageDefinition(Currency.AUD, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE, new IborIndex(Currency.AUD, TENOR_1,
+    other = new CouponIborAverageIndexDefinition(Currency.AUD, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE, new IborIndex(Currency.AUD, TENOR_1,
         SETTLEMENT_DAYS, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM, "Index1"), new IborIndex(Currency.AUD, TENOR_2, SETTLEMENT_DAYS, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM, "Index2"), WEIGHT_1, WEIGHT_2, CALENDAR, CALENDAR);
     assertFalse(IBOR_AVERAGE_COUPON_DEFINITION_1.equals(other));
-    other = new CouponIborAverageDefinition(CUR, PAYMENT_DATE.plusDays(1), ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE, INDEX_1, INDEX_2, WEIGHT_1, WEIGHT_2, CALENDAR, CALENDAR);
+    other = new CouponIborAverageIndexDefinition(CUR, PAYMENT_DATE.plusDays(1), ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE, INDEX_1, INDEX_2, WEIGHT_1, WEIGHT_2, CALENDAR, CALENDAR);
     assertFalse(IBOR_AVERAGE_COUPON_DEFINITION_1.equals(other));
-    other = new CouponIborAverageDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE.plusDays(1), ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE, INDEX_1, INDEX_2, WEIGHT_1, WEIGHT_2, CALENDAR, CALENDAR);
+    other = new CouponIborAverageIndexDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE.plusDays(1), ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE, INDEX_1, INDEX_2, WEIGHT_1, WEIGHT_2, CALENDAR, CALENDAR);
     assertFalse(IBOR_AVERAGE_COUPON_DEFINITION_1.equals(other));
-    other = new CouponIborAverageDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE.plusDays(1), ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE, INDEX_1, INDEX_2, WEIGHT_1, WEIGHT_2, CALENDAR, CALENDAR);
+    other = new CouponIborAverageIndexDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE.plusDays(1), ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE, INDEX_1, INDEX_2, WEIGHT_1, WEIGHT_2, CALENDAR, CALENDAR);
     assertFalse(IBOR_AVERAGE_COUPON_DEFINITION_1.equals(other));
-    other = new CouponIborAverageDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR + 0.01, NOTIONAL, FIXING_DATE, INDEX_1, INDEX_2, WEIGHT_1, WEIGHT_2, CALENDAR, CALENDAR);
+    other = new CouponIborAverageIndexDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR + 0.01, NOTIONAL, FIXING_DATE, INDEX_1, INDEX_2, WEIGHT_1, WEIGHT_2, CALENDAR, CALENDAR);
     assertFalse(IBOR_AVERAGE_COUPON_DEFINITION_1.equals(other));
-    other = new CouponIborAverageDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL + 100, FIXING_DATE, INDEX_1, INDEX_2, WEIGHT_1, WEIGHT_2, CALENDAR, CALENDAR);
+    other = new CouponIborAverageIndexDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL + 100, FIXING_DATE, INDEX_1, INDEX_2, WEIGHT_1, WEIGHT_2, CALENDAR, CALENDAR);
     assertFalse(IBOR_AVERAGE_COUPON_DEFINITION_1.equals(other));
-    other = new CouponIborAverageDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE.plusDays(1), INDEX_1, INDEX_2, WEIGHT_1, WEIGHT_2, CALENDAR, CALENDAR);
+    other = new CouponIborAverageIndexDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE.plusDays(1), INDEX_1, INDEX_2, WEIGHT_1, WEIGHT_2, CALENDAR, CALENDAR);
     assertFalse(IBOR_AVERAGE_COUPON_DEFINITION_1.equals(other));
-    other = new CouponIborAverageDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE, new IborIndex(CUR, TENOR_1, SETTLEMENT_DAYS + 1,
+    other = new CouponIborAverageIndexDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE, new IborIndex(CUR, TENOR_1, SETTLEMENT_DAYS + 1,
         DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM, "Index1"), new IborIndex(CUR, TENOR_2, SETTLEMENT_DAYS, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM, "Index2"), WEIGHT_1, WEIGHT_2, CALENDAR, CALENDAR);
     assertFalse(IBOR_AVERAGE_COUPON_DEFINITION_1.equals(other));
-    other = new CouponIborAverageDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE, new IborIndex(CUR, TENOR_1, SETTLEMENT_DAYS,
+    other = new CouponIborAverageIndexDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE, new IborIndex(CUR, TENOR_1, SETTLEMENT_DAYS,
         DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM, "Index1"), new IborIndex(CUR, TENOR_2, SETTLEMENT_DAYS + 1, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM, "Index2"), WEIGHT_1, WEIGHT_2, CALENDAR, CALENDAR);
     assertFalse(IBOR_AVERAGE_COUPON_DEFINITION_1.equals(other));
 

@@ -99,8 +99,8 @@ import com.opengamma.analytics.financial.instrument.payment.CouponFixedAccruedCo
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageCompoundingDefinition;
-import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageDefinition;
-import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageSinglePeriodDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageIndexDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageFixingDatesDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingFlatSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingSimpleSpreadDefinition;
@@ -476,12 +476,12 @@ public abstract class InstrumentDefinitionVisitorAdapter<DATA_TYPE, RESULT_TYPE>
   }
 
   @Override
-  public RESULT_TYPE visitCouponIborAverageDefinition(final CouponIborAverageDefinition payment, final DATA_TYPE data) {
+  public RESULT_TYPE visitCouponIborAverageDefinition(final CouponIborAverageIndexDefinition payment, final DATA_TYPE data) {
     return getException(payment, data);
   }
 
   @Override
-  public RESULT_TYPE visitCouponIborAverageDefinition(final CouponIborAverageDefinition payment) {
+  public RESULT_TYPE visitCouponIborAverageDefinition(final CouponIborAverageIndexDefinition payment) {
     return getException(payment);
   }
 
@@ -676,12 +676,12 @@ public abstract class InstrumentDefinitionVisitorAdapter<DATA_TYPE, RESULT_TYPE>
   }
 
   @Override
-  public RESULT_TYPE visitCouponIborAverageSinglePeriodDefinition(CouponIborAverageSinglePeriodDefinition payment, DATA_TYPE data) {
+  public RESULT_TYPE visitCouponIborAverageSinglePeriodDefinition(CouponIborAverageFixingDatesDefinition payment, DATA_TYPE data) {
     return getException(payment, data);
   }
 
   @Override
-  public RESULT_TYPE visitCouponIborAverageSinglePeriodDefinition(CouponIborAverageSinglePeriodDefinition payment) {
+  public RESULT_TYPE visitCouponIborAverageSinglePeriodDefinition(CouponIborAverageFixingDatesDefinition payment) {
     return getException(payment);
   }
 

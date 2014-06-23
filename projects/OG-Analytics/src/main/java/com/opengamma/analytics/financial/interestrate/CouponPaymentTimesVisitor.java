@@ -12,7 +12,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverage;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverageCompounding;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverageSinglePeriod;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverageFixingDates;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingFlatSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingSpread;
@@ -99,7 +99,7 @@ public class CouponPaymentTimesVisitor extends InstrumentDerivativeVisitorAdapte
   }
 
   @Override
-  public Double visitCouponIborAverageSinglePeriod(final CouponIborAverageSinglePeriod payment) {
+  public Double visitCouponIborAverageSinglePeriod(final CouponIborAverageFixingDates payment) {
     return payment.getPaymentTime();
   }
 

@@ -99,8 +99,8 @@ import com.opengamma.analytics.financial.instrument.payment.CouponFixedAccruedCo
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageCompoundingDefinition;
-import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageDefinition;
-import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageSinglePeriodDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageIndexDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageFixingDatesDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingFlatSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingSimpleSpreadDefinition;
@@ -688,14 +688,14 @@ public interface InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
    * @param data The data
    * @return The result
    */
-  RESULT_TYPE visitCouponIborAverageDefinition(CouponIborAverageDefinition payment, DATA_TYPE data);
+  RESULT_TYPE visitCouponIborAverageDefinition(CouponIborAverageIndexDefinition payment, DATA_TYPE data);
 
   /**
    * Averaged ibor coupon method.
    * @param payment An averaged ibor coupon
    * @return The result
    */
-  RESULT_TYPE visitCouponIborAverageDefinition(CouponIborAverageDefinition payment);
+  RESULT_TYPE visitCouponIborAverageDefinition(CouponIborAverageIndexDefinition payment);
 
   /**
    * Ibor coupon with spread method that takes data.
@@ -982,9 +982,9 @@ public interface InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
    */
   RESULT_TYPE visitCouponArithmeticAverageONSpreadSimplifiedDefinition(CouponONArithmeticAverageSpreadSimplifiedDefinition payment);
 
-  RESULT_TYPE visitCouponIborAverageSinglePeriodDefinition(CouponIborAverageSinglePeriodDefinition payment, DATA_TYPE data);
+  RESULT_TYPE visitCouponIborAverageSinglePeriodDefinition(CouponIborAverageFixingDatesDefinition payment, DATA_TYPE data);
 
-  RESULT_TYPE visitCouponIborAverageSinglePeriodDefinition(CouponIborAverageSinglePeriodDefinition payment);
+  RESULT_TYPE visitCouponIborAverageSinglePeriodDefinition(CouponIborAverageFixingDatesDefinition payment);
 
   RESULT_TYPE visitCouponIborAverageCompoundingDefinition(CouponIborAverageCompoundingDefinition payment, DATA_TYPE data);
 

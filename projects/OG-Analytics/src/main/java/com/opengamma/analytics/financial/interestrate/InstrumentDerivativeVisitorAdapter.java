@@ -106,7 +106,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverage;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverageCompounding;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverageSinglePeriod;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverageFixingDates;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingFlatSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingSimpleSpread;
@@ -569,12 +569,12 @@ public abstract class InstrumentDerivativeVisitorAdapter<DATA_TYPE, RESULT_TYPE>
   }
 
   @Override
-  public RESULT_TYPE visitCouponIborAverageSinglePeriod(final CouponIborAverageSinglePeriod payment, final DATA_TYPE data) {
+  public RESULT_TYPE visitCouponIborAverageSinglePeriod(final CouponIborAverageFixingDates payment, final DATA_TYPE data) {
     return getException(payment, data);
   }
 
   @Override
-  public RESULT_TYPE visitCouponIborAverageSinglePeriod(final CouponIborAverageSinglePeriod payment) {
+  public RESULT_TYPE visitCouponIborAverageSinglePeriod(final CouponIborAverageFixingDates payment) {
     return getException(payment);
   }
 

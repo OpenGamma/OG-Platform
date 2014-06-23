@@ -14,7 +14,7 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexIborMaster;
-import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageIndexDefinition;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverage;
 import com.opengamma.analytics.financial.interestrate.payments.provider.CouponIborAverageDiscountingMethod;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -60,7 +60,7 @@ import com.opengamma.util.time.DateUtils;
     private static final double WEIGHT2 = 1 - WEIGHT1;
     
    
-    private static CouponIborAverageDefinition CPN_AVE_DEFINITION = CouponIborAverageDefinition.from(PAYMENT_DATE,ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_YF, NOTIONAL, FIXING_DATE, INDEX1, INDEX2, WEIGHT1, WEIGHT2, EUR_CALENDAR, EUR_CALENDAR);
+    private static CouponIborAverageIndexDefinition CPN_AVE_DEFINITION = CouponIborAverageIndexDefinition.from(PAYMENT_DATE,ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_YF, NOTIONAL, FIXING_DATE, INDEX1, INDEX2, WEIGHT1, WEIGHT2, EUR_CALENDAR, EUR_CALENDAR);
     private static final CouponIborAverage CPN_IBOR_AVERAGE = (CouponIborAverage) CPN_AVE_DEFINITION.toDerivative(REFERENCE_DATE);
     
     private static final CouponIborAverageDiscountingMethod METHOD = CouponIborAverageDiscountingMethod.getInstance();

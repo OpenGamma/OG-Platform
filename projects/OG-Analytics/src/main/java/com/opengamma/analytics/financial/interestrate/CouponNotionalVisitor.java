@@ -11,8 +11,8 @@ import com.opengamma.analytics.financial.instrument.payment.CouponFixedAccruedCo
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageCompoundingDefinition;
-import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageDefinition;
-import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageSinglePeriodDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageIndexDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageFixingDatesDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingFlatSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingSpreadDefinition;
@@ -50,7 +50,7 @@ public class CouponNotionalVisitor extends InstrumentDefinitionVisitorAdapter<Vo
   }
 
   @Override
-  public CurrencyAmount visitCouponIborAverageDefinition(final CouponIborAverageDefinition payment) {
+  public CurrencyAmount visitCouponIborAverageDefinition(final CouponIborAverageIndexDefinition payment) {
     return CurrencyAmount.of(payment.getCurrency(), payment.getNotional());
   }
 
@@ -125,12 +125,12 @@ public class CouponNotionalVisitor extends InstrumentDefinitionVisitorAdapter<Vo
   }
 
   @Override
-  public CurrencyAmount visitCouponIborAverageSinglePeriodDefinition(CouponIborAverageSinglePeriodDefinition payment, Void data) {
+  public CurrencyAmount visitCouponIborAverageSinglePeriodDefinition(CouponIborAverageFixingDatesDefinition payment, Void data) {
     return CurrencyAmount.of(payment.getCurrency(), payment.getNotional());
   }
 
   @Override
-  public CurrencyAmount visitCouponIborAverageSinglePeriodDefinition(CouponIborAverageSinglePeriodDefinition payment) {
+  public CurrencyAmount visitCouponIborAverageSinglePeriodDefinition(CouponIborAverageFixingDatesDefinition payment) {
     return CurrencyAmount.of(payment.getCurrency(), payment.getNotional());
   }
 
