@@ -74,17 +74,19 @@ public class CouponIborFlatCompoundingSpreadDefinitionTest {
 
   private static ZonedDateTime[][] EXP_START_DATES = new ZonedDateTime[NUM_PRDS][NUM_OBS];
   private static ZonedDateTime[][] EXP_END_DATES = new ZonedDateTime[NUM_PRDS][NUM_OBS];
+  private static double[][] FIX_ACC_FACTORS = new double[NUM_PRDS][NUM_OBS];
   static {
     for (int i = 0; i < NUM_OBS; ++i) {
       for (int j = 0; j < NUM_PRDS; ++j) {
         EXP_START_DATES[j][i] = ScheduleCalculator.getAdjustedDate(FIXING_DATES[j][i], INDEX.getSpotLag(), CALENDAR);
         EXP_END_DATES[j][i] = ScheduleCalculator.getAdjustedDate(EXP_START_DATES[j][i], INDEX.getTenor(), INDEX.getBusinessDayConvention(), CALENDAR, INDEX.isEndOfMonth());
+        FIX_ACC_FACTORS[j][i] = INDEX.getDayCount().getDayCountFraction(EXP_START_DATES[j][i], EXP_END_DATES[j][i], CALENDAR);
       }
     }
   }
 
   private static final CouponIborFlatCompoundingSpreadDefinition DFN2 = new CouponIborFlatCompoundingSpreadDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR,
-      NOTIONAL, ACCRUAL_FACTORS, INDEX, FIXING_DATES, WEIGHTS, EXP_START_DATES, EXP_END_DATES, SPREAD);
+      NOTIONAL, ACCRUAL_FACTORS, INDEX, FIXING_DATES, WEIGHTS, EXP_START_DATES, EXP_END_DATES, FIX_ACC_FACTORS, SPREAD);
 
   /**
    * 
@@ -120,7 +122,7 @@ public class CouponIborFlatCompoundingSpreadDefinitionTest {
     final CouponIborFlatCompoundingSpreadDefinition dfn1 = CouponIborFlatCompoundingSpreadDefinition.from(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL,
         ACCRUAL_FACTORS, INDEX, FIXING_DATES, WEIGHTS, CALENDAR, SPREAD);
     final CouponIborFlatCompoundingSpreadDefinition dfn2 = CouponIborFlatCompoundingSpreadDefinition.from(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL,
-        ACCRUAL_FACTORS, INDEX, FIXING_DATES, WEIGHTS, EXP_START_DATES, EXP_END_DATES, SPREAD);
+        ACCRUAL_FACTORS, INDEX, FIXING_DATES, WEIGHTS, EXP_START_DATES, EXP_END_DATES, FIX_ACC_FACTORS, SPREAD);
 
     assertTrue(DFN1.equals(dfn1));
     assertEquals(DFN1.hashCode(), dfn1.hashCode());

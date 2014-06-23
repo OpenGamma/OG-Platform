@@ -85,6 +85,7 @@ public class CouponIborFlatCompoundingSpreadTest {
   private static final double[][] FIXING_TIMES = new double[NUM_PRDS][NUM_OBS];
   private static final double[][] FIXING_PERIOD_START_TIMES = new double[NUM_PRDS][NUM_OBS];
   private static final double[][] FIXING_PERIOD_END_TIMES = new double[NUM_PRDS][NUM_OBS];
+  private static double[][] FIX_ACC_FACTORS = new double[NUM_PRDS][NUM_OBS];
 
   static {
     for (int i = 0; i < NUM_PRDS; ++i) {
@@ -92,10 +93,15 @@ public class CouponIborFlatCompoundingSpreadTest {
       FIXING_PERIOD_START_TIMES[i] = TimeCalculator.getTimeBetween(REFERENCE_DATE, EXP_START_DATES[i]);
       FIXING_PERIOD_END_TIMES[i] = TimeCalculator.getTimeBetween(REFERENCE_DATE, EXP_END_DATES[i]);
     }
+    for (int i = 0; i < NUM_OBS; ++i) {
+      for (int j = 0; j < NUM_PRDS; ++j) {
+        FIX_ACC_FACTORS[j][i] = INDEX.getDayCount().getDayCountFraction(EXP_START_DATES[j][i], EXP_END_DATES[j][i], CALENDAR);
+      }
+    }
   }
 
   private static final CouponIborFlatCompoundingSpread DFN1 = new CouponIborFlatCompoundingSpread(CUR, PAYMENT_TIME, ACCRUAL_FACTOR, NOTIONAL, ACCRUAL_FACTORS, INDEX, FIXING_TIMES, WEIGHTS,
-      FIXING_PERIOD_START_TIMES, FIXING_PERIOD_END_TIMES, SPREAD);
+      FIXING_PERIOD_START_TIMES, FIXING_PERIOD_END_TIMES, FIX_ACC_FACTORS, SPREAD);
   private static final CouponIborFlatCompoundingSpread DFN2 = DFN1.withNotional(NOTIONAL);
 
   /**

@@ -68,15 +68,17 @@ public class CouponIborAverageSinglePeriodDefinitionTest {
 
   private static ZonedDateTime[] EXP_START_DATES = new ZonedDateTime[NUM_OBS];
   private static ZonedDateTime[] EXP_END_DATES = new ZonedDateTime[NUM_OBS];
+  private static double[] FIX_ACC_FACTORS = new double[NUM_OBS];
   static {
     for (int i = 0; i < NUM_OBS; ++i) {
       EXP_START_DATES[i] = ScheduleCalculator.getAdjustedDate(FIXING_DATES[i], INDEX.getSpotLag(), CALENDAR);
       EXP_END_DATES[i] = ScheduleCalculator.getAdjustedDate(EXP_START_DATES[i], INDEX.getTenor(), INDEX.getBusinessDayConvention(), CALENDAR, INDEX.isEndOfMonth());
+      FIX_ACC_FACTORS[i] = INDEX.getDayCount().getDayCountFraction(EXP_START_DATES[i], EXP_END_DATES[i], CALENDAR);
     }
   }
 
   private static final CouponIborAverageSinglePeriodDefinition DFN2 = new CouponIborAverageSinglePeriodDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL,
-      INDEX, FIXING_DATES, WEIGHTS, EXP_START_DATES, EXP_END_DATES);
+      INDEX, FIXING_DATES, WEIGHTS, EXP_START_DATES, EXP_END_DATES, FIX_ACC_FACTORS);
 
   /**
    * 
@@ -93,7 +95,7 @@ public class CouponIborAverageSinglePeriodDefinitionTest {
     }
     try {
       new CouponIborAverageSinglePeriodDefinition(Currency.USD, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL,
-          INDEX, FIXING_DATES, WEIGHTS, EXP_START_DATES, EXP_END_DATES);
+          INDEX, FIXING_DATES, WEIGHTS, EXP_START_DATES, EXP_END_DATES, FIX_ACC_FACTORS);
       throw new RuntimeException();
     } catch (final Exception e) {
       assertEquals("index currency different from payment currency", e.getMessage());
@@ -109,7 +111,7 @@ public class CouponIborAverageSinglePeriodDefinitionTest {
     }
     try {
       new CouponIborAverageSinglePeriodDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL,
-          INDEX, FIXING_DATES, shortWeight, EXP_START_DATES, EXP_END_DATES);
+          INDEX, FIXING_DATES, shortWeight, EXP_START_DATES, EXP_END_DATES, FIX_ACC_FACTORS);
       throw new RuntimeException();
     } catch (final Exception e) {
       assertEquals("weight length different from fixingDate length", e.getMessage());
@@ -118,7 +120,7 @@ public class CouponIborAverageSinglePeriodDefinitionTest {
     final ZonedDateTime[] shortStartDates = Arrays.copyOf(EXP_START_DATES, NUM_OBS - 1);
     try {
       new CouponIborAverageSinglePeriodDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL,
-          INDEX, FIXING_DATES, WEIGHTS, shortStartDates, EXP_END_DATES);
+          INDEX, FIXING_DATES, WEIGHTS, shortStartDates, EXP_END_DATES, FIX_ACC_FACTORS);
       throw new RuntimeException();
     } catch (final Exception e) {
       assertEquals("fixingPeriodStartDate length different from fixingDate length", e.getMessage());
@@ -127,10 +129,19 @@ public class CouponIborAverageSinglePeriodDefinitionTest {
     final ZonedDateTime[] shortEndDates = Arrays.copyOf(EXP_END_DATES, NUM_OBS - 1);
     try {
       new CouponIborAverageSinglePeriodDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL,
-          INDEX, FIXING_DATES, WEIGHTS, EXP_START_DATES, shortEndDates);
+          INDEX, FIXING_DATES, WEIGHTS, EXP_START_DATES, shortEndDates, FIX_ACC_FACTORS);
       throw new RuntimeException();
     } catch (final Exception e) {
       assertEquals("fixingPeriodEndDate length different from fixingDate length", e.getMessage());
+    }
+
+    final double[] shortFcc = Arrays.copyOf(FIX_ACC_FACTORS, NUM_OBS - 1);
+    try {
+      new CouponIborAverageSinglePeriodDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL,
+          INDEX, FIXING_DATES, WEIGHTS, EXP_START_DATES, EXP_END_DATES, shortFcc);
+      throw new RuntimeException();
+    } catch (final Exception e) {
+      assertEquals("fixingPeriodAccrualFactor length different from fixingDate length", e.getMessage());
     }
 
     final ZonedDateTime afterPayment = PAYMENT_DATE.plusDays(1);
@@ -174,7 +185,7 @@ public class CouponIborAverageSinglePeriodDefinitionTest {
     final CouponIborAverageSinglePeriodDefinition dfn1 = CouponIborAverageSinglePeriodDefinition.from(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, INDEX,
         FIXING_DATES, WEIGHTS, CALENDAR);
     final CouponIborAverageSinglePeriodDefinition dfn2 = CouponIborAverageSinglePeriodDefinition.from(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, INDEX,
-        FIXING_DATES, WEIGHTS, EXP_START_DATES, EXP_END_DATES);
+        FIXING_DATES, WEIGHTS, EXP_START_DATES, EXP_END_DATES, FIX_ACC_FACTORS);
 
     assertTrue(DFN1.equals(dfn1));
     assertEquals(DFN1.hashCode(), dfn1.hashCode());

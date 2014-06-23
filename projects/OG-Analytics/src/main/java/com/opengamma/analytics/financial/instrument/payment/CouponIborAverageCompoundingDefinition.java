@@ -31,6 +31,7 @@ public class CouponIborAverageCompoundingDefinition extends CouponDefinition {
   private final ZonedDateTime[][] _fixingPeriodStartDates;
   private final ZonedDateTime[][] _fixingPeriodEndDates;
 
+  private final double[][] _fixingPeriodAccrualFactors;
   private final double[] _paymentAccrualFactors;
 
   /**
@@ -62,6 +63,7 @@ public class CouponIborAverageCompoundingDefinition extends CouponDefinition {
     _fixingDates = new ZonedDateTime[nPeriods][nDates];
     _fixingPeriodStartDates = new ZonedDateTime[nPeriods][nDates];
     _fixingPeriodEndDates = new ZonedDateTime[nPeriods][nDates];
+    _fixingPeriodAccrualFactors = new double[nPeriods][nDates];
 
     _index = index;
     _paymentAccrualFactors = Arrays.copyOf(paymentAccrualFactors, nPeriods);
@@ -71,6 +73,7 @@ public class CouponIborAverageCompoundingDefinition extends CouponDefinition {
       for (int j = 0; j < nDates; ++j) {
         _fixingPeriodStartDates[i][j] = ScheduleCalculator.getAdjustedDate(fixingDates[i][j], index.getSpotLag(), iborCalendar);
         _fixingPeriodEndDates[i][j] = ScheduleCalculator.getAdjustedDate(_fixingPeriodStartDates[i][j], index.getTenor(), index.getBusinessDayConvention(), iborCalendar, index.isEndOfMonth());
+        _fixingPeriodAccrualFactors[i][j] = index.getDayCount().getDayCountFraction(_fixingPeriodStartDates[i][j], _fixingPeriodEndDates[i][j], iborCalendar);
       }
     }
   }
@@ -89,10 +92,11 @@ public class CouponIborAverageCompoundingDefinition extends CouponDefinition {
    * @param weights The weights for the index
    * @param fixingPeriodStartDates The start date of the fixing periods
    * @param fixingPeriodEndDates The end date of the fixing periods
+   * @param fixingPeriodAccrualFactors The accrual factors of fixing periods
    */
   public CouponIborAverageCompoundingDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate,
       final double paymentAccrualFactor, final double notional, final double[] paymentAccrualFactors, final IborIndex index, final ZonedDateTime[][] fixingDates, final double[][] weights,
-      final ZonedDateTime[][] fixingPeriodStartDates, final ZonedDateTime[][] fixingPeriodEndDates) {
+      final ZonedDateTime[][] fixingPeriodStartDates, final ZonedDateTime[][] fixingPeriodEndDates, final double[][] fixingPeriodAccrualFactors) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, paymentAccrualFactor, notional);
 
     final int nPeriods = fixingDates.length;
@@ -103,12 +107,15 @@ public class CouponIborAverageCompoundingDefinition extends CouponDefinition {
     ArgumentChecker.isTrue(nDates == fixingPeriodStartDates[0].length, "fixingPeriodStartDates length different from fixingDate length");
     ArgumentChecker.isTrue(nPeriods == fixingPeriodEndDates.length, "fixingPeriodEndDates length different from fixingDate length");
     ArgumentChecker.isTrue(nDates == fixingPeriodEndDates[0].length, "fixingPeriodEndDates length different from fixingDate length");
+    ArgumentChecker.isTrue(nPeriods == fixingPeriodAccrualFactors.length, "fixingPeriodAccrualFactors length different from fixingDate length");
+    ArgumentChecker.isTrue(nDates == fixingPeriodAccrualFactors[0].length, "fixingPeriodAccrualFactors length different from fixingDate length");
     ArgumentChecker.isTrue(currency.equals(index.getCurrency()), "index currency different from payment currency");
 
     _weights = new double[nPeriods][nDates];
     _fixingDates = new ZonedDateTime[nPeriods][nDates];
     _fixingPeriodStartDates = new ZonedDateTime[nPeriods][nDates];
     _fixingPeriodEndDates = new ZonedDateTime[nPeriods][nDates];
+    _fixingPeriodAccrualFactors = new double[nPeriods][nDates];
 
     _index = index;
     _paymentAccrualFactors = Arrays.copyOf(paymentAccrualFactors, nPeriods);
@@ -117,6 +124,7 @@ public class CouponIborAverageCompoundingDefinition extends CouponDefinition {
       System.arraycopy(fixingDates[i], 0, _fixingDates[i], 0, nDates);
       System.arraycopy(fixingPeriodStartDates[i], 0, _fixingPeriodStartDates[i], 0, nDates);
       System.arraycopy(fixingPeriodEndDates[i], 0, _fixingPeriodEndDates[i], 0, nDates);
+      System.arraycopy(fixingPeriodAccrualFactors[i], 0, _fixingPeriodAccrualFactors[i], 0, nDates);
     }
   }
 
@@ -156,13 +164,14 @@ public class CouponIborAverageCompoundingDefinition extends CouponDefinition {
    * @param weights The weights for the index
    * @param fixingPeriodStartDates The start date of the fixing periods
    * @param fixingPeriodEndDates The end date of the fixing periods
+   * @param fixingPeriodAccrualFactors The accrual factors of fixing periods
    * @return The coupon
    */
   public static CouponIborAverageCompoundingDefinition from(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate,
       final double paymentAccrualFactor, final double notional, final double[] paymentAccrualFactors, final IborIndex index, final ZonedDateTime[][] fixingDates, final double[][] weights,
-      final ZonedDateTime[][] fixingPeriodStartDates, final ZonedDateTime[][] fixingPeriodEndDates) {
+      final ZonedDateTime[][] fixingPeriodStartDates, final ZonedDateTime[][] fixingPeriodEndDates, final double[][] fixingPeriodAccrualFactors) {
     return new CouponIborAverageCompoundingDefinition(currency, paymentDate, accrualStartDate, accrualEndDate, paymentAccrualFactor, notional, paymentAccrualFactors, index, fixingDates, weights,
-        fixingPeriodStartDates, fixingPeriodEndDates);
+        fixingPeriodStartDates, fixingPeriodEndDates, fixingPeriodAccrualFactors);
   }
 
   /**
@@ -172,7 +181,7 @@ public class CouponIborAverageCompoundingDefinition extends CouponDefinition {
    */
   public CouponIborAverageCompoundingDefinition withNotional(final double notional) {
     return new CouponIborAverageCompoundingDefinition(getCurrency(), getPaymentDate(), getAccrualStartDate(), getAccrualEndDate(), getPaymentYearFraction(), notional, getPaymentAccrualFactors(),
-        getIndex(), getFixingDates(), getWeight(), getFixingPeriodStartDates(), getFixingPeriodEndDates());
+        getIndex(), getFixingDates(), getWeight(), getFixingPeriodStartDates(), getFixingPeriodEndDates(), getFixingPeriodAccrualFactor());
   }
 
   @Override
@@ -236,6 +245,14 @@ public class CouponIborAverageCompoundingDefinition extends CouponDefinition {
   }
 
   /**
+   * Gets the fixingPeriodAccrualFactor.
+   * @return the fixingPeriodAccrualFactor
+   */
+  public double[][] getFixingPeriodAccrualFactor() {
+    return _fixingPeriodAccrualFactors;
+  }
+
+  /**
    * {@inheritDoc}
    * @deprecated Use the method that does not take yield curve names
    */
@@ -275,7 +292,7 @@ public class CouponIborAverageCompoundingDefinition extends CouponDefinition {
     }
 
     return new CouponIborAverageCompounding(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), getPaymentAccrualFactors(), getIndex(), fixingTime, getWeight(),
-        fixingPeriodStartTime, fixingPeriodEndTime);
+        fixingPeriodStartTime, fixingPeriodEndTime, getFixingPeriodAccrualFactor());
   }
 
   @Override
@@ -283,6 +300,7 @@ public class CouponIborAverageCompoundingDefinition extends CouponDefinition {
     final int prime = 31;
     int result = super.hashCode();
     result = prime * result + Arrays.deepHashCode(_fixingDates);
+    result = prime * result + Arrays.deepHashCode(_fixingPeriodAccrualFactors);
     result = prime * result + Arrays.deepHashCode(_fixingPeriodEndDates);
     result = prime * result + Arrays.deepHashCode(_fixingPeriodStartDates);
     result = prime * result + ((_index == null) ? 0 : _index.hashCode());
@@ -306,6 +324,9 @@ public class CouponIborAverageCompoundingDefinition extends CouponDefinition {
     if (!Arrays.deepEquals(_fixingDates, other._fixingDates)) {
       return false;
     }
+    if (!Arrays.deepEquals(_fixingPeriodAccrualFactors, other._fixingPeriodAccrualFactors)) {
+      return false;
+    }
     if (!Arrays.deepEquals(_fixingPeriodEndDates, other._fixingPeriodEndDates)) {
       return false;
     }
@@ -327,4 +348,5 @@ public class CouponIborAverageCompoundingDefinition extends CouponDefinition {
     }
     return true;
   }
+
 }
