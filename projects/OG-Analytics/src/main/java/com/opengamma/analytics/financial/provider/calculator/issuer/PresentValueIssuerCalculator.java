@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.provider.calculator.issuer;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorDelegate;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillSecurity;
+import com.opengamma.analytics.financial.interestrate.bond.definition.BillTotalReturnSwap;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillTransaction;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedTransaction;
@@ -14,6 +15,7 @@ import com.opengamma.analytics.financial.interestrate.bond.definition.BondIborSe
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondIborTransaction;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondTotalReturnSwap;
 import com.opengamma.analytics.financial.interestrate.bond.provider.BillSecurityDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.bond.provider.BillTotalReturnSwapDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.bond.provider.BillTransactionDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.bond.provider.BondSecurityDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.bond.provider.BondTotalReturnSwapDiscountingMethod;
@@ -64,7 +66,9 @@ public final class PresentValueIssuerCalculator extends InstrumentDerivativeVisi
   /** Method for bond future transactions */
   private static final BondFuturesTransactionDiscountingMethod METHOD_BNDFUT_TRA = BondFuturesTransactionDiscountingMethod.getInstance();
   /** Method for bond Total Return Swap */
-  private static final BondTotalReturnSwapDiscountingMethod METHOD_TRS = BondTotalReturnSwapDiscountingMethod.getInstance();
+  private static final BondTotalReturnSwapDiscountingMethod METHOD_TRS_BND = BondTotalReturnSwapDiscountingMethod.getInstance();
+  /** Method for bill Total Return Swap */
+  private static final BillTotalReturnSwapDiscountingMethod METHOD_TRS_BILL = BillTotalReturnSwapDiscountingMethod.getInstance();
 
   //     -----     Deposit     -----
 
@@ -116,7 +120,12 @@ public final class PresentValueIssuerCalculator extends InstrumentDerivativeVisi
 
   @Override
   public MultipleCurrencyAmount visitBondTotalReturnSwap(final BondTotalReturnSwap trs, final ParameterIssuerProviderInterface issuercurves) {
-    return METHOD_TRS.presentValue(trs, issuercurves.getIssuerProvider());
+    return METHOD_TRS_BND.presentValue(trs, issuercurves.getIssuerProvider());
+  }
+
+  @Override
+  public MultipleCurrencyAmount visitBillTotalReturnSwap(final BillTotalReturnSwap trs, final ParameterIssuerProviderInterface issuercurves) {
+    return METHOD_TRS_BILL.presentValue(trs, issuercurves.getIssuerProvider());
   }
 
 }
