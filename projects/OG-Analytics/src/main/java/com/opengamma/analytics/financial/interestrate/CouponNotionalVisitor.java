@@ -10,11 +10,14 @@ import com.opengamma.analytics.financial.instrument.payment.CouponCMSDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedAccruedCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageSinglePeriodDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingFlatSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborFlatCompoundingSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborGearingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborRatchetDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborSpreadDefinition;
@@ -115,10 +118,39 @@ public class CouponNotionalVisitor extends InstrumentDefinitionVisitorAdapter<Vo
   public CurrencyAmount visitPaymentFixedDefinition(final PaymentFixedDefinition payment) {
     return CurrencyAmount.of(payment.getCurrency(), payment.getReferenceAmount());
   }
-  
+
   @Override
   public CurrencyAmount visitCouponArithmeticAverageONDefinition(final CouponONArithmeticAverageDefinition payment) {
     return CurrencyAmount.of(payment.getCurrency(), payment.getReferenceAmount());
   }
 
+  @Override
+  public CurrencyAmount visitCouponIborAverageSinglePeriodDefinition(CouponIborAverageSinglePeriodDefinition payment, Void data) {
+    return CurrencyAmount.of(payment.getCurrency(), payment.getNotional());
+  }
+
+  @Override
+  public CurrencyAmount visitCouponIborAverageSinglePeriodDefinition(CouponIborAverageSinglePeriodDefinition payment) {
+    return CurrencyAmount.of(payment.getCurrency(), payment.getNotional());
+  }
+
+  @Override
+  public CurrencyAmount visitCouponIborAverageCompoundingDefinition(CouponIborAverageCompoundingDefinition payment, Void data) {
+    return CurrencyAmount.of(payment.getCurrency(), payment.getNotional());
+  }
+
+  @Override
+  public CurrencyAmount visitCouponIborAverageCompoundingDefinition(CouponIborAverageCompoundingDefinition payment) {
+    return CurrencyAmount.of(payment.getCurrency(), payment.getNotional());
+  }
+
+  @Override
+  public CurrencyAmount visitCouponIborFlatCompoundingSpreadDefinition(CouponIborFlatCompoundingSpreadDefinition payment, Void data) {
+    return CurrencyAmount.of(payment.getCurrency(), payment.getNotional());
+  }
+
+  @Override
+  public CurrencyAmount visitCouponIborFlatCompoundingSpreadDefinition(CouponIborFlatCompoundingSpreadDefinition payment) {
+    return CurrencyAmount.of(payment.getCurrency(), payment.getNotional());
+  }
 }

@@ -11,9 +11,12 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverage;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverageCompounding;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverageSinglePeriod;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingFlatSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingSpread;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborFlatCompoundingSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborGearing;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponON;
@@ -92,6 +95,21 @@ public class CouponPaymentTimesVisitor extends InstrumentDerivativeVisitorAdapte
 
   @Override
   public Double visitCouponONArithmeticAverageSpread(final CouponONArithmeticAverageSpread payment) {
+    return payment.getPaymentTime();
+  }
+
+  @Override
+  public Double visitCouponIborAverageSinglePeriod(final CouponIborAverageSinglePeriod payment) {
+    return payment.getPaymentTime();
+  }
+
+  @Override
+  public Double visitCouponIborAverageCompounding(final CouponIborAverageCompounding payment) {
+    return payment.getPaymentTime();
+  }
+
+  @Override
+  public Double visitCouponIborFlatCompoundingSpread(final CouponIborFlatCompoundingSpread payment) {
     return payment.getPaymentTime();
   }
 }

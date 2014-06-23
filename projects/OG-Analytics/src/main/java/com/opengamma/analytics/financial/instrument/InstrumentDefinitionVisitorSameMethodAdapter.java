@@ -98,12 +98,15 @@ import com.opengamma.analytics.financial.instrument.payment.CouponCMSDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedAccruedCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageSinglePeriodDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingFlatSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingSimpleSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborFlatCompoundingSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborGearingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborRatchetDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborSpreadDefinition;
@@ -704,6 +707,36 @@ public abstract class InstrumentDefinitionVisitorSameMethodAdapter<DATA_TYPE, RE
 
   @Override
   public RESULT_TYPE visitCapFloorCMSSpreadDefinition(final CapFloorCMSSpreadDefinition payment) {
+    return visit(payment);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponIborAverageSinglePeriodDefinition(CouponIborAverageSinglePeriodDefinition payment, DATA_TYPE data) {
+    return visit(payment, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponIborAverageSinglePeriodDefinition(CouponIborAverageSinglePeriodDefinition payment) {
+    return visit(payment);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponIborAverageCompoundingDefinition(CouponIborAverageCompoundingDefinition payment, DATA_TYPE data) {
+    return visit(payment, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponIborAverageCompoundingDefinition(CouponIborAverageCompoundingDefinition payment) {
+    return visit(payment);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponIborFlatCompoundingSpreadDefinition(CouponIborFlatCompoundingSpreadDefinition payment, DATA_TYPE data) {
+    return visit(payment, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponIborFlatCompoundingSpreadDefinition(CouponIborFlatCompoundingSpreadDefinition payment) {
     return visit(payment);
   }
 
