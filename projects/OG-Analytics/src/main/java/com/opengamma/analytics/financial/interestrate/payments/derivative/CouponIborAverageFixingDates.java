@@ -141,6 +141,10 @@ public class CouponIborAverageFixingDates extends Coupon {
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
+    long temp;
+    temp = Double.doubleToLongBits(_amountAccrued);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + Arrays.hashCode(_fixingPeriodAccrualFactor);
     result = prime * result + Arrays.hashCode(_fixingPeriodEndTime);
     result = prime * result + Arrays.hashCode(_fixingPeriodStartTime);
     result = prime * result + Arrays.hashCode(_fixingTime);
@@ -161,6 +165,12 @@ public class CouponIborAverageFixingDates extends Coupon {
       return false;
     }
     CouponIborAverageFixingDates other = (CouponIborAverageFixingDates) obj;
+    if (Double.doubleToLongBits(_amountAccrued) != Double.doubleToLongBits(other._amountAccrued)) {
+      return false;
+    }
+    if (!Arrays.equals(_fixingPeriodAccrualFactor, other._fixingPeriodAccrualFactor)) {
+      return false;
+    }
     if (!Arrays.equals(_fixingPeriodEndTime, other._fixingPeriodEndTime)) {
       return false;
     }
@@ -182,4 +192,5 @@ public class CouponIborAverageFixingDates extends Coupon {
     }
     return true;
   }
+
 }

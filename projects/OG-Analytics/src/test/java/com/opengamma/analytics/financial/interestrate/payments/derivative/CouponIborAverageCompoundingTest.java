@@ -100,7 +100,7 @@ public class CouponIborAverageCompoundingTest {
   }
 
   private static final CouponIborAverageCompounding DFN1 = new CouponIborAverageCompounding(CUR, PAYMENT_TIME, ACCRUAL_FACTOR, NOTIONAL, ACCRUAL_FACTORS, INDEX, FIXING_TIMES, WEIGHTS,
-      FIXING_PERIOD_START_TIMES, FIXING_PERIOD_END_TIMES, FIX_ACC_FACTORS);
+      FIXING_PERIOD_START_TIMES, FIXING_PERIOD_END_TIMES, FIX_ACC_FACTORS, 0.);
   private static final CouponIborAverageCompounding DFN2 = DFN1.withNotional(NOTIONAL);
 
   /**
@@ -111,7 +111,7 @@ public class CouponIborAverageCompoundingTest {
   public void exceptionTest() {
     try {
       new CouponIborAverageCompounding(Currency.GBP, PAYMENT_TIME, ACCRUAL_FACTOR, NOTIONAL, ACCRUAL_FACTORS, INDEX, FIXING_TIMES, WEIGHTS,
-          FIXING_PERIOD_START_TIMES, FIXING_PERIOD_END_TIMES, FIX_ACC_FACTORS);
+          FIXING_PERIOD_START_TIMES, FIXING_PERIOD_END_TIMES, FIX_ACC_FACTORS, 0.);
       throw new RuntimeException();
     } catch (final Exception e) {
       assertEquals("index currency different from payment currency", e.getMessage());
@@ -120,7 +120,7 @@ public class CouponIborAverageCompoundingTest {
     double[][] shortWeight = Arrays.copyOf(WEIGHTS, NUM_PRDS - 1);
     try {
       new CouponIborAverageCompounding(CUR, PAYMENT_TIME, ACCRUAL_FACTOR, NOTIONAL, ACCRUAL_FACTORS, INDEX, FIXING_TIMES, shortWeight,
-          FIXING_PERIOD_START_TIMES, FIXING_PERIOD_END_TIMES, FIX_ACC_FACTORS);
+          FIXING_PERIOD_START_TIMES, FIXING_PERIOD_END_TIMES, FIX_ACC_FACTORS, 0.);
       throw new RuntimeException();
     } catch (final Exception e) {
       assertEquals("weight length different from fixingTime length", e.getMessage());
@@ -132,7 +132,7 @@ public class CouponIborAverageCompoundingTest {
     }
     try {
       new CouponIborAverageCompounding(CUR, PAYMENT_TIME, ACCRUAL_FACTOR, NOTIONAL, ACCRUAL_FACTORS, INDEX, FIXING_TIMES, smallWeight,
-          FIXING_PERIOD_START_TIMES, FIXING_PERIOD_END_TIMES, FIX_ACC_FACTORS);
+          FIXING_PERIOD_START_TIMES, FIXING_PERIOD_END_TIMES, FIX_ACC_FACTORS, 0.);
       throw new RuntimeException();
     } catch (final Exception e) {
       assertEquals("weight length different from fixingTime length", e.getMessage());
@@ -141,7 +141,7 @@ public class CouponIborAverageCompoundingTest {
     final double[][] shortStartDates = Arrays.copyOf(FIXING_PERIOD_START_TIMES, NUM_PRDS - 1);
     try {
       new CouponIborAverageCompounding(CUR, PAYMENT_TIME, ACCRUAL_FACTOR, NOTIONAL, ACCRUAL_FACTORS, INDEX, FIXING_TIMES, WEIGHTS,
-          shortStartDates, FIXING_PERIOD_END_TIMES, FIX_ACC_FACTORS);
+          shortStartDates, FIXING_PERIOD_END_TIMES, FIX_ACC_FACTORS, 0.);
       throw new RuntimeException();
     } catch (final Exception e) {
       assertEquals("fixingPeriodStartDates length different from fixingTime length", e.getMessage());
@@ -150,7 +150,7 @@ public class CouponIborAverageCompoundingTest {
     final double[][] shortEndDates = Arrays.copyOf(FIXING_PERIOD_END_TIMES, NUM_PRDS - 1);
     try {
       new CouponIborAverageCompounding(CUR, PAYMENT_TIME, ACCRUAL_FACTOR, NOTIONAL, ACCRUAL_FACTORS, INDEX, FIXING_TIMES, WEIGHTS,
-          FIXING_PERIOD_START_TIMES, shortEndDates, FIX_ACC_FACTORS);
+          FIXING_PERIOD_START_TIMES, shortEndDates, FIX_ACC_FACTORS, 0.);
       throw new RuntimeException();
     } catch (final Exception e) {
       assertEquals("fixingPeriodEndDates length different from fixingTime length", e.getMessage());
@@ -159,7 +159,7 @@ public class CouponIborAverageCompoundingTest {
     final double[][] shortAcc = Arrays.copyOf(FIX_ACC_FACTORS, NUM_PRDS - 1);
     try {
       new CouponIborAverageCompounding(CUR, PAYMENT_TIME, ACCRUAL_FACTOR, NOTIONAL, ACCRUAL_FACTORS, INDEX, FIXING_TIMES, WEIGHTS,
-          FIXING_PERIOD_START_TIMES, FIXING_PERIOD_END_TIMES, shortAcc);
+          FIXING_PERIOD_START_TIMES, FIXING_PERIOD_END_TIMES, shortAcc, 0.);
       throw new RuntimeException();
     } catch (final Exception e) {
       assertEquals("fixingPeriodAccrualFactors length different from fixingTime length", e.getMessage());
@@ -175,21 +175,21 @@ public class CouponIborAverageCompoundingTest {
     }
     try {
       new CouponIborAverageCompounding(CUR, PAYMENT_TIME, ACCRUAL_FACTOR, NOTIONAL, ACCRUAL_FACTORS, INDEX, FIXING_TIMES, WEIGHTS,
-          smallStartDates, FIXING_PERIOD_END_TIMES, FIX_ACC_FACTORS);
+          smallStartDates, FIXING_PERIOD_END_TIMES, FIX_ACC_FACTORS, 0.);
       throw new RuntimeException();
     } catch (final Exception e) {
       assertEquals("fixingPeriodStartDates length different from fixingTime length", e.getMessage());
     }
     try {
       new CouponIborAverageCompounding(CUR, PAYMENT_TIME, ACCRUAL_FACTOR, NOTIONAL, ACCRUAL_FACTORS, INDEX, FIXING_TIMES, WEIGHTS,
-          FIXING_PERIOD_START_TIMES, smallEndDates, FIX_ACC_FACTORS);
+          FIXING_PERIOD_START_TIMES, smallEndDates, FIX_ACC_FACTORS, 0.);
       throw new RuntimeException();
     } catch (final Exception e) {
       assertEquals("fixingPeriodEndDates length different from fixingTime length", e.getMessage());
     }
     try {
       new CouponIborAverageCompounding(CUR, PAYMENT_TIME, ACCRUAL_FACTOR, NOTIONAL, ACCRUAL_FACTORS, INDEX, FIXING_TIMES, WEIGHTS,
-          FIXING_PERIOD_START_TIMES, FIXING_PERIOD_END_TIMES, smallAcc);
+          FIXING_PERIOD_START_TIMES, FIXING_PERIOD_END_TIMES, smallAcc, 0.);
       throw new RuntimeException();
     } catch (final Exception e) {
       assertEquals("fixingPeriodAccrualFactors length different from fixingTime length", e.getMessage());

@@ -101,7 +101,7 @@ public class CouponIborFlatCompoundingSpreadTest {
   }
 
   private static final CouponIborFlatCompoundingSpread DFN1 = new CouponIborFlatCompoundingSpread(CUR, PAYMENT_TIME, ACCRUAL_FACTOR, NOTIONAL, ACCRUAL_FACTORS, INDEX, FIXING_TIMES, WEIGHTS,
-      FIXING_PERIOD_START_TIMES, FIXING_PERIOD_END_TIMES, FIX_ACC_FACTORS, SPREAD);
+      FIXING_PERIOD_START_TIMES, FIXING_PERIOD_END_TIMES, FIX_ACC_FACTORS, 0., SPREAD);
   private static final CouponIborFlatCompoundingSpread DFN2 = DFN1.withNotional(NOTIONAL);
 
   /**

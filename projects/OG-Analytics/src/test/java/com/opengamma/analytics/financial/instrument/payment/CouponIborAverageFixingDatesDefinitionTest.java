@@ -16,6 +16,9 @@ import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverageFixingDates;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
@@ -23,6 +26,8 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCounts;
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
@@ -31,7 +36,7 @@ import com.opengamma.util.time.DateUtils;
  * 
  */
 @Test(groups = TestGroup.UNIT)
-public class CouponIborAverageSinglePeriodDefinitionTest {
+public class CouponIborAverageFixingDatesDefinitionTest {
 
   private static final Period TENOR = Period.ofMonths(1);
   private static final int SETTLEMENT_DAYS = 2;
@@ -78,6 +83,47 @@ public class CouponIborAverageSinglePeriodDefinitionTest {
   }
   private static final CouponIborAverageFixingDatesDefinition DFN2 = new CouponIborAverageFixingDatesDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL,
       INDEX, FIXING_DATES, WEIGHTS, EXP_START_DATES, EXP_END_DATES, FIX_ACC_FACTORS);
+
+  /**
+   * 
+   */
+  @Test
+  public void toDerivativeTest() {
+    final DoubleTimeSeries<ZonedDateTime> fixingTS1 = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2010, 12, 7) }, new double[] {0.01 });
+    final DoubleTimeSeries<ZonedDateTime> fixingTS2 = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(
+        new ZonedDateTime[] {DateUtils.getUTCDate(2011, 1, 3), DateUtils.getUTCDate(2011, 2, 3), DateUtils.getUTCDate(2011, 3, 3), DateUtils.getUTCDate(2011, 4, 3), DateUtils.getUTCDate(2011, 5, 3),
+            DateUtils.getUTCDate(2011, 6, 3) }, new double[] {0.01, 0.01, 0.01, 0.01, 0.01, 0.01 });
+
+    final Coupon derivative1 = DFN1.toDerivative(REFERENCE_DATE, fixingTS1);
+    final Coupon derivative2 = DFN1.toDerivative(DateUtils.getUTCDate(2011, 7, 3), fixingTS2);
+    assertTrue((derivative2 instanceof CouponFixed));
+    assertTrue((derivative1 instanceof CouponIborAverageFixingDates));
+
+    final DoubleTimeSeries<ZonedDateTime> fixingTS3 = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 1, 3), DateUtils.getUTCDate(2011, 2, 3) },
+        new double[] {0.01, 0.02 });
+    final CouponIborAverageFixingDates derivative3 = (CouponIborAverageFixingDates) DFN1.toDerivative(DateUtils.getUTCDate(2011, 2, 16), fixingTS3);
+    assertEquals(NUM_OBS - 2, derivative3.getFixingPeriodAccrualFactor().length);
+    assertEquals(NUM_OBS - 2, derivative3.getFixingPeriodEndTime().length);
+    assertEquals(NUM_OBS - 2, derivative3.getFixingPeriodStartTime().length);
+    assertEquals(NUM_OBS - 2, derivative3.getFixingTime().length);
+    assertEquals(NUM_OBS - 2, derivative3.getWeight().length);
+    final double refValue = (WEIGHTS[0] * fixingTS3.getValueAtIndex(0) + WEIGHTS[1] * fixingTS3.getValueAtIndex(1)) * ACCRUAL_FACTOR;
+    assertEquals(refValue, derivative3.getAmountAccrued(), 1.e-14);
+
+    try {
+      DFN1.toDerivative(PAYMENT_DATE.plusDays(10), fixingTS1);
+      throw new RuntimeException();
+    } catch (final Exception e) {
+      assertEquals("date is after payment date", e.getMessage());
+    }
+    try {
+      DFN1.toDerivative(DateUtils.getUTCDate(2011, 7, 3), fixingTS1);
+      throw new RuntimeException();
+    } catch (final Exception e) {
+      assertEquals("Could not get fixing value for date " + FIXING_DATES[0], e.getMessage());
+    }
+
+  }
 
   /**
    * 

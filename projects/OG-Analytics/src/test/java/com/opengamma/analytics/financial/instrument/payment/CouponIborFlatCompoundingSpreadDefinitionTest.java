@@ -16,6 +16,9 @@ import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborFlatCompoundingSpread;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
@@ -23,6 +26,8 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCounts;
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 
@@ -87,6 +92,62 @@ public class CouponIborFlatCompoundingSpreadDefinitionTest {
 
   private static final CouponIborFlatCompoundingSpreadDefinition DFN2 = new CouponIborFlatCompoundingSpreadDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR,
       NOTIONAL, ACCRUAL_FACTORS, INDEX, FIXING_DATES, WEIGHTS, EXP_START_DATES, EXP_END_DATES, FIX_ACC_FACTORS, SPREAD);
+
+  /**
+   * 
+   */
+  @Test
+  public void toDerivativeTest() {
+    final ZonedDateTime[] dates1 = new ZonedDateTime[NUM_PRDS * NUM_OBS];
+    final double[] rates1 = new double[NUM_PRDS * NUM_OBS];
+    Arrays.fill(rates1, 0.01);
+    for (int i = 0; i < NUM_PRDS; ++i) {
+      for (int j = 0; j < NUM_OBS; ++j) {
+        dates1[NUM_OBS * i + j] = FIXING_DATES[i][j];
+      }
+    }
+    final DoubleTimeSeries<ZonedDateTime> fixingTS1 = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(dates1, rates1);
+    final Coupon derivative1 = DFN1.toDerivative(FIXING_DATES[0][0].minusDays(10), fixingTS1);
+    final Coupon derivative2 = DFN1.toDerivative(FIXING_DATES[NUM_PRDS - 1][NUM_OBS - 1].plusDays(1), fixingTS1);
+    final CouponIborFlatCompoundingSpread derivative3 = (CouponIborFlatCompoundingSpread) DFN1.toDerivative(FIXING_DATES[2][3].minusDays(1), fixingTS1);
+
+    assertTrue((derivative2 instanceof CouponFixed));
+    assertTrue((derivative1 instanceof CouponIborFlatCompoundingSpread));
+
+    assertEquals(NUM_PRDS - 2, derivative3.getFixingPeriodAccrualFactor().length);
+    assertEquals(NUM_PRDS - 2, derivative3.getFixingPeriodEndTime().length);
+    assertEquals(NUM_PRDS - 2, derivative3.getFixingPeriodStartTime().length);
+    assertEquals(NUM_PRDS - 2, derivative3.getFixingTime().length);
+    assertEquals(NUM_PRDS - 2, derivative3.getPaymentAccrualFactors().length);
+
+    final double[] cpa = new double[2];
+    double rate = 0.;
+    for (int j = 0; j < NUM_OBS; ++j) {
+      rate += WEIGHTS[0][j] * 0.01;
+    }
+    cpa[0] = (rate + SPREAD) * ACCRUAL_FACTORS[0];
+
+    rate = 0.0;
+    for (int j = 0; j < NUM_OBS; ++j) {
+      rate += WEIGHTS[1][j] * 0.01;
+    }
+    cpa[1] = (rate + SPREAD) * ACCRUAL_FACTORS[1] + cpa[0] * rate * ACCRUAL_FACTORS[1];
+
+    assertEquals(cpa[0] + cpa[1], derivative3.getAmountAccrued(), 1.e-14);
+
+    try {
+      DFN1.toDerivative(PAYMENT_DATE.plusDays(10), fixingTS1);
+      throw new RuntimeException();
+    } catch (final Exception e) {
+      assertEquals("date is after payment date", e.getMessage());
+    }
+    try {
+      DFN1.toDerivative(DateUtils.getUTCDate(2011, 5, 3), ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2010, 2, 7) }, new double[] {0.01 }));
+      throw new RuntimeException();
+    } catch (final Exception e) {
+      assertEquals("Could not get fixing value for date " + FIXING_DATES[0][0], e.getMessage());
+    }
+  }
 
   /**
    * 
