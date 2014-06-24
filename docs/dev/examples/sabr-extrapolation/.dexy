@@ -1,8 +1,0 @@
-{
-    "*.R|fn|rintbatch|pyg": {
-        "inputs" : ["*.java|fn|java"],
-        "exact-inputs": [
-            "shared/RunExamples.java|fn|java"
-        ]
-    }
-}
