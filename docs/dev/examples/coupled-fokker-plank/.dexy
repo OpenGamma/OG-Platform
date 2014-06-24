@@ -1,9 +1,0 @@
-{
-    "graph-density.R|fn|rintbatch|pyg": {
-        "disabled" : false, 
-        "inputs" : ["*.java|fn|java"],
-        "exact-inputs": [
-            "shared/RunExamples.java|fn|java"
-        ]
-    }
-}

@@ -1,4 +1,0 @@
-{
-    "*.js|fn|casperjs" : { "final"  : true },
-    "*.js|idio" : {}
-}
