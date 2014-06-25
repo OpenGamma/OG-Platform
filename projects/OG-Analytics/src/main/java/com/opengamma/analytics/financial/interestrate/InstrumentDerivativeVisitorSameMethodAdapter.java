@@ -632,12 +632,12 @@ public abstract class InstrumentDerivativeVisitorSameMethodAdapter<DATA_TYPE, RE
   }
 
   @Override
-  public RESULT_TYPE visitCouponIborAverageSinglePeriod(final CouponIborAverageFixingDates payment, final DATA_TYPE data) {
+  public RESULT_TYPE visitCouponIborAverageFixingDates(final CouponIborAverageFixingDates payment, final DATA_TYPE data) {
     return visit(payment, data);
   }
 
   @Override
-  public RESULT_TYPE visitCouponIborAverageSinglePeriod(final CouponIborAverageFixingDates payment) {
+  public RESULT_TYPE visitCouponIborAverageFixingDates(final CouponIborAverageFixingDates payment) {
     return visit(payment);
   }
 

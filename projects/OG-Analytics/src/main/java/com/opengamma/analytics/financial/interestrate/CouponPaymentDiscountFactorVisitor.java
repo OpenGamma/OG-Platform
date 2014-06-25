@@ -114,7 +114,7 @@ public class CouponPaymentDiscountFactorVisitor extends InstrumentDerivativeVisi
   }
 
   @Override
-  public Double visitCouponIborAverageSinglePeriod(final CouponIborAverageFixingDates payment, final YieldCurveBundle curves) {
+  public Double visitCouponIborAverageFixingDates(final CouponIborAverageFixingDates payment, final YieldCurveBundle curves) {
     final YieldAndDiscountCurve curve = curves.getCurve(payment.getFundingCurveName());
     return curve.getDiscountFactor(payment.getPaymentTime());
   }

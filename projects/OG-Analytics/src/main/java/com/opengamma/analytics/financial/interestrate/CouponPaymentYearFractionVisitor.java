@@ -99,7 +99,7 @@ public class CouponPaymentYearFractionVisitor extends InstrumentDerivativeVisito
   }
 
   @Override
-  public Double visitCouponIborAverageSinglePeriod(final CouponIborAverageFixingDates payment) {
+  public Double visitCouponIborAverageFixingDates(final CouponIborAverageFixingDates payment) {
     return payment.getPaymentYearFraction();
   }
 

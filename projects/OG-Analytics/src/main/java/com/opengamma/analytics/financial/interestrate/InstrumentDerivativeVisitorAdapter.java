@@ -569,12 +569,12 @@ public abstract class InstrumentDerivativeVisitorAdapter<DATA_TYPE, RESULT_TYPE>
   }
 
   @Override
-  public RESULT_TYPE visitCouponIborAverageSinglePeriod(final CouponIborAverageFixingDates payment, final DATA_TYPE data) {
+  public RESULT_TYPE visitCouponIborAverageFixingDates(final CouponIborAverageFixingDates payment, final DATA_TYPE data) {
     return getException(payment, data);
   }
 
   @Override
-  public RESULT_TYPE visitCouponIborAverageSinglePeriod(final CouponIborAverageFixingDates payment) {
+  public RESULT_TYPE visitCouponIborAverageFixingDates(final CouponIborAverageFixingDates payment) {
     return getException(payment);
   }
 

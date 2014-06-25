@@ -1518,12 +1518,12 @@ public class ForexDerivativeVisitorTest {
     }
 
     @Override
-    public String visitCouponIborAverageSinglePeriod(CouponIborAverageFixingDates payment, T data) {
+    public String visitCouponIborAverageFixingDates(CouponIborAverageFixingDates payment, T data) {
       return null;
     }
 
     @Override
-    public String visitCouponIborAverageSinglePeriod(CouponIborAverageFixingDates payment) {
+    public String visitCouponIborAverageFixingDates(CouponIborAverageFixingDates payment) {
       return null;
     }
 

@@ -254,7 +254,7 @@ public final class PresentValueDiscountingCalculator extends InstrumentDerivativ
   }
 
   @Override
-  public MultipleCurrencyAmount visitCouponIborAverageSinglePeriod(final CouponIborAverageFixingDates coupon, final MulticurveProviderInterface multicurve) {
+  public MultipleCurrencyAmount visitCouponIborAverageFixingDates(final CouponIborAverageFixingDates coupon, final MulticurveProviderInterface multicurve) {
     return METHOD_CPN_IBOR_AVERAGE_FIXING_DATES.presentValue(coupon, multicurve);
   }
 

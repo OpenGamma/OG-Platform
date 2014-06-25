@@ -239,7 +239,7 @@ public final class PresentValueCurveSensitivityDiscountingCalculator extends Ins
   }
 
   @Override
-  public MultipleCurrencyMulticurveSensitivity visitCouponIborAverageSinglePeriod(final CouponIborAverageFixingDates coupon, final MulticurveProviderInterface multicurve) {
+  public MultipleCurrencyMulticurveSensitivity visitCouponIborAverageFixingDates(final CouponIborAverageFixingDates coupon, final MulticurveProviderInterface multicurve) {
     return METHOD_CPN_IBOR_AVERAGE_FIXING_DATES.presentValueCurveSensitivity(coupon, multicurve);
   }
 

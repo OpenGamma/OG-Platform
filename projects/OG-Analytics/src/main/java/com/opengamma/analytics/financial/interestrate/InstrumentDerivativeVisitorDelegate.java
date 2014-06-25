@@ -628,13 +628,13 @@ public class InstrumentDerivativeVisitorDelegate<DATA_TYPE, RESULT_TYPE> impleme
   }
 
   @Override
-  public RESULT_TYPE visitCouponIborAverageSinglePeriod(final CouponIborAverageFixingDates payment, final DATA_TYPE data) {
-    return _delegate.visitCouponIborAverageSinglePeriod(payment, data);
+  public RESULT_TYPE visitCouponIborAverageFixingDates(final CouponIborAverageFixingDates payment, final DATA_TYPE data) {
+    return _delegate.visitCouponIborAverageFixingDates(payment, data);
   }
 
   @Override
-  public RESULT_TYPE visitCouponIborAverageSinglePeriod(final CouponIborAverageFixingDates payment) {
-    return _delegate.visitCouponIborAverageSinglePeriod(payment);
+  public RESULT_TYPE visitCouponIborAverageFixingDates(final CouponIborAverageFixingDates payment) {
+    return _delegate.visitCouponIborAverageFixingDates(payment);
   }
 
   @Override

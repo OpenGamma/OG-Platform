@@ -110,7 +110,7 @@ public class CouponIborAverageFixingDatesDiscountingMethodTest {
     }
     final double pvExpected = DER1.getNotional() * MULTICURVES.getDiscountFactor(DER1.getCurrency(), DER1.getPaymentTime()) * DER1.getPaymentYearFraction() * forward;
     assertEquals(pvExpected, pvComputed.getAmount(DER1.getCurrency()), EPS * pvExpected);
-    final MultipleCurrencyAmount pvWithCalc = PVDC.visitCouponIborAverageSinglePeriod(DER1, MULTICURVES);
+    final MultipleCurrencyAmount pvWithCalc = PVDC.visitCouponIborAverageFixingDates(DER1, MULTICURVES);
     assertEquals(pvWithCalc.getAmount(DER1.getCurrency()), pvComputed.getAmount(DER1.getCurrency()), EPS * pvExpected);
   }
 

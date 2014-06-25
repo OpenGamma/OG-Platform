@@ -430,9 +430,9 @@ public interface InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> {
 
   RESULT_TYPE visitCouponONArithmeticAverageSpreadSimplified(CouponONArithmeticAverageSpreadSimplified payment);
 
-  RESULT_TYPE visitCouponIborAverageSinglePeriod(CouponIborAverageFixingDates payment, DATA_TYPE data);
+  RESULT_TYPE visitCouponIborAverageFixingDates(CouponIborAverageFixingDates payment, DATA_TYPE data);
 
-  RESULT_TYPE visitCouponIborAverageSinglePeriod(CouponIborAverageFixingDates payment);
+  RESULT_TYPE visitCouponIborAverageFixingDates(CouponIborAverageFixingDates payment);
 
   RESULT_TYPE visitCouponIborAverageCompounding(CouponIborAverageCompounding payment, DATA_TYPE data);
 
