@@ -56,7 +56,7 @@ public final class CouponIborFlatCompoundingSpreadDiscountingMethod {
 
     final int nPeriods = coupon.getFixingTime().length;
     final int nDates = coupon.getFixingTime()[0].length;
-    double amountAccrued = coupon.getAmountAccrued();
+    double payoff = coupon.getAmountAccrued();
     for (int i = 0; i < nPeriods; ++i) {
       double forward = 0.;
       for (int j = 0; j < nDates; ++j) {
@@ -64,10 +64,10 @@ public final class CouponIborFlatCompoundingSpreadDiscountingMethod {
             coupon.getFixingPeriodAccrualFactor()[i][j]);
         forward += coupon.getWeight()[i][j] * forward1;
       }
-      amountAccrued = (coupon.getSpread() + forward) * coupon.getPaymentAccrualFactors()[i] + amountAccrued * coupon.getPaymentAccrualFactors()[i] * forward;
+      payoff += (coupon.getSpread() + forward + payoff * forward) * coupon.getPaymentAccrualFactors()[i];
     }
     final double df = multicurves.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
-    final double pv = coupon.getNotional() * amountAccrued * df;
+    final double pv = coupon.getNotional() * payoff * df;
     return MultipleCurrencyAmount.of(coupon.getCurrency(), pv);
   }
 

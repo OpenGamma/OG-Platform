@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.financial.interestrate.payments.provider;
 
+import static org.testng.AssertJUnit.assertEquals;
+
 import java.util.Arrays;
 
 import org.testng.annotations.Test;
@@ -19,7 +21,6 @@ import com.opengamma.analytics.financial.provider.description.MulticurveProvider
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
-import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ParameterSensitivityMulticurveDiscountInterpolatedFDCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
@@ -32,6 +33,7 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
 
 /**
@@ -109,7 +111,7 @@ public class CouponIborFlatCompoundingSpreadDiscountingMethodTest {
     }
   }
 
-  private static final double AMOUNT_ACC = 0.05;
+  private static final double AMOUNT_ACC = 0.5;
   private static final CouponIborFlatCompoundingSpread DER1 = new CouponIborFlatCompoundingSpread(CUR, PAYMENT_TIME, ACCRUAL_FACTOR, NOTIONAL, ACCRUAL_FACTORS, IBOR_INDEXES[0], FIXING_TIMES, WEIGHTS,
       FIXING_PERIOD_START_TIMES, FIXING_PERIOD_END_TIMES, FIX_ACC_FACTORS, AMOUNT_ACC, SPREAD);
   private static final CouponIborFlatCompoundingSpreadDiscountingMethod METHOD = CouponIborFlatCompoundingSpreadDiscountingMethod.getInstance();
@@ -122,48 +124,51 @@ public class CouponIborFlatCompoundingSpreadDiscountingMethodTest {
   private static final double EPS = 1.0e-10;
   private static final double TOLERANCE_PV_DELTA = 1.0;
 
-  //  /**
-  //   * 
-  //   */
-  //  @Test
-  //  public void presentValueTest() {
-  //    final MultipleCurrencyAmount pvComputed = METHOD.presentValue(DER1, MULTICURVES);
-  //    double acc = AMOUNT_ACC;
-  //    final double[] fwds = new double[NUM_PRDS];
-  //    Arrays.fill(fwds, 0.0);
-  //    final double[] cpas = new double[NUM_PRDS];
-  //    Arrays.fill(cpas, 0.0);
-  //    for (int i = 0; i < NUM_PRDS; ++i) {
-  //      for (int j = 0; j < NUM_OBS; ++j) {
-  //        fwds[i] += WEIGHTS[i][j] * MULTICURVES.getSimplyCompoundForwardRate(IBOR_INDEXES[0], FIXING_PERIOD_START_TIMES[i][j], FIXING_PERIOD_END_TIMES[i][j], FIX_ACC_FACTORS[i][j]);
-  //      }
-  //    }
-  //    cpas[0] = (fwds[0] + DER1.getSpread()) * DER1.getPaymentAccrualFactors()[0];
-  //    for (int i = 1; i < NUM_PRDS; ++i) {
-  //      cpas[i] = (fwds[i] + DER1.getSpread()) * DER1.getPaymentAccrualFactors()[i];
-  //      for (int k = 0; k < i; ++k) {
-  //        cpas[i] += cpas[k] * DER1.getPaymentAccrualFactors()[i] * fwds[i];
-  //      }
-  //    }
-  //    for (int i = 0; i < NUM_PRDS; ++i) {
-  //      acc += cpas[i];
-  //    }
-  //
-  //    final double pvExpected = DER1.getNotional() * MULTICURVES.getDiscountFactor(DER1.getCurrency(), DER1.getPaymentTime()) * acc;
-  //    assertEquals(pvExpected, pvComputed.getAmount(DER1.getCurrency()), EPS * Math.abs(pvExpected));
-  //    final MultipleCurrencyAmount pvWithCalc = PVDC.visitCouponIborFlatCompoundingSpread(DER1, MULTICURVES);
-  //    assertEquals(pvWithCalc.getAmount(DER1.getCurrency()), pvComputed.getAmount(DER1.getCurrency()), EPS * Math.abs(pvExpected));
-  //  }
-
   /**
    * 
    */
   @Test
-  public void sensitivityFiniteDifferenceTest() {
-    final MultipleCurrencyParameterSensitivity senseCalc = PSC.calculateSensitivity(DER1, MULTICURVES, MULTICURVES.getAllNames());
-    final MultipleCurrencyParameterSensitivity senseFd = PSC_DSC_FD.calculateSensitivity(DER1, MULTICURVES);
-    AssertSensitivityObjects.assertEquals("CouponIborFlatCompoundingSpreadDiscountingMethod", senseCalc, senseFd, TOLERANCE_PV_DELTA);
+  public void presentValueTest() {
+    final MultipleCurrencyAmount pvComputed = METHOD.presentValue(DER1, MULTICURVES);
+    double acc = AMOUNT_ACC;
+    final double[] fwds = new double[NUM_PRDS];
+    Arrays.fill(fwds, 0.0);
+    final double[] cpas = new double[NUM_PRDS];
+    Arrays.fill(cpas, 0.0);
+    for (int i = 0; i < NUM_PRDS; ++i) {
+      for (int j = 0; j < NUM_OBS; ++j) {
+        fwds[i] += WEIGHTS[i][j] * MULTICURVES.getSimplyCompoundForwardRate(IBOR_INDEXES[0], FIXING_PERIOD_START_TIMES[i][j], FIXING_PERIOD_END_TIMES[i][j], FIX_ACC_FACTORS[i][j]);
+      }
+    }
+    cpas[0] = (fwds[0] + DER1.getSpread()) * DER1.getPaymentAccrualFactors()[0] + acc * fwds[0] * DER1.getPaymentAccrualFactors()[0];
+    for (int i = 1; i < NUM_PRDS; ++i) {
+      cpas[i] = (fwds[i] + DER1.getSpread()) * DER1.getPaymentAccrualFactors()[i];
+      double sum = AMOUNT_ACC * DER1.getPaymentAccrualFactors()[i] * fwds[i];
+      for (int k = 0; k < i; ++k) {
+        sum += (cpas[k] * DER1.getPaymentAccrualFactors()[i] * fwds[i]);
+      }
+      cpas[i] += sum;
+    }
+
+    for (int i = 0; i < NUM_PRDS; ++i) {
+      acc += cpas[i];
+    }
+
+    final double pvExpected = DER1.getNotional() * MULTICURVES.getDiscountFactor(DER1.getCurrency(), DER1.getPaymentTime()) * acc;
+    assertEquals(pvExpected, pvComputed.getAmount(DER1.getCurrency()), EPS * Math.abs(pvExpected));
+    final MultipleCurrencyAmount pvWithCalc = PVDC.visitCouponIborFlatCompoundingSpread(DER1, MULTICURVES);
+    assertEquals(pvWithCalc.getAmount(DER1.getCurrency()), pvComputed.getAmount(DER1.getCurrency()), EPS * Math.abs(pvExpected));
   }
+
+  //  /**
+  //   * 
+  //   */
+  //  @Test
+  //  public void sensitivityFiniteDifferenceTest() {
+  //    final MultipleCurrencyParameterSensitivity senseCalc = PSC.calculateSensitivity(DER1, MULTICURVES, MULTICURVES.getAllNames());
+  //    final MultipleCurrencyParameterSensitivity senseFd = PSC_DSC_FD.calculateSensitivity(DER1, MULTICURVES);
+  //    AssertSensitivityObjects.assertEquals("CouponIborFlatCompoundingSpreadDiscountingMethod", senseCalc, senseFd, TOLERANCE_PV_DELTA);
+  //  }
 
   /**
    * 

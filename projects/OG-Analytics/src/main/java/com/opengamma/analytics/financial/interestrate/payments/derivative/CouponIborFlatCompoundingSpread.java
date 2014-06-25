@@ -37,7 +37,7 @@ public class CouponIborFlatCompoundingSpread extends CouponIborAverageCompoundin
       final IborIndex index, final double[][] fixingTime, final double[][] weight, final double[][] fixingPeriodStartTime, final double[][] fixingPeriodEndTime,
       final double[][] fixingPeriodAccrualFactor, final double amountAccrued, final double spread) {
     super(currency, paymentTime, paymentAccrualFactor, notional, paymentAccrualFactors, index, fixingTime, weight, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor,
-        amountAccrued);
+        amountAccrued, 0.);
     _spread = spread;
   }
 

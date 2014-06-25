@@ -55,6 +55,7 @@ public class CouponIborAverageCompoundingDiscountingMethodTest {
 
   private static final int NUM_PRDS = 6;
   private static final int NUM_OBS = 5;
+  private static final int NUM_OBS_INI = 3;
 
   private static final ZonedDateTime ACCRUAL_START_DATE = DateUtils.getUTCDate(2011, 1, 6);
   private static final ZonedDateTime ACCRUAL_END_DATE = DateUtils.getUTCDate(2011, 7, 4);
@@ -97,7 +98,6 @@ public class CouponIborAverageCompoundingDiscountingMethodTest {
   private static final double[][] FIXING_PERIOD_START_TIMES = new double[NUM_PRDS][NUM_OBS];
   private static final double[][] FIXING_PERIOD_END_TIMES = new double[NUM_PRDS][NUM_OBS];
   private static double[][] FIX_ACC_FACTORS = new double[NUM_PRDS][NUM_OBS];
-
   static {
     for (int i = 0; i < NUM_PRDS; ++i) {
       FIXING_TIMES[i] = TimeCalculator.getTimeBetween(REFERENCE_DATE, FIXING_DATES[i]);
@@ -111,9 +111,30 @@ public class CouponIborAverageCompoundingDiscountingMethodTest {
     }
   }
 
-  private static final double AMOUNT_ACC = 0.05;
+  private static final double[] FIXING_TIMES_INI = new double[NUM_OBS_INI];
+  private static final double[] FIXING_PERIOD_START_TIMES_INI = new double[NUM_OBS_INI];
+  private static final double[] FIXING_PERIOD_END_TIMES_INI = new double[NUM_OBS_INI];
+  private static double[] FIX_ACC_FACTORS_INI = new double[NUM_OBS_INI];
+  private static final double[] WEIGHTS_INI = new double[NUM_OBS_INI];
+  static {
+    for (int i = 0; i < NUM_OBS_INI; ++i) {
+      FIXING_TIMES_INI[i] = FIXING_TIMES[0][NUM_OBS - NUM_OBS_INI + i];
+      FIXING_PERIOD_START_TIMES_INI[i] = FIXING_PERIOD_START_TIMES[0][NUM_OBS - NUM_OBS_INI + i];
+      FIXING_PERIOD_END_TIMES_INI[i] = FIXING_PERIOD_END_TIMES[0][NUM_OBS - NUM_OBS_INI + i];
+      FIX_ACC_FACTORS_INI[i] = FIX_ACC_FACTORS[0][NUM_OBS - NUM_OBS_INI + i];
+      WEIGHTS_INI[i] = WEIGHTS[0][NUM_OBS - NUM_OBS_INI + i];
+    }
+    FIXING_TIMES[0] = FIXING_TIMES_INI;
+    FIXING_PERIOD_START_TIMES[0] = FIXING_PERIOD_START_TIMES_INI;
+    FIXING_PERIOD_END_TIMES[0] = FIXING_PERIOD_END_TIMES_INI;
+    FIX_ACC_FACTORS[0] = FIX_ACC_FACTORS_INI;
+    WEIGHTS[0] = WEIGHTS_INI;
+  }
+
+  private static final double AMOUNT_ACC = 0.02;
+  private static final double RATE_FIXED = 0.005;
   private static final CouponIborAverageCompounding DER1 = new CouponIborAverageCompounding(CUR, PAYMENT_TIME, ACCRUAL_FACTOR, NOTIONAL, ACCRUAL_FACTORS, IBOR_INDEXES[0], FIXING_TIMES, WEIGHTS,
-      FIXING_PERIOD_START_TIMES, FIXING_PERIOD_END_TIMES, FIX_ACC_FACTORS, AMOUNT_ACC);
+      FIXING_PERIOD_START_TIMES, FIXING_PERIOD_END_TIMES, FIX_ACC_FACTORS, AMOUNT_ACC, RATE_FIXED);
   private static final CouponIborAverageCompoundingDiscountingMethod METHOD = CouponIborAverageCompoundingDiscountingMethod.getInstance();
   private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
   private static final PresentValueCurveSensitivityDiscountingCalculator PVCSDC = PresentValueCurveSensitivityDiscountingCalculator.getInstance();
@@ -131,7 +152,13 @@ public class CouponIborAverageCompoundingDiscountingMethodTest {
   public void presentValueTest() {
     final MultipleCurrencyAmount pvComputed = METHOD.presentValue(DER1, MULTICURVES);
     double acc = AMOUNT_ACC;
-    for (int i = 0; i < NUM_PRDS; ++i) {
+    double fwd = RATE_FIXED;
+    for (int j = 0; j < NUM_OBS_INI; ++j) {
+      fwd += WEIGHTS[0][j] * MULTICURVES.getSimplyCompoundForwardRate(IBOR_INDEXES[0], FIXING_PERIOD_START_TIMES[0][j], FIXING_PERIOD_END_TIMES[0][j], FIX_ACC_FACTORS[0][j]);
+    }
+    acc *= (1.0 + fwd * DER1.getPaymentAccrualFactors()[0]);
+
+    for (int i = 1; i < NUM_PRDS; ++i) {
       double forward = 0.0;
       for (int j = 0; j < NUM_OBS; ++j) {
         forward += WEIGHTS[i][j] * MULTICURVES.getSimplyCompoundForwardRate(IBOR_INDEXES[0], FIXING_PERIOD_START_TIMES[i][j], FIXING_PERIOD_END_TIMES[i][j], FIX_ACC_FACTORS[i][j]);

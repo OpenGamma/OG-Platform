@@ -26,6 +26,7 @@ public class CouponIborAverageCompounding extends Coupon {
   private final double[][] _fixingPeriodAccrualFactor;
   private final double[] _paymentAccrualFactors;
   private final double _amountAccrued;
+  private final double _rateFixed;
 
   /**
    * Constructor from all details
@@ -41,22 +42,28 @@ public class CouponIborAverageCompounding extends Coupon {
    * @param fixingPeriodEndTime The fixing period end time (in years) of the index
    * @param fixingPeriodAccrualFactors The accrual factors of fixing periods
    * @param amountAccrued The interest amount accrued over the periods already fixed.
+   * @param rateFixed The interest rate fixed already
    */
   public CouponIborAverageCompounding(final Currency currency, final double paymentTime, final double paymentAccrualFactor, final double notional, final double[] paymentAccrualFactors,
       final IborIndex index, final double[][] fixingTime, final double[][] weight, final double[][] fixingPeriodStartTime, final double[][] fixingPeriodEndTime,
-      final double[][] fixingPeriodAccrualFactors, final double amountAccrued) {
+      final double[][] fixingPeriodAccrualFactors, final double amountAccrued, final double rateFixed) {
     super(currency, paymentTime, paymentAccrualFactor, notional);
 
     final int nPeriods = fixingTime.length;
-    final int nDates = fixingTime[0].length; //number of fixing dates per period
+    final int nDatesIni = fixingTime[0].length; //number of fixing dates for the first period
+    final int nDates = fixingTime[1].length; //number of fixing dates per period
     ArgumentChecker.isTrue(nPeriods == weight.length, "weight length different from fixingTime length");
-    ArgumentChecker.isTrue(nDates == weight[0].length, "weight length different from fixingTime length");
+    ArgumentChecker.isTrue(nDatesIni == weight[0].length, "weight length different from fixingTime length");
+    ArgumentChecker.isTrue(nDates == weight[1].length, "weight length different from fixingTime length");
     ArgumentChecker.isTrue(nPeriods == fixingPeriodStartTime.length, "fixingPeriodStartDates length different from fixingTime length");
-    ArgumentChecker.isTrue(nDates == fixingPeriodStartTime[0].length, "fixingPeriodStartDates length different from fixingTime length");
+    ArgumentChecker.isTrue(nDatesIni == fixingPeriodStartTime[0].length, "fixingPeriodStartDates length different from fixingTime length");
+    ArgumentChecker.isTrue(nDates == fixingPeriodStartTime[1].length, "fixingPeriodStartDates length different from fixingTime length");
     ArgumentChecker.isTrue(nPeriods == fixingPeriodEndTime.length, "fixingPeriodEndDates length different from fixingTime length");
-    ArgumentChecker.isTrue(nDates == fixingPeriodEndTime[0].length, "fixingPeriodEndDates length different from fixingTime length");
+    ArgumentChecker.isTrue(nDatesIni == fixingPeriodEndTime[0].length, "fixingPeriodEndDates length different from fixingTime length");
+    ArgumentChecker.isTrue(nDates == fixingPeriodEndTime[1].length, "fixingPeriodEndDates length different from fixingTime length");
     ArgumentChecker.isTrue(nPeriods == fixingPeriodAccrualFactors.length, "fixingPeriodAccrualFactors length different from fixingTime length");
-    ArgumentChecker.isTrue(nDates == fixingPeriodAccrualFactors[0].length, "fixingPeriodAccrualFactors length different from fixingTime length");
+    ArgumentChecker.isTrue(nDatesIni == fixingPeriodAccrualFactors[0].length, "fixingPeriodAccrualFactors length different from fixingTime length");
+    ArgumentChecker.isTrue(nDates == fixingPeriodAccrualFactors[1].length, "fixingPeriodAccrualFactors length different from fixingTime length");
     ArgumentChecker.isTrue(currency.equals(index.getCurrency()), "index currency different from payment currency");
 
     _weight = new double[nPeriods][nDates];
@@ -68,7 +75,15 @@ public class CouponIborAverageCompounding extends Coupon {
     _index = index;
     _paymentAccrualFactors = Arrays.copyOf(paymentAccrualFactors, nPeriods);
     _amountAccrued = amountAccrued;
-    for (int i = 0; i < nPeriods; ++i) {
+    _rateFixed = rateFixed;
+
+    _weight[0] = Arrays.copyOf(weight[0], nDatesIni);
+    _fixingTime[0] = Arrays.copyOf(fixingTime[0], nDatesIni);
+    _fixingPeriodStartTime[0] = Arrays.copyOf(fixingPeriodStartTime[0], nDatesIni);
+    _fixingPeriodEndTime[0] = Arrays.copyOf(fixingPeriodEndTime[0], nDatesIni);
+    _fixingPeriodAccrualFactor[0] = Arrays.copyOf(fixingPeriodAccrualFactors[0], nDatesIni);
+
+    for (int i = 1; i < nPeriods; ++i) {
       System.arraycopy(weight[i], 0, _weight[i], 0, nDates);
       System.arraycopy(fixingTime[i], 0, _fixingTime[i], 0, nDates);
       System.arraycopy(fixingPeriodStartTime[i], 0, _fixingPeriodStartTime[i], 0, nDates);
@@ -93,7 +108,7 @@ public class CouponIborAverageCompounding extends Coupon {
   @Override
   public CouponIborAverageCompounding withNotional(final double notional) {
     return new CouponIborAverageCompounding(getCurrency(), getPaymentTime(), getPaymentYearFraction(), notional, getPaymentAccrualFactors(), getIndex(), getFixingTime(), getWeight(),
-        getFixingPeriodStartTime(), getFixingPeriodEndTime(), getFixingPeriodAccrualFactor(), getAmountAccrued());
+        getFixingPeriodStartTime(), getFixingPeriodEndTime(), getFixingPeriodAccrualFactor(), getAmountAccrued(), getRateFixed());
   }
 
   /**
@@ -158,6 +173,14 @@ public class CouponIborAverageCompounding extends Coupon {
    */
   public double getAmountAccrued() {
     return _amountAccrued;
+  }
+
+  /**
+   * Returns the rate for the period already fixed.
+   * @return The rate fixed.
+   */
+  public double getRateFixed() {
+    return _rateFixed;
   }
 
   @Override

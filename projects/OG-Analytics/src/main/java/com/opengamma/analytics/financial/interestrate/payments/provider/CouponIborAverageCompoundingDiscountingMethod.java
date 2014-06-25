@@ -56,9 +56,18 @@ public final class CouponIborAverageCompoundingDiscountingMethod {
     ArgumentChecker.notNull(multicurves, "Multi-curves provider");
 
     final int nPeriods = coupon.getFixingTime().length;
-    final int nDates = coupon.getFixingTime()[0].length;
+    final int nDatesIni = coupon.getFixingTime()[0].length;
+    final int nDates = coupon.getFixingTime()[1].length;
     double amountAccrued = 1.0;
-    for (int i = 0; i < nPeriods; ++i) {
+
+    double fwdIni = coupon.getRateFixed();
+    for (int j = 0; j < nDatesIni; ++j) {
+      fwdIni += coupon.getWeight()[0][j] *
+          multicurves.getSimplyCompoundForwardRate(coupon.getIndex(), coupon.getFixingPeriodStartTime()[0][j], coupon.getFixingPeriodEndTime()[0][j], coupon.getFixingPeriodAccrualFactor()[0][j]);
+    }
+    amountAccrued *= (1.0 + fwdIni * coupon.getPaymentAccrualFactors()[0]);
+
+    for (int i = 1; i < nPeriods; ++i) {
       double forward = 0.;
       for (int j = 0; j < nDates; ++j) {
         final double forward1 = multicurves.getSimplyCompoundForwardRate(coupon.getIndex(), coupon.getFixingPeriodStartTime()[i][j], coupon.getFixingPeriodEndTime()[i][j],
@@ -83,11 +92,19 @@ public final class CouponIborAverageCompoundingDiscountingMethod {
     ArgumentChecker.notNull(coupon, "Coupon");
     ArgumentChecker.notNull(multicurve, "Curves");
     final int nPeriods = coupon.getFixingTime().length;
-    final int nDates = coupon.getFixingTime()[0].length;
+    final int nDatesIni = coupon.getFixingTime()[0].length;
+    final int nDates = coupon.getFixingTime()[1].length;
     final double[] fctr = new double[nPeriods];
     Arrays.fill(fctr, 0.0);
     double amountAccrued = 1.0;
-    for (int i = 0; i < nPeriods; ++i) {
+    double fwdIni = coupon.getRateFixed();
+    for (int j = 0; j < nDatesIni; ++j) {
+      fwdIni += coupon.getWeight()[0][j] *
+          multicurve.getSimplyCompoundForwardRate(coupon.getIndex(), coupon.getFixingPeriodStartTime()[0][j], coupon.getFixingPeriodEndTime()[0][j], coupon.getFixingPeriodAccrualFactor()[0][j]);
+    }
+    fctr[0] = (1.0 + fwdIni * coupon.getPaymentAccrualFactors()[0]);
+    amountAccrued *= fctr[0];
+    for (int i = 1; i < nPeriods; ++i) {
       double forward = 0.;
       for (int j = 0; j < nDates; ++j) {
         final double forward1 = multicurve.getSimplyCompoundForwardRate(coupon.getIndex(), coupon.getFixingPeriodStartTime()[i][j], coupon.getFixingPeriodEndTime()[i][j],
@@ -103,7 +120,12 @@ public final class CouponIborAverageCompoundingDiscountingMethod {
     final double forwardBar = coupon.getNotional() * df;
     final double dfBar = coupon.getNotional() * (amountAccrued - 1.0);
     final double[][] forwardBars = new double[nPeriods][nDates];
-    for (int i = 0; i < nPeriods; ++i) {
+    final double[] forwardBarsIni = new double[nDatesIni];
+    for (int j = 0; j < nDatesIni; ++j) {
+      forwardBarsIni[j] = coupon.getWeight()[0][j] * forwardBar * amountAccrued * coupon.getPaymentAccrualFactors()[0] / fctr[0];
+    }
+    forwardBars[0] = forwardBarsIni;
+    for (int i = 1; i < nPeriods; ++i) {
       for (int j = 0; j < nDates; ++j) {
         forwardBars[i][j] = coupon.getWeight()[i][j] * forwardBar * amountAccrued * coupon.getPaymentAccrualFactors()[i] / fctr[i];
       }
@@ -115,7 +137,11 @@ public final class CouponIborAverageCompoundingDiscountingMethod {
 
     final Map<String, List<ForwardSensitivity>> mapFwd = new HashMap<>();
     final List<ForwardSensitivity> listForward = new ArrayList<>();
-    for (int i = 0; i < nPeriods; ++i) {
+    for (int j = 0; j < nDatesIni; ++j) {
+      listForward.add(new SimplyCompoundedForwardSensitivity(coupon.getFixingPeriodStartTime()[0][j], coupon.getFixingPeriodEndTime()[0][j], coupon.getFixingPeriodAccrualFactor()[0][j],
+          forwardBars[0][j]));
+    }
+    for (int i = 1; i < nPeriods; ++i) {
       for (int j = 0; j < nDates; ++j) {
         listForward.add(new SimplyCompoundedForwardSensitivity(coupon.getFixingPeriodStartTime()[i][j], coupon.getFixingPeriodEndTime()[i][j], coupon.getFixingPeriodAccrualFactor()[i][j],
             forwardBars[i][j]));
