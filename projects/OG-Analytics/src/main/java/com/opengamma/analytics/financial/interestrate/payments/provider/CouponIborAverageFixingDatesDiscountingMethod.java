@@ -23,25 +23,25 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * 
  */
-public final class CouponIborAverageSinglePeriodMethod {
+public final class CouponIborAverageFixingDatesDiscountingMethod {
 
   /**
    * The method unique instance.
    */
-  private static final CouponIborAverageSinglePeriodMethod INSTANCE = new CouponIborAverageSinglePeriodMethod();
+  private static final CouponIborAverageFixingDatesDiscountingMethod INSTANCE = new CouponIborAverageFixingDatesDiscountingMethod();
 
   /**
    * Return the unique instance of the class.
    * @return The instance.
    */
-  public static CouponIborAverageSinglePeriodMethod getInstance() {
+  public static CouponIborAverageFixingDatesDiscountingMethod getInstance() {
     return INSTANCE;
   }
 
   /**
    * Private constructor.
    */
-  private CouponIborAverageSinglePeriodMethod() {
+  private CouponIborAverageFixingDatesDiscountingMethod() {
   }
 
   /**
@@ -61,6 +61,7 @@ public final class CouponIborAverageSinglePeriodMethod {
           coupon.getFixingPeriodAccrualFactor()[i]);
       forward += coupon.getWeight()[i] * forward1;
     }
+    forward += coupon.getAmountAccrued();
     final double df = multicurves.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
     final double pv = coupon.getNotional() * coupon.getPaymentYearFraction() * forward * df;
     return MultipleCurrencyAmount.of(coupon.getCurrency(), pv);
@@ -82,11 +83,11 @@ public final class CouponIborAverageSinglePeriodMethod {
           coupon.getFixingPeriodAccrualFactor()[i]);
       forward += coupon.getWeight()[i] * forward1;
     }
+    forward += coupon.getAmountAccrued();
     final double df = multicurve.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
-    // Backward sweep
-    final double pvBar = 1.0;
-    final double forwardBar = coupon.getNotional() * coupon.getPaymentYearFraction() * df * pvBar;
-    final double dfBar = coupon.getNotional() * coupon.getPaymentYearFraction() * forward * pvBar;
+
+    final double forwardBar = coupon.getNotional() * coupon.getPaymentYearFraction() * df;
+    final double dfBar = coupon.getNotional() * coupon.getPaymentYearFraction() * forward;
     final double[] forwardBars = new double[nDates];
     for (int i = 0; i < nDates; ++i) {
       forwardBars[i] = coupon.getWeight()[i] * forwardBar;
@@ -95,14 +96,13 @@ public final class CouponIborAverageSinglePeriodMethod {
     final List<DoublesPair> listDiscounting = new ArrayList<>();
     listDiscounting.add(DoublesPair.of(coupon.getPaymentTime(), -coupon.getPaymentTime() * df * dfBar));
     mapDsc.put(multicurve.getName(coupon.getCurrency()), listDiscounting);
+
     final Map<String, List<ForwardSensitivity>> mapFwd = new HashMap<>();
-
+    final List<ForwardSensitivity> listForward = new ArrayList<>();
     for (int i = 0; i < nDates; ++i) {
-      final List<ForwardSensitivity> listForward = new ArrayList<>();
       listForward.add(new SimplyCompoundedForwardSensitivity(coupon.getFixingPeriodStartTime()[i], coupon.getFixingPeriodEndTime()[i], coupon.getFixingPeriodAccrualFactor()[i], forwardBars[i]));
-      mapFwd.put(multicurve.getName(coupon.getIndex()), listForward);
     }
-
+    mapFwd.put(multicurve.getName(coupon.getIndex()), listForward);
     return MultipleCurrencyMulticurveSensitivity.of(coupon.getCurrency(), MulticurveSensitivity.of(mapDsc, mapFwd));
   }
 
