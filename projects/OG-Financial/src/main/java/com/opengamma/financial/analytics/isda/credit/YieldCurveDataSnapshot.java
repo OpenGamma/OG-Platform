@@ -38,13 +38,13 @@ public class YieldCurveDataSnapshot implements NamedSnapshot, ImmutableBean {
   /**
    * Unique id for this snapshot.
    */
-  @PropertyDefinition
+  @PropertyDefinition(overrideGet = true)
   private final UniqueId _uniqueId;
   
   /**
    * Name for this snapshot.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final String _name;
   
   /**
