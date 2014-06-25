@@ -28,7 +28,7 @@ public class CouponIborAverageFixingDates extends Coupon {
   /** The end times of the underlying index period. Same size as _fixingTime. */
   private final double[] _fixingPeriodEndTime;
   private final double[] _fixingPeriodAccrualFactor;
-  /** The interest amount accrued over the periods already fixed multiplied by the accrual factors, i.e. the sum (w_i r_i). */
+  /** The interest amount accrued over the periods already fixed multiplied by the weights, i.e. the sum (w_i r_i). */
   private final double _amountAccrued;
 
   /**
@@ -43,7 +43,7 @@ public class CouponIborAverageFixingDates extends Coupon {
    * @param fixingPeriodStartTime The fixing period start time (in years) of the index
    * @param fixingPeriodEndTime The fixing period end time (in years) of the index
    * @param fixingPeriodAccrualFactor The accrual factor of the fixing periods
-   * @param amountAccrued The interest amount accrued over the periods already fixed.
+   * @param amountAccrued The interest amount accrued over the periods already fixed multiplied by the weights, i.e. the sum (w_i r_i).
    */
   public CouponIborAverageFixingDates(final Currency currency, final double paymentTime, final double paymentAccrualFactor, final double notional, final IborIndex index, final double[] fixingTime,
       final double[] weight, final double[] fixingPeriodStartTime, final double[] fixingPeriodEndTime, final double[] fixingPeriodAccrualFactor, final double amountAccrued) {

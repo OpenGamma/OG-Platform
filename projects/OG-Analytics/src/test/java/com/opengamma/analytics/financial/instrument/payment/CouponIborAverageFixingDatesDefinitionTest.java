@@ -12,6 +12,7 @@ import static org.testng.AssertJUnit.assertTrue;
 import java.util.Arrays;
 
 import org.testng.annotations.Test;
+import org.testng.internal.junit.ArrayAsserts;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
@@ -20,6 +21,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverageFixingDates;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
+import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -69,7 +71,10 @@ public class CouponIborAverageFixingDatesDefinitionTest {
   private static final CouponIborAverageFixingDatesDefinition DFN1 = new CouponIborAverageFixingDatesDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL,
       INDEX, FIXING_DATES, WEIGHTS, CALENDAR);
 
-  private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 12, 27);
+  private static final ZonedDateTime REFERENCE_DATE_BEFORE_FISRT_FIXING = DateUtils.getUTCDate(2010, 12, 27);
+  private static final ZonedDateTime REFERENCE_DATE_AFTER_LAST_FIXING = DateUtils.getUTCDate(2011, 7, 4);
+  private static final ZonedDateTime REFERENCE_DATE_ON_2ND_FIXING = DateUtils.getUTCDate(2011, 2, 3);
+  private static final ZonedDateTime REFERENCE_DATE_AFTER_2_FIXING = DateUtils.getUTCDate(2011, 2, 16);
 
   private static ZonedDateTime[] EXP_START_DATES = new ZonedDateTime[NUM_OBS];
   private static ZonedDateTime[] EXP_END_DATES = new ZonedDateTime[NUM_OBS];
@@ -84,51 +89,93 @@ public class CouponIborAverageFixingDatesDefinitionTest {
   private static final CouponIborAverageFixingDatesDefinition DFN2 = new CouponIborAverageFixingDatesDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL,
       INDEX, FIXING_DATES, WEIGHTS, EXP_START_DATES, EXP_END_DATES, FIX_ACC_FACTORS);
 
-  /**
-   * 
-   */
+  private static final DoubleTimeSeries<ZonedDateTime> FIXING_TS1 = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2010, 12, 7) }, new double[] {0.01 });
+  private static final double[] FIXING_TS2_VALUES = {0.011, 0.012, 0.013, 0.014, 0.015, 0.016 };
+  private static final DoubleTimeSeries<ZonedDateTime> FIXING_TS2 = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(
+      new ZonedDateTime[] {DateUtils.getUTCDate(2011, 1, 3), DateUtils.getUTCDate(2011, 2, 3), DateUtils.getUTCDate(2011, 3, 3), DateUtils.getUTCDate(2011, 4, 3), DateUtils.getUTCDate(2011, 5, 3),
+        DateUtils.getUTCDate(2011, 6, 3) }, FIXING_TS2_VALUES);
+  private static final double[] FIXING_2_EX_VALUES = {0.011 };
+  private static final DoubleTimeSeries<ZonedDateTime> FIXING_2_EX = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(
+      new ZonedDateTime[] {DateUtils.getUTCDate(2011, 1, 3) }, FIXING_2_EX_VALUES);
+  private static final double[] FIXING_2_IN_VALUES = {0.011, 0.012 };
+  private static final DoubleTimeSeries<ZonedDateTime> FIXING_2_IN = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(
+      new ZonedDateTime[] {DateUtils.getUTCDate(2011, 1, 3), DateUtils.getUTCDate(2011, 2, 3) }, FIXING_2_IN_VALUES);
+
+  private static final double TOLERANCE_TIME = 1.0E-6;
+  private static final double TOLERANCE_AMOUNT = 1.0E-2;
+  private static final double TOLERANCE_RATE = 1.0E-8;
+
   @Test
-  public void toDerivativeTest() {
-    final DoubleTimeSeries<ZonedDateTime> fixingTS1 = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2010, 12, 7) }, new double[] {0.01 });
-    final DoubleTimeSeries<ZonedDateTime> fixingTS2 = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(
-        new ZonedDateTime[] {DateUtils.getUTCDate(2011, 1, 3), DateUtils.getUTCDate(2011, 2, 3), DateUtils.getUTCDate(2011, 3, 3), DateUtils.getUTCDate(2011, 4, 3), DateUtils.getUTCDate(2011, 5, 3),
-            DateUtils.getUTCDate(2011, 6, 3) }, new double[] {0.01, 0.01, 0.01, 0.01, 0.01, 0.01 });
-
-    final Coupon derivative1 = DFN1.toDerivative(REFERENCE_DATE, fixingTS1);
-    final Coupon derivative2 = DFN1.toDerivative(DateUtils.getUTCDate(2011, 7, 3), fixingTS2);
-    assertTrue((derivative2 instanceof CouponFixed));
+  public void toDerivativeBeforeFirstFixing() {
+    final Coupon derivative1 = DFN1.toDerivative(REFERENCE_DATE_BEFORE_FISRT_FIXING, FIXING_TS1);
     assertTrue((derivative1 instanceof CouponIborAverageFixingDates));
+    final CouponIborAverageFixingDates coupon = (CouponIborAverageFixingDates) derivative1;
+    double[] fixingTime = TimeCalculator.getTimeBetween(REFERENCE_DATE_BEFORE_FISRT_FIXING, FIXING_DATES);
+    double[] fixingStart = TimeCalculator.getTimeBetween(REFERENCE_DATE_BEFORE_FISRT_FIXING, DFN1.getFixingPeriodStartDate());
+    double[] fixingEnd = TimeCalculator.getTimeBetween(REFERENCE_DATE_BEFORE_FISRT_FIXING, DFN1.getFixingPeriodEndDate());
+    ArrayAsserts.assertArrayEquals("CouponIborAverageFixingDatesDefinition: toDerivative", coupon.getFixingTime(), fixingTime, TOLERANCE_TIME);
+    ArrayAsserts.assertArrayEquals("CouponIborAverageFixingDatesDefinition: toDerivative", coupon.getFixingPeriodStartTime(), fixingStart, TOLERANCE_TIME);
+    ArrayAsserts.assertArrayEquals("CouponIborAverageFixingDatesDefinition: toDerivative", coupon.getFixingPeriodEndTime(), fixingEnd, TOLERANCE_TIME);
+    assertEquals("CouponIborAverageFixingDatesDefinition: toDerivative", coupon.getNotional(), NOTIONAL);
+  }
 
+  @Test
+  public void toDerivativeAfterLastFixing() {
+    final Coupon derivative = DFN1.toDerivative(REFERENCE_DATE_AFTER_LAST_FIXING, FIXING_TS2);
+    assertTrue((derivative instanceof CouponFixed));
+    final CouponFixed coupon = (CouponFixed) derivative;
+    double amountExpected = 0;
+    for (int loopfix = 0; loopfix < NUM_OBS; loopfix++) {
+      amountExpected += FIXING_TS2_VALUES[loopfix] * DFN1.getWeight()[loopfix];
+    }
+    amountExpected *= NOTIONAL * DFN1.getPaymentYearFraction();
+    assertEquals("CouponIborAverageFixingDatesDefinition: toDerivative", coupon.getAmount(), amountExpected, TOLERANCE_AMOUNT);
+  }
+
+  @Test
+  public void toDerivativeOn2ndFixing() {
+    final Coupon derivativeEx = DFN1.toDerivative(REFERENCE_DATE_ON_2ND_FIXING, FIXING_2_EX);
+    assertTrue((derivativeEx instanceof CouponIborAverageFixingDates));
+    final CouponIborAverageFixingDates couponEx = (CouponIborAverageFixingDates) derivativeEx;
+    double amountExpectedEx = FIXING_2_EX_VALUES[0] * DFN1.getWeight()[0];
+    assertEquals("CouponIborAverageFixingDatesDefinition: toDerivative", couponEx.getAmountAccrued(), amountExpectedEx, TOLERANCE_RATE);
+    final Coupon derivativeIn = DFN1.toDerivative(REFERENCE_DATE_ON_2ND_FIXING, FIXING_2_IN);
+    assertTrue((derivativeIn instanceof CouponIborAverageFixingDates));
+    final CouponIborAverageFixingDates couponIn = (CouponIborAverageFixingDates) derivativeIn;
+    double amountExpectedIn = FIXING_2_IN_VALUES[0] * DFN1.getWeight()[0] + FIXING_2_IN_VALUES[1] * DFN1.getWeight()[1];
+    assertEquals("CouponIborAverageFixingDatesDefinition: toDerivative", couponIn.getAmountAccrued(), amountExpectedIn, TOLERANCE_RATE);
+  }
+
+  @Test
+  public void toDerivativeAfter2nd() {
     final DoubleTimeSeries<ZonedDateTime> fixingTS3 = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 1, 3), DateUtils.getUTCDate(2011, 2, 3) },
         new double[] {0.01, 0.02 });
-    final CouponIborAverageFixingDates derivative3 = (CouponIborAverageFixingDates) DFN1.toDerivative(DateUtils.getUTCDate(2011, 2, 16), fixingTS3);
+    final CouponIborAverageFixingDates derivative3 = (CouponIborAverageFixingDates) DFN1.toDerivative(REFERENCE_DATE_AFTER_2_FIXING, fixingTS3);
     assertEquals(NUM_OBS - 2, derivative3.getFixingPeriodAccrualFactor().length);
     assertEquals(NUM_OBS - 2, derivative3.getFixingPeriodEndTime().length);
     assertEquals(NUM_OBS - 2, derivative3.getFixingPeriodStartTime().length);
     assertEquals(NUM_OBS - 2, derivative3.getFixingTime().length);
     assertEquals(NUM_OBS - 2, derivative3.getWeight().length);
-    final double refValue = (WEIGHTS[0] * fixingTS3.getValueAtIndex(0) + WEIGHTS[1] * fixingTS3.getValueAtIndex(1)) * ACCRUAL_FACTOR;
+    final double refValue = WEIGHTS[0] * fixingTS3.getValueAtIndex(0) + WEIGHTS[1] * fixingTS3.getValueAtIndex(1);
     assertEquals(refValue, derivative3.getAmountAccrued(), 1.e-14);
+  }
 
+  @Test
+  public void toDerivativeException() {
     try {
-      DFN1.toDerivative(PAYMENT_DATE.plusDays(10), fixingTS1);
+      DFN1.toDerivative(PAYMENT_DATE.plusDays(10), FIXING_TS1);
       throw new RuntimeException();
     } catch (final Exception e) {
       assertEquals("date is after payment date", e.getMessage());
     }
     try {
-      DFN1.toDerivative(DateUtils.getUTCDate(2011, 7, 3), fixingTS1);
+      DFN1.toDerivative(DateUtils.getUTCDate(2011, 7, 3), FIXING_TS1);
       throw new RuntimeException();
     } catch (final Exception e) {
       assertEquals("Could not get fixing value for date " + FIXING_DATES[0], e.getMessage());
     }
-
   }
 
-  /**
-   * 
-   */
-  @SuppressWarnings("unused")
   @Test
   public void exceptionTest() {
     try {
@@ -205,9 +252,6 @@ public class CouponIborAverageFixingDatesDefinitionTest {
     }
   }
 
-  /**
-   * 
-   */
   @Test
   public void consistencyTest() {
     final CouponIborAverageFixingDatesDefinition dfn1WithDouble = DFN1.withNotional(NOTIONAL * 2);
@@ -240,7 +284,7 @@ public class CouponIborAverageFixingDatesDefinitionTest {
     assertFalse(DFN1.hashCode() == dfn1WithDouble.hashCode());
     assertFalse(DFN1.equals(dfn1WithDouble));
 
-    assertTrue(DFN1.toDerivative(REFERENCE_DATE).equals(dfn1.toDerivative(REFERENCE_DATE)));
+    assertTrue(DFN1.toDerivative(REFERENCE_DATE_BEFORE_FISRT_FIXING).equals(dfn1.toDerivative(REFERENCE_DATE_BEFORE_FISRT_FIXING)));
 
   }
 }

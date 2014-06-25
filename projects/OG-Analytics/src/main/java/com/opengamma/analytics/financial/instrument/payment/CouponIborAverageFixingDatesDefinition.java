@@ -209,16 +209,6 @@ public class CouponIborAverageFixingDatesDefinition extends CouponDefinition imp
         getIndex(), fixingTime, getWeight(), fixingPeriodStartTime, fixingPeriodEndTime, getFixingPeriodAccrualFactor(), 0);
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Override
-  @Deprecated
-  public CouponIborAverageFixingDates toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    throw new NotImplementedException("toDerivative not implemented with yield curve names.");
-  }
-
   @Override
   public Coupon toDerivative(ZonedDateTime dateTime, DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries) {
     ArgumentChecker.notNull(dateTime, "date");
@@ -226,15 +216,13 @@ public class CouponIborAverageFixingDatesDefinition extends CouponDefinition imp
     ArgumentChecker.notNull(indexFixingTimeSeries, "Index fixing time series");
     ArgumentChecker.isTrue(!dayConversion.isAfter(getPaymentDate().toLocalDate()), "date is after payment date");
     final double paymentTime = TimeCalculator.getTimeBetween(dateTime, getPaymentDate());
-
     final int nDates = getFixingDate().length;
     if (dayConversion.isBefore(getFixingDate()[0].toLocalDate())) {
       return toDerivative(dateTime);
     }
-
     int position = 0;
     double amountAccrued = 0.;
-    while (position < nDates && !(dayConversion.isBefore(getFixingDate()[position].toLocalDate()))) {
+    while (position < nDates && dayConversion.isAfter(getFixingDate()[position].toLocalDate())) { // Strictly after fixing date: fixing value should be available
       final Double fixedRate = indexFixingTimeSeries.getValue(getFixingDate()[position]);
       if (fixedRate == null) {
         throw new OpenGammaRuntimeException("Could not get fixing value for date " + getFixingDate()[position]);
@@ -242,11 +230,17 @@ public class CouponIborAverageFixingDatesDefinition extends CouponDefinition imp
       amountAccrued += getWeight()[position] * fixedRate;
       ++position;
     }
-    if (position == nDates) {
+    if (position < nDates && dayConversion.equals(getFixingDate()[position].toLocalDate())) { // On Fixing date: use fixing value if available
+      final Double fixedRate = indexFixingTimeSeries.getValue(getFixingDate()[position]);
+      if (fixedRate != null) {
+        amountAccrued += getWeight()[position] * fixedRate;
+        ++position;
+      }
+    }
+    if (position == nDates) { // If all fixing are known, return a couponFixed.
       return new CouponFixed(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), amountAccrued, getAccrualStartDate(), getAccrualEndDate());
     }
-
-    final int nDatesLeft = nDates - position;
+    final int nDatesLeft = nDates - position; // If not all fixing are known, create a average coupon on the remaining period.
     final double[] fixingTime = new double[nDatesLeft];
     final double[] fixingPeriodStartTime = new double[nDatesLeft];
     final double[] fixingPeriodEndTime = new double[nDatesLeft];
@@ -255,14 +249,12 @@ public class CouponIborAverageFixingDatesDefinition extends CouponDefinition imp
       fixingPeriodStartTime[i] = TimeCalculator.getTimeBetween(dateTime, getFixingPeriodStartDate()[position + i]);
       fixingPeriodEndTime[i] = TimeCalculator.getTimeBetween(dateTime, getFixingPeriodEndDate()[position + i]);
     }
-
     final double[] weightLeft = new double[nDatesLeft];
     final double[] fixingPeriodAccrualFactorLeft = new double[nDatesLeft];
     System.arraycopy(getWeight(), position, weightLeft, 0, nDatesLeft);
     System.arraycopy(getFixingPeriodAccrualFactor(), position, fixingPeriodAccrualFactorLeft, 0, nDatesLeft);
-
     return new CouponIborAverageFixingDates(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(),
-        getIndex(), fixingTime, weightLeft, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactorLeft, amountAccrued * getPaymentYearFraction());
+        getIndex(), fixingTime, weightLeft, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactorLeft, amountAccrued);
   }
 
   /**
@@ -273,6 +265,16 @@ public class CouponIborAverageFixingDatesDefinition extends CouponDefinition imp
   @Deprecated
   public Coupon toDerivative(ZonedDateTime date, DoubleTimeSeries<ZonedDateTime> data, String... yieldCurveNames) {
     return toDerivative(date, data);
+  }
+
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Override
+  @Deprecated
+  public CouponIborAverageFixingDates toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+    throw new NotImplementedException("toDerivative not implemented with yield curve names.");
   }
 
   @Override
