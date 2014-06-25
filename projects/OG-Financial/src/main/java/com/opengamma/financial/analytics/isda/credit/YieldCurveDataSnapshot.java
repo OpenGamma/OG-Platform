@@ -112,7 +112,6 @@ public class YieldCurveDataSnapshot implements NamedSnapshot, ImmutableBean {
    * Gets unique id for this snapshot.
    * @return the value of the property
    */
-  @Override
   public UniqueId getUniqueId() {
     return _uniqueId;
   }
@@ -122,7 +121,6 @@ public class YieldCurveDataSnapshot implements NamedSnapshot, ImmutableBean {
    * Gets name for this snapshot.
    * @return the value of the property, not null
    */
-  @Override
   public String getName() {
     return _name;
   }

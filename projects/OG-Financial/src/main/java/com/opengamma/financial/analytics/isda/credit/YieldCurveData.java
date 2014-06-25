@@ -168,7 +168,7 @@ public class YieldCurveData implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets currency of the yield curve
+   * Gets currency of the yield curve.
    * @return the value of the property, not null
    */
   public Currency getCurrency() {
@@ -186,7 +186,7 @@ public class YieldCurveData implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets business day convention (aka bad day convention)
+   * Gets business day convention (aka bad day convention).
    * @return the value of the property, not null
    */
   public BusinessDayConvention getCurveBusinessDayConvention() {
@@ -195,7 +195,7 @@ public class YieldCurveData implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets day count for the money market instruments
+   * Gets day count for the money market instruments.
    * @return the value of the property, not null
    */
   public DayCount getCashDayCount() {
@@ -204,7 +204,7 @@ public class YieldCurveData implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets day count for the swaps
+   * Gets day count for the swaps.
    * @return the value of the property, not null
    */
   public DayCount getSwapDayCount() {
@@ -213,7 +213,8 @@ public class YieldCurveData implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets yield curve spot date.
+   * Gets yield curve spot date. This is the start date for instruments
+   * defined on the curve and used in calibration.
    * @return the value of the property, not null
    */
   public LocalDate getSpotDate() {
