@@ -16,6 +16,7 @@ import org.threeten.bp.Period;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.analytics.financial.datasets.CalendarGBP;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
@@ -43,6 +44,7 @@ public class ForwardRateAgreementDefinitionTest {
   private static final Period TENOR = Period.ofMonths(3);
   private static final int SETTLEMENT_DAYS = 2;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
+  private static final Calendar PAY_CALENDAR = new CalendarGBP("B");
   private static final DayCount DAY_COUNT_INDEX = DayCounts.ACT_360;
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventions.MODIFIED_FOLLOWING;
   private static final boolean IS_EOM = true;
@@ -256,5 +258,15 @@ public class ForwardRateAgreementDefinitionTest {
     final CouponFixed fra = new CouponFixed(CUR, paymentTime, ACCRUAL_FACTOR_PAYMENT, NOTIONAL, (FRA_RATE + shift) - FRA_RATE);
     final Payment convertedFra = fraFixed.toDerivative(referenceFixed, fixingTS);
     assertEquals(convertedFra.equals(fra), true);
+  }
+
+  @Test
+  public void testPaymentCalendar() {
+    // Set payment date to Good Friday, also following Monday is Easter Monday - should adjust to following Tuesday
+    ForwardRateAgreementDefinition def = ForwardRateAgreementDefinition.from(DateUtils.getUTCDate(2014, 4, 18),
+        DateUtils.getUTCDate(2014, 10, 18), NOTIONAL, INDEX, FRA_RATE, CALENDAR, PAY_CALENDAR);
+    assertTrue(CALENDAR.isWorkingDay(DateUtils.getUTCDate(2014, 4, 18).toLocalDate()));
+    assertTrue(PAY_CALENDAR.isWorkingDay(def.getPaymentDate().toLocalDate()));
+    assertEquals(DateUtils.getUTCDate(2014, 4, 22), def.getPaymentDate());
   }
 }

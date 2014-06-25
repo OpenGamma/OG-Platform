@@ -51,10 +51,15 @@ public class ForwardRateAgreementSecurity extends FinancialSecurity {
   @PropertyDefinition(validate = "notNull")
   private Currency _currency;
   /**
-   * The calendars.
+   * The fixing calendars.
    */
   @PropertyDefinition(validate = "notNull")
   private Set<ExternalId> _calendars;
+  /**
+   * The payment calendars.
+   */
+  @PropertyDefinition()
+  private Set<ExternalId> _paymentCalendars;
   /**
    * The start date.
    */
@@ -159,6 +164,52 @@ public class ForwardRateAgreementSecurity extends FinancialSecurity {
     setFixingLag(fixingLag);
   }
 
+  /**
+   * Creates an instance
+   *
+   * @param currency  the currency, not null.
+   * @param underlyingId  the id of the underlying index (assumed Ibor), not null
+   * @param indexFrequency  the index frequency, not null
+   * @param startDate  the start date, not null
+   * @param endDate  the end date, not null
+   * @param rate  the rate
+   * @param amount  the amount (-ve if payer)
+   * @param fixingDate  the fixing date, not null
+   * @param dayCount  the day count convention, not null
+   * @param fixingBusinessDayConvention  the business dya convention, not null
+   * @param fixingCalendars  the calendars to be used, not null
+   * @param paymentCalendars the payment calendars, if null the fixing calendars will be used
+   * @param fixingLag  the fixing lag
+   */
+  public ForwardRateAgreementSecurity(Currency currency,
+                                      ExternalId underlyingId,
+                                      Frequency indexFrequency,
+                                      LocalDate startDate,
+                                      LocalDate endDate,
+                                      double rate,
+                                      double amount,
+                                      LocalDate fixingDate,
+                                      DayCount dayCount,
+                                      BusinessDayConvention fixingBusinessDayConvention,
+                                      Set<ExternalId> fixingCalendars, Set<ExternalId> paymentCalendars,
+                                      int fixingLag) {
+    super(SECURITY_TYPE);
+    setExternalIdBundle(ExternalIdBundle.EMPTY);
+    setCurrency(currency);
+    setStartDate(startDate);
+    setEndDate(endDate);
+    setRate(rate);
+    setAmount(amount);
+    setIndexFrequency(indexFrequency);
+    setUnderlyingId(underlyingId);
+    setFixingDate(fixingDate);
+    setDayCount(dayCount);
+    setFixingBusinessDayConvention(fixingBusinessDayConvention);
+    setCalendars(fixingCalendars);
+    setPaymentCalendars(paymentCalendars);
+    setFixingLag(fixingLag);
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public final <T> T accept(FinancialSecurityVisitor<T> visitor) {
@@ -212,7 +263,7 @@ public class ForwardRateAgreementSecurity extends FinancialSecurity {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the calendars.
+   * Gets the fixing calendars.
    * @return the value of the property, not null
    */
   public Set<ExternalId> getCalendars() {
@@ -220,7 +271,7 @@ public class ForwardRateAgreementSecurity extends FinancialSecurity {
   }
 
   /**
-   * Sets the calendars.
+   * Sets the fixing calendars.
    * @param calendars  the new value of the property, not null
    */
   public void setCalendars(Set<ExternalId> calendars) {
@@ -234,6 +285,31 @@ public class ForwardRateAgreementSecurity extends FinancialSecurity {
    */
   public final Property<Set<ExternalId>> calendars() {
     return metaBean().calendars().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the payment calendars.
+   * @return the value of the property
+   */
+  public Set<ExternalId> getPaymentCalendars() {
+    return _paymentCalendars;
+  }
+
+  /**
+   * Sets the payment calendars.
+   * @param paymentCalendars  the new value of the property
+   */
+  public void setPaymentCalendars(Set<ExternalId> paymentCalendars) {
+    this._paymentCalendars = paymentCalendars;
+  }
+
+  /**
+   * Gets the the {@code paymentCalendars} property.
+   * @return the property, not null
+   */
+  public final Property<Set<ExternalId>> paymentCalendars() {
+    return metaBean().paymentCalendars().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -509,6 +585,7 @@ public class ForwardRateAgreementSecurity extends FinancialSecurity {
       ForwardRateAgreementSecurity other = (ForwardRateAgreementSecurity) obj;
       return JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
           JodaBeanUtils.equal(getCalendars(), other.getCalendars()) &&
+          JodaBeanUtils.equal(getPaymentCalendars(), other.getPaymentCalendars()) &&
           JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
           JodaBeanUtils.equal(getEndDate(), other.getEndDate()) &&
           JodaBeanUtils.equal(getFixingDate(), other.getFixingDate()) &&
@@ -529,6 +606,7 @@ public class ForwardRateAgreementSecurity extends FinancialSecurity {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCalendars());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentCalendars());
     hash += hash * 31 + JodaBeanUtils.hashCode(getStartDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getEndDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getFixingDate());
@@ -544,7 +622,7 @@ public class ForwardRateAgreementSecurity extends FinancialSecurity {
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(416);
+    StringBuilder buf = new StringBuilder(448);
     buf.append("ForwardRateAgreementSecurity{");
     int len = buf.length();
     toString(buf);
@@ -560,6 +638,7 @@ public class ForwardRateAgreementSecurity extends FinancialSecurity {
     super.toString(buf);
     buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
     buf.append("calendars").append('=').append(JodaBeanUtils.toString(getCalendars())).append(',').append(' ');
+    buf.append("paymentCalendars").append('=').append(JodaBeanUtils.toString(getPaymentCalendars())).append(',').append(' ');
     buf.append("startDate").append('=').append(JodaBeanUtils.toString(getStartDate())).append(',').append(' ');
     buf.append("endDate").append('=').append(JodaBeanUtils.toString(getEndDate())).append(',').append(' ');
     buf.append("fixingDate").append('=').append(JodaBeanUtils.toString(getFixingDate())).append(',').append(' ');
@@ -593,6 +672,12 @@ public class ForwardRateAgreementSecurity extends FinancialSecurity {
     @SuppressWarnings({"unchecked", "rawtypes" })
     private final MetaProperty<Set<ExternalId>> _calendars = DirectMetaProperty.ofReadWrite(
         this, "calendars", ForwardRateAgreementSecurity.class, (Class) Set.class);
+    /**
+     * The meta-property for the {@code paymentCalendars} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<Set<ExternalId>> _paymentCalendars = DirectMetaProperty.ofReadWrite(
+        this, "paymentCalendars", ForwardRateAgreementSecurity.class, (Class) Set.class);
     /**
      * The meta-property for the {@code startDate} property.
      */
@@ -650,6 +735,7 @@ public class ForwardRateAgreementSecurity extends FinancialSecurity {
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "currency",
         "calendars",
+        "paymentCalendars",
         "startDate",
         "endDate",
         "fixingDate",
@@ -674,6 +760,8 @@ public class ForwardRateAgreementSecurity extends FinancialSecurity {
           return _currency;
         case -1233097483:  // calendars
           return _calendars;
+        case -299417201:  // paymentCalendars
+          return _paymentCalendars;
         case -2129778896:  // startDate
           return _startDate;
         case -1607727319:  // endDate
@@ -728,6 +816,14 @@ public class ForwardRateAgreementSecurity extends FinancialSecurity {
      */
     public final MetaProperty<Set<ExternalId>> calendars() {
       return _calendars;
+    }
+
+    /**
+     * The meta-property for the {@code paymentCalendars} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Set<ExternalId>> paymentCalendars() {
+      return _paymentCalendars;
     }
 
     /**
@@ -818,6 +914,8 @@ public class ForwardRateAgreementSecurity extends FinancialSecurity {
           return ((ForwardRateAgreementSecurity) bean).getCurrency();
         case -1233097483:  // calendars
           return ((ForwardRateAgreementSecurity) bean).getCalendars();
+        case -299417201:  // paymentCalendars
+          return ((ForwardRateAgreementSecurity) bean).getPaymentCalendars();
         case -2129778896:  // startDate
           return ((ForwardRateAgreementSecurity) bean).getStartDate();
         case -1607727319:  // endDate
@@ -851,6 +949,9 @@ public class ForwardRateAgreementSecurity extends FinancialSecurity {
           return;
         case -1233097483:  // calendars
           ((ForwardRateAgreementSecurity) bean).setCalendars((Set<ExternalId>) newValue);
+          return;
+        case -299417201:  // paymentCalendars
+          ((ForwardRateAgreementSecurity) bean).setPaymentCalendars((Set<ExternalId>) newValue);
           return;
         case -2129778896:  // startDate
           ((ForwardRateAgreementSecurity) bean).setStartDate((LocalDate) newValue);
