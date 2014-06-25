@@ -280,13 +280,13 @@ public class CouponIborAverageFixingDatesDefinition extends CouponDefinition imp
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     ArgumentChecker.notNull(visitor, "visitor");
-    return visitor.visitCouponIborAverageSinglePeriodDefinition(this, data);
+    return visitor.visitCouponIborAverageFixingDatesDefinition(this, data);
   }
 
   @Override
   public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
     ArgumentChecker.notNull(visitor, "visitor");
-    return visitor.visitCouponIborAverageSinglePeriodDefinition(this);
+    return visitor.visitCouponIborAverageFixingDatesDefinition(this);
   }
 
   /**
