@@ -69,6 +69,8 @@ public class CouponIborAverageCompoundingDefinitionTest {
   private static final double[] ACCRUAL_FACTORS = new double[NUM_PRDS];
   static {
     Arrays.fill(ACCRUAL_FACTORS, ACCRUAL_FACTOR / NUM_PRDS);
+    ACCRUAL_FACTORS[0] *= 1.01;
+    ACCRUAL_FACTORS[NUM_PRDS - 2] *= 0.99;
   }
   private static final double NOTIONAL = 1000000;
 

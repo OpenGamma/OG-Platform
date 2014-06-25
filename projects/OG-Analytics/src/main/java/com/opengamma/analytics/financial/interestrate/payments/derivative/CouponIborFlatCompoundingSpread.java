@@ -31,13 +31,14 @@ public class CouponIborFlatCompoundingSpread extends CouponIborAverageCompoundin
    * @param fixingPeriodEndTime The fixing period end time (in years) of the index
    * @param fixingPeriodAccrualFactor The accrual factors of fixing periods
    * @param amountAccrued The interest amount accrued over the periods already fixed.
+   * @param rateFixed The interest rate fixed already
    * @param spread The spread
    */
   public CouponIborFlatCompoundingSpread(final Currency currency, final double paymentTime, final double paymentAccrualFactor, final double notional, final double[] paymentAccrualFactors,
       final IborIndex index, final double[][] fixingTime, final double[][] weight, final double[][] fixingPeriodStartTime, final double[][] fixingPeriodEndTime,
-      final double[][] fixingPeriodAccrualFactor, final double amountAccrued, final double spread) {
+      final double[][] fixingPeriodAccrualFactor, final double amountAccrued, final double rateFixed, final double spread) {
     super(currency, paymentTime, paymentAccrualFactor, notional, paymentAccrualFactors, index, fixingTime, weight, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor,
-        amountAccrued, 0.);
+        amountAccrued, rateFixed);
     _spread = spread;
   }
 
@@ -56,7 +57,7 @@ public class CouponIborFlatCompoundingSpread extends CouponIborAverageCompoundin
   @Override
   public CouponIborFlatCompoundingSpread withNotional(final double notional) {
     return new CouponIborFlatCompoundingSpread(getCurrency(), getPaymentTime(), getPaymentYearFraction(), notional, getPaymentAccrualFactors(), getIndex(), getFixingTime(), getWeight(),
-        getFixingPeriodStartTime(), getFixingPeriodEndTime(), getFixingPeriodAccrualFactor(), getAmountAccrued(), getSpread());
+        getFixingPeriodStartTime(), getFixingPeriodEndTime(), getFixingPeriodAccrualFactor(), getAmountAccrued(), getRateFixed(), getSpread());
   }
 
   /**

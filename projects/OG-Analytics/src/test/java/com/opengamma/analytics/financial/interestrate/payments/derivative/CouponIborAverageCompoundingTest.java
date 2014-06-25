@@ -99,8 +99,10 @@ public class CouponIborAverageCompoundingTest {
     }
   }
 
+  private static final double AMOUNT_ACC = 0.05;
+  private static final double RATE_FIXED = 0.01;
   private static final CouponIborAverageCompounding DFN1 = new CouponIborAverageCompounding(CUR, PAYMENT_TIME, ACCRUAL_FACTOR, NOTIONAL, ACCRUAL_FACTORS, INDEX, FIXING_TIMES, WEIGHTS,
-      FIXING_PERIOD_START_TIMES, FIXING_PERIOD_END_TIMES, FIX_ACC_FACTORS, 0., 0.);
+      FIXING_PERIOD_START_TIMES, FIXING_PERIOD_END_TIMES, FIX_ACC_FACTORS, AMOUNT_ACC, RATE_FIXED);
   private static final CouponIborAverageCompounding DFN2 = DFN1.withNotional(NOTIONAL);
 
   /**
@@ -206,6 +208,10 @@ public class CouponIborAverageCompoundingTest {
 
     assertEquals(DFN1.getIndex(), DFN2.getIndex());
     assertEquals(DFN1.getIndex(), dfn1WithDouble.getIndex());
+    assertEquals(DFN1.getAmountAccrued(), DFN2.getAmountAccrued());
+    assertEquals(DFN1.getAmountAccrued(), dfn1WithDouble.getAmountAccrued());
+    assertEquals(DFN1.getRateFixed(), DFN2.getRateFixed());
+    assertEquals(DFN1.getRateFixed(), dfn1WithDouble.getRateFixed());
 
     for (int i = 0; i < NUM_OBS; ++i) {
       for (int j = 0; j < NUM_PRDS; ++j) {

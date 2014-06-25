@@ -366,7 +366,8 @@ public class CouponIborAverageCompoundingDefinition extends CouponDefinition imp
     final double[][] fixingTimeLeft = new double[nPeriodsLeft][nDates];
     final double[][] fixingPeriodStartTimeLeft = new double[nPeriodsLeft][nDates];
     final double[][] fixingPeriodEndTimeLeft = new double[nPeriodsLeft][nDates];
-
+    final double[] paymentAccrualFactorsLeft = new double[nPeriodsLeft];
+    System.arraycopy(_paymentAccrualFactors, posPeriod - start, paymentAccrualFactorsLeft, 0, nPeriodsLeft);
     for (int i = start; i < nPeriodsLeft; ++i) {
       for (int j = 0; j < nDates; ++j) {
         fixingTimeLeft[i][j] = TimeCalculator.getTimeBetween(dateTime, getFixingDates()[i + posPeriod - start][j]);
@@ -377,7 +378,6 @@ public class CouponIborAverageCompoundingDefinition extends CouponDefinition imp
 
     final double[][] weightLeft = new double[nPeriodsLeft][nDates];
     final double[][] fixingPeriodAccrualFactorLeft = new double[nPeriodsLeft][nDates];
-
     for (int i = start; i < nPeriodsLeft; ++i) {
       System.arraycopy(_weights[i + posPeriod - start], 0, weightLeft[i], 0, nDates);
       System.arraycopy(_fixingPeriodAccrualFactors[i + posPeriod - start], 0, fixingPeriodAccrualFactorLeft[i], 0, nDates);
@@ -403,7 +403,7 @@ public class CouponIborAverageCompoundingDefinition extends CouponDefinition imp
       fixingPeriodAccrualFactorLeft[0] = fixingPeriodAccrualFactorLeftIni;
     }
 
-    return new CouponIborAverageCompounding(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), getPaymentAccrualFactors(), getIndex(), fixingTimeLeft, weightLeft,
+    return new CouponIborAverageCompounding(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), paymentAccrualFactorsLeft, getIndex(), fixingTimeLeft, weightLeft,
         fixingPeriodStartTimeLeft, fixingPeriodEndTimeLeft, fixingPeriodAccrualFactorLeft, amountAccrued, sumRateFixed);
   }
 

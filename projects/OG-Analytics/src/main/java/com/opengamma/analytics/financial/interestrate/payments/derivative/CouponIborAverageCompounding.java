@@ -196,6 +196,8 @@ public class CouponIborAverageCompounding extends Coupon {
     result = prime * result + Arrays.deepHashCode(_fixingTime);
     result = prime * result + ((_index == null) ? 0 : _index.hashCode());
     result = prime * result + Arrays.hashCode(_paymentAccrualFactors);
+    temp = Double.doubleToLongBits(_rateFixed);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
     result = prime * result + Arrays.deepHashCode(_weight);
     return result;
   }
@@ -235,6 +237,9 @@ public class CouponIborAverageCompounding extends Coupon {
       return false;
     }
     if (!Arrays.equals(_paymentAccrualFactors, other._paymentAccrualFactors)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_rateFixed) != Double.doubleToLongBits(other._rateFixed)) {
       return false;
     }
     if (!Arrays.deepEquals(_weight, other._weight)) {
