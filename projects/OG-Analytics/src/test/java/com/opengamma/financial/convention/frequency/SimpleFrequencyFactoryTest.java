@@ -44,6 +44,7 @@ public class SimpleFrequencyFactoryTest {
         SimpleFrequency.DAILY,
         SimpleFrequency.WEEKLY,
         SimpleFrequency.BIWEEKLY,
+        SimpleFrequency.THREE_WEEKS,
         SimpleFrequency.TWENTY_EIGHT_DAYS,
         SimpleFrequency.MONTHLY,
         SimpleFrequency.BIMONTHLY,
