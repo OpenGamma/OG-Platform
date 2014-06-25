@@ -80,6 +80,9 @@ public class FRASecurityConverter extends FinancialSecurityVisitorAdapter<Instru
     final ZonedDateTime accrualEndDate = security.getEndDate().atStartOfDay(ZoneId.systemDefault());
     final double notional = security.getAmount();
     final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, security.getCalendars().toArray(new ExternalId[security.getCalendars().size()]));
+    final Calendar paymentCalendar = security.getPaymentCalendars() != null ?
+        new HolidaySourceCalendarAdapter(_holidaySource, security.getPaymentCalendars().toArray(new ExternalId[security.getPaymentCalendars().size()]))
+        : calendar;
 
     Convention iborLegConvention = _conventionSource.getSingle(security.getUnderlyingId());
     if (iborLegConvention == null) {
@@ -101,7 +104,8 @@ public class FRASecurityConverter extends FinancialSecurityVisitorAdapter<Instru
                                     iborIndexConvention.getBusinessDayConvention(),
                                     ((VanillaIborLegConvention) iborLegConvention).isIsEOM(),
                                     security.getUnderlyingId().getValue());
-    return ForwardRateAgreementDefinition.from(accrualStartDate, accrualEndDate, notional, index, security.getRate(), calendar);
+    return ForwardRateAgreementDefinition.from(accrualStartDate, accrualEndDate, notional, index, security.getRate(),
+                                               calendar, paymentCalendar);
   }
   
 }
