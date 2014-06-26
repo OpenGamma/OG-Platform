@@ -81,8 +81,6 @@ public class CouponIborFlatCompoundingSpreadDiscountingMethodTest {
   private static final double NOTIONAL = 1000000;
   private static final double SPREAD = 0.02;
 
-  private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 12, 27);
-
   private static ZonedDateTime[][] EXP_START_DATES = new ZonedDateTime[NUM_PRDS][NUM_OBS];
   private static ZonedDateTime[][] EXP_END_DATES = new ZonedDateTime[NUM_PRDS][NUM_OBS];
   static {
@@ -93,6 +91,9 @@ public class CouponIborFlatCompoundingSpreadDiscountingMethodTest {
       }
     }
   }
+
+  //  private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 12, 27);
+  private static final ZonedDateTime REFERENCE_DATE = FIXING_DATES[0][2].plusDays(1);
 
   private static final double PAYMENT_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, PAYMENT_DATE);
   private static final double[][] FIXING_TIMES = new double[NUM_PRDS][NUM_OBS];
@@ -204,7 +205,7 @@ public class CouponIborFlatCompoundingSpreadDiscountingMethodTest {
   public void presentValueMarketSensitivityMethodVsCalculator() {
     final MultipleCurrencyMulticurveSensitivity pvcsMethod = METHOD.presentValueCurveSensitivity(DER1, MULTICURVES);
     final MultipleCurrencyMulticurveSensitivity pvcsCalculator = DER1.accept(PVCSDC, MULTICURVES);
-    AssertSensitivityObjects.assertEquals("CouponIborFlatCompoundingSpreadDiscountingMethod", pvcsMethod, pvcsCalculator, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("CouponIborFlatCompoundingSpreadDiscountingMethod", pvcsMethod, pvcsCalculator, EPS);
   }
 
 }

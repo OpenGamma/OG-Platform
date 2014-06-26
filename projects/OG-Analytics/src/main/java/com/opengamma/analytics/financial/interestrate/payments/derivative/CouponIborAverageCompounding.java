@@ -52,6 +52,7 @@ public class CouponIborAverageCompounding extends Coupon {
     final int nPeriods = fixingTime.length;
     final int nDatesIni = fixingTime[0].length; //number of fixing dates for the first period
     final int nDates = fixingTime[1].length; //number of fixing dates per period
+    ArgumentChecker.isTrue(nPeriods == paymentAccrualFactors.length, "paymentAccrualFactors length different from fixingTime length");
     ArgumentChecker.isTrue(nPeriods == weight.length, "weight length different from fixingTime length");
     ArgumentChecker.isTrue(nDatesIni == weight[0].length, "weight length different from fixingTime length");
     ArgumentChecker.isTrue(nDates == weight[1].length, "weight length different from fixingTime length");

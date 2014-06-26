@@ -132,29 +132,13 @@ public final class CouponIborFlatCompoundingSpreadDiscountingMethod {
     }
 
     final double[][] forwardBars = new double[nPeriods][nDates];
-    for (int i = 1; i < nPeriods; ++i) {
+    for (int i = 0; i < nPeriods; ++i) {
       for (int j = 0; j < nPeriods; ++j) {
         for (int k = 0; k < nDates; ++k) {
           forwardBars[j][k] += cpaBar[i][j][k] * forwardBar;
         }
       }
     }
-    //    for (int i = 1; i < nPeriods; ++i) {
-    //      for (int j = 0; j < nDates; ++j) {
-    //        forwardBars[i][j] = coupon.getPaymentAccrualFactors()[i] + coupon.getPaymentAccrualFactors()[i] * cpaSum[i];
-    //        for (int k = 0; k < i; ++k) {
-    //          forwardBars[k][j] += forwardBars[k][j] * coupon.getPaymentAccrualFactors()[i] * forwards[i];
-    //        }
-    //      }
-    //    }
-    //    for (int j = 0; j < nDatesIni; ++j) {
-    //      forwardBars[0][j] *= coupon.getWeight()[0][j] * forwardBar;
-    //    }
-    //    for (int i = 1; i < nPeriods; ++i) {
-    //      for (int j = 0; j < nDates; ++j) {
-    //        forwardBars[i][j] *= coupon.getWeight()[i][j] * forwardBar;
-    //      }
-    //    }
     final Map<String, List<DoublesPair>> mapDsc = new HashMap<>();
     final List<DoublesPair> listDiscounting = new ArrayList<>();
     listDiscounting.add(DoublesPair.of(coupon.getPaymentTime(), -coupon.getPaymentTime() * df * dfBar));

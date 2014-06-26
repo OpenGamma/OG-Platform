@@ -80,7 +80,8 @@ public class CouponIborAverageCompoundingDiscountingMethodTest {
   }
   private static final double NOTIONAL = 1000000;
 
-  private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 12, 27);
+  //  private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 12, 27);
+  private static final ZonedDateTime REFERENCE_DATE = FIXING_DATES[0][1].plusDays(1);
 
   private static ZonedDateTime[][] EXP_START_DATES = new ZonedDateTime[NUM_PRDS][NUM_OBS];
   private static ZonedDateTime[][] EXP_END_DATES = new ZonedDateTime[NUM_PRDS][NUM_OBS];
@@ -188,7 +189,7 @@ public class CouponIborAverageCompoundingDiscountingMethodTest {
   public void presentValueMarketSensitivityMethodVsCalculator() {
     final MultipleCurrencyMulticurveSensitivity pvcsMethod = METHOD.presentValueCurveSensitivity(DER1, MULTICURVES);
     final MultipleCurrencyMulticurveSensitivity pvcsCalculator = DER1.accept(PVCSDC, MULTICURVES);
-    AssertSensitivityObjects.assertEquals("CouponIborAverageCompoundingDiscountingMethod", pvcsMethod, pvcsCalculator, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("CouponIborAverageCompoundingDiscountingMethod", pvcsMethod, pvcsCalculator, EPS);
   }
 
 }
