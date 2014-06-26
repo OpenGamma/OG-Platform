@@ -18,6 +18,11 @@ import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.scripts.Scriptable;
 import com.opengamma.util.ResourceUtils;
 import com.opengamma.util.db.tool.DbTool;
+import com.opengamma.service.ThreadLocalServiceContext;
+import com.opengamma.id.VersionCorrection;
+import com.opengamma.service.VersionCorrectionProvider;
+import com.opengamma.service.ServiceContext;
+
 
 /**
  * Tool class that creates and initializes the example database.
@@ -81,6 +86,18 @@ public class ExampleDatabaseCreator {
       }
       props.load(in);
     }
+    // Version Currection
+    ThreadLocalServiceContext.init(ServiceContext.of(VersionCorrectionProvider.class, new VersionCorrectionProvider() {
+      @Override
+      public VersionCorrection getPortfolioVersionCorrection() {
+        return VersionCorrection.LATEST;
+      }
+
+      @Override
+      public VersionCorrection getConfigVersionCorrection() {
+        return VersionCorrection.LATEST;
+      }
+    }));
     
     // create main database
     s_logger.warn("Creating main database...");
@@ -105,6 +122,8 @@ public class ExampleDatabaseCreator {
     dbToolUser.setDrop(true);
     dbToolUser.setCreateTables(true);
     dbToolUser.execute();
+    //
+
     
     // populate the database
     s_logger.warn("Populating main database...");
