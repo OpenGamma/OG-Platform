@@ -123,6 +123,7 @@ public abstract class AbstractHistoryResult<D extends AbstractDocument> extends 
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code AbstractHistoryResult}.
+   * @param <D>  the type
    */
   public static class Meta<D extends AbstractDocument> extends AbstractDocumentsResult.Meta<D> {
     /**

@@ -152,7 +152,7 @@ class SeasonalFunction extends Function1D<Double, Double> implements Bean {
       if (mp.style().isBuildable()) {
         Object value = mp.get(this);
         if (value instanceof Bean) {
-          value = ((Bean) value).clone();
+          value = JodaBeanUtils.clone((Bean) value);
         }
         builder.set(mp.name(), value);
       }

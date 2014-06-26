@@ -160,11 +160,6 @@ public final class FXForwardCurveDefinition implements ImmutableBean {
   }
 
   @Override
-  public FXForwardCurveDefinition clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

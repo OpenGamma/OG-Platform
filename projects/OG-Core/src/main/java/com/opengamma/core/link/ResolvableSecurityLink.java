@@ -155,11 +155,6 @@ public final class ResolvableSecurityLink<T extends Security> extends SecurityLi
   }
 
   @Override
-  public ResolvableSecurityLink<T> clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;
@@ -190,6 +185,7 @@ public final class ResolvableSecurityLink<T extends Security> extends SecurityLi
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code ResolvableSecurityLink}.
+   * @param <T>  the type
    */
   public static final class Meta<T extends Security> extends DirectMetaBean {
     /**
@@ -275,6 +271,7 @@ public final class ResolvableSecurityLink<T extends Security> extends SecurityLi
   //-----------------------------------------------------------------------
   /**
    * The bean-builder for {@code ResolvableSecurityLink}.
+   * @param <T>  the type
    */
   public static final class Builder<T extends Security> extends DirectFieldsBeanBuilder<ResolvableSecurityLink<T>> {
 

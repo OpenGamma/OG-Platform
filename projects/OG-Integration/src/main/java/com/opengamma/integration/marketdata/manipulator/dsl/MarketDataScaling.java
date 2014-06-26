@@ -110,11 +110,6 @@ public class MarketDataScaling implements StructureManipulator<Double>, Immutabl
   }
 
   @Override
-  public MarketDataScaling clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

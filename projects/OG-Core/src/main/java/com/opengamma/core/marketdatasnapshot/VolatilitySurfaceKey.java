@@ -249,11 +249,6 @@ public final class VolatilitySurfaceKey implements ImmutableBean, StructuredMark
   }
 
   @Override
-  public VolatilitySurfaceKey clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

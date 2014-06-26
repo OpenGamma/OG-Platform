@@ -386,11 +386,6 @@ public final class CalculationDifference implements ImmutableBean {
   }
 
   @Override
-  public CalculationDifference clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

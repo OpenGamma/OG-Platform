@@ -323,11 +323,6 @@ public class FixedLegCashFlows implements ImmutableBean, SwapLegCashFlows {
   }
 
   @Override
-  public FixedLegCashFlows clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

@@ -263,12 +263,6 @@ public final class ExternalIdWithDates implements ImmutableBean,
   }
 
   //-----------------------------------------------------------------------
-  @Override
-  public ExternalIdWithDates clone() {
-    return this;
-  }
-
-  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code ExternalIdWithDates}.
    */

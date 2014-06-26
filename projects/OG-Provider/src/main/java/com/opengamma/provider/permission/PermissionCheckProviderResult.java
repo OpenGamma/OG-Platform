@@ -234,11 +234,6 @@ public final class PermissionCheckProviderResult implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   @Override
-  public PermissionCheckProviderResult clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

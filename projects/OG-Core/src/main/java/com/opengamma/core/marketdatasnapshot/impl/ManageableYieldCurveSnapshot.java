@@ -160,11 +160,6 @@ public final class ManageableYieldCurveSnapshot implements ImmutableBean, YieldC
   }
 
   @Override
-  public ManageableYieldCurveSnapshot clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

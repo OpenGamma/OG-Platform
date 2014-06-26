@@ -190,12 +190,6 @@ public final class Expiry implements ImmutableBean, Serializable {
   }
 
   //-----------------------------------------------------------------------
-  @Override
-  public Expiry clone() {
-    return this;
-  }
-
-  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code Expiry}.
    */

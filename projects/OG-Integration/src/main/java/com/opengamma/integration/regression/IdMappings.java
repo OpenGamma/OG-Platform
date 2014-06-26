@@ -119,11 +119,6 @@ public final class IdMappings implements ImmutableBean {
   }
 
   @Override
-  public IdMappings clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

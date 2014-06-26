@@ -188,11 +188,6 @@ public final class CalculatedValue implements ImmutableBean {
   }
 
   @Override
-  public CalculatedValue clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

@@ -266,12 +266,6 @@ public final class UnorderedCurrencyPair implements ImmutableBean,
   }
 
   //-----------------------------------------------------------------------
-  @Override
-  public UnorderedCurrencyPair clone() {
-    return this;
-  }
-
-  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code UnorderedCurrencyPair}.
    */

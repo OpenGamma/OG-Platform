@@ -101,6 +101,7 @@ public class BeanMasterSearchResult<D extends AbstractDocument> extends Abstract
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code BeanMasterSearchResult}.
+   * @param <D>  the type
    */
   public static class Meta<D extends AbstractDocument> extends AbstractSearchResult.Meta<D> {
     /**

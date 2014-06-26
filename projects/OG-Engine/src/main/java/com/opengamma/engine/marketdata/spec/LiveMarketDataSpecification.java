@@ -115,11 +115,6 @@ public final class LiveMarketDataSpecification implements ImmutableBean, MarketD
   }
 
   @Override
-  public LiveMarketDataSpecification clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

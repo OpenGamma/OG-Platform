@@ -399,6 +399,8 @@ public abstract class ObjectsCurve<T extends Comparable<T>, U>
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code ObjectsCurve}.
+   * @param <T>  the type
+   * @param <U>  the type
    */
   public static class Meta<T extends Comparable<T>, U> extends Curve.Meta<T, U> {
     /**

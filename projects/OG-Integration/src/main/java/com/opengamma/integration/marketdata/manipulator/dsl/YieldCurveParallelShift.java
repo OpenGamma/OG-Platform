@@ -132,11 +132,6 @@ public final class YieldCurveParallelShift implements StructureManipulator<Yield
   }
 
   @Override
-  public YieldCurveParallelShift clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

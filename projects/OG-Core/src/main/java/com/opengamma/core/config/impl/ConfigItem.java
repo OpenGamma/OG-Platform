@@ -341,6 +341,7 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code ConfigItem}.
+   * @param <T>  the type
    */
   public static class Meta<T> extends DirectMetaBean {
     /**

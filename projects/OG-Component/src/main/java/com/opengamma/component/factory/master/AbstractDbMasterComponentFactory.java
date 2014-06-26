@@ -503,6 +503,8 @@ public abstract class AbstractDbMasterComponentFactory<I, M extends Configurable
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code AbstractDbMasterComponentFactory}.
+   * @param <I>  the type
+   * @param <M>  the type
    */
   public static class Meta<I, M extends ConfigurableDbMaster> extends AbstractComponentFactory.Meta {
     /**

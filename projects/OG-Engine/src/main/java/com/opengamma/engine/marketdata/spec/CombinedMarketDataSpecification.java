@@ -113,11 +113,6 @@ public final class CombinedMarketDataSpecification implements ImmutableBean, Mar
   }
 
   @Override
-  public CombinedMarketDataSpecification clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

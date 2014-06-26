@@ -178,11 +178,6 @@ public final class HistoricalDataRequest implements ImmutableBean {
   }
 
   @Override
-  public HistoricalDataRequest clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

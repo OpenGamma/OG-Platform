@@ -106,11 +106,6 @@ public final class UserMarketDataSpecification implements ImmutableBean, MarketD
   }
 
   @Override
-  public UserMarketDataSpecification clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

@@ -21,7 +21,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 
@@ -93,11 +93,6 @@ public class SimpleMultimapMockBean implements ImmutableBean {
    */
   public Builder toBuilder() {
     return new Builder(this);
-  }
-
-  @Override
-  public SimpleMultimapMockBean clone() {
-    return this;
   }
 
   @Override
@@ -225,7 +220,7 @@ public class SimpleMultimapMockBean implements ImmutableBean {
    */
   public static class Builder extends DirectFieldsBeanBuilder<SimpleMultimapMockBean> {
 
-    private Multimap<String, String> _simpleMultimap = HashMultimap.create();
+    private Multimap<String, String> _simpleMultimap = ArrayListMultimap.create();
 
     /**
      * Restricted constructor.
@@ -238,7 +233,7 @@ public class SimpleMultimapMockBean implements ImmutableBean {
      * @param beanToCopy  the bean to copy from, not null
      */
     protected Builder(SimpleMultimapMockBean beanToCopy) {
-      this._simpleMultimap = HashMultimap.create(beanToCopy.getSimpleMultimap());
+      this._simpleMultimap = ArrayListMultimap.create(beanToCopy.getSimpleMultimap());
     }
 
     //-----------------------------------------------------------------------

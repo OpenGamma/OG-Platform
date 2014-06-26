@@ -157,11 +157,6 @@ public final class SuccessResult<T> extends Result<T> implements ImmutableBean {
   }
 
   @Override
-  public SuccessResult<T> clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;
@@ -192,6 +187,7 @@ public final class SuccessResult<T> extends Result<T> implements ImmutableBean {
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code SuccessResult}.
+   * @param <T>  the type
    */
   public static final class Meta<T> extends DirectMetaBean {
     /**
@@ -277,6 +273,7 @@ public final class SuccessResult<T> extends Result<T> implements ImmutableBean {
   //-----------------------------------------------------------------------
   /**
    * The bean-builder for {@code SuccessResult}.
+   * @param <T>  the type
    */
   public static final class Builder<T> extends DirectFieldsBeanBuilder<SuccessResult<T>> {
 

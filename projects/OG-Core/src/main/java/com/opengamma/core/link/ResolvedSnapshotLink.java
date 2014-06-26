@@ -133,11 +133,6 @@ public final class ResolvedSnapshotLink<S extends NamedSnapshot>
   }
 
   @Override
-  public ResolvedSnapshotLink<S> clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;
@@ -168,6 +163,7 @@ public final class ResolvedSnapshotLink<S extends NamedSnapshot>
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code ResolvedSnapshotLink}.
+   * @param <S>  the type
    */
   public static final class Meta<S extends NamedSnapshot> extends DirectMetaBean {
     /**
@@ -253,6 +249,7 @@ public final class ResolvedSnapshotLink<S extends NamedSnapshot>
   //-----------------------------------------------------------------------
   /**
    * The bean-builder for {@code ResolvedSnapshotLink}.
+   * @param <S>  the type
    */
   public static final class Builder<S extends NamedSnapshot> extends DirectFieldsBeanBuilder<ResolvedSnapshotLink<S>> {
 

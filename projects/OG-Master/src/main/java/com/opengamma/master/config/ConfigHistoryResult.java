@@ -184,6 +184,7 @@ public class ConfigHistoryResult<T> extends AbstractHistoryResult<ConfigDocument
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code ConfigHistoryResult}.
+   * @param <T>  the type
    */
   public static class Meta<T> extends AbstractHistoryResult.Meta<ConfigDocument> {
     /**

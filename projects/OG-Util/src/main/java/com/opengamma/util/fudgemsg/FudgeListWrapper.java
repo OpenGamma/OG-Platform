@@ -171,6 +171,7 @@ public class FudgeListWrapper<T> extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code FudgeListWrapper}.
+   * @param <T>  the type
    */
   public static class Meta<T> extends DirectMetaBean {
     /**

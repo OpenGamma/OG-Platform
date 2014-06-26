@@ -117,11 +117,6 @@ public class HistoricalMarketDataSpecification implements ImmutableBean, MarketD
   }
 
   @Override
-  public HistoricalMarketDataSpecification clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

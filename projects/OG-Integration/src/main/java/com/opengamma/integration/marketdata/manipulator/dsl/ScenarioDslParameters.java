@@ -159,11 +159,6 @@ public final class ScenarioDslParameters implements ImmutableBean, ScenarioParam
   }
 
   @Override
-  public ScenarioDslParameters clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

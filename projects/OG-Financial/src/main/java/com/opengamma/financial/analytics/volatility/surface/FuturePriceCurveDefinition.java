@@ -160,11 +160,6 @@ public final class FuturePriceCurveDefinition<X> implements ImmutableBean {
   }
 
   @Override
-  public FuturePriceCurveDefinition<X> clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;
@@ -201,6 +196,7 @@ public final class FuturePriceCurveDefinition<X> implements ImmutableBean {
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code FuturePriceCurveDefinition}.
+   * @param <X>  the type
    */
   public static final class Meta<X> extends DirectMetaBean {
     /**
@@ -322,6 +318,7 @@ public final class FuturePriceCurveDefinition<X> implements ImmutableBean {
   //-----------------------------------------------------------------------
   /**
    * The bean-builder for {@code FuturePriceCurveDefinition}.
+   * @param <X>  the type
    */
   public static final class Builder<X> extends DirectFieldsBeanBuilder<FuturePriceCurveDefinition<X>> {
 

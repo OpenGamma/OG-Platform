@@ -364,11 +364,6 @@ public final class VersionCorrection implements ImmutableBean, Comparable<Versio
 
   //-----------------------------------------------------------------------
   @Override
-  public VersionCorrection clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

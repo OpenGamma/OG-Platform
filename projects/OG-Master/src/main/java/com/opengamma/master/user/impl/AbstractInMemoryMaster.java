@@ -12,6 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import org.joda.beans.Bean;
+import org.joda.beans.JodaBeanUtils;
 import org.threeten.bp.Instant;
 
 import com.google.common.base.Supplier;
@@ -114,7 +115,7 @@ abstract class AbstractInMemoryMaster<T extends UniqueIdentifiable & MutableUniq
 
   @SuppressWarnings("unchecked")
   T clone(final T original) {
-    return (T) ((Bean) original).clone();
+    return (T) JodaBeanUtils.clone((Bean) original);
   }
 
   boolean nameExists(String name) {

@@ -397,11 +397,6 @@ public final class MarketDataSnapshotSaver implements ImmutableBean {
   }
 
   @Override
-  public MarketDataSnapshotSaver clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

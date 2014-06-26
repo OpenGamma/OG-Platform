@@ -296,11 +296,6 @@ public class VolatilitySurfaceShiftManipulator implements StructureManipulator<V
   }
 
   @Override
-  public VolatilitySurfaceShiftManipulator clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

@@ -138,11 +138,6 @@ public final class VolatilitySurfaceShift implements ImmutableBean {
   }
 
   @Override
-  public VolatilitySurfaceShift clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

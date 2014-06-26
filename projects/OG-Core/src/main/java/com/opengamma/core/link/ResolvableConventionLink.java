@@ -142,11 +142,6 @@ public class ResolvableConventionLink<T extends Convention> extends ConventionLi
   }
 
   @Override
-  public ResolvableConventionLink<T> clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;
@@ -185,6 +180,7 @@ public class ResolvableConventionLink<T extends Convention> extends ConventionLi
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code ResolvableConventionLink}.
+   * @param <T>  the type
    */
   public static class Meta<T extends Convention> extends DirectMetaBean {
     /**
@@ -270,6 +266,7 @@ public class ResolvableConventionLink<T extends Convention> extends ConventionLi
   //-----------------------------------------------------------------------
   /**
    * The bean-builder for {@code ResolvableConventionLink}.
+   * @param <T>  the type
    */
   public static class Builder<T extends Convention> extends DirectFieldsBeanBuilder<ResolvableConventionLink<T>> {
 

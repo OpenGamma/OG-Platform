@@ -280,6 +280,8 @@ public class SurfaceDefinition<X, Y> implements Bean, Serializable, UniqueIdenti
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code SurfaceDefinition}.
+   * @param <X>  the type
+   * @param <Y>  the type
    */
   public static class Meta<X, Y> extends DirectMetaBean {
     /**

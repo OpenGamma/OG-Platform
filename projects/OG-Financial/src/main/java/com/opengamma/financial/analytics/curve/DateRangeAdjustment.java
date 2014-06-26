@@ -102,11 +102,6 @@ public class DateRangeAdjustment implements ImmutableBean {
   }
 
   @Override
-  public DateRangeAdjustment clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

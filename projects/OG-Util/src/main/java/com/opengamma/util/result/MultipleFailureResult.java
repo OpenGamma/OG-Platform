@@ -205,11 +205,6 @@ public final class MultipleFailureResult<T> extends Result<T> implements Immutab
   }
 
   @Override
-  public MultipleFailureResult<T> clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;
@@ -246,6 +241,7 @@ public final class MultipleFailureResult<T> extends Result<T> implements Immutab
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code MultipleFailureResult}.
+   * @param <T>  the type
    */
   public static final class Meta<T> extends DirectMetaBean {
     /**
@@ -367,6 +363,7 @@ public final class MultipleFailureResult<T> extends Result<T> implements Immutab
   //-----------------------------------------------------------------------
   /**
    * The bean-builder for {@code MultipleFailureResult}.
+   * @param <T>  the type
    */
   public static final class Builder<T> extends DirectFieldsBeanBuilder<MultipleFailureResult<T>> {
 

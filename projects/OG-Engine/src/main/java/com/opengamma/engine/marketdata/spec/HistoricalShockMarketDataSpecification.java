@@ -152,11 +152,6 @@ public final class HistoricalShockMarketDataSpecification implements ImmutableBe
   }
 
   @Override
-  public HistoricalShockMarketDataSpecification clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

@@ -228,6 +228,8 @@ public abstract class Curve<T extends Comparable<T>, U>
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code Curve}.
+   * @param <T>  the type
+   * @param <U>  the type
    */
   public static class Meta<T extends Comparable<T>, U> extends DirectMetaBean {
     /**

@@ -233,11 +233,6 @@ public final class SpotRateShift implements StructureManipulator<Double>, Immuta
   }
 
   @Override
-  public SpotRateShift clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

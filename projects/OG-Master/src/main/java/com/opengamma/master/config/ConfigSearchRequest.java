@@ -311,6 +311,7 @@ public class ConfigSearchRequest<T> extends AbstractSearchRequest {
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code ConfigSearchRequest}.
+   * @param <T>  the type
    */
   public static class Meta<T> extends AbstractSearchRequest.Meta {
     /**

@@ -123,11 +123,6 @@ final class MockNamedSnapshot implements NamedSnapshot, ImmutableBean {
   }
 
   @Override
-  public MockNamedSnapshot clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

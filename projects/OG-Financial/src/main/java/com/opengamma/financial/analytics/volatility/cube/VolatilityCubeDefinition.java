@@ -391,6 +391,9 @@ public class VolatilityCubeDefinition<X, Y, Z> implements Bean, Serializable, Un
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code VolatilityCubeDefinition}.
+   * @param <X>  the type
+   * @param <Y>  the type
+   * @param <Z>  the type
    */
   public static class Meta<X, Y, Z> extends DirectMetaBean {
     /**

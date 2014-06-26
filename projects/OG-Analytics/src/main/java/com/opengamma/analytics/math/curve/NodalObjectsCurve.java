@@ -222,6 +222,8 @@ public class NodalObjectsCurve<T extends Comparable<T>, U>
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code NodalObjectsCurve}.
+   * @param <T>  the type
+   * @param <U>  the type
    */
   public static class Meta<T extends Comparable<T>, U> extends ObjectsCurve.Meta<T, U> {
     /**

@@ -525,12 +525,6 @@ public final class ExternalIdBundle implements ImmutableBean, Iterable<ExternalI
   }
 
   //-----------------------------------------------------------------------
-  @Override
-  public ExternalIdBundle clone() {
-    return this;
-  }
-
-  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code ExternalIdBundle}.
    */

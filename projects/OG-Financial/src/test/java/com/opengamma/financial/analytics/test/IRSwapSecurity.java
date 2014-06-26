@@ -114,11 +114,6 @@ public final class IRSwapSecurity implements ImmutableBean {
   }
 
   @Override
-  public IRSwapSecurity clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

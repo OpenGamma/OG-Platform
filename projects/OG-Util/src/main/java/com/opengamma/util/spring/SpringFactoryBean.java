@@ -160,6 +160,7 @@ public abstract class SpringFactoryBean<T> extends DirectBean implements Factory
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code SpringFactoryBean}.
+   * @param <T>  the type
    */
   public static class Meta<T> extends DirectMetaBean {
     /**

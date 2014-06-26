@@ -110,11 +110,6 @@ public final class YieldCurveDataPointShift implements ImmutableBean {
   }
 
   @Override
-  public YieldCurveDataPointShift clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

@@ -139,11 +139,6 @@ public final class ScenarioDslScript implements ImmutableBean, ScenarioDefinitio
   }
 
   @Override
-  public ScenarioDslScript clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

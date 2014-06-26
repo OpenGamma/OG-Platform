@@ -276,6 +276,7 @@ public abstract class AbstractDbMasterFactoryBean<T> extends SpringFactoryBean<T
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code AbstractDbMasterFactoryBean}.
+   * @param <T>  the type
    */
   public static class Meta<T> extends SpringFactoryBean.Meta<T> {
     /**

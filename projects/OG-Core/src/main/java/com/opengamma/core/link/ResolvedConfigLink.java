@@ -132,11 +132,6 @@ public final class ResolvedConfigLink<C>
   }
 
   @Override
-  public ResolvedConfigLink<C> clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;
@@ -167,6 +162,7 @@ public final class ResolvedConfigLink<C>
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code ResolvedConfigLink}.
+   * @param <C>  the type
    */
   public static final class Meta<C> extends DirectMetaBean {
     /**
@@ -252,6 +248,7 @@ public final class ResolvedConfigLink<C>
   //-----------------------------------------------------------------------
   /**
    * The bean-builder for {@code ResolvedConfigLink}.
+   * @param <C>  the type
    */
   public static final class Builder<C> extends DirectFieldsBeanBuilder<ResolvedConfigLink<C>> {
 

@@ -101,6 +101,7 @@ public class BeanMasterHistoryResult<D extends AbstractDocument> extends Abstrac
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code BeanMasterHistoryResult}.
+   * @param <D>  the type
    */
   public static class Meta<D extends AbstractDocument> extends AbstractHistoryResult.Meta<D> {
     /**

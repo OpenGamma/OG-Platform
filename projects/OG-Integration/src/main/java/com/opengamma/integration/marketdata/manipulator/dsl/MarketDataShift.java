@@ -135,11 +135,6 @@ public final class MarketDataShift implements StructureManipulator<Double>, Immu
   }
 
   @Override
-  public MarketDataShift clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

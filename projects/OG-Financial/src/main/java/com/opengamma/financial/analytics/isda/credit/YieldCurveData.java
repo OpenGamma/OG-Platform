@@ -287,11 +287,6 @@ public final class YieldCurveData implements ImmutableBean {
   }
 
   @Override
-  public YieldCurveData clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

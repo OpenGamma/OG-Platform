@@ -108,11 +108,6 @@ public final class SpotRateReplace implements StructureManipulator<Double>, Immu
   }
 
   @Override
-  public SpotRateReplace clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

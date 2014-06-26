@@ -419,12 +419,6 @@ public final class ExternalIdBundleWithDates implements ImmutableBean,
   }
 
   //-----------------------------------------------------------------------
-  @Override
-  public ExternalIdBundleWithDates clone() {
-    return this;
-  }
-
-  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code ExternalIdBundleWithDates}.
    */

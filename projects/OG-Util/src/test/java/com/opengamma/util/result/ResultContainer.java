@@ -92,11 +92,6 @@ public final class ResultContainer implements ImmutableBean {
   }
 
   @Override
-  public ResultContainer clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

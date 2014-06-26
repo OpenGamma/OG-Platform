@@ -125,11 +125,6 @@ public final class ValueRequirementTargetForCell implements ImmutableBean {
   }
 
   @Override
-  public ValueRequirementTargetForCell clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

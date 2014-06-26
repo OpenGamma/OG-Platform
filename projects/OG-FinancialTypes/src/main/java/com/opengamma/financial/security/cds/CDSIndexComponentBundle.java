@@ -275,11 +275,6 @@ public final class CDSIndexComponentBundle
 
   //-----------------------------------------------------------------------
   @Override
-  public CDSIndexComponentBundle clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

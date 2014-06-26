@@ -211,11 +211,6 @@ public final class VolatilityCubeKey implements ImmutableBean, StructuredMarketD
   }
 
   @Override
-  public VolatilityCubeKey clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

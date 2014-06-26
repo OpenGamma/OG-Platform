@@ -217,11 +217,6 @@ public final class Rate implements ImmutableBean {
   }
 
   @Override
-  public Rate clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

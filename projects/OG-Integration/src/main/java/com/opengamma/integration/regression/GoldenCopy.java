@@ -150,11 +150,6 @@ public final class GoldenCopy implements ImmutableBean {
   }
 
   @Override
-  public GoldenCopy clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

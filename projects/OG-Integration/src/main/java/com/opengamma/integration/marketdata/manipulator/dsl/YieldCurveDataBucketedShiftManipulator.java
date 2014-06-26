@@ -184,11 +184,6 @@ public final class YieldCurveDataBucketedShiftManipulator implements ImmutableBe
   }
 
   @Override
-  public YieldCurveDataBucketedShiftManipulator clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

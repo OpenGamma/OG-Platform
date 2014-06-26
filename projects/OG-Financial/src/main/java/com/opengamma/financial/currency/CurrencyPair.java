@@ -246,11 +246,6 @@ public final class CurrencyPair implements ImmutableBean, UniqueIdentifiable {
 
   //-----------------------------------------------------------------------
   @Override
-  public CurrencyPair clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

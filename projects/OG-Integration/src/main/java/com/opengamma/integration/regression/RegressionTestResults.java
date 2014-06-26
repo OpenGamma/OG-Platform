@@ -143,11 +143,6 @@ public final class RegressionTestResults implements ImmutableBean {
   }
 
   @Override
-  public RegressionTestResults clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

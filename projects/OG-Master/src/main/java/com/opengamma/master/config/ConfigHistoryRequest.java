@@ -195,6 +195,7 @@ public class ConfigHistoryRequest<T> extends AbstractHistoryRequest {
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code ConfigHistoryRequest}.
+   * @param <T>  the type
    */
   public static class Meta<T> extends AbstractHistoryRequest.Meta {
     /**

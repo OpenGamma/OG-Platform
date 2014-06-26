@@ -295,6 +295,7 @@ public abstract class AbstractLink<T extends UniqueIdentifiable> extends DirectB
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code AbstractLink}.
+   * @param <T>  the type
    */
   public static class Meta<T extends UniqueIdentifiable> extends DirectMetaBean {
     /**

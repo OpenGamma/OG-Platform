@@ -201,6 +201,7 @@ public abstract class AbstractDocumentsResult<D extends AbstractDocument> extend
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code AbstractDocumentsResult}.
+   * @param <D>  the type
    */
   public static class Meta<D extends AbstractDocument> extends DirectMetaBean {
     /**

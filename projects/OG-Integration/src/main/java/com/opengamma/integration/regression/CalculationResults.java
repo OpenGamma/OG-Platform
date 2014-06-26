@@ -339,11 +339,6 @@ public final class CalculationResults implements ImmutableBean {
   }
 
   @Override
-  public CalculationResults clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

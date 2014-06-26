@@ -178,6 +178,7 @@ public class ConfigSearchResult<T> extends AbstractSearchResult<ConfigDocument> 
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code ConfigSearchResult}.
+   * @param <T>  the type
    */
   public static class Meta<T> extends AbstractSearchResult.Meta<ConfigDocument> {
     /**

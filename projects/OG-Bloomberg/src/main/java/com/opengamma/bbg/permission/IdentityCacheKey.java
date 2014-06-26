@@ -107,11 +107,6 @@ public final class IdentityCacheKey implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   @Override
-  public IdentityCacheKey clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

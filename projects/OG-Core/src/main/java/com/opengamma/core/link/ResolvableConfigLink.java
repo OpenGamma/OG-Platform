@@ -150,11 +150,6 @@ public class ResolvableConfigLink<T> extends ConfigLink<T> implements ImmutableB
   }
 
   @Override
-  public ResolvableConfigLink<T> clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;
@@ -193,6 +188,7 @@ public class ResolvableConfigLink<T> extends ConfigLink<T> implements ImmutableB
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code ResolvableConfigLink}.
+   * @param <T>  the type
    */
   public static class Meta<T> extends DirectMetaBean {
     /**
@@ -278,6 +274,7 @@ public class ResolvableConfigLink<T> extends ConfigLink<T> implements ImmutableB
   //-----------------------------------------------------------------------
   /**
    * The bean-builder for {@code ResolvableConfigLink}.
+   * @param <T>  the type
    */
   public static class Builder<T> extends DirectFieldsBeanBuilder<ResolvableConfigLink<T>> {
 

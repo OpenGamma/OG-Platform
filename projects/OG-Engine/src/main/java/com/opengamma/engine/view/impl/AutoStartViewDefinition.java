@@ -127,11 +127,6 @@ public final class AutoStartViewDefinition implements ImmutableBean {
   }
 
   @Override
-  public AutoStartViewDefinition clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

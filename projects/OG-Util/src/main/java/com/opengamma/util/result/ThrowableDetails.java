@@ -156,11 +156,6 @@ public final class ThrowableDetails implements ImmutableBean {
   }
 
   @Override
-  public ThrowableDetails clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

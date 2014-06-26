@@ -151,11 +151,6 @@ public final class LinkIdentifier<I, T> implements ImmutableBean {
   }
 
   @Override
-  public LinkIdentifier<I, T> clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;
@@ -189,6 +184,8 @@ public final class LinkIdentifier<I, T> implements ImmutableBean {
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code LinkIdentifier}.
+   * @param <I>  the type
+   * @param <T>  the type
    */
   public static final class Meta<I, T> extends DirectMetaBean {
     /**
@@ -293,6 +290,8 @@ public final class LinkIdentifier<I, T> implements ImmutableBean {
   //-----------------------------------------------------------------------
   /**
    * The bean-builder for {@code LinkIdentifier}.
+   * @param <I>  the type
+   * @param <T>  the type
    */
   public static final class Builder<I, T> extends DirectFieldsBeanBuilder<LinkIdentifier<I, T>> {
 

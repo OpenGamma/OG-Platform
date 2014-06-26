@@ -185,11 +185,6 @@ public final class FixedInterestRateSwapLegSchedule implements ImmutableBean {
   }
 
   @Override
-  public FixedInterestRateSwapLegSchedule clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

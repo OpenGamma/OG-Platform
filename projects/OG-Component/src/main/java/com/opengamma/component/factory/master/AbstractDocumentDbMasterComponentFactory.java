@@ -238,6 +238,8 @@ public abstract class AbstractDocumentDbMasterComponentFactory<I, M extends Conf
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code AbstractDocumentDbMasterComponentFactory}.
+   * @param <I>  the type
+   * @param <M>  the type
    */
   public static class Meta<I, M extends ConfigurableDbChangeProvidingMaster> extends AbstractDbMasterComponentFactory.Meta<I, M> {
     /**

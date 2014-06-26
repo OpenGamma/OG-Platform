@@ -159,11 +159,6 @@ public final class YieldCurveBucketedShiftManipulator implements ImmutableBean, 
   }
 
   @Override
-  public YieldCurveBucketedShiftManipulator clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

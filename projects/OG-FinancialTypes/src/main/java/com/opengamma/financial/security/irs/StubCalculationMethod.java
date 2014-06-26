@@ -355,11 +355,6 @@ public final class StubCalculationMethod implements ImmutableBean {
   }
 
   @Override
-  public StubCalculationMethod clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

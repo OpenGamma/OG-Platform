@@ -518,6 +518,8 @@ public class SurfaceData<X, Y> implements Bean, Serializable {
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code SurfaceData}.
+   * @param <X>  the type
+   * @param <Y>  the type
    */
   public static class Meta<X, Y> extends DirectMetaBean {
     /**

@@ -101,11 +101,6 @@ public final class RegressionReferenceData implements ImmutableBean {
   }
 
   @Override
-  public RegressionReferenceData clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

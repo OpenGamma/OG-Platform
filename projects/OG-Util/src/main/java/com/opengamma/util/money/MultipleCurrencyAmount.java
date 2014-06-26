@@ -20,7 +20,6 @@ import java.util.TreeMap;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
-import org.joda.beans.ImmutableConstructor;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -413,11 +412,6 @@ public final class MultipleCurrencyAmount implements ImmutableBean,
   }
 
   //-----------------------------------------------------------------------
-  @Override
-  public MultipleCurrencyAmount clone() {
-    return this;
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {

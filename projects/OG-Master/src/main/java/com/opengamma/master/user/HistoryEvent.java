@@ -230,11 +230,6 @@ public class HistoryEvent implements ImmutableBean, Comparable<HistoryEvent> {
   }
 
   @Override
-  public HistoryEvent clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

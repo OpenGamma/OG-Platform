@@ -29,7 +29,6 @@ import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.SetMultimap;
-import com.google.common.collect.SortedSetMultimap;
 
 @BeanDefinition
 public class CombinedMultimapMockBean implements ImmutableBean {
@@ -39,9 +38,6 @@ public class CombinedMultimapMockBean implements ImmutableBean {
 
   @PropertyDefinition(validate = "notNull")
   private final ListMultimap<String, String> _listMultimap;
-
-  @PropertyDefinition(validate = "notNull")
-  private final SortedSetMultimap<String, String> _sortedMultimap;
 
   @PropertyDefinition(validate = "notNull")
   private final Multimap<String, String> _noTypeMultimap;
@@ -75,11 +71,9 @@ public class CombinedMultimapMockBean implements ImmutableBean {
   protected CombinedMultimapMockBean(CombinedMultimapMockBean.Builder builder) {
     JodaBeanUtils.notNull(builder._setMultimap, "setMultimap");
     JodaBeanUtils.notNull(builder._listMultimap, "listMultimap");
-    JodaBeanUtils.notNull(builder._sortedMultimap, "sortedMultimap");
     JodaBeanUtils.notNull(builder._noTypeMultimap, "noTypeMultimap");
     this._setMultimap = ImmutableSetMultimap.copyOf(builder._setMultimap);
     this._listMultimap = ImmutableListMultimap.copyOf(builder._listMultimap);
-    this._sortedMultimap = builder._sortedMultimap;
     this._noTypeMultimap = ImmutableMultimap.copyOf(builder._noTypeMultimap);
   }
 
@@ -118,15 +112,6 @@ public class CombinedMultimapMockBean implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the sortedMultimap.
-   * @return the value of the property, not null
-   */
-  public SortedSetMultimap<String, String> getSortedMultimap() {
-    return _sortedMultimap;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Gets the noTypeMultimap.
    * @return the value of the property, not null
    */
@@ -144,11 +129,6 @@ public class CombinedMultimapMockBean implements ImmutableBean {
   }
 
   @Override
-  public CombinedMultimapMockBean clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;
@@ -157,7 +137,6 @@ public class CombinedMultimapMockBean implements ImmutableBean {
       CombinedMultimapMockBean other = (CombinedMultimapMockBean) obj;
       return JodaBeanUtils.equal(getSetMultimap(), other.getSetMultimap()) &&
           JodaBeanUtils.equal(getListMultimap(), other.getListMultimap()) &&
-          JodaBeanUtils.equal(getSortedMultimap(), other.getSortedMultimap()) &&
           JodaBeanUtils.equal(getNoTypeMultimap(), other.getNoTypeMultimap());
     }
     return false;
@@ -168,14 +147,13 @@ public class CombinedMultimapMockBean implements ImmutableBean {
     int hash = getClass().hashCode();
     hash += hash * 31 + JodaBeanUtils.hashCode(getSetMultimap());
     hash += hash * 31 + JodaBeanUtils.hashCode(getListMultimap());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSortedMultimap());
     hash += hash * 31 + JodaBeanUtils.hashCode(getNoTypeMultimap());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(160);
+    StringBuilder buf = new StringBuilder(128);
     buf.append("CombinedMultimapMockBean{");
     int len = buf.length();
     toString(buf);
@@ -189,7 +167,6 @@ public class CombinedMultimapMockBean implements ImmutableBean {
   protected void toString(StringBuilder buf) {
     buf.append("setMultimap").append('=').append(JodaBeanUtils.toString(getSetMultimap())).append(',').append(' ');
     buf.append("listMultimap").append('=').append(JodaBeanUtils.toString(getListMultimap())).append(',').append(' ');
-    buf.append("sortedMultimap").append('=').append(JodaBeanUtils.toString(getSortedMultimap())).append(',').append(' ');
     buf.append("noTypeMultimap").append('=').append(JodaBeanUtils.toString(getNoTypeMultimap())).append(',').append(' ');
   }
 
@@ -216,12 +193,6 @@ public class CombinedMultimapMockBean implements ImmutableBean {
     private final MetaProperty<ListMultimap<String, String>> _listMultimap = DirectMetaProperty.ofImmutable(
         this, "listMultimap", CombinedMultimapMockBean.class, (Class) ListMultimap.class);
     /**
-     * The meta-property for the {@code sortedMultimap} property.
-     */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<SortedSetMultimap<String, String>> _sortedMultimap = DirectMetaProperty.ofImmutable(
-        this, "sortedMultimap", CombinedMultimapMockBean.class, (Class) SortedSetMultimap.class);
-    /**
      * The meta-property for the {@code noTypeMultimap} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
@@ -234,7 +205,6 @@ public class CombinedMultimapMockBean implements ImmutableBean {
         this, null,
         "setMultimap",
         "listMultimap",
-        "sortedMultimap",
         "noTypeMultimap");
 
     /**
@@ -250,8 +220,6 @@ public class CombinedMultimapMockBean implements ImmutableBean {
           return _setMultimap;
         case 1737633857:  // listMultimap
           return _listMultimap;
-        case 1018561376:  // sortedMultimap
-          return _sortedMultimap;
         case -395084994:  // noTypeMultimap
           return _noTypeMultimap;
       }
@@ -291,14 +259,6 @@ public class CombinedMultimapMockBean implements ImmutableBean {
     }
 
     /**
-     * The meta-property for the {@code sortedMultimap} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<SortedSetMultimap<String, String>> sortedMultimap() {
-      return _sortedMultimap;
-    }
-
-    /**
      * The meta-property for the {@code noTypeMultimap} property.
      * @return the meta-property, not null
      */
@@ -314,8 +274,6 @@ public class CombinedMultimapMockBean implements ImmutableBean {
           return ((CombinedMultimapMockBean) bean).getSetMultimap();
         case 1737633857:  // listMultimap
           return ((CombinedMultimapMockBean) bean).getListMultimap();
-        case 1018561376:  // sortedMultimap
-          return ((CombinedMultimapMockBean) bean).getSortedMultimap();
         case -395084994:  // noTypeMultimap
           return ((CombinedMultimapMockBean) bean).getNoTypeMultimap();
       }
@@ -341,8 +299,7 @@ public class CombinedMultimapMockBean implements ImmutableBean {
 
     private SetMultimap<String, String> _setMultimap = HashMultimap.create();
     private ListMultimap<String, String> _listMultimap = ArrayListMultimap.create();
-    private SortedSetMultimap<String, String> _sortedMultimap;
-    private Multimap<String, String> _noTypeMultimap = HashMultimap.create();
+    private Multimap<String, String> _noTypeMultimap = ArrayListMultimap.create();
 
     /**
      * Restricted constructor.
@@ -357,8 +314,7 @@ public class CombinedMultimapMockBean implements ImmutableBean {
     protected Builder(CombinedMultimapMockBean beanToCopy) {
       this._setMultimap = HashMultimap.create(beanToCopy.getSetMultimap());
       this._listMultimap = ArrayListMultimap.create(beanToCopy.getListMultimap());
-      this._sortedMultimap = beanToCopy.getSortedMultimap();
-      this._noTypeMultimap = HashMultimap.create(beanToCopy.getNoTypeMultimap());
+      this._noTypeMultimap = ArrayListMultimap.create(beanToCopy.getNoTypeMultimap());
     }
 
     //-----------------------------------------------------------------------
@@ -369,8 +325,6 @@ public class CombinedMultimapMockBean implements ImmutableBean {
           return _setMultimap;
         case 1737633857:  // listMultimap
           return _listMultimap;
-        case 1018561376:  // sortedMultimap
-          return _sortedMultimap;
         case -395084994:  // noTypeMultimap
           return _noTypeMultimap;
         default:
@@ -387,9 +341,6 @@ public class CombinedMultimapMockBean implements ImmutableBean {
           break;
         case 1737633857:  // listMultimap
           this._listMultimap = (ListMultimap<String, String>) newValue;
-          break;
-        case 1018561376:  // sortedMultimap
-          this._sortedMultimap = (SortedSetMultimap<String, String>) newValue;
           break;
         case -395084994:  // noTypeMultimap
           this._noTypeMultimap = (Multimap<String, String>) newValue;
@@ -453,17 +404,6 @@ public class CombinedMultimapMockBean implements ImmutableBean {
     }
 
     /**
-     * Sets the {@code sortedMultimap} property in the builder.
-     * @param sortedMultimap  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder sortedMultimap(SortedSetMultimap<String, String> sortedMultimap) {
-      JodaBeanUtils.notNull(sortedMultimap, "sortedMultimap");
-      this._sortedMultimap = sortedMultimap;
-      return this;
-    }
-
-    /**
      * Sets the {@code noTypeMultimap} property in the builder.
      * @param noTypeMultimap  the new value, not null
      * @return this, for chaining, not null
@@ -477,7 +417,7 @@ public class CombinedMultimapMockBean implements ImmutableBean {
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(160);
+      StringBuilder buf = new StringBuilder(128);
       buf.append("CombinedMultimapMockBean.Builder{");
       int len = buf.length();
       toString(buf);
@@ -491,7 +431,6 @@ public class CombinedMultimapMockBean implements ImmutableBean {
     protected void toString(StringBuilder buf) {
       buf.append("setMultimap").append('=').append(JodaBeanUtils.toString(_setMultimap)).append(',').append(' ');
       buf.append("listMultimap").append('=').append(JodaBeanUtils.toString(_listMultimap)).append(',').append(' ');
-      buf.append("sortedMultimap").append('=').append(JodaBeanUtils.toString(_sortedMultimap)).append(',').append(' ');
       buf.append("noTypeMultimap").append('=').append(JodaBeanUtils.toString(_noTypeMultimap)).append(',').append(' ');
     }
 

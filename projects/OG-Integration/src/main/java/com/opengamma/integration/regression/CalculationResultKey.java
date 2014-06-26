@@ -248,11 +248,6 @@ public final class CalculationResultKey implements ImmutableBean, Comparable<Cal
   }
 
   @Override
-  public CalculationResultKey clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

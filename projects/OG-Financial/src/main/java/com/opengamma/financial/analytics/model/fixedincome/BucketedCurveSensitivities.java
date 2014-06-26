@@ -113,11 +113,6 @@ public final class BucketedCurveSensitivities implements ImmutableBean {
   }
 
   @Override
-  public BucketedCurveSensitivities clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

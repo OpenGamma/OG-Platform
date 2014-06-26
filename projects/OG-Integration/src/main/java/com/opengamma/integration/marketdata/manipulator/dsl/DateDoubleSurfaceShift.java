@@ -122,11 +122,6 @@ public final class DateDoubleSurfaceShift extends VolatilitySurfaceShiftManipula
   }
 
   @Override
-  public DateDoubleSurfaceShift clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

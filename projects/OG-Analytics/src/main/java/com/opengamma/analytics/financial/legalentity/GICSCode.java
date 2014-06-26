@@ -198,11 +198,6 @@ public final class GICSCode implements ImmutableBean, Serializable {
 
   //-----------------------------------------------------------------------
   @Override
-  public GICSCode clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

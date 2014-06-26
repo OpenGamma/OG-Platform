@@ -140,11 +140,6 @@ public final class SurfaceKey implements ImmutableBean, StructuredMarketDataKey,
   }
 
   @Override
-  public SurfaceKey clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

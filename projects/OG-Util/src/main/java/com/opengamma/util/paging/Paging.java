@@ -351,11 +351,6 @@ public final class Paging implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   @Override
-  public Paging clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

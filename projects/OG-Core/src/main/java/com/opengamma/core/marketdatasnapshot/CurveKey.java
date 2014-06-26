@@ -148,11 +148,6 @@ public final class CurveKey implements ImmutableBean, StructuredMarketDataKey, C
   }
 
   @Override
-  public CurveKey clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;
