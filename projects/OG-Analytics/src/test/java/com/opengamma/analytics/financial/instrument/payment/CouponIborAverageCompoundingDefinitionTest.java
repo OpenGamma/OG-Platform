@@ -9,9 +9,12 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.testng.annotations.Test;
+import org.testng.internal.junit.ArrayAsserts;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
@@ -33,7 +36,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 
 /**
- * 
+ * Tests related to the construction of CouponIborAverageCompoundingDefinition.
  */
 public class CouponIborAverageCompoundingDefinitionTest {
 
@@ -63,7 +66,6 @@ public class CouponIborAverageCompoundingDefinitionTest {
       }
     }
   }
-
   private static final DayCount DAY_COUNT_PAYMENT = DayCounts.ACT_365;
   private static final double ACCRUAL_FACTOR = DAY_COUNT_PAYMENT.getDayCountFraction(ACCRUAL_START_DATE, ACCRUAL_END_DATE);
   private static final double[] ACCRUAL_FACTORS = new double[NUM_PRDS];
@@ -73,12 +75,9 @@ public class CouponIborAverageCompoundingDefinitionTest {
     ACCRUAL_FACTORS[NUM_PRDS - 2] *= 0.99;
   }
   private static final double NOTIONAL = 1000000;
-
-  private static final CouponIborAverageCompoundingDefinition DFN1 = new CouponIborAverageCompoundingDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL,
-      ACCRUAL_FACTORS, INDEX, FIXING_DATES, WEIGHTS, CALENDAR);
-
-  private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 12, 27);
-
+  private static final CouponIborAverageCompoundingDefinition DFN1 = new CouponIborAverageCompoundingDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE,
+      ACCRUAL_FACTOR, NOTIONAL, ACCRUAL_FACTORS, INDEX, FIXING_DATES, WEIGHTS, CALENDAR);
+  // Example 2:
   private static ZonedDateTime[][] EXP_START_DATES = new ZonedDateTime[NUM_PRDS][NUM_OBS];
   private static ZonedDateTime[][] EXP_END_DATES = new ZonedDateTime[NUM_PRDS][NUM_OBS];
   private static double[][] FIX_ACC_FACTORS = new double[NUM_PRDS][NUM_OBS];
@@ -91,13 +90,50 @@ public class CouponIborAverageCompoundingDefinitionTest {
       }
     }
   }
+  private static final CouponIborAverageCompoundingDefinition DFN2 = new CouponIborAverageCompoundingDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE,
+      ACCRUAL_FACTOR, NOTIONAL, ACCRUAL_FACTORS, INDEX, FIXING_DATES, WEIGHTS, EXP_START_DATES, EXP_END_DATES, FIX_ACC_FACTORS);
+  // Example 3: different number of fixing in each subperiod
+  private static final int NB_SUBPERIODS = 3;
+  private static final ZonedDateTime[] ACCRUAL_START_DATE_SUB_3 = new ZonedDateTime[NB_SUBPERIODS + 1];
+  private static final ZonedDateTime[][] FIXING_DATES_3 = new ZonedDateTime[NB_SUBPERIODS][];
+  private static final double[][] WEIGHTS_3 = new double[NB_SUBPERIODS][];
+  private static final double[] ACCRUAL_FACTORS_3 = new double[NB_SUBPERIODS];
+  static {
+    for (int loopsub = 0; loopsub <= NB_SUBPERIODS; loopsub++) {
+      ACCRUAL_START_DATE_SUB_3[loopsub] = ScheduleCalculator.getAdjustedDate(ACCRUAL_START_DATE, Period.ofMonths(loopsub), INDEX, CALENDAR);
+    }
+    for (int loopsub = 0; loopsub < NB_SUBPERIODS; loopsub++) {
+      List<ZonedDateTime> listDates = new ArrayList<>();
+      ZonedDateTime startFixPeriod = ACCRUAL_START_DATE_SUB_3[loopsub];
+      listDates.add(ScheduleCalculator.getAdjustedDate(startFixPeriod, -INDEX.getSpotLag(), CALENDAR));
+      startFixPeriod = ScheduleCalculator.getAdjustedDate(startFixPeriod, 1, CALENDAR);
+      while (startFixPeriod.isBefore(ACCRUAL_START_DATE_SUB_3[loopsub + 1])) {
+        listDates.add(ScheduleCalculator.getAdjustedDate(startFixPeriod, -INDEX.getSpotLag(), CALENDAR));
+        startFixPeriod = ScheduleCalculator.getAdjustedDate(startFixPeriod, 1, CALENDAR);
+      }
+      FIXING_DATES_3[loopsub] = listDates.toArray(new ZonedDateTime[0]);
+      WEIGHTS_3[loopsub] = new double[FIXING_DATES_3[loopsub].length];
+      ACCRUAL_FACTORS_3[loopsub] = DAY_COUNT_INDEX.getDayCountFraction(ACCRUAL_START_DATE_SUB_3[loopsub], ACCRUAL_START_DATE_SUB_3[loopsub + 1]);
+      for (int loopf = 0; loopf < FIXING_DATES_3[loopsub].length; loopf++) {
+        WEIGHTS_3[loopsub][loopf] = 1.0d / FIXING_DATES_3[loopsub].length;
+      }
+    }
+  }
+  private static final CouponIborAverageCompoundingDefinition DFN3 = new CouponIborAverageCompoundingDefinition(CUR, ACCRUAL_START_DATE_SUB_3[3],
+      ACCRUAL_START_DATE_SUB_3[0], ACCRUAL_START_DATE_SUB_3[3], ACCRUAL_FACTOR, NOTIONAL, ACCRUAL_FACTORS_3, INDEX, FIXING_DATES_3, WEIGHTS_3, CALENDAR);
 
-  private static final CouponIborAverageCompoundingDefinition DFN2 = new CouponIborAverageCompoundingDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL,
-      ACCRUAL_FACTORS, INDEX, FIXING_DATES, WEIGHTS, EXP_START_DATES, EXP_END_DATES, FIX_ACC_FACTORS);
+  private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 12, 27);
 
-  /**
-   * 
-   */
+  @Test
+  public void getter() {
+    ArrayAsserts.assertArrayEquals("CouponIborAverageCompoundingDefinition: getter", FIXING_DATES, DFN2.getFixingDates());
+    ArrayAsserts.assertArrayEquals("CouponIborAverageCompoundingDefinition: getter", WEIGHTS, DFN2.getWeight());
+    ArrayAsserts.assertArrayEquals("CouponIborAverageCompoundingDefinition: getter", EXP_START_DATES, DFN2.getFixingPeriodStartDates());
+    ArrayAsserts.assertArrayEquals("CouponIborAverageCompoundingDefinition: getter", EXP_END_DATES, DFN2.getFixingPeriodEndDates());
+    ArrayAsserts.assertArrayEquals("CouponIborAverageCompoundingDefinition: getter", FIX_ACC_FACTORS, DFN2.getFixingPeriodAccrualFactor());
+    ArrayAsserts.assertArrayEquals("CouponIborAverageCompoundingDefinition: getter", FIXING_DATES_3, DFN3.getFixingDates());
+  }
+
   @Test
   public void toDerivativeGeneralTest() {
     final ZonedDateTime[] dates1 = new ZonedDateTime[NUM_PRDS * NUM_OBS];
@@ -353,10 +389,11 @@ public class CouponIborAverageCompoundingDefinitionTest {
     assertEquals(refRate, derivative5.getRateFixed(), 1.e-14);
   }
 
-  /**
-   * 
-   */
-  @SuppressWarnings("unused")
+  @Test
+  public void toDerivativeDifferentFixingSize() {
+    // TODO: Add a to derivative where the size of the fixing dates arrays are not the same for all subperiods.
+  }
+
   @Test
   public void exceptionTest() {
     try {
@@ -394,20 +431,6 @@ public class CouponIborAverageCompoundingDefinitionTest {
     for (int i = 0; i < NUM_PRDS; ++i) {
       smallWeight[i] = Arrays.copyOf(WEIGHTS[i], NUM_OBS - 1);
     }
-    try {
-      new CouponIborAverageCompoundingDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL,
-          ACCRUAL_FACTORS, INDEX, FIXING_DATES, smallWeight, CALENDAR);
-      throw new RuntimeException();
-    } catch (final Exception e) {
-      assertEquals("weights length different from fixingDate length", e.getMessage());
-    }
-    try {
-      new CouponIborAverageCompoundingDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL,
-          ACCRUAL_FACTORS, INDEX, FIXING_DATES, smallWeight, EXP_START_DATES, EXP_END_DATES, FIX_ACC_FACTORS);
-      throw new RuntimeException();
-    } catch (final Exception e) {
-      assertEquals("weights length different from fixingDate length", e.getMessage());
-    }
 
     final ZonedDateTime[][] shortStartDates = Arrays.copyOf(EXP_START_DATES, NUM_PRDS - 1);
     try {
@@ -443,27 +466,6 @@ public class CouponIborAverageCompoundingDefinitionTest {
       smallStartDates[i] = Arrays.copyOf(EXP_START_DATES[i], NUM_OBS - 1);
       smallEndDates[i] = Arrays.copyOf(EXP_END_DATES[i], NUM_OBS - 1);
       smallAcc[i] = Arrays.copyOf(FIX_ACC_FACTORS[i], NUM_OBS - 1);
-    }
-    try {
-      new CouponIborAverageCompoundingDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL,
-          ACCRUAL_FACTORS, INDEX, FIXING_DATES, WEIGHTS, smallStartDates, EXP_END_DATES, FIX_ACC_FACTORS);
-      throw new RuntimeException();
-    } catch (final Exception e) {
-      assertEquals("fixingPeriodStartDates length different from fixingDate length", e.getMessage());
-    }
-    try {
-      new CouponIborAverageCompoundingDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL,
-          ACCRUAL_FACTORS, INDEX, FIXING_DATES, WEIGHTS, EXP_START_DATES, smallEndDates, FIX_ACC_FACTORS);
-      throw new RuntimeException();
-    } catch (final Exception e) {
-      assertEquals("fixingPeriodEndDates length different from fixingDate length", e.getMessage());
-    }
-    try {
-      new CouponIborAverageCompoundingDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL,
-          ACCRUAL_FACTORS, INDEX, FIXING_DATES, WEIGHTS, EXP_START_DATES, EXP_END_DATES, smallAcc);
-      throw new RuntimeException();
-    } catch (final Exception e) {
-      assertEquals("fixingPeriodAccrualFactors length different from fixingDate length", e.getMessage());
     }
 
     final ZonedDateTime afterPayment = PAYMENT_DATE.plusDays(1);

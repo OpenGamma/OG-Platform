@@ -31,7 +31,7 @@ import com.opengamma.util.money.Currency;
  */
 public class CouponIborAverageFixingDatesDefinition extends CouponDefinition implements InstrumentDefinitionWithData<Payment, DoubleTimeSeries<ZonedDateTime>> {
 
-  /** The index on which the fixing is done. */
+  /** The index on which the fixing is done. The same index is used for all the fixings. */
   private final IborIndex _index;
   /** The fixing dates of the index. The dates are in increasing order. */
   private final ZonedDateTime[] _fixingDate;
@@ -41,6 +41,7 @@ public class CouponIborAverageFixingDatesDefinition extends CouponDefinition imp
   private final ZonedDateTime[] _fixingPeriodStartDate;
   /** The end dates of the underlying index period. Same size as _fixingDate. */
   private final ZonedDateTime[] _fixingPeriodEndDate;
+  /** The index periods accrual factors. Same size as _fixingDate. */
   private final double[] _fixingPeriodAccrualFactor;
 
   /**
@@ -192,10 +193,9 @@ public class CouponIborAverageFixingDatesDefinition extends CouponDefinition imp
     final int nDates = _weight.length;
     final LocalDate dayConversion = date.toLocalDate();
     ArgumentChecker.isTrue(!dayConversion.isAfter(getPaymentDate().toLocalDate()), "date is after payment date");
-    for (int i = 0; i < nDates; ++i) {
-      ArgumentChecker.isTrue(!dayConversion.isAfter(getFixingDate()[i].toLocalDate()), "Do not have any fixing data but are asking for a derivative at " + date
-          + " which is after fixing date " + getFixingDate()[i]);
-    }
+    ArgumentChecker.isTrue(!dayConversion.isAfter(getFixingDate()[0].toLocalDate()), "Do not have any fixing data but are asking for a derivative at " + date
+        + " which is after fixing date " + getFixingDate()[0]);
+    // Fixing dates are in increasing order; only the first one need to be checked.
     final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
     final double[] fixingTime = new double[nDates];
     final double[] fixingPeriodStartTime = new double[nDates];
@@ -264,7 +264,7 @@ public class CouponIborAverageFixingDatesDefinition extends CouponDefinition imp
   @Override
   @Deprecated
   public Coupon toDerivative(ZonedDateTime date, DoubleTimeSeries<ZonedDateTime> data, String... yieldCurveNames) {
-    return toDerivative(date, data);
+    throw new NotImplementedException("toDerivative not implemented with yield curve names.");
   }
 
   /**

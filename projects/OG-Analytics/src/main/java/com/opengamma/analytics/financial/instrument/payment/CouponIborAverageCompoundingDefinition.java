@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.instrument.payment;
 
 import java.util.Arrays;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
@@ -26,17 +27,24 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ * Class describing an average coupon by weighted mean of index values with difference fixing dates. 
+ * The weighted averages over several sub-periods are compounded over the total period.
  */
 public class CouponIborAverageCompoundingDefinition extends CouponDefinition implements InstrumentDefinitionWithData<Payment, DoubleTimeSeries<ZonedDateTime>> {
 
+  /** The index on which the fixing is done. The same index is used for all the fixings. */
   private final IborIndex _index;
-  private final double[][] _weights;
+  /** The fixing dates of the index. The dates are in increasing order. */
   private final ZonedDateTime[][] _fixingDates;
+  /** The weights or quantity used for each fixing. The total weight is not necessarily 1. Same size as _fixingDate. */
+  private final double[][] _weights;
+  /** The start dates of the underlying index period. Same size as _fixingDate. */
   private final ZonedDateTime[][] _fixingPeriodStartDates;
+  /** The end dates of the underlying index period. Same size as _fixingDate. */
   private final ZonedDateTime[][] _fixingPeriodEndDates;
-
+  /** The index periods accrual factors. Same size as _fixingDate. */
   private final double[][] _fixingPeriodAccrualFactors;
+  /** The payment accrual factors for the different sub-periods on which the compounding is computed. */
   private final double[] _paymentAccrualFactors;
 
   /**
@@ -57,25 +65,25 @@ public class CouponIborAverageCompoundingDefinition extends CouponDefinition imp
       final double paymentAccrualFactor, final double notional, final double[] paymentAccrualFactors, final IborIndex index, final ZonedDateTime[][] fixingDates, final double[][] weights,
       final Calendar iborCalendar) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, paymentAccrualFactor, notional);
-
     final int nPeriods = fixingDates.length;
-    final int nDates = fixingDates[0].length; //number of fixing dates per period
+    final int[] nDates = new int[nPeriods]; // Number of fixing dates per sub-period, can be different for each sub-period.
     ArgumentChecker.isTrue(nPeriods == weights.length, "weights length different from fixingDate length");
-    ArgumentChecker.isTrue(nDates == weights[0].length, "weights length different from fixingDate length");
     ArgumentChecker.isTrue(currency.equals(index.getCurrency()), "index currency different from payment currency");
-
-    _weights = new double[nPeriods][nDates];
-    _fixingDates = new ZonedDateTime[nPeriods][nDates];
-    _fixingPeriodStartDates = new ZonedDateTime[nPeriods][nDates];
-    _fixingPeriodEndDates = new ZonedDateTime[nPeriods][nDates];
-    _fixingPeriodAccrualFactors = new double[nPeriods][nDates];
-
+    _weights = new double[nPeriods][];
+    _fixingDates = new ZonedDateTime[nPeriods][];
+    _fixingPeriodStartDates = new ZonedDateTime[nPeriods][];
+    _fixingPeriodEndDates = new ZonedDateTime[nPeriods][];
+    _fixingPeriodAccrualFactors = new double[nPeriods][];
     _index = index;
-    _paymentAccrualFactors = Arrays.copyOf(paymentAccrualFactors, nPeriods);
+    _paymentAccrualFactors = paymentAccrualFactors.clone();
     for (int i = 0; i < nPeriods; ++i) {
-      System.arraycopy(weights[i], 0, _weights[i], 0, nDates);
-      System.arraycopy(fixingDates[i], 0, _fixingDates[i], 0, nDates);
-      for (int j = 0; j < nDates; ++j) {
+      nDates[i] = fixingDates[i].length;
+      _weights[i] = weights[i].clone();
+      _fixingDates[i] = fixingDates[i].clone();
+      _fixingPeriodStartDates[i] = new ZonedDateTime[nDates[i]];
+      _fixingPeriodEndDates[i] = new ZonedDateTime[nDates[i]];
+      _fixingPeriodAccrualFactors[i] = new double[nDates[i]];
+      for (int j = 0; j < nDates[i]; ++j) {
         _fixingPeriodStartDates[i][j] = ScheduleCalculator.getAdjustedDate(fixingDates[i][j], index.getSpotLag(), iborCalendar);
         _fixingPeriodEndDates[i][j] = ScheduleCalculator.getAdjustedDate(_fixingPeriodStartDates[i][j], index.getTenor(), index.getBusinessDayConvention(), iborCalendar, index.isEndOfMonth());
         _fixingPeriodAccrualFactors[i][j] = index.getDayCount().getDayCountFraction(_fixingPeriodStartDates[i][j], _fixingPeriodEndDates[i][j], iborCalendar);
@@ -103,33 +111,25 @@ public class CouponIborAverageCompoundingDefinition extends CouponDefinition imp
       final double paymentAccrualFactor, final double notional, final double[] paymentAccrualFactors, final IborIndex index, final ZonedDateTime[][] fixingDates, final double[][] weights,
       final ZonedDateTime[][] fixingPeriodStartDates, final ZonedDateTime[][] fixingPeriodEndDates, final double[][] fixingPeriodAccrualFactors) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, paymentAccrualFactor, notional);
-
     final int nPeriods = fixingDates.length;
-    final int nDates = fixingDates[0].length; //number of fixing dates per period
     ArgumentChecker.isTrue(nPeriods == weights.length, "weights length different from fixingDate length");
-    ArgumentChecker.isTrue(nDates == weights[0].length, "weights length different from fixingDate length");
     ArgumentChecker.isTrue(nPeriods == fixingPeriodStartDates.length, "fixingPeriodStartDates length different from fixingDate length");
-    ArgumentChecker.isTrue(nDates == fixingPeriodStartDates[0].length, "fixingPeriodStartDates length different from fixingDate length");
     ArgumentChecker.isTrue(nPeriods == fixingPeriodEndDates.length, "fixingPeriodEndDates length different from fixingDate length");
-    ArgumentChecker.isTrue(nDates == fixingPeriodEndDates[0].length, "fixingPeriodEndDates length different from fixingDate length");
     ArgumentChecker.isTrue(nPeriods == fixingPeriodAccrualFactors.length, "fixingPeriodAccrualFactors length different from fixingDate length");
-    ArgumentChecker.isTrue(nDates == fixingPeriodAccrualFactors[0].length, "fixingPeriodAccrualFactors length different from fixingDate length");
     ArgumentChecker.isTrue(currency.equals(index.getCurrency()), "index currency different from payment currency");
-
-    _weights = new double[nPeriods][nDates];
-    _fixingDates = new ZonedDateTime[nPeriods][nDates];
-    _fixingPeriodStartDates = new ZonedDateTime[nPeriods][nDates];
-    _fixingPeriodEndDates = new ZonedDateTime[nPeriods][nDates];
-    _fixingPeriodAccrualFactors = new double[nPeriods][nDates];
-
+    _weights = new double[nPeriods][];
+    _fixingDates = new ZonedDateTime[nPeriods][];
+    _fixingPeriodStartDates = new ZonedDateTime[nPeriods][];
+    _fixingPeriodEndDates = new ZonedDateTime[nPeriods][];
+    _fixingPeriodAccrualFactors = new double[nPeriods][];
     _index = index;
-    _paymentAccrualFactors = Arrays.copyOf(paymentAccrualFactors, nPeriods);
+    _paymentAccrualFactors = paymentAccrualFactors.clone();
     for (int i = 0; i < nPeriods; ++i) {
-      System.arraycopy(weights[i], 0, _weights[i], 0, nDates);
-      System.arraycopy(fixingDates[i], 0, _fixingDates[i], 0, nDates);
-      System.arraycopy(fixingPeriodStartDates[i], 0, _fixingPeriodStartDates[i], 0, nDates);
-      System.arraycopy(fixingPeriodEndDates[i], 0, _fixingPeriodEndDates[i], 0, nDates);
-      System.arraycopy(fixingPeriodAccrualFactors[i], 0, _fixingPeriodAccrualFactors[i], 0, nDates);
+      _weights[i] = weights[i].clone();
+      _fixingDates[i] = fixingDates[i].clone();
+      _fixingPeriodStartDates[i] = fixingPeriodStartDates[i].clone();
+      _fixingPeriodEndDates[i] = fixingPeriodEndDates[i].clone();
+      _fixingPeriodAccrualFactors[i] = fixingPeriodAccrualFactors[i].clone();
     }
   }
 
@@ -257,57 +257,33 @@ public class CouponIborAverageCompoundingDefinition extends CouponDefinition imp
     return _fixingPeriodAccrualFactors;
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Override
-  @Deprecated
-  public CouponIborAverageCompounding toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    return toDerivative(date);
-  }
-
   @Override
   public CouponIborAverageCompounding toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "date");
-
     final int nPeriods = getFixingDates().length;
-    final int nDates = getFixingDates()[0].length; //number of fixing dates per period
+    final int[] nDates = new int[nPeriods]; // Number of fixing dates per sub-period, can be different for each sub-period.
     final LocalDate dayConversion = date.toLocalDate();
-
     ArgumentChecker.isTrue(!dayConversion.isAfter(getPaymentDate().toLocalDate()), "date is after payment date");
-    for (int i = 0; i < nPeriods; ++i) {
-      for (int j = 0; j < nDates; ++j) {
-        ArgumentChecker.isTrue(!dayConversion.isAfter(getFixingDates()[i][j].toLocalDate()), "Do not have any fixing data but are asking for a derivative at " + date
-            + " which is after fixing date " + getFixingDates()[i][j]);
-      }
-    }
+    ArgumentChecker.isTrue(!dayConversion.isAfter(getFixingDates()[0][0].toLocalDate()), "Do not have any fixing data but are asking for a derivative at " + date
+        + " which is after fixing date " + getFixingDates()[0][0]);
+    // Fixing dates are in increasing order; only the first one need to be checked.
     final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
-
-    final double[][] fixingTime = new double[nPeriods][nDates];
-    final double[][] fixingPeriodStartTime = new double[nPeriods][nDates];
-    final double[][] fixingPeriodEndTime = new double[nPeriods][nDates];
-
+    final double[][] fixingTime = new double[nPeriods][];
+    final double[][] fixingPeriodStartTime = new double[nPeriods][];
+    final double[][] fixingPeriodEndTime = new double[nPeriods][];
     for (int i = 0; i < nPeriods; ++i) {
-      for (int j = 0; j < nDates; ++j) {
+      nDates[i] = getFixingDates()[i].length;
+      fixingTime[i] = new double[nDates[i]];
+      fixingPeriodStartTime[i] = new double[nDates[i]];
+      fixingPeriodEndTime[i] = new double[nDates[i]];
+      for (int j = 0; j < nDates[i]; ++j) {
         fixingTime[i][j] = TimeCalculator.getTimeBetween(date, getFixingDates()[i][j]);
         fixingPeriodStartTime[i][j] = TimeCalculator.getTimeBetween(date, getFixingPeriodStartDates()[i][j]);
         fixingPeriodEndTime[i][j] = TimeCalculator.getTimeBetween(date, getFixingPeriodEndDates()[i][j]);
       }
     }
-
     return new CouponIborAverageCompounding(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), getPaymentAccrualFactors(), getIndex(), fixingTime, getWeight(),
         fixingPeriodStartTime, fixingPeriodEndTime, getFixingPeriodAccrualFactor(), 0., 0.);
-  }
-
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Override
-  @Deprecated
-  public Coupon toDerivative(ZonedDateTime date, DoubleTimeSeries<ZonedDateTime> data, String... yieldCurveNames) {
-    return toDerivative(date, data);
   }
 
   @Override
@@ -405,6 +381,26 @@ public class CouponIborAverageCompoundingDefinition extends CouponDefinition imp
 
     return new CouponIborAverageCompounding(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), paymentAccrualFactorsLeft, getIndex(), fixingTimeLeft, weightLeft,
         fixingPeriodStartTimeLeft, fixingPeriodEndTimeLeft, fixingPeriodAccrualFactorLeft, amountAccrued, sumRateFixed);
+  }
+
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Override
+  @Deprecated
+  public Coupon toDerivative(ZonedDateTime date, DoubleTimeSeries<ZonedDateTime> data, String... yieldCurveNames) {
+    throw new NotImplementedException("toDerivative not implemented with yield curve names.");
+  }
+
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Override
+  @Deprecated
+  public CouponIborAverageCompounding toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+    throw new NotImplementedException("toDerivative not implemented with yield curve names.");
   }
 
   @Override
