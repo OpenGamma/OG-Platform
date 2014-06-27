@@ -6,6 +6,35 @@ These release notes cover changes from v2.1 to v2.2.
 Upgrading from 2.1.0
 ====================
 
+To 2.2.0-M29
+------------
+
+* Bug
+    * [PLAT-6615] - OG-PlatformNative can't be built on Linux
+    * [PLAT-6616] - OG-PlatformNative is not in sync with OG-Platform's StubCalculationMethod
+    * [PLAT-6623] - exe-kill script spuriously kills processes
+* Improvement
+    * [PLAT-6619] - Add ACT/ACT.ICMA mapping
+    * [PLAT-6621] - Upgrade to Joda-Beans 1.0
+* Task
+    * [PLAT-6618] - Remove old docs
+    * [PLAT-6620] - Support FRAs with separate fixing & payment calendars
+
+
+To 2.2.0-M28
+------------
+
+* Bug
+    * [PLAT-6601] - Add get/setPermissions to ManageableSecurity for backwards compatibility
+    * [PLAT-6607] - Handle permissive user without error
+* Improvement
+    * [PLAT-6603] - Stub interpolation uses different indices
+    * [PLAT-6605] - Improve redis timeseries resolver
+    * [PLAT-6606] - Allow redis config source lookups for type Object
+* New Feature
+    * [PLAT-6595] - Allow ExposureFunction setup by counterparty (Development and Unit test)
+
+
 To 2.2.0-M27
 ------------
 
