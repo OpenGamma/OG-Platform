@@ -88,6 +88,8 @@ public class CouponIborAverageFixingDatesDiscountingMethodTest {
   private static final double AMOUNT_ACC = 0.05;
   private static final CouponIborAverageFixingDates DER1 = new CouponIborAverageFixingDates(CUR, PAYMENT_TIME, ACCRUAL_FACTOR, NOTIONAL, INDEX,
       FIXING_TIMES, WEIGHTS, FIXING_PERIOD_START_TIMES, FIXING_PERIOD_END_TIMES, FIX_ACC_FACTORS, AMOUNT_ACC);
+  private static final CouponIborAverageFixingDates DER2 = new CouponIborAverageFixingDates(CUR, PAYMENT_TIME, ACCRUAL_FACTOR, NOTIONAL, INDEX,
+      FIXING_TIMES, WEIGHTS, FIXING_PERIOD_START_TIMES, FIXING_PERIOD_END_TIMES, FIX_ACC_FACTORS, 0.0);
   private static final CouponIborAverageFixingDatesDiscountingMethod METHOD = CouponIborAverageFixingDatesDiscountingMethod.getInstance();
   private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
   private static final PresentValueCurveSensitivityDiscountingCalculator PVCSDC = PresentValueCurveSensitivityDiscountingCalculator.getInstance();
@@ -118,10 +120,30 @@ public class CouponIborAverageFixingDatesDiscountingMethodTest {
    * 
    */
   @Test
+  public void presentValueNoFixTest() {
+    final MultipleCurrencyAmount pvComputed = METHOD.presentValue(DER2, MULTICURVES);
+    double forward = 0.0;
+    for (int i = 0; i < NUM_OBS; ++i) {
+      forward += WEIGHTS[i] * MULTICURVES.getSimplyCompoundForwardRate(INDEX, FIXING_PERIOD_START_TIMES[i], FIXING_PERIOD_END_TIMES[i], FIX_ACC_FACTORS[i]);
+    }
+    final double pvExpected = DER2.getNotional() * MULTICURVES.getDiscountFactor(DER2.getCurrency(), DER2.getPaymentTime()) * DER2.getPaymentYearFraction() * forward;
+    assertEquals(pvExpected, pvComputed.getAmount(DER2.getCurrency()), EPS * pvExpected);
+    final MultipleCurrencyAmount pvWithCalc = PVDC.visitCouponIborAverageFixingDates(DER2, MULTICURVES);
+    assertEquals(pvWithCalc.getAmount(DER2.getCurrency()), pvComputed.getAmount(DER2.getCurrency()), EPS * pvExpected);
+  }
+
+  /**
+   * 
+   */
+  @Test
   public void sensitivityFiniteDifferenceTest() {
-    final MultipleCurrencyParameterSensitivity senseCalc = PSC.calculateSensitivity(DER1, MULTICURVES, MULTICURVES.getAllNames());
-    final MultipleCurrencyParameterSensitivity senseFd = PSC_DSC_FD.calculateSensitivity(DER1, MULTICURVES);
-    AssertSensitivityObjects.assertEquals("CouponIborAverageFixingDatesDiscountingMethod", senseCalc, senseFd, TOLERANCE_PV_DELTA);
+    final MultipleCurrencyParameterSensitivity senseCalc1 = PSC.calculateSensitivity(DER1, MULTICURVES, MULTICURVES.getAllNames());
+    final MultipleCurrencyParameterSensitivity senseFd1 = PSC_DSC_FD.calculateSensitivity(DER1, MULTICURVES);
+    AssertSensitivityObjects.assertEquals("CouponIborAverageFixingDatesDiscountingMethod", senseCalc1, senseFd1, TOLERANCE_PV_DELTA);
+
+    final MultipleCurrencyParameterSensitivity senseCalc2 = PSC.calculateSensitivity(DER2, MULTICURVES, MULTICURVES.getAllNames());
+    final MultipleCurrencyParameterSensitivity senseFd2 = PSC_DSC_FD.calculateSensitivity(DER2, MULTICURVES);
+    AssertSensitivityObjects.assertEquals("CouponIborAverageFixingDatesDiscountingMethod", senseCalc2, senseFd2, TOLERANCE_PV_DELTA);
   }
 
   /**
@@ -129,8 +151,12 @@ public class CouponIborAverageFixingDatesDiscountingMethodTest {
    */
   @Test
   public void presentValueMarketSensitivityMethodVsCalculator() {
-    final MultipleCurrencyMulticurveSensitivity pvcsMethod = METHOD.presentValueCurveSensitivity(DER1, MULTICURVES);
-    final MultipleCurrencyMulticurveSensitivity pvcsCalculator = DER1.accept(PVCSDC, MULTICURVES);
-    AssertSensitivityObjects.assertEquals("CouponIborAverageFixingDatesDiscountingMethod", pvcsMethod, pvcsCalculator, TOLERANCE_PV_DELTA);
+    final MultipleCurrencyMulticurveSensitivity pvcsMethod1 = METHOD.presentValueCurveSensitivity(DER1, MULTICURVES);
+    final MultipleCurrencyMulticurveSensitivity pvcsCalculator1 = DER1.accept(PVCSDC, MULTICURVES);
+    AssertSensitivityObjects.assertEquals("CouponIborAverageFixingDatesDiscountingMethod", pvcsMethod1, pvcsCalculator1, TOLERANCE_PV_DELTA);
+
+    final MultipleCurrencyMulticurveSensitivity pvcsMethod2 = METHOD.presentValueCurveSensitivity(DER2, MULTICURVES);
+    final MultipleCurrencyMulticurveSensitivity pvcsCalculator2 = DER2.accept(PVCSDC, MULTICURVES);
+    AssertSensitivityObjects.assertEquals("CouponIborAverageFixingDatesDiscountingMethod", pvcsMethod2, pvcsCalculator2, TOLERANCE_PV_DELTA);
   }
 }

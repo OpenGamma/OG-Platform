@@ -56,19 +56,11 @@ public final class CouponIborAverageCompoundingDiscountingMethod {
     ArgumentChecker.notNull(multicurves, "Multi-curves provider");
 
     final int nPeriods = coupon.getFixingTime().length;
-    final int nDatesIni = coupon.getFixingTime()[0].length;
-    final int nDates = coupon.getFixingTime()[1].length;
-    double amountAccrued = 1.0;
+    double amountAccrued = coupon.getAmountAccrued();
 
-    double fwdIni = coupon.getRateFixed();
-    for (int j = 0; j < nDatesIni; ++j) {
-      fwdIni += coupon.getWeight()[0][j] *
-          multicurves.getSimplyCompoundForwardRate(coupon.getIndex(), coupon.getFixingPeriodStartTime()[0][j], coupon.getFixingPeriodEndTime()[0][j], coupon.getFixingPeriodAccrualFactor()[0][j]);
-    }
-    amountAccrued *= (1.0 + fwdIni * coupon.getPaymentAccrualFactors()[0]);
-
-    for (int i = 1; i < nPeriods; ++i) {
-      double forward = 0.;
+    for (int i = 0; i < nPeriods; ++i) {
+      double forward = i == 0 ? coupon.getRateFixed() : 0.0;
+      final int nDates = coupon.getFixingTime()[i].length;
       for (int j = 0; j < nDates; ++j) {
         final double forward1 = multicurves.getSimplyCompoundForwardRate(coupon.getIndex(), coupon.getFixingPeriodStartTime()[i][j], coupon.getFixingPeriodEndTime()[i][j],
             coupon.getFixingPeriodAccrualFactor()[i][j]);
@@ -76,7 +68,6 @@ public final class CouponIborAverageCompoundingDiscountingMethod {
       }
       amountAccrued *= (1.0 + forward * coupon.getPaymentAccrualFactors()[i]);
     }
-    amountAccrued *= coupon.getAmountAccrued();
     final double df = multicurves.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
     final double pv = coupon.getNotional() * (amountAccrued - 1.0) * df;
     return MultipleCurrencyAmount.of(coupon.getCurrency(), pv);
@@ -92,21 +83,14 @@ public final class CouponIborAverageCompoundingDiscountingMethod {
     ArgumentChecker.notNull(coupon, "Coupon");
     ArgumentChecker.notNull(multicurve, "Curves");
     final int nPeriods = coupon.getFixingTime().length;
-    final int nDatesIni = coupon.getFixingTime()[0].length;
-    final int nDates = coupon.getFixingTime()[1].length;
+    final int[] nDates = new int[nPeriods];
     final double[] fctr = new double[nPeriods];
     Arrays.fill(fctr, 0.0);
-    double amountAccrued = 1.0;
-    double fwdIni = coupon.getRateFixed();
-    for (int j = 0; j < nDatesIni; ++j) {
-      fwdIni += coupon.getWeight()[0][j] *
-          multicurve.getSimplyCompoundForwardRate(coupon.getIndex(), coupon.getFixingPeriodStartTime()[0][j], coupon.getFixingPeriodEndTime()[0][j], coupon.getFixingPeriodAccrualFactor()[0][j]);
-    }
-    fctr[0] = (1.0 + fwdIni * coupon.getPaymentAccrualFactors()[0]);
-    amountAccrued *= fctr[0];
-    for (int i = 1; i < nPeriods; ++i) {
-      double forward = 0.;
-      for (int j = 0; j < nDates; ++j) {
+    double amountAccrued = coupon.getAmountAccrued();
+    for (int i = 0; i < nPeriods; ++i) {
+      double forward = i == 0 ? coupon.getRateFixed() : 0.0;
+      nDates[i] = coupon.getFixingTime()[i].length;
+      for (int j = 0; j < nDates[i]; ++j) {
         final double forward1 = multicurve.getSimplyCompoundForwardRate(coupon.getIndex(), coupon.getFixingPeriodStartTime()[i][j], coupon.getFixingPeriodEndTime()[i][j],
             coupon.getFixingPeriodAccrualFactor()[i][j]);
         forward += coupon.getWeight()[i][j] * forward1;
@@ -114,19 +98,14 @@ public final class CouponIborAverageCompoundingDiscountingMethod {
       fctr[i] = (1.0 + forward * coupon.getPaymentAccrualFactors()[i]);
       amountAccrued *= fctr[i];
     }
-    amountAccrued *= coupon.getAmountAccrued();
     final double df = multicurve.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
 
     final double forwardBar = coupon.getNotional() * df;
     final double dfBar = coupon.getNotional() * (amountAccrued - 1.0);
-    final double[][] forwardBars = new double[nPeriods][nDates];
-    final double[] forwardBarsIni = new double[nDatesIni];
-    for (int j = 0; j < nDatesIni; ++j) {
-      forwardBarsIni[j] = coupon.getWeight()[0][j] * forwardBar * amountAccrued * coupon.getPaymentAccrualFactors()[0] / fctr[0];
-    }
-    forwardBars[0] = forwardBarsIni;
-    for (int i = 1; i < nPeriods; ++i) {
-      for (int j = 0; j < nDates; ++j) {
+    final double[][] forwardBars = new double[nPeriods][];
+    for (int i = 0; i < nPeriods; ++i) {
+      forwardBars[i] = new double[nDates[i]];
+      for (int j = 0; j < nDates[i]; ++j) {
         forwardBars[i][j] = coupon.getWeight()[i][j] * forwardBar * amountAccrued * coupon.getPaymentAccrualFactors()[i] / fctr[i];
       }
     }
@@ -137,12 +116,8 @@ public final class CouponIborAverageCompoundingDiscountingMethod {
 
     final Map<String, List<ForwardSensitivity>> mapFwd = new HashMap<>();
     final List<ForwardSensitivity> listForward = new ArrayList<>();
-    for (int j = 0; j < nDatesIni; ++j) {
-      listForward.add(new SimplyCompoundedForwardSensitivity(coupon.getFixingPeriodStartTime()[0][j], coupon.getFixingPeriodEndTime()[0][j], coupon.getFixingPeriodAccrualFactor()[0][j],
-          forwardBars[0][j]));
-    }
-    for (int i = 1; i < nPeriods; ++i) {
-      for (int j = 0; j < nDates; ++j) {
+    for (int i = 0; i < nPeriods; ++i) {
+      for (int j = 0; j < nDates[i]; ++j) {
         listForward.add(new SimplyCompoundedForwardSensitivity(coupon.getFixingPeriodStartTime()[i][j], coupon.getFixingPeriodEndTime()[i][j], coupon.getFixingPeriodAccrualFactor()[i][j],
             forwardBars[i][j]));
       }

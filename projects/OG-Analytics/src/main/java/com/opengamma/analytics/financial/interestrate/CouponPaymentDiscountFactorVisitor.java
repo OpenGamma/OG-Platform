@@ -13,10 +13,10 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverage;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverageCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverageFixingDates;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverageFlatCompoundingSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingFlatSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingSpread;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborFlatCompoundingSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborGearing;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponON;
@@ -126,7 +126,7 @@ public class CouponPaymentDiscountFactorVisitor extends InstrumentDerivativeVisi
   }
 
   @Override
-  public Double visitCouponIborFlatCompoundingSpread(final CouponIborFlatCompoundingSpread payment, final YieldCurveBundle curves) {
+  public Double visitCouponIborAverageFlatCompoundingSpread(final CouponIborAverageFlatCompoundingSpread payment, final YieldCurveBundle curves) {
     final YieldAndDiscountCurve curve = curves.getCurve(payment.getFundingCurveName());
     return curve.getDiscountFactor(payment.getPaymentTime());
   }

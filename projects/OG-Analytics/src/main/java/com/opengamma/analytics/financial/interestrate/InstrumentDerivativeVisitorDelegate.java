@@ -107,11 +107,11 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverage;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverageCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverageFixingDates;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverageFlatCompoundingSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingFlatSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingSimpleSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingSpread;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborFlatCompoundingSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborGearing;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponON;
@@ -648,13 +648,13 @@ public class InstrumentDerivativeVisitorDelegate<DATA_TYPE, RESULT_TYPE> impleme
   }
 
   @Override
-  public RESULT_TYPE visitCouponIborFlatCompoundingSpread(final CouponIborFlatCompoundingSpread payment, final DATA_TYPE data) {
-    return _delegate.visitCouponIborFlatCompoundingSpread(payment, data);
+  public RESULT_TYPE visitCouponIborAverageFlatCompoundingSpread(final CouponIborAverageFlatCompoundingSpread payment, final DATA_TYPE data) {
+    return _delegate.visitCouponIborAverageFlatCompoundingSpread(payment, data);
   }
 
   @Override
-  public RESULT_TYPE visitCouponIborFlatCompoundingSpread(final CouponIborFlatCompoundingSpread payment) {
-    return _delegate.visitCouponIborFlatCompoundingSpread(payment);
+  public RESULT_TYPE visitCouponIborAverageFlatCompoundingSpread(final CouponIborAverageFlatCompoundingSpread payment) {
+    return _delegate.visitCouponIborAverageFlatCompoundingSpread(payment);
   }
 
   @Override
