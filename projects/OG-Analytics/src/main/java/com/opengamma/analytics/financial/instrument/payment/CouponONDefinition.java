@@ -292,8 +292,11 @@ public class CouponONDefinition extends CouponDefinition implements InstrumentDe
 
     // Accrue notional for fixings before today; up to and including yesterday
     int fixedPeriod = 0;
+    int publicationLag = _index.getPublicationLag();
     double accruedNotional = getNotional();
-    while (valDate.isAfter(_fixingPeriodDate[fixedPeriod + _index.getPublicationLag()].toLocalDate()) && (fixedPeriod < _fixingPeriodDate.length - 1)) {
+    while ((fixedPeriod < _fixingPeriodDate.length - 1) &&
+        ((fixedPeriod + publicationLag) < _fixingPeriodDate.length) &&
+        valDate.isAfter(_fixingPeriodDate[fixedPeriod + publicationLag].toLocalDate())) {
 
       final LocalDate currentDate = _fixingPeriodDate[fixedPeriod].toLocalDate();
       Double fixedRate = indexFixingDateSeries.getValue(currentDate);
