@@ -33,13 +33,13 @@ public class PointsUpFrontQuote implements CdsQuote, ImmutableBean {
   /**
    * The coupon of the quote, denoted as a fractional amount.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private final double _coupon;
   
   /**
    * The points up front, denoted as a fractional amount.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private final double _pointsUpFront;
   
   /**
@@ -84,8 +84,6 @@ public class PointsUpFrontQuote implements CdsQuote, ImmutableBean {
    * @param builder  the builder to copy from, not null
    */
   protected PointsUpFrontQuote(PointsUpFrontQuote.Builder builder) {
-    JodaBeanUtils.notNull(builder._coupon, "coupon");
-    JodaBeanUtils.notNull(builder._pointsUpFront, "pointsUpFront");
     this._coupon = builder._coupon;
     this._pointsUpFront = builder._pointsUpFront;
   }
@@ -108,7 +106,7 @@ public class PointsUpFrontQuote implements CdsQuote, ImmutableBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the coupon of the quote, denoted as a fractional amount.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public double getCoupon() {
     return _coupon;
@@ -117,7 +115,7 @@ public class PointsUpFrontQuote implements CdsQuote, ImmutableBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the points up front, denoted as a fractional amount.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public double getPointsUpFront() {
     return _pointsUpFront;
@@ -355,22 +353,20 @@ public class PointsUpFrontQuote implements CdsQuote, ImmutableBean {
     //-----------------------------------------------------------------------
     /**
      * Sets the {@code coupon} property in the builder.
-     * @param coupon  the new value, not null
+     * @param coupon  the new value
      * @return this, for chaining, not null
      */
     public Builder coupon(double coupon) {
-      JodaBeanUtils.notNull(coupon, "coupon");
       this._coupon = coupon;
       return this;
     }
 
     /**
      * Sets the {@code pointsUpFront} property in the builder.
-     * @param pointsUpFront  the new value, not null
+     * @param pointsUpFront  the new value
      * @return this, for chaining, not null
      */
     public Builder pointsUpFront(double pointsUpFront) {
-      JodaBeanUtils.notNull(pointsUpFront, "pointsUpFront");
       this._pointsUpFront = pointsUpFront;
       return this;
     }

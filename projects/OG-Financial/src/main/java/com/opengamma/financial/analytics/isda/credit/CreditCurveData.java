@@ -54,7 +54,7 @@ public class CreditCurveData implements ImmutableBean {
   /**
    * The recovery rate, expressed as a fractional amount. e.g. 0.4 = 40%.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private final double _recoveryRate;
   
   
@@ -87,7 +87,6 @@ public class CreditCurveData implements ImmutableBean {
   protected CreditCurveData(CreditCurveData.Builder builder) {
     JodaBeanUtils.notNull(builder._curveConventionLink, "curveConventionLink");
     JodaBeanUtils.notNull(builder._cdsQuotes, "cdsQuotes");
-    JodaBeanUtils.notNull(builder._recoveryRate, "recoveryRate");
     this._curveConventionLink = builder._curveConventionLink;
     this._cdsQuotes = ImmutableSortedMap.copyOfSorted(builder._cdsQuotes);
     this._recoveryRate = builder._recoveryRate;
@@ -129,7 +128,7 @@ public class CreditCurveData implements ImmutableBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the recovery rate, expressed as a fractional amount. e.g. 0.4 = 40%.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public double getRecoveryRate() {
     return _recoveryRate;
@@ -420,11 +419,10 @@ public class CreditCurveData implements ImmutableBean {
 
     /**
      * Sets the {@code recoveryRate} property in the builder.
-     * @param recoveryRate  the new value, not null
+     * @param recoveryRate  the new value
      * @return this, for chaining, not null
      */
     public Builder recoveryRate(double recoveryRate) {
-      JodaBeanUtils.notNull(recoveryRate, "recoveryRate");
       this._recoveryRate = recoveryRate;
       return this;
     }

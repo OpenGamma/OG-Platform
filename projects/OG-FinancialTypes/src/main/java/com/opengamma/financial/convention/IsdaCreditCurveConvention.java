@@ -5,8 +5,18 @@
  */
 package com.opengamma.financial.convention;
 
+import java.util.Map;
+
+import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.threeten.bp.Period;
 
 import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalyticFactory;
@@ -16,15 +26,6 @@ import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.master.convention.ManageableConvention;
-import java.util.Map;
-import org.joda.beans.Bean;
-import org.joda.beans.BeanBuilder;
-import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaProperty;
-import org.joda.beans.Property;
-import org.joda.beans.impl.direct.DirectBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaProperty;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 /**
  * Fields defined here apply to CDSs created via the {@link CDSAnalyticFactory}.
@@ -42,13 +43,13 @@ public class IsdaCreditCurveConvention extends ManageableConvention {
   /**
    * The step-in date, relative to T.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private int _stepIn;
   
   /**
    * Cash settle date for which PV is calculated.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private int _cashSettle;
   
   /**
@@ -72,7 +73,7 @@ public class IsdaCreditCurveConvention extends ManageableConvention {
   /**
    * Protection starts at beginning of day if true, otherwise at the end.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private boolean _protectFromStartOfDay;
   
   /**
@@ -127,7 +128,7 @@ public class IsdaCreditCurveConvention extends ManageableConvention {
   //-----------------------------------------------------------------------
   /**
    * Gets the step-in date, relative to T.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public int getStepIn() {
     return _stepIn;
@@ -135,10 +136,9 @@ public class IsdaCreditCurveConvention extends ManageableConvention {
 
   /**
    * Sets the step-in date, relative to T.
-   * @param stepIn  the new value of the property, not null
+   * @param stepIn  the new value of the property
    */
   public void setStepIn(int stepIn) {
-    JodaBeanUtils.notNull(stepIn, "stepIn");
     this._stepIn = stepIn;
   }
 
@@ -153,7 +153,7 @@ public class IsdaCreditCurveConvention extends ManageableConvention {
   //-----------------------------------------------------------------------
   /**
    * Gets cash settle date for which PV is calculated.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public int getCashSettle() {
     return _cashSettle;
@@ -161,10 +161,9 @@ public class IsdaCreditCurveConvention extends ManageableConvention {
 
   /**
    * Sets cash settle date for which PV is calculated.
-   * @param cashSettle  the new value of the property, not null
+   * @param cashSettle  the new value of the property
    */
   public void setCashSettle(int cashSettle) {
-    JodaBeanUtils.notNull(cashSettle, "cashSettle");
     this._cashSettle = cashSettle;
   }
 
@@ -257,7 +256,7 @@ public class IsdaCreditCurveConvention extends ManageableConvention {
   //-----------------------------------------------------------------------
   /**
    * Gets protection starts at beginning of day if true, otherwise at the end.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public boolean isProtectFromStartOfDay() {
     return _protectFromStartOfDay;
@@ -265,10 +264,9 @@ public class IsdaCreditCurveConvention extends ManageableConvention {
 
   /**
    * Sets protection starts at beginning of day if true, otherwise at the end.
-   * @param protectFromStartOfDay  the new value of the property, not null
+   * @param protectFromStartOfDay  the new value of the property
    */
   public void setProtectFromStartOfDay(boolean protectFromStartOfDay) {
-    JodaBeanUtils.notNull(protectFromStartOfDay, "protectFromStartOfDay");
     this._protectFromStartOfDay = protectFromStartOfDay;
   }
 
@@ -728,12 +726,9 @@ public class IsdaCreditCurveConvention extends ManageableConvention {
 
     @Override
     protected void validate(Bean bean) {
-      JodaBeanUtils.notNull(((IsdaCreditCurveConvention) bean)._stepIn, "stepIn");
-      JodaBeanUtils.notNull(((IsdaCreditCurveConvention) bean)._cashSettle, "cashSettle");
       JodaBeanUtils.notNull(((IsdaCreditCurveConvention) bean)._payAccOnDefault, "payAccOnDefault");
       JodaBeanUtils.notNull(((IsdaCreditCurveConvention) bean)._couponInterval, "couponInterval");
       JodaBeanUtils.notNull(((IsdaCreditCurveConvention) bean)._stubType, "stubType");
-      JodaBeanUtils.notNull(((IsdaCreditCurveConvention) bean)._protectFromStartOfDay, "protectFromStartOfDay");
       JodaBeanUtils.notNull(((IsdaCreditCurveConvention) bean)._businessDayConvention, "businessDayConvention");
       JodaBeanUtils.notNull(((IsdaCreditCurveConvention) bean)._regionCalendar, "regionCalendar");
       JodaBeanUtils.notNull(((IsdaCreditCurveConvention) bean)._accrualDayCount, "accrualDayCount");

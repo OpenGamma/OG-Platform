@@ -33,7 +33,7 @@ public class ParSpreadQuote implements CdsQuote, ImmutableBean {
   /**
    * The par spread to use, denoted as a fractional amount.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private final double _parSpread;
   
   /**
@@ -77,7 +77,6 @@ public class ParSpreadQuote implements CdsQuote, ImmutableBean {
    * @param builder  the builder to copy from, not null
    */
   protected ParSpreadQuote(ParSpreadQuote.Builder builder) {
-    JodaBeanUtils.notNull(builder._parSpread, "parSpread");
     this._parSpread = builder._parSpread;
   }
 
@@ -99,7 +98,7 @@ public class ParSpreadQuote implements CdsQuote, ImmutableBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the par spread to use, denoted as a fractional amount.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public double getParSpread() {
     return _parSpread;
@@ -309,11 +308,10 @@ public class ParSpreadQuote implements CdsQuote, ImmutableBean {
     //-----------------------------------------------------------------------
     /**
      * Sets the {@code parSpread} property in the builder.
-     * @param parSpread  the new value, not null
+     * @param parSpread  the new value
      * @return this, for chaining, not null
      */
     public Builder parSpread(double parSpread) {
-      JodaBeanUtils.notNull(parSpread, "parSpread");
       this._parSpread = parSpread;
       return this;
     }

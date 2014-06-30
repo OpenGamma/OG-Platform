@@ -21,7 +21,6 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -46,7 +45,7 @@ public final class CreditCurveDataKey implements ImmutableBean {
    * desirable when no observable liquid quotes exist for the 
    * entity.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notEmpty")
   private final String _curveName;
   
   /**
@@ -94,7 +93,7 @@ public final class CreditCurveDataKey implements ImmutableBean {
       String seniority,
       Currency currency,
       String restructuring) {
-    JodaBeanUtils.notNull(curveName, "curveName");
+    JodaBeanUtils.notEmpty(curveName, "curveName");
     this._curveName = curveName;
     this._seniority = seniority;
     this._currency = currency;
@@ -127,7 +126,7 @@ public final class CreditCurveDataKey implements ImmutableBean {
    * all triple-A entities in a certain currency. This may be
    * desirable when no observable liquid quotes exist for the
    * entity.
-   * @return the value of the property, not null
+   * @return the value of the property, not empty
    */
   public String getCurveName() {
     return _curveName;
@@ -444,11 +443,11 @@ public final class CreditCurveDataKey implements ImmutableBean {
     //-----------------------------------------------------------------------
     /**
      * Sets the {@code curveName} property in the builder.
-     * @param curveName  the new value, not null
+     * @param curveName  the new value, not empty
      * @return this, for chaining, not null
      */
     public Builder curveName(String curveName) {
-      JodaBeanUtils.notNull(curveName, "curveName");
+      JodaBeanUtils.notEmpty(curveName, "curveName");
       this._curveName = curveName;
       return this;
     }

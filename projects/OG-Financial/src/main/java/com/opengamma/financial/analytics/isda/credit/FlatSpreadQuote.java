@@ -33,13 +33,13 @@ public class FlatSpreadQuote implements CdsQuote, ImmutableBean {
   /**
    * The coupon of the spread, denoted as a fractional amount.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private final double _coupon;
   
   /**
    * The quoted spread, denoted as a fractional amount.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private final double _quotedSpread;
   
   /**
@@ -84,8 +84,6 @@ public class FlatSpreadQuote implements CdsQuote, ImmutableBean {
    * @param builder  the builder to copy from, not null
    */
   protected FlatSpreadQuote(FlatSpreadQuote.Builder builder) {
-    JodaBeanUtils.notNull(builder._coupon, "coupon");
-    JodaBeanUtils.notNull(builder._quotedSpread, "quotedSpread");
     this._coupon = builder._coupon;
     this._quotedSpread = builder._quotedSpread;
   }
@@ -108,7 +106,7 @@ public class FlatSpreadQuote implements CdsQuote, ImmutableBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the coupon of the spread, denoted as a fractional amount.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public double getCoupon() {
     return _coupon;
@@ -117,7 +115,7 @@ public class FlatSpreadQuote implements CdsQuote, ImmutableBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the quoted spread, denoted as a fractional amount.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public double getQuotedSpread() {
     return _quotedSpread;
@@ -355,22 +353,20 @@ public class FlatSpreadQuote implements CdsQuote, ImmutableBean {
     //-----------------------------------------------------------------------
     /**
      * Sets the {@code coupon} property in the builder.
-     * @param coupon  the new value, not null
+     * @param coupon  the new value
      * @return this, for chaining, not null
      */
     public Builder coupon(double coupon) {
-      JodaBeanUtils.notNull(coupon, "coupon");
       this._coupon = coupon;
       return this;
     }
 
     /**
      * Sets the {@code quotedSpread} property in the builder.
-     * @param quotedSpread  the new value, not null
+     * @param quotedSpread  the new value
      * @return this, for chaining, not null
      */
     public Builder quotedSpread(double quotedSpread) {
-      JodaBeanUtils.notNull(quotedSpread, "quotedSpread");
       this._quotedSpread = quotedSpread;
       return this;
     }
