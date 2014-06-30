@@ -14,11 +14,12 @@ import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.core.position.Trade;
+import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.financial.config.ConfigSourceQuery;
-import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
@@ -75,9 +76,10 @@ public class ConfigDBInstrumentExposuresProvider implements InstrumentExposuresP
   }
 
   @Override
-  public Set<String> getCurveConstructionConfigurationsForConfig(final String instrumentExposureConfigurationName, final FinancialSecurity security) {
+  public Set<String> getCurveConstructionConfigurationsForConfig(String instrumentExposureConfigurationName,
+                                                                 Trade trade) {
     ArgumentChecker.notNull(instrumentExposureConfigurationName, "instrument exposure configuration name");
-    ArgumentChecker.notNull(security, "security");
+    ArgumentChecker.notNull(trade, "trade");
     final ExposureFunctions exposures = _query.get(instrumentExposureConfigurationName);
     if (exposures == null) {
       throw new OpenGammaRuntimeException("Could not get instrument exposure configuration called " + instrumentExposureConfigurationName);
@@ -88,7 +90,7 @@ public class ConfigDBInstrumentExposuresProvider implements InstrumentExposuresP
     Multimap<String, ExternalId> functionToIds = LinkedHashMultimap.create();
     for (final String exposureFunctionName : exposureFunctionNames) {
       final ExposureFunction exposureFunction = ExposureFunctionFactory.getExposureFunction(_securitySource, exposureFunctionName);
-      ids = security.accept(exposureFunction);
+      ids = exposureFunction.getIds(trade);
       if (ids != null) {
         final Map<ExternalId, String> idsToNames = exposures.getIdsToNames();
         functionToIds.putAll(exposureFunctionName, ids);
@@ -104,6 +106,7 @@ public class ConfigDBInstrumentExposuresProvider implements InstrumentExposuresP
         }
       }
     }
+    Security security = trade.getSecurity();
     throw new OpenGammaRuntimeException("Could not find a matching list of ids for " + security.getClass().getSimpleName() + "/" + security.getExternalIdBundle() + " from ExposureFunctions object '"
         + instrumentExposureConfigurationName + "'. Ids attempted for referenced functions: " + functionToIds);
   }

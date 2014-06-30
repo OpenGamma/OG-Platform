@@ -246,7 +246,7 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
         final Set<ValueRequirement> requirements = new HashSet<>();
         final ValueProperties.Builder commonCurveConstraints = getCurveConstraints(target, desiredValueConstraints);
         for (final String curveExposureConfig : curveExposureConfigs) {
-          final Set<String> curveConstructionConfigurationNames = _instrumentExposuresProvider.getCurveConstructionConfigurationsForConfig(curveExposureConfig, security);
+          final Set<String> curveConstructionConfigurationNames = _instrumentExposuresProvider.getCurveConstructionConfigurationsForConfig(curveExposureConfig, target.getTrade());
           for (final String curveConstructionConfigurationName : curveConstructionConfigurationNames) {
             final ValueProperties inputConstraints = commonCurveConstraints.get().copy().with(CURVE_CONSTRUCTION_CONFIG, curveConstructionConfigurationName).get();
             requirements.add(new ValueRequirement(CURVE_BUNDLE, ComputationTargetSpecification.NULL, inputConstraints));

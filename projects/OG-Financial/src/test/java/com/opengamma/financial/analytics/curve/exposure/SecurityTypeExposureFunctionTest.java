@@ -11,6 +11,7 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.core.position.Trade;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
@@ -73,17 +74,18 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.util.test.TestGroup;
 
 /**
- *
+ * Unit test for SecurityTypeExposureFunction.
  */
 @Test(groups = TestGroup.UNIT)
 public class SecurityTypeExposureFunctionTest {
   private static final String SCHEME = ExposureFunction.SECURITY_IDENTIFIER;
   private static final ExposureFunction EXPOSURE_FUNCTION = new SecurityTypeExposureFunction();
-
+  
   @Test
   public void testAgriculturalFutureSecurity() {
     final AgricultureFutureSecurity future = ExposureFunctionTestHelper.getAgricultureFutureSecurity();
-    final List<ExternalId> ids = future.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(future);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "FUTURE"), ids.get(0));
   }
@@ -91,7 +93,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testBondFutureSecurity() {
     final BondFutureSecurity future = ExposureFunctionTestHelper.getBondFutureSecurity();
-    final List<ExternalId> ids = future.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(future);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "FUTURE"), ids.get(0));
   }
@@ -99,7 +102,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testCashSecurity() {
     final CashSecurity cash = ExposureFunctionTestHelper.getCashSecurity();
-    final List<ExternalId> ids = cash.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(cash);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "CASH"), ids.get(0));
   }
@@ -107,7 +111,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testCapFloorCMSSpreadSecurity() {
     final CapFloorCMSSpreadSecurity security = ExposureFunctionTestHelper.getCapFloorCMSSpreadSecurity();
-    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(security);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "CAP-FLOOR CMS SPREAD"), ids.get(0));
   }
@@ -115,7 +120,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testCapFloorSecurity() {
     final CapFloorSecurity security = ExposureFunctionTestHelper.getCapFloorSecurity();
-    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(security);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "CAP-FLOOR"), ids.get(0));
   }
@@ -123,7 +129,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testContinuousZeroDepositSecurity() {
     final ContinuousZeroDepositSecurity security = ExposureFunctionTestHelper.getContinuousZeroDepositSecurity();
-    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(security);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "CONTINUOUS_ZERO_DEPOSIT"), ids.get(0));
   }
@@ -131,7 +138,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testCorporateBondSecurity() {
     final CorporateBondSecurity security = ExposureFunctionTestHelper.getCorporateBondSecurity();
-    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(security);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "BOND"), ids.get(0));
   }
@@ -139,7 +147,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testEnergyFutureSecurity() {
     final EnergyFutureSecurity future = ExposureFunctionTestHelper.getEnergyFutureSecurity();
-    final List<ExternalId> ids = future.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(future);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "FUTURE"), ids.get(0));
   }
@@ -147,7 +156,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testEquityFutureSecurity() {
     final EquityFutureSecurity future = ExposureFunctionTestHelper.getEquityFutureSecurity();
-    final List<ExternalId> ids = future.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(future);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "FUTURE"), ids.get(0));
   }
@@ -155,7 +165,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testEquityIndexDividendFutureSecurity() {
     final EquityIndexDividendFutureSecurity future = ExposureFunctionTestHelper.getEquityIndexDividendFutureSecurity();
-    final List<ExternalId> ids = future.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(future);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "FUTURE"), ids.get(0));
   }
@@ -163,7 +174,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testFRASecurity() {
     final FRASecurity fra = ExposureFunctionTestHelper.getFRASecurity();
-    final List<ExternalId> ids = fra.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(fra);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "FRA"), ids.get(0));
   }
@@ -171,7 +183,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testFXFutureSecurity() {
     final FXFutureSecurity future = ExposureFunctionTestHelper.getFXFutureSecurity();
-    final List<ExternalId> ids = future.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(future);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "FUTURE"), ids.get(0));
   }
@@ -179,7 +192,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testIndexFutureSecurity() {
     final IndexFutureSecurity future = ExposureFunctionTestHelper.getIndexFutureSecurity();
-    final List<ExternalId> ids = future.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(future);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "FUTURE"), ids.get(0));
   }
@@ -187,7 +201,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testInterestRateFutureSecurity() {
     final InterestRateFutureSecurity future = ExposureFunctionTestHelper.getInterestRateFutureSecurity();
-    final List<ExternalId> ids = future.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(future);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "FUTURE"), ids.get(0));
   }
@@ -195,7 +210,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testFederalFundsFutureSecurity() {
     final FederalFundsFutureSecurity future = ExposureFunctionTestHelper.getFederalFundsFutureSecurity();
-    final List<ExternalId> ids = future.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(future);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "FUTURE"), ids.get(0));
   }
@@ -203,7 +219,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testMetalFutureSecurity() {
     final MetalFutureSecurity future = ExposureFunctionTestHelper.getMetalFutureSecurity();
-    final List<ExternalId> ids = future.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(future);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "FUTURE"), ids.get(0));
   }
@@ -211,7 +228,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testStockFutureSecurity() {
     final StockFutureSecurity future = ExposureFunctionTestHelper.getStockFutureSecurity();
-    final List<ExternalId> ids = future.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(future);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "FUTURE"), ids.get(0));
   }
@@ -219,7 +237,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testAgricultureFutureSecurity() {
     final AgricultureFutureSecurity future = ExposureFunctionTestHelper.getAgricultureFutureSecurity();
-    final List<ExternalId> ids = future.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(future);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "FUTURE"), ids.get(0));
   }
@@ -227,7 +246,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testBondFutureOptionSecurity() {
     final BondFutureOptionSecurity security = ExposureFunctionTestHelper.getBondFutureOptionSecurity();
-    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(security);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "BONDFUTURE_OPTION"), ids.get(0));
   }
@@ -235,7 +255,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testCashFlowSecurity() {
     final CashFlowSecurity security = ExposureFunctionTestHelper.getCashFlowSecurity();
-    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(security);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "CASHFLOW"), ids.get(0));
   }
@@ -243,7 +264,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testEnergyFutureOptionSecurity() {
     final CommodityFutureOptionSecurity security = ExposureFunctionTestHelper.getEnergyFutureOptionSecurity();
-    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(security);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "COMMODITYFUTURE_OPTION"), ids.get(0));
   }
@@ -251,7 +273,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testEquityBarrierOptionSecurity() {
     final EquityBarrierOptionSecurity security = ExposureFunctionTestHelper.getEquityBarrierOptionSecurity();
-    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(security);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "EQUITY_BARRIER_OPTION"), ids.get(0));
   }
@@ -259,7 +282,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testEquitySecurity() {
     final EquitySecurity security = ExposureFunctionTestHelper.getEquitySecurity();
-    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(security);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "EQUITY"), ids.get(0));
   }
@@ -267,7 +291,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testAgricultureForwardSecurity() {
     final AgricultureForwardSecurity security = ExposureFunctionTestHelper.getAgricultureForwardSecurity();
-    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(security);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "COMMODITY_FORWARD"), ids.get(0));
   }
@@ -275,7 +300,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testCreditDefaultSwapIndexSecurity() {
     final CreditDefaultSwapIndexSecurity security = ExposureFunctionTestHelper.getCreditDefaultSwapIndexSecurity();
-    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(security);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "CDS_INDEX"), ids.get(0));
   }
@@ -283,7 +309,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testCreditDefaultSwapOptionSecurity() {
     final CreditDefaultSwapOptionSecurity security = ExposureFunctionTestHelper.getCreditDefaultSwapOptionSecurity();
-    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(security);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "CREDIT_DEFAULT_SWAP_OPTION"), ids.get(0));
   }
@@ -291,7 +318,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testDeliverableSwapSecurity() {
     final DeliverableSwapFutureSecurity security = ExposureFunctionTestHelper.getDeliverableSwapFutureSecurity();
-    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(security);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "FUTURE"), ids.get(0));
   }
@@ -299,7 +327,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testEnergyForwardSecurity() {
     final EnergyForwardSecurity security = ExposureFunctionTestHelper.getEnergyForwardSecurity();
-    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(security);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "COMMODITY_FORWARD"), ids.get(0));
   }
@@ -307,7 +336,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testEquityIndexDividendFutureOptionSecurity() {
     final EquityIndexDividendFutureOptionSecurity security = ExposureFunctionTestHelper.getEquityIndexDividendFutureOptionSecurity();
-    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(security);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "EQUITY_INDEX_DIVIDEND_FUTURE_OPTION"), ids.get(0));
   }
@@ -315,7 +345,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testEquityIndexFutureOptionSecurity() {
     final EquityIndexFutureOptionSecurity security = ExposureFunctionTestHelper.getEquityIndexFutureOptionSecurity();
-    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(security);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "EQUITY_INDEX_FUTURE_OPTION"), ids.get(0));
   }
@@ -323,7 +354,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testEquityIndexOptionSecurity() {
     final EquityIndexOptionSecurity security = ExposureFunctionTestHelper.getEquityIndexOptionSecurity();
-    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(security);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "EQUITY_INDEX_OPTION"), ids.get(0));
   }
@@ -331,7 +363,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testEquityOptionSecurity() {
     final EquityOptionSecurity security = ExposureFunctionTestHelper.getEquityOptionSecurity();
-    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(security);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "EQUITY_OPTION"), ids.get(0));
   }
@@ -339,7 +372,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testEquityVarianceSwapSecurity() {
     final EquityVarianceSwapSecurity security = ExposureFunctionTestHelper.getEquityVarianceSwapSecurity();
-    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(security);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "EQUITY VARIANCE SWAP"), ids.get(0));
   }
@@ -347,7 +381,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testFixedFloatSwapSecurity() {
     final SwapSecurity security = ExposureFunctionTestHelper.getPayFixedFloatSwapSecurity();
-    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(security);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "SWAP"), ids.get(0));
   }
@@ -355,7 +390,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testFloatFloatSwapSecurity() {
     final SwapSecurity security = ExposureFunctionTestHelper.getFloatFloatSwapSecurity();
-    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(security);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "SWAP"), ids.get(0));
   }
@@ -363,7 +399,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testForwardFixedFloatSwapSecurity() {
     final ForwardSwapSecurity security = ExposureFunctionTestHelper.getPayForwardFixedFloatSwapSecurity();
-    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(security);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "SWAP"), ids.get(0));
   }
@@ -371,7 +408,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testForwardFloatFloatSwapSecurity() {
     final ForwardSwapSecurity security = ExposureFunctionTestHelper.getForwardFloatFloatSwapSecurity();
-    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(security);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "SWAP"), ids.get(0));
   }
@@ -379,7 +417,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testForwardXCcySwapSecurity() {
     final ForwardSwapSecurity security = ExposureFunctionTestHelper.getForwardXCcySwapSecurity();
-    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(security);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "SWAP"), ids.get(0));
   }
@@ -387,7 +426,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testFXBarrierOptionSecurity() {
     final FXBarrierOptionSecurity security = ExposureFunctionTestHelper.getFXBarrierOptionSecurity();
-    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(security);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "FX_BARRIER_OPTION"), ids.get(0));
   }
@@ -395,7 +435,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testFXDigitalOptionSecurity() {
     final FXDigitalOptionSecurity security = ExposureFunctionTestHelper.getFXDigitalOptionSecurity();
-    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(security);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "FX_DIGITAL_OPTION"), ids.get(0));
   }
@@ -403,7 +444,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testFXForwardSecurity() {
     final FXForwardSecurity security = ExposureFunctionTestHelper.getFXForwardSecurity();
-    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(security);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "FX_FORWARD"), ids.get(0));
   }
@@ -411,7 +453,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testFXFutureOptionSecurity() {
     final FxFutureOptionSecurity security = ExposureFunctionTestHelper.getFXFutureOptionSecurity();
-    final List<ExternalId> ids = security.accept(new SecurityTypeExposureFunction());
+    Trade trade = ExposureFunctionTestHelper.getTrade(security);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "FXFUTURE_OPTION"), ids.get(0));
   }
@@ -419,7 +462,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testFXOptionSecurity() {
     final FXOptionSecurity security = ExposureFunctionTestHelper.getFXOptionSecurity();
-    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(security);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "FX_OPTION"), ids.get(0));
   }
@@ -427,7 +471,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testFXVolatilitySecurity() {
     final FXVolatilitySwapSecurity security = ExposureFunctionTestHelper.getFXVolatilitySwapSecurity();
-    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(security);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "FX_VOLATILITY_SWAP"), ids.get(0));
   }
@@ -435,7 +480,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testGovernmentBondSecurity() {
     final GovernmentBondSecurity security = ExposureFunctionTestHelper.getGovernmentBondSecurity();
-    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(security);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "BOND"), ids.get(0));
   }
@@ -443,7 +489,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testInterestRateFutureOptionSecurity() {
     final IRFutureOptionSecurity security = ExposureFunctionTestHelper.getInterestRateFutureOptionSecurity();
-    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(security);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "IRFUTURE_OPTION"), ids.get(0));
   }
@@ -451,7 +498,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testLegacyFixedRecoveryCDSSecurity() {
     final LegacyFixedRecoveryCDSSecurity security = ExposureFunctionTestHelper.getLegacyFixedRecoveryCDSSecurity();
-    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(security);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "LEGACY_FIXED_RECOVERY_CDS"), ids.get(0));
   }
@@ -459,7 +507,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testLegacyRecoveryLockCDSSecurity() {
     final LegacyRecoveryLockCDSSecurity security = ExposureFunctionTestHelper.getLegacyRecoveryLockCDSSecurity();
-    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(security);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "LEGACY_RECOVERY_LOCK_CDS"), ids.get(0));
   }
@@ -467,7 +516,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testLegacyVanillaCDSSecurity() {
     final LegacyVanillaCDSSecurity security = ExposureFunctionTestHelper.getLegacyVanillaCDSSecurity();
-    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(security);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "LEGACY_VANILLA_CDS"), ids.get(0));
   }
@@ -475,7 +525,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testMetalForwardSecurity() {
     final MetalForwardSecurity security = ExposureFunctionTestHelper.getMetalForwardSecurity();
-    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(security);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "COMMODITY_FORWARD"), ids.get(0));
   }
@@ -483,7 +534,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testMunicipalBondSecurity() {
     final MunicipalBondSecurity security = ExposureFunctionTestHelper.getMunicipalBondSecurity();
-    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(security);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "BOND"), ids.get(0));
   }
@@ -491,7 +543,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testNonDeliverableFXDigitalOptionSecurity() {
     final NonDeliverableFXDigitalOptionSecurity security = ExposureFunctionTestHelper.getNonDeliverableFXDigitalOptionSecurity();
-    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(security);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "NONDELIVERABLE_FX_DIGITAL_OPTION"), ids.get(0));
   }
@@ -499,7 +552,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testNonDeliverableFXForwardSecurity() {
     final NonDeliverableFXForwardSecurity security = ExposureFunctionTestHelper.getNonDeliverableFXForwardSecurity();
-    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(security);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "NONDELIVERABLE_FX_FORWARD"), ids.get(0));
   }
@@ -507,7 +561,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testNonDeliverableFXOptionSecurity() {
     final NonDeliverableFXOptionSecurity security = ExposureFunctionTestHelper.getNonDeliverableFXOptionSecurity();
-    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(security);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "NONDELIVERABLE_FX_OPTION"), ids.get(0));
   }
@@ -515,7 +570,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testPeriodicZeroDepositSecurity() {
     final PeriodicZeroDepositSecurity security = ExposureFunctionTestHelper.getPeriodicZeroDepositSecurity();
-    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(security);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "PERIODIC_ZERO_DEPOSIT"), ids.get(0));
   }
@@ -523,7 +579,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testSimpleZeroDepositSecurity() {
     final SimpleZeroDepositSecurity security = ExposureFunctionTestHelper.getSimpleZeroDepositSecurity();
-    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(security);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "SIMPLE_ZERO_DEPOSIT"), ids.get(0));
   }
@@ -531,7 +588,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testStandardFixedRecoveryCDSSecurity() {
     final StandardFixedRecoveryCDSSecurity security = ExposureFunctionTestHelper.getStandardFixedRecoveryCDSSecurity();
-    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(security);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "STANDARD_FIXED_RECOVERY_CDS"), ids.get(0));
   }
@@ -539,7 +597,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testStandardRecoveryLockCDSSecurity() {
     final StandardRecoveryLockCDSSecurity security = ExposureFunctionTestHelper.getStandardRecoveryLockCDSSecurity();
-    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(security);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "STANDARD_RECOVERY_LOCK_CDS"), ids.get(0));
   }
@@ -547,7 +606,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testStandardVanillaCDSSecurity() {
     final StandardVanillaCDSSecurity security = ExposureFunctionTestHelper.getStandardVanillaCDSSecurity();
-    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(security);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "STANDARD_VANILLA_CDS"), ids.get(0));
   }
@@ -555,7 +615,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testSwaptionSecurity() {
     final SwaptionSecurity security = ExposureFunctionTestHelper.getPaySwaptionSecurity();
-    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(security);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "SWAPTION"), ids.get(0));
   }
@@ -563,7 +624,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testXCcySwapSecurity() {
     final SwapSecurity security = ExposureFunctionTestHelper.getXCcySwapSecurity();
-    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(security);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "SWAP"), ids.get(0));
   }
@@ -571,7 +633,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testPayYoYInflationSwapSecurity() {
     final YearOnYearInflationSwapSecurity security = ExposureFunctionTestHelper.getPayYoYInflationSwapSecurity();
-    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(security);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "YEAR_ON_YEAR_INFLATION_SWAP"), ids.get(0));
   }
@@ -579,7 +642,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testReceiveYoYInflationSwapSecurity() {
     final YearOnYearInflationSwapSecurity security = ExposureFunctionTestHelper.getPayYoYInflationSwapSecurity();
-    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(security);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "YEAR_ON_YEAR_INFLATION_SWAP"), ids.get(0));
   }
@@ -587,7 +651,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testPayZeroCouponInflationSwapSecurity() {
     final ZeroCouponInflationSwapSecurity security = ExposureFunctionTestHelper.getPayZeroCouponInflationSwapSecurity();
-    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(security);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "ZERO_COUPON_INFLATION_SWAP"), ids.get(0));
   }
@@ -595,7 +660,8 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testReceiveZeroCouponInflationSwapSecurity() {
     final ZeroCouponInflationSwapSecurity security = ExposureFunctionTestHelper.getReceiveZeroCouponInflationSwapSecurity();
-    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    Trade trade = ExposureFunctionTestHelper.getTrade(security);
+    List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "ZERO_COUPON_INFLATION_SWAP"), ids.get(0));
   }

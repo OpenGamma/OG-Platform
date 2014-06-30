@@ -5,14 +5,22 @@
  */
 package com.opengamma.financial.analytics.curve.exposure;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
+
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.OffsetTime;
 
 import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.core.position.Counterparty;
+import com.opengamma.core.position.Trade;
+import com.opengamma.core.position.impl.SimpleCounterparty;
+import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.convention.StubType;
@@ -112,7 +120,7 @@ import com.opengamma.util.time.Expiry;
 import com.opengamma.util.time.Tenor;
 
 /**
- *
+ * Helper methods for testing exposure function handling.
  */
 public class ExposureFunctionTestHelper {
   private static final Currency USD = Currency.USD;
@@ -123,6 +131,16 @@ public class ExposureFunctionTestHelper {
   private static final BusinessDayConvention BDC = BusinessDayConventions.NONE;
   private static final String SETTLEMENT = "X";
   private static final String TRADING = "Y";
+  private static final Counterparty COUNTERPARTY = new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "TEST"));
+
+  /**
+   * Returns a wrapped security inside of a trade.
+   * @param security the security to be wrapped.
+   * @return the security inside a trade instance.
+   */
+  public static Trade getTrade(Security security) {
+    return new SimpleTrade(security, BigDecimal.ONE, COUNTERPARTY, LocalDate.now(), OffsetTime.now());
+  }
 
   public static AgricultureForwardSecurity getAgricultureForwardSecurity() {
     final AgricultureForwardSecurity security = new AgricultureForwardSecurity("Cows", 100., new Expiry(DateUtils.getUTCDate(2013, 1, 1)), USD, 10000, "Commodity");

@@ -244,7 +244,7 @@ public abstract class FXForwardPointsFunction extends AbstractFunction {
         final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
         final Set<ValueRequirement> requirements = new HashSet<>();
         for (final String curveExposureConfig : curveExposureConfigs) {
-          final Set<String> curveConstructionConfigurationNames = _instrumentExposuresProvider.getCurveConstructionConfigurationsForConfig(curveExposureConfig, security);
+          final Set<String> curveConstructionConfigurationNames = _instrumentExposuresProvider.getCurveConstructionConfigurationsForConfig(curveExposureConfig, target.getTrade());
           for (final String curveConstructionConfigurationName : curveConstructionConfigurationNames) {
             final ValueProperties properties = ValueProperties.with(CURVE_CONSTRUCTION_CONFIG, curveConstructionConfigurationName).get();
             requirements.add(new ValueRequirement(CURVE_BUNDLE, ComputationTargetSpecification.NULL, properties));
