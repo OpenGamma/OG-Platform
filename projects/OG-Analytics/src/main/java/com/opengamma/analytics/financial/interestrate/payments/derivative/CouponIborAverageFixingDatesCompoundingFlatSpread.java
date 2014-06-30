@@ -15,7 +15,7 @@ import com.opengamma.util.money.Currency;
 /**
  * 
  */
-public class CouponIborAverageCompounding extends Coupon {
+public class CouponIborAverageFixingDatesCompoundingFlatSpread extends Coupon {
 
   private final double[][] _fixingTime;
   private final IborIndex _index;
@@ -27,6 +27,8 @@ public class CouponIborAverageCompounding extends Coupon {
   private final double[] _paymentAccrualFactors;
   private final double _amountAccrued;
   private final double _rateFixed;
+
+  private final double _spread;
 
   /**
    * Constructor from all details
@@ -40,13 +42,14 @@ public class CouponIborAverageCompounding extends Coupon {
    * @param weight The weights
    * @param fixingPeriodStartTime The fixing period start time (in years) of the index
    * @param fixingPeriodEndTime The fixing period end time (in years) of the index
-   * @param fixingPeriodAccrualFactors The accrual factors of fixing periods
+   * @param fixingPeriodAccrualFactor The accrual factors of fixing periods
    * @param amountAccrued The interest amount accrued over the periods already fixed.
    * @param rateFixed The interest rate fixed already
+   * @param spread The spread
    */
-  public CouponIborAverageCompounding(final Currency currency, final double paymentTime, final double paymentAccrualFactor, final double notional, final double[] paymentAccrualFactors,
+  public CouponIborAverageFixingDatesCompoundingFlatSpread(final Currency currency, final double paymentTime, final double paymentAccrualFactor, final double notional, final double[] paymentAccrualFactors,
       final IborIndex index, final double[][] fixingTime, final double[][] weight, final double[][] fixingPeriodStartTime, final double[][] fixingPeriodEndTime,
-      final double[][] fixingPeriodAccrualFactors, final double amountAccrued, final double rateFixed) {
+      final double[][] fixingPeriodAccrualFactor, final double amountAccrued, final double rateFixed, final double spread) {
     super(currency, paymentTime, paymentAccrualFactor, notional);
 
     final int nPeriods = fixingTime.length;
@@ -55,14 +58,14 @@ public class CouponIborAverageCompounding extends Coupon {
     ArgumentChecker.isTrue(nPeriods == weight.length, "weight length different from fixingTime length");
     ArgumentChecker.isTrue(nPeriods == fixingPeriodStartTime.length, "fixingPeriodStartDates length different from fixingTime length");
     ArgumentChecker.isTrue(nPeriods == fixingPeriodEndTime.length, "fixingPeriodEndDates length different from fixingTime length");
-    ArgumentChecker.isTrue(nPeriods == fixingPeriodAccrualFactors.length, "fixingPeriodAccrualFactors length different from fixingTime length");
+    ArgumentChecker.isTrue(nPeriods == fixingPeriodAccrualFactor.length, "fixingPeriodAccrualFactor length different from fixingTime length");
     ArgumentChecker.isTrue(currency.equals(index.getCurrency()), "index currency different from payment currency");
     for (int i = 0; i < nPeriods; ++i) {
       nDates[i] = fixingTime[i].length;
       ArgumentChecker.isTrue(nDates[i] == weight[i].length, "{}-th array: weight length different from fixingTime length", i);
       ArgumentChecker.isTrue(nDates[i] == fixingPeriodStartTime[i].length, "{}-th array: fixingPeriodStartDates length different from fixingTime length", i);
       ArgumentChecker.isTrue(nDates[i] == fixingPeriodEndTime[i].length, "{}-th array: fixingPeriodEndDates length different from fixingTime length", i);
-      ArgumentChecker.isTrue(nDates[i] == fixingPeriodAccrualFactors[i].length, "{}-th array: fixingPeriodAccrualFactors length different from fixingTime length", i);
+      ArgumentChecker.isTrue(nDates[i] == fixingPeriodAccrualFactor[i].length, "{}-th array: fixingPeriodAccrualFactor length different from fixingTime length", i);
     }
 
     _weight = new double[nPeriods][];
@@ -81,27 +84,27 @@ public class CouponIborAverageCompounding extends Coupon {
       _fixingTime[i] = Arrays.copyOf(fixingTime[i], nDates[i]);
       _fixingPeriodStartTime[i] = Arrays.copyOf(fixingPeriodStartTime[i], nDates[i]);
       _fixingPeriodEndTime[i] = Arrays.copyOf(fixingPeriodEndTime[i], nDates[i]);
-      _fixingPeriodAccrualFactor[i] = Arrays.copyOf(fixingPeriodAccrualFactors[i], nDates[i]);
+      _fixingPeriodAccrualFactor[i] = Arrays.copyOf(fixingPeriodAccrualFactor[i], nDates[i]);
     }
-
+    _spread = spread;
   }
 
   @Override
   public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
     ArgumentChecker.notNull(visitor, "visitor");
-    return visitor.visitCouponIborAverageCompounding(this, data);
+    return visitor.visitCouponIborAverageFlatCompoundingSpread(this, data);
   }
 
   @Override
   public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
     ArgumentChecker.notNull(visitor, "visitor");
-    return visitor.visitCouponIborAverageCompounding(this);
+    return visitor.visitCouponIborAverageFlatCompoundingSpread(this);
   }
 
   @Override
-  public CouponIborAverageCompounding withNotional(final double notional) {
-    return new CouponIborAverageCompounding(getCurrency(), getPaymentTime(), getPaymentYearFraction(), notional, getPaymentAccrualFactors(), getIndex(), getFixingTime(), getWeight(),
-        getFixingPeriodStartTime(), getFixingPeriodEndTime(), getFixingPeriodAccrualFactor(), getAmountAccrued(), getRateFixed());
+  public CouponIborAverageFixingDatesCompoundingFlatSpread withNotional(final double notional) {
+    return new CouponIborAverageFixingDatesCompoundingFlatSpread(getCurrency(), getPaymentTime(), getPaymentYearFraction(), notional, getPaymentAccrualFactors(), getIndex(), getFixingTime(), getWeight(),
+        getFixingPeriodStartTime(), getFixingPeriodEndTime(), getFixingPeriodAccrualFactor(), getAmountAccrued(), getRateFixed(), getSpread());
   }
 
   /**
@@ -176,6 +179,14 @@ public class CouponIborAverageCompounding extends Coupon {
     return _rateFixed;
   }
 
+  /**
+   * Gets the spread.
+   * @return the spread
+   */
+  public double getSpread() {
+    return _spread;
+  }
+
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -191,6 +202,8 @@ public class CouponIborAverageCompounding extends Coupon {
     result = prime * result + Arrays.hashCode(_paymentAccrualFactors);
     temp = Double.doubleToLongBits(_rateFixed);
     result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_spread);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
     result = prime * result + Arrays.deepHashCode(_weight);
     return result;
   }
@@ -203,10 +216,10 @@ public class CouponIborAverageCompounding extends Coupon {
     if (!super.equals(obj)) {
       return false;
     }
-    if (!(obj instanceof CouponIborAverageCompounding)) {
+    if (!(obj instanceof CouponIborAverageFixingDatesCompoundingFlatSpread)) {
       return false;
     }
-    CouponIborAverageCompounding other = (CouponIborAverageCompounding) obj;
+    CouponIborAverageFixingDatesCompoundingFlatSpread other = (CouponIborAverageFixingDatesCompoundingFlatSpread) obj;
     if (Double.doubleToLongBits(_amountAccrued) != Double.doubleToLongBits(other._amountAccrued)) {
       return false;
     }
@@ -233,6 +246,9 @@ public class CouponIborAverageCompounding extends Coupon {
       return false;
     }
     if (Double.doubleToLongBits(_rateFixed) != Double.doubleToLongBits(other._rateFixed)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_spread) != Double.doubleToLongBits(other._spread)) {
       return false;
     }
     if (!Arrays.deepEquals(_weight, other._weight)) {

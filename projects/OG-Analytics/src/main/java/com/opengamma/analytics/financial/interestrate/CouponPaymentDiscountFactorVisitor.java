@@ -11,9 +11,9 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverage;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverageCompounding;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverageFixingDatesCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverageFixingDates;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverageFlatCompoundingSpread;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverageFixingDatesCompoundingFlatSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingFlatSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingSpread;
@@ -120,13 +120,13 @@ public class CouponPaymentDiscountFactorVisitor extends InstrumentDerivativeVisi
   }
 
   @Override
-  public Double visitCouponIborAverageCompounding(final CouponIborAverageCompounding payment, final YieldCurveBundle curves) {
+  public Double visitCouponIborAverageCompounding(final CouponIborAverageFixingDatesCompounding payment, final YieldCurveBundle curves) {
     final YieldAndDiscountCurve curve = curves.getCurve(payment.getFundingCurveName());
     return curve.getDiscountFactor(payment.getPaymentTime());
   }
 
   @Override
-  public Double visitCouponIborAverageFlatCompoundingSpread(final CouponIborAverageFlatCompoundingSpread payment, final YieldCurveBundle curves) {
+  public Double visitCouponIborAverageFlatCompoundingSpread(final CouponIborAverageFixingDatesCompoundingFlatSpread payment, final YieldCurveBundle curves) {
     final YieldAndDiscountCurve curve = curves.getCurve(payment.getFundingCurveName());
     return curve.getDiscountFactor(payment.getPaymentTime());
   }

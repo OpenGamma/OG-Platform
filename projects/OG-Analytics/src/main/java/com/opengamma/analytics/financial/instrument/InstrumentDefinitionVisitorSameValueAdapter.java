@@ -98,9 +98,9 @@ import com.opengamma.analytics.financial.instrument.payment.CouponCMSDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedAccruedCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
-import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageCompoundingDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageFixingDatesCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageFixingDatesDefinition;
-import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageFlatCompoundingSpreadDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageFixingDatesCompoundingFlatSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageIndexDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingFlatSpreadDefinition;
@@ -715,22 +715,22 @@ public class InstrumentDefinitionVisitorSameValueAdapter<DATA_TYPE, RESULT_TYPE>
   }
 
   @Override
-  public RESULT_TYPE visitCouponIborAverageCompoundingDefinition(CouponIborAverageCompoundingDefinition payment, DATA_TYPE data) {
+  public RESULT_TYPE visitCouponIborAverageCompoundingDefinition(CouponIborAverageFixingDatesCompoundingDefinition payment, DATA_TYPE data) {
     return _value;
   }
 
   @Override
-  public RESULT_TYPE visitCouponIborAverageCompoundingDefinition(CouponIborAverageCompoundingDefinition payment) {
+  public RESULT_TYPE visitCouponIborAverageCompoundingDefinition(CouponIborAverageFixingDatesCompoundingDefinition payment) {
     return _value;
   }
 
   @Override
-  public RESULT_TYPE visitCouponIborAverageFlatCompoundingSpreadDefinition(CouponIborAverageFlatCompoundingSpreadDefinition payment, DATA_TYPE data) {
+  public RESULT_TYPE visitCouponIborAverageFlatCompoundingSpreadDefinition(CouponIborAverageFixingDatesCompoundingFlatSpreadDefinition payment, DATA_TYPE data) {
     return _value;
   }
 
   @Override
-  public RESULT_TYPE visitCouponIborAverageFlatCompoundingSpreadDefinition(CouponIborAverageFlatCompoundingSpreadDefinition payment) {
+  public RESULT_TYPE visitCouponIborAverageFlatCompoundingSpreadDefinition(CouponIborAverageFixingDatesCompoundingFlatSpreadDefinition payment) {
     return _value;
   }
 

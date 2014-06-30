@@ -10,9 +10,9 @@ import com.opengamma.analytics.financial.instrument.payment.CouponCMSDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedAccruedCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
-import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageCompoundingDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageFixingDatesCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageFixingDatesDefinition;
-import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageFlatCompoundingSpreadDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageFixingDatesCompoundingFlatSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageIndexDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingFlatSpreadDefinition;
@@ -135,22 +135,22 @@ public class CouponNotionalVisitor extends InstrumentDefinitionVisitorAdapter<Vo
   }
 
   @Override
-  public CurrencyAmount visitCouponIborAverageCompoundingDefinition(CouponIborAverageCompoundingDefinition payment, Void data) {
+  public CurrencyAmount visitCouponIborAverageCompoundingDefinition(CouponIborAverageFixingDatesCompoundingDefinition payment, Void data) {
     return CurrencyAmount.of(payment.getCurrency(), payment.getNotional());
   }
 
   @Override
-  public CurrencyAmount visitCouponIborAverageCompoundingDefinition(CouponIborAverageCompoundingDefinition payment) {
+  public CurrencyAmount visitCouponIborAverageCompoundingDefinition(CouponIborAverageFixingDatesCompoundingDefinition payment) {
     return CurrencyAmount.of(payment.getCurrency(), payment.getNotional());
   }
 
   @Override
-  public CurrencyAmount visitCouponIborAverageFlatCompoundingSpreadDefinition(CouponIborAverageFlatCompoundingSpreadDefinition payment, Void data) {
+  public CurrencyAmount visitCouponIborAverageFlatCompoundingSpreadDefinition(CouponIborAverageFixingDatesCompoundingFlatSpreadDefinition payment, Void data) {
     return CurrencyAmount.of(payment.getCurrency(), payment.getNotional());
   }
 
   @Override
-  public CurrencyAmount visitCouponIborAverageFlatCompoundingSpreadDefinition(CouponIborAverageFlatCompoundingSpreadDefinition payment) {
+  public CurrencyAmount visitCouponIborAverageFlatCompoundingSpreadDefinition(CouponIborAverageFixingDatesCompoundingFlatSpreadDefinition payment) {
     return CurrencyAmount.of(payment.getCurrency(), payment.getNotional());
   }
 }

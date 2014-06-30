@@ -16,8 +16,8 @@ import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
-import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageFlatCompoundingSpreadDefinition;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverageFlatCompoundingSpread;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageFixingDatesCompoundingFlatSpreadDefinition;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverageFixingDatesCompoundingFlatSpread;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
@@ -41,7 +41,7 @@ import com.opengamma.util.time.DateUtils;
 /**
  * 
  */
-public class CouponIborAverageFlatCompoundingSpreadDiscountingMethodTest {
+public class CouponIborAverageFixingDatesCompoundingFlatSpreadDiscountingMethodTest {
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
   private static final IborIndex[] IBOR_INDEXES = MulticurveProviderDiscountDataSets.getIndexesIborMulticurveEurUsd();
 
@@ -151,9 +151,9 @@ public class CouponIborAverageFlatCompoundingSpreadDiscountingMethodTest {
   private static final double AMOUNT_ACC = 0.02;
   private static final double RATE_FIXED = 0.01;
   // Examples 1 & 2: same number of fixing for all periods
-  private static final CouponIborAverageFlatCompoundingSpread DER1 = new CouponIborAverageFlatCompoundingSpread(CUR1, PAYMENT_TIME1, ACCRUAL_FACTOR, NOTIONAL, ACCRUAL_FACTORS, IBOR_INDEXES[0],
+  private static final CouponIborAverageFixingDatesCompoundingFlatSpread DER1 = new CouponIborAverageFixingDatesCompoundingFlatSpread(CUR1, PAYMENT_TIME1, ACCRUAL_FACTOR, NOTIONAL, ACCRUAL_FACTORS, IBOR_INDEXES[0],
       FIXING_TIMES, WEIGHTS, FIXING_PERIOD_START_TIMES, FIXING_PERIOD_END_TIMES, FIX_ACC_FACTORS, AMOUNT_ACC, RATE_FIXED, SPREAD);
-  private static final CouponIborAverageFlatCompoundingSpread DER2 = new CouponIborAverageFlatCompoundingSpread(CUR2, PAYMENT_TIME2, ACCRUAL_FACTOR, NOTIONAL, ACCRUAL_FACTORS, IBOR_INDEXES[2],
+  private static final CouponIborAverageFixingDatesCompoundingFlatSpread DER2 = new CouponIborAverageFixingDatesCompoundingFlatSpread(CUR2, PAYMENT_TIME2, ACCRUAL_FACTOR, NOTIONAL, ACCRUAL_FACTORS, IBOR_INDEXES[2],
       FIXING_TIMES_ORG, WEIGHTS_ORG, FIXING_PERIOD_START_TIMES_ORG, FIXING_PERIOD_END_TIMES_ORG, FIX_ACC_FACTORS_ORG, 0., 0., SPREAD);
 
   // Example 3: different number of fixing in each subperiod
@@ -183,9 +183,9 @@ public class CouponIborAverageFlatCompoundingSpreadDiscountingMethodTest {
       }
     }
   }
-  private static final CouponIborAverageFlatCompoundingSpreadDefinition DFN3 = new CouponIborAverageFlatCompoundingSpreadDefinition(CUR1, ACCRUAL_START_DATE_SUB_3[3],
+  private static final CouponIborAverageFixingDatesCompoundingFlatSpreadDefinition DFN3 = new CouponIborAverageFixingDatesCompoundingFlatSpreadDefinition(CUR1, ACCRUAL_START_DATE_SUB_3[3],
       ACCRUAL_START_DATE_SUB_3[0], ACCRUAL_START_DATE_SUB_3[3], ACCRUAL_FACTOR, NOTIONAL, ACCRUAL_FACTORS_3, IBOR_INDEXES[0], FIXING_DATES_3, WEIGHTS_3, CALENDAR, SPREAD);
-  private static final CouponIborAverageFlatCompoundingSpread DER3 = DFN3.toDerivative(FIXING_DATES_3[0][0].minusDays(1));
+  private static final CouponIborAverageFixingDatesCompoundingFlatSpread DER3 = DFN3.toDerivative(FIXING_DATES_3[0][0].minusDays(1));
 
   private static final CouponIborAverageFlatCompoundingSpreadDiscountingMethod METHOD = CouponIborAverageFlatCompoundingSpreadDiscountingMethod.getInstance();
   private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();

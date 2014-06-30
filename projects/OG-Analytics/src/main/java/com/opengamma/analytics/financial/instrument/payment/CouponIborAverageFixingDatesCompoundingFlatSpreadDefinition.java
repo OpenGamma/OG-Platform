@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.instrument.payment;
 
 import java.util.Arrays;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
@@ -16,7 +17,7 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverageFlatCompoundingSpread;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverageFixingDatesCompoundingFlatSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
@@ -26,9 +27,11 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ * Class describing an average coupon by weighted mean of index values with difference fixing dates. 
+ * The weighted averages over several sub-periods are compounded over the total period with "falt compounding" for the spread.
  */
-public class CouponIborAverageFlatCompoundingSpreadDefinition extends CouponDefinition implements InstrumentDefinitionWithData<Payment, DoubleTimeSeries<ZonedDateTime>> {
+public class CouponIborAverageFixingDatesCompoundingFlatSpreadDefinition extends CouponDefinition
+    implements InstrumentDefinitionWithData<Payment, DoubleTimeSeries<ZonedDateTime>> {
 
   /** The index on which the fixing is done. The same index is used for all the fixings. */
   private final IborIndex _index;
@@ -44,7 +47,7 @@ public class CouponIborAverageFlatCompoundingSpreadDefinition extends CouponDefi
   private final double[][] _fixingPeriodAccrualFactors;
   /** The payment accrual factors for the different sub-periods on which the compounding is computed. */
   private final double[] _paymentAccrualFactors;
-  /** The spread */
+  /** The spread. Using flat compounding. */
   private final double _spread;
 
   /**
@@ -62,9 +65,10 @@ public class CouponIborAverageFlatCompoundingSpreadDefinition extends CouponDefi
    * @param iborCalendar The holiday calendar for the index
    * @param spread The spread
    */
-  public CouponIborAverageFlatCompoundingSpreadDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate,
-      final double paymentAccrualFactor, final double notional, final double[] paymentAccrualFactors, final IborIndex index, final ZonedDateTime[][] fixingDates, final double[][] weights,
-      final Calendar iborCalendar, final double spread) {
+  public CouponIborAverageFixingDatesCompoundingFlatSpreadDefinition(final Currency currency, final ZonedDateTime paymentDate,
+      final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double paymentAccrualFactor,
+      final double notional, final double[] paymentAccrualFactors, final IborIndex index, final ZonedDateTime[][] fixingDates,
+      final double[][] weights, final Calendar iborCalendar, final double spread) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, paymentAccrualFactor, notional);
     final int nPeriods = fixingDates.length;
     final int[] nDates = new int[nPeriods]; // Number of fixing dates per sub-period, can be different for each sub-period.
@@ -86,7 +90,8 @@ public class CouponIborAverageFlatCompoundingSpreadDefinition extends CouponDefi
       _fixingPeriodAccrualFactors[i] = new double[nDates[i]];
       for (int j = 0; j < nDates[i]; ++j) {
         _fixingPeriodStartDates[i][j] = ScheduleCalculator.getAdjustedDate(fixingDates[i][j], index.getSpotLag(), iborCalendar);
-        _fixingPeriodEndDates[i][j] = ScheduleCalculator.getAdjustedDate(_fixingPeriodStartDates[i][j], index.getTenor(), index.getBusinessDayConvention(), iborCalendar, index.isEndOfMonth());
+        _fixingPeriodEndDates[i][j] = ScheduleCalculator.getAdjustedDate(_fixingPeriodStartDates[i][j], index.getTenor(),
+            index.getBusinessDayConvention(), iborCalendar, index.isEndOfMonth());
         _fixingPeriodAccrualFactors[i][j] = index.getDayCount().getDayCountFraction(_fixingPeriodStartDates[i][j], _fixingPeriodEndDates[i][j], iborCalendar);
       }
     }
@@ -110,7 +115,8 @@ public class CouponIborAverageFlatCompoundingSpreadDefinition extends CouponDefi
    * @param fixingPeriodAccrualFactors The accrual factors of fixing periods
    * @param spread The spread
    */
-  public CouponIborAverageFlatCompoundingSpreadDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate,
+  public CouponIborAverageFixingDatesCompoundingFlatSpreadDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate,
+      final ZonedDateTime accrualEndDate,
       final double paymentAccrualFactor, final double notional, final double[] paymentAccrualFactors, final IborIndex index, final ZonedDateTime[][] fixingDates, final double[][] weights,
       final ZonedDateTime[][] fixingPeriodStartDates, final ZonedDateTime[][] fixingPeriodEndDates, final double[][] fixingPeriodAccrualFactors, final double spread) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, paymentAccrualFactor, notional);
@@ -153,11 +159,12 @@ public class CouponIborAverageFlatCompoundingSpreadDefinition extends CouponDefi
    * @param spread The spread
    * @return The coupon
    */
-  public static CouponIborAverageFlatCompoundingSpreadDefinition from(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate,
+  public static CouponIborAverageFixingDatesCompoundingFlatSpreadDefinition from(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate,
       final ZonedDateTime accrualEndDate,
       final double paymentAccrualFactor, final double notional, final double[] paymentAccrualFactors, final IborIndex index, final ZonedDateTime[][] fixingDates, final double[][] weights,
       final Calendar iborCalendar, final double spread) {
-    return new CouponIborAverageFlatCompoundingSpreadDefinition(currency, paymentDate, accrualStartDate, accrualEndDate, paymentAccrualFactor, notional, paymentAccrualFactors, index, fixingDates,
+    return new CouponIborAverageFixingDatesCompoundingFlatSpreadDefinition(currency, paymentDate, accrualStartDate, accrualEndDate, paymentAccrualFactor, notional, paymentAccrualFactors, index,
+        fixingDates,
         weights, iborCalendar, spread);
   }
 
@@ -179,11 +186,12 @@ public class CouponIborAverageFlatCompoundingSpreadDefinition extends CouponDefi
    * @param spread The spread
    * @return The coupon
    */
-  public static CouponIborAverageFlatCompoundingSpreadDefinition from(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate,
+  public static CouponIborAverageFixingDatesCompoundingFlatSpreadDefinition from(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate,
       final ZonedDateTime accrualEndDate,
       final double paymentAccrualFactor, final double notional, final double[] paymentAccrualFactors, final IborIndex index, final ZonedDateTime[][] fixingDates, final double[][] weights,
       final ZonedDateTime[][] fixingPeriodStartDates, final ZonedDateTime[][] fixingPeriodEndDates, final double[][] fixingPeriodAccrualFactors, final double spread) {
-    return new CouponIborAverageFlatCompoundingSpreadDefinition(currency, paymentDate, accrualStartDate, accrualEndDate, paymentAccrualFactor, notional, paymentAccrualFactors, index, fixingDates,
+    return new CouponIborAverageFixingDatesCompoundingFlatSpreadDefinition(currency, paymentDate, accrualStartDate, accrualEndDate, paymentAccrualFactor, notional, paymentAccrualFactors, index,
+        fixingDates,
         weights, fixingPeriodStartDates, fixingPeriodEndDates, fixingPeriodAccrualFactors, spread);
   }
 
@@ -192,8 +200,8 @@ public class CouponIborAverageFlatCompoundingSpreadDefinition extends CouponDefi
    * @param notional The notional
    * @return The coupon
    */
-  public CouponIborAverageFlatCompoundingSpreadDefinition withNotional(final double notional) {
-    return new CouponIborAverageFlatCompoundingSpreadDefinition(getCurrency(), getPaymentDate(), getAccrualStartDate(), getAccrualEndDate(), getPaymentYearFraction(), notional,
+  public CouponIborAverageFixingDatesCompoundingFlatSpreadDefinition withNotional(final double notional) {
+    return new CouponIborAverageFixingDatesCompoundingFlatSpreadDefinition(getCurrency(), getPaymentDate(), getAccrualStartDate(), getAccrualEndDate(), getPaymentYearFraction(), notional,
         getPaymentAccrualFactors(), getIndex(), getFixingDates(), getWeight(), getFixingPeriodStartDates(), getFixingPeriodEndDates(), getFixingPeriodAccrualFactor(), getSpread());
   }
 
@@ -273,18 +281,8 @@ public class CouponIborAverageFlatCompoundingSpreadDefinition extends CouponDefi
     return _spread;
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
   @Override
-  @Deprecated
-  public CouponIborAverageFlatCompoundingSpread toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    return toDerivative(date);
-  }
-
-  @Override
-  public CouponIborAverageFlatCompoundingSpread toDerivative(final ZonedDateTime date) {
+  public CouponIborAverageFixingDatesCompoundingFlatSpread toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "date");
     final int nPeriods = getFixingDates().length;
     final int[] nDates = new int[nPeriods];
@@ -309,18 +307,8 @@ public class CouponIborAverageFlatCompoundingSpreadDefinition extends CouponDefi
         fixingPeriodEndTime[i][j] = TimeCalculator.getTimeBetween(date, getFixingPeriodEndDates()[i][j]);
       }
     }
-    return new CouponIborAverageFlatCompoundingSpread(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), getPaymentAccrualFactors(), getIndex(), fixingTime, getWeight(),
+    return new CouponIborAverageFixingDatesCompoundingFlatSpread(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), getPaymentAccrualFactors(), getIndex(), fixingTime, getWeight(),
         fixingPeriodStartTime, fixingPeriodEndTime, getFixingPeriodAccrualFactor(), 0., 0., getSpread());
-  }
-
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Override
-  @Deprecated
-  public Coupon toDerivative(ZonedDateTime date, DoubleTimeSeries<ZonedDateTime> data, String... yieldCurveNames) {
-    return toDerivative(date, data);
   }
 
   @Override
@@ -424,8 +412,28 @@ public class CouponIborAverageFlatCompoundingSpreadDefinition extends CouponDefi
       System.arraycopy(_fixingPeriodAccrualFactors[nRemovedPeriod], posDate, fixingPeriodAccrualFactorLeft[0], 0, nDates[nRemovedPeriod]);
     }
 
-    return new CouponIborAverageFlatCompoundingSpread(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), paymentAccrualFactorsLeft, getIndex(), fixingTimeLeft, weightLeft,
+    return new CouponIborAverageFixingDatesCompoundingFlatSpread(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), paymentAccrualFactorsLeft, getIndex(), fixingTimeLeft, weightLeft,
         fixingPeriodStartTimeLeft, fixingPeriodEndTimeLeft, fixingPeriodAccrualFactorLeft, amountAccrued, sumRateFixed, getSpread());
+  }
+
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Override
+  @Deprecated
+  public Coupon toDerivative(ZonedDateTime date, DoubleTimeSeries<ZonedDateTime> data, String... yieldCurveNames) {
+    throw new NotImplementedException("toDerivative not implemented with yield curve names.");
+  }
+
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Override
+  @Deprecated
+  public CouponIborAverageFixingDatesCompoundingFlatSpread toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+    throw new NotImplementedException("toDerivative not implemented with yield curve names.");
   }
 
   @Override
@@ -453,10 +461,10 @@ public class CouponIborAverageFlatCompoundingSpreadDefinition extends CouponDefi
     if (!super.equals(obj)) {
       return false;
     }
-    if (!(obj instanceof CouponIborAverageFlatCompoundingSpreadDefinition)) {
+    if (!(obj instanceof CouponIborAverageFixingDatesCompoundingFlatSpreadDefinition)) {
       return false;
     }
-    CouponIborAverageFlatCompoundingSpreadDefinition other = (CouponIborAverageFlatCompoundingSpreadDefinition) obj;
+    CouponIborAverageFixingDatesCompoundingFlatSpreadDefinition other = (CouponIborAverageFixingDatesCompoundingFlatSpreadDefinition) obj;
     if (!Arrays.deepEquals(_fixingDates, other._fixingDates)) {
       return false;
     }

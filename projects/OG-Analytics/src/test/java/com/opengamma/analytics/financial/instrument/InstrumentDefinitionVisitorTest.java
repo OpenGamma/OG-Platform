@@ -110,9 +110,9 @@ import com.opengamma.analytics.financial.instrument.payment.CouponCMSDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedAccruedCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
-import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageCompoundingDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageFixingDatesCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageFixingDatesDefinition;
-import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageFlatCompoundingSpreadDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageFixingDatesCompoundingFlatSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageIndexDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingFlatSpreadDefinition;
@@ -1602,22 +1602,22 @@ public class InstrumentDefinitionVisitorTest {
     }
 
     @Override
-    public String visitCouponIborAverageCompoundingDefinition(CouponIborAverageCompoundingDefinition payment, T data) {
+    public String visitCouponIborAverageCompoundingDefinition(CouponIborAverageFixingDatesCompoundingDefinition payment, T data) {
       return getValue(payment, true);
     }
 
     @Override
-    public String visitCouponIborAverageCompoundingDefinition(CouponIborAverageCompoundingDefinition payment) {
+    public String visitCouponIborAverageCompoundingDefinition(CouponIborAverageFixingDatesCompoundingDefinition payment) {
       return getValue(payment, false);
     }
 
     @Override
-    public String visitCouponIborAverageFlatCompoundingSpreadDefinition(CouponIborAverageFlatCompoundingSpreadDefinition payment, T data) {
+    public String visitCouponIborAverageFlatCompoundingSpreadDefinition(CouponIborAverageFixingDatesCompoundingFlatSpreadDefinition payment, T data) {
       return getValue(payment, true);
     }
 
     @Override
-    public String visitCouponIborAverageFlatCompoundingSpreadDefinition(CouponIborAverageFlatCompoundingSpreadDefinition payment) {
+    public String visitCouponIborAverageFlatCompoundingSpreadDefinition(CouponIborAverageFixingDatesCompoundingFlatSpreadDefinition payment) {
       return getValue(payment, false);
     }
   }

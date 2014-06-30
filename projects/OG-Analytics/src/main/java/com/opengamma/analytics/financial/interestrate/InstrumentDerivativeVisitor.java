@@ -105,9 +105,9 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverage;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverageCompounding;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverageFixingDatesCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverageFixingDates;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverageFlatCompoundingSpread;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverageFixingDatesCompoundingFlatSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingFlatSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingSimpleSpread;
@@ -434,13 +434,13 @@ public interface InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> {
 
   RESULT_TYPE visitCouponIborAverageFixingDates(CouponIborAverageFixingDates payment);
 
-  RESULT_TYPE visitCouponIborAverageCompounding(CouponIborAverageCompounding payment, DATA_TYPE data);
+  RESULT_TYPE visitCouponIborAverageCompounding(CouponIborAverageFixingDatesCompounding payment, DATA_TYPE data);
 
-  RESULT_TYPE visitCouponIborAverageCompounding(CouponIborAverageCompounding payment);
+  RESULT_TYPE visitCouponIborAverageCompounding(CouponIborAverageFixingDatesCompounding payment);
 
-  RESULT_TYPE visitCouponIborAverageFlatCompoundingSpread(CouponIborAverageFlatCompoundingSpread payment, DATA_TYPE data);
+  RESULT_TYPE visitCouponIborAverageFlatCompoundingSpread(CouponIborAverageFixingDatesCompoundingFlatSpread payment, DATA_TYPE data);
 
-  RESULT_TYPE visitCouponIborAverageFlatCompoundingSpread(CouponIborAverageFlatCompoundingSpread payment);
+  RESULT_TYPE visitCouponIborAverageFlatCompoundingSpread(CouponIborAverageFixingDatesCompoundingFlatSpread payment);
 
   // -----     Swap     -----
 

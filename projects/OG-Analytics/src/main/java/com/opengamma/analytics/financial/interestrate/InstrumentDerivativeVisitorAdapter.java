@@ -105,9 +105,9 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverage;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverageCompounding;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverageFixingDatesCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverageFixingDates;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverageFlatCompoundingSpread;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverageFixingDatesCompoundingFlatSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingFlatSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingSimpleSpread;
@@ -579,22 +579,22 @@ public abstract class InstrumentDerivativeVisitorAdapter<DATA_TYPE, RESULT_TYPE>
   }
 
   @Override
-  public RESULT_TYPE visitCouponIborAverageCompounding(final CouponIborAverageCompounding payment, final DATA_TYPE data) {
+  public RESULT_TYPE visitCouponIborAverageCompounding(final CouponIborAverageFixingDatesCompounding payment, final DATA_TYPE data) {
     return getException(payment, data);
   }
 
   @Override
-  public RESULT_TYPE visitCouponIborAverageCompounding(final CouponIborAverageCompounding payment) {
+  public RESULT_TYPE visitCouponIborAverageCompounding(final CouponIborAverageFixingDatesCompounding payment) {
     return getException(payment);
   }
 
   @Override
-  public RESULT_TYPE visitCouponIborAverageFlatCompoundingSpread(final CouponIborAverageFlatCompoundingSpread payment, final DATA_TYPE data) {
+  public RESULT_TYPE visitCouponIborAverageFlatCompoundingSpread(final CouponIborAverageFixingDatesCompoundingFlatSpread payment, final DATA_TYPE data) {
     return getException(payment, data);
   }
 
   @Override
-  public RESULT_TYPE visitCouponIborAverageFlatCompoundingSpread(final CouponIborAverageFlatCompoundingSpread payment) {
+  public RESULT_TYPE visitCouponIborAverageFlatCompoundingSpread(final CouponIborAverageFixingDatesCompoundingFlatSpread payment) {
     return getException(payment);
   }
 
