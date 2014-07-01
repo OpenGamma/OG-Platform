@@ -13,21 +13,27 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ * Class describing an average coupon by weighted mean of index values with difference fixing dates. 
+ * The weighted averages over several sub-periods are compounded over the total period and a spread is added with "flat compounding"..
  */
 public class CouponIborAverageFixingDatesCompoundingFlatSpread extends Coupon {
 
-  private final double[][] _fixingTime;
+  /** The index on which the fixing is done. */
   private final IborIndex _index;
+  /** The fixing times of the index. The times are in increasing order. Only the times not yet fixed are in the array.*/
+  private final double[][] _fixingTime;
+  /** The weights or quantity used for each fixing. The total weight is not necessarily 1. Same size as _fixingTime. */
   private final double[][] _weight;
   private final double[][] _fixingPeriodStartTime;
   private final double[][] _fixingPeriodEndTime;
-
   private final double[][] _fixingPeriodAccrualFactor;
+  /** The payment accrual factors for the different sub-periods on which the compounding is computed. */
   private final double[] _paymentAccrualFactors;
+  /** The interest amount accrued in the current sub-period over the dates already fixed multiplied by the weights, i.e. the sum (w_i r_i). */
   private final double _amountAccrued;
+  /** The rate for the sub-periods already fully fixed, i.e. sum( CAP_i ). Notional factor not included.*/
   private final double _rateFixed;
-
+  /** Spread paid on the coupon. Annualized rate. */
   private final double _spread;
 
   /**
@@ -43,15 +49,15 @@ public class CouponIborAverageFixingDatesCompoundingFlatSpread extends Coupon {
    * @param fixingPeriodStartTime The fixing period start time (in years) of the index
    * @param fixingPeriodEndTime The fixing period end time (in years) of the index
    * @param fixingPeriodAccrualFactor The accrual factors of fixing periods
-   * @param amountAccrued The interest amount accrued over the periods already fixed.
-   * @param rateFixed The interest rate fixed already
+   * @param amountAccrued The interest amount accrued in the current sub-period over the dates already fixed multiplied by the weights, i.e. the sum (w_i r_i).
+   * @param rateFixed The rate for the sub-periods already fully fixed, i.e. sum( CAP_i ).
    * @param spread The spread
    */
-  public CouponIborAverageFixingDatesCompoundingFlatSpread(final Currency currency, final double paymentTime, final double paymentAccrualFactor, final double notional, final double[] paymentAccrualFactors,
-      final IborIndex index, final double[][] fixingTime, final double[][] weight, final double[][] fixingPeriodStartTime, final double[][] fixingPeriodEndTime,
+  public CouponIborAverageFixingDatesCompoundingFlatSpread(final Currency currency, final double paymentTime,
+      final double paymentAccrualFactor, final double notional, final double[] paymentAccrualFactors, final IborIndex index,
+      final double[][] fixingTime, final double[][] weight, final double[][] fixingPeriodStartTime, final double[][] fixingPeriodEndTime,
       final double[][] fixingPeriodAccrualFactor, final double amountAccrued, final double rateFixed, final double spread) {
     super(currency, paymentTime, paymentAccrualFactor, notional);
-
     final int nPeriods = fixingTime.length;
     final int[] nDates = new int[nPeriods]; //number of fixing dates per period
     ArgumentChecker.isTrue(nPeriods == paymentAccrualFactors.length, "paymentAccrualFactors length different from fixingTime length");
@@ -67,18 +73,15 @@ public class CouponIborAverageFixingDatesCompoundingFlatSpread extends Coupon {
       ArgumentChecker.isTrue(nDates[i] == fixingPeriodEndTime[i].length, "{}-th array: fixingPeriodEndDates length different from fixingTime length", i);
       ArgumentChecker.isTrue(nDates[i] == fixingPeriodAccrualFactor[i].length, "{}-th array: fixingPeriodAccrualFactor length different from fixingTime length", i);
     }
-
     _weight = new double[nPeriods][];
     _fixingTime = new double[nPeriods][];
     _fixingPeriodStartTime = new double[nPeriods][];
     _fixingPeriodEndTime = new double[nPeriods][];
     _fixingPeriodAccrualFactor = new double[nPeriods][];
-
     _index = index;
     _paymentAccrualFactors = Arrays.copyOf(paymentAccrualFactors, nPeriods);
     _amountAccrued = amountAccrued;
     _rateFixed = rateFixed;
-
     for (int i = 0; i < nPeriods; ++i) {
       _weight[i] = Arrays.copyOf(weight[i], nDates[i]);
       _fixingTime[i] = Arrays.copyOf(fixingTime[i], nDates[i]);
@@ -103,8 +106,9 @@ public class CouponIborAverageFixingDatesCompoundingFlatSpread extends Coupon {
 
   @Override
   public CouponIborAverageFixingDatesCompoundingFlatSpread withNotional(final double notional) {
-    return new CouponIborAverageFixingDatesCompoundingFlatSpread(getCurrency(), getPaymentTime(), getPaymentYearFraction(), notional, getPaymentAccrualFactors(), getIndex(), getFixingTime(), getWeight(),
-        getFixingPeriodStartTime(), getFixingPeriodEndTime(), getFixingPeriodAccrualFactor(), getAmountAccrued(), getRateFixed(), getSpread());
+    return new CouponIborAverageFixingDatesCompoundingFlatSpread(getCurrency(), getPaymentTime(), getPaymentYearFraction(),
+        notional, getPaymentAccrualFactors(), getIndex(), getFixingTime(), getWeight(), getFixingPeriodStartTime(),
+        getFixingPeriodEndTime(), getFixingPeriodAccrualFactor(), getAmountAccrued(), getRateFixed(), getSpread());
   }
 
   /**

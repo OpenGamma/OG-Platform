@@ -55,7 +55,7 @@ import com.opengamma.analytics.financial.interestrate.payments.provider.CouponFi
 import com.opengamma.analytics.financial.interestrate.payments.provider.CouponIborAverageFixingDatesCompoundingDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.provider.CouponIborAverageDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.provider.CouponIborAverageFixingDatesDiscountingMethod;
-import com.opengamma.analytics.financial.interestrate.payments.provider.CouponIborAverageFlatCompoundingSpreadDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.payments.provider.CouponIborAverageFixingDatesCompoundingFlatSpreadDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.provider.CouponIborCompoundingDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.provider.CouponIborCompoundingFlatSpreadDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.provider.CouponIborCompoundingSimpleSpreadDiscountingMethod;
@@ -135,7 +135,7 @@ public final class PresentValueDiscountingCalculator extends InstrumentDerivativ
   private static final InterpolatedStubPresentValueDiscountingCalculator METHOD_CPN_INTERP_STUB = InterpolatedStubPresentValueDiscountingCalculator.getInstance();
   private static final CouponIborAverageFixingDatesDiscountingMethod METHOD_CPN_IBOR_AVERAGE_FIXING_DATES = CouponIborAverageFixingDatesDiscountingMethod.getInstance();
   private static final CouponIborAverageFixingDatesCompoundingDiscountingMethod METHOD_CPN_IBOR_AVERAGE_CMP = CouponIborAverageFixingDatesCompoundingDiscountingMethod.getInstance();
-  private static final CouponIborAverageFlatCompoundingSpreadDiscountingMethod METHOD_CPN_IBOR_FLAT_CMP_SPREAD = CouponIborAverageFlatCompoundingSpreadDiscountingMethod.getInstance();
+  private static final CouponIborAverageFixingDatesCompoundingFlatSpreadDiscountingMethod METHOD_CPN_IBOR_FLAT_CMP_SPREAD = CouponIborAverageFixingDatesCompoundingFlatSpreadDiscountingMethod.getInstance();
 
   //     -----     Deposit     -----
 

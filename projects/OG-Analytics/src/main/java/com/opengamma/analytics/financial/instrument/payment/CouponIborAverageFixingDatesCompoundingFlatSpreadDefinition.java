@@ -291,11 +291,9 @@ public class CouponIborAverageFixingDatesCompoundingFlatSpreadDefinition extends
     ArgumentChecker.isTrue(!dayConversion.isAfter(getFixingDates()[0][0].toLocalDate()), "Do not have any fixing data but are asking for a derivative at " + date
         + " which is after fixing date " + getFixingDates()[0][0]);
     final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
-
     final double[][] fixingTime = new double[nPeriods][];
     final double[][] fixingPeriodStartTime = new double[nPeriods][];
     final double[][] fixingPeriodEndTime = new double[nPeriods][];
-
     for (int i = 0; i < nPeriods; ++i) {
       nDates[i] = getFixingDates()[i].length;
       fixingTime[i] = new double[nDates[i]];
@@ -329,10 +327,10 @@ public class CouponIborAverageFixingDatesCompoundingFlatSpreadDefinition extends
 
     int posPeriod = 0;
     int posDate = 0;
-    double amountAccrued = 0.0;
-    double sumRateFixed = 0.0;
+    double sumCpa = 0.0;
+    double amountAccruedSubPeriod = 0.0;
     while (posPeriod < nPeriods && !(dayConversion.isBefore(getFixingDates()[posPeriod][0].toLocalDate()))) {
-      sumRateFixed = 0.0;
+      amountAccruedSubPeriod = 0.0;
       posDate = 0;
       nDates[posPeriod] = getFixingDates()[posPeriod].length;
       while (posDate < nDates[posPeriod] && dayConversion.isAfter(getFixingDates()[posPeriod][posDate].toLocalDate())) {
@@ -340,20 +338,21 @@ public class CouponIborAverageFixingDatesCompoundingFlatSpreadDefinition extends
         if (fixedRate == null) {
           throw new OpenGammaRuntimeException("Could not get fixing value for date " + getFixingDates()[posPeriod][posDate]);
         }
-        sumRateFixed += getWeight()[posPeriod][posDate] * fixedRate;
+        amountAccruedSubPeriod += getWeight()[posPeriod][posDate] * fixedRate;
         ++posDate;
       }
       if (posDate < nDates[posPeriod] && dayConversion.equals(getFixingDates()[posPeriod][posDate].toLocalDate())) {
         final Double fixedRate = indexFixingTimeSeries.getValue(getFixingDates()[posPeriod][posDate]);
         if (fixedRate != null) {
-          sumRateFixed += getWeight()[posPeriod][posDate] * fixedRate;
+          amountAccruedSubPeriod += getWeight()[posPeriod][posDate] * fixedRate;
           ++posDate;
         }
       }
       if (posDate == nDates[posPeriod]) {
-        final double unitCpa = (sumRateFixed + getSpread()) * getPaymentAccrualFactors()[posPeriod] + amountAccrued * getPaymentAccrualFactors()[posPeriod] * sumRateFixed;
-        amountAccrued += unitCpa;
-        sumRateFixed = 0.0;
+        final double unitCpa = (amountAccruedSubPeriod + getSpread()) * getPaymentAccrualFactors()[posPeriod]
+            + sumCpa * getPaymentAccrualFactors()[posPeriod] * amountAccruedSubPeriod;
+        sumCpa += unitCpa;
+        amountAccruedSubPeriod = 0.0;
       }
       ++posPeriod;
     }
@@ -362,7 +361,7 @@ public class CouponIborAverageFixingDatesCompoundingFlatSpreadDefinition extends
     }
 
     if (posPeriod == nPeriods && posDate == nDates[posPeriod - 1]) {
-      final double rate = amountAccrued / getPaymentYearFraction();
+      final double rate = sumCpa / getPaymentYearFraction();
       return new CouponFixed(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), rate, getAccrualStartDate(), getAccrualEndDate());
     }
 
@@ -412,8 +411,9 @@ public class CouponIborAverageFixingDatesCompoundingFlatSpreadDefinition extends
       System.arraycopy(_fixingPeriodAccrualFactors[nRemovedPeriod], posDate, fixingPeriodAccrualFactorLeft[0], 0, nDates[nRemovedPeriod]);
     }
 
-    return new CouponIborAverageFixingDatesCompoundingFlatSpread(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), paymentAccrualFactorsLeft, getIndex(), fixingTimeLeft, weightLeft,
-        fixingPeriodStartTimeLeft, fixingPeriodEndTimeLeft, fixingPeriodAccrualFactorLeft, amountAccrued, sumRateFixed, getSpread());
+    return new CouponIborAverageFixingDatesCompoundingFlatSpread(getCurrency(), paymentTime, getPaymentYearFraction(),
+        getNotional(), paymentAccrualFactorsLeft, getIndex(), fixingTimeLeft, weightLeft,
+        fixingPeriodStartTimeLeft, fixingPeriodEndTimeLeft, fixingPeriodAccrualFactorLeft, amountAccruedSubPeriod, sumCpa, getSpread());
   }
 
   /**
