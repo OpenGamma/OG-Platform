@@ -33,7 +33,7 @@ import com.opengamma.financial.analytics.isda.credit.CreditCurveDataKey;
  * snapshot.
  */
 @BeanDefinition
-@Config(description = "Credit curve data key map", group = "Credit")
+@Config(description = "Credit curve mappings", group = "Credit")
 public final class CreditCurveDataKeyMap implements ImmutableBean {
 
   /**
