@@ -82,7 +82,7 @@ public class CurveNodeIdMapperBuilder implements FudgeBuilder<CurveNodeIdMapper>
     if (object.getContinuouslyCompoundedRateNodeIds() != null) {
       message.add(CONTINUOUSLY_COMPOUNDED_NODE_FIELD, getMessageForField(serializer, object.getContinuouslyCompoundedRateNodeIds()));
     }
-    if (object.getContinuouslyCompoundedRateNodeIds() != null) {
+    if (object.getPeriodicallyCompoundedRateNodeIds() != null) {
       message.add(PERIODICALLY_COMPOUNDED_NODE_FIELD, getMessageForField(serializer, object.getPeriodicallyCompoundedRateNodeIds()));
     }
     if (object.getCreditSpreadNodeIds() != null) {
