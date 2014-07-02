@@ -190,10 +190,12 @@ public class ISDACompliantCDSFunction extends NonCompiledInvoker {
     final double notional = security.getNotional().getAmount();
     final double coupon = security.getParSpread() * ONE_BPS;
     final PointsUpFront puf = getPointsUpfront(quote, buySellProtection, yieldCurve, analytic, creditCurve);
-    final double accruedPremium = isNonIMMAndFromSpread || isNonIMMFAndFromPUF ? 0 : analytic.getAccruedPremium(coupon) * notional * buySellPremiumFactor;
+    final double accruedPremiumPrim =   isNonIMMAndFromSpread || isNonIMMFAndFromPUF ? 0 : analytic.getAccruedPremium(coupon);
+//    final double accruedPremium = isNonIMMAndFromSpread || isNonIMMFAndFromPUF ? 0 : analytic.getAccruedPremium(coupon) * notional * buySellPremiumFactor;
+    final double accruedPremium = isNonIMMAndFromSpread || isNonIMMFAndFromPUF ? 0 : accruedPremiumPrim * notional * buySellPremiumFactor;
     final int accruedDays = isNonIMMAndFromSpread || isNonIMMFAndFromPUF ? 0 : analytic.getAccuredDays();
     final double quotedSpread = getQuotedSpread(quote, puf, buySellProtection, yieldCurve, analytic).getQuotedSpread();
-    final double upfrontAmount = isNonIMMAndFromSpread ? 0 : getUpfrontAmount(analytic, puf, notional, buySellProtection);
+    final double upfrontAmount = isNonIMMAndFromSpread ? 0 : getUpfrontAmount(analytic, puf, notional, accruedPremiumPrim, buySellProtection);
     final double cleanPV = puf.getPointsUpFront() * notional;
     final double principal = isNonIMMAndFromSpread ? 0 : cleanPV;
     final double cleanPrice = getCleanPrice(puf);
@@ -362,9 +364,9 @@ public class ISDACompliantCDSFunction extends NonCompiledInvoker {
     return new QuotedSpread(quote.getCoupon(), quotedSpread);
   }
 
-  public double getUpfrontAmount(final CDSAnalytic analytic, final PointsUpFront puf, final double notional, final BuySellProtection buySellProtection) {
+  public double getUpfrontAmount(final CDSAnalytic analytic, final PointsUpFront puf, final double notional, final double accPremiumPrim, final BuySellProtection buySellProtection) {
     // upfront amount is defined as dirty PV
-    double cash = (puf.getPointsUpFront() - analytic.getAccruedPremium(puf.getCoupon())) * notional;
+    double cash = (puf.getPointsUpFront() - accPremiumPrim) * notional;
     // SELL protection reverses directions of legs
     return (buySellProtection == BuySellProtection.SELL) ? -cash : cash;
   }
