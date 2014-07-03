@@ -176,7 +176,7 @@ public class CouponIborAverageFixingDatesCompoundingDefinitionTest {
     assertTrue((derivative1 instanceof CouponIborAverageFixingDatesCompounding));
     checkOutputs(FIXING_DATES[0][0].minusDays(10), DFN1, (CouponIborAverageFixingDatesCompounding) derivative1, 0, 0);
     assertEquals(0.0, ((CouponIborAverageFixingDatesCompounding) derivative1).getAmountAccrued());
-    assertEquals(0.0, ((CouponIborAverageFixingDatesCompounding) derivative1).getInvestmentFactor());
+    assertEquals(1.0, ((CouponIborAverageFixingDatesCompounding) derivative1).getInvestmentFactor());
 
     final int prd = 2;
     final int dt = 3;

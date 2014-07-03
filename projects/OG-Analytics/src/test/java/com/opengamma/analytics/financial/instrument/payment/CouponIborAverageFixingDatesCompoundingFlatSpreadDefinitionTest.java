@@ -78,7 +78,8 @@ public class CouponIborAverageFixingDatesCompoundingFlatSpreadDefinitionTest {
   private static final double NOTIONAL = 1000000;
   private static final double SPREAD = 0.02;
 
-  private static final CouponIborAverageFixingDatesCompoundingFlatSpreadDefinition DFN1 = new CouponIborAverageFixingDatesCompoundingFlatSpreadDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE,
+  private static final CouponIborAverageFixingDatesCompoundingFlatSpreadDefinition DFN1 = new CouponIborAverageFixingDatesCompoundingFlatSpreadDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE,
+      ACCRUAL_END_DATE,
       ACCRUAL_FACTOR, NOTIONAL, ACCRUAL_FACTORS, INDEX, FIXING_DATES, WEIGHTS, CALENDAR, SPREAD);
 
   //Example 2: USD with same numbers of fixing in all periods, from full detail
@@ -95,7 +96,8 @@ public class CouponIborAverageFixingDatesCompoundingFlatSpreadDefinitionTest {
     }
   }
 
-  private static final CouponIborAverageFixingDatesCompoundingFlatSpreadDefinition DFN2 = new CouponIborAverageFixingDatesCompoundingFlatSpreadDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE,
+  private static final CouponIborAverageFixingDatesCompoundingFlatSpreadDefinition DFN2 = new CouponIborAverageFixingDatesCompoundingFlatSpreadDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE,
+      ACCRUAL_END_DATE,
       ACCRUAL_FACTOR, NOTIONAL, ACCRUAL_FACTORS, INDEX, FIXING_DATES, WEIGHTS, EXP_START_DATES, EXP_END_DATES, FIX_ACC_FACTORS, SPREAD);
 
   // Example 3: different number of fixing in each subperiod
@@ -193,7 +195,7 @@ public class CouponIborAverageFixingDatesCompoundingFlatSpreadDefinitionTest {
     }
     cpa[1] = (rate + SPREAD) * ACCRUAL_FACTORS[1] + cpa[0] * rate * ACCRUAL_FACTORS[1];
 
-    assertEquals(cpa[0] + cpa[1], derivative3.getAmountAccrued(), 1.e-14);
+    assertEquals(cpa[0] + cpa[1], derivative3.getRateFixed(), 1.e-14);
 
     try {
       DFN1.toDerivative(PAYMENT_DATE.plusDays(10), fixingTS1);
@@ -236,8 +238,8 @@ public class CouponIborAverageFixingDatesCompoundingFlatSpreadDefinitionTest {
       }
       refAcc += (fwd + SPREAD) * DFN1.getPaymentAccrualFactors()[i] + refAcc * fwd * DFN1.getPaymentAccrualFactors()[i];
     }
-    assertEquals(refAcc, derivative4.getAmountAccrued(), 1.e-14);
-    assertEquals(0., derivative4.getRateFixed(), 1.e-14);
+    assertEquals(refAcc, derivative4.getRateFixed(), 1.e-14);
+    assertEquals(0., derivative4.getAmountAccrued(), 1.e-14);
   }
 
   /**
@@ -267,12 +269,12 @@ public class CouponIborAverageFixingDatesCompoundingFlatSpreadDefinitionTest {
       }
       refAcc += (fwd + SPREAD) * DFN1.getPaymentAccrualFactors()[i] + refAcc * fwd * DFN1.getPaymentAccrualFactors()[i];
     }
-    assertEquals(refAcc, derivative5.getAmountAccrued(), 1.e-14);
+    assertEquals(refAcc, derivative5.getRateFixed(), 1.e-14);
     double refRate = 0.0;
     for (int j = 0; j < 3; ++j) {
       refRate += WEIGHTS[1][j] * 0.01;
     }
-    assertEquals(refRate, derivative5.getRateFixed(), 1.e-14);
+    assertEquals(refRate, derivative5.getAmountAccrued(), 1.e-14);
   }
 
   /**
@@ -303,12 +305,12 @@ public class CouponIborAverageFixingDatesCompoundingFlatSpreadDefinitionTest {
       }
       refAcc += (fwd + SPREAD) * DFN1.getPaymentAccrualFactors()[i] + refAcc * fwd * DFN1.getPaymentAccrualFactors()[i];
     }
-    assertEquals(refAcc, derivative5.getAmountAccrued(), 1.e-14);
+    assertEquals(refAcc, derivative5.getRateFixed(), 1.e-14);
     double refRate = 0.0;
     for (int j = 0; j < 2; ++j) {
       refRate += WEIGHTS[1][j] * 0.01;
     }
-    assertEquals(refRate, derivative5.getRateFixed(), 1.e-14);
+    assertEquals(refRate, derivative5.getAmountAccrued(), 1.e-14);
   }
 
   /**
@@ -349,12 +351,12 @@ public class CouponIborAverageFixingDatesCompoundingFlatSpreadDefinitionTest {
       }
       refAcc += (fwd + SPREAD) * DFN3.getPaymentAccrualFactors()[i] + refAcc * fwd * DFN3.getPaymentAccrualFactors()[i];
     }
-    assertEquals(refAcc, deriv.getAmountAccrued(), 1.e-14);
+    assertEquals(refAcc, deriv.getRateFixed(), 1.e-14);
     double refRate = 0.0;
     for (int j = 0; j < 1; ++j) {
       refRate += WEIGHTS_3[1][j] * 0.01;
     }
-    assertEquals(refRate, deriv.getRateFixed(), 1.e-14);
+    assertEquals(refRate, deriv.getAmountAccrued(), 1.e-14);
   }
 
   /**
@@ -388,10 +390,12 @@ public class CouponIborAverageFixingDatesCompoundingFlatSpreadDefinitionTest {
     assertEquals(DFN1.getSpread(), DFN2.getSpread());
     assertEquals(DFN1.getSpread(), dfn1WithDouble.getSpread());
 
-    final CouponIborAverageFixingDatesCompoundingFlatSpreadDefinition dfn1 = CouponIborAverageFixingDatesCompoundingFlatSpreadDefinition.from(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR,
+    final CouponIborAverageFixingDatesCompoundingFlatSpreadDefinition dfn1 = CouponIborAverageFixingDatesCompoundingFlatSpreadDefinition.from(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE,
+        ACCRUAL_FACTOR,
         NOTIONAL,
         ACCRUAL_FACTORS, INDEX, FIXING_DATES, WEIGHTS, CALENDAR, SPREAD);
-    final CouponIborAverageFixingDatesCompoundingFlatSpreadDefinition dfn2 = CouponIborAverageFixingDatesCompoundingFlatSpreadDefinition.from(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR,
+    final CouponIborAverageFixingDatesCompoundingFlatSpreadDefinition dfn2 = CouponIborAverageFixingDatesCompoundingFlatSpreadDefinition.from(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE,
+        ACCRUAL_FACTOR,
         NOTIONAL,
         ACCRUAL_FACTORS, INDEX, FIXING_DATES, WEIGHTS, EXP_START_DATES, EXP_END_DATES, FIX_ACC_FACTORS, SPREAD);
 
@@ -407,7 +411,8 @@ public class CouponIborAverageFixingDatesCompoundingFlatSpreadDefinitionTest {
 
   }
 
-  private void checkOutputs(final ZonedDateTime refDate, final CouponIborAverageFixingDatesCompoundingFlatSpreadDefinition def, final CouponIborAverageFixingDatesCompoundingFlatSpread dev, final int posPeriod,
+  private void checkOutputs(final ZonedDateTime refDate, final CouponIborAverageFixingDatesCompoundingFlatSpreadDefinition def, final CouponIborAverageFixingDatesCompoundingFlatSpread dev,
+      final int posPeriod,
       final int posDate) {
     assertEquals(def.getSpread(), dev.getSpread());
 
