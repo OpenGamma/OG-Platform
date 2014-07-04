@@ -61,10 +61,10 @@ public class CapletStrippingAbsoluteStrikePSpline extends CapletStrippingAbsolut
     _volModel = new BasisSplineVolatilityTermStructureProvider(_bSplines);
   }
 
-//  public CapletStrippingAbsoluteStrikePSpline(List<CapFloor> caps, YieldCurveBundle yieldCurves, final int differenceOrder, final double lambda) {
-//    super(caps, yieldCurves);
-//
-//  }
+  //  public CapletStrippingAbsoluteStrikePSpline(List<CapFloor> caps, YieldCurveBundle yieldCurves, final int differenceOrder, final double lambda) {
+  //    super(caps, yieldCurves);
+  //
+  //  }
 
   @Override
   public CapletStrippingSingleStrikeResult solveForPrices(final double[] capPrices) {
@@ -86,7 +86,7 @@ public class CapletStrippingAbsoluteStrikePSpline extends CapletStrippingAbsolut
     final VolatilityTermStructure volCurve = getVolCurve(lsRes.getFitParameters());
     final double[] mPrices = pricer.price(volCurve);
 
-    // least-squares gives chi2 including the penalty, and is calculated via the price differecne and vega w we just want the fit error
+    // least-squares gives chi2 including the penalty, and is calculated via the price difference and vega we just want the fit error
     // TODO maybe the solver should provide this?
     final double chi2 = chiSqr(capPrices, mPrices, errors); // ignore the vega weighting here
     return new CapletStrippingSingleStrikeResult(chi2, lsRes.getFitParameters(), volCurve, new DoubleMatrix1D(mPrices));

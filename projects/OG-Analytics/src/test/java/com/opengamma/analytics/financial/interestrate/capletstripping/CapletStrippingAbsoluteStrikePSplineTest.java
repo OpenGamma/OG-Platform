@@ -23,12 +23,11 @@ public class CapletStrippingAbsoluteStrikePSplineTest extends CapletStrippingAbs
     return new CapletStrippingAbsoluteStrikePSpline(caps, getYieldCurves());
   }
 
-
   @Test
   public void test() {
     final double tol = 1e-4;
     final boolean print = false;
-    testVolStripping(tol,print);
+    testVolStripping(tol, print);
   }
 
   @Test

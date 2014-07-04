@@ -46,7 +46,7 @@ public class CapletStrippingBootstrapTest extends CapletStrippingSetup {
       final double[] capletVols = bootstrap.capletVolsFromCapVols(capVols);
 
       final MultiCapFloorPricer pricer = new MultiCapFloorPricer(caps, yieldCurve);
-      final VolatilityTermStructure volCurve = getPiecewise(capletVols,bootstrap.getEndTimes());
+      final VolatilityTermStructure volCurve = getPiecewise(capletVols, bootstrap.getEndTimes());
       final double[] fittedCapVols = pricer.impliedVols(volCurve);
       final int m = fittedCapVols.length;
 
@@ -65,6 +65,11 @@ public class CapletStrippingBootstrapTest extends CapletStrippingSetup {
 
     if (print) {
       System.out.print("\n");
+      final double[] strikes = getStrikes();
+      for (int i = 0; i < n; i++) {
+        System.out.print("\t" + strikes[i]);
+      }
+      System.out.print("\n");
       for (int index = 0; index < nSamples; index++) {
         final double t = index * 10.0 / (nSamples - 1);
         System.out.print(t);
@@ -77,7 +82,7 @@ public class CapletStrippingBootstrapTest extends CapletStrippingSetup {
 
   }
 
-  private VolatilityTermStructure getPiecewise(final double[] capletVols,  final double[] endTimes) {
+  private VolatilityTermStructure getPiecewise(final double[] capletVols, final double[] endTimes) {
     final int n = capletVols.length;
     final Function1D<Double, Double> func = new Function1D<Double, Double>() {
 

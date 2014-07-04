@@ -136,7 +136,7 @@ public class MultiCapFloorPricerTest extends CapletStrippingSetup {
     final int nStrikes = getNumberOfStrikes();
     final MultiCapFloorPricer[] multiPricers = new MultiCapFloorPricer[nStrikes];
     final CapFloorPricer[][] pricers = new CapFloorPricer[nStrikes][];
-    final List<List<CapFloor>> allCaps = new ArrayList<>(nStrikes);
+    //  final List<List<CapFloor>> allCaps = new ArrayList<>(nStrikes);
     for (int i = 0; i < nStrikes; i++) {
       final List<CapFloor> caps = getCaps(i);
       multiPricers[i] = new MultiCapFloorPricer(caps, yieldCurve);
