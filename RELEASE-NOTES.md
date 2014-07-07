@@ -1,10 +1,22 @@
-OpenGamma Platform 2.2 milestones
----------------------------------
+OpenGamma Platform 2.2
+----------------------
 
 These release notes cover changes from v2.1 to v2.2.
 
 Upgrading from 2.1.0
 ====================
+
+To 2.2.0
+--------
+
+* New Feature
+    * [PLAT-6613] - OG-Analytics: BillTotalReturnSwap - description and pricing method
+* Improvement
+    * [PLAT-6592] - Allow ExposureFunction setup by trade attribute
+* Sub-task
+    * [PLAT-6593] - Allow ExposureFunction setup by trade attribute (Development and Unit test)
+    * [PLAT-6600] - ExposureFunction by trade attribute - Documentation
+
 
 To 2.2.0-M29
 ------------
