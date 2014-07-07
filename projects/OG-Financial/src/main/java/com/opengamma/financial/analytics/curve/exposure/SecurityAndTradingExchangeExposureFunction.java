@@ -77,6 +77,7 @@ import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
+import com.opengamma.financial.security.swap.BillTotalReturnSwapSecurity;
 import com.opengamma.financial.security.swap.BondTotalReturnSwapSecurity;
 import com.opengamma.financial.security.swap.EquityTotalReturnSwapSecurity;
 import com.opengamma.financial.security.swap.ForwardSwapSecurity;
@@ -491,6 +492,11 @@ public class SecurityAndTradingExchangeExposureFunction implements ExposureFunct
 
   @Override
   public List<ExternalId> visitBondTotalReturnSwapSecurity(final BondTotalReturnSwapSecurity security) {
+    return null;
+  }
+
+  @Override
+  public List<ExternalId> visitBillTotalReturnSwapSecurity(BillTotalReturnSwapSecurity security) {
     return null;
   }
 

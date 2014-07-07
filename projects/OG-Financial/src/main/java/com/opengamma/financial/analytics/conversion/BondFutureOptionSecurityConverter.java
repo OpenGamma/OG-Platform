@@ -43,7 +43,7 @@ public class BondFutureOptionSecurityConverter extends FinancialSecurityVisitorA
   /**
    * Converter used for margin based bond future option.
    */
-  private final BondAndBondFutureTradeWithEntityConverter _bondAndBondFutureConverter;
+  private final BondAndBondFutureTradeConverter _bondAndBondFutureConverter;
 
   /**
    * Constructs a bond future option converter.
@@ -69,7 +69,7 @@ public class BondFutureOptionSecurityConverter extends FinancialSecurityVisitorA
     final BondSecurityConverter bondSecurityConverter = new BondSecurityConverter(holidaySource, conventionBundleSource, regionSource);
     _underlyingConverter = new BondFutureSecurityConverter(securitySource, bondSecurityConverter);
     _securitySource = securitySource;
-    _bondAndBondFutureConverter = new BondAndBondFutureTradeWithEntityConverter(holidaySource, conventionBundleSource, conventionSource, regionSource, securitySource, legalEntitySource);
+    _bondAndBondFutureConverter = new BondAndBondFutureTradeConverter(holidaySource, conventionBundleSource, conventionSource, regionSource, securitySource, legalEntitySource);
   }
 
   @Override

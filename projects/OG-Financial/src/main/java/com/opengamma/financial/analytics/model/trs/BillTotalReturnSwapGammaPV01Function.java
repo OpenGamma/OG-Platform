@@ -27,24 +27,24 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.security.swap.BondTotalReturnSwapSecurity;
+import com.opengamma.financial.security.swap.BillTotalReturnSwapSecurity;
 
 /**
  * Calculates the gamma PV01 of a bond total return swap security. The value is returned in
  * the currency of the asset.
  */
-public class BondTotalReturnSwapGammaPV01Function extends BondTotalReturnSwapFunction {
+public class BillTotalReturnSwapGammaPV01Function extends BillTotalReturnSwapFunction {
 
   /**
    * Sets the value requirement to {@link ValueRequirementNames#GAMMA_PV01}.
    */
-  public BondTotalReturnSwapGammaPV01Function() {
+  public BillTotalReturnSwapGammaPV01Function() {
     super(GAMMA_PV01);
   }
 
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
-    return new BondTotalReturnSwapCompiledFunction(getTargetToDefinitionConverter(context), getDefinitionToDerivativeConverter(context), true) {
+    return new BillTotalReturnSwapCompiledFunction(getTargetToDefinitionConverter(context), getDefinitionToDerivativeConverter(context), true) {
 
       @Override
       protected Set<ComputedValue> getValues(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
@@ -57,7 +57,7 @@ public class BondTotalReturnSwapGammaPV01Function extends BondTotalReturnSwapFun
       }
 
       @Override
-      protected String getCurrencyOfResult(final BondTotalReturnSwapSecurity security) {
+      protected String getCurrencyOfResult(final BillTotalReturnSwapSecurity security) {
         return security.getNotionalCurrency().getCode();
       }
     };
