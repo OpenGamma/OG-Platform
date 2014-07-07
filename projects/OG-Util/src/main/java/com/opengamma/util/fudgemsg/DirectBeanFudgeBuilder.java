@@ -85,7 +85,8 @@ public final class DirectBeanFudgeBuilder<T extends Bean> implements FudgeBuilde
             MutableFudgeMsg subMsg = buildMessageCollection(serializer, prop, bean.getClass(), (List<?>) obj);
             msg.add(prop.name(), null, FudgeWireType.SUB_MESSAGE, subMsg);
           } else if (obj instanceof Set<?>) {
-            MutableFudgeMsg subMsg = buildMessageCollection(serializer, prop, bean.getClass(), new ArrayList<Object>((Set<?>) obj));
+            MutableFudgeMsg subMsg = buildMessageCollection(
+                serializer, prop, bean.getClass(), new ArrayList<Object>((Set<?>) obj));
             msg.add(prop.name(), null, FudgeWireType.SUB_MESSAGE, subMsg);
           } else if (obj instanceof Map<?, ?>) {
             MutableFudgeMsg subMsg = buildMessageMap(serializer, bean.getClass(), prop, (Map<?, ?>) obj);
@@ -104,7 +105,9 @@ public final class DirectBeanFudgeBuilder<T extends Bean> implements FudgeBuilde
     }
   }
 
-  private MutableFudgeMsg buildMessageCollection(FudgeSerializer serializer, MetaProperty<?> prop, Class<?> beanType, List<?> list) {
+  private MutableFudgeMsg buildMessageCollection(
+      FudgeSerializer serializer, MetaProperty<?> prop, Class<?> beanType, List<?> list) {
+    
     Class<?> contentType = JodaBeanUtils.collectionType(prop, beanType);
     MutableFudgeMsg msg = serializer.newMessage();
     for (Object entry : list) {
@@ -169,43 +172,54 @@ public final class DirectBeanFudgeBuilder<T extends Bean> implements FudgeBuilde
             if (List.class.isAssignableFrom(mp.propertyType())) {
               value = field.getValue();
               if (value instanceof FudgeMsg) {
-                value = buildObjectList(deserializer, mp, _metaBean.beanType(), (FudgeMsg) value);
+                value = buildObjectList(
+                    deserializer, mp, _metaBean.beanType(), (FudgeMsg) value);
               }
             } else if (SortedSet.class.isAssignableFrom(mp.propertyType())) {
               value = field.getValue();
               if (value instanceof FudgeMsg) {
-                value = buildObjectSet(deserializer, mp, _metaBean.beanType(), (FudgeMsg) value, new TreeSet<>());
+                value = buildObjectSet(
+                    deserializer, mp, _metaBean.beanType(), (FudgeMsg) value, new TreeSet<>());
               }
             } else if (Set.class.isAssignableFrom(mp.propertyType())) {
               value = field.getValue();
               if (value instanceof FudgeMsg) {
-                value = buildObjectSet(deserializer, mp, _metaBean.beanType(), (FudgeMsg) value, new LinkedHashSet<>());
+                value = buildObjectSet(
+                    deserializer, mp, _metaBean.beanType(), (FudgeMsg) value, new LinkedHashSet<>());
               }
             } else if (Map.class.isAssignableFrom(mp.propertyType())) {
               value = field.getValue();
               if (value instanceof FudgeMsg) {
-                value = buildObjectMap(deserializer, mp, _metaBean.beanType(), (FudgeMsg) value);
+                value = buildObjectMap(
+                    deserializer, mp, _metaBean.beanType(), (FudgeMsg) value);
               }
             } else if (ListMultimap.class.isAssignableFrom(mp.propertyType())) {
               value = field.getValue();
               if (value instanceof FudgeMsg) {
-                value = buildObjectMultimap(deserializer, mp, _metaBean.beanType(), (FudgeMsg) value, ArrayListMultimap.create());
+                value = buildObjectMultimap(
+                    deserializer, mp, _metaBean.beanType(), (FudgeMsg) value, ArrayListMultimap.create());
               }
             } else if (SortedSetMultimap.class.isAssignableFrom(mp.propertyType())) {
               value = field.getValue();
               if (value instanceof FudgeMsg) {
-                value = buildObjectMultimap(deserializer, mp, _metaBean.beanType(), (FudgeMsg) value, TreeMultimap.create());
+                value = buildObjectMultimap(
+                    deserializer, mp, _metaBean.beanType(), (FudgeMsg) value, TreeMultimap.create());
               }
             } else if (Multimap.class.isAssignableFrom(mp.propertyType())) {
               // In the absence of other information we'll create a hash multimap
               value = field.getValue();
               if (value instanceof FudgeMsg) {
-                value = buildObjectMultimap(deserializer, mp, _metaBean.beanType(), (FudgeMsg) value, HashMultimap.create());
+                value = buildObjectMultimap(
+                    deserializer, mp, _metaBean.beanType(), (FudgeMsg) value, HashMultimap.create());
               }
             }
             if (value == null) {
               try {
-                value = deserializer.fieldValueToObject(mp.propertyType(), field);
+                if (mp.propertyType() == Object.class) {
+                  value = deserializer.fieldValueToObject(field);
+                } else {
+                  value = deserializer.fieldValueToObject(mp.propertyType(), field);
+                }
               } catch (IllegalArgumentException ex) {
                 if (field.getValue() instanceof String == false) {
                   throw ex;
@@ -232,8 +246,7 @@ public final class DirectBeanFudgeBuilder<T extends Bean> implements FudgeBuilde
       if (field.getOrdinal() != null && field.getOrdinal() != 1) {
         throw new IllegalArgumentException("Sub-message doesn't contain a list (bad field " + field + ")");
       }
-      boolean abstractOrInterface = (contentType == null || contentType.isInterface() || Modifier.isAbstract(contentType.getModifiers()));
-      Object obj = abstractOrInterface ? deserializer.fieldValueToObject(field) : deserializer.fieldValueToObject(contentType, field);
+      Object obj = buildField(deserializer, contentType, field);
       list.add((obj instanceof IndicatorType) ? null : obj);
     }
     return list;
@@ -245,8 +258,7 @@ public final class DirectBeanFudgeBuilder<T extends Bean> implements FudgeBuilde
       if (field.getOrdinal() != null && field.getOrdinal() != 1) {
         throw new IllegalArgumentException("Sub-message doesn't contain a set (bad field " + field + ")");
       }
-      boolean abstractOrInterface = (contentType == null || contentType.isInterface() || Modifier.isAbstract(contentType.getModifiers()));
-      Object obj = abstractOrInterface ? deserializer.fieldValueToObject(field) : deserializer.fieldValueToObject(contentType, field);
+      Object obj = buildField(deserializer, contentType, field);
       set.add((obj instanceof IndicatorType) ? null : obj);
     }
     return set;
@@ -254,15 +266,13 @@ public final class DirectBeanFudgeBuilder<T extends Bean> implements FudgeBuilde
 
   private Map<Object, Object> buildObjectMap(FudgeDeserializer deserializer, MetaProperty<?> prop, Class<?> type, FudgeMsg msg) {
     Class<?> keyType = JodaBeanUtils.mapKeyType(prop, type);
-    boolean keyAbstractOrInterface = (keyType == null || keyType.isInterface() || Modifier.isAbstract(keyType.getModifiers()));
     Class<?> valueType = JodaBeanUtils.mapValueType(prop, type);
-    boolean valueAbstractOrInterface = (valueType == null || valueType.isInterface() || Modifier.isAbstract(valueType.getModifiers()));
     Map<Object, Object> map = Maps.newHashMap();  // should be Map<keyType,contentType>
     Queue<Object> keys = new LinkedList<>();
     Queue<Object> values = new LinkedList<>();
     for (FudgeField field : msg) {
       if (field.getOrdinal() == 1) {
-        Object fieldValue = (keyAbstractOrInterface ? deserializer.fieldValueToObject(field) : deserializer.fieldValueToObject(keyType, field));
+        Object fieldValue = buildField(deserializer, keyType, field);
         if (fieldValue instanceof IndicatorType) {
           fieldValue = null;
         }
@@ -274,7 +284,7 @@ public final class DirectBeanFudgeBuilder<T extends Bean> implements FudgeBuilde
           map.put(fieldValue, values.remove());
         }
       } else if (field.getOrdinal() == 2) {
-        Object fieldValue = (valueAbstractOrInterface ? deserializer.fieldValueToObject(field) : deserializer.fieldValueToObject(valueType, field));
+        Object fieldValue = buildField(deserializer, valueType, field);
         if (fieldValue instanceof IndicatorType) {
           fieldValue = null;
         }
@@ -300,14 +310,12 @@ public final class DirectBeanFudgeBuilder<T extends Bean> implements FudgeBuilde
                                                        Multimap multimap) {
 
     Class<?> keyType = JodaBeanUtils.mapKeyType(prop, type);
-    boolean keyAbstractOrInterface = (keyType == null || keyType.isInterface() || Modifier.isAbstract(keyType.getModifiers()));
     Class<?> valueType = JodaBeanUtils.mapValueType(prop, type);
-    boolean valueAbstractOrInterface = (valueType == null || valueType.isInterface() || Modifier.isAbstract(valueType.getModifiers()));
     Queue<Object> keys = new LinkedList<>();
     Queue<Object> values = new LinkedList<>();
     for (FudgeField field : msg) {
       if (field.getOrdinal() == 1) {
-        Object fieldValue = (keyAbstractOrInterface ? deserializer.fieldValueToObject(field) : deserializer.fieldValueToObject(keyType, field));
+        Object fieldValue = buildField(deserializer, keyType, field);
         if (fieldValue instanceof IndicatorType) {
           fieldValue = null;
         }
@@ -319,7 +327,7 @@ public final class DirectBeanFudgeBuilder<T extends Bean> implements FudgeBuilde
           multimap.put(fieldValue, values.remove());
         }
       } else if (field.getOrdinal() == 2) {
-        Object fieldValue = (valueAbstractOrInterface ? deserializer.fieldValueToObject(field) : deserializer.fieldValueToObject(valueType, field));
+        Object fieldValue = buildField(deserializer, valueType, field);
         if (fieldValue instanceof IndicatorType) {
           fieldValue = null;
         }
@@ -335,6 +343,20 @@ public final class DirectBeanFudgeBuilder<T extends Bean> implements FudgeBuilde
       }
     }
     return multimap;
+  }
+
+  private Object buildField(FudgeDeserializer deserializer, Class<?> type, FudgeField field) {
+    if (isAbstractLike(type)) {
+      return deserializer.fieldValueToObject(field);
+    }
+    return deserializer.fieldValueToObject(type, field);
+  }
+
+  private boolean isAbstractLike(Class<?> type) {
+    return type == null ||
+        type.isInterface() ||
+        (Modifier.isAbstract(type.getModifiers()) && type.isPrimitive() == false) ||
+        type == Object.class;
   }
 
 }
