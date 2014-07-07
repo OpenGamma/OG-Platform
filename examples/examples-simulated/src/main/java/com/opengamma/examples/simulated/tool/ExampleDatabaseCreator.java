@@ -18,6 +18,7 @@ import com.opengamma.util.ResourceUtils;
  */
 @Scriptable
 public class ExampleDatabaseCreator extends ExampleDatabaseInit {
+
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(ExampleDatabaseCreator.class);
 
@@ -27,8 +28,6 @@ public class ExampleDatabaseCreator extends ExampleDatabaseInit {
    * <p>
    * If the command line is empty, the "development" configuration file is started.
    * This file is intended for use with an IDE and a checked out source code tree.
-   * It relies on the OG-Web directory being relative to Examples-Simulated in the file
-   * system as per a standard checkout of OG-Platform.
    *
    * @param args the arguments, unused
    */
@@ -37,6 +36,7 @@ public class ExampleDatabaseCreator extends ExampleDatabaseInit {
   }
 
   //-------------------------------------------------------------------------
+  @Override
   public final void run(String configFile) throws Exception {
     super.run(configFile);
     Resource res = ResourceUtils.createResource(configFile);
@@ -45,4 +45,5 @@ public class ExampleDatabaseCreator extends ExampleDatabaseInit {
     new ExampleDatabasePopulator().run(ResourceUtils.toResourceLocator(res), ToolContext.class);
     s_logger.warn("Successfully created example databases");
   }
+
 }

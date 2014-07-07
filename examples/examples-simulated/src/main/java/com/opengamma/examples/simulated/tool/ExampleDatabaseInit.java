@@ -53,16 +53,19 @@ public class ExampleDatabaseInit {
    * <p>
    * If the command line is empty, the "development" configuration file is started.
    * This file is intended for use with an IDE and a checked out source code tree.
-   * It relies on the OG-Web directory being relative to Examples-Simulated in the file
-   * system as per a standard checkout of OG-Platform.
    *
    * @param args the arguments, unused
    */
   public static void main(String[] args) { // CSIGNORE
     new ExampleDatabaseInit().runInstance(args);
   }
-  
-  public void runInstance(String [] args) {
+
+  /**
+   * Runs this tool, allowing for a subclass.
+   * 
+   * @param args  the command line arguments
+   */
+  public void runInstance(String[] args) {
     if (args.length == 0) {
        // if no command line arguments, then use default arguments suitable for development in an IDE
        // the first argument is for verbose startup, to aid understanding
@@ -89,7 +92,7 @@ public class ExampleDatabaseInit {
       }
       props.load(in);
     }
-    // Version Currection
+    // Version Correction
     ThreadLocalServiceContext.init(ServiceContext.of(VersionCorrectionProvider.class, new VersionCorrectionProvider() {
       @Override
       public VersionCorrection getPortfolioVersionCorrection() {
@@ -125,7 +128,6 @@ public class ExampleDatabaseInit {
     dbToolUser.setDrop(true);
     dbToolUser.setCreateTables(true);
     dbToolUser.execute();
-    //
 
     s_logger.warn("Successfully created example databases");
   }
