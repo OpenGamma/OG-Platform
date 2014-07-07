@@ -8,7 +8,7 @@ Constant notional.
 
 This is the most common type. Specified by providing a currency \& notional amount to com.opengamma.financial.security.irs.InterestRateSwapNotional. e.g:
 
-.. code:: Java
+.. code:: java
 
   com.opengamma.financial.security.irs.InterestRateSwapNotional.of(Currency.USD, 1000000)
 
@@ -26,7 +26,7 @@ Not all periods during the lifetime of the instrument need be provided. For omit
 
 For example an example amortising schedule would look like:
 
-.. code:: Java
+.. code:: java
 
   com.opengamma.financial.security.irs.InterestRateSwapNotional.of(Currency.USD, Lists.asList(date1, date2), Lists.asList(1e6, 0))
 
