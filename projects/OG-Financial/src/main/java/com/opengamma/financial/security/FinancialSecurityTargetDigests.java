@@ -80,6 +80,7 @@ import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
+import com.opengamma.financial.security.swap.BillTotalReturnSwapSecurity;
 import com.opengamma.financial.security.swap.BondTotalReturnSwapSecurity;
 import com.opengamma.financial.security.swap.CommodityNotional;
 import com.opengamma.financial.security.swap.EquityTotalReturnSwapSecurity;
@@ -604,6 +605,13 @@ public class FinancialSecurityTargetDigests extends SecurityTypeTargetDigests im
   @Override
   public Object visitBondTotalReturnSwapSecurity(final BondTotalReturnSwapSecurity security) {
     return _bondTRSSecurity.get(pair(security.getNotionalCurrency(), security.getFundingLeg().getNotional().accept(this)));
+  }
+
+  private final Digests _billTRSSecurity = new Digests("Security");
+
+  @Override
+  public Object visitBillTotalReturnSwapSecurity(BillTotalReturnSwapSecurity security) {
+    return _billTRSSecurity.get(pair(security.getNotionalCurrency(), security.getFundingLeg().getNotional().accept(this)));
   }
 
   private final Digests _standardCDSSecurity = new Digests("Security");

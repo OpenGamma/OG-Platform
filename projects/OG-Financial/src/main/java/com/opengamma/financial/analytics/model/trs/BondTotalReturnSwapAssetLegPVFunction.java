@@ -22,7 +22,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.interestrate.bond.calculator.BondTrsAssetLegPresentValueCalculator;
+import com.opengamma.analytics.financial.interestrate.bond.calculator.BondBillTrsAssetLegPresentValueCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderInterface;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
@@ -46,7 +46,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 public class BondTotalReturnSwapAssetLegPVFunction extends BondTotalReturnSwapFunction {
   /** The calculator */
   private static final InstrumentDerivativeVisitor<IssuerProviderInterface, MultipleCurrencyAmount> CALCULATOR =
-      BondTrsAssetLegPresentValueCalculator.getInstance();
+      BondBillTrsAssetLegPresentValueCalculator.getInstance();
 
   /**
    * Sets the value requirement to {@link ValueRequirementNames#ASSET_LEG_PV}.

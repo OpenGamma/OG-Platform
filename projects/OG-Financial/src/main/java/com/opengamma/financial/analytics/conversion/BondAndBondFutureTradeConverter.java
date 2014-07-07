@@ -8,15 +8,11 @@ package com.opengamma.financial.analytics.conversion;
 /*import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.INFLATION_LEG;
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.getIds;*/
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
-import org.joda.beans.impl.flexi.FlexiBean;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.OffsetTime;
@@ -41,16 +37,12 @@ import com.opengamma.analytics.financial.instrument.future.BondFuturesTransactio
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefinition;
-import com.opengamma.analytics.financial.legalentity.CreditRating;
 import com.opengamma.analytics.financial.legalentity.LegalEntity;
-import com.opengamma.analytics.financial.legalentity.Region;
-import com.opengamma.analytics.financial.legalentity.Sector;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.legalentity.LegalEntitySource;
-import com.opengamma.core.legalentity.Rating;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.Security;
@@ -76,9 +68,7 @@ import com.opengamma.financial.security.bond.InflationBondSecurity;
 import com.opengamma.financial.security.future.BondFutureDeliverable;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.id.ExternalId;
-import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -86,15 +76,9 @@ import com.opengamma.util.money.Currency;
  * {@link FloatingRateNoteSecurity} trades into the appropriate classes in the analytics
  * library.
  */
-public class BondAndBondFutureTradeWithEntityConverter extends FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> {
+public class BondAndBondFutureTradeConverter extends FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> {
   /** Excluded coupon types */
   private static final Set<String> EXCLUDED_TYPES = Sets.newHashSet("TOGGLE PIK NOTES", "FLOAT_RATE_NOTE");
-  /** Rating agency strings */
-  private static final String[] RATING_STRINGS = new String[] {"RatingMoody", "RatingFitch" };
-  /** Sector name string */
-  public static final String SECTOR_STRING = "IndustrySector";
-  /** Market type string */
-  public static final String MARKET_STRING = "Market";
   /** The holiday source */
   private final HolidaySource _holidaySource;
   /** The convention bundle source */
@@ -116,9 +100,12 @@ public class BondAndBondFutureTradeWithEntityConverter extends FinancialSecurity
    * @param securitySource The security source, not null
    * @param legalEntitySource The legal entity source, not null
    */
-  public BondAndBondFutureTradeWithEntityConverter(final HolidaySource holidaySource, final ConventionBundleSource conventionBundleSource,
-      final ConventionSource conventionSource, final RegionSource regionSource, final SecuritySource securitySource,
-      final LegalEntitySource legalEntitySource) {
+  public BondAndBondFutureTradeConverter(HolidaySource holidaySource,
+                                         ConventionBundleSource conventionBundleSource,
+                                         ConventionSource conventionSource,
+                                         RegionSource regionSource,
+                                         SecuritySource securitySource,
+                                         LegalEntitySource legalEntitySource) {
     ArgumentChecker.notNull(holidaySource, "holidaySource");
     ArgumentChecker.notNull(conventionBundleSource, "conventionBundleSource");
     ArgumentChecker.notNull(conventionSource, "conventionSource");
@@ -140,7 +127,8 @@ public class BondAndBondFutureTradeWithEntityConverter extends FinancialSecurity
    */
   @Override
   public InstrumentDefinition<?> visitGovernmentBondSecurity(final GovernmentBondSecurity security) {
-    final LegalEntity legalEntity = getLegalEntityForBond(Collections.<String, String>emptyMap(), security);
+    final LegalEntity legalEntity = LegalEntityUtils.getLegalEntityForBond(Collections.<String, String>emptyMap(),
+                                                                           security);
     return getFixedCouponBond(security, legalEntity);
   }
 
@@ -151,7 +139,8 @@ public class BondAndBondFutureTradeWithEntityConverter extends FinancialSecurity
    */
   @Override
   public InstrumentDefinition<?> visitCorporateBondSecurity(final CorporateBondSecurity security) {
-    final LegalEntity legalEntity = getLegalEntityForBond(Collections.<String, String>emptyMap(), security);
+    final LegalEntity legalEntity = LegalEntityUtils.getLegalEntityForBond(Collections.<String, String>emptyMap(),
+                                                                           security);
     return getFixedCouponBond(security, legalEntity);
   }
 
@@ -208,9 +197,9 @@ public class BondAndBondFutureTradeWithEntityConverter extends FinancialSecurity
         calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, regionId);
       }
       final ZonedDateTime settlementDateTime = ScheduleCalculator.getAdjustedDate(tradeDateTime, Integer.parseInt(bondSecurity.attributes().get().get("daysToSettle")), calendar);
-      final LegalEntity legalEntity = getLegalEntityForBond(trade.getAttributes(), bondSecurity);
-      final BondCapitalIndexedSecurityDefinition<?> bond = (BondCapitalIndexedSecurityDefinition<?>) getInflationBond(bondSecurity, legalEntity);
-      return new BondCapitalIndexedTransactionDefinition<>(bond, quantity, settlementDateTime, price);
+      final LegalEntity legalEntity = LegalEntityUtils.getLegalEntityForBond(trade.getAttributes(), bondSecurity);
+      final BondCapitalIndexedSecurityDefinition bond = (BondCapitalIndexedSecurityDefinition) getInflationBond(bondSecurity, legalEntity);
+      return new BondCapitalIndexedTransactionDefinition(bond, quantity, settlementDateTime, price);
     }
 
     OffsetTime settleTime = trade.getPremiumTime();
@@ -224,19 +213,19 @@ public class BondAndBondFutureTradeWithEntityConverter extends FinancialSecurity
     if (security instanceof BillSecurity) {
       final BillSecurity billSecurity = (BillSecurity) security;
       final com.opengamma.core.legalentity.LegalEntity legalEntityFromSource = _legalEntitySource.getSingle(billSecurity.getLegalEntityId());
-      final LegalEntity legalEntity = convertToAnalyticsLegalEntity(legalEntityFromSource, security);
+      final LegalEntity legalEntity =  LegalEntityUtils.convertFrom(legalEntityFromSource, security);
       final BillSecurityDefinition underlying = getBill(billSecurity, legalEntity);
       return new BillTransactionDefinition(underlying, quantity, settlementDate, price);
     }
     if (security instanceof FloatingRateNoteSecurity) {
       final FloatingRateNoteSecurity frn = (FloatingRateNoteSecurity) security;
       final com.opengamma.core.legalentity.LegalEntity legalEntityFromSource = _legalEntitySource.getSingle(frn.getLegalEntityId());
-      final LegalEntity legalEntity = convertToAnalyticsLegalEntity(legalEntityFromSource, security);
+      final LegalEntity legalEntity =  LegalEntityUtils.convertFrom(legalEntityFromSource, security);
       final BondIborSecurityDefinition underlying = getIborBond(frn, legalEntity);
       return new BondIborTransactionDefinition(underlying, quantity, settlementDate, price);
     }
     final BondSecurity bondSecurity = (BondSecurity) security;
-    final LegalEntity legalEntity = getLegalEntityForBond(trade.getAttributes(), bondSecurity);
+    final LegalEntity legalEntity = LegalEntityUtils.getLegalEntityForBond(trade.getAttributes(), bondSecurity);
     final InstrumentDefinition<?> underlying = getFixedCouponBond(bondSecurity, legalEntity);
     if (underlying instanceof PaymentFixedDefinition) {
       return underlying;
@@ -245,54 +234,6 @@ public class BondAndBondFutureTradeWithEntityConverter extends FinancialSecurity
     return new BondFixedTransactionDefinition(bond, quantity, settlementDate, price);
   }
 
-  /**
-   * Constructs a legal entity for a {@link BondSecurity}
-   * @param tradeAttributes The trade attributes
-   * @param security The bond security
-   * @return A legal entity
-   */
-  public static LegalEntity getLegalEntityForBond(final Map<String, String> tradeAttributes, final BondSecurity security) {
-    final Map<String, String> securityAttributes = security.getAttributes();
-    final ExternalIdBundle identifiers = security.getExternalIdBundle();
-    final String ticker;
-    if (identifiers != null) {
-      final String isin = identifiers.getValue(ExternalSchemes.ISIN);
-      ticker = isin == null ? null : isin;
-    } else {
-      ticker = null;
-    }
-    final String shortName = security.getIssuerName();
-    Set<CreditRating> creditRatings = null;
-    for (final String ratingString : RATING_STRINGS) {
-      if (securityAttributes.containsKey(ratingString)) {
-        if (creditRatings == null) {
-          creditRatings = new HashSet<>();
-        }
-        creditRatings.add(CreditRating.of(securityAttributes.get(ratingString), ratingString, true));
-      }
-      if (tradeAttributes.containsKey(ratingString)) {
-        if (creditRatings == null) {
-          creditRatings = new HashSet<>();
-        }
-        creditRatings.add(CreditRating.of(tradeAttributes.get(ratingString), ratingString, true));
-      }
-    }
-    final String sectorName = security.getIssuerType();
-    final FlexiBean classifications = new FlexiBean();
-    classifications.put(MARKET_STRING, security.getMarket());
-    if (tradeAttributes.containsKey(SECTOR_STRING)) {
-      classifications.put(SECTOR_STRING, tradeAttributes.get(SECTOR_STRING));
-    }
-    final Sector sector = Sector.of(sectorName, classifications);
-    final Region region;
-    if (security.getIssuerDomicile().equals("SNAT")) { // Supranational
-      region = Region.of(security.getIssuerDomicile(), null, security.getCurrency());
-    } else {
-      region = Region.of(security.getIssuerDomicile(), Country.of(security.getIssuerDomicile()), security.getCurrency());
-    }
-    final LegalEntity legalEntity = new LegalEntity(ticker, shortName, creditRatings, sector, region);
-    return legalEntity;
-  }
 
   /**
    * Creates a fixed coupon bond using the full legal entity information available.
@@ -529,7 +470,7 @@ public class BondAndBondFutureTradeWithEntityConverter extends FinancialSecurity
       if (bondSecurity == null) {
         throw new OpenGammaRuntimeException("Security with identifier bundle " + deliverable.getIdentifiers() + " not in security source");
       }
-      final LegalEntity issuer = getLegalEntityForBond(new HashMap<String, String>(), bondSecurity);
+      final LegalEntity issuer = LegalEntityUtils.getLegalEntityForBond(new HashMap<String, String>(), bondSecurity);
       final InstrumentDefinition<?> definition = getFixedCouponBond(bondSecurity, issuer);
       if (!(definition instanceof BondFixedSecurityDefinition)) {
         throw new OpenGammaRuntimeException("Could not construct fixed coupon bond from " + bondSecurity);
@@ -540,37 +481,5 @@ public class BondAndBondFutureTradeWithEntityConverter extends FinancialSecurity
     return new BondFuturesSecurityDefinition(lastTradeDate, firstNoticeDate, lastNoticeDate, notional, deliveryBasket, conversionFactor);
   }
 
-  private static LegalEntity convertToAnalyticsLegalEntity(final com.opengamma.core.legalentity.LegalEntity entity, final FinancialSecurity security) {
-    final Collection<Rating> ratings = entity.getRatings();
-    //    final Map<String, String> securityAttributes = security.getAttributes();
-    final ExternalIdBundle identifiers = security.getExternalIdBundle();
-    final String ticker;
-    if (identifiers != null) {
-      final String isin = identifiers.getValue(ExternalSchemes.ISIN);
-      ticker = isin == null ? null : isin;
-    } else {
-      ticker = null;
-    }
-    final String shortName = entity.getName();
-    Set<CreditRating> creditRatings = null;
-    for (final Rating rating : ratings) {
-      if (creditRatings == null) {
-        creditRatings = new HashSet<>();
-      }
-      //TODO seniority level needs to go into the credit rating
-      creditRatings.add(CreditRating.of(rating.getRater(), rating.getScore().toString(), true));
-    }
-    //    final String sectorName = security.getIssuerType();
-    //    final FlexiBean classifications = new FlexiBean();
-    //    classifications.put(MARKET_STRING, security.getMarket());
-    //    if (tradeAttributes.containsKey(SECTOR_STRING)) {
-    //      classifications.put(SECTOR_STRING, tradeAttributes.get(SECTOR_STRING));
-    //    }
-    //    final Sector sector = Sector.of(sectorName, classifications);
-    //    final Region region = Region.of(security.getIssuerDomicile(), Country.of(security.getIssuerDomicile()), security.getCurrency());
-    //    final LegalEntity legalEntity = new LegalEntity(ticker, shortName, creditRatings, sector, region);
-    final LegalEntity legalEntity = new LegalEntity(ticker, shortName, creditRatings, null, null);
-    return legalEntity;
-  }
 
 }

@@ -85,6 +85,7 @@ import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
+import com.opengamma.financial.security.swap.BillTotalReturnSwapSecurity;
 import com.opengamma.financial.security.swap.BondTotalReturnSwapSecurity;
 import com.opengamma.financial.security.swap.EquityTotalReturnSwapSecurity;
 import com.opengamma.financial.security.swap.ForwardSwapSecurity;
@@ -145,6 +146,7 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
   /* package */static final String CASH_BALANCE = "Cash Balance";
   /* package */static final String EQUITY_TRS = "Equity Total Return Swap";
   /* package */static final String BOND_TRS = "Bond Total Return Swap";
+  /* package */static final String BILL_TRS = "Bond Total Return Swap";
 
   private final Comparator<Position> _comparator = new SimplePositionComparator();
 
@@ -542,6 +544,11 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
         @Override
         public String visitBondTotalReturnSwapSecurity(final BondTotalReturnSwapSecurity security) {
           return BOND_TRS;
+        }
+
+        @Override
+        public String visitBillTotalReturnSwapSecurity(BillTotalReturnSwapSecurity security) {
+          return BILL_TRS;
         }
 
         @Override

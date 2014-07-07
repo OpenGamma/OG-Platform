@@ -34,13 +34,13 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.security.swap.BondTotalReturnSwapSecurity;
+import com.opengamma.financial.security.swap.BillTotalReturnSwapSecurity;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
  * Calculates the present value of the funding leg of a bond total return swap security.
  */
-public class BondTotalReturnSwapFundingLegPVFunction extends BondTotalReturnSwapFunction {
+public class BillTotalReturnSwapFundingLegPVFunction extends BillTotalReturnSwapFunction {
   /** The calculator */
   private static final InstrumentDerivativeVisitor<IssuerProviderInterface, MultipleCurrencyAmount> CALCULATOR =
       BondBillTrsFundingLegPresentValueCalculator.getInstance();
@@ -48,13 +48,13 @@ public class BondTotalReturnSwapFundingLegPVFunction extends BondTotalReturnSwap
   /**
    * Sets the value requirement to {@link ValueRequirementNames#FUNDING_LEG_PV}.
    */
-  public BondTotalReturnSwapFundingLegPVFunction() {
+  public BillTotalReturnSwapFundingLegPVFunction() {
     super(FUNDING_LEG_PV);
   }
 
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
-    return new BondTotalReturnSwapCompiledFunction(getTargetToDefinitionConverter(context), getDefinitionToDerivativeConverter(context), true) {
+    return new BillTotalReturnSwapCompiledFunction(getTargetToDefinitionConverter(context), getDefinitionToDerivativeConverter(context), true) {
 
       @SuppressWarnings("synthetic-access")
       @Override
@@ -74,7 +74,7 @@ public class BondTotalReturnSwapFundingLegPVFunction extends BondTotalReturnSwap
       @SuppressWarnings("synthetic-access")
       @Override
       protected Collection<ValueProperties.Builder> getResultProperties(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
-        final BondTotalReturnSwapSecurity security = (BondTotalReturnSwapSecurity) target.getTrade().getSecurity();
+        final BillTotalReturnSwapSecurity security = (BillTotalReturnSwapSecurity) target.getTrade().getSecurity();
         final ValueProperties.Builder properties = createValueProperties()
             .with(PROPERTY_CURVE_TYPE, DISCOUNTING)
             .withAny(CURVE_EXPOSURES)
@@ -83,7 +83,7 @@ public class BondTotalReturnSwapFundingLegPVFunction extends BondTotalReturnSwap
       }
 
       @Override
-      protected String getCurrencyOfResult(final BondTotalReturnSwapSecurity security) {
+      protected String getCurrencyOfResult(final BillTotalReturnSwapSecurity security) {
         return security.getFundingLeg().getNotional().getCurrency().getCode();
       }
 

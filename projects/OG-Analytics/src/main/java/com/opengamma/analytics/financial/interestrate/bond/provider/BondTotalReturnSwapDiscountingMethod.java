@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.interestrate.bond.provider;
 
+import com.opengamma.analytics.financial.interestrate.bond.definition.BillTotalReturnSwap;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondTotalReturnSwap;
 import com.opengamma.analytics.financial.provider.calculator.issuer.PresentValueCurveSensitivityIssuerCalculator;
 import com.opengamma.analytics.financial.provider.calculator.issuer.PresentValueIssuerCalculator;
@@ -69,6 +70,19 @@ public final class BondTotalReturnSwapDiscountingMethod {
   }
 
   /**
+   * Computes the present value of the asset leg of a bill TRS. The present value is equal to the bill present value.
+   * @param trs The bill total return swap.
+   * @param issuerMulticurves The issuer and multi-curves provider.
+   * @return The present value.
+   */
+  public MultipleCurrencyAmount presentValueAssetLeg(final BillTotalReturnSwap trs, final IssuerProviderInterface issuerMulticurves) {
+    ArgumentChecker.notNull(trs, "bill TRS");
+    ArgumentChecker.notNull(issuerMulticurves, "issuer and multi-curve provider");
+    final MultipleCurrencyAmount billPV = trs.getAsset().accept(PVIC, issuerMulticurves).multipliedBy(trs.getQuantity());
+    return billPV;
+  }
+
+  /**
    * Computes the present value of the funding leg of a bond TRS.
    * @param trs The bond total return swap.
    * @param issuerMulticurves The issuer and multi-curves provider.
@@ -76,6 +90,19 @@ public final class BondTotalReturnSwapDiscountingMethod {
    */
   public MultipleCurrencyAmount presentValueFundingLeg(final BondTotalReturnSwap trs, final IssuerProviderInterface issuerMulticurves) {
     ArgumentChecker.notNull(trs, "bond TRS");
+    ArgumentChecker.notNull(issuerMulticurves, "issuer and multi-curve provider");
+    final MultipleCurrencyAmount fundingLegPV = trs.getFundingLeg().accept(PresentValueIssuerCalculator.getInstance(), issuerMulticurves);
+    return fundingLegPV;
+  }
+
+  /**
+   * Computes the present value of the funding leg of a bill TRS.
+   * @param trs The bill total return swap.
+   * @param issuerMulticurves The issuer and multi-curves provider.
+   * @return The present value.
+   */
+  public MultipleCurrencyAmount presentValueFundingLeg(final BillTotalReturnSwap trs, final IssuerProviderInterface issuerMulticurves) {
+    ArgumentChecker.notNull(trs, "bill TRS");
     ArgumentChecker.notNull(issuerMulticurves, "issuer and multi-curve provider");
     final MultipleCurrencyAmount fundingLegPV = trs.getFundingLeg().accept(PresentValueIssuerCalculator.getInstance(), issuerMulticurves);
     return fundingLegPV;
