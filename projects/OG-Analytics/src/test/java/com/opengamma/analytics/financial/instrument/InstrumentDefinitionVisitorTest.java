@@ -56,6 +56,7 @@ import com.opengamma.analytics.financial.forex.definition.ForexOptionVanillaDefi
 import com.opengamma.analytics.financial.forex.definition.ForexSwapDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BillSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.bond.BillTotalReturnSwapDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BillTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BondCapitalIndexedSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BondCapitalIndexedTransactionDefinition;
@@ -1577,6 +1578,15 @@ public class InstrumentDefinitionVisitorTest {
       return null;
     }
 
+    @Override
+    public String visitBillTotalReturnSwapDefinition(BillTotalReturnSwapDefinition totalReturnSwap) {
+      return null;
+    }
+
+    @Override
+    public String visitBillTotalReturnSwapDefinition(BillTotalReturnSwapDefinition totalReturnSwap, T data) {
+      return null;
+    }
   }
 
 }
