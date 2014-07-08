@@ -49,6 +49,8 @@ import com.opengamma.util.money.Currency;
 /**
  * Converts {@link BondTotalReturnSwapSecurity} classes to {@link BondTotalReturnSwapDefinition},
  * which are required for use in the analytics library.
+ * The asset leg notional amount is used as bond quantity and the underlying bond has a notional of 1.0.
+ * The bond TRS notional currency is not used, the bond currency is used in the bond description.
  */
 public class BondTotalReturnSwapSecurityConverter extends FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> {
   /** The convention source */

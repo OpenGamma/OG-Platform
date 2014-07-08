@@ -23,6 +23,7 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Description of a total return swap with an underlying bill and a funding leg.
+ * The TRS asset leg pays on the termination date ``all-in'' value of the bill.
  */
 public class BillTotalReturnSwapDefinition extends TotalReturnSwapDefinition {
 
