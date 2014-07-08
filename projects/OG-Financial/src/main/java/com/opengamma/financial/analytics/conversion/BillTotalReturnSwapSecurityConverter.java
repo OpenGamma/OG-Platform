@@ -37,19 +37,21 @@ import com.opengamma.util.money.Currency;
 /**
  * Converts {@link BillTotalReturnSwapSecurity} classes to {@link BillTotalReturnSwapDefinition},
  * which are required for use in the analytics library.
+ * The asset leg notional amount is used as bill quantity and the underlying bill has a notional of 1.0.
+ * The bond TRS notional currency is not used, the bill currency is used in the bill description.
  */
 public class BillTotalReturnSwapSecurityConverter extends FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> {
 
   /** The convention source */
-  private ConventionSource _conventionSource;
+  private final ConventionSource _conventionSource;
   /** The holiday source */
-  private HolidaySource _holidaySource;
+  private final HolidaySource _holidaySource;
   /** The region source */
-  private RegionSource _regionSource;
+  private final RegionSource _regionSource;
   /** The security source */
-  private SecuritySource _securitySource;
+  private final SecuritySource _securitySource;
   /** The legal entity source */
-  private LegalEntitySource _legalEntitySource;
+  private final LegalEntitySource _legalEntitySource;
 
   /**
    * @param conventionSource The convention source, not null
@@ -111,7 +113,7 @@ public class BillTotalReturnSwapSecurityConverter extends FinancialSecurityVisit
     LegalEntity legalEntity = LegalEntityUtils.convertFrom(legalEntityFromSource, bill);
 
     BillSecurityDefinition billDefinition = new BillSecurityDefinition(currency, bill.getMaturityDate().getExpiry(),
-                                                                       notional, bill.getDaysToSettle(), calendar,
+                                                                       1.0d, bill.getDaysToSettle(), calendar,
                                                                        bill.getYieldConvention(), bill.getDayCount(),
                                                                        legalEntity);
 

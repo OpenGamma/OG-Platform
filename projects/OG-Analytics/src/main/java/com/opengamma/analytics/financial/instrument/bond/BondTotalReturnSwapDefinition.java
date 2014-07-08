@@ -21,6 +21,9 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Description of a total return swap with an underlying fixed coupon bond and a funding leg.
+ * The TRS asset leg pays all the cash-flows of the bond (coupons) paid by the bond issuer to an holder of the bond between the 
+ * effective date and the termination date of the TRS. On the termination date, the total return payer also pays the 
+ * ``all-in'' value of the bond, i.e. the dirty value.
  */
 public class BondTotalReturnSwapDefinition extends TotalReturnSwapDefinition {
 
