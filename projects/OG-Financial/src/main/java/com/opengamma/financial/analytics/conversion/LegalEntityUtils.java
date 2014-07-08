@@ -12,6 +12,7 @@ import java.util.Set;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.legalentity.CreditRating;
 import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.analytics.financial.legalentity.Region;
@@ -22,6 +23,7 @@ import com.opengamma.financial.security.CurrencyVisitor;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.i18n.Country;
 
 /**
@@ -42,6 +44,7 @@ public class LegalEntityUtils {
   public static LegalEntity convertFrom(com.opengamma.core.legalentity.LegalEntity entity, FinancialSecurity security) {
     Collection<Rating> ratings = entity.getRatings();
     String shortName = entity.getName();
+    //TODO can LegalEntity handle an empty set rather than null for creditRatings?
     Set<CreditRating> creditRatings = null;
     for (Rating rating : ratings) {
       if (creditRatings == null) {
@@ -51,7 +54,7 @@ public class LegalEntityUtils {
       creditRatings.add(CreditRating.of(rating.getRater(), rating.getScore().toString(), true));
     }
     Region region = Region.of(entity.getName(), null, security.accept(s_currencyVisitor));
-    return new LegalEntity(getTicker(security), shortName, creditRatings, null, region);
+    return new LegalEntity(getTicker(security.getExternalIdBundle()), shortName, creditRatings, null, region);
   }
 
   /**
@@ -63,6 +66,7 @@ public class LegalEntityUtils {
   public static LegalEntity getLegalEntityForBond(Map<String, String> tradeAttributes, BondSecurity security) {
     Map<String, String> securityAttributes = security.getAttributes();
     String shortName = security.getIssuerName();
+    //TODO can LegalEntity handle an empty set rather than null for creditRatings?
     Set<CreditRating> creditRatings = null;
     for (String ratingString : RATING_STRINGS) {
       if (securityAttributes.containsKey(ratingString)) {
@@ -91,22 +95,18 @@ public class LegalEntityUtils {
     } else {
       region = Region.of(security.getIssuerDomicile(), Country.of(security.getIssuerDomicile()), security.getCurrency());
     }
-    LegalEntity legalEntity = new LegalEntity(getTicker(security), shortName, creditRatings, sector, region);
+    LegalEntity legalEntity = new LegalEntity(getTicker(security.getExternalIdBundle()), shortName, creditRatings, sector, region);
     return legalEntity;
   }
 
-  //TODO is the hardcoded usage of ISIN correct?
-  private static String getTicker(FinancialSecurity security) {
-    ExternalIdBundle identifiers = security.getExternalIdBundle();
-    String ticker;
-    if (identifiers != null) {
-      String isin = identifiers.getValue(ExternalSchemes.ISIN);
-      ticker = isin == null ? null : isin;
-    } else {
-      ticker = null;
+  //TODO hard coding ISIN is not ideal, should this be configurable elsewhere?
+  private static String getTicker(ExternalIdBundle identifiers) {
+    ArgumentChecker.notNull(identifiers, "ExternalIdBundle identifiers");
+    String ticker = identifiers.getValue(ExternalSchemes.ISIN);
+    if (ticker == null) {
+      throw new OpenGammaRuntimeException("LegalEntity ISIN ticker not available from FinancialSecurity ExternalIdBundle");
     }
     return ticker;
-
   }
 
 }
