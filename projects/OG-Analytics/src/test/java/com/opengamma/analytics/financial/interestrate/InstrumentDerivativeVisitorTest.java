@@ -1612,7 +1612,6 @@ public class InstrumentDerivativeVisitorTest {
     }
 
     @Override
-
     public String visitCouponIborAverageFixingDates(CouponIborAverageFixingDates payment) {
       return null;
     }
