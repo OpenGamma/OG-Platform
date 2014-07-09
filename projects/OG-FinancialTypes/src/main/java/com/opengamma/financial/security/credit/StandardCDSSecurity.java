@@ -26,6 +26,7 @@ import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.security.SecurityDescription;
+import com.opengamma.util.time.Tenor;
 
 /**
  *  A standard (i.e post big bang) credit default swap.
@@ -47,12 +48,12 @@ public class StandardCDSSecurity extends FinancialSecurity {
    */
   @PropertyDefinition(validate = "notNull")
   private LocalDate _tradeDate;
-
+  
   /**
-   * The maturity date.
+   * The tenor.
    */
   @PropertyDefinition(validate = "notNull")
-  private LocalDate _maturityDate;
+  private Tenor _tenor;
 
   /**
    * The reference entity.
@@ -94,19 +95,19 @@ public class StandardCDSSecurity extends FinancialSecurity {
    *
    * @param ids identifer for this security
    * @param tradeDate the trade date
-   * @param maturityDate the maturity date
+   * @param tenor the tenor
    * @param referenceEntity the reference entity
    * @param notional the notional
    * @param isBuy is protecting being bought
    * @param coupon the premium leg coupon (fractional i.e. 100 bps = 0.01)
    * @param debtSeniority the det seniority
    */
-  public StandardCDSSecurity(final ExternalIdBundle ids, final LocalDate tradeDate, final LocalDate maturityDate, final ExternalId referenceEntity,
+  public StandardCDSSecurity(final ExternalIdBundle ids, final LocalDate tradeDate, final Tenor tenor, final ExternalId referenceEntity,
                              final InterestRateNotional notional, final boolean isBuy, final double coupon, final DebtSeniority debtSeniority) {
     super(SECURITY_TYPE);
     setExternalIdBundle(ids);
     setTradeDate(tradeDate);
-    setMaturityDate(maturityDate);
+    setTenor(tenor);
     setReferenceEntity(referenceEntity);
     setNotional(notional);
     setBuyProtection(isBuy);
@@ -120,21 +121,21 @@ public class StandardCDSSecurity extends FinancialSecurity {
    * @param ids identifer for this security
    * @param name descriptive name
    * @param tradeDate the trade date
-   * @param maturityDate the maturity date
+   * @param tenor the tenor
    * @param referenceEntity the reference entity
    * @param notional the notional
    * @param isBuy is protecting being bought
    * @param coupon the premium leg coupon (fractional i.e. 100 bps = 0.01)
    * @param debtSeniority the det seniority
    */
-  public StandardCDSSecurity(final ExternalIdBundle ids, final String name, final LocalDate tradeDate, final LocalDate maturityDate,
+  public StandardCDSSecurity(final ExternalIdBundle ids, final String name, final LocalDate tradeDate, final Tenor tenor,
                              final ExternalId referenceEntity, final InterestRateNotional notional, final boolean isBuy, final double coupon,
                              final DebtSeniority debtSeniority) {
     super(SECURITY_TYPE);
     setExternalIdBundle(ids);
     setName(name);
     setTradeDate(tradeDate);
-    setMaturityDate(maturityDate);
+    setTenor(tenor);
     setReferenceEntity(referenceEntity);
     setNotional(notional);
     setBuyProtection(isBuy);
@@ -194,28 +195,28 @@ public class StandardCDSSecurity extends FinancialSecurity {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the maturity date.
+   * Gets the tenor.
    * @return the value of the property, not null
    */
-  public LocalDate getMaturityDate() {
-    return _maturityDate;
+  public Tenor getTenor() {
+    return _tenor;
   }
 
   /**
-   * Sets the maturity date.
-   * @param maturityDate  the new value of the property, not null
+   * Sets the tenor.
+   * @param tenor  the new value of the property, not null
    */
-  public void setMaturityDate(LocalDate maturityDate) {
-    JodaBeanUtils.notNull(maturityDate, "maturityDate");
-    this._maturityDate = maturityDate;
+  public void setTenor(Tenor tenor) {
+    JodaBeanUtils.notNull(tenor, "tenor");
+    this._tenor = tenor;
   }
 
   /**
-   * Gets the the {@code maturityDate} property.
+   * Gets the the {@code tenor} property.
    * @return the property, not null
    */
-  public final Property<LocalDate> maturityDate() {
-    return metaBean().maturityDate().createProperty(this);
+  public final Property<Tenor> tenor() {
+    return metaBean().tenor().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -362,7 +363,7 @@ public class StandardCDSSecurity extends FinancialSecurity {
     if (obj != null && obj.getClass() == this.getClass()) {
       StandardCDSSecurity other = (StandardCDSSecurity) obj;
       return JodaBeanUtils.equal(getTradeDate(), other.getTradeDate()) &&
-          JodaBeanUtils.equal(getMaturityDate(), other.getMaturityDate()) &&
+          JodaBeanUtils.equal(getTenor(), other.getTenor()) &&
           JodaBeanUtils.equal(getReferenceEntity(), other.getReferenceEntity()) &&
           (isBuyProtection() == other.isBuyProtection()) &&
           JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
@@ -377,7 +378,7 @@ public class StandardCDSSecurity extends FinancialSecurity {
   public int hashCode() {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getTradeDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMaturityDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTenor());
     hash += hash * 31 + JodaBeanUtils.hashCode(getReferenceEntity());
     hash += hash * 31 + JodaBeanUtils.hashCode(isBuyProtection());
     hash += hash * 31 + JodaBeanUtils.hashCode(getNotional());
@@ -403,7 +404,7 @@ public class StandardCDSSecurity extends FinancialSecurity {
   protected void toString(StringBuilder buf) {
     super.toString(buf);
     buf.append("tradeDate").append('=').append(JodaBeanUtils.toString(getTradeDate())).append(',').append(' ');
-    buf.append("maturityDate").append('=').append(JodaBeanUtils.toString(getMaturityDate())).append(',').append(' ');
+    buf.append("tenor").append('=').append(JodaBeanUtils.toString(getTenor())).append(',').append(' ');
     buf.append("referenceEntity").append('=').append(JodaBeanUtils.toString(getReferenceEntity())).append(',').append(' ');
     buf.append("buyProtection").append('=').append(JodaBeanUtils.toString(isBuyProtection())).append(',').append(' ');
     buf.append("notional").append('=').append(JodaBeanUtils.toString(getNotional())).append(',').append(' ');
@@ -427,10 +428,10 @@ public class StandardCDSSecurity extends FinancialSecurity {
     private final MetaProperty<LocalDate> _tradeDate = DirectMetaProperty.ofReadWrite(
         this, "tradeDate", StandardCDSSecurity.class, LocalDate.class);
     /**
-     * The meta-property for the {@code maturityDate} property.
+     * The meta-property for the {@code tenor} property.
      */
-    private final MetaProperty<LocalDate> _maturityDate = DirectMetaProperty.ofReadWrite(
-        this, "maturityDate", StandardCDSSecurity.class, LocalDate.class);
+    private final MetaProperty<Tenor> _tenor = DirectMetaProperty.ofReadWrite(
+        this, "tenor", StandardCDSSecurity.class, Tenor.class);
     /**
      * The meta-property for the {@code referenceEntity} property.
      */
@@ -462,7 +463,7 @@ public class StandardCDSSecurity extends FinancialSecurity {
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "tradeDate",
-        "maturityDate",
+        "tenor",
         "referenceEntity",
         "buyProtection",
         "notional",
@@ -480,8 +481,8 @@ public class StandardCDSSecurity extends FinancialSecurity {
       switch (propertyName.hashCode()) {
         case 752419634:  // tradeDate
           return _tradeDate;
-        case -414641441:  // maturityDate
-          return _maturityDate;
+        case 110246592:  // tenor
+          return _tenor;
         case 480652046:  // referenceEntity
           return _referenceEntity;
         case 1154909695:  // buyProtection
@@ -521,11 +522,11 @@ public class StandardCDSSecurity extends FinancialSecurity {
     }
 
     /**
-     * The meta-property for the {@code maturityDate} property.
+     * The meta-property for the {@code tenor} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<LocalDate> maturityDate() {
-      return _maturityDate;
+    public final MetaProperty<Tenor> tenor() {
+      return _tenor;
     }
 
     /**
@@ -574,8 +575,8 @@ public class StandardCDSSecurity extends FinancialSecurity {
       switch (propertyName.hashCode()) {
         case 752419634:  // tradeDate
           return ((StandardCDSSecurity) bean).getTradeDate();
-        case -414641441:  // maturityDate
-          return ((StandardCDSSecurity) bean).getMaturityDate();
+        case 110246592:  // tenor
+          return ((StandardCDSSecurity) bean).getTenor();
         case 480652046:  // referenceEntity
           return ((StandardCDSSecurity) bean).getReferenceEntity();
         case 1154909695:  // buyProtection
@@ -596,8 +597,8 @@ public class StandardCDSSecurity extends FinancialSecurity {
         case 752419634:  // tradeDate
           ((StandardCDSSecurity) bean).setTradeDate((LocalDate) newValue);
           return;
-        case -414641441:  // maturityDate
-          ((StandardCDSSecurity) bean).setMaturityDate((LocalDate) newValue);
+        case 110246592:  // tenor
+          ((StandardCDSSecurity) bean).setTenor((Tenor) newValue);
           return;
         case 480652046:  // referenceEntity
           ((StandardCDSSecurity) bean).setReferenceEntity((ExternalId) newValue);
@@ -621,7 +622,7 @@ public class StandardCDSSecurity extends FinancialSecurity {
     @Override
     protected void validate(Bean bean) {
       JodaBeanUtils.notNull(((StandardCDSSecurity) bean)._tradeDate, "tradeDate");
-      JodaBeanUtils.notNull(((StandardCDSSecurity) bean)._maturityDate, "maturityDate");
+      JodaBeanUtils.notNull(((StandardCDSSecurity) bean)._tenor, "tenor");
       JodaBeanUtils.notNull(((StandardCDSSecurity) bean)._referenceEntity, "referenceEntity");
       JodaBeanUtils.notNull(((StandardCDSSecurity) bean)._buyProtection, "buyProtection");
       JodaBeanUtils.notNull(((StandardCDSSecurity) bean)._notional, "notional");
