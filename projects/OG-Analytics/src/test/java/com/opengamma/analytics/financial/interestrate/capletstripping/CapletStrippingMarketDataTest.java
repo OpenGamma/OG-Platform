@@ -194,8 +194,7 @@ public class CapletStrippingMarketDataTest {
     System.out.println(fwd + "\t" + impVol);
   }
 
-  @Test
-  //  (enabled = false)
+  @Test(enabled = false)
   public void testStripping() {
 
     final CapletStrippingFunction func = new CapletStrippingFunction(CAPS, YIELD_CURVES, VOL_MODEL_PROVIDER);
