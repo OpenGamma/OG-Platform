@@ -78,7 +78,6 @@ public final class CalculationResults implements ImmutableBean {
   @PropertyDefinition
   private final String _version;
 
-  // TODO test case
   public static CalculationResults create(ViewComputationResultModel results,
                                           CompiledViewDefinition viewDef,
                                           String snapshotName,
@@ -96,18 +95,21 @@ public final class CalculationResults implements ImmutableBean {
       ComputedValueResult computedValue = entry.getComputedValue();
       ValueSpecification valueSpec = computedValue.getSpecification();
       ComputationTargetSpecification targetSpec = valueSpec.getTargetSpecification();
-      String calcConfigName = entry.getCalculationConfiguration();
-      CompiledViewCalculationConfiguration calcConfig = viewDef.getCompiledCalculationConfiguration(calcConfigName);
-      Set<ValueRequirement> valueReqs = calcConfig.getTerminalOutputSpecifications().get(valueSpec);
-      Set<CalculationResultKey> keys = getResultKey(entry, targetSpec, nodesToPaths, positionSource, valueReqs);
-      String targetType = valueSpec.getTargetSpecification().getType().getName();
-      String targetName = getTargetName(valueSpec.getTargetSpecification().getUniqueId(),
-                                        valueSpec.getTargetSpecification().getType(),
-                                        positionSource,
-                                        securitySource,
-                                        nodesToPaths);
-      for (CalculationResultKey key : keys) {
-        valueMap.put(key, CalculatedValue.of(computedValue.getValue(), valueSpec.getProperties(), targetType, targetName));
+
+      if (!targetSpec.getType().equals(ComputationTargetType.PORTFOLIO_NODE)) {
+        String calcConfigName = entry.getCalculationConfiguration();
+        CompiledViewCalculationConfiguration calcConfig = viewDef.getCompiledCalculationConfiguration(calcConfigName);
+        Set<ValueRequirement> valueReqs = calcConfig.getTerminalOutputSpecifications().get(valueSpec);
+        Set<CalculationResultKey> keys = getResultKey(entry, targetSpec, nodesToPaths, positionSource, valueReqs);
+        String targetType = valueSpec.getTargetSpecification().getType().getName();
+        String targetName = getTargetName(valueSpec.getTargetSpecification().getUniqueId(),
+                                          valueSpec.getTargetSpecification().getType(),
+                                          positionSource,
+                                          securitySource,
+                                          nodesToPaths);
+        for (CalculationResultKey key : keys) {
+          valueMap.put(key, CalculatedValue.of(computedValue.getValue(), valueSpec.getProperties(), targetType, targetName));
+        }
       }
     }
     return new CalculationResults(valueMap, viewDef.getViewDefinition().getName(), snapshotName, valuationTime, version);

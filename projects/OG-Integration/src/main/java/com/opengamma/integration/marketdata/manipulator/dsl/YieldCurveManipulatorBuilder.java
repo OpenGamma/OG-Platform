@@ -49,7 +49,7 @@ public class YieldCurveManipulatorBuilder {
    * @return This builder
    */
   public YieldCurveManipulatorBuilder parallelShift(ScenarioShiftType shiftType, Number shift) {
-    _scenario.add(_selector, new YieldCurveParallelShift(shiftType, shift.doubleValue()));
+    _scenario.add(_selector, new YieldCurveParallelShift(shiftType, shift.doubleValue(), _selector));
     return this;
   }
 
@@ -61,7 +61,7 @@ public class YieldCurveManipulatorBuilder {
    */
   @Deprecated
   public YieldCurveManipulatorBuilder parallelShift(Number shift) {
-    _scenario.add(_selector, new YieldCurveParallelShift(ScenarioShiftType.ABSOLUTE, shift.doubleValue()));
+    _scenario.add(_selector, new YieldCurveParallelShift(ScenarioShiftType.ABSOLUTE, shift.doubleValue(), _selector));
     return this;
   }
 
@@ -102,7 +102,8 @@ public class YieldCurveManipulatorBuilder {
   public final YieldCurveManipulatorBuilder pointShifts(ScenarioShiftType shiftType, YieldCurvePointShift... shifts) {
     ArgumentChecker.notNull(shiftType, "shiftType");
     ArgumentChecker.notEmpty(shifts, "shifts");
-    YieldCurvePointShiftManipulator manipulator = new YieldCurvePointShiftManipulator(shiftType, Arrays.asList(shifts));
+    YieldCurvePointShiftManipulator manipulator =
+        new YieldCurvePointShiftManipulator(shiftType, Arrays.asList(shifts), _selector);
     _scenario.add(_selector, manipulator);
     return this;
   }

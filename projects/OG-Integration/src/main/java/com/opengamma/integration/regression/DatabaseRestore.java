@@ -198,8 +198,10 @@ public class DatabaseRestore {
       ObjectId oldId = position.getUniqueId().getObjectId();
       position.setUniqueId(null);
       ObjectId securityObjectId = position.getSecurityLink().getObjectId();
+      ObjectId newObjectId = null;
+
       if (securityObjectId != null) {
-        ObjectId newObjectId = securityIdMappings.get(securityObjectId);
+        newObjectId = securityIdMappings.get(securityObjectId);
         position.getSecurityLink().setObjectId(newObjectId);
         if (newObjectId == null) {
           s_logger.warn("No security found with ID {} for position {}", securityObjectId, position);
@@ -211,6 +213,7 @@ public class DatabaseRestore {
         }
         trade.setUniqueId(null);
         trade.setParentPositionId(null);
+        trade.getSecurityLink().setObjectId(newObjectId);
       }
       // put the old ID on as an attribute. this allows different instances of a position or trade to be identified
       // when they're saved in different databases and therefore have different unique IDs
