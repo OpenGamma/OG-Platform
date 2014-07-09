@@ -49,6 +49,7 @@ import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponIborRatchet;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillSecurity;
+import com.opengamma.analytics.financial.interestrate.bond.definition.BillTotalReturnSwap;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillTransaction;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedTransaction;
@@ -1421,6 +1422,16 @@ public abstract class InstrumentDerivativeVisitorAdapter<DATA_TYPE, RESULT_TYPE>
 
   @Override
   public RESULT_TYPE visitBondTotalReturnSwap(final BondTotalReturnSwap totalReturnSwap, final DATA_TYPE data) {
+    return getException(totalReturnSwap, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitBillTotalReturnSwap(final BillTotalReturnSwap totalReturnSwap) {
+    return getException(totalReturnSwap);
+  }
+
+  @Override
+  public RESULT_TYPE visitBillTotalReturnSwap(final BillTotalReturnSwap totalReturnSwap, final DATA_TYPE data) {
     return getException(totalReturnSwap, data);
   }
 
