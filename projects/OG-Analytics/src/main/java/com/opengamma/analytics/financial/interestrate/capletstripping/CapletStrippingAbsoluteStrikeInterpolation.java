@@ -11,7 +11,7 @@ import org.apache.commons.lang.NotImplementedException;
 
 import com.opengamma.analytics.financial.model.volatility.VolatilityTermStructure;
 import com.opengamma.analytics.financial.model.volatility.VolatilityTermStructureProvider;
-import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.math.FunctionUtils;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolator;
@@ -59,11 +59,11 @@ public class CapletStrippingAbsoluteStrikeInterpolation extends CapletStrippingA
    * final one (i.e. all but the first unique caplets in the longest cap see volatilities from the extrapolated part of the curve). If the caps are not co-starting
    * it is not possible to auto-generate the knots and these should be supplied.
    * @param caps List of caps with identical strikes
-   * @param yieldCurves The yield curves (should include the discount and relevant Ibor projection curve)
+   * @param curves The yield curves (should include the discount and relevant Ibor projection curve)
    */
-  public CapletStrippingAbsoluteStrikeInterpolation(final List<CapFloor> caps, final MulticurveProviderDiscount yieldCurves) {
+  public CapletStrippingAbsoluteStrikeInterpolation(final List<CapFloor> caps, final MulticurveProviderInterface curves) {
 
-    super(caps, yieldCurves);
+    super(caps, curves);
     final CombinedInterpolatorExtrapolator baseInterpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(DEFAULT_INTERPOLATOR, DEFAULT_EXTRAPOLATOR);
     _interpolator = new TransformedInterpolator1D(baseInterpolator, TRANSFORM);
     _knots = getKnots();
@@ -75,23 +75,23 @@ public class CapletStrippingAbsoluteStrikeInterpolation extends CapletStrippingA
    * caplet stripping for a set of caps with the <b>same</b> (absolute) strike.   The interpolator is double-quadratic with a linear extrapolator and a
    * transformation so it remains everywhere positive.
    * @param caps List of caps with identical strikes
-   * @param yieldCurves The yield curves (should include the discount and relevant Ibor projection curve)
+   * @param curves The yield curves (should include the discount and relevant Ibor projection curve)
    * @param knots knot positions (must equal the number of caps)
    */
-  public CapletStrippingAbsoluteStrikeInterpolation(final List<CapFloor> caps, final MulticurveProviderDiscount yieldCurves, final double[] knots) {
-    this(caps, yieldCurves, CombinedInterpolatorExtrapolatorFactory.getInterpolator(DEFAULT_INTERPOLATOR, DEFAULT_EXTRAPOLATOR), knots);
+  public CapletStrippingAbsoluteStrikeInterpolation(final List<CapFloor> caps, final MulticurveProviderInterface curves, final double[] knots) {
+    this(caps, curves, CombinedInterpolatorExtrapolatorFactory.getInterpolator(DEFAULT_INTERPOLATOR, DEFAULT_EXTRAPOLATOR), knots);
   }
 
   /**
    * caplet stripping for a set of caps with the <b>same</b> (absolute) strike.
    * @param caps List of caps with identical strikes
-   * @param yieldCurves List of caps with identical strikes
+   * @param curves List of caps with identical strikes
    * @param interpolator the combined interpolator/extrapolator used to define the vol curve. <b>It is recommended</b> that a strictly positive interpolator
    *  is used
    * @param knots  knot positions (must equal the number of caps)
    */
-  public CapletStrippingAbsoluteStrikeInterpolation(final List<CapFloor> caps, final MulticurveProviderDiscount yieldCurves, final CombinedInterpolatorExtrapolator interpolator, final double[] knots) {
-    super(caps, yieldCurves);
+  public CapletStrippingAbsoluteStrikeInterpolation(final List<CapFloor> caps, final MulticurveProviderInterface curves, final CombinedInterpolatorExtrapolator interpolator, final double[] knots) {
+    super(caps, curves);
     ArgumentChecker.notNull(interpolator, "null interpolator");
     ArgumentChecker.notEmpty(knots, "null knots");
     ArgumentChecker.isTrue(getnCaps() == knots.length, "must have {} knots", getnCaps());

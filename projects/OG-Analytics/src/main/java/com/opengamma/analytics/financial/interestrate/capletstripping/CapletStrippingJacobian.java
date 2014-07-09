@@ -18,7 +18,7 @@ import com.opengamma.analytics.financial.model.volatility.SABRTermStructureParam
 import com.opengamma.analytics.financial.model.volatility.VolatilityModel1D;
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
-import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.math.curve.Curve;
 import com.opengamma.analytics.math.curve.InterpolatedCurveBuildingFunction;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
@@ -51,7 +51,7 @@ public class CapletStrippingJacobian extends Function1D<DoubleMatrix1D, DoubleMa
   private final InterpolatedCurveBuildingFunction _curveBuilder;
   private final Interpolator1DDataBundleBuilderFunction _dataBundleBuilder;
 
-  public CapletStrippingJacobian(final List<CapFloor> caps, final MulticurveProviderDiscount yieldCurves,
+  public CapletStrippingJacobian(final List<CapFloor> caps, final MulticurveProviderInterface curves,
       final LinkedHashMap<String, double[]> knotPoints,
       final LinkedHashMap<String, Interpolator1D> interpolators,
       final LinkedHashMap<String, ParameterLimitsTransform> parameterTransforms,
@@ -73,7 +73,7 @@ public class CapletStrippingJacobian extends Function1D<DoubleMatrix1D, DoubleMa
 
     _capPricers = new ArrayList<>(caps.size());
     for (final CapFloor cap : caps) {
-      _capPricers.add(new CapFloorPricer(cap, yieldCurves));
+      _capPricers.add(new CapFloorPricer(cap, curves));
     }
     _interpolators = transInterpolators;
     _curveBuilder = new InterpolatedCurveBuildingFunction(knotPoints, transInterpolators);

@@ -8,7 +8,7 @@ package com.opengamma.analytics.financial.interestrate.capletstripping;
 import java.util.Iterator;
 import java.util.List;
 
-import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.math.FunctionUtils;
 import com.opengamma.util.ArgumentChecker;
 
@@ -26,9 +26,9 @@ public abstract class CapletStrippingAbsoluteStrike {
   // private final SimpleOptionData[][] _caplets;
   // private final double[] _intrinsicValues;
 
-  public CapletStrippingAbsoluteStrike(final List<CapFloor> caps, final MulticurveProviderDiscount yieldCurves) {
+  public CapletStrippingAbsoluteStrike(final List<CapFloor> caps, final MulticurveProviderInterface curves) {
     ArgumentChecker.noNulls(caps, "caps null");
-    ArgumentChecker.notNull(yieldCurves, "null yield curves");
+    ArgumentChecker.notNull(curves, "null curves");
     _nCaps = caps.size();
 
     _capStartTimes = new double[_nCaps];
@@ -47,7 +47,7 @@ public abstract class CapletStrippingAbsoluteStrike {
       ii++;
     }
 
-    _pricer = new MultiCapFloorPricer(caps, yieldCurves);
+    _pricer = new MultiCapFloorPricer(caps, curves);
     _nCaplets = _pricer.getTotalNumberOfCaplets();
   }
 

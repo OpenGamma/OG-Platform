@@ -10,7 +10,7 @@ import java.util.List;
 
 import com.opengamma.analytics.financial.model.volatility.VolatilityModel1D;
 import com.opengamma.analytics.financial.model.volatility.VolatilityModelProvider;
-import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.ArgumentChecker;
@@ -27,16 +27,16 @@ public class CapletStrippingFunction extends Function1D<DoubleMatrix1D, DoubleMa
 
   // private final int _totalNodes;
 
-  public CapletStrippingFunction(final List<CapFloor> caps, final MulticurveProviderDiscount yieldCurves, final VolatilityModelProvider volModelProvider) {
+  public CapletStrippingFunction(final List<CapFloor> caps, final MulticurveProviderInterface curves, final VolatilityModelProvider volModelProvider) {
 
     ArgumentChecker.noNulls(caps, "caps null");
-    ArgumentChecker.notNull(yieldCurves, "null yield curves");
+    ArgumentChecker.notNull(curves, "null curves");
     ArgumentChecker.notNull(volModelProvider, "null vol Model provider");
 
     _volModelProvider = volModelProvider;
     _capPricers = new ArrayList<>(caps.size());
     for (final CapFloor cap : caps) {
-      _capPricers.add(new CapFloorPricer(cap, yieldCurves));
+      _capPricers.add(new CapFloorPricer(cap, curves));
     }
   }
 

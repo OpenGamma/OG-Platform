@@ -9,7 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.opengamma.analytics.financial.model.volatility.VolatilityTermStructure;
-import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.BasisFunctionGenerator;
 import com.opengamma.analytics.math.interpolation.PSplineFitter;
@@ -41,10 +41,10 @@ public class CapletStrippingAbsoluteStrikePSpline extends CapletStrippingAbsolut
    * final one (i.e. all but the first unique caplets in the longest cap see volatilities from the extrapolated part of the curve). If the caps are not co-starting
    * it is not possible to auto-generate the knots and these should be supplied.
    * @param caps List of caps with identical strikes
-   * @param yieldCurves The yield curves (should include the discount and relevant Ibor projection curve)
+   * @param curves The yield curves (should include the discount and relevant Ibor projection curve)
    */
-  public CapletStrippingAbsoluteStrikePSpline(final List<CapFloor> caps, final MulticurveProviderDiscount yieldCurves) {
-    super(caps, yieldCurves);
+  public CapletStrippingAbsoluteStrikePSpline(final List<CapFloor> caps, final MulticurveProviderInterface curves) {
+    super(caps, curves);
 
     // This assigns a unique volatility to each underlying caplet. The resultant volatility curve will not be smooth (it is piecewise linear),
     // however any (higher order) function that hits all the caplet volatilities, will (by construction) also reprice exactly the market caps. The

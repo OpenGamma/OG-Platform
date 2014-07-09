@@ -9,7 +9,7 @@ import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository
 import com.opengamma.analytics.financial.model.volatility.SimpleOptionData;
 import com.opengamma.analytics.financial.model.volatility.VolatilityModel1D;
 import com.opengamma.analytics.financial.model.volatility.VolatilityTermStructure;
-import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 
 /**
  *
@@ -24,10 +24,10 @@ public class CapFloorPricer {
    * the discount factors. Each caplet (floorlet), and hence the whole cap (floor) can then be priced by suppling a VolatilityModel1D
    * (which gives a Black vol for a particular forward/strike/expiry) or a  VolatilityTermStructure (which gives the vol simply as a function of expiry)
    * @param cap a cap or floor
-   * @param ycb The relevant yield curves
+   * @param curves The relevant curves
    */
-  public CapFloorPricer(final CapFloor cap, final MulticurveProviderDiscount ycb) {
-    _caplets = CapFloorDecomposer.toOptions(cap, ycb);
+  public CapFloorPricer(final CapFloor cap, final MulticurveProviderInterface curves) {
+    _caplets = CapFloorDecomposer.toOptions(cap, curves);
     _n = _caplets.length;
   }
 

@@ -44,8 +44,6 @@ public class SimpleCapFloorMaker {
       final boolean capFloor) {
     ArgumentChecker.notNull(ccy, "null ccy");
     ArgumentChecker.notNull(index, "null index");
-    //    ArgumentChecker.notNull(discountCurve, "null discount curve");
-    //    ArgumentChecker.notNull(indexCurve, "null index curve");
     ArgumentChecker.isTrue(strike >= 0.0, "negative strike");
     ArgumentChecker.isTrue(end > start, "end index must be greater that start index");
     final int n = end - start;

@@ -14,7 +14,6 @@ import org.testng.annotations.Test;
 import org.threeten.bp.Period;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
-import com.opengamma.analytics.financial.instrument.index.IndexIborMaster;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.volatility.FlatVolatility;
 import com.opengamma.analytics.financial.model.volatility.SABRTermStructureParameters;
@@ -101,8 +100,6 @@ public class CapletStrippingMarketDataTest {
   private static LinkedHashMap<String, Interpolator1D> INTERPOLATORS;
   private static LinkedHashMap<String, ParameterLimitsTransform> TRANSFORMS;
 
-  private static final IndexIborMaster MASTER_IBOR_INDEX = IndexIborMaster.getInstance();
-  private static final IborIndex USDLIBOR3M = MASTER_IBOR_INDEX.getIndex("USDLIBOR3M");
   static {
 
     final Interpolator1D interpolator = Interpolator1DFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC);
@@ -112,8 +109,8 @@ public class CapletStrippingMarketDataTest {
     final YieldCurve indexCurve = YieldCurve.from(curve1);
     final YieldCurve disCurve = YieldCurve.from(curve2);
     YIELD_CURVES = new MulticurveProviderDiscount();
-    YIELD_CURVES.setCurve(Currency.USD, disCurve);
-    YIELD_CURVES.setCurve(USDLIBOR3M, indexCurve);
+    YIELD_CURVES.setCurve(CUR, disCurve);
+    YIELD_CURVES.setCurve(INDEX, indexCurve);
 
     int temp = CAP_ATM_VOL.length;
     for (int i = 0; i < STRIKES.length; i++) {
@@ -197,7 +194,8 @@ public class CapletStrippingMarketDataTest {
     System.out.println(fwd + "\t" + impVol);
   }
 
-  @Test(enabled = false)
+  @Test
+  //  (enabled = false)
   public void testStripping() {
 
     final CapletStrippingFunction func = new CapletStrippingFunction(CAPS, YIELD_CURVES, VOL_MODEL_PROVIDER);

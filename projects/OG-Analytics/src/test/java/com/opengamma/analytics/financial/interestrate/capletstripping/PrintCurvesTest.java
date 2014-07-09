@@ -16,12 +16,11 @@ import com.opengamma.util.money.Currency;
  */
 public class PrintCurvesTest extends CapletStrippingSetup {
 
-  @Test
-  //  (enabled = false)
+  @Test(enabled = false)
   public void printCurves() {
     final MulticurveProviderDiscount yc = getYieldCurves();
     final YieldAndDiscountCurve discountCurve = yc.getDiscountingCurves().get(Currency.USD);
-    final YieldAndDiscountCurve indexCurve = yc.getCurve(getIbor());
+    final YieldAndDiscountCurve indexCurve = yc.getCurve(getIndex());
     final int nSamples = 200;
     for (int i = 0; i < nSamples; i++) {
       final double t = 0.05 + i / (nSamples - 1.0) * 9.95;

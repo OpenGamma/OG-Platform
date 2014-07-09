@@ -10,7 +10,7 @@ import java.util.List;
 
 import com.opengamma.analytics.financial.model.volatility.VolatilityTermStructure;
 import com.opengamma.analytics.financial.model.volatility.curve.VolatilityCurve;
-import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
@@ -38,8 +38,8 @@ public class CapletStrippingSingleStrikeDirect extends CapletStrippingAbsoluteSt
   private final Interpolator1D _interpolator;
   private final DoubleMatrix2D _penalty;
 
-  public CapletStrippingSingleStrikeDirect(final List<CapFloor> caps, final MulticurveProviderDiscount yieldCurves) {
-    super(caps, yieldCurves);
+  public CapletStrippingSingleStrikeDirect(final List<CapFloor> caps, final MulticurveProviderInterface curves) {
+    super(caps, curves);
 
     final PSplineFitter psf = new PSplineFitter();
     _penalty = (DoubleMatrix2D) MA.scale(psf.getPenaltyMatrix(getnCaplets(), DIFFERENCE_ORDER), LAMBDA);

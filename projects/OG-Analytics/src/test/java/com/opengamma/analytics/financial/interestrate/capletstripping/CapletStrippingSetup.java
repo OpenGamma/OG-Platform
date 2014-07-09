@@ -12,7 +12,6 @@ import java.util.List;
 import org.threeten.bp.Period;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
-import com.opengamma.analytics.financial.instrument.index.IndexIborMaster;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
@@ -67,8 +66,6 @@ public abstract class CapletStrippingSetup {
   private static final IborIndex INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM, "Ibor");
 
   private static final MulticurveProviderDiscount YIELD_CURVES;
-  private static final IndexIborMaster MASTER_IBOR_INDEX = IndexIborMaster.getInstance();
-  private static final IborIndex USDLIBOR3M = MASTER_IBOR_INDEX.getIndex("USDLIBOR3M");
 
   static {
 
@@ -81,7 +78,7 @@ public abstract class CapletStrippingSetup {
     //    YIELD_CURVES = new YieldCurveBundle();
     YIELD_CURVES = new MulticurveProviderDiscount();
     YIELD_CURVES.setCurve(CUR, disCurve);
-    YIELD_CURVES.setCurve(USDLIBOR3M, indexCurve);
+    YIELD_CURVES.setCurve(INDEX, indexCurve);
   }
 
   protected MulticurveProviderDiscount getYieldCurves() {
@@ -98,6 +95,10 @@ public abstract class CapletStrippingSetup {
 
   protected double[] getCapEndTimes() {
     return CAP_ENDTIMES;
+  }
+
+  protected IborIndex getIndex() {
+    return INDEX;
   }
 
   protected double[] getCapVols(final int strikeIndex) {
@@ -150,9 +151,5 @@ public abstract class CapletStrippingSetup {
       caps.add(cap);
     }
     return caps;
-  }
-
-  protected IborIndex getIbor() {
-    return USDLIBOR3M;
   }
 }
