@@ -69,9 +69,11 @@ public class BillSecurityDefinition implements InstrumentDefinition<BillSecurity
    * @param dayCount The yield day count convention.
    * @param issuer The bill issuer name.
    */
-  public BillSecurityDefinition(final Currency currency, final ZonedDateTime endDate, final double notional, final int settlementDays, final Calendar calendar,
-      final YieldConvention yieldConvention, final DayCount dayCount, final String issuer) {
-    this(currency, endDate, notional, settlementDays, calendar, yieldConvention, dayCount, new LegalEntity(null, issuer, null, null, null));
+  public BillSecurityDefinition(final Currency currency, final ZonedDateTime endDate, final double notional,
+                                final int settlementDays, final Calendar calendar, final YieldConvention yieldConvention,
+                                final DayCount dayCount, final String issuer) {
+    this(currency, endDate, notional, settlementDays, calendar, yieldConvention, dayCount,
+         new LegalEntity(null, issuer, null, null, null));
   }
 
   /**
@@ -85,8 +87,9 @@ public class BillSecurityDefinition implements InstrumentDefinition<BillSecurity
    * @param dayCount The yield day count convention.
    * @param issuer The bill issuer.
    */
-  public BillSecurityDefinition(final Currency currency, final ZonedDateTime endDate, final double notional, final int settlementDays, final Calendar calendar,
-      final YieldConvention yieldConvention, final DayCount dayCount, final LegalEntity issuer) {
+  public BillSecurityDefinition(final Currency currency, final ZonedDateTime endDate, final double notional,
+                                final int settlementDays, final Calendar calendar, final YieldConvention yieldConvention,
+                                final DayCount dayCount, final LegalEntity issuer) {
     ArgumentChecker.notNull(currency, "Currency");
     ArgumentChecker.notNull(endDate, "End date");
     ArgumentChecker.notNull(calendar, "Calendar");

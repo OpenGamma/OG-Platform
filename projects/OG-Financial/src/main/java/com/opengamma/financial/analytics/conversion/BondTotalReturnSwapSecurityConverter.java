@@ -90,11 +90,12 @@ public class BondTotalReturnSwapSecurityConverter extends FinancialSecurityVisit
     final LocalDate startDate = security.getEffectiveDate();
     final LocalDate endDate = security.getMaturityDate();
     final NotionalExchange notionalExchange = NotionalExchange.builder().exchangeFinalNotional(true).build(); //NotionalExchange.NO_EXCHANGE;
-    final AnnuityDefinition<? extends PaymentDefinition> annuityDefinition = AnnuityUtils.buildFloatingAnnuityDefinition(_conventionSource, _holidaySource, _securitySource, isPayer,
-        startDate, endDate, notionalExchange, fundingLeg);
+    final AnnuityDefinition<? extends PaymentDefinition> annuityDefinition =
+        AnnuityUtils.buildFloatingAnnuityDefinition(_conventionSource, _holidaySource, _securitySource, isPayer,
+                                                    startDate, endDate, notionalExchange, fundingLeg);
     final BondSecurity bond = (BondSecurity) underlying;
     final BondConvention convention = getConvention(bond, _conventionSource);
-    final LegalEntity legalEntity = BondAndBondFutureTradeWithEntityConverter.getLegalEntityForBond(Collections.<String, String>emptyMap(), bond);
+    final LegalEntity legalEntity = LegalEntityUtils.getLegalEntityForBond(Collections.<String, String>emptyMap(), bond);
     final ExternalId regionId = ExternalSchemes.financialRegionId(bond.getIssuerDomicile());
     if (regionId == null) {
       throw new OpenGammaRuntimeException("Could not find region for " + bond.getIssuerDomicile());

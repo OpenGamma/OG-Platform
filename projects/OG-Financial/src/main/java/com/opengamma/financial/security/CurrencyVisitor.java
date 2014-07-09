@@ -72,6 +72,7 @@ import com.opengamma.financial.security.option.FxFutureOptionSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
+import com.opengamma.financial.security.swap.BillTotalReturnSwapSecurity;
 import com.opengamma.financial.security.swap.BondTotalReturnSwapSecurity;
 import com.opengamma.financial.security.swap.EquityTotalReturnSwapSecurity;
 import com.opengamma.financial.security.swap.ForwardSwapSecurity;
@@ -469,6 +470,16 @@ public class CurrencyVisitor extends FinancialSecurityVisitorSameValueAdapter<Cu
 
   @Override
   public Currency visitBondTotalReturnSwapSecurity(final BondTotalReturnSwapSecurity security) {
+    final Currency notionalCurrency = security.getNotionalCurrency();
+    final Currency fundingCurrency = security.getFundingLeg().getNotional().getCurrency();
+    if (notionalCurrency.equals(fundingCurrency)) {
+      return notionalCurrency;
+    }
+    return null;
+  }
+
+  @Override
+  public Currency visitBillTotalReturnSwapSecurity(final BillTotalReturnSwapSecurity security) {
     final Currency notionalCurrency = security.getNotionalCurrency();
     final Currency fundingCurrency = security.getFundingLeg().getNotional().getCurrency();
     if (notionalCurrency.equals(fundingCurrency)) {

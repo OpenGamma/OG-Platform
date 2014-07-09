@@ -49,5 +49,16 @@ public class TotalReturnSwapFunctions extends AbstractFunctionConfigurationBean 
     functions.add(functionConfiguration(EquityTotalReturnSwapValueDeltaFunction.class));
     functions.add(functionConfiguration(EquityTotalReturnSwapConstantSpreadThetaFunction.class));
     functions.add(functionConfiguration(EquityTotalReturnSwapCurrencyExposureFunction.class));
+
+    functions.add(functionConfiguration(BillTotalReturnSwapAssetLegPVFunction.class));
+    functions.add(functionConfiguration(BillTotalReturnSwapBCSFunction.class));
+    functions.add(functionConfiguration(BillTotalReturnSwapYCNSFunction.class));
+    functions.add(functionConfiguration(BillTotalReturnSwapConstantSpreadThetaFunction.class));
+    functions.add(functionConfiguration(BillTotalReturnSwapFundingLegDetailsFunction.class));
+    functions.add(functionConfiguration(BillTotalReturnSwapGammaPV01Function.class));
+    functions.add(functionConfiguration(BillTotalReturnSwapFundingLegPVFunction.class));
+    functions.add(functionConfiguration(BillTotalReturnSwapPVFunction.class));
+    functions.add(functionConfiguration(BillTotalReturnSwapPV01Function.class));
+    functions.add(functionConfiguration(BillTotalReturnSwapCurrencyExposureFunction.class));
   }
 }

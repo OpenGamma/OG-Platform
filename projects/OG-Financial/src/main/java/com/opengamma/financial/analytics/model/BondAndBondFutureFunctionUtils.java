@@ -37,7 +37,7 @@ import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.OpenGammaExecutionContext;
-import com.opengamma.financial.analytics.conversion.BondAndBondFutureTradeWithEntityConverter;
+import com.opengamma.financial.analytics.conversion.BondAndBondFutureTradeConverter;
 import com.opengamma.financial.analytics.timeseries.DateConstraint;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.convention.ConventionBundleSource;
@@ -120,7 +120,7 @@ public class BondAndBondFutureFunctionUtils {
     final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(context);
     final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(context);
     final LegalEntitySource legalEntitySource = OpenGammaExecutionContext.getLegalEntitySource(context);
-    final BondAndBondFutureTradeWithEntityConverter converter = new BondAndBondFutureTradeWithEntityConverter(holidaySource, conventionBundleSource,
+    final BondAndBondFutureTradeConverter converter = new BondAndBondFutureTradeConverter(holidaySource, conventionBundleSource,
         conventionSource, regionSource, securitySource, legalEntitySource);
     return converter.convert(trade);
   }
