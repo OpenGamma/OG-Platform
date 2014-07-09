@@ -31,7 +31,8 @@ public class PointShiftTest {
     ScenarioDefinition definition = scenario.createDefinition();
     assertEquals("point shift test", definition.getName());
     Map<DistinctMarketDataSelector, FunctionParameters> map = definition.getDefinitionMap();
-    FunctionParameters params = map.get(new YieldCurveSelector(null, null, null, null, null));
+    YieldCurveSelector selector = new YieldCurveSelector(null, null, null, null, null);
+    FunctionParameters params = map.get(selector);
     assertNotNull(params);
     Object value = ((SimpleFunctionParameters) params).getValue(StructureManipulationFunction.EXPECTED_PARAMETER_NAME);
     CompositeStructureManipulator manipulator = (CompositeStructureManipulator) value;
@@ -41,7 +42,8 @@ public class PointShiftTest {
         ImmutableList.of(
             new YieldCurvePointShift(2, 0.1),
             new YieldCurvePointShift(3, 0.2));
-    YieldCurvePointShiftManipulator expected = new YieldCurvePointShiftManipulator(ScenarioShiftType.RELATIVE, shifts);
+    YieldCurvePointShiftManipulator expected =
+        new YieldCurvePointShiftManipulator(ScenarioShiftType.RELATIVE, shifts, selector);
     assertEquals(expected, manipulators.get(0));
   }
 

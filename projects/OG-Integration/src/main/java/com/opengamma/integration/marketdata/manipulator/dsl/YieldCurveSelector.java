@@ -8,13 +8,14 @@ package com.opengamma.integration.marketdata.manipulator.dsl;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.money.Currency;
 
 /**
- * Selects yield curves for manipulation.
+ * Selects yield curves for manipulation, either stand-alone curves or curves that are part of a multicurve bundle.
  */
 public class YieldCurveSelector extends Selector {
 
@@ -28,15 +29,30 @@ public class YieldCurveSelector extends Selector {
 
   @Override
   boolean matches(ValueSpecification valueSpecification) {
-    if (!ValueRequirementNames.YIELD_CURVE.equals(valueSpecification.getValueName())) {
-      return false;
+    return !matchingCurveNames(valueSpecification).isEmpty();
+  }
+
+  Set<String> matchingCurveNames(ValueSpecification valueSpecification) {
+    if (ValueRequirementNames.YIELD_CURVE.equals(valueSpecification.getValueName())) {
+      Currency currency = Currency.of(valueSpecification.getTargetSpecification().getUniqueId().getValue());
+      String curveName = valueSpecification.getProperties().getStrictValue(ValuePropertyNames.CURVE);
+      if (curveName == null) {
+        return ImmutableSet.of();
+      }
+      return matches(curveName, currency) ? ImmutableSet.of(curveName) : ImmutableSet.<String>of();
+    } else if (ValueRequirementNames.CURVE_BUNDLE.equals(valueSpecification.getValueName())) {
+      Set<String> curveNames = valueSpecification.getProperties().getValues(ValuePropertyNames.CURVE);
+      ImmutableSet.Builder<String> builder = ImmutableSet.builder();
+
+      for (String curveName : curveNames) {
+        if (matches(curveName, null)) {
+          builder.add(curveName);
+        }
+      }
+      return builder.build();
+    } else {
+      return ImmutableSet.of();
     }
-    Currency currency = Currency.of(valueSpecification.getTargetSpecification().getUniqueId().getValue());
-    String curve = valueSpecification.getProperties().getStrictValue(ValuePropertyNames.CURVE);
-    if (curve == null) {
-      return false;
-    }
-    return matches(curve, currency);
   }
 
   /**

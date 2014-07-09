@@ -48,7 +48,7 @@ public class YieldCurvePointShiftManipulatorBuilder {
    * Should only be called once per {@link YieldCurvePointShiftManipulatorBuilder}.
    */
   public void build() {
-    YieldCurvePointShiftManipulator pointShifts = new YieldCurvePointShiftManipulator(_shiftType, _shiftList);
+    YieldCurvePointShiftManipulator pointShifts = new YieldCurvePointShiftManipulator(_shiftType, _shiftList, _selector);
     _scenario.add(_selector, pointShifts);
   }
   

@@ -148,32 +148,32 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
    * Adds all curves to a single map containing (curve name, curve) elements.
    */
   private void setAllCurves() {
+    if (_namesToCurrency == null) {
+      _namesToCurrency = new HashMap<>();
+    }
+    if (_namesToIborIndex == null) {
+      _namesToIborIndex = new HashMap<>();
+    }
+    if (_namesToONIndex == null) {
+      _namesToONIndex = new HashMap<>();
+    }
     _allCurves = new LinkedHashMap<>();
     final Set<Currency> ccySet = _discountingCurves.keySet();
     for (final Currency ccy : ccySet) {
       final String name = _discountingCurves.get(ccy).getName();
       _allCurves.put(name, _discountingCurves.get(ccy));
-      if (_namesToCurrency == null) {
-        _namesToCurrency = new HashMap<>();
-      }
       _namesToCurrency.put(name, ccy);
     }
     final Set<IborIndex> indexSet = _forwardIborCurves.keySet();
     for (final IborIndex index : indexSet) {
       final String name = _forwardIborCurves.get(index).getName();
       _allCurves.put(name, _forwardIborCurves.get(index));
-      if (_namesToIborIndex == null) {
-        _namesToIborIndex = new HashMap<>();
-      }
       _namesToIborIndex.put(name, index);
     }
     final Set<IndexON> indexONSet = _forwardONCurves.keySet();
     for (final IndexON index : indexONSet) {
       final String name = _forwardONCurves.get(index).getName();
       _allCurves.put(name, _forwardONCurves.get(index));
-      if (_namesToONIndex == null) {
-        _namesToONIndex = new HashMap<>();
-      }
       _namesToONIndex.put(name, index);
     }
   }

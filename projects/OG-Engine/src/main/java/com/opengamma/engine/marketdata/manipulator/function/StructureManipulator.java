@@ -28,7 +28,6 @@ public interface StructureManipulator<T> extends Serializable {
    * @param valueSpecification The specification for the object, not null
    * @param executionContext The function execution context
    * @return a transformed structure
-   * TODO do we need the FunctionExecutionContext here so we can get valuation time?
    */
   T execute(T structure, ValueSpecification valueSpecification, FunctionExecutionContext executionContext);
 

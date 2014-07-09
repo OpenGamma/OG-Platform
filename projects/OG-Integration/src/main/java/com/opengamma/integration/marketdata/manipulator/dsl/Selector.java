@@ -64,7 +64,6 @@ import com.opengamma.util.money.Currency;
   /* package */ boolean matches(String name, Currency currency) {
     // TODO can / should these be relaxed?
     ArgumentChecker.notEmpty(name, "name");
-    ArgumentChecker.notNull(currency, "currency");
     if (_names != null && !_names.contains(name)) {
       return false;
     }
@@ -74,7 +73,7 @@ import com.opengamma.util.money.Currency;
     if (_nameLikePattern != null && !_nameLikePattern.getPattern().matcher(name).matches()) {
       return false;
     }
-    if (_currencies != null && !_currencies.contains(currency)) {
+    if (_currencies != null && currency != null && !_currencies.contains(currency)) {
       return false;
     }
     return true;
