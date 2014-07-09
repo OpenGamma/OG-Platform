@@ -9,9 +9,9 @@ import java.util.List;
 
 import org.apache.commons.lang.NotImplementedException;
 
-import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.volatility.VolatilityTermStructure;
 import com.opengamma.analytics.financial.model.volatility.VolatilityTermStructureProvider;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.math.FunctionUtils;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolator;
@@ -39,9 +39,7 @@ import com.opengamma.util.ArgumentChecker;
  * Provided the market cap prices are arbitrage free (i.e. the prices of two caps do not imply the price of a forward starting cap that is below its intrinsic value)
  * it is always possible to root find for the ordinates of the knots such that every cap is exactly repriced by the model. In this way the volatility (and hence the
  * price) of every caplet (of the fixed strike) can be inferred from the curve - this result will be highly dependent on the choice of interpolator and knot positions.
- * @deprecated {@link YieldCurveBundle} is deprecated
  */
-@Deprecated
 public class CapletStrippingAbsoluteStrikeInterpolation extends CapletStrippingAbsoluteStrike {
   private static final MatrixAlgebra MA = new ColtMatrixAlgebra();
   // TODO option on root finder
@@ -63,7 +61,7 @@ public class CapletStrippingAbsoluteStrikeInterpolation extends CapletStrippingA
    * @param caps List of caps with identical strikes
    * @param yieldCurves The yield curves (should include the discount and relevant Ibor projection curve)
    */
-  public CapletStrippingAbsoluteStrikeInterpolation(final List<CapFloor> caps, final YieldCurveBundle yieldCurves) {
+  public CapletStrippingAbsoluteStrikeInterpolation(final List<CapFloor> caps, final MulticurveProviderDiscount yieldCurves) {
 
     super(caps, yieldCurves);
     final CombinedInterpolatorExtrapolator baseInterpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(DEFAULT_INTERPOLATOR, DEFAULT_EXTRAPOLATOR);
@@ -80,7 +78,7 @@ public class CapletStrippingAbsoluteStrikeInterpolation extends CapletStrippingA
    * @param yieldCurves The yield curves (should include the discount and relevant Ibor projection curve)
    * @param knots knot positions (must equal the number of caps)
    */
-  public CapletStrippingAbsoluteStrikeInterpolation(final List<CapFloor> caps, final YieldCurveBundle yieldCurves, final double[] knots) {
+  public CapletStrippingAbsoluteStrikeInterpolation(final List<CapFloor> caps, final MulticurveProviderDiscount yieldCurves, final double[] knots) {
     this(caps, yieldCurves, CombinedInterpolatorExtrapolatorFactory.getInterpolator(DEFAULT_INTERPOLATOR, DEFAULT_EXTRAPOLATOR), knots);
   }
 
@@ -92,7 +90,7 @@ public class CapletStrippingAbsoluteStrikeInterpolation extends CapletStrippingA
    *  is used
    * @param knots  knot positions (must equal the number of caps)
    */
-  public CapletStrippingAbsoluteStrikeInterpolation(final List<CapFloor> caps, final YieldCurveBundle yieldCurves, final CombinedInterpolatorExtrapolator interpolator, final double[] knots) {
+  public CapletStrippingAbsoluteStrikeInterpolation(final List<CapFloor> caps, final MulticurveProviderDiscount yieldCurves, final CombinedInterpolatorExtrapolator interpolator, final double[] knots) {
     super(caps, yieldCurves);
     ArgumentChecker.notNull(interpolator, "null interpolator");
     ArgumentChecker.notEmpty(knots, "null knots");

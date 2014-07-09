@@ -15,18 +15,17 @@ import java.util.TreeSet;
 
 import com.google.common.primitives.Doubles;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
-import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.financial.model.volatility.SimpleOptionData;
 import com.opengamma.analytics.financial.model.volatility.VolatilityTermStructure;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * @deprecated {@link YieldCurveBundle} is deprecated
+ * 
  */
-@Deprecated
 public class MultiCapFloorPricer {
 
   private final int _nCaps;
@@ -36,7 +35,7 @@ public class MultiCapFloorPricer {
   private final int[][] _capletIndices;
 
   @SuppressWarnings("synthetic-access")
-  public MultiCapFloorPricer(final List<CapFloor> caps, final YieldCurveBundle yieldCurves) {
+  public MultiCapFloorPricer(final List<CapFloor> caps, final MulticurveProviderDiscount yieldCurves) {
     ArgumentChecker.noNulls(caps, "null caps");
     ArgumentChecker.notNull(yieldCurves, "null yield curve");
 

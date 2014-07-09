@@ -15,9 +15,13 @@ import com.opengamma.analytics.financial.interestrate.fra.provider.ForwardRateAg
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureSecurityDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.interestrate.swap.provider.SwapFixedCouponDiscountingMethod;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.util.ArgumentChecker;
@@ -69,6 +73,19 @@ public final class ParRateDiscountingCalculator extends InstrumentDerivativeVisi
   @Override
   public Double visitForwardRateAgreement(final ForwardRateAgreement fra, final MulticurveProviderInterface multicurves) {
     return METHOD_FRA.parRate(fra, multicurves);
+  }
+
+  @Override
+  public Double visitCouponIborSpread(final CouponIborSpread payment, final MulticurveProviderInterface data) {
+    ArgumentChecker.isTrue(data instanceof MulticurveProviderDiscount, "date should be discounting curve");
+    final MulticurveProviderDiscount curves = (MulticurveProviderDiscount) data;
+    final YieldAndDiscountCurve curve = curves.getDiscountingCurves().get(payment.getCurrency());
+    return (curve.getDiscountFactor(payment.getFixingPeriodStartTime()) / curve.getDiscountFactor(payment.getFixingPeriodEndTime()) - 1.0) / payment.getFixingAccrualFactor();
+  }
+
+  @Override
+  public Double visitCapFloorIbor(final CapFloorIbor payment, final MulticurveProviderInterface data) {
+    return visitCouponIborSpread(payment.toCoupon(), data);
   }
 
   //     -----     Swap     -----

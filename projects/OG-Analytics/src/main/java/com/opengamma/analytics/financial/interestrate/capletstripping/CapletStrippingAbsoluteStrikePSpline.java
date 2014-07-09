@@ -8,8 +8,8 @@ package com.opengamma.analytics.financial.interestrate.capletstripping;
 import java.util.Arrays;
 import java.util.List;
 
-import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.volatility.VolatilityTermStructure;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.BasisFunctionGenerator;
 import com.opengamma.analytics.math.interpolation.PSplineFitter;
@@ -21,9 +21,8 @@ import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResults;
 import com.opengamma.analytics.math.statistics.leastsquare.NonLinearLeastSquareWithPenalty;
 
 /**
- * @deprecated {@link YieldCurveBundle} is deprecated
+ * 
  */
-@Deprecated
 public class CapletStrippingAbsoluteStrikePSpline extends CapletStrippingAbsoluteStrike {
   private static final MatrixAlgebra MA = new ColtMatrixAlgebra();
   private static final BasisFunctionGenerator GEN = new BasisFunctionGenerator();
@@ -44,7 +43,7 @@ public class CapletStrippingAbsoluteStrikePSpline extends CapletStrippingAbsolut
    * @param caps List of caps with identical strikes
    * @param yieldCurves The yield curves (should include the discount and relevant Ibor projection curve)
    */
-  public CapletStrippingAbsoluteStrikePSpline(final List<CapFloor> caps, final YieldCurveBundle yieldCurves) {
+  public CapletStrippingAbsoluteStrikePSpline(final List<CapFloor> caps, final MulticurveProviderDiscount yieldCurves) {
     super(caps, yieldCurves);
 
     // This assigns a unique volatility to each underlying caplet. The resultant volatility curve will not be smooth (it is piecewise linear),

@@ -12,9 +12,8 @@ import org.testng.annotations.Test;
 import com.opengamma.util.test.TestGroup;
 
 /**
- * @deprecated This class tests deprecated functionality
+ * 
  */
-@Deprecated
 @Test(groups = TestGroup.UNIT)
 public class CapletStrippingAbsoluteStrikePSplineTest extends CapletStrippingAbsoluteStrikeTest {
 

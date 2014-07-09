@@ -5,16 +5,15 @@
  */
 package com.opengamma.analytics.financial.interestrate.capletstripping;
 
-import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.financial.model.volatility.SimpleOptionData;
 import com.opengamma.analytics.financial.model.volatility.VolatilityModel1D;
 import com.opengamma.analytics.financial.model.volatility.VolatilityTermStructure;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 
 /**
- * @deprecated {@link YieldCurveBundle} is deprecated
+ *
  */
-@Deprecated
 public class CapFloorPricer {
 
   private final SimpleOptionData[] _caplets;
@@ -27,7 +26,7 @@ public class CapFloorPricer {
    * @param cap a cap or floor
    * @param ycb The relevant yield curves
    */
-  public CapFloorPricer(final CapFloor cap, final YieldCurveBundle ycb) {
+  public CapFloorPricer(final CapFloor cap, final MulticurveProviderDiscount ycb) {
     _caplets = CapFloorDecomposer.toOptions(cap, ycb);
     _n = _caplets.length;
   }

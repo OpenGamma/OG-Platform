@@ -8,10 +8,10 @@ package com.opengamma.analytics.financial.interestrate.capletstripping;
 import java.util.Iterator;
 import java.util.List;
 
-import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.financial.model.volatility.SimpleOptionData;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -20,9 +20,7 @@ import com.opengamma.util.ArgumentChecker;
  * of spanning caps (simply by taking price difference). Since these spanning caps do not (by construction) share any underlying caplets, implied volatilities
  * (i.e. the common volatility of the caplet set) can be found that price each spanning cap. The resultant expiry dependent caplet volatility curve with of course
  * by piecewise constant.
- * @deprecated {@link YieldCurveBundle} is deprecated
  */
-@Deprecated
 public class CapletStrippingBootstrap {
 
   private final SimpleOptionData[][] _caplets;
@@ -36,7 +34,7 @@ public class CapletStrippingBootstrap {
    * @param caps All caps must have same start time and strike
    * @param yieldCurves yield curves (i.e. discount and Ibor-projection)
    */
-  public CapletStrippingBootstrap(final List<CapFloor> caps, final YieldCurveBundle yieldCurves) {
+  public CapletStrippingBootstrap(final List<CapFloor> caps, final MulticurveProviderDiscount yieldCurves) {
     ArgumentChecker.noNulls(caps, "caps null");
     ArgumentChecker.notNull(yieldCurves, "null yield curves");
 

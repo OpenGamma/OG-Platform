@@ -221,8 +221,14 @@ public class CapFloorIbor extends CouponFloating implements CapFloor {
 
   @SuppressWarnings("deprecation")
   public CouponIborSpread toCoupon() {
-    return new CouponIborSpread(getCurrency(), getPaymentTime(), getFundingCurveName(), getFixingAccrualFactor(), getNotional(), getFixingTime(), _index, _fixingPeriodStartTime, _fixingPeriodEndTime,
-        _fixingAccrualFactor, _forwardCurveName);
+    try {
+      return new CouponIborSpread(getCurrency(), getPaymentTime(), getFundingCurveName(), getFixingAccrualFactor(), getNotional(), getFixingTime(), _index, _fixingPeriodStartTime,
+          _fixingPeriodEndTime,
+          _fixingAccrualFactor, _forwardCurveName);
+    } catch (final IllegalStateException e) {
+      return new CouponIborSpread(getCurrency(), getPaymentTime(), getFixingAccrualFactor(), getNotional(), getFixingTime(), _index, _fixingPeriodStartTime, _fixingPeriodEndTime,
+          _fixingAccrualFactor);
+    }
   }
 
   @Override
@@ -289,6 +295,5 @@ public class CapFloorIbor extends CouponFloating implements CapFloor {
     }
     return true;
   }
-
 
 }

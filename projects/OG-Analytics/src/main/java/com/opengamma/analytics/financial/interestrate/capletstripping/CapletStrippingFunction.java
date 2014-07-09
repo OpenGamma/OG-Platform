@@ -8,9 +8,9 @@ package com.opengamma.analytics.financial.interestrate.capletstripping;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.volatility.VolatilityModel1D;
 import com.opengamma.analytics.financial.model.volatility.VolatilityModelProvider;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.ArgumentChecker;
@@ -19,9 +19,7 @@ import com.opengamma.util.ArgumentChecker;
  * This takes a set of (abstract) nodes and uses the supplied volatility-model-provider to produced a (caplet) volatility surface, which is
  * then used to price a set of caps. So it is a function from a vector (the nodes) to another vector (the cap implied volatilities), and should
  * be used in a fixing routine.
- * @deprecated {@link YieldCurveBundle} is deprecated
  */
-@Deprecated
 public class CapletStrippingFunction extends Function1D<DoubleMatrix1D, DoubleMatrix1D> {
 
   private final List<CapFloorPricer> _capPricers;
@@ -29,7 +27,7 @@ public class CapletStrippingFunction extends Function1D<DoubleMatrix1D, DoubleMa
 
   // private final int _totalNodes;
 
-  public CapletStrippingFunction(final List<CapFloor> caps, final YieldCurveBundle yieldCurves, final VolatilityModelProvider volModelProvider) {
+  public CapletStrippingFunction(final List<CapFloor> caps, final MulticurveProviderDiscount yieldCurves, final VolatilityModelProvider volModelProvider) {
 
     ArgumentChecker.noNulls(caps, "caps null");
     ArgumentChecker.notNull(yieldCurves, "null yield curves");
