@@ -8,7 +8,7 @@
   <parent>
     <groupId>com.opengamma.platform</groupId>
     <artifactId>og-platform-public</artifactId>
-    <version>2.2.0-M20p12-SNAPSHOT</version>
+    <version>2.2.0-M20p12</version>
     <relativePath>..</relativePath>
   </parent>
   <artifactId>og-utildb</artifactId>
