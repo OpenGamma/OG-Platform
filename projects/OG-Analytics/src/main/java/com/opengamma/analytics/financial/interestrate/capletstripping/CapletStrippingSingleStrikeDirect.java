@@ -8,9 +8,9 @@ package com.opengamma.analytics.financial.interestrate.capletstripping;
 import java.util.Arrays;
 import java.util.List;
 
-import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.volatility.VolatilityTermStructure;
 import com.opengamma.analytics.financial.model.volatility.curve.VolatilityCurve;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
@@ -25,9 +25,8 @@ import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResults;
 import com.opengamma.analytics.math.statistics.leastsquare.NonLinearLeastSquareWithPenalty;
 
 /**
- * @deprecated {@link YieldCurveBundle} is deprecated
+ * 
  */
-@Deprecated
 public class CapletStrippingSingleStrikeDirect extends CapletStrippingAbsoluteStrike {
 
   private static final MatrixAlgebra MA = new ColtMatrixAlgebra();
@@ -39,8 +38,8 @@ public class CapletStrippingSingleStrikeDirect extends CapletStrippingAbsoluteSt
   private final Interpolator1D _interpolator;
   private final DoubleMatrix2D _penalty;
 
-  public CapletStrippingSingleStrikeDirect(final List<CapFloor> caps, final YieldCurveBundle yieldCurves) {
-    super(caps, yieldCurves);
+  public CapletStrippingSingleStrikeDirect(final List<CapFloor> caps, final MulticurveProviderInterface curves) {
+    super(caps, curves);
 
     final PSplineFitter psf = new PSplineFitter();
     _penalty = (DoubleMatrix2D) MA.scale(psf.getPenaltyMatrix(getnCaplets(), DIFFERENCE_ORDER), LAMBDA);

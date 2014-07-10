@@ -15,18 +15,17 @@ import java.util.TreeSet;
 
 import com.google.common.primitives.Doubles;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
-import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.financial.model.volatility.SimpleOptionData;
 import com.opengamma.analytics.financial.model.volatility.VolatilityTermStructure;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * @deprecated {@link YieldCurveBundle} is deprecated
+ * 
  */
-@Deprecated
 public class MultiCapFloorPricer {
 
   private final int _nCaps;
@@ -36,9 +35,9 @@ public class MultiCapFloorPricer {
   private final int[][] _capletIndices;
 
   @SuppressWarnings("synthetic-access")
-  public MultiCapFloorPricer(final List<CapFloor> caps, final YieldCurveBundle yieldCurves) {
+  public MultiCapFloorPricer(final List<CapFloor> caps, final MulticurveProviderInterface curves) {
     ArgumentChecker.noNulls(caps, "null caps");
-    ArgumentChecker.notNull(yieldCurves, "null yield curve");
+    ArgumentChecker.notNull(curves, "null curve");
 
     // check all the caps are on the same index and with the same strike
     final Iterator<CapFloor> iter = caps.iterator();
@@ -70,7 +69,7 @@ public class MultiCapFloorPricer {
     }
     final List<CapFloorIbor> capletList = new ArrayList<>(capletSet);
     _nCaplets = capletList.size();
-    _capletsArray = CapFloorDecomposer.toOptions(capletList.toArray(new CapFloorIbor[_nCaplets]), yieldCurves);
+    _capletsArray = CapFloorDecomposer.toOptions(capletList.toArray(new CapFloorIbor[_nCaplets]), curves);
 
     // Form a map from caplets in individual caps to the master caplet list (we are only sorting the extra references here)
     for (int i = 0; i < _nCaps; i++) {

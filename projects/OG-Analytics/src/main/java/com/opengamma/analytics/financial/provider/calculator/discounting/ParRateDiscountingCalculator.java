@@ -15,6 +15,8 @@ import com.opengamma.analytics.financial.interestrate.fra.provider.ForwardRateAg
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureSecurityDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.interestrate.swap.provider.SwapFixedCouponDiscountingMethod;
@@ -69,6 +71,18 @@ public final class ParRateDiscountingCalculator extends InstrumentDerivativeVisi
   @Override
   public Double visitForwardRateAgreement(final ForwardRateAgreement fra, final MulticurveProviderInterface multicurves) {
     return METHOD_FRA.parRate(fra, multicurves);
+  }
+
+  @Override
+  public Double visitCouponIborSpread(final CouponIborSpread payment, final MulticurveProviderInterface data) {
+    double fwd = data.getSimplyCompoundForwardRate(payment.getIndex(), payment.getFixingPeriodStartTime(),
+        payment.getFixingPeriodEndTime(), payment.getFixingAccrualFactor());
+    return fwd;
+  }
+
+  @Override
+  public Double visitCapFloorIbor(final CapFloorIbor payment, final MulticurveProviderInterface data) {
+    return visitCouponIborSpread(payment.toCoupon(), data);
   }
 
   //     -----     Swap     -----
