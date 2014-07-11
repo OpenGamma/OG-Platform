@@ -172,11 +172,22 @@ public class LegacyCDSSecurity extends FinancialSecurity {
    * @param feeSettlementDate the settlement date, not null
    * @param accruedOnDefault accrual on default flag, not null
    */
-  public LegacyCDSSecurity(final ExternalIdBundle ids, final LocalDate tradeDate, final LocalDate maturityDate, final ExternalId referenceEntity,
-                           final InterestRateNotional notional, final boolean isBuy, final double coupon, final SeniorityLevel seniority,
-                           final Frequency couponFrequency, final DayCount daycount, final BusinessDayConvention businessDayConvention,
-                           final Set<ExternalId> calendars, RestructuringClause restructuring, final InterestRateNotional upfrontPayment,
-                           final LocalDate feeSettlementDate, boolean accruedOnDefault) {
+  public LegacyCDSSecurity(final ExternalIdBundle ids, 
+                           final LocalDate tradeDate, 
+                           final LocalDate maturityDate, 
+                           final ExternalId referenceEntity,
+                           final InterestRateNotional notional, 
+                           final boolean isBuy, 
+                           final double coupon, 
+                           final SeniorityLevel seniority,
+                           final Frequency couponFrequency, 
+                           final DayCount daycount, 
+                           final BusinessDayConvention businessDayConvention,
+                           final Set<ExternalId> calendars, 
+                           final RestructuringClause restructuring, 
+                           final InterestRateNotional upfrontPayment,
+                           final LocalDate feeSettlementDate, 
+                           final boolean accruedOnDefault) {
     super(SECURITY_TYPE);
     setExternalIdBundle(ids);
     setTradeDate(tradeDate);
@@ -216,11 +227,23 @@ public class LegacyCDSSecurity extends FinancialSecurity {
    * @param feeSettlementDate the settlement date, not null
    * @param accruedOnDefault accrual on default flag, not null
    */
-  public LegacyCDSSecurity(final ExternalIdBundle ids, final String name, final LocalDate tradeDate, final LocalDate maturityDate, final ExternalId referenceEntity,
-                           final InterestRateNotional notional, final boolean isBuy, final double coupon, final SeniorityLevel seniority,
-                           final Frequency couponFrequency, final DayCount daycount, final BusinessDayConvention businessDayConvention,
-                           final Set<ExternalId> calendars, RestructuringClause restructuring, final InterestRateNotional upfrontPayment,
-                           final LocalDate feeSettlementDate, boolean accruedOnDefault) {
+  public LegacyCDSSecurity(final ExternalIdBundle ids, 
+                           final String name, 
+                           final LocalDate tradeDate, 
+                           final LocalDate maturityDate, 
+                           final ExternalId referenceEntity,
+                           final InterestRateNotional notional, 
+                           final boolean isBuy, 
+                           final double coupon, 
+                           final SeniorityLevel seniority,
+                           final Frequency couponFrequency, 
+                           final DayCount daycount, 
+                           final BusinessDayConvention businessDayConvention,
+                           final Set<ExternalId> calendars, 
+                           final RestructuringClause restructuring, 
+                           final InterestRateNotional upfrontPayment,
+                           final LocalDate feeSettlementDate, 
+                           final boolean accruedOnDefault) {
     super(SECURITY_TYPE);
     setName(name);
     setExternalIdBundle(ids);

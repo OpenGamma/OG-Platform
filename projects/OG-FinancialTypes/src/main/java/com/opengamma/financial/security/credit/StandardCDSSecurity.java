@@ -102,8 +102,14 @@ public class StandardCDSSecurity extends FinancialSecurity {
    * @param coupon the premium leg coupon (fractional i.e. 100 bps = 0.01)
    * @param seniority the seniority
    */
-  public StandardCDSSecurity(final ExternalIdBundle ids, final LocalDate tradeDate, final Tenor tenor, final ExternalId referenceEntity,
-                             final InterestRateNotional notional, final boolean isBuy, final double coupon, final SeniorityLevel seniority) {
+  public StandardCDSSecurity(final ExternalIdBundle ids, 
+                             final LocalDate tradeDate, 
+                             final Tenor tenor, 
+                             final ExternalId referenceEntity,
+                             final InterestRateNotional notional, 
+                             final boolean isBuy, 
+                             final double coupon, 
+                             final SeniorityLevel seniority) {
     super(SECURITY_TYPE);
     setExternalIdBundle(ids);
     setTradeDate(tradeDate);
@@ -128,8 +134,14 @@ public class StandardCDSSecurity extends FinancialSecurity {
    * @param coupon the premium leg coupon (fractional i.e. 100 bps = 0.01)
    * @param seniority the seniority
    */
-  public StandardCDSSecurity(final ExternalIdBundle ids, final String name, final LocalDate tradeDate, final Tenor tenor,
-                             final ExternalId referenceEntity, final InterestRateNotional notional, final boolean isBuy, final double coupon,
+  public StandardCDSSecurity(final ExternalIdBundle ids, 
+                             final String name, 
+                             final LocalDate tradeDate, 
+                             final Tenor tenor,
+                             final ExternalId referenceEntity, 
+                             final InterestRateNotional notional, 
+                             final boolean isBuy, 
+                             final double coupon,
                              final SeniorityLevel seniority) {
     super(SECURITY_TYPE);
     setExternalIdBundle(ids);
