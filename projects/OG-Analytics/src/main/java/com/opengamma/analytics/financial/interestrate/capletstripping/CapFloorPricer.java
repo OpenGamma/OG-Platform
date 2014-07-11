@@ -107,6 +107,7 @@ public class CapFloorPricer {
     return fwds;
   }
 
+  //COMMENT - this is the swap rate (the discount factor includes the accrual fraction)
   protected double getCapForward() {
     double sum1 = 0;
     double sum2 = 0;

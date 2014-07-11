@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.interestrate.capletstripping;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 import org.threeten.bp.Period;
@@ -93,7 +94,7 @@ public abstract class CapletStrippingSetup {
     return CAP_STRIKES;
   }
 
-  protected double[] getCapEndTimes() {
+  protected static double[] getCapEndTimes() {
     return CAP_ENDTIMES;
   }
 
@@ -102,9 +103,7 @@ public abstract class CapletStrippingSetup {
   }
 
   protected double[] getCapVols(final int strikeIndex) {
-    if (strikeIndex == -1) {
-      return CAP_ATM_VOL;
-    }
+
     final double[] vols = CAP_VOLS[strikeIndex];
     final int n = vols.length;
     final double[] temp = new double[n];
@@ -119,11 +118,26 @@ public abstract class CapletStrippingSetup {
     return res;
   }
 
-  protected List<CapFloor> getCaps(final int strikeIndex) {
-    if (strikeIndex == -1) {
-      // TODO implement this
-      return makeCaps(null, CAP_ENDTIMES);
+  protected double[] getAllCapVols() {
+    final int nStrikes = CAP_STRIKES.length; //number of absolute strikes 
+    final int nTimes = CAP_ENDTIMES.length;
+    final double[] temp = new double[(nStrikes + 1) * nTimes];
+    int jj = 0;
+    for (int i = 0; i < nStrikes; i++) {
+      final double[] v = getCapVols(i);
+      final int n = v.length;
+      System.arraycopy(v, 0, temp, jj, n);
+      jj += n;
     }
+    System.arraycopy(CAP_ATM_VOL, 0, temp, jj, nTimes);
+    jj += nTimes;
+    final double[] vols = new double[jj];
+    System.arraycopy(temp, 0, vols, 0, jj);
+    return vols;
+  }
+
+  protected List<CapFloor> getCaps(final int strikeIndex) {
+
     final double k = CAP_STRIKES[strikeIndex];
     final double[] vols = CAP_VOLS[strikeIndex];
     final int n = vols.length;
@@ -140,6 +154,36 @@ public abstract class CapletStrippingSetup {
     System.arraycopy(temp, 0, times, 0, ii);
     Arrays.fill(strikes, k);
     return makeCaps(strikes, times);
+  }
+
+  /**
+   * Get the set of ATM caps. The strike (cap forward or swap rate) is determined from the know yield curves 
+   * @return set of ATM caps 
+   */
+  protected List<CapFloor> getATMCaps() {
+    final int n = CAP_ENDTIMES.length;
+    final double[] dummyK = new double[n];
+    final List<CapFloor> dummyCaps = makeCaps(dummyK, CAP_ENDTIMES);
+    final List<CapFloor> caps = new ArrayList<>(n);
+
+    final Iterator<CapFloor> interator = dummyCaps.iterator();
+    while (interator.hasNext()) {
+      final CapFloor c = interator.next();
+      final CapFloorPricer pricer = new CapFloorPricer(c, YIELD_CURVES);
+      final double fwd = pricer.getCapForward();
+      caps.add(c.withStrike(fwd));
+    }
+    return caps;
+  }
+
+  protected List<CapFloor> getAllCaps() {
+    final int nStrikes = CAP_STRIKES.length; //number of absolute strikes 
+    final List<CapFloor> caps = new ArrayList<>((nStrikes + 1) * CAP_ENDTIMES.length);
+    for (int i = 0; i < nStrikes; i++) {
+      caps.addAll(getCaps(i));
+    }
+    caps.addAll(getATMCaps());
+    return caps;
   }
 
   protected List<CapFloor> makeCaps(final double[] strikes, final double[] capEndTime) {

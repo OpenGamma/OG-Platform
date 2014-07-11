@@ -21,7 +21,7 @@ public class LinearExtrapolator1D extends Interpolator1D {
     this(interpolator, 1e-8);
   }
 
-  public LinearExtrapolator1D(final Interpolator1D interpolator, double eps) {
+  public LinearExtrapolator1D(final Interpolator1D interpolator, final double eps) {
     Validate.notNull(interpolator, "interpolator");
     _interpolator = interpolator;
     _eps = eps;
@@ -75,6 +75,7 @@ public class LinearExtrapolator1D extends Interpolator1D {
   private Double leftExtrapolate(final Interpolator1DDataBundle data, final Double value) {
     Validate.notNull(data, "data");
     Validate.notNull(value, "value");
+
     final double x = data.firstKey();
     final double y = data.firstValue();
     final double eps = _eps * (data.lastKey() - x);
