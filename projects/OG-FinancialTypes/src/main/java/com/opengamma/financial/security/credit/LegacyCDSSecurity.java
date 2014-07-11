@@ -20,8 +20,8 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.threeten.bp.LocalDate;
 
-import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
+import com.opengamma.core.legalentity.SeniorityLevel;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
@@ -87,7 +87,7 @@ public class LegacyCDSSecurity extends FinancialSecurity {
    * The debt seniority.
    */
   @PropertyDefinition(validate = "notNull")
-  private DebtSeniority _debtSeniority;
+  private SeniorityLevel _seniority;
 
   /**
    * The premium leg coupon (fractional i.e. 100 bps = 0.01)
@@ -162,7 +162,7 @@ public class LegacyCDSSecurity extends FinancialSecurity {
    * @param notional the notional, not null
    * @param isBuy is protection being bought, not null
    * @param coupon the coupon, in basis points, not null
-   * @param debtSeniority the debt seniority, not null
+   * @param seniority the seniority, not null
    * @param couponFrequency the coupon frequency, not null
    * @param daycount the daycount, not null
    * @param businessDayConvention the business day convention, not null
@@ -173,7 +173,7 @@ public class LegacyCDSSecurity extends FinancialSecurity {
    * @param accruedOnDefault accrual on default flag, not null
    */
   public LegacyCDSSecurity(final ExternalIdBundle ids, final LocalDate tradeDate, final LocalDate maturityDate, final ExternalId referenceEntity,
-                           final InterestRateNotional notional, final boolean isBuy, final double coupon, final DebtSeniority debtSeniority,
+                           final InterestRateNotional notional, final boolean isBuy, final double coupon, final SeniorityLevel seniority,
                            final Frequency couponFrequency, final DayCount daycount, final BusinessDayConvention businessDayConvention,
                            final Set<ExternalId> calendars, RestructuringClause restructuring, final InterestRateNotional upfrontPayment,
                            final LocalDate feeSettlementDate, boolean accruedOnDefault) {
@@ -185,7 +185,7 @@ public class LegacyCDSSecurity extends FinancialSecurity {
     setNotional(notional);
     setBuyProtection(isBuy);
     setCoupon(coupon);
-    setDebtSeniority(debtSeniority);
+    setSeniority(seniority);
     setCouponFrequency(couponFrequency);
     setDayCount(daycount);
     setBusinessDayConvention(businessDayConvention);
@@ -206,7 +206,7 @@ public class LegacyCDSSecurity extends FinancialSecurity {
    * @param notional the notional, not null
    * @param isBuy is protection being bought, not null
    * @param coupon the coupon, in basis points, not null
-   * @param debtSeniority the debt seniority, not null
+   * @param seniority the seniority, not null
    * @param couponFrequency the coupon frequency, not null
    * @param daycount the daycount, not null
    * @param businessDayConvention the business day convention, not null
@@ -217,7 +217,7 @@ public class LegacyCDSSecurity extends FinancialSecurity {
    * @param accruedOnDefault accrual on default flag, not null
    */
   public LegacyCDSSecurity(final ExternalIdBundle ids, final String name, final LocalDate tradeDate, final LocalDate maturityDate, final ExternalId referenceEntity,
-                           final InterestRateNotional notional, final boolean isBuy, final double coupon, final DebtSeniority debtSeniority,
+                           final InterestRateNotional notional, final boolean isBuy, final double coupon, final SeniorityLevel seniority,
                            final Frequency couponFrequency, final DayCount daycount, final BusinessDayConvention businessDayConvention,
                            final Set<ExternalId> calendars, RestructuringClause restructuring, final InterestRateNotional upfrontPayment,
                            final LocalDate feeSettlementDate, boolean accruedOnDefault) {
@@ -230,7 +230,7 @@ public class LegacyCDSSecurity extends FinancialSecurity {
     setNotional(notional);
     setBuyProtection(isBuy);
     setCoupon(coupon);
-    setDebtSeniority(debtSeniority);
+    setSeniority(seniority);
     setCouponFrequency(couponFrequency);
     setDayCount(daycount);
     setBusinessDayConvention(businessDayConvention);
@@ -426,25 +426,25 @@ public class LegacyCDSSecurity extends FinancialSecurity {
    * Gets the debt seniority.
    * @return the value of the property, not null
    */
-  public DebtSeniority getDebtSeniority() {
-    return _debtSeniority;
+  public SeniorityLevel getSeniority() {
+    return _seniority;
   }
 
   /**
    * Sets the debt seniority.
-   * @param debtSeniority  the new value of the property, not null
+   * @param seniority  the new value of the property, not null
    */
-  public void setDebtSeniority(DebtSeniority debtSeniority) {
-    JodaBeanUtils.notNull(debtSeniority, "debtSeniority");
-    this._debtSeniority = debtSeniority;
+  public void setSeniority(SeniorityLevel seniority) {
+    JodaBeanUtils.notNull(seniority, "seniority");
+    this._seniority = seniority;
   }
 
   /**
-   * Gets the the {@code debtSeniority} property.
+   * Gets the the {@code seniority} property.
    * @return the property, not null
    */
-  public final Property<DebtSeniority> debtSeniority() {
-    return metaBean().debtSeniority().createProperty(this);
+  public final Property<SeniorityLevel> seniority() {
+    return metaBean().seniority().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -725,7 +725,7 @@ public class LegacyCDSSecurity extends FinancialSecurity {
           JodaBeanUtils.equal(getReferenceEntity(), other.getReferenceEntity()) &&
           (isBuyProtection() == other.isBuyProtection()) &&
           JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
-          JodaBeanUtils.equal(getDebtSeniority(), other.getDebtSeniority()) &&
+          JodaBeanUtils.equal(getSeniority(), other.getSeniority()) &&
           JodaBeanUtils.equal(getCoupon(), other.getCoupon()) &&
           JodaBeanUtils.equal(getCouponFrequency(), other.getCouponFrequency()) &&
           JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
@@ -750,7 +750,7 @@ public class LegacyCDSSecurity extends FinancialSecurity {
     hash += hash * 31 + JodaBeanUtils.hashCode(getReferenceEntity());
     hash += hash * 31 + JodaBeanUtils.hashCode(isBuyProtection());
     hash += hash * 31 + JodaBeanUtils.hashCode(getNotional());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDebtSeniority());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSeniority());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCoupon());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCouponFrequency());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDayCount());
@@ -786,7 +786,7 @@ public class LegacyCDSSecurity extends FinancialSecurity {
     buf.append("referenceEntity").append('=').append(JodaBeanUtils.toString(getReferenceEntity())).append(',').append(' ');
     buf.append("buyProtection").append('=').append(JodaBeanUtils.toString(isBuyProtection())).append(',').append(' ');
     buf.append("notional").append('=').append(JodaBeanUtils.toString(getNotional())).append(',').append(' ');
-    buf.append("debtSeniority").append('=').append(JodaBeanUtils.toString(getDebtSeniority())).append(',').append(' ');
+    buf.append("seniority").append('=').append(JodaBeanUtils.toString(getSeniority())).append(',').append(' ');
     buf.append("coupon").append('=').append(JodaBeanUtils.toString(getCoupon())).append(',').append(' ');
     buf.append("couponFrequency").append('=').append(JodaBeanUtils.toString(getCouponFrequency())).append(',').append(' ');
     buf.append("dayCount").append('=').append(JodaBeanUtils.toString(getDayCount())).append(',').append(' ');
@@ -840,10 +840,10 @@ public class LegacyCDSSecurity extends FinancialSecurity {
     private final MetaProperty<InterestRateNotional> _notional = DirectMetaProperty.ofReadWrite(
         this, "notional", LegacyCDSSecurity.class, InterestRateNotional.class);
     /**
-     * The meta-property for the {@code debtSeniority} property.
+     * The meta-property for the {@code seniority} property.
      */
-    private final MetaProperty<DebtSeniority> _debtSeniority = DirectMetaProperty.ofReadWrite(
-        this, "debtSeniority", LegacyCDSSecurity.class, DebtSeniority.class);
+    private final MetaProperty<SeniorityLevel> _seniority = DirectMetaProperty.ofReadWrite(
+        this, "seniority", LegacyCDSSecurity.class, SeniorityLevel.class);
     /**
      * The meta-property for the {@code coupon} property.
      */
@@ -906,7 +906,7 @@ public class LegacyCDSSecurity extends FinancialSecurity {
         "referenceEntity",
         "buyProtection",
         "notional",
-        "debtSeniority",
+        "seniority",
         "coupon",
         "couponFrequency",
         "dayCount",
@@ -939,8 +939,8 @@ public class LegacyCDSSecurity extends FinancialSecurity {
           return _buyProtection;
         case 1585636160:  // notional
           return _notional;
-        case 1737168171:  // debtSeniority
-          return _debtSeniority;
+        case 184581246:  // seniority
+          return _seniority;
         case -1354573786:  // coupon
           return _coupon;
         case 144480214:  // couponFrequency
@@ -1030,11 +1030,11 @@ public class LegacyCDSSecurity extends FinancialSecurity {
     }
 
     /**
-     * The meta-property for the {@code debtSeniority} property.
+     * The meta-property for the {@code seniority} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<DebtSeniority> debtSeniority() {
-      return _debtSeniority;
+    public final MetaProperty<SeniorityLevel> seniority() {
+      return _seniority;
     }
 
     /**
@@ -1133,8 +1133,8 @@ public class LegacyCDSSecurity extends FinancialSecurity {
           return ((LegacyCDSSecurity) bean).isBuyProtection();
         case 1585636160:  // notional
           return ((LegacyCDSSecurity) bean).getNotional();
-        case 1737168171:  // debtSeniority
-          return ((LegacyCDSSecurity) bean).getDebtSeniority();
+        case 184581246:  // seniority
+          return ((LegacyCDSSecurity) bean).getSeniority();
         case -1354573786:  // coupon
           return ((LegacyCDSSecurity) bean).getCoupon();
         case 144480214:  // couponFrequency
@@ -1181,8 +1181,8 @@ public class LegacyCDSSecurity extends FinancialSecurity {
         case 1585636160:  // notional
           ((LegacyCDSSecurity) bean).setNotional((InterestRateNotional) newValue);
           return;
-        case 1737168171:  // debtSeniority
-          ((LegacyCDSSecurity) bean).setDebtSeniority((DebtSeniority) newValue);
+        case 184581246:  // seniority
+          ((LegacyCDSSecurity) bean).setSeniority((SeniorityLevel) newValue);
           return;
         case -1354573786:  // coupon
           ((LegacyCDSSecurity) bean).setCoupon((Double) newValue);
@@ -1226,7 +1226,7 @@ public class LegacyCDSSecurity extends FinancialSecurity {
       JodaBeanUtils.notNull(((LegacyCDSSecurity) bean)._referenceEntity, "referenceEntity");
       JodaBeanUtils.notNull(((LegacyCDSSecurity) bean)._buyProtection, "buyProtection");
       JodaBeanUtils.notNull(((LegacyCDSSecurity) bean)._notional, "notional");
-      JodaBeanUtils.notNull(((LegacyCDSSecurity) bean)._debtSeniority, "debtSeniority");
+      JodaBeanUtils.notNull(((LegacyCDSSecurity) bean)._seniority, "seniority");
       JodaBeanUtils.notNull(((LegacyCDSSecurity) bean)._coupon, "coupon");
       JodaBeanUtils.notNull(((LegacyCDSSecurity) bean)._couponFrequency, "couponFrequency");
       JodaBeanUtils.notNull(((LegacyCDSSecurity) bean)._dayCount, "dayCount");

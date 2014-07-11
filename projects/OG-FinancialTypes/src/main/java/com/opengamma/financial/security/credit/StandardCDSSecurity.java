@@ -19,7 +19,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.threeten.bp.LocalDate;
 
-import com.opengamma.analytics.financial.credit.DebtSeniority;
+import com.opengamma.core.legalentity.SeniorityLevel;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.swap.InterestRateNotional;
@@ -77,7 +77,7 @@ public class StandardCDSSecurity extends FinancialSecurity {
    * The debt seniority.
    */
   @PropertyDefinition(validate = "notNull")
-  private DebtSeniority _debtSeniority;
+  private SeniorityLevel _seniority;
 
   /**
    * The premium leg coupon (fractional i.e. 100 bps = 0.01)
@@ -100,10 +100,10 @@ public class StandardCDSSecurity extends FinancialSecurity {
    * @param notional the notional
    * @param isBuy is protecting being bought
    * @param coupon the premium leg coupon (fractional i.e. 100 bps = 0.01)
-   * @param debtSeniority the det seniority
+   * @param seniority the seniority
    */
   public StandardCDSSecurity(final ExternalIdBundle ids, final LocalDate tradeDate, final Tenor tenor, final ExternalId referenceEntity,
-                             final InterestRateNotional notional, final boolean isBuy, final double coupon, final DebtSeniority debtSeniority) {
+                             final InterestRateNotional notional, final boolean isBuy, final double coupon, final SeniorityLevel seniority) {
     super(SECURITY_TYPE);
     setExternalIdBundle(ids);
     setTradeDate(tradeDate);
@@ -112,7 +112,7 @@ public class StandardCDSSecurity extends FinancialSecurity {
     setNotional(notional);
     setBuyProtection(isBuy);
     setCoupon(coupon);
-    setDebtSeniority(debtSeniority);
+    setSeniority(seniority);
   }
 
   /**
@@ -126,11 +126,11 @@ public class StandardCDSSecurity extends FinancialSecurity {
    * @param notional the notional
    * @param isBuy is protecting being bought
    * @param coupon the premium leg coupon (fractional i.e. 100 bps = 0.01)
-   * @param debtSeniority the det seniority
+   * @param seniority the seniority
    */
   public StandardCDSSecurity(final ExternalIdBundle ids, final String name, final LocalDate tradeDate, final Tenor tenor,
                              final ExternalId referenceEntity, final InterestRateNotional notional, final boolean isBuy, final double coupon,
-                             final DebtSeniority debtSeniority) {
+                             final SeniorityLevel seniority) {
     super(SECURITY_TYPE);
     setExternalIdBundle(ids);
     setName(name);
@@ -140,7 +140,7 @@ public class StandardCDSSecurity extends FinancialSecurity {
     setNotional(notional);
     setBuyProtection(isBuy);
     setCoupon(coupon);
-    setDebtSeniority(debtSeniority);
+    setSeniority(seniority);
   }
 
   @Override
@@ -302,25 +302,25 @@ public class StandardCDSSecurity extends FinancialSecurity {
    * Gets the debt seniority.
    * @return the value of the property, not null
    */
-  public DebtSeniority getDebtSeniority() {
-    return _debtSeniority;
+  public SeniorityLevel getSeniority() {
+    return _seniority;
   }
 
   /**
    * Sets the debt seniority.
-   * @param debtSeniority  the new value of the property, not null
+   * @param seniority  the new value of the property, not null
    */
-  public void setDebtSeniority(DebtSeniority debtSeniority) {
-    JodaBeanUtils.notNull(debtSeniority, "debtSeniority");
-    this._debtSeniority = debtSeniority;
+  public void setSeniority(SeniorityLevel seniority) {
+    JodaBeanUtils.notNull(seniority, "seniority");
+    this._seniority = seniority;
   }
 
   /**
-   * Gets the the {@code debtSeniority} property.
+   * Gets the the {@code seniority} property.
    * @return the property, not null
    */
-  public final Property<DebtSeniority> debtSeniority() {
-    return metaBean().debtSeniority().createProperty(this);
+  public final Property<SeniorityLevel> seniority() {
+    return metaBean().seniority().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -367,7 +367,7 @@ public class StandardCDSSecurity extends FinancialSecurity {
           JodaBeanUtils.equal(getReferenceEntity(), other.getReferenceEntity()) &&
           (isBuyProtection() == other.isBuyProtection()) &&
           JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
-          JodaBeanUtils.equal(getDebtSeniority(), other.getDebtSeniority()) &&
+          JodaBeanUtils.equal(getSeniority(), other.getSeniority()) &&
           JodaBeanUtils.equal(getCoupon(), other.getCoupon()) &&
           super.equals(obj);
     }
@@ -382,7 +382,7 @@ public class StandardCDSSecurity extends FinancialSecurity {
     hash += hash * 31 + JodaBeanUtils.hashCode(getReferenceEntity());
     hash += hash * 31 + JodaBeanUtils.hashCode(isBuyProtection());
     hash += hash * 31 + JodaBeanUtils.hashCode(getNotional());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDebtSeniority());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSeniority());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCoupon());
     return hash ^ super.hashCode();
   }
@@ -408,7 +408,7 @@ public class StandardCDSSecurity extends FinancialSecurity {
     buf.append("referenceEntity").append('=').append(JodaBeanUtils.toString(getReferenceEntity())).append(',').append(' ');
     buf.append("buyProtection").append('=').append(JodaBeanUtils.toString(isBuyProtection())).append(',').append(' ');
     buf.append("notional").append('=').append(JodaBeanUtils.toString(getNotional())).append(',').append(' ');
-    buf.append("debtSeniority").append('=').append(JodaBeanUtils.toString(getDebtSeniority())).append(',').append(' ');
+    buf.append("seniority").append('=').append(JodaBeanUtils.toString(getSeniority())).append(',').append(' ');
     buf.append("coupon").append('=').append(JodaBeanUtils.toString(getCoupon())).append(',').append(' ');
   }
 
@@ -448,10 +448,10 @@ public class StandardCDSSecurity extends FinancialSecurity {
     private final MetaProperty<InterestRateNotional> _notional = DirectMetaProperty.ofReadWrite(
         this, "notional", StandardCDSSecurity.class, InterestRateNotional.class);
     /**
-     * The meta-property for the {@code debtSeniority} property.
+     * The meta-property for the {@code seniority} property.
      */
-    private final MetaProperty<DebtSeniority> _debtSeniority = DirectMetaProperty.ofReadWrite(
-        this, "debtSeniority", StandardCDSSecurity.class, DebtSeniority.class);
+    private final MetaProperty<SeniorityLevel> _seniority = DirectMetaProperty.ofReadWrite(
+        this, "seniority", StandardCDSSecurity.class, SeniorityLevel.class);
     /**
      * The meta-property for the {@code coupon} property.
      */
@@ -467,7 +467,7 @@ public class StandardCDSSecurity extends FinancialSecurity {
         "referenceEntity",
         "buyProtection",
         "notional",
-        "debtSeniority",
+        "seniority",
         "coupon");
 
     /**
@@ -489,8 +489,8 @@ public class StandardCDSSecurity extends FinancialSecurity {
           return _buyProtection;
         case 1585636160:  // notional
           return _notional;
-        case 1737168171:  // debtSeniority
-          return _debtSeniority;
+        case 184581246:  // seniority
+          return _seniority;
         case -1354573786:  // coupon
           return _coupon;
       }
@@ -554,11 +554,11 @@ public class StandardCDSSecurity extends FinancialSecurity {
     }
 
     /**
-     * The meta-property for the {@code debtSeniority} property.
+     * The meta-property for the {@code seniority} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<DebtSeniority> debtSeniority() {
-      return _debtSeniority;
+    public final MetaProperty<SeniorityLevel> seniority() {
+      return _seniority;
     }
 
     /**
@@ -583,8 +583,8 @@ public class StandardCDSSecurity extends FinancialSecurity {
           return ((StandardCDSSecurity) bean).isBuyProtection();
         case 1585636160:  // notional
           return ((StandardCDSSecurity) bean).getNotional();
-        case 1737168171:  // debtSeniority
-          return ((StandardCDSSecurity) bean).getDebtSeniority();
+        case 184581246:  // seniority
+          return ((StandardCDSSecurity) bean).getSeniority();
         case -1354573786:  // coupon
           return ((StandardCDSSecurity) bean).getCoupon();
       }
@@ -609,8 +609,8 @@ public class StandardCDSSecurity extends FinancialSecurity {
         case 1585636160:  // notional
           ((StandardCDSSecurity) bean).setNotional((InterestRateNotional) newValue);
           return;
-        case 1737168171:  // debtSeniority
-          ((StandardCDSSecurity) bean).setDebtSeniority((DebtSeniority) newValue);
+        case 184581246:  // seniority
+          ((StandardCDSSecurity) bean).setSeniority((SeniorityLevel) newValue);
           return;
         case -1354573786:  // coupon
           ((StandardCDSSecurity) bean).setCoupon((Double) newValue);
@@ -626,7 +626,7 @@ public class StandardCDSSecurity extends FinancialSecurity {
       JodaBeanUtils.notNull(((StandardCDSSecurity) bean)._referenceEntity, "referenceEntity");
       JodaBeanUtils.notNull(((StandardCDSSecurity) bean)._buyProtection, "buyProtection");
       JodaBeanUtils.notNull(((StandardCDSSecurity) bean)._notional, "notional");
-      JodaBeanUtils.notNull(((StandardCDSSecurity) bean)._debtSeniority, "debtSeniority");
+      JodaBeanUtils.notNull(((StandardCDSSecurity) bean)._seniority, "seniority");
       JodaBeanUtils.notNull(((StandardCDSSecurity) bean)._coupon, "coupon");
       super.validate(bean);
     }
