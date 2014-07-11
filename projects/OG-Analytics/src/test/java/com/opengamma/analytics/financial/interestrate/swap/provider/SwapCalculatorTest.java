@@ -116,8 +116,6 @@ public class SwapCalculatorTest {
     MulticurveProviderDiscount singleCurve = MulticurveProviderDiscountDataSets.createSingleCurveUsd();
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 5, 14);
     final SwapFixedCoupon<Coupon> swap = SWAP_FIXED_IBOR_DEFINITION.toDerivative(referenceDate);
-    //    MultipleCurrencyParameterSensitivity ps0 = PSPVC.calculateSensitivity(swap, singleCurve);
-
     String name = singleCurve.getAllNames().iterator().next();
     Currency ccy = singleCurve.getCurrencyForName(name);
     YieldAndDiscountCurve curve = singleCurve.getCurve(name);
