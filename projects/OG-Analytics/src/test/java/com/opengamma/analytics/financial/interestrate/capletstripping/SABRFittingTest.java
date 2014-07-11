@@ -11,9 +11,9 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.volatility.VolatilityModel1D;
 import com.opengamma.analytics.financial.model.volatility.VolatilityModelProvider;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolator;
@@ -96,7 +96,7 @@ public class SABRFittingTest extends CapletStrippingSetup {
 
   @Test(enabled = false)
   public void test() {
-    final YieldCurveBundle yc = getYieldCurves();
+    final MulticurveProviderDiscount yc = getYieldCurves();
     final List<CapFloor> caps = getAllCaps();
     final double[] vols = getAllCapVols();
 
