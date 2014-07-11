@@ -81,7 +81,7 @@ public class CreditDefaultSwap {
   private static final Currency currency = Currency.EUR;
 
   private static final DebtSeniority debtSeniority = DebtSeniority.SENIOR;
-  private static final RestructuringClause restructuringClause = RestructuringClause.NORE;
+  private static final RestructuringClause restructuringClause = RestructuringClause.XR;
 
   private static final Calendar calendar = new MondayToFridayCalendar("TestCalendar");
 

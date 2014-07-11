@@ -61,8 +61,8 @@ public class UnderlyingPoolDummyPool {
 
   private static final Currency[] obligorCurrencies = {Currency.USD, Currency.USD, Currency.EUR, Currency.EUR, Currency.JPY };
   private static final DebtSeniority[] obligorDebtSeniorities = {DebtSeniority.SENIOR, DebtSeniority.SENIOR, DebtSeniority.SENIOR, DebtSeniority.SUBORDINATED, DebtSeniority.SUBORDINATED };
-  private static final RestructuringClause[] obligorRestructuringClauses = {RestructuringClause.NORE, RestructuringClause.NORE, RestructuringClause.MODRE, RestructuringClause.MODRE,
-    RestructuringClause.MODMODRE };
+  private static final RestructuringClause[] obligorRestructuringClauses = {RestructuringClause.XR, RestructuringClause.XR, RestructuringClause.MR, RestructuringClause.MR,
+    RestructuringClause.MM };
 
   private static final CreditSpreadTenors[] obligorCreditSpreadTenors = {CreditSpreadTenors._3Y, CreditSpreadTenors._5Y, CreditSpreadTenors._7Y, CreditSpreadTenors._10Y };
 
