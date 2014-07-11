@@ -12,17 +12,16 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.volatility.VolatilityTermStructure;
 import com.opengamma.analytics.financial.model.volatility.curve.VolatilityCurve;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.math.curve.FunctionalDoublesCurve;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.util.test.TestGroup;
 
 /**
- * @deprecated This class tests deprecated functionality
+ * 
  */
-@Deprecated
 @Test(groups = TestGroup.UNIT)
 public class CapletStrippingBootstrapTest extends CapletStrippingSetup {
 
@@ -34,7 +33,7 @@ public class CapletStrippingBootstrapTest extends CapletStrippingSetup {
       System.out.println("CapletStrippingBootstrapTest");
     }
     final int nSamples = 101;
-    final YieldCurveBundle yieldCurve = getYieldCurves();
+    final MulticurveProviderDiscount yieldCurve = getYieldCurves();
     final int n = getNumberOfStrikes();
 
     final double[][] curve = new double[nSamples][n];

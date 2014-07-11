@@ -5,8 +5,6 @@
  */
 package com.opengamma.financial.analytics.curve;
 
-import static com.opengamma.financial.analytics.conversion.BondAndBondFutureTradeWithEntityConverter.MARKET_STRING;
-
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -33,6 +31,7 @@ import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.analytics.conversion.CalendarUtils;
 import com.opengamma.financial.analytics.conversion.ConversionUtils;
+import com.opengamma.financial.analytics.conversion.LegalEntityUtils;
 import com.opengamma.financial.analytics.ircurve.strips.BondNode;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
@@ -67,8 +66,6 @@ public class BondNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinit
   private final ExternalId _dataId;
   /** The valuation time */
   private final ZonedDateTime _valuationTime;
-  /** Rating agency strings */
-  private static final String[] RATING_STRINGS = new String[] {"RatingMoody", "RatingFitch"};
 
   /**
    * @param regionSource The region source, not null
@@ -150,12 +147,12 @@ public class BondNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinit
     final String shortName = bondSecurity.getIssuerName();
     final String sectorName = bondSecurity.getIssuerType();
     final FlexiBean classifications = new FlexiBean();
-    classifications.put(MARKET_STRING, bondSecurity.getMarket());
+    classifications.put(LegalEntityUtils.MARKET_STRING, bondSecurity.getMarket());
     final Sector sector = Sector.of(sectorName, classifications);
     final Region region = Region.of(bondSecurity.getIssuerDomicile(), Country.of(bondSecurity.getIssuerDomicile()), bondSecurity.getCurrency());
     final Map<String, String> securityAttributes = security.getAttributes();
     Set<CreditRating> creditRatings = null;
-    for (final String ratingString : RATING_STRINGS) {
+    for (final String ratingString : LegalEntityUtils.RATING_STRINGS) {
       if (securityAttributes.containsKey(ratingString)) {
         if (creditRatings == null) {
           creditRatings = new HashSet<>();

@@ -49,6 +49,8 @@ import com.opengamma.util.money.Currency;
 /**
  * Converts {@link BondTotalReturnSwapSecurity} classes to {@link BondTotalReturnSwapDefinition},
  * which are required for use in the analytics library.
+ * The asset leg notional amount is used as bond quantity and the underlying bond has a notional of 1.0.
+ * The bond TRS notional currency is not used, the bond currency is used in the bond description.
  */
 public class BondTotalReturnSwapSecurityConverter extends FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> {
   /** The convention source */
@@ -90,11 +92,12 @@ public class BondTotalReturnSwapSecurityConverter extends FinancialSecurityVisit
     final LocalDate startDate = security.getEffectiveDate();
     final LocalDate endDate = security.getMaturityDate();
     final NotionalExchange notionalExchange = NotionalExchange.builder().exchangeFinalNotional(true).build(); //NotionalExchange.NO_EXCHANGE;
-    final AnnuityDefinition<? extends PaymentDefinition> annuityDefinition = AnnuityUtils.buildFloatingAnnuityDefinition(_conventionSource, _holidaySource, _securitySource, isPayer,
-        startDate, endDate, notionalExchange, fundingLeg);
+    final AnnuityDefinition<? extends PaymentDefinition> annuityDefinition =
+        AnnuityUtils.buildFloatingAnnuityDefinition(_conventionSource, _holidaySource, _securitySource, isPayer,
+                                                    startDate, endDate, notionalExchange, fundingLeg);
     final BondSecurity bond = (BondSecurity) underlying;
     final BondConvention convention = getConvention(bond, _conventionSource);
-    final LegalEntity legalEntity = BondAndBondFutureTradeWithEntityConverter.getLegalEntityForBond(Collections.<String, String>emptyMap(), bond);
+    final LegalEntity legalEntity = LegalEntityUtils.getLegalEntityForBond(Collections.<String, String>emptyMap(), bond);
     final ExternalId regionId = ExternalSchemes.financialRegionId(bond.getIssuerDomicile());
     if (regionId == null) {
       throw new OpenGammaRuntimeException("Could not find region for " + bond.getIssuerDomicile());

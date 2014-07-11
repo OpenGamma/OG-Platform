@@ -46,6 +46,7 @@ import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
+import com.opengamma.financial.security.swap.BillTotalReturnSwapSecurity;
 import com.opengamma.financial.security.swap.BondTotalReturnSwapSecurity;
 import com.opengamma.financial.security.swap.EquityTotalReturnSwapSecurity;
 import com.opengamma.financial.security.swap.InterestRateNotional;
@@ -323,6 +324,11 @@ public class NotionalVisitor extends FinancialSecurityVisitorAdapter<CurrencyAmo
 
   @Override
   public CurrencyAmount visitBondTotalReturnSwapSecurity(final BondTotalReturnSwapSecurity security) {
+    return CurrencyAmount.of(security.getNotionalCurrency(), security.getNotionalAmount());
+  }
+
+  @Override
+  public CurrencyAmount visitBillTotalReturnSwapSecurity(final BillTotalReturnSwapSecurity security) {
     return CurrencyAmount.of(security.getNotionalCurrency(), security.getNotionalAmount());
   }
 

@@ -52,8 +52,9 @@ public final class BondTrsConstantSpreadHorizonCalculator extends HorizonCalcula
   }
 
   @Override
-  public MultipleCurrencyAmount getTheta(final BondTotalReturnSwapDefinition definition, final ZonedDateTime date, final IssuerProviderInterface data,
-      final int daysForward, final Calendar calendar, final ZonedDateTimeDoubleTimeSeries fixingSeries) {
+  public MultipleCurrencyAmount getTheta(final BondTotalReturnSwapDefinition definition, final ZonedDateTime date, 
+                                         final IssuerProviderInterface data, final int daysForward, final Calendar calendar, 
+                                         final ZonedDateTimeDoubleTimeSeries fixingSeries) {
     ArgumentChecker.notNull(definition, "definition");
     ArgumentChecker.notNull(date, "date");
     ArgumentChecker.notNull(data, "data");

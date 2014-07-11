@@ -16,9 +16,8 @@ import com.opengamma.analytics.financial.model.volatility.VolatilityTermStructur
 import com.opengamma.util.test.TestGroup;
 
 /**
- * @deprecated This class tests deprecated functionality
+ * 
  */
-@Deprecated
 @Test(groups = TestGroup.UNIT)
 public abstract class CapletStrippingAbsoluteStrikeTest extends CapletStrippingSetup {
 
@@ -107,7 +106,7 @@ public abstract class CapletStrippingAbsoluteStrikeTest extends CapletStrippingS
           assertTrue(res.getChiSq() < 1.0);
         }
       }
-      final double time = (System.nanoTime() - start) / ( beanchmarkCycles*1e6);
+      final double time = (System.nanoTime() - start) / (beanchmarkCycles * 1e6);
       System.out.println("Time per fit set for " + this.getClass() + " is: " + time + "ms");
     }
 

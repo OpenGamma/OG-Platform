@@ -23,7 +23,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Converts bond future securities into the form that is used by the analytics library.
  * @deprecated This converter creates a deprecated analytics object and does not add
- * issuer information. Use {@link BondAndBondFutureTradeWithEntityConverter}
+ * issuer information. Use {@link BondAndBondFutureTradeConverter}
  */
 @Deprecated
 public class BondFutureSecurityConverter extends FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> {

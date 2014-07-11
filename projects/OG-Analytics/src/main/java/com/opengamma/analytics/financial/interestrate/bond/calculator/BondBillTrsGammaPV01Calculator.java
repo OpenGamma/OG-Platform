@@ -22,6 +22,7 @@ package com.opengamma.analytics.financial.interestrate.bond.calculator;
    *
    * Please see distribution for license.
    */
+
 import java.util.Map;
 
 import com.opengamma.analytics.ShiftType;
@@ -29,12 +30,15 @@ import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
+import com.opengamma.analytics.financial.interestrate.bond.definition.BillTotalReturnSwap;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondTotalReturnSwap;
 import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.analytics.financial.legalentity.LegalEntityFilter;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurveUtils;
+import com.opengamma.analytics.financial.provider.calculator.discounting.PV01CurveParametersCalculator;
+import com.opengamma.analytics.financial.provider.calculator.issuer.PresentValueCurveSensitivityIssuerCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.ParameterIssuerProviderInterface;
@@ -48,10 +52,15 @@ import com.opengamma.util.tuple.Pairs;
  * Returns the change in PV01 of an instrument due to a parallel 1bp move of <b>all</b> the curves to which the bond total
  * return swap is sensitive. The value is returned in the currency of the asset.
  */
-public final class BondTrsGammaPV01Calculator extends InstrumentDerivativeVisitorAdapter<ParameterIssuerProviderInterface, Double> {
+public final class BondBillTrsGammaPV01Calculator extends InstrumentDerivativeVisitorAdapter<ParameterIssuerProviderInterface, Double> {
   /** The singleton instance */
   private static final InstrumentDerivativeVisitor<ParameterIssuerProviderInterface, Double> INSTANCE =
-      new BondTrsGammaPV01Calculator();
+      new BondBillTrsGammaPV01Calculator();
+
+  /** The PV01 calculator */
+  private static final InstrumentDerivativeVisitor
+      <ParameterIssuerProviderInterface, ReferenceAmount<Pair<String, Currency>>> PV01_CALCULATOR =
+      new PV01CurveParametersCalculator<>(PresentValueCurveSensitivityIssuerCalculator.getInstance());
   /**
    * The size of the scaling: 1 basis point.
    */
@@ -68,7 +77,7 @@ public final class BondTrsGammaPV01Calculator extends InstrumentDerivativeVisito
   /**
    * Private constructor
    */
-  private BondTrsGammaPV01Calculator() {
+  private BondBillTrsGammaPV01Calculator() {
 
   }
 
@@ -83,9 +92,36 @@ public final class BondTrsGammaPV01Calculator extends InstrumentDerivativeVisito
     ArgumentChecker.notNull(bondTrs, "bondTrs");
     ArgumentChecker.notNull(data, "data");
     final ParameterIssuerProviderInterface bumped = getBumpedProvider(data);
-    final ReferenceAmount<Pair<String, Currency>> pv01 = bondTrs.accept(BondTrsPV01Calculator.getInstance(), data);
-    final ReferenceAmount<Pair<String, Currency>> up = bondTrs.accept(BondTrsPV01Calculator.getInstance(), bumped);
+    final ReferenceAmount<Pair<String, Currency>> pv01 = bondTrs.accept(PV01_CALCULATOR, data);
+    final ReferenceAmount<Pair<String, Currency>> up = bondTrs.accept(PV01_CALCULATOR, bumped);
     final Currency assetCurrency = bondTrs.getAsset().getCurrency();
+    double gammaPV01 = 0;
+    for (final Map.Entry<Pair<String, Currency>, Double> entry : pv01.getMap().entrySet()) {
+      final Pair<String, Currency> bumpedNameCurrency = Pairs.of(entry.getKey().getFirst() + YieldCurveUtils.PARALLEL_SHIFT_NAME, entry.getKey().getSecond());
+      if (!(up.getMap().containsKey(bumpedNameCurrency))) {
+        throw new IllegalStateException("Have bumped PV01 for curve / currency pair " + entry.getKey() + " but no PV01");
+      }
+      final Currency pv01Currency = entry.getKey().getSecond();
+      final double fxRate = data.getMulticurveProvider().getFxRate(pv01Currency, assetCurrency);
+      gammaPV01 += fxRate * (up.getMap().get(bumpedNameCurrency) - entry.getValue()) / BP1;
+    }
+    return gammaPV01;
+  }
+
+  /**
+   * Calculates the change in PV01 of an instrument due to a parallel move of each yield curve the instrument is sensitive to, scaled so that the move is 1bp.
+   * @param billTrs The instrument, not null
+   * @param data The curve data provider, not null
+   * @return The scaled sensitivity for each curve/currency.
+   */
+  @Override
+  public Double visitBillTotalReturnSwap(final BillTotalReturnSwap billTrs, final ParameterIssuerProviderInterface data) {
+    ArgumentChecker.notNull(billTrs, "billTrs");
+    ArgumentChecker.notNull(data, "data");
+    final ParameterIssuerProviderInterface bumped = getBumpedProvider(data);
+    final ReferenceAmount<Pair<String, Currency>> pv01 = billTrs.accept(PV01_CALCULATOR, data);
+    final ReferenceAmount<Pair<String, Currency>> up = billTrs.accept(PV01_CALCULATOR, bumped);
+    final Currency assetCurrency = billTrs.getAsset().getCurrency();
     double gammaPV01 = 0;
     for (final Map.Entry<Pair<String, Currency>, Double> entry : pv01.getMap().entrySet()) {
       final Pair<String, Currency> bumpedNameCurrency = Pairs.of(entry.getKey().getFirst() + YieldCurveUtils.PARALLEL_SHIFT_NAME, entry.getKey().getSecond());

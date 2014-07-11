@@ -15,7 +15,7 @@ import org.threeten.bp.Instant;
 import com.google.common.collect.Iterables;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.interestrate.bond.calculator.BondTrsGammaPV01Calculator;
+import com.opengamma.analytics.financial.interestrate.bond.calculator.BondBillTrsGammaPV01Calculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderInterface;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
@@ -52,7 +52,7 @@ public class BondTotalReturnSwapGammaPV01Function extends BondTotalReturnSwapFun
         final ValueProperties properties = Iterables.getOnlyElement(desiredValues).getConstraints().copy().get();
         final ValueSpecification spec = new ValueSpecification(GAMMA_PV01, target.toSpecification(), properties);
         final IssuerProviderInterface issuerCurves = getMergedWithIssuerProviders(inputs, fxMatrix);
-        final Double gammaPV01 = derivative.accept(BondTrsGammaPV01Calculator.getInstance(), issuerCurves);
+        final Double gammaPV01 = derivative.accept(BondBillTrsGammaPV01Calculator.getInstance(), issuerCurves);
         return Collections.singleton(new ComputedValue(spec, gammaPV01));
       }
 
