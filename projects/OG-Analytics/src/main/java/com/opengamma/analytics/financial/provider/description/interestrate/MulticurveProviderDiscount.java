@@ -261,6 +261,7 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
    * @param name The name of a curve
    * @return The ibor index, null if not found
    */
+  // TODO: Review this method. One curve can be used for several indexes.
   public IborIndex getIborIndexForName(final String name) {
     return _namesToIborIndex.get(name);
   }
@@ -271,6 +272,7 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
    * @param name The name of a curve
    * @return The overnight index, null if not found
    */
+  // TODO: Review this method. One curve can be used for several indexes.
   public IndexON getOvernightIndexForName(final String name) {
     return _namesToONIndex.get(name);
   }

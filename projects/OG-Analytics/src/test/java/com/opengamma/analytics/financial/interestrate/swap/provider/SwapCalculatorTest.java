@@ -6,6 +6,7 @@
 package com.opengamma.analytics.financial.interestrate.swap.provider;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.Period;
@@ -27,6 +28,7 @@ import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.analytics.financial.provider.calculator.discounting.CrossGammaSingleCurveCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PV01CurveParametersCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueCurveSensitivityDiscountingCalculator;
@@ -47,6 +49,7 @@ import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.test.TestGroup;
@@ -83,11 +86,6 @@ public class SwapCalculatorTest {
   private static final SwapDefinition SWAP_IBOR_IBORSPREAD_DEFINITION = new SwapDefinition(AnnuityCouponIborDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, NOTIONAL, USDLIBOR3M, true, NYC),
       AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, NOTIONAL, USDLIBOR6M, SPREAD6, false, NYC));
 
-  // Calculators
-  private static final ParSpreadMarketQuoteDiscountingCalculator PSMQDC = ParSpreadMarketQuoteDiscountingCalculator.getInstance();
-  private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
-  private static final TodayPaymentCalculator TPC = TodayPaymentCalculator.getInstance();
-
   private static final ZonedDateTimeDoubleTimeSeries FIXING_TS_3 = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2012, 5, 10),
     DateUtils.getUTCDate(2012, 5, 14), DateUtils.getUTCDate(2012, 5, 15), DateUtils.getUTCDate(2012, 5, 16), DateUtils.getUTCDate(2012, 8, 15), DateUtils.getUTCDate(2012, 11, 15) }, new double[] {
     0.0080, 0.0090, 0.0100, 0.0110, 0.0140, 0.0160 });
@@ -95,15 +93,80 @@ public class SwapCalculatorTest {
     DateUtils.getUTCDate(2012, 5, 15), DateUtils.getUTCDate(2012, 5, 16) }, new double[] {0.0095, 0.0120, 0.0130 });
   private static final ZonedDateTimeDoubleTimeSeries[] FIXING_TS_3_6 = new ZonedDateTimeDoubleTimeSeries[] {FIXING_TS_3, FIXING_TS_6 };
 
+  // Calculators
+  private static final ParSpreadMarketQuoteDiscountingCalculator PSMQDC = ParSpreadMarketQuoteDiscountingCalculator.getInstance();
+  private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
+  private static final TodayPaymentCalculator TPC = TodayPaymentCalculator.getInstance();
   private static final PV01CurveParametersCalculator<MulticurveProviderInterface> PV01CPC = new PV01CurveParametersCalculator<>(PresentValueCurveSensitivityDiscountingCalculator.getInstance());
-  private static final ParameterSensitivityParameterCalculator<MulticurveProviderInterface> PSPVC = new ParameterSensitivityParameterCalculator<>(
-      PresentValueCurveSensitivityDiscountingCalculator.getInstance());
+  private static final PresentValueCurveSensitivityDiscountingCalculator PVCSDC = PresentValueCurveSensitivityDiscountingCalculator.getInstance();
+  private static final ParameterSensitivityParameterCalculator<MulticurveProviderInterface> PSPVC = new ParameterSensitivityParameterCalculator<>(PVCSDC);
+  private static final CrossGammaSingleCurveCalculator CGC = new CrossGammaSingleCurveCalculator(PVCSDC);
 
   private static final double TOLERANCE_PV = 1.0E-2; // one cent out of 100m
+  private static final double TOLERANCE_PV_GAMMA = 2.0E+0;
+  private static final double TOLERANCE_PV_GAMMA_RELATIF = 5.0E-4;
 
   //  private static final double TOLERANCE_SPREAD_DELTA = 1.0E-6;
 
   private static final double BP1 = 1.0E-4; // The size of the scaling: 1 basis point.
+  private static final double SHIFT = 1.0E-4;
+
+  @Test
+  public void crossGamma() {
+    MulticurveProviderDiscount singleCurve = MulticurveProviderDiscountDataSets.createSingleCurveUsd();
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 5, 14);
+    final SwapFixedCoupon<Coupon> swap = SWAP_FIXED_IBOR_DEFINITION.toDerivative(referenceDate);
+    //    MultipleCurrencyParameterSensitivity ps0 = PSPVC.calculateSensitivity(swap, singleCurve);
+
+    String name = singleCurve.getAllNames().iterator().next();
+    Currency ccy = singleCurve.getCurrencyForName(name);
+    YieldAndDiscountCurve curve = singleCurve.getCurve(name);
+    ArgumentChecker.isTrue(curve instanceof YieldCurve, "curve should be YieldCurve");
+    YieldCurve yieldCurve = (YieldCurve) curve;
+    ArgumentChecker.isTrue(yieldCurve.getCurve() instanceof InterpolatedDoublesCurve, "Yield curve should be based on InterpolatedDoublesCurve");
+    InterpolatedDoublesCurve interpolatedCurve = (InterpolatedDoublesCurve) yieldCurve.getCurve();
+    double[] y = interpolatedCurve.getYDataAsPrimitive();
+    double[] x = interpolatedCurve.getXDataAsPrimitive();
+    int nbNode = y.length;
+    double[][] gammaComputed = CGC.calculateCrossGamma(swap, singleCurve).getData();
+    double[][] gammaExpected = new double[nbNode][nbNode];
+    for (int i = 0; i < nbNode; i++) {
+      for (int j = 0; j < nbNode; j++) {
+        double[][] pv = new double[2][2];
+        for (int pmi = 0; pmi < 2; pmi++) {
+          for (int pmj = 0; pmj < 2; pmj++) {
+            final double[] yieldBumpedPP = y.clone();
+            yieldBumpedPP[i] += ((pmi == 0) ? SHIFT : -SHIFT);
+            yieldBumpedPP[j] += ((pmj == 0) ? SHIFT : -SHIFT);
+            final YieldAndDiscountCurve curveBumped = new YieldCurve(name,
+                new InterpolatedDoublesCurve(x, yieldBumpedPP, interpolatedCurve.getInterpolator(), true));
+            MulticurveProviderDiscount providerBumped = new MulticurveProviderDiscount();
+            for (Currency loopccy : singleCurve.getCurrencies()) {
+              providerBumped.setCurve(loopccy, curveBumped);
+            }
+            for (IborIndex loopibor : singleCurve.getIndexesIbor()) {
+              providerBumped.setCurve(loopibor, curveBumped);
+            }
+            pv[pmi][pmj] = swap.accept(PVDC, providerBumped).getAmount(ccy);
+          }
+        }
+        gammaExpected[i][j] = (pv[0][0] - pv[1][0] - pv[0][1] + pv[1][1]) / (2 * SHIFT * 2 * SHIFT);
+      }
+    }
+    for (int i = 0; i < nbNode; i++) {
+      for (int j = 0; j < nbNode; j++) {
+        if (Math.abs(gammaExpected[i][j]) > 1 || Math.abs(gammaComputed[i][j]) > 1) { // Check only the meaningful numbers
+          assertTrue("CrossGammaSingleCurveCalculator - " + i + " - " + j + " / " + gammaExpected[i][j] + " - " + gammaComputed[i][j],
+              (Math.abs(gammaExpected[i][j] / gammaComputed[i][j] - 1) < TOLERANCE_PV_GAMMA_RELATIF) || // If relative difference is small enough
+                  (Math.abs(gammaExpected[i][j] - gammaComputed[i][j]) < TOLERANCE_PV_GAMMA)); // If absolute difference is small enough
+        }
+      }
+    }
+
+    @SuppressWarnings("unused")
+    int t = 0;
+
+  }
 
   @Test
   public void parSpreadFixedIborBeforeFirstFixing() {
@@ -366,14 +429,11 @@ public class SwapCalculatorTest {
   private static final SwapFixedIborDefinition SWAP_SIMPLE_DEFINITION = SwapFixedIborDefinition.from(SETTLEMENT_DATE_SIMPLE, SWAP_SIMPLE_TENOR, USD6MLIBOR3M, NOTIONAL_SIMPLE, RATE_FIXED_SIMPLE, true);
   private static final SwapFixedCoupon<Coupon> SWAP_SIMPLE = SWAP_SIMPLE_DEFINITION.toDerivative(REFERENCE_DATE);
 
-  private static final PresentValueCurveSensitivityDiscountingCalculator PVCSDC = PresentValueCurveSensitivityDiscountingCalculator.getInstance();
-  private static final ParameterSensitivityParameterCalculator<MulticurveProviderInterface> PSC = new ParameterSensitivityParameterCalculator<>(PVCSDC);
-
   @SuppressWarnings("unused")
   @Test(enabled = false)
   public void workoutADExample() {
     MultipleCurrencyMulticurveSensitivity pvcs = SWAP_SIMPLE.accept(PVCSDC, MULTICURVE_SIMPLIFIED);
-    MultipleCurrencyParameterSensitivity ps = PSC.calculateSensitivity(SWAP_SIMPLE, MULTICURVE_SIMPLIFIED);
+    MultipleCurrencyParameterSensitivity ps = PSPVC.calculateSensitivity(SWAP_SIMPLE, MULTICURVE_SIMPLIFIED);
   }
 
 }

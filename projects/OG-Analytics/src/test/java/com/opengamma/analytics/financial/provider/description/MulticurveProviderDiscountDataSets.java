@@ -207,6 +207,14 @@ public class MulticurveProviderDiscountDataSets {
     MARKET_1.setCurve(ISSUER_AUD_GOVT, CURVE_AUD_30);
   }
 
+  private static final MulticurveProviderDiscount SINGLECURVES_USD = new MulticurveProviderDiscount();
+  static {
+    SINGLECURVES_USD.setCurve(Currency.USD, USD_DSC);
+    SINGLECURVES_USD.setCurve(FEDFUND, USD_DSC);
+    SINGLECURVES_USD.setCurve(USDLIBOR3M, USD_DSC);
+    SINGLECURVES_USD.setCurve(USDLIBOR6M, USD_DSC);
+  }
+
   private static final MulticurveProviderDiscount MULTICURVES_EUR_USD = new MulticurveProviderDiscount();
   static {
     MULTICURVES_EUR_USD.setCurve(Currency.USD, USD_DSC);
@@ -459,6 +467,10 @@ public class MulticurveProviderDiscountDataSets {
    */
   public static MulticurveProviderDiscount createMulticurveEurUsd() {
     return MULTICURVES_EUR_USD;
+  }
+
+  public static MulticurveProviderDiscount createSingleCurveUsd() {
+    return SINGLECURVES_USD;
   }
 
   /**
