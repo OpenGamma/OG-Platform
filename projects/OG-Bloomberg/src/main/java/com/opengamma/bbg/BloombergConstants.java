@@ -119,6 +119,7 @@ public final class BloombergConstants {
   public static final String FIELD_GICS_SUB_INDUSTRY = "GICS_SUB_INDUSTRY";
   public static final String FIELD_FUT_DLVRBLE_BNDS_BB_UNIQUE = "FUT_DLVRBLE_BNDS_BB_UNIQUE";
   public static final String FIELD_FUT_DELIVERABLE_BONDS = "FUT_DELIVERABLE_BONDS";
+  public static final String FIELD_FUT_DLVRBLE_BNDS_ISIN = "FUT_DLVRBLE_BNDS_ISINS";
   public static final String FIELD_QUOTE_TYP = "QUOTE_TYP";
   public static final String FIELD_QUOTE_UNITS = "QUOTE_UNITS";
   public static final String FIELD_QUOTED_CRNCY = "QUOTED_CRNCY";
