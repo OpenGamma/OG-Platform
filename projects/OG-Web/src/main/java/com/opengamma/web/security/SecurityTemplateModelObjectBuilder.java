@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -16,8 +17,10 @@ import org.joda.beans.impl.flexi.FlexiBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.legalentity.LegalEntity;
 import com.opengamma.core.security.Security;
@@ -118,8 +121,12 @@ public class SecurityTemplateModelObjectBuilder extends FinancialSecurityVisitor
     addFutureSecurityType("BondFuture");
     Map<String, String> basket = new TreeMap<String, String>();
     for (BondFutureDeliverable bondFutureDeliverable : security.getBasket()) {
-      String identifierValue = bondFutureDeliverable.getIdentifiers().getValue(ExternalSchemes.BLOOMBERG_TICKER);
-      basket.put(ExternalSchemes.BLOOMBERG_TICKER.getName() + "-" + identifierValue, String.valueOf(bondFutureDeliverable.getConversionFactor()));
+      SortedSet<String> idSet = Sets.newTreeSet();
+      for (ExternalId id : bondFutureDeliverable.getIdentifiers()) {
+        idSet.add(id.getScheme().toString() + "-" + id.getValue());
+      }
+      String id = "[" + Joiner.on(",").join(idSet) + "]";
+      basket.put(id, String.valueOf(bondFutureDeliverable.getConversionFactor()));
     }
     _out.put("basket", basket);
     return null;
