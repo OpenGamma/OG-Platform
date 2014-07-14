@@ -5,7 +5,14 @@
  */
 package com.opengamma.core.legalentity;
 
-/** Seniority Levels */
+/** 
+ * Seniority Levels 
+ * 
+ * Reference: https://www.markit.com/news/XMLGuide.pdf, 
+ *            "XML User Guide - Markit Data",
+ *            Version 10.3.8, November 2010.
+ *
+ */
 public enum SeniorityLevel {
   /** Junior Subordinated or Upper Tier 2 Debt (Banks) */
   JRSUBUT2,
