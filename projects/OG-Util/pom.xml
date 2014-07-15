@@ -251,6 +251,13 @@
       <artifactId>testng</artifactId>
       <scope>provided</scope>
     </dependency>
+    
+    <dependency>
+        <groupId>com.chaschev</groupId>
+        <artifactId>chutils</artifactId>
+        <version>1.4</version>
+    </dependency>
+    
 
   </dependencies>
 
