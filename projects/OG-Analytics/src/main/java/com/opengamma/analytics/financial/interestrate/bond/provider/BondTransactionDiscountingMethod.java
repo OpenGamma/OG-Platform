@@ -8,6 +8,7 @@ package com.opengamma.analytics.financial.interestrate.bond.provider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedTransaction;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondIborTransaction;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondSecurity;
@@ -118,7 +119,14 @@ public final class BondTransactionDiscountingMethod {
     final MultipleCurrencyAmount pvNominalTransaction = bond.getBondTransaction().getNominal().accept(PVDC, multicurvesDecorated);
     final MultipleCurrencyAmount pvCouponTransaction = bond.getBondTransaction().getCoupon().accept(PVDC, multicurvesDecorated);
     final MultipleCurrencyAmount pvDiscountingTransaction = pvNominalTransaction.plus(pvCouponTransaction);
-    return (pvDiscountingTransaction.plus(pvDiscountingStandard.multipliedBy(-1d)).plus(pvPriceStandard)).multipliedBy(bond.getQuantity());
+    double settlementAmount = -bond.getTransactionPrice() * bond.getBondTransaction().getCoupon().getNthPayment(0).getNotional();
+    if (bond.getBondTransaction() instanceof BondFixedSecurity) {
+      settlementAmount -= ((BondFixedSecurity) bond.getBondTransaction()).getAccruedInterest();
+    }
+    settlementAmount *= bond.getQuantity();
+    final PaymentFixed settlement = new PaymentFixed(bond.getBondTransaction().getCurrency(), bond.getBondTransaction().getSettlementTime(), settlementAmount);
+    final MultipleCurrencyAmount pvSettlement = settlement.accept(PVDC, issuerMulticurves.getMulticurveProvider());
+    return (pvDiscountingTransaction.plus(pvDiscountingStandard.multipliedBy(-1d)).plus(pvPriceStandard)).multipliedBy(bond.getQuantity()).plus(pvSettlement);
   }
 
   /**
@@ -144,7 +152,14 @@ public final class BondTransactionDiscountingMethod {
     final MultipleCurrencyAmount pvNominalTransaction = bond.getBondTransaction().getNominal().accept(PVDC, multicurvesDecorated);
     final MultipleCurrencyAmount pvCouponTransaction = bond.getBondTransaction().getCoupon().accept(PVDC, multicurvesDecorated);
     final MultipleCurrencyAmount pvDiscountingTransaction = pvNominalTransaction.plus(pvCouponTransaction);
-    return (pvDiscountingTransaction.plus(pvDiscountingStandard.multipliedBy(-1d)).plus(pvPriceStandard)).multipliedBy(bond.getQuantity());
+    double settlementAmount = -bond.getTransactionPrice() * bond.getBondTransaction().getCoupon().getNthPayment(0).getNotional();
+    if (bond.getBondTransaction() instanceof BondFixedSecurity) {
+      settlementAmount -= ((BondFixedSecurity) bond.getBondTransaction()).getAccruedInterest();
+    }
+    settlementAmount *= bond.getQuantity();
+    final PaymentFixed settlement = new PaymentFixed(bond.getBondTransaction().getCurrency(), bond.getBondTransaction().getSettlementTime(), settlementAmount);
+    final MultipleCurrencyAmount pvSettlement = settlement.accept(PVDC, issuerMulticurves.getMulticurveProvider());
+    return (pvDiscountingTransaction.plus(pvDiscountingStandard.multipliedBy(-1d)).plus(pvPriceStandard)).multipliedBy(bond.getQuantity()).plus(pvSettlement);
   }
 
   /**

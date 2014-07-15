@@ -41,9 +41,8 @@ public class GeneratorBondFixed extends GeneratorInstrument<GeneratorAttribute> 
     ArgumentChecker.notNull(date, "Reference date");
     final int quantity = (int) Math.round(notional / _security.getNominal().getNthPayment(0).getReferenceAmount());
     final ZonedDateTime settleDate = ScheduleCalculator.getAdjustedDate(date, _security.getSettlementDays(), _security.getCalendar());
-    final double accruedIntrerest = _security.accruedInterest(settleDate);
-    final double dirtyPrice = marketQuote + accruedIntrerest;
-    return new BondFixedTransactionDefinition(_security, quantity, settleDate, dirtyPrice);
+    final double cleanPrice = marketQuote;
+    return new BondFixedTransactionDefinition(_security, quantity, settleDate, cleanPrice);
   }
 
 }

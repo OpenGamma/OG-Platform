@@ -37,7 +37,7 @@ public class BondFixedTransactionDefinition extends BondTransactionDefinition<Pa
    * @param underlyingBond The fixed coupon bond underlying the transaction.
    * @param quantity The number of bonds purchased (can be negative or positive).
    * @param settlementDate Transaction settlement date.
-   * @param cleanPrice The (clean) price of the transaction in relative term (i.e. 0.90 if the dirty price is 90% of nominal).
+   * @param cleanPrice The (clean) price of the transaction in relative term (i.e. 0.90 if the clean price is 90% of nominal).
    */
   public BondFixedTransactionDefinition(final BondFixedSecurityDefinition underlyingBond, final double quantity, final ZonedDateTime settlementDate, final double cleanPrice) {
     super(underlyingBond, quantity, settlementDate, cleanPrice);
@@ -47,7 +47,7 @@ public class BondFixedTransactionDefinition extends BondTransactionDefinition<Pa
         settlementDate, getNextAccrualDate(), underlyingBond.getCoupons().getNthPayment(getCouponIndex()).getRate(), underlyingBond.getCouponPerYear(),
         underlyingBond.isEOM());
     if (underlyingBond.getExCouponDays() != 0 && getNextAccrualDate().minusDays(underlyingBond.getExCouponDays()).isBefore(settlementDate)) {
-      _accruedInterestAtSettlement = accruedInterest - underlyingBond.getCoupons().getNthPayment(getCouponIndex()).getRate();
+      _accruedInterestAtSettlement = accruedInterest - underlyingBond.getCoupons().getNthPayment(getCouponIndex()).getRate(); // TODO: Is this ammount?
     } else {
       _accruedInterestAtSettlement = accruedInterest;
     }

@@ -6,6 +6,7 @@
 package com.opengamma.analytics.financial.instrument.bond;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.Period;
@@ -14,6 +15,7 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedTransaction;
 import com.opengamma.analytics.financial.interestrate.bond.provider.BondSecurityDiscountingMethod;
+import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -163,6 +165,42 @@ public class BondFixedTransactionDefinitionTest {
     final double accrual101010 = 17769.81;
     BondFixedSecurity bond101010 = BOND_MON_SECURITY_DEFINITION.toDerivative(settle101010, settle101010);
     assertEquals("Bond transaction: accrued", accrual101010, bond101010.getAccruedInterest() * notional, TOLERANCE_ACCRUED);
+  }
+
+  private static final BondFixedSecurityDefinition BOND_UKT_500_20140907 = BondDataSets.bondUKT5_20140907();
+
+  /** Test the constructor with date around coupon. */
+  @Test
+  public void settlementExCoupon() {
+    ZonedDateTime settleDate = DateUtils.getUTCDate(2011, 8, 29);
+    BondFixedTransactionDefinition transaction = new BondFixedTransactionDefinition(BOND_UKT_500_20140907, QUANTITY,
+        settleDate, PRICE_DIRTY);
+    @SuppressWarnings("unused")
+    int t = 0;
+  }
+
+  /** Test the constructor with date around coupon. */
+  @Test
+  public void settlementUKTAllDate() {
+    ZonedDateTime settleDate = DateUtils.getUTCDate(2011, 8, 1);
+    int nbSettle = 40;
+    double[] accruedSettle = new double[nbSettle];
+    for (int loopsettle = 0; loopsettle < nbSettle; loopsettle++) {
+      settleDate = ScheduleCalculator.getAdjustedDate(settleDate, 1, CALENDAR);
+      BondFixedTransactionDefinition transaction = new BondFixedTransactionDefinition(BOND_UKT_500_20140907, QUANTITY,
+          settleDate, PRICE_DIRTY);
+      accruedSettle[loopsettle] = transaction.getAccruedInterestAtSettlement();
+    }
+    int indexJump = 19;
+    for (int loopref = 0; loopref < nbSettle - 1; loopref++) {
+      if (loopref != indexJump) {
+        assertTrue("Bond Fixed Security Definition to derivative - " + loopref,
+            accruedSettle[loopref + 1] - accruedSettle[loopref] < 0.05 / 360 * 3); // 3 days of accrued
+      }
+    }
+    @SuppressWarnings("unused")
+    int t = 0;
+
   }
 
 }

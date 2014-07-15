@@ -60,7 +60,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Curves calibration in USD: 
  * 0) ONDSC-OIS/LIBOR3M-FRAIRS
- * 0) ONDSC-OIS/LIBOR3M-FRAIRS/LIBOR1M-BS/LIBOR6M-BS
+ * 1) ONDSC-OIS/LIBOR3M-FRAIRS/LIBOR1M-BS/LIBOR6M-BS
  * Data stored in snapshots for comparison with platform.
  */
 public class StandardDataSetsMulticurveUSD {
