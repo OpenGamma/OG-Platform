@@ -82,6 +82,10 @@ public abstract class CapletStrippingSetup {
     YIELD_CURVES.setCurve(INDEX, indexCurve);
   }
 
+  protected double[] getAtmVols() {
+    return CAP_ATM_VOL;
+  }
+
   protected MulticurveProviderDiscount getYieldCurves() {
     return YIELD_CURVES;
   }
