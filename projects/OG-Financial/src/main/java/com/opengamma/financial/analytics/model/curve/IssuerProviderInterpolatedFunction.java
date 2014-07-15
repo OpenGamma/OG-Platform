@@ -315,7 +315,7 @@ public class IssuerProviderInterpolatedFunction extends
               curveBundle.getMulticurveProvider().setCurve(Currency.of(curveName.substring(0, 3)), discountCurve);
             }
           }
-          unitMap.put(curveName, Pairs.of(totalNodes + nNodesForCurve, nNodesForCurve));
+          unitMap.put(curveName, Pairs.of(totalNodes, nNodesForCurve));
           unitBundles.put(curveName, Pairs.of(new CurveBuildingBlock(unitMap), new DoubleMatrix2D(jacobian)));
           totalNodes += nNodesForCurve;
         }
