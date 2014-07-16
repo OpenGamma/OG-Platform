@@ -21,6 +21,7 @@ import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRate
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParRateDiscountingCalculator;
+import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingMultipleInstrumentsCalculator;
@@ -64,6 +65,7 @@ public class ForwardRateAgreementDiscountingMethodE2ETest {
   private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
   private static final PresentValueDiscountingMultipleInstrumentsCalculator PVMULTIDC = PresentValueDiscountingMultipleInstrumentsCalculator.getInstance();
   private static final ParRateDiscountingCalculator PRDC = ParRateDiscountingCalculator.getInstance();
+  private static final ParSpreadMarketQuoteDiscountingCalculator PSMQDC = ParSpreadMarketQuoteDiscountingCalculator.getInstance();
   private static final PresentValueCurveSensitivityDiscountingCalculator PVCSDC = PresentValueCurveSensitivityDiscountingCalculator.getInstance();
   private static final ParameterSensitivityParameterCalculator<MulticurveProviderInterface> PSC = new ParameterSensitivityParameterCalculator<>(PVCSDC);
   private static final MarketQuoteSensitivityBlockCalculator<MulticurveProviderInterface> MQSBC = new MarketQuoteSensitivityBlockCalculator<>(PSC);
@@ -99,6 +101,18 @@ public class ForwardRateAgreementDiscountingMethodE2ETest {
     assertEquals("ForwardRateAgreementDiscountingMethod: par rate from standard curves", parRateExpected, parRate, TOLERANCE_RATE);
     final double parRateMethod = METHOD_FRA.parRate((ForwardRateAgreement) FRA, MULTICURVE);
     assertEquals("ForwardRateAgreementDiscountingMethod: par rate from standard curves", parRateMethod, parRate, TOLERANCE_RATE);
+  }
+
+  @Test
+  /** Par rate spread */
+  public void parRateSpread() {
+    final double parRate = FRA.accept(PSMQDC, MULTICURVE);
+    ForwardRateAgreement fra = (ForwardRateAgreement) FRA;
+    ForwardRateAgreement fra0 = new ForwardRateAgreement(USD, fra.getPaymentTime(), fra.getPaymentYearFraction(),
+        fra.getNotional(), USDLIBOR3M, fra.getFixingTime(), fra.getFixingPeriodStartTime(), fra.getFixingPeriodEndTime(),
+        fra.getFixingYearFraction(), FRA_RATE + parRate);
+    final MultipleCurrencyAmount pvComputed = fra0.accept(PVDC, MULTICURVE);
+    assertEquals("ForwardRateAgreementDiscountingMethod: par rate from standard curves", 0.0, pvComputed.getAmount(USD), TOLERANCE_PV);
   }
 
   @Test
