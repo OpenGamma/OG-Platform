@@ -83,8 +83,9 @@ public class CapletStrippingDirect2DTest extends CapletStrippingSetup {
 
   }
 
-  @Test(enabled = false)
-  public void testWithAtm() {
+  @Test
+      (enabled = false)
+      public void testWithAtm() {
     final double[] capStrikes = getStrikes();
     final int nStrikes = capStrikes.length;
     final int nCapEndTimes = getCapEndTimes().length;

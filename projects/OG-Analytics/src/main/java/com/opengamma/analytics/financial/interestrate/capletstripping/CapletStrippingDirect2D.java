@@ -47,7 +47,6 @@ public class CapletStrippingDirect2D {
 
   public CapletStrippingDirect2D(final List<CapFloor>[] caps, final MulticurveProviderInterface curves, final CapletNodalSurfaceProvider nodalSurfaceProvider, final double lambdaStrike,
       final double lambdaTime) {
-
     ArgumentChecker.noNulls(caps, "caps");
     ArgumentChecker.notNull(curves, "curves");
     ArgumentChecker.notNull(nodalSurfaceProvider, "nodalSurfaceProvider");
