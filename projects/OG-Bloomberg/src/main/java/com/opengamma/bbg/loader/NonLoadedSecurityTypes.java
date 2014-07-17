@@ -26,6 +26,7 @@ public final class NonLoadedSecurityTypes {
   private static final String BLOOMBERG_OVERNIGHT_INDEXED_SWAP_TYPE = "OVERNIGHT INDEXED SWAP";
   private static final String BLOOMBERG_SWAP_TYPE = "SWAP";
   private static final String BLOOMBERG_ONSHORE_SWAP_TYPE = "ONSHORE SWAP";
+  private static final String BLOOMBERG_NON_DELIVERABLE_OIS_TYPE = "NON-DELIVERABLE OIS SWAP";
   /**
    * The valid Bloomberg security types for swaps
    */
@@ -36,7 +37,8 @@ public final class NonLoadedSecurityTypes {
       BLOOMBERG_NDF_SWAP_TYPE,
       BLOOMBERG_ONSHORE_SWAP_TYPE,
       BloombergConstants.BLOOMBERG_NON_DELIVERABLE_IRS_SWAP_TYPE,
-      BloombergConstants.BLOOMBERG_IMM_SWAP_TYPE);
+      BloombergConstants.BLOOMBERG_IMM_SWAP_TYPE,
+      BLOOMBERG_NON_DELIVERABLE_OIS_TYPE);
   /**
    * The valid Bloomberg security types for basis swaps
    */
@@ -123,7 +125,7 @@ public final class NonLoadedSecurityTypes {
    * The valid Bloomberg security types for CDS
    */
   public static final Set<String> VALID_CDS_TYPES = ImmutableSet.of(BLOOMBERG_CDS_TYPE);
-  
+
   /**
    * The valid Bloomberg security types for inflation swaps.
    */
