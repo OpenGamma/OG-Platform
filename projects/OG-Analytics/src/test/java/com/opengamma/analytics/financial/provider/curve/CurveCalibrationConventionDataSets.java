@@ -45,11 +45,17 @@ public class CurveCalibrationConventionDataSets {
 
   private static final Interpolator1D INTERPOLATOR_LINEAR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
       Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+  private static final Interpolator1D INTERPOLATOR_DQ = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
+      Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+  private static final Interpolator1D INTERPOLATOR_NCS = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.NATURAL_CUBIC_SPLINE, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
+      Interpolator1DFactory.FLAT_EXTRAPOLATOR);
   private static final Interpolator1D INTERPOLATOR_LL = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LOG_LINEAR, Interpolator1DFactory.EXPONENTIAL_EXTRAPOLATOR,
       Interpolator1DFactory.EXPONENTIAL_EXTRAPOLATOR); // Log-linear on the discount factor = step on the instantaneous rates
 
   private static final LastTimeCalculator MATURITY_CALCULATOR = LastTimeCalculator.getInstance();
   private static final GeneratorYDCurve GENERATOR_YD_MAT_LIN = new GeneratorCurveYieldInterpolated(MATURITY_CALCULATOR, INTERPOLATOR_LINEAR);
+  private static final GeneratorYDCurve GENERATOR_YD_MAT_DQ = new GeneratorCurveYieldInterpolated(MATURITY_CALCULATOR, INTERPOLATOR_DQ);
+  private static final GeneratorYDCurve GENERATOR_YD_MAT_NCS = new GeneratorCurveYieldInterpolated(MATURITY_CALCULATOR, INTERPOLATOR_NCS);
 
   private static final GeneratorSwapFixedIborMaster GENERATOR_SWAP_MASTER = GeneratorSwapFixedIborMaster.getInstance();
 
@@ -132,6 +138,14 @@ public class CurveCalibrationConventionDataSets {
 
   public static GeneratorYDCurve generatorYDMatLin() {
     return GENERATOR_YD_MAT_LIN;
+  }
+
+  public static GeneratorYDCurve generatorYDMatDq() {
+    return GENERATOR_YD_MAT_DQ;
+  }
+
+  public static GeneratorYDCurve generatorYDMatNcs() {
+    return GENERATOR_YD_MAT_NCS;
   }
 
 }

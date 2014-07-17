@@ -50,7 +50,7 @@ import com.opengamma.util.tuple.Pair;
  * Build of curve in several blocks with relevant Jacobian matrices.
  */
 @Test(groups = TestGroup.UNIT)
-public class MulticurveBuildingDiscountingDiscountUSD2DemoTest {
+public class MulticurveBuildingDiscountingDiscountUSDFFSDemoTest {
 
   /** Curve calibration date */
   private static final ZonedDateTime CALIBRATION_DATE = DateUtils.getUTCDate(2011, 9, 28);
@@ -65,9 +65,11 @@ public class MulticurveBuildingDiscountingDiscountUSD2DemoTest {
   private static final String CURVE_NAME_FWD3_USD = "USD Fwd 3M";
 
   /** Market values for the dsc USD curve */
-  private static final double[] DSC_USD_MARKET_QUOTES = new double[] {0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400 };
+  private static final double[] DSC_USD_MARKET_QUOTES = new double[] {0.0010,
+    0.0010, 0.0010, 0.0012, 0.0012, 0.0014, 0.0016,
+    0.0015, 0.0016, 0.0017, 0.0018, 0.0019 };
   /** Generators for the dsc USD curve */
-  private static final GeneratorInstrument<? extends GeneratorAttribute>[] DSC_USD_GENERATORS = CurveCalibrationConventionDataSets.generatorUsdOnOis(1, 11, 0);
+  private static final GeneratorInstrument<? extends GeneratorAttribute>[] DSC_USD_GENERATORS = CurveCalibrationConventionDataSets.generatorUsdOnOis(1, 6, 5);
   /** Tenors for the dsc USD curve */
   private static final Period[] DSC_USD_TENOR = new Period[] {Period.ofDays(0),
     Period.ofMonths(1), Period.ofMonths(2), Period.ofMonths(3), Period.ofMonths(6), Period.ofMonths(9), Period.ofYears(1),
@@ -80,7 +82,7 @@ public class MulticurveBuildingDiscountingDiscountUSD2DemoTest {
   }
 
   /** Market values for the Fwd 3M USD curve */
-  private static final double[] FWD3_USD_MARKET_QUOTES = new double[] {0.0420, 0.0420, 0.0420, 0.0430, 0.0470, 0.0540, 0.0570, 0.0600 };
+  private static final double[] FWD3_USD_MARKET_QUOTES = new double[] {0.0025, 0.0025, 0.0030, 0.0065, 0.0110, 0.0180, 0.0225, 0.0260 };
   /** Generators for the Fwd 3M USD curve */
   private static final GeneratorInstrument<? extends GeneratorAttribute>[] FWD3_USD_GENERATORS = CurveCalibrationConventionDataSets.generatorUsdIbor3Irs3(1, 7);
   /** Tenors for the Fwd 3M USD curve */
@@ -94,7 +96,7 @@ public class MulticurveBuildingDiscountingDiscountUSD2DemoTest {
   }
 
   /** Units of curves */
-  private static final int[] NB_UNITS = new int[] {2 };
+  private static final int[] NB_UNITS = new int[] {1 };
   private static final int NB_BLOCKS = NB_UNITS.length;
   private static final InstrumentDefinition<?>[][][][] DEFINITIONS_UNITS = new InstrumentDefinition<?>[NB_BLOCKS][][][];
   private static final GeneratorYDCurve[][][] GENERATORS_UNITS = new GeneratorYDCurve[NB_BLOCKS][][];
@@ -110,13 +112,12 @@ public class MulticurveBuildingDiscountingDiscountUSD2DemoTest {
       GENERATORS_UNITS[loopblock] = new GeneratorYDCurve[NB_UNITS[loopblock]][];
       NAMES_UNITS[loopblock] = new String[NB_UNITS[loopblock]][];
     }
-    DEFINITIONS_UNITS[0][0] = new InstrumentDefinition<?>[][] {getDefinitions(DSC_USD_MARKET_QUOTES, DSC_USD_GENERATORS, DSC_USD_ATTR) };
-    DEFINITIONS_UNITS[0][1] = new InstrumentDefinition<?>[][] {getDefinitions(FWD3_USD_MARKET_QUOTES, FWD3_USD_GENERATORS, FWD3_USD_ATTR) };
-    final GeneratorYDCurve genIntLin = CurveCalibrationConventionDataSets.generatorYDMatLin();
-    GENERATORS_UNITS[0][0] = new GeneratorYDCurve[] {genIntLin };
-    GENERATORS_UNITS[0][1] = new GeneratorYDCurve[] {genIntLin };
-    NAMES_UNITS[0][0] = new String[] {CURVE_NAME_DSC_USD };
-    NAMES_UNITS[0][1] = new String[] {CURVE_NAME_FWD3_USD };
+    DEFINITIONS_UNITS[0][0] = new InstrumentDefinition<?>[][] {
+      getDefinitions(DSC_USD_MARKET_QUOTES, DSC_USD_GENERATORS, DSC_USD_ATTR),
+      getDefinitions(FWD3_USD_MARKET_QUOTES, FWD3_USD_GENERATORS, FWD3_USD_ATTR) };
+    final GeneratorYDCurve genIntLin = CurveCalibrationConventionDataSets.generatorYDMatNcs();
+    GENERATORS_UNITS[0][0] = new GeneratorYDCurve[] {genIntLin, genIntLin };
+    NAMES_UNITS[0][0] = new String[] {CURVE_NAME_DSC_USD, CURVE_NAME_FWD3_USD };
     DSC_MAP.put(CURVE_NAME_DSC_USD, USD);
     FWD_ON_MAP.put(CURVE_NAME_DSC_USD, new IndexON[] {FEDFUND });
     FWD_IBOR_MAP.put(CURVE_NAME_FWD3_USD, new IborIndex[] {USDLIBOR3M });
@@ -175,7 +176,7 @@ public class MulticurveBuildingDiscountingDiscountUSD2DemoTest {
     }
   }
 
-  @Test(enabled = true)
+  @Test(enabled = false)
   /** Export the forward curve to a csv file. */
   public void forwardAnalysis() {
     CurveCalibrationTestsUtils.exportIborForwardIborCurve(CALIBRATION_DATE, CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(0).getFirst(), USDLIBOR3M, NYC,

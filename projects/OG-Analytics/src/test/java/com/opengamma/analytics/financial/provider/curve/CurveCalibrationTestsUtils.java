@@ -18,6 +18,7 @@ import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedONDefinition;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
@@ -26,7 +27,7 @@ import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 
 public class CurveCalibrationTestsUtils {
 
-  public static void exportForwardIborCurve(ZonedDateTime calibrationDate, MulticurveProviderInterface multicurve, IborIndex index, Calendar cal,
+  public static void exportIborForwardIborCurve(ZonedDateTime calibrationDate, MulticurveProviderInterface multicurve, IborIndex index, Calendar cal,
       String fileName, int startIndex, int nbDate, int jump) {
     ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(calibrationDate, index.getSpotLag() + startIndex * jump, cal);
     final double[] rateDsc = new double[nbDate];
@@ -49,7 +50,7 @@ public class CurveCalibrationTestsUtils {
     }
   }
 
-  public static void exportForwardONCurve(ZonedDateTime calibrationDate, MulticurveProviderInterface multicurve, IndexON index, Calendar cal,
+  public static void exportONForwardONCurve(ZonedDateTime calibrationDate, MulticurveProviderInterface multicurve, IndexON index, Calendar cal,
       String fileName, int nbDate, int jump) {
     ZonedDateTime startDate = calibrationDate;
     final double[] rateDsc = new double[nbDate];
@@ -64,6 +65,69 @@ public class CurveCalibrationTestsUtils {
         rateDsc[loopdate] = multicurve.getSimplyCompoundForwardRate(index, startTime[loopdate], endTime, accrualFactor);
         startDate = ScheduleCalculator.getAdjustedDate(startDate, jump, cal);
         writer.append(0.0 + "," + startTime[loopdate] + "," + rateDsc[loopdate] + "\n");
+      }
+      writer.flush();
+      writer.close();
+    } catch (final IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  public static void exportONForwardIborCurve(ZonedDateTime calibrationDate, MulticurveProviderInterface multicurve, IborIndex index, Calendar cal,
+      String fileName, int nbDate, int jump) {
+    ZonedDateTime startDate = calibrationDate;
+    final double[] rateDsc = new double[nbDate];
+    final double[] startTime = new double[nbDate];
+    try {
+      final FileWriter writer = new FileWriter(fileName);
+      for (int loopdate = 0; loopdate < nbDate; loopdate++) {
+        startTime[loopdate] = TimeCalculator.getTimeBetween(calibrationDate, startDate);
+        final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, 1, cal);
+        final double endTime = TimeCalculator.getTimeBetween(calibrationDate, endDate);
+        final double accrualFactor = index.getDayCount().getDayCountFraction(startDate, endDate);
+        rateDsc[loopdate] = multicurve.getSimplyCompoundForwardRate(index, startTime[loopdate], endTime, accrualFactor);
+        startDate = ScheduleCalculator.getAdjustedDate(startDate, jump, cal);
+        writer.append(0.0 + "," + startTime[loopdate] + "," + rateDsc[loopdate] + "\n");
+      }
+      writer.flush();
+      writer.close();
+    } catch (final IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  public static void exportZCRatesONCurve(ZonedDateTime calibrationDate, MulticurveProviderDiscount multicurve, IndexON index, Calendar cal,
+      String fileName, int nbDate, int jump) {
+    ZonedDateTime startDate = calibrationDate;
+    final double[] rateZC = new double[nbDate];
+    final double[] startTime = new double[nbDate];
+    try {
+      final FileWriter writer = new FileWriter(fileName);
+      for (int loopdate = 0; loopdate < nbDate; loopdate++) {
+        startTime[loopdate] = TimeCalculator.getTimeBetween(calibrationDate, startDate);
+        rateZC[loopdate] = multicurve.getCurve(index).getInterestRate(startTime[loopdate]);
+        startDate = ScheduleCalculator.getAdjustedDate(startDate, jump, cal);
+        writer.append(0.0 + "," + startTime[loopdate] + "," + rateZC[loopdate] + "\n");
+      }
+      writer.flush();
+      writer.close();
+    } catch (final IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  public static void exportZCRatesIborCurve(ZonedDateTime calibrationDate, MulticurveProviderDiscount multicurve, IborIndex index, Calendar cal,
+      String fileName, int nbDate, int jump) {
+    ZonedDateTime startDate = calibrationDate;
+    final double[] rateZC = new double[nbDate];
+    final double[] startTime = new double[nbDate];
+    try {
+      final FileWriter writer = new FileWriter(fileName);
+      for (int loopdate = 0; loopdate < nbDate; loopdate++) {
+        startTime[loopdate] = TimeCalculator.getTimeBetween(calibrationDate, startDate);
+        rateZC[loopdate] = multicurve.getCurve(index).getInterestRate(startTime[loopdate]);
+        startDate = ScheduleCalculator.getAdjustedDate(startDate, jump, cal);
+        writer.append(0.0 + "," + startTime[loopdate] + "," + rateZC[loopdate] + "\n");
       }
       writer.flush();
       writer.close();

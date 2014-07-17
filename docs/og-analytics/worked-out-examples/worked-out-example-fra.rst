@@ -118,6 +118,4 @@ The first matrix is of dimension 17x17 (it has been cut to fit in the table). It
 
 ----------
 
-(1) Actually to price the *forward rate agreement* in the multi-curve framework, we also have suppose a deterministic spread hypothesis between the discounting and forward curves. This simplifying hypothesis is the standard one used for forward rate agreement pricing. 
-
-> Written with [StackEdit](https://stackedit.io/).
+(1) Actually to price the *forward rate agreement* in the multi-curve framework, we also have suppose a deterministic spread hypothesis between the discounting and forward curves. This simplifying hypothesis is the standard one used for forward rate agreement pricing.

@@ -76,8 +76,9 @@ public class MulticurveBuildingDiscountingDiscountEURECBDatesDemoTest {
 
   // Test note: Curve building date selected such that ECB dates are in the same OIS month: 7-Mar and 4-Apr
   // Test note: Total of 12 dates
-  private static final ZonedDateTime[] MEETING_ECB_DATE = new ZonedDateTime[] {DateUtils.getUTCDate(2013, 3, 7), DateUtils.getUTCDate(2013, 4, 4), DateUtils.getUTCDate(2013, 5, 2),
-    DateUtils.getUTCDate(2013, 6, 6), DateUtils.getUTCDate(2013, 7, 4), DateUtils.getUTCDate(2013, 8, 1), DateUtils.getUTCDate(2013, 9, 5), DateUtils.getUTCDate(2013, 10, 2),
+  private static final ZonedDateTime[] MEETING_ECB_DATE = new ZonedDateTime[] {
+    DateUtils.getUTCDate(2013, 3, 7), DateUtils.getUTCDate(2013, 4, 4), DateUtils.getUTCDate(2013, 5, 2), DateUtils.getUTCDate(2013, 6, 6),
+    DateUtils.getUTCDate(2013, 7, 4), DateUtils.getUTCDate(2013, 8, 1), DateUtils.getUTCDate(2013, 9, 5), DateUtils.getUTCDate(2013, 10, 2),
     DateUtils.getUTCDate(2013, 11, 7), DateUtils.getUTCDate(2013, 12, 5), DateUtils.getUTCDate(2014, 1, 9), DateUtils.getUTCDate(2014, 2, 6) };
   private static final double[] MEETING_ECB_TIME = new double[MEETING_ECB_DATE.length];
   static {
@@ -197,10 +198,10 @@ public class MulticurveBuildingDiscountingDiscountEURECBDatesDemoTest {
     }
   }
 
-  @Test(enabled = true)
+  @Test(enabled = false)
   /** Export the forward ON curve to a csv file. */
   public void forwardAnalysis() {
-    CurveCalibrationTestsUtils.exportForwardONCurve(CALIBRATION_DATE, CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(0).getFirst(), EONIA, TARGET,
+    CurveCalibrationTestsUtils.exportONForwardONCurve(CALIBRATION_DATE, CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(0).getFirst(), EONIA, TARGET,
         "demo-test-fwd-eur-eonia.csv", 500, 1);
   }
 
