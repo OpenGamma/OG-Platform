@@ -127,8 +127,10 @@ public class CapletStrippingDirect2DTest extends CapletStrippingSetup {
     final CapFloorIbor[] payments = caps[sample].get(nCapsSample - 1).getPayments();
     final int nPayments = payments.length;
     final double[] fixingTimes = new double[nPayments];
+    final double[] PaymentTimes = new double[nPayments];
     for (int i = 0; i < nPayments; ++i) {
       fixingTimes[i] = payments[i].getFixingTime();
+      PaymentTimes[i] = payments[i].getPaymentTime();
     }
 
     final CapletNodalSurfaceProvider provider = new CapletNodalSurfaceProvider(allCapStrikes, fixingTimes);
@@ -139,7 +141,7 @@ public class CapletStrippingDirect2DTest extends CapletStrippingSetup {
     int l = 0;
     System.out.print("\t");
     for (int j = 0; j < nPayments; ++j) {
-      System.out.print(fixingTimes[j] + "\t");
+      System.out.print(PaymentTimes[j] + "\t");
     }
     System.out.print("\n");
     for (int i = 0; i < nStrikes + nCapEndTimes; ++i) {
@@ -160,15 +162,15 @@ public class CapletStrippingDirect2DTest extends CapletStrippingSetup {
     System.out.println(res.getChiSq());
 
     DoubleMatrix1D resVec = res.getFitParameters();
-    Double[][] resMatrix = new Double[nStrikes][nPayments];
-    for (int i = 0; i < nStrikes; ++i) {
+    Double[][] resMatrix = new Double[nStrikes + nCapEndTimes][nPayments];
+    for (int i = 0; i < nStrikes + nCapEndTimes; ++i) {
       for (int j = 0; j < nPayments; ++j) {
         resMatrix[i][j] = resVec.getEntry(i * nPayments + j);
       }
     }
 
     double chiSq = 0.;
-    for (int i = 0; i < nStrikes; ++i) {
+    for (int i = 0; i < nStrikes + nCapEndTimes; ++i) {
       final int nCaps = caps[i].size();
       for (int j = 0; j < nCaps; ++j) {
         CapFloor cf = caps[i].get(j);
