@@ -25,21 +25,28 @@ import com.opengamma.util.ArgumentChecker;
  * 
  */
 public class CapletStrippingDirect2D {
-  private static final double EPS = 1.e-7;
-
   private final List<CapFloorPricer>[] _capPricers;
   private final CapletNodalSurfaceProvider _nodalSurfaceProvider;
   private final int _nCapsTotal;
 
   private static final NonLinearLeastSquareWithPenalty NLLSWP = new NonLinearLeastSquareWithPenalty(new CholeskyDecompositionCommons(), MatrixAlgebraFactory.OG_ALGEBRA, 1e-8);
-  private static final double LAMBDA_TIME = 12.;
-  private static final double LAMBDA_STRIKE = 0.004;
-  private static final double ERROR = 1.0e-4;
+  private static final double DEFAULT_LAMBDA_TIME = 10.0;
+  private static final double DEFAULT_LAMBDA_STRIKE = 0.001;
+  private static final double DEFAULT_ERROR = 1.0e-4;
   private final DoubleMatrix2D _penalty;
 
-  // private final int _totalNodes;
-
+  /**
+   * Constructor using default smoothing parameters
+   * @param caps Caps as array of list: each list contains caps with the same strike
+   * @param curves The curves
+   * @param nodalSurfaceProvider Provider for caplet volatilities as a nordal surface
+   */
   public CapletStrippingDirect2D(final List<CapFloor>[] caps, final MulticurveProviderInterface curves, final CapletNodalSurfaceProvider nodalSurfaceProvider) {
+    this(caps, curves, nodalSurfaceProvider, DEFAULT_LAMBDA_STRIKE, DEFAULT_LAMBDA_TIME);
+  }
+
+  public CapletStrippingDirect2D(final List<CapFloor>[] caps, final MulticurveProviderInterface curves, final CapletNodalSurfaceProvider nodalSurfaceProvider, final double lambdaStrike,
+      final double lambdaTime) {
 
     ArgumentChecker.noNulls(caps, "caps");
     ArgumentChecker.notNull(curves, "curves");
@@ -60,7 +67,7 @@ public class CapletStrippingDirect2D {
     }
 
     _nCapsTotal = nCapsTotal;
-    _penalty = _nodalSurfaceProvider.getPenaltyMatrix(LAMBDA_STRIKE, LAMBDA_TIME);
+    _penalty = _nodalSurfaceProvider.getPenaltyMatrix(lambdaStrike, lambdaTime);
   }
 
   public LeastSquareResults solveForVol(final double[][] capVols) {
@@ -68,7 +75,7 @@ public class CapletStrippingDirect2D {
     final DoubleMatrix1D capVolVec = toVector(capVols);
     final int nObs = capVolVec.getNumberOfElements();
     final double[] errors = new double[nObs];
-    Arrays.fill(errors, ERROR);
+    Arrays.fill(errors, DEFAULT_ERROR);
     final int nNodes = _nodalSurfaceProvider.getNumberOfNodes();
     final double[] guess = new double[nNodes];
     Arrays.fill(guess, 0.7);
