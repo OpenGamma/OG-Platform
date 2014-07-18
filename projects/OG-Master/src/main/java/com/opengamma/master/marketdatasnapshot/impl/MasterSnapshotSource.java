@@ -19,7 +19,6 @@ import com.opengamma.core.change.ChangeListener;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotChangeListener;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.core.marketdatasnapshot.NamedSnapshot;
-import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
@@ -40,7 +39,7 @@ import com.opengamma.util.tuple.Pairs;
  */
 @PublicSPI
 public class MasterSnapshotSource
-    extends AbstractMasterSource<StructuredMarketDataSnapshot, MarketDataSnapshotDocument, MarketDataSnapshotMaster>
+    extends AbstractMasterSource<NamedSnapshot, MarketDataSnapshotDocument, MarketDataSnapshotMaster>
     implements MarketDataSnapshotSource {
 
   /**
