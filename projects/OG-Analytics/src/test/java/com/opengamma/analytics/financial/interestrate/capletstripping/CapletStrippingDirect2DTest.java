@@ -42,7 +42,7 @@ public class CapletStrippingDirect2DTest extends CapletStrippingSetup {
       fixingTimes[i] = payments[i].getFixingTime();
     }
 
-    final CapletNodalSurfaceProvider provider = new CapletNodalSurfaceProvider(capStrikes, fixingTimes);
+    final CapletVolatilityNodalSurfaceProvider provider = new CapletVolatilityNodalSurfaceProvider(capStrikes, fixingTimes);
     final CapletStrippingDirect2D cpst = new CapletStrippingDirect2D(caps, getYieldCurves(), provider);
     //    LeastSquareResults res = cpst.solveForVol(cpst.makeMatrix(capVols));
     LeastSquareResults res = cpst.solveForVol(capVols);
@@ -133,7 +133,7 @@ public class CapletStrippingDirect2DTest extends CapletStrippingSetup {
       PaymentTimes[i] = payments[i].getPaymentTime();
     }
 
-    final CapletNodalSurfaceProvider provider = new CapletNodalSurfaceProvider(allCapStrikes, fixingTimes);
+    final CapletVolatilityNodalSurfaceProvider provider = new CapletVolatilityNodalSurfaceProvider(allCapStrikes, fixingTimes);
     final CapletStrippingDirect2D cpst = new CapletStrippingDirect2D(caps, getYieldCurves(), provider);
     //    LeastSquareResults res = cpst.solveForVol(cpst.makeMatrix(capVols));
     LeastSquareResults res = cpst.solveForVol(capVols);

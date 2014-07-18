@@ -26,7 +26,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class CapletStrippingDirect2D {
   private final List<CapFloorPricer>[] _capPricers;
-  private final CapletNodalSurfaceProvider _nodalSurfaceProvider;
+  private final CapletVolatilityNodalSurfaceProvider _nodalSurfaceProvider;
   private final int _nCapsTotal;
 
   private static final NonLinearLeastSquareWithPenalty NLLSWP = new NonLinearLeastSquareWithPenalty(new CholeskyDecompositionCommons(), MatrixAlgebraFactory.OG_ALGEBRA, 1e-8);
@@ -41,11 +41,11 @@ public class CapletStrippingDirect2D {
    * @param curves The curves
    * @param nodalSurfaceProvider Provider for caplet volatilities as a nordal surface
    */
-  public CapletStrippingDirect2D(final List<CapFloor>[] caps, final MulticurveProviderInterface curves, final CapletNodalSurfaceProvider nodalSurfaceProvider) {
+  public CapletStrippingDirect2D(final List<CapFloor>[] caps, final MulticurveProviderInterface curves, final CapletVolatilityNodalSurfaceProvider nodalSurfaceProvider) {
     this(caps, curves, nodalSurfaceProvider, DEFAULT_LAMBDA_STRIKE, DEFAULT_LAMBDA_TIME);
   }
 
-  public CapletStrippingDirect2D(final List<CapFloor>[] caps, final MulticurveProviderInterface curves, final CapletNodalSurfaceProvider nodalSurfaceProvider, final double lambdaStrike,
+  public CapletStrippingDirect2D(final List<CapFloor>[] caps, final MulticurveProviderInterface curves, final CapletVolatilityNodalSurfaceProvider nodalSurfaceProvider, final double lambdaStrike,
       final double lambdaTime) {
 
     ArgumentChecker.noNulls(caps, "caps");
