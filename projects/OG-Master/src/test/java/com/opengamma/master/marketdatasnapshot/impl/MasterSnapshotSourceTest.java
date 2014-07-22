@@ -24,7 +24,6 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.marketdatasnapshot.NamedSnapshot;
-import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
@@ -42,7 +41,7 @@ import com.opengamma.util.test.TestGroup;
 public class MasterSnapshotSourceTest {
 
   private static final UniqueId UID = UniqueId.of("A", "B");
-  private MasterSnapshotSource _populatedSource = createPopulatedSource();
+  private final MasterSnapshotSource _populatedSource = createPopulatedSource();
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_constructor_1arg_nullMaster() throws Exception {
@@ -56,7 +55,7 @@ public class MasterSnapshotSourceTest {
     MarketDataSnapshotDocument doc = new MarketDataSnapshotDocument(example());
     when(mock.get(UID)).thenReturn(doc);
     MasterSnapshotSource test = new MasterSnapshotSource(mock);
-    StructuredMarketDataSnapshot testResult = test.get(UID);
+    NamedSnapshot testResult = test.get(UID);
     verify(mock, times(1)).get(UID);
 
     assertEquals(example(), testResult);
@@ -199,7 +198,7 @@ public class MasterSnapshotSourceTest {
     /**
      * The values which are held.
      */
-    private List<SnapshotRecord> values = new ArrayList<>();
+    private final List<SnapshotRecord> values = new ArrayList<>();
 
     /**
      * Add a new snapshot, recording a type and name.

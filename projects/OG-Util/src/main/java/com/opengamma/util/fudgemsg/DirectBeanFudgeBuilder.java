@@ -14,7 +14,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+import java.util.SortedMap;
 import java.util.SortedSet;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.fudgemsg.FudgeField;
@@ -267,7 +269,12 @@ public final class DirectBeanFudgeBuilder<T extends Bean> implements FudgeBuilde
   private Map<Object, Object> buildObjectMap(FudgeDeserializer deserializer, MetaProperty<?> prop, Class<?> type, FudgeMsg msg) {
     Class<?> keyType = JodaBeanUtils.mapKeyType(prop, type);
     Class<?> valueType = JodaBeanUtils.mapValueType(prop, type);
-    Map<Object, Object> map = Maps.newHashMap();  // should be Map<keyType,contentType>
+    Map<Object, Object> map; // should be Map<keyType,contentType>
+    if (SortedMap.class.isAssignableFrom(prop.propertyType())) {
+      map = new TreeMap<>();
+    } else {
+      map = Maps.newHashMap();  
+    }
     Queue<Object> keys = new LinkedList<>();
     Queue<Object> values = new LinkedList<>();
     for (FudgeField field : msg) {

@@ -10,6 +10,7 @@ import com.opengamma.analytics.financial.model.volatility.SimpleOptionData;
 import com.opengamma.analytics.financial.model.volatility.VolatilityModel1D;
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  *
@@ -64,6 +65,16 @@ public class CapFloorPricer {
     return sum;
   }
 
+  public double price(final Double[] capletVols) {
+    ArgumentChecker.isTrue(capletVols.length == _n, "number of caplets is not equal to number of vols");
+    double sum = 0;
+    for (int i = 0; i < _n; i++) {
+      final double vol = capletVols[i];
+      sum += BlackFormulaRepository.price(_caplets[i], vol);
+    }
+    return sum;
+  }
+
   public double impliedVol(final double capPrice) {
     return BlackFormulaRepository.impliedVolatility(_caplets, capPrice);
   }
@@ -75,6 +86,11 @@ public class CapFloorPricer {
 
   public double impliedVol(final VolatilitySurface volSurface) {
     final double price = price(volSurface);
+    return impliedVol(price);
+  }
+
+  public double impliedVol(final Double[] capletVols) {
+    final double price = price(capletVols);
     return impliedVol(price);
   }
 
@@ -93,6 +109,11 @@ public class CapFloorPricer {
 
   public double vega(final VolatilitySurface volSurface) {
     final double vol = impliedVol(volSurface);
+    return vega(vol);
+  }
+
+  public double vega(final Double[] capletVols) {
+    final double vol = impliedVol(capletVols);
     return vega(vol);
   }
 
@@ -159,6 +180,10 @@ public class CapFloorPricer {
    */
   protected int getNumberCaplets() {
     return _n;
+  }
+
+  public SimpleOptionData[] getCapletAsOptionData() {
+    return _caplets;
   }
 
 }

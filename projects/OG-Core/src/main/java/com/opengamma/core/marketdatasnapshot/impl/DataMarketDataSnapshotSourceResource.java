@@ -17,7 +17,7 @@ import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
-import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
+import com.opengamma.core.marketdatasnapshot.NamedSnapshot;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
@@ -69,7 +69,7 @@ public class DataMarketDataSnapshotSourceResource extends AbstractDataResource {
       @PathParam("snapshotId") String idStr,
       @QueryParam("version") String version) {
     final ObjectId objectId = ObjectId.parse(idStr);
-    final StructuredMarketDataSnapshot result = getMarketDataSnapshotSource().get(objectId.atVersion(version));
+    final NamedSnapshot result = getMarketDataSnapshotSource().get(objectId.atVersion(version));
     return responseOkObject(result);
   }
 

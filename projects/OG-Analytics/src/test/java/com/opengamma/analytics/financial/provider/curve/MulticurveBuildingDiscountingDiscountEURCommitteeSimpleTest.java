@@ -17,7 +17,6 @@ import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorCurveDiscountFactorInterpolatedNode;
-import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorCurveYieldInterpolated;
 import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorYDCurve;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
@@ -34,7 +33,9 @@ import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedON;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedONMaster;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
+import com.opengamma.analytics.financial.instrument.index.IndexIborMaster;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
+import com.opengamma.analytics.financial.instrument.index.IndexONMaster;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedONDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
@@ -42,7 +43,6 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
-import com.opengamma.analytics.financial.provider.calculator.generic.LastTimeCalculator;
 import com.opengamma.analytics.financial.provider.curve.multicurve.MulticurveDiscountBuildingRepository;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
@@ -67,31 +67,27 @@ import com.opengamma.util.tuple.Pair;
 @Test(groups = TestGroup.UNIT)
 public class MulticurveBuildingDiscountingDiscountEURCommitteeSimpleTest {
 
-  private static final Interpolator1D INTERPOLATOR_LINEAR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
-      Interpolator1DFactory.FLAT_EXTRAPOLATOR);
-  private static final Interpolator1D INTERPOLATOR_LL = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LOG_LINEAR, Interpolator1DFactory.EXPONENTIAL_EXTRAPOLATOR,
-      Interpolator1DFactory.EXPONENTIAL_EXTRAPOLATOR); // Log-linear on the discount factor = step on the instantaneous rates
+  /** Curve calibration date */
+  private static final ZonedDateTime CALIBRATION_DATE = DateUtils.getUTCDate(2013, 2, 4);
 
-  private static final LastTimeCalculator MATURITY_CALCULATOR = LastTimeCalculator.getInstance();
-  private static final double TOLERANCE_ROOT = 1.0E-10;
-  private static final int STEP_MAX = 100;
-
+  /** Index and curve names */
   private static final Calendar TARGET = new MondayToFridayCalendar("TARGET");
   private static final Currency EUR = Currency.EUR;
   private static final FXMatrix FX_MATRIX = new FXMatrix(EUR);
+  private static final IndexON EONIA = IndexONMaster.getInstance().getIndex("EONIA");
+  private static final IborIndex EURIBOR6M = IndexIborMaster.getInstance().getIndex("EURIBOR6M");
+  private static final String CURVE_NAME_DSC_EUR = "EUR Dsc";
+  private static final String CURVE_NAME_FWD6_EUR = "EUR Fwd 6M";
 
-  private static final double NOTIONAL = 1.0;
+  private static final Interpolator1D INTERPOLATOR_LL = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LOG_LINEAR, Interpolator1DFactory.EXPONENTIAL_EXTRAPOLATOR,
+      Interpolator1DFactory.EXPONENTIAL_EXTRAPOLATOR); // Log-linear on the discount factor = step on the instantaneous rates
 
   private static final GeneratorSwapFixedON GENERATOR_OIS_EUR = GeneratorSwapFixedONMaster.getInstance().getGenerator("EUR1YEONIA", TARGET);
-  private static final IndexON EONIA = GENERATOR_OIS_EUR.getIndex();
   private static final GeneratorSwapFixedIborMaster GENERATOR_SWAP_MASTER = GeneratorSwapFixedIborMaster.getInstance();
   private static final GeneratorSwapFixedIbor EUR1YEURIBOR6M = GENERATOR_SWAP_MASTER.getGenerator("EUR1YEURIBOR6M", TARGET);
-  private static final IborIndex EURIBOR6M = EUR1YEURIBOR6M.getIborIndex();
   private static final IborIndex EUROLIBOR6M = new IborIndex(EUR, Period.ofMonths(6), 2, EURIBOR6M.getDayCount(), EURIBOR6M.getBusinessDayConvention(), true, "EUROLIBOR6M");
   private static final GeneratorFRA GENERATOR_FRA_6M = new GeneratorFRA("GENERATOR_FRA_6M", EURIBOR6M, TARGET);
   private static final GeneratorDepositIbor GENERATOR_EURIBOR6M = new GeneratorDepositIbor("GENERATOR_EURIBOR6M", EURIBOR6M, TARGET);
-
-  private static final ZonedDateTime NOW = DateUtils.getUTCDate(2013, 2, 4);
   // Test note: Curve building date selected such that ECB dates are in the same OIS month: 7-Mar and 4-Apr
   // Test note: Total of 12 dates
   private static final ZonedDateTime[] MEETING_ECB_DATE = new ZonedDateTime[] {DateUtils.getUTCDate(2013, 3, 7), DateUtils.getUTCDate(2013, 4, 4), DateUtils.getUTCDate(2013, 5, 2),
@@ -100,7 +96,7 @@ public class MulticurveBuildingDiscountingDiscountEURCommitteeSimpleTest {
   private static final double[] MEETING_ECB_TIME = new double[MEETING_ECB_DATE.length];
   static {
     for (int loopdate = 0; loopdate < MEETING_ECB_DATE.length; loopdate++) {
-      MEETING_ECB_TIME[loopdate] = TimeCalculator.getTimeBetween(NOW, MEETING_ECB_DATE[loopdate]);
+      MEETING_ECB_TIME[loopdate] = TimeCalculator.getTimeBetween(CALIBRATION_DATE, MEETING_ECB_DATE[loopdate]);
     }
   }
 
@@ -119,9 +115,6 @@ public class MulticurveBuildingDiscountingDiscountEURCommitteeSimpleTest {
 
   private static final ZonedDateTimeDoubleTimeSeries[] TS_FIXED_IBOR_EUR6M_WITH_TODAY = new ZonedDateTimeDoubleTimeSeries[] {TS_IBOR_EUR6M_WITH_TODAY };
   private static final ZonedDateTimeDoubleTimeSeries[] TS_FIXED_IBOR_EUR6M_WITHOUT_TODAY = new ZonedDateTimeDoubleTimeSeries[] {TS_IBOR_EUR6M_WITHOUT_TODAY };
-
-  private static final String CURVE_NAME_DSC_EUR = "EUR Dsc";
-  private static final String CURVE_NAME_FWD6_EUR = "EUR Fwd 6M";
 
   /** Market values for the dsc USD curve */
   private static final double[] DSC_EUR_MARKET_QUOTES = new double[] {0.0060, 0.0050, 0.0055, 0.0070, 0.0080, 0.0075, 0.0070, 0.0075, 0.0080, 0.0075, 0.0080, 0.0075 };
@@ -182,7 +175,7 @@ public class MulticurveBuildingDiscountingDiscountEURCommitteeSimpleTest {
     }
     DEFINITIONS_UNITS[0][0] = new InstrumentDefinition<?>[][] {DEFINITIONS_DSC_EUR };
     DEFINITIONS_UNITS[0][1] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD6_EUR };
-    final GeneratorYDCurve genIntLinMat = new GeneratorCurveYieldInterpolated(MATURITY_CALCULATOR, INTERPOLATOR_LINEAR);
+    final GeneratorYDCurve genIntLinMat = CurveCalibrationConventionDataSets.generatorYDMatLin();
     final GeneratorYDCurve genIntDFLL = new GeneratorCurveDiscountFactorInterpolatedNode(MEETING_ECB_TIME, INTERPOLATOR_LL);
     GENERATORS_UNITS[0][0] = new GeneratorYDCurve[] {genIntDFLL };
     GENERATORS_UNITS[0][1] = new GeneratorYDCurve[] {genIntLinMat };
@@ -197,7 +190,7 @@ public class MulticurveBuildingDiscountingDiscountEURCommitteeSimpleTest {
   public static InstrumentDefinition<?>[] getDefinitions(final double[] marketQuotes, final GeneratorInstrument[] generators, final GeneratorAttribute[] attribute) {
     final InstrumentDefinition<?>[] definitions = new InstrumentDefinition<?>[marketQuotes.length];
     for (int loopmv = 0; loopmv < marketQuotes.length; loopmv++) {
-      definitions[loopmv] = generators[loopmv].generateInstrument(NOW, marketQuotes[loopmv], NOTIONAL, attribute[loopmv]);
+      definitions[loopmv] = generators[loopmv].generateInstrument(CALIBRATION_DATE, marketQuotes[loopmv], 1.0, attribute[loopmv]);
     }
     return definitions;
   }
@@ -209,7 +202,8 @@ public class MulticurveBuildingDiscountingDiscountEURCommitteeSimpleTest {
   private static final ParSpreadMarketQuoteDiscountingCalculator PSMQDC = ParSpreadMarketQuoteDiscountingCalculator.getInstance();
   private static final ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator PSMQCSDC = ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator.getInstance();
 
-  private static final MulticurveDiscountBuildingRepository CURVE_BUILDING_REPOSITORY = new MulticurveDiscountBuildingRepository(TOLERANCE_ROOT, TOLERANCE_ROOT, STEP_MAX);
+  private static final MulticurveDiscountBuildingRepository CURVE_BUILDING_REPOSITORY =
+      CurveCalibrationConventionDataSets.curveBuildingRepository();
 
   private static final double TOLERANCE_CAL = 1.0E-9;
 
@@ -278,15 +272,15 @@ public class MulticurveBuildingDiscountingDiscountEURCommitteeSimpleTest {
       for (final InstrumentDefinition<?> instrument : definitions[loopcurve]) {
         InstrumentDerivative ird;
         if (instrument instanceof SwapFixedONDefinition) {
-          ird = ((SwapFixedONDefinition) instrument).toDerivative(NOW, getTSSwapFixedON(withToday));
+          ird = ((SwapFixedONDefinition) instrument).toDerivative(CALIBRATION_DATE, getTSSwapFixedON(withToday));
         } else {
           if (instrument instanceof SwapFixedIborDefinition) {
-            ird = ((SwapFixedIborDefinition) instrument).toDerivative(NOW, getTSSwapFixedIbor(withToday));
+            ird = ((SwapFixedIborDefinition) instrument).toDerivative(CALIBRATION_DATE, getTSSwapFixedIbor(withToday));
           } else {
             if (instrument instanceof InterestRateFutureTransactionDefinition) {
-              ird = ((InterestRateFutureTransactionDefinition) instrument).toDerivative(NOW, 0.0); // Trade date = today, reference price not used.
+              ird = ((InterestRateFutureTransactionDefinition) instrument).toDerivative(CALIBRATION_DATE, 0.0); // Trade date = today, reference price not used.
             } else {
-              ird = instrument.toDerivative(NOW);
+              ird = instrument.toDerivative(CALIBRATION_DATE);
             }
           }
         }
@@ -299,15 +293,15 @@ public class MulticurveBuildingDiscountingDiscountEURCommitteeSimpleTest {
   private static InstrumentDerivative convert(final InstrumentDefinition<?> instrument, final boolean withToday) {
     InstrumentDerivative ird;
     if (instrument instanceof SwapFixedONDefinition) {
-      ird = ((SwapFixedONDefinition) instrument).toDerivative(NOW, getTSSwapFixedON(withToday));
+      ird = ((SwapFixedONDefinition) instrument).toDerivative(CALIBRATION_DATE, getTSSwapFixedON(withToday));
     } else {
       if (instrument instanceof SwapFixedIborDefinition) {
-        ird = ((SwapFixedIborDefinition) instrument).toDerivative(NOW, getTSSwapFixedIbor(withToday));
+        ird = ((SwapFixedIborDefinition) instrument).toDerivative(CALIBRATION_DATE, getTSSwapFixedIbor(withToday));
       } else {
         if (instrument instanceof InterestRateFutureTransactionDefinition) {
-          ird = ((InterestRateFutureTransactionDefinition) instrument).toDerivative(NOW, 0.0); // Trade date = today, reference price not used.
+          ird = ((InterestRateFutureTransactionDefinition) instrument).toDerivative(CALIBRATION_DATE, 0.0); // Trade date = today, reference price not used.
         } else {
-          ird = instrument.toDerivative(NOW);
+          ird = instrument.toDerivative(CALIBRATION_DATE);
         }
       }
     }

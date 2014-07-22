@@ -38,25 +38,25 @@ import com.opengamma.util.tuple.DoublesPair;
  * Reference: Henrard, M. (2010). The irony in the derivatives discounting part
  * II: the crisis. Wilmott Journal, 2(6):301-316.
  */
-public final class ForwardRateAgreementDiscountingProviderMethod {
+public final class ForwardRateAgreementDiscountingMethod {
 
   /**
    * The method unique instance.
    */
-  private static final ForwardRateAgreementDiscountingProviderMethod INSTANCE = new ForwardRateAgreementDiscountingProviderMethod();
+  private static final ForwardRateAgreementDiscountingMethod INSTANCE = new ForwardRateAgreementDiscountingMethod();
 
   /**
    * Return the unique instance of the class.
    * @return The instance.
    */
-  public static ForwardRateAgreementDiscountingProviderMethod getInstance() {
+  public static ForwardRateAgreementDiscountingMethod getInstance() {
     return INSTANCE;
   }
 
   /**
    * Private constructor.
    */
-  private ForwardRateAgreementDiscountingProviderMethod() {
+  private ForwardRateAgreementDiscountingMethod() {
   }
 
   /**

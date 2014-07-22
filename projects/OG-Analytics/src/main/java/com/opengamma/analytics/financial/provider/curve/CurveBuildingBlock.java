@@ -20,7 +20,8 @@ public class CurveBuildingBlock {
 
   /**
    * The list of curve in the block as a map: Name to a pair of integers:
-   *   1) Start of the curve parameters in the array of all parameters of the block. 2) Number of parameters in the curve
+   *   1) Start of the curve parameters in the array of all parameters of the block. 
+   *   2) Number of parameters in the curve
    */
   private final LinkedHashMap<String, Pair<Integer, Integer>> _unit;
 

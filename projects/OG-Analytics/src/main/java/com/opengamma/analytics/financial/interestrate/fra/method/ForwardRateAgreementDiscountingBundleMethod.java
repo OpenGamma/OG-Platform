@@ -16,7 +16,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
-import com.opengamma.analytics.financial.interestrate.fra.provider.ForwardRateAgreementDiscountingProviderMethod;
+import com.opengamma.analytics.financial.interestrate.fra.provider.ForwardRateAgreementDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.method.PricingMethod;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.money.CurrencyAmount;
@@ -39,17 +39,17 @@ import com.opengamma.util.tuple.DoublesPair;
  * <p>
  * Reference: Henrard, M. (2010). The irony in the derivatives discounting part
  * II: the crisis. Wilmott Journal, 2(6):301-316.
- * @deprecated Use {@link ForwardRateAgreementDiscountingProviderMethod}
+ * @deprecated Use {@link ForwardRateAgreementDiscountingMethod}
  */
 @Deprecated
-public final class ForwardRateAgreementDiscountingMethod implements PricingMethod {
-  private static final ForwardRateAgreementDiscountingMethod INSTANCE = new ForwardRateAgreementDiscountingMethod();
+public final class ForwardRateAgreementDiscountingBundleMethod implements PricingMethod {
+  private static final ForwardRateAgreementDiscountingBundleMethod INSTANCE = new ForwardRateAgreementDiscountingBundleMethod();
 
-  public static ForwardRateAgreementDiscountingMethod getInstance() {
+  public static ForwardRateAgreementDiscountingBundleMethod getInstance() {
     return INSTANCE;
   }
 
-  private ForwardRateAgreementDiscountingMethod() {
+  private ForwardRateAgreementDiscountingBundleMethod() {
   }
 
   /**
