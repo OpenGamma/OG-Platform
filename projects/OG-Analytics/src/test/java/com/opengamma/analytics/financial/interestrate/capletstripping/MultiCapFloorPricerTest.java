@@ -15,11 +15,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.model.volatility.VolatilityTermStructure;
-import com.opengamma.analytics.financial.model.volatility.curve.VolatilityCurve;
+import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
-import com.opengamma.analytics.math.curve.FunctionalDoublesCurve;
-import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.function.Function2D;
+import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
 import com.opengamma.util.monitor.OperationTimer;
 import com.opengamma.util.test.TestGroup;
 
@@ -30,17 +29,16 @@ import com.opengamma.util.test.TestGroup;
 public class MultiCapFloorPricerTest extends CapletStrippingSetup {
   private static final Logger LOGGER = LoggerFactory.getLogger(MultiCapFloorPricerTest.class);
 
-  private static VolatilityTermStructure VOL;
+  private static VolatilitySurface VOL;
 
   static {
-
-    final Function1D<Double, Double> vol = new Function1D<Double, Double>() {
+    final Function2D<Double, Double> vol = new Function2D<Double, Double>() {
       @Override
-      public Double evaluate(final Double t) {
+      public Double evaluate(final Double t, final Double k) {
         return 0.3 + 0.8 * Math.exp(-0.3 * t);
       }
     };
-    VOL = new VolatilityCurve(FunctionalDoublesCurve.from(vol));
+    VOL = new VolatilitySurface(FunctionalDoublesSurface.from(vol));
   }
 
   @Test

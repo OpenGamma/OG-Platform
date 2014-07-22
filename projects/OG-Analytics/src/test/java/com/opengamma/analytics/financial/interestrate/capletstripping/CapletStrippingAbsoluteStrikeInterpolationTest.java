@@ -24,7 +24,7 @@ public class CapletStrippingAbsoluteStrikeInterpolationTest extends CapletStripp
 
   @Test
   public void test() {
-    final boolean print = false;
+    final boolean print = true;
     testVolStripping(print);
   }
 

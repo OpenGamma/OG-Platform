@@ -94,7 +94,8 @@ public class SABRFittingTest extends CapletStrippingSetup {
 
   }
 
-  @Test(enabled = false)
+  @Test
+  //(enabled = false)
   public void test() {
     final MulticurveProviderDiscount yc = getYieldCurves();
     final List<CapFloor> caps = getAllCaps();

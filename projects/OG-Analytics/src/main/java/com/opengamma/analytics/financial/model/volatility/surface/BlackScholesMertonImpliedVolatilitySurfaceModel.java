@@ -23,7 +23,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * 
+ * This produces a flat volatility surface, with the implied volatility of the <b>single</b> option passed to the constructor  
  */
 public class BlackScholesMertonImpliedVolatilitySurfaceModel implements VolatilitySurfaceModel<Map<OptionDefinition, Double>, StandardOptionDataBundle> {
   private static final Logger s_logger = LoggerFactory.getLogger(BlackScholesMertonImpliedVolatilitySurfaceModel.class);
@@ -31,6 +31,9 @@ public class BlackScholesMertonImpliedVolatilitySurfaceModel implements Volatili
   private SingleRootFinder<StandardOptionDataBundle, Double> _rootFinder;
 
   @Override
+  /**
+   * @param optionPrices a map containing a single entry from an OptionDefinition to a price 
+   */
   public VolatilitySurface getSurface(final Map<OptionDefinition, Double> optionPrices, final StandardOptionDataBundle optionDataBundle) {
     Validate.notNull(optionPrices);
     ArgumentChecker.notEmpty(optionPrices, "option prices");

@@ -24,7 +24,10 @@ import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * 
+ * This is a regression of the implied volatilities of options against, $k$, $k^2$, $t$, $t^2$, and $k\times t$, where $k$
+ * and $t$ are the option strike and time-to-expiry (in years) respectively.  It therefore finds the best quadratic fit (in $k$ and $t$)
+ * to the market implied volatilities, i.e. the volatility surface is model as $\sigma(k,t) = a_0 + a_1k + a_2k^2 + a_3t + a_4t^2 +a_5kt$
+ * @see http://www.econometricsociety.org/meetings/esem02/cdrom/papers/221/cj.pdf
  */
 public class PractitionerBlackScholesVolatilitySurfaceModel implements VolatilitySurfaceModel<Map<OptionDefinition, Double>, StandardOptionDataBundle> {
   private static final Logger s_logger = LoggerFactory.getLogger(PractitionerBlackScholesVolatilitySurfaceModel.class);
@@ -54,6 +57,9 @@ public class PractitionerBlackScholesVolatilitySurfaceModel implements Volatilit
   }
 
   @Override
+  /**
+   * A minimum of 5 distinct option prices are required.
+   */
   public VolatilitySurface getSurface(final Map<OptionDefinition, Double> prices, final StandardOptionDataBundle data) {
     Validate.notNull(prices, "prices");
     Validate.notNull(data, "data");

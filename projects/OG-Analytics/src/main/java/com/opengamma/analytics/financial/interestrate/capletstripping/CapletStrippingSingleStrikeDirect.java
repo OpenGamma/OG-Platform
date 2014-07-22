@@ -8,10 +8,10 @@ package com.opengamma.analytics.financial.interestrate.capletstripping;
 import java.util.Arrays;
 import java.util.List;
 
-import com.opengamma.analytics.financial.model.volatility.VolatilityTermStructure;
-import com.opengamma.analytics.financial.model.volatility.curve.VolatilityCurve;
+import com.opengamma.analytics.financial.interestrate.capletstripping.newstrippers.InterpolatedVolatilityTermStructureProvider;
+import com.opengamma.analytics.financial.interestrate.capletstripping.newstrippers.VolatilitySurfaceProvider;
+import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
-import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
@@ -37,6 +37,7 @@ public class CapletStrippingSingleStrikeDirect extends CapletStrippingAbsoluteSt
 
   private final Interpolator1D _interpolator;
   private final DoubleMatrix2D _penalty;
+  private final VolatilitySurfaceProvider _volSurfaceProvider;
 
   public CapletStrippingSingleStrikeDirect(final List<CapFloor> caps, final MulticurveProviderInterface curves) {
     super(caps, curves);
@@ -44,6 +45,7 @@ public class CapletStrippingSingleStrikeDirect extends CapletStrippingAbsoluteSt
     final PSplineFitter psf = new PSplineFitter();
     _penalty = (DoubleMatrix2D) MA.scale(psf.getPenaltyMatrix(getnCaplets(), DIFFERENCE_ORDER), LAMBDA);
     _interpolator = DEFAULT_INTERPOLATOR;
+    _volSurfaceProvider = new InterpolatedVolatilityTermStructureProvider(getPricer().getCapletExpiries(), _interpolator);
     // _altCapletStripper = new CapletStrippingAbsoluteStrikeInterpolation(caps, yieldCurves);
   }
 
@@ -61,12 +63,17 @@ public class CapletStrippingSingleStrikeDirect extends CapletStrippingAbsoluteSt
 
     final double[] mPrices = pricer.priceFromCapletVols(lsRes.getFitParameters().getData());
     final double chiSqr = chiSqr(capPrices, mPrices);
-    final VolatilityTermStructure vc = getVolCurve(lsRes.getFitParameters().getData());
+    final VolatilitySurface vc = getVolSurface(lsRes.getFitParameters().getData());
     return new CapletStrippingSingleStrikeResult(chiSqr, lsRes.getFitParameters(), vc, new DoubleMatrix1D(mPrices));
   }
 
-  private VolatilityTermStructure getVolCurve(final double[] capletVols) {
-    return new VolatilityCurve(InterpolatedDoublesCurve.from(getPricer().getCapletExpiries(), capletVols, _interpolator));
+  /**
+   * Produce a continuous volatility surface from the discrete caplet vols 
+   * @param capletVols the caplet vols
+   * @return a volatility surface
+   */
+  private VolatilitySurface getVolSurface(final double[] capletVols) {
+    return _volSurfaceProvider.getVolSurface(new DoubleMatrix1D(capletVols));
   }
 
   @Override
@@ -95,7 +102,7 @@ public class CapletStrippingSingleStrikeDirect extends CapletStrippingAbsoluteSt
 
     final double[] mPrices = pricer.priceFromCapletVols(lsRes.getFitParameters().getData());
     final double chiSqr = chiSqr(capPrices, mPrices, errors);
-    final VolatilityTermStructure vc = getVolCurve(lsRes.getFitParameters().getData());
+    final VolatilitySurface vc = getVolSurface(lsRes.getFitParameters().getData());
     return new CapletStrippingSingleStrikeResult(chiSqr, lsRes.getFitParameters(), vc, new DoubleMatrix1D(mPrices));
   }
 
@@ -142,7 +149,7 @@ public class CapletStrippingSingleStrikeDirect extends CapletStrippingAbsoluteSt
 
     final double[] mVols = pricer.impliedVols(pricer.priceFromCapletVols(lsRes.getFitParameters().getData()));
     final double chiSqr = chiSqr(capVols, mVols, errors);
-    final VolatilityTermStructure vc = getVolCurve(lsRes.getFitParameters().getData());
+    final VolatilitySurface vc = getVolSurface(lsRes.getFitParameters().getData());
     return new CapletStrippingSingleStrikeResult(chiSqr, lsRes.getFitParameters(), vc, new DoubleMatrix1D(mVols));
   }
 

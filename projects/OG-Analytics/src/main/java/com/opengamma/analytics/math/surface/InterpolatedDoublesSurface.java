@@ -14,10 +14,10 @@ import org.apache.commons.lang.ObjectUtils;
 import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
 import com.opengamma.analytics.math.interpolation.Interpolator2D;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
-import com.opengamma.util.tuple.DoublesPair;
-import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.FirstThenSecondDoublesPairComparator;
+import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Triple;
 
 /**
@@ -115,8 +115,7 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
    * @param name The name of the surface
    * @return An interpolated surface with automatically-generated name
    */
-  public static InterpolatedDoublesSurface from(final double[] xData, final double[] yData, final double[] zData, final Interpolator2D interpolator,
-      final String name) {
+  public static InterpolatedDoublesSurface from(final double[] xData, final double[] yData, final double[] zData, final Interpolator2D interpolator, final String name) {
     return new InterpolatedDoublesSurface(xData, yData, zData, interpolator, name);
   }
 
@@ -128,8 +127,7 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
    * @param name The name of the surface
    * @return An interpolated surface with automatically-generated name
    */
-  public static InterpolatedDoublesSurface from(final Double[] xData, final Double[] yData, final Double[] zData, final Interpolator2D interpolator,
-      final String name) {
+  public static InterpolatedDoublesSurface from(final Double[] xData, final Double[] yData, final Double[] zData, final Interpolator2D interpolator, final String name) {
     return new InterpolatedDoublesSurface(xData, yData, zData, interpolator, name);
   }
 
@@ -141,8 +139,7 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
    * @param name The name of the surface
    * @return An interpolated surface with automatically-generated name
    */
-  public static InterpolatedDoublesSurface from(final List<Double> xData, final List<Double> yData, final List<Double> zData, final Interpolator2D interpolator,
-      final String name) {
+  public static InterpolatedDoublesSurface from(final List<Double> xData, final List<Double> yData, final List<Double> zData, final Interpolator2D interpolator, final String name) {
     return new InterpolatedDoublesSurface(xData, yData, zData, interpolator, name);
   }
 
@@ -370,8 +367,7 @@ public class InterpolatedDoublesSurface extends DoublesSurface {
    * @param interpolator The interpolator, not null
    * @param name The name of the surface
    */
-  public InterpolatedDoublesSurface(final List<Double> xData, final List<Double> yData, final List<Double> zData, final Interpolator2D interpolator,
-      final String name) {
+  public InterpolatedDoublesSurface(final List<Double> xData, final List<Double> yData, final List<Double> zData, final Interpolator2D interpolator, final String name) {
     super(xData, yData, zData, name);
     ArgumentChecker.notNull(interpolator, "interpolator");
     ArgumentChecker.isTrue(interpolator instanceof GridInterpolator2D, "Interpolator must be a GridInterpolator2D"); //TODO remove me

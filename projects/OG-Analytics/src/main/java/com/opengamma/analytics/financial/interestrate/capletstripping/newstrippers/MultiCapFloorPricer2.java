@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.interestrate.capletstripping;
+package com.opengamma.analytics.financial.interestrate.capletstripping.newstrippers;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,6 +15,8 @@ import java.util.TreeSet;
 
 import com.google.common.primitives.Doubles;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
+import com.opengamma.analytics.financial.interestrate.capletstripping.CapFloor;
+import com.opengamma.analytics.financial.interestrate.capletstripping.CapFloorDecomposer;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.financial.model.volatility.SimpleOptionData;
@@ -26,7 +28,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public class MultiCapFloorPricer {
+public class MultiCapFloorPricer2 {
 
   private final int _nCaps;
   private final int _nCaplets;
@@ -35,7 +37,7 @@ public class MultiCapFloorPricer {
   private final int[][] _capletIndices;
 
   @SuppressWarnings("synthetic-access")
-  public MultiCapFloorPricer(final List<CapFloor> caps, final MulticurveProviderInterface curves) {
+  public MultiCapFloorPricer2(final List<CapFloor> caps, final MulticurveProviderInterface curves) {
     ArgumentChecker.noNulls(caps, "null caps");
     ArgumentChecker.notNull(curves, "null curve");
 
@@ -43,11 +45,10 @@ public class MultiCapFloorPricer {
     final Iterator<CapFloor> iter = caps.iterator();
     final CapFloor firstCap = iter.next();
     final IborIndex iborIndex = firstCap.getNthPayment(0).getIndex();
-    final double strike = firstCap.getStrike();
+
     while (iter.hasNext()) {
       final CapFloor cap = iter.next();
       ArgumentChecker.isTrue(iborIndex.equals(cap.getNthPayment(0).getIndex()), "caps of different index");
-      ArgumentChecker.isTrue(strike == cap.getStrike(), "caps of different strikes");
     }
 
     _nCaps = caps.size();
@@ -56,7 +57,7 @@ public class MultiCapFloorPricer {
 
     // List<CapFloorIbor> caplets = new ArrayList<>();
 
-    // ensure a unique set of caplets in ascending order of fixing time
+    // ensure a unique set of caplets in ascending order of strike then fixing time
     final Set<CapFloorIbor> capletSet = new TreeSet<>(new CapletsComparator());
     for (int i = 0; i < _nCaps; i++) {
       final CapFloor cap = caps.get(i);
@@ -85,9 +86,16 @@ public class MultiCapFloorPricer {
     }
   }
 
+  /**
+   * Order caplets by (ascending) order of strike, then by (ascending) order of fixing time.
+   */
   private class CapletsComparator implements Comparator<CapFloorIbor> {
     @Override
     public int compare(final CapFloorIbor o1, final CapFloorIbor o2) {
+      final int a = Doubles.compare(o1.getStrike(), o2.getStrike());
+      if (a != 0) {
+        return a;
+      }
       return Doubles.compare(o1.getFixingTime(), o2.getFixingTime());
     }
 

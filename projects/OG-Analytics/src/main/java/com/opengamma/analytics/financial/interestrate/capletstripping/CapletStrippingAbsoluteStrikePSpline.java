@@ -8,7 +8,7 @@ package com.opengamma.analytics.financial.interestrate.capletstripping;
 import java.util.Arrays;
 import java.util.List;
 
-import com.opengamma.analytics.financial.model.volatility.VolatilityTermStructure;
+import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.BasisFunctionGenerator;
@@ -82,13 +82,13 @@ public class CapletStrippingAbsoluteStrikePSpline extends CapletStrippingAbsolut
     final double[] capVols = pricer.impliedVols(capPrices);
     final LeastSquareResults lsRes = solveForPrice(capPrices, capVols, errors, scaleByVega);
 
-    final VolatilityTermStructure volCurve = getVolCurve(lsRes.getFitParameters());
-    final double[] mPrices = pricer.price(volCurve);
+    final VolatilitySurface volSurface = getVolSurface(lsRes.getFitParameters());
+    final double[] mPrices = pricer.price(volSurface);
 
     // least-squares gives chi2 including the penalty, and is calculated via the price difference and vega we just want the fit error
     // TODO maybe the solver should provide this?
     final double chi2 = chiSqr(capPrices, mPrices, errors); // ignore the vega weighting here
-    return new CapletStrippingSingleStrikeResult(chi2, lsRes.getFitParameters(), volCurve, new DoubleMatrix1D(mPrices));
+    return new CapletStrippingSingleStrikeResult(chi2, lsRes.getFitParameters(), volSurface, new DoubleMatrix1D(mPrices));
   }
 
   @Override
@@ -115,20 +115,20 @@ public class CapletStrippingAbsoluteStrikePSpline extends CapletStrippingAbsolut
         @SuppressWarnings("synthetic-access")
         @Override
         public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
-          final double[] modelVols = pricer.impliedVols(_volModel.evaluate(x));
+          final double[] modelVols = pricer.impliedVols(_volModel.getVolSurface(x));
           return new DoubleMatrix1D(modelVols);
         }
       };
       lsRes = NLLSWP.solve(new DoubleMatrix1D(capVols), new DoubleMatrix1D(errors), modelVolFunc, new DoubleMatrix1D(_nWeights, capVols[capVols.length - 1]), _penalty);
     }
 
-    final VolatilityTermStructure volCurve = getVolCurve(lsRes.getFitParameters());
-    final double[] mVols = pricer.impliedVols(volCurve);
+    final VolatilitySurface volSurface = getVolSurface(lsRes.getFitParameters());
+    final double[] mVols = pricer.impliedVols(volSurface);
 
     // least-squares gives chi2 including the penalty, and is calculated via the price differecne and vega w we just want the fit error
     // TODO maybe the solver should provide this?
     final double chi2 = chiSqr(capVols, mVols, errors);
-    return new CapletStrippingSingleStrikeResult(chi2, lsRes.getFitParameters(), volCurve, new DoubleMatrix1D(mVols));
+    return new CapletStrippingSingleStrikeResult(chi2, lsRes.getFitParameters(), volSurface, new DoubleMatrix1D(mVols));
 
   }
 
@@ -155,7 +155,7 @@ public class CapletStrippingAbsoluteStrikePSpline extends CapletStrippingAbsolut
       @SuppressWarnings("synthetic-access")
       @Override
       public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
-        final double[] modelPrices = pricer.price(_volModel.evaluate(x));
+        final double[] modelPrices = pricer.price(_volModel.getVolSurface(x));
         return new DoubleMatrix1D(modelPrices);
       }
     };
@@ -175,8 +175,8 @@ public class CapletStrippingAbsoluteStrikePSpline extends CapletStrippingAbsolut
     return NLLSWP.solve(new DoubleMatrix1D(capPrices), sigma, modelPriceFunc, new DoubleMatrix1D(_nWeights, capVols[n - 1]), _penalty, allowed);
   }
 
-  public VolatilityTermStructure getVolCurve(final DoubleMatrix1D fittedValues) {
-    return _volModel.evaluate(fittedValues);
+  public VolatilitySurface getVolSurface(final DoubleMatrix1D fittedValues) {
+    return _volModel.getVolSurface(fittedValues);
   }
 
 }

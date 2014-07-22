@@ -12,7 +12,7 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.model.volatility.VolatilityTermStructure;
+import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.util.test.TestGroup;
 
 /**
@@ -40,6 +40,7 @@ public abstract class CapletStrippingAbsoluteStrikeTest extends CapletStrippingS
 
     for (int i = 0; i < n; i++) {
       final List<CapFloor> caps = getCaps(i);
+      final double k = getStrikes()[i];
       final CapletStrippingAbsoluteStrike stripper = getStripper(caps);
 
       final double[] vols = getCapVols(i);
@@ -50,7 +51,7 @@ public abstract class CapletStrippingAbsoluteStrikeTest extends CapletStrippingS
       }
 
       final double[] fitVols = res.getModelValues().getData();
-      final VolatilityTermStructure volCurve = res.getVolatilityCurve();
+      final VolatilitySurface volCurve = res.getVolatilitySurface();
 
       final int m = vols.length;
       assertEquals(fitVols.length, m);
@@ -61,7 +62,7 @@ public abstract class CapletStrippingAbsoluteStrikeTest extends CapletStrippingS
       if (print) {
         for (int j = 0; j < samples; j++) {
           final double t = j * 10.0 / (samples - 1);
-          mVols[i][j] = volCurve.getVolatility(t);
+          mVols[i][j] = volCurve.getVolatility(t, k);
         }
       }
     }

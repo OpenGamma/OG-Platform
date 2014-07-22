@@ -154,8 +154,7 @@ public abstract class VolatilitySurfaceFitter<T extends SmileModelData> {
       public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
         final LinkedHashMap<String, InterpolatedDoublesCurve> curves = _curveBuilder.evaluate(x);
 
-        ArgumentChecker.isTrue(x.getNumberOfElements() == _nKnotPoints, "number of elements {} does not equal number of knot points {}",
-            x.getNumberOfElements(), _nKnotPoints); //TODO remove when working properly
+        ArgumentChecker.isTrue(x.getNumberOfElements() == _nKnotPoints, "number of elements {} does not equal number of knot points {}", x.getNumberOfElements(), _nKnotPoints); //TODO remove when working properly
 
         final double[] res = new double[_nOptions];
         int index = 0;

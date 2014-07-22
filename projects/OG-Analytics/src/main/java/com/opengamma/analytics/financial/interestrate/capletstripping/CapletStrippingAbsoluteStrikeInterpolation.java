@@ -9,8 +9,9 @@ import java.util.List;
 
 import org.apache.commons.lang.NotImplementedException;
 
-import com.opengamma.analytics.financial.model.volatility.VolatilityTermStructure;
-import com.opengamma.analytics.financial.model.volatility.VolatilityTermStructureProvider;
+import com.opengamma.analytics.financial.interestrate.capletstripping.newstrippers.InterpolatedVolatilityTermStructureProvider;
+import com.opengamma.analytics.financial.interestrate.capletstripping.newstrippers.VolatilitySurfaceProvider;
+import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.math.FunctionUtils;
 import com.opengamma.analytics.math.function.Function1D;
@@ -49,7 +50,7 @@ public class CapletStrippingAbsoluteStrikeInterpolation extends CapletStrippingA
   private static final String DEFAULT_EXTRAPOLATOR = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
   private static final ParameterLimitsTransform TRANSFORM = new SingleRangeLimitTransform(0.0, LimitType.GREATER_THAN);
 
-  private final VolatilityTermStructureProvider<DoubleMatrix1D> _volModel;
+  private final VolatilitySurfaceProvider _volModel;
   private final Interpolator1D _interpolator;
   private final double[] _knots;
 
@@ -114,7 +115,7 @@ public class CapletStrippingAbsoluteStrikeInterpolation extends CapletStrippingA
     final MultiCapFloorPricer pricer = getPricer();
     final double[] capVols = pricer.impliedVols(capPrices);
     final DoubleMatrix1D fitValues = solveForPrice(capPrices, new DoubleMatrix1D(capVols));
-    return new CapletStrippingSingleStrikeResult(0.0, fitValues, _volModel.evaluate(fitValues), new DoubleMatrix1D(capPrices));
+    return new CapletStrippingSingleStrikeResult(0.0, fitValues, _volModel.getVolSurface(fitValues), new DoubleMatrix1D(capPrices));
   }
 
   @Override
@@ -129,7 +130,7 @@ public class CapletStrippingAbsoluteStrikeInterpolation extends CapletStrippingA
     final double[] capPrices = pricer.price(capVols);
     final DoubleMatrix1D fitValues = solveForPrice(capPrices, new DoubleMatrix1D(capVols));
 
-    return new CapletStrippingSingleStrikeResult(0.0, fitValues, _volModel.evaluate(fitValues), new DoubleMatrix1D(capVols));
+    return new CapletStrippingSingleStrikeResult(0.0, fitValues, _volModel.getVolSurface(fitValues), new DoubleMatrix1D(capVols));
   }
 
   @Override
@@ -138,7 +139,7 @@ public class CapletStrippingAbsoluteStrikeInterpolation extends CapletStrippingA
       return solveForVol(capVols);
     }
     final DoubleMatrix1D fitValues = solveForVolDirect(capVols);
-    return new CapletStrippingSingleStrikeResult(0.0, fitValues, _volModel.evaluate(fitValues), new DoubleMatrix1D(capVols));
+    return new CapletStrippingSingleStrikeResult(0.0, fitValues, _volModel.getVolSurface(fitValues), new DoubleMatrix1D(capVols));
   }
 
   /**
@@ -161,7 +162,7 @@ public class CapletStrippingAbsoluteStrikeInterpolation extends CapletStrippingA
       @SuppressWarnings("synthetic-access")
       @Override
       public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
-        final VolatilityTermStructure vol = _volModel.evaluate(x);
+        final VolatilitySurface vol = _volModel.getVolSurface(x);
         final double[] modelVols = pricer.impliedVols(vol);
         final double[] res = new double[nCaps];
         for (int i = 0; i < nCaps; i++) {
@@ -197,7 +198,7 @@ public class CapletStrippingAbsoluteStrikeInterpolation extends CapletStrippingA
       @Override
       public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
 
-        final VolatilityTermStructure vol = _volModel.evaluate(x);
+        final VolatilitySurface vol = _volModel.getVolSurface(x);
         final double[] modelPrices = pricer.price(vol);
 
         final double[] res = new double[nCaps];

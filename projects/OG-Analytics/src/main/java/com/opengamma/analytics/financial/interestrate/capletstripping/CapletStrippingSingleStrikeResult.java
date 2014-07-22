@@ -5,7 +5,7 @@
  */
 package com.opengamma.analytics.financial.interestrate.capletstripping;
 
-import com.opengamma.analytics.financial.model.volatility.VolatilityTermStructure;
+import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.ArgumentChecker;
 
@@ -14,7 +14,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class CapletStrippingSingleStrikeResult {
 
-  private final VolatilityTermStructure _volatilityCurve;
+  private final VolatilitySurface _volatilitySurface;
   private final double _chiSq;
   private final DoubleMatrix1D _fitParameters;
   private final DoubleMatrix1D _modelPrices;
@@ -28,7 +28,7 @@ public class CapletStrippingSingleStrikeResult {
    * @param modelPrices The cap prices produced by the stripping - these will be identical (to within tolerance) to the market prices for root finding based
   * routines, but could differ for least-squares
    */
-  public CapletStrippingSingleStrikeResult(final double chiSq, final DoubleMatrix1D fitParms, final VolatilityTermStructure volCurve, final DoubleMatrix1D modelPrices) {
+  public CapletStrippingSingleStrikeResult(final double chiSq, final DoubleMatrix1D fitParms, final VolatilitySurface volCurve, final DoubleMatrix1D modelPrices) {
     ArgumentChecker.isTrue(chiSq >= 0, "Negative chiSq");
     ArgumentChecker.notNull(fitParms, "null fit parameters");
     ArgumentChecker.notNull(volCurve, "null vol curve");
@@ -36,15 +36,15 @@ public class CapletStrippingSingleStrikeResult {
     _chiSq = chiSq;
     _fitParameters = fitParms;
     _modelPrices = modelPrices;
-    _volatilityCurve = volCurve;
+    _volatilitySurface = volCurve;
   }
 
   /**
    * Gets the volatilityCurve.
    * @return the volatilityCurve
    */
-  public VolatilityTermStructure getVolatilityCurve() {
-    return _volatilityCurve;
+  public VolatilitySurface getVolatilitySurface() {
+    return _volatilitySurface;
   }
 
   /**

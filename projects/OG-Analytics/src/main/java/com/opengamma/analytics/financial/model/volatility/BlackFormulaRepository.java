@@ -33,7 +33,7 @@ public abstract class BlackFormulaRepository {
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
   private static final double SMALL = 1.0E-13;
   private static final double EPS = 1e-15;
-  private static final int MAX_ITERATIONS = 15; // something's wrong if Newton-Raphson taking longer than this
+  private static final int MAX_ITERATIONS = 20; // something's wrong if Newton-Raphson taking longer than this
   private static final double VOL_TOL = 1e-9; // 1 part in 100,000 basis points will do for implied vol
 
   /**
@@ -898,8 +898,8 @@ public abstract class BlackFormulaRepository {
       lowerSigma = temp[0];
       upperSigma = temp[1];
     } catch (final MathException e) {
-      throw new IllegalArgumentException(e.toString() + " No implied Volatility for this price. [price: " + otmPrice + ", forward: " + forward + ", strike: " + strike + ", timeToExpiry: "
-          + timeToExpiry + ", " + (isCall ? "Call" : "put"));
+      throw new IllegalArgumentException(e.toString() + " No implied Volatility for this price. [price: " + otmPrice + ", forward: " + forward + ", strike: " + strike + ", timeToExpiry: " +
+          timeToExpiry + ", " + (isCall ? "Call" : "put"));
     }
     double sigma = (lowerSigma + upperSigma) / 2.0;
     final double maxChange = 0.5;
@@ -983,7 +983,7 @@ public abstract class BlackFormulaRepository {
     }
     double sigma = 0.3;
 
-    final double maxChange = 0.5;
+    final double maxChange = 0.3;
 
     double modelPrice = 0.0;
     double vega = 0.0;
@@ -1156,7 +1156,7 @@ public abstract class BlackFormulaRepository {
         for (int i = 0; i < n; i++) {
           sum += price(data[i], volatility);
         }
-        return sum - price;
+        return sum / price - 1.0;
       }
     };
     final double[] range = bracketer.getBracketedPoints(func, sigma - Math.abs(change), sigma + Math.abs(change), 0.0, Double.POSITIVE_INFINITY);

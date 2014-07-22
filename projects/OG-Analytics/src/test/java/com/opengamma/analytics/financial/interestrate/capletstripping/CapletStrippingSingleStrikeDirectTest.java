@@ -25,7 +25,7 @@ public class CapletStrippingSingleStrikeDirectTest extends CapletStrippingAbsolu
   @Test
   public void test() {
     final double tol = 1e-4; //allow a 1bps error on cap vols
-    final boolean print = false;
+    final boolean print = true;
     testVolStripping(tol, print);
   }
 

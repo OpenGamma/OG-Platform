@@ -8,7 +8,7 @@ package com.opengamma.analytics.financial.interestrate.capletstripping;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.financial.model.volatility.SimpleOptionData;
 import com.opengamma.analytics.financial.model.volatility.VolatilityModel1D;
-import com.opengamma.analytics.financial.model.volatility.VolatilityTermStructure;
+import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 
 /**
@@ -54,10 +54,11 @@ public class CapFloorPricer {
     return sum;
   }
 
-  public double price(final VolatilityTermStructure volCurve) {
+  public double price(final VolatilitySurface volSurface) {
     double sum = 0;
     for (int i = 0; i < _n; i++) {
-      final double vol = volCurve.getVolatility(_caplets[i].getTimeToExpiry());
+      final SimpleOptionData caplet = _caplets[i];
+      final double vol = volSurface.getVolatility(caplet.getTimeToExpiry(), caplet.getStrike());
       sum += BlackFormulaRepository.price(_caplets[i], vol);
     }
     return sum;
@@ -72,8 +73,8 @@ public class CapFloorPricer {
     return impliedVol(price);
   }
 
-  public double impliedVol(final VolatilityTermStructure volCurve) {
-    final double price = price(volCurve);
+  public double impliedVol(final VolatilitySurface volSurface) {
+    final double price = price(volSurface);
     return impliedVol(price);
   }
 
@@ -90,8 +91,8 @@ public class CapFloorPricer {
     return vega(vol);
   }
 
-  public double vega(final VolatilityTermStructure volCurve) {
-    final double vol = impliedVol(volCurve);
+  public double vega(final VolatilitySurface volSurface) {
+    final double vol = impliedVol(volSurface);
     return vega(vol);
   }
 
