@@ -163,7 +163,7 @@ public class MulticurveBuildingDiscountingDiscountEURECBDatesDemoTest {
   private static final ParSpreadMarketQuoteDiscountingCalculator PSMQDC = ParSpreadMarketQuoteDiscountingCalculator.getInstance();
   private static final ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator PSMQCSDC = ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator.getInstance();
   private static final MulticurveDiscountBuildingRepository CURVE_BUILDING_REPOSITORY =
-      CurveCalibrationConventionDataSets.curveBuildingRepository();
+      CurveCalibrationConventionDataSets.curveBuildingRepositoryMulticurve();
 
   @BeforeSuite
   /** Calibrate all the curves */

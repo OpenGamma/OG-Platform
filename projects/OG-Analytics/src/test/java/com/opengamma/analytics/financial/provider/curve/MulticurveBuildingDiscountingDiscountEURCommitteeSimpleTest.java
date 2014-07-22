@@ -203,7 +203,7 @@ public class MulticurveBuildingDiscountingDiscountEURCommitteeSimpleTest {
   private static final ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator PSMQCSDC = ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator.getInstance();
 
   private static final MulticurveDiscountBuildingRepository CURVE_BUILDING_REPOSITORY =
-      CurveCalibrationConventionDataSets.curveBuildingRepository();
+      CurveCalibrationConventionDataSets.curveBuildingRepositoryMulticurve();
 
   private static final double TOLERANCE_CAL = 1.0E-9;
 
