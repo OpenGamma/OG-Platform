@@ -1,10 +1,10 @@
 Multi-curve Implementation: Providers, Calculators and Sensitivities
-=============
+====================================================================
 
 Introduction
 ------------
 
-This note describes the implementation in the OG-analytics library of the multi-curve description, the curve sensitivity objects and the curve calibration process. The formulas used to price the different instruments are not described here. For the theory we refer to Henrard (2014). For the exact formulas used in the library we refer to Quantitative Research (2012b) and Quantitative Research (2012b). The curve calibration setting, and in particular the conventions and the node available are described in Quantitative Research (2013).
+This note describes the implementation in the OG-analytics library of the multi-curve description, the curve sensitivity objects and the curve calibration process. The formulas used to price the different instruments are not described here. For the theory we refer to [HEN.2014.1]_. For the exact formulas used in the library we refer to [OG.2012b]_ and Quantitative Research (2012b). The curve calibration setting, and in particular the conventions and the node available are described in [OG.2013]_.
 
 Provider
 --------
@@ -59,7 +59,7 @@ In both implementation the discounting curves and forward overnight curves are r
 
 In the first implementation, the Ibor-forward rates are obtained through pseudo-discount factors. This is the standard implementation of forward curves as described in most literature. 
 
-In the second implementation, the Ibor-forward rates are obtained directly and described by a **DoublesCurve**. The interpolation scheme, if any, will be applied to the forward rates directly. The theory behind this implementation  is described in (Henrard, 2014, Section 3.2).
+In the second implementation, the Ibor-forward rates are obtained directly and described by a **DoublesCurve**. The interpolation scheme, if any, will be applied to the forward rates directly. The theory behind this implementation  is described in [HEN.2014.1]_ (Section 3.2).
 
 **Decorated provider**
 
@@ -170,10 +170,10 @@ USD Fwd 3M =
 
 Table 1: A simplified example of **CurveBuildingBlockBundle**. The example contains two curves, one which depends only on itself and a second one that depends also on the previous one.
 
-References
-----------
-Henrard, M. (2014). Interest Rate Modelling in the Multi-curve Framework: Foundations, Evolution and Implementation. Applied Quantitative Finance. Palgrave Macmillan. ISBN: 978-1-137- 37465-3.
+.. rubric:: References
 
-Quantitative Research (2012b). The Analytic Framework for Implying Yield Curves from Market Data, version 1.0. OpenGamma Documentation 1, OpenGamma. Available at http://docs.opengamma.com/display/DOC/Analytics.
+.. [HEN.2014.1] Henrard, M. (2014). Interest Rate Modelling in the Multi-curve Framework: Foundations, Evolution and Implementation. Applied Quantitative Finance. Palgrave Macmillan. ISBN: 978-1-137- 37465-3.
 
-Quantitative Research (2013). Curve calibration in opengamma platform. Technical Documenta- tion 1, OpenGamma. Version 1.0.
+.. [OG.2012b] Quantitative Research (2012b). The Analytic Framework for Implying Yield Curves from Market Data, version 1.0. OpenGamma Documentation 1, OpenGamma. Available at http://docs.opengamma.com/display/DOC/Analytics.
+
+.. [OG.2013] Quantitative Research (2013). Curve calibration in opengamma platform. Technical Documenta- tion 1, OpenGamma. Version 1.0.

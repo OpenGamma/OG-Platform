@@ -1,5 +1,5 @@
 Curve calibration: STIR futures and Deliverable Swap Futures
-=========================
+============================================================
 
 In this example we construct a set of curve composed of only two curves in USD. The code related to the example can be found in the demo test **MulticurveBuildingHullWhiteDiscountUSDFuturesDemoTest**. The goal of this example is to demonstrate how to construct the same set of curves using two calculators: one with simple discounting and one using a Hull-White one-factor model. The discounting and Hull-White models with provide different results for the STIR futures and Deliverable Swap Futures (DSF).
 
@@ -104,7 +104,6 @@ By default the test is run with 100 curve calibrations. The time output is for t
 * Discounting: 5ms for one pair of curves and the Jacobian matrices
 * Hull-White: 11 ms for one pair of curves and the Jacobian matrices, using Hull-White one factor for STIR futures and DSF.
 
-References
-----------
+.. rubric:: References
 
-**Quantitative Research (2013)**. The Analytic Framework for Implying Yield Curves from Market Data, version 1.3 - March 2013. *OpenGamma Documentation 6*, OpenGamma. Available at http://docs.opengamma.com/display/DOC/Analytics.
+.. [OG.2013] Quantitative Research (2013). The Analytic Framework for Implying Yield Curves from Market Data, version 1.3 - March 2013. *OpenGamma Documentation 6*, OpenGamma. Available at http://docs.opengamma.com/display/DOC/Analytics.

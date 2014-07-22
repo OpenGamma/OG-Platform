@@ -1,6 +1,6 @@
 Curve calibration: simple example
 ===============
-In this example we construct a simple set of curve composed of only two curves in USD. The code related to the example can be found in teh demo test **MulticurveBuildingDiscountingDiscountUSD2DemoTest**.
+In this example we construct a simple set of curve composed of only two curves in USD. The code related to the example can be found in the demo test **MulticurveBuildingDiscountingDiscountUSD2DemoTest**.
 
 Curve descriptions
 ------------------
