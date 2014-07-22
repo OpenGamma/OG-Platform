@@ -51,7 +51,7 @@ import redis.clients.jedis.exceptions.JedisConnectionException;
  *        Hash[TYPE] -> HolidayType
  * Data structure for holiday days themselves:
  *     Key["UNQ-"UniqueId"-DAYS"] -> Sorted Set (days as ints)
- *     
+ * 
  * Those give the core data, but we need search capabilities as well.
  * 
  *     Key["EXT-"ExternalId"-TYPE-"HolidayType] -> Hash

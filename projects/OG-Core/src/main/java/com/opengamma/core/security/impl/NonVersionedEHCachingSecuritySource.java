@@ -139,7 +139,7 @@ public class NonVersionedEHCachingSecuritySource implements SecuritySource {
   public Collection<Security> get(ExternalIdBundle bundle) {
     SecurityCacheEntry cacheEntry = new SecurityCacheEntry(CacheEntryType.COLLECTION, bundle, null);
     Element element = getCache().get(cacheEntry);
-    Collection<Security> result = null; 
+    Collection<Security> result = null;
     if (element == null) {
       result = getUnderlying().get(bundle);
       if (result != null) {
@@ -156,7 +156,7 @@ public class NonVersionedEHCachingSecuritySource implements SecuritySource {
   public Security getSingle(ExternalIdBundle bundle) {
     SecurityCacheEntry cacheEntry = new SecurityCacheEntry(CacheEntryType.SINGLE, bundle, null);
     Element element = getCache().get(cacheEntry);
-    Security result = null; 
+    Security result = null;
     if (element == null) {
       result = getUnderlying().getSingle(bundle);
       if (result != null) {
@@ -187,7 +187,7 @@ public class NonVersionedEHCachingSecuritySource implements SecuritySource {
   public Security get(UniqueId uniqueId) {
     SecurityCacheEntry cacheEntry = new SecurityCacheEntry(CacheEntryType.SINGLE, null, uniqueId);
     Element element = getCache().get(cacheEntry);
-    Security result = null; 
+    Security result = null;
     if (element == null) {
       result = getUnderlying().get(uniqueId);
       if (result != null) {

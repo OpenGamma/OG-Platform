@@ -747,7 +747,7 @@ public class FixedLegCashFlows implements ImmutableBean, SwapLegCashFlows {
 
     @Override
     public Builder setString(MetaProperty<?> property, String value) {
-      super.set(property, value);
+      super.setString(property, value);
       return this;
     }
 

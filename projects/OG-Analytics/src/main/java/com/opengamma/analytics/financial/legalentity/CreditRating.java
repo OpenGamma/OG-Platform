@@ -11,6 +11,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.ImmutableConstructor;
@@ -266,7 +267,7 @@ public final class CreditRating implements ImmutableBean, Serializable {
     }
 
     @Override
-    public CreditRating.Builder builder() {
+    public BeanBuilder<? extends CreditRating> builder() {
       return new CreditRating.Builder();
     }
 
@@ -409,7 +410,7 @@ public final class CreditRating implements ImmutableBean, Serializable {
 
     @Override
     public Builder setString(MetaProperty<?> property, String value) {
-      super.set(property, value);
+      super.setString(property, value);
       return this;
     }
 

@@ -196,11 +196,9 @@ public class EHCachingPositionSource implements PositionSource {
 
   protected Position addToFrontCache(Position position, final VersionCorrection versionCorrection) {
     final Object f = _frontPositionOrTradeCache.putIfAbsent(position.getUniqueId(), position);
-    if (f instanceof Position) {
-      position = (Position) f;
-    }
-    _frontCacheByOID.put(versionCorrection, position.getUniqueId().getObjectId(), position);
-    return position;
+    Position effectivePosition = (f instanceof Position ? (Position) f : position);
+    _frontCacheByOID.put(versionCorrection, effectivePosition.getUniqueId().getObjectId(), effectivePosition);
+    return effectivePosition;
   }
 
   protected PortfolioNode addToFrontCache(PortfolioNode node, final VersionCorrection versionCorrection) {
@@ -242,19 +240,20 @@ public class EHCachingPositionSource implements PositionSource {
         }
       }
     }
+    PortfolioNode resultNode = node;
     if ((newPositions != null) || (newChildren != null)) {
-      final SimplePortfolioNode newNode = new SimplePortfolioNode(node.getUniqueId(), node.getName());
-      newNode.setParentNodeId(node.getParentNodeId());
-      newNode.addPositions((newPositions != null) ? newPositions : node.getPositions());
-      newNode.addChildNodes((newChildren != null) ? newChildren : node.getChildNodes());
-      node = newNode;
+      final SimplePortfolioNode newNode = new SimplePortfolioNode(resultNode.getUniqueId(), resultNode.getName());
+      newNode.setParentNodeId(resultNode.getParentNodeId());
+      newNode.addPositions((newPositions != null) ? newPositions : resultNode.getPositions());
+      newNode.addChildNodes((newChildren != null) ? newChildren : resultNode.getChildNodes());
+      resultNode = newNode;
     }
-    node = _nodes.get(node);
-    final Object f = _frontCacheByUID.putIfAbsent(versionCorrection, node.getUniqueId(), node);
+    resultNode = _nodes.get(resultNode);
+    final Object f = _frontCacheByUID.putIfAbsent(versionCorrection, resultNode.getUniqueId(), resultNode);
     if (f instanceof PortfolioNode) {
-      node = (PortfolioNode) f;
+      resultNode = (PortfolioNode) f;
     }
-    return node;
+    return resultNode;
   }
 
   protected Portfolio addToFrontCache(Portfolio portfolio, final VersionCorrection versionCorrection) {

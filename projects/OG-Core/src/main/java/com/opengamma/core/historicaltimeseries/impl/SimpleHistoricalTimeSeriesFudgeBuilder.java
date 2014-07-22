@@ -53,7 +53,7 @@ public class SimpleHistoricalTimeSeriesFudgeBuilder implements FudgeBuilder<Simp
     if (uniqueId != null && timeseries != null) {
       return new SimpleHistoricalTimeSeries(uniqueId, timeseries);
     } else {
-      throw new OpenGammaRuntimeException("Cannot deserialize " + message + " to SimpleHistoricalTimeSeries"); 
+      throw new OpenGammaRuntimeException("Cannot deserialize " + message + " to SimpleHistoricalTimeSeries");
     }
   }
 

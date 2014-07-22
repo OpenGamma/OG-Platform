@@ -21,8 +21,8 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
+import com.opengamma.core.legalentity.SeniorityLevel;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -60,7 +60,7 @@ public final class CreditCurveDataKey implements ImmutableBean {
    * The seniority of the referenced debt.
    */
   @PropertyDefinition
-  private final DebtSeniority _seniority;
+  private final SeniorityLevel _seniority;
   
   /**
    * The restructuring clause.
@@ -93,7 +93,7 @@ public final class CreditCurveDataKey implements ImmutableBean {
   private CreditCurveDataKey(
       String curveName,
       Currency currency,
-      DebtSeniority seniority,
+      SeniorityLevel seniority,
       RestructuringClause restructuring) {
     JodaBeanUtils.notEmpty(curveName, "curveName");
     JodaBeanUtils.notNull(currency, "currency");
@@ -149,7 +149,7 @@ public final class CreditCurveDataKey implements ImmutableBean {
    * Gets the seniority of the referenced debt.
    * @return the value of the property
    */
-  public DebtSeniority getSeniority() {
+  public SeniorityLevel getSeniority() {
     return _seniority;
   }
 
@@ -231,8 +231,8 @@ public final class CreditCurveDataKey implements ImmutableBean {
     /**
      * The meta-property for the {@code seniority} property.
      */
-    private final MetaProperty<DebtSeniority> _seniority = DirectMetaProperty.ofImmutable(
-        this, "seniority", CreditCurveDataKey.class, DebtSeniority.class);
+    private final MetaProperty<SeniorityLevel> _seniority = DirectMetaProperty.ofImmutable(
+        this, "seniority", CreditCurveDataKey.class, SeniorityLevel.class);
     /**
      * The meta-property for the {@code restructuring} property.
      */
@@ -305,7 +305,7 @@ public final class CreditCurveDataKey implements ImmutableBean {
      * The meta-property for the {@code seniority} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<DebtSeniority> seniority() {
+    public MetaProperty<SeniorityLevel> seniority() {
       return _seniority;
     }
 
@@ -352,7 +352,7 @@ public final class CreditCurveDataKey implements ImmutableBean {
 
     private String _curveName;
     private Currency _currency;
-    private DebtSeniority _seniority;
+    private SeniorityLevel _seniority;
     private RestructuringClause _restructuring;
 
     /**
@@ -399,7 +399,7 @@ public final class CreditCurveDataKey implements ImmutableBean {
           this._currency = (Currency) newValue;
           break;
         case 184581246:  // seniority
-          this._seniority = (DebtSeniority) newValue;
+          this._seniority = (SeniorityLevel) newValue;
           break;
         case -1787372195:  // restructuring
           this._restructuring = (RestructuringClause) newValue;
@@ -424,7 +424,7 @@ public final class CreditCurveDataKey implements ImmutableBean {
 
     @Override
     public Builder setString(MetaProperty<?> property, String value) {
-      super.set(property, value);
+      super.setString(property, value);
       return this;
     }
 
@@ -471,7 +471,7 @@ public final class CreditCurveDataKey implements ImmutableBean {
      * @param seniority  the new value
      * @return this, for chaining, not null
      */
-    public Builder seniority(DebtSeniority seniority) {
+    public Builder seniority(SeniorityLevel seniority) {
       this._seniority = seniority;
       return this;
     }

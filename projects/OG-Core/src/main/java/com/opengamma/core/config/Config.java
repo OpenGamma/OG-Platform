@@ -11,14 +11,14 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation for classes that represents a configuration item intended to be stored in a {@link ConfigMaster}.
+ * Annotation for classes that represents a configuration item intended to be stored in a {@code ConfigMaster}.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE })
 public @interface Config {
 
   /**
-   * The class type to use for searching for the configuration item in a {@link ConfigMaster}.
+   * The class type to use for searching for the configuration item in a {@code ConfigMaster}.
    * <p>
    * Optional search type when it is different from base class
    */

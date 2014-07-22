@@ -19,6 +19,7 @@ import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.analytics.financial.interestrate.future.calculator.FuturesPriceMulticurveCalculator;
 import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesPriceDeliverableTransaction;
+import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
@@ -69,6 +70,7 @@ public class SwapFuturesPriceDeliverableTransactionDiscountingMethodTest {
   private static final FuturesTransactionMulticurveMethod FTMC = new FuturesTransactionMulticurveMethod();
   private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
   private static final PresentValueCurveSensitivityDiscountingCalculator PVCSDC = PresentValueCurveSensitivityDiscountingCalculator.getInstance();
+  private static final ParSpreadMarketQuoteDiscountingCalculator PSMQDC = ParSpreadMarketQuoteDiscountingCalculator.getInstance();
 
   private static final double SHIFT = 1.0E-7;
   private static final ParameterSensitivityParameterCalculator<MulticurveProviderInterface> PSC = new ParameterSensitivityParameterCalculator<>(PVCSDC);
@@ -92,6 +94,16 @@ public class SwapFuturesPriceDeliverableTransactionDiscountingMethodTest {
     final MultipleCurrencyAmount pvMethod = FTMC.presentValue(SWAP_FUTURES_TRANSACTION, MULTICURVE);
     final MultipleCurrencyAmount pvCalculator = SWAP_FUTURES_TRANSACTION.accept(PVDC, MULTICURVE);
     assertEquals("SwapFuturesPriceDeliverableTransactionDiscountingMethod: present value", pvMethod.getAmount(USD), pvCalculator.getAmount(USD), TOLERANCE_PV);
+  }
+
+  @Test
+  public void parSpread() {
+    double ps = SWAP_FUTURES_TRANSACTION.accept(PSMQDC, MULTICURVE);
+    SwapFuturesPriceDeliverableTransactionDefinition fut0Definition =
+        new SwapFuturesPriceDeliverableTransactionDefinition(SWAP_FUTURES_SECURITY_DEFINITION, QUANTITY, TRAN_DATE, TRAN_PRICE + ps);
+    SwapFuturesPriceDeliverableTransaction fut0 = fut0Definition.toDerivative(REFERENCE_DATE, LASTMARG_PRICE);
+    final MultipleCurrencyAmount pvComputed = FTMC.presentValue(fut0, MULTICURVE);
+    assertEquals("SwapFuturesPriceDeliverableTransactionDiscountingMethod: present value", 0, pvComputed.getAmount(USD), TOLERANCE_PV);
   }
 
   @Test

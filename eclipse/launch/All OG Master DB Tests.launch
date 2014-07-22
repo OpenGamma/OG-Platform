@@ -12,7 +12,6 @@
 <listAttribute key="org.testng.eclipse.METHOD_TEST_LIST"/>
 <listAttribute key="org.testng.eclipse.PACKAGE_TEST_LIST">
 <listEntry value="com.opengamma.masterdb"/>
-<listEntry value="com.opengamma.masterdb.batch"/>
 <listEntry value="com.opengamma.masterdb.config"/>
 <listEntry value="com.opengamma.masterdb.exchange"/>
 <listEntry value="com.opengamma.masterdb.historicaltimeseries"/>

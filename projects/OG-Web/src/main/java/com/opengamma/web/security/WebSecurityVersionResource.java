@@ -65,6 +65,7 @@ public class WebSecurityVersionResource extends AbstractWebSecurityResource {
    * Creates the output root data.
    * @return the output root data, not null
    */
+  @Override
   protected FlexiBean createRootData() {
     FlexiBean out = super.createRootData();
     SecurityDocument latestSecDoc = data().getSecurity();

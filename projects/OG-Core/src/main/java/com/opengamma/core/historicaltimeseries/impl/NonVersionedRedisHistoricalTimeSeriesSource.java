@@ -48,7 +48,7 @@ import com.opengamma.util.tuple.Pairs;
  * An extremely minimal and lightweight {@code HistoricalTimeSeriesSource} that pulls data
  * directly from Redis for situations where versioning, multiple fields, multiple data sources,
  * and identifier management is not necessary.
- * <p/>
+ * <p>
  * The following constraints must hold for this Source to be of any utility whatsoever:
  * <ul>
  *   <li>Historical lookups are not required. Because they are not supported.</li>
@@ -58,7 +58,7 @@ import com.opengamma.util.tuple.Pairs;
  *   <li>Each external ID has a single time series (thus there is not the capacity to store
  *       different Data Source, Data Provider, Observation Time, Data Field series).</li>
  * </ul>
- * <p/>
+ * <p>
  * Where a method is not supported semantically, an {@link UnsupportedOperationException}
  * will be thrown. Where use indicates that this class may be being used incorrectly,
  * a log message will be written at {@code WARN} level.
@@ -347,6 +347,7 @@ public class NonVersionedRedisHistoricalTimeSeriesSource implements HistoricalTi
     return Double.parseDouble(dateAsIntText);
   }
 
+  @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(UniqueId uniqueId, LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     
@@ -377,6 +378,7 @@ public class NonVersionedRedisHistoricalTimeSeriesSource implements HistoricalTi
     return result;
   }
 
+  @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(String dataField, ExternalIdBundle identifierBundle, String resolutionKey, LocalDate start, boolean includeStart, LocalDate end,
                                                       boolean includeEnd, int maxPoints) {
     ArgumentChecker.notNull(identifierBundle, "identifierBundle");
@@ -389,6 +391,7 @@ public class NonVersionedRedisHistoricalTimeSeriesSource implements HistoricalTi
     return getHistoricalTimeSeries(uniqueId, start, includeStart, end, includeEnd);
   }
 
+  @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     
@@ -400,6 +403,7 @@ public class NonVersionedRedisHistoricalTimeSeriesSource implements HistoricalTi
     }
   }
   
+  @Override
   public ExternalIdBundle getExternalIdBundle(UniqueId uniqueId) {
     return ExternalId.of(uniqueId.getScheme(), uniqueId.getValue()).toBundle();
   }
@@ -489,80 +493,94 @@ public class NonVersionedRedisHistoricalTimeSeriesSource implements HistoricalTi
     return getLatestDataPoint(uniqueId);
   }
 
+  @Override
   public ChangeManager changeManager() {
     return _changeManager;
   }
 
+  @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(ExternalIdBundle identifierBundle, String dataSource, String dataProvider, String dataField, LocalDate start, boolean includeStart,
                                                       LocalDate end, boolean includeEnd) {
     UniqueId uniqueId = toUniqueId(identifierBundle);
     return getHistoricalTimeSeries(uniqueId, start, includeStart, end, includeEnd);
   }
 
+  @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(String dataField, ExternalIdBundle identifierBundle, String resolutionKey, LocalDate start, boolean includeStart, LocalDate end,
                                                       boolean includeEnd) {
     UniqueId uniqueId = toUniqueId(identifierBundle);
     return getHistoricalTimeSeries(uniqueId, start, includeStart, end, includeEnd);
   }
 
+  @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(String dataField, ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String resolutionKey, LocalDate start,
                                                       boolean includeStart, LocalDate end, boolean includeEnd) {
     UniqueId uniqueId = toUniqueId(identifierBundle);
     return getHistoricalTimeSeries(uniqueId, start, includeStart, end, includeEnd);
   }
 
+  @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(UniqueId uniqueId, LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd, int maxPoints) {
     return getHistoricalTimeSeries(uniqueId, start, includeStart, end, includeEnd);
   }
 
+  @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(ExternalIdBundle identifierBundle, String dataSource, String dataProvider, String dataField, LocalDate start, boolean includeStart,
       LocalDate end, boolean includeEnd, int maxPoints) {
     UniqueId uniqueId = toUniqueId(identifierBundle);
     return getHistoricalTimeSeries(uniqueId, start, includeStart, end, includeEnd);
   }
 
+  @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField, LocalDate start,
       boolean includeStart, LocalDate end, boolean includeEnd) {
     UniqueId uniqueId = toUniqueId(identifierBundle);
     return getHistoricalTimeSeries(uniqueId, start, includeStart, end, includeEnd);
   }
 
+  @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField, LocalDate start,
       boolean includeStart, LocalDate end, boolean includeEnd, int maxPoints) {
     UniqueId uniqueId = toUniqueId(identifierBundle);
     return getHistoricalTimeSeries(uniqueId, start, includeStart, end, includeEnd);
   }
 
+  @Override
   public Pair<LocalDate, Double> getLatestDataPoint(ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField, LocalDate start,
       boolean includeStart, LocalDate end, boolean includeEnd) {
     UniqueId uniqueId = toUniqueId(identifierBundle);
     return getLatestDataPoint(uniqueId, start, includeStart, end, includeEnd);
   }
 
+  @Override
   public Pair<LocalDate, Double> getLatestDataPoint(ExternalIdBundle identifierBundle, String dataSource, String dataProvider, String dataField, LocalDate start, boolean includeStart, LocalDate end,
       boolean includeEnd) {
     UniqueId uniqueId = toUniqueId(identifierBundle);
     return getLatestDataPoint(uniqueId, start, includeStart, end, includeEnd);
   }
 
+  @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(String dataField, ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String resolutionKey, LocalDate start,
       boolean includeStart, LocalDate end, boolean includeEnd, int maxPoints) {
     UniqueId uniqueId = toUniqueId(identifierBundle);
     return getHistoricalTimeSeries(uniqueId, start, includeStart, end, includeEnd);
   }
 
+  @Override
   public Pair<LocalDate, Double> getLatestDataPoint(String dataField, ExternalIdBundle identifierBundle, String resolutionKey,
       LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
     UniqueId uniqueId = toUniqueId(identifierBundle);
     return getLatestDataPoint(uniqueId, start, includeStart, end, includeEnd);
   }
 
+  @Override
   public Pair<LocalDate, Double> getLatestDataPoint(String dataField, ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String resolutionKey, LocalDate start, boolean includeStart,
       LocalDate end, boolean includeEnd) {
     UniqueId uniqueId = toUniqueId(identifierBundle);
     return getLatestDataPoint(uniqueId, start, includeStart, end, includeEnd);
   }
 
+  @Override
   public Map<ExternalIdBundle, HistoricalTimeSeries> getHistoricalTimeSeries(Set<ExternalIdBundle> identifierSet, String dataSource, String dataProvider, String dataField, LocalDate start,
       boolean includeStart, LocalDate end, boolean includeEnd) {
     ImmutableMap.Builder<ExternalIdBundle, HistoricalTimeSeries> map = ImmutableMap.builder();

@@ -38,7 +38,7 @@ public class ExternalIdDisplayComparatorUtils {
       }
       if (config == null) {
         s_logger.error("No ExternalIdOrderConfig object called " + name + " in config database, defaulting");
-        return new ExternalIdDisplayComparator(ExternalIdOrderConfig.DEFAULT_CONFIG); 
+        return new ExternalIdDisplayComparator(ExternalIdOrderConfig.DEFAULT_CONFIG);
       } else {
         return new ExternalIdDisplayComparator(config);
       }

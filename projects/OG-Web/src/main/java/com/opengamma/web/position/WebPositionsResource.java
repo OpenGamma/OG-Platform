@@ -153,7 +153,7 @@ public class WebPositionsResource extends AbstractWebPositionResource {
   public Response postHTML(
       @FormParam("quantity") String quantityStr,
       @FormParam("idscheme") String idScheme,
-      @FormParam("idvalue") String idValue, 
+      @FormParam("idvalue") String idValue,
       @FormParam("type") String type,
       @FormParam(POSITION_XML) String positionXml,
       @FormParam("uniqueIdScheme") String uniqueIdScheme) {
@@ -180,7 +180,7 @@ public class WebPositionsResource extends AbstractWebPositionResource {
           FlexiBean out = createRootData();
           if (quantityStr == null) {
             out.put("err_quantityMissing", true);
-          } 
+          }
           if (quantity == null) {
             out.put("err_quantityNotNumeric", true);
           }
@@ -328,6 +328,7 @@ public class WebPositionsResource extends AbstractWebPositionResource {
    * Creates the output root data.
    * @return the output root data, not null
    */
+  @Override
   protected FlexiBean createRootData() {
     FlexiBean out = super.createRootData();
     PositionSearchRequest searchRequest = new PositionSearchRequest();

@@ -48,52 +48,52 @@ public class ManageableMarketDataSnapshot extends DirectBean implements Structur
   /**
    * The unique identifier of the snapshot. This must be null when adding to a master and not null when retrieved from a master.
    */
-  @PropertyDefinition
+  @PropertyDefinition(overrideGet = true)
   private UniqueId _uniqueId;
 
   /**
    * The name of the snapshot intended for display purposes.
    */
-  @PropertyDefinition
+  @PropertyDefinition(overrideGet = true)
   private String _name;
 
   /**
    * The name of the view on which this snapshot was based
    */
-  @PropertyDefinition
+  @PropertyDefinition(overrideGet = true)
   private String _basisViewName;
 
-  @PropertyDefinition
+  @PropertyDefinition(overrideGet = true)
   private ManageableUnstructuredMarketDataSnapshot _globalValues;
 
   /**
    * The yield curves in this snapshot
    */
-  @PropertyDefinition
+  @PropertyDefinition(overrideGet = true)
   private Map<YieldCurveKey, YieldCurveSnapshot> _yieldCurves;
 
   /**
    * The yield curves in this snapshot
    */
-  @PropertyDefinition
+  @PropertyDefinition(overrideGet = true)
   private Map<CurveKey, CurveSnapshot> _curves;
 
   /**
    * The vol cubes in this snapshot
    */
-  @PropertyDefinition
+  @PropertyDefinition(overrideGet = true)
   private Map<VolatilityCubeKey, VolatilityCubeSnapshot> _volatilityCubes;
 
   /**
    * The vol surfaces in this snapshot
    */
-  @PropertyDefinition
+  @PropertyDefinition(overrideGet = true)
   private Map<VolatilitySurfaceKey, VolatilitySurfaceSnapshot> _volatilitySurfaces = Maps.newHashMap(); //Initialize in order to handle old format
 
   /**
    * The surfaces in this snapshot
    */
-  @PropertyDefinition
+  @PropertyDefinition(overrideGet = true)
   private Map<SurfaceKey, SurfaceSnapshot> _surfaces;
 
   /**
@@ -260,6 +260,7 @@ public class ManageableMarketDataSnapshot extends DirectBean implements Structur
    * Gets the unique identifier of the snapshot. This must be null when adding to a master and not null when retrieved from a master.
    * @return the value of the property
    */
+  @Override
   public UniqueId getUniqueId() {
     return _uniqueId;
   }
@@ -285,6 +286,7 @@ public class ManageableMarketDataSnapshot extends DirectBean implements Structur
    * Gets the name of the snapshot intended for display purposes.
    * @return the value of the property
    */
+  @Override
   public String getName() {
     return _name;
   }
@@ -310,6 +312,7 @@ public class ManageableMarketDataSnapshot extends DirectBean implements Structur
    * Gets the name of the view on which this snapshot was based
    * @return the value of the property
    */
+  @Override
   public String getBasisViewName() {
     return _basisViewName;
   }
@@ -335,6 +338,7 @@ public class ManageableMarketDataSnapshot extends DirectBean implements Structur
    * Gets the globalValues.
    * @return the value of the property
    */
+  @Override
   public ManageableUnstructuredMarketDataSnapshot getGlobalValues() {
     return _globalValues;
   }
@@ -360,6 +364,7 @@ public class ManageableMarketDataSnapshot extends DirectBean implements Structur
    * Gets the yield curves in this snapshot
    * @return the value of the property
    */
+  @Override
   public Map<YieldCurveKey, YieldCurveSnapshot> getYieldCurves() {
     return _yieldCurves;
   }
@@ -385,6 +390,7 @@ public class ManageableMarketDataSnapshot extends DirectBean implements Structur
    * Gets the yield curves in this snapshot
    * @return the value of the property
    */
+  @Override
   public Map<CurveKey, CurveSnapshot> getCurves() {
     return _curves;
   }
@@ -410,6 +416,7 @@ public class ManageableMarketDataSnapshot extends DirectBean implements Structur
    * Gets the vol cubes in this snapshot
    * @return the value of the property
    */
+  @Override
   public Map<VolatilityCubeKey, VolatilityCubeSnapshot> getVolatilityCubes() {
     return _volatilityCubes;
   }
@@ -435,6 +442,7 @@ public class ManageableMarketDataSnapshot extends DirectBean implements Structur
    * Gets the vol surfaces in this snapshot
    * @return the value of the property
    */
+  @Override
   public Map<VolatilitySurfaceKey, VolatilitySurfaceSnapshot> getVolatilitySurfaces() {
     return _volatilitySurfaces;
   }
@@ -460,6 +468,7 @@ public class ManageableMarketDataSnapshot extends DirectBean implements Structur
    * Gets the surfaces in this snapshot
    * @return the value of the property
    */
+  @Override
   public Map<SurfaceKey, SurfaceSnapshot> getSurfaces() {
     return _surfaces;
   }

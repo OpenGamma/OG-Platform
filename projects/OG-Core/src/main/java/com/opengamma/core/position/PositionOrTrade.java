@@ -36,6 +36,7 @@ public interface PositionOrTrade extends UniqueIdentifiable {
    * 
    * @return the unique identifier for this position/trade, not null within the engine
    */
+  @Override
   UniqueId getUniqueId();
 
   /**

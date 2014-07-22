@@ -85,7 +85,11 @@ public abstract class CapletStrippingSetup {
     PRICER = new MultiCapFloorPricer2(getAllCaps(), YIELD_CURVES);
   }
 
-  static protected MulticurveProviderDiscount getYieldCurves() {
+  protected double[] getAtmVols() {
+    return CAP_ATM_VOL;
+  }
+
+  protected MulticurveProviderDiscount getYieldCurves() {
     return YIELD_CURVES;
   }
 

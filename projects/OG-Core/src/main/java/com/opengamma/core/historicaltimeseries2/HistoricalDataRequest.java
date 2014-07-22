@@ -24,7 +24,7 @@ import org.threeten.bp.LocalDate;
 
 import com.opengamma.id.ExternalIdBundle;
 
-/** 
+/**
  * Fields for a historicalDataRequest
  */
 @BeanDefinition
@@ -514,7 +514,7 @@ public final class HistoricalDataRequest implements ImmutableBean {
 
     @Override
     public Builder setString(MetaProperty<?> property, String value) {
-      super.set(property, value);
+      super.setString(property, value);
       return this;
     }
 

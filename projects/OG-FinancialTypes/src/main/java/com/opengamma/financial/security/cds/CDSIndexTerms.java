@@ -14,6 +14,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
@@ -207,7 +208,7 @@ public final class CDSIndexTerms
     }
 
     @Override
-    public CDSIndexTerms.Builder builder() {
+    public BeanBuilder<? extends CDSIndexTerms> builder() {
       return new CDSIndexTerms.Builder();
     }
 
@@ -303,7 +304,7 @@ public final class CDSIndexTerms
 
     @Override
     public Builder setString(MetaProperty<?> property, String value) {
-      super.set(property, value);
+      super.setString(property, value);
       return this;
     }
 

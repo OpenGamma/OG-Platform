@@ -50,7 +50,7 @@ public final class SwaptionPhysicalFixedIborDefinition implements InstrumentDefi
   /**
    * Constructor from the expiry date, the underlying swap and the long/short flag.
    * @param expiryDate The expiry date.
-   * @param strike The strike
+   * @param strike The strike // TODO: remove
    * @param underlyingSwap The underlying swap.
    * @param isCall True if the swaption is a call.
    * @param isLong The long (true) / short (false) flag.

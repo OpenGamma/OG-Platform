@@ -227,7 +227,7 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
         break;
       default:
         throw new IllegalArgumentException("Can only add security by XML or ID");
-    }    
+    }
     return Response.seeOther(responseURI).build();
   }
 
@@ -273,7 +273,7 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
         break;
       default:
         throw new IllegalArgumentException("Can only add security by XML or ID");
-    }    
+    }
     return Response.ok(getFreemarker().build(JSON_DIR + "securities-added.ftl", out)).build();
   }
     
@@ -297,7 +297,7 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
     if (!externalIdBundle.isEmpty()) {
       ExternalId externalId = externalIdBundle.iterator().next();
       externalIdValue = externalId.getValue();
-    } 
+    }
     addedSecurities.put(externalIdValue, objectIdentifier);
     return addedSecurities;
   }
@@ -382,6 +382,7 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
    * Creates the output root data.
    * @return the output root data, not null
    */
+  @Override
   protected FlexiBean createRootData() {
     FlexiBean out = super.createRootData();
     SecuritySearchRequest searchRequest = new SecuritySearchRequest();

@@ -34,6 +34,7 @@ public class MultivaluedMapImpl extends HashMap<String, List<String>> implements
     }
   }
 
+  @Override
   public final void putSingle(String key, String value) {
     List<String> l = getList(key);
     l.clear();
@@ -44,6 +45,7 @@ public class MultivaluedMapImpl extends HashMap<String, List<String>> implements
     }
   }
 
+  @Override
   public final void add(String key, String value) {
     List<String> l = getList(key);
     if (value != null) {
@@ -53,6 +55,7 @@ public class MultivaluedMapImpl extends HashMap<String, List<String>> implements
     }
   }
 
+  @Override
   public final String getFirst(String key) {
     List<String> values = get(key);
     if (values != null && values.size() > 0) {

@@ -16,6 +16,7 @@ import org.apache.shiro.authz.AuthorizationException;
 import org.apache.shiro.authz.UnauthenticatedException;
 import org.apache.shiro.authz.UnauthorizedException;
 import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
@@ -322,7 +323,7 @@ public final class PermissionCheckProviderResult implements ImmutableBean {
     }
 
     @Override
-    public PermissionCheckProviderResult.Builder builder() {
+    public BeanBuilder<? extends PermissionCheckProviderResult> builder() {
       return new PermissionCheckProviderResult.Builder();
     }
 
@@ -450,7 +451,7 @@ public final class PermissionCheckProviderResult implements ImmutableBean {
 
     @Override
     public Builder setString(MetaProperty<?> property, String value) {
-      super.set(property, value);
+      super.setString(property, value);
       return this;
     }
 

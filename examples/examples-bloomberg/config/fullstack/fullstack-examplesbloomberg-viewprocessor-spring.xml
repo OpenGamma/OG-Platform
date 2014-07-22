@@ -110,10 +110,6 @@
     <property name="graphExecutionStatistics" ref="graphExecutionStatistics" />
   </bean>
 
-  <bean id="viewResultListenerFactory" class="com.opengamma.masterdb.batch.BatchDbViewResultListenerFactory">
-    <property name="batchRunMaster" ref="sharedBatchMaster" />
-  </bean>
-  
   <bean id="mainViewProcessor" class="com.opengamma.engine.view.ViewProcessorFactoryBean">
     <property name="name" value="main" />
     <property name="configSource" ref="combinedConfigSource" />
@@ -137,7 +133,6 @@
       <bean class="com.opengamma.engine.view.permission.DefaultViewPermissionProvider" />
     </property>
     <property name="overrideOperationCompiler" ref="mainOverrideOperationCompiler" />
-    <property name="viewResultListenerFactory" ref="viewResultListenerFactory" />
   </bean>
   
   <bean id="viewProcessorManager" class="com.opengamma.financial.view.ViewProcessorManager" init-method="start">

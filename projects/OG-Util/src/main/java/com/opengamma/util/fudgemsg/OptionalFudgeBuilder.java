@@ -32,7 +32,7 @@ public class OptionalFudgeBuilder implements FudgeBuilder<Optional<?>> {
   }
 
   @Override
-  public Optional buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
+  public Optional<?> buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
     FudgeField field = msg.getByName(OPTIONAL_FIELD_NAME);
     return field != null ? Optional.of(deserializer.fieldValueToObject(field)) : Optional.absent();
   }

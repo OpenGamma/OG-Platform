@@ -31,6 +31,7 @@ public interface PortfolioNode extends UniqueIdentifiable {
    * 
    * @return the unique identifier for this node, not null within the engine
    */
+  @Override
   UniqueId getUniqueId();
 
   /**

@@ -16,7 +16,7 @@ import com.opengamma.util.PublicAPI;
  * A user account within the user management system.
  * Support is provided for external users as well as passwords.
  * User profile data, such as web-site preferences, is held on {@code UserProfile}.
- * <p/> 
+ * <p>
  * This interface is read-only.
  * Implementations may be mutable.
  */

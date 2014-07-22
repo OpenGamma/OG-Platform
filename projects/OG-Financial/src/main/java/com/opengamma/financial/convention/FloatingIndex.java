@@ -147,6 +147,10 @@ public enum FloatingIndex implements NamedInstance {
    */
   SGD_SOR_REUTERS(Currency.of("SGD"), "SOR", "SGD-SOR-Reuters"),
   /**
+   * The SGD-SOR-VWAP ISDA index.
+   */
+  SGD_SOR_VWAP(Currency.of("SGD"), "SOR", "SGD-SOR-VWAP"),
+  /**
    * The USD-LIBOR-BBA ISDA index.
    */
   USD_LIBOR_BBA(Currency.USD, "LIBOR", "USD-LIBOR-BBA"),

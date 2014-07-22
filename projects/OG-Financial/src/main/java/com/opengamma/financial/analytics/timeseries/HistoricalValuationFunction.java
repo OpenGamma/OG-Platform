@@ -39,7 +39,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.financial.security.FinancialSecurityUtils;
+import com.opengamma.financial.security.CurrenciesVisitor;
 import com.opengamma.financial.temptarget.TempTarget;
 import com.opengamma.financial.temptarget.TempTargetRepository;
 import com.opengamma.financial.view.HistoricalViewEvaluationMarketDataMode;
@@ -246,7 +246,7 @@ public class HistoricalValuationFunction extends AbstractFunction.NonCompiledInv
     } else if (ComputationTargetType.POSITION.isCompatible(target.getType())) {
       security = target.getPosition().getSecurity();
     }
-    final Set<Currency> targetCurrencies = security != null ? ImmutableSet.copyOf(FinancialSecurityUtils.getCurrencies(security, context.getSecuritySource())) : null;
+    final Set<Currency> targetCurrencies = security != null ? ImmutableSet.copyOf(CurrenciesVisitor.getCurrencies(security, context.getSecuritySource())) : null;
     final ViewDefinition viewDefinition = context.getViewCalculationConfiguration().getViewDefinition();
     final HistoricalViewEvaluationTarget tempTarget = new HistoricalViewEvaluationTarget(viewDefinition.getMarketDataUser(), startDateConstraint, includeStartConstraint, endDateConstraint,
         includeEndConstraint, targetCurrencies, marketDataMode);

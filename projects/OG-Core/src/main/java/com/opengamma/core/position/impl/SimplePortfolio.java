@@ -43,23 +43,23 @@ public class SimplePortfolio extends DirectBean
   /**
    * The unique identifier of the portfolio.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true, overrideSet = true)
   private UniqueId _uniqueId;
   /**
    * The display name of the portfolio.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private String _name;
   /**
    * The root node.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private SimplePortfolioNode _rootNode;
   /**
    * The general purpose portfolio attributes.
    * These can be used to add arbitrary additional information to the object.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true, overrideSet = true)
   private final Map<String, String> _attributes = Maps.newHashMap();
 
   /**
@@ -182,7 +182,7 @@ public class SimplePortfolio extends DirectBean
       result = result * prime + getUniqueId().hashCode();
     }
     if (getName() != null) {
-      result = result * prime + getName().hashCode(); 
+      result = result * prime + getName().hashCode();
     }
     // intentionally skip the root node
     return result;
@@ -221,6 +221,7 @@ public class SimplePortfolio extends DirectBean
    * Gets the unique identifier of the portfolio.
    * @return the value of the property, not null
    */
+  @Override
   public UniqueId getUniqueId() {
     return _uniqueId;
   }
@@ -229,6 +230,7 @@ public class SimplePortfolio extends DirectBean
    * Sets the unique identifier of the portfolio.
    * @param uniqueId  the new value of the property, not null
    */
+  @Override
   public void setUniqueId(UniqueId uniqueId) {
     JodaBeanUtils.notNull(uniqueId, "uniqueId");
     this._uniqueId = uniqueId;
@@ -247,6 +249,7 @@ public class SimplePortfolio extends DirectBean
    * Gets the display name of the portfolio.
    * @return the value of the property, not null
    */
+  @Override
   public String getName() {
     return _name;
   }
@@ -273,6 +276,7 @@ public class SimplePortfolio extends DirectBean
    * Gets the root node.
    * @return the value of the property, not null
    */
+  @Override
   public SimplePortfolioNode getRootNode() {
     return _rootNode;
   }
@@ -300,6 +304,7 @@ public class SimplePortfolio extends DirectBean
    * These can be used to add arbitrary additional information to the object.
    * @return the value of the property, not null
    */
+  @Override
   public Map<String, String> getAttributes() {
     return _attributes;
   }
@@ -309,6 +314,7 @@ public class SimplePortfolio extends DirectBean
    * These can be used to add arbitrary additional information to the object.
    * @param attributes  the new value of the property, not null
    */
+  @Override
   public void setAttributes(Map<String, String> attributes) {
     JodaBeanUtils.notNull(attributes, "attributes");
     this._attributes.clear();

@@ -306,7 +306,7 @@ public final class ResolvedConfigLink<C>
 
     @Override
     public Builder<C> setString(MetaProperty<?> property, String value) {
-      super.set(property, value);
+      super.setString(property, value);
       return this;
     }
 

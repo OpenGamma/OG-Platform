@@ -435,7 +435,7 @@ public final class MultipleFailureResult<T> extends Result<T> implements Immutab
 
     @Override
     public Builder<T> setString(MetaProperty<?> property, String value) {
-      super.set(property, value);
+      super.setString(property, value);
       return this;
     }
 

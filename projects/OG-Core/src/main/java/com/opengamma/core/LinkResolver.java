@@ -19,7 +19,7 @@ import com.opengamma.util.PublicAPI;
  * This interface makes no guarantees about the thread-safety of implementations.
  * However, it is strongly recommended that implementations are thread-safe.
  * 
- * @param <T> the type being linked to 
+ * @param <T> the type being linked to
  */
 @PublicAPI
 public interface LinkResolver<T extends UniqueIdentifiable> {

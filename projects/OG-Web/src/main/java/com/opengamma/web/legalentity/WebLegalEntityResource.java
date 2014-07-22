@@ -5,9 +5,8 @@
  */
 package com.opengamma.web.legalentity;
 
-import static com.opengamma.lambdava.streams.Lambdava.functional;
-
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
@@ -32,7 +31,6 @@ import org.joda.beans.impl.flexi.FlexiBean;
 import com.opengamma.core.legalentity.Obligation;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
-import com.opengamma.lambdava.functions.Function1;
 import com.opengamma.master.legalentity.LegalEntityDocument;
 import com.opengamma.master.legalentity.ManageableLegalEntity;
 import com.opengamma.master.security.ManageableSecurity;
@@ -112,36 +110,28 @@ public class WebLegalEntityResource extends AbstractWebLegalEntityResource {
     final FlexiBean out = createRootData();
     final ManageableLegalEntity legalEntity = data().getLegalEntity().getLegalEntity();
 
-    List<FlexiBean> issuedSecuritiesOids = functional(legalEntity.getIssuedSecurities()).map(new Function1<ExternalIdBundle, FlexiBean>() {
-      @Override
-      public FlexiBean execute(ExternalIdBundle externalIds) {
-        ManageableSecurity security = data().getSecurityMaster().search(new SecuritySearchRequest(externalIds)).getFirstSecurity();
-        if (security != null) {
-          FlexiBean out = new FlexiBean();
-          out.put("name", security.getName());
-          out.put("oid", security.getUniqueId().getObjectId());
-          return out;
-        } else {
-          return null;
-        }
+    List<FlexiBean> issuedSecuritiesOids = new ArrayList<>();
+    for (ExternalIdBundle externalIds : legalEntity.getIssuedSecurities()) {
+      ManageableSecurity security = data().getSecurityMaster().search(new SecuritySearchRequest(externalIds)).getFirstSecurity();
+      if (security != null) {
+        FlexiBean fb = new FlexiBean();
+        out.put("name", security.getName());
+        out.put("oid", security.getUniqueId().getObjectId());
+        issuedSecuritiesOids.add(fb);
       }
-    }).asList();
+    }
 
-    List<FlexiBean> obligationsOids = functional(legalEntity.getObligations()).map(new Function1<Obligation, FlexiBean>() {
-      @Override
-      public FlexiBean execute(Obligation obligation) {
-        ManageableSecurity security = data().getSecurityMaster().search(new SecuritySearchRequest(obligation.getSecurity())).getFirstSecurity();
-        if (security != null) {
-          FlexiBean out = new FlexiBean();
-          out.put("obligation", obligation.getName());
-          out.put("name", security.getName());
-          out.put("oid", security.getUniqueId().getObjectId());
-          return out;
-        } else {
-          return null;
-        }
+    List<FlexiBean> obligationsOids = new ArrayList<>();
+    for (Obligation obligation : legalEntity.getObligations()) {
+      ManageableSecurity security = data().getSecurityMaster().search(new SecuritySearchRequest(obligation.getSecurity())).getFirstSecurity();
+      if (security != null) {
+        FlexiBean fb = new FlexiBean();
+        out.put("obligation", obligation.getName());
+        out.put("name", security.getName());
+        out.put("oid", security.getUniqueId().getObjectId());
+        obligationsOids.add(fb);
       }
-    }).asList();
+    }
 
     out.put("issuedSecuritiesOids", issuedSecuritiesOids);
     out.put("obligationsOids", obligationsOids);

@@ -65,6 +65,7 @@ public final class SimpleHistoricalTimeSeries
    * 
    * @return the time-series data points, not null
    */
+  @Override
   public LocalDateDoubleTimeSeries getTimeSeries() {
     return _timeSeries;
   }

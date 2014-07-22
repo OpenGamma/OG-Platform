@@ -5,6 +5,8 @@
  */
 package com.opengamma.component.tool;
 
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,5 +57,67 @@ public final class ToolUtils {
   private static String getSystemDefaultLogbackConfiguration() {
     return System.getProperty("logback.configurationFile");
   }
+  
+  /**
+   * Adds an option with a default value. Note that the default value specified is 
+   * only used for the purposes of rendering the help message. In no way is it
+   * registered with the {@link Options} object for subsequent processing. The 
+   * client must manually handle the case where the argument is missing.
+   * 
+   * @param options the options object to add to
+   * @param shortOpt the short option name
+   * @param longOpt the long option
+   * @param description the option's description
+   * @param defaultValue the default value
+   */
+  public static void optionWithDefault(Options options, 
+                                       String shortOpt, 
+                                       String longOpt, 
+                                       String description, 
+                                       String defaultValue) {
+    String completeDescription = description + " [Default = " + defaultValue + "]";
+    Option option = new Option(shortOpt, longOpt, true, completeDescription);
+    option.setRequired(false);
+    options.addOption(option);
+  }
+  
+  /**
+   * Adds a required option.
+   * 
+   * @param options the options object to add to
+   * @param shortOpt the short option name
+   * @param longOpt the long option
+   * @param hasArg whether the option requires an arg
+   * @param description the option's description
+   */
+  public static void option(Options options, 
+                            String shortOpt, 
+                            String longOpt, 
+                            boolean hasArg, 
+                            String description) {
+    Option option = new Option(shortOpt, longOpt, hasArg, description);
+    option.setRequired(true);
+    options.addOption(option);
+  }
+
+  /**
+   * Adds an option which need not be specified.
+   * 
+   * @param options the options object to add to
+   * @param shortOpt the short option name
+   * @param longOpt the long option
+   * @param hasArg whether the option requires an arg
+   * @param description the option's description
+   */
+  public static void optionalOption(Options options, 
+                                    String shortOpt, 
+                                    String longOpt, 
+                                    boolean hasArg, 
+                                    String description) {
+    Option option = new Option(shortOpt, longOpt, hasArg, description);
+    option.setRequired(false);
+    options.addOption(option);
+  }
+
   
 }

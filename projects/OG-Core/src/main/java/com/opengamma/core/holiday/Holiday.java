@@ -35,6 +35,7 @@ public interface Holiday extends UniqueIdentifiable {
    * 
    * @return the unique identifier for this holiday, not null within the engine
    */
+  @Override
   UniqueId getUniqueId();
 
   /**

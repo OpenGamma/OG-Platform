@@ -53,40 +53,40 @@ public class SimpleRegion extends DirectBean
   /**
    * The unique identifier of the region.
    */
-  @PropertyDefinition
+  @PropertyDefinition(overrideGet = true, overrideSet = true)
   private UniqueId _uniqueId;
   /**
    * The bundle of identifiers that define the region.
    * This will include the country, currency and time-zone.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private ExternalIdBundle _externalIdBundle = ExternalIdBundle.EMPTY;
   /**
    * The classification of the region.
    */
-  @PropertyDefinition
+  @PropertyDefinition(overrideGet = true)
   private RegionClassification _classification;
   /**
    * The unique identifiers of the parent regions.
    * For example, a country might be a member of the World, UN, European Union and NATO.
    */
-  @PropertyDefinition(set = "setClearAddAll")
+  @PropertyDefinition(set = "setClearAddAll", overrideGet = true)
   private Set<UniqueId> _parentRegionIds = new HashSet<UniqueId>();
   /**
    * The short descriptive name for the region.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private String _name = "";
   /**
    * The full descriptive name for the region.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private String _fullName = "";
   /**
    * The extensible data store for additional information, not null.
    * Applications may store additional region based information here.
    */
-  @PropertyDefinition
+  @PropertyDefinition(overrideGet = true)
   private final FlexiBean _data = new FlexiBean();
 
   /**
@@ -110,6 +110,7 @@ public class SimpleRegion extends DirectBean
    * Gets the country.
    * @return the value of the property
    */
+  @Override
   public Country getCountry() {
     String code = _externalIdBundle.getValue(ExternalSchemes.ISO_COUNTRY_ALPHA2);
     return (code != null ? Country.of(code) : null);
@@ -132,6 +133,7 @@ public class SimpleRegion extends DirectBean
    * Gets the currency.
    * @return the value of the property
    */
+  @Override
   public Currency getCurrency() {
     String code = _externalIdBundle.getValue(ExternalSchemes.ISO_CURRENCY_ALPHA3);
     return (code != null ? Currency.of(code) : null);
@@ -156,6 +158,7 @@ public class SimpleRegion extends DirectBean
    * for municipalities.
    * @return the value of the property
    */
+  @Override
   public ZoneId getTimeZone() {
     String id = _externalIdBundle.getValue(ExternalSchemes.TZDB_TIME_ZONE);
     return (id != null ? ZoneId.of(id) : null);
@@ -197,6 +200,7 @@ public class SimpleRegion extends DirectBean
    * Gets the unique identifier of the region.
    * @return the value of the property
    */
+  @Override
   public UniqueId getUniqueId() {
     return _uniqueId;
   }
@@ -205,6 +209,7 @@ public class SimpleRegion extends DirectBean
    * Sets the unique identifier of the region.
    * @param uniqueId  the new value of the property
    */
+  @Override
   public void setUniqueId(UniqueId uniqueId) {
     this._uniqueId = uniqueId;
   }
@@ -223,6 +228,7 @@ public class SimpleRegion extends DirectBean
    * This will include the country, currency and time-zone.
    * @return the value of the property, not null
    */
+  @Override
   public ExternalIdBundle getExternalIdBundle() {
     return _externalIdBundle;
   }
@@ -251,6 +257,7 @@ public class SimpleRegion extends DirectBean
    * Gets the classification of the region.
    * @return the value of the property
    */
+  @Override
   public RegionClassification getClassification() {
     return _classification;
   }
@@ -277,6 +284,7 @@ public class SimpleRegion extends DirectBean
    * For example, a country might be a member of the World, UN, European Union and NATO.
    * @return the value of the property
    */
+  @Override
   public Set<UniqueId> getParentRegionIds() {
     return _parentRegionIds;
   }
@@ -305,6 +313,7 @@ public class SimpleRegion extends DirectBean
    * Gets the short descriptive name for the region.
    * @return the value of the property, not null
    */
+  @Override
   public String getName() {
     return _name;
   }
@@ -331,6 +340,7 @@ public class SimpleRegion extends DirectBean
    * Gets the full descriptive name for the region.
    * @return the value of the property, not null
    */
+  @Override
   public String getFullName() {
     return _fullName;
   }
@@ -358,6 +368,7 @@ public class SimpleRegion extends DirectBean
    * Applications may store additional region based information here.
    * @return the value of the property, not null
    */
+  @Override
   public FlexiBean getData() {
     return _data;
   }

@@ -2,46 +2,14 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:aop="http://www.springframework.org/schema/aop"
-  xmlns:tx="http://www.springframework.org/schema/tx"
   xsi:schemaLocation="
     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
-      http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.0.xsd
       http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd">
 
   <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
     <property name="location">
       <value>classpath:server.properties</value>
     </property>
-  </bean>
-
-  <tx:annotation-driven transaction-manager="txManager"/>
-
-  <bean id="txManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
-    <property name="sessionFactory">
-      <bean factory-bean="dbConnector" factory-method="getHibernateSessionFactory"/>
-    </property>
-  </bean>
-
-  <bean id="dataSource" class="com.jolbox.bonecp.BoneCPDataSource" destroy-method="close">
-    <property name="driverClass" value="${jdbc.driverClassName}"/>
-    <property name="jdbcUrl" value="${jdbc.url}"/>
-    <property name="username" value="${jdbc.username}"/>
-    <property name="password" value="${jdbc.password}"/>
-    <property name="poolName" value="LiveData-${dbsource.name}"/>
-    <property name="partitionCount" value="2"/>
-    <property name="acquireIncrement" value="2"/>
-    <property name="maxConnectionsPerPartition" value="20"/>
-  </bean>
-
-  <bean id="dbConnector" class="com.opengamma.util.db.DbConnectorFactoryBean">
-    <property name="name" value="${dbsource.name}"/>
-    <property name="hibernateMappingFiles">
-      <list>
-        <bean class="com.opengamma.security.user.HibernateUserManagerFiles"/>
-      </list>
-    </property>
-    <property name="dataSource" ref="dataSource"/>
-    <property name="dialectName" value="${opengamma.db.dialect}"/>
   </bean>
 
   <bean id="activeMQConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">

@@ -1,11 +1,18 @@
 /**
  * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
- * <p/>
+ *
  * Please see distribution for license.
  */
 package com.opengamma.core.legalentity;
 
-/** Seniority Levels */
+/**
+ * Seniority Levels.
+ *
+ * Reference: https://www.markit.com/news/XMLGuide.pdf,
+ *            "XML User Guide - Markit Data",
+ *            Version 10.3.8, November 2010.
+ *
+ */
 public enum SeniorityLevel {
   /** Junior Subordinated or Upper Tier 2 Debt (Banks) */
   JRSUBUT2,

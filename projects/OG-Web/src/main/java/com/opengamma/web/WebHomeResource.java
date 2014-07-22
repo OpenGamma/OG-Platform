@@ -43,9 +43,9 @@ import com.opengamma.web.holiday.WebHolidaysResource;
 import com.opengamma.web.legalentity.WebLegalEntitiesResource;
 import com.opengamma.web.legalentity.WebLegalEntityData;
 import com.opengamma.web.legalentity.WebLegalEntityUris;
-import com.opengamma.web.marketdatasnapshot.WebMarketDataSnapshotData;
-import com.opengamma.web.marketdatasnapshot.WebMarketDataSnapshotUris;
-import com.opengamma.web.marketdatasnapshot.WebMarketDataSnapshotsResource;
+import com.opengamma.web.namedsnapshot.WebNamedSnapshotData;
+import com.opengamma.web.namedsnapshot.WebNamedSnapshotUris;
+import com.opengamma.web.namedsnapshot.WebNamedSnapshotsResource;
 import com.opengamma.web.portfolio.WebPortfoliosData;
 import com.opengamma.web.portfolio.WebPortfoliosResource;
 import com.opengamma.web.portfolio.WebPortfoliosUris;
@@ -82,12 +82,12 @@ public class WebHomeResource extends AbstractSingletonWebResource {
     builder.add(new ResourceConfig(WebAllHistoricalTimeSeriesResource.class, WebHistoricalTimeSeriesData.class, WebHistoricalTimeSeriesUris.class, "timeseriesUris"));
     builder.add(new ResourceConfig(WebHolidaysResource.class, WebHolidayData.class, WebHolidayUris.class, "holidayUris"));
     builder.add(new ResourceConfig(WebLegalEntitiesResource.class, WebLegalEntityData.class, WebLegalEntityUris.class, "legalEntityUris"));
+    builder.add(new ResourceConfig(WebNamedSnapshotsResource.class, WebNamedSnapshotData.class, WebNamedSnapshotUris.class, "namedSnapshotUris"));
     builder.add(new ResourceConfig(WebPortfoliosResource.class, WebPortfoliosData.class, WebPortfoliosUris.class, "portfolioUris"));
     builder.add(new ResourceConfig(WebPositionsResource.class, WebPositionsData.class, WebPositionsUris.class, "positionUris"));
     builder.add(new ResourceConfig(WebRegionsResource.class, WebRegionData.class, WebRegionUris.class, "regionUris"));
     builder.add(new ResourceConfig(WebRolesResource.class, WebRoleData.class, WebRoleUris.class, "roleUris"));
     builder.add(new ResourceConfig(WebSecuritiesResource.class, WebSecuritiesData.class, WebSecuritiesUris.class, "securityUris"));
-    builder.add(new ResourceConfig(WebMarketDataSnapshotsResource.class, WebMarketDataSnapshotData.class, WebMarketDataSnapshotUris.class, "snapshotUris"));
     builder.add(new ResourceConfig(WebUsersResource.class, WebUserData.class, WebUserUris.class, "userUris"));
     RESOURCE_CONFIGS = builder.build();
   }
@@ -114,7 +114,8 @@ public class WebHomeResource extends AbstractSingletonWebResource {
   //-------------------------------------------------------------------------
   /**
    * Creates the resource.
-   * @param publishedTypes 
+   * 
+   * @param publishedTypes  the set of published types
    */
   public WebHomeResource(Set<Class<?>> publishedTypes) {
     _publishedTypes = publishedTypes;

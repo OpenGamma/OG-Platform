@@ -140,6 +140,7 @@ public class NarrowingConventionSource implements ConventionSource {
   }
 
   @Override
+  @SuppressWarnings("deprecation")
   public Collection<Convention> get(ExternalIdBundle bundle) {
     return _delegate.get(bundle);
   }

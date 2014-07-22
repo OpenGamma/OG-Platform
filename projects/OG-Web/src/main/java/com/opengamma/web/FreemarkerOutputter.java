@@ -256,10 +256,8 @@ public class FreemarkerOutputter {
       ((Map<String, Object>) data).put("freemarkerLocale", template.getLocale());
       ((Map<String, Object>) data).put("freemarkerVersion", Configuration.getVersionNumber());
     }
-    try {
-      StringWriter out = new StringWriter(1024 * 4);
+    try (StringWriter out = new StringWriter(1024 * 4)) {
       template.process(data, out);
-      out.close();
       return out.toString();
     } catch (Exception ex) {
       return handleException(ex);
