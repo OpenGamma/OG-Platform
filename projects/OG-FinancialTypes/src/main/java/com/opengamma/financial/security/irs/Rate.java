@@ -50,6 +50,21 @@ public final class Rate implements ImmutableBean {
   private final ShiftType[] _types;
 
   /**
+   * Flag indicating a par rate should be used. The rate will be calculated (the rate that results in an NPV of 0).
+   * Defaults to false
+   */
+  @PropertyDefinition
+  private final boolean _parRate;
+
+  /**
+   * Creates a par rate swap. The rate will be calculated as the rate that results in an NPV of 0.
+   * @return the par rate
+   */
+  public static Rate parRate() {
+    return builder().parRate(true).build();
+  }
+
+  /**
    * A constant rate
    *
    * @param rate the rate
@@ -58,6 +73,7 @@ public final class Rate implements ImmutableBean {
     _dates = new int[] {0};
     _rates = new double[] {rate};
     _types = new ShiftType[] {ShiftType.OUTRIGHT};
+    _parRate = false;
   }
 
   /**
@@ -76,6 +92,9 @@ public final class Rate implements ImmutableBean {
    * @return the rate
    */
   public double getRate(final int period) {
+    if (isParRate()) {
+      throw new IllegalStateException("Can't get a rate from a par rate.");
+    }
     if (period == 0) {
       return _rates[0]; // first amount must be absolute.
     }
@@ -157,10 +176,12 @@ public final class Rate implements ImmutableBean {
   private Rate(
       int[] dates,
       double[] rates,
-      ShiftType[] types) {
+      ShiftType[] types,
+      boolean parRate) {
     this._dates = (dates != null ? dates.clone() : null);
     this._rates = (rates != null ? rates.clone() : null);
     this._types = types;
+    this._parRate = parRate;
   }
 
   @Override
@@ -209,6 +230,16 @@ public final class Rate implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets flag indicating a par rate should be used. The rate will be calculated (the rate that results in an NPV of 0).
+   * Defaults to false
+   * @return the value of the property
+   */
+  public boolean isParRate() {
+    return _parRate;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
    */
@@ -225,7 +256,8 @@ public final class Rate implements ImmutableBean {
       Rate other = (Rate) obj;
       return JodaBeanUtils.equal(getDates(), other.getDates()) &&
           JodaBeanUtils.equal(getRates(), other.getRates()) &&
-          JodaBeanUtils.equal(getTypes(), other.getTypes());
+          JodaBeanUtils.equal(getTypes(), other.getTypes()) &&
+          (isParRate() == other.isParRate());
     }
     return false;
   }
@@ -236,16 +268,18 @@ public final class Rate implements ImmutableBean {
     hash += hash * 31 + JodaBeanUtils.hashCode(getDates());
     hash += hash * 31 + JodaBeanUtils.hashCode(getRates());
     hash += hash * 31 + JodaBeanUtils.hashCode(getTypes());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isParRate());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(128);
+    StringBuilder buf = new StringBuilder(160);
     buf.append("Rate{");
     buf.append("dates").append('=').append(getDates()).append(',').append(' ');
     buf.append("rates").append('=').append(getRates()).append(',').append(' ');
-    buf.append("types").append('=').append(JodaBeanUtils.toString(getTypes()));
+    buf.append("types").append('=').append(getTypes()).append(',').append(' ');
+    buf.append("parRate").append('=').append(JodaBeanUtils.toString(isParRate()));
     buf.append('}');
     return buf.toString();
   }
@@ -276,13 +310,19 @@ public final class Rate implements ImmutableBean {
     private final MetaProperty<ShiftType[]> _types = DirectMetaProperty.ofImmutable(
         this, "types", Rate.class, ShiftType[].class);
     /**
+     * The meta-property for the {@code parRate} property.
+     */
+    private final MetaProperty<Boolean> _parRate = DirectMetaProperty.ofImmutable(
+        this, "parRate", Rate.class, Boolean.TYPE);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "dates",
         "rates",
-        "types");
+        "types",
+        "parRate");
 
     /**
      * Restricted constructor.
@@ -299,6 +339,8 @@ public final class Rate implements ImmutableBean {
           return _rates;
         case 110844025:  // types
           return _types;
+        case -793954015:  // parRate
+          return _parRate;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -343,6 +385,14 @@ public final class Rate implements ImmutableBean {
       return _types;
     }
 
+    /**
+     * The meta-property for the {@code parRate} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Boolean> parRate() {
+      return _parRate;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -353,6 +403,8 @@ public final class Rate implements ImmutableBean {
           return ((Rate) bean).getRates();
         case 110844025:  // types
           return ((Rate) bean).getTypes();
+        case -793954015:  // parRate
+          return ((Rate) bean).isParRate();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -377,6 +429,7 @@ public final class Rate implements ImmutableBean {
     private int[] _dates;
     private double[] _rates;
     private ShiftType[] _types;
+    private boolean _parRate;
 
     /**
      * Restricted constructor.
@@ -392,6 +445,7 @@ public final class Rate implements ImmutableBean {
       this._dates = (beanToCopy.getDates() != null ? beanToCopy.getDates().clone() : null);
       this._rates = (beanToCopy.getRates() != null ? beanToCopy.getRates().clone() : null);
       this._types = beanToCopy.getTypes();
+      this._parRate = beanToCopy.isParRate();
     }
 
     //-----------------------------------------------------------------------
@@ -404,6 +458,8 @@ public final class Rate implements ImmutableBean {
           return _rates;
         case 110844025:  // types
           return _types;
+        case -793954015:  // parRate
+          return _parRate;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -420,6 +476,9 @@ public final class Rate implements ImmutableBean {
           break;
         case 110844025:  // types
           this._types = (ShiftType[]) newValue;
+          break;
+        case -793954015:  // parRate
+          this._parRate = (Boolean) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -456,7 +515,8 @@ public final class Rate implements ImmutableBean {
       return new Rate(
           _dates,
           _rates,
-          _types);
+          _types,
+          _parRate);
     }
 
     //-----------------------------------------------------------------------
@@ -490,14 +550,25 @@ public final class Rate implements ImmutableBean {
       return this;
     }
 
+    /**
+     * Sets the {@code parRate} property in the builder.
+     * @param parRate  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder parRate(boolean parRate) {
+      this._parRate = parRate;
+      return this;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(128);
+      StringBuilder buf = new StringBuilder(160);
       buf.append("Rate.Builder{");
       buf.append("dates").append('=').append(JodaBeanUtils.toString(_dates)).append(',').append(' ');
       buf.append("rates").append('=').append(JodaBeanUtils.toString(_rates)).append(',').append(' ');
-      buf.append("types").append('=').append(JodaBeanUtils.toString(_types));
+      buf.append("types").append('=').append(JodaBeanUtils.toString(_types)).append(',').append(' ');
+      buf.append("parRate").append('=').append(JodaBeanUtils.toString(_parRate));
       buf.append('}');
       return buf.toString();
     }
