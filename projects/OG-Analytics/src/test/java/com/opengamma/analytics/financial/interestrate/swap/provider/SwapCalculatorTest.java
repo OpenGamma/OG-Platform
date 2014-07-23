@@ -28,6 +28,7 @@ import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedC
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PV01CurveParametersCalculator;
+import com.opengamma.analytics.financial.provider.calculator.discounting.ParRateDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
@@ -85,6 +86,7 @@ public class SwapCalculatorTest {
 
   // Calculators
   private static final ParSpreadMarketQuoteDiscountingCalculator PSMQDC = ParSpreadMarketQuoteDiscountingCalculator.getInstance();
+  private static final ParRateDiscountingCalculator PRDC = ParRateDiscountingCalculator.getInstance();
   private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
   private static final TodayPaymentCalculator TPC = TodayPaymentCalculator.getInstance();
 
@@ -113,6 +115,17 @@ public class SwapCalculatorTest {
     final SwapFixedIborDefinition swap0Definition = SwapFixedIborDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, USD6MLIBOR3M, NOTIONAL, RATE_FIXED + parSpread, true);
     final SwapFixedCoupon<Coupon> swap0 = swap0Definition.toDerivative(referenceDate);
     final MultipleCurrencyAmount pv = swap0.accept(PVDC, MULTICURVES);
+    assertEquals("ParSpreadCalculator: fixed-coupon swap", pv.getAmount(swap.getFirstLeg().getCurrency()), 0, TOLERANCE_PV);
+  }
+
+  @Test
+  public void parRateFixedIborBeforeFirstFixing() {
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 5, 14);
+    final SwapFixedCoupon<Coupon> swap = SWAP_FIXED_IBOR_DEFINITION.toDerivative(referenceDate);
+    final double parRate = swap.accept(PRDC, MULTICURVES);
+    final SwapFixedIborDefinition swapATMDefinition = SwapFixedIborDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, USD6MLIBOR3M, NOTIONAL, parRate, true);
+    final SwapFixedCoupon<Coupon> swapATM = swapATMDefinition.toDerivative(referenceDate);
+    final MultipleCurrencyAmount pv = swapATM.accept(PVDC, MULTICURVES);
     assertEquals("ParSpreadCalculator: fixed-coupon swap", pv.getAmount(swap.getFirstLeg().getCurrency()), 0, TOLERANCE_PV);
   }
 

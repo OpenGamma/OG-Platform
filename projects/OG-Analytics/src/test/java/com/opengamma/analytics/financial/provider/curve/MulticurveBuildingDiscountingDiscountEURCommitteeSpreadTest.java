@@ -308,7 +308,7 @@ public class MulticurveBuildingDiscountingDiscountEURCommitteeSpreadTest {
     }
   }
 
-  @Test(enabled = true)
+  @Test(enabled = false)
   /** Exports the ON rates computed from the EONIA and EURIBOR6M curves. */
   /** Exports the Ibor rates computed from the EURIBOR6M curve. */
   public void exportForwardRates() {
