@@ -359,4 +359,19 @@ public class AnnuityCouponFixedDefinition extends AnnuityDefinition<CouponFixedD
     }
     return new AnnuityCouponFixed(resultList.toArray(new CouponFixed[resultList.size()]));
   }
+
+  /**
+   * Creates a new annuity with the same characteristics, except that the rate of all coupons is the one given.
+   * @param rate The rate.
+   * @return The new annuity.
+   */
+  public AnnuityCouponFixedDefinition withRate(final double rate) {
+    final CouponFixedDefinition[] cpn = new CouponFixedDefinition[getNumberOfPayments()];
+    for (int loopcpn = 0; loopcpn < getNumberOfPayments(); loopcpn++) {
+      cpn[loopcpn] = getNthPayment(loopcpn).withRate(rate);
+    }
+    return new AnnuityCouponFixedDefinition(cpn, getCalendar());
+  }
+
+
 }
