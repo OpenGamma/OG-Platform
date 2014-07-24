@@ -221,7 +221,7 @@ public class BondFuturesSecurityDefinition extends FuturesSecurityDefinition<Bon
   @Override
   public BondFuturesSecurity toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "date");
-    ArgumentChecker.isTrue(!date.isAfter(getNoticeLastDate()), "Date is after last notice date");
+    ArgumentChecker.isTrue(!date.toLocalDate().isAfter(getNoticeLastDate().toLocalDate()), "Date is after last notice date");
     final double lastTradingTime = TimeCalculator.getTimeBetween(date, getLastTradingDate());
     final double firstNoticeTime = TimeCalculator.getTimeBetween(date, getNoticeFirstDate());
     final double lastNoticeTime = TimeCalculator.getTimeBetween(date, getNoticeLastDate());
