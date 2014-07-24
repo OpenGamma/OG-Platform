@@ -33,6 +33,10 @@ public class BondFutureSecurityFudgeBuilder extends AbstractFudgeBuilder impleme
   public static final String FIRST_DELIVERY_DATE_FIELD_NAME = "firstDeliveryDate";
   /** Field name. */
   public static final String LAST_DELIVERY_DATE_FIELD_NAME = "lastDeliveryDate";
+  /** Field name. */
+  public static final String FIRST_NOTICE_DATE_FIELD_NAME = "firstNoticeDate";
+  /** Field name. */
+  public static final String LAST_NOTICE_DATE_FIELD_NAME = "lastNoticeDate";
 
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, BondFutureSecurity object) {
@@ -50,6 +54,8 @@ public class BondFutureSecurityFudgeBuilder extends AbstractFudgeBuilder impleme
     }    
     addToMessage(msg, FIRST_DELIVERY_DATE_FIELD_NAME, ZonedDateTimeFudgeBuilder.toFudgeMsg(serializer, object.getFirstDeliveryDate()));
     addToMessage(msg, LAST_DELIVERY_DATE_FIELD_NAME, ZonedDateTimeFudgeBuilder.toFudgeMsg(serializer, object.getLastDeliveryDate()));
+    addToMessage(msg, FIRST_NOTICE_DATE_FIELD_NAME, ZonedDateTimeFudgeBuilder.toFudgeMsg(serializer, object.getFirstNoticeDate()));
+    addToMessage(msg, LAST_NOTICE_DATE_FIELD_NAME, ZonedDateTimeFudgeBuilder.toFudgeMsg(serializer, object.getLastNoticeDate()));
   }
 
   @Override
@@ -69,6 +75,8 @@ public class BondFutureSecurityFudgeBuilder extends AbstractFudgeBuilder impleme
     object.setBasket(basket);
     object.setFirstDeliveryDate(ZonedDateTimeFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(FIRST_DELIVERY_DATE_FIELD_NAME)));
     object.setLastDeliveryDate(ZonedDateTimeFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(LAST_DELIVERY_DATE_FIELD_NAME)));
+    object.setFirstNoticeDate(ZonedDateTimeFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(FIRST_NOTICE_DATE_FIELD_NAME)));
+    object.setLastNoticeDate(ZonedDateTimeFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(LAST_NOTICE_DATE_FIELD_NAME)));
   }
 
 }
