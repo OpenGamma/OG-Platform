@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.interestrate.capletstripping;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.interestrate.capletstrippingnew.CapletStrippingSetup;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.util.money.Currency;

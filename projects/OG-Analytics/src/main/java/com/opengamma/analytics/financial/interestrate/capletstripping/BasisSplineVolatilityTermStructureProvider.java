@@ -7,7 +7,7 @@ package com.opengamma.analytics.financial.interestrate.capletstripping;
 
 import java.util.List;
 
-import com.opengamma.analytics.financial.interestrate.capletstripping.newstrippers.VolatilitySurfaceProvider;
+import com.opengamma.analytics.financial.interestrate.capletstrippingnew.VolatilitySurfaceProvider;
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.function.Function2D;

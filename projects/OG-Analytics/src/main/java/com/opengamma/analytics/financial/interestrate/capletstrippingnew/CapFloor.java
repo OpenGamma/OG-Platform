@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.interestrate.capletstripping;
+package com.opengamma.analytics.financial.interestrate.capletstrippingnew;
 
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;

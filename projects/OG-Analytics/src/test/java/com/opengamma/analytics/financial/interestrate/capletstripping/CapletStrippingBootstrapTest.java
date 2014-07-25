@@ -12,6 +12,9 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.interestrate.capletstrippingnew.CapFloor;
+import com.opengamma.analytics.financial.interestrate.capletstrippingnew.CapletStrippingSetup;
+import com.opengamma.analytics.financial.interestrate.capletstrippingnew.MultiCapFloorPricer;
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.math.function.Function2D;

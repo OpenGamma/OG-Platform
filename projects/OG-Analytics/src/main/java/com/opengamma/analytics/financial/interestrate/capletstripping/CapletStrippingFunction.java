@@ -8,6 +8,8 @@ package com.opengamma.analytics.financial.interestrate.capletstripping;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.opengamma.analytics.financial.interestrate.capletstrippingnew.CapFloor;
+import com.opengamma.analytics.financial.interestrate.capletstrippingnew.CapFloorPricer;
 import com.opengamma.analytics.financial.model.volatility.VolatilityModel1D;
 import com.opengamma.analytics.financial.model.volatility.VolatilityModelProvider;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;

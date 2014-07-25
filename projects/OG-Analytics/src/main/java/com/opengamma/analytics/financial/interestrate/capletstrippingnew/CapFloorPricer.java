@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.interestrate.capletstripping;
+package com.opengamma.analytics.financial.interestrate.capletstrippingnew;
 
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.financial.model.volatility.SimpleOptionData;
@@ -178,7 +178,7 @@ public class CapFloorPricer {
    * Gets the n.
    * @return the n
    */
-  protected int getNumberCaplets() {
+  public int getNumberCaplets() {
     return _n;
   }
 

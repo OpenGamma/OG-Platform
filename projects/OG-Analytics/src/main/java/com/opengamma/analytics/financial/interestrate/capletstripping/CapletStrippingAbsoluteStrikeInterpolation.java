@@ -9,8 +9,10 @@ import java.util.List;
 
 import org.apache.commons.lang.NotImplementedException;
 
-import com.opengamma.analytics.financial.interestrate.capletstripping.newstrippers.InterpolatedVolatilityTermStructureProvider;
-import com.opengamma.analytics.financial.interestrate.capletstripping.newstrippers.VolatilitySurfaceProvider;
+import com.opengamma.analytics.financial.interestrate.capletstrippingnew.CapFloor;
+import com.opengamma.analytics.financial.interestrate.capletstrippingnew.InterpolatedVolatilityTermStructureProvider;
+import com.opengamma.analytics.financial.interestrate.capletstrippingnew.MultiCapFloorPricer;
+import com.opengamma.analytics.financial.interestrate.capletstrippingnew.VolatilitySurfaceProvider;
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.math.FunctionUtils;

@@ -12,6 +12,8 @@ import java.util.Set;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.financial.interestrate.capletstrippingnew.CapFloor;
+import com.opengamma.analytics.financial.interestrate.capletstrippingnew.CapFloorPricer;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.financial.model.volatility.SABRTermStructureParameters;
