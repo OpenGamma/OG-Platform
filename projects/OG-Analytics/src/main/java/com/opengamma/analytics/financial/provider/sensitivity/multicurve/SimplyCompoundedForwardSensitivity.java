@@ -29,7 +29,7 @@ public class SimplyCompoundedForwardSensitivity extends ForwardSensitivity {
    */
   @Override
   public String toString() {
-    return "SimplyCompoundedForwardSensitivity []";
+    return "ForwardSensitivity[start=" + getStartTime() + ", end=" + getEndTime() + ", af=" + getAccrualFactor() + ", value=" + getValue() + "]";
   }
 
 }

@@ -78,7 +78,7 @@ public class ForwardRateAgreementDiscountingMethodTest {
   private static final YieldCurveBundle CURVES_2 = TestsDataSetsSABR.createCurves2();
   private static final String[] CURVE_NAME_2 = TestsDataSetsSABR.curves2Names();
   private static final ForwardRateAgreement FRA = (ForwardRateAgreement) FRA_DEFINITION.toDerivative(REFERENCE_DATE, CURVE_NAME_1);
-  private static final ForwardRateAgreementDiscountingMethod FRA_METHOD = ForwardRateAgreementDiscountingMethod.getInstance();
+  private static final ForwardRateAgreementDiscountingBundleMethod FRA_METHOD = ForwardRateAgreementDiscountingBundleMethod.getInstance();
   private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
   private static final ParSpreadMarketQuoteCalculator PSC = ParSpreadMarketQuoteCalculator.getInstance();
   private static final ParSpreadMarketQuoteCurveSensitivityCalculator PSCSC = ParSpreadMarketQuoteCurveSensitivityCalculator.getInstance();

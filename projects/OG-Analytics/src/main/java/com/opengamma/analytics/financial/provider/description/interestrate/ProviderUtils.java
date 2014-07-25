@@ -18,13 +18,15 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * Utility class for providers. This is a temporary class and will be removed when the providers
- * have been refactored.
+ * Utility class for providers. 
+ * This is a temporary class and will be removed when the providers have been refactored.
  */
 public class ProviderUtils {
 
   /**
-   * Merges discounting curve providers.
+   * Merges discounting curve providers. 
+   * If a currency or index appears twice in the providers, an error is returned.
+   * The FXMatrix are also merged.
    * @param providers The providers to merge, not null or empty
    * @return The merged providers
    */
@@ -43,6 +45,40 @@ public class ProviderUtils {
       }
       for (final Map.Entry<IndexON, YieldAndDiscountCurve> entry : provider.getForwardONCurves().entrySet()) {
         result.setCurve(entry.getKey(), entry.getValue());
+      }
+      if (loop == 0) {
+        matrix = new FXMatrix(provider.getFxRates());
+        loop++;
+      } else {
+        matrix = FXMatrixUtils.merge(matrix, provider.getFxRates());
+      }
+    }
+    result.setForexMatrix(matrix);
+    return result;
+  }
+
+  /**
+   * Merges discounting curve providers. 
+   * If a currency or index appears twice in the providers, the curve in the last instance is used.
+   * The FXMatrix are also merged.
+   * @param providers The providers to merge, not null or empty
+   * @return The merged providers
+   */
+  public static MulticurveProviderDiscount mergeWithDuplicateDiscountingProviders(final Collection<MulticurveProviderDiscount> providers) {
+    ArgumentChecker.notNull(providers, "providers");
+    ArgumentChecker.notEmpty(providers, "providers");
+    final MulticurveProviderDiscount result = new MulticurveProviderDiscount();
+    FXMatrix matrix = new FXMatrix();
+    int loop = 0;
+    for (final MulticurveProviderDiscount provider : providers) {
+      for (final Map.Entry<Currency, YieldAndDiscountCurve> entry : provider.getDiscountingCurves().entrySet()) {
+        result.setOrReplaceCurve(entry.getKey(), entry.getValue());
+      }
+      for (final Map.Entry<IborIndex, YieldAndDiscountCurve> entry : provider.getForwardIborCurves().entrySet()) {
+        result.setOrReplaceCurve(entry.getKey(), entry.getValue());
+      }
+      for (final Map.Entry<IndexON, YieldAndDiscountCurve> entry : provider.getForwardONCurves().entrySet()) {
+        result.setOrReplaceCurve(entry.getKey(), entry.getValue());
       }
       if (loop == 0) {
         matrix = new FXMatrix(provider.getFxRates());

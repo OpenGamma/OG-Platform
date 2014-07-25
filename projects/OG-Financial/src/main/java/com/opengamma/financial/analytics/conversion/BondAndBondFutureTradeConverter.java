@@ -188,14 +188,7 @@ public class BondAndBondFutureTradeConverter extends FinancialSecurityVisitorAda
       final ZonedDateTime tradeDateTime = tradeDate.atTime(tradeTime).atZoneSameInstant(ZoneOffset.UTC);
       final InflationBondSecurity bondSecurity = (InflationBondSecurity) security;
       final Calendar calendar;
-      final ExternalId regionId = ExternalSchemes.financialRegionId(bondSecurity.getIssuerDomicile());
-      // If the bond is Supranational, we use the calendar derived from the currency of the bond.
-      // this may need revisiting.
-      if (regionId.getValue().equals("SNAT")) { // Supranational
-        calendar = CalendarUtils.getCalendar(_holidaySource, bondSecurity.getCurrency());
-      } else {
-        calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, regionId);
-      }
+      calendar = getBondCalendar(bondSecurity);
       final ZonedDateTime settlementDateTime = ScheduleCalculator.getAdjustedDate(tradeDateTime, Integer.parseInt(bondSecurity.attributes().get().get("daysToSettle")), calendar);
       final LegalEntity legalEntity = LegalEntityUtils.getLegalEntityForBond(trade.getAttributes(), bondSecurity);
       final BondCapitalIndexedSecurityDefinition bond = (BondCapitalIndexedSecurityDefinition) getInflationBond(bondSecurity, legalEntity);
@@ -232,6 +225,25 @@ public class BondAndBondFutureTradeConverter extends FinancialSecurityVisitorAda
     }
     final BondFixedSecurityDefinition bond = (BondFixedSecurityDefinition) underlying;
     return new BondFixedTransactionDefinition(bond, quantity, settlementDate, price);
+  }
+
+  /**
+   * Returns the calendar for a given bond.
+   * @param bond the bond to return the calendar for.
+   * @return the calendar for a given bond.
+   */
+  private Calendar getBondCalendar(BondSecurity bond) {
+    final Calendar calendar;
+    String issuerDomicile = bond.getIssuerDomicile();
+    final ExternalId regionId = issuerDomicile == null ? null : ExternalSchemes.financialRegionId(issuerDomicile);
+    // If the bond is Supranational, we use the calendar derived from the currency of the bond.
+    // this may need revisiting.
+    if (regionId == null || regionId.getValue().equals("SNAT")) { // Supranational
+      calendar = CalendarUtils.getCalendar(_holidaySource, bond.getCurrency());
+    } else {
+      calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, regionId);
+    }
+    return calendar;
   }
 
 
@@ -284,19 +296,8 @@ public class BondAndBondFutureTradeConverter extends FinancialSecurityVisitorAda
         if (EXCLUDED_TYPES.contains(bond.getCouponType())) {
           throw new UnsupportedOperationException("Cannot support fixed coupon bonds with coupon of type " + bond.getCouponType());
         }
-        final ExternalId regionId = ExternalSchemes.financialRegionId(bond.getIssuerDomicile());
-        if (regionId == null) {
-          throw new OpenGammaRuntimeException("Could not find region for " + bond.getIssuerDomicile());
-        }
         final Currency currency = bond.getCurrency();
-        final Calendar calendar;
-        // If the bond is Supranational, we use the calendar derived from the currency of the bond.
-        // this may need revisiting.
-        if (regionId.getValue().equals("SNAT")) { // Supranational
-          calendar = CalendarUtils.getCalendar(_holidaySource, currency);
-        } else {
-          calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, regionId);
-        }
+        final Calendar calendar = getBondCalendar(bond);
         if (bond.getInterestAccrualDate() == null) {
           throw new OpenGammaRuntimeException("Bond first interest accrual date was null");
         }
@@ -389,10 +390,6 @@ public class BondAndBondFutureTradeConverter extends FinancialSecurityVisitorAda
         if (EXCLUDED_TYPES.contains(bond.getCouponType())) {
           throw new UnsupportedOperationException("Cannot support fixed coupon bonds with coupon of type " + bond.getCouponType());
         }
-        final ExternalId regionId = ExternalSchemes.financialRegionId(bond.getIssuerDomicile());
-        if (regionId == null) {
-          throw new OpenGammaRuntimeException("Could not find region for " + bond.getIssuerDomicile());
-        }
         final Currency currency = bond.getCurrency();
         final ExternalId indexId = ExternalId.parse(bond.attributes().get().get("ReferenceIndexId"));
 
@@ -403,14 +400,7 @@ public class BondAndBondFutureTradeConverter extends FinancialSecurityVisitorAda
         final com.opengamma.financial.security.index.PriceIndex indexSecurity = (com.opengamma.financial.security.index.PriceIndex) sec;
 
         final IndexPrice priceIndex = new IndexPrice(indexSecurity.getName(), currency);
-        final Calendar calendar;
-        // If the bond is Supranational, we use the calendar derived from the currency of the bond.
-        // this may need revisiting.
-        if (regionId.getValue().equals("SNAT")) { // Supranational
-          calendar = CalendarUtils.getCalendar(_holidaySource, currency);
-        } else {
-          calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, regionId);
-        }
+        final Calendar calendar = getBondCalendar(bond);
         if (bond.getInterestAccrualDate() == null) {
           throw new OpenGammaRuntimeException("Bond first interest accrual date was null");
         }
@@ -449,7 +439,7 @@ public class BondAndBondFutureTradeConverter extends FinancialSecurityVisitorAda
       }
     });
   }
-
+  
   /**
    * Constructs a {@link BondFuturesSecurityDefinition} from a {@link BondFutureSecurity}
    * @param bondFuture The bond future security
@@ -457,8 +447,8 @@ public class BondAndBondFutureTradeConverter extends FinancialSecurityVisitorAda
    */
   public BondFuturesSecurityDefinition getBondFuture(final BondFutureSecurity bondFuture) {
     final ZonedDateTime lastTradeDate = bondFuture.getExpiry().getExpiry();
-    final ZonedDateTime firstNoticeDate = bondFuture.getFirstDeliveryDate();
-    final ZonedDateTime lastNoticeDate = bondFuture.getLastDeliveryDate();
+    final ZonedDateTime firstNoticeDate = bondFuture.getFirstNoticeDate();
+    final ZonedDateTime lastNoticeDate = bondFuture.getLastNoticeDate();
     final double notional = bondFuture.getUnitAmount();
     final List<BondFutureDeliverable> basket = bondFuture.getBasket();
     final int n = basket.size();
@@ -478,7 +468,14 @@ public class BondAndBondFutureTradeConverter extends FinancialSecurityVisitorAda
       deliveryBasket[i] = (BondFixedSecurityDefinition) definition;
       conversionFactor[i] = deliverable.getConversionFactor();
     }
-    return new BondFuturesSecurityDefinition(lastTradeDate, firstNoticeDate, lastNoticeDate, notional, deliveryBasket, conversionFactor);
+    return new BondFuturesSecurityDefinition(lastTradeDate,
+                                             firstNoticeDate,
+                                             lastNoticeDate,
+                                             bondFuture.getFirstDeliveryDate(),
+                                             bondFuture.getLastDeliveryDate(),
+                                             notional,
+                                             deliveryBasket,
+                                             conversionFactor);
   }
 
 

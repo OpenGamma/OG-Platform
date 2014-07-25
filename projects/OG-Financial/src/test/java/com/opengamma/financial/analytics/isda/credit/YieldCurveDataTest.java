@@ -9,7 +9,6 @@ import org.threeten.bp.LocalDate;
 import com.google.common.collect.ImmutableSortedMap;
 import com.opengamma.financial.analytics.isda.credit.YieldCurveData.Builder;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
-import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
@@ -24,11 +23,11 @@ public class YieldCurveDataTest {
   @BeforeMethod
   public void beforeMethod() {
     _builder = YieldCurveData.builder()
-      .calendar(new MondayToFridayCalendar("test"))
       .cashDayCount(DayCounts.ACT_360)
       .currency(Currency.USD)
       .curveBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING)
       .curveDayCount(DayCounts.ACT_365)
+      .regionId(null) //weekend only holiday calendar
       .spotDate(LocalDate.of(2014, 1, 1))
       .swapDayCount(DayCounts.THIRTY_360)
       .swapFixedLegInterval(Tenor.ONE_YEAR);

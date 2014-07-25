@@ -14,7 +14,6 @@ import java.util.Map;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotChangeListener;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.core.marketdatasnapshot.NamedSnapshot;
-import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdSchemeDelegator;
@@ -49,17 +48,17 @@ public class DelegatingSnapshotSource extends UniqueIdSchemeDelegator<MarketData
   }
 
   @Override
-  public StructuredMarketDataSnapshot get(ObjectId objectId, VersionCorrection versionCorrection) {
+  public NamedSnapshot get(ObjectId objectId, VersionCorrection versionCorrection) {
     return chooseDelegate(objectId.getScheme()).get(objectId, versionCorrection);
   }
 
   @Override
-  public StructuredMarketDataSnapshot get(UniqueId uniqueId) {
+  public NamedSnapshot get(UniqueId uniqueId) {
     return chooseDelegate(uniqueId.getScheme()).get(uniqueId);
   }
 
   @Override
-  public Map<UniqueId, StructuredMarketDataSnapshot> get(Collection<UniqueId> uniqueIds) {
+  public Map<UniqueId, NamedSnapshot> get(Collection<UniqueId> uniqueIds) {
     Map<String, Functional<UniqueId>> groups = functional(uniqueIds).groupBy(new Function1<UniqueId, String>() {
       @Override
       public String execute(UniqueId uniqueId) {
@@ -67,7 +66,7 @@ public class DelegatingSnapshotSource extends UniqueIdSchemeDelegator<MarketData
       }
     });
 
-    Map<UniqueId, StructuredMarketDataSnapshot> snapshots = newHashMap();
+    Map<UniqueId, NamedSnapshot> snapshots = newHashMap();
 
     for (Map.Entry<String, Functional<UniqueId>> entries : groups.entrySet()) {
       snapshots.putAll(chooseDelegate(entries.getKey()).get(entries.getValue().asList()));
@@ -77,14 +76,14 @@ public class DelegatingSnapshotSource extends UniqueIdSchemeDelegator<MarketData
   }
 
   @Override
-  public Map<ObjectId, StructuredMarketDataSnapshot> get(final Collection<ObjectId> objectIds, final VersionCorrection versionCorrection) {
+  public Map<ObjectId, NamedSnapshot> get(final Collection<ObjectId> objectIds, final VersionCorrection versionCorrection) {
     final Map<String, Functional<ObjectId>> groups = functional(objectIds).groupBy(new Function1<ObjectId, String>() {
       @Override
       public String execute(ObjectId objectId) {
         return objectId.getScheme();
       }
     });
-    final Map<ObjectId, StructuredMarketDataSnapshot> snapshots = newHashMap();
+    final Map<ObjectId, NamedSnapshot> snapshots = newHashMap();
     for (Map.Entry<String, Functional<ObjectId>> entries : groups.entrySet()) {
       snapshots.putAll(chooseDelegate(entries.getKey()).get(entries.getValue().asList(), versionCorrection));
     }
