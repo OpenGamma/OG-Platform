@@ -160,10 +160,6 @@ public class SwapCalculatorTest {
         }
       }
     }
-
-    @SuppressWarnings("unused")
-    int t = 0;
-
   }
 
   @Test
