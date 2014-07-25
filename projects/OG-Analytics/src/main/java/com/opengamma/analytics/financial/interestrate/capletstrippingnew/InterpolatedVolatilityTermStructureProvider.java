@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.interestrate.capletstripping.newstrippers;
+package com.opengamma.analytics.financial.interestrate.capletstrippingnew;
 
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;

@@ -3,7 +3,9 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.interestrate.capletstripping;
+package com.opengamma.analytics.financial.interestrate.capletstrippingnew;
+
+import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,7 +15,7 @@ import java.util.List;
 import org.threeten.bp.Period;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
-import com.opengamma.analytics.financial.interestrate.capletstripping.newstrippers.MultiCapFloorPricer2;
+import com.opengamma.analytics.financial.interestrate.capletstripping.SimpleCapFloorMaker;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
@@ -44,6 +46,7 @@ public abstract class CapletStrippingSetup {
     0.00127592397233014, 0.00132302501180961, 0.00138688847322639, 0.00172748279241698, 0.00254381216780551, 0.00410024606039574, 0.00628782387356631, 0.0170033466745807 };
 
   private static final double[] CAP_STRIKES = new double[] {0.005, 0.01, 0.015, 0.02, 0.025, 0.03, 0.035, 0.04, 0.045, 0.05, 0.055, 0.06, 0.07, 0.08, 0.09, 0.1, 0.11, 0.12 };
+  private static final double[] CAP_STARTTIMES = new double[] {0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25 };
   private static final double[] CAP_ENDTIMES = new double[] {1, 2, 3, 4, 5, 7, 10 };
 
   // cal vol at each strike - NaN represents missing data
@@ -68,7 +71,7 @@ public abstract class CapletStrippingSetup {
   private static final IborIndex INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM, "Ibor");
 
   private static final MulticurveProviderDiscount YIELD_CURVES;
-  private static final MultiCapFloorPricer2 PRICER;
+  private static final MultiCapFloorPricer PRICER;
 
   static {
 
@@ -82,7 +85,7 @@ public abstract class CapletStrippingSetup {
     YIELD_CURVES = new MulticurveProviderDiscount();
     YIELD_CURVES.setCurve(CUR, disCurve);
     YIELD_CURVES.setCurve(INDEX, indexCurve);
-    PRICER = new MultiCapFloorPricer2(getAllCaps(), YIELD_CURVES);
+    PRICER = new MultiCapFloorPricer(getAllCaps(), YIELD_CURVES);
   }
 
   protected double[] getAtmVols() {
@@ -99,6 +102,10 @@ public abstract class CapletStrippingSetup {
 
   static protected double[] getStrikes() {
     return CAP_STRIKES;
+  }
+
+  protected static double[] getCapStartTimes() {
+    return CAP_STARTTIMES;
   }
 
   protected static double[] getCapEndTimes() {
@@ -129,6 +136,22 @@ public abstract class CapletStrippingSetup {
     return CAP_ATM_VOL;
   }
 
+  protected static double[] getAllCapVolsExATM() {
+    final int nStrikes = CAP_STRIKES.length; //number of absolute strikes 
+    final int nTimes = CAP_ENDTIMES.length;
+    final double[] temp = new double[nStrikes * nTimes];
+    int jj = 0;
+    for (int i = 0; i < nStrikes; i++) {
+      final double[] v = getCapVols(i);
+      final int n = v.length;
+      System.arraycopy(v, 0, temp, jj, n);
+      jj += n;
+    }
+    final double[] vols = new double[jj];
+    System.arraycopy(temp, 0, vols, 0, jj);
+    return vols;
+  }
+
   protected static double[] getAllCapVols() {
     final int nStrikes = CAP_STRIKES.length; //number of absolute strikes 
     final int nTimes = CAP_ENDTIMES.length;
@@ -148,12 +171,12 @@ public abstract class CapletStrippingSetup {
   }
 
   protected static double[] getCapPrices(final int strikeIndex) {
-    final MultiCapFloorPricer2 pricer = new MultiCapFloorPricer2(getCaps(strikeIndex), YIELD_CURVES);
+    final MultiCapFloorPricer pricer = new MultiCapFloorPricer(getCaps(strikeIndex), YIELD_CURVES);
     return pricer.price(getCapVols(strikeIndex));
   }
 
   protected static double[] getATMCapPrices() {
-    final MultiCapFloorPricer2 pricer = new MultiCapFloorPricer2(getATMCaps(), YIELD_CURVES);
+    final MultiCapFloorPricer pricer = new MultiCapFloorPricer(getATMCaps(), YIELD_CURVES);
     return pricer.price(CAP_ATM_VOL);
   }
 
@@ -202,12 +225,17 @@ public abstract class CapletStrippingSetup {
   }
 
   protected static List<CapFloor> getAllCaps() {
+    final List<CapFloor> caps = getAllCapsExATM();
+    caps.addAll(getATMCaps());
+    return caps;
+  }
+
+  protected static List<CapFloor> getAllCapsExATM() {
     final int nStrikes = CAP_STRIKES.length; //number of absolute strikes 
     final List<CapFloor> caps = new ArrayList<>((nStrikes + 1) * CAP_ENDTIMES.length);
     for (int i = 0; i < nStrikes; i++) {
       caps.addAll(getCaps(i));
     }
-    caps.addAll(getATMCaps());
     return caps;
   }
 
@@ -221,4 +249,22 @@ public abstract class CapletStrippingSetup {
     }
     return caps;
   }
+
+  public void testStripping(final CapletStripper stripper, final List<CapFloor> caps, final double[] capPrices, final double expChi2, final double[] expModelParms, final double tol,
+      final boolean print) {
+
+    if (print) {
+      System.out.println(this.toString() + "testStripping");
+    }
+
+    final MultiCapFloorPricer pricer = new MultiCapFloorPricer(caps, getYieldCurves());
+    final CapletStrippingResult res = stripper.solveForPrice(pricer, capPrices);
+
+    if (print) {
+      System.out.print(res);
+    } else {
+      assertEquals("chi2", expChi2, res.getChiSq(), tol);
+    }
+  }
+
 }

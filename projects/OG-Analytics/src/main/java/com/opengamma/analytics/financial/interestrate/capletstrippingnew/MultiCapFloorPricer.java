@@ -3,15 +3,16 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.interestrate.capletstripping;
+package com.opengamma.analytics.financial.interestrate.capletstrippingnew;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+
+import org.apache.commons.lang.ArrayUtils;
 
 import com.google.common.primitives.Doubles;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
@@ -33,40 +34,42 @@ public class MultiCapFloorPricer {
   private final SimpleOptionData[] _capletsArray;
   private final SimpleOptionData[][] _capCaplets;
   private final int[][] _capletIndices;
+  private final double[] _capStartTimes;
+  private final double[] _capEndTimes;
 
   @SuppressWarnings("synthetic-access")
   public MultiCapFloorPricer(final List<CapFloor> caps, final MulticurveProviderInterface curves) {
     ArgumentChecker.noNulls(caps, "null caps");
     ArgumentChecker.notNull(curves, "null curve");
 
-    // check all the caps are on the same index and with the same strike
-    final Iterator<CapFloor> iter = caps.iterator();
-    final CapFloor firstCap = iter.next();
-    final IborIndex iborIndex = firstCap.getNthPayment(0).getIndex();
-    final double strike = firstCap.getStrike();
-    while (iter.hasNext()) {
-      final CapFloor cap = iter.next();
-      ArgumentChecker.isTrue(iborIndex.equals(cap.getNthPayment(0).getIndex()), "caps of different index");
-      ArgumentChecker.isTrue(strike == cap.getStrike(), "caps of different strikes");
-    }
+    final IborIndex iborIndex = caps.get(0).getNthPayment(0).getIndex();
 
     _nCaps = caps.size();
     _capletIndices = new int[_nCaps][];
     _capCaplets = new SimpleOptionData[_nCaps][];
 
-    // List<CapFloorIbor> caplets = new ArrayList<>();
-
-    // ensure a unique set of caplets in ascending order of fixing time
+    // ensure a unique set of caplets in ascending order of fixing time then strike
     final Set<CapFloorIbor> capletSet = new TreeSet<>(new CapletsComparator());
-    for (int i = 0; i < _nCaps; i++) {
-      final CapFloor cap = caps.get(i);
+    final Set<Double> capStartTimes = new TreeSet<>();
+    final Set<Double> capEndTimes = new TreeSet<>();
+    int count = 0;
+    final Iterator<CapFloor> iter = caps.iterator();
+    while (iter.hasNext()) {
+      final CapFloor cap = iter.next();
+      // check all the caps are on the same index
+      ArgumentChecker.isTrue(iborIndex.equals(cap.getNthPayment(0).getIndex()), "caps of different index");
+      capStartTimes.add(cap.getStartTime());
+      capEndTimes.add(cap.getEndTime());
       final CapFloorIbor[] capletArray = cap.getPayments();
       final int n = capletArray.length;
-      _capletIndices[i] = new int[n];
+      _capletIndices[count++] = new int[n];
       for (int j = 0; j < n; j++) {
         capletSet.add(capletArray[j]);
       }
     }
+
+    _capStartTimes = ArrayUtils.toPrimitive(capStartTimes.toArray(new Double[0]));
+    _capEndTimes = ArrayUtils.toPrimitive(capEndTimes.toArray(new Double[0]));
     final List<CapFloorIbor> capletList = new ArrayList<>(capletSet);
     _nCaplets = capletList.size();
     _capletsArray = CapFloorDecomposer.toOptions(capletList.toArray(new CapFloorIbor[_nCaplets]), curves);
@@ -85,14 +88,26 @@ public class MultiCapFloorPricer {
     }
   }
 
+  /**
+   * Order caplets by (ascending) order of fixing time, then by (ascending) order of strike.
+   */
   private class CapletsComparator implements Comparator<CapFloorIbor> {
     @Override
     public int compare(final CapFloorIbor o1, final CapFloorIbor o2) {
-      return Doubles.compare(o1.getFixingTime(), o2.getFixingTime());
+      final int a = Doubles.compare(o1.getFixingTime(), o2.getFixingTime());
+      if (a != 0) {
+        return a;
+      }
+      return Doubles.compare(o1.getStrike(), o2.getStrike());
     }
 
   }
 
+  /**
+   * get the volatility of the underlying caplets (ordered by expiry then strike)
+   * @param volSurface A volatility surface
+   * @return caplet volatilities 
+   */
   public double[] getCapletVols(final VolatilitySurface volSurface) {
     final int nCaplets = _capletsArray.length;
     final double[] vols = new double[nCaplets];
@@ -186,7 +201,7 @@ public class MultiCapFloorPricer {
    * @param capPrices The cap prices (in the same order the caps were given in the constructor)
    * @return The cap/floor implied volatilities (in the same order the caps were given in the constructor)
    */
-  protected double[] impliedVols(final double[] capPrices) {
+  public double[] impliedVols(final double[] capPrices) {
     ArgumentChecker.notEmpty(capPrices, "null cap prices");
     ArgumentChecker.isTrue(_nCaps == capPrices.length, "capPrices wrong length");
     final double[] res = new double[_nCaps];
@@ -200,7 +215,7 @@ public class MultiCapFloorPricer {
    * The implied volatilities for a set of caps from a model that describes the (Black) volatility of the individual constituent caplets. The individual cap
    * prices are of course the sum of the prices of each of their constituent caplets. The implied volatility of a cap (or floor) is defined as the common (Black)
    * volatility applied to each of the constituent caplets such that the sum of the (Black) prices of the caplets equals the cap price.
-   * @param capletVolCurve model describing the (Black) volatility of the underlying caplets
+   * @param volSurface model describing the (Black) volatility of the underlying caplets
    * @return The cap/floor implied volatilities (in the same order the caps were given in the constructor)
    */
   public double[] impliedVols(final VolatilitySurface volSurface) {
@@ -242,12 +257,11 @@ public class MultiCapFloorPricer {
    */
   public double[] getCapletExpiries() {
     final int n = _capletsArray.length;
-    final double[] res = new double[n];
+    final Set<Double> set = new TreeSet<>();
     for (int i = 0; i < n; i++) {
-      res[i] = _capletsArray[i].getTimeToExpiry();
+      set.add(_capletsArray[i].getTimeToExpiry());
     }
-    Arrays.sort(res);
-    return res;
+    return ArrayUtils.toPrimitive(set.toArray(new Double[0]));
   }
 
   // intrinsic value
@@ -282,12 +296,44 @@ public class MultiCapFloorPricer {
   }
 
   /**
+   * The ordered set of cap start times 
+   * @return cap start times
+   */
+  public double[] getCapStartTimes() {
+    return _capStartTimes;
+  }
+
+  /**
+   * The ordered set of cap end times 
+   * @return cap end times
+   */
+  public double[] getCapEndTimes() {
+    return _capEndTimes;
+  }
+
+  /**
    * @deprecated remove and replace with something to just return strike-expiry pair
    * @return
    */
   @Deprecated
   public SimpleOptionData[] getCapletArray() {
     return _capletsArray;
+  }
+
+  /**
+   * Gets number of caps 
+   * @return the number of caps 
+   */
+  public int getNumCaps() {
+    return _nCaps;
+  }
+
+  /**
+   * Gets the number of unique caplets 
+   * @return the the number of unique caplets 
+   */
+  public int getNumCaplets() {
+    return _nCaplets;
   }
 
 }

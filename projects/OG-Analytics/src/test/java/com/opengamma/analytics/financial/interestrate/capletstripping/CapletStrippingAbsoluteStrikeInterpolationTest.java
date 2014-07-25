@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.interestrate.capletstrippingnew.CapFloor;
 import com.opengamma.util.test.TestGroup;
 
 /**

@@ -15,6 +15,9 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.interestrate.capletstrippingnew.CapFloor;
+import com.opengamma.analytics.financial.interestrate.capletstrippingnew.CapFloorPricer;
+import com.opengamma.analytics.financial.interestrate.capletstrippingnew.CapletStrippingSetup;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
 import com.opengamma.analytics.math.matrix.ColtMatrixAlgebra;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
@@ -31,7 +34,8 @@ public class CapletStrippingDirectGlobalWithPenaltyTest extends CapletStrippingS
   /**
    * Use all of the market data
    */
-  @Test(enabled = false)
+  @Test
+  //(enabled = false)
   public void MarketDataTestWithATM() {
     final double[] capStrikes = getStrikes();
     final int nStrikes = capStrikes.length;
@@ -83,7 +87,7 @@ public class CapletStrippingDirectGlobalWithPenaltyTest extends CapletStrippingS
 
     final CapletVolatilityNodalSurfaceProvider provider = new CapletVolatilityNodalSurfaceProvider(allCapStrikes, fixingTimes);
     final CapletStrippingDirectGlobalWithPenalty cpst = new CapletStrippingDirectGlobalWithPenalty(caps, getYieldCurves(), provider);
-    LeastSquareResults res = cpst.solveForVol(capVols);
+    final LeastSquareResults res = cpst.solveForVol(capVols);
 
     int l = 0;
     System.out.print("\t");
@@ -108,8 +112,8 @@ public class CapletStrippingDirectGlobalWithPenaltyTest extends CapletStrippingS
     }
     System.out.println(res.getChiSq());
 
-    DoubleMatrix1D resVec = res.getFitParameters();
-    Double[][] resMatrix = new Double[nStrikes + nCapEndTimes][nPayments];
+    final DoubleMatrix1D resVec = res.getFitParameters();
+    final Double[][] resMatrix = new Double[nStrikes + nCapEndTimes][nPayments];
     for (int i = 0; i < nStrikes + nCapEndTimes; ++i) {
       for (int j = 0; j < nPayments; ++j) {
         resMatrix[i][j] = resVec.getEntry(i * nPayments + j);
@@ -119,8 +123,8 @@ public class CapletStrippingDirectGlobalWithPenaltyTest extends CapletStrippingS
     for (int i = 0; i < nStrikes + nCapEndTimes; ++i) {
       final int nCaps = caps[i].size();
       for (int j = 0; j < nCaps; ++j) {
-        CapFloor cf = caps[i].get(j);
-        CapFloorPricer pr = new CapFloorPricer(cf, getYieldCurves());
+        final CapFloor cf = caps[i].get(j);
+        final CapFloorPricer pr = new CapFloorPricer(cf, getYieldCurves());
         final int nP = pr.getNumberCaplets();
         final Double[] vols = Arrays.copyOf(resMatrix[i], nP);
         System.out.println(capVols[i][j] + "\t" + pr.impliedVol(vols));
@@ -131,14 +135,15 @@ public class CapletStrippingDirectGlobalWithPenaltyTest extends CapletStrippingS
   /**
    * Exclude ATM caps, that is, grid is almost homogeneous
    */
-  @Test(enabled = false)
+  @Test
+  //(enabled = false)
   public void MarketDataTestExcATM() {
     final double[] capStrikes = getStrikes();
     final int nStrikes = capStrikes.length;
 
     final List<CapFloor>[] caps = new List[nStrikes];
     final double[][] capVols = new double[nStrikes][];
-    int k = 0;
+    final int k = 0;
     for (int i = 0; i < nStrikes; ++i) {
       caps[i] = getCaps(i);
       capVols[i] = getCapVols(i);
@@ -155,7 +160,7 @@ public class CapletStrippingDirectGlobalWithPenaltyTest extends CapletStrippingS
 
     final CapletVolatilityNodalSurfaceProvider provider = new CapletVolatilityNodalSurfaceProvider(capStrikes, fixingTimes);
     final CapletStrippingDirectGlobalWithPenalty cpst = new CapletStrippingDirectGlobalWithPenalty(caps, getYieldCurves(), provider);
-    LeastSquareResults res = cpst.solveForVol(capVols);
+    final LeastSquareResults res = cpst.solveForVol(capVols);
 
     System.out.print("\t");
     for (int j = 0; j < nPayments; ++j) {
@@ -171,8 +176,8 @@ public class CapletStrippingDirectGlobalWithPenaltyTest extends CapletStrippingS
     }
     System.out.println(res.getChiSq());
 
-    DoubleMatrix1D resVec = res.getFitParameters();
-    Double[][] resMatrix = new Double[nStrikes][nPayments];
+    final DoubleMatrix1D resVec = res.getFitParameters();
+    final Double[][] resMatrix = new Double[nStrikes][nPayments];
     for (int i = 0; i < nStrikes; ++i) {
       for (int j = 0; j < nPayments; ++j) {
         resMatrix[i][j] = resVec.getEntry(i * nPayments + j);
@@ -183,8 +188,8 @@ public class CapletStrippingDirectGlobalWithPenaltyTest extends CapletStrippingS
     for (int i = 0; i < nStrikes; ++i) {
       final int nCaps = caps[i].size();
       for (int j = 0; j < nCaps; ++j) {
-        CapFloor cf = caps[i].get(j);
-        CapFloorPricer pr = new CapFloorPricer(cf, getYieldCurves());
+        final CapFloor cf = caps[i].get(j);
+        final CapFloorPricer pr = new CapFloorPricer(cf, getYieldCurves());
         final int nP = pr.getNumberCaplets();
         final Double[] vols = Arrays.copyOf(resMatrix[i], nP);
         System.out.println(capVols[i][j] + "\t" + pr.impliedVol(vols));
@@ -203,15 +208,15 @@ public class CapletStrippingDirectGlobalWithPenaltyTest extends CapletStrippingS
   @Test
   public void NodalProvidorOutputTest() {
     final double epsLocal = 1.e-12;
-    double[] strikes = new double[] {2.0, 3.5, 4.5 };
-    double[] times = new double[] {0.5, 2.2, 3.4, 5.1 };
-    CapletVolatilityNodalSurfaceProvider provider = new CapletVolatilityNodalSurfaceProvider(strikes, times);
+    final double[] strikes = new double[] {2.0, 3.5, 4.5 };
+    final double[] times = new double[] {0.5, 2.2, 3.4, 5.1 };
+    final CapletVolatilityNodalSurfaceProvider provider = new CapletVolatilityNodalSurfaceProvider(strikes, times);
 
-    int nStrikes = strikes.length;
-    int nTimes = times.length;
-    int expNumber = nStrikes * nTimes;
-    Integer[] expStrikeIntegerNodes = new Integer[] {0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2 };
-    Integer[] expTimeIntegerNodes = new Integer[] {0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3 };
+    final int nStrikes = strikes.length;
+    final int nTimes = times.length;
+    final int expNumber = nStrikes * nTimes;
+    final Integer[] expStrikeIntegerNodes = new Integer[] {0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2 };
+    final Integer[] expTimeIntegerNodes = new Integer[] {0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3 };
 
     assertEquals(expNumber, provider.getNumberOfNodes());
     assertArray(expStrikeIntegerNodes, provider.getStrikeIntegerNodes());
@@ -219,30 +224,30 @@ public class CapletStrippingDirectGlobalWithPenaltyTest extends CapletStrippingS
     assertArray(strikes, provider.getStrikes(), epsLocal);
     assertArray(times, provider.getFixingTimes(), epsLocal);
 
-    double[] data = new double[expNumber];
-    Double[] Data = new Double[expNumber];
+    final double[] data = new double[expNumber];
+    final Double[] Data = new Double[expNumber];
     for (int i = 0; i < expNumber; ++i) {
       data[i] = i;
       Data[i] = (double) i;
     }
-    NodalObjectsSurface<Integer, Integer, Double> expSurface = new NodalObjectsSurface<>(expStrikeIntegerNodes, expTimeIntegerNodes, Data);
-    NodalObjectsSurface<Integer, Integer, Double> surface = provider.evaluate(new DoubleMatrix1D(data));
+    final NodalObjectsSurface<Integer, Integer, Double> expSurface = new NodalObjectsSurface<>(expStrikeIntegerNodes, expTimeIntegerNodes, Data);
+    final NodalObjectsSurface<Integer, Integer, Double> surface = provider.evaluate(new DoubleMatrix1D(data));
 
     assertArray(expSurface.getXData(), surface.getXData());
     assertArray(expSurface.getYData(), surface.getYData());
     assertArray(expSurface.getZData(), surface.getZData(), epsLocal);
 
-    double lambdaK = 1.5;
-    double lambdaT = 1.8;
-    DoubleMatrix2D matrix = provider.getPenaltyMatrix(lambdaK, lambdaT);
-    double[] dk = new double[] {strikes[1] - strikes[0], strikes[2] - strikes[1] };
-    double[] dt = new double[] {times[1] - times[0], times[2] - times[1], times[3] - times[2] };
+    final double lambdaK = 1.5;
+    final double lambdaT = 1.8;
+    final DoubleMatrix2D matrix = provider.getPenaltyMatrix(lambdaK, lambdaT);
+    final double[] dk = new double[] {strikes[1] - strikes[0], strikes[2] - strikes[1] };
+    final double[] dt = new double[] {times[1] - times[0], times[2] - times[1], times[3] - times[2] };
     final DoubleMatrix1D sampleVec1D = new DoubleMatrix1D(data);
 
     final MatrixAlgebra alg = new ColtMatrixAlgebra();
-    double penalty = alg.getInnerProduct(sampleVec1D, alg.multiply(matrix, sampleVec1D));
-    double expPenalty = 4.0 * Math.pow(lambdaK * (4.0 / dk[1] - 4.0 / dk[0]) / dk[0], 2.0) + 3.0 * Math.pow(lambdaT * (1.0 / dt[1] - 1.0 / dt[0]) / dt[0], 2.0) +
-        3.0 * Math.pow(lambdaT * (1.0 / dt[2] - 1.0 / dt[1]) / dt[1], 2.0);
+    final double penalty = alg.getInnerProduct(sampleVec1D, alg.multiply(matrix, sampleVec1D));
+    final double expPenalty = 4.0 * Math.pow(lambdaK * (4.0 / dk[1] - 4.0 / dk[0]) / dk[0], 2.0) + 3.0 * Math.pow(lambdaT * (1.0 / dt[1] - 1.0 / dt[0]) / dt[0], 2.0) + 3.0 *
+        Math.pow(lambdaT * (1.0 / dt[2] - 1.0 / dt[1]) / dt[1], 2.0);
     assertEquals(expPenalty, penalty, epsLocal);
   }
 
@@ -251,18 +256,18 @@ public class CapletStrippingDirectGlobalWithPenaltyTest extends CapletStrippingS
    */
   @Test
   public void NodalProvidorHashCodeEqualsTest() {
-    double[] strikes1 = new double[] {2.0, 3.5, 4.5 };
-    double[] times1 = new double[] {0.5, 2.2, 3.4, 5.1 };
-    CapletVolatilityNodalSurfaceProvider provider1 = new CapletVolatilityNodalSurfaceProvider(strikes1, times1);
-    double[] strikes2 = new double[] {2.1, 3.5, 4.5 };
-    double[] times2 = new double[] {0.5, 2.2, 3.4, 5.2 };
-    CapletVolatilityNodalSurfaceProvider provider2 = new CapletVolatilityNodalSurfaceProvider(strikes1, times2);
-    CapletVolatilityNodalSurfaceProvider provider3 = new CapletVolatilityNodalSurfaceProvider(strikes2, times1);
-    CapletVolatilityNodalSurfaceProvider provider4 = new CapletVolatilityNodalSurfaceProvider(strikes1, times1);
-    double[] strikes3 = new double[] {2.1, 3.5, 4.5, 5.2 };
-    double[] times3 = new double[] {0.5, 2.2, 3.4, 5.2, 10.0 };
-    CapletVolatilityNodalSurfaceProvider provider5 = new CapletVolatilityNodalSurfaceProvider(strikes3, times1);
-    CapletVolatilityNodalSurfaceProvider provider6 = new CapletVolatilityNodalSurfaceProvider(strikes1, times3);
+    final double[] strikes1 = new double[] {2.0, 3.5, 4.5 };
+    final double[] times1 = new double[] {0.5, 2.2, 3.4, 5.1 };
+    final CapletVolatilityNodalSurfaceProvider provider1 = new CapletVolatilityNodalSurfaceProvider(strikes1, times1);
+    final double[] strikes2 = new double[] {2.1, 3.5, 4.5 };
+    final double[] times2 = new double[] {0.5, 2.2, 3.4, 5.2 };
+    final CapletVolatilityNodalSurfaceProvider provider2 = new CapletVolatilityNodalSurfaceProvider(strikes1, times2);
+    final CapletVolatilityNodalSurfaceProvider provider3 = new CapletVolatilityNodalSurfaceProvider(strikes2, times1);
+    final CapletVolatilityNodalSurfaceProvider provider4 = new CapletVolatilityNodalSurfaceProvider(strikes1, times1);
+    final double[] strikes3 = new double[] {2.1, 3.5, 4.5, 5.2 };
+    final double[] times3 = new double[] {0.5, 2.2, 3.4, 5.2, 10.0 };
+    final CapletVolatilityNodalSurfaceProvider provider5 = new CapletVolatilityNodalSurfaceProvider(strikes3, times1);
+    final CapletVolatilityNodalSurfaceProvider provider6 = new CapletVolatilityNodalSurfaceProvider(strikes1, times3);
 
     assertTrue(provider1.equals(provider1));
 
@@ -337,12 +342,12 @@ public class CapletStrippingDirectGlobalWithPenaltyTest extends CapletStrippingS
     /*
      * Use subset of full data
      */
-    int nStrikesUse = 5;
-    double[] strikesUse = new double[nStrikesUse];
-    List<CapFloor>[] capsUse = new List[nStrikesUse];
-    double[][] capVolsUse = new double[nStrikesUse][];
-    double[][] capVolsErrorUse = new double[nStrikesUse][];
-    double[][] guessUse = new double[nStrikesUse][nPayments];
+    final int nStrikesUse = 5;
+    final double[] strikesUse = new double[nStrikesUse];
+    final List<CapFloor>[] capsUse = new List[nStrikesUse];
+    final double[][] capVolsUse = new double[nStrikesUse][];
+    final double[][] capVolsErrorUse = new double[nStrikesUse][];
+    final double[][] guessUse = new double[nStrikesUse][nPayments];
     for (int i = 0; i < nStrikesUse; ++i) {
       strikesUse[i] = allCapStrikes[i];
       capsUse[i] = caps[i];
@@ -361,13 +366,13 @@ public class CapletStrippingDirectGlobalWithPenaltyTest extends CapletStrippingS
      */
     final CapletVolatilityNodalSurfaceProvider provider = new CapletVolatilityNodalSurfaceProvider(strikesUse, fixingTimes);
     final CapletStrippingDirectGlobalWithPenalty cpst = new CapletStrippingDirectGlobalWithPenalty(capsUse, getYieldCurves(), provider);
-    LeastSquareResults res = cpst.solveForVol(capVolsUse);
-    LeastSquareResults res1 = cpst.solveForVol(capVolsUse, capVolsErrorUse, guessUse);
+    final LeastSquareResults res = cpst.solveForVol(capVolsUse);
+    final LeastSquareResults res1 = cpst.solveForVol(capVolsUse, capVolsErrorUse, guessUse);
 
-    DoubleMatrix1D resVec = res.getFitParameters();
-    DoubleMatrix1D resVec1 = res1.getFitParameters();
-    Double[][] resMatrix = new Double[nStrikesUse][nPayments];
-    Double[][] resMatrix1 = new Double[nStrikesUse][nPayments];
+    final DoubleMatrix1D resVec = res.getFitParameters();
+    final DoubleMatrix1D resVec1 = res1.getFitParameters();
+    final Double[][] resMatrix = new Double[nStrikesUse][nPayments];
+    final Double[][] resMatrix1 = new Double[nStrikesUse][nPayments];
     for (int i = 0; i < nStrikesUse; ++i) {
       for (int j = 0; j < nPayments; ++j) {
         resMatrix[i][j] = resVec.getEntry(i * nPayments + j);
@@ -377,8 +382,8 @@ public class CapletStrippingDirectGlobalWithPenaltyTest extends CapletStrippingS
     for (int i = 0; i < nStrikesUse; ++i) {
       final int nCaps = capsUse[i].size();
       for (int j = 0; j < nCaps; ++j) {
-        CapFloor cf = capsUse[i].get(j);
-        CapFloorPricer pr = new CapFloorPricer(cf, getYieldCurves());
+        final CapFloor cf = capsUse[i].get(j);
+        final CapFloorPricer pr = new CapFloorPricer(cf, getYieldCurves());
         final int nP = pr.getNumberCaplets();
         final Double[] vols = Arrays.copyOf(resMatrix[i], nP);
         assertEquals(capVolsUse[i][j], pr.impliedVol(vols), 1.e-2);
@@ -422,21 +427,21 @@ public class CapletStrippingDirectGlobalWithPenaltyTest extends CapletStrippingS
   }
 
   private void assertArray(final Integer[] x, final Integer[] y) {
-    int n = x.length;
+    final int n = x.length;
     for (int i = 0; i < n; ++i) {
       assertEquals(x[i], y[i]);
     }
   }
 
   private void assertArray(final double[] x, final double[] y, final double eps) {
-    int n = x.length;
+    final int n = x.length;
     for (int i = 0; i < n; ++i) {
       assertEquals(x[i], y[i], eps);
     }
   }
 
   private void assertArray(final Double[] x, final Double[] y, final double eps) {
-    int n = x.length;
+    final int n = x.length;
     for (int i = 0; i < n; ++i) {
       assertEquals(x[i], y[i], eps);
     }
