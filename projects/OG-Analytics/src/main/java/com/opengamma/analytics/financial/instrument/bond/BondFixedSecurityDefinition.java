@@ -668,8 +668,7 @@ public class BondFixedSecurityDefinition extends BondSecurityDefinition<PaymentF
       accruedInterestAtSettle = accruedInterest(settlementDate);
     }
     final AnnuityPaymentFixed nominal = (AnnuityPaymentFixed) getNominal().toDerivative(date, creditCurveName);
-    AnnuityCouponFixedDefinition couponDefinition = getCoupons();
-    couponDefinition = getCoupons().trimBefore(settlementDate);
+    AnnuityCouponFixedDefinition couponDefinition = getCoupons().trimBefore(settlementDate);
     final CouponFixedDefinition[] couponExPeriodArray = new CouponFixedDefinition[couponDefinition.getNumberOfPayments()];
     System.arraycopy(couponDefinition.getPayments(), 0, couponExPeriodArray, 0, couponDefinition.getNumberOfPayments());
     if (getExCouponDays() != 0) {
@@ -740,10 +739,16 @@ public class BondFixedSecurityDefinition extends BondSecurityDefinition<PaymentF
       if (couponDefinition.getNthPayment(0).getAccrualStartDate().isAfter(settlementDate)) {
         factor = 0;
       } else {
-        final double factorSpot = getDayCount().getAccruedInterest(couponDefinition.getNthPayment(0).getAccrualStartDate(), settlementDate,
-                                                                   couponDefinition.getNthPayment(0).getAccrualEndDate(), 1.0, _couponPerYear);
+        final double factorSpot = getDayCount().getAccruedInterest(couponDefinition.getNthPayment(0).getAccrualStartDate(),
+                                                                   settlementDate,
+                                                                   couponDefinition.getNthPayment(0).getAccrualEndDate(),
+                                                                   1.0,
+                                                                   _couponPerYear);
         final double factorPeriod = getDayCount().getAccruedInterest(couponDefinition.getNthPayment(0).getAccrualStartDate(),
-                                                                     couponDefinition.getNthPayment(0).getAccrualEndDate(), couponDefinition.getNthPayment(0).getAccrualEndDate(), 1.0, _couponPerYear);
+                                                                     couponDefinition.getNthPayment(0).getAccrualEndDate(),
+                                                                     couponDefinition.getNthPayment(0).getAccrualEndDate(),
+                                                                     1.0,
+                                                                     _couponPerYear);
         factor = (factorPeriod - factorSpot) / factorPeriod;
       }
     }
