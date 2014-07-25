@@ -40,7 +40,7 @@ public final class CleanPriceFromCurvesCalculator extends InstrumentDerivativeVi
   private static final BondSecurityDiscountingMethod METHOD_BOND_SECURITY = BondSecurityDiscountingMethod.getInstance();
 
   /**
-   * Scaling factor for clean price
+   * Scaling factor for displaying clean price
    */
   private static final int SCALING_FACTOR = 100;
 

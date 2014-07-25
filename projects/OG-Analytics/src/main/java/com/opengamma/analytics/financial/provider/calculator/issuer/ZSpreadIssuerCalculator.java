@@ -36,6 +36,7 @@ public final class ZSpreadIssuerCalculator extends
     return INSTANCE;
   }
 
+  /** necessary to scale twice, to scale up for the input price and the calculator output */
   private Double getBondZSpreadPrice(BondSecurity bond, ObjectsPair<IssuerProviderInterface, Double> data) {
     return SCALING_FACTOR * SCALING_FACTOR * METHOD_BOND_SEC.zSpreadFromCurvesAndClean(bond,
                                                                                        data.getFirst(),
@@ -54,6 +55,7 @@ public final class ZSpreadIssuerCalculator extends
     return getBondZSpreadPrice(bond.getBondStandard(), data);
   }
 
+  @Override
   public Double visitBondCapitalIndexedTransaction(BondCapitalIndexedTransaction<?> bond,
                                                    ObjectsPair<IssuerProviderInterface, Double> data) {
     return getBondZSpreadPrice(bond.getBondStandard(), data);
