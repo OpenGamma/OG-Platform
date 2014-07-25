@@ -6,7 +6,7 @@ The code of this example can be found in the test: **ForwardRateAgreementDiscoun
 Curves
 ------
 
-To compute the risk measures, we need a multi-curve provider. In this example we simply load an existing one. For example on curve calibration see xxx.
+To compute the risk measures, we need a multi-curve provider. In this example we simply load an existing one. For example on curve calibration see xxx. ::
 
     Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_PAIR = StandardDataSetsMulticurveUSD.getCurvesUSDOisL3();
 This load in a multi-curve provider and the building block of the Jacobian matrices. The second object is required for sensitivity to market quote computation.
@@ -34,7 +34,7 @@ The code to compute the present value simply read as
     PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
     MultipleCurrencyAmount pvComputed = FRA.accept(PVDC, MULTICURVE);
 
-The present value calculator is used through the visitor pattern. The result of the present value computation is a **MultipleCurrencyAmount**. It is not only the present value as a double but also the information about the currency in which it is expressed. In some cases, like for FX forward or cross-currency swaps, the output will contains multiple currencies. The output will be the present value of each leg in its original currency.
+The present value calculator is used through the visitor pattern. The result of the present value computation is a **MultipleCurrencyAmount**. It is not only the present value as a double but also the information about the currency in which it is expressed. In some cases, like for FX forward or cross-currency swaps, the output will contains multiple currencies. The output will be the present value of each leg in its original currency. The present value calculator is further described in :doc:`../PresentValueDiscountingCalculator`.
 
 Par rate
 --------
