@@ -25,7 +25,8 @@ import com.opengamma.util.money.Currency;
 /**
  * Computes the cross-gamma to the curve parameters for a single curve.
  * The curve should be represented by a YieldCurve with an InterpolatedDoublesCurve on the zero-coupon rates.
- * By default the gamma is rescaled to a one basis-point shift.
+ * By default the gamma is computed using a one basis-point shift. This default can be change in a constructor.
+ * The results themselves are not scaled (the represent the second order derivative).
  * <p> Reference: Interest rate cross-gamma for single curve. OpenGamma quantitative research 15, July 14
  */
 public class CrossGammaSingleCurveCalculator {
