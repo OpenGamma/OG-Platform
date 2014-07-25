@@ -6,6 +6,12 @@ These release notes cover changes from v2.2 to v2.3.
 Upgrading from 2.2.0
 ====================
 
+To 2.3.0-M2p1
+-----------
+
+* Improvement
+    * [REQS-388] - Review bond futures converter, in particular notice and delivery dates
+
 To 2.3.0-M2
 -----------
 
