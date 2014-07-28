@@ -406,7 +406,7 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
       @Override
       public void getValues(final Collection<YieldConvention> values) {
         values.add(SimpleYieldConvention.US_STREET);
-        values.add(SimpleYieldConvention.US_TREASURY_EQUIVALANT);
+        values.add(SimpleYieldConvention.US_TREASURY_EQUIVALENT);
         values.add(SimpleYieldConvention.TRUE);
       }
     });

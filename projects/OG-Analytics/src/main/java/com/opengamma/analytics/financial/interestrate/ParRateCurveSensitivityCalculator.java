@@ -20,7 +20,7 @@ import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositZero;
 import com.opengamma.analytics.financial.interestrate.cash.method.DepositZeroDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
-import com.opengamma.analytics.financial.interestrate.fra.method.ForwardRateAgreementDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.fra.method.ForwardRateAgreementDiscountingBundleMethod;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureSecurityDiscountingMethod;
@@ -113,7 +113,7 @@ public final class ParRateCurveSensitivityCalculator extends InstrumentDerivativ
 
   @Override
   public Map<String, List<DoublesPair>> visitForwardRateAgreement(final ForwardRateAgreement fra, final YieldCurveBundle curves) {
-    final ForwardRateAgreementDiscountingMethod method = ForwardRateAgreementDiscountingMethod.getInstance();
+    final ForwardRateAgreementDiscountingBundleMethod method = ForwardRateAgreementDiscountingBundleMethod.getInstance();
     return method.parRateCurveSensitivity(fra, curves).getSensitivities();
   }
 

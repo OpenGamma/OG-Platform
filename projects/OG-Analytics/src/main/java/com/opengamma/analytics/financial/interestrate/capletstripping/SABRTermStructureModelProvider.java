@@ -11,8 +11,8 @@ import java.util.Map;
 import com.opengamma.analytics.financial.model.volatility.SABRTermStructureParameters;
 import com.opengamma.analytics.financial.model.volatility.VolatilityModel1D;
 import com.opengamma.analytics.financial.model.volatility.VolatilityModelProvider;
+import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.analytics.math.curve.InterpolatedCurveBuildingFunction;
-import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.TransformedInterpolator1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
@@ -32,7 +32,7 @@ public class SABRTermStructureModelProvider extends VolatilityModelProvider {
   private static final String RHO = "rho";
   private static final String NU = "nu";
 
-  private final LinkedHashMap<String, InterpolatedDoublesCurve> _knownParameterTermStructures;
+  private final LinkedHashMap<String, ? extends DoublesCurve> _knownParameterTermStructures;
   private final InterpolatedCurveBuildingFunction _curveBuilder;
 
   /**
@@ -43,7 +43,7 @@ public class SABRTermStructureModelProvider extends VolatilityModelProvider {
    * @param knownParameterTermSturctures  Map between known curve names (could be "alpha", "beta", "rho" and "nu") and the known curve(s)
    */
   public SABRTermStructureModelProvider(final LinkedHashMap<String, double[]> knotPoints, final LinkedHashMap<String, Interpolator1D> interpolators,
-      final LinkedHashMap<String, ParameterLimitsTransform> parameterTransforms, final LinkedHashMap<String, InterpolatedDoublesCurve> knownParameterTermSturctures) {
+      final LinkedHashMap<String, ParameterLimitsTransform> parameterTransforms, final LinkedHashMap<String, DoublesCurve> knownParameterTermSturctures) {
 
     ArgumentChecker.notNull(knotPoints, "null node points");
     ArgumentChecker.notNull(interpolators, "null interpolators");
@@ -81,12 +81,13 @@ public class SABRTermStructureModelProvider extends VolatilityModelProvider {
    */
   @Override
   public VolatilityModel1D evaluate(final DoubleMatrix1D x) {
-    final LinkedHashMap<String, InterpolatedDoublesCurve> curves = getCurves(x);
+    final LinkedHashMap<String, ? extends DoublesCurve> curves = getCurves(x);
     return new SABRTermStructureParameters(curves.get(ALPHA), curves.get(BETA), curves.get(RHO), curves.get(NU));
   }
 
-  protected LinkedHashMap<String, InterpolatedDoublesCurve> getCurves(final DoubleMatrix1D x) {
-    final LinkedHashMap<String, InterpolatedDoublesCurve> curves = _curveBuilder.evaluate(x);
+  protected LinkedHashMap<String, ? extends DoublesCurve> getCurves(final DoubleMatrix1D x) {
+    @SuppressWarnings("rawtypes")
+    final LinkedHashMap curves = _curveBuilder.evaluate(x);
 
     // set any known (i.e. fixed) curves
     if (_knownParameterTermStructures != null) {

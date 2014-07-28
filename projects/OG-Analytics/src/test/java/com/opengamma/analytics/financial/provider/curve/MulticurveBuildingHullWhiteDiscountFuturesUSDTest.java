@@ -143,8 +143,10 @@ public class MulticurveBuildingHullWhiteDiscountFuturesUSDTest {
   /** Market values for the dsc USD curve */
   private static final double[] DSC_USD_MARKET_QUOTES = new double[] {0.0022, 0.00127, 0.00125, 0.00126, 0.00126, 0.00125, 0.001315, 0.001615, 0.00243, 0.00393, 0.00594, 0.01586 };
   /** Generators for the dsc USD curve */
-  private static final GeneratorInstrument<? extends GeneratorAttribute>[] DSC_USD_GENERATORS = new GeneratorInstrument<?>[] {GENERATOR_DEPOSIT_ON_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD,
-    GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD };
+  private static final GeneratorInstrument<? extends GeneratorAttribute>[] DSC_USD_GENERATORS =
+      new GeneratorInstrument<?>[] {GENERATOR_DEPOSIT_ON_USD,
+        GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD,
+        GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD };
   /** Tenors for the dsc USD curve */
   private static final Period[] DSC_USD_TENOR = new Period[] {Period.ofDays(0), Period.ofMonths(1), Period.ofMonths(2), Period.ofMonths(3), Period.ofMonths(6), Period.ofMonths(9), Period.ofYears(1),
     Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5), Period.ofYears(10) };
@@ -157,12 +159,16 @@ public class MulticurveBuildingHullWhiteDiscountFuturesUSDTest {
       DSC_USD_ATTR[loopins] = new GeneratorAttributeIR(DSC_USD_TENOR[loopins]);
     }
   }
-  private static final double[] FWD3_USD_MARKET_QUOTES = new double[] {0.0027560, 0.99715, 0.99700, 0.99680, 0.99660, (100 + 7.0 / 32.0 + 3.0 / (32.0 * 4.0)) / 100.0, (100 + 17.0 / 32.0) / 100.0,
-    (101 + 2.0 / 32.0) / 100.0, (98 + 21.0 / 32.0) / 100.0 };
+  private static final double[] FWD3_USD_MARKET_QUOTES =
+      new double[] {0.0027560,
+        0.99715, 0.99700, 0.99680, 0.99660,
+        (100 + 7.0 / 32.0 + 3.0 / (32.0 * 4.0)) / 100.0, (100 + 17.0 / 32.0) / 100.0, (101 + 2.0 / 32.0) / 100.0, (98 + 21.0 / 32.0) / 100.0 };
   // Quoted in 32nd (by 1/4): 100-07 3/4, 100-17 +, 101-02, 98-21 };
   /** Generators for the Fwd 3M USD curve */
-  private static final GeneratorInstrument<? extends GeneratorAttribute>[] FWD3_EUR_GENERATORS = new GeneratorInstrument<?>[] {GENERATOR_USDLIBOR3M, GENERATOR_EDM3, GENERATOR_EDU3, GENERATOR_EDZ3,
-    GENERATOR_EDH4, GENERATOR_CTPM3, GENERATOR_CFPM3, GENERATOR_CNPM3, GENERATOR_CBPM3 };
+  private static final GeneratorInstrument<? extends GeneratorAttribute>[] FWD3_EUR_GENERATORS =
+      new GeneratorInstrument<?>[] {GENERATOR_USDLIBOR3M,
+        GENERATOR_EDM3, GENERATOR_EDU3, GENERATOR_EDZ3, GENERATOR_EDH4,
+        GENERATOR_CTPM3, GENERATOR_CFPM3, GENERATOR_CNPM3, GENERATOR_CBPM3 };
   /** Tenors for the Fwd 3M USD curve */
   private static final Period[] FWD3_USD_TENOR = new Period[] {Period.ofMonths(0), Period.ofMonths(0), Period.ofMonths(0), Period.ofMonths(0), Period.ofMonths(0), Period.ofMonths(0),
     Period.ofMonths(0), Period.ofMonths(0), Period.ofMonths(0) };
@@ -246,8 +252,8 @@ public class MulticurveBuildingHullWhiteDiscountFuturesUSDTest {
   @BeforeSuite
   static void initClass() {
     for (int loopblock = 0; loopblock < NB_BLOCKS; loopblock++) {
-      CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.add(makeCurvesFromDefinitions(DEFINITIONS_UNITS[loopblock], GENERATORS_UNITS[loopblock], NAMES_UNITS[loopblock], HW_KNOWN_DATA, PSMQHWC, PSMQCSHWC,
-          false));
+      CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.add(makeCurvesFromDefinitions(DEFINITIONS_UNITS[loopblock],
+          GENERATORS_UNITS[loopblock], NAMES_UNITS[loopblock], HW_KNOWN_DATA, PSMQHWC, PSMQCSHWC, false));
     }
   }
 

@@ -40,7 +40,17 @@ public class BondFutureSecurity extends FutureSecurity {
    * The deliverables.
    */
   @PropertyDefinition(validate = "notNull")
-  private final List<BondFutureDeliverable> _basket = new ArrayList<BondFutureDeliverable>();  
+  private final List<BondFutureDeliverable> _basket = new ArrayList<BondFutureDeliverable>();
+  /**
+   * The first notice date.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private ZonedDateTime _firstNoticeDate;
+  /**
+   * The last notice date.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private ZonedDateTime _lastNoticeDate;
   /**
    * The first delivery date.
    */
@@ -56,10 +66,64 @@ public class BondFutureSecurity extends FutureSecurity {
     super();
   }
 
+  /**
+   * Constructs a bond future with the assumption that the first and last notice date are the same as the expiry date.
+   * 
+   * @param expiry the expiry of the bond future.
+   * @param tradingExchange the trading exchange of the bond future.
+   * @param settlementExchange the settlement exchange of the bond future.
+   * @param currency the currency of the bond future.
+   * @param unitAmount the unit amount of the bond future.
+   * @param basket the deliverable basket of bonds.
+   * @param firstDeliveryDate the first delivery date of the bond future.
+   * @param lastDeliveryDate  the last delivery date of the bond future.
+   * @param category the bond future category.
+   */
   public BondFutureSecurity(Expiry expiry, String tradingExchange, String settlementExchange, Currency currency, double unitAmount,
       Collection<? extends BondFutureDeliverable> basket, ZonedDateTime firstDeliveryDate, ZonedDateTime lastDeliveryDate, String category) {
+    this(expiry,
+         tradingExchange,
+         settlementExchange,
+         currency,
+         unitAmount,
+         basket,
+         expiry.getExpiry(),
+         expiry.getExpiry(),
+         firstDeliveryDate,
+         lastDeliveryDate,
+         category);
+  }
+  
+  /**
+   * Constructs a bond future.
+   * 
+   * @param expiry the expiry of the bond future.
+   * @param tradingExchange the trading exchange of the bond future.
+   * @param settlementExchange the settlement exchange of the bond future.
+   * @param currency the currency of the bond future.
+   * @param unitAmount the unit amount of the bond future.
+   * @param basket the deliverable basket of bonds.
+   * @param firstNoticeDate the first notice date of the bond future.
+   * @param lastNoticeDate the last notice date of the bond future.
+   * @param firstDeliveryDate the first delivery date of the bond future.
+   * @param lastDeliveryDate  the last delivery date of the bond future.
+   * @param category the bond future category.
+   */
+  public BondFutureSecurity(Expiry expiry,
+                            String tradingExchange,
+                            String settlementExchange,
+                            Currency currency,
+                            double unitAmount,
+                            Collection<? extends BondFutureDeliverable> basket,
+                            ZonedDateTime firstNoticeDate,
+                            ZonedDateTime lastNoticeDate,
+                            ZonedDateTime firstDeliveryDate,
+                            ZonedDateTime lastDeliveryDate,
+                            String category) {
     super(expiry, tradingExchange, settlementExchange, currency, unitAmount, category);
-    setBasket(ImmutableList.copyOf(basket));    
+    setBasket(ImmutableList.copyOf(basket));
+    setFirstNoticeDate(firstNoticeDate);
+    setLastNoticeDate(lastNoticeDate);
     setFirstDeliveryDate(firstDeliveryDate);
     setLastDeliveryDate(lastDeliveryDate);
   }
@@ -114,6 +178,58 @@ public class BondFutureSecurity extends FutureSecurity {
    */
   public final Property<List<BondFutureDeliverable>> basket() {
     return metaBean().basket().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the first notice date.
+   * @return the value of the property, not null
+   */
+  public ZonedDateTime getFirstNoticeDate() {
+    return _firstNoticeDate;
+  }
+
+  /**
+   * Sets the first notice date.
+   * @param firstNoticeDate  the new value of the property, not null
+   */
+  public void setFirstNoticeDate(ZonedDateTime firstNoticeDate) {
+    JodaBeanUtils.notNull(firstNoticeDate, "firstNoticeDate");
+    this._firstNoticeDate = firstNoticeDate;
+  }
+
+  /**
+   * Gets the the {@code firstNoticeDate} property.
+   * @return the property, not null
+   */
+  public final Property<ZonedDateTime> firstNoticeDate() {
+    return metaBean().firstNoticeDate().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the last notice date.
+   * @return the value of the property, not null
+   */
+  public ZonedDateTime getLastNoticeDate() {
+    return _lastNoticeDate;
+  }
+
+  /**
+   * Sets the last notice date.
+   * @param lastNoticeDate  the new value of the property, not null
+   */
+  public void setLastNoticeDate(ZonedDateTime lastNoticeDate) {
+    JodaBeanUtils.notNull(lastNoticeDate, "lastNoticeDate");
+    this._lastNoticeDate = lastNoticeDate;
+  }
+
+  /**
+   * Gets the the {@code lastNoticeDate} property.
+   * @return the property, not null
+   */
+  public final Property<ZonedDateTime> lastNoticeDate() {
+    return metaBean().lastNoticeDate().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -182,6 +298,8 @@ public class BondFutureSecurity extends FutureSecurity {
     if (obj != null && obj.getClass() == this.getClass()) {
       BondFutureSecurity other = (BondFutureSecurity) obj;
       return JodaBeanUtils.equal(getBasket(), other.getBasket()) &&
+          JodaBeanUtils.equal(getFirstNoticeDate(), other.getFirstNoticeDate()) &&
+          JodaBeanUtils.equal(getLastNoticeDate(), other.getLastNoticeDate()) &&
           JodaBeanUtils.equal(getFirstDeliveryDate(), other.getFirstDeliveryDate()) &&
           JodaBeanUtils.equal(getLastDeliveryDate(), other.getLastDeliveryDate()) &&
           super.equals(obj);
@@ -193,6 +311,8 @@ public class BondFutureSecurity extends FutureSecurity {
   public int hashCode() {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getBasket());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFirstNoticeDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getLastNoticeDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getFirstDeliveryDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getLastDeliveryDate());
     return hash ^ super.hashCode();
@@ -200,7 +320,7 @@ public class BondFutureSecurity extends FutureSecurity {
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(128);
+    StringBuilder buf = new StringBuilder(192);
     buf.append("BondFutureSecurity{");
     int len = buf.length();
     toString(buf);
@@ -215,6 +335,8 @@ public class BondFutureSecurity extends FutureSecurity {
   protected void toString(StringBuilder buf) {
     super.toString(buf);
     buf.append("basket").append('=').append(JodaBeanUtils.toString(getBasket())).append(',').append(' ');
+    buf.append("firstNoticeDate").append('=').append(JodaBeanUtils.toString(getFirstNoticeDate())).append(',').append(' ');
+    buf.append("lastNoticeDate").append('=').append(JodaBeanUtils.toString(getLastNoticeDate())).append(',').append(' ');
     buf.append("firstDeliveryDate").append('=').append(JodaBeanUtils.toString(getFirstDeliveryDate())).append(',').append(' ');
     buf.append("lastDeliveryDate").append('=').append(JodaBeanUtils.toString(getLastDeliveryDate())).append(',').append(' ');
   }
@@ -236,6 +358,16 @@ public class BondFutureSecurity extends FutureSecurity {
     private final MetaProperty<List<BondFutureDeliverable>> _basket = DirectMetaProperty.ofReadWrite(
         this, "basket", BondFutureSecurity.class, (Class) List.class);
     /**
+     * The meta-property for the {@code firstNoticeDate} property.
+     */
+    private final MetaProperty<ZonedDateTime> _firstNoticeDate = DirectMetaProperty.ofReadWrite(
+        this, "firstNoticeDate", BondFutureSecurity.class, ZonedDateTime.class);
+    /**
+     * The meta-property for the {@code lastNoticeDate} property.
+     */
+    private final MetaProperty<ZonedDateTime> _lastNoticeDate = DirectMetaProperty.ofReadWrite(
+        this, "lastNoticeDate", BondFutureSecurity.class, ZonedDateTime.class);
+    /**
      * The meta-property for the {@code firstDeliveryDate} property.
      */
     private final MetaProperty<ZonedDateTime> _firstDeliveryDate = DirectMetaProperty.ofReadWrite(
@@ -251,6 +383,8 @@ public class BondFutureSecurity extends FutureSecurity {
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "basket",
+        "firstNoticeDate",
+        "lastNoticeDate",
         "firstDeliveryDate",
         "lastDeliveryDate");
 
@@ -265,6 +399,10 @@ public class BondFutureSecurity extends FutureSecurity {
       switch (propertyName.hashCode()) {
         case -1396196922:  // basket
           return _basket;
+        case -1085415050:  // firstNoticeDate
+          return _firstNoticeDate;
+        case -1060668964:  // lastNoticeDate
+          return _lastNoticeDate;
         case 1755448466:  // firstDeliveryDate
           return _firstDeliveryDate;
         case -233366664:  // lastDeliveryDate
@@ -298,6 +436,22 @@ public class BondFutureSecurity extends FutureSecurity {
     }
 
     /**
+     * The meta-property for the {@code firstNoticeDate} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ZonedDateTime> firstNoticeDate() {
+      return _firstNoticeDate;
+    }
+
+    /**
+     * The meta-property for the {@code lastNoticeDate} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ZonedDateTime> lastNoticeDate() {
+      return _lastNoticeDate;
+    }
+
+    /**
      * The meta-property for the {@code firstDeliveryDate} property.
      * @return the meta-property, not null
      */
@@ -319,6 +473,10 @@ public class BondFutureSecurity extends FutureSecurity {
       switch (propertyName.hashCode()) {
         case -1396196922:  // basket
           return ((BondFutureSecurity) bean).getBasket();
+        case -1085415050:  // firstNoticeDate
+          return ((BondFutureSecurity) bean).getFirstNoticeDate();
+        case -1060668964:  // lastNoticeDate
+          return ((BondFutureSecurity) bean).getLastNoticeDate();
         case 1755448466:  // firstDeliveryDate
           return ((BondFutureSecurity) bean).getFirstDeliveryDate();
         case -233366664:  // lastDeliveryDate
@@ -334,6 +492,12 @@ public class BondFutureSecurity extends FutureSecurity {
         case -1396196922:  // basket
           ((BondFutureSecurity) bean).setBasket((List<BondFutureDeliverable>) newValue);
           return;
+        case -1085415050:  // firstNoticeDate
+          ((BondFutureSecurity) bean).setFirstNoticeDate((ZonedDateTime) newValue);
+          return;
+        case -1060668964:  // lastNoticeDate
+          ((BondFutureSecurity) bean).setLastNoticeDate((ZonedDateTime) newValue);
+          return;
         case 1755448466:  // firstDeliveryDate
           ((BondFutureSecurity) bean).setFirstDeliveryDate((ZonedDateTime) newValue);
           return;
@@ -347,6 +511,8 @@ public class BondFutureSecurity extends FutureSecurity {
     @Override
     protected void validate(Bean bean) {
       JodaBeanUtils.notNull(((BondFutureSecurity) bean)._basket, "basket");
+      JodaBeanUtils.notNull(((BondFutureSecurity) bean)._firstNoticeDate, "firstNoticeDate");
+      JodaBeanUtils.notNull(((BondFutureSecurity) bean)._lastNoticeDate, "lastNoticeDate");
       JodaBeanUtils.notNull(((BondFutureSecurity) bean)._firstDeliveryDate, "firstDeliveryDate");
       JodaBeanUtils.notNull(((BondFutureSecurity) bean)._lastDeliveryDate, "lastDeliveryDate");
       super.validate(bean);

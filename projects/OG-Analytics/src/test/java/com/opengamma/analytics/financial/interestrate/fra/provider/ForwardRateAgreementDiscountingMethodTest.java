@@ -65,7 +65,7 @@ public class ForwardRateAgreementDiscountingMethodTest {
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 10, 9);
 
   private static final ForwardRateAgreement FRA = (ForwardRateAgreement) FRA_DEFINITION.toDerivative(REFERENCE_DATE);
-  private static final ForwardRateAgreementDiscountingProviderMethod FRA_METHOD = ForwardRateAgreementDiscountingProviderMethod.getInstance();
+  private static final ForwardRateAgreementDiscountingMethod FRA_METHOD = ForwardRateAgreementDiscountingMethod.getInstance();
   private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
   private static final ParRateDiscountingCalculator PRDC = ParRateDiscountingCalculator.getInstance();
   private static final PresentValueCurveSensitivityDiscountingCalculator PVCSDC = PresentValueCurveSensitivityDiscountingCalculator.getInstance();

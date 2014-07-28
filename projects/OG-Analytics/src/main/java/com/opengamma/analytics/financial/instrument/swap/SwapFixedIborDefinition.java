@@ -176,6 +176,16 @@ public class SwapFixedIborDefinition extends SwapDefinition {
   }
 
   /**
+   * Creates a new swap with the same characteristics, except that the fixed coupon rate of all coupons is the one given.
+   * @param rate The rate.
+   * @return The new swap.
+   */
+  public SwapFixedIborDefinition withRate(final double rate) {
+    final AnnuityCouponFixedDefinition legFixedRate = getFixedLeg().withRate(rate);
+    return new SwapFixedIborDefinition(legFixedRate, getSecondLeg());
+  }
+
+  /**
    * The fixed leg of the swap.
    * @return Fixed leg.
    */

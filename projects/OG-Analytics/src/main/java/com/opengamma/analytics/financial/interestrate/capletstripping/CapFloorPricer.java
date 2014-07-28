@@ -10,6 +10,7 @@ import com.opengamma.analytics.financial.model.volatility.SimpleOptionData;
 import com.opengamma.analytics.financial.model.volatility.VolatilityModel1D;
 import com.opengamma.analytics.financial.model.volatility.VolatilityTermStructure;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  *
@@ -63,6 +64,16 @@ public class CapFloorPricer {
     return sum;
   }
 
+  public double price(final Double[] capletVols) {
+    ArgumentChecker.isTrue(capletVols.length == _n, "number of caplets is not equal to number of vols");
+    double sum = 0;
+    for (int i = 0; i < _n; i++) {
+      final double vol = capletVols[i];
+      sum += BlackFormulaRepository.price(_caplets[i], vol);
+    }
+    return sum;
+  }
+
   public double impliedVol(final double capPrice) {
     return BlackFormulaRepository.impliedVolatility(_caplets, capPrice);
   }
@@ -74,6 +85,11 @@ public class CapFloorPricer {
 
   public double impliedVol(final VolatilityTermStructure volCurve) {
     final double price = price(volCurve);
+    return impliedVol(price);
+  }
+
+  public double impliedVol(final Double[] capletVols) {
+    final double price = price(capletVols);
     return impliedVol(price);
   }
 
@@ -95,6 +111,11 @@ public class CapFloorPricer {
     return vega(vol);
   }
 
+  public double vega(final Double[] capletVols) {
+    final double vol = impliedVol(capletVols);
+    return vega(vol);
+  }
+
   /**
    * Gets the fwds.
    * @return the fwds
@@ -107,6 +128,7 @@ public class CapFloorPricer {
     return fwds;
   }
 
+  //COMMENT - this is the swap rate (the discount factor includes the accrual fraction)
   protected double getCapForward() {
     double sum1 = 0;
     double sum2 = 0;
@@ -157,6 +179,10 @@ public class CapFloorPricer {
    */
   protected int getNumberCaplets() {
     return _n;
+  }
+
+  public SimpleOptionData[] getCapletAsOptionData() {
+    return _caplets;
   }
 
 }

@@ -55,7 +55,7 @@ public final class YieldConventionFactory
     addInstance(SimpleYieldConvention.US_IL_REAL);
     addInstance(SimpleYieldConvention.US_IL_REAL, "U.S. I/L REAL YLD");
     addInstance(SimpleYieldConvention.US_STREET, "STREET CONVENTION");
-    addInstance(SimpleYieldConvention.US_TREASURY_EQUIVALANT);
+    addInstance(SimpleYieldConvention.US_TREASURY_EQUIVALENT);
     addInstance(SimpleYieldConvention.JGB_SIMPLE);
     addInstance(SimpleYieldConvention.MONEY_MARKET);
     addInstance(SimpleYieldConvention.TRUE);

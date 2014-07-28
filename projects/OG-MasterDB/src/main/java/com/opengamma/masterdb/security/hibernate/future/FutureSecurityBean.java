@@ -58,6 +58,10 @@ public abstract class FutureSecurityBean extends SecurityBean {
   @PropertyDefinition
   private ZonedDateTimeBean _lastDeliveryDate;
   @PropertyDefinition
+  private ZonedDateTimeBean _firstNoticeDate;
+  @PropertyDefinition
+  private ZonedDateTimeBean _lastNoticeDate;
+  @PropertyDefinition
   private ContractCategoryBean _category;
 
   public FutureSecurityBean() {
@@ -394,6 +398,56 @@ public abstract class FutureSecurityBean extends SecurityBean {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the firstNoticeDate.
+   * @return the value of the property
+   */
+  public ZonedDateTimeBean getFirstNoticeDate() {
+    return _firstNoticeDate;
+  }
+
+  /**
+   * Sets the firstNoticeDate.
+   * @param firstNoticeDate  the new value of the property
+   */
+  public void setFirstNoticeDate(ZonedDateTimeBean firstNoticeDate) {
+    this._firstNoticeDate = firstNoticeDate;
+  }
+
+  /**
+   * Gets the the {@code firstNoticeDate} property.
+   * @return the property, not null
+   */
+  public final Property<ZonedDateTimeBean> firstNoticeDate() {
+    return metaBean().firstNoticeDate().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the lastNoticeDate.
+   * @return the value of the property
+   */
+  public ZonedDateTimeBean getLastNoticeDate() {
+    return _lastNoticeDate;
+  }
+
+  /**
+   * Sets the lastNoticeDate.
+   * @param lastNoticeDate  the new value of the property
+   */
+  public void setLastNoticeDate(ZonedDateTimeBean lastNoticeDate) {
+    this._lastNoticeDate = lastNoticeDate;
+  }
+
+  /**
+   * Gets the the {@code lastNoticeDate} property.
+   * @return the property, not null
+   */
+  public final Property<ZonedDateTimeBean> lastNoticeDate() {
+    return metaBean().lastNoticeDate().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the category.
    * @return the value of the property
    */
@@ -436,6 +490,8 @@ public abstract class FutureSecurityBean extends SecurityBean {
           JodaBeanUtils.equal(getBasket(), other.getBasket()) &&
           JodaBeanUtils.equal(getFirstDeliveryDate(), other.getFirstDeliveryDate()) &&
           JodaBeanUtils.equal(getLastDeliveryDate(), other.getLastDeliveryDate()) &&
+          JodaBeanUtils.equal(getFirstNoticeDate(), other.getFirstNoticeDate()) &&
+          JodaBeanUtils.equal(getLastNoticeDate(), other.getLastNoticeDate()) &&
           JodaBeanUtils.equal(getCategory(), other.getCategory()) &&
           super.equals(obj);
     }
@@ -456,6 +512,8 @@ public abstract class FutureSecurityBean extends SecurityBean {
     hash += hash * 31 + JodaBeanUtils.hashCode(getBasket());
     hash += hash * 31 + JodaBeanUtils.hashCode(getFirstDeliveryDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getLastDeliveryDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFirstNoticeDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getLastNoticeDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCategory());
     return hash ^ super.hashCode();
   }
@@ -527,6 +585,16 @@ public abstract class FutureSecurityBean extends SecurityBean {
     private final MetaProperty<ZonedDateTimeBean> _lastDeliveryDate = DirectMetaProperty.ofReadWrite(
         this, "lastDeliveryDate", FutureSecurityBean.class, ZonedDateTimeBean.class);
     /**
+     * The meta-property for the {@code firstNoticeDate} property.
+     */
+    private final MetaProperty<ZonedDateTimeBean> _firstNoticeDate = DirectMetaProperty.ofReadWrite(
+        this, "firstNoticeDate", FutureSecurityBean.class, ZonedDateTimeBean.class);
+    /**
+     * The meta-property for the {@code lastNoticeDate} property.
+     */
+    private final MetaProperty<ZonedDateTimeBean> _lastNoticeDate = DirectMetaProperty.ofReadWrite(
+        this, "lastNoticeDate", FutureSecurityBean.class, ZonedDateTimeBean.class);
+    /**
      * The meta-property for the {@code category} property.
      */
     private final MetaProperty<ContractCategoryBean> _category = DirectMetaProperty.ofReadWrite(
@@ -547,6 +615,8 @@ public abstract class FutureSecurityBean extends SecurityBean {
         "basket",
         "firstDeliveryDate",
         "lastDeliveryDate",
+        "firstNoticeDate",
+        "lastNoticeDate",
         "category");
 
     /**
@@ -580,6 +650,10 @@ public abstract class FutureSecurityBean extends SecurityBean {
           return _firstDeliveryDate;
         case -233366664:  // lastDeliveryDate
           return _lastDeliveryDate;
+        case -1085415050:  // firstNoticeDate
+          return _firstNoticeDate;
+        case -1060668964:  // lastNoticeDate
+          return _lastNoticeDate;
         case 50511102:  // category
           return _category;
       }
@@ -691,6 +765,22 @@ public abstract class FutureSecurityBean extends SecurityBean {
     }
 
     /**
+     * The meta-property for the {@code firstNoticeDate} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ZonedDateTimeBean> firstNoticeDate() {
+      return _firstNoticeDate;
+    }
+
+    /**
+     * The meta-property for the {@code lastNoticeDate} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ZonedDateTimeBean> lastNoticeDate() {
+      return _lastNoticeDate;
+    }
+
+    /**
      * The meta-property for the {@code category} property.
      * @return the meta-property, not null
      */
@@ -724,6 +814,10 @@ public abstract class FutureSecurityBean extends SecurityBean {
           return ((FutureSecurityBean) bean).getFirstDeliveryDate();
         case -233366664:  // lastDeliveryDate
           return ((FutureSecurityBean) bean).getLastDeliveryDate();
+        case -1085415050:  // firstNoticeDate
+          return ((FutureSecurityBean) bean).getFirstNoticeDate();
+        case -1060668964:  // lastNoticeDate
+          return ((FutureSecurityBean) bean).getLastNoticeDate();
         case 50511102:  // category
           return ((FutureSecurityBean) bean).getCategory();
       }
@@ -766,6 +860,12 @@ public abstract class FutureSecurityBean extends SecurityBean {
           return;
         case -233366664:  // lastDeliveryDate
           ((FutureSecurityBean) bean).setLastDeliveryDate((ZonedDateTimeBean) newValue);
+          return;
+        case -1085415050:  // firstNoticeDate
+          ((FutureSecurityBean) bean).setFirstNoticeDate((ZonedDateTimeBean) newValue);
+          return;
+        case -1060668964:  // lastNoticeDate
+          ((FutureSecurityBean) bean).setLastNoticeDate((ZonedDateTimeBean) newValue);
           return;
         case 50511102:  // category
           ((FutureSecurityBean) bean).setCategory((ContractCategoryBean) newValue);

@@ -280,7 +280,8 @@ public class CapletStrippingTest {
     }
   }
 
-  @Test(enabled = false)
+  @Test
+  //(enabled = false)
   public void testStripping() {
 
     final CapletStrippingFunction func = new CapletStrippingFunction(CAPS, YIELD_CURVES, VOL_MODEL_PROVIDER);
@@ -324,11 +325,9 @@ public class CapletStrippingTest {
       cap = iter.next();
       final CapFloorPricer pricer = new CapFloorPricer(cap, YIELD_CURVES);
       final double fittedVol = pricer.impliedVol(volModel);
-      assertEquals("Cap: strike = " + cap.getStrike() + ", start = " + cap.getStartTime() + ", end = " + cap.getEndTime(),
-          MARKET_VOLS[i], fittedVol, 1e-5);
+      assertEquals("Cap: strike = " + cap.getStrike() + ", start = " + cap.getStartTime() + ", end = " + cap.getEndTime(), MARKET_VOLS[i], fittedVol, 1e-5);
       if (print) {
-        System.out.println("strike = " + cap.getStrike() + ", start = " + cap.getStartTime() + ", end = " + cap.getEndTime() +
-            ", Market vol = " + MARKET_VOLS[i] + ", fitted vol = " + fittedVol);
+        System.out.println("strike = " + cap.getStrike() + ", start = " + cap.getStartTime() + ", end = " + cap.getEndTime() + ", Market vol = " + MARKET_VOLS[i] + ", fitted vol = " + fittedVol);
       }
       // fittedCapVols[i++] = ;
       i++;

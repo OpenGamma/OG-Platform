@@ -126,6 +126,15 @@ public class CouponFixedDefinition extends CouponDefinition {
     return new CouponFixedDefinition(getCurrency(), getPaymentDate(), getAccrualStartDate(), getAccrualEndDate(), getPaymentYearFraction(), notional, _rate);
   }
 
+  /**
+   * Creates a new coupon with all the details the same except the rate which is the one provided.
+   * @param rate The new rate.
+   * @return The coupon.
+   */
+  public CouponFixedDefinition withRate(final double rate) {
+    return new CouponFixedDefinition(getCurrency(), getPaymentDate(), getAccrualStartDate(), getAccrualEndDate(), getPaymentYearFraction(), getNotional(), rate);
+  }
+
   @Override
   public String toString() {
     return super.toString() + " *Fixed coupon* Rate = " + _rate + ", Amount = " + _amount;
