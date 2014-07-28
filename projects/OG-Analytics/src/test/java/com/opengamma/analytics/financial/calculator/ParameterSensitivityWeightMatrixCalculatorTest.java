@@ -52,12 +52,10 @@ public class ParameterSensitivityWeightMatrixCalculatorTest {
   @Test
   public void fullSampleTest() {
     ParameterSensitivityWeightMatrixCalculator calc = new ParameterSensitivityWeightMatrixCalculator();
-    //    YieldAndDiscountCurve curve = MULTICURVES.getCurve("USD Dsc");
     String name1 = MULTICURVES.getName(Currency.USD);
     String name2 = MULTICURVES.getName(USDLIBOR3M);
     YieldCurve curve1 = (YieldCurve) MULTICURVES.getCurve(name1);
     YieldCurve curve2 = (YieldCurve) MULTICURVES.getCurve(name2);
-    //    YieldAndDiscountCurve curve99 = MULTICURVES.getCurve("USD Dsc");
 
     LinkedHashSet<Pair<String, Integer>> order = new LinkedHashSet<>();
     order.add(Pairs.of(name1, MULTICURVES.getNumberOfParameters(name1)));
@@ -163,6 +161,12 @@ public class ParameterSensitivityWeightMatrixCalculatorTest {
     double[] poorObjNodes = new double[] {21., 33., 39. };
     try {
       calc.reduceCurveNodes(MULTICURVES, order, poorObjNodes);
+      throw new RuntimeException();
+    } catch (final Exception e) {
+      assertEquals("None of the objective nodes are found in curve nodes", e.getMessage());
+    }
+    try {
+      calc.projectCurveNodes(MULTICURVES, order, poorObjNodes);
       throw new RuntimeException();
     } catch (final Exception e) {
       assertEquals("None of the objective nodes are found in curve nodes", e.getMessage());

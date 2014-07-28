@@ -35,7 +35,8 @@ public class ParameterSensitivityWeightMatrixCalculator {
   private static final double TOL = 1.0e-10;
 
   /**
-   * Matrix projecting the nodes, to which portfolio has sensitivities, to new nodes (objNodes), for which sensitivity is accounted for. 
+   * Matrix projecting the nodes, to which portfolio has sensitivities, to new nodes (objNodes), to which sensitivity is accounted for, where the risks of each maturity 
+   * is considered separately for each curve.
    * @param curves The multicurve
    * @param order The ordered set of name with number of parameters, should be the same as "order" used in {@link PortfolioHedgingCalculator}
    * @param objNodes The objective nodes on which sensitivity is to be accounted for
@@ -77,7 +78,7 @@ public class ParameterSensitivityWeightMatrixCalculator {
   }
 
   /**
-   * Matrix projecting the nodes, to which portfolio has sensitivities, to new nodes (objNodes), for which sensitivity is accounted for, where the 
+   * Matrix projecting the nodes, to which portfolio has sensitivities, to new nodes (objNodes), to which sensitivity is accounted for, where the 
    * total risk of each maturity for all the relevant curves is considered by summing them up. 
    * NOTE THAT all of the relevant curves should contain all of the nodes in objNodes.
    * @param curves The multicurve
@@ -120,7 +121,8 @@ public class ParameterSensitivityWeightMatrixCalculator {
   }
 
   /**
-   * Matrix reducing the nodes, to which portfolio has sensitivities, to new nodes (objNodes), for which sensitivity is accounted for. 
+   * Matrix reducing the nodes, to which portfolio has sensitivities, to new nodes (objNodes), to which sensitivity is accounted for. 
+   * Thus the sensitivities to nodes which are not in objNodes are 
    * @param curves The multicurve
    * @param order The ordered set of name with number of parameters, should be the same as "order" used in {@link PortfolioHedgingCalculator}
    * @param objNodes The objective nodes on which sensitivity is to be accounted for
