@@ -58,17 +58,18 @@ public class MulticurveProviderDiscountDataSets {
   private static final Calendar CALENDAR_EUR = new MondayToFridayCalendar("EUR");
   private static final Calendar CALENDAR_CAD = new MondayToFridayCalendar("CAD");
   private static final Calendar CALENDAR_AUD = new MondayToFridayCalendar("AUD");
+
   private static final FXMatrix FX_MATRIX = new FXMatrix(Currency.GBP, Currency.USD, 1.60);
   static {
     FX_MATRIX.addCurrency(Currency.EUR, Currency.USD, 1.40);
   }
 
-  private static final double[] USD_DSC_TIME = new double[] {0.0, 1.0 / 12.0, 2.0 / 12.0, 0.25, 0.5, 1.0, 2.0, 5.0, 10.0, 12.0, 15.0, 20.0, 25.0, 30.0, 50.0 };
-  private static final double[] USD_DSC_RATE = new double[] {0.0100, 0.0120, 0.0120, 0.0120, 0.0120, 0.0120, 0.0140, 0.0140, 0.0140, 0.0140, 0.0140, 0.0140, 0.0140, 0.0140, 0.0140 };
+  private static final double[] USD_DSC_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0 };
+  private static final double[] USD_DSC_RATE = new double[] {0.0100, 0.0120, 0.0120, 0.0140, 0.0140, 0.0140 };
   private static final String USD_DSC_NAME = "USD Dsc";
   private static final YieldAndDiscountCurve USD_DSC = new YieldCurve(USD_DSC_NAME, new InterpolatedDoublesCurve(USD_DSC_TIME, USD_DSC_RATE, LINEAR_FLAT, true, USD_DSC_NAME));
-  private static final double[] USD_FWD3_TIME = new double[] {0.25, 0.5, 0.75, 1.0, 2.0, 3.0, 4.0, 5.0, 7.0, 10.0, 12.0, 15.0, 20.0, 25.0, 30.0, 50.0 };
-  private static final double[] USD_FWD3_RATE = new double[] {0.0150, 0.0125, 0.0125, 0.0150, 0.0150, 0.0150, 0.0150, 0.0175, 0.0150, 0.0150, 0.0150, 0.0150, 0.0150, 0.0150, 0.0150, 0.0150 };
+  private static final double[] USD_FWD3_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0 };
+  private static final double[] USD_FWD3_RATE = new double[] {0.0150, 0.0125, 0.0150, 0.0175, 0.0150, 0.0150 };
   private static final String USD_FWD3_NAME = "USD LIBOR 3M";
   private static final YieldAndDiscountCurve USD_FWD3 = new YieldCurve(USD_FWD3_NAME, new InterpolatedDoublesCurve(USD_FWD3_TIME, USD_FWD3_RATE, LINEAR_FLAT, true, USD_FWD3_NAME));
   private static final double[] USD_FWD6_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0 };
@@ -111,6 +112,15 @@ public class MulticurveProviderDiscountDataSets {
   private static final String AUD_FWD6_NAME = "AUD AUDBB6M 6M";
   private static final YieldAndDiscountCurve AUD_FWD6 = new YieldCurve(AUD_FWD6_NAME, new InterpolatedDoublesCurve(AUD_FWD6_TIME, AUD_FWD6_RATE, LINEAR_FLAT, true, AUD_FWD6_NAME));
 
+  private static final double[] GBP_SINGLE_TIME = new double[] {0.002739726, 0.019178082, 0.082191781, 0.164383562, 0.249315068,
+    0.498630137, 0.747945205, 1, 1.498630137, 2, 3, 4, 5, 6, 7, 8, 9,
+    10, 12, 15, 20, 25, 30, 35, 40, 45, 50 };
+  private static final double[] GBP_SINGLE_RATE = new double[] {0.00466247, 0.004799779, 0.004933739, 0.005211567, 0.005421216,
+    0.006076053, 0.007009252, 0.008085954, 0.010315153, 0.012462716, 0.017006001, 0.019770703, 0.02182399, 0.023484499, 0.024924994, 0.026172219, 0.027254055,
+    0.028183251, 0.029699473, 0.031347025, 0.032871429, 0.033250028, 0.033227865, 0.032909084, 0.032620029, 0.032487606, 0.032366873 };
+  private static final String GBP_SINGLE_NAME = "GBP Single curve";
+  private static final YieldAndDiscountCurve GBP_SINGLE = new YieldCurve(GBP_SINGLE_NAME, new InterpolatedDoublesCurve(GBP_SINGLE_TIME, GBP_SINGLE_RATE, LINEAR_FLAT, true, GBP_SINGLE_NAME));
+
   private static final String ISSUER_NAME = "Corporate";
   private static final double[] EUR_ISSUER_TIME = new double[] {0.0, 0.5, 1.0, 2.0, 5.0, 10.0 };
   private static final double[] EUR_ISSUER_RATE = new double[] {0.0250, 0.0225, 0.0250, 0.0275, 0.0250, 0.0250 };
@@ -132,7 +142,7 @@ public class MulticurveProviderDiscountDataSets {
   private static final double[] USD30_RATE = new double[] {0.030, 0.030 };
   private static final YieldAndDiscountCurve CURVE_USD_30 = new YieldCurve(USD30, new InterpolatedDoublesCurve(USD30_TIME, USD30_RATE, LINEAR_FLAT, true, USD30));
 
-  private static final String AUD30 = "AUD 3.00";
+  private static final String AUD30 = "GBP 3.00";
   private static final double[] AUD30_TIME = new double[] {0.0, 10.0 };
   private static final double[] AUD30_RATE = new double[] {0.030, 0.030 };
   private static final YieldAndDiscountCurve CURVE_AUD_30 = new YieldCurve(AUD30, new InterpolatedDoublesCurve(AUD30_TIME, AUD30_RATE, LINEAR_FLAT, true, AUD30));
@@ -142,6 +152,8 @@ public class MulticurveProviderDiscountDataSets {
   private static final IborIndex USDLIBOR6M = MASTER_IBOR_INDEX.getIndex("USDLIBOR6M");
   private static final IborIndex EURIBOR3M = MASTER_IBOR_INDEX.getIndex("EURIBOR3M");
   private static final IborIndex EURIBOR6M = MASTER_IBOR_INDEX.getIndex("EURIBOR6M");
+  private static final IborIndex GBPLIBOR3M = MASTER_IBOR_INDEX.getIndex("GBPLIBOR3M");
+  private static final IborIndex GBPLIBOR6M = MASTER_IBOR_INDEX.getIndex("GBPLIBOR6M");
   private static final IborIndex CADCDOR3M = MASTER_IBOR_INDEX.getIndex("CADCDOR3M");
   private static final IborIndex AUDBB3M = MASTER_IBOR_INDEX.getIndex("AUDBB3M");
   private static final IborIndex AUDBB6M = MASTER_IBOR_INDEX.getIndex("AUDBB6M");
@@ -165,7 +177,7 @@ public class MulticurveProviderDiscountDataSets {
   private static final PriceIndexCurve PRICE_INDEX_CURVE_GBP = new PriceIndexCurve(CURVE_GBP);
 
   private static final String NAME_USD_PRICE_INDEX = "US CPI-U";
-  private static final IndexPrice PRICE_INDEX_USD = new IndexPrice(NAME_USD_PRICE_INDEX, Currency.USD);
+  private static final IndexPrice PRICE_INDEX_USD = new IndexPrice(NAME_USD_PRICE_INDEX, Currency.EUR);
   private static final double[] INDEX_VALUE_USD = new double[] {225.964, 225.722, 230.0, 251.1, 280.2, 452.7 }; // May11, June11, 1Y, 5Y, 10Y, 20Y, 50Y
   private static final double[] TIME_VALUE_USD = new double[] {-8.0 / 12.0, 4.0 / 12.0, 4.0 + 4.0 / 12.0, 9.0 + 4.0 / 12.0, 19.0 + 4.0 / 12.0, 49.0 + 4.0 / 12.0 };
   private static final InterpolatedDoublesCurve CURVE_USD = InterpolatedDoublesCurve.from(TIME_VALUE_USD, INDEX_VALUE_USD, new LinearInterpolator1D(), NAME_USD_PRICE_INDEX);
@@ -207,6 +219,14 @@ public class MulticurveProviderDiscountDataSets {
     MARKET_1.setCurve(ISSUER_AUD_GOVT, CURVE_AUD_30);
   }
 
+  private static final MulticurveProviderDiscount SINGLECURVES_USD = new MulticurveProviderDiscount();
+  static {
+    SINGLECURVES_USD.setCurve(Currency.USD, USD_DSC);
+    SINGLECURVES_USD.setCurve(FEDFUND, USD_DSC);
+    SINGLECURVES_USD.setCurve(USDLIBOR3M, USD_DSC);
+    SINGLECURVES_USD.setCurve(USDLIBOR6M, USD_DSC);
+  }
+
   private static final MulticurveProviderDiscount MULTICURVES_EUR_USD = new MulticurveProviderDiscount();
   static {
     MULTICURVES_EUR_USD.setCurve(Currency.USD, USD_DSC);
@@ -228,6 +248,14 @@ public class MulticurveProviderDiscountDataSets {
     MULTICURVES_GBP_USD.setCurve(Currency.GBP, CURVE_GBP_30);
     MULTICURVES_GBP_USD.setCurve(SONIA, CURVE_GBP_30);
     MULTICURVES_GBP_USD.setForexMatrix(FX_MATRIX);
+  }
+
+  private static final MulticurveProviderDiscount SINGLECURVES_GBP = new MulticurveProviderDiscount();
+  static {
+    SINGLECURVES_GBP.setCurve(Currency.GBP, GBP_SINGLE);
+    SINGLECURVES_GBP.setCurve(SONIA, GBP_SINGLE);
+    SINGLECURVES_GBP.setCurve(GBPLIBOR3M, GBP_SINGLE);
+    SINGLECURVES_GBP.setCurve(GBPLIBOR6M, GBP_SINGLE);
   }
 
   private static final MulticurveProviderDiscount MULTICURVES_USD_WITHOUT_DISCOUNT = new MulticurveProviderDiscount();
@@ -252,7 +280,7 @@ public class MulticurveProviderDiscountDataSets {
   // Implementation note : we have had the value of November 2001 for test purpose.
   private static final double[] UKRPI_VALUE_2001 = new double[] {217.9 };
   private static final double[] UKRPI_VALUE_2010 = new double[] {217.9, 219.2, 220.7, 222.8, 223.6, 224.1, 223.6, 224.5, 225.3, 225.8, 226.8, 228.4 };
-  private static final double[] UKRPI_VALUE_2011 = new double[] {229.0, 231.3, 232.5, 234.4, 235.2, 235.2, 234.7, 236.1, 237.9, 238.0, 238.5, 239.4 };
+  private static final double[] UKRPI_VALUE_2011 = new double[] {229, 231.3, 232.5, 234.4, 235.2, 235.2, 234.7, 236.1, 237.9, 238.0, 238.5, 239.4 };
   private static final double[] UKRPI_VALUE_2012 = new double[] {238.0, 239.9, 240.8, 242.5, 242.4, 241.8, 242.1, 243.0, 244.2, 245.6, 245.6, 246.8 };
   private static final double[] UKRPI_VALUE_2013 = new double[] {245.8, 247.6, 248.7, 249.5, 250.0, 249.7, 249.7, 251.0, 251.9, 251.9, 252.1, 253.4 };
   private static final double[] UKRPI_VALUE_2014 = new double[] {252.6, 254.2, 254.8, 255.7 };
@@ -461,12 +489,24 @@ public class MulticurveProviderDiscountDataSets {
     return MULTICURVES_EUR_USD;
   }
 
+  public static MulticurveProviderDiscount createSingleCurveUsd() {
+    return SINGLECURVES_USD;
+  }
+
   /**
-   * Returns a multi-curves provider with two currencies (GBP, USD), four Ibor indexes (UsdLibor3M, UsdLibor6M).
-   * @return The provider.
-   */
+  * Returns a multi-curves provider with two currencies (GBP, USD), four Ibor indexes (UsdLibor3M, UsdLibor6M).
+  * @return The provider.
+  */
   public static MulticurveProviderDiscount createMulticurveGbpUsd() {
     return MULTICURVES_GBP_USD;
+  }
+
+  /**
+   * Returns a multi-curve provider with a unique curve for GBP, SONIA, GBPLIBOR3M and GBPLIBOR6M.
+   * @return The provider.
+   */
+  public static MulticurveProviderDiscount createSinglecurveGbp() {
+    return SINGLECURVES_GBP;
   }
 
   /**
