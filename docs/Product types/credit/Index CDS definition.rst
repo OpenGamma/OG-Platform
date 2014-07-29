@@ -66,28 +66,18 @@ Index components
 The constituent components (i.e. single names) that compose the index.
 This excludes components that defaulted in previous versions of the index and were thus excluded from this version.
 
-Component identifier
-~~~~~~~~~~~~~~~~~~~~
-An identifier for the index component. Generally a single name Markit RED codes, e.g. ``MARKIT_RED_CODE~16B9CT`` for Centrica Plc.
+* Component identifier
 
-Component name
-~~~~~~~~~~~~~~
-The index components name.
+ An identifier for the index component. Generally a single name Markit RED codes, e.g. ``MARKIT_RED_CODE~16B9CT`` for Centrica Plc.
 
-Component weight
-~~~~~~~~~~~~~~~~
-The weight the component has in the index. Generally all constituents are equally weighted.
+* Component name
 
-Bond identifier
-~~~~~~~~~~~~~~~
-An optional identifier linking to the bond issue the cds is based on.
+ The index components name.
 
+* Component weight
 
+ The weight the component has in the index. Generally all constituents are equally weighted.
 
+* Bond identifier
 
-
-
-
-
-
-
+ An optional identifier linking to the bond issue the cds is based on.
