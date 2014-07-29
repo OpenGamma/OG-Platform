@@ -25,6 +25,7 @@ import com.opengamma.engine.exec.stats.GraphExecutorStatisticsGatherer;
 import com.opengamma.engine.exec.stats.TotallingGraphStatisticsGathererProvider;
 import com.opengamma.util.TerminatableJob;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Modifies the parameters available to MultipleNodeExecutorFactory to report the effect of each.
@@ -51,8 +52,8 @@ public class MultipleNodeExecutorTuner extends TerminatableJob implements Lifecy
   private boolean _running;
 
   public MultipleNodeExecutorTuner() {
-    _minimumItems.add(Pair.of((Integer) 1, (Integer) (Integer.MAX_VALUE - 10)));
-    _minimumCost.add(Pair.of((Long) 1L, (Long) (Long.MAX_VALUE - 10)));
+    _minimumItems.add(Pairs.of(1, Integer.MAX_VALUE - 10));
+    _minimumCost.add(Pairs.of(1L, Long.MAX_VALUE - 10));
   }
 
   public void setExecutorFactory(final MultipleNodeExecutorFactory executorFactory) {
@@ -68,19 +69,19 @@ public class MultipleNodeExecutorTuner extends TerminatableJob implements Lifecy
   }
 
   public void setMinimumJobItemsLowerLimit(final Integer minimumItems) {
-    _minimumItems.add(Pair.of(minimumItems, _minimumItems.poll().getSecond()));
+    _minimumItems.add(Pairs.of(minimumItems, _minimumItems.poll().getSecond()));
   }
 
   public void setMinimumJobItemsUpperLimit(final Integer maximumItems) {
-    _minimumItems.add(Pair.of(_minimumItems.poll().getFirst(), maximumItems));
+    _minimumItems.add(Pairs.of(_minimumItems.poll().getFirst(), maximumItems));
   }
 
   public void setMinimumJobCostLowerLimit(final Long minimumCost) {
-    _minimumCost.add(Pair.of(minimumCost, _minimumCost.poll().getSecond()));
+    _minimumCost.add(Pairs.of(minimumCost, _minimumCost.poll().getSecond()));
   }
 
   public void setMinimumJobCostUpperLimit(final Long maximumCost) {
-    _minimumCost.add(Pair.of(_minimumCost.poll().getFirst(), maximumCost));
+    _minimumCost.add(Pairs.of(_minimumCost.poll().getFirst(), maximumCost));
   }
 
   public void setMinimumMaximumConcurrency(final int minimumMaximumConcurrency) {
@@ -273,10 +274,10 @@ public class MultipleNodeExecutorTuner extends TerminatableJob implements Lifecy
           _executorFactory.setMinimumJobCost(midpoint);
           s_logger.info("Setting minimum job cost to {}", midpoint);
           if (midpoint > minimum.getFirst()) {
-            _minimumCost.add(Pair.of(minimum.getFirst(), midpoint));
+            _minimumCost.add(Pairs.of(minimum.getFirst(), midpoint));
           }
           if (midpoint < minimum.getSecond()) {
-            _minimumCost.add(Pair.of(midpoint, minimum.getSecond()));
+            _minimumCost.add(Pairs.of(midpoint, minimum.getSecond()));
           }
         }
         tickAndReset();

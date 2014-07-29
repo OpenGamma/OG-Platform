@@ -52,6 +52,8 @@ import com.opengamma.timeseries.TimeSeriesIntersector;
  * 
  */
 public class JensenAlphaFunction extends AbstractFunction.NonCompiledInvoker {
+
+  private static final ComputationTargetType TYPE = ComputationTargetType.PORTFOLIO_NODE.or(ComputationTargetType.POSITION);
   private static final double DAYS_PER_YEAR = 365.25; //TODO
   private final String _resolutionKey;
 
@@ -62,7 +64,7 @@ public class JensenAlphaFunction extends AbstractFunction.NonCompiledInvoker {
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.PORTFOLIO_NODE.or(ComputationTargetType.POSITION);
+    return TYPE;
   }
 
   @Override

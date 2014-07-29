@@ -9,10 +9,12 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test ActualActualAFB.
  */
+@Test(groups = TestGroup.UNIT)
 public class ActualActualAFBTest extends DayCountTestCase {
 
   private static final ActualActualAFB DC = new ActualActualAFB();
@@ -25,7 +27,7 @@ public class ActualActualAFBTest extends DayCountTestCase {
   @Test
   public void test() {
     assertEquals(COUPON * DC.getDayCountFraction(D1, D2), DC.getAccruedInterest(D1, D2, D3, COUPON, PAYMENTS), 0);
-    assertEquals(DC.getConventionName(), "Actual/Actual AFB");
+    assertEquals(DC.getName(), "Actual/Actual AFB");
   }
 
 }

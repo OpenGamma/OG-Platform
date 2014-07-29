@@ -12,11 +12,13 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Test DayCount.
  */
+@Test(groups = TestGroup.UNIT)
 public abstract class DayCountTestCase {
   protected static final ZonedDateTime D1 = DateUtils.getUTCDate(2010, 1, 1);
   protected static final ZonedDateTime D2 = DateUtils.getUTCDate(2010, 4, 1);

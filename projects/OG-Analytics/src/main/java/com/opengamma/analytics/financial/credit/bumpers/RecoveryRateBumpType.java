@@ -7,7 +7,9 @@ package com.opengamma.analytics.financial.credit.bumpers;
 
 /**
  * Enumerate the types of bumps that can be applied to recovery rates (to compute recovery rate sensitivities)
+ *@deprecated this will be deleted 
  */
+@Deprecated
 public enum RecoveryRateBumpType {
   /**
    * delta -> delta + bump

@@ -5,9 +5,12 @@
  */
 package com.opengamma.core.holiday.impl;
 
+import java.util.Collection;
+
 import org.threeten.bp.DayOfWeek;
 import org.threeten.bp.LocalDate;
 
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.core.AbstractSource;
 import com.opengamma.core.holiday.Holiday;
 import com.opengamma.core.holiday.HolidaySource;
@@ -34,6 +37,17 @@ public class WeekendHolidaySource extends AbstractSource<Holiday> implements Hol
   @Override
   public Holiday get(final ObjectId objectId, final VersionCorrection versionCorrection) {
     throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Collection<Holiday> get(HolidayType holidayType,
+                                 ExternalIdBundle regionOrExchangeIds) {
+    return ImmutableSet.of();
+  }
+
+  @Override
+  public Collection<Holiday> get(Currency currency) {
+    return ImmutableSet.of();
   }
 
   @Override

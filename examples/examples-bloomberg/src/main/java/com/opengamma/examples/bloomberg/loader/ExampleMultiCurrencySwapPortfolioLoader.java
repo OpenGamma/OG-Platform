@@ -56,6 +56,7 @@ import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.scripts.Scriptable;
 import com.opengamma.util.GUIDGenerator;
+import com.opengamma.util.ShutdownUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Tenor;
@@ -72,9 +73,7 @@ import com.opengamma.util.tuple.Triple;
 @Scriptable
 public class ExampleMultiCurrencySwapPortfolioLoader extends AbstractTool<IntegrationToolContext> {
 
-  /**
-   * Logger.
-   */
+  /** Logger. */
   private static Logger s_logger = LoggerFactory.getLogger(ExampleMultiCurrencySwapPortfolioLoader.class);
 
   /**
@@ -107,16 +106,22 @@ public class ExampleMultiCurrencySwapPortfolioLoader extends AbstractTool<Integr
       Tenor.ofYears(7), Tenor.ofYears(10), Tenor.ofYears(12), Tenor.ofYears(15), Tenor.ofYears(20)};
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Main method to run the tool.
-   * No arguments are needed.
-   *
-   * @param args  the arguments, unused
+   * 
+   * @param args  the standard tool arguments, not null
    */
   public static void main(final String[] args) {  // CSIGNORE
-    new ExampleTimeSeriesRatingLoader().initAndRun(args, IntegrationToolContext.class);
-    new ExampleMultiCurrencySwapPortfolioLoader().initAndRun(args, IntegrationToolContext.class);
-    System.exit(0);
+    try {
+      boolean success =
+          new ExampleTimeSeriesRatingLoader().initAndRun(args, IntegrationToolContext.class) &&
+          new ExampleMultiCurrencySwapPortfolioLoader().initAndRun(args, IntegrationToolContext.class);
+      ShutdownUtils.exit(success ? 0 : -1);
+    } catch (Throwable ex) {
+      ex.printStackTrace();
+      ShutdownUtils.exit(-2);
+    }
   }
 
   //-------------------------------------------------------------------------

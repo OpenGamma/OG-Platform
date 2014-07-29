@@ -11,8 +11,8 @@ import static org.testng.AssertJUnit.assertTrue;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -20,6 +20,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.testng.Assert;
 
+import com.opengamma.engine.depgraph.impl.DependencyGraphImpl;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.test.MockFunction;
@@ -78,19 +79,27 @@ import com.opengamma.engine.value.ValueRequirement;
   }
 
   protected Map<MockFunction, DependencyNode> assertGraphContains(final DependencyGraph graph, final MockFunction... functions) {
-    final Collection<DependencyNode> nodes = graph.getDependencyNodes();
-    final List<MockFunction> functionList = new LinkedList<MockFunction>(Arrays.asList(functions));
+    final Collection<DependencyNode> nodes = DependencyGraphImpl.getDependencyNodes(graph);
+    final LinkedList<MockFunction> functionList = new LinkedList<MockFunction>(Arrays.asList(functions));
     final Map<MockFunction, DependencyNode> result = new HashMap<MockFunction, DependencyNode>();
     for (DependencyNode node : nodes) {
-      if (!functionList.remove(node.getFunction().getFunction())) {
+      MockFunction function = null;
+      final Iterator<MockFunction> itr = functionList.iterator();
+      while (itr.hasNext()) {
+        final MockFunction f = itr.next();
+        if (node.getFunction().getFunctionId().equals(f.getUniqueId())) {
+          function = f;
+          itr.remove();
+          break;
+        }
+      }
+      if (function == null) {
         Assert.fail(node.toString() + " not in expected functions");
       }
-      result.put((MockFunction) node.getFunction().getFunction(), node);
+      result.put(function, node);
     }
     if (!functionList.isEmpty()) {
-      System.out.println("nodes = " + nodes);
-      System.out.println("Functions = " + functions);
-      Assert.fail(functionList.toString());
+      Assert.fail(functionList.toString() + " not in graph");
     }
     return result;
   }

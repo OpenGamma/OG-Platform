@@ -8,10 +8,10 @@ package com.opengamma.analytics.financial.interestrate.capletstripping;
 import java.util.Iterator;
 import java.util.List;
 
-import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.financial.model.volatility.SimpleOptionData;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -20,9 +20,7 @@ import com.opengamma.util.ArgumentChecker;
  * of spanning caps (simply by taking price difference). Since these spanning caps do not (by construction) share any underlying caplets, implied volatilities
  * (i.e. the common volatility of the caplet set) can be found that price each spanning cap. The resultant expiry dependent caplet volatility curve with of course
  * by piecewise constant.
- * @deprecated {@link YieldCurveBundle} is deprecated
  */
-@Deprecated
 public class CapletStrippingBootstrap {
 
   private final SimpleOptionData[][] _caplets;
@@ -34,11 +32,11 @@ public class CapletStrippingBootstrap {
   /**
    * Simple caplet bootstrapping
    * @param caps All caps must have same start time and strike
-   * @param yieldCurves yield curves (i.e. discount and Ibor-projection)
+   * @param curves yield curves (i.e. discount and Ibor-projection)
    */
-  public CapletStrippingBootstrap(final List<CapFloor> caps, final YieldCurveBundle yieldCurves) {
+  public CapletStrippingBootstrap(final List<CapFloor> caps, final MulticurveProviderInterface curves) {
     ArgumentChecker.noNulls(caps, "caps null");
-    ArgumentChecker.notNull(yieldCurves, "null yield curves");
+    ArgumentChecker.notNull(curves, "null curves");
 
     final int n = caps.size();
     _caplets = new SimpleOptionData[n][];
@@ -47,7 +45,7 @@ public class CapletStrippingBootstrap {
 
     final Iterator<CapFloor> iter = caps.iterator();
     final CapFloor firstCap = iter.next();
-    _caplets[0] = CapFloorDecomposer.toOptions(firstCap, yieldCurves);
+    _caplets[0] = CapFloorDecomposer.toOptions(firstCap, curves);
     _intrinsicValues[0] = intrinsicValue(_caplets[0]);
 
     final double strike = firstCap.getStrike();
@@ -67,7 +65,7 @@ public class CapletStrippingBootstrap {
       final CapFloorIbor[] caplets = cap.getPayments();
       final CapFloorIbor[] uniqueCaplets = new CapFloorIbor[i2 - i1];
       System.arraycopy(caplets, i1, uniqueCaplets, 0, i2 - i1);
-      _caplets[ii] = CapFloorDecomposer.toOptions(uniqueCaplets, yieldCurves);
+      _caplets[ii] = CapFloorDecomposer.toOptions(uniqueCaplets, curves);
       _intrinsicValues[ii] = intrinsicValue(_caplets[ii]);
       i1 = i2;
       endTime = temp;

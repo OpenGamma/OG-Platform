@@ -33,7 +33,7 @@ public class ModifiedPrecedingBusinessDayConvention extends AbstractBusinessDayC
   }
 
   @Override
-  public String getConventionName() {
+  public String getName() {
     return "Modified Preceding";
   }
 

@@ -406,7 +406,7 @@ public class SwaptionCashFixedIborHullWhiteApproximationMethod implements Pricin
     for (int loopcf = 0; loopcf < nbFixed; loopcf++) {
       dfFixedBar[loopcf] = swaption.getUnderlyingSwap().getFixedLeg().getNthPayment(loopcf).getPaymentYearFraction() * swaption.getUnderlyingSwap().getFixedLeg().getNthPayment(loopcf).getNotional()
           * discountedCashFlowFixedBar[loopcf];
-      final DoublesPair dfSensi = new DoublesPair(swaption.getUnderlyingSwap().getFixedLeg().getNthPayment(loopcf).getPaymentTime(), -swaption.getUnderlyingSwap().getFixedLeg().getNthPayment(loopcf)
+      final DoublesPair dfSensi = DoublesPair.of(swaption.getUnderlyingSwap().getFixedLeg().getNthPayment(loopcf).getPaymentTime(), -swaption.getUnderlyingSwap().getFixedLeg().getNthPayment(loopcf)
           .getPaymentTime()
           * dfFixed[loopcf] * dfFixedBar[loopcf]);
       listDf.add(dfSensi);
@@ -416,7 +416,7 @@ public class SwaptionCashFixedIborHullWhiteApproximationMethod implements Pricin
     dfIborBar[0] = pv * notional * (swaption.isLong() ? 1.0 : -1.0);
     for (int loopcf = 0; loopcf < cfe.getNumberOfPayments(); loopcf++) {
       dfIborBar[loopcf] += cfeIbor.getNthPayment(loopcf).getAmount() * discountedCashFlowIborBar[loopcf];
-      final DoublesPair dfSensi = new DoublesPair(cfeIbor.getNthPayment(loopcf).getPaymentTime(), -cfeIbor.getNthPayment(loopcf).getPaymentTime() * dfIbor[loopcf] * dfIborBar[loopcf]);
+      final DoublesPair dfSensi = DoublesPair.of(cfeIbor.getNthPayment(loopcf).getPaymentTime(), -cfeIbor.getNthPayment(loopcf).getPaymentTime() * dfIbor[loopcf] * dfIborBar[loopcf]);
       listDf.add(dfSensi);
       cfeAmountIborBar[loopcf] = dfIbor[loopcf] * discountedCashFlowIborBar[loopcf];
     }

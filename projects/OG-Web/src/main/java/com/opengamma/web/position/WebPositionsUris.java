@@ -29,6 +29,14 @@ public class WebPositionsUris {
 
   //-------------------------------------------------------------------------
   /**
+   * Gets the base URI.
+   * @return the URI
+   */
+  public URI base() {
+    return positions();
+  }
+
+  /**
    * Gets the URI.
    * @return the URI
    */

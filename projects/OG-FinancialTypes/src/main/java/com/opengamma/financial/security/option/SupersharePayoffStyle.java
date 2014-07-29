@@ -7,6 +7,7 @@ package com.opengamma.financial.security.option;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -79,52 +80,6 @@ public class SupersharePayoffStyle extends PayoffStyle {
     return SupersharePayoffStyle.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1200084733:  // lowerBound
-        return getLowerBound();
-      case -1690761732:  // upperBound
-        return getUpperBound();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1200084733:  // lowerBound
-        setLowerBound((Double) newValue);
-        return;
-      case -1690761732:  // upperBound
-        setUpperBound((Double) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      SupersharePayoffStyle other = (SupersharePayoffStyle) obj;
-      return JodaBeanUtils.equal(getLowerBound(), other.getLowerBound()) &&
-          JodaBeanUtils.equal(getUpperBound(), other.getUpperBound()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getLowerBound());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUpperBound());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the upper bound.
@@ -173,6 +128,54 @@ public class SupersharePayoffStyle extends PayoffStyle {
    */
   public final Property<Double> upperBound() {
     return metaBean().upperBound().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public SupersharePayoffStyle clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      SupersharePayoffStyle other = (SupersharePayoffStyle) obj;
+      return JodaBeanUtils.equal(getLowerBound(), other.getLowerBound()) &&
+          JodaBeanUtils.equal(getUpperBound(), other.getUpperBound()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getLowerBound());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUpperBound());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(96);
+    buf.append("SupersharePayoffStyle{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("lowerBound").append('=').append(JodaBeanUtils.toString(getLowerBound())).append(',').append(' ');
+    buf.append("upperBound").append('=').append(JodaBeanUtils.toString(getUpperBound())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -250,6 +253,31 @@ public class SupersharePayoffStyle extends PayoffStyle {
      */
     public final MetaProperty<Double> upperBound() {
       return _upperBound;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1200084733:  // lowerBound
+          return ((SupersharePayoffStyle) bean).getLowerBound();
+        case -1690761732:  // upperBound
+          return ((SupersharePayoffStyle) bean).getUpperBound();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1200084733:  // lowerBound
+          ((SupersharePayoffStyle) bean).setLowerBound((Double) newValue);
+          return;
+        case -1690761732:  // upperBound
+          ((SupersharePayoffStyle) bean).setUpperBound((Double) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

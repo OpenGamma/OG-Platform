@@ -83,6 +83,32 @@ public class CouponIborGearingDefinition extends CouponFloatingDefinition {
     _spreadAmount = spread * getNotional() * getPaymentYearFraction();
     _factor = factor;
   }
+  
+  public CouponIborGearingDefinition(
+      Currency currency,
+      ZonedDateTime paymentDate,
+      ZonedDateTime accrualStartDate,
+      ZonedDateTime accrualEndDate,
+      double accrualFactor,
+      double notional,
+      ZonedDateTime fixingDate,
+      IborIndex index,
+      ZonedDateTime fixingPeriodStartDate,
+      ZonedDateTime fixingPeriodEndDate,
+      double fixingPeriodAccrualFactor,
+      double spread,
+      double factor) {
+    super(currency, paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate);
+    ArgumentChecker.notNull(index, "index");
+    ArgumentChecker.isTrue(currency.equals(index.getCurrency()), "index currency different from payment currency");
+    _index = index;
+    _fixingPeriodStartDate = fixingPeriodStartDate;
+    _fixingPeriodEndDate = fixingPeriodEndDate;
+    _fixingPeriodAccrualFactor = fixingPeriodAccrualFactor;
+    _spread = spread;
+    _spreadAmount = spread * getNotional() * getPaymentYearFraction();
+    _factor = factor;
+  }
 
   /**
    * Builder from an Ibor coupon, the spread and the factor.

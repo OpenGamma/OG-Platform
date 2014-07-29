@@ -122,7 +122,7 @@ public class TimeSeriesLoaderTest {
     
     // Retrieve the hts contents from the master
     HistoricalTimeSeriesInfoSearchRequest request = new HistoricalTimeSeriesInfoSearchRequest();
-    request.setExternalIdSearch(new ExternalIdSearch(EXISTING_HTSINFO_EXTERNALID));
+    request.setExternalIdSearch(ExternalIdSearch.of(EXISTING_HTSINFO_EXTERNALID));
     HistoricalTimeSeriesInfoSearchResult result = htsMaster.search(request);
     LocalDateDoubleTimeSeries retrievedDataPoints = null;
     if (result != null && result.getFirstInfo() != null) {
@@ -161,7 +161,7 @@ public class TimeSeriesLoaderTest {
     
     // Retrieve and check the hts master contents
     HistoricalTimeSeriesInfoSearchRequest request = new HistoricalTimeSeriesInfoSearchRequest();
-    request.setExternalIdSearch(new ExternalIdSearch(NEW_HTSINFO_EXTERNALID));
+    request.setExternalIdSearch(ExternalIdSearch.of(NEW_HTSINFO_EXTERNALID));
     HistoricalTimeSeriesInfoSearchResult result = htsMaster.search(request);
     LocalDateDoubleTimeSeries retrievedDataPoints = null;
     if (result != null && result.getFirstInfo() != null) {
@@ -220,7 +220,7 @@ public class TimeSeriesLoaderTest {
     
     // Retrieve hts master contents
     HistoricalTimeSeriesInfoSearchRequest request = new HistoricalTimeSeriesInfoSearchRequest();
-    request.setExternalIdSearch(new ExternalIdSearch(ExternalId.of(ID_SCHEME, readId)));
+    request.setExternalIdSearch(ExternalIdSearch.of(ExternalId.of(ID_SCHEME, readId)));
     HistoricalTimeSeriesInfoSearchResult result = htsMaster.search(request);
     LocalDateDoubleTimeSeries retrievedDataPoints = null;
     if (result != null && result.getFirstInfo() != null) {

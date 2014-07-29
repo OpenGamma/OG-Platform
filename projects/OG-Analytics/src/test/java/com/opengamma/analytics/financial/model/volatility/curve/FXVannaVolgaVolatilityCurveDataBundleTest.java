@@ -11,11 +11,13 @@ import static org.testng.AssertJUnit.assertFalse;
 import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class FXVannaVolgaVolatilityCurveDataBundleTest {
   private static final double DELTA = 0.1;
   private static final double RR = 0.01;

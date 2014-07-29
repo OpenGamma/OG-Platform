@@ -8,6 +8,12 @@ package com.opengamma.analytics.math.regression;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class LeastSquaresRegressionTest {
 
   @Test

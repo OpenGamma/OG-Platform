@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.model.discounting;
 
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.Security;
@@ -16,9 +17,8 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.conversion.FutureTradeConverter;
 import com.opengamma.financial.analytics.conversion.InflationSwapSecurityConverter;
-import com.opengamma.financial.analytics.conversion.TradeConverter;
+import com.opengamma.financial.analytics.conversion.DefaultTradeConverter;
 import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.security.swap.YearOnYearInflationSwapSecurity;
 import com.opengamma.financial.security.swap.ZeroCouponInflationSwapSecurity;
 
@@ -36,16 +36,15 @@ public abstract class DiscountingInflationFunction extends DiscountingFunction {
   }
 
   @Override
-  protected TradeConverter getTargetToDefinitionConverter(final FunctionCompilationContext context) {
+  protected DefaultTradeConverter getTargetToDefinitionConverter(final FunctionCompilationContext context) {
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
     final ConventionSource conventionSource = OpenGammaCompilationContext.getConventionSource(context);
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
     final ConventionBundleSource conventionBundleSource = OpenGammaCompilationContext.getConventionBundleSource(context);
-    final InflationSwapSecurityConverter swapConverter = new InflationSwapSecurityConverter(conventionSource, regionSource, holidaySource);
-    final FutureTradeConverter futureTradeConverter = new FutureTradeConverter(securitySource, holidaySource, conventionSource, conventionBundleSource,
-        regionSource);
-    return new TradeConverter(futureTradeConverter, swapConverter);
+    final InflationSwapSecurityConverter swapConverter = new InflationSwapSecurityConverter(securitySource, conventionSource, regionSource, holidaySource);
+    final FutureTradeConverter futureTradeConverter = new FutureTradeConverter();
+    return new DefaultTradeConverter(futureTradeConverter, swapConverter);
   }
 
   /**
@@ -59,7 +58,7 @@ public abstract class DiscountingInflationFunction extends DiscountingFunction {
      * @param definitionToDerivativeConverter Converts definitions to derivatives, not null
      * @param withCurrency True if the result properties set the {@link ValuePropertyNames#CURRENCY} property
      */
-    protected DiscountingInflationCompiledFunction(final TradeConverter tradeToDefinitionConverter,
+    protected DiscountingInflationCompiledFunction(final DefaultTradeConverter tradeToDefinitionConverter,
         final FixedIncomeConverterDataProvider definitionToDerivativeConverter, final boolean withCurrency) {
       super(tradeToDefinitionConverter, definitionToDerivativeConverter, withCurrency);
     }

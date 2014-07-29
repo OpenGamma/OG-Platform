@@ -8,8 +8,8 @@ package com.opengamma.analytics.financial.interestrate.capletstripping;
 import java.util.Arrays;
 import java.util.List;
 
-import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.volatility.VolatilityTermStructure;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.BasisFunctionGenerator;
 import com.opengamma.analytics.math.interpolation.PSplineFitter;
@@ -21,9 +21,8 @@ import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResults;
 import com.opengamma.analytics.math.statistics.leastsquare.NonLinearLeastSquareWithPenalty;
 
 /**
- * @deprecated {@link YieldCurveBundle} is deprecated
+ * 
  */
-@Deprecated
 public class CapletStrippingAbsoluteStrikePSpline extends CapletStrippingAbsoluteStrike {
   private static final MatrixAlgebra MA = new ColtMatrixAlgebra();
   private static final BasisFunctionGenerator GEN = new BasisFunctionGenerator();
@@ -42,10 +41,10 @@ public class CapletStrippingAbsoluteStrikePSpline extends CapletStrippingAbsolut
    * final one (i.e. all but the first unique caplets in the longest cap see volatilities from the extrapolated part of the curve). If the caps are not co-starting
    * it is not possible to auto-generate the knots and these should be supplied.
    * @param caps List of caps with identical strikes
-   * @param yieldCurves The yield curves (should include the discount and relevant Ibor projection curve)
+   * @param curves The yield curves (should include the discount and relevant Ibor projection curve)
    */
-  public CapletStrippingAbsoluteStrikePSpline(final List<CapFloor> caps, final YieldCurveBundle yieldCurves) {
-    super(caps, yieldCurves);
+  public CapletStrippingAbsoluteStrikePSpline(final List<CapFloor> caps, final MulticurveProviderInterface curves) {
+    super(caps, curves);
 
     // This assigns a unique volatility to each underlying caplet. The resultant volatility curve will not be smooth (it is piecewise linear),
     // however any (higher order) function that hits all the caplet volatilities, will (by construction) also reprice exactly the market caps. The
@@ -61,10 +60,10 @@ public class CapletStrippingAbsoluteStrikePSpline extends CapletStrippingAbsolut
     _volModel = new BasisSplineVolatilityTermStructureProvider(_bSplines);
   }
 
-//  public CapletStrippingAbsoluteStrikePSpline(List<CapFloor> caps, YieldCurveBundle yieldCurves, final int differenceOrder, final double lambda) {
-//    super(caps, yieldCurves);
-//
-//  }
+  //  public CapletStrippingAbsoluteStrikePSpline(List<CapFloor> caps, YieldCurveBundle yieldCurves, final int differenceOrder, final double lambda) {
+  //    super(caps, yieldCurves);
+  //
+  //  }
 
   @Override
   public CapletStrippingSingleStrikeResult solveForPrices(final double[] capPrices) {
@@ -86,7 +85,7 @@ public class CapletStrippingAbsoluteStrikePSpline extends CapletStrippingAbsolut
     final VolatilityTermStructure volCurve = getVolCurve(lsRes.getFitParameters());
     final double[] mPrices = pricer.price(volCurve);
 
-    // least-squares gives chi2 including the penalty, and is calculated via the price differecne and vega w we just want the fit error
+    // least-squares gives chi2 including the penalty, and is calculated via the price difference and vega we just want the fit error
     // TODO maybe the solver should provide this?
     final double chi2 = chiSqr(capPrices, mPrices, errors); // ignore the vega weighting here
     return new CapletStrippingSingleStrikeResult(chi2, lsRes.getFitParameters(), volCurve, new DoubleMatrix1D(mPrices));

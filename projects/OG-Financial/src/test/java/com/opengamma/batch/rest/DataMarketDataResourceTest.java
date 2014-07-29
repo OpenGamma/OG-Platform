@@ -30,7 +30,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.util.paging.Paging;
 import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.util.test.TestGroup;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
@@ -80,7 +80,7 @@ public class DataMarketDataResourceTest {
     MarketDataValue mdv = new MarketDataValue();
     List<MarketDataValue> marketDataValues = newArrayList(mdv);
     PagingRequest pagingRequest = PagingRequest.ofPage(2, 30);
-    when(_batchMaster.getMarketDataValues(_marketData.getObjectId(), pagingRequest)).thenReturn(Pair.of(marketDataValues, Paging.ofAll(marketDataValues)));
+    when(_batchMaster.getMarketDataValues(_marketData.getObjectId(), pagingRequest)).thenReturn(Pairs.of(marketDataValues, Paging.ofAll(marketDataValues)));
     
     _resource.getDataValues(pagingRequest);
     

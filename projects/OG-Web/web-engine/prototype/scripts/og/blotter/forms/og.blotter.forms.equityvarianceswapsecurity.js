@@ -8,9 +8,13 @@ $.register_module({
     obj: function () {
         return function (config) {
             var constructor = this, form, ui = og.common.util.ui, data, validate, util = og.blotter.util;
-            if(config.details) {data = config.details.data; data.id = config.details.data.trade.uniqueId;}
-            else {data = {security: {type: "EquityVarianceSwapSecurity", externalIdBundle: "",
-                attributes: {}}, trade: util.otc_trade};}
+            if (config.details) {
+                data = config.details.data;
+                data.id = config.details.data.trade.uniqueId;
+            } else {
+                data = {security: {type: "EquityVarianceSwapSecurity", externalIdBundle: "",
+                    attributes: {}}, trade: util.otc_trade};
+            }
             data.nodeId = config.node ? config.node.id : null;
             constructor.load = function () {
                 constructor.title = 'Equity Variance Swap';
@@ -31,16 +35,13 @@ $.register_module({
                         extras: {notional: data.security.notional, region: data.security.regionId,
                             settlement: data.security.settlementDate, strike: data.security.strike,
                             first: data.security.firstObservationDate, last: data.security.lastObservationDate,
-                            annualization: data.security.annualizationFactor
-                         },
-                        processor: function (data) {
-                            data.security.parameterizedAsVariance =
-                            util.get_checkbox("security.parameterizedAsVariance");
-                        },
+                            annualization: data.security.annualizationFactor },
+                        processor: function (data) { data.security.parameterizedAsVariance =
+                            util.get_checkbox("security.parameterizedAsVariance"); },
                         children: [
-                            new form.Block({module:'og.views.forms.currency_tash',
-                                extras:{name: "security.currency"}}),
-                            new og.blotter.forms.blocks.Regions({name: 'security.regionId', 
+                            new form.Block({module: 'og.views.forms.currency_tash',
+                                extras: {name: "security.currency"}}),
+                            new og.blotter.forms.blocks.Regions({name: 'security.regionId',
                                 value: data.security.regionId, form: form}),
                             new og.blotter.forms.blocks.Security({
                                 form: form, label: "Spot Underlying ID", security: data.security.spotUnderlyingId,
@@ -57,16 +58,18 @@ $.register_module({
                     })
                 );
                 form.dom();
-                form.on('form:load', function (){
+                form.on('form:load', function () {
                     util.add_date_picker('.blotter-date');
                     util.add_time_picker('.blotter-time');
                     util.set_initial_focus();
-                    if(data.security.length) return;
+                    if (data.security.length) {
+                        return;
+                    }
                     util.set_select("security.currency", data.security.currency);
                     util.check_checkbox("security.parameterizedAsVariance",
                         data.security.parameterizedAsVariance);
                 });
-                form.on('form:submit', function (result){
+                form.on('form:submit', function (result) {
                     $.when(config.handler(result.data)).then(validate);
                 });
             };

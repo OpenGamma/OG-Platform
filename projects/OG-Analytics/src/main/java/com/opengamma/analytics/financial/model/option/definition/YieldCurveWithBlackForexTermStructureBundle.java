@@ -9,6 +9,7 @@ import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.volatility.curve.BlackForexTermStructureParameters;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Class describing a yield curve bundle with Black term structure volatility for Forex options.
@@ -35,7 +36,7 @@ public class YieldCurveWithBlackForexTermStructureBundle extends ForexOptionData
   public YieldCurveWithBlackForexTermStructureBundle copy() {
     final YieldCurveBundle curves = getCurvesCopy();
     final BlackForexTermStructureParameters termStructure = new BlackForexTermStructureParameters(getVolatilityModel().getVolatilityCurve());
-    final Pair<Currency, Currency> currencyPair = Pair.of(getCurrencyPair().getFirst(), getCurrencyPair().getSecond());
+    final Pair<Currency, Currency> currencyPair = Pairs.of(getCurrencyPair().getFirst(), getCurrencyPair().getSecond());
     return new YieldCurveWithBlackForexTermStructureBundle(curves, termStructure, currencyPair);
   }
 

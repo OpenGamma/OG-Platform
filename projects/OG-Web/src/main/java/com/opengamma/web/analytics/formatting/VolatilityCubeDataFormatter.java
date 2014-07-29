@@ -9,8 +9,9 @@ import com.opengamma.core.marketdatasnapshot.VolatilityCubeData;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
- *
+ * Formatter for {@code VolatilityCubeData}.
  */
+@SuppressWarnings("rawtypes")
 /* package */class VolatilityCubeDataFormatter extends AbstractFormatter<VolatilityCubeData> {
 
   /* package */VolatilityCubeDataFormatter() {
@@ -19,8 +20,7 @@ import com.opengamma.engine.value.ValueSpecification;
 
   @Override
   public String formatCell(final VolatilityCubeData value, final ValueSpecification valueSpec, Object inlineKey) {
-    return "Volatility Cube data (" + value.getDataPoints().size() + " volatility points, " + value.getATMStrikes().size()
-        + " strikes, " + value.getOtherData().size() + " other data points " + ")";
+    return "Volatility Cube data (" + value.size() + ")";
   }
 
   @Override

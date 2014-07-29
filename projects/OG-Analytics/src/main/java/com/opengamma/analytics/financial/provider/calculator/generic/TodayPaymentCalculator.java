@@ -141,7 +141,7 @@ public final class TodayPaymentCalculator extends InstrumentDerivativeVisitorAda
   @Override
   public MultipleCurrencyAmount visitInterestRateFutureOptionMarginTransaction(final InterestRateFutureOptionMarginTransaction futureOption) {
     ArgumentChecker.notNull(futureOption, "instrument");
-    return MultipleCurrencyAmount.of(futureOption.getUnderlyingOption().getCurrency(), 0.0);
+    return MultipleCurrencyAmount.of(futureOption.getUnderlyingSecurity().getCurrency(), 0.0);
   }
 
   @Override

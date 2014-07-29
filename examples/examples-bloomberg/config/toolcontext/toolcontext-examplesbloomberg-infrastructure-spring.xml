@@ -9,17 +9,6 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
   <import resource="classpath:sharedmasters/sharedmasters-infrastructure-spring.xml" />
 
   <!-- ================================================================== -->
-  <bean id="sessionOptions" class="com.bloomberglp.blpapi.SessionOptions">
-    <property name="serverHost" value="${bloomberg.host}" />
-    <property name="serverPort" value="${bloomberg.port}" />
-  </bean>
-
-  <bean id="standardBloombergConnector" class="com.opengamma.bbg.BloombergConnector">
-    <constructor-arg value="FullStack"/>
-    <constructor-arg ref="sessionOptions"/>
-  </bean>
-
-  <!-- ================================================================== -->
   <bean id="standardScheduledExecutorService" class="org.springframework.scheduling.concurrent.ScheduledExecutorFactoryBean" lazy-init="false">
     <property name="threadNamePrefix" value="StandardInfra-" />
   </bean>

@@ -49,8 +49,8 @@ public abstract class FederalFundsFutureTransactionMethod implements PricingMeth
    * @return The present value.
    */
   public CurrencyAmount presentValueFromPrice(final FederalFundsFutureTransaction future, final double price) {
-    final double pv = (price - future.getReferencePrice()) * future.getUnderlyingFuture().getPaymentAccrualFactor() * future.getUnderlyingFuture().getNotional() * future.getQuantity();
-    return CurrencyAmount.of(future.getUnderlyingFuture().getCurrency(), pv);
+    final double pv = (price - future.getReferencePrice()) * future.getUnderlyingSecurity().getPaymentAccrualFactor() * future.getUnderlyingSecurity().getNotional() * future.getQuantity();
+    return CurrencyAmount.of(future.getUnderlyingSecurity().getCurrency(), pv);
   }
 
   /**
@@ -60,7 +60,7 @@ public abstract class FederalFundsFutureTransactionMethod implements PricingMeth
    * @return The present value.
    */
   public CurrencyAmount presentValue(final FederalFundsFutureTransaction future, final YieldCurveBundle curves) {
-    final double price = getMethodSecurity().price(future.getUnderlyingFuture(), curves);
+    final double price = getMethodSecurity().price(future.getUnderlyingSecurity(), curves);
     return presentValueFromPrice(future, price);
   }
 
@@ -78,8 +78,8 @@ public abstract class FederalFundsFutureTransactionMethod implements PricingMeth
    */
   public InterestRateCurveSensitivity presentValueCurveSensitivity(final FederalFundsFutureTransaction future, final YieldCurveBundle curves) {
     Validate.notNull(future, "Future");
-    final InterestRateCurveSensitivity priceSensi = _methodSecurity.priceCurveSensitivity(future.getUnderlyingFuture(), curves);
-    final InterestRateCurveSensitivity result = priceSensi.multipliedBy(future.getUnderlyingFuture().getPaymentAccrualFactor() * future.getUnderlyingFuture().getNotional() * future.getQuantity());
+    final InterestRateCurveSensitivity priceSensi = _methodSecurity.priceCurveSensitivity(future.getUnderlyingSecurity(), curves);
+    final InterestRateCurveSensitivity result = priceSensi.multipliedBy(future.getUnderlyingSecurity().getPaymentAccrualFactor() * future.getUnderlyingSecurity().getNotional() * future.getQuantity());
     return result;
   }
 

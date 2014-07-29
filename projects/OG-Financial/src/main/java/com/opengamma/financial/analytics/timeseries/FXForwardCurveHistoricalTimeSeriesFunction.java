@@ -7,6 +7,7 @@ package com.opengamma.financial.analytics.timeseries;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -63,7 +64,7 @@ public class FXForwardCurveHistoricalTimeSeriesFunction extends AbstractFunction
     final FXForwardCurveDefinition definition = (FXForwardCurveDefinition) inputs.getValue(ValueRequirementNames.FX_FORWARD_CURVE_DEFINITION);
     final FXForwardCurveSpecification specification = (FXForwardCurveSpecification) inputs.getValue(ValueRequirementNames.FX_FORWARD_CURVE_SPECIFICATION);
     final HistoricalTimeSeriesBundle bundle = new HistoricalTimeSeriesBundle();
-    final Tenor[] tenors = definition.getTenors();
+    final List<Tenor> tenors = definition.getTenors();
     final FXForwardCurveInstrumentProvider curveInstrumentProvider = specification.getCurveInstrumentProvider();
     for (final Tenor tenor : tenors) {
       final ExternalIdBundle id = ExternalIdBundle.of(curveInstrumentProvider.getInstrument(endDate, tenor));

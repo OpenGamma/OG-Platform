@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.analytics.model.equity.option;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -14,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.ZonedDateTime;
 
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
@@ -22,13 +20,8 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurface;
-import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceMoneyness;
 import com.opengamma.analytics.financial.provider.calculator.generic.LastTimeCalculator;
-import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
-import com.opengamma.analytics.math.surface.Surface;
-import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.Security;
@@ -60,15 +53,12 @@ import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
+import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.option.EquityIndexFutureOptionSecurity;
-import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
-import com.opengamma.financial.security.option.EquityOptionSecurity;
-import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
-import com.opengamma.util.time.Expiry;
-import com.opengamma.util.time.ExpiryAccuracy;
 
 /**
  * Abstract base function of a family that parallels EquityOptionFunction. As the name implies, they require the security be listed, ie market traded.
@@ -82,7 +72,7 @@ import com.opengamma.util.time.ExpiryAccuracy;
 public abstract class ListedEquityOptionFunction extends AbstractFunction.NonCompiledInvoker {
 
   /** The logger */
-  private static final Logger s_logger = LoggerFactory.getLogger(EquityOptionFunction.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(ListedEquityOptionFunction.class);
 
   /** Property name for the discounting curve */
   public static final String PROPERTY_DISCOUNTING_CURVE_NAME = "DiscountingCurveName";
@@ -120,7 +110,7 @@ public abstract class ListedEquityOptionFunction extends AbstractFunction.NonCom
     final InterestRateFutureSecurityConverterDeprecated irFutureConverter = new InterestRateFutureSecurityConverterDeprecated(holidaySource, conventionSource, regionSource);
     final BondSecurityConverter bondConverter = new BondSecurityConverter(holidaySource, conventionSource, regionSource);
     final BondFutureSecurityConverter bondFutureConverter = new BondFutureSecurityConverter(securitySource, bondConverter);
-    final FutureSecurityConverterDeprecated futureSecurityConverter = new FutureSecurityConverterDeprecated(irFutureConverter, bondFutureConverter);
+    final FutureSecurityConverterDeprecated futureSecurityConverter = new FutureSecurityConverterDeprecated(bondFutureConverter);
     _converter = new EquityOptionsConverter(futureSecurityConverter, securitySource);
   }
 
@@ -134,7 +124,8 @@ public abstract class ListedEquityOptionFunction extends AbstractFunction.NonCom
     final InstrumentDefinition<?> defn = security.accept(_converter);
     final InstrumentDerivative derivative = defn.toDerivative(now);
     if (derivative.accept(LastTimeCalculator.getInstance()) < 0.0) {
-      throw new OpenGammaRuntimeException("Equity option has already settled; " + security.toString());
+      s_logger.error("Option has already settled - {}", security.toString());
+      return null;
     }
 
     // 2. Build up the market data bundle
@@ -203,69 +194,14 @@ public abstract class ListedEquityOptionFunction extends AbstractFunction.NonCom
     return (ForwardCurve) forwardCurveObject;
   }
 
-  // The Volatility Surface is simply a single point, which must be inferred from the market value
+  // The Volatility Surface is simply a single point, inferred from the market value, along with Forward and Funding Curves
   protected BlackVolatilitySurface<?> getVolatilitySurface(final FunctionExecutionContext executionContext,
       final FunctionInputs inputs, final ComputationTarget target) {
-
-    // From the Security, we get strike and expiry information to compute implied volatility
-    final double strike;
-    final Expiry expiry;
-    final boolean isCall;
-    final Security security = target.getSecurity();
-    if (security instanceof EquityOptionSecurity) {
-      final EquityOptionSecurity option = (EquityOptionSecurity) security;
-      strike = option.getStrike();
-      expiry = option.getExpiry();
-      isCall = option.getOptionType().equals(OptionType.CALL);
-    } else if (security instanceof EquityIndexOptionSecurity) {
-      final EquityIndexOptionSecurity option = (EquityIndexOptionSecurity) security;
-      strike = option.getStrike();
-      expiry = option.getExpiry();
-      isCall = option.getOptionType().equals(OptionType.CALL);
-    } else if (security instanceof EquityIndexFutureOptionSecurity) {
-      final EquityIndexFutureOptionSecurity option = (EquityIndexFutureOptionSecurity) security;
-      strike = option.getStrike();
-      expiry = option.getExpiry();
-      isCall = option.getOptionType().equals(OptionType.CALL);
-    } else {
-      throw new OpenGammaRuntimeException("Security type not handled," + security.getName());
+    final Object volSurface = inputs.getValue(ValueRequirementNames.BLACK_VOLATILITY_SURFACE);
+    if (volSurface == null) {
+      throw new OpenGammaRuntimeException("Could not get volatility surface");
     }
-    if (expiry.getAccuracy().equals(ExpiryAccuracy.MONTH_YEAR) || expiry.getAccuracy().equals(ExpiryAccuracy.YEAR)) {
-      throw new OpenGammaRuntimeException("There is ambiguity in the expiry date of the target security.");
-    }
-    final ZonedDateTime expiryDate = expiry.getExpiry();
-    final ZonedDateTime valuationDT = ZonedDateTime.now(executionContext.getValuationClock());
-    double timeToExpiry = TimeCalculator.getTimeBetween(valuationDT, expiryDate);
-    if (timeToExpiry == 0) { // TODO: See JIRA [PLAT-3222]
-      timeToExpiry = 0.0015;
-    }
-
-    // From the curve requirements, we get the forward and zero coupon prices
-    final ForwardCurve forwardCurve = getForwardCurve(inputs);
-    final double forward = forwardCurve.getForward(timeToExpiry);
-    final double discountFactor = getDiscountingCurve(inputs).getDiscountFactor(timeToExpiry);
-
-    // From the market value, we can then invert the Black formula
-    final ComputedValue optionPriceValue = inputs.getComputedValue(MarketDataRequirementNames.MARKET_VALUE);
-    if (optionPriceValue == null) {
-      throw new OpenGammaRuntimeException("Could not get market value of underlying option");
-    }
-    final Double spotOptionPrice = (Double) optionPriceValue.getValue();
-    final double forwardOptionPrice = spotOptionPrice / discountFactor;
-
-    // TODO: Have been running into problems, primarily from illiquid option prices, hence we test
-    final double impliedVol;
-    final double intrinsic = Math.max(0.0, (forward - strike) * (isCall ? 1.0 : -1.0));
-    if (intrinsic >= forwardOptionPrice) {
-      s_logger.info("Option with intrinsic value (" + intrinsic + ") > price (" + forwardOptionPrice + ")! Setting implied volatility to zero, " + security);
-      impliedVol = 0.0;
-    } else {
-      impliedVol = BlackFormulaRepository.impliedVolatility(forwardOptionPrice, forward, strike, timeToExpiry, isCall);
-    }
-
-    final Surface<Double, Double, Double> surface = ConstantDoublesSurface.from(impliedVol);
-    final BlackVolatilitySurfaceMoneyness impliedVolatilitySurface = new BlackVolatilitySurfaceMoneyness(surface, forwardCurve);
-    return impliedVolatilitySurface;
+    return (BlackVolatilitySurface<?>) volSurface;
   }
 
   @Override
@@ -276,13 +212,6 @@ public abstract class ListedEquityOptionFunction extends AbstractFunction.NonCom
       result.add(new ValueSpecification(valueRequirementName, target.toSpecification(), properties));
     }
     return result;
-  }
-
-  private static String oneOrNull(final Collection<String> values) {
-    if ((values == null) || values.isEmpty() || (values.size() != 1)) {
-      return null;
-    }
-    return Iterables.getOnlyElement(values);
   }
 
   @Override
@@ -301,28 +230,35 @@ public abstract class ListedEquityOptionFunction extends AbstractFunction.NonCom
       return null;
     }
     for (final String property : constraints.getProperties()) {
-      if (ValuePropertyNames.CALCULATION_METHOD.equals(property)) {
-        if (!constraints.getValues(property).contains(getCalculationMethod())) {
-          return null;
-        }
-      } else if (PROPERTY_DISCOUNTING_CURVE_NAME.equals(property)) {
-        discountingCurveName = oneOrNull(constraints.getValues(property));
-      } else if (PROPERTY_DISCOUNTING_CURVE_CONFIG.equals(property)) {
-        discountingCurveConfig = oneOrNull(constraints.getValues(property));
-      } else if (ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_NAME.equals(property)) {
-        forwardCurveName = oneOrNull(constraints.getValues(property));
-      } else if (ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD.equals(property)) {
-        forwardCurveCalculationMethod = oneOrNull(constraints.getValues(property));
-      } else {
-        if (additionalConstraintsBuilder == null) {
-          additionalConstraintsBuilder = ValueProperties.builder();
-        }
-        final Set<String> values = constraints.getValues(property);
-        if (values.isEmpty()) {
-          additionalConstraintsBuilder.withAny(property);
-        } else {
-          additionalConstraintsBuilder.with(property, values);
-        }
+      switch (property) {
+        case ValuePropertyNames.CALCULATION_METHOD:
+          if (!constraints.getValues(property).contains(getCalculationMethod())) {
+            return null;
+          }
+          break;
+        case PROPERTY_DISCOUNTING_CURVE_NAME:
+          discountingCurveName = constraints.getStrictValue(property);
+          break;
+        case PROPERTY_DISCOUNTING_CURVE_CONFIG:
+          discountingCurveConfig = constraints.getStrictValue(property);
+          break;
+        case ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_NAME:
+          forwardCurveName = constraints.getStrictValue(property);
+          break;
+        case ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD:
+          forwardCurveCalculationMethod = constraints.getStrictValue(property);
+          break;
+        default:
+          if (additionalConstraintsBuilder == null) {
+            additionalConstraintsBuilder = ValueProperties.builder();
+          }
+          final Set<String> values = constraints.getValues(property);
+          if (values.isEmpty()) {
+            additionalConstraintsBuilder.withAny(property);
+          } else {
+            additionalConstraintsBuilder.with(property, values);
+          }
+          break;
       }
     }
     if ((discountingCurveName == null) || (discountingCurveConfig == null) ||
@@ -330,7 +266,6 @@ public abstract class ListedEquityOptionFunction extends AbstractFunction.NonCom
       return null;
     }
     final ValueProperties additionalConstraints = (additionalConstraintsBuilder != null) ? additionalConstraintsBuilder.get() : ValueProperties.none();
-
     // Get security and its underlying's ExternalId.
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final ExternalId underlyingId = FinancialSecurityUtils.getUnderlyingId(security);
@@ -343,15 +278,33 @@ public abstract class ListedEquityOptionFunction extends AbstractFunction.NonCom
       return null;
     }
     // Forward curve
-    final ValueRequirement forwardCurveReq = getForwardCurveRequirement(forwardCurveName, forwardCurveCalculationMethod, underlyingId, additionalConstraints);
+    final ValueRequirement forwardCurveReq;
+    if (security instanceof EquityIndexFutureOptionSecurity) {
+      final SecuritySource securitySource = context.getSecuritySource();
+      IndexFutureSecurity future = (IndexFutureSecurity) securitySource.getSingle(ExternalIdBundle.of(underlyingId), context.getComputationTargetResolver().getVersionCorrection());
+      if (future == null) {
+        return null;
+      }
+      final ExternalId indexId = future.getUnderlyingId();
+      if (indexId == null) {
+        return null;
+      }
+      forwardCurveReq = getForwardCurveRequirement(forwardCurveName, forwardCurveCalculationMethod, indexId, additionalConstraints);
+    } else {
+      forwardCurveReq = getForwardCurveRequirement(forwardCurveName, forwardCurveCalculationMethod, underlyingId, additionalConstraints);
+    }
     if (forwardCurveReq == null) {
       return null;
     }
-    // "Volatility Surface"
-    final ValueRequirement volReq = getVolatilitySurfaceRequirement(security);
-    if (volReq == null) {
-      return null;
-    }
+    // Volatility
+    final ValueProperties properties = ValueProperties.builder()
+        .with(ValuePropertyNames.DISCOUNTING_CURVE_NAME, discountingCurveName)
+        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, discountingCurveConfig)
+         .with(ValuePropertyNames.FORWARD_CURVE_NAME, forwardCurveName)
+        .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, forwardCurveCalculationMethod)       
+        .get();
+    final ValueRequirement volReq = new ValueRequirement(ValueRequirementNames.BLACK_VOLATILITY_SURFACE, target.toSpecification(), properties);
+
     // Return the set
     return Sets.newHashSet(discountingReq, volReq, forwardCurveReq);
   }
@@ -399,11 +352,12 @@ public abstract class ListedEquityOptionFunction extends AbstractFunction.NonCom
             .withoutAny(ValuePropertyNames.CURVE_CURRENCY)
             .get();
         forwardCurveName = value.getProperty(ValuePropertyNames.CURVE);
+
         for (final String property : forwardCurveProperties.getProperties()) {
           properties.with(property, forwardCurveProperties.getValues(property));
         }
         forwardCurvePropertiesSet = true;
-      } else if (inputName.equals(MarketDataRequirementNames.MARKET_VALUE) && !surfacePropertiesSet) { // BlackBasic case
+      } else if (inputName.equals(MarketDataRequirementNames.MARKET_VALUE) && !surfacePropertiesSet) {
         surfacePropertiesSet = true;
       }
     }
@@ -461,11 +415,12 @@ public abstract class ListedEquityOptionFunction extends AbstractFunction.NonCom
   /**
    * Instead of a volatility surface, we're just asking for the market_value of the option
    * 
-   * @param security the resolved option
+   * @param target {@link FinancialSecurityTypes#EQUITY_OPTION_SECURITY} or {@link FinancialSecurityTypes#EQUITY_INDEX_FUTURE_OPTION_SECURITY}
+       or {@link FinancialSecurityTypes#EQUITY_INDEX_OPTION_SECURITY}
    * @return market_value requirement for the option
    */
-  protected ValueRequirement getVolatilitySurfaceRequirement(final Security security) {
-    return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, security.getUniqueId());
+  protected ValueRequirement getVolatilitySurfaceRequirement(final ComputationTarget target) {
+    return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, target.toSpecification());
   }
 
   /**

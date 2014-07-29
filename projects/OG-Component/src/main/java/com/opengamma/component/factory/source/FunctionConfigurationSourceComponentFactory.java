@@ -13,6 +13,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -22,11 +23,13 @@ import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.threeten.bp.Instant;
 
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.component.factory.ComponentInfoAttributes;
+import com.opengamma.core.change.ChangeManager;
 import com.opengamma.engine.function.config.CombiningFunctionConfigurationSource;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationBundle;
@@ -37,11 +40,12 @@ import com.opengamma.financial.FinancialFunctions;
 import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveFunctions;
 import com.opengamma.financial.analytics.ircurve.IRCurveFunctions;
 import com.opengamma.financial.analytics.model.curve.CurveFunctions;
+import com.opengamma.financial.analytics.surface.SurfaceFunctions;
 import com.opengamma.financial.analytics.timeseries.TimeSeriesFunctions;
+import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeFunctions;
 import com.opengamma.financial.function.rest.DataRepositoryConfigurationSourceResource;
 import com.opengamma.financial.function.rest.RemoteFunctionConfigurationSource;
 import com.opengamma.master.config.ConfigMaster;
-import com.opengamma.web.spring.BloombergVolatilityCubeFunctions;
 import com.opengamma.web.spring.DemoStandardFunctionConfiguration;
 
 /**
@@ -79,12 +83,13 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
 
     if (isPublishRest()) {
       repo.getRestComponents().publish(info, new DataRepositoryConfigurationSourceResource(source));
+      // TODO: The REST resource will be incorrect; we should publish a facade of the ViewProcessor form so that calc nodes see the same version of the repository as the one last queried here
     }
   }
 
   /**
    * Debug utility to sort a repository. This allows two to be compared more easily.
-   *
+   * 
    * @param source the raw repository configuration source
    * @return a source that return a sorted list of functions
    */
@@ -92,8 +97,8 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
     return new FunctionConfigurationSource() {
 
       @Override
-      public FunctionConfigurationBundle getFunctionConfiguration() {
-        final List<FunctionConfiguration> functions = new ArrayList<FunctionConfiguration>(source.getFunctionConfiguration().getFunctions());
+      public FunctionConfigurationBundle getFunctionConfiguration(final Instant version) {
+        final List<FunctionConfiguration> functions = new ArrayList<FunctionConfiguration>(source.getFunctionConfiguration(version).getFunctions());
         Collections.sort(functions, new Comparator<FunctionConfiguration>() {
 
           @Override
@@ -142,6 +147,11 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
         return new FunctionConfigurationBundle(functions);
       }
 
+      @Override
+      public ChangeManager changeManager() {
+        return source.changeManager();
+      }
+
     };
   }
 
@@ -149,7 +159,7 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
    * Initializes the source.
    * <p>
    * Calls {@link #initSources()} and combines the result using {@link CombiningFunctionConfigurationSource}.
-   *
+   * 
    * @return the list of base sources to be combined, not null
    */
   protected FunctionConfigurationSource initSource() {
@@ -174,48 +184,71 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
     return FXForwardCurveFunctions.providers(getConfigMaster());
   }
 
-  protected FunctionConfigurationSource cubeConfigurations() {
-    return BloombergVolatilityCubeFunctions.instance();
-  }
-
   protected FunctionConfigurationSource curveConfigurations() {
     return CurveFunctions.providers(getConfigMaster());
   }
-  
+
   protected FunctionConfigurationSource curveParameterConfigurations() {
     return CurveFunctions.parameterProviders(getConfigMaster());
   }
-  
+
   protected FunctionConfigurationSource timeSeriesConfigurations() {
     return TimeSeriesFunctions.providers(getConfigMaster());
   }
 
   /**
+   * Adds volatility cube functions.
+   * @return A source of volatility cube functions
+   */
+  protected FunctionConfigurationSource volatilityCubeConfigConfigurations() {
+    return VolatilityCubeFunctions.providers(getConfigMaster());
+  }
+
+  /**
+   * Adds surface functions.
+   * @return A source of surface functions
+   */
+  protected FunctionConfigurationSource surfaceConfigConfigurations() {
+    return SurfaceFunctions.providers(getConfigMaster());
+  }
+
+  /**
    * Initializes the list of sources to be combined.
-   *
+   * 
    * @return the list of base sources to be combined, not null
    */
   protected List<FunctionConfigurationSource> initSources() {
     final List<FunctionConfigurationSource> sources = new LinkedList<>();
     sources.add(financialFunctions());
     sources.add(standardConfiguration());
-    sources.add(cubeConfigurations());
     sources.addAll(curveAndSurfaceSources());
+    sources.addAll(cubeSources());
     return sources;
   }
-  
+
   /**
    * Gets the list of curve and surface function configuration sources.
    * 
    * @return the curve and surface function configuration sources, not null
    */
   protected List<FunctionConfigurationSource> curveAndSurfaceSources() {
-    final List<FunctionConfigurationSource> sources = new LinkedList<>();    
+    final List<FunctionConfigurationSource> sources = new LinkedList<>();
     sources.add(yieldCurveConfigurations());
     sources.add(curveConfigurations());
     sources.add(curveParameterConfigurations());
     sources.add(fxForwardCurveConfigurations());
     sources.add(timeSeriesConfigurations());
+    sources.add(surfaceConfigConfigurations());
+    return sources;
+  }
+
+  /**
+   * Gets the list of cube function configuration sources.
+   * @return The cube function configuration sources, not null
+   */
+  protected List<FunctionConfigurationSource> cubeSources() {
+    final List<FunctionConfigurationSource> sources = new LinkedList<>();
+    sources.add(volatilityCubeConfigConfigurations());
     return sources;
   }
 
@@ -236,66 +269,6 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
   @Override
   public FunctionConfigurationSourceComponentFactory.Meta metaBean() {
     return FunctionConfigurationSourceComponentFactory.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        return getClassifier();
-      case -614707837:  // publishRest
-        return isPublishRest();
-      case 10395716:  // configMaster
-        return getConfigMaster();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        setClassifier((String) newValue);
-        return;
-      case -614707837:  // publishRest
-        setPublishRest((Boolean) newValue);
-        return;
-      case 10395716:  // configMaster
-        setConfigMaster((ConfigMaster) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_classifier, "classifier");
-    JodaBeanUtils.notNull(_configMaster, "configMaster");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      FunctionConfigurationSourceComponentFactory other = (FunctionConfigurationSourceComponentFactory) obj;
-      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
-          JodaBeanUtils.equal(isPublishRest(), other.isPublishRest()) &&
-          JodaBeanUtils.equal(getConfigMaster(), other.getConfigMaster()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigMaster());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -373,6 +346,57 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
    */
   public final Property<ConfigMaster> configMaster() {
     return metaBean().configMaster().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public FunctionConfigurationSourceComponentFactory clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      FunctionConfigurationSourceComponentFactory other = (FunctionConfigurationSourceComponentFactory) obj;
+      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
+          (isPublishRest() == other.isPublishRest()) &&
+          JodaBeanUtils.equal(getConfigMaster(), other.getConfigMaster()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigMaster());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(128);
+    buf.append("FunctionConfigurationSourceComponentFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("publishRest").append('=').append(JodaBeanUtils.toString(isPublishRest())).append(',').append(' ');
+    buf.append("configMaster").append('=').append(JodaBeanUtils.toString(getConfigMaster())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -466,6 +490,43 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
      */
     public final MetaProperty<ConfigMaster> configMaster() {
       return _configMaster;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          return ((FunctionConfigurationSourceComponentFactory) bean).getClassifier();
+        case -614707837:  // publishRest
+          return ((FunctionConfigurationSourceComponentFactory) bean).isPublishRest();
+        case 10395716:  // configMaster
+          return ((FunctionConfigurationSourceComponentFactory) bean).getConfigMaster();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          ((FunctionConfigurationSourceComponentFactory) bean).setClassifier((String) newValue);
+          return;
+        case -614707837:  // publishRest
+          ((FunctionConfigurationSourceComponentFactory) bean).setPublishRest((Boolean) newValue);
+          return;
+        case 10395716:  // configMaster
+          ((FunctionConfigurationSourceComponentFactory) bean).setConfigMaster((ConfigMaster) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((FunctionConfigurationSourceComponentFactory) bean)._classifier, "classifier");
+      JodaBeanUtils.notNull(((FunctionConfigurationSourceComponentFactory) bean)._configMaster, "configMaster");
+      super.validate(bean);
     }
 
   }

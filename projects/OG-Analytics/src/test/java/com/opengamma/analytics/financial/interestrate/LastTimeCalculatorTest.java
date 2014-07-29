@@ -18,17 +18,20 @@ import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedS
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositZero;
 import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.analytics.financial.provider.calculator.generic.LastTimeCalculator;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class LastTimeCalculatorTest {
   private static LastTimeCalculator LDC = LastTimeCalculator.getInstance();
   private static final Currency CUR = Currency.EUR;
@@ -48,8 +51,8 @@ public class LastTimeCalculatorTest {
     final double fixingPeriodStartTime = paymentTime;
     final double fixingPeriodEndTime = 7. / 12;
     final double fixingYearFraction = 31. / 365;
-    final IborIndex index = new IborIndex(CUR, Period.ofMonths(1), 2, DayCountFactory.INSTANCE.getDayCount("Actual/365"),
-        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), true, "Ibor");
+    final IborIndex index = new IborIndex(CUR, Period.ofMonths(1), 2, DayCounts.ACT_365,
+        BusinessDayConventions.FOLLOWING, true, "Ibor");
     final ForwardRateAgreement fra = new ForwardRateAgreement(CUR, paymentTime, paymentYearFraction, 1, index, fixingTime, fixingPeriodStartTime, fixingPeriodEndTime, fixingYearFraction,
         0.05);
 
@@ -58,16 +61,17 @@ public class LastTimeCalculatorTest {
 
   @Test
   public void testFutures() {
-    final IborIndex iborIndex = new IborIndex(CUR, Period.ofMonths(3), 2, DayCountFactory.INSTANCE.getDayCount("Actual/365"),
-        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), true, "Ibor");
+    final IborIndex iborIndex = new IborIndex(CUR, Period.ofMonths(3), 2, DayCounts.ACT_365,
+        BusinessDayConventions.FOLLOWING, true, "Ibor");
     final double lastTradingTime = 1.473;
     final double fixingPeriodStartTime = 1.467;
     final double fixingPeriodEndTime = 1.75;
     final double fixingPeriodAccrualFactor = 0.267;
     final double paymentAccrualFactor = 0.25;
     final double refrencePrice = 0.0;
-    final InterestRateFutureTransaction ir = new InterestRateFutureTransaction(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, refrencePrice, 1,
-        paymentAccrualFactor, 1, "S");
+    final InterestRateFutureSecurity sec = new InterestRateFutureSecurity(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, 1.0, paymentAccrualFactor,
+        "S");
+    final InterestRateFutureTransaction ir = new InterestRateFutureTransaction(sec, refrencePrice, 1);
     assertEquals(fixingPeriodEndTime, ir.accept(LDC), 1e-12);
   }
 

@@ -7,43 +7,50 @@ package com.opengamma.financial.analytics.curve.exposure;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * Factory object that creates {@link ExposureFunction} instances for a given name.
  */
 public class ExposureFunctionFactory {
 
+  /**
+   * Returns the {@link ExposureFunction} implementation for a given name.
+   * @param securitySource the security source, which may or may not be used, not null.
+   * @param name the name of the exposure function, not null.
+   * @return the exposure function implementation.
+   */
   public static ExposureFunction getExposureFunction(final SecuritySource securitySource, final String name) {
-    if ("Contract Category".equals(name)) {
-      return new ContractCategoryExposureFunction(securitySource);
+    ArgumentChecker.notNull(securitySource, "security source");
+    ArgumentChecker.notNull(name, "name");
+    switch (name) {
+      case ContractCategoryExposureFunction.NAME:
+        return new ContractCategoryExposureFunction(securitySource);
+      case CounterpartyExposureFunction.NAME:
+        return new CounterpartyExposureFunction();
+      case CurrencyExposureFunction.NAME:
+        return new CurrencyExposureFunction(securitySource);
+      case RegionExposureFunction.NAME:
+        return new RegionExposureFunction(securitySource);
+      case SecurityAndCurrencyExposureFunction.NAME:
+        return new SecurityAndCurrencyExposureFunction(securitySource);
+      case SecurityAndRegionExposureFunction.NAME:
+        return new SecurityAndRegionExposureFunction(securitySource);
+      case SecurityAndSettlementExchangeExposureFunction.NAME:
+        return new SecurityAndSettlementExchangeExposureFunction();
+      case SecurityAndTradingExchangeExposureFunction.NAME:
+        return new SecurityAndTradingExchangeExposureFunction();
+      case SecurityExposureFunction.NAME:
+        return new SecurityExposureFunction();
+      case SecurityTypeExposureFunction.NAME:
+        return new SecurityTypeExposureFunction();
+      case TradeAttributeExposureFunction.NAME:
+        return new TradeAttributeExposureFunction();
+      case UnderlyingExposureFunction.NAME:
+        return new UnderlyingExposureFunction(securitySource);
+      default:
+        throw new OpenGammaRuntimeException("Could not get exposure function called " + name);
     }
-    if ("Currency".equals(name)) {
-      return new CurrencyExposureFunction(securitySource);
-    }
-    if ("Region".equals(name)) {
-      return new RegionExposureFunction(securitySource);
-    }
-    if ("Security / Currency".equals(name)) {
-      return new SecurityAndCurrencyExposureFunction(securitySource);
-    }
-    if ("Security / Region".equals(name)) {
-      return new SecurityAndRegionExposureFunction(securitySource);
-    }
-    if ("Security / Settlement Exchange".equals(name)) {
-      return new SecurityAndSettlementExchangeExposureFunction();
-    }
-    if ("Security / Trading Exchange".equals(name)) {
-      return new SecurityAndTradingExchangeExposureFunction();
-    }
-    if ("Security".equals(name)) {
-      return new SecurityExposureFunction();
-    }
-    if ("Security Type".equals(name)) {
-      return new SecurityTypeExposureFunction();
-    }
-    if ("Underlying".equals(name)) {
-      return new UnderlyingExposureFunction(securitySource);
-    }
-    throw new OpenGammaRuntimeException("Could not get exposure function called " + name);
   }
+
 }

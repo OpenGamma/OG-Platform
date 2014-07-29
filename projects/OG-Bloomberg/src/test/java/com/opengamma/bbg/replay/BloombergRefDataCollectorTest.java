@@ -5,7 +5,6 @@
  */
 package com.opengamma.bbg.replay;
 
-
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
@@ -38,21 +37,20 @@ public class BloombergRefDataCollectorTest {
 
   private static final String WATCH_LIST_FILE = "watchListTest.txt";
   private static final String FIELD_LIST_FILE = "fieldListTest.txt";
-  public static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
+  private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
 
   private BloombergRefDataCollector _refDataCollector;
-  private MockReferenceDataProvider _refDataProvider;
   private File _outputFile;
 
   @BeforeMethod
-  public void setUp(Method m) throws Exception {    
-    _refDataProvider = new MockReferenceDataProvider();
-    _refDataProvider.addExpectedField("SECURITY_TYP");
-    _refDataProvider.addResult("QQQQ US Equity", "SECURITY_TYP", "ETP");
-    _refDataProvider.addResult("/buid/EQ0082335400001000", "SECURITY_TYP", "ETP");
+  public void setUp(Method m) throws Exception {
+    MockReferenceDataProvider refDataProvider = new MockReferenceDataProvider();
+    refDataProvider.addExpectedField("SECURITY_TYP");
+    refDataProvider.addResult("QQQQ US Equity", "SECURITY_TYP", "ETP");
+    refDataProvider.addResult("/buid/EQ0082335400001000", "SECURITY_TYP", "ETP");
     
-    File watchListFile = new File(BloombergRefDataCollectorTest.class.getResource(WATCH_LIST_FILE).getPath());
-    File fieldListFile = new File(BloombergRefDataCollectorTest.class.getResource(FIELD_LIST_FILE).getPath());
+    File watchListFile = new File(BloombergRefDataCollectorTest.class.getResource(WATCH_LIST_FILE).toURI());
+    File fieldListFile = new File(BloombergRefDataCollectorTest.class.getResource(FIELD_LIST_FILE).toURI());
     
     String outfileName = getClass().getSimpleName() + "-" + Thread.currentThread().getName() +
         "-" + OffsetDateTime.now(ZoneOffset.UTC).toString(DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss'Z'"));
@@ -60,7 +58,7 @@ public class BloombergRefDataCollectorTest {
     _outputFile = File.createTempFile(outfileName, null);
     _outputFile.deleteOnExit();
     
-    _refDataCollector = new BloombergRefDataCollector(s_fudgeContext, watchListFile, _refDataProvider, fieldListFile, _outputFile);
+    _refDataCollector = new BloombergRefDataCollector(s_fudgeContext, watchListFile, refDataProvider, fieldListFile, _outputFile);
     _refDataCollector.start();
   }
 

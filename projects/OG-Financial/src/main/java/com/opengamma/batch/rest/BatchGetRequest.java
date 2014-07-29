@@ -7,6 +7,7 @@ package com.opengamma.batch.rest;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -91,58 +92,6 @@ public class BatchGetRequest extends DirectBean {
     return BatchGetRequest.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -331744779:  // batchId
-        return getBatchId();
-      case -100490791:  // dataPagingRequest
-        return getDataPagingRequest();
-      case 704383035:  // errorPagingRequest
-        return getErrorPagingRequest();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -331744779:  // batchId
-        setBatchId((ObjectId) newValue);
-        return;
-      case -100490791:  // dataPagingRequest
-        setDataPagingRequest((PagingRequest) newValue);
-        return;
-      case 704383035:  // errorPagingRequest
-        setErrorPagingRequest((PagingRequest) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      BatchGetRequest other = (BatchGetRequest) obj;
-      return JodaBeanUtils.equal(getBatchId(), other.getBatchId()) &&
-          JodaBeanUtils.equal(getDataPagingRequest(), other.getDataPagingRequest()) &&
-          JodaBeanUtils.equal(getErrorPagingRequest(), other.getErrorPagingRequest());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBatchId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDataPagingRequest());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getErrorPagingRequest());
-    return hash;
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the unique identifier of the batch.
@@ -225,6 +174,54 @@ public class BatchGetRequest extends DirectBean {
    */
   public final Property<PagingRequest> errorPagingRequest() {
     return metaBean().errorPagingRequest().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public BatchGetRequest clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      BatchGetRequest other = (BatchGetRequest) obj;
+      return JodaBeanUtils.equal(getBatchId(), other.getBatchId()) &&
+          JodaBeanUtils.equal(getDataPagingRequest(), other.getDataPagingRequest()) &&
+          JodaBeanUtils.equal(getErrorPagingRequest(), other.getErrorPagingRequest());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getBatchId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDataPagingRequest());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getErrorPagingRequest());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(128);
+    buf.append("BatchGetRequest{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("batchId").append('=').append(JodaBeanUtils.toString(getBatchId())).append(',').append(' ');
+    buf.append("dataPagingRequest").append('=').append(JodaBeanUtils.toString(getDataPagingRequest())).append(',').append(' ');
+    buf.append("errorPagingRequest").append('=').append(JodaBeanUtils.toString(getErrorPagingRequest())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -318,6 +315,36 @@ public class BatchGetRequest extends DirectBean {
      */
     public final MetaProperty<PagingRequest> errorPagingRequest() {
       return _errorPagingRequest;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -331744779:  // batchId
+          return ((BatchGetRequest) bean).getBatchId();
+        case -100490791:  // dataPagingRequest
+          return ((BatchGetRequest) bean).getDataPagingRequest();
+        case 704383035:  // errorPagingRequest
+          return ((BatchGetRequest) bean).getErrorPagingRequest();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -331744779:  // batchId
+          ((BatchGetRequest) bean).setBatchId((ObjectId) newValue);
+          return;
+        case -100490791:  // dataPagingRequest
+          ((BatchGetRequest) bean).setDataPagingRequest((PagingRequest) newValue);
+          return;
+        case 704383035:  // errorPagingRequest
+          ((BatchGetRequest) bean).setErrorPagingRequest((PagingRequest) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

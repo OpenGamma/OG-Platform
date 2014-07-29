@@ -15,17 +15,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.volatility.VolatilityTermStructure;
 import com.opengamma.analytics.financial.model.volatility.curve.VolatilityCurve;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.math.curve.FunctionalDoublesCurve;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.util.monitor.OperationTimer;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * @deprecated This class tests deprecated functionality
+ * 
  */
-@Deprecated
+@Test(groups = TestGroup.UNIT)
 public class MultiCapFloorPricerTest extends CapletStrippingSetup {
   private static final Logger LOGGER = LoggerFactory.getLogger(MultiCapFloorPricerTest.class);
 
@@ -44,7 +45,7 @@ public class MultiCapFloorPricerTest extends CapletStrippingSetup {
 
   @Test
   public void priceTest() {
-    final YieldCurveBundle yieldCurve = getYieldCurves();
+    final MulticurveProviderDiscount yieldCurve = getYieldCurves();
 
     // for each strike make a set of caps at that strike
     final int nStrikes = getNumberOfStrikes();
@@ -64,7 +65,7 @@ public class MultiCapFloorPricerTest extends CapletStrippingSetup {
 
   @Test
   public void impVolTest() {
-    final YieldCurveBundle yieldCurve = getYieldCurves();
+    final MulticurveProviderDiscount yieldCurve = getYieldCurves();
 
     // for each strike make a set of caps at that strike
     final int nStrikes = getNumberOfStrikes();
@@ -87,7 +88,7 @@ public class MultiCapFloorPricerTest extends CapletStrippingSetup {
 
     final double eps = 1e-5;
 
-    final YieldCurveBundle yieldCurve = getYieldCurves();
+    final MulticurveProviderDiscount yieldCurve = getYieldCurves();
     final int nStrikes = getNumberOfStrikes();
     for (int strikeIndex = 0; strikeIndex < nStrikes; strikeIndex++) {
       final List<CapFloor> caps = getCaps(strikeIndex);
@@ -129,12 +130,12 @@ public class MultiCapFloorPricerTest extends CapletStrippingSetup {
     final int warmup = 1;
     final int benchmarkCycles = 0;
 
-    final YieldCurveBundle yieldCurve = getYieldCurves();
+    final MulticurveProviderDiscount yieldCurve = getYieldCurves();
 
     final int nStrikes = getNumberOfStrikes();
     final MultiCapFloorPricer[] multiPricers = new MultiCapFloorPricer[nStrikes];
     final CapFloorPricer[][] pricers = new CapFloorPricer[nStrikes][];
-    final List<List<CapFloor>> allCaps = new ArrayList<>(nStrikes);
+    //  final List<List<CapFloor>> allCaps = new ArrayList<>(nStrikes);
     for (int i = 0; i < nStrikes; i++) {
       final List<CapFloor> caps = getCaps(i);
       multiPricers[i] = new MultiCapFloorPricer(caps, yieldCurve);
@@ -193,7 +194,7 @@ public class MultiCapFloorPricerTest extends CapletStrippingSetup {
     final int warmup = 1;
     final int benchmarkCycles = 0;
 
-    final YieldCurveBundle yieldCurve = getYieldCurves();
+    final MulticurveProviderDiscount yieldCurve = getYieldCurves();
 
     final int nStrikes = getNumberOfStrikes();
     final MultiCapFloorPricer[] multiPricers = new MultiCapFloorPricer[nStrikes];

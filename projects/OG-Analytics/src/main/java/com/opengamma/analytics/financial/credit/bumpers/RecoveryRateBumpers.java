@@ -7,7 +7,9 @@ package com.opengamma.analytics.financial.credit.bumpers;
 
 /**
  * Class containing utilities for bumping recovery rates by user defined methods and amounts
+ *@deprecated this will be deleted 
  */
+@Deprecated
 public class RecoveryRateBumpers {
 
   // ------------------------------------------------------------------------------------------------------------------------------------------
@@ -42,7 +44,7 @@ public class RecoveryRateBumpers {
 
   public double[] getBumpedRecoveryRate(final double[] recoveryRate, final double recoveryRateBump, final RecoveryRateBumpType recoveryRateBumpType) {
 
-    double[] bumpedRecoveryRate = new double[recoveryRate.length];
+    final double[] bumpedRecoveryRate = new double[recoveryRate.length];
 
     switch (recoveryRateBumpType) {
       case ADDITIVE:

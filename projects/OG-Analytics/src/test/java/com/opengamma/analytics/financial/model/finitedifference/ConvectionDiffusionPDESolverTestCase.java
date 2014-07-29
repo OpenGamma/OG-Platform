@@ -10,6 +10,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.greeks.Greek;
@@ -35,12 +36,14 @@ import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
 import com.opengamma.analytics.math.surface.Surface;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class ConvectionDiffusionPDESolverTestCase {
 
   //private static final PDEDataBundleProvider PDE_DATA_PROVIDER = new PDEDataBundleProvider();

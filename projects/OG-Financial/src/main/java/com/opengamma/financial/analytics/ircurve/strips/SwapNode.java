@@ -7,6 +7,7 @@ package com.opengamma.financial.analytics.ircurve.strips;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -57,7 +58,7 @@ public class SwapNode extends CurveNode {
   /**
    * Whether to use fixings when constructing the swap
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private boolean _useFixings;
 
   /**
@@ -141,7 +142,7 @@ public class SwapNode extends CurveNode {
 
   @Override
   public Tenor getResolvedMaturity() {
-    return Tenor.of(_startTenor.getPeriod().plus(_maturityTenor.getPeriod())); //_maturityTenor;
+    return Tenor.of(_startTenor.getPeriod().plus(_maturityTenor.getPeriod()));
   }
 
   @Override
@@ -167,83 +168,6 @@ public class SwapNode extends CurveNode {
   @Override
   public SwapNode.Meta metaBean() {
     return SwapNode.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1583746178:  // startTenor
-        return getStartTenor();
-      case 45907375:  // maturityTenor
-        return getMaturityTenor();
-      case 774631511:  // payLegConvention
-        return getPayLegConvention();
-      case -560732676:  // receiveLegConvention
-        return getReceiveLegConvention();
-      case 1829944031:  // useFixings
-        return isUseFixings();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1583746178:  // startTenor
-        setStartTenor((Tenor) newValue);
-        return;
-      case 45907375:  // maturityTenor
-        setMaturityTenor((Tenor) newValue);
-        return;
-      case 774631511:  // payLegConvention
-        setPayLegConvention((ExternalId) newValue);
-        return;
-      case -560732676:  // receiveLegConvention
-        setReceiveLegConvention((ExternalId) newValue);
-        return;
-      case 1829944031:  // useFixings
-        setUseFixings((Boolean) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_startTenor, "startTenor");
-    JodaBeanUtils.notNull(_maturityTenor, "maturityTenor");
-    JodaBeanUtils.notNull(_payLegConvention, "payLegConvention");
-    JodaBeanUtils.notNull(_receiveLegConvention, "receiveLegConvention");
-    JodaBeanUtils.notNull(_useFixings, "useFixings");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      SwapNode other = (SwapNode) obj;
-      return JodaBeanUtils.equal(getStartTenor(), other.getStartTenor()) &&
-          JodaBeanUtils.equal(getMaturityTenor(), other.getMaturityTenor()) &&
-          JodaBeanUtils.equal(getPayLegConvention(), other.getPayLegConvention()) &&
-          JodaBeanUtils.equal(getReceiveLegConvention(), other.getReceiveLegConvention()) &&
-          JodaBeanUtils.equal(isUseFixings(), other.isUseFixings()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStartTenor());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMaturityTenor());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPayLegConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getReceiveLegConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isUseFixings());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -353,7 +277,7 @@ public class SwapNode extends CurveNode {
   //-----------------------------------------------------------------------
   /**
    * Gets whether to use fixings when constructing the swap
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public boolean isUseFixings() {
     return _useFixings;
@@ -361,10 +285,9 @@ public class SwapNode extends CurveNode {
 
   /**
    * Sets whether to use fixings when constructing the swap
-   * @param useFixings  the new value of the property, not null
+   * @param useFixings  the new value of the property
    */
   public void setUseFixings(boolean useFixings) {
-    JodaBeanUtils.notNull(useFixings, "useFixings");
     this._useFixings = useFixings;
   }
 
@@ -374,6 +297,63 @@ public class SwapNode extends CurveNode {
    */
   public final Property<Boolean> useFixings() {
     return metaBean().useFixings().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public SwapNode clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      SwapNode other = (SwapNode) obj;
+      return JodaBeanUtils.equal(getStartTenor(), other.getStartTenor()) &&
+          JodaBeanUtils.equal(getMaturityTenor(), other.getMaturityTenor()) &&
+          JodaBeanUtils.equal(getPayLegConvention(), other.getPayLegConvention()) &&
+          JodaBeanUtils.equal(getReceiveLegConvention(), other.getReceiveLegConvention()) &&
+          (isUseFixings() == other.isUseFixings()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getStartTenor());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMaturityTenor());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPayLegConvention());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getReceiveLegConvention());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isUseFixings());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(192);
+    buf.append("SwapNode{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("startTenor").append('=').append(JodaBeanUtils.toString(getStartTenor())).append(',').append(' ');
+    buf.append("maturityTenor").append('=').append(JodaBeanUtils.toString(getMaturityTenor())).append(',').append(' ');
+    buf.append("payLegConvention").append('=').append(JodaBeanUtils.toString(getPayLegConvention())).append(',').append(' ');
+    buf.append("receiveLegConvention").append('=').append(JodaBeanUtils.toString(getReceiveLegConvention())).append(',').append(' ');
+    buf.append("useFixings").append('=').append(JodaBeanUtils.toString(isUseFixings())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -499,6 +479,55 @@ public class SwapNode extends CurveNode {
      */
     public final MetaProperty<Boolean> useFixings() {
       return _useFixings;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1583746178:  // startTenor
+          return ((SwapNode) bean).getStartTenor();
+        case 45907375:  // maturityTenor
+          return ((SwapNode) bean).getMaturityTenor();
+        case 774631511:  // payLegConvention
+          return ((SwapNode) bean).getPayLegConvention();
+        case -560732676:  // receiveLegConvention
+          return ((SwapNode) bean).getReceiveLegConvention();
+        case 1829944031:  // useFixings
+          return ((SwapNode) bean).isUseFixings();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1583746178:  // startTenor
+          ((SwapNode) bean).setStartTenor((Tenor) newValue);
+          return;
+        case 45907375:  // maturityTenor
+          ((SwapNode) bean).setMaturityTenor((Tenor) newValue);
+          return;
+        case 774631511:  // payLegConvention
+          ((SwapNode) bean).setPayLegConvention((ExternalId) newValue);
+          return;
+        case -560732676:  // receiveLegConvention
+          ((SwapNode) bean).setReceiveLegConvention((ExternalId) newValue);
+          return;
+        case 1829944031:  // useFixings
+          ((SwapNode) bean).setUseFixings((Boolean) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((SwapNode) bean)._startTenor, "startTenor");
+      JodaBeanUtils.notNull(((SwapNode) bean)._maturityTenor, "maturityTenor");
+      JodaBeanUtils.notNull(((SwapNode) bean)._payLegConvention, "payLegConvention");
+      JodaBeanUtils.notNull(((SwapNode) bean)._receiveLegConvention, "receiveLegConvention");
+      super.validate(bean);
     }
 
   }

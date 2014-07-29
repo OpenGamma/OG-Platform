@@ -19,10 +19,12 @@ import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.data.ArrayInterpolator1DDataBundle;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.analytics.math.util.wrapper.CommonsMathWrapper;
+import com.opengamma.util.test.TestGroup;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class LogLinearWithSeasonalitiesInterpolator1DTest {
   private static final int NB_MONTH = 12;
   private static final double[] MONTHLY_FACTORS = {.01, .01, .01, .01, .01, .01, .01, .01, .01, .01, .01 };

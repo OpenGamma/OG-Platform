@@ -13,6 +13,7 @@ import static com.opengamma.financial.analytics.model.sabr.SABRPropertyValues.RI
 import static com.opengamma.financial.analytics.model.volatility.SmileFittingPropertyNamesAndValues.PROPERTY_VOLATILITY_MODEL;
 import static com.opengamma.financial.analytics.model.volatility.SmileFittingPropertyNamesAndValues.SABR;
 
+import java.util.Collection;
 import java.util.Set;
 
 import com.opengamma.engine.ComputationTarget;
@@ -23,13 +24,12 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
-import com.opengamma.financial.analytics.conversion.TradeConverter;
+import com.opengamma.financial.analytics.conversion.DefaultTradeConverter;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.util.money.Currency;
 
 /**
- * Base function for all pricing and risk functions that use SABR parameter surfaces
- * and curves constructed using the discounting method and right extrapolation.
+ * Base function for all pricing and risk functions that use SABR parameter surfaces and curves constructed using the discounting method and right extrapolation.
  */
 public abstract class RightExtrapolationSABRDiscountingFunction extends SABRDiscountingFunction {
 
@@ -41,8 +41,7 @@ public abstract class RightExtrapolationSABRDiscountingFunction extends SABRDisc
   }
 
   /**
-   * Base compiled function for all pricing and risk functions that use SABR parameter surfaces
-   * and curves constructed using the discounting method.
+   * Base compiled function for all pricing and risk functions that use SABR parameter surfaces and curves constructed using the discounting method.
    */
   protected abstract class RightExtrapolationSABRDiscountingCompiledFunction extends SABRDiscountingCompiledFunction {
 
@@ -51,16 +50,17 @@ public abstract class RightExtrapolationSABRDiscountingFunction extends SABRDisc
      * @param definitionToDerivativeConverter Converts definitions to derivatives, not null
      * @param withCurrency True if the result properties set the {@link ValuePropertyNames#CURRENCY} property.
      */
-    protected RightExtrapolationSABRDiscountingCompiledFunction(final TradeConverter tradeToDefinitionConverter,
-        final FixedIncomeConverterDataProvider definitionToDerivativeConverter, final boolean withCurrency) {
+    protected RightExtrapolationSABRDiscountingCompiledFunction(final DefaultTradeConverter tradeToDefinitionConverter, final FixedIncomeConverterDataProvider definitionToDerivativeConverter,
+        final boolean withCurrency) {
       super(tradeToDefinitionConverter, definitionToDerivativeConverter, withCurrency);
     }
 
     @Override
-    protected ValueProperties.Builder getResultProperties(final FunctionCompilationContext context, final ComputationTarget target) {
-      final ValueProperties.Builder properties = super.getResultProperties(context, target)
-          .withAny(PROPERTY_STRIKE_CUTOFF)
-          .withAny(PROPERTY_MU);
+    protected Collection<ValueProperties.Builder> getResultProperties(final FunctionCompilationContext context, final ComputationTarget target) {
+      final Collection<ValueProperties.Builder> properties = super.getResultProperties(context, target);
+      for (ValueProperties.Builder builder : properties) {
+        builder.withAny(PROPERTY_STRIKE_CUTOFF).withAny(PROPERTY_MU);
+      }
       return properties;
     }
 
@@ -73,13 +73,8 @@ public abstract class RightExtrapolationSABRDiscountingFunction extends SABRDisc
       final ValueProperties constraints = desiredValue.getConstraints();
       final Currency currency = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity());
       final Set<String> cube = constraints.getValues(CUBE);
-      final ValueProperties properties = ValueProperties.builder()
-          .with(CUBE, cube)
-          .with(CURRENCY, currency.getCode())
-          .with(PROPERTY_VOLATILITY_MODEL, SABR)
-          .get();
-      final ValueRequirement surfacesRequirement = new ValueRequirement(ValueRequirementNames.SABR_SURFACES,
-          ComputationTargetSpecification.of(currency), properties);
+      final ValueProperties properties = ValueProperties.builder().with(CUBE, cube).with(CURRENCY, currency.getCode()).with(PROPERTY_VOLATILITY_MODEL, SABR).get();
+      final ValueRequirement surfacesRequirement = new ValueRequirement(ValueRequirementNames.SABR_SURFACES, ComputationTargetSpecification.of(currency), properties);
       requirements.add(surfacesRequirement);
       return requirements;
     }

@@ -9,12 +9,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.ConcurrentMap;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.core.io.Resource;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ResourceUtils;
 
 /**
@@ -37,7 +35,7 @@ public class ComponentConfigPropertiesLoader extends AbstractComponentConfigLoad
    * @param logger  the logger, not null
    * @param properties  the properties being built up, not null
    */
-  public ComponentConfigPropertiesLoader(ComponentLogger logger, ConcurrentMap<String, String> properties) {
+  public ComponentConfigPropertiesLoader(ComponentLogger logger, ConfigProperties properties) {
     super(logger, properties);
   }
 
@@ -47,13 +45,14 @@ public class ComponentConfigPropertiesLoader extends AbstractComponentConfigLoad
    * 
    * @param resource  the config resource to load, not null
    * @param depth  the depth of the properties file, used for logging
-   * @return the combined set of properties, not null
+   * @return the next configuration file to load, null if not specified
+   * @throws ComponentConfigException if the resource cannot be loaded
    */
   public String load(final Resource resource, final int depth) {
     try {
       return doLoad(resource, depth);
     } catch (RuntimeException ex) {
-      throw new OpenGammaRuntimeException("Unable to load properties file: " + resource, ex);
+      throw new ComponentConfigException("Unable to load properties file: " + resource, ex);
     }
   }
 
@@ -62,7 +61,8 @@ public class ComponentConfigPropertiesLoader extends AbstractComponentConfigLoad
    * 
    * @param resource  the config resource to load, not null
    * @param depth  the depth of the properties file, used for logging
-   * @return the combined set of properties, not null
+   * @return the next configuration file to load, null if not specified
+   * @throws ComponentConfigException if the resource cannot be loaded
    */
   private String doLoad(final Resource resource, final int depth) {
     final Map<String, String> fileProperties = new HashMap<String, String>();
@@ -76,28 +76,28 @@ public class ComponentConfigPropertiesLoader extends AbstractComponentConfigLoad
       }
       int equalsPosition = line.indexOf('=');
       if (equalsPosition < 0) {
-        throw new OpenGammaRuntimeException("Invalid format, line " + lineNum);
+        throw new ComponentConfigException("Invalid format, line " + lineNum);
       }
       String key = line.substring(0, equalsPosition).trim();
       String value = line.substring(equalsPosition + 1).trim();
       if (key.length() == 0) {
-        throw new IllegalArgumentException("Invalid empty key, line " + lineNum);
+        throw new ComponentConfigException("Invalid empty key, line " + lineNum);
       }
       if (fileProperties.containsKey(key)) {
-        throw new IllegalArgumentException("Invalid file, key '" + key + "' specified twice, line " + lineNum);
+        throw new ComponentConfigException("Invalid file, key '" + key + "' specified twice, line " + lineNum);
       }
       
       // resolve ${} references
-      value = resolveProperty(value, lineNum);
+      ConfigProperty resolved = getProperties().resolveProperty(key, value, lineNum);
       
       // handle includes
       if (key.equals(ComponentManager.MANAGER_INCLUDE)) {
-        handleInclude(resource, value, depth);
+        handleInclude(resource, resolved.getValue(), depth);
       } else {
         // store property
-        fileProperties.put(key, value);
+        fileProperties.put(key, resolved.getValue());
         if (key.equals(ComponentManager.MANAGER_NEXT_FILE) == false) {
-          getProperties().putIfAbsent(key, value);  // first definition wins
+          getProperties().addIfAbsent(resolved);  // first definition wins
         }
       }
     }
@@ -110,6 +110,7 @@ public class ComponentConfigPropertiesLoader extends AbstractComponentConfigLoad
    * @param baseResource  the base resource, not null
    * @param includeFile  the resource to include, not null
    * @param depth  the depth of the properties file, used for logging
+   * @throws ComponentConfigException if the included resource cannot be loaded
    */
   private void handleInclude(final Resource baseResource, String includeFile, final int depth) {
     // find resource
@@ -120,7 +121,7 @@ public class ComponentConfigPropertiesLoader extends AbstractComponentConfigLoad
       try {
         include = baseResource.createRelative(includeFile);
       } catch (Exception ex2) {
-        throw new OpenGammaRuntimeException(ex2.getMessage(), ex2);
+        throw new ComponentConfigException(ex2.getMessage(), ex2);
       }
     }
     

@@ -12,16 +12,17 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.volatility.VolatilityTermStructure;
 import com.opengamma.analytics.financial.model.volatility.curve.VolatilityCurve;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.math.curve.FunctionalDoublesCurve;
 import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * @deprecated This class tests deprecated functionality
+ * 
  */
-@Deprecated
+@Test(groups = TestGroup.UNIT)
 public class CapletStrippingBootstrapTest extends CapletStrippingSetup {
 
   @Test
@@ -32,7 +33,7 @@ public class CapletStrippingBootstrapTest extends CapletStrippingSetup {
       System.out.println("CapletStrippingBootstrapTest");
     }
     final int nSamples = 101;
-    final YieldCurveBundle yieldCurve = getYieldCurves();
+    final MulticurveProviderDiscount yieldCurve = getYieldCurves();
     final int n = getNumberOfStrikes();
 
     final double[][] curve = new double[nSamples][n];
@@ -44,7 +45,7 @@ public class CapletStrippingBootstrapTest extends CapletStrippingSetup {
       final double[] capletVols = bootstrap.capletVolsFromCapVols(capVols);
 
       final MultiCapFloorPricer pricer = new MultiCapFloorPricer(caps, yieldCurve);
-      final VolatilityTermStructure volCurve = getPiecewise(capletVols,bootstrap.getEndTimes());
+      final VolatilityTermStructure volCurve = getPiecewise(capletVols, bootstrap.getEndTimes());
       final double[] fittedCapVols = pricer.impliedVols(volCurve);
       final int m = fittedCapVols.length;
 
@@ -63,6 +64,11 @@ public class CapletStrippingBootstrapTest extends CapletStrippingSetup {
 
     if (print) {
       System.out.print("\n");
+      final double[] strikes = getStrikes();
+      for (int i = 0; i < n; i++) {
+        System.out.print("\t" + strikes[i]);
+      }
+      System.out.print("\n");
       for (int index = 0; index < nSamples; index++) {
         final double t = index * 10.0 / (nSamples - 1);
         System.out.print(t);
@@ -75,7 +81,7 @@ public class CapletStrippingBootstrapTest extends CapletStrippingSetup {
 
   }
 
-  private VolatilityTermStructure getPiecewise(final double[] capletVols,  final double[] endTimes) {
+  private VolatilityTermStructure getPiecewise(final double[] capletVols, final double[] endTimes) {
     final int n = capletVols.length;
     final Function1D<Double, Double> func = new Function1D<Double, Double>() {
 

@@ -14,10 +14,12 @@ import cern.jet.random.engine.MersenneTwister;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.statistics.distribution.GammaDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class GammaDistributionMomentEstimatorTest {
   private static final Function1D<double[], ProbabilityDistribution<Double>> CALCULATOR = new GammaDistributionMomentEstimator();
 

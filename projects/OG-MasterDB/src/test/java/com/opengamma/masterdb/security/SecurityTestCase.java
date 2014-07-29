@@ -8,6 +8,7 @@ package com.opengamma.masterdb.security;
 import static org.testng.AssertJUnit.assertNotNull;
 
 import java.lang.reflect.Constructor;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -17,13 +18,15 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import org.apache.commons.lang.RandomStringUtils;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
-import org.joda.beans.PropertyReadWrite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
@@ -35,13 +38,17 @@ import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.region.Region;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
@@ -80,6 +87,13 @@ import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
+import com.opengamma.financial.security.index.BondIndex;
+import com.opengamma.financial.security.index.BondIndexComponent;
+import com.opengamma.financial.security.index.EquityIndex;
+import com.opengamma.financial.security.index.EquityIndexComponent;
+import com.opengamma.financial.security.index.IborIndex;
+import com.opengamma.financial.security.index.IndexFamily;
+import com.opengamma.financial.security.index.OvernightIndex;
 import com.opengamma.financial.security.option.AmericanExerciseType;
 import com.opengamma.financial.security.option.AsianExerciseType;
 import com.opengamma.financial.security.option.AssetOrNothingPayoffStyle;
@@ -137,15 +151,17 @@ import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.RawSecurity;
 import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.time.ExpiryAccuracy;
 import com.opengamma.util.time.Tenor;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Creates random securities.
  */
 @SuppressWarnings("unchecked")
+@Test(groups = TestGroup.UNIT)
 public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter implements SecurityTestCaseMethods {
 
   private static final Logger s_logger = LoggerFactory.getLogger(SecurityTestCase.class);
@@ -274,23 +290,66 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
       }
     });
     s_dataProviders.put(Map.class, new TestDataProvider<Map<?, ?>>() {
-      private Map<?, ?> generateRandomMap(int count){
+      private Map<?, ?> generateRandomMap(int count) {
         Map<String, String> map = new HashMap<String, String>(count);
-        while(count>0){
+        while (count > 0) {
           map.put(RandomStringUtils.randomAlphanumeric(16), RandomStringUtils.randomAlphanumeric(16));
           count--;
         }
         return map;
       }
+
       @Override
       public void getValues(final Collection<Map<?, ?>> values) {
-        Random random = new Random();
-        double qty = 1 + random.nextInt(9);
-        while(qty>0){
-          values.add(generateRandomMap(1 + random.nextInt(9)));
+        double qty = 1 + s_random.nextInt(9);
+        while (qty > 0) {
+          values.add(generateRandomMap(1 + s_random.nextInt(9)));
           qty--;
         }
         values.add(new HashMap<Object, Object>());
+      }
+    });
+    s_dataProviders.put(SortedMap.class, new TestDataProvider<SortedMap<Tenor, ExternalId>>() {
+      private SortedMap<Tenor, ExternalId> generateRandomMap(int count) {
+        SortedMap<Tenor, ExternalId> map = new TreeMap<Tenor, ExternalId>();
+        while (count > 0) {
+          Tenor tenor;
+          switch (s_random.nextInt(3)) {
+            case 0:
+              tenor = Tenor.ofDays(s_random.nextInt(28) + 1);
+              break;
+            case 1:
+              tenor = Tenor.ofMonths(s_random.nextInt(12) + 1);
+              break;
+            case 2:
+              tenor = Tenor.ofYears(s_random.nextInt(20) + 2000);
+              break;
+            default:
+              throw new OpenGammaRuntimeException("Should never happen");
+          }
+          map.put(tenor, ExternalId.of(RandomStringUtils.randomAlphanumeric(16), RandomStringUtils.randomAlphanumeric(16)));
+          count--;
+        }
+        return map;
+      }
+
+      @Override
+      public void getValues(final Collection<SortedMap<Tenor, ExternalId>> values) {
+        double qty = 1 + s_random.nextInt(9);
+        while (qty > 0) {
+          values.add(generateRandomMap(1 + s_random.nextInt(9)));
+          qty--;
+        }
+        values.add(new TreeMap<Tenor, ExternalId>());
+      }
+    });
+    s_dataProviders.put(Set.class, new TestDataProvider<Set<String>>() {
+
+      @Override
+      public void getValues(Collection<Set<String>> values) {
+        values.add(Sets.newHashSet(getRandomPermissions()));
+        values.add(Sets.newHashSet(getRandomPermissions()));
+        values.add(Sets.newHashSet(getRandomPermissions()));
       }
     });
     s_dataProviders.put(Double.class, provider = new TestDataProvider<Double>() {
@@ -328,12 +387,12 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
                 ExternalId.of(RandomStringUtils.randomAlphanumeric(8), RandomStringUtils.randomAlphanumeric(16))));
         values.add(
             ExternalIdBundle.of(
-                ExternalId.of(RandomStringUtils.randomAlphanumeric(8), RandomStringUtils.randomAlphanumeric(16)), 
+                ExternalId.of(RandomStringUtils.randomAlphanumeric(8), RandomStringUtils.randomAlphanumeric(16)),
                 ExternalId.of(RandomStringUtils.randomAlphanumeric(8), RandomStringUtils.randomAlphanumeric(16))));
         values.add(
             ExternalIdBundle.of(
-                ExternalId.of(RandomStringUtils.randomAlphanumeric(8), RandomStringUtils.randomAlphanumeric(16)), 
-                ExternalId.of(RandomStringUtils.randomAlphanumeric(8), RandomStringUtils.randomAlphanumeric(16)), 
+                ExternalId.of(RandomStringUtils.randomAlphanumeric(8), RandomStringUtils.randomAlphanumeric(16)),
+                ExternalId.of(RandomStringUtils.randomAlphanumeric(8), RandomStringUtils.randomAlphanumeric(16)),
                 ExternalId.of(RandomStringUtils.randomAlphanumeric(8), RandomStringUtils.randomAlphanumeric(16))));
       }
     });
@@ -347,13 +406,13 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
       @Override
       public void getValues(final Collection<YieldConvention> values) {
         values.add(SimpleYieldConvention.US_STREET);
-        values.add(SimpleYieldConvention.US_TREASURY_EQUIVALANT);
+        values.add(SimpleYieldConvention.US_TREASURY_EQUIVALENT);
         values.add(SimpleYieldConvention.TRUE);
       }
     });
     s_dataProviders.put(Expiry.class, DefaultObjectPermute.of(Expiry.class));
     s_dataProviders.put(ZonedDateTime.class, new TestDataProvider<ZonedDateTime>() {
-      private final ZoneId[] _timezones = new ZoneId[] {ZoneOffset.UTC, ZoneId.of("UTC-01:00"), ZoneId.of("UTC+01:00")};
+      private final ZoneId[] _timezones = new ZoneId[] {ZoneOffset.UTC, ZoneId.of("UTC-01:00"), ZoneId.of("UTC+01:00") };
 
       @Override
       public void getValues(final Collection<ZonedDateTime> values) {
@@ -412,17 +471,17 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
     s_dataProviders.put(DayCount.class, new TestDataProvider<DayCount>() {
       @Override
       public void getValues(final Collection<DayCount> values) {
-        values.add(DayCountFactory.INSTANCE.getDayCount("Act/Act"));
-        values.add(DayCountFactory.INSTANCE.getDayCount("1/1"));
-        values.add(DayCountFactory.INSTANCE.getDayCount("Bond Basis"));
+        values.add(DayCounts.ACT_ACT_ISDA);
+        values.add(DayCountFactory.of("1/1"));
+        values.add(DayCountFactory.of("Bond Basis"));
       }
     });
     s_dataProviders.put(BusinessDayConvention.class, new TestDataProvider<BusinessDayConvention>() {
       @Override
       public void getValues(final Collection<BusinessDayConvention> values) {
-        values.add(BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"));
-        values.add(BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following"));
-        values.add(BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Preceding"));
+        values.add(BusinessDayConventions.FOLLOWING);
+        values.add(BusinessDayConventions.MODIFIED_FOLLOWING);
+        values.add(BusinessDayConventions.PRECEDING);
       }
     });
     s_dataProviders.put(GICSCode.class, new TestDataProvider<GICSCode>() {
@@ -432,8 +491,8 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
         values.add(GICSCode.of(Integer.toString(code)));
       }
     });
-    s_dataProviders.put(Pair.of(BondFutureSecurity.class, Collection.class), DefaultCollection.of(ArrayList.class, BondFutureDeliverable.class));
-    s_dataProviders.put(Pair.of(BondFutureSecurity.class, List.class), DefaultList.of(ArrayList.class, BondFutureDeliverable.class));
+    s_dataProviders.put(Pairs.of(BondFutureSecurity.class, Collection.class), DefaultCollection.of(ArrayList.class, BondFutureDeliverable.class));
+    s_dataProviders.put(Pairs.of(BondFutureSecurity.class, List.class), DefaultList.of(ArrayList.class, BondFutureDeliverable.class));
     s_dataProviders.put(ExerciseType.class, new TestDataProvider<ExerciseType>() {
       @Override
       public void getValues(final Collection<ExerciseType> values) {
@@ -497,6 +556,13 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
         values.addAll(permuteTestObjects(SecurityNotional.class));
       }
     });
+    s_dataProviders.put(BigDecimal.class, new TestDataProvider<BigDecimal>() {
+      @Override
+      public void getValues(final Collection<BigDecimal> values) {
+        values.add(BigDecimal.ONE);
+      }
+    });
+
     s_dataProviders.put(InterestRateNotional.class, new TestDataProvider<Notional>() {
       @Override
       public void getValues(final Collection<Notional> values) {
@@ -506,7 +572,7 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
     s_dataProviders.put(byte[].class, new TestDataProvider<byte[]>() {
       @Override
       public void getValues(Collection<byte[]> values) {
-        
+
         values.add(getRandomBytes());
       }
 
@@ -544,7 +610,7 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
       public void getValues(Collection<CreditDefaultSwapIndexComponent> values) {
         values.add(new CreditDefaultSwapIndexComponent(null, null, null, null));
       }
-      
+
     });
     s_dataProviders.put(CDSIndexComponentBundle.class, new TestDataProvider<CDSIndexComponentBundle>() {
       @Override
@@ -556,6 +622,12 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
         values.add(CDSIndexComponentBundle.of(permuteTestObjects(CreditDefaultSwapIndexComponent.class)));
       }
     });
+    s_dataProviders.put(Pairs.of(BondIndex.class, Collection.class), DefaultCollection.of(ArrayList.class, BondIndexComponent.class));
+    s_dataProviders.put(Pairs.of(BondIndex.class, List.class), DefaultList.of(ArrayList.class, BondIndexComponent.class));
+    s_dataProviders.put(Pairs.of(EquityIndex.class, Collection.class), DefaultCollection.of(ArrayList.class, EquityIndexComponent.class));
+    s_dataProviders.put(Pairs.of(EquityIndex.class, List.class), DefaultList.of(ArrayList.class, EquityIndexComponent.class));
+    s_dataProviders.put(Pairs.of(IndexFamily.class, Collection.class), DefaultCollection.of(ArrayList.class, IndexFamily.class));
+    s_dataProviders.put(Pairs.of(IndexFamily.class, List.class), DefaultList.of(ArrayList.class, IndexFamily.class));
   }
 
   protected static <T> List<T> getTestObjects(final Class<T> clazz, final Class<?> parent) {
@@ -567,9 +639,9 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
     } else {
       final Object key;
       if (Collection.class.equals(clazz)) {
-        key = Pair.of(parent, clazz);
+        key = Pairs.of(parent, clazz);
       } else if (List.class.equals(clazz)) {
-        key = Pair.of(parent, clazz);
+        key = Pairs.of(parent, clazz);
       } else {
         key = clazz;
       }
@@ -581,6 +653,13 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
     }
     Collections.shuffle(objects);
     return objects;
+  }
+
+  @SuppressWarnings("rawtypes")
+  private static List getRandomPermissions() {
+    final List permissions = Lists.newArrayList();
+    s_dataProviders.get(String.class).getValues(permissions);
+    return permissions;
   }
 
   private static <T> Constructor<T> getBiggestConstructor(final Class<T> clazz) {
@@ -647,17 +726,22 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
     intializeClass(clazz);
     MetaBean mb = JodaBeanUtils.metaBean(clazz);
     List<MetaProperty<?>> mps = new ArrayList<MetaProperty<?>>(mb.metaPropertyMap().values());
-    
+
     // find the longest set of available data
     final List<?>[] parameterValues = new List<?>[mps.size()];
     int longest = 0;
     for (int i = 0; i < mps.size(); i++) {
-      parameterValues[i] = getTestObjects(mps.get(i).propertyType(), clazz);
+      MetaProperty<?> metaProperty = mps.get(i);
+      if (metaProperty.style().isSerializable() && "permissions".equals(metaProperty.name())) {
+        parameterValues[i] = getTestObjects(metaProperty.propertyType(), null);
+      } else {
+        parameterValues[i] = getTestObjects(metaProperty.propertyType(), clazz);
+      }
       if (parameterValues[i].size() > longest) {
         longest = parameterValues[i].size();
       }
     }
-    
+
     // prepare
     final List<Throwable> exceptions = new ArrayList<Throwable>();
     final Collection<T> objects = new ArrayList<T>();
@@ -669,7 +753,7 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
           Object value = parameterValues[j].get(parameterIndex[j]);
           parameterIndex[j] = (parameterIndex[j] + 1) % parameterValues[j].size();
           MetaProperty<?> metaProperty = mps.get(j);
-          if (metaProperty.readWrite() != PropertyReadWrite.READ_ONLY) {
+          if (metaProperty.style().isSerializable() && metaProperty.name().equals("securityType") == false) {
             builder.set(metaProperty.name(), value);
           }
         }
@@ -727,6 +811,16 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
       } catch (final Throwable t) {
         // Ignore
       }
+      try {
+        securityType = (String) c.getDeclaredField("INDEX_TYPE").get(null);
+      } catch (final Throwable t) {
+        // Ignore
+      }
+      try {
+        securityType = (String) c.getDeclaredField("METADATA_TYPE").get(null);
+      } catch (final Throwable t) {
+        // Ignore
+      }
       c = c.getSuperclass();
     }
     if (securityClass != RawSecurity.class) {
@@ -755,241 +849,201 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
   // SecurityMasterTestCaseMethods
 
   @Override
-  @Test
   public void testAgricultureFutureSecurity() {
     assertSecurities(AgricultureFutureSecurity.class);
   }
 
   @Override
-  @Test
   public void testBondFutureSecurity() {
     assertSecurities(BondFutureSecurity.class);
   }
 
   @Override
-  @Test
   public void testCashSecurity() {
     assertSecurities(CashSecurity.class);
   }
 
   @Override
-  @Test
   public void testCorporateBondSecurity() {
     assertSecurities(CorporateBondSecurity.class);
   }
 
   @Override
-  @Test
   public void testEnergyFutureSecurity() {
     assertSecurities(EnergyFutureSecurity.class);
   }
 
   @Override
-  @Test
   public void testEquityOptionSecurity() {
     assertSecurities(EquityOptionSecurity.class);
   }
-  
+
   @Override
-  @Test
   public void testEquityBarrierOptionSecurity() {
     assertSecurities(EquityBarrierOptionSecurity.class);
   }
 
   @Override
-  @Test
   public void testEquitySecurity() {
     assertSecurities(EquitySecurity.class);
   }
 
   @Override
-  @Test
   public void testFRASecurity() {
     assertSecurities(FRASecurity.class);
   }
 
   @Override
-  @Test
   public void testFXFutureSecurity() {
     assertSecurities(FXFutureSecurity.class);
   }
 
   @Override
-  @Test
   public void testFXOptionSecurity() {
     assertSecurities(FXOptionSecurity.class);
   }
-  
+
   @Override
-  @Test
   public void testNonDeliverableFXOptionSecurity() {
     assertSecurities(NonDeliverableFXOptionSecurity.class);
   }
-  
+
   @Override
-  @Test
   public void testFXBarrierOptionSecurity() {
     assertSecurities(FXBarrierOptionSecurity.class);
   }
 
   @Override
-  @Test
   public void testForwardSwapSecurity() {
     assertSecurities(ForwardSwapSecurity.class);
   }
 
   @Override
-  @Test
   public void testIRFutureOptionSecurity() {
     assertSecurities(IRFutureOptionSecurity.class);
   }
 
   @Override
-  @Test
   public void testEquityIndexDividendFutureOptionSecurity() {
     assertSecurities(EquityIndexDividendFutureOptionSecurity.class);
   }
-  
+
   @Override
-  @Test
   public void testGovernmentBondSecurity() {
     assertSecurities(GovernmentBondSecurity.class);
   }
 
   @Override
-  @Test
   public void testIndexFutureSecurity() {
     assertSecurities(IndexFutureSecurity.class);
   }
 
   @Override
-  @Test
   public void testInterestRateFutureSecurity() {
     assertSecurities(InterestRateFutureSecurity.class);
   }
 
   @Override
-  @Test
   public void testMetalFutureSecurity() {
     assertSecurities(MetalFutureSecurity.class);
   }
 
   @Override
-  @Test
   public void testMunicipalBondSecurity() {
     assertSecurities(MunicipalBondSecurity.class);
   }
 
   @Override
-  @Test
   public void testStockFutureSecurity() {
     assertSecurities(StockFutureSecurity.class);
   }
 
   @Override
-  @Test
   public void testSwaptionSecurity() {
     assertSecurities(SwaptionSecurity.class);
   }
 
   @Override
-  @Test
   public void testSwapSecurity() {
     assertSecurities(SwapSecurity.class);
   }
 
   @Override
-  @Test
   public void testEquityIndexOptionSecurity() {
     assertSecurities(EquityIndexOptionSecurity.class);
   }
-  
+
   @Override
-  @Test
   public void testFXDigitalOptionSecurity() {
     assertSecurities(FXDigitalOptionSecurity.class);
   }
 
   @Override
-  @Test
   public void testFXForwardSecurity() {
     assertSecurities(FXForwardSecurity.class);
   }
-  
+
   @Override
-  @Test
   public void testNonDeliverableFXForwardSecurity() {
     assertSecurities(NonDeliverableFXForwardSecurity.class);
   }
-  
+
   @Override
-  @Test
   public void testCapFloorSecurity() {
     assertSecurities(CapFloorSecurity.class);
   }
 
   @Override
-  @Test
   public void testCapFloorCMSSpreadSecurity() {
     assertSecurities(CapFloorCMSSpreadSecurity.class);
   }
-  
+
   @Override
-  @Test
   public void testRawSecurity() {
     assertSecurities(RawSecurity.class);
   }
 
   @Override
-  @Test
   public void testEquityVarianceSwapSecurity() {
     assertSecurities(EquityVarianceSwapSecurity.class);
   }
-  
+
   @Override
-  @Test
   public void testCDSSecurity() {
     assertSecurities(CDSSecurity.class);
   }
 
   @Override
-  @Test
   public void testStandardFixedRecoveryCDSSecurity() {
     assertSecurities(StandardFixedRecoveryCDSSecurity.class);
   }
-  
+
   @Override
-  @Test
   public void testStandardRecoveryLockCDSSecurity() {
     assertSecurities(StandardRecoveryLockCDSSecurity.class);
   }
 
   @Override
-  @Test
   public void testStandardVanillaCDSSecurity() {
     assertSecurities(StandardVanillaCDSSecurity.class);
   }
 
   @Override
-  @Test
   public void testLegacyFixedRecoveryCDSSecurity() {
     assertSecurities(LegacyFixedRecoveryCDSSecurity.class);
   }
 
   @Override
-  @Test
   public void testLegacyRecoveryLockCDSSecurity() {
     assertSecurities(LegacyRecoveryLockCDSSecurity.class);
   }
 
   @Override
-  @Test
   public void testLegacyVanillaCDSSecurity() {
     assertSecurities(LegacyVanillaCDSSecurity.class);
   }
 
   @Override
-  @Test
   public void testCashFlowSecurity() {
     assertSecurities(CashFlowSecurity.class);
   }
@@ -1008,5 +1062,30 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
   public void testCreditDefaultSwapOptionSecurity() {
     assertSecurities(CreditDefaultSwapOptionSecurity.class);
   }
-  
+
+  @Override
+  public void testBondIndex() {
+    assertSecurities(BondIndex.class);
+  }
+
+  @Override
+  public void testEquityIndex() {
+    assertSecurities(EquityIndex.class);
+  }
+
+  @Override
+  public void testIborIndex() {
+    assertSecurities(IborIndex.class);
+  }
+
+  @Override
+  public void testOvernightIndex() {
+    assertSecurities(OvernightIndex.class);
+  }
+
+  @Override
+  public void testIndexFamily() {
+    assertSecurities(IndexFamily.class);
+  }
+
 }

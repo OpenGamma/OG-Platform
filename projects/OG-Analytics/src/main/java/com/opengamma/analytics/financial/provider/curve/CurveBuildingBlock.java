@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.curve;
@@ -20,11 +20,13 @@ public class CurveBuildingBlock {
 
   /**
    * The list of curve in the block as a map: Name to a pair of integers:
-   *   1) Start of the curve parameters in the array of all parameters of the block. 2) Number of parameters in the curve
+   *   1) Start of the curve parameters in the array of all parameters of the block. 
+   *   2) Number of parameters in the curve
    */
   private final LinkedHashMap<String, Pair<Integer, Integer>> _unit;
 
   // TODO: Replace the curve names by some curve ID, maybe some UniqueIdentifiable objects
+  // Review: maybe a 'copy' method would be useful.
 
   /**
    * Constructor.
@@ -42,10 +44,6 @@ public class CurveBuildingBlock {
     _unit = new LinkedHashMap<>();
     _unit.putAll(block);
   }
-
-  //  public void add(String name, int start, int number) {
-  //    _unit.put(name, new ObjectsPair<Integer, Integer>(start, number));
-  //  }
 
   /**
    * Returns the start index of the given string in the array of all parameters.

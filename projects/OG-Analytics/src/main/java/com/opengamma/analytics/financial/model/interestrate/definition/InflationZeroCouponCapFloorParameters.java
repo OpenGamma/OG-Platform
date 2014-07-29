@@ -1,11 +1,13 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.interestrate.definition;
 
 import java.util.Arrays;
+
+import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.util.ArgumentChecker;
@@ -14,7 +16,7 @@ import com.opengamma.util.ArgumentChecker;
  * Data bundle related to the zero coupon inflation cap/floor in price index market model.
  */
 public class InflationZeroCouponCapFloorParameters {
-  
+
   /**
    * The expiry times (for inflation this is the fixing time of the underlying CPI).
    */
@@ -39,8 +41,10 @@ public class InflationZeroCouponCapFloorParameters {
    */
   private static final double TIME_TOLERANCE = 1.0E-3;
 
+  /**
+   * Sets the expiry time to zero and initialises other parameters with empty arrays.
+   */
   public InflationZeroCouponCapFloorParameters() {
-
     _expiryTimes = new double[1];
     _strikes = new double[0];
     _volatility = new double[0][0];
@@ -49,12 +53,12 @@ public class InflationZeroCouponCapFloorParameters {
 
   /**
    * Constructor from the model details.
-   * @param expiryTimes The expiry times (for inflation this is the fixing time of the underlying CPI). 
+   * @param expiryTimes The expiry times (for inflation this is the fixing time of the underlying CPI).
    * @param strikes The strikes.
    * @param volatility The volatility of the zero coupon cap/floor.
    * @param index The price index.
    */
-  public InflationZeroCouponCapFloorParameters(double[] expiryTimes, double[] strikes, final double[][] volatility, IndexPrice index) {
+  public InflationZeroCouponCapFloorParameters(final double[] expiryTimes, final double[] strikes, final double[][] volatility, final IndexPrice index) {
     ArgumentChecker.notNull(expiryTimes, "Inflation zero coupon options expiry times");
     ArgumentChecker.notNull(strikes, "Inflation zero coupon options strikes");
     ArgumentChecker.notNull(volatility, "Inflation zero coupon options volatilities");
@@ -71,7 +75,7 @@ public class InflationZeroCouponCapFloorParameters {
    * @return The Inflation year on year option parameters.
    */
   public InflationYearOnYearCapFloorParameters copy() {
-    double[][] vol = new double[_volatility.length][];
+    final double[][] vol = new double[_volatility.length][];
     for (int loopperiod = 0; loopperiod < _volatility.length; loopperiod++) {
       vol[loopperiod] = _volatility[loopperiod].clone();
     }
@@ -126,6 +130,10 @@ public class InflationZeroCouponCapFloorParameters {
     return _volatility;
   }
 
+  /**
+   * Gets the time tolerance.
+   * @return The time tolerance
+   */
   public double getTimeTolerance() {
     return TIME_TOLERANCE;
   }
@@ -135,7 +143,7 @@ public class InflationZeroCouponCapFloorParameters {
    * @param volatility The changed volatility.
    * @param expiryIndex The start index for the block to change.
    */
-  public final void setVolatility(double[][] volatility, int expiryIndex) {
+  public final void setVolatility(final double[][] volatility, final int expiryIndex) {
     ArgumentChecker.notNull(volatility, "LMM volatility");
     ArgumentChecker.isTrue(volatility[0].length == _strikes.length, "LMM: incorrect number of factors");
     for (int loopperiod = 0; loopperiod < volatility.length; loopperiod++) {
@@ -173,5 +181,39 @@ public class InflationZeroCouponCapFloorParameters {
     System.arraycopy(strikes, 0, _strikes, startIndex, strikes.length);
   }
 
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + Arrays.hashCode(_expiryTimes);
+    result = prime * result + _index.hashCode();
+    result = prime * result + Arrays.hashCode(_strikes);
+    result = prime * result + Arrays.hashCode(_volatility);
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!(obj instanceof InflationZeroCouponCapFloorParameters)) {
+      return false;
+    }
+    final InflationZeroCouponCapFloorParameters other = (InflationZeroCouponCapFloorParameters) obj;
+    if (!Arrays.equals(_expiryTimes, other._expiryTimes)) {
+      return false;
+    }
+    if (!Arrays.equals(_strikes, other._strikes)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_index, other._index)) {
+      return false;
+    }
+    if (!Arrays.deepEquals(_volatility, other._volatility)) {
+      return false;
+    }
+    return true;
+  }
 
 }

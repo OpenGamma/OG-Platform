@@ -22,8 +22,12 @@ import com.opengamma.financial.analytics.model.black.BlackDiscountingPVSwaptionF
  */
 @Deprecated
 public class SwaptionBlackPresentValueFunction extends SwaptionBlackFunction {
+  /** The present value calculator */
   private static final PresentValueBlackCalculator CALCULATOR = PresentValueBlackCalculator.getInstance();
 
+  /**
+   * Sets the value requirement name to {@link ValueRequirementNames#PRESENT_VALUE}
+   */
   public SwaptionBlackPresentValueFunction() {
     super(ValueRequirementNames.PRESENT_VALUE);
   }

@@ -16,7 +16,7 @@ import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionDefinition;
-import com.opengamma.engine.function.FunctionReinitializer;
+import com.opengamma.financial.config.AbstractConfigChangeProvider;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
@@ -26,7 +26,10 @@ import com.opengamma.util.ClassUtils;
  * A {@link WatchSetProvider} that translate a configuration type identifier to object identifiers for the type instances.
  * <p>
  * This can be used for re-initialization of functions that look up configuration items by name.
+ * 
+ * @deprecated Use a sub-class of {@link AbstractConfigChangeProvider} to notify the {@link ViewProcessorManager} of changes instead
  */
+@Deprecated
 public class ConfigDocumentWatchSetProvider implements WatchSetProvider {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ConfigDocumentWatchSetProvider.class);
@@ -34,7 +37,7 @@ public class ConfigDocumentWatchSetProvider implements WatchSetProvider {
   /**
    * The scheme used in object identifiers that this matches.
    */
-  public static final String CONFIG_TYPE_SCHEME = "ConfigItemType";
+  public static final String CONFIG_TYPE_SCHEME = AbstractConfigChangeProvider.CONFIG_TYPE_SCHEME;
 
   private final ConfigSource _configSource;
 
@@ -48,10 +51,7 @@ public class ConfigDocumentWatchSetProvider implements WatchSetProvider {
   }
 
   public static void reinitOnChanges(final FunctionCompilationContext context, final FunctionDefinition function, final Class<?> type) {
-    final FunctionReinitializer reinit = context.getFunctionReinitializer();
-    if (reinit != null) {
-      reinit.reinitializeFunction(function, ObjectId.of(CONFIG_TYPE_SCHEME, type.getName()));
-    }
+    AbstractConfigChangeProvider.reinitOnChanges(context, function, type);
   }
 
   @Override

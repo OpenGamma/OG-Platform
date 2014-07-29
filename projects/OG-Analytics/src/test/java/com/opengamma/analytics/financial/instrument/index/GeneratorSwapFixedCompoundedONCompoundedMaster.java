@@ -10,11 +10,11 @@ import java.util.Map;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.CalendarNoHoliday;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 
 /**
  * A list of generators for swaps Fixed/ON available for tests.
@@ -45,11 +45,11 @@ public class GeneratorSwapFixedCompoundedONCompoundedMaster {
   private GeneratorSwapFixedCompoundedONCompoundedMaster() {
     final IndexONMaster indexONMaster = IndexONMaster.getInstance();
     final Calendar baseCalendar = new CalendarNoHoliday("No Holidays");
-    final DayCount bus252 = DayCountFactory.INSTANCE.getDayCount("Business/252");
-    final BusinessDayConvention modFol = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+    final DayCount bus252 = DayCounts.BUSINESS_252;
+    final BusinessDayConvention modFol = BusinessDayConventions.MODIFIED_FOLLOWING;
     _generatorSwap = new HashMap<>();
     final IndexON cdi = indexONMaster.getIndex("CDI");
-    _generatorSwap.put("BRLCDI", new GeneratorSwapFixedCompoundedONCompounded("BRLCDI", cdi, bus252, modFol, true, 2, 2, baseCalendar));
+    _generatorSwap.put("BRLCDI", new GeneratorSwapFixedCompoundedONCompounded("BRLCDI", cdi, bus252, modFol, true, 0, 0, baseCalendar));
 
   }
 

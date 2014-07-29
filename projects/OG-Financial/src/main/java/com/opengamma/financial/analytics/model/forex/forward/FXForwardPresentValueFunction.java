@@ -36,14 +36,17 @@ import com.opengamma.util.money.Currency;
 
 /**
  * Calculates Present Value on FX Forward instruments.
+ * 
  * @deprecated Deprecated
  */
 @Deprecated
 public class FXForwardPresentValueFunction extends AbstractFunction.NonCompiledInvoker {
 
+  private static final ComputationTargetType TYPE = FinancialSecurityTypes.FX_FORWARD_SECURITY.or(FinancialSecurityTypes.NON_DELIVERABLE_FX_FORWARD_SECURITY).or(FinancialSecurityTypes.SWAP_SECURITY);
+
   @Override
   public ComputationTargetType getTargetType() {
-    return FinancialSecurityTypes.FX_FORWARD_SECURITY.or(FinancialSecurityTypes.NON_DELIVERABLE_FX_FORWARD_SECURITY).or(FinancialSecurityTypes.SWAP_SECURITY);
+    return TYPE;
   }
 
   @Override
@@ -166,6 +169,7 @@ public class FXForwardPresentValueFunction extends AbstractFunction.NonCompiledI
 
   /**
    * Gets the pay currency of the security.
+   * 
    * @param security The security
    * @return The pay currency
    */
@@ -175,6 +179,7 @@ public class FXForwardPresentValueFunction extends AbstractFunction.NonCompiledI
 
   /**
    * Gets the receive currency of the security.
+   * 
    * @param security The security
    * @return The receive currency
    */

@@ -18,11 +18,11 @@ import org.testng.annotations.Test;
 import org.threeten.bp.Period;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
-import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.volatility.SABRTermStructureParameters;
 import com.opengamma.analytics.financial.model.volatility.VolatilityModel1D;
 import com.opengamma.analytics.financial.model.volatility.VolatilityModelProvider;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.math.curve.AddCurveSpreadFunction;
 import com.opengamma.analytics.math.curve.Curve;
 import com.opengamma.analytics.math.curve.FunctionalDoublesCurve;
@@ -43,15 +43,16 @@ import com.opengamma.analytics.math.minimization.SingleRangeLimitTransform;
 import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResults;
 import com.opengamma.analytics.math.statistics.leastsquare.NonLinearLeastSquare;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * @deprecated This class tests deprecated functionality
+ * 
  */
-@Deprecated
+@Test(groups = TestGroup.UNIT)
 public class CapletStrippingTest {
 
   private static final LinkedHashMap<String, Function1D<Double, Double>> PARAMETER_FUNCTIONS = new LinkedHashMap<>();
@@ -59,8 +60,8 @@ public class CapletStrippingTest {
   protected static final Currency CUR = Currency.USD;
   private static final Period TENOR = Period.ofMonths(3);
   private static final int SETTLEMENT_DAYS = 2;
-  private static final DayCount DAY_COUNT_INDEX = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  private static final DayCount DAY_COUNT_INDEX = DayCounts.ACT_360;
+  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventions.MODIFIED_FOLLOWING;
   private static final boolean IS_EOM = true;
   private static final IborIndex INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM, "Ibor");
 
@@ -141,7 +142,7 @@ public class CapletStrippingTest {
 
   private static VolatilityModel1D VOL_MODEL;
 
-  private static YieldCurveBundle YIELD_CURVES;
+  private static MulticurveProviderDiscount YIELD_CURVES;
   private static List<CapFloor> CAPS;
   private static double[] MARKET_PRICES;
   private static double[] MARKET_VOLS;
@@ -197,9 +198,10 @@ public class CapletStrippingTest {
 
     VOL_MODEL = new SABRTermStructureParameters(CURVES.get(NAMES[0]), CURVES.get(NAMES[1]), CURVES.get(NAMES[2]), CURVES.get(NAMES[3]));
 
-    YIELD_CURVES = new YieldCurveBundle();
-    YIELD_CURVES.setCurve("funding", YieldCurve.from(FunctionalDoublesCurve.from(DISCOUNT_CURVE)));
-    YIELD_CURVES.setCurve("3m Libor", YieldCurve.from(SpreadDoublesCurve.from(new AddCurveSpreadFunction(), FunctionalDoublesCurve.from(DISCOUNT_CURVE), FunctionalDoublesCurve.from(SPREAD_CURVE))));
+    YIELD_CURVES = new MulticurveProviderDiscount();
+    YIELD_CURVES.setCurve(CUR, YieldCurve.from(FunctionalDoublesCurve.from(DISCOUNT_CURVE)));
+    YIELD_CURVES.setCurve(INDEX,
+        YieldCurve.from(SpreadDoublesCurve.from(AddCurveSpreadFunction.getInstance(), FunctionalDoublesCurve.from(DISCOUNT_CURVE), FunctionalDoublesCurve.from(SPREAD_CURVE))));
 
     CAPS = new ArrayList<>(CAP_MATURITIES.length * STRIKES.length);
     MARKET_PRICES = new double[CAP_MATURITIES.length * STRIKES.length];
@@ -209,7 +211,7 @@ public class CapletStrippingTest {
     int count = 0;
     for (final int element : CAP_MATURITIES) {
       for (final double element2 : STRIKES) {
-        final CapFloor cap = SimpleCapFloorMaker.makeCap(CUR, INDEX, 0, 4 * element, "funding", "3m Libor", element2, true);
+        final CapFloor cap = SimpleCapFloorMaker.makeCap(CUR, INDEX, 0, 4 * element, element2, true);
         //final CapFloor cap = new CapFloor(CUR, INDEX, element, SimpleFrequency.QUARTERLY, "funding", "3m Libor", element2,true);
         //makeCap(element, SimpleFrequency.QUARTERLY, "funding", "3m Libor", element2);
         CAPS.add(cap);
@@ -278,7 +280,8 @@ public class CapletStrippingTest {
     }
   }
 
-  @Test(enabled = false)
+  @Test
+  //(enabled = false)
   public void testStripping() {
 
     final CapletStrippingFunction func = new CapletStrippingFunction(CAPS, YIELD_CURVES, VOL_MODEL_PROVIDER);
@@ -322,11 +325,9 @@ public class CapletStrippingTest {
       cap = iter.next();
       final CapFloorPricer pricer = new CapFloorPricer(cap, YIELD_CURVES);
       final double fittedVol = pricer.impliedVol(volModel);
-      assertEquals("Cap: strike = " + cap.getStrike() + ", start = " + cap.getStartTime() + ", end = " + cap.getEndTime(),
-          MARKET_VOLS[i], fittedVol, 1e-5);
+      assertEquals("Cap: strike = " + cap.getStrike() + ", start = " + cap.getStartTime() + ", end = " + cap.getEndTime(), MARKET_VOLS[i], fittedVol, 1e-5);
       if (print) {
-        System.out.println("strike = " + cap.getStrike() + ", start = " + cap.getStartTime() + ", end = " + cap.getEndTime() +
-            ", Market vol = " + MARKET_VOLS[i] + ", fitted vol = " + fittedVol);
+        System.out.println("strike = " + cap.getStrike() + ", start = " + cap.getStartTime() + ", end = " + cap.getEndTime() + ", Market vol = " + MARKET_VOLS[i] + ", fitted vol = " + fittedVol);
       }
       // fittedCapVols[i++] = ;
       i++;

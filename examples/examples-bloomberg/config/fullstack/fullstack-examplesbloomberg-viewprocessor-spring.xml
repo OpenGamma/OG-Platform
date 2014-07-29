@@ -14,11 +14,7 @@
   <!-- ================================================================== -->
   <!-- Functions -->
   <bean id="mainCompiledFunctionService" class="com.opengamma.engine.function.CompiledFunctionService">
-    <constructor-arg>
-      <bean class="com.opengamma.engine.function.config.FunctionRepositoryFactoryBean">
-        <property name="functionConfigurationSource" ref="sharedFunctionConfigurationSource" />
-      </bean>
-    </constructor-arg>
+    <constructor-arg ref="sharedFunctionConfigurationSource" />
     <constructor-arg>
       <bean class="com.opengamma.engine.function.CachingFunctionRepositoryCompiler" />
     </constructor-arg>
@@ -40,12 +36,15 @@
   <bean id="mainComputationCacheSource" class="com.opengamma.engine.cache.InMemoryViewComputationCacheSource">
     <constructor-arg ref="standardFudgeContext" />
   </bean>
+  <bean id="bufferedComputationCacheSource" class="com.opengamma.engine.cache.WriteThroughViewComputationCacheSource">
+    <constructor-arg ref="mainComputationCacheSource" />
+  </bean>
   <bean id="jobDispatchStatistics" class="com.opengamma.engine.calcnode.stats.TotallingNodeStatisticsGatherer" />
   <bean id="functionCosts" class="com.opengamma.engine.calcnode.stats.FunctionCosts">
     <constructor-arg ref="centralFunctionCostsMaster" />
   </bean>
   <bean id="localNodeFactory" class="com.opengamma.engine.calcnode.SimpleCalculationNodeFactory">
-    <property name="viewComputationCache" ref="mainComputationCacheSource" />
+    <property name="viewComputationCache" ref="bufferedComputationCacheSource" />
     <property name="functionCompilationService" ref="mainCompiledFunctionService" />
     <property name="functionExecutionContext" ref="mainFunctionExecutionContext" />
     <property name="nodeIdentifier" value="local" />
@@ -122,7 +121,7 @@
     <property name="functionCompilationService" ref="mainCompiledFunctionService" />
     <property name="functionResolver" ref="mainFunctionResolver" />
     <property name="marketDataProviderResolver" ref="standardMarketDataProviderResolver" />
-    <property name="computationCacheSource" ref="mainComputationCacheSource" />
+    <property name="computationCacheSource" ref="bufferedComputationCacheSource" />
     <property name="computationJobDispatcher" ref="mainComputationJobDispatcher" />
     <property name="dependencyGraphBuilderFactory">
       <bean class="com.opengamma.engine.depgraph.DependencyGraphBuilderFactory">
@@ -143,11 +142,17 @@
   
   <bean id="viewProcessorManager" class="com.opengamma.financial.view.ViewProcessorManager" init-method="start">
     <property name="viewProcessor" ref="mainViewProcessor" />
-    <property name="mastersAndSources">
-      <map>
-        <entry key-ref="centralConfigMaster" value-ref="sharedConfigSource" />
-        <entry key-ref="userInterpolatedYieldCurveDefinitionMaster" value-ref="userInterpolatedYieldCurveDefinitionSource" />
-      </map>
+    <property name="masters">
+      <list>
+        <ref bean="sharedConfigSource" />
+        <ref bean="userInterpolatedYieldCurveDefinitionSource" />
+        <bean class="com.opengamma.financial.config.ConfigSourceChangeProvider">
+          <constructor-arg ref="sharedConfigSource" />
+        </bean>
+        <bean class=" com.opengamma.financial.timeseries.HistoricalTimeSeriesSourceChangeProvider">
+          <constructor-arg ref="sharedHistoricalTimeSeriesSource" />
+        </bean>
+      </list>
     </property>
     <property name="watchSetProviders">
       <set>
@@ -160,8 +165,12 @@
             </set>
           </constructor-arg>
         </bean>
-        <bean class="com.opengamma.financial.view.ConfigDocumentWatchSetProvider">
-          <constructor-arg ref="combinedConfigSource" />
+        <bean class="com.opengamma.financial.view.StaticWatchSetProvider">
+          <constructor-arg>
+            <map>
+              <entry key="OpenGamma~InterpolatedYieldCurveSpecification" value="ConfigItemType~CurveSpecificationBuilderConfiguration" />
+            </map>
+          </constructor-arg>
         </bean>
       </set>
     </property>

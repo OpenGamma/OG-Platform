@@ -7,6 +7,8 @@ package com.opengamma.bbg;
 
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -43,6 +45,17 @@ public class BloombergConnectorFactoryBean extends SpringFactoryBean<BloombergCo
    */
   @PropertyDefinition
   private Integer _port;
+  /**
+   * The bpipe application name, if applicable
+   */
+  @PropertyDefinition
+  private String _applicationName;
+  /**
+   * The auto restart on disconnection
+   */
+  @PropertyDefinition
+  private boolean _autoRestartOnDisconnection;
+  
   /**
    * The pre-populated session options.
    * These options can be left null and they will then be created with default options.
@@ -82,10 +95,23 @@ public class BloombergConnectorFactoryBean extends SpringFactoryBean<BloombergCo
    * @param port  the server port, may be null
    */
   public BloombergConnectorFactoryBean(String name, String host, Integer port) {
+    this(name, host, port, null);
+  }
+
+  /**
+   * Creates an instance, specifying the server.
+   * 
+   * @param name  the name of the connector, not null
+   * @param host  the server host name, may be null
+   * @param port  the server port, may be null
+   * @param applicationName the bpipe application name, may be null
+   */
+  public BloombergConnectorFactoryBean(String name, String host, Integer port, String applicationName) {
     super(BloombergConnector.class);
     setName(name);
     setHost(host);
     setPort(port);
+    setApplicationName(applicationName);
   }
 
   //-------------------------------------------------------------------------
@@ -96,10 +122,15 @@ public class BloombergConnectorFactoryBean extends SpringFactoryBean<BloombergCo
     if (getHost() != null) {
       sessionOptions.setServerHost(getHost());
       sessionOptions.setServerPort(getPort());
+      final String applicationName = StringUtils.trimToNull(getApplicationName());
+      if (applicationName != null) {
+        sessionOptions.setAuthenticationOptions(BloombergConstants.AUTH_APP_PREFIX + applicationName);
+      }
     }
     if (sessionOptions.getServerHost() == null || sessionOptions.getServerHost().contains("$")) {
       throw new IllegalStateException("Bloomberg SessionOptions does not have a server host");
     }
+    sessionOptions.setAutoRestartOnDisconnection(isAutoRestartOnDisconnection());
     return new BloombergConnector(getName(), sessionOptions, getReferenceDataStatistics());
   }
 
@@ -120,80 +151,6 @@ public class BloombergConnectorFactoryBean extends SpringFactoryBean<BloombergCo
   @Override
   public BloombergConnectorFactoryBean.Meta metaBean() {
     return BloombergConnectorFactoryBean.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 3373707:  // name
-        return getName();
-      case 3208616:  // host
-        return getHost();
-      case 3446913:  // port
-        return getPort();
-      case 522757928:  // sessionOptions
-        return getSessionOptions();
-      case -1225958248:  // referenceDataStatistics
-        return getReferenceDataStatistics();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 3373707:  // name
-        setName((String) newValue);
-        return;
-      case 3208616:  // host
-        setHost((String) newValue);
-        return;
-      case 3446913:  // port
-        setPort((Integer) newValue);
-        return;
-      case 522757928:  // sessionOptions
-        setSessionOptions((SessionOptions) newValue);
-        return;
-      case -1225958248:  // referenceDataStatistics
-        setReferenceDataStatistics((BloombergReferenceDataStatistics) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_name, "name");
-    JodaBeanUtils.notNull(_referenceDataStatistics, "referenceDataStatistics");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      BloombergConnectorFactoryBean other = (BloombergConnectorFactoryBean) obj;
-      return JodaBeanUtils.equal(getName(), other.getName()) &&
-          JodaBeanUtils.equal(getHost(), other.getHost()) &&
-          JodaBeanUtils.equal(getPort(), other.getPort()) &&
-          JodaBeanUtils.equal(getSessionOptions(), other.getSessionOptions()) &&
-          JodaBeanUtils.equal(getReferenceDataStatistics(), other.getReferenceDataStatistics()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHost());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPort());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSessionOptions());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getReferenceDataStatistics());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -274,6 +231,56 @@ public class BloombergConnectorFactoryBean extends SpringFactoryBean<BloombergCo
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the bpipe application name, if applicable
+   * @return the value of the property
+   */
+  public String getApplicationName() {
+    return _applicationName;
+  }
+
+  /**
+   * Sets the bpipe application name, if applicable
+   * @param applicationName  the new value of the property
+   */
+  public void setApplicationName(String applicationName) {
+    this._applicationName = applicationName;
+  }
+
+  /**
+   * Gets the the {@code applicationName} property.
+   * @return the property, not null
+   */
+  public final Property<String> applicationName() {
+    return metaBean().applicationName().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the auto restart on disconnection
+   * @return the value of the property
+   */
+  public boolean isAutoRestartOnDisconnection() {
+    return _autoRestartOnDisconnection;
+  }
+
+  /**
+   * Sets the auto restart on disconnection
+   * @param autoRestartOnDisconnection  the new value of the property
+   */
+  public void setAutoRestartOnDisconnection(boolean autoRestartOnDisconnection) {
+    this._autoRestartOnDisconnection = autoRestartOnDisconnection;
+  }
+
+  /**
+   * Gets the the {@code autoRestartOnDisconnection} property.
+   * @return the property, not null
+   */
+  public final Property<Boolean> autoRestartOnDisconnection() {
+    return metaBean().autoRestartOnDisconnection().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the pre-populated session options.
    * These options can be left null and they will then be created with default options.
    * If they are non-null, then the server host and port will be added if the
@@ -333,6 +340,69 @@ public class BloombergConnectorFactoryBean extends SpringFactoryBean<BloombergCo
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public BloombergConnectorFactoryBean clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      BloombergConnectorFactoryBean other = (BloombergConnectorFactoryBean) obj;
+      return JodaBeanUtils.equal(getName(), other.getName()) &&
+          JodaBeanUtils.equal(getHost(), other.getHost()) &&
+          JodaBeanUtils.equal(getPort(), other.getPort()) &&
+          JodaBeanUtils.equal(getApplicationName(), other.getApplicationName()) &&
+          (isAutoRestartOnDisconnection() == other.isAutoRestartOnDisconnection()) &&
+          JodaBeanUtils.equal(getSessionOptions(), other.getSessionOptions()) &&
+          JodaBeanUtils.equal(getReferenceDataStatistics(), other.getReferenceDataStatistics()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getHost());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPort());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getApplicationName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isAutoRestartOnDisconnection());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSessionOptions());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getReferenceDataStatistics());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(256);
+    buf.append("BloombergConnectorFactoryBean{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
+    buf.append("host").append('=').append(JodaBeanUtils.toString(getHost())).append(',').append(' ');
+    buf.append("port").append('=').append(JodaBeanUtils.toString(getPort())).append(',').append(' ');
+    buf.append("applicationName").append('=').append(JodaBeanUtils.toString(getApplicationName())).append(',').append(' ');
+    buf.append("autoRestartOnDisconnection").append('=').append(JodaBeanUtils.toString(isAutoRestartOnDisconnection())).append(',').append(' ');
+    buf.append("sessionOptions").append('=').append(JodaBeanUtils.toString(getSessionOptions())).append(',').append(' ');
+    buf.append("referenceDataStatistics").append('=').append(JodaBeanUtils.toString(getReferenceDataStatistics())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code BloombergConnectorFactoryBean}.
    */
@@ -358,6 +428,16 @@ public class BloombergConnectorFactoryBean extends SpringFactoryBean<BloombergCo
     private final MetaProperty<Integer> _port = DirectMetaProperty.ofReadWrite(
         this, "port", BloombergConnectorFactoryBean.class, Integer.class);
     /**
+     * The meta-property for the {@code applicationName} property.
+     */
+    private final MetaProperty<String> _applicationName = DirectMetaProperty.ofReadWrite(
+        this, "applicationName", BloombergConnectorFactoryBean.class, String.class);
+    /**
+     * The meta-property for the {@code autoRestartOnDisconnection} property.
+     */
+    private final MetaProperty<Boolean> _autoRestartOnDisconnection = DirectMetaProperty.ofReadWrite(
+        this, "autoRestartOnDisconnection", BloombergConnectorFactoryBean.class, Boolean.TYPE);
+    /**
      * The meta-property for the {@code sessionOptions} property.
      */
     private final MetaProperty<SessionOptions> _sessionOptions = DirectMetaProperty.ofReadWrite(
@@ -375,6 +455,8 @@ public class BloombergConnectorFactoryBean extends SpringFactoryBean<BloombergCo
         "name",
         "host",
         "port",
+        "applicationName",
+        "autoRestartOnDisconnection",
         "sessionOptions",
         "referenceDataStatistics");
 
@@ -393,6 +475,10 @@ public class BloombergConnectorFactoryBean extends SpringFactoryBean<BloombergCo
           return _host;
         case 3446913:  // port
           return _port;
+        case -1247425541:  // applicationName
+          return _applicationName;
+        case 1676276941:  // autoRestartOnDisconnection
+          return _autoRestartOnDisconnection;
         case 522757928:  // sessionOptions
           return _sessionOptions;
         case -1225958248:  // referenceDataStatistics
@@ -442,6 +528,22 @@ public class BloombergConnectorFactoryBean extends SpringFactoryBean<BloombergCo
     }
 
     /**
+     * The meta-property for the {@code applicationName} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> applicationName() {
+      return _applicationName;
+    }
+
+    /**
+     * The meta-property for the {@code autoRestartOnDisconnection} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Boolean> autoRestartOnDisconnection() {
+      return _autoRestartOnDisconnection;
+    }
+
+    /**
      * The meta-property for the {@code sessionOptions} property.
      * @return the meta-property, not null
      */
@@ -455,6 +557,63 @@ public class BloombergConnectorFactoryBean extends SpringFactoryBean<BloombergCo
      */
     public final MetaProperty<BloombergReferenceDataStatistics> referenceDataStatistics() {
       return _referenceDataStatistics;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 3373707:  // name
+          return ((BloombergConnectorFactoryBean) bean).getName();
+        case 3208616:  // host
+          return ((BloombergConnectorFactoryBean) bean).getHost();
+        case 3446913:  // port
+          return ((BloombergConnectorFactoryBean) bean).getPort();
+        case -1247425541:  // applicationName
+          return ((BloombergConnectorFactoryBean) bean).getApplicationName();
+        case 1676276941:  // autoRestartOnDisconnection
+          return ((BloombergConnectorFactoryBean) bean).isAutoRestartOnDisconnection();
+        case 522757928:  // sessionOptions
+          return ((BloombergConnectorFactoryBean) bean).getSessionOptions();
+        case -1225958248:  // referenceDataStatistics
+          return ((BloombergConnectorFactoryBean) bean).getReferenceDataStatistics();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 3373707:  // name
+          ((BloombergConnectorFactoryBean) bean).setName((String) newValue);
+          return;
+        case 3208616:  // host
+          ((BloombergConnectorFactoryBean) bean).setHost((String) newValue);
+          return;
+        case 3446913:  // port
+          ((BloombergConnectorFactoryBean) bean).setPort((Integer) newValue);
+          return;
+        case -1247425541:  // applicationName
+          ((BloombergConnectorFactoryBean) bean).setApplicationName((String) newValue);
+          return;
+        case 1676276941:  // autoRestartOnDisconnection
+          ((BloombergConnectorFactoryBean) bean).setAutoRestartOnDisconnection((Boolean) newValue);
+          return;
+        case 522757928:  // sessionOptions
+          ((BloombergConnectorFactoryBean) bean).setSessionOptions((SessionOptions) newValue);
+          return;
+        case -1225958248:  // referenceDataStatistics
+          ((BloombergConnectorFactoryBean) bean).setReferenceDataStatistics((BloombergReferenceDataStatistics) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((BloombergConnectorFactoryBean) bean)._name, "name");
+      JodaBeanUtils.notNull(((BloombergConnectorFactoryBean) bean)._referenceDataStatistics, "referenceDataStatistics");
+      super.validate(bean);
     }
 
   }

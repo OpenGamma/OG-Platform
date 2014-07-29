@@ -11,10 +11,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.precise.instant.ImmutableInstantDoubleTimeSeries;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class HistoricalCovarianceCalculatorTest {
   private static final DoubleTimeSeries<?> TS1 = ImmutableInstantDoubleTimeSeries.of(new long[] {1, 2, 3, 4, 5}, new double[] {1, 1, 1, 1, 1});
   private static final CovarianceCalculator CALCULATOR = new HistoricalCovarianceCalculator();

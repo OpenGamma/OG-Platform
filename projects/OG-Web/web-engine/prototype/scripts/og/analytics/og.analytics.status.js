@@ -11,15 +11,23 @@ $.register_module({
             $(message).removeClass('live disconnected paused').addClass('live').html('live');
             $(toggle).removeClass(toggle_classes).addClass('og-icon-pause').off('click')
                 .on('click', function (event) {
-                    if ($(this).hasClass('og-icon-pause')) action('pause');
-                    else action('resume');
+                    if ($(this).hasClass('og-icon-pause')) {
+                        action('pause');
+                    } else {
+                        action('resume');
+                    }
                     return false;
                 });
         };
         var action = function (state) {
-            if(!og.analytics.grid) return;//resume is called on form load (og.analytics.form2)
-            if (state === 'pause') markup_pause();
-            else markup_resume();
+            if (!og.analytics.grid) {
+                return;
+            }//resume is called on form load (og.analytics.form)
+            if (state === 'pause') {
+                markup_pause();
+            } else {
+                markup_resume();
+            }
             og.analytics.grid.dataman.pools().forEach(function (val) {
                 og.api.rest.views.status.pause_or_resume({view_id: val, state: state});
             });
@@ -35,17 +43,24 @@ $.register_module({
             $(toggle).removeClass(toggle_classes).addClass('og-icon-pause');
             resuming = true;
         };
-        return status = {
-            resume: function (){
-                if ($(toggle).hasClass('og-icon-pause')) return;
+        status = {
+            resume: function () {
+                if ($(toggle).hasClass('og-icon-pause') || $(toggle).hasClass('og-disabled')) {
+                    return;
+                }
                 action('resume');
                 initialize = false;
             },
             //update on every cycle
             cycle: function (ms) {
-                if(resuming) $(message).html('live').addClass('live'), resuming = false;
+                if (resuming) {
+                    $(message).html('live').addClass('live');
+                    resuming = false;
+                }
                 $(calculation)[ms ? 'html' : 'empty']('calculated in ' + ms + 'ms');
-                if (!initialize) init_click_handler();
+                if (!initialize) {
+                    init_click_handler();
+                }
             },
             // og.api.rest.on('disconnect'...
             disconnected: function () {
@@ -60,7 +75,7 @@ $.register_module({
                 $(message).removeClass(message_classes).addClass('live').html('ready');
                 $(calculation).empty();
                 initialize = false;
-                $(toggle).off('click').on('click', function () {return false;});
+                $(toggle).off('click').on('click', function () {return false; });
 
             },
             // og.api.rest.on('reconnect'...
@@ -71,5 +86,6 @@ $.register_module({
                 initialize = false; //initialise everying on next cycle
             }
         };
+        return status;
     }
 });

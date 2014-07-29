@@ -6,7 +6,6 @@
 package com.opengamma.integration.copier.portfolio.rowparser;
 
 import java.math.BigDecimal;
-import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.format.DateTimeFormatter;
-import org.threeten.bp.format.DateTimeFormatterBuilder;
+import org.threeten.bp.format.DateTimeParseException;
 
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
@@ -28,24 +27,32 @@ public abstract class RowParser {
 
   private static final Logger s_logger = LoggerFactory.getLogger(RowParser.class);
   
-  // CSOFF
   /** Standard date-time formatter for the input. */
-  protected DateTimeFormatter CSV_DATE_FORMATTER;
+  protected final DateTimeFormatter _csvDateFormatter;
+
+  /** More Excel compatible back-up formatter. */
+  protected final DateTimeFormatter _secondaryCsvDateFormatter;
+
   /** Standard date-time formatter for the output. */
-  protected DateTimeFormatter OUTPUT_DATE_FORMATTER;
-  /** Standard rate formatter. */
-  protected DecimalFormat RATE_FORMATTER = new DecimalFormat("0.###%");
-  /** Standard notional formatter. */
-  protected DecimalFormat NOTIONAL_FORMATTER = new DecimalFormat("0,000");
-  // CSON
+  protected final DateTimeFormatter _outputDateFormatter;
+
   
-  {
-    DateTimeFormatterBuilder builder = new DateTimeFormatterBuilder();
-    builder.appendPattern("yyyy-MM-dd");
-    CSV_DATE_FORMATTER = builder.toFormatter();
-    builder = new DateTimeFormatterBuilder();
-    builder.appendPattern("yyyy-MM-dd");
-    OUTPUT_DATE_FORMATTER = builder.toFormatter();
+  protected RowParser() {
+    _csvDateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    _secondaryCsvDateFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+    _outputDateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+  }
+  
+  protected RowParser(DateTimeFormatter formatter) {
+    _csvDateFormatter = ArgumentChecker.notNull(formatter, "formatter");
+    _secondaryCsvDateFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+    _outputDateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+  }
+
+  protected RowParser(DateTimeFormatter formatter, DateTimeFormatter secondaryFormatter) {
+    _csvDateFormatter = ArgumentChecker.notNull(formatter, "formatter");
+    _secondaryCsvDateFormatter = ArgumentChecker.notNull(secondaryFormatter, "secondaryFormatter");
+    _outputDateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
   }
   
   /**
@@ -159,13 +166,20 @@ public abstract class RowParser {
   }
 
   public LocalDate getDateWithException(Map<String, String> fieldValueMap, String fieldName) {
-    return getDateWithException(fieldValueMap, fieldName, CSV_DATE_FORMATTER);
+    return getDateWithException(fieldValueMap, fieldName, _csvDateFormatter, _secondaryCsvDateFormatter);
   }
-
+  
+  public static LocalDate getDateWithException(Map<String, String> fieldValueMap, String fieldName, DateTimeFormatter formatter, DateTimeFormatter alternativeFormatter) {
+    try {
+      return LocalDate.parse(getWithException(fieldValueMap, fieldName), formatter);
+    } catch (DateTimeParseException ex) {
+      return LocalDate.parse(getWithException(fieldValueMap, fieldName), alternativeFormatter);
+    }
+  }
+  
   public static LocalDate getDateWithException(Map<String, String> fieldValueMap, String fieldName, DateTimeFormatter formatter) {
     return LocalDate.parse(getWithException(fieldValueMap, fieldName), formatter);
   }
-
 
   public static void addValueIfNotNull(Map<String, String> map, String key, Object value) {
     if (value != null) {

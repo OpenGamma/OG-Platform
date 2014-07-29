@@ -175,7 +175,7 @@ public class WebPortfoliosResource extends AbstractWebPortfolioResource {
       historyRequest.setPagingRequest(PagingRequest.ONE);
       PortfolioHistoryResult historyResult = data().getPortfolioMaster().history(historyRequest);
       if (historyResult.getDocuments().size() == 0) {
-        return null;
+        throw ex;
       }
       data().setPortfolio(historyResult.getFirstDocument());
       data().setNode(historyResult.getFirstDocument().getPortfolio().getRootNode());

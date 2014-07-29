@@ -15,7 +15,6 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.integration.tool.enginedebugger.node.CouldNotResolveNode;
 import com.opengamma.integration.tool.enginedebugger.node.FailedFunctionNode;
-import com.opengamma.integration.tool.enginedebugger.node.FunctionEntryNode;
 import com.opengamma.integration.tool.enginedebugger.node.GetAdditionalRequirementsFailedNode;
 import com.opengamma.integration.tool.enginedebugger.node.GetRequirementsFailedNode;
 import com.opengamma.integration.tool.enginedebugger.node.GetResultsFailedNode;
@@ -25,10 +24,10 @@ import com.opengamma.integration.tool.enginedebugger.node.NoFunctionNode;
 import com.opengamma.integration.tool.enginedebugger.node.RecursiveRequirementNode;
 import com.opengamma.integration.tool.enginedebugger.node.SuccessfulFunctionNode;
 import com.opengamma.integration.tool.enginedebugger.node.UnsatisfiedNode;
-import com.opengamma.integration.tool.enginedebugger.node.UnsatisfiedResolutionFailuresNode;
-import com.opengamma.integration.tool.enginedebugger.node.ValueRequirementNode;
-import com.opengamma.integration.tool.enginedebugger.node.ValueSpecificationToRequirementMapNode;
 
+/**
+ * 
+ */
 public final class ResolutionFailureChildNodeCreatingVisitor extends ResolutionFailureVisitor<Object> {
     
   private ResolutionFailureImpl _parent;
@@ -102,4 +101,5 @@ public final class ResolutionFailureChildNodeCreatingVisitor extends ResolutionF
       final Map<ValueSpecification, ValueRequirement> requirements) {
     return new BlacklistSuppressedNode(_parent, valueRequirement, function, desiredOutput, requirements);
   }
+
 }

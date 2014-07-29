@@ -11,11 +11,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Timer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicLong;
@@ -23,6 +24,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import com.google.common.base.Supplier;
 import com.opengamma.DataNotFoundException;
@@ -43,6 +45,7 @@ import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.resource.EngineResourceManagerImpl;
 import com.opengamma.engine.resource.EngineResourceManagerInternal;
+import com.opengamma.engine.view.ViewAutoStartManager;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessState;
 import com.opengamma.engine.view.ViewProcessor;
@@ -68,6 +71,9 @@ import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.monitor.OperationTimer;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
+
+import net.sf.ehcache.util.NamedThreadFactory;
 
 /**
  * Default implementation of {@link ViewProcessor}.
@@ -83,7 +89,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
   private final AtomicLong _processIdSource = new AtomicLong();
   private final AtomicLong _clientIdSource = new AtomicLong();
   private final ReentrantLock _lifecycleLock = new ReentrantLock();
-  private final Timer _clientResultTimer = new Timer("Shared ViewClient result timer");
+  private ScheduledExecutorService _clientResultTimer;
 
   private final EngineResourceManagerInternal<SingleComputationCycle> _cycleManager = new EngineResourceManagerImpl<>();
 
@@ -124,27 +130,40 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
    */
   private final ViewProcessorEventListenerRegistry _viewProcessorEventListenerRegistry = new ViewProcessorEventListenerRegistry();
 
+  /**
+   * Responsible for tracking which views should be automatically started when the engine starts.
+   */
+  private final ViewAutoStartManager _viewAutoStartManager;
+
   private boolean _isStarted;
   private boolean _isSuspended;
 
-  public ViewProcessorImpl(
-      final String name,
-      final ConfigSource configSource,
-      final NamedMarketDataSpecificationRepository namedMarketDataSpecificationRepository,
-      final CompiledFunctionService compiledFunctionService,
-      final FunctionResolver functionResolver,
-      final MarketDataProviderResolver marketDataProviderFactoryResolver,
-      final ViewComputationCacheSource computationCacheSource,
-      final JobDispatcher jobDispatcher,
-      final DependencyGraphBuilderFactory dependencyGraphBuilderFactory,
-      final DependencyGraphExecutorFactory dependencyGraphExecutorFactory,
-      final GraphExecutorStatisticsGathererProvider graphExecutionStatisticsProvider,
-      final ViewPermissionProvider viewPermissionProvider,
-      final ViewPortfolioPermissionProvider viewPortfolioPermissionProvider,
-      final OverrideOperationCompiler overrideOperationCompiler,
-      final ViewResultListenerFactory viewResultListenerFactory,
-      final ViewProcessWorkerFactory workerFactory,
-      final ViewExecutionCache executionCache) {
+  /**
+   * Interval (in seconds) at which to check permissions for market data.
+   */
+  private final int _permissionCheckInterval;
+
+  public ViewProcessorImpl(final String name, final ConfigSource configSource, final NamedMarketDataSpecificationRepository namedMarketDataSpecificationRepository,
+                           final CompiledFunctionService compiledFunctionService, final FunctionResolver functionResolver, final MarketDataProviderResolver marketDataProviderFactoryResolver,
+                           final ViewComputationCacheSource computationCacheSource, final JobDispatcher jobDispatcher, final DependencyGraphBuilderFactory dependencyGraphBuilderFactory,
+                           final DependencyGraphExecutorFactory dependencyGraphExecutorFactory, final GraphExecutorStatisticsGathererProvider graphExecutionStatisticsProvider,
+                           final ViewPermissionProvider viewPermissionProvider, final ViewPortfolioPermissionProvider viewPortfolioPermissionProvider, final OverrideOperationCompiler overrideOperationCompiler,
+                           final ViewResultListenerFactory viewResultListenerFactory, final ViewProcessWorkerFactory workerFactory, final ViewExecutionCache executionCache, final boolean useAutoStartViews) {
+
+    this(name, configSource, namedMarketDataSpecificationRepository, compiledFunctionService,
+         functionResolver, marketDataProviderFactoryResolver, computationCacheSource, jobDispatcher,
+         dependencyGraphBuilderFactory, dependencyGraphExecutorFactory, graphExecutionStatisticsProvider,
+         viewPermissionProvider, viewPortfolioPermissionProvider, overrideOperationCompiler,
+         viewResultListenerFactory, workerFactory, executionCache, 0, useAutoStartViews);
+  }
+
+  public ViewProcessorImpl(final String name, final ConfigSource configSource, final NamedMarketDataSpecificationRepository namedMarketDataSpecificationRepository,
+                           final CompiledFunctionService compiledFunctionService, final FunctionResolver functionResolver, final MarketDataProviderResolver marketDataProviderFactoryResolver,
+                           final ViewComputationCacheSource computationCacheSource, final JobDispatcher jobDispatcher, final DependencyGraphBuilderFactory dependencyGraphBuilderFactory,
+                           final DependencyGraphExecutorFactory dependencyGraphExecutorFactory, final GraphExecutorStatisticsGathererProvider graphExecutionStatisticsProvider,
+                           final ViewPermissionProvider viewPermissionProvider, final ViewPortfolioPermissionProvider viewPortfolioPermissionProvider, final OverrideOperationCompiler overrideOperationCompiler,
+                           final ViewResultListenerFactory viewResultListenerFactory, final ViewProcessWorkerFactory workerFactory, final ViewExecutionCache executionCache,
+                           final int permissionCheckInterval, final boolean useAutoStartViews) {
     _name = name;
     _configSource = configSource;
     _namedMarketDataSpecificationRepository = namedMarketDataSpecificationRepository;
@@ -162,6 +181,8 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     _viewResultListenerFactory = viewResultListenerFactory;
     _viewProcessWorkerFactory = workerFactory;
     _executionCache = executionCache;
+    _viewAutoStartManager = useAutoStartViews ? new ListeningViewAutoStartManager(configSource) : new NoOpViewAutoStartManager();
+    _permissionCheckInterval = permissionCheckInterval;
   }
 
   //-------------------------------------------------------------------------
@@ -210,30 +231,36 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
    * @param listener the process listener, not null
    * @param viewDefinitionId the id of the view definition, not null
    * @param executionOptions the view execution options, not null
+   * @param viewProcessContextMap contextual information to be added to log statements via MDC, may be null
    * @return the permission context to be used for access control, not null
    */
-  public ViewPermissionContext attachClientToSharedViewProcess(final UniqueId clientId,
-      final ViewResultListener listener, final UniqueId viewDefinitionId, final ViewExecutionOptions executionOptions) {
+  public ViewPermissionContext attachClientToSharedViewProcess(final UniqueId clientId, final ViewResultListener listener, final UniqueId viewDefinitionId,
+      final ViewExecutionOptions executionOptions, final Map<String, String> viewProcessContextMap) {
     ArgumentChecker.notNull(clientId, "clientId");
     ArgumentChecker.notNull(viewDefinitionId, "viewDefinitionId");
     ArgumentChecker.notNull(executionOptions, "executionOptions");
+    final ViewPermissionContext result;
     final ViewClientImpl client = getViewClient(clientId);
-
     _processLock.lock();
     ViewProcessImpl process = null;
     try {
-      process = getOrCreateSharedViewProcess(viewDefinitionId, executionOptions, client.getResultMode(), client.getFragmentResultMode());
-      return attachClientToViewProcessCore(client, listener, process);
-    } catch (final Exception e) {
-      // Roll-back
-      if (process != null) {
-        removeViewProcessIfUnused(process);
-      }
+      process = getOrCreateSharedViewProcess(viewDefinitionId, executionOptions, client.getResultMode(), client.getFragmentResultMode(), viewProcessContextMap, false);
+      result = attachClientToViewProcessCore(client, listener, process);
+      process = null;
+    } catch (final RuntimeException e) {
       s_logger.error("Error attaching client to shared view process", e);
-      throw new OpenGammaRuntimeException("Error attaching client to shared view process", e);
+      throw e;
     } finally {
-      _processLock.unlock();
+      try {
+        // Roll-back
+        if (process != null) {
+          removeViewProcessIfUnused(process);
+        }
+      } finally {
+        _processLock.unlock();
+      }
     }
+    return result;
   }
 
   /**
@@ -243,29 +270,36 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
    * @param listener the process listener, not null
    * @param viewDefinitionId the id of the view definition, not null
    * @param executionOptions the view execution options, not null
+   * @param viewProcessContextMap contextual information to be added to log statements via MDC
    * @return the permission provider to be used for access control, not null
+   * @throws DataNotFoundException if the view definition identifier is invalid
    */
-  public ViewPermissionContext attachClientToPrivateViewProcess(final UniqueId clientId,
-      final ViewResultListener listener, final UniqueId viewDefinitionId, final ViewExecutionOptions executionOptions) {
+  public ViewPermissionContext attachClientToPrivateViewProcess(final UniqueId clientId, final ViewResultListener listener, final UniqueId viewDefinitionId,
+      final ViewExecutionOptions executionOptions, final Map<String, String> viewProcessContextMap) {
     ArgumentChecker.notNull(viewDefinitionId, "definitionID");
     ArgumentChecker.notNull(executionOptions, "executionOptions");
     final ViewClientImpl client = getViewClient(clientId);
-
+    final ViewPermissionContext result;
     ViewProcessImpl process = null;
     _processLock.lock();
     try {
-      process = createViewProcess(viewDefinitionId, executionOptions, client.getResultMode(), client.getFragmentResultMode());
-      return attachClientToViewProcessCore(client, listener, process);
-    } catch (final Exception e) {
-      // Roll-back
-      if (process != null) {
-        shutdownViewProcess(process);
-      }
+      process = createViewProcess(viewDefinitionId, executionOptions, client.getResultMode(), client.getFragmentResultMode(), viewProcessContextMap, false);
+      result = attachClientToViewProcessCore(client, listener, process);
+      process = null;
+    } catch (final RuntimeException e) {
       s_logger.error("Error attaching client to private view process", e);
-      throw new OpenGammaRuntimeException("Error attaching client to private view process", e);
+      throw e;
     } finally {
-      _processLock.unlock();
+      // Roll-back
+      try {
+        if (process != null) {
+          shutdownViewProcess(process);
+        }
+      } finally {
+        _processLock.unlock();
+      }
     }
+    return result;
   }
 
   /**
@@ -292,10 +326,8 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     }
   }
 
-  private ViewPermissionContext attachClientToViewProcessCore(final ViewClientImpl client,
-                                                               final ViewResultListener listener,
-                                                               final ViewProcessImpl process) {
-    final Pair<ViewProcessImpl, ViewResultListener> processListenerPair = Pair.of(process, listener);
+  private ViewPermissionContext attachClientToViewProcessCore(final ViewClientImpl client, final ViewResultListener listener, final ViewProcessImpl process) {
+    final Pair<ViewProcessImpl, ViewResultListener> processListenerPair = Pairs.of(process, listener);
     _processLock.lock();
     try {
       final Pair<ViewProcessImpl, ViewResultListener> existingAttachment = _clientToProcess.get(client.getUniqueId());
@@ -333,14 +365,14 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     }
   }
 
-  private ViewProcessImpl getOrCreateSharedViewProcess(UniqueId viewDefinitionId, ViewExecutionOptions executionOptions,
-      ViewResultMode resultMode, ViewResultMode fragmentResultMode) {
+  private ViewProcessImpl getOrCreateSharedViewProcess(UniqueId viewDefinitionId, ViewExecutionOptions executionOptions, ViewResultMode resultMode, ViewResultMode fragmentResultMode,
+      Map<String, String> viewProcessContextMap, boolean runPersistently) {
     _processLock.lock();
     try {
       final ViewProcessDescription viewDescription = new ViewProcessDescription(viewDefinitionId, executionOptions);
       ViewProcessImpl process = _sharedProcessesByDescription.get(viewDescription);
       if (process == null) {
-        process = createViewProcess(viewDefinitionId, executionOptions, resultMode, fragmentResultMode);
+        process = createViewProcess(viewDefinitionId, executionOptions, resultMode, fragmentResultMode, viewProcessContextMap, runPersistently);
         process.setDescriptionKey(viewDescription); // TEMPORARY - the execution options in the key might not match what the process was created with
         _sharedProcessesByDescription.put(viewDescription, process);
       }
@@ -350,19 +382,30 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     }
   }
 
-  private ViewProcessImpl createViewProcess(UniqueId definitionId, ViewExecutionOptions viewExecutionOptions,
-      ViewResultMode resultMode, ViewResultMode fragmentResultMode) {
+  private ViewProcessImpl createViewProcess(UniqueId definitionId, ViewExecutionOptions viewExecutionOptions, ViewResultMode resultMode, ViewResultMode fragmentResultMode,
+      Map<String, String> viewProcessContextMap, boolean runPersistently) {
 
     // TEMPORARY CODE - This method should be removed post credit work and supports Excel (Jim)
     ViewExecutionOptions executionOptions = verifyLiveDataViewExecutionOptions(viewExecutionOptions);
     // END TEMPORARY CODE
 
     _processLock.lock();
+
     try {
+      // Either set or clear the map to ensure that anything there from a
+      // previous run is removed. This can only happen where we have re-use
+      // of threads e.g. remote clients managed by Jetty
+      if (viewProcessContextMap != null && !viewProcessContextMap.isEmpty()) {
+        MDC.setContextMap(viewProcessContextMap);
+      } else {
+        MDC.clear();
+      }
+
       final String idValue = generateIdValue(_processIdSource);
       final UniqueId viewProcessId = UniqueId.of(PROCESS_SCHEME, idValue);
       final ViewProcessContext viewProcessContext = createViewProcessContext(viewProcessId, new VersionedUniqueIdSupplier(CYCLE_SCHEME, idValue));
-      final ViewProcessImpl viewProcess = new ViewProcessImpl(definitionId, executionOptions, viewProcessContext, this);
+      final ViewProcessImpl viewProcess =
+          new ViewProcessImpl(definitionId, executionOptions, viewProcessContext, this, _permissionCheckInterval, runPersistently);
 
       // If executing in batch mode then attach a special listener to write incoming results into the batch db
       if (executionOptions.getFlags().contains(ViewExecutionFlags.BATCH)) {
@@ -414,11 +457,8 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
           }
         }
         if (changed) {
-          ViewCycleExecutionOptions defaultOptions = defaultExecutionOptions.copy()
-              .setMarketDataSpecifications(specifications)
-              .create();
-          return new ExecutionOptions(executionOptions.getExecutionSequence(), executionOptions.getFlags(),
-              executionOptions.getMaxSuccessiveDeltaCycles(), defaultOptions);
+          ViewCycleExecutionOptions defaultOptions = defaultExecutionOptions.copy().setMarketDataSpecifications(specifications).create();
+          return new ExecutionOptions(executionOptions.getExecutionSequence(), executionOptions.getFlags(), executionOptions.getMaxSuccessiveDeltaCycles(), defaultOptions);
         }
       }
     }
@@ -606,24 +646,9 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
   }
 
   private ViewProcessContext createViewProcessContext(UniqueId processId, Supplier<UniqueId> cycleIds) {
-    return new ViewProcessContext(
-        processId,
-        _configSource,
-        _viewPermissionProvider,
-        _viewPortfolioPermissionProvider,
-        _marketDataProviderFactoryResolver,
-        _functionCompilationService,
-        _functionResolver,
-        _computationCacheSource,
-        _computationJobDispatcher,
-        _viewProcessWorkerFactory,
-        _dependencyGraphBuilderFactory,
-        _dependencyGraphExecutorFactory,
-        _graphExecutionStatistics,
-        _overrideOperationCompiler,
-        _cycleManager,
-        cycleIds,
-        _executionCache);
+    return new ViewProcessContext(processId, _configSource, _viewPermissionProvider, _viewPortfolioPermissionProvider, _marketDataProviderFactoryResolver, _functionCompilationService,
+        _functionResolver, _computationCacheSource, _computationJobDispatcher, _viewProcessWorkerFactory, _dependencyGraphBuilderFactory, _dependencyGraphExecutorFactory,
+        _graphExecutionStatistics, _overrideOperationCompiler, _cycleManager, cycleIds, _executionCache);
   }
 
   private String generateIdValue(final AtomicLong source) {
@@ -653,12 +678,35 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
         return;
       }
       s_logger.info("Starting on lifecycle call.");
+      _clientResultTimer = Executors.newScheduledThreadPool(1, new NamedThreadFactory("Shared ViewClient result timer"));
+      _viewAutoStartManager.initialize();
+      for (Map.Entry<String, AutoStartViewDefinition> entry : _viewAutoStartManager.getAutoStartViews().entrySet()) {
+        autoStartView(entry.getKey(), entry.getValue());
+      }
       _isStarted = true;
     } finally {
       _lifecycleLock.unlock();
     }
     timer.finished();
     _viewProcessorEventListenerRegistry.notifyViewProcessorStarted();
+  }
+
+  private void autoStartView(String viewName, AutoStartViewDefinition view) {
+    UniqueId viewDefinitionId = view.getViewDefinitionId();
+    try {
+      ViewProcessImpl process = getOrCreateSharedViewProcess(viewDefinitionId, view.getExecutionOptions(),
+      // These result mode options will be ignored so shouldn't really matter
+      // but set to what web client would
+          ViewResultMode.FULL_THEN_DELTA, ViewResultMode.NONE, null,
+          // Run persistently
+          true);
+
+      s_logger.info("Auto-started view: {}", viewName);
+      _viewProcessorEventListenerRegistry.notifyViewAutomaticallyStarted(process.getUniqueId(), viewName);
+
+    } catch (RuntimeException e) {
+      s_logger.error("Unable to auto-start view definition with id: {}", viewDefinitionId);
+    }
   }
 
   @Override
@@ -718,6 +766,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
 
   @Override
   public void stop() {
+    final ScheduledExecutorService clientResultTimer;
     _processLock.lock();
     _lifecycleLock.lock();
     try {
@@ -735,7 +784,8 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
         viewClient.shutdown();
       }
       _allClientsById.clear();
-
+      clientResultTimer = _clientResultTimer;
+      _clientResultTimer = null;
       _isStarted = false;
 
       // REVIEW Andrew 2010-03-25 -- It might be coincidence, but if this gets called during undeploy/stop within a container the Bloomberg API explodes with a ton of NPEs.
@@ -743,6 +793,9 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     } finally {
       _lifecycleLock.unlock();
       _processLock.unlock();
+    }
+    if (clientResultTimer != null) {
+      clientResultTimer.shutdown();
     }
   }
 
@@ -778,8 +831,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
         return false;
       }
       final ViewProcessDescription other = (ViewProcessDescription) obj;
-      return _viewDefinitionId.equals(other._viewDefinitionId) &&
-          _executionOptions.equals(other._executionOptions);
+      return _viewDefinitionId.equals(other._viewDefinitionId) && _executionOptions.equals(other._executionOptions);
     }
 
   }

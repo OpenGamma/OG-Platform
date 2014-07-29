@@ -1,11 +1,12 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 package com.opengamma.engine.function;
 
-import com.opengamma.core.organization.OrganizationSource;
+import org.threeten.bp.Instant;
+import com.opengamma.core.legalentity.LegalEntitySource;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTargetResolver;
@@ -13,6 +14,7 @@ import com.opengamma.engine.function.blacklist.DummyFunctionBlacklistQuery;
 import com.opengamma.engine.function.blacklist.FunctionBlacklistQuery;
 import com.opengamma.engine.function.resolver.ComputationTargetResults;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.PublicAPI;
 
 /**
@@ -35,6 +37,10 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
    * The name under which the initialization reference of the functions should be bound.
    */
   public static final String FUNCTION_INIT_ID_NAME = "functionInitialization";
+  /**
+   * The name under which the initialization timestamp should be bound.
+   */
+  public static final String FUNCTION_INIT_TIMESTAMP_NAME = "functionInitializationTimestamp";
   /**
    * The name under which a re-initialization hook should be bound.
    */
@@ -64,9 +70,9 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
    */
   public static final String SECURITY_SOURCE_NAME = "securitySource";
   /**
-   * The name under which an instance of {@link OrganizationSource} should be bound.
+   * The name under which an instance of {@link LegalEntitySource} should be bound.
    */
-  public static final String ORGANIZATION_SOURCE_NAME = "organizationSource";
+  public static final String ORGANIZATION_SOURCE_NAME = "legalEntitySource";
   /**
    * The name under which the view calculation configuration should be bound.
    */
@@ -168,20 +174,20 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
 
   /**
    * Gets the source of organizations.
-   *
+   * 
    * @return the source of organizations, null if not in the context
    */
-  public OrganizationSource getOrganizationSource() {
-    return (OrganizationSource) get(ORGANIZATION_SOURCE_NAME);
+  public LegalEntitySource getLegalEntitySource() {
+    return (LegalEntitySource) get(ORGANIZATION_SOURCE_NAME);
   }
 
   /**
    * Sets the source of organizations.
    *
-   * @param organizationSource the source of organizations to bind
+   * @param legalEntitySource the source of organizations to bind
    */
-  public void setOrganizationSource(final OrganizationSource organizationSource) {
-    put(ORGANIZATION_SOURCE_NAME, organizationSource);
+  public void setLegalEntitySource(final LegalEntitySource legalEntitySource) {
+    put(ORGANIZATION_SOURCE_NAME, legalEntitySource);
   }
 
   /**
@@ -254,6 +260,9 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
    */
   public void setFunctionInitId(final long id) {
     put(FUNCTION_INIT_ID_NAME, id);
+    // TODO: Note that the behaviour below is closely coupled to the implementation of initialization identifiers in CompiledFunctionService
+    final Instant instant = Instant.ofEpochMilli(id);
+    put(FUNCTION_INIT_TIMESTAMP_NAME, VersionCorrection.of(instant, instant));
   }
 
   /**
@@ -276,6 +285,18 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
     } else {
       put(FUNCTION_REINITIALIZER_NAME, reinitializer);
     }
+  }
+
+  /**
+   * Returns the version/correction timestamp that should be used to obtain initialization data.
+   * <p>
+   * There is no explicit setter for this context member as the current implementation of {@link CompiledFunctionService} uses the initialization identifier in a particular fashion. Functions should
+   * not rely on this relationship as it may be removed/changed in future releases.
+   * 
+   * @return the initialization timestamp - functions should use this to query their initialization configuration instead of {@link VersionCorrection#LATEST}.
+   */
+  public VersionCorrection getFunctionInitializationVersionCorrection() {
+    return (VersionCorrection) get(FUNCTION_INIT_TIMESTAMP_NAME);
   }
 
   /**

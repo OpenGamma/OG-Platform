@@ -5,12 +5,16 @@
  */
 package com.opengamma.bbg.replay;
 
-
 /**
- * 
- *
- * @author yomi
+ * Listener for receiving ticks.
  */
 public interface BloombergTickReceiver {
-  public void tickReceived(BloombergTick msg);
+
+  /**
+   * Handle a tick.
+   * 
+   * @param msg  the message, not null
+   */
+  void tickReceived(BloombergTick msg);
+
 }

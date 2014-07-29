@@ -99,43 +99,63 @@ $.register_module({
         constructor.prototype.destroy_frozen = function () {
             $('.OG-cell-options.og-frozen').remove();
             $('.og-inplace-resizer').remove();
-            og.analytics.grid.highlight(0, 0, "");
+            if (og.analytics.grid) {
+                og.analytics.grid.highlight(0, 0, "");
+            }
             og.common.gadgets.manager.clean();
         };
         constructor.prototype.create_inplace = function (selector, grid) {
             var cellmenu = this, panel = 'inplace', options, cell = cellmenu.current, inner_height, inner_width,
                 cell_coordinates = grid.cell_coords(cellmenu.current.row, cellmenu.current.col),
                 cell_width = cell_coordinates.right - cell_coordinates.left, new_menu,
-                offset = cellmenu.inplace.$dom.cntr.offset(), inner = cellmenu.inplace.$dom.menu;
+                offset = cellmenu.inplace.$dom.cntr.offset(), inner = cellmenu.inplace.$dom.menu,
+                input = {
+                    view_id: grid.dataman.connection.view_id,
+                    grid_type: grid.dataman.connection.grid_type,
+                    viewport_id: grid.dataman.viewport_id,
+                    row: cell.row,
+                    col: cell.col
+                };
             cellmenu.destroy_frozen();
             cellmenu.frozen = true;
             cellmenu.menu.addClass('og-frozen');
-            options = mapping.options(cell, cellmenu.grid, panel);
-            cellmenu.container.add([options], null, true);
-            cellmenu.container.on('launch', og.analytics.url.launch);
-            inner_height = $(window).height() / 2.5;
-            inner_width = $(window).width() / 2.5;
-            inner.height(inner_height);
-            inner.width(inner_width);
-            if ((offset.top + inner_height + 10) > $(window).height()) {
-                cellmenu.menu.addClass('og-pop-up');
-                inner.css({marginTop: -inner_height + 1});
+            /* value requirements are not needed when:
+             * 1. gadgets are launched off a depgraph
+             * 2. Position/Trade gadgets are launched (cell.col = 0)
+             */
+            if (!cell.col || cellmenu.grid.source.depgraph) {
+                implement(null);
+            } else {
+                og.api.rest.views.grid.viewports.valuereq.get(input).pipe(implement);
             }
-            if ((offset.left - cell_width + inner_width) > $(window).width()) {
-                inner.css({marginLeft: -inner_width - (offset.left - $(window).width())});
-            }
-            new_menu = new constructor(cellmenu.grid);
-            og.analytics.resize({
-                selector: selector,
-                offset: {top: -25, left: -1},
-                tmpl: '<div class="OG-analytics-resize og-resizer og-inplace-resizer" title="Drag to resize me" />',
-                mouseup_handler: function (right, bottom) {
-                    var newWidth = Math.max(480, ($(document).outerWidth() - right) - inner.offset().left),
-                        newHeight = Math.max(200, ($(document).outerHeight() - bottom) - inner.offset().top);
-                    inner.css({width: newWidth, height: newHeight});
-                    cellmenu.container.resize();
+            function implement(result) {
+                options = mapping.options(cell, cellmenu.grid, panel, result ? result.data : null);
+                cellmenu.container.add([options], null, true);
+                cellmenu.container.on('launch', og.analytics.url.launch);
+                inner_height = $(window).height() / 2.5;
+                inner_width = $(window).width() / 2.5;
+                inner.height(inner_height);
+                inner.width(inner_width);
+                if ((offset.top + inner_height + 10) > $(window).height()) {
+                    cellmenu.menu.addClass('og-pop-up');
+                    inner.css({marginTop: -inner_height + 1});
                 }
-            });
+                if ((offset.left - cell_width + inner_width) > $(window).width()) {
+                    inner.css({marginLeft: -inner_width - (offset.left - $(window).width())});
+                }
+                new_menu = new constructor(cellmenu.grid);
+                og.analytics.resize({
+                    selector: selector,
+                    offset: {top: -25, left: -1},
+                    tmpl: '<div class="OG-analytics-resize og-resizer og-inplace-resizer" title="Drag to resize me" />',
+                    mouseup_handler: function (right, bottom) {
+                        var newWidth = Math.max(480, ($(document).outerWidth() - right) - inner.offset().left),
+                            newHeight = Math.max(200, ($(document).outerHeight() - bottom) - inner.offset().top);
+                        inner.css({width: newWidth, height: newHeight});
+                        cellmenu.container.resize();
+                    }
+                });
+            }
         };
         constructor.prototype.hide = function () {
             var cellmenu = this;

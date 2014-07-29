@@ -14,7 +14,7 @@ import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositIbo
 import com.opengamma.analytics.financial.interestrate.cash.provider.CashDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.cash.provider.DepositIborDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
-import com.opengamma.analytics.financial.interestrate.fra.provider.ForwardRateAgreementDiscountingProviderMethod;
+import com.opengamma.analytics.financial.interestrate.fra.provider.ForwardRateAgreementDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureSecurityDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflation;
@@ -60,7 +60,7 @@ public final class ParSpreadInflationMarketQuoteDiscountingCalculator extends In
   private static final PresentValueMarketQuoteSensitivityDiscountingCalculator PVMQSC = PresentValueMarketQuoteSensitivityDiscountingCalculator.getInstance();
   private static final CashDiscountingMethod METHOD_DEPOSIT = CashDiscountingMethod.getInstance();
   private static final DepositIborDiscountingMethod METHOD_DEPOSIT_IBOR = DepositIborDiscountingMethod.getInstance();
-  private static final ForwardRateAgreementDiscountingProviderMethod METHOD_FRA = ForwardRateAgreementDiscountingProviderMethod.getInstance();
+  private static final ForwardRateAgreementDiscountingMethod METHOD_FRA = ForwardRateAgreementDiscountingMethod.getInstance();
   private static final InterestRateFutureSecurityDiscountingMethod METHOD_IR_FUT = InterestRateFutureSecurityDiscountingMethod.getInstance();
   private static final ForexSwapDiscountingMethod METHOD_FOREX_SWAP = ForexSwapDiscountingMethod.getInstance();
 
@@ -103,7 +103,7 @@ public final class ParSpreadInflationMarketQuoteDiscountingCalculator extends In
       final double discountFactor = inflation.getDiscountFactor(swap.getFirstLeg().getCurrency(), cpn.getPaymentTime());
       final double tenor = cpn.getPaymentAccrualFactors().length;
       final double notional = ((CouponInflation) swap.getSecondLeg().getNthPayment(0)).getNotional();
-      return Math.pow(pvInflationLeg / discountFactor / notional + 1, 1 / tenor) - 1 - cpn.getRate();
+      return Math.pow(pvInflationLeg / discountFactor / notional + 1, 1 / tenor) - 1 - cpn.getFixedRate();
     }
     final MulticurveProviderInterface multicurves = inflation.getMulticurveProvider();
     return -multicurves.getFxRates().convert(swap.accept(PVMC, multicurves), swap.getFirstLeg().getCurrency()).getAmount() / swap.getFirstLeg().accept(PVMQSC, multicurves);
@@ -118,7 +118,7 @@ public final class ParSpreadInflationMarketQuoteDiscountingCalculator extends In
 
   @Override
   public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction futures, final InflationProviderInterface inflation) {
-    return METHOD_IR_FUT.price(futures.getUnderlying(), inflation.getMulticurveProvider()) - futures.getReferencePrice();
+    return METHOD_IR_FUT.price(futures.getUnderlyingSecurity(), inflation.getMulticurveProvider()) - futures.getReferencePrice();
   }
 
   //     -----     Forex     -----

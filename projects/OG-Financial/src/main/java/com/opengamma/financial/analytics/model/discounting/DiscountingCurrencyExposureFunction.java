@@ -16,7 +16,7 @@ import com.google.common.collect.Iterables;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
+import com.opengamma.analytics.financial.provider.calculator.discounting.CurrencyExposureDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
@@ -36,15 +36,16 @@ import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
- * Calculates the FX present value of instruments using curves constructed using
+ * Calculates the FX currency exposure of instruments using curves constructed using
  * the discounting method.
  */
 public class DiscountingCurrencyExposureFunction extends DiscountingFunction {
-  /** The present value calculator */
-  private static final InstrumentDerivativeVisitor<MulticurveProviderInterface, MultipleCurrencyAmount> CALCULATOR = PresentValueDiscountingCalculator.getInstance();
+  /** The FX currency exposure calculator */
+  private static final InstrumentDerivativeVisitor<MulticurveProviderInterface, MultipleCurrencyAmount> CALCULATOR = 
+      CurrencyExposureDiscountingCalculator.getInstance();
 
   /**
-   * Sets the value requirement to {@link ValueRequirementNames#FX_PRESENT_VALUE}
+   * Sets the value requirement to {@link ValueRequirementNames#FX_CURRENCY_EXPOSURE}
    */
   public DiscountingCurrencyExposureFunction() {
     super(FX_CURRENCY_EXPOSURE);
@@ -67,6 +68,7 @@ public class DiscountingCurrencyExposureFunction extends DiscountingFunction {
             security instanceof NonDeliverableFXForwardSecurity;
       }
 
+      @SuppressWarnings("synthetic-access")
       @Override
       protected Set<ComputedValue> getValues(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
           final ComputationTarget target, final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative,

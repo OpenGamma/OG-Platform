@@ -14,6 +14,17 @@ import com.opengamma.analytics.financial.commodity.definition.EnergyFutureOption
 import com.opengamma.analytics.financial.commodity.definition.MetalForwardDefinition;
 import com.opengamma.analytics.financial.commodity.definition.MetalFutureDefinition;
 import com.opengamma.analytics.financial.commodity.definition.MetalFutureOptionDefinition;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.definition.AgricultureFutureSecurityDefinition;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.definition.AgricultureFutureTransactionDefinition;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.definition.CouponCommodityCashSettleDefinition;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.definition.CouponCommodityPhysicalSettleDefinition;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.definition.EnergyFutureSecurityDefinition;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.definition.EnergyFutureTransactionDefinition;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.definition.ForwardCommodityCashSettleDefinition;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.definition.ForwardCommodityPhysicalSettleDefinition;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.definition.MetalFutureSecurityDefinition;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.definition.MetalFutureTransactionDefinition;
+import com.opengamma.analytics.financial.equity.EquityDefinition;
 import com.opengamma.analytics.financial.equity.future.definition.EquityFutureDefinition;
 import com.opengamma.analytics.financial.equity.future.definition.EquityIndexDividendFutureDefinition;
 import com.opengamma.analytics.financial.equity.future.definition.EquityIndexFutureDefinition;
@@ -22,6 +33,7 @@ import com.opengamma.analytics.financial.equity.future.definition.VolatilityInde
 import com.opengamma.analytics.financial.equity.option.EquityIndexFutureOptionDefinition;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOptionDefinition;
 import com.opengamma.analytics.financial.equity.option.EquityOptionDefinition;
+import com.opengamma.analytics.financial.equity.trs.definition.EquityTotalReturnSwapDefinition;
 import com.opengamma.analytics.financial.equity.variance.EquityVarianceSwapDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexNonDeliverableForwardDefinition;
@@ -32,6 +44,7 @@ import com.opengamma.analytics.financial.forex.definition.ForexOptionVanillaDefi
 import com.opengamma.analytics.financial.forex.definition.ForexSwapDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BillSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.bond.BillTotalReturnSwapDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BillTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BondCapitalIndexedSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BondCapitalIndexedTransactionDefinition;
@@ -41,6 +54,7 @@ import com.opengamma.analytics.financial.instrument.bond.BondIborSecurityDefinit
 import com.opengamma.analytics.financial.instrument.bond.BondIborTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BondInterestIndexedSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BondInterestIndexedTransactionDefinition;
+import com.opengamma.analytics.financial.instrument.bond.BondTotalReturnSwapDefinition;
 import com.opengamma.analytics.financial.instrument.cash.CashDefinition;
 import com.opengamma.analytics.financial.instrument.cash.DepositCounterpartDefinition;
 import com.opengamma.analytics.financial.instrument.cash.DepositIborDefinition;
@@ -50,8 +64,12 @@ import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefi
 import com.opengamma.analytics.financial.instrument.future.BondFutureDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumTransactionDefinition;
+import com.opengamma.analytics.financial.instrument.future.BondFuturesOptionMarginSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.future.BondFuturesOptionMarginTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFuturesSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFuturesTransactionDefinition;
+import com.opengamma.analytics.financial.instrument.future.BondFuturesYieldAverageSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.future.BondFuturesYieldAverageTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureOptionMarginSecurityDefinition;
@@ -77,24 +95,29 @@ import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZer
 import com.opengamma.analytics.financial.instrument.payment.CapFloorCMSDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CapFloorCMSSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CapFloorIborDefinition;
-import com.opengamma.analytics.financial.instrument.payment.CouponArithmeticAverageONDefinition;
-import com.opengamma.analytics.financial.instrument.payment.CouponArithmeticAverageONSpreadDefinition;
-import com.opengamma.analytics.financial.instrument.payment.CouponArithmeticAverageONSpreadSimplifiedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponCMSDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedAccruedCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
-import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageFixingDatesCompoundingDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageFixingDatesDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageFixingDatesCompoundingFlatSpreadDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageIndexDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingFlatSpreadDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingSimpleSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborGearingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborRatchetDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborSpreadDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponONArithmeticAverageDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponONArithmeticAverageSpreadDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponONArithmeticAverageSpreadSimplifiedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponONCompoundedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponONDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponONSimplifiedDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponONSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponONSpreadSimplifiedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefinition;
@@ -102,13 +125,17 @@ import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapIborIborDefinition;
+import com.opengamma.analytics.financial.instrument.swap.SwapMultilegDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapXCcyIborIborDefinition;
+import com.opengamma.analytics.financial.instrument.swap.TotalReturnSwapDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionBermudaFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionCashFixedCompoundedONCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionCashFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.varianceswap.VarianceSwapDefinition;
+import com.opengamma.analytics.financial.instrument.volatilityswap.FXVolatilitySwapDefinition;
+import com.opengamma.analytics.financial.instrument.volatilityswap.VolatilitySwapDefinition;
 
 /**
  *
@@ -278,14 +305,18 @@ public interface InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
    * @param bondFuture A bond future
    * @param data The data
    * @return The result
+   * @deprecated {@link BondFutureDefinition} is deprecated
    */
+  @Deprecated
   RESULT_TYPE visitBondFutureDefinition(BondFutureDefinition bondFuture, DATA_TYPE data);
 
   /**
    * Bond future method.
    * @param bondFuture A bond future
    * @return The result
+   * @deprecated {@link BondFutureDefinition} is deprecated
    */
+  @Deprecated
   RESULT_TYPE visitBondFutureDefinition(BondFutureDefinition bondFuture);
 
   /**
@@ -317,6 +348,36 @@ public interface InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
    * @return The result
    */
   RESULT_TYPE visitBondFuturesTransactionDefinition(BondFuturesTransactionDefinition bondFuture);
+
+  /**
+   * Yield average bond future security method that takes data.
+   * @param bondFuture A bond future security
+   * @param data The data
+   * @return The result
+   */
+  RESULT_TYPE visitBondFuturesYieldAverageSecurityDefinition(BondFuturesYieldAverageSecurityDefinition bondFuture, DATA_TYPE data);
+
+  /**
+   * Yield average bond future security method.
+   * @param bondFuture A bond future security
+   * @return The result
+   */
+  RESULT_TYPE visitBondFuturesYieldAverageSecurityDefinition(BondFuturesYieldAverageSecurityDefinition bondFuture);
+
+  /**
+   * Yield average bond future transaction method that takes data.
+   * @param bondFuture A bond future transaction
+   * @param data The data
+   * @return The result
+   */
+  RESULT_TYPE visitYieldAverageBondFuturesTransactionDefinition(BondFuturesYieldAverageTransactionDefinition bondFuture, DATA_TYPE data);
+
+  /**
+   * Yield average bond future transaction method.
+   * @param bondFuture A bond future transaction
+   * @return The result
+   */
+  RESULT_TYPE visitYieldAverageBondFuturesTransactionDefinition(BondFuturesYieldAverageTransactionDefinition bondFuture);
 
   /**
    * Forward rate agreement method that takes data.
@@ -515,6 +576,36 @@ public interface InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
    */
   RESULT_TYPE visitBondFutureOptionPremiumTransactionDefinition(BondFutureOptionPremiumTransactionDefinition bondFutureOption);
 
+  /**
+   * Bond future option with margin security method that takes data.
+   * @param bondFutureOption A bond future option with margin security
+   * @param data The data
+   * @return The result
+   */
+  RESULT_TYPE visitBondFuturesOptionMarginSecurityDefinition(BondFuturesOptionMarginSecurityDefinition bondFutureOption, DATA_TYPE data);
+
+  /**
+   * Bond future option with margin security method.
+   * @param bondFutureOption Bond future future option with margin security
+   * @return The result
+   */
+  RESULT_TYPE visitBondFuturesOptionMarginSecurityDefinition(BondFuturesOptionMarginSecurityDefinition bondFutureOption);
+
+  /**
+   * Bond future option with margin transaction method that takes data.
+   * @param bondFutureOption A bond future option with margin transaction
+   * @param data The data
+   * @return The result
+   */
+  RESULT_TYPE visitBondFuturesOptionMarginTransactionDefinition(BondFuturesOptionMarginTransactionDefinition bondFutureOption, DATA_TYPE data);
+
+  /**
+   * Bond future option with margin transaction method.
+   * @param bondFutureOption A bond future option with margin transaction
+   * @return The result
+   */
+  RESULT_TYPE visitBondFuturesOptionMarginTransactionDefinition(BondFuturesOptionMarginTransactionDefinition bondFutureOption);
+
   // -----     Payment and coupon     -----
 
   /**
@@ -598,14 +689,14 @@ public interface InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
    * @param data The data
    * @return The result
    */
-  RESULT_TYPE visitCouponIborAverageDefinition(CouponIborAverageDefinition payment, DATA_TYPE data);
+  RESULT_TYPE visitCouponIborAverageDefinition(CouponIborAverageIndexDefinition payment, DATA_TYPE data);
 
   /**
    * Averaged ibor coupon method.
    * @param payment An averaged ibor coupon
    * @return The result
    */
-  RESULT_TYPE visitCouponIborAverageDefinition(CouponIborAverageDefinition payment);
+  RESULT_TYPE visitCouponIborAverageDefinition(CouponIborAverageIndexDefinition payment);
 
   /**
    * Ibor coupon with spread method that takes data.
@@ -674,6 +765,21 @@ public interface InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
    * @return The result
    */
   RESULT_TYPE visitCouponIborCompoundingFlatSpreadDefinition(CouponIborCompoundingFlatSpreadDefinition payment, DATA_TYPE data);
+
+  /**
+   * Ibor coupon with compounding of type "Compounding treating spread as simple interest" and spread method.
+   * @param payment An ibor coupon with compounding and spread
+   * @return The result
+   */
+  RESULT_TYPE visitCouponIborCompoundingSimpleSpreadDefinition(CouponIborCompoundingSimpleSpreadDefinition payment);
+
+  /**
+   * Ibor coupon with compounding of type "Compounding treating spread as simple interest" and spread method that takes data.
+   * @param payment An ibor coupon with compounding and spread
+   * @param data The data
+   * @return The result
+   */
+  RESULT_TYPE visitCouponIborCompoundingSimpleSpreadDefinition(CouponIborCompoundingSimpleSpreadDefinition payment, DATA_TYPE data);
 
   /**
    * Ibor coupon with compounding of type "Compounding Flat" and spread method.
@@ -763,6 +869,21 @@ public interface InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
    * @param data The data
    * @return The result
    */
+  RESULT_TYPE visitCouponONSpreadDefinition(CouponONSpreadDefinition payment, DATA_TYPE data);
+
+  /**
+   * Overnight coupon with spread method.
+   * @param payment An overnight coupon with spread
+   * @return The result
+   */
+  RESULT_TYPE visitCouponONSpreadDefinition(CouponONSpreadDefinition payment);
+
+  /**
+   * Overnight coupon with spread method that takes data.
+   * @param payment An overnight coupon with spread
+   * @param data The data
+   * @return The result
+   */
   RESULT_TYPE visitCouponONSpreadSimplifiedDefinition(CouponONSpreadSimplifiedDefinition payment, DATA_TYPE data);
 
   /**
@@ -823,14 +944,14 @@ public interface InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
    * @param data The data
    * @return The result
    */
-  RESULT_TYPE visitCouponArithmeticAverageONDefinition(CouponArithmeticAverageONDefinition payment, DATA_TYPE data);
+  RESULT_TYPE visitCouponArithmeticAverageONDefinition(CouponONArithmeticAverageDefinition payment, DATA_TYPE data);
 
   /**
    * Arithmetic-averaged overnight coupon method.
    * @param payment An arithmetic-averaged overnight coupon
    * @return The result
    */
-  RESULT_TYPE visitCouponArithmeticAverageONDefinition(CouponArithmeticAverageONDefinition payment);
+  RESULT_TYPE visitCouponArithmeticAverageONDefinition(CouponONArithmeticAverageDefinition payment);
 
   /**
    * Arithmetic-averaged overnight coupon with spread method that takes data.
@@ -838,14 +959,14 @@ public interface InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
    * @param data The data
    * @return The result
    */
-  RESULT_TYPE visitCouponArithmeticAverageONSpreadDefinition(CouponArithmeticAverageONSpreadDefinition payment, DATA_TYPE data);
+  RESULT_TYPE visitCouponArithmeticAverageONSpreadDefinition(CouponONArithmeticAverageSpreadDefinition payment, DATA_TYPE data);
 
   /**
    * Arithmetic-averaged overnight coupon with spread method.
    * @param payment An arithmetic-averaged overnight coupon with spread
    * @return The result
    */
-  RESULT_TYPE visitCouponArithmeticAverageONSpreadDefinition(CouponArithmeticAverageONSpreadDefinition payment);
+  RESULT_TYPE visitCouponArithmeticAverageONSpreadDefinition(CouponONArithmeticAverageSpreadDefinition payment);
 
   /**
    * Simplified arithmetic-averaged overnight coupon method that takes data.
@@ -853,14 +974,26 @@ public interface InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
    * @param data The data
    * @return The result
    */
-  RESULT_TYPE visitCouponArithmeticAverageONSpreadSimplifiedDefinition(CouponArithmeticAverageONSpreadSimplifiedDefinition payment, DATA_TYPE data);
+  RESULT_TYPE visitCouponArithmeticAverageONSpreadSimplifiedDefinition(CouponONArithmeticAverageSpreadSimplifiedDefinition payment, DATA_TYPE data);
 
   /**
    * Simplified arithmetic-averaged overnight coupon method.
    * @param payment A simplified arithmetic-averaged overnight coupon
    * @return The result
    */
-  RESULT_TYPE visitCouponArithmeticAverageONSpreadSimplifiedDefinition(CouponArithmeticAverageONSpreadSimplifiedDefinition payment);
+  RESULT_TYPE visitCouponArithmeticAverageONSpreadSimplifiedDefinition(CouponONArithmeticAverageSpreadSimplifiedDefinition payment);
+
+  RESULT_TYPE visitCouponIborAverageFixingDatesDefinition(CouponIborAverageFixingDatesDefinition payment, DATA_TYPE data);
+
+  RESULT_TYPE visitCouponIborAverageFixingDatesDefinition(CouponIborAverageFixingDatesDefinition payment);
+
+  RESULT_TYPE visitCouponIborAverageCompoundingDefinition(CouponIborAverageFixingDatesCompoundingDefinition payment, DATA_TYPE data);
+
+  RESULT_TYPE visitCouponIborAverageCompoundingDefinition(CouponIborAverageFixingDatesCompoundingDefinition payment);
+
+  RESULT_TYPE visitCouponIborAverageFlatCompoundingSpreadDefinition(CouponIborAverageFixingDatesCompoundingFlatSpreadDefinition payment, DATA_TYPE data);
+
+  RESULT_TYPE visitCouponIborAverageFlatCompoundingSpreadDefinition(CouponIborAverageFixingDatesCompoundingFlatSpreadDefinition payment);
 
   // -----     Annuity     -----
 
@@ -895,6 +1028,21 @@ public interface InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
    * @return The result
    */
   RESULT_TYPE visitSwapDefinition(SwapDefinition swap);
+
+  /**
+   * Swap with arbitrary multiple legs method that takes data.
+   * @param swap A swap
+   * @param data The data
+   * @return The result
+   */
+  RESULT_TYPE visitSwapMultilegDefinition(SwapMultilegDefinition swap, DATA_TYPE data);
+
+  /**
+   * Swap with arbitrary multiple legs method.
+   * @param swap A swap
+   * @return The result
+   */
+  RESULT_TYPE visitSwapMultilegDefinition(SwapMultilegDefinition swap);
 
   /**
    * Fixed / ibor swap method that takes data.
@@ -1534,6 +1682,156 @@ public interface InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
    */
   RESULT_TYPE visitEnergyFutureOptionDefinition(EnergyFutureOptionDefinition option);
 
+  /**
+   * Metal future Security method that takes data.
+   * @param future A metal future Security
+   * @param data The data
+   * @return The result
+   */
+  RESULT_TYPE visitMetalFutureSecurityDefinition(MetalFutureSecurityDefinition future, DATA_TYPE data);
+
+  /**
+   * Metal future Security method.
+   * @param future A metal future Security
+   * @return The result
+   */
+  RESULT_TYPE visitMetalFutureSecurityDefinition(MetalFutureSecurityDefinition future);
+
+  /**
+   * Metal future Transaction method that takes data.
+   * @param future A metal future Transaction
+   * @param data The data
+   * @return The result
+   */
+  RESULT_TYPE visitMetalFutureTransactionDefinition(MetalFutureTransactionDefinition future, DATA_TYPE data);
+
+  /**
+   * Metal future Transaction method.
+   * @param future A metal future Transaction
+   * @return The result
+   */
+  RESULT_TYPE visitMetalFuturTransactioneDefinition(MetalFutureTransactionDefinition future);
+
+  /**
+   * Agriculture future Security method that takes data.
+   * @param future A metal future Security
+   * @param data The data
+   * @return The result
+   */
+  RESULT_TYPE visitAgricultureFutureSecurityDefinition(AgricultureFutureSecurityDefinition future, DATA_TYPE data);
+
+  /**
+   * Agriculture future Security method.
+   * @param future A Agriculture future Security
+   * @return The result
+   */
+  RESULT_TYPE visitAgricultureFutureSecurityDefinition(AgricultureFutureSecurityDefinition future);
+
+  /**
+   * Agriculture future Transaction method that takes data.
+   * @param future A Agriculture future Transaction
+   * @param data The data
+   * @return The result
+   */
+  RESULT_TYPE visitAgricultureFutureTransactionDefinition(AgricultureFutureTransactionDefinition future, DATA_TYPE data);
+
+  /**
+   * Agriculture future Transaction method.
+   * @param future A Agriculture future Transaction
+   * @return The result
+   */
+  RESULT_TYPE visitAgricultureFutureTransactionDefinition(AgricultureFutureTransactionDefinition future);
+
+  /**
+   * Energy future Security method that takes data.
+   * @param future A Energy future Security
+   * @param data The data
+   * @return The result
+   */
+  RESULT_TYPE visitEnergyFutureSecurityDefinition(EnergyFutureSecurityDefinition future, DATA_TYPE data);
+
+  /**
+   * Energy future Security method.
+   * @param future A Energy future Security
+   * @return The result
+   */
+  RESULT_TYPE visitEnergyFutureSecurityDefinition(EnergyFutureSecurityDefinition future);
+
+  /**
+   * Energy future Transaction method that takes data.
+   * @param future A Energy future Transaction
+   * @param data The data
+   * @return The result
+   */
+  RESULT_TYPE visitEnergyFutureTransactionDefinition(EnergyFutureTransactionDefinition future, DATA_TYPE data);
+
+  /**
+   * Energy future Transaction method.
+   * @param future A Energy future Transaction
+   * @return The result
+   */
+  RESULT_TYPE visitEnergyFutureTransactionDefinition(EnergyFutureTransactionDefinition future);
+
+  /**
+   * Forward commodity cash settle method that takes data.
+   * @param forward A forward
+   * @param data The data
+   * @return The result
+   */
+  RESULT_TYPE visitForwardCommodityCashSettleDefinition(ForwardCommodityCashSettleDefinition forward, DATA_TYPE data);
+
+  /**
+   * Forward commodity cash settle  method.
+   * @param forward A forward
+   * @return The result
+   */
+  RESULT_TYPE visitForwardCommodityCashSettleDefinition(ForwardCommodityCashSettleDefinition forward);
+
+  /**
+   * Forward commodity Physical settle method that takes data.
+   * @param forward A forward
+   * @param data The data
+   * @return The result
+   */
+  RESULT_TYPE visitForwardCommodityPhysicalSettleDefinition(ForwardCommodityPhysicalSettleDefinition forward, DATA_TYPE data);
+
+  /**
+   * Forward commodity Physical settle  method.
+   * @param forward A forward
+   * @return The result
+   */
+  RESULT_TYPE visitForwardCommodityPhysicalSettleDefinition(ForwardCommodityPhysicalSettleDefinition forward);
+
+  /**
+   * Coupon commodity cash settle method that takes data.
+   * @param coupon A coupon
+   * @param data The data
+   * @return The result
+   */
+  RESULT_TYPE visitCouponCommodityCashSettleDefinition(CouponCommodityCashSettleDefinition coupon, DATA_TYPE data);
+
+  /**
+   * Coupon commodity cash settle  method.
+   * @param coupon A coupon
+   * @return The result
+   */
+  RESULT_TYPE visitCouponCommodityCashSettleDefinition(CouponCommodityCashSettleDefinition coupon);
+
+  /**
+   * Coupon commodity Physical settle method that takes data.
+   * @param coupon A coupon
+   * @param data The data
+   * @return The result
+   */
+  RESULT_TYPE visitCouponCommodityPhysicalSettleDefinition(CouponCommodityPhysicalSettleDefinition coupon, DATA_TYPE data);
+
+  /**
+   * Coupon commodity Physical settle  method.
+   * @param coupon A coupon
+   * @return The result
+   */
+  RESULT_TYPE visitCouponCommodityPhysicalSettleDefinition(CouponCommodityPhysicalSettleDefinition coupon);
+
   // -----     Equity    -----
 
   /**
@@ -1656,7 +1954,7 @@ public interface InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
    */
   RESULT_TYPE visitEquityIndexFutureOptionDefinition(EquityIndexFutureOptionDefinition option);
 
-  // -----     Equity    -----
+  // -----     Variance and volatility swap      -----
 
   /**
    * Variance swap method.
@@ -1688,4 +1986,108 @@ public interface InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
    */
   RESULT_TYPE visitEquityVarianceSwapDefinition(EquityVarianceSwapDefinition varianceSwap, DATA_TYPE data);
 
+  /**
+   * Volatility swap method.
+   * @param volatilitySwap A volatility swap
+   * @return The result
+   */
+  RESULT_TYPE visitVolatilitySwapDefinition(VolatilitySwapDefinition volatilitySwap);
+
+  /**
+   * Volatility swap method that takes data.
+   * @param volatilitySwap A volatility swap
+   * @param data The data
+   * @return The result
+   */
+  RESULT_TYPE visitVolatilitySwapDefinition(VolatilitySwapDefinition volatilitySwap, DATA_TYPE data);
+
+  /**
+   * FX volatility swap method.
+   * @param volatilitySwap A volatility swap
+   * @return The result
+   */
+  RESULT_TYPE visitFXVolatilitySwapDefinition(FXVolatilitySwapDefinition volatilitySwap);
+
+  /**
+   * FX volatility swap method that takes data.
+   * @param volatilitySwap A volatility swap
+   * @param data The data
+   * @return The result
+   */
+  RESULT_TYPE visitFXVolatilitySwapDefinition(FXVolatilitySwapDefinition volatilitySwap, DATA_TYPE data);
+
+  /**
+   * The total return swap method.
+   * @param totalReturnSwap A total return swap
+   * @return The result
+   */
+  RESULT_TYPE visitTotalReturnSwapDefinition(TotalReturnSwapDefinition totalReturnSwap);
+
+  /**
+   * The total return swap method.
+   * @param totalReturnSwap A total return swap
+   * @param data The data
+   * @return The result
+   */
+  RESULT_TYPE visitTotalReturnSwapDefinition(TotalReturnSwapDefinition totalReturnSwap, DATA_TYPE data);
+
+  /**
+   * The bond total return swap method.
+   * @param totalReturnSwap A bond total return swap
+   * @return The result
+   */
+  RESULT_TYPE visitBondTotalReturnSwapDefinition(BondTotalReturnSwapDefinition totalReturnSwap);
+
+  /**
+   * The bond total return swap method.
+   * @param totalReturnSwap A bond total return swap
+   * @param data The data
+   * @return The result
+   */
+  RESULT_TYPE visitBondTotalReturnSwapDefinition(BondTotalReturnSwapDefinition totalReturnSwap, DATA_TYPE data);
+
+  /**
+   * The bill total return swap method.
+   * @param totalReturnSwap A bill total return swap
+   * @return The result
+   */
+  RESULT_TYPE visitBillTotalReturnSwapDefinition(BillTotalReturnSwapDefinition totalReturnSwap);
+
+  /**
+   * The bill total return swap method.
+   * @param totalReturnSwap A bill total return swap
+   * @param data The data
+   * @return The result
+   */
+  RESULT_TYPE visitBillTotalReturnSwapDefinition(BillTotalReturnSwapDefinition totalReturnSwap, DATA_TYPE data);
+
+  /**
+   * The equity total return swap method.
+   * @param totalReturnSwap A equity total return swap
+   * @return The result
+   */
+  RESULT_TYPE visitEquityTotalReturnSwapDefinition(EquityTotalReturnSwapDefinition totalReturnSwap);
+
+  /**
+   * The equity total return swap method.
+   * @param totalReturnSwap A equity total return swap
+   * @param data The data
+   * @return The result
+   */
+  RESULT_TYPE visitEquityTotalReturnSwapDefinition(EquityTotalReturnSwapDefinition totalReturnSwap, DATA_TYPE data);
+
+  /**
+   * The equity method.
+   * @param equity A equity
+   * @return The result
+   */
+  RESULT_TYPE visitEquityDefinition(EquityDefinition equity);
+
+  /**
+   * The equity method.
+   * @param equity An equity
+   * @param data The data
+   * @return The result
+   */
+  RESULT_TYPE visitEquityDefinition(EquityDefinition equity, DATA_TYPE data);
 }

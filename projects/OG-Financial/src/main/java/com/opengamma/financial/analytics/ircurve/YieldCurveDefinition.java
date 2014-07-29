@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -24,6 +25,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.core.config.Config;
+import com.opengamma.core.config.ConfigGroups;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueId;
@@ -38,7 +40,7 @@ import com.opengamma.util.money.Currency;
  * <p>
  * This class is mutable.
  */
-@Config(description = "Yield curve definition")
+@Config(description = "Yield curve definition", group = ConfigGroups.CURVES_LEGACY)
 @BeanDefinition
 public class YieldCurveDefinition extends DirectBean implements Serializable, UniqueIdentifiable,
     MutableUniqueIdentifiable {
@@ -175,110 +177,6 @@ public class YieldCurveDefinition extends DirectBean implements Serializable, Un
   @Override
   public YieldCurveDefinition.Meta metaBean() {
     return YieldCurveDefinition.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -294460212:  // uniqueId
-        return getUniqueId();
-      case 575402001:  // currency
-        return getCurrency();
-      case -690339025:  // regionId
-        return getRegionId();
-      case 3373707:  // name
-        return getName();
-      case -1247314958:  // interpolatorName
-        return getInterpolatorName();
-      case -718701979:  // leftExtrapolatorName
-        return getLeftExtrapolatorName();
-      case -556150150:  // rightExtrapolatorName
-        return getRightExtrapolatorName();
-      case -987835673:  // interpolateYields
-        return isInterpolateYields();
-      case -891985829:  // strips
-        return getStrips();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -294460212:  // uniqueId
-        setUniqueId((UniqueId) newValue);
-        return;
-      case 575402001:  // currency
-        setCurrency((Currency) newValue);
-        return;
-      case -690339025:  // regionId
-        setRegionId((ExternalId) newValue);
-        return;
-      case 3373707:  // name
-        setName((String) newValue);
-        return;
-      case -1247314958:  // interpolatorName
-        setInterpolatorName((String) newValue);
-        return;
-      case -718701979:  // leftExtrapolatorName
-        setLeftExtrapolatorName((String) newValue);
-        return;
-      case -556150150:  // rightExtrapolatorName
-        setRightExtrapolatorName((String) newValue);
-        return;
-      case -987835673:  // interpolateYields
-        setInterpolateYields((Boolean) newValue);
-        return;
-      case -891985829:  // strips
-        setStrips((SortedSet<FixedIncomeStrip>) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_currency, "currency");
-    JodaBeanUtils.notNull(_interpolatorName, "interpolatorName");
-    JodaBeanUtils.notNull(_leftExtrapolatorName, "leftExtrapolatorName");
-    JodaBeanUtils.notNull(_rightExtrapolatorName, "rightExtrapolatorName");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      YieldCurveDefinition other = (YieldCurveDefinition) obj;
-      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
-          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getRegionId(), other.getRegionId()) &&
-          JodaBeanUtils.equal(getName(), other.getName()) &&
-          JodaBeanUtils.equal(getInterpolatorName(), other.getInterpolatorName()) &&
-          JodaBeanUtils.equal(getLeftExtrapolatorName(), other.getLeftExtrapolatorName()) &&
-          JodaBeanUtils.equal(getRightExtrapolatorName(), other.getRightExtrapolatorName()) &&
-          JodaBeanUtils.equal(isInterpolateYields(), other.isInterpolateYields()) &&
-          JodaBeanUtils.equal(getStrips(), other.getStrips());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getInterpolatorName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getLeftExtrapolatorName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRightExtrapolatorName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isInterpolateYields());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStrips());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -488,7 +386,7 @@ public class YieldCurveDefinition extends DirectBean implements Serializable, Un
   //-----------------------------------------------------------------------
   /**
    * Gets the underlying strips.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public SortedSet<FixedIncomeStrip> getStrips() {
     return _strips;
@@ -496,9 +394,10 @@ public class YieldCurveDefinition extends DirectBean implements Serializable, Un
 
   /**
    * Sets the underlying strips.
-   * @param strips  the new value of the property
+   * @param strips  the new value of the property, not null
    */
   public void setStrips(SortedSet<FixedIncomeStrip> strips) {
+    JodaBeanUtils.notNull(strips, "strips");
     this._strips.clear();
     this._strips.addAll(strips);
   }
@@ -509,6 +408,72 @@ public class YieldCurveDefinition extends DirectBean implements Serializable, Un
    */
   public final Property<SortedSet<FixedIncomeStrip>> strips() {
     return metaBean().strips().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public YieldCurveDefinition clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      YieldCurveDefinition other = (YieldCurveDefinition) obj;
+      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
+          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
+          JodaBeanUtils.equal(getRegionId(), other.getRegionId()) &&
+          JodaBeanUtils.equal(getName(), other.getName()) &&
+          JodaBeanUtils.equal(getInterpolatorName(), other.getInterpolatorName()) &&
+          JodaBeanUtils.equal(getLeftExtrapolatorName(), other.getLeftExtrapolatorName()) &&
+          JodaBeanUtils.equal(getRightExtrapolatorName(), other.getRightExtrapolatorName()) &&
+          (isInterpolateYields() == other.isInterpolateYields()) &&
+          JodaBeanUtils.equal(getStrips(), other.getStrips());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getInterpolatorName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getLeftExtrapolatorName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRightExtrapolatorName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isInterpolateYields());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getStrips());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(320);
+    buf.append("YieldCurveDefinition{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("uniqueId").append('=').append(JodaBeanUtils.toString(getUniqueId())).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
+    buf.append("regionId").append('=').append(JodaBeanUtils.toString(getRegionId())).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
+    buf.append("interpolatorName").append('=').append(JodaBeanUtils.toString(getInterpolatorName())).append(',').append(' ');
+    buf.append("leftExtrapolatorName").append('=').append(JodaBeanUtils.toString(getLeftExtrapolatorName())).append(',').append(' ');
+    buf.append("rightExtrapolatorName").append('=').append(JodaBeanUtils.toString(getRightExtrapolatorName())).append(',').append(' ');
+    buf.append("interpolateYields").append('=').append(JodaBeanUtils.toString(isInterpolateYields())).append(',').append(' ');
+    buf.append("strips").append('=').append(JodaBeanUtils.toString(getStrips())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -699,6 +664,76 @@ public class YieldCurveDefinition extends DirectBean implements Serializable, Un
      */
     public final MetaProperty<SortedSet<FixedIncomeStrip>> strips() {
       return _strips;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          return ((YieldCurveDefinition) bean).getUniqueId();
+        case 575402001:  // currency
+          return ((YieldCurveDefinition) bean).getCurrency();
+        case -690339025:  // regionId
+          return ((YieldCurveDefinition) bean).getRegionId();
+        case 3373707:  // name
+          return ((YieldCurveDefinition) bean).getName();
+        case -1247314958:  // interpolatorName
+          return ((YieldCurveDefinition) bean).getInterpolatorName();
+        case -718701979:  // leftExtrapolatorName
+          return ((YieldCurveDefinition) bean).getLeftExtrapolatorName();
+        case -556150150:  // rightExtrapolatorName
+          return ((YieldCurveDefinition) bean).getRightExtrapolatorName();
+        case -987835673:  // interpolateYields
+          return ((YieldCurveDefinition) bean).isInterpolateYields();
+        case -891985829:  // strips
+          return ((YieldCurveDefinition) bean).getStrips();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          ((YieldCurveDefinition) bean).setUniqueId((UniqueId) newValue);
+          return;
+        case 575402001:  // currency
+          ((YieldCurveDefinition) bean).setCurrency((Currency) newValue);
+          return;
+        case -690339025:  // regionId
+          ((YieldCurveDefinition) bean).setRegionId((ExternalId) newValue);
+          return;
+        case 3373707:  // name
+          ((YieldCurveDefinition) bean).setName((String) newValue);
+          return;
+        case -1247314958:  // interpolatorName
+          ((YieldCurveDefinition) bean).setInterpolatorName((String) newValue);
+          return;
+        case -718701979:  // leftExtrapolatorName
+          ((YieldCurveDefinition) bean).setLeftExtrapolatorName((String) newValue);
+          return;
+        case -556150150:  // rightExtrapolatorName
+          ((YieldCurveDefinition) bean).setRightExtrapolatorName((String) newValue);
+          return;
+        case -987835673:  // interpolateYields
+          ((YieldCurveDefinition) bean).setInterpolateYields((Boolean) newValue);
+          return;
+        case -891985829:  // strips
+          ((YieldCurveDefinition) bean).setStrips((SortedSet<FixedIncomeStrip>) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((YieldCurveDefinition) bean)._currency, "currency");
+      JodaBeanUtils.notNull(((YieldCurveDefinition) bean)._interpolatorName, "interpolatorName");
+      JodaBeanUtils.notNull(((YieldCurveDefinition) bean)._leftExtrapolatorName, "leftExtrapolatorName");
+      JodaBeanUtils.notNull(((YieldCurveDefinition) bean)._rightExtrapolatorName, "rightExtrapolatorName");
+      JodaBeanUtils.notNull(((YieldCurveDefinition) bean)._strips, "strips");
     }
 
   }

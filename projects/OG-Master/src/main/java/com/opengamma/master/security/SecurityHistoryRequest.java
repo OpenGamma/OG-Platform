@@ -7,6 +7,7 @@ package com.opengamma.master.security;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -105,45 +106,6 @@ public class SecurityHistoryRequest extends AbstractHistoryRequest {
     return SecurityHistoryRequest.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1233600576:  // fullDetail
-        return isFullDetail();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1233600576:  // fullDetail
-        setFullDetail((Boolean) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      SecurityHistoryRequest other = (SecurityHistoryRequest) obj;
-      return JodaBeanUtils.equal(isFullDetail(), other.isFullDetail()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(isFullDetail());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the depth of security data to return.
@@ -176,6 +138,51 @@ public class SecurityHistoryRequest extends AbstractHistoryRequest {
    */
   public final Property<Boolean> fullDetail() {
     return metaBean().fullDetail().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public SecurityHistoryRequest clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      SecurityHistoryRequest other = (SecurityHistoryRequest) obj;
+      return (isFullDetail() == other.isFullDetail()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(isFullDetail());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(64);
+    buf.append("SecurityHistoryRequest{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("fullDetail").append('=').append(JodaBeanUtils.toString(isFullDetail())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -237,6 +244,26 @@ public class SecurityHistoryRequest extends AbstractHistoryRequest {
      */
     public final MetaProperty<Boolean> fullDetail() {
       return _fullDetail;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1233600576:  // fullDetail
+          return ((SecurityHistoryRequest) bean).isFullDetail();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1233600576:  // fullDetail
+          ((SecurityHistoryRequest) bean).setFullDetail((Boolean) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

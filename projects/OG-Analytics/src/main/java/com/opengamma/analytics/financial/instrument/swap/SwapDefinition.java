@@ -26,13 +26,18 @@ import com.opengamma.util.ArgumentChecker;
 //CSOFF
 public class SwapDefinition implements InstrumentDefinitionWithData<Swap<? extends Payment, ? extends Payment>, ZonedDateTimeDoubleTimeSeries[]> {
   //CSON
+  /** The first swap leg */
   private final AnnuityDefinition<? extends PaymentDefinition> _firstLeg;
+  /** The second swap leg */
   private final AnnuityDefinition<? extends PaymentDefinition> _secondLeg;
 
+  /**
+   * @param firstLeg The first swap leg, not null
+   * @param secondLeg The second swap leg, not null
+   */
   public SwapDefinition(final AnnuityDefinition<? extends PaymentDefinition> firstLeg, final AnnuityDefinition<? extends PaymentDefinition> secondLeg) {
     ArgumentChecker.notNull(firstLeg, "first leg");
     ArgumentChecker.notNull(secondLeg, "second leg");
-    ArgumentChecker.isTrue((firstLeg.isPayer() != secondLeg.isPayer()), "both legs have same payer flag");
     _firstLeg = firstLeg;
     _secondLeg = secondLeg;
   }

@@ -22,6 +22,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
@@ -144,19 +145,19 @@ public class WebConfigsResource extends AbstractWebConfigResource {
   @Produces(MediaType.TEXT_HTML)
   public Response postHTML(
       @FormParam("name") String name,
-      @FormParam("configxml") String xml,
+      @FormParam(CONFIG_XML) String configXml,
       @FormParam("type") String typeName) {
     name = StringUtils.trimToNull(name);
-    xml = StringUtils.trimToNull(xml);
+    configXml = StringUtils.trimToNull(configXml);
     typeName = StringUtils.trimToNull(typeName);
     
     final Class<?> type = (typeName != null ? data().getTypeMap().get(typeName) : null);
-    if (name == null || xml == null || type == null) {
+    if (name == null || configXml == null || type == null) {
       FlexiBean out = createRootData();
       if (name == null) {
         out.put("err_nameMissing", true);
       }
-      if (xml == null) {
+      if (configXml == null) {
         out.put("err_xmlMissing", true);
       }
       if (typeName == null) {
@@ -166,12 +167,15 @@ public class WebConfigsResource extends AbstractWebConfigResource {
       }
       out.put("name", StringUtils.defaultString(name));
       out.put("type", StringUtils.defaultString(typeName));
-      out.put("xml", StringUtils.defaultString(xml));
+      out.put(CONFIG_XML, StringEscapeUtils.escapeJavaScript(StringUtils.defaultString(configXml)));
       String html = getFreemarker().build(HTML_DIR + "config-add.ftl", out);
       return Response.ok(html).build();
     }
     
-    final Object configObj = parseXML(xml, type);
+    final Object configObj = parseXML(configXml, type);
+    if (configObj == null || !type.isAssignableFrom(configObj.getClass())) {
+      throw new IllegalArgumentException("Given configuration XML is not of type: " + typeName);
+    }
     ConfigItem<?> item = ConfigItem.of(configObj);
     item.setName(name);
     item.setType(type);
@@ -188,25 +192,25 @@ public class WebConfigsResource extends AbstractWebConfigResource {
   public Response postJSON(
       @FormParam("name") String name,
       @FormParam("configJSON") String json,
-      @FormParam("configXML") String xml,
+      @FormParam(CONFIG_XML) String configXml,
       @FormParam("type") String typeName) {
     name = StringUtils.trimToNull(name);
     json = StringUtils.trimToNull(json);
-    xml = StringUtils.trimToNull(xml);
+    configXml = StringUtils.trimToNull(configXml);
     typeName = StringUtils.trimToNull(typeName);
     
     final Class<?> type = (typeName != null ? data().getTypeMap().get(typeName) : null);
     Response result = null;
-    if (name == null || type == null || isEmptyConfigData(json, xml)) {
+    if (name == null || type == null || isEmptyConfigData(json, configXml)) {
       result = Response.status(Status.BAD_REQUEST).build();
     } else {
       Object configObj = null;
       if (json != null) {
         configObj = parseJSON(json);
-      } else if (xml != null) {
-        configObj = parseXML(xml, type);
+      } else if (configXml != null) {
+        configObj = parseXML(configXml, type);
       }
-      if (configObj == null) {
+      if (configObj == null || !type.isAssignableFrom(configObj.getClass())) {
         result = Response.status(Status.BAD_REQUEST).build();
       } else {
         ConfigItem<?> item = ConfigItem.of(configObj);
@@ -269,7 +273,7 @@ public class WebConfigsResource extends AbstractWebConfigResource {
       historyRequest.setPagingRequest(PagingRequest.ONE);
       ConfigHistoryResult<?> historyResult = data().getConfigMaster().history(historyRequest);
       if (historyResult.getDocuments().size() == 0) {
-        return null;
+        throw ex;
       }
       data().setConfig(historyResult.getFirstDocument());
     }
@@ -288,6 +292,7 @@ public class WebConfigsResource extends AbstractWebConfigResource {
     out.put("searchRequest", searchRequest);
     out.put("configTypes", getConfigTypesProvider().getConfigTypes());
     out.put("configDescriptionMap", getConfigTypesProvider().getDescriptionMap());
+    out.put("configGroupMap", getConfigTypesProvider().getGroupMap());
     out.put("curveSpecs", CurveSpecificationBuilderConfiguration.s_curveSpecNames);
     return out;
   }

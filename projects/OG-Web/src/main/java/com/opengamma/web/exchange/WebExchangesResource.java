@@ -202,7 +202,7 @@ public class WebExchangesResource extends AbstractWebExchangeResource {
       historyRequest.setPagingRequest(PagingRequest.ONE);
       ExchangeHistoryResult historyResult = data().getExchangeMaster().history(historyRequest);
       if (historyResult.getDocuments().size() == 0) {
-        return null;
+        throw ex;
       }
       data().setExchange(historyResult.getFirstDocument());
     }

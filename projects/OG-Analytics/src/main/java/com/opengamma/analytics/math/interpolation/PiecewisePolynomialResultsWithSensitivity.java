@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.math.interpolation;
 
+import java.util.Arrays;
+
 import org.apache.commons.lang.NotImplementedException;
 
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
@@ -59,4 +61,31 @@ public class PiecewisePolynomialResultsWithSensitivity extends PiecewisePolynomi
   public DoubleMatrix2D getCoefficientSensitivity(final int interval) {
     return _coeffSense[interval];
   }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    result = prime * result + Arrays.hashCode(_coeffSense);
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!super.equals(obj)) {
+      return false;
+    }
+    if (!(obj instanceof PiecewisePolynomialResultsWithSensitivity)) {
+      return false;
+    }
+    PiecewisePolynomialResultsWithSensitivity other = (PiecewisePolynomialResultsWithSensitivity) obj;
+    if (!Arrays.equals(_coeffSense, other._coeffSense)) {
+      return false;
+    }
+    return true;
+  }
+
 }

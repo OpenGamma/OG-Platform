@@ -1,9 +1,11 @@
 /**
- * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.credit.underlyingpool;
+
+import static com.google.common.collect.Sets.newHashSet;
 
 import com.opengamma.analytics.financial.credit.CreditSpreadTenors;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
@@ -14,8 +16,8 @@ import com.opengamma.analytics.financial.credit.obligor.CreditRatingMoodys;
 import com.opengamma.analytics.financial.credit.obligor.CreditRatingStandardAndPoors;
 import com.opengamma.analytics.financial.credit.obligor.Region;
 import com.opengamma.analytics.financial.credit.obligor.Sector;
-import com.opengamma.analytics.financial.credit.obligor.definition.Obligor;
 import com.opengamma.analytics.financial.credit.underlyingpool.definition.UnderlyingPool;
+import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -25,7 +27,7 @@ public class UnderlyingPoolDummyPool {
 
   //--------------------------------------------------------------------------------------------------------------------------------------------------
 
-  // TODO : 
+  // TODO :
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -41,7 +43,7 @@ public class UnderlyingPoolDummyPool {
   private static final int numberOfObligors = 5;
   private static final int numberOfTenors = 4;
 
-  private static final Obligor[] obligors = new Obligor[numberOfObligors];
+  private static final LegalEntity[] obligors = new LegalEntity[numberOfObligors];
 
   private static final double[] notionals = new double[numberOfObligors];
   private static final double[] coupons = new double[numberOfObligors];
@@ -59,8 +61,11 @@ public class UnderlyingPoolDummyPool {
 
   private static final Currency[] obligorCurrencies = {Currency.USD, Currency.USD, Currency.EUR, Currency.EUR, Currency.JPY };
   private static final DebtSeniority[] obligorDebtSeniorities = {DebtSeniority.SENIOR, DebtSeniority.SENIOR, DebtSeniority.SENIOR, DebtSeniority.SUBORDINATED, DebtSeniority.SUBORDINATED };
-  private static final RestructuringClause[] obligorRestructuringClauses = {RestructuringClause.NORE, RestructuringClause.NORE, RestructuringClause.MODRE, RestructuringClause.MODRE,
-      RestructuringClause.MODMODRE };
+  private static final RestructuringClause[] obligorRestructuringClauses = {RestructuringClause.XR, 
+                                                                            RestructuringClause.XR, 
+                                                                            RestructuringClause.MR, 
+                                                                            RestructuringClause.MR,
+                                                                            RestructuringClause.MM };
 
   private static final CreditSpreadTenors[] obligorCreditSpreadTenors = {CreditSpreadTenors._3Y, CreditSpreadTenors._5Y, CreditSpreadTenors._7Y, CreditSpreadTenors._10Y };
 
@@ -72,7 +77,7 @@ public class UnderlyingPoolDummyPool {
   private static final CreditRating[] obligorImpliedRating = {CreditRating.AA, CreditRating.AA, CreditRating.AA, CreditRating.AA, CreditRating.AA };
   private static final CreditRatingMoodys[] obligorCreditRatingMoodys = {CreditRatingMoodys.AA, CreditRatingMoodys.AA, CreditRatingMoodys.AA, CreditRatingMoodys.AA, CreditRatingMoodys.AA };
   private static final CreditRatingStandardAndPoors[] obligorCreditRatingStandardAndPoors = {CreditRatingStandardAndPoors.AA, CreditRatingStandardAndPoors.AA, CreditRatingStandardAndPoors.AA,
-      CreditRatingStandardAndPoors.AA, CreditRatingStandardAndPoors.AA };
+    CreditRatingStandardAndPoors.AA, CreditRatingStandardAndPoors.AA };
   private static final CreditRatingFitch[] obligorCreditRatingFitch = {CreditRatingFitch.AA, CreditRatingFitch.AA, CreditRatingFitch.AA, CreditRatingFitch.AA, CreditRatingFitch.AA };
 
   private static final boolean[] obligorHasDefaulted = {false, false, false, false, false };
@@ -90,19 +95,15 @@ public class UnderlyingPoolDummyPool {
     for (int i = 0; i < numberOfObligors; i++) {
 
       // Build obligor i
-      final Obligor obligor = new Obligor(
+
+      final LegalEntity obligor = new LegalEntity(
           obligorTickers[i],
           obligorShortName[i],
-          obligorREDCode[i],
-          obligorCompositeRating[i],
-          obligorImpliedRating[i],
-          obligorCreditRatingMoodys[i],
-          obligorCreditRatingStandardAndPoors[i],
-          obligorCreditRatingFitch[i],
-          obligorHasDefaulted[i],
-          obligorSector[i],
-          obligorRegion[i],
-          obligorCountry[i]);
+          newHashSet(obligorCompositeRating[i].toCreditRating(), obligorCreditRatingMoodys[i].toCreditRating(), obligorCreditRatingFitch[i].toCreditRating(),
+              obligorCreditRatingStandardAndPoors[i].toCreditRating(), obligorImpliedRating[i].toCreditRating()),
+          obligorSector[i].toSector(),
+          obligorRegion[i].toRegion(),
+          obligorHasDefaulted[i]);
 
       // Assign obligor i
       obligors[i] = obligor;
@@ -135,7 +136,7 @@ public class UnderlyingPoolDummyPool {
   // Assign the credit spread tenors
   public static final CreditSpreadTenors[] assignCreditSpreadTenors() {
 
-    CreditSpreadTenors[] creditSpreadTenors = new CreditSpreadTenors[numberOfTenors];
+    final CreditSpreadTenors[] creditSpreadTenors = new CreditSpreadTenors[numberOfTenors];
 
     for (int m = 0; m < numberOfTenors; m++) {
       creditSpreadTenors[m] = obligorCreditSpreadTenors[m];
@@ -149,7 +150,7 @@ public class UnderlyingPoolDummyPool {
   // Assign the credit spread term structures for each obligor in the underlying pool
   public static final double[][] assignCreditSpreadTermStructures() {
 
-    double[][] spreadTermStructures = new double[numberOfObligors][numberOfTenors];
+    final double[][] spreadTermStructures = new double[numberOfObligors][numberOfTenors];
 
     for (int i = 0; i < numberOfObligors; i++) {
       for (int j = 0; j < numberOfTenors; j++) {

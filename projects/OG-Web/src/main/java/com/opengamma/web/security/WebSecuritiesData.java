@@ -1,38 +1,39 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 package com.opengamma.web.security;
 
-import java.util.Map;
+import java.util.SortedMap;
 
 import javax.ws.rs.core.UriInfo;
 
-import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
-import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaProperty;
-import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectBean;
-import org.joda.beans.impl.direct.DirectBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaBean;
-import org.joda.beans.impl.direct.DirectMetaProperty;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
-import com.opengamma.master.orgs.OrganizationMaster;
+import com.opengamma.master.legalentity.LegalEntityMaster;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityLoader;
 import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.web.WebPerRequestData;
+import java.util.Map;
+import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 /**
  * Data class for web-based securities.
  */
 @BeanDefinition
-public class WebSecuritiesData extends DirectBean {
+public class WebSecuritiesData extends WebPerRequestData {
 
   /**
    * The security master.
@@ -49,11 +50,6 @@ public class WebSecuritiesData extends DirectBean {
    */
   @PropertyDefinition
   private HistoricalTimeSeriesMaster _historicalTimeSeriesMaster;
-  /**
-   * The JSR-311 URI information.
-   */
-  @PropertyDefinition
-  private UriInfo _uriInfo;
   /**
    * The security id from the input URI.
    */
@@ -78,7 +74,12 @@ public class WebSecuritiesData extends DirectBean {
    * The organization master.
    */
   @PropertyDefinition
-  private OrganizationMaster _organizationMaster;
+  private LegalEntityMaster _legalEntityMaster;
+  /**
+   * The security description to type mappings.
+   */
+  @PropertyDefinition
+  private SortedMap<String, String> _securityTypes;
 
   /**
    * Creates an instance.
@@ -124,100 +125,6 @@ public class WebSecuritiesData extends DirectBean {
   @Override
   public WebSecuritiesData.Meta metaBean() {
     return WebSecuritiesData.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -887218750:  // securityMaster
-        return getSecurityMaster();
-      case -903470221:  // securityLoader
-        return getSecurityLoader();
-      case 173967376:  // historicalTimeSeriesMaster
-        return getHistoricalTimeSeriesMaster();
-      case -173275078:  // uriInfo
-        return getUriInfo();
-      case 1433303815:  // uriSecurityId
-        return getUriSecurityId();
-      case 666567687:  // uriVersionId
-        return getUriVersionId();
-      case 949122880:  // security
-        return getSecurity();
-      case -1407102089:  // versioned
-        return getVersioned();
-      case -1158737547:  // organizationMaster
-        return getOrganizationMaster();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -887218750:  // securityMaster
-        setSecurityMaster((SecurityMaster) newValue);
-        return;
-      case -903470221:  // securityLoader
-        setSecurityLoader((SecurityLoader) newValue);
-        return;
-      case 173967376:  // historicalTimeSeriesMaster
-        setHistoricalTimeSeriesMaster((HistoricalTimeSeriesMaster) newValue);
-        return;
-      case -173275078:  // uriInfo
-        setUriInfo((UriInfo) newValue);
-        return;
-      case 1433303815:  // uriSecurityId
-        setUriSecurityId((String) newValue);
-        return;
-      case 666567687:  // uriVersionId
-        setUriVersionId((String) newValue);
-        return;
-      case 949122880:  // security
-        setSecurity((SecurityDocument) newValue);
-        return;
-      case -1407102089:  // versioned
-        setVersioned((SecurityDocument) newValue);
-        return;
-      case -1158737547:  // organizationMaster
-        setOrganizationMaster((OrganizationMaster) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      WebSecuritiesData other = (WebSecuritiesData) obj;
-      return JodaBeanUtils.equal(getSecurityMaster(), other.getSecurityMaster()) &&
-          JodaBeanUtils.equal(getSecurityLoader(), other.getSecurityLoader()) &&
-          JodaBeanUtils.equal(getHistoricalTimeSeriesMaster(), other.getHistoricalTimeSeriesMaster()) &&
-          JodaBeanUtils.equal(getUriInfo(), other.getUriInfo()) &&
-          JodaBeanUtils.equal(getUriSecurityId(), other.getUriSecurityId()) &&
-          JodaBeanUtils.equal(getUriVersionId(), other.getUriVersionId()) &&
-          JodaBeanUtils.equal(getSecurity(), other.getSecurity()) &&
-          JodaBeanUtils.equal(getVersioned(), other.getVersioned()) &&
-          JodaBeanUtils.equal(getOrganizationMaster(), other.getOrganizationMaster());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityLoader());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUriInfo());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUriSecurityId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUriVersionId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurity());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getVersioned());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getOrganizationMaster());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -293,31 +200,6 @@ public class WebSecuritiesData extends DirectBean {
    */
   public final Property<HistoricalTimeSeriesMaster> historicalTimeSeriesMaster() {
     return metaBean().historicalTimeSeriesMaster().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the JSR-311 URI information.
-   * @return the value of the property
-   */
-  public UriInfo getUriInfo() {
-    return _uriInfo;
-  }
-
-  /**
-   * Sets the JSR-311 URI information.
-   * @param uriInfo  the new value of the property
-   */
-  public void setUriInfo(UriInfo uriInfo) {
-    this._uriInfo = uriInfo;
-  }
-
-  /**
-   * Gets the the {@code uriInfo} property.
-   * @return the property, not null
-   */
-  public final Property<UriInfo> uriInfo() {
-    return metaBean().uriInfo().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -425,31 +307,125 @@ public class WebSecuritiesData extends DirectBean {
    * Gets the organization master.
    * @return the value of the property
    */
-  public OrganizationMaster getOrganizationMaster() {
-    return _organizationMaster;
+  public LegalEntityMaster getLegalEntityMaster() {
+    return _legalEntityMaster;
   }
 
   /**
    * Sets the organization master.
-   * @param organizationMaster  the new value of the property
+   * @param legalEntityMaster  the new value of the property
    */
-  public void setOrganizationMaster(OrganizationMaster organizationMaster) {
-    this._organizationMaster = organizationMaster;
+  public void setLegalEntityMaster(LegalEntityMaster legalEntityMaster) {
+    this._legalEntityMaster = legalEntityMaster;
   }
 
   /**
-   * Gets the the {@code organizationMaster} property.
+   * Gets the the {@code legalEntityMaster} property.
    * @return the property, not null
    */
-  public final Property<OrganizationMaster> organizationMaster() {
-    return metaBean().organizationMaster().createProperty(this);
+  public final Property<LegalEntityMaster> legalEntityMaster() {
+    return metaBean().legalEntityMaster().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the security description to type mappings.
+   * @return the value of the property
+   */
+  public SortedMap<String, String> getSecurityTypes() {
+    return _securityTypes;
+  }
+
+  /**
+   * Sets the security description to type mappings.
+   * @param securityTypes  the new value of the property
+   */
+  public void setSecurityTypes(SortedMap<String, String> securityTypes) {
+    this._securityTypes = securityTypes;
+  }
+
+  /**
+   * Gets the the {@code securityTypes} property.
+   * @return the property, not null
+   */
+  public final Property<SortedMap<String, String>> securityTypes() {
+    return metaBean().securityTypes().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public WebSecuritiesData clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      WebSecuritiesData other = (WebSecuritiesData) obj;
+      return JodaBeanUtils.equal(getSecurityMaster(), other.getSecurityMaster()) &&
+          JodaBeanUtils.equal(getSecurityLoader(), other.getSecurityLoader()) &&
+          JodaBeanUtils.equal(getHistoricalTimeSeriesMaster(), other.getHistoricalTimeSeriesMaster()) &&
+          JodaBeanUtils.equal(getUriSecurityId(), other.getUriSecurityId()) &&
+          JodaBeanUtils.equal(getUriVersionId(), other.getUriVersionId()) &&
+          JodaBeanUtils.equal(getSecurity(), other.getSecurity()) &&
+          JodaBeanUtils.equal(getVersioned(), other.getVersioned()) &&
+          JodaBeanUtils.equal(getLegalEntityMaster(), other.getLegalEntityMaster()) &&
+          JodaBeanUtils.equal(getSecurityTypes(), other.getSecurityTypes()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityLoader());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUriSecurityId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUriVersionId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurity());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getVersioned());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getLegalEntityMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityTypes());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(320);
+    buf.append("WebSecuritiesData{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("securityMaster").append('=').append(JodaBeanUtils.toString(getSecurityMaster())).append(',').append(' ');
+    buf.append("securityLoader").append('=').append(JodaBeanUtils.toString(getSecurityLoader())).append(',').append(' ');
+    buf.append("historicalTimeSeriesMaster").append('=').append(JodaBeanUtils.toString(getHistoricalTimeSeriesMaster())).append(',').append(' ');
+    buf.append("uriSecurityId").append('=').append(JodaBeanUtils.toString(getUriSecurityId())).append(',').append(' ');
+    buf.append("uriVersionId").append('=').append(JodaBeanUtils.toString(getUriVersionId())).append(',').append(' ');
+    buf.append("security").append('=').append(JodaBeanUtils.toString(getSecurity())).append(',').append(' ');
+    buf.append("versioned").append('=').append(JodaBeanUtils.toString(getVersioned())).append(',').append(' ');
+    buf.append("legalEntityMaster").append('=').append(JodaBeanUtils.toString(getLegalEntityMaster())).append(',').append(' ');
+    buf.append("securityTypes").append('=').append(JodaBeanUtils.toString(getSecurityTypes())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code WebSecuritiesData}.
    */
-  public static class Meta extends DirectMetaBean {
+  public static class Meta extends WebPerRequestData.Meta {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -471,11 +447,6 @@ public class WebSecuritiesData extends DirectBean {
     private final MetaProperty<HistoricalTimeSeriesMaster> _historicalTimeSeriesMaster = DirectMetaProperty.ofReadWrite(
         this, "historicalTimeSeriesMaster", WebSecuritiesData.class, HistoricalTimeSeriesMaster.class);
     /**
-     * The meta-property for the {@code uriInfo} property.
-     */
-    private final MetaProperty<UriInfo> _uriInfo = DirectMetaProperty.ofReadWrite(
-        this, "uriInfo", WebSecuritiesData.class, UriInfo.class);
-    /**
      * The meta-property for the {@code uriSecurityId} property.
      */
     private final MetaProperty<String> _uriSecurityId = DirectMetaProperty.ofReadWrite(
@@ -496,24 +467,30 @@ public class WebSecuritiesData extends DirectBean {
     private final MetaProperty<SecurityDocument> _versioned = DirectMetaProperty.ofReadWrite(
         this, "versioned", WebSecuritiesData.class, SecurityDocument.class);
     /**
-     * The meta-property for the {@code organizationMaster} property.
+     * The meta-property for the {@code legalEntityMaster} property.
      */
-    private final MetaProperty<OrganizationMaster> _organizationMaster = DirectMetaProperty.ofReadWrite(
-        this, "organizationMaster", WebSecuritiesData.class, OrganizationMaster.class);
+    private final MetaProperty<LegalEntityMaster> _legalEntityMaster = DirectMetaProperty.ofReadWrite(
+        this, "legalEntityMaster", WebSecuritiesData.class, LegalEntityMaster.class);
+    /**
+     * The meta-property for the {@code securityTypes} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<SortedMap<String, String>> _securityTypes = DirectMetaProperty.ofReadWrite(
+        this, "securityTypes", WebSecuritiesData.class, (Class) SortedMap.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-        this, null,
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "securityMaster",
         "securityLoader",
         "historicalTimeSeriesMaster",
-        "uriInfo",
         "uriSecurityId",
         "uriVersionId",
         "security",
         "versioned",
-        "organizationMaster");
+        "legalEntityMaster",
+        "securityTypes");
 
     /**
      * Restricted constructor.
@@ -530,8 +507,6 @@ public class WebSecuritiesData extends DirectBean {
           return _securityLoader;
         case 173967376:  // historicalTimeSeriesMaster
           return _historicalTimeSeriesMaster;
-        case -173275078:  // uriInfo
-          return _uriInfo;
         case 1433303815:  // uriSecurityId
           return _uriSecurityId;
         case 666567687:  // uriVersionId
@@ -540,8 +515,10 @@ public class WebSecuritiesData extends DirectBean {
           return _security;
         case -1407102089:  // versioned
           return _versioned;
-        case -1158737547:  // organizationMaster
-          return _organizationMaster;
+        case -1944474242:  // legalEntityMaster
+          return _legalEntityMaster;
+        case -714180327:  // securityTypes
+          return _securityTypes;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -587,14 +564,6 @@ public class WebSecuritiesData extends DirectBean {
     }
 
     /**
-     * The meta-property for the {@code uriInfo} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<UriInfo> uriInfo() {
-      return _uriInfo;
-    }
-
-    /**
      * The meta-property for the {@code uriSecurityId} property.
      * @return the meta-property, not null
      */
@@ -627,11 +596,80 @@ public class WebSecuritiesData extends DirectBean {
     }
 
     /**
-     * The meta-property for the {@code organizationMaster} property.
+     * The meta-property for the {@code legalEntityMaster} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<OrganizationMaster> organizationMaster() {
-      return _organizationMaster;
+    public final MetaProperty<LegalEntityMaster> legalEntityMaster() {
+      return _legalEntityMaster;
+    }
+
+    /**
+     * The meta-property for the {@code securityTypes} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<SortedMap<String, String>> securityTypes() {
+      return _securityTypes;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -887218750:  // securityMaster
+          return ((WebSecuritiesData) bean).getSecurityMaster();
+        case -903470221:  // securityLoader
+          return ((WebSecuritiesData) bean).getSecurityLoader();
+        case 173967376:  // historicalTimeSeriesMaster
+          return ((WebSecuritiesData) bean).getHistoricalTimeSeriesMaster();
+        case 1433303815:  // uriSecurityId
+          return ((WebSecuritiesData) bean).getUriSecurityId();
+        case 666567687:  // uriVersionId
+          return ((WebSecuritiesData) bean).getUriVersionId();
+        case 949122880:  // security
+          return ((WebSecuritiesData) bean).getSecurity();
+        case -1407102089:  // versioned
+          return ((WebSecuritiesData) bean).getVersioned();
+        case -1944474242:  // legalEntityMaster
+          return ((WebSecuritiesData) bean).getLegalEntityMaster();
+        case -714180327:  // securityTypes
+          return ((WebSecuritiesData) bean).getSecurityTypes();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -887218750:  // securityMaster
+          ((WebSecuritiesData) bean).setSecurityMaster((SecurityMaster) newValue);
+          return;
+        case -903470221:  // securityLoader
+          ((WebSecuritiesData) bean).setSecurityLoader((SecurityLoader) newValue);
+          return;
+        case 173967376:  // historicalTimeSeriesMaster
+          ((WebSecuritiesData) bean).setHistoricalTimeSeriesMaster((HistoricalTimeSeriesMaster) newValue);
+          return;
+        case 1433303815:  // uriSecurityId
+          ((WebSecuritiesData) bean).setUriSecurityId((String) newValue);
+          return;
+        case 666567687:  // uriVersionId
+          ((WebSecuritiesData) bean).setUriVersionId((String) newValue);
+          return;
+        case 949122880:  // security
+          ((WebSecuritiesData) bean).setSecurity((SecurityDocument) newValue);
+          return;
+        case -1407102089:  // versioned
+          ((WebSecuritiesData) bean).setVersioned((SecurityDocument) newValue);
+          return;
+        case -1944474242:  // legalEntityMaster
+          ((WebSecuritiesData) bean).setLegalEntityMaster((LegalEntityMaster) newValue);
+          return;
+        case -714180327:  // securityTypes
+          ((WebSecuritiesData) bean).setSecurityTypes((SortedMap<String, String>) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

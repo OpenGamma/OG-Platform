@@ -17,12 +17,15 @@ import com.opengamma.financial.analytics.parameters.HullWhiteOneFactorParameters
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class ParametersBuildersTest extends AnalyticsTestBase {
 
   @Test
@@ -48,7 +51,7 @@ public class ParametersBuildersTest extends AnalyticsTestBase {
     final ExternalId secondInitialVolatilityId = ExternalId.of("Test", "IV2");
     final SortedMap<Tenor, Pair<ExternalId, ExternalId>> volatilityParameterIds = new TreeMap<>();
     for (int i = 1; i < 10; i++) {
-      volatilityParameterIds.put(Tenor.ofMonths(i), Pair.of(ExternalId.of("Test", "1V" + i), ExternalId.of("Test", "2V" + i)));
+      volatilityParameterIds.put(Tenor.ofMonths(i), Pairs.of(ExternalId.of("Test", "1V" + i), ExternalId.of("Test", "2V" + i)));
     }
     final ExternalId correlationId = ExternalId.of("Test", "rho");
     final G2ppParameters object = new G2ppParameters(currency, firstMeanReversionId, secondMeanReversionId, firstInitialVolatilityId,

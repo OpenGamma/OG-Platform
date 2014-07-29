@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -100,52 +101,6 @@ public abstract class AbstractDocumentsResult<D extends AbstractDocument> extend
     return AbstractDocumentsResult.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -995747956:  // paging
-        return getPaging();
-      case 943542968:  // documents
-        return getDocuments();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -995747956:  // paging
-        setPaging((Paging) newValue);
-        return;
-      case 943542968:  // documents
-        setDocuments((List<D>) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      AbstractDocumentsResult<?> other = (AbstractDocumentsResult<?>) obj;
-      return JodaBeanUtils.equal(getPaging(), other.getPaging()) &&
-          JodaBeanUtils.equal(getDocuments(), other.getDocuments());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPaging());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDocuments());
-    return hash;
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the paging information, not null if correctly created.
@@ -174,7 +129,7 @@ public abstract class AbstractDocumentsResult<D extends AbstractDocument> extend
   //-----------------------------------------------------------------------
   /**
    * Gets the documents, not null.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public List<D> getDocuments() {
     return _documents;
@@ -182,9 +137,10 @@ public abstract class AbstractDocumentsResult<D extends AbstractDocument> extend
 
   /**
    * Sets the documents, not null.
-   * @param documents  the new value of the property
+   * @param documents  the new value of the property, not null
    */
   public void setDocuments(List<D> documents) {
+    JodaBeanUtils.notNull(documents, "documents");
     this._documents.clear();
     this._documents.addAll(documents);
   }
@@ -198,8 +154,54 @@ public abstract class AbstractDocumentsResult<D extends AbstractDocument> extend
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public AbstractDocumentsResult<D> clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      AbstractDocumentsResult<?> other = (AbstractDocumentsResult<?>) obj;
+      return JodaBeanUtils.equal(getPaging(), other.getPaging()) &&
+          JodaBeanUtils.equal(getDocuments(), other.getDocuments());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPaging());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDocuments());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(96);
+    buf.append("AbstractDocumentsResult{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("paging").append('=').append(JodaBeanUtils.toString(getPaging())).append(',').append(' ');
+    buf.append("documents").append('=').append(JodaBeanUtils.toString(getDocuments())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code AbstractDocumentsResult}.
+   * @param <D>  the type
    */
   public static class Meta<D extends AbstractDocument> extends DirectMetaBean {
     /**
@@ -275,6 +277,37 @@ public abstract class AbstractDocumentsResult<D extends AbstractDocument> extend
      */
     public final MetaProperty<List<D>> documents() {
       return _documents;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -995747956:  // paging
+          return ((AbstractDocumentsResult<?>) bean).getPaging();
+        case 943542968:  // documents
+          return ((AbstractDocumentsResult<?>) bean).getDocuments();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -995747956:  // paging
+          ((AbstractDocumentsResult<D>) bean).setPaging((Paging) newValue);
+          return;
+        case 943542968:  // documents
+          ((AbstractDocumentsResult<D>) bean).setDocuments((List<D>) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((AbstractDocumentsResult<?>) bean)._documents, "documents");
     }
 
   }

@@ -5,12 +5,15 @@
  */
 package com.opengamma.financial.security;
 
+import com.opengamma.financial.security.bond.BillSecurity;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
+import com.opengamma.financial.security.bond.FloatingRateNoteSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.bond.InflationBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
+import com.opengamma.financial.security.cash.CashBalanceSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.cds.CDSSecurity;
@@ -22,15 +25,22 @@ import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
 import com.opengamma.financial.security.cds.StandardFixedRecoveryCDSSecurity;
 import com.opengamma.financial.security.cds.StandardRecoveryLockCDSSecurity;
 import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
+import com.opengamma.financial.security.credit.IndexCDSDefinitionSecurity;
+import com.opengamma.financial.security.credit.IndexCDSSecurity;
+import com.opengamma.financial.security.credit.LegacyCDSSecurity;
+import com.opengamma.financial.security.credit.StandardCDSSecurity;
 import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
+import com.opengamma.financial.security.equity.AmericanDepositaryReceiptSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
+import com.opengamma.financial.security.equity.ExchangeTradedFundSecurity;
 import com.opengamma.financial.security.forward.AgricultureForwardSecurity;
 import com.opengamma.financial.security.forward.EnergyForwardSecurity;
 import com.opengamma.financial.security.forward.MetalForwardSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
+import com.opengamma.financial.security.fra.ForwardRateAgreementSecurity;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.future.DeliverableSwapFutureSecurity;
@@ -44,7 +54,9 @@ import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.financial.security.fx.FXVolatilitySwapSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
+import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
 import com.opengamma.financial.security.option.CreditDefaultSwapOptionSecurity;
@@ -53,6 +65,7 @@ import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSe
 import com.opengamma.financial.security.option.EquityIndexFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
+import com.opengamma.financial.security.option.EquityWarrantSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
@@ -61,6 +74,9 @@ import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
+import com.opengamma.financial.security.swap.BillTotalReturnSwapSecurity;
+import com.opengamma.financial.security.swap.BondTotalReturnSwapSecurity;
+import com.opengamma.financial.security.swap.EquityTotalReturnSwapSecurity;
 import com.opengamma.financial.security.swap.ForwardSwapSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.financial.security.swap.YearOnYearInflationSwapSecurity;
@@ -72,15 +88,23 @@ import com.opengamma.financial.security.swap.ZeroCouponInflationSwapSecurity;
  * @param <T> Return type for visitor.
  */
 public class FinancialSecurityVisitorSameValueAdapter<T> implements FinancialSecurityVisitor<T> {
-
+  /** The value to return for each security */
   private final T _value;
 
+  /**
+   * @param value The value to return
+   */
   public FinancialSecurityVisitorSameValueAdapter(final T value) {
     _value = value;
   }
 
   @Override
   public T visitAgricultureFutureSecurity(final AgricultureFutureSecurity security) {
+    return _value;
+  }
+
+  @Override
+  public T visitBillSecurity(final BillSecurity security) {
     return _value;
   }
 
@@ -98,7 +122,7 @@ public class FinancialSecurityVisitorSameValueAdapter<T> implements FinancialSec
   public T visitMunicipalBondSecurity(final MunicipalBondSecurity security) {
     return _value;
   }
-  
+
   @Override
   public T visitInflationBondSecurity(final InflationBondSecurity security) {
     return _value;
@@ -111,6 +135,11 @@ public class FinancialSecurityVisitorSameValueAdapter<T> implements FinancialSec
 
   @Override
   public T visitCapFloorSecurity(final CapFloorSecurity security) {
+    return _value;
+  }
+
+  @Override
+  public T visitCashBalanceSecurity(final CashBalanceSecurity security) {
     return _value;
   }
 
@@ -166,6 +195,11 @@ public class FinancialSecurityVisitorSameValueAdapter<T> implements FinancialSec
 
   @Override
   public T visitFRASecurity(final FRASecurity security) {
+    return _value;
+  }
+
+  @Override
+  public T visitForwardRateAgreementSecurity(final ForwardRateAgreementSecurity security) {
     return _value;
   }
 
@@ -295,7 +329,7 @@ public class FinancialSecurityVisitorSameValueAdapter<T> implements FinancialSec
   }
 
   @Override
-  public T visitFederalFundsFutureSecurity(FederalFundsFutureSecurity security) {
+  public T visitFederalFundsFutureSecurity(final FederalFundsFutureSecurity security) {
     return _value;
   }
 
@@ -312,7 +346,7 @@ public class FinancialSecurityVisitorSameValueAdapter<T> implements FinancialSec
   @Override
   public T visitMetalForwardSecurity(final MetalForwardSecurity security) {
     return _value;
-  }  
+  }
 
   @Override
   public T visitCDSSecurity(final CDSSecurity security) {
@@ -376,6 +410,71 @@ public class FinancialSecurityVisitorSameValueAdapter<T> implements FinancialSec
 
   @Override
   public T visitYearOnYearInflationSwapSecurity(final YearOnYearInflationSwapSecurity security) {
+    return _value;
+  }
+
+  @Override
+  public T visitInterestRateSwapSecurity(final InterestRateSwapSecurity security) {
+    return _value;
+  }
+
+  @Override
+  public T visitFXVolatilitySwapSecurity(final FXVolatilitySwapSecurity security) {
+    return _value;
+  }
+
+  @Override
+  public T visitExchangeTradedFundSecurity(final ExchangeTradedFundSecurity security) {
+    return _value;
+  }
+
+  @Override
+  public T visitAmericanDepositaryReceiptSecurity(final AmericanDepositaryReceiptSecurity security) {
+    return _value;
+  }
+
+  @Override
+  public T visitEquityWarrantSecurity(final EquityWarrantSecurity security) {
+    return _value;
+  }
+
+  @Override
+  public T visitFloatingRateNoteSecurity(final FloatingRateNoteSecurity security) {
+    return _value;
+  }
+
+  @Override
+  public T visitEquityTotalReturnSwapSecurity(final EquityTotalReturnSwapSecurity security) {
+    return _value;
+  }
+
+  @Override
+  public T visitBondTotalReturnSwapSecurity(final BondTotalReturnSwapSecurity security) {
+    return _value;
+  }
+
+  @Override
+  public T visitBillTotalReturnSwapSecurity(final BillTotalReturnSwapSecurity security) {
+    return _value;
+  }
+
+  @Override
+  public T visitStandardCDSSecurity(StandardCDSSecurity security) {
+    return _value;
+  }
+
+  @Override
+  public T visitLegacyCDSSecurity(LegacyCDSSecurity security) {
+    return _value;
+  }
+
+  @Override
+  public T visitIndexCDSSecurity(IndexCDSSecurity security) {
+    return _value;
+  }
+
+  @Override
+  public T visitIndexCDSDefinitionSecurity(IndexCDSDefinitionSecurity security) {
     return _value;
   }
 }

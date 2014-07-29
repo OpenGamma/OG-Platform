@@ -16,16 +16,19 @@ import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefinition;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the construction of ForexDefinition and it conversion to derivative.
  */
+@Test(groups = TestGroup.UNIT)
 public class ForexDefinitionTest {
 
   private static final Currency CUR_1 = Currency.EUR;
   private static final Currency CUR_2 = Currency.USD;
   private static final ZonedDateTime PAYMENT_DATE = DateUtils.getUTCDate(2011, 5, 24);
+  private static final ZonedDateTime PAYMENT_DATE_OTHER = DateUtils.getUTCDate(2011, 5, 25);
   private static final double NOMINAL_1 = 100000000;
   private static final double FX_RATE = 1.4177;
   private static final ForexDefinition FX = new ForexDefinition(CUR_1, CUR_2, PAYMENT_DATE, NOMINAL_1, FX_RATE);
@@ -55,6 +58,11 @@ public class ForexDefinitionTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void wrongSign() {
     new ForexDefinition(PAY_1, new PaymentFixedDefinition(CUR_2, PAYMENT_DATE, NOMINAL_1 * FX_RATE));
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void differentDates() {
+    new ForexDefinition(PAY_1, new PaymentFixedDefinition(CUR_2, PAYMENT_DATE_OTHER, NOMINAL_1 * -FX_RATE));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

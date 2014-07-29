@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.credit.isda.cds;
@@ -9,7 +9,6 @@ import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CALCULATION_CONFIG;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CALCULATION_METHOD;
 import static com.opengamma.engine.value.ValuePropertyNames.FUNCTION;
-import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_CDS_PRICE_TYPE;
 import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_HAZARD_RATE_CURVE;
 import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_HAZARD_RATE_CURVE_CALCULATION_METHOD;
 import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE;
@@ -28,16 +27,14 @@ import org.threeten.bp.ZonedDateTime;
 import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.credit.BuySellProtection;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.StandardCDSCoupon;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.standard.StandardCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.AnalyticCDSPricer;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSAnalytic;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSAnalyticFactory;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantCreditCurve;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantYieldCurve;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.PointsUpFrontConverter;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.AnalyticCDSPricer;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalytic;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurve;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.MarketQuoteConverter;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -49,17 +46,17 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.credit.CreditSecurityToIdentifierVisitor;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
+import com.opengamma.util.time.Tenor;
 
 /**
- * 
+ *
  */
 public class StandardVanillaPresentValueCDSFunction extends StandardVanillaCDSFunction {
   private static final AnalyticCDSPricer PRICER = new AnalyticCDSPricer();
-  private static final PointsUpFrontConverter POINTS_UP_FRONT_CONVERTER = new PointsUpFrontConverter();
+  private static final MarketQuoteConverter POINTS_UP_FRONT_CONVERTER = new MarketQuoteConverter();
 
   public StandardVanillaPresentValueCDSFunction() {
     super(ValueRequirementNames.PRESENT_VALUE);
@@ -74,21 +71,21 @@ public class StandardVanillaPresentValueCDSFunction extends StandardVanillaCDSFu
                                                 final ComputationTarget target,
                                                 final ValueProperties properties,
                                                 final FunctionInputs inputs,
-                                                ISDACompliantCreditCurve hazardCurve, CDSAnalytic analytic) {
+                                                final ISDACompliantCreditCurve hazardCurve, final CDSAnalytic analytic, final Tenor[] tenors) {
 
-    double pv = presentValue(definition, yieldCurve, hazardCurve, analytic);
+    final double pv = presentValue(definition, yieldCurve, hazardCurve, analytic);
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, pv));
   }
 
-  public static double presentValue(CreditDefaultSwapDefinition definition, ISDACompliantYieldCurve yieldCurve,
-                              ISDACompliantCreditCurve hazardCurve, CDSAnalytic analytic) {
+  public static double presentValue(final CreditDefaultSwapDefinition definition, final ISDACompliantYieldCurve yieldCurve,
+                              final ISDACompliantCreditCurve hazardCurve, final CDSAnalytic analytic) {
     double pv;
     if (definition instanceof LegacyCreditDefaultSwapDefinition) {
       pv = PRICER.pv(analytic, yieldCurve, hazardCurve, ((LegacyCreditDefaultSwapDefinition) definition).getParSpread() * 1e-4) * definition.getNotional();
     } else if (definition instanceof StandardCreditDefaultSwapDefinition) {
       pv = POINTS_UP_FRONT_CONVERTER.quotedSpreadToPUF(analytic,
-                                                       getCoupon(((StandardCreditDefaultSwapDefinition) definition).getPremiumLegCoupon()),
+                                                       ((StandardCreditDefaultSwapDefinition) definition).getPremiumLegCoupon(),
                                                        yieldCurve,
                                                        ((StandardCreditDefaultSwapDefinition) definition).getQuotedSpread() * 1e-4) * definition.getNotional();
     } else {
@@ -106,10 +103,6 @@ public class StandardVanillaPresentValueCDSFunction extends StandardVanillaCDSFu
       return null;
     }
     final ValueProperties constraints = desiredValue.getConstraints();
-    final Set<String> cdsPriceTypes = constraints.getValues(PROPERTY_CDS_PRICE_TYPE);
-    if (cdsPriceTypes == null || cdsPriceTypes.size() != 1) {
-      return null;
-    }
     final Set<String> hazardRateCurveCalculationMethodNames = constraints.getValues(PROPERTY_HAZARD_RATE_CURVE_CALCULATION_METHOD);
     if (hazardRateCurveCalculationMethodNames == null || hazardRateCurveCalculationMethodNames.size() != 1) {
       return null;
@@ -180,11 +173,9 @@ public class StandardVanillaPresentValueCDSFunction extends StandardVanillaCDSFu
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, targetSpec, properties));
   }
 
-
   @Override
   protected ValueProperties.Builder getCommonResultProperties() {
-    return createValueProperties()
-        .withAny(CreditInstrumentPropertyNamesAndValues.PROPERTY_CDS_PRICE_TYPE);
+    return createValueProperties();
   }
 
   @Override

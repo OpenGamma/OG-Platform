@@ -99,7 +99,7 @@ public class DataExchangeResource extends AbstractDocumentDataResource<ExchangeD
       throw new IllegalArgumentException("Document objectId does not match URI");
     }
     ExchangeHistoryResult result = getMaster().history(request);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   @GET

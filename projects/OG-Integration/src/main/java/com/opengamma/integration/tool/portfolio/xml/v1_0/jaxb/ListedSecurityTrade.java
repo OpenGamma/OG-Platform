@@ -7,20 +7,20 @@ package com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementRef;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.joda.beans.BeanDefinition;
-import org.joda.beans.PropertyDefinition;
-
-import java.util.Map;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
@@ -92,67 +92,6 @@ public class ListedSecurityTrade extends Trade {
   @Override
   public ListedSecurityTrade.Meta metaBean() {
     return ListedSecurityTrade.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 244977400:  // buySell
-        return getBuySell();
-      case -1107354437:  // numContracts
-        return getNumContracts();
-      case 150569914:  // brokers
-        return getBrokers();
-      case -163631792:  // listedSecurityDefinition
-        return getListedSecurityDefinition();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 244977400:  // buySell
-        setBuySell((BuySell) newValue);
-        return;
-      case -1107354437:  // numContracts
-        setNumContracts((Integer) newValue);
-        return;
-      case 150569914:  // brokers
-        setBrokers((List<Broker>) newValue);
-        return;
-      case -163631792:  // listedSecurityDefinition
-        setListedSecurityDefinition((ListedSecurityDefinition) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      ListedSecurityTrade other = (ListedSecurityTrade) obj;
-      return JodaBeanUtils.equal(getBuySell(), other.getBuySell()) &&
-          JodaBeanUtils.equal(getNumContracts(), other.getNumContracts()) &&
-          JodaBeanUtils.equal(getBrokers(), other.getBrokers()) &&
-          JodaBeanUtils.equal(getListedSecurityDefinition(), other.getListedSecurityDefinition()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBuySell());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNumContracts());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBrokers());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getListedSecurityDefinition());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -253,6 +192,60 @@ public class ListedSecurityTrade extends Trade {
    */
   public final Property<ListedSecurityDefinition> listedSecurityDefinition() {
     return metaBean().listedSecurityDefinition().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public ListedSecurityTrade clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      ListedSecurityTrade other = (ListedSecurityTrade) obj;
+      return JodaBeanUtils.equal(getBuySell(), other.getBuySell()) &&
+          (getNumContracts() == other.getNumContracts()) &&
+          JodaBeanUtils.equal(getBrokers(), other.getBrokers()) &&
+          JodaBeanUtils.equal(getListedSecurityDefinition(), other.getListedSecurityDefinition()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getBuySell());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getNumContracts());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getBrokers());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getListedSecurityDefinition());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(160);
+    buf.append("ListedSecurityTrade{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("buySell").append('=').append(JodaBeanUtils.toString(getBuySell())).append(',').append(' ');
+    buf.append("numContracts").append('=').append(JodaBeanUtils.toString(getNumContracts())).append(',').append(' ');
+    buf.append("brokers").append('=').append(JodaBeanUtils.toString(getBrokers())).append(',').append(' ');
+    buf.append("listedSecurityDefinition").append('=').append(JodaBeanUtils.toString(getListedSecurityDefinition())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -363,6 +356,42 @@ public class ListedSecurityTrade extends Trade {
      */
     public final MetaProperty<ListedSecurityDefinition> listedSecurityDefinition() {
       return _listedSecurityDefinition;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 244977400:  // buySell
+          return ((ListedSecurityTrade) bean).getBuySell();
+        case -1107354437:  // numContracts
+          return ((ListedSecurityTrade) bean).getNumContracts();
+        case 150569914:  // brokers
+          return ((ListedSecurityTrade) bean).getBrokers();
+        case -163631792:  // listedSecurityDefinition
+          return ((ListedSecurityTrade) bean).getListedSecurityDefinition();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 244977400:  // buySell
+          ((ListedSecurityTrade) bean).setBuySell((BuySell) newValue);
+          return;
+        case -1107354437:  // numContracts
+          ((ListedSecurityTrade) bean).setNumContracts((Integer) newValue);
+          return;
+        case 150569914:  // brokers
+          ((ListedSecurityTrade) bean).setBrokers((List<Broker>) newValue);
+          return;
+        case -163631792:  // listedSecurityDefinition
+          ((ListedSecurityTrade) bean).setListedSecurityDefinition((ListedSecurityDefinition) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

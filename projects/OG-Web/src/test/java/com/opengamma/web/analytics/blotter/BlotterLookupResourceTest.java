@@ -36,6 +36,7 @@ public class BlotterLookupResourceTest {
         "Daily",
         "Weekly",
         "Bi-weekly",
+        "Three week",
         "Twenty Eight Days",
         "Monthly",
         "Bi-monthly",

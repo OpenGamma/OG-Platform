@@ -43,7 +43,7 @@ public class InflationDiscountFinderJacobian extends Function1D<DoubleMatrix1D, 
   public DoubleMatrix2D evaluate(DoubleMatrix1D x) {
     final InflationProviderDiscount bundle = _data.getKnownData().copy();
     InflationProviderDiscount newCurves = _data.getGeneratorMarket().evaluate(x);
-    bundle.setAll(newCurves);
+    bundle.setAll(newCurves); 
     Set<String> curvesSet = _data.getGeneratorMarket().getInflationCurvesList();
     final int nbParameters = _data.getNumberOfInstruments();
     final double[][] res = new double[nbParameters][nbParameters];

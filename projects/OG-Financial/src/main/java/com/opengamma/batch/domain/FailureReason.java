@@ -7,6 +7,7 @@ package com.opengamma.batch.domain;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -51,58 +52,6 @@ public class FailureReason extends DirectBean {
   @Override
   public FailureReason.Meta metaBean() {
     return FailureReason.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 3355:  // id
-        return getId();
-      case -1471715397:  // riskFailure
-        return getRiskFailure();
-      case 1803609550:  // computeFailureId
-        return getComputeFailureId();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 3355:  // id
-        setId((Long) newValue);
-        return;
-      case -1471715397:  // riskFailure
-        setRiskFailure((RiskFailure) newValue);
-        return;
-      case 1803609550:  // computeFailureId
-        setComputeFailureId((Long) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      FailureReason other = (FailureReason) obj;
-      return JodaBeanUtils.equal(getId(), other.getId()) &&
-          JodaBeanUtils.equal(getRiskFailure(), other.getRiskFailure()) &&
-          JodaBeanUtils.equal(getComputeFailureId(), other.getComputeFailureId());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRiskFailure());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getComputeFailureId());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -178,6 +127,54 @@ public class FailureReason extends DirectBean {
    */
   public final Property<Long> computeFailureId() {
     return metaBean().computeFailureId().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public FailureReason clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      FailureReason other = (FailureReason) obj;
+      return (getId() == other.getId()) &&
+          JodaBeanUtils.equal(getRiskFailure(), other.getRiskFailure()) &&
+          (getComputeFailureId() == other.getComputeFailureId());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRiskFailure());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getComputeFailureId());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(128);
+    buf.append("FailureReason{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("id").append('=').append(JodaBeanUtils.toString(getId())).append(',').append(' ');
+    buf.append("riskFailure").append('=').append(JodaBeanUtils.toString(getRiskFailure())).append(',').append(' ');
+    buf.append("computeFailureId").append('=').append(JodaBeanUtils.toString(getComputeFailureId())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -271,6 +268,36 @@ public class FailureReason extends DirectBean {
      */
     public final MetaProperty<Long> computeFailureId() {
       return _computeFailureId;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 3355:  // id
+          return ((FailureReason) bean).getId();
+        case -1471715397:  // riskFailure
+          return ((FailureReason) bean).getRiskFailure();
+        case 1803609550:  // computeFailureId
+          return ((FailureReason) bean).getComputeFailureId();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 3355:  // id
+          ((FailureReason) bean).setId((Long) newValue);
+          return;
+        case -1471715397:  // riskFailure
+          ((FailureReason) bean).setRiskFailure((RiskFailure) newValue);
+          return;
+        case 1803609550:  // computeFailureId
+          ((FailureReason) bean).setComputeFailureId((Long) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

@@ -34,7 +34,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 
 /**
  *
@@ -66,7 +66,7 @@ public class NoExtrapolationSABRDiscountingBCSFunction extends SABRDiscountingFu
           final ComputationTarget target, final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative,
           final FXMatrix fxMatrix) {
         final Set<ComputedValue> result = new HashSet<>();
-        final DayCount dayCount = DayCountFactory.INSTANCE.getDayCount("Act/360"); //TODO
+        final DayCount dayCount = DayCounts.ACT_360; //TODO
         final SABRSwaptionProvider sabrData = getSABRSurfaces(executionContext, inputs, target, fxMatrix, dayCount);
         final CurveBuildingBlockBundle blocks = getMergedCurveBuildingBlocks(inputs);
         final MultipleCurrencyParameterSensitivity sensitivities = CALCULATOR.fromInstrument(derivative, sabrData, blocks);

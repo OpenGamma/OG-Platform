@@ -19,7 +19,6 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.metric.MetricProducer;
 
 /**
  * An extremely minimal and lightweight {@code HistoricalTimeSeriesSource} that pulls data
@@ -56,16 +55,22 @@ import com.opengamma.util.metric.MetricProducer;
  * See <a href="http://jira.opengamma.com/browse/PLAT-3385">PLAT-3385</a> for the original
  * requirement.
  */
-public class RedisSimulationSeriesSource extends NonVersionedRedisHistoricalTimeSeriesSource implements MetricProducer {
+public class RedisSimulationSeriesSource extends NonVersionedRedisHistoricalTimeSeriesSource implements SimulationSeriesSource {
   private static final Logger s_logger = LoggerFactory.getLogger(RedisSimulationSeriesSource.class);
   private LocalDate _currentSimulationExecutionDate = LocalDate.now();
-  
+
   public RedisSimulationSeriesSource(JedisPool jedisPool) {
     this(jedisPool, "");
   }
   
   public RedisSimulationSeriesSource(JedisPool jedisPool, String redisPrefix) {
-    super(jedisPool, redisPrefix);
+    super(jedisPool, redisPrefix, "RedisSimulationSeriesSource");
+  }
+
+  public RedisSimulationSeriesSource withSimulationDate(LocalDate date) {
+    RedisSimulationSeriesSource redisSimulationSeriesSource = new RedisSimulationSeriesSource(getJedisPool(), getRedisPrefix());
+    redisSimulationSeriesSource.setCurrentSimulationExecutionDate(date);
+    return redisSimulationSeriesSource;
   }
 
   /**
@@ -104,7 +109,15 @@ public class RedisSimulationSeriesSource extends NonVersionedRedisHistoricalTime
     ArgumentChecker.notNull(timeseries, "timeseries");
     
     String redisKey = toRedisKey(uniqueId, simulationExecutionDate);
-    updateTimeSeries(redisKey, timeseries);
+    updateTimeSeries(redisKey, timeseries, false);
+  }
+  
+  public void replaceTimeSeries(UniqueId uniqueId, LocalDate simulationExecutionDate, LocalDateDoubleTimeSeries timeSeries) {
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
+    ArgumentChecker.notNull(timeSeries, "timeSeries");
+    
+    String redisKey = toRedisKey(uniqueId, simulationExecutionDate);
+    updateTimeSeries(redisKey, timeSeries, true);
   }
   
   public void clearExecutionDate(LocalDate simulationExecutionDate) {
@@ -127,5 +140,25 @@ public class RedisSimulationSeriesSource extends NonVersionedRedisHistoricalTime
   protected String toRedisKey(UniqueId uniqueId) {
     return toRedisKey(uniqueId, getCurrentSimulationExecutionDate());
   }
-  
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    if (!super.equals(o)) {
+      return false;
+    }
+    RedisSimulationSeriesSource that = (RedisSimulationSeriesSource) o;
+    return _currentSimulationExecutionDate.equals(that._currentSimulationExecutionDate);
+  }
+
+  @Override
+  public int hashCode() {
+    int result = super.hashCode();
+    return 31 * result + _currentSimulationExecutionDate.hashCode();
+  }
 }

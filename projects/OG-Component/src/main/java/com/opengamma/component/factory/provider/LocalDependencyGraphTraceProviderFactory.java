@@ -9,6 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.fudgemsg.FudgeContext;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -124,98 +125,6 @@ public class LocalDependencyGraphTraceProviderFactory extends AbstractComponentF
   @Override
   public LocalDependencyGraphTraceProviderFactory.Meta metaBean() {
     return LocalDependencyGraphTraceProviderFactory.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        return getClassifier();
-      case -614707837:  // publishRest
-        return isPublishRest();
-      case -917704420:  // fudgeContext
-        return getFudgeContext();
-      case -1551147284:  // compiledFunctionService
-        return getCompiledFunctionService();
-      case 1517042686:  // functionResolver
-        return getFunctionResolver();
-      case 839813706:  // functionExclusionGroups
-        return getFunctionExclusionGroups();
-      case 56203069:  // marketDataProviderResolver
-        return getMarketDataProviderResolver();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        setClassifier((String) newValue);
-        return;
-      case -614707837:  // publishRest
-        setPublishRest((Boolean) newValue);
-        return;
-      case -917704420:  // fudgeContext
-        setFudgeContext((FudgeContext) newValue);
-        return;
-      case -1551147284:  // compiledFunctionService
-        setCompiledFunctionService((CompiledFunctionService) newValue);
-        return;
-      case 1517042686:  // functionResolver
-        setFunctionResolver((FunctionResolver) newValue);
-        return;
-      case 839813706:  // functionExclusionGroups
-        setFunctionExclusionGroups((FunctionExclusionGroups) newValue);
-        return;
-      case 56203069:  // marketDataProviderResolver
-        setMarketDataProviderResolver((MarketDataProviderResolver) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_classifier, "classifier");
-    JodaBeanUtils.notNull(_fudgeContext, "fudgeContext");
-    JodaBeanUtils.notNull(_compiledFunctionService, "compiledFunctionService");
-    JodaBeanUtils.notNull(_functionResolver, "functionResolver");
-    JodaBeanUtils.notNull(_functionExclusionGroups, "functionExclusionGroups");
-    JodaBeanUtils.notNull(_marketDataProviderResolver, "marketDataProviderResolver");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      LocalDependencyGraphTraceProviderFactory other = (LocalDependencyGraphTraceProviderFactory) obj;
-      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
-          JodaBeanUtils.equal(isPublishRest(), other.isPublishRest()) &&
-          JodaBeanUtils.equal(getFudgeContext(), other.getFudgeContext()) &&
-          JodaBeanUtils.equal(getCompiledFunctionService(), other.getCompiledFunctionService()) &&
-          JodaBeanUtils.equal(getFunctionResolver(), other.getFunctionResolver()) &&
-          JodaBeanUtils.equal(getFunctionExclusionGroups(), other.getFunctionExclusionGroups()) &&
-          JodaBeanUtils.equal(getMarketDataProviderResolver(), other.getMarketDataProviderResolver()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFudgeContext());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCompiledFunctionService());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFunctionResolver());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFunctionExclusionGroups());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataProviderResolver());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -400,6 +309,69 @@ public class LocalDependencyGraphTraceProviderFactory extends AbstractComponentF
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public LocalDependencyGraphTraceProviderFactory clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      LocalDependencyGraphTraceProviderFactory other = (LocalDependencyGraphTraceProviderFactory) obj;
+      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
+          (isPublishRest() == other.isPublishRest()) &&
+          JodaBeanUtils.equal(getFudgeContext(), other.getFudgeContext()) &&
+          JodaBeanUtils.equal(getCompiledFunctionService(), other.getCompiledFunctionService()) &&
+          JodaBeanUtils.equal(getFunctionResolver(), other.getFunctionResolver()) &&
+          JodaBeanUtils.equal(getFunctionExclusionGroups(), other.getFunctionExclusionGroups()) &&
+          JodaBeanUtils.equal(getMarketDataProviderResolver(), other.getMarketDataProviderResolver()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFudgeContext());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCompiledFunctionService());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFunctionResolver());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFunctionExclusionGroups());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataProviderResolver());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(256);
+    buf.append("LocalDependencyGraphTraceProviderFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("publishRest").append('=').append(JodaBeanUtils.toString(isPublishRest())).append(',').append(' ');
+    buf.append("fudgeContext").append('=').append(JodaBeanUtils.toString(getFudgeContext())).append(',').append(' ');
+    buf.append("compiledFunctionService").append('=').append(JodaBeanUtils.toString(getCompiledFunctionService())).append(',').append(' ');
+    buf.append("functionResolver").append('=').append(JodaBeanUtils.toString(getFunctionResolver())).append(',').append(' ');
+    buf.append("functionExclusionGroups").append('=').append(JodaBeanUtils.toString(getFunctionExclusionGroups())).append(',').append(' ');
+    buf.append("marketDataProviderResolver").append('=').append(JodaBeanUtils.toString(getMarketDataProviderResolver())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code LocalDependencyGraphTraceProviderFactory}.
    */
@@ -554,6 +526,67 @@ public class LocalDependencyGraphTraceProviderFactory extends AbstractComponentF
      */
     public final MetaProperty<MarketDataProviderResolver> marketDataProviderResolver() {
       return _marketDataProviderResolver;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          return ((LocalDependencyGraphTraceProviderFactory) bean).getClassifier();
+        case -614707837:  // publishRest
+          return ((LocalDependencyGraphTraceProviderFactory) bean).isPublishRest();
+        case -917704420:  // fudgeContext
+          return ((LocalDependencyGraphTraceProviderFactory) bean).getFudgeContext();
+        case -1551147284:  // compiledFunctionService
+          return ((LocalDependencyGraphTraceProviderFactory) bean).getCompiledFunctionService();
+        case 1517042686:  // functionResolver
+          return ((LocalDependencyGraphTraceProviderFactory) bean).getFunctionResolver();
+        case 839813706:  // functionExclusionGroups
+          return ((LocalDependencyGraphTraceProviderFactory) bean).getFunctionExclusionGroups();
+        case 56203069:  // marketDataProviderResolver
+          return ((LocalDependencyGraphTraceProviderFactory) bean).getMarketDataProviderResolver();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          ((LocalDependencyGraphTraceProviderFactory) bean).setClassifier((String) newValue);
+          return;
+        case -614707837:  // publishRest
+          ((LocalDependencyGraphTraceProviderFactory) bean).setPublishRest((Boolean) newValue);
+          return;
+        case -917704420:  // fudgeContext
+          ((LocalDependencyGraphTraceProviderFactory) bean).setFudgeContext((FudgeContext) newValue);
+          return;
+        case -1551147284:  // compiledFunctionService
+          ((LocalDependencyGraphTraceProviderFactory) bean).setCompiledFunctionService((CompiledFunctionService) newValue);
+          return;
+        case 1517042686:  // functionResolver
+          ((LocalDependencyGraphTraceProviderFactory) bean).setFunctionResolver((FunctionResolver) newValue);
+          return;
+        case 839813706:  // functionExclusionGroups
+          ((LocalDependencyGraphTraceProviderFactory) bean).setFunctionExclusionGroups((FunctionExclusionGroups) newValue);
+          return;
+        case 56203069:  // marketDataProviderResolver
+          ((LocalDependencyGraphTraceProviderFactory) bean).setMarketDataProviderResolver((MarketDataProviderResolver) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((LocalDependencyGraphTraceProviderFactory) bean)._classifier, "classifier");
+      JodaBeanUtils.notNull(((LocalDependencyGraphTraceProviderFactory) bean)._fudgeContext, "fudgeContext");
+      JodaBeanUtils.notNull(((LocalDependencyGraphTraceProviderFactory) bean)._compiledFunctionService, "compiledFunctionService");
+      JodaBeanUtils.notNull(((LocalDependencyGraphTraceProviderFactory) bean)._functionResolver, "functionResolver");
+      JodaBeanUtils.notNull(((LocalDependencyGraphTraceProviderFactory) bean)._functionExclusionGroups, "functionExclusionGroups");
+      JodaBeanUtils.notNull(((LocalDependencyGraphTraceProviderFactory) bean)._marketDataProviderResolver, "marketDataProviderResolver");
+      super.validate(bean);
     }
 
   }

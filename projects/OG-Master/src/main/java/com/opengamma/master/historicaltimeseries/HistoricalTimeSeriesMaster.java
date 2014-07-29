@@ -46,6 +46,9 @@ public interface HistoricalTimeSeriesMaster extends AbstractChangeProvidingMaste
 
   /**
    * Searches for time-series matching the specified search criteria.
+   * <p>
+   * Access to a document may be controlled by permissions.
+   * If the user does not have permission to view the document then it is omitted from the result.
    * 
    * @param request  the search request, not null
    * @return the search result, not null
@@ -57,6 +60,9 @@ public interface HistoricalTimeSeriesMaster extends AbstractChangeProvidingMaste
    * Queries the history of a single time-series.
    * <p>
    * The request must contain an object identifier to identify the time-series.
+   * <p>
+   * Access to a document version may be controlled by permissions.
+   * If the user does not have permission to view the version then it is omitted from the result.
    * 
    * @param request  the history request, not null
    * @return the time-series history, not null

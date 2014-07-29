@@ -8,6 +8,7 @@ package com.opengamma.financial.security.swap;
 import java.io.Serializable;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -116,89 +117,6 @@ public abstract class SwapLeg extends DirectBean implements Serializable {
   @Override
   public SwapLeg.Meta metaBean() {
     return SwapLeg.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1905311443:  // dayCount
-        return getDayCount();
-      case -70023844:  // frequency
-        return getFrequency();
-      case -690339025:  // regionId
-        return getRegionId();
-      case -1002835891:  // businessDayConvention
-        return getBusinessDayConvention();
-      case 1585636160:  // notional
-        return getNotional();
-      case 100611:  // eom
-        return isEom();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1905311443:  // dayCount
-        setDayCount((DayCount) newValue);
-        return;
-      case -70023844:  // frequency
-        setFrequency((Frequency) newValue);
-        return;
-      case -690339025:  // regionId
-        setRegionId((ExternalId) newValue);
-        return;
-      case -1002835891:  // businessDayConvention
-        setBusinessDayConvention((BusinessDayConvention) newValue);
-        return;
-      case 1585636160:  // notional
-        setNotional((Notional) newValue);
-        return;
-      case 100611:  // eom
-        setEom((Boolean) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_dayCount, "dayCount");
-    JodaBeanUtils.notNull(_frequency, "frequency");
-    JodaBeanUtils.notNull(_regionId, "regionId");
-    JodaBeanUtils.notNull(_businessDayConvention, "businessDayConvention");
-    JodaBeanUtils.notNull(_notional, "notional");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      SwapLeg other = (SwapLeg) obj;
-      return JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
-          JodaBeanUtils.equal(getFrequency(), other.getFrequency()) &&
-          JodaBeanUtils.equal(getRegionId(), other.getRegionId()) &&
-          JodaBeanUtils.equal(getBusinessDayConvention(), other.getBusinessDayConvention()) &&
-          JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
-          JodaBeanUtils.equal(isEom(), other.isEom());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDayCount());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFrequency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBusinessDayConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNotional());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isEom());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -357,6 +275,63 @@ public abstract class SwapLeg extends DirectBean implements Serializable {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public SwapLeg clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      SwapLeg other = (SwapLeg) obj;
+      return JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
+          JodaBeanUtils.equal(getFrequency(), other.getFrequency()) &&
+          JodaBeanUtils.equal(getRegionId(), other.getRegionId()) &&
+          JodaBeanUtils.equal(getBusinessDayConvention(), other.getBusinessDayConvention()) &&
+          JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
+          (isEom() == other.isEom());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDayCount());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFrequency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getBusinessDayConvention());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getNotional());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isEom());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(224);
+    buf.append("SwapLeg{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("dayCount").append('=').append(JodaBeanUtils.toString(getDayCount())).append(',').append(' ');
+    buf.append("frequency").append('=').append(JodaBeanUtils.toString(getFrequency())).append(',').append(' ');
+    buf.append("regionId").append('=').append(JodaBeanUtils.toString(getRegionId())).append(',').append(' ');
+    buf.append("businessDayConvention").append('=').append(JodaBeanUtils.toString(getBusinessDayConvention())).append(',').append(' ');
+    buf.append("notional").append('=').append(JodaBeanUtils.toString(getNotional())).append(',').append(' ');
+    buf.append("eom").append('=').append(JodaBeanUtils.toString(isEom())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code SwapLeg}.
    */
@@ -495,6 +470,60 @@ public abstract class SwapLeg extends DirectBean implements Serializable {
      */
     public final MetaProperty<Boolean> eom() {
       return _eom;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1905311443:  // dayCount
+          return ((SwapLeg) bean).getDayCount();
+        case -70023844:  // frequency
+          return ((SwapLeg) bean).getFrequency();
+        case -690339025:  // regionId
+          return ((SwapLeg) bean).getRegionId();
+        case -1002835891:  // businessDayConvention
+          return ((SwapLeg) bean).getBusinessDayConvention();
+        case 1585636160:  // notional
+          return ((SwapLeg) bean).getNotional();
+        case 100611:  // eom
+          return ((SwapLeg) bean).isEom();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1905311443:  // dayCount
+          ((SwapLeg) bean).setDayCount((DayCount) newValue);
+          return;
+        case -70023844:  // frequency
+          ((SwapLeg) bean).setFrequency((Frequency) newValue);
+          return;
+        case -690339025:  // regionId
+          ((SwapLeg) bean).setRegionId((ExternalId) newValue);
+          return;
+        case -1002835891:  // businessDayConvention
+          ((SwapLeg) bean).setBusinessDayConvention((BusinessDayConvention) newValue);
+          return;
+        case 1585636160:  // notional
+          ((SwapLeg) bean).setNotional((Notional) newValue);
+          return;
+        case 100611:  // eom
+          ((SwapLeg) bean).setEom((Boolean) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((SwapLeg) bean)._dayCount, "dayCount");
+      JodaBeanUtils.notNull(((SwapLeg) bean)._frequency, "frequency");
+      JodaBeanUtils.notNull(((SwapLeg) bean)._regionId, "regionId");
+      JodaBeanUtils.notNull(((SwapLeg) bean)._businessDayConvention, "businessDayConvention");
+      JodaBeanUtils.notNull(((SwapLeg) bean)._notional, "notional");
     }
 
   }

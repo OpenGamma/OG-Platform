@@ -76,6 +76,17 @@ public final class RegexUtils {
     }
     return wildcardsToPattern(searchCriteriaWithWildcard).matcher(textToMatchAgainst).matches();
   }
+  
+  /**
+   * Determine whether the given string contains a wildcard.
+   * 
+   * @param searchCriteria The string to check
+   * @return true if either <code>*</code> or <code>?</code> is present
+   */
+  public static boolean containsWildcard(final String searchCriteria) {
+    ArgumentChecker.notNull(searchCriteria, "searchCriteria");
+    return searchCriteria.contains("*") || searchCriteria.contains("?");
+  }
 
   /**
    * Extracts first group from matched regex

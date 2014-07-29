@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.credit.isda.cds;
@@ -14,7 +14,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues;
 
 /**
- * 
+ *
  */
 public abstract class StandardVanillaCS01CDSFunction extends StandardVanillaCDSFunction {
 
@@ -37,10 +37,6 @@ public abstract class StandardVanillaCS01CDSFunction extends StandardVanillaCDSF
     if (spreadCurveBumpTypes == null || spreadCurveBumpTypes.size() != 1) {
       return null;
     }
-    final Set<String> cdsPriceTypes = constraints.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_CDS_PRICE_TYPE);
-    if (cdsPriceTypes == null || cdsPriceTypes.size() != 1) {
-      return null;
-    }
     return requirements;
   }
 
@@ -48,8 +44,7 @@ public abstract class StandardVanillaCS01CDSFunction extends StandardVanillaCDSF
   protected ValueProperties.Builder getCommonResultProperties() {
     return createValueProperties()
         .withAny(CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_BUMP)
-        .withAny(CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_BUMP_TYPE)
-        .withAny(CreditInstrumentPropertyNamesAndValues.PROPERTY_CDS_PRICE_TYPE);
+        .withAny(CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_BUMP_TYPE);
   }
 
   @Override

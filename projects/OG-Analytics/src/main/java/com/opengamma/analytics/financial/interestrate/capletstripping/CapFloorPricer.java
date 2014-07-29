@@ -5,16 +5,16 @@
  */
 package com.opengamma.analytics.financial.interestrate.capletstripping;
 
-import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.financial.model.volatility.SimpleOptionData;
 import com.opengamma.analytics.financial.model.volatility.VolatilityModel1D;
 import com.opengamma.analytics.financial.model.volatility.VolatilityTermStructure;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- * @deprecated {@link YieldCurveBundle} is deprecated
+ *
  */
-@Deprecated
 public class CapFloorPricer {
 
   private final SimpleOptionData[] _caplets;
@@ -25,10 +25,10 @@ public class CapFloorPricer {
    * the discount factors. Each caplet (floorlet), and hence the whole cap (floor) can then be priced by suppling a VolatilityModel1D
    * (which gives a Black vol for a particular forward/strike/expiry) or a  VolatilityTermStructure (which gives the vol simply as a function of expiry)
    * @param cap a cap or floor
-   * @param ycb The relevant yield curves
+   * @param curves The relevant curves
    */
-  public CapFloorPricer(final CapFloor cap, final YieldCurveBundle ycb) {
-    _caplets = CapFloorDecomposer.toOptions(cap, ycb);
+  public CapFloorPricer(final CapFloor cap, final MulticurveProviderInterface curves) {
+    _caplets = CapFloorDecomposer.toOptions(cap, curves);
     _n = _caplets.length;
   }
 
@@ -64,6 +64,16 @@ public class CapFloorPricer {
     return sum;
   }
 
+  public double price(final Double[] capletVols) {
+    ArgumentChecker.isTrue(capletVols.length == _n, "number of caplets is not equal to number of vols");
+    double sum = 0;
+    for (int i = 0; i < _n; i++) {
+      final double vol = capletVols[i];
+      sum += BlackFormulaRepository.price(_caplets[i], vol);
+    }
+    return sum;
+  }
+
   public double impliedVol(final double capPrice) {
     return BlackFormulaRepository.impliedVolatility(_caplets, capPrice);
   }
@@ -75,6 +85,11 @@ public class CapFloorPricer {
 
   public double impliedVol(final VolatilityTermStructure volCurve) {
     final double price = price(volCurve);
+    return impliedVol(price);
+  }
+
+  public double impliedVol(final Double[] capletVols) {
+    final double price = price(capletVols);
     return impliedVol(price);
   }
 
@@ -96,6 +111,11 @@ public class CapFloorPricer {
     return vega(vol);
   }
 
+  public double vega(final Double[] capletVols) {
+    final double vol = impliedVol(capletVols);
+    return vega(vol);
+  }
+
   /**
    * Gets the fwds.
    * @return the fwds
@@ -108,6 +128,7 @@ public class CapFloorPricer {
     return fwds;
   }
 
+  //COMMENT - this is the swap rate (the discount factor includes the accrual fraction)
   protected double getCapForward() {
     double sum1 = 0;
     double sum2 = 0;
@@ -158,6 +179,10 @@ public class CapFloorPricer {
    */
   protected int getNumberCaplets() {
     return _n;
+  }
+
+  public SimpleOptionData[] getCapletAsOptionData() {
+    return _caplets;
   }
 
 }

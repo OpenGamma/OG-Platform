@@ -1,5 +1,5 @@
 <#escape x as x?html>
-<@page title="Position - ${position.name}">
+<@page title="Position - ${position.name}" jquery=true aceXmlEditor=true>
 
 <@section css="info" if=deleted>
   <p>This position has been deleted</p>
@@ -54,18 +54,22 @@ ${id.scheme.name} - ${id.value},
 
 
 <#-- SECTION Update position -->
-<@section title="Update position" if=!deleted>
-  <@form method="PUT" action="${uris.position()}">
+<@section title="Update position" if=!deleted && userSecurity.isPermitted('PositionMaster:edit:update')>
+  <@form method="PUT" action="${uris.position()}" id="updatePositionForm">
   <p>
-    <@rowin label="Quantity"><input type="text" size="30" maxlength="12" name="quantity" value="${position.quantity}" /></@rowin>
+    <@rowin>
+      <div id="ace-xml-editor"></div>
+    </@rowin>
+    <input type="hidden" name="positionXml" id="position-xml"/>
     <@rowin><input type="submit" value="Update" /></@rowin>
+<#noescape><@xmlEditorScript formId="updatePositionForm" inputId="position-xml" xmlValue="${positionXml!''}"></@xmlEditorScript></#noescape>
   </p>
   </@form>
 </@section>
 
 
 <#-- SECTION Delete position -->
-<@section title="Delete position" if=!deleted>
+<@section title="Delete position" if=!deleted && userSecurity.isPermitted('PositionMaster:edit:remove')>
   <@form method="DELETE" action="${uris.position()}">
   <p>
     <@rowin><input type="submit" value="Delete" /></@rowin>

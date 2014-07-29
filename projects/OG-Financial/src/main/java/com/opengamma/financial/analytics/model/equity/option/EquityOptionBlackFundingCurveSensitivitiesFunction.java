@@ -40,8 +40,8 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
 import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
 import com.opengamma.financial.security.FinancialSecurityUtils;
-import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Calculates the nodal sensitivities of an equity index or equity option to the funding curve (bucketed rho).
@@ -133,7 +133,7 @@ public class EquityOptionBlackFundingCurveSensitivitiesFunction extends EquityOp
     final NodeYieldSensitivityCalculator distributor = PresentValueNodeSensitivityCalculator.getDefaultInstance();
     // What's left is to package up the inputs to the distributor, a YieldCurveBundle and a Map of Sensitivities
     final Map<String, List<DoublesPair>> curveSensMap = new HashMap<>();
-    curveSensMap.put(fundingCurveName, Lists.newArrayList(new DoublesPair(settle, rhoSettle)));
+    curveSensMap.put(fundingCurveName, Lists.newArrayList(DoublesPair.of(settle, rhoSettle)));
     sensVector = distributor.curveToNodeSensitivities(curveSensMap, curveBundle);
 
     // Build up InstrumentLabelledSensitivities for the Curve

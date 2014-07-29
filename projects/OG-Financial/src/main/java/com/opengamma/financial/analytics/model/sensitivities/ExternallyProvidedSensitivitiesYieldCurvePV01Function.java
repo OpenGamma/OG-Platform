@@ -44,11 +44,6 @@ public class ExternallyProvidedSensitivitiesYieldCurvePV01Function extends Abstr
   public static final String PV01_REQUIREMENT = ValueRequirementNames.PV01;
 
   @Override
-  public void init(final FunctionCompilationContext context) {
-
-  }
-
-  @Override
   public ComputationTargetType getTargetType() {
     return ComputationTargetType.POSITION;
   }
@@ -82,38 +77,28 @@ public class ExternallyProvidedSensitivitiesYieldCurvePV01Function extends Abstr
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final Set<ValueRequirement> requirements = Sets.newHashSet();
-    final Set<String> curveNames = desiredValue.getConstraints().getValues(ValuePropertyNames.CURVE);
-    final Set<String> curveCurrencies = desiredValue.getConstraints().getValues(ValuePropertyNames.CURVE_CURRENCY);
-    final Set<String> curveCalculationConfigs = desiredValue.getConstraints().getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
-    if (curveNames == null || curveNames.size() != 1) {
+    final String curveName = desiredValue.getConstraints().getStrictValue(ValuePropertyNames.CURVE);
+    if (curveName == null) {
       return null;
     }
-    if (curveCurrencies == null || curveCurrencies.size() != 1) {
+    final String curveCurrency = desiredValue.getConstraints().getStrictValue(ValuePropertyNames.CURVE_CURRENCY);
+    if (curveCurrency == null) {
       return null;
     }
-    if (curveCalculationConfigs == null || curveCalculationConfigs.size() != 1) {
+    final String curveCalculationConfig = desiredValue.getConstraints().getStrictValue(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
+    if (curveCalculationConfig == null) {
       return null;
     }
-    final String curveName = curveNames.iterator().next();
-    final String curveCurrency = curveCurrencies.iterator().next();
-    final String curveCalculationConfig = curveCalculationConfigs.iterator().next();
-    final ValueProperties valueProperties = ValueProperties.builder()
-        .withAny(ValuePropertyNames.CURRENCY)
-        .with(ValuePropertyNames.CURVE, curveName)
-        .with(ValuePropertyNames.CURVE_CURRENCY, curveCurrency)
-        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfig)
-        .get();
+    final ValueProperties valueProperties = ValueProperties.builder().withAny(ValuePropertyNames.CURRENCY).with(ValuePropertyNames.CURVE, curveName)
+        .with(ValuePropertyNames.CURVE_CURRENCY, curveCurrency).with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfig).get();
     requirements.add(new ValueRequirement(YCNS_REQUIREMENT, target.toSpecification(), valueProperties));
     return requirements;
   }
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final ValueProperties externalProperties = createCurrencyValueProperties(target)
-                      .withAny(ValuePropertyNames.CURRENCY)
-                      .withAny(ValuePropertyNames.CURVE)
-                      .withAny(ValuePropertyNames.CURVE_CURRENCY)
-                      .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG).get();
+    final ValueProperties externalProperties = createCurrencyValueProperties(target).withAny(ValuePropertyNames.CURRENCY).withAny(ValuePropertyNames.CURVE)
+        .withAny(ValuePropertyNames.CURVE_CURRENCY).withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG).get();
     final Set<ValueSpecification> results = Collections.singleton(new ValueSpecification(PV01_REQUIREMENT, target.toSpecification(), externalProperties));
     return results;
   }
@@ -132,17 +117,14 @@ public class ExternallyProvidedSensitivitiesYieldCurvePV01Function extends Abstr
       }
     }
     assert curveName != null;
-    final ValueProperties valueProperties = createCurrencyValueProperties(target).with(ValuePropertyNames.CURVE, curveName)
-                                                                                 .with(ValuePropertyNames.CURVE_CURRENCY, curveCurrencyName)
-                                                                                 .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
-                                                                                 .get();
+    final ValueProperties valueProperties = createCurrencyValueProperties(target).with(ValuePropertyNames.CURVE, curveName).with(ValuePropertyNames.CURVE_CURRENCY, curveCurrencyName)
+        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName).get();
     final Set<ValueSpecification> results = Collections.singleton(new ValueSpecification(PV01_REQUIREMENT, targetSpec, valueProperties));
     return results;
   }
 
   @Override
-  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
-      final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final String curveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
     final String curveCurrency = desiredValue.getConstraint(ValuePropertyNames.CURVE_CURRENCY);
@@ -154,11 +136,8 @@ public class ExternallyProvidedSensitivitiesYieldCurvePV01Function extends Abstr
     }
     final DoubleLabelledMatrix1D ycns = (DoubleLabelledMatrix1D) value;
     final double result = sum(ycns.getValues()) / 10000d;
-    final ValueProperties properties = createCurrencyValueProperties(target)
-        .with(ValuePropertyNames.CURVE, curveName)
-        .with(ValuePropertyNames.CURVE_CURRENCY, curveCurrency)
-        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfig)
-        .get();
+    final ValueProperties properties = createCurrencyValueProperties(target).with(ValuePropertyNames.CURVE, curveName).with(ValuePropertyNames.CURVE_CURRENCY, curveCurrency)
+        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfig).get();
     final ComputedValue computedValue = new ComputedValue(new ValueSpecification(PV01_REQUIREMENT, specification, properties), result);
     return Collections.singleton(computedValue);
   }

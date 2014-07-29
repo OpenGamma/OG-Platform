@@ -18,6 +18,10 @@ import com.opengamma.masterdb.security.hibernate.bond.YieldConventionBean;
 import com.opengamma.masterdb.security.hibernate.equity.GICSCodeBean;
 import com.opengamma.masterdb.security.hibernate.future.FutureBundleBean;
 import com.opengamma.masterdb.security.hibernate.future.FutureSecurityBean;
+import com.opengamma.masterdb.security.hibernate.index.BondIndexBean;
+import com.opengamma.masterdb.security.hibernate.index.BondIndexComponentBean;
+import com.opengamma.masterdb.security.hibernate.index.EquityIndexBean;
+import com.opengamma.masterdb.security.hibernate.index.EquityIndexComponentBean;
 
 /**
  * HibernateSecurityMaster session and utility methods.
@@ -126,5 +130,17 @@ public interface HibernateSecurityMasterDao {
   TenorBean getOrCreateTenorBean(String tenor);
   
   List<TenorBean> getTenorBeans();
+
+  IndexWeightingTypeBean getOrCreateIndexWeightingTypeBean(String name);
+
+  List<IndexWeightingTypeBean> getIndexWeightingTypeBeans();
+
+  List<BondIndexComponentBean> getBondIndexComponentBeans(BondIndexBean bondIndex);
+
+  List<EquityIndexComponentBean> getEquityIndexComponentBeans(EquityIndexBean equityIndex);
+
+  void persistBondIndexComponentBeans(BondIndexBean bondIndex);
+
+  void persistEquityIndexComponentBeans(EquityIndexBean equityIndex);
   
 }

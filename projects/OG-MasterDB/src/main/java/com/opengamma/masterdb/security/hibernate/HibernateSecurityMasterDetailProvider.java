@@ -50,6 +50,11 @@ import com.opengamma.masterdb.security.hibernate.fra.FRASecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.future.FutureSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.fx.FXForwardSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.fx.NonDeliverableFXForwardSecurityBeanOperation;
+import com.opengamma.masterdb.security.hibernate.index.BondIndexBeanOperation;
+import com.opengamma.masterdb.security.hibernate.index.EquityIndexBeanOperation;
+import com.opengamma.masterdb.security.hibernate.index.IborIndexBeanOperation;
+import com.opengamma.masterdb.security.hibernate.index.IndexFamilyBeanOperation;
+import com.opengamma.masterdb.security.hibernate.index.OvernightIndexBeanOperation;
 import com.opengamma.masterdb.security.hibernate.option.BondFutureOptionSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.option.CDSOptionSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.option.CommodityFutureOptionSecurityBeanOperation;
@@ -227,6 +232,11 @@ public class HibernateSecurityMasterDetailProvider implements SecurityMasterDeta
     loadBeanOperation(CreditDefaultSwapIndexDefinitionSecurityBeanOperation.INSTANCE);
     loadBeanOperation(CreditDefaultSwapIndexSecurityBeanOperation.INSTANCE);
     loadBeanOperation(CDSOptionSecurityBeanOperation.INSTANCE);
+    loadBeanOperation(BondIndexBeanOperation.INSTANCE);
+    loadBeanOperation(EquityIndexBeanOperation.INSTANCE);
+    loadBeanOperation(IborIndexBeanOperation.INSTANCE);
+    loadBeanOperation(OvernightIndexBeanOperation.INSTANCE);
+    loadBeanOperation(IndexFamilyBeanOperation.INSTANCE);
   }
 
   //-------------------------------------------------------------------------
@@ -296,6 +306,7 @@ public class HibernateSecurityMasterDetailProvider implements SecurityMasterDeta
         result.setName(base.getName());
         result.setExternalIdBundle(base.getExternalIdBundle());
         result.setAttributes(base.getAttributes());
+        result.setRequiredPermissions(base.getRequiredPermissions());
         return result;
       }
     });

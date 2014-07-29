@@ -88,11 +88,10 @@ public class SwapTradeSecurityExtractor extends TradeSecurityExtractor<SwapTrade
 
     Notional notional = extractNotional(fixedLeg);
 
-    DayCount dayCount = DayCountFactory.INSTANCE.getDayCount(fixedLeg.getDayCount());
-    Frequency frequency = SimpleFrequencyFactory.INSTANCE.getFrequency(fixedLeg.getFrequency());
+    DayCount dayCount = DayCountFactory.of(fixedLeg.getDayCount());
+    Frequency frequency = SimpleFrequencyFactory.of(fixedLeg.getFrequency());
     ExternalId region = extractRegion(fixedLeg);
-    BusinessDayConvention businessDayConvention =
-        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention(fixedLeg.getBusinessDayConvention());
+    BusinessDayConvention businessDayConvention = BusinessDayConventionFactory.of(fixedLeg.getBusinessDayConvention());
     boolean isEndOfMonth = fixedLeg.isEndOfMonth();
     return new FixedInterestRateLeg(dayCount, frequency, region, businessDayConvention, notional, isEndOfMonth,
         convertRate(fixedLeg.getRate()));
@@ -103,10 +102,9 @@ public class SwapTradeSecurityExtractor extends TradeSecurityExtractor<SwapTrade
     Notional notional = extractNotional(floatingLeg);
 
     ExternalId region = extractRegion(floatingLeg);
-    DayCount dayCount = DayCountFactory.INSTANCE.getDayCount(floatingLeg.getDayCount());
-    Frequency frequency = SimpleFrequencyFactory.INSTANCE.getFrequency(floatingLeg.getFrequency());
-    BusinessDayConvention businessDayConvention =
-        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention(floatingLeg.getBusinessDayConvention());
+    DayCount dayCount = DayCountFactory.of(floatingLeg.getDayCount());
+    Frequency frequency = SimpleFrequencyFactory.of(floatingLeg.getFrequency());
+    BusinessDayConvention businessDayConvention = BusinessDayConventionFactory.of(floatingLeg.getBusinessDayConvention());
     boolean isEndOfMonth = floatingLeg.isEndOfMonth();
 
     FixingIndex fixingIndex = floatingLeg.getFixingIndex();

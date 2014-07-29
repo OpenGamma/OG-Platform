@@ -12,6 +12,7 @@ import java.util.UUID;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.fudgemsg.FudgeContext;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -42,19 +43,23 @@ public class EngineConfigurationComponentFactory extends AbstractComponentFactor
   /**
    * The name of the configuration document published.
    * <p>
-   * This is used to support servers which publish multiple configurations, for example if they host multiple view processors, or that act as aggregators for a number of other servers at the
-   * installation site.
+   * This is used to support servers which publish multiple configurations, for example
+   * if they host multiple view processors, or that act as aggregators for a number of
+   * other servers at the installation site.
    * <p>
-   * This default name may be hard-coded in native code and installation scripts. Changes may cause client tools such as Excel to stop working correctly.
+   * This default name may be hard-coded in native code and installation scripts.
+   * Changes may cause client tools such as Excel to stop working correctly.
    */
   private static final String DEFAULT_CONFIGURATION_DOCUMENT_ID = "0";
 
   /**
    * The field name under which the logical server unique identifier is published.
    * <p>
-   * This property may be set explicitly by calling {@link #setLogicalServerId}, or if omitted will be generated randomly.
+   * This property may be set explicitly by calling {@link #setLogicalServerId},
+   * or if omitted will be generated randomly.
    * <p>
-   * This default name is hard-coded in native code. Changes may cause client tools such as Excel to stop working correctly.
+   * This default name is hard-coded in native code. Changes may cause client tools
+   * such as Excel to stop working correctly.
    */
   private static final String LOGICAL_SERVER_UNIQUE_IDENTIFIER = "lsid";
 
@@ -71,20 +76,27 @@ public class EngineConfigurationComponentFactory extends AbstractComponentFactor
   private FudgeContext _fudgeContext = OpenGammaFudgeContext.getInstance();
 
   /**
-   * The logical server unique identifier. This is defined by the data environment. Clustered servers (that is, they appear suitably identical to any connecting clients) should have the same logical
-   * identifier to reflect this. Any server backed by a unique data environment must have a correspondingly unique identifier. If a server has a transient or temporary data environment it must
+   * The logical server unique identifier. This is defined by the data environment.
+   * Clustered servers (that is, they appear suitably identical to any connecting clients)
+   * should have the same logical identifier to reflect this. Any server backed by a
+   * unique data environment must have a correspondingly unique identifier.
+   * If a server has a transient or temporary data environment it must
    * generate a new logical identifier whenever that environment is flushed.
    * <p>
-   * The default behavior, if this is not specified in the configuration file, is to generate a unique identifier at start up. This is suitable for most standard installations which include temporary
+   * The default behavior, if this is not specified in the configuration file,
+   * is to generate a unique identifier at start up. This is suitable for most
+   * standard installations which include temporary
    * (for example, in-memory) masters or other data stores.
    */
   @PropertyDefinition
   private String _logicalServerId;
 
   /**
-   * Creates a random logical server unique identifier. This is used if an explicit identifier is not set in the configuration file.
+   * Creates a random logical server unique identifier.
+   * This is used if an explicit identifier is not set in the configuration file.
    * <p>
-   * This is a 24 character string using base-64 characters, created using the algorithm from {@link GUIDGenerator} for uniqueness.
+   * This is a 24 character string using base-64 characters, created using
+   * the algorithm from {@link GUIDGenerator} for uniqueness.
    * 
    * @return the logical server unique identifier, not null
    */
@@ -118,19 +130,17 @@ public class EngineConfigurationComponentFactory extends AbstractComponentFactor
     }
   }
 
-  protected void buildConfiguration(final ComponentRepository repo, final Map<String, String> configuration, final Map<String, Object> map) {
+  protected void buildConfiguration(ComponentRepository repo, Map<String, String> configuration, Map<String, Object> map) {
     map.put(LOGICAL_SERVER_UNIQUE_IDENTIFIER, getLogicalServerId());
-    for (final String key : configuration.keySet()) {
-      final String valueStr = configuration.get(key);
+    for (String key : configuration.keySet()) {
+      String valueStr = configuration.get(key);
       Object targetValue = valueStr;
       if (valueStr.contains("::")) {
-        final String type = StringUtils.substringBefore(valueStr, "::");
-        final String classifier = StringUtils.substringAfter(valueStr, "::");
-        final ComponentInfo info = repo.findInfo(type, classifier);
+        ComponentInfo info = repo.findInfo(valueStr);
         if (info == null) {
           throw new IllegalArgumentException("Component not found: " + valueStr);
         }
-        final Object instance = repo.getInstance(info);
+        Object instance = repo.getInstance(info);
         if ((instance instanceof CalcNodeSocketConfiguration) || (instance instanceof Supplier)) {
           targetValue = instance;
         } else {
@@ -145,13 +155,13 @@ public class EngineConfigurationComponentFactory extends AbstractComponentFactor
   }
 
   @Override
-  public void init(final ComponentRepository repo, final LinkedHashMap<String, String> configuration) {
+  public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
     afterPropertiesSet();
-    final Map<String, Object> map = new LinkedHashMap<String, Object>();
+    Map<String, Object> map = new LinkedHashMap<String, Object>();
     buildConfiguration(repo, configuration, map);
-    final Map<String, Object> outer = new LinkedHashMap<String, Object>();
+    Map<String, Object> outer = new LinkedHashMap<String, Object>();
     outer.put(DEFAULT_CONFIGURATION_DOCUMENT_ID, map);
-    final DataConfigurationResource resource = new DataConfigurationResource(getFudgeContext(), outer);
+    DataConfigurationResource resource = new DataConfigurationResource(getFudgeContext(), outer);
     repo.getRestComponents().publishResource(resource);
     // indicate that all component configuration was used
     configuration.clear();
@@ -164,10 +174,10 @@ public class EngineConfigurationComponentFactory extends AbstractComponentFactor
    * @param key the key, not null
    * @param targetValue the target value,not null
    */
-  protected void buildMap(final Map<String, Object> map, final String key, final Object targetValue) {
+  protected void buildMap(Map<String, Object> map, String key, Object targetValue) {
     if (key.contains(".")) {
-      final String key1 = StringUtils.substringBefore(key, ".");
-      final String key2 = StringUtils.substringAfter(key, ".");
+      String key1 = StringUtils.substringBefore(key, ".");
+      String key2 = StringUtils.substringAfter(key, ".");
       @SuppressWarnings("unchecked")
       Map<String, Object> subMap = (Map<String, Object>) map.get(key1);
       if (subMap == null) {
@@ -197,66 +207,6 @@ public class EngineConfigurationComponentFactory extends AbstractComponentFactor
   @Override
   public EngineConfigurationComponentFactory.Meta metaBean() {
     return EngineConfigurationComponentFactory.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        return getClassifier();
-      case -917704420:  // fudgeContext
-        return getFudgeContext();
-      case -41854233:  // logicalServerId
-        return getLogicalServerId();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        setClassifier((String) newValue);
-        return;
-      case -917704420:  // fudgeContext
-        setFudgeContext((FudgeContext) newValue);
-        return;
-      case -41854233:  // logicalServerId
-        setLogicalServerId((String) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_classifier, "classifier");
-    JodaBeanUtils.notNull(_fudgeContext, "fudgeContext");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      EngineConfigurationComponentFactory other = (EngineConfigurationComponentFactory) obj;
-      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
-          JodaBeanUtils.equal(getFudgeContext(), other.getFudgeContext()) &&
-          JodaBeanUtils.equal(getLogicalServerId(), other.getLogicalServerId()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFudgeContext());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getLogicalServerId());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -313,11 +263,16 @@ public class EngineConfigurationComponentFactory extends AbstractComponentFactor
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the logical server unique identifier. This is defined by the data environment. Clustered servers (that is, they appear suitably identical to any connecting clients) should have the same logical
-   * identifier to reflect this. Any server backed by a unique data environment must have a correspondingly unique identifier. If a server has a transient or temporary data environment it must
+   * Gets the logical server unique identifier. This is defined by the data environment.
+   * Clustered servers (that is, they appear suitably identical to any connecting clients)
+   * should have the same logical identifier to reflect this. Any server backed by a
+   * unique data environment must have a correspondingly unique identifier.
+   * If a server has a transient or temporary data environment it must
    * generate a new logical identifier whenever that environment is flushed.
    * <p>
-   * The default behavior, if this is not specified in the configuration file, is to generate a unique identifier at start up. This is suitable for most standard installations which include temporary
+   * The default behavior, if this is not specified in the configuration file,
+   * is to generate a unique identifier at start up. This is suitable for most
+   * standard installations which include temporary
    * (for example, in-memory) masters or other data stores.
    * @return the value of the property
    */
@@ -326,11 +281,16 @@ public class EngineConfigurationComponentFactory extends AbstractComponentFactor
   }
 
   /**
-   * Sets the logical server unique identifier. This is defined by the data environment. Clustered servers (that is, they appear suitably identical to any connecting clients) should have the same logical
-   * identifier to reflect this. Any server backed by a unique data environment must have a correspondingly unique identifier. If a server has a transient or temporary data environment it must
+   * Sets the logical server unique identifier. This is defined by the data environment.
+   * Clustered servers (that is, they appear suitably identical to any connecting clients)
+   * should have the same logical identifier to reflect this. Any server backed by a
+   * unique data environment must have a correspondingly unique identifier.
+   * If a server has a transient or temporary data environment it must
    * generate a new logical identifier whenever that environment is flushed.
    * <p>
-   * The default behavior, if this is not specified in the configuration file, is to generate a unique identifier at start up. This is suitable for most standard installations which include temporary
+   * The default behavior, if this is not specified in the configuration file,
+   * is to generate a unique identifier at start up. This is suitable for most
+   * standard installations which include temporary
    * (for example, in-memory) masters or other data stores.
    * @param logicalServerId  the new value of the property
    */
@@ -340,15 +300,71 @@ public class EngineConfigurationComponentFactory extends AbstractComponentFactor
 
   /**
    * Gets the the {@code logicalServerId} property.
-   * identifier to reflect this. Any server backed by a unique data environment must have a correspondingly unique identifier. If a server has a transient or temporary data environment it must
+   * Clustered servers (that is, they appear suitably identical to any connecting clients)
+   * should have the same logical identifier to reflect this. Any server backed by a
+   * unique data environment must have a correspondingly unique identifier.
+   * If a server has a transient or temporary data environment it must
    * generate a new logical identifier whenever that environment is flushed.
    * <p>
-   * The default behavior, if this is not specified in the configuration file, is to generate a unique identifier at start up. This is suitable for most standard installations which include temporary
+   * The default behavior, if this is not specified in the configuration file,
+   * is to generate a unique identifier at start up. This is suitable for most
+   * standard installations which include temporary
    * (for example, in-memory) masters or other data stores.
    * @return the property, not null
    */
   public final Property<String> logicalServerId() {
     return metaBean().logicalServerId().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public EngineConfigurationComponentFactory clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      EngineConfigurationComponentFactory other = (EngineConfigurationComponentFactory) obj;
+      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
+          JodaBeanUtils.equal(getFudgeContext(), other.getFudgeContext()) &&
+          JodaBeanUtils.equal(getLogicalServerId(), other.getLogicalServerId()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFudgeContext());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getLogicalServerId());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(128);
+    buf.append("EngineConfigurationComponentFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("fudgeContext").append('=').append(JodaBeanUtils.toString(getFudgeContext())).append(',').append(' ');
+    buf.append("logicalServerId").append('=').append(JodaBeanUtils.toString(getLogicalServerId())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -442,6 +458,43 @@ public class EngineConfigurationComponentFactory extends AbstractComponentFactor
      */
     public final MetaProperty<String> logicalServerId() {
       return _logicalServerId;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          return ((EngineConfigurationComponentFactory) bean).getClassifier();
+        case -917704420:  // fudgeContext
+          return ((EngineConfigurationComponentFactory) bean).getFudgeContext();
+        case -41854233:  // logicalServerId
+          return ((EngineConfigurationComponentFactory) bean).getLogicalServerId();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          ((EngineConfigurationComponentFactory) bean).setClassifier((String) newValue);
+          return;
+        case -917704420:  // fudgeContext
+          ((EngineConfigurationComponentFactory) bean).setFudgeContext((FudgeContext) newValue);
+          return;
+        case -41854233:  // logicalServerId
+          ((EngineConfigurationComponentFactory) bean).setLogicalServerId((String) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((EngineConfigurationComponentFactory) bean)._classifier, "classifier");
+      JodaBeanUtils.notNull(((EngineConfigurationComponentFactory) bean)._fudgeContext, "fudgeContext");
+      super.validate(bean);
     }
 
   }

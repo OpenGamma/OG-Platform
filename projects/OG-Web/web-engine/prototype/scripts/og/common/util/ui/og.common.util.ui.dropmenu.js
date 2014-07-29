@@ -8,7 +8,7 @@ $.register_module({
     obj: function () {
         var events = {
             focus: 'dropmenu:focus',
-            focused:'dropmenu:focused',
+            focused: 'dropmenu:focused',
             open: 'dropmenu:open',
             opened: 'dropmenu:opened',
             close: 'dropmenu:close',
@@ -21,9 +21,9 @@ $.register_module({
             menu.init_blurkill = false;
             menu.events = events;
             menu.$dom = {};
-            if (config && config.hasOwnProperty('cntr')){
+            if (config && config.hasOwnProperty('cntr')) {
                 if (config.hasOwnProperty('tmpl')) {
-                    menu.$dom.cntr = config.cntr.html($((Handlebars.compile(config.tmpl||''))(config.data||{})));
+                    menu.$dom.cntr = config.cntr.html($((Handlebars.compile(config.tmpl || ''))(config.data || {})));
                     menu.$dom.toggle = $('.og-menu-toggle', menu.$dom.cntr);
                     menu.$dom.menu = $('.og-menu', menu.$dom.cntr);
                 } else {

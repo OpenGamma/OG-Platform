@@ -7,6 +7,7 @@ package com.opengamma.web.bundle;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -68,72 +69,6 @@ public class YUICompressorOptions extends DirectBean {
   @Override
   public YUICompressorOptions.Meta metaBean() {
     return YUICompressorOptions.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1489046604:  // lineBreakPosition
-        return getLineBreakPosition();
-      case 104258340:  // munge
-        return isMunge();
-      case -1613870185:  // preserveAllSemiColons
-        return isPreserveAllSemiColons();
-      case -79080739:  // optimize
-        return isOptimize();
-      case 3641990:  // warn
-        return isWarn();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1489046604:  // lineBreakPosition
-        setLineBreakPosition((Integer) newValue);
-        return;
-      case 104258340:  // munge
-        setMunge((Boolean) newValue);
-        return;
-      case -1613870185:  // preserveAllSemiColons
-        setPreserveAllSemiColons((Boolean) newValue);
-        return;
-      case -79080739:  // optimize
-        setOptimize((Boolean) newValue);
-        return;
-      case 3641990:  // warn
-        setWarn((Boolean) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      YUICompressorOptions other = (YUICompressorOptions) obj;
-      return JodaBeanUtils.equal(getLineBreakPosition(), other.getLineBreakPosition()) &&
-          JodaBeanUtils.equal(isMunge(), other.isMunge()) &&
-          JodaBeanUtils.equal(isPreserveAllSemiColons(), other.isPreserveAllSemiColons()) &&
-          JodaBeanUtils.equal(isOptimize(), other.isOptimize()) &&
-          JodaBeanUtils.equal(isWarn(), other.isWarn());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getLineBreakPosition());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isMunge());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isPreserveAllSemiColons());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isOptimize());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isWarn());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -262,6 +197,60 @@ public class YUICompressorOptions extends DirectBean {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public YUICompressorOptions clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      YUICompressorOptions other = (YUICompressorOptions) obj;
+      return (getLineBreakPosition() == other.getLineBreakPosition()) &&
+          (isMunge() == other.isMunge()) &&
+          (isPreserveAllSemiColons() == other.isPreserveAllSemiColons()) &&
+          (isOptimize() == other.isOptimize()) &&
+          (isWarn() == other.isWarn());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getLineBreakPosition());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isMunge());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isPreserveAllSemiColons());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isOptimize());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isWarn());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(192);
+    buf.append("YUICompressorOptions{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("lineBreakPosition").append('=').append(JodaBeanUtils.toString(getLineBreakPosition())).append(',').append(' ');
+    buf.append("munge").append('=').append(JodaBeanUtils.toString(isMunge())).append(',').append(' ');
+    buf.append("preserveAllSemiColons").append('=').append(JodaBeanUtils.toString(isPreserveAllSemiColons())).append(',').append(' ');
+    buf.append("optimize").append('=').append(JodaBeanUtils.toString(isOptimize())).append(',').append(' ');
+    buf.append("warn").append('=').append(JodaBeanUtils.toString(isWarn())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code YUICompressorOptions}.
    */
@@ -384,6 +373,46 @@ public class YUICompressorOptions extends DirectBean {
      */
     public final MetaProperty<Boolean> warn() {
       return _warn;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1489046604:  // lineBreakPosition
+          return ((YUICompressorOptions) bean).getLineBreakPosition();
+        case 104258340:  // munge
+          return ((YUICompressorOptions) bean).isMunge();
+        case -1613870185:  // preserveAllSemiColons
+          return ((YUICompressorOptions) bean).isPreserveAllSemiColons();
+        case -79080739:  // optimize
+          return ((YUICompressorOptions) bean).isOptimize();
+        case 3641990:  // warn
+          return ((YUICompressorOptions) bean).isWarn();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1489046604:  // lineBreakPosition
+          ((YUICompressorOptions) bean).setLineBreakPosition((Integer) newValue);
+          return;
+        case 104258340:  // munge
+          ((YUICompressorOptions) bean).setMunge((Boolean) newValue);
+          return;
+        case -1613870185:  // preserveAllSemiColons
+          ((YUICompressorOptions) bean).setPreserveAllSemiColons((Boolean) newValue);
+          return;
+        case -79080739:  // optimize
+          ((YUICompressorOptions) bean).setOptimize((Boolean) newValue);
+          return;
+        case 3641990:  // warn
+          ((YUICompressorOptions) bean).setWarn((Boolean) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

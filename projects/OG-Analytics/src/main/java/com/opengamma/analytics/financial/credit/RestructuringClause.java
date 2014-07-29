@@ -7,43 +7,30 @@ package com.opengamma.analytics.financial.credit;
 
 /**
  * The restructuring clause to apply in the event of a credit event deemed to be a restructuring
+ * 
+ * Reference: https://www.markit.com/news/XMLGuide.pdf, 
+ *            "XML User Guide - Markit Data",
+ *            Version 10.3.8, November 2010.
  */
 public enum RestructuringClause {
   /**
-   * Old-Restructuring
-   */
-  OLDRE,
-  /**
-   * Modified Restructuring
-   */
-  MODRE,
-  /**
-   * Modified-Modified Restructuring
-   */
-  MODMODRE,
-  /**
-   * No-Restructuring
-   */
-  NORE,
-
-  /**
-   * With Restructuring (MarkIt notation)
+   * With Restructuring (Markit notation)
    */
   CR,
   /**
-   * Modified-Modified Restructuring (MarkIt notation)
+   * Modified-Modified Restructuring (Markit notation)
    */
   MM,
   /**
-   * Modified Restructuring (MarkIt notation)
+   * Modified Restructuring (Markit notation)
    */
   MR,
   /**
-   * No-Restructuring (MarkIt notation)
+   * No-Restructuring (Markit notation)
    */
   XR,
   /**
-   * 
+   * No restructuring. (Not used by Markit).
    */
-  NONE;
+  NONE
 }

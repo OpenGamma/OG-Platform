@@ -11,15 +11,23 @@ import com.opengamma.analytics.financial.interestrate.bond.provider.BondSecurity
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * Calculates the dirty price of a bond from the yield.
  */
 public final class DirtyPriceFromYieldCalculator extends InstrumentDerivativeVisitorAdapter<Double, Double> {
+  /** A singleton instance */
   private static final DirtyPriceFromYieldCalculator INSTANCE = new DirtyPriceFromYieldCalculator();
 
+  /**
+   * Gets the singleton instance.
+   * @return The instance
+   */
   public static DirtyPriceFromYieldCalculator getInstance() {
     return INSTANCE;
   }
 
+  /**
+   * Private constructor
+   */
   private DirtyPriceFromYieldCalculator() {
   }
 

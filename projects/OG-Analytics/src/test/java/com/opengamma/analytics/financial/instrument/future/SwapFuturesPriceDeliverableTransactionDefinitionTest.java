@@ -19,11 +19,13 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFutu
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the description of Deliverable Interest Rate Swap Futures as traded on CME.
  */
+@Test(groups = TestGroup.UNIT)
 public class SwapFuturesPriceDeliverableTransactionDefinitionTest {
 
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
@@ -41,16 +43,16 @@ public class SwapFuturesPriceDeliverableTransactionDefinitionTest {
   private static final double TRAN_PRICE = 0.98 + 31.0 / 32.0 / 100.0; // price quoted in 32nd of 1%
   private static final int QUANTITY = 1234;
   private static final SwapFuturesPriceDeliverableTransactionDefinition SWAP_FUTURES_TRANSACTION_DEFINITION =
-      new SwapFuturesPriceDeliverableTransactionDefinition(SWAP_FUTURES_SECURITY_DEFINITION, TRAN_DATE, TRAN_PRICE, QUANTITY);
+      new SwapFuturesPriceDeliverableTransactionDefinition(SWAP_FUTURES_SECURITY_DEFINITION, QUANTITY, TRAN_DATE, TRAN_PRICE);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullUnderlying() {
-    new SwapFuturesPriceDeliverableTransactionDefinition(null, TRAN_DATE, TRAN_PRICE, QUANTITY);
+    new SwapFuturesPriceDeliverableTransactionDefinition(null, QUANTITY, TRAN_DATE, TRAN_PRICE);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullTrDate() {
-    new SwapFuturesPriceDeliverableTransactionDefinition(SWAP_FUTURES_SECURITY_DEFINITION, null, TRAN_PRICE, QUANTITY);
+    new SwapFuturesPriceDeliverableTransactionDefinition(SWAP_FUTURES_SECURITY_DEFINITION, QUANTITY, null, TRAN_PRICE);
   }
 
   @Test
@@ -58,9 +60,9 @@ public class SwapFuturesPriceDeliverableTransactionDefinitionTest {
    * Tests the getter methods.
    */
   public void getter() {
-    assertEquals("DeliverableSwapFuturesTransactionDefinition: getter", SWAP_FUTURES_SECURITY_DEFINITION, SWAP_FUTURES_TRANSACTION_DEFINITION.getUnderlying());
-    assertEquals("DeliverableSwapFuturesTransactionDefinition: getter", TRAN_DATE, SWAP_FUTURES_TRANSACTION_DEFINITION.getTransactionDate());
-    assertEquals("DeliverableSwapFuturesTransactionDefinition: getter", TRAN_PRICE, SWAP_FUTURES_TRANSACTION_DEFINITION.getTransactionPrice());
+    assertEquals("DeliverableSwapFuturesTransactionDefinition: getter", SWAP_FUTURES_SECURITY_DEFINITION, SWAP_FUTURES_TRANSACTION_DEFINITION.getUnderlyingSecurity());
+    assertEquals("DeliverableSwapFuturesTransactionDefinition: getter", TRAN_DATE, SWAP_FUTURES_TRANSACTION_DEFINITION.getTradeDate());
+    assertEquals("DeliverableSwapFuturesTransactionDefinition: getter", TRAN_PRICE, SWAP_FUTURES_TRANSACTION_DEFINITION.getTradePrice());
     assertEquals("DeliverableSwapFuturesTransactionDefinition: getter", QUANTITY, SWAP_FUTURES_TRANSACTION_DEFINITION.getQuantity());
   }
 

@@ -10,8 +10,6 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.format.DateTimeFormatter;
 
@@ -28,10 +26,11 @@ public class HolidayQueryTool extends AbstractTool<ToolContext> {
 
   /**
    * Main method to run the tool.
+   * 
+   * @param args  the standard tool arguments, not null
    */
   public static void main(String[] args) {  // CSIGNORE
-    new HolidayQueryTool().initAndRun(args, ToolContext.class);
-    System.exit(0);
+    new HolidayQueryTool().invokeAndTerminate(args);
   }
 
   //-------------------------------------------------------------------------

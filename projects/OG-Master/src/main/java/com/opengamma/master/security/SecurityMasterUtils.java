@@ -47,7 +47,7 @@ public class SecurityMasterUtils {
     ArgumentChecker.notNull(security, "security");
     BeanCompare beanCompare = new BeanCompare();
     SecuritySearchRequest searchReq = new SecuritySearchRequest();
-    ExternalIdSearch idSearch = new ExternalIdSearch(security.getExternalIdBundle());  // match any one of the IDs
+    ExternalIdSearch idSearch = ExternalIdSearch.of(security.getExternalIdBundle());  // match any one of the IDs
     searchReq.setVersionCorrection(VersionCorrection.ofVersionAsOf(Instant.now())); // valid now
     searchReq.setExternalIdSearch(idSearch);
     searchReq.setFullDetail(true);
@@ -81,7 +81,7 @@ public class SecurityMasterUtils {
             security.setUniqueId(newId);
             return security;
           } catch (Throwable t) {
-            s_logger.error("Unable to update security " + security.getUniqueId() + ": " + t.getMessage());
+            s_logger.error("Unable to update security " + security.getUniqueId() + ": " + t.getMessage(), t);
             return null;
           }
         }
@@ -94,7 +94,7 @@ public class SecurityMasterUtils {
       SecurityDocument result = securityMaster.add(addDoc);
       return result.getSecurity();
     } catch (Exception e) {
-      s_logger.error("Failed to write security " + security + " to the security master");
+      s_logger.error("Failed to write security " + security + " to the security master", e);
       return null;
     }
   }

@@ -24,6 +24,7 @@ import com.opengamma.util.fudgemsg.FudgeMapWrapper;
 import com.opengamma.util.rest.AbstractRemoteClient;
 import com.opengamma.util.rest.UniformInterfaceException404NotFound;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Provides remote access to an {@link HistoricalTimeSeriesSource}.
@@ -298,7 +299,7 @@ public class RemoteHistoricalTimeSeriesSource extends AbstractRemoteClient imple
     if (series.size() == 0) {
       return null;
     }
-    return Pair.of(series.getLatestTime(), series.getLatestValue());
+    return Pairs.of(series.getLatestTime(), series.getLatestValue());
   }
 
   @Override

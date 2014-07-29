@@ -46,7 +46,7 @@ public class MasterTimeSeriesWriter implements TimeSeriesWriter {
     if (oId == null) {
       // resolve hts name to id of hts
       HistoricalTimeSeriesInfoSearchRequest searchRequest = new HistoricalTimeSeriesInfoSearchRequest();
-      searchRequest.setExternalIdSearch(new ExternalIdSearch(htsId));
+      searchRequest.setExternalIdSearch(ExternalIdSearch.of(htsId));
       searchRequest.setDataField(dataField);
       searchRequest.setDataProvider(dataProvider);
       searchRequest.setDataSource(dataSource);

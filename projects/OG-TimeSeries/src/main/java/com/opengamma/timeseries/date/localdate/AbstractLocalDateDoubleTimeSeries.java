@@ -207,7 +207,7 @@ abstract class AbstractLocalDateDoubleTimeSeries
   //-------------------------------------------------------------------------
   @Override
   public LocalDateDoubleTimeSeries subSeries(LocalDate startTime, LocalDate endTime) {
-    return subSeriesFast(convertToInt(startTime), convertToInt(endTime));
+    return subSeriesFast(convertToInt(startTime), true, convertToInt(endTime), false);
   }
 
   @Override
@@ -216,12 +216,8 @@ abstract class AbstractLocalDateDoubleTimeSeries
   }
 
   @Override
-  public LocalDateDoubleTimeSeries subSeriesFast(int startTime, boolean includeStart, int endTime, boolean includeEnd) {
-    if (startTime != endTime || includeStart || includeEnd) {
-      startTime += (includeStart ? 0 : 1);
-      endTime += (includeEnd ? 1 : 0);
-    }
-    return subSeriesFast(startTime, endTime);
+  public LocalDateDoubleTimeSeries subSeriesFast(int startTime, int endTime) {
+    return subSeriesFast(startTime, true, endTime, false);
   }
 
   //-------------------------------------------------------------------------

@@ -31,6 +31,20 @@ public class ExternalSchemes {
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(ExternalSchemes.class);
 
+  // --------------------------- SCHEMES FOR USER IDENTITY ------------------------------------
+  /**
+   * Identification scheme for Windows user id.
+   */
+  public static final ExternalScheme WINDOWS_USER_ID = ExternalScheme.of("WINDOWS_USER_ID");
+  /**
+   * Identification scheme for UUID identifier
+   */
+  public static final ExternalScheme BLOOMBERG_UUID = ExternalScheme.of("BLOOMBERG_UUID");
+  /**
+   * Identification scheme for EMRSID identifier
+   */
+  public static final ExternalScheme BLOOMBERG_EMRSID = ExternalScheme.of("BLOOMBERG_EMRSID");
+
   // --------------------------- SCHEMES FOR SECURITIES AND RATES -----------------------------
   /**
    * Identification scheme for the ISIN code.
@@ -40,6 +54,10 @@ public class ExternalSchemes {
    * Identification scheme for the CUSIP code.
    */
   public static final ExternalScheme CUSIP = ExternalScheme.of("CUSIP");
+  /**
+   * Identification scheme for the CUSIP entity stub code.
+   */
+  public static final ExternalScheme CUSIP_ENTITY_STUB = ExternalScheme.of("CUSIP_ENTITY_STUB");
   /**
    * Identification scheme for SEDOL1.
    */
@@ -64,8 +82,18 @@ public class ExternalSchemes {
   public static final ExternalScheme BLOOMBERG_TICKER_WEAK = ExternalScheme.of("BLOOMBERG_TICKER_WEAK");
   /**
    * Identification scheme for Bloomberg tickers.
+   * @deprecated use BLOOMBERG_TICKER instead
    */
+  @Deprecated
   public static final ExternalScheme BLOOMBERG_TCM = ExternalScheme.of("BLOOMBERG_TCM");
+  /**
+   * Identification scheme for conventions, using the stub of SECURITY_DES (minus date information)
+   */
+  public static final ExternalScheme BLOOMBERG_CONVENTION_NAME = ExternalScheme.of("BLOOMBERG_CONVENTION_NAME");
+  /**
+   * Identification scheme for index families, using the stub of SECURITY_DES (minus date information)
+   */
+  public static final ExternalScheme BLOOMBERG_INDEX_FAMILY = ExternalScheme.of("BLOOMBERG_INDEX_FAMILY");
   /**
    * Identification scheme for Reuters RICs.
    */
@@ -96,7 +124,7 @@ public class ExternalSchemes {
   public static final ExternalScheme ISDA = ExternalScheme.of("ISDA");
   // --------------------- SCHEMES FOR EXCHANGES ---------------------------
 
-/**
+  /**
    * Identification scheme for CDS Index and Obligors.
    */
   public static final ExternalScheme MARKIT_RED_CODE = ExternalScheme.of("MARKIT_RED_CODE");
@@ -150,6 +178,42 @@ public class ExternalSchemes {
    * Restricted constructor.
    */
   protected ExternalSchemes() {
+  }
+
+  //------------------ METHODS FOR USER IDENTITY -----------------------------
+  /**
+   * Creates a Windows user id.
+   * 
+   * @param windowsUserId  the Windows user id, not null
+   * @return the identifier, not null
+   */
+  public static ExternalId windowsUserId(String windowsUserId) {
+    ArgumentChecker.notNull(windowsUserId, "windowsUserId");
+    return ExternalId.of(ExternalSchemes.WINDOWS_USER_ID, windowsUserId);
+  }
+
+  /**
+   * Creates a UUID identifier.
+   * <p>
+   * This is an identifier for BPS bloomberg user.
+   * 
+   * @param uuid the bps bloomberg user identifier, not null
+   * @return the user uuid identifier, not null
+   */
+  public static ExternalId bloombergUuidUserId(final String uuid) {
+    return ExternalId.of(BLOOMBERG_UUID, ArgumentChecker.notNull(StringUtils.trimToNull(uuid), "uuid"));
+  }
+
+  /**
+   * Creates an EMRSID identifier.
+   * <p>
+   * This is an identifier for NON-BPS bloomberg user 
+   * 
+   *  @param emrsid the non-bps bloomberg user identifier, not null
+   * @return the user emrsid identifier, not null
+   */
+  public static ExternalId bloombergEmrsUserId(final String emrsid) {
+    return ExternalId.of(BLOOMBERG_EMRSID, ArgumentChecker.notNull(StringUtils.trimToNull(emrsid), "emrsid"));
   }
 
   //------------------ METHODS FOR SECURITIES AND RATES ----------------------
@@ -250,7 +314,7 @@ public class ExternalSchemes {
     }
     return ExternalId.of(BLOOMBERG_TICKER, ticker);
   }
-  
+
   /**
    * Creates a Synthetic ticker.
    * <p>
@@ -260,7 +324,7 @@ public class ExternalSchemes {
    * @return the security identifier, not null
    */
   public static ExternalId syntheticSecurityId(final String ticker) {
-    ArgumentChecker.notNull(ticker, "code");
+    ArgumentChecker.notNull(ticker, "ticker");
     if (ticker.length() == 0) {
       throw new IllegalArgumentException("Ticker is invalid: " + ticker);
     }
@@ -380,7 +444,7 @@ public class ExternalSchemes {
     }
     return ExternalId.of(ICAP, ticker);
   }
-  
+
   /**
    * Creates a GMI ticker.
    * <p>
@@ -396,30 +460,30 @@ public class ExternalSchemes {
     }
     return ExternalId.of(GMI, ticker);
   }
-  
+
   /**
    * Creates a MarkIt RED_CODE identifier
    * <p>
    * @param redcode the redcode identifier, not null or empty
    * @return the security redcode identifier, not null
    */
-  public static ExternalId markItRedCode(String redcode) {
+  public static ExternalId markItRedCode(final String redcode) {
     ArgumentChecker.notNull(redcode, "redcode");
     ArgumentChecker.isFalse(redcode.isEmpty(), "Empty redcode is invalid");
     return ExternalId.of(MARKIT_RED_CODE, redcode);
   }
-  
+
   /**
    * Creates an ISDA identifier
    * <p>
    * @param isdaName the isda name, not null or empty
    * @return the isda identifier, not null
    */
-  public static ExternalId isda(String isdaName) {
+  public static ExternalId isda(final String isdaName) {
     ArgumentChecker.notEmpty(isdaName, "isdaname");
     return ExternalId.of(ISDA, isdaName);
   }
-  
+
   // -------------------------- METHODS FOR REGIONS ---------------------------
 
   /**
@@ -524,7 +588,7 @@ public class ExternalSchemes {
     }
     return ExternalId.of(ExternalSchemes.ISO_MIC, code);
   }
-  
+
   //---------------------- HOLIDAYS ---------------------
   /**
    * Creates an ISDA holiday code.

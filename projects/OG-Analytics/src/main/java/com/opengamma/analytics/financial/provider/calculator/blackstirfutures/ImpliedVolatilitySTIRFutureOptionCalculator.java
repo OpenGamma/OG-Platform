@@ -9,12 +9,12 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
 import com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureOptionMarginSecurityBlackSmileMethod;
-import com.opengamma.analytics.financial.provider.description.interestrate.BlackSTIRFuturesSmileProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.BlackSTIRFuturesProviderInterface;
 
 /**
  * Calculates the implied volatility of interest rate future options.
  */
-public final class ImpliedVolatilitySTIRFutureOptionCalculator extends InstrumentDerivativeVisitorAdapter<BlackSTIRFuturesSmileProviderInterface, Double> {
+public final class ImpliedVolatilitySTIRFutureOptionCalculator extends InstrumentDerivativeVisitorAdapter<BlackSTIRFuturesProviderInterface, Double> {
   /**
    * The unique instance of the calculator.
    */
@@ -40,12 +40,12 @@ public final class ImpliedVolatilitySTIRFutureOptionCalculator extends Instrumen
   private static final InterestRateFutureOptionMarginSecurityBlackSmileMethod METHOD_STIR_MARGIN = InterestRateFutureOptionMarginSecurityBlackSmileMethod.getInstance();
 
   @Override
-  public Double visitInterestRateFutureOptionMarginTransaction(final InterestRateFutureOptionMarginTransaction futures, final BlackSTIRFuturesSmileProviderInterface black) {
-    return METHOD_STIR_MARGIN.impliedVolatility(futures.getUnderlyingOption(), black);
+  public Double visitInterestRateFutureOptionMarginTransaction(final InterestRateFutureOptionMarginTransaction futures, final BlackSTIRFuturesProviderInterface black) {
+    return METHOD_STIR_MARGIN.impliedVolatility(futures.getUnderlyingSecurity(), black);
   }
 
   @Override
-  public Double visitInterestRateFutureOptionMarginSecurity(final InterestRateFutureOptionMarginSecurity futures, final BlackSTIRFuturesSmileProviderInterface black) {
+  public Double visitInterestRateFutureOptionMarginSecurity(final InterestRateFutureOptionMarginSecurity futures, final BlackSTIRFuturesProviderInterface black) {
     return METHOD_STIR_MARGIN.impliedVolatility(futures, black);
   }
 }

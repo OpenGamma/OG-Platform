@@ -8,14 +8,15 @@ package com.opengamma.integration.marketdata.manipulator.dsl;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import com.opengamma.core.marketdatasnapshot.VolatilityCubeKey;
-import com.opengamma.engine.marketdata.manipulator.StructureType;
+import com.opengamma.engine.value.ValuePropertyNames;
+import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.money.Currency;
 
 /**
  * Selects volatility cubes for manipulation.
  */
-public class VolatilityCubeSelector extends Selector<VolatilityCubeKey> {
+public class VolatilityCubeSelector extends Selector {
 
   /* package */ VolatilityCubeSelector(Set<String> calcConfigNames,
                                        Set<String> names,
@@ -26,14 +27,20 @@ public class VolatilityCubeSelector extends Selector<VolatilityCubeKey> {
           names,
           currencies,
           nameMatchPattern,
-          nameLikePattern,
-          VolatilityCubeKey.class,
-          StructureType.VOLATILITY_CUBE);
+          nameLikePattern);
   }
 
   @Override
-  boolean matches(VolatilityCubeKey key) {
-    return matches(key.getName(), key.getCurrency());
+  boolean matches(ValueSpecification valueSpecification) {
+    if (!ValueRequirementNames.VOLATILITY_CUBE.equals(valueSpecification.getValueName())) {
+      return false;
+    }
+    Currency currency = Currency.parse(valueSpecification.getTargetSpecification().getUniqueId().getValue());
+    String cube = valueSpecification.getProperties().getStrictValue(ValuePropertyNames.CUBE);
+    if (cube == null) {
+      return false;
+    }
+    return matches(cube, currency);
   }
 
   /**

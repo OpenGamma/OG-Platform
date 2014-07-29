@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -9,8 +9,9 @@ import java.util.Collection;
 import java.util.Comparator;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.core.organization.Organization;
-import com.opengamma.core.organization.OrganizationSource;
+import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.core.legalentity.LegalEntity;
+import com.opengamma.core.legalentity.LegalEntitySource;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.impl.SimplePositionComparator;
 import com.opengamma.core.security.Security;
@@ -42,7 +43,7 @@ public class EntityNameAggregationFunction implements AggregationFunction<String
   /**
    * The organization source, not null.
    */
-  private final OrganizationSource _organizationSource;
+  private final LegalEntitySource _legalEntitySource;
 
   /**
    * The name of this aggregation.
@@ -52,15 +53,15 @@ public class EntityNameAggregationFunction implements AggregationFunction<String
   /**
    * Creates the aggregation function.
    *
-   * @param organizationSource the organization source used for the finding the
+   * @param legalEntitySource the organization source used for the finding the
    *  organization from the red code of the CDS security, not null
    * @param securitySource the security source used for resolution of the CDS security, not null
    */
-  public EntityNameAggregationFunction(final OrganizationSource organizationSource, final SecuritySource securitySource) {
-    ArgumentChecker.notNull(organizationSource, "organizationSource");
+  public EntityNameAggregationFunction(final LegalEntitySource legalEntitySource, final SecuritySource securitySource) {
+    ArgumentChecker.notNull(legalEntitySource, "legalEntitySource");
     ArgumentChecker.notNull(securitySource, "securitySource");
     _securitySource = securitySource;
-    _organizationSource = organizationSource;
+    _legalEntitySource = legalEntitySource;
   }
 
   //-------------------------------------------------------------------------
@@ -77,8 +78,8 @@ public class EntityNameAggregationFunction implements AggregationFunction<String
       final ExternalId underlyingId = cdsOption.getUnderlyingId();
       final Security underlying = _securitySource.getSingle(underlyingId.toBundle());
       final String redCode = ((CreditDefaultSwapSecurity) underlying).getReferenceEntity().getValue();
-      final Organization organisation = _organizationSource.getOrganizationByRedCode(redCode);
-      return organisation.getObligor().getObligorShortName();
+      final LegalEntity legalEntity = _legalEntitySource.getSingle(ExternalId.of(ExternalSchemes.MARKIT_RED_CODE, redCode));
+      return legalEntity.getName();
 
     } else if (security instanceof CreditDefaultSwapIndexSecurity) {
       final CreditDefaultSwapIndexSecurity cdsIndex = (CreditDefaultSwapIndexSecurity) security;
@@ -87,9 +88,9 @@ public class EntityNameAggregationFunction implements AggregationFunction<String
     } else if (security instanceof CreditDefaultSwapSecurity) {
       final AbstractCreditDefaultSwapSecurity cds = (AbstractCreditDefaultSwapSecurity) security;
       final String redCode = cds.getReferenceEntity().getValue();
-      final Organization organisation = _organizationSource.getOrganizationByRedCode(redCode);
-      if (organisation != null) {
-        return organisation.getObligor().getObligorShortName();
+      final LegalEntity legalEntity = _legalEntitySource.getSingle(ExternalId.of(ExternalSchemes.MARKIT_RED_CODE, redCode));
+      if (legalEntity != null) {
+        return legalEntity.getName();
       } else {
         return redCode;
       }

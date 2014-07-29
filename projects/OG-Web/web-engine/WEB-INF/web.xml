@@ -4,25 +4,6 @@
          xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
          version="2.5">
 
-  <!-- Cometd -->
-  <servlet>
-      <servlet-name>cometd</servlet-name>
-      <servlet-class>org.cometd.server.CometdServlet</servlet-class>
-      <load-on-startup>1</load-on-startup>
-  </servlet>
-  <servlet-mapping>
-      <servlet-name>cometd</servlet-name>
-      <url-pattern>/cometd/*</url-pattern>
-  </servlet-mapping>
-  <filter>
-      <filter-name>cross-origin</filter-name>
-      <filter-class>org.eclipse.jetty.servlets.CrossOriginFilter</filter-class>
-  </filter>
-  <filter-mapping>
-      <filter-name>cross-origin</filter-name>
-      <url-pattern>/cometd/*</url-pattern>
-  </filter-mapping>
-
   <!-- Jersey - JAXRS support -->
   <servlet>
     <servlet-name>jersey-spring</servlet-name>
@@ -48,7 +29,6 @@
     <servlet-name>handshake</servlet-name>
     <url-pattern>/handshake</url-pattern>
   </servlet-mapping>
-
   <servlet>
     <servlet-name>updates</servlet-name>
     <servlet-class>com.opengamma.web.analytics.push.LongPollingServlet</servlet-class>
@@ -57,17 +37,35 @@
     <servlet-name>updates</servlet-name>
     <url-pattern>/updates/*</url-pattern>
   </servlet-mapping>
-  <!--end of HTTP push support-->
+  
+  <!-- Jolokia - jmx bridge -->
+  <servlet>
+    <servlet-name>jolokia-agent</servlet-name>
+    <servlet-class>org.jolokia.http.AgentServlet</servlet-class>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>jolokia-agent</servlet-name>
+    <url-pattern>/admin/jolokia/*</url-pattern>
+  </servlet-mapping>
+  <security-constraint>
+    <web-resource-collection>
+      <web-resource-name>Admin Access</web-resource-name>
+      <url-pattern>/admin/*</url-pattern>
+    </web-resource-collection>
+    <auth-constraint>
+      <role-name>admin</role-name>
+    </auth-constraint>
+  </security-constraint>
+  <security-role>
+    <role-name>admin</role-name>
+  </security-role>
 
   <!-- Ehcache shutdown hook -->
   <listener>
     <listener-class>net.sf.ehcache.constructs.web.ShutdownListener</listener-class>
   </listener>
-  <!-- Bind CometD/Bayeux to Web analytics -->
-  <listener>
-    <listener-class>com.opengamma.web.server.WebAnalyticsBayeuxInitializer</listener-class>
-  </listener>
-
+  
   <!-- Disable Jetty's locking of static files -->
   <servlet>
     <servlet-name>default</servlet-name>
@@ -76,5 +74,31 @@
       <param-value>false</param-value>
     </init-param>
   </servlet>
+
+  <!-- Session timeout -->
+  <session-config>
+    <session-timeout>20</session-timeout>
+  </session-config>
+
+  <!-- Apache Shiro auth -->
+  <listener>
+    <listener-class>com.opengamma.web.ShiroSecurityEnvironmentLoader</listener-class>
+  </listener>
+  <filter>
+    <filter-name>ShiroFilter</filter-name>
+    <filter-class>org.apache.shiro.web.servlet.ShiroFilter</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>ShiroFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+    <dispatcher>REQUEST</dispatcher>
+    <dispatcher>FORWARD</dispatcher>
+    <dispatcher>INCLUDE</dispatcher>
+    <dispatcher>ERROR</dispatcher>
+  </filter-mapping>
+  <context-param>
+    <param-name>shiroConfigLocations</param-name>
+    <param-value>/WEB-INF/shiro.ini</param-value>
+  </context-param>
 
 </web-app>

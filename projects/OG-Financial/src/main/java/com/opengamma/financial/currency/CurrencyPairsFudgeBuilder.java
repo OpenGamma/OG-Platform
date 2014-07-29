@@ -7,6 +7,7 @@ package com.opengamma.financial.currency;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
@@ -38,7 +39,8 @@ public class CurrencyPairsFudgeBuilder implements FudgeBuilder<CurrencyPairs> {
     MutableFudgeMsg msg = serializer.newMessage();
     serializer.addToMessage(msg, UNIQUE_ID_FIELD_NAME, null, object.getUniqueId());
     Set<CurrencyPair> pairs = object.getPairs();
-    HashSet<String> pairNames = new HashSet<String>(pairs.size());
+    // sort the names so it's more obvious when messages are equal
+    Set<String> pairNames = new TreeSet<>();
     for (CurrencyPair pair : pairs) {
       pairNames.add(pair.getName());
     }

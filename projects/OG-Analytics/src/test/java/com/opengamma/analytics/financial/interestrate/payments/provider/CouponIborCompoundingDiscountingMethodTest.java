@@ -23,17 +23,19 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.Multipl
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ParameterSensitivityMulticurveDiscountInterpolatedFDCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the pricing and sensitivities of Ibor compounded coupon in the discounting method.
  */
+@Test(groups = TestGroup.UNIT)
 public class CouponIborCompoundingDiscountingMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveCad();
@@ -76,7 +78,7 @@ public class CouponIborCompoundingDiscountingMethodTest {
     final int nbSub = CPN_BEFORE.getFixingTimes().length;
     for (int loopsub = 0; loopsub < nbSub; loopsub++) {
       notionalAccrued *= (1.0 + CPN_BEFORE.getPaymentAccrualFactors()[loopsub]
-          * MULTICURVES.getForwardRate(CPN_BEFORE.getIndex(), CPN_BEFORE.getFixingPeriodStartTimes()[loopsub], CPN_BEFORE.getFixingPeriodEndTimes()[loopsub],
+          * MULTICURVES.getSimplyCompoundForwardRate(CPN_BEFORE.getIndex(), CPN_BEFORE.getFixingPeriodStartTimes()[loopsub], CPN_BEFORE.getFixingPeriodEndTimes()[loopsub],
               CPN_BEFORE.getFixingPeriodAccrualFactors()[loopsub]));
     }
     final double dfPayment = MULTICURVES.getDiscountFactor(CAD, CPN_BEFORE.getPaymentTime());
@@ -97,7 +99,7 @@ public class CouponIborCompoundingDiscountingMethodTest {
     final MultipleCurrencyAmount pvComputed = METHOD_COMPOUNDED.presentValue(CPN_1, MULTICURVES);
     double accruedNotional = (1.0 + CPN_DEFINITION.getPaymentAccrualFactors()[0] * FIXING_RATES[1]) * NOTIONAL;
     accruedNotional *= (1.0 + CPN_1.getPaymentAccrualFactors()[0]
-        * MULTICURVES.getForwardRate(CPN_1.getIndex(), CPN_1.getFixingPeriodStartTimes()[0], CPN_1.getFixingPeriodEndTimes()[0], CPN_1.getFixingPeriodAccrualFactors()[0]));
+        * MULTICURVES.getSimplyCompoundForwardRate(CPN_1.getIndex(), CPN_1.getFixingPeriodStartTimes()[0], CPN_1.getFixingPeriodEndTimes()[0], CPN_1.getFixingPeriodAccrualFactors()[0]));
     final double dfPayment = MULTICURVES.getDiscountFactor(CAD, CPN_1.getPaymentTime());
     final double pvExpected = (accruedNotional - NOTIONAL) * dfPayment;
     assertEquals("CouponIborCompoundedDiscounting: Present value", pvExpected, pvComputed.getAmount(CAD), TOLERANCE_PV);
@@ -110,14 +112,14 @@ public class CouponIborCompoundingDiscountingMethodTest {
   public void presentValueCurveSensitivity() {
     final MultipleCurrencyParameterSensitivity pvpsDepositExact = PS_PV_C.calculateSensitivity(CPN_BEFORE, MULTICURVES, MULTICURVES.getAllNames());
     final MultipleCurrencyParameterSensitivity pvpsDepositFD = PS_PV_FDC.calculateSensitivity(CPN_BEFORE, MULTICURVES);
-    AssertSensivityObjects.assertEquals("CashDiscountingProviderMethod: presentValueCurveSensitivity ", pvpsDepositExact, pvpsDepositFD, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("CashDiscountingProviderMethod: presentValueCurveSensitivity ", pvpsDepositExact, pvpsDepositFD, TOLERANCE_PV_DELTA);
   }
 
   @Test
   public void presentValueCurveSensitivityMethodVsCalculator() {
     final MultipleCurrencyMulticurveSensitivity pvcsMethod = METHOD_COMPOUNDED.presentValueCurveSensitivity(CPN_BEFORE, MULTICURVES);
     final MultipleCurrencyMulticurveSensitivity pvcsCalculator = CPN_BEFORE.accept(PVCSDC, MULTICURVES);
-    AssertSensivityObjects.assertEquals("CouponIborCompoundedDiscounting: Present value curve sensitivity", pvcsMethod, pvcsCalculator, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("CouponIborCompoundedDiscounting: Present value curve sensitivity", pvcsMethod, pvcsCalculator, TOLERANCE_PV_DELTA);
   }
 
 }

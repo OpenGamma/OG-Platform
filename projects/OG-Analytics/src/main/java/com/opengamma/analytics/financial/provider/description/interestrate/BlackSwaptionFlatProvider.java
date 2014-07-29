@@ -1,14 +1,19 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.description.interestrate;
 
+import java.util.List;
+import java.util.Set;
+
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.analytics.financial.model.option.parameters.BlackFlatSwaptionParameters;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Class containing curve and volatility data sufficient to price swaptions using the Black method.
@@ -27,12 +32,12 @@ public class BlackSwaptionFlatProvider implements BlackSwaptionFlatProviderInter
 
   /**
    * Constructor.
-   * @param multicurves The multi-curves provider.
+   * @param multicurves The multi-curves provider, not null
    * @param blackParameters The Black parameters, not null
    */
   public BlackSwaptionFlatProvider(final MulticurveProviderInterface multicurves, final BlackFlatSwaptionParameters blackParameters) {
-    ArgumentChecker.notNull(multicurves, "multi-curve provider");
-    ArgumentChecker.notNull(blackParameters, "Black parameters");
+    ArgumentChecker.notNull(multicurves, "multicurves");
+    ArgumentChecker.notNull(blackParameters, "blackParameters");
     _multiCurveProvider = multicurves;
     _blackParameters = blackParameters;
   }
@@ -52,6 +57,21 @@ public class BlackSwaptionFlatProvider implements BlackSwaptionFlatProviderInter
   @Override
   public MulticurveProviderInterface getMulticurveProvider() {
     return _multiCurveProvider;
+  }
+
+  @Override
+  public double[] parameterSensitivity(final String name, final List<DoublesPair> pointSensitivity) {
+    return _multiCurveProvider.parameterSensitivity(name, pointSensitivity);
+  }
+
+  @Override
+  public double[] parameterForwardSensitivity(final String name, final List<ForwardSensitivity> pointSensitivity) {
+    return _multiCurveProvider.parameterForwardSensitivity(name, pointSensitivity);
+  }
+
+  @Override
+  public Set<String> getAllCurveNames() {
+    return _multiCurveProvider.getAllCurveNames();
   }
 
   @Override

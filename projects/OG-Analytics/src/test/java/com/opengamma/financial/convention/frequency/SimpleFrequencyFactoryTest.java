@@ -12,7 +12,12 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Lists;
+import com.opengamma.util.test.TestGroup;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class SimpleFrequencyFactoryTest {
 
   private final SimpleFrequencyFactory _factory = SimpleFrequencyFactory.INSTANCE;
@@ -31,6 +36,7 @@ public class SimpleFrequencyFactoryTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   public void enumerateAvailableFrequencies() {
     List<SimpleFrequency> frequencies = Lists.newArrayList(_factory.enumerateAvailableFrequencies());
     assertEquals(frequencies, Lists.newArrayList(
@@ -38,6 +44,7 @@ public class SimpleFrequencyFactoryTest {
         SimpleFrequency.DAILY,
         SimpleFrequency.WEEKLY,
         SimpleFrequency.BIWEEKLY,
+        SimpleFrequency.THREE_WEEKS,
         SimpleFrequency.TWENTY_EIGHT_DAYS,
         SimpleFrequency.MONTHLY,
         SimpleFrequency.BIMONTHLY,

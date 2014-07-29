@@ -71,8 +71,18 @@ public class ExampleAnalyticServiceUsage extends AbstractTool<ToolContext> {
   private final Random _random = new Random();
   
   private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
-  
-  
+
+  //-------------------------------------------------------------------------
+  /**
+   * Main method to run the tool.
+   * 
+   * @param args  the standard tool arguments, not null
+   */
+  public static void main(String[] args) {  // CSIGNORE
+    new ExampleAnalyticServiceUsage().invokeAndTerminate(args);
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   protected void doRun() throws Exception {
     
@@ -156,13 +166,7 @@ public class ExampleAnalyticServiceUsage extends AbstractTool<ToolContext> {
     return providerId;
   }
 
-  /**
-   * Main method to run the tool.
-   */
-  public static void main(String[] args) {  // CSIGNORE
-    new ExampleAnalyticServiceUsage().initAndRun(args, ToolContext.class);
-  }
-  
+  //-------------------------------------------------------------------------
   @Override
   protected Options createOptions(boolean mandatoryConfig) {
     Options options = super.createOptions(mandatoryConfig);

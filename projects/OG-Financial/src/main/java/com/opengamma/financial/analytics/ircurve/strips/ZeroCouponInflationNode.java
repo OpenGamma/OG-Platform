@@ -7,6 +7,7 @@ package com.opengamma.financial.analytics.ircurve.strips;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -125,75 +126,6 @@ public class ZeroCouponInflationNode extends CurveNode {
     return ZeroCouponInflationNode.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 110246592:  // tenor
-        return getTenor();
-      case -438961387:  // inflationLegConvention
-        return getInflationLegConvention();
-      case -2101140213:  // fixedLegConvention
-        return getFixedLegConvention();
-      case -279739482:  // inflationNodeType
-        return getInflationNodeType();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 110246592:  // tenor
-        setTenor((Tenor) newValue);
-        return;
-      case -438961387:  // inflationLegConvention
-        setInflationLegConvention((ExternalId) newValue);
-        return;
-      case -2101140213:  // fixedLegConvention
-        setFixedLegConvention((ExternalId) newValue);
-        return;
-      case -279739482:  // inflationNodeType
-        setInflationNodeType((InflationNodeType) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_tenor, "tenor");
-    JodaBeanUtils.notNull(_inflationLegConvention, "inflationLegConvention");
-    JodaBeanUtils.notNull(_fixedLegConvention, "fixedLegConvention");
-    JodaBeanUtils.notNull(_inflationNodeType, "inflationNodeType");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      ZeroCouponInflationNode other = (ZeroCouponInflationNode) obj;
-      return JodaBeanUtils.equal(getTenor(), other.getTenor()) &&
-          JodaBeanUtils.equal(getInflationLegConvention(), other.getInflationLegConvention()) &&
-          JodaBeanUtils.equal(getFixedLegConvention(), other.getFixedLegConvention()) &&
-          JodaBeanUtils.equal(getInflationNodeType(), other.getInflationNodeType()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTenor());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getInflationLegConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFixedLegConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getInflationNodeType());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the tenor.
@@ -296,6 +228,60 @@ public class ZeroCouponInflationNode extends CurveNode {
    */
   public final Property<InflationNodeType> inflationNodeType() {
     return metaBean().inflationNodeType().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public ZeroCouponInflationNode clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      ZeroCouponInflationNode other = (ZeroCouponInflationNode) obj;
+      return JodaBeanUtils.equal(getTenor(), other.getTenor()) &&
+          JodaBeanUtils.equal(getInflationLegConvention(), other.getInflationLegConvention()) &&
+          JodaBeanUtils.equal(getFixedLegConvention(), other.getFixedLegConvention()) &&
+          JodaBeanUtils.equal(getInflationNodeType(), other.getInflationNodeType()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTenor());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getInflationLegConvention());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFixedLegConvention());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getInflationNodeType());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(160);
+    buf.append("ZeroCouponInflationNode{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("tenor").append('=').append(JodaBeanUtils.toString(getTenor())).append(',').append(' ');
+    buf.append("inflationLegConvention").append('=').append(JodaBeanUtils.toString(getInflationLegConvention())).append(',').append(' ');
+    buf.append("fixedLegConvention").append('=').append(JodaBeanUtils.toString(getFixedLegConvention())).append(',').append(' ');
+    buf.append("inflationNodeType").append('=').append(JodaBeanUtils.toString(getInflationNodeType())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -405,6 +391,50 @@ public class ZeroCouponInflationNode extends CurveNode {
      */
     public final MetaProperty<InflationNodeType> inflationNodeType() {
       return _inflationNodeType;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 110246592:  // tenor
+          return ((ZeroCouponInflationNode) bean).getTenor();
+        case -438961387:  // inflationLegConvention
+          return ((ZeroCouponInflationNode) bean).getInflationLegConvention();
+        case -2101140213:  // fixedLegConvention
+          return ((ZeroCouponInflationNode) bean).getFixedLegConvention();
+        case -279739482:  // inflationNodeType
+          return ((ZeroCouponInflationNode) bean).getInflationNodeType();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 110246592:  // tenor
+          ((ZeroCouponInflationNode) bean).setTenor((Tenor) newValue);
+          return;
+        case -438961387:  // inflationLegConvention
+          ((ZeroCouponInflationNode) bean).setInflationLegConvention((ExternalId) newValue);
+          return;
+        case -2101140213:  // fixedLegConvention
+          ((ZeroCouponInflationNode) bean).setFixedLegConvention((ExternalId) newValue);
+          return;
+        case -279739482:  // inflationNodeType
+          ((ZeroCouponInflationNode) bean).setInflationNodeType((InflationNodeType) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((ZeroCouponInflationNode) bean)._tenor, "tenor");
+      JodaBeanUtils.notNull(((ZeroCouponInflationNode) bean)._inflationLegConvention, "inflationLegConvention");
+      JodaBeanUtils.notNull(((ZeroCouponInflationNode) bean)._fixedLegConvention, "fixedLegConvention");
+      JodaBeanUtils.notNull(((ZeroCouponInflationNode) bean)._inflationNodeType, "inflationNodeType");
+      super.validate(bean);
     }
 
   }

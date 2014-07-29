@@ -27,7 +27,7 @@
 
 
 <#-- SECTION Add portfolio -->
-<@section title="Add portfolio">
+<@section title="Add portfolio" if=userSecurity.isPermitted('PortfolioMaster:edit:add')>
   <@form method="POST" action="${uris.portfolios()}">
   <p>
     <@rowin label="Name"><input type="text" size="30" maxlength="80" name="name" value="" /></@rowin>

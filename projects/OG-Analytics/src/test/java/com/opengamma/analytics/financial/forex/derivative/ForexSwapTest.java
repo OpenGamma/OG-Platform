@@ -14,11 +14,13 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the construction of Forex Swap instruments.
  */
+@Test(groups = TestGroup.UNIT)
 public class ForexSwapTest {
 
   private static final Currency CUR_1 = Currency.EUR;

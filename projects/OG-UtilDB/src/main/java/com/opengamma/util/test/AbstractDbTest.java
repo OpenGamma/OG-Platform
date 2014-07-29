@@ -16,7 +16,6 @@ import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 
-import com.opengamma.lambdava.tuple.Pair;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ReflectionUtils;
 import com.opengamma.util.db.DbConnector;
@@ -27,6 +26,8 @@ import com.opengamma.util.db.tool.DbDialectUtils;
 import com.opengamma.util.db.tool.DbTool;
 import com.opengamma.util.db.tool.DbTool.TableCreationCallback;
 import com.opengamma.util.time.DateUtils;
+import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Base DB test.
@@ -91,10 +92,35 @@ public abstract class AbstractDbTest implements TableCreationCallback {
     String prevVersion = s_databaseTypeVersion.get(getDatabaseType());
     if ((prevVersion == null) || !prevVersion.equals(getDatabaseVersion())) {
       s_databaseTypeVersion.put(getDatabaseType(), getDatabaseVersion());
+
+      String user = dbTool.getUser();
+      String password = dbTool.getPassword();
+      String systemUser = System.getProperty("system.user");
+      String systemPassword = System.getProperty("system.password");
+      if ("oracle11g".equals(getDatabaseType())) {
+        if (systemUser == null) {
+          systemUser = TestProperties.getTestProperties().getProperty("oracle11g.jdbc.system.username");
+        }
+        if (systemPassword == null) {
+          systemPassword = TestProperties.getTestProperties().getProperty("oracle11g.jdbc.system.password");
+        }
+      }
+      if (systemUser != null && systemPassword != null) {
+        dbTool.setUser(systemUser);
+        dbTool.setPassword(systemPassword);
+      } else {
+        dbTool.setUser(user);
+        dbTool.setPassword(password);
+      }
+
       dbTool.setTargetVersion(getDatabaseVersion());
       dbTool.setCreateVersion(getDatabaseVersion());
       dbTool.dropTestSchema();
       dbTool.createTestSchema();
+      //
+      dbTool.setUser(user);
+      dbTool.setPassword(password);
+      //
       dbTool.createTestTables(this);
     }
     dbTool.clearTestTables();
@@ -220,7 +246,7 @@ public abstract class AbstractDbTest implements TableCreationCallback {
       synchronized (this) {
         dbTool = _dbTool;
         if (dbTool == null) {
-          DbConnector connector = s_connectors.get(Pair.<String, Class<?>>of(_databaseType, dbConnectorScope()));
+          DbConnector connector = s_connectors.get(Pairs.of(_databaseType, dbConnectorScope()));
           _dbTool = dbTool = DbTest.createDbTool(_databaseType, connector);  // CSIGNORE
         }
       }
@@ -230,7 +256,7 @@ public abstract class AbstractDbTest implements TableCreationCallback {
 
   private DbConnector initConnector() {
     Class<?> scope = dbConnectorScope();
-    Pair<String, Class<?>> key = Pair.<String, Class<?>>of(_databaseType, scope);
+    Pair<String, Class<?>> key = Pairs.<String, Class<?>>of(_databaseType, scope);
     DbConnector connector = s_connectors.get(key);
     if (connector == null) {
       synchronized (this) {

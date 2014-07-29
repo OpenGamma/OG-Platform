@@ -42,6 +42,7 @@ import com.opengamma.scripts.Scriptable;
 @Scriptable
 public class SimulationTool extends AbstractTool<ToolContext> {
 
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(SimulationTool.class);
 
   /** Command line option for view definition name. */
@@ -57,11 +58,17 @@ public class SimulationTool extends AbstractTool<ToolContext> {
   /** Command line option for the names of the market data sources used for running the view. */
   private static final String MARKET_DATA_OPTION = "m";
 
+  //-------------------------------------------------------------------------
+  /**
+   * Main method to run the tool.
+   * 
+   * @param args  the standard tool arguments, not null
+   */
   public static void main(final String[] args) {
-    new SimulationTool().initAndRun(args, ToolContext.class);
-    System.exit(0);
+    new SimulationTool().invokeAndTerminate(args);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   protected void doRun() throws Exception {
     ViewProcessor viewProcessor = getToolContext().getViewProcessor();
@@ -88,7 +95,7 @@ public class SimulationTool extends AbstractTool<ToolContext> {
     Map<String, Object> paramValues;
     if (getCommandLine().hasOption(PARAMETER_SCRIPT_OPTION)) {
       String paramScript = getCommandLine().getOptionValue(PARAMETER_SCRIPT_OPTION);
-      ScenarioDslParameters params = new ScenarioDslParameters(FileUtils.readFileToString(new File(paramScript)));
+      ScenarioDslParameters params = ScenarioDslParameters.of(FileUtils.readFileToString(new File(paramScript)));
       paramValues = params.getParameters();
     } else {
       paramValues = null;
@@ -235,7 +242,7 @@ public class SimulationTool extends AbstractTool<ToolContext> {
       throw new IllegalArgumentException(specStr + " doesn't match 'snapshot:snapshot ID'");
     }
     String id = specStr.substring(1).trim();
-    return new UserMarketDataSpecification(UniqueId.parse(id));
+    return UserMarketDataSpecification.of(UniqueId.parse(id));
   }
 
   private static MarketDataSpecification createLiveSpec(String specStr) {
@@ -246,7 +253,7 @@ public class SimulationTool extends AbstractTool<ToolContext> {
     if (sourceName.isEmpty()) {
       throw new IllegalArgumentException(specStr + " doesn't match 'live:source name'");
     }
-    return new LiveMarketDataSpecification(sourceName);
+    return LiveMarketDataSpecification.of(sourceName);
   }
 
   private static String removePrefix(String specStr, String prefix) {

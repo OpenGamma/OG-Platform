@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -37,6 +37,7 @@ import com.opengamma.scripts.Scriptable;
 @Scriptable
 public class PortfolioAggregationTool extends AbstractTool<IntegrationToolContext> {
 
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(PortfolioAggregationTool.class);
 
   private final Map<String, AggregationFunction<?>> _aggregationFunctions = new HashMap<>();
@@ -44,16 +45,17 @@ public class PortfolioAggregationTool extends AbstractTool<IntegrationToolContex
   private static final String AGGREGATION_OPT = "a";
   private static final String SPLIT_OPT = "s";
 
-
+  //-------------------------------------------------------------------------
   /**
-   * Runs the tool.
-   *
-   * @param args  empty arguments
+   * Main method to run the tool.
+   * 
+   * @param args  the standard tool arguments, not null
    */
   public static void main(String[] args) {  // CSIGNORE
-    new PortfolioAggregationTool().initAndRun(args, IntegrationToolContext.class);
+    new PortfolioAggregationTool().invokeAndTerminate(args);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   protected void doRun() {
     populateAggregationFunctionMap(getToolContext().getSecuritySource());
@@ -73,10 +75,10 @@ public class PortfolioAggregationTool extends AbstractTool<IntegrationToolContex
     _aggregationFunctions.put("Currency", new CurrencyAggregationFunction());
     _aggregationFunctions.put("DetailedAssetClass", new DetailedAssetClassAggregationFunction());
     _aggregationFunctions.put("Underlying", new UnderlyingAggregationFunction(secSource, "BLOOMBERG_TICKER"));
-    _aggregationFunctions.put("ReferenceEntityName", new CdsObligorNameAggregationFunction(getToolContext().getSecuritySource(), getToolContext().getOrganizationSource()));
-    _aggregationFunctions.put("ReferenceEntityTicker", new CdsObligorTickerAggregationFunction(getToolContext().getSecuritySource(), getToolContext().getOrganizationSource()));
+    _aggregationFunctions.put("ReferenceEntityName", new CdsObligorNameAggregationFunction(getToolContext().getSecuritySource(), getToolContext().getLegalEntitySource()));
+    _aggregationFunctions.put("ReferenceEntityTicker", new CdsObligorTickerAggregationFunction(getToolContext().getSecuritySource(), getToolContext().getLegalEntitySource()));
     _aggregationFunctions.put("Sector", new GICSAggregationFunction(getToolContext().getSecuritySource(),
-                                                                    getToolContext().getOrganizationSource(),
+                                                                    getToolContext().getLegalEntitySource(),
                                                                     GICSAggregationFunction.Level.SECTOR, false, false));
     _aggregationFunctions.put("RedCode", new CdsRedCodeAggregationFunction(getToolContext().getSecuritySource()));
     _aggregationFunctions.put("Seniority", new CdsSeniorityAggregationFunction(getToolContext().getSecuritySource()));
@@ -88,7 +90,6 @@ public class PortfolioAggregationTool extends AbstractTool<IntegrationToolContex
       System.exit(1);
       return null; // idiot compiler...
     } else { 
-      @SuppressWarnings("unchecked")
       AggregationFunction<?>[] results = new AggregationFunction<?>[aggregatorNames.length];
       for (int i = 0; i < aggregatorNames.length; i++) {
         AggregationFunction<?> aggregationFunction = _aggregationFunctions.get(aggregatorNames[i].trim());

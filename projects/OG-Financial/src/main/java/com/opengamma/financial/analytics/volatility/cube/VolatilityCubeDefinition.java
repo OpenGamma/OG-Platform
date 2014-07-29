@@ -1,92 +1,158 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.volatility.cube;
 
-import java.util.AbstractList;
-import java.util.List;
+import java.io.Serializable;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.core.config.Config;
-import com.opengamma.core.marketdatasnapshot.VolatilityPoint;
-import com.opengamma.id.MutableUniqueIdentifiable;
+import com.opengamma.core.config.ConfigGroups;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
-import com.opengamma.util.time.Tenor;
+import com.opengamma.util.tuple.Triple;
 
 /**
- * 
+ * Hold the valid range of X, Y and Z for a cube.
+ * @param <X> Type of the x-data
+ * @param <Y> Type of the y-data
+ * @param <Z> Type of the z-data
  */
-@Config(description = "Volatility cube definition")
+@Config(description = "Volatility cube definition", group = ConfigGroups.VOL)
 @BeanDefinition
-public class VolatilityCubeDefinition extends DirectBean implements UniqueIdentifiable, MutableUniqueIdentifiable {
+public class VolatilityCubeDefinition<X, Y, Z> implements Bean, Serializable, UniqueIdentifiable {
+
+  /** Serialization version */
+  private static final long serialVersionUID = 1L;
 
   /**
-   * The swap tenors
+   * The unique id.
    */
   @PropertyDefinition
   private UniqueId _uniqueId;
-  
-  /**
-   * The swap tenors
-   */
-  @PropertyDefinition
-  private List<Tenor> _swapTenors;
-  /**
-   * The option expiries
-   */
-  @PropertyDefinition
-  private List<Tenor> _optionExpiries;
-  
-  /**
-   * The strikes relative to at the money, in Basis points
-   */
-  @PropertyDefinition
-  private List<Double> _relativeStrikes;
 
-  
-  public Iterable<VolatilityPoint> getAllPoints() {
-    
-    final int size = _swapTenors.size() * _optionExpiries.size() * _relativeStrikes.size();
-    return new AbstractList<VolatilityPoint>() {
+  /**
+   * The definition name.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private String _name;
+
+  /**
+   * The cube quote type.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private String _cubeQuoteType;
+
+  /**
+   * The x values.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private X[] _xs;
+
+  /**
+   * The y values.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private Y[] _ys;
+
+  /**
+   * The z values.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private Z[] _zs;
+
+  /**
+   * For the builder.
+   */
+  /* package */ VolatilityCubeDefinition() {
+  }
+
+  /**
+   * @param name The definition name, not null
+   * @param cubeQuoteType The cube quote type, not null
+   * @param xs The x values, not null
+   * @param ys The y values, not null
+   * @param zs The z values, not null
+   */
+  public VolatilityCubeDefinition(final String name, final String cubeQuoteType, final X[] xs, final Y[] ys, final Z[] zs) {
+    setName(name);
+    setCubeQuoteType(cubeQuoteType);
+    setXs(xs);
+    setYs(ys);
+    setZs(zs);
+  }
+
+  /**
+   * Gets an iterator over all points in the definition.
+   * @return The iterator
+   */
+  public Iterable<Triple<X, Y, Z>> getAllPoints() {
+    final Iterator<Triple<X, Y, Z>> iterator = new Iterator<Triple<X, Y, Z>>() {
+      private int _idx;
 
       @Override
-      public VolatilityPoint get(int index) {
-        int swapI = index % _swapTenors.size();
-        int remainder = index / _swapTenors.size();
-        int optionI = remainder % _optionExpiries.size();
-        remainder = remainder / _optionExpiries.size();
-        int strikeI = remainder;
-        return new VolatilityPoint(_swapTenors.get(swapI), _optionExpiries.get(optionI), _relativeStrikes.get(strikeI).doubleValue());
+      public synchronized boolean hasNext() {
+        return _idx < _xs.length;
       }
 
       @Override
-      public int size() {
-        return size;
+      public synchronized Triple<X, Y, Z> next() {
+        final int idx = _idx++;
+        return Triple.of(_xs[idx], _ys[idx], _zs[idx]);
+      }
+
+      @Override
+      public void remove() {
+        throw new UnsupportedOperationException("This iterator is immutable.");
+      }
+    };
+    return new Iterable<Triple<X, Y, Z>>() {
+      @Override
+      public Iterator<Triple<X, Y, Z>> iterator() {
+        return iterator;
       }
     };
   }
+
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
    * The meta-bean for {@code VolatilityCubeDefinition}.
    * @return the meta-bean, not null
    */
+  @SuppressWarnings("rawtypes")
   public static VolatilityCubeDefinition.Meta meta() {
+    return VolatilityCubeDefinition.Meta.INSTANCE;
+  }
+
+  /**
+   * The meta-bean for {@code VolatilityCubeDefinition}.
+   * @param <R>  the first generic type
+   * @param <S>  the second generic type
+   * @param <T>  the second generic type
+   * @param cls1  the first generic type
+   * @param cls2  the second generic type
+   * @param cls3  the third generic type
+   * @return the meta-bean, not null
+   */
+  @SuppressWarnings("unchecked")
+  public static <R, S, T> VolatilityCubeDefinition.Meta<R, S, T> metaVolatilityCubeDefinition(Class<R> cls1, Class<S> cls2, Class<T> cls3) {
     return VolatilityCubeDefinition.Meta.INSTANCE;
   }
 
@@ -94,74 +160,25 @@ public class VolatilityCubeDefinition extends DirectBean implements UniqueIdenti
     JodaBeanUtils.registerMetaBean(VolatilityCubeDefinition.Meta.INSTANCE);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  public VolatilityCubeDefinition.Meta metaBean() {
+  public VolatilityCubeDefinition.Meta<X, Y, Z> metaBean() {
     return VolatilityCubeDefinition.Meta.INSTANCE;
   }
 
   @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -294460212:  // uniqueId
-        return getUniqueId();
-      case -1091346138:  // swapTenors
-        return getSwapTenors();
-      case 146928806:  // optionExpiries
-        return getOptionExpiries();
-      case -1711425899:  // relativeStrikes
-        return getRelativeStrikes();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -294460212:  // uniqueId
-        setUniqueId((UniqueId) newValue);
-        return;
-      case -1091346138:  // swapTenors
-        setSwapTenors((List<Tenor>) newValue);
-        return;
-      case 146928806:  // optionExpiries
-        setOptionExpiries((List<Tenor>) newValue);
-        return;
-      case -1711425899:  // relativeStrikes
-        setRelativeStrikes((List<Double>) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
+  public <R> Property<R> property(String propertyName) {
+    return metaBean().<R>metaProperty(propertyName).createProperty(this);
   }
 
   @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      VolatilityCubeDefinition other = (VolatilityCubeDefinition) obj;
-      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
-          JodaBeanUtils.equal(getSwapTenors(), other.getSwapTenors()) &&
-          JodaBeanUtils.equal(getOptionExpiries(), other.getOptionExpiries()) &&
-          JodaBeanUtils.equal(getRelativeStrikes(), other.getRelativeStrikes());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSwapTenors());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getOptionExpiries());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRelativeStrikes());
-    return hash;
+  public Set<String> propertyNames() {
+    return metaBean().metaPropertyMap().keySet();
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the swap tenors
+   * Gets the unique id.
    * @return the value of the property
    */
   public UniqueId getUniqueId() {
@@ -169,7 +186,7 @@ public class VolatilityCubeDefinition extends DirectBean implements UniqueIdenti
   }
 
   /**
-   * Sets the swap tenors
+   * Sets the unique id.
    * @param uniqueId  the new value of the property
    */
   public void setUniqueId(UniqueId uniqueId) {
@@ -186,87 +203,203 @@ public class VolatilityCubeDefinition extends DirectBean implements UniqueIdenti
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the swap tenors
-   * @return the value of the property
+   * Gets the definition name.
+   * @return the value of the property, not null
    */
-  public List<Tenor> getSwapTenors() {
-    return _swapTenors;
+  public String getName() {
+    return _name;
   }
 
   /**
-   * Sets the swap tenors
-   * @param swapTenors  the new value of the property
+   * Sets the definition name.
+   * @param name  the new value of the property, not null
    */
-  public void setSwapTenors(List<Tenor> swapTenors) {
-    this._swapTenors = swapTenors;
+  public void setName(String name) {
+    JodaBeanUtils.notNull(name, "name");
+    this._name = name;
   }
 
   /**
-   * Gets the the {@code swapTenors} property.
+   * Gets the the {@code name} property.
    * @return the property, not null
    */
-  public final Property<List<Tenor>> swapTenors() {
-    return metaBean().swapTenors().createProperty(this);
+  public final Property<String> name() {
+    return metaBean().name().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the option expiries
-   * @return the value of the property
+   * Gets the cube quote type.
+   * @return the value of the property, not null
    */
-  public List<Tenor> getOptionExpiries() {
-    return _optionExpiries;
+  public String getCubeQuoteType() {
+    return _cubeQuoteType;
   }
 
   /**
-   * Sets the option expiries
-   * @param optionExpiries  the new value of the property
+   * Sets the cube quote type.
+   * @param cubeQuoteType  the new value of the property, not null
    */
-  public void setOptionExpiries(List<Tenor> optionExpiries) {
-    this._optionExpiries = optionExpiries;
+  public void setCubeQuoteType(String cubeQuoteType) {
+    JodaBeanUtils.notNull(cubeQuoteType, "cubeQuoteType");
+    this._cubeQuoteType = cubeQuoteType;
   }
 
   /**
-   * Gets the the {@code optionExpiries} property.
+   * Gets the the {@code cubeQuoteType} property.
    * @return the property, not null
    */
-  public final Property<List<Tenor>> optionExpiries() {
-    return metaBean().optionExpiries().createProperty(this);
+  public final Property<String> cubeQuoteType() {
+    return metaBean().cubeQuoteType().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the strikes relative to at the money, in Basis points
-   * @return the value of the property
+   * Gets the x values.
+   * @return the value of the property, not null
    */
-  public List<Double> getRelativeStrikes() {
-    return _relativeStrikes;
+  public X[] getXs() {
+    return _xs;
   }
 
   /**
-   * Sets the strikes relative to at the money, in Basis points
-   * @param relativeStrikes  the new value of the property
+   * Sets the x values.
+   * @param xs  the new value of the property, not null
    */
-  public void setRelativeStrikes(List<Double> relativeStrikes) {
-    this._relativeStrikes = relativeStrikes;
+  public void setXs(X[] xs) {
+    JodaBeanUtils.notNull(xs, "xs");
+    this._xs = xs;
   }
 
   /**
-   * Gets the the {@code relativeStrikes} property.
+   * Gets the the {@code xs} property.
    * @return the property, not null
    */
-  public final Property<List<Double>> relativeStrikes() {
-    return metaBean().relativeStrikes().createProperty(this);
+  public final Property<X[]> xs() {
+    return metaBean().xs().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the y values.
+   * @return the value of the property, not null
+   */
+  public Y[] getYs() {
+    return _ys;
+  }
+
+  /**
+   * Sets the y values.
+   * @param ys  the new value of the property, not null
+   */
+  public void setYs(Y[] ys) {
+    JodaBeanUtils.notNull(ys, "ys");
+    this._ys = ys;
+  }
+
+  /**
+   * Gets the the {@code ys} property.
+   * @return the property, not null
+   */
+  public final Property<Y[]> ys() {
+    return metaBean().ys().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the z values.
+   * @return the value of the property, not null
+   */
+  public Z[] getZs() {
+    return _zs;
+  }
+
+  /**
+   * Sets the z values.
+   * @param zs  the new value of the property, not null
+   */
+  public void setZs(Z[] zs) {
+    JodaBeanUtils.notNull(zs, "zs");
+    this._zs = zs;
+  }
+
+  /**
+   * Gets the the {@code zs} property.
+   * @return the property, not null
+   */
+  public final Property<Z[]> zs() {
+    return metaBean().zs().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public VolatilityCubeDefinition<X, Y, Z> clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      VolatilityCubeDefinition<?, ?, ?> other = (VolatilityCubeDefinition<?, ?, ?>) obj;
+      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
+          JodaBeanUtils.equal(getName(), other.getName()) &&
+          JodaBeanUtils.equal(getCubeQuoteType(), other.getCubeQuoteType()) &&
+          JodaBeanUtils.equal(getXs(), other.getXs()) &&
+          JodaBeanUtils.equal(getYs(), other.getYs()) &&
+          JodaBeanUtils.equal(getZs(), other.getZs());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCubeQuoteType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getXs());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getYs());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getZs());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(224);
+    buf.append("VolatilityCubeDefinition{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("uniqueId").append('=').append(JodaBeanUtils.toString(getUniqueId())).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
+    buf.append("cubeQuoteType").append('=').append(JodaBeanUtils.toString(getCubeQuoteType())).append(',').append(' ');
+    buf.append("xs").append('=').append(JodaBeanUtils.toString(getXs())).append(',').append(' ');
+    buf.append("ys").append('=').append(JodaBeanUtils.toString(getYs())).append(',').append(' ');
+    buf.append("zs").append('=').append(JodaBeanUtils.toString(getZs())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code VolatilityCubeDefinition}.
+   * @param <X>  the type
+   * @param <Y>  the type
+   * @param <Z>  the type
    */
-  public static class Meta extends DirectMetaBean {
+  public static class Meta<X, Y, Z> extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
+    @SuppressWarnings("rawtypes")
     static final Meta INSTANCE = new Meta();
 
     /**
@@ -275,32 +408,44 @@ public class VolatilityCubeDefinition extends DirectBean implements UniqueIdenti
     private final MetaProperty<UniqueId> _uniqueId = DirectMetaProperty.ofReadWrite(
         this, "uniqueId", VolatilityCubeDefinition.class, UniqueId.class);
     /**
-     * The meta-property for the {@code swapTenors} property.
+     * The meta-property for the {@code name} property.
      */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<Tenor>> _swapTenors = DirectMetaProperty.ofReadWrite(
-        this, "swapTenors", VolatilityCubeDefinition.class, (Class) List.class);
+    private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(
+        this, "name", VolatilityCubeDefinition.class, String.class);
     /**
-     * The meta-property for the {@code optionExpiries} property.
+     * The meta-property for the {@code cubeQuoteType} property.
      */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<Tenor>> _optionExpiries = DirectMetaProperty.ofReadWrite(
-        this, "optionExpiries", VolatilityCubeDefinition.class, (Class) List.class);
+    private final MetaProperty<String> _cubeQuoteType = DirectMetaProperty.ofReadWrite(
+        this, "cubeQuoteType", VolatilityCubeDefinition.class, String.class);
     /**
-     * The meta-property for the {@code relativeStrikes} property.
+     * The meta-property for the {@code xs} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<Double>> _relativeStrikes = DirectMetaProperty.ofReadWrite(
-        this, "relativeStrikes", VolatilityCubeDefinition.class, (Class) List.class);
+    private final MetaProperty<X[]> _xs = (DirectMetaProperty) DirectMetaProperty.ofReadWrite(
+        this, "xs", VolatilityCubeDefinition.class, Object[].class);
+    /**
+     * The meta-property for the {@code ys} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<Y[]> _ys = (DirectMetaProperty) DirectMetaProperty.ofReadWrite(
+        this, "ys", VolatilityCubeDefinition.class, Object[].class);
+    /**
+     * The meta-property for the {@code zs} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<Z[]> _zs = (DirectMetaProperty) DirectMetaProperty.ofReadWrite(
+        this, "zs", VolatilityCubeDefinition.class, Object[].class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "uniqueId",
-        "swapTenors",
-        "optionExpiries",
-        "relativeStrikes");
+        "name",
+        "cubeQuoteType",
+        "xs",
+        "ys",
+        "zs");
 
     /**
      * Restricted constructor.
@@ -313,24 +458,29 @@ public class VolatilityCubeDefinition extends DirectBean implements UniqueIdenti
       switch (propertyName.hashCode()) {
         case -294460212:  // uniqueId
           return _uniqueId;
-        case -1091346138:  // swapTenors
-          return _swapTenors;
-        case 146928806:  // optionExpiries
-          return _optionExpiries;
-        case -1711425899:  // relativeStrikes
-          return _relativeStrikes;
+        case 3373707:  // name
+          return _name;
+        case 1081076513:  // cubeQuoteType
+          return _cubeQuoteType;
+        case 3835:  // xs
+          return _xs;
+        case 3866:  // ys
+          return _ys;
+        case 3897:  // zs
+          return _zs;
       }
       return super.metaPropertyGet(propertyName);
     }
 
     @Override
-    public BeanBuilder<? extends VolatilityCubeDefinition> builder() {
-      return new DirectBeanBuilder<VolatilityCubeDefinition>(new VolatilityCubeDefinition());
+    public BeanBuilder<? extends VolatilityCubeDefinition<X, Y, Z>> builder() {
+      return new DirectBeanBuilder<VolatilityCubeDefinition<X, Y, Z>>(new VolatilityCubeDefinition<X, Y, Z>());
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes" })
     @Override
-    public Class<? extends VolatilityCubeDefinition> beanType() {
-      return VolatilityCubeDefinition.class;
+    public Class<? extends VolatilityCubeDefinition<X, Y, Z>> beanType() {
+      return (Class) VolatilityCubeDefinition.class;
     }
 
     @Override
@@ -348,27 +498,98 @@ public class VolatilityCubeDefinition extends DirectBean implements UniqueIdenti
     }
 
     /**
-     * The meta-property for the {@code swapTenors} property.
+     * The meta-property for the {@code name} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<List<Tenor>> swapTenors() {
-      return _swapTenors;
+    public final MetaProperty<String> name() {
+      return _name;
     }
 
     /**
-     * The meta-property for the {@code optionExpiries} property.
+     * The meta-property for the {@code cubeQuoteType} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<List<Tenor>> optionExpiries() {
-      return _optionExpiries;
+    public final MetaProperty<String> cubeQuoteType() {
+      return _cubeQuoteType;
     }
 
     /**
-     * The meta-property for the {@code relativeStrikes} property.
+     * The meta-property for the {@code xs} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<List<Double>> relativeStrikes() {
-      return _relativeStrikes;
+    public final MetaProperty<X[]> xs() {
+      return _xs;
+    }
+
+    /**
+     * The meta-property for the {@code ys} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Y[]> ys() {
+      return _ys;
+    }
+
+    /**
+     * The meta-property for the {@code zs} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Z[]> zs() {
+      return _zs;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          return ((VolatilityCubeDefinition<?, ?, ?>) bean).getUniqueId();
+        case 3373707:  // name
+          return ((VolatilityCubeDefinition<?, ?, ?>) bean).getName();
+        case 1081076513:  // cubeQuoteType
+          return ((VolatilityCubeDefinition<?, ?, ?>) bean).getCubeQuoteType();
+        case 3835:  // xs
+          return ((VolatilityCubeDefinition<?, ?, ?>) bean).getXs();
+        case 3866:  // ys
+          return ((VolatilityCubeDefinition<?, ?, ?>) bean).getYs();
+        case 3897:  // zs
+          return ((VolatilityCubeDefinition<?, ?, ?>) bean).getZs();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          ((VolatilityCubeDefinition<X, Y, Z>) bean).setUniqueId((UniqueId) newValue);
+          return;
+        case 3373707:  // name
+          ((VolatilityCubeDefinition<X, Y, Z>) bean).setName((String) newValue);
+          return;
+        case 1081076513:  // cubeQuoteType
+          ((VolatilityCubeDefinition<X, Y, Z>) bean).setCubeQuoteType((String) newValue);
+          return;
+        case 3835:  // xs
+          ((VolatilityCubeDefinition<X, Y, Z>) bean).setXs((X[]) newValue);
+          return;
+        case 3866:  // ys
+          ((VolatilityCubeDefinition<X, Y, Z>) bean).setYs((Y[]) newValue);
+          return;
+        case 3897:  // zs
+          ((VolatilityCubeDefinition<X, Y, Z>) bean).setZs((Z[]) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((VolatilityCubeDefinition<?, ?, ?>) bean)._name, "name");
+      JodaBeanUtils.notNull(((VolatilityCubeDefinition<?, ?, ?>) bean)._cubeQuoteType, "cubeQuoteType");
+      JodaBeanUtils.notNull(((VolatilityCubeDefinition<?, ?, ?>) bean)._xs, "xs");
+      JodaBeanUtils.notNull(((VolatilityCubeDefinition<?, ?, ?>) bean)._ys, "ys");
+      JodaBeanUtils.notNull(((VolatilityCubeDefinition<?, ?, ?>) bean)._zs, "zs");
     }
 
   }

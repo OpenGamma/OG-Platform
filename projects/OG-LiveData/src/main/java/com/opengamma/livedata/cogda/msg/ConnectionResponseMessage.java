@@ -12,6 +12,7 @@ import java.util.Map;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -70,67 +71,6 @@ public class ConnectionResponseMessage extends DirectBean {
   @Override
   public ConnectionResponseMessage.Meta metaBean() {
     return ConnectionResponseMessage.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -934426595:  // result
-        return getResult();
-      case -602422649:  // availableServers
-        return getAvailableServers();
-      case -1487597642:  // capabilities
-        return getCapabilities();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -934426595:  // result
-        setResult((ConnectionResult) newValue);
-        return;
-      case -602422649:  // availableServers
-        setAvailableServers((List<String>) newValue);
-        return;
-      case -1487597642:  // capabilities
-        setCapabilities((MutableFudgeMsg) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_result, "result");
-    JodaBeanUtils.notNull(_availableServers, "availableServers");
-    JodaBeanUtils.notNull(_capabilities, "capabilities");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      ConnectionResponseMessage other = (ConnectionResponseMessage) obj;
-      return JodaBeanUtils.equal(getResult(), other.getResult()) &&
-          JodaBeanUtils.equal(getAvailableServers(), other.getAvailableServers()) &&
-          JodaBeanUtils.equal(getCapabilities(), other.getCapabilities());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getResult());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAvailableServers());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCapabilities());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -209,6 +149,54 @@ public class ConnectionResponseMessage extends DirectBean {
    */
   public final Property<MutableFudgeMsg> capabilities() {
     return metaBean().capabilities().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public ConnectionResponseMessage clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      ConnectionResponseMessage other = (ConnectionResponseMessage) obj;
+      return JodaBeanUtils.equal(getResult(), other.getResult()) &&
+          JodaBeanUtils.equal(getAvailableServers(), other.getAvailableServers()) &&
+          JodaBeanUtils.equal(getCapabilities(), other.getCapabilities());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getResult());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getAvailableServers());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCapabilities());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(128);
+    buf.append("ConnectionResponseMessage{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("result").append('=').append(JodaBeanUtils.toString(getResult())).append(',').append(' ');
+    buf.append("availableServers").append('=').append(JodaBeanUtils.toString(getAvailableServers())).append(',').append(' ');
+    buf.append("capabilities").append('=').append(JodaBeanUtils.toString(getCapabilities())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -303,6 +291,44 @@ public class ConnectionResponseMessage extends DirectBean {
      */
     public final MetaProperty<MutableFudgeMsg> capabilities() {
       return _capabilities;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -934426595:  // result
+          return ((ConnectionResponseMessage) bean).getResult();
+        case -602422649:  // availableServers
+          return ((ConnectionResponseMessage) bean).getAvailableServers();
+        case -1487597642:  // capabilities
+          return ((ConnectionResponseMessage) bean).getCapabilities();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -934426595:  // result
+          ((ConnectionResponseMessage) bean).setResult((ConnectionResult) newValue);
+          return;
+        case -602422649:  // availableServers
+          ((ConnectionResponseMessage) bean).setAvailableServers((List<String>) newValue);
+          return;
+        case -1487597642:  // capabilities
+          ((ConnectionResponseMessage) bean).setCapabilities((MutableFudgeMsg) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((ConnectionResponseMessage) bean)._result, "result");
+      JodaBeanUtils.notNull(((ConnectionResponseMessage) bean)._availableServers, "availableServers");
+      JodaBeanUtils.notNull(((ConnectionResponseMessage) bean)._capabilities, "capabilities");
     }
 
   }

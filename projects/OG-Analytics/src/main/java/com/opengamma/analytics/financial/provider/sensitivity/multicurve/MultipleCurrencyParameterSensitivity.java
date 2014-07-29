@@ -20,8 +20,8 @@ import com.opengamma.analytics.math.matrix.MatrixAlgebra;
 import com.opengamma.analytics.math.matrix.MatrixAlgebraFactory;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Class containing the sensitivity of the present value to specific parameters or market quotes and methods for manipulating these data.
@@ -69,7 +69,7 @@ public class MultipleCurrencyParameterSensitivity {
   public static MultipleCurrencyParameterSensitivity of(final SimpleParameterSensitivity single, final Currency ccy) {
     final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> sensi = new LinkedHashMap<>();
     for (final String name : single.getAllNames()) {
-      sensi.put(new ObjectsPair<>(name, ccy), single.getSensitivity(name));
+      sensi.put(Pairs.of(name, ccy), single.getSensitivity(name));
     }
     return MultipleCurrencyParameterSensitivity.of(sensi);
   }
@@ -144,7 +144,7 @@ public class MultipleCurrencyParameterSensitivity {
     for (final Map.Entry<Pair<String, Currency>, DoubleMatrix1D> entry : _sensitivity.entrySet()) {
       final Pair<String, Currency> nameCcy = entry.getKey();
       final double fxRate = fxMatrix.getFxRate(nameCcy.getSecond(), ccy);
-      final Pair<String, Currency> nameCcyNew = Pair.of(nameCcy.getFirst(), ccy);
+      final Pair<String, Currency> nameCcyNew = Pairs.of(nameCcy.getFirst(), ccy);
       final DoubleMatrix1D sensitivityNew = (DoubleMatrix1D) algebra.scale(entry.getValue(), fxRate);
       result = result.plus(nameCcyNew, sensitivityNew);
     }
@@ -157,6 +157,25 @@ public class MultipleCurrencyParameterSensitivity {
    */
   public Map<Pair<String, Currency>, DoubleMatrix1D> getSensitivities() {
     return Collections.unmodifiableMap(_sensitivity);
+  }
+
+  /**
+   * Returns the sensitivities for a particular curve name. An unmodifiable map
+   * of Currency -> Sensitivities will be returned. Note that this implementation
+   * will not be efficient if there are a large number of curves.
+   *
+   * @param name the name of the curve to get sensitivities for
+   * @return map of sensitivities by currency
+   */
+  public Map<Currency, DoubleMatrix1D> getSensitivityByName(String name) {
+    Map<Currency, DoubleMatrix1D> matches = new HashMap<>();
+    for (Entry<Pair<String, Currency>, DoubleMatrix1D> entry : _sensitivity.entrySet()) {
+      final Pair<String, Currency> curveName = entry.getKey();
+      if (curveName.getFirst().equals(name)) {
+        matches.put(curveName.getSecond(), entry.getValue());
+      }
+    }
+    return Collections.unmodifiableMap(matches);
   }
 
   /**
@@ -178,7 +197,7 @@ public class MultipleCurrencyParameterSensitivity {
   public DoubleMatrix1D getSensitivity(final String name, final Currency ccy) {
     ArgumentChecker.notNull(name, "Name");
     ArgumentChecker.notNull(ccy, "Currency");
-    return _sensitivity.get(Pair.of(name, ccy));
+    return _sensitivity.get(Pairs.of(name, ccy));
   }
 
   /**

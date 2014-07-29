@@ -27,12 +27,14 @@ import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurf
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class LogNormalBinomialTreeBuilderTest {
 
   private static final double SPOT = 100;

@@ -28,6 +28,7 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.MemoryUtils;
+import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.function.blacklist.FunctionBlacklistQuery;
@@ -41,6 +42,7 @@ import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.lambdava.functions.Function2;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 import com.opengamma.util.tuple.Triple;
 
 /**
@@ -53,6 +55,25 @@ import com.opengamma.util.tuple.Triple;
 public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DefaultCompiledFunctionResolver.class);
+
+  /**
+   * Comparator to give a fixed ordering of functions at the same priority so that we at least have deterministic behavior between runs.
+   */
+  private static final Comparator<ResolutionRule> RULE_COMPARATOR = new Comparator<ResolutionRule>() {
+    @Override
+    public int compare(final ResolutionRule o1, final ResolutionRule o2) {
+      int c = o1.getParameterizedFunction().getFunction().getFunctionDefinition().getUniqueId().compareTo(o2.getParameterizedFunction().getFunction().getFunctionDefinition().getUniqueId());
+      if (c != 0) {
+        return c;
+      }
+      // Have the same function, can try and order the "FunctionParameters" as we know it implements a hash code
+      c = o1.getParameterizedFunction().getParameters().hashCode() - o2.getParameterizedFunction().getParameters().hashCode();
+      if (c != 0) {
+        return c;
+      }
+      throw new OpenGammaRuntimeException("Rule priority conflict - cannot order " + o1 + " against " + o2);
+    }
+  };
 
   /**
    * Holds an arbitrary bundle of rules with mixed priorities. Instances can attach to a "parent" bundle to receive copies of those rules. For example a rule that applies to objects of type A must be
@@ -108,7 +129,9 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
         Arrays.sort(priorities);
         final Collection<Collection<ResolutionRule>> rules = new ArrayList<Collection<ResolutionRule>>(priorities.length);
         for (int i = priorities.length; --i >= 0;) {
-          rules.add(new ArrayList<ResolutionRule>(priorityToRules.get(priorities[i])));
+          final List<ResolutionRule> list = new ArrayList<ResolutionRule>(priorityToRules.get(priorities[i]));
+          Collections.sort(list, RULE_COMPARATOR);
+          rules.add(list);
         }
         return rules;
       }
@@ -210,7 +233,9 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
         if (aPriority == bPriority) {
           final Set<ResolutionRule> rules = new HashSet<ResolutionRule>(aRules);
           rules.addAll(bRules);
-          add(rules);
+          final List<ResolutionRule> list = new ArrayList<ResolutionRule>(rules);
+          Collections.sort(list, RULE_COMPARATOR);
+          add(list);
           aRules = null;
           bRules = null;
         } else if (aPriority > bPriority) {
@@ -255,30 +280,34 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
 
   }
 
-  private static final Function2<Iterable<Collection<ResolutionRule>>, Iterable<Collection<ResolutionRule>>, Iterable<Collection<ResolutionRule>>> s_foldRules =
-      new Function2<Iterable<Collection<ResolutionRule>>, Iterable<Collection<ResolutionRule>>, Iterable<Collection<ResolutionRule>>>() {
-        @Override
-        public Iterable<Collection<ResolutionRule>> execute(final Iterable<Collection<ResolutionRule>> a, final Iterable<Collection<ResolutionRule>> b) {
-          if (a instanceof ChainedRuleBundle) {
-            if (b instanceof ChainedRuleBundle) {
-              return FoldedChainedRuleBundle.of((ChainedRuleBundle) a, (ChainedRuleBundle) b);
-            } else {
-              throw new IllegalStateException("Rules have been partially compiled");
-            }
-          } else {
-            if (b instanceof ChainedRuleBundle) {
-              throw new IllegalStateException("Rules have been partially compiled");
-            } else {
-              return new FoldedCompiledRuleBundle(a, b);
-            }
-          }
+  private static final Function2<Iterable<Collection<ResolutionRule>>, Iterable<Collection<ResolutionRule>>, Iterable<Collection<ResolutionRule>>> s_foldRules = new Function2<Iterable<Collection<ResolutionRule>>, Iterable<Collection<ResolutionRule>>, Iterable<Collection<ResolutionRule>>>() {
+    @Override
+    public Iterable<Collection<ResolutionRule>> execute(final Iterable<Collection<ResolutionRule>> a, final Iterable<Collection<ResolutionRule>> b) {
+      if (a instanceof ChainedRuleBundle) {
+        if (b instanceof ChainedRuleBundle) {
+          return FoldedChainedRuleBundle.of((ChainedRuleBundle) a, (ChainedRuleBundle) b);
+        } else {
+          throw new IllegalStateException("Rules have been partially compiled");
         }
-      };
+      } else {
+        if (b instanceof ChainedRuleBundle) {
+          throw new IllegalStateException("Rules have been partially compiled");
+        } else {
+          return new FoldedCompiledRuleBundle(a, b);
+        }
+      }
+    }
+  };
 
   /**
    * The rules by target type. The map values are {@link ChainedRuleBundle} instances during construction, after which return an iterator giving the rules in blocks of descending priority order.
    */
   private final ComputationTargetTypeMap<Iterable<Collection<ResolutionRule>>> _type2Rules = new ComputationTargetTypeMap<Iterable<Collection<ResolutionRule>>>(s_foldRules);
+
+  /**
+   * The total number of unique rules.
+   */
+  private int _ruleCount;
 
   /**
    * The compilation context.
@@ -289,6 +318,11 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
    * Cache of targets. The values are weak so that when the function iterators drop out of scope as the requirements on the target are resolved the entry can be dropped.
    */
   private final ConcurrentMap<ComputationTargetSpecification, Pair<ResolutionRule[], Collection<ValueSpecification>[]>> _targetCache = new MapMaker().weakValues().makeMap();
+
+  /**
+   * Function definition lookup.
+   */
+  private final Map<String, CompiledFunctionDefinition> _functions = new HashMap<String, CompiledFunctionDefinition>();
 
   /**
    * Creates a resolver.
@@ -312,63 +346,61 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
     addRules(resolutionRules);
   }
 
-  private static final Function2<Iterable<Collection<ResolutionRule>>, Iterable<Collection<ResolutionRule>>, Iterable<Collection<ResolutionRule>>> s_combineChainedRuleBundle =
-      new Function2<Iterable<Collection<ResolutionRule>>, Iterable<Collection<ResolutionRule>>, Iterable<Collection<ResolutionRule>>>() {
-        @Override
-        public Iterable<Collection<ResolutionRule>> execute(final Iterable<Collection<ResolutionRule>> a, final Iterable<Collection<ResolutionRule>> b) {
-          if (!(a instanceof ChainedRuleBundle)) {
-            throw new IllegalStateException("Rules have already been compiled - can't add new ones");
+  private static final Function2<Iterable<Collection<ResolutionRule>>, Iterable<Collection<ResolutionRule>>, Iterable<Collection<ResolutionRule>>> s_combineChainedRuleBundle = new Function2<Iterable<Collection<ResolutionRule>>, Iterable<Collection<ResolutionRule>>, Iterable<Collection<ResolutionRule>>>() {
+    @Override
+    public Iterable<Collection<ResolutionRule>> execute(final Iterable<Collection<ResolutionRule>> a, final Iterable<Collection<ResolutionRule>> b) {
+      if (!(a instanceof ChainedRuleBundle)) {
+        throw new IllegalStateException("Rules have already been compiled - can't add new ones");
+      }
+      ((ChainedRuleBundle) a).addListener((ChainedRuleBundle) b);
+      return b;
+    }
+  };
+
+  private static final ComputationTargetTypeVisitor<DefaultCompiledFunctionResolver, Void> s_createChainedRuleBundle = new ComputationTargetTypeVisitor<DefaultCompiledFunctionResolver, Void>() {
+
+    @Override
+    public Void visitMultipleComputationTargetTypes(final Set<ComputationTargetType> types, final DefaultCompiledFunctionResolver self) {
+      for (ComputationTargetType type : types) {
+        type.accept(this, self);
+      }
+      return null;
+    }
+
+    @Override
+    public Void visitNestedComputationTargetTypes(final List<ComputationTargetType> types, final DefaultCompiledFunctionResolver self) {
+      return types.get(types.size() - 1).accept(this, self);
+    }
+
+    @Override
+    public Void visitNullComputationTargetType(final DefaultCompiledFunctionResolver self) {
+      if (self._type2Rules.getDirect(ComputationTargetType.NULL) == null) {
+        self._type2Rules.put(ComputationTargetType.NULL, new SimpleChainedRuleBundle());
+      }
+      return null;
+    }
+
+    private void insertBundle(final Class<?> clazz, final DefaultCompiledFunctionResolver self) {
+      if ((clazz != null) && UniqueIdentifiable.class.isAssignableFrom(clazz)) {
+        @SuppressWarnings("unchecked")
+        final ComputationTargetType type = ComputationTargetType.of((Class<? extends UniqueIdentifiable>) clazz);
+        if (self._type2Rules.getDirect(type) == null) {
+          for (Class<?> superClazz : clazz.getInterfaces()) {
+            insertBundle(superClazz, self);
           }
-          ((ChainedRuleBundle) a).addListener((ChainedRuleBundle) b);
-          return b;
+          insertBundle(clazz.getSuperclass(), self);
+          self._type2Rules.put(type, new SimpleChainedRuleBundle(), s_combineChainedRuleBundle);
         }
-      };
+      }
+    }
 
-  private static final ComputationTargetTypeVisitor<DefaultCompiledFunctionResolver, Void> s_createChainedRuleBundle =
-      new ComputationTargetTypeVisitor<DefaultCompiledFunctionResolver, Void>() {
+    @Override
+    public Void visitClassComputationTargetType(final Class<? extends UniqueIdentifiable> type, final DefaultCompiledFunctionResolver self) {
+      insertBundle(type, self);
+      return null;
+    }
 
-        @Override
-        public Void visitMultipleComputationTargetTypes(final Set<ComputationTargetType> types, final DefaultCompiledFunctionResolver self) {
-          for (ComputationTargetType type : types) {
-            type.accept(this, self);
-          }
-          return null;
-        }
-
-        @Override
-        public Void visitNestedComputationTargetTypes(final List<ComputationTargetType> types, final DefaultCompiledFunctionResolver self) {
-          return types.get(types.size() - 1).accept(this, self);
-        }
-
-        @Override
-        public Void visitNullComputationTargetType(final DefaultCompiledFunctionResolver self) {
-          if (self._type2Rules.getDirect(ComputationTargetType.NULL) == null) {
-            self._type2Rules.put(ComputationTargetType.NULL, new SimpleChainedRuleBundle());
-          }
-          return null;
-        }
-
-        private void insertBundle(final Class<?> clazz, final DefaultCompiledFunctionResolver self) {
-          if ((clazz != null) && UniqueIdentifiable.class.isAssignableFrom(clazz)) {
-            @SuppressWarnings("unchecked")
-            final ComputationTargetType type = ComputationTargetType.of((Class<? extends UniqueIdentifiable>) clazz);
-            if (self._type2Rules.getDirect(type) == null) {
-              for (Class<?> superClazz : clazz.getInterfaces()) {
-                insertBundle(superClazz, self);
-              }
-              insertBundle(clazz.getSuperclass(), self);
-              self._type2Rules.put(type, new SimpleChainedRuleBundle(), s_combineChainedRuleBundle);
-            }
-          }
-        }
-
-        @Override
-        public Void visitClassComputationTargetType(final Class<? extends UniqueIdentifiable> type, final DefaultCompiledFunctionResolver self) {
-          insertBundle(type, self);
-          return null;
-        }
-
-      };
+  };
 
   /**
    * Adds a single rule to the resolver. Rules must be added before calling {@link #compileRules} to pre-process them into the data structures used for resolution.
@@ -387,6 +419,7 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
       throw new IllegalStateException("Rules have already been compiled");
     }
     bundle.addRule(resolutionRule);
+    _functions.put(resolutionRule.getParameterizedFunction().getFunctionId(), resolutionRule.getParameterizedFunction().getFunction());
   }
 
   /**
@@ -405,6 +438,7 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
    */
   public void compileRules() {
     final Iterator<Map.Entry<ComputationTargetType, Iterable<Collection<ResolutionRule>>>> itr = _type2Rules.entries().iterator();
+    int count = 0;
     while (itr.hasNext()) {
       final Map.Entry<ComputationTargetType, Iterable<Collection<ResolutionRule>>> e = itr.next();
       final Iterable<Collection<ResolutionRule>> v = e.getValue();
@@ -412,11 +446,15 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
         final Iterable<Collection<ResolutionRule>> rules = ((ChainedRuleBundle) v).prioritize();
         if (rules != null) {
           e.setValue(rules);
+          for (Collection<ResolutionRule> rule : rules) {
+            count += rule.size();
+          }
         } else {
           itr.remove();
         }
       }
     }
+    _ruleCount = count;
   }
 
   @Override
@@ -438,26 +476,6 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
   protected FunctionCompilationContext getFunctionCompilationContext() {
     return _functionCompilationContext;
   }
-
-  /**
-   * Comparator to give a fixed ordering of functions at the same priority so that we at least have deterministic behavior between runs.
-   */
-  private static final Comparator<Pair<ResolutionRule, Collection<ValueSpecification>>> RULE_COMPARATOR = new Comparator<Pair<ResolutionRule, Collection<ValueSpecification>>>() {
-    @Override
-    public int compare(Pair<ResolutionRule, Collection<ValueSpecification>> o1, Pair<ResolutionRule, Collection<ValueSpecification>> o2) {
-      int c = o1.getFirst().getParameterizedFunction().getFunction().getFunctionDefinition().getUniqueId()
-          .compareTo(o2.getFirst().getParameterizedFunction().getFunction().getFunctionDefinition().getUniqueId());
-      if (c != 0) {
-        return c;
-      }
-      // Have the same function, can try and order the "FunctionParameters" as we know it implements a hash code
-      c = o1.getFirst().getParameterizedFunction().getParameters().hashCode() - o2.getFirst().getParameterizedFunction().getParameters().hashCode();
-      if (c != 0) {
-        return c;
-      }
-      throw new OpenGammaRuntimeException("Rule priority conflict - cannot order " + o1 + " against " + o2);
-    }
-  };
 
   private static ValueSpecification reduceMemory(final ValueSpecification valueSpec, final ComputationTargetResolver.AtVersionCorrection resolver) {
     final ComputationTargetSpecification oldTargetSpec = valueSpec.getTargetSpecification();
@@ -489,60 +507,49 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
 
   @SuppressWarnings("unchecked")
   @Override
-  public Iterator<Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>>> resolveFunction(
-      final String valueName, final ComputationTarget target, final ValueProperties constraints) {
+  public Iterator<Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>>> resolveFunction(final String valueName, final ComputationTarget target,
+      final ValueProperties constraints) {
     final ComputationTargetResolver.AtVersionCorrection resolver = getFunctionCompilationContext().getComputationTargetResolver();
     // TODO [PLAT-2286] Don't key the cache by target specification as the contexts may vary. E.g. the (PORTFOLIO_NODE/POSITION, node0, pos0) target
     // will have considered all the rules for (POSITION, pos0). We want to share this, not duplicate the effort (and the storage)
     final ComputationTargetSpecification targetSpecification = MemoryUtils.instance(ComputationTargetResolverUtils.simplifyType(target.toSpecification(), resolver));
     Pair<ResolutionRule[], Collection<ValueSpecification>[]> cached = _targetCache.get(targetSpecification);
     if (cached == null) {
-      final LinkedList<ResolutionRule> resolutionRules = new LinkedList<ResolutionRule>();
-      final LinkedList<Collection<ValueSpecification>> resolutionResults = new LinkedList<Collection<ValueSpecification>>();
+      int resolutions = 0;
+      ResolutionRule[] resolutionRules = new ResolutionRule[_ruleCount];
+      Collection<ValueSpecification>[] resolutionResults = new Collection[_ruleCount];
       final Iterable<Collection<ResolutionRule>> typeRules = _type2Rules.get(target.getType());
       if (typeRules != null) {
-        final Map<ComputationTargetType, ComputationTarget> adjusted = new HashMap<ComputationTargetType, ComputationTarget>();
-        for (Collection<ResolutionRule> rules : typeRules) {
-          int rulesFound = 0;
-          for (ResolutionRule rule : rules) {
-            final ComputationTarget adjustedTarget = rule.adjustTarget(adjusted, target);
-            if (adjustedTarget != null) {
-              final Set<ValueSpecification> results = rule.getResults(adjustedTarget, getFunctionCompilationContext());
-              if ((results != null) && !results.isEmpty()) {
-                resolutionRules.add(rule);
-                resolutionResults.add(reduceMemory(results, resolver));
-                rulesFound++;
+        try {
+          final Map<ComputationTargetType, ComputationTarget> adjusted = new HashMap<ComputationTargetType, ComputationTarget>();
+          for (Collection<ResolutionRule> rules : typeRules) {
+            assert resolutions + rules.size() <= resolutionRules.length;
+            for (ResolutionRule rule : rules) {
+              final ComputationTarget adjustedTarget = rule.adjustTarget(adjusted, target);
+              if (adjustedTarget != null) {
+                final Set<ValueSpecification> results = rule.getResults(adjustedTarget, getFunctionCompilationContext());
+                if ((results != null) && !results.isEmpty()) {
+                  resolutionRules[resolutions] = rule;
+                  resolutionResults[resolutions] = reduceMemory(results, resolver);
+                  resolutions++;
+                }
               }
             }
           }
-          if (rulesFound > 1) {
-            // sort only the sub-list of rules associated with the priority
-            final Iterator<ResolutionRule> rulesIterator = resolutionRules.descendingIterator();
-            final Iterator<Collection<ValueSpecification>> resultsIterator = resolutionResults.descendingIterator();
-            final Pair<ResolutionRule, Collection<ValueSpecification>>[] found = new Pair[rulesFound];
-            for (int i = 0; i < rulesFound; i++) {
-              found[i] = Pair.of(rulesIterator.next(), resultsIterator.next());
-              rulesIterator.remove();
-              resultsIterator.remove();
-            }
-            // TODO [ENG-260] re-order the last "rulesFound" rules in the list with a cost-based heuristic (cheapest first)
-            // TODO [ENG-260] throw an exception if there are two rules which can't be re-ordered
-            // REVIEW 2010-10-27 Andrew -- Could the above be done with a Comparator<Pair<ParameterizedFunction, ValueSpecification>>
-            // provided in the compilation context? This could do away with the need for our "priority" levels as that can do ALL ordering.
-            // We should wrap it at construction in something that will detect the equality case and trigger an exception.
-            Arrays.sort(found, RULE_COMPARATOR);
-            for (int i = 0; i < rulesFound; i++) {
-              resolutionRules.add(found[i].getFirst());
-              resolutionResults.add(found[i].getSecond());
-            }
-          }
+        } catch (RuntimeException e) {
+          s_logger.error("Couldn't process rules for {}: {}", target, e.getMessage());
+          s_logger.info("Caught exception", e);
+          // Now have an incomplete rule set for the target, possibly even an empty one
         }
       } else {
         s_logger.warn("No rules for target type {}", target);
       }
       // TODO: the array of rules is probably getting duplicated for each similar target (e.g. all swaps probably use the same rules)
-      cached = (Pair<ResolutionRule[], Collection<ValueSpecification>[]>) (Pair<?, ?>) Pair.of(resolutionRules.toArray(new ResolutionRule[resolutionRules.size()]),
-            resolutionResults.toArray(new Collection[resolutionResults.size()]));
+      if (resolutions != resolutionRules.length) {
+        resolutionRules = Arrays.copyOf(resolutionRules, resolutions);
+        resolutionResults = Arrays.copyOf(resolutionResults, resolutions);
+      }
+      cached = (Pair<ResolutionRule[], Collection<ValueSpecification>[]>) (Pair<?, ?>) Pairs.of(resolutionRules, resolutionResults);
       final Pair<ResolutionRule[], Collection<ValueSpecification>[]> existing = _targetCache.putIfAbsent(targetSpecification, cached);
       if (existing != null) {
         cached = existing;
@@ -619,6 +626,11 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
     public void remove() {
       throw new UnsupportedOperationException();
     }
+  }
+
+  @Override
+  public CompiledFunctionDefinition getFunction(final String uniqueId) {
+    return _functions.get(uniqueId);
   }
 
 }

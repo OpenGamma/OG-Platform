@@ -241,6 +241,11 @@ public final class ValuePropertyNames {
   public static final String CURVE_CONSTRUCTION_CONFIG = "CurveConstructionConfiguration";
 
   /**
+   * The name for a property describing the currencies used in constructing curves.
+   */
+  public static final String CURVE_SENSITIVITY_CURRENCY = "CurveSensitivityCurrency";
+
+  /**
    * The name for a property describing the shift of the strike
    * when approximating a binary option as a call or put spread
    */
@@ -256,6 +261,11 @@ public final class ValuePropertyNames {
    * The amount to shift DV01 by in basis points
    */
   public static final String SHIFT = "Shift";
+
+  /**
+   * The amount to shift DV01 by in basis points
+   */
+  public static final String SCALING_FACTOR = "ScalingFactor";
 
   // REVIEW 2012-08-29 andrew -- The Javadoc for SHIFT above is bad; it's a common name that will be used for things other than DV01.
   // REVIEW 2012-10-13 casey -- One doesn't even shift DV01. The shift in DV01 is in its name - Delta Value of One Basis Point..
@@ -276,42 +286,83 @@ public final class ValuePropertyNames {
    * Controls the number formatting of the barrier distance - e.g. abs, percentage
    */
   public static final String BARRIER_DISTANCE_OUTPUT_FORMAT = "BarrierDistanceOutputFormat";
-  
+
   /**
    * The name of a property that provides the name of a forward curve.
    */
   public static final String FORWARD_CURVE_NAME = "ForwardCurveName";
-  
+
+  /**
+   * The name of a property that provides the name of a discounting curve.<p>
+   * Used to differentiate this from {@link ValuePropertyNames#FORWARD_CURVE_NAME}
+   */
+  public static final String DISCOUNTING_CURVE_NAME = "DiscountingCurveName";
+
   /**
    * A general name for a property describing a transformation method to use.
    */
   public static final String TRANSFORMATION_METHOD = "TransformationMethod";
-  
-  /** 
-   * The name of a property that provides the type of dividends, be they Continuous, Discrete or None 
+
+  /**
+   * The name of a property that provides the type of dividends, be they Continuous, Discrete or None
    */
   public static final String DIVIDEND_TYPE = "DividendType";
-  
-  /** 
-   * Instance of DIVIDEND_TYPE_PROPERTY representing a continuous dividend yield 
+
+  /**
+   * Instance of DIVIDEND_TYPE_PROPERTY representing a continuous dividend yield
    */
   public static final String DIVIDEND_TYPE_CONTINUOUS = "Continuous";
-  
-  /** 
-   * Instance of DIVIDEND_TYPE_PROPERTY representing discrete dividend payments. See { @link DiscreteDividendFunction} 
+
+  /**
+   * Instance of DIVIDEND_TYPE_PROPERTY representing discrete dividend payments. See { @link DiscreteDividendFunction}
    */
   public static final String DIVIDEND_TYPE_DISCRETE = "Discrete";
-  
-  /** 
-   * Instance of DIVIDEND_TYPE_PROPERTY representing no dividends 
-  */
+
+  /**
+   * Instance of DIVIDEND_TYPE_PROPERTY representing no dividends
+   */
   public static final String DIVIDEND_TYPE_NONE = "None";
-  
-  /** 
-   * The name of a general property that scales results. 
+
+  /**
+   * The name of a general property that scales results.
    */
   public static final String SCALE = "Scale";
-  
-  /** The name of a property representing the exposure configuration used for pricing */
+
+  /**
+   * The name of a property representing the exposure configuration used for pricing
+   */
   public static final String CURVE_EXPOSURES = "CurveExposures";
+
+  /**
+   * The name of the conversion method.
+   */
+  public static final String CONVERSION_METHOD = "ConversionMethod";
+
+  /**
+   * Property used to choose whether market data is to be snapped Live or at last Close. <p>
+   * See {@link ValuePropertyNames#SNAP_TIME_LIVE} and {@link ValuePropertyNames#SNAP_TIME_CLOSE}
+   */
+  public static final String SNAP_TIME = "SnapTime";
+
+  /**
+   * Property used to choose whether market data is to be snapped Live or at last Close. <p>
+   * See {@link ValuePropertyNames#SNAP_TIME_LIVE} and {@link ValuePropertyNames#SNAP_TIME_CLOSE}
+   */
+  public static final String SNAP_TIME_VOL = "VolSnapTime";
+
+  /**
+   * Value for {@link ValuePropertyNames#SNAP_TIME} when data is to be snapped at current, Live, time
+   */
+  public static final String SNAP_TIME_LIVE = "Live";
+
+  /**
+   * Value for {@link ValuePropertyNames#SNAP_TIME} when data is to be snapped at time of previous Close
+   */
+  public static final String SNAP_TIME_CLOSE = "Close";
+
+  /**
+   * Value for a name.
+   */
+  public static final String NAME = "Name";
+
 }

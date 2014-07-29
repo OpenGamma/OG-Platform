@@ -7,6 +7,7 @@ package com.opengamma.financial.security.option;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -21,6 +22,7 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.LongShort;
+import com.opengamma.master.security.SecurityDescription;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
 
@@ -28,6 +30,7 @@ import com.opengamma.util.time.Expiry;
  * A security for FX options.
  */
 @BeanDefinition
+@SecurityDescription(type = FXOptionSecurity.SECURITY_TYPE, description = "Fx option")
 public class FXOptionSecurity extends FinancialSecurity {
 
   /** Serialization version. */
@@ -138,107 +141,6 @@ public class FXOptionSecurity extends FinancialSecurity {
   @Override
   public FXOptionSecurity.Meta metaBean() {
     return FXOptionSecurity.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 516393024:  // putCurrency
-        return getPutCurrency();
-      case 643534991:  // callCurrency
-        return getCallCurrency();
-      case -984864697:  // putAmount
-        return getPutAmount();
-      case 1066661974:  // callAmount
-        return getCallAmount();
-      case -1289159373:  // expiry
-        return getExpiry();
-      case -295948169:  // settlementDate
-        return getSettlementDate();
-      case 116685664:  // longShort
-        return getLongShort();
-      case -466331342:  // exerciseType
-        return getExerciseType();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 516393024:  // putCurrency
-        setPutCurrency((Currency) newValue);
-        return;
-      case 643534991:  // callCurrency
-        setCallCurrency((Currency) newValue);
-        return;
-      case -984864697:  // putAmount
-        setPutAmount((Double) newValue);
-        return;
-      case 1066661974:  // callAmount
-        setCallAmount((Double) newValue);
-        return;
-      case -1289159373:  // expiry
-        setExpiry((Expiry) newValue);
-        return;
-      case -295948169:  // settlementDate
-        setSettlementDate((ZonedDateTime) newValue);
-        return;
-      case 116685664:  // longShort
-        setLongShort((LongShort) newValue);
-        return;
-      case -466331342:  // exerciseType
-        setExerciseType((ExerciseType) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_putCurrency, "putCurrency");
-    JodaBeanUtils.notNull(_callCurrency, "callCurrency");
-    JodaBeanUtils.notNull(_putAmount, "putAmount");
-    JodaBeanUtils.notNull(_callAmount, "callAmount");
-    JodaBeanUtils.notNull(_expiry, "expiry");
-    JodaBeanUtils.notNull(_settlementDate, "settlementDate");
-    JodaBeanUtils.notNull(_longShort, "longShort");
-    JodaBeanUtils.notNull(_exerciseType, "exerciseType");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      FXOptionSecurity other = (FXOptionSecurity) obj;
-      return JodaBeanUtils.equal(getPutCurrency(), other.getPutCurrency()) &&
-          JodaBeanUtils.equal(getCallCurrency(), other.getCallCurrency()) &&
-          JodaBeanUtils.equal(getPutAmount(), other.getPutAmount()) &&
-          JodaBeanUtils.equal(getCallAmount(), other.getCallAmount()) &&
-          JodaBeanUtils.equal(getExpiry(), other.getExpiry()) &&
-          JodaBeanUtils.equal(getSettlementDate(), other.getSettlementDate()) &&
-          JodaBeanUtils.equal(getLongShort(), other.getLongShort()) &&
-          JodaBeanUtils.equal(getExerciseType(), other.getExerciseType()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPutCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCallCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPutAmount());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCallAmount());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExpiry());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getLongShort());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExerciseType());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -450,6 +352,72 @@ public class FXOptionSecurity extends FinancialSecurity {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public FXOptionSecurity clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      FXOptionSecurity other = (FXOptionSecurity) obj;
+      return JodaBeanUtils.equal(getPutCurrency(), other.getPutCurrency()) &&
+          JodaBeanUtils.equal(getCallCurrency(), other.getCallCurrency()) &&
+          JodaBeanUtils.equal(getPutAmount(), other.getPutAmount()) &&
+          JodaBeanUtils.equal(getCallAmount(), other.getCallAmount()) &&
+          JodaBeanUtils.equal(getExpiry(), other.getExpiry()) &&
+          JodaBeanUtils.equal(getSettlementDate(), other.getSettlementDate()) &&
+          JodaBeanUtils.equal(getLongShort(), other.getLongShort()) &&
+          JodaBeanUtils.equal(getExerciseType(), other.getExerciseType()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPutCurrency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCallCurrency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPutAmount());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCallAmount());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExpiry());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getLongShort());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExerciseType());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(288);
+    buf.append("FXOptionSecurity{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("putCurrency").append('=').append(JodaBeanUtils.toString(getPutCurrency())).append(',').append(' ');
+    buf.append("callCurrency").append('=').append(JodaBeanUtils.toString(getCallCurrency())).append(',').append(' ');
+    buf.append("putAmount").append('=').append(JodaBeanUtils.toString(getPutAmount())).append(',').append(' ');
+    buf.append("callAmount").append('=').append(JodaBeanUtils.toString(getCallAmount())).append(',').append(' ');
+    buf.append("expiry").append('=').append(JodaBeanUtils.toString(getExpiry())).append(',').append(' ');
+    buf.append("settlementDate").append('=').append(JodaBeanUtils.toString(getSettlementDate())).append(',').append(' ');
+    buf.append("longShort").append('=').append(JodaBeanUtils.toString(getLongShort())).append(',').append(' ');
+    buf.append("exerciseType").append('=').append(JodaBeanUtils.toString(getExerciseType())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code FXOptionSecurity}.
    */
@@ -620,6 +588,74 @@ public class FXOptionSecurity extends FinancialSecurity {
      */
     public final MetaProperty<ExerciseType> exerciseType() {
       return _exerciseType;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 516393024:  // putCurrency
+          return ((FXOptionSecurity) bean).getPutCurrency();
+        case 643534991:  // callCurrency
+          return ((FXOptionSecurity) bean).getCallCurrency();
+        case -984864697:  // putAmount
+          return ((FXOptionSecurity) bean).getPutAmount();
+        case 1066661974:  // callAmount
+          return ((FXOptionSecurity) bean).getCallAmount();
+        case -1289159373:  // expiry
+          return ((FXOptionSecurity) bean).getExpiry();
+        case -295948169:  // settlementDate
+          return ((FXOptionSecurity) bean).getSettlementDate();
+        case 116685664:  // longShort
+          return ((FXOptionSecurity) bean).getLongShort();
+        case -466331342:  // exerciseType
+          return ((FXOptionSecurity) bean).getExerciseType();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 516393024:  // putCurrency
+          ((FXOptionSecurity) bean).setPutCurrency((Currency) newValue);
+          return;
+        case 643534991:  // callCurrency
+          ((FXOptionSecurity) bean).setCallCurrency((Currency) newValue);
+          return;
+        case -984864697:  // putAmount
+          ((FXOptionSecurity) bean).setPutAmount((Double) newValue);
+          return;
+        case 1066661974:  // callAmount
+          ((FXOptionSecurity) bean).setCallAmount((Double) newValue);
+          return;
+        case -1289159373:  // expiry
+          ((FXOptionSecurity) bean).setExpiry((Expiry) newValue);
+          return;
+        case -295948169:  // settlementDate
+          ((FXOptionSecurity) bean).setSettlementDate((ZonedDateTime) newValue);
+          return;
+        case 116685664:  // longShort
+          ((FXOptionSecurity) bean).setLongShort((LongShort) newValue);
+          return;
+        case -466331342:  // exerciseType
+          ((FXOptionSecurity) bean).setExerciseType((ExerciseType) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((FXOptionSecurity) bean)._putCurrency, "putCurrency");
+      JodaBeanUtils.notNull(((FXOptionSecurity) bean)._callCurrency, "callCurrency");
+      JodaBeanUtils.notNull(((FXOptionSecurity) bean)._putAmount, "putAmount");
+      JodaBeanUtils.notNull(((FXOptionSecurity) bean)._callAmount, "callAmount");
+      JodaBeanUtils.notNull(((FXOptionSecurity) bean)._expiry, "expiry");
+      JodaBeanUtils.notNull(((FXOptionSecurity) bean)._settlementDate, "settlementDate");
+      JodaBeanUtils.notNull(((FXOptionSecurity) bean)._longShort, "longShort");
+      JodaBeanUtils.notNull(((FXOptionSecurity) bean)._exerciseType, "exerciseType");
+      super.validate(bean);
     }
 
   }

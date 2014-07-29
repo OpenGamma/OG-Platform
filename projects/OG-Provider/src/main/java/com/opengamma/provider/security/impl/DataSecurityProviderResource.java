@@ -72,7 +72,7 @@ public class DataSecurityProviderResource extends AbstractDataResource {
   @Path("securityGet")
   public Response getSecurity(SecurityProviderRequest request) {
     SecurityProviderResult result = getSecurityProvider().getSecurities(request);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   //-------------------------------------------------------------------------

@@ -36,24 +36,26 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.Multipl
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
-import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 import com.opengamma.util.tuple.Triple;
 
 /**
  * Tests related to the Black world pricing method for single barrier Forex option.
  */
+@Test(groups = TestGroup.UNIT)
 public class ForexOptionSingleBarrierBlackMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountForexDataSets.createMulticurvesForex();
@@ -64,14 +66,14 @@ public class ForexOptionSingleBarrierBlackMethodTest {
 
   private static final SmileDeltaTermStructureParametersStrikeInterpolation SMILE_TERM = ForexSmileProviderDataSets.smile5points(REFERENCE_DATE);
   private static final SmileDeltaTermStructureParametersStrikeInterpolation SMILE_TERM_FLAT = ForexSmileProviderDataSets.smileFlat(REFERENCE_DATE);
-  private static final BlackForexSmileProviderDiscount SMILE_MULTICURVES = new BlackForexSmileProviderDiscount(MULTICURVES, SMILE_TERM, Pair.of(EUR, USD));
-  private static final BlackForexSmileProviderDiscount SMILE_FLAT_MULTICURVES = new BlackForexSmileProviderDiscount(MULTICURVES, SMILE_TERM_FLAT, Pair.of(EUR, USD));
+  private static final BlackForexSmileProviderDiscount SMILE_MULTICURVES = new BlackForexSmileProviderDiscount(MULTICURVES, SMILE_TERM, Pairs.of(EUR, USD));
+  private static final BlackForexSmileProviderDiscount SMILE_FLAT_MULTICURVES = new BlackForexSmileProviderDiscount(MULTICURVES, SMILE_TERM_FLAT, Pairs.of(EUR, USD));
 
   private static final FXMatrix FX_MATRIX = MULTICURVES.getFxRates();
   private static final double SPOT = FX_MATRIX.getFxRate(EUR, USD);
   // General
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
-  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventions.MODIFIED_FOLLOWING;
   private static final int SETTLEMENT_DAYS = 0; // CHANGE TO 0 FOR COMPARISON TO VANILLA'S
   // Option
   private static final double STRIKE = 1.45;
@@ -175,7 +177,7 @@ public class ForexOptionSingleBarrierBlackMethodTest {
     final double rateForeign = -Math.log(dfForeign) / payTime;
     final double costOfCarry = rateDomestic - rateForeign;
     final double forward = SPOT * Math.exp(-rateForeign * payTime) / Math.exp(-rateDomestic * payTime);
-    final double volatility = SMILE_TERM.getVolatility(new Triple<>(VANILLA_LONG.getTimeToExpiry(), STRIKE, forward));
+    final double volatility = SMILE_TERM.getVolatility(Triple.of(VANILLA_LONG.getTimeToExpiry(), STRIKE, forward));
     final double priceComputed = BLACK_BARRIER_FUNCTION.getPrice(VANILLA_LONG, BARRIER_KI, REBATE / NOTIONAL, SPOT, costOfCarry, rateDomestic, volatility) * NOTIONAL;
     assertEquals("Barriers present value", priceComputed, priceMethod.getAmount(USD), TOLERANCE_PV);
   }
@@ -219,7 +221,7 @@ public class ForexOptionSingleBarrierBlackMethodTest {
     final FXMatrix fxMatrixShift = new FXMatrix(EUR, USD, SPOT + shiftSpotEURUSD);
     final MulticurveProviderDiscount multicurvesShiftedFX = MULTICURVES.copy();
     multicurvesShiftedFX.setForexMatrix(fxMatrixShift);
-    final BlackForexSmileProviderDiscount smileBumpedSpot = new BlackForexSmileProviderDiscount(multicurvesShiftedFX, SMILE_TERM_FLAT, Pair.of(EUR, USD));
+    final BlackForexSmileProviderDiscount smileBumpedSpot = new BlackForexSmileProviderDiscount(multicurvesShiftedFX, SMILE_TERM_FLAT, Pairs.of(EUR, USD));
     final MultipleCurrencyAmount pvBumpedSpot = METHOD_BARRIER.presentValue(OPTION_BARRIER, smileBumpedSpot);
     final double ceDomesticFD = (pvBumpedSpot.getAmount(USD) - pv.getAmount(USD));
     assertEquals("Barrier currency exposure: domestic currency", ceDomesticFD, ce.getAmount(EUR) * shiftSpotEURUSD, 2.0E-4);
@@ -254,7 +256,7 @@ public class ForexOptionSingleBarrierBlackMethodTest {
     final MultipleCurrencyParameterSensitivity pvpsExact = PS_FBS_C.calculateSensitivity(OPTION_BARRIER, SMILE_FLAT_MULTICURVES, SMILE_FLAT_MULTICURVES
         .getMulticurveProvider().getAllNames());
     final MultipleCurrencyParameterSensitivity pvpsFD = PS_FBS_FDC.calculateSensitivity(OPTION_BARRIER, SMILE_FLAT_MULTICURVES);
-    AssertSensivityObjects.assertEquals("SwaptionPhysicalFixedIborSABRMethod: presentValueCurveSensitivity ", pvpsExact, pvpsFD, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("SwaptionPhysicalFixedIborSABRMethod: presentValueCurveSensitivity ", pvpsExact, pvpsFD, TOLERANCE_PV_DELTA);
   }
 
   @Test
@@ -293,8 +295,8 @@ public class ForexOptionSingleBarrierBlackMethodTest {
    */
   public void volatilitySensitivity() {
     final PresentValueForexBlackVolatilitySensitivity sensi = METHOD_BARRIER.presentValueBlackVolatilitySensitivity(OPTION_BARRIER, SMILE_MULTICURVES);
-    final Pair<Currency, Currency> currencyPair = ObjectsPair.of(EUR, USD);
-    final DoublesPair point = new DoublesPair(OPTION_BARRIER.getUnderlyingOption().getTimeToExpiry(), STRIKE);
+    final Pair<Currency, Currency> currencyPair = Pairs.of(EUR, USD);
+    final DoublesPair point = DoublesPair.of(OPTION_BARRIER.getUnderlyingOption().getTimeToExpiry(), STRIKE);
     assertEquals("Forex vanilla option: vega", currencyPair, sensi.getCurrencyPair());
     assertEquals("Forex vanilla option: vega size", 1, sensi.getVega().getMap().entrySet().size());
     assertTrue("Forex vanilla option: vega", sensi.getVega().getMap().containsKey(point));
@@ -305,7 +307,7 @@ public class ForexOptionSingleBarrierBlackMethodTest {
     final double forward = SPOT * dfForeign / dfDomestic;
     final double rateDomestic = -Math.log(dfDomestic) / payTime;
     final double rateForeign = -Math.log(dfForeign) / payTime;
-    final double volatility = SMILE_TERM.getVolatility(new Triple<>(timeToExpiry, STRIKE, forward));
+    final double volatility = SMILE_TERM.getVolatility(Triple.of(timeToExpiry, STRIKE, forward));
     final double[] derivatives = new double[5];
     BLACK_BARRIER_FUNCTION.getPriceAdjoint(VANILLA_LONG, BARRIER_KI, REBATE / NOTIONAL, SPOT, rateDomestic - rateForeign, rateDomestic, volatility, derivatives);
     assertEquals("Forex vanilla option: vega", derivatives[4] * NOTIONAL, sensi.getVega().getMap().get(point));
@@ -331,7 +333,7 @@ public class ForexOptionSingleBarrierBlackMethodTest {
   //    final PresentValueForexBlackVolatilityNodeSensitivityDataBundle sensi = METHOD_BARRIER.presentValueBlackVolatilityNodeSensitivity(OPTION_BARRIER, SMILE_MULTICURVES);
   //    assertEquals("Forex vanilla option: vega node size", NB_EXP + 1, sensi.getVega().getData().length);
   //    assertEquals("Forex vanilla option: vega node size", NB_STRIKE, sensi.getVega().getData()[0].length);
-  //    final Pair<Currency, Currency> currencyPair = ObjectsPair.of(EUR, USD);
+  //    final Pair<Currency, Currency> currencyPair = Pairs.of(EUR, USD);
   //    assertEquals("Forex vanilla option: vega", currencyPair, sensi.getCurrencyPair());
   //    final PresentValueForexBlackVolatilitySensitivity pointSensitivity = METHOD_BARRIER.presentValueBlackVolatilitySensitivity(OPTION_BARRIER, SMILE_MULTICURVES);
   //    final double df = MULTICURVES.getDiscountFactor(USD, TimeCalculator.getTimeBetween(REFERENCE_DATE, OPTION_PAY_DATE));

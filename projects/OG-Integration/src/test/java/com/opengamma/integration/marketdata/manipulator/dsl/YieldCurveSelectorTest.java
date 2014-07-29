@@ -11,12 +11,19 @@ import static org.testng.AssertJUnit.assertNull;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.marketdata.manipulator.MarketDataSelector;
 import com.opengamma.engine.marketdata.manipulator.SelectorResolver;
-import com.opengamma.engine.marketdata.manipulator.StructureIdentifier;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
+import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.currency.CurrencyPair;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
+@Test(groups = TestGroup.UNIT)
 public class YieldCurveSelectorTest {
 
   private final SelectorResolver _resolver = mock(SelectorResolver.class);
@@ -24,8 +31,26 @@ public class YieldCurveSelectorTest {
   private static final Scenario SCENARIO = new Scenario("scenario");
   private static final String CALC_CONFIG_NAME = "calcConfigName";
 
-  private static StructureIdentifier structureId(String curveName) {
-    return StructureIdentifier.of(new YieldCurveKey(Currency.GBP, curveName));
+  private static ValueSpecification valueSpec(String curveName) {
+    ValueProperties properties =
+        ValueProperties
+            .with(ValuePropertyNames.CURVE, curveName)
+            .with(ValuePropertyNames.FUNCTION, "foo")
+            .get();
+    ComputationTargetSpecification targetSpec =
+        new ComputationTargetSpecification(CurrencyPair.TYPE, UniqueId.of(Currency.OBJECT_SCHEME, "GBP"));
+    return new ValueSpecification(ValueRequirementNames.YIELD_CURVE, targetSpec, properties);
+  }
+
+  private static ValueSpecification valueSpec(Currency currency, String curveName) {
+    ValueProperties properties =
+        ValueProperties
+            .with(ValuePropertyNames.CURVE, curveName)
+            .with(ValuePropertyNames.FUNCTION, "foo")
+            .get();
+    ComputationTargetSpecification targetSpec =
+        new ComputationTargetSpecification(CurrencyPair.TYPE, currency.getUniqueId());
+    return new ValueSpecification(ValueRequirementNames.YIELD_CURVE, targetSpec, properties);
   }
 
   /** if no criteria are specified the selector should match any curve */
@@ -33,8 +58,8 @@ public class YieldCurveSelectorTest {
   public void noCriteria() {
     YieldCurveSelector.Builder curve = new YieldCurveSelector.Builder(SCENARIO);
     MarketDataSelector selector = curve.getSelector();
-    assertEquals(selector, selector.findMatchingSelector(structureId("curveName1"), CALC_CONFIG_NAME, _resolver));
-    assertEquals(selector, selector.findMatchingSelector(structureId("curveName2"), CALC_CONFIG_NAME, _resolver));
+    assertEquals(selector, selector.findMatchingSelector(valueSpec("curveName1"), CALC_CONFIG_NAME, _resolver));
+    assertEquals(selector, selector.findMatchingSelector(valueSpec("curveName2"), CALC_CONFIG_NAME, _resolver));
   }
 
   /** match a single name and fail any other names */
@@ -45,8 +70,8 @@ public class YieldCurveSelectorTest {
     YieldCurveSelector.Builder curve = new YieldCurveSelector.Builder(SCENARIO);
     curve.named(curveName);
     MarketDataSelector selector = curve.getSelector();
-    assertEquals(selector, selector.findMatchingSelector(structureId(curveName), calcConfigName, _resolver));
-    assertNull(selector.findMatchingSelector(structureId("otherName"), calcConfigName, _resolver));
+    assertEquals(selector, selector.findMatchingSelector(valueSpec(curveName), calcConfigName, _resolver));
+    assertNull(selector.findMatchingSelector(valueSpec("otherName"), calcConfigName, _resolver));
   }
 
   /** match any one of multiple curve names, fail other names */
@@ -57,9 +82,9 @@ public class YieldCurveSelectorTest {
     YieldCurveSelector.Builder curve = new YieldCurveSelector.Builder(SCENARIO);
     curve.named(curveName1, curveName2);
     MarketDataSelector selector = curve.getSelector();
-    assertEquals(selector, selector.findMatchingSelector(structureId(curveName1), CALC_CONFIG_NAME, _resolver));
-    assertEquals(selector, selector.findMatchingSelector(structureId(curveName2), CALC_CONFIG_NAME, _resolver));
-    assertNull(selector.findMatchingSelector(structureId("otherName"), CALC_CONFIG_NAME, _resolver));
+    assertEquals(selector, selector.findMatchingSelector(valueSpec(curveName1), CALC_CONFIG_NAME, _resolver));
+    assertEquals(selector, selector.findMatchingSelector(valueSpec(curveName2), CALC_CONFIG_NAME, _resolver));
+    assertNull(selector.findMatchingSelector(valueSpec("otherName"), CALC_CONFIG_NAME, _resolver));
   }
 
   /** don't match if the calc config name doesn't match */
@@ -67,7 +92,7 @@ public class YieldCurveSelectorTest {
   public void calcConfigName() {
     YieldCurveSelector.Builder curve = new YieldCurveSelector.Builder(new Scenario("foo").calculationConfigurations(CALC_CONFIG_NAME));
     MarketDataSelector selector = curve.getSelector();
-    assertNull(selector.findMatchingSelector(structureId("curveName"), "otherCalcConfigName", _resolver));
+    assertNull(selector.findMatchingSelector(valueSpec("curveName"), "otherCalcConfigName", _resolver));
   }
 
   /** match if the curve name matches a regular expression */
@@ -78,8 +103,8 @@ public class YieldCurveSelectorTest {
     YieldCurveSelector.Builder curve = new YieldCurveSelector.Builder(SCENARIO);
     curve.nameMatches(".*3M");
     MarketDataSelector selector = curve.getSelector();
-    assertEquals(selector, selector.findMatchingSelector(structureId(curve3M), CALC_CONFIG_NAME, _resolver));
-    assertNull(selector.findMatchingSelector(structureId(curve6M), CALC_CONFIG_NAME, _resolver));
+    assertEquals(selector, selector.findMatchingSelector(valueSpec(curve3M), CALC_CONFIG_NAME, _resolver));
+    assertNull(selector.findMatchingSelector(valueSpec(curve6M), CALC_CONFIG_NAME, _resolver));
   }
 
   /** match if the curve name matches a glob */
@@ -91,14 +116,14 @@ public class YieldCurveSelectorTest {
     YieldCurveSelector.Builder curve1 = new YieldCurveSelector.Builder(SCENARIO);
     curve1.nameLike("*3M");
     MarketDataSelector selector1 = curve1.getSelector();
-    assertEquals(selector1, selector1.findMatchingSelector(structureId(curve3M), CALC_CONFIG_NAME, _resolver));
-    assertNull(selector1.findMatchingSelector(structureId(curve6M), CALC_CONFIG_NAME, _resolver));
+    assertEquals(selector1, selector1.findMatchingSelector(valueSpec(curve3M), CALC_CONFIG_NAME, _resolver));
+    assertNull(selector1.findMatchingSelector(valueSpec(curve6M), CALC_CONFIG_NAME, _resolver));
 
     YieldCurveSelector.Builder curve2 = new YieldCurveSelector.Builder(SCENARIO);
     curve2.nameLike("curve?M");
     MarketDataSelector selector2 = curve2.getSelector();
-    assertEquals(selector2, selector2.findMatchingSelector(structureId(curve3M), CALC_CONFIG_NAME, _resolver));
-    assertEquals(selector2, selector2.findMatchingSelector(structureId(curve6M), CALC_CONFIG_NAME, _resolver));
+    assertEquals(selector2, selector2.findMatchingSelector(valueSpec(curve3M), CALC_CONFIG_NAME, _resolver));
+    assertEquals(selector2, selector2.findMatchingSelector(valueSpec(curve6M), CALC_CONFIG_NAME, _resolver));
   }
 
   /** match if the curve currency is specified */
@@ -108,10 +133,8 @@ public class YieldCurveSelectorTest {
     curve.currencies("GBP");
     MarketDataSelector selector = curve.getSelector();
     String curveName = "curveName";
-    StructureIdentifier structure1 = StructureIdentifier.of(new YieldCurveKey(Currency.GBP, curveName));
-    StructureIdentifier structure2 = StructureIdentifier.of(new YieldCurveKey(Currency.USD, curveName));
-    assertEquals(selector, selector.findMatchingSelector(structure1, CALC_CONFIG_NAME, _resolver));
-    assertNull(selector.findMatchingSelector(structure2, CALC_CONFIG_NAME, _resolver));
+    assertEquals(selector, selector.findMatchingSelector(valueSpec(Currency.GBP, curveName), CALC_CONFIG_NAME, _resolver));
+    assertNull(selector.findMatchingSelector(valueSpec(Currency.USD, curveName), CALC_CONFIG_NAME, _resolver));
   }
 
   /** match if the curve currency matches any of the specified currency codes */
@@ -121,12 +144,9 @@ public class YieldCurveSelectorTest {
     curve.currencies("GBP", "USD");
     MarketDataSelector selector = curve.getSelector();
     String curveName = "curveName";
-    StructureIdentifier structure1 = StructureIdentifier.of(new YieldCurveKey(Currency.GBP, curveName));
-    StructureIdentifier structure2 = StructureIdentifier.of(new YieldCurveKey(Currency.USD, curveName));
-    StructureIdentifier structure3 = StructureIdentifier.of(new YieldCurveKey(Currency.AUD, curveName));
-    assertEquals(selector, selector.findMatchingSelector(structure1, CALC_CONFIG_NAME, _resolver));
-    assertEquals(selector, selector.findMatchingSelector(structure2, CALC_CONFIG_NAME, _resolver));
-    assertNull(selector.findMatchingSelector(structure3, CALC_CONFIG_NAME, _resolver));
+    assertEquals(selector, selector.findMatchingSelector(valueSpec(Currency.GBP, curveName), CALC_CONFIG_NAME, _resolver));
+    assertEquals(selector, selector.findMatchingSelector(valueSpec(Currency.USD, curveName), CALC_CONFIG_NAME, _resolver));
+    assertNull(selector.findMatchingSelector(valueSpec(Currency.AUD, curveName), CALC_CONFIG_NAME, _resolver));
   }
 
   /** match if the curve satisfies all criteria, fail if it fails any of them */
@@ -138,13 +158,9 @@ public class YieldCurveSelectorTest {
     String curveName3 = "curveName3";
     curve.named(curveName1, curveName2).currencies("USD", "GBP");
     MarketDataSelector selector = curve.getSelector();
-    StructureIdentifier structure1 = StructureIdentifier.of(new YieldCurveKey(Currency.GBP, curveName1));
-    StructureIdentifier structure2 = StructureIdentifier.of(new YieldCurveKey(Currency.USD, curveName2));
-    StructureIdentifier structure3 = StructureIdentifier.of(new YieldCurveKey(Currency.AUD, curveName1));
-    StructureIdentifier structure4 = StructureIdentifier.of(new YieldCurveKey(Currency.USD, curveName3));
-    assertEquals(selector, selector.findMatchingSelector(structure1, CALC_CONFIG_NAME, _resolver));
-    assertEquals(selector, selector.findMatchingSelector(structure2, CALC_CONFIG_NAME, _resolver));
-    assertNull(selector.findMatchingSelector(structure3, CALC_CONFIG_NAME, _resolver));
-    assertNull(selector.findMatchingSelector(structure4, CALC_CONFIG_NAME, _resolver));
+    assertEquals(selector, selector.findMatchingSelector(valueSpec(Currency.GBP, curveName1), CALC_CONFIG_NAME, _resolver));
+    assertEquals(selector, selector.findMatchingSelector(valueSpec(Currency.USD, curveName2), CALC_CONFIG_NAME, _resolver));
+    assertNull(selector.findMatchingSelector(valueSpec(Currency.AUD, curveName1), CALC_CONFIG_NAME, _resolver));
+    assertNull(selector.findMatchingSelector(valueSpec(Currency.USD, curveName3), CALC_CONFIG_NAME, _resolver));
   }
 }

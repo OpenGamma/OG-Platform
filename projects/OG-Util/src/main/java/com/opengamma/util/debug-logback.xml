@@ -11,9 +11,11 @@
   
   <appender name="BRIDGE" class="com.opengamma.util.log.LogbackBridgeAppender" />
 
-  <root level="debug">
+  <root level="warn">
     <appender-ref ref="STDOUT" />
     <appender-ref ref="BRIDGE" />
   </root>
+  
+  <logger name="com.opengamma" level="DEBUG"/>
   
 </configuration>

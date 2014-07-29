@@ -7,6 +7,7 @@ package com.opengamma.component.rest;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -77,58 +78,6 @@ public class RestComponent extends DirectBean {
     return RestComponent.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 555127957:  // instance
-        return getInstance();
-      case 3237038:  // info
-        return getInfo();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 555127957:  // instance
-        setInstance((Object) newValue);
-        return;
-      case 3237038:  // info
-        setInfo((ComponentInfo) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_instance, "instance");
-    JodaBeanUtils.notNull(_info, "info");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      RestComponent other = (RestComponent) obj;
-      return JodaBeanUtils.equal(getInstance(), other.getInstance()) &&
-          JodaBeanUtils.equal(getInfo(), other.getInfo());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getInstance());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getInfo());
-    return hash;
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the instance that is to be managed by {@code DataComponentsResource}.
@@ -182,6 +131,51 @@ public class RestComponent extends DirectBean {
    */
   public final Property<ComponentInfo> info() {
     return metaBean().info().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public RestComponent clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      RestComponent other = (RestComponent) obj;
+      return JodaBeanUtils.equal(getInstance(), other.getInstance()) &&
+          JodaBeanUtils.equal(getInfo(), other.getInfo());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getInstance());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getInfo());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(96);
+    buf.append("RestComponent{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("instance").append('=').append(JodaBeanUtils.toString(getInstance())).append(',').append(' ');
+    buf.append("info").append('=').append(JodaBeanUtils.toString(getInfo())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -259,6 +253,37 @@ public class RestComponent extends DirectBean {
      */
     public final MetaProperty<ComponentInfo> info() {
       return _info;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 555127957:  // instance
+          return ((RestComponent) bean).getInstance();
+        case 3237038:  // info
+          return ((RestComponent) bean).getInfo();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 555127957:  // instance
+          ((RestComponent) bean).setInstance((Object) newValue);
+          return;
+        case 3237038:  // info
+          ((RestComponent) bean).setInfo((ComponentInfo) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((RestComponent) bean)._instance, "instance");
+      JodaBeanUtils.notNull(((RestComponent) bean)._info, "info");
     }
 
   }

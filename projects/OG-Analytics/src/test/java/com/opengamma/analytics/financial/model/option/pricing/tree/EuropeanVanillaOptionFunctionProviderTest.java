@@ -9,16 +9,28 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
 
+import org.apache.commons.lang.Validate;
 import org.testng.annotations.Test;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.greeks.Greek;
 import com.opengamma.analytics.financial.greeks.GreekResultCollection;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.analytics.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.financial.model.volatility.BlackScholesFormulaRepository;
+import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
+import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
+import com.opengamma.analytics.math.function.Function;
+import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
+import com.opengamma.util.test.TestGroup;
+import com.opengamma.util.time.DateUtils;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class EuropeanVanillaOptionFunctionProviderTest {
   private static final BinomialTreeOptionPricingModel _model = new BinomialTreeOptionPricingModel();
   private static final TrinomialTreeOptionPricingModel _modelTrinomial = new TrinomialTreeOptionPricingModel();
@@ -29,6 +41,85 @@ public class EuropeanVanillaOptionFunctionProviderTest {
   private static final double[] VOLS = new double[] {0.05, 0.1, 0.5 };
 
   private static final double[] DIVIDENDS = new double[] {0.005, 0.02 };
+
+  /**
+   * 
+   */
+  @Test
+  public void ImpliedTreeEuropeanRecoveryTest() {
+    final double interest = 0.06;
+    final YieldAndDiscountCurve yCrv = YieldCurve.from(ConstantDoublesCurve.from(interest));
+    final double cost = 0.02;
+    final double atmVol = 0.47;
+    final ZonedDateTime date = DateUtils.getUTCDate(2010, 7, 1);
+    final double spot = 100;
+    final Function<Double, Double> smile = new Function<Double, Double>() {
+
+      @Override
+      public Double evaluate(final Double... tk) {
+        Validate.isTrue(tk.length == 2);
+        final double k = tk[1];
+        return atmVol + (spot - k) * 0.0005;
+      }
+    };
+
+    final StandardOptionDataBundle data = new StandardOptionDataBundle(yCrv, cost, new VolatilitySurface(FunctionalDoublesSurface.from(smile)), spot, date);
+
+    final double[] strikes = new double[] {spot * 0.9, spot, spot * 1.11 };
+    final int nSteps = 7;
+    final double time = 1.;
+
+    for (int i = 0; i < strikes.length; ++i) {
+      final double strike = strikes[i];
+      final boolean isCall = strike >= spot ? true : false;
+      final OptionFunctionProvider1D function = new EuropeanVanillaOptionFunctionProvider(strike, time, nSteps, isCall);
+      final double tree = _modelTrinomial.getPrice(function, data);
+      final double black = BlackScholesFormulaRepository.price(spot, strike * 0.9, time, data.getVolatility(time, strike), interest, cost, isCall);
+      assertEquals(tree, black, black * 0.2);
+    }
+
+    try {
+      _model.getPrice(new EuropeanVanillaOptionFunctionProvider(strikes[2], time, nSteps, true), data);
+      throw new RuntimeException();
+    } catch (Exception e) {
+      assertTrue(e instanceof IllegalArgumentException);
+    }
+  }
+
+  /**
+   * 
+   * 
+   */
+  @Test
+  public void smoothConvergenceTest() {
+    final LatticeSpecification lattice = new FlexibleLatticeSpecification();
+
+    final boolean[] tfSet = new boolean[] {true, false };
+    for (final boolean isCall : tfSet) {
+      for (final double strike : STRIKES) {
+        for (final double interest : INTERESTS) {
+          for (final double vol : VOLS) {
+            for (final double dividend : DIVIDENDS) {
+              double prev = SPOT;
+              double diff = 0.;
+              if (interest - dividend > 0.) {
+                for (int i = 0; i < 15; ++i) {
+                  final int nSteps = 10 + 50 * i;
+                  final OptionFunctionProvider1D function = new EuropeanVanillaOptionFunctionProvider(strike, TIME, nSteps, isCall);
+                  final double exactDiv = BlackScholesFormulaRepository.price(SPOT, strike, TIME, vol, interest, interest - dividend, isCall);
+                  final double resDiv = _model.getPrice(lattice, function, SPOT, vol, interest, dividend);
+                  diff = Math.abs(exactDiv - resDiv);
+                  assertTrue(diff < prev);
+                  prev = diff;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+  }
 
   /**
    * 

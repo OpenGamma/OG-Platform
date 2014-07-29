@@ -96,7 +96,7 @@ public class InMemoryRegionMasterTest {
   //-------------------------------------------------------------------------
   public void test_search_oneBundle_noMatch() {
     RegionSearchRequest request = new RegionSearchRequest(BUNDLE_OTHER);
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.ALL);
+    request.setExternalIdSearch(request.getExternalIdSearch().withSearchType(ExternalIdSearchType.ALL));
     RegionSearchResult result = master.search(request);
     assertEquals(0, result.getDocuments().size());
   }

@@ -60,7 +60,7 @@ public class BusinessTwoFiveTwo extends StatelessDayCount {
   }
 
   @Override
-  public String getConventionName() {
+  public String getName() {
     return "Business/252";
   }
 

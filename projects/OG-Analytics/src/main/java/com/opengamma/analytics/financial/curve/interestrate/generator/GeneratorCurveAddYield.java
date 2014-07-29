@@ -16,7 +16,7 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Store the details and generate the required curve. The curve is the sum (or difference) of the curves
- * (operation on the continuously-compounded zero-coupon rates)  produced by the array of generators.
+ * (operation on the continuously-compounded zero-coupon rates) produced by the array of generators.
  * The generated curve is a {@link YieldAndDiscountAddZeroSpreadCurve}.
  */
 @SuppressWarnings("deprecation")

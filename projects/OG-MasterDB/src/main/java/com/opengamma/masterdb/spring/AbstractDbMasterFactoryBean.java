@@ -7,6 +7,7 @@ package com.opengamma.masterdb.spring;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -93,73 +94,6 @@ public abstract class AbstractDbMasterFactoryBean<T> extends SpringFactoryBean<T
   @Override
   public AbstractDbMasterFactoryBean.Meta<T> metaBean() {
     return AbstractDbMasterFactoryBean.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 39794031:  // dbConnector
-        return getDbConnector();
-      case -1495762275:  // jmsConnector
-        return getJmsConnector();
-      case -758086398:  // jmsChangeManagerTopic
-        return getJmsChangeManagerTopic();
-      case -1737146991:  // uniqueIdScheme
-        return getUniqueIdScheme();
-      case -2022653118:  // maxRetries
-        return getMaxRetries();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 39794031:  // dbConnector
-        setDbConnector((DbConnector) newValue);
-        return;
-      case -1495762275:  // jmsConnector
-        setJmsConnector((JmsConnector) newValue);
-        return;
-      case -758086398:  // jmsChangeManagerTopic
-        setJmsChangeManagerTopic((String) newValue);
-        return;
-      case -1737146991:  // uniqueIdScheme
-        setUniqueIdScheme((String) newValue);
-        return;
-      case -2022653118:  // maxRetries
-        setMaxRetries((Integer) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      AbstractDbMasterFactoryBean<?> other = (AbstractDbMasterFactoryBean<?>) obj;
-      return JodaBeanUtils.equal(getDbConnector(), other.getDbConnector()) &&
-          JodaBeanUtils.equal(getJmsConnector(), other.getJmsConnector()) &&
-          JodaBeanUtils.equal(getJmsChangeManagerTopic(), other.getJmsChangeManagerTopic()) &&
-          JodaBeanUtils.equal(getUniqueIdScheme(), other.getUniqueIdScheme()) &&
-          JodaBeanUtils.equal(getMaxRetries(), other.getMaxRetries()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDbConnector());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsConnector());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsChangeManagerTopic());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueIdScheme());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMaxRetries());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -288,8 +222,61 @@ public abstract class AbstractDbMasterFactoryBean<T> extends SpringFactoryBean<T
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      AbstractDbMasterFactoryBean<?> other = (AbstractDbMasterFactoryBean<?>) obj;
+      return JodaBeanUtils.equal(getDbConnector(), other.getDbConnector()) &&
+          JodaBeanUtils.equal(getJmsConnector(), other.getJmsConnector()) &&
+          JodaBeanUtils.equal(getJmsChangeManagerTopic(), other.getJmsChangeManagerTopic()) &&
+          JodaBeanUtils.equal(getUniqueIdScheme(), other.getUniqueIdScheme()) &&
+          JodaBeanUtils.equal(getMaxRetries(), other.getMaxRetries()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDbConnector());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsConnector());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsChangeManagerTopic());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueIdScheme());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMaxRetries());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(192);
+    buf.append("AbstractDbMasterFactoryBean{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("dbConnector").append('=').append(JodaBeanUtils.toString(getDbConnector())).append(',').append(' ');
+    buf.append("jmsConnector").append('=').append(JodaBeanUtils.toString(getJmsConnector())).append(',').append(' ');
+    buf.append("jmsChangeManagerTopic").append('=').append(JodaBeanUtils.toString(getJmsChangeManagerTopic())).append(',').append(' ');
+    buf.append("uniqueIdScheme").append('=').append(JodaBeanUtils.toString(getUniqueIdScheme())).append(',').append(' ');
+    buf.append("maxRetries").append('=').append(JodaBeanUtils.toString(getMaxRetries())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code AbstractDbMasterFactoryBean}.
+   * @param <T>  the type
    */
   public static class Meta<T> extends SpringFactoryBean.Meta<T> {
     /**
@@ -412,6 +399,47 @@ public abstract class AbstractDbMasterFactoryBean<T> extends SpringFactoryBean<T
      */
     public final MetaProperty<Integer> maxRetries() {
       return _maxRetries;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 39794031:  // dbConnector
+          return ((AbstractDbMasterFactoryBean<?>) bean).getDbConnector();
+        case -1495762275:  // jmsConnector
+          return ((AbstractDbMasterFactoryBean<?>) bean).getJmsConnector();
+        case -758086398:  // jmsChangeManagerTopic
+          return ((AbstractDbMasterFactoryBean<?>) bean).getJmsChangeManagerTopic();
+        case -1737146991:  // uniqueIdScheme
+          return ((AbstractDbMasterFactoryBean<?>) bean).getUniqueIdScheme();
+        case -2022653118:  // maxRetries
+          return ((AbstractDbMasterFactoryBean<?>) bean).getMaxRetries();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 39794031:  // dbConnector
+          ((AbstractDbMasterFactoryBean<T>) bean).setDbConnector((DbConnector) newValue);
+          return;
+        case -1495762275:  // jmsConnector
+          ((AbstractDbMasterFactoryBean<T>) bean).setJmsConnector((JmsConnector) newValue);
+          return;
+        case -758086398:  // jmsChangeManagerTopic
+          ((AbstractDbMasterFactoryBean<T>) bean).setJmsChangeManagerTopic((String) newValue);
+          return;
+        case -1737146991:  // uniqueIdScheme
+          ((AbstractDbMasterFactoryBean<T>) bean).setUniqueIdScheme((String) newValue);
+          return;
+        case -2022653118:  // maxRetries
+          ((AbstractDbMasterFactoryBean<T>) bean).setMaxRetries((Integer) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

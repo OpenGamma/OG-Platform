@@ -16,7 +16,7 @@ import com.opengamma.financial.analytics.ircurve.FixedIncomeStripWithSecurity;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
 import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.FutureSecurity;
@@ -42,7 +42,7 @@ public class InterpolatedYieldCurveSpecificationWithSecuritiesFudgeEncodingTest 
     ExternalIdBundle bundle = ExternalIdBundle.of(dummyId);
     final ZonedDateTime start = DateUtils.getUTCDate(2011, 9, 30);
     final ZonedDateTime maturity = DateUtils.getUTCDate(2011, 10, 1);
-    final DayCount dayCount = DayCountFactory.INSTANCE.getDayCount("Actual/365");
+    final DayCount dayCount = DayCounts.ACT_365;
     final CashSecurity cash = new CashSecurity(Currency.USD, ExternalSchemes.financialRegionId("US"), start, maturity, dayCount, 0.05, 1);
     cash.setUniqueId(UniqueId.of("TEST", "TEST"));
     cash.setName("1m deposit rate");

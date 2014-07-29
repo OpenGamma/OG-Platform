@@ -43,20 +43,20 @@ public class InMemoryLKVLiveMarketDataProviderFactoryTest {
 
   @Test
   public void createDefault() {
-    MarketDataProvider provider = _factory.create(_user, new LiveMarketDataSpecification(null));
+    MarketDataProvider provider = _factory.create(_user, LiveMarketDataSpecification.LIVE_SPEC);
     assertEquals(_defaultProvider, provider);
   }
 
   @Test
   public void createNamed() {
-    MarketDataProvider provider1 = _factory.create(_user, new LiveMarketDataSpecification("1"));
+    MarketDataProvider provider1 = _factory.create(_user, LiveMarketDataSpecification.of("1"));
     assertEquals(provider1, _provider1);
-    MarketDataProvider provider2 = _factory.create(_user, new LiveMarketDataSpecification("2"));
+    MarketDataProvider provider2 = _factory.create(_user, LiveMarketDataSpecification.of("2"));
     assertEquals(provider2, _provider2);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void createMissing() {
-    _factory.create(_user, new LiveMarketDataSpecification("3"));
+    _factory.create(_user, LiveMarketDataSpecification.of("3"));
   }
 }

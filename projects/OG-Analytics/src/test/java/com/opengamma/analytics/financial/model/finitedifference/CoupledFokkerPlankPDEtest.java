@@ -20,6 +20,7 @@ import com.opengamma.analytics.math.interpolation.DoubleQuadraticInterpolator1D;
 import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -27,6 +28,7 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 @Deprecated
 @SuppressWarnings("unused")
+@Test(groups = TestGroup.UNIT)
 public class CoupledFokkerPlankPDEtest {
 
   private static final CoupledPDEDataBundleProvider PDE_DATA_PROVIDER = new CoupledPDEDataBundleProvider();
@@ -120,7 +122,7 @@ public class CoupledFokkerPlankPDEtest {
           value /= norm;
           value = Math.sqrt(value);
         }
-        localVolData.put(new DoublesPair(t, k), value);
+        localVolData.put(DoublesPair.of(t, k), value);
       }
     }
 
@@ -131,7 +133,7 @@ public class CoupledFokkerPlankPDEtest {
       @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final Double... x) {
-        return GRID_INTERPOLATOR2D.interpolate(dataBundle, new DoublesPair(x[0], x[1]));
+        return GRID_INTERPOLATOR2D.interpolate(dataBundle, DoublesPair.of(x[0].doubleValue(), x[1].doubleValue()));
       }
     };
 

@@ -7,7 +7,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
+import com.opengamma.util.test.TestGroup;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class DoublesCurveInterpolatedAnchorTest {
 
   private static final String CURVE_NAME = "Anchor";

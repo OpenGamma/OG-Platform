@@ -18,8 +18,13 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class FederalFundsFutureSecurityDiscountingMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
@@ -43,7 +48,7 @@ public class FederalFundsFutureSecurityDiscountingMethodTest {
     double interest = 0.0;
     final double[] ratePeriod = new double[FUTURE_SECURITY_DEFINITION.getFixingPeriodAccrualFactor().length];
     for (int loopfix = 0; loopfix < FUTURE_SECURITY_DEFINITION.getFixingPeriodAccrualFactor().length; loopfix++) {
-      ratePeriod[loopfix] = MULTICURVES.getForwardRate(INDEX_FEDFUND, FUTURE_SECURITY.getFixingPeriodTime()[loopfix], FUTURE_SECURITY.getFixingPeriodTime()[loopfix + 1],
+      ratePeriod[loopfix] = MULTICURVES.getSimplyCompoundForwardRate(INDEX_FEDFUND, FUTURE_SECURITY.getFixingPeriodTime()[loopfix], FUTURE_SECURITY.getFixingPeriodTime()[loopfix + 1],
           FUTURE_SECURITY.getFixingPeriodAccrualFactor()[loopfix]);
       interest += ratePeriod[loopfix] * FUTURE_SECURITY.getFixingPeriodAccrualFactor()[loopfix];
     }
@@ -64,7 +69,7 @@ public class FederalFundsFutureSecurityDiscountingMethodTest {
     double interest = futureSecurity.getAccruedInterest();
     final double[] ratePeriod = new double[futureSecurity.getFixingPeriodAccrualFactor().length];
     for (int loopfix = 0; loopfix < futureSecurity.getFixingPeriodAccrualFactor().length; loopfix++) {
-      ratePeriod[loopfix] = MULTICURVES.getForwardRate(INDEX_FEDFUND, futureSecurity.getFixingPeriodTime()[loopfix], futureSecurity.getFixingPeriodTime()[loopfix + 1],
+      ratePeriod[loopfix] = MULTICURVES.getSimplyCompoundForwardRate(INDEX_FEDFUND, futureSecurity.getFixingPeriodTime()[loopfix], futureSecurity.getFixingPeriodTime()[loopfix + 1],
           futureSecurity.getFixingPeriodAccrualFactor()[loopfix]);
       interest += ratePeriod[loopfix] * futureSecurity.getFixingPeriodAccrualFactor()[loopfix];
     }

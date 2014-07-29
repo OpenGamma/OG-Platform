@@ -7,6 +7,7 @@ package com.opengamma.util.fudgemsg;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -78,44 +79,6 @@ public class FudgeBooleanWrapper extends DirectBean {
     return FudgeBooleanWrapper.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 111972721:  // value
-        return isValue();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 111972721:  // value
-        setValue((Boolean) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      FudgeBooleanWrapper other = (FudgeBooleanWrapper) obj;
-      return JodaBeanUtils.equal(isValue(), other.isValue());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(isValue());
-    return hash;
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the boolean value.
@@ -139,6 +102,48 @@ public class FudgeBooleanWrapper extends DirectBean {
    */
   public final Property<Boolean> value() {
     return metaBean().value().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public FudgeBooleanWrapper clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      FudgeBooleanWrapper other = (FudgeBooleanWrapper) obj;
+      return (isValue() == other.isValue());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(isValue());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(64);
+    buf.append("FudgeBooleanWrapper{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("value").append('=').append(JodaBeanUtils.toString(isValue())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -200,6 +205,26 @@ public class FudgeBooleanWrapper extends DirectBean {
      */
     public final MetaProperty<Boolean> value() {
       return _value;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 111972721:  // value
+          return ((FudgeBooleanWrapper) bean).isValue();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 111972721:  // value
+          ((FudgeBooleanWrapper) bean).setValue((Boolean) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

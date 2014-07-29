@@ -11,10 +11,12 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.cash.provider.CashDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
-import com.opengamma.analytics.financial.interestrate.fra.provider.ForwardRateAgreementDiscountingProviderMethod;
+import com.opengamma.analytics.financial.interestrate.fra.provider.ForwardRateAgreementDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureSecurityDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.interestrate.swap.provider.SwapFixedCouponDiscountingMethod;
@@ -52,7 +54,7 @@ public final class ParRateDiscountingCalculator extends InstrumentDerivativeVisi
   private static final PresentValueDiscountingCalculator PVC = PresentValueDiscountingCalculator.getInstance();
   private static final PresentValueMarketQuoteSensitivityDiscountingCalculator PVMQSC = PresentValueMarketQuoteSensitivityDiscountingCalculator.getInstance();
   private static final CashDiscountingMethod METHOD_DEPO = CashDiscountingMethod.getInstance();
-  private static final ForwardRateAgreementDiscountingProviderMethod METHOD_FRA = ForwardRateAgreementDiscountingProviderMethod.getInstance();
+  private static final ForwardRateAgreementDiscountingMethod METHOD_FRA = ForwardRateAgreementDiscountingMethod.getInstance();
   private static final SwapFixedCouponDiscountingMethod METHOD_SWAP = SwapFixedCouponDiscountingMethod.getInstance();
   private static final InterestRateFutureSecurityDiscountingMethod METHOD_IR_FUT = InterestRateFutureSecurityDiscountingMethod.getInstance();
   private static final ForexDiscountingMethod METHOD_FOREX = ForexDiscountingMethod.getInstance();
@@ -69,6 +71,18 @@ public final class ParRateDiscountingCalculator extends InstrumentDerivativeVisi
   @Override
   public Double visitForwardRateAgreement(final ForwardRateAgreement fra, final MulticurveProviderInterface multicurves) {
     return METHOD_FRA.parRate(fra, multicurves);
+  }
+
+  @Override
+  public Double visitCouponIborSpread(final CouponIborSpread payment, final MulticurveProviderInterface data) {
+    double fwd = data.getSimplyCompoundForwardRate(payment.getIndex(), payment.getFixingPeriodStartTime(),
+        payment.getFixingPeriodEndTime(), payment.getFixingAccrualFactor());
+    return fwd;
+  }
+
+  @Override
+  public Double visitCapFloorIbor(final CapFloorIbor payment, final MulticurveProviderInterface data) {
+    return visitCouponIborSpread(payment.toCoupon(), data);
   }
 
   //     -----     Swap     -----
@@ -136,7 +150,7 @@ public final class ParRateDiscountingCalculator extends InstrumentDerivativeVisi
 
   @Override
   public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction futures, final MulticurveProviderInterface multicurves) {
-    return METHOD_IR_FUT.parRate(futures.getUnderlying(), multicurves);
+    return METHOD_IR_FUT.parRate(futures.getUnderlyingSecurity(), multicurves);
   }
 
   //     -----     Forex     ------

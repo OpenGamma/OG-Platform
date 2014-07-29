@@ -10,6 +10,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import org.apache.commons.lang.StringUtils;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.util.ClassUtils;
 import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.ClientRequest;
 import com.sun.jersey.api.client.ClientResponse;
@@ -68,7 +69,7 @@ public class ExceptionThrowingClientFilter extends ClientFilter {
     }
     RuntimeException exception;
     try {
-      Class<? extends RuntimeException> cls = Thread.currentThread().getContextClassLoader().loadClass(exType).asSubclass(RuntimeException.class);
+      Class<? extends RuntimeException> cls = ClassUtils.loadClass(exType).asSubclass(RuntimeException.class);
       exception = cls.getConstructor(String.class).newInstance("Server threw exception: " + StringUtils.defaultString(exMsg));
     } catch (Exception ex) {
       // unable to create transparently, so use standard exception

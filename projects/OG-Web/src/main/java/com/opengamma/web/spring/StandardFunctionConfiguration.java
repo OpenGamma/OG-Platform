@@ -18,6 +18,8 @@ import com.opengamma.engine.function.config.CombiningFunctionConfigurationSource
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.engine.function.config.ParameterizedFunctionConfiguration;
+import com.opengamma.engine.value.SurfaceAndCubePropertyNames;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.financial.analytics.CurrencyPairsDefaults;
 import com.opengamma.financial.analytics.model.bond.BondFunctions;
 import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionFunctions;
@@ -31,6 +33,7 @@ import com.opengamma.financial.analytics.model.future.FutureFunctions;
 import com.opengamma.financial.analytics.model.futureoption.FutureOptionFunctions;
 import com.opengamma.financial.analytics.model.horizon.HorizonFunctions;
 import com.opengamma.financial.analytics.model.irfutureoption.IRFutureOptionFunctions;
+import com.opengamma.financial.analytics.model.multicurve.MultiCurvePricingFunctions;
 import com.opengamma.financial.analytics.model.pnl.PNLFunctions;
 import com.opengamma.financial.analytics.model.sensitivities.SensitivitiesFunctions;
 import com.opengamma.financial.analytics.model.var.VaRFunctions;
@@ -39,6 +42,7 @@ import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.lambdava.functions.Function1;
 import com.opengamma.util.SingletonFactoryBean;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 import com.opengamma.web.spring.defaults.GeneralLocalVolatilitySurfaceDefaults;
 
 /**
@@ -82,17 +86,32 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
    * Constants for a particular currency.
    */
   public static class CurrencyInfo {
-
+    /** The currency string */
     private final String _currency;
-
+    /** Usually the default value of the {@link ValuePropertyNames#CURVE_CONSTRUCTION_CONFIG} property */
     private final Value _curveConfiguration = new Value();
+    /** Usually the default value of the {@link ValuePropertyNames#CURVE} property */
     private final Value _curveName = new Value();
+    /** Usually the default value of the {@link ValuePropertyNames#CURVE_CALCULATION_METHOD} property */
     private final Value _curveCalculationMethodName = new Value();
+    /** Usually the default value of the {@link ValuePropertyNames#SURFACE} property */
     private final Value _surfaceName = new Value();
+    /** Usually the default value of the {@link ValuePropertyNames#CUBE} property */
     private final Value _cubeName = new Value();
+    /** The forward curve name */
     private final Value _forwardCurveName = new Value();
+    /** The forward curve calculation method */
     private final Value _forwardCurveCalculationMethod = new Value();
+    /** The surface calculation method */
     private final Value _surfaceCalculationMethod = new Value();
+    /** Usually the default value of the {@link SurfaceAndCubePropertyNames#PROPERTY_CUBE_DEFINITION} property */
+    private final Value _cubeDefinitionName = new Value();
+    /** Usually the default value of the {@link SurfaceAndCubePropertyNames#PROPERTY_CUBE_SPECIIFICATION} property */
+    private final Value _cubeSpecificationName = new Value();
+    /** Usually the default value of the {@link SurfaceAndCubePropertyNames#PROPERTY_SURFACE_DEFINITION} property */
+    private final Value _surfaceDefinitionName = new Value();
+    /** Usually the default value of the {@link SurfaceAndCubePropertyNames#PROPERTY_SURFACE_SPECIIFICATION} property */
+    private final Value _surfaceSpecificationName = new Value();
 
     public CurrencyInfo(final String currency) {
       _currency = currency;
@@ -165,6 +184,78 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
     public String getSurfaceCalculationMethod(final String key) {
       return _surfaceCalculationMethod.get(key);
     }
+
+    /**
+     * Gets the cube definition name for a key.
+     * @param key The key
+     * @return The cube definition name
+     */
+    public String getCubeDefinitionName(final String key) {
+      return _cubeDefinitionName.get(key);
+    }
+
+    /**
+     * Sets a cube definition name for a key.
+     * @param key The key
+     * @param cubeDefinitionName The cube definition name
+     */
+    public void setCubeDefinitionName(final String key, final String cubeDefinitionName) {
+      _cubeDefinitionName.set(key, cubeDefinitionName);
+    }
+
+    /**
+     * Gets the cube specification name for a key.
+     * @param key The key
+     * @return The cube specification name
+     */
+    public String getCubeSpecificationName(final String key) {
+      return _cubeSpecificationName.get(key);
+    }
+
+    /**
+     * Sets a cube specification name for a key.
+     * @param key The key
+     * @param cubeSpecificationName The cube specification name
+     */
+    public void setCubeSpecificationName(final String key, final String cubeSpecificationName) {
+      _cubeSpecificationName.set(key, cubeSpecificationName);
+    }
+
+    /**
+     * Gets the surface definition name for a key.
+     * @param key The key
+     * @return The surface definition name
+     */
+    public String getSurfaceDefinitionName(final String key) {
+      return _surfaceDefinitionName.get(key);
+    }
+
+    /**
+     * Sets a surface definition name for a key.
+     * @param key The key
+     * @param surfaceDefinitionName The surface definition name
+     */
+    public void setSurfaceDefinitionName(final String key, final String surfaceDefinitionName) {
+      _surfaceDefinitionName.set(key, surfaceDefinitionName);
+    }
+
+    /**
+     * Gets the surface specification name for a key.
+     * @param key The key
+     * @return The surface specification name
+     */
+    public String getSurfaceSpecificationName(final String key) {
+      return _surfaceSpecificationName.get(key);
+    }
+
+    /**
+     * Sets a surface specification name for a key.
+     * @param key The key
+     * @param surfaceSpecificationName The surface specification name
+     */
+    public void setSurfaceSpecificationName(final String key, final String surfaceSpecificationName) {
+      _surfaceSpecificationName.set(key, surfaceSpecificationName);
+    }
   }
 
   /**
@@ -210,11 +301,11 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
     public String getSurfaceName(final String key) {
       return _surfaceName.get(key);
     }
-    
+
     public String getForwardCurveName(final String key) {
       return _forwardCurveName.get(key);
     }
-    
+
     public void setForwardCurveName(final String key, final String forwardCurveName) {
       _forwardCurveName.set(key, forwardCurveName);
     }
@@ -330,7 +421,7 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
   public void setAbsoluteTolerance(final double absoluteTolerance) {
     _absoluteTolerance = absoluteTolerance;
   }
-  
+
   /**
    * Gets the absolute tolerance for the curve root-finder.
    * @return The absolute tolerance
@@ -338,7 +429,7 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
   public double getAbsoluteTolerance() {
     return _absoluteTolerance;
   }
-  
+
   /**
    * Sets the relative tolerance for the curve root-finder.
    * @param relativeTolerance The relative tolerance, greater than zero
@@ -346,7 +437,7 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
   public void setRelativeTolerance(final double relativeTolerance) {
     _relativeTolerance = relativeTolerance;
   }
-  
+
   /**
    * Gets the relative tolerance for the curve root-finder.
    * @return The relative tolerance
@@ -354,7 +445,7 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
   public double getRelativeTolerance() {
     return _relativeTolerance;
   }
-  
+
   /**
    * Sets the maximum number of iterations for the curve root-finder.
    * @param maxIterations The maximum iterations, greater than zero
@@ -362,7 +453,7 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
   public void setMaximumIterations(final int maxIterations) {
     _maxIterations = maxIterations;
   }
-  
+
   /**
    * Gets the maximum number of iterations for the curve root-finder.
    * @return The maximum iterations
@@ -370,7 +461,7 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
   public int getMaximumIterations() {
     return _maxIterations;
   }
-  
+
   protected CurrencyInfo defaultCurrencyInfo(final String currency) {
     return new CurrencyInfo(currency);
   }
@@ -529,7 +620,7 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
   }
 
   protected CurrencyPairInfo defaultCurrencyPairInfo(final String c1, final String c2) {
-    return new CurrencyPairInfo(Pair.of(c1, c2));
+    return new CurrencyPairInfo(Pairs.of(c1, c2));
   }
 
   protected CurrencyPairInfo audKrwCurrencyPairInfo() {
@@ -637,32 +728,32 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
   }
 
   protected void setDefaultCurrencyPairInfo() {
-    setCurrencyPairInfo(Pair.of("AUD", "KRW"), audKrwCurrencyPairInfo());
-    setCurrencyPairInfo(Pair.of("CHF", "JPY"), chfJpyCurrencyPairInfo());
-    setCurrencyPairInfo(Pair.of("EUR", "BRL"), eurBrlCurrencyPairInfo());
-    setCurrencyPairInfo(Pair.of("EUR", "CHF"), eurChfCurrencyPairInfo());
-    setCurrencyPairInfo(Pair.of("EUR", "GBP"), eurGbpCurrencyPairInfo());
-    setCurrencyPairInfo(Pair.of("EUR", "JPY"), eurJpyCurrencyPairInfo());
-    setCurrencyPairInfo(Pair.of("EUR", "TRY"), eurTryCurrencyPairInfo());
-    setCurrencyPairInfo(Pair.of("JPY", "KRW"), jpyKrwCurrencyPairInfo());
-    setCurrencyPairInfo(Pair.of("SEK", "JPY"), sekJpyCurrencyPairInfo());
-    setCurrencyPairInfo(Pair.of("USD", "AUD"), usdAudCurrencyPairInfo());
-    setCurrencyPairInfo(Pair.of("USD", "BRL"), usdBrlCurrencyPairInfo());
-    setCurrencyPairInfo(Pair.of("USD", "CAD"), usdCadCurrencyPairInfo());
-    setCurrencyPairInfo(Pair.of("USD", "CHF"), usdChfCurrencyPairInfo());
-    setCurrencyPairInfo(Pair.of("USD", "CNY"), usdCnyCurrencyPairInfo());
-    setCurrencyPairInfo(Pair.of("USD", "EUR"), usdEurCurrencyPairInfo());
-    setCurrencyPairInfo(Pair.of("USD", "GBP"), usdGbpCurrencyPairInfo());
-    setCurrencyPairInfo(Pair.of("USD", "HKD"), usdHkdCurrencyPairInfo());
-    setCurrencyPairInfo(Pair.of("USD", "HUF"), usdHufCurrencyPairInfo());
-    setCurrencyPairInfo(Pair.of("USD", "INR"), usdInrCurrencyPairInfo());
-    setCurrencyPairInfo(Pair.of("USD", "JPY"), usdJpyCurrencyPairInfo());
-    setCurrencyPairInfo(Pair.of("USD", "KRW"), usdKrwCurrencyPairInfo());
-    setCurrencyPairInfo(Pair.of("USD", "MXN"), usdMxnCurrencyPairInfo());
-    setCurrencyPairInfo(Pair.of("USD", "NOK"), usdNokCurrencyPairInfo());
-    setCurrencyPairInfo(Pair.of("USD", "NZD"), usdNzdCurrencyPairInfo());
-    setCurrencyPairInfo(Pair.of("USD", "SGD"), usdSgdCurrencyPairInfo());
-    setCurrencyPairInfo(Pair.of("USD", "ZAR"), usdZarCurrencyPairInfo());
+    setCurrencyPairInfo(Pairs.of("AUD", "KRW"), audKrwCurrencyPairInfo());
+    setCurrencyPairInfo(Pairs.of("CHF", "JPY"), chfJpyCurrencyPairInfo());
+    setCurrencyPairInfo(Pairs.of("EUR", "BRL"), eurBrlCurrencyPairInfo());
+    setCurrencyPairInfo(Pairs.of("EUR", "CHF"), eurChfCurrencyPairInfo());
+    setCurrencyPairInfo(Pairs.of("EUR", "GBP"), eurGbpCurrencyPairInfo());
+    setCurrencyPairInfo(Pairs.of("EUR", "JPY"), eurJpyCurrencyPairInfo());
+    setCurrencyPairInfo(Pairs.of("EUR", "TRY"), eurTryCurrencyPairInfo());
+    setCurrencyPairInfo(Pairs.of("JPY", "KRW"), jpyKrwCurrencyPairInfo());
+    setCurrencyPairInfo(Pairs.of("SEK", "JPY"), sekJpyCurrencyPairInfo());
+    setCurrencyPairInfo(Pairs.of("USD", "AUD"), usdAudCurrencyPairInfo());
+    setCurrencyPairInfo(Pairs.of("USD", "BRL"), usdBrlCurrencyPairInfo());
+    setCurrencyPairInfo(Pairs.of("USD", "CAD"), usdCadCurrencyPairInfo());
+    setCurrencyPairInfo(Pairs.of("USD", "CHF"), usdChfCurrencyPairInfo());
+    setCurrencyPairInfo(Pairs.of("USD", "CNY"), usdCnyCurrencyPairInfo());
+    setCurrencyPairInfo(Pairs.of("USD", "EUR"), usdEurCurrencyPairInfo());
+    setCurrencyPairInfo(Pairs.of("USD", "GBP"), usdGbpCurrencyPairInfo());
+    setCurrencyPairInfo(Pairs.of("USD", "HKD"), usdHkdCurrencyPairInfo());
+    setCurrencyPairInfo(Pairs.of("USD", "HUF"), usdHufCurrencyPairInfo());
+    setCurrencyPairInfo(Pairs.of("USD", "INR"), usdInrCurrencyPairInfo());
+    setCurrencyPairInfo(Pairs.of("USD", "JPY"), usdJpyCurrencyPairInfo());
+    setCurrencyPairInfo(Pairs.of("USD", "KRW"), usdKrwCurrencyPairInfo());
+    setCurrencyPairInfo(Pairs.of("USD", "MXN"), usdMxnCurrencyPairInfo());
+    setCurrencyPairInfo(Pairs.of("USD", "NOK"), usdNokCurrencyPairInfo());
+    setCurrencyPairInfo(Pairs.of("USD", "NZD"), usdNzdCurrencyPairInfo());
+    setCurrencyPairInfo(Pairs.of("USD", "SGD"), usdSgdCurrencyPairInfo());
+    setCurrencyPairInfo(Pairs.of("USD", "ZAR"), usdZarCurrencyPairInfo());
   }
 
   protected void addCurrencyConversionFunctions(final List<FunctionConfiguration> functionConfigs) {
@@ -768,7 +859,7 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
     defaults.setPerCurrencyInfo(getCurrencyInfo(new Function1<CurrencyInfo, com.opengamma.financial.analytics.model.fixedincome.DeprecatedFunctions.Defaults.CurrencyInfo>() {
       @Override
       public com.opengamma.financial.analytics.model.fixedincome.DeprecatedFunctions.Defaults.CurrencyInfo execute(final CurrencyInfo i) {
-        final com.opengamma.financial.analytics.model.fixedincome.DeprecatedFunctions.Defaults.CurrencyInfo d = 
+        final com.opengamma.financial.analytics.model.fixedincome.DeprecatedFunctions.Defaults.CurrencyInfo d =
             new com.opengamma.financial.analytics.model.fixedincome.DeprecatedFunctions.Defaults.CurrencyInfo();
         setXCcySwapFunctionDefaults(i, d);
         return d;
@@ -777,7 +868,7 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
   }
 
   protected FunctionConfigurationSource xCcySwapFunctions() {
-    final com.opengamma.financial.analytics.model.fixedincome.DeprecatedFunctions.Defaults defaults = 
+    final com.opengamma.financial.analytics.model.fixedincome.DeprecatedFunctions.Defaults defaults =
         new com.opengamma.financial.analytics.model.fixedincome.DeprecatedFunctions.Defaults();
     setXCcySwapFunctionDefaults(defaults);
     return getRepository(defaults);
@@ -830,7 +921,7 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
     defaults.setPerCurrencyInfo(getCurrencyInfo(new Function1<CurrencyInfo, com.opengamma.financial.analytics.model.fixedincome.DeprecatedFunctions.Defaults.CurrencyInfo>() {
       @Override
       public com.opengamma.financial.analytics.model.fixedincome.DeprecatedFunctions.Defaults.CurrencyInfo execute(final CurrencyInfo i) {
-        final com.opengamma.financial.analytics.model.fixedincome.DeprecatedFunctions.Defaults.CurrencyInfo d = 
+        final com.opengamma.financial.analytics.model.fixedincome.DeprecatedFunctions.Defaults.CurrencyInfo d =
             new com.opengamma.financial.analytics.model.fixedincome.DeprecatedFunctions.Defaults.CurrencyInfo();
         setFixedIncomeDefaults(i, d);
         return d;
@@ -839,7 +930,7 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
   }
 
   protected FunctionConfigurationSource fixedIncomeFunctions() {
-    final com.opengamma.financial.analytics.model.fixedincome.DeprecatedFunctions.Defaults defaults = 
+    final com.opengamma.financial.analytics.model.fixedincome.DeprecatedFunctions.Defaults defaults =
         new com.opengamma.financial.analytics.model.fixedincome.DeprecatedFunctions.Defaults();
     setFixedIncomeDefaults(defaults);
     return getRepository(defaults);
@@ -995,17 +1086,17 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
     setFutureOptionDefaults(defaults);
     return getRepository(defaults);
   }
-  
+
   protected FunctionConfigurationSource horizonFunctions() {
-    HorizonFunctions.Defaults defaults = new HorizonFunctions.Defaults();
+    final HorizonFunctions.Defaults defaults = new HorizonFunctions.Defaults();
     setHorizonDefaults(defaults);
     return getRepository(defaults);
   }
 
-  protected void setHorizonDefaults(HorizonFunctions.Defaults defaults) {
+  protected void setHorizonDefaults(final HorizonFunctions.Defaults defaults) {
     defaults.setDaysForward(1);
   }
-  
+
   protected void setInterestRateDefaults(final InterestRateFunctions.Defaults defaults) {
     defaults.setApplicableCurrencies(getPerCurrencyInfo().keySet());
   }
@@ -1021,13 +1112,19 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
     setCurveDefaults(defaults);
     return getRepository(defaults);
   }
-  
+
   protected void setCurveDefaults(final CurveFunctions.Defaults defaults) {
     defaults.setAbsoluteTolerance(_absoluteTolerance);
     defaults.setRelativeTolerance(_relativeTolerance);
     defaults.setMaximumIterations(_maxIterations);
   }
-  
+
+  protected void setMultiCurvePricingDefaults(final MultiCurvePricingFunctions.Defaults defaults) {
+    defaults.setAbsoluteTolerance(_absoluteTolerance);
+    defaults.setRelativeTolerance(_relativeTolerance);
+    defaults.setMaximumIterations(_maxIterations);
+  }
+
   protected void setIRFutureOptionDefaults(final CurrencyInfo i, final IRFutureOptionFunctions.Defaults.CurrencyInfo defaults) {
     defaults.setCurveConfiguration(i.getCurveConfiguration("model/irfutureoption"));
     defaults.setSurfaceName(i.getSurfaceName("model/irfutureoption"));
@@ -1072,6 +1169,12 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
     final com.opengamma.financial.analytics.model.volatility.local.defaultproperties.DefaultPropertiesFunctions defaults =
         new com.opengamma.financial.analytics.model.volatility.local.defaultproperties.DefaultPropertiesFunctions();
     setLocalVolatilityDefaults(defaults);
+    return getRepository(defaults);
+  }
+
+  protected FunctionConfigurationSource multicurvePricingFunctions() {
+    final MultiCurvePricingFunctions.Defaults defaults = new MultiCurvePricingFunctions.Defaults();
+    setMultiCurvePricingDefaults(defaults);
     return getRepository(defaults);
   }
 
@@ -1132,7 +1235,10 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
 
   protected void setSABRCubeDefaults(final CurrencyInfo i, final com.opengamma.financial.analytics.model.sabrcube.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo defaults) {
     defaults.setCurveConfiguration(i.getCurveConfiguration("model/sabrcube"));
-    defaults.setCubeName(i.getCubeName("model/sabrcube"));
+    defaults.setCubeDefinitionName(i.getCubeDefinitionName("model/sabrcube"));
+    defaults.setCubeSpecificationName(i.getCubeSpecificationName("model/sabrcube"));
+    defaults.setSurfaceDefinitionName(i.getSurfaceDefinitionName("model/sabrcube"));
+    defaults.setSurfaceSpecificationName(i.getSurfaceSpecificationName("model/sabrcube"));
   }
 
   protected void setSABRCubeDefaults(final com.opengamma.financial.analytics.model.sabrcube.defaultproperties.DefaultPropertiesFunctions defaults) {
@@ -1145,6 +1251,16 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
         return d;
       }
     }));
+    @SuppressWarnings("unused")
+    final Object temp = getCurrencyInfo(new Function1<CurrencyInfo, com.opengamma.financial.analytics.model.sabrcube.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo>() {
+      @Override
+      public com.opengamma.financial.analytics.model.sabrcube.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo execute(final CurrencyInfo i) {
+        final com.opengamma.financial.analytics.model.sabrcube.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo d =
+            new com.opengamma.financial.analytics.model.sabrcube.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo();
+        setSABRCubeDefaults(i, d);
+        return d;
+      }
+    });
   }
 
   protected FunctionConfigurationSource sabrCubeFunctions() {
@@ -1246,13 +1362,13 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
     setVolatilitySurfaceDefaults(d3);
     return CombiningFunctionConfigurationSource.of(getRepository(d1), getRepository(d2), getRepository(d3));
   }
-  
+
   @Override
   protected FunctionConfigurationSource createObject() {
     return CombiningFunctionConfigurationSource.of(super.createObject(), bondFunctions(), bondFutureOptionFunctions(), forexDigitalFunctions(), cdsFunctions(),
         deprecatedFunctions(), equityOptionFunctions(), externalSensitivitiesFunctions(), fixedIncomeFunctions(), forexFunctions(), forexOptionFunctions(),
-        forwardCurveFunctions(), futureFunctions(), futureOptionFunctions(), horizonFunctions(), interestRateFunctions(), irFutureOptionFunctions(), 
-        localVolatilityFunctions(), pnlFunctions(), portfolioTheoryFunctions(), sabrCubeFunctions(), swaptionFunctions(), varFunctions(), 
+        forwardCurveFunctions(), futureFunctions(), futureOptionFunctions(), horizonFunctions(), interestRateFunctions(), irFutureOptionFunctions(),
+        localVolatilityFunctions(), pnlFunctions(), portfolioTheoryFunctions(), sabrCubeFunctions(), swaptionFunctions(), varFunctions(),
         volatilitySurfaceFunctions(), xCcySwapFunctions());
   }
 

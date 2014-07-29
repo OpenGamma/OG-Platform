@@ -9,10 +9,12 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
- * @deprecated This class tests deprecated functionality
+ * 
  */
-@Deprecated
+@Test(groups = TestGroup.UNIT)
 public class CapletStrippingSingleStrikeDirectTest extends CapletStrippingAbsoluteStrikeTest {
 
   @Override
@@ -24,13 +26,12 @@ public class CapletStrippingSingleStrikeDirectTest extends CapletStrippingAbsolu
   public void test() {
     final double tol = 1e-4; //allow a 1bps error on cap vols
     final boolean print = false;
-    testVolStripping(tol,print);
+    testVolStripping(tol, print);
   }
 
   @Test
   public void timingTest() {
-    timingTest(1,0);
+    timingTest(1, 0);
   }
-
 
 }

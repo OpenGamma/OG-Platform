@@ -5,11 +5,33 @@
  */
 package com.opengamma.engine.function.dsl;
 
+/**
+ * DSL representation of a variable.
+ */
 public class Variable {
-  
-  String _name;
 
-  public Variable(String _name) {
-    this._name = _name;
+  /**
+   * The name.
+   */
+  private final String _name;
+
+  /**
+   * Creates an instance.
+   * 
+   * @param name  the name
+   */
+  public Variable(String name) {
+    _name = name;
   }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the name.
+   * 
+   * @return the name
+   */
+  public String getName() {
+    return _name;
+  }
+
 }

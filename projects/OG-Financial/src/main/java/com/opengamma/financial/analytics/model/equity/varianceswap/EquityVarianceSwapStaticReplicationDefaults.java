@@ -26,6 +26,7 @@ import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  *
@@ -54,7 +55,7 @@ public class EquityVarianceSwapStaticReplicationDefaults extends DefaultProperty
     _surfacesPerEquity = new LinkedHashMap<String, String>();
     for (int i = 0; i < perEquityConfig.length; i += 4) {
       final String currency = perEquityConfig[i];
-      final Pair<String, String> pair = Pair.of(perEquityConfig[i + 1], perEquityConfig[i + 2]);
+      final Pair<String, String> pair = Pairs.of(perEquityConfig[i + 1], perEquityConfig[i + 2]);
       final String surfaceName = perEquityConfig[i + 3];
       _curvesPerEquity.put(currency, pair);
       _surfacesPerEquity.put(currency, surfaceName);

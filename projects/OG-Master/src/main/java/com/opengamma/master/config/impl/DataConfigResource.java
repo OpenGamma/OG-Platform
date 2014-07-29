@@ -103,7 +103,7 @@ public class DataConfigResource extends AbstractDataResource {
   public Response get(@QueryParam("versionAsOf") String versionAsOf, @QueryParam("correctedTo") String correctedTo) {
     VersionCorrection vc = VersionCorrection.parse(versionAsOf, correctedTo);
     ConfigDocument result = getConfigMaster().get(getUrlConfigId(), vc);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   @POST
@@ -113,7 +113,7 @@ public class DataConfigResource extends AbstractDataResource {
     }
     ConfigDocument result = getConfigMaster().update(request);
     URI uri = uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
-    return responseCreatedFudge(uri, result);
+    return responseCreatedObject(uri, result);
   }
 
   @DELETE
@@ -130,7 +130,7 @@ public class DataConfigResource extends AbstractDataResource {
       throw new IllegalArgumentException("Document objectId does not match URI");
     }
     ConfigHistoryResult<?> result = getConfigMaster().history(request);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   @GET
@@ -138,7 +138,7 @@ public class DataConfigResource extends AbstractDataResource {
   public Response getVersioned(@PathParam("versionId") String versionId) {
     UniqueId uniqueId = getUrlConfigId().atVersion(versionId);
     ConfigDocument result = getConfigMaster().get(uniqueId);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   @POST
@@ -150,7 +150,7 @@ public class DataConfigResource extends AbstractDataResource {
     }
     ConfigDocument result = getConfigMaster().correct(document);
     URI uri = uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
-    return responseCreatedFudge(uri, result);
+    return responseCreatedObject(uri, result);
   }
 
   @PUT
@@ -159,14 +159,14 @@ public class DataConfigResource extends AbstractDataResource {
     UniqueId uniqueId = getUrlConfigId().atVersion(versionId);
 
     List<UniqueId> result = getConfigMaster().replaceVersion(uniqueId, replacementDocuments);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   @PUT
   public <T> Response replaceAllVersions(List<ConfigDocument> replacementDocuments) {
     ObjectId objectId = getUrlConfigId();
     List<UniqueId> result = getConfigMaster().replaceAllVersions(objectId, replacementDocuments);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   @DELETE

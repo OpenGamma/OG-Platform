@@ -10,7 +10,7 @@ import java.net.URI;
 import com.opengamma.core.AbstractRemoteSource;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotChangeListener;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
-import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
+import com.opengamma.core.marketdatasnapshot.NamedSnapshot;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
@@ -19,7 +19,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Provides remote access to an {@link MarketDataSnapshotSource}.
  */
-public class RemoteMarketDataSnapshotSource extends AbstractRemoteSource<StructuredMarketDataSnapshot> implements MarketDataSnapshotSource {
+public class RemoteMarketDataSnapshotSource extends AbstractRemoteSource<NamedSnapshot> implements MarketDataSnapshotSource {
 
   /**
    * Creates an instance.
@@ -32,20 +32,20 @@ public class RemoteMarketDataSnapshotSource extends AbstractRemoteSource<Structu
 
   //-------------------------------------------------------------------------
   @Override
-  public StructuredMarketDataSnapshot get(final UniqueId uniqueId) {
+  public NamedSnapshot get(final UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     
     URI uri = DataMarketDataSnapshotSourceResource.uriGet(getBaseUri(), uniqueId);
-    return accessRemote(uri).get(StructuredMarketDataSnapshot.class);
+    return accessRemote(uri).get(NamedSnapshot.class);
   }
 
   @Override
-  public StructuredMarketDataSnapshot get(ObjectId objectId, VersionCorrection versionCorrection) {
+  public NamedSnapshot get(ObjectId objectId, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(objectId, "objectId");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
         
     URI uri = DataMarketDataSnapshotSourceResource.uriGet(getBaseUri(), objectId, versionCorrection);
-    return accessRemote(uri).get(StructuredMarketDataSnapshot.class);        
+    return accessRemote(uri).get(NamedSnapshot.class);        
   }
   
   @Override
@@ -58,4 +58,22 @@ public class RemoteMarketDataSnapshotSource extends AbstractRemoteSource<Structu
     throw new UnsupportedOperationException();
   }
 
+  @Override
+  public <S extends NamedSnapshot> S getSingle(Class<S> type,
+                                               String snapshotName,
+                                               VersionCorrection versionCorrection) {
+    ArgumentChecker.notNull(type, "type");
+    ArgumentChecker.notNull(snapshotName, "snapshotName");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+
+    URI uri = DataMarketDataSnapshotSourceResource.uriSearchSingle(getBaseUri(), type, snapshotName, versionCorrection);
+    NamedSnapshot snapshot = accessRemote(uri).get(NamedSnapshot.class);
+
+    if (type.isAssignableFrom(snapshot.getClass())) {
+      return type.cast(snapshot);
+    } else {
+      throw new IllegalArgumentException("The requested object is of type: " +
+                                             snapshot.getClass().getName() + ", not " + type.getName());
+    }
+  }
 }

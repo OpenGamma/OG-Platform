@@ -5,16 +5,11 @@
  */
 package com.opengamma.analytics.financial.interestrate.future.provider;
 
-import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
-import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
-import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
-import com.opengamma.util.money.MultipleCurrencyAmount;
-
 /**
  * Method to compute the price for an interest rate future with discounting (like a forward).
  * No convexity adjustment is done.
  */
-public final class InterestRateFutureTransactionDiscountingMethod extends InterestRateFutureTransactionMethod {
+public final class InterestRateFutureTransactionDiscountingMethod extends FuturesTransactionMulticurveMethod {
 
   /**
    * The unique instance of the calculator.
@@ -27,34 +22,6 @@ public final class InterestRateFutureTransactionDiscountingMethod extends Intere
    */
   public static InterestRateFutureTransactionDiscountingMethod getInstance() {
     return INSTANCE;
-  }
-
-  /**
-   * Constructor.
-   */
-  private InterestRateFutureTransactionDiscountingMethod() {
-  }
-
-  private static final InterestRateFutureSecurityDiscountingMethod METHOD_SECURITY = InterestRateFutureSecurityDiscountingMethod.getInstance();
-
-  /**
-   * Computes the present value without convexity adjustment.
-   * @param futures The futures.
-   * @param multicurves The multi-curve provider.
-   * @return The present value.
-   */
-  public MultipleCurrencyAmount presentValue(final InterestRateFutureTransaction futures, final MulticurveProviderInterface multicurves) {
-    return presentValueFromPrice(futures, METHOD_SECURITY.price(futures.getUnderlying(), multicurves));
-  }
-
-  /**
-   * Computes the present value curve sensitivity by discounting without convexity adjustment.
-   * @param futures The futures.
-   * @param multicurves The multi-curve provider.
-   * @return The present value curve sensitivity.
-   */
-  public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final InterestRateFutureTransaction futures, final MulticurveProviderInterface multicurves) {
-    return presentValueCurveSensitivity(futures, METHOD_SECURITY.priceCurveSensitivity(futures.getUnderlying(), multicurves));
   }
 
 }

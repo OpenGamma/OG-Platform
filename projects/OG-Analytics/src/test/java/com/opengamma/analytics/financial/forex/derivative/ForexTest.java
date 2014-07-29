@@ -13,10 +13,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests related to the construction of Forex instruments.
  */
+@Test(groups = TestGroup.UNIT)
 public class ForexTest {
 
   private static final Currency CUR_1 = Currency.EUR;

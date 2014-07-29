@@ -1,13 +1,13 @@
 /**
- * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 package com.opengamma.financial.aggregation;
 
-import com.opengamma.core.obligor.definition.Obligor;
-import com.opengamma.core.organization.Organization;
-import com.opengamma.core.organization.OrganizationSource;
+import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.core.legalentity.LegalEntity;
+import com.opengamma.core.legalentity.LegalEntitySource;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
@@ -21,7 +21,7 @@ import com.opengamma.id.ExternalId;
  * generally only applicable to CDS securities, and if applied to securities with no
  * debt seniority, the result of {@link #classifyPosition(Position)} will be "N/A".
  */
-public class CdsOptionReferenceNameAggregationFunction extends AbstractCdsOptionAggregationFunction<Obligor> {
+public class CdsOptionReferenceNameAggregationFunction extends AbstractCdsOptionAggregationFunction<LegalEntity> {
 
   /**
    * Function name.
@@ -32,18 +32,17 @@ public class CdsOptionReferenceNameAggregationFunction extends AbstractCdsOption
    * Creates an instance.
    * 
    * @param securitySource  the security source, not null
-   * @param organizationSource  the organization source, not null
+   * @param legalEntitySource  the organization source, not null
    */
-  public CdsOptionReferenceNameAggregationFunction(final SecuritySource securitySource, final OrganizationSource organizationSource) {
-    super(NAME, securitySource, new CdsOptionValueExtractor<Obligor>() {
+  public CdsOptionReferenceNameAggregationFunction(final SecuritySource securitySource, final LegalEntitySource legalEntitySource) {
+    super(NAME, securitySource, new CdsOptionValueExtractor<LegalEntity>() {
       @Override
-      public Obligor extract(CreditDefaultSwapOptionSecurity cdsOption) {
+      public LegalEntity extract(CreditDefaultSwapOptionSecurity cdsOption) {
         ExternalId underlyingId = cdsOption.getUnderlyingId();
         Security underlying = securitySource.getSingle(underlyingId.toBundle());
         if (underlying instanceof AbstractCreditDefaultSwapSecurity) {
           String redCode = ((CreditDefaultSwapSecurity) underlying).getReferenceEntity().getValue();
-          Organization organisation = organizationSource.getOrganizationByRedCode(redCode);
-          return organisation.getObligor();
+          return legalEntitySource.getSingle(ExternalId.of(ExternalSchemes.MARKIT_RED_CODE, redCode));
         } else {
           // CreditDefaultSwapOptionSecurity
           // null communicates N/A
@@ -56,8 +55,8 @@ public class CdsOptionReferenceNameAggregationFunction extends AbstractCdsOption
 
   //-------------------------------------------------------------------------
   @Override
-  protected String handleExtractedData(Obligor extracted) {
-    return extracted.getObligorShortName();
+  protected String handleExtractedData(LegalEntity extracted) {
+    return extracted.getName();
   }
 
 }

@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -71,52 +72,6 @@ public class MarketDataSearchResult extends DirectBean {
     return MarketDataSearchResult.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -995747956:  // paging
-        return getPaging();
-      case 259966765:  // marketDatas
-        return getMarketDatas();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -995747956:  // paging
-        setPaging((Paging) newValue);
-        return;
-      case 259966765:  // marketDatas
-        setMarketDatas((List<MarketData>) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      MarketDataSearchResult other = (MarketDataSearchResult) obj;
-      return JodaBeanUtils.equal(getPaging(), other.getPaging()) &&
-          JodaBeanUtils.equal(getMarketDatas(), other.getMarketDatas());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPaging());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDatas());
-    return hash;
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the paging information, not null if correctly created.
@@ -145,7 +100,7 @@ public class MarketDataSearchResult extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the values, not null.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public List<MarketData> getMarketDatas() {
     return _marketDatas;
@@ -153,9 +108,10 @@ public class MarketDataSearchResult extends DirectBean {
 
   /**
    * Sets the values, not null.
-   * @param marketDatas  the new value of the property
+   * @param marketDatas  the new value of the property, not null
    */
   public void setMarketDatas(List<MarketData> marketDatas) {
+    JodaBeanUtils.notNull(marketDatas, "marketDatas");
     this._marketDatas.clear();
     this._marketDatas.addAll(marketDatas);
   }
@@ -166,6 +122,51 @@ public class MarketDataSearchResult extends DirectBean {
    */
   public final Property<List<MarketData>> marketDatas() {
     return metaBean().marketDatas().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public MarketDataSearchResult clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      MarketDataSearchResult other = (MarketDataSearchResult) obj;
+      return JodaBeanUtils.equal(getPaging(), other.getPaging()) &&
+          JodaBeanUtils.equal(getMarketDatas(), other.getMarketDatas());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPaging());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDatas());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(96);
+    buf.append("MarketDataSearchResult{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("paging").append('=').append(JodaBeanUtils.toString(getPaging())).append(',').append(' ');
+    buf.append("marketDatas").append('=').append(JodaBeanUtils.toString(getMarketDatas())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -244,6 +245,37 @@ public class MarketDataSearchResult extends DirectBean {
      */
     public final MetaProperty<List<MarketData>> marketDatas() {
       return _marketDatas;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -995747956:  // paging
+          return ((MarketDataSearchResult) bean).getPaging();
+        case 259966765:  // marketDatas
+          return ((MarketDataSearchResult) bean).getMarketDatas();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -995747956:  // paging
+          ((MarketDataSearchResult) bean).setPaging((Paging) newValue);
+          return;
+        case 259966765:  // marketDatas
+          ((MarketDataSearchResult) bean).setMarketDatas((List<MarketData>) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((MarketDataSearchResult) bean)._marketDatas, "marketDatas");
     }
 
   }

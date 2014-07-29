@@ -9,7 +9,6 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.Interest
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
 import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureTransactionDiscountingMethod;
 
-
 /**
  * Returns the underlying future price of the security, given a yield curve bundle
  * @deprecated {@link YieldCurveBundle} is deprecated
@@ -39,7 +38,7 @@ public class DiscountingUnderlyingFuturePriceCalculator extends InstrumentDeriva
 
   @Override
   public Double visitInterestRateFutureOptionMarginTransaction(final InterestRateFutureOptionMarginTransaction option, final YieldCurveBundle curves) {
-    return METHOD_FUTURE.presentValue(option.getUnderlyingOption().getUnderlyingFuture(), curves).getAmount();
+    return METHOD_FUTURE.presentValue(option.getUnderlyingSecurity().getUnderlyingFuture(), curves).getAmount();
   }
 
 }

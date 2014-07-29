@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.MemoryUtils;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.MarketDataAliasingFunction;
 import com.opengamma.engine.function.MarketDataSourcingFunction;
@@ -137,9 +138,7 @@ import com.opengamma.util.tuple.Triple;
       ResolvedValue resolvedValue = createResult(marketDataSpec, MARKET_DATA_SOURCING_FUNCTION, Collections.<ValueSpecification>emptySet(), Collections.singleton(marketDataSpec));
       final ValueProperties constraints = requirement.getConstraints();
       boolean constraintsSatisfied = constraints.isSatisfiedBy(marketDataSpec.getProperties());
-      if ((requirement.getValueName() != marketDataSpec.getValueName())
-          || !targetSpec.equals(marketDataSpec.getTargetSpecification())
-          || !constraintsSatisfied) {
+      if ((requirement.getValueName() != marketDataSpec.getValueName()) || !targetSpec.equals(marketDataSpec.getTargetSpecification()) || !constraintsSatisfied) {
         // The specification returned by market data provision does not match the logical target; publish a substitute node
         context.declareProduction(resolvedValue);
         final ValueProperties properties;
@@ -176,12 +175,12 @@ import com.opengamma.util.tuple.Triple;
               properties = intersectOptional(constraints, marketDataSpec.getProperties()).get();
             } else {
               // Requirement allowed a choice of function - pick one
-              properties = intersectOptional(constraints, marketDataSpec.getProperties()).withoutAny(ValuePropertyNames.FUNCTION).with(ValuePropertyNames.FUNCTION, functionNames.iterator().next())
-                  .get();
+              properties = intersectOptional(constraints, marketDataSpec.getProperties()).withoutAny(ValuePropertyNames.FUNCTION)
+                  .with(ValuePropertyNames.FUNCTION, functionNames.iterator().next()).get();
             }
           }
         }
-        final ValueSpecification relabelledSpec = new ValueSpecification(requirement.getValueName(), targetSpec, properties);
+        final ValueSpecification relabelledSpec = MemoryUtils.instance(new ValueSpecification(requirement.getValueName(), targetSpec, properties));
         resolvedValue = createResult(relabelledSpec, RELABELLING_FUNCTION, Collections.singleton(marketDataSpec), Collections.singleton(relabelledSpec));
       }
       final ResolvedValueProducer producer = new SingleResolvedValueProducer(requirement, resolvedValue);
@@ -244,10 +243,19 @@ import com.opengamma.util.tuple.Triple;
     return true;
   }
 
+  /**
+   * Fetches all of the functions that can apply to the target, changing the state to then process that collection.
+   * <p>
+   * The collection returned from the function resolver must include normalized value specifications.
+   * 
+   * @param target the target to apply the functions to, not null
+   * @param context the graph building context, not null
+   * @param state the current task execution state, not null
+   */
   protected static void getFunctions(final ComputationTarget target, final GraphBuildingContext context, final ResolveTask.State state) {
     final ValueRequirement requirement = state.getValueRequirement();
-    final Iterator<Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>>> itr = context.getFunctionResolver().resolveFunction(
-        requirement.getValueName(), target, requirement.getConstraints());
+    final Iterator<Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>>> itr = context.getFunctionResolver().resolveFunction(requirement.getValueName(), target,
+        requirement.getConstraints());
     if (itr.hasNext()) {
       s_logger.debug("Found functions for {}", requirement);
       state.setRunnableTaskState(new ResolvedFunctionStep(state.getTask(), itr), context);

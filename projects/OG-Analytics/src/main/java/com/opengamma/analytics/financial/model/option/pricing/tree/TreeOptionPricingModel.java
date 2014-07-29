@@ -6,6 +6,7 @@
 package com.opengamma.analytics.financial.model.option.pricing.tree;
 
 import com.opengamma.analytics.financial.greeks.GreekResultCollection;
+import com.opengamma.analytics.financial.model.option.definition.StandardOptionDataBundle;
 
 /**
  * 
@@ -120,4 +121,11 @@ public abstract class TreeOptionPricingModel {
   public abstract double[] getGreeks(final OptionFunctionProvider2D function, final double spot1, final double spot2, final double volatility1, final double volatility2, final double correlation,
       final double interestRate, final double dividend1, final double dividend2);
 
+  /**
+   * Compute option price by using implied tree
+   * @param function {@link OptionFunctionProvider1D}
+   * @param data Market data
+   * @return Option price
+   */
+  public abstract double getPrice(final OptionFunctionProvider1D function, final StandardOptionDataBundle data);
 }

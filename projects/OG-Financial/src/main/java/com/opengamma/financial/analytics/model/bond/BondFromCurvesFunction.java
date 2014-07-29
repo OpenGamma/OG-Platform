@@ -15,7 +15,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefinition;
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -35,7 +35,9 @@ import com.opengamma.util.money.Currency;
 
 /**
  * Bond related figures computed from the yield curves.
+ * @deprecated This class uses deprecated analytics functions.
  */
+@Deprecated
 public abstract class BondFromCurvesFunction extends BondFunction<YieldCurveBundle> {
 
   @Override
@@ -50,8 +52,7 @@ public abstract class BondFromCurvesFunction extends BondFunction<YieldCurveBund
     final ValueSpecification resultSpec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), properties.get());
     final BondFixedSecurityDefinition definition = (BondFixedSecurityDefinition) bondSecurity.accept(getConverter());
     final BondFixedSecurity bond = definition.toDerivative(date, creditCurveName, riskFreeCurveName);
-    return Sets.newHashSet(new ComputedValue(resultSpec, bond.accept(getCalculator(), data)));
-    // Remark: MH - 9-May-2013: factor 100 removed.
+    return Sets.newHashSet(new ComputedValue(resultSpec, bond.accept(getCalculator(), data) * getScaleFactor()));
   }
 
   @Override
@@ -174,10 +175,22 @@ public abstract class BondFromCurvesFunction extends BondFunction<YieldCurveBund
     return Collections.singleton(new ValueSpecification(getValueRequirementName(), target.toSpecification(), properties.get()));
   }
 
-  protected abstract InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Double> getCalculator();
+  /**
+   * Gets the calculator of the desired value.
+   * @return The calculator
+   */
+  protected abstract InstrumentDerivativeVisitor<YieldCurveBundle, Double> getCalculator();
 
+  /**
+   * Gets the value requirement name.
+   * @return The value requirement name
+   */
   protected abstract String getValueRequirementName();
 
+  /**
+   * Gets the result properties.
+   * @return The result properties
+   */
   protected ValueProperties.Builder getResultProperties() {
     return createValueProperties()
         .withAny(PROPERTY_RISK_FREE_CURVE)
@@ -187,6 +200,15 @@ public abstract class BondFromCurvesFunction extends BondFunction<YieldCurveBund
         .with(ValuePropertyNames.CALCULATION_METHOD, FROM_CURVES_METHOD);
   }
 
+  /**
+   * Gets the result properties.
+   * @param riskFreeCurveName The risk-free curve name
+   * @param creditCurveName The credit curve name
+   * @param riskFreeCurveConfig The risk-free curve calculation configuration name
+   * @param creditCurveConfig The credit curve calculation configuration name
+   * @param target The target
+   * @return The result properties
+   */
   protected ValueProperties.Builder getResultProperties(final String riskFreeCurveName, final String creditCurveName, final String riskFreeCurveConfig,
       final String creditCurveConfig, final ComputationTarget target) {
     return createValueProperties()

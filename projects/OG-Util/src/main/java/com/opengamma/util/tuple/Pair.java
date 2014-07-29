@@ -12,6 +12,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.CompareToBuilder;
+import org.joda.beans.ImmutableBean;
 
 import com.opengamma.util.PublicAPI;
 
@@ -30,7 +31,9 @@ import com.opengamma.util.PublicAPI;
  * @param <B> the second element type
  */
 @PublicAPI
-public abstract class Pair<A, B> implements Map.Entry<A, B>, Comparable<Pair<A, B>>, Serializable {
+public abstract class Pair<A, B>
+    implements ImmutableBean, Map.Entry<A, B>, Comparable<Pair<A, B>>, Serializable {
+  // this ImmutableBean is not auto-generated
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -43,9 +46,11 @@ public abstract class Pair<A, B> implements Map.Entry<A, B>, Comparable<Pair<A, 
    * @param first  the first element, may be null
    * @param second  the second element, may be null
    * @return a pair formed from the two parameters, not null
+   * @deprecated Use {@link Pairs#of(Object, Object)} or {@link ObjectsPair#of(Object, Object)}
    */
+  @Deprecated
   public static <A, B> ObjectsPair<A, B> of(A first, B second) {
-    return new ObjectsPair<>(first, second);
+    return ObjectsPair.of(first, second);
   }
 
   /**
@@ -54,9 +59,11 @@ public abstract class Pair<A, B> implements Map.Entry<A, B>, Comparable<Pair<A, 
    * @param first  the first element, may be null
    * @param second  the second element, may be null
    * @return a pair formed from the two parameters, not null
+   * @deprecated Use {@link Pairs#of(Double, double)} or {@link ObjectsPair#of(Object, Object)}
    */
+  @Deprecated
   public static ObjectsPair<Double, Double> of(Double first, double second) {
-    return new ObjectsPair<>(first, second);
+    return ObjectsPair.of(first, (Double) second);
   }
 
   /**
@@ -65,9 +72,11 @@ public abstract class Pair<A, B> implements Map.Entry<A, B>, Comparable<Pair<A, 
    * @param first  the first element, may be null
    * @param second  the second element, may be null
    * @return a pair formed from the two parameters, not null
+   * @deprecated Use {@link Pairs#of(double, Double)} or {@link ObjectsPair#of(Object, Object)}
    */
+  @Deprecated
   public static ObjectsPair<Double, Double> of(double first, Double second) {
-    return new ObjectsPair<>(first, second);
+    return ObjectsPair.of((Double) first, second);
   }
 
   /**
@@ -76,9 +85,11 @@ public abstract class Pair<A, B> implements Map.Entry<A, B>, Comparable<Pair<A, 
    * @param first  the first element, may be null
    * @param second  the second element, may be null
    * @return a pair formed from the two parameters, not null
+   * @deprecated Use {@link Pairs#of(double, double)} or {@link DoublesPair#of(double, double)}
    */
+  @Deprecated
   public static DoublesPair of(double first, double second) {
-    return new DoublesPair(first, second);
+    return DoublesPair.of(first, second);
   }
 
   /**
@@ -87,9 +98,11 @@ public abstract class Pair<A, B> implements Map.Entry<A, B>, Comparable<Pair<A, 
    * @param first  the first element, may be null
    * @param second  the second element, may be null
    * @return a pair formed from the two parameters, not null
+   * @deprecated Use {@link Pairs#of(int, double)} or {@link IntDoublePair#of(long, double)}
    */
+  @Deprecated
   public static IntDoublePair of(int first, double second) {
-    return new IntDoublePair(first, second);
+    return IntDoublePair.of(first, second);
   }
 
   /**
@@ -98,9 +111,11 @@ public abstract class Pair<A, B> implements Map.Entry<A, B>, Comparable<Pair<A, 
    * @param first  the first element, may be null
    * @param second  the second element, may be null
    * @return a pair formed from the two parameters, not null
+   * @deprecated Use {@link Pairs#of(long, double)} or {@link LongDoublePair#of(long, double)}
    */
+  @Deprecated
   public static LongDoublePair of(long first, double second) {
-    return new LongDoublePair(first, second);
+    return LongDoublePair.of(first, second);
   }
 
   /**
@@ -183,18 +198,38 @@ public abstract class Pair<A, B> implements Map.Entry<A, B>, Comparable<Pair<A, 
     return (List<T>) list;
   }
 
+  /**
+   * Clones this pair, returning an independent copy.
+   * <p>
+   * Pair subclasses must be immutable, so {@code this} is returned.
+   * 
+   * @return the clone, not null
+   */
+  @Override
+  public Pair<A, B> clone() {
+    return this;
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Compares the pair based on the first element followed by the second element.
-   * The types must be {@code Comparable}.
+   * <p>
+   * A Pair <i>(x<sub>1</sub>, y<sub>1</sub>)</i> is less than another pair
+   * <i>(x<sub>2</sub>, y<sub>2</sub>)</i> if one of these is true:<br />
+   * <i>x<sub>1</sub> &lt; x<sub>2</sub></i><br>
+   * <i>x<sub>1</sub> = x<sub>2</sub></i> and <i>y<sub>1</sub> &lt; y<sub>2</sub></i>
+   * <p>
+   * The element types must be {@code Comparable}.
    * 
    * @param other  the other pair, not null
    * @return negative if this is less, zero if equal, positive if greater
    */
   @Override
   public int compareTo(Pair<A, B> other) {
-    return new CompareToBuilder().append(getFirst(), other.getFirst())
-        .append(getSecond(), other.getSecond()).toComparison();
+    return new CompareToBuilder()
+        .append(getFirst(), other.getFirst())
+        .append(getSecond(), other.getSecond())
+        .toComparison();
   }
 
   @Override

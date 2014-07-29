@@ -66,7 +66,7 @@ public class DataMarketDataResource extends AbstractDataResource {
   @GET
   public Response get() {
     MarketData result = getMaster().getMarketDataById(_marketDataId);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   @DELETE
@@ -78,7 +78,7 @@ public class DataMarketDataResource extends AbstractDataResource {
   @Path("values")
   public Response getDataValues(PagingRequest paging) {
     Pair<List<MarketDataValue>, Paging> result = getMaster().getMarketDataValues(_marketDataId, paging);
-    return responseOkFudge(result);
+    return responseOkObject(result);
   }
 
   @PUT

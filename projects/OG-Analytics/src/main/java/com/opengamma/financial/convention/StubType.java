@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.convention;
 
+import com.opengamma.OpenGammaRuntimeException;
+
 /**
  * The type of the stub.
  */
@@ -16,8 +18,8 @@ public enum StubType {
   NONE {
 
     @Override
-    public com.opengamma.analytics.financial.credit.StubType toAnalyticsType() {
-      return com.opengamma.analytics.financial.credit.StubType.NONE;
+    public com.opengamma.analytics.financial.credit.isdastandardmodel.StubType toAnalyticsType() {
+      return com.opengamma.analytics.financial.credit.isdastandardmodel.StubType.NONE;
     }
   },
   /**
@@ -26,8 +28,8 @@ public enum StubType {
   SHORT_START {
 
     @Override
-    public com.opengamma.analytics.financial.credit.StubType toAnalyticsType() {
-      return com.opengamma.analytics.financial.credit.StubType.FRONTSHORT;
+    public com.opengamma.analytics.financial.credit.isdastandardmodel.StubType toAnalyticsType() {
+      return com.opengamma.analytics.financial.credit.isdastandardmodel.StubType.FRONTSHORT;
     }
   },
   /**
@@ -36,8 +38,8 @@ public enum StubType {
   LONG_START {
 
     @Override
-    public com.opengamma.analytics.financial.credit.StubType toAnalyticsType() {
-      return com.opengamma.analytics.financial.credit.StubType.FRONTLONG;
+    public com.opengamma.analytics.financial.credit.isdastandardmodel.StubType toAnalyticsType() {
+      return com.opengamma.analytics.financial.credit.isdastandardmodel.StubType.FRONTLONG;
     }
   },
   /**
@@ -46,8 +48,8 @@ public enum StubType {
   SHORT_END {
 
     @Override
-    public com.opengamma.analytics.financial.credit.StubType toAnalyticsType() {
-      return com.opengamma.analytics.financial.credit.StubType.BACKSHORT;
+    public com.opengamma.analytics.financial.credit.isdastandardmodel.StubType toAnalyticsType() {
+      return com.opengamma.analytics.financial.credit.isdastandardmodel.StubType.BACKSHORT;
     }
   },
   /**
@@ -56,10 +58,20 @@ public enum StubType {
   LONG_END {
 
     @Override
-    public com.opengamma.analytics.financial.credit.StubType toAnalyticsType() {
-      return com.opengamma.analytics.financial.credit.StubType.BACKLONG;
+    public com.opengamma.analytics.financial.credit.isdastandardmodel.StubType toAnalyticsType() {
+      return com.opengamma.analytics.financial.credit.isdastandardmodel.StubType.BACKLONG;
+    }
+  },
+  /**
+   * Stubs at the both start and end of the schedule.
+   */
+  BOTH {
+
+    @Override
+    public com.opengamma.analytics.financial.credit.isdastandardmodel.StubType toAnalyticsType() {
+      throw new OpenGammaRuntimeException("Unsupported ISDA stub type of BOTH");
     }
   };
 
-  public abstract com.opengamma.analytics.financial.credit.StubType toAnalyticsType();
+  public abstract com.opengamma.analytics.financial.credit.isdastandardmodel.StubType toAnalyticsType();
 }

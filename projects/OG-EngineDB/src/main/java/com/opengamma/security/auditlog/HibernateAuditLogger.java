@@ -20,8 +20,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.orm.hibernate3.SessionFactoryUtils;
 
-import com.opengamma.security.auditlog.AbstractAuditLogger;
-import com.opengamma.security.auditlog.AuditLogEntry;
 import com.opengamma.util.ArgumentChecker;
 
 /**

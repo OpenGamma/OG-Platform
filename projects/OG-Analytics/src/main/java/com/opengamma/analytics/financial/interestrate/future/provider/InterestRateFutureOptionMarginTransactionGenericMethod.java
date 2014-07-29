@@ -47,9 +47,9 @@ public abstract class InterestRateFutureOptionMarginTransactionGenericMethod<DAT
    */
   public MultipleCurrencyAmount presentValueFromPrice(final InterestRateFutureOptionMarginTransaction option, final double price) {
     ArgumentChecker.notNull(option, "Option on STIR futures");
-    double pv = (price - option.getReferencePrice()) * option.getUnderlyingOption().getUnderlyingFuture().getPaymentAccrualFactor() * option.getUnderlyingOption().getUnderlyingFuture().getNotional()
+    double pv = (price - option.getReferencePrice()) * option.getUnderlyingSecurity().getUnderlyingFuture().getPaymentAccrualFactor() * option.getUnderlyingSecurity().getUnderlyingFuture().getNotional()
         * option.getQuantity();
-    return MultipleCurrencyAmount.of(option.getUnderlyingOption().getCurrency(), pv);
+    return MultipleCurrencyAmount.of(option.getUnderlyingSecurity().getCurrency(), pv);
   }
 
   /**
@@ -61,7 +61,7 @@ public abstract class InterestRateFutureOptionMarginTransactionGenericMethod<DAT
   public MultipleCurrencyAmount presentValue(final InterestRateFutureOptionMarginTransaction transaction, final DATA_TYPE data) {
     ArgumentChecker.notNull(transaction, "Transaction on option on STIR futures");
     ArgumentChecker.notNull(data, "data provider");
-    double priceSecurity = _methodSecurity.price(transaction.getUnderlyingOption(), data);
+    double priceSecurity = _methodSecurity.price(transaction.getUnderlyingSecurity(), data);
     MultipleCurrencyAmount pvTransaction = presentValueFromPrice(transaction, priceSecurity);
     return pvTransaction;
   }
@@ -75,11 +75,11 @@ public abstract class InterestRateFutureOptionMarginTransactionGenericMethod<DAT
   public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final InterestRateFutureOptionMarginTransaction transaction, final DATA_TYPE data) {
     ArgumentChecker.notNull(transaction, "Transaction on option on STIR futures");
     ArgumentChecker.notNull(data, "data provider");
-    MulticurveSensitivity securitySensitivity = _methodSecurity.priceCurveSensitivity(transaction.getUnderlyingOption(), data);
+    MulticurveSensitivity securitySensitivity = _methodSecurity.priceCurveSensitivity(transaction.getUnderlyingSecurity(), data);
     return MultipleCurrencyMulticurveSensitivity.of(
         transaction.getCurrency(),
-        securitySensitivity.multipliedBy(transaction.getQuantity() * transaction.getUnderlyingOption().getUnderlyingFuture().getNotional()
-            * transaction.getUnderlyingOption().getUnderlyingFuture().getPaymentAccrualFactor()));
+        securitySensitivity.multipliedBy(transaction.getQuantity() * transaction.getUnderlyingSecurity().getUnderlyingFuture().getNotional()
+            * transaction.getUnderlyingSecurity().getUnderlyingFuture().getPaymentAccrualFactor()));
   }
 
 }

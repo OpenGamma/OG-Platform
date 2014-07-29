@@ -83,7 +83,7 @@ public abstract class FutureOptionFunction extends AbstractFunction.NonCompiledI
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
-    final FutureSecurityConverterDeprecated futureSecurityConverter = new FutureSecurityConverterDeprecated(null, null);
+    final FutureSecurityConverterDeprecated futureSecurityConverter = new FutureSecurityConverterDeprecated(null);
     final FinancialSecurityVisitor<InstrumentDefinition<?>> commodityFutureOption = new CommodityFutureOptionConverter(securitySource, holidaySource, conventionSource, regionSource);
     final FinancialSecurityVisitor<InstrumentDefinition<?>> equityFutureOption = new EquityOptionsConverter(futureSecurityConverter, securitySource);
     _converter = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder()

@@ -24,6 +24,8 @@ import com.opengamma.financial.analytics.ircurve.strips.DataFieldType;
 import com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
 import com.opengamma.financial.analytics.ircurve.strips.FXForwardNode;
+import com.opengamma.financial.analytics.ircurve.strips.RollDateFRANode;
+import com.opengamma.financial.analytics.ircurve.strips.RollDateSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.InflationNodeType;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
@@ -48,6 +50,8 @@ public class CurveNodeWithIdentifierBuilderTest {
     final Map<Tenor, CurveInstrumentProvider> discountFactorIds = new HashMap<>();
     final Map<Tenor, CurveInstrumentProvider> fraNodeIds = new HashMap<>();
     final Map<Tenor, CurveInstrumentProvider> fxForwardNodeIds = new HashMap<>();
+    final Map<Tenor, CurveInstrumentProvider> immFRANodeIds = new HashMap<>();
+    final Map<Tenor, CurveInstrumentProvider> immSwapNodeIds = new HashMap<>();
     final Map<Tenor, CurveInstrumentProvider> rateFutureNodeIds = new HashMap<>();
     final Map<Tenor, CurveInstrumentProvider> swapNodeIds = new HashMap<>();
     final Map<Tenor, CurveInstrumentProvider> zeroCouponInflationNodeIds = new HashMap<>();
@@ -57,10 +61,23 @@ public class CurveNodeWithIdentifierBuilderTest {
     discountFactorIds.put(Tenor.TWO_MONTHS, new StaticCurveInstrumentProvider(ExternalId.of("Test", "DF"), "DF Data", DataFieldType.POINTS));
     fraNodeIds.put(Tenor.TWO_MONTHS, new StaticCurveInstrumentProvider(ExternalId.of("Test", "FRA"), "FRA Data", DataFieldType.OUTRIGHT));
     fxForwardNodeIds.put(Tenor.TWO_MONTHS, new StaticCurveInstrumentProvider(ExternalId.of("Test", "FX Forward"), "FX Forward Data", DataFieldType.POINTS));
+    immFRANodeIds.put(Tenor.ONE_YEAR, new TestCurveInstrumentProvider(ExternalId.of("Test", "IMM FRA"), "IMM FRA Data", DataFieldType.OUTRIGHT));
+    immSwapNodeIds.put(Tenor.ONE_YEAR, new TestCurveInstrumentProvider(ExternalId.of("Test", "IMM Swap"), "IMM Swap Data", DataFieldType.OUTRIGHT));
     rateFutureNodeIds.put(Tenor.TWO_MONTHS, new TestCurveInstrumentProvider(ExternalId.of("Test", "Future"), "Market_Value", DataFieldType.OUTRIGHT));
     swapNodeIds.put(Tenor.TWO_MONTHS, new StaticCurveInstrumentProvider(ExternalId.of("Test", "Swap"), "Swap Data", DataFieldType.POINTS));
     zeroCouponInflationNodeIds.put(Tenor.TWO_MONTHS, new StaticCurveInstrumentProvider(ExternalId.of("Test", "ZCI"), "ZC Data", DataFieldType.OUTRIGHT));
-    MAPPER = CurveNodeIdMapper.builder().cashNodeIds(cashNodeIds).continuouslyCompoundedRateNodeIds(continuouslyCompoundedRateIds).creditSpreadNodeIds(creditSpreadNodeIds).discountFactorNodeIds(discountFactorIds).fraNodeIds(fraNodeIds).fxForwardNodeIds(fxForwardNodeIds).rateFutureNodeIds(rateFutureNodeIds).swapNodeIds(swapNodeIds).zeroCouponInflationNodeIds(zeroCouponInflationNodeIds).build();
+    MAPPER = CurveNodeIdMapper.builder()
+        .cashNodeIds(cashNodeIds)
+        .continuouslyCompoundedRateNodeIds(continuouslyCompoundedRateIds)
+        .creditSpreadNodeIds(creditSpreadNodeIds)
+        .discountFactorNodeIds(discountFactorIds)
+        .fraNodeIds(fraNodeIds)
+        .fxForwardNodeIds(fxForwardNodeIds)
+        .immFRANodeIds(immFRANodeIds)
+        .immSwapNodeIds(immSwapNodeIds)
+        .rateFutureNodeIds(rateFutureNodeIds)
+        .swapNodeIds(swapNodeIds)
+        .zeroCouponInflationNodeIds(zeroCouponInflationNodeIds).build();
     BUILDER = new CurveNodeWithIdentifierBuilder(LocalDate.of(2013, 1, 1), MAPPER);
   }
 
@@ -101,9 +118,21 @@ public class CurveNodeWithIdentifierBuilderTest {
   }
 
   @Test
+  public void testIMMFRA() {
+    final RollDateFRANode immFRA = new RollDateFRANode(Tenor.ONE_YEAR, Tenor.THREE_MONTHS, 4, 40, ExternalId.of("Test1", "Test1"), "Id mapper");
+    assertEquals(new CurveNodeWithIdentifier(immFRA, ExternalId.of("Test", "IMM FRA"), "IMM FRA Data", DataFieldType.OUTRIGHT), immFRA.accept(BUILDER));
+  }
+
+  @Test
+  public void testIMMSwap() {
+    final RollDateSwapNode immSwap = new RollDateSwapNode(Tenor.ONE_YEAR, 4, 40, ExternalId.of("Test1", "Test1"), "Id mapper");
+    assertEquals(new CurveNodeWithIdentifier(immSwap, ExternalId.of("Test", "IMM Swap"), "IMM Swap Data", DataFieldType.OUTRIGHT), immSwap.accept(BUILDER));
+  }
+
+  @Test
   public void testRateFuture() {
     final RateFutureNode future = new RateFutureNode(1, Tenor.TWO_MONTHS, Tenor.ONE_MONTH, Tenor.ONE_MONTH, ExternalId.of("Test", "Test"),
-        ExternalId.of("Test", "Test"), "Test");
+        "Test");
     assertEquals(new CurveNodeWithIdentifier(future, ExternalId.of("Test", "Future"), "Market_Value", DataFieldType.OUTRIGHT), future.accept(BUILDER));
   }
 
@@ -172,6 +201,11 @@ public class CurveNodeWithIdentifierBuilderTest {
     @Deprecated
     public ExternalId getInstrument(final LocalDate curveDate, final Tenor tenor, final Tenor resetTenor, final IndexType indexType) {
       return null;
+    }
+
+    @Override
+    public ExternalId getInstrument(final LocalDate curveDate, final Tenor startTenor, final int startIMMPeriods, final int endIMMPeriods) {
+      return _id;
     }
 
   }

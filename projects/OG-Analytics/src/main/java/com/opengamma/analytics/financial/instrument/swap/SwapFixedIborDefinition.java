@@ -43,6 +43,7 @@ public class SwapFixedIborDefinition extends SwapDefinition {
    */
   public SwapFixedIborDefinition(final AnnuityCouponFixedDefinition fixedLeg, final AnnuityDefinition<? extends PaymentDefinition> iborLeg) {
     super(fixedLeg, iborLeg);
+    ArgumentChecker.isTrue(iborLeg instanceof AnnuityCouponIborDefinition, "iborLeg should be of the type AnnuityCouponIborDefinition");
     ArgumentChecker.isTrue(fixedLeg.getCurrency().equals(iborLeg.getCurrency()), "legs should have the same currency");
   }
 
@@ -172,6 +173,16 @@ public class SwapFixedIborDefinition extends SwapDefinition {
     final AnnuityCouponIborDefinition iborLeg = AnnuityCouponIborDefinition.from(settlementDate, maturityDate, iborLegPeriod, iborLegNotional, iborIndex, !isPayer, iborLegBusinessDayConvention,
         iborLegEOM, iborLegDayCount, calendar);
     return new SwapFixedIborDefinition(fixedLeg, iborLeg);
+  }
+
+  /**
+   * Creates a new swap with the same characteristics, except that the fixed coupon rate of all coupons is the one given.
+   * @param rate The rate.
+   * @return The new swap.
+   */
+  public SwapFixedIborDefinition withRate(final double rate) {
+    final AnnuityCouponFixedDefinition legFixedRate = getFixedLeg().withRate(rate);
+    return new SwapFixedIborDefinition(legFixedRate, getSecondLeg());
   }
 
   /**

@@ -39,9 +39,9 @@ fi
 load_default_config
 
 # Component specific default configs
-CONFIG=classpath:fullstack/fullstack-examplesbloomberg-bin.properties
-LOGBACK_CONFIG=jetty-logback.xml
-MEM_OPTS="-Xms768m -Xmx1280m -XX:MaxPermSize=256m"
+CONFIG=${CONFIG:-classpath:fullstack/fullstack-examplesbloomberg-bin.properties}
+LOGBACK_CONFIG=${LOGBACK_CONFIG:-jetty-logback.xml}
+MEM_OPTS=${MEM_OPTS:--Xms768m -Xmx1280m -XX:MaxPermSize=256m}
 
 # User customizations
 load_component_config ${PROJECT} ${COMPONENT}

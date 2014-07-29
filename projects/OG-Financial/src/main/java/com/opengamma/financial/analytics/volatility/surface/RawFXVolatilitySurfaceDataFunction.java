@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 
 /**
@@ -33,16 +34,16 @@ public class RawFXVolatilitySurfaceDataFunction extends RawVolatilitySurfaceData
   }
 
   /**
-   * Tries the unordered currency pair both ways. If the target is UnorderedCurrencyPair~EURUSD, and the surface name is OPENGAMMA, will look for
-   * OPENGAMMA_EURUSD_FX_VANILLA_OPTION and OPENGAMMA_USDEUR_FX_VANILLA_OPTION.
-   * {@inheritDoc}
+   * Tries the unordered currency pair both ways. If the target is UnorderedCurrencyPair~EURUSD, and the surface name is OPENGAMMA, will look for OPENGAMMA_EURUSD_FX_VANILLA_OPTION and
+   * OPENGAMMA_USDEUR_FX_VANILLA_OPTION. {@inheritDoc}
    */
   @Override
-  protected VolatilitySurfaceDefinition<?, ?> getDefinition(final VolatilitySurfaceDefinitionSource definitionSource, final ComputationTarget target, final String definitionName) {
+  protected VolatilitySurfaceDefinition<?, ?> getDefinition(final VolatilitySurfaceDefinitionSource definitionSource, final VersionCorrection versionCorrection, final ComputationTarget target,
+      final String definitionName) {
     final UnorderedCurrencyPair pair = UnorderedCurrencyPair.of(target.getUniqueId());
     String name = pair.getFirstCurrency().getCode() + pair.getSecondCurrency().getCode();
     String fullDefinitionName = definitionName + "_" + name;
-    VolatilitySurfaceDefinition<?, ?> definition = definitionSource.getDefinition(fullDefinitionName, InstrumentTypeProperties.FOREX);
+    VolatilitySurfaceDefinition<?, ?> definition = definitionSource.getDefinition(fullDefinitionName, InstrumentTypeProperties.FOREX, versionCorrection);
     if (definition == null) {
       name = pair.getSecondCurrency().getCode() + pair.getFirstCurrency().getCode();
       fullDefinitionName = definitionName + "_" + name;
@@ -56,16 +57,16 @@ public class RawFXVolatilitySurfaceDataFunction extends RawVolatilitySurfaceData
   }
 
   /**
-   * Tries the unordered currency pair both ways. If the target is UnorderedCurrencyPair~EURUSD, and the surface name is OPENGAMMA, will look for
-   * OPENGAMMA_EURUSD_FX_VANILLA_OPTION and OPENGAMMA_USDEUR_FX_VANILLA_OPTION.
-   * {@inheritDoc}
+   * Tries the unordered currency pair both ways. If the target is UnorderedCurrencyPair~EURUSD, and the surface name is OPENGAMMA, will look for OPENGAMMA_EURUSD_FX_VANILLA_OPTION and
+   * OPENGAMMA_USDEUR_FX_VANILLA_OPTION. {@inheritDoc}
    */
   @Override
-  protected VolatilitySurfaceSpecification getSpecification(final VolatilitySurfaceSpecificationSource specificationSource, final ComputationTarget target, final String specificationName) {
+  protected VolatilitySurfaceSpecification getSpecification(final VolatilitySurfaceSpecificationSource specificationSource, final VersionCorrection versionCorrection, final ComputationTarget target,
+      final String specificationName) {
     final UnorderedCurrencyPair pair = UnorderedCurrencyPair.of(target.getUniqueId());
     String name = pair.getFirstCurrency().getCode() + pair.getSecondCurrency().getCode();
     String fullSpecificationName = specificationName + "_" + name;
-    VolatilitySurfaceSpecification specification = specificationSource.getSpecification(fullSpecificationName, InstrumentTypeProperties.FOREX);
+    VolatilitySurfaceSpecification specification = specificationSource.getSpecification(fullSpecificationName, InstrumentTypeProperties.FOREX, versionCorrection);
     if (specification == null) {
       name = pair.getSecondCurrency().getCode() + pair.getFirstCurrency().getCode();
       fullSpecificationName = specificationName + "_" + name;

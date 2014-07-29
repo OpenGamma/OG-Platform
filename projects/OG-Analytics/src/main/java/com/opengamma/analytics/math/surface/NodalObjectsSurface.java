@@ -5,8 +5,6 @@
  */
 package com.opengamma.analytics.math.surface;
 
-import java.util.Arrays;
-
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
@@ -74,15 +72,24 @@ public class NodalObjectsSurface<T, U, V> extends ObjectsSurface<T, U, V> {
     ArgumentChecker.notNull(x, "x");
     ArgumentChecker.notNull(y, "y");
     final T[] xArray = getXData();
-    final int index = Arrays.binarySearch(xArray, x);
-    if (index < 0) {
-      throw new IllegalArgumentException("No x-y-z data in surface for (" + x + ", " + y + ")");
-    }
     final U[] yArray = getYData();
-    if (yArray[index].equals(y)) {
-      final V[] zArray = getZData();
-      return zArray[index];
+    //    final int index = Arrays.binarySearch(xArray, x);
+    //    if (index < 0) {
+    //      throw new IllegalArgumentException("No x-y-z data in surface for (" + x + ", " + y + ")");
+    //    }
+    //    final U[] yArray = getYData();
+    //    if (yArray[index].equals(y)) {
+    //      final V[] zArray = getZData();
+    //      return zArray[index];
+    //    }
+
+    final int arrayLength = xArray.length;
+    for (int i = 0; i < arrayLength; ++i) {
+      if (x.equals(xArray[i]) && y.equals(yArray[i])) {
+        return getZData()[i];
+      }
     }
+
     throw new IllegalArgumentException("No x-y-z data in surface for (" + x + ", " + y + ")");
   }
 

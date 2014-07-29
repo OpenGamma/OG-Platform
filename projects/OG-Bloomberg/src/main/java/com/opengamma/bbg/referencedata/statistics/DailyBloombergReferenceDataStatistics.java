@@ -15,7 +15,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.threeten.bp.Clock;
 import org.threeten.bp.LocalDate;
-import org.threeten.bp.ZoneOffset;
 
 /**
  * A {@link BloombergReferenceDataStatistics} which stores statistics for several days into the past.

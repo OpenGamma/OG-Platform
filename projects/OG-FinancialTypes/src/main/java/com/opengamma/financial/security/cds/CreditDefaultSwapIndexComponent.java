@@ -8,6 +8,7 @@ package com.opengamma.financial.security.cds;
 import java.io.Serializable;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -28,6 +29,10 @@ import com.opengamma.util.ArgumentChecker;
  */
 @BeanDefinition
 public class CreditDefaultSwapIndexComponent extends DirectBean implements Comparable<CreditDefaultSwapIndexComponent>, Serializable {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 2138042002689914578L;
+
   /**
    * The obligor red code identifier
    */
@@ -105,73 +110,6 @@ public class CreditDefaultSwapIndexComponent extends DirectBean implements Compa
   @Override
   public CreditDefaultSwapIndexComponent.Meta metaBean() {
     return CreditDefaultSwapIndexComponent.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 122314948:  // obligorRedCode
-        return getObligorRedCode();
-      case -791592328:  // weight
-        return getWeight();
-      case -1383424194:  // bondId
-        return getBondId();
-      case 3373707:  // name
-        return getName();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 122314948:  // obligorRedCode
-        setObligorRedCode((ExternalId) newValue);
-        return;
-      case -791592328:  // weight
-        setWeight((Double) newValue);
-        return;
-      case -1383424194:  // bondId
-        setBondId((ExternalId) newValue);
-        return;
-      case 3373707:  // name
-        setName((String) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_obligorRedCode, "obligorRedCode");
-    JodaBeanUtils.notNull(_weight, "weight");
-    JodaBeanUtils.notNull(_name, "name");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      CreditDefaultSwapIndexComponent other = (CreditDefaultSwapIndexComponent) obj;
-      return JodaBeanUtils.equal(getObligorRedCode(), other.getObligorRedCode()) &&
-          JodaBeanUtils.equal(getWeight(), other.getWeight()) &&
-          JodaBeanUtils.equal(getBondId(), other.getBondId()) &&
-          JodaBeanUtils.equal(getName(), other.getName());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getObligorRedCode());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getWeight());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBondId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -275,6 +213,57 @@ public class CreditDefaultSwapIndexComponent extends DirectBean implements Compa
    */
   public final Property<String> name() {
     return metaBean().name().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public CreditDefaultSwapIndexComponent clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      CreditDefaultSwapIndexComponent other = (CreditDefaultSwapIndexComponent) obj;
+      return JodaBeanUtils.equal(getObligorRedCode(), other.getObligorRedCode()) &&
+          JodaBeanUtils.equal(getWeight(), other.getWeight()) &&
+          JodaBeanUtils.equal(getBondId(), other.getBondId()) &&
+          JodaBeanUtils.equal(getName(), other.getName());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getObligorRedCode());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getWeight());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getBondId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(160);
+    buf.append("CreditDefaultSwapIndexComponent{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("obligorRedCode").append('=').append(JodaBeanUtils.toString(getObligorRedCode())).append(',').append(' ');
+    buf.append("weight").append('=').append(JodaBeanUtils.toString(getWeight())).append(',').append(' ');
+    buf.append("bondId").append('=').append(JodaBeanUtils.toString(getBondId())).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -384,6 +373,48 @@ public class CreditDefaultSwapIndexComponent extends DirectBean implements Compa
      */
     public final MetaProperty<String> name() {
       return _name;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 122314948:  // obligorRedCode
+          return ((CreditDefaultSwapIndexComponent) bean).getObligorRedCode();
+        case -791592328:  // weight
+          return ((CreditDefaultSwapIndexComponent) bean).getWeight();
+        case -1383424194:  // bondId
+          return ((CreditDefaultSwapIndexComponent) bean).getBondId();
+        case 3373707:  // name
+          return ((CreditDefaultSwapIndexComponent) bean).getName();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 122314948:  // obligorRedCode
+          ((CreditDefaultSwapIndexComponent) bean).setObligorRedCode((ExternalId) newValue);
+          return;
+        case -791592328:  // weight
+          ((CreditDefaultSwapIndexComponent) bean).setWeight((Double) newValue);
+          return;
+        case -1383424194:  // bondId
+          ((CreditDefaultSwapIndexComponent) bean).setBondId((ExternalId) newValue);
+          return;
+        case 3373707:  // name
+          ((CreditDefaultSwapIndexComponent) bean).setName((String) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((CreditDefaultSwapIndexComponent) bean)._obligorRedCode, "obligorRedCode");
+      JodaBeanUtils.notNull(((CreditDefaultSwapIndexComponent) bean)._weight, "weight");
+      JodaBeanUtils.notNull(((CreditDefaultSwapIndexComponent) bean)._name, "name");
     }
 
   }

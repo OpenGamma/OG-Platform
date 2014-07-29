@@ -7,7 +7,10 @@ package com.opengamma.analytics.financial.credit;
 
 /**
  * The seniority of the debt of the reference entity
+ * 
+ * @deprecated use com.opengamma.core.legalentity.SeniorityLevel
  */
+@Deprecated
 public enum DebtSeniority {
   /**
    * Senior debt

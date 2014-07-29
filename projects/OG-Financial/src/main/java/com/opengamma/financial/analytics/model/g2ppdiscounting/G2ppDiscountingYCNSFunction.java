@@ -15,6 +15,7 @@ import static com.opengamma.financial.analytics.model.curve.CurveCalculationProp
 import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.PROPERTY_HULL_WHITE_CURRENCY;
 import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.PROPERTY_HULL_WHITE_PARAMETERS;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
@@ -50,8 +51,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Calculates the yield curve node sensitivities of instruments using curves
- * constructed using the Hull-White one factor discounting method.
+ * Calculates the yield curve node sensitivities of instruments using curves constructed using the Hull-White one factor discounting method.
  */
 public class G2ppDiscountingYCNSFunction extends G2ppDiscountingFunction {
   /** The logger */
@@ -69,20 +69,17 @@ public class G2ppDiscountingYCNSFunction extends G2ppDiscountingFunction {
     return new G2ppCompiledFunction(getTargetToDefinitionConverter(context), getDefinitionToDerivativeConverter(context), true) {
 
       @Override
-      protected Set<ComputedValue> getValues(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
-          final ComputationTarget target, final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative,
-          final FXMatrix fxMatrix) {
+      protected Set<ComputedValue> getValues(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
+          final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative, final FXMatrix fxMatrix) {
         final MultipleCurrencyParameterSensitivity sensitivities = (MultipleCurrencyParameterSensitivity) inputs.getValue(BLOCK_CURVE_SENSITIVITIES);
         final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
         final String curveName = desiredValue.getConstraint(CURVE);
         final Map<Pair<String, Currency>, DoubleMatrix1D> entries = sensitivities.getSensitivities();
         for (final Map.Entry<Pair<String, Currency>, DoubleMatrix1D> entry : entries.entrySet()) {
           if (curveName.equals(entry.getKey().getFirst())) {
-            final ValueProperties properties = desiredValue.getConstraints().copy()
-                .with(CURVE, curveName)
-                .get();
-            final CurveDefinition curveDefinition = (CurveDefinition) inputs.getValue(new ValueRequirement(CURVE_DEFINITION, ComputationTargetSpecification.NULL,
-                ValueProperties.builder().with(CURVE, curveName).get()));
+            final ValueProperties properties = desiredValue.getConstraints().copy().with(CURVE, curveName).get();
+            final CurveDefinition curveDefinition = (CurveDefinition) inputs.getValue(new ValueRequirement(CURVE_DEFINITION, ComputationTargetSpecification.NULL, ValueProperties.builder()
+                .with(CURVE, curveName).get()));
             final ValueSpecification spec = new ValueSpecification(YIELD_CURVE_NODE_SENSITIVITIES, target.toSpecification(), properties);
             final DoubleLabelledMatrix1D ycns = MultiCurveUtils.getLabelledMatrix(entry.getValue(), curveDefinition);
             return Collections.singleton(new ComputedValue(spec, ycns));
@@ -111,15 +108,9 @@ public class G2ppDiscountingYCNSFunction extends G2ppDiscountingFunction {
         if (hullWhiteCurrencies == null || hullWhiteCurrencies.size() != 1) {
           return null;
         }
-        final ValueProperties properties = ValueProperties
-            .with(PROPERTY_CURVE_TYPE, HULL_WHITE_DISCOUNTING)
-            .with(PROPERTY_HULL_WHITE_PARAMETERS, hullWhiteParameters)
-            .with(PROPERTY_HULL_WHITE_CURRENCY, hullWhiteCurrencies)
-            .with(CURVE_EXPOSURES, curveExposureConfigs)
-            .get();
-        final ValueProperties curveProperties = ValueProperties
-            .with(CURVE, curveNames)
-            .get();
+        final ValueProperties properties = ValueProperties.with(PROPERTY_CURVE_TYPE, HULL_WHITE_DISCOUNTING).with(PROPERTY_HULL_WHITE_PARAMETERS, hullWhiteParameters)
+            .with(PROPERTY_HULL_WHITE_CURRENCY, hullWhiteCurrencies).with(CURVE_EXPOSURES, curveExposureConfigs).get();
+        final ValueProperties curveProperties = ValueProperties.with(CURVE, curveNames).get();
         final Set<ValueRequirement> requirements = new HashSet<>();
         final FinancialSecurity security = (FinancialSecurity) target.getTrade().getSecurity();
         final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
@@ -135,9 +126,12 @@ public class G2ppDiscountingYCNSFunction extends G2ppDiscountingFunction {
       }
 
       @Override
-      protected ValueProperties.Builder getResultProperties(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
-        final ValueProperties.Builder properties = super.getResultProperties(compilationContext, target);
-        return properties.withAny(CURVE);
+      protected Collection<ValueProperties.Builder> getResultProperties(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
+        final Collection<ValueProperties.Builder> properties = super.getResultProperties(compilationContext, target);
+        for (ValueProperties.Builder builder : properties) {
+          builder.withAny(CURVE);
+        }
+        return properties;
       }
 
     };

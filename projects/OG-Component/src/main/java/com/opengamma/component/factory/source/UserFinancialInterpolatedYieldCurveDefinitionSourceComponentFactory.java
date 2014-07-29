@@ -12,6 +12,7 @@ import java.util.Map;
 
 import net.sf.ehcache.CacheManager;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -159,87 +160,6 @@ public class UserFinancialInterpolatedYieldCurveDefinitionSourceComponentFactory
   @Override
   public UserFinancialInterpolatedYieldCurveDefinitionSourceComponentFactory.Meta metaBean() {
     return UserFinancialInterpolatedYieldCurveDefinitionSourceComponentFactory.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        return getClassifier();
-      case -614707837:  // publishRest
-        return isPublishRest();
-      case -1452875317:  // cacheManager
-        return getCacheManager();
-      case 1705602398:  // underlyingClassifier
-        return getUnderlyingClassifier();
-      case -1488300550:  // underlyingConfigSource
-        return getUnderlyingConfigSource();
-      case 473030732:  // userClassifier
-        return getUserClassifier();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        setClassifier((String) newValue);
-        return;
-      case -614707837:  // publishRest
-        setPublishRest((Boolean) newValue);
-        return;
-      case -1452875317:  // cacheManager
-        setCacheManager((CacheManager) newValue);
-        return;
-      case 1705602398:  // underlyingClassifier
-        setUnderlyingClassifier((String) newValue);
-        return;
-      case -1488300550:  // underlyingConfigSource
-        setUnderlyingConfigSource((ConfigSource) newValue);
-        return;
-      case 473030732:  // userClassifier
-        setUserClassifier((String) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_classifier, "classifier");
-    JodaBeanUtils.notNull(_underlyingConfigSource, "underlyingConfigSource");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      UserFinancialInterpolatedYieldCurveDefinitionSourceComponentFactory other = (UserFinancialInterpolatedYieldCurveDefinitionSourceComponentFactory) obj;
-      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
-          JodaBeanUtils.equal(isPublishRest(), other.isPublishRest()) &&
-          JodaBeanUtils.equal(getCacheManager(), other.getCacheManager()) &&
-          JodaBeanUtils.equal(getUnderlyingClassifier(), other.getUnderlyingClassifier()) &&
-          JodaBeanUtils.equal(getUnderlyingConfigSource(), other.getUnderlyingConfigSource()) &&
-          JodaBeanUtils.equal(getUserClassifier(), other.getUserClassifier()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingConfigSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUserClassifier());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -395,6 +315,66 @@ public class UserFinancialInterpolatedYieldCurveDefinitionSourceComponentFactory
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public UserFinancialInterpolatedYieldCurveDefinitionSourceComponentFactory clone() {
+    return JodaBeanUtils.cloneAlways(this);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      UserFinancialInterpolatedYieldCurveDefinitionSourceComponentFactory other = (UserFinancialInterpolatedYieldCurveDefinitionSourceComponentFactory) obj;
+      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
+          (isPublishRest() == other.isPublishRest()) &&
+          JodaBeanUtils.equal(getCacheManager(), other.getCacheManager()) &&
+          JodaBeanUtils.equal(getUnderlyingClassifier(), other.getUnderlyingClassifier()) &&
+          JodaBeanUtils.equal(getUnderlyingConfigSource(), other.getUnderlyingConfigSource()) &&
+          JodaBeanUtils.equal(getUserClassifier(), other.getUserClassifier()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingClassifier());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingConfigSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUserClassifier());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(224);
+    buf.append("UserFinancialInterpolatedYieldCurveDefinitionSourceComponentFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("publishRest").append('=').append(JodaBeanUtils.toString(isPublishRest())).append(',').append(' ');
+    buf.append("cacheManager").append('=').append(JodaBeanUtils.toString(getCacheManager())).append(',').append(' ');
+    buf.append("underlyingClassifier").append('=').append(JodaBeanUtils.toString(getUnderlyingClassifier())).append(',').append(' ');
+    buf.append("underlyingConfigSource").append('=').append(JodaBeanUtils.toString(getUnderlyingConfigSource())).append(',').append(' ');
+    buf.append("userClassifier").append('=').append(JodaBeanUtils.toString(getUserClassifier())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code UserFinancialInterpolatedYieldCurveDefinitionSourceComponentFactory}.
    */
@@ -533,6 +513,58 @@ public class UserFinancialInterpolatedYieldCurveDefinitionSourceComponentFactory
      */
     public final MetaProperty<String> userClassifier() {
       return _userClassifier;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          return ((UserFinancialInterpolatedYieldCurveDefinitionSourceComponentFactory) bean).getClassifier();
+        case -614707837:  // publishRest
+          return ((UserFinancialInterpolatedYieldCurveDefinitionSourceComponentFactory) bean).isPublishRest();
+        case -1452875317:  // cacheManager
+          return ((UserFinancialInterpolatedYieldCurveDefinitionSourceComponentFactory) bean).getCacheManager();
+        case 1705602398:  // underlyingClassifier
+          return ((UserFinancialInterpolatedYieldCurveDefinitionSourceComponentFactory) bean).getUnderlyingClassifier();
+        case -1488300550:  // underlyingConfigSource
+          return ((UserFinancialInterpolatedYieldCurveDefinitionSourceComponentFactory) bean).getUnderlyingConfigSource();
+        case 473030732:  // userClassifier
+          return ((UserFinancialInterpolatedYieldCurveDefinitionSourceComponentFactory) bean).getUserClassifier();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          ((UserFinancialInterpolatedYieldCurveDefinitionSourceComponentFactory) bean).setClassifier((String) newValue);
+          return;
+        case -614707837:  // publishRest
+          ((UserFinancialInterpolatedYieldCurveDefinitionSourceComponentFactory) bean).setPublishRest((Boolean) newValue);
+          return;
+        case -1452875317:  // cacheManager
+          ((UserFinancialInterpolatedYieldCurveDefinitionSourceComponentFactory) bean).setCacheManager((CacheManager) newValue);
+          return;
+        case 1705602398:  // underlyingClassifier
+          ((UserFinancialInterpolatedYieldCurveDefinitionSourceComponentFactory) bean).setUnderlyingClassifier((String) newValue);
+          return;
+        case -1488300550:  // underlyingConfigSource
+          ((UserFinancialInterpolatedYieldCurveDefinitionSourceComponentFactory) bean).setUnderlyingConfigSource((ConfigSource) newValue);
+          return;
+        case 473030732:  // userClassifier
+          ((UserFinancialInterpolatedYieldCurveDefinitionSourceComponentFactory) bean).setUserClassifier((String) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((UserFinancialInterpolatedYieldCurveDefinitionSourceComponentFactory) bean)._classifier, "classifier");
+      JodaBeanUtils.notNull(((UserFinancialInterpolatedYieldCurveDefinitionSourceComponentFactory) bean)._underlyingConfigSource, "underlyingConfigSource");
+      super.validate(bean);
     }
 
   }

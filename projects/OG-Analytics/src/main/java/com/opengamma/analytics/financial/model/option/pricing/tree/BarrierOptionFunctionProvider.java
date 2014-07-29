@@ -25,18 +25,32 @@ public abstract class BarrierOptionFunctionProvider extends OptionFunctionProvid
      * Down-and-out option
      */
     DownAndOut,
+
     /**
      * Up-and-out option
      */
     UpAndOut,
+
     /**
      * Down-and-in option, not implemented
      */
     DownAndIn,
+
     /**
      * Up-and-in option, not implemented
      */
-    UpAndIn
+    UpAndIn,
+
+    /**
+     * Up-and-Out-Down-and-Out
+     */
+    DoubleKnockOut,
+
+    /**
+     * Up-and-In-Down-and-In, not implemented
+     * Knock-in type should be priced by another model
+     */
+    DoubleKnockIn
   }
 
   private double _barrier;
@@ -64,7 +78,7 @@ public abstract class BarrierOptionFunctionProvider extends OptionFunctionProvid
       case UpAndOut:
         _checker = new CrossUpperBarrier();
         break;
-      default: //i.e., DownAndIn, UpAndIn
+      default:
         throw new NotImplementedException();
     }
 
@@ -84,6 +98,14 @@ public abstract class BarrierOptionFunctionProvider extends OptionFunctionProvid
    */
   public double getBarrier() {
     return _barrier;
+  }
+
+  /**
+   * Barrier type
+   * @return DownAndOut or UpAndOut
+   */
+  public BarrierTypes getBarrierType() {
+    return _checker instanceof CrossLowerBarrier ? BarrierTypes.DownAndOut : BarrierTypes.UpAndOut;
   }
 
   /**

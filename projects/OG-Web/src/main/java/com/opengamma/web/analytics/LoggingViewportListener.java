@@ -45,7 +45,8 @@ import com.opengamma.util.tuple.Pair;
   private void enableLogging(ViewportDefinition viewportDef, GridStructure gridStructure) {
     Set<Pair<String, ValueSpecification>> newVals = Sets.newHashSet();
     for (GridCell cell : viewportDef) {
-      Pair<String, ValueSpecification> valueSpec = gridStructure.getTargetForCell(cell.getRow(), cell.getColumn());
+      Pair<String, ValueSpecification> valueSpec = gridStructure.getValueSpecificationForCell(cell.getRow(),
+                                                                                              cell.getColumn());
       if (valueSpec == null) {
         continue;
       }
@@ -86,7 +87,7 @@ import com.opengamma.util.tuple.Pair;
     Set<Pair<String, ValueSpecification>> targets = Sets.newHashSet();
     while (cellIterator.hasNext()) {
       GridCell cell = cellIterator.next();
-      targets.add(gridStructure.getTargetForCell(cell.getRow(), cell.getColumn()));
+      targets.add(gridStructure.getValueSpecificationForCell(cell.getRow(), cell.getColumn()));
     }
     return targets;
   }

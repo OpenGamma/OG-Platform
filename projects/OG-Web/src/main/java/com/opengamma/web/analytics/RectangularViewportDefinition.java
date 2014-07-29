@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 import com.opengamma.web.analytics.formatting.TypeFormatter;
 
 /**
@@ -81,10 +82,9 @@ public class RectangularViewportDefinition extends ViewportDefinition {
   // scrolling down or expanding the viewport down triggers a node expansion
   @Override
   Pair<Integer, Boolean> getChangedNode(ViewportDefinition viewportDefinition) {
+    // Viewport definitions other than RectangularViewportDefinitions do not have changed nodes so just return null
     if (!(viewportDefinition instanceof RectangularViewportDefinition)) {
-      throw new IllegalArgumentException("Unexpected viewport definition type " +
-                                             viewportDefinition.getClass().getSimpleName() + ", expected " +
-                                             RectangularViewportDefinition.class.getSimpleName());
+      return null;
     }
     List<Integer> newRows = ((RectangularViewportDefinition) viewportDefinition).getRows();
 
@@ -104,13 +104,13 @@ public class RectangularViewportDefinition extends ViewportDefinition {
         // top row in both viewports is the same because there's no scrolling but new rows are being added without
         // any nodes being expanded
         s_logger.debug("return #1");
-        return Pair.of(_rows.get(i - 1), true);
+        return Pairs.of(_rows.get(i - 1), true);
       }
       if (i >= newRows.size()) {
         // TODO this gives false positives scrolling slowly up to the top into the buffer zone
         // top row in both viewports is the same because of the extra hidden rows
         s_logger.debug("return #2");
-        return Pair.of(newRows.get(i - 1), false);
+        return Pairs.of(newRows.get(i - 1), false);
       }
       // if this object's row index is greater then the node has collapsed
       // the the other object's row index is greater then the node has expanded
@@ -122,10 +122,10 @@ public class RectangularViewportDefinition extends ViewportDefinition {
       }
       if (newRow < oldRow) {
         s_logger.debug("return #3");
-        return Pair.of(newRows.get(i - 1), true);
+        return Pairs.of(newRows.get(i - 1), true);
       } else if (oldRow < newRow) {
         s_logger.debug("return #4");
-        return Pair.of(_rows.get(i - 1), false);
+        return Pairs.of(_rows.get(i - 1), false);
       }
     }
     // or resized the window - if the window has resized the row lists will be different lengths

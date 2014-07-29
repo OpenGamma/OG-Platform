@@ -15,11 +15,13 @@ import com.opengamma.analytics.financial.instrument.future.InterestRateFutureTra
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests the generator of interest rate futures.
  */
+@Test(groups = TestGroup.UNIT)
 public class GeneratorInterestRateFuturesTest {
 
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
@@ -48,7 +50,7 @@ public class GeneratorInterestRateFuturesTest {
     final int quantity = (int) Math.ceil(notional / NOTIONAL);
     final GeneratorAttribute attribute = new GeneratorAttribute();
     final InterestRateFutureTransactionDefinition insGenerated = GENERATOR_FUTURES_ED.generateInstrument(referenceDate, price, notional, attribute);
-    final InterestRateFutureTransactionDefinition insExpected = new InterestRateFutureTransactionDefinition(FUTURES_DEFINITION, referenceDate, price, quantity);
+    final InterestRateFutureTransactionDefinition insExpected = new InterestRateFutureTransactionDefinition(FUTURES_DEFINITION, quantity, referenceDate, price);
     assertEquals("Generator Deposit: generate instrument", insExpected, insGenerated);
   }
 

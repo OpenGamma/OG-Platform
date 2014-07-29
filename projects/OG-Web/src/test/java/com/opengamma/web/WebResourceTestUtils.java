@@ -10,6 +10,7 @@ import static org.testng.AssertJUnit.assertNotNull;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -92,53 +93,53 @@ public final class WebResourceTestUtils {
         ZoneOffset.UTC), ExpiryAccuracy.MIN_HOUR_DAY_MONTH_YEAR);
     Set<BondFutureDeliverable> basket = new HashSet<BondFutureDeliverable>();
     basket.add(new BondFutureDeliverable(ExternalIdBundle.of(
-        ExternalSchemes.bloombergBuidSecurityId("GV912810EV6")), 1.0858));
+        ExternalSchemes.bloombergTickerSecurityId("GV912810EV6")), 1.0858));
     basket.add(new BondFutureDeliverable(ExternalIdBundle.of(
-        ExternalSchemes.bloombergBuidSecurityId("GV912810FB9")), 1.0132));
+        ExternalSchemes.bloombergTickerSecurityId("GV912810FB9")), 1.0132));
     basket.add(new BondFutureDeliverable(ExternalIdBundle.of(
-        ExternalSchemes.bloombergBuidSecurityId("GV912810PX0")), 0.7984));
+        ExternalSchemes.bloombergTickerSecurityId("GV912810PX0")), 0.7984));
     basket.add(new BondFutureDeliverable(ExternalIdBundle.of(
-        ExternalSchemes.bloombergBuidSecurityId("GV912810FG8")), 0.9169));
+        ExternalSchemes.bloombergTickerSecurityId("GV912810FG8")), 0.9169));
     basket.add(new BondFutureDeliverable(ExternalIdBundle.of(
-        ExternalSchemes.bloombergBuidSecurityId("GV912810QD3")), 0.7771));
+        ExternalSchemes.bloombergTickerSecurityId("GV912810QD3")), 0.7771));
     basket.add(new BondFutureDeliverable(ExternalIdBundle.of(
-        ExternalSchemes.bloombergBuidSecurityId("GV912810FF0")), 0.9174));
+        ExternalSchemes.bloombergTickerSecurityId("GV912810FF0")), 0.9174));
     basket.add(new BondFutureDeliverable(ExternalIdBundle.of(
-        ExternalSchemes.bloombergBuidSecurityId("GV912810PW2")), 0.7825));
+        ExternalSchemes.bloombergTickerSecurityId("GV912810PW2")), 0.7825));
     basket.add(new BondFutureDeliverable(ExternalIdBundle.of(
-        ExternalSchemes.bloombergBuidSecurityId("GV912810FE3")), 0.9454));
+        ExternalSchemes.bloombergTickerSecurityId("GV912810FE3")), 0.9454));
     basket.add(new BondFutureDeliverable(ExternalIdBundle.of(
-        ExternalSchemes.bloombergBuidSecurityId("GV912810QH4")), 0.7757));
+        ExternalSchemes.bloombergTickerSecurityId("GV912810QH4")), 0.7757));
     basket.add(new BondFutureDeliverable(ExternalIdBundle.of(
-        ExternalSchemes.bloombergBuidSecurityId("GV912810PU6")), 0.8675));
+        ExternalSchemes.bloombergTickerSecurityId("GV912810PU6")), 0.8675));
     basket.add(new BondFutureDeliverable(ExternalIdBundle.of(
-        ExternalSchemes.bloombergBuidSecurityId("GV912810EX2")), 1.0765));
+        ExternalSchemes.bloombergTickerSecurityId("GV912810EX2")), 1.0765));
     basket.add(new BondFutureDeliverable(ExternalIdBundle.of(
-        ExternalSchemes.bloombergBuidSecurityId("GV912810FT0")), 0.8054));
+        ExternalSchemes.bloombergTickerSecurityId("GV912810FT0")), 0.8054));
     basket.add(new BondFutureDeliverable(ExternalIdBundle.of(
-        ExternalSchemes.bloombergBuidSecurityId("GV912810FJ2")), 1.0141));
+        ExternalSchemes.bloombergTickerSecurityId("GV912810FJ2")), 1.0141));
     basket.add(new BondFutureDeliverable(ExternalIdBundle.of(
-        ExternalSchemes.bloombergBuidSecurityId("GV912810PT9")), 0.8352));
+        ExternalSchemes.bloombergTickerSecurityId("GV912810PT9")), 0.8352));
     basket.add(new BondFutureDeliverable(ExternalIdBundle.of(
-        ExternalSchemes.bloombergBuidSecurityId("GV912810QE1")), 0.8109));
+        ExternalSchemes.bloombergTickerSecurityId("GV912810QE1")), 0.8109));
     basket.add(new BondFutureDeliverable(ExternalIdBundle.of(
-        ExternalSchemes.bloombergBuidSecurityId("GV912810FP8")), 0.9268));
+        ExternalSchemes.bloombergTickerSecurityId("GV912810FP8")), 0.9268));
     basket.add(new BondFutureDeliverable(ExternalIdBundle.of(
-        ExternalSchemes.bloombergBuidSecurityId("GV912810QA9")), 0.6606));
+        ExternalSchemes.bloombergTickerSecurityId("GV912810QA9")), 0.6606));
     basket.add(new BondFutureDeliverable(ExternalIdBundle.of(
-        ExternalSchemes.bloombergBuidSecurityId("GV912810FM5")), 1.0286));
+        ExternalSchemes.bloombergTickerSecurityId("GV912810FM5")), 1.0286));
     basket.add(new BondFutureDeliverable(ExternalIdBundle.of(
-        ExternalSchemes.bloombergBuidSecurityId("GV912810EY0")), 1.0513));
+        ExternalSchemes.bloombergTickerSecurityId("GV912810EY0")), 1.0513));
     basket.add(new BondFutureDeliverable(ExternalIdBundle.of(
-        ExternalSchemes.bloombergBuidSecurityId("GV912810QB7")), 0.7616));
+        ExternalSchemes.bloombergTickerSecurityId("GV912810QB7")), 0.7616));
     basket.add(new BondFutureDeliverable(ExternalIdBundle.of(
-        ExternalSchemes.bloombergBuidSecurityId("GV912810QC5")), 0.795));
+        ExternalSchemes.bloombergTickerSecurityId("GV912810QC5")), 0.795));
     basket.add(new BondFutureDeliverable(ExternalIdBundle.of(
-        ExternalSchemes.bloombergBuidSecurityId("GV912810EZ7")), 1.0649));
+        ExternalSchemes.bloombergTickerSecurityId("GV912810EZ7")), 1.0649));
     basket.add(new BondFutureDeliverable(ExternalIdBundle.of(
-        ExternalSchemes.bloombergBuidSecurityId("GV912810EW4")), 1.0));
+        ExternalSchemes.bloombergTickerSecurityId("GV912810EW4")), 1.0));
     basket.add(new BondFutureDeliverable(ExternalIdBundle.of(
-        ExternalSchemes.bloombergBuidSecurityId("GV912810FA1")), 1.0396));
+        ExternalSchemes.bloombergTickerSecurityId("GV912810FA1")), 1.0396));
     
     BondFutureSecurity sec = new BondFutureSecurity(expiry, "XCBT", "XCBT", Currency.USD, 1000, basket,
                                                     LocalDate.of(2010, 6, 01).atStartOfDay(ZoneOffset.UTC), 
@@ -153,10 +154,10 @@ public final class WebResourceTestUtils {
     return sec;
   }
   
-  public static JSONObject loadJson(String filePath) throws IOException, JSONException {
+  public static JSONObject loadJson(String filePath) throws IOException, JSONException, URISyntaxException {
     URL jsonResource = ClassLoader.getSystemResource(filePath);
     assertNotNull(jsonResource);
-    String jsonText = FileUtils.readFileToString(new File(jsonResource.getPath()));
+    String jsonText = FileUtils.readFileToString(new File(jsonResource.toURI()));
     return new JSONObject(jsonText);
   }
 
@@ -164,8 +165,8 @@ public final class WebResourceTestUtils {
   public static void assertJSONObjectEquals(final JSONObject expectedJson, final JSONObject actualJson) throws Exception {
     assertNotNull(expectedJson);
     assertNotNull(actualJson);
-    String expectedSorted = JSONValue.toJSONString((Map) new JSONParser().parse(expectedJson.toString(), s_sortedJSONObjectFactory));
-    String actualSorted = JSONValue.toJSONString((Map) new JSONParser().parse(actualJson.toString(), s_sortedJSONObjectFactory));
+    String expectedSorted = JSONValue.toJSONString(new JSONParser().parse(expectedJson.toString(), s_sortedJSONObjectFactory));
+    String actualSorted = JSONValue.toJSONString(new JSONParser().parse(actualJson.toString(), s_sortedJSONObjectFactory));
     assertEquals(expectedSorted, actualSorted);
   }
 

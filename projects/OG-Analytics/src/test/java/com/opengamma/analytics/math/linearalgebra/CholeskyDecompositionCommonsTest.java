@@ -13,10 +13,12 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.math.matrix.CommonsMatrixAlgebra;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.matrix.MatrixAlgebra;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the Cholesky decomposition wrapping.
  */
+@Test(groups = TestGroup.UNIT)
 public class CholeskyDecompositionCommonsTest {
 
   private static final MatrixAlgebra ALGEBRA = new CommonsMatrixAlgebra();
