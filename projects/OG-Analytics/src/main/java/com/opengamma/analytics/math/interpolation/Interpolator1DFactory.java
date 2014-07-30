@@ -197,6 +197,18 @@ public final class Interpolator1DFactory {
   public static final String LOG_NATURAL_CUBIC_MONOTONE = "LogNaturalCubicWithMonotonicity";
   /**Instance of log natural cubic interpolation with monotonicity filter*/
   public static final LogNaturalCubicMonotonicityPreservingInterpolator1D LOG_NATURAL_CUBIC_MONOTONE_INSTANCE = new LogNaturalCubicMonotonicityPreservingInterpolator1D();
+  /**Log natural cubic interpolation*/
+  public static final String LOG_NATURAL_CUBIC = "LogNaturalCubic";
+  /**Instance of log natural cubic interpolation*/
+  public static final LogNaturalCubicInterpolator1D LOG_NATURAL_CUBIC_INSTANCE = new LogNaturalCubicInterpolator1D();
+  /**Log cubic spline with not-a-knot endpoint conditions*/
+  public static final String LOG_NOTAKNOT_CUBIC = "LogNotAKnotCubic";
+  /**Instance of log cubic spline with not-a-knot endpoint conditions*/
+  public static final LogNotAKnotCubicSplineInterpolator1D LOG_NOTAKNOT_CUBIC_INSTANCE = new LogNotAKnotCubicSplineInterpolator1D();
+  /**Log cubic spline with clamped endpoint conditions*/
+  public static final String LOG_CLAMPED_CUBIC = "LogClampedCubic";
+  /**Instance of log cubic spline with clamped endpoint conditions*/
+  public static final LogClampedCubicSplineInterpolator1D LOG_CLAMPED_CUBIC_INSTANCE = new LogClampedCubicSplineInterpolator1D();
 
   private static final Map<String, Interpolator1D> s_staticInstances;
   private static final Map<Class<?>, String> s_instanceNames;
@@ -288,6 +300,12 @@ public final class Interpolator1DFactory {
 
     staticInstances.put(LOG_NATURAL_CUBIC_MONOTONE, LOG_NATURAL_CUBIC_MONOTONE_INSTANCE);
     instanceNames.put(LogNaturalCubicMonotonicityPreservingInterpolator1D.class, LOG_NATURAL_CUBIC_MONOTONE);
+    staticInstances.put(LOG_NATURAL_CUBIC, LOG_NATURAL_CUBIC_INSTANCE);
+    instanceNames.put(LogNaturalCubicInterpolator1D.class, LOG_NATURAL_CUBIC);
+    staticInstances.put(LOG_NOTAKNOT_CUBIC, LOG_NOTAKNOT_CUBIC_INSTANCE);
+    instanceNames.put(LogNotAKnotCubicSplineInterpolator1D.class, LOG_NOTAKNOT_CUBIC);
+    staticInstances.put(LOG_CLAMPED_CUBIC, LOG_CLAMPED_CUBIC_INSTANCE);
+    instanceNames.put(LogClampedCubicSplineInterpolator1D.class, LOG_CLAMPED_CUBIC);
 
     s_staticInstances = new HashMap<>(staticInstances);
     s_instanceNames = new HashMap<>(instanceNames);
