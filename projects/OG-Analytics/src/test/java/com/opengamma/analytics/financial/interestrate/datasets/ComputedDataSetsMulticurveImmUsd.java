@@ -20,6 +20,7 @@ import com.opengamma.analytics.financial.instrument.NotionalProvider;
 import com.opengamma.analytics.financial.instrument.annuity.AdjustedDateParameters;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
+import com.opengamma.analytics.financial.instrument.annuity.CompoundingMethod;
 import com.opengamma.analytics.financial.instrument.annuity.FixedAnnuityDefinitionBuilder;
 import com.opengamma.analytics.financial.instrument.annuity.FloatingAnnuityDefinitionBuilder;
 import com.opengamma.analytics.financial.instrument.annuity.OffsetAdjustedDateParameters;
@@ -217,7 +218,7 @@ public class ComputedDataSetsMulticurveImmUsd {
     double[] parRateOis = new double[nbImmSwaps];
     for (int loopimm = 0; loopimm < nbImmSwaps; loopimm++) {
       InstrumentDerivative ois0 = ois0Definitions[loopimm].toDerivative(calibrationDate);
-      parRateSwp[loopimm] = ois0.accept(PRDC, multicurve);
+      parRateOis[loopimm] = ois0.accept(PRDC, multicurve);
     }
     InstrumentDefinition<?>[] dscDefinitions = new InstrumentDefinition<?>[nbImmSwaps + 1];
     dscDefinitions[0] = new CashDefinition(USD, calibrationDate, immDates[0], NOTIONAL,
@@ -406,6 +407,7 @@ public class ComputedDataSetsMulticurveImmUsd {
           dayCount(USDLIBOR3M.getDayCount()).
           fixingDateAdjustmentParameters(OFFSET_ADJ_LIBOR).
           currency(USDLIBOR3M.getCurrency()).
+          compoundingMethod(CompoundingMethod.FLAT).
           build();
       swap[loopimm] = new SwapCouponFixedCouponDefinition(fixedLegDefinition, onLegDefinition);
     }
