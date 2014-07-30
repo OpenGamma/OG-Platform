@@ -15,10 +15,12 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.math.function.PiecewisePolynomialWithSensitivityFunction1D;
 import com.opengamma.analytics.math.interpolation.data.InterpolationBoundedValues;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * 
  */
+@Test(groups = TestGroup.UNIT)
 public class LogClampedCubicSplineInterpolator1DTest {
   private static final Interpolator1D LOG_INTERP = Interpolator1DFactory.LOG_CLAMPED_CUBIC_INSTANCE;
   private static final Interpolator1D BARE_INTERP = Interpolator1DFactory.CLAMPED_CUBIC_INSTANCE;
