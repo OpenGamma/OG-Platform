@@ -295,7 +295,7 @@ public class MulticurveBuildingHullWhiteDiscountUSDFuturesDemoTest {
     }
   }
 
-  @Test(enabled = true)
+  @Test(enabled = false)
   public void performance() {
     long startTime, endTime;
     final int nbTest = 100;
