@@ -35,6 +35,7 @@ The notional size and currency of the contract.
 Debt seniority
 --------------
 The seniority of the debt. Supported values:
+
 * SENIOR
 * SUBORDINATED
 * JRSUBUT2 - Junior Subordinated or Upper Tier 2 Debt (Banks) - MarkIt notation
@@ -43,7 +44,3 @@ The seniority of the debt. Supported values:
 * SNRFOR - Senior Unsecured Debt (Corporate/Financial), Foreign Currency Sovereign Debt (Government) - MarkIt notation
 * SUBLT2 - Subordinated or Lower Tier 2 Debt (Banks) - MarkIt notation
 * None
-
-
-
-
