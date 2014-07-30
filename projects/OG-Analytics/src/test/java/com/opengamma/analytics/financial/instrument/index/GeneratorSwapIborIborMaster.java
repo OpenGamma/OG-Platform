@@ -49,6 +49,8 @@ public final class GeneratorSwapIborIborMaster {
     _generatorSwap = new HashMap<>();
     _generatorSwap.put("AUDBBSW3MBBSW6M", new GeneratorSwapIborIbor("AUDBBSW3MBBSW6M", _iborIndexMaster.getIndex("AUDBB3M"), _iborIndexMaster.getIndex("AUDBB6M"),
         baseCalendar, baseCalendar));
+    _generatorSwap.put("EUREURIBOR3MEURIBOR6M", new GeneratorSwapIborIbor("EUREURIBOR3MEURIBOR6M", _iborIndexMaster.getIndex("EURIBOR3M"), _iborIndexMaster.getIndex("EURIBOR6M"),
+        baseCalendar, baseCalendar));
   }
 
   public GeneratorSwapIborIbor getGenerator(final String name, final Calendar cal) {

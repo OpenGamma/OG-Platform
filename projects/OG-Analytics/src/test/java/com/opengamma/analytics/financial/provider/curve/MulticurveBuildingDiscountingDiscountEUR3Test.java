@@ -22,6 +22,7 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorCurveYieldInterpolated;
 import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorYDCurve;
+import com.opengamma.analytics.financial.datasets.CalendarTarget;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.cash.CashDefinition;
@@ -48,6 +49,7 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
+import com.opengamma.analytics.financial.provider.calculator.generic.LastFixingTimeIndexCalculator;
 import com.opengamma.analytics.financial.provider.calculator.generic.LastTimeCalculator;
 import com.opengamma.analytics.financial.provider.curve.multicurve.MulticurveDiscountBuildingRepository;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
@@ -59,7 +61,6 @@ import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
@@ -81,7 +82,7 @@ public class MulticurveBuildingDiscountingDiscountEUR3Test {
   private static final double TOLERANCE_ROOT = 1.0E-10;
   private static final int STEP_MAX = 100;
 
-  private static final Calendar TARGET = new MondayToFridayCalendar("TARGET");
+  private static final Calendar TARGET = new CalendarTarget("TARGET");
   private static final Currency EUR = Currency.EUR;
   private static final FXMatrix FX_MATRIX = new FXMatrix(EUR);
 
@@ -101,6 +102,8 @@ public class MulticurveBuildingDiscountingDiscountEUR3Test {
   private static final GeneratorFRA GENERATOR_FRA_6M = new GeneratorFRA("GENERATOR_FRA_6M", EURIBOR6M, TARGET);
   private static final GeneratorDepositIbor GENERATOR_EURIBOR3M = new GeneratorDepositIbor("GENERATOR_EURIBOR3M", EURIBOR3M, TARGET);
   private static final GeneratorDepositIbor GENERATOR_EURIBOR6M = new GeneratorDepositIbor("GENERATOR_EURIBOR6M", EURIBOR6M, TARGET);
+  private static final LastFixingTimeIndexCalculator MATURITY_CALCULATOR_EURIBOR3M = new LastFixingTimeIndexCalculator(EURIBOR3M);
+  private static final LastFixingTimeIndexCalculator MATURITY_CALCULATOR_EURIBOR6M = new LastFixingTimeIndexCalculator(EURIBOR6M);
 
   private static final ZonedDateTime NOW = DateUtils.getUTCDate(2011, 9, 28);
 
@@ -206,10 +209,12 @@ public class MulticurveBuildingDiscountingDiscountEUR3Test {
     DEFINITIONS_UNITS[0][2] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD6_EUR };
     DEFINITIONS_UNITS[1][0] = new InstrumentDefinition<?>[][] {DEFINITIONS_DSC_EUR, DEFINITIONS_FWD3_EUR, DEFINITIONS_FWD6_EUR };
     final GeneratorYDCurve genIntLin = new GeneratorCurveYieldInterpolated(MATURITY_CALCULATOR, INTERPOLATOR_LINEAR);
+    final GeneratorYDCurve genIntLinEuribor3M = new GeneratorCurveYieldInterpolated(MATURITY_CALCULATOR_EURIBOR3M, INTERPOLATOR_LINEAR);
+    final GeneratorYDCurve genIntLinEuribor6M = new GeneratorCurveYieldInterpolated(MATURITY_CALCULATOR_EURIBOR6M, INTERPOLATOR_LINEAR);
     GENERATORS_UNITS[0][0] = new GeneratorYDCurve[] {genIntLin };
-    GENERATORS_UNITS[0][1] = new GeneratorYDCurve[] {genIntLin };
-    GENERATORS_UNITS[0][2] = new GeneratorYDCurve[] {genIntLin };
-    GENERATORS_UNITS[1][0] = new GeneratorYDCurve[] {genIntLin, genIntLin, genIntLin };
+    GENERATORS_UNITS[0][1] = new GeneratorYDCurve[] {genIntLinEuribor3M };
+    GENERATORS_UNITS[0][2] = new GeneratorYDCurve[] {genIntLinEuribor6M };
+    GENERATORS_UNITS[1][0] = new GeneratorYDCurve[] {genIntLin, genIntLinEuribor3M, genIntLinEuribor6M };
     NAMES_UNITS[0][0] = new String[] {CURVE_NAME_DSC_EUR };
     NAMES_UNITS[0][1] = new String[] {CURVE_NAME_FWD3_EUR };
     NAMES_UNITS[0][2] = new String[] {CURVE_NAME_FWD6_EUR };
