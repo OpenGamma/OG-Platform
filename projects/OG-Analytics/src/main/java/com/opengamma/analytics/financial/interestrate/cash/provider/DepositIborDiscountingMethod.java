@@ -87,6 +87,17 @@ public final class DepositIborDiscountingMethod {
   }
 
   /**
+   * Computes the Ibor fixing deposit representation par rate.
+   * When deposit has already start the number may not be meaning full as only the final payment remains (no initial payment).
+   * @param deposit The deposit.
+   * @param multicurve The curves.
+   * @return The spread.
+   */
+  public double parRate(final DepositIbor deposit, final MulticurveProviderInterface multicurve) {
+    return multicurve.getSimplyCompoundForwardRate(deposit.getIndex(), deposit.getStartTime(), deposit.getEndTime(), deposit.getAccrualFactor());
+  }
+
+  /**
    * Computes the spread to be added to the Ibor rate to have a zero present value.
    * When deposit has already start the number may not be meaning full as only the final payment remains (no initial payment).
    * @param deposit The deposit.

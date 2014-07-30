@@ -9,7 +9,9 @@ import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.forex.provider.ForexDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
+import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositIbor;
 import com.opengamma.analytics.financial.interestrate.cash.provider.CashDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.cash.provider.DepositIborDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.fra.provider.ForwardRateAgreementDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
@@ -51,6 +53,7 @@ public final class ParRateDiscountingCalculator extends InstrumentDerivativeVisi
    */
   private static final PresentValueDiscountingCalculator PVC = PresentValueDiscountingCalculator.getInstance();
   private static final CashDiscountingMethod METHOD_DEPO = CashDiscountingMethod.getInstance();
+  private static final DepositIborDiscountingMethod METHOD_IBOR = DepositIborDiscountingMethod.getInstance();
   private static final ForwardRateAgreementDiscountingMethod METHOD_FRA = ForwardRateAgreementDiscountingMethod.getInstance();
   private static final SwapFixedCouponDiscountingMethod METHOD_SWAP = SwapFixedCouponDiscountingMethod.getInstance();
   private static final InterestRateFutureSecurityDiscountingMethod METHOD_IR_FUT = InterestRateFutureSecurityDiscountingMethod.getInstance();
@@ -61,6 +64,11 @@ public final class ParRateDiscountingCalculator extends InstrumentDerivativeVisi
   @Override
   public Double visitCash(final Cash deposit, final MulticurveProviderInterface multicurves) {
     return METHOD_DEPO.parRate(deposit, multicurves);
+  }
+
+  @Override
+  public Double visitDepositIbor(final DepositIbor deposit, final MulticurveProviderInterface multicurves) {
+    return METHOD_IBOR.parRate(deposit, multicurves);
   }
 
   //     -----     Payment/Coupon     ------
