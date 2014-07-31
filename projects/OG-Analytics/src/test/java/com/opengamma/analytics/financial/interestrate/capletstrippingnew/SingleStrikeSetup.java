@@ -5,17 +5,16 @@
  */
 package com.opengamma.analytics.financial.interestrate.capletstrippingnew;
 
-
 /**
  * 
  */
 public class SingleStrikeSetup extends CapletStrippingSetup {
 
   public void testATMStripping(final CapletStripper stripper, final double expChi2, final double[] expModelParms, final double tol, final boolean print) {
-    testStripping(stripper, getATMCaps(), getATMCapPrices(), expChi2, expModelParms, tol, print);
+    testStripping(stripper, getATMCaps(), getATMCapPrices(), MarketDataType.PRICE, expChi2, expModelParms, tol, print);
   }
 
   public void testSingleStrikeStripping(final CapletStripper stripper, final int strikeIndex, final double expChi2, final double[] expModelParms, final double tol, final boolean print) {
-    testStripping(stripper, getCaps(strikeIndex), getCapPrices(strikeIndex), expChi2, expModelParms, tol, print);
+    testStripping(stripper, getCaps(strikeIndex), getCapPrices(strikeIndex), MarketDataType.PRICE, expChi2, expModelParms, tol, print);
   }
 }

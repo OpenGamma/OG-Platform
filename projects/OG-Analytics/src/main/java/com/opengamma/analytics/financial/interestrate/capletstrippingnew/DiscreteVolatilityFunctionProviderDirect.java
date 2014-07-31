@@ -10,7 +10,7 @@ import java.util.List;
 import com.opengamma.analytics.financial.model.volatility.SimpleOptionData;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
-import com.opengamma.analytics.math.matrix.DoubleMatrixUtils;
+import com.opengamma.analytics.math.matrix.IdentityMatrix;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -20,12 +20,12 @@ public class DiscreteVolatilityFunctionProviderDirect implements DiscreteVolatil
 
   private final DataCheckImp _imp = new DataCheckImp();
   private final int _size;
-  private final DoubleMatrix2D _identity;
+  private final IdentityMatrix _identity;
 
   public DiscreteVolatilityFunctionProviderDirect(final int size) {
     ArgumentChecker.notNegativeOrZero(size, "sise");
     _size = size;
-    _identity = DoubleMatrixUtils.getIdentityMatrix2D(size);
+    _identity = new IdentityMatrix(size);
   }
 
   @Override

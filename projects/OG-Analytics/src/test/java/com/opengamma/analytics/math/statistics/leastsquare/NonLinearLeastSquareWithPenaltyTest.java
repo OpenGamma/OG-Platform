@@ -26,6 +26,7 @@ import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolat
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.math.interpolation.PSplineFitter;
+import com.opengamma.analytics.math.interpolation.PenaltyMatrixGenerator;
 import com.opengamma.analytics.math.matrix.ColtMatrixAlgebra;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
@@ -42,8 +43,8 @@ public class NonLinearLeastSquareWithPenaltyTest {
 
   private static BasisFunctionGenerator GEN = new BasisFunctionGenerator();
   private static NonLinearLeastSquareWithPenalty NLLSWP = new NonLinearLeastSquareWithPenalty();
-  private static double[] TENORS = new double[] {1, 2, 3, 5, 7, 10, 15, 20};
-  private static double[] RATES = new double[] {0.02, 0.025, 0.03, 0.031, 0.028, 0.032, 0.035, 0.04};
+  private static double[] TENORS = new double[] {1, 2, 3, 5, 7, 10, 15, 20 };
+  private static double[] RATES = new double[] {0.02, 0.025, 0.03, 0.031, 0.028, 0.032, 0.035, 0.04 };
   private static int FREQ = 2;
   static int N_SWAPS = 8;
   private static Function1D<Curve<Double, Double>, DoubleMatrix1D> swapRateFunction;
@@ -61,7 +62,7 @@ public class NonLinearLeastSquareWithPenaltyTest {
     B_SPLINES = GEN.generateSet(0.0, TENORS[TENORS.length - 1], N_KNOTS, DEGREE);
     final PSplineFitter psf = new PSplineFitter();
     final int nWeights = B_SPLINES.size();
-    PENALTY_MAT = (DoubleMatrix2D) MA.scale(psf.getPenaltyMatrix(nWeights, DIFFERENCE_ORDER), LAMBDA);
+    PENALTY_MAT = (DoubleMatrix2D) MA.scale(PenaltyMatrixGenerator.getPenaltyMatrix(nWeights, DIFFERENCE_ORDER), LAMBDA);
 
     // map from curve to swap rates
     swapRateFunction = new Function1D<Curve<Double, Double>, DoubleMatrix1D>() {
@@ -102,17 +103,17 @@ public class NonLinearLeastSquareWithPenaltyTest {
   @Test
   public void linearTest() {
     final boolean print = false;
-    if(print) {
+    if (print) {
       System.out.println("NonLinearLeastSquareWithPenaltyTest.linearTest");
     }
     final PSplineFitter psf = new PSplineFitter();
     final int nWeights = 20;
     final int diffOrder = 2;
     final double lambda = 100.0;
-    final DoubleMatrix2D penalty = (DoubleMatrix2D) MA.scale(psf.getPenaltyMatrix(nWeights, diffOrder), lambda);
+    final DoubleMatrix2D penalty = (DoubleMatrix2D) MA.scale(PenaltyMatrixGenerator.getPenaltyMatrix(nWeights, diffOrder), lambda);
     // final boolean[] on = new boolean[nWeights];
-    final int[] onIndex = new int[] {1, 4, 11, 12, 15, 17};
-    final double[] obs = new double[] {0, 1.0, 1.0, 1.0, 0.0, 0.0};
+    final int[] onIndex = new int[] {1, 4, 11, 12, 15, 17 };
+    final double[] obs = new double[] {0, 1.0, 1.0, 1.0, 0.0, 0.0 };
     final int n = onIndex.length;
 
     final Function1D<DoubleMatrix1D, DoubleMatrix1D> func = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
@@ -147,12 +148,12 @@ public class NonLinearLeastSquareWithPenaltyTest {
     final DoubleMatrix1D start = new DoubleMatrix1D(temp);
 
     final LeastSquareResults lsRes = NLLSWP.solve(new DoubleMatrix1D(obs), new DoubleMatrix1D(n, 0.01), func, jac, start, penalty);
-    if(print) {
-    System.out.println("chi2: " + lsRes.getChiSq());
-    System.out.println(lsRes.getFitParameters());
+    if (print) {
+      System.out.println("chi2: " + lsRes.getChiSq());
+      System.out.println(lsRes.getFitParameters());
     }
-    for(int i=0;i<n;i++) {
-      assertEquals(obs[i],lsRes.getFitParameters().getEntry(onIndex[i]),0.01);
+    for (int i = 0; i < n; i++) {
+      assertEquals(obs[i], lsRes.getFitParameters().getEntry(onIndex[i]), 0.01);
     }
   }
 
@@ -163,15 +164,15 @@ public class NonLinearLeastSquareWithPenaltyTest {
   public void printTest() {
     System.out.println("NonLinearLeastSquareWithPenaltyTest");
 
-    final List<Function1D<Double, Double>> bSplines = GEN.generateSet(new double[] {0,1.0,2.0,3.5,5.0,7.0,10.,15,20},5);
+    final List<Function1D<Double, Double>> bSplines = GEN.generateSet(new double[] {0, 1.0, 2.0, 3.5, 5.0, 7.0, 10., 15, 20 }, 5);
     final int n = bSplines.size();
 
     final double[] weights = new double[n];
     Arrays.fill(weights, 1.0);
     weights[2] = -0.0;
     weights[3] = -0.0;
-    weights[n-2] = -0.0;
-     final BasisFunctionAggregation<Double> func = new BasisFunctionAggregation<>(bSplines, weights);
+    weights[n - 2] = -0.0;
+    final BasisFunctionAggregation<Double> func = new BasisFunctionAggregation<>(bSplines, weights);
 
     for (int j = 0; j < 101; j++) {
       final double x = j * 20. / 100;
@@ -179,13 +180,11 @@ public class NonLinearLeastSquareWithPenaltyTest {
       for (int i = 0; i < n; i++) {
         System.out.print("\t" + bSplines.get(i).evaluate(x));
       }
-      System.out.print("\t" +func.evaluate(x));
+      System.out.print("\t" + func.evaluate(x));
       System.out.print("\n");
     }
 
-
   }
-
 
   @Test
   // (enabled = false)
@@ -197,7 +196,7 @@ public class NonLinearLeastSquareWithPenaltyTest {
     final int nWeights = B_SPLINES.size();
     final LeastSquareResults res = NLLSWP.solve(new DoubleMatrix1D(RATES), new DoubleMatrix1D(RATES.length, 1e-4), WEIGHTS_TO_SWAP_FUNC, new DoubleMatrix1D(nWeights, 0.03), PENALTY_MAT);
     if (print) {
-      System.out.println("chi2: "+res.getChiSq());
+      System.out.println("chi2: " + res.getChiSq());
       System.out.println();
     }
     final DoubleMatrix1D fittedSwaps = WEIGHTS_TO_SWAP_FUNC.evaluate(res.getFitParameters());

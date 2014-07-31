@@ -9,6 +9,7 @@ import java.util.Arrays;
 
 import com.opengamma.analytics.math.MathException;
 import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.linearalgebra.CholeskyDecompositionCommons;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.matrix.OGMatrixAlgebra;
@@ -29,7 +30,7 @@ public class CapletStrippingImp {
 
   private static final NonLinearLeastSquare NLLS = new NonLinearLeastSquare();
   private static final NewtonVectorRootFinder ROOTFINDER = new NewtonDefaultVectorRootFinder();
-  private static final NonLinearLeastSquareWithPenalty NLLSWP = new NonLinearLeastSquareWithPenalty();
+  private static final NonLinearLeastSquareWithPenalty NLLSWP = new NonLinearLeastSquareWithPenalty(new CholeskyDecompositionCommons());
 
   private final MultiCapFloorPricer _pricer;
   private final int _nModelParms;
@@ -50,6 +51,7 @@ public class CapletStrippingImp {
   }
 
   public CapletStrippingResult solveForCapPrices(final double[] capPrices, final DoubleMatrix1D start) {
+    ArgumentChecker.notNull(capPrices, "capPrices");
     //try to root-find first
     if (_nModelParms == capPrices.length) {
       try {
@@ -62,6 +64,7 @@ public class CapletStrippingImp {
   }
 
   public CapletStrippingResult solveForCapPrices(final double[] capPrices, final double[] errors, final DoubleMatrix1D start) {
+    ArgumentChecker.notNull(capPrices, "capPrices");
     //try to root-find first
     if (_nModelParms == capPrices.length) {
       try {
@@ -74,6 +77,7 @@ public class CapletStrippingImp {
   }
 
   public CapletStrippingResult solveForCapVols(final double[] capVols, final DoubleMatrix1D start) {
+    ArgumentChecker.notNull(capVols, "capVols");
     //try to root-find first
     if (_nModelParms == capVols.length) {
       try {
@@ -83,6 +87,19 @@ public class CapletStrippingImp {
     }
     //if the root-finder failed or there are more market prices than model parameters, try to solve in a least-square sence 
     return leastSqrSolveForCapVols(capVols, start);
+  }
+
+  public CapletStrippingResult solveForCapVols(final double[] capVols, final double[] errors, final DoubleMatrix1D start) {
+    ArgumentChecker.notNull(capVols, "capVols");
+    //try to root-find first
+    if (_nModelParms == capVols.length) {
+      try {
+        return rootFindForCapVols(capVols, errors, start);
+      } catch (final MathException e) {
+      }
+    }
+    //if the root-finder failed or there are more market prices than model parameters, try to solve in a least-square sence 
+    return leastSqrSolveForCapVols(capVols, errors, start);
   }
 
   //************************************************************************************************************
@@ -164,6 +181,20 @@ public class CapletStrippingImp {
         .isTrue(capVols.length == _nModelParms, "Number of cap prices ({}) is not equal to number of model parameters ({}). " + "To root find they must equal", capVols.length, _nModelParms);
     checkVols(capVols);
     final DoubleMatrix1D res = ROOTFINDER.getRoot(getDiffFunc(getCapVolFunction(), new DoubleMatrix1D(capVols)), getCapVolJacobianFunction(), start);
+    return new CapletStrippingResultRootFind(res, _volFunc, _pricer);
+  }
+
+  public CapletStrippingResult rootFindForCapVols(final double[] capVols, final double[] errors, final DoubleMatrix1D start) {
+    ArgumentChecker.notNull(start, "start");
+    ArgumentChecker.isTrue(start.getNumberOfElements() == _nModelParms, "length of start ({}) not equal to expected number of model parameters ({})", start.getNumberOfElements(), _nModelParms);
+    ArgumentChecker
+        .isTrue(capVols.length == _nModelParms, "Number of cap prices ({}) is not equal to number of model parameters ({}). " + "To root find they must equal", capVols.length, _nModelParms);
+    checkVols(capVols);
+    checkErrors(errors);
+    final DoubleMatrix1D sigma = new DoubleMatrix1D(errors);
+    final Function1D<DoubleMatrix1D, DoubleMatrix1D> func = getDiffFunc(getCapPriceFunction(), new DoubleMatrix1D(capVols), sigma);
+    final Function1D<DoubleMatrix1D, DoubleMatrix2D> jac = getWeightedJacobianFunction(getCapVolJacobianFunction(), sigma);
+    final DoubleMatrix1D res = ROOTFINDER.getRoot(func, jac, start);
     return new CapletStrippingResultRootFind(res, _volFunc, _pricer);
   }
 
@@ -251,7 +282,16 @@ public class CapletStrippingImp {
     }
   }
 
-  private Function1D<DoubleMatrix1D, DoubleMatrix1D> getCapPriceFunction() {
+  //************************************************************************************************************
+  //Functions 
+  //************************************************************************************************************
+
+  /**
+   * get the cap price function which takes a set of model parameters and returns cap prices. <b>Note:</b> protected 
+   * access is given for testing.
+   * @return The cap price function 
+   */
+  protected Function1D<DoubleMatrix1D, DoubleMatrix1D> getCapPriceFunction() {
 
     return new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
       @Override
@@ -263,7 +303,12 @@ public class CapletStrippingImp {
     };
   }
 
-  public Function1D<DoubleMatrix1D, DoubleMatrix1D> getCapVolFunction() {
+  /**
+   * get the cap volatility function which takes a set of model parameters and returns cap volatilities. <b>Note:</b> protected 
+   * access is given for testing.
+   * @return The cap volatility function 
+   */
+  protected Function1D<DoubleMatrix1D, DoubleMatrix1D> getCapVolFunction() {
 
     return new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
       @Override
@@ -309,7 +354,12 @@ public class CapletStrippingImp {
     };
   }
 
-  private Function1D<DoubleMatrix1D, DoubleMatrix2D> getCapPriceJacobianFunction() {
+  /**
+   * get the cap price Jacobian function which takes a set of model parameters and returns cap price Jacobian (sensitivity
+   *  of cap prices to model parameters). <b>Note:</b> protected access is given for testing.
+   * @return The cap price Jacobian function 
+   */
+  protected Function1D<DoubleMatrix1D, DoubleMatrix2D> getCapPriceJacobianFunction() {
 
     return new Function1D<DoubleMatrix1D, DoubleMatrix2D>() {
       @Override
@@ -327,7 +377,12 @@ public class CapletStrippingImp {
     };
   }
 
-  public Function1D<DoubleMatrix1D, DoubleMatrix2D> getCapVolJacobianFunction() {
+  /**
+   * get the cap volatility Jacobian function which takes a set of model parameters and returns cap volatility Jacobian (sensitivity
+   *  of cap volatilities to model parameters). <b>Note:</b> protected access is given for testing.
+   * @return The cap price Jacobian function 
+   */
+  protected Function1D<DoubleMatrix1D, DoubleMatrix2D> getCapVolJacobianFunction() {
     final int nCaps = getNumCaps();
     final int nCaplets = getNumCaplets();
 
@@ -347,8 +402,9 @@ public class CapletStrippingImp {
 
         final double[][] temp = new double[nCaps][nCaplets];
         for (int i = 0; i < nCaps; i++) {
+          final double invVega = 1.0 / capVega[i];
           for (int j = 0; j < nCaplets; j++) {
-            temp[i][j] = vega.getEntry(i, j) / capVega[i];
+            temp[i][j] = invVega * vega.getEntry(i, j);
           }
         }
 
