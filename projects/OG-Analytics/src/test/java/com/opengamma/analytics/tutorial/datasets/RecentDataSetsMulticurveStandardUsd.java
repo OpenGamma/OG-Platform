@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.interestrate.datasets;
+package com.opengamma.analytics.tutorial.datasets;
 
 import java.util.LinkedHashMap;
 
@@ -376,20 +376,20 @@ public class RecentDataSetsMulticurveStandardUsd {
         DateUtils.getUTCDate(2014, 7, 14), DateUtils.getUTCDate(2014, 7, 15), DateUtils.getUTCDate(2014, 7, 16), DateUtils.getUTCDate(2014, 7, 17), DateUtils.getUTCDate(2014, 7, 18),
         DateUtils.getUTCDate(2014, 7, 21), DateUtils.getUTCDate(2014, 7, 22), DateUtils.getUTCDate(2014, 7, 23), DateUtils.getUTCDate(2014, 7, 24), DateUtils.getUTCDate(2014, 7, 25),
         DateUtils.getUTCDate(2014, 7, 28) },
-      new double[] {0.2318, 0.2346, 0.2321, 0.2331,
-        0.2341, 0.2336, 0.2341, 0.2336, 0.2336,
-        0.2326, 0.2331, 0.2336, 0.2336, 0.2316,
-        0.2331, 0.2326, 0.2341, 0.2351, 0.2341,
-        0.2341 });
+      new double[] {0.002318, 0.002346, 0.002321, 0.002331,
+        0.002341, 0.002336, 0.002341, 0.002336, 0.002336,
+        0.002326, 0.002331, 0.002336, 0.002336, 0.002316,
+        0.002331, 0.002326, 0.002341, 0.002351, 0.002341,
+        0.002341 });
   private static final ZonedDateTimeDoubleTimeSeries TS_IBOR_USD3M_WITHOUT_LAST = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(
       new ZonedDateTime[] {DateUtils.getUTCDate(2014, 7, 1), DateUtils.getUTCDate(2014, 7, 2), DateUtils.getUTCDate(2014, 7, 3), DateUtils.getUTCDate(2014, 7, 4),
         DateUtils.getUTCDate(2014, 7, 7), DateUtils.getUTCDate(2014, 7, 8), DateUtils.getUTCDate(2014, 7, 9), DateUtils.getUTCDate(2014, 7, 10), DateUtils.getUTCDate(2014, 7, 11),
         DateUtils.getUTCDate(2014, 7, 14), DateUtils.getUTCDate(2014, 7, 15), DateUtils.getUTCDate(2014, 7, 16), DateUtils.getUTCDate(2014, 7, 17), DateUtils.getUTCDate(2014, 7, 18),
         DateUtils.getUTCDate(2014, 7, 21), DateUtils.getUTCDate(2014, 7, 22), DateUtils.getUTCDate(2014, 7, 23), DateUtils.getUTCDate(2014, 7, 24), DateUtils.getUTCDate(2014, 7, 25) },
-      new double[] {0.2318, 0.2346, 0.2321, 0.2331,
-        0.2341, 0.2336, 0.2341, 0.2336, 0.2336,
-        0.2326, 0.2331, 0.2336, 0.2336, 0.2316,
-        0.2331, 0.2326, 0.2341, 0.2351, 0.2341 });
+      new double[] {0.002318, 0.002346, 0.002321, 0.002331,
+        0.002341, 0.002336, 0.002341, 0.002336, 0.002336,
+        0.002326, 0.002331, 0.002336, 0.002336, 0.002316,
+        0.002331, 0.002326, 0.002341, 0.002351, 0.002341 });
 
   private static final ZonedDateTimeDoubleTimeSeries[] TS_FIXED_IBOR_USD3M_WITH_LAST = new ZonedDateTimeDoubleTimeSeries[] {TS_IBOR_USD3M_WITH_LAST };
   private static final ZonedDateTimeDoubleTimeSeries[] TS_FIXED_IBOR_USD3M_WITHOUT_LAST = new ZonedDateTimeDoubleTimeSeries[] {TS_IBOR_USD3M_WITHOUT_LAST };
