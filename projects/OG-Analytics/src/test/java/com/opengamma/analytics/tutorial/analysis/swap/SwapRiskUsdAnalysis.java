@@ -114,6 +114,7 @@ public class SwapRiskUsdAnalysis {
   }
   private static final AnnuityCouponFixedDefinition FIXED_LEG_1_DEFINITION = new AnnuityCouponFixedDefinition(CPN_FIXED_1_DEFINITION, NYC);
   /** Ibor leg */
+  @SuppressWarnings("unchecked")
   private static final AnnuityDefinition<? extends CouponDefinition> IBOR_LEG_1_DEFINITION = (AnnuityDefinition<? extends CouponDefinition>)
       new FloatingAnnuityDefinitionBuilder().
           payer(!PAYER_1).
@@ -143,6 +144,7 @@ public class SwapRiskUsdAnalysis {
     }
   }
   private static final AnnuityCouponFixedDefinition FIXED_LEG_2_DEFINITION = new AnnuityCouponFixedDefinition(CPN_FIXED_2_DEFINITION, NYC);
+  @SuppressWarnings("unchecked")
   private static final AnnuityDefinition<? extends CouponDefinition> IBOR_LEG_2_DEFINITION = (AnnuityDefinition<? extends CouponDefinition>)
       new FloatingAnnuityDefinitionBuilder().payer(!PAYER_2).notional(NOTIONAL_PROV_1).startDate(EFFECTIVE_DATE_2).endDate(MATURITY_DATE_2).
           index(USDLIBOR3M).accrualPeriodFrequency(USDLIBOR3M.getTenor()).rollDateAdjuster(RollConvention.NONE.getRollDateAdjuster(0)).
@@ -163,6 +165,7 @@ public class SwapRiskUsdAnalysis {
     }
   }
   private static final AnnuityCouponFixedDefinition FIXED_LEG_3_DEFINITION = new AnnuityCouponFixedDefinition(CPN_FIXED_3_DEFINITION, NYC);
+  @SuppressWarnings("unchecked")
   private static final AnnuityDefinition<? extends CouponDefinition> IBOR_LEG_3_DEFINITION = (AnnuityDefinition<? extends CouponDefinition>)
       new FloatingAnnuityDefinitionBuilder().payer(!PAYER_3).notional(NOTIONAL_PROV_1).startDate(EFFECTIVE_DATE_3).endDate(MATURITY_DATE_3).
           index(USDLIBOR3M).accrualPeriodFrequency(USDLIBOR3M.getTenor()).rollDateAdjuster(RollConvention.NONE.getRollDateAdjuster(0)).
