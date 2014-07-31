@@ -7,17 +7,6 @@ types available, some of which are specialised.
 Snapshots implement the ``com.opengamma.core.marketdatasnapshot.NamedSnapshot`` interface. Some implementations
 of this are:
 
-Credit curve data
------------------
-
-Used to hold credit instruments comprising a credit curve. For details see `ISDA Curves documentation`_.
-
-Curve, volatility surface & cube market data
---------------------------------------------
-
-``com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot`` implementations can hold complex data types
-including curves, surfaces & cubes. These are not discussed in detail as support for them is incomplete.
-
 Market data quotes
 ------------------
 
@@ -89,6 +78,17 @@ The csv snippet above could be read or created with the following code:
 
 
 The command line tools ``market-data-snapshot-import-tool.sh`` and ``market-data-snapshot-export-tool.sh`` use similar code to provide loading and exporting functionality on the command line.
+
+Credit curve data
+-----------------
+
+Used to hold credit instruments comprising a credit curve. For details see `ISDA Curves documentation`_.
+
+Curve, volatility surface & cube market data
+--------------------------------------------
+
+``com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot`` implementations can hold complex data types
+including curves, surfaces & cubes. These are not discussed in detail as support for them is incomplete.
 
 .. _ISDA Curves documentation: ../Product types/credit/ISDA Curves.rst
 
