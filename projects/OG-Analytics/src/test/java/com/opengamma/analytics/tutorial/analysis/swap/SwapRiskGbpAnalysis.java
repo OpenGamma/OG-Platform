@@ -114,6 +114,7 @@ public class SwapRiskGbpAnalysis {
   }
   private static final AnnuityCouponFixedDefinition FIXED_LEG_1_DEFINITION = new AnnuityCouponFixedDefinition(CPN_FIXED_1_DEFINITION, LON);
   /** ON leg */
+  @SuppressWarnings("unchecked")
   private static final AnnuityDefinition<? extends CouponDefinition> ON_LEG_1_DEFINITION = (AnnuityDefinition<? extends CouponDefinition>) new FloatingAnnuityDefinitionBuilder().
       payer(!PAYER_1).
       notional(NOTIONAL_PROV_1).
@@ -132,7 +133,7 @@ public class SwapRiskGbpAnalysis {
   private static final SwapCouponFixedCouponDefinition SWAP_1_DEFINITION = new SwapCouponFixedCouponDefinition(FIXED_LEG_1_DEFINITION, ON_LEG_1_DEFINITION);
 
   /** Curves and fixing */
-  private static final ZonedDateTimeDoubleTimeSeries TS_FIXED_LIBOR_GBP6M_WITHOUT_TODAY = RecentDataSetsMulticurveStandardGbp.fixingGbpLibor6MWithoutLast();
+//  private static final ZonedDateTimeDoubleTimeSeries TS_FIXED_LIBOR_GBP6M_WITHOUT_TODAY = RecentDataSetsMulticurveStandardGbp.fixingGbpLibor6MWithoutLast();
   private static final ZonedDateTimeDoubleTimeSeries TS_FIXED_SONIA_WITHOUT_TODAY = RecentDataSetsMulticurveStandardGbp.fixingGbpSoniaWithoutLast();
   private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_PAIR =
       RecentDataSetsMulticurveStandardGbp.getCurvesGbpOisL6(VALUATION_DATE);
@@ -152,7 +153,7 @@ public class SwapRiskGbpAnalysis {
   private static final MarketQuoteSensitivityBlockCalculator<MulticurveProviderInterface> MQSBC = new MarketQuoteSensitivityBlockCalculator<>(PSC);
 
   private static final double TOLERANCE_PV = 1.0E-2;
-  private static final double TOLERANCE_PV_2 = 1.0E+4;
+//  private static final double TOLERANCE_PV_2 = 1.0E+4;
   private static final double BP1 = 1.0E-4;
 
   @SuppressWarnings("unused")
