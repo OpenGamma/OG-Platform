@@ -3,12 +3,11 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.interestrate.datasets;
+package com.opengamma.analytics.tutorial.datasets;
 
 import java.util.LinkedHashMap;
 
 import org.threeten.bp.LocalDate;
-import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorCurveYieldInterpolated;
@@ -27,15 +26,11 @@ import com.opengamma.analytics.financial.instrument.annuity.OffsetAdjustedDatePa
 import com.opengamma.analytics.financial.instrument.annuity.OffsetType;
 import com.opengamma.analytics.financial.instrument.cash.CashDefinition;
 import com.opengamma.analytics.financial.instrument.cash.DepositIborDefinition;
-import com.opengamma.analytics.financial.instrument.index.GeneratorAttribute;
-import com.opengamma.analytics.financial.instrument.index.GeneratorAttributeIR;
-import com.opengamma.analytics.financial.instrument.index.GeneratorInstrument;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIborMaster;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedON;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedONMaster;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
-import com.opengamma.analytics.financial.instrument.index.IndexIborMaster;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.payment.CouponDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
@@ -97,7 +92,6 @@ public class ComputedDataSetsMulticurveImmUsd {
     }
   };
 
-  private static final IndexIborMaster IBOR_MASTER = IndexIborMaster.getInstance();
   private static final GeneratorSwapFixedONMaster GENERATOR_OIS_MASTER = GeneratorSwapFixedONMaster.getInstance();
   private static final GeneratorSwapFixedIborMaster GENERATOR_IRS_MASTER = GeneratorSwapFixedIborMaster.getInstance();
 
@@ -112,30 +106,6 @@ public class ComputedDataSetsMulticurveImmUsd {
 
   private static final String CURVE_NAME_DSC_USD = "USD-DSCON-OIS";
   private static final String CURVE_NAME_FWD3_USD = "USD-LIBOR3M-FRAIRS";
-
-  /** Data as of 28-Jul-2014 */
-  /** Market values for the dsc USD curve */
-  private static final double[] DSC_USD_MARKET_QUOTES = new double[] {0.00175, 0.0015,
-    0.0009, 0.0009, 0.0010, 0.0011, 0.0013,
-    0.0017, 0.0053, 0.0096, 0.0132, 0.0160,
-    0.0181, 0.0199, 0.0199, 0.0213, 0.0236 }; //17
-  /** Generators for the dsc USD curve */
-  private static final GeneratorInstrument<? extends GeneratorAttribute>[] DSC_USD_GENERATORS =
-      CurveCalibrationConventionDataSets.generatorUsdOnOisFfs(2, 15, 0);
-  /** Tenors for the dsc USD curve */
-  private static final Period[] DSC_2_USD_TENOR = new Period[] {Period.ofDays(0), Period.ofDays(1),
-    Period.ofMonths(1), Period.ofMonths(2), Period.ofMonths(3), Period.ofMonths(6), Period.ofMonths(9),
-    Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5),
-    Period.ofYears(6), Period.ofYears(7), Period.ofYears(8), Period.ofYears(9), Period.ofYears(10) };
-  private static final GeneratorAttributeIR[] DSC_USD_ATTR = new GeneratorAttributeIR[DSC_2_USD_TENOR.length];
-  static {
-    for (int loopins = 0; loopins < 2; loopins++) {
-      DSC_USD_ATTR[loopins] = new GeneratorAttributeIR(DSC_2_USD_TENOR[loopins], Period.ofDays(0));
-    }
-    for (int loopins = 2; loopins < DSC_2_USD_TENOR.length; loopins++) {
-      DSC_USD_ATTR[loopins] = new GeneratorAttributeIR(DSC_2_USD_TENOR[loopins]);
-    }
-  }
 
   /** Units of curves */
   private static final int NB_UNITS = 2;
@@ -160,16 +130,6 @@ public class ComputedDataSetsMulticurveImmUsd {
     DSC_MAP.put(CURVE_NAME_DSC_USD, USD);
     FWD_ON_MAP.put(CURVE_NAME_DSC_USD, new IndexON[] {USDFEDFUND });
     FWD_IBOR_MAP.put(CURVE_NAME_FWD3_USD, new IborIndex[] {USDLIBOR3M });
-  }
-
-  @SuppressWarnings({"unchecked", "rawtypes" })
-  private static InstrumentDefinition<?>[] getDefinitions(final double[] marketQuotes, final GeneratorInstrument[] generators, final GeneratorAttribute[] attribute,
-      final ZonedDateTime referenceDate) {
-    final InstrumentDefinition<?>[] definitions = new InstrumentDefinition<?>[marketQuotes.length];
-    for (int loopmv = 0; loopmv < marketQuotes.length; loopmv++) {
-      definitions[loopmv] = generators[loopmv].generateInstrument(referenceDate, marketQuotes[loopmv], NOTIONAL, attribute[loopmv]);
-    }
-    return definitions;
   }
 
   /** Calculators */

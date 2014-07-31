@@ -5,14 +5,19 @@
  */
 package com.opengamma.analytics.financial.provider.curve;
 
+import org.threeten.bp.ZonedDateTime;
+
 import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorCurveYieldInterpolated;
 import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorYDCurve;
+import com.opengamma.analytics.financial.datasets.CalendarGBP;
 import com.opengamma.analytics.financial.datasets.CalendarUSD;
+import com.opengamma.analytics.financial.instrument.future.InterestRateFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.index.GeneratorAttribute;
 import com.opengamma.analytics.financial.instrument.index.GeneratorDepositIbor;
 import com.opengamma.analytics.financial.instrument.index.GeneratorDepositON;
 import com.opengamma.analytics.financial.instrument.index.GeneratorFRA;
 import com.opengamma.analytics.financial.instrument.index.GeneratorInstrument;
+import com.opengamma.analytics.financial.instrument.index.GeneratorInterestRateFutures;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIborMaster;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedON;
@@ -23,11 +28,15 @@ import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.provider.calculator.generic.LastTimeCalculator;
 import com.opengamma.analytics.financial.provider.curve.hullwhite.HullWhiteProviderDiscountBuildingRepository;
 import com.opengamma.analytics.financial.provider.curve.multicurve.MulticurveDiscountBuildingRepository;
+import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.financial.convention.rolldate.QuarterlyIMMRollDateAdjuster;
+import com.opengamma.financial.convention.rolldate.RollDateAdjuster;
+import com.opengamma.financial.convention.rolldate.RollDateAdjusterUtils;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -41,6 +50,7 @@ public class CurveCalibrationConventionDataSets {
       new MulticurveDiscountBuildingRepository(TOLERANCE_ROOT, TOLERANCE_ROOT, STEP_MAX);
   private static final HullWhiteProviderDiscountBuildingRepository CURVE_BUILDING_REPOSITORY_HW =
       new HullWhiteProviderDiscountBuildingRepository(TOLERANCE_ROOT, TOLERANCE_ROOT, STEP_MAX);
+  private static final RollDateAdjuster IMM_QUARTERLY_ADJUSTER = QuarterlyIMMRollDateAdjuster.getAdjuster();
 
   public static MulticurveDiscountBuildingRepository curveBuildingRepositoryMulticurve() {
     return CURVE_BUILDING_REPOSITORY_MC;
@@ -126,6 +136,44 @@ public class CurveCalibrationConventionDataSets {
     return generator;
   }
 
+  /** GBP **/
+  private static final Calendar LON = new CalendarGBP("LON");
+  private static final Currency GBP = Currency.GBP;
+  private static final GeneratorSwapFixedON GENERATOR_OIS_GBP = GeneratorSwapFixedONMaster.getInstance().getGenerator("GBP1YSONIA", LON);
+  private static final IndexON SONIA = GENERATOR_OIS_GBP.getIndex();
+  private static final GeneratorDepositON GENERATOR_DEPOSIT_ON_GBP = new GeneratorDepositON("GBP Deposit ON", GBP, LON, SONIA.getDayCount());
+  private static final GeneratorSwapFixedIbor GBP6MLIBOR6M = GENERATOR_SWAP_MASTER.getGenerator("GBP6MLIBOR6M", LON);
+  private static final IborIndex GBPLIBOR6M = GBP6MLIBOR6M.getIborIndex();
+  private static final GeneratorFRA GENERATOR_FRA_6M_GBP = new GeneratorFRA("GENERATOR_FRA_6M", GBPLIBOR6M, LON);
+  private static final GeneratorDepositIbor GENERATOR_GBPLIBOR6M = new GeneratorDepositIbor("GENERATOR_GBPLIBOR6M", GBPLIBOR6M, LON);
+
+  @SuppressWarnings("unchecked")
+  public static GeneratorInstrument<? extends GeneratorAttribute>[] generatorGbpOnOis(int nbDepositON, int nbOis) {
+    GeneratorInstrument<? extends GeneratorAttribute>[] generator = new GeneratorInstrument[nbDepositON + nbOis];
+    for (int loopdepo = 0; loopdepo < nbDepositON; loopdepo++) {
+      generator[loopdepo] = GENERATOR_DEPOSIT_ON_GBP;
+    }
+    for (int loopois = 0; loopois < nbOis; loopois++) {
+      generator[nbDepositON + loopois] = GENERATOR_OIS_GBP;
+    }
+    return generator;
+  }
+
+  @SuppressWarnings("unchecked")
+  public static GeneratorInstrument<? extends GeneratorAttribute>[] generatorGbpIbor6Fra6Irs6(int nbIbor, int nbFra, int nbIrs) {
+    GeneratorInstrument<? extends GeneratorAttribute>[] generator = new GeneratorInstrument[nbIbor + nbFra + nbIrs];
+    for (int loopibor = 0; loopibor < nbIbor; loopibor++) {
+      generator[loopibor] = GENERATOR_GBPLIBOR6M;
+    }
+    for (int loopfra = 0; loopfra < nbFra; loopfra++) {
+      generator[nbIbor + loopfra] = GENERATOR_FRA_6M_GBP;
+    }
+    for (int loopirs = 0; loopirs < nbIrs; loopirs++) {
+      generator[nbIbor + nbFra + loopirs] = GBP6MLIBOR6M;
+    }
+    return generator;
+  }
+
   /** USD **/
   private static final Calendar NYC = new CalendarUSD("NYC");
   private static final Currency USD = Currency.USD;
@@ -165,6 +213,25 @@ public class CurveCalibrationConventionDataSets {
     }
     for (int loopirs = 0; loopirs < nbIrs; loopirs++) {
       generator[nbIbor + nbFra + loopirs] = USD6MLIBOR3M;
+    }
+    return generator;
+  }
+
+  @SuppressWarnings("unchecked")
+  public static GeneratorInstrument<? extends GeneratorAttribute>[] generatorUsdIbor3Fut3Irs3(ZonedDateTime calibrationDate, int nbIbor, int nbFut, int nbIrs) {
+    GeneratorInstrument<? extends GeneratorAttribute>[] generator = new GeneratorInstrument[nbIbor + nbFut + nbIrs];
+    for (int loopibor = 0; loopibor < nbIbor; loopibor++) {
+      generator[loopibor] = GENERATOR_USDLIBOR3M;
+    }
+    ZonedDateTime spotDate = ScheduleCalculator.getAdjustedDate(calibrationDate, USDLIBOR3M.getSpotLag(), NYC);
+    for (int loopfut = 0; loopfut < nbFut; loopfut++) {
+      ZonedDateTime immDate = RollDateAdjusterUtils.nthDate(spotDate, IMM_QUARTERLY_ADJUSTER, loopfut + 1);
+      InterestRateFutureSecurityDefinition stirFutures = InterestRateFutureSecurityDefinition
+          .fromFixingPeriodStartDate(immDate, USDLIBOR3M, 1.0, 0.25, "STRIR Futures", NYC);
+      generator[nbIbor + loopfut] = new GeneratorInterestRateFutures("STIR Futures", stirFutures);
+    }
+    for (int loopirs = 0; loopirs < nbIrs; loopirs++) {
+      generator[nbIbor + nbFut + loopirs] = USD6MLIBOR3M;
     }
     return generator;
   }
