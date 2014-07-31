@@ -3,15 +3,14 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.interestrate.capletstripping;
+package com.opengamma.analytics.financial.interestrate.capletstrippingnew;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import com.google.common.primitives.Doubles;
-import com.opengamma.analytics.financial.interestrate.capletstrippingnew.CapFloor;
-import com.opengamma.analytics.financial.interestrate.capletstrippingnew.CapFloorPricer;
+import com.opengamma.analytics.financial.interestrate.capletstripping.CapletVolatilityNodalSurfaceProvider;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.math.function.Function1D;
@@ -68,11 +67,11 @@ public class CapletStrippingDirectGlobalWithPenalty {
 
     _nodalSurfaceProvider = nodalSurfaceProvider;
 
-    int nStrikes = caps.length;
+    final int nStrikes = caps.length;
     _capPricers = new List[nStrikes];
     int nCapsTotal = 0;
     for (int i = 0; i < nStrikes; ++i) {
-      int n = caps[i].size();
+      final int n = caps[i].size();
       nCapsTotal += n;
       _capPricers[i] = new ArrayList<>(n);
       for (final CapFloor cap : caps[i]) {
@@ -92,19 +91,19 @@ public class CapletStrippingDirectGlobalWithPenalty {
   public LeastSquareResults solveForVol(final double[][] capVols) {
     ArgumentChecker.noNulls(capVols, "capVols");
 
-    DoubleMatrix1D capVolVec = toVector(capVols, _nCapsTotal);
-    int nObs = capVolVec.getNumberOfElements();
-    double[] errors = new double[nObs];
+    final DoubleMatrix1D capVolVec = toVector(capVols, _nCapsTotal);
+    final int nObs = capVolVec.getNumberOfElements();
+    final double[] errors = new double[nObs];
     Arrays.fill(errors, DEFAULT_ERROR);
-    int nNodes = _nodalSurfaceProvider.getNumberOfNodes();
-    double[] guess = new double[nNodes];
+    final int nNodes = _nodalSurfaceProvider.getNumberOfNodes();
+    final double[] guess = new double[nNodes];
     Arrays.fill(guess, 0.7);
 
     final Function1D<DoubleMatrix1D, Boolean> allowed = new Function1D<DoubleMatrix1D, Boolean>() {
       @Override
       public Boolean evaluate(final DoubleMatrix1D x) {
-        double[] temp = x.getData();
-        int m = temp.length;
+        final double[] temp = x.getData();
+        final int m = temp.length;
         for (int i = 0; i < m; i++) {
           if (temp[i] < 0) {
             return false;
@@ -115,10 +114,10 @@ public class CapletStrippingDirectGlobalWithPenalty {
     };
 
     try {
-      return NLLSWP.solve(capVolVec, new DoubleMatrix1D(errors), _capVols, _capVolsGrad, new DoubleMatrix1D(guess), _penalty, allowed);
+      return NLLSWP.solve(capVolVec, new DoubleMatrix1D(errors), getCapVolFunc, getCapVolJacFunc, new DoubleMatrix1D(guess), _penalty, allowed);
     } catch (final Exception e) { //try svd if lu fails
-      NonLinearLeastSquareWithPenalty lqWithSvd = new NonLinearLeastSquareWithPenalty();
-      return lqWithSvd.solve(capVolVec, new DoubleMatrix1D(errors), _capVols, _capVolsGrad, new DoubleMatrix1D(guess), _penalty, allowed);
+      final NonLinearLeastSquareWithPenalty lqWithSvd = new NonLinearLeastSquareWithPenalty();
+      return lqWithSvd.solve(capVolVec, new DoubleMatrix1D(errors), getCapVolFunc, getCapVolJacFunc, new DoubleMatrix1D(guess), _penalty, allowed);
     }
   }
 
@@ -134,15 +133,15 @@ public class CapletStrippingDirectGlobalWithPenalty {
     ArgumentChecker.noNulls(errors, "errors");
     ArgumentChecker.noNulls(guess, "guess");
 
-    DoubleMatrix1D capVolVec = toVector(capVols, _nCapsTotal);
-    DoubleMatrix1D errorsVec = toVector(errors, _nCapsTotal);
-    DoubleMatrix1D guessVec = toVector(guess, _nodalSurfaceProvider.getNumberOfNodes());
+    final DoubleMatrix1D capVolVec = toVector(capVols, _nCapsTotal);
+    final DoubleMatrix1D errorsVec = toVector(errors, _nCapsTotal);
+    final DoubleMatrix1D guessVec = toVector(guess, _nodalSurfaceProvider.getNumberOfNodes());
 
     final Function1D<DoubleMatrix1D, Boolean> allowed = new Function1D<DoubleMatrix1D, Boolean>() {
       @Override
       public Boolean evaluate(final DoubleMatrix1D x) {
-        double[] temp = x.getData();
-        int m = temp.length;
+        final double[] temp = x.getData();
+        final int m = temp.length;
         for (int i = 0; i < m; i++) {
           if (temp[i] < 0) {
             return false;
@@ -153,27 +152,31 @@ public class CapletStrippingDirectGlobalWithPenalty {
     };
 
     try {
-      return NLLSWP.solve(capVolVec, errorsVec, _capVols, _capVolsGrad, guessVec, _penalty, allowed);
+      return NLLSWP.solve(capVolVec, errorsVec, getCapVolFunc, getCapVolJacFunc, guessVec, _penalty, allowed);
     } catch (final Exception e) { //try svd if lu fails
-      NonLinearLeastSquareWithPenalty lqWithSvd = new NonLinearLeastSquareWithPenalty();
-      return lqWithSvd.solve(capVolVec, errorsVec, _capVols, _capVolsGrad, guessVec, _penalty, allowed);
+      final NonLinearLeastSquareWithPenalty lqWithSvd = new NonLinearLeastSquareWithPenalty();
+      return lqWithSvd.solve(capVolVec, errorsVec, getCapVolFunc, getCapVolJacFunc, guessVec, _penalty, allowed);
     }
   }
 
-  private Function1D<DoubleMatrix1D, DoubleMatrix1D> _capVols = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
+  protected final DoubleMatrix2D getPenaltyMatrix() {
+    return _penalty;
+  }
+
+  protected final Function1D<DoubleMatrix1D, DoubleMatrix1D> getCapVolFunc = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
     @Override
     public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
-      NodalObjectsSurface<Integer, Integer, Double> surface = _nodalSurfaceProvider.evaluate(x);
-      int nStrikes = _capPricers.length;
+      final NodalObjectsSurface<Integer, Integer, Double> surface = _nodalSurfaceProvider.evaluate(x);
+      final int nStrikes = _capPricers.length;
 
-      double[][] res = new double[nStrikes][];
+      final double[][] res = new double[nStrikes][];
       for (int i = 0; i < nStrikes; ++i) {
         final int len = _capPricers[i].size();
         res[i] = new double[len];
         for (int j = 0; j < len; ++j) {
-          CapFloorPricer pricer = _capPricers[i].get(j);
-          int nCaplets = pricer.getNumberCaplets();
-          Double[] capVols = new Double[nCaplets];
+          final CapFloorPricer pricer = _capPricers[i].get(j);
+          final int nCaplets = pricer.getNumberCaplets();
+          final Double[] capVols = new Double[nCaplets];
           for (int k = 0; k < nCaplets; ++k) {
             capVols[k] = surface.getZValue(i, k);
           }
@@ -184,28 +187,28 @@ public class CapletStrippingDirectGlobalWithPenalty {
     }
   };
 
-  private Function1D<DoubleMatrix1D, DoubleMatrix2D> _capVolsGrad = new Function1D<DoubleMatrix1D, DoubleMatrix2D>() {
+  protected final Function1D<DoubleMatrix1D, DoubleMatrix2D> getCapVolJacFunc = new Function1D<DoubleMatrix1D, DoubleMatrix2D>() {
     @Override
     public DoubleMatrix2D evaluate(final DoubleMatrix1D x) {
-      int nParams = x.getNumberOfElements();
-      int nStrikes = _capPricers.length;
-      int nTimeNodes = _nodalSurfaceProvider.getFixingTimes().length;
-      NodalObjectsSurface<Integer, Integer, Double> surface = _nodalSurfaceProvider.evaluate(x);
+      final int nParams = x.getNumberOfElements();
+      final int nStrikes = _capPricers.length;
+      final int nTimeNodes = _nodalSurfaceProvider.getFixingTimes().length;
+      final NodalObjectsSurface<Integer, Integer, Double> surface = _nodalSurfaceProvider.evaluate(x);
 
-      double[][] res = new double[_nCapsTotal][nParams];
+      final double[][] res = new double[_nCapsTotal][nParams];
       int step = 0;
       for (int i = 0; i < nStrikes; ++i) {
-        int len = _capPricers[i].size();
+        final int len = _capPricers[i].size();
         for (int j = 0; j < len; ++j) {
-          CapFloorPricer pricer = _capPricers[i].get(j);
-          int nCaplets = pricer.getNumberCaplets();
-          Double[] capVols = new Double[nCaplets];
+          final CapFloorPricer pricer = _capPricers[i].get(j);
+          final int nCaplets = pricer.getNumberCaplets();
+          final Double[] capVols = new Double[nCaplets];
           for (int k = 0; k < nCaplets; ++k) {
             capVols[k] = surface.getZValue(i, k);
           }
-          double vegaInv = 1.0 / pricer.vega(capVols);
+          final double vegaInv = 1.0 / pricer.vega(capVols);
           for (int l = 0; l < nCaplets; ++l) {
-            double capletVega = BlackFormulaRepository.vega(_capPricers[i].get(j).getCapletAsOptionData()[l], surface.getZValue(i, l));
+            final double capletVega = BlackFormulaRepository.vega(_capPricers[i].get(j).getCapletAsOptionData()[l], surface.getZValue(i, l));
             res[step + j][i * nTimeNodes + l] = vegaInv * capletVega;
           }
         }
@@ -220,18 +223,13 @@ public class CapletStrippingDirectGlobalWithPenalty {
    * Consistency for total number of elements is checked.
    */
   private DoubleMatrix1D toVector(final double[][] doubleArray, final int length) {
-    double[] res = new double[length];
-    int nRow = doubleArray.length;
+    final double[] res = new double[length];
+    final int nRow = doubleArray.length;
     int k = 0;
     for (int i = 0; i < nRow; ++i) {
       final int len = doubleArray[i].length;
-      for (int j = 0; j < len; ++j) {
-        if (k >= length) {
-          throw new IllegalArgumentException("number of elements in input is different form expected vector length");
-        }
-        res[k] = doubleArray[i][j];
-        ++k;
-      }
+      System.arraycopy(doubleArray[i], 0, res, k, len);
+      k += len;
     }
     ArgumentChecker.isTrue(k == length, "number of elements in input is different form expected vector length");
     return new DoubleMatrix1D(res);
@@ -249,7 +247,7 @@ public class CapletStrippingDirectGlobalWithPenalty {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -259,7 +257,7 @@ public class CapletStrippingDirectGlobalWithPenalty {
     if (!(obj instanceof CapletStrippingDirectGlobalWithPenalty)) {
       return false;
     }
-    CapletStrippingDirectGlobalWithPenalty other = (CapletStrippingDirectGlobalWithPenalty) obj;
+    final CapletStrippingDirectGlobalWithPenalty other = (CapletStrippingDirectGlobalWithPenalty) obj;
     if (_nCapsTotal != other._nCapsTotal) {
       return false;
     }

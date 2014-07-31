@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.interestrate.capletstripping;
 
 import java.util.Arrays;
 
+import com.opengamma.analytics.financial.interestrate.capletstrippingnew.CapletStrippingDirectGlobalWithPenalty;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.matrix.ColtMatrixAlgebra;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
@@ -34,8 +35,8 @@ public class CapletVolatilityNodalSurfaceProvider extends Function1D<DoubleMatri
     ArgumentChecker.notNull(strikes, "strikes");
     ArgumentChecker.notNull(fixingTimes, "fixingTimes");
 
-    int nStrikes = strikes.length;
-    int nTimes = fixingTimes.length;
+    final int nStrikes = strikes.length;
+    final int nTimes = fixingTimes.length;
     _strikeIntegerNodes = new Integer[nTimes * nStrikes];
     _timeIntegerNodes = new Integer[nTimes * nStrikes];
     for (int i = 0; i < nStrikes; ++i) {
@@ -52,8 +53,8 @@ public class CapletVolatilityNodalSurfaceProvider extends Function1D<DoubleMatri
   public NodalObjectsSurface<Integer, Integer, Double> evaluate(final DoubleMatrix1D x) {
     ArgumentChecker.notNull(x, "x");
 
-    int len = x.getNumberOfElements();
-    Double[] data = new Double[len];
+    final int len = x.getNumberOfElements();
+    final Double[] data = new Double[len];
     for (int i = 0; i < len; ++i) {
       data[i] = x.getEntry(i);
     }
@@ -132,8 +133,8 @@ public class CapletVolatilityNodalSurfaceProvider extends Function1D<DoubleMatri
       }
     }
 
-    DoubleMatrix2D penaltyTime = new DoubleMatrix2D(timeMatrix);
-    DoubleMatrix2D penaltyStrike = new DoubleMatrix2D(strikeMatrix);
+    final DoubleMatrix2D penaltyTime = new DoubleMatrix2D(timeMatrix);
+    final DoubleMatrix2D penaltyStrike = new DoubleMatrix2D(strikeMatrix);
     return (DoubleMatrix2D) MA.add(MA.multiply(MA.getTranspose(penaltyTime), penaltyTime), MA.multiply(MA.getTranspose(penaltyStrike), penaltyStrike));
   }
 
@@ -149,7 +150,7 @@ public class CapletVolatilityNodalSurfaceProvider extends Function1D<DoubleMatri
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -159,7 +160,7 @@ public class CapletVolatilityNodalSurfaceProvider extends Function1D<DoubleMatri
     if (!(obj instanceof CapletVolatilityNodalSurfaceProvider)) {
       return false;
     }
-    CapletVolatilityNodalSurfaceProvider other = (CapletVolatilityNodalSurfaceProvider) obj;
+    final CapletVolatilityNodalSurfaceProvider other = (CapletVolatilityNodalSurfaceProvider) obj;
     if (!Arrays.equals(_strikeIntegerNodes, other._strikeIntegerNodes)) {
       return false;
     }

@@ -125,10 +125,10 @@ public class LocalVolFittingTest {
     final int nWeights = bSplines.size();
 
     final PSplineFitter psf = new PSplineFitter();
-    DoubleMatrix2D ma = (DoubleMatrix2D) _algebra.scale(psf.getPenaltyMatrix(sizes, differenceOrder[0], 0), lambda[0]);
+    DoubleMatrix2D ma = (DoubleMatrix2D) _algebra.scale(psf.getDiffMatrix(sizes, differenceOrder[0], 0), lambda[0]);
     for (int i = 1; i < dim; i++) {
       if (lambda[i] > 0.0) {
-        final DoubleMatrix2D d = psf.getPenaltyMatrix(sizes, differenceOrder[i], i);
+        final DoubleMatrix2D d = psf.getDiffMatrix(sizes, differenceOrder[i], i);
         ma = (DoubleMatrix2D) _algebra.add(ma, _algebra.scale(d, lambda[i]));
       }
     }

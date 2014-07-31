@@ -48,7 +48,7 @@ public class MultiCapFloorPricer {
     _capletIndices = new int[_nCaps][];
     _capCaplets = new SimpleOptionData[_nCaps][];
 
-    // ensure a unique set of caplets in ascending order of fixing time then strike
+    // ensure a unique set of caplets in ascending order of strike then fixing time
     final Set<CapFloorIbor> capletSet = new TreeSet<>(new CapletsComparator());
     final Set<Double> capStartTimes = new TreeSet<>();
     final Set<Double> capEndTimes = new TreeSet<>();
@@ -94,11 +94,11 @@ public class MultiCapFloorPricer {
   private class CapletsComparator implements Comparator<CapFloorIbor> {
     @Override
     public int compare(final CapFloorIbor o1, final CapFloorIbor o2) {
-      final int a = Doubles.compare(o1.getFixingTime(), o2.getFixingTime());
+      final int a = Doubles.compare(o1.getStrike(), o2.getStrike());
       if (a != 0) {
         return a;
       }
-      return Doubles.compare(o1.getStrike(), o2.getStrike());
+      return Doubles.compare(o1.getFixingTime(), o2.getFixingTime());
     }
 
   }
@@ -159,17 +159,15 @@ public class MultiCapFloorPricer {
       capletVega[i] = BlackFormulaRepository.vega(_capletsArray[i], capletVols[i]);
     }
 
-    final double[][] jac = new double[_nCaps][_nCaplets];
-
+    final DoubleMatrix2D jac = new DoubleMatrix2D(_nCaps, _nCaplets);
     for (int i = 0; i < _nCaps; i++) {
+      final double[] data = jac.getData()[i];
       final int[] indicies = _capletIndices[i];
-      final int n = indicies.length;
-      for (int j = 0; j < n; j++) {
-        final int index = indicies[j];
-        jac[i][index] = capletVega[index];
+      for (final int index : indicies) {
+        data[index] = capletVega[index];
       }
     }
-    return new DoubleMatrix2D(jac);
+    return jac;
   }
 
   /**
@@ -260,6 +258,19 @@ public class MultiCapFloorPricer {
     final Set<Double> set = new TreeSet<>();
     for (int i = 0; i < n; i++) {
       set.add(_capletsArray[i].getTimeToExpiry());
+    }
+    return ArrayUtils.toPrimitive(set.toArray(new Double[0]));
+  }
+
+  /**
+   *  get the sorted array of unique strikes from the set of caps supplied
+   * @return caplet expiry times
+   */
+  public double[] getStrikes() {
+    final int n = _capletsArray.length;
+    final Set<Double> set = new TreeSet<>();
+    for (int i = 0; i < n; i++) {
+      set.add(_capletsArray[i].getStrike());
     }
     return ArrayUtils.toPrimitive(set.toArray(new Double[0]));
   }

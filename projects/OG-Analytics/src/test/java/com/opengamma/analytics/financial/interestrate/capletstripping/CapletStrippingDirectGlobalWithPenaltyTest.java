@@ -17,6 +17,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.interestrate.capletstrippingnew.CapFloor;
 import com.opengamma.analytics.financial.interestrate.capletstrippingnew.CapFloorPricer;
+import com.opengamma.analytics.financial.interestrate.capletstrippingnew.CapletStrippingDirectGlobalWithPenalty;
 import com.opengamma.analytics.financial.interestrate.capletstrippingnew.CapletStrippingSetup;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
 import com.opengamma.analytics.math.matrix.ColtMatrixAlgebra;
