@@ -51,7 +51,7 @@ import com.opengamma.util.tuple.Pair;
  * ONDSC-OIS/LIBOR3M-FRAIRS/LIBOR1M-BS/LIBOR6M-BS
  * Recent market data. Standard instruments with futures on LIBOR3M.
  */
-public class RecentDataSetsMulticurveStandardFuturesUsd {
+public class RecentDataSetsMulticurveFutures3MUsd {
 
   private static final Interpolator1D INTERPOLATOR_LINEAR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
       Interpolator1DFactory.FLAT_EXTRAPOLATOR);

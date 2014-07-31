@@ -41,7 +41,8 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
 import com.opengamma.analytics.tutorial.datasets.ComputedDataSetsMulticurveImmUsd;
-import com.opengamma.analytics.tutorial.datasets.RecentDataSetsMulticurveStandardFuturesUsd;
+import com.opengamma.analytics.tutorial.datasets.RecentDataSetsMulticurveFFSUsd;
+import com.opengamma.analytics.tutorial.datasets.RecentDataSetsMulticurveFutures3MUsd;
 import com.opengamma.analytics.tutorial.datasets.RecentDataSetsMulticurveStandardUsd;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.rolldate.RollConvention;
@@ -186,14 +187,19 @@ public class SwapRiskUsdAnalysis {
   private static final CurveBuildingBlockBundle BLOCK = MULTICURVE_PAIR.getSecond();
 
   private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_FUT_PAIR =
-      RecentDataSetsMulticurveStandardFuturesUsd.getCurvesUSDOisL1L3L6(VALUATION_DATE);
+      RecentDataSetsMulticurveFutures3MUsd.getCurvesUSDOisL1L3L6(VALUATION_DATE);
   private static final MulticurveProviderDiscount MULTICURVE_FUT = MULTICURVE_FUT_PAIR.getFirst();
   private static final CurveBuildingBlockBundle BLOCK_FUT = MULTICURVE_FUT_PAIR.getSecond();
 
   private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_IMM_PAIR =
-      ComputedDataSetsMulticurveImmUsd.getCurvesUSDOisL3(VALUATION_DATE, 40, MULTICURVE);
+      ComputedDataSetsMulticurveImmUsd.getCurvesUSDOisL3(VALUATION_DATE, 40, MULTICURVE_FUT);
   private static final MulticurveProviderDiscount MULTICURVE_IMM = MULTICURVE_IMM_PAIR.getFirst();
   private static final CurveBuildingBlockBundle BLOCK_IMM = MULTICURVE_IMM_PAIR.getSecond();
+
+  private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_FFS_PAIR =
+      RecentDataSetsMulticurveFFSUsd.getCurvesUSDOisL1L3L6(VALUATION_DATE);
+  private static final MulticurveProviderDiscount MULTICURVE_FFS = MULTICURVE_FFS_PAIR.getFirst();
+  private static final CurveBuildingBlockBundle BLOCK_FFS = MULTICURVE_FFS_PAIR.getSecond();
 
   private static final Annuity<?> FIXED_LEG_1 = FIXED_LEG_1_DEFINITION.toDerivative(VALUATION_DATE);
   private static final Annuity<?> IBOR_LEG_1 = IBOR_LEG_1_DEFINITION.toDerivative(VALUATION_DATE, TS_FIXED_IBOR_USD3M_WITHOUT_TODAY);
@@ -226,14 +232,17 @@ public class SwapRiskUsdAnalysis {
     MultipleCurrencyAmount pvSwap1Imm = SWAP_1.accept(PVDC, MULTICURVE_IMM);
     assertEquals("SwapRiskUsdAnalysis: present value", pvSwap1Std.getAmount(USD), pvSwap1Imm.getAmount(USD), TOLERANCE_PV_2);
     MultipleCurrencyAmount pvSwap1Fut = SWAP_1.accept(PVDC, MULTICURVE_FUT);
+    MultipleCurrencyAmount pvSwap2Fut = SWAP_2.accept(PVDC, MULTICURVE_FUT);
     int t = 0;
   }
 
   @SuppressWarnings("unused")
   @Test
   public void parRate() {
-    double pr1 = SWAP_1.accept(PRDC, MULTICURVE);
-    double pr2 = SWAP_2.accept(PRDC, MULTICURVE);
+    double pr1Std = SWAP_1.accept(PRDC, MULTICURVE);
+    double pr2Std = SWAP_2.accept(PRDC, MULTICURVE);
+    double pr1Fut = SWAP_1.accept(PRDC, MULTICURVE_FUT);
+    double pr2Fut = SWAP_2.accept(PRDC, MULTICURVE_FUT);
     int t = 0;
   }
 
@@ -243,6 +252,10 @@ public class SwapRiskUsdAnalysis {
     MultipleCurrencyParameterSensitivity pvmqs1Std = MQSBC.fromInstrument(SWAP_1, MULTICURVE, BLOCK).multipliedBy(BP1);
     MultipleCurrencyParameterSensitivity pvmqs1Imm = MQSBC.fromInstrument(SWAP_1, MULTICURVE_IMM, BLOCK_IMM).multipliedBy(BP1);
     MultipleCurrencyParameterSensitivity pvmqs1Fut = MQSBC.fromInstrument(SWAP_1, MULTICURVE_FUT, BLOCK_FUT).multipliedBy(BP1);
+    MultipleCurrencyParameterSensitivity pvmqs1Ffs = MQSBC.fromInstrument(SWAP_1, MULTICURVE_FFS, BLOCK_FFS).multipliedBy(BP1);
+    MultipleCurrencyParameterSensitivity pvmqs2Std = MQSBC.fromInstrument(SWAP_1, MULTICURVE, BLOCK).multipliedBy(BP1);
+    MultipleCurrencyParameterSensitivity pvmqs2Imm = MQSBC.fromInstrument(SWAP_2, MULTICURVE_IMM, BLOCK_IMM).multipliedBy(BP1);
+    MultipleCurrencyParameterSensitivity pvmqs2Fut = MQSBC.fromInstrument(SWAP_2, MULTICURVE_FUT, BLOCK_FUT).multipliedBy(BP1);
     MultipleCurrencyParameterSensitivity pvmqs3Fut = MQSBC.fromInstrument(SWAP_3, MULTICURVE_FUT, BLOCK_FUT).multipliedBy(BP1);
     int t = 0;
   }
