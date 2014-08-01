@@ -9,6 +9,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFlo
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
+import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.InterpolatedSmileFunction;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.math.MathException;
 import com.opengamma.analytics.math.function.Function1D;
@@ -18,7 +19,8 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
- * 
+ *  Class used to compute the price and sensitivity of a Ibor cap/floor in arrears.
+ *  The cap/floor are supposed to be exactly in arrears. The payment date is ignored and the start fixing period date is used instead.
  */
 public class CapFloorIborInArrearsSmileModelCapGenericReplicationMethod {
   private static final BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
@@ -28,14 +30,23 @@ public class CapFloorIborInArrearsSmileModelCapGenericReplicationMethod {
   private static final double REL_TOL = 1E-10;
   private static final RungeKuttaIntegrator1D INTEGRATOR = new RungeKuttaIntegrator1D(ABS_TOL, REL_TOL, MINIMUM_STEP);
 
-  private final Function1D<Double, Double> _volatilityFunction;
+  private final InterpolatedSmileFunction _smileFunction;
 
-  //TODO For type safety, need to use a class, e.g., "volatility function provider" wrapping the function
-  public CapFloorIborInArrearsSmileModelCapGenericReplicationMethod(final Function1D<Double, Double> volatilityFunction) {
-    ArgumentChecker.notNull(volatilityFunction, "volatilityFunction");
-    _volatilityFunction = volatilityFunction;
+  /**
+   * Constructor specifying interpolated (and extrapolated) smile
+   * @param smileFunction The interpolated smile
+   */
+  public CapFloorIborInArrearsSmileModelCapGenericReplicationMethod(final InterpolatedSmileFunction smileFunction) {
+    ArgumentChecker.notNull(smileFunction, "smileFunction");
+    _smileFunction = smileFunction;
   }
 
+  /**
+   * Computes the present value of an Ibor cap/floor in arrears by replication.
+   * @param cap The cap/floor
+   * @param curves The curves
+   * @return The present value
+   */
   public MultipleCurrencyAmount presentValue(final CapFloorIbor cap, final MulticurveProviderInterface curves) {
     ArgumentChecker.notNull(cap, "The cap/floor shoud not be null");
     ArgumentChecker.notNull(curves, "curves");
@@ -84,7 +95,7 @@ public class CapFloorIborInArrearsSmileModelCapGenericReplicationMethod {
     final EuropeanVanillaOption option = new EuropeanVanillaOption(cap.getStrike(), cap.getFixingTime(), cap.isCap());
     final double forward = curves.getSimplyCompoundForwardRate(cap.getIndex(), cap.getFixingPeriodStartTime(), cap.getFixingPeriodEndTime(), cap.getFixingAccrualFactor());
     final double df = curves.getDiscountFactor(cap.getCurrency(), cap.getPaymentTime());
-    final double volatility = _volatilityFunction.evaluate(cap.getStrike());
+    final double volatility = _smileFunction.getVolatility(cap.getStrike());
     final BlackFunctionData dataBlack = new BlackFunctionData(forward, df, volatility);
     final Function1D<BlackFunctionData, Double> func = BLACK_FUNCTION.getPriceFunction(option);
     final double price = func.evaluate(dataBlack) * cap.getNotional() * cap.getPaymentYearFraction();
