@@ -20,6 +20,11 @@ import com.opengamma.analytics.financial.instrument.future.InterestRateFutureTra
 import com.opengamma.analytics.financial.instrument.future.SwapFuturesPriceDeliverableTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborSpreadDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponONDefinition;
+import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
+import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedONDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
@@ -34,6 +39,7 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.Multicu
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
@@ -221,6 +227,25 @@ public class CurveCalibrationTestsUtils {
     if (instrument instanceof SwapFixedIborDefinition) {
       return ((SwapFixedIborDefinition) instrument).toDerivative(calibrationDate,
           getTSSwapFixedIbor(withToday, htsFixedIborWithToday, htsFixedIborWithoutToday));
+    }
+    if (instrument instanceof SwapDefinition) {
+      SwapDefinition swap = (SwapDefinition)instrument;
+      ZonedDateTimeDoubleTimeSeries[] hts = new ZonedDateTimeDoubleTimeSeries[2];
+      PaymentDefinition[] payment = new PaymentDefinition[2];
+      payment[0] = swap.getFirstLeg().getNthPayment(0);
+      payment[1] = swap.getSecondLeg().getNthPayment(0);
+      for(int loopleg=0; loopleg<2; loopleg++) {
+      if(payment[loopleg] instanceof CouponONDefinition) {
+          hts[loopleg] = withToday?htsFixedOisWithToday[0]:htsFixedOisWithoutToday[0];
+        } else {
+          if((payment[loopleg] instanceof CouponIborDefinition)||(payment[loopleg] instanceof CouponIborSpreadDefinition)) {
+            hts[loopleg] = withToday?htsFixedIborWithToday[0]:htsFixedIborWithoutToday[0];
+          } else {
+            hts[loopleg] = ImmutableZonedDateTimeDoubleTimeSeries.ofEmptyUTC();
+          }
+        }
+      }
+      return swap.toDerivative(calibrationDate, hts);
     }
     if (instrument instanceof InterestRateFutureTransactionDefinition) {
       return ((InterestRateFutureTransactionDefinition) instrument).toDerivative(calibrationDate, 0.0); // Trade date = today, reference price not used.
