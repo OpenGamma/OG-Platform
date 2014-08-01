@@ -96,7 +96,7 @@ public class MultiCapFloorPricerTest extends CapletStrippingSetup {
       final List<CapFloor> caps = getCaps(strikeIndex);
       final int n = caps.size();
       final MultiCapFloorPricer multiPricer = new MultiCapFloorPricer(caps, yieldCurve);
-      final int m = multiPricer.getTotalNumberOfCaplets();
+      final int m = multiPricer.getNumCaplets();
       final double[] capletVols = new double[m];
       Arrays.fill(capletVols, 0.5);
 

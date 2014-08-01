@@ -46,7 +46,7 @@ public class CapletStrippingImp {
 
     _pricer = pricer;
     _nModelParms = volFuncProv.getNumModelParameters();
-    _volFunc = volFuncProv.from(Arrays.asList(pricer.getCapletArray()));
+    _volFunc = volFuncProv.from(pricer.getExpiryStrikeArray());
 
   }
 
@@ -384,35 +384,36 @@ public class CapletStrippingImp {
    */
   protected Function1D<DoubleMatrix1D, DoubleMatrix2D> getCapVolJacobianFunction() {
     final int nCaps = getNumCaps();
-    final int nCaplets = getNumCaplets();
 
     return new Function1D<DoubleMatrix1D, DoubleMatrix2D>() {
       @Override
       public DoubleMatrix2D evaluate(final DoubleMatrix1D x) {
 
         final DoubleMatrix1D capletVols = _volFunc.evaluate(x);
+
+        //        final int nCaplets = capletVols.getNumberOfElements();
         final DoubleMatrix2D capletVolJac = _volFunc.evaluateJacobian(x);
-        final double[] capPrices = _pricer.priceFromCapletVols(capletVols.getData());
+        //        final double[] capPrices = _pricer.priceFromCapletVols(capletVols.getData());
+        //
+        //        //cap vega matrix - sensitivity of cap prices to the volatilities of the caplets 
+        //        final DoubleMatrix2D vega = _pricer.vegaFromCapletVols(capletVols.getData());
+        //
+        //        //sensitivity of the cap prices to their volatilities 
+        //        final double[] capVega = _pricer.vega(_pricer.impliedVols(capPrices));
+        //
+        //        final double[][] temp = new double[nCaps][nCaplets];
+        //        for (int i = 0; i < nCaps; i++) {
+        //          final double invVega = 1.0 / capVega[i];
+        //          for (int j = 0; j < nCaplets; j++) {
+        //            temp[i][j] = invVega * vega.getEntry(i, j);
+        //          }
+        //        }
+        //
+        //        //TODO this calculation should be handled by the pricer 
+        //        //sensitivity of the cap (implied) volatilities to the caplet volatilities
+        //        final DoubleMatrix2D capVolVega = new DoubleMatrix2D(temp);
 
-        //cap vega matrix - sensitivity of cap prices to the volatilities of the caplets 
-        final DoubleMatrix2D vega = _pricer.vegaFromCapletVols(capletVols.getData());
-
-        //sensitivity of the cap prices to their volatilities 
-        final double[] capVega = _pricer.vega(_pricer.impliedVols(capPrices));
-
-        final double[][] temp = new double[nCaps][nCaplets];
-        for (int i = 0; i < nCaps; i++) {
-          final double invVega = 1.0 / capVega[i];
-          for (int j = 0; j < nCaplets; j++) {
-            temp[i][j] = invVega * vega.getEntry(i, j);
-          }
-        }
-
-        //TODO this calculation should be handled by the pricer 
-        //sensitivity of the cap (implied) volatilities to the caplet volatilities
-        final DoubleMatrix2D capVolVega = new DoubleMatrix2D(temp);
-
-        //sensitivity of the cap prices to the model parameters 
+        final DoubleMatrix2D capVolVega = _pricer.capVolVega(capletVols.getData());
         return (DoubleMatrix2D) MA.multiply(capVolVega, capletVolJac);
       }
     };
@@ -446,9 +447,9 @@ public class CapletStrippingImp {
     return _pricer.getNumCaps();
   }
 
-  public int getNumCaplets() {
-    return _pricer.getNumCaplets();
-  }
+  //  public int getNumCaplets() {
+  //    return _pricer.getNumCaplets();
+  //  }
 
   /**
    * Gets the pricer.
