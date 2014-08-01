@@ -28,22 +28,14 @@ import com.opengamma.analytics.financial.instrument.index.GeneratorSwapIborCompo
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexIborMaster;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
-import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
-import com.opengamma.analytics.financial.instrument.swap.SwapFixedONDefinition;
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.generic.LastTimeCalculator;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.curve.CurveCalibrationConventionDataSets;
 import com.opengamma.analytics.financial.provider.curve.CurveCalibrationTestsUtils;
-import com.opengamma.analytics.financial.provider.curve.MultiCurveBundle;
-import com.opengamma.analytics.financial.provider.curve.SingleCurveBundle;
 import com.opengamma.analytics.financial.provider.curve.multicurve.MulticurveDiscountBuildingRepository;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
-import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
-import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
@@ -256,8 +248,9 @@ public class RecentDataSetsMulticurveStandardUsd {
     definitionsUnits[1] = new InstrumentDefinition<?>[][] {definitionsFwd3 };
     definitionsUnits[2] = new InstrumentDefinition<?>[][] {definitionsFwd1 };
     definitionsUnits[3] = new InstrumentDefinition<?>[][] {definitionsFwd6 };
-    return makeCurvesFromDefinitions(definitionsUnits, calibrationDate, GENERATORS_UNITS[0], NAMES_UNITS[0], KNOWN_DATA,
-        PSMQC, PSMQCSC, false);
+    return CurveCalibrationTestsUtils.makeCurvesFromDefinitionsMulticurve(calibrationDate, definitionsUnits, GENERATORS_UNITS[0], 
+        NAMES_UNITS[0], KNOWN_DATA, PSMQC, PSMQCSC, false, DSC_MAP, FWD_ON_MAP, FWD_IBOR_MAP, CURVE_BUILDING_REPOSITORY, 
+        TS_FIXED_OIS_USD_WITH_TODAY, TS_FIXED_OIS_USD_WITHOUT_TODAY, TS_FIXED_IBOR_USD3M_WITH_LAST, TS_FIXED_IBOR_USD3M_WITHOUT_LAST);
   }
 
   /**
@@ -285,6 +278,22 @@ public class RecentDataSetsMulticurveStandardUsd {
   }
 
   /**
+   * Returns an array with one time series corresponding to the USD FEDFUND fixing up to and including the last date.
+   * @return
+   */
+  public static ZonedDateTimeDoubleTimeSeries fixingUsdOnWithLast() {
+    return TS_ON_USD_WITH_TODAY;
+  }
+
+  /**
+   * Returns an array with one time series corresponding to the USD FEDFUND fixing up to and including the last date.
+   * @return
+   */
+  public static ZonedDateTimeDoubleTimeSeries fixingUsdOnWithoutLast() {
+    return TS_ON_USD_WITHOUT_TODAY;
+  }
+
+  /**
    * Returns an array with one time series corresponding to the USD LIBOR3M fixing up to and including the last date.
    * @return
    */
@@ -300,73 +309,27 @@ public class RecentDataSetsMulticurveStandardUsd {
     return TS_IBOR_USD3M_WITHOUT_LAST;
   }
 
-  @SuppressWarnings("unchecked")
-  private static Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> makeCurvesFromDefinitions(final InstrumentDefinition<?>[][][] definitions,
-      final ZonedDateTime calibrationDate, final GeneratorYDCurve[][] curveGenerators,
-      final String[][] curveNames, final MulticurveProviderDiscount knownData, final InstrumentDerivativeVisitor<MulticurveProviderInterface, Double> calculator,
-      final InstrumentDerivativeVisitor<MulticurveProviderInterface, MulticurveSensitivity> sensitivityCalculator, final boolean withToday) {
-    final int nbUnits = curveGenerators.length;
-    final MultiCurveBundle<GeneratorYDCurve>[] curveBundles = new MultiCurveBundle[nbUnits];
-    for (int i = 0; i < nbUnits; i++) {
-      final int nCurves = definitions[i].length;
-      final SingleCurveBundle<GeneratorYDCurve>[] singleCurves = new SingleCurveBundle[nCurves];
-      for (int j = 0; j < nCurves; j++) {
-        final int nInstruments = definitions[i][j].length;
-        final InstrumentDerivative[] derivatives = new InstrumentDerivative[nInstruments];
-        final double[] initialGuess = new double[nInstruments];
-        for (int k = 0; k < nInstruments; k++) {
-          derivatives[k] = convert(definitions[i][j][k], calibrationDate, i, withToday);
-          initialGuess[k] = CurveCalibrationTestsUtils.initialGuess(definitions[i][j][k]);
-        }
-        final GeneratorYDCurve generator = curveGenerators[i][j].finalGenerator(derivatives);
-        singleCurves[j] = new SingleCurveBundle<>(curveNames[i][j], derivatives, initialGuess, generator);
-      }
-      curveBundles[i] = new MultiCurveBundle<>(singleCurves);
-    }
-    return CURVE_BUILDING_REPOSITORY.makeCurvesFromDerivatives(curveBundles, knownData, DSC_MAP, FWD_IBOR_MAP, FWD_ON_MAP, calculator,
-        sensitivityCalculator);
-  }
-
-  private static InstrumentDerivative convert(final InstrumentDefinition<?> definition, final ZonedDateTime date, final int unit, final boolean withToday) {
-    InstrumentDerivative ird;
-    if (definition instanceof SwapFixedONDefinition) {
-      ird = ((SwapFixedONDefinition) definition).toDerivative(date, getTSSwapFixedON(withToday, unit));
-    } else {
-      if (definition instanceof SwapFixedIborDefinition) {
-        ird = ((SwapFixedIborDefinition) definition).toDerivative(date, getTSSwapFixedIbor(withToday, unit));
-      } else {
-        ird = definition.toDerivative(date);
-      }
-    }
-    return ird;
-  }
-
-  private static ZonedDateTimeDoubleTimeSeries[] getTSSwapFixedON(final Boolean withToday, final Integer unit) {
-    switch (unit) {
-      case 0:
-        return withToday ? TS_FIXED_OIS_USD_WITH_TODAY : TS_FIXED_OIS_USD_WITHOUT_TODAY;
-      default:
-        throw new IllegalArgumentException(unit.toString());
-    }
-  }
-
-  private static ZonedDateTimeDoubleTimeSeries[] getTSSwapFixedIbor(final Boolean withToday, final Integer unit) {
-    switch (unit) {
-      case 0:
-        return withToday ? TS_FIXED_IBOR_USD3M_WITH_LAST : TS_FIXED_IBOR_USD3M_WITHOUT_LAST;
-      case 1:
-        return withToday ? TS_FIXED_IBOR_USD3M_WITH_LAST : TS_FIXED_IBOR_USD3M_WITHOUT_LAST;
-      default:
-        throw new IllegalArgumentException(unit.toString());
-    }
-  }
-
   private static final ZonedDateTimeDoubleTimeSeries TS_EMPTY = ImmutableZonedDateTimeDoubleTimeSeries.ofEmptyUTC();
   private static final ZonedDateTimeDoubleTimeSeries TS_ON_USD_WITH_TODAY = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(
-      new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 27), DateUtils.getUTCDate(2011, 9, 28) },
-      new double[] {0.07, 0.08 });
-  private static final ZonedDateTimeDoubleTimeSeries TS_ON_USD_WITHOUT_TODAY = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 27),
-    DateUtils.getUTCDate(2011, 9, 28) }, new double[] {0.07, 0.08 });
+      new ZonedDateTime[] {DateUtils.getUTCDate(2014, 7, 1), DateUtils.getUTCDate(2014, 7, 2), DateUtils.getUTCDate(2014, 7, 3), DateUtils.getUTCDate(2014, 7, 4),
+          DateUtils.getUTCDate(2014, 7, 7), DateUtils.getUTCDate(2014, 7, 8), DateUtils.getUTCDate(2014, 7, 9), DateUtils.getUTCDate(2014, 7, 10), DateUtils.getUTCDate(2014, 7, 11),
+          DateUtils.getUTCDate(2014, 7, 14), DateUtils.getUTCDate(2014, 7, 15), DateUtils.getUTCDate(2014, 7, 16), DateUtils.getUTCDate(2014, 7, 17), DateUtils.getUTCDate(2014, 7, 18),
+          DateUtils.getUTCDate(2014, 7, 21), DateUtils.getUTCDate(2014, 7, 22), DateUtils.getUTCDate(2014, 7, 23), DateUtils.getUTCDate(2014, 7, 24), DateUtils.getUTCDate(2014, 7, 25),
+          DateUtils.getUTCDate(2014, 7, 28) },
+      new double[] {0.002318, 0.002346, 0.002321, 0.002331,
+          0.002341, 0.002336, 0.002341, 0.002336, 0.002336,
+          0.002326, 0.002331, 0.002336, 0.002336, 0.002316,
+          0.002331, 0.002326, 0.002341, 0.002351, 0.002341,
+          0.002341 }); // TODO: replace by actual data
+  private static final ZonedDateTimeDoubleTimeSeries TS_ON_USD_WITHOUT_TODAY = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(
+      new ZonedDateTime[] {DateUtils.getUTCDate(2014, 7, 1), DateUtils.getUTCDate(2014, 7, 2), DateUtils.getUTCDate(2014, 7, 3), DateUtils.getUTCDate(2014, 7, 4),
+          DateUtils.getUTCDate(2014, 7, 7), DateUtils.getUTCDate(2014, 7, 8), DateUtils.getUTCDate(2014, 7, 9), DateUtils.getUTCDate(2014, 7, 10), DateUtils.getUTCDate(2014, 7, 11),
+          DateUtils.getUTCDate(2014, 7, 14), DateUtils.getUTCDate(2014, 7, 15), DateUtils.getUTCDate(2014, 7, 16), DateUtils.getUTCDate(2014, 7, 17), DateUtils.getUTCDate(2014, 7, 18),
+          DateUtils.getUTCDate(2014, 7, 21), DateUtils.getUTCDate(2014, 7, 22), DateUtils.getUTCDate(2014, 7, 23), DateUtils.getUTCDate(2014, 7, 24), DateUtils.getUTCDate(2014, 7, 25)}, 
+          new double[] {0.002318, 0.002346, 0.002321, 0.002331,
+              0.002341, 0.002336, 0.002341, 0.002336, 0.002336,
+              0.002326, 0.002331, 0.002336, 0.002336, 0.002316,
+              0.002331, 0.002326, 0.002341, 0.002351, 0.002341}); // TODO: replace by actual data
   private static final ZonedDateTimeDoubleTimeSeries[] TS_FIXED_OIS_USD_WITH_TODAY = new ZonedDateTimeDoubleTimeSeries[] {TS_EMPTY, TS_ON_USD_WITH_TODAY };
   private static final ZonedDateTimeDoubleTimeSeries[] TS_FIXED_OIS_USD_WITHOUT_TODAY = new ZonedDateTimeDoubleTimeSeries[] {TS_EMPTY, TS_ON_USD_WITHOUT_TODAY };
 
