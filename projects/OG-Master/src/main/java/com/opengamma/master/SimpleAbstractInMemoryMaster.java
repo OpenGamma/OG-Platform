@@ -171,6 +171,7 @@ public abstract class SimpleAbstractInMemoryMaster<D extends AbstractDocument>
       
       List<D> orderedReplacementDocuments = MasterUtils.adjustVersionInstants(now, storedVersionFrom, storedVersionTo, replacementDocuments);
       D lastReplacementDocument = orderedReplacementDocuments.get(orderedReplacementDocuments.size() - 1);
+      lastReplacementDocument.setUniqueId(objectId.getObjectId().atLatestVersion());
       if (_store.replace(objectId.getObjectId(), storedDocument, lastReplacementDocument) == false) {
         throw new IllegalArgumentException("Concurrent modification");
       }
