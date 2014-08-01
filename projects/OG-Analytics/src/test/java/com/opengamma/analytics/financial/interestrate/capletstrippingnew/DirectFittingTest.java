@@ -44,7 +44,7 @@ public class DirectFittingTest extends CapletStrippingSetup {
   public void priceTest() {
     final double lambda = 0.03; //this is chosen to give a chi2/DoF of around 1 
 
-    final MultiCapFloorPricer pricer = new MultiCapFloorPricer(getAllCapsExATM(), getYieldCurves());
+    final MultiCapFloorPricerGrid pricer = new MultiCapFloorPricerGrid(getAllCapsExATM(), getYieldCurves());
     final double[] capVols = getAllCapVolsExATM();
     final double[] capPrices = pricer.price(capVols);
     final double[] capVega = pricer.vega(capVols);
@@ -69,18 +69,76 @@ public class DirectFittingTest extends CapletStrippingSetup {
   @Test(groups = TestGroup.UNIT_SLOW)
   public void volTest() {
     final double lambda = 0.03; //this is chosen to give a chi2/DoF of around 1 
-    final MultiCapFloorPricer pricer = new MultiCapFloorPricer(getAllCapsExATM(), getYieldCurves());
+    final MultiCapFloorPricerGrid pricer = new MultiCapFloorPricerGrid(getAllCapsExATM(), getYieldCurves());
     final CapletStripperDirect stripper = new CapletStripperDirect(pricer, lambda);
 
     final double[] capVols = getAllCapVolsExATM();
     final int n = capVols.length;
     final double[] errors = new double[n];
     Arrays.fill(errors, 1e-4); //1bps
-    final DoubleMatrix1D guess = new DoubleMatrix1D(pricer.getNumCaplets(), 0.7);
+    final DoubleMatrix1D guess = new DoubleMatrix1D(pricer.getGridSize(), 0.7);
 
     final CapletStrippingResult res = stripper.solve(capVols, MarketDataType.VOL, errors, guess);
     System.out.println(res);
     assertEquals(106.90744994491888, res.getChiSq(), 1e-15);
+  }
+
+  @Test(groups = TestGroup.UNIT_SLOW)
+  public void atmCapsVolTest() {
+    final double lambda = 0.7; //this is chosen to give a chi2/DoF of around 1 
+    final MultiCapFloorPricerGrid pricer = new MultiCapFloorPricerGrid(getATMCaps(), getYieldCurves());
+    final CapletStripperDirect stripper = new CapletStripperDirect(pricer, lambda);
+
+    final double[] capVols = getATMCapVols();
+    final int n = capVols.length;
+    final double[] errors = new double[n];
+    Arrays.fill(errors, 1e-4); //1bps
+    final DoubleMatrix1D guess = new DoubleMatrix1D(pricer.getGridSize(), 0.7);
+
+    final CapletStrippingResult res = stripper.solve(capVols, MarketDataType.VOL, errors, guess);
+    //System.out.println(res);
+    assertEquals(5.760490240384456, res.getChiSq(), 1e-15);
+  }
+
+  @Test(groups = TestGroup.UNIT_SLOW)
+  public void allCapsVolTest() {
+    final double lambdaT = 0.01; //this is chosen to give a chi2/DoF of around 1 
+    final double lambdaK = 0.0002;
+    final List<CapFloor> allCaps = getAllCaps();
+    final List<CapFloor> atmCaps = getATMCaps();
+    final MultiCapFloorPricerGrid pricer = new MultiCapFloorPricerGrid(allCaps, getYieldCurves());
+    final CapletStripperDirect stripper = new CapletStripperDirect(pricer, lambdaK, lambdaT);
+
+    final double[] capVols = getAllCapVols();
+    final int n = capVols.length;
+    final double[] errors = new double[n];
+    Arrays.fill(errors, 1e-3); //10bps
+
+    final int nATM = atmCaps.size();
+    for (int i = 0; i < nATM; i++) {
+      final int index = allCaps.indexOf(atmCaps.get(i));
+      errors[index] = 1e-4; //1bps
+    }
+
+    final DoubleMatrix1D guess = new DoubleMatrix1D(pricer.getGridSize(), 0.7);
+
+    final CapletStrippingResult res = stripper.solve(capVols, MarketDataType.VOL, errors, guess);
+    //  System.out.println(res);
+    assertEquals(131.50826652583146, res.getChiSq(), 1e-15);
+  }
+
+  @Test
+  public void debugTest() {
+    final int index = 6;
+    final List<CapFloor> atmcaps = getATMCaps();
+
+    System.out.println(atmcaps.get(index).getPayments()[0].getStrike() + "\t" + getATMCapVols()[index]);
+    final List<CapFloor> caps = getCaps(index);
+    final double[] vols = getCapVols(index);
+    final int n = vols.length;
+    for (int i = 0; i < n; i++) {
+      System.out.println(caps.get(i).getPayments()[0].getStrike() + "\t" + vols[i]);
+    }
   }
 
   /**
@@ -95,7 +153,7 @@ public class DirectFittingTest extends CapletStrippingSetup {
     final int nStrikes = getNumberOfStrikes();
     final CapletStrippingResult[] singleStrikeResults = new CapletStrippingResult[nStrikes];
     for (int i = 0; i < nStrikes; i++) {
-      final MultiCapFloorPricer pricer = new MultiCapFloorPricer(getCaps(i), getYieldCurves());
+      final MultiCapFloorPricerGrid pricer = new MultiCapFloorPricerGrid(getCaps(i), getYieldCurves());
       final CapletStripperDirect stripper = new CapletStripperDirect(pricer, lambda);
 
       final double[] capVols = getCapVols(i);
@@ -112,7 +170,7 @@ public class DirectFittingTest extends CapletStrippingSetup {
       //  System.out.println(res);
     }
 
-    final MultiCapFloorPricer pricer = new MultiCapFloorPricer(getAllCapsExATM(), getYieldCurves());
+    final MultiCapFloorPricerGrid pricer = new MultiCapFloorPricerGrid(getAllCapsExATM(), getYieldCurves());
     final CapletStripperDirect stripper = new CapletStripperDirect(pricer, lambda);
 
     final double[] capVols = getAllCapVolsExATM();
@@ -198,9 +256,50 @@ public class DirectFittingTest extends CapletStrippingSetup {
   }
 
   @Test
+  public void functionsTest2() {
+
+    final MultiCapFloorPricerGrid pricer = new MultiCapFloorPricerGrid(getAllCaps(), getYieldCurves());
+    final int size = pricer.getGridSize();
+    final DoubleMatrix1D flat = new DoubleMatrix1D(size, 0.4);
+
+    final DiscreteVolatilityFunctionProvider volPro = new DiscreteVolatilityFunctionProviderDirect(size);
+    final CapletStrippingImp imp = new CapletStrippingImp(pricer, volPro);
+
+    final Function1D<DoubleMatrix1D, DoubleMatrix1D> pFunc = imp.getCapPriceFunction();
+    final Function1D<DoubleMatrix1D, DoubleMatrix2D> pJacFun = imp.getCapPriceJacobianFunction();
+    final Function1D<DoubleMatrix1D, DoubleMatrix2D> pJacFunFD = DIFF.differentiate(pFunc);
+    //    System.out.println(pJacFun.evaluate(flat));
+    //    System.out.println(pJacFunFD.evaluate(flat));
+    compareJacobianFunc(pJacFun, pJacFunFD, flat, 1e-11);
+
+    final Function1D<DoubleMatrix1D, DoubleMatrix1D> vFunc = imp.getCapVolFunction();
+    //   System.out.println(vFunc.evaluate(flat));
+
+    final Function1D<DoubleMatrix1D, DoubleMatrix2D> vJacFun = imp.getCapVolJacobianFunction();
+    final Function1D<DoubleMatrix1D, DoubleMatrix2D> vJacFunFD = DIFF.differentiate(vFunc);
+    //    System.out.println(vJacFun.evaluate(flat));
+    //    System.out.println(vJacFunFD.evaluate(flat));
+    compareJacobianFunc(vJacFun, vJacFunFD, flat, 1e-6);
+
+    //random entries
+    //The FD calculation of the Jacobian takes a long time 
+    final DoubleMatrix1D x = new DoubleMatrix1D(size, 0.0);
+    final int nRuns = 2;
+    for (int run = 0; run < nRuns; run++) {
+      for (int i = 0; i < size; i++) {
+        x.getData()[i] = 0.2 + 0.7 * RANDOM.nextDouble();
+      }
+      compareJacobianFunc(pJacFun, pJacFunFD, x, 1e-11);
+      compareJacobianFunc(vJacFun, vJacFunFD, x, 1e-4);
+      //            System.out.println(vJacFun.evaluate(x));
+      //            System.out.println(vJacFunFD.evaluate(x));
+    }
+  }
+
+  @Test
   public void timingTest() {
     final VectorFieldFirstOrderDifferentiator diff = new VectorFieldFirstOrderDifferentiator();
-    final MultiCapFloorPricer pricer = new MultiCapFloorPricer(getAllCapsExATM(), getYieldCurves());
+    final MultiCapFloorPricerGrid pricer = new MultiCapFloorPricerGrid(getAllCapsExATM(), getYieldCurves());
     final int size = pricer.getNumCaplets();
     final DiscreteVolatilityFunctionProvider volPro = new DiscreteVolatilityFunctionProviderDirect(size);
     final CapletStrippingImp imp = new CapletStrippingImp(pricer, volPro);

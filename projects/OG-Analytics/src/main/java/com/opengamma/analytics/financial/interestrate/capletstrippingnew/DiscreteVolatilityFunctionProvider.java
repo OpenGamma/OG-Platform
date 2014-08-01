@@ -5,9 +5,7 @@
  */
 package com.opengamma.analytics.financial.interestrate.capletstrippingnew;
 
-import java.util.List;
-
-import com.opengamma.analytics.financial.model.volatility.SimpleOptionData;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * interface for anything that provides a {@link DiscreteVolatilityFunction}
@@ -16,19 +14,11 @@ public interface DiscreteVolatilityFunctionProvider {
 
   /**
    * 
-   * @param expiries expiries in ascending order
-   * @param strikes each entry in the outer array is an array of strikes (in ascending order) corresponding to an expiry 
-   * @param forwards the forwards corresponding to the expiries 
-   * @return a {@link DiscreteVolatilityFunction} that will produce volatilities ordered first by expiry then by strike 
-   */
-  DiscreteVolatilityFunction from(final double[] expiries, final double[][] strikes, final double[] forwards);
-
-  /**
-   * 
-   * @param data list of options 
+   * @param expiryStrikePoints list of expiry-strike points, i.e. DoublesPair with the expiry as the first entry and
+   * strike as the second.
    * @return a {@link DiscreteVolatilityFunction} that will produce volatilities in the same order as the list
    */
-  DiscreteVolatilityFunction from(List<SimpleOptionData> data);
+  DiscreteVolatilityFunction from(final DoublesPair[] expiryStrikePoints);
 
   /**
    * 

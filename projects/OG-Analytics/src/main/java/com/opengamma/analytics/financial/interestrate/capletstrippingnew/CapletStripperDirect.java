@@ -18,7 +18,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class CapletStripperDirect implements CapletStripper {
 
-  private final MultiCapFloorPricer _pricer;
+  private final MultiCapFloorPricerGrid _pricer;
   private final double _lambdaT;
   private final double _lambdaK;
 
@@ -28,7 +28,7 @@ public class CapletStripperDirect implements CapletStripper {
    * @param lambda Use the same curvature penalty in both strike and expiry directions. A lower value will impose less 
    * constraint, allowing better recovery of cap values, but a less smooth volatility surface   
    */
-  public CapletStripperDirect(final MultiCapFloorPricer pricer, final double lambda) {
+  public CapletStripperDirect(final MultiCapFloorPricerGrid pricer, final double lambda) {
     ArgumentChecker.notNull(pricer, "pricer");
     ArgumentChecker.notNegative(lambda, "lambda");
     _pricer = pricer;
@@ -39,10 +39,10 @@ public class CapletStripperDirect implements CapletStripper {
   /**
    *  Set up the stripper 
    * @param pricer The pricer
-   * @param lambdaT the curvature penalty in the expiry direction 
    * @param lambdaK the curvature penalty in the expiry direction 
+   * @param lambdaT the curvature penalty in the expiry direction 
    */
-  public CapletStripperDirect(final MultiCapFloorPricer pricer, final double lambdaT, final double lambdaK) {
+  public CapletStripperDirect(final MultiCapFloorPricerGrid pricer, final double lambdaK, final double lambdaT) {
     ArgumentChecker.notNull(pricer, "pricer");
     ArgumentChecker.notNegative(lambdaT, "lambdaT");
     ArgumentChecker.notNegative(lambdaK, "lambdaK");
@@ -93,7 +93,7 @@ public class CapletStripperDirect implements CapletStripper {
     ArgumentChecker.notEmpty(values, "values");
     final int nCaps = _pricer.getNumCaps();
     ArgumentChecker.isTrue(nCaps == values.length, "Expected {} cap prices, but only given {}", nCaps, values.length);
-    final DiscreteVolatilityFunctionProvider volPro = new DiscreteVolatilityFunctionProviderDirect(_pricer.getNumCaplets());
+    final DiscreteVolatilityFunctionProvider volPro = new DiscreteVolatilityFunctionProviderDirect(_pricer.getGridSize());
     return new CapletStrippingImp(_pricer, volPro);
   }
 
