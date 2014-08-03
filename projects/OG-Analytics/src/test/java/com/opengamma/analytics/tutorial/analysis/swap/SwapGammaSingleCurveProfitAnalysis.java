@@ -59,7 +59,7 @@ import com.opengamma.util.tuple.Pair;
  * Analysis of cross-gamma to zero-coupon and market rates.
  * @author marc
  */
-public class SwapGammaProfitAnalysis {
+public class SwapGammaSingleCurveProfitAnalysis {
 
   private static final ExceptionCalendar TARGET = new CalendarTarget("TARGET");
   private static final ExceptionCalendar LON = new MondayToFridayCalendar("LON");
