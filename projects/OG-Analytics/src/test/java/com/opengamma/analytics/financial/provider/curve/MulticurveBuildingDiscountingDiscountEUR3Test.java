@@ -317,6 +317,37 @@ public class MulticurveBuildingDiscountingDiscountEUR3Test {
     System.out.println("MulticurveBuildingDiscountingDiscountEUR3Test - " + nbTest + " curve construction / 1 unit: " + (endTime - startTime) + " ms");
     // Performance note: Curve construction 1 unit: 07-Nov-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 635 ms for 100 sets.
 
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      InstrumentDefinition<?>[] dscDefinition = getDefinitions(DSC_EUR_MARKET_QUOTES, DSC_EUR_GENERATORS, DSC_EUR_ATTR);
+      InstrumentDefinition<?>[] fwd3Definition = getDefinitions(FWD3_EUR_MARKET_QUOTES, FWD3_EUR_GENERATORS, FWD3_EUR_ATTR);
+      InstrumentDefinition<?>[] fwd6Definition = getDefinitions(FWD6_EUR_MARKET_QUOTES, FWD6_EUR_GENERATORS, FWD6_EUR_ATTR);
+      InstrumentDefinition<?>[][][] units = new InstrumentDefinition<?>[3][][];
+      units[0] = new InstrumentDefinition<?>[][] {dscDefinition };
+      units[1] = new InstrumentDefinition<?>[][] {fwd3Definition };
+      units[2] = new InstrumentDefinition<?>[][] {fwd6Definition };
+      makeCurvesFromDefinitions(units, GENERATORS_UNITS[0], NAMES_UNITS[0], MULTICURVE_KNOWN_DATA, PSMQDC, PSMQCSDC, false);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println("MulticurveBuildingDiscountingDiscountEUR3Test - " + nbTest + " curve construction and instrument/ 3 units: " + (endTime - startTime) + " ms");
+    // Performance note: Curve construction instruments + 3 units: 03-Aug-2014: On Mac Book Pro 2.6 GHz Intel Core i7: 675 ms for 100 sets.
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      makeCurvesFromDefinitions(DEFINITIONS_UNITS[0], GENERATORS_UNITS[0], NAMES_UNITS[0], MULTICURVE_KNOWN_DATA, PSMQDC, PSMQCSDC, false);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println("MulticurveBuildingDiscountingDiscountEUR3Test - " + nbTest + " curve construction / 3 units: " + (endTime - startTime) + " ms");
+    // Performance note: Curve construction 3 units: 07-Nov-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 655 ms for 100 sets.
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      makeCurvesFromDefinitions(DEFINITIONS_UNITS[1], GENERATORS_UNITS[1], NAMES_UNITS[1], MULTICURVE_KNOWN_DATA, PSMQDC, PSMQCSDC, false);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println("MulticurveBuildingDiscountingDiscountEUR3Test - " + nbTest + " curve construction / 1 unit: " + (endTime - startTime) + " ms");
+    // Performance note: Curve construction 1 unit: 07-Nov-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 635 ms for 100 sets.
+
   }
 
   private void curveConstructionCheck(final InstrumentDefinition<?>[][][] definitions, final MulticurveProviderDiscount curves, final boolean withToday, final int block) {
