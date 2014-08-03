@@ -51,6 +51,8 @@ public final class GeneratorSwapIborIborMaster {
         baseCalendar, baseCalendar));
     _generatorSwap.put("EUREURIBOR3MEURIBOR6M", new GeneratorSwapIborIbor("EUREURIBOR3MEURIBOR6M", _iborIndexMaster.getIndex("EURIBOR3M"), _iborIndexMaster.getIndex("EURIBOR6M"),
         baseCalendar, baseCalendar));
+    _generatorSwap.put("JPYLIBOR3MLIBOR6M", new GeneratorSwapIborIbor("JPYLIBOR3MLIBOR6M", _iborIndexMaster.getIndex("JPYLIBOR3M"), _iborIndexMaster.getIndex("JPYLIBOR6M"),
+        baseCalendar, baseCalendar));
   }
 
   public GeneratorSwapIborIbor getGenerator(final String name, final Calendar cal) {

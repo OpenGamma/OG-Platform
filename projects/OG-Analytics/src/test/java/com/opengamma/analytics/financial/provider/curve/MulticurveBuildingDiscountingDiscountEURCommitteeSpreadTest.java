@@ -110,7 +110,7 @@ public class MulticurveBuildingDiscountingDiscountEURCommitteeSpreadTest {
   private static final String CURVE_NAME_DSC_EUR = "EUR Dsc";
   private static final String CURVE_NAME_FWD6_EUR = "EUR Fwd 6M";
 
-  /** Market values for the dsc USD curve */
+  /** Market values for the dsc EUR curve */
   private static final double[] DSC_EUR_MARKET_QUOTES = new double[] {0.0050, 0.0050,
     0.0050, 0.0051, 0.0051, 0.0051, 0.0054,
     0.0062, 0.0069, 0.0071, 0.0072, 0.0070,

@@ -165,7 +165,7 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
       if (_namesToIborIndex == null) {
         _namesToIborIndex = new HashMap<>();
       }
-      _namesToIborIndex.put(name, index);
+      _namesToIborIndex.put(name, index); // REQS-427 Does not take into account multiple index with same curve!
     }
     final Set<IndexON> indexONSet = _forwardONCurves.keySet();
     for (final IndexON index : indexONSet) {
@@ -261,7 +261,7 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
    * @param name The name of a curve
    * @return The ibor index, null if not found
    */
-  // TODO: Review this method. One curve can be used for several indexes.
+  // TODO: REQS-427: Review this method. One curve can be used for several indexes.
   public IborIndex getIborIndexForName(final String name) {
     return _namesToIborIndex.get(name);
   }
@@ -272,7 +272,7 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
    * @param name The name of a curve
    * @return The overnight index, null if not found
    */
-  // TODO: Review this method. One curve can be used for several indexes.
+  // TODO: REQS-427: Review this method. One curve can be used for several indexes.
   public IndexON getOvernightIndexForName(final String name) {
     return _namesToONIndex.get(name);
   }
