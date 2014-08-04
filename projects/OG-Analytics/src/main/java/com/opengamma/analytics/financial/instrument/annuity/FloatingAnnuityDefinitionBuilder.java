@@ -29,6 +29,7 @@ import com.opengamma.analytics.financial.instrument.payment.CouponONArithmeticAv
 import com.opengamma.analytics.financial.instrument.payment.CouponONDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponONSpreadDefinition;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
+import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.ActualActualISDA;
@@ -827,11 +828,13 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
         "Second interpolated date should be equal to or after the accrual end date");
     ArgumentChecker.isTrue(firstInterpolatedDate.isBefore(secondInterpolatedDate), 
         "First interpolated date should be strictly before the second interpolated date");
- 
+
     ActualActualISDA dayCount = new ActualActualISDA();
-    double timeToPeriodEnd = dayCount.getDayCountFraction(accrualStartDate, accrualEndDate);
-    double timeToFirstInterpolatedRateDate = dayCount.getDayCountFraction(accrualStartDate, firstInterpolatedDate);
-    double timeToSecondInterpolatedRateDate = dayCount.getDayCountFraction(accrualStartDate, secondInterpolatedDate);
+    double timeToPeriodEnd = TimeCalculator.getTimeBetween(accrualStartDate, accrualEndDate, dayCount);
+    double timeToFirstInterpolatedRateDate = TimeCalculator.getTimeBetween(accrualStartDate, firstInterpolatedDate,
+        dayCount);
+    double timeToSecondInterpolatedRateDate = TimeCalculator.getTimeBetween(accrualStartDate, secondInterpolatedDate,
+        dayCount);
     double weightDenominator = timeToSecondInterpolatedRateDate - timeToFirstInterpolatedRateDate;
     double weightFirstIndex = (timeToSecondInterpolatedRateDate - timeToPeriodEnd) / weightDenominator;
     double weightSecondIndex = (timeToPeriodEnd - timeToFirstInterpolatedRateDate) / weightDenominator;
