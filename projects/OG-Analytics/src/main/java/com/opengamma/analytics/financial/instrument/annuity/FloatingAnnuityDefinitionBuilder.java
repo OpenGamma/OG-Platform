@@ -34,6 +34,9 @@ import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.ActualActualISDA;
 import com.opengamma.financial.convention.rolldate.GeneralRollDateAdjuster;
+import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Generates an annuity of floating rate coupons.
@@ -883,6 +886,26 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
     return coupon;
   }
   
+  private static Pair<Double, Double> getInterpolationWeights(ZonedDateTime accrualStartDate, 
+      ZonedDateTime accrualEndDate, ZonedDateTime firstInterpolatedDate, ZonedDateTime secondInterpolatedDate) {
+    ArgumentChecker.isTrue(!accrualEndDate.isBefore(firstInterpolatedDate), 
+        "First interpolated date should be before or equal to the accrual end date");
+    ArgumentChecker.isTrue(!accrualEndDate.isAfter(secondInterpolatedDate), 
+        "Second interpolated date should be equal to or after the accrual end date");
+    ArgumentChecker.isTrue(firstInterpolatedDate.isBefore(secondInterpolatedDate), 
+        "First interpolated date should be strictly before the second interpolated date");
+ 
+    ActualActualISDA dayCount = new ActualActualISDA();
+    double timeToPeriodEnd = dayCount.getDayCountFraction(accrualStartDate, accrualEndDate);
+    double timeToFirstInterpolatedRateDate = dayCount.getDayCountFraction(accrualStartDate, firstInterpolatedDate);
+    double timeToSecondInterpolatedRateDate = dayCount.getDayCountFraction(accrualStartDate, secondInterpolatedDate);
+    double weightDenominator = timeToSecondInterpolatedRateDate - timeToFirstInterpolatedRateDate;
+    double weightFirstIndex = (timeToSecondInterpolatedRateDate - timeToPeriodEnd) / weightDenominator;
+    double weightSecondIndex = (timeToPeriodEnd - timeToFirstInterpolatedRateDate) / weightDenominator;
+
+    return Pairs.of(weightFirstIndex, weightSecondIndex);
+  }
+  
   private CouponDefinition getIborInterpolatedStubDefinition(
       double notional,
       ZonedDateTime paymentDate,
@@ -900,21 +923,13 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
       ZonedDateTime secondInterpolatedDate,
       double secondInterpolatedYearFraction,
       IborIndex secondStubIndex) {
-    
-    assert !accrualEndDate.isBefore(firstInterpolatedDate);
-    assert !accrualEndDate.isAfter(secondInterpolatedDate);
-    
-    ActualActualISDA dayCount = new ActualActualISDA();
-    double timeToPeriodEnd = dayCount.getDayCountFraction(accrualStartDate, accrualEndDate);
-    double timeToFirstInterpolatedRateDate = dayCount.getDayCountFraction(accrualStartDate, firstInterpolatedDate);
-    double timeToSecondInterpolatedRateDate = dayCount.getDayCountFraction(accrualStartDate, secondInterpolatedDate);
-    double weightDenominator = timeToSecondInterpolatedRateDate - timeToFirstInterpolatedRateDate;
-    double weightFirstIndex = (timeToSecondInterpolatedRateDate - timeToPeriodEnd) / weightDenominator;
-    double weightSecondIndex = (timeToPeriodEnd - timeToFirstInterpolatedRateDate) / weightDenominator;
+   
+    Pair<Double, Double> weights = getInterpolationWeights(accrualStartDate, accrualEndDate, firstInterpolatedDate,
+        secondInterpolatedDate);
 
     return CouponIborAverageIndexDefinition.from(
         paymentDate, accrualStartDate, accrualEndDate, accrualYearFraction, notional, fixingDate, 
-        firstStubIndex, secondStubIndex, weightFirstIndex, weightSecondIndex, getFixingCalendar(), getFixingCalendar());        
+        firstStubIndex, secondStubIndex, weights.getFirst(), weights.getSecond(), getFixingCalendar(), getFixingCalendar());        
   }
   
   private CouponDefinition getIborCompoundingDefinition(
@@ -1032,8 +1047,16 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
       ZonedDateTime secondInterpolatedDate,
       double secondInterpolatedYearFraction,
       IborIndex secondStubIndex) {
-    double weighting = 0.5;
-    final CouponDefinition coupon = getIborCompoundingDefinition(notional, paymentDate, accrualStartDate, accrualEndDate, accrualYearFraction, compoundAccrualStartDates, compoundAccrualEndDates, compoundAccrualYearFractions, compoundFixingDates, compoundFixingStartDates, compoundFixingEndDates, compoundFixingYearFractions, initialCompoundRate);
-    return CouponIborAverageIndexDefinition.from(coupon, compoundFixingDates[0] , firstStubIndex, secondStubIndex, weighting, weighting, getFixingCalendar(), getFixingCalendar());     
+    
+    Pair<Double, Double> weights = getInterpolationWeights(accrualStartDate, accrualEndDate, firstInterpolatedDate,
+        secondInterpolatedDate);
+
+    final CouponDefinition coupon = getIborCompoundingDefinition(notional, paymentDate, accrualStartDate, 
+        accrualEndDate, accrualYearFraction, compoundAccrualStartDates, compoundAccrualEndDates, 
+        compoundAccrualYearFractions, compoundFixingDates, compoundFixingStartDates, compoundFixingEndDates, 
+        compoundFixingYearFractions, initialCompoundRate);
+    
+    return CouponIborAverageIndexDefinition.from(coupon, compoundFixingDates[0] , firstStubIndex, secondStubIndex, 
+        weights.getFirst(), weights.getSecond(), getFixingCalendar(), getFixingCalendar());     
   }
 }
