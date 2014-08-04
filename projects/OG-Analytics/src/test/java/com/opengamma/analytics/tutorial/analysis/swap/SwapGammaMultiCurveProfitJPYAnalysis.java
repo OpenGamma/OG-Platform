@@ -197,6 +197,51 @@ public void performanceCalibration() {
   endTime = System.currentTimeMillis();
   System.out.println("CrossGammaMultiCurveCalculator - " + nbTest + " 3 curves - 1 unit calibrations: " + (endTime - startTime) + " ms");
   // Performance note: 3 Curve calibration: 04-Aug-2014: On Mac Book Pro 2.6 GHz Intel Core i7: 6000 ms for 100 sets.
+
+  startTime = System.currentTimeMillis();
+  for (int looptest = 0; looptest < nbTest; looptest++) {
+    Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> multicurve3Pair = 
+        AnalysisMarketDataJPYSets.getMulticurveJPYOisL6OneUnit(CALIBRATION_DATE, dscQuotes, fwd6Quotes);
+  }
+  endTime = System.currentTimeMillis();
+  System.out.println("CrossGammaMultiCurveCalculator - " + nbTest + " 2 curves - 1 unit calibrations: " + (endTime - startTime) + " ms");
+  // Performance note: 3 Curve calibration: 04-Aug-2014: On Mac Book Pro 2.6 GHz Intel Core i7: xxx ms for 100 sets.
+  
+  startTime = System.currentTimeMillis();
+  for (int looptest = 0; looptest < nbTest; looptest++) {
+    Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> multicurve3Pair = 
+        AnalysisMarketDataJPYSets.getMulticurveJPYOisL6L3(CALIBRATION_DATE, dscQuotes, fwd6Quotes, fwd3Quotes);
+  }
+  endTime = System.currentTimeMillis();
+  System.out.println("CrossGammaMultiCurveCalculator - " + nbTest + " 3 curves - 3 units calibrations: " + (endTime - startTime) + " ms");
+  // Performance note: 3 Curve calibration: 04-Aug-2014: On Mac Book Pro 2.6 GHz Intel Core i7: 3900 ms for 100 sets.
+
+  startTime = System.currentTimeMillis();
+  for (int looptest = 0; looptest < nbTest; looptest++) {
+    Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> multicurve2Pair = 
+        AnalysisMarketDataJPYSets.getMulticurveJPYOisL6(CALIBRATION_DATE, dscQuotes, fwd6Quotes);
+  }
+  endTime = System.currentTimeMillis();
+  System.out.println("CrossGammaMultiCurveCalculator - " + nbTest + " 2 curves - 2 units calibrations: " + (endTime - startTime) + " ms");
+  // Performance note: 2 Curve calibration: 04-Aug-2014: On Mac Book Pro 2.6 GHz Intel Core i7: 1900 ms for 100 sets.
+
+  startTime = System.currentTimeMillis();
+  for (int looptest = 0; looptest < nbTest; looptest++) {
+    Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> multicurve3Pair = 
+        AnalysisMarketDataJPYSets.getMulticurveJPYOisL6L3OneUnit(CALIBRATION_DATE, dscQuotes, fwd6Quotes, fwd3Quotes);
+  }
+  endTime = System.currentTimeMillis();
+  System.out.println("CrossGammaMultiCurveCalculator - " + nbTest + " 3 curves - 1 unit calibrations: " + (endTime - startTime) + " ms");
+  // Performance note: 3 Curve calibration: 04-Aug-2014: On Mac Book Pro 2.6 GHz Intel Core i7: 6000 ms for 100 sets.
+
+  startTime = System.currentTimeMillis();
+  for (int looptest = 0; looptest < nbTest; looptest++) {
+    Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> multicurve3Pair = 
+        AnalysisMarketDataJPYSets.getMulticurveJPYOisL6OneUnit(CALIBRATION_DATE, dscQuotes, fwd6Quotes);
+  }
+  endTime = System.currentTimeMillis();
+  System.out.println("CrossGammaMultiCurveCalculator - " + nbTest + " 2 curves - 1 unit calibrations: " + (endTime - startTime) + " ms");
+  // Performance note: 3 Curve calibration: 04-Aug-2014: On Mac Book Pro 2.6 GHz Intel Core i7: xxx ms for 100 sets.
   
 }
 
