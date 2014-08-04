@@ -100,18 +100,16 @@ public final class FuturesPriceCurveSensitivityMulticurveCalculator extends Inst
     ArgumentChecker.notNull(futures, "futures");
     ArgumentChecker.notNull(multicurve, "multi-curve provider");
     double dfInv = 1.0 / multicurve.getMulticurveProvider().getDiscountFactor(futures.getCurrency(), futures.getDeliveryTime());
-    MulticurveSensitivity pvcs = futures.getUnderlyingSwap().accept(PVCSDC, multicurve.getMulticurveProvider()).getSensitivity(futures.getCurrency())
-        .multipliedBy(dfInv);
+    MulticurveSensitivity pvcs = futures.getUnderlyingSwap().accept(PVCSDC, multicurve.getMulticurveProvider()).getSensitivity(futures.getCurrency()).multipliedBy(dfInv);
+
     final PresentValueDiscountingCalculator pvCalc = PresentValueDiscountingCalculator.getInstance();
     double pv = futures.getUnderlyingSwap().accept(pvCalc, multicurve.getMulticurveProvider()).getAmount(futures.getCurrency());
     final Map<String, List<DoublesPair>> resultMap = new HashMap<>();
     final List<DoublesPair> listDf = new ArrayList<>();
-    listDf.add(DoublesPair.of(futures.getDeliveryTime(), futures.getDeliveryTime()));
-
-    resultMap.put(multicurve.getMulticurveProvider().getName(futures.getCurrency()).toString(), listDf);
+    listDf.add(DoublesPair.of(futures.getDeliveryTime(), futures.getDeliveryTime() * pv * dfInv));
+    resultMap.put(multicurve.getMulticurveProvider().getName(futures.getCurrency()), listDf);
     MulticurveSensitivity result = MulticurveSensitivity.ofYieldDiscounting(resultMap);
-    pvcs.plus(result.multipliedBy(pv * dfInv));
-    return pvcs;
+    return result.plus(pvcs);
   }
 
 }
