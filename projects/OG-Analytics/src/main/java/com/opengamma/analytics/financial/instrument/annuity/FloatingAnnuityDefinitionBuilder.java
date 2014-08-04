@@ -30,7 +30,6 @@ import com.opengamma.analytics.financial.instrument.payment.CouponONDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponONSpreadDefinition;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.StubType;
-import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.ActualActualISDA;
 import com.opengamma.financial.convention.rolldate.GeneralRollDateAdjuster;
@@ -73,17 +72,6 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
    */
   private CompoundingMethod _compoundingMethod;
   
-  /**
-   * The stub type of the first compounded stub period. This is an optional field, and will default to a short start stub
-   * type.
-   */
-  private StubType _startStubCompoundingStub;
-  
-  /**
-   * The stub type of the last compounded stub period. This is an optional field, and will default to none if unset.
-   */
-  private StubType _endStubCompoundingStub;
-
   /**
    * Sets the initial rate of the annuity. This is an optional field.
    * @param initialRate the initial rate of the annuity.
@@ -144,16 +132,6 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
     return this;
   }
   
-  public FloatingAnnuityDefinitionBuilder startStubCompoundingMethod(StubType startStubCompoundingMethod) {
-    _startStubCompoundingStub = startStubCompoundingMethod;
-    return this;
-  }
-  
-  public FloatingAnnuityDefinitionBuilder endStubCompoundingMethod(StubType endStubCompoundingMethod) {
-    _endStubCompoundingStub = endStubCompoundingMethod;
-    return this;
-  }
-  
   private boolean isCompounding() {
     if (_compoundingMethod == null) {
       return false;
@@ -180,26 +158,6 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
   }
   
   /**
-   * Returns the fixing dates relative to the specified set of accrual dates, which are either start or end dates.
-   * @param fixingDates either accrual start or accrual end dates.
-   * @return the fixing dates
-   */
-  private ZonedDateTime[] getResetDates(ZonedDateTime[] fixingDates) {
-    if (_adjustedResetDateParameters == null) {
-      return fixingDates;
-    }
-    
-    ZonedDateTime[] resetDates = new ZonedDateTime[fixingDates.length];
-    Calendar fixingDateCalendar = getFixingCalendar();
-    
-    for (int i = 0; i < resetDates.length; i++) {
-//      fixingDates[i] = _adjustedFixingDateParameters.getBusinessDayConvention().adjustDate(fixingDateCalendar, resetDates[i]);
-      resetDates[i] = ScheduleCalculator.getAdjustedDate(fixingDates[i], -_adjustedFixingDateParameters.getOffset(), fixingDateCalendar);
-    }
-    return resetDates;
-  }
-  
-  /**
    * Fall down the various calendars, trying to find the default calendar to use for fixings.
    * <ol>
    * <li>Fixing calendar</li>
@@ -218,16 +176,6 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
     return fixingCalendar;
   }
   
-  private BusinessDayConvention getFixingBusinessDayConvention() {
-    BusinessDayConvention fixingBusinessDayConvention = null;
-    if (_adjustedFixingDateParameters != null) {
-      fixingBusinessDayConvention = _adjustedFixingDateParameters.getBusinessDayConvention();
-    } else if (getAccrualPeriodAdjustmentParameters() != null) {
-      fixingBusinessDayConvention = getAccrualPeriodAdjustmentParameters().getBusinessDayConvention();
-    }
-    return fixingBusinessDayConvention;
-  }
-  
   /**
    * Generates reset dates relative to a given set of accrual dates, which may be either start or end dates.
    * @param accrualDates start or end accrual dates.
@@ -242,16 +190,6 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
         _adjustedFixingDateParameters.getBusinessDayConvention(),
         _adjustedFixingDateParameters.getCalendar(),
         _adjustedFixingDateParameters.getOffset());
-  }
-  
-  private Calendar getResetCalendar() {
-    Calendar resetCalendar = null;
-    if (_adjustedResetDateParameters != null) {
-      resetCalendar = _adjustedResetDateParameters.getCalendar();
-    } else if (getAccrualPeriodAdjustmentParameters() != null) {
-      resetCalendar = getAccrualPeriodAdjustmentParameters().getCalendar();
-    }
-    return resetCalendar;
   }
   
   @Override
@@ -321,7 +259,6 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
       // common coupon parameters
       ZonedDateTime paymentDate = paymentDates[c];
       ZonedDateTime accrualStartDate = adjustedAccrualStartDates[c];
-      ZonedDateTime accrualEndDate = adjustedAccrualEndDates[c];
       ZonedDateTime unadjustedAccrualStartDate = unadjustedAccrualStartDates[c];
       ZonedDateTime unadjustedAccrualEndDate = unadjustedAccrualEndDates[c];
       
@@ -391,10 +328,6 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
       return iborCoupons;
     }
     return coupons;
-  }
-
-  private boolean hasStubs() {
-    return false;
   }
 
   private CouponDefinition[] generateZeroCouponFlows(int exchangeNotionalCouponCount) {
