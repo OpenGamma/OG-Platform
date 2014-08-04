@@ -16,11 +16,13 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.FederalF
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesPriceDeliverableSecurity;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueCurveSensitivityDiscountingCalculator;
+import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimplyCompoundedForwardSensitivity;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Computes the price curve sensitivity for different types of futures. Calculator using a multi-curve provider.
@@ -97,7 +99,18 @@ public final class FuturesPriceCurveSensitivityMulticurveCalculator extends Inst
   public MulticurveSensitivity visitSwapFuturesPriceDeliverableSecurity(final SwapFuturesPriceDeliverableSecurity futures, final ParameterProviderInterface multicurve) {
     ArgumentChecker.notNull(futures, "futures");
     ArgumentChecker.notNull(multicurve, "multi-curve provider");
-    MulticurveSensitivity pvcs = futures.getUnderlyingSwap().accept(PVCSDC, multicurve.getMulticurveProvider()).getSensitivity(futures.getCurrency());
+    double dfInv = 1.0 / multicurve.getMulticurveProvider().getDiscountFactor(futures.getCurrency(), futures.getDeliveryTime());
+    MulticurveSensitivity pvcs = futures.getUnderlyingSwap().accept(PVCSDC, multicurve.getMulticurveProvider()).getSensitivity(futures.getCurrency())
+        .multipliedBy(dfInv);
+    final PresentValueDiscountingCalculator pvCalc = PresentValueDiscountingCalculator.getInstance();
+    double pv = futures.getUnderlyingSwap().accept(pvCalc, multicurve.getMulticurveProvider()).getAmount(futures.getCurrency());
+    final Map<String, List<DoublesPair>> resultMap = new HashMap<>();
+    final List<DoublesPair> listDf = new ArrayList<>();
+    listDf.add(DoublesPair.of(futures.getDeliveryTime(), futures.getDeliveryTime()));
+
+    resultMap.put(multicurve.getMulticurveProvider().getName(futures.getCurrency()).toString(), listDf);
+    MulticurveSensitivity result = MulticurveSensitivity.ofYieldDiscounting(resultMap);
+    pvcs.plus(result.multipliedBy(pv * dfInv));
     return pvcs;
   }
 
