@@ -168,7 +168,118 @@ public class CrossGammaMultiCurveCalculator {
     }
     return result;
   }
-  
-  // TODO: cross gamma cross curves.
+
+  /**
+   * Computes the cross-gamma matrix for a given instrument. 
+   * The curve provider should contain multi-curve in one currency which should each be of the 
+   * type YieldCurve with an underlying InterpolatedDoublesCurve.
+   * @param instrument The instrument for which the cross-gamma should be computed. Same currency as the curves.
+   * @param multicurve The multi-curve provider.
+   * @return The cross-gamma matrix. It represents the cross-curve cross-gamma. 
+   * The order of the curve is the one provided by the .getAllNames() in the MulticurveProviderDiscount.
+   */
+  public DoubleMatrix2D calculateCrossGammaCrossCurve(final InstrumentDerivative instrument, final MulticurveProviderDiscount multicurve) {
+    Set<String> names = multicurve.getAllNames();
+    Set<Currency> ccys = multicurve.getCurrencies();
+    ArgumentChecker.isTrue(ccys.size() == 1, "only one currency allowed for multi-curve gamma");
+    Currency ccy = ccys.iterator().next();
+    Set<IborIndex> iborIndexes = multicurve.getIndexesIbor();
+    for (IborIndex index : iborIndexes) {
+      ArgumentChecker.isTrue(index.getCurrency().equals(ccy), "Ibor index should be in the same currency as discounting curve");
+    }
+    Set<IndexON> onIndexes = multicurve.getIndexesON();
+    for (IndexON index : onIndexes) {
+      ArgumentChecker.isTrue(index.getCurrency().equals(ccy), "Overnight index should be in the same currency as discounting curve");
+    }
+    // Check curve type
+    int loopname = 0;
+    int nbCurve = names.size();
+    String[] namesArray = new String[nbCurve];
+    // Check currency
+    InterpolatedDoublesCurve[] interpolatedCurves = new InterpolatedDoublesCurve[nbCurve];
+    for (String name : names) {
+      namesArray[loopname] = name;
+      YieldAndDiscountCurve curve = multicurve.getCurve(name);
+      ArgumentChecker.isTrue(curve instanceof YieldCurve, "curve should be YieldCurve");
+      YieldCurve yieldCurve = (YieldCurve) curve;
+      ArgumentChecker.isTrue(yieldCurve.getCurve() instanceof InterpolatedDoublesCurve, "Yield curve should be based on InterpolatedDoublesCurve");
+      interpolatedCurves[loopname] = (InterpolatedDoublesCurve) yieldCurve.getCurve();
+      loopname++;
+    }
+    // Curves description
+    double[][] y = new double[nbCurve][];
+    double[][] x = new double[nbCurve][];
+    int[] nbNodeByCurve = new int[nbCurve];
+    int nbNodeTotal = 0;
+    for (int loopcurve = 0; loopcurve < nbCurve; loopcurve++) {
+      y[loopcurve] = interpolatedCurves[loopcurve].getYDataAsPrimitive();
+      x[loopcurve] = interpolatedCurves[loopcurve].getXDataAsPrimitive();
+      nbNodeByCurve[loopcurve] = x[loopcurve].length;
+      nbNodeTotal += nbNodeByCurve[loopcurve];
+    }
+    // Initial sensitivity
+    MultipleCurrencyParameterSensitivity ps0 = _psc.calculateSensitivity(instrument, multicurve);
+    DoubleMatrix1D[] ps0Mat = new DoubleMatrix1D[nbCurve];
+    double[][] ps0Array = new double[nbCurve][];
+    for (int loopcurve = 0; loopcurve < nbCurve; loopcurve++) {
+      ps0Mat[loopcurve] = ps0.getSensitivity(namesArray[loopcurve], ccy);
+      if (ps0Mat[loopcurve] == null) {
+        ps0Array[loopcurve] = new double[nbNodeByCurve[loopcurve]];
+      } else {
+        ps0Array[loopcurve] = ps0Mat[loopcurve].getData();
+      }
+    }
+    // Bump and recompute for each curve and each point
+    double[][] gammaArray = new double[nbNodeTotal][nbNodeTotal];
+    int loopnodetotal = 0;
+    for (int loopcurve = 0; loopcurve < nbCurve; loopcurve++) {
+      MultipleCurrencyParameterSensitivity[] psShift = new MultipleCurrencyParameterSensitivity[nbNodeByCurve[loopcurve]];
+      for (int loopnode = 0; loopnode < nbNodeByCurve[loopcurve]; loopnode++) {
+        final double[] yieldBumped = y[loopcurve].clone();
+        yieldBumped[loopnode] += _shift;
+        final YieldAndDiscountCurve curveBumped = new YieldCurve(namesArray[loopcurve],
+            new InterpolatedDoublesCurve(x[loopcurve], yieldBumped, interpolatedCurves[loopcurve].getInterpolator(), true));
+        MulticurveProviderDiscount multicurveBumped = new MulticurveProviderDiscount();
+        multicurveBumped.setForexMatrix(multicurve.getFxRates());
+        for (Currency loopccy : multicurve.getCurrencies()) {
+          if (loopccy.equals(multicurve.getCurrencyForName(namesArray[loopcurve]))) {
+            multicurveBumped.setCurve(loopccy, curveBumped);
+          } else {
+            multicurveBumped.setCurve(loopccy, multicurve.getCurve(loopccy));
+          }
+        }
+        for (IborIndex loopibor : multicurve.getIndexesIbor()) {
+          if (loopibor.equals(multicurve.getIborIndexForName(namesArray[loopcurve]))) { // REQS-427
+            multicurveBumped.setCurve(loopibor, curveBumped);
+          } else {
+            multicurveBumped.setCurve(loopibor, multicurve.getCurve(loopibor));
+          }
+        }
+        for (IndexON loopon : multicurve.getIndexesON()) {
+          if (loopon.equals(multicurve.getOvernightIndexForName(namesArray[loopcurve]))) { // REQS-427
+            multicurveBumped.setCurve(loopon, curveBumped);
+          } else {
+            multicurveBumped.setCurve(loopon, multicurve.getCurve(loopon));
+          }
+        }
+        psShift[loopnode] = _psc.calculateSensitivity(instrument, multicurveBumped);
+
+        int loopnodetotal2 = 0;
+        for (int loopcurve2 = 0; loopcurve2 < nbCurve; loopcurve2++) {
+          DoubleMatrix1D sensiCurve = psShift[loopnode].getSensitivity(namesArray[loopcurve2], ccy);
+          double[] psShiftArray = new double[nbNodeByCurve[loopcurve2]];
+          if (sensiCurve != null) {
+            psShiftArray = sensiCurve.getData();
+          }
+          for (int loopnode2 = 0; loopnode2 < nbNodeByCurve[loopcurve2]; loopnode2++) {
+            gammaArray[loopnodetotal][loopnodetotal2] = (psShiftArray[loopnode2] - ps0Array[loopcurve2][loopnode2]) / _shift;
+            loopnodetotal2++;
+          }
+        }
+        loopnodetotal++;
+      }
+    }
+    return new DoubleMatrix2D(gammaArray);
+  }
 
 }
