@@ -86,7 +86,7 @@ public final class FuturesPriceMulticurveCalculator extends InstrumentDerivative
     ArgumentChecker.notNull(futures, "futures");
     ArgumentChecker.notNull(multicurve, "multi-curve provider");
     MultipleCurrencyAmount pv = futures.getUnderlyingSwap().accept(PVDC, multicurve.getMulticurveProvider());
-    return 1.0d + pv.getAmount(futures.getCurrency());
+    return 1.0d + pv.getAmount(futures.getCurrency()) / multicurve.getMulticurveProvider().getDiscountFactor(futures.getCurrency(), futures.getDeliveryTime());
   }
 
   @Override
