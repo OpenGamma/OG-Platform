@@ -32,6 +32,7 @@ import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.convention.daycount.ActualActualISDA;
 import com.opengamma.financial.convention.rolldate.GeneralRollDateAdjuster;
 
 /**
@@ -899,9 +900,21 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
       ZonedDateTime secondInterpolatedDate,
       double secondInterpolatedYearFraction,
       IborIndex secondStubIndex) {
-    //Apply equal weightings for both stub tenors
-    double weighting = 0.5;
-    return CouponIborAverageIndexDefinition.from(paymentDate, accrualStartDate, accrualEndDate, accrualYearFraction, notional, fixingDate, firstStubIndex, secondStubIndex, weighting, weighting, getFixingCalendar(), getFixingCalendar());        
+    
+    assert !accrualEndDate.isBefore(firstInterpolatedDate);
+    assert !accrualEndDate.isAfter(secondInterpolatedDate);
+    
+    ActualActualISDA dayCount = new ActualActualISDA();
+    double timeToPeriodEnd = dayCount.getDayCountFraction(accrualStartDate, accrualEndDate);
+    double timeToFirstInterpolatedRateDate = dayCount.getDayCountFraction(accrualStartDate, firstInterpolatedDate);
+    double timeToSecondInterpolatedRateDate = dayCount.getDayCountFraction(accrualStartDate, secondInterpolatedDate);
+    double weightDenominator = timeToSecondInterpolatedRateDate - timeToFirstInterpolatedRateDate;
+    double weightFirstIndex = (timeToSecondInterpolatedRateDate - timeToPeriodEnd) / weightDenominator;
+    double weightSecondIndex = (timeToPeriodEnd - timeToFirstInterpolatedRateDate) / weightDenominator;
+
+    return CouponIborAverageIndexDefinition.from(
+        paymentDate, accrualStartDate, accrualEndDate, accrualYearFraction, notional, fixingDate, 
+        firstStubIndex, secondStubIndex, weightFirstIndex, weightSecondIndex, getFixingCalendar(), getFixingCalendar());        
   }
   
   private CouponDefinition getIborCompoundingDefinition(
