@@ -13,6 +13,7 @@ import org.apache.commons.lang.StringUtils;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.ImmutableConstructor;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -47,14 +48,14 @@ public final class Failure implements ImmutableBean {
   /**
    * The error message associated with the failure.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notEmpty")
   private final String _message;
   /**
    * Stack trace where the failure occurred.
    * If the failure was caused by an {@code Exception} its stack trace is used, otherwise it's the
    * location where the failure was created.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notEmpty")
   private final String _stackTrace;
   /**
    * The type of the exception that caused the failure, null if it wasn't caused by an exception.
@@ -83,6 +84,14 @@ public final class Failure implements ImmutableBean {
     _message = ArgumentChecker.notEmpty(message, "message");
     _stackTrace = s_stackTraceInterner.intern(getStackTrace(new Exception()));
     _causeType = null;
+  }
+
+  @ImmutableConstructor
+  private Failure(FailureStatus status, String message, String stackTrace, Class<? extends Exception> causeType) {
+    _status = ArgumentChecker.notNull(status, "status");
+    _message = ArgumentChecker.notEmpty(message, "message");
+    _stackTrace = s_stackTraceInterner.intern(ArgumentChecker.notEmpty(stackTrace, "stackTrace"));
+    _causeType = causeType;
   }
 
   /**
@@ -152,20 +161,6 @@ public final class Failure implements ImmutableBean {
     return new Failure.Builder();
   }
 
-  private Failure(
-      FailureStatus status,
-      String message,
-      String stackTrace,
-      Class<? extends Exception> causeType) {
-    JodaBeanUtils.notNull(status, "status");
-    JodaBeanUtils.notNull(message, "message");
-    JodaBeanUtils.notNull(stackTrace, "stackTrace");
-    this._status = status;
-    this._message = message;
-    this._stackTrace = stackTrace;
-    this._causeType = causeType;
-  }
-
   @Override
   public Failure.Meta metaBean() {
     return Failure.Meta.INSTANCE;
@@ -193,7 +188,7 @@ public final class Failure implements ImmutableBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the error message associated with the failure.
-   * @return the value of the property, not null
+   * @return the value of the property, not empty
    */
   public String getMessage() {
     return _message;
@@ -204,7 +199,7 @@ public final class Failure implements ImmutableBean {
    * Gets stack trace where the failure occurred.
    * If the failure was caused by an {@code Exception} its stack trace is used, otherwise it's the
    * location where the failure was created.
-   * @return the value of the property, not null
+   * @return the value of the property, not empty
    */
   public String getStackTrace() {
     return _stackTrace;
@@ -516,22 +511,22 @@ public final class Failure implements ImmutableBean {
 
     /**
      * Sets the {@code message} property in the builder.
-     * @param message  the new value, not null
+     * @param message  the new value, not empty
      * @return this, for chaining, not null
      */
     public Builder message(String message) {
-      JodaBeanUtils.notNull(message, "message");
+      JodaBeanUtils.notEmpty(message, "message");
       this._message = message;
       return this;
     }
 
     /**
      * Sets the {@code stackTrace} property in the builder.
-     * @param stackTrace  the new value, not null
+     * @param stackTrace  the new value, not empty
      * @return this, for chaining, not null
      */
     public Builder stackTrace(String stackTrace) {
-      JodaBeanUtils.notNull(stackTrace, "stackTrace");
+      JodaBeanUtils.notEmpty(stackTrace, "stackTrace");
       this._stackTrace = stackTrace;
       return this;
     }
