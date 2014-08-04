@@ -281,5 +281,20 @@ public class AnalysisMarketDataJPYSets {
         namesUnits, KNOWN_DATA, PSMQC, PSMQCSC, false, DSC_MAP_3C, FWD_ON_MAP_3C, FWD_IBOR_MAP_3C, CURVE_BUILDING_REPOSITORY, 
         TS_FIXED_OIS_WITHOUT_TODAY, TS_FIXED_OIS_WITHOUT_TODAY, TS_FIXED_IBOR_6M_WITHOUT_TODAY, TS_FIXED_IBOR_6M_WITHOUT_TODAY);
   }
+  
+  public static Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> getMulticurveJPYOisL6OneUnit(
+      ZonedDateTime calibrationDate, double[] dscQuotes, double[] fwd6Quotes) {
+    InstrumentDefinition<?>[] dscDefinition = getDefinitions(calibrationDate, dscQuotes, DSC_GENERATORS, DSC_ATTR);
+    InstrumentDefinition<?>[] fwd6Definition = getDefinitions(calibrationDate, fwd6Quotes, FWD6_GENERATORS, FWD6_ATTR);
+    InstrumentDefinition<?>[][][] units = new InstrumentDefinition<?>[1][][];
+    units[0] = new InstrumentDefinition<?>[][] {dscDefinition, fwd6Definition };
+    GeneratorYDCurve[][] generators = new GeneratorYDCurve[1][];
+    generators[0] = new GeneratorYDCurve[] {GENERATOR_INTERPOLATED_LINEAR, GENERATOR_INTERPOLATED_LINEAR };
+    String[][] namesUnits = new String[1][];
+    namesUnits[0] = new String[] {CURVE_NAME_DSC_JPY, CURVE_NAME_FWD6_JPY};
+    return  CurveCalibrationTestsUtils.makeCurvesFromDefinitionsMulticurve(CALIBRATION_DATE, units, generators, 
+        namesUnits, KNOWN_DATA, PSMQC, PSMQCSC, false, DSC_MAP_3C, FWD_ON_MAP_3C, FWD_IBOR_MAP_3C, CURVE_BUILDING_REPOSITORY, 
+        TS_FIXED_OIS_WITHOUT_TODAY, TS_FIXED_OIS_WITHOUT_TODAY, TS_FIXED_IBOR_6M_WITHOUT_TODAY, TS_FIXED_IBOR_6M_WITHOUT_TODAY);
+  }
 
 }
