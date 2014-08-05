@@ -220,6 +220,7 @@ public class SwapRiskUsdAnalysis {
   /** Curves and fixing */
   private static final ZonedDateTimeDoubleTimeSeries TS_FIXED_IBOR_USD3M_WITHOUT_TODAY = RecentDataSetsMulticurveStandardUsd.fixingUsdLibor3MWithoutLast();
   private static final ZonedDateTimeDoubleTimeSeries TS_FIXED_ON_USD_WITHOUT_TODAY = RecentDataSetsMulticurveStandardUsd.fixingUsdOnWithoutLast();
+
   private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_PAIR =
       RecentDataSetsMulticurveStandardUsd.getCurvesUSDOisL1L3L6(VALUATION_DATE);
   private static final MulticurveProviderDiscount MULTICURVE = MULTICURVE_PAIR.getFirst();
@@ -239,6 +240,11 @@ public class SwapRiskUsdAnalysis {
       RecentDataSetsMulticurveFFSUsd.getCurvesUSDOisL1L3L6(VALUATION_DATE);
   private static final MulticurveProviderDiscount MULTICURVE_FFS = MULTICURVE_FFS_PAIR.getFirst();
   private static final CurveBuildingBlockBundle BLOCK_FFS = MULTICURVE_FFS_PAIR.getSecond();
+
+  private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_FFS_2_PAIR =
+      RecentDataSetsMulticurveFFSUsd.getCurvesUSDOisL1L3L6(VALUATION_DATE, MULTICURVE_FUT);
+  private static final MulticurveProviderDiscount MULTICURVE_FFS_2 = MULTICURVE_FFS_2_PAIR.getFirst();
+  private static final CurveBuildingBlockBundle BLOCK_FFS_2 = MULTICURVE_FFS_2_PAIR.getSecond();
 
   private static final Annuity<?> FIXED_LEG_1 = FIXED_LEG_1_DEFINITION.toDerivative(VALUATION_DATE);
   private static final Annuity<?> IBOR_LEG_1 = IBOR_LEG_1_DEFINITION.toDerivative(VALUATION_DATE, TS_FIXED_IBOR_USD3M_WITHOUT_TODAY);
@@ -295,6 +301,7 @@ public class SwapRiskUsdAnalysis {
     MultipleCurrencyParameterSensitivity pvmqs1Imm = MQSBC.fromInstrument(IRS_1, MULTICURVE_IMM, BLOCK_IMM).multipliedBy(BP1);
     MultipleCurrencyParameterSensitivity pvmqs1Fut = MQSBC.fromInstrument(IRS_1, MULTICURVE_FUT, BLOCK_FUT).multipliedBy(BP1);
     MultipleCurrencyParameterSensitivity pvmqs1Ffs = MQSBC.fromInstrument(IRS_1, MULTICURVE_FFS, BLOCK_FFS).multipliedBy(BP1);
+    MultipleCurrencyParameterSensitivity pvmqs1Ffs2 = MQSBC.fromInstrument(IRS_1, MULTICURVE_FFS_2, BLOCK_FFS_2).multipliedBy(BP1);
     MultipleCurrencyParameterSensitivity pvmqs2Std = MQSBC.fromInstrument(IRS_1, MULTICURVE, BLOCK).multipliedBy(BP1);
     MultipleCurrencyParameterSensitivity pvmqs2Imm = MQSBC.fromInstrument(IRS_2, MULTICURVE_IMM, BLOCK_IMM).multipliedBy(BP1);
     MultipleCurrencyParameterSensitivity pvmqs2Fut = MQSBC.fromInstrument(IRS_2, MULTICURVE_FUT, BLOCK_FUT).multipliedBy(BP1);
