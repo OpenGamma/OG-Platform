@@ -396,7 +396,7 @@ public class AnnuityUtils {
     return Pairs.of(startStub, endStub);
   }
   
-  public static IndexDeposit getIborIndex(ExternalId indexId, SecuritySource securitySource, ConventionSource conventionSource) {
+  private static IndexDeposit getIborIndex(ExternalId indexId, SecuritySource securitySource, ConventionSource conventionSource) {
     // try security lookup
     final Security sec = securitySource.getSingle(indexId.toBundle());
     if (sec != null) {
