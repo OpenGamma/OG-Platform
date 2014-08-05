@@ -28,14 +28,17 @@ import com.opengamma.analytics.financial.instrument.index.GeneratorSwapIborCompo
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexIborMaster;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
-import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator;
-import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteDiscountingCalculator;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadRateCurveSensitivityDiscountingCalculator;
+import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadRateDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.generic.LastTimeCalculator;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.curve.CurveCalibrationConventionDataSets;
 import com.opengamma.analytics.financial.provider.curve.CurveCalibrationTestsUtils;
 import com.opengamma.analytics.financial.provider.curve.multicurve.MulticurveDiscountBuildingRepository;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
@@ -236,8 +239,12 @@ public class RecentDataSetsMulticurveFutures3MUsd {
   }
 
   /** Calculators */
-  private static final ParSpreadMarketQuoteDiscountingCalculator PSMQC = ParSpreadMarketQuoteDiscountingCalculator.getInstance();
-  private static final ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator PSMQCSC = ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator.getInstance();
+  private static final InstrumentDerivativeVisitor<MulticurveProviderInterface, Double> PSMQC =
+      //      ParSpreadMarketQuoteDiscountingCalculator.getInstance(); // Market quotes 
+      ParSpreadRateDiscountingCalculator.getInstance(); // Rate version of market quotes, in particular future price replaced by future rate sensitivity.
+  private static final InstrumentDerivativeVisitor<MulticurveProviderInterface, MulticurveSensitivity> PSMQCSC =
+      //      ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator.getInstance(); // Market quotes 
+      ParSpreadRateCurveSensitivityDiscountingCalculator.getInstance(); // Rate version of market quotes, in particular future price replaced by future rate sensitivity.
 
   private static final MulticurveDiscountBuildingRepository CURVE_BUILDING_REPOSITORY =
       CurveCalibrationConventionDataSets.curveBuildingRepositoryMulticurve();

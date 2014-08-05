@@ -85,8 +85,8 @@ public class SwapRiskUsdAnalysis {
       new OffsetAdjustedDateParameters(0, OffsetType.BUSINESS, NYC, BusinessDayConventionFactory.of("Following"));
 
   /** USD Fixed v USDLIBOR3M */
-  private static final LocalDate EFFECTIVE_DATE_1 = LocalDate.of(2014, 7, 18);
-  private static final LocalDate MATURITY_DATE_1 = LocalDate.of(2024, 7, 18);
+  private static final LocalDate EFFECTIVE_DATE_1 = LocalDate.of(2016, 7, 18);
+  private static final LocalDate MATURITY_DATE_1 = LocalDate.of(2026, 7, 18);
   private static final double FIXED_RATE_1 = 0.02655;
   private static final boolean PAYER_1 = false;
   private static final double NOTIONAL_1 = 1000000; // 1m
