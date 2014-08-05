@@ -6,23 +6,23 @@
 package com.opengamma.analytics.util.amount;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import org.joda.beans.Bean;
-import org.joda.beans.BeanDefinition;
-import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectBean;
-
-import com.opengamma.util.ArgumentChecker;
-import java.util.Map;
 import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
-import org.joda.beans.Property;
 import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Object to represent values linked to a reference for which the values can be added or multiplied by a constant.
@@ -57,7 +57,7 @@ public class ReferenceAmount<T> extends DirectBean {
    * Gets the underlying map.
    * @return The map.
    */
-  public Map<T, Double> getMap() {
+  public HashMap<T, Double> getMap() {
     return _data;
   }
 
