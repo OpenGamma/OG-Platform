@@ -40,6 +40,7 @@ import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedONDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.provider.calculator.discounting.MarketQuoteDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParRateDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteDiscountingCalculator;
@@ -134,6 +135,7 @@ public class ComputedDataSetsMulticurveImmUsd {
 
   /** Calculators */
   private static final ParRateDiscountingCalculator PRDC = ParRateDiscountingCalculator.getInstance();
+  private static final MarketQuoteDiscountingCalculator MQDC = MarketQuoteDiscountingCalculator.getInstance();
   private static final ParSpreadMarketQuoteDiscountingCalculator PSMQC = ParSpreadMarketQuoteDiscountingCalculator.getInstance();
   private static final ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator PSMQCSC = ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator.getInstance();
 
@@ -148,6 +150,7 @@ public class ComputedDataSetsMulticurveImmUsd {
    */
   public static Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> getCurvesUSDOisL3(ZonedDateTime calibrationDate,
       int nbImmSwaps, MulticurveProviderInterface multicurve) {
+    // TODO: improve: generate instruments with 0 + MQDC + generate instruments with mq
     ZonedDateTime spotDate = ScheduleCalculator.getAdjustedDate(calibrationDate, USDLIBOR3M.getSpotLag(), NYC);
     ZonedDateTime[] immDates = new ZonedDateTime[nbImmSwaps + 1];
     for (int loopimm = 0; loopimm < nbImmSwaps + 1; loopimm++) {
@@ -191,7 +194,7 @@ public class ComputedDataSetsMulticurveImmUsd {
     definitionsUnits[0] = new InstrumentDefinition<?>[][] {dscDefinitions };
     definitionsUnits[1] = new InstrumentDefinition<?>[][] {fwd3Definitions };
     return makeCurvesFromDefinitions(definitionsUnits, calibrationDate, GENERATORS_UNITS[0], NAMES_UNITS[0], KNOWN_DATA,
-        PSMQC, PSMQCSC, false);
+        PSMQC, PSMQCSC, false); // TODO: change to utils
   }
 
   /**
