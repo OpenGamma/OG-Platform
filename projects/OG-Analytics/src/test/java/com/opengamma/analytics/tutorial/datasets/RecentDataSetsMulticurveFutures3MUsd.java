@@ -101,7 +101,6 @@ public class RecentDataSetsMulticurveFutures3MUsd {
     0.02796, 0.02967, 0.03044, 0.03078, 0.030927,
     0.0311 }; // 32
   /** Generators for the dsc USD curve */
-
   private static final GeneratorInstrument<? extends GeneratorAttribute>[] DSC_USD_GENERATORS =
       CurveCalibrationConventionDataSets.generatorUsdOnOisFfs(1, 31, 0);
   /** Tenors for the dsc USD curve */

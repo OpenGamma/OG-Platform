@@ -18,11 +18,13 @@ import com.opengamma.analytics.financial.instrument.index.GeneratorDepositON;
 import com.opengamma.analytics.financial.instrument.index.GeneratorFRA;
 import com.opengamma.analytics.financial.instrument.index.GeneratorInstrument;
 import com.opengamma.analytics.financial.instrument.index.GeneratorInterestRateFutures;
+import com.opengamma.analytics.financial.instrument.index.GeneratorLegIborMaster;
+import com.opengamma.analytics.financial.instrument.index.GeneratorLegOnAaMaster;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIborMaster;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedON;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedONMaster;
-import com.opengamma.analytics.financial.instrument.index.GeneratorSwapIborON;
+import com.opengamma.analytics.financial.instrument.index.GeneratorSwapONAAIbor;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.provider.calculator.generic.LastTimeCalculator;
@@ -184,8 +186,8 @@ public class CurveCalibrationConventionDataSets {
   private static final IborIndex USDLIBOR3M = USD6MLIBOR3M.getIborIndex();
   private static final GeneratorDepositIbor GENERATOR_USDLIBOR3M = new GeneratorDepositIbor("GENERATOR_USDLIBOR3M", USDLIBOR3M, NYC);
   private static final GeneratorFRA GENERATOR_FRA_3M_USD = new GeneratorFRA("GENERATOR USD FRA 3M", USDLIBOR3M, NYC);
-  private static final GeneratorSwapIborON GENERATOR_USDLIBOR3M_FF = new GeneratorSwapIborON("USD Fed Fund Swap", USDLIBOR3M,
-      INDEX_FEDFUND_USD, USDLIBOR3M.getBusinessDayConvention(), USDLIBOR3M.isEndOfMonth(), 2, 0, NYC, NYC);
+  private static final GeneratorSwapONAAIbor GENERATOR_FFAA_USDLIBOR3M = new GeneratorSwapONAAIbor("USDFEDFUNDAA3MLIBOR3M",
+      GeneratorLegOnAaMaster.getInstance().getGenerator("USDFEDFUNDAA3M", NYC), GeneratorLegIborMaster.getInstance().getGenerator("USDLIBOR3M", NYC));
 
   @SuppressWarnings("unchecked")
   public static GeneratorInstrument<? extends GeneratorAttribute>[] generatorUsdOnOisFfs(int nbDepositON, int nbOis, int nbFF) {
@@ -197,7 +199,7 @@ public class CurveCalibrationConventionDataSets {
       generator[nbDepositON + loopois] = GENERATOR_OIS_USD;
     }
     for (int loopff = 0; loopff < nbFF; loopff++) {
-      generator[nbDepositON + nbOis + loopff] = GENERATOR_USDLIBOR3M_FF;
+      generator[nbDepositON + nbOis + loopff] = GENERATOR_FFAA_USDLIBOR3M;
     }
     return generator;
   }

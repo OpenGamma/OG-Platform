@@ -216,7 +216,7 @@ public class CurveCalibrationTestsUtils {
     return repository.makeCurvesFromDerivatives(curveBundles, knownData, dscMap, fwdIborMap, fwdOnMap, calculator, sensitivityCalculator);
   }
 
-  private static InstrumentDerivative convert(final InstrumentDefinition<?> instrument, final boolean withToday,
+  public static InstrumentDerivative convert(final InstrumentDefinition<?> instrument, final boolean withToday,
       ZonedDateTime calibrationDate,
       ZonedDateTimeDoubleTimeSeries[] htsFixedOisWithToday, ZonedDateTimeDoubleTimeSeries[] htsFixedOisWithoutToday,
       ZonedDateTimeDoubleTimeSeries[] htsFixedIborWithToday, ZonedDateTimeDoubleTimeSeries[] htsFixedIborWithoutToday) {
@@ -229,17 +229,17 @@ public class CurveCalibrationTestsUtils {
           getTSSwapFixedIbor(withToday, htsFixedIborWithToday, htsFixedIborWithoutToday));
     }
     if (instrument instanceof SwapDefinition) {
-      SwapDefinition swap = (SwapDefinition)instrument;
+      SwapDefinition swap = (SwapDefinition) instrument;
       ZonedDateTimeDoubleTimeSeries[] hts = new ZonedDateTimeDoubleTimeSeries[2];
       PaymentDefinition[] payment = new PaymentDefinition[2];
       payment[0] = swap.getFirstLeg().getNthPayment(0);
       payment[1] = swap.getSecondLeg().getNthPayment(0);
-      for(int loopleg=0; loopleg<2; loopleg++) {
-      if(payment[loopleg] instanceof CouponONDefinition) {
-          hts[loopleg] = withToday?htsFixedOisWithToday[0]:htsFixedOisWithoutToday[0];
+      for (int loopleg = 0; loopleg < 2; loopleg++) {
+        if (payment[loopleg] instanceof CouponONDefinition) {
+          hts[loopleg] = withToday ? htsFixedOisWithToday[0] : htsFixedOisWithoutToday[0];
         } else {
-          if((payment[loopleg] instanceof CouponIborDefinition)||(payment[loopleg] instanceof CouponIborSpreadDefinition)) {
-            hts[loopleg] = withToday?htsFixedIborWithToday[0]:htsFixedIborWithoutToday[0];
+          if ((payment[loopleg] instanceof CouponIborDefinition) || (payment[loopleg] instanceof CouponIborSpreadDefinition)) {
+            hts[loopleg] = withToday ? htsFixedIborWithToday[0] : htsFixedIborWithoutToday[0];
           } else {
             hts[loopleg] = ImmutableZonedDateTimeDoubleTimeSeries.ofEmptyUTC();
           }
