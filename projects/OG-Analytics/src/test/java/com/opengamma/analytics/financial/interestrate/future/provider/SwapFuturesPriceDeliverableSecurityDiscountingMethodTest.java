@@ -58,7 +58,7 @@ public class SwapFuturesPriceDeliverableSecurityDiscountingMethodTest {
   @Test
   public void price() {
     final MultipleCurrencyAmount pvSwap = SWAP_FUTURES_SECURITY.getUnderlyingSwap().accept(PVDC, MULTICURVES);
-    final double priceExpected = 1.0d + pvSwap.getAmount(USD);
+    final double priceExpected = 1.0d + pvSwap.getAmount(USD) / MULTICURVES.getMulticurveProvider().getDiscountFactor(SWAP_FUTURES_SECURITY.getCurrency(), SWAP_FUTURES_SECURITY.getDeliveryTime());
     final double priceComputed = SWAP_FUTURES_SECURITY.accept(FPMC, MULTICURVES);
     assertEquals("DeliverableSwapFuturesSecurityDefinition: price", priceExpected, priceComputed, TOLERANCE_PRICE);
   }
