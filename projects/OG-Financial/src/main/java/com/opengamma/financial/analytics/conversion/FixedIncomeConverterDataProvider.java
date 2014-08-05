@@ -318,7 +318,7 @@ public class FixedIncomeConverterDataProvider {
         LocalDateDoubleTimeSeries localDateTS = ts.getTimeSeries();
         //TODO this normalization should not be done here
         localDateTS = localDateTS.divide(100);
-        final ZonedDateTimeDoubleTimeSeries indexTS = convertTimeSeries(ZDT_TIME_ZONE, localDateTS);
+        final ZonedDateTimeDoubleTimeSeries indexTS = convertTimeSeries(localDateTS);
         // TODO: remove the zone
         return brlDefinition.toDerivative(now, indexTS, curveNames);
       }
@@ -344,7 +344,7 @@ public class FixedIncomeConverterDataProvider {
         LocalDateDoubleTimeSeries localDateTS = ts.getTimeSeries();
         //TODO this normalization should not be done here
         localDateTS = localDateTS.divide(100);
-        final ZonedDateTimeDoubleTimeSeries indexTS = convertTimeSeries(ZDT_TIME_ZONE, localDateTS);
+        final ZonedDateTimeDoubleTimeSeries indexTS = convertTimeSeries(localDateTS);
         // TODO: remove the zone
         return brlDefinition.toDerivative(now, indexTS);
       }
@@ -403,7 +403,7 @@ public class FixedIncomeConverterDataProvider {
       LocalDateDoubleTimeSeries localDateTS = ts.getTimeSeries();
       //TODO this normalization should not be done here
       localDateTS = localDateTS.divide(100);
-      final ZonedDateTimeDoubleTimeSeries indexTS = convertTimeSeries(ZDT_TIME_ZONE, localDateTS);
+      final ZonedDateTimeDoubleTimeSeries indexTS = convertTimeSeries(localDateTS);
       // TODO: remove the zone
       return definition.toDerivative(now, indexTS, curveNames);
     }
@@ -420,7 +420,7 @@ public class FixedIncomeConverterDataProvider {
       LocalDateDoubleTimeSeries localDateTS = ts.getTimeSeries();
       //TODO this normalization should not be done here
       localDateTS = localDateTS.divide(100);
-      final ZonedDateTimeDoubleTimeSeries indexTS = convertTimeSeries(ZDT_TIME_ZONE, localDateTS);
+      final ZonedDateTimeDoubleTimeSeries indexTS = convertTimeSeries(localDateTS);
       // TODO: remove the zone
       return definition.toDerivative(now, indexTS);
     }
@@ -451,7 +451,7 @@ public class FixedIncomeConverterDataProvider {
       LocalDateDoubleTimeSeries localDateTS = ts.getTimeSeries();
       //TODO this normalization should not be done here
       localDateTS = localDateTS.divide(100);
-      final ZonedDateTimeDoubleTimeSeries indexTS = convertTimeSeries(ZDT_TIME_ZONE, localDateTS);
+      final ZonedDateTimeDoubleTimeSeries indexTS = convertTimeSeries(localDateTS);
       // TODO: remove the zone
       return definition.toDerivative(now, indexTS, curveNames);
     }
@@ -478,7 +478,7 @@ public class FixedIncomeConverterDataProvider {
       LocalDateDoubleTimeSeries localDateTS = ts.getTimeSeries();
       //TODO this normalization should not be done here
       localDateTS = localDateTS.divide(100);
-      final ZonedDateTimeDoubleTimeSeries indexTS = convertTimeSeries(ZDT_TIME_ZONE, localDateTS);
+      final ZonedDateTimeDoubleTimeSeries indexTS = convertTimeSeries(localDateTS);
       // TODO: remove the zone
       return definition.toDerivative(now, indexTS);
     }
@@ -508,7 +508,7 @@ public class FixedIncomeConverterDataProvider {
       //TODO this normalization should not be done here
       localDateTS = localDateTS.divide(100);
       @SuppressWarnings("synthetic-access")
-      final ZonedDateTimeDoubleTimeSeries indexTS = convertTimeSeries(ZDT_TIME_ZONE, localDateTS);
+      final ZonedDateTimeDoubleTimeSeries indexTS = convertTimeSeries(localDateTS);
       return definition.toDerivative(now, indexTS, curveNames);
     }
 
@@ -524,7 +524,7 @@ public class FixedIncomeConverterDataProvider {
       //TODO this normalization should not be done here
       localDateTS = localDateTS.divide(100);
       @SuppressWarnings("synthetic-access")
-      final ZonedDateTimeDoubleTimeSeries indexTS = convertTimeSeries(ZDT_TIME_ZONE, localDateTS);
+      final ZonedDateTimeDoubleTimeSeries indexTS = convertTimeSeries(localDateTS);
       return definition.toDerivative(now, indexTS);
     }
   };
@@ -549,8 +549,7 @@ public class FixedIncomeConverterDataProvider {
     public InstrumentDerivative convert(final CapFloorSecurity security, final AnnuityCapFloorCMSDefinition definition, final ZonedDateTime now, final String[] curveNames,
         final HistoricalTimeSeriesBundle timeSeries) {
       final ExternalId id = security.getUnderlyingId();
-      final ZonedDateTimeDoubleTimeSeries indexTS = getIndexTimeSeries(getIndexSwapIdBundle(id),
-                                                                       ZDT_TIME_ZONE, timeSeries);
+      final ZonedDateTimeDoubleTimeSeries indexTS = getIndexTimeSeries(getIndexSwapIdBundle(id), timeSeries);
       return definition.toDerivative(now, indexTS, curveNames);
     }
 
@@ -559,8 +558,7 @@ public class FixedIncomeConverterDataProvider {
     public InstrumentDerivative convert(final CapFloorSecurity security, final AnnuityCapFloorCMSDefinition definition, final ZonedDateTime now,
         final HistoricalTimeSeriesBundle timeSeries) {
       final ExternalId id = security.getUnderlyingId();
-      final ZonedDateTimeDoubleTimeSeries indexTS = getIndexTimeSeries(getIndexSwapIdBundle(id),
-                                                                       ZDT_TIME_ZONE, timeSeries);
+      final ZonedDateTimeDoubleTimeSeries indexTS = getIndexTimeSeries(getIndexSwapIdBundle(id), timeSeries);
       return definition.toDerivative(now, indexTS);
     }
   };
@@ -659,7 +657,7 @@ public class FixedIncomeConverterDataProvider {
           if (underlyingTS.getTimeSeries().size() == 0) {
             throw new OpenGammaRuntimeException("Time series for " + security.getUnderlyingId().toBundle() + " was empty");
           }
-          return definition.toDerivative(now, convertTimeSeries(ZDT_TIME_ZONE, underlyingTS.getTimeSeries()));
+          return definition.toDerivative(now, convertTimeSeries(underlyingTS.getTimeSeries()));
         }
 
       };
@@ -710,8 +708,8 @@ public class FixedIncomeConverterDataProvider {
             throw new OpenGammaRuntimeException("Time series for " + security.getUnderlyingId().toBundle() + " was empty");
           }
           return definition.toDerivative(now, new DoubleTimeSeries[] {
-            convertTimeSeries(ZDT_TIME_ZONE, underlyingTS.getTimeSeries()),
-            convertTimeSeries(ZDT_TIME_ZONE, futureTS.getTimeSeries()) });
+            convertTimeSeries(underlyingTS.getTimeSeries()),
+            convertTimeSeries(futureTS.getTimeSeries()) });
         }
       };
 
@@ -918,10 +916,8 @@ public class FixedIncomeConverterDataProvider {
         final HistoricalTimeSeriesBundle timeSeries) {
       final ExternalId longId = security.getLongId();
       final ExternalId shortId = security.getShortId();
-      final ZonedDateTimeDoubleTimeSeries indexLongTS = getIndexTimeSeries(getIndexSwapIdBundle(longId),
-                                                                           ZDT_TIME_ZONE, timeSeries);
-      final ZonedDateTimeDoubleTimeSeries indexShortTS = getIndexTimeSeries(getIndexSwapIdBundle(shortId),
-                                                                            ZDT_TIME_ZONE, timeSeries);
+      final ZonedDateTimeDoubleTimeSeries indexLongTS = getIndexTimeSeries(getIndexSwapIdBundle(longId), timeSeries);
+      final ZonedDateTimeDoubleTimeSeries indexShortTS = getIndexTimeSeries(getIndexSwapIdBundle(shortId), timeSeries);
       final ZonedDateTimeDoubleTimeSeries indexSpreadTS = indexLongTS.subtract(indexShortTS);
       return definition.toDerivative(now, indexSpreadTS, curveNames);
     }
@@ -932,10 +928,8 @@ public class FixedIncomeConverterDataProvider {
         final HistoricalTimeSeriesBundle timeSeries) {
       final ExternalId longId = security.getLongId();
       final ExternalId shortId = security.getShortId();
-      final ZonedDateTimeDoubleTimeSeries indexLongTS = getIndexTimeSeries(getIndexSwapIdBundle(longId),
-                                                                           ZDT_TIME_ZONE, timeSeries);
-      final ZonedDateTimeDoubleTimeSeries indexShortTS = getIndexTimeSeries(getIndexSwapIdBundle(shortId),
-                                                                            ZDT_TIME_ZONE, timeSeries);
+      final ZonedDateTimeDoubleTimeSeries indexLongTS = getIndexTimeSeries(getIndexSwapIdBundle(longId), timeSeries);
+      final ZonedDateTimeDoubleTimeSeries indexShortTS = getIndexTimeSeries(getIndexSwapIdBundle(shortId), timeSeries);
       final ZonedDateTimeDoubleTimeSeries indexSpreadTS = indexLongTS.subtract(indexShortTS);
       return definition.toDerivative(now, indexSpreadTS);
     }
@@ -1238,7 +1232,7 @@ public class FixedIncomeConverterDataProvider {
       if (localDateTS.getLatestValue() > 0.50) {
         localDateTS = localDateTS.divide(100);
       }
-      return convertTimeSeries(ZDT_TIME_ZONE, localDateTS);
+      return convertTimeSeries(localDateTS);
     } else if (leg instanceof InflationIndexSwapLeg) {
       final InflationIndexSwapLeg indexLeg = (InflationIndexSwapLeg) leg;
       final ExternalIdBundle id = getIndexPriceIdBundle(indexLeg.getIndexId());
@@ -1259,7 +1253,7 @@ public class FixedIncomeConverterDataProvider {
       if (localDateTS.getLatestValue() < 50.0) {
         localDateTS = localDateTS.multiply(100);
       }
-      return convertTimeSeries(ZDT_TIME_ZONE, localDateTS);
+      return convertTimeSeries(localDateTS);
 
     }
     return null;
@@ -1287,7 +1281,7 @@ public class FixedIncomeConverterDataProvider {
       if (localDateTS.getLatestValue() > 0.50) {
         localDateTS = localDateTS.divide(100);
       }
-      return convertTimeSeries(ZDT_TIME_ZONE, localDateTS);
+      return convertTimeSeries(localDateTS);
     }
     return null;
   }
@@ -1778,27 +1772,26 @@ public class FixedIncomeConverterDataProvider {
    * Returns the time series to be used in the toDerivative method.
    *
    * @param id The ExternalId bundle.
-   * @param timeZone The time zone to use for the returned series
    * @param timeSeries bundle containing the fixing timeseries
    * @return The time series.
    */
-  private static ZonedDateTimeDoubleTimeSeries getIndexTimeSeries(final ExternalIdBundle id, final ZoneId timeZone, final HistoricalTimeSeriesBundle timeSeries) {
+  private static ZonedDateTimeDoubleTimeSeries getIndexTimeSeries(final ExternalIdBundle id, final HistoricalTimeSeriesBundle timeSeries) {
     final HistoricalTimeSeries ts = timeSeries.get(MarketDataRequirementNames.MARKET_VALUE, id);
     // Implementation note: the normalization take place in the getHistoricalTimeSeries
     if (ts == null) {
       throw new OpenGammaRuntimeException("Could not get time series of underlying index " + id.getExternalIds().toString());
     }
     if (ts.getTimeSeries().isEmpty()) {
-      return ImmutableZonedDateTimeDoubleTimeSeries.ofEmpty(timeZone);
+      return ImmutableZonedDateTimeDoubleTimeSeries.ofEmpty(ZDT_TIME_ZONE);
     }
-    return convertTimeSeries(timeZone, ts.getTimeSeries());
+    return convertTimeSeries(ts.getTimeSeries());
   }
 
-  private static ZonedDateTimeDoubleTimeSeries convertTimeSeries(final ZoneId timeZone, final LocalDateDoubleTimeSeries localDateTS) {
-    final ZonedDateTimeDoubleTimeSeriesBuilder bld = ImmutableZonedDateTimeDoubleTimeSeries.builder(timeZone);
+  private static ZonedDateTimeDoubleTimeSeries convertTimeSeries(final LocalDateDoubleTimeSeries localDateTS) {
+    final ZonedDateTimeDoubleTimeSeriesBuilder bld = ImmutableZonedDateTimeDoubleTimeSeries.builder(ZDT_TIME_ZONE);
     for (final LocalDateDoubleEntryIterator it = localDateTS.iterator(); it.hasNext();) {
       final LocalDate date = it.nextTime();
-      final ZonedDateTime zdt = date.atStartOfDay(timeZone);
+      final ZonedDateTime zdt = date.atStartOfDay(ZDT_TIME_ZONE);
       bld.put(zdt, it.currentValueFast());
     }
     return bld.build();
