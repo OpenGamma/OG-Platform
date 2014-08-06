@@ -221,28 +221,33 @@ public class SwapRiskUsdAnalysis {
   private static final ZonedDateTimeDoubleTimeSeries TS_FIXED_IBOR_USD3M_WITHOUT_TODAY = RecentDataSetsMulticurveStandardUsd.fixingUsdLibor3MWithoutLast();
   private static final ZonedDateTimeDoubleTimeSeries TS_FIXED_ON_USD_WITHOUT_TODAY = RecentDataSetsMulticurveStandardUsd.fixingUsdOnWithoutLast();
 
-  private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_PAIR =
-      RecentDataSetsMulticurveStandardUsd.getCurvesUSDOisL1L3L6(VALUATION_DATE);
-  private static final MulticurveProviderDiscount MULTICURVE = MULTICURVE_PAIR.getFirst();
-  private static final CurveBuildingBlockBundle BLOCK = MULTICURVE_PAIR.getSecond();
-
   private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_FUT_PAIR =
-      RecentDataSetsMulticurveFutures3MUsd.getCurvesUSDOisL1L3L6(VALUATION_DATE, true);
+      RecentDataSetsMulticurveFutures3MUsd.getCurvesUSDOisL1L3L6(VALUATION_DATE, false);
   private static final MulticurveProviderDiscount MULTICURVE_FUT = MULTICURVE_FUT_PAIR.getFirst();
   private static final CurveBuildingBlockBundle BLOCK_FUT = MULTICURVE_FUT_PAIR.getSecond();
 
-  private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_IMM_PAIR =
-      ComputedDataSetsMulticurveImmUsd.getCurvesUSDOisL3(VALUATION_DATE, 40, MULTICURVE_FUT);
-  private static final MulticurveProviderDiscount MULTICURVE_IMM = MULTICURVE_IMM_PAIR.getFirst();
-  private static final CurveBuildingBlockBundle BLOCK_IMM = MULTICURVE_IMM_PAIR.getSecond();
+  private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_STD_PAIR =
+      RecentDataSetsMulticurveStandardUsd.getCurvesUSDOisL1L3L6(VALUATION_DATE);
+  private static final MulticurveProviderDiscount MULTICURVE_STD = MULTICURVE_STD_PAIR.getFirst();
+  private static final CurveBuildingBlockBundle BLOCK_STD = MULTICURVE_STD_PAIR.getSecond();
 
   private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_FFS_PAIR =
       RecentDataSetsMulticurveFFSUsd.getCurvesUSDOisL1L3L6(VALUATION_DATE);
   private static final MulticurveProviderDiscount MULTICURVE_FFS = MULTICURVE_FFS_PAIR.getFirst();
   private static final CurveBuildingBlockBundle BLOCK_FFS = MULTICURVE_FFS_PAIR.getSecond();
 
+  private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_IMM_PAIR =
+      ComputedDataSetsMulticurveImmUsd.getCurvesUSDOisL3(VALUATION_DATE, 60, MULTICURVE_FUT);
+  private static final MulticurveProviderDiscount MULTICURVE_IMM = MULTICURVE_IMM_PAIR.getFirst();
+  private static final CurveBuildingBlockBundle BLOCK_IMM = MULTICURVE_IMM_PAIR.getSecond();
+
+  private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_STD_2_PAIR =
+      RecentDataSetsMulticurveStandardUsd.getCurvesUSDOisL3(VALUATION_DATE, MULTICURVE_FUT);
+  private static final MulticurveProviderDiscount MULTICURVE_STD_2 = MULTICURVE_STD_2_PAIR.getFirst();
+  private static final CurveBuildingBlockBundle BLOCK_STD_2 = MULTICURVE_STD_2_PAIR.getSecond();
+
   private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_FFS_2_PAIR =
-      RecentDataSetsMulticurveFFSUsd.getCurvesUSDOisL1L3L6(VALUATION_DATE, MULTICURVE_FUT);
+      RecentDataSetsMulticurveFFSUsd.getCurvesUSDOisL3(VALUATION_DATE, MULTICURVE_FUT);
   private static final MulticurveProviderDiscount MULTICURVE_FFS_2 = MULTICURVE_FFS_2_PAIR.getFirst();
   private static final CurveBuildingBlockBundle BLOCK_FFS_2 = MULTICURVE_FFS_2_PAIR.getSecond();
 
@@ -271,14 +276,18 @@ public class SwapRiskUsdAnalysis {
   @SuppressWarnings("unused")
   @Test
   public void presentValue() {
-    MultipleCurrencyAmount pvFixed = FIXED_LEG_1.accept(PVDC, MULTICURVE);
-    MultipleCurrencyAmount pvIbor = IBOR_LEG_1.accept(PVDC, MULTICURVE);
-    MultipleCurrencyAmount pvSwap1Std = IRS_1.accept(PVDC, MULTICURVE);
+    MultipleCurrencyAmount pvFixed = FIXED_LEG_1.accept(PVDC, MULTICURVE_STD);
+    MultipleCurrencyAmount pvIbor = IBOR_LEG_1.accept(PVDC, MULTICURVE_STD);
+    MultipleCurrencyAmount pvSwap1Std = IRS_1.accept(PVDC, MULTICURVE_STD);
     assertTrue("SwapRiskUsdAnalysis: present value", pvFixed.getAmount(USD) * pvIbor.getAmount(USD) < 0);
     assertEquals("SwapRiskUsdAnalysis: present value", pvSwap1Std.getAmount(USD), pvFixed.getAmount(USD) + pvIbor.getAmount(USD), TOLERANCE_PV);
-    MultipleCurrencyAmount pvSwap1Imm = IRS_1.accept(PVDC, MULTICURVE_IMM);
-    assertEquals("SwapRiskUsdAnalysis: present value", pvSwap1Std.getAmount(USD), pvSwap1Imm.getAmount(USD), TOLERANCE_PV_2);
     MultipleCurrencyAmount pvSwap1Fut = IRS_1.accept(PVDC, MULTICURVE_FUT);
+    MultipleCurrencyAmount pvSwap1Imm = IRS_1.accept(PVDC, MULTICURVE_IMM);
+    assertEquals("SwapRiskUsdAnalysis: present value", pvSwap1Fut.getAmount(USD), pvSwap1Imm.getAmount(USD), TOLERANCE_PV_2);
+    MultipleCurrencyAmount pvSwap1Std2 = IRS_1.accept(PVDC, MULTICURVE_STD_2);
+    assertEquals("SwapRiskUsdAnalysis: present value", pvSwap1Fut.getAmount(USD), pvSwap1Std2.getAmount(USD), TOLERANCE_PV_2);
+    MultipleCurrencyAmount pvSwap1Ffs2 = IRS_1.accept(PVDC, MULTICURVE_FFS_2);
+    assertEquals("SwapRiskUsdAnalysis: present value", pvSwap1Fut.getAmount(USD), pvSwap1Ffs2.getAmount(USD), TOLERANCE_PV_2);
     MultipleCurrencyAmount pvSwap2Fut = IRS_2.accept(PVDC, MULTICURVE_FUT);
     MultipleCurrencyAmount pvOis1Ffs = OIS_1.accept(PVDC, MULTICURVE_FFS);
     int t = 0;
@@ -287,9 +296,12 @@ public class SwapRiskUsdAnalysis {
   @SuppressWarnings("unused")
   @Test
   public void parRate() {
-    double pr1Std = IRS_1.accept(PRDC, MULTICURVE);
-    double pr2Std = IRS_2.accept(PRDC, MULTICURVE);
+    double pr1Std = IRS_1.accept(PRDC, MULTICURVE_STD);
     double pr1Fut = IRS_1.accept(PRDC, MULTICURVE_FUT);
+    double pr1Imm = IRS_1.accept(PRDC, MULTICURVE_IMM);
+    double pr1Std2 = IRS_1.accept(PRDC, MULTICURVE_STD_2);
+    double pr1Ffs2 = IRS_1.accept(PRDC, MULTICURVE_FFS_2);
+    double pr2Std = IRS_2.accept(PRDC, MULTICURVE_STD);
     double pr2Fut = IRS_2.accept(PRDC, MULTICURVE_FUT);
     int t = 0;
   }
@@ -297,17 +309,22 @@ public class SwapRiskUsdAnalysis {
   @SuppressWarnings("unused")
   @Test
   public void bucketedPv01() {
-    MultipleCurrencyParameterSensitivity pvmqs1Std = MQSBC.fromInstrument(IRS_1, MULTICURVE, BLOCK).multipliedBy(BP1);
-    MultipleCurrencyParameterSensitivity pvmqs1Imm = MQSBC.fromInstrument(IRS_1, MULTICURVE_IMM, BLOCK_IMM).multipliedBy(BP1);
-    MultipleCurrencyParameterSensitivity pvmqs1Fut = MQSBC.fromInstrument(IRS_1, MULTICURVE_FUT, BLOCK_FUT).multipliedBy(BP1);
+    MultipleCurrencyParameterSensitivity pvmqs1Std = MQSBC.fromInstrument(IRS_1, MULTICURVE_STD, BLOCK_STD).multipliedBy(BP1);
     MultipleCurrencyParameterSensitivity pvmqs1Ffs = MQSBC.fromInstrument(IRS_1, MULTICURVE_FFS, BLOCK_FFS).multipliedBy(BP1);
+    MultipleCurrencyParameterSensitivity pvmqs1Fut = MQSBC.fromInstrument(IRS_1, MULTICURVE_FUT, BLOCK_FUT).multipliedBy(BP1);
+    MultipleCurrencyParameterSensitivity pvmqs1Imm = MQSBC.fromInstrument(IRS_1, MULTICURVE_IMM, BLOCK_IMM).multipliedBy(BP1);
+    MultipleCurrencyParameterSensitivity pvmqs1Std2 = MQSBC.fromInstrument(IRS_1, MULTICURVE_STD_2, BLOCK_STD_2).multipliedBy(BP1);
     MultipleCurrencyParameterSensitivity pvmqs1Ffs2 = MQSBC.fromInstrument(IRS_1, MULTICURVE_FFS_2, BLOCK_FFS_2).multipliedBy(BP1);
-    MultipleCurrencyParameterSensitivity pvmqs2Std = MQSBC.fromInstrument(IRS_1, MULTICURVE, BLOCK).multipliedBy(BP1);
+
+    MultipleCurrencyParameterSensitivity pvmqs2Std = MQSBC.fromInstrument(IRS_1, MULTICURVE_STD, BLOCK_STD).multipliedBy(BP1);
     MultipleCurrencyParameterSensitivity pvmqs2Imm = MQSBC.fromInstrument(IRS_2, MULTICURVE_IMM, BLOCK_IMM).multipliedBy(BP1);
     MultipleCurrencyParameterSensitivity pvmqs2Fut = MQSBC.fromInstrument(IRS_2, MULTICURVE_FUT, BLOCK_FUT).multipliedBy(BP1);
     MultipleCurrencyParameterSensitivity pvmqs3Fut = MQSBC.fromInstrument(IRS_3, MULTICURVE_FUT, BLOCK_FUT).multipliedBy(BP1);
+
     MultipleCurrencyParameterSensitivity pvmqs4Fut = MQSBC.fromInstrument(OIS_1, MULTICURVE_FUT, BLOCK_FUT).multipliedBy(BP1);
-    MultipleCurrencyParameterSensitivity pvmqs4Ffs = MQSBC.fromInstrument(OIS_1, MULTICURVE_FFS, BLOCK_FFS).multipliedBy(BP1);
+    MultipleCurrencyParameterSensitivity pvmqs4Imm = MQSBC.fromInstrument(OIS_1, MULTICURVE_IMM, BLOCK_IMM).multipliedBy(BP1);
+    MultipleCurrencyParameterSensitivity pvmqs4Std2 = MQSBC.fromInstrument(OIS_1, MULTICURVE_STD_2, BLOCK_STD_2).multipliedBy(BP1);
+    MultipleCurrencyParameterSensitivity pvmqs4Ffs2 = MQSBC.fromInstrument(OIS_1, MULTICURVE_FFS_2, BLOCK_FFS_2).multipliedBy(BP1);
     int t = 0;
   }
 
