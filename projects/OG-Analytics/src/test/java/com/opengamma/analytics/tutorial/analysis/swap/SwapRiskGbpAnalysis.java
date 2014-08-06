@@ -73,13 +73,6 @@ public class SwapRiskGbpAnalysis {
   private static final OffsetAdjustedDateParameters OFFSET_FIX_SONIA =
       new OffsetAdjustedDateParameters(0, OffsetType.BUSINESS, LON, BusinessDayConventionFactory.of("Following"));
 
-  //  private static final GeneratorSwapFixedIborMaster GENERATOR_IRS_MASTER = GeneratorSwapFixedIborMaster.getInstance();
-  //  private static final GeneratorSwapFixedIbor USD6MLIBOR3M = GENERATOR_IRS_MASTER.getGenerator("USD6MLIBOR3M", LON);
-  //  private static final IborIndex USDLIBOR3M = USD6MLIBOR3M.getIborIndex();
-  //  private static final Currency USD = USDLIBOR3M.getCurrency();
-  //  private static final OffsetAdjustedDateParameters OFFSET_ADJ_LIBOR =
-  //      new OffsetAdjustedDateParameters(-2, OffsetType.BUSINESS, LON, USD6MLIBOR3M.getBusinessDayConvention());
-
   /** GBP Fixed v SINOA */
   private static final LocalDate EFFECTIVE_DATE_1 = LocalDate.of(2014, 11, 6);
   private static final LocalDate MATURITY_DATE_1 = LocalDate.of(2014, 12, 4);
@@ -134,13 +127,12 @@ public class SwapRiskGbpAnalysis {
   private static final SwapCouponFixedCouponDefinition SWAP_1_DEFINITION = new SwapCouponFixedCouponDefinition(FIXED_LEG_1_DEFINITION, ON_LEG_1_DEFINITION);
 
   /** Curves and fixing */
-  //  private static final ZonedDateTimeDoubleTimeSeries TS_FIXED_LIBOR_GBP6M_WITHOUT_TODAY = RecentDataSetsMulticurveStandardGbp.fixingGbpLibor6MWithoutLast();
   private static final ZonedDateTimeDoubleTimeSeries TS_FIXED_SONIA_WITHOUT_TODAY = RecentDataSetsMulticurveStandardGbp.fixingGbpSoniaWithoutLast();
 
-  private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_PAIR =
+  private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_STD_PAIR =
       RecentDataSetsMulticurveStandardGbp.getCurvesGbpOisL6(VALUATION_DATE);
-  private static final MulticurveProviderDiscount MULTICURVE = MULTICURVE_PAIR.getFirst();
-  private static final CurveBuildingBlockBundle BLOCK = MULTICURVE_PAIR.getSecond();
+  private static final MulticurveProviderDiscount MULTICURVE_STD = MULTICURVE_STD_PAIR.getFirst();
+  private static final CurveBuildingBlockBundle BLOCK_STD = MULTICURVE_STD_PAIR.getSecond();
 
   private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_BOE_PAIR =
       RecentDataSetsMulticurveOisMettingDatesGbp.getCurvesGbpOis(VALUATION_DATE);
@@ -166,9 +158,9 @@ public class SwapRiskGbpAnalysis {
   @SuppressWarnings("unused")
   @Test
   public void presentValue() {
-    MultipleCurrencyAmount pvFixed = FIXED_LEG_1.accept(PVDC, MULTICURVE);
-    MultipleCurrencyAmount pvIbor = ON_LEG_1.accept(PVDC, MULTICURVE);
-    MultipleCurrencyAmount pvSwap1Std = SWAP_1.accept(PVDC, MULTICURVE);
+    MultipleCurrencyAmount pvFixed = FIXED_LEG_1.accept(PVDC, MULTICURVE_STD);
+    MultipleCurrencyAmount pvIbor = ON_LEG_1.accept(PVDC, MULTICURVE_STD);
+    MultipleCurrencyAmount pvSwap1Std = SWAP_1.accept(PVDC, MULTICURVE_STD);
     assertTrue("SwapRiskUsdAnalysis: present value", pvFixed.getAmount(GBP) * pvIbor.getAmount(GBP) < 0);
     assertEquals("SwapRiskUsdAnalysis: present value", pvSwap1Std.getAmount(GBP), pvFixed.getAmount(GBP) + pvIbor.getAmount(GBP), TOLERANCE_PV);
     int t = 0;
@@ -177,14 +169,14 @@ public class SwapRiskGbpAnalysis {
   @SuppressWarnings("unused")
   @Test
   public void parRate() {
-    double pr1 = SWAP_1.accept(PRDC, MULTICURVE);
+    double pr1 = SWAP_1.accept(PRDC, MULTICURVE_STD);
     int t = 0;
   }
 
   @SuppressWarnings("unused")
   @Test
   public void bucketedPv01() {
-    MultipleCurrencyParameterSensitivity pvmqs1Std = MQSBC.fromInstrument(SWAP_1, MULTICURVE, BLOCK).multipliedBy(BP1);
+    MultipleCurrencyParameterSensitivity pvmqs1Std = MQSBC.fromInstrument(SWAP_1, MULTICURVE_STD, BLOCK_STD).multipliedBy(BP1);
     MultipleCurrencyParameterSensitivity pvmqs1Boe = MQSBC.fromInstrument(SWAP_1, MULTICURVE_BOE, BLOCK_BOE).multipliedBy(BP1);
     int t = 0;
   }
