@@ -9,15 +9,13 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.List;
 
-import org.apache.commons.lang.NotImplementedException;
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.model.volatility.SimpleOptionData;
 import com.opengamma.analytics.math.differentiation.VectorFieldFirstOrderDifferentiator;
 import com.opengamma.analytics.math.function.Function1D;
-import com.opengamma.analytics.math.function.Function2D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Fit a flat (caplet) volatility surface to the cap prices 
@@ -25,17 +23,8 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 public class FlatSurfaceFitTest extends CapletStrippingSetup {
 
   private final static DiscreteVolatilityFunctionProvider FLAT_SURFACE;
-  private final static Function2D<Double, DoubleMatrix1D> FUNC;
 
   static {
-    FUNC = new Function2D<Double, DoubleMatrix1D>() {
-      DoubleMatrix1D one = new DoubleMatrix1D(1.0);
-
-      @Override
-      public DoubleMatrix1D evaluate(final Double x1, final Double x2) {
-        return one;
-      }
-    };
 
     FLAT_SURFACE = new DiscreteVolatilityFunctionProvider() {
 
@@ -45,8 +34,8 @@ public class FlatSurfaceFitTest extends CapletStrippingSetup {
       }
 
       @Override
-      public DiscreteVolatilityFunction from(final List<SimpleOptionData> data) {
-        final int size = data.size();
+      public DiscreteVolatilityFunction from(final DoublesPair[] expiryStrikePoints) {
+        final int size = expiryStrikePoints.length;
         final DoubleMatrix2D one = new DoubleMatrix2D(size, 1);
         for (int i = 0; i < size; i++) {
           one.getData()[i][0] = 1.0;
@@ -62,12 +51,22 @@ public class FlatSurfaceFitTest extends CapletStrippingSetup {
           public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
             return new DoubleMatrix1D(size, x.getEntry(0));
           }
+
+          @Override
+          public int getSizeOfDomain() {
+            return 1;
+          }
+
+          @Override
+          public int getSizeOfRange() {
+            return size;
+          }
         };
       }
 
       @Override
-      public DiscreteVolatilityFunction from(final double[] expiries, final double[][] strikes, final double[] forwards) {
-        throw new NotImplementedException();
+      public DiscreteVolatilityFunction from(final List<DoublesPair> expiryStrikePoints) {
+        return null;
       }
     };
   }

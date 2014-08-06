@@ -21,6 +21,7 @@ import com.opengamma.util.CompareUtils;
  *  "<i>Computing the implied volatility in stochastic volatility models</i>". However, appears to be the same as Hagan's.
  */
 public class SABRBerestyckiVolatilityFunction extends VolatilityFunctionProvider<SABRFormulaData> {
+  private static final int NUM_PARAMETERS = 4;
   private static final Logger s_logger = LoggerFactory.getLogger(SABRBerestyckiVolatilityFunction.class);
 
   private static final double CUTOFF_MONEYNESS = 1e-6;
@@ -131,5 +132,15 @@ public class SABRBerestyckiVolatilityFunction extends VolatilityFunctionProvider
   @Override
   public String toString() {
     return "SABR (Berestycki)";
+  }
+
+  @Override
+  public int getNumberOfParameters() {
+    return NUM_PARAMETERS;
+  }
+
+  @Override
+  public SABRFormulaData toModelData(final double[] parameters) {
+    return new SABRFormulaData(parameters);
   }
 }

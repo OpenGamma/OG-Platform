@@ -37,7 +37,11 @@ public class NonLinearLeastSquareWithPenalty {
   private static final Decomposition<?> DEFAULT_DECOMP = DecompositionFactory.SV_COLT;
   private static final MatrixAlgebra MA = new OGMatrixAlgebra();
   private static final double EPS = 1e-8;
-  private static final Function1D<DoubleMatrix1D, Boolean> UNCONSTAINED = new Function1D<DoubleMatrix1D, Boolean>() {
+
+  /**
+   * Unconstrained allowed function - always returns true
+   */
+  public static final Function1D<DoubleMatrix1D, Boolean> UNCONSTAINED = new Function1D<DoubleMatrix1D, Boolean>() {
     @Override
     public Boolean evaluate(final DoubleMatrix1D x) {
       return true;

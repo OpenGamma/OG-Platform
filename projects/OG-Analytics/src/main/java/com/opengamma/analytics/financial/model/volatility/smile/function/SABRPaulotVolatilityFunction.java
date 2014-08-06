@@ -22,6 +22,7 @@ import com.opengamma.util.CompareUtils;
  * Implementation.  </b>
  */
 public class SABRPaulotVolatilityFunction extends VolatilityFunctionProvider<SABRFormulaData> {
+  private static final int NUM_PARAMETERS = 4;
   private static final VolatilityFunctionProvider<SABRFormulaData> HAGAN = new SABRHaganVolatilityFunction();
 
   private static final Logger s_logger = LoggerFactory.getLogger(SABRPaulotVolatilityFunction.class);
@@ -169,5 +170,15 @@ public class SABRPaulotVolatilityFunction extends VolatilityFunctionProvider<SAB
   @Override
   public String toString() {
     return "SABR (Paulot)";
+  }
+
+  @Override
+  public int getNumberOfParameters() {
+    return NUM_PARAMETERS;
+  }
+
+  @Override
+  public SABRFormulaData toModelData(final double[] parameters) {
+    return new SABRFormulaData(parameters);
   }
 }

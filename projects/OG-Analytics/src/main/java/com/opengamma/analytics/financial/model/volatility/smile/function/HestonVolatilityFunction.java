@@ -28,6 +28,7 @@ import com.opengamma.lang.annotation.ExternalFunction;
  * 
  */
 public class HestonVolatilityFunction extends VolatilityFunctionProvider<HestonModelData> {
+  private static final int NUM_PARAMETERS = 5;
   /** The FFT pricer */
   private static final FFTPricer FFT_PRICER = new FFTPricer();
   /** The default interpolator */
@@ -149,8 +150,7 @@ public class HestonVolatilityFunction extends VolatilityFunctionProvider<HestonM
    * @return The volatility
    */
   @ExternalFunction
-  public double getVolatility(final double forward, final double strike, final double timeToExpiry, final double kappa, final double theta, final double vol0, final double omega,
-      final double rho) {
+  public double getVolatility(final double forward, final double strike, final double timeToExpiry, final double kappa, final double theta, final double vol0, final double omega, final double rho) {
     final Function1D<HestonModelData, Double> func = getVolatilityFunction(new EuropeanVanillaOption(strike, timeToExpiry, true), forward);
     final HestonModelData data = new HestonModelData(kappa, theta, vol0, omega, rho);
     return func.evaluate(data);
@@ -193,8 +193,7 @@ public class HestonVolatilityFunction extends VolatilityFunctionProvider<HestonM
   }
 
   @Override
-  public Function1D<HestonModelData, double[][]> getVolatilityAdjointFunction(final double forward, final double[] strikes,
-      final double timeToExpiry) {
+  public Function1D<HestonModelData, double[][]> getVolatilityAdjointFunction(final double forward, final double[] strikes, final double timeToExpiry) {
 
     final FFTModelGreeks greekCal = new FFTModelGreeks();
     final int n = strikes.length;
@@ -274,8 +273,7 @@ public class HestonVolatilityFunction extends VolatilityFunctionProvider<HestonM
   }
 
   @Override
-  public Function1D<HestonModelData, double[][]> getModelAdjointFunction(final double forward, final double[] strikes,
-      final double timeToExpiry) {
+  public Function1D<HestonModelData, double[][]> getModelAdjointFunction(final double forward, final double[] strikes, final double timeToExpiry) {
     final FFTModelGreeks greekCal = new FFTModelGreeks();
     final int n = strikes.length;
     final double lowestStrike = strikes[0];
@@ -388,5 +386,15 @@ public class HestonVolatilityFunction extends VolatilityFunctionProvider<HestonM
   @Override
   public String toString() {
     return "Heston";
+  }
+
+  @Override
+  public int getNumberOfParameters() {
+    return NUM_PARAMETERS;
+  }
+
+  @Override
+  public HestonModelData toModelData(final double[] parameters) {
+    return new HestonModelData(parameters);
   }
 }

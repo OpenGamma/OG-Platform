@@ -15,7 +15,7 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * 
  */
-public class DiscreateVolatilityFunctionProviderFromVolSurface implements DiscreteVolatilityFunctionProvider {
+public class DiscreateVolatilityFunctionProviderFromVolSurface extends DiscreteVolatilityFunctionProvider {
 
   private final VolatilitySurfaceProvider _volatilitySurfacePro;
 
@@ -55,6 +55,16 @@ public class DiscreateVolatilityFunctionProviderFromVolSurface implements Discre
         }
 
         return res;
+      }
+
+      @Override
+      public int getSizeOfDomain() {
+        return getNumModelParameters();
+      }
+
+      @Override
+      public int getSizeOfRange() {
+        return n;
       }
 
     };
