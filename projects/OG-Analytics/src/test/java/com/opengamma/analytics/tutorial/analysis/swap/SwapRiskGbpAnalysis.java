@@ -41,6 +41,7 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
+import com.opengamma.analytics.tutorial.datasets.RecentDataSetsMulticurveOisMettingDatesGbp;
 import com.opengamma.analytics.tutorial.datasets.RecentDataSetsMulticurveStandardGbp;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -133,12 +134,18 @@ public class SwapRiskGbpAnalysis {
   private static final SwapCouponFixedCouponDefinition SWAP_1_DEFINITION = new SwapCouponFixedCouponDefinition(FIXED_LEG_1_DEFINITION, ON_LEG_1_DEFINITION);
 
   /** Curves and fixing */
-//  private static final ZonedDateTimeDoubleTimeSeries TS_FIXED_LIBOR_GBP6M_WITHOUT_TODAY = RecentDataSetsMulticurveStandardGbp.fixingGbpLibor6MWithoutLast();
+  //  private static final ZonedDateTimeDoubleTimeSeries TS_FIXED_LIBOR_GBP6M_WITHOUT_TODAY = RecentDataSetsMulticurveStandardGbp.fixingGbpLibor6MWithoutLast();
   private static final ZonedDateTimeDoubleTimeSeries TS_FIXED_SONIA_WITHOUT_TODAY = RecentDataSetsMulticurveStandardGbp.fixingGbpSoniaWithoutLast();
+
   private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_PAIR =
       RecentDataSetsMulticurveStandardGbp.getCurvesGbpOisL6(VALUATION_DATE);
   private static final MulticurveProviderDiscount MULTICURVE = MULTICURVE_PAIR.getFirst();
   private static final CurveBuildingBlockBundle BLOCK = MULTICURVE_PAIR.getSecond();
+
+  private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_BOE_PAIR =
+      RecentDataSetsMulticurveOisMettingDatesGbp.getCurvesGbpOis(VALUATION_DATE);
+  private static final MulticurveProviderDiscount MULTICURVE_BOE = MULTICURVE_BOE_PAIR.getFirst();
+  private static final CurveBuildingBlockBundle BLOCK_BOE = MULTICURVE_BOE_PAIR.getSecond();
 
   private static final Annuity<?> FIXED_LEG_1 = FIXED_LEG_1_DEFINITION.toDerivative(VALUATION_DATE);
   private static final Annuity<?> ON_LEG_1 = ON_LEG_1_DEFINITION.toDerivative(VALUATION_DATE, TS_FIXED_SONIA_WITHOUT_TODAY);
@@ -153,7 +160,7 @@ public class SwapRiskGbpAnalysis {
   private static final MarketQuoteSensitivityBlockCalculator<MulticurveProviderInterface> MQSBC = new MarketQuoteSensitivityBlockCalculator<>(PSC);
 
   private static final double TOLERANCE_PV = 1.0E-2;
-//  private static final double TOLERANCE_PV_2 = 1.0E+4;
+  //  private static final double TOLERANCE_PV_2 = 1.0E+4;
   private static final double BP1 = 1.0E-4;
 
   @SuppressWarnings("unused")
@@ -178,6 +185,7 @@ public class SwapRiskGbpAnalysis {
   @Test
   public void bucketedPv01() {
     MultipleCurrencyParameterSensitivity pvmqs1Std = MQSBC.fromInstrument(SWAP_1, MULTICURVE, BLOCK).multipliedBy(BP1);
+    MultipleCurrencyParameterSensitivity pvmqs1Boe = MQSBC.fromInstrument(SWAP_1, MULTICURVE_BOE, BLOCK_BOE).multipliedBy(BP1);
     int t = 0;
   }
 

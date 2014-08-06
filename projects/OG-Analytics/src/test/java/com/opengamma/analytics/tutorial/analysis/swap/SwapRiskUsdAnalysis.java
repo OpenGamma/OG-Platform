@@ -227,7 +227,7 @@ public class SwapRiskUsdAnalysis {
   private static final CurveBuildingBlockBundle BLOCK = MULTICURVE_PAIR.getSecond();
 
   private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_FUT_PAIR =
-      RecentDataSetsMulticurveFutures3MUsd.getCurvesUSDOisL1L3L6(VALUATION_DATE);
+      RecentDataSetsMulticurveFutures3MUsd.getCurvesUSDOisL1L3L6(VALUATION_DATE, true);
   private static final MulticurveProviderDiscount MULTICURVE_FUT = MULTICURVE_FUT_PAIR.getFirst();
   private static final CurveBuildingBlockBundle BLOCK_FUT = MULTICURVE_FUT_PAIR.getSecond();
 

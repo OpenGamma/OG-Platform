@@ -95,15 +95,17 @@ public class RecentDataSetsMulticurveStandardUsd {
   private static final double[] DSC_USD_MARKET_QUOTES = new double[] {0.00175, 0.0015,
     0.0009, 0.0009, 0.0010, 0.0011, 0.0013,
     0.0017, 0.0053, 0.0096, 0.0132, 0.0160,
-    0.0181, 0.0199, 0.0199, 0.0213, 0.0236 }; //17
+    0.0181, 0.0199, 0.0199, 0.0213, 0.0236,
+    0.0255, 0.0275, 0.0290, 0.0300, 0.0302 };
   /** Generators for the dsc USD curve */
   private static final GeneratorInstrument<? extends GeneratorAttribute>[] DSC_USD_GENERATORS =
-      CurveCalibrationConventionDataSets.generatorUsdOnOisFfs(2, 15, 0);
+      CurveCalibrationConventionDataSets.generatorUsdOnOisFfs(2, 20, 0);
   /** Tenors for the dsc USD curve */
   private static final Period[] DSC_2_USD_TENOR = new Period[] {Period.ofDays(0), Period.ofDays(1),
     Period.ofMonths(1), Period.ofMonths(2), Period.ofMonths(3), Period.ofMonths(6), Period.ofMonths(9),
     Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5),
-    Period.ofYears(6), Period.ofYears(7), Period.ofYears(8), Period.ofYears(9), Period.ofYears(10) };
+    Period.ofYears(6), Period.ofYears(7), Period.ofYears(8), Period.ofYears(9), Period.ofYears(10),
+    Period.ofYears(12), Period.ofYears(15), Period.ofYears(20), Period.ofYears(25), Period.ofYears(30) };
   private static final GeneratorAttributeIR[] DSC_USD_ATTR = new GeneratorAttributeIR[DSC_2_USD_TENOR.length];
   static {
     for (int loopins = 0; loopins < 2; loopins++) {
