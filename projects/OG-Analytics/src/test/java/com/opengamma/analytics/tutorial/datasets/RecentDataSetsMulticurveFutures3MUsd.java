@@ -29,6 +29,8 @@ import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexIborMaster;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator;
+import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadRateCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadRateDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.generic.LastTimeCalculator;
@@ -239,11 +241,13 @@ public class RecentDataSetsMulticurveFutures3MUsd {
   }
 
   /** Calculators */
-  private static final InstrumentDerivativeVisitor<MulticurveProviderInterface, Double> PSMQC =
-      //      ParSpreadMarketQuoteDiscountingCalculator.getInstance(); // Market quotes 
+  private static final InstrumentDerivativeVisitor<MulticurveProviderInterface, Double> PSMQDC =
+      ParSpreadMarketQuoteDiscountingCalculator.getInstance(); // Market quotes 
+  private static final InstrumentDerivativeVisitor<MulticurveProviderInterface, Double> PSRDC =
       ParSpreadRateDiscountingCalculator.getInstance(); // Rate version of market quotes, in particular future price replaced by future rate sensitivity.
   private static final InstrumentDerivativeVisitor<MulticurveProviderInterface, MulticurveSensitivity> PSMQCSC =
-      //      ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator.getInstance(); // Market quotes 
+      ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator.getInstance(); // Market quotes 
+  private static final InstrumentDerivativeVisitor<MulticurveProviderInterface, MulticurveSensitivity> PSRCSC =
       ParSpreadRateCurveSensitivityDiscountingCalculator.getInstance(); // Rate version of market quotes, in particular future price replaced by future rate sensitivity.
 
   private static final MulticurveDiscountBuildingRepository CURVE_BUILDING_REPOSITORY =
@@ -255,7 +259,7 @@ public class RecentDataSetsMulticurveFutures3MUsd {
    * @param calibrationDate The calibration date.
    * @return The curves and the Jacobian matrices.
    */
-  public static Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> getCurvesUSDOisL1L3L6(ZonedDateTime calibrationDate) {
+  public static Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> getCurvesUSDOisL1L3L6(ZonedDateTime calibrationDate, boolean marketQuoteRisk) {
     GeneratorInstrument<? extends GeneratorAttribute>[] fwd3Generators =
         CurveCalibrationConventionDataSets.generatorUsdIbor3Fut3Irs3(calibrationDate, 3, 10, 14);
     InstrumentDefinition<?>[][][] definitionsUnits = new InstrumentDefinition<?>[NB_UNITS][][];
@@ -267,8 +271,17 @@ public class RecentDataSetsMulticurveFutures3MUsd {
     definitionsUnits[1] = new InstrumentDefinition<?>[][] {definitionsFwd3 };
     definitionsUnits[2] = new InstrumentDefinition<?>[][] {definitionsFwd1 };
     definitionsUnits[3] = new InstrumentDefinition<?>[][] {definitionsFwd6 };
+    InstrumentDerivativeVisitor<MulticurveProviderInterface, Double> target;
+    InstrumentDerivativeVisitor<MulticurveProviderInterface, MulticurveSensitivity> targetSensitivity;
+    if (marketQuoteRisk) {
+      target = PSMQDC;
+      targetSensitivity = PSMQCSC;
+    } else {
+      target = PSRDC;
+      targetSensitivity = PSRCSC;
+    }
     return CurveCalibrationTestsUtils.makeCurvesFromDefinitionsMulticurve(calibrationDate, definitionsUnits,
-        GENERATORS_UNITS[0], NAMES_UNITS[0], KNOWN_DATA, PSMQC, PSMQCSC, false, DSC_MAP, FWD_ON_MAP, FWD_IBOR_MAP, CURVE_BUILDING_REPOSITORY,
+        GENERATORS_UNITS[0], NAMES_UNITS[0], KNOWN_DATA, target, targetSensitivity, false, DSC_MAP, FWD_ON_MAP, FWD_IBOR_MAP, CURVE_BUILDING_REPOSITORY,
         TS_FIXED_OIS_USD_WITH_TODAY, TS_FIXED_OIS_USD_WITHOUT_TODAY, TS_FIXED_IBOR_USD3M_WITH_LAST, TS_FIXED_IBOR_USD3M_WITHOUT_LAST);
   }
 
