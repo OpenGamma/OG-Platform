@@ -10,6 +10,7 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitorA
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingFlatSpreadDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborGearingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborSpreadDefinition;
@@ -76,5 +77,10 @@ public final class CouponTenorVisitor extends InstrumentDefinitionVisitorAdapter
   @Override
   public Tenor visitCouponFixedDefinition(final CouponFixedDefinition definition) {
     return null;
+  }
+  
+  @Override
+  public Tenor visitCouponIborCompoundingSpreadDefinition(CouponIborCompoundingSpreadDefinition payment) {
+    return Tenor.of(payment.getIndex().getTenor());
   }
 }
