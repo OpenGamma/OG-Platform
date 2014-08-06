@@ -97,15 +97,18 @@ public class RecentDataSetsMulticurveFFSUsd {
   private static final double[] DSC_USD_MARKET_QUOTES = new double[] {0.00175, 0.0015,
     0.0009, 0.0009, 0.0010, 0.0011, 0.0013,
     0.0014, 0.0015, 0.0016, 0.0017, 0.0017,
+    0.0018, 0.0020, 0.0028, 0.0035, 0.0043,
     0.0015, 0.0016, 0.0017, 0.0018, 0.0018,
+    0.0019, 0.0019, 0.0019, 0.0019, 0.0019,
     0.0019, 0.0019, 0.0019, 0.0019 };
   /** Generators for the dsc USD curve */
   private static final GeneratorInstrument<? extends GeneratorAttribute>[] DSC_USD_GENERATORS =
-      CurveCalibrationConventionDataSets.generatorUsdOnOisFfs(2, 10, 14);
+      CurveCalibrationConventionDataSets.generatorUsdOnOisFfs(2, 15, 14);
   /** Tenors for the dsc USD curve */
   private static final Period[] DSC_2_USD_TENOR = new Period[] {Period.ofDays(0), Period.ofDays(1),
     Period.ofMonths(1), Period.ofMonths(2), Period.ofMonths(3), Period.ofMonths(4), Period.ofMonths(5),
-    Period.ofMonths(6), Period.ofMonths(7), Period.ofMonths(8), Period.ofMonths(9), Period.ofYears(1),
+    Period.ofMonths(6), Period.ofMonths(7), Period.ofMonths(8), Period.ofMonths(9), Period.ofMonths(10),
+    Period.ofMonths(11), Period.ofMonths(12), Period.ofMonths(15), Period.ofMonths(18), Period.ofMonths(21),
     Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5), Period.ofYears(6),
     Period.ofYears(7), Period.ofYears(8), Period.ofYears(9), Period.ofYears(10), Period.ofYears(12),
     Period.ofYears(15), Period.ofYears(20), Period.ofYears(25), Period.ofYears(30) };
