@@ -22,6 +22,7 @@ import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
+import com.opengamma.analytics.math.matrix.AssertMatrix;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -272,38 +273,13 @@ public abstract class CapletStrippingSetup {
   protected void compareFunc(final Function1D<DoubleMatrix1D, DoubleMatrix1D> func1, final Function1D<DoubleMatrix1D, DoubleMatrix1D> func2, final DoubleMatrix1D pos, final double tol) {
     final DoubleMatrix1D y1 = func1.evaluate(pos);
     final DoubleMatrix1D y2 = func2.evaluate(pos);
-    assertEqualsVectors(y1, y2, tol);
+    AssertMatrix.assertEqualsVectors(y1, y2, tol);
   }
 
   protected void compareJacobianFunc(final Function1D<DoubleMatrix1D, DoubleMatrix2D> jFunc1, final Function1D<DoubleMatrix1D, DoubleMatrix2D> jFunc2, final DoubleMatrix1D pos, final double tol) {
     final DoubleMatrix2D jac1 = jFunc1.evaluate(pos);
     final DoubleMatrix2D jac2 = jFunc2.evaluate(pos);
-    assertEqualsMatrix(jac1, jac2, tol);
-  }
-
-  protected void assertEqualsVectors(final DoubleMatrix1D v1, final DoubleMatrix1D v2, final double tol) {
-    ArgumentChecker.notNull(v1, "v1");
-    ArgumentChecker.notNull(v2, "v2");
-    final int size = v1.getNumberOfElements();
-    assertEquals("szies:", size, v2.getNumberOfElements());
-
-    for (int i = 0; i < size; i++) {
-      assertEquals("", v1.getEntry(i), v2.getEntry(i), tol);
-    }
-  }
-
-  protected void assertEqualsMatrix(final DoubleMatrix2D m1, final DoubleMatrix2D m2, final double tol) {
-    ArgumentChecker.notNull(m1, "m1");
-    ArgumentChecker.notNull(m2, "m2");
-    final int rows = m1.getNumberOfRows();
-    final int cols = m1.getNumberOfColumns();
-    assertEquals("Number of rows:", rows, m2.getNumberOfRows());
-    assertEquals("Number of columns:", cols, m2.getNumberOfColumns());
-    for (int i = 0; i < rows; i++) {
-      for (int j = 0; j < cols; j++) {
-        assertEquals("", m1.getEntry(i, j), m2.getEntry(i, j), tol);
-      }
-    }
+    AssertMatrix.assertEqualsMatrix(jac1, jac2, tol);
   }
 
 }

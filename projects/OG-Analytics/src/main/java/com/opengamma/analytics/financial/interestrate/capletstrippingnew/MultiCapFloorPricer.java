@@ -398,4 +398,13 @@ public class MultiCapFloorPricer {
     return _capletsArray;
   }
 
+  protected double[] getCapletForwardRates() {
+    final int n = _capletsArray.length;
+    final Set<Double> ts = new TreeSet<>();
+    for (int i = 0; i < n; i++) {
+      ts.add(_capletsArray[i].getForward());
+    }
+    return ArrayUtils.toPrimitive(ts.toArray(new Double[0]));
+  }
+
 }

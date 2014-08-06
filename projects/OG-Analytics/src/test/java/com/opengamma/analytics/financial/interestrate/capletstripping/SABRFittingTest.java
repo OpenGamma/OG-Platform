@@ -130,19 +130,19 @@ public class SABRFittingTest extends CapletStrippingSetup {
     System.out.println();
     final VolatilityModel1D volSurface = VOL_MODEL_PROVIDER.evaluate(fitParms);
 
-    System.out.println("t\talpha\tbeta\tnu\trho");
+    System.out.println("t\talpha\tbeta\trho\tnu");
     final LinkedHashMap<String, ? extends DoublesCurve> curves = ((SABRTermStructureModelProvider) VOL_MODEL_PROVIDER).getCurves(fitParms);
     final DoublesCurve alphaCurve = curves.get("alpha");
     final DoublesCurve betaCurve = curves.get("beta");
     final DoublesCurve nuCurve = curves.get("nu");
     final DoublesCurve rhoCurve = curves.get("rho");
-    for (int i = 0; i < 100; i++) {
-      final double t = 10. * i / 99.;
+    for (int i = 0; i < 39; i++) {
+      final double t = 0.25 + 0.25 * i;
       final double alpha = alphaCurve.getYValue(t);
       final double beta = betaCurve.getYValue(t);
-      final double nu = nuCurve.getYValue(t);
       final double rho = rhoCurve.getYValue(t);
-      System.out.println(t + "\t" + alpha + "\t" + beta + "\t" + nu + "\t" + rho);
+      final double nu = nuCurve.getYValue(t);
+      System.out.println(t + "\t" + alpha + "\t" + beta + "\t" + rho + "\t" + nu);
     }
     System.out.println();
 

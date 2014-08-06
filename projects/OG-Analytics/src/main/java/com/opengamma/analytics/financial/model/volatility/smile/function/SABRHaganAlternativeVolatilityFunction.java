@@ -18,6 +18,7 @@ import com.opengamma.util.CompareUtils;
  * {@link SABRBerestyckiVolatilityFunction}
  */
 public class SABRHaganAlternativeVolatilityFunction extends VolatilityFunctionProvider<SABRFormulaData> {
+  private static final int NUM_PARAMETERS = 4;
   private static final Logger s_logger = LoggerFactory.getLogger(SABRHaganAlternativeVolatilityFunction.class);
 
   private static final double CUTOFF_MONEYNESS = 1e-6;
@@ -102,6 +103,16 @@ public class SABRHaganAlternativeVolatilityFunction extends VolatilityFunctionPr
   @Override
   public String toString() {
     return "SABR (Hagan alternative)";
+  }
+
+  @Override
+  public int getNumberOfParameters() {
+    return NUM_PARAMETERS;
+  }
+
+  @Override
+  public SABRFormulaData toModelData(final double[] parameters) {
+    return new SABRFormulaData(parameters);
   }
 
 }

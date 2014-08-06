@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.financial.model.volatility.smile.function;
 
+import org.apache.commons.lang.NotImplementedException;
+
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.math.function.Function1D;
@@ -242,5 +244,15 @@ public final class MixedLogNormalVolatilityFunction extends VolatilityFunctionPr
   @Override
   public String toString() {
     return "Mixed log normal";
+  }
+
+  @Override
+  public int getNumberOfParameters() {
+    throw new NotImplementedException();
+  }
+
+  @Override
+  public MixedLogNormalModelData toModelData(final double[] parameters) {
+    return new MixedLogNormalModelData(parameters);
   }
 }

@@ -121,7 +121,7 @@ public class CapFloorPricer {
    * Gets the fwds.
    * @return the fwds
    */
-  protected double[] getForwards() {
+  public double[] getForwards() {
     final double[] fwds = new double[_n];
     for (int i = 0; i < _n; i++) {
       fwds[i] = _caplets[i].getForward();
@@ -146,7 +146,7 @@ public class CapFloorPricer {
    * Gets the t.
    * @return the t
    */
-  protected double[] getExpiries() {
+  public double[] getExpiries() {
     final double[] t = new double[_n];
     for (int i = 0; i < _n; i++) {
       t[i] = _caplets[i].getTimeToExpiry();

@@ -228,6 +228,11 @@ public class CapletStrippingImp {
   }
 
   public CapletStrippingResult solveForCapVols(final double[] capVols, final double[] errors, final DoubleMatrix1D start, final DoubleMatrix2D penaltyMatrix) {
+    return solveForCapVols(capVols, errors, start, penaltyMatrix, NonLinearLeastSquareWithPenalty.UNCONSTAINED);
+  }
+
+  public CapletStrippingResult solveForCapVols(final double[] capVols, final double[] errors, final DoubleMatrix1D start, final DoubleMatrix2D penaltyMatrix,
+      final Function1D<DoubleMatrix1D, Boolean> allowed) {
     ArgumentChecker.notNull(start, "start");
     ArgumentChecker.notNull(penaltyMatrix, "penaltyMatrix");
     ArgumentChecker.isTrue(start.getNumberOfElements() == _nModelParms, "length of start ({}) not equal to expected number of model parameters ({})", start.getNumberOfElements(), _nModelParms);
@@ -235,19 +240,6 @@ public class CapletStrippingImp {
     checkErrors(errors);
     ArgumentChecker.isTrue(penaltyMatrix.getNumberOfRows() == _nModelParms && penaltyMatrix.getNumberOfColumns() == _nModelParms,
         "Penalty matrix must be square of size {}. Supplied matrix is {] by {}", _nModelParms, penaltyMatrix.getNumberOfRows(), penaltyMatrix.getNumberOfColumns());
-
-    final Function1D<DoubleMatrix1D, Boolean> allowed = new Function1D<DoubleMatrix1D, Boolean>() {
-      @Override
-      public Boolean evaluate(final DoubleMatrix1D x) {
-        final int n = x.getNumberOfElements();
-        for (int i = 0; i < n; i++) {
-          if (x.getEntry(i) < 0.0) {
-            return false;
-          }
-        }
-        return true;
-      }
-    };
 
     final LeastSquareResults res = NLLSWP.solve(new DoubleMatrix1D(capVols), new DoubleMatrix1D(errors), getCapVolFunction(), getCapVolJacobianFunction(), start, penaltyMatrix, allowed);
     return new CapletStrippingResultLeastSquare(res, _volFunc, _pricer);
