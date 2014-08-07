@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.provider.curve;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -58,6 +59,7 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
+import com.opengamma.util.FileUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
@@ -313,16 +315,47 @@ public class MulticurveBuildingDiscountingDiscountEURCommitteeSpreadTest {
   /** Exports the Ibor rates computed from the EURIBOR6M curve. */
   public void exportForwardRates() {
     int indexBlock = 1;
-    CurveCalibrationTestsUtils.exportONForwardONCurve(CALIBRATION_DATE, CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(indexBlock).getFirst(),
-        EONIA, TARGET, "demo-test-fwd-eur-committee-on-eonia-" + indexBlock + ".csv", 500, 1);
-    CurveCalibrationTestsUtils.exportONForwardIborCurve(CALIBRATION_DATE, CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(indexBlock).getFirst(),
-        EURIBOR6M, TARGET, "demo-test-fwd-eur-committee-on-euribor-" + indexBlock + ".csv", 500, 1);
-    CurveCalibrationTestsUtils.exportIborForwardIborCurve(CALIBRATION_DATE, CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(indexBlock).getFirst(),
-        EURIBOR6M, TARGET, "demo-test-fwd-eur-committee-ibor-euribor-" + indexBlock + ".csv", 0, 500, 1);
-    CurveCalibrationTestsUtils.exportZCRatesONCurve(CALIBRATION_DATE, CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(indexBlock).getFirst(),
-        EONIA, TARGET, "demo-test-fwd-eur-committee-zc-eonia-" + indexBlock + ".csv", 500, 1);
-    CurveCalibrationTestsUtils.exportZCRatesIborCurve(CALIBRATION_DATE, CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(indexBlock).getFirst(),
-        EURIBOR6M, TARGET, "demo-test-fwd-eur-committee-zc-euribor-" + indexBlock + ".csv", 500, 1);
+    CurveCalibrationTestsUtils.exportONForwardONCurve(
+        CALIBRATION_DATE,
+        CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(indexBlock).getFirst(),
+        EONIA,
+        TARGET,
+        new File(FileUtils.TEMP_DIR, "demo-test-fwd-eur-committee-on-eonia-" + indexBlock + ".csv"),
+        500,
+        1);
+    CurveCalibrationTestsUtils.exportONForwardIborCurve(
+        CALIBRATION_DATE,
+        CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(indexBlock).getFirst(),
+        EURIBOR6M,
+        TARGET,
+        new File(FileUtils.TEMP_DIR, "demo-test-fwd-eur-committee-on-euribor-" + indexBlock + ".csv"),
+        500,
+        1);
+    CurveCalibrationTestsUtils.exportIborForwardIborCurve(
+        CALIBRATION_DATE,
+        CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(indexBlock).getFirst(),
+        EURIBOR6M,
+        TARGET,
+        new File(FileUtils.TEMP_DIR, "demo-test-fwd-eur-committee-ibor-euribor-" + indexBlock + ".csv"),
+        0,
+        500,
+        1);
+    CurveCalibrationTestsUtils.exportZCRatesONCurve(
+        CALIBRATION_DATE,
+        CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(indexBlock).getFirst(),
+        EONIA,
+        TARGET,
+        new File(FileUtils.TEMP_DIR, "demo-test-fwd-eur-committee-zc-eonia-" + indexBlock + ".csv"),
+        500,
+        1);
+    CurveCalibrationTestsUtils.exportZCRatesIborCurve(
+        CALIBRATION_DATE,
+        CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(indexBlock).getFirst(),
+        EURIBOR6M,
+        TARGET,
+        new File(FileUtils.TEMP_DIR, "demo-test-fwd-eur-committee-zc-euribor-" + indexBlock + ".csv"),
+        500,
+        1);
   }
 
   private static InstrumentDerivative[][] convert(final InstrumentDefinition<?>[][] definitions, final boolean withToday) {

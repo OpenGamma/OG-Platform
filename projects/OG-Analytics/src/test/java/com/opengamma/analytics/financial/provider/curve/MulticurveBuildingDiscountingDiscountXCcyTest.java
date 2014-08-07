@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.provider.curve;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -61,6 +62,7 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
+import com.opengamma.util.FileUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
@@ -559,7 +561,15 @@ public class MulticurveBuildingDiscountingDiscountXCcyTest {
     final int jump = 1;
     final int startIndex = 0;
     final int nbDate = 2750;
-    CurveCalibrationTestsUtils.exportIborForwardIborCurve(CALIBRATION_DATE, multicurve, EURIBOR3M, TARGET, "fwd-xccy-eur-euribor3m.csv", startIndex, nbDate, jump);
+    CurveCalibrationTestsUtils.exportIborForwardIborCurve(
+        CALIBRATION_DATE,
+        multicurve,
+        EURIBOR3M,
+        TARGET,
+        new File(FileUtils.TEMP_DIR, "fwd-xccy-eur-euribor3m.csv"),
+        startIndex,
+        nbDate,
+        jump);
   }
 
   @Test(enabled = true)

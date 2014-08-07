@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.provider.curve;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -38,6 +39,7 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
+import com.opengamma.util.FileUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
@@ -180,8 +182,15 @@ public class MulticurveBuildingDiscountingDiscountUSDFFSDemoTest {
   @Test(enabled = false)
   /** Export the forward curve to a csv file. */
   public void forwardAnalysis() {
-    CurveCalibrationTestsUtils.exportIborForwardIborCurve(CALIBRATION_DATE, CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(0).getFirst(), USDLIBOR3M, NYC,
-        "demo-test-fwd-usd-libor3m-ncs.csv", 0, 350, 7);
+    CurveCalibrationTestsUtils.exportIborForwardIborCurve(
+        CALIBRATION_DATE,
+        CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(0).getFirst(),
+        USDLIBOR3M,
+        NYC,
+        new File(FileUtils.TEMP_DIR, "demo-test-fwd-usd-libor3m-ncs.csv"),
+        0,
+        350,
+        7);
   }
 
   private static InstrumentDerivative[][] convert(final InstrumentDefinition<?>[][] definitions, final int unit, final boolean withToday) {
