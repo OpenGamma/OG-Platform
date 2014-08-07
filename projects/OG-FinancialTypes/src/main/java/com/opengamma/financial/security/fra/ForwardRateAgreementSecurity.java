@@ -71,7 +71,7 @@ public class ForwardRateAgreementSecurity extends FinancialSecurity {
   @PropertyDefinition(validate = "notNull")
   private LocalDate _endDate;
   /**
-   * The settlement date.
+   * The fixing date.
    */
   @PropertyDefinition(validate = "notNull")
   private LocalDate _fixingDate;
@@ -366,7 +366,7 @@ public class ForwardRateAgreementSecurity extends FinancialSecurity {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the settlement date.
+   * Gets the fixing date.
    * @return the value of the property, not null
    */
   public LocalDate getFixingDate() {
@@ -374,7 +374,7 @@ public class ForwardRateAgreementSecurity extends FinancialSecurity {
   }
 
   /**
-   * Sets the settlement date.
+   * Sets the fixing date.
    * @param fixingDate  the new value of the property, not null
    */
   public void setFixingDate(LocalDate fixingDate) {
