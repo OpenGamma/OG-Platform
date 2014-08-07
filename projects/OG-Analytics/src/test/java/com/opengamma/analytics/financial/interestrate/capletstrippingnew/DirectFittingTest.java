@@ -102,6 +102,7 @@ public class DirectFittingTest extends CapletStrippingSetup {
 
   @Test(groups = TestGroup.UNIT_SLOW)
   public void allCapsVolTest() {
+    //TODO these may be the wrong way round
     final double lambdaT = 0.01; //this is chosen to give a chi2/DoF of around 1 
     final double lambdaK = 0.0002;
     final List<CapFloor> allCaps = getAllCaps();
@@ -123,8 +124,11 @@ public class DirectFittingTest extends CapletStrippingSetup {
     final DoubleMatrix1D guess = new DoubleMatrix1D(pricer.getGridSize(), 0.7);
 
     final CapletStrippingResult res = stripper.solve(capVols, MarketDataType.VOL, errors, guess);
-    //  System.out.println(res);
+    System.out.println(res);
     assertEquals(131.50826652583146, res.getChiSq(), 1e-15);
+
+    res.printSurface(System.out, 101, 101);
+    res.printCapletVols(System.out);
   }
 
   @Test

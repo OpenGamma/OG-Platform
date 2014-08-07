@@ -5,8 +5,6 @@
  */
 package com.opengamma.analytics.financial.interestrate.capletstrippingnew;
 
-import org.apache.commons.lang.NotImplementedException;
-
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
@@ -23,11 +21,6 @@ public class InterpolatedDiscreteVolatilityFunctionProvider extends DiscreteVola
   public InterpolatedDiscreteVolatilityFunctionProvider(final double[] knotPoints, final Interpolator1D interpolator) {
     _funcPro = new InterpolatedVectorFunctionProvider(interpolator, knotPoints);
 
-  }
-
-  @Override
-  public int getNumModelParameters() {
-    throw new NotImplementedException();
   }
 
   @Override

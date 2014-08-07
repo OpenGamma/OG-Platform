@@ -41,6 +41,7 @@ public class InterpolatedTermStructureTest extends SingleStrikeSetup {
     final MultiCapFloorPricer pricer = new MultiCapFloorPricer(getATMCaps(), getYieldCurves());
     final CapletStripper stripper = new CapletStripperInterpolatedTermStructure(pricer);
     testATMStripping(stripper, 0.0, null, 1e-15, true);
+
   }
 
   @Test
@@ -52,6 +53,22 @@ public class InterpolatedTermStructureTest extends SingleStrikeSetup {
       final CapletStripper stripper = new CapletStripperInterpolatedTermStructure(pricer);
       testSingleStrikeStripping(stripper, i, 0.0, null, 1e-15, false);
     }
+  }
+
+  @Test
+  public void singleStrikeTest2() {
+
+    final int n = getNumberOfStrikes();
+    final CapletStrippingResult[] res = new CapletStrippingResult[n];
+    for (int i = 0; i < n; i++) {
+      final MultiCapFloorPricer pricer = new MultiCapFloorPricer(getCaps(i), getYieldCurves());
+      final CapletStripper stripper = new CapletStripperInterpolatedTermStructure(pricer);
+
+      res[i] = stripper.solve(getCapPrices(i), MarketDataType.PRICE);
+    }
+
+    final CombinedCapletStrippingResults comRes = new CombinedCapletStrippingResults(res);
+    comRes.printSurface(System.out, 101, 101);
   }
 
   /**

@@ -25,11 +25,6 @@ public class DiscreateVolatilityFunctionProviderFromVolSurface extends DiscreteV
   }
 
   @Override
-  public int getNumModelParameters() {
-    return _volatilitySurfacePro.getNumModelParameters();
-  }
-
-  @Override
   public DiscreteVolatilityFunction from(final DoublesPair[] expiryStrikePoints) {
     ArgumentChecker.notNull(expiryStrikePoints, "strikeExpiryPoints");
     final int n = expiryStrikePoints.length;
@@ -49,7 +44,7 @@ public class DiscreateVolatilityFunctionProviderFromVolSurface extends DiscreteV
       @Override
       public DoubleMatrix2D evaluateJacobian(final DoubleMatrix1D x) {
         final Surface<Double, Double, DoubleMatrix1D> volSurfaceAdjoint = _volatilitySurfacePro.getVolSurfaceAdjoint(x);
-        final DoubleMatrix2D res = new DoubleMatrix2D(n, getNumModelParameters());
+        final DoubleMatrix2D res = new DoubleMatrix2D(n, _volatilitySurfacePro.getNumModelParameters());
         for (int i = 0; i < n; i++) {
           res.getData()[i] = volSurfaceAdjoint.getZValue(expiryStrikePoints[i]).getData();
         }
@@ -59,7 +54,7 @@ public class DiscreateVolatilityFunctionProviderFromVolSurface extends DiscreteV
 
       @Override
       public int getSizeOfDomain() {
-        return getNumModelParameters();
+        return _volatilitySurfacePro.getNumModelParameters();
       }
 
       @Override

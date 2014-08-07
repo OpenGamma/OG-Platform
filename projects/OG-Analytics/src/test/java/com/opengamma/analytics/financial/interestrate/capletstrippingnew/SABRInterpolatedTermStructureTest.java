@@ -95,5 +95,8 @@ public class SABRInterpolatedTermStructureTest extends CapletStrippingSetup {
     final CapletStripper stripper = new CapletStripperSmileModel<SABRFormulaData>(pricer, new SABRHaganVolatilityFunction(), modelToSmileParms);
     final CapletStrippingResult res = stripper.solve(vols, MarketDataType.VOL, errors, START);
     System.out.println(res);
+
+    res.printSurface(System.out, 101, 101);
+
   }
 }

@@ -29,11 +29,6 @@ public class FlatSurfaceFitTest extends CapletStrippingSetup {
     FLAT_SURFACE = new DiscreteVolatilityFunctionProvider() {
 
       @Override
-      public int getNumModelParameters() {
-        return 1;
-      }
-
-      @Override
       public DiscreteVolatilityFunction from(final DoublesPair[] expiryStrikePoints) {
         final int size = expiryStrikePoints.length;
         final DoubleMatrix2D one = new DoubleMatrix2D(size, 1);

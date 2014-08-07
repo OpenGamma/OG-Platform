@@ -195,11 +195,6 @@ public class ParameterizedSmileModelDiscreateVolatilityFunctionProvider<T extend
     return _volFuncPro.toModelData(x);
   }
 
-  @Override
-  public int getNumModelParameters() {
-    return _nParms;
-  }
-
   public int getNumSmileModelParamters() {
     return _volFuncPro.getNumberOfParameters();
   }

@@ -32,4 +32,12 @@ public class InterpolatedVectorFunctionProvider extends DoublesVectorFunctionPro
     return new InterpolatedCurveVectorFunction(x, _interpolator, _knots);
   }
 
+  public Interpolator1D getInterpolator() {
+    return _interpolator;
+  }
+
+  public double[] getKnots() {
+    return _knots;
+  }
+
 }
