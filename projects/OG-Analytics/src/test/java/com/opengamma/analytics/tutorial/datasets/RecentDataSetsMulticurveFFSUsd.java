@@ -94,7 +94,7 @@ public class RecentDataSetsMulticurveFFSUsd {
 
   /** Data as of 28-Jul-2014 */
   /** Market values for the dsc USD curve */
-  private static final double[] DSC_USD_MARKET_QUOTES = new double[] {0.00175, 0.0015,
+  private static final double[] DSC_USD_MARKET_QUOTES = new double[] {0.00175,
     0.0009, 0.0009, 0.0010, 0.0011, 0.0013,
     0.0014, 0.0015, 0.0016, 0.0017, 0.0017,
     0.0018, 0.0020, 0.0028, 0.0035, 0.0043,
@@ -103,9 +103,9 @@ public class RecentDataSetsMulticurveFFSUsd {
     0.0019, 0.0019, 0.0019, 0.0019 };
   /** Generators for the dsc USD curve */
   private static final GeneratorInstrument<? extends GeneratorAttribute>[] DSC_USD_GENERATORS =
-      CurveCalibrationConventionDataSets.generatorUsdOnOisFfs(2, 15, 14);
+      CurveCalibrationConventionDataSets.generatorUsdOnOisFfs(1, 14, 15);
   /** Tenors for the dsc USD curve */
-  private static final Period[] DSC_2_USD_TENOR = new Period[] {Period.ofDays(0), Period.ofDays(1),
+  private static final Period[] DSC_2_USD_TENOR = new Period[] {Period.ofDays(0),
     Period.ofMonths(1), Period.ofMonths(2), Period.ofMonths(3), Period.ofMonths(4), Period.ofMonths(5),
     Period.ofMonths(6), Period.ofMonths(7), Period.ofMonths(8), Period.ofMonths(9), Period.ofMonths(10),
     Period.ofMonths(11), Period.ofMonths(12), Period.ofMonths(15), Period.ofMonths(18), Period.ofMonths(21),
@@ -114,10 +114,10 @@ public class RecentDataSetsMulticurveFFSUsd {
     Period.ofYears(15), Period.ofYears(20), Period.ofYears(25), Period.ofYears(30) };
   private static final GeneratorAttributeIR[] DSC_USD_ATTR = new GeneratorAttributeIR[DSC_2_USD_TENOR.length];
   static {
-    for (int loopins = 0; loopins < 2; loopins++) {
+    for (int loopins = 0; loopins < 1; loopins++) {
       DSC_USD_ATTR[loopins] = new GeneratorAttributeIR(DSC_2_USD_TENOR[loopins], Period.ofDays(0));
     }
-    for (int loopins = 2; loopins < DSC_2_USD_TENOR.length; loopins++) {
+    for (int loopins = 1; loopins < DSC_2_USD_TENOR.length; loopins++) {
       DSC_USD_ATTR[loopins] = new GeneratorAttributeIR(DSC_2_USD_TENOR[loopins]);
     }
   }

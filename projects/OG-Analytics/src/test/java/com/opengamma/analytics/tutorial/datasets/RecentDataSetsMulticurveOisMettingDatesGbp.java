@@ -91,12 +91,12 @@ public class RecentDataSetsMulticurveOisMettingDatesGbp {
   /** Data as of 16-Jul-2014 */
   /** Market values for the dsc GBP curve */
   private static final double[] DSC_GBP_MARKET_QUOTES = new double[] {
-    0.00455, 0.00468, 0.004988, 0.006238, 0.006475,
-    0.00675 };
+    0.0050, 0.00455, 0.00468, 0.004988, 0.006238,
+    0.006475, 0.00675 };
   /** Tenors for the dsc GBP curve */
   private static final ZonedDateTime[] DSC_2_GBP_DATES = new ZonedDateTime[] {
-    DateUtils.getUTCDate(2014, 9, 4), DateUtils.getUTCDate(2014, 10, 9), DateUtils.getUTCDate(2014, 11, 6), DateUtils.getUTCDate(2014, 12, 4), DateUtils.getUTCDate(2015, 1, 8),
-    DateUtils.getUTCDate(2015, 2, 5) };
+    DateUtils.getUTCDate(2014, 8, 7), DateUtils.getUTCDate(2014, 9, 4), DateUtils.getUTCDate(2014, 10, 9), DateUtils.getUTCDate(2014, 11, 6),
+    DateUtils.getUTCDate(2014, 12, 4), DateUtils.getUTCDate(2015, 1, 8), DateUtils.getUTCDate(2015, 2, 5) };
   private static final int NB_DATES = DSC_2_GBP_DATES.length;
 
   /** Units of curves */
