@@ -45,7 +45,7 @@ to the masters using the following code:
 
 .. code:: java
 
-     	String serverLocation = “http://hostname:port”; // e.g localhost:8080
+     	String serverLocation = "http://hostname:port”; // e.g localhost:8080
 
  	ToolContext context = ToolContextUtils.getToolContext(serverLocation,
  	ToolContext.class); PortfolioMaster portfolioMaster =
@@ -65,7 +65,7 @@ follows (for a generic trade type T):
 
         public void insertTrade(T trade) {
 
-            String portfolioName = \_tradeAdapter.determinePortfolioForTrade(trade);
+            String portfolioName =  _tradeAdapter.determinePortfolioForTrade(trade);
 
             ManageablePortfolio portfolio =
                 createOrRetrievePortfolio(portfolioName);
@@ -73,7 +73,7 @@ follows (for a generic trade type T):
             ExternalIdBundle idBundle = createOrRetrieveSecurityForTrade(trade);
 
             ManageablePosition position = createOrRetrievePositionForTrade(portfolio, idBundle); 
-            ManageableTrade manageableTrade = \_tradeAdapter.buildManageableTrade(trade);
+            ManageableTrade manageableTrade =  _tradeAdapter.buildManageableTrade(trade);
             position.addTrade(manageableTrade);
 
             boolean isNewPosition = position.getUniqueId() == null;
@@ -85,7 +85,7 @@ follows (for a generic trade type T):
             position.setQuantity(quantity);
 
             //This will persist both the position and the associated trades
-            \_positionMaster.add(new PositionDocument(position));
+             _positionMaster.add(new PositionDocument(position));
 
             //If we didn't have the position before we need to update the portfolio so it is now aware of it
             if (isNewPosition) {
@@ -105,7 +105,7 @@ follows (for a generic trade type T):
         ManageablePosition position, ManageablePortfolio portfolio) {
             
             portfolio.getRootNode().addPosition(position.getUniqueId());
-            \_portfolioMaster.add(new PortfolioDocument(portfolio));
+             _portfolioMaster.add(new PortfolioDocument(portfolio));
 
         }
 
@@ -121,7 +121,7 @@ follows (for a generic trade type T):
             PortfolioSearchRequest searchRequest = new PortfolioSearchRequest();
             searchRequest.setName(portfolioName);
 
-            PortfolioSearchResult result = \_portfolioMaster.search(searchRequest);
+            PortfolioSearchResult result =  _portfolioMaster.search(searchRequest);
 
             List<ManageablePortfolio> portfolios = result.getPortfolios();
 
@@ -133,10 +133,10 @@ follows (for a generic trade type T):
 
         private ExternalIdBundle createOrRetrieveSecurityForTrade(T trade) {
 
-            if (\_tradeAdapter.isTradeUsingListedProduct(trade)) {
+            if ( _tradeAdapter.isTradeUsingListedProduct(trade)) {
 
             //We don't need to insert a security, just reference it return
-            \_tradeAdapter.determineSecurityIdForTrade(trade);
+             _tradeAdapter.determineSecurityIdForTrade(trade);
 
             }else {
 
@@ -145,7 +145,7 @@ follows (for a generic trade type T):
                 //up or altered if the trade is amended
 
                 ManageableSecurity security =
-                    \_tradeAdapter.buildSecurityForTrade(trade); \_securityMaster.add(new SecurityDocument(security));
+                     _tradeAdapter.buildSecurityForTrade(trade);  _securityMaster.add(new SecurityDocument(security));
 
                 return security.getExternalIdBundle();
 
@@ -159,7 +159,7 @@ follows (for a generic trade type T):
             PositionSearchRequest request = new PositionSearchRequest();
             request.setPositionObjectIds(portfolio.getRootNode().getPositionIds());
             request.setSecurityIdSearch(ExternalIdSearch.of(idBundle.getExternalIds()));
-            PositionSearchResult result = \_positionMaster.search(request);
+            PositionSearchResult result =  _positionMaster.search(request);
             ManageablePosition found = result.getFirstPosition();
 
             return found != null ? found : createNewPosition(idBundle);
@@ -257,7 +257,7 @@ ones can be handled as follows (again for a generic trade type T):
 
             public void amendTrade(T trade) {
 
-                String portfolioName = \_tradeAdapter.determinePortfolioForTrade(trade);
+                String portfolioName =  _tradeAdapter.determinePortfolioForTrade(trade);
 
                 ManageablePortfolio portfolio = findCurrentPortfolio(portfolioName);
 
@@ -274,9 +274,9 @@ ones can be handled as follows (again for a generic trade type T):
                 ManageableTrade previousTrade = findTradeByExternalId(trade);
                 ManageablePosition previousPosition = findPosition(previousTrade.getParentPositionId());
 
-                ManageableTrade manageableTrade = \_tradeAdapter.buildManageableTrade(trade); boolean isNewPosition = false;
+                ManageableTrade manageableTrade =  _tradeAdapter.buildManageableTrade(trade); boolean isNewPosition = false;
 
-                if (\_tradeAdapter.isTradeUsingListedProduct(trade)) {
+                if ( _tradeAdapter.isTradeUsingListedProduct(trade)) {
 
                     if (previousTrade.getSecurityLink().getExternalId().equals(idBundle)) {
 
@@ -317,7 +317,7 @@ ones can be handled as follows (again for a generic trade type T):
                         position.getQuantity().add(manageableTrade.getQuantity());
                         position.setQuantity(newPosQuantity);
 
-                        \_positionMaster.add(new PositionDocument(position));
+                         _positionMaster.add(new PositionDocument(position));
 
                     }
 
@@ -330,13 +330,13 @@ ones can be handled as follows (again for a generic trade type T):
                     //updating we should probably update the trade as well.
                     SecurityMasterUtils.addOrUpdateSecurity(
 
-                    \_securityMaster, \_tradeAdapter.buildSecurityForTrade(trade));
+                     _securityMaster,  _tradeAdapter.buildSecurityForTrade(trade));
                     previousPosition.removeTrade(previousTrade);
                     previousPosition.addTrade(manageableTrade);
 
                 }
 
-                    \_positionMaster.add(new PositionDocument(previousPosition));
+                     _positionMaster.add(new PositionDocument(previousPosition));
 
                     if (isNewPosition) { addPositionToPortfolio(previousPosition,
                     portfolio);
@@ -348,30 +348,30 @@ ones can be handled as follows (again for a generic trade type T):
             private ManageablePosition findPosition(UniqueId parentPositionId) {
                 PositionSearchRequest request = new PositionSearchRequest();
                 request.setPositionObjectIds(ImmutableList.of(parentPositionId)); return
-                \_positionMaster.search(request).getSinglePosition();
+                 _positionMaster.search(request).getSinglePosition();
 
             }
 
             private ManageableTrade findTradeByExternalId(T trade) { ExternalId id =
-                \_tradeAdapter.getExternalId(trade); PositionSearchRequest request = new
+                 _tradeAdapter.getExternalId(trade); PositionSearchRequest request = new
                 PositionSearchRequest(); request.setTradeProviderId(id);
 
                 return Iterables.getOnlyElement(
-                \_positionMaster.search(request).getSinglePosition().getTrades());
+                 _positionMaster.search(request).getSinglePosition().getTrades());
 
             }
 
             private ExternalIdBundle retrieveSecurityForTrade(T trade) {
 
-                if (\_tradeAdapter.isTradeUsingListedProduct(trade)) {
+                if ( _tradeAdapter.isTradeUsingListedProduct(trade)) {
 
                 // We don't need to insert a security, just reference it return
-                \_tradeAdapter.determineSecurityIdForTrade(trade);
+                 _tradeAdapter.determineSecurityIdForTrade(trade);
 
                 }else {
 
                 ManageableSecurity security =
-                \_tradeAdapter.buildSecurityForTrade(trade); return
+                 _tradeAdapter.buildSecurityForTrade(trade); return
                 security.getExternalIdBundle();
 
                 }
@@ -400,7 +400,7 @@ T):
 
     findPosition(previousTrade.getParentPositionId());
 
-    if (\_tradeAdapter.isTradeUsingListedProduct(trade)) {
+    if ( _tradeAdapter.isTradeUsingListedProduct(trade)) {
 
         previousPosition.removeTrade(previousTrade);
 
@@ -410,7 +410,7 @@ T):
 
         previousPosition.setQuantity(newQuantity);
 
-        \_positionMaster.add(new PositionDocument(previousPosition));
+         _positionMaster.add(new PositionDocument(previousPosition));
 
     } else {
 
@@ -419,13 +419,13 @@ T):
         SecuritySearchRequest request = new SecuritySearchRequest();
         request.setExternalIdSearch(
 
-        ExternalIdSearch.of(\_tradeAdapter.determineSecurityIdForTrade(trade)));
+        ExternalIdSearch.of( _tradeAdapter.determineSecurityIdForTrade(trade)));
         ManageableSecurity security =
-        \_securityMaster.search(request).getSingleSecurity();
-        \_securityMaster.remove(security.getUniqueId());
+         _securityMaster.search(request).getSingleSecurity();
+         _securityMaster.remove(security.getUniqueId());
 
         // Remove the trade and position
-        \_positionMaster.remove(previousPosition.getUniqueId());
+         _positionMaster.remove(previousPosition.getUniqueId());
 
         }
 
