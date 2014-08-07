@@ -6,26 +6,24 @@
 package com.opengamma.financial.analytics;
 
 import static com.google.common.collect.Sets.newHashSet;
-import static com.opengamma.engine.function.dsl.Function.function;
-import static com.opengamma.engine.function.dsl.Function.input;
-import static com.opengamma.engine.function.dsl.Function.output;
-import static com.opengamma.engine.function.dsl.TargetSpecificationReference.originalTarget;
-import static com.opengamma.engine.function.dsl.properties.RecordingValueProperties.copyFrom;
 import static com.opengamma.engine.value.ValueRequirementNames.BUCKETED_PV01;
 import static com.opengamma.engine.value.ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES;
 import static com.opengamma.lambdava.streams.Lambdava.functional;
 
+import java.util.Collections;
 import java.util.Set;
 
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.function.AbstractFunction;
+import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
-import com.opengamma.engine.function.dsl.FunctionSignature;
-import com.opengamma.engine.function.dsl.functions.BaseNonCompiledInvoker;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.lambdava.functions.Function3;
 import com.opengamma.util.async.AsynchronousExecution;
@@ -33,27 +31,9 @@ import com.opengamma.util.async.AsynchronousExecution;
 /**
  * Generic function to compute the bucketed PV01 of XXX from the YieldCurveNodeSensitivity (scaling to 1 bp).
  */
-public class BucketedPV01Function extends BaseNonCompiledInvoker {
+public class BucketedPV01Function extends AbstractFunction.NonCompiledInvoker {
 
   private static final double RESCALE_FACTOR = 10000.0;
-
-  @Override
-  protected FunctionSignature functionSignature() {
-
-    return function("Bucketed PV01", ComputationTargetType.POSITION_OR_TRADE)
-        .outputs(
-            output(BUCKETED_PV01)
-                .targetSpec(originalTarget())
-                .properties(copyFrom(YIELD_CURVE_NODE_SENSITIVITIES)
-                    .withOptional(ValuePropertyNames.SCALING_FACTOR)
-                    .withReplacement(ValuePropertyNames.FUNCTION, getUniqueId()))
-        )
-        .inputs(
-            input(YIELD_CURVE_NODE_SENSITIVITIES)
-                .properties(copyFrom(BUCKETED_PV01).withoutAny(ValuePropertyNames.SCALING_FACTOR))
-                .targetSpec(originalTarget())
-        );
-  }
 
   @Override
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext,
@@ -89,6 +69,31 @@ public class BucketedPV01Function extends BaseNonCompiledInvoker {
   @Override
   public String getUniqueId() {
     return "Bucketed PV01 Function";
+  }
+
+  @Override
+  public ComputationTargetType getTargetType() {
+    return ComputationTargetType.POSITION_OR_TRADE;
+  }
+
+  @Override
+  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
+    ValueProperties.Builder builder = ValueProperties.builder();
+    builder.withOptional(ValuePropertyNames.SCALING_FACTOR);
+    builder.with(ValuePropertyNames.FUNCTION, getUniqueId());
+    ValueProperties valueProperties = builder.get();
+    return Collections.singleton(
+        new ValueSpecification(BUCKETED_PV01, target.toSpecification(), valueProperties));
+  }
+
+  @Override
+  public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
+    ValueProperties.Builder builder = desiredValue.getConstraints().copy();
+    builder.withoutAny(ValuePropertyNames.SCALING_FACTOR);
+    ValueProperties valueProperties = builder.get();
+    return Collections.singleton(new ValueRequirement(
+        ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
+        target.toSpecification(), valueProperties));
   }
 
 }
