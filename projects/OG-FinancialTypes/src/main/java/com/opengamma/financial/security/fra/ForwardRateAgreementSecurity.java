@@ -72,8 +72,11 @@ public class ForwardRateAgreementSecurity extends FinancialSecurity {
   private LocalDate _endDate;
   /**
    * The fixing date.
+   * 
+   * If fixing date is null, the ForwardRateAgreementDefinition will calculate the fixing date from the start date, the
+   * index spot lag and the fixing calendar.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private LocalDate _fixingDate;
   /**
    * The rate.
@@ -203,6 +206,49 @@ public class ForwardRateAgreementSecurity extends FinancialSecurity {
     setIndexFrequency(indexFrequency);
     setUnderlyingId(underlyingId);
     setFixingDate(fixingDate);
+    setDayCount(dayCount);
+    setFixingBusinessDayConvention(fixingBusinessDayConvention);
+    setCalendars(fixingCalendars);
+    setPaymentCalendars(paymentCalendars);
+    setFixingLag(fixingLag);
+  }
+
+  /**
+   * Creates an instance
+   *
+   * @param currency  the currency, not null.
+   * @param underlyingId  the id of the underlying index (assumed Ibor), not null
+   * @param indexFrequency  the index frequency, not null
+   * @param startDate  the start date, not null
+   * @param endDate  the end date, not null
+   * @param rate  the rate
+   * @param amount  the amount (-ve if payer)
+   * @param dayCount  the day count convention, not null
+   * @param fixingBusinessDayConvention  the business dya convention, not null
+   * @param fixingCalendars  the calendars to be used, not null
+   * @param paymentCalendars the payment calendars, if null the fixing calendars will be used
+   * @param fixingLag  the fixing lag
+   */
+  public ForwardRateAgreementSecurity(Currency currency,
+                                      ExternalId underlyingId,
+                                      Frequency indexFrequency,
+                                      LocalDate startDate,
+                                      LocalDate endDate,
+                                      double rate,
+                                      double amount,
+                                      DayCount dayCount,
+                                      BusinessDayConvention fixingBusinessDayConvention,
+                                      Set<ExternalId> fixingCalendars, Set<ExternalId> paymentCalendars,
+                                      int fixingLag) {
+    super(SECURITY_TYPE);
+    setExternalIdBundle(ExternalIdBundle.EMPTY);
+    setCurrency(currency);
+    setStartDate(startDate);
+    setEndDate(endDate);
+    setRate(rate);
+    setAmount(amount);
+    setIndexFrequency(indexFrequency);
+    setUnderlyingId(underlyingId);
     setDayCount(dayCount);
     setFixingBusinessDayConvention(fixingBusinessDayConvention);
     setCalendars(fixingCalendars);
@@ -367,7 +413,10 @@ public class ForwardRateAgreementSecurity extends FinancialSecurity {
   //-----------------------------------------------------------------------
   /**
    * Gets the fixing date.
-   * @return the value of the property, not null
+   * 
+   * If fixing date is null, the ForwardRateAgreementDefinition will calculate the fixing date from the start date, the
+   * index spot lag and the fixing calendar.
+   * @return the value of the property
    */
   public LocalDate getFixingDate() {
     return _fixingDate;
@@ -375,15 +424,20 @@ public class ForwardRateAgreementSecurity extends FinancialSecurity {
 
   /**
    * Sets the fixing date.
-   * @param fixingDate  the new value of the property, not null
+   * 
+   * If fixing date is null, the ForwardRateAgreementDefinition will calculate the fixing date from the start date, the
+   * index spot lag and the fixing calendar.
+   * @param fixingDate  the new value of the property
    */
   public void setFixingDate(LocalDate fixingDate) {
-    JodaBeanUtils.notNull(fixingDate, "fixingDate");
     this._fixingDate = fixingDate;
   }
 
   /**
    * Gets the the {@code fixingDate} property.
+   * 
+   * If fixing date is null, the ForwardRateAgreementDefinition will calculate the fixing date from the start date, the
+   * index spot lag and the fixing calendar.
    * @return the property, not null
    */
   public final Property<LocalDate> fixingDate() {
@@ -993,7 +1047,6 @@ public class ForwardRateAgreementSecurity extends FinancialSecurity {
       JodaBeanUtils.notNull(((ForwardRateAgreementSecurity) bean)._calendars, "calendars");
       JodaBeanUtils.notNull(((ForwardRateAgreementSecurity) bean)._startDate, "startDate");
       JodaBeanUtils.notNull(((ForwardRateAgreementSecurity) bean)._endDate, "endDate");
-      JodaBeanUtils.notNull(((ForwardRateAgreementSecurity) bean)._fixingDate, "fixingDate");
       JodaBeanUtils.notNull(((ForwardRateAgreementSecurity) bean)._underlyingId, "underlyingId");
       JodaBeanUtils.notNull(((ForwardRateAgreementSecurity) bean)._indexFrequency, "indexFrequency");
       JodaBeanUtils.notNull(((ForwardRateAgreementSecurity) bean)._dayCount, "dayCount");
