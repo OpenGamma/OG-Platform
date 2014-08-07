@@ -476,7 +476,7 @@ public final class FailureResult<T>
 
     @Override
     public Builder<T> setString(MetaProperty<?> property, String value) {
-      super.set(property, value);
+      super.setString(property, value);
       return this;
     }
 

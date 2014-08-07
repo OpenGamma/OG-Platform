@@ -677,7 +677,7 @@ public final class MarketDataSnapshotSaver implements ImmutableBean {
 
     @Override
     public Builder setString(MetaProperty<?> property, String value) {
-      super.set(property, value);
+      super.setString(property, value);
       return this;
     }
 

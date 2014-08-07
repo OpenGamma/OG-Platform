@@ -292,7 +292,7 @@
       <dependency>
         <groupId>org.joda</groupId>
         <artifactId>joda-convert</artifactId>
-        <version>1.6</version>
+        <version>${joda-convert.version}</version>
       </dependency>
       <dependency>
         <groupId>org.joda</groupId>
@@ -1256,7 +1256,8 @@
     <maven-surefire-plugin.version>2.17</maven-surefire-plugin.version>
     <maven-surefire-report-plugin.version>2.17</maven-surefire-report-plugin.version>
     <jacoco-maven-plugin.version>0.7.0.201403182114</jacoco-maven-plugin.version>
-    <joda-beans.version>1.0</joda-beans.version>
+    <joda-beans.version>1.1</joda-beans.version>
+    <joda-convert.version>1.7</joda-convert.version>
     <fudge-java.version>0.3.9.19</fudge-java.version>
     <fudge-proto.version>0.3.9.7</fudge-proto.version>
     <og.spring.version>3.2.3.RELEASE</og.spring.version>
