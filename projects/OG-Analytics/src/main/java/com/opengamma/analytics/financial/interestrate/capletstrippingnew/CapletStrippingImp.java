@@ -45,9 +45,9 @@ public class CapletStrippingImp {
     ArgumentChecker.notNull(volFuncProv, "volFuncProv");
 
     _pricer = pricer;
-    _nModelParms = volFuncProv.getNumModelParameters();
+    // _nModelParms = volFuncProv.getNumModelParameters();
     _volFunc = volFuncProv.from(pricer.getExpiryStrikeArray());
-
+    _nModelParms = _volFunc.getSizeOfDomain();
   }
 
   public CapletStrippingResult solveForCapPrices(final double[] capPrices, final DoubleMatrix1D start) {
@@ -201,7 +201,8 @@ public class CapletStrippingImp {
   //************************************************************************************************************
   //Penalty Methods 
   //************************************************************************************************************
-  public CapletStrippingResult solveForCapPrices(final double[] capPrices, final double[] errors, final DoubleMatrix1D start, final DoubleMatrix2D penaltyMatrix) {
+  public CapletStrippingResult solveForCapPrices(final double[] capPrices, final double[] errors, final DoubleMatrix1D start, final DoubleMatrix2D penaltyMatrix,
+      final Function1D<DoubleMatrix1D, Boolean> allowed) {
     ArgumentChecker.notNull(start, "start");
     ArgumentChecker.notNull(penaltyMatrix, "penaltyMatrix");
     ArgumentChecker.isTrue(start.getNumberOfElements() == _nModelParms, "length of start ({}) not equal to expected number of model parameters ({})", start.getNumberOfElements(), _nModelParms);
@@ -209,19 +210,6 @@ public class CapletStrippingImp {
     checkPrices(capPrices);
     ArgumentChecker.isTrue(penaltyMatrix.getNumberOfRows() == _nModelParms && penaltyMatrix.getNumberOfColumns() == _nModelParms,
         "Penalty matrix must be square of size {}. Supplied matrix is {] by {}", _nModelParms, penaltyMatrix.getNumberOfRows(), penaltyMatrix.getNumberOfColumns());
-
-    final Function1D<DoubleMatrix1D, Boolean> allowed = new Function1D<DoubleMatrix1D, Boolean>() {
-      @Override
-      public Boolean evaluate(final DoubleMatrix1D x) {
-        final int n = x.getNumberOfElements();
-        for (int i = 0; i < n; i++) {
-          if (x.getEntry(i) < 0.0) {
-            return false;
-          }
-        }
-        return true;
-      }
-    };
 
     final LeastSquareResults res = NLLSWP.solve(new DoubleMatrix1D(capPrices), new DoubleMatrix1D(errors), getCapPriceFunction(), getCapPriceJacobianFunction(), start, penaltyMatrix, allowed);
     return new CapletStrippingResultLeastSquare(res, _volFunc, _pricer);

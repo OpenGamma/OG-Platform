@@ -37,6 +37,20 @@ public class SABRHaganVolatilityFunction extends VolatilityFunctionProvider<SABR
   private static final double RHO_EPS = 1e-8;
   private static final double ATM_EPS = 1e-7;
 
+  private final boolean _zeroNegativeVol;
+
+  public SABRHaganVolatilityFunction() {
+    _zeroNegativeVol = false;
+  }
+
+  /**
+   * The Hagan SABR formula can give negative volatilities for certain parameters.  
+   * @param floorVolatility is true all volatilities are floored at zero
+   */
+  public SABRHaganVolatilityFunction(final boolean floorVolatility) {
+    _zeroNegativeVol = floorVolatility;
+  }
+
   //  private static final double EPS = 1e-15;
 
   @Override
@@ -150,8 +164,10 @@ public class SABRHaganVolatilityFunction extends VolatilityFunctionProvider<SABR
       }
     }
     //There is nothing to prevent the nu * nu * (2 - 3 * rho * rho) / 24 part taking the third term, and hence the volatility negative
+    if (_zeroNegativeVol && vol < 0.0) {
+      return 0.0;
+    }
     return vol;
-    // return Math.max(0.0, vol);
   }
 
   @ExternalFunction

@@ -26,11 +26,6 @@ public class DiscreteVolatilityFunctionProviderDirect extends DiscreteVolatility
   }
 
   @Override
-  public int getNumModelParameters() {
-    return _size;
-  }
-
-  @Override
   public DiscreteVolatilityFunction from(final DoublesPair[] strikeExpiryPoints) {
     ArgumentChecker.noNulls(strikeExpiryPoints, "strikeExpiryPoints");
     final int n = strikeExpiryPoints.length;

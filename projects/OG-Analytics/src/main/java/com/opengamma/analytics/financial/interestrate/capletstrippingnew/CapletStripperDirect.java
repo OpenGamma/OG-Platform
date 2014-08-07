@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.interestrate.capletstrippingnew;
 
 import java.util.Arrays;
 
+import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.PenaltyMatrixGenerator;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
@@ -17,6 +18,21 @@ import com.opengamma.util.ArgumentChecker;
  * 'surface' 
  */
 public class CapletStripperDirect implements CapletStripper {
+
+  private static final Function1D<DoubleMatrix1D, Boolean> POSITIVE = new Function1D<DoubleMatrix1D, Boolean>() {
+    @Override
+    public Boolean evaluate(final DoubleMatrix1D x) {
+      final double[] data = x.getData();
+
+      for (final double value : data) {
+        if (value < 0) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+  };
 
   private final MultiCapFloorPricerGrid _pricer;
   private final double _lambdaT;
@@ -81,9 +97,9 @@ public class CapletStripperDirect implements CapletStripper {
     final DoubleMatrix2D p = getPenaltyMatrix(_pricer.getStrikes(), _pricer.getCapletExpiries(), _lambdaK, _lambdaT);
     final CapletStrippingImp imp = getImp(marketValues);
     if (type == MarketDataType.PRICE) {
-      return imp.solveForCapPrices(marketValues, errors, guess, p);
+      return imp.solveForCapPrices(marketValues, errors, guess, p, POSITIVE);
     } else if (type == MarketDataType.VOL) {
-      return imp.solveForCapVols(marketValues, errors, guess, p);
+      return imp.solveForCapVols(marketValues, errors, guess, p, POSITIVE);
     }
     throw new IllegalArgumentException("Unknown MarketDataType " + type.toString());
   }

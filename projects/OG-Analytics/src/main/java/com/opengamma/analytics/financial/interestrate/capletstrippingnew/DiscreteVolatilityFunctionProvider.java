@@ -27,7 +27,7 @@ public abstract class DiscreteVolatilityFunctionProvider implements VectorFuncti
    * 
    * @return The number of model parameters
    */
-  public abstract int getNumModelParameters();
+  // public abstract int getNumModelParameters();
 
   @Override
   public DiscreteVolatilityFunction from(final List<DoublesPair> expiryStrikePoints) {
