@@ -10,6 +10,7 @@ import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.financial.analytics.conversion.FRASecurityConverter;
 import com.opengamma.financial.security.fra.FRASecurity;
+import com.opengamma.financial.security.fra.ForwardRateAgreementSecurity;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.Environment;
 import com.opengamma.util.ArgumentChecker;
@@ -60,4 +61,22 @@ public class DiscountingFRACalculatorFactory implements FRACalculatorFactory {
       return Result.failure(bundleResult);
     }
   }
+  
+  @Override
+  public Result<FRACalculator> createCalculator(Environment env, ForwardRateAgreementSecurity security) {
+
+    Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundleResult =
+               _discountingMulticurveCombinerFn.createMergedMulticurveBundle(env, security, new FXMatrix());
+
+    if (bundleResult.isSuccess()) {
+      FRACalculator calculator = new DiscountingFRACalculator(security,
+                                                               bundleResult.getValue().getFirst(),
+                                                               _fraConverter,
+                                                               env.getValuationTime());
+      return Result.success(calculator);
+    } else {
+      return Result.failure(bundleResult);
+    }
+  }
+
 }

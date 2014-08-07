@@ -5,6 +5,7 @@
  */
 package com.opengamma.sesame.fra;
 
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
 
@@ -28,5 +29,12 @@ public interface FRACalculator {
    */
   Result<Double> calculateRate();
 
+  /**
+   * Calculates the PV for the security from the given curve
+   *
+   * @param bundle the curve bundle to price with
+   * @return result containing the PV if successfully created, a failure result otherwise
+   */
+  Result<MultipleCurrencyAmount> calculatePv(MulticurveProviderInterface bundle);
 
 }
