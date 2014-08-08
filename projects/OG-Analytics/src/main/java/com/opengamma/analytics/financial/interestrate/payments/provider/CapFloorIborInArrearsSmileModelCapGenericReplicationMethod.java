@@ -24,10 +24,10 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
  */
 public class CapFloorIborInArrearsSmileModelCapGenericReplicationMethod {
   private static final BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
-  private static final double INTEGRATION_INTERVAL = 2.0;
   private static final int MINIMUM_STEP = 6;
   private static final double ABS_TOL = 1.0;
   private static final double REL_TOL = 1E-10;
+  private static final double REL_ERROR = 1E-9;
   private static final RungeKuttaIntegrator1D INTEGRATOR = new RungeKuttaIntegrator1D(ABS_TOL, REL_TOL, MINIMUM_STEP);
 
   private final InterpolatedSmileFunction _smileFunction;
@@ -62,7 +62,20 @@ public class CapFloorIborInArrearsSmileModelCapGenericReplicationMethod {
     double integralPart;
     try {
       if (cap.isCap()) {
-        integralPart = INTEGRATOR.integrate(integrant, cap.getStrike(), cap.getStrike() + INTEGRATION_INTERVAL);
+        double upper = forward * Math.exp(Math.sqrt(cap.getFixingTime()));
+        double strike = cap.getStrike();
+        integralPart = INTEGRATOR.integrate(integrant, strike, upper);
+        double reminder = integrant.evaluate(upper) * upper;
+        double error = reminder / integralPart;
+
+        int count = 0;
+        while (Math.abs(error) > REL_ERROR && count < 10) {
+          integralPart += INTEGRATOR.integrate(integrant, upper, 2.0 * upper);
+          upper *= 2.0;
+          reminder = integrant.evaluate(upper) * upper;
+          error = reminder / integralPart;
+          ++count;
+        }
       } else {
         integralPart = INTEGRATOR.integrate(integrant, 0.0, cap.getStrike());
       }
