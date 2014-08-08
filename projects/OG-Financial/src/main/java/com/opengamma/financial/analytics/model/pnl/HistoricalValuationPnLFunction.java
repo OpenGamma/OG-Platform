@@ -30,6 +30,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.timeseries.DateConstraint;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.analytics.timeseries.HistoricalValuationFunction;
+import com.opengamma.financial.security.CurrenciesVisitor;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.timeseries.date.DateDoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
@@ -65,7 +66,7 @@ public class HistoricalValuationPnLFunction extends AbstractFunction.NonCompiled
     }
     Set<String> desiredCurrencies = desiredValue.getConstraints().getValues(ValuePropertyNames.CURRENCY);
     if (desiredCurrencies == null || desiredCurrencies.isEmpty()) {
-      Collection<Currency> targetCurrencies = FinancialSecurityUtils.getCurrencies(target.getPosition().getSecurity(), context.getSecuritySource());
+      Collection<Currency> targetCurrencies = CurrenciesVisitor.getCurrencies(target.getPosition().getSecurity(), context.getSecuritySource());
       // REVIEW jonathan 2013-03-12 -- should we pass through all the currencies and see what it wants to produce?
       desiredCurrencies = ImmutableSet.of(Iterables.get(targetCurrencies, 0).getCode());
     }

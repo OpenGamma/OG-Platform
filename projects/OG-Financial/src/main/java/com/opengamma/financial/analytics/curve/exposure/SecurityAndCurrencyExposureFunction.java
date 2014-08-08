@@ -13,8 +13,8 @@ import java.util.List;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.financial.security.CurrenciesVisitor;
 import com.opengamma.financial.security.FinancialSecurity;
-import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.FinancialSecurityVisitorSameMethodAdapter;
 import com.opengamma.financial.security.future.FXFutureSecurity;
 import com.opengamma.financial.security.option.FxFutureOptionSecurity;
@@ -68,7 +68,7 @@ public class SecurityAndCurrencyExposureFunction implements ExposureFunction {
     
     @Override
     public List<ExternalId> visit(FinancialSecurity security) {
-      final Collection<Currency> currencies = FinancialSecurityUtils.getCurrencies(security, _securitySource);
+      final Collection<Currency> currencies = CurrenciesVisitor.getCurrencies(security, _securitySource);
       if (currencies == null || currencies.isEmpty()) {
         return null;
       }

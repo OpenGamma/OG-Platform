@@ -124,7 +124,9 @@ public class FinancialSecurityUtils {
    * @param security the security to be examined.
    * @param securitySource a security source
    * @return a Currency, where it is possible to determine a Currency association, null otherwise.
+   * @deprecated Use CurrenciesVisitor.getCurrencies()
    */
+  @Deprecated
   public static Collection<Currency> getCurrencies(final Security security, final SecuritySource securitySource) {
     return CurrenciesVisitor.getCurrencies(security, securitySource);
   }
