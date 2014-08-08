@@ -26,11 +26,6 @@
       <artifactId>og-core</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <dependency>
-      <groupId>com.opengamma.platform</groupId>
-      <artifactId>og-livedata</artifactId>
-      <version>${project.version}</version>
-    </dependency>
   </dependencies>
 
   <properties>
