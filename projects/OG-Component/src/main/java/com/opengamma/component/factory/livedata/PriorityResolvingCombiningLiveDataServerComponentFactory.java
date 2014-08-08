@@ -32,7 +32,7 @@ import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.livedata.entitlement.LiveDataEntitlementChecker;
-import com.opengamma.livedata.entitlement.UserEntitlementChecker;
+import com.opengamma.livedata.entitlement.PermissiveLiveDataEntitlementChecker;
 import com.opengamma.livedata.resolver.DistributionSpecificationResolver;
 import com.opengamma.livedata.server.LiveDataServerMBean;
 import com.opengamma.livedata.server.StandardLiveDataServer;
@@ -41,9 +41,6 @@ import com.opengamma.livedata.server.distribution.JmsSenderFactory;
 import com.opengamma.provider.livedata.LiveDataMetaData;
 import com.opengamma.provider.livedata.LiveDataMetaDataProvider;
 import com.opengamma.provider.livedata.LiveDataServerTypes;
-import com.opengamma.security.user.HibernateUserManager;
-import com.opengamma.security.user.UserManager;
-import com.opengamma.util.db.DbConnector;
 
 /**
  * Component factory to create a combining live data server.
@@ -51,11 +48,6 @@ import com.opengamma.util.db.DbConnector;
 @BeanDefinition
 public class PriorityResolvingCombiningLiveDataServerComponentFactory extends AbstractStandardLiveDataServerComponentFactory {
 
-  /**
-   * The database connector for user entitlement.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private DbConnector _dbConnector;
   /**
    * The cache manager.
    */
@@ -115,8 +107,7 @@ public class PriorityResolvingCombiningLiveDataServerComponentFactory extends Ab
   protected void configureServerPlugins(ComponentRepository repo, PriorityResolvingCombiningLiveDataServer server) {
     DistributionSpecificationResolver resolver = server.getDefaultDistributionSpecificationResolver();
     
-    UserManager userManager = new HibernateUserManager(getDbConnector());
-    LiveDataEntitlementChecker entitlementChecker = new UserEntitlementChecker(userManager, resolver);
+    LiveDataEntitlementChecker entitlementChecker = new PermissiveLiveDataEntitlementChecker();
     
     JmsSenderFactory senderFactory = new JmsSenderFactory(getJmsConnector());
     
@@ -177,32 +168,6 @@ public class PriorityResolvingCombiningLiveDataServerComponentFactory extends Ab
   @Override
   public PriorityResolvingCombiningLiveDataServerComponentFactory.Meta metaBean() {
     return PriorityResolvingCombiningLiveDataServerComponentFactory.Meta.INSTANCE;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the database connector for user entitlement.
-   * @return the value of the property, not null
-   */
-  public DbConnector getDbConnector() {
-    return _dbConnector;
-  }
-
-  /**
-   * Sets the database connector for user entitlement.
-   * @param dbConnector  the new value of the property, not null
-   */
-  public void setDbConnector(DbConnector dbConnector) {
-    JodaBeanUtils.notNull(dbConnector, "dbConnector");
-    this._dbConnector = dbConnector;
-  }
-
-  /**
-   * Gets the the {@code dbConnector} property.
-   * @return the property, not null
-   */
-  public final Property<DbConnector> dbConnector() {
-    return metaBean().dbConnector().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -395,8 +360,7 @@ public class PriorityResolvingCombiningLiveDataServerComponentFactory extends Ab
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       PriorityResolvingCombiningLiveDataServerComponentFactory other = (PriorityResolvingCombiningLiveDataServerComponentFactory) obj;
-      return JodaBeanUtils.equal(getDbConnector(), other.getDbConnector()) &&
-          JodaBeanUtils.equal(getCacheManager(), other.getCacheManager()) &&
+      return JodaBeanUtils.equal(getCacheManager(), other.getCacheManager()) &&
           JodaBeanUtils.equal(getServer1(), other.getServer1()) &&
           JodaBeanUtils.equal(getServer2(), other.getServer2()) &&
           JodaBeanUtils.equal(getServer3(), other.getServer3()) &&
@@ -411,7 +375,6 @@ public class PriorityResolvingCombiningLiveDataServerComponentFactory extends Ab
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDbConnector());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
     hash += hash * 31 + JodaBeanUtils.hashCode(getServer1());
     hash += hash * 31 + JodaBeanUtils.hashCode(getServer2());
@@ -424,7 +387,7 @@ public class PriorityResolvingCombiningLiveDataServerComponentFactory extends Ab
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(288);
+    StringBuilder buf = new StringBuilder(256);
     buf.append("PriorityResolvingCombiningLiveDataServerComponentFactory{");
     int len = buf.length();
     toString(buf);
@@ -438,7 +401,6 @@ public class PriorityResolvingCombiningLiveDataServerComponentFactory extends Ab
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("dbConnector").append('=').append(JodaBeanUtils.toString(getDbConnector())).append(',').append(' ');
     buf.append("cacheManager").append('=').append(JodaBeanUtils.toString(getCacheManager())).append(',').append(' ');
     buf.append("server1").append('=').append(JodaBeanUtils.toString(getServer1())).append(',').append(' ');
     buf.append("server2").append('=').append(JodaBeanUtils.toString(getServer2())).append(',').append(' ');
@@ -458,11 +420,6 @@ public class PriorityResolvingCombiningLiveDataServerComponentFactory extends Ab
      */
     static final Meta INSTANCE = new Meta();
 
-    /**
-     * The meta-property for the {@code dbConnector} property.
-     */
-    private final MetaProperty<DbConnector> _dbConnector = DirectMetaProperty.ofReadWrite(
-        this, "dbConnector", PriorityResolvingCombiningLiveDataServerComponentFactory.class, DbConnector.class);
     /**
      * The meta-property for the {@code cacheManager} property.
      */
@@ -503,7 +460,6 @@ public class PriorityResolvingCombiningLiveDataServerComponentFactory extends Ab
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
-        "dbConnector",
         "cacheManager",
         "server1",
         "server2",
@@ -521,8 +477,6 @@ public class PriorityResolvingCombiningLiveDataServerComponentFactory extends Ab
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 39794031:  // dbConnector
-          return _dbConnector;
         case -1452875317:  // cacheManager
           return _cacheManager;
         case 1984149838:  // server1
@@ -557,14 +511,6 @@ public class PriorityResolvingCombiningLiveDataServerComponentFactory extends Ab
     }
 
     //-----------------------------------------------------------------------
-    /**
-     * The meta-property for the {@code dbConnector} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<DbConnector> dbConnector() {
-      return _dbConnector;
-    }
-
     /**
      * The meta-property for the {@code cacheManager} property.
      * @return the meta-property, not null
@@ -625,8 +571,6 @@ public class PriorityResolvingCombiningLiveDataServerComponentFactory extends Ab
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 39794031:  // dbConnector
-          return ((PriorityResolvingCombiningLiveDataServerComponentFactory) bean).getDbConnector();
         case -1452875317:  // cacheManager
           return ((PriorityResolvingCombiningLiveDataServerComponentFactory) bean).getCacheManager();
         case 1984149838:  // server1
@@ -648,9 +592,6 @@ public class PriorityResolvingCombiningLiveDataServerComponentFactory extends Ab
     @Override
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 39794031:  // dbConnector
-          ((PriorityResolvingCombiningLiveDataServerComponentFactory) bean).setDbConnector((DbConnector) newValue);
-          return;
         case -1452875317:  // cacheManager
           ((PriorityResolvingCombiningLiveDataServerComponentFactory) bean).setCacheManager((CacheManager) newValue);
           return;
@@ -678,7 +619,6 @@ public class PriorityResolvingCombiningLiveDataServerComponentFactory extends Ab
 
     @Override
     protected void validate(Bean bean) {
-      JodaBeanUtils.notNull(((PriorityResolvingCombiningLiveDataServerComponentFactory) bean)._dbConnector, "dbConnector");
       JodaBeanUtils.notNull(((PriorityResolvingCombiningLiveDataServerComponentFactory) bean)._cacheManager, "cacheManager");
       JodaBeanUtils.notNull(((PriorityResolvingCombiningLiveDataServerComponentFactory) bean)._server1, "server1");
       super.validate(bean);

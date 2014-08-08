@@ -40,7 +40,6 @@
     <module>OG-Master</module>
     <module>OG-MasterDB</module>
     <module>OG-Provider</module>
-    <module>OG-Security</module>
     <module>OG-Server</module>
     <module>OG-TimeSeries</module>
     <module>OG-Util</module>
