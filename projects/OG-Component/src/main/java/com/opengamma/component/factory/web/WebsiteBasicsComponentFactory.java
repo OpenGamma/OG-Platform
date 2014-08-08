@@ -32,7 +32,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.batch.BatchMaster;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.component.rest.JerseyRestResourceFactory;
@@ -195,11 +194,6 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
    */
   @PropertyDefinition
   private FunctionConfigurationSource _functionConfigurationSource;
-  /**
-   * The batch master.
-   */
-  @PropertyDefinition
-  private BatchMaster _batchMaster;
   /**
    * For obtaining the live market data provider names.
    */
@@ -886,31 +880,6 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the batch master.
-   * @return the value of the property
-   */
-  public BatchMaster getBatchMaster() {
-    return _batchMaster;
-  }
-
-  /**
-   * Sets the batch master.
-   * @param batchMaster  the new value of the property
-   */
-  public void setBatchMaster(BatchMaster batchMaster) {
-    this._batchMaster = batchMaster;
-  }
-
-  /**
-   * Gets the the {@code batchMaster} property.
-   * @return the property, not null
-   */
-  public final Property<BatchMaster> batchMaster() {
-    return metaBean().batchMaster().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Gets for obtaining the live market data provider names.
    * @return the value of the property
    */
@@ -1104,7 +1073,6 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
           JodaBeanUtils.equal(getTargetTypes(), other.getTargetTypes()) &&
           JodaBeanUtils.equal(getMarketDataSnapshotMaster(), other.getMarketDataSnapshotMaster()) &&
           JodaBeanUtils.equal(getFunctionConfigurationSource(), other.getFunctionConfigurationSource()) &&
-          JodaBeanUtils.equal(getBatchMaster(), other.getBatchMaster()) &&
           JodaBeanUtils.equal(getLiveMarketDataProviderFactory(), other.getLiveMarketDataProviderFactory()) &&
           JodaBeanUtils.equal(getMarketDataSpecificationRepository(), other.getMarketDataSpecificationRepository()) &&
           JodaBeanUtils.equal(getViewProcessor(), other.getViewProcessor()) &&
@@ -1139,7 +1107,6 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     hash += hash * 31 + JodaBeanUtils.hashCode(getTargetTypes());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataSnapshotMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getFunctionConfigurationSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBatchMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getLiveMarketDataProviderFactory());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataSpecificationRepository());
     hash += hash * 31 + JodaBeanUtils.hashCode(getViewProcessor());
@@ -1151,7 +1118,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(896);
+    StringBuilder buf = new StringBuilder(864);
     buf.append("WebsiteBasicsComponentFactory{");
     int len = buf.length();
     toString(buf);
@@ -1185,7 +1152,6 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     buf.append("targetTypes").append('=').append(JodaBeanUtils.toString(getTargetTypes())).append(',').append(' ');
     buf.append("marketDataSnapshotMaster").append('=').append(JodaBeanUtils.toString(getMarketDataSnapshotMaster())).append(',').append(' ');
     buf.append("functionConfigurationSource").append('=').append(JodaBeanUtils.toString(getFunctionConfigurationSource())).append(',').append(' ');
-    buf.append("batchMaster").append('=').append(JodaBeanUtils.toString(getBatchMaster())).append(',').append(' ');
     buf.append("liveMarketDataProviderFactory").append('=').append(JodaBeanUtils.toString(getLiveMarketDataProviderFactory())).append(',').append(' ');
     buf.append("marketDataSpecificationRepository").append('=').append(JodaBeanUtils.toString(getMarketDataSpecificationRepository())).append(',').append(' ');
     buf.append("viewProcessor").append('=').append(JodaBeanUtils.toString(getViewProcessor())).append(',').append(' ');
@@ -1305,11 +1271,6 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<FunctionConfigurationSource> _functionConfigurationSource = DirectMetaProperty.ofReadWrite(
         this, "functionConfigurationSource", WebsiteBasicsComponentFactory.class, FunctionConfigurationSource.class);
     /**
-     * The meta-property for the {@code batchMaster} property.
-     */
-    private final MetaProperty<BatchMaster> _batchMaster = DirectMetaProperty.ofReadWrite(
-        this, "batchMaster", WebsiteBasicsComponentFactory.class, BatchMaster.class);
-    /**
      * The meta-property for the {@code liveMarketDataProviderFactory} property.
      */
     private final MetaProperty<LiveMarketDataProviderFactory> _liveMarketDataProviderFactory = DirectMetaProperty.ofReadWrite(
@@ -1364,7 +1325,6 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
         "targetTypes",
         "marketDataSnapshotMaster",
         "functionConfigurationSource",
-        "batchMaster",
         "liveMarketDataProviderFactory",
         "marketDataSpecificationRepository",
         "viewProcessor",
@@ -1421,8 +1381,6 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
           return _marketDataSnapshotMaster;
         case -1059254855:  // functionConfigurationSource
           return _functionConfigurationSource;
-        case -252634564:  // batchMaster
-          return _batchMaster;
         case -301472921:  // liveMarketDataProviderFactory
           return _liveMarketDataProviderFactory;
         case 1743800263:  // marketDataSpecificationRepository
@@ -1616,14 +1574,6 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     }
 
     /**
-     * The meta-property for the {@code batchMaster} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<BatchMaster> batchMaster() {
-      return _batchMaster;
-    }
-
-    /**
      * The meta-property for the {@code liveMarketDataProviderFactory} property.
      * @return the meta-property, not null
      */
@@ -1717,8 +1667,6 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
           return ((WebsiteBasicsComponentFactory) bean).getMarketDataSnapshotMaster();
         case -1059254855:  // functionConfigurationSource
           return ((WebsiteBasicsComponentFactory) bean).getFunctionConfigurationSource();
-        case -252634564:  // batchMaster
-          return ((WebsiteBasicsComponentFactory) bean).getBatchMaster();
         case -301472921:  // liveMarketDataProviderFactory
           return ((WebsiteBasicsComponentFactory) bean).getLiveMarketDataProviderFactory();
         case 1743800263:  // marketDataSpecificationRepository
@@ -1797,9 +1745,6 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
           return;
         case -1059254855:  // functionConfigurationSource
           ((WebsiteBasicsComponentFactory) bean).setFunctionConfigurationSource((FunctionConfigurationSource) newValue);
-          return;
-        case -252634564:  // batchMaster
-          ((WebsiteBasicsComponentFactory) bean).setBatchMaster((BatchMaster) newValue);
           return;
         case -301472921:  // liveMarketDataProviderFactory
           ((WebsiteBasicsComponentFactory) bean).setLiveMarketDataProviderFactory((LiveMarketDataProviderFactory) newValue);
