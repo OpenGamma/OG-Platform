@@ -283,7 +283,11 @@ public class SABRHaganVolatilityFunctionTest extends SABRVolatilityFunctionTestC
     testVolatilityModelAdjoint(F, CALL_ATM, data, eps, tol); //z=0 case
     double z = 0.975;
     double strike = strikeForZ(z, F, ALPHA, BETA, NU);
-    testVolatilityModelAdjoint(F, CALL_ATM.withStrike(strike), data, eps, 1e-2);
+
+    double[] adjModel = FUNCTION.getVolatilityModelAdjoint(CALL_ATM.withStrike(strike), F, data);
+    double[] adj = FUNCTION.getVolatilityAdjoint(CALL_ATM.withStrike(strike), F, data);
+
+    testVolatilityModelAdjoint(F, CALL_ATM.withStrike(strike), data, eps, 5e-2);
     z = -2.0;
     strike = strikeForZ(z, F, ALPHA, BETA, NU);
     testVolatilityModelAdjoint(F, CALL_ATM.withStrike(strike), data, eps, 50 * tol);
@@ -561,6 +565,89 @@ public class SABRHaganVolatilityFunctionTest extends SABRVolatilityFunctionTestC
     assertEquals(d2Sigmad2FwdFD, d2Sigmad2Fwd, 1e-4);
 
     assertEquals(fdGamma, gamma, 1e-2);
+  }
+
+  /**
+   * Check that rho \simeq 1 case is smoothly connected with a general case
+   * Note that the resulting numbers contain a large error if rho \simeq 1 and z \simeq 1 are true at the same time
+   */
+  @Test
+  public void largeRhoSmoothnessTest() {
+    double rhoEps = 1.e-5;
+    double rhoIn = 1.0 - 0.5 * rhoEps;
+    double rhoOut = 1.0 - 1.5 * rhoEps;
+    SABRFormulaData dataIn = new SABRFormulaData(ALPHA, BETA, rhoIn, NU);
+    SABRFormulaData dataOut = new SABRFormulaData(ALPHA, BETA, rhoOut, NU);
+
+    /*
+     * z<1 case, i.e., finite values in the rho->1 limit
+     */
+    double volatilityOut = FUNCTION.getVolatility(CALL_OTM, F, dataOut);
+    double[] adjointOut = FUNCTION.getVolatilityAdjoint(CALL_OTM, F, dataOut);
+    double[] adjointModelOut = FUNCTION.getVolatilityModelAdjoint(CALL_OTM, F, dataOut);
+    double[] volatilityDOut = new double[6];
+    double[][] volatilityD2Out = new double[2][2];
+    double volatility2Out = FUNCTION.getVolatilityAdjoint2(CALL_OTM, F, dataOut, volatilityDOut, volatilityD2Out);
+
+    double volatilityIn = FUNCTION.getVolatility(CALL_OTM, F, dataIn);
+    double[] adjointIn = FUNCTION.getVolatilityAdjoint(CALL_OTM, F, dataIn);
+    double[] adjointModelIn = FUNCTION.getVolatilityModelAdjoint(CALL_OTM, F, dataIn);
+    double[] volatilityDIn = new double[6];
+    double[][] volatilityD2In = new double[2][2];
+    double volatility2In = FUNCTION.getVolatilityAdjoint2(CALL_OTM, F, dataIn, volatilityDIn, volatilityD2In);
+
+    assertEquals(volatilityOut, volatilityIn, rhoEps);
+    assertEquals(volatility2Out, volatility2In, rhoEps);
+    for (int i = 0; i < adjointOut.length; ++i) {
+      double ref = adjointOut[i];
+      assertEquals(adjointOut[i], adjointIn[i], Math.max(Math.abs(ref), 1.0) * 1.e-3);
+    }
+    for (int i = 0; i < adjointModelOut.length; ++i) {
+      double ref = adjointModelOut[i];
+      assertEquals(adjointModelOut[i], adjointModelIn[i], Math.max(Math.abs(ref), 1.0) * 1.e-3);
+    }
+    for (int i = 0; i < volatilityDOut.length; ++i) {
+      double ref = volatilityDOut[i];
+      assertEquals(volatilityDOut[i], volatilityDIn[i], Math.max(Math.abs(ref), 1.0) * 1.e-3);
+    }
+
+    /*
+     * z>1 case, runs into infinity or 0. 
+     * Convergence speed is much faster (and typically smoother).
+     */
+    rhoIn = 1.0 - 0.999 * rhoEps;
+    rhoOut = 1.0 - 1.001 * rhoEps;
+    dataIn = new SABRFormulaData(ALPHA, BETA, rhoIn, NU);
+    dataOut = new SABRFormulaData(ALPHA, BETA, rhoOut, NU);
+
+    volatilityOut = FUNCTION.getVolatility(CALL_ITM, 3.0 * F, dataOut);
+    adjointOut = FUNCTION.getVolatilityAdjoint(CALL_ITM, 3.0 * F, dataOut);
+    adjointModelOut = FUNCTION.getVolatilityModelAdjoint(CALL_ITM, 3.0 * F, dataOut);
+    volatilityDOut = new double[6];
+    volatilityD2Out = new double[2][2];
+    volatility2Out = FUNCTION.getVolatilityAdjoint2(CALL_ITM, 3.0 * F, dataOut, volatilityDOut, volatilityD2Out);
+
+    volatilityIn = FUNCTION.getVolatility(CALL_ITM, 3.0 * F, dataIn);
+    adjointIn = FUNCTION.getVolatilityAdjoint(CALL_ITM, 3.0 * F, dataIn);
+    adjointModelIn = FUNCTION.getVolatilityModelAdjoint(CALL_ITM, 3.0 * F, dataIn);
+    volatilityDIn = new double[6];
+    volatilityD2In = new double[2][2];
+    volatility2In = FUNCTION.getVolatilityAdjoint2(CALL_ITM, 3.0 * F, dataIn, volatilityDIn, volatilityD2In);
+
+    assertEquals(volatilityOut, volatilityIn, rhoEps);
+    assertEquals(volatility2Out, volatility2In, rhoEps);
+    for (int i = 0; i < adjointOut.length; ++i) {
+      double ref = adjointOut[i];
+      assertEquals(ref, adjointIn[i], Math.max(Math.abs(ref), 1.0) * 1.e-2);
+    }
+    for (int i = 0; i < adjointModelOut.length; ++i) {
+      double ref = adjointModelOut[i];
+      assertEquals(ref, adjointModelIn[i], Math.max(Math.abs(ref), 1.0) * 1.e-2);
+    }
+    for (int i = 0; i < volatilityDOut.length; ++i) {
+      double ref = volatilityDOut[i];
+      assertEquals(ref, volatilityDIn[i], Math.max(Math.abs(ref), 1.0) * 1.e-2);
+    }
   }
 
   private enum SABRParameter {

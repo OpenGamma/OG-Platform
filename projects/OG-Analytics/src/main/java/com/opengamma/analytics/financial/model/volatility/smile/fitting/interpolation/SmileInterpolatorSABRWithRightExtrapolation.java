@@ -11,6 +11,7 @@ import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.E
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.SABRExtrapolationRightFunction;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRFormulaData;
+import com.opengamma.analytics.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
 import com.opengamma.analytics.financial.model.volatility.smile.function.VolatilityFunctionProvider;
 import com.opengamma.analytics.math.function.Function1D;
 
@@ -23,11 +24,23 @@ public class SmileInterpolatorSABRWithRightExtrapolation extends SmileInterpolat
   private final double _mu;
 
   /**
-   * Using default SABR smile interpolation
+   * Using default SABR smile interpolation, {@link SABRHaganVolatilityFunction}
    * @param cutOffStrike The strike cutoff
    * @param mu The mu
    */
   public SmileInterpolatorSABRWithRightExtrapolation(final double cutOffStrike, final double mu) {
+    _cutOffStrike = cutOffStrike;
+    _mu = mu;
+  }
+
+  /**
+   * Specifying volatility function
+   * @param model The volatility function
+   * @param cutOffStrike The strike cutoff
+   * @param mu The mu
+   */
+  public SmileInterpolatorSABRWithRightExtrapolation(final VolatilityFunctionProvider<SABRFormulaData> model, final double cutOffStrike, final double mu) {
+    super(model);
     _cutOffStrike = cutOffStrike;
     _mu = mu;
   }
@@ -51,9 +64,21 @@ public class SmileInterpolatorSABRWithRightExtrapolation extends SmileInterpolat
   @Override
   public Function1D<Double, Double> getVolatilityFunction(final double forward, final double[] strikes, final double expiry, final double[] impliedVols) {
 
-    final List<SABRFormulaData> modelParams = getFittedModelParameters(forward, strikes, expiry, impliedVols);
-    final int n = strikes.length;
-    final SABRFormulaData sabrData = modelParams.get(n - 3);
+    final List<SABRFormulaData> modelParams;
+    SABRFormulaData sabrData;
+    final int n;
+
+    //TODO use global fit if failing
+    //    if (getModel() instanceof SABRHaganVolatilityFunction) {
+    modelParams = getFittedModelParameters(forward, strikes, expiry, impliedVols);
+    n = strikes.length;
+    sabrData = modelParams.get(n - 3);
+    //    } else {
+    //      n = 1;
+    //      modelParams = new ArrayList<>(n);
+    //      sabrData = toSmileModelData(getGlobalStart(forward, strikes, expiry, impliedVols));
+    //      modelParams.add(sabrData);
+    //    }
     final SABRExtrapolationRightFunction sabrExtrapolation = new SABRExtrapolationRightFunction(forward, sabrData, _cutOffStrike, expiry, _mu);
 
     return new Function1D<Double, Double>() {
@@ -64,6 +89,9 @@ public class SmileInterpolatorSABRWithRightExtrapolation extends SmileInterpolat
 
         if (strike < _cutOffStrike) {
           final Function1D<SABRFormulaData, Double> volFunc = getModel().getVolatilityFunction(option, forward);
+          if (n == 1) {
+            return volFunc.evaluate(modelParams.get(0));
+          }
           final int index = SurfaceArrayUtils.getLowerBoundIndex(strikes, strike);
           if (index == 0) {
             return volFunc.evaluate(modelParams.get(0));

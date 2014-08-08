@@ -108,7 +108,7 @@ public class SABRExtrapolationRightFunction {
     if (timeToExpiry > SMALL_EXPIRY) {
       _parameter = computesFittingParameters();
     } else { // Implementation note: when time to expiry is very small, the price above the cut-off strike and its derivatives should be 0 (or at least very small).
-      _parameter = new double[] {SMALL_PARAMETER, 0.0, 0.0};
+      _parameter = new double[] {SMALL_PARAMETER, 0.0, 0.0 };
       _parameterDerivativeForward = new double[3];
       _parameterDerivativeForwardComputed = true;
       _parameterDerivativeSABR = new double[4][3];
@@ -315,7 +315,7 @@ public class SABRExtrapolationRightFunction {
     double eps = 1.0E-15;
     if (Math.abs(_priceK[0]) < eps && Math.abs(_priceK[1]) < eps && Math.abs(_priceK[2]) < eps) {
       // Implementation note: If value and its derivatives is too small, then parameters are such that the extrapolated price is "very small".
-      return new double[] {-100.0, 0, 0};
+      return new double[] {-100.0, 0, 0 };
     }
     final CFunction toSolveC = new CFunction(_priceK, _cutOffStrike, _mu);
     final BracketRoot bracketer = new BracketRoot();
@@ -338,7 +338,7 @@ public class SABRExtrapolationRightFunction {
     double eps = 1.0E-15;
     if (Math.abs(_priceK[0]) < eps && Math.abs(_priceK[1]) < eps && Math.abs(_priceK[2]) < eps) {
       // Implementation note: If value and its derivatives is too small, then parameters are such that the extrapolated price is "very small".
-      return new double[] {0.0, 0.0, 0.0};
+      return new double[] {0.0, 0.0, 0.0 };
     }
     // Derivative of price with respect to forward.
     final double[] pDF = new double[3];
