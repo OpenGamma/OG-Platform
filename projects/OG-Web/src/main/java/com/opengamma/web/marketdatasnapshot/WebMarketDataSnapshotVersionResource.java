@@ -64,6 +64,7 @@ public class WebMarketDataSnapshotVersionResource extends AbstractWebMarketDataS
    * Creates the output root data.
    * @return the output root data, not null
    */
+  @Override
   protected FlexiBean createRootData() {
     FlexiBean out = super.createRootData();
     MarketDataSnapshotDocument latestDoc = data().getSnapshot();

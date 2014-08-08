@@ -65,10 +65,11 @@ public class WebPositionVersionResource extends AbstractWebPositionResource {
    * Creates the output root data.
    * @return the output root data, not null
    */
+  @Override
   protected FlexiBean createRootData() {
     FlexiBean out = super.createRootData();
     PositionDocument latestPositionDoc = data().getPosition();
-    PositionDocument versionedPosition = (PositionDocument) data().getVersioned();
+    PositionDocument versionedPosition = data().getVersioned();
     out.put("latestPositionDoc", latestPositionDoc);
     out.put("latestPosition", latestPositionDoc.getPosition());
     out.put("positionDoc", versionedPosition);

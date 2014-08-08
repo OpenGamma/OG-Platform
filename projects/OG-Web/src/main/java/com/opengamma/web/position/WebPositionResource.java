@@ -138,13 +138,15 @@ public class WebPositionResource extends AbstractWebPositionResource {
     ManageablePosition position = doc.getPosition();
     if (Objects.equal(position.getQuantity(), quantity) == false || trades != null) {
       position.setQuantity(quantity);
-      position.getTrades().clear();
-      for (ManageableTrade trade : trades) {
-        trade.setSecurityLink(position.getSecurityLink());
-        position.addTrade(trade);
+      if (trades != null) {
+        position.getTrades().clear();
+        for (ManageableTrade trade : trades) {
+          trade.setSecurityLink(position.getSecurityLink());
+          position.addTrade(trade);
+        }
       }
-      doc = data().getPositionMaster().update(doc);
-      data().setPosition(doc);
+      PositionDocument updated = data().getPositionMaster().update(doc);
+      data().setPosition(updated);
     }
     return WebPositionResource.uri(data());
   }
@@ -181,6 +183,7 @@ public class WebPositionResource extends AbstractWebPositionResource {
    * Creates the output root data.
    * @return the output root data, not null
    */
+  @Override
   protected FlexiBean createRootData() {
     FlexiBean out = super.createRootData();
     out.put("timeFormatterJson", DateTimeFormatter.ofPattern("HH:mm:ss"));

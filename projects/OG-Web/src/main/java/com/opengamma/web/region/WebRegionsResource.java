@@ -136,6 +136,7 @@ public class WebRegionsResource extends AbstractWebRegionResource {
    * Creates the output root data.
    * @return the output root data, not null
    */
+  @Override
   protected FlexiBean createRootData() {
     FlexiBean out = super.createRootData();
     RegionSearchRequest searchRequest = new RegionSearchRequest();

@@ -31,6 +31,7 @@ public class WebPortfolioVersionNodesResource extends WebPortfolioNodesResource 
   }
 
   //-------------------------------------------------------------------------
+  @Override
   @Path("{nodeId}")
   public WebPortfolioNodeResource findNode(@PathParam("nodeId") String idStr) {
     data().setUriNodeId(idStr);

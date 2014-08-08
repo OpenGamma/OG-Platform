@@ -235,6 +235,7 @@ public class WebLegalEntitiesResource extends AbstractWebLegalEntityResource {
    *
    * @return the output root data, not null
    */
+  @Override
   protected FlexiBean createRootData() {
     FlexiBean out = super.createRootData();
     LegalEntitySearchRequest searchRequest = new LegalEntitySearchRequest();

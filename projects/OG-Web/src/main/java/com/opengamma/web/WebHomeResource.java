@@ -114,7 +114,8 @@ public class WebHomeResource extends AbstractSingletonWebResource {
   //-------------------------------------------------------------------------
   /**
    * Creates the resource.
-   * @param publishedTypes 
+   * 
+   * @param publishedTypes  the set of published types
    */
   public WebHomeResource(Set<Class<?>> publishedTypes) {
     _publishedTypes = publishedTypes;

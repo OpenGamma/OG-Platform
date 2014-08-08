@@ -36,6 +36,7 @@ public class WebPortfolioVersionNodeResource extends WebPortfolioNodeResource {
   }
 
   //-------------------------------------------------------------------------
+  @Override
   @GET
   @Produces(MediaType.TEXT_HTML)
   public String getHTML() {
@@ -43,6 +44,7 @@ public class WebPortfolioVersionNodeResource extends WebPortfolioNodeResource {
     return getFreemarker().build(HTML_DIR + "portfolionode.ftl", out);
   }
 
+  @Override
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public Response getJSON() {
@@ -65,6 +67,7 @@ public class WebPortfolioVersionNodeResource extends WebPortfolioNodeResource {
   }
 
   //-------------------------------------------------------------------------
+  @Override
   @Path("positions")
   public WebPortfolioNodePositionsResource findPositions() {
     return new WebPortfolioNodePositionsResource(this);
@@ -75,6 +78,7 @@ public class WebPortfolioVersionNodeResource extends WebPortfolioNodeResource {
    * Creates the output root data.
    * @return the output root data, not null
    */
+  @Override
   protected FlexiBean createRootData() {
     FlexiBean out = super.createRootData();
     PortfolioDocument doc = data().getVersioned();
