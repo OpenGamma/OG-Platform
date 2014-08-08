@@ -823,11 +823,14 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
   private static Pair<Double, Double> getInterpolationWeights(ZonedDateTime accrualStartDate, 
       ZonedDateTime accrualEndDate, ZonedDateTime firstInterpolatedDate, ZonedDateTime secondInterpolatedDate) {
     ArgumentChecker.isTrue(!accrualEndDate.isBefore(firstInterpolatedDate), 
-        "First interpolated date should be before or equal to the accrual end date");
+        "First interpolated date {} should be before or equal to the accrual end date {}", 
+        firstInterpolatedDate, accrualEndDate);
     ArgumentChecker.isTrue(!accrualEndDate.isAfter(secondInterpolatedDate), 
-        "Second interpolated date should be equal to or after the accrual end date");
+        "Second interpolated date {} should be equal to or after the accrual end date {}", 
+        secondInterpolatedDate, accrualEndDate);
     ArgumentChecker.isTrue(firstInterpolatedDate.isBefore(secondInterpolatedDate), 
-        "First interpolated date should be strictly before the second interpolated date");
+        "First interpolated date {} should be strictly before the second interpolated date {}",
+        firstInterpolatedDate, secondInterpolatedDate);
 
     ActualActualISDA dayCount = new ActualActualISDA();
     double timeToPeriodEnd = TimeCalculator.getTimeBetween(accrualStartDate, accrualEndDate, dayCount);
@@ -983,16 +986,11 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
       ZonedDateTime secondInterpolatedDate,
       double secondInterpolatedYearFraction,
       IborIndex secondStubIndex) {
-    
-    Pair<Double, Double> weights = getInterpolationWeights(accrualStartDate, accrualEndDate, firstInterpolatedDate,
-        secondInterpolatedDate);
-
-    final CouponDefinition coupon = getIborCompoundingDefinition(notional, paymentDate, accrualStartDate, 
+   
+    /// TODO Compounding + interpolated stub not supported yet
+    return getIborCompoundingDefinition(notional, paymentDate, accrualStartDate, 
         accrualEndDate, accrualYearFraction, compoundAccrualStartDates, compoundAccrualEndDates, 
         compoundAccrualYearFractions, compoundFixingDates, compoundFixingStartDates, compoundFixingEndDates, 
         compoundFixingYearFractions, initialCompoundRate);
-    
-    return CouponIborAverageIndexDefinition.from(coupon, compoundFixingDates[0] , firstStubIndex, secondStubIndex, 
-        weights.getFirst(), weights.getSecond(), getFixingCalendar(), getFixingCalendar());     
   }
 }

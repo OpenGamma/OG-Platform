@@ -158,6 +158,8 @@ If not specified short start is assumed. The following stub types are supported:
 * LONG_END
 * BOTH (aka dual stubs)
 
+Limitation: If there is compounding on the leg, the rate for the stub period will be calculated using the leg index and the interpolated start/end indices will be ignored.
+
 Fixed Interest Rate Swap Leg
 ----------------------------
 
