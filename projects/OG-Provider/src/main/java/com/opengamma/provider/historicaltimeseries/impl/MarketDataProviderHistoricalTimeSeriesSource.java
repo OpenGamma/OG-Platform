@@ -157,10 +157,11 @@ public abstract class MarketDataProviderHistoricalTimeSeriesSource implements Hi
   public HistoricalTimeSeries getHistoricalTimeSeries(
       ExternalIdBundle identifiers, String dataSource, String dataProvider, String dataField,
       LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
-    if (!includeStart && start != null) {
-      start = start.plusDays(1);
+    LocalDate effectiveStart = start;
+    if (!includeStart && effectiveStart != null) {
+      effectiveStart = effectiveStart.plusDays(1);
     }
-    LocalDateRange dateRange = LocalDateRange.ofNullUnbounded(start, end, includeEnd);
+    LocalDateRange dateRange = LocalDateRange.ofNullUnbounded(effectiveStart, end, includeEnd);
     return doGetHistoricalTimeSeries(identifiers, dataSource, dataProvider, dataField, dateRange, null);
   }
 
@@ -168,10 +169,11 @@ public abstract class MarketDataProviderHistoricalTimeSeriesSource implements Hi
   public HistoricalTimeSeries getHistoricalTimeSeries(
       ExternalIdBundle identifiers, String dataSource, String dataProvider, String dataField,
       LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd, int maxPoints) {
-    if (!includeStart && start != null) {
-      start = start.plusDays(1);
+    LocalDate effectiveStart = start;
+    if (!includeStart && effectiveStart != null) {
+      effectiveStart = effectiveStart.plusDays(1);
     }
-    LocalDateRange dateRange = LocalDateRange.ofNullUnbounded(start, end, includeEnd);
+    LocalDateRange dateRange = LocalDateRange.ofNullUnbounded(effectiveStart, end, includeEnd);
     Integer maxPointsVal = (maxPoints == 0 ? null : maxPoints);
     return doGetHistoricalTimeSeries(identifiers, dataSource, dataProvider, dataField, dateRange, maxPointsVal);
   }
@@ -282,11 +284,12 @@ public abstract class MarketDataProviderHistoricalTimeSeriesSource implements Hi
   @Override
   public Map<ExternalIdBundle, HistoricalTimeSeries> getHistoricalTimeSeries(
       Set<ExternalIdBundle> externalIdBundles, String dataSource, String dataProvider, String dataField, LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
-
-    if (!includeStart && start != null) {
-      start = start.plusDays(1);
+    
+    LocalDate effectiveStart = start;
+    if (!includeStart && effectiveStart != null) {
+      effectiveStart = effectiveStart.plusDays(1);
     }
-    LocalDateRange dateRange = LocalDateRange.ofNullUnbounded(start, end, includeEnd);
+    LocalDateRange dateRange = LocalDateRange.ofNullUnbounded(effectiveStart, end, includeEnd);
     s_logger.info("Getting HistoricalTimeSeries for securities {}", externalIdBundles);
 
     Map<ExternalIdBundle, LocalDateDoubleTimeSeries> map = _provider.getHistoricalTimeSeries(externalIdBundles, dataSource, dataProvider, dataField, dateRange);
