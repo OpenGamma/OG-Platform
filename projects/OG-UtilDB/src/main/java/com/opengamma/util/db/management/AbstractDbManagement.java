@@ -213,95 +213,88 @@ public abstract class AbstractDbManagement implements DbManagement {
 
   protected List<String> getAllTables(String catalog, String schema, Statement statement) throws SQLException {
     List<String> tables = new LinkedList<String>();
-    ResultSet rs = statement.executeQuery(getAllTablesSQL(catalog, schema));
-    while (rs.next()) {
-      tables.add(rs.getString("name"));
+    try (ResultSet rs = statement.executeQuery(getAllTablesSQL(catalog, schema))) {
+      while (rs.next()) {
+        tables.add(rs.getString("name"));
+      }
     }
-    rs.close();
     return tables;
   }
 
   protected List<String> getAllViews(String catalog, String schema, Statement statement) throws SQLException {
     List<String> tables = new LinkedList<String>();
-    ResultSet rs = statement.executeQuery(getAllViewsSQL(catalog, schema));
-    while (rs.next()) {
-      tables.add(rs.getString("name"));
+    try (ResultSet rs = statement.executeQuery(getAllViewsSQL(catalog, schema))) {
+      while (rs.next()) {
+        tables.add(rs.getString("name"));
+      }
     }
-    rs.close();
     return tables;
   }
 
   private List<ColumnDefinition> getAllColumns(String catalog, String schema, String table, Statement statement) throws SQLException {
     List<ColumnDefinition> columns = new LinkedList<ColumnDefinition>();
-    ResultSet rs = statement.executeQuery(getAllColumnsSQL(catalog, schema, table));
-    while (rs.next()) {
-      columns.add(new ColumnDefinition(rs.getString("name"), rs.getString("datatype"), rs.getString("defaultvalue"), rs.getString("allowsnull")));
+    try (ResultSet rs = statement.executeQuery(getAllColumnsSQL(catalog, schema, table))) {
+      while (rs.next()) {
+        columns.add(new ColumnDefinition(rs.getString("name"), rs.getString("datatype"), rs.getString("defaultvalue"), rs.getString("allowsnull")));
+      }
     }
-    rs.close();
     return columns;
   }
 
   @Override
   public void clearTables(String catalog, String schema, Collection<String> ignoredTables) {
     LinkedList<String> script = new LinkedList<String>();
-    Connection conn = null;
     try {
       if (!getCatalogCreationStrategy().catalogExists(catalog)) {
         return; // nothing to clear
       }
 
-      conn = connect(catalog);
-      setActiveSchema(conn, schema);
-      Statement statement = conn.createStatement();
+      try (Connection conn = connect(catalog)) {
+        setActiveSchema(conn, schema);
+        try (Statement statement = conn.createStatement()) {
+    
+          // Clear tables SQL
+          List<String> tablesToClear = new ArrayList<String>();
+          for (String name : getAllTables(catalog, schema, statement)) {
+            if (!ignoredTables.contains(name.toLowerCase())) {
+              tablesToClear.add(name);
+            }
+          }
+          List<String> clearTablesCommands = getClearTablesCommand(schema, tablesToClear);
+          script.addAll(clearTablesCommands);
+          for (String name : tablesToClear) {
+            Table table = new Table(name);
+            if (matches(table.getName().toLowerCase(), Pattern.compile(".*?hibernate_sequence"))) { // if it's a sequence table, reset it 
+              script.add("INSERT INTO " + table.getQualifiedName(getHibernateDialect(), null, schema) + " values ( 1 )");
+            }
+          }
 
-      // Clear tables SQL
-      List<String> tablesToClear = new ArrayList<String>();
-      for (String name : getAllTables(catalog, schema, statement)) {
-        if (!ignoredTables.contains(name.toLowerCase())) {
-          tablesToClear.add(name);
+          // Now execute it all. Constraints are taken into account by retrying the failed statement after all 
+          // dependent tables have been cleared first.
+          int i = 0;
+          int maxAttempts = script.size() * 3; // make sure the loop eventually terminates. Important if there's a cycle in the table dependency graph
+          SQLException latestException = null;
+          while (i < maxAttempts && !script.isEmpty()) {
+            String sql = script.remove();
+            try {
+              statement.executeUpdate(sql);
+            } catch (SQLException e) {
+              // assume it failed because of a constraint violation
+              // try deleting other tables first - make this the new last statement
+              latestException = e;
+              script.add(sql);
+            }
+            i++;
+          }
+    
+          if (i == maxAttempts && !script.isEmpty()) {
+            throw new OpenGammaRuntimeException("Failed to clear tables - is there a cycle in the table dependency graph?", latestException);
+          }
         }
-      }
-      List<String> clearTablesCommands = getClearTablesCommand(schema, tablesToClear);
-      script.addAll(clearTablesCommands);
-      for (String name : tablesToClear) {
-        Table table = new Table(name);
-        if (matches(table.getName().toLowerCase(), Pattern.compile(".*?hibernate_sequence"))) { // if it's a sequence table, reset it 
-          script.add("INSERT INTO " + table.getQualifiedName(getHibernateDialect(), null, schema) + " values ( 1 )");
-        }
-      }
-
-      // Now execute it all. Constraints are taken into account by retrying the failed statement after all 
-      // dependent tables have been cleared first.
-      int i = 0;
-      int maxAttempts = script.size() * 3; // make sure the loop eventually terminates. Important if there's a cycle in the table dependency graph
-      SQLException latestException = null;
-      while (i < maxAttempts && !script.isEmpty()) {
-        String sql = script.remove();
-        try {
-          statement.executeUpdate(sql);
-        } catch (SQLException e) {
-          // assume it failed because of a constraint violation
-          // try deleting other tables first - make this the new last statement
-          latestException = e;
-          script.add(sql);
-        }
-        i++;
-      }
-      statement.close();
-
-      if (i == maxAttempts && !script.isEmpty()) {
-        throw new OpenGammaRuntimeException("Failed to clear tables - is there a cycle in the table dependency graph?", latestException);
       }
 
     } catch (SQLException e) {
       throw new OpenGammaRuntimeException("Failed to clear tables", e);
-    } finally {
-      try {
-        if (conn != null) {
-          conn.close();
-        }
-      } catch (SQLException e) {
-      }
     }
   }
 
@@ -316,43 +309,33 @@ public abstract class AbstractDbManagement implements DbManagement {
 
   protected List<String> getAllSchemas(final String catalog, final Statement stmt) throws SQLException {
     final List<String> schemas = new LinkedList<String>();
-    ResultSet rs = stmt.executeQuery(getAllSchemasSQL(catalog));
-    while (rs.next()) {
-      schemas.add(rs.getString("name"));
+    try (ResultSet rs = stmt.executeQuery(getAllSchemasSQL(catalog))) {
+      while (rs.next()) {
+        schemas.add(rs.getString("name"));
+      }
     }
-    rs.close();
     return schemas;
   }
 
   @Override
   public void createSchema(String catalog, String schema) {
-    Connection conn = null;
     try {
       getCatalogCreationStrategy().create(catalog);
 
       if (schema != null) {
         // Connect to the new catalog and create the schema
-        conn = connect(catalog);
-        Statement statement = conn.createStatement();
-
-        Collection<String> schemas = getAllSchemas(catalog, statement);
-        if (!schemas.contains(schema)) {
-          String createSchemaSql = getCreateSchemaSQL(catalog, schema);
-          statement.executeUpdate(createSchemaSql);
+        try (Connection conn = connect(catalog)) {
+          try (Statement statement = conn.createStatement()) {
+            Collection<String> schemas = getAllSchemas(catalog, statement);
+            if (!schemas.contains(schema)) {
+              String createSchemaSql = getCreateSchemaSQL(catalog, schema);
+              statement.executeUpdate(createSchemaSql);
+            }
+          }
         }
-
-        statement.close();
       }
-
     } catch (SQLException e) {
       throw new OpenGammaRuntimeException("Failed to clear tables", e);
-    } finally {
-      try {
-        if (conn != null) {
-          conn.close();
-        }
-      } catch (SQLException e) {
-      }
     }
   }
 
@@ -360,11 +343,11 @@ public abstract class AbstractDbManagement implements DbManagement {
     final List<String> sequences = new LinkedList<String>();
     final String sql = getAllSequencesSQL(catalog, schema);
     if (sql != null) {
-      final ResultSet rs = stmt.executeQuery(sql);
-      while (rs.next()) {
-        sequences.add(rs.getString("name"));
+      try (ResultSet rs = stmt.executeQuery(sql)) {
+        while (rs.next()) {
+          sequences.add(rs.getString("name"));
+        }
       }
-      rs.close();
     }
     return sequences;
   }
@@ -373,11 +356,11 @@ public abstract class AbstractDbManagement implements DbManagement {
     final List<Pair<String, String>> sequences = new LinkedList<Pair<String, String>>();
     final String sql = getAllForeignKeyConstraintsSQL(catalog, schema);
     if (sql != null) {
-      final ResultSet rs = stmt.executeQuery(sql);
-      while (rs.next()) {
-        sequences.add(Pairs.of(rs.getString("name"), rs.getString("table_name")));
+      try (ResultSet rs = stmt.executeQuery(sql)) {
+        while (rs.next()) {
+          sequences.add(Pairs.of(rs.getString("name"), rs.getString("table_name")));
+        }
       }
-      rs.close();
     }
     return sequences;
   }
@@ -387,96 +370,83 @@ public abstract class AbstractDbManagement implements DbManagement {
     // Does not handle triggers or stored procedures yet
     ArrayList<String> script = new ArrayList<String>();
 
-    Connection conn = null;
     try {
       if (!getCatalogCreationStrategy().catalogExists(catalog)) {
         System.out.println("Catalog " + catalog + " does not exist");
         return; // nothing to drop
       }
 
-      conn = connect(catalog);
-
-      if (schema != null) {
-        Statement statement = conn.createStatement();
-        Collection<String> schemas = getAllSchemas(catalog, statement);
-        statement.close();
-
-        if (!schemas.contains(schema)) {
-          System.out.println("Schema " + schema + " does not exist");
-          return; // nothing to drop
+      try (Connection conn = connect(catalog)) {
+        if (schema != null) {
+          try (Statement statement = conn.createStatement()) {
+            Collection<String> schemas = getAllSchemas(catalog, statement);
+            if (!schemas.contains(schema)) {
+              System.out.println("Schema " + schema + " does not exist");
+              return; // nothing to drop
+            }
+          }
+        }
+  
+        setActiveSchema(conn, schema);
+        try (Statement statement = conn.createStatement()) {
+          // Drop constraints SQL
+          if (getHibernateDialect().dropConstraints()) {
+            for (Pair<String, String> constraint : getAllForeignKeyConstraints(catalog, schema, statement)) {
+              String name = constraint.getFirst();
+              String table = constraint.getSecond();
+              ForeignKey fk = new ForeignKey();
+              fk.setName(name);
+              fk.setTable(new Table(table));
+    
+              String dropConstraintSql = fk.sqlDropString(getHibernateDialect(), null, schema);
+              script.add(dropConstraintSql);
+            }
+          }
+    
+          // Drop views SQL
+          for (String name : getAllViews(catalog, schema, statement)) {
+            Table table = new Table(name);
+            String dropViewStr = table.sqlDropString(getHibernateDialect(), null, schema);
+            dropViewStr = dropViewStr.replaceAll("drop table", "drop view");
+            script.add(dropViewStr);
+          }
+    
+          // Drop tables SQL
+          for (String name : getAllTables(catalog, schema, statement)) {
+            Table table = new Table(name);
+            String dropTableStr = table.sqlDropString(getHibernateDialect(), null, schema);
+            script.add(dropTableStr);
+          }
+        }
+        
+        // Now execute it all
+        try (Statement statement = conn.createStatement()) {
+          for (String sql : script) {
+            //System.out.println("Executing \"" + sql + "\"");
+            statement.executeUpdate(sql);
+          }
+        }
+        
+        // Drop sequences SQL
+        try (Statement statement = conn.createStatement()) {
+          script.clear();
+          for (String name : getAllSequences(catalog, schema, statement)) {
+            final SequenceStructure sequenceStructure = new SequenceStructure(getHibernateDialect(), name, 0, 1, Long.class);
+            String[] dropSequenceStrings = sequenceStructure.sqlDropStrings(getHibernateDialect());
+            script.addAll(Arrays.asList(dropSequenceStrings));
+          }
+        }
+        //now execute drop sequence
+        try (Statement statement = conn.createStatement()) {
+          for (String sql : script) {
+            //System.out.println("Executing \"" + sql + "\"");
+            statement.executeUpdate(sql);
+          }
         }
       }
-
-      setActiveSchema(conn, schema);
-      Statement statement = conn.createStatement();
-
-      // Drop constraints SQL
-      if (getHibernateDialect().dropConstraints()) {
-        for (Pair<String, String> constraint : getAllForeignKeyConstraints(catalog, schema, statement)) {
-          String name = constraint.getFirst();
-          String table = constraint.getSecond();
-          ForeignKey fk = new ForeignKey();
-          fk.setName(name);
-          fk.setTable(new Table(table));
-
-          String dropConstraintSql = fk.sqlDropString(getHibernateDialect(), null, schema);
-          script.add(dropConstraintSql);
-        }
-      }
-
-      // Drop views SQL
-      for (String name : getAllViews(catalog, schema, statement)) {
-        Table table = new Table(name);
-        String dropViewStr = table.sqlDropString(getHibernateDialect(), null, schema);
-        dropViewStr = dropViewStr.replaceAll("drop table", "drop view");
-        script.add(dropViewStr);
-      }
-
-      // Drop tables SQL
-      for (String name : getAllTables(catalog, schema, statement)) {
-        Table table = new Table(name);
-        String dropTableStr = table.sqlDropString(getHibernateDialect(), null, schema);
-        script.add(dropTableStr);
-      }
-
-      // Now execute it all
-      statement.close();
-      statement = conn.createStatement();
-      for (String sql : script) {
-        //System.out.println("Executing \"" + sql + "\"");
-        statement.executeUpdate(sql);
-      }
-
-      statement.close();
-      statement = conn.createStatement();
-
-      // Drop sequences SQL
-      script.clear();
-      for (String name : getAllSequences(catalog, schema, statement)) {
-        final SequenceStructure sequenceStructure = new SequenceStructure(getHibernateDialect(), name, 0, 1, Long.class);
-        String[] dropSequenceStrings = sequenceStructure.sqlDropStrings(getHibernateDialect());
-        script.addAll(Arrays.asList(dropSequenceStrings));
-      }
-
-      //now execute drop sequence
-      statement.close();
-      statement = conn.createStatement();
-      for (String sql : script) {
-        //System.out.println("Executing \"" + sql + "\"");
-        statement.executeUpdate(sql);
-      }
-
-      statement.close();
 
     } catch (SQLException e) {
       throw new OpenGammaRuntimeException("Failed to drop schema", e);
-    } finally {
-      try {
-        if (conn != null) {
-          conn.close();
-        }
-      } catch (SQLException e) {
-      }
     }
   }
 
@@ -534,9 +504,7 @@ public abstract class AbstractDbManagement implements DbManagement {
       sqlStatements.add(currentStmt);
     }
 
-    Connection conn = null;
-    try {
-      conn = connect(catalog);
+    try (Connection conn = connect(catalog)) {
       setActiveSchema(conn, schema);
 
       Statement statement = conn.createStatement();
@@ -551,13 +519,6 @@ public abstract class AbstractDbManagement implements DbManagement {
 
     } catch (SQLException e) {
       throw new OpenGammaRuntimeException("Failed to execute statement", e);
-    } finally {
-      try {
-        if (conn != null) {
-          conn.close();
-        }
-      } catch (SQLException e) {
-      }
     }
   }
 
@@ -569,9 +530,7 @@ public abstract class AbstractDbManagement implements DbManagement {
   @Override
   public String describeDatabase(final String catalog, final String prefix) {
     final StringBuilder description = new StringBuilder();
-    Connection conn = null;
-    try {
-      conn = connect(catalog);
+    try (Connection conn = connect(catalog)) {
       final Statement stmt = conn.createStatement();
       final List<String> schemas = getAllSchemas(catalog, stmt);
       Collections.sort(schemas);
@@ -605,73 +564,45 @@ public abstract class AbstractDbManagement implements DbManagement {
       e.printStackTrace();
       System.err.println("e.getMessage: " + e.getMessage());
       throw new OpenGammaRuntimeException("SQL exception", e);
-    } finally {
-      try {
-        if (conn != null) {
-          conn.close();
-        }
-      } catch (SQLException e) {
-      }
     }
     return description.toString();
   }
 
   @Override
   public List<String> listTables(final String catalog) {
-    Connection conn = null;
-    try {
-      conn = connect(catalog);
+    try (Connection conn = connect(catalog)) {
       final Statement stmt = conn.createStatement();
       return getAllTables(catalog, null, stmt);
     } catch (SQLException e) {
       e.printStackTrace();
       System.err.println("e.getMessage: " + e.getMessage());
       throw new OpenGammaRuntimeException("SQL exception", e);
-    } finally {
-      try {
-        if (conn != null) {
-          conn.close();
-        }
-      } catch (SQLException e) {
-      }
     }
   }
 
   @Override
   public Integer getSchemaGroupVersion(String catalog, String schema, String schemaGroupName) {
-    Connection conn = null;
-    try {
-      conn = connect(catalog);
+    try (Connection conn = connect(catalog)) {
       setActiveSchema(conn, schema);
       Statement statement = conn.createStatement();
       List<String> tables = getAllTables(catalog, schema, statement);
       if (!tables.contains(getSchemaVersionTable(schemaGroupName))) {
         return null;
       }
-      ResultSet rs = statement.executeQuery(getSchemaVersionSQL(catalog, schemaGroupName));
       String version;
-      try {
+      try (ResultSet rs = statement.executeQuery(getSchemaVersionSQL(catalog, schemaGroupName))) {
         rs.next();
         version = rs.getString("version_value");
         if (rs.next()) {
           throw new OpenGammaRuntimeException("Expected one schema version entry for group " + schemaGroupName + " but found multiple");
         }
-      } finally {
-        rs.close();
       }
       return Integer.parseInt(version);
     } catch (SQLException e) {
       e.printStackTrace();
       System.err.println("e.getMessage: " + e.getMessage());
       throw new OpenGammaRuntimeException("SQL exception", e);
-    } finally {
-      if (conn != null) {
-        try {
-          conn.close();
-        } catch (SQLException e) {
-        }
-      }
     }
   }
-  
+
 }
