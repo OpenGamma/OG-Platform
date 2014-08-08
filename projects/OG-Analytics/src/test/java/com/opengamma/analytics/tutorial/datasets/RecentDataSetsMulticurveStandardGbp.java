@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.tutorial.datasets;
 
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 
 import org.threeten.bp.Period;
@@ -177,6 +178,18 @@ public class RecentDataSetsMulticurveStandardGbp {
         KNOWN_DATA, PSMQC, PSMQCSC, false, DSC_MAP, FWD_ON_MAP, FWD_IBOR_MAP, CURVE_BUILDING_REPOSITORY,
         TS_FIXED_OIS_GBP_WITH_TODAY, TS_FIXED_OIS_GBP_WITHOUT_TODAY, TS_FIXED_IBOR_GBP6M_WITH_LAST, TS_FIXED_IBOR_GBP6M_WITHOUT_LAST);
   }
+
+  /**
+   * Get the definitions for the first instruments of the standard curve to be used in another curve
+   * @param calibrationDate The calibration date.
+   * @param howMany The number of instruments to be returned
+   * @return The InstrumentDefinition for the first howMany instruments of the curve
+   */
+  public static InstrumentDefinition<?>[] getDefinitionForFirstInstruments(ZonedDateTime calibrationDate, int howMany) {
+    InstrumentDefinition<?>[] definitionsDsc = getDefinitions(DSC_GBP_MARKET_QUOTES, DSC_GBP_GENERATORS, DSC_GBP_ATTR, calibrationDate);
+    return Arrays.copyOf(definitionsDsc, howMany);
+  }
+
 
   /**
    * Returns the array of Ibor index used in the curve data set. 
