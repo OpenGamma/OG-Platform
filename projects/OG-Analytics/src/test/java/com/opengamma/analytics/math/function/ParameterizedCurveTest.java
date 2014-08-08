@@ -32,6 +32,11 @@ public class ParameterizedCurveTest {
         final double c = parameters.getEntry(2);
         return a * Math.sin(b * x) + c;
       }
+
+      @Override
+      public int getNumParamters() {
+        return 3;
+      }
     };
 
     final ParameterizedFunction<Double, DoubleMatrix1D, DoubleMatrix1D> parmSense = new ParameterizedFunction<Double, DoubleMatrix1D, DoubleMatrix1D>() {

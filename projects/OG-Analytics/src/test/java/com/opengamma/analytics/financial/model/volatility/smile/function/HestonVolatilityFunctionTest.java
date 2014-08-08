@@ -43,6 +43,16 @@ public class HestonVolatilityFunctionTest {
     public Function1D<HestonModelData, Double> getVolatilityFunction(final EuropeanVanillaOption option, final double forward) {
       return VOL_FUNC_PROVIDER.getVolatilityFunction(option, forward);
     }
+
+    @Override
+    public int getNumberOfParameters() {
+      return VOL_FUNC_PROVIDER.getNumberOfParameters();
+    }
+
+    @Override
+    public HestonModelData toModelData(double[] parameters) {
+      return new HestonModelData(parameters);
+    }
   };
 
   static {

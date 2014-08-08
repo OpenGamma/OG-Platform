@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.financial.interestrate.capletstrippingnew.demo;
 
+import static org.testng.AssertJUnit.assertEquals;
+
 import java.util.Arrays;
 
 import org.testng.annotations.Test;
@@ -16,6 +18,8 @@ import com.opengamma.analytics.financial.interestrate.capletstrippingnew.Combine
 import com.opengamma.analytics.financial.interestrate.capletstrippingnew.MarketDataType;
 import com.opengamma.analytics.financial.interestrate.capletstrippingnew.MultiCapFloorPricerGrid;
 import com.opengamma.analytics.financial.interestrate.capletstrippingnew.SingleStrikeSetup;
+import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.analytics.math.statistics.leastsquare.NonLinearLeastSquareWithPenalty;
 import com.opengamma.util.test.TestGroup;
 
 /**
@@ -52,4 +56,7 @@ public class DirectTermStructureDemo extends SingleStrikeSetup {
     final CombinedCapletStrippingResults comRes = new CombinedCapletStrippingResults(res);
     comRes.printSurface(System.out, 101, 101);
   }
+
+
+
 }
