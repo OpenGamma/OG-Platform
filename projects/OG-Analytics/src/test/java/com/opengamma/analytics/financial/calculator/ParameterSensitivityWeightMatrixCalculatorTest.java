@@ -63,7 +63,7 @@ public class ParameterSensitivityWeightMatrixCalculatorTest {
 
     Double[] nodes1 = curve1.getCurve().getXData();
     Double[] nodes2 = curve2.getCurve().getXData();
-    double[] objNodes = new double[] {nodes1[1], nodes1[5], nodes1[10], 55. };
+    double[] objNodes = new double[] {nodes1[1], nodes1[3], nodes1[5], 55. };
 
     /**
      * Tests for reduction method
