@@ -29,9 +29,9 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.security.CurrenciesVisitor;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityTypes;
-import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
@@ -71,7 +71,7 @@ public class SecurityFXHistoricalTimeSeriesFunction extends AbstractFunction.Non
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final ValueProperties constraints = desiredValue.getConstraints();
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
-    final Collection<Currency> securityCurrencies = FinancialSecurityUtils.getCurrencies(security, getSecuritySource());
+    final Collection<Currency> securityCurrencies = CurrenciesVisitor.getCurrencies(security, getSecuritySource());
     final Set<String> resultCurrencies = constraints.getValues(ValuePropertyNames.CURRENCY);
     if ((resultCurrencies == null) || (resultCurrencies.size() != 1)) {
       return null;
@@ -96,7 +96,7 @@ public class SecurityFXHistoricalTimeSeriesFunction extends AbstractFunction.Non
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
     final String desiredCurrency = desiredValue.getConstraint(ValuePropertyNames.CURRENCY);
-    final Collection<Currency> currencies = FinancialSecurityUtils.getCurrencies(target.getSecurity(), _securitySource);
+    final Collection<Currency> currencies = CurrenciesVisitor.getCurrencies(target.getSecurity(), _securitySource);
     if (currencies.size() != inputs.getAllValues().size()) {
       if (!currencies.contains(Currency.of(desiredCurrency))) {
         throw new OpenGammaRuntimeException("Do not have one FX series for each requested");
