@@ -326,9 +326,6 @@
     <property name="maximumJobCost" value="10000000000" />
     <property name="functionCosts" ref="functionCosts" />
   </bean>
-  <bean id="viewResultListenerFactory" class="com.opengamma.masterdb.batch.BatchDbViewResultListenerFactory">
-    <property name="batchRunMaster" ref="dbBatchMaster" />
-  </bean>
   <bean id="graphExecutorTuner" class="com.opengamma.engine.view.calc.MultipleNodeExecutorTuner">
     <constructor-arg ref="graphExecutor" />
     <property name="jobDispatcher" ref="mainComputationJobDispatcher" />
@@ -353,7 +350,6 @@
     <property name="viewPermissionProvider">
       <bean class="com.opengamma.engine.view.permission.DefaultViewPermissionProvider" />
     </property>
-    <property name="viewResultListenerFactory" ref="viewResultListenerFactory" />
     <property name="overrideOperationCompiler" ref="mainOverrideOperationCompiler" />
   </bean>
   
