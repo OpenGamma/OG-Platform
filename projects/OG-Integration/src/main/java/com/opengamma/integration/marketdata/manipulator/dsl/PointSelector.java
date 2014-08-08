@@ -5,14 +5,14 @@
  */
 package com.opengamma.integration.marketdata.manipulator.dsl;
 
-import static com.opengamma.lambdava.streams.Lambdava.functional;
-
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.opengamma.core.security.Security;
@@ -25,7 +25,6 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.UniqueId;
-import com.opengamma.lambdava.functions.Function1;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -95,17 +94,17 @@ public class PointSelector implements DistinctMarketDataSelector {
     }
     
     if (_idMatchScheme != null && _idMatchPattern != null) {
-      if (functional(specificationIds).all(new Function1<ExternalId, Boolean>() {
+      if (FluentIterable.from(specificationIds).allMatch(new Predicate<ExternalId>() {
         @Override
-        public Boolean execute(ExternalId externalId) {
+        public boolean apply(ExternalId externalId) {
           return !_idMatchScheme.equals(externalId.getScheme());
         }
       })) {
         return null;
       }
-      if (functional(specificationIds).all(new Function1<ExternalId, Boolean>() {
+      if (FluentIterable.from(specificationIds).allMatch(new Predicate<ExternalId>() {
         @Override
-        public Boolean execute(ExternalId externalId) {
+        public boolean apply(ExternalId externalId) {
           return !_idMatchPattern.getPattern().matcher(externalId.getValue()).matches();
         }
       })) {
@@ -113,17 +112,17 @@ public class PointSelector implements DistinctMarketDataSelector {
       }
     }
     if (_idLikeScheme != null && _idLikePattern != null) {
-      if (functional(specificationIds).all(new Function1<ExternalId, Boolean>() {
+      if (FluentIterable.from(specificationIds).allMatch(new Predicate<ExternalId>() {
         @Override
-        public Boolean execute(ExternalId externalId) {
+        public boolean apply(ExternalId externalId) {
           return !_idLikeScheme.equals(externalId.getScheme());
         }
       })) {
         return null;
       }
-      if (functional(specificationIds).all(new Function1<ExternalId, Boolean>() {
+      if (FluentIterable.from(specificationIds).allMatch(new Predicate<ExternalId>() {
         @Override
-        public Boolean execute(ExternalId externalId) {
+        public boolean apply(ExternalId externalId) {
           return !_idLikePattern.getPattern().matcher(externalId.getValue()).matches();
         }
       })) {
@@ -131,9 +130,9 @@ public class PointSelector implements DistinctMarketDataSelector {
       }
     }
     if (_securityTypes != null) {
-      if (functional(specificationIds).all(new Function1<ExternalId, Boolean>() {
+      if (FluentIterable.from(specificationIds).allMatch(new Predicate<ExternalId>() {
         @Override
-        public Boolean execute(ExternalId externalId) {
+        public boolean apply(ExternalId externalId) {
           Security security = resolver.resolveSecurity(externalId);
           return !_securityTypes.contains(security.getSecurityType().toLowerCase());
         }

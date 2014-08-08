@@ -8,11 +8,11 @@ package com.opengamma.financial.analytics;
 import static com.google.common.collect.Sets.newHashSet;
 import static com.opengamma.engine.value.ValueRequirementNames.BUCKETED_PV01;
 import static com.opengamma.engine.value.ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES;
-import static com.opengamma.lambdava.streams.Lambdava.functional;
 
 import java.util.Collections;
 import java.util.Set;
 
+import com.google.common.collect.Iterables;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -25,7 +25,6 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.lambdava.functions.Function3;
 import com.opengamma.util.async.AsynchronousExecution;
 
 /**
@@ -43,7 +42,7 @@ public class BucketedPV01Function extends AbstractFunction.NonCompiledInvoker {
 
     DoubleLabelledMatrix1D matrix = (DoubleLabelledMatrix1D) inputs.getComputedValue(YIELD_CURVE_NODE_SENSITIVITIES).getValue();
 
-    ValueRequirement desiredValue = functional(desiredValues).first();
+    ValueRequirement desiredValue = Iterables.getFirst(desiredValues, null);
 
     final double rescaleFactor;
     if (desiredValue.getConstraints().getSingleValue(ValuePropertyNames.SCALING_FACTOR) != null) {
@@ -52,12 +51,7 @@ public class BucketedPV01Function extends AbstractFunction.NonCompiledInvoker {
     } else {
       rescaleFactor = RESCALE_FACTOR;
     }
-    LabelledMatrix1D<Double, Double> matrixDividedBy10k = matrix.mapValues(new Function3<Double, Double, Object, Double>() {
-      @Override
-      public Double execute(Double notUsed, Double value, Object notUsed2) {
-        return value / rescaleFactor;
-      }
-    });
+    LabelledMatrix1D<Double, Double> matrixDividedBy10k = matrix.divideBy(rescaleFactor);
 
     ValueSpecification valueSpecification = ValueSpecification.of(desiredValue.getValueName(),
         target.toSpecification(),

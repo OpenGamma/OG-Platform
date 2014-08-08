@@ -6,7 +6,6 @@
 package com.opengamma.batch.domain;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static com.opengamma.lambdava.streams.Lambdava.functional;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -79,7 +78,9 @@ public class RiskValueProperties extends DirectBean {
       } else {
         JSONArray properties = new JSONArray();
         if (requirement.getProperties() != null) {
-          for (String property : functional(requirement.getProperties()).sort()) {
+          List<String> sorted = new ArrayList<>(requirement.getProperties());
+          Collections.sort(sorted);
+          for (String property : sorted) {
             JSONObject propertyJson = new JSONObject();
 
             propertyJson.put("name", property);
@@ -88,7 +89,9 @@ public class RiskValueProperties extends DirectBean {
             }
 
             JSONArray values = new JSONArray();
-            for (String value : functional(requirement.getValues(property)).sort()) {
+            List<String> sorted2 = new ArrayList<>(requirement.getValues(property));
+            Collections.sort(sorted2);
+            for (String value : sorted2) {
               values.put(escape(ESCAPE_PATTERN, value));
             }
             propertyJson.put("values", values);

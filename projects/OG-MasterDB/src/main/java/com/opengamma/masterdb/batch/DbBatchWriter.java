@@ -9,7 +9,6 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newConcurrentMap;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
-import static com.opengamma.lambdava.streams.Lambdava.newArray;
 import static com.opengamma.util.db.HibernateDbUtils.eqOrIsNull;
 import static org.apache.commons.lang.StringUtils.defaultString;
 
@@ -944,7 +943,7 @@ public class DbBatchWriter extends AbstractDbMaster {
             }
           } else {
             s_logger.info("Writing failure for {} with invocation result {}, {} ",
-                newArray(computedValue.getSpecification(), computedValue.getInvocationResult(), computedValue.getAggregatedExecutionLog()));
+                computedValue.getSpecification(), computedValue.getInvocationResult(), computedValue.getAggregatedExecutionLog());
             specFailures = true;
             
             final long failureId = nextId(RSK_SEQUENCE_NAME);
@@ -1176,7 +1175,7 @@ public class DbBatchWriter extends AbstractDbMaster {
 
     }
 
-    s_logger.info("Inserting {} and updating {} {} status entries", (Object[]) newArray(inserts.size(), updates.size(), status));
+    s_logger.info("Inserting {} and updating {} {} status entries", inserts.size(), updates.size(), status);
 
     SqlParameterSource[] batchArgsArray = inserts.toArray(new DbMapSqlParameterSource[inserts.size()]);
     int[] counts = getJdbcTemplate().batchUpdate(getElSqlBundle().getSql("InsertFromRunStatus"), batchArgsArray);
@@ -1186,7 +1185,7 @@ public class DbBatchWriter extends AbstractDbMaster {
     counts = getJdbcTemplate().batchUpdate(getElSqlBundle().getSql("UpdateFromRunStatus"), batchArgsArray);
     checkCount(status + " update", batchArgsArray, counts);
 
-    s_logger.info("Inserted {} and updated {} {} status entries", (Object[]) newArray(inserts.size(), updates.size(), status));
+    s_logger.info("Inserted {} and updated {} {} status entries", inserts.size(), updates.size(), status);
   }
 
   private int checkCount(String rowType, SqlParameterSource[] batchArgsArray, int[] counts) {

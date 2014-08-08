@@ -6,7 +6,6 @@
 package com.opengamma.masterdb.batch;
 
 import static com.google.common.collect.Sets.newHashSet;
-import static com.opengamma.lambdava.streams.Lambdava.functional;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -21,6 +20,7 @@ import org.mockito.Mock;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.google.common.collect.Iterables;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.marketdata.InMemoryLKVMarketDataProvider;
 import com.opengamma.engine.marketdata.InMemoryLKVMarketDataSnapshot;
@@ -101,7 +101,7 @@ public class ViewClientTest {
 
       assertEquals("boo~far", argument.getValue().getViewDefinitionId().toString());
       assertEquals(1, argument.getValue().getAllCalculationConfigurationNames().size());
-      assertEquals("Test Calc Config", functional(argument.getValue().getAllCalculationConfigurationNames()).first());
+      assertEquals("Test Calc Config", Iterables.getFirst(argument.getValue().getAllCalculationConfigurationNames(), null));
 
       final ArgumentCaptor<ViewComputationResultModel> fullFragment = ArgumentCaptor.forClass(ViewComputationResultModel.class);
       final ArgumentCaptor<ViewDeltaResultModel> deltaFragment = ArgumentCaptor.forClass(ViewDeltaResultModel.class);

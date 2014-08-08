@@ -9,7 +9,7 @@ import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.generator.AbstractPortfolioGeneratorTool;
 import com.opengamma.financial.generator.SecurityGenerator;
 import com.opengamma.id.ExternalId;
-import com.opengamma.lambdava.functions.Function2;
+import com.opengamma.util.function.BiFunction;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -27,9 +27,9 @@ public class BloombergExamplePortfolioGeneratorTool extends AbstractPortfolioGen
     securityGenerator.setCurveCalculationConfig(Currency.JPY, "DefaultTwoCurveJPYConfig");
     securityGenerator.setCurveCalculationConfig(Currency.USD, "DefaultTwoCurveUSDConfig");
     securityGenerator.setPreferredScheme(ExternalSchemes.BLOOMBERG_TICKER);
-    securityGenerator.setSpotRateIdentifier(new Function2<Currency, Currency, ExternalId>() {
+    securityGenerator.setSpotRateIdentifier(new BiFunction<Currency, Currency, ExternalId>() {
       @Override
-      public ExternalId execute(final Currency a, final Currency b) {
+      public ExternalId apply(Currency a, Currency b) {
         return ExternalSchemes.bloombergTickerSecurityId(a.getCode() + b.getCode() + " Curncy");
       }
     });

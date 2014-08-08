@@ -12,7 +12,7 @@ import com.opengamma.engine.target.logger.ResolutionLogger;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.lambdava.functions.Function2;
+import com.opengamma.util.function.BinaryOperator;
 
 /**
  * {@link ObjectResolver} implementation that will use a sequence of resolvers in turn if the first fails.
@@ -95,10 +95,10 @@ public class ChainedResolver<T extends UniqueIdentifiable> implements ObjectReso
    * Utility function for creating a chain of resolvers, for example when adding them to a {@link ComputationTargetTypeMap}. The first parameter is the second resolver to use (the existing one in the
    * map), the second parameter is the first resolver (the new value to the map). The returned value is the resolver chain.
    */
-  public static final Function2<ObjectResolver<?>, ObjectResolver<?>, ObjectResolver<?>> CREATE = new Function2<ObjectResolver<?>, ObjectResolver<?>, ObjectResolver<?>>() {
+  public static final BinaryOperator<ObjectResolver<?>> CREATE = new BinaryOperator<ObjectResolver<?>>() {
     @SuppressWarnings({"rawtypes", "unchecked" })
     @Override
-    public ObjectResolver<?> execute(final ObjectResolver<?> second, final ObjectResolver<?> first) {
+    public ObjectResolver<?> apply(final ObjectResolver<?> second, final ObjectResolver<?> first) {
       return new ChainedResolver(first, second);
     }
   };

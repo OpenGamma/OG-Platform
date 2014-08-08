@@ -309,11 +309,6 @@
         <artifactId>elsql</artifactId>
         <version>0.9</version>
       </dependency>
-      <dependency>
-        <groupId>com.opengamma</groupId>
-        <artifactId>lambdava</artifactId>
-        <version>0.3</version>
-      </dependency>
 
       <!-- Basic low-level libraries -->
       <dependency>

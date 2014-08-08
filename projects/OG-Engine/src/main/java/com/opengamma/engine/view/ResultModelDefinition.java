@@ -25,9 +25,9 @@ import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.target.ComputationTargetTypeMap;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.lambdava.functions.Function1;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
+import com.opengamma.util.function.Function;
 
 /**
  * Encapsulates view-level configuration to describe the types of values required in the calculation results. This configuration could lead to fewer calculations taking place by allowing the
@@ -43,7 +43,7 @@ public class ResultModelDefinition extends DirectBean implements Serializable {
 
   private static final long serialVersionUID = 1L;
 
-  private static ComputationTargetTypeMap<Function1<ResultModelDefinition, ResultOutputMode>> s_getOutputMode = getOutputMode();
+  private static ComputationTargetTypeMap<Function<ResultModelDefinition, ResultOutputMode>> s_getOutputMode = getOutputMode();
 
   /**
    * The aggregate position output mode (portfolio nodes).
@@ -238,41 +238,41 @@ public class ResultModelDefinition extends DirectBean implements Serializable {
   //    _primitiveOutputMode = primitiveOutputMode;
   //  }
 
-  private static ComputationTargetTypeMap<Function1<ResultModelDefinition, ResultOutputMode>> getOutputMode() {
-    final ComputationTargetTypeMap<Function1<ResultModelDefinition, ResultOutputMode>> map = new ComputationTargetTypeMap<Function1<ResultModelDefinition, ResultOutputMode>>();
-    map.put(ComputationTargetType.ANYTHING, new Function1<ResultModelDefinition, ResultOutputMode>() {
+  private static ComputationTargetTypeMap<Function<ResultModelDefinition, ResultOutputMode>> getOutputMode() {
+    final ComputationTargetTypeMap<Function<ResultModelDefinition, ResultOutputMode>> map = new ComputationTargetTypeMap<Function<ResultModelDefinition, ResultOutputMode>>();
+    map.put(ComputationTargetType.ANYTHING, new Function<ResultModelDefinition, ResultOutputMode>() {
       @Override
-      public ResultOutputMode execute(final ResultModelDefinition definition) {
+      public ResultOutputMode apply(final ResultModelDefinition definition) {
         return definition.getPrimitiveOutputMode();
       }
     });
-    map.put(ComputationTargetType.NULL, new Function1<ResultModelDefinition, ResultOutputMode>() {
+    map.put(ComputationTargetType.NULL, new Function<ResultModelDefinition, ResultOutputMode>() {
       @Override
-      public ResultOutputMode execute(final ResultModelDefinition definition) {
+      public ResultOutputMode apply(final ResultModelDefinition definition) {
         return definition.getPrimitiveOutputMode();
       }
     });
-    map.put(ComputationTargetType.SECURITY, new Function1<ResultModelDefinition, ResultOutputMode>() {
+    map.put(ComputationTargetType.SECURITY, new Function<ResultModelDefinition, ResultOutputMode>() {
       @Override
-      public ResultOutputMode execute(final ResultModelDefinition definition) {
+      public ResultOutputMode apply(final ResultModelDefinition definition) {
         return definition.getSecurityOutputMode();
       }
     });
-    map.put(ComputationTargetType.POSITION, new Function1<ResultModelDefinition, ResultOutputMode>() {
+    map.put(ComputationTargetType.POSITION, new Function<ResultModelDefinition, ResultOutputMode>() {
       @Override
-      public ResultOutputMode execute(final ResultModelDefinition definition) {
+      public ResultOutputMode apply(final ResultModelDefinition definition) {
         return definition.getPositionOutputMode();
       }
     });
-    map.put(ComputationTargetType.TRADE, new Function1<ResultModelDefinition, ResultOutputMode>() {
+    map.put(ComputationTargetType.TRADE, new Function<ResultModelDefinition, ResultOutputMode>() {
       @Override
-      public ResultOutputMode execute(final ResultModelDefinition definition) {
+      public ResultOutputMode apply(final ResultModelDefinition definition) {
         return definition.getTradeOutputMode();
       }
     });
-    map.put(ComputationTargetType.PORTFOLIO_NODE, new Function1<ResultModelDefinition, ResultOutputMode>() {
+    map.put(ComputationTargetType.PORTFOLIO_NODE, new Function<ResultModelDefinition, ResultOutputMode>() {
       @Override
-      public ResultOutputMode execute(final ResultModelDefinition definition) {
+      public ResultOutputMode apply(final ResultModelDefinition definition) {
         return definition.getAggregatePositionOutputMode();
       }
     });
@@ -287,9 +287,9 @@ public class ResultModelDefinition extends DirectBean implements Serializable {
    */
   public ResultOutputMode getOutputMode(final ComputationTargetType computationTargetType) {
     ArgumentChecker.notNull(computationTargetType, "computationTargetType");
-    final Function1<ResultModelDefinition, ResultOutputMode> operation = s_getOutputMode.get(computationTargetType);
+    final Function<ResultModelDefinition, ResultOutputMode> operation = s_getOutputMode.get(computationTargetType);
     if (operation != null) {
-      return operation.execute(this);
+      return operation.apply(this);
     } else {
       throw new IllegalArgumentException("Unknown target type " + computationTargetType);
     }

@@ -44,4 +44,5 @@ public class DoubleLabelledMatrix1D extends LabelledMatrix1D<Double, Double> {
   public LabelledMatrix1D<Double, Double> getMatrix(final Double[] keys, final double[] values) {
     return new DoubleLabelledMatrix1D(keys, values);
   }
+
 }

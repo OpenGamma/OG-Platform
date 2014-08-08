@@ -10,7 +10,6 @@ import java.util.Arrays;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.analytics.QuickSorter.ArrayQuickSorter;
-import com.opengamma.lambdava.functions.Function3;
 
 /**
  *
@@ -381,14 +380,11 @@ public abstract class LabelledMatrix1D<S extends Comparable<? super S>, T> {
     return true;
   }
 
-
-  public LabelledMatrix1D<S, T> mapValues(Function3<S, Double, Object, Double> mapper) {
+  public LabelledMatrix1D<S, T> divideBy(double amountToDivideBy) {
     double[] values = new double[_values.length];
     for (int i = 0; i < _keys.length; i++) {
-      S key = _keys[i];
       double value = _values[i];
-      Object label = _labels[i];
-      values[i] = mapper.execute(key, value, label);
+      values[i] = value / amountToDivideBy;
     }
     return getMatrix(_keys, _labels, values);
   }

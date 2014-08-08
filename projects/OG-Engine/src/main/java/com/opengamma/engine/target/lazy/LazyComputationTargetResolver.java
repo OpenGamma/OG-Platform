@@ -13,7 +13,7 @@ import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.target.ComputationTargetTypeMap;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.lambdava.functions.Function2;
+import com.opengamma.util.function.BiFunction;
 
 /**
  * A target resolver that does not resolve the targets immediately but returns a deferred handle. This is excellent for consumers of the target that only care about it's unique identifier and don't
@@ -21,25 +21,25 @@ import com.opengamma.lambdava.functions.Function2;
  */
 public final class LazyComputationTargetResolver extends DelegatingComputationTargetResolver {
 
-  private static final ComputationTargetTypeMap<Function2<ComputationTargetResolver.AtVersionCorrection, ComputationTargetSpecification, UniqueIdentifiable>> s_resolvers;
+  private static final ComputationTargetTypeMap<BiFunction<ComputationTargetResolver.AtVersionCorrection, ComputationTargetSpecification, UniqueIdentifiable>> s_resolvers;
 
   static {
-    s_resolvers = new ComputationTargetTypeMap<Function2<ComputationTargetResolver.AtVersionCorrection, ComputationTargetSpecification, UniqueIdentifiable>>();
-    s_resolvers.put(ComputationTargetType.PORTFOLIO_NODE, new Function2<ComputationTargetResolver.AtVersionCorrection, ComputationTargetSpecification, UniqueIdentifiable>() {
+    s_resolvers = new ComputationTargetTypeMap<BiFunction<ComputationTargetResolver.AtVersionCorrection, ComputationTargetSpecification, UniqueIdentifiable>>();
+    s_resolvers.put(ComputationTargetType.PORTFOLIO_NODE, new BiFunction<ComputationTargetResolver.AtVersionCorrection, ComputationTargetSpecification, UniqueIdentifiable>() {
       @Override
-      public UniqueIdentifiable execute(final ComputationTargetResolver.AtVersionCorrection underlying, final ComputationTargetSpecification specification) {
+      public UniqueIdentifiable apply(final ComputationTargetResolver.AtVersionCorrection underlying, final ComputationTargetSpecification specification) {
         return new LazyTargetResolverPortfolioNode(underlying, specification);
       }
     });
-    s_resolvers.put(ComputationTargetType.POSITION, new Function2<ComputationTargetResolver.AtVersionCorrection, ComputationTargetSpecification, UniqueIdentifiable>() {
+    s_resolvers.put(ComputationTargetType.POSITION, new BiFunction<ComputationTargetResolver.AtVersionCorrection, ComputationTargetSpecification, UniqueIdentifiable>() {
       @Override
-      public UniqueIdentifiable execute(final ComputationTargetResolver.AtVersionCorrection underlying, final ComputationTargetSpecification specification) {
+      public UniqueIdentifiable apply(final ComputationTargetResolver.AtVersionCorrection underlying, final ComputationTargetSpecification specification) {
         return new LazyTargetResolverPosition(underlying, specification);
       }
     });
-    s_resolvers.put(ComputationTargetType.TRADE, new Function2<ComputationTargetResolver.AtVersionCorrection, ComputationTargetSpecification, UniqueIdentifiable>() {
+    s_resolvers.put(ComputationTargetType.TRADE, new BiFunction<ComputationTargetResolver.AtVersionCorrection, ComputationTargetSpecification, UniqueIdentifiable>() {
       @Override
-      public UniqueIdentifiable execute(final ComputationTargetResolver.AtVersionCorrection underlying, final ComputationTargetSpecification specification) {
+      public UniqueIdentifiable apply(final ComputationTargetResolver.AtVersionCorrection underlying, final ComputationTargetSpecification specification) {
         return new LazyTargetResolverTrade(underlying, specification);
       }
     });
@@ -57,9 +57,9 @@ public final class LazyComputationTargetResolver extends DelegatingComputationTa
    * @return the target
    */
   public static ComputationTarget resolve(final ComputationTargetResolver.AtVersionCorrection underlying, final ComputationTargetSpecification specification) {
-    final Function2<ComputationTargetResolver.AtVersionCorrection, ComputationTargetSpecification, UniqueIdentifiable> resolver = s_resolvers.get(specification.getType());
+    final BiFunction<ComputationTargetResolver.AtVersionCorrection, ComputationTargetSpecification, UniqueIdentifiable> resolver = s_resolvers.get(specification.getType());
     if (resolver != null) {
-      final UniqueIdentifiable lazy = resolver.execute(underlying, specification);
+      final UniqueIdentifiable lazy = resolver.apply(underlying, specification);
       if (specification.getUniqueId().isVersioned()) {
         return new ComputationTarget(specification, lazy);
       } else {
@@ -71,9 +71,9 @@ public final class LazyComputationTargetResolver extends DelegatingComputationTa
   }
 
   public static ComputationTarget resolve(final ComputationTargetResolver underlying, final ComputationTargetSpecification specification, final VersionCorrection versionCorrection) {
-    final Function2<ComputationTargetResolver.AtVersionCorrection, ComputationTargetSpecification, UniqueIdentifiable> resolver = s_resolvers.get(specification.getType());
+    final BiFunction<ComputationTargetResolver.AtVersionCorrection, ComputationTargetSpecification, UniqueIdentifiable> resolver = s_resolvers.get(specification.getType());
     if (resolver != null) {
-      final UniqueIdentifiable lazy = resolver.execute(underlying.atVersionCorrection(versionCorrection), specification);
+      final UniqueIdentifiable lazy = resolver.apply(underlying.atVersionCorrection(versionCorrection), specification);
       if (specification.getUniqueId().isVersioned()) {
         return new ComputationTarget(specification, lazy);
       } else {

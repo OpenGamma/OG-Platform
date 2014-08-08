@@ -7,12 +7,12 @@ package com.opengamma.financial.security.function;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static com.opengamma.engine.value.ValueRequirementNames.ISIN;
-import static com.opengamma.lambdava.streams.Lambdava.functional;
 
 import java.util.Collections;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
@@ -41,7 +41,7 @@ public class ISINFunction extends AbstractFunction.NonCompiledInvoker {
                                     Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
 
 
-    ValueRequirement desiredValue = functional(desiredValues).first();
+    ValueRequirement desiredValue = Iterables.getFirst(desiredValues, null);
     ValueSpecification valueSpecification = ValueSpecification.of(desiredValue.getValueName(),
                                                                   target.toSpecification(),
                                                                   desiredValue.getConstraints());

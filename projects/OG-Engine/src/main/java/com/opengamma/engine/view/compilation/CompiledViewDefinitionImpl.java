@@ -5,8 +5,6 @@
  */
 package com.opengamma.engine.view.compilation;
 
-import static com.opengamma.lambdava.streams.Lambdava.merge;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -125,7 +123,7 @@ public class CompiledViewDefinitionImpl implements CompiledViewDefinition {
   public Map<ValueSpecification, Set<ValueRequirement>> getTerminalValuesRequirements() {
     final Map<ValueSpecification, Set<ValueRequirement>> allRequirements = new HashMap<>();
     for (final CompiledViewCalculationConfiguration compiledCalcConfig : getCompiledCalculationConfigurations()) {
-      merge(allRequirements, compiledCalcConfig.getTerminalOutputSpecifications());
+      allRequirements.putAll(compiledCalcConfig.getTerminalOutputSpecifications());
     }
     return Collections.unmodifiableMap(allRequirements);
   }
