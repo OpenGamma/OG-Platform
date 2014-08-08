@@ -16,12 +16,15 @@ The base items for curves and volatilities description are called *providers*. T
 
 This is the main provider in the multi-curve framework. 
 
-The interface is called **MulticurveProviderInterface**. Its main methods are::
+The interface is called **MulticurveProviderInterface**. Its main methods are
+
+.. code:: java
 
     double getDiscountFactor(Currency ccy, Double time)
     double getForwardRate(IborIndex index, double startTime, double endTime, double accrualFactor)
     double getForwardRate(IndexON index, double startTime, double endTime, double accrualFactor)
     double getFxRate(final Currency ccy1, final Currency ccy2)
+
 The methods provide the risk-free discount factor for a given currency at a given time to payment and the forward rate associated to a given Ibor-like or overnight index between two dates. The last method provides today's exchange rate between two currencies.
 
 **InflationProvider**
@@ -39,6 +42,7 @@ This is the provider used for pricing methods in the Hull-White one-factor model
 Its main methods are::
 
     HullWhiteOneFactorPiecewiseConstantParameters getHullWhiteParameters();
+
 Currency getHullWhiteCurrency();
 
 The first method returns the set of model parameters. The second method indicates for which currency the parameters are valid. 
@@ -79,7 +83,9 @@ The code for the declaration looks something like::
 
     extends AbstractInstrumentDerivativeVisitor <MulticurveProviderInterface, MultipleCurrencyAmount>
 
-For calculators that require more complex data structure than the multi-curve, we use the composition. We use the base with::
+For calculators that require more complex data structure than the multi-curve, we use the composition. We use the base with
+
+.. code:: java
 
     PresentValueDiscountingProviderCalculator PVDC = PresentValueDiscountingProviderCalculator.getInstance();
     public MultipleCurrencyAmount visit(InstrumentDerivative derivative, InflationProviderInterface multicurves) {
@@ -101,7 +107,11 @@ Curve sensitivities
 
 This is the base object to store the sensitivity to each point of the curves used in the pricing. The data is stored as a map of sensitivities associated to strings representing the curve name.
 The sensitivity has two parts. The first one is the sensitivity to the discounting
+
+.. code:: java
+
     Map<String, List<DoublesPair>> _sensitivityYieldDiscounting
+
 For each curve (String) the list contains the payment times and the sensitivity to the zero-coupon rate at that time. Each payment date will have its own sensitivity. The sensitivities are not grouped by curve node or parameter at this stage.
 The second part is the sensitivity to the forward rates::
 

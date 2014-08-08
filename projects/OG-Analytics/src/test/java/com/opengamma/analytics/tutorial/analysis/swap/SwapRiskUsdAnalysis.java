@@ -307,7 +307,7 @@ public class SwapRiskUsdAnalysis {
   }
 
   @SuppressWarnings("unused")
-  @Test
+  @Test(enabled = true)
   public void bucketedPv01() {
     MultipleCurrencyParameterSensitivity pvmqs1Std = MQSBC.fromInstrument(IRS_1, MULTICURVE_STD, BLOCK_STD).multipliedBy(BP1);
     MultipleCurrencyParameterSensitivity pvmqs1Ffs = MQSBC.fromInstrument(IRS_1, MULTICURVE_FFS, BLOCK_FFS).multipliedBy(BP1);

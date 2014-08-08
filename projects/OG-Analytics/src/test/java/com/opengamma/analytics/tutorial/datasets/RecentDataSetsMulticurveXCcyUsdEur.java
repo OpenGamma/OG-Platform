@@ -68,7 +68,7 @@ public class RecentDataSetsMulticurveXCcyUsdEur {
   private static final Calendar NYC = new CalendarUSD("NYC");
   private static final Currency EUR = Currency.EUR;
   private static final Currency USD = Currency.USD;
-  private static final double FX_EURUSD = 1.40;
+  private static final double FX_EURUSD = 1.35;
   private static final FXMatrix FX_MATRIX = new FXMatrix(USD);
   static {
     FX_MATRIX.addCurrency(EUR, USD, FX_EURUSD);
@@ -107,17 +107,22 @@ public class RecentDataSetsMulticurveXCcyUsdEur {
   private static final String CURVE_NAME_EUR_FEDFUND_1_FWD3 = "EUR-USDON-EURIBOR3M-FRAXCCY";
   private static final String CURVE_NAME_EUR_FEDFUND_1_FWD6 = "EUR-USDON-EURIBOR6M-FRABS";
 
+  /** Data as of 8-Aug-2014
+
   /**     ==========          USD - FEDFUND          ==========
   /** Market values for the dsc USD curve. 13 nodes */
-  private static final double[] DSC_USD_MARKET_QUOTES = new double[] {0.0010, 0.0010,
-    0.0010, 0.0010, 0.0010, 0.0010, 0.0010, 0.0010, 0.0015, 0.0020, 0.0035, 0.0050, 0.0130 };
+  private static final double[] DSC_USD_MARKET_QUOTES = new double[] {0.0013, 0.0015,
+    0.0009, 0.0009, 0.0009, 0.0010, 0.0012,
+    0.0017, 0.0049, 0.0090, 0.0125, 0.0150,
+    0.0230 };
   /** Generators for the dsc USD curve */
   private static final GeneratorInstrument<? extends GeneratorAttribute>[] DSC_USD_GENERATORS =
       CurveCalibrationConventionDataSets.generatorUsdOnOisFfs(2, 11, 0);
   /** Tenors for the dsc USD curve */
   private static final Period[] DSC_USD_TENOR = new Period[] {Period.ofDays(0), Period.ofDays(1),
     Period.ofMonths(1), Period.ofMonths(2), Period.ofMonths(3), Period.ofMonths(6), Period.ofMonths(9),
-    Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5), Period.ofYears(10) };
+    Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5),
+    Period.ofYears(10) };
   private static final GeneratorAttributeIR[] DSC_USD_ATTR = new GeneratorAttributeIR[DSC_USD_TENOR.length];
   static {
     for (int loopins = 0; loopins < 2; loopins++) {
@@ -129,13 +134,17 @@ public class RecentDataSetsMulticurveXCcyUsdEur {
   }
 
   /** Market values for the Fwd 3M USD curve. 8 nodes */
-  private static final double[] FWD3_USD_MARKET_QUOTES = new double[] {0.0045, 0.0045, 0.0045, 0.0045, 0.0060, 0.0070, 0.0080, 0.0160 };
+  private static final double[] FWD3_USD_MARKET_QUOTES = new double[] {0.0023,
+    0.0026,
+    0.0032, 0.0066, 0.0108, 0.0145, 0.0174,
+    0.0254 };
   /** Generators for the Fwd 3M USD curve */
   private static final GeneratorInstrument<? extends GeneratorAttribute>[] FWD3_USD_GENERATORS =
       CurveCalibrationConventionDataSets.generatorUsdIbor3Fra3Irs3(1, 1, 6);
   /** Tenors for the Fwd 3M USD curve */
-  private static final Period[] FWD3_USD_TENOR = new Period[] {Period.ofMonths(0), Period.ofMonths(6), Period.ofYears(1), Period.ofYears(2),
-    Period.ofYears(3), Period.ofYears(4), Period.ofYears(5),
+  private static final Period[] FWD3_USD_TENOR = new Period[] {Period.ofMonths(0),
+    Period.ofMonths(6),
+    Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5),
     Period.ofYears(10) };
   private static final GeneratorAttributeIR[] FWD3_USD_ATTR = new GeneratorAttributeIR[FWD3_USD_TENOR.length];
   static {
@@ -146,9 +155,11 @@ public class RecentDataSetsMulticurveXCcyUsdEur {
 
   /**     ==========          EUR - EONIA          ==========
   
-  /** Market values for the dsc USD curve */
-  private static final double[] EUR_EONIA_DSC_MARKET_QUOTES = new double[] {0.0400, 0.0400,
-    0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400 };
+  /** Market values for the dsc EUR curve */
+  private static final double[] EUR_EONIA_DSC_MARKET_QUOTES = new double[] {0.0006,
+    0.0006, 0.0006, 0.0006, 0.0006, 0.0006,
+    0.0005, 0.0005, 0.0010, 0.0018, 0.0029,
+    0.0096 };
   /** Generators for the dsc USD curve */
   private static final GeneratorInstrument<? extends GeneratorAttribute>[] EUR_EONIA_DSC_GENERATORS =
       new GeneratorInstrument<?>[] {GENERATOR_DEPOSIT_ON_EUR,
@@ -168,7 +179,10 @@ public class RecentDataSetsMulticurveXCcyUsdEur {
   }
 
   /** Market values for the Fwd 3M USD curve */
-  private static final double[] EUR_EONIA_FWD3_MARKET_QUOTES = new double[] {0.0420, 0.0420, 0.0420, 0.0420, 0.0430, 0.0470, 0.0540, 0.0570, 0.0600 };
+  private static final double[] EUR_EONIA_FWD3_MARKET_QUOTES = new double[] {0.0020,
+    0.0020, 0.0019,
+    0.0020, 0.0021, 0.0028, 0.0037, 0.0049,
+    0.0117 };
   /** Generators for the Fwd 3M USD curve */
   private static final GeneratorInstrument<? extends GeneratorAttribute>[] EUR_EONIA_FWD3_GENERATORS =
       new GeneratorInstrument<?>[] {GENERATOR_EURIBOR3M,
@@ -178,7 +192,7 @@ public class RecentDataSetsMulticurveXCcyUsdEur {
   /** Tenors for the Fwd 3M USD curve */
   private static final Period[] EUR_EONIA_FWD3_TENOR = new Period[] {Period.ofMonths(0),
     Period.ofMonths(6), Period.ofMonths(9),
-    Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(5), Period.ofYears(7),
+    Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5),
     Period.ofYears(10) };
   private static final GeneratorAttributeIR[] EUR_EONIA_FWD3_ATTR = new GeneratorAttributeIR[EUR_EONIA_FWD3_TENOR.length];
   static {
@@ -187,17 +201,19 @@ public class RecentDataSetsMulticurveXCcyUsdEur {
     }
   }
 
-  /** Market values for the Fwd 3M USD curve */
-  private static final double[] EUR_EONIA_FWD6_MARKET_QUOTES = new double[] {0.0440, 0.0440, 0.0440, 0.0445, 0.0485, 0.0555, 0.0580, 0.0610 };
-  /** Generators for the Fwd 3M USD curve */
+  /** Market values for the Fwd 6M USD curve */
+  private static final double[] EUR_EONIA_FWD6_MARKET_QUOTES = new double[] {0.0030,
+    0.0030, 0.0030,
+    0.0033, 0.0040, 0.0050, 0.0062, 0.0129 };
+  /** Generators for the Fwd 6M USD curve */
   private static final GeneratorInstrument<? extends GeneratorAttribute>[] EUR_EONIA_FWD6_GENERATORS =
       new GeneratorInstrument<?>[] {GENERATOR_EURIBOR6M,
         GENERATOR_FRA_6M, GENERATOR_FRA_6M,
         EUR1YEURIBOR6M, EUR1YEURIBOR6M, EUR1YEURIBOR6M, EUR1YEURIBOR6M, EUR1YEURIBOR6M };
   /** Tenors for the Fwd 3M USD curve */
-  private static final Period[] EUR_EONIA_FWD6_TENOR = new Period[] {Period.ofMonths(0), Period.ofMonths(9), Period.ofMonths(12), Period.ofYears(2),
-    Period.ofYears(3), Period.ofYears(5), Period.ofYears(7),
-    Period.ofYears(10) };
+  private static final Period[] EUR_EONIA_FWD6_TENOR = new Period[] {Period.ofMonths(0),
+    Period.ofMonths(9), Period.ofMonths(12),
+    Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5), Period.ofYears(10) };
   private static final GeneratorAttributeIR[] EUR_EONIA_FWD6_ATTR = new GeneratorAttributeIR[EUR_EONIA_FWD6_TENOR.length];
   static {
     for (int loopins = 0; loopins < EUR_EONIA_FWD6_TENOR.length; loopins++) {
@@ -208,9 +224,9 @@ public class RecentDataSetsMulticurveXCcyUsdEur {
   /**     ==========          EUR - FED FUND - 1          ==========
 
   /** Market values for the dsc EUR curve. Depo ON / FX swaps */
-  private static final double[] EUR_FEDFUND_1_DSC_MARKET_QUOTES = new double[] {0.0010, 0.0010,
-    0.0004, 0.0009, 0.0015, 0.0035, 0.0050,
-    0.0060, 0.0100, 0.0150, 0.0200, 0.0250 };
+  private static final double[] EUR_FEDFUND_1_DSC_MARKET_QUOTES = new double[] {0.0006, 0.0006,
+    0.00015, 0.00033, 0.00050, 0.00108, 0.00125,
+    0.0030, 0.0150, 0.0380, 0.0665, 0.0950 };
   /** Generators for the dsc EUR curve */
   private static final GeneratorInstrument<? extends GeneratorAttribute>[] EUR_FEDFUND_1_DSC_GENERATORS =
       new GeneratorInstrument<?>[] {GENERATOR_DEPOSIT_ON_EUR, GENERATOR_DEPOSIT_ON_EUR,
@@ -231,30 +247,39 @@ public class RecentDataSetsMulticurveXCcyUsdEur {
   }
 
   /** Market values for the Fwd 3M EUR curve. Fixing / XCcy Swaps*/
-  private static final double[] EUR_FEDFUND_1_FWD3_MARKET_QUOTES = new double[] {0.0045, 0.0045, 0.0045, 0.0045, 0.0050, 0.0060, 0.0085, 0.0160 };
+  private static final double[] EUR_FEDFUND_1_FWD3_MARKET_QUOTES = new double[] {0.0020,
+    -0.0010, -0.0010, -0.0010, -0.0010, -0.0009,
+    -0.0008 };
   /** Generators for the Fwd 3M USD curve */
   private static final GeneratorInstrument<? extends GeneratorAttribute>[] EUR_FEDFUND_1_FWD3_GENERATORS =
-      CurveCalibrationConventionDataSets.generatorEurIbor3Fra3Irs3(1, 0, 7);
+      new GeneratorInstrument<?>[] {GENERATOR_EURIBOR3M,
+        EURIBOR3MUSDLIBOR3M, EURIBOR3MUSDLIBOR3M, EURIBOR3MUSDLIBOR3M, EURIBOR3MUSDLIBOR3M, EURIBOR3MUSDLIBOR3M,
+        EURIBOR3MUSDLIBOR3M };
   /** Tenors for the Fwd 3M USD curve */
   private static final Period[] EUR_FEDFUND_1_FWD3_TENOR = new Period[] {Period.ofMonths(0),
     Period.ofMonths(6), Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4),
-    Period.ofYears(5), Period.ofYears(10) };
-  private static final GeneratorAttributeIR[] EUR_FEDFUND_1_FWD3_ATTR = new GeneratorAttributeIR[EUR_FEDFUND_1_FWD3_TENOR.length];
+    Period.ofYears(5) };
+  private static final GeneratorAttribute[] EUR_FEDFUND_1_FWD3_ATTR = new GeneratorAttribute[EUR_FEDFUND_1_FWD3_TENOR.length];
   static {
-    for (int loopins = 0; loopins < EUR_FEDFUND_1_FWD3_TENOR.length; loopins++) {
-      EUR_FEDFUND_1_FWD3_ATTR[loopins] = new GeneratorAttributeIR(EUR_FEDFUND_1_FWD3_TENOR[loopins]);
+    for (int loopins = 0; loopins < 1; loopins++) {
+      EUR_FEDFUND_1_FWD3_ATTR[loopins] = new GeneratorAttributeIR(EUR_FEDFUND_1_DSC_TENOR[loopins]);
+    }
+    for (int loopins = 1; loopins < EUR_FEDFUND_1_FWD3_TENOR.length; loopins++) {
+      EUR_FEDFUND_1_FWD3_ATTR[loopins] = new GeneratorAttributeFX(EUR_FEDFUND_1_FWD3_TENOR[loopins], FX_MATRIX);
     }
   }
 
-  /** Market values for the Fwd 3M EUR curve. Fixing / XCcy Swaps*/
-  private static final double[] EUR_FEDFUND_1_FWD6_MARKET_QUOTES = new double[] {0.0045, 0.0045, 0.0045, 0.0045, 0.0050, 0.0060, 0.0085, 0.0160 };
-  /** Generators for the Fwd 3M USD curve */
+  /** Market values for the Fwd 6M EUR curve. Fixing / Basis swaps*/
+  private static final double[] EUR_FEDFUND_1_FWD6_MARKET_QUOTES = new double[] {0.0045,
+    0.0045, 0.0045, 0.0045, 0.0050, 0.0060,
+    0.0085 };
+  /** Generators for the Fwd 6M USD curve */
   private static final GeneratorInstrument<? extends GeneratorAttribute>[] EUR_FEDFUND_1_FWD6_GENERATORS =
-      CurveCalibrationConventionDataSets.generatorEurIbor3Fra3Irs3(1, 0, 7);
-  /** Tenors for the Fwd 3M USD curve */
+      CurveCalibrationConventionDataSets.generatorEurIbor6Fra6Irs6(1, 0, 7);
+  /** Tenors for the Fwd 6M USD curve */
   private static final Period[] EUR_FEDFUND_1_FWD6_TENOR = new Period[] {Period.ofMonths(0),
-    Period.ofMonths(6), Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4),
-    Period.ofYears(5), Period.ofYears(10) };
+    Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5),
+    Period.ofYears(10) };
   private static final GeneratorAttributeIR[] EUR_FEDFUND_1_FWD6_ATTR = new GeneratorAttributeIR[EUR_FEDFUND_1_FWD6_TENOR.length];
   static {
     for (int loopins = 0; loopins < EUR_FEDFUND_1_FWD6_TENOR.length; loopins++) {
@@ -356,31 +381,12 @@ public class RecentDataSetsMulticurveXCcyUsdEur {
   //    FWD3_EUR_ATTR_3[FWD3_EUR_TENOR_3.length - 1] = new GeneratorAttributeIR(FWD3_EUR_TENOR_3[FWD3_EUR_TENOR_3.length - 1]);
   //  }
 
-  //  /** Standard USD discounting curve instrument definitions */
-  //  private static final InstrumentDefinition<?>[] DEFINITIONS_USD_DSC;
-  //  /** Standard USD Forward 3M curve instrument definitions */
-  //  private static final InstrumentDefinition<?>[] DEFINITIONS_USD_FWD3;
-  //  /** Standard EUR discounting curve instrument definitions */
-  //  private static final InstrumentDefinition<?>[] DEFINITIONS_EUR_EONIA_DSC;
-  //  /** Standard EUR Forward 3M curve instrument definitions */
-  //  private static final InstrumentDefinition<?>[] DEFINITIONS_EUR_EONIA_FWD3;
-  //  /** Standard EUR Forward 6M curve instrument definitions */
-  //  private static final InstrumentDefinition<?>[] DEFINITIONS_EUR_EONIA_FWD6;
-  //  /** Standard EUR discounting curve instrument definitions */
-  //  private static final InstrumentDefinition<?>[] DEFINITIONS_EUR_FEDFUND_1_DSC;
-  //  /** Standard EUR Forward 3M curve instrument definitions */
-  //  private static final InstrumentDefinition<?>[] DEFINITIONS_EUR_FEDFUND_1_FWD3;
-  //  /** Standard EUR Forward 6M curve instrument definitions */
-  //  private static final InstrumentDefinition<?>[] DEFINITIONS_EUR_FEDFUND_1_FWD6;
-
   /** Units of curves */
   private static final int[] NB_UNITS = new int[] {5, 5 };
   private static final int NB_BLOCKS = NB_UNITS.length;
   private static final InstrumentDefinition<?>[][][][] DEFINITIONS_UNITS = new InstrumentDefinition<?>[NB_BLOCKS][][][];
   private static final GeneratorYDCurve[][][] GENERATORS_UNITS = new GeneratorYDCurve[NB_BLOCKS][][];
   private static final String[][][] NAMES_UNITS = new String[NB_BLOCKS][][];
-
-  private static final MulticurveProviderDiscount MULTICURVE_KNOWN_DATA = new MulticurveProviderDiscount(FX_MATRIX);
 
   @SuppressWarnings("unchecked")
   private static final LinkedHashMap<String, Currency>[] DSC_MAP = new LinkedHashMap[NB_BLOCKS];
@@ -390,32 +396,10 @@ public class RecentDataSetsMulticurveXCcyUsdEur {
   private static final LinkedHashMap<String, IborIndex[]>[] FWD_IBOR_MAP = new LinkedHashMap[NB_BLOCKS];
 
   static {
-    //    DEFINITIONS_USD_DSC = getDefinitions(DSC_USD_MARKET_QUOTES, DSC_USD_GENERATORS, DSC_USD_ATTR);
-    //    DEFINITIONS_USD_FWD3 = getDefinitions(FWD3_USD_MARKET_QUOTES, FWD3_USD_GENERATORS, FWD3_USD_ATTR);
-    //    DEFINITIONS_EUR_EONIA_DSC = getDefinitions(EUR_EONIA_DSC_MARKET_QUOTES, EUR_EONIA_DSC_GENERATORS, EUR_EONIA_DSC_ATTR);
-    //    DEFINITIONS_EUR_EONIA_FWD3 = getDefinitions(EUR_EONIA_FWD3_MARKET_QUOTES, EUR_EONIA_FWD3_GENERATORS, EUR_EONIA_FWD3_ATTR);
-    //    DEFINITIONS_EUR_EONIA_FWD6 = getDefinitions(EUR_EONIA_FWD6_MARKET_QUOTES, EUR_EONIA_FWD6_GENERATORS, EUR_EONIA_FWD6_ATTR);
-    //    DEFINITIONS_EUR_FEDFUND_1_DSC = getDefinitions(EUR_FEDFUND_1_DSC_MARKET_QUOTES, EUR_FEDFUND_1_DSC_GENERATORS, EUR_EONIA_DSC_ATTR);
-    //    DEFINITIONS_EUR_FEDFUND_1_FWD3 = getDefinitions(EUR_FEDFUND_1_FWD3_MARKET_QUOTES, EUR_FEDFUND_1_FWD3_GENERATORS, EUR_FEDFUND_1_FWD3_ATTR);
-    //    DEFINITIONS_EUR_FEDFUND_1_FWD6 = getDefinitions(EUR_FEDFUND_1_FWD6_MARKET_QUOTES, EUR_FEDFUND_1_FWD6_GENERATORS, EUR_FEDFUND_1_FWD6_ATTR);
-
     for (int loopblock = 0; loopblock < NB_BLOCKS; loopblock++) {
       DEFINITIONS_UNITS[loopblock] = new InstrumentDefinition<?>[NB_UNITS[loopblock]][][];
-      GENERATORS_UNITS[loopblock] = new GeneratorYDCurve[NB_UNITS[loopblock]][];
       NAMES_UNITS[loopblock] = new String[NB_UNITS[loopblock]][];
     }
-    //    DEFINITIONS_UNITS[0] = new InstrumentDefinition<?>[NB_UNITS[0]][][];
-    //    DEFINITIONS_UNITS[1] = new InstrumentDefinition<?>[NB_UNITS[1]][][];
-    //    DEFINITIONS_UNITS[0][0] = new InstrumentDefinition<?>[][] {DEFINITIONS_USD_DSC }; // USD - EUR EONIA
-    //    DEFINITIONS_UNITS[0][1] = new InstrumentDefinition<?>[][] {DEFINITIONS_USD_FWD3 };
-    //    DEFINITIONS_UNITS[0][2] = new InstrumentDefinition<?>[][] {DEFINITIONS_EUR_EONIA_DSC };
-    //    DEFINITIONS_UNITS[0][3] = new InstrumentDefinition<?>[][] {DEFINITIONS_EUR_EONIA_FWD3 };
-    //    DEFINITIONS_UNITS[0][4] = new InstrumentDefinition<?>[][] {DEFINITIONS_EUR_EONIA_FWD6 };
-    //    DEFINITIONS_UNITS[1][0] = new InstrumentDefinition<?>[][] {DEFINITIONS_USD_DSC }; // USD - EUR FF - 1
-    //    DEFINITIONS_UNITS[1][1] = new InstrumentDefinition<?>[][] {DEFINITIONS_USD_FWD3 };
-    //    DEFINITIONS_UNITS[1][2] = new InstrumentDefinition<?>[][] {DEFINITIONS_EUR_FEDFUND_1_DSC };
-    //    DEFINITIONS_UNITS[1][3] = new InstrumentDefinition<?>[][] {DEFINITIONS_EUR_FEDFUND_1_FWD3 };
-    //    DEFINITIONS_UNITS[1][4] = new InstrumentDefinition<?>[][] {DEFINITIONS_EUR_FEDFUND_1_FWD6 };
     final GeneratorYDCurve genIntLin = new GeneratorCurveYieldInterpolated(MATURITY_CALCULATOR, INTERPOLATOR_LINEAR);
     GENERATORS_UNITS[0] = new GeneratorYDCurve[NB_UNITS[0]][];
     GENERATORS_UNITS[1] = new GeneratorYDCurve[NB_UNITS[1]][];
@@ -431,11 +415,16 @@ public class RecentDataSetsMulticurveXCcyUsdEur {
     NAMES_UNITS[0][2] = new String[] {CURVE_NAME_EUR_EONIA_DSC };
     NAMES_UNITS[0][3] = new String[] {CURVE_NAME_EUR_EONIA_FWD3 };
     NAMES_UNITS[0][4] = new String[] {CURVE_NAME_EUR_EONIA_FWD6 };
-    NAMES_UNITS[0][0] = new String[] {CURVE_NAME_USD_DSC };
-    NAMES_UNITS[0][1] = new String[] {CURVE_NAME_USD_FWD3 };
-    NAMES_UNITS[0][2] = new String[] {CURVE_NAME_EUR_FEDFUND_1_DSC };
-    NAMES_UNITS[0][3] = new String[] {CURVE_NAME_EUR_FEDFUND_1_FWD3 };
-    NAMES_UNITS[0][4] = new String[] {CURVE_NAME_EUR_FEDFUND_1_FWD6 };
+    NAMES_UNITS[1][0] = new String[] {CURVE_NAME_USD_DSC };
+    NAMES_UNITS[1][1] = new String[] {CURVE_NAME_USD_FWD3 };
+    NAMES_UNITS[1][2] = new String[] {CURVE_NAME_EUR_FEDFUND_1_DSC };
+    NAMES_UNITS[1][3] = new String[] {CURVE_NAME_EUR_FEDFUND_1_FWD3 };
+    NAMES_UNITS[1][4] = new String[] {CURVE_NAME_EUR_FEDFUND_1_FWD6 };
+    for (int loopblock = 0; loopblock < NB_BLOCKS; loopblock++) {
+      DSC_MAP[loopblock] = new LinkedHashMap<>();
+      FWD_ON_MAP[loopblock] = new LinkedHashMap<>();
+      FWD_IBOR_MAP[loopblock] = new LinkedHashMap<>();
+    }
     DSC_MAP[0].put(CURVE_NAME_USD_DSC, USD);
     DSC_MAP[0].put(CURVE_NAME_EUR_EONIA_DSC, EUR);
     FWD_ON_MAP[0].put(CURVE_NAME_USD_DSC, new IndexON[] {INDEX_ON_USD });
@@ -483,7 +472,7 @@ public class RecentDataSetsMulticurveXCcyUsdEur {
     InstrumentDefinition<?>[] definitionsUsdFwd3 = getDefinitions(FWD3_USD_MARKET_QUOTES, FWD3_USD_GENERATORS, FWD3_USD_ATTR, calibrationDate);
     InstrumentDefinition<?>[] definitionsEurDsc = getDefinitions(EUR_EONIA_DSC_MARKET_QUOTES, EUR_EONIA_DSC_GENERATORS, EUR_EONIA_DSC_ATTR, calibrationDate);
     InstrumentDefinition<?>[] definitionsEurFwd3 = getDefinitions(EUR_EONIA_FWD3_MARKET_QUOTES, EUR_EONIA_FWD3_GENERATORS, EUR_EONIA_FWD3_ATTR, calibrationDate);
-    InstrumentDefinition<?>[] definitionsEurFwd6 = getDefinitions(EUR_EONIA_FWD6_MARKET_QUOTES, EUR_EONIA_FWD3_GENERATORS, EUR_EONIA_FWD6_ATTR, calibrationDate);
+    InstrumentDefinition<?>[] definitionsEurFwd6 = getDefinitions(EUR_EONIA_FWD6_MARKET_QUOTES, EUR_EONIA_FWD6_GENERATORS, EUR_EONIA_FWD6_ATTR, calibrationDate);
     definitionsUnits[0] = new InstrumentDefinition<?>[][] {definitionsUsdDsc };
     definitionsUnits[1] = new InstrumentDefinition<?>[][] {definitionsUsdFwd3 };
     definitionsUnits[2] = new InstrumentDefinition<?>[][] {definitionsEurDsc };
@@ -491,6 +480,32 @@ public class RecentDataSetsMulticurveXCcyUsdEur {
     definitionsUnits[4] = new InstrumentDefinition<?>[][] {definitionsEurFwd6 };
     return CurveCalibrationTestsUtils.makeCurvesFromDefinitionsMulticurve(calibrationDate, definitionsUnits, GENERATORS_UNITS[0],
         NAMES_UNITS[0], KNOWN_DATA, PSMQC, PSMQCSC, false, DSC_MAP[0], FWD_ON_MAP[0], FWD_IBOR_MAP[0], CURVE_BUILDING_REPOSITORY,
+        TS_FIXED_OIS_USD_WITH_TODAY, TS_FIXED_OIS_USD_WITHOUT_TODAY, TS_FIXED_IBOR_USD3M_WITH_LAST, TS_FIXED_IBOR_USD3M_WITHOUT_LAST);
+  }
+
+  /**
+   * Calibrate curves with hard-coded date and with calibration date the date provided. 
+   * The curves are discounting/overnight forward, Libor3M forward, Libor1M forward and Libor6M forward.
+   * OIS are used for the discounting curve from 1 month up to 30 years.
+   * Libor3M curve uses FRA and OIS.
+   * Libor1M and Libor6M use FRA and bsis swaps v 3M.
+   * @param calibrationDate The calibration date.
+   * @return The curves and the Jacobian matrices.
+   */
+  public static Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> getCurvesUsdOisL3EurFxXCcy3Bs6(ZonedDateTime calibrationDate) {
+    InstrumentDefinition<?>[][][] definitionsUnits = new InstrumentDefinition<?>[NB_UNITS[1]][][];
+    InstrumentDefinition<?>[] definitionsUsdDsc = getDefinitions(DSC_USD_MARKET_QUOTES, DSC_USD_GENERATORS, DSC_USD_ATTR, calibrationDate);
+    InstrumentDefinition<?>[] definitionsUsdFwd3 = getDefinitions(FWD3_USD_MARKET_QUOTES, FWD3_USD_GENERATORS, FWD3_USD_ATTR, calibrationDate);
+    InstrumentDefinition<?>[] definitionsEurDsc = getDefinitions(EUR_FEDFUND_1_DSC_MARKET_QUOTES, EUR_FEDFUND_1_DSC_GENERATORS, EUR_FEDFUND_1_DSC_ATTR, calibrationDate);
+    InstrumentDefinition<?>[] definitionsEurFwd3 = getDefinitions(EUR_FEDFUND_1_FWD3_MARKET_QUOTES, EUR_FEDFUND_1_FWD3_GENERATORS, EUR_FEDFUND_1_FWD3_ATTR, calibrationDate);
+    InstrumentDefinition<?>[] definitionsEurFwd6 = getDefinitions(EUR_FEDFUND_1_FWD6_MARKET_QUOTES, EUR_FEDFUND_1_FWD6_GENERATORS, EUR_FEDFUND_1_FWD6_ATTR, calibrationDate);
+    definitionsUnits[0] = new InstrumentDefinition<?>[][] {definitionsUsdDsc };
+    definitionsUnits[1] = new InstrumentDefinition<?>[][] {definitionsUsdFwd3 };
+    definitionsUnits[2] = new InstrumentDefinition<?>[][] {definitionsEurDsc };
+    definitionsUnits[3] = new InstrumentDefinition<?>[][] {definitionsEurFwd3 };
+    definitionsUnits[4] = new InstrumentDefinition<?>[][] {definitionsEurFwd6 };
+    return CurveCalibrationTestsUtils.makeCurvesFromDefinitionsMulticurve(calibrationDate, definitionsUnits, GENERATORS_UNITS[1],
+        NAMES_UNITS[1], KNOWN_DATA, PSMQC, PSMQCSC, false, DSC_MAP[1], FWD_ON_MAP[1], FWD_IBOR_MAP[1], CURVE_BUILDING_REPOSITORY,
         TS_FIXED_OIS_USD_WITH_TODAY, TS_FIXED_OIS_USD_WITHOUT_TODAY, TS_FIXED_IBOR_USD3M_WITH_LAST, TS_FIXED_IBOR_USD3M_WITHOUT_LAST);
   }
 
