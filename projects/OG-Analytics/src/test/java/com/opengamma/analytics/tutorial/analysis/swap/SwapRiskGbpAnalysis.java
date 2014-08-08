@@ -8,6 +8,8 @@ package com.opengamma.analytics.tutorial.analysis.swap;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
+import java.util.Map;
+
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
@@ -32,6 +34,8 @@ import com.opengamma.analytics.financial.instrument.swap.SwapCouponFixedCouponDe
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParRateDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
@@ -41,6 +45,8 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
+import com.opengamma.analytics.math.curve.DoublesCurve;
+import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.tutorial.datasets.RecentDataSetsMulticurveOisMeetingDatesGbp;
 import com.opengamma.analytics.tutorial.datasets.RecentDataSetsMulticurveStandardGbp;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -157,7 +163,7 @@ public class SwapRiskGbpAnalysis {
 
   @SuppressWarnings("unused")
   @Test
-  public void presentValue() {
+  public void presentValueStdCurve() {
     MultipleCurrencyAmount pvFixed = FIXED_LEG_1.accept(PVDC, MULTICURVE_STD);
     MultipleCurrencyAmount pvIbor = ON_LEG_1.accept(PVDC, MULTICURVE_STD);
     MultipleCurrencyAmount pvSwap1Std = SWAP_1.accept(PVDC, MULTICURVE_STD);
@@ -168,17 +174,59 @@ public class SwapRiskGbpAnalysis {
 
   @SuppressWarnings("unused")
   @Test
-  public void parRate() {
+  public void parRateStdCurve() {
     double pr1 = SWAP_1.accept(PRDC, MULTICURVE_STD);
     int t = 0;
   }
 
   @SuppressWarnings("unused")
   @Test
-  public void bucketedPv01() {
+  public void bucketedPv01StdCurve() {
     MultipleCurrencyParameterSensitivity pvmqs1Std = MQSBC.fromInstrument(SWAP_1, MULTICURVE_STD, BLOCK_STD).multipliedBy(BP1);
-    MultipleCurrencyParameterSensitivity pvmqs1Boe = MQSBC.fromInstrument(SWAP_1, MULTICURVE_BOE, BLOCK_BOE).multipliedBy(BP1);
     int t = 0;
+  }
+
+  @Test
+  public void presentValueBoeCurve() {
+    MultipleCurrencyAmount pvFixed = FIXED_LEG_1.accept(PVDC, MULTICURVE_BOE);
+    MultipleCurrencyAmount pvIbor = ON_LEG_1.accept(PVDC, MULTICURVE_BOE);
+    MultipleCurrencyAmount pvSwap1Std = SWAP_1.accept(PVDC, MULTICURVE_BOE);
+    assertTrue("SwapRiskUsdAnalysis: present value", pvFixed.getAmount(GBP) * pvIbor.getAmount(GBP) < 0);
+    assertEquals("SwapRiskUsdAnalysis: present value", pvSwap1Std.getAmount(GBP), 
+        pvFixed.getAmount(GBP) + pvIbor.getAmount(GBP), TOLERANCE_PV);
+    System.out.println("--- BOE PVs ---");
+    System.out.println("PV fixed-rate leg," + String.valueOf(pvFixed.getAmount(GBP)));
+    System.out.println("PV floating-rate leg," + String.valueOf(pvIbor.getAmount(GBP)));
+    System.out.println("PV swap," + String.valueOf(pvSwap1Std.getAmount(GBP)));
+  }
+
+  @Test
+  public void parRateBoeCurve() {
+    double pr1 = SWAP_1.accept(PRDC, MULTICURVE_BOE);
+    System.out.println("--- BOE Break-even rate ---");
+    System.out.println("Par rate," + String.valueOf(pr1));
+  }
+
+  @Test
+  public void bucketedPv0BoeCurve() {
+    MultipleCurrencyParameterSensitivity pvmqs1Boe = 
+        MQSBC.fromInstrument(SWAP_1, MULTICURVE_BOE, BLOCK_BOE).multipliedBy(BP1);
+    YieldCurve yc = (YieldCurve) MULTICURVE_BOE.getDiscountingCurves().values().iterator().next();
+    DoublesCurve ycValues = yc.getCurve();
+    Double[] dateFractions = ycValues.getXData();
+    Double[] zeroRates = ycValues.getYData();
+    System.out.println("--- BOE sensitivities ---");
+    System.out.println("date fraction,zero rate,pv01");
+    Map<Pair<String, Currency>, DoubleMatrix1D> sensitivitiesAllCurves = pvmqs1Boe.getSensitivities();
+    for(DoubleMatrix1D sensitivities : sensitivitiesAllCurves.values()) {
+      double[] values = sensitivities.getData();
+      for(int i = 0; i < values.length; ++i) {
+        System.out.println(
+            String.valueOf(dateFractions[i]) + "," +
+            String.valueOf(zeroRates[i]) + "," +
+            String.valueOf(values[i]));
+      }
+    }
   }
 
 }

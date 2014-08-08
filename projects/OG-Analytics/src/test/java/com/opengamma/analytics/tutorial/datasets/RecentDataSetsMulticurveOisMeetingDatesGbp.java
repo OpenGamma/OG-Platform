@@ -7,6 +7,7 @@ package com.opengamma.analytics.tutorial.datasets;
 
 import java.util.LinkedHashMap;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
@@ -91,14 +92,12 @@ public class RecentDataSetsMulticurveOisMeetingDatesGbp {
   /** Data as of 16-Jul-2014 */
   /** Market values for the dsc GBP curve */
   private static final double[] DSC_GBP_MARKET_QUOTES = new double[] {
-    0.0050, 0.00455, 0.00468, 0.004988, 0.006238,
+    0.00455, 0.00468, 0.004988, 0.006238,
     0.006475, 0.00675 };
   /** Tenors for the dsc GBP curve */
   private static final ZonedDateTime[] DSC_2_GBP_DATES = new ZonedDateTime[] {
     DateUtils.getUTCDate(2014, 8, 7), DateUtils.getUTCDate(2014, 9, 4), DateUtils.getUTCDate(2014, 10, 9), DateUtils.getUTCDate(2014, 11, 6),
     DateUtils.getUTCDate(2014, 12, 4), DateUtils.getUTCDate(2015, 1, 8), DateUtils.getUTCDate(2015, 2, 5) };
-  private static final int NB_DATES = DSC_2_GBP_DATES.length;
-
   /** Units of curves */
   private static final int NB_UNITS = 1;
   private static final int NB_BLOCKS = 1;
@@ -139,21 +138,27 @@ public class RecentDataSetsMulticurveOisMeetingDatesGbp {
       CurveCalibrationConventionDataSets.curveBuildingRepositoryMulticurve();
 
   /**
-   * Calibrate curves with hard-coded date and with calibration date the date provided. The curves are discounting/overnight forward,
-   * Libor3M forward, Libor1M forward and Libor6M forward.
+   * Calibrate curves with hard-coded date and with calibration date the date provided. The curves are 
+   * discounting/overnight forward, Libor3M forward, Libor1M forward and Libor6M forward.
    * @param calibrationDate The calibration date.
    * @return The curves and the Jacobian matrices.
    */
-  public static Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> getCurvesGbpOis(ZonedDateTime calibrationDate) {
+  public static Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> getCurvesGbpOis(
+      ZonedDateTime calibrationDate) {
     InstrumentDefinition<?>[][][] definitionsUnits = new InstrumentDefinition<?>[NB_UNITS][][];
-    ZonedDateTime[] dates = new ZonedDateTime[NB_DATES + 1];
-    dates[0] = calibrationDate;
-    System.arraycopy(DSC_2_GBP_DATES, 0, dates, 1, NB_DATES);
-    InstrumentDefinition<?>[] definitionsDsc = generateDatesOis(dates, DSC_GBP_MARKET_QUOTES);
-    definitionsUnits[0] = new InstrumentDefinition<?>[][] {definitionsDsc };
-    return CurveCalibrationTestsUtils.makeCurvesFromDefinitionsMulticurve(calibrationDate, definitionsUnits, GENERATORS_UNITS[0], NAMES_UNITS[0],
-        KNOWN_DATA, PSMQC, PSMQCSC, false, DSC_MAP, FWD_ON_MAP, FWD_IBOR_MAP, CURVE_BUILDING_REPOSITORY,
-        TS_FIXED_OIS_GBP_WITH_TODAY, TS_FIXED_OIS_GBP_WITHOUT_TODAY, TS_FIXED_IBOR_GBP6M_WITH_LAST, TS_FIXED_IBOR_GBP6M_WITHOUT_LAST);
+    InstrumentDefinition<?>[] definitionsDsc = generateDatesOis(DSC_2_GBP_DATES, DSC_GBP_MARKET_QUOTES);
+
+    /// Adding instruments to cover period between calibrationDate and first date of BOE instruments
+    InstrumentDefinition<?>[] definitionsOis = 
+        RecentDataSetsMulticurveStandardGbp.getDefinitionForFirstInstruments(calibrationDate, 5);
+    InstrumentDefinition<?>[] definitions = 
+        (InstrumentDefinition<?>[]) ArrayUtils.addAll(definitionsOis, definitionsDsc);
+    definitionsUnits[0] = new InstrumentDefinition<?>[][] {definitions};
+        
+    return CurveCalibrationTestsUtils.makeCurvesFromDefinitionsMulticurve(calibrationDate, definitionsUnits, 
+        GENERATORS_UNITS[0], NAMES_UNITS[0], KNOWN_DATA, PSMQC, PSMQCSC, false, DSC_MAP, FWD_ON_MAP, FWD_IBOR_MAP, 
+        CURVE_BUILDING_REPOSITORY,  TS_FIXED_OIS_GBP_WITH_TODAY, TS_FIXED_OIS_GBP_WITHOUT_TODAY, 
+        TS_FIXED_IBOR_GBP6M_WITH_LAST, TS_FIXED_IBOR_GBP6M_WITHOUT_LAST);
   }
 
   /**
@@ -257,7 +262,8 @@ public class RecentDataSetsMulticurveOisMeetingDatesGbp {
         cpnFixed[loopcpn] = (CouponFixedDefinition) cpn[loopcpn];
       }
       AnnuityCouponFixedDefinition fixedLegDefinition = new AnnuityCouponFixedDefinition(cpnFixed, LON);
-      AnnuityDefinition<? extends CouponDefinition> onLegDefinition = (AnnuityDefinition<? extends CouponDefinition>) new FloatingAnnuityDefinitionBuilder().
+      AnnuityDefinition<? extends CouponDefinition> onLegDefinition = (AnnuityDefinition<? extends CouponDefinition>) 
+          new FloatingAnnuityDefinitionBuilder().
           payer(false).
           notional(NOTIONAL_PROV).
           startDate(dates[loopimm].toLocalDate()).
