@@ -5,16 +5,23 @@
  */
 package com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.BitSet;
+import java.util.List;
 
 import cern.jet.random.engine.RandomEngine;
 
+import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.SABRModelFitter;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.SmileModelFitter;
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
 import com.opengamma.analytics.financial.model.volatility.smile.function.VolatilityFunctionProvider;
+import com.opengamma.analytics.math.MathException;
+import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResultsWithTransform;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -24,6 +31,7 @@ public class SmileInterpolatorSABR extends SmileInterpolator<SABRFormulaData> {
 
   private static final double DEFAULT_BETA = 0.9;
   private static final VolatilityFunctionProvider<SABRFormulaData> DEFAULT_SABR = new SABRHaganVolatilityFunction();
+  private static final double FIT_ERROR = 1e-4; //1bps
 
   private final double _beta;
   private final boolean _externalBeta;
@@ -181,6 +189,106 @@ public class SmileInterpolatorSABR extends SmileInterpolator<SABRFormulaData> {
   @Override
   protected SmileModelFitter<SABRFormulaData> getFitter(final double forward, final double[] strikes, final double expiry, final double[] impliedVols, final double[] errors) {
     return new SABRModelFitter(forward, strikes, expiry, impliedVols, errors, getModel());
+  }
+
+  /**
+   * Global fitter, i.e., a single SABR is calibrated across all of the data points
+   * @param forward The forward
+   * @param strikes The strikes
+   * @param expiry The expiry
+   * @param impliedVols The implied volatilities
+   * @return The SABR parameters
+   */
+  public List<SABRFormulaData> getFittedModelParametersGlobal(final double forward, final double[] strikes, final double expiry, final double[] impliedVols) {
+    ArgumentChecker.notNull(strikes, "strikes");
+    ArgumentChecker.notNull(impliedVols, "implied volatilities");
+    final int n = strikes.length;
+    ArgumentChecker.isTrue(n > 2, "cannot fit less than three points; have {}", n);
+    ArgumentChecker.isTrue(impliedVols.length == n, "#strikes != # vols; have {} and {}", impliedVols.length, n);
+    super.validateStrikes(strikes);
+
+    final List<SABRFormulaData> modelParameters = new ArrayList<>(n);
+
+    final double[] errors = new double[n];
+    Arrays.fill(errors, FIT_ERROR);
+
+    final SmileModelFitter<SABRFormulaData> globalFitter = getFitter(forward, strikes, expiry, impliedVols, errors);
+    final BitSet gFixed = getGlobalFixedValues();
+    LeastSquareResultsWithTransform gBest = null;
+    double chiSqr = Double.POSITIVE_INFINITY;
+
+    //TODO set these in sub classes
+    int tries = 0;
+    int count = 0;
+    while (chiSqr > 100.0 * n && count < 5) { //10bps average error
+      final DoubleMatrix1D gStart = getGlobalStart(forward, strikes, expiry, impliedVols);
+      try {
+        final LeastSquareResultsWithTransform glsRes = globalFitter.solve(gStart, gFixed);
+        if (glsRes.getChiSq() < chiSqr) {
+          gBest = glsRes;
+          chiSqr = gBest.getChiSq();
+        }
+        count++;
+      } catch (final Exception e) {
+        System.out.println(e.getMessage());
+      }
+      tries++;
+      if (tries > 20) {
+        throw new MathException("Cannot fit data");
+      }
+    }
+    if (gBest == null) {
+      throw new IllegalStateException("Global estimate was null; should never happen");
+    }
+
+    if (gBest.getChiSq() / n > 1.0) {
+      s_logger.debug("chi^2 on fit to ", +n + " points is " + gBest.getChiSq());
+    }
+    modelParameters.add(toSmileModelData(gBest.getModelParameters()));
+
+    return modelParameters;
+  }
+
+  @Override
+  public Function1D<Double, Double> getVolatilityFunction(final double forward, final double[] strikes, final double expiry, final double[] impliedVols) {
+
+    final List<SABRFormulaData> modelParams;
+    final int n;
+
+    if (getModel() instanceof SABRHaganVolatilityFunction) {
+      modelParams = getFittedModelParameters(forward, strikes, expiry, impliedVols);
+      n = strikes.length;
+    } else {
+      modelParams = getFittedModelParametersGlobal(forward, strikes, expiry, impliedVols);
+      n = 1;
+    }
+
+    return new Function1D<Double, Double>() {
+      @SuppressWarnings("synthetic-access")
+      @Override
+      public Double evaluate(final Double strike) {
+        final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, expiry, true);
+        final Function1D<SABRFormulaData, Double> volFunc = getModel().getVolatilityFunction(option, forward);
+        if (n == 1) {
+          return volFunc.evaluate(modelParams.get(0));
+        }
+        final int index = SurfaceArrayUtils.getLowerBoundIndex(strikes, strike);
+        if (index == 0) {
+          return volFunc.evaluate(modelParams.get(0));
+        }
+        if (index >= n - 2) {
+          return volFunc.evaluate(modelParams.get(n - 3));
+        }
+        final double w = getWeightingFunction().getWeight(strikes, index, strike);
+        if (w == 1) {
+          return volFunc.evaluate(modelParams.get(index - 1));
+        } else if (w == 0) {
+          return volFunc.evaluate(modelParams.get(index));
+        } else {
+          return w * volFunc.evaluate(modelParams.get(index - 1)) + (1 - w) * volFunc.evaluate(modelParams.get(index));
+        }
+      }
+    };
   }
 
   @Override

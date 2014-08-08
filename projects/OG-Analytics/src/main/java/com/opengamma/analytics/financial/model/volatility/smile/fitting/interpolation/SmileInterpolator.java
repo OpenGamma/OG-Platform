@@ -286,7 +286,11 @@ public abstract class SmileInterpolator<T extends SmileModelData> implements Gen
     return fitP;
   }
 
-  private void validateStrikes(final double[] strikes) {
+  /**
+   * Check strikes are in ascending order
+   * @param strikes The strikes
+   */
+  protected void validateStrikes(final double[] strikes) {
     final int n = strikes.length;
     for (int i = 1; i < n; i++) {
       ArgumentChecker.isTrue(strikes[i] > strikes[i - 1],

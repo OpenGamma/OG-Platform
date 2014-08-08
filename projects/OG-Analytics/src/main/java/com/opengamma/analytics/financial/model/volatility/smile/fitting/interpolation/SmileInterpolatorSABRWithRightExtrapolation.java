@@ -68,18 +68,16 @@ public class SmileInterpolatorSABRWithRightExtrapolation extends SmileInterpolat
     SABRFormulaData sabrData;
     final int n;
 
-    //TODO use global fit if failing
-    //    if (getModel() instanceof SABRHaganVolatilityFunction) {
-    modelParams = getFittedModelParameters(forward, strikes, expiry, impliedVols);
-    n = strikes.length;
-    sabrData = modelParams.get(n - 3);
-    //    } else {
-    //      n = 1;
-    //      modelParams = new ArrayList<>(n);
-    //      sabrData = toSmileModelData(getGlobalStart(forward, strikes, expiry, impliedVols));
-    //      modelParams.add(sabrData);
-    //    }
-    final SABRExtrapolationRightFunction sabrExtrapolation = new SABRExtrapolationRightFunction(forward, sabrData, _cutOffStrike, expiry, _mu);
+    if (getModel() instanceof SABRHaganVolatilityFunction) {
+      modelParams = getFittedModelParameters(forward, strikes, expiry, impliedVols);
+      n = strikes.length;
+      sabrData = modelParams.get(n - 3);
+    } else {
+      n = 1;
+      modelParams = getFittedModelParametersGlobal(forward, strikes, expiry, impliedVols);
+      sabrData = modelParams.get(0);
+    }
+    final SABRExtrapolationRightFunction sabrExtrapolation = new SABRExtrapolationRightFunction(forward, sabrData, _cutOffStrike, expiry, _mu, getModel());
 
     return new Function1D<Double, Double>() {
       @SuppressWarnings("synthetic-access")

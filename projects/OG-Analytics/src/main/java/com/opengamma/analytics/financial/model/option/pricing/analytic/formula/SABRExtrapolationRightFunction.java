@@ -9,6 +9,9 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
+import com.opengamma.analytics.financial.model.volatility.smile.function.VolatilityFunctionProvider;
+import com.opengamma.analytics.math.MathException;
+import com.opengamma.analytics.math.differentiation.FiniteDifferenceType;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.matrix.ColtMatrixAlgebra;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
@@ -78,7 +81,7 @@ public class SABRExtrapolationRightFunction {
   /**
    * Volatility provider function. Currently implemented only for SABRHaganVolatilityFunction.
    */
-  private final SABRHaganVolatilityFunction _sabrFunction;
+  private final VolatilityFunctionProvider<SABRFormulaData> _sabrFunction;
   /**
    * Black function used.
    */
@@ -105,6 +108,36 @@ public class SABRExtrapolationRightFunction {
     _timeToExpiry = timeToExpiry;
     _mu = mu;
     _sabrFunction = new SABRHaganVolatilityFunction();
+    if (timeToExpiry > SMALL_EXPIRY) {
+      _parameter = computesFittingParameters();
+    } else { // Implementation note: when time to expiry is very small, the price above the cut-off strike and its derivatives should be 0 (or at least very small).
+      _parameter = new double[] {SMALL_PARAMETER, 0.0, 0.0 };
+      _parameterDerivativeForward = new double[3];
+      _parameterDerivativeForwardComputed = true;
+      _parameterDerivativeSABR = new double[4][3];
+      _parameterDerivativeSABRComputed = true;
+    }
+  }
+
+  /**
+   * Constructor.
+   * @param forward The forward (rate or price).
+   * @param sabrData The SABR formula data.
+   * @param cutOffStrike The cut-off-strike.
+   * @param timeToExpiry The time to expiration.
+   * @param mu The mu parameter.
+   * @param volatilityFunction The SABR volatility function
+   */
+  public SABRExtrapolationRightFunction(final double forward, final SABRFormulaData sabrData, final double cutOffStrike, final double timeToExpiry, final double mu,
+      final VolatilityFunctionProvider<SABRFormulaData> volatilityFunction) {
+    Validate.notNull(sabrData, "SABR data");
+    Validate.notNull(volatilityFunction, "volatilityFunction");
+    _forward = forward;
+    _sabrData = sabrData;
+    _cutOffStrike = cutOffStrike;
+    _timeToExpiry = timeToExpiry;
+    _mu = mu;
+    _sabrFunction = volatilityFunction;
     if (timeToExpiry > SMALL_EXPIRY) {
       _parameter = computesFittingParameters();
     } else { // Implementation note: when time to expiry is very small, the price above the cut-off strike and its derivatives should be 0 (or at least very small).
@@ -149,7 +182,7 @@ public class SABRExtrapolationRightFunction {
     final double k = option.getStrike();
     if (k <= _cutOffStrike) { // Uses Hagan et al SABR function.
       final BlackPriceFunction blackFunction = new BlackPriceFunction();
-      final double[] volatilityAdjoint = _sabrFunction.getVolatilityAdjoint(option, _forward, _sabrData);
+      final double[] volatilityAdjoint = getVolatilityAdjoint(option, _forward, _sabrData);
       final BlackFunctionData dataBlack = new BlackFunctionData(_forward, 1.0, volatilityAdjoint[0]);
       final double[] bsAdjoint = blackFunction.getPriceAdjoint(option, dataBlack);
       pDK = bsAdjoint[3] + bsAdjoint[2] * volatilityAdjoint[2];
@@ -172,7 +205,7 @@ public class SABRExtrapolationRightFunction {
     double priceDerivative;
     final double k = option.getStrike();
     if (k <= _cutOffStrike) { // Uses Hagan et al SABR function.
-      final double[] volatilityA = _sabrFunction.getVolatilityAdjoint(option, _forward, _sabrData);
+      final double[] volatilityA = getVolatilityAdjoint(option, _forward, _sabrData);
       final BlackFunctionData dataBlack = new BlackFunctionData(_forward, 1.0, volatilityA[0]);
       pA = BLACK_FUNCTION.getPriceAdjoint(option, dataBlack);
       priceDerivative = pA[1] + pA[2] * volatilityA[1];
@@ -206,7 +239,7 @@ public class SABRExtrapolationRightFunction {
     double price;
     final double k = option.getStrike();
     if (k <= _cutOffStrike) { // Uses Hagan et al SABR function.
-      final double[] volatilityA = _sabrFunction.getVolatilityAdjoint(option, _forward, _sabrData);
+      final double[] volatilityA = getVolatilityAdjoint(option, _forward, _sabrData);
       final BlackFunctionData dataBlack = new BlackFunctionData(_forward, 1.0, volatilityA[0]);
       pA = BLACK_FUNCTION.getPriceAdjoint(option, dataBlack);
       price = pA[0];
@@ -305,7 +338,7 @@ public class SABRExtrapolationRightFunction {
     // Computes derivatives at cut-off.
     final double[] vD = new double[6];
     final double[][] vD2 = new double[2][2];
-    _volatilityK = _sabrFunction.getVolatilityAdjoint2(option, _forward, _sabrData, vD, vD2);
+    _volatilityK = getVolatilityAdjoint2(option, _forward, _sabrData, vD, vD2);
     final BlackFunctionData dataBlack = new BlackFunctionData(_forward, 1.0, _volatilityK);
     final double[] bsD = new double[3];
     final double[][] bsD2 = new double[3][3];
@@ -346,7 +379,7 @@ public class SABRExtrapolationRightFunction {
     final EuropeanVanillaOption option = new EuropeanVanillaOption(_cutOffStrike, _timeToExpiry, true);
     final double[] vD = new double[6];
     final double[][] vD2 = new double[2][2];
-    _sabrFunction.getVolatilityAdjoint2(option, _forward, _sabrData, vD, vD2);
+    getVolatilityAdjoint2(option, _forward, _sabrData, vD, vD2);
     final BlackFunctionData dataBlack = new BlackFunctionData(_forward, 1.0, _volatilityK);
     final double[] bsD = new double[3];
     final double[][] bsD2 = new double[3][3];
@@ -369,7 +402,7 @@ public class SABRExtrapolationRightFunction {
     final double bsD3ssK = (bsD2VP[1][2] - bsD2[1][2]) / (_volatilityK * shift);
     final double[] vDKP = new double[6];
     final double[][] vD2KP = new double[2][2];
-    _sabrFunction.getVolatilityAdjoint2(optionKP, _forward, _sabrData, vDKP, vD2KP);
+    getVolatilityAdjoint2(optionKP, _forward, _sabrData, vDKP, vD2KP);
     final double vD3KKF = (vD2KP[1][0] - vD2[1][0]) / (_cutOffStrike * shift);
     pDF[2] = bsD3FKK + bsD3sFK * vD[1] + (bsD3sFK + bsD3sFs * vD[1]) * vD[1] + bsD2[1][0] * vD2[1][1] + (bsD3sKK + bsD3ssK * vD[1] + (bsD3ssK + bsD3sss * vD[1]) * vD[1] + bsD2[1][1] * vD2[1][1])
         * vD[0] + 2 * (bsD2[2][1] + bsD2[1][1] * vD[1]) * vD2[1][0] + bsD[1] * vD3KKF;
@@ -416,7 +449,7 @@ public class SABRExtrapolationRightFunction {
     final EuropeanVanillaOption option = new EuropeanVanillaOption(_cutOffStrike, _timeToExpiry, true);
     final double[] vD = new double[6];
     final double[][] vD2 = new double[2][2];
-    _sabrFunction.getVolatilityAdjoint2(option, _forward, _sabrData, vD, vD2);
+    getVolatilityAdjoint2(option, _forward, _sabrData, vD, vD2);
     final BlackFunctionData dataBlack = new BlackFunctionData(_forward, 1.0, _volatilityK);
     for (int loopparam = 0; loopparam < 4; loopparam++) {
       final int paramIndex = 2 + loopparam;
@@ -451,7 +484,7 @@ public class SABRExtrapolationRightFunction {
           sabrDatapP = _sabrData.withNu(param + paramShift);
           break;
       }
-      _sabrFunction.getVolatilityAdjoint2(option, _forward, sabrDatapP, vDpP, vD2pP);
+      getVolatilityAdjoint2(option, _forward, sabrDatapP, vDpP, vD2pP);
       final double vD2Kp = (vDpP[1] - vD[1]) / paramShift;
       final double vD3KKa = (vD2pP[1][1] - vD2[1][1]) / paramShift;
       pDSABR[loopparam][1] = (bsD2[2][1] + bsD2[1][1] * vD[1]) * vD[paramIndex] + bsD[1] * vD2Kp;
@@ -508,6 +541,182 @@ public class SABRExtrapolationRightFunction {
    */
   private double extrapolationDerivative(final double strike) {
     return -extrapolation(strike) * (_mu + (_parameter[1] + 2 * _parameter[2] / strike) / strike) / strike;
+  }
+
+  private double[] getVolatilityAdjoint(final EuropeanVanillaOption option, final double forward, final SABRFormulaData data) {
+    if (_sabrFunction instanceof SABRHaganVolatilityFunction) {
+      return ((SABRHaganVolatilityFunction) _sabrFunction).getVolatilityAdjoint(option, forward, data);
+    }
+
+    //TODO Implement analytic formula for each volatility function
+    double eps = 1.0e-6;
+    double[] res = new double[7];
+    res[0] = _sabrFunction.getVolatilityFunction(option, forward).evaluate(data);
+    res[1] = fdSensitivity(option, forward, data, 1, eps);
+    res[2] = fdSensitivity(option, forward, data, 2, eps);
+    res[3] = fdSensitivity(option, forward, data, 3, eps);
+    res[4] = fdSensitivity(option, forward, data, 4, eps);
+    res[5] = fdSensitivity(option, forward, data, 5, eps);
+    res[6] = fdSensitivity(option, forward, data, 6, eps);
+    return res;
+  }
+
+  private double getVolatilityAdjoint2(final EuropeanVanillaOption option, final double forward, final SABRFormulaData data, final double[] volatilityD, final double[][] volatilityD2) {
+    if (_sabrFunction instanceof SABRHaganVolatilityFunction) {
+      return ((SABRHaganVolatilityFunction) _sabrFunction).getVolatilityAdjoint2(option, forward, data, volatilityD, volatilityD2);
+    }
+
+    //TODO Implement analytic formula for each volatility function
+    double eps = 1.0e-6;
+    volatilityD[0] = fdSensitivity(option, forward, data, 3, eps);
+    volatilityD[1] = fdSensitivity(option, forward, data, 4, eps);
+    volatilityD[2] = fdSensitivity(option, forward, data, 5, eps);
+    volatilityD[3] = fdSensitivity(option, forward, data, 6, eps);
+
+    double fwdUp = fdSensitivity(option, forward + eps, data, 1, eps);
+    double fwdDw = fdSensitivity(option, forward - eps, data, 1, eps);
+    double crUp = fdSensitivity(option, forward + eps, data, 2, eps);
+    double crDw = fdSensitivity(option, forward - eps, data, 2, eps);
+    double strUp = fdSensitivity(option.withStrike(option.getStrike() + eps), forward, data, 2, eps);
+    double strDw = fdSensitivity(option.withStrike(option.getStrike() - eps), forward, data, 2, eps);
+
+    volatilityD2[0][0] = 0.5 * (fwdUp - fwdDw) / eps;
+    volatilityD2[1][0] = 0.5 * (crUp - crDw) / eps;
+    volatilityD2[0][1] = volatilityD2[1][0];
+    volatilityD2[1][1] = 0.5 * (strUp - strDw) / eps;
+    return _sabrFunction.getVolatilityFunction(option, forward).evaluate(data);
+  }
+
+  private double fdSensitivity(final EuropeanVanillaOption optionData, final double forward, final SABRFormulaData sabrData, final int sense, final double delta) {
+
+    Function1D<SABRFormulaData, Double> funcC = null;
+    Function1D<SABRFormulaData, Double> funcB = null;
+    Function1D<SABRFormulaData, Double> funcA = null;
+    SABRFormulaData dataC = null;
+    SABRFormulaData dataB = sabrData;
+    SABRFormulaData dataA = null;
+    final Function1D<SABRFormulaData, Double> func = _sabrFunction.getVolatilityFunction(optionData, forward);
+
+    FiniteDifferenceType fdType = null;
+
+    switch (sense) {
+      case 1:
+        if (forward > delta) {
+          fdType = FiniteDifferenceType.CENTRAL;
+          funcA = _sabrFunction.getVolatilityFunction(optionData, forward - delta);
+          funcC = _sabrFunction.getVolatilityFunction(optionData, forward + delta);
+        } else {
+          fdType = FiniteDifferenceType.FORWARD;
+          funcA = func;
+          funcB = _sabrFunction.getVolatilityFunction(optionData, forward + delta);
+          funcC = _sabrFunction.getVolatilityFunction(optionData, forward + 2 * delta);
+        }
+        dataC = sabrData;
+        dataB = sabrData;
+        dataA = sabrData;
+        break;
+      case 2:
+        final double strike = optionData.getStrike();
+        if (strike >= delta) {
+          fdType = FiniteDifferenceType.CENTRAL;
+          funcA = _sabrFunction.getVolatilityFunction(optionData.withStrike(strike - delta), forward);
+          funcC = _sabrFunction.getVolatilityFunction(optionData.withStrike(strike + delta), forward);
+        } else {
+          fdType = FiniteDifferenceType.FORWARD;
+          funcA = func;
+          funcB = _sabrFunction.getVolatilityFunction(optionData.withStrike(strike + delta), forward);
+          funcC = _sabrFunction.getVolatilityFunction(optionData.withStrike(strike + 2 * delta), forward);
+        }
+        dataC = sabrData;
+        dataB = sabrData;
+        dataA = sabrData;
+        break;
+      case 3:
+        final double a = sabrData.getAlpha();
+        if (a >= delta) {
+          fdType = FiniteDifferenceType.CENTRAL;
+          dataA = sabrData.withAlpha(a - delta);
+          dataC = sabrData.withAlpha(a + delta);
+        } else {
+          fdType = FiniteDifferenceType.FORWARD;
+          dataA = sabrData;
+          dataB = sabrData.withAlpha(a + delta);
+          dataC = sabrData.withAlpha(a + 2 * delta);
+        }
+        funcC = func;
+        funcB = func;
+        funcA = func;
+        break;
+      case 4:
+        final double b = sabrData.getBeta();
+        if (b >= delta) {
+          fdType = FiniteDifferenceType.CENTRAL;
+          dataA = sabrData.withBeta(b - delta);
+          dataC = sabrData.withBeta(b + delta);
+        } else {
+          fdType = FiniteDifferenceType.FORWARD;
+          dataA = sabrData;
+          dataB = sabrData.withBeta(b + delta);
+          dataC = sabrData.withBeta(b + 2 * delta);
+        }
+        funcC = func;
+        funcB = func;
+        funcA = func;
+        break;
+      case 5:
+        final double r = sabrData.getRho();
+        if ((r + 1) < delta) {
+          fdType = FiniteDifferenceType.FORWARD;
+          dataA = sabrData;
+          dataB = sabrData.withRho(r + delta);
+          dataC = sabrData.withRho(r + 2 * delta);
+        } else if ((1 - r) < delta) {
+          fdType = FiniteDifferenceType.BACKWARD;
+          dataA = sabrData.withRho(r - 2 * delta);
+          dataB = sabrData.withRho(r - delta);
+          dataC = sabrData;
+        } else {
+          fdType = FiniteDifferenceType.CENTRAL;
+          dataC = sabrData.withRho(r + delta);
+          dataA = sabrData.withRho(r - delta);
+        }
+        funcC = func;
+        funcB = func;
+        funcA = func;
+        break;
+      case 6:
+        final double n = sabrData.getNu();
+        if (n >= delta) {
+          fdType = FiniteDifferenceType.CENTRAL;
+          dataA = sabrData.withNu(n - delta);
+          dataC = sabrData.withNu(n + delta);
+        } else {
+          fdType = FiniteDifferenceType.FORWARD;
+          dataA = sabrData;
+          dataB = sabrData.withNu(n + delta);
+          dataC = sabrData.withNu(n + 2 * delta);
+        }
+        funcC = func;
+        funcB = func;
+        funcA = func;
+        break;
+      default:
+        throw new MathException();
+    }
+
+    if (fdType != null) {
+      switch (fdType) {
+        case FORWARD:
+          return (-1.5 * funcA.evaluate(dataA) + 2.0 * funcB.evaluate(dataB) - 0.5 * funcC.evaluate(dataC)) / delta;
+        case BACKWARD:
+          return (0.5 * funcA.evaluate(dataA) - 2.0 * funcB.evaluate(dataB) + 1.5 * funcC.evaluate(dataC)) / delta;
+        case CENTRAL:
+          return (funcC.evaluate(dataC) - funcA.evaluate(dataA)) / 2.0 / delta;
+        default:
+          throw new MathException("enum not found");
+      }
+    }
+    throw new MathException();
   }
 
   /**

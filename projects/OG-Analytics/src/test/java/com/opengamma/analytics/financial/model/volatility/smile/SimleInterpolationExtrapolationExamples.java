@@ -16,9 +16,10 @@ import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpol
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.SmileInterpolatorSABR;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.SmileInterpolatorSABRWithRightExtrapolation;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.SmileInterpolatorSpline;
+import com.opengamma.analytics.financial.model.volatility.smile.function.SABRBerestyckiVolatilityFunction;
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRFormulaData;
+import com.opengamma.analytics.financial.model.volatility.smile.function.SABRHaganAlternativeVolatilityFunction;
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
-import com.opengamma.analytics.financial.model.volatility.smile.function.SABRJohnsonVolatilityFunction;
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRPaulotVolatilityFunction;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
@@ -48,9 +49,8 @@ public class SimleInterpolationExtrapolationExamples {
     }
   }
 
-  @Test
-      (enabled = false)
-      public void comparisonTest() {
+  @Test(enabled = false)
+  public void comparisonTest() {
     double forward = 1.1;
     double[] strikes = new double[] {0.7 * forward, 0.85 * forward, forward, 1.15 * forward, 1.3 * forward };
     double[] vols = new double[] {0.3, 0.23, 0.18, 0.2, 0.21 };
@@ -60,15 +60,27 @@ public class SimleInterpolationExtrapolationExamples {
     GeneralSmileInterpolator interp1 = new SmileInterpolatorMixedLogNormal();
     GeneralSmileInterpolator interp2 = new SmileInterpolatorSABR();
     GeneralSmileInterpolator interp3 = new SmileInterpolatorSABRWithRightExtrapolation(forward * 3.0, 2.5);
-    //    GeneralSmileInterpolator interp4 = new SmileInterpolatorSABR(new SABRJohnsonVolatilityFunction());
-    GeneralSmileInterpolator interp5 = new SmileInterpolatorSABRWithRightExtrapolation(new SABRJohnsonVolatilityFunction(), forward * 3.0, 2.5);
+    GeneralSmileInterpolator interp4 = new SmileInterpolatorSABR(new SABRBerestyckiVolatilityFunction());
+    GeneralSmileInterpolator interp5 = new SmileInterpolatorSABRWithRightExtrapolation(new SABRBerestyckiVolatilityFunction(), forward * 3.0, 2.5);
     GeneralSmileInterpolator interp6 = new SmileInterpolatorSABR(new SABRPaulotVolatilityFunction());
     GeneralSmileInterpolator interp7 = new SmileInterpolatorSABRWithRightExtrapolation(new SABRPaulotVolatilityFunction(), forward * 3.0, 2.5);
+    GeneralSmileInterpolator interp8 = new SmileInterpolatorSABR(new SABRHaganAlternativeVolatilityFunction());
+    GeneralSmileInterpolator interp9 = new SmileInterpolatorSABRWithRightExtrapolation(new SABRHaganAlternativeVolatilityFunction(), forward * 3.0, 2.5);
+
+    //    SABRJohnsonVolatilityFunction is not supported due to restriction on beta
+    //    GeneralSmileInterpolator interp10 = new SmileInterpolatorSABR(new SABRJohnsonVolatilityFunction());
+    //    GeneralSmileInterpolator interp11 = new SmileInterpolatorSABRWithRightExtrapolation(new SABRJohnsonVolatilityFunction(), forward * 3.0, 2.5);
 
     GeneralSmileInterpolator[] interps = new GeneralSmileInterpolator[] {
         interp0, interp1, interp2, interp3,
-        //        interp4,
-        interp5, interp6, interp7
+        interp4,
+        interp5,
+        interp6,
+        interp7,
+        interp8,
+        interp9,
+        //        interp10,
+        //        interp11
     };
     int nInterps = interps.length;
     InterpolatedSmileFunction[] functions = new InterpolatedSmileFunction[nInterps];
@@ -78,7 +90,7 @@ public class SimleInterpolationExtrapolationExamples {
 
     int nKeys = 200;
     for (int i = 0; i < nKeys; ++i) {
-      double key = forward * (0.1 + i * 0.1);
+      double key = forward * (0.1 + i * 8.0 / nKeys);
       System.out.print(key + "\t");
       for (int j = 0; j < nInterps; ++j) {
         System.out.print(functions[j].getVolatility(key) + "\t");
