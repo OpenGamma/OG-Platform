@@ -33,38 +33,43 @@ public final class CleanPriceFromCurvesCalculator extends InstrumentDerivativeVi
     return s_instance;
   }
 
+  // TODO : use the method with issuer when inflation curves with issuer are integrated.
+  private static final BondCapitalIndexedSecurityDiscountingMethod METHOD_INFLATION_BOND_SECURITY =
+      BondCapitalIndexedSecurityDiscountingMethod.getInstance();
+
+  private static final BondSecurityDiscountingMethod METHOD_BOND_SECURITY = BondSecurityDiscountingMethod.getInstance();
+
+  /**
+   * Scaling factor for displaying clean price
+   */
+  private static final int SCALING_FACTOR = 100;
+
   /**
    * Private constructor.
    */
   private CleanPriceFromCurvesCalculator() {
   }
 
-  /** The method used for bonds */
-  private static final BondSecurityDiscountingMethod METHOD_BOND_SECURITY = BondSecurityDiscountingMethod.getInstance();
+  //TODO add BondIborSecurity, BondInterestIndexedSecurity
 
   @Override
   public Double visitBondFixedSecurity(final BondFixedSecurity bond, final IssuerProviderInterface issuer) {
     ArgumentChecker.notNull(bond, "bond");
     ArgumentChecker.notNull(issuer, "Issuer provider");
-    return METHOD_BOND_SECURITY.cleanPriceFromCurves(bond, issuer) * 100;
+    return SCALING_FACTOR * METHOD_BOND_SECURITY.cleanPriceFromCurves(bond, issuer);
   }
-
   @Override
   public Double visitBondFixedTransaction(final BondFixedTransaction bond, final IssuerProviderInterface issuer) {
     ArgumentChecker.notNull(bond, "bond");
     ArgumentChecker.notNull(issuer, "Issuer provider");
-    return METHOD_BOND_SECURITY.cleanPriceFromCurves(bond.getBondTransaction(), issuer) * 100;
+    return SCALING_FACTOR * METHOD_BOND_SECURITY.cleanPriceFromCurves(bond.getBondStandard(), issuer);
   }
-
-  /** The method used for bonds */
-  // TODO : use the method with issuer when inflaiton curves with issuer are integrated.
-  private static final BondCapitalIndexedSecurityDiscountingMethod METHOD_INFLATION_BOND_SECURITY = BondCapitalIndexedSecurityDiscountingMethod.getInstance();
 
   @Override
   public Double visitBondCapitalIndexedTransaction(final BondCapitalIndexedTransaction<?> bond, final IssuerProviderInterface issuer) {
     ArgumentChecker.notNull(bond, "bond");
     ArgumentChecker.notNull(issuer, "Issuer provider");
     final InflationIssuerProviderInterface inflationIssuer = (InflationIssuerProviderInterface) issuer;
-    return METHOD_INFLATION_BOND_SECURITY.cleanRealPriceFromCurves(bond.getBondTransaction(), inflationIssuer) * 100;
+    return SCALING_FACTOR * METHOD_INFLATION_BOND_SECURITY.cleanRealPriceFromCurves(bond.getBondStandard(), inflationIssuer);
   }
 }

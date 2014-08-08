@@ -140,13 +140,13 @@ public class DbSecurityMasterTest extends AbstractDbSecurityTest {
   public void test_bond_withSearchByIssuer() throws Exception {
     ZonedDateTime zdt = ZonedDateTime.parse("2011-01-31T12:00Z[Europe/London]");
     GovernmentBondSecurity sec1 = new GovernmentBondSecurity("US TREASURY N/B", "issuerType", "issuerDomicile", "market",
-        Currency.GBP, SimpleYieldConvention.US_TREASURY_EQUIVALANT, new Expiry(zdt),
+        Currency.GBP, SimpleYieldConvention.US_TREASURY_EQUIVALENT, new Expiry(zdt),
         "couponType", 23.5d, SimpleFrequency.ANNUAL, DayCounts.ACT_ACT_ISDA,
         zdt, zdt, zdt, 129d, 1324d, 12d, 1d, 2d, 3d);
     sec1.addExternalId(ExternalId.of("abc", "def"));
     SecurityDocument added1 = _secMaster.add(new SecurityDocument(sec1));
     GovernmentBondSecurity sec2 = new GovernmentBondSecurity("UK GOVT", "issuerType", "issuerDomicile", "market",
-        Currency.GBP, SimpleYieldConvention.US_TREASURY_EQUIVALANT, new Expiry(zdt),
+        Currency.GBP, SimpleYieldConvention.US_TREASURY_EQUIVALENT, new Expiry(zdt),
         "couponType", 23.5d, SimpleFrequency.ANNUAL, DayCounts.ACT_ACT_ISDA,
         zdt, zdt, zdt, 129d, 1324d, 12d, 1d, 2d, 3d);
     sec2.addExternalId(ExternalId.of("abc", "def"));

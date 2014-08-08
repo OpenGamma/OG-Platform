@@ -224,13 +224,14 @@ public class IssuerProviderInterpolatedFunction extends
       }
       
       final IssuerProviderDiscount curveBundle = (IssuerProviderDiscount) getKnownData(inputs);
-      final LinkedHashMap<String, Pair<Integer, Integer>> unitMap = new LinkedHashMap<>();
       final LinkedHashMap<String, Pair<CurveBuildingBlock, DoubleMatrix2D>> unitBundles = new LinkedHashMap<>();
-      int totalNodes = 0;
+
       for (final CurveGroupConfiguration group: _curveConstructionConfiguration.getCurveGroups()) {
 
         for (final Map.Entry<String, List<? extends CurveTypeConfiguration>> entry: group.getTypesForCurves().entrySet()) {
-          
+
+          int totalNodes = 0;
+          final LinkedHashMap<String, Pair<Integer, Integer>> unitMap = new LinkedHashMap<>();
           final String curveName = entry.getKey();
           final List<? extends CurveTypeConfiguration> types = entry.getValue();
 

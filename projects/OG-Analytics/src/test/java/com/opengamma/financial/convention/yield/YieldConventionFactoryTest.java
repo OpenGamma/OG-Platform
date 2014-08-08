@@ -29,7 +29,7 @@ public class YieldConventionFactoryTest {
     assertEquals(FACTORY.getYieldConvention("UK:BUMP/DMO METHOD"), SimpleYieldConvention.UK_BUMP_DMO_METHOD);
     assertEquals(FACTORY.getYieldConvention("US I/L real"), SimpleYieldConvention.US_IL_REAL);
     assertEquals(FACTORY.getYieldConvention("US street"), SimpleYieldConvention.US_STREET);
-    assertEquals(FACTORY.getYieldConvention("US Treasury equivalent"), SimpleYieldConvention.US_TREASURY_EQUIVALANT);
+    assertEquals(FACTORY.getYieldConvention("US Treasury equivalent"), SimpleYieldConvention.US_TREASURY_EQUIVALENT);
     assertEquals(FACTORY.getYieldConvention("Money Market"), SimpleYieldConvention.MONEY_MARKET);
     assertEquals(FACTORY.getYieldConvention("JGB simple"), SimpleYieldConvention.JGB_SIMPLE);
     assertEquals(FACTORY.getYieldConvention("True"), SimpleYieldConvention.TRUE);

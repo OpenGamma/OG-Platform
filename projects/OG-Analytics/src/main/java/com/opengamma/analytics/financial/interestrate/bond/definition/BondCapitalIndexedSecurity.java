@@ -267,6 +267,7 @@ public class BondCapitalIndexedSecurity<C extends Coupon> extends BondSecurity<C
     if (getClass() != obj.getClass()) {
       return false;
     }
+    @SuppressWarnings("rawtypes")
     final BondCapitalIndexedSecurity other = (BondCapitalIndexedSecurity) obj;
     if (Double.doubleToLongBits(_accruedInterest) != Double.doubleToLongBits(other._accruedInterest)) {
       return false;

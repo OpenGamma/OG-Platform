@@ -45,6 +45,14 @@
       <property name="date" column="bondFutureLastDeliveryDate" type="timestamp" not-null="false"/>
       <property name="zone" column="bondFutureLastDeliveryDate_zone" type="string" not-null="false"/>
     </component>
+    <component name ="firstNoticeDate" class="com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean">
+      <property name="date" column="bondFutureFirstNoticeDate" type="timestamp" not-null="false"/>
+      <property name="zone" column="bondFutureFirstNoticeDate_zone" type="string" not-null="false"/>
+    </component>
+    <component name ="lastNoticeDate" class="com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean">
+      <property name="date" column="bondFutureLastNoticeDate" type="timestamp" not-null="false"/>
+      <property name="zone" column="bondFutureLastNoticeDate_zone" type="string" not-null="false"/>
+    </component>
 
     <subclass name="BondFutureBean" discriminator-value="Bond">
 

@@ -29,6 +29,16 @@ public class Interpolator1DLogPiecewisePoynomialDataBundle extends Interpolator1
     super(underlyingData, method);
   }
 
+  /**
+   * @param underlyingData Contains sorted data (x,y)
+   * @param method  {@link PiecewisePolynomialInterpolator}
+   * @param leftCond  Condition on left endpoint
+   * @param rightCond  Condition on right endpoint
+   */
+  public Interpolator1DLogPiecewisePoynomialDataBundle(final Interpolator1DDataBundle underlyingData, final PiecewisePolynomialInterpolator method, final double leftCond, final double rightCond) {
+    super(underlyingData, method, leftCond, rightCond);
+  }
+
   @Override
   public double[] getBreakPointsY() {
     final double[] bareY = super.getBreakPointsY();

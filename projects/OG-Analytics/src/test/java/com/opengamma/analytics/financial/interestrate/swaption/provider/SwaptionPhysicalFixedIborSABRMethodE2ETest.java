@@ -58,23 +58,21 @@ import com.opengamma.util.tuple.Pairs;
 @Test(groups = TestGroup.UNIT)
 public class SwaptionPhysicalFixedIborSABRMethodE2ETest {
 
-  private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2014, 1, 22);
+  /** The valuation date */
+  private static final ZonedDateTime VALUATION_DATE = DateUtils.getUTCDate(2014, 1, 22);
+  /** Curves, parametrs and indexes. */
+  private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_PAIR = StandardDataSetsMulticurveUSD.getCurvesUSDOisL1L3L6();
+  private static final MulticurveProviderDiscount MULTICURVE = MULTICURVE_PAIR.getFirst();
+  private static final CurveBuildingBlockBundle BLOCK = MULTICURVE_PAIR.getSecond();
   private static final IborIndex[] INDEX_IBOR_LIST = StandardDataSetsMulticurveUSD.indexIborArrayUSDOisL1L3L6();
   private static final IborIndex USDLIBOR3M = INDEX_IBOR_LIST[1];
   private static final Calendar NYC = StandardDataSetsMulticurveUSD.calendarArray()[0];
   private static final Currency USD = USDLIBOR3M.getCurrency();
-  // Standard conventions
   private static final GeneratorSwapFixedIborMaster GENERATOR_SWAP_FIXED_IBOR_MASTER = GeneratorSwapFixedIborMaster.getInstance();
   private static final GeneratorSwapFixedIbor USD6MLIBOR3M = GENERATOR_SWAP_FIXED_IBOR_MASTER.getGenerator("USD6MLIBOR3M", NYC);
-  // Curve Data
-  private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_PAIR = StandardDataSetsMulticurveUSD.getCurvesUSDOisL1L3L6();
-  private static final MulticurveProviderDiscount MULTICURVE = MULTICURVE_PAIR.getFirst();
-  private static final CurveBuildingBlockBundle BLOCK = MULTICURVE_PAIR.getSecond();
-  // SABR data
   private static final SABRInterestRateParameters SABR_PARAMETER = StandardDataSetsSABRSwaptionUSD.createSABR1();
   private static final SABRSwaptionProviderDiscount MULTICURVE_SABR = new SABRSwaptionProviderDiscount(MULTICURVE, SABR_PARAMETER, USD6MLIBOR3M);
-
-  // Standard swaption
+  /** Instrument description: Swaption */
   private static final double NOTIONAL = 100000000; //100m
   private static final ZonedDateTime EXPIRY_DATE = DateUtils.getUTCDate(2016, 1, 22); // 2Y
   private static final Period TENOR_SWAP_3M = Period.ofYears(7);
@@ -82,7 +80,7 @@ public class SwaptionPhysicalFixedIborSABRMethodE2ETest {
   private static final GeneratorAttributeIR ATTRIBUTE_3M = new GeneratorAttributeIR(TENOR_SWAP_3M);
   private static final SwapFixedIborDefinition SWAP_PAYER_DEFINITION = USD6MLIBOR3M.generateInstrument(EXPIRY_DATE, FIXED_RATE_3M, NOTIONAL, ATTRIBUTE_3M);
   private static final SwaptionPhysicalFixedIborDefinition SWAPTION_P_2Yx7Y_DEFINITION = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, SWAP_PAYER_DEFINITION, true, true);
-  private static final SwaptionPhysicalFixedIbor SWAPTION_P_2Yx7Y = SWAPTION_P_2Yx7Y_DEFINITION.toDerivative(REFERENCE_DATE);
+  private static final SwaptionPhysicalFixedIbor SWAPTION_P_2Yx7Y = SWAPTION_P_2Yx7Y_DEFINITION.toDerivative(VALUATION_DATE);
 
   private static final SwaptionPhysicalFixedIborSABRMethod METHOD_SWPT_SABR = SwaptionPhysicalFixedIborSABRMethod.getInstance();
   private static final PresentValueSABRSwaptionCalculator PVSSC = PresentValueSABRSwaptionCalculator.getInstance();
@@ -91,20 +89,22 @@ public class SwaptionPhysicalFixedIborSABRMethodE2ETest {
   private static final PresentValueSABRSensitivitySABRSwaptionCalculator PVSSSSC = PresentValueSABRSensitivitySABRSwaptionCalculator.getInstance();
   private static final ParameterSensitivityParameterCalculator<SABRSwaptionProviderInterface> PSC = new ParameterSensitivityParameterCalculator<>(PVCSSSC);
   private static final MarketQuoteSensitivityBlockCalculator<SABRSwaptionProviderInterface> MQSBC = new MarketQuoteSensitivityBlockCalculator<>(PSC);
-  //  private static final ParRateDiscountingCalculator PRDC = ParRateDiscountingCalculator.getInstance();
 
   private static final double TOLERANCE_PV = 1.0E-3;
   private static final double TOLERANCE_PV_DELTA = 1.0E-4;
   private static final double TOLERANCE_RATE = 1.0E-8;
   private static final double BP1 = 1.0E-4;
 
+  @Test
+  /** Present value of a swaption. */
   public void presentValue() {
     final MultipleCurrencyAmount pvComputed = SWAPTION_P_2Yx7Y.accept(PVSSC, MULTICURVE_SABR);
     final MultipleCurrencyAmount pvExpected = MultipleCurrencyAmount.of(USD, 3156216.4895777884);
-    //    final double pr = SWAPTION_P_2Yx7Y.getUnderlyingSwap().accept(PRDC, MULTICURVE);
     assertEquals("SwaptionPhysicalFixedIborSABRMethod: present value from standard curves", pvExpected.getAmount(USD), pvComputed.getAmount(USD), TOLERANCE_PV);
   }
 
+  @Test
+  /** implied Black volatility computed from the SABR parameters. */
   public void impliedVolatility() {
     final double volExpected = 0.29809226250599946;
     final double volComputed = METHOD_SWPT_SABR.impliedVolatility(SWAPTION_P_2Yx7Y, MULTICURVE_SABR);
@@ -122,9 +122,9 @@ public class SwaptionPhysicalFixedIborSABRMethodE2ETest {
     assertEquals("SwaptionPhysicalFixedIborSABRMethod: pv01 from standard curves", pv01fwd, pv01Computed.getMap().get(Pairs.of(MULTICURVE.getName(USDLIBOR3M), USD)), TOLERANCE_RATE);
   }
 
-  /**
-   * Test Bucketed PV01 with a standard set of data against hard-coded standard values for a swaption physical fixed vs LIBOR3M. Can be used for platform testing or regression testing.
-   */
+  @Test
+  /** Bucketed PV01: sensitivity with respect to the market quotes used in the curve calibration. 
+   *  The sensitivity is rescaled to a one basis point move. */
   public void BucketedPV01() {
     final double[] deltaDsc = {-0.8970521909327039, -0.8970528138871251, 2.0679726864123788E-5, -2.800077859468568E-4, 0.020545355340195248, -28.660344224880443, 1.0311659235333974,
       -101.02574104758263, -162.90022502561072, -34.11856047817592, -41.87866271284144, -47.20852985708558, -52.64477419064427,
@@ -139,6 +139,8 @@ public class SwaptionPhysicalFixedIborSABRMethodE2ETest {
     AssertSensitivityObjects.assertEquals("SwaptionPhysicalFixedIborSABRMethod: bucketed deltas from standard curves", pvpsExpected, pvpsComputed, TOLERANCE_PV_DELTA);
   }
 
+  @Test
+  /** Bucketed SABR risk: sensitivity with respect to the node of the SABR parameters surfaces. */
   public void BucketedSABRRisk() {
     final PresentValueSABRSensitivityDataBundle pvssComputed = SWAPTION_P_2Yx7Y.accept(PVSSSSC, MULTICURVE_SABR);
     final PresentValueSABRSensitivityDataBundle pvssNodeComputed = SABRSensitivityNodeCalculator.calculateNodeSensitivities(pvssComputed, SABR_PARAMETER);
