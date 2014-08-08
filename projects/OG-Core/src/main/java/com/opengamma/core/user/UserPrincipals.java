@@ -14,7 +14,7 @@ import com.opengamma.util.PublicAPI;
  * A user principals instance represents a user that has been logged in.
  * The user name is the primary principal used to identify the user.
  * Various secondary-level identifiers are also made available.
- * <p/> 
+ * <p>
  * This interface is read-only.
  * Implementations may be mutable.
  */

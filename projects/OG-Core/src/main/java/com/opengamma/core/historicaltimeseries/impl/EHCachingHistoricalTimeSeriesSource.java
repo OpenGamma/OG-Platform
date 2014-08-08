@@ -41,7 +41,7 @@ import com.opengamma.util.tuple.Pairs;
 
 /**
  * A cache decorating a {@code HistoricalTimeSeriesSource}.
- * <p/>
+ * <p>
  * The cache is implemented using {@code EHCache}.
  */
 public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeriesSource {
@@ -577,7 +577,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
      * Tests whether this key exactly matches the user request, or if it would be a larger time-series that needs to be
      * cut down to match.
      *
-     * @param true if an exact match, false if it needs trimming
+     * @return true if an exact match, false if it needs trimming
      */
     public boolean isMatch(final LocalDate start,
                            final boolean includeStart,

@@ -1,14 +1,14 @@
 /**
  * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
- * <p/>
+ *
  * Please see distribution for license.
  */
 package com.opengamma.core.legalentity;
 
-/** 
- * Seniority Levels 
- * 
- * Reference: https://www.markit.com/news/XMLGuide.pdf, 
+/**
+ * Seniority Levels.
+ *
+ * Reference: https://www.markit.com/news/XMLGuide.pdf,
  *            "XML User Guide - Markit Data",
  *            Version 10.3.8, November 2010.
  *

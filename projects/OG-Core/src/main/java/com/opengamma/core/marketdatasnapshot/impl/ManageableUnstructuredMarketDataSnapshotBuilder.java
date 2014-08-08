@@ -79,7 +79,7 @@ public class ManageableUnstructuredMarketDataSnapshotBuilder implements FudgeBui
         s_logger.warn("Massively old version of snapshot deserializer being used, trying to convert...");
         FudgeMsg valueSpec = (FudgeMsg) innerValue.getValue(VALUE_SPEC_NAME);
         if (innerValue.hasField(UNIQUE_ID_NAME)) {
-          identifiers = ExternalId.parse(valueSpec.getString(UNIQUE_ID_NAME)).toBundle();          
+          identifiers = ExternalId.parse(valueSpec.getString(UNIQUE_ID_NAME)).toBundle();
         } else {
           throw new OpenGammaRuntimeException("Detected out of date unstructured snapshot encoding, tried to convert but failed");
         }

@@ -15,10 +15,10 @@ import com.opengamma.util.PublicSPI;
 
 /**
  * A source of legal entity information as accessed by the main application.
- * <p/>
+ * <p>
  * This interface provides a simple read-only view of legal entities.
  * This may be backed by a full-featured legal entity master, or by a much simpler data structure.
- * <p/>
+ * <p>
  * This interface is read-only.
  * Implementations must be thread-safe.
  */
@@ -29,10 +29,10 @@ public interface LegalEntitySource
 
   /**
    * Gets an object by external identifier bundle and version-correction.
-   * <p/>
+   * <p>
    * This retrieves the object stored using the external identifier at the instant
    * specified by the version-correction. If not found, an exception is thrown.
-   * <p/>
+   * <p>
    * The identifier bundle represents those keys associated with a single object.
    * In an ideal world, all the identifiers in a bundle would refer to the same object.
    * However, since each identifier is not completely unique, multiple may match.
@@ -56,10 +56,10 @@ public interface LegalEntitySource
 
   /**
    * Gets an object by external identifier at the latest version-correction.
-   * <p/>
+   * <p>
    * This retrieves the object stored using the external identifier at the latest
    * version-correction. If not found, an exception is thrown.
-   * <p/>
+   * <p>
    * The identifier represents one of the keys associated with a single object.
    * In an ideal world, all the identifiers in a bundle would refer to the same object.
    * However, since each identifier is not completely unique, multiple may match.
@@ -77,10 +77,10 @@ public interface LegalEntitySource
 
   /**
    * Gets an object by external identifier bundle at the latest version-correction.
-   * <p/>
+   * <p>
    * This retrieves the object stored using the external identifier at the latest
    * version-correction. If not found, an exception is thrown.
-   * <p/>
+   * <p>
    * The identifier bundle represents those keys associated with a single object.
    * In an ideal world, all the identifiers in a bundle would refer to the same object.
    * However, since each identifier is not completely unique, multiple may match.
@@ -100,7 +100,7 @@ public interface LegalEntitySource
 
   /**
    * Gets objects by external identifier bundle at the latest version-correction.
-   * <p/>
+   * <p>
    * A bundle represents the set of external identifiers which in theory map to a single object.
    * Unfortunately, not all external identifiers uniquely identify a single version of a single object.
    * The default behavior in standard implementations should be to return any

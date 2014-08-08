@@ -32,7 +32,7 @@ public class ExternalIdWithDatesDisplayComparatorUtils {
       config = configSource.getLatestByName(ExternalIdOrderConfig.class, name);
       if (config == null) {
         s_logger.error("No ExternalIdOrderConfig object called " + name + " in config database, defaulting");
-        return new ExternalIdWithDatesDisplayComparator(ExternalIdOrderConfig.DEFAULT_CONFIG); 
+        return new ExternalIdWithDatesDisplayComparator(ExternalIdOrderConfig.DEFAULT_CONFIG);
       } else {
         return new ExternalIdWithDatesDisplayComparator(config);
       }

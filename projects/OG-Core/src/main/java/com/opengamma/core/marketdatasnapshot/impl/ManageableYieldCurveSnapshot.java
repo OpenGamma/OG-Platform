@@ -38,12 +38,12 @@ public final class ManageableYieldCurveSnapshot implements ImmutableBean, YieldC
   /**
    * The valuation instant.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final Instant _valuationTime;
   /**
    * The values.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final ManageableUnstructuredMarketDataSnapshot _values;
 
   /**
@@ -137,6 +137,7 @@ public final class ManageableYieldCurveSnapshot implements ImmutableBean, YieldC
    * Gets the valuation instant.
    * @return the value of the property, not null
    */
+  @Override
   public Instant getValuationTime() {
     return _valuationTime;
   }
@@ -146,6 +147,7 @@ public final class ManageableYieldCurveSnapshot implements ImmutableBean, YieldC
    * Gets the values.
    * @return the value of the property, not null
    */
+  @Override
   public ManageableUnstructuredMarketDataSnapshot getValues() {
     return _values;
   }

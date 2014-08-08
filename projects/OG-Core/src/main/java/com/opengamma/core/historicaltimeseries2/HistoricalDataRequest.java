@@ -24,7 +24,7 @@ import org.threeten.bp.LocalDate;
 
 import com.opengamma.id.ExternalIdBundle;
 
-/** 
+/**
  * Fields for a historicalDataRequest
  */
 @BeanDefinition

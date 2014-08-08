@@ -45,7 +45,7 @@ public class RemoteMarketDataSnapshotSource extends AbstractRemoteSource<NamedSn
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
         
     URI uri = DataMarketDataSnapshotSourceResource.uriGet(getBaseUri(), objectId, versionCorrection);
-    return accessRemote(uri).get(NamedSnapshot.class);        
+    return accessRemote(uri).get(NamedSnapshot.class);
   }
   
   @Override

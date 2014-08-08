@@ -176,7 +176,7 @@ public class NonVersionedRedisSecuritySource implements SecuritySource {
     }
     
     try (Timer.Context context = _putTimer.time()) {
-      byte[] securityData = SecurityFudgeUtil.convertToFudge(getFudgeContext(), security); 
+      byte[] securityData = SecurityFudgeUtil.convertToFudge(getFudgeContext(), security);
 
       Jedis jedis = getJedisPool().getResource();
       try {

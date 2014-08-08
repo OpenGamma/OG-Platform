@@ -136,7 +136,7 @@ public class TradeFudgeBuilder implements FudgeBuilder<Trade> {
       FudgeField uniqueIdField = message.getByName(UNIQUE_ID_FIELD_NAME);
       if (uniqueIdField != null) {
         trade.setUniqueId(deserializer.fieldValueToObject(UniqueId.class, uniqueIdField));
-      }      
+      }
     }
     if (message.hasField(QUANTITY_FIELD_NAME)) {
       FudgeField quantityField = message.getByName(QUANTITY_FIELD_NAME);
