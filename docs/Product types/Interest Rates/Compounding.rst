@@ -43,7 +43,7 @@ How to Specify compounding on a trade.
 IRS
 ####
 
-.. code:: Java
+.. code:: java
 
   com.opengamma.financial.security.irs.InterestRateSwapLeg.setCompoundingMethod().
 
