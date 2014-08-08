@@ -823,14 +823,14 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
   private static Pair<Double, Double> getInterpolationWeights(ZonedDateTime accrualStartDate, 
       ZonedDateTime accrualEndDate, ZonedDateTime firstInterpolatedDate, ZonedDateTime secondInterpolatedDate) {
     ArgumentChecker.isTrue(!accrualEndDate.isBefore(firstInterpolatedDate), 
-        "First interpolated date " + firstInterpolatedDate.toString() + 
-        " should be before or equal to the accrual end date " + accrualEndDate.toString());
+        "First interpolated date {} should be before or equal to the accrual end date {}", 
+        firstInterpolatedDate, accrualEndDate);
     ArgumentChecker.isTrue(!accrualEndDate.isAfter(secondInterpolatedDate), 
-        "Second interpolated date " + secondInterpolatedDate.toString() + 
-        " should be equal to or after the accrual end date " + accrualEndDate.toString());
+        "Second interpolated date {} should be equal to or after the accrual end date {}", 
+        secondInterpolatedDate, accrualEndDate);
     ArgumentChecker.isTrue(firstInterpolatedDate.isBefore(secondInterpolatedDate), 
-        "First interpolated date " + firstInterpolatedDate.toString() + 
-        " should be strictly before the second interpolated date " + secondInterpolatedDate.toString());
+        "First interpolated date {} should be strictly before the second interpolated date {}",
+        firstInterpolatedDate, secondInterpolatedDate);
 
     ActualActualISDA dayCount = new ActualActualISDA();
     double timeToPeriodEnd = TimeCalculator.getTimeBetween(accrualStartDate, accrualEndDate, dayCount);
