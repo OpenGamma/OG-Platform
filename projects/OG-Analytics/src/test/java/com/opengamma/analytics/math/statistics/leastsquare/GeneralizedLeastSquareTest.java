@@ -288,8 +288,8 @@ public class GeneralizedLeastSquareTest {
   @Test
   public void testPSplineFit2() {
     final BasisFunctionGenerator generator = new BasisFunctionGenerator();
-    List<Function1D<Double, Double>> basisFuncs = generator.generateSet(0, 12, 100, 3);
-    List<Function1D<Double, Double>> basisFuncsLog = generator.generateSet(-5, 3, 100, 3);
+    final List<Function1D<Double, Double>> basisFuncs = generator.generateSet(0, 12, 100, 3);
+    final List<Function1D<Double, Double>> basisFuncsLog = generator.generateSet(-5, 3, 100, 3);
 
     final GeneralizedLeastSquare gls = new GeneralizedLeastSquare();
 
@@ -299,16 +299,7 @@ public class GeneralizedLeastSquareTest {
     //  final double[] yData = new double[] {0.8, 4., 4.1, 5.6, 7., 8.1 };
 
     final double[] xData = new double[] {7. / 365, 14 / 365., 21 / 365., 1 / 12., 3 / 12., 0.5, 0.75, 1, 5, 10 };
-    final double[] yData = new double[] {0.972452371,
-        0.749039802,
-        0.759792085,
-        0.714206462,
-        0.604446956,
-        0.517955313,
-        0.474807307,
-        0.443532132,
-        0.2404755,
-        0.197128583,
+    final double[] yData = new double[] {0.972452371, 0.749039802, 0.759792085, 0.714206462, 0.604446956, 0.517955313, 0.474807307, 0.443532132, 0.2404755, 0.197128583,
 
     };
 
@@ -320,10 +311,10 @@ public class GeneralizedLeastSquareTest {
       yData2[i] = yData[i] * yData[i] * xData[i];
     }
 
-    Interpolator1DDataBundle db = interpolator.getDataBundle(xData, yData);
-    Interpolator1DDataBundle dbLog = interpolator.getDataBundle(lnX, yData);
-    Interpolator1DDataBundle dbVar = interpolator.getDataBundle(xData, yData2);
-    Interpolator1DDataBundle dbVarLog = interpolator.getDataBundle(lnX, yData2);
+    final Interpolator1DDataBundle db = interpolator.getDataBundle(xData, yData);
+    final Interpolator1DDataBundle dbLog = interpolator.getDataBundle(lnX, yData);
+    final Interpolator1DDataBundle dbVar = interpolator.getDataBundle(xData, yData2);
+    final Interpolator1DDataBundle dbVarLog = interpolator.getDataBundle(lnX, yData2);
 
     final double[] sigma = new double[n];
     Arrays.fill(sigma, 0.01);
@@ -343,9 +334,8 @@ public class GeneralizedLeastSquareTest {
       for (int i = 0; i < 101; i++) {
         final double logX = -5 + 8 * i / 100.;
         final double x = Math.exp(logX);
-        System.out.println(x + "\t" + +logX + "\t" + spline.evaluate(x) + "\t" + interpolator.interpolate(db, x) + "\t"
-            + splineLog.evaluate(logX) + "\t" + interpolator.interpolate(dbLog, logX) + "\t" + splineVar.evaluate(x) + "\t"
-            + interpolator.interpolate(dbVar, x) + "\t" + splineVarLog.evaluate(logX) + "\t" + interpolator.interpolate(dbVarLog, logX));
+        System.out.println(x + "\t" + +logX + "\t" + spline.evaluate(x) + "\t" + interpolator.interpolate(db, x) + "\t" + splineLog.evaluate(logX) + "\t" + interpolator.interpolate(dbLog, logX) +
+            "\t" + splineVar.evaluate(x) + "\t" + interpolator.interpolate(dbVar, x) + "\t" + splineVarLog.evaluate(logX) + "\t" + interpolator.interpolate(dbVarLog, logX));
       }
       for (int i = 0; i < n; i++) {
         System.out.println(lnX[i] + "\t" + yData[i]);
@@ -359,8 +349,7 @@ public class GeneralizedLeastSquareTest {
 
     final PSplineFitter psf = new PSplineFitter();
     final GeneralizedLeastSquareResults<double[]> results = psf.solve(X_COS_EXP, Y_COS_EXP, SIGMA_COS_EXP, new double[] {0.0, 0.0 }, new double[] {10.0, 10.0 }, new int[] {10, 10 },
-        new int[] {3, 3 },
-        new double[] {0.001, 0.001 }, new int[] {3, 3 });
+        new int[] {3, 3 }, new double[] {0.001, 0.001 }, new int[] {3, 3 });
 
     assertEquals(0.0, results.getChiSq(), 1e-9);
     final Function1D<double[], Double> spline = results.getFunction();

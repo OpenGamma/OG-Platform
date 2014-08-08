@@ -22,18 +22,20 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public class BasisSplineVolatilityTermStructureProvider implements VolatilitySurfaceProvider {
+public class BasisSplineVolatilitySurfaceProvider implements VolatilitySurfaceProvider {
 
-  private final List<Function1D<Double, Double>> _bSplines;
+  private final List<Function1D<double[], Double>> _bSplines;
 
-  public BasisSplineVolatilityTermStructureProvider(final List<Function1D<Double, Double>> bSlines) {
+  public BasisSplineVolatilitySurfaceProvider(final List<Function1D<double[], Double>> bSlines) {
     ArgumentChecker.noNulls(bSlines, "null bSplines");
     _bSplines = bSlines;
   }
 
-  public BasisSplineVolatilityTermStructureProvider(final double t1, final double t2, final int nKnots, final int degree) {
+  public BasisSplineVolatilitySurfaceProvider(final double k1, final double k2, final int nStrikeKnots, final int strikeDegree, final double t1, final double t2, final int nTimeKnots,
+      final int timeDegree) {
     final BasisFunctionGenerator gen = new BasisFunctionGenerator();
-    _bSplines = gen.generateSet(t1, t2, nKnots, degree);
+    _bSplines = gen.generateSet(new double[] {k1, t1 }, new double[] {k2, t2 }, new int[] {nStrikeKnots, nTimeKnots }, new int[] {strikeDegree, timeDegree });
+
   }
 
   /**
@@ -41,12 +43,12 @@ public class BasisSplineVolatilityTermStructureProvider implements VolatilitySur
    */
   @Override
   public VolatilitySurface getVolSurface(final DoubleMatrix1D modelParameters) {
-    final Function1D<Double, Double> func = new BasisFunctionAggregation<>(_bSplines, modelParameters.getData());
+    final Function1D<double[], Double> func = new BasisFunctionAggregation<>(_bSplines, modelParameters.getData());
 
     final Function2D<Double, Double> func2D = new Function2D<Double, Double>() {
       @Override
       public Double evaluate(final Double t, final Double k) {
-        return func.evaluate(t);
+        return func.evaluate(new double[] {t, k });
       }
     };
 
@@ -59,12 +61,12 @@ public class BasisSplineVolatilityTermStructureProvider implements VolatilitySur
    */
   @Override
   public Surface<Double, Double, DoubleMatrix1D> getVolSurfaceAdjoint(final DoubleMatrix1D modelParameters) {
-    final BasisFunctionAggregation<Double> bSpline = new BasisFunctionAggregation<>(_bSplines, modelParameters.getData());
+    final BasisFunctionAggregation<double[]> bSpline = new BasisFunctionAggregation<>(_bSplines, modelParameters.getData());
 
     final Function2D<Double, DoubleMatrix1D> func = new Function2D<Double, DoubleMatrix1D>() {
       @Override
       public DoubleMatrix1D evaluate(final Double t, final Double k) {
-        return bSpline.weightSensitivity(t);
+        return bSpline.weightSensitivity(new double[] {t, k });
       }
     };
 
@@ -75,4 +77,5 @@ public class BasisSplineVolatilityTermStructureProvider implements VolatilitySur
   public int getNumModelParameters() {
     return _bSplines.size();
   }
+
 }
