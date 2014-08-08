@@ -6,7 +6,6 @@
 package com.opengamma.master;
 
 import static com.google.common.collect.Maps.newHashMap;
-import static com.opengamma.lambdava.streams.Lambdava.functional;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -19,6 +18,7 @@ import org.threeten.bp.Instant;
 
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeManager;
@@ -176,8 +176,8 @@ public abstract class SimpleAbstractInMemoryMaster<D extends AbstractDocument>
         throw new IllegalArgumentException("Concurrent modification");
       }
       
-      Instant versionFromInstant = functional(orderedReplacementDocuments).first().getVersionFromInstant();
-      Instant versionToInstant = functional(orderedReplacementDocuments).last().getVersionToInstant();
+      Instant versionFromInstant = orderedReplacementDocuments.get(0).getVersionFromInstant();
+      Instant versionToInstant = Iterables.getLast(orderedReplacementDocuments).getVersionToInstant();
       changeManager().entityChanged(ChangeType.CHANGED, objectId.getObjectId(), versionFromInstant, versionToInstant, now);
       
       updateCaches(objectId, lastReplacementDocument);

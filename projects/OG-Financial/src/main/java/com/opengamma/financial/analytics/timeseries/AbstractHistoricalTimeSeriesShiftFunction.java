@@ -30,8 +30,9 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.lambdava.functions.Function3;
 import com.opengamma.timeseries.DoubleTimeSeriesOperators.UnaryOperator;
+import com.opengamma.util.function.Function;
+import com.opengamma.util.tuple.Triple;
 
 /**
  * Base class for functions to shift historical market data values, implemented using properties and constraints.
@@ -105,10 +106,10 @@ public abstract class AbstractHistoricalTimeSeriesShiftFunction<T> extends Abstr
   }
 
   protected HistoricalTimeSeriesBundle applyOverride(final FunctionExecutionContext context, final OverrideOperation operation, final HistoricalTimeSeriesBundle value) {
-    return value.apply(new Function3<String, ExternalIdBundle, HistoricalTimeSeries, HistoricalTimeSeries>() {
+    return value.apply(new Function<Triple<String, ExternalIdBundle, HistoricalTimeSeries>, HistoricalTimeSeries>() {
       @Override
-      public HistoricalTimeSeries execute(final String fieldName, final ExternalIdBundle ids, final HistoricalTimeSeries timeSeries) {
-        return applyOverride(context, operation, fieldName, ids, timeSeries);
+      public HistoricalTimeSeries apply(Triple<String, ExternalIdBundle, HistoricalTimeSeries> triple) {
+        return applyOverride(context, operation, triple.getFirst(), triple.getSecond(), triple.getThird());
       }
     });
   }

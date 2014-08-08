@@ -31,10 +31,6 @@
           <artifactId>scripts</artifactId>
         </exclusion>
         <exclusion>
-          <groupId>com.opengamma</groupId>
-          <artifactId>lambdava</artifactId>
-        </exclusion>
-        <exclusion>
           <groupId>net.sf.saxon</groupId>
           <artifactId>Saxon-HE</artifactId>
         </exclusion>

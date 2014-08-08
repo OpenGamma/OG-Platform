@@ -30,10 +30,6 @@
       <groupId>com.opengamma.tools</groupId>
       <artifactId>scripts</artifactId>
     </dependency>
-    <dependency>
-      <groupId>com.opengamma</groupId>
-      <artifactId>lambdava</artifactId>
-    </dependency>
 
     <dependency>
       <groupId>net.sf.saxon</groupId>

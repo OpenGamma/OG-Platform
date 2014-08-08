@@ -39,8 +39,8 @@ import com.opengamma.engine.target.ComputationTargetTypeVisitor;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.UniqueIdentifiable;
-import com.opengamma.lambdava.functions.Function2;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.function.BinaryOperator;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
 import com.opengamma.util.tuple.Triple;
@@ -280,9 +280,9 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
 
   }
 
-  private static final Function2<Iterable<Collection<ResolutionRule>>, Iterable<Collection<ResolutionRule>>, Iterable<Collection<ResolutionRule>>> s_foldRules = new Function2<Iterable<Collection<ResolutionRule>>, Iterable<Collection<ResolutionRule>>, Iterable<Collection<ResolutionRule>>>() {
+  private static final BinaryOperator<Iterable<Collection<ResolutionRule>>> s_foldRules = new BinaryOperator<Iterable<Collection<ResolutionRule>>>() {
     @Override
-    public Iterable<Collection<ResolutionRule>> execute(final Iterable<Collection<ResolutionRule>> a, final Iterable<Collection<ResolutionRule>> b) {
+    public Iterable<Collection<ResolutionRule>> apply(final Iterable<Collection<ResolutionRule>> a, final Iterable<Collection<ResolutionRule>> b) {
       if (a instanceof ChainedRuleBundle) {
         if (b instanceof ChainedRuleBundle) {
           return FoldedChainedRuleBundle.of((ChainedRuleBundle) a, (ChainedRuleBundle) b);
@@ -346,9 +346,9 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
     addRules(resolutionRules);
   }
 
-  private static final Function2<Iterable<Collection<ResolutionRule>>, Iterable<Collection<ResolutionRule>>, Iterable<Collection<ResolutionRule>>> s_combineChainedRuleBundle = new Function2<Iterable<Collection<ResolutionRule>>, Iterable<Collection<ResolutionRule>>, Iterable<Collection<ResolutionRule>>>() {
+  private static final BinaryOperator<Iterable<Collection<ResolutionRule>>> s_combineChainedRuleBundle = new BinaryOperator<Iterable<Collection<ResolutionRule>>>() {
     @Override
-    public Iterable<Collection<ResolutionRule>> execute(final Iterable<Collection<ResolutionRule>> a, final Iterable<Collection<ResolutionRule>> b) {
+    public Iterable<Collection<ResolutionRule>> apply(final Iterable<Collection<ResolutionRule>> a, final Iterable<Collection<ResolutionRule>> b) {
       if (!(a instanceof ChainedRuleBundle)) {
         throw new IllegalStateException("Rules have already been compiled - can't add new ones");
       }

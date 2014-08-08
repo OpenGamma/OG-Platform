@@ -5,8 +5,6 @@
  */
 package com.opengamma.batch.domain;
 
-import static com.opengamma.lambdava.streams.Lambdava.functional;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -26,6 +24,8 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.threeten.bp.Instant;
 
+import com.google.common.base.Function;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Sets;
 import com.opengamma.batch.BatchMaster;
 import com.opengamma.batch.SnapshotMode;
@@ -35,7 +35,6 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.lambdava.functions.Function1;
 
 /**
  * Bean to hold data about a risk run.
@@ -144,12 +143,13 @@ public class RiskRun extends DirectBean implements ObjectIdentifiable {
         Instant.now(),
         cycleMetadata.getValuationTime(),
         0,
-        functional(cycleMetadata.getAllCalculationConfigurationNames()).map(new Function1<String, CalculationConfiguration>() {
-          @Override
-          public CalculationConfiguration execute(String configName) {
-            return new CalculationConfiguration(configName);
-          }
-        }).asSet(),
+        FluentIterable.from(cycleMetadata.getAllCalculationConfigurationNames()).transform(
+            new Function<String, CalculationConfiguration>() {
+              @Override
+              public CalculationConfiguration apply(String configName) {
+                return new CalculationConfiguration(configName);
+              }
+            }).toSet(),
         Sets.<RiskRunProperty>newHashSet(),
         false,
         cycleMetadata.getVersionCorrection(),

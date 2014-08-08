@@ -14,7 +14,7 @@ import com.opengamma.financial.generator.AbstractPortfolioGeneratorTool;
 import com.opengamma.financial.generator.SecurityGenerator;
 import com.opengamma.id.ExternalId;
 import com.opengamma.integration.tool.IntegrationToolContext;
-import com.opengamma.lambdava.functions.Function2;
+import com.opengamma.util.function.BiFunction;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -26,9 +26,9 @@ public class PortfolioGeneratorTool extends AbstractPortfolioGeneratorTool {
     super.configureChain(securityGenerator);
     securityGenerator.setCurrencyCurveName("DEFAULT");
     securityGenerator.setPreferredScheme(ExternalSchemes.BLOOMBERG_TICKER);
-    securityGenerator.setSpotRateIdentifier(new Function2<Currency, Currency, ExternalId>() {
+    securityGenerator.setSpotRateIdentifier(new BiFunction<Currency, Currency, ExternalId>() {
       @Override
-      public ExternalId execute(final Currency a, final Currency b) {
+      public ExternalId apply(Currency a, Currency b) {
         return ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, a.getCode() + b.getCode() + " Curncy");
       }
     });
