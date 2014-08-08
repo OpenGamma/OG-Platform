@@ -41,7 +41,7 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
-import com.opengamma.analytics.tutorial.datasets.RecentDataSetsMulticurveOisMettingDatesGbp;
+import com.opengamma.analytics.tutorial.datasets.RecentDataSetsMulticurveOisMeetingDatesGbp;
 import com.opengamma.analytics.tutorial.datasets.RecentDataSetsMulticurveStandardGbp;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -135,7 +135,7 @@ public class SwapRiskGbpAnalysis {
   private static final CurveBuildingBlockBundle BLOCK_STD = MULTICURVE_STD_PAIR.getSecond();
 
   private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_BOE_PAIR =
-      RecentDataSetsMulticurveOisMettingDatesGbp.getCurvesGbpOis(VALUATION_DATE);
+      RecentDataSetsMulticurveOisMeetingDatesGbp.getCurvesGbpOis(VALUATION_DATE);
   private static final MulticurveProviderDiscount MULTICURVE_BOE = MULTICURVE_BOE_PAIR.getFirst();
   private static final CurveBuildingBlockBundle BLOCK_BOE = MULTICURVE_BOE_PAIR.getSecond();
 
