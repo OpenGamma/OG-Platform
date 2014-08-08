@@ -143,18 +143,6 @@
           <artifactId>freemarker</artifactId>
         </exclusion>
         <exclusion>
-          <groupId>org.springframework.amqp</groupId>
-          <artifactId>spring-amqp</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.springframework.amqp</groupId>
-          <artifactId>spring-rabbit</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>com.rabbitmq</groupId>
-          <artifactId>amqp-client</artifactId>
-        </exclusion>
-        <exclusion>
           <groupId>javax.jms</groupId>
           <artifactId>jms-api</artifactId>
         </exclusion>
