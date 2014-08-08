@@ -196,7 +196,7 @@ public class EHCachingPositionSource implements PositionSource {
 
   protected Position addToFrontCache(Position position, final VersionCorrection versionCorrection) {
     final Object f = _frontPositionOrTradeCache.putIfAbsent(position.getUniqueId(), position);
-    Position effectivePosition = (f instanceof Position? (Position) f : position);
+    Position effectivePosition = (f instanceof Position ? (Position) f : position);
     _frontCacheByOID.put(versionCorrection, effectivePosition.getUniqueId().getObjectId(), effectivePosition);
     return effectivePosition;
   }
