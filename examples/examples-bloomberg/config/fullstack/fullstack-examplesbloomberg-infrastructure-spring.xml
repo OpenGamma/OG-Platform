@@ -71,33 +71,6 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
   </bean>
 
   <!-- ================================================================== -->
-  <bean id="batDataSource" class="com.jolbox.bonecp.BoneCPDataSource" destroy-method="close">
-    <property name="driverClass" value="${db.batch.driver}" />
-    <property name="jdbcUrl" value="${db.batch.url}" />
-    <property name="username" value="${db.batch.username}" />
-    <property name="password" value="${db.batch.password}" />
-    <property name="poolName" value="Batch" />
-    <property name="partitionCount" value="1" />
-    <property name="acquireIncrement" value="1" />
-    <property name="minConnectionsPerPartition" value="1" />
-    <property name="maxConnectionsPerPartition" value="10" />
-  </bean>
-
-  <bean id="batDbConnector" class="com.opengamma.util.db.DbConnectorFactoryBean">
-    <property name="name" value="Batch"/>
-    <property name="dataSource" ref="batDataSource"/>
-    <property name="dialectName" value="${db.batch.dialect}"/>
-    <property name="transactionIsolationLevelName" value="ISOLATION_READ_COMMITTED" />
-    <property name="transactionPropagationBehaviorName" value="PROPAGATION_REQUIRED" />
-    <property name="allowHibernateThreadBoundSession" value="true"/>
-    <property name="hibernateMappingFiles">
-      <list>
-        <bean class="com.opengamma.masterdb.batch.HibernateBatchDbFiles"/>
-      </list> 
-    </property>
-  </bean>
-
-  <!-- ================================================================== -->
   <bean id="userDataSource" class="com.jolbox.bonecp.BoneCPDataSource" destroy-method="close">
     <property name="driverClass" value="${db.userfinancial.driver}" />
     <property name="jdbcUrl" value="${db.userfinancial.url}" />
