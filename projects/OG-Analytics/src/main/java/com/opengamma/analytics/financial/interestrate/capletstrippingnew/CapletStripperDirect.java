@@ -19,20 +19,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class CapletStripperDirect implements CapletStripper {
 
-  private static final Function1D<DoubleMatrix1D, Boolean> POSITIVE = new Function1D<DoubleMatrix1D, Boolean>() {
-    @Override
-    public Boolean evaluate(final DoubleMatrix1D x) {
-      final double[] data = x.getData();
-
-      for (final double value : data) {
-        if (value < 0) {
-          return false;
-        }
-      }
-      return true;
-    }
-
-  };
+  private static final Function1D<DoubleMatrix1D, Boolean> POSITIVE = new PositiveOrZero();
 
   private final MultiCapFloorPricerGrid _pricer;
   private final double _lambdaT;

@@ -8,6 +8,7 @@ package com.opengamma.analytics.financial.model.volatility.smile.function;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
+import org.mockito.ReturnValues;
 import org.testng.annotations.Test;
 
 import cern.jet.random.engine.MersenneTwister;
@@ -37,6 +38,16 @@ public class MixedLogNormalVolatilityModelTest {
     @Override
     public Function1D<MixedLogNormalModelData, Double> getVolatilityFunction(final EuropeanVanillaOption option, final double forward) {
       return VOL_FUNC.getVolatilityFunction(option, forward);
+    }
+
+    @Override
+    public int getNumberOfParameters() {
+      return VOL_FUNC.getNumberOfParameters();
+    }
+
+    @Override
+    public MixedLogNormalModelData toModelData(double[] parameters) {
+      return new MixedLogNormalModelData(parameters);
     }
   };
 

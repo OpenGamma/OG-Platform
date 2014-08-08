@@ -12,6 +12,7 @@ import java.util.Map;
 
 import org.testng.annotations.Test;
 
+import com.google.common.base.Strings;
 import com.opengamma.analytics.financial.interestrate.capletstrippingnew.CapFloor;
 import com.opengamma.analytics.financial.interestrate.capletstrippingnew.CapletStripper;
 import com.opengamma.analytics.financial.interestrate.capletstrippingnew.CapletStripperSmileModel;
@@ -25,6 +26,7 @@ import com.opengamma.analytics.financial.interestrate.capletstrippingnew.VectorF
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
+import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
@@ -49,12 +51,15 @@ public class SABRInterpolatedTermStructureDemo extends CapletStrippingSetup {
   private static Map<String, double[]> KNOTS;
   private static Map<String, ParameterLimitsTransform> TRANSFORMS;
   private static Map<String, Interpolator1D> INTERPOLATORS;
-  private static Interpolator1D BASE_INTERPOLATOR;
+  private static Map<String, InterpolatedVectorFunctionProvider> VF_PROV;
+  private static Interpolator1D DQ_INTERPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
+  private static Interpolator1D FLAT_INTERPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(
+      Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
 
   private static final DoubleMatrix1D START;
 
   static {
-    BASE_INTERPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
+
     KNOTS = new LinkedHashMap<>(NUM_SABR_PARMS);
     KNOTS.put(PARAMETER_NAMES[0], new double[] {1, 2, 3, 5, 7, 10 });
     KNOTS.put(PARAMETER_NAMES[1], new double[] {1 });
@@ -76,16 +81,23 @@ public class SABRInterpolatedTermStructureDemo extends CapletStrippingSetup {
     int pos = 0;
     for (int i = 0; i < NUM_SABR_PARMS; i++) {
       final int length = KNOTS.get(PARAMETER_NAMES[i]).length;
-      Arrays.fill(START.getData(), pos, length, startVal[i]);
+      Arrays.fill(START.getData(), pos, pos+length,  TRANSFORMS.get(PARAMETER_NAMES[i]).transform(startVal[i]));
       pos += length;
     }
 
     INTERPOLATORS = new LinkedHashMap<>(NUM_SABR_PARMS);
+    VF_PROV = new LinkedHashMap<>(NUM_SABR_PARMS);
     for (int i = 0; i < NUM_SABR_PARMS; i++) {
       final String name = PARAMETER_NAMES[i];
       final ParameterLimitsTransform trans = TRANSFORMS.get(name);
-      INTERPOLATORS.put(name, new TransformedInterpolator1D(BASE_INTERPOLATOR, trans));
+      if (name.equals("BETA")) {
+        INTERPOLATORS.put(name, new TransformedInterpolator1D(FLAT_INTERPOLATOR, trans));
+      } else {
+        INTERPOLATORS.put(name, new TransformedInterpolator1D(DQ_INTERPOLATOR, trans));
+      }
+      VF_PROV.put(name, new InterpolatedVectorFunctionProvider(INTERPOLATORS.get(name), KNOTS.get(name)));
     }
+
   }
 
   /**
@@ -100,19 +112,13 @@ public class SABRInterpolatedTermStructureDemo extends CapletStrippingSetup {
 
     final MultiCapFloorPricer pricer = new MultiCapFloorPricer(allCaps, yc);
 
-    final InterpolatedVectorFunctionProvider alphaPro = new InterpolatedVectorFunctionProvider(new TransformedInterpolator1D(BASE_INTERPOLATOR, ALPHA_TRANSFORM), ALPHA_KNOTS);
-    final InterpolatedVectorFunctionProvider betaPro = new InterpolatedVectorFunctionProvider(new TransformedInterpolator1D(CombinedInterpolatorExtrapolatorFactory.getInterpolator(
-        Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR), BETA_TRANSFORM), BETA_KNOTS);
-    final InterpolatedVectorFunctionProvider rhoPro = new InterpolatedVectorFunctionProvider(new TransformedInterpolator1D(BASE_INTERPOLATOR, RHO_TRANSFORM), RHO_KNOTS);
-    final InterpolatedVectorFunctionProvider nuPro = new InterpolatedVectorFunctionProvider(new TransformedInterpolator1D(BASE_INTERPOLATOR, NU_TRANSFORM), NU_KNOTS);
-
     final double[] t = pricer.getCapletExpiries();
-    final VectorFunction alpha = alphaPro.from(t);
-    final VectorFunction beta = betaPro.from(t);
-    final VectorFunction rho = rhoPro.from(t);
-    final VectorFunction nu = nuPro.from(t);
-
-    final VectorFunction modelToSmileParms = new ConcatenatedVectorFunction(new VectorFunction[] {alpha, beta, rho, nu });
+    final VectorFunction[] subFunctions = new VectorFunction[NUM_SABR_PARMS];
+    for (int i = 0; i < NUM_SABR_PARMS; i++) {
+      final String name = PARAMETER_NAMES[i];
+      subFunctions[i] = VF_PROV.get(name).from(t);
+    }
+    final VectorFunction modelToSmileParms = new ConcatenatedVectorFunction(subFunctions);
 
     final double[] errors = new double[allCaps.size()];
     Arrays.fill(errors, 0.01); // 100bps
@@ -121,14 +127,50 @@ public class SABRInterpolatedTermStructureDemo extends CapletStrippingSetup {
     final CapletStrippingResult res = stripper.solve(vols, MarketDataType.VOL, errors, START);
     System.out.println(res);
 
+    //Print out the market and model cap volatilities 
     final double[] modelVols = res.getModelCapVols();
     final int n = allCaps.size();
+    System.out.println("Market and model cap volatilities");
+   System.out.println("Strike\tExpiry\tMarket Vol\tModel Vol");
     for (int i = 0; i < n; i++) {
       final CapFloor cap = allCaps.get(i);
       System.out.println(cap.getStrike() + "\t" + cap.getEndTime() + "\t" + vols[i] + "\t" + modelVols[i]);
     }
-
+    
+    //print the caplet volatilities
+    System.out.println("\n");
+    res.printCapletVols(System.out);
+    
+    //print caplet volatility surface 
+    System.out.println("Caplet volatility Surface");
     res.printSurface(System.out, 101, 101);
+    System.out.println();
+    
+    //make the (calibrated) SABR parameter term structures, in order to print smooth curves 
+    DoubleMatrix1D fitParms = res.getFitParameters();
+    InterpolatedDoublesCurve[] curves = new InterpolatedDoublesCurve[NUM_SABR_PARMS];
+    int pos =0;
+    for(int i=0;i<NUM_SABR_PARMS;i++) {
+      String name = PARAMETER_NAMES[i];
+      double[] knots = KNOTS.get(name);
+      int length = knots.length;
+      double[] y = new double[length];
+      System.arraycopy(fitParms.getData(), pos, y, 0, length);
+      pos+=length;
+       curves[i] = new InterpolatedDoublesCurve(knots,y,INTERPOLATORS.get(name),true);    
+    }
+    
+    System.out.println("SABR parameter term structures"); 
+    System.out.println("time\talpha\tbeta\trho\tnu");
+    for(int i=0;i<101;i++) {
+      double time = t[t.length-1]*i/(100.0);
+      System.out.print(time);
+      for(int j=0;j<NUM_SABR_PARMS;j++) {
+        System.out.print("\t"+curves[j].getYValue(time));
+      }
+      System.out.println();
+    }
+    
 
   }
 }

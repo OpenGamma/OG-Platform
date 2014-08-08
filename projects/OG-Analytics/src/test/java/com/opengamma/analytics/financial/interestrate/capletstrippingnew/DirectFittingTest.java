@@ -79,7 +79,7 @@ public class DirectFittingTest extends CapletStrippingSetup {
     final DoubleMatrix1D guess = new DoubleMatrix1D(pricer.getGridSize(), 0.7);
 
     final CapletStrippingResult res = stripper.solve(capVols, MarketDataType.VOL, errors, guess);
-    System.out.println(res);
+    //System.out.println(res);
     assertEquals(106.90744994491888, res.getChiSq(), 1e-15);
   }
 

@@ -105,7 +105,7 @@ public class SABRFittingTest extends CapletStrippingSetup {
     final double[] vols = getAllCapVols();
 
     final CapletStrippingFunction func = new CapletStrippingFunction(caps, yc, VOL_MODEL_PROVIDER);
-    final CapletStrippingJacobian jac = new CapletStrippingJacobian(caps, yc, CURVE_NODES, INTERPOLATORS, TRANSFORMS, null);
+ //   final CapletStrippingJacobian jac = new CapletStrippingJacobian(caps, yc, CURVE_NODES, INTERPOLATORS, TRANSFORMS, null);
 
     final DoubleMatrix1D startVols = func.evaluate(START);
 
