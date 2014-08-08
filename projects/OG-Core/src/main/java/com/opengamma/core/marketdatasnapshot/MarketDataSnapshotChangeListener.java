@@ -18,6 +18,7 @@ public interface MarketDataSnapshotChangeListener extends ObjectChangeListener {
    * 
    * @param oid the object identifier, not null
    */
+  @Override
   void objectChanged(ObjectId oid);
 
 }

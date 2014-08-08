@@ -28,6 +28,7 @@ public interface HistoricalTimeSeries extends UniqueIdentifiable {
    * 
    * @return the unique identifier for this series, not null within the engine
    */
+  @Override
   UniqueId getUniqueId();
 
   /**

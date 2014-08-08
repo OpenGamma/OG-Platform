@@ -67,6 +67,7 @@ public class RedisSimulationSeriesSource extends NonVersionedRedisHistoricalTime
     super(jedisPool, redisPrefix, "RedisSimulationSeriesSource");
   }
 
+  @Override
   public RedisSimulationSeriesSource withSimulationDate(LocalDate date) {
     RedisSimulationSeriesSource redisSimulationSeriesSource = new RedisSimulationSeriesSource(getJedisPool(), getRedisPrefix());
     redisSimulationSeriesSource.setCurrentSimulationExecutionDate(date);
@@ -77,6 +78,7 @@ public class RedisSimulationSeriesSource extends NonVersionedRedisHistoricalTime
    * Gets the currentSimulationExecutionDate.
    * @return the currentSimulationExecutionDate
    */
+  @Override
   public LocalDate getCurrentSimulationExecutionDate() {
     return _currentSimulationExecutionDate;
   }
@@ -94,6 +96,7 @@ public class RedisSimulationSeriesSource extends NonVersionedRedisHistoricalTime
   // REDIS MANIPULATION OPERATIONS:
   // ------------------------------------------------------------------------
   
+  @Override
   public void updateTimeSeriesPoint(UniqueId uniqueId, LocalDate simulationExecutionDate, LocalDate valueDate, double value) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     ArgumentChecker.notNull(simulationExecutionDate, "simulationExecutionDate");
@@ -103,6 +106,7 @@ public class RedisSimulationSeriesSource extends NonVersionedRedisHistoricalTime
     updateTimeSeriesPoint(redisKey, valueDate, value);
   }
   
+  @Override
   public void updateTimeSeries(UniqueId uniqueId, LocalDate simulationExecutionDate, LocalDateDoubleTimeSeries timeseries) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     ArgumentChecker.notNull(simulationExecutionDate, "simulationExecutionDate");
@@ -112,6 +116,7 @@ public class RedisSimulationSeriesSource extends NonVersionedRedisHistoricalTime
     updateTimeSeries(redisKey, timeseries, false);
   }
   
+  @Override
   public void replaceTimeSeries(UniqueId uniqueId, LocalDate simulationExecutionDate, LocalDateDoubleTimeSeries timeSeries) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     ArgumentChecker.notNull(timeSeries, "timeSeries");
@@ -120,6 +125,7 @@ public class RedisSimulationSeriesSource extends NonVersionedRedisHistoricalTime
     updateTimeSeries(redisKey, timeSeries, true);
   }
   
+  @Override
   public void clearExecutionDate(LocalDate simulationExecutionDate) {
     final String keysPattern = getRedisPrefix() + "*_" + simulationExecutionDate.toString();
     Jedis jedis = getJedisPool().getResource();

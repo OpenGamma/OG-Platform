@@ -41,7 +41,7 @@ public class ManageableVolatilityCubeSnapshot implements Bean, VolatilityCubeSna
   /**
    * The values in the snapshot.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private Map<Triple<Object, Object, Object>, ValueSnapshot> _values;
 
   /**
@@ -144,6 +144,7 @@ public class ManageableVolatilityCubeSnapshot implements Bean, VolatilityCubeSna
    * Gets the values in the snapshot.
    * @return the value of the property, not null
    */
+  @Override
   public Map<Triple<Object, Object, Object>, ValueSnapshot> getValues() {
     return _values;
   }

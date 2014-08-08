@@ -27,6 +27,7 @@ public class DepthFirstPortfolioNodeTraverser extends PortfolioNodeTraverser {
    * 
    * @param portfolioNode the node to start from, null does nothing
    */
+  @Override
   public void traverse(PortfolioNode portfolioNode) {
     if (portfolioNode == null) {
       return;

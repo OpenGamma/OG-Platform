@@ -44,7 +44,7 @@ public class SimpleUserPrincipals implements Bean, UserPrincipals, Serializable 
    * The user name that uniquely identifies the user.
    * This is the primary identifier of a user.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private String _userName;
   /**
    * The bundle of alternate user identifiers.
@@ -52,7 +52,7 @@ public class SimpleUserPrincipals implements Bean, UserPrincipals, Serializable 
    * This allows the user identifiers of external systems to be associated with the account
    * Some of these may be unique within the external system, others may be more descriptive.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private ExternalIdBundle _alternateIds = ExternalIdBundle.EMPTY;
   /**
    * The network address of the user, which is intended to be an IP address.
@@ -60,12 +60,12 @@ public class SimpleUserPrincipals implements Bean, UserPrincipals, Serializable 
    * Unfortunately it is not possible to guarantee the presence of accuracy of the IP address,
    * notably as a result of web browser and network proxy restrictions.
    */
-  @PropertyDefinition
+  @PropertyDefinition(overrideGet = true)
   private String _networkAddress;
   /**
    * The primary email address associated with the account.
    */
-  @PropertyDefinition
+  @PropertyDefinition(overrideGet = true)
   private String _emailAddress;
 
   //-------------------------------------------------------------------------
@@ -144,6 +144,7 @@ public class SimpleUserPrincipals implements Bean, UserPrincipals, Serializable 
    * This is the primary identifier of a user.
    * @return the value of the property, not null
    */
+  @Override
   public String getUserName() {
     return _userName;
   }
@@ -175,6 +176,7 @@ public class SimpleUserPrincipals implements Bean, UserPrincipals, Serializable 
    * Some of these may be unique within the external system, others may be more descriptive.
    * @return the value of the property, not null
    */
+  @Override
   public ExternalIdBundle getAlternateIds() {
     return _alternateIds;
   }
@@ -210,6 +212,7 @@ public class SimpleUserPrincipals implements Bean, UserPrincipals, Serializable 
    * notably as a result of web browser and network proxy restrictions.
    * @return the value of the property
    */
+  @Override
   public String getNetworkAddress() {
     return _networkAddress;
   }
@@ -241,6 +244,7 @@ public class SimpleUserPrincipals implements Bean, UserPrincipals, Serializable 
    * Gets the primary email address associated with the account.
    * @return the value of the property
    */
+  @Override
   public String getEmailAddress() {
     return _emailAddress;
   }

@@ -31,6 +31,7 @@ public interface Portfolio extends UniqueIdentifiable, Attributable {
    * 
    * @return the unique identifier for this portfolio, not null within the engine
    */
+  @Override
   UniqueId getUniqueId();
 
   /**
