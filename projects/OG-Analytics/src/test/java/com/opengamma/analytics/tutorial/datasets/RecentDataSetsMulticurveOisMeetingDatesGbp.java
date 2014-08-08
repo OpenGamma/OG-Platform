@@ -60,7 +60,7 @@ import com.opengamma.util.tuple.Pair;
  * DSCON-OIS/LIBOR6M-FRAIRS
  * Recent market data. Standard instruments.
  */
-public class RecentDataSetsMulticurveOisMettingDatesGbp {
+public class RecentDataSetsMulticurveOisMeetingDatesGbp {
 
   private static final Interpolator1D INTERPOLATOR_LINEAR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
       Interpolator1DFactory.FLAT_EXTRAPOLATOR);
