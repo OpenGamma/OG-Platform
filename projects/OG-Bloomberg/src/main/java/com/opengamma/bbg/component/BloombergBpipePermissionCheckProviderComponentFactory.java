@@ -72,22 +72,25 @@ public class BloombergBpipePermissionCheckProviderComponentFactory extends Abstr
   //-------------------------------------------------------------------------
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
-    ArgumentChecker.isTrue(getIdentityExpiryTime().getSeconds() > 0, "identity expiry time must be positive");
+    
+    if (getBloombergConnector().requiresAuthentication()) {
+      ArgumentChecker.isTrue(getIdentityExpiryTime().getSeconds() > 0, "identity expiry time must be positive");
 
-    final ComponentInfo info = new ComponentInfo(PermissionCheckProvider.class, getClassifier());
-    info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
-    info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemotePermissionCheckProvider.class);
-    info.addAttribute(ComponentInfoAttributes.ACCEPTED_TYPES, BloombergPermissions.BLOOMBERG_PREFIX);
+      final ComponentInfo info = new ComponentInfo(PermissionCheckProvider.class, getClassifier());
+      info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
+      info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemotePermissionCheckProvider.class);
+      info.addAttribute(ComponentInfoAttributes.ACCEPTED_TYPES, BloombergPermissions.BLOOMBERG_PREFIX);
 
-    BloombergBpipePermissionCheckProvider provider = new BloombergBpipePermissionCheckProvider(
-        getBloombergConnector(), getIdentityExpiryTime());
-    repo.registerComponent(info, provider);
-    if (isPublishRest()) {
-      repo.getRestComponents().publish(info, new DataPermissionCheckProviderResource(provider));
-    }
-    if (AuthUtils.isPermissive() == false) {
-      AuthUtils.getPermissionResolver().register(
-          new ProviderBasedPermissionResolver(BloombergPermissions.BLOOMBERG_PREFIX, provider));
+      BloombergBpipePermissionCheckProvider provider = new BloombergBpipePermissionCheckProvider(
+          getBloombergConnector(), getIdentityExpiryTime());
+      repo.registerComponent(info, provider);
+      if (isPublishRest()) {
+        repo.getRestComponents().publish(info, new DataPermissionCheckProviderResource(provider));
+      }
+      if (AuthUtils.isPermissive() == false) {
+        AuthUtils.getPermissionResolver().register(
+            new ProviderBasedPermissionResolver(BloombergPermissions.BLOOMBERG_PREFIX, provider));
+      }
     }
   }
 

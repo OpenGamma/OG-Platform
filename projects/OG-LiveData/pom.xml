@@ -26,11 +26,6 @@
       <artifactId>og-core</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <dependency>
-      <groupId>com.opengamma.platform</groupId>
-      <artifactId>og-security</artifactId>
-      <version>${project.version}</version>
-    </dependency>
 
     <dependency>
       <groupId>org.apache.activemq</groupId>
