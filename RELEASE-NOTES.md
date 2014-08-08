@@ -8,3 +8,13 @@ Upgrading to 2.4.0 from 2.3.0
 
 To 2.4.0-M1
 -----------
+
+* Bug
+    * [PLAT-6666] - Stub period rate interpolation
+    * [PLAT-6672] - CouponPaymentVisitor and CouponTenorVisitor do not support CouponIborCompoundingSpreadDefinition
+* Improvement
+    * [PLAT-6673] - Upgrade to Joda-Beans 1.1
+    * [PLAT-6674] - Fix generation of testing outputs
+* Task
+    * [PLAT-6667] - Add CurveSensitivities object
+    * [PLAT-6670] - Convert ReferenceAmount to a joda bean
