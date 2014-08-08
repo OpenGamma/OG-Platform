@@ -15,6 +15,8 @@ import com.opengamma.analytics.financial.provider.calculator.discounting.Present
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.financial.analytics.conversion.FRASecurityConverter;
+import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
+import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.fra.ForwardRateAgreementSecurity;
 import com.opengamma.util.ArgumentChecker;
@@ -72,15 +74,21 @@ public class DiscountingFRACalculator implements FRACalculator {
    * @param bundle the multicurve bundle, including the curves, not null
    * @param fraConverter converter for transforming a fra into its InstrumentDefinition form, not null
    * @param valuationTime the ZonedDateTime, not null
+   * @param definitionConverter converter for transforming the instrumentDefinition into the Derivative, not null
+   * @param fixings the HistoricalTimeSeriesBundle, a collection of historical time-series objects
    */
   public DiscountingFRACalculator(ForwardRateAgreementSecurity security,
                                   MulticurveProviderDiscount bundle,
                                   FRASecurityConverter fraConverter,
-                                  ZonedDateTime valuationTime) {
+                                  ZonedDateTime valuationTime,
+                                  FixedIncomeConverterDataProvider definitionConverter,
+                                  HistoricalTimeSeriesBundle fixings) {
     ArgumentChecker.notNull(security, "security");
     ArgumentChecker.notNull(fraConverter, "fraConverter");
     ArgumentChecker.notNull(valuationTime, "valuationTime");
-    _derivative = createInstrumentDerivative(security, fraConverter, valuationTime);
+    ArgumentChecker.notNull(definitionConverter, "definitionConverter");
+    ArgumentChecker.notNull(fixings, "fixings");
+    _derivative = createInstrumentDerivative(security, fraConverter, valuationTime, definitionConverter, fixings);
     _bundle = ArgumentChecker.notNull(bundle, "bundle");
   }
 
@@ -113,9 +121,11 @@ public class DiscountingFRACalculator implements FRACalculator {
   
   private InstrumentDerivative createInstrumentDerivative(ForwardRateAgreementSecurity security,
       FRASecurityConverter fraConverter,
-      ZonedDateTime valuationTime) {
+      ZonedDateTime valuationTime,
+      FixedIncomeConverterDataProvider definitionConverter,
+      HistoricalTimeSeriesBundle fixings) {
     InstrumentDefinition<?> definition = security.accept(fraConverter);
-    return definition.toDerivative(valuationTime);
+    return definitionConverter.convert(security, definition, valuationTime, fixings);
   }
 
 }

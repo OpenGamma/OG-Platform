@@ -15,8 +15,10 @@ import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
+import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
+import com.opengamma.financial.security.fra.ForwardRateAgreementSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.future.DeliverableSwapFutureSecurity;
 import com.opengamma.financial.security.future.FederalFundsFutureSecurity;
@@ -160,6 +162,15 @@ public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
         ids.add(id.toBundle());
       }
       return getTimeSeriesBundle(MarketDataRequirementNames.MARKET_VALUE, Period.ofYears(1), ids.toArray(new ExternalIdBundle[ids.size()]));
+    }
+
+    @Override
+    public Result<HistoricalTimeSeriesBundle> visitForwardRateAgreementSecurity(
+        final ForwardRateAgreementSecurity security) {
+      ForwardRateAgreementSecurity fra = (ForwardRateAgreementSecurity) security;
+      ExternalIdBundle id = fra.getUnderlyingId().toBundle();
+      PeriodFrequency period = PeriodFrequency.convertToPeriodFrequency(fra.getIndexFrequency());
+      return getTimeSeriesBundle(MarketDataRequirementNames.MARKET_VALUE, period.getPeriod(), id);
     }
 
   }
