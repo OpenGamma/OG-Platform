@@ -460,17 +460,7 @@ public class FixedIncomeConverterDataProvider {
     @Override
     public InstrumentDerivative convert(final ForwardRateAgreementSecurity security, final ForwardRateAgreementDefinition definition, final ZonedDateTime now,
         final HistoricalTimeSeriesBundle timeSeries) {
-      ExternalIdBundle indexIdBundle;
-      final ExternalId indexId = security.getUnderlyingId();
-      final ConventionBundle indexConvention = _conventionSource.getConventionBundle(indexId);
-      if (indexConvention == null) {  // convention lookup should be removed once ibor securities used everywhere
-        indexIdBundle = getIndexIborIdBundle(security.getUnderlyingId());
-      } else {
-        indexIdBundle = indexConvention.getIdentifiers();
-      }
-      if (indexIdBundle == null) {
-        throw new OpenGammaRuntimeException("Could not load ibor security or convention for " + security.getUnderlyingId());
-      }
+      final ExternalIdBundle indexIdBundle = getIndexIborIdBundle(security.getUnderlyingId());
       final HistoricalTimeSeries ts = timeSeries.get(MarketDataRequirementNames.MARKET_VALUE, indexIdBundle);
       if (ts == null) {
         throw new OpenGammaRuntimeException("Could not get price time series for " + indexIdBundle);
@@ -480,7 +470,7 @@ public class FixedIncomeConverterDataProvider {
       localDateTS = localDateTS.divide(100);
       final ZonedDateTimeDoubleTimeSeries indexTS = convertTimeSeries(localDateTS);
       // TODO: remove the zone
-      return definition.toDerivative(now, indexTS);
+      return definition.toDerivative(now, indexTS);      
     }
   };
 
