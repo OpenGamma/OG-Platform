@@ -74,6 +74,7 @@ import com.opengamma.web.historicaltimeseries.WebAllHistoricalTimeSeriesResource
 import com.opengamma.web.holiday.WebHolidaysResource;
 import com.opengamma.web.legalentity.WebLegalEntitiesResource;
 import com.opengamma.web.marketdatasnapshot.WebMarketDataSnapshotsResource;
+import com.opengamma.web.namedsnapshot.WebNamedSnapshotsResource;
 import com.opengamma.web.portfolio.WebPortfoliosResource;
 import com.opengamma.web.position.WebPositionsResource;
 import com.opengamma.web.region.WebRegionsResource;
@@ -309,6 +310,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     resourceParameters.put(WebHolidaysResource.class,  params(getHolidayMaster()));
     resourceParameters.put(WebRegionsResource.class,   params(getRegionMaster()));
     resourceParameters.put(WebConventionsResource.class, params(getConventionMaster()));
+    resourceParameters.put(WebNamedSnapshotsResource.class, params(getMarketDataSnapshotMaster()));
     resourceParameters.put(WebLegalEntitiesResource.class, params(getLegalEntityMaster(), getSecurityMaster()));
     resourceParameters.put(WebSecuritiesResource.class, params(getSecurityMaster(), getSecurityLoader(), getHistoricalTimeSeriesMaster(), getLegalEntityMaster()));
     resourceParameters.put(WebPositionsResource.class, params(getPositionMaster(), getSecurityLoader(), 
