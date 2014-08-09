@@ -73,6 +73,18 @@ public class DataMarketDataSnapshotSourceResource extends AbstractDataResource {
     return responseOkObject(result);
   }
 
+  @GET
+  @Path("snapshotSearches/single")
+  public Response getSingle(
+      @QueryParam("name") String name,
+      @QueryParam("type") String type,
+      @QueryParam("versionCorrection") String vc) throws ClassNotFoundException {
+    @SuppressWarnings("unchecked")
+    Class<? extends NamedSnapshot> clazz = (Class<? extends NamedSnapshot>) Class.forName(type);
+    NamedSnapshot snapshot = getMarketDataSnapshotSource().getSingle(clazz, name, VersionCorrection.parse(vc));
+    return responseOkObject(snapshot);
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Builds a URI.
