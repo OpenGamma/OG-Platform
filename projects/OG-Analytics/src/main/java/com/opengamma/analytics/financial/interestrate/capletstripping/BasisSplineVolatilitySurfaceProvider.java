@@ -34,7 +34,7 @@ public class BasisSplineVolatilitySurfaceProvider implements VolatilitySurfacePr
   public BasisSplineVolatilitySurfaceProvider(final double k1, final double k2, final int nStrikeKnots, final int strikeDegree, final double t1, final double t2, final int nTimeKnots,
       final int timeDegree) {
     final BasisFunctionGenerator gen = new BasisFunctionGenerator();
-    _bSplines = gen.generateSet(new double[] {k1, t1 }, new double[] {k2, t2 }, new int[] {nStrikeKnots, nTimeKnots }, new int[] {strikeDegree, timeDegree });
+    _bSplines = gen.generateSet(new double[] {t1, k1 }, new double[] {t2, k2 }, new int[] {nTimeKnots, nStrikeKnots }, new int[] {timeDegree, strikeDegree });
 
   }
 
