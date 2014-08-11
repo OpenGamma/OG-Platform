@@ -210,7 +210,7 @@ public final class ConfigProperties {
           StringUtils.replaceOnce(value, "${" + variable + "}", variableProperty.getValue());
 
       variable = findVariable(value);
-      if (isOptional && variable == null) {
+      if (isOptional && variable == null && "".equals(value)) {
         return variableProperty;
       }
     }

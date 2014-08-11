@@ -196,6 +196,15 @@ public class ComponentPropertiesTest {
   }
 
   @Test
+  public void test_embedded_in_optional() {
+    ConfigProperties test = new ConfigProperties();
+    test.add(ConfigProperty.of("inner", "1234", false));
+
+    ConfigProperty property = test.resolveProperty("foo", "${out${inner}er?}", 0);
+    assertFalse(property.isDefined());
+  }
+
+  @Test
   public void test_sequential_properties() {
     ConfigProperties test = new ConfigProperties();
     test.add(ConfigProperty.of("first", "foo", false));
@@ -206,11 +215,29 @@ public class ComponentPropertiesTest {
   }
 
   @Test
-  public void test_sequential_optional_treated_as_blank() {
+  public void test_sequential_required_optional() {
     ConfigProperties test = new ConfigProperties();
     test.add(ConfigProperty.of("first", "foo", false));
 
     ConfigProperty property = test.resolveProperty("foo", "${first}/${second?}", 0);
     assertEquals("foo/", property.getValue());
+  }
+
+  @Test
+  public void test_sequential_optional_required() {
+    ConfigProperties test = new ConfigProperties();
+    test.add(ConfigProperty.of("second", "foo", false));
+
+    ConfigProperty property = test.resolveProperty("foo", "${first?}/${second}", 0);
+    assertEquals("/foo", property.getValue());
+  }
+
+  @Test
+  public void test_present_optional_used() {
+    ConfigProperties test = new ConfigProperties();
+    test.add(ConfigProperty.of("foo", "", false));
+
+    ConfigProperty property = test.resolveProperty("foo", "${foo?}", 0);
+    assertEquals("", property.getValue());
   }
 }
