@@ -17,11 +17,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.concurrent.AbstractExecutorService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
-import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nullable;
 
@@ -144,42 +142,6 @@ public class EngineTestUtils {
 
     if (!differences.isEmpty()) {
       fail("JSON not equal, differences:\n" + StringUtils.join(differences, "\n") + "\n");
-    }
-  }
-
-  /**
-   * {@link ExecutorService} that uses the calling thread to run all tasks. Nice and simple for unit tests.
-   */
-  public static class DirectExecutorService extends AbstractExecutorService {
-
-    @Override
-    public void execute(Runnable command) {
-      command.run();
-    }
-
-    @Override
-    public void shutdown() {
-      throw new UnsupportedOperationException("shutdown not supported");
-    }
-
-    @Override
-    public List<Runnable> shutdownNow() {
-      throw new UnsupportedOperationException("shutdownNow not supported");
-    }
-
-    @Override
-    public boolean isShutdown() {
-      throw new UnsupportedOperationException("isShutdown not supported");
-    }
-
-    @Override
-    public boolean isTerminated() {
-      throw new UnsupportedOperationException("isTerminated not supported");
-    }
-
-    @Override
-    public boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException {
-      throw new UnsupportedOperationException("awaitTermination not supported");
     }
   }
 

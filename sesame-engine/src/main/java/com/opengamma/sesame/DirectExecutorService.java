@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Executor service that uses the calling thread to run all tasks.
- * Nice and simple for unit tests.
+ * Nice and simple for simple use cases and unit tests.
  */
 public class DirectExecutorService extends AbstractExecutorService {
 

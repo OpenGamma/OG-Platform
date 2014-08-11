@@ -24,6 +24,7 @@ import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.service.ServiceContext;
 import com.opengamma.service.ThreadLocalServiceContext;
+import com.opengamma.sesame.DirectExecutorService;
 import com.opengamma.sesame.EngineTestUtils;
 import com.opengamma.sesame.cache.Cacheable;
 import com.opengamma.sesame.config.FunctionModelConfig;
@@ -37,7 +38,6 @@ import com.opengamma.sesame.marketdata.CycleMarketDataFactory;
 import com.opengamma.sesame.marketdata.DefaultStrategyAwareMarketDataSource;
 import com.opengamma.sesame.marketdata.MapMarketDataSource;
 import com.opengamma.sesame.marketdata.StrategyAwareMarketDataSource;
-import com.opengamma.sesame.marketdata.MarketDataSource;
 import com.opengamma.util.test.TestGroup;
 
 /**
@@ -125,7 +125,7 @@ public class ViewFactoryCacheTest {
     availableOutputs.register(TestFn.class);
     availableImplementations.register(Impl.class);
     CachingManager cachingManager = new DefaultCachingManager(ComponentMap.EMPTY, EngineTestUtils.createCache());
-    return new ViewFactory(new EngineTestUtils.DirectExecutorService(),
+    return new ViewFactory(new DirectExecutorService(),
                            availableOutputs,
                            availableImplementations,
                            FunctionModelConfig.EMPTY,
