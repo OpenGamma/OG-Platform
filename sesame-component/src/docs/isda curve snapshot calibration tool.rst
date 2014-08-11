@@ -18,8 +18,8 @@ http://server:8080/jax/snapshots).
 
 An example invocation is as follows::
 
-  CreditCurveCalibrationTool -c http://localhost:8080/jax \
-                             -cs CompositesByConvention_20140806 \
-                             -ys YieldCurves_20140806 \
-                             -l com/opengamma/util/info-logback.xml
+  IsdaCurveSnapshotCalibrationTool -c http://localhost:8080/jax \
+                                   -cs CompositesByConvention_20140806 \
+                                   -ys YieldCurves_20140806 \
+                                   -l com/opengamma/util/info-logback.xml
 
