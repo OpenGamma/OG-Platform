@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.conversion;
 
+import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZonedDateTime;
 
@@ -90,12 +91,25 @@ public class FRASecurityConverter extends FinancialSecurityVisitorAdapter<Instru
     final IborIndex iborIndex = ConverterUtils.indexIbor(indexSecurity.getName(), indexConvention,
         indexSecurity.getTenor());
 
-    return ForwardRateAgreementDefinition.from(accrualStartDate, 
-                                               accrualEndDate, 
-                                               notional, 
-                                               iborIndex,
-                                               security.getRate(),
-                                               calendar, 
-                                               paymentCalendar);
+    final LocalDate fixingDate = security.getFixingDate();
+
+    if (fixingDate == null) {
+      return ForwardRateAgreementDefinition.from(accrualStartDate, 
+          accrualEndDate, 
+          notional, 
+          iborIndex,
+          security.getRate(),
+          calendar, 
+          paymentCalendar);
+    } else {
+      return ForwardRateAgreementDefinition.from(accrualStartDate, 
+          accrualEndDate, 
+          notional,
+          fixingDate.atStartOfDay(ZoneId.systemDefault()),
+          iborIndex,
+          security.getRate(),
+          calendar, 
+          paymentCalendar);
+    }
   }
 }
