@@ -95,7 +95,9 @@ public class ComponentConfigPropertiesLoader extends AbstractComponentConfigLoad
         handleInclude(resource, resolved.getValue(), depth);
       } else {
         // store property
-        fileProperties.put(key, resolved.getValue());
+        if (resolved.isDefined()) {
+          fileProperties.put(key, resolved.getValue());
+        }
         if (key.equals(ComponentManager.MANAGER_NEXT_FILE) == false) {
           getProperties().addIfAbsent(resolved);  // first definition wins
         }
