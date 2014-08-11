@@ -5,6 +5,9 @@
  */
 package com.opengamma.analytics.financial.interestrate.payments.provider;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
@@ -23,6 +26,8 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
  *  The cap/floor are supposed to be exactly in arrears. The payment date is ignored and the start fixing period date is used instead.
  */
 public class CapFloorIborInArrearsSmileModelCapGenericReplicationMethod {
+  private static final Logger LOGGER = LoggerFactory.getLogger(CapFloorIborInArrearsSmileModelCapGenericReplicationMethod.class);
+
   private static final BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
   private static final int MINIMUM_STEP = 6;
   private static final double ABS_TOL = 1.0;
@@ -75,6 +80,9 @@ public class CapFloorIborInArrearsSmileModelCapGenericReplicationMethod {
           reminder = integrant.evaluate(upper) * upper;
           error = reminder / integralPart;
           ++count;
+          if (count == 10) {
+            LOGGER.info("Relative error is greater than " + REL_ERROR);
+          }
         }
       } else {
         integralPart = INTEGRATOR.integrate(integrant, 0.0, cap.getStrike());
