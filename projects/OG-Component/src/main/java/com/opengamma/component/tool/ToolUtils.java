@@ -67,7 +67,11 @@ public final class ToolUtils {
    * @param description the option's description
    * @param defaultValue the default value
    */
-  public static void optionWithDefault(Options options, String shortOpt, String longOpt, String description, String defaultValue) {
+  public static void optionWithDefault(Options options, 
+                                       String shortOpt, 
+                                       String longOpt, 
+                                       String description, 
+                                       String defaultValue) {
     String completeDescription = description + " [Default = " + defaultValue + "]";
     Option option = new Option(shortOpt, longOpt, true, completeDescription);
     option.setRequired(false);
@@ -83,7 +87,11 @@ public final class ToolUtils {
    * @param hasArg whether the option requires an arg
    * @param description the option's description
    */
-  public static void option(Options options, String shortOpt, String longOpt, boolean hasArg, String description) {
+  public static void option(Options options, 
+                            String shortOpt, 
+                            String longOpt, 
+                            boolean hasArg, 
+                            String description) {
     Option option = new Option(shortOpt, longOpt, hasArg, description);
     option.setRequired(true);
     options.addOption(option);
@@ -98,7 +106,11 @@ public final class ToolUtils {
    * @param hasArg whether the option requires an arg
    * @param description the option's description
    */
-  public static void optionalOption(Options options, String shortOpt, String longOpt, boolean hasArg, String description) {
+  public static void optionalOption(Options options, 
+                                    String shortOpt, 
+                                    String longOpt, 
+                                    boolean hasArg, 
+                                    String description) {
     Option option = new Option(shortOpt, longOpt, hasArg, description);
     option.setRequired(false);
     options.addOption(option);
