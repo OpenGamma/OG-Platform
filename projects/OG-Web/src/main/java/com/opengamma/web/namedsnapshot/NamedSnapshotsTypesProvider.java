@@ -70,7 +70,8 @@ public final class NamedSnapshotsTypesProvider {
       if (old != null) {
         s_logger.warn("Two classes exist with the same name: " + snapshotClass.getSimpleName());
       }
-      //TODO what is this for?
+      //the descriptions are essentially the type names sanitised for user consumption.
+      //e.g. CreditCurveDataSnapshot -> Credit Curve Data
       descriptions.put(typeName, toDescription(typeName));
     }
     _snapshotTypeMap = ImmutableSortedMap.copyOf(result);
