@@ -47,17 +47,20 @@ import com.opengamma.sesame.DefaultCurveSpecificationMarketDataFn;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleResolverFn;
 import com.opengamma.sesame.DefaultFXMatrixFn;
+import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
 import com.opengamma.sesame.DiscountingMulticurveBundleFn;
 import com.opengamma.sesame.DiscountingMulticurveBundleResolverFn;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.ExposureFunctionsDiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.FXMatrixFn;
+import com.opengamma.sesame.HistoricalTimeSeriesFn;
 import com.opengamma.sesame.MarketExposureSelectorFn;
 import com.opengamma.sesame.RootFinderConfiguration;
 import com.opengamma.sesame.SimpleEnvironment;
 import com.opengamma.sesame.component.RetrievalPeriod;
 import com.opengamma.sesame.component.StringSet;
+import com.opengamma.sesame.config.ConfigBuilder;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.engine.FixedInstantVersionCorrectionProvider;
@@ -105,6 +108,9 @@ public class FRAFnTest {
                      argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofYears(1)))),
             function(DefaultHistoricalMarketDataFn.class,
                      argument("dataSource", "BLOOMBERG")),
+            function(DefaultHistoricalTimeSeriesFn.class,
+                     argument("resolutionKey", "DEFAULT_TSS"),
+                     argument("htsRetrievalPeriod", RetrievalPeriod.of(Period.ofYears(1)))),
             function(DefaultDiscountingMulticurveBundleFn.class,
                      argument("impliedCurveNames", StringSet.of()))),
         implementations(FRAFn.class, DiscountingFRAFn.class,
@@ -121,6 +127,7 @@ public class FRAFnTest {
                         DiscountingMulticurveBundleResolverFn.class, DefaultDiscountingMulticurveBundleResolverFn.class,
                         CurveSpecificationFn.class, DefaultCurveSpecificationFn.class,
                         HistoricalMarketDataFn.class, DefaultHistoricalMarketDataFn.class,
+                        HistoricalTimeSeriesFn.class, DefaultHistoricalTimeSeriesFn.class,
                         CurveConstructionConfigurationSource.class, ConfigDBCurveConstructionConfigurationSource.class,
                         MarketExposureSelectorFn.class, ConfigDbMarketExposureSelectorFn.class,
                         MarketDataFn.class, DefaultMarketDataFn.class));

@@ -15,7 +15,10 @@ import com.opengamma.analytics.financial.provider.calculator.discounting.Present
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.financial.analytics.conversion.FRASecurityConverter;
+import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
+import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.security.fra.FRASecurity;
+import com.opengamma.financial.security.fra.ForwardRateAgreementSecurity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
@@ -64,9 +67,40 @@ public class DiscountingFRACalculator implements FRACalculator {
     _bundle = ArgumentChecker.notNull(bundle, "bundle");
   }
 
+  /**
+   * Creates a calculator for a FRA.
+   *
+   * @param security the fra to calculate values for, not null
+   * @param bundle the multicurve bundle, including the curves, not null
+   * @param fraConverter converter for transforming a fra into its InstrumentDefinition form, not null
+   * @param valuationTime the ZonedDateTime, not null
+   * @param definitionConverter converter for transforming the instrumentDefinition into the Derivative, not null
+   * @param fixings the HistoricalTimeSeriesBundle, a collection of historical time-series objects
+   */
+  public DiscountingFRACalculator(ForwardRateAgreementSecurity security,
+                                  MulticurveProviderDiscount bundle,
+                                  FRASecurityConverter fraConverter,
+                                  ZonedDateTime valuationTime,
+                                  FixedIncomeConverterDataProvider definitionConverter,
+                                  HistoricalTimeSeriesBundle fixings) {
+    ArgumentChecker.notNull(security, "security");
+    ArgumentChecker.notNull(fraConverter, "fraConverter");
+    ArgumentChecker.notNull(valuationTime, "valuationTime");
+    ArgumentChecker.notNull(definitionConverter, "definitionConverter");
+    ArgumentChecker.notNull(fixings, "fixings");
+    _derivative = createInstrumentDerivative(security, fraConverter, valuationTime, definitionConverter, fixings);
+    _bundle = ArgumentChecker.notNull(bundle, "bundle");
+  }
+
   @Override
   public Result<MultipleCurrencyAmount> calculatePV() {
     return Result.success(calculateResult(PVDC));
+  }
+  
+  @Override
+  public Result<MultipleCurrencyAmount> calculatePv(MulticurveProviderInterface bundle) {
+    ArgumentChecker.notNull(bundle, "curve bundle");
+    return Result.success(_derivative.accept(PVDC, bundle));
   }
 
   @Override
@@ -84,4 +118,14 @@ public class DiscountingFRACalculator implements FRACalculator {
     InstrumentDefinition<?> definition = security.accept(fraConverter);
     return definition.toDerivative(valuationTime);
   }
+  
+  private InstrumentDerivative createInstrumentDerivative(ForwardRateAgreementSecurity security,
+      FRASecurityConverter fraConverter,
+      ZonedDateTime valuationTime,
+      FixedIncomeConverterDataProvider definitionConverter,
+      HistoricalTimeSeriesBundle fixings) {
+    InstrumentDefinition<?> definition = security.accept(fraConverter);
+    return definitionConverter.convert(security, definition, valuationTime, fixings);
+  }
+
 }
