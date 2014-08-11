@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.component.tool.ToolContextUtils;
 import com.opengamma.core.config.ConfigSource;
@@ -108,17 +109,38 @@ public final class ComponentMap {
     return (T) _components.get(ArgumentChecker.notNull(type, "type"));
   }
 
+  /**
+   * Returns a copy this {@link ComponentMap} with the passed components
+   * overlaid on top. 
+   * @param components the components to add to the copy
+   * @return a new {@link ComponentMap} instance
+   */
   public ComponentMap with(Map<Class<?>, Object> components) {
     ArgumentChecker.notNull(components, "components");
-    ImmutableMap.Builder<Class<?>, Object> builder = ImmutableMap.builder();
-    return new ComponentMap(builder.putAll(_components).putAll(components).build());
+    Map<Class<?>, Object> newComponents = Maps.newHashMap(_components);
+    //use a new hashmap to build rather than ImmutableMap.builder() in case
+    //the key is overwriting another (in which case the builder throws).
+    newComponents.putAll(components);
+    return new ComponentMap(ImmutableMap.copyOf(newComponents));
   }
 
+  /**
+   * Returns a copy this {@link ComponentMap} with the passed component
+   * overlaid on top. 
+   * @param type the type of the component
+   * @param component the component
+   * @param <T> the type to use to register the component
+   * @param <U> the type of the component to register, a subclass of T
+   * @return a new {@link ComponentMap} instance
+   */
   public <T, U extends T> ComponentMap with(Class<T> type, U component) {
     ArgumentChecker.notNull(type, "type");
     ArgumentChecker.notNull(component, "component");
-    ImmutableMap.Builder<Class<?>, Object> builder = ImmutableMap.builder();
-    return new ComponentMap(builder.putAll(_components).put(type, component).build());
+    //use a new hashmap to build rather than ImmutableMap.builder() in case
+    //the key is overwriting another (in which case the builder throws).
+    Map<Class<?>, Object> newComponents = Maps.newHashMap(_components);
+    newComponents.put(type, component);
+    return new ComponentMap(ImmutableMap.copyOf(newComponents));
   }
 
   public static ComponentMap of(Map<Class<?>, Object> components) {
