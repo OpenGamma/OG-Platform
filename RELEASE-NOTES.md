@@ -6,6 +6,12 @@ These release notes cover changes from v2.3 to v2.4.
 Upgrading to 2.4.0 from 2.3.0
 =============================
 
+To 2.4.0-M2
+-----------
+
+* Improvement
+    * [PLAT-6691] - Allow optional property placeholders in ini files
+
 To 2.4.0-M1
 -----------
 
