@@ -6,6 +6,7 @@
 package com.opengamma.component;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 
 import java.util.Map;
 
@@ -162,4 +163,54 @@ public class ComponentPropertiesTest {
     assertEquals("a=" + ConfigProperties.HIDDEN, ConfigProperty.of("a", "AA", true).toString());
   }
 
+  @Test(expectedExceptions = ComponentConfigException.class)
+  public void test_missing_throws_exception() {
+    ConfigProperties test = new ConfigProperties();
+    test.resolveProperty("foo", "${bar}", 0);
+  }
+
+  @Test
+  public void test_missing_but_optional_is_not_defined() {
+    ConfigProperties test = new ConfigProperties();
+    ConfigProperty property = test.resolveProperty("foo", "${bar?}", 0);
+    assertFalse(property.isDefined());
+  }
+
+  @Test
+  public void test_embedded_properties() {
+    ConfigProperties test = new ConfigProperties();
+    test.add(ConfigProperty.of("inner", "1", false));
+    test.add(ConfigProperty.of("outer1", "1234", false));
+
+    ConfigProperty property = test.resolveProperty("foo", "${outer${inner}}", 0);
+    assertEquals("1234", property.getValue());
+  }
+
+  @Test
+  public void test_embedded_optional_treated_as_blank() {
+    ConfigProperties test = new ConfigProperties();
+    test.add(ConfigProperty.of("outer", "1234", false));
+
+    ConfigProperty property = test.resolveProperty("foo", "${out${inner?}er}", 0);
+    assertEquals("1234", property.getValue());
+  }
+
+  @Test
+  public void test_sequential_properties() {
+    ConfigProperties test = new ConfigProperties();
+    test.add(ConfigProperty.of("first", "foo", false));
+    test.add(ConfigProperty.of("second", "bar", false));
+
+    ConfigProperty property = test.resolveProperty("foo", "${first}/${second}", 0);
+    assertEquals("foo/bar", property.getValue());
+  }
+
+  @Test
+  public void test_sequential_optional_treated_as_blank() {
+    ConfigProperties test = new ConfigProperties();
+    test.add(ConfigProperty.of("first", "foo", false));
+
+    ConfigProperty property = test.resolveProperty("foo", "${first}/${second?}", 0);
+    assertEquals("foo/", property.getValue());
+  }
 }

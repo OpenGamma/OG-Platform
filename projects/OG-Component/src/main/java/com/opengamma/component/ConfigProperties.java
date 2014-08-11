@@ -31,6 +31,10 @@ public final class ConfigProperties {
    */
   public static final String HIDDEN = "*** HIDDEN ***";
   /**
+   * Text used where a property was optional and has not been defined.
+   */
+  public static final String OPTIONAL = "*** NOT DEFINED ***";
+  /**
    * The key-value pairs.
    */
   private final LinkedHashMap<String, ConfigProperty> _properties = new LinkedHashMap<>();
@@ -74,7 +78,7 @@ public final class ConfigProperties {
    */
   public String getValue(String key) {
     ConfigProperty cp = get(key);
-    return (cp != null ? cp.getValue() : null);
+    return ((cp != null && cp.isDefined()) ? cp.getValue() : null);
   }
 
   /**
@@ -184,13 +188,31 @@ public final class ConfigProperties {
     boolean hidden = (key.contains("password") || key.startsWith("shiro."));
     String variable = findVariable(value);
     while (variable != null) {
+
+      boolean isOptional = false;
+      if (variable.endsWith("?")) {
+        isOptional = true;
+        variable = variable.substring(0, variable.length() - 1);
+      }
+
       ConfigProperty variableProperty = _properties.get(variable);
       if (variableProperty == null) {
-        throw new ComponentConfigException("Variable expansion not found: ${" + variable + "}, line " + lineNum);
+        if (isOptional) {
+          variableProperty = ConfigProperty.optional(key, hidden);
+        } else {
+          throw new ComponentConfigException("Variable expansion not found: ${" + variable + "}, line " + lineNum);
+        }
       }
-      hidden = hidden | variableProperty.isHidden();
-      value = StringUtils.replaceOnce(value, "${" + variable + "}", variableProperty.getValue());
+
+      hidden = hidden || variableProperty.isHidden();
+      value = isOptional ?
+          StringUtils.replaceOnce(value, "${" + variable + "?}", "") :
+          StringUtils.replaceOnce(value, "${" + variable + "}", variableProperty.getValue());
+
       variable = findVariable(value);
+      if (isOptional && variable == null) {
+        return variableProperty;
+      }
     }
     return ConfigProperty.of(key, value, hidden);
   }
