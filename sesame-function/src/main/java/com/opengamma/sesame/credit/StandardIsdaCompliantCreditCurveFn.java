@@ -12,12 +12,14 @@ import java.util.SortedMap;
 
 import org.threeten.bp.LocalDate;
 
+import com.opengamma.analytics.financial.credit.isdastandardmodel.AccrualOnDefaultFormulae;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalytic;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalyticFactory;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSQuoteConvention;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.FastCreditCurveBuilder;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurve;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurveBuilder;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurveBuilder.ArbitrageHandling;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.holiday.impl.CachedHolidaySource;
@@ -41,7 +43,8 @@ import com.opengamma.util.time.Tenor;
  */
 public class StandardIsdaCompliantCreditCurveFn implements IsdaCompliantCreditCurveFn {
   
-  private static final ISDACompliantCreditCurveBuilder CREDIT_CURVE_BUILDER = new FastCreditCurveBuilder();
+  private static final ISDACompliantCreditCurveBuilder CREDIT_CURVE_BUILDER = 
+      new FastCreditCurveBuilder(AccrualOnDefaultFormulae.OrignalISDA, ArbitrageHandling.Fail);
   
   private final IsdaCompliantYieldCurveFn _yieldCurveFn;
   
