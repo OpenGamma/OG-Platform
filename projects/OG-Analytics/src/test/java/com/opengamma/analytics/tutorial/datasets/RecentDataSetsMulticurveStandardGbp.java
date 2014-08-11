@@ -11,11 +11,13 @@ import java.util.LinkedHashMap;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorCurveYieldInterpolated;
 import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorYDCurve;
 import com.opengamma.analytics.financial.datasets.CalendarGBP;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
+import com.opengamma.analytics.financial.instrument.cash.CashDefinition;
 import com.opengamma.analytics.financial.instrument.index.GeneratorAttribute;
 import com.opengamma.analytics.financial.instrument.index.GeneratorAttributeIR;
 import com.opengamma.analytics.financial.instrument.index.GeneratorInstrument;
@@ -25,6 +27,7 @@ import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedON;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedONMaster;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
+import com.opengamma.analytics.financial.instrument.swap.SwapFixedONDefinition;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.generic.LastTimeCalculator;
@@ -185,8 +188,31 @@ public class RecentDataSetsMulticurveStandardGbp {
    * @param howMany The number of instruments to be returned
    * @return The InstrumentDefinition for the first howMany instruments of the curve
    */
-  public static InstrumentDefinition<?>[] getDefinitionForFirstInstruments(ZonedDateTime calibrationDate, int howMany) {
+  public static InstrumentDefinition<?>[] getDefinitionForFirstInstruments(ZonedDateTime calibrationDate, 
+      ZonedDateTime firstStartDate) {
     InstrumentDefinition<?>[] definitionsDsc = getDefinitions(DSC_GBP_MARKET_QUOTES, DSC_GBP_GENERATORS, DSC_GBP_ATTR, calibrationDate);
+    int howMany = 0;
+    
+    for (int i = 0; i < definitionsDsc.length; ++i) {
+      if (definitionsDsc[i] instanceof CashDefinition) {
+        CashDefinition definition = (CashDefinition) definitionsDsc[i];
+        if (firstStartDate.isBefore(definition.getEndDate())) {
+          howMany = i + 1;
+          break;
+        }
+      } else if (definitionsDsc[i] instanceof SwapFixedONDefinition) {
+        SwapFixedONDefinition definition = (SwapFixedONDefinition) definitionsDsc[i];
+        if (firstStartDate.isBefore(
+            definition.getFirstLeg().getNthPayment(definition.getFirstLeg().getNumberOfPayments() - 1).
+            getPaymentDate())) {
+          howMany = i + 1;
+          break;
+        }
+      } else {
+        throw new OpenGammaRuntimeException("Instrument definition type not supported: " 
+            + definitionsDsc[i].getClass().getName());
+      }
+    }
     return Arrays.copyOf(definitionsDsc, howMany);
   }
 

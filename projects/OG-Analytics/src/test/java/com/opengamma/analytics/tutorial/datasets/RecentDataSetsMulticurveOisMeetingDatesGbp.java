@@ -150,7 +150,7 @@ public class RecentDataSetsMulticurveOisMeetingDatesGbp {
 
     /// Adding instruments to cover period between calibrationDate and first date of BOE instruments
     InstrumentDefinition<?>[] definitionsOis = 
-        RecentDataSetsMulticurveStandardGbp.getDefinitionForFirstInstruments(calibrationDate, 5);
+        RecentDataSetsMulticurveStandardGbp.getDefinitionForFirstInstruments(calibrationDate, DSC_2_GBP_DATES[0]);
     InstrumentDefinition<?>[] definitions = 
         (InstrumentDefinition<?>[]) ArrayUtils.addAll(definitionsOis, definitionsDsc);
     definitionsUnits[0] = new InstrumentDefinition<?>[][] {definitions};

@@ -49,6 +49,7 @@ import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.tutorial.datasets.RecentDataSetsMulticurveOisMeetingDatesGbp;
 import com.opengamma.analytics.tutorial.datasets.RecentDataSetsMulticurveStandardGbp;
+import com.opengamma.analytics.tutorial.utils.ExportUtils;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.rolldate.RollConvention;
@@ -206,27 +207,12 @@ public class SwapRiskGbpAnalysis {
     System.out.println("--- BOE Break-even rate ---");
     System.out.println("Par rate," + String.valueOf(pr1));
   }
-
+  
   @Test
   public void bucketedPv0BoeCurve() {
     MultipleCurrencyParameterSensitivity pvmqs1Boe = 
         MQSBC.fromInstrument(SWAP_1, MULTICURVE_BOE, BLOCK_BOE).multipliedBy(BP1);
-    YieldCurve yc = (YieldCurve) MULTICURVE_BOE.getDiscountingCurves().values().iterator().next();
-    DoublesCurve ycValues = yc.getCurve();
-    Double[] dateFractions = ycValues.getXData();
-    Double[] zeroRates = ycValues.getYData();
-    System.out.println("--- BOE sensitivities ---");
-    System.out.println("date fraction,zero rate,pv01");
-    Map<Pair<String, Currency>, DoubleMatrix1D> sensitivitiesAllCurves = pvmqs1Boe.getSensitivities();
-    for(DoubleMatrix1D sensitivities : sensitivitiesAllCurves.values()) {
-      double[] values = sensitivities.getData();
-      for(int i = 0; i < values.length; ++i) {
-        System.out.println(
-            String.valueOf(dateFractions[i]) + "," +
-            String.valueOf(zeroRates[i]) + "," +
-            String.valueOf(values[i]));
-      }
-    }
+    ExportUtils.consolePrint(pvmqs1Boe, MULTICURVE_BOE);
   }
 
 }
