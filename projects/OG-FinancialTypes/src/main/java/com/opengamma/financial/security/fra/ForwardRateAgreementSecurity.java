@@ -133,7 +133,7 @@ public class ForwardRateAgreementSecurity extends FinancialSecurity {
    * @param endDate  the end date, not null
    * @param rate  the rate
    * @param amount  the amount (-ve if payer)
-   * @param fixingDate  the fixing date, not null
+   * @param fixingDate  the fixing date, if null, then calculate from the start date 
    * @param dayCount  the day count convention, not null
    * @param fixingBusinessDayConvention  the business dya convention, not null
    * @param calendars  the calendars to be used, not null
@@ -177,7 +177,7 @@ public class ForwardRateAgreementSecurity extends FinancialSecurity {
    * @param endDate  the end date, not null
    * @param rate  the rate
    * @param amount  the amount (-ve if payer)
-   * @param fixingDate  the fixing date, not null
+   * @param fixingDate  the fixing date, if null, then calculate from the start date
    * @param dayCount  the day count convention, not null
    * @param fixingBusinessDayConvention  the business dya convention, not null
    * @param fixingCalendars  the calendars to be used, not null
