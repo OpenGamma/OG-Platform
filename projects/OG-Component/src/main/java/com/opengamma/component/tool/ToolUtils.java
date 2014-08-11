@@ -59,7 +59,10 @@ public final class ToolUtils {
   }
   
   /**
-   * Adds an option with a default value.
+   * Adds an option with a default value. Note that the default value specified is 
+   * only used for the purposes of rendering the help message. In no way is it
+   * registered with the {@link Options} object for subsequent processing. The 
+   * client must manually handle the case where the argument is missing.
    * 
    * @param options the options object to add to
    * @param shortOpt the short option name
