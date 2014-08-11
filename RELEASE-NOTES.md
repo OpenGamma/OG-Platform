@@ -10,6 +10,12 @@ Upgrading to 2.4.0 from 2.3.0
 * IR future option greeks pass underlying price correctly into black.getVolatility() call (OG-Analytics)
 * Fixed thread leak in OpenGammaFudgeContext (OG-Util)
 
+To 2.4.0-M2
+-----------
+
+* Improvement
+    * [PLAT-6691] - Allow optional property placeholders in ini files
+
 To 2.4.0-M1
 -----------
 
