@@ -53,34 +53,34 @@ public final class ComponentMap {
    * @param toolContext a tool context containing the components
    * @return The available components, keyed by type.
    */
-   public static ComponentMap loadComponents(ToolContext toolContext) {
-     ArgumentChecker.notNull(toolContext, "toolContext");
-     ImmutableMap.Builder<Class<?>, Object> builder = ImmutableMap.builder();
-     builder.put(ConfigSource.class, toolContext.getConfigSource());
-     builder.put(ConventionBundleSource.class, toolContext.getConventionBundleSource());
-     builder.put(ConventionSource.class, toolContext.getConventionSource());
-     builder.put(ExchangeSource.class, toolContext.getExchangeSource());
-     builder.put(HolidaySource.class, toolContext.getHolidaySource());
-     builder.put(LegalEntitySource.class, toolContext.getLegalEntitySource());
-     builder.put(PositionSource.class, toolContext.getPositionSource());
-     builder.put(RegionSource.class, toolContext.getRegionSource());
-     builder.put(SecuritySource.class, toolContext.getSecuritySource());
-     builder.put(HistoricalTimeSeriesSource.class, toolContext.getHistoricalTimeSeriesSource());
-     builder.put(MarketDataSnapshotSource.class, toolContext.getMarketDataSnapshotSource());
-     return new ComponentMap(builder.build());
-   }
+  public static ComponentMap loadComponents(ToolContext toolContext) {
+    ArgumentChecker.notNull(toolContext, "toolContext");
+    ImmutableMap.Builder<Class<?>, Object> builder = ImmutableMap.builder();
+    builder.put(ConfigSource.class, toolContext.getConfigSource());
+    builder.put(ConventionBundleSource.class, toolContext.getConventionBundleSource());
+    builder.put(ConventionSource.class, toolContext.getConventionSource());
+    builder.put(ExchangeSource.class, toolContext.getExchangeSource());
+    builder.put(HolidaySource.class, toolContext.getHolidaySource());
+    builder.put(LegalEntitySource.class, toolContext.getLegalEntitySource());
+    builder.put(PositionSource.class, toolContext.getPositionSource());
+    builder.put(RegionSource.class, toolContext.getRegionSource());
+    builder.put(SecuritySource.class, toolContext.getSecuritySource());
+    builder.put(HistoricalTimeSeriesSource.class, toolContext.getHistoricalTimeSeriesSource());
+    builder.put(MarketDataSnapshotSource.class, toolContext.getMarketDataSnapshotSource());
+    return new ComponentMap(builder.build());
+  }
 
-   /**
-   * @param location Location of the component config, can be a classpath: or file: resource or the URL of a remote
-   * server
-   * @return The available components, keyed by type.
-   */
-   public static ComponentMap loadComponents(String location) {
-     ArgumentChecker.notEmpty(location, "location");
-     s_logger.info("Loading components from {}", location);
-     ToolContext toolContext = ToolContextUtils.getToolContext(location, ToolContext.class);
-     return loadComponents(toolContext);
-   }
+  /**
+  * @param location Location of the component config, can be a classpath: or file: resource or the URL of a remote
+  * server
+  * @return The available components, keyed by type.
+  */
+  public static ComponentMap loadComponents(String location) {
+    ArgumentChecker.notEmpty(location, "location");
+    s_logger.info("Loading components from {}", location);
+    ToolContext toolContext = ToolContextUtils.getToolContext(location, ToolContext.class);
+    return loadComponents(toolContext);
+  }
   /**
    * Returns a component or throws an exception if there is no component available of the required type.
    * @param type The required component type
