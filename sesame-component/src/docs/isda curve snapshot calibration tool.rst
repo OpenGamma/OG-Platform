@@ -1,6 +1,6 @@
-======================
-Curve calibration tool
-======================
+====================================
+ISDA Curve Snapshot Calibration Tool
+====================================
 
 The curve calibration tool can be used to validate your ISDA curve data. It 
 simply loads the snapshots referenced on the command line and iterates over
