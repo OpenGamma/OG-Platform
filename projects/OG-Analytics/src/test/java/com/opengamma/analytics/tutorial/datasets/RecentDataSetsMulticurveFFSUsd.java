@@ -123,20 +123,19 @@ public class RecentDataSetsMulticurveFFSUsd {
   }
 
   /** Market values for the Fwd 3M USD curve */
-  private static final double[] FWD3_USD_MARKET_QUOTES = new double[] {0.0023,
-    0.0026, 0.0027, 0.0030, 0.0032,
-    0.0033, 0.0070, 0.0115, 0.0153, 0.0160,
-    0.0181, 0.0190, 0.0200, 0.0222, 0.0260,
-    0.0277, 0.0295, 0.0310, 0.0318, 0.0320 };
-  /** Generators for the Fwd 3M USD curve */
-  private static final GeneratorInstrument<? extends GeneratorAttribute>[] FWD3_USD_GENERATORS =
-      CurveCalibrationConventionDataSets.generatorUsdIbor3Fra3Irs3(1, 4, 15);
+  private static final double[] FWD3_USD_MARKET_QUOTES = new double[] {0.001554, 0.00196, 0.002336,
+    0.997656, 0.997318, 0.996284, 0.994304, 0.991979,
+    0.989509, 0.986993, 0.984333, 0.981626, 0.979119,
+    0.011142, 0.014996, 0.017995, 0.020411, //0.00667, 
+    0.022352, 0.02395, 0.0253, 0.026465, 0.02835,
+    0.030288, 0.032007, 0.032775, 0.033145, 0.03333 }; //27
   /** Tenors for the Fwd 3M USD curve */
-  private static final Period[] FWD3_USD_TENOR = new Period[] {Period.ofMonths(0),
-    Period.ofMonths(4), Period.ofMonths(5), Period.ofMonths(6), Period.ofMonths(9),
-    Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5),
-    Period.ofYears(6), Period.ofYears(7), Period.ofYears(8), Period.ofYears(9), Period.ofYears(10),
-    Period.ofYears(12), Period.ofYears(15), Period.ofYears(20), Period.ofYears(25), Period.ofYears(30) };
+  private static final Period[] FWD3_USD_TENOR = new Period[] {Period.ofMonths(1), Period.ofMonths(2), Period.ofMonths(3),
+    Period.ofMonths(0), Period.ofMonths(0), Period.ofMonths(0), Period.ofMonths(0), Period.ofMonths(0),
+    Period.ofMonths(0), Period.ofMonths(0), Period.ofMonths(0), Period.ofMonths(0), Period.ofMonths(0),
+    Period.ofYears(3), Period.ofYears(4), Period.ofYears(5), Period.ofYears(6), //Period.ofYears(2), 
+    Period.ofYears(7), Period.ofYears(8), Period.ofYears(9), Period.ofYears(10), Period.ofYears(12),
+    Period.ofYears(15), Period.ofYears(20), Period.ofYears(25), Period.ofYears(30), Period.ofYears(40)  };
   private static final GeneratorAttributeIR[] FWD3_USD_ATTR = new GeneratorAttributeIR[FWD3_USD_TENOR.length];
   static {
     for (int loopins = 0; loopins < FWD3_USD_TENOR.length; loopins++) {
@@ -252,9 +251,11 @@ public class RecentDataSetsMulticurveFFSUsd {
    * @return The curves and the Jacobian matrices.
    */
   public static Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> getCurvesUSDOisL1L3L6(ZonedDateTime calibrationDate) {
+    GeneratorInstrument<? extends GeneratorAttribute>[] fwd3Generators =
+        CurveCalibrationConventionDataSets.generatorUsdIbor3Fut3Irs3(calibrationDate, 3, 10, 14);
     InstrumentDefinition<?>[][][] definitionsUnits = new InstrumentDefinition<?>[NB_UNITS[0]][][];
     InstrumentDefinition<?>[] definitionsDsc = getDefinitions(DSC_USD_MARKET_QUOTES, DSC_USD_GENERATORS, DSC_USD_ATTR, calibrationDate);
-    InstrumentDefinition<?>[] definitionsFwd3 = getDefinitions(FWD3_USD_MARKET_QUOTES, FWD3_USD_GENERATORS, FWD3_USD_ATTR, calibrationDate);
+    InstrumentDefinition<?>[] definitionsFwd3 = getDefinitions(FWD3_USD_MARKET_QUOTES, fwd3Generators, FWD3_USD_ATTR, calibrationDate);
     InstrumentDefinition<?>[] definitionsFwd1 = getDefinitions(FWD1_USD_MARKET_QUOTES, FWD1_USD_GENERATORS, FWD1_USD_ATTR, calibrationDate);
     InstrumentDefinition<?>[] definitionsFwd6 = getDefinitions(FWD6_USD_MARKET_QUOTES, FWD6_USD_GENERATORS, FWD6_USD_ATTR, calibrationDate);
     definitionsUnits[0] = new InstrumentDefinition<?>[][] {definitionsDsc, definitionsFwd3 };
@@ -283,17 +284,12 @@ public class RecentDataSetsMulticurveFFSUsd {
           TS_FIXED_OIS_USD_WITH_TODAY, TS_FIXED_OIS_USD_WITHOUT_TODAY, TS_FIXED_IBOR_USD3M_WITH_LAST, TS_FIXED_IBOR_USD3M_WITHOUT_LAST);
       dscMarketQuoteComputed[loopdsc] = derivative.accept(PSMQC, multicurve);
     }
-    int nbFwd3Node = FWD3_USD_MARKET_QUOTES.length;
-    double[] fwd3MarketQuotes0 = new double[nbFwd3Node];
-    InstrumentDefinition<?>[] definitionsFwd30 = getDefinitions(fwd3MarketQuotes0, FWD3_USD_GENERATORS, FWD3_USD_ATTR, calibrationDate);
-    double[] fwd3MarketQuoteComputed = new double[nbFwd3Node];
-    for (int loopfwd3 = 0; loopfwd3 < nbFwd3Node; loopfwd3++) {
-      InstrumentDerivative derivative = CurveCalibrationTestsUtils.convert(definitionsFwd30[loopfwd3], false, calibrationDate,
-          TS_FIXED_OIS_USD_WITH_TODAY, TS_FIXED_OIS_USD_WITHOUT_TODAY, TS_FIXED_IBOR_USD3M_WITH_LAST, TS_FIXED_IBOR_USD3M_WITHOUT_LAST);
-      fwd3MarketQuoteComputed[loopfwd3] = derivative.accept(PSMQC, multicurve);
-    }
     InstrumentDefinition<?>[] definitionsDsc = getDefinitions(dscMarketQuoteComputed, DSC_USD_GENERATORS, DSC_USD_ATTR, calibrationDate);
-    InstrumentDefinition<?>[] definitionsFwd3 = getDefinitions(fwd3MarketQuoteComputed, FWD3_USD_GENERATORS, FWD3_USD_ATTR, calibrationDate);
+    
+    GeneratorInstrument<? extends GeneratorAttribute>[] fwd3Generators =
+        CurveCalibrationConventionDataSets.generatorUsdIbor3Fut3Irs3(calibrationDate, 3, 10, 14);
+
+    InstrumentDefinition<?>[] definitionsFwd3 = getDefinitions(FWD3_USD_MARKET_QUOTES, fwd3Generators, FWD3_USD_ATTR, calibrationDate);
     InstrumentDefinition<?>[][][] definitionsUnits = new InstrumentDefinition<?>[NB_UNITS[1]][][];
     definitionsUnits[0] = new InstrumentDefinition<?>[][] {definitionsDsc, definitionsFwd3 };
     return CurveCalibrationTestsUtils.makeCurvesFromDefinitionsMulticurve(calibrationDate, definitionsUnits, GENERATORS_UNITS[0], NAMES_UNITS[0],
