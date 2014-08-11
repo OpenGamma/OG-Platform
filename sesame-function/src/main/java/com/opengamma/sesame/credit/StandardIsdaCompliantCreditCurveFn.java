@@ -22,7 +22,6 @@ import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantC
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurveBuilder.ArbitrageHandling;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
 import com.opengamma.core.holiday.HolidaySource;
-import com.opengamma.core.holiday.impl.CachedHolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.financial.analytics.conversion.CalendarUtils;
 import com.opengamma.financial.analytics.isda.credit.CdsQuote;
@@ -67,10 +66,7 @@ public class StandardIsdaCompliantCreditCurveFn implements IsdaCompliantCreditCu
                                             RegionSource regionSource) {
     _yieldCurveFn = ArgumentChecker.notNull(yieldCurveFn, "yieldCurveFn");
     _curveDataProviderFn = ArgumentChecker.notNull(curveDataProviderFn, "curveDataProviderFn");
-    //wrapped holiday source with caching source here since the holiday source calendar adaptor 
-    //delegates requests to the holiday source for all calls. this is very expensive if no caching
-    //is configured for the source (e.g. in a remote tool context).
-    _holidaySource = new CachedHolidaySource(ArgumentChecker.notNull(holidaySource, "holidaySource"));
+    _holidaySource = ArgumentChecker.notNull(holidaySource, "holidaySource");
     _regionSource = ArgumentChecker.notNull(regionSource, "regionSource");
   }
 

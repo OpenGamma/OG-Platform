@@ -9,8 +9,8 @@ import static com.opengamma.sesame.config.ConfigBuilder.argument;
 import static com.opengamma.sesame.config.ConfigBuilder.arguments;
 import static com.opengamma.sesame.config.ConfigBuilder.config;
 import static com.opengamma.sesame.config.ConfigBuilder.function;
-import static org.mockito.Mockito.mock;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -32,6 +32,7 @@ import com.google.common.base.Joiner;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Collections2;
+import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -40,6 +41,8 @@ import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantC
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.component.tool.ToolUtils;
+import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.holiday.impl.CachedHolidaySource;
 import com.opengamma.core.link.SnapshotLink;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.financial.analytics.isda.credit.CreditCurveDataKey;
@@ -47,6 +50,7 @@ import com.opengamma.financial.analytics.isda.credit.CreditCurveDataSnapshot;
 import com.opengamma.financial.analytics.isda.credit.YieldCurveData;
 import com.opengamma.financial.analytics.isda.credit.YieldCurveDataSnapshot;
 import com.opengamma.financial.tool.ToolContext;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.service.ServiceContext;
 import com.opengamma.service.ThreadLocalServiceContext;
@@ -74,13 +78,15 @@ import com.opengamma.sesame.function.AvailableOutputs;
 import com.opengamma.sesame.function.AvailableOutputsImpl;
 import com.opengamma.sesame.function.DefaultImplementationProvider;
 import com.opengamma.sesame.graph.FunctionModel;
+import com.opengamma.sesame.marketdata.FieldName;
 import com.opengamma.sesame.marketdata.MarketDataSource;
 import com.opengamma.sesame.proxy.ExceptionWrappingProxy;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.time.Tenor;
-import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Tests ISDA curve data by calibrating each curve in turn and dumping the result
@@ -89,14 +95,17 @@ import com.opengamma.util.tuple.Pair;
 public class IsdaCurveSnapshotCalibrationTool extends AbstractTool<ToolContext> {
 
   private static final Logger s_logger = LoggerFactory.getLogger(IsdaCurveSnapshotCalibrationTool.class);
-  private Environment _env; 
+  private static final MarketDataSource s_noOpMarketDataSource = new MarketDataSource() {
+    
+    @Override
+    public Result<?> get(ExternalIdBundle id, FieldName fieldName) {
+      return Result.failure(FailureStatus.ERROR, "Not implemented");
+    }
+  };
   
-  {
-    //note - market data source not used
-    MarketDataSource marketDataSource = mock(MarketDataSource.class);
-    _env = new SimpleEnvironment(ZonedDateTime.now(), marketDataSource);
-  }
-  
+  /**
+   * @param args command line args, run with -h for details
+   */
   public static void main(String[] args) {
     new IsdaCurveSnapshotCalibrationTool().invokeAndTerminate(args);
   }
@@ -118,7 +127,7 @@ public class IsdaCurveSnapshotCalibrationTool extends AbstractTool<ToolContext> 
                                                           creditSnapshot, 
                                                           VersionCorrection.LATEST);
     
-    ComponentMap componentMap = ComponentMap.loadComponents(getToolContext());
+    ComponentMap componentMap = getComponentMap();
     
     FunctionModelConfig functionModelConfig = initGraph(ccSnapshot, ycSnapshot, componentMap);
     Cache<MethodInvocationKey, FutureTask<Object>> cache = buildCache();
@@ -136,21 +145,34 @@ public class IsdaCurveSnapshotCalibrationTool extends AbstractTool<ToolContext> 
                                                           ExceptionWrappingProxy.INSTANCE, 
                                                           cachingDecorator);
     
-    calibrateYieldCurves(ycSnapshot, ycFn);
+    Environment env = new SimpleEnvironment(ZonedDateTime.now(), s_noOpMarketDataSource);
+    calibrateYieldCurves(env, ycSnapshot, ycFn);
     
-    calibrateCreditCurves(ccSnapshot, ccFn);
+    calibrateCreditCurves(env, ccSnapshot, ccFn);
     
   }
 
+  /**
+   * Builds the component map from the tool context, overriding the holiday source
+   * with a caching wrapper.
+   */
+  private ComponentMap getComponentMap() {
+    ComponentMap componentMap = ComponentMap.loadComponents(getToolContext());
+    HolidaySource holidaySource = componentMap.getComponent(HolidaySource.class);
+    return componentMap.with(HolidaySource.class, new CachedHolidaySource(holidaySource));
+  }
 
-  private void calibrateCreditCurves(CreditCurveDataSnapshot ccSnapshot, IsdaCompliantCreditCurveFn ccFn) {
+
+  private void calibrateCreditCurves(Environment env, 
+                                     CreditCurveDataSnapshot ccSnapshot, 
+                                     IsdaCompliantCreditCurveFn ccFn) {
     Map<CreditCurveDataKey, IsdaCreditCurve> creditCurves = Maps.newHashMap();
     Map<CreditCurveDataKey, Result<IsdaCreditCurve>> creditCurveFailures = Maps.newHashMap();
     int i = 1;
     for (CreditCurveDataKey key : ccSnapshot.getCreditCurves().keySet()) {
       Result<IsdaCreditCurve> curve;
       try {
-        curve = ccFn.buildIsdaCompliantCreditCurve(_env, key);
+        curve = ccFn.buildIsdaCompliantCreditCurve(env, key);
       } catch (Exception e) {
         curve = Result.failure(e);
       }
@@ -164,20 +186,23 @@ public class IsdaCurveSnapshotCalibrationTool extends AbstractTool<ToolContext> 
       }
       i++;
     }
+    s_logger.info("Calibrated {} credit curves in total", i);
     
     renderCreditCurves(creditCurves, creditCurveFailures);
   }
 
 
-  private void calibrateYieldCurves(YieldCurveDataSnapshot ycSnapshot, IsdaCompliantYieldCurveFn ycFn) {
+  private void calibrateYieldCurves(Environment env, 
+                                    YieldCurveDataSnapshot ycSnapshot, 
+                                    IsdaCompliantYieldCurveFn ycFn) {
     List<IsdaYieldCurve> yieldCurves = Lists.newArrayList();
-    Map<String, Result<IsdaYieldCurve>> yieldCurveFailures = Maps.newTreeMap();
+    Map<Currency, Result<IsdaYieldCurve>> yieldCurveFailures = Maps.newTreeMap();
     for (Currency ccy : ycSnapshot.getYieldCurves().keySet()) {
-      Result<IsdaYieldCurve> curve = ycFn.buildIsdaCompliantCurve(_env, ccy);
+      Result<IsdaYieldCurve> curve = ycFn.buildIsdaCompliantCurve(env, ccy);
       if (curve.isSuccess()) {
         yieldCurves.add(curve.getValue());
       } else {
-        yieldCurveFailures.put(ccy.toString(), curve);
+        yieldCurveFailures.put(ccy, curve);
       }
     }
     
@@ -213,24 +238,30 @@ public class IsdaCurveSnapshotCalibrationTool extends AbstractTool<ToolContext> 
     
     headers.addAll(Collections2.transform(allTenors, Functions.toStringFunction()));
     
-    SortedMap<String, List<String>> rows = Maps.newTreeMap();
+    SortedMap<CreditCurveDataKey, List<String>> rows = Maps.newTreeMap(new Comparator<CreditCurveDataKey>() {
+
+      @Override
+      public int compare(CreditCurveDataKey o1, CreditCurveDataKey o2) {
+        return ComparisonChain.start()
+                              .compare(o1.getCurveName(), o2.getCurveName())
+                              .compare(o1.getCurrency(), o2.getCurrency())
+                              .compare(o1.getRestructuring().toString(), o2.getRestructuring().toString())
+                              .compare(o1.getSeniority().toString(), o2.getSeniority().toString())
+                              .result();
+      }
+    });
     for (Entry<CreditCurveDataKey, IsdaCreditCurve> entry : creditCurves.entrySet()) {
       
       CreditCurveDataKey key = entry.getKey();
       IsdaCreditCurve curve = entry.getValue();
       
-      List<String> row = Lists.newArrayList(key.getCurveName(), 
-                                            str(key.getCurrency()), 
-                                            str(key.getRestructuring()), 
-                                            str(key.getSeniority()));
-      row.add(str(curve.getYieldCurve().getCurveData().getCurrency()));
+      Currency yieldCurveCcy = curve.getYieldCurve().getCurveData().getCurrency();
       
-      //used as a simple string key for ordering results
-      String strKey = String.format("%s_%s_%s_%s", 
-                                    key.getCurveName(), 
-                                    str(key.getCurrency()), 
-                                    str(key.getRestructuring()), 
-                                    str(key.getSeniority()));
+      List<Object> rowObjs = Lists.<Object>newArrayList(key.getCurveName(),
+                                                        key.getCurrency(),
+                                                        key.getRestructuring(),
+                                                        key.getSeniority(),
+                                                        yieldCurveCcy);
       
       int i = 0;
       for (Tenor tenor : allTenors) {
@@ -238,17 +269,17 @@ public class IsdaCurveSnapshotCalibrationTool extends AbstractTool<ToolContext> 
           ISDACompliantCreditCurve calibratedCurve = curve.getCalibratedCurve();
           double timeAtI = calibratedCurve.getTimeAtIndex(i);
           double hazardRate = calibratedCurve.getHazardRate(timeAtI);
-          row.add(Double.toString(hazardRate));
+          rowObjs.add(Double.toString(hazardRate));
           i++;
         } else {
-          row.add("");
+          rowObjs.add("");
         }
       }
-      rows.put(strKey, row);
+      rows.put(key, Lists.transform(rowObjs, Functions.toStringFunction()));
       
     }
     
-    renderTable("Credit curve hazard rates", headers, rows);
+    renderTable("Credit curve hazard rates", headers, rows.values());
     
     System.out.println("Credit curve failures:");
     for (Entry<CreditCurveDataKey, Result<IsdaCreditCurve>> entry : creditCurveFailures.entrySet()) {
@@ -257,21 +288,14 @@ public class IsdaCurveSnapshotCalibrationTool extends AbstractTool<ToolContext> 
   }
 
   /**
-   * Helper toString() method for succinctness.
-   */
-  private static String str(Object o) {
-    return String.valueOf(o);
-  }
-
-  /**
    * Renders zero rates for yield curves in a tabular CSV format. Failures are appended to the end.
    */
   private void renderYieldCurves(List<IsdaYieldCurve> yieldCurves, 
-                                 Map<String, Result<IsdaYieldCurve>> yieldCurveFailures) {
+                                 Map<Currency, Result<IsdaYieldCurve>> yieldCurveFailures) {
     
     Pair<SortedSet<Tenor>, SortedSet<Tenor>> tenors = getTenors(yieldCurves);
-    SortedSet<Tenor> cashTenors = tenors.getFirst();
-    SortedSet<Tenor> swapTenors = tenors.getSecond();
+    Set<Tenor> cashTenors = tenors.getFirst();
+    Set<Tenor> swapTenors = tenors.getSecond();
     Set<Tenor> allTenors = Sets.newLinkedHashSet(Iterables.concat(cashTenors, swapTenors));
     List<String> headers = Lists.newArrayList("Curve");
     headers.addAll(Collections2.transform(cashTenors, new Function<Object, String>() {
@@ -289,13 +313,13 @@ public class IsdaCurveSnapshotCalibrationTool extends AbstractTool<ToolContext> 
       }
     }));
     
-    SortedMap<String, List<String>> inputRows = Maps.newTreeMap();
-    SortedMap<String, List<String>> rows = Maps.newTreeMap();
+    Map<Currency, List<String>> inputRows = Maps.newTreeMap();
+    Map<Currency, List<String>> rows = Maps.newTreeMap();
     for (IsdaYieldCurve curve : yieldCurves) {
       
-      String ccy = curve.getCurveData().getCurrency().toString();
-      List<String> row = Lists.newArrayList(ccy);
-      List<String> inputRow = Lists.newArrayList(ccy);
+      Currency ccy = curve.getCurveData().getCurrency();
+      List<Object> row = Lists.<Object>newArrayList(ccy);
+      List<Object> inputRow = Lists.<Object>newArrayList(ccy);
       
       SortedSet<Tenor> cashTerms = curve.getCurveData().getCashData().keySet();
       SortedSet<Tenor> swapTerms = curve.getCurveData().getSwapData().keySet();
@@ -318,34 +342,32 @@ public class IsdaCurveSnapshotCalibrationTool extends AbstractTool<ToolContext> 
           inputRow.add("");
         }
       }
-      rows.put(ccy, row);
-      inputRows.put(ccy, inputRow);
+      rows.put(ccy, Lists.transform(row, Functions.toStringFunction()));
+      inputRows.put(ccy, Lists.transform(inputRow, Functions.toStringFunction()));
     }
     
-    renderTable("Yield curve market quotes", headers, inputRows);
-    renderTable("Yield curve zero rates", headers, rows);
+    renderTable("Yield curve market quotes", headers, inputRows.values());
+    renderTable("Yield curve zero rates", headers, rows.values());
     
-    for (Map.Entry<String, Result<IsdaYieldCurve>> failure : yieldCurveFailures.entrySet()) {
+    for (Map.Entry<Currency, Result<IsdaYieldCurve>> failure : yieldCurveFailures.entrySet()) {
       System.out.println(failure.getKey() + ": " + failure.getValue());
     }
     
   }
 
-
   /**
    * Renders as a CSV table with a title.
    */
-  private void renderTable(String title, List<String> headers, SortedMap<String, List<String>> rows) {
+  private void renderTable(String title, List<String> headers, Iterable<List<String>> rows) {
     Joiner joiner = Joiner.on(",");
     
     System.out.println(title);
     
     System.out.println(joiner.join(headers));
-    for (List<String> row : rows.values()) {
+    for (List<String> row : rows) {
       System.out.println(joiner.join(row));
     }
   }
-
 
   /**
    * Pulls all cash and swap tenors from all yield curves, returning the result as a pair.
@@ -357,9 +379,8 @@ public class IsdaCurveSnapshotCalibrationTool extends AbstractTool<ToolContext> 
       cashTenors.addAll(curve.getCurveData().getCashData().keySet());
       swapTenors.addAll(curve.getCurveData().getSwapData().keySet());
     }
-    return ObjectsPair.of(cashTenors, swapTenors);
+    return Pairs.of(cashTenors, swapTenors);
   }
-
 
   /**
    * Inits a {@link FunctionModelConfig} instance using the passed snapshot names and component map.
@@ -379,8 +400,7 @@ public class IsdaCurveSnapshotCalibrationTool extends AbstractTool<ToolContext> 
     availableImplementations.register(DefaultIsdaCompliantYieldCurveFn.class,
                                       SnapshotYieldCurveDataProviderFn.class,
                                       SnapshotCreditCurveDataProviderFn.class,
-                                      StandardIsdaCompliantCreditCurveFn.class
-    );
+                                      StandardIsdaCompliantCreditCurveFn.class);
     
     FunctionModelConfig provider = new DefaultImplementationProvider(availableImplementations);
     
@@ -395,7 +415,6 @@ public class IsdaCurveSnapshotCalibrationTool extends AbstractTool<ToolContext> 
     FunctionModelConfig functionModelConfig = CompositeFunctionModelConfig.compose(config, provider);
     return functionModelConfig;
   }
-  
   
   @Override
   protected Options createOptions(boolean mandatoryConfigResource) {
