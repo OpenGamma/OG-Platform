@@ -5,23 +5,13 @@
  */
 package com.opengamma.analytics.tutorial.analysis.swap;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.zip.ZipInputStream;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
-
-import au.com.bytecode.opencsv.CSVReader;
 
 import com.opengamma.analytics.financial.datasets.CalendarTarget;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
@@ -201,7 +191,7 @@ public class SwapGammaSingleCurveProfitAnalysis {
   @Test(enabled = true)
   public void crossGammaDiagonalCompGbpHts() throws IOException {
     final String sheetFilePath = "src/test/resources/analysis/historical_time_series/curve-changes-gbp-10y.csv";
-    double[][] shift = parseShifts(sheetFilePath);
+    double[][] shift = GammaAnalysisUtils.parseShifts(sheetFilePath, BP1);
     int nbScenarios = shift.length;
     double[] plGammaTotal = new double[nbScenarios];
     double[] plGammaDiag = new double[nbScenarios];
@@ -234,35 +224,6 @@ public class SwapGammaSingleCurveProfitAnalysis {
       writer.close();
     } catch (final IOException e) {
       e.printStackTrace();
-    }
-  }
-
-  private double[][] parseShifts(String filename) throws IOException {
-    ArrayList<double[]> list = new ArrayList<>();
-    double[][] shift;
-    try (CSVReader reader = getCSVReader(filename)) {
-      String[] line;
-      while ((line = reader.readNext()) != null) {
-        double[] lineDouble = new double[line.length];
-        for (int loopc = 0; loopc < line.length; loopc++) {
-          lineDouble[loopc] = Double.parseDouble(line[loopc]) * BP1; // File in basis points
-        }
-        list.add(lineDouble);
-      }
-      shift = list.toArray(new double[0][0]);
-    }
-    return shift;
-  }
-
-  private CSVReader getCSVReader(String filename) throws IOException {
-    if (filename.endsWith(".zip")) {
-      ZipInputStream zipInputStream = new ZipInputStream(new BufferedInputStream(new FileInputStream(new File(filename))));
-      zipInputStream.getNextEntry();
-      return new CSVReader(new InputStreamReader(zipInputStream));
-    } else if (filename.endsWith(".csv") || filename.endsWith("*.tsv")) {
-      return new CSVReader(new BufferedReader(new FileReader(new File(filename))));
-    } else {
-      throw new IOException("Unsupported file type " + filename);
     }
   }
 
