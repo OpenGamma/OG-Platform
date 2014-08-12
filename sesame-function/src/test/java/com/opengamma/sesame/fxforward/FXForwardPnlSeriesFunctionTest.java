@@ -107,7 +107,6 @@ import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.sesame.pnl.DefaultHistoricalPnLFXConverterFn;
 import com.opengamma.sesame.pnl.HistoricalPnLFXConverterFn;
 import com.opengamma.sesame.pnl.PnLPeriodBound;
-import com.opengamma.sesame.proxy.TimingProxy;
 import com.opengamma.sesame.trace.Tracer;
 import com.opengamma.sesame.trace.TracingProxy;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
@@ -179,7 +178,6 @@ public class FXForwardPnlSeriesFunctionTest {
     FXForwardPnLSeriesFn pvFunction = FunctionModel.build(FXForwardPnLSeriesFn.class,
                                                           createFunctionConfig(currencyMatrix),
                                                           componentMap,
-                                                          TimingProxy.INSTANCE,
                                                           TracingProxy.INSTANCE,
                                                           cachingDecorator);
     ExternalId regionId = ExternalId.of(ExternalSchemes.FINANCIAL, "US");
