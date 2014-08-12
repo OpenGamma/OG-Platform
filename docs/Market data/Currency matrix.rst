@@ -126,7 +126,7 @@ FX rates used in engine calculations are inferred using the rules configured in 
 Two cases exist:
 
 *Requested rate is configured with a market data source*
- In this case, the referenced rate or the reciprocal thereof will be returned. e.g. If ``GBP|USD`` 
+ In this case, the referenced rate (or the reciprocal thereof) will be returned. e.g. If ``GBP|USD`` 
  is requested, the value for ``GBP Curncy`` will be returned. If ``USD|GBP`` is requested, its
  reciprocal (i.e. ``1/rate``) is returned.
 
