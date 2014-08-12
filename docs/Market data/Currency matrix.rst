@@ -8,6 +8,35 @@ The currency matrix is core to how FX rates are interpreted and used in OpenGamm
 * how to interpret the market data quote (e.g. whether the quote is ``x`` or ``1/x`` for a quoted pair)
 * how to triangulate cross rates
 
+Overall XML structure
+=====================
+
+The currency matrix is stored in the ConfigMaster as a Fudge-serialized Java object. Its components
+are documented in detail below, but here is the overall structure as an XML document:
+
+.. code:: xml
+
+  <?xml version="1.0" encoding="UTF-8"?>
+  <fudgeEnvelope>
+    <fudgeField0 ordinal="0" type="string">com.opengamma.financial.currency.CurrencyMatrix</fudgeField0>
+    
+    <valueReq type="message">
+      <!-- market data sources for ccy pairs: see below -->
+    </valueReq>
+    
+    <crossConvert type="message">
+      <!-- cross rate configs: see below -->
+    </crossConvert>
+    
+    <!-- unique id - allocated when the record is first persisted to the DB
+    <uniqueId type="string">DbCfg~2197852~61124</uniqueId>
+    -->
+    
+    <fudgeField0 ordinal="0" type="string">com.opengamma.financial.fudgemsg.CurrencyMatrixFudgeBuilder$MatrixImpl</fudgeField0>
+    <fudgeField0 ordinal="0" type="string">com.opengamma.financial.currency.AbstractCurrencyMatrix</fudgeField0>
+  </fudgeEnvelope>
+
+
 Specifying market data sources
 ==============================
 
