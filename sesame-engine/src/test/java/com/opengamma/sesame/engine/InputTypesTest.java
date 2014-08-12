@@ -23,6 +23,7 @@ import com.opengamma.core.position.Trade;
 import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.sesame.DirectExecutorService;
 import com.opengamma.sesame.EngineTestUtils;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.config.FunctionModelConfig;
@@ -51,7 +52,7 @@ public class InputTypesTest {
     availableImplementations.register(EquityTradeWithSecurityImpl.class, CashFlowTradeWithSecurityImpl.class);
 
     CachingManager cachingManager = new NoOpCachingManager(ComponentMap.EMPTY);
-    ViewFactory viewFactory = new ViewFactory(new EngineTestUtils.DirectExecutorService(),
+    ViewFactory viewFactory = new ViewFactory(new DirectExecutorService(),
                                               availableOutputs,
                                               availableImplementations,
                                               FunctionModelConfig.EMPTY,

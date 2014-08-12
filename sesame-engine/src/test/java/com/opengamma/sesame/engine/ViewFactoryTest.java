@@ -50,6 +50,7 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.service.ServiceContext;
 import com.opengamma.service.ThreadLocalServiceContext;
 import com.opengamma.service.VersionCorrectionProvider;
+import com.opengamma.sesame.DirectExecutorService;
 import com.opengamma.sesame.EngineTestUtils;
 import com.opengamma.sesame.LazyLinkedPositionOrTrade;
 import com.opengamma.sesame.OutputNames;
@@ -185,7 +186,7 @@ public class ViewFactoryTest {
   private ViewFactory createViewFactory(AvailableOutputs availableOutputs) {
     CachingManager cachingManager = new NoOpCachingManager(ComponentMap.EMPTY);
     return new ViewFactory(
-        new EngineTestUtils.DirectExecutorService(),
+        new DirectExecutorService(),
         availableOutputs,
         new AvailableImplementationsImpl(),
         FunctionModelConfig.EMPTY,
@@ -213,7 +214,7 @@ public class ViewFactoryTest {
 
     CachingManager cachingManager = new NoOpCachingManager(
         ComponentMap.EMPTY.with(CurrencyMatrix.class, mock(CurrencyMatrix.class)));
-    ViewFactory viewFactory = new ViewFactory(new EngineTestUtils.DirectExecutorService(),
+    ViewFactory viewFactory = new ViewFactory(new DirectExecutorService(),
         availableOutputs,
         new AvailableImplementationsImpl(),
         FunctionModelConfig.EMPTY,
@@ -309,7 +310,7 @@ public class ViewFactoryTest {
     AvailableImplementations availableImplementations = new AvailableImplementationsImpl();
     availableImplementations.register(DefaultIdSchemeFn.class);
     CachingManager cachingManager = new NoOpCachingManager(ComponentMap.EMPTY);
-    ViewFactory viewFactory = new ViewFactory(new EngineTestUtils.DirectExecutorService(),
+    ViewFactory viewFactory = new ViewFactory(new DirectExecutorService(),
         availableOutputs,
         availableImplementations,
         defaultConfig,
@@ -337,7 +338,7 @@ public class ViewFactoryTest {
     AvailableOutputs availableOutputs = new AvailableOutputsImpl();
     availableOutputs.register(EquityDescriptionFn.class);
     CachingManager cachingManager = new NoOpCachingManager(ComponentMap.EMPTY);
-    ViewFactory viewFactory = new ViewFactory(new EngineTestUtils.DirectExecutorService(),
+    ViewFactory viewFactory = new ViewFactory(new DirectExecutorService(),
         availableOutputs,
         new AvailableImplementationsImpl(),
         FunctionModelConfig.EMPTY,
@@ -373,7 +374,7 @@ public class ViewFactoryTest {
     AvailableImplementationsImpl availableImplementations = new AvailableImplementationsImpl();
     availableImplementations.register(NonPortfolioFunctionWithNoArgsImpl.class);
     CachingManager cachingManager = new NoOpCachingManager(ComponentMap.EMPTY);
-    ViewFactory viewFactory = new ViewFactory(new EngineTestUtils.DirectExecutorService(),
+    ViewFactory viewFactory = new ViewFactory(new DirectExecutorService(),
         availableOutputs,
         availableImplementations,
         FunctionModelConfig.EMPTY,
@@ -410,7 +411,7 @@ public class ViewFactoryTest {
     AvailableImplementationsImpl availableImplementations = new AvailableImplementationsImpl();
     availableImplementations.register(NonPortfolioFunctionWithArgsImpl.class);
     CachingManager cachingManager = new NoOpCachingManager(ComponentMap.EMPTY);
-    ViewFactory viewFactory = new ViewFactory(new EngineTestUtils.DirectExecutorService(),
+    ViewFactory viewFactory = new ViewFactory(new DirectExecutorService(),
         availableOutputs,
         availableImplementations,
         FunctionModelConfig.EMPTY,
@@ -438,7 +439,7 @@ public class ViewFactoryTest {
     AvailableImplementationsImpl availableImplementations = new AvailableImplementationsImpl();
     availableImplementations.register(NonPortfolioFunctionWithNoArgsImpl.class);
     CachingManager cachingManager = new NoOpCachingManager(ComponentMap.EMPTY);
-    ViewFactory viewFactory = new ViewFactory(new EngineTestUtils.DirectExecutorService(),
+    ViewFactory viewFactory = new ViewFactory(new DirectExecutorService(),
         availableOutputs,
         availableImplementations,
         FunctionModelConfig.EMPTY,
@@ -483,7 +484,7 @@ public class ViewFactoryTest {
     AvailableImplementationsImpl availableImplementations = new AvailableImplementationsImpl();
     availableImplementations.register(NonPortfolioFunctionWithArgsImpl.class);
     CachingManager cachingManager = new NoOpCachingManager(ComponentMap.EMPTY);
-    ViewFactory viewFactory = new ViewFactory(new EngineTestUtils.DirectExecutorService(),
+    ViewFactory viewFactory = new ViewFactory(new DirectExecutorService(),
         availableOutputs,
         availableImplementations,
         FunctionModelConfig.EMPTY,
@@ -522,7 +523,7 @@ public class ViewFactoryTest {
     AvailableImplementationsImpl availableImplementations = new AvailableImplementationsImpl();
     availableImplementations.register(NonPortfolioFunctionWithArgsImpl.class);
     CachingManager cachingManager = new NoOpCachingManager(ComponentMap.EMPTY);
-    ViewFactory viewFactory = new ViewFactory(new EngineTestUtils.DirectExecutorService(),
+    ViewFactory viewFactory = new ViewFactory(new DirectExecutorService(),
         availableOutputs,
         availableImplementations,
         FunctionModelConfig.EMPTY,
@@ -576,7 +577,7 @@ public class ViewFactoryTest {
     AvailableOutputs availableOutputs = new AvailableOutputsImpl();
     availableOutputs.register(EquityDescriptionFn.class, CashFlowDescriptionFn.class);
     CachingManager cachingManager = new NoOpCachingManager(ComponentMap.EMPTY);
-    ViewFactory viewFactory = new ViewFactory(new EngineTestUtils.DirectExecutorService(),
+    ViewFactory viewFactory = new ViewFactory(new DirectExecutorService(),
         availableOutputs,
         new AvailableImplementationsImpl(),
         FunctionModelConfig.EMPTY,
