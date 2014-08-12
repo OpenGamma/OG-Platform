@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.concurrent.FutureTask;
 
@@ -238,7 +237,7 @@ public class IsdaCurveSnapshotCalibrationTool extends AbstractTool<ToolContext> 
     
     headers.addAll(Collections2.transform(allTenors, Functions.toStringFunction()));
     
-    SortedMap<CreditCurveDataKey, List<String>> rows = Maps.newTreeMap(new Comparator<CreditCurveDataKey>() {
+    Map<CreditCurveDataKey, List<String>> rows = Maps.newTreeMap(new Comparator<CreditCurveDataKey>() {
 
       @Override
       public int compare(CreditCurveDataKey o1, CreditCurveDataKey o2) {
@@ -269,7 +268,7 @@ public class IsdaCurveSnapshotCalibrationTool extends AbstractTool<ToolContext> 
           ISDACompliantCreditCurve calibratedCurve = curve.getCalibratedCurve();
           double timeAtI = calibratedCurve.getTimeAtIndex(i);
           double hazardRate = calibratedCurve.getHazardRate(timeAtI);
-          rowObjs.add(Double.toString(hazardRate));
+          rowObjs.add(hazardRate);
           i++;
         } else {
           rowObjs.add("");
