@@ -12,7 +12,6 @@ import java.util.List;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorCurveDiscountFactorInterpolated;
 import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorCurveYieldInterpolated;
 import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorYDCurve;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
@@ -55,9 +54,9 @@ public class AnalysisMarketDataJPYSets {
   private static final Interpolator1D INTERPOLATOR_LINEAR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
       Interpolator1DFactory.FLAT_EXTRAPOLATOR);
 
-  private static final Interpolator1D INTERPOLATOR_LOG_NCS = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LOG_NATURAL_CUBIC,
-      Interpolator1DFactory.EXPONENTIAL_EXTRAPOLATOR,
-      Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+//  private static final Interpolator1D INTERPOLATOR_LOG_NCS = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LOG_NATURAL_CUBIC,
+//      Interpolator1DFactory.EXPONENTIAL_EXTRAPOLATOR,
+//      Interpolator1DFactory.FLAT_EXTRAPOLATOR);
 
   private static final LastTimeCalculator MATURITY_CALCULATOR = LastTimeCalculator.getInstance();
 
@@ -172,7 +171,7 @@ public class AnalysisMarketDataJPYSets {
   private static final LinkedHashMap<String, IborIndex[]> FWD_IBOR_MAP_3C = new LinkedHashMap<>();
 
   private static final GeneratorYDCurve GENERATOR_INTERPOLATED_YIELD_LINEAR = new GeneratorCurveYieldInterpolated(MATURITY_CALCULATOR, INTERPOLATOR_LINEAR);
-  private static final GeneratorYDCurve GENERATOR_INTERPOLATED_DF_LNCS = new GeneratorCurveDiscountFactorInterpolated(MATURITY_CALCULATOR, INTERPOLATOR_LOG_NCS);
+//  private static final GeneratorYDCurve GENERATOR_INTERPOLATED_DF_LNCS = new GeneratorCurveDiscountFactorInterpolated(MATURITY_CALCULATOR, INTERPOLATOR_LOG_NCS);
   static {
     DEFINITIONS_DSC = getDefinitions(CALIBRATION_DATE, DSC_MARKET_QUOTES, DSC_GENERATORS, DSC_ATTR);
     DEFINITIONS_FWD6 = getDefinitions(CALIBRATION_DATE, FWD6_MARKET_QUOTES, FWD6_GENERATORS, FWD6_ATTR);
