@@ -270,14 +270,16 @@ public class RecentDataSetsMulticurveXCcyUsdEur {
   }
 
   /** Market values for the Fwd 6M EUR curve. Fixing / Basis swaps*/
-  private static final double[] EUR_FEDFUND_1_FWD6_MARKET_QUOTES = new double[] {0.0045,
-    0.0045, 0.0045, 0.0045, 0.0050, 0.0060,
-    0.0085 };
+  private static final double[] EUR_FEDFUND_1_FWD6_MARKET_QUOTES = new double[] {0.0030,
+    0.0029,
+    0.001150, 0.001175, 0.001215, 0.001260, 0.001295,
+    0.001230 };
   /** Generators for the Fwd 6M USD curve */
   private static final GeneratorInstrument<? extends GeneratorAttribute>[] EUR_FEDFUND_1_FWD6_GENERATORS =
-      CurveCalibrationConventionDataSets.generatorEurIbor6Fra6Irs6(1, 0, 7);
+      CurveCalibrationConventionDataSets.generatorEurIbor6Fra6Bs36(1, 1, 6);
   /** Tenors for the Fwd 6M USD curve */
   private static final Period[] EUR_FEDFUND_1_FWD6_TENOR = new Period[] {Period.ofMonths(0),
+    Period.ofMonths(9),
     Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5),
     Period.ofYears(10) };
   private static final GeneratorAttributeIR[] EUR_FEDFUND_1_FWD6_ATTR = new GeneratorAttributeIR[EUR_FEDFUND_1_FWD6_TENOR.length];

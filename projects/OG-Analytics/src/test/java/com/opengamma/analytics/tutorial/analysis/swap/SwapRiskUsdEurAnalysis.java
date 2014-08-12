@@ -45,6 +45,7 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.Multipl
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
 import com.opengamma.analytics.tutorial.datasets.RecentDataSetsMulticurveStandardUsd;
 import com.opengamma.analytics.tutorial.datasets.RecentDataSetsMulticurveXCcyUsdEur;
+import com.opengamma.analytics.tutorial.utils.ExportUtils;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.rolldate.RollConvention;
@@ -203,8 +204,8 @@ public class SwapRiskUsdEurAnalysis {
     //    ExportUtils.exportMultipleCurrencyParameterSensitivity(pvmqsIrs2FfEo, "irs-eur-mqs-ff-eo.csv");
     MultipleCurrencyParameterSensitivity pvmqsIrs1Ff1 = MQSBC.fromInstrument(IRS_1, MULTICURVE_FF_1, BLOCK_FF_1).multipliedBy(BP1);
     MultipleCurrencyParameterSensitivity pvmqsIrs2Ff1 = MQSBC.fromInstrument(IRS_2, MULTICURVE_FF_1, BLOCK_FF_1).multipliedBy(BP1);
-    //    ExportUtils.exportMultipleCurrencyParameterSensitivity(pvmqsIrs1Ff1, "irs-usd-mqs-ff-fxxccy.csv");
-    //    ExportUtils.exportMultipleCurrencyParameterSensitivity(pvmqsIrs2Ff1, "irs-eur-mqs-ff-fxxccy.csv");
+    ExportUtils.exportMultipleCurrencyParameterSensitivity(pvmqsIrs1Ff1, "irs-usd-mqs-ff-fxxccy.csv");
+    ExportUtils.exportMultipleCurrencyParameterSensitivity(pvmqsIrs2Ff1, "irs-eur-mqs-ff-fxxccy.csv");
     int t = 0;
   }
 
