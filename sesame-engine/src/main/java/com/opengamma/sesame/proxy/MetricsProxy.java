@@ -52,4 +52,16 @@ public final class MetricsProxy extends ProxyNodeDecorator {
     Object proxiedObject = EngineUtils.getProxiedObject(delegate);
     return proxiedObject.getClass().getCanonicalName() + "." + method.getName();
   }
+
+  @Override
+  public boolean equals(Object o) {
+    // We only care that the other object is also a metrics proxy in which
+    // case nodes can safely be cached
+    return this == o || (o != null && getClass() == o.getClass());
+  }
+
+  @Override
+  public int hashCode() {
+    return getClass().hashCode();
+  }
 }
