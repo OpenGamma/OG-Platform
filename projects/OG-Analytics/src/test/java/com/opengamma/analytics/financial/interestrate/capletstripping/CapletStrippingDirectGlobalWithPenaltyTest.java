@@ -15,10 +15,10 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.interestrate.capletstrippingnew.CapFloor;
-import com.opengamma.analytics.financial.interestrate.capletstrippingnew.CapFloorPricer;
-import com.opengamma.analytics.financial.interestrate.capletstrippingnew.CapletStrippingDirectGlobalWithPenalty;
-import com.opengamma.analytics.financial.interestrate.capletstrippingnew.CapletStrippingSetup;
+import com.opengamma.analytics.financial.interestrate.capletstripping.CapFloor;
+import com.opengamma.analytics.financial.interestrate.capletstripping.CapFloorPricer;
+import com.opengamma.analytics.financial.interestrate.capletstripping.CapletStrippingDirectGlobalWithPenalty;
+import com.opengamma.analytics.financial.interestrate.capletstripping.CapletVolatilityNodalSurfaceProvider;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
 import com.opengamma.analytics.math.matrix.ColtMatrixAlgebra;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
@@ -35,8 +35,7 @@ public class CapletStrippingDirectGlobalWithPenaltyTest extends CapletStrippingS
   /**
    * Use all of the market data
    */
-  @Test
-  //(enabled = false)
+  @Test(enabled = false)
   public void MarketDataTestWithATM() {
     final double[] capStrikes = getStrikes();
     final int nStrikes = capStrikes.length;
@@ -114,7 +113,7 @@ public class CapletStrippingDirectGlobalWithPenaltyTest extends CapletStrippingS
     System.out.println(res.getChiSq());
 
     final DoubleMatrix1D resVec = res.getFitParameters();
-    final Double[][] resMatrix = new Double[nStrikes + nCapEndTimes][nPayments];
+    final double[][] resMatrix = new double[nStrikes + nCapEndTimes][nPayments];
     for (int i = 0; i < nStrikes + nCapEndTimes; ++i) {
       for (int j = 0; j < nPayments; ++j) {
         resMatrix[i][j] = resVec.getEntry(i * nPayments + j);
@@ -127,7 +126,7 @@ public class CapletStrippingDirectGlobalWithPenaltyTest extends CapletStrippingS
         final CapFloor cf = caps[i].get(j);
         final CapFloorPricer pr = new CapFloorPricer(cf, getYieldCurves());
         final int nP = pr.getNumberCaplets();
-        final Double[] vols = Arrays.copyOf(resMatrix[i], nP);
+        final double[] vols = Arrays.copyOf(resMatrix[i], nP);
         System.out.println(capVols[i][j] + "\t" + pr.impliedVol(vols));
       }
     }
@@ -136,8 +135,7 @@ public class CapletStrippingDirectGlobalWithPenaltyTest extends CapletStrippingS
   /**
    * Exclude ATM caps, that is, grid is almost homogeneous
    */
-  @Test
-  //(enabled = false)
+  @Test(enabled = false)
   public void MarketDataTestExcATM() {
     final double[] capStrikes = getStrikes();
     final int nStrikes = capStrikes.length;
@@ -178,7 +176,7 @@ public class CapletStrippingDirectGlobalWithPenaltyTest extends CapletStrippingS
     System.out.println(res.getChiSq());
 
     final DoubleMatrix1D resVec = res.getFitParameters();
-    final Double[][] resMatrix = new Double[nStrikes][nPayments];
+    final double[][] resMatrix = new double[nStrikes][nPayments];
     for (int i = 0; i < nStrikes; ++i) {
       for (int j = 0; j < nPayments; ++j) {
         resMatrix[i][j] = resVec.getEntry(i * nPayments + j);
@@ -192,7 +190,7 @@ public class CapletStrippingDirectGlobalWithPenaltyTest extends CapletStrippingS
         final CapFloor cf = caps[i].get(j);
         final CapFloorPricer pr = new CapFloorPricer(cf, getYieldCurves());
         final int nP = pr.getNumberCaplets();
-        final Double[] vols = Arrays.copyOf(resMatrix[i], nP);
+        final double[] vols = Arrays.copyOf(resMatrix[i], nP);
         System.out.println(capVols[i][j] + "\t" + pr.impliedVol(vols));
       }
     }
@@ -372,8 +370,8 @@ public class CapletStrippingDirectGlobalWithPenaltyTest extends CapletStrippingS
 
     final DoubleMatrix1D resVec = res.getFitParameters();
     final DoubleMatrix1D resVec1 = res1.getFitParameters();
-    final Double[][] resMatrix = new Double[nStrikesUse][nPayments];
-    final Double[][] resMatrix1 = new Double[nStrikesUse][nPayments];
+    final double[][] resMatrix = new double[nStrikesUse][nPayments];
+    final double[][] resMatrix1 = new double[nStrikesUse][nPayments];
     for (int i = 0; i < nStrikesUse; ++i) {
       for (int j = 0; j < nPayments; ++j) {
         resMatrix[i][j] = resVec.getEntry(i * nPayments + j);
@@ -386,10 +384,10 @@ public class CapletStrippingDirectGlobalWithPenaltyTest extends CapletStrippingS
         final CapFloor cf = capsUse[i].get(j);
         final CapFloorPricer pr = new CapFloorPricer(cf, getYieldCurves());
         final int nP = pr.getNumberCaplets();
-        final Double[] vols = Arrays.copyOf(resMatrix[i], nP);
+        final double[] vols = Arrays.copyOf(resMatrix[i], nP);
         assertEquals(capVolsUse[i][j], pr.impliedVol(vols), 1.e-2);
 
-        final Double[] vols1 = Arrays.copyOf(resMatrix1[i], nP);
+        final double[] vols1 = Arrays.copyOf(resMatrix1[i], nP);
         assertEquals(capVolsUse[i][j], pr.impliedVol(vols1), 1.e-2);
       }
     }

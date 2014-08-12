@@ -7,7 +7,6 @@ package com.opengamma.analytics.financial.interestrate.capletstripping;
 
 import java.util.List;
 
-import com.opengamma.analytics.financial.interestrate.capletstrippingnew.VolatilitySurfaceProvider;
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.function.Function2D;
@@ -20,7 +19,7 @@ import com.opengamma.analytics.math.surface.Surface;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * Represent a volatility surface using 2D basis-splines  
  */
 public class BasisSplineVolatilitySurfaceProvider implements VolatilitySurfaceProvider {
 
@@ -31,6 +30,17 @@ public class BasisSplineVolatilitySurfaceProvider implements VolatilitySurfacePr
     _bSplines = bSlines;
   }
 
+  /**
+   * Set up a volatility surface represented by weighted basis-splines 
+   * @param k1 The low strike value
+   * @param k2 The upper strike value
+   * @param nStrikeKnots Number of knots in strike direction
+   * @param strikeDegree The degree of the basis-spline in the strike direction
+   * @param t1 The low time
+   * @param t2 The upper time
+   * @param nTimeKnots Number of knots in time direction
+   * @param timeDegree The degree of the basis-spline in the strike direction
+   */
   public BasisSplineVolatilitySurfaceProvider(final double k1, final double k2, final int nStrikeKnots, final int strikeDegree, final double t1, final double t2, final int nTimeKnots,
       final int timeDegree) {
     final BasisFunctionGenerator gen = new BasisFunctionGenerator();
@@ -40,6 +50,7 @@ public class BasisSplineVolatilitySurfaceProvider implements VolatilitySurfacePr
 
   /**
    * {@inheritDoc}
+   * The model parameters in this case are the weights of the basis-splines 
    */
   @Override
   public VolatilitySurface getVolSurface(final DoubleMatrix1D modelParameters) {
@@ -58,6 +69,7 @@ public class BasisSplineVolatilitySurfaceProvider implements VolatilitySurfacePr
 
   /**
    * {@inheritDoc}
+   * The model parameters in this case are the weights of the basis-splines 
    */
   @Override
   public Surface<Double, Double, DoubleMatrix1D> getVolSurfaceAdjoint(final DoubleMatrix1D modelParameters) {
@@ -73,6 +85,11 @@ public class BasisSplineVolatilitySurfaceProvider implements VolatilitySurfacePr
     return new FunctionalSurface<>(func);
   }
 
+  /**
+   * {@inheritDoc}
+   * The number of parameters is the number of basis functions, which is #knots + degree - 1 in each dimension, so the 
+   * total is the product of this for strikes and times  
+   */
   @Override
   public int getNumModelParameters() {
     return _bSplines.size();

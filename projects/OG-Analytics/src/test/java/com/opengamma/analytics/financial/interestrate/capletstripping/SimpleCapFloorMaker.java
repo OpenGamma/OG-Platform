@@ -8,7 +8,7 @@ package com.opengamma.analytics.financial.interestrate.capletstripping;
 import org.threeten.bp.Period;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
-import com.opengamma.analytics.financial.interestrate.capletstrippingnew.CapFloor;
+import com.opengamma.analytics.financial.interestrate.capletstripping.CapFloor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
