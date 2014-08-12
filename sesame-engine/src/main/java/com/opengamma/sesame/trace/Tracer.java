@@ -7,6 +7,8 @@ package com.opengamma.sesame.trace;
 
 import java.lang.reflect.Method;
 
+import org.threeten.bp.Duration;
+
 /**
  * Provides the ability to handle tracing of function calls.
  * <p>
@@ -62,19 +64,21 @@ public abstract class Tracer {
    * The return value may however represent a known failure case.
    * <p>
    * This method must not throw an exception.
-   * 
+   *
    * @param returnValue  the return value of the method, may be null
+   * @param duration
    */
-  abstract void returned(Object returnValue);
+  abstract void returned(Object returnValue, Duration duration);
 
   /**
    * Handles the tracing event when a method call threw an exception.
    * <p>
    * This method must not throw an exception.
-   * 
+   *
    * @param ex  the exception that was thrown
+   * @param duration
    */
-  abstract void threw(Throwable ex);
+  abstract void threw(Throwable ex, Duration duration);
 
   /**
    * Gets the root of the call graph.

@@ -30,7 +30,6 @@ import com.opengamma.sesame.graph.GraphModel;
 import com.opengamma.sesame.graph.NodeDecorator;
 import com.opengamma.sesame.proxy.ExceptionWrappingProxy;
 import com.opengamma.sesame.proxy.MetricsProxy;
-import com.opengamma.sesame.proxy.TimingProxy;
 import com.opengamma.sesame.trace.TracingProxy;
 import com.opengamma.util.ArgumentChecker;
 
@@ -158,9 +157,6 @@ public class ViewFactory {
     // Timing/tracing sits outside of caching so the actual
     // time taken for a request is reported. This can also
     // report on whether came from the cache or were calculated
-    if (services.contains(FunctionService.TIMING)) {
-      decorators.add(TimingProxy.INSTANCE);
-    }
     if (services.contains(FunctionService.TRACING)) {
       decorators.add(TracingProxy.INSTANCE);
     }

@@ -45,6 +45,8 @@ public class FullTracerTest {
         .parameterTypes(ImmutableList.<Class<?>>of(Integer.TYPE))
         .arguments(ImmutableList.<Object>of(0))
         .returnValue("foo")
+        // We have to cheat with the timing information
+        .duration(trace.getDuration())
         .build();
 
     assertEquals(expected, trace);
@@ -63,6 +65,7 @@ public class FullTracerTest {
         .methodName(METHOD1)
         .parameterTypes(ImmutableList.<Class<?>>of(Integer.TYPE))
         .arguments(ImmutableList.<Object>of(1))
+        .duration(trace.getDuration())
         .returnValue("foo 42")
         .calls(ImmutableList.of(
             CallGraph.builder()
@@ -71,6 +74,7 @@ public class FullTracerTest {
                 .parameterTypes(ImmutableList.<Class<?>>of(Boolean.TYPE))
                 .arguments(ImmutableList.<Object>of(true))
                 .returnValue(42)
+                .duration(trace.getCalls().get(0).getDuration())
                 .build()))
         .build();
 
@@ -91,6 +95,7 @@ public class FullTracerTest {
         .parameterTypes(ImmutableList.<Class<?>>of(Integer.TYPE))
         .arguments(ImmutableList.<Object>of(2))
         .returnValue("bar 42 84")
+        .duration(trace.getDuration())
         .calls(ImmutableList.of(
             CallGraph.builder()
                 .receiverClass(I2.class)
@@ -98,6 +103,7 @@ public class FullTracerTest {
                 .parameterTypes(ImmutableList.<Class<?>>of(Boolean.TYPE))
                 .arguments(ImmutableList.<Object>of(true))
                 .returnValue(42)
+                .duration(trace.getCalls().get(0).getDuration())
                 .build(),
             CallGraph.builder()
                 .receiverClass(I2.class)
@@ -105,6 +111,7 @@ public class FullTracerTest {
                 .parameterTypes(ImmutableList.<Class<?>>of(Boolean.TYPE))
                 .arguments(ImmutableList.<Object>of(true))
                 .returnValue(42)
+                .duration(trace.getCalls().get(1).getDuration())
                 .build()))
         .build();
 
@@ -131,6 +138,7 @@ public class FullTracerTest {
         .arguments(ImmutableList.<Object>of(3))
         .throwableClass(OpenGammaRuntimeException.class)
         .errorMessage("an exception")
+        .duration(trace.getDuration())
         .calls(ImmutableList.of(
             CallGraph.builder()
                 .receiverClass(I2.class)
@@ -139,10 +147,11 @@ public class FullTracerTest {
                 .arguments(ImmutableList.<Object>of(false))
                 .throwableClass(OpenGammaRuntimeException.class)
                 .errorMessage("an exception")
+                .duration(trace.getCalls().get(0).getDuration())
                 .build()))
         .build();
 
-    assertEquals(expected, trace);
+     assertEquals(expected, trace);
     System.out.println(trace.prettyPrint());
   }
 
