@@ -116,4 +116,5 @@ the ``crossConvert`` section as follows:
       <!-- other ccy-based cross rates -->
     </crossConvert>
     
-This states that for ``CHF|JPY``, use ``USD|CHF`` and ``USD|JPY`` to infer the rate.
+This states that for ``CHF|JPY``, use ``USD|CHF`` and ``USD|JPY`` to infer the rate. Similarly for ``NZD``
+and so on.
