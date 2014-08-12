@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -8,7 +8,9 @@ package com.opengamma.analytics.tutorial.analysis.swap;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Set;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.testng.annotations.Test;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
@@ -33,6 +35,7 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
+import com.opengamma.analytics.math.matrix.OGMatrixAlgebra;
 import com.opengamma.analytics.tutorial.datasets.AnalysisMarketDataJPYSets;
 import com.opengamma.financial.convention.calendar.ExceptionCalendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
@@ -85,6 +88,23 @@ public class SwapGammaMultiCurveProfitJPYAnalysis {
     CURVE_NAME[0] = MULTICURVE_PAIR_0.getFirst().getName(JPY);
     CURVE_NAME[1] = MULTICURVE_PAIR_0.getFirst().getName(JPYLIBOR6M);
   }
+  private static final double BP1 = 1.0E-4;
+
+  private static final OGMatrixAlgebra ALGEBRA = new OGMatrixAlgebra();
+
+  private static final CrossGammaMultiCurveCalculator GC = new CrossGammaMultiCurveCalculator(BP1, PVCSDC);
+
+  private static final DoubleMatrix2D GAMMA_CROSS = GC.calculateCrossGammaCrossCurve(IRS_JPY, MULTICURVE);
+  private static final HashMap<String, DoubleMatrix2D> GAMMA_INTRA = GC.calculateCrossGammaIntraCurve(IRS_JPY, MULTICURVE);
+  private static final Set<String> CURVE_NAME_SET = GAMMA_INTRA.keySet();
+  private static final int[] NB_NODE_JPY = new int[3];
+  static {
+    int loopcurve = 0;
+    for (String curve : CURVE_NAME_SET) {
+      NB_NODE_JPY[loopcurve] = GAMMA_INTRA.get(curve).getNumberOfColumns();
+      loopcurve++;
+    }
+  }
 
   @SuppressWarnings("unused")
   @Test(enabled = false)
@@ -109,6 +129,47 @@ public class SwapGammaMultiCurveProfitJPYAnalysis {
           line = line + "," + matrix[loop1][loop2];
         }
         writer.append(line + "0 \n");
+      }
+      writer.flush();
+      writer.close();
+    } catch (final IOException e) {
+      e.printStackTrace();
+    }
+  }
+  
+  /**
+   * Uses historical data to estimate the difference between intra-curve cross-gamma and full cross-gamma.
+   * The result file is exported in the root directory of OG-Analytics.
+   * @throws IOException
+   */
+  @Test(enabled = true)
+  public void crossGammaCompJpyHts() throws IOException {
+    final String sheetFilePath = "src/test/resources/analysis/historical_time_series/curve-changes-jpy-multicurve.csv";
+    double[][] shift = GammaAnalysisUtils.parseShifts(sheetFilePath, 1.0);
+    int nbScenarios = shift.length;
+    double[] plGammaCross = new double[nbScenarios];
+    double[] plGammaIntra = new double[nbScenarios];
+    for (int loopsc = 0; loopsc < nbScenarios; loopsc++) {
+      DoubleMatrix2D marketMvtMat = new DoubleMatrix2D(new double[][] {shift[loopsc] });
+      // Intra curve cross-gamma
+      int loopcurve = 0;
+      int start = 0;
+      for (String curve : CURVE_NAME_SET) {
+        double[] marketMvtIntra = ArrayUtils.subarray(shift[loopsc], start, start+NB_NODE_JPY[loopcurve]);
+        DoubleMatrix2D marketMvtIntraMat = new DoubleMatrix2D(new double[][] {marketMvtIntra });
+        start += NB_NODE_JPY[loopcurve];
+        loopcurve++;
+        plGammaIntra[loopsc] += (Double) ALGEBRA.multiply(ALGEBRA.multiply(marketMvtIntraMat, GAMMA_INTRA.get(curve)), ALGEBRA.getTranspose(marketMvtIntraMat)).getEntry(0, 0) * 0.5;
+      }
+      // Full curve cross-gamma
+      plGammaCross[loopsc] = (Double) ALGEBRA.multiply(ALGEBRA.multiply(marketMvtMat, GAMMA_CROSS), ALGEBRA.getTranspose(marketMvtMat)).getEntry(0, 0) * 0.5;
+    }
+    String fileName = "swap-multicurve-x-gamma-pl-" + TENOR_START.toString() + "x" + TENOR_SWAP.toString() + ".csv";
+    try {
+      final FileWriter writer = new FileWriter(fileName);
+      for (int loopsc = 0; loopsc < nbScenarios; loopsc++) {
+        String line = plGammaCross[loopsc] + "," + plGammaIntra[loopsc] + " \n";
+        writer.append(line);
       }
       writer.flush();
       writer.close();
@@ -145,12 +206,12 @@ public class SwapGammaMultiCurveProfitJPYAnalysis {
     }
     endTime = System.currentTimeMillis();
     System.out.println("CrossGammaMultiCurveCalculator - " + nbTest + " intro-curve x-gamma - 3 curves: " + (endTime - startTime) + " ms");
-    // Performance note: Cross-gamma intra-curve 2 curves: 07-Nov-12: On Mac Book Pro 2.6 GHz Intel Core i7: 2000 ms for 1000 sets.
+    // Performance note: Cross-gamma intra-curve 2 curves: 04-Aug-2014: On Mac Book Pro 2.6 GHz Intel Core i7: 2000 ms for 1000 sets.
 
   }
 
   @SuppressWarnings("unused")
-  @Test(enabled = true)
+  @Test(enabled = false)
   public void performanceCalibration() {
     long startTime, endTime;
     final int nbTest = 100;
@@ -207,42 +268,6 @@ public class SwapGammaMultiCurveProfitJPYAnalysis {
     endTime = System.currentTimeMillis();
     System.out.println("SwapGammaMultiCurveProfitJPYAnalysis - calibration - " + nbTest + " 2 curves - 1 unit calibrations: " + (endTime - startTime) + " ms");
     // Performance note: 3 Curve calibration: 04-Aug-2014: On Mac Book Pro 2.6 GHz Intel Core i7: xxx ms for 100 sets. // 3500 // 3700
-
-    startTime = System.currentTimeMillis();
-    for (int looptest = 0; looptest < nbTest; looptest++) {
-      Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> multicurve3Pair =
-          AnalysisMarketDataJPYSets.getMulticurveJPYOisL6L3(CALIBRATION_DATE, dscQuotes, fwd6Quotes, fwd3Quotes);
-    }
-    endTime = System.currentTimeMillis();
-    System.out.println("CrossGammaMultiCurveCalculator - " + nbTest + " 3 curves - 3 units calibrations: " + (endTime - startTime) + " ms");
-    // Performance note: 3 Curve calibration: 04-Aug-2014: On Mac Book Pro 2.6 GHz Intel Core i7: 3900 ms for 100 sets.
-
-    startTime = System.currentTimeMillis();
-    for (int looptest = 0; looptest < nbTest; looptest++) {
-      Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> multicurve2Pair =
-          AnalysisMarketDataJPYSets.getMulticurveJPYOisL6(CALIBRATION_DATE, dscQuotes, fwd6Quotes);
-    }
-    endTime = System.currentTimeMillis();
-    System.out.println("CrossGammaMultiCurveCalculator - " + nbTest + " 2 curves - 2 units calibrations: " + (endTime - startTime) + " ms");
-    // Performance note: 2 Curve calibration: 04-Aug-2014: On Mac Book Pro 2.6 GHz Intel Core i7: 1900 ms for 100 sets.
-
-    startTime = System.currentTimeMillis();
-    for (int looptest = 0; looptest < nbTest; looptest++) {
-      Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> multicurve3Pair =
-          AnalysisMarketDataJPYSets.getMulticurveJPYOisL6L3OneUnit(CALIBRATION_DATE, dscQuotes, fwd6Quotes, fwd3Quotes);
-    }
-    endTime = System.currentTimeMillis();
-    System.out.println("CrossGammaMultiCurveCalculator - " + nbTest + " 3 curves - 1 unit calibrations: " + (endTime - startTime) + " ms");
-    // Performance note: 3 Curve calibration: 04-Aug-2014: On Mac Book Pro 2.6 GHz Intel Core i7: 6000 ms for 100 sets.
-
-    startTime = System.currentTimeMillis();
-    for (int looptest = 0; looptest < nbTest; looptest++) {
-      Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> multicurve3Pair =
-          AnalysisMarketDataJPYSets.getMulticurveJPYOisL6OneUnit(CALIBRATION_DATE, dscQuotes, fwd6Quotes);
-    }
-    endTime = System.currentTimeMillis();
-    System.out.println("CrossGammaMultiCurveCalculator - " + nbTest + " 2 curves - 1 unit calibrations: " + (endTime - startTime) + " ms");
-    // Performance note: 3 Curve calibration: 04-Aug-2014: On Mac Book Pro 2.6 GHz Intel Core i7: xxx ms for 100 sets.
 
   }
 
