@@ -123,12 +123,12 @@ FX rate inference
 =================
 
 FX rates used in engine calculations are inferred using the rules configured in the currency matrix.
-Two cases exist:
+There are essentially only two cases:
 
 *Requested rate is configured with a market data source*
  In this case, the referenced rate (or the reciprocal thereof) will be returned. e.g. If ``GBP|USD`` 
- is requested, the value for ``GBP Curncy`` will be returned. If ``USD|GBP`` is requested, its
- reciprocal (i.e. ``1/rate``) is returned.
+ is requested, the value for ``GBP Curncy`` will be returned directly. If ``USD|GBP`` is requested, 
+ its reciprocal (i.e. ``1/GBP Curncy``) is returned.
 
 *Requested rate is configured as a cross rate*
  Cross rate is calculated using configured underlying rates. e.g. If ``CHF|JPY`` is requested,
