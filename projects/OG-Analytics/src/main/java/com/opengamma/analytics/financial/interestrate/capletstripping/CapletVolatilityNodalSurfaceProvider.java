@@ -7,7 +7,6 @@ package com.opengamma.analytics.financial.interestrate.capletstripping;
 
 import java.util.Arrays;
 
-import com.opengamma.analytics.financial.interestrate.capletstrippingnew.CapletStrippingDirectGlobalWithPenalty;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.matrix.ColtMatrixAlgebra;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;

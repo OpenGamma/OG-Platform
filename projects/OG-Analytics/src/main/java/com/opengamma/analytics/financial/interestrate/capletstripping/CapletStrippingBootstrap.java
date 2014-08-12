@@ -8,8 +8,6 @@ package com.opengamma.analytics.financial.interestrate.capletstripping;
 import java.util.Iterator;
 import java.util.List;
 
-import com.opengamma.analytics.financial.interestrate.capletstrippingnew.CapFloor;
-import com.opengamma.analytics.financial.interestrate.capletstrippingnew.CapFloorDecomposer;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.financial.model.volatility.SimpleOptionData;
@@ -118,7 +116,7 @@ public class CapletStrippingBootstrap {
   /**
    *
    * @param mktCapFlVols market implied volatilities of caps
-   * @return he set caplet/floorlet volatilities (indexed in ascending time order)
+   * @return The set caplet/floorlet volatilities (indexed in ascending time order)
    */
   public double[] capletVolsFromCapVols(final double[] mktCapFlVols) {
     ArgumentChecker.notEmpty(mktCapFlVols, "null cap vols");
