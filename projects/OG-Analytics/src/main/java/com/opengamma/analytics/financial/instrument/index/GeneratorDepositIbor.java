@@ -6,16 +6,18 @@
 package com.opengamma.analytics.financial.instrument.index;
 
 import org.apache.commons.lang.ObjectUtils;
+import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.cash.DepositIborDefinition;
+import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * Class with the description of Ibor deposit.
  */
-public class GeneratorDepositIbor extends GeneratorInstrument<GeneratorAttribute> {
+public class GeneratorDepositIbor extends GeneratorInstrument<GeneratorAttributeIR> {
 
   /**
    * The index. Not null.
@@ -49,8 +51,16 @@ public class GeneratorDepositIbor extends GeneratorInstrument<GeneratorAttribute
   }
 
   @Override
-  public DepositIborDefinition generateInstrument(final ZonedDateTime date, final double marketQuote, final double notional, final GeneratorAttribute attribute) {
-    return DepositIborDefinition.fromTrade(date, notional, marketQuote, _index, _calendar);
+  public DepositIborDefinition generateInstrument(final ZonedDateTime date, final double marketQuote, final double notional, final GeneratorAttributeIR attribute) {
+    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(date, _index.getSpotLag(), _calendar);
+    final ZonedDateTime endDate;
+    if (attribute.getEndPeriod().equals(Period.ZERO)) {
+      endDate = ScheduleCalculator.getAdjustedDate(startDate, _index, _calendar);
+    } else {
+      endDate = ScheduleCalculator.getAdjustedDate(startDate, attribute.getEndPeriod(), _index, _calendar);
+    }
+    final double accrualFactor = _index.getDayCount().getDayCountFraction(startDate, endDate, _calendar);
+    return new DepositIborDefinition(_index.getCurrency(), startDate, endDate, notional, marketQuote, accrualFactor, _index);
   }
 
   @Override
