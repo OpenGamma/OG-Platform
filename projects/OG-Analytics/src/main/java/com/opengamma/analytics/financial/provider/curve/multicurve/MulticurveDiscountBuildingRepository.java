@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.provider.curve.multicurve;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -134,9 +135,10 @@ public class MulticurveDiscountBuildingRepository {
     allCurveName.addAll(currentCurves); // Manipulation to ensure that the new curves are at the end.
     //Implementation note : if blockBundle don't contain a block for a specific curve then we remove this curve from  beforeCurveName. 
     //Because we can't compute the total bundle without the block for each curve. So we are computing a total bundle without this curve.
-    for (final String name : beforeCurveName) {
+    for (Iterator<String> beforeCurveNameIt = beforeCurveName.iterator(); beforeCurveNameIt.hasNext();) {
+      String name = beforeCurveNameIt.next();
       if (!(blockBundle.getData().containsKey(name))) {
-        beforeCurveName.remove(name);
+        beforeCurveNameIt.remove();
       }
     }
     final int nbAllCurve = allCurveName.size();
