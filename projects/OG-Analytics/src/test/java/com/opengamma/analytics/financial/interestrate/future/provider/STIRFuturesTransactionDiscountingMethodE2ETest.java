@@ -84,9 +84,9 @@ public class STIRFuturesTransactionDiscountingMethodE2ETest {
    */
   public void presentValue() {
     final MultipleCurrencyAmount pvComputed = ERZ4_TRA.accept(PVDC, MULTICURVE);
-    assertTrue("STIRFuturesTransactionDiscountingMethod: present value from standard curves", pvComputed.size() == 1);
+    assertTrue("STIRFuturesTransactionDiscountingMethodE2ETest: present value from standard curves", pvComputed.size() == 1);
     final MultipleCurrencyAmount pvExpected = MultipleCurrencyAmount.of(Currency.EUR, -262.767172);
-    assertEquals("STIRFuturesTransactionDiscountingMethod: present value from standard curves", pvExpected.getAmount(EUR), pvComputed.getAmount(EUR), TOLERANCE_PV);
+    assertEquals("STIRFuturesTransactionDiscountingMethodE2ETest: present value from standard curves", pvExpected.getAmount(EUR), pvComputed.getAmount(EUR), TOLERANCE_PV);
   }
 
   @Test
@@ -101,7 +101,7 @@ public class STIRFuturesTransactionDiscountingMethodE2ETest {
     sensitivity.put(ObjectsPair.of(MULTICURVE.getName(EUREURIBOR3M), EUR), new DoubleMatrix1D(deltaFwd));
     final MultipleCurrencyParameterSensitivity pvpsExpected = new MultipleCurrencyParameterSensitivity(sensitivity);
     final MultipleCurrencyParameterSensitivity pvpsComputed = MQSBC.fromInstrument(ERZ4_TRA, MULTICURVE, BLOCK).multipliedBy(BP1);
-    AssertSensitivityObjects.assertEquals("ForwardRateAgreementDiscountingMethod: bucketed delts from standard curves", pvpsExpected, pvpsComputed, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("STIRFuturesTransactionDiscountingMethodE2ETest: bucketed delts from standard curves", pvpsExpected, pvpsComputed, TOLERANCE_PV_DELTA);
   }
 
   @Test
@@ -111,7 +111,7 @@ public class STIRFuturesTransactionDiscountingMethodE2ETest {
   public void parRate() {
     final double parRate = ERZ4_TRA.accept(PRDC, MULTICURVE);
     final double parRateExpected = 0.00269159145050768;
-    assertEquals("ForwardRateAgreementDiscountingMethod: par rate from standard curves", parRateExpected, parRate, TOLERANCE_RATE);
+    assertEquals("STIRFuturesTransactionDiscountingMethodE2ETest: par rate from standard curves", parRateExpected, parRate, TOLERANCE_RATE);
   }
 
 }
