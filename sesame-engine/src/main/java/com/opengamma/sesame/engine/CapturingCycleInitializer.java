@@ -55,14 +55,13 @@ class CapturingCycleInitializer implements CycleInitializer {
    * Creates cycle initializer for a capturing cycle.
    *
    * @param serviceContext  the current service context
-   * @param cachingManager  the current caching manager
    * @param cycleArguments  the cycle arguments
    * @param graphModel  the graph model for the view
    * @param viewConfig  the config for the view
    * @param inputs  the trade inputs
    */
   public CapturingCycleInitializer(ServiceContext serviceContext,
-                                   CachingManager cachingManager,
+                                   ComponentMap componentMap,
                                    CycleArguments cycleArguments,
                                    GraphModel graphModel,
                                    ViewConfig viewConfig, List<?> inputs) {
@@ -78,15 +77,15 @@ class CapturingCycleInitializer implements CycleInitializer {
     // all views but is not what is required here. We need a
     // component map that only receives calls from this view so we
     // need to wrap again
-    ComponentMap componentMap = wrap(cachingManager.getComponentMap(), collector);
+    ComponentMap wrappedComponents = wrap(componentMap, collector);
 
     // If we are capturing the inputs then we don't want to use
     // memoized functions from the normal cache as that would
     // prevent us hitting the sources
-    _graph = graphModel.build(componentMap, new FunctionBuilder());
+    _graph = graphModel.build(wrappedComponents, new FunctionBuilder());
 
     _cycleMarketDataFactory = proxiedCycleMarketData;
-    _serviceContext = serviceContext.with(componentMap.getComponents());
+    _serviceContext = serviceContext.with(wrappedComponents.getComponents());
     _recorder = new DefaultCycleRecorder(viewConfig,
                                         inputs,
                                         cycleArguments,

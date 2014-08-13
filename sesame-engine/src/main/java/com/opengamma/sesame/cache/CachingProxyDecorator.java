@@ -17,7 +17,6 @@ import java.util.concurrent.FutureTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.cache.Cache;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.sesame.Environment;
@@ -40,17 +39,24 @@ public class CachingProxyDecorator extends NodeDecorator {
 
   private static final Logger s_logger = LoggerFactory.getLogger(CachingProxyDecorator.class);
 
-  private final Cache<MethodInvocationKey, FutureTask<Object>> _cache;
   private final ExecutingMethodsThreadLocal _executingMethods;
+  private final CacheProvider _cacheProvider;
 
   /**
-   * @param cache the cache used to store the calculated values
-   * @param executingMethods records the currently executing methods and allows cache entries to be removed when
-   *   the underlying data used to calculate them changes
+   * Constructs an instance for throwaway uses where the cache doesn't need to be invalidated (e.g. tools)
+   *
+   * @param cacheProvider provider of a cache used to store the calculated values
    */
-  public CachingProxyDecorator(Cache<MethodInvocationKey, FutureTask<Object>> cache,
-                               ExecutingMethodsThreadLocal executingMethods) {
-    _cache = ArgumentChecker.notNull(cache, "cache");
+  public CachingProxyDecorator(CacheProvider cacheProvider) {
+    this(cacheProvider, new ExecutingMethodsThreadLocal());
+  }
+
+  /**
+   * @param cacheProvider provider of a cache used to store the calculated values
+   * @param executingMethods records the currently executing methods and allows cache entries to be removed when
+   */
+  public CachingProxyDecorator(CacheProvider cacheProvider, ExecutingMethodsThreadLocal executingMethods) {
+    _cacheProvider = cacheProvider;
     _executingMethods = ArgumentChecker.notNull(executingMethods, "executingMethods");
   }
 
@@ -72,7 +78,7 @@ public class CachingProxyDecorator extends NodeDecorator {
         EngineUtils.hasMethodAnnotation(implementationType, Cacheable.class)) {
       Set<Class<?>> subtreeTypes = subtreeImplementationTypes(node);
       CachingHandlerFactory handlerFactory =
-          new CachingHandlerFactory(implementationType, interfaceType, _cache, _executingMethods, subtreeTypes);
+          new CachingHandlerFactory(implementationType, interfaceType, _cacheProvider, _executingMethods, subtreeTypes);
       return createProxyNode(node, interfaceType, implementationType, handlerFactory);
     }
     return node;
@@ -111,18 +117,18 @@ public class CachingProxyDecorator extends NodeDecorator {
 
     private final Class<?> _interfaceType;
     private final Class<?> _implementationType;
-    private final Cache<MethodInvocationKey, FutureTask<Object>> _cache;
     private final ExecutingMethodsThreadLocal _executingMethods;
     private final Set<Class<?>> _subtreeTypes;
+    private final CacheProvider _cacheProvider;
 
     private CachingHandlerFactory(Class<?> implementationType,
                                   Class<?> interfaceType,
-                                  Cache<MethodInvocationKey, FutureTask<Object>> cache,
+                                  CacheProvider cacheProvider,
                                   ExecutingMethodsThreadLocal executingMethods,
                                   Set<Class<?>> subtreeTypes) {
+      _cacheProvider = ArgumentChecker.notNull(cacheProvider, "cacheProvider");
       _executingMethods = ArgumentChecker.notNull(executingMethods, "executingMethods");
       _subtreeTypes = ArgumentChecker.notNull(subtreeTypes, "subtreeTypes");
-      _cache = ArgumentChecker.notNull(cache, "cache");
       _implementationType = ArgumentChecker.notNull(implementationType, "implementationType");
       _interfaceType = ArgumentChecker.notNull(interfaceType, "interfaceType");
     }
@@ -150,7 +156,7 @@ public class CachingProxyDecorator extends NodeDecorator {
           }
         }
       }
-      return new Handler(delegate, cachedMethods, _cache, _executingMethods, _subtreeTypes);
+      return new Handler(delegate, cachedMethods, _cacheProvider, _executingMethods, _subtreeTypes);
     }
 
     @Override
@@ -188,18 +194,18 @@ public class CachingProxyDecorator extends NodeDecorator {
     private final Object _delegate;
     private final Object _proxiedObject;
     private final Set<Method> _cachedMethods;
-    private final Cache<MethodInvocationKey, FutureTask<Object>> _cache;
+    private final CacheProvider _cacheProvider;
     private final ExecutingMethodsThreadLocal _executingMethods;
     private final Set<Class<?>> _subtreeTypes;
 
     private Handler(Object delegate,
                     Set<Method> cachedMethods,
-                    Cache<MethodInvocationKey, FutureTask<Object>> cache,
+                    CacheProvider cacheProvider,
                     ExecutingMethodsThreadLocal executingMethods,
                     Set<Class<?>> subtreeTypes) {
       super(delegate);
       _subtreeTypes = ArgumentChecker.notNull(subtreeTypes, "subtreeTypes");
-      _cache = ArgumentChecker.notNull(cache, "cache");
+      _cacheProvider = ArgumentChecker.notNull(cacheProvider, "cache");
       _executingMethods = ArgumentChecker.notNull(executingMethods, "executingMethods");
       _delegate = ArgumentChecker.notNull(delegate, "delegate");
       _cachedMethods = ArgumentChecker.notNull(cachedMethods, "cachedMethods");
@@ -212,13 +218,13 @@ public class CachingProxyDecorator extends NodeDecorator {
       if (_cachedMethods.contains(method)) {
         Object[] keyArgs = getArgumentsForCacheKey(args);
         MethodInvocationKey key = new MethodInvocationKey(_proxiedObject, method, keyArgs);
-        FutureTask<Object> cachedTask = _cache.getIfPresent(key);
+        FutureTask<Object> cachedTask = _cacheProvider.get().getIfPresent(key);
         if (cachedTask != null) {
           s_logger.debug("Returning cached value for key {}", key);
           return cachedTask.get();
         }
         FutureTask<Object> task = new FutureTask<>(new CallableMethod(key, method, args));
-        FutureTask<Object> previous = _cache.asMap().putIfAbsent(key, task);
+        FutureTask<Object> previous = _cacheProvider.get().asMap().putIfAbsent(key, task);
         // our task is the one in the cache, run it
         if (previous == null) {
           s_logger.debug("Calculating value for hash {}, key {}", key.hashCode(), key);

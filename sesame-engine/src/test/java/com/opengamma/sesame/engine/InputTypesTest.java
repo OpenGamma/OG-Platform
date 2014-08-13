@@ -18,6 +18,8 @@ import java.util.EnumSet;
 import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
 
+import com.codahale.metrics.MetricRegistry;
+import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.opengamma.core.position.Trade;
 import com.opengamma.financial.security.cashflow.CashFlowSecurity;
@@ -26,6 +28,7 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.sesame.DirectExecutorService;
 import com.opengamma.sesame.EngineTestUtils;
 import com.opengamma.sesame.Environment;
+import com.opengamma.sesame.cache.NoOpCacheInvalidator;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.config.ViewConfig;
 import com.opengamma.sesame.function.AvailableImplementationsImpl;
@@ -51,13 +54,15 @@ public class InputTypesTest {
     AvailableImplementationsImpl availableImplementations = new AvailableImplementationsImpl();
     availableImplementations.register(EquityTradeWithSecurityImpl.class, CashFlowTradeWithSecurityImpl.class);
 
-    CachingManager cachingManager = new NoOpCachingManager(ComponentMap.EMPTY);
     ViewFactory viewFactory = new ViewFactory(new DirectExecutorService(),
+                                              ComponentMap.EMPTY,
                                               availableOutputs,
                                               availableImplementations,
                                               FunctionModelConfig.EMPTY,
                                               EnumSet.noneOf(FunctionService.class),
-                                              cachingManager);
+                                              EngineTestUtils.createCacheBuilder(),
+                                              new NoOpCacheInvalidator(),
+                                              Optional.<MetricRegistry>absent());
 
     View view = viewFactory.createView(viewConfig, EquityTradeWithSecurity.class, CashFlowTradeWithSecurity.class);
     CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST,
