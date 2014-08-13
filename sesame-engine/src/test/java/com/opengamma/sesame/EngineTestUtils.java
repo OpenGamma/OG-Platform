@@ -121,7 +121,7 @@ public class EngineTestUtils {
                            availableImplementations,
                            FunctionModelConfig.EMPTY,
                            FunctionService.DEFAULT_SERVICES,
-                           EngineTestUtils.createCacheBuilder(),
+                           createCacheBuilder(),
                            new NoOpCacheInvalidator(),
                            Optional.<MetricRegistry>absent());
   }

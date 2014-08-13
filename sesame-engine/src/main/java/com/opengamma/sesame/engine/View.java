@@ -95,15 +95,16 @@ public class View {
    */
   private final CacheProvider _factoryCacheProvider;
 
-  /**
-   * Provider that supplies a cache to the cache decorators. The decorators use this provider every time
-   * they need to use the cache. It is updated with a new cache from {@link #_factoryCacheProvider} at
-   * the start of each calculation cycle.
-   */
-  private final MutableCacheProvider _cacheProvider = new MutableCacheProvider();
   private final Optional<MetricRegistry> _metricRegistry;
   private final ComponentMap _componentMap;
   private final CacheInvalidator _cacheInvalidator;
+
+  /**
+   * Cache passed to the cache decorators via a cache provider. The decorators use the provider every time
+   * they need to use the cache. This field is updated with a new cache from {@link #_factoryCacheProvider} at
+   * the start of each calculation cycle.
+   */
+  private Cache<MethodInvocationKey, FutureTask<Object>> _cache;
 
   View(ViewConfig viewConfig,
        ExecutorService executor,
@@ -114,7 +115,7 @@ public class View {
        Set<Class<?>> inputTypes,
        AvailableOutputs availableOutputs,
        AvailableImplementations availableImplementations,
-       CacheProvider cacheProvider,
+       CacheProvider factoryCacheProvider,
        CacheInvalidator cacheInvalidator,
        Optional<MetricRegistry> metricRegistry) {
 
@@ -123,12 +124,21 @@ public class View {
     _viewConfig = ArgumentChecker.notNull(viewConfig, "viewConfig");
     _executor = ArgumentChecker.notNull(executor, "executor");
     _systemDefaultConfig = ArgumentChecker.notNull(systemDefaultConfig, "systemDefaultConfig");
-    _factoryCacheProvider = ArgumentChecker.notNull(cacheProvider, "cacheProvider");
+    _factoryCacheProvider = ArgumentChecker.notNull(factoryCacheProvider, "factoryCacheProvider");
     _metricRegistry = ArgumentChecker.notNull(metricRegistry, "metricRegistry");
     _columnNames = columnNames(_viewConfig);
 
     ExecutingMethodsThreadLocal executingMethods = new ExecutingMethodsThreadLocal();
-    NodeDecorator decorator = createNodeDecorator(services, _cacheProvider, executingMethods);
+
+    // Provider that supplies the _cache field to the caching decorators
+    // the field is updated with a cache from _factoryCacheProvider at the start of each cycle
+    CacheProvider cacheProvider = new CacheProvider() {
+      @Override
+      public Cache<MethodInvocationKey, FutureTask<Object>> get() {
+        return _cache;
+      }
+    };
+    NodeDecorator decorator = createNodeDecorator(services, cacheProvider, executingMethods);
 
     s_logger.debug("building graph model");
     GraphBuilder graphBuilder = new GraphBuilder(availableOutputs,
@@ -140,9 +150,6 @@ public class View {
     s_logger.debug("graph model complete, building graph");
     _graph = _graphModel.build(componentMap, functionBuilder);
     s_logger.debug("graph complete");
-    // TODO need to create the CachingManager here because it needs a ref to the CacheProvider
-    // would it be better to remove the cache decorator from the manager? doesn't do much
-    // pass the cache invalidator from the view factory
   }
 
   private NodeDecorator createNodeDecorator(EnumSet<FunctionService> services,
@@ -210,10 +217,9 @@ public class View {
    * (and therefore sequential) or can be run in parallel.
    */
   public synchronized Results run(CycleArguments cycleArguments, List<?> inputs) {
-    // get a cache from the provider that will be used for the duration of this calculation cycle
-    Cache<MethodInvocationKey, FutureTask<Object>> cache = _factoryCacheProvider.get();
-    // set the cache on the provider so it's available to the caching decorators
-    _cacheProvider.set(cache);
+    // get a cache from the factory that will be used for the duration of this calculation cycle.
+    // store it in a field so it's available to the caching decorators via the provider
+    _cache = _factoryCacheProvider.get();
 
     ServiceContext originalContext = ThreadLocalServiceContext.getInstance();
     CycleInitializer cycleInitializer = cycleArguments.isCaptureInputs() ?

@@ -11,6 +11,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.codahale.metrics.MetricRegistry;
 import com.google.common.base.Optional;
 import com.google.common.cache.Cache;
@@ -39,7 +42,9 @@ import com.opengamma.util.ArgumentChecker;
  * cycle it will request a cache and be given the new one. The previous cache is unchanged so any views that
  * are still using it are unaffected.
  */
-public class ViewFactory {
+public class ViewFactory implements CacheMonitor {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(ViewFactory.class);
 
   private final ExecutorService _executor;
   private final AvailableOutputs _availableOutputs;
@@ -53,14 +58,19 @@ public class ViewFactory {
    * to a new, empty cache. This means the new cache will be provided to views through {@link #_cacheProvider}
    * at the start of their next calculation cycle but any views using the existing cache wil be unaffected.
    */
-  private final AtomicReference<Cache<MethodInvocationKey, FutureTask<Object>>> _cache = new AtomicReference<>();
+  private final AtomicReference<Cache<MethodInvocationKey, FutureTask<Object>>> _cacheRef;
 
   /**
    * Provides a cache to views. Views request a cache at the start of each calculation cycle and use it for
    * the duration of that cycle. This allows the cache in the view factory to change without any effect
    * on running views.
    */
-  private final CacheProvider _cacheProvider = new FactoryCacheProvider();
+  private final CacheProvider _cacheProvider = new CacheProvider() {
+    @Override
+    public Cache<MethodInvocationKey, FutureTask<Object>> get() {
+      return _cacheRef.get();
+    }
+  };
 
   /** For building new caches. A new cache is created whenever data in the existing cache becomes invalid. */
   private final CacheBuilder<Object, Object> _cacheBuilder;
@@ -86,7 +96,7 @@ public class ViewFactory {
     _componentMap = ArgumentChecker.notNull(componentMap, "componentMap");
     _cacheInvalidator = ArgumentChecker.notNull(cacheInvalidator, "cacheInvalidator");
     // create an initial empty cache
-    _cache.set(_cacheBuilder.<MethodInvocationKey, FutureTask<Object>>build());
+    _cacheRef = new AtomicReference<>(_cacheBuilder.<MethodInvocationKey, FutureTask<Object>>build());
     _metricRegistry = ArgumentChecker.notNull(metricRegistry, "metricRegistry");
   }
 
@@ -148,20 +158,7 @@ public class ViewFactory {
    * so when each view starts its next cycle it gets the new cache.
    */
   public void clearCache() {
-    _cache.set(_cacheBuilder.<MethodInvocationKey, FutureTask<Object>>build());
-  }
-
-  /**
-   * Provider of caches to views.
-   * <p>
-   * The view queries the provider at the start of each calculation cycle and uses the same cache for the
-   * duration of the cycle.
-   */
-  private class FactoryCacheProvider implements CacheProvider {
-
-    @Override
-    public Cache<MethodInvocationKey, FutureTask<Object>> get() {
-      return _cache.get();
-    }
+    s_logger.info("Clearing cache");
+    _cacheRef.set(_cacheBuilder.<MethodInvocationKey, FutureTask<Object>>build());
   }
 }

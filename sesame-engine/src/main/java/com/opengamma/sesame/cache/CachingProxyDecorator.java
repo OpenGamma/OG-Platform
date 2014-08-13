@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.FutureTask;
 
 import org.slf4j.Logger;
@@ -212,30 +213,68 @@ public class CachingProxyDecorator extends NodeDecorator {
       _proxiedObject = EngineUtils.getProxiedObject(delegate);
     }
 
+    /**
+     * Handles a method invocation, returning a cached value if available, otherwise calling the underlying
+     * method to produce the value.
+     * <p>
+     * If the proxied method is not annotated with {@link Cacheable} it is always invoked. If the
+     * method is annotated a key is created representing the method, the receiver and all the arguments.
+     * This key is used to query the cache.
+     * <p>
+     * The cache contains {@link FutureTask} instances which calculate a value when run. This achieves two
+     * things:
+     * <ul>
+     *   <li>The value is only calculated once</li>
+     *   <li>Requests for a value that is being calculated will block until it is available</li>
+     * </ul>
+     * If no entry is found, a {@code FutureTask} is created that invokes the method
+     * when run. The task is put into the map using {@link ConcurrentMap#putIfAbsent}. If the return
+     * value is null it indicates the task was inserted into the cache. In this case it is run and its value returned.
+     * <p>
+     * If the task is non-null it indicates another thread inserted a task to calculate the same value.
+     * The task will be run by the thread that created it. In this case the {@code get()} method is invoked
+     * on the task which blocks until the value has been calculated by the other thread.
+     *
+     * @param proxy  the proxy on which the method was invoked
+     * @param method  the method which was invoked
+     * @param args  the method arguments
+     * @return  the return value of the underlying method or a previously cached value
+     * @throws Throwable  if the underlying method throws an exception
+     */
     @SuppressWarnings("unchecked")
     @Override
     public Object invoke(Object proxy, final Method method, final Object[] args) throws Throwable {
-      if (_cachedMethods.contains(method)) {
+      // check if the method is annotated with @Cacheable.
+      if (_cachedMethods.contains(method)) { // the method is @Cacheable
         Object[] keyArgs = getArgumentsForCacheKey(args);
+        // create a key representing the method call - the receiver, the method and its arguments
         MethodInvocationKey key = new MethodInvocationKey(_proxiedObject, method, keyArgs);
-        FutureTask<Object> cachedTask = _cacheProvider.get().getIfPresent(key);
+        // query the cache
+        FutureTask<Object> cachedTask = _cacheProvider.get().asMap().get(key);
+
+        // there's a value in the cache, return it
         if (cachedTask != null) {
           s_logger.debug("Returning cached value for key {}", key);
           return cachedTask.get();
         }
+        // there's no cached value, create a task to calculate it
         FutureTask<Object> task = new FutureTask<>(new CallableMethod(key, method, args));
+        // put the task in the map, getting the previous task for the same key
+        // there will only be a previous value if another thread has just inserted it ahead of this one
         FutureTask<Object> previous = _cacheProvider.get().asMap().putIfAbsent(key, task);
-        // our task is the one in the cache, run it
+
+        // our task is the one in the cache, run it to calculate the value
         if (previous == null) {
           s_logger.debug("Calculating value for hash {}, key {}", key.hashCode(), key);
           task.run();
           return task.get();
         } else {
-          // someone else's task is there already, block until it completes
+          // another thread's task for the same value is there already, block until it completes
           s_logger.debug("Waiting for cached value to be calculated for key {}", key);
           return previous.get();
         }
       } else {
+        // the method isn't annotated with @Cacheable, call it
         try {
           s_logger.debug("Calculating non-cacheable result by invoking method {}", method);
           return method.invoke(_delegate, args);

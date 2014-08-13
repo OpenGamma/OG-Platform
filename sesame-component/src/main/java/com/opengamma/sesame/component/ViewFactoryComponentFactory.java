@@ -345,11 +345,12 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
     HistoricalTimeSeriesSource timeSeriesSource = components.findComponent(HistoricalTimeSeriesSource.class);
     if (timeSeriesSource != null) {
       changeManagers.add(timeSeriesSource.changeManager());
-      sources.put(HistoricalTimeSeriesSource.class, new CacheAwareHistoricalTimeSeriesSource(timeSeriesSource, cacheInvalidator));
+      sources.put(HistoricalTimeSeriesSource.class,
+                  new CacheAwareHistoricalTimeSeriesSource(timeSeriesSource, cacheInvalidator));
     }
     // TODO HolidaySource (which has a horrible design WRT decorating)
 
-    // TODO something needs to add listeners to the change managers. probably the CacheInvalidator. addListeners() method?
+    // TODO something needs to add listeners to the change managers. probably CacheInvalidator. addListeners() method?
 
     return ComponentMap.of(sources);
   }
