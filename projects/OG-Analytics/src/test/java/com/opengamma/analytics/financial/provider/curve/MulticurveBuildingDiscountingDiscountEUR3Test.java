@@ -56,6 +56,7 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
+import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
@@ -183,7 +184,7 @@ public class MulticurveBuildingDiscountingDiscountEUR3Test {
   private static final InstrumentDefinition<?>[] DEFINITIONS_FWD6_EUR;
 
   /** Units of curves */
-  private static final int[] NB_UNITS = new int[] {3, 1 };
+  private static final int[] NB_UNITS = new int[] {3, 1, 2, 1 };
   private static final int NB_BLOCKS = NB_UNITS.length;
   private static final InstrumentDefinition<?>[][][][] DEFINITIONS_UNITS = new InstrumentDefinition<?>[NB_BLOCKS][][][];
   private static final GeneratorYDCurve[][][] GENERATORS_UNITS = new GeneratorYDCurve[NB_BLOCKS][][];
@@ -208,6 +209,9 @@ public class MulticurveBuildingDiscountingDiscountEUR3Test {
     DEFINITIONS_UNITS[0][1] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD3_EUR };
     DEFINITIONS_UNITS[0][2] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD6_EUR };
     DEFINITIONS_UNITS[1][0] = new InstrumentDefinition<?>[][] {DEFINITIONS_DSC_EUR, DEFINITIONS_FWD3_EUR, DEFINITIONS_FWD6_EUR };
+    DEFINITIONS_UNITS[2][0] = new InstrumentDefinition<?>[][] {DEFINITIONS_DSC_EUR };
+    DEFINITIONS_UNITS[2][1] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD3_EUR };
+    DEFINITIONS_UNITS[3][0] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD6_EUR };
     final GeneratorYDCurve genIntLin = new GeneratorCurveYieldInterpolated(MATURITY_CALCULATOR, INTERPOLATOR_LINEAR);
     final GeneratorYDCurve genIntLinEuribor3M = new GeneratorCurveYieldInterpolated(MATURITY_CALCULATOR_EURIBOR3M, INTERPOLATOR_LINEAR);
     final GeneratorYDCurve genIntLinEuribor6M = new GeneratorCurveYieldInterpolated(MATURITY_CALCULATOR_EURIBOR6M, INTERPOLATOR_LINEAR);
@@ -215,10 +219,16 @@ public class MulticurveBuildingDiscountingDiscountEUR3Test {
     GENERATORS_UNITS[0][1] = new GeneratorYDCurve[] {genIntLinEuribor3M };
     GENERATORS_UNITS[0][2] = new GeneratorYDCurve[] {genIntLinEuribor6M };
     GENERATORS_UNITS[1][0] = new GeneratorYDCurve[] {genIntLin, genIntLinEuribor3M, genIntLinEuribor6M };
+    GENERATORS_UNITS[2][0] = new GeneratorYDCurve[] {genIntLin };
+    GENERATORS_UNITS[2][1] = new GeneratorYDCurve[] {genIntLinEuribor3M };
+    GENERATORS_UNITS[3][0] = new GeneratorYDCurve[] {genIntLinEuribor6M };
     NAMES_UNITS[0][0] = new String[] {CURVE_NAME_DSC_EUR };
     NAMES_UNITS[0][1] = new String[] {CURVE_NAME_FWD3_EUR };
     NAMES_UNITS[0][2] = new String[] {CURVE_NAME_FWD6_EUR };
     NAMES_UNITS[1][0] = new String[] {CURVE_NAME_DSC_EUR, CURVE_NAME_FWD3_EUR, CURVE_NAME_FWD6_EUR };
+    NAMES_UNITS[2][0] = new String[] {CURVE_NAME_DSC_EUR };
+    NAMES_UNITS[2][1] = new String[] {CURVE_NAME_FWD3_EUR };
+    NAMES_UNITS[3][0] = new String[] {CURVE_NAME_FWD6_EUR };
     DSC_MAP.put(CURVE_NAME_DSC_EUR, EUR);
     FWD_ON_MAP.put(CURVE_NAME_DSC_EUR, new IndexON[] {INDEX_ON_EUR });
     FWD_IBOR_MAP.put(CURVE_NAME_FWD3_EUR, new IborIndex[] {EURIBOR3M, EUROLIBOR3M });
@@ -244,13 +254,20 @@ public class MulticurveBuildingDiscountingDiscountEUR3Test {
   private static final MulticurveDiscountBuildingRepository CURVE_BUILDING_REPOSITORY = new MulticurveDiscountBuildingRepository(TOLERANCE_ROOT, TOLERANCE_ROOT, STEP_MAX);
 
   private static final double TOLERANCE_CAL = 1.0E-9;
+  private static final double TOLERANCE_RATE = 1.0E-6;
 
   @BeforeSuite
   static void initClass() {
-    for (int loopblock = 0; loopblock < NB_BLOCKS; loopblock++) {
-      CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.add(makeCurvesFromDefinitions(DEFINITIONS_UNITS[loopblock], GENERATORS_UNITS[loopblock], NAMES_UNITS[loopblock], MULTICURVE_KNOWN_DATA, PSMQDC,
-          PSMQCSDC, false));
+    CurveBuildingBlockBundle emptyBlock = new CurveBuildingBlockBundle();
+    for (int loopblock = 0; loopblock < 3; loopblock++) {
+      CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.add(makeCurvesFromDefinitions(DEFINITIONS_UNITS[loopblock], GENERATORS_UNITS[loopblock],
+          NAMES_UNITS[loopblock], MULTICURVE_KNOWN_DATA, emptyBlock, PSMQDC, PSMQCSDC, false));
     }
+    CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.add(makeCurvesFromDefinitions(DEFINITIONS_UNITS[3], GENERATORS_UNITS[3],
+        NAMES_UNITS[3], CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(2).getFirst(), emptyBlock, PSMQDC, PSMQCSDC, false));
+    CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.add(makeCurvesFromDefinitions(DEFINITIONS_UNITS[3], GENERATORS_UNITS[3],
+        NAMES_UNITS[3], CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(2).getFirst(), CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(2).getSecond(),
+        PSMQDC, PSMQCSDC, false));
   }
 
   @Test
@@ -258,7 +275,25 @@ public class MulticurveBuildingDiscountingDiscountEUR3Test {
     for (int loopblock = 0; loopblock < NB_BLOCKS; loopblock++) {
       curveConstructionCheck(DEFINITIONS_UNITS[loopblock], CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(loopblock).getFirst(), false, loopblock);
     }
-    assertEquals("Curve construction", CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(0).getFirst().getCurve(EURIBOR3M), CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(0).getFirst().getCurve(EUROLIBOR3M));
+    assertEquals("Curve construction", CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(0).getFirst().getCurve(EURIBOR3M),
+        CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(0).getFirst().getCurve(EUROLIBOR3M));
+    // Check that the Exogeneous curve (with or without block)
+    YieldAndDiscountCurve curveEuribor6MDir = CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(0).getFirst().getCurve(EURIBOR6M);
+    YieldAndDiscountCurve curveEuribor6MSim = CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(1).getFirst().getCurve(EURIBOR6M);
+    YieldAndDiscountCurve curveEuribor6MExoNoBlo = CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(3).getFirst().getCurve(EURIBOR6M);
+    YieldAndDiscountCurve curveEuribor6MExoBlo = CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(4).getFirst().getCurve(EURIBOR6M);
+    double[] yDir = ((InterpolatedDoublesCurve) ((YieldCurve) curveEuribor6MDir).getCurve()).getYDataAsPrimitive();
+    double[] ySim = ((InterpolatedDoublesCurve) ((YieldCurve) curveEuribor6MSim).getCurve()).getYDataAsPrimitive();
+    double[] yExoNoBlo = ((InterpolatedDoublesCurve) ((YieldCurve) curveEuribor6MExoNoBlo).getCurve()).getYDataAsPrimitive();
+    double[] yExoBlo = ((InterpolatedDoublesCurve) ((YieldCurve) curveEuribor6MExoBlo).getCurve()).getYDataAsPrimitive();
+    assertEquals("MulticurveBuildingDiscountingDiscountEUR3Test - Exogenous curves", yDir.length, ySim.length);
+    assertEquals("MulticurveBuildingDiscountingDiscountEUR3Test - Exogenous curves", yDir.length, yExoNoBlo.length);
+    assertEquals("MulticurveBuildingDiscountingDiscountEUR3Test - Exogenous curves", yDir.length, yExoBlo.length);
+    for (int loopy = 0; loopy < yDir.length; loopy++) {
+      assertEquals("MulticurveBuildingDiscountingDiscountEUR3Test - Exogenous curves", yDir[loopy], ySim[loopy], TOLERANCE_RATE);
+      assertEquals("MulticurveBuildingDiscountingDiscountEUR3Test - Exogenous curves", yDir[loopy], yExoNoBlo[loopy], TOLERANCE_RATE);
+      assertEquals("MulticurveBuildingDiscountingDiscountEUR3Test - Exogenous curves", yDir[loopy], yExoBlo[loopy], TOLERANCE_RATE);
+    }
   }
 
   @Test(enabled = false)
@@ -298,12 +333,13 @@ public class MulticurveBuildingDiscountingDiscountEUR3Test {
 
   @Test(enabled = false)
   public void performance() {
+    CurveBuildingBlockBundle emptyBlock = new CurveBuildingBlockBundle();
     long startTime, endTime;
     final int nbTest = 100;
 
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
-      makeCurvesFromDefinitions(DEFINITIONS_UNITS[0], GENERATORS_UNITS[0], NAMES_UNITS[0], MULTICURVE_KNOWN_DATA, PSMQDC, PSMQCSDC, false);
+      makeCurvesFromDefinitions(DEFINITIONS_UNITS[0], GENERATORS_UNITS[0], NAMES_UNITS[0], MULTICURVE_KNOWN_DATA, emptyBlock, PSMQDC, PSMQCSDC, false);
     }
     endTime = System.currentTimeMillis();
     System.out.println("MulticurveBuildingDiscountingDiscountEUR3Test - " + nbTest + " curve construction / 3 units: " + (endTime - startTime) + " ms");
@@ -311,7 +347,7 @@ public class MulticurveBuildingDiscountingDiscountEUR3Test {
 
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
-      makeCurvesFromDefinitions(DEFINITIONS_UNITS[1], GENERATORS_UNITS[1], NAMES_UNITS[1], MULTICURVE_KNOWN_DATA, PSMQDC, PSMQCSDC, false);
+      makeCurvesFromDefinitions(DEFINITIONS_UNITS[1], GENERATORS_UNITS[1], NAMES_UNITS[1], MULTICURVE_KNOWN_DATA, emptyBlock, PSMQDC, PSMQCSDC, false);
     }
     endTime = System.currentTimeMillis();
     System.out.println("MulticurveBuildingDiscountingDiscountEUR3Test - " + nbTest + " curve construction / 1 unit: " + (endTime - startTime) + " ms");
@@ -365,8 +401,10 @@ public class MulticurveBuildingDiscountingDiscountEUR3Test {
   }
 
   @SuppressWarnings("unchecked")
-  private static Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> makeCurvesFromDefinitions(final InstrumentDefinition<?>[][][] definitions, final GeneratorYDCurve[][] curveGenerators,
-      final String[][] curveNames, final MulticurveProviderDiscount knownData, final InstrumentDerivativeVisitor<MulticurveProviderInterface, Double> calculator,
+  private static Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> makeCurvesFromDefinitions(
+      final InstrumentDefinition<?>[][][] definitions, final GeneratorYDCurve[][] curveGenerators,
+      final String[][] curveNames, final MulticurveProviderDiscount knownData, CurveBuildingBlockBundle knownBlockBundle,
+      final InstrumentDerivativeVisitor<MulticurveProviderInterface, Double> calculator,
       final InstrumentDerivativeVisitor<MulticurveProviderInterface, MulticurveSensitivity> sensitivityCalculator, final boolean withToday) {
     final int nUnits = definitions.length;
     final MultiCurveBundle<GeneratorYDCurve>[] curveBundles = new MultiCurveBundle[nUnits];
@@ -386,8 +424,8 @@ public class MulticurveBuildingDiscountingDiscountEUR3Test {
       }
       curveBundles[i] = new MultiCurveBundle<>(singleCurves);
     }
-    return CURVE_BUILDING_REPOSITORY.makeCurvesFromDerivatives(curveBundles, knownData, DSC_MAP, FWD_IBOR_MAP, FWD_ON_MAP, calculator,
-        sensitivityCalculator);
+    return CURVE_BUILDING_REPOSITORY.makeCurvesFromDerivatives(curveBundles, knownData, knownBlockBundle,
+        DSC_MAP, FWD_IBOR_MAP, FWD_ON_MAP, calculator, sensitivityCalculator);
   }
 
   private static InstrumentDerivative[][] convert(final InstrumentDefinition<?>[][] definitions, final boolean withToday) {
