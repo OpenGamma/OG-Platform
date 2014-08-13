@@ -92,7 +92,7 @@ public class RecentDataSetsMulticurveOisMeetingDatesGbp {
   /** Data as of 16-Jul-2014 */
   /** Market values for the dsc GBP curve */
   private static final double[] DSC_GBP_MARKET_QUOTES = new double[] {
-    0.00455, 0.00468, 0.004988, 0.006238,
+    0.0050, 0.00455, 0.00468, 0.004988, 0.006238,
     0.006475, 0.00675 };
   /** Tenors for the dsc GBP curve */
   private static final ZonedDateTime[] DSC_2_GBP_DATES = new ZonedDateTime[] {
@@ -168,7 +168,8 @@ public class RecentDataSetsMulticurveOisMeetingDatesGbp {
   public static Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> getCurvesGbpOisWithStdInstruments(
       ZonedDateTime calibrationDate) {
     InstrumentDefinition<?>[][][] definitionsUnits = new InstrumentDefinition<?>[NB_UNITS][][];
-    InstrumentDefinition<?>[] definitionsDsc = generateDatesOis(DSC_2_GBP_DATES, DSC_GBP_MARKET_QUOTES);
+    InstrumentDefinition<?>[] definitionsDsc = generateDatesOis(DSC_2_GBP_DATES, 
+        ArrayUtils.subarray(DSC_GBP_MARKET_QUOTES, 1, DSC_GBP_MARKET_QUOTES.length));
 
     /// Adding instruments to cover period between calibrationDate and first date of BOE instruments
     InstrumentDefinition<?>[] definitionsOis = 
