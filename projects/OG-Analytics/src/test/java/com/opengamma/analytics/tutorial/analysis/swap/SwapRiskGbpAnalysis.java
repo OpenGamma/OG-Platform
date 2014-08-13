@@ -146,6 +146,11 @@ public class SwapRiskGbpAnalysis {
   private static final MulticurveProviderDiscount MULTICURVE_BOE = MULTICURVE_BOE_PAIR.getFirst();
   private static final CurveBuildingBlockBundle BLOCK_BOE = MULTICURVE_BOE_PAIR.getSecond();
 
+  private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_STD_BOE_PAIR =
+      RecentDataSetsMulticurveOisMeetingDatesGbp.getCurvesGbpOisWithStdInstruments(VALUATION_DATE);
+  private static final MulticurveProviderDiscount MULTICURVE_STD_BOE = MULTICURVE_BOE_PAIR.getFirst();
+  private static final CurveBuildingBlockBundle BLOCK_STD_BOE = MULTICURVE_BOE_PAIR.getSecond();
+
   private static final Annuity<?> FIXED_LEG_1 = FIXED_LEG_1_DEFINITION.toDerivative(VALUATION_DATE);
   private static final Annuity<?> ON_LEG_1 = ON_LEG_1_DEFINITION.toDerivative(VALUATION_DATE, TS_FIXED_SONIA_WITHOUT_TODAY);
   private static final Swap<? extends Payment, ? extends Payment> SWAP_1 = SWAP_1_DEFINITION.toDerivative(VALUATION_DATE,
