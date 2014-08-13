@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import org.testng.annotations.BeforeSuite;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
@@ -208,7 +207,7 @@ public class StandardDataSetsBondCurveGBP {
     GENERATORS_UNITS[0][0] = new GeneratorYDCurve[] {genIntLin };
     GENERATORS_UNITS[0][1] = new GeneratorYDCurve[] {genIntLin };
     NAMES_UNITS[0][0] = new String[] {CURVE_NAME_DSC_GBP };
-    NAMES_UNITS[0][0] = new String[] {CURVE_NAME_GOVTUK_GBP };
+    NAMES_UNITS[0][1] = new String[] {CURVE_NAME_GOVTUK_GBP };
     DSC_MAP.put(CURVE_NAME_DSC_GBP, GBP);
     FWD_ON_MAP.put(CURVE_NAME_DSC_GBP, new IndexON[] {GBPSONIA });
     DSC_ISS_MAP.put(CURVE_NAME_GOVTUK_GBP, Pairs.of((Object) GOVT_UK_ISSUER_NAME, (LegalEntityFilter<LegalEntity>) new LegalEntityShortName()));
@@ -231,9 +230,7 @@ public class StandardDataSetsBondCurveGBP {
   private static final ParSpreadMarketQuoteCurveSensitivityIssuerDiscountingCalculator PSMQCSIC = ParSpreadMarketQuoteCurveSensitivityIssuerDiscountingCalculator.getInstance();
 
   private static final IssuerDiscountBuildingRepository CURVE_BUILDING_REPOSITORY = new IssuerDiscountBuildingRepository(TOLERANCE_ROOT, TOLERANCE_ROOT, STEP_MAX);
-
-  @BeforeSuite
-  static void initClass() {
+  static {
     CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.add(makeCurvesFromDefinitions(DEFINITIONS_UNITS[0],
         REFERENCE_DATE[0], GENERATORS_UNITS[0], NAMES_UNITS[0], KNOWN_DATA,
         PSMQIC, PSMQCSIC, false));

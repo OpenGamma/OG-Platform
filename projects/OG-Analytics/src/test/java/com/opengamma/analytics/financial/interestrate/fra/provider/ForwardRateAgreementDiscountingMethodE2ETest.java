@@ -74,9 +74,9 @@ public class ForwardRateAgreementDiscountingMethodE2ETest {
 
   private static final MarketQuoteSensitivityBlockCalculator<MulticurveProviderInterface> MQSBC = new MarketQuoteSensitivityBlockCalculator<>(PSC);
 
-  private static final double STD_TOLERANCE_PV = 1.0E-3;
-  private static final double STD_TOLERANCE_PV_DELTA = 1.0E-2;
-  private static final double STD_TOLERANCE_RATE = 1.0E-5;
+  private static final double TOLERANCE_PV = 1.0E-3;
+  private static final double TOLERANCE_PV_DELTA = 1.0E-2;
+  private static final double TOLERANCE_RATE = 1.0E-5;
   private static final double BP1 = 1.0E-4;
 
   @Test
@@ -87,7 +87,7 @@ public class ForwardRateAgreementDiscountingMethodE2ETest {
     // Present Value
     final MultipleCurrencyAmount pvComputed = STD_FRA.accept(PVDC, MULTICURVE_STD);
     final MultipleCurrencyAmount pvExpected = MultipleCurrencyAmount.of(Currency.USD, 23182.5437);
-    assertEquals("ForwardRateAgreementDiscountingMethod: present value from standard curves", pvExpected.getAmount(CUR), pvComputed.getAmount(CUR), STD_TOLERANCE_PV);
+    assertEquals("ForwardRateAgreementDiscountingMethod: present value from standard curves", pvExpected.getAmount(CUR), pvComputed.getAmount(CUR), TOLERANCE_PV);
   }
 
   @Test
@@ -101,7 +101,7 @@ public class ForwardRateAgreementDiscountingMethodE2ETest {
     Pair<InstrumentDerivative[], MulticurveProviderInterface> data = Pairs.of(new InstrumentDerivative[] {fee }, (MulticurveProviderInterface) MULTICURVE_STD);
     final MultipleCurrencyAmount pvComputed = STD_FRA.accept(PVMULTIDC, data);
     final MultipleCurrencyAmount pvExpected = MultipleCurrencyAmount.of(Currency.USD, 0);
-    assertEquals("ForwardRateAgreementDiscountingMethod: present value after fee from standard curves", pvExpected.getAmount(CUR), pvComputed.getAmount(CUR), STD_TOLERANCE_PV);
+    assertEquals("ForwardRateAgreementDiscountingMethod: present value after fee from standard curves", pvExpected.getAmount(CUR), pvComputed.getAmount(CUR), TOLERANCE_PV);
   }
 
   @Test
@@ -117,17 +117,17 @@ public class ForwardRateAgreementDiscountingMethodE2ETest {
     sensitivity.put(ObjectsPair.of(MULTICURVE_STD.getName(USDLIBOR3M), CUR), new DoubleMatrix1D(deltaFwd));
     final MultipleCurrencyParameterSensitivity pvpsExpected = new MultipleCurrencyParameterSensitivity(sensitivity);
     final MultipleCurrencyParameterSensitivity pvpsComputed = MQSBC.fromInstrument(STD_FRA, MULTICURVE_STD, BLOCK_STD).multipliedBy(BP1);
-    AssertSensitivityObjects.assertEquals("ForwardRateAgreementDiscountingMethod: bucketed delts from standard curves", pvpsExpected, pvpsComputed, STD_TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("ForwardRateAgreementDiscountingMethod: bucketed delts from standard curves", pvpsExpected, pvpsComputed, TOLERANCE_PV_DELTA);
   }
 
   @Test
   /**
-   * Test different results with a standard set of data against hardcoded values. Can be used for platform testing or regression testing.
+   * Test different results with a standard set of data against hard-coded values. Can be used for platform testing or regression testing.
    */
   public void parRate() {
     final double parRate = STD_FRA.accept(PRDC, MULTICURVE_STD);
     final double parRateExpected = 0.003315;
-    assertEquals("ForwardRateAgreementDiscountingMethod: par rate from standard curves", parRateExpected, parRate, STD_TOLERANCE_RATE);
+    assertEquals("ForwardRateAgreementDiscountingMethod: par rate from standard curves", parRateExpected, parRate, TOLERANCE_RATE);
   }
 
 }
