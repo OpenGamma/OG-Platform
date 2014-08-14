@@ -14,6 +14,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.codahale.metrics.MetricFilter;
 import com.codahale.metrics.MetricRegistry;
 import com.google.common.base.Optional;
 import com.google.common.cache.Cache;
@@ -42,7 +43,7 @@ import com.opengamma.util.ArgumentChecker;
  * cycle it will request a cache and be given the new one. The previous cache is unchanged so any views that
  * are still using it are unaffected.
  */
-public class ViewFactory implements CacheMonitor {
+public class ViewFactory implements ViewFactoryMonitor {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ViewFactory.class);
 
@@ -160,5 +161,13 @@ public class ViewFactory implements CacheMonitor {
   public void clearCache() {
     s_logger.info("Clearing cache");
     _cacheRef.set(_cacheBuilder.<MethodInvocationKey, Object>build());
+  }
+
+  @Override
+  public void clearMetrics() {
+    if (_metricRegistry.isPresent()) {
+      s_logger.info("Clearing metrics");
+      _metricRegistry.get().removeMatching(MetricFilter.ALL);
+    }
   }
 }
