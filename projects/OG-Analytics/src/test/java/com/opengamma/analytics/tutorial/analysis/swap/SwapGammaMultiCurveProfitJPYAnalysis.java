@@ -22,18 +22,26 @@ import com.opengamma.analytics.financial.instrument.index.GeneratorSwapIborIbor;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapIborIborMaster;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexIborMaster;
+import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapIborIborDefinition;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.provider.calculator.discounting.CrossGammaMultiCurveCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
+import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
+import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.matrix.OGMatrixAlgebra;
 import com.opengamma.analytics.tutorial.datasets.AnalysisMarketDataJPYSets;
@@ -62,7 +70,7 @@ public class SwapGammaMultiCurveProfitJPYAnalysis {
   private static final IborIndex JPYLIBOR6M = MASTER_IBOR_INDEX.getIndex("JPYLIBOR6M");
   private static final Currency JPY = JPYLIBOR6M.getCurrency();
 
-  private static final Period TENOR_START = Period.ofMonths(60);
+  private static final Period TENOR_START = Period.ofMonths(150);
   private static final Period TENOR_SWAP = Period.ofYears(5);
   private static final boolean IS_PAYER = true;
 
@@ -75,9 +83,12 @@ public class SwapGammaMultiCurveProfitJPYAnalysis {
       JPYLIBOR3MLIBOR6M.generateInstrument(CALIBRATION_DATE, SPREAD_BS, NOTIONAL, new GeneratorAttributeIR(TENOR_START, TENOR_SWAP));
   private static final Swap<?, ?> BS_JPY = BS_JPY_DEFINITION.toDerivative(CALIBRATION_DATE);
 
+  private static final double BP1 = 1.0E-4;
+
   private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
   private static final PresentValueCurveSensitivityDiscountingCalculator PVCSDC = PresentValueCurveSensitivityDiscountingCalculator.getInstance();
-  private static final CrossGammaMultiCurveCalculator CGMCC = new CrossGammaMultiCurveCalculator(PVCSDC);
+  private static final CrossGammaMultiCurveCalculator CGMCC = new CrossGammaMultiCurveCalculator(BP1, PVCSDC);
+  private static final ParameterSensitivityParameterCalculator<MulticurveProviderInterface> PSC = new ParameterSensitivityParameterCalculator<>(PVCSDC);
 
   private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_PAIR_0 =
       AnalysisMarketDataJPYSets.getMulticurveJPY();
@@ -88,15 +99,13 @@ public class SwapGammaMultiCurveProfitJPYAnalysis {
     CURVE_NAME[0] = MULTICURVE_PAIR_0.getFirst().getName(JPY);
     CURVE_NAME[1] = MULTICURVE_PAIR_0.getFirst().getName(JPYLIBOR6M);
   }
-  private static final double BP1 = 1.0E-4;
 
   private static final OGMatrixAlgebra ALGEBRA = new OGMatrixAlgebra();
 
-  private static final CrossGammaMultiCurveCalculator GC = new CrossGammaMultiCurveCalculator(BP1, PVCSDC);
-
-  private static final DoubleMatrix2D GAMMA_CROSS = GC.calculateCrossGammaCrossCurve(IRS_JPY, MULTICURVE);
-  private static final HashMap<String, DoubleMatrix2D> GAMMA_INTRA = GC.calculateCrossGammaIntraCurve(IRS_JPY, MULTICURVE);
+  private static final DoubleMatrix2D GAMMA_CROSS = CGMCC.calculateCrossGammaCrossCurve(IRS_JPY, MULTICURVE);
+  private static final HashMap<String, DoubleMatrix2D> GAMMA_INTRA = CGMCC.calculateCrossGammaIntraCurve(IRS_JPY, MULTICURVE);
   private static final Set<String> CURVE_NAME_SET = GAMMA_INTRA.keySet();
+  private static final String[] CURVE_NAME_ARRAY = CURVE_NAME_SET.toArray(new String[0]);
   private static final int[] NB_NODE_JPY = new int[3];
   static {
     int loopcurve = 0;
@@ -105,6 +114,7 @@ public class SwapGammaMultiCurveProfitJPYAnalysis {
       loopcurve++;
     }
   }
+  private static final MultipleCurrencyParameterSensitivity DELTA = PSC.calculateSensitivity(IRS_JPY, MULTICURVE);
 
   @SuppressWarnings("unused")
   @Test(enabled = false)
@@ -136,7 +146,7 @@ public class SwapGammaMultiCurveProfitJPYAnalysis {
       e.printStackTrace();
     }
   }
-  
+
   /**
    * Uses historical data to estimate the difference between intra-curve cross-gamma and full cross-gamma.
    * The result file is exported in the root directory of OG-Analytics.
@@ -144,31 +154,80 @@ public class SwapGammaMultiCurveProfitJPYAnalysis {
    */
   @Test(enabled = true)
   public void crossGammaCompJpyHts() throws IOException {
+    long startTime, endTime;
+    startTime = System.currentTimeMillis();
     final String sheetFilePath = "src/test/resources/analysis/historical_time_series/curve-changes-jpy-multicurve.csv";
-    double[][] shift = GammaAnalysisUtils.parseShifts(sheetFilePath, 1.0);
-    int nbScenarios = shift.length;
+    int nbCurves = CURVE_NAME_SET.size();
+    int nbPoints = 0;
+    double[][] x = new double[nbCurves][];
+    double[][] y = new double[nbCurves][];
+    for (int loopcurve = 0; loopcurve < nbCurves; loopcurve++) {
+      YieldAndDiscountCurve curve = MULTICURVE.getCurve(CURVE_NAME_ARRAY[loopcurve]);
+      InterpolatedDoublesCurve interpolatedCurve = (InterpolatedDoublesCurve) ((YieldCurve) curve).getCurve();
+      x[loopcurve] = interpolatedCurve.getXDataAsPrimitive();
+      y[loopcurve] = interpolatedCurve.getYDataAsPrimitive();
+      nbPoints += x[loopcurve].length;
+    }
+    double[][] shiftRelative = GammaAnalysisUtils.parseShifts(sheetFilePath, 1.0);
+    int nbScenarios = shiftRelative.length;
+    double[][] shiftAbsolute = new double[nbScenarios][nbPoints];
+
+    for (int loopsc = 0; loopsc < nbScenarios; loopsc++) {
+      int loopnode1 = 0;
+      for (int loopcurve = 0; loopcurve < nbCurves; loopcurve++) {
+        for (int loopnode2 = 0; loopnode2 < x[loopcurve].length; loopnode2++) {
+          shiftAbsolute[loopsc][loopnode1] = y[loopcurve][loopnode2] * shiftRelative[loopsc][loopnode1];
+          loopnode1++;
+        }
+      }
+    }
+    double[] plFullR = new double[nbScenarios];
+    double[] plDelta = new double[nbScenarios];
     double[] plGammaCross = new double[nbScenarios];
     double[] plGammaIntra = new double[nbScenarios];
+    double pv0 = IRS_JPY.accept(PVDC, MULTICURVE).getAmount(JPY);
     for (int loopsc = 0; loopsc < nbScenarios; loopsc++) {
-      DoubleMatrix2D marketMvtMat = new DoubleMatrix2D(new double[][] {shift[loopsc] });
+      double[][] marketMvtIntra = new double[nbCurves][];
+      int start = 0;
+      for (int loopcurve = 0; loopcurve < nbCurves; loopcurve++) {
+        marketMvtIntra[loopcurve] = ArrayUtils.subarray(shiftAbsolute[loopsc], start, start + NB_NODE_JPY[loopcurve]);
+        start += NB_NODE_JPY[loopcurve];
+      }
+      // Full reval
+      MulticurveProviderDiscount multicurveScenario = shiftedProvider(MULTICURVE, CURVE_NAME_ARRAY, x, y, marketMvtIntra);
+      double pv = IRS_JPY.accept(PVDC, multicurveScenario).getAmount(JPY);
+      plFullR[loopsc] = pv - pv0;
+      // Delta 
+      for (int loopcurve = 0; loopcurve < nbCurves; loopcurve++) {
+        DoubleMatrix1D sensi = DELTA.getSensitivity(CURVE_NAME_ARRAY[loopcurve], JPY);
+        double[] deltaCurve;
+        if (sensi == null) { // no sensitivity
+          deltaCurve = new double[marketMvtIntra[loopcurve].length];
+        } else {
+          deltaCurve = DELTA.getSensitivity(CURVE_NAME_ARRAY[loopcurve], JPY).getData();
+        }
+        for (int i = 0; i < deltaCurve.length; i++) {
+          plDelta[loopsc] += deltaCurve[i] * marketMvtIntra[loopcurve][i];
+        }
+      }
       // Intra curve cross-gamma
       int loopcurve = 0;
-      int start = 0;
+      start = 0;
       for (String curve : CURVE_NAME_SET) {
-        double[] marketMvtIntra = ArrayUtils.subarray(shift[loopsc], start, start+NB_NODE_JPY[loopcurve]);
-        DoubleMatrix2D marketMvtIntraMat = new DoubleMatrix2D(new double[][] {marketMvtIntra });
+        DoubleMatrix2D marketMvtIntraMat = new DoubleMatrix2D(new double[][] {marketMvtIntra[loopcurve] });
         start += NB_NODE_JPY[loopcurve];
         loopcurve++;
         plGammaIntra[loopsc] += (Double) ALGEBRA.multiply(ALGEBRA.multiply(marketMvtIntraMat, GAMMA_INTRA.get(curve)), ALGEBRA.getTranspose(marketMvtIntraMat)).getEntry(0, 0) * 0.5;
       }
       // Full curve cross-gamma
+      DoubleMatrix2D marketMvtMat = new DoubleMatrix2D(new double[][] {shiftAbsolute[loopsc] });
       plGammaCross[loopsc] = (Double) ALGEBRA.multiply(ALGEBRA.multiply(marketMvtMat, GAMMA_CROSS), ALGEBRA.getTranspose(marketMvtMat)).getEntry(0, 0) * 0.5;
     }
-    String fileName = "swap-multicurve-x-gamma-pl-" + TENOR_START.toString() + "x" + TENOR_SWAP.toString() + ".csv";
+    String fileName = "swap-multicurve-delta-gamma-pl-" + TENOR_START.toString() + "x" + TENOR_SWAP.toString() + ".csv";
     try {
       final FileWriter writer = new FileWriter(fileName);
       for (int loopsc = 0; loopsc < nbScenarios; loopsc++) {
-        String line = plGammaCross[loopsc] + "," + plGammaIntra[loopsc] + " \n";
+        String line = plFullR[loopsc] + "," + plDelta[loopsc] + "," + plGammaCross[loopsc] + "," + plGammaIntra[loopsc] + " \n";
         writer.append(line);
       }
       writer.flush();
@@ -176,6 +235,40 @@ public class SwapGammaMultiCurveProfitJPYAnalysis {
     } catch (final IOException e) {
       e.printStackTrace();
     }
+    endTime = System.currentTimeMillis();
+    System.out.println("SwapGammaMultiCurveProfitJPYAnalysis - p/L - " + (endTime - startTime) + " ms");
+  }
+
+  private MulticurveProviderDiscount shiftedProvider(MulticurveProviderDiscount multicurve, String[] curveNames, double[][] x, double[][] y, double[][] shifts) {
+    MulticurveProviderDiscount multicurveBumped = new MulticurveProviderDiscount();
+    multicurveBumped.setForexMatrix(multicurve.getFxRates());
+    for (int loopcurve = 0; loopcurve < curveNames.length; loopcurve++) {
+      double[] yShift = new double[y[loopcurve].length];
+      for (int i = 0; i < y[loopcurve].length; i++) {
+        yShift[i] = y[loopcurve][i] + shifts[loopcurve][i];
+      }
+      YieldCurve curve = (YieldCurve) multicurve.getCurve(curveNames[loopcurve]);
+      InterpolatedDoublesCurve interpolatedCurve = (InterpolatedDoublesCurve) curve.getCurve();
+      final YieldAndDiscountCurve curveBumped = new YieldCurve(curveNames[loopcurve],
+          new InterpolatedDoublesCurve(x[loopcurve], yShift, interpolatedCurve.getInterpolator(), true));
+      for (Currency loopccy : multicurve.getCurrencies()) {
+        if (loopccy.equals(multicurve.getCurrencyForName(curveNames[loopcurve]))) {
+          multicurveBumped.setCurve(loopccy, curveBumped);
+        }
+        for (IborIndex loopibor : multicurve.getIndexesIbor()) {
+          if (loopibor.equals(multicurve.getIborIndexForName(curveNames[loopcurve]))) { // REQS-427
+            multicurveBumped.setCurve(loopibor, curveBumped);
+          }
+        }
+        for (IndexON loopon : multicurve.getIndexesON()) {
+          if (loopon.equals(multicurve.getOvernightIndexForName(curveNames[loopcurve]))) { // REQS-427
+            multicurveBumped.setCurve(loopon, curveBumped);
+          }
+        }
+        loopcurve++;
+      }
+    }
+    return multicurveBumped;
   }
 
   @SuppressWarnings("unused")

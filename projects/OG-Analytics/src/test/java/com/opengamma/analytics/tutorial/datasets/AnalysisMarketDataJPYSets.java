@@ -54,9 +54,9 @@ public class AnalysisMarketDataJPYSets {
   private static final Interpolator1D INTERPOLATOR_LINEAR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
       Interpolator1DFactory.FLAT_EXTRAPOLATOR);
 
-//  private static final Interpolator1D INTERPOLATOR_LOG_NCS = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LOG_NATURAL_CUBIC,
-//      Interpolator1DFactory.EXPONENTIAL_EXTRAPOLATOR,
-//      Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+  //  private static final Interpolator1D INTERPOLATOR_LOG_NCS = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LOG_NATURAL_CUBIC,
+  //      Interpolator1DFactory.EXPONENTIAL_EXTRAPOLATOR,
+  //      Interpolator1DFactory.FLAT_EXTRAPOLATOR);
 
   private static final LastTimeCalculator MATURITY_CALCULATOR = LastTimeCalculator.getInstance();
 
@@ -82,7 +82,7 @@ public class AnalysisMarketDataJPYSets {
     0.0007, 0.0007, 0.0006, 0.0007, 0.0006,
     0.0006, 0.0006, 0.0010, 0.0010, 0.0014,
     0.0021, 0.0027, 0.0034, 0.0041, 0.0057,
-    0.0083, 0.0115, 0.0131, 0.0141, 0.0154 };
+    0.0083, 0.0115, 0.0131, 0.0141, 0.0154 }; // 26
   /** Generators for the dsc JPY curve */
   private static final int NB_ON_DEPO = 1;
   private static final GeneratorInstrument<? extends GeneratorAttribute>[] DSC_GENERATORS =
@@ -110,7 +110,7 @@ public class AnalysisMarketDataJPYSets {
     0.0018, 0.0017, 0.0018, 0.0021, 0.0025,
     0.0025, 0.0031, 0.0040, 0.0048, 0.0057,
     0.0065, 0.0084, 0.0111, 0.0143, 0.0160,
-    0.0170, 0.0183 };
+    0.0170, 0.0183 }; // 21
   /** Generators for the Fwd 6M JPY curve */
   private static final GeneratorInstrument<? extends GeneratorAttribute>[] FWD6_GENERATORS =
       CurveCalibrationConventionDataSets.generatorJpyIbor6Fra6Irs6(1, 3, 17);
@@ -134,7 +134,7 @@ public class AnalysisMarketDataJPYSets {
     0.0005, 0.0005, 0.0005, 0.0005, 0.0006,
     0.0007, 0.0008, 0.0009, 0.0009, 0.0010,
     0.0011, 0.0012, 0.0013, 0.0013, 0.0013,
-    0.0013, 0.0014 };
+    0.0013, 0.0014 }; // 24
   /** Generators for the Fwd 3M JPY curve */
   private static final GeneratorInstrument<? extends GeneratorAttribute>[] FWD3_GENERATORS =
       CurveCalibrationConventionDataSets.generatorJpyIbor3Fra3Bs3(1, 6, 17);
@@ -171,7 +171,7 @@ public class AnalysisMarketDataJPYSets {
   private static final LinkedHashMap<String, IborIndex[]> FWD_IBOR_MAP_3C = new LinkedHashMap<>();
 
   private static final GeneratorYDCurve GENERATOR_INTERPOLATED_YIELD_LINEAR = new GeneratorCurveYieldInterpolated(MATURITY_CALCULATOR, INTERPOLATOR_LINEAR);
-//  private static final GeneratorYDCurve GENERATOR_INTERPOLATED_DF_LNCS = new GeneratorCurveDiscountFactorInterpolated(MATURITY_CALCULATOR, INTERPOLATOR_LOG_NCS);
+  //  private static final GeneratorYDCurve GENERATOR_INTERPOLATED_DF_LNCS = new GeneratorCurveDiscountFactorInterpolated(MATURITY_CALCULATOR, INTERPOLATOR_LOG_NCS);
   static {
     DEFINITIONS_DSC = getDefinitions(CALIBRATION_DATE, DSC_MARKET_QUOTES, DSC_GENERATORS, DSC_ATTR);
     DEFINITIONS_FWD6 = getDefinitions(CALIBRATION_DATE, FWD6_MARKET_QUOTES, FWD6_GENERATORS, FWD6_ATTR);
