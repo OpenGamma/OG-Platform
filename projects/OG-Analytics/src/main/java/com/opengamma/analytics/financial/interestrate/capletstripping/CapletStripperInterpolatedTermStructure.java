@@ -7,6 +7,8 @@ package com.opengamma.analytics.financial.interestrate.capletstripping;
 
 import java.util.Arrays;
 
+import com.opengamma.analytics.financial.model.volatility.discrete.DiscreteVolatilityFunctionProvider;
+import com.opengamma.analytics.financial.model.volatility.discrete.DiscreteVolatilityFunctionProviderFromInterpolatedTermStructure;
 import com.opengamma.analytics.math.FunctionUtils;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.DoubleQuadraticInterpolator1D;

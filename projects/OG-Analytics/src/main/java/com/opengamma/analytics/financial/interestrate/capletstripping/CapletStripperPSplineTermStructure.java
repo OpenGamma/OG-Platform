@@ -7,12 +7,16 @@ package com.opengamma.analytics.financial.interestrate.capletstripping;
 
 import java.util.Arrays;
 
+import com.opengamma.analytics.financial.model.volatility.discrete.DiscreateVolatilityFunctionProviderFromVolSurface;
+import com.opengamma.analytics.financial.model.volatility.discrete.DiscreteVolatilityFunctionProvider;
+import com.opengamma.analytics.financial.model.volatility.surface.BasisSplineVolatilityTermStructureProvider;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.PenaltyMatrixGenerator;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.matrix.MatrixAlgebra;
 import com.opengamma.analytics.math.matrix.OGMatrixAlgebra;
+import com.opengamma.analytics.math.minimization.PositiveOrZero;
 import com.opengamma.util.ArgumentChecker;
 
 /**

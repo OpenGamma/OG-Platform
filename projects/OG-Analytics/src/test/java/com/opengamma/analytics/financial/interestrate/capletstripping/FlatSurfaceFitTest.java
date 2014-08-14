@@ -13,9 +13,9 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.interestrate.capletstripping.CapletStrippingImp;
 import com.opengamma.analytics.financial.interestrate.capletstripping.CapletStrippingResult;
-import com.opengamma.analytics.financial.interestrate.capletstripping.DiscreteVolatilityFunction;
-import com.opengamma.analytics.financial.interestrate.capletstripping.DiscreteVolatilityFunctionProvider;
 import com.opengamma.analytics.financial.interestrate.capletstripping.MultiCapFloorPricer;
+import com.opengamma.analytics.financial.model.volatility.discrete.DiscreteVolatilityFunction;
+import com.opengamma.analytics.financial.model.volatility.discrete.DiscreteVolatilityFunctionProvider;
 import com.opengamma.analytics.math.differentiation.VectorFieldFirstOrderDifferentiator;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;

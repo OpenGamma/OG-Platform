@@ -19,10 +19,10 @@ import com.opengamma.analytics.financial.interestrate.capletstripping.CapletStri
 import com.opengamma.analytics.financial.interestrate.capletstripping.CapletStripperInterpolatedTermStructure;
 import com.opengamma.analytics.financial.interestrate.capletstripping.CapletStrippingImp;
 import com.opengamma.analytics.financial.interestrate.capletstripping.CapletStrippingResult;
-import com.opengamma.analytics.financial.interestrate.capletstripping.DiscreteVolatilityFunctionProvider;
-import com.opengamma.analytics.financial.interestrate.capletstripping.DiscreteVolatilityFunctionProviderFromInterpolatedTermStructure;
 import com.opengamma.analytics.financial.interestrate.capletstripping.MarketDataType;
 import com.opengamma.analytics.financial.interestrate.capletstripping.MultiCapFloorPricer;
+import com.opengamma.analytics.financial.model.volatility.discrete.DiscreteVolatilityFunctionProvider;
+import com.opengamma.analytics.financial.model.volatility.discrete.DiscreteVolatilityFunctionProviderFromInterpolatedTermStructure;
 import com.opengamma.analytics.math.differentiation.VectorFieldFirstOrderDifferentiator;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;

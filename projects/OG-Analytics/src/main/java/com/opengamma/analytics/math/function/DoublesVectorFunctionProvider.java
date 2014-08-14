@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.interestrate.capletstripping;
+package com.opengamma.analytics.math.function;
 
 import java.util.List;
 

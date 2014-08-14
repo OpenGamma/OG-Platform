@@ -3,9 +3,8 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.interestrate.capletstripping;
+package com.opengamma.analytics.math.function;
 
-import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 
@@ -17,7 +16,7 @@ public abstract class VectorFunction extends Function1D<DoubleMatrix1D, DoubleMa
 
   /**
    * Calculate the Jacobian at a point $\mathbf{x}$. For a function 
-   * $f: \mathbb{R}^m \to \mathbb{R}^n \quad x \mapsto f(x)$, the Jacobain is a n by m matrix
+   * $f: \mathbb{R}^m \to \mathbb{R}^n \quad x \mapsto f(x)$, the Jacobian is a n by m matrix
    * @param x The input vector $\mathbf{x}$
    * @return The Jacobian $\mathbf{J}$
    */

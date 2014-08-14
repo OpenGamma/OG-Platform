@@ -6,12 +6,12 @@ import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.interestrate.capletstripping.BasisSplineVolatilityTermStructureProvider;
 import com.opengamma.analytics.financial.interestrate.capletstripping.CapletStripper;
 import com.opengamma.analytics.financial.interestrate.capletstripping.CapletStripperPSplineTermStructure;
 import com.opengamma.analytics.financial.interestrate.capletstripping.CapletStrippingResult;
 import com.opengamma.analytics.financial.interestrate.capletstripping.MarketDataType;
 import com.opengamma.analytics.financial.interestrate.capletstripping.MultiCapFloorPricer;
+import com.opengamma.analytics.financial.model.volatility.surface.BasisSplineVolatilityTermStructureProvider;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 
 public class CapletStripperPSplineTermStructureTest extends SingleStrikeSetup {

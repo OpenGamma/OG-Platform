@@ -3,10 +3,11 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.interestrate.capletstripping;
+package com.opengamma.analytics.financial.model.volatility.discrete;
 
 import java.util.List;
 
+import com.opengamma.analytics.math.function.VectorFunctionProvider;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
 

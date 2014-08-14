@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.interestrate.capletstripping;
+package com.opengamma.analytics.math.function;
 
 import static com.opengamma.analytics.math.matrix.AssertMatrix.assertEqualsMatrix;
 import static com.opengamma.analytics.math.matrix.AssertMatrix.assertEqualsVectors;
@@ -11,10 +11,10 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.interestrate.capletstripping.ConcatenatedVectorFunction;
-import com.opengamma.analytics.financial.interestrate.capletstripping.InterpolatedCurveVectorFunction;
-import com.opengamma.analytics.financial.interestrate.capletstripping.VectorFunction;
 import com.opengamma.analytics.math.differentiation.VectorFieldFirstOrderDifferentiator;
+import com.opengamma.analytics.math.function.ConcatenatedVectorFunction;
+import com.opengamma.analytics.math.function.InterpolatedCurveVectorFunction;
+import com.opengamma.analytics.math.function.VectorFunction;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;

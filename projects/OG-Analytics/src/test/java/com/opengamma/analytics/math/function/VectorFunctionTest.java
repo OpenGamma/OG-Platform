@@ -3,12 +3,12 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.interestrate.capletstripping;
+package com.opengamma.analytics.math.function;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.interestrate.capletstripping.ConcatenatedVectorFunction;
-import com.opengamma.analytics.financial.interestrate.capletstripping.VectorFunction;
+import com.opengamma.analytics.math.function.ConcatenatedVectorFunction;
+import com.opengamma.analytics.math.function.VectorFunction;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 

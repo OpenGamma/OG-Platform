@@ -4,13 +4,19 @@ import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.model.volatility.discrete.DiscreateVolatilityFunctionProviderFromVolSurface;
+import com.opengamma.analytics.financial.model.volatility.discrete.DiscreteVolatilityFunction;
+import com.opengamma.analytics.financial.model.volatility.discrete.DiscreteVolatilityFunctionProvider;
+import com.opengamma.analytics.financial.model.volatility.surface.BasisSplineVolatilitySurfaceProvider;
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
+import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurfaceProvider;
 import com.opengamma.analytics.math.interpolation.PenaltyMatrixGenerator;
 import com.opengamma.analytics.math.matrix.AssertMatrix;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.matrix.MatrixAlgebra;
 import com.opengamma.analytics.math.matrix.OGMatrixAlgebra;
+import com.opengamma.analytics.math.minimization.PositiveOrZero;
 
 /**
  * This currently does not work

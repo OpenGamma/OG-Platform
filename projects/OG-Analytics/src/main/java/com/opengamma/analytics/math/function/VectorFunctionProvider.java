@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.interestrate.capletstripping;
+package com.opengamma.analytics.math.function;
 
 import java.util.List;
 
@@ -12,7 +12,7 @@ import java.util.List;
  * @param <T> type of extraneous data 
  * @see {@link VectorFunction}
  *   */
-interface VectorFunctionProvider<T> {
+public interface VectorFunctionProvider<T> {
 
   /**
    * produce a vector function that depends in some way on the given extraneous data

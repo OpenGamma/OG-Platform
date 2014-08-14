@@ -7,6 +7,10 @@ package com.opengamma.analytics.financial.interestrate.capletstripping;
 
 import java.util.Arrays;
 
+import com.opengamma.analytics.financial.model.volatility.discrete.DiscreateVolatilityFunctionProviderFromVolSurface;
+import com.opengamma.analytics.financial.model.volatility.discrete.DiscreteVolatilityFunction;
+import com.opengamma.analytics.financial.model.volatility.discrete.DiscreteVolatilityFunctionProvider;
+import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurfaceProvider;
 import com.opengamma.analytics.math.MathException;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.linearalgebra.CholeskyDecompositionCommons;

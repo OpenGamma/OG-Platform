@@ -3,8 +3,11 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.interestrate.capletstripping;
+package com.opengamma.analytics.financial.model.volatility.discrete;
 
+import com.opengamma.analytics.financial.model.volatility.surface.InterpolatedVolatilityTermStructureProvider;
+import com.opengamma.analytics.math.function.InterpolatedVectorFunctionProvider;
+import com.opengamma.analytics.math.function.VectorFunction;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;

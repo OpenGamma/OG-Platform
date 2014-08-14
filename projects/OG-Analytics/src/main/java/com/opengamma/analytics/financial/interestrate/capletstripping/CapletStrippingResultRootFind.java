@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.interestrate.capletstripping;
 
+import com.opengamma.analytics.financial.model.volatility.discrete.DiscreteVolatilityFunction;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 
 /**

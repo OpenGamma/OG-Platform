@@ -3,15 +3,17 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.interestrate.capletstripping;
+package com.opengamma.analytics.financial.model.volatility.discrete;
 
+import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurfaceProvider;
 import com.opengamma.analytics.math.differentiation.VectorFieldFirstOrderDifferentiator;
 import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.function.VectorFunction;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 
 /**
- * abstraction for a model that takes a set of parameters and returns (Black) volatilities at specified points (in expiry-strike space)
+ * abstraction for a model that takes a set of parameters and returns (Black) volatilities at specified points 
  * If a continuous volatility surface is required, use {@link VolatilitySurfaceProvider} instead.
  */
 public abstract class DiscreteVolatilityFunction extends VectorFunction {
@@ -26,7 +28,7 @@ public abstract class DiscreteVolatilityFunction extends VectorFunction {
    * @param x set of model parameters
    * @return The Jacobian (matrix of sensitivities of caplet volatilities to model parameters)
    */
-  protected DoubleMatrix2D evaluateJacobianViaFD(final DoubleMatrix1D x) {
+  public DoubleMatrix2D evaluateJacobianViaFD(final DoubleMatrix1D x) {
     return _fdJac.evaluate(x);
   }
 
