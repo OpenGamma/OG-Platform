@@ -91,7 +91,7 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
                               List<CurrencyAmount> notionals,
                               List<Double> spreads,
                               List<Double> gearings,
-                              List<Tenor> indexTenors) {
+                              List<Set<Tenor>> indexTenors) {
 
     ArgumentChecker.notNull(startAccrualDates, "startAccrualDates");
     ArgumentChecker.notNull(endAccrualDates, "endAccrualDates");
