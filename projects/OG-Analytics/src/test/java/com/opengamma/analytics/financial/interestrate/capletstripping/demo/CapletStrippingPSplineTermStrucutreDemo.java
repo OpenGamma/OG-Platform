@@ -43,7 +43,8 @@ public class CapletStrippingPSplineTermStrucutreDemo extends CapletStrippingSetu
       final double[] errors = new double[nVols];
       Arrays.fill(errors, 1e-4); //1bps
       res[i] = stripper.solve(vols, MarketDataType.VOL, errors, guess);
-      res[i].printCapletVols(System.out);
+      System.out.println(res[i].getChiSq());
+      // res[i].printCapletVols(System.out);
     }
 
     final CombinedCapletStrippingResults comRes = new CombinedCapletStrippingResults(res);

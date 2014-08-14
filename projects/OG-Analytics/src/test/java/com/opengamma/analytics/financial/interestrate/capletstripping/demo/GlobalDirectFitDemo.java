@@ -10,6 +10,7 @@ import com.opengamma.analytics.financial.interestrate.capletstripping.CapletStri
 import com.opengamma.analytics.financial.interestrate.capletstripping.CapletStrippingResult;
 import com.opengamma.analytics.financial.interestrate.capletstripping.CapletStrippingSetup;
 import com.opengamma.analytics.financial.interestrate.capletstripping.MarketDataType;
+import com.opengamma.analytics.financial.interestrate.capletstripping.MultiCapFloorPricer;
 import com.opengamma.analytics.financial.interestrate.capletstripping.MultiCapFloorPricerGrid;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.statistics.leastsquare.NonLinearLeastSquareWithPenalty;
@@ -83,6 +84,7 @@ public class GlobalDirectFitDemo extends CapletStrippingSetup {
     final double lambdaT = 0.01; //this is chosen to give a chi2/DoF of around 1 
     final double lambdaK = 0.0002;
     final List<CapFloor> allCaps = getAllCaps();
+    System.out.println("number of caps :" + allCaps.size());
     final List<CapFloor> atmCaps = getATMCaps();
     final MultiCapFloorPricerGrid pricer = new MultiCapFloorPricerGrid(allCaps, getYieldCurves());
     final CapletStripperDirect stripper = new CapletStripperDirect(pricer, lambdaK, lambdaT);
@@ -101,10 +103,19 @@ public class GlobalDirectFitDemo extends CapletStrippingSetup {
     final DoubleMatrix1D guess = new DoubleMatrix1D(pricer.getGridSize(), 0.7);
 
     final CapletStrippingResult res = stripper.solve(capVols, MarketDataType.VOL, errors, guess);
+    System.out.println("chi2 per cap: " + res.getChiSq() / allCaps.size());
     System.out.println(res);
 
     res.printSurface(System.out, 101, 101);
     //  res.printCapletVols(System.out);
+  }
+
+  @Test
+  public void sizeDemo() {
+    final MultiCapFloorPricer pricer1 = new MultiCapFloorPricer(getAllCapsExATM(), getYieldCurves());
+    System.out.println("number of caplet ex ATM " + pricer1.getNumCaplets());
+    final MultiCapFloorPricerGrid pricer2 = new MultiCapFloorPricerGrid(getAllCaps(), getYieldCurves());
+    System.out.println("number of caplet " + pricer2.getNumCaplets() + "\t" + pricer2.getGridSize());
   }
 
 }
