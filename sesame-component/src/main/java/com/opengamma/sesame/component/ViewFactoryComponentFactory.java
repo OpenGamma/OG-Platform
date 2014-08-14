@@ -5,6 +5,7 @@
  */
 package com.opengamma.sesame.component;
 
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -12,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.FutureTask;
 
 import org.apache.shiro.concurrent.SubjectAwareExecutorService;
 import org.joda.beans.Bean;
@@ -29,12 +29,19 @@ import org.threeten.bp.Instant;
 
 import com.codahale.metrics.MetricRegistry;
 import com.google.common.base.Optional;
-import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
+import com.opengamma.core.change.ChangeManager;
+import com.opengamma.core.config.ConfigSource;
+import com.opengamma.core.convention.ConventionSource;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.core.region.RegionSource;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.marketdata.live.LiveMarketDataProviderFactory;
 import com.opengamma.financial.analytics.conversion.FXForwardSecurityConverter;
 import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigurationSource;
@@ -55,11 +62,15 @@ import com.opengamma.sesame.DefaultFXReturnSeriesFn;
 import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
 import com.opengamma.sesame.DiscountingMulticurveBundleResolverFn;
 import com.opengamma.sesame.ExposureFunctionsDiscountingMulticurveCombinerFn;
-import com.opengamma.sesame.cache.MethodInvocationKey;
+import com.opengamma.sesame.cache.CacheInvalidator;
+import com.opengamma.sesame.cache.NoOpCacheInvalidator;
+import com.opengamma.sesame.cache.source.CacheAwareConfigSource;
+import com.opengamma.sesame.cache.source.CacheAwareConventionSource;
+import com.opengamma.sesame.cache.source.CacheAwareHistoricalTimeSeriesSource;
+import com.opengamma.sesame.cache.source.CacheAwareRegionSource;
+import com.opengamma.sesame.cache.source.CacheAwareSecuritySource;
 import com.opengamma.sesame.config.FunctionModelConfig;
-import com.opengamma.sesame.engine.CachingManager;
 import com.opengamma.sesame.engine.ComponentMap;
-import com.opengamma.sesame.engine.DefaultCachingManager;
 import com.opengamma.sesame.engine.FixedInstantVersionCorrectionProvider;
 import com.opengamma.sesame.engine.FunctionService;
 import com.opengamma.sesame.engine.ViewFactory;
@@ -87,7 +98,7 @@ import com.opengamma.sesame.pnl.DefaultHistoricalPnLFXConverterFn;
 import com.opengamma.util.auth.AuthUtils;
 
 /**
- * Component factory for the engine.
+ * Component factory for creating {@link ViewFactory} instances.
  */
 @BeanDefinition
 public class ViewFactoryComponentFactory extends AbstractComponentFactory {
@@ -102,16 +113,19 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
    */
   @PropertyDefinition(validate = "notNull")
   private String _classifier;
+
   /**
    * For obtaining the live market data provider names.
    */
   @PropertyDefinition
   private LiveMarketDataProviderFactory _liveMarketDataProviderFactory;
+
   /**
    * Maximum number of entries to store in the cache.
    */
   @PropertyDefinition
   private long _maxCacheEntries = MAX_CACHE_ENTRIES;
+
   /**
    * The set of function services to be enabled for the server for
    * most runs of the engine. These can be overridden at run time
@@ -121,6 +135,7 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
    */
   @PropertyDefinition
   private List<String> _defaultFunctionServices;
+
   /**
    * The registry to be used for recording metrics, may be null.
    */
@@ -130,24 +145,21 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
   //-------------------------------------------------------------------------
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
-
     Map<Class<?>, Object> components = getComponents(repo, configuration);
-    ComponentMap componentMap = ComponentMap.of(components);
+    // TODO cache invalidation isn't fully implemented yet, this will need to be changed for a real implementation
+    CacheInvalidator cacheInvalidator = new NoOpCacheInvalidator();
+    ComponentMap componentMap = decorateSources(ComponentMap.of(components), cacheInvalidator);
 
     // Indicate remaining configuration has been used
     configuration.clear();
 
-    Cache<MethodInvocationKey, FutureTask<Object>> cache = createCache(repo);
-    CachingManager cachingManager =
-        new DefaultCachingManager(componentMap, cache, Optional.fromNullable(_metricRegistry));
-
-    // Initialize the service context with the same wrapped components that
-    // we use within the engine itself
-    initServiceContext(repo, cachingManager.getComponentMap().getComponents());
+    // Initialize the service context with the same wrapped components that we use within the engine itself
+    initServiceContext(repo, componentMap.getComponents());
 
     ExecutorService executor = createExecutorService(repo);
     AvailableOutputs availableOutputs = createAvailableOutputs(repo);
     AvailableImplementations availableImplementations = createAvailableImplementations(repo);
+    CacheBuilder<Object, Object> cacheBuilder = createCacheBuilder(repo);
 
     FunctionServiceParser parser = new FunctionServiceParser(_defaultFunctionServices);
     EnumSet<FunctionService> functionServices = parser.determineFunctionServices();
@@ -158,10 +170,15 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
           "Either remove METRICS from defaultFunctionServices or specify a valid " +
           "metrics registry");
     }
-
-    ViewFactory viewFactory = new ViewFactory(
-        executor, availableOutputs, availableImplementations, FunctionModelConfig.EMPTY,
-        functionServices, cachingManager, Optional.fromNullable(_metricRegistry));
+    ViewFactory viewFactory = new ViewFactory(executor,
+                                              componentMap,
+                                              availableOutputs,
+                                              availableImplementations,
+                                              FunctionModelConfig.EMPTY,
+                                              functionServices,
+                                              cacheBuilder,
+                                              cacheInvalidator,
+                                              Optional.fromNullable(_metricRegistry));
 
     repo.registerComponent(ViewFactory.class, getClassifier(), viewFactory);
     repo.registerComponent(AvailableOutputs.class, getClassifier(), availableOutputs);
@@ -262,18 +279,85 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
   }
 
   /**
-   * Create the cache.
+   * Creates a cache builder used by the view factory when it needs to create a new cache.
+   * <p>
+   * New caches are created are created whenever data in the current cache needs to be discarded.
+   * Caches are shared between multiple views so it isn't safe to clear an existing cache as
+   * it may be in use. So a new, empty cache is created and supplied to each view at the
+   * start of its next calculation cycle.
    * 
    * @param repo  the component repository, typically not used, not null
-   * @return the cache, not null
+   * @return the cache builder, not null
    */
-  protected Cache<MethodInvocationKey, FutureTask<Object>> createCache(ComponentRepository repo) {
-    int concurrencyLevel = Runtime.getRuntime().availableProcessors() + 2;
+  protected CacheBuilder<Object, Object> createCacheBuilder(ComponentRepository repo) {
+    int nProcessors = Runtime.getRuntime().availableProcessors();
+    // concurrency level controls how many segments are created in the cache. a segment is locked while a value
+    // is being calculated so we want enough segments to make it highly unlikely that two threads will try
+    // to write a value to the same segment at the same time.
+    // N.B. read operations can happen concurrently with writes, so the concurrency level only affects cache writes
+    int concurrencyLevel = nProcessors * 8;
     return CacheBuilder.newBuilder()
         .maximumSize(getMaxCacheEntries())
         .softValues()
-        .concurrencyLevel(concurrencyLevel)
-        .build();
+        .concurrencyLevel(concurrencyLevel);
+  }
+
+  /**
+   * Decorates the sources with cache aware versions that register when data is
+   * queried so cache entries can be invalidated when it changes. The returned
+   * component map contains the cache aware sources in place of the originals.
+   * <p>
+   * This functionality isn't complete yet. The cache aware sources record when data is used
+   * by a function but nothing listens to change notifications from the underlying sources.
+   * Ultimately the {@code CacheInvalidator} should have a method to add and remove listeners
+   * and logic to process change notifications and maintain a set of invalid cache keys.
+   * TODO should this be somewhere else? a CacheUtils class? ComponentMap? CacheInvalidator?
+   *
+   * @param components  platform components used by functions
+   * @return a component map containing the decorated sources instead of the originals
+   */
+  private static ComponentMap decorateSources(ComponentMap components, CacheInvalidator cacheInvalidator) {
+    // Copy the original set and overwrite the ones we're interested in
+    Map<Class<?>, Object> sources = Maps.newHashMap(components.getComponents());
+
+    // need to record which ChangeManagers we're listening to so we can remove the listeners and avoid leaks
+    Collection<ChangeManager> changeManagers = Lists.newArrayList();
+
+    ConfigSource configSource = components.findComponent(ConfigSource.class);
+    if (configSource != null) {
+      changeManagers.add(configSource.changeManager());
+      sources.put(ConfigSource.class, new CacheAwareConfigSource(configSource, cacheInvalidator));
+    }
+
+    RegionSource regionSource = components.findComponent(RegionSource.class);
+    if (regionSource != null) {
+      changeManagers.add(regionSource.changeManager());
+      sources.put(RegionSource.class, new CacheAwareRegionSource(regionSource, cacheInvalidator));
+    }
+
+    SecuritySource securitySource = components.findComponent(SecuritySource.class);
+    if (securitySource != null) {
+      changeManagers.add(securitySource.changeManager());
+      sources.put(SecuritySource.class, new CacheAwareSecuritySource(securitySource, cacheInvalidator));
+    }
+
+    ConventionSource conventionSource = components.findComponent(ConventionSource.class);
+    if (conventionSource != null) {
+      changeManagers.add(conventionSource.changeManager());
+      sources.put(ConventionSource.class, new CacheAwareConventionSource(conventionSource, cacheInvalidator));
+    }
+
+    HistoricalTimeSeriesSource timeSeriesSource = components.findComponent(HistoricalTimeSeriesSource.class);
+    if (timeSeriesSource != null) {
+      changeManagers.add(timeSeriesSource.changeManager());
+      sources.put(HistoricalTimeSeriesSource.class,
+                  new CacheAwareHistoricalTimeSeriesSource(timeSeriesSource, cacheInvalidator));
+    }
+    // TODO HolidaySource (which has a horrible design WRT decorating)
+
+    // TODO something needs to add listeners to the change managers. probably CacheInvalidator. addListeners() method?
+
+    return ComponentMap.of(sources);
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -484,7 +568,8 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
   protected void toString(StringBuilder buf) {
     super.toString(buf);
     buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
-    buf.append("liveMarketDataProviderFactory").append('=').append(JodaBeanUtils.toString(getLiveMarketDataProviderFactory())).append(',').append(' ');
+    buf.append("liveMarketDataProviderFactory").append('=').append(JodaBeanUtils.toString(getLiveMarketDataProviderFactory())).append(',').append(
+        ' ');
     buf.append("maxCacheEntries").append('=').append(JodaBeanUtils.toString(getMaxCacheEntries())).append(',').append(' ');
     buf.append("defaultFunctionServices").append('=').append(JodaBeanUtils.toString(getDefaultFunctionServices())).append(',').append(' ');
     buf.append("metricRegistry").append('=').append(JodaBeanUtils.toString(getMetricRegistry())).append(',').append(' ');

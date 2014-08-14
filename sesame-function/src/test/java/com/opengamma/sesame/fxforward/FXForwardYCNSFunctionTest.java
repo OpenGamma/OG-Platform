@@ -86,7 +86,6 @@ import com.opengamma.sesame.MarketExposureSelectorFn;
 import com.opengamma.sesame.RootFinderConfiguration;
 import com.opengamma.sesame.SimpleEnvironment;
 import com.opengamma.sesame.cache.CachingProxyDecorator;
-import com.opengamma.sesame.cache.ExecutingMethodsThreadLocal;
 import com.opengamma.sesame.component.RetrievalPeriod;
 import com.opengamma.sesame.component.StringSet;
 import com.opengamma.sesame.config.EngineUtils;
@@ -162,8 +161,7 @@ public class FXForwardYCNSFunctionTest {
     Map<Class<?>, Object> comps = ImmutableMap.<Class<?>, Object>of(HistoricalTimeSeriesResolver.class, htsResolver);
     ComponentMap componentMap = serverComponents.with(comps);
 
-    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(FunctionTestUtils.createCache(),
-                                                                       new ExecutingMethodsThreadLocal());
+    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(FunctionTestUtils.createCacheProvider());
     FXForwardYieldCurveNodeSensitivitiesFn ycnsFunction =
         FunctionModel.build(FXForwardYieldCurveNodeSensitivitiesFn.class,
                             createFunctionConfig(),
@@ -191,41 +189,49 @@ public class FXForwardYCNSFunctionTest {
     return
         config(
             arguments(
-                function(ConfigDbMarketExposureSelectorFn.class,
-                         argument("exposureConfig", ConfigLink.resolved(mock(ExposureFunctions.class)))),
-                function(DiscountingFXForwardYieldCurveNodeSensitivitiesFn.class,
-                         argument("curveDefinition", ConfigLink.resolved(mock(CurveDefinition.class)))),
-                function(RootFinderConfiguration.class,
-                         argument("rootFinderAbsoluteTolerance", 1e-9),
-                         argument("rootFinderRelativeTolerance", 1e-9),
-                         argument("rootFinderMaxIterations", 1000)),
-                function(DefaultCurrencyPairsFn.class,
-                         argument("currencyPairs", ImmutableSet.of(CurrencyPair.of(USD, JPY),
-                                                                   CurrencyPair.of(EUR, USD),
-                                                                   CurrencyPair.of(GBP, USD)))),
-                function(DefaultHistoricalTimeSeriesFn.class,
-                         argument("resolutionKey", "DEFAULT_TSS"),
-                         argument("htsRetrievalPeriod", RetrievalPeriod.of(Period.ofYears(1)))),
-                function(DefaultCurveNodeConverterFn.class,
-                         argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofYears(1)))),
-                function(DefaultDiscountingMulticurveBundleFn.class,
-                         argument("impliedCurveNames", StringSet.of()))),
-            implementations(FXForwardYieldCurveNodeSensitivitiesFn.class, DiscountingFXForwardYieldCurveNodeSensitivitiesFn.class,
-                            FXForwardCalculatorFn.class, FXForwardDiscountingCalculatorFn.class,
-                            MarketExposureSelectorFn.class, ConfigDbMarketExposureSelectorFn.class,
-                            CurrencyPairsFn.class, DefaultCurrencyPairsFn.class,
-                            FinancialSecurityVisitor.class, FXForwardSecurityConverter.class,
-                            InstrumentExposuresProvider.class, ConfigDBInstrumentExposuresProvider.class,
-                            CurveSpecificationMarketDataFn.class, DefaultCurveSpecificationMarketDataFn.class,
-                            DiscountingMulticurveCombinerFn.class, ExposureFunctionsDiscountingMulticurveCombinerFn.class,
-                            DiscountingMulticurveBundleResolverFn.class, DefaultDiscountingMulticurveBundleResolverFn.class,
-                            FXMatrixFn.class, DefaultFXMatrixFn.class,
-                            CurveDefinitionFn.class, DefaultCurveDefinitionFn.class,
-                            DiscountingMulticurveBundleFn.class, DefaultDiscountingMulticurveBundleFn.class,
-                            CurveSpecificationFn.class, DefaultCurveSpecificationFn.class,
-                            CurveConstructionConfigurationSource.class, ConfigDBCurveConstructionConfigurationSource.class,
-                            CurveNodeConverterFn.class, DefaultCurveNodeConverterFn.class,
-                            HistoricalTimeSeriesFn.class, DefaultHistoricalTimeSeriesFn.class));
+                function(
+                    ConfigDbMarketExposureSelectorFn.class,
+                    argument("exposureConfig", ConfigLink.resolved(mock(ExposureFunctions.class)))),
+                function(
+                    DiscountingFXForwardYieldCurveNodeSensitivitiesFn.class,
+                    argument("curveDefinition", ConfigLink.resolved(mock(CurveDefinition.class)))),
+                function(
+                    RootFinderConfiguration.class,
+                    argument("rootFinderAbsoluteTolerance", 1e-9),
+                    argument("rootFinderRelativeTolerance", 1e-9),
+                    argument("rootFinderMaxIterations", 1000)),
+                function(
+                    DefaultCurrencyPairsFn.class,
+                    argument("currencyPairs", ImmutableSet.of(CurrencyPair.of(USD, JPY),
+                                                              CurrencyPair.of(EUR, USD),
+                                                              CurrencyPair.of(GBP, USD)))),
+                function(
+                    DefaultHistoricalTimeSeriesFn.class,
+                    argument("resolutionKey", "DEFAULT_TSS"),
+                    argument("htsRetrievalPeriod", RetrievalPeriod.of(Period.ofYears(1)))),
+                function(
+                    DefaultCurveNodeConverterFn.class,
+                    argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofYears(1)))),
+                function(
+                    DefaultDiscountingMulticurveBundleFn.class,
+                    argument("impliedCurveNames", StringSet.of()))),
+            implementations(
+                FXForwardYieldCurveNodeSensitivitiesFn.class, DiscountingFXForwardYieldCurveNodeSensitivitiesFn.class,
+                FXForwardCalculatorFn.class, FXForwardDiscountingCalculatorFn.class,
+                MarketExposureSelectorFn.class, ConfigDbMarketExposureSelectorFn.class,
+                CurrencyPairsFn.class, DefaultCurrencyPairsFn.class,
+                FinancialSecurityVisitor.class, FXForwardSecurityConverter.class,
+                InstrumentExposuresProvider.class, ConfigDBInstrumentExposuresProvider.class,
+                CurveSpecificationMarketDataFn.class, DefaultCurveSpecificationMarketDataFn.class,
+                DiscountingMulticurveCombinerFn.class, ExposureFunctionsDiscountingMulticurveCombinerFn.class,
+                DiscountingMulticurveBundleResolverFn.class, DefaultDiscountingMulticurveBundleResolverFn.class,
+                FXMatrixFn.class, DefaultFXMatrixFn.class,
+                CurveDefinitionFn.class, DefaultCurveDefinitionFn.class,
+                DiscountingMulticurveBundleFn.class, DefaultDiscountingMulticurveBundleFn.class,
+                CurveSpecificationFn.class, DefaultCurveSpecificationFn.class,
+                CurveConstructionConfigurationSource.class, ConfigDBCurveConstructionConfigurationSource.class,
+                CurveNodeConverterFn.class, DefaultCurveNodeConverterFn.class,
+                HistoricalTimeSeriesFn.class, DefaultHistoricalTimeSeriesFn.class));
   }
 
   private static ComponentMap componentMap(Map<Class<?>, Object> components) {

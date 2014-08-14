@@ -19,7 +19,6 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.FutureTask;
 
 import javax.annotation.Nullable;
 
@@ -27,7 +26,8 @@ import org.apache.commons.lang.StringUtils;
 import org.threeten.bp.Instant;
 import org.threeten.bp.ZonedDateTime;
 
-import com.google.common.cache.Cache;
+import com.codahale.metrics.MetricRegistry;
+import com.google.common.base.Optional;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -41,11 +41,12 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.service.ServiceContext;
 import com.opengamma.service.ThreadLocalServiceContext;
 import com.opengamma.service.VersionCorrectionProvider;
+import com.opengamma.sesame.cache.CacheProvider;
 import com.opengamma.sesame.cache.MethodInvocationKey;
+import com.opengamma.sesame.cache.NoOpCacheInvalidator;
 import com.opengamma.sesame.config.FunctionModelConfig;
-import com.opengamma.sesame.engine.CachingManager;
 import com.opengamma.sesame.engine.ComponentMap;
-import com.opengamma.sesame.engine.DefaultCachingManager;
+import com.opengamma.sesame.engine.DefaultCacheProvider;
 import com.opengamma.sesame.engine.FixedInstantVersionCorrectionProvider;
 import com.opengamma.sesame.engine.FunctionService;
 import com.opengamma.sesame.engine.ViewFactory;
@@ -105,14 +106,6 @@ public class EngineTestUtils {
   public static ViewFactory createViewFactory(Map<Class<?>, Object> components,
                                               AvailableOutputs availableOutputs,
                                               AvailableImplementations availableImplementations) {
-
-    ComponentMap componentMap = ComponentMap.of(components);
-
-    Cache<MethodInvocationKey, FutureTask<Object>> cache =
-        CacheBuilder.newBuilder().maximumSize(10000).build();
-
-    CachingManager cachingManager = new DefaultCachingManager(componentMap, cache);
-
     FixedInstantVersionCorrectionProvider versionCorrectionProvider =
         new FixedInstantVersionCorrectionProvider(Instant.now());
     ServiceContext serviceContext = ServiceContext.of(components)
@@ -121,20 +114,27 @@ public class EngineTestUtils {
 
     ExecutorService executor = Executors.newFixedThreadPool(2);
     return new ViewFactory(executor,
+                           ComponentMap.of(components),
                            availableOutputs,
                            availableImplementations,
                            FunctionModelConfig.EMPTY,
                            FunctionService.DEFAULT_SERVICES,
-                           cachingManager);
+                           createCacheBuilder(),
+                           new NoOpCacheInvalidator(),
+                           Optional.<MetricRegistry>absent());
   }
 
-
   /**
-   * @return a cache configured for use with the engine
+   * @return a cache provider configured for use with the engine
    */
-  public static Cache<MethodInvocationKey, FutureTask<Object>> createCache() {
-    int concurrencyLevel = Runtime.getRuntime().availableProcessors() + 2;
-    return CacheBuilder.newBuilder().maximumSize(MAX_CACHE_ENTRIES).concurrencyLevel(concurrencyLevel).build();
+  public static CacheProvider createCacheProvider() {
+    return new DefaultCacheProvider(createCacheBuilder().<MethodInvocationKey, Object>build());
+  }
+
+  public static CacheBuilder<Object, Object> createCacheBuilder() {
+    int nProcessors = Runtime.getRuntime().availableProcessors();
+    int concurrencyLevel = nProcessors * 8;
+    return CacheBuilder.newBuilder().maximumSize(MAX_CACHE_ENTRIES).softValues().concurrencyLevel(concurrencyLevel);
   }
 
   public static void assertJsonEquals(Map<?, ?> expected, Map<?, ?> actual) {

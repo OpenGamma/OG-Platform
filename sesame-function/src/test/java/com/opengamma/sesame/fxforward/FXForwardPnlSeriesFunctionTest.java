@@ -88,7 +88,6 @@ import com.opengamma.sesame.RootFinderConfiguration;
 import com.opengamma.sesame.SimpleEnvironment;
 import com.opengamma.sesame.TimeSeriesReturnConverterFactory;
 import com.opengamma.sesame.cache.CachingProxyDecorator;
-import com.opengamma.sesame.cache.ExecutingMethodsThreadLocal;
 import com.opengamma.sesame.component.CurrencyPairSet;
 import com.opengamma.sesame.component.RetrievalPeriod;
 import com.opengamma.sesame.component.StringSet;
@@ -173,8 +172,7 @@ public class FXForwardPnlSeriesFunctionTest {
     Map<Class<?>, Object> comps = ImmutableMap.<Class<?>, Object>of(HistoricalTimeSeriesResolver.class, htsResolver);
     ComponentMap componentMap = serverComponents.with(comps);
 
-    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(FunctionTestUtils.createCache(),
-                                                                       new ExecutingMethodsThreadLocal());
+    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(FunctionTestUtils.createCacheProvider());
     FXForwardPnLSeriesFn pvFunction = FunctionModel.build(FXForwardPnLSeriesFn.class,
                                                           createFunctionConfig(currencyMatrix),
                                                           componentMap,
@@ -204,56 +202,67 @@ public class FXForwardPnlSeriesFunctionTest {
     return
         config(
             arguments(
-                function(ConfigDbMarketExposureSelectorFn.class,
-                         argument("exposureConfig", exposureConfig)),
-                function(DefaultHistoricalPnLFXConverterFn.class,
-                         argument("periodBound", PnLPeriodBound.START)),
-                function(DiscountingFXForwardSpotPnLSeriesFn.class,
-                         argument("useHistoricalSpot", true),
-                         argument("dateRange", range),
-                         argument("outputCurrency", Optional.of(Currency.USD)),
-                         argument("timeSeriesConverter", TimeSeriesReturnConverterFactory.absolute())),
-                function(RootFinderConfiguration.class,
-                         argument("rootFinderAbsoluteTolerance", 1e-9),
-                         argument("rootFinderRelativeTolerance", 1e-9),
-                         argument("rootFinderMaxIterations", 1000)),
-                function(DefaultCurrencyPairsFn.class,
-                         argument("currencyPairs", CurrencyPairSet.of(CurrencyPair.of(USD, JPY),
-                                                                      CurrencyPair.of(EUR, USD),
-                                                                      CurrencyPair.of(GBP, USD)))),
-                function(DefaultHistoricalTimeSeriesFn.class,
-                         argument("resolutionKey", "DEFAULT_TSS"),
-                         argument("htsRetrievalPeriod", RetrievalPeriod.of(Period.ofYears(1)))),
-                function(DefaultDiscountingMulticurveBundleFn.class,
-                         argument("impliedCurveNames", StringSet.of())),
-                function(DefaultHistoricalMarketDataFn.class,
-                         argument("dataSource", "BLOOMBERG"),
-                         argument("currencyMatrix", currencyMatrix)),
-                function(DefaultCurveNodeConverterFn.class,
-                         argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofYears(1)))),
-                function(DefaultMarketDataFn.class,
-                         argument("currencyMatrix", currencyMatrix))),
+                function(
+                    ConfigDbMarketExposureSelectorFn.class,
+                    argument("exposureConfig", exposureConfig)),
+                function(
+                    DefaultHistoricalPnLFXConverterFn.class,
+                    argument("periodBound", PnLPeriodBound.START)),
+                function(
+                    DiscountingFXForwardSpotPnLSeriesFn.class,
+                    argument("useHistoricalSpot", true),
+                    argument("dateRange", range),
+                    argument("outputCurrency", Optional.of(Currency.USD)),
+                    argument("timeSeriesConverter", TimeSeriesReturnConverterFactory.absolute())),
+                function(
+                    RootFinderConfiguration.class,
+                    argument("rootFinderAbsoluteTolerance", 1e-9),
+                    argument("rootFinderRelativeTolerance", 1e-9),
+                    argument("rootFinderMaxIterations", 1000)),
+                function(
+                    DefaultCurrencyPairsFn.class,
+                    argument("currencyPairs", CurrencyPairSet.of(CurrencyPair.of(USD, JPY),
+                                                                 CurrencyPair.of(EUR, USD),
+                                                                 CurrencyPair.of(GBP, USD)))),
+                function(
+                    DefaultHistoricalTimeSeriesFn.class,
+                    argument("resolutionKey", "DEFAULT_TSS"),
+                    argument("htsRetrievalPeriod", RetrievalPeriod.of(Period.ofYears(1)))),
+                function(
+                    DefaultDiscountingMulticurveBundleFn.class,
+                    argument("impliedCurveNames", StringSet.of())),
+                function(
+                    DefaultHistoricalMarketDataFn.class,
+                    argument("dataSource", "BLOOMBERG"),
+                    argument("currencyMatrix", currencyMatrix)),
+                function(
+                    DefaultCurveNodeConverterFn.class,
+                    argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofYears(1)))),
+                function(
+                    DefaultMarketDataFn.class,
+                    argument("currencyMatrix", currencyMatrix))),
 
-            implementations(FXForwardPnLSeriesFn.class, DiscountingFXForwardSpotPnLSeriesFn.class,
-                            FXReturnSeriesFn.class, DefaultFXReturnSeriesFn.class,
-                            FXForwardCalculatorFn.class, FXForwardDiscountingCalculatorFn.class,
-                            DiscountingMulticurveCombinerFn.class, ExposureFunctionsDiscountingMulticurveCombinerFn.class,
-                            MarketExposureSelectorFn.class, ConfigDbMarketExposureSelectorFn.class,
-                            CurrencyPairsFn.class, DefaultCurrencyPairsFn.class,
-                            FinancialSecurityVisitor.class, FXForwardSecurityConverter.class,
-                            InstrumentExposuresProvider.class, ConfigDBInstrumentExposuresProvider.class,
-                            CurveSpecificationMarketDataFn.class, DefaultCurveSpecificationMarketDataFn.class,
-                            FXMatrixFn.class, DefaultFXMatrixFn.class,
-                            CurveDefinitionFn.class, DefaultCurveDefinitionFn.class,
-                            DiscountingMulticurveBundleFn.class, DefaultDiscountingMulticurveBundleFn.class,
-                            DiscountingMulticurveBundleResolverFn.class, DefaultDiscountingMulticurveBundleResolverFn.class,
-                            CurveSpecificationFn.class, DefaultCurveSpecificationFn.class,
-                            CurveConstructionConfigurationSource.class, ConfigDBCurveConstructionConfigurationSource.class,
-                            CurveNodeConverterFn.class, DefaultCurveNodeConverterFn.class,
-                            HistoricalTimeSeriesFn.class, DefaultHistoricalTimeSeriesFn.class,
-                            MarketDataFn.class, DefaultMarketDataFn.class,
-                            HistoricalMarketDataFn.class, DefaultHistoricalMarketDataFn.class,
-                            HistoricalPnLFXConverterFn.class, DefaultHistoricalPnLFXConverterFn.class));
+            implementations(
+                FXForwardPnLSeriesFn.class, DiscountingFXForwardSpotPnLSeriesFn.class,
+                FXReturnSeriesFn.class, DefaultFXReturnSeriesFn.class,
+                FXForwardCalculatorFn.class, FXForwardDiscountingCalculatorFn.class,
+                DiscountingMulticurveCombinerFn.class, ExposureFunctionsDiscountingMulticurveCombinerFn.class,
+                MarketExposureSelectorFn.class, ConfigDbMarketExposureSelectorFn.class,
+                CurrencyPairsFn.class, DefaultCurrencyPairsFn.class,
+                FinancialSecurityVisitor.class, FXForwardSecurityConverter.class,
+                InstrumentExposuresProvider.class, ConfigDBInstrumentExposuresProvider.class,
+                CurveSpecificationMarketDataFn.class, DefaultCurveSpecificationMarketDataFn.class,
+                FXMatrixFn.class, DefaultFXMatrixFn.class,
+                CurveDefinitionFn.class, DefaultCurveDefinitionFn.class,
+                DiscountingMulticurveBundleFn.class, DefaultDiscountingMulticurveBundleFn.class,
+                DiscountingMulticurveBundleResolverFn.class, DefaultDiscountingMulticurveBundleResolverFn.class,
+                CurveSpecificationFn.class, DefaultCurveSpecificationFn.class,
+                CurveConstructionConfigurationSource.class, ConfigDBCurveConstructionConfigurationSource.class,
+                CurveNodeConverterFn.class, DefaultCurveNodeConverterFn.class,
+                HistoricalTimeSeriesFn.class, DefaultHistoricalTimeSeriesFn.class,
+                MarketDataFn.class, DefaultMarketDataFn.class,
+                HistoricalMarketDataFn.class, DefaultHistoricalMarketDataFn.class,
+                HistoricalPnLFXConverterFn.class, DefaultHistoricalPnLFXConverterFn.class));
   }
 
   private static ComponentMap componentMap(Class<?>... componentTypes) {

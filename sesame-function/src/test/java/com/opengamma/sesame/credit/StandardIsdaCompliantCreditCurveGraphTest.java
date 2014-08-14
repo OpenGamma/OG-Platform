@@ -23,6 +23,8 @@ import java.util.Map;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.codahale.metrics.MetricRegistry;
+import com.google.common.base.Optional;
 import com.google.common.collect.Maps;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.convention.ConventionSource;
@@ -40,13 +42,12 @@ import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.sesame.DirectExecutorService;
 import com.opengamma.sesame.OutputNames;
+import com.opengamma.sesame.cache.NoOpCacheInvalidator;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.config.ViewConfig;
 import com.opengamma.sesame.credit.snapshot.SnapshotCreditCurveDataProviderFn;
 import com.opengamma.sesame.credit.snapshot.SnapshotYieldCurveDataProviderFn;
-import com.opengamma.sesame.engine.CachingManager;
 import com.opengamma.sesame.engine.ComponentMap;
-import com.opengamma.sesame.engine.DefaultCachingManager;
 import com.opengamma.sesame.engine.FunctionService;
 import com.opengamma.sesame.engine.View;
 import com.opengamma.sesame.engine.ViewFactory;
@@ -69,7 +70,8 @@ public class StandardIsdaCompliantCreditCurveGraphTest {
   @BeforeMethod
   public void beforeMethod() {
     
-    ComponentMap componentMap = componentMap(ConfigSource.class,
+    ComponentMap componentMap = componentMap(
+        ConfigSource.class,
         ConventionSource.class,
         ConventionBundleSource.class,
         HistoricalTimeSeriesResolver.class,
@@ -88,16 +90,17 @@ public class StandardIsdaCompliantCreditCurveGraphTest {
     availableImplementations.register(DefaultIsdaCompliantYieldCurveFn.class,
                                       SnapshotYieldCurveDataProviderFn.class,
                                       SnapshotCreditCurveDataProviderFn.class,
-                                      StandardIsdaCompliantCreditCurveFn.class
-        );
+                                      StandardIsdaCompliantCreditCurveFn.class);
 
-    CachingManager cachingManager = new DefaultCachingManager(componentMap, FunctionTestUtils.createCache());
     _viewFactory = new ViewFactory(new DirectExecutorService(),
-                                availableOutputs,
-                                availableImplementations,
-                                FunctionModelConfig.EMPTY,
-                                EnumSet.noneOf(FunctionService.class),
-                                cachingManager);
+                                   componentMap,
+                                   availableOutputs,
+                                   availableImplementations,
+                                   FunctionModelConfig.EMPTY,
+                                   EnumSet.noneOf(FunctionService.class),
+                                   FunctionTestUtils.createCacheBuilder(),
+                                   new NoOpCacheInvalidator(),
+                                   Optional.<MetricRegistry>absent());
     
   }
   
@@ -135,23 +138,22 @@ public class StandardIsdaCompliantCreditCurveGraphTest {
     //https://bugs.openjdk.java.net/browse/JDK-8051012
     Map<CreditCurveDataKey, CreditCurveData> emptyData = Maps.newHashMap();
     NamedSnapshot snapshot = CreditCurveDataSnapshot.builder().creditCurves(emptyData).name("test").build();
-    ViewConfig viewConfig =
-        configureView("Yield curve",
-            config(
-                arguments(
-                    function(SnapshotYieldCurveDataProviderFn.class,
-                             argument("snapshotLink", SnapshotLink.resolved(mock(YieldCurveDataSnapshot.class)))),
-                     function(SnapshotCreditCurveDataProviderFn.class,
-                              argument("snapshotLink", 
-                                      SnapshotLink.resolved(snapshot))))),
-                 columns(),
-                 nonPortfolioOutputs(
-                   nonPortfolioOutput("Yield curve",
-                       output(OutputNames.ISDA_YIELD_CURVE)),
-                   nonPortfolioOutput("Credit curve",
-                       output(OutputNames.ISDA_CREDIT_CURVE))));
-    
-    return viewConfig;
+
+    return configureView(
+        "Yield curve",
+        config(
+            arguments(
+                function(
+                    SnapshotYieldCurveDataProviderFn.class,
+                    argument("snapshotLink", SnapshotLink.resolved(mock(YieldCurveDataSnapshot.class)))),
+                function(
+                    SnapshotCreditCurveDataProviderFn.class,
+                    argument("snapshotLink",
+                             SnapshotLink.resolved(snapshot))))),
+        columns(),
+        nonPortfolioOutputs(
+            nonPortfolioOutput("Yield curve", output(OutputNames.ISDA_YIELD_CURVE)),
+            nonPortfolioOutput("Credit curve", output(OutputNames.ISDA_CREDIT_CURVE))));
 
   }
   

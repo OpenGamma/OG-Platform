@@ -43,7 +43,7 @@ public class CacheInvalidatorTest {
   private static final MethodInvocationKey METHOD_KEY_3 = methodKey(new ArrayList<>(), "size", null);
   private static final Callable<Object> CALLABLE = Callables.returning(null);
 
-  private final Cache<MethodInvocationKey, FutureTask<Object>> _cache = EngineTestUtils.createCache();
+  private final Cache<MethodInvocationKey, Object> _cache = EngineTestUtils.createCacheProvider().get();
 
   private void populateCache() {
     _cache.invalidateAll();

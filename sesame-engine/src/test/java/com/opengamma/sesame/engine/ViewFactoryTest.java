@@ -18,9 +18,11 @@ import static com.opengamma.sesame.config.ConfigBuilder.output;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -31,6 +33,8 @@ import org.apache.shiro.authz.AuthorizationException;
 import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
 
+import com.codahale.metrics.MetricRegistry;
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -54,6 +58,8 @@ import com.opengamma.sesame.DirectExecutorService;
 import com.opengamma.sesame.EngineTestUtils;
 import com.opengamma.sesame.LazyLinkedPositionOrTrade;
 import com.opengamma.sesame.OutputNames;
+import com.opengamma.sesame.cache.Cacheable;
+import com.opengamma.sesame.cache.NoOpCacheInvalidator;
 import com.opengamma.sesame.config.EmptyFunctionArguments;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.config.ViewConfig;
@@ -97,9 +103,7 @@ public class ViewFactoryTest {
   @Test
   public void basicFunctionWithTrade() {
     ViewConfig viewConfig = createTrivialEquityTestViewConfig();
-    AvailableOutputs availableOutputs = new AvailableOutputsImpl();
-    availableOutputs.register(EquityDescriptionFn.class);
-    ViewFactory viewFactory = createViewFactory(availableOutputs);
+    ViewFactory viewFactory = createViewFactory(EquityDescriptionFn.class);
     List<SimpleTrade> trades = ImmutableList.of(EngineTestUtils.createEquityTrade());
     View view = viewFactory.createView(viewConfig, EquitySecurity.class);
     CycleArguments cycleArguments = createCycleArguments();
@@ -111,9 +115,7 @@ public class ViewFactoryTest {
   @Test
   public void basicFunctionWithTradeAndNoSecurity() {
     ViewConfig viewConfig = createTrivialEquityTestViewConfig();
-    AvailableOutputs availableOutputs = new AvailableOutputsImpl();
-    availableOutputs.register(EquityDescriptionFn.class);
-    ViewFactory viewFactory = createViewFactory(availableOutputs);
+    ViewFactory viewFactory = createViewFactory(EquityDescriptionFn.class);
     SimpleTrade trade = EngineTestUtils.createEquityTrade();
     trade.setSecurityLink(new SimpleSecurityLink(trade.getSecurityLink().getExternalId()));
     List<SimpleTrade> trades = ImmutableList.of(trade);
@@ -143,9 +145,7 @@ public class ViewFactoryTest {
   @Test
   public void basicFunctionWithTradeAndUnknownSecurityType() {
     ViewConfig viewConfig = createTrivialEquityTestViewConfig();
-    AvailableOutputs availableOutputs = new AvailableOutputsImpl();
-    availableOutputs.register(EquityDescriptionFn.class);
-    ViewFactory viewFactory = createViewFactory(availableOutputs);
+    ViewFactory viewFactory = createViewFactory(EquityDescriptionFn.class);
     Trade trade = EngineTestUtils.createCashFlowTrade();
     List<Trade> trades = ImmutableList.of(trade);
     View view = viewFactory.createView(viewConfig, EquitySecurity.class);
@@ -158,9 +158,7 @@ public class ViewFactoryTest {
   @Test
   public void basicFunctionWithSecurity() {
     ViewConfig viewConfig = createTrivialEquityTestViewConfig();
-    AvailableOutputs availableOutputs = new AvailableOutputsImpl();
-    availableOutputs.register(EquityDescriptionFn.class);
-    ViewFactory viewFactory = createViewFactory(availableOutputs);
+    ViewFactory viewFactory = createViewFactory(EquityDescriptionFn.class);
     List<Security> securities = ImmutableList.of(EngineTestUtils.createEquityTrade().getSecurity());
     View view = viewFactory.createView(viewConfig, EquitySecurity.class);
     CycleArguments cycleArguments = createCycleArguments();
@@ -183,15 +181,18 @@ public class ViewFactoryTest {
                             EquityDescriptionFn.class, DefaultEquityDescriptionFn.class)))));
   }
 
-  private ViewFactory createViewFactory(AvailableOutputs availableOutputs) {
-    CachingManager cachingManager = new NoOpCachingManager(ComponentMap.EMPTY);
-    return new ViewFactory(
-        new DirectExecutorService(),
-        availableOutputs,
-        new AvailableImplementationsImpl(),
-        FunctionModelConfig.EMPTY,
-        FunctionService.DEFAULT_SERVICES,
-        cachingManager);
+  private ViewFactory createViewFactory(Class<?> function) {
+    AvailableOutputs availableOutputs = new AvailableOutputsImpl();
+    availableOutputs.register(function);
+    return new ViewFactory(new DirectExecutorService(),
+                           ComponentMap.EMPTY,
+                           availableOutputs,
+                           new AvailableImplementationsImpl(),
+                           FunctionModelConfig.EMPTY,
+                           FunctionService.DEFAULT_SERVICES,
+                           EngineTestUtils.createCacheBuilder(),
+                           new NoOpCacheInvalidator(),
+                           Optional.<MetricRegistry>absent());
   }
 
   //-------------------------------------------------------------------------
@@ -210,16 +211,17 @@ public class ViewFactoryTest {
 
     AvailableOutputs availableOutputs = new AvailableOutputsImpl();
     availableOutputs.register(MockEquityPresentValueFn.class);
+    ComponentMap componentMap = ComponentMap.EMPTY.with(CurrencyMatrix.class, mock(CurrencyMatrix.class));
 
-
-    CachingManager cachingManager = new NoOpCachingManager(
-        ComponentMap.EMPTY.with(CurrencyMatrix.class, mock(CurrencyMatrix.class)));
     ViewFactory viewFactory = new ViewFactory(new DirectExecutorService(),
-        availableOutputs,
-        new AvailableImplementationsImpl(),
-        FunctionModelConfig.EMPTY,
-        FunctionService.NONE,
-        cachingManager);
+                                              componentMap,
+                                              availableOutputs,
+                                              new AvailableImplementationsImpl(),
+                                              FunctionModelConfig.EMPTY,
+                                              FunctionService.NONE,
+                                              EngineTestUtils.createCacheBuilder(),
+                                              new NoOpCacheInvalidator(),
+                                              Optional.<MetricRegistry>absent());
     Trade trade = EngineTestUtils.createEquityTrade();
     List<Trade> trades = ImmutableList.of(trade);
 
@@ -248,9 +250,7 @@ public class ViewFactoryTest {
                     implementations(
                         EquityDescriptionFn.class, DefaultEquityDescriptionFn.class))));
 
-    AvailableOutputs availableOutputs = new AvailableOutputsImpl();
-    availableOutputs.register(EquityDescriptionFn.class);
-    ViewFactory viewFactory = createViewFactory(availableOutputs);
+    ViewFactory viewFactory = createViewFactory(EquityDescriptionFn.class);
     List<SimpleTrade> trades = ImmutableList.of(EngineTestUtils.createEquityTrade());
     View view = viewFactory.createView(viewConfig, EquitySecurity.class);
     CycleArguments cycleArguments = createCycleArguments();
@@ -303,19 +303,23 @@ public class ViewFactoryTest {
                         implementations(
                             CashFlowDescriptionFn.class, CashFlowIdDescriptionFn.class)))));
 
-    FunctionModelConfig defaultConfig = config(implementations(EquityDescriptionFn.class, DefaultEquityDescriptionFn.class,
-        CashFlowDescriptionFn.class, DefaultCashFlowDescriptionFn.class));
+    FunctionModelConfig defaultConfig = config(implementations(EquityDescriptionFn.class,
+                                                               DefaultEquityDescriptionFn.class,
+                                                               CashFlowDescriptionFn.class,
+                                                               DefaultCashFlowDescriptionFn.class));
     AvailableOutputs availableOutputs = new AvailableOutputsImpl();
     availableOutputs.register(EquityDescriptionFn.class, CashFlowDescriptionFn.class);
     AvailableImplementations availableImplementations = new AvailableImplementationsImpl();
     availableImplementations.register(DefaultIdSchemeFn.class);
-    CachingManager cachingManager = new NoOpCachingManager(ComponentMap.EMPTY);
     ViewFactory viewFactory = new ViewFactory(new DirectExecutorService(),
-        availableOutputs,
-        availableImplementations,
-        defaultConfig,
-        EnumSet.noneOf(FunctionService.class),
-        cachingManager);
+                                              ComponentMap.EMPTY,
+                                              availableOutputs,
+                                              availableImplementations,
+                                              defaultConfig,
+                                              EnumSet.noneOf(FunctionService.class),
+                                              EngineTestUtils.createCacheBuilder(),
+                                              new NoOpCacheInvalidator(),
+                                              Optional.<MetricRegistry>absent());
     List<SimpleTrade> trades = ImmutableList.of(EngineTestUtils.createEquityTrade(), EngineTestUtils.createCashFlowTrade());
     View view = viewFactory.createView(viewConfig, EquitySecurity.class, CashFlowSecurity.class);
     CycleArguments cycleArguments = createCycleArguments();
@@ -337,13 +341,15 @@ public class ViewFactoryTest {
     ViewConfig viewConfig = createTrivialEquityTestViewConfig();
     AvailableOutputs availableOutputs = new AvailableOutputsImpl();
     availableOutputs.register(EquityDescriptionFn.class);
-    CachingManager cachingManager = new NoOpCachingManager(ComponentMap.EMPTY);
     ViewFactory viewFactory = new ViewFactory(new DirectExecutorService(),
-        availableOutputs,
-        new AvailableImplementationsImpl(),
-        FunctionModelConfig.EMPTY,
-        EnumSet.of(FunctionService.TRACING),
-        cachingManager);
+                                              ComponentMap.EMPTY,
+                                              availableOutputs,
+                                              new AvailableImplementationsImpl(),
+                                              FunctionModelConfig.EMPTY,
+                                              EnumSet.of(FunctionService.TRACING),
+                                              EngineTestUtils.createCacheBuilder(),
+                                              new NoOpCacheInvalidator(),
+                                              Optional.<MetricRegistry>absent());
     List<SimpleTrade> trades = ImmutableList.of(EngineTestUtils.createEquityTrade());
     View view = viewFactory.createView(viewConfig, EquitySecurity.class);
     @SuppressWarnings("unchecked")
@@ -373,13 +379,15 @@ public class ViewFactoryTest {
     availableOutputs.register(NonPortfolioFunctionWithNoArgs.class);
     AvailableImplementationsImpl availableImplementations = new AvailableImplementationsImpl();
     availableImplementations.register(NonPortfolioFunctionWithNoArgsImpl.class);
-    CachingManager cachingManager = new NoOpCachingManager(ComponentMap.EMPTY);
     ViewFactory viewFactory = new ViewFactory(new DirectExecutorService(),
-        availableOutputs,
-        availableImplementations,
-        FunctionModelConfig.EMPTY,
-        EnumSet.noneOf(FunctionService.class),
-        cachingManager);
+                                              ComponentMap.EMPTY,
+                                              availableOutputs,
+                                              availableImplementations,
+                                              FunctionModelConfig.EMPTY,
+                                              EnumSet.noneOf(FunctionService.class),
+                                              EngineTestUtils.createCacheBuilder(),
+                                              new NoOpCacheInvalidator(),
+                                              Optional.<MetricRegistry>absent());
     View view = viewFactory.createView(viewConfig);
     CycleArguments cycleArguments = createCycleArguments();
     Results results = view.run(cycleArguments);
@@ -410,13 +418,15 @@ public class ViewFactoryTest {
     availableOutputs.register(NonPortfolioFunctionWithArgs.class);
     AvailableImplementationsImpl availableImplementations = new AvailableImplementationsImpl();
     availableImplementations.register(NonPortfolioFunctionWithArgsImpl.class);
-    CachingManager cachingManager = new NoOpCachingManager(ComponentMap.EMPTY);
     ViewFactory viewFactory = new ViewFactory(new DirectExecutorService(),
-        availableOutputs,
-        availableImplementations,
-        FunctionModelConfig.EMPTY,
-        EnumSet.noneOf(FunctionService.class),
-        cachingManager);
+                                              ComponentMap.EMPTY,
+                                              availableOutputs,
+                                              availableImplementations,
+                                              FunctionModelConfig.EMPTY,
+                                              EnumSet.noneOf(FunctionService.class),
+                                              EngineTestUtils.createCacheBuilder(),
+                                              new NoOpCacheInvalidator(),
+                                              Optional.<MetricRegistry>absent());
     View view = viewFactory.createView(viewConfig);
     CycleArguments cycleArguments = createCycleArguments();
     Results results = view.run(cycleArguments);
@@ -438,24 +448,24 @@ public class ViewFactoryTest {
     availableOutputs.register(NonPortfolioFunctionWithNoArgs.class);
     AvailableImplementationsImpl availableImplementations = new AvailableImplementationsImpl();
     availableImplementations.register(NonPortfolioFunctionWithNoArgsImpl.class);
-    CachingManager cachingManager = new NoOpCachingManager(ComponentMap.EMPTY);
     ViewFactory viewFactory = new ViewFactory(new DirectExecutorService(),
-        availableOutputs,
-        availableImplementations,
-        FunctionModelConfig.EMPTY,
-        EnumSet.of(FunctionService.TRACING),
-        cachingManager);
+                                              ComponentMap.EMPTY,
+                                              availableOutputs,
+                                              availableImplementations,
+                                              FunctionModelConfig.EMPTY,
+                                              EnumSet.of(FunctionService.TRACING),
+                                              EngineTestUtils.createCacheBuilder(),
+                                              new NoOpCacheInvalidator(),
+                                              Optional.<MetricRegistry>absent());
     View view = viewFactory.createView(viewConfig);
-
-
     CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(),
-        VersionCorrection.LATEST,
-        mockCycleMarketDataFactory(),
-        EmptyFunctionArguments.INSTANCE,
-        Collections.<Class<?>, Object>emptyMap(),
-        Collections.<Pair<Integer, Integer>>emptySet(),
-        ImmutableSet.of(name),
-        false);
+                                                       VersionCorrection.LATEST,
+                                                       mockCycleMarketDataFactory(),
+                                                       EmptyFunctionArguments.INSTANCE,
+                                                       Collections.<Class<?>, Object>emptyMap(),
+                                                       Collections.<Pair<Integer, Integer>>emptySet(),
+                                                       ImmutableSet.of(name),
+                                                       false);
     Results results = view.run(cycleArguments);
     ResultItem item = results.get(name);
     assertNotNull(item);
@@ -483,13 +493,15 @@ public class ViewFactoryTest {
     availableOutputs.register(NonPortfolioFunctionWithArgs.class);
     AvailableImplementationsImpl availableImplementations = new AvailableImplementationsImpl();
     availableImplementations.register(NonPortfolioFunctionWithArgsImpl.class);
-    CachingManager cachingManager = new NoOpCachingManager(ComponentMap.EMPTY);
     ViewFactory viewFactory = new ViewFactory(new DirectExecutorService(),
-        availableOutputs,
-        availableImplementations,
-        FunctionModelConfig.EMPTY,
-        EnumSet.noneOf(FunctionService.class),
-        cachingManager);
+                                              ComponentMap.EMPTY,
+                                              availableOutputs,
+                                              availableImplementations,
+                                              FunctionModelConfig.EMPTY,
+                                              EnumSet.noneOf(FunctionService.class),
+                                              EngineTestUtils.createCacheBuilder(),
+                                              new NoOpCacheInvalidator(),
+                                              Optional.<MetricRegistry>absent());
     View view = viewFactory.createView(viewConfig);
     CycleArguments cycleArguments = createCycleArguments();
     Results results = view.run(cycleArguments);
@@ -522,13 +534,15 @@ public class ViewFactoryTest {
     availableOutputs.register(NonPortfolioFunctionWithArgs.class);
     AvailableImplementationsImpl availableImplementations = new AvailableImplementationsImpl();
     availableImplementations.register(NonPortfolioFunctionWithArgsImpl.class);
-    CachingManager cachingManager = new NoOpCachingManager(ComponentMap.EMPTY);
     ViewFactory viewFactory = new ViewFactory(new DirectExecutorService(),
-        availableOutputs,
-        availableImplementations,
-        FunctionModelConfig.EMPTY,
-        EnumSet.noneOf(FunctionService.class),
-        cachingManager);
+                                              ComponentMap.EMPTY,
+                                              availableOutputs,
+                                              availableImplementations,
+                                              FunctionModelConfig.EMPTY,
+                                              EnumSet.noneOf(FunctionService.class),
+                                              EngineTestUtils.createCacheBuilder(),
+                                              new NoOpCacheInvalidator(),
+                                              Optional.<MetricRegistry>absent());
     View view = viewFactory.createView(viewConfig);
     CycleArguments cycleArguments = createCycleArguments();
     Results results = view.run(cycleArguments);
@@ -576,13 +590,15 @@ public class ViewFactoryTest {
 
     AvailableOutputs availableOutputs = new AvailableOutputsImpl();
     availableOutputs.register(EquityDescriptionFn.class, CashFlowDescriptionFn.class);
-    CachingManager cachingManager = new NoOpCachingManager(ComponentMap.EMPTY);
     ViewFactory viewFactory = new ViewFactory(new DirectExecutorService(),
-        availableOutputs,
-        new AvailableImplementationsImpl(),
-        FunctionModelConfig.EMPTY,
-        EnumSet.noneOf(FunctionService.class),
-        cachingManager);
+                                              ComponentMap.EMPTY,
+                                              availableOutputs,
+                                              new AvailableImplementationsImpl(),
+                                              FunctionModelConfig.EMPTY,
+                                              EnumSet.noneOf(FunctionService.class),
+                                              EngineTestUtils.createCacheBuilder(),
+                                              new NoOpCacheInvalidator(),
+                                              Optional.<MetricRegistry>absent());
     Trade equityTrade = EngineTestUtils.createEquityTrade();
     Trade cashFlowTrade = EngineTestUtils.createCashFlowTrade();
 
@@ -648,6 +664,153 @@ public class ViewFactoryTest {
     @Override
     public String foo(String notTheTarget1, String notTheTarget2) {
       return "foo" + notTheTarget1 + notTheTarget2;
+    }
+  }
+
+  // TODO should these be on the CachingProxyDecoratorTest? probably not
+
+  /**
+   * tests clearing the cache causes a value to be recalculated in the next cycle in a single view.
+   */
+  @Test
+  public void clearCacheSameView() {
+    ViewConfig viewConfig =
+        configureView(
+            "test view",
+            config(implementations(TestFn.class, Impl.class)),
+            column("Foo"));
+
+    ViewFactory viewFactory = createViewFactory(TestFn.class);
+    View view = viewFactory.createView(viewConfig, EquitySecurity.class);
+    CycleMarketDataFactory cycleMarketDataFactory = mock(CycleMarketDataFactory.class);
+    when(cycleMarketDataFactory.getPrimaryMarketDataSource()).thenReturn(mock(MarketDataSource.class));
+    CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(),
+                                                       VersionCorrection.LATEST,
+                                                       cycleMarketDataFactory);
+    Trade equityTrade = EngineTestUtils.createEquityTrade();
+
+    Results results1 = view.run(cycleArguments, ImmutableList.of(equityTrade));
+    Object value1 = results1.get(0, 0).getResult().getValue();
+
+    Results results2 = view.run(cycleArguments, ImmutableList.of(equityTrade));
+    Object value2 = results2.get(0, 0).getResult().getValue();
+
+    assertEquals(value1, value2);
+
+    viewFactory.clearCache();
+    Results results3 = view.run(cycleArguments, ImmutableList.of(equityTrade));
+    Object value3 = results3.get(0, 0).getResult().getValue();
+    assertFalse(value1.equals(value3));
+  }
+
+  /**
+   * tests clearing the cache causes a value to be recalculated in the next cycle when the value is shared
+   * between two views.
+   */
+  @Test
+  public void clearCacheDifferentView() {
+    ViewConfig viewConfig =
+        configureView(
+            "test view",
+            config(implementations(TestFn.class, Impl.class)),
+            column("Foo"));
+
+    ViewFactory viewFactory = createViewFactory(TestFn.class);
+    View view1 = viewFactory.createView(viewConfig, EquitySecurity.class);
+    View view2 = viewFactory.createView(viewConfig, EquitySecurity.class);
+
+    CycleMarketDataFactory cycleMarketDataFactory = mock(CycleMarketDataFactory.class);
+    when(cycleMarketDataFactory.getPrimaryMarketDataSource()).thenReturn(mock(MarketDataSource.class));
+    CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(),
+                                                       VersionCorrection.LATEST,
+                                                       cycleMarketDataFactory);
+    Trade equityTrade = EngineTestUtils.createEquityTrade();
+
+    Results results1 = view1.run(cycleArguments, ImmutableList.of(equityTrade));
+    Object value1 = results1.get(0, 0).getResult().getValue();
+
+    Results results2 = view2.run(cycleArguments, ImmutableList.of(equityTrade));
+    Object value2 = results2.get(0, 0).getResult().getValue();
+
+    assertEquals(value1, value2);
+
+    viewFactory.clearCache();
+
+    Results results3 = view2.run(cycleArguments, ImmutableList.of(equityTrade));
+    Object value3 = results3.get(0, 0).getResult().getValue();
+    assertFalse(value1.equals(value3));
+  }
+
+  /**
+   * tests that clearing the cache doesn't affect a running calculation cycle
+   */
+  @Test
+  public void clearCacheDuringCycle() {
+    ViewFactory viewFactory = createViewFactory(CacheClearingFn.class);
+    ViewConfig viewConfig =
+        configureView(
+            "test view",
+            config(implementations(TestFn.class, Impl.class),
+                   arguments(function(CacheClearingFn.class, argument("viewFactory", viewFactory)))),
+            column("Bar"));
+    View view = viewFactory.createView(viewConfig, EquitySecurity.class);
+    CycleMarketDataFactory cycleMarketDataFactory = mock(CycleMarketDataFactory.class);
+    when(cycleMarketDataFactory.getPrimaryMarketDataSource()).thenReturn(mock(MarketDataSource.class));
+    CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(),
+                                                       VersionCorrection.LATEST,
+                                                       cycleMarketDataFactory);
+    Trade equityTrade = EngineTestUtils.createEquityTrade();
+
+    // check that the same result is return from 2 calls to TestFn.foo() even if the cache is cleared between
+    Results results1 = view.run(cycleArguments, ImmutableList.of(equityTrade));
+    List<?> values1 = (List<?>) results1.get(0, 0).getResult().getValue();
+    assertEquals(values1.get(0), values1.get(1));
+
+    // check that the result is different on the second run as a result of the cache being cleared on the first
+    Results results2 = view.run(cycleArguments, ImmutableList.of(equityTrade));
+    List<?> values2 = (List<?>) results2.get(0, 0).getResult().getValue();
+    assertFalse(values1.get(0).equals(values2.get(0)));
+  }
+
+  public interface TestFn {
+
+    @Cacheable
+    @Output("Foo")
+    int foo(EquitySecurity arg);
+  }
+
+  public static class Impl implements TestFn {
+
+    private static int i = 0;
+
+    @Override
+    public int foo(EquitySecurity arg) {
+      return i++;
+    }
+  }
+
+  public static class CacheClearingFn {
+
+    private final ViewFactory _viewFactory;
+    private final TestFn _testFn;
+
+    public CacheClearingFn(ViewFactory viewFactory, TestFn testFn) {
+      _viewFactory = viewFactory;
+      _testFn = testFn;
+    }
+
+    /**
+     * Calls {@link TestFn#foo} twice, clearing the cache between the calls, and returns a list of the return values.
+     * {@code foo()} returns a different value on each call, so the values will only be equal if the second one
+     * is retrieved from the cache. This confirms that clearing the cache has no effect on a running cycle.
+     */
+    @Output("Bar")
+    public List<Integer> getValues(EquitySecurity arg) {
+      List<Integer> values = new ArrayList<>();
+      values.add(_testFn.foo(arg));
+      _viewFactory.clearCache();
+      values.add(_testFn.foo(arg));
+      return values;
     }
   }
 }

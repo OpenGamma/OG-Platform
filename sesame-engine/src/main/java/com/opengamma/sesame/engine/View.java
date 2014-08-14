@@ -7,8 +7,10 @@ package com.opengamma.sesame.engine;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -18,6 +20,10 @@ import org.apache.shiro.authz.AuthorizationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.codahale.metrics.MetricRegistry;
+import com.google.common.base.Optional;
+import com.google.common.cache.Cache;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.PositionOrTrade;
@@ -25,6 +31,11 @@ import com.opengamma.core.security.Security;
 import com.opengamma.service.ServiceContext;
 import com.opengamma.service.ThreadLocalServiceContext;
 import com.opengamma.sesame.Environment;
+import com.opengamma.sesame.cache.CacheInvalidator;
+import com.opengamma.sesame.cache.CacheProvider;
+import com.opengamma.sesame.cache.CachingProxyDecorator;
+import com.opengamma.sesame.cache.ExecutingMethodsThreadLocal;
+import com.opengamma.sesame.cache.MethodInvocationKey;
 import com.opengamma.sesame.config.CompositeFunctionArguments;
 import com.opengamma.sesame.config.CompositeFunctionModelConfig;
 import com.opengamma.sesame.config.FunctionArguments;
@@ -32,12 +43,21 @@ import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.config.NonPortfolioOutput;
 import com.opengamma.sesame.config.ViewColumn;
 import com.opengamma.sesame.config.ViewConfig;
+import com.opengamma.sesame.function.AvailableImplementations;
+import com.opengamma.sesame.function.AvailableOutputs;
 import com.opengamma.sesame.function.InvalidInputFunction;
 import com.opengamma.sesame.function.InvokableFunction;
 import com.opengamma.sesame.function.PermissionDeniedFunction;
+import com.opengamma.sesame.graph.CompositeNodeDecorator;
+import com.opengamma.sesame.graph.FunctionBuilder;
 import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.sesame.graph.Graph;
+import com.opengamma.sesame.graph.GraphBuilder;
 import com.opengamma.sesame.graph.GraphModel;
+import com.opengamma.sesame.graph.NodeDecorator;
+import com.opengamma.sesame.proxy.ExceptionWrappingProxy;
+import com.opengamma.sesame.proxy.MetricsProxy;
+import com.opengamma.sesame.proxy.TimingProxy;
 import com.opengamma.sesame.trace.CallGraph;
 import com.opengamma.sesame.trace.Tracer;
 import com.opengamma.sesame.trace.TracingProxy;
@@ -45,7 +65,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
 
 /**
- * <p>View is the main class for running calculations over a portfolio and producing results.</p>
+ * View is the main class for running calculations over a portfolio and producing results.
  *
  * TODO scenarios - at what level should the arguments be supplied? there are several obvious options
  *   1) when the view is created, apply to all calculations
@@ -65,25 +85,116 @@ public class View {
   private final ViewConfig _viewConfig;
   private final ExecutorService _executor;
   private final FunctionModelConfig _systemDefaultConfig;
-  private final CachingManager _cachingManager;
   private final List<String> _columnNames;
   private final GraphModel _graphModel;
 
-  // TODO this has too many parameters. does that matter? it's only called by the view factory
+  /**
+   * Provider that supplies a cache to this view. A new cache is requested at the start of each calculation
+   * cycle and used for the duration of the cycle.
+   */
+  private final CacheProvider _factoryCacheProvider;
+
+  private final Optional<MetricRegistry> _metricRegistry;
+  private final ComponentMap _componentMap;
+  private final CacheInvalidator _cacheInvalidator;
+
+  /**
+   * Cache passed to the cache decorators via a cache provider. The decorators use the provider every time
+   * they need to use the cache. This field is updated with a new cache from {@link #_factoryCacheProvider} at
+   * the start of each calculation cycle.
+   */
+  private Cache<MethodInvocationKey, Object> _cache;
+
   View(ViewConfig viewConfig,
-       Graph graph,
        ExecutorService executor,
        FunctionModelConfig systemDefaultConfig,
-       // TODO - passing in cachingManager is not ideal - should be removed later
-       CachingManager cachingManager,
-       GraphModel graphModel) {
-    _graphModel = ArgumentChecker.notNull(graphModel, "graphModel");
+       FunctionBuilder functionBuilder,
+       EnumSet<FunctionService> services,
+       ComponentMap componentMap,
+       Set<Class<?>> inputTypes,
+       AvailableOutputs availableOutputs,
+       AvailableImplementations availableImplementations,
+       CacheProvider factoryCacheProvider,
+       CacheInvalidator cacheInvalidator,
+       Optional<MetricRegistry> metricRegistry) {
+
+    _cacheInvalidator = ArgumentChecker.notNull(cacheInvalidator, "cacheInvalidator");
+    _componentMap = ArgumentChecker.notNull(componentMap, "componentMap");
     _viewConfig = ArgumentChecker.notNull(viewConfig, "viewConfig");
-    _graph = ArgumentChecker.notNull(graph, "graph");
     _executor = ArgumentChecker.notNull(executor, "executor");
-    _cachingManager = ArgumentChecker.notNull(cachingManager, "cachingManager");
     _systemDefaultConfig = ArgumentChecker.notNull(systemDefaultConfig, "systemDefaultConfig");
+    _factoryCacheProvider = ArgumentChecker.notNull(factoryCacheProvider, "factoryCacheProvider");
+    _metricRegistry = ArgumentChecker.notNull(metricRegistry, "metricRegistry");
     _columnNames = columnNames(_viewConfig);
+
+    ExecutingMethodsThreadLocal executingMethods = new ExecutingMethodsThreadLocal();
+
+    // Provider that supplies the _cache field to the caching decorators
+    // the field is updated with a cache from _factoryCacheProvider at the start of each cycle
+    CacheProvider cacheProvider = new CacheProvider() {
+      @Override
+      public Cache<MethodInvocationKey, Object> get() {
+        return _cache;
+      }
+    };
+    NodeDecorator decorator = createNodeDecorator(services, cacheProvider, executingMethods);
+
+    s_logger.debug("building graph model");
+    GraphBuilder graphBuilder = new GraphBuilder(availableOutputs,
+                                                 availableImplementations,
+                                                 componentMap.getComponentTypes(),
+                                                 systemDefaultConfig,
+                                                 decorator);
+    _graphModel = graphBuilder.build(viewConfig, inputTypes);
+    s_logger.debug("graph model complete, building graph");
+    _graph = _graphModel.build(componentMap, functionBuilder);
+    s_logger.debug("graph complete");
+  }
+
+  private NodeDecorator createNodeDecorator(EnumSet<FunctionService> services,
+                                            CacheProvider cacheProvider,
+                                            ExecutingMethodsThreadLocal executingMethods) {
+    ImmutableList.Builder<NodeDecorator> decorators = new ImmutableList.Builder<>();
+
+    // Build up the proxies to be used from the outermost
+    // to the innermost
+
+    // Timing/tracing sits outside of caching so the actual
+    // time taken for a request is reported. This can also
+    // report on whether came from the cache or were calculated
+    if (services.contains(FunctionService.TIMING)) {
+      decorators.add(TimingProxy.INSTANCE);
+    }
+    if (services.contains(FunctionService.TRACING)) {
+      decorators.add(TracingProxy.INSTANCE);
+    }
+
+    // Caching proxy memoizes requests as required so that
+    // expensive calculations are not performed more
+    // frequently than they need to be
+    if (services.contains(FunctionService.CACHING)) {
+      decorators.add(new CachingProxyDecorator(cacheProvider, executingMethods));
+    }
+
+    // Metrics records time taken to execute each function. This
+    // sits inside the caching layer as we're interested in how
+    // long the actual calculation takes not how long it takes to
+    // get from the cache
+    if (services.contains(FunctionService.METRICS)) {
+      if (_metricRegistry.isPresent()) {
+        decorators.add(new MetricsProxy(_metricRegistry.get()));
+      } else {
+        // This should be prevented by the ViewFactoryComponentFactory but is
+        // here in case of programmatic misconfiguration
+        s_logger.warn("Unable to create metrics proxy as no metrics repository has been configured");
+      }
+    }
+
+    // Ensure we always have the exception wrapping behaviour so
+    // methods returning Result<?> return Failure if an exception
+    // is thrown internally.
+    decorators.add(ExceptionWrappingProxy.INSTANCE);
+    return CompositeNodeDecorator.compose(decorators.build());
   }
 
   /**
@@ -105,17 +216,26 @@ public class View {
    * (and therefore sequential) or can be run in parallel.
    */
   public synchronized Results run(CycleArguments cycleArguments, List<?> inputs) {
+    // get a cache from the factory that will be used for the duration of this calculation cycle.
+    // store it in a field so it's available to the caching decorators via the provider
+    _cache = _factoryCacheProvider.get();
 
     ServiceContext originalContext = ThreadLocalServiceContext.getInstance();
     CycleInitializer cycleInitializer = cycleArguments.isCaptureInputs() ?
-        new CapturingCycleInitializer(originalContext, _cachingManager, cycleArguments,
+        // this uses the shared cache but creates a new graph with a new FunctionBuilder and therefore will never
+        // share any entries with any other views. effectively this fills up the shared cache with rubbish entries
+        // that will never be used after this cycle completes.
+        // if that turns out to be a problem the cache builder could be passed into this class and used to create
+        // an empty cache that's only used for this cycle.
+        // would need to create a new graph builder and model instead of reusing _graphModel
+        new CapturingCycleInitializer(originalContext, _componentMap, cycleArguments,
                                       _graphModel, _viewConfig, inputs) :
         new StandardCycleInitializer(originalContext, cycleArguments.getCycleMarketDataFactory(), _graph);
 
     Environment env = new EngineEnvironment(cycleArguments.getValuationTime(),
                                             cycleInitializer.getCycleMarketDataFactory(),
                                             cycleArguments.getScenarioArguments(),
-                                            _cachingManager.getCacheInvalidator());
+                                            _cacheInvalidator);
 
     List<Task> tasks = new ArrayList<>();
     Graph graph = cycleInitializer.getGraph();

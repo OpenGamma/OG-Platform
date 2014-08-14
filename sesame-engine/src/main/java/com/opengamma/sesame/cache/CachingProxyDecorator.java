@@ -12,12 +12,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.concurrent.FutureTask;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.cache.Cache;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.sesame.Environment;
@@ -40,17 +38,24 @@ public class CachingProxyDecorator extends NodeDecorator {
 
   private static final Logger s_logger = LoggerFactory.getLogger(CachingProxyDecorator.class);
 
-  private final Cache<MethodInvocationKey, FutureTask<Object>> _cache;
   private final ExecutingMethodsThreadLocal _executingMethods;
+  private final CacheProvider _cacheProvider;
 
   /**
-   * @param cache the cache used to store the calculated values
-   * @param executingMethods records the currently executing methods and allows cache entries to be removed when
-   *   the underlying data used to calculate them changes
+   * Constructs an instance for throwaway uses where the cache doesn't need to be invalidated (e.g. tools)
+   *
+   * @param cacheProvider provider of a cache used to store the calculated values
    */
-  public CachingProxyDecorator(Cache<MethodInvocationKey, FutureTask<Object>> cache,
-                               ExecutingMethodsThreadLocal executingMethods) {
-    _cache = ArgumentChecker.notNull(cache, "cache");
+  public CachingProxyDecorator(CacheProvider cacheProvider) {
+    this(cacheProvider, new ExecutingMethodsThreadLocal());
+  }
+
+  /**
+   * @param cacheProvider provider of a cache used to store the calculated values
+   * @param executingMethods records the currently executing methods and allows cache entries to be removed when
+   */
+  public CachingProxyDecorator(CacheProvider cacheProvider, ExecutingMethodsThreadLocal executingMethods) {
+    _cacheProvider = cacheProvider;
     _executingMethods = ArgumentChecker.notNull(executingMethods, "executingMethods");
   }
 
@@ -72,7 +77,7 @@ public class CachingProxyDecorator extends NodeDecorator {
         EngineUtils.hasMethodAnnotation(implementationType, Cacheable.class)) {
       Set<Class<?>> subtreeTypes = subtreeImplementationTypes(node);
       CachingHandlerFactory handlerFactory =
-          new CachingHandlerFactory(implementationType, interfaceType, _cache, _executingMethods, subtreeTypes);
+          new CachingHandlerFactory(implementationType, interfaceType, _cacheProvider, _executingMethods, subtreeTypes);
       return createProxyNode(node, interfaceType, implementationType, handlerFactory);
     }
     return node;
@@ -111,18 +116,18 @@ public class CachingProxyDecorator extends NodeDecorator {
 
     private final Class<?> _interfaceType;
     private final Class<?> _implementationType;
-    private final Cache<MethodInvocationKey, FutureTask<Object>> _cache;
     private final ExecutingMethodsThreadLocal _executingMethods;
     private final Set<Class<?>> _subtreeTypes;
+    private final CacheProvider _cacheProvider;
 
     private CachingHandlerFactory(Class<?> implementationType,
                                   Class<?> interfaceType,
-                                  Cache<MethodInvocationKey, FutureTask<Object>> cache,
+                                  CacheProvider cacheProvider,
                                   ExecutingMethodsThreadLocal executingMethods,
                                   Set<Class<?>> subtreeTypes) {
+      _cacheProvider = ArgumentChecker.notNull(cacheProvider, "cacheProvider");
       _executingMethods = ArgumentChecker.notNull(executingMethods, "executingMethods");
       _subtreeTypes = ArgumentChecker.notNull(subtreeTypes, "subtreeTypes");
-      _cache = ArgumentChecker.notNull(cache, "cache");
       _implementationType = ArgumentChecker.notNull(implementationType, "implementationType");
       _interfaceType = ArgumentChecker.notNull(interfaceType, "interfaceType");
     }
@@ -150,7 +155,7 @@ public class CachingProxyDecorator extends NodeDecorator {
           }
         }
       }
-      return new Handler(delegate, cachedMethods, _cache, _executingMethods, _subtreeTypes);
+      return new Handler(delegate, cachedMethods, _cacheProvider, _executingMethods, _subtreeTypes);
     }
 
     @Override
@@ -188,48 +193,51 @@ public class CachingProxyDecorator extends NodeDecorator {
     private final Object _delegate;
     private final Object _proxiedObject;
     private final Set<Method> _cachedMethods;
-    private final Cache<MethodInvocationKey, FutureTask<Object>> _cache;
+    private final CacheProvider _cacheProvider;
     private final ExecutingMethodsThreadLocal _executingMethods;
     private final Set<Class<?>> _subtreeTypes;
 
     private Handler(Object delegate,
                     Set<Method> cachedMethods,
-                    Cache<MethodInvocationKey, FutureTask<Object>> cache,
+                    CacheProvider cacheProvider,
                     ExecutingMethodsThreadLocal executingMethods,
                     Set<Class<?>> subtreeTypes) {
       super(delegate);
       _subtreeTypes = ArgumentChecker.notNull(subtreeTypes, "subtreeTypes");
-      _cache = ArgumentChecker.notNull(cache, "cache");
+      _cacheProvider = ArgumentChecker.notNull(cacheProvider, "cache");
       _executingMethods = ArgumentChecker.notNull(executingMethods, "executingMethods");
       _delegate = ArgumentChecker.notNull(delegate, "delegate");
       _cachedMethods = ArgumentChecker.notNull(cachedMethods, "cachedMethods");
       _proxiedObject = EngineUtils.getProxiedObject(delegate);
     }
 
-    @SuppressWarnings("unchecked")
+    /**
+     * Handles a method invocation, returning a cached value if available, otherwise calling the underlying
+     * method to produce the value.
+     * <p>
+     * If the proxied method is not annotated with {@link Cacheable} it is always invoked. If the
+     * method is annotated a key is created representing the method, the receiver and all the arguments.
+     * This key is used to query the cache.
+     *
+     * @param proxy  the proxy on which the method was invoked
+     * @param method  the method which was invoked
+     * @param args  the method arguments
+     * @return  the return value of the underlying method or a previously cached value
+     * @throws Throwable  if the underlying method throws an exception
+     */
     @Override
     public Object invoke(Object proxy, final Method method, final Object[] args) throws Throwable {
-      if (_cachedMethods.contains(method)) {
+      // check if the method is annotated with @Cacheable.
+      if (_cachedMethods.contains(method)) { // the method is @Cacheable
         Object[] keyArgs = getArgumentsForCacheKey(args);
+        // create a key representing the method call - the receiver, the method and its arguments
         MethodInvocationKey key = new MethodInvocationKey(_proxiedObject, method, keyArgs);
-        FutureTask<Object> cachedTask = _cache.getIfPresent(key);
-        if (cachedTask != null) {
-          s_logger.debug("Returning cached value for key {}", key);
-          return cachedTask.get();
-        }
-        FutureTask<Object> task = new FutureTask<>(new CallableMethod(key, method, args));
-        FutureTask<Object> previous = _cache.asMap().putIfAbsent(key, task);
-        // our task is the one in the cache, run it
-        if (previous == null) {
-          s_logger.debug("Calculating value for hash {}, key {}", key.hashCode(), key);
-          task.run();
-          return task.get();
-        } else {
-          // someone else's task is there already, block until it completes
-          s_logger.debug("Waiting for cached value to be calculated for key {}", key);
-          return previous.get();
-        }
+        // create a task to calculate the value if it's not in the cache - calls the underlying method
+        CallableMethod calculationTask = new CallableMethod(key, method, args);
+        // get the value from the cache - if it's not already present it's calculated
+        return _cacheProvider.get().get(key, calculationTask);
       } else {
+        // the method isn't annotated with @Cacheable, call it
         try {
           s_logger.debug("Calculating non-cacheable result by invoking method {}", method);
           return method.invoke(_delegate, args);
@@ -261,10 +269,14 @@ public class CachingProxyDecorator extends NodeDecorator {
       if (args == null || args.length == 0 || !(args[0] instanceof Environment)) {
         return args;
       }
+      Environment env = (Environment) args[0];
+
+      if (env.getScenarioArguments().isEmpty()) {
+        return args;
+      }
       Object[] keyArgs;
       keyArgs = new Object[args.length];
       System.arraycopy(args, 0, keyArgs, 0, args.length);
-      Environment env = (Environment) args[0];
       Map<Class<?>, Object> scenarioArgs = Maps.newHashMap(env.getScenarioArguments());
       scenarioArgs.keySet().retainAll(_subtreeTypes);
       Environment newEnv = env.withScenarioArguments(scenarioArgs);
