@@ -30,6 +30,8 @@ import org.threeten.bp.Period;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
+import com.codahale.metrics.MetricRegistry;
+import com.google.common.base.Optional;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.ComponentServer;
 import com.opengamma.component.rest.RemoteComponentServer;
@@ -61,14 +63,13 @@ import com.opengamma.sesame.DirectExecutorService;
 import com.opengamma.sesame.DiscountingMulticurveBundleFn;
 import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.RootFinderConfiguration;
+import com.opengamma.sesame.cache.NoOpCacheInvalidator;
 import com.opengamma.sesame.component.RetrievalPeriod;
 import com.opengamma.sesame.component.StringSet;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.config.ViewConfig;
-import com.opengamma.sesame.engine.CachingManager;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.engine.CycleArguments;
-import com.opengamma.sesame.engine.DefaultCachingManager;
 import com.opengamma.sesame.engine.FixedInstantVersionCorrectionProvider;
 import com.opengamma.sesame.engine.FunctionService;
 import com.opengamma.sesame.engine.ResultItem;
@@ -113,30 +114,39 @@ public class CurveBuildingIntegrationTest {
     FunctionModelConfig defaultConfig =
         config(
             arguments(
-                function(RootFinderConfiguration.class,
-                         argument("rootFinderAbsoluteTolerance", 1e-9),
-                         argument("rootFinderRelativeTolerance", 1e-9),
-                         argument("rootFinderMaxIterations", 1000)),
-                function(DefaultHistoricalTimeSeriesFn.class,
-                         argument("resolutionKey", "DEFAULT_TSS"),
-                         argument("htsRetrievalPeriod", RetrievalPeriod.of(Period.ofYears(1)))),
-                function(DefaultDiscountingMulticurveBundleFn.class,
-                         argument("impliedCurveNames", StringSet.of())),
-                function(DefaultMarketDataFn.class,
-                         argument("currencyMatrix", currencyMatrixLink)),
-                function(DefaultHistoricalMarketDataFn.class,
-                         argument("currencyMatrix", currencyMatrixLink),
-                         argument("dataSource", "BLOOMBERG"))));
+                function(
+                    RootFinderConfiguration.class,
+                    argument("rootFinderAbsoluteTolerance", 1e-9),
+                    argument("rootFinderRelativeTolerance", 1e-9),
+                    argument("rootFinderMaxIterations", 1000)),
+                function(
+                    DefaultHistoricalTimeSeriesFn.class,
+                    argument("resolutionKey", "DEFAULT_TSS"),
+                    argument("htsRetrievalPeriod", RetrievalPeriod.of(Period.ofYears(1)))),
+                function(
+                    DefaultDiscountingMulticurveBundleFn.class,
+                    argument("impliedCurveNames", StringSet.of())),
+                function(
+                    DefaultMarketDataFn.class,
+                    argument("currencyMatrix", currencyMatrixLink)),
+                function(
+                    DefaultHistoricalMarketDataFn.class,
+                    argument("currencyMatrix", currencyMatrixLink),
+                    argument("dataSource", "BLOOMBERG"))));
 
     ViewConfig viewConfig =
-        configureView("Curve Bundle only",
-                      nonPortfolioOutput("Curve Bundle",
-                               output(OutputNames.DISCOUNTING_MULTICURVE_BUNDLE,
-                                      config(
-                                          arguments(
-                                              function(DefaultDiscountingMulticurveBundleFn.class,
-                                                       argument("curveConfig", ConfigLink.resolved(
-                                                           CurveConstructionConfiguration.class))))))));
+        configureView(
+            "Curve Bundle only",
+            nonPortfolioOutput(
+                "Curve Bundle",
+                output(
+                    OutputNames.DISCOUNTING_MULTICURVE_BUNDLE,
+                    config(
+                        arguments(
+                            function(
+                                DefaultDiscountingMulticurveBundleFn.class,
+                                argument(
+                                    "curveConfig", ConfigLink.resolved(CurveConstructionConfiguration.class))))))));
 
     AvailableOutputs availableOutputs = new AvailableOutputsImpl();
     availableOutputs.register(DiscountingMulticurveBundleFn.class);
@@ -161,13 +171,15 @@ public class CurveBuildingIntegrationTest {
         ServiceContext.of(componentMap.getComponents()).with(VersionCorrectionProvider.class, vcProvider);
     ThreadLocalServiceContext.init(serviceContext);
 
-    CachingManager cachingManager = new DefaultCachingManager(componentMap, FunctionTestUtils.createCache());
     ViewFactory viewFactory = new ViewFactory(new DirectExecutorService(),
+                                              componentMap,
                                               availableOutputs,
                                               availableImplementations,
                                               defaultConfig,
                                               EnumSet.noneOf(FunctionService.class),
-                                              cachingManager);
+                                              FunctionTestUtils.createCacheBuilder(),
+                                              new NoOpCacheInvalidator(),
+                                              Optional.<MetricRegistry>absent());
     View view = viewFactory.createView(viewConfig);
 
     LiveDataManager liveDataManager = new DefaultLiveDataManager(buildLiveDataClient());

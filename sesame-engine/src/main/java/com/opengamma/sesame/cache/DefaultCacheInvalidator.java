@@ -8,7 +8,6 @@ package com.opengamma.sesame.cache;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.FutureTask;
 
 import javax.inject.Provider;
 
@@ -37,7 +36,7 @@ public class DefaultCacheInvalidator implements CacheInvalidator {
   private final SetMultimap<ObjectId, MethodInvocationKey> _objectIdsToKeys = HashMultimap.create();
   private final SetMultimap<ExternalId, MethodInvocationKey> _externalIdsToKeys = HashMultimap.create();
   private final List<Pair<MethodInvocationKey, ValuationTimeCacheEntry>> _valuationTimeEntries = Lists.newArrayList();
-  private final Cache<MethodInvocationKey, FutureTask<Object>> _cache;
+  private final Cache<MethodInvocationKey, Object> _cache;
 
   private MarketDataSource _marketDataSource;
   private VersionCorrection _configVersionCorrection;
@@ -47,7 +46,7 @@ public class DefaultCacheInvalidator implements CacheInvalidator {
    * @param cache the cache whose entries should be invalidated when data changes
    */
   public DefaultCacheInvalidator(Provider<Collection<MethodInvocationKey>> executingMethods,
-                                 Cache<MethodInvocationKey, FutureTask<Object>> cache) {
+                                 Cache<MethodInvocationKey, Object> cache) {
     _cache = ArgumentChecker.notNull(cache, "cache");
     _executingMethods = ArgumentChecker.notNull(executingMethods, "executingMethods");
   }

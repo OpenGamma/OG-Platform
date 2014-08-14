@@ -45,6 +45,8 @@ import org.threeten.bp.Period;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
+import com.codahale.metrics.MetricRegistry;
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
@@ -112,16 +114,14 @@ import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.RootFinderConfiguration;
 import com.opengamma.sesame.SimpleEnvironment;
 import com.opengamma.sesame.cache.CachingProxyDecorator;
-import com.opengamma.sesame.cache.ExecutingMethodsThreadLocal;
+import com.opengamma.sesame.cache.NoOpCacheInvalidator;
 import com.opengamma.sesame.component.RetrievalPeriod;
 import com.opengamma.sesame.component.StringSet;
 import com.opengamma.sesame.config.EngineUtils;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.config.ViewConfig;
-import com.opengamma.sesame.engine.CachingManager;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.engine.CycleArguments;
-import com.opengamma.sesame.engine.DefaultCachingManager;
 import com.opengamma.sesame.engine.FixedInstantVersionCorrectionProvider;
 import com.opengamma.sesame.engine.FunctionService;
 import com.opengamma.sesame.engine.ResultItem;
@@ -201,8 +201,7 @@ public class FXForwardPVFnTest {
     HistoricalTimeSeriesResolver htsResolver = new RemoteHistoricalTimeSeriesResolver(htsResolverUri);
     Map<Class<?>, Object> comps = ImmutableMap.<Class<?>, Object>of(HistoricalTimeSeriesResolver.class, htsResolver);
     ComponentMap componentMap = ComponentMap.loadComponents(serverUrl).with(comps);
-    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(FunctionTestUtils.createCache(),
-                                                                       new ExecutingMethodsThreadLocal());
+    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(FunctionTestUtils.createCacheProvider());
     FXForwardPVFn pvFunction = FunctionModel.build(FXForwardPVFn.class,
                                                    createFunctionConfig(),
                                                    componentMap,
@@ -325,13 +324,15 @@ public class FXForwardPVFnTest {
         ServiceContext.of(componentMap.getComponents()).with(VersionCorrectionProvider.class, vcProvider);
     ThreadLocalServiceContext.init(serviceContext);
 
-    CachingManager cachingManager = new DefaultCachingManager(componentMap, FunctionTestUtils.createCache());
     ViewFactory viewFactory = new ViewFactory(new DirectExecutorService(),
+                                              componentMap,
                                               availableOutputs,
                                               availableImplementations,
                                               FunctionModelConfig.EMPTY,
                                               EnumSet.noneOf(FunctionService.class),
-                                              cachingManager);
+                                              FunctionTestUtils.createCacheBuilder(),
+                                              new NoOpCacheInvalidator(),
+                                              Optional.<MetricRegistry>absent());
     View view = viewFactory.createView(viewConfig);
     Map<ExternalIdBundle, Double> marketData = MarketDataResourcesLoader.getData("/marketdata.properties",
                                                                                  ExternalSchemes.BLOOMBERG_TICKER);
@@ -365,28 +366,35 @@ public class FXForwardPVFnTest {
     ConfigLink<ExposureFunctions> exposureConfig = ConfigLink.resolvable("Exposure Config", ExposureFunctions.class);
 
     ViewConfig viewConfig =
-        configureView("FX forward PV view",
-                      column("Present Value",
-                             output(OutputNames.FX_PRESENT_VALUE, FXForwardSecurity.class,
-                                    config(
-                                        arguments(
-                                            function(ConfigDbMarketExposureSelectorFn.class,
-                                                     argument("exposureConfig", exposureConfig)),
-                                            function(RootFinderConfiguration.class,
-                                                     argument("rootFinderAbsoluteTolerance", 1e-9),
-                                                     argument("rootFinderRelativeTolerance", 1e-9),
-                                                     argument("rootFinderMaxIterations", 1000)),
-                                            function(DefaultCurrencyPairsFn.class,
-                                                     argument("currencyPairs",
-                                                              ImmutableSet.of(CurrencyPair.of(USD, JPY),
-                                                                              CurrencyPair.of(EUR, USD),
-                                                                              CurrencyPair.of(GBP, USD)))),
-                                            function(DefaultHistoricalTimeSeriesFn.class,
-                                                     argument("resolutionKey", "DEFAULT_TSS"),
-                                                     argument("htsRetrievalPeriod", RetrievalPeriod.of(Period.ofYears(1)))),
-                                            function(DefaultDiscountingMulticurveBundleFn.class,
-                                                     argument("impliedCurveNames",
-                                                              StringSet.of())))))));
+        configureView(
+            "FX forward PV view",
+            column(
+                "Present Value",
+                output(
+                    OutputNames.FX_PRESENT_VALUE, FXForwardSecurity.class,
+                    config(
+                        arguments(
+                            function(
+                                ConfigDbMarketExposureSelectorFn.class,
+                                argument("exposureConfig", exposureConfig)),
+                            function(
+                                RootFinderConfiguration.class,
+                                argument("rootFinderAbsoluteTolerance", 1e-9),
+                                argument("rootFinderRelativeTolerance", 1e-9),
+                                argument("rootFinderMaxIterations", 1000)),
+                            function(
+                                DefaultCurrencyPairsFn.class,
+                                argument(
+                                    "currencyPairs", ImmutableSet.of(CurrencyPair.of(USD, JPY),
+                                                                     CurrencyPair.of(EUR, USD),
+                                                                     CurrencyPair.of(GBP, USD)))),
+                            function(
+                                DefaultHistoricalTimeSeriesFn.class,
+                                argument("resolutionKey", "DEFAULT_TSS"),
+                                argument("htsRetrievalPeriod", RetrievalPeriod.of(Period.ofYears(1)))),
+                            function(
+                                DefaultDiscountingMulticurveBundleFn.class,
+                                argument("impliedCurveNames", StringSet.of())))))));
 
     ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 2);
     String serverUrl = "http://devsvr-lx-2:8080";
@@ -419,13 +427,15 @@ public class FXForwardPVFnTest {
         ServiceContext.of(componentMap.getComponents()).with(VersionCorrectionProvider.class, vcProvider);
     ThreadLocalServiceContext.init(serviceContext);
 
-    CachingManager cachingManager = new DefaultCachingManager(componentMap, FunctionTestUtils.createCache());
     ViewFactory viewFactory = new ViewFactory(executor,
+                                              componentMap,
                                               availableOutputs,
                                               availableImplementations,
                                               FunctionModelConfig.EMPTY,
                                               EnumSet.of(FunctionService.CACHING, FunctionService.TRACING),
-                                              cachingManager);
+                                              FunctionTestUtils.createCacheBuilder(),
+                                              new NoOpCacheInvalidator(),
+                                              Optional.<MetricRegistry>absent());
     s_logger.info("created engine in {}ms", System.currentTimeMillis() - startEngine);
     long graphStart = System.currentTimeMillis();
     View view = viewFactory.createView(viewConfig, FXForwardSecurity.class);

@@ -98,10 +98,10 @@ public final class GraphBuilder {
                          column.getName(), inputType.getSimpleName(), functionModel.prettyPrint());
         } else {
           if (outputName != null) {
-            s_logger.warn("No function registered as an available output for input type {}, output name '{}', column '{}'",
-                          inputType.getSimpleName(), outputName.getName(), column.getName());
+            s_logger.warn("No function registered that can produce output '{}' for input type {}, column '{}'",
+                          outputName.getName(), inputType.getSimpleName(), column.getName());
           } else {
-            s_logger.warn("No function registered as an available output for input type {}, column '{}'",
+            s_logger.warn("No function registered that can produce output for input type {}, column '{}'",
                           inputType.getSimpleName(), column.getName());
           }
           functions.put(inputType, FunctionModel.forFunction(NoOutputFunction.METADATA));

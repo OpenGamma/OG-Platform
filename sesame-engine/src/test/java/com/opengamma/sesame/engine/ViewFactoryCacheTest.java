@@ -18,6 +18,8 @@ import java.util.EnumSet;
 import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
 
+import com.codahale.metrics.MetricRegistry;
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
@@ -27,6 +29,7 @@ import com.opengamma.service.ThreadLocalServiceContext;
 import com.opengamma.sesame.DirectExecutorService;
 import com.opengamma.sesame.EngineTestUtils;
 import com.opengamma.sesame.cache.Cacheable;
+import com.opengamma.sesame.cache.NoOpCacheInvalidator;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.config.ViewConfig;
 import com.opengamma.sesame.function.AvailableImplementations;
@@ -43,10 +46,9 @@ import com.opengamma.util.test.TestGroup;
 /**
  * Tests the behaviour of {@link ViewFactory} WRT cache behaviour.
  */
-@Test(groups= TestGroup.UNIT)
+@Test(groups = TestGroup.UNIT)
 public class ViewFactoryCacheTest {
 
-  /**
   /**
    * checks that cached values created by a view are available next time it's run.
    */
@@ -124,13 +126,15 @@ public class ViewFactoryCacheTest {
     AvailableImplementations availableImplementations = new AvailableImplementationsImpl();
     availableOutputs.register(TestFn.class);
     availableImplementations.register(Impl.class);
-    CachingManager cachingManager = new DefaultCachingManager(ComponentMap.EMPTY, EngineTestUtils.createCache());
     return new ViewFactory(new DirectExecutorService(),
+                           ComponentMap.EMPTY,
                            availableOutputs,
                            availableImplementations,
                            FunctionModelConfig.EMPTY,
                            EnumSet.of(FunctionService.CACHING),
-                           cachingManager);
+                           EngineTestUtils.createCacheBuilder(),
+                           new NoOpCacheInvalidator(),
+                           Optional.<MetricRegistry>absent());
   }
 
   public interface TestFn {

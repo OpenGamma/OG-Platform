@@ -16,7 +16,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedSet;
-import java.util.concurrent.FutureTask;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
@@ -57,7 +56,6 @@ import com.opengamma.service.VersionCorrectionProvider;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.SimpleEnvironment;
 import com.opengamma.sesame.cache.CachingProxyDecorator;
-import com.opengamma.sesame.cache.ExecutingMethodsThreadLocal;
 import com.opengamma.sesame.cache.MethodInvocationKey;
 import com.opengamma.sesame.config.CompositeFunctionModelConfig;
 import com.opengamma.sesame.config.FunctionModelConfig;
@@ -70,6 +68,7 @@ import com.opengamma.sesame.credit.StandardIsdaCompliantCreditCurveFn;
 import com.opengamma.sesame.credit.snapshot.SnapshotCreditCurveDataProviderFn;
 import com.opengamma.sesame.credit.snapshot.SnapshotYieldCurveDataProviderFn;
 import com.opengamma.sesame.engine.ComponentMap;
+import com.opengamma.sesame.engine.DefaultCacheProvider;
 import com.opengamma.sesame.engine.FixedInstantVersionCorrectionProvider;
 import com.opengamma.sesame.function.AvailableImplementations;
 import com.opengamma.sesame.function.AvailableImplementationsImpl;
@@ -129,9 +128,8 @@ public class IsdaCurveSnapshotCalibrationTool extends AbstractTool<ToolContext> 
     ComponentMap componentMap = getComponentMap();
     
     FunctionModelConfig functionModelConfig = initGraph(ccSnapshot, ycSnapshot, componentMap);
-    Cache<MethodInvocationKey, FutureTask<Object>> cache = buildCache();
-    CachingProxyDecorator cachingDecorator =
-            new CachingProxyDecorator(cache, new ExecutingMethodsThreadLocal());
+    Cache<MethodInvocationKey, Object> cache = buildCache();
+    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(new DefaultCacheProvider(cache));
     
     IsdaCompliantYieldCurveFn ycFn = FunctionModel.build(DefaultIsdaCompliantYieldCurveFn.class, 
                                                          functionModelConfig, 
@@ -212,14 +210,13 @@ public class IsdaCurveSnapshotCalibrationTool extends AbstractTool<ToolContext> 
   /**
    * Builds a basic cache.
    */
-  private Cache<MethodInvocationKey, FutureTask<Object>> buildCache() {
+  private Cache<MethodInvocationKey, Object> buildCache() {
     int concurrencyLevel = Runtime.getRuntime().availableProcessors() + 2;
-    Cache<MethodInvocationKey, FutureTask<Object>> cache = CacheBuilder.newBuilder()
+    return CacheBuilder.newBuilder()
         .maximumSize(50000)
         .softValues()
         .concurrencyLevel(concurrencyLevel)
         .build();
-    return cache;
   }
 
 
@@ -382,7 +379,7 @@ public class IsdaCurveSnapshotCalibrationTool extends AbstractTool<ToolContext> 
   }
 
   /**
-   * Inits a {@link FunctionModelConfig} instance using the passed snapshot names and component map.
+   * Initializes a {@link FunctionModelConfig} instance using the passed snapshot names and component map.
    */
   private FunctionModelConfig initGraph(CreditCurveDataSnapshot ccSnapshot, 
                                         YieldCurveDataSnapshot ycSnapshot, 
@@ -402,17 +399,18 @@ public class IsdaCurveSnapshotCalibrationTool extends AbstractTool<ToolContext> 
                                       StandardIsdaCompliantCreditCurveFn.class);
     
     FunctionModelConfig provider = new DefaultImplementationProvider(availableImplementations);
-    
-    FunctionModelConfig config = config(
-        arguments(
-            function(SnapshotYieldCurveDataProviderFn.class,
-                     argument("snapshotLink", SnapshotLink.resolved(ycSnapshot))),
-             function(SnapshotCreditCurveDataProviderFn.class,
-                      argument("snapshotLink", 
-                              SnapshotLink.resolved(ccSnapshot)))));
 
-    FunctionModelConfig functionModelConfig = CompositeFunctionModelConfig.compose(config, provider);
-    return functionModelConfig;
+    FunctionModelConfig config =
+        config(
+            arguments(
+                function(
+                    SnapshotYieldCurveDataProviderFn.class,
+                    argument("snapshotLink", SnapshotLink.resolved(ycSnapshot))),
+                function(
+                    SnapshotCreditCurveDataProviderFn.class,
+                    argument("snapshotLink", SnapshotLink.resolved(ccSnapshot)))));
+
+    return CompositeFunctionModelConfig.compose(config, provider);
   }
   
   @Override
