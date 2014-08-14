@@ -105,7 +105,7 @@ public class BillTotalReturnSwapFundingLegDetailsFunction extends BillTotalRetur
         final CurrencyAmount[] projectedAmounts = derivative.accept(AnnuityProjectedPaymentsVisitor.getInstance(), issuerCurves.getMulticurveProvider());
         final double[] spreads = definition.accept(AnnuitySpreadsVisitor.getInstance(), now);
         final double[] gearings = definition.accept(AnnuityGearingsVisitor.getInstance(), now);
-        final Tenor[] indexTenors = definition.accept(AnnuityIndexTenorsVisitor.getInstance(), now);
+        final Set<Tenor>[] indexTenors = definition.accept(AnnuityIndexTenorsVisitor.getInstance(), now);
         final FloatingSwapLegDetails details = new FloatingSwapLegDetails(accrualDates.getFirst(), accrualDates.getSecond(), paymentFractions, fixingDates.getFirst(), fixingDates.getSecond(),
             fixingYearFractions, forwardRates, fixedRates, paymentDates, paymentTimes, discountFactors, paymentAmounts, projectedAmounts, notionals, spreads, gearings, indexTenors);
         return Collections.singleton(new ComputedValue(spec, details));
