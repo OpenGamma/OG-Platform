@@ -120,7 +120,7 @@ import com.opengamma.util.time.Tenor;
       values[i][13] = _caFormatter.formatCell(value.getNotionals()[i], valueSpec, null);
       values[i][14] = _basisPointFormatter.formatCell(value.getSpreads()[i], valueSpec, null);
       values[i][15] = value.getGearings()[i];
-      values[i][16] = expandTenors(value.getIndexTenors()[i]);
+      values[i][16] = formatIndexTenors(value.getIndexTenors()[i]);
       values[i][17] = value.getDiscountedPaymentAmounts()[i] == null ? "-" : _caFormatter.formatCell(value.getDiscountedPaymentAmounts()[i], valueSpec, null);
       values[i][18] = value.getDiscountedProjectedAmounts()[i] == null ? "-" : _caFormatter.formatCell(value.getDiscountedProjectedAmounts()[i], valueSpec, null);
     }
@@ -136,7 +136,7 @@ import com.opengamma.util.time.Tenor;
    * @param indexTenors the index tenors to format.
    * @return the formatted index tenors.
    */
-  private String expandTenors(Set<Tenor> indexTenors) {
+  private String formatIndexTenors(Set<Tenor> indexTenors) {
     if (indexTenors == null || indexTenors.isEmpty()) {
       return "-";
     } else {
