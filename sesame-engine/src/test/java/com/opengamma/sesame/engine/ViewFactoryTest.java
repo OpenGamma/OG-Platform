@@ -346,7 +346,7 @@ public class ViewFactoryTest {
                                               availableOutputs,
                                               new AvailableImplementationsImpl(),
                                               FunctionModelConfig.EMPTY,
-                                              EnumSet.of(FunctionService.TRACING),
+                                              EnumSet.of(FunctionService.TRACING_LOCAL),
                                               EngineTestUtils.createCacheBuilder(),
                                               new NoOpCacheInvalidator(),
                                               Optional.<MetricRegistry>absent());
@@ -453,7 +453,7 @@ public class ViewFactoryTest {
                                               availableOutputs,
                                               availableImplementations,
                                               FunctionModelConfig.EMPTY,
-                                              EnumSet.of(FunctionService.TRACING),
+                                              EnumSet.of(FunctionService.TRACING_LOCAL),
                                               EngineTestUtils.createCacheBuilder(),
                                               new NoOpCacheInvalidator(),
                                               Optional.<MetricRegistry>absent());
