@@ -568,8 +568,7 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
   protected void toString(StringBuilder buf) {
     super.toString(buf);
     buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
-    buf.append("liveMarketDataProviderFactory").append('=').append(JodaBeanUtils.toString(getLiveMarketDataProviderFactory())).append(',').append(
-        ' ');
+    buf.append("liveMarketDataProviderFactory").append('=').append(JodaBeanUtils.toString(getLiveMarketDataProviderFactory())).append(',').append(' ');
     buf.append("maxCacheEntries").append('=').append(JodaBeanUtils.toString(getMaxCacheEntries())).append(',').append(' ');
     buf.append("defaultFunctionServices").append('=').append(JodaBeanUtils.toString(getDefaultFunctionServices())).append(',').append(' ');
     buf.append("metricRegistry").append('=').append(JodaBeanUtils.toString(getMetricRegistry())).append(',').append(' ');
