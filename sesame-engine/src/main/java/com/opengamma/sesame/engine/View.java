@@ -57,7 +57,6 @@ import com.opengamma.sesame.graph.GraphModel;
 import com.opengamma.sesame.graph.NodeDecorator;
 import com.opengamma.sesame.proxy.ExceptionWrappingProxy;
 import com.opengamma.sesame.proxy.MetricsProxy;
-import com.opengamma.sesame.proxy.TimingProxy;
 import com.opengamma.sesame.trace.CallGraph;
 import com.opengamma.sesame.trace.Tracer;
 import com.opengamma.sesame.trace.TracingProxy;
@@ -154,6 +153,8 @@ public class View {
   private NodeDecorator createNodeDecorator(EnumSet<FunctionService> services,
                                             CacheProvider cacheProvider,
                                             ExecutingMethodsThreadLocal executingMethods) {
+
+
     ImmutableList.Builder<NodeDecorator> decorators = new ImmutableList.Builder<>();
 
     // Build up the proxies to be used from the outermost
@@ -162,9 +163,6 @@ public class View {
     // Timing/tracing sits outside of caching so the actual
     // time taken for a request is reported. This can also
     // report on whether came from the cache or were calculated
-    if (services.contains(FunctionService.TIMING)) {
-      decorators.add(TimingProxy.INSTANCE);
-    }
     if (services.contains(FunctionService.TRACING)) {
       decorators.add(TracingProxy.INSTANCE);
     }
