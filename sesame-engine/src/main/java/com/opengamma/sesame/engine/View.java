@@ -15,7 +15,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
 
 import org.apache.shiro.authz.AuthorizationException;
 import org.slf4j.Logger;
@@ -104,7 +103,7 @@ public class View {
    * they need to use the cache. This field is updated with a new cache from {@link #_factoryCacheProvider} at
    * the start of each calculation cycle.
    */
-  private Cache<MethodInvocationKey, FutureTask<Object>> _cache;
+  private Cache<MethodInvocationKey, Object> _cache;
 
   View(ViewConfig viewConfig,
        ExecutorService executor,
@@ -134,7 +133,7 @@ public class View {
     // the field is updated with a cache from _factoryCacheProvider at the start of each cycle
     CacheProvider cacheProvider = new CacheProvider() {
       @Override
-      public Cache<MethodInvocationKey, FutureTask<Object>> get() {
+      public Cache<MethodInvocationKey, Object> get() {
         return _cache;
       }
     };

@@ -21,7 +21,6 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.FutureTask;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
@@ -67,9 +66,9 @@ public class CachingProxyDecoratorTest {
     MethodInvocationKey key = new MethodInvocationKey(delegate, foo, new Object[]{"bar"});
 
     Object results = fn.foo("bar");
-    FutureTask<Object> task = _cacheProvider.get().getIfPresent(key);
+    Object task = _cacheProvider.get().getIfPresent(key);
     assertNotNull(task);
-    assertSame(task.get(), results);
+    assertSame(task, results);
   }
 
   /** check that multiple instances of the same function return the cached value when invoked with the same args */
@@ -266,9 +265,9 @@ public class CachingProxyDecoratorTest {
     MethodInvocationKey key = new MethodInvocationKey(delegate, foo, new Object[]{"bar"});
 
     Object results = fn.foo("bar");
-    FutureTask<Object> task = _cacheProvider.get().getIfPresent(key);
+    Object task = _cacheProvider.get().getIfPresent(key);
     assertNotNull(task);
-    assertSame(task.get(), results);
+    assertSame(task, results);
   }
 
   interface TestFn2 {
@@ -359,7 +358,7 @@ public class CachingProxyDecoratorTest {
       expected.add(key2);
       expected.add(key1);
       assertEquals(expected, _executingMethods.get());
-      return null;
+      return "not used";
     }
   }
 
@@ -406,9 +405,9 @@ public class CachingProxyDecoratorTest {
                           Method method,
                           String expectedValue) throws InterruptedException, ExecutionException {
     MethodInvocationKey key = new MethodInvocationKey(receiver, method, new Object[]{env, stringArg, intArg});
-    FutureTask<Object> value = _cacheProvider.get().getIfPresent(key);
+    Object value = _cacheProvider.get().getIfPresent(key);
     assertNotNull(value);
-    assertEquals(expectedValue, value.get());
+    assertEquals(expectedValue, value);
   }
 
   interface ScenarioArgumentsI1 {

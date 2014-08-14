@@ -5,8 +5,6 @@
  */
 package com.opengamma.sesame.function.scenarios.curvedata;
 
-import java.util.concurrent.FutureTask;
-
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.opengamma.sesame.cache.CacheProvider;
@@ -28,7 +26,7 @@ public class FunctionTestUtils {
    */
   public static CacheProvider createCacheProvider() {
     int concurrencyLevel = Runtime.getRuntime().availableProcessors() + 2;
-    Cache<MethodInvocationKey, FutureTask<Object>> cache =
+    Cache<MethodInvocationKey, Object> cache =
         CacheBuilder.newBuilder()
                     .maximumSize(MAX_CACHE_ENTRIES)
                     .concurrencyLevel(concurrencyLevel)

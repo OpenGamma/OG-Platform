@@ -290,11 +290,11 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
    * @return the cache builder, not null
    */
   protected CacheBuilder<Object, Object> createCacheBuilder(ComponentRepository repo) {
-    int concurrencyLevel = Runtime.getRuntime().availableProcessors() + 2;
+    int nProcessors = Runtime.getRuntime().availableProcessors();
     return CacheBuilder.newBuilder()
         .maximumSize(getMaxCacheEntries())
         .softValues()
-        .concurrencyLevel(concurrencyLevel);
+        .concurrencyLevel(nProcessors * 8);
   }
 
   /**

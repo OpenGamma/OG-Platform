@@ -16,7 +16,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedSet;
-import java.util.concurrent.FutureTask;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
@@ -129,7 +128,7 @@ public class IsdaCurveSnapshotCalibrationTool extends AbstractTool<ToolContext> 
     ComponentMap componentMap = getComponentMap();
     
     FunctionModelConfig functionModelConfig = initGraph(ccSnapshot, ycSnapshot, componentMap);
-    Cache<MethodInvocationKey, FutureTask<Object>> cache = buildCache();
+    Cache<MethodInvocationKey, Object> cache = buildCache();
     CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(new MutableCacheProvider(cache));
     
     IsdaCompliantYieldCurveFn ycFn = FunctionModel.build(DefaultIsdaCompliantYieldCurveFn.class, 
@@ -211,7 +210,7 @@ public class IsdaCurveSnapshotCalibrationTool extends AbstractTool<ToolContext> 
   /**
    * Builds a basic cache.
    */
-  private Cache<MethodInvocationKey, FutureTask<Object>> buildCache() {
+  private Cache<MethodInvocationKey, Object> buildCache() {
     int concurrencyLevel = Runtime.getRuntime().availableProcessors() + 2;
     return CacheBuilder.newBuilder()
         .maximumSize(50000)

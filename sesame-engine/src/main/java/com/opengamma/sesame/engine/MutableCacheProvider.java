@@ -5,8 +5,6 @@
  */
 package com.opengamma.sesame.engine;
 
-import java.util.concurrent.FutureTask;
-
 import com.google.common.cache.Cache;
 import com.opengamma.sesame.cache.CacheProvider;
 import com.opengamma.sesame.cache.MethodInvocationKey;
@@ -21,20 +19,14 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class MutableCacheProvider implements CacheProvider {
 
-  private Cache<MethodInvocationKey, FutureTask<Object>> _cache;
-
-  /**
-   * Creates an empty instance. {@link #set(Cache)} must be called before {@link #get()} is used.
-   */
-  public MutableCacheProvider() {
-  }
+  private Cache<MethodInvocationKey, Object> _cache;
 
   /**
    * Creates a new instance which provides the supplied cache.
    *
    * @param cache the cache, not null
    */
-  public MutableCacheProvider(Cache<MethodInvocationKey, FutureTask<Object>> cache) {
+  public MutableCacheProvider(Cache<MethodInvocationKey, Object> cache) {
     _cache = ArgumentChecker.notNull(cache, "cache");
   }
 
@@ -43,7 +35,7 @@ public class MutableCacheProvider implements CacheProvider {
    *
    * @param cache the cache, not null
    */
-  void set(Cache<MethodInvocationKey, FutureTask<Object>> cache) {
+  void set(Cache<MethodInvocationKey, Object> cache) {
     _cache = ArgumentChecker.notNull(cache, "cache");
   }
 
@@ -51,7 +43,7 @@ public class MutableCacheProvider implements CacheProvider {
    * @return the cache, not null
    */
   @Override
-  public Cache<MethodInvocationKey, FutureTask<Object>> get() {
+  public Cache<MethodInvocationKey, Object> get() {
     if (_cache == null) {
       throw new IllegalStateException("No cache has been set");
     }

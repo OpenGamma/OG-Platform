@@ -19,7 +19,6 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.FutureTask;
 
 import javax.annotation.Nullable;
 
@@ -131,7 +130,7 @@ public class EngineTestUtils {
    * @return a cache provider configured for use with the engine
    */
   public static CacheProvider createCacheProvider() {
-    Cache<MethodInvocationKey, FutureTask<Object>> cache = createCacheBuilder().build();
+    Cache<MethodInvocationKey, Object> cache = createCacheBuilder().build();
     return new MutableCacheProvider(cache);
   }
 

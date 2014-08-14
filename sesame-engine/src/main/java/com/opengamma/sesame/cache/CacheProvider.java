@@ -5,8 +5,6 @@
  */
 package com.opengamma.sesame.cache;
 
-import java.util.concurrent.FutureTask;
-
 import com.google.common.cache.Cache;
 
 /**
@@ -14,5 +12,5 @@ import com.google.common.cache.Cache;
  */
 public interface CacheProvider {
 
-  Cache<MethodInvocationKey, FutureTask<Object>> get();
+  Cache<MethodInvocationKey, Object> get();
 }
