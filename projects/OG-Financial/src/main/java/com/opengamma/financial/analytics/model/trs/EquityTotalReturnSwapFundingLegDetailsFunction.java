@@ -21,20 +21,20 @@ import com.opengamma.analytics.financial.equity.trs.definition.EquityTotalReturn
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
-import com.opengamma.analytics.financial.interestrate.AnnuityFixedRatesVisitor;
-import com.opengamma.analytics.financial.interestrate.AnnuityPaymentAmountsVisitor;
-import com.opengamma.analytics.financial.interestrate.AnnuityPaymentFractionsVisitor;
-import com.opengamma.analytics.financial.interestrate.AnnuityPaymentTimesVisitor;
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.AnnuityAccrualDatesVisitor;
+import com.opengamma.analytics.financial.interestrate.AnnuityFixedRatesVisitor;
 import com.opengamma.analytics.financial.interestrate.AnnuityFixingDatesVisitor;
 import com.opengamma.analytics.financial.interestrate.AnnuityFixingYearFractionsVisitor;
 import com.opengamma.analytics.financial.interestrate.AnnuityGearingsVisitor;
 import com.opengamma.analytics.financial.interestrate.AnnuityIndexTenorsVisitor;
 import com.opengamma.analytics.financial.interestrate.AnnuityNotionalsVisitor;
+import com.opengamma.analytics.financial.interestrate.AnnuityPaymentAmountsVisitor;
 import com.opengamma.analytics.financial.interestrate.AnnuityPaymentDatesVisitor;
+import com.opengamma.analytics.financial.interestrate.AnnuityPaymentFractionsVisitor;
+import com.opengamma.analytics.financial.interestrate.AnnuityPaymentTimesVisitor;
 import com.opengamma.analytics.financial.interestrate.AnnuitySpreadsVisitor;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.swap.provider.AnnuityDiscountFactorsVisitor;
 import com.opengamma.analytics.financial.interestrate.swap.provider.AnnuityForwardRatesVisitor;
@@ -102,7 +102,7 @@ public class EquityTotalReturnSwapFundingLegDetailsFunction extends EquityTotalR
         final CurrencyAmount[] projectedAmounts = derivative.accept(AnnuityProjectedPaymentsVisitor.getInstance(), data);
         final double[] spreads = definition.accept(AnnuitySpreadsVisitor.getInstance(), now);
         final double[] gearings = definition.accept(AnnuityGearingsVisitor.getInstance(), now);
-        final Tenor[] indexTenors = definition.accept(AnnuityIndexTenorsVisitor.getInstance(), now);
+        final Set<Tenor>[] indexTenors = definition.accept(AnnuityIndexTenorsVisitor.getInstance(), now);
         final FloatingSwapLegDetails details = new FloatingSwapLegDetails(accrualDates.getFirst(), accrualDates.getSecond(), paymentFractions, fixingDates.getFirst(), fixingDates.getSecond(),
             fixingYearFractions, forwardRates, fixedRates, paymentDates, paymentTimes, discountFactors, paymentAmounts, projectedAmounts, notionals, spreads, gearings, indexTenors);
         return Collections.singleton(new ComputedValue(spec, details));

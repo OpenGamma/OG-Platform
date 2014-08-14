@@ -7,6 +7,7 @@ package com.opengamma.financial.analytics.model.fixedincome;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
@@ -106,7 +107,7 @@ public final class CashFlowDetailsCalculator extends InstrumentDerivativeVisitor
     List<Double> spreads = Doubles.asList(legDefinition.accept(AnnuitySpreadsVisitor.getInstance(), valuationTime));
     List<Double> gearings = Doubles.asList(legDefinition.accept(AnnuityGearingsVisitor.getInstance(), valuationTime));
     List<CurrencyAmount> projectedAmounts = Lists.newArrayList(legDerivative.accept(AnnuityProjectedPaymentsVisitor.getInstance(), bundle));
-    List<Tenor> indexTenors = Lists.newArrayList(legDefinition.accept(AnnuityIndexTenorsVisitor.getInstance(), valuationTime));
+    List<Set<Tenor>> indexTenors = Lists.newArrayList(legDefinition.accept(AnnuityIndexTenorsVisitor.getInstance(), valuationTime));
 
     Pair<LocalDate[], LocalDate[]> fixingDates = legDefinition.accept(AnnuityFixingDatesVisitor.getInstance(), valuationTime);
     List<LocalDate> fixingStartDates = Lists.newArrayList(fixingDates.getFirst());
