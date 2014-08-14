@@ -66,9 +66,9 @@ public class CachingProxyDecoratorTest {
     MethodInvocationKey key = new MethodInvocationKey(delegate, foo, new Object[]{"bar"});
 
     Object results = fn.foo("bar");
-    Object task = _cacheProvider.get().getIfPresent(key);
-    assertNotNull(task);
-    assertSame(task, results);
+    Object value = _cacheProvider.get().getIfPresent(key);
+    assertNotNull(value);
+    assertSame(value, results);
   }
 
   /** check that multiple instances of the same function return the cached value when invoked with the same args */
@@ -265,9 +265,9 @@ public class CachingProxyDecoratorTest {
     MethodInvocationKey key = new MethodInvocationKey(delegate, foo, new Object[]{"bar"});
 
     Object results = fn.foo("bar");
-    Object task = _cacheProvider.get().getIfPresent(key);
-    assertNotNull(task);
-    assertSame(task, results);
+    Object value = _cacheProvider.get().getIfPresent(key);
+    assertNotNull(value);
+    assertSame(value, results);
   }
 
   interface TestFn2 {

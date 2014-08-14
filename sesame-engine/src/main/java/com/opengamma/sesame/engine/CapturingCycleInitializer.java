@@ -64,7 +64,8 @@ class CapturingCycleInitializer implements CycleInitializer {
                                    ComponentMap componentMap,
                                    CycleArguments cycleArguments,
                                    GraphModel graphModel,
-                                   ViewConfig viewConfig, List<?> inputs) {
+                                   ViewConfig viewConfig,
+                                   List<?> inputs) {
 
     ProxiedCycleMarketData proxiedCycleMarketData =
         new ProxiedCycleMarketData(cycleArguments.getCycleMarketDataFactory());

@@ -5,18 +5,17 @@
  */
 package com.opengamma.sesame.function.scenarios.curvedata;
 
-import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.opengamma.sesame.cache.CacheProvider;
 import com.opengamma.sesame.cache.MethodInvocationKey;
-import com.opengamma.sesame.engine.MutableCacheProvider;
+import com.opengamma.sesame.engine.DefaultCacheProvider;
 
 /**
  * Helper methods for tests in sesame-function
  */
 public class FunctionTestUtils {
 
-  private static final long MAX_CACHE_ENTRIES = 100_000;
+  private static final long MAX_CACHE_ENTRIES = 10_000;
 
   private FunctionTestUtils() {
   }
@@ -25,17 +24,12 @@ public class FunctionTestUtils {
    * @return a cache provider configured for use with the engine
    */
   public static CacheProvider createCacheProvider() {
-    int concurrencyLevel = Runtime.getRuntime().availableProcessors() + 2;
-    Cache<MethodInvocationKey, Object> cache =
-        CacheBuilder.newBuilder()
-                    .maximumSize(MAX_CACHE_ENTRIES)
-                    .concurrencyLevel(concurrencyLevel)
-                    .build();
-    return new MutableCacheProvider(cache);
+    return new DefaultCacheProvider(createCacheBuilder().<MethodInvocationKey, Object>build());
   }
 
   public static CacheBuilder<Object, Object> createCacheBuilder() {
-    int concurrencyLevel = Runtime.getRuntime().availableProcessors() + 2;
-    return CacheBuilder.newBuilder().maximumSize(MAX_CACHE_ENTRIES).concurrencyLevel(concurrencyLevel);
+    int nProcessors = Runtime.getRuntime().availableProcessors();
+    int concurrencyLevel = nProcessors * 8;
+    return CacheBuilder.newBuilder().maximumSize(MAX_CACHE_ENTRIES).softValues().concurrencyLevel(concurrencyLevel);
   }
 }

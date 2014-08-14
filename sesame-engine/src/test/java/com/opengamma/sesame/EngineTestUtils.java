@@ -28,7 +28,6 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.codahale.metrics.MetricRegistry;
 import com.google.common.base.Optional;
-import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -47,9 +46,9 @@ import com.opengamma.sesame.cache.MethodInvocationKey;
 import com.opengamma.sesame.cache.NoOpCacheInvalidator;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.engine.ComponentMap;
+import com.opengamma.sesame.engine.DefaultCacheProvider;
 import com.opengamma.sesame.engine.FixedInstantVersionCorrectionProvider;
 import com.opengamma.sesame.engine.FunctionService;
-import com.opengamma.sesame.engine.MutableCacheProvider;
 import com.opengamma.sesame.engine.ViewFactory;
 import com.opengamma.sesame.function.AvailableImplementations;
 import com.opengamma.sesame.function.AvailableOutputs;
@@ -125,18 +124,17 @@ public class EngineTestUtils {
                            Optional.<MetricRegistry>absent());
   }
 
-
   /**
    * @return a cache provider configured for use with the engine
    */
   public static CacheProvider createCacheProvider() {
-    Cache<MethodInvocationKey, Object> cache = createCacheBuilder().build();
-    return new MutableCacheProvider(cache);
+    return new DefaultCacheProvider(createCacheBuilder().<MethodInvocationKey, Object>build());
   }
 
   public static CacheBuilder<Object, Object> createCacheBuilder() {
-    int concurrencyLevel = Runtime.getRuntime().availableProcessors() + 2;
-    return CacheBuilder.newBuilder().maximumSize(MAX_CACHE_ENTRIES).concurrencyLevel(concurrencyLevel);
+    int nProcessors = Runtime.getRuntime().availableProcessors();
+    int concurrencyLevel = nProcessors * 8;
+    return CacheBuilder.newBuilder().maximumSize(MAX_CACHE_ENTRIES).softValues().concurrencyLevel(concurrencyLevel);
   }
 
   public static void assertJsonEquals(Map<?, ?> expected, Map<?, ?> actual) {

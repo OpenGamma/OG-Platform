@@ -68,8 +68,8 @@ import com.opengamma.sesame.credit.StandardIsdaCompliantCreditCurveFn;
 import com.opengamma.sesame.credit.snapshot.SnapshotCreditCurveDataProviderFn;
 import com.opengamma.sesame.credit.snapshot.SnapshotYieldCurveDataProviderFn;
 import com.opengamma.sesame.engine.ComponentMap;
+import com.opengamma.sesame.engine.DefaultCacheProvider;
 import com.opengamma.sesame.engine.FixedInstantVersionCorrectionProvider;
-import com.opengamma.sesame.engine.MutableCacheProvider;
 import com.opengamma.sesame.function.AvailableImplementations;
 import com.opengamma.sesame.function.AvailableImplementationsImpl;
 import com.opengamma.sesame.function.AvailableOutputs;
@@ -129,7 +129,7 @@ public class IsdaCurveSnapshotCalibrationTool extends AbstractTool<ToolContext> 
     
     FunctionModelConfig functionModelConfig = initGraph(ccSnapshot, ycSnapshot, componentMap);
     Cache<MethodInvocationKey, Object> cache = buildCache();
-    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(new MutableCacheProvider(cache));
+    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(new DefaultCacheProvider(cache));
     
     IsdaCompliantYieldCurveFn ycFn = FunctionModel.build(DefaultIsdaCompliantYieldCurveFn.class, 
                                                          functionModelConfig, 

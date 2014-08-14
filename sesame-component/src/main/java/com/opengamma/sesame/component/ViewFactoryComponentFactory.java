@@ -291,10 +291,15 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
    */
   protected CacheBuilder<Object, Object> createCacheBuilder(ComponentRepository repo) {
     int nProcessors = Runtime.getRuntime().availableProcessors();
+    // concurrency level controls how many segments are created in the cache. a segment is locked while a value
+    // is being calculated so we want enough segments to make it highly unlikely that two threads will try
+    // to write a value to the same segment at the same time.
+    // N.B. read operations can happen concurrently with writes, so the concurrency level only affects cache writes
+    int concurrencyLevel = nProcessors * 8;
     return CacheBuilder.newBuilder()
         .maximumSize(getMaxCacheEntries())
         .softValues()
-        .concurrencyLevel(nProcessors * 8);
+        .concurrencyLevel(concurrencyLevel);
   }
 
   /**

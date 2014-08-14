@@ -222,6 +222,12 @@ public class View {
 
     ServiceContext originalContext = ThreadLocalServiceContext.getInstance();
     CycleInitializer cycleInitializer = cycleArguments.isCaptureInputs() ?
+        // this uses the shared cache but creates a new graph with a new FunctionBuilder and therefore will never
+        // share any entries with any other views. effectively this fills up the shared cache with rubbish entries
+        // that will never be used after this cycle completes.
+        // if that turns out to be a problem the cache builder could be passed into this class and used to create
+        // an empty cache that's only used for this cycle.
+        // would need to create a new graph builder and model instead of reusing _graphModel
         new CapturingCycleInitializer(originalContext, _componentMap, cycleArguments,
                                       _graphModel, _viewConfig, inputs) :
         new StandardCycleInitializer(originalContext, cycleArguments.getCycleMarketDataFactory(), _graph);
