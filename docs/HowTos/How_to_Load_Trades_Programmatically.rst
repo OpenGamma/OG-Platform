@@ -1,6 +1,6 @@
-============================================
-How to add/amend/delete trades pragmatically
-============================================
+===========================================
+How to add/amend/delete trades with the API
+===========================================
 
 
 Introduction
