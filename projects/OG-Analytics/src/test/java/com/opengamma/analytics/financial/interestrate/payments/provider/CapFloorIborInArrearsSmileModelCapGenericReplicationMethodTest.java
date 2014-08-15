@@ -17,11 +17,16 @@ import com.opengamma.analytics.financial.instrument.payment.CouponIborDefinition
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateParameters;
+import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.BenaimDodgsonKainthExtrapolationFunctionProvider;
+import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.GeneralSmileInterpolator;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.InterpolatedSmileFunction;
-import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.SmileInterpolatorMixedLogNormal;
+import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.ShiftedLogNormalExtrapolationFunctionProvider;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.SmileInterpolatorSABR;
+import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.SmileInterpolatorSABRWithExtrapolation;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.SmileInterpolatorSABRWithRightExtrapolation;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.SmileInterpolatorSpline;
+import com.opengamma.analytics.financial.model.volatility.smile.function.SABRBerestyckiVolatilityFunction;
+import com.opengamma.analytics.financial.model.volatility.smile.function.SABRHaganAlternativeVolatilityFunction;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.description.SABRDataSets;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
@@ -83,7 +88,6 @@ public class CapFloorIborInArrearsSmileModelCapGenericReplicationMethodTest {
    * Due to an update of the integration range, the resulting numbers are not close in some cases. 
    * Still one can confirm the agreement if we use the same upper cutoff in {@link CapFloorIborInArrearsSmileModelCapGenericReplicationMethod} 
    */
-  @SuppressWarnings("unused")
   @Test
   public void consistencyTest() {
     /**
@@ -111,7 +115,7 @@ public class CapFloorIborInArrearsSmileModelCapGenericReplicationMethodTest {
 
       double ref = res1.getAmount(derivative.getCurrency());
       // This is due to improper choice of upper cutoff in the old method
-      //      assertEquals(ref, res2.getAmount(derivative.getCurrency()), Math.abs(ref) * 1.e-7);
+      assertEquals(ref, res2.getAmount(derivative.getCurrency()), Math.abs(ref) * 1.e-1);
 
       CapFloorIborInArrearsSABRCapGenericReplicationMethod methodSabrExtrap = new CapFloorIborInArrearsSABRCapGenericReplicationMethod(METHOD_SABREXTRA_STD);
       MultipleCurrencyAmount res1Extrap = methodSabrExtrap.presentValue(derivative, SABR_MULTICURVES);
@@ -148,7 +152,7 @@ public class CapFloorIborInArrearsSmileModelCapGenericReplicationMethodTest {
 
     double ref = res1.getAmount(COUPON_IBOR.getCurrency());
     // This is due to improper choice of upper cutoff in the old method
-    //    assertEquals(ref, res2.getAmount(COUPON_IBOR.getCurrency()), Math.abs(ref) * 1.e-7);
+    assertEquals(ref, res2.getAmount(COUPON_IBOR.getCurrency()), Math.abs(ref) * 1.e-1);
 
     CouponIborInArrearsReplicationMethod methodSabrExtrap = new CouponIborInArrearsReplicationMethod(METHOD_SABREXTRA_STD);
     MultipleCurrencyAmount res1Extrap = methodSabrExtrap.presentValue(COUPON_IBOR, SABR_MULTICURVES);
@@ -160,16 +164,83 @@ public class CapFloorIborInArrearsSmileModelCapGenericReplicationMethodTest {
 
     double refExtrap = res1Extrap.getAmount(COUPON_IBOR.getCurrency());
     assertEquals(refExtrap, res2Extrap.getAmount(COUPON_IBOR.getCurrency()), Math.abs(refExtrap) * 1.e-7);
+
+  }
+
+  @Test(enabled = false)
+  public void test() {
+    CapFloorIbor[] derivatives = new CapFloorIbor[] {CAP_LONG, CAP_SHORT, FLOOR_SHORT };
+    for (final CapFloorIbor derivative : derivatives) {
+      double forward = SABR_MULTICURVES.getMulticurveProvider().getSimplyCompoundForwardRate(derivative.getIndex(), derivative.getFixingPeriodStartTime(), derivative.getFixingPeriodEndTime(),
+          derivative.getFixingAccrualFactor());
+      double maturity = derivative.getFixingPeriodEndTime() - derivative.getFixingPeriodStartTime();
+      int nSample = 1000;
+      double[] sampleStrikes = new double[nSample];
+      double[] sampleVolatilities = new double[nSample];
+      for (int i = 0; i < nSample; ++i) {
+        sampleStrikes[i] = forward * (i * 0.001 + 0.2);
+        sampleVolatilities[i] = SABR_PARAMETER.getVolatility(derivative.getFixingTime(), maturity, sampleStrikes[i], forward);
+      }
+      double cutoff = sampleStrikes[nSample - 1];
+
+      SmileInterpolatorSABRWithRightExtrapolation sabrExtrap = new SmileInterpolatorSABRWithRightExtrapolation(cutoff, MU);
+      InterpolatedSmileFunction smileFunctionExtrap = new InterpolatedSmileFunction(sabrExtrap, forward, sampleStrikes, derivative.getFixingTime(), sampleVolatilities);
+      CapFloorIborInArrearsSmileModelCapGenericReplicationMethod methodSabrGeneralExtrap = new CapFloorIborInArrearsSmileModelCapGenericReplicationMethod(smileFunctionExtrap);
+      MultipleCurrencyAmount res2Extrap = methodSabrGeneralExtrap.presentValue(derivative, MULTICURVES);
+
+      BenaimDodgsonKainthExtrapolationFunctionProvider provider = new BenaimDodgsonKainthExtrapolationFunctionProvider(MU, MU);
+      SmileInterpolatorSABRWithExtrapolation sabrExtrap2 = new SmileInterpolatorSABRWithExtrapolation(provider);
+      InterpolatedSmileFunction smileFunctionExtrap2 = new InterpolatedSmileFunction(sabrExtrap2, forward, sampleStrikes, derivative.getFixingTime(), sampleVolatilities);
+      CapFloorIborInArrearsSmileModelCapGenericReplicationMethod methodSabrGeneralExtrap2 = new CapFloorIborInArrearsSmileModelCapGenericReplicationMethod(smileFunctionExtrap2);
+      MultipleCurrencyAmount res2Extrap2 = methodSabrGeneralExtrap2.presentValue(derivative, MULTICURVES);
+
+      ShiftedLogNormalExtrapolationFunctionProvider providerLog = new ShiftedLogNormalExtrapolationFunctionProvider("Quiet");
+      SmileInterpolatorSABRWithExtrapolation sabrExtrap2Log = new SmileInterpolatorSABRWithExtrapolation(providerLog);
+      InterpolatedSmileFunction smileFunctionExtrap2Log = new InterpolatedSmileFunction(sabrExtrap2Log, forward, sampleStrikes, derivative.getFixingTime(), sampleVolatilities);
+      CapFloorIborInArrearsSmileModelCapGenericReplicationMethod methodSabrGeneralExtrap2Log = new CapFloorIborInArrearsSmileModelCapGenericReplicationMethod(smileFunctionExtrap2Log);
+      MultipleCurrencyAmount res2Extrap2Log = methodSabrGeneralExtrap2Log.presentValue(derivative, MULTICURVES);
+
+      System.out.println(res2Extrap + "\t" + res2Extrap2 + "\t" + res2Extrap2Log);
+    }
+
+    /**
+     * Coupon Ibor
+     */
+    double forward = SABR_MULTICURVES.getMulticurveProvider().getSimplyCompoundForwardRate(COUPON_IBOR.getIndex(), COUPON_IBOR.getFixingPeriodStartTime(), COUPON_IBOR.getFixingPeriodEndTime(),
+        COUPON_IBOR.getFixingAccrualFactor());
+    double maturity = COUPON_IBOR.getFixingPeriodEndTime() - COUPON_IBOR.getFixingPeriodStartTime();
+    int nSample = 1000;
+    double[] sampleStrikes = new double[nSample];
+    double[] sampleVolatilities = new double[nSample];
+    for (int i = 0; i < nSample; ++i) {
+      sampleStrikes[i] = forward * (i * 0.001 + 0.2);
+      sampleVolatilities[i] = SABR_PARAMETER.getVolatility(COUPON_IBOR.getFixingTime(), maturity, sampleStrikes[i], forward);
+    }
+    double cutoff = sampleStrikes[nSample - 1];
+
+    SmileInterpolatorSABRWithRightExtrapolation sabrExtrap = new SmileInterpolatorSABRWithRightExtrapolation(cutoff, MU);
+    InterpolatedSmileFunction smileFunctionExtrap = new InterpolatedSmileFunction(sabrExtrap, forward, sampleStrikes, COUPON_IBOR.getFixingTime(), sampleVolatilities);
+    final CouponIborInArrearsSmileModelReplicationMethod methodSabrGeneralExtrap = new CouponIborInArrearsSmileModelReplicationMethod(smileFunctionExtrap);
+    MultipleCurrencyAmount res2Extrap = methodSabrGeneralExtrap.presentValue(COUPON_IBOR, MULTICURVES);
+
+    BenaimDodgsonKainthExtrapolationFunctionProvider provider = new BenaimDodgsonKainthExtrapolationFunctionProvider(MU, MU);
+    SmileInterpolatorSABRWithExtrapolation sabrExtrap2 = new SmileInterpolatorSABRWithExtrapolation(provider);
+    InterpolatedSmileFunction smileFunctionExtrap2 = new InterpolatedSmileFunction(sabrExtrap2, forward, sampleStrikes, COUPON_IBOR.getFixingTime(), sampleVolatilities);
+    CouponIborInArrearsSmileModelReplicationMethod methodSabrGeneralExtrap2 = new CouponIborInArrearsSmileModelReplicationMethod(smileFunctionExtrap2);
+    MultipleCurrencyAmount res2Extrap2 = methodSabrGeneralExtrap2.presentValue(COUPON_IBOR, MULTICURVES);
+
+    System.out.println(res2Extrap + "\t" + res2Extrap2);
   }
 
   @Test(enabled = false)
   public void smileInterpolationComparisonTest() {
+
     /**
      * Cap Floor
      */
     CapFloorIbor[] derivatives = new CapFloorIbor[] {CAP_LONG, CAP_SHORT, FLOOR_SHORT };
     //    for (final CapFloorIbor derivative : derivatives) {
-    final CapFloorIbor derivative = derivatives[2];
+    final CapFloorIbor derivative = derivatives[0];
 
     double forward = SABR_MULTICURVES.getMulticurveProvider().getSimplyCompoundForwardRate(derivative.getIndex(), derivative.getFixingPeriodStartTime(), derivative.getFixingPeriodEndTime(),
         derivative.getFixingAccrualFactor());
@@ -187,26 +258,52 @@ public class CapFloorIborInArrearsSmileModelCapGenericReplicationMethodTest {
 
     // Check shifted log-normal with  grad < 0 
     for (int i = 0; i < nSample; ++i) {
-      sampleStrikes[i] = forward * (i * 0.05 + 0.9);
+      sampleStrikes[i] = forward * (i * i * i * 0.1 + 0.9);
       sampleVolatilities[i] = SABR_PARAMETER.getVolatility(derivative.getFixingTime(), maturity, sampleStrikes[i], forward);
+      System.out.println(sampleStrikes[i] + "\t" + sampleVolatilities[i]);
     }
-    SmileInterpolatorSABR sabrInterp = new SmileInterpolatorSABR();
-    InterpolatedSmileFunction smileFunction = new InterpolatedSmileFunction(sabrInterp, forward, sampleStrikes, derivative.getFixingTime(), sampleVolatilities);
+    System.out.println("\n");
+
+    GeneralSmileInterpolator[] interps = new GeneralSmileInterpolator[] {new SmileInterpolatorSABR(),
+        new SmileInterpolatorSABRWithRightExtrapolation(forward * 3.0, 1.5),
+        new SmileInterpolatorSABRWithRightExtrapolation(sampleStrikes[nSample - 1], 15.0),
+        //        new SmileInterpolatorSABR(new SABRPaulotVolatilityFunction()),
+        //        new SmileInterpolatorSABR(new SABRJohnsonVolatilityFunction()),
+        new SmileInterpolatorSABR(new SABRBerestyckiVolatilityFunction()),
+        new SmileInterpolatorSABR(new SABRHaganAlternativeVolatilityFunction()),
+        new SmileInterpolatorSpline(),
+        //        new SmileInterpolatorMixedLogNormal() 
+    };
+
+    InterpolatedSmileFunction smileFunction = new InterpolatedSmileFunction(interps[0], forward, sampleStrikes, derivative.getFixingTime(), sampleVolatilities);
     CapFloorIborInArrearsSmileModelCapGenericReplicationMethod methodSabrGeneral = new CapFloorIborInArrearsSmileModelCapGenericReplicationMethod(smileFunction);
-    MultipleCurrencyAmount res2 = methodSabrGeneral.presentValue(derivative, MULTICURVES);
+    MultipleCurrencyAmount ref = methodSabrGeneral.presentValue(derivative, MULTICURVES);
+    System.out.print(ref + "\t");
 
-    SmileInterpolatorSpline shiftedLogNormal = new SmileInterpolatorSpline();
-    InterpolatedSmileFunction smileFunctionShiftedLogNormal = new InterpolatedSmileFunction(shiftedLogNormal, forward, sampleStrikes, derivative.getFixingTime(), sampleVolatilities);
-    CapFloorIborInArrearsSmileModelCapGenericReplicationMethod methodShiftedLogNormal = new CapFloorIborInArrearsSmileModelCapGenericReplicationMethod(smileFunctionShiftedLogNormal);
-    MultipleCurrencyAmount res2ShiftedLogNormal = methodShiftedLogNormal.presentValue(derivative, MULTICURVES);
+    int nInterps = interps.length;
+    InterpolatedSmileFunction[] functions = new InterpolatedSmileFunction[nInterps];
+    for (int i = 1; i < nInterps; ++i) {
+      InterpolatedSmileFunction function = new InterpolatedSmileFunction(interps[i], forward, sampleStrikes, derivative.getFixingTime(), sampleVolatilities);
+      functions[i] = function;
+      CapFloorIborInArrearsSmileModelCapGenericReplicationMethod method = new CapFloorIborInArrearsSmileModelCapGenericReplicationMethod(function);
+      MultipleCurrencyAmount res = method.presentValue(derivative, MULTICURVES);
 
-    SmileInterpolatorMixedLogNormal mixedLogNormal = new SmileInterpolatorMixedLogNormal();
-    InterpolatedSmileFunction smileFunctionMixedLogNormal = new InterpolatedSmileFunction(mixedLogNormal, forward, sampleStrikes, derivative.getFixingTime(), sampleVolatilities);
-    CapFloorIborInArrearsSmileModelCapGenericReplicationMethod methodMixedLogNormal = new CapFloorIborInArrearsSmileModelCapGenericReplicationMethod(smileFunctionMixedLogNormal);
-    MultipleCurrencyAmount res2MixedLogNormal = methodMixedLogNormal.presentValue(derivative, MULTICURVES);
+      System.out.print(res + "\t");
+    }
+    System.out.println("\n");
 
-    System.out.println(res2 + "\t" + res2ShiftedLogNormal + "\t" + res2MixedLogNormal);
+    functions[0] = smileFunction;
+    for (int j = 0; j < 200; ++j) {
+      double strike = forward * (0.01 + 0.05 * j);
+      System.out.print(strike + "\t");
+      for (int i = 0; i < nInterps; ++i) {
+        double vol = functions[i].getVolatility(strike);
+        System.out.print(vol + "\t");
+      }
+      System.out.println();
+    }
 
+    System.out.println("\n");
     //    }
   }
 }

@@ -7,9 +7,11 @@ package com.opengamma.analytics.financial.model.volatility.smile.fitting.interpo
 
 import com.opengamma.analytics.financial.interestrate.payments.provider.CapFloorIborInArrearsSmileModelCapGenericReplicationMethod;
 import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- * Wrapping {@link GeneralSmileInterpolator} for {@link CapFloorIborInArrearsSmileModelCapGenericReplicationMethod}
+ * Interpolated (extrapolated) smile function returning volatility value for a given strike, used for {@link CapFloorIborInArrearsSmileModelCapGenericReplicationMethod}. 
+ * Wrapping volatility function part of {@link GeneralSmileInterpolator} for type safety.
  */
 public class InterpolatedSmileFunction {
   private final GeneralSmileInterpolator _interpolator;
@@ -24,6 +26,10 @@ public class InterpolatedSmileFunction {
    * @param impliedVols The volatilities
    */
   public InterpolatedSmileFunction(final GeneralSmileInterpolator interpolator, final double forward, final double[] strikes, final double expiry, final double[] impliedVols) {
+    ArgumentChecker.notNull(interpolator, "interpolator");
+    ArgumentChecker.notNull(strikes, "strikes");
+    ArgumentChecker.notNull(impliedVols, "impliedVols");
+
     _interpolator = interpolator;
     _smileFunction = interpolator.getVolatilityFunction(forward, strikes, expiry, impliedVols);
   }
@@ -43,6 +49,44 @@ public class InterpolatedSmileFunction {
    */
   public GeneralSmileInterpolator getInterpolator() {
     return _interpolator;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((_interpolator == null) ? 0 : _interpolator.hashCode());
+    result = prime * result + ((_smileFunction == null) ? 0 : _smileFunction.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (!(obj instanceof InterpolatedSmileFunction)) {
+      return false;
+    }
+    InterpolatedSmileFunction other = (InterpolatedSmileFunction) obj;
+    if (_interpolator == null) {
+      if (other._interpolator != null) {
+        return false;
+      }
+    } else if (!_interpolator.equals(other._interpolator)) {
+      return false;
+    }
+    if (_smileFunction == null) {
+      if (other._smileFunction != null) {
+        return false;
+      }
+    } else if (!_smileFunction.equals(other._smileFunction)) {
+      return false;
+    }
+    return true;
   }
 
 }

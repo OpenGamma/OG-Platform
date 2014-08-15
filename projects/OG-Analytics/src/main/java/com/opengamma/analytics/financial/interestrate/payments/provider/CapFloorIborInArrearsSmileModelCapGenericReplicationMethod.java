@@ -85,7 +85,8 @@ public class CapFloorIborInArrearsSmileModelCapGenericReplicationMethod {
           }
         }
       } else {
-        integralPart = INTEGRATOR.integrate(integrant, 0.0, cap.getStrike());
+        double strike = cap.getStrike();
+        integralPart = INTEGRATOR.integrate(integrant, REL_TOL * strike, strike);
       }
     } catch (final Exception e) {
       throw new MathException(e);

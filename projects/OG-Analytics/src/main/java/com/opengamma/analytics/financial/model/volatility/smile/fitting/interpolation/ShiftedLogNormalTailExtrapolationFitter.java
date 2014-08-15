@@ -17,9 +17,9 @@ import com.opengamma.analytics.math.differentiation.ScalarFirstOrderDifferentiat
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
+import com.opengamma.analytics.math.minimization.DoubleRangeLimitTransform;
 import com.opengamma.analytics.math.minimization.NonLinearParameterTransforms;
 import com.opengamma.analytics.math.minimization.NonLinearTransformFunction;
-import com.opengamma.analytics.math.minimization.NullTransform;
 import com.opengamma.analytics.math.minimization.ParameterLimitsTransform;
 import com.opengamma.analytics.math.minimization.ParameterLimitsTransform.LimitType;
 import com.opengamma.analytics.math.minimization.SingleRangeLimitTransform;
@@ -41,8 +41,9 @@ public class ShiftedLogNormalTailExtrapolationFitter {
   private static final NonLinearParameterTransforms TRANSFORMS;
 
   static {
-    final ParameterLimitsTransform a = new NullTransform();
+    //    final ParameterLimitsTransform a = new NullTransform();
     final ParameterLimitsTransform b = new SingleRangeLimitTransform(0.0, LimitType.GREATER_THAN);
+    DoubleRangeLimitTransform a = new DoubleRangeLimitTransform(-40.0, 40.0);
     TRANSFORMS = new UncoupledParameterTransforms(new DoubleMatrix1D(0.0, 1.0), new ParameterLimitsTransform[] {a, b}, new BitSet());
   }
 
