@@ -1,5 +1,5 @@
 ===============
-Metrics Capture
+Tracing Capture
 ===============
 
 Introduction
