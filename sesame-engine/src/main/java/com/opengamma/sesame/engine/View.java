@@ -19,6 +19,7 @@ import java.util.concurrent.Future;
 import org.apache.shiro.authz.AuthorizationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Instant;
 
 import com.codahale.metrics.MetricRegistry;
 import com.google.common.base.Optional;
@@ -57,7 +58,6 @@ import com.opengamma.sesame.graph.GraphModel;
 import com.opengamma.sesame.graph.NodeDecorator;
 import com.opengamma.sesame.proxy.ExceptionWrappingProxy;
 import com.opengamma.sesame.proxy.MetricsProxy;
-import com.opengamma.sesame.proxy.TimingProxy;
 import com.opengamma.sesame.trace.CallGraph;
 import com.opengamma.sesame.trace.Tracer;
 import com.opengamma.sesame.trace.TracingProxy;
@@ -154,6 +154,8 @@ public class View {
   private NodeDecorator createNodeDecorator(EnumSet<FunctionService> services,
                                             CacheProvider cacheProvider,
                                             ExecutingMethodsThreadLocal executingMethods) {
+
+
     ImmutableList.Builder<NodeDecorator> decorators = new ImmutableList.Builder<>();
 
     // Build up the proxies to be used from the outermost
@@ -161,11 +163,15 @@ public class View {
 
     // Timing/tracing sits outside of caching so the actual
     // time taken for a request is reported. This can also
-    // report on whether came from the cache or were calculated
-    if (services.contains(FunctionService.TIMING)) {
-      decorators.add(TimingProxy.INSTANCE);
-    }
-    if (services.contains(FunctionService.TRACING)) {
+    // report on whether came from the cache or were
+    // calculated (if cache there will be no child calls).
+    // Only allow one tracing proxy but pick the most
+    // comprehensive one
+    if (services.contains(FunctionService.TRACING_LOCAL)) {
+      decorators.add(TracingProxy.INSTANCE);
+    } else if (services.contains(FunctionService.TRACING_REMOTE)) {
+      decorators.add(TracingProxy.INSTANCE);
+    } else if (services.contains(FunctionService.TIMING)) {
       decorators.add(TracingProxy.INSTANCE);
     }
 
@@ -216,6 +222,12 @@ public class View {
    * (and therefore sequential) or can be run in parallel.
    */
   public synchronized Results run(CycleArguments cycleArguments, List<?> inputs) {
+
+    Instant start = Instant.now();
+    long startInitialization = System.nanoTime();
+    long startExecution;
+    long startResultsBuild;
+
     // get a cache from the factory that will be used for the duration of this calculation cycle.
     // store it in a field so it's available to the caching decorators via the provider
     _cache = _factoryCacheProvider.get();
@@ -249,10 +261,12 @@ public class View {
       // items e.g. VersionCorrectionProvider
       // TODO - ultimately we will want to set VersionCorrection here
       ThreadLocalServiceContext.init(cycleInitializer.getServiceContext());
+      startExecution = System.nanoTime();
       futures = _executor.invokeAll(tasks);
     } catch (InterruptedException e) {
       throw new OpenGammaRuntimeException("Interrupted", e);
     } finally {
+      startResultsBuild = System.nanoTime();
       // Switch the service context back now all the work is done
       ThreadLocalServiceContext.init(originalContext);
     }
@@ -266,8 +280,8 @@ public class View {
         s_logger.warn("Failed to get result from task", e);
       }
     }
-
-    return cycleInitializer.complete(resultsBuilder.build());
+    return cycleInitializer.complete(
+        resultsBuilder.build(start, startExecution, startInitialization, startResultsBuild));
   }
 
   /**

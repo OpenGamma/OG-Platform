@@ -59,8 +59,12 @@ public final class Results implements ImmutableBean {
    * market data. i.e. data was requested but not yet provided by
    * the market data server.
    */
-  @PropertyDefinition()
+  @PropertyDefinition
   private final boolean _pendingMarketData;
+
+  /** Timings for the view. */
+  @PropertyDefinition(validate = "notNull")
+  private final ViewTimer _viewTimer;
 
   /**
    * The inputs used to create the view, including market data
@@ -69,26 +73,29 @@ public final class Results implements ImmutableBean {
    */
   @PropertyDefinition
   private final ViewInputs _viewInputs;
-
+  
   /** Column indices keyed by name. */
   private final Map<String, Integer> _columnIndices = Maps.newHashMap();
 
   Results(List<String> columnNames, List<ResultRow> rows,
-          Map<String, ResultItem> nonPortfolioResults, boolean isPendingMarketData) {
-    this(columnNames, rows, nonPortfolioResults, isPendingMarketData, null);
+          Map<String, ResultItem> nonPortfolioResults, boolean isPendingMarketData,
+          ViewTimer timer) {
+    this(columnNames, rows, nonPortfolioResults, isPendingMarketData, timer, null);
   }
 
   @ImmutableConstructor
-  Results(List<String> columnNames,
-          List<ResultRow> rows,
-          Map<String, ResultItem> nonPortfolioResults,
-          boolean isPendingMarketData,
-          ViewInputs viewInputs) {
+  private Results(List<String> columnNames,
+                  List<ResultRow> rows,
+                  Map<String, ResultItem> nonPortfolioResults,
+                  boolean isPendingMarketData,
+                  ViewTimer timer,
+                  ViewInputs viewInputs) {
 
     _rows = ImmutableList.copyOf(ArgumentChecker.notNull(rows, "rows"));
     _columnNames = ImmutableList.copyOf(ArgumentChecker.notNull(columnNames, "columnNames"));
     _nonPortfolioResults = ImmutableMap.copyOf(ArgumentChecker.notNull(nonPortfolioResults, "nonPortfolioResults"));
     _pendingMarketData = isPendingMarketData;
+    _viewTimer = ArgumentChecker.notNull(timer, "timer");
     _viewInputs = viewInputs;
     int colIndex = 0;
     for (String columnName : columnNames) {
@@ -107,7 +114,7 @@ public final class Results implements ImmutableBean {
    * @return copy of the original results with updated view inputs
    */
   public Results withViewInputs(ViewInputs viewInputs) {
-    return new Results(_columnNames, _rows, _nonPortfolioResults, _pendingMarketData, viewInputs);
+    return new Results(_columnNames, _rows, _nonPortfolioResults, _pendingMarketData, _viewTimer, viewInputs);
   }
 
   /**
@@ -261,6 +268,15 @@ public final class Results implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets timings for the view.
+   * @return the value of the property, not null
+   */
+  public ViewTimer getViewTimer() {
+    return _viewTimer;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the inputs used to create the view, including market data
    * and config data. Only populated if a capture of all data
    * has been requested, otherwise null.
@@ -290,6 +306,7 @@ public final class Results implements ImmutableBean {
           JodaBeanUtils.equal(getRows(), other.getRows()) &&
           JodaBeanUtils.equal(getNonPortfolioResults(), other.getNonPortfolioResults()) &&
           (isPendingMarketData() == other.isPendingMarketData()) &&
+          JodaBeanUtils.equal(getViewTimer(), other.getViewTimer()) &&
           JodaBeanUtils.equal(getViewInputs(), other.getViewInputs());
     }
     return false;
@@ -302,6 +319,7 @@ public final class Results implements ImmutableBean {
     hash += hash * 31 + JodaBeanUtils.hashCode(getRows());
     hash += hash * 31 + JodaBeanUtils.hashCode(getNonPortfolioResults());
     hash += hash * 31 + JodaBeanUtils.hashCode(isPendingMarketData());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getViewTimer());
     hash += hash * 31 + JodaBeanUtils.hashCode(getViewInputs());
     return hash;
   }
@@ -340,6 +358,11 @@ public final class Results implements ImmutableBean {
     private final MetaProperty<Boolean> _pendingMarketData = DirectMetaProperty.ofImmutable(
         this, "pendingMarketData", Results.class, Boolean.TYPE);
     /**
+     * The meta-property for the {@code viewTimer} property.
+     */
+    private final MetaProperty<ViewTimer> _viewTimer = DirectMetaProperty.ofImmutable(
+        this, "viewTimer", Results.class, ViewTimer.class);
+    /**
      * The meta-property for the {@code viewInputs} property.
      */
     private final MetaProperty<ViewInputs> _viewInputs = DirectMetaProperty.ofImmutable(
@@ -353,6 +376,7 @@ public final class Results implements ImmutableBean {
         "rows",
         "nonPortfolioResults",
         "pendingMarketData",
+        "viewTimer",
         "viewInputs");
 
     /**
@@ -372,6 +396,8 @@ public final class Results implements ImmutableBean {
           return _nonPortfolioResults;
         case -482275587:  // pendingMarketData
           return _pendingMarketData;
+        case -1583498336:  // viewTimer
+          return _viewTimer;
         case 2140961006:  // viewInputs
           return _viewInputs;
       }
@@ -427,6 +453,14 @@ public final class Results implements ImmutableBean {
     }
 
     /**
+     * The meta-property for the {@code viewTimer} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<ViewTimer> viewTimer() {
+      return _viewTimer;
+    }
+
+    /**
      * The meta-property for the {@code viewInputs} property.
      * @return the meta-property, not null
      */
@@ -446,6 +480,8 @@ public final class Results implements ImmutableBean {
           return ((Results) bean).getNonPortfolioResults();
         case -482275587:  // pendingMarketData
           return ((Results) bean).isPendingMarketData();
+        case -1583498336:  // viewTimer
+          return ((Results) bean).getViewTimer();
         case 2140961006:  // viewInputs
           return ((Results) bean).getViewInputs();
       }
@@ -473,6 +509,7 @@ public final class Results implements ImmutableBean {
     private List<ResultRow> _rows = new ArrayList<ResultRow>();
     private Map<String, ResultItem> _nonPortfolioResults = new HashMap<String, ResultItem>();
     private boolean _pendingMarketData;
+    private ViewTimer _viewTimer;
     private ViewInputs _viewInputs;
 
     /**
@@ -490,6 +527,7 @@ public final class Results implements ImmutableBean {
       this._rows = new ArrayList<ResultRow>(beanToCopy.getRows());
       this._nonPortfolioResults = new HashMap<String, ResultItem>(beanToCopy.getNonPortfolioResults());
       this._pendingMarketData = beanToCopy.isPendingMarketData();
+      this._viewTimer = beanToCopy.getViewTimer();
       this._viewInputs = beanToCopy.getViewInputs();
     }
 
@@ -505,6 +543,8 @@ public final class Results implements ImmutableBean {
           return _nonPortfolioResults;
         case -482275587:  // pendingMarketData
           return _pendingMarketData;
+        case -1583498336:  // viewTimer
+          return _viewTimer;
         case 2140961006:  // viewInputs
           return _viewInputs;
         default:
@@ -527,6 +567,9 @@ public final class Results implements ImmutableBean {
           break;
         case -482275587:  // pendingMarketData
           this._pendingMarketData = (Boolean) newValue;
+          break;
+        case -1583498336:  // viewTimer
+          this._viewTimer = (ViewTimer) newValue;
           break;
         case 2140961006:  // viewInputs
           this._viewInputs = (ViewInputs) newValue;
@@ -568,6 +611,7 @@ public final class Results implements ImmutableBean {
           _rows,
           _nonPortfolioResults,
           _pendingMarketData,
+          _viewTimer,
           _viewInputs);
     }
 
@@ -616,6 +660,17 @@ public final class Results implements ImmutableBean {
     }
 
     /**
+     * Sets the {@code viewTimer} property in the builder.
+     * @param viewTimer  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder viewTimer(ViewTimer viewTimer) {
+      JodaBeanUtils.notNull(viewTimer, "viewTimer");
+      this._viewTimer = viewTimer;
+      return this;
+    }
+
+    /**
      * Sets the {@code viewInputs} property in the builder.
      * @param viewInputs  the new value
      * @return this, for chaining, not null
@@ -628,12 +683,13 @@ public final class Results implements ImmutableBean {
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(192);
+      StringBuilder buf = new StringBuilder(224);
       buf.append("Results.Builder{");
       buf.append("columnNames").append('=').append(JodaBeanUtils.toString(_columnNames)).append(',').append(' ');
       buf.append("rows").append('=').append(JodaBeanUtils.toString(_rows)).append(',').append(' ');
       buf.append("nonPortfolioResults").append('=').append(JodaBeanUtils.toString(_nonPortfolioResults)).append(',').append(' ');
       buf.append("pendingMarketData").append('=').append(JodaBeanUtils.toString(_pendingMarketData)).append(',').append(' ');
+      buf.append("viewTimer").append('=').append(JodaBeanUtils.toString(_viewTimer)).append(',').append(' ');
       buf.append("viewInputs").append('=').append(JodaBeanUtils.toString(_viewInputs));
       buf.append('}');
       return buf.toString();

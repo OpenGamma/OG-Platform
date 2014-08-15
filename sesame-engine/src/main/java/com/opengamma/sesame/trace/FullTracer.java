@@ -9,6 +9,8 @@ import java.lang.reflect.Method;
 import java.util.Deque;
 import java.util.LinkedList;
 
+import org.threeten.bp.Duration;
+
 /**
  * Tracer implementation that creates a full call graph.
  */
@@ -36,13 +38,13 @@ class FullTracer extends Tracer {
   }
 
   @Override
-  void returned(Object returnValue) {
-    _stack.pop().returned(returnValue);
+  void returned(Object returnValue, Duration duration) {
+    _stack.pop().returned(returnValue, duration);
   }
 
   @Override
-  void threw(Throwable ex) {
-    _stack.pop().threw(ex);
+  void threw(Throwable ex, Duration duration) {
+    _stack.pop().threw(ex, duration);
   }
 
   @Override

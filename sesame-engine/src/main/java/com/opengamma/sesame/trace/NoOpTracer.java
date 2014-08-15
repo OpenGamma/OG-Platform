@@ -7,6 +7,8 @@ package com.opengamma.sesame.trace;
 
 import java.lang.reflect.Method;
 
+import org.threeten.bp.Duration;
+
 /**
  * Tracer implementation that does nothing.
  */
@@ -30,12 +32,12 @@ final class NoOpTracer extends Tracer {
   }
 
   @Override
-  void returned(Object returnValue) {
+  void returned(Object returnValue, Duration duration) {
     // do nothing
   }
 
   @Override
-  void threw(Throwable ex) {
+  void threw(Throwable ex, Duration duration) {
     // do nothing
   }
 

@@ -12,13 +12,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
+import org.threeten.bp.Duration;
+
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 
 /**
  * Graph representing the calls made to calculate a single result.
  */
-/* package */ class CallGraphBuilder {
+class CallGraphBuilder {
 
   /**
    * The invoked method.
@@ -37,6 +39,10 @@ import com.google.common.collect.Lists;
    */
   private Object _returnValue;
   /**
+   * Execution time of the call.
+   */
+  private Duration _duration;
+  /**
    * The throwable.
    */
   private Throwable _throwable;
@@ -47,25 +53,27 @@ import com.google.common.collect.Lists;
    * @param method  the invoked method, not null
    * @param args  the method arguments, not null
    */
-  /* package */ CallGraphBuilder(Method method, Object... args) {
+  CallGraphBuilder(Method method, Object... args) {
     _method = method;
     _args = args;
   }
 
   //-------------------------------------------------------------------------
-  /* package */ void called(CallGraphBuilder callGraphBuilder) {
+  void called(CallGraphBuilder callGraphBuilder) {
     _callGraphBuilders.add(callGraphBuilder);
   }
 
-  /* package */ void returned(Object returnValue) {
+  void returned(Object returnValue, Duration duration) {
     _returnValue = returnValue;
+    _duration = duration;
   }
 
-  /* package */ void threw(Throwable throwable) {
+  void threw(Throwable throwable, Duration duration) {
     _throwable = throwable;
+    _duration = duration;
   }
 
-  /* package */ List<CallGraphBuilder> calls() {
+  List<CallGraphBuilder> calls() {
     return _callGraphBuilders;
   }
 
@@ -74,23 +82,17 @@ import com.google.common.collect.Lists;
   }
 
   private static CallGraph createTrace(CallGraphBuilder callGraphBuilder) {
-    List<CallGraph> calls;
 
-    if (callGraphBuilder._callGraphBuilders.isEmpty()) {
-      calls = Collections.emptyList();
-    } else {
-      calls = Lists.newArrayListWithCapacity(callGraphBuilder._callGraphBuilders.size());
-    }
+    List<CallGraph> calls = Lists.newArrayListWithCapacity(callGraphBuilder._callGraphBuilders.size());
+
     for (CallGraphBuilder childCallGraphBuilder : callGraphBuilder._callGraphBuilders) {
       calls.add(createTrace(childCallGraphBuilder));
     }
-    List<Object> args;
 
-    if (callGraphBuilder._args == null) {
-      args = Collections.emptyList();
-    } else {
-      args = Arrays.asList(callGraphBuilder._args);
-    }
+    List<Object> args = callGraphBuilder._args == null ?
+        Collections.emptyList() :
+        Arrays.asList(callGraphBuilder._args);
+
     Class<?> throwableClass;
     String errorMessage;
     String stackTrace;
@@ -104,15 +106,21 @@ import com.google.common.collect.Lists;
       errorMessage = callGraphBuilder._throwable.getMessage();
       stackTrace = Throwables.getStackTraceAsString(callGraphBuilder._throwable);
     }
+
     return new CallGraph(callGraphBuilder._method.getDeclaringClass(),
                          callGraphBuilder._method.getName(),
                          Arrays.asList(callGraphBuilder._method.getParameterTypes()),
-                         args,
+                         convertArguments(args),
                          callGraphBuilder._returnValue,
                          throwableClass,
                          errorMessage,
                          stackTrace,
-                         calls);
+                         calls,
+                         callGraphBuilder._duration);
+  }
+
+  private static List<Object> convertArguments(List<Object> args) {
+    return args;
   }
 
   //-------------------------------------------------------------------------
