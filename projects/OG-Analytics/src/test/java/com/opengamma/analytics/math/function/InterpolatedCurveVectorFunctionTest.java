@@ -5,26 +5,25 @@
  */
 package com.opengamma.analytics.math.function;
 
-import static com.opengamma.analytics.math.matrix.AssertMatrix.assertEqualsMatrix;
-import static com.opengamma.analytics.math.matrix.AssertMatrix.assertEqualsVectors;
+import static com.opengamma.analytics.util.AssertMatrix.assertEqualsMatrix;
+import static com.opengamma.analytics.util.AssertMatrix.assertEqualsVectors;
 import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.differentiation.VectorFieldFirstOrderDifferentiator;
-import com.opengamma.analytics.math.function.ConcatenatedVectorFunction;
-import com.opengamma.analytics.math.function.InterpolatedCurveVectorFunction;
-import com.opengamma.analytics.math.function.VectorFunction;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.matrix.IdentityMatrix;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * 
  */
+@Test(groups = TestGroup.UNIT)
 public class InterpolatedCurveVectorFunctionTest {
 
   private static final VectorFieldFirstOrderDifferentiator DIFF = new VectorFieldFirstOrderDifferentiator(1e-4);

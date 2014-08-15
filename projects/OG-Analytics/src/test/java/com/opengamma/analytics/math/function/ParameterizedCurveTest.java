@@ -22,7 +22,6 @@ public class ParameterizedCurveTest {
 
   @Test
   public void test() {
-
     /**
      * Take the form $y = a\sin(bx) + c$
      */
