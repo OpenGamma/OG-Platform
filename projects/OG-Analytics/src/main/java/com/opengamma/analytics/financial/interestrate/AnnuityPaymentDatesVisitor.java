@@ -20,6 +20,8 @@ import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
  * Gets the fixing period start and end dates for annuity from a particular date.
  */
 public final class AnnuityPaymentDatesVisitor extends InstrumentDefinitionVisitorAdapter<ZonedDateTime, LocalDate[]> {
+  /** The visitor for coupon types */
+  private static final InstrumentDefinitionVisitor<Void, LocalDate> COUPON_VISITOR = new CouponPaymentDateVisitor();
   /** A singleton instance */
   private static final InstrumentDefinitionVisitor<ZonedDateTime, LocalDate[]> INSTANCE = new AnnuityPaymentDatesVisitor();
 
@@ -45,7 +47,7 @@ public final class AnnuityPaymentDatesVisitor extends InstrumentDefinitionVisito
     for (int i = 0; i < n; i++) {
       final PaymentDefinition payment = annuity.getNthPayment(i);
       if (!date.isAfter(payment.getPaymentDate())) {
-        final LocalDate paymentDate = annuity.getNthPayment(i).getPaymentDate().toLocalDate();
+        final LocalDate paymentDate = annuity.getNthPayment(i).accept(COUPON_VISITOR);
         dates.add(paymentDate);
         count++;
       }

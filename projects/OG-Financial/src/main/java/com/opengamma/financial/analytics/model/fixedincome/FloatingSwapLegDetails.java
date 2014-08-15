@@ -6,9 +6,7 @@
 package com.opengamma.financial.analytics.model.fixedincome;
 
 import java.io.Serializable;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
@@ -210,7 +208,7 @@ public class  FloatingSwapLegDetails extends DirectBean implements Serializable 
    * An array of index tenors. May contain nulls if there has been a fixing as of the valuation date.
    */
   @PropertyDefinition(validate = "notNull")
-  private List<Set<Tenor>> _indexTenors;
+  private Tenor[] _indexTenors;
   /**
    * The discounted payment amount
    */
@@ -250,7 +248,7 @@ public class  FloatingSwapLegDetails extends DirectBean implements Serializable 
       final LocalDate[] fixingStart, final LocalDate[] fixingEnd, final Double[] fixingYearFractions, final Double[] forwardRates,
       final Double[] fixedRates, final LocalDate[] paymentDates, final double[] paymentTimes, final double[] paymentDiscountFactors,
       final CurrencyAmount[] paymentAmounts, final CurrencyAmount[] projectedAmounts, final CurrencyAmount[] notionals, final double[] spreads,
-      final double[] gearings, final List<Set<Tenor>> indexTenors) {
+      final double[] gearings, final Tenor[] indexTenors) {
     setAccrualStart(accrualStartDates);
     setAccrualEnd(accrualEndDates);
     setAccrualYearFractions(accrualYearFractions);
@@ -283,7 +281,7 @@ public class  FloatingSwapLegDetails extends DirectBean implements Serializable 
     ArgumentChecker.isTrue(n == projectedAmounts.length, "number of projected amounts must equal number of notionals");
     ArgumentChecker.isTrue(n == spreads.length, "number of spreads must equal number of notionals");
     ArgumentChecker.isTrue(n == gearings.length, "number of gearings must equal number of notionals");
-    ArgumentChecker.isTrue(n == indexTenors.size(), "number of index tenors must equal number of notionals");
+    ArgumentChecker.isTrue(n == indexTenors.length, "number of index tenors must equal number of notionals");
   }
 
   /**
@@ -789,7 +787,7 @@ public class  FloatingSwapLegDetails extends DirectBean implements Serializable 
    * Gets an array of index tenors. May contain nulls if there has been a fixing as of the valuation date.
    * @return the value of the property, not null
    */
-  public List<Set<Tenor>> getIndexTenors() {
+  public Tenor[] getIndexTenors() {
     return _indexTenors;
   }
 
@@ -797,7 +795,7 @@ public class  FloatingSwapLegDetails extends DirectBean implements Serializable 
    * Sets an array of index tenors. May contain nulls if there has been a fixing as of the valuation date.
    * @param indexTenors  the new value of the property, not null
    */
-  public void setIndexTenors(List<Set<Tenor>> indexTenors) {
+  public void setIndexTenors(Tenor[] indexTenors) {
     JodaBeanUtils.notNull(indexTenors, "indexTenors");
     this._indexTenors = indexTenors;
   }
@@ -806,7 +804,7 @@ public class  FloatingSwapLegDetails extends DirectBean implements Serializable 
    * Gets the the {@code indexTenors} property.
    * @return the property, not null
    */
-  public final Property<List<Set<Tenor>>> indexTenors() {
+  public final Property<Tenor[]> indexTenors() {
     return metaBean().indexTenors().createProperty(this);
   }
 
@@ -1053,9 +1051,8 @@ public class  FloatingSwapLegDetails extends DirectBean implements Serializable 
     /**
      * The meta-property for the {@code indexTenors} property.
      */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<Set<Tenor>>> _indexTenors = DirectMetaProperty.ofReadWrite(
-        this, "indexTenors", FloatingSwapLegDetails.class, (Class) List.class);
+    private final MetaProperty<Tenor[]> _indexTenors = DirectMetaProperty.ofReadWrite(
+        this, "indexTenors", FloatingSwapLegDetails.class, Tenor[].class);
     /**
      * The meta-property for the {@code numberOfCashFlows} property.
      */
@@ -1314,7 +1311,7 @@ public class  FloatingSwapLegDetails extends DirectBean implements Serializable 
      * The meta-property for the {@code indexTenors} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<List<Set<Tenor>>> indexTenors() {
+    public final MetaProperty<Tenor[]> indexTenors() {
       return _indexTenors;
     }
 
@@ -1410,7 +1407,6 @@ public class  FloatingSwapLegDetails extends DirectBean implements Serializable 
       return super.propertyGet(bean, propertyName, quiet);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
@@ -1463,7 +1459,7 @@ public class  FloatingSwapLegDetails extends DirectBean implements Serializable 
           ((FloatingSwapLegDetails) bean).setProjectedAmounts((CurrencyAmount[]) newValue);
           return;
         case 1358155045:  // indexTenors
-          ((FloatingSwapLegDetails) bean).setIndexTenors((List<Set<Tenor>>) newValue);
+          ((FloatingSwapLegDetails) bean).setIndexTenors((Tenor[]) newValue);
           return;
         case -338982286:  // numberOfCashFlows
           if (quiet) {
