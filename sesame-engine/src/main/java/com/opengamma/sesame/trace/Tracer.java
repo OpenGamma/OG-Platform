@@ -66,7 +66,7 @@ public abstract class Tracer {
    * This method must not throw an exception.
    *
    * @param returnValue  the return value of the method, may be null
-   * @param duration
+   * @param duration  the duration of the method call
    */
   abstract void returned(Object returnValue, Duration duration);
 
@@ -76,7 +76,7 @@ public abstract class Tracer {
    * This method must not throw an exception.
    *
    * @param ex  the exception that was thrown
-   * @param duration
+   * @param duration  the duration of the method call
    */
   abstract void threw(Throwable ex, Duration duration);
 
