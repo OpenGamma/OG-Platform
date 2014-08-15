@@ -18,12 +18,10 @@ import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.matrix.IdentityMatrix;
-import com.opengamma.util.test.TestGroup;
 
 /**
  * 
  */
-@Test(groups = TestGroup.UNIT)
 public class InterpolatedCurveVectorFunctionTest {
 
   private static final VectorFieldFirstOrderDifferentiator DIFF = new VectorFieldFirstOrderDifferentiator(1e-4);
@@ -43,9 +41,6 @@ public class InterpolatedCurveVectorFunctionTest {
 
     DoubleMatrix1D y = vf.evaluate(x);
     DoubleMatrix2D jac = vf.calculateJacobian(x);
-    //    System.out.println(y);
-    //    System.out.println(jac);
-
     assertEqualsVectors(x, y, 1e-15);
     assertEqualsMatrix(new IdentityMatrix(x.getNumberOfElements()), jac, 1e-15);
 
@@ -53,8 +48,7 @@ public class InterpolatedCurveVectorFunctionTest {
     vf = new InterpolatedCurveVectorFunction(samplePoints, interpolator, knots);
     y = vf.evaluate(x);
     jac = vf.calculateJacobian(x);
-    //    System.out.println(y);
-    //    System.out.println(jac);
+
     final DoubleMatrix2D jacFD = DIFF.differentiate(vf).evaluate(x);
     assertEqualsMatrix(jac, jacFD, 5e-5);
   }
@@ -88,8 +82,8 @@ public class InterpolatedCurveVectorFunctionTest {
       }
 
       @Override
-      public int getLengthOfRange() {
-        return samplePoints.length;
+      public DoubleMatrix2D calculateJacobian(final DoubleMatrix1D x) {
+        return DoubleMatrix2D.EMPTY_MATRIX;
       }
 
       @Override
@@ -98,8 +92,8 @@ public class InterpolatedCurveVectorFunctionTest {
       }
 
       @Override
-      public DoubleMatrix2D calculateJacobian(final DoubleMatrix1D x) {
-        return DoubleMatrix2D.EMPTY_MATRIX;
+      public int getLengthOfRange() {
+        return samplePoints.length;
       }
     };
 
