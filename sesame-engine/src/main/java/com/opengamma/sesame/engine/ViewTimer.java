@@ -38,20 +38,20 @@ public class ViewTimer implements ImmutableBean {
   /**
    * The total duration of the view cycle.
    */
-  @PropertyDefinition
+  @PropertyDefinition(validate = "notNull")
   private final Duration _totalDuration;
 
   /**
    * THe duration of the initialization phase of the cycle. This
    * records the time spent setting up data for the engine.
    */
-  @PropertyDefinition
+  @PropertyDefinition(validate = "notNull")
   private final Duration _initializationDuration;
 
   /**
    * The duration of the execution of the view by the engine.
    */
-  @PropertyDefinition
+  @PropertyDefinition(validate = "notNull")
   private final Duration _executionDuration;
 
   /**
@@ -59,7 +59,7 @@ public class ViewTimer implements ImmutableBean {
    * records the time spent creating the results object from the
    * data returned by the engine.
    */
-  @PropertyDefinition
+  @PropertyDefinition(validate = "notNull")
   private final Duration _resultsBuildDuration;
 
   public ViewTimer(Instant start, long startInitialization, long startExecution, long startResultsBuild, long end) {
@@ -98,6 +98,10 @@ public class ViewTimer implements ImmutableBean {
    */
   protected ViewTimer(ViewTimer.Builder builder) {
     JodaBeanUtils.notNull(builder._start, "start");
+    JodaBeanUtils.notNull(builder._totalDuration, "totalDuration");
+    JodaBeanUtils.notNull(builder._initializationDuration, "initializationDuration");
+    JodaBeanUtils.notNull(builder._executionDuration, "executionDuration");
+    JodaBeanUtils.notNull(builder._resultsBuildDuration, "resultsBuildDuration");
     this._start = builder._start;
     this._totalDuration = builder._totalDuration;
     this._initializationDuration = builder._initializationDuration;
@@ -132,7 +136,7 @@ public class ViewTimer implements ImmutableBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the total duration of the view cycle.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public Duration getTotalDuration() {
     return _totalDuration;
@@ -142,7 +146,7 @@ public class ViewTimer implements ImmutableBean {
   /**
    * Gets tHe duration of the initialization phase of the cycle. This
    * records the time spent setting up data for the engine.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public Duration getInitializationDuration() {
     return _initializationDuration;
@@ -151,7 +155,7 @@ public class ViewTimer implements ImmutableBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the duration of the execution of the view by the engine.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public Duration getExecutionDuration() {
     return _executionDuration;
@@ -162,7 +166,7 @@ public class ViewTimer implements ImmutableBean {
    * Gets the duration of the results building phase of the cycle. This
    * records the time spent creating the results object from the
    * data returned by the engine.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public Duration getResultsBuildDuration() {
     return _resultsBuildDuration;
@@ -495,40 +499,44 @@ public class ViewTimer implements ImmutableBean {
 
     /**
      * Sets the {@code totalDuration} property in the builder.
-     * @param totalDuration  the new value
+     * @param totalDuration  the new value, not null
      * @return this, for chaining, not null
      */
     public Builder totalDuration(Duration totalDuration) {
+      JodaBeanUtils.notNull(totalDuration, "totalDuration");
       this._totalDuration = totalDuration;
       return this;
     }
 
     /**
      * Sets the {@code initializationDuration} property in the builder.
-     * @param initializationDuration  the new value
+     * @param initializationDuration  the new value, not null
      * @return this, for chaining, not null
      */
     public Builder initializationDuration(Duration initializationDuration) {
+      JodaBeanUtils.notNull(initializationDuration, "initializationDuration");
       this._initializationDuration = initializationDuration;
       return this;
     }
 
     /**
      * Sets the {@code executionDuration} property in the builder.
-     * @param executionDuration  the new value
+     * @param executionDuration  the new value, not null
      * @return this, for chaining, not null
      */
     public Builder executionDuration(Duration executionDuration) {
+      JodaBeanUtils.notNull(executionDuration, "executionDuration");
       this._executionDuration = executionDuration;
       return this;
     }
 
     /**
      * Sets the {@code resultsBuildDuration} property in the builder.
-     * @param resultsBuildDuration  the new value
+     * @param resultsBuildDuration  the new value, not null
      * @return this, for chaining, not null
      */
     public Builder resultsBuildDuration(Duration resultsBuildDuration) {
+      JodaBeanUtils.notNull(resultsBuildDuration, "resultsBuildDuration");
       this._resultsBuildDuration = resultsBuildDuration;
       return this;
     }

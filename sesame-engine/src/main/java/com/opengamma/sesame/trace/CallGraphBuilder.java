@@ -5,7 +5,10 @@
  */
 package com.opengamma.sesame.trace;
 
+import static com.opengamma.sesame.engine.CycleArguments.TraceType;
+
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
@@ -14,6 +17,7 @@ import java.util.Objects;
 
 import org.threeten.bp.Duration;
 
+import com.google.common.base.Function;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 
@@ -22,6 +26,10 @@ import com.google.common.collect.Lists;
  */
 class CallGraphBuilder {
 
+  /**
+   * The type of trace to be done.
+   */
+  private final TraceType _traceType;
   /**
    * The invoked method.
    */
@@ -33,7 +41,7 @@ class CallGraphBuilder {
   /**
    * The child call graphs.
    */
-  private final List<CallGraphBuilder> _callGraphBuilders = Lists.newArrayList();
+  private final List<CallGraphBuilder> _callGraphBuilders = new ArrayList<>();
   /**
    * The return value.
    */
@@ -49,11 +57,11 @@ class CallGraphBuilder {
 
   /**
    * Creates an instance.
-   * 
-   * @param method  the invoked method, not null
+   *  @param method  the invoked method, not null
    * @param args  the method arguments, not null
    */
-  CallGraphBuilder(Method method, Object... args) {
+  CallGraphBuilder(TraceType traceType, Method method, Object... args) {
+    _traceType = traceType;
     _method = method;
     _args = args;
   }
@@ -78,15 +86,15 @@ class CallGraphBuilder {
   }
 
   public CallGraph createTrace() {
-    return createTrace(this);
+    return createTrace(this, _traceType);
   }
 
-  private static CallGraph createTrace(CallGraphBuilder callGraphBuilder) {
+  private static CallGraph createTrace(CallGraphBuilder callGraphBuilder, TraceType traceType) {
 
     List<CallGraph> calls = Lists.newArrayListWithCapacity(callGraphBuilder._callGraphBuilders.size());
 
     for (CallGraphBuilder childCallGraphBuilder : callGraphBuilder._callGraphBuilders) {
-      calls.add(createTrace(childCallGraphBuilder));
+      calls.add(createTrace(childCallGraphBuilder, traceType));
     }
 
     List<Object> args = callGraphBuilder._args == null ?
@@ -97,7 +105,7 @@ class CallGraphBuilder {
     String errorMessage;
     String stackTrace;
 
-    if (callGraphBuilder._throwable == null) {
+    if (callGraphBuilder._throwable == null || traceType == TraceType.TIMINGS_ONLY) {
       throwableClass = null;
       errorMessage = null;
       stackTrace = null;
@@ -110,8 +118,8 @@ class CallGraphBuilder {
     return new CallGraph(callGraphBuilder._method.getDeclaringClass(),
                          callGraphBuilder._method.getName(),
                          Arrays.asList(callGraphBuilder._method.getParameterTypes()),
-                         convertArguments(args),
-                         callGraphBuilder._returnValue,
+                         convertArguments(args, traceType),
+                         convertReturnValue(callGraphBuilder._returnValue, traceType),
                          throwableClass,
                          errorMessage,
                          stackTrace,
@@ -119,8 +127,35 @@ class CallGraphBuilder {
                          callGraphBuilder._duration);
   }
 
-  private static List<Object> convertArguments(List<Object> args) {
-    return args;
+  private static Object convertReturnValue(Object returnValue, TraceType traceType) {
+    switch (traceType) {
+      case FULL:
+        return returnValue;
+      case FULL_AS_STRING:
+        return String.valueOf(returnValue);
+      default:
+        return null;
+    }
+  }
+
+  private static List<Object> convertArguments(List<Object> args, TraceType traceType) {
+    switch (traceType) {
+      case FULL:
+        return args;
+      case FULL_AS_STRING:
+        return Lists.transform(
+            args,
+            new Function<Object, Object>() {
+              @Override
+              public Object apply(Object input) {
+                return String.valueOf(input);
+              }
+            });
+      default:
+        // Unusually we want null here to indicate we
+        // are not capturing information
+        return null;
+    }
   }
 
   //-------------------------------------------------------------------------

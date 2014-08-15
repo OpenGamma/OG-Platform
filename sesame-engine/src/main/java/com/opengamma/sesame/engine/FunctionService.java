@@ -24,23 +24,10 @@ public enum FunctionService {
   METRICS,
   /**
    * The tracing service providing timings of all methods together with
-   * the arguments passed and the return values. This service is not
-   * accessible over a remote interface as it is not possible to ensure
-   * that all arguments and return values are serializable.
+   * the arguments passed and the return values. Exactly what is
+   * captured is determined by the CycleArguments.
    */
-  TRACING_LOCAL,
-  /**
-   * The tracing service providing timings of all methods together with
-   * the arguments passed and the return values. In order to ensure that
-   * this is accessible over a remote interface, all arguments and return
-   * values are converted to strings so they cannot be interrogated
-   * programmatically.
-   */
-  TRACING_REMOTE,
-  /**
-   * The service providing timings of all methods.
-   */
-  TIMING;
+  TRACING;
 
   /**
    * Default services provided by the engine - memoization based caching of calculated values.

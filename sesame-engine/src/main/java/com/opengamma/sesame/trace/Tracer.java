@@ -5,6 +5,8 @@
  */
 package com.opengamma.sesame.trace;
 
+import static com.opengamma.sesame.engine.CycleArguments.TraceType;
+
 import java.lang.reflect.Method;
 
 import org.threeten.bp.Duration;
@@ -28,15 +30,11 @@ public abstract class Tracer {
    * An active tracer will trace the call graph.
    * An inactive tracer will do nothing and return no call graph.
    * 
-   * @param active  whether tracing should be activated
+   * @param traceType  the type of tracing to be activated
    * @return the tracer, not null
    */
-  public static Tracer create(boolean active) {
-    if (active) {
-      return new FullTracer();
-    } else {
-      return NoOpTracer.INSTANCE;
-    }
+  public static Tracer create(TraceType traceType) {
+    return traceType == TraceType.NONE ? NoOpTracer.INSTANCE : new StandardTracer(traceType);
   }
 
   //-------------------------------------------------------------------------

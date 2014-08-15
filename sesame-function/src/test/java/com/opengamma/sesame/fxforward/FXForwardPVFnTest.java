@@ -432,7 +432,7 @@ public class FXForwardPVFnTest {
                                               availableOutputs,
                                               availableImplementations,
                                               FunctionModelConfig.EMPTY,
-                                              EnumSet.of(FunctionService.CACHING, FunctionService.TRACING_LOCAL),
+                                              EnumSet.of(FunctionService.CACHING, FunctionService.TRACING),
                                               FunctionTestUtils.createCacheBuilder(),
                                               new NoOpCacheInvalidator(),
                                               Optional.<MetricRegistry>absent());

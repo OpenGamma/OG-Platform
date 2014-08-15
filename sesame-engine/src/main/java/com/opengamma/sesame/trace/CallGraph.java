@@ -50,11 +50,17 @@ public final class CallGraph implements ImmutableBean {
   @PropertyDefinition(validate = "notNull")
   private final List<Class<?>> _parameterTypes;
 
-  /** The arguments passed to the method call. */
-  @PropertyDefinition(validate = "notNull")
+  /**
+   * The arguments passed to the method call. Null if we are
+   * only capturing timings.
+   */
+  @PropertyDefinition
   private final List<Object> _arguments;
 
-  /** The return value from the method call. */
+  /**
+   * The return value from the method call. Null if we are
+   * only capturing timings.
+   */
   @PropertyDefinition
   private final Object _returnValue;
 
@@ -119,13 +125,14 @@ public final class CallGraph implements ImmutableBean {
 
   @Override
   public String toString() {
-    String errorMessage;
 
-    if (_errorMessage == null) {
-      errorMessage = "";
-    } else {
-      errorMessage = " '" + _errorMessage + "'";
+    // We are timings only
+    if (_returnValue == null && _arguments == null) {
+      return _receiverClass.getSimpleName() + "." + _methodName + "()" +
+          " in " + _duration.toNanos() + "ns";
     }
+
+    String errorMessage = _errorMessage == null ? "" : " '" + _errorMessage + "'";
     return _receiverClass.getSimpleName() + "." + _methodName + "()" +
         (_throwableClass == null ? " -> " + _returnValue : " threw " + _throwableClass + errorMessage) +
         " in " + _duration.toNanos() + "ns" +
@@ -151,7 +158,7 @@ public final class CallGraph implements ImmutableBean {
     _receiverClass = receiverClass;
     _methodName = methodName;
     _parameterTypes = ImmutableList.copyOf(parameterTypes);
-    _arguments = ImmutableList.copyOf(arguments);
+    _arguments = arguments == null ? null : ImmutableList.copyOf(arguments);
     _returnValue = returnValue;
     _throwableClass = throwableClass;
     _errorMessage = errorMessage;
@@ -253,8 +260,9 @@ public final class CallGraph implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the arguments passed to the method call.
-   * @return the value of the property, not null
+   * Gets the arguments passed to the method call. Null if we are
+   * only capturing timings.
+   * @return the value of the property
    */
   public List<Object> getArguments() {
     return _arguments;
@@ -262,7 +270,8 @@ public final class CallGraph implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the return value from the method call.
+   * Gets the return value from the method call. Null if we are
+   * only capturing timings.
    * @return the value of the property
    */
   public Object getReturnValue() {
@@ -581,7 +590,7 @@ public final class CallGraph implements ImmutableBean {
     private Class<?> _receiverClass;
     private String _methodName;
     private List<Class<?>> _parameterTypes = new ArrayList<Class<?>>();
-    private List<Object> _arguments = new ArrayList<Object>();
+    private List<Object> _arguments;
     private Object _returnValue;
     private Class<?> _throwableClass;
     private String _errorMessage;
@@ -603,7 +612,7 @@ public final class CallGraph implements ImmutableBean {
       this._receiverClass = beanToCopy.getReceiverClass();
       this._methodName = beanToCopy.getMethodName();
       this._parameterTypes = new ArrayList<Class<?>>(beanToCopy.getParameterTypes());
-      this._arguments = new ArrayList<Object>(beanToCopy.getArguments());
+      this._arguments = (beanToCopy.getArguments() != null ? new ArrayList<Object>(beanToCopy.getArguments()) : null);
       this._returnValue = beanToCopy.getReturnValue();
       this._throwableClass = beanToCopy.getThrowableClass();
       this._errorMessage = beanToCopy.getErrorMessage();
@@ -756,11 +765,10 @@ public final class CallGraph implements ImmutableBean {
 
     /**
      * Sets the {@code arguments} property in the builder.
-     * @param arguments  the new value, not null
+     * @param arguments  the new value
      * @return this, for chaining, not null
      */
     public Builder arguments(List<Object> arguments) {
-      JodaBeanUtils.notNull(arguments, "arguments");
       this._arguments = arguments;
       return this;
     }

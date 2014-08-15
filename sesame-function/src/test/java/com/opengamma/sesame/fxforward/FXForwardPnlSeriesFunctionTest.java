@@ -10,6 +10,7 @@ import static com.opengamma.sesame.config.ConfigBuilder.arguments;
 import static com.opengamma.sesame.config.ConfigBuilder.config;
 import static com.opengamma.sesame.config.ConfigBuilder.function;
 import static com.opengamma.sesame.config.ConfigBuilder.implementations;
+import static com.opengamma.sesame.engine.CycleArguments.TraceType;
 import static com.opengamma.util.money.Currency.EUR;
 import static com.opengamma.util.money.Currency.GBP;
 import static com.opengamma.util.money.Currency.JPY;
@@ -182,7 +183,7 @@ public class FXForwardPnlSeriesFunctionTest {
     ZonedDateTime forwardDate = ZonedDateTime.of(2014, 11, 7, 12, 0, 0, 0, ZoneOffset.UTC);
     FXForwardSecurity security = new FXForwardSecurity(EUR, 10_000_000, USD, 14_000_000, forwardDate, regionId);
     security.setUniqueId(UniqueId.of("sec", "123"));
-    TracingProxy.start(Tracer.create(true));
+    TracingProxy.start(Tracer.create(TraceType.FULL));
     Result<LocalDateDoubleTimeSeries> result = null;
     int nRuns = 100;
     //int nRuns = 1;

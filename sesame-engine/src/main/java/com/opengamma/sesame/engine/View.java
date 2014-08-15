@@ -167,11 +167,7 @@ public class View {
     // calculated (if cache there will be no child calls).
     // Only allow one tracing proxy but pick the most
     // comprehensive one
-    if (services.contains(FunctionService.TRACING_LOCAL)) {
-      decorators.add(TracingProxy.INSTANCE);
-    } else if (services.contains(FunctionService.TRACING_REMOTE)) {
-      decorators.add(TracingProxy.INSTANCE);
-    } else if (services.contains(FunctionService.TIMING)) {
+    if (services.contains(FunctionService.TRACING)) {
       decorators.add(TracingProxy.INSTANCE);
     }
 
@@ -348,7 +344,7 @@ public class View {
               "No function found for input, column: " + column + " type: " + input.getClass().getName());
           functionInput = input;
         }
-        Tracer tracer = Tracer.create(cycleArguments.isTracingEnabled(rowIndex, colIndex));
+        Tracer tracer = Tracer.create(cycleArguments.traceType(rowIndex, colIndex));
 
         FunctionModelConfig functionModelConfig = CompositeFunctionModelConfig.compose(
             column.getFunctionConfig(functionInput.getClass()),
@@ -372,7 +368,7 @@ public class View {
     List<Task> tasks = Lists.newArrayList();
     for (NonPortfolioOutput output : _viewConfig.getNonPortfolioOutputs()) {
       InvokableFunction function = graph.getNonPortfolioFunction(output.getName());
-      Tracer tracer = Tracer.create(cycleArguments.isTracingEnabled(output.getName()));
+      Tracer tracer = Tracer.create(cycleArguments.traceType(output.getName()));
 
       FunctionModelConfig functionModelConfig = CompositeFunctionModelConfig.compose(
           output.getOutput().getFunctionModelConfig(),
