@@ -8,13 +8,15 @@ package com.opengamma.analytics.math.function;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.differentiation.VectorFieldFirstOrderDifferentiator;
-import com.opengamma.analytics.math.matrix.AssertMatrix;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
+import com.opengamma.analytics.util.AssertMatrix;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Create a few {@link VectorFunction} (as anonymous inner classes) and check they concatenate correctly 
  */
+@Test(groups = TestGroup.UNIT)
 public class ConcatenatedVectorFunctionTest {
 
   private static final VectorFieldFirstOrderDifferentiator DIFF = new VectorFieldFirstOrderDifferentiator();
