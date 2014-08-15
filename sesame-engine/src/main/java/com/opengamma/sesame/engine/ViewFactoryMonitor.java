@@ -8,10 +8,10 @@ package com.opengamma.sesame.engine;
 import javax.management.MXBean;
 
 /**
- * MBean interface for exposing the engine cache via JMX.
+ * MBean interface for exposing engine operations via JMX.
  */
 @MXBean
-public interface CacheMonitor {
+public interface ViewFactoryMonitor {
 
   /**
    * Discards all entries from the engine cache.
@@ -21,4 +21,9 @@ public interface CacheMonitor {
    * they continue to use the old cache until they start their next cycle.
    */
   void clearCache();
+
+  /**
+   * Discards all entries from the metrics registry.
+   */
+  void clearMetrics();
 }

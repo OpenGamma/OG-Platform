@@ -23,13 +23,11 @@ public enum FunctionService {
    */
   METRICS,
   /**
-   * The tracing service.
+   * The tracing service providing timings of all methods together with
+   * the arguments passed and the return values. Exactly what is
+   * captured is determined by the CycleArguments.
    */
-  TRACING,
-  /**
-   * The timing service.
-   */
-  TIMING;
+  TRACING;
 
   /**
    * Default services provided by the engine - memoization based caching of calculated values.

@@ -5,7 +5,11 @@
  */
 package com.opengamma.sesame.trace;
 
+import static com.opengamma.sesame.engine.CycleArguments.TraceType;
+
 import java.lang.reflect.Method;
+
+import org.threeten.bp.Duration;
 
 /**
  * Provides the ability to handle tracing of function calls.
@@ -26,15 +30,11 @@ public abstract class Tracer {
    * An active tracer will trace the call graph.
    * An inactive tracer will do nothing and return no call graph.
    * 
-   * @param active  whether tracing should be activated
+   * @param traceType  the type of tracing to be activated
    * @return the tracer, not null
    */
-  public static Tracer create(boolean active) {
-    if (active) {
-      return new FullTracer();
-    } else {
-      return NoOpTracer.INSTANCE;
-    }
+  public static Tracer create(TraceType traceType) {
+    return traceType == TraceType.NONE ? NoOpTracer.INSTANCE : new StandardTracer(traceType);
   }
 
   //-------------------------------------------------------------------------
@@ -62,19 +62,21 @@ public abstract class Tracer {
    * The return value may however represent a known failure case.
    * <p>
    * This method must not throw an exception.
-   * 
+   *
    * @param returnValue  the return value of the method, may be null
+   * @param duration  the duration of the method call
    */
-  abstract void returned(Object returnValue);
+  abstract void returned(Object returnValue, Duration duration);
 
   /**
    * Handles the tracing event when a method call threw an exception.
    * <p>
    * This method must not throw an exception.
-   * 
+   *
    * @param ex  the exception that was thrown
+   * @param duration  the duration of the method call
    */
-  abstract void threw(Throwable ex);
+  abstract void threw(Throwable ex, Duration duration);
 
   /**
    * Gets the root of the call graph.

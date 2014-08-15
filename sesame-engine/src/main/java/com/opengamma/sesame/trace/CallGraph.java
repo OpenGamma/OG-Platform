@@ -25,13 +25,15 @@ import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.threeten.bp.Duration;
 
 import com.google.common.collect.ImmutableList;
 
 /**
  * A tree tracing a method call and any calls made during its execution.
- * Contains the arguments, return values and details of any exceptions thrown for all the executed methods.
- * The stack trace isn't used in {@link #hashCode()} or {@link #equals(Object)}.
+ * Contains the execution time, arguments, return values and details of any
+ * exceptions thrown for all the executed methods. The stack trace is not
+ * used in {@link #hashCode()} or {@link #equals(Object)}.
  */
 @BeanDefinition
 public final class CallGraph implements ImmutableBean {
@@ -48,11 +50,17 @@ public final class CallGraph implements ImmutableBean {
   @PropertyDefinition(validate = "notNull")
   private final List<Class<?>> _parameterTypes;
 
-  /** The arguments passed to the method call. */
-  @PropertyDefinition(validate = "notNull")
+  /**
+   * The arguments passed to the method call. Null if we are
+   * only capturing timings.
+   */
+  @PropertyDefinition
   private final List<Object> _arguments;
 
-  /** The return value from the method call. */
+  /**
+   * The return value from the method call. Null if we are
+   * only capturing timings.
+   */
   @PropertyDefinition
   private final Object _returnValue;
 
@@ -71,6 +79,10 @@ public final class CallGraph implements ImmutableBean {
   /** Calls made to other functions during execution of the method. */
   @PropertyDefinition(validate = "notNull")
   private final List<CallGraph> _calls;
+
+  /** Time taken to execute the called method */
+  @PropertyDefinition(validate = "notNull")
+  private final Duration _duration;
 
   //-------------------------------------------------------------------------
   /**
@@ -113,20 +125,22 @@ public final class CallGraph implements ImmutableBean {
 
   @Override
   public String toString() {
-    String errorMessage;
 
-    if (_errorMessage == null) {
-      errorMessage = "";
-    } else {
-      errorMessage = " '" + _errorMessage + "'";
+    // We are timings only
+    if (_returnValue == null && _arguments == null) {
+      return _receiverClass.getSimpleName() + "." + _methodName + "()" +
+          " in " + _duration.toNanos() + "ns";
     }
+
+    String errorMessage = _errorMessage == null ? "" : " '" + _errorMessage + "'";
     return _receiverClass.getSimpleName() + "." + _methodName + "()" +
         (_throwableClass == null ? " -> " + _returnValue : " threw " + _throwableClass + errorMessage) +
+        " in " + _duration.toNanos() + "ns" +
         (_arguments == null ? "" : ", args: " + _arguments);
   }
 
   @ImmutableConstructor
-  /* package */ CallGraph(Class<?> receiverClass,
+  CallGraph(Class<?> receiverClass,
                           String methodName,
                           List<Class<?>> parameterTypes,
                           List<Object> arguments,
@@ -134,25 +148,29 @@ public final class CallGraph implements ImmutableBean {
                           Class<?> throwableClass,
                           String errorMessage,
                           String stackTrace,
-                          List<CallGraph> calls) {
+                          List<CallGraph> calls,
+                          Duration duration) {
     JodaBeanUtils.notNull(receiverClass, "receiverClass");
     JodaBeanUtils.notNull(methodName, "methodName");
     JodaBeanUtils.notNull(parameterTypes, "parameterTypes");
     JodaBeanUtils.notNull(calls, "calls");
+    JodaBeanUtils.notNull(duration, "duration");
     _receiverClass = receiverClass;
     _methodName = methodName;
     _parameterTypes = ImmutableList.copyOf(parameterTypes);
-    _arguments = ImmutableList.copyOf(arguments);
+    _arguments = arguments == null ? null : ImmutableList.copyOf(arguments);
     _returnValue = returnValue;
     _throwableClass = throwableClass;
     _errorMessage = errorMessage;
     _stackTrace = stackTrace;
     _calls = ImmutableList.copyOf(calls);
+    _duration = duration;
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(_receiverClass, _methodName, _parameterTypes, _arguments, _returnValue, _throwableClass, _errorMessage, _calls);
+    return Objects.hash(_receiverClass, _methodName, _parameterTypes, _arguments, _returnValue,
+                        _throwableClass, _errorMessage, _calls, _duration);
   }
 
   @Override
@@ -172,8 +190,10 @@ public final class CallGraph implements ImmutableBean {
         Objects.equals(this._returnValue, other._returnValue) &&
         Objects.equals(this._throwableClass, other._throwableClass) &&
         Objects.equals(this._errorMessage, other._errorMessage) &&
-        Objects.equals(this._calls, other._calls);
+        Objects.equals(this._calls, other._calls) &&
+        Objects.equals(this._duration, other._duration);
   }
+
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
@@ -240,8 +260,9 @@ public final class CallGraph implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the arguments passed to the method call.
-   * @return the value of the property, not null
+   * Gets the arguments passed to the method call. Null if we are
+   * only capturing timings.
+   * @return the value of the property
    */
   public List<Object> getArguments() {
     return _arguments;
@@ -249,7 +270,8 @@ public final class CallGraph implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the return value from the method call.
+   * Gets the return value from the method call. Null if we are
+   * only capturing timings.
    * @return the value of the property
    */
   public Object getReturnValue() {
@@ -290,6 +312,15 @@ public final class CallGraph implements ImmutableBean {
    */
   public List<CallGraph> getCalls() {
     return _calls;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets time taken to execute the called method
+   * @return the value of the property, not null
+   */
+  public Duration getDuration() {
+    return _duration;
   }
 
   //-----------------------------------------------------------------------
@@ -362,6 +393,11 @@ public final class CallGraph implements ImmutableBean {
     private final MetaProperty<List<CallGraph>> _calls = DirectMetaProperty.ofImmutable(
         this, "calls", CallGraph.class, (Class) List.class);
     /**
+     * The meta-property for the {@code duration} property.
+     */
+    private final MetaProperty<Duration> _duration = DirectMetaProperty.ofImmutable(
+        this, "duration", CallGraph.class, Duration.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -374,7 +410,8 @@ public final class CallGraph implements ImmutableBean {
         "throwableClass",
         "errorMessage",
         "stackTrace",
-        "calls");
+        "calls",
+        "duration");
 
     /**
      * Restricted constructor.
@@ -403,6 +440,8 @@ public final class CallGraph implements ImmutableBean {
           return _stackTrace;
         case 94425557:  // calls
           return _calls;
+        case -1992012396:  // duration
+          return _duration;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -495,6 +534,14 @@ public final class CallGraph implements ImmutableBean {
       return _calls;
     }
 
+    /**
+     * The meta-property for the {@code duration} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Duration> duration() {
+      return _duration;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -517,6 +564,8 @@ public final class CallGraph implements ImmutableBean {
           return ((CallGraph) bean).getStackTrace();
         case 94425557:  // calls
           return ((CallGraph) bean).getCalls();
+        case -1992012396:  // duration
+          return ((CallGraph) bean).getDuration();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -541,12 +590,13 @@ public final class CallGraph implements ImmutableBean {
     private Class<?> _receiverClass;
     private String _methodName;
     private List<Class<?>> _parameterTypes = new ArrayList<Class<?>>();
-    private List<Object> _arguments = new ArrayList<Object>();
+    private List<Object> _arguments;
     private Object _returnValue;
     private Class<?> _throwableClass;
     private String _errorMessage;
     private String _stackTrace;
     private List<CallGraph> _calls = new ArrayList<CallGraph>();
+    private Duration _duration;
 
     /**
      * Restricted constructor.
@@ -562,12 +612,13 @@ public final class CallGraph implements ImmutableBean {
       this._receiverClass = beanToCopy.getReceiverClass();
       this._methodName = beanToCopy.getMethodName();
       this._parameterTypes = new ArrayList<Class<?>>(beanToCopy.getParameterTypes());
-      this._arguments = new ArrayList<Object>(beanToCopy.getArguments());
+      this._arguments = (beanToCopy.getArguments() != null ? new ArrayList<Object>(beanToCopy.getArguments()) : null);
       this._returnValue = beanToCopy.getReturnValue();
       this._throwableClass = beanToCopy.getThrowableClass();
       this._errorMessage = beanToCopy.getErrorMessage();
       this._stackTrace = beanToCopy.getStackTrace();
       this._calls = new ArrayList<CallGraph>(beanToCopy.getCalls());
+      this._duration = beanToCopy.getDuration();
     }
 
     //-----------------------------------------------------------------------
@@ -592,6 +643,8 @@ public final class CallGraph implements ImmutableBean {
           return _stackTrace;
         case 94425557:  // calls
           return _calls;
+        case -1992012396:  // duration
+          return _duration;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -627,6 +680,9 @@ public final class CallGraph implements ImmutableBean {
           break;
         case 94425557:  // calls
           this._calls = (List<CallGraph>) newValue;
+          break;
+        case -1992012396:  // duration
+          this._duration = (Duration) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -669,7 +725,8 @@ public final class CallGraph implements ImmutableBean {
           _throwableClass,
           _errorMessage,
           _stackTrace,
-          _calls);
+          _calls,
+          _duration);
     }
 
     //-----------------------------------------------------------------------
@@ -708,11 +765,10 @@ public final class CallGraph implements ImmutableBean {
 
     /**
      * Sets the {@code arguments} property in the builder.
-     * @param arguments  the new value, not null
+     * @param arguments  the new value
      * @return this, for chaining, not null
      */
     public Builder arguments(List<Object> arguments) {
-      JodaBeanUtils.notNull(arguments, "arguments");
       this._arguments = arguments;
       return this;
     }
@@ -768,10 +824,21 @@ public final class CallGraph implements ImmutableBean {
       return this;
     }
 
+    /**
+     * Sets the {@code duration} property in the builder.
+     * @param duration  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder duration(Duration duration) {
+      JodaBeanUtils.notNull(duration, "duration");
+      this._duration = duration;
+      return this;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(320);
+      StringBuilder buf = new StringBuilder(352);
       buf.append("CallGraph.Builder{");
       buf.append("receiverClass").append('=').append(JodaBeanUtils.toString(_receiverClass)).append(',').append(' ');
       buf.append("methodName").append('=').append(JodaBeanUtils.toString(_methodName)).append(',').append(' ');
@@ -781,7 +848,8 @@ public final class CallGraph implements ImmutableBean {
       buf.append("throwableClass").append('=').append(JodaBeanUtils.toString(_throwableClass)).append(',').append(' ');
       buf.append("errorMessage").append('=').append(JodaBeanUtils.toString(_errorMessage)).append(',').append(' ');
       buf.append("stackTrace").append('=').append(JodaBeanUtils.toString(_stackTrace)).append(',').append(' ');
-      buf.append("calls").append('=').append(JodaBeanUtils.toString(_calls));
+      buf.append("calls").append('=').append(JodaBeanUtils.toString(_calls)).append(',').append(' ');
+      buf.append("duration").append('=').append(JodaBeanUtils.toString(_duration));
       buf.append('}');
       return buf.toString();
     }

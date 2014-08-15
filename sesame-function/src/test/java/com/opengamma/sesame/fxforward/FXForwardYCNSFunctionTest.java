@@ -98,7 +98,7 @@ import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.sesame.marketdata.FixedHistoricalMarketDataSource;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataFn;
-import com.opengamma.sesame.proxy.TimingProxy;
+import com.opengamma.sesame.trace.TracingProxy;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.result.ResultStatus;
 import com.opengamma.util.test.TestGroup;
@@ -166,7 +166,7 @@ public class FXForwardYCNSFunctionTest {
         FunctionModel.build(FXForwardYieldCurveNodeSensitivitiesFn.class,
                             createFunctionConfig(),
                             componentMap,
-                            TimingProxy.INSTANCE,
+                            TracingProxy.INSTANCE,
                             cachingDecorator);
     ExternalId regionId = ExternalId.of(ExternalSchemes.FINANCIAL, "US");
     ZonedDateTime forwardDate = ZonedDateTime.of(2014, 11, 7, 12, 0, 0, 0, ZoneOffset.UTC);

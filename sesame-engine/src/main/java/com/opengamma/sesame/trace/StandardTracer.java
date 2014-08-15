@@ -5,28 +5,43 @@
  */
 package com.opengamma.sesame.trace;
 
+import static com.opengamma.sesame.engine.CycleArguments.TraceType;
+
 import java.lang.reflect.Method;
 import java.util.Deque;
 import java.util.LinkedList;
 
+import org.threeten.bp.Duration;
+
+import com.opengamma.util.ArgumentChecker;
+
 /**
  * Tracer implementation that creates a full call graph.
  */
-class FullTracer extends Tracer {
+class StandardTracer extends Tracer {
 
   /**
    * The stack of calls.
    */
   private final Deque<CallGraphBuilder> _stack = new LinkedList<>();
   /**
+   * The type of trace to be executed.
+   */
+  private final TraceType _traceType;
+  /**
    * The root of the call graph.
    */
   private CallGraphBuilder _root;
 
+  public StandardTracer(TraceType traceType) {
+    ArgumentChecker.isFalse(traceType == TraceType.NONE, "traceType cannot be NONE");
+    _traceType = traceType;
+  }
+
   //-------------------------------------------------------------------------
   @Override
   void called(Method method, Object[] args) {
-    CallGraphBuilder callGraphBuilder = new CallGraphBuilder(method, args);
+    CallGraphBuilder callGraphBuilder = new CallGraphBuilder(_traceType, method, args);
     if (_stack.isEmpty()) {
       _root = callGraphBuilder;
     } else {
@@ -36,13 +51,13 @@ class FullTracer extends Tracer {
   }
 
   @Override
-  void returned(Object returnValue) {
-    _stack.pop().returned(returnValue);
+  void returned(Object returnValue, Duration duration) {
+    _stack.pop().returned(returnValue, duration);
   }
 
   @Override
-  void threw(Throwable ex) {
-    _stack.pop().threw(ex);
+  void threw(Throwable ex, Duration duration) {
+    _stack.pop().threw(ex, duration);
   }
 
   @Override

@@ -7,6 +7,8 @@ package com.opengamma.sesame.trace;
 
 import java.lang.reflect.Method;
 
+import org.threeten.bp.Duration;
+
 import com.opengamma.sesame.config.EngineUtils;
 import com.opengamma.sesame.proxy.ProxyNodeDecorator;
 import com.opengamma.util.ArgumentChecker;
@@ -76,13 +78,15 @@ public final class TracingProxy extends ProxyNodeDecorator {
     }
     Tracer tracer = s_tracer.get();
     tracer.called(method, args);
+    long start = System.nanoTime();
     try {
       Object retVal = method.invoke(delegate, args);
-      tracer.returned(retVal);
+      tracer.returned(retVal, Duration.ofNanos(System.nanoTime() - start));
       return retVal;
     } catch (Exception ex) {
+      long end = System.nanoTime();
       Throwable cause = EngineUtils.getCause(ex);
-      tracer.threw(cause);
+      tracer.threw(cause, Duration.ofNanos(end - start));
       throw cause;
     }
   }

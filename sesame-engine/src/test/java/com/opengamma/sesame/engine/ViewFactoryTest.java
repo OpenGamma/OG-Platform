@@ -15,6 +15,7 @@ import static com.opengamma.sesame.config.ConfigBuilder.function;
 import static com.opengamma.sesame.config.ConfigBuilder.implementations;
 import static com.opengamma.sesame.config.ConfigBuilder.nonPortfolioOutput;
 import static com.opengamma.sesame.config.ConfigBuilder.output;
+import static com.opengamma.sesame.engine.CycleArguments.TraceType;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertEquals;
@@ -23,11 +24,9 @@ import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.shiro.authz.AuthorizationException;
 import org.testng.annotations.Test;
@@ -37,8 +36,6 @@ import com.codahale.metrics.MetricRegistry;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.SimpleTrade;
@@ -352,15 +349,17 @@ public class ViewFactoryTest {
                                               Optional.<MetricRegistry>absent());
     List<SimpleTrade> trades = ImmutableList.of(EngineTestUtils.createEquityTrade());
     View view = viewFactory.createView(viewConfig, EquitySecurity.class);
-    @SuppressWarnings("unchecked")
-    Set<Pair<Integer, Integer>> traceCells = Sets.newHashSet(Pairs.of(0, 0));
+
+    Map<Pair<Integer, Integer>, TraceType> traceCells =
+        ImmutableMap.of(Pairs.of(0, 0), TraceType.FULL_AS_STRING);
+
     CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(),
         VersionCorrection.LATEST,
         mockCycleMarketDataFactory(),
         EmptyFunctionArguments.INSTANCE,
-        Collections.<Class<?>, Object>emptyMap(),
+        ImmutableMap.<Class<?>, Object>of(),
         traceCells,
-        Collections.<String>emptySet(),
+        ImmutableMap.<String, TraceType>of(),
         false);
     Results results = view.run(cycleArguments, trades);
     CallGraph trace = results.get(0, 0).getCallGraph();
@@ -462,9 +461,9 @@ public class ViewFactoryTest {
                                                        VersionCorrection.LATEST,
                                                        mockCycleMarketDataFactory(),
                                                        EmptyFunctionArguments.INSTANCE,
-                                                       Collections.<Class<?>, Object>emptyMap(),
-                                                       Collections.<Pair<Integer, Integer>>emptySet(),
-                                                       ImmutableSet.of(name),
+                                                       ImmutableMap.<Class<?>, Object>of(),
+                                                       ImmutableMap.<Pair<Integer, Integer>, TraceType>of(),
+                                                       ImmutableMap.of(name, TraceType.FULL_AS_STRING),
                                                        false);
     Results results = view.run(cycleArguments);
     ResultItem item = results.get(name);

@@ -5,21 +5,31 @@
  */
 package com.opengamma.sesame.trace;
 
+import static com.opengamma.sesame.engine.CycleArguments.TraceType;
+
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
+import org.threeten.bp.Duration;
+
+import com.google.common.base.Function;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 
 /**
  * Graph representing the calls made to calculate a single result.
  */
-/* package */ class CallGraphBuilder {
+class CallGraphBuilder {
 
+  /**
+   * The type of trace to be done.
+   */
+  private final TraceType _traceType;
   /**
    * The invoked method.
    */
@@ -31,11 +41,15 @@ import com.google.common.collect.Lists;
   /**
    * The child call graphs.
    */
-  private final List<CallGraphBuilder> _callGraphBuilders = Lists.newArrayList();
+  private final List<CallGraphBuilder> _callGraphBuilders = new ArrayList<>();
   /**
    * The return value.
    */
   private Object _returnValue;
+  /**
+   * Execution time of the call.
+   */
+  private Duration _duration;
   /**
    * The throwable.
    */
@@ -43,59 +57,55 @@ import com.google.common.collect.Lists;
 
   /**
    * Creates an instance.
-   * 
-   * @param method  the invoked method, not null
+   *  @param method  the invoked method, not null
    * @param args  the method arguments, not null
    */
-  /* package */ CallGraphBuilder(Method method, Object... args) {
+  CallGraphBuilder(TraceType traceType, Method method, Object... args) {
+    _traceType = traceType;
     _method = method;
     _args = args;
   }
 
   //-------------------------------------------------------------------------
-  /* package */ void called(CallGraphBuilder callGraphBuilder) {
+  void called(CallGraphBuilder callGraphBuilder) {
     _callGraphBuilders.add(callGraphBuilder);
   }
 
-  /* package */ void returned(Object returnValue) {
+  void returned(Object returnValue, Duration duration) {
     _returnValue = returnValue;
+    _duration = duration;
   }
 
-  /* package */ void threw(Throwable throwable) {
+  void threw(Throwable throwable, Duration duration) {
     _throwable = throwable;
+    _duration = duration;
   }
 
-  /* package */ List<CallGraphBuilder> calls() {
+  List<CallGraphBuilder> calls() {
     return _callGraphBuilders;
   }
 
   public CallGraph createTrace() {
-    return createTrace(this);
+    return createTrace(this, _traceType);
   }
 
-  private static CallGraph createTrace(CallGraphBuilder callGraphBuilder) {
-    List<CallGraph> calls;
+  private static CallGraph createTrace(CallGraphBuilder callGraphBuilder, TraceType traceType) {
 
-    if (callGraphBuilder._callGraphBuilders.isEmpty()) {
-      calls = Collections.emptyList();
-    } else {
-      calls = Lists.newArrayListWithCapacity(callGraphBuilder._callGraphBuilders.size());
-    }
+    List<CallGraph> calls = Lists.newArrayListWithCapacity(callGraphBuilder._callGraphBuilders.size());
+
     for (CallGraphBuilder childCallGraphBuilder : callGraphBuilder._callGraphBuilders) {
-      calls.add(createTrace(childCallGraphBuilder));
+      calls.add(createTrace(childCallGraphBuilder, traceType));
     }
-    List<Object> args;
 
-    if (callGraphBuilder._args == null) {
-      args = Collections.emptyList();
-    } else {
-      args = Arrays.asList(callGraphBuilder._args);
-    }
+    List<Object> args = callGraphBuilder._args == null ?
+        Collections.emptyList() :
+        Arrays.asList(callGraphBuilder._args);
+
     Class<?> throwableClass;
     String errorMessage;
     String stackTrace;
 
-    if (callGraphBuilder._throwable == null) {
+    if (callGraphBuilder._throwable == null || traceType == TraceType.TIMINGS_ONLY) {
       throwableClass = null;
       errorMessage = null;
       stackTrace = null;
@@ -104,15 +114,48 @@ import com.google.common.collect.Lists;
       errorMessage = callGraphBuilder._throwable.getMessage();
       stackTrace = Throwables.getStackTraceAsString(callGraphBuilder._throwable);
     }
+
     return new CallGraph(callGraphBuilder._method.getDeclaringClass(),
                          callGraphBuilder._method.getName(),
                          Arrays.asList(callGraphBuilder._method.getParameterTypes()),
-                         args,
-                         callGraphBuilder._returnValue,
+                         convertArguments(args, traceType),
+                         convertReturnValue(callGraphBuilder._returnValue, traceType),
                          throwableClass,
                          errorMessage,
                          stackTrace,
-                         calls);
+                         calls,
+                         callGraphBuilder._duration);
+  }
+
+  private static Object convertReturnValue(Object returnValue, TraceType traceType) {
+    switch (traceType) {
+      case FULL:
+        return returnValue;
+      case FULL_AS_STRING:
+        return String.valueOf(returnValue);
+      default:
+        return null;
+    }
+  }
+
+  private static List<Object> convertArguments(List<Object> args, TraceType traceType) {
+    switch (traceType) {
+      case FULL:
+        return args;
+      case FULL_AS_STRING:
+        return Lists.transform(
+            args,
+            new Function<Object, Object>() {
+              @Override
+              public Object apply(Object input) {
+                return String.valueOf(input);
+              }
+            });
+      default:
+        // Unusually we want null here to indicate we
+        // are not capturing information
+        return null;
+    }
   }
 
   //-------------------------------------------------------------------------

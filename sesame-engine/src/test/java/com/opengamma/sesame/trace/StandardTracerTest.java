@@ -7,6 +7,7 @@ package com.opengamma.sesame.trace;
 
 import static com.opengamma.sesame.config.ConfigBuilder.config;
 import static com.opengamma.sesame.config.ConfigBuilder.implementations;
+import static com.opengamma.sesame.engine.CycleArguments.TraceType;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.fail;
@@ -22,7 +23,7 @@ import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.util.test.TestGroup;
 
 @Test(groups = TestGroup.UNIT)
-public class FullTracerTest {
+public class StandardTracerTest {
 
   private static final String METHOD1 = "method1";
   private static final String METHOD2 = "method2";
@@ -35,7 +36,7 @@ public class FullTracerTest {
   @Test
   public void trace1Level() throws NoSuchMethodException {
     I1 i1 = buildFunction();
-    TracingProxy.start(new FullTracer());
+    TracingProxy.start(new StandardTracer(TraceType.FULL));
     i1.method1(0);
     CallGraph trace = TracingProxy.end();
 
@@ -45,6 +46,8 @@ public class FullTracerTest {
         .parameterTypes(ImmutableList.<Class<?>>of(Integer.TYPE))
         .arguments(ImmutableList.<Object>of(0))
         .returnValue("foo")
+        // We have to cheat with the timing information
+        .duration(trace.getDuration())
         .build();
 
     assertEquals(expected, trace);
@@ -52,9 +55,9 @@ public class FullTracerTest {
   }
 
   @Test
-  public void trace2Levels() {
+  public void trace2LevelsFull() {
     I1 i1 = buildFunction();
-    TracingProxy.start(new FullTracer());
+    TracingProxy.start(new StandardTracer(TraceType.FULL));
     i1.method1(1);
     CallGraph trace = TracingProxy.end();
 
@@ -63,6 +66,7 @@ public class FullTracerTest {
         .methodName(METHOD1)
         .parameterTypes(ImmutableList.<Class<?>>of(Integer.TYPE))
         .arguments(ImmutableList.<Object>of(1))
+        .duration(trace.getDuration())
         .returnValue("foo 42")
         .calls(ImmutableList.of(
             CallGraph.builder()
@@ -71,6 +75,65 @@ public class FullTracerTest {
                 .parameterTypes(ImmutableList.<Class<?>>of(Boolean.TYPE))
                 .arguments(ImmutableList.<Object>of(true))
                 .returnValue(42)
+                .duration(trace.getCalls().get(0).getDuration())
+                .build()))
+        .build();
+
+    assertEquals(expected, trace);
+    System.out.println(trace.prettyPrint());
+  }
+
+  @Test
+  public void trace2LevelsString() {
+    I1 i1 = buildFunction();
+    TracingProxy.start(new StandardTracer(TraceType.FULL_AS_STRING));
+    i1.method1(1);
+    CallGraph trace = TracingProxy.end();
+
+    CallGraph expected = CallGraph.builder()
+        .receiverClass(I1.class)
+        .methodName(METHOD1)
+        .parameterTypes(ImmutableList.<Class<?>>of(Integer.TYPE))
+        .arguments(ImmutableList.<Object>of("1"))
+        .duration(trace.getDuration())
+        .returnValue("foo 42")
+        .calls(ImmutableList.of(
+            CallGraph.builder()
+                .receiverClass(I2.class)
+                .methodName(METHOD2)
+                .parameterTypes(ImmutableList.<Class<?>>of(Boolean.TYPE))
+                .arguments(ImmutableList.<Object>of("true"))
+                .returnValue("42")
+                .duration(trace.getCalls().get(0).getDuration())
+                .build()))
+        .build();
+
+    assertEquals(expected, trace);
+    System.out.println(trace.prettyPrint());
+  }
+
+  @Test
+  public void trace2LevelsTimings() {
+    I1 i1 = buildFunction();
+    TracingProxy.start(new StandardTracer(TraceType.TIMINGS_ONLY));
+    i1.method1(1);
+    CallGraph trace = TracingProxy.end();
+
+    CallGraph expected = CallGraph.builder()
+        .receiverClass(I1.class)
+        .methodName(METHOD1)
+        .parameterTypes(ImmutableList.<Class<?>>of(Integer.TYPE))
+        .arguments(null)
+        .duration(trace.getDuration())
+        .returnValue(null)
+        .calls(ImmutableList.of(
+            CallGraph.builder()
+                .receiverClass(I2.class)
+                .methodName(METHOD2)
+                .parameterTypes(ImmutableList.<Class<?>>of(Boolean.TYPE))
+                .arguments(null)
+                .returnValue(null)
+                .duration(trace.getCalls().get(0).getDuration())
                 .build()))
         .build();
 
@@ -81,7 +144,7 @@ public class FullTracerTest {
   @Test
   public void traceMultiple() {
     I1 i1 = buildFunction();
-    TracingProxy.start(new FullTracer());
+    TracingProxy.start(new StandardTracer(TraceType.FULL));
     i1.method1(2);
     CallGraph trace = TracingProxy.end();
 
@@ -91,6 +154,7 @@ public class FullTracerTest {
         .parameterTypes(ImmutableList.<Class<?>>of(Integer.TYPE))
         .arguments(ImmutableList.<Object>of(2))
         .returnValue("bar 42 84")
+        .duration(trace.getDuration())
         .calls(ImmutableList.of(
             CallGraph.builder()
                 .receiverClass(I2.class)
@@ -98,6 +162,7 @@ public class FullTracerTest {
                 .parameterTypes(ImmutableList.<Class<?>>of(Boolean.TYPE))
                 .arguments(ImmutableList.<Object>of(true))
                 .returnValue(42)
+                .duration(trace.getCalls().get(0).getDuration())
                 .build(),
             CallGraph.builder()
                 .receiverClass(I2.class)
@@ -105,6 +170,7 @@ public class FullTracerTest {
                 .parameterTypes(ImmutableList.<Class<?>>of(Boolean.TYPE))
                 .arguments(ImmutableList.<Object>of(true))
                 .returnValue(42)
+                .duration(trace.getCalls().get(1).getDuration())
                 .build()))
         .build();
 
@@ -115,7 +181,7 @@ public class FullTracerTest {
   @Test
   public void traceException() {
     I1 i1 = buildFunction();
-    TracingProxy.start(new FullTracer());
+    TracingProxy.start(new StandardTracer(TraceType.FULL));
     try {
       i1.method1(3);
       fail();
@@ -131,6 +197,7 @@ public class FullTracerTest {
         .arguments(ImmutableList.<Object>of(3))
         .throwableClass(OpenGammaRuntimeException.class)
         .errorMessage("an exception")
+        .duration(trace.getDuration())
         .calls(ImmutableList.of(
             CallGraph.builder()
                 .receiverClass(I2.class)
@@ -139,6 +206,43 @@ public class FullTracerTest {
                 .arguments(ImmutableList.<Object>of(false))
                 .throwableClass(OpenGammaRuntimeException.class)
                 .errorMessage("an exception")
+                .duration(trace.getCalls().get(0).getDuration())
+                .build()))
+        .build();
+
+     assertEquals(expected, trace);
+    System.out.println(trace.prettyPrint());
+  }
+
+  @Test
+  public void traceExceptionWithTiming() {
+    I1 i1 = buildFunction();
+    TracingProxy.start(new StandardTracer(TraceType.TIMINGS_ONLY));
+    try {
+      i1.method1(3);
+      fail();
+    } catch (OpenGammaRuntimeException e) {
+      // expected
+    }
+    CallGraph trace = TracingProxy.end();
+
+    CallGraph expected = CallGraph.builder()
+        .receiverClass(I1.class)
+        .methodName(METHOD1)
+        .parameterTypes(ImmutableList.<Class<?>>of(Integer.TYPE))
+        .arguments(null)
+        .throwableClass(null)
+        .errorMessage(null)
+        .duration(trace.getDuration())
+        .calls(ImmutableList.of(
+            CallGraph.builder()
+                .receiverClass(I2.class)
+                .methodName(METHOD2)
+                .parameterTypes(ImmutableList.<Class<?>>of(Boolean.TYPE))
+                .arguments(null)
+                .throwableClass(null)
+                .errorMessage(null)
+                .duration(trace.getCalls().get(0).getDuration())
                 .build()))
         .build();
 
