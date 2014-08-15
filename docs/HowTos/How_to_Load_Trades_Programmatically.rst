@@ -1,7 +1,6 @@
-
-=======================
-OpenGamma Trade Loading
-=======================
+============================================
+How to add/amend/delete trades pragmatically
+============================================
 
 
 Introduction
