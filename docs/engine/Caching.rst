@@ -114,10 +114,18 @@ view of the data until the end of the cycle, and at the start of the next cycle 
 
 Invalidating cache entries
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
-If a function uses a piece of configuration to calculate a value (e.g. a curve definition) then that value
-should be discarded from the cache if the configuration is edited. This is not fully implemented yet. There
-is a mechanism to listen for notifications when data changes (in ``ViewFactoryComponentFactory.decorateSources()``)
-but no action is taken when a notification arrives.
+If a function uses a piece of external data (e.g. market data or configuration) when calculating a cached value then
+the cache entry becomes invalid if the data changes. Invalid entries are not immediately removed from the cache,
+for the same reason that clearing the cache doesn't immediately remove the cached data. A view might be
+using the cache and removing cache entries in the middle of a calculation cycle can cause inconsistencies in
+the results.
+
+Invalidation simply marks a cache entry as stale. The next time a view requests a cache, a new cache is created
+and valid entries are copied from the old cache to the new cache. Invalid entries are not copied, and therefore
+new values will be calculated in the next calculation cycle.
+
+This is not fully implemented yet. There is a mechanism to listen for notifications when configuration data changes
+(in ``ViewFactoryComponentFactory.decorateSources()``) but no action is taken when a notification arrives.
 
 ``View``
 --------
@@ -163,7 +171,7 @@ Therefore the stack contains the keys of all cacheable methods currently executi
 
 This information is used by the cache invalidation mechanism. When a piece of external data is requested
 (e.g. market data or configuration) the cache invalidator associates the ID of the data with the keys of the
-executing methods. The assumption is that the data potentially affects the return values the methods.
+executing methods. The assumption is that the data potentially affects the values calculated by the methods.
 
 When a piece of external data changes (e.g. live market data ticks or a user edits some configuration) the
 engine can find the keys for all cached values calculated from the data and invalidate the cache entries.
