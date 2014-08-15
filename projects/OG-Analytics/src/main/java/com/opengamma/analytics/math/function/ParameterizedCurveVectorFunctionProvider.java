@@ -14,6 +14,10 @@ public class ParameterizedCurveVectorFunctionProvider extends DoublesVectorFunct
 
   private final ParameterizedCurve _pCurve;
 
+  /**
+   * Set up a {@link VectorFunctionProvider} backed by a {@link ParameterizedCurve}
+   * @param pCurve A parameterised curve 
+   */
   public ParameterizedCurveVectorFunctionProvider(final ParameterizedCurve pCurve) {
     ArgumentChecker.notNull(pCurve, "pCurve");
     _pCurve = pCurve;
