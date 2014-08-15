@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.math.function;
 
+import java.util.Arrays;
+
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.util.ArgumentChecker;
@@ -25,7 +27,7 @@ public class ParameterizedCurveVectorFunction extends VectorFunction {
   public ParameterizedCurveVectorFunction(final double[] samplePoints, final ParameterizedCurve curve) {
     ArgumentChecker.notEmpty(samplePoints, "samplePoints");
     ArgumentChecker.notNull(curve, "curve");
-    _samplePoints = samplePoints;
+    _samplePoints = Arrays.copyOf(samplePoints, samplePoints.length);
     _curve = curve;
   }
 
