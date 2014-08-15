@@ -25,7 +25,7 @@ public class ConcatenatedVectorFunction extends VectorFunction {
   private final int _sizeRange;
 
   /**
-   * Form the concatenated function 
+   * Form the concatenated function, in the order that the sub functions are given. 
    * @param functions The sub functions 
    */
   public ConcatenatedVectorFunction(final VectorFunction[] functions) {
