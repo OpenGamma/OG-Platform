@@ -10,15 +10,18 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Set up a simple parameterised curve (based on the function a * Math.sin(b * x) + c, where a, b, & c are the parameters)
+ * and check the finite difference sensitivity (the default behaviour of getYParameterSensitivity) agrees with the analytic 
+ * calculation for a range of points along the curve.
  */
+@Test(groups = TestGroup.UNIT)
 public class ParameterizedCurveTest {
 
   @Test
   public void test() {
-
     /**
      * Take the form $y = a\sin(bx) + c$
      */
@@ -34,7 +37,7 @@ public class ParameterizedCurveTest {
       }
 
       @Override
-      public int getNumParamters() {
+      public int getNumParameters() {
         return 3;
       }
     };

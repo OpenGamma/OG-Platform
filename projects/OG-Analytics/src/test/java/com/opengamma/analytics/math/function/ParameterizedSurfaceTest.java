@@ -11,11 +11,15 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.model.volatility.SimpleOptionData;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * 
+ * Set up a simple parameterised surface (based on the function a * Math.sin(b * x + c * y) + Math.cos(y), where a, b, & c are the parameters)
+ * and check the finite difference sensitivity (the default behaviour of getYParameterSensitivity) agrees with the analytic 
+ * calculation for a range of points along the curve.
  */
+@Test(groups = TestGroup.UNIT)
 public class ParameterizedSurfaceTest {
 
   @Test
