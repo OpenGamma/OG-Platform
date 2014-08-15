@@ -42,7 +42,7 @@ public class ParameterizedCurveVectorFunction extends VectorFunction {
 
   @Override
   public int getLengthOfDomain() {
-    return _curve.getNumParamters();
+    return _curve.getNumParameters();
   }
 
   @Override
