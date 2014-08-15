@@ -51,8 +51,9 @@ Functions should never implement their own caching.
 Use the ``@Cacheable`` annotation to request caching
 ----------------------------------------------------
 If the function writer thinks the return value of a method should be cached then the method should
-be annotated with ``@Cacheable``. If the engine encounters a call to an annotated method and there is a cached value
-available it will skip the call and immediately return the value.
+be annotated with ``@Cacheable``. The annotation can be on the interface or the implementation. If the engine
+encounters a call to an annotated method and there is a cached value available it will skip the call and
+immediately return the value.
 
 Memoization
 -----------
@@ -98,12 +99,13 @@ of interest to someone wishing to maintain or modify the engine. The key classes
 ``ViewFactory``
 ---------------
 The view factory contains a single cache which is shared between all views it creates. This means that commonly
-used values (e.g. curves) don't have to be recalculated for each view.
+used values can be reused in different views without having to be recalculated. The cache is an instance of
+the Google Guava class ``com.google.common.cache.Cache``.
 
 Clearing the cache
 ^^^^^^^^^^^^^^^^^^
-The ``ViewFactory`` class has a method ``clearCache()`` which discards all entries in the cache. It is exposed as
-a JMX operation. When this is invoked the existing cache is not affected. It is possible that the cache is in
+The ``ViewFactory`` class has a method ``clearCache()`` which discards all cached values. It is exposed as
+a JMX operation. When this is invoked the existing cache is not affected as it is possible that the cache is in
 use by a view and if it were cleared it could lead to inconsistencies in the results.
 
 Clearing the cache is achieved by swapping the cache for a new, empty cache. When each view starts a calculation
@@ -152,21 +154,33 @@ handler performs the following steps:
 
 ``CallableMethod``
 ------------------
-TODO ExecutingMethodsThreadLocal
+The ``CallableMethod`` class is an executable task that invokes the cacheable method on the underlying function.
+It is invoked by the cache to calculate a value if there isn't one in the cache.
+
+Before it invokes the method it pushes the method invocation key onto a thread local stack
+in the class ``ExecutingMethodsThreadLocal``. When the method returns the key is popped off the stack.
+Therefore the stack contains the keys of all cacheable methods currently executing.
+
+This information is used by the cache invalidation mechanism. When a piece of external data is requested
+(e.g. market data or configuration) the cache invalidator associates the ID of the data with the keys of the
+executing methods. The assumption is that the data potentially affects the return values the methods.
+
+When a piece of external data changes (e.g. live market data ticks or a user edits some configuration) the
+engine can find the keys for all cached values calculated from the data and invalidate the cache entries.
 
 ``MethodInvocationKey``
 -----------------------
 This is the type used as the cache key. It contains all the data about a method call:
 
-  * The function instance that is the underlying receiver of the call
-  * The method that was invoked (an instance of ``java.lang.reflect.Method``)
-  * The method arguments
+* The function instance that is the underlying receiver of the call
+* The method that was invoked (an instance of ``java.lang.reflect.Method``)
+* The method arguments
 
 Two keys are considered equal if:
 
-  * Their methods are equal
-  * Their arguments are equal according to ``Arrays.deepEquals()``
-  * Their receivers are the same object. This uses reference equality, not logical equality
+* Their methods are equal
+* Their arguments are equal according to ``Arrays.deepEquals()``
+* Their receivers are the same object. This uses reference equality, not logical equality
 
 The final point is vital to understand and has important implications for the design of the whole engine.
 
