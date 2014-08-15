@@ -128,7 +128,8 @@ The main functionality of a tool would need the following
 	
 
 This method would form the main functionality of the tool. Here we have the steps:
-1. Deserialze the xml into bean representation
-2. Cast the security bean into a ManageableSecurity
-3. Obtain the SecurityMaster from the tool context
-4. Add the security to the SecurityMaster
+
+	1. Deserialze the xml into bean representation
+	2. Cast the security bean into a ManageableSecurity
+	3. Obtain the SecurityMaster from the tool context
+	4. Add the security to the SecurityMaster
