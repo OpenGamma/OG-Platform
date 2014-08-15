@@ -37,7 +37,7 @@ public class InterpolatedCurveVectorFunction extends VectorFunction {
   }
 
   @Override
-  public DoubleMatrix2D evaluateJacobian(final DoubleMatrix1D x) {
+  public DoubleMatrix2D calculateJacobian(final DoubleMatrix1D x) {
     final Interpolator1DDataBundle db = _interpolator.getDataBundle(_knots, x.getData());
     final int n = _samplePoints.length;
     final int nKnots = _knots.length;
@@ -62,12 +62,12 @@ public class InterpolatedCurveVectorFunction extends VectorFunction {
   }
 
   @Override
-  public int getSizeOfDomain() {
+  public int getLengthOfDomain() {
     return _knots.length;
   }
 
   @Override
-  public int getSizeOfRange() {
+  public int getLengthOfRange() {
     return _samplePoints.length;
   }
 

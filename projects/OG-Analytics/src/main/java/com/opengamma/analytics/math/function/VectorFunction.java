@@ -20,17 +20,17 @@ public abstract class VectorFunction extends Function1D<DoubleMatrix1D, DoubleMa
    * @param x The input vector $\mathbf{x}$
    * @return The Jacobian $\mathbf{J}$
    */
-  public abstract DoubleMatrix2D evaluateJacobian(final DoubleMatrix1D x);
+  public abstract DoubleMatrix2D calculateJacobian(final DoubleMatrix1D x);
 
   /**
-   * The size of the input vector $\mathbf{x}$
-   * @return size of domain 
+   * The length of the input vector $\mathbf{x}$
+   * @return length of input vector (domain) 
    */
-  public abstract int getSizeOfDomain();
+  public abstract int getLengthOfDomain();
 
   /**
-   * The size of the output vector $\mathbf{y}$
-   * @return size of range 
+   * The length of the output vector $\mathbf{y}$
+   * @return length of output vector (range) 
    */
-  public abstract int getSizeOfRange();
+  public abstract int getLengthOfRange();
 }

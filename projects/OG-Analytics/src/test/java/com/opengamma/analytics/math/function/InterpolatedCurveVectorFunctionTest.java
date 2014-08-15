@@ -43,7 +43,7 @@ public class InterpolatedCurveVectorFunctionTest {
     }
 
     DoubleMatrix1D y = vf.evaluate(x);
-    DoubleMatrix2D jac = vf.evaluateJacobian(x);
+    DoubleMatrix2D jac = vf.calculateJacobian(x);
     //    System.out.println(y);
     //    System.out.println(jac);
 
@@ -53,7 +53,7 @@ public class InterpolatedCurveVectorFunctionTest {
     final double[] samplePoints = new double[] {-2, -1, 0, 1, 2, 3, 4 };
     vf = new InterpolatedCurveVectorFunction(samplePoints, interpolator, knots);
     y = vf.evaluate(x);
-    jac = vf.evaluateJacobian(x);
+    jac = vf.calculateJacobian(x);
     //    System.out.println(y);
     //    System.out.println(jac);
     final DoubleMatrix2D jacFD = DIFF.differentiate(vf).evaluate(x);
@@ -89,17 +89,17 @@ public class InterpolatedCurveVectorFunctionTest {
       }
 
       @Override
-      public int getSizeOfRange() {
+      public int getLengthOfRange() {
         return samplePoints.length;
       }
 
       @Override
-      public int getSizeOfDomain() {
+      public int getLengthOfDomain() {
         return 0;
       }
 
       @Override
-      public DoubleMatrix2D evaluateJacobian(final DoubleMatrix1D x) {
+      public DoubleMatrix2D calculateJacobian(final DoubleMatrix1D x) {
         return DoubleMatrix2D.EMPTY_MATRIX;
       }
     };
@@ -122,7 +122,7 @@ public class InterpolatedCurveVectorFunctionTest {
     final DoubleMatrix1D y = vf.evaluate(x);
     //System.out.println(y);
     assertEquals(samplePoints.length * 3, y.getNumberOfElements());
-    final DoubleMatrix2D jac = vf.evaluateJacobian(x);
+    final DoubleMatrix2D jac = vf.calculateJacobian(x);
     //  System.out.println(jac);
     assertEquals(samplePoints.length * 3, jac.getNumberOfRows());
     assertEquals(nKnots, jac.getNumberOfColumns());
