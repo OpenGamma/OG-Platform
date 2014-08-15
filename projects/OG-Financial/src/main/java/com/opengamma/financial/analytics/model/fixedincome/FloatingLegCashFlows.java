@@ -224,7 +224,7 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
    * An array of index tenors. May contain nulls if there has been a fixing as of the valuation date.
    */
   @PropertyDefinition(validate = "notNull")
-  private final List<Set<Tenor>> _indexTenors;
+  private final List<Tenor> _indexTenors;
 
   /**
    * @param startAccrualDates The start accrual dates, not null
@@ -262,7 +262,7 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
                               List<CurrencyAmount> notionals,
                               List<Double> spreads,
                               List<Double> gearings,
-                              List<Set<Tenor>> indexTenors) {
+                              List<Tenor> indexTenors) {
 
     ArgumentChecker.notNull(startAccrualDates, "startAccrualDates");
     ArgumentChecker.notNull(endAccrualDates, "endAccrualDates");
@@ -568,7 +568,7 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
    * Gets an array of index tenors. May contain nulls if there has been a fixing as of the valuation date.
    * @return the value of the property, not null
    */
-  public List<Set<Tenor>> getIndexTenors() {
+  public List<Tenor> getIndexTenors() {
     return _indexTenors;
   }
 
@@ -790,7 +790,7 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
      * The meta-property for the {@code indexTenors} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<Set<Tenor>>> _indexTenors = DirectMetaProperty.ofImmutable(
+    private final MetaProperty<List<Tenor>> _indexTenors = DirectMetaProperty.ofImmutable(
         this, "indexTenors", FloatingLegCashFlows.class, (Class) List.class);
     /**
      * The meta-property for the {@code numberOfFixedCashFlows} property.
@@ -1052,7 +1052,7 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
      * The meta-property for the {@code indexTenors} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<List<Set<Tenor>>> indexTenors() {
+    public final MetaProperty<List<Tenor>> indexTenors() {
       return _indexTenors;
     }
 
@@ -1181,7 +1181,7 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
     private List<CurrencyAmount> _notionals = new ArrayList<CurrencyAmount>();
     private List<Double> _spreads = new ArrayList<Double>();
     private List<Double> _gearings = new ArrayList<Double>();
-    private List<Set<Tenor>> _indexTenors = new ArrayList<Set<Tenor>>();
+    private List<Tenor> _indexTenors = new ArrayList<Tenor>();
 
     /**
      * Restricted constructor.
@@ -1210,7 +1210,7 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
       this._notionals = new ArrayList<CurrencyAmount>(beanToCopy.getNotionals());
       this._spreads = new ArrayList<Double>(beanToCopy.getSpreads());
       this._gearings = new ArrayList<Double>(beanToCopy.getGearings());
-      this._indexTenors = new ArrayList<Set<Tenor>>(beanToCopy.getIndexTenors());
+      this._indexTenors = new ArrayList<Tenor>(beanToCopy.getIndexTenors());
     }
 
     //-----------------------------------------------------------------------
@@ -1309,7 +1309,7 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
           this._gearings = (List<Double>) newValue;
           break;
         case 1358155045:  // indexTenors
-          this._indexTenors = (List<Set<Tenor>>) newValue;
+          this._indexTenors = (List<Tenor>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -1545,7 +1545,7 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
      * @param indexTenors  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder indexTenors(List<Set<Tenor>> indexTenors) {
+    public Builder indexTenors(List<Tenor> indexTenors) {
       JodaBeanUtils.notNull(indexTenors, "indexTenors");
       this._indexTenors = indexTenors;
       return this;
