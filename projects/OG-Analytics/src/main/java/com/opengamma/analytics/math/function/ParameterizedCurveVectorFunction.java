@@ -30,10 +30,10 @@ public class ParameterizedCurveVectorFunction extends VectorFunction {
   }
 
   @Override
-  public DoubleMatrix2D evaluateJacobian(final DoubleMatrix1D x) {
+  public DoubleMatrix2D calculateJacobian(final DoubleMatrix1D x) {
     final Function1D<Double, DoubleMatrix1D> sense = _curve.getYParameterSensitivity(x);
-    final int n = getSizeOfRange();
-    final DoubleMatrix2D jac = new DoubleMatrix2D(n, getSizeOfDomain());
+    final int n = getLengthOfRange();
+    final DoubleMatrix2D jac = new DoubleMatrix2D(n, getLengthOfDomain());
     for (int i = 0; i < n; i++) {
       jac.getData()[i] = sense.evaluate(_samplePoints[i]).getData();
     }
@@ -41,12 +41,12 @@ public class ParameterizedCurveVectorFunction extends VectorFunction {
   }
 
   @Override
-  public int getSizeOfDomain() {
+  public int getLengthOfDomain() {
     return _curve.getNumParamters();
   }
 
   @Override
-  public int getSizeOfRange() {
+  public int getLengthOfRange() {
     return _samplePoints.length;
   }
 
