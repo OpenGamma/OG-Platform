@@ -71,7 +71,7 @@ Attributes, such as industry classification, yield conventions and call features
 .. code :: xml
 
       <attributes>
-        <entrykey="IndustrySector">Financial</entry>
+        <entry key="IndustrySector">Financial</entry>
         <entrykey="RatingSP">AAA</entry>
       </attributes>
 
