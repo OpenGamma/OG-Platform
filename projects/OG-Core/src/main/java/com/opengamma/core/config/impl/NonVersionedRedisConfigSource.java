@@ -333,11 +333,13 @@ public class NonVersionedRedisConfigSource implements ConfigSource {
       } else {
         // try fallback lookup to see if known by another compatible class
         Class<? super R> superClazz = clazz.getSuperclass();
-        while (superClazz != null && !jedis.sismember(getClassKeyName(superClazz), configName)) {
+        boolean recordFound = jedis.sismember(getClassKeyName(superClazz), configName); 
+        while (superClazz != null && !recordFound) {
           superClazz = superClazz.getSuperclass();
+          recordFound = jedis.sismember(getClassKeyName(superClazz), configName); 
         }
           
-        if (jedis.sismember(getClassKeyName(superClazz), configName)) {
+        if (recordFound) {
           String uniqueIdText = jedis.hget(getClassNameRedisKey(superClazz, configName), "UniqueId");
           if (uniqueIdText != null) {
             uniqueId = UniqueId.parse(uniqueIdText);
