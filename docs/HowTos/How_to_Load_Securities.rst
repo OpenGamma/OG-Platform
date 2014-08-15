@@ -72,7 +72,7 @@ Attributes, such as industry classification, yield conventions and call features
 
       <attributes>
         <entry key="IndustrySector">Financial</entry>
-        <entrykey="RatingSP">AAA</entry>
+        <entry key="RatingSP">AAA</entry>
       </attributes>
 
 The XML maps directly onto the data model, in this case the Joda­Bean BondSecurity. The properties definitions below match the XML bean nodes:
