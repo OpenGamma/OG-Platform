@@ -34,6 +34,12 @@ public final class CapFloorDecomposer {
     return toOptions(cap.getPayments(), curves);
   }
 
+  /**
+   * Express a set of caplets (as {@link CapFloorIbor}) as options (as {@link SimpleOptionData})
+   * @param caplets set of caplets 
+   * @param curves yield curves (i.e. discount and Ibor-projection curves)
+   * @return strip of European call or put options
+   */
   public static SimpleOptionData[] toOptions(final CapFloorIbor[] caplets, final MulticurveProviderInterface curves) {
     ArgumentChecker.noNulls(caplets, "null caplets");
     ArgumentChecker.notNull(curves, "null yield curves");

@@ -40,6 +40,16 @@ public class SVIVolatilityFunctionTest {
     public Function1D<SVIFormulaData, Double> getVolatilityFunction(final EuropeanVanillaOption option, final double forward) {
       return FUNC.getVolatilityFunction(option, forward);
     }
+
+    @Override
+    public int getNumberOfParameters() {
+      return FUNC.getNumberOfParameters();
+    }
+
+    @Override
+    public SVIFormulaData toModelData(double[] parameters) {
+      return new SVIFormulaData(parameters);
+    }
   };
 
   private static final Function1D<SVIFormulaData, double[]> VOL_ADJOINT_FD = FUNC_FD.getVolatilityAdjointFunction(OPTION, FORWARD);

@@ -15,6 +15,7 @@ import com.opengamma.lang.annotation.ExternalFunction;
  * Gatheral's Stochastic Volatility Inspired (SVI) model
  */
 public class SVIVolatilityFunction extends VolatilityFunctionProvider<SVIFormulaData> {
+  private static final int NUM_PARAMETERS = 5;
 
   @Override
   public Function1D<SVIFormulaData, Double> getVolatilityFunction(final EuropeanVanillaOption option, final double forward) {
@@ -34,8 +35,7 @@ public class SVIVolatilityFunction extends VolatilityFunctionProvider<SVIFormula
   }
 
   @ExternalFunction
-  public double getVolatility(final double forward, final double strike, final double a, final double b, final double rho,
-      final double nu, final double m) {
+  public double getVolatility(final double forward, final double strike, final double a, final double b, final double rho, final double nu, final double m) {
 
     final SVIFormulaData data = new SVIFormulaData(a, b, rho, nu, m);
     return getVolatility(forward, strike, data);
@@ -190,5 +190,15 @@ public class SVIVolatilityFunction extends VolatilityFunctionProvider<SVIFormula
   @Override
   public String toString() {
     return "SVI";
+  }
+
+  @Override
+  public int getNumberOfParameters() {
+    return NUM_PARAMETERS;
+  }
+
+  @Override
+  public SVIFormulaData toModelData(final double[] parameters) {
+    return new SVIFormulaData(parameters);
   }
 }

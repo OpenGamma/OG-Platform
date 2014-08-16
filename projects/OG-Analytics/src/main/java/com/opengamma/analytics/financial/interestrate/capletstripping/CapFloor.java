@@ -15,7 +15,7 @@ import com.opengamma.util.ArgumentChecker;
 public class CapFloor extends Annuity<CapFloorIbor> {
 
   /**
-   * @param payments The series of caplets or floorlets - note must be all caplets or all floorlets with same strike
+   * @param payments The series of caplets or floorlets. <b>Note:</b> must be all caplets or all floorlets with same strike
    */
   public CapFloor(final CapFloorIbor[] payments) {
     super(payments);
@@ -29,10 +29,18 @@ public class CapFloor extends Annuity<CapFloorIbor> {
     }
   }
 
+  /**
+   * get the cap strike
+   * @return The cap strike
+   */
   public double getStrike() {
     return getNthPayment(0).getStrike();
   }
 
+  /**
+   * is a cap
+   * @return true if cap and false if floor 
+   */
   public boolean isCap() {
     return getNthPayment(0).isCap();
   }
@@ -53,6 +61,11 @@ public class CapFloor extends Annuity<CapFloorIbor> {
     return getNthPayment(getNumberOfPayments() - 1).getFixingPeriodEndTime();
   }
 
+  /**
+   * produce a new cap or floor identical to the original except with a new strike
+   * @param strike the new strike
+   * @return a new cap or floor
+   */
   public CapFloor withStrike(final double strike) {
     ArgumentChecker.isTrue(strike >= 0, "negative strike");
     final CapFloorIbor[] payments = getPayments();
@@ -64,6 +77,5 @@ public class CapFloor extends Annuity<CapFloorIbor> {
     return new CapFloor(temp);
 
   }
-
 
 }

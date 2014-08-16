@@ -57,4 +57,8 @@ public class InterpolatedCurveBuildingFunction {
     return res;
   }
 
+  public int getTotalNodes() {
+    return _nNodes;
+  }
+
 }

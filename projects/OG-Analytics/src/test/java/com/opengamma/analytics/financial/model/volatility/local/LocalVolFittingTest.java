@@ -4,7 +4,7 @@
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.volatility.local;
-
+import static com.opengamma.analytics.math.interpolation.PenaltyMatrixGenerator.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +46,7 @@ import com.opengamma.analytics.math.interpolation.FlatExtrapolator1D;
 import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.math.interpolation.PSplineFitter;
+
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.analytics.math.matrix.ColtMatrixAlgebra;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
@@ -91,7 +92,7 @@ public class LocalVolFittingTest {
       {0.4, 0.7, 1.0, 1.3, 1.6 } };
 
   @Test
-      (enabled = false)
+     (enabled = false)
       public void test() {
     final int nExp = EXPIRIES.length;
     int temp = 0;
@@ -124,15 +125,14 @@ public class LocalVolFittingTest {
     final List<Function1D<double[], Double>> bSplines = _generator.generateSet(xa, xb, nKnots, degree);
     final int nWeights = bSplines.size();
 
-    final PSplineFitter psf = new PSplineFitter();
-    DoubleMatrix2D ma = (DoubleMatrix2D) _algebra.scale(psf.getPenaltyMatrix(sizes, differenceOrder[0], 0), lambda[0]);
+    DoubleMatrix2D ma = (DoubleMatrix2D) _algebra.scale(getPenaltyMatrix(sizes, differenceOrder[0], 0), lambda[0]);
     for (int i = 1; i < dim; i++) {
       if (lambda[i] > 0.0) {
-        final DoubleMatrix2D d = psf.getPenaltyMatrix(sizes, differenceOrder[i], i);
+        final DoubleMatrix2D d = getPenaltyMatrix(sizes, differenceOrder[i], i);
         ma = (DoubleMatrix2D) _algebra.add(ma, _algebra.scale(d, lambda[i]));
       }
     }
-    final DoubleMatrix2D penalty = ma;//(DoubleMatrix2D) _algebra.multiply(_algebra.getTranspose(ma), ma);
+    final DoubleMatrix2D penalty = ma;
 
     final Function1D<DoubleMatrix1D, DoubleMatrix1D> volFunc = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
 
@@ -252,7 +252,7 @@ public class LocalVolFittingTest {
     };
 
     final PSplineFitter psf = new PSplineFitter();
-    final DoubleMatrix2D penalty = (DoubleMatrix2D) _algebra.scale(psf.getPenaltyMatrix(nKnots, 2), 0.01);
+    final DoubleMatrix2D penalty = (DoubleMatrix2D) _algebra.scale(getPenaltyMatrix(nKnots, 2), 0.01);
 
     final double[] start = new double[nKnots];
     // Arrays.fill(start, 0.4);

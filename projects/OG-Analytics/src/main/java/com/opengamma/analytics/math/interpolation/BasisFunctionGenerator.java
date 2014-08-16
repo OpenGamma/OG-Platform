@@ -184,12 +184,12 @@ public class BasisFunctionGenerator {
       };
     }
 
-    return new Function1D<Double, Double>() {
+    final Function1D<Double, Double> fa = generate(knots, degree - 1, j);
+    final Function1D<Double, Double> fb = generate(knots, degree - 1, j + 1);
 
+    return new Function1D<Double, Double>() {
       @Override
       public Double evaluate(final Double x) {
-        final Function1D<Double, Double> fa = generate(knots, degree - 1, j);
-        final Function1D<Double, Double> fb = generate(knots, degree - 1, j + 1);
         return (x - knots[j]) / (knots[j + degree] - knots[j]) * fa.evaluate(x) + (knots[j + degree + 1] - x) / (knots[j + degree + 1] - knots[j + 1]) * fb.evaluate(x);
       }
 
