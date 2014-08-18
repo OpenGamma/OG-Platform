@@ -50,17 +50,17 @@ public class DiscreteVolatilityFunctionProviderDirect extends DiscreteVolatility
       }
 
       @Override
-      public DoubleMatrix2D evaluateJacobian(final DoubleMatrix1D x) {
+      public DoubleMatrix2D calculateJacobian(final DoubleMatrix1D x) {
         return _identity;
       }
 
       @Override
-      public int getSizeOfDomain() {
+      public int getLengthOfDomain() {
         return _size;
       }
 
       @Override
-      public int getSizeOfRange() {
+      public int getLengthOfRange() {
         return n;
       }
 

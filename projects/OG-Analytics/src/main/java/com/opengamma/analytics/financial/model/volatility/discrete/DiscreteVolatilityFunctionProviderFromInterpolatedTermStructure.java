@@ -5,7 +5,7 @@
  */
 package com.opengamma.analytics.financial.model.volatility.discrete;
 
-import com.opengamma.analytics.financial.model.volatility.surface.InterpolatedVolatilityTermStructureProvider;
+import com.opengamma.analytics.financial.interestrate.capletstripping.InterpolatedVolatilityTermStructureProvider;
 import com.opengamma.analytics.math.function.InterpolatedVectorFunctionProvider;
 import com.opengamma.analytics.math.function.VectorFunction;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
@@ -49,18 +49,18 @@ public class DiscreteVolatilityFunctionProviderFromInterpolatedTermStructure ext
     return new DiscreteVolatilityFunction() {
 
       @Override
-      public int getSizeOfRange() {
-        return vf.getSizeOfRange();
+      public int getLengthOfRange() {
+        return vf.getLengthOfRange();
       }
 
       @Override
-      public int getSizeOfDomain() {
-        return vf.getSizeOfDomain();
+      public int getLengthOfDomain() {
+        return vf.getLengthOfDomain();
       }
 
       @Override
-      public DoubleMatrix2D evaluateJacobian(final DoubleMatrix1D x) {
-        return vf.evaluateJacobian(x);
+      public DoubleMatrix2D calculateJacobian(final DoubleMatrix1D x) {
+        return vf.calculateJacobian(x);
       }
 
       @Override
