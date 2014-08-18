@@ -29,7 +29,7 @@ public class InterpolatedVectorFunctionProvider extends DoublesVectorFunctionPro
       ArgumentChecker.isTrue(knots[i] > knots[i - 1], "knot points must be strictly ascending");
     }
     _interpolator = interpolator;
-    _knots = knots;
+    _knots = knots.clone();
   }
 
   /**

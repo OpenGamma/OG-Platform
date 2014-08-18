@@ -18,10 +18,13 @@ import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.matrix.IdentityMatrix;
+import com.opengamma.analytics.util.AssertMatrix;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * 
  */
+@Test(groups = TestGroup.UNIT)
 public class InterpolatedCurveVectorFunctionTest {
 
   private static final VectorFieldFirstOrderDifferentiator DIFF = new VectorFieldFirstOrderDifferentiator(1e-4);
@@ -51,6 +54,44 @@ public class InterpolatedCurveVectorFunctionTest {
 
     final DoubleMatrix2D jacFD = DIFF.differentiate(vf).evaluate(x);
     assertEqualsMatrix(jac, jacFD, 5e-5);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void badKnotsTest() {
+    final double[] knots = new double[] {-1, 0, -0.5, 1.5, 3.0 };
+    final Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
+    final InterpolatedCurveVectorFunction vf = new InterpolatedCurveVectorFunction(knots, interpolator, knots);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void badKnotsTest2() {
+    final double[] knots = new double[] {-1, 0, -0.5, 1.5, 3.0 };
+    final Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
+    final InterpolatedVectorFunctionProvider pro = new InterpolatedVectorFunctionProvider(interpolator, knots);
+  }
+
+  @Test
+  public void providerTest() {
+    final double[] knots = new double[] {-1, 0, 0.5, 1.5, 3.0 };
+    final Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
+
+    final InterpolatedVectorFunctionProvider pro = new InterpolatedVectorFunctionProvider(interpolator, knots);
+    final double[] samplePoints = new double[] {-3, -0.5, 0.5, 1.3, 2.7 };
+
+    final VectorFunction vf1 = pro.from(samplePoints);
+    final VectorFunction vf2 = new InterpolatedCurveVectorFunction(samplePoints, interpolator, knots);
+
+    final DoubleMatrix1D knotValues = new DoubleMatrix1D(-1.0, 1.0, -1.0, 1.0, -1.0);
+    final DoubleMatrix1D y1 = vf1.evaluate(knotValues);
+    final DoubleMatrix1D y2 = vf2.evaluate(knotValues);
+    AssertMatrix.assertEqualsVectors(y1, y2, 1e-13);
+
+    assertEquals(interpolator, pro.getInterpolator());
+    final double[] knots2 = pro.getKnots();
+    final int n = knots.length;
+    for (int i = 0; i < n; i++) {
+      assertEquals(knots[i], knots2[i], 1e-14);
+    }
   }
 
   @Test
