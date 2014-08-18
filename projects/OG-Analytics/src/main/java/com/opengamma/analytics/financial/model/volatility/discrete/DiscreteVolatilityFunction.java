@@ -5,7 +5,6 @@
  */
 package com.opengamma.analytics.financial.model.volatility.discrete;
 
-import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurfaceProvider;
 import com.opengamma.analytics.math.differentiation.VectorFieldFirstOrderDifferentiator;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.function.VectorFunction;
@@ -28,7 +27,7 @@ public abstract class DiscreteVolatilityFunction extends VectorFunction {
    * @param x set of model parameters
    * @return The Jacobian (matrix of sensitivities of caplet volatilities to model parameters)
    */
-  public DoubleMatrix2D evaluateJacobianViaFD(final DoubleMatrix1D x) {
+  public DoubleMatrix2D calculateJacobianViaFD(final DoubleMatrix1D x) {
     return _fdJac.evaluate(x);
   }
 
