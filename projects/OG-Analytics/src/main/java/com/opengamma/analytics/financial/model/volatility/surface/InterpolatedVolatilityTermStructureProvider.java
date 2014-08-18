@@ -14,6 +14,8 @@ import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
 import com.opengamma.analytics.math.surface.FunctionalSurface;
 import com.opengamma.analytics.math.surface.Surface;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.ObjectsPair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  *Produces a volatility surface that is backed by a single interpolated curve in the expiry dimension, i.e. there is no 
@@ -32,7 +34,7 @@ public class InterpolatedVolatilityTermStructureProvider implements VolatilitySu
     for (int i = 1; i < n; i++) {
       ArgumentChecker.isTrue(knotPoints[i] > knotPoints[i - 1], "knot points must be strictly ascending");
     }
-    _knots = knotPoints;
+    _knots = knotPoints.clone();
     _interpolator = interpolator;
   }
 
@@ -58,7 +60,7 @@ public class InterpolatedVolatilityTermStructureProvider implements VolatilitySu
    * {@inheritDoc}
    */
   @Override
-  public Surface<Double, Double, DoubleMatrix1D> getVolSurfaceAdjoint(final DoubleMatrix1D modelParameters) {
+  public Surface<Double, Double, DoubleMatrix1D> getParameterSensitivitySurface(final DoubleMatrix1D modelParameters) {
 
     final InterpolatedDoublesCurve curve = new InterpolatedDoublesCurve(_knots, modelParameters.getData(), _interpolator, true);
     final Function2D<Double, DoubleMatrix1D> func = new Function2D<Double, DoubleMatrix1D>() {
@@ -66,6 +68,22 @@ public class InterpolatedVolatilityTermStructureProvider implements VolatilitySu
       public DoubleMatrix1D evaluate(final Double t, final Double k) {
         final Double[] sense = curve.getYValueParameterSensitivity(t);
         return new DoubleMatrix1D(sense);
+      }
+    };
+
+    return new FunctionalSurface<>(func);
+  }
+
+  @Override
+  public Surface<Double, Double, Pair<Double, DoubleMatrix1D>> getVolAndParameterSensitivitySurface(final DoubleMatrix1D modelParameters) {
+
+    final InterpolatedDoublesCurve curve = new InterpolatedDoublesCurve(_knots, modelParameters.getData(), _interpolator, true);
+    final Function2D<Double, Pair<Double, DoubleMatrix1D>> func = new Function2D<Double, Pair<Double, DoubleMatrix1D>>() {
+      @Override
+      public Pair<Double, DoubleMatrix1D> evaluate(final Double t, final Double k) {
+        final Double vol = curve.getYValue(t);
+        final DoubleMatrix1D sense = new DoubleMatrix1D(curve.getYValueParameterSensitivity(t));
+        return ObjectsPair.of(vol, sense);
       }
     };
 

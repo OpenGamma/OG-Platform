@@ -16,6 +16,7 @@ import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
 import com.opengamma.analytics.math.surface.FunctionalSurface;
 import com.opengamma.analytics.math.surface.Surface;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Represent a volatility surface using 2D basis-splines  
@@ -71,13 +72,27 @@ public class BasisSplineVolatilitySurfaceProvider implements VolatilitySurfacePr
    * The model parameters in this case are the weights of the basis-splines 
    */
   @Override
-  public Surface<Double, Double, DoubleMatrix1D> getVolSurfaceAdjoint(final DoubleMatrix1D modelParameters) {
+  public Surface<Double, Double, DoubleMatrix1D> getParameterSensitivitySurface(final DoubleMatrix1D modelParameters) {
     final BasisFunctionAggregation<double[]> bSpline = new BasisFunctionAggregation<>(_bSplines, modelParameters.getData());
 
     final Function2D<Double, DoubleMatrix1D> func = new Function2D<Double, DoubleMatrix1D>() {
       @Override
       public DoubleMatrix1D evaluate(final Double t, final Double k) {
         return bSpline.weightSensitivity(new double[] {t, k });
+      }
+    };
+
+    return new FunctionalSurface<>(func);
+  }
+
+  @Override
+  public Surface<Double, Double, Pair<Double, DoubleMatrix1D>> getVolAndParameterSensitivitySurface(final DoubleMatrix1D modelParameters) {
+    final BasisFunctionAggregation<double[]> bSpline = new BasisFunctionAggregation<>(_bSplines, modelParameters.getData());
+
+    final Function2D<Double, Pair<Double, DoubleMatrix1D>> func = new Function2D<Double, Pair<Double, DoubleMatrix1D>>() {
+      @Override
+      public Pair<Double, DoubleMatrix1D> evaluate(final Double t, final Double k) {
+        return bSpline.valueAndWeightSensitivity(new double[] {t, k });
       }
     };
 
