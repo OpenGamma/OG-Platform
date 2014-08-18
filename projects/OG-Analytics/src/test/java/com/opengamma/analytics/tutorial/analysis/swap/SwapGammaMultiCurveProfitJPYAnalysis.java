@@ -70,8 +70,8 @@ public class SwapGammaMultiCurveProfitJPYAnalysis {
   private static final IborIndex JPYLIBOR6M = MASTER_IBOR_INDEX.getIndex("JPYLIBOR6M");
   private static final Currency JPY = JPYLIBOR6M.getCurrency();
 
-  private static final Period TENOR_START = Period.ofMonths(150);
-  private static final Period TENOR_SWAP = Period.ofYears(5);
+  private static final Period TENOR_START = Period.ofMonths(30);
+  private static final Period TENOR_SWAP = Period.ofYears(15);
   private static final boolean IS_PAYER = true;
 
   private static final double NOTIONAL = 1.0E6; // 1m
@@ -103,6 +103,16 @@ public class SwapGammaMultiCurveProfitJPYAnalysis {
   private static final OGMatrixAlgebra ALGEBRA = new OGMatrixAlgebra();
 
   private static final DoubleMatrix2D GAMMA_CROSS = CGMCC.calculateCrossGammaCrossCurve(IRS_JPY, MULTICURVE);
+  private static final double[] GAMMA_SUM_COL = new double[GAMMA_CROSS.getNumberOfColumns()];
+  static {
+    for (int loopcol = 0; loopcol < GAMMA_CROSS.getNumberOfColumns(); loopcol++) {
+      for (int looprow = 0; looprow < GAMMA_CROSS.getNumberOfRows(); looprow++) {
+        GAMMA_SUM_COL[loopcol] += GAMMA_CROSS.getEntry(looprow, loopcol);
+      }
+    }
+  }
+  private static final int NB_NODE = GAMMA_CROSS.getNumberOfColumns();
+
   private static final HashMap<String, DoubleMatrix2D> GAMMA_INTRA = CGMCC.calculateCrossGammaIntraCurve(IRS_JPY, MULTICURVE);
   private static final Set<String> CURVE_NAME_SET = GAMMA_INTRA.keySet();
   private static final String[] CURVE_NAME_ARRAY = CURVE_NAME_SET.toArray(new String[0]);
@@ -152,7 +162,7 @@ public class SwapGammaMultiCurveProfitJPYAnalysis {
    * The result file is exported in the root directory of OG-Analytics.
    * @throws IOException
    */
-  @Test(enabled = true)
+  @Test(enabled = false)
   public void crossGammaCompJpyHts() throws IOException {
     long startTime, endTime;
     startTime = System.currentTimeMillis();
@@ -185,6 +195,7 @@ public class SwapGammaMultiCurveProfitJPYAnalysis {
     double[] plDelta = new double[nbScenarios];
     double[] plGammaCross = new double[nbScenarios];
     double[] plGammaIntra = new double[nbScenarios];
+    double[] plGammaCol = new double[nbScenarios];
     double pv0 = IRS_JPY.accept(PVDC, MULTICURVE).getAmount(JPY);
     for (int loopsc = 0; loopsc < nbScenarios; loopsc++) {
       double[][] marketMvtIntra = new double[nbCurves][];
@@ -221,13 +232,18 @@ public class SwapGammaMultiCurveProfitJPYAnalysis {
       }
       // Full curve cross-gamma
       DoubleMatrix2D marketMvtMat = new DoubleMatrix2D(new double[][] {shiftAbsolute[loopsc] });
-      plGammaCross[loopsc] = (Double) ALGEBRA.multiply(ALGEBRA.multiply(marketMvtMat, GAMMA_CROSS), ALGEBRA.getTranspose(marketMvtMat)).getEntry(0, 0) * 0.5;
+      plGammaCross[loopsc] = (Double) ALGEBRA.multiply(ALGEBRA.multiply(marketMvtMat, GAMMA_CROSS),
+          ALGEBRA.getTranspose(marketMvtMat)).getEntry(0, 0) * 0.5;
+      // Sum of column
+      for (int loopcol = 0; loopcol < NB_NODE; loopcol++) {
+        plGammaCol[loopsc] += GAMMA_SUM_COL[loopcol] * shiftAbsolute[loopsc][loopcol] * shiftAbsolute[loopsc][loopcol] * 0.5;
+      }
     }
     String fileName = "swap-multicurve-delta-gamma-pl-" + TENOR_START.toString() + "x" + TENOR_SWAP.toString() + ".csv";
     try {
       final FileWriter writer = new FileWriter(fileName);
       for (int loopsc = 0; loopsc < nbScenarios; loopsc++) {
-        String line = plFullR[loopsc] + "," + plDelta[loopsc] + "," + plGammaCross[loopsc] + "," + plGammaIntra[loopsc] + " \n";
+        String line = plFullR[loopsc] + "," + plDelta[loopsc] + "," + plGammaCross[loopsc] + "," + plGammaIntra[loopsc] + "," + plGammaCol[loopsc] + " \n";
         writer.append(line);
       }
       writer.flush();
