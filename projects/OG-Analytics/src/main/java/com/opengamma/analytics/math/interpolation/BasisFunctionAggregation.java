@@ -10,6 +10,7 @@ import java.util.List;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 
 /**
  * 
@@ -19,7 +20,7 @@ public class BasisFunctionAggregation<T> extends Function1D<T, Double> {
   private final List<Function1D<T, Double>> _f;
   private final double[] _w;
 
-  public BasisFunctionAggregation(List<Function1D<T, Double>> functions, double[] weights) {
+  public BasisFunctionAggregation(final List<Function1D<T, Double>> functions, final double[] weights) {
     Validate.notEmpty(functions, "no functions");
     Validate.notNull(weights, "no weights");
     Validate.isTrue(functions.size() == weights.length);
@@ -28,13 +29,27 @@ public class BasisFunctionAggregation<T> extends Function1D<T, Double> {
   }
 
   @Override
-  public Double evaluate(T x) {
+  public Double evaluate(final T x) {
     double sum = 0;
-    int n = _w.length;
+    final int n = _w.length;
     for (int i = 0; i < n; i++) {
       sum += _w[i] * _f.get(i).evaluate(x);
     }
     return sum;
+  }
+
+  /**
+   * The sensitivity of the value at a point x to the weights of the basis functions 
+   * @param x value to be evaluated 
+   * @return sensitivity w
+   */
+  public DoubleMatrix1D weightSensitivity(final T x) {
+    final int n = _w.length;
+    final double[] temp = new double[n];
+    for (int i = 0; i < n; i++) {
+      temp[i] = _f.get(i).evaluate(x);
+    }
+    return new DoubleMatrix1D(temp);
   }
 
 }
