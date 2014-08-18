@@ -11,6 +11,8 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.util.tuple.ObjectsPair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * 
@@ -33,7 +35,10 @@ public class BasisFunctionAggregation<T> extends Function1D<T, Double> {
     double sum = 0;
     final int n = _w.length;
     for (int i = 0; i < n; i++) {
-      sum += _w[i] * _f.get(i).evaluate(x);
+      final double temp = _f.get(i).evaluate(x);
+      if (temp != 0.0) {
+        sum += _w[i] * temp;
+      }
     }
     return sum;
   }
@@ -45,11 +50,31 @@ public class BasisFunctionAggregation<T> extends Function1D<T, Double> {
    */
   public DoubleMatrix1D weightSensitivity(final T x) {
     final int n = _w.length;
-    final double[] temp = new double[n];
+    final DoubleMatrix1D res = new DoubleMatrix1D(n);
+    final double[] data = res.getData();
     for (int i = 0; i < n; i++) {
-      temp[i] = _f.get(i).evaluate(x);
+      data[i] = _f.get(i).evaluate(x);
     }
-    return new DoubleMatrix1D(temp);
+    return res;
   }
 
+  /**
+   * The value of the function at the given point and its sensitivity to the weights of the basis functions
+   * @param x value to be evaluated 
+   * @return value and weight sensitivity 
+   */
+  public Pair<Double, DoubleMatrix1D> valueAndWeightSensitivity(final T x) {
+    final int n = _w.length;
+    double sum = 0;
+    final DoubleMatrix1D sense = new DoubleMatrix1D(n);
+    final double[] data = sense.getData();
+    for (int i = 0; i < n; i++) {
+      final double temp = _f.get(i).evaluate(x);
+      if (temp != 0.0) {
+        sum += _w[i] * temp;
+        data[i] = temp;
+      }
+    }
+    return ObjectsPair.of(sum, sense);
+  }
 }
