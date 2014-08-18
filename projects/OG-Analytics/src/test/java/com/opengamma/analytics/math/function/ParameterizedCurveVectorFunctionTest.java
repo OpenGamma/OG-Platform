@@ -9,7 +9,10 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.math.differentiation.VectorFieldFirstOrderDifferentiator;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
+import com.opengamma.analytics.util.AssertMatrix;
 import com.opengamma.util.test.TestGroup;
 
 /**
@@ -40,11 +43,18 @@ public class ParameterizedCurveVectorFunctionTest {
   @Test
   public void test() {
     final ParameterizedCurveVectorFunctionProvider pro = new ParameterizedCurveVectorFunctionProvider(s_PCurve);
-    final VectorFunction f = pro.from(new double[] {-1.0, 0.0, 1.0 });
-    final DoubleMatrix1D y = f.evaluate(new DoubleMatrix1D(0.5, 2.0));
+    final double[] points = new double[] {-1.0, 0.0, 1.0 };
+    final VectorFunction f = pro.from(points);
+    assertEquals(2, f.getLengthOfDomain());
+    assertEquals(3, f.getLengthOfRange());
+    final DoubleMatrix1D x = new DoubleMatrix1D(0.5, 2.0); //the parameters a & b
+    final DoubleMatrix1D y = f.evaluate(x);
     assertEquals(0.5 * Math.sinh(-2.0), y.getEntry(0), 1e-14);
     assertEquals(0.0, y.getEntry(1), 1e-14);
     assertEquals(0.5 * Math.sinh(2.0), y.getEntry(2), 1e-14);
-  }
 
+    final DoubleMatrix2D jac = f.calculateJacobian(x);
+    final DoubleMatrix2D fdJac = (new VectorFieldFirstOrderDifferentiator().differentiate(f)).evaluate(x);
+    AssertMatrix.assertEqualsMatrix(fdJac, jac, 1e-9);
+  }
 }
