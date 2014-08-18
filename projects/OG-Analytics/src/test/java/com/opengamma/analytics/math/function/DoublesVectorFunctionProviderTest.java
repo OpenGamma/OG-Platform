@@ -12,12 +12,14 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.util.AssertMatrix;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Construct a curve a + b*x + c*x^2 (where a, b, and c are the parameters), then make some VectorFunctions
  * that sample the curve at some values of x, thus providing a mapping from the model parameters to the curve
  * value at the sample positions. 
  */
+@Test(groups = TestGroup.UNIT)
 public class DoublesVectorFunctionProviderTest {
 
   @Test
