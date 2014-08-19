@@ -13,7 +13,9 @@ import com.google.common.collect.Sets;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.core.convention.Convention;
 import com.opengamma.core.convention.ConventionSource;
+import com.opengamma.core.link.ConventionLink;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.analytics.ircurve.strips.BillNode;
@@ -68,6 +70,7 @@ import com.opengamma.financial.security.bond.BillSecurity;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.index.OvernightIndex;
 import com.opengamma.financial.security.index.PriceIndex;
+import com.opengamma.id.ExternalId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -177,7 +180,7 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
   @Override
   public Set<Currency> visitCashNode(final CashNode node) {
     try {
-      final FinancialConvention convention = _conventionSource.getSingle(node.getConvention(), FinancialConvention.class);
+      final FinancialConvention convention = getConvention(node.getConvention(), FinancialConvention.class);
       return convention.accept(this);
     } catch (DataNotFoundException e) {
       // If the convention is not found in the convention source
@@ -196,6 +199,15 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
         return indexConvention.accept(this);*/
       }
       throw new OpenGammaRuntimeException("Security should be of type IborIndex or OvernightIndex, was " + security);
+    }
+  }
+
+  private <T extends Convention> T getConvention(ExternalId conventionId, Class<T> clazz) {
+    T convention = ConventionLink.resolvable(conventionId, clazz).resolve();
+    if (convention == null) {
+      throw new DataNotFoundException("Failed to resolve convention " + conventionId);
+    } else {
+      return convention;
     }
   }
 
