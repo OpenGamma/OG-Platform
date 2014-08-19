@@ -9,7 +9,8 @@ import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
 import com.opengamma.analytics.financial.model.volatility.smile.function.VolatilityFunctionProvider;
-import com.opengamma.analytics.math.function.VectorFunction;
+import com.opengamma.analytics.math.function.DoublesVectorFunctionProvider;
+import com.opengamma.analytics.math.function.ParameterizedCurve;
 
 /**
  * 
@@ -19,8 +20,12 @@ public class ParameterizedSABRModelDiscreteVolatilityFunctionProvider extends Pa
 
   private static final VolatilityFunctionProvider<SABRFormulaData> SABR = new SABRHaganVolatilityFunction();
 
-  public ParameterizedSABRModelDiscreteVolatilityFunctionProvider(final ForwardCurve fwdCurve, final VectorFunction modelToSmileModelParms) {
-    super(SABR, fwdCurve, modelToSmileModelParms);
+  public ParameterizedSABRModelDiscreteVolatilityFunctionProvider(final ForwardCurve fwdCurve, final DoublesVectorFunctionProvider[] smileModelParameterProviders) {
+    super(SABR, fwdCurve, smileModelParameterProviders);
+  }
+
+  public ParameterizedSABRModelDiscreteVolatilityFunctionProvider(final ForwardCurve fwdCurve, final ParameterizedCurve[] smileParameterTS) {
+    super(SABR, fwdCurve, smileParameterTS);
   }
 
   @Override

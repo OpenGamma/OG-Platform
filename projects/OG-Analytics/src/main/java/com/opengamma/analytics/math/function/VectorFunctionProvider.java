@@ -8,24 +8,30 @@ package com.opengamma.analytics.math.function;
 import java.util.List;
 
 /**
- * interface for anything the provides a vector function which depends on some extraneous data
+ * Interface for anything the provides a vector function which depends on some extraneous data
  * @param <T> type of extraneous data 
  * @see {@link VectorFunction}
  *   */
 public interface VectorFunctionProvider<T> {
 
   /**
-   * produce a vector function that depends in some way on the given extraneous data
-   * @param data List of data points 
+   * Produce a vector function that maps from some 'model' parameters to values at the sample points 
+   * @param samplePoints List of sample points 
    * @return a {@link VectorFunction}
    */
-  VectorFunction from(final List<T> data);
+  VectorFunction from(final List<T> samplePoints);
 
   /**
-   * produce a vector function that depends in some way on the given extraneous data
-   * @param data Array of data points
+   * Produce a vector function that maps from some 'model' parameters to values at the sample points 
+   * @param samplePoints Array of sample points
    * @return a {@link VectorFunction}
    */
-  VectorFunction from(final T[] data);
+  VectorFunction from(final T[] samplePoints);
+
+  //  /**
+  //   * Get the number of 'model' parameters
+  //   * @return the number of 'model' parameters
+  //   */
+  //  int getNumberOfParameters();
 
 }

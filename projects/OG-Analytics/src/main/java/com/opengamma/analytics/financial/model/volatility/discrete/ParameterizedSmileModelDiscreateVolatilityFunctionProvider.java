@@ -16,7 +16,11 @@ import org.apache.commons.lang.ArrayUtils;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.volatility.smile.function.SmileModelData;
 import com.opengamma.analytics.financial.model.volatility.smile.function.VolatilityFunctionProvider;
+import com.opengamma.analytics.math.function.ConcatenatedVectorFunction;
+import com.opengamma.analytics.math.function.DoublesVectorFunctionProvider;
 import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.function.ParameterizedCurve;
+import com.opengamma.analytics.math.function.ParameterizedCurveVectorFunctionProvider;
 import com.opengamma.analytics.math.function.VectorFunction;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
@@ -40,29 +44,49 @@ public abstract class ParameterizedSmileModelDiscreateVolatilityFunctionProvider
 
   private final VolatilityFunctionProvider<T> _volFuncPro;
   private final ForwardCurve _fwdCurve;;
-  private final VectorFunction _modelToSmileModelParms;
-  private final int _nParms;
+  private final DoublesVectorFunctionProvider[] _smileModelParameterProviders;
+
+  // private final int _nParms;
 
   /**
    * Set up the {@link DiscreteVolatilityFunctionProvider} 
    * @param volFuncPro The smile model 
    * @param fwdCurve The forward curve 
-   * @param modelToSmileModelMap mapping from the model parameters to the smile model parameters at each expiry. This gives
-   * a lot of flexibility as to how the (smile model) parameter term structures are represented; the only constraint is
-   * that the smile model parameters must be order as - 1st parameter at each expiry, then 2nd parameter at each expiry etc
+   * @param smileModelParameterProviders each of these providers represents a different smile parameter - <b>there 
+   * must be one for each smile model parameter</b>. Given a (common) set of expiries, each one provides a 
+   * {@link VectorFunction} that gives the corresponding smile model parameter at each expiry for a set of model 
+   * parameters. This gives a lot of flexibility as to how the (smile model) parameter term structures are represented. 
    */
-  public ParameterizedSmileModelDiscreateVolatilityFunctionProvider(final VolatilityFunctionProvider<T> volFuncPro, final ForwardCurve fwdCurve, final VectorFunction modelToSmileModelMap) {
+  public ParameterizedSmileModelDiscreateVolatilityFunctionProvider(final VolatilityFunctionProvider<T> volFuncPro, final ForwardCurve fwdCurve,
+      final DoublesVectorFunctionProvider[] smileModelParameterProviders) {
 
     //TODO change this to take a ParameterizedCurveVectorFunctionProvider so the sample expiry points do not need to 
     //be known in advance 
     ArgumentChecker.notNull(volFuncPro, "volFuncPro");
     ArgumentChecker.notNull(fwdCurve, "fwdCurve");
-    ArgumentChecker.notNull(modelToSmileModelMap, "modelToSmileModelParms");
+    ArgumentChecker.noNulls(smileModelParameterProviders, "modelToSmileModelParms");
+    ArgumentChecker.isTrue(getNumSmileModelParamters() == smileModelParameterProviders.length, "Incorrect number of smileModelParameterProviders");
     _volFuncPro = volFuncPro;
     _fwdCurve = fwdCurve;
-    _modelToSmileModelParms = modelToSmileModelMap;
+    _smileModelParameterProviders = smileModelParameterProviders;
 
-    _nParms = modelToSmileModelMap.getLengthOfDomain();
+    //  _nParms = modelToSmileModelMaps[i].
+  }
+
+  public ParameterizedSmileModelDiscreateVolatilityFunctionProvider(final VolatilityFunctionProvider<T> volFuncPro, final ForwardCurve fwdCurve, final ParameterizedCurve[] smileParameterTS) {
+    ArgumentChecker.notNull(volFuncPro, "volFuncPro");
+    ArgumentChecker.notNull(fwdCurve, "fwdCurve");
+    ArgumentChecker.noNulls(smileParameterTS, "smileParameterTS");
+    ArgumentChecker.isTrue(getNumSmileModelParamters() == smileParameterTS.length, "Incorrect number of smileParameterTS");
+
+    DoublesVectorFunctionProvider[] vfp = new DoublesVectorFunctionProvider[getNumSmileModelParamters()];
+    for (int i = 0; i < getNumSmileModelParamters(); i++) {
+      vfp[i] = new ParameterizedCurveVectorFunctionProvider(smileParameterTS[i]);
+    }
+
+    _volFuncPro = volFuncPro;
+    _fwdCurve = fwdCurve;
+    _smileModelParameterProviders = vfp;
   }
 
   /**
@@ -84,6 +108,14 @@ public abstract class ParameterizedSmileModelDiscreateVolatilityFunctionProvider
     }
     final double[] expiries = ArrayUtils.toPrimitive(expSet.toArray(new Double[0]));
     final int nExpiries = expiries.length;
+
+    //create vectorFunctions that give the smile model parameters at the expiries and concatanate these to one function
+    int n = _smileModelParameterProviders.length;
+    VectorFunction[] funcs = new VectorFunction[n];
+    for (int i = 0; i < n; i++) {
+      funcs[i] = _smileModelParameterProviders[i].from(expiries);
+    }
+    final VectorFunction modelToSmileModelParms = new ConcatenatedVectorFunction(funcs);
 
     //for each expiry, get the (sorted) array of unique strikes 
     final double[][] strikes = new double[nExpiries][];
@@ -144,8 +176,8 @@ public abstract class ParameterizedSmileModelDiscreateVolatilityFunctionProvider
       public DoubleMatrix2D calculateJacobian(final DoubleMatrix1D x) {
 
         final DoubleMatrix2D dSigmadTheta = new DoubleMatrix2D(nOptions, nExpiries * nSmileModelParms);
-        final DoubleMatrix1D theta = _modelToSmileModelParms.evaluate(x);
-        final DoubleMatrix2D dThetadx = _modelToSmileModelParms.calculateJacobian(x);
+        final DoubleMatrix1D theta = modelToSmileModelParms.evaluate(x);
+        final DoubleMatrix2D dThetadx = modelToSmileModelParms.calculateJacobian(x);
 
         final double[] parms = new double[nSmileModelParms];
         for (int i = 0; i < nExpiries; i++) {
@@ -178,7 +210,7 @@ public abstract class ParameterizedSmileModelDiscreateVolatilityFunctionProvider
 
         // the vector theta are the smile model parameters, order as 1st parameter for all expiries, 2nd parameter for
         //all expiries, etc
-        final DoubleMatrix1D theta = _modelToSmileModelParms.evaluate(x);
+        final DoubleMatrix1D theta = modelToSmileModelParms.evaluate(x);
         ArgumentChecker.isTrue(theta.getNumberOfElements() == nSmileModelParms * nExpiries, "Length of x ({}) inconsistent with number of smile model parameters ({}) and number of expiries ({})",
             theta.getNumberOfElements(), nSmileModelParms, nExpiries);
 
@@ -202,7 +234,7 @@ public abstract class ParameterizedSmileModelDiscreateVolatilityFunctionProvider
 
       @Override
       public int getLengthOfDomain() {
-        return _nParms;
+        return modelToSmileModelParms.getLengthOfDomain();
       }
 
       @Override
