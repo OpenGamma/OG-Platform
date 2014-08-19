@@ -69,14 +69,12 @@ public class SABRNonLinearLeastSquareFitter extends LeastSquareSmileFitter {
   }
 
   public LeastSquareResultsWithTransform getFitResult(final EuropeanVanillaOption[] options, final BlackFunctionData[] data, final double[] initialFitParameters, final BitSet fixed,
-      final double atmVol,
-      final boolean recoverATMVol) {
+      final double atmVol, final boolean recoverATMVol) {
     return getFitResult(options, data, null, initialFitParameters, fixed, atmVol, recoverATMVol);
   }
 
   public LeastSquareResultsWithTransform getFitResult(final EuropeanVanillaOption[] options, final BlackFunctionData[] data, final double[] errors, final double[] initialFitParameters,
-      final BitSet fixed,
-      final double atmVol, final boolean recoverATMVol) {
+      final BitSet fixed, final double atmVol, final boolean recoverATMVol) {
     testData(options, data, errors, initialFitParameters, fixed, N_PARAMETERS);
     if (recoverATMVol) {
       Validate.isTrue(atmVol > 0.0, "ATM volatility must be > 0");
@@ -118,11 +116,16 @@ public class SABRNonLinearLeastSquareFitter extends LeastSquareSmileFitter {
         final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, maturity, true);
         return _formula.getVolatilityFunction(option, forward).evaluate(sabrFormulaData);
       }
+
+      @Override
+      public int getNumberOfParameters() {
+        return 4;
+      }
     };
 
     final DoubleMatrix1D fp = transforms.transform(new DoubleMatrix1D(initialFitParameters));
-    LeastSquareResults lsRes = errors == null ? SOLVER.solve(new DoubleMatrix1D(strikes), new DoubleMatrix1D(blackVols), function, fp)
-        : SOLVER.solve(new DoubleMatrix1D(strikes), new DoubleMatrix1D(blackVols), new DoubleMatrix1D(errors), function, fp);
+    LeastSquareResults lsRes = errors == null ? SOLVER.solve(new DoubleMatrix1D(strikes), new DoubleMatrix1D(blackVols), function, fp) : SOLVER.solve(new DoubleMatrix1D(strikes), new DoubleMatrix1D(
+        blackVols), new DoubleMatrix1D(errors), function, fp);
     final double[] mp = transforms.inverseTransform(lsRes.getFitParameters()).toArray();
     if (recoverATMVol) {
       final double beta = mp[1];

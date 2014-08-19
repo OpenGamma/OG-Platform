@@ -24,7 +24,7 @@ public class NelsonSiegelBondCurveModel {
       public Double evaluate(final Double t, final DoubleMatrix1D parameters) {
         Validate.notNull(t, "t");
         Validate.notNull(parameters, "parameters");
-        Validate.isTrue(parameters.getNumberOfElements() == 4);
+        Validate.isTrue(parameters.getNumberOfElements() == getNumberOfParameters());
         final double beta0 = parameters.getEntry(0);
         final double beta1 = parameters.getEntry(1);
         final double beta2 = parameters.getEntry(2);
@@ -36,6 +36,11 @@ public class NelsonSiegelBondCurveModel {
 
       public Object writeReplace() {
         return new InvokedSerializedForm(NelsonSiegelBondCurveModel.class, "getParameterizedFunction");
+      }
+
+      @Override
+      public int getNumberOfParameters() {
+        return 4;
       }
 
     };
