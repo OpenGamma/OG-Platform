@@ -15,7 +15,6 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.convention.Convention;
 import com.opengamma.core.convention.ConventionSource;
-import com.opengamma.core.link.ConventionLink;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.analytics.ircurve.strips.BillNode;
@@ -203,7 +202,7 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
   }
 
   private <T extends Convention> T getConvention(ExternalId conventionId, Class<T> clazz) {
-    T convention = ConventionLink.resolvable(conventionId, clazz).resolve();
+    T convention = _conventionSource.getSingle(conventionId, clazz);
     if (convention == null) {
       throw new DataNotFoundException("Failed to resolve convention " + conventionId);
     } else {
