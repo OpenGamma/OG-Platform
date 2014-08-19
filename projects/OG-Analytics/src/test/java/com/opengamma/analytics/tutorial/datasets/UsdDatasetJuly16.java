@@ -68,7 +68,7 @@ public class UsdDatasetJuly16 {
           Interpolator1DFactory.FLAT_EXTRAPOLATOR, 
           Interpolator1DFactory.FLAT_EXTRAPOLATOR);
 
-  private static final Interpolator1D INTERPOLATOR_LOG_LINEAR = 
+  public static final Interpolator1D INTERPOLATOR_LOG_LINEAR = 
       CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LOG_LINEAR, 
           Interpolator1DFactory.EXPONENTIAL_EXTRAPOLATOR,  
           Interpolator1DFactory.EXPONENTIAL_EXTRAPOLATOR);
