@@ -5,6 +5,9 @@
  */
 package com.opengamma.financial.analytics.curve;
 
+import com.opengamma.DataNotFoundException;
+import com.opengamma.core.convention.Convention;
+import com.opengamma.core.link.ConventionLink;
 import com.opengamma.financial.analytics.ircurve.strips.BillNode;
 import com.opengamma.financial.analytics.ircurve.strips.BondNode;
 import com.opengamma.financial.analytics.ircurve.strips.CalendarSwapNode;
@@ -24,6 +27,7 @@ import com.opengamma.financial.analytics.ircurve.strips.RollDateSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.ThreeLegBasisSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.ZeroCouponInflationNode;
+import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -457,4 +461,25 @@ public class CurveNodeVisitorAdapter<T> implements CurveNodeVisitor<T> {
       return new CurveNodeVisitorDelegate<>(_visitor);
     }
   }
+  
+  
+  /**
+   * Gets the convention, throwing a {@link DataNotFoundException} if it is not found.
+   * 
+   * @param <C> the convention type
+   * @param conventionId the convention id to resolve
+   * @param clazz the class
+   * @return a convention
+   * @throws DataNotFoundException if the record is not found
+   */
+  protected <C extends Convention> C getConvention(ExternalId conventionId, Class<C> clazz) {
+    C convention = ConventionLink.resolvable(conventionId, clazz).resolve();
+    if (convention == null) {
+      throw new DataNotFoundException("Failed to resolve convention " + conventionId);
+    } else {
+      return convention;
+    }
+  }
+
+
 }

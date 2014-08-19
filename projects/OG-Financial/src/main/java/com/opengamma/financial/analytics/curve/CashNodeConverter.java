@@ -13,7 +13,6 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.cash.CashDefinition;
 import com.opengamma.analytics.financial.instrument.cash.DepositIborDefinition;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.core.convention.Convention;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.link.ConventionLink;
@@ -124,15 +123,6 @@ public class CashNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinit
       com.opengamma.analytics.financial.instrument.index.IborIndex index =
           ConverterUtils.indexIbor(indexSecurity.getName(), indexConvention, indexSecurity.getTenor());
       return new DepositIborDefinition(currency, startDate, endDate, 1, rate, accrualFactor, index);
-    }
-  }
-
-  private <T extends Convention> T getConvention(ExternalId conventionId, Class<T> clazz) {
-    T convention = ConventionLink.resolvable(conventionId, clazz).resolve();
-    if (convention == null) {
-      throw new DataNotFoundException("Failed to resolve convention " + conventionId);
-    } else {
-      return convention;
     }
   }
 
