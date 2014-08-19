@@ -76,7 +76,6 @@ public class CrossGammaMultiCurveCalculatorTest {
   private static final double TOLERANCE_PV_GAMMA = 2.0E+0;
   private static final double TOLERANCE_PV_GAMMA_RELATIF = 6.0E-4;
 
-  @SuppressWarnings("unused")
   @Test
   public void crossGammaCrossCurveIrs() {
     final SwapFixedCoupon<Coupon> swap = SWAP_FIXED_IBOR_DEFINITION.toDerivative(CALIBRATION_DATE);
@@ -104,7 +103,6 @@ public class CrossGammaMultiCurveCalculatorTest {
       }
       submatrixsize += nbNode;
     }
-    int t = 0;
   }
 
   @Test

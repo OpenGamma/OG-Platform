@@ -45,7 +45,6 @@ import com.opengamma.util.tuple.Pair;
 
 /**
  * Analysis of cross-gamma to zero-coupon and market rates.
- * @author marc
  */
 public class SwapGammaMultiCurveProfitEURAnalysis {
 
@@ -74,12 +73,12 @@ public class SwapGammaMultiCurveProfitEURAnalysis {
   private static final ParameterSensitivityParameterCalculator<MulticurveProviderInterface> PSC = new ParameterSensitivityParameterCalculator<>(PVCSDC);
   private static final CrossGammaMultiCurveCalculator CGMCC = new CrossGammaMultiCurveCalculator(PVCSDC);
   private static final CrossGammaSingleCurveCalculator CGSCC = new CrossGammaSingleCurveCalculator(PVCSDC);
-  
+
   private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_PAIR_0 = AnalysisMarketDataEURJun13Sets.getMulticurveEUR();
   private static final MulticurveProviderDiscount MULTICURVE = MULTICURVE_PAIR_0.getFirst();
   private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> SINGLECURVE_PAIR_0 = AnalysisMarketDataEURJun13Sets.getSingleCurveEUR();
   private static final MulticurveProviderDiscount SINGLECURVE = SINGLECURVE_PAIR_0.getFirst();
-  
+
   private static final String[] CURVE_NAME = new String[2];
   static {
     CURVE_NAME[0] = MULTICURVE_PAIR_0.getFirst().getName(EUR);
@@ -122,7 +121,7 @@ public class SwapGammaMultiCurveProfitEURAnalysis {
   }
 
   @SuppressWarnings("unused")
-  @Test(enabled = true)
+  @Test(enabled = false)
   public void crossGammaDiagonalComp() {
     double[] marketMvtArray = new double[NB_NODE_EUR];
     Arrays.fill(marketMvtArray, 0.0010);
@@ -141,23 +140,21 @@ public class SwapGammaMultiCurveProfitEURAnalysis {
     for (int loopcol = 0; loopcol < NB_NODE_EUR; loopcol++) {
       plCol += GAMMA_SUM_EUR[loopcol] * marketMvtArray[loopcol] * marketMvtArray[loopcol];
     }
-
-    int t = 0;
   }
-  
+
   @SuppressWarnings("unused")
   @Test(enabled = true)
   public void crossGammaMulticurveIntraCurve() {
     HashMap<String, DoubleMatrix2D> crossGammaIntra = CGMCC.calculateCrossGammaIntraCurve(SWAP_EUR, MULTICURVE);
     HashMap<String, DoubleMatrix2D> crossGammaSingle1 = CGMCC.calculateCrossGammaIntraCurve(SWAP_EUR, SINGLECURVE);
     DoubleMatrix2D crossGammaSingle2 = CGSCC.calculateCrossGamma(SWAP_EUR, SINGLECURVE);
-    for(String name : crossGammaIntra.keySet()) {
-      exportMatrix(crossGammaIntra.get(name).getData(), "cross-gamma-eur-"+ name + ".csv");
+    for (String name : crossGammaIntra.keySet()) {
+      exportMatrix(crossGammaIntra.get(name).getData(), "cross-gamma-eur-" + name + ".csv");
     }
-    int t=0;
+    int t = 0;
   }
 
-  @Test(enabled = true)
+  @Test(enabled = false)
   public void crossGammaZeroMulti() {
     MulticurveProviderDiscount multicurve = MULTICURVE_PAIR_0.getFirst();
     MultipleCurrencyParameterSensitivity ps0 = PSC.calculateSensitivity(SWAP_EUR, multicurve);
@@ -215,62 +212,59 @@ public class SwapGammaMultiCurveProfitEURAnalysis {
     } catch (final IOException e) {
       e.printStackTrace();
     }
-
-    @SuppressWarnings("unused")
-    int t = 0;
   }
-  
-private void exportMatrix(double[][] matrix, String fileName) {
-  try {
-    final FileWriter writer = new FileWriter("swap-x-gamma-multicurve.csv");
-    for (int i = 0; i < 2; i++) {
-      for (int loop1 = 0; loop1 < matrix.length; loop1++) {
-        String line = "";
-        for (int j = 0; j < 2; j++) {
-          for (int loop2 = 0; loop2 < matrix[loop1].length; loop2++) {
-            line = line + "," + matrix[loop1][loop2];
+
+  private void exportMatrix(double[][] matrix, String fileName) {
+    try {
+      final FileWriter writer = new FileWriter("swap-x-gamma-multicurve.csv");
+      for (int i = 0; i < 2; i++) {
+        for (int loop1 = 0; loop1 < matrix.length; loop1++) {
+          String line = "";
+          for (int j = 0; j < 2; j++) {
+            for (int loop2 = 0; loop2 < matrix[loop1].length; loop2++) {
+              line = line + "," + matrix[loop1][loop2];
+            }
           }
+          writer.append(line + "0 \n");
         }
-        writer.append(line + "0 \n");
       }
+      writer.flush();
+      writer.close();
+    } catch (final IOException e) {
+      e.printStackTrace();
     }
-    writer.flush();
-    writer.close();
-  } catch (final IOException e) {
-    e.printStackTrace();
   }
-}
 
-@SuppressWarnings("unused")
-@Test(enabled = true)
-public void performance() {
-  long startTime, endTime;
-  final int nbTest = 1000;
+  @SuppressWarnings("unused")
+  @Test(enabled = false)
+  public void performance() {
+    long startTime, endTime;
+    final int nbTest = 1000;
 
-  startTime = System.currentTimeMillis();
-  for (int looptest = 0; looptest < nbTest; looptest++) {
-    MultipleCurrencyAmount pv = SWAP_EUR.accept(PVDC, MULTICURVE);
-  }
-  endTime = System.currentTimeMillis();
-  System.out.println("CrossGammaMultiCurveCalculator - " + nbTest + " pv - 2 curves: " + (endTime - startTime) + " ms");
-  // Performance note: PVD: 04-Aug-2014: On Mac Book Pro 2.6 GHz Intel Core i7: 20 ms for 1000 sets.
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      MultipleCurrencyAmount pv = SWAP_EUR.accept(PVDC, MULTICURVE);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println("CrossGammaMultiCurveCalculator - " + nbTest + " pv - 2 curves: " + (endTime - startTime) + " ms");
+    // Performance note: PVD: 04-Aug-2014: On Mac Book Pro 2.6 GHz Intel Core i7: 20 ms for 1000 sets.
 
-  startTime = System.currentTimeMillis();
-  for (int looptest = 0; looptest < nbTest; looptest++) {
-    MultipleCurrencyMulticurveSensitivity pvcs = SWAP_EUR.accept(PVCSDC, MULTICURVE);
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      MultipleCurrencyMulticurveSensitivity pvcs = SWAP_EUR.accept(PVCSDC, MULTICURVE);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println("CrossGammaMultiCurveCalculator - " + nbTest + " pvcs - 2 curves: " + (endTime - startTime) + " ms");
+    // Performance note: PVCSD: 04-Aug-2014: On Mac Book Pro 2.6 GHz Intel Core i7: 25 ms for 1000 sets.
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      HashMap<String, DoubleMatrix2D> crossGammaIntra = CGMCC.calculateCrossGammaIntraCurve(SWAP_EUR, MULTICURVE);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println("CrossGammaMultiCurveCalculator - " + nbTest + " intro-curve x-gamma - 2 curves: " + (endTime - startTime) + " ms");
+    // Performance note: Cross-gamma intra-curve 2 curves: 07-Nov-12: On Mac Book Pro 2.6 GHz Intel Core i7: 1450 ms for 1000 sets.
+
   }
-  endTime = System.currentTimeMillis();
-  System.out.println("CrossGammaMultiCurveCalculator - " + nbTest + " pvcs - 2 curves: " + (endTime - startTime) + " ms");
-  // Performance note: PVCSD: 04-Aug-2014: On Mac Book Pro 2.6 GHz Intel Core i7: 25 ms for 1000 sets.
-  
-  startTime = System.currentTimeMillis();
-  for (int looptest = 0; looptest < nbTest; looptest++) {
-    HashMap<String, DoubleMatrix2D> crossGammaIntra = CGMCC.calculateCrossGammaIntraCurve(SWAP_EUR, MULTICURVE);
-  }
-  endTime = System.currentTimeMillis();
-  System.out.println("CrossGammaMultiCurveCalculator - " + nbTest + " intro-curve x-gamma - 2 curves: " + (endTime - startTime) + " ms");
-  // Performance note: Cross-gamma intra-curve 2 curves: 07-Nov-12: On Mac Book Pro 2.6 GHz Intel Core i7: 1450 ms for 1000 sets.
-  
-}
 
 }
