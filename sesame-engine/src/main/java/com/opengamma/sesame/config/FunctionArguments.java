@@ -35,19 +35,9 @@ import com.opengamma.util.ArgumentChecker;
  */
 @BeanDefinition
 public class FunctionArguments implements ImmutableBean {
-  // TODO sentinel value for NULL? or return null for null have have a sentinel value for MISSING?
 
   /** Some empty arguments */
   public static final FunctionArguments EMPTY = new FunctionArguments(Collections.<String, Object>emptyMap());
-
-  /**
-   * Gets the argument for the parameter name.
-   * 
-   * @param parameterName  the parameter name, not null
-   * @return the argument, null if not found
-   */
-  //Object getArgument(String parameterName);
-
 
   /**
    * The function arguments keyed by parameter name.
