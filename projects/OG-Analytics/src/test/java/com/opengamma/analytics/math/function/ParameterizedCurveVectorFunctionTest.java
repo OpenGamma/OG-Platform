@@ -34,7 +34,7 @@ public class ParameterizedCurveVectorFunctionTest {
       }
 
       @Override
-      public int getNumParameters() {
+      public int getNumberOfParameters() {
         return 2;
       }
     };

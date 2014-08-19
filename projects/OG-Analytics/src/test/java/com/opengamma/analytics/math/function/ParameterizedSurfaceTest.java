@@ -9,7 +9,6 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.model.volatility.SimpleOptionData;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.DoublesPair;
@@ -40,18 +39,8 @@ public class ParameterizedSurfaceTest {
       }
 
       @Override
-      public double getVolatility(final double forward, final double strike, final double timeToExpiry) {
-        return 0;
-      }
-
-      @Override
-      public double getVolatility(final SimpleOptionData option) {
-        return 0;
-      }
-
-      @Override
-      public Double getVolatility(final double[] t) {
-        return null;
+      public int getNumberOfParameters() {
+        return 3;
       }
     };
 
@@ -65,6 +54,11 @@ public class ParameterizedSurfaceTest {
         final DoubleMatrix1D res = new DoubleMatrix1D(Math.sin(b * xy.first + c * xy.second), xy.first * a * Math.cos(b * xy.first + c * xy.second), xy.second * a *
             Math.cos(b * xy.first + c * xy.second));
         return res;
+      }
+
+      @Override
+      public int getNumberOfParameters() {
+        return 3;
       }
     };
 

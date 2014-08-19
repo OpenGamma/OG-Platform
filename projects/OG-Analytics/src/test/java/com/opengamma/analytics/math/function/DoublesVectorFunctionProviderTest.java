@@ -32,7 +32,7 @@ public class DoublesVectorFunctionProviderTest {
       }
 
       @Override
-      public int getNumParameters() {
+      public int getNumberOfParameters() {
         return 3;
       }
     };

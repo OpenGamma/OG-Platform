@@ -5,7 +5,6 @@
  */
 package com.opengamma.analytics.math.function;
 
-import com.opengamma.analytics.financial.model.volatility.VolatilityModel1D;
 import com.opengamma.analytics.math.differentiation.ScalarFieldFirstOrderDifferentiator;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.tuple.DoublesPair;
@@ -14,7 +13,7 @@ import com.opengamma.util.tuple.DoublesPair;
  * A parameterised surface that gives the both the surface (the function z=f(xy) where xy is a 2D point and z is a scalar)
  *  and the surface sensitivity (dz/dp where p is one of the parameters) for given parameters.
  */
-public abstract class ParameterizedSurface extends ParameterizedFunction<DoublesPair, DoubleMatrix1D, Double> implements VolatilityModel1D {
+public abstract class ParameterizedSurface extends ParameterizedFunction<DoublesPair, DoubleMatrix1D, Double> {
   private static final ScalarFieldFirstOrderDifferentiator FIRST_ORDER_DIFF = new ScalarFieldFirstOrderDifferentiator();
 
   /**

@@ -37,9 +37,10 @@ public class ParameterizedCurveTest {
       }
 
       @Override
-      public int getNumParameters() {
+      public int getNumberOfParameters() {
         return 3;
       }
+
     };
 
     final ParameterizedFunction<Double, DoubleMatrix1D, DoubleMatrix1D> parmSense = new ParameterizedFunction<Double, DoubleMatrix1D, DoubleMatrix1D>() {
@@ -50,6 +51,11 @@ public class ParameterizedCurveTest {
         final double b = parameters.getEntry(1);
         final DoubleMatrix1D res = new DoubleMatrix1D(Math.sin(b * x), x * a * Math.cos(b * x), 1.0);
         return res;
+      }
+
+      @Override
+      public int getNumberOfParameters() {
+        return 0;
       }
     };
 
