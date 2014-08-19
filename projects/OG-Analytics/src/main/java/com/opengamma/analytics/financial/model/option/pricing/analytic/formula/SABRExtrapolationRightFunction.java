@@ -158,35 +158,19 @@ public class SABRExtrapolationRightFunction {
     double p = 0.0;
     final double k = option.getStrike();
 
-    if (_mu > 0.0) {
-
-      if (k <= _cutOffStrike) { // Uses Hagan et al SABR function.
-        final Function1D<SABRFormulaData, Double> funcSabr = _sabrFunction.getVolatilityFunction(option, _forward);
-        final double volatility = funcSabr.evaluate(_sabrData);
-        final BlackFunctionData dataBlack = new BlackFunctionData(_forward, 1.0, volatility);
-        final Function1D<BlackFunctionData, Double> funcBlack = BLACK_FUNCTION.getPriceFunction(option);
-        p = funcBlack.evaluate(dataBlack);
-      } else { // Uses extrapolation for call.
-        p = extrapolation(k);
-        if (!option.isCall()) { // Put by call/put parity
-          p = p - (_forward - option.getStrike());
-        }
+    if (k <= _cutOffStrike) { // Uses Hagan et al SABR function.
+      final Function1D<SABRFormulaData, Double> funcSabr = _sabrFunction.getVolatilityFunction(option, _forward);
+      final double volatility = funcSabr.evaluate(_sabrData);
+      final BlackFunctionData dataBlack = new BlackFunctionData(_forward, 1.0, volatility);
+      final Function1D<BlackFunctionData, Double> funcBlack = BLACK_FUNCTION.getPriceFunction(option);
+      p = funcBlack.evaluate(dataBlack);
+    } else { // Uses extrapolation for call.
+      p = extrapolation(k);
+      if (!option.isCall()) { // Put by call/put parity
+        p = p - (_forward - option.getStrike());
       }
-    } else {
-      if (k >= _cutOffStrike) { // Uses Hagan et al SABR function.
-        final Function1D<SABRFormulaData, Double> funcSabr = _sabrFunction.getVolatilityFunction(option, _forward);
-        final double volatility = funcSabr.evaluate(_sabrData);
-        final BlackFunctionData dataBlack = new BlackFunctionData(_forward, 1.0, volatility);
-        final Function1D<BlackFunctionData, Double> funcBlack = BLACK_FUNCTION.getPriceFunction(option);
-        p = funcBlack.evaluate(dataBlack);
-      } else { // Uses extrapolation for call.
-        p = extrapolation(k);
-        if (option.isCall()) { // Call by call/put parity
-          p = p + (_forward - option.getStrike());
-        }
-      }
-
     }
+
     return p;
   }
 
@@ -352,8 +336,7 @@ public class SABRExtrapolationRightFunction {
    */
   private double[] computesFittingParameters() {
     final double[] param = new double[3]; // Implementation note: called a,b,c in the note.
-    final boolean isCall = _mu > 0.0 ? true : false;
-    final EuropeanVanillaOption option = new EuropeanVanillaOption(_cutOffStrike, _timeToExpiry, isCall);
+    final EuropeanVanillaOption option = new EuropeanVanillaOption(_cutOffStrike, _timeToExpiry, true);
     // Computes derivatives at cut-off.
     final double[] vD = new double[6];
     final double[][] vD2 = new double[2][2];

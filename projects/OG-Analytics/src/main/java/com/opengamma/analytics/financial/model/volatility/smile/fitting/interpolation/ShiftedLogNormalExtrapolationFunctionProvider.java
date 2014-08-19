@@ -113,4 +113,34 @@ public class ShiftedLogNormalExtrapolationFunctionProvider extends SmileExtrapol
     };
   }
 
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((_extrapolatorFailureBehaviour == null) ? 0 : _extrapolatorFailureBehaviour.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (!(obj instanceof ShiftedLogNormalExtrapolationFunctionProvider)) {
+      return false;
+    }
+    ShiftedLogNormalExtrapolationFunctionProvider other = (ShiftedLogNormalExtrapolationFunctionProvider) obj;
+    if (_extrapolatorFailureBehaviour == null) {
+      if (other._extrapolatorFailureBehaviour != null) {
+        return false;
+      }
+    } else if (!_extrapolatorFailureBehaviour.equals(other._extrapolatorFailureBehaviour)) {
+      return false;
+    }
+    return true;
+  }
+
 }

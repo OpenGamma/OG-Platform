@@ -839,7 +839,7 @@ public abstract class BlackFormulaRepository {
    * @return log-normal (Black) implied volatility
    */
   public static double impliedVolatility(final double price, final double forward, final double strike, final double timeToExpiry, final boolean isCall) {
-    ArgumentChecker.isTrue(price > 0.0, "negative/NaN price; have {}", price);
+    ArgumentChecker.isTrue(price >= 0.0, "negative/NaN price; have {}", price);
     ArgumentChecker.isTrue(forward > 0.0, "negative/NaN forward; have {}", forward);
     ArgumentChecker.isTrue(strike >= 0.0, "negative/NaN strike; have {}", strike);
     ArgumentChecker.isTrue(timeToExpiry >= 0.0, "negative/NaN timeToExpiry; have {}", timeToExpiry);

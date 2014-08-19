@@ -37,8 +37,13 @@ public class BenaimDodgsonKainthExtrapolationFunctionProvider extends SmileExtra
   @Override
   public Function1D<Double, Double> getExtrapolationFunction(final SABRFormulaData sabrDataLow, final SABRFormulaData sabrDataHigh,
       final VolatilityFunctionProvider<SABRFormulaData> volatilityFunction, final double forward, final double expiry, final double cutOffStrikeLow, final double cutOffStrikeHigh) {
+    ArgumentChecker.notNull(sabrDataLow, "sabrDataLow");
+    ArgumentChecker.notNull(sabrDataHigh, "sabrDataHigh");
+    ArgumentChecker.notNull(volatilityFunction, "volatilityFunction");
+    ArgumentChecker.isTrue(0.0 < cutOffStrikeLow, "cutOffStrikeLow should be positive");
+    ArgumentChecker.isTrue(cutOffStrikeLow < cutOffStrikeHigh, "cutOffStrikeLow < cutOffStrikeHigh should be satisfied");
 
-    final SABRExtrapolationRightFunction sabrLeftExtrapolation = new SABRExtrapolationRightFunction(forward, sabrDataLow, cutOffStrikeLow, expiry, -_muLow, volatilityFunction);
+    final SABRExtrapolationLeftFunction sabrLeftExtrapolation = new SABRExtrapolationLeftFunction(forward, sabrDataLow, cutOffStrikeLow, expiry, _muLow, volatilityFunction);
     final SABRExtrapolationRightFunction sabrRightExtrapolation = new SABRExtrapolationRightFunction(forward, sabrDataHigh, cutOffStrikeHigh, expiry, _muHigh, volatilityFunction);
 
     return new Function1D<Double, Double>() {
@@ -59,4 +64,36 @@ public class BenaimDodgsonKainthExtrapolationFunctionProvider extends SmileExtra
     };
   }
 
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    long temp;
+    temp = Double.doubleToLongBits(_muHigh);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_muLow);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (!(obj instanceof BenaimDodgsonKainthExtrapolationFunctionProvider)) {
+      return false;
+    }
+    BenaimDodgsonKainthExtrapolationFunctionProvider other = (BenaimDodgsonKainthExtrapolationFunctionProvider) obj;
+    if (Double.doubleToLongBits(_muHigh) != Double.doubleToLongBits(other._muHigh)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_muLow) != Double.doubleToLongBits(other._muLow)) {
+      return false;
+    }
+    return true;
+  }
 }

@@ -68,7 +68,7 @@ public class SmileInterpolatorSABRWithExtrapolation extends SmileInterpolatorSAB
       nTmp = strikes.length;
       sabrDataLow = modelParamsTmp.get(0);
       sabrDataHigh = modelParamsTmp.get(nTmp - 3);
-    } catch (final Exception e) { //try global fit if failed
+    } catch (final Exception e) { //try global fit if local fit failed
       nTmp = 1;
       modelParamsTmp = getFittedModelParametersGlobal(forward, strikes, expiry, impliedVols);
       sabrDataLow = modelParamsTmp.get(0);
