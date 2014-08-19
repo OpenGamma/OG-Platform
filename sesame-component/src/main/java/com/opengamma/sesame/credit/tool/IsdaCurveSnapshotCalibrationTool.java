@@ -57,7 +57,6 @@ import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.SimpleEnvironment;
 import com.opengamma.sesame.cache.CachingProxyDecorator;
 import com.opengamma.sesame.cache.MethodInvocationKey;
-import com.opengamma.sesame.config.CompositeFunctionModelConfig;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.credit.DefaultIsdaCompliantYieldCurveFn;
 import com.opengamma.sesame.credit.IsdaCompliantCreditCurveFn;
@@ -74,7 +73,6 @@ import com.opengamma.sesame.function.AvailableImplementations;
 import com.opengamma.sesame.function.AvailableImplementationsImpl;
 import com.opengamma.sesame.function.AvailableOutputs;
 import com.opengamma.sesame.function.AvailableOutputsImpl;
-import com.opengamma.sesame.function.DefaultImplementationProvider;
 import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.sesame.marketdata.FieldName;
 import com.opengamma.sesame.marketdata.MarketDataSource;
@@ -398,8 +396,7 @@ public class IsdaCurveSnapshotCalibrationTool extends AbstractTool<ToolContext> 
                                       SnapshotCreditCurveDataProviderFn.class,
                                       StandardIsdaCompliantCreditCurveFn.class);
     
-    FunctionModelConfig provider = new DefaultImplementationProvider(availableImplementations);
-
+    FunctionModelConfig provider = new FunctionModelConfig(availableImplementations.getDefaultImplementations());
     FunctionModelConfig config =
         config(
             arguments(
@@ -410,7 +407,7 @@ public class IsdaCurveSnapshotCalibrationTool extends AbstractTool<ToolContext> 
                     SnapshotCreditCurveDataProviderFn.class,
                     argument("snapshotLink", SnapshotLink.resolved(ccSnapshot)))));
 
-    return CompositeFunctionModelConfig.compose(config, provider);
+    return config.mergedWith(provider);
   }
   
   @Override

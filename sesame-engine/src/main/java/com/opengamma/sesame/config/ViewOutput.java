@@ -43,7 +43,7 @@ public final class ViewOutput implements ImmutableBean {
    * The configuration.
    */
   @PropertyDefinition(validate = "notNull")
-  private final SimpleFunctionModelConfig _functionModelConfig;
+  private final FunctionModelConfig _functionModelConfig;
 
   /**
    * Creates an instance with empty configuration.
@@ -51,7 +51,7 @@ public final class ViewOutput implements ImmutableBean {
    * @param outputName  the output name, null to inherit from the column
    */
   public ViewOutput(OutputName outputName) {
-    this(outputName, SimpleFunctionModelConfig.EMPTY);
+    this(outputName, FunctionModelConfig.EMPTY);
   }
 
   /**
@@ -59,7 +59,7 @@ public final class ViewOutput implements ImmutableBean {
    * 
    * @param functionModelConfig  the configuration, not null
    */
-  public ViewOutput(SimpleFunctionModelConfig functionModelConfig) {
+  public ViewOutput(FunctionModelConfig functionModelConfig) {
     this(null, functionModelConfig);
   }
 
@@ -70,7 +70,7 @@ public final class ViewOutput implements ImmutableBean {
    * @param functionModelConfig  the configuration, not null
    */
   @ImmutableConstructor
-  public ViewOutput(OutputName outputName, SimpleFunctionModelConfig functionModelConfig) {
+  public ViewOutput(OutputName outputName, FunctionModelConfig functionModelConfig) {
     _outputName = outputName;
     _functionModelConfig = ArgumentChecker.notNull(functionModelConfig, "functionConfig");
   }
@@ -126,7 +126,7 @@ public final class ViewOutput implements ImmutableBean {
    * Gets the configuration.
    * @return the value of the property, not null
    */
-  public SimpleFunctionModelConfig getFunctionModelConfig() {
+  public FunctionModelConfig getFunctionModelConfig() {
     return _functionModelConfig;
   }
 
@@ -188,8 +188,8 @@ public final class ViewOutput implements ImmutableBean {
     /**
      * The meta-property for the {@code functionModelConfig} property.
      */
-    private final MetaProperty<SimpleFunctionModelConfig> _functionModelConfig = DirectMetaProperty.ofImmutable(
-        this, "functionModelConfig", ViewOutput.class, SimpleFunctionModelConfig.class);
+    private final MetaProperty<FunctionModelConfig> _functionModelConfig = DirectMetaProperty.ofImmutable(
+        this, "functionModelConfig", ViewOutput.class, FunctionModelConfig.class);
     /**
      * The meta-properties.
      */
@@ -243,7 +243,7 @@ public final class ViewOutput implements ImmutableBean {
      * The meta-property for the {@code functionModelConfig} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<SimpleFunctionModelConfig> functionModelConfig() {
+    public MetaProperty<FunctionModelConfig> functionModelConfig() {
       return _functionModelConfig;
     }
 
@@ -277,7 +277,7 @@ public final class ViewOutput implements ImmutableBean {
   public static final class Builder extends DirectFieldsBeanBuilder<ViewOutput> {
 
     private OutputName _outputName;
-    private SimpleFunctionModelConfig _functionModelConfig;
+    private FunctionModelConfig _functionModelConfig;
 
     /**
      * Restricted constructor.
@@ -314,7 +314,7 @@ public final class ViewOutput implements ImmutableBean {
           this._outputName = (OutputName) newValue;
           break;
         case 645366995:  // functionModelConfig
-          this._functionModelConfig = (SimpleFunctionModelConfig) newValue;
+          this._functionModelConfig = (FunctionModelConfig) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -369,7 +369,7 @@ public final class ViewOutput implements ImmutableBean {
      * @param functionModelConfig  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder functionModelConfig(SimpleFunctionModelConfig functionModelConfig) {
+    public Builder functionModelConfig(FunctionModelConfig functionModelConfig) {
       JodaBeanUtils.notNull(functionModelConfig, "functionModelConfig");
       this._functionModelConfig = functionModelConfig;
       return this;

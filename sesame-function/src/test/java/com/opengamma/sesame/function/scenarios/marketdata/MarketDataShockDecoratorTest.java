@@ -26,7 +26,6 @@ import com.opengamma.financial.currency.SimpleCurrencyMatrix;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.SimpleEnvironment;
-import com.opengamma.sesame.config.DecoratorConfig;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.function.Output;
 import com.opengamma.sesame.graph.FunctionModel;
@@ -52,7 +51,7 @@ public class MarketDataShockDecoratorTest {
              arguments(function(DefaultMarketDataFn.class, argument("currencyMatrix", new SimpleCurrencyMatrix()))));
   private static final MarketDataMatcher MATCHER1 = MarketDataMatcher.idEquals(SCHEME, VALUE1);
   private static final MarketDataMatcher MATCHER2 = MarketDataMatcher.idEquals(SCHEME, VALUE2);
-  private static final FunctionModelConfig DECORATED_CONFIG = DecoratorConfig.decorate(CONFIG, MarketDataShockDecorator.class);
+  private static final FunctionModelConfig DECORATED_CONFIG = CONFIG.decoratedWith(MarketDataShockDecorator.class);
   private static final MarketDataSource MARKET_DATA_SOURCE = mock(MarketDataSource.class);
   private static final Fn FN = FunctionModel.build(Fn.class, DECORATED_CONFIG);
   private static final double DELTA = 1e-8;

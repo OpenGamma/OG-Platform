@@ -20,7 +20,7 @@ import com.opengamma.sesame.OutputName;
  */
 public final class ConfigBuilder {
 
-  private static final Map<Class<?>, SimpleFunctionArguments> EMPTY_ARGUMENTS = Collections.emptyMap();
+  private static final Map<Class<?>, FunctionArguments> EMPTY_ARGUMENTS = Collections.emptyMap();
   private static final Map<Class<?>, Class<?>> EMPTY_OVERRIDES = Collections.emptyMap();
 
   private ConfigBuilder() {
@@ -73,7 +73,7 @@ public final class ConfigBuilder {
     return new ViewColumn(name, new ViewOutput(OutputName.of(outputName)), Collections.<Class<?>, ViewOutput>emptyMap());
   }
 
-  public static ViewColumn column(String name, SimpleFunctionModelConfig config) {
+  public static ViewColumn column(String name, FunctionModelConfig config) {
     return new ViewColumn(name, new ViewOutput(OutputName.of(name), config), Collections.<Class<?>, ViewOutput>emptyMap());
   }
 
@@ -85,15 +85,15 @@ public final class ConfigBuilder {
     return new ViewColumn(name, new ViewOutput(OutputName.of(outputName)), createTargetOutputs(outputs));
   }
 
-  public static ViewColumn column(String name, String outputName, SimpleFunctionModelConfig config) {
+  public static ViewColumn column(String name, String outputName, FunctionModelConfig config) {
     return new ViewColumn(name, new ViewOutput(OutputName.of(outputName), config), Collections.<Class<?>, ViewOutput>emptyMap());
   }
 
-  public static ViewColumn column(String name, SimpleFunctionModelConfig config, TargetOutput... targetOutputs) {
+  public static ViewColumn column(String name, FunctionModelConfig config, TargetOutput... targetOutputs) {
     return new ViewColumn(name, new ViewOutput(OutputName.of(name), config), createTargetOutputs(targetOutputs));
   }
 
-  public static ViewColumn column(String name, String outputName, SimpleFunctionModelConfig config, TargetOutput... targetOutputs) {
+  public static ViewColumn column(String name, String outputName, FunctionModelConfig config, TargetOutput... targetOutputs) {
     return new ViewColumn(name, new ViewOutput(OutputName.of(outputName), config), createTargetOutputs(targetOutputs));
   }
 
@@ -101,53 +101,53 @@ public final class ConfigBuilder {
     return new TargetOutput(new ViewOutput(OutputName.of(outputName)), inputType);
   }
 
-  public static TargetOutput output(String outputName, Class<?> inputType, SimpleFunctionModelConfig config) {
+  public static TargetOutput output(String outputName, Class<?> inputType, FunctionModelConfig config) {
     return new TargetOutput(new ViewOutput(OutputName.of(outputName), config), inputType);
   }
 
-  public static ViewOutput output(String outputName, SimpleFunctionModelConfig config) {
+  public static ViewOutput output(String outputName, FunctionModelConfig config) {
     return new ViewOutput(OutputName.of(outputName), config);
   }
 
   public static ViewOutput output(String outputName) {
-    return new ViewOutput(OutputName.of(outputName), SimpleFunctionModelConfig.EMPTY);
+    return new ViewOutput(OutputName.of(outputName), FunctionModelConfig.EMPTY);
   }
 
   public static NonPortfolioOutput nonPortfolioOutput(String name, ViewOutput output) {
     return new NonPortfolioOutput(name, output);
   }
 
-  public static TargetOutput output(Class<?> inputType, SimpleFunctionModelConfig config) {
+  public static TargetOutput output(Class<?> inputType, FunctionModelConfig config) {
     return new TargetOutput(new ViewOutput(config), inputType);
   }
 
   public static TargetOutput output(Class<?> inputType) {
-    return new TargetOutput(new ViewOutput(SimpleFunctionModelConfig.EMPTY), inputType);
+    return new TargetOutput(new ViewOutput(FunctionModelConfig.EMPTY), inputType);
   }
 
-  public static SimpleFunctionModelConfig config(Implementations implementations, Arguments arguments) {
+  public static FunctionModelConfig config(Implementations implementations, Arguments arguments) {
     return createConfig(implementations._implementations, arguments._arguments);
   }
 
-  public static SimpleFunctionModelConfig config() {
+  public static FunctionModelConfig config() {
     return createConfig(EMPTY_OVERRIDES, EMPTY_ARGUMENTS);
   }
 
-  public static SimpleFunctionModelConfig config(Implementations implementations) {
+  public static FunctionModelConfig config(Implementations implementations) {
     return createConfig(implementations._implementations, EMPTY_ARGUMENTS);
   }
 
-  public static SimpleFunctionModelConfig config(Arguments arguments) {
+  public static FunctionModelConfig config(Arguments arguments) {
     return createConfig(EMPTY_OVERRIDES, arguments._arguments);
   }
 
-  public static SimpleFunctionModelConfig config(Arguments arguments, Implementations implementations) {
+  public static FunctionModelConfig config(Arguments arguments, Implementations implementations) {
     return createConfig(implementations._implementations, arguments._arguments);
   }
 
-  private static SimpleFunctionModelConfig createConfig(Map<Class<?>, Class<?>> implementations,
-                                                        Map<Class<?>, SimpleFunctionArguments> arguments) {
-    return new SimpleFunctionModelConfig(implementations, arguments);
+  private static FunctionModelConfig createConfig(Map<Class<?>, Class<?>> implementations,
+                                                        Map<Class<?>, FunctionArguments> arguments) {
+    return new FunctionModelConfig(implementations, arguments);
   }
 
   public static Implementations implementations(Class<?>... impls) {
@@ -195,7 +195,7 @@ public final class ConfigBuilder {
    */
   public static final class Arguments {
 
-    private final Map<Class<?>, SimpleFunctionArguments> _arguments = Maps.newHashMap();
+    private final Map<Class<?>, FunctionArguments> _arguments = Maps.newHashMap();
 
     private Arguments(FnArgs... args) {
       for (FnArgs arg : args) {
@@ -211,7 +211,7 @@ public final class ConfigBuilder {
   public static final class FnArgs {
 
     private final Class<?> _function;
-    private final SimpleFunctionArguments _args;
+    private final FunctionArguments _args;
 
     private FnArgs(Class<?> function, Arg... args) {
       _function = function;
@@ -219,7 +219,7 @@ public final class ConfigBuilder {
       for (Arg arg : args) {
         argVals.put(arg._name, arg._value);
       }
-      _args = new SimpleFunctionArguments(argVals);
+      _args = new FunctionArguments(argVals);
     }
   }
 

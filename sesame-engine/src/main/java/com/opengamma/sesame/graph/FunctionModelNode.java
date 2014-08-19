@@ -25,7 +25,6 @@ import com.opengamma.core.link.Link;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
-import com.opengamma.sesame.config.CompositeFunctionModelConfig;
 import com.opengamma.sesame.config.EngineUtils;
 import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.sesame.config.FunctionModelConfig;
@@ -165,14 +164,8 @@ public abstract class FunctionModelNode {
                                                 FunctionModelConfig config,
                                                 List<Parameter> path,
                                                 @Nullable Parameter parameter) {
-    Class<?> implType = null;
+    Class<?> implType = config.getFunctionImplementation(parameter, type);
 
-    if (parameter != null) {
-      implType = config.getFunctionImplementation(parameter);
-    }
-    if (implType == null) {
-      implType = config.getFunctionImplementation(type);
-    }
     if (implType == null) {
       if (type.isInterface()) {
         throw new NoImplementationException(type, path, "No implementation or provider found: " + type.getSimpleName());
@@ -260,11 +253,17 @@ public abstract class FunctionModelNode {
         // otherwise we use the existing config to build it
         FunctionModelConfig subtreeConfig =
             argument != null ?
-                CompositeFunctionModelConfig.compose(((FunctionModelConfig) argument), config) :
+                ((FunctionModelConfig) argument).mergedWith(config) :
                 config;
 
         FunctionModelNode createdNode =
-            createNode(parameter.getType(), subtreeConfig, availableComponents, nodeDecorator, path, parameter, argumentConverter);
+            createNode(parameter.getType(),
+                       subtreeConfig,
+                       availableComponents,
+                       nodeDecorator,
+                       path,
+                       parameter,
+                       argumentConverter);
 
         if (createdNode != null) {
           return createdNode;

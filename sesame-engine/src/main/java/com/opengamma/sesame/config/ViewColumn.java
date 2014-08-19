@@ -88,16 +88,16 @@ public final class ViewColumn implements ImmutableBean {
    * @param inputType  the input type, not null
    * @return the function configuration, null if not found
    */
-  public SimpleFunctionModelConfig getFunctionConfig(Class<?> inputType) {
+  public FunctionModelConfig getFunctionConfig(Class<?> inputType) {
     ViewOutput viewOutput = _outputs.get(inputType);
     if (viewOutput == null && _defaultOutput == null) {
-      return SimpleFunctionModelConfig.EMPTY;
+      return FunctionModelConfig.EMPTY;
     } else if (viewOutput == null) {
       return _defaultOutput.getFunctionModelConfig();
     } else if (_defaultOutput == null) {
       return viewOutput.getFunctionModelConfig();
     } else {
-      return viewOutput.getFunctionModelConfig().mergeWith(_defaultOutput.getFunctionModelConfig());
+      return viewOutput.getFunctionModelConfig().mergedWith(_defaultOutput.getFunctionModelConfig());
     }
   }
 

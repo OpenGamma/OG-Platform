@@ -15,7 +15,6 @@ import static com.opengamma.sesame.config.ConfigBuilder.function;
 import static com.opengamma.sesame.config.ConfigBuilder.implementations;
 import static com.opengamma.sesame.config.ConfigBuilder.nonPortfolioOutput;
 import static com.opengamma.sesame.config.ConfigBuilder.output;
-import static com.opengamma.sesame.engine.CycleArguments.TraceType;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertEquals;
@@ -57,9 +56,10 @@ import com.opengamma.sesame.LazyLinkedPositionOrTrade;
 import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.cache.Cacheable;
 import com.opengamma.sesame.cache.NoOpCacheInvalidator;
-import com.opengamma.sesame.config.EmptyFunctionArguments;
+import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.config.ViewConfig;
+import com.opengamma.sesame.engine.CycleArguments.TraceType;
 import com.opengamma.sesame.example.CashFlowDescriptionFn;
 import com.opengamma.sesame.example.CashFlowIdDescriptionFn;
 import com.opengamma.sesame.example.DefaultCashFlowDescriptionFn;
@@ -356,7 +356,7 @@ public class ViewFactoryTest {
     CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(),
         VersionCorrection.LATEST,
         mockCycleMarketDataFactory(),
-        EmptyFunctionArguments.INSTANCE,
+        FunctionArguments.EMPTY,
         ImmutableMap.<Class<?>, Object>of(),
         traceCells,
         ImmutableMap.<String, TraceType>of(),
@@ -460,7 +460,7 @@ public class ViewFactoryTest {
     CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(),
                                                        VersionCorrection.LATEST,
                                                        mockCycleMarketDataFactory(),
-                                                       EmptyFunctionArguments.INSTANCE,
+                                                       FunctionArguments.EMPTY,
                                                        ImmutableMap.<Class<?>, Object>of(),
                                                        ImmutableMap.<Pair<Integer, Integer>, TraceType>of(),
                                                        ImmutableMap.of(name, TraceType.FULL_AS_STRING),

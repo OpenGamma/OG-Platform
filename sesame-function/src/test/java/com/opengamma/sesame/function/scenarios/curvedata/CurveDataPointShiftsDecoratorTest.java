@@ -30,7 +30,6 @@ import com.opengamma.sesame.CurveSpecificationMarketDataFn;
 import com.opengamma.sesame.DefaultCurveSpecificationMarketDataFn;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.SimpleEnvironment;
-import com.opengamma.sesame.config.DecoratorConfig;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.function.Output;
 import com.opengamma.sesame.graph.FunctionModel;
@@ -65,8 +64,7 @@ public class CurveDataPointShiftsDecoratorTest {
                              MarketDataFn.class, DefaultMarketDataFn.class,
                              CurveSpecificationMarketDataFn.class, DefaultCurveSpecificationMarketDataFn.class),
              arguments(function(DefaultMarketDataFn.class, argument("currencyMatrix", new SimpleCurrencyMatrix()))));
-  private static final FunctionModelConfig DECORATED_CONFIG =
-      DecoratorConfig.decorate(CONFIG, CurveDataPointShiftsDecorator.class);
+  private static final FunctionModelConfig DECORATED_CONFIG = CONFIG.decoratedWith(CurveDataPointShiftsDecorator.class);
   private static final Fn FN = FunctionModel.build(Fn.class, DECORATED_CONFIG);
 
   @Test

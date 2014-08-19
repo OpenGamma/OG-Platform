@@ -26,9 +26,8 @@ import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
 import com.opengamma.sesame.OutputName;
 import com.opengamma.sesame.config.EngineUtils;
+import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.sesame.config.FunctionModelConfig;
-import com.opengamma.sesame.config.SimpleFunctionArguments;
-import com.opengamma.sesame.config.SimpleFunctionModelConfig;
 import com.opengamma.sesame.function.AvailableImplementations;
 import com.opengamma.sesame.function.AvailableOutputs;
 import com.opengamma.sesame.function.Parameter;
@@ -115,7 +114,7 @@ public class ConfigJsonBuilder {
    * @throws IllegalArgumentException if the JSON doesn't define valid configuration
    */
   @SuppressWarnings("unchecked")
-  public SimpleFunctionModelConfig getConfigFromJson(Map<String, Object> json) {
+  public FunctionModelConfig getConfigFromJson(Map<String, Object> json) {
     Map<String, String> implsJson = (Map<String, String>) json.get(IMPLS);
     Map<Class<?>, Class<?>> impls = new HashMap<>();
 
@@ -131,7 +130,7 @@ public class ConfigJsonBuilder {
       }
     }
     Map<String, Map<String, String>> argsJson = (Map<String, Map<String, String>>) json.get(ARGS);
-    Map<Class<?>, SimpleFunctionArguments> args = new HashMap<>();
+    Map<Class<?>, FunctionArguments> args = new HashMap<>();
 
     for (Map.Entry<String, Map<String, String>> entry : argsJson.entrySet()) {
       String fnTypeName = entry.getKey();
@@ -161,10 +160,10 @@ public class ConfigJsonBuilder {
           throw new IllegalArgumentException("Cannot convert from string to parameter type " + parameter.getParameterType());
         }
       }
-      SimpleFunctionArguments simpleFunctionArguments = new SimpleFunctionArguments(fnArgs);
+      FunctionArguments simpleFunctionArguments = new FunctionArguments(fnArgs);
       args.put(fnType, simpleFunctionArguments);
     }
-    return new SimpleFunctionModelConfig(impls, args);
+    return new FunctionModelConfig(impls, args);
   }
 
   /**
@@ -192,7 +191,7 @@ public class ConfigJsonBuilder {
    * @param config some configuration
    * @return the configuration as JSON
    */
-  public Map<String, Object> getJsonFromConfig(SimpleFunctionModelConfig config) {
+  public Map<String, Object> getJsonFromConfig(FunctionModelConfig config) {
     Map<String, Object> jsonMap = new HashMap<>();
     Map<String, Object> implsMap = new HashMap<>();
 
@@ -203,10 +202,10 @@ public class ConfigJsonBuilder {
 
     Map<String, Object> argsMap = new HashMap<>();
 
-    for (Map.Entry<Class<?>, SimpleFunctionArguments> entry : config.getArguments().entrySet()) {
+    for (Map.Entry<Class<?>, FunctionArguments> entry : config.getArguments().entrySet()) {
       Map<String, String> fnArgsMap = new HashMap<>();
       Class<?> functionType = entry.getKey();
-      SimpleFunctionArguments fnArgs = entry.getValue();
+      FunctionArguments fnArgs = entry.getValue();
 
       for (Map.Entry<String, Object> argEntry : fnArgs.getArguments().entrySet()) {
         String parameterName = argEntry.getKey();
@@ -242,7 +241,7 @@ public class ConfigJsonBuilder {
    * @return the page model for displaying and editing the configuration
    */
   public Map<String, Object> getConfigPageModel(String columnName,
-                                                SimpleFunctionModelConfig config,
+                                                FunctionModelConfig config,
                                                 @Nullable Class<?> inputType,
                                                 @Nullable OutputName outputName,
                                                 @Nullable FunctionModel model) {
@@ -286,7 +285,7 @@ public class ConfigJsonBuilder {
     return jsonMap;
   }
 
-  private List<Map<String, Object>> getFunctions(SimpleFunctionModelConfig config, FunctionModel model) {
+  private List<Map<String, Object>> getFunctions(FunctionModelConfig config, FunctionModel model) {
     List<Map<String, Object>> functions = new ArrayList<>();
     LinkedHashSet<FunctionModelNode> nodes = flattenModel(model);
 

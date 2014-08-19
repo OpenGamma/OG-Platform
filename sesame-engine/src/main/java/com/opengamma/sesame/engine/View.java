@@ -37,8 +37,6 @@ import com.opengamma.sesame.cache.CacheProvider;
 import com.opengamma.sesame.cache.CachingProxyDecorator;
 import com.opengamma.sesame.cache.ExecutingMethodsThreadLocal;
 import com.opengamma.sesame.cache.MethodInvocationKey;
-import com.opengamma.sesame.config.CompositeFunctionArguments;
-import com.opengamma.sesame.config.CompositeFunctionModelConfig;
 import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.config.NonPortfolioOutput;
@@ -346,16 +344,15 @@ public class View {
         }
         Tracer tracer = Tracer.create(cycleArguments.traceType(rowIndex, colIndex));
 
-        FunctionModelConfig functionModelConfig = CompositeFunctionModelConfig.compose(
-            column.getFunctionConfig(functionInput.getClass()),
-            _viewConfig.getDefaultConfig(),
-            _systemDefaultConfig);
+        FunctionModelConfig columnConfig = column.getFunctionConfig(functionInput.getClass());
+        FunctionModelConfig functionModelConfig =
+            columnConfig.mergedWith(_viewConfig.getDefaultConfig(), _systemDefaultConfig);
 
         Class<?> implType = function.getUnderlyingReceiver().getClass();
         Class<?> declaringType = function.getDeclaringClass();
-        FunctionArguments args = CompositeFunctionArguments.compose(cycleArguments.getFunctionArguments(),
-                                                                    functionModelConfig.getFunctionArguments(implType),
-                                                                    functionModelConfig.getFunctionArguments(declaringType));
+        FunctionArguments args =
+            cycleArguments.getFunctionArguments().mergeWith(functionModelConfig.getFunctionArguments(implType),
+                                                            functionModelConfig.getFunctionArguments(declaringType));
         portfolioTasks.add(new PortfolioTask(env, functionInput, args, rowIndex++, colIndex, function, tracer));
       }
       colIndex++;
@@ -370,16 +367,15 @@ public class View {
       InvokableFunction function = graph.getNonPortfolioFunction(output.getName());
       Tracer tracer = Tracer.create(cycleArguments.traceType(output.getName()));
 
-      FunctionModelConfig functionModelConfig = CompositeFunctionModelConfig.compose(
-          output.getOutput().getFunctionModelConfig(),
-          _viewConfig.getDefaultConfig(),
-          _systemDefaultConfig);
+      FunctionModelConfig outputConfig = output.getOutput().getFunctionModelConfig();
+      FunctionModelConfig functionModelConfig =
+          outputConfig.mergedWith(_viewConfig.getDefaultConfig(), _systemDefaultConfig);
 
       Class<?> implType = function.getUnderlyingReceiver().getClass();
       Class<?> declaringType = function.getDeclaringClass();
-      FunctionArguments args = CompositeFunctionArguments.compose(cycleArguments.getFunctionArguments(),
-                                                                  functionModelConfig.getFunctionArguments(implType),
-                                                                  functionModelConfig.getFunctionArguments(declaringType));
+      FunctionArguments args =
+          cycleArguments.getFunctionArguments().mergeWith(functionModelConfig.getFunctionArguments(implType),
+                                                          functionModelConfig.getFunctionArguments(declaringType));
       tasks.add(new NonPortfolioTask(env, args, output.getName(), function, tracer));
     } return tasks;
   }
