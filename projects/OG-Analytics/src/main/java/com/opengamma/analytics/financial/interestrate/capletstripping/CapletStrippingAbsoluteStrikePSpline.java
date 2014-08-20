@@ -12,7 +12,7 @@ import com.opengamma.analytics.financial.model.volatility.VolatilityTermStructur
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.BasisFunctionGenerator;
-import com.opengamma.analytics.math.interpolation.PSplineFitter;
+import com.opengamma.analytics.math.interpolation.PenaltyMatrixGenerator;
 import com.opengamma.analytics.math.matrix.ColtMatrixAlgebra;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
@@ -55,8 +55,7 @@ public class CapletStrippingAbsoluteStrikePSpline extends CapletStrippingAbsolut
     _bSplines = GEN.generateSet(t[0], t[n - 1], n, 1);
 
     _nWeights = _bSplines.size();
-    final PSplineFitter psf = new PSplineFitter();
-    _penalty = (DoubleMatrix2D) MA.scale(psf.getPenaltyMatrix(_nWeights, DIFFERENCE_ORDER), LAMBDA);
+    _penalty = (DoubleMatrix2D) MA.scale(PenaltyMatrixGenerator.getPenaltyMatrix(_nWeights, DIFFERENCE_ORDER), LAMBDA);
     _volModel = new BasisSplineVolatilityTermStructureProvider(_bSplines);
   }
 
