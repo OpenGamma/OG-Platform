@@ -50,20 +50,29 @@ public class ExportUtils {
       e.printStackTrace();
     }
   }
+  
+  static double getRate(double value, double time, boolean transform) {
+    if (transform) {
+      return -Math.log(value) / time;
+    } else {
+      return value;
+    }
+  }
 
   public static void consolePrint(MultipleCurrencyParameterSensitivity sensitivities, MulticurveProviderDiscount curves) {
     System.out.println("--- Sensitivities ---");
     System.out.println("Curve name,Currency,Date fraction,Zero rate,PV01");
     for (String yieldCurveName : curves.getAllCurveNames()) {
+      boolean transformDfToZeroRates = false;
       YieldAndDiscountCurve yieldAndDiscountCurve = curves.getCurve(yieldCurveName);
       Curve<Double, Double> yieldCurveValues = null;
-      
+
       if (yieldAndDiscountCurve instanceof YieldCurve) {
         yieldCurveValues = ((YieldCurve)yieldAndDiscountCurve).getCurve();
       } else if (yieldAndDiscountCurve instanceof DiscountCurve) {
         yieldCurveValues = ((DiscountCurve)yieldAndDiscountCurve).getCurve();
+        transformDfToZeroRates = true;
       }
-
       Double[] dateFractions = yieldCurveValues.getXData();
       Double[] zeroRates = yieldCurveValues.getYData();
       Map<Currency, DoubleMatrix1D> sensitivitiesPerCcy = sensitivities.getSensitivityByName(yieldCurveName);
@@ -74,7 +83,7 @@ public class ExportUtils {
               yieldCurveName + "," +
               ccy + "," +
               String.valueOf(dateFractions[i]) + "," +
-              String.valueOf(zeroRates[i]) + "," +
+              String.valueOf(getRate(zeroRates[i], dateFractions[i], transformDfToZeroRates)) + "," +
               String.valueOf(sensitivitiesValues[i]));
         }
       }
