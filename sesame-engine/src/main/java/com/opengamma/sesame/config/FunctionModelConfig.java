@@ -149,6 +149,7 @@ public class FunctionModelConfig implements ImmutableBean {
    * </ul>
    *
    * @param parameter the constructor parameter for which an implementation is required
+   * @param functionType the type of the function whose implementation is required, normally an interface
    * @return the implementation that should be used, null if unknown
    */
   public Class<?> getFunctionImplementation(@Nullable Parameter parameter, Class<?> functionType) {

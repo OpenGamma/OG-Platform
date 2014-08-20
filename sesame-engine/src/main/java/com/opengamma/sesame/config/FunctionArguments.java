@@ -55,6 +55,12 @@ public class FunctionArguments implements ImmutableBean {
     _arguments = ImmutableMap.copyOf(ArgumentChecker.notNull(arguments, "arguments"));
   }
 
+  /**
+   * Returns the argument for the named parameter or null if there isn't one.
+   *
+   * @param parameterName  the name of the parameter
+   * @return  the argument value or null if there isn't one
+   */
   public Object getArgument(String parameterName) {
     return _arguments.get(parameterName);
   }
