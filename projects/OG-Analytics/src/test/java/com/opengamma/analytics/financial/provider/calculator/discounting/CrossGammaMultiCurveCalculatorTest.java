@@ -37,12 +37,14 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Pair;
 
 /**
  * Tests the zero-coupon rate cross-gamma calculator for multi-curve.
  */
+@Test(groups = TestGroup.UNIT)
 public class CrossGammaMultiCurveCalculatorTest {
 
   private static final Calendar TYO = new MondayToFridayCalendar("TYO");

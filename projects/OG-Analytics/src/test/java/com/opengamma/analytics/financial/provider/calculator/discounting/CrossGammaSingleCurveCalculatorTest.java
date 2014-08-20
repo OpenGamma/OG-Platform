@@ -25,11 +25,13 @@ import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests the zero-coupon rate cross-gamma calculator for single curve.
  */
+@Test(groups = TestGroup.UNIT)
 public class CrossGammaSingleCurveCalculatorTest {
 
   private static final Calendar NYC = MulticurveProviderDiscountDataSets.getUSDCalendar();
@@ -100,5 +102,5 @@ public class CrossGammaSingleCurveCalculatorTest {
       }
     }
   }
-  
+
 }
