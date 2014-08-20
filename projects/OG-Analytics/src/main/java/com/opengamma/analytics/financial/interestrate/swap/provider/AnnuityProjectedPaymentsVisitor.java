@@ -14,15 +14,22 @@ import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponIborRatchet;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
+import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.util.money.CurrencyAmount;
+import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
- * Gets the forward rates for an annuity given a bundle of yield curves.
+ * Returns the projected amounts of the annuity.
  */
 public final class AnnuityProjectedPaymentsVisitor extends InstrumentDerivativeVisitorAdapter<MulticurveProviderInterface, CurrencyAmount[]> {
-  /** Gets the fixed rates for coupons */
-  private static final InstrumentDerivativeVisitor<MulticurveProviderInterface, CurrencyAmount> COUPON_VISITOR = new CouponProjectedPaymentVisitor();
+  /** Returns the present value of the coupons */
+  private static final InstrumentDerivativeVisitor<MulticurveProviderInterface, MultipleCurrencyAmount> COUPON_VISITOR =
+      PresentValueDiscountingCalculator.getInstance();
+
+  /** Returns the discount factor of the coupons */
+  private static final CouponPaymentDiscountFactorVisitor DISCOUNT_FACTOR_VISITOR = new CouponPaymentDiscountFactorVisitor();
+  
   /** The singleton instance */
   private static final InstrumentDerivativeVisitor<MulticurveProviderInterface, CurrencyAmount[]> INSTANCE = new AnnuityProjectedPaymentsVisitor();
 
@@ -48,7 +55,8 @@ public final class AnnuityProjectedPaymentsVisitor extends InstrumentDerivativeV
     for (int i = 0; i < n; i++) {
       final Payment payment = annuity.getNthPayment(i);
       try {
-        ca.add(payment.accept(COUPON_VISITOR, curves));
+        double df = payment.accept(DISCOUNT_FACTOR_VISITOR, curves);
+        ca.add(payment.accept(COUPON_VISITOR, curves).getCurrencyAmount(payment.getCurrency()).multipliedBy(1 / df));
       } catch (final UnsupportedOperationException e) {
         // for the case where the coupon has fixed
         ca.add(null);
