@@ -20,8 +20,8 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.sesame.SimpleEnvironment;
-import com.opengamma.sesame.config.EmptyFunctionArguments;
 import com.opengamma.sesame.config.EngineUtils;
+import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.function.ConfigurationErrorFunction;
 import com.opengamma.sesame.function.FunctionMetadata;
@@ -51,7 +51,7 @@ public class GraphModelTest {
     InvokableFunction invokableFunction = functionsForColumn.get(FXForwardSecurity.class);
     assertNotNull(invokableFunction);
     SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), new ResettableLiveMarketDataSource(MarketData.live(), mock(LDClient.class)));
-    Result<?> result = (Result<?>) invokableFunction.invoke(env, null, EmptyFunctionArguments.INSTANCE);
+    Result<?> result = (Result<?>) invokableFunction.invoke(env, null, FunctionArguments.EMPTY);
     assertFalse(result.isSuccess());
     assertEquals(FailureStatus.ERROR, result.getStatus());
     assertEquals(ConfigurationErrorFunction.CONFIG_ERROR, result.getFailureMessage());
@@ -70,7 +70,7 @@ public class GraphModelTest {
     InvokableFunction invokableFunction = graph.getNonPortfolioFunction(outputName);
     assertNotNull(invokableFunction);
     SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), new ResettableLiveMarketDataSource(MarketData.live(), mock(LDClient.class)));
-    Result<?> result = (Result<?>) invokableFunction.invoke(env, null, EmptyFunctionArguments.INSTANCE);
+    Result<?> result = (Result<?>) invokableFunction.invoke(env, null, FunctionArguments.EMPTY);
     assertFalse(result.isSuccess());
     assertEquals(FailureStatus.ERROR, result.getStatus());
     assertEquals(ConfigurationErrorFunction.CONFIG_ERROR, result.getFailureMessage());

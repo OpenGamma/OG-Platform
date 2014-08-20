@@ -49,7 +49,7 @@ import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
 import com.opengamma.sesame.ExposureFunctionsDiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.InterpolatedMulticurveBundleFn;
 import com.opengamma.sesame.OutputName;
-import com.opengamma.sesame.config.SimpleFunctionModelConfig;
+import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.config.ViewColumn;
 import com.opengamma.sesame.config.ViewOutput;
 import com.opengamma.sesame.equity.DefaultEquityPresentValueFn;
@@ -118,7 +118,7 @@ public class Main {
     final ColumnConfigResource resource = new ColumnConfigResource(availableOutputs,
                                                                    availableImplementations,
                                                                    availableComponents,
-                                                                   SimpleFunctionModelConfig.EMPTY,
+                                                                   FunctionModelConfig.EMPTY,
                                                                    argumentConverter,
                                                                    configMaster);
 
@@ -242,7 +242,7 @@ public class Main {
     Map<Class<?>, ViewOutput> outputs = new HashMap<>();
 
     for (Class<?> inputType : inputTypes) {
-      outputs.put(inputType, new ViewOutput(OutputName.of(name), SimpleFunctionModelConfig.EMPTY));
+      outputs.put(inputType, new ViewOutput(OutputName.of(name), FunctionModelConfig.EMPTY));
     }
     ViewColumn column = new ViewColumn(name, null, outputs);
     ConfigItem<ViewColumn> item = ConfigItem.of(column);

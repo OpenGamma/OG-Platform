@@ -11,7 +11,6 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.sesame.config.EmptyFunctionArguments;
 import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.sesame.marketdata.CycleMarketDataFactory;
 import com.opengamma.util.ArgumentChecker;
@@ -69,7 +68,7 @@ public final class CycleArguments {
     this(valuationTime,
          configVersionCorrection,
          cycleMarketDataFactory,
-         EmptyFunctionArguments.INSTANCE,
+         FunctionArguments.EMPTY,
          ImmutableMap.<Class<?>, Object>of());
   }
 
@@ -102,7 +101,7 @@ public final class CycleArguments {
                         VersionCorrection configVersionCorrection,
                         CycleMarketDataFactory cycleMarketDataFactory,
                         boolean captureInputs) {
-    this(valuationTime, configVersionCorrection, cycleMarketDataFactory, EmptyFunctionArguments.INSTANCE,
+    this(valuationTime, configVersionCorrection, cycleMarketDataFactory, FunctionArguments.EMPTY,
          ImmutableMap.<Class<?>, Object>of(), ImmutableMap.<Pair<Integer, Integer>, TraceType>of(),
          ImmutableMap.<String, TraceType>of(), captureInputs);
   }

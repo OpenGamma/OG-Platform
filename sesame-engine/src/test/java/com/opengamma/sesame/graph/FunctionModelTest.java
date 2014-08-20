@@ -28,11 +28,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.opengamma.core.config.Config;
 import com.opengamma.core.link.ConfigLink;
-import com.opengamma.sesame.config.DecoratorConfig;
 import com.opengamma.sesame.config.EngineUtils;
 import com.opengamma.sesame.config.FunctionModelConfig;
-import com.opengamma.sesame.config.SimpleFunctionArguments;
-import com.opengamma.sesame.config.SimpleFunctionModelConfig;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.function.Output;
@@ -208,7 +205,7 @@ public class FunctionModelTest {
   @Test
   public void decoratorFunction() {
     FunctionModelConfig config = config(implementations(Fn.class, Impl.class));
-    FunctionModelConfig decoratedConfig = DecoratorConfig.decorate(config, Decorator1.class);
+    FunctionModelConfig decoratedConfig = config.decoratedWith(Decorator1.class);
     Fn fn = FunctionModel.build(Fn.class, decoratedConfig);
     assertEquals("2", fn.foo(1));
   }
@@ -216,7 +213,7 @@ public class FunctionModelTest {
   @Test
   public void decoratorFunctions() {
     FunctionModelConfig config = config(implementations(Fn.class, Impl.class));
-    FunctionModelConfig decoratedConfig = DecoratorConfig.decorate(config, Decorator1.class, Decorator2.class);
+    FunctionModelConfig decoratedConfig = config.decoratedWith(Decorator2.class).decoratedWith(Decorator1.class);
     Fn fn = FunctionModel.build(Fn.class, decoratedConfig);
     assertEquals("5", fn.foo(2));
   }
@@ -224,7 +221,7 @@ public class FunctionModelTest {
   @Test
   public void decoratorFunctionsReversed() {
     FunctionModelConfig config = config(implementations(Fn.class, Impl.class));
-    FunctionModelConfig decoratedConfig = DecoratorConfig.decorate(config, Decorator2.class, Decorator1.class);
+    FunctionModelConfig decoratedConfig = config.decoratedWith(Decorator1.class).decoratedWith(Decorator2.class);
     Fn fn = FunctionModel.build(Fn.class, decoratedConfig);
     assertEquals("6", fn.foo(2));
   }
@@ -361,7 +358,7 @@ public class FunctionModelTest {
   @Test
   public void invalidFunctionImplementation() {
     Map<Class<?>, Class<?>> impls =  ImmutableMap.<Class<?>, Class<?>>of(Fn.class, Object.class);
-    FunctionModelConfig config = new SimpleFunctionModelConfig(impls, Collections.<Class<?>, SimpleFunctionArguments>emptyMap());
+    FunctionModelConfig config = new FunctionModelConfig(impls);
     FunctionMetadata metadata = EngineUtils.createMetadata(Fn.class, "foo");
     FunctionModel model = FunctionModel.forFunction(metadata, config);
     assertFalse(model.isValid());

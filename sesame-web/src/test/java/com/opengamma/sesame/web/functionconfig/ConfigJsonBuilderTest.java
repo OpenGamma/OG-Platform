@@ -37,13 +37,12 @@ import com.opengamma.master.config.ConfigSearchResult;
 import com.opengamma.sesame.EngineTestUtils;
 import com.opengamma.sesame.OutputName;
 import com.opengamma.sesame.config.EngineUtils;
-import com.opengamma.sesame.config.SimpleFunctionArguments;
-import com.opengamma.sesame.config.SimpleFunctionModelConfig;
+import com.opengamma.sesame.config.FunctionArguments;
+import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.function.AvailableImplementations;
 import com.opengamma.sesame.function.AvailableImplementationsImpl;
 import com.opengamma.sesame.function.AvailableOutputs;
 import com.opengamma.sesame.function.AvailableOutputsImpl;
-import com.opengamma.sesame.function.DefaultImplementationProvider;
 import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.function.Output;
 import com.opengamma.sesame.graph.FunctionModel;
@@ -79,7 +78,7 @@ public class ConfigJsonBuilderTest {
                                                       availableImplementations,
                                                       mock(ConfigMaster.class),
                                                       new DefaultArgumentConverter());
-    Map<String, Object> json = builder.getConfigPageModel(COLUMN_NAME, SimpleFunctionModelConfig.EMPTY, null, null, model);
+    Map<String, Object> json = builder.getConfigPageModel(COLUMN_NAME, FunctionModelConfig.EMPTY, null, null, model);
     checkJson(json, "fnWithMultipleImplsNoImplSelected");
   }
 
@@ -87,7 +86,7 @@ public class ConfigJsonBuilderTest {
   public void fnWithMultipleImplsSelectedImplHasArgs() {
     AvailableImplementations availableImplementations = new AvailableImplementationsImpl();
     availableImplementations.register(ImplNoArgs.class, ImplWithArgs.class);
-    SimpleFunctionModelConfig config =
+    FunctionModelConfig config =
         config(
             implementations(Fn.class, ImplWithArgs.class),
             arguments(
@@ -108,7 +107,7 @@ public class ConfigJsonBuilderTest {
   public void fnWithMultipleImplsSelectedImplHasNoArgs() {
     AvailableImplementations availableImplementations = new AvailableImplementationsImpl();
     availableImplementations.register(ImplNoArgs.class, ImplWithArgs.class);
-    SimpleFunctionModelConfig config = config(implementations(Fn.class, ImplNoArgs.class));
+    FunctionModelConfig config = config(implementations(Fn.class, ImplNoArgs.class));
     FunctionModel model = FunctionModel.forFunction(FOO_META, config);
     ConfigJsonBuilder builder = new ConfigJsonBuilder(mock(AvailableOutputs.class),
                                                       availableImplementations,
@@ -126,14 +125,14 @@ public class ConfigJsonBuilderTest {
                                                       new AvailableImplementationsImpl(),
                                                       mock(ConfigMaster.class),
                                                       new DefaultArgumentConverter());
-    Map<String, Object> json = builder.getConfigPageModel(COLUMN_NAME, SimpleFunctionModelConfig.empty(), null, null, model);
+    Map<String, Object> json = builder.getConfigPageModel(COLUMN_NAME, FunctionModelConfig.EMPTY, null, null, model);
     checkJson(json, "concreteFunctionNoArgs");
   }
 
   @Test
   public void concreteFunctionWithArgs() {
     FunctionMetadata metadata = EngineUtils.createMetadata(ConcreteWithArgs.class, "baz");
-    SimpleFunctionModelConfig config =
+    FunctionModelConfig config =
         config(
             arguments(
                 function(
@@ -153,7 +152,7 @@ public class ConfigJsonBuilderTest {
   public void missingArgument() {
     AvailableImplementations availableImplementations = new AvailableImplementationsImpl();
     availableImplementations.register(ImplNoArgs.class, ImplWithArgs.class);
-    SimpleFunctionModelConfig config = config(implementations(Fn.class, ImplWithArgs.class),
+    FunctionModelConfig config = config(implementations(Fn.class, ImplWithArgs.class),
                                         arguments(function(ImplWithArgs.class,
                                                            argument("arg2", ImmutableList.of(1, 2, 3)))));
     FunctionModel model = FunctionModel.forFunction(FOO_META, config);
@@ -175,13 +174,13 @@ public class ConfigJsonBuilderTest {
                                                       new AvailableImplementationsImpl(),
                                                       mock(ConfigMaster.class),
                                                       new DefaultArgumentConverter());
-    SimpleFunctionModelConfig config = builder.getConfigFromJson(map);
+    FunctionModelConfig config = builder.getConfigFromJson(map);
     Map<String, Object> argsMap = ImmutableMap.<String, Object>of("arg1", "value1", "arg2", ImmutableList.of(1, 2, 3));
-    SimpleFunctionArguments simpleFunctionArguments = new SimpleFunctionArguments(argsMap);
-    Map<Class<?>, SimpleFunctionArguments> fnArgsMap =
-        ImmutableMap.<Class<?>, SimpleFunctionArguments>of(ImplWithArgs.class, simpleFunctionArguments);
-    SimpleFunctionModelConfig expected =
-        new SimpleFunctionModelConfig(ImmutableMap.<Class<?>, Class<?>>of(Fn.class, ImplWithArgs.class), fnArgsMap);
+    FunctionArguments simpleFunctionArguments = new FunctionArguments(argsMap);
+    Map<Class<?>, FunctionArguments> fnArgsMap =
+        ImmutableMap.<Class<?>, FunctionArguments>of(ImplWithArgs.class, simpleFunctionArguments);
+    FunctionModelConfig expected =
+        new FunctionModelConfig(ImmutableMap.<Class<?>, Class<?>>of(Fn.class, ImplWithArgs.class), fnArgsMap);
     assertEquals(expected, config);
   }
 
@@ -195,14 +194,14 @@ public class ConfigJsonBuilderTest {
                                                       new AvailableImplementationsImpl(),
                                                       mock(ConfigMaster.class),
                                                       new DefaultArgumentConverter());
-    SimpleFunctionModelConfig config = builder.getConfigFromJson(map);
+    FunctionModelConfig config = builder.getConfigFromJson(map);
     ConfigLink<ConfigObject> configLink = ConfigLink.resolvable("configName", ConfigObject.class);
     Map<String, Object> argsMap = ImmutableMap.<String, Object>of("configArg", configLink);
-    SimpleFunctionArguments simpleFunctionArguments = new SimpleFunctionArguments(argsMap);
-    Map<Class<?>, SimpleFunctionArguments> fnArgsMap =
-        ImmutableMap.<Class<?>, SimpleFunctionArguments>of(UsesConfig.class, simpleFunctionArguments);
-    SimpleFunctionModelConfig expected =
-        new SimpleFunctionModelConfig(ImmutableMap.<Class<?>, Class<?>>of(Fn.class, UsesConfig.class), fnArgsMap);
+    FunctionArguments simpleFunctionArguments = new FunctionArguments(argsMap);
+    Map<Class<?>, FunctionArguments> fnArgsMap =
+        ImmutableMap.<Class<?>, FunctionArguments>of(UsesConfig.class, simpleFunctionArguments);
+    FunctionModelConfig expected =
+        new FunctionModelConfig(ImmutableMap.<Class<?>, Class<?>>of(Fn.class, UsesConfig.class), fnArgsMap);
     assertEquals(expected, config);
   }
 
@@ -216,7 +215,7 @@ public class ConfigJsonBuilderTest {
                                                       availableImplementations,
                                                       mock(ConfigMaster.class),
                                                       new DefaultArgumentConverter());
-    Map<String, Object> json = builder.getConfigPageModel(COLUMN_NAME, SimpleFunctionModelConfig.EMPTY, null, null, null);
+    Map<String, Object> json = builder.getConfigPageModel(COLUMN_NAME, FunctionModelConfig.EMPTY, null, null, null);
     checkJson(json, "columnJsonNoInputOrOutput");
   }
 
@@ -230,7 +229,7 @@ public class ConfigJsonBuilderTest {
                                                       availableImplementations,
                                                       mock(ConfigMaster.class),
                                                       new DefaultArgumentConverter());
-    Map<String, Object> json = builder.getConfigPageModel(COLUMN_NAME, SimpleFunctionModelConfig.EMPTY, Trade.class, null, null);
+    Map<String, Object> json = builder.getConfigPageModel(COLUMN_NAME, FunctionModelConfig.EMPTY, Trade.class, null, null);
     checkJson(json, "columnJsonInputNoOutput");
   }
 
@@ -245,7 +244,7 @@ public class ConfigJsonBuilderTest {
                                                       mock(ConfigMaster.class),
                                                       new DefaultArgumentConverter());
     Map<String, Object> json = builder.getConfigPageModel(COLUMN_NAME,
-                                                          SimpleFunctionModelConfig.EMPTY,
+                                                          FunctionModelConfig.EMPTY,
                                                           Trade.class,
                                                           OutputName.of("Foo2"),
                                                           null);
@@ -261,9 +260,7 @@ public class ConfigJsonBuilderTest {
   public void configArgNoSelection() {
     AvailableImplementations availableImplementations = new AvailableImplementationsImpl();
     availableImplementations.register(UsesConfig.class);
-    DefaultImplementationProvider defaultImpl = new DefaultImplementationProvider(availableImplementations);
-    SimpleFunctionModelConfig config = new SimpleFunctionModelConfig(defaultImpl.getDefaultImplementations(),
-                                                                     ImmutableMap.<Class<?>, SimpleFunctionArguments>of());
+    FunctionModelConfig config = new FunctionModelConfig(availableImplementations.getDefaultImplementations());
     FunctionModel model = FunctionModel.forFunction(FOO_META, config);
     ConfigMaster configMaster = mock(ConfigMaster.class);
     ConfigSearchRequest<?> searchRequest = new ConfigSearchRequest<>();
@@ -288,7 +285,7 @@ public class ConfigJsonBuilderTest {
     AvailableImplementations availableImplementations = new AvailableImplementationsImpl();
     availableImplementations.register(UsesConfig.class);
     ConfigLink<ConfigObject> configLink = ConfigLink.resolvable("bar", ConfigObject.class);
-    SimpleFunctionModelConfig config = config(implementations(Fn.class, UsesConfig.class),
+    FunctionModelConfig config = config(implementations(Fn.class, UsesConfig.class),
                                         arguments(function(UsesConfig.class, argument("configArg", configLink))));
     FunctionModel model = FunctionModel.forFunction(FOO_META, config);
     ConfigMaster configMaster = mock(ConfigMaster.class);
@@ -306,7 +303,7 @@ public class ConfigJsonBuilderTest {
 
   @Test
   public void convertBetweenJsonAndConfig() {
-    SimpleFunctionModelConfig config =
+    FunctionModelConfig config =
         config(
             implementations(
                 Fn.class, ImplWithArgs.class,

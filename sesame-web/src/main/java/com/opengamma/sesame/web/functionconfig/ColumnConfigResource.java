@@ -28,12 +28,11 @@ import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
 import com.opengamma.sesame.OutputName;
-import com.opengamma.sesame.config.SimpleFunctionModelConfig;
+import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.config.ViewColumn;
 import com.opengamma.sesame.config.ViewOutput;
 import com.opengamma.sesame.function.AvailableImplementations;
 import com.opengamma.sesame.function.AvailableOutputs;
-import com.opengamma.sesame.function.DefaultImplementationProvider;
 import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.sesame.graph.NodeDecorator;
@@ -52,9 +51,9 @@ public class ColumnConfigResource {
   private final AvailableOutputs _availableOutputs;
   private final Set<Class<?>> _availableComponents;
   private final ConfigJsonBuilder _jsonBuilder;
-  private final SimpleFunctionModelConfig _defaultConfig;
+  private final FunctionModelConfig _defaultConfig;
   private final Gson _gson = new Gson();
-  private final DefaultImplementationProvider _defaultImpls;
+  private final FunctionModelConfig _defaultImpls;
   private final ConfigMaster _configMaster;
   private final ArgumentConverter _argumentConverter;
 
@@ -69,7 +68,7 @@ public class ColumnConfigResource {
   public ColumnConfigResource(AvailableOutputs availableOutputs,
                               AvailableImplementations availableImplementations,
                               Set<Class<?>> availableComponents,
-                              SimpleFunctionModelConfig defaultConfig,
+                              FunctionModelConfig defaultConfig,
                               ArgumentConverter argumentConverter,
                               ConfigMaster configMaster) {
     _defaultConfig = ArgumentChecker.notNull(defaultConfig, "defaultConfig");
@@ -78,7 +77,7 @@ public class ColumnConfigResource {
     _availableOutputs = ArgumentChecker.notNull(availableOutputs, "availableOutputs");
     _availableComponents = ArgumentChecker.notNull(availableComponents, "availableComponents");
     _jsonBuilder = new ConfigJsonBuilder(availableOutputs, availableImplementations, configMaster, new DefaultArgumentConverter());
-    _defaultImpls = new DefaultImplementationProvider(availableImplementations);
+    _defaultImpls = new FunctionModelConfig(availableImplementations.getDefaultImplementations());
   }
 
   /**
@@ -145,7 +144,7 @@ public class ColumnConfigResource {
 
     ViewColumn column = loadColumn(columnId);
     Class<?> inputType;
-    SimpleFunctionModelConfig config;
+    FunctionModelConfig config;
     OutputName outputName;
     FunctionModel model;
 
@@ -174,7 +173,7 @@ public class ColumnConfigResource {
         config = _jsonBuilder.getConfigFromJson(configJson);
         model = FunctionModel.forFunction(outputFunction, config, _availableComponents, NodeDecorator.IDENTITY, _argumentConverter);
       } else {
-        config = SimpleFunctionModelConfig.EMPTY;
+        config = FunctionModelConfig.EMPTY;
         model = null;
       }
     } else {
@@ -220,7 +219,7 @@ public class ColumnConfigResource {
     } catch (JsonSyntaxException e) {
       throw new IllegalArgumentException(e);
     }
-    SimpleFunctionModelConfig config = _jsonBuilder.getConfigFromJson(inputJson);
+    FunctionModelConfig config = _jsonBuilder.getConfigFromJson(inputJson);
     String outputName = (String) inputJson.get("outputName");
 
     if (outputName == null) {
@@ -245,7 +244,7 @@ public class ColumnConfigResource {
   }
 
   /**
-   * Gets the default configuration as a map, corresponds to {@link SimpleFunctionModelConfig}.
+   * Gets the default configuration as a map, corresponds to {@link FunctionModelConfig}.
    * This is built from system default configuration combined with the default implementations that can be inferred
    * where there is only one known implementation of an interface. The format is
    *
@@ -270,13 +269,13 @@ public class ColumnConfigResource {
    * @return the default configuration as a map
    */
   public Map<String, Object> getDefaultConfig() {
-    Map<Class<?>, Class<?>> impls = Maps.newHashMap(_defaultImpls.getDefaultImplementations());
+    Map<Class<?>, Class<?>> impls = Maps.newHashMap(_defaultImpls.getImplementations());
     impls.putAll(_defaultConfig.getImplementations());
-    return _jsonBuilder.getJsonFromConfig(new SimpleFunctionModelConfig(impls, _defaultConfig.getArguments()));
+    return _jsonBuilder.getJsonFromConfig(new FunctionModelConfig(impls, _defaultConfig.getArguments()));
   }
 
   /**
-   * Gets the configuration for a column and input type as a map, corresponds to {@link SimpleFunctionModelConfig}.
+   * Gets the configuration for a column and input type as a map, corresponds to {@link FunctionModelConfig}.
    * If there is no configuration for the column and type the {@link #getDefaultConfig() default configuration}
    * is returned. The existing configuration is merged with the current defaults with the existing configuration
    * taking priority. The format is
@@ -306,15 +305,15 @@ public class ColumnConfigResource {
   public Map<String, Object> getConfig(UniqueId columnId, String inputTypeName) {
     ViewColumn column = loadColumn(columnId);
     Class<?> inputType = loadInputType(inputTypeName);
-    SimpleFunctionModelConfig config = column.getFunctionConfig(inputType);
+    FunctionModelConfig config = column.getFunctionConfig(inputType);
 
     if (config != null) {
       // compose the implementations from the defaults into the existing config
-      Map<Class<?>, Class<?>> impls = Maps.newHashMap(_defaultImpls.getDefaultImplementations());
+      Map<Class<?>, Class<?>> impls = Maps.newHashMap(_defaultImpls.getImplementations());
       impls.putAll(_defaultConfig.getImplementations());
       impls.putAll(config.getImplementations());
-      SimpleFunctionModelConfig defaultConfig = new SimpleFunctionModelConfig(impls, _defaultConfig.getArguments());
-      return _jsonBuilder.getJsonFromConfig(config.mergeWith(defaultConfig));
+      FunctionModelConfig defaultConfig = new FunctionModelConfig(impls, _defaultConfig.getArguments());
+      return _jsonBuilder.getJsonFromConfig(config.mergedWith(defaultConfig));
     } else {
       return getDefaultConfig();
     }

@@ -15,14 +15,12 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.opengamma.sesame.OutputName;
-import com.opengamma.sesame.config.CompositeFunctionModelConfig;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.config.NonPortfolioOutput;
 import com.opengamma.sesame.config.ViewColumn;
 import com.opengamma.sesame.config.ViewConfig;
 import com.opengamma.sesame.function.AvailableImplementations;
 import com.opengamma.sesame.function.AvailableOutputs;
-import com.opengamma.sesame.function.DefaultImplementationProvider;
 import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.function.NoOutputFunction;
 import com.opengamma.sesame.graph.convert.ArgumentConverter;
@@ -40,7 +38,7 @@ public final class GraphBuilder {
   private final AvailableOutputs _availableOutputs;
   private final FunctionModelConfig _defaultConfig;
   private final NodeDecorator _nodeDecorator;
-  private final DefaultImplementationProvider _defaultImplProvider;
+  private final FunctionModelConfig _defaultImplementations;
   private final Set<Class<?>> _availableComponents;
   private final ArgumentConverter _argumentConverter = new DefaultArgumentConverter(); // should this be an argument?
 
@@ -54,7 +52,7 @@ public final class GraphBuilder {
     _defaultConfig = ArgumentChecker.notNull(defaultConfig, "defaultConfig");
     _nodeDecorator = ArgumentChecker.notNull(nodeDecorator, "nodeDecorator");
     // TODO should this be an argument?
-    _defaultImplProvider = new DefaultImplementationProvider(availableImplementations);
+    _defaultImplementations = new FunctionModelConfig(availableImplementations.getDefaultImplementations());
   }
 
   //-------------------------------------------------------------------------
@@ -70,7 +68,7 @@ public final class GraphBuilder {
     ArgumentChecker.notNull(inputTypes, "inputTypes");
     ImmutableMap.Builder<String, Map<Class<?>, FunctionModel>> builder = ImmutableMap.builder();
     FunctionModelConfig modelConfig = viewConfig.getDefaultConfig();
-    FunctionModelConfig defaultConfig = CompositeFunctionModelConfig.compose(modelConfig, _defaultConfig, _defaultImplProvider);
+    FunctionModelConfig defaultConfig = modelConfig.mergedWith(_defaultConfig, _defaultImplementations);
 
     for (ViewColumn column : viewConfig.getColumns()) {
       Map<Class<?>, FunctionModel> functions = Maps.newHashMap();
@@ -90,7 +88,7 @@ public final class GraphBuilder {
 
         if (existingFunction == null && function != null) {
           FunctionModelConfig columnConfig = column.getFunctionConfig(inputType);
-          FunctionModelConfig config = CompositeFunctionModelConfig.compose(columnConfig, defaultConfig);
+          FunctionModelConfig config = columnConfig.mergedWith(defaultConfig);
           FunctionModel functionModel =
               FunctionModel.forFunction(function, config, _availableComponents, _nodeDecorator, _argumentConverter);
           functions.put(inputType, functionModel);
@@ -118,7 +116,7 @@ public final class GraphBuilder {
 
       if (function != null) {
         FunctionModelConfig functionModelConfig = output.getOutput().getFunctionModelConfig();
-        FunctionModelConfig config = CompositeFunctionModelConfig.compose(functionModelConfig, defaultConfig);
+        FunctionModelConfig config = functionModelConfig.mergedWith(defaultConfig);
         FunctionModel functionModel =
             FunctionModel.forFunction(function, config, _availableComponents, _nodeDecorator, _argumentConverter);
         nonPortfolioFunctionModels.put(output.getName(), functionModel);

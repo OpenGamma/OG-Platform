@@ -19,7 +19,6 @@ import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.security.ManageableSecurity;
-import com.opengamma.sesame.config.EmptyFunctionArguments;
 import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.sesame.engine.CycleArguments;
 import com.opengamma.sesame.engine.Results;
@@ -240,7 +239,7 @@ public class CycleRunner {
     // todo - version correction should be coming from somewhere - cycle options?
 
     // todo - these need real values
-    FunctionArguments functionArguments = EmptyFunctionArguments.INSTANCE;
+    FunctionArguments functionArguments = FunctionArguments.EMPTY;
     Map<Class<?>, Object> scenarioArguments = Collections.emptyMap();
     VersionCorrection configVersionCorrection = VersionCorrection.LATEST;
 
