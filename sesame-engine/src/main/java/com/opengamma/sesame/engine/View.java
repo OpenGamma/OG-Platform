@@ -351,8 +351,8 @@ public class View {
         Class<?> implType = function.getUnderlyingReceiver().getClass();
         Class<?> declaringType = function.getDeclaringClass();
         FunctionArguments args =
-            cycleArguments.getFunctionArguments().mergeWith(functionModelConfig.getFunctionArguments(implType),
-                                                            functionModelConfig.getFunctionArguments(declaringType));
+            cycleArguments.getFunctionArguments().mergedWith(functionModelConfig.getFunctionArguments(implType),
+                                                             functionModelConfig.getFunctionArguments(declaringType));
         portfolioTasks.add(new PortfolioTask(env, functionInput, args, rowIndex++, colIndex, function, tracer));
       }
       colIndex++;
@@ -374,8 +374,8 @@ public class View {
       Class<?> implType = function.getUnderlyingReceiver().getClass();
       Class<?> declaringType = function.getDeclaringClass();
       FunctionArguments args =
-          cycleArguments.getFunctionArguments().mergeWith(functionModelConfig.getFunctionArguments(implType),
-                                                          functionModelConfig.getFunctionArguments(declaringType));
+          cycleArguments.getFunctionArguments().mergedWith(functionModelConfig.getFunctionArguments(implType),
+                                                           functionModelConfig.getFunctionArguments(declaringType));
       tasks.add(new NonPortfolioTask(env, args, output.getName(), function, tracer));
     } return tasks;
   }

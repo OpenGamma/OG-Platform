@@ -67,7 +67,7 @@ public class FunctionModelConfigTest {
   }
 
   @Test
-  public void decorator() {
+  public void decoratedWithSingle() {
     FunctionModelConfig config = config(implementations(Fn.class, Impl.class));
     FunctionModelConfig decoratedConfig = config.decoratedWith(Decorator1.class);
 
@@ -76,7 +76,7 @@ public class FunctionModelConfigTest {
   }
 
   @Test
-  public void decorators() {
+  public void decoratedWithMultiple() {
     FunctionModelConfig config = config(implementations(Fn.class, Impl.class));
     FunctionModelConfig decoratedConfig = config.decoratedWith(Decorator2.class).decoratedWith(Decorator1.class);
 
@@ -86,7 +86,7 @@ public class FunctionModelConfigTest {
   }
 
   @Test
-  public void ordering() {
+  public void orderingOfDecorators() {
     FunctionModelConfig config = config(implementations(Fn.class, Impl.class));
     FunctionModelConfig decoratedConfig = config.decoratedWith(Decorator1.class).decoratedWith(Decorator2.class);
 
@@ -96,7 +96,7 @@ public class FunctionModelConfigTest {
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void notADecorator() {
+  public void decorateWithNonDecoratorClass() {
     config().decoratedWith(Impl.class);
   }
 

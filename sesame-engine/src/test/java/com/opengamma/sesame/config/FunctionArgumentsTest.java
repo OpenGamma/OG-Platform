@@ -11,7 +11,7 @@ import com.opengamma.util.test.TestGroup;
 public class FunctionArgumentsTest {
 
   @Test
-  public void merge4() {
+  public void mergedWith() {
     FunctionArguments args1 = new FunctionArguments(ImmutableMap.<String, Object>of("foo", "FOO", "bar", "BAR"));
     FunctionArguments args2 = new FunctionArguments(ImmutableMap.<String, Object>of("bar", "BAR2", "baz", "BAZ"));
     FunctionArguments args3 = new FunctionArguments(ImmutableMap.<String, Object>of("boz", "BOZ", "baz", "BAZ2"));
@@ -23,6 +23,6 @@ public class FunctionArgumentsTest {
                                                               "baz", "BAZ",
                                                               "boz", "BOZ",
                                                               "aaa", "AAA"));
-    assertEquals(expected, args1.mergeWith(args2, args3, args4));
+    assertEquals(expected, args1.mergedWith(args2, args3, args4));
   }
 }

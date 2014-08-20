@@ -65,7 +65,7 @@ public class FunctionArguments implements ImmutableBean {
    * @param other arguments to merge with
    * @return the union of the configuration with settings from this instance taking priority
    */
-  public FunctionArguments mergeWith(FunctionArguments other, FunctionArguments... others) {
+  public FunctionArguments mergedWith(FunctionArguments other, FunctionArguments... others) {
     ArgumentChecker.notNull(other, "other");
     Map<String, Object> arguments = new HashMap<>();
     // reverse the list because the later args have lower priority. so they have to go in the map first

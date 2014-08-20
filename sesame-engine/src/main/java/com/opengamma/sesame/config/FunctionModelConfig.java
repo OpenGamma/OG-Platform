@@ -275,7 +275,7 @@ public class FunctionModelConfig implements ImmutableBean {
     } else if (args2 == null) {
       return args1;
     } else {
-      return args1.mergeWith(args2);
+      return args1.mergedWith(args2);
     }
   }
 
