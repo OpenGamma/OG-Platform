@@ -115,13 +115,13 @@ public class SwapCalculatorTest {
   private static final CrossGammaSingleCurveCalculator CGC = new CrossGammaSingleCurveCalculator(PVCSDC);
 
   private static final double TOLERANCE_PV = 1.0E-2; // one cent out of 100m
-  private static final double TOLERANCE_PV_DELTA = 1.0E+2;
+  private static final double TOLERANCE_PV_DELTA = 1.0E+4;
   private static final double TOLERANCE_PV_GAMMA = 2.0E+0;
   private static final double TOLERANCE_PV_GAMMA_RELATIF = 5.0E-4;
 
   private static final double BP1 = 1.0E-4; // The size of the scaling: 1 basis point.
   private static final double SHIFT = 1.0E-4;
-  private static final double SHIFT_2 = 1.0E-5;
+  private static final double SHIFT_2 = 1.0E-6;
 
   @Test
   /** 
