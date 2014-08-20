@@ -87,7 +87,7 @@ public class SwapRiskGbpAnalysis {
   private static final OffsetAdjustedDateParameters OFFSET_FIX_SONIA =
       new OffsetAdjustedDateParameters(0, OffsetType.BUSINESS, LON, BusinessDayConventionFactory.of("Following"));
 
-  /** GBP Fixed v SONIOA */
+  /** GBP Fixed v SONIA */
   private static final LocalDate EFFECTIVE_DATE_1 = LocalDate.of(2014, 11, 6);
   private static final LocalDate MATURITY_DATE_1 = LocalDate.of(2014, 12, 4);
   private static final double FIXED_RATE_1 = 0.0051875;
@@ -158,7 +158,6 @@ public class SwapRiskGbpAnalysis {
     }
   }
   private static final AnnuityCouponFixedDefinition FIXED_LEG_2_DEFINITION = new AnnuityCouponFixedDefinition(CPN_FIXED_2_DEFINITION, LON);
-  @SuppressWarnings("unchecked")
   private static final AnnuityDefinition<? extends CouponDefinition> IBOR_LEG_2_DEFINITION = (AnnuityDefinition<? extends CouponDefinition>)
       new FloatingAnnuityDefinitionBuilder().
           payer(!PAYER_2).notional(NOTIONAL_PROV_1).startDate(EFFECTIVE_DATE_2).endDate(MATURITY_DATE_2).
@@ -231,7 +230,6 @@ public class SwapRiskGbpAnalysis {
   @Test
   public void parRateStdCurve() {
     double pr1 = OIS_1.accept(PRDC, MULTICURVE_STD);
-    int t = 0;
   }
 
   @SuppressWarnings("unused")
@@ -248,7 +246,6 @@ public class SwapRiskGbpAnalysis {
     MultipleCurrencyParameterSensitivity pvmqsIrs1StdUn = MQSUBC.fromInstrument(IRS_1, MULTICURVE_STD, BLOCK_STD).multipliedBy(BP1);
     AssertSensitivityObjects.assertEquals("Sensitivity with and without underlying curve sensitivity", pvmqsIrs1Std, pvmqsIrs1StdUn, TOLERANCE_PV_DELTA);
     MultipleCurrencyParameterSensitivity pvmqsIrs1Spread = MQSUBC.fromInstrument(IRS_1, MULTICURVE_STD_SPREAD, BLOCK_STD_SPREAD).multipliedBy(BP1);
-    int t = 0;
   }
 
   @Test

@@ -361,14 +361,31 @@ public class StandardDataSetsMulticurveUSD {
     }
   }
 
+  /**
+   * Returns the multi-curve and block for two curves (ONDSC-OIS/LIBOR3M-FRAIRS). 
+   * ONDSC-OIS is calibrated on OIS up to 10Y and LIBOR3M-FRAIRS is calibrated on FRA and IRS up to 30Y.
+   * The market quotes used for the calibration are the default quotes of the data set.
+   * @return The curves.
+   */
   public static Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> getCurvesUSDOisL3() {
     return CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(0);
   }
 
+  /**
+   * Returns the multi-curve and block for two curves (ONDSC-OIS/LIBOR3M-FRAIRS) with the ONDSC-OIS curve constructed as a spread to the LIBOR3M-FRAIRS curve.
+   * The market quotes used for the calibration are the default quotes of the data set.
+   * @return The curves.
+   */
   public static Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> getCurvesUSDOisSpreadL3() {
     return CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(2);
   }
 
+  /**
+   * Returns the multi-curve and block for two curves (ONDSC-OIS/LIBOR3M-FRAIRS) with the ONDSC-OIS curve constructed as a spread to the LIBOR3M-FRAIRS curve.
+   * @param dscMarketQuotes The market quotes to be used for the discounting curve.
+   * @param fwd3MarketQuotes The market quotes to be used for the forward LIBOR3M curve.
+   * @return The curves.
+   */
   public static Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> getCurvesUSDOisSpreadL3(double[] dscMarketQuotes, double[] fwd3MarketQuotes) {
     InstrumentDefinition<?>[] dscDefinition = getDefinitions(dscMarketQuotes, DSC_1_USD_GENERATORS, DSC_1_USD_ATTR, REFERENCE_DATE[0]);
     InstrumentDefinition<?>[] fwd3Definition = getDefinitions(fwd3MarketQuotes, FWD3_1_USD_GENERATORS, FWD3_1_USD_ATTR, REFERENCE_DATE[0]);
@@ -413,18 +430,34 @@ public class StandardDataSetsMulticurveUSD {
     return new Calendar[] {NYC };
   }
 
+  /**
+   * Returns the market quotes for the discounting curve.
+   * @return The market quotes.
+   */
   public static double[] getMarketDataDsc1() {
     return DSC_1_USD_MARKET_QUOTES;
   }
 
+  /**
+   * Returns the market quotes for the forward 3M curve.
+   * @return The market quotes.
+   */
   public static double[] getMarketDataFwd31() {
     return FWD3_1_USD_MARKET_QUOTES;
   }
 
+  /**
+   * Returns the name of the discounting curve.
+   * @return The name.
+   */
   public static String getDscCurveName() {
     return CURVE_NAME_DSC_USD;
   }
 
+  /**
+   * Returns the name of the forward LIBOR3M curve.
+   * @return The name.
+   */
   public static String getFwd3CurveName() {
     return CURVE_NAME_FWD3_USD;
   }

@@ -125,8 +125,9 @@ public class SwapCalculatorTest {
 
   @Test
   /** 
-   * Test the market quote sensitivity in the case of curve calibrated as a spread on an exisiting curve.
+   * Test the market quote sensitivity in the case of curve calibrated as a spread on an existing curve.
    * The parameter sensitivity calculator is the ParameterSensitivityUnderlyingParameterCalculator which take into account the underlying curves.
+   * The test is done versus a finite difference computation with full curve re-calibration.
    */
   public void marketQuoteSensitivitySpreadCurve() {
     double[] mqDsc = StandardDataSetsMulticurveUSD.getMarketDataDsc1();
