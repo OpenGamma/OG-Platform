@@ -8,7 +8,6 @@ package com.opengamma.analytics.math.interpolation;
 import static org.apache.commons.math.util.MathUtils.binomialCoefficient;
 
 import org.apache.commons.lang.NotImplementedException;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.math.matrix.ColtMatrixAlgebra;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
@@ -25,21 +24,31 @@ public abstract class PenaltyMatrixGenerator {
 
   private static final MatrixAlgebra MA = new ColtMatrixAlgebra();
 
+  //*******************************************************************************************
+  // Difference methods 
+  //*******************************************************************************************
+
   /**
-   * The penalty matrix, P, such the for weights vector, w, (w^T)*P*w is a quadratic penalty term. P is constructed as P = (D^T)*D, where
-   * D is the kth order difference matrix such that D*x is the kth order difference vector of x (with first k terms zero) 
-   * @param m Length of the weights vector.
+   * get the k^th order difference matrix, D,  which acts on a vector, x, of length m to produce the k^th order
+   * difference vector. The first k rows of D are set to zero - because of this D_1 * D_1 != D_2<p>
+   * For example, for x = {x1,x2,....xn}, D_1 * x = {0, x2-x1, x3-x2,...., xn - x(n-1)} and
+   * D_2 * x = {0,0, x3-2*x2+x1,....,xn-2*x(n-1)+x(n-2)} etc
+   * @param m Length of the vector
    * @param k Difference order. Require m > k 
-   * @return The penalty matrix P.
+   * @return The k^th order difference matrix 
    */
-  public static DoubleMatrix2D getPenaltyMatrix(final int m, final int k) {
-    Validate.isTrue(k < m, "differce order too high");
-
+  public static DoubleMatrix2D getDifferanceMatrix(final int m, final int k) {
+    ArgumentChecker.notNegative(m, "m");
+    ArgumentChecker.notNegative(k, "k");
+    ArgumentChecker.isTrue(k < m, "Difference order too high, m = {} and k = {}", m, k);
     if (m == 0) {
-      return DoubleMatrixUtils.getIdentityMatrix2D(m);
+      return DoubleMatrix2D.EMPTY_MATRIX;
     }
-
-    final double[][] data = new double[m][m];
+    if (k == 0) {
+      return new IdentityMatrix(m);
+    }
+    DoubleMatrix2D d = new DoubleMatrix2D(m, m);
+    double[][] data = d.getData();
     final int[] coeff = new int[k + 1];
 
     int sign = 1;
@@ -53,28 +62,169 @@ public abstract class PenaltyMatrixGenerator {
         data[i][j + i - k] = coeff[j];
       }
     }
-    final DoubleMatrix2D d = new DoubleMatrix2D(data);
+    return d;
+  }
 
-    final DoubleMatrix2D dt = MA.getTranspose(d);
+  /**
+   * get the k^th order penalty matrix, P. This is defined as P = (D^T)*D , where D is the k^th order difference
+   * matrix (see getDifferanceMatrix), so the scalar amount (x^T)*P*x = |Dx|^2  is greater the more k^th order 
+   * differences there are in the vector, x. This can then act as a penalty on x in some optimisation routine where
+   * x is the vector of (fit) parameters. 
+   * @param m Length of the  vector.
+   * @param k Difference order. Require m > k 
+   * @return The k^th order penalty matrix, P
+   */
+  public static DoubleMatrix2D getPenaltyMatrix(final int m, final int k) {
+    ArgumentChecker.notNegative(m, "m");
+    ArgumentChecker.notNegative(k, "k");
+    ArgumentChecker.isTrue(k < m, "Difference order too high, m = {} and k = {}", m, k);
+    if (m == 0) {
+      return DoubleMatrix2D.EMPTY_MATRIX;
+    }
+    if (k == 0) {
+      return new IdentityMatrix(m);
+    }
+    DoubleMatrix2D d = getDifferanceMatrix(m, k);
+    DoubleMatrix2D dt = MA.getTranspose(d);
     return (DoubleMatrix2D) MA.multiply(dt, d);
   }
 
   /**
-   * get a kth order penalty matrix for a non-uniform grid. This is $d^Td$ where d is the kth order finite difference matrix 
-   * @param x set of points
-   * @param k order 
-   * @return penalty matrix
+   * Assume a tensor has been flatten to a vector as {A_{0,0}, A_{0,1},...._A_{0,m}, A_{1,0}, A_{1,1},...._A_{1,m},...,A_{n,0}, A_{n,1},...._A_{n,m}}
+   *  (see {@link flattenMatrix}) that is, the <b>last</b> index changes most rapidly.  This produces a penalty matrix that acts on a given set of indexes only<P>
+   * To produce a penalty matrix that acts on multiple indexes, produce one for each set of indexes and add them together (scaling if necessary)  
+   * @param numElements The range of each index. In the example above, this would be {n,m} 
+   * @param k Difference order. Require size[indices] > k
+   * @param index Which set of indices does the matrix act on 
+   * @return A penalty matrix 
+   */
+  public static DoubleMatrix2D getPenaltyMatrix(final int[] numElements, final int k, final int index) {
+    ArgumentChecker.notEmpty(numElements, "size");
+    ArgumentChecker.isTrue(index >= 0 && index < numElements.length, "index must be in range 0 to {}", numElements.length);
+    final DoubleMatrix2D d = getPenaltyMatrix(numElements[index], k);
+    return getMatrixForFlattened(numElements, d, index);
+  }
+
+  /**
+   * Assume a tensor has been flatten to a vector as {A_{0,0}, A_{0,1},...._A_{0,m}, A_{1,0}, A_{1,1},...._A_{1,m},...,A_{n,0}, A_{n,1},...._A_{n,m}}
+   * (see {@link flattenMatrix}) that is, the <b>last</b> index changes most rapidly.  This produces the sum of penalty matrices (or order given by k) with each scaled 
+   * by lambda. 
+   * @param numElements The range of each index. In the example above, this would be {n,m} 
+   * @param k The difference order for each dimension 
+   * @param lambda The scaling for each dimension 
+   * @return  A penalty matrix 
+   */
+  public static DoubleMatrix2D getPenaltyMatrix(final int[] numElements, final int[] k, final double[] lambda) {
+    ArgumentChecker.notEmpty(numElements, "size");
+    ArgumentChecker.notEmpty(k, "k");
+    ArgumentChecker.notEmpty(lambda, "lambda");
+    final int dim = numElements.length;
+    ArgumentChecker.isTrue(dim == k.length, "k different lenght to size");
+    ArgumentChecker.isTrue(dim == lambda.length, "lambda different lenght to size");
+
+    DoubleMatrix2D p = (DoubleMatrix2D) MA.scale(getPenaltyMatrix(numElements, k[0], 0), lambda[0]);
+    for (int i = 1; i < dim; i++) {
+      final DoubleMatrix2D temp = (DoubleMatrix2D) MA.scale(getPenaltyMatrix(numElements, k[i], i), lambda[i]);
+      p = (DoubleMatrix2D) MA.add(p, temp);
+    }
+
+    return p;
+  }
+
+  //*******************************************************************************************
+  // Finite difference methods for non-uniform grids 
+  //*******************************************************************************************
+
+  /**
+   * Get the kth order finite difference derivative matrix, D_k(x),  for a non-uniform set of points. For a (1D) set
+   * of points, x, (which are not necessarily uniformly spaced), and a set of values at those points, y (i.e. y=f(x))
+   * the vector y_k = D_k(x) * y is the the finite difference estimate of the k^th order derivative (d^k y/ dx^k) at
+   * the points, x. <P>
+   * K = 0, trivially return the identity matrix; for k = 1 and 2, this is a three point estimate. K > 2 is not implemented      
+   * @param x A non-uniform set of points
+   * @param k The order <b>Only first and second order are currently implemented</b>
+   * @param includeEnds If true the matrix includes an estimate for the derivative at the end points; if false
+   * the first and last rows of the matrix are empty 
+   * @return The derivative matrix
+   */
+  public static DoubleMatrix2D getDiffMatrix(final double[] x, final int k, final boolean includeEnds) {
+    ArgumentChecker.notEmpty(x, "x");
+    ArgumentChecker.notNegative(k, "k");
+    final int size = x.length;
+    ArgumentChecker.isTrue(k < size, "order order too high");
+    if (k == 0) {
+      return new IdentityMatrix(size);
+    } else if (k > 2) {
+      throw new NotImplementedException("cannot handle order (k) > 2");
+    } else {
+      final double[] dx = new double[size - 1];
+      final double[] dx2 = new double[size - 1];
+      for (int i = 0; i < (size - 1); i++) {
+        final double temp = x[i + 1] - x[i];
+        ArgumentChecker.isTrue(temp > 0.0, "x not in ascending order, or two identical points");
+        dx[i] = temp;
+        dx2[i] = temp * temp;
+      }
+      final double[] w = new double[size - 2];
+      for (int i = 0; i < (size - 2); i++) {
+        w[i] = 1.0 / dx[i] / dx[i + 1] / (dx[i] + dx[i + 1]);
+      }
+
+      final DoubleMatrix2D res = new DoubleMatrix2D(size, size);
+      final double[][] data = res.getData();
+
+      if (k == 1) {
+        for (int i = 1; i < (size - 1); i++) {
+          data[i][i - 1] = -w[i - 1] * dx2[i];
+          data[i][i] = w[i - 1] * (dx2[i] - dx2[i - 1]);
+          data[i][i + 1] = w[i - 1] * dx2[i - 1];
+        }
+        //ends 
+        if (includeEnds) {
+          data[0][0] = -w[0] * dx[1] * (2 * dx[0] + dx[1]);
+          data[0][1] = w[0] * (dx2[0] + dx2[1] + 2 * dx[0] * dx[1]);
+          data[0][2] = -w[0] * dx2[0];
+          data[size - 1][size - 3] = w[size - 3] * dx2[size - 2];
+          data[size - 1][size - 2] = -w[size - 3] * (dx2[size - 3] + dx2[size - 2] + 2 * dx[size - 2] * dx[size - 3]);
+          data[size - 1][size - 1] = w[size - 3] * dx[size - 3] * (2 * dx[size - 2] + dx[size - 3]);
+        }
+        return res;
+      } else {
+        for (int i = 1; i < (size - 1); i++) {
+          data[i][i - 1] = 2 * w[i - 1] * dx[i];
+          data[i][i] = -2 * w[i - 1] * (dx[i] + dx[i - 1]);
+          data[i][i + 1] = 2 * w[i - 1] * dx[i - 1];
+        }
+        //ends 
+        if (includeEnds) {
+          data[0] = data[1];
+          data[size - 1] = data[size - 2];
+        }
+        return res;
+      }
+    }
+  }
+
+  /**
+   * get a k^th order penalty matrix for a non-uniform grid, x. This is $D^T D$ where D is the kth order finite difference
+   * matrix (not including the ends). Given values y = f(x) at the grid points, y^T*P*y = |Dy|^2 is the sum of squares 
+   * of the of k^th order derivative estimates at the points.<p>
+   * <b>Note:</b> In certain applications we may need an estimate of $\frac{1}{b-a}\int_a^b \left(\frac{d^k y}{dx^k}\right)^2 dx$ 
+   * i.e. the RMS value of the k^th order derivative, between a & b - for a uniform x this forms a crude approximation. 
+   * @param x A non-uniform set of points
+   * @param k order The order <b>Only first and second order are currently implemented</b>
+   * @return The k^th order penalty matrix
    */
   public static DoubleMatrix2D getPenaltyMatrix(final double[] x, final int k) {
     final double range = x[x.length - 1] - x[0];
     final double scale = Math.pow(range, k);
-    final DoubleMatrix2D d = (DoubleMatrix2D) MA.scale(getDiffMatrix(x, k), scale);
+    final DoubleMatrix2D d = (DoubleMatrix2D) MA.scale(getDiffMatrix(x, k, false), scale);
     final DoubleMatrix2D dt = MA.getTranspose(d);
     return (DoubleMatrix2D) MA.multiply(dt, d);
   }
 
   /**
-   * get a kth order penalty matrix for a non-uniform grid who's values have been flattened to a vector 
+   * Get a kth order penalty matrix for a non-uniform grid whose values have been flattened to a vector 
    * @param x the grid positions in each dimension 
    * @param k the (finite difference) order
    * @param index which index to act on 
@@ -92,6 +242,14 @@ public abstract class PenaltyMatrixGenerator {
     return getMatrixForFlattened(numElements, p, index);
   }
 
+  /**
+   * Get a penalty for a non-uniform grid whose values have been flattened to a vector. This
+   * is the sum  of penalty matrices that act on each index, scaled by an amount lambda
+   * @param x the grid positions in each dimension 
+   * @param k the (finite difference) order in each dimension 
+   * @param lambda the strength of the penalty in each dimension
+   * @return a penalty matrix
+   */
   public static DoubleMatrix2D getPenaltyMatrix(final double[][] x, final int[] k, final double[] lambda) {
     ArgumentChecker.notEmpty(k, "k");
     ArgumentChecker.notEmpty(lambda, "lambda");
@@ -105,22 +263,6 @@ public abstract class PenaltyMatrixGenerator {
       p = (DoubleMatrix2D) MA.add(p, temp);
     }
     return p;
-  }
-
-  /**
-   * Assume a tensor has been flatten to a vector as $(x_{0,0}, x_{1,0}, x_{2,0}, \dots, x_{n,0}, x_{0,1}, x_{1,1}, \dots, x_{n,1}, \dots, x_{n,m})^T$
-   * that is, the first index changes most rapidly. This produces a penalty matrix that acts on a given set of indexes only<P>
-   * To produce a penalty matrix that acts on multiple indexes, produce one for each set of indexes and add them together (scaling if necessary)  
-   * @param numElements The range of each index. In the example above, this would be {n,m} 
-   * @param k Difference order. Require size[indices] > k
-   * @param index Which set of indices does the matrix act on 
-   * @return A penalty matrix 
-   */
-  public static DoubleMatrix2D getPenaltyMatrix(final int[] numElements, final int k, final int index) {
-    ArgumentChecker.notEmpty(numElements, "size");
-    final DoubleMatrix2D d = getPenaltyMatrix(numElements[index], k);
-
-    return getMatrixForFlattened(numElements, d, index);
   }
 
   /**
@@ -176,102 +318,6 @@ public abstract class PenaltyMatrixGenerator {
     }
 
     return temp;
-  }
-
-  /**
-   * Assume a tensor has been flatten to a vector as $(x_{0,0}, x_{1,0}, x_{2,0}, \dots, x_{n,0}, x_{0,1}, x_{1,1}, \dots, x_{n,1}, \dots, x_{n,m})^T$
-   * that is, the first index changes most rapidly. This produces the sum of penalty matrices (or order given by k) with each scaled 
-   * by lambda. 
-   * @param size The range of each index. In the example above, this would be {n,m} 
-   * @param k The difference order for each dimension 
-   * @param lambda The scaling for each dimension 
-   * @return  A penalty matrix 
-   */
-  public static DoubleMatrix2D getPenaltyMatrix(final int[] size, final int[] k, final double[] lambda) {
-    ArgumentChecker.notEmpty(size, "size");
-    ArgumentChecker.notEmpty(k, "k");
-    ArgumentChecker.notEmpty(lambda, "lambda");
-    final int dim = size.length;
-    ArgumentChecker.isTrue(dim == k.length, "k different lenght to size");
-    ArgumentChecker.isTrue(dim == lambda.length, "lambda different lenght to size");
-
-    DoubleMatrix2D p = (DoubleMatrix2D) MA.scale(getPenaltyMatrix(size, k[0], 0), lambda[0]);
-    for (int i = 1; i < dim; i++) {
-      final DoubleMatrix2D temp = (DoubleMatrix2D) MA.scale(getPenaltyMatrix(size, k[i], i), lambda[i]);
-      p = (DoubleMatrix2D) MA.add(p, temp);
-    }
-
-    return p;
-  }
-
-  /**
-   * Get the kth order finite difference derivative matrix for a non-uniform set of points 
-   * @param x A non-uniform set of points
-   * @param k The order <b>Only first and second order are currently implemented</b>
-   * @return derivative matrix
-   */
-  public static DoubleMatrix2D getDiffMatrix(final double[] x, final int k) {
-    ArgumentChecker.notEmpty(x, "x");
-    ArgumentChecker.notNegative(k, "k");
-    final int size = x.length;
-    ArgumentChecker.isTrue(k < size, "order order too high");
-    if (k == 0) {
-      return new IdentityMatrix(size);
-    } else if (k > 2) {
-      throw new NotImplementedException("cannot handle order (k) > 2");
-      //      final int kd2 = k / 2;
-      //      final DoubleMatrix2D d2 = getDiffMatrix(x, 2);
-      //      final DoubleMatrix2D d = MA.getPower(d2, kd2);
-      //      if (k % 2 == 0) {
-      //        return d;
-      //      } else {
-      //        final DoubleMatrix2D rem = getDiffMatrix(x, 1);
-      //        return (DoubleMatrix2D) MA.multiply(rem, d);
-      //      }
-
-    } else {
-      final double[] dx = new double[size - 1];
-      final double[] dx2 = new double[size - 1];
-      for (int i = 0; i < (size - 1); i++) {
-        final double temp = x[i + 1] - x[i];
-        ArgumentChecker.isTrue(temp > 0.0, "x not in ascending order, or two identical points");
-        dx[i] = temp;
-        dx2[i] = temp * temp;
-      }
-      final double[] w = new double[size - 2];
-      for (int i = 0; i < (size - 2); i++) {
-        w[i] = 1.0 / dx[i] / dx[i + 1] / (dx[i] + dx[i + 1]);
-      }
-
-      final DoubleMatrix2D res = new DoubleMatrix2D(size, size);
-      final double[][] data = res.getData();
-
-      if (k == 1) {
-        for (int i = 1; i < (size - 1); i++) {
-          data[i][i - 1] = -w[i - 1] * dx2[i];
-          data[i][i] = w[i - 1] * (dx2[i] - dx2[i - 1]);
-          data[i][i + 1] = w[i - 1] * dx2[i - 1];
-        }
-        //ends 
-        //        data[0][0] = -w[0] * dx[1] * (2 * dx[0] + dx[1]);
-        //        data[0][1] = w[0] * (dx2[0] + dx2[1] + 2 * dx[0] * dx[1]);
-        //        data[0][2] = -w[0] * dx2[0];
-        //        data[size - 1][size - 3] = w[size - 3] * dx2[size - 2];
-        //        data[size - 1][size - 2] = -w[size - 3] * (dx2[size - 3] + dx2[size - 2] + 2 * dx[size - 2] * dx[size - 3]);
-        //        data[size - 1][size - 1] = w[size - 3] * dx[size - 3] * (2 * dx[size - 2] + dx[size - 3]);
-        return res;
-      } else {
-        for (int i = 1; i < (size - 1); i++) {
-          data[i][i - 1] = 2 * w[i - 1] * dx[i];
-          data[i][i] = -2 * w[i - 1] * (dx[i] + dx[i - 1]);
-          data[i][i + 1] = 2 * w[i - 1] * dx[i - 1];
-        }
-        //ends 
-        //        data[0] = data[1];
-        //        data[size - 1] = data[size - 2];
-        return res;
-      }
-    }
   }
 
 }
