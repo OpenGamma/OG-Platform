@@ -69,10 +69,15 @@ public abstract class ParameterizedSmileModelDiscreateVolatilityFunctionProvider
     _volFuncPro = volFuncPro;
     _fwdCurve = fwdCurve;
     _smileModelParameterProviders = smileModelParameterProviders;
-
-    //  _nParms = modelToSmileModelMaps[i].
   }
 
+  /**
+   * Set up the {@link DiscreteVolatilityFunctionProvider} 
+   * @param volFuncPro The smile model 
+   * @param fwdCurve The forward curve 
+   * @param smileParameterTS each of these represents a different smile parameter term structure- <b>there 
+   * must be one for each smile model parameter</b>. 
+   */
   public ParameterizedSmileModelDiscreateVolatilityFunctionProvider(final VolatilityFunctionProvider<T> volFuncPro, final ForwardCurve fwdCurve, final ParameterizedCurve[] smileParameterTS) {
     ArgumentChecker.notNull(volFuncPro, "volFuncPro");
     ArgumentChecker.notNull(fwdCurve, "fwdCurve");

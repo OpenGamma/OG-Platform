@@ -11,6 +11,7 @@ import com.opengamma.analytics.financial.model.volatility.smile.function.SABRHag
 import com.opengamma.analytics.financial.model.volatility.smile.function.VolatilityFunctionProvider;
 import com.opengamma.analytics.math.function.DoublesVectorFunctionProvider;
 import com.opengamma.analytics.math.function.ParameterizedCurve;
+import com.opengamma.analytics.math.function.VectorFunction;
 
 /**
  * 
@@ -20,10 +21,24 @@ public class ParameterizedSABRModelDiscreteVolatilityFunctionProvider extends Pa
 
   private static final VolatilityFunctionProvider<SABRFormulaData> SABR = new SABRHaganVolatilityFunction();
 
+  /**
+   * Set up  a {@link DiscreteVolatilityFunctionProvider} backed by a SABR model
+   * @param fwdCurve The forward curve 
+   * @param smileModelParameterProviders each of these providers represents a different smile parameter - <b>there 
+   * must be one for each smile model parameter</b>. Given a (common) set of expiries, each one provides a 
+   * {@link VectorFunction} that gives the corresponding smile model parameter at each expiry for a set of model 
+   * parameters. This gives a lot of flexibility as to how the (smile model) parameter term structures are represented. 
+   */
   public ParameterizedSABRModelDiscreteVolatilityFunctionProvider(final ForwardCurve fwdCurve, final DoublesVectorFunctionProvider[] smileModelParameterProviders) {
     super(SABR, fwdCurve, smileModelParameterProviders);
   }
 
+  /**
+   * Set up the {@link DiscreteVolatilityFunctionProvider} backed by a SABR model
+   * @param fwdCurve The forward curve 
+   * @param smileParameterTS each of these represents a different smile parameter term structure- <b>there 
+   * must be one for each smile model parameter</b>. 
+   */
   public ParameterizedSABRModelDiscreteVolatilityFunctionProvider(final ForwardCurve fwdCurve, final ParameterizedCurve[] smileParameterTS) {
     super(SABR, fwdCurve, smileParameterTS);
   }
