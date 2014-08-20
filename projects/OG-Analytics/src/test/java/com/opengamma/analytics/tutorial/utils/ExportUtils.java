@@ -9,9 +9,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Map;
 
+import com.opengamma.analytics.financial.model.interestrate.curve.DiscountCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
+import com.opengamma.analytics.math.curve.Curve;
 import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.money.Currency;
@@ -52,11 +55,17 @@ public class ExportUtils {
     System.out.println("--- Sensitivities ---");
     System.out.println("Curve name,Currency,Date fraction,Zero rate,PV01");
     for (String yieldCurveName : curves.getAllCurveNames()) {
-      YieldCurve yieldCurve = (YieldCurve) curves.getCurve(yieldCurveName);
-      DoublesCurve yieldCurveValues = yieldCurve.getCurve();
+      YieldAndDiscountCurve yieldAndDiscountCurve = curves.getCurve(yieldCurveName);
+      Curve<Double, Double> yieldCurveValues = null;
+      
+      if (yieldAndDiscountCurve instanceof YieldCurve) {
+        yieldCurveValues = ((YieldCurve)yieldAndDiscountCurve).getCurve();
+      } else if (yieldAndDiscountCurve instanceof DiscountCurve) {
+        yieldCurveValues = ((DiscountCurve)yieldAndDiscountCurve).getCurve();
+      }
+
       Double[] dateFractions = yieldCurveValues.getXData();
       Double[] zeroRates = yieldCurveValues.getYData();
-
       Map<Currency, DoubleMatrix1D> sensitivitiesPerCcy = sensitivities.getSensitivityByName(yieldCurveName);
       for (Currency ccy : sensitivitiesPerCcy.keySet()) {
         double[] sensitivitiesValues = sensitivitiesPerCcy.get(ccy).getData();
