@@ -20,7 +20,7 @@ import com.opengamma.util.ArgumentChecker;
  * the parameters sensitivities are aggregated (the same parameter can be used in several curves).
  * @param <DATA_TYPE> Data type.
  */
-public abstract class AbstractParameterSensitivityParameterCalculator<DATA_TYPE extends ParameterProviderInterface> {
+public abstract class ParameterSensitivityParameterAbstractCalculator<DATA_TYPE extends ParameterProviderInterface> {
 
   /**
    * The sensitivity calculator to compute the sensitivity of the value with respect to the zero-coupon continuously compounded rates at different times (discounting) or forward rates.
@@ -31,7 +31,7 @@ public abstract class AbstractParameterSensitivityParameterCalculator<DATA_TYPE 
    * The constructor from a curve sensitivity calculator.
    * @param curveSensitivityCalculator The calculator.
    */
-  public AbstractParameterSensitivityParameterCalculator(final InstrumentDerivativeVisitor<DATA_TYPE, MultipleCurrencyMulticurveSensitivity> curveSensitivityCalculator) {
+  public ParameterSensitivityParameterAbstractCalculator(final InstrumentDerivativeVisitor<DATA_TYPE, MultipleCurrencyMulticurveSensitivity> curveSensitivityCalculator) {
     ArgumentChecker.notNull(curveSensitivityCalculator, "curve sensitivity calculator");
     _curveSensitivityCalculator = curveSensitivityCalculator;
   }

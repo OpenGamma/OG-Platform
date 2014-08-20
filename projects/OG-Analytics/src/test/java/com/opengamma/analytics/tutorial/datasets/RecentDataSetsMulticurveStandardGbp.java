@@ -12,6 +12,7 @@ import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorCurveAddYieldExisiting;
 import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorCurveYieldInterpolated;
 import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorYDCurve;
 import com.opengamma.analytics.financial.datasets.CalendarGBP;
@@ -42,6 +43,7 @@ import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Pair;
@@ -73,7 +75,7 @@ public class RecentDataSetsMulticurveStandardGbp {
   private static final IborIndex GBPLIBOR6M = GBP6MLIBOR6M.getIborIndex();
 
   private static final String CURVE_NAME_DSC_GBP = "GBP-DSCON-OIS";
-  private static final String CURVE_NAME_FWD3_GBP = "GBP-LIBOR6M-FRAIRS";
+  private static final String CURVE_NAME_FWD6_GBP = "GBP-LIBOR6M-FRAIRS";
 
   /** Data as of 16-Jul-2014 */
   /** Market values for the dsc GBP curve */
@@ -124,8 +126,8 @@ public class RecentDataSetsMulticurveStandardGbp {
   }
 
   /** Units of curves */
-  private static final int NB_UNITS = 2;
-  private static final int NB_BLOCKS = 1;
+  private static final int[] NB_UNITS = {2, 1 };
+  private static final int NB_BLOCKS = 2;
   private static final GeneratorYDCurve[][][] GENERATORS_UNITS = new GeneratorYDCurve[NB_BLOCKS][][];
   private static final String[][][] NAMES_UNITS = new String[NB_BLOCKS][][];
   private static final MulticurveProviderDiscount KNOWN_DATA = new MulticurveProviderDiscount(FX_MATRIX);
@@ -135,17 +137,20 @@ public class RecentDataSetsMulticurveStandardGbp {
 
   static {
     for (int loopblock = 0; loopblock < NB_BLOCKS; loopblock++) {
-      GENERATORS_UNITS[loopblock] = new GeneratorYDCurve[NB_UNITS][];
-      NAMES_UNITS[loopblock] = new String[NB_UNITS][];
+      GENERATORS_UNITS[loopblock] = new GeneratorYDCurve[NB_UNITS[loopblock]][];
+      NAMES_UNITS[loopblock] = new String[NB_UNITS[loopblock]][];
     }
     final GeneratorYDCurve genIntLin = new GeneratorCurveYieldInterpolated(MATURITY_CALCULATOR, INTERPOLATOR_LINEAR);
     GENERATORS_UNITS[0][0] = new GeneratorYDCurve[] {genIntLin };
     GENERATORS_UNITS[0][1] = new GeneratorYDCurve[] {genIntLin };
     NAMES_UNITS[0][0] = new String[] {CURVE_NAME_DSC_GBP };
-    NAMES_UNITS[0][1] = new String[] {CURVE_NAME_FWD3_GBP };
+    NAMES_UNITS[0][1] = new String[] {CURVE_NAME_FWD6_GBP };
+    GeneratorYDCurve genAddExistFwd3 = new GeneratorCurveAddYieldExisiting(genIntLin, false, CURVE_NAME_FWD6_GBP);
+    GENERATORS_UNITS[1][0] = new GeneratorYDCurve[] {genIntLin, genAddExistFwd3 };
+    NAMES_UNITS[1][0] = new String[] {CURVE_NAME_FWD6_GBP, CURVE_NAME_DSC_GBP };
     DSC_MAP.put(CURVE_NAME_DSC_GBP, GBP);
     FWD_ON_MAP.put(CURVE_NAME_DSC_GBP, new IndexON[] {GBPSONIA });
-    FWD_IBOR_MAP.put(CURVE_NAME_FWD3_GBP, new IborIndex[] {GBPLIBOR6M });
+    FWD_IBOR_MAP.put(CURVE_NAME_FWD6_GBP, new IborIndex[] {GBPLIBOR6M });
   }
 
   @SuppressWarnings({"unchecked", "rawtypes" })
@@ -167,12 +172,12 @@ public class RecentDataSetsMulticurveStandardGbp {
 
   /**
    * Calibrate curves with hard-coded date and with calibration date the date provided. The curves are discounting/overnight forward,
-   * Libor3M forward, Libor1M forward and Libor6M forward.
+   * LIBOR6M forward.
    * @param calibrationDate The calibration date.
    * @return The curves and the Jacobian matrices.
    */
   public static Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> getCurvesGbpOisL6(ZonedDateTime calibrationDate) {
-    InstrumentDefinition<?>[][][] definitionsUnits = new InstrumentDefinition<?>[NB_UNITS][][];
+    InstrumentDefinition<?>[][][] definitionsUnits = new InstrumentDefinition<?>[NB_UNITS[0]][][];
     InstrumentDefinition<?>[] definitionsDsc = getDefinitions(DSC_GBP_MARKET_QUOTES, DSC_GBP_GENERATORS, DSC_GBP_ATTR, calibrationDate);
     InstrumentDefinition<?>[] definitionsFwd6 = getDefinitions(FWD6_GBP_MARKET_QUOTES, FWD6_GBP_GENERATORS, FWD6_GBP_ATTR, calibrationDate);
     definitionsUnits[0] = new InstrumentDefinition<?>[][] {definitionsDsc };
@@ -183,16 +188,47 @@ public class RecentDataSetsMulticurveStandardGbp {
   }
 
   /**
+   * Calibrate curves with hard-coded date and with calibration date the date provided. The curves are discounting/overnight forward,
+   * LIBOR3M forward. The overnight curve is constructed as a spread to the LIBOR6M curve.
+   * @param calibrationDate The calibration date.
+   * @return The curves and the Jacobian matrices.
+   */
+  public static Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> getCurvesGbpOisL6Spread(ZonedDateTime calibrationDate) {
+    return getCurvesGbpOisL6Spread(calibrationDate, DSC_GBP_MARKET_QUOTES, FWD6_GBP_MARKET_QUOTES);
+  }
+
+  /**
+   * Calibrate curves with hard-coded date and with calibration date the date provided. The curves are discounting/overnight forward,
+   * LIBOR3M forward. The overnight curve is constructed as a spread to the LIBOR6M curve.
+   * @param calibrationDate The calibration date.
+   * @param dscMarketQuotes Market quotes for the discounting curve.
+   * @param fwd6MarketQuotes Market quotes for the forward LIBOR6M curve.
+   * @return The curves and the Jacobian matrices.
+   */
+  public static Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> getCurvesGbpOisL6Spread(ZonedDateTime calibrationDate,
+      double[] dscMarketQuotes, double[] fwd6MarketQuotes) {
+    ArgumentChecker.isTrue(dscMarketQuotes.length == DSC_GBP_GENERATORS.length, "Discounting market quotes of the wrong length");
+    ArgumentChecker.isTrue(fwd6MarketQuotes.length == FWD6_GBP_GENERATORS.length, "Forward 6M market quotes of the wrong length");
+    InstrumentDefinition<?>[][][] definitionsUnits = new InstrumentDefinition<?>[NB_UNITS[1]][][];
+    InstrumentDefinition<?>[] definitionsDsc = getDefinitions(dscMarketQuotes, DSC_GBP_GENERATORS, DSC_GBP_ATTR, calibrationDate);
+    InstrumentDefinition<?>[] definitionsFwd6 = getDefinitions(fwd6MarketQuotes, FWD6_GBP_GENERATORS, FWD6_GBP_ATTR, calibrationDate);
+    definitionsUnits[0] = new InstrumentDefinition<?>[][] {definitionsFwd6, definitionsDsc };
+    return CurveCalibrationTestsUtils.makeCurvesFromDefinitionsMulticurve(calibrationDate, definitionsUnits, GENERATORS_UNITS[1], NAMES_UNITS[1],
+        KNOWN_DATA, PSMQC, PSMQCSC, false, DSC_MAP, FWD_ON_MAP, FWD_IBOR_MAP, CURVE_BUILDING_REPOSITORY,
+        TS_FIXED_OIS_GBP_WITH_TODAY, TS_FIXED_OIS_GBP_WITHOUT_TODAY, TS_FIXED_IBOR_GBP6M_WITH_LAST, TS_FIXED_IBOR_GBP6M_WITHOUT_LAST);
+  }
+
+  /**
    * Get the definitions for the first instruments of the standard curve to be used in another curve
    * @param calibrationDate The calibration date.
    * @param howMany The number of instruments to be returned
    * @return The InstrumentDefinition for the first howMany instruments of the curve
    */
-  public static InstrumentDefinition<?>[] getDefinitionForFirstInstruments(ZonedDateTime calibrationDate, 
+  public static InstrumentDefinition<?>[] getDefinitionForFirstInstruments(ZonedDateTime calibrationDate,
       ZonedDateTime firstStartDate) {
     InstrumentDefinition<?>[] definitionsDsc = getDefinitions(DSC_GBP_MARKET_QUOTES, DSC_GBP_GENERATORS, DSC_GBP_ATTR, calibrationDate);
     int howMany = 0;
-    
+
     for (int i = 0; i < definitionsDsc.length; ++i) {
       if (definitionsDsc[i] instanceof CashDefinition) {
         CashDefinition definition = (CashDefinition) definitionsDsc[i];
@@ -204,18 +240,17 @@ public class RecentDataSetsMulticurveStandardGbp {
         SwapFixedONDefinition definition = (SwapFixedONDefinition) definitionsDsc[i];
         if (firstStartDate.isBefore(
             definition.getFirstLeg().getNthPayment(definition.getFirstLeg().getNumberOfPayments() - 1).
-            getPaymentDate())) {
+                getPaymentDate())) {
           howMany = i + 1;
           break;
         }
       } else {
-        throw new OpenGammaRuntimeException("Instrument definition type not supported: " 
+        throw new OpenGammaRuntimeException("Instrument definition type not supported: "
             + definitionsDsc[i].getClass().getName());
       }
     }
     return Arrays.copyOf(definitionsDsc, howMany);
   }
-
 
   /**
    * Returns the array of Ibor index used in the curve data set. 

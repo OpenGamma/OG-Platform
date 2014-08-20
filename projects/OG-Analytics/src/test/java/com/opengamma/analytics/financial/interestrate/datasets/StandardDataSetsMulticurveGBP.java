@@ -53,8 +53,7 @@ import com.opengamma.util.tuple.Pair;
 
 /**
  * Curves calibration in GBP: 
- * 0) ONDSC-OIS/LIBOR3M-FRAIRS
- * 0) ONDSC-OIS/LIBOR3M-FRAIRS/LIBOR1M-BS/LIBOR6M-BS
+ * 0) ONDSC-OIS
  * Data stored in snapshots for comparison with platform.
  */
 public class StandardDataSetsMulticurveGBP {

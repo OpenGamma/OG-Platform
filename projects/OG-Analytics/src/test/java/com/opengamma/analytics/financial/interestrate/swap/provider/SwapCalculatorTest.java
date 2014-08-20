@@ -22,6 +22,7 @@ import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition
 import com.opengamma.analytics.financial.instrument.swap.SwapIborIborDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
+import com.opengamma.analytics.financial.interestrate.datasets.StandardDataSetsMulticurveUSD;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
@@ -34,13 +35,17 @@ import com.opengamma.analytics.financial.provider.calculator.discounting.ParRate
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
+import com.opengamma.analytics.financial.provider.calculator.generic.MarketQuoteSensitivityBlockCalculator;
 import com.opengamma.analytics.financial.provider.calculator.generic.TodayPaymentCalculator;
+import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterAbstractCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
+import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityUnderlyingParameterCalculator;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
@@ -58,7 +63,7 @@ import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Test.
+ * Tests related to swap calculators.
  */
 @Test(groups = TestGroup.UNIT)
 public class SwapCalculatorTest {
@@ -67,17 +72,20 @@ public class SwapCalculatorTest {
   private static final IborIndex[] INDEX_LIST = MulticurveProviderDiscountDataSets.getIndexesIborMulticurveEurUsd();
   private static final IborIndex USDLIBOR3M = INDEX_LIST[2];
   private static final IborIndex USDLIBOR6M = INDEX_LIST[3];
+  private static final Currency USD = USDLIBOR3M.getCurrency();
   private static final Calendar NYC = MulticurveProviderDiscountDataSets.getUSDCalendar();
 
   private static final GeneratorSwapFixedIborMaster GENERATOR_SWAP_MASTER = GeneratorSwapFixedIborMaster.getInstance();
 
-  // Swap Fixed-Ibor
+  /** IRS Fixed v LIBOR3M */
   private static final GeneratorSwapFixedIbor USD6MLIBOR3M = GENERATOR_SWAP_MASTER.getGenerator("USD6MLIBOR3M", NYC);
   private static final Period SWAP_TENOR = Period.ofYears(10);
   private static final ZonedDateTime SETTLEMENT_DATE = DateUtils.getUTCDate(2012, 5, 17);
   private static final double NOTIONAL = 100000000; //100m
   private static final double RATE_FIXED = 0.025;
   private static final SwapFixedIborDefinition SWAP_FIXED_IBOR_DEFINITION = SwapFixedIborDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, USD6MLIBOR3M, NOTIONAL, RATE_FIXED, true);
+  private static final Period SWAP_TENOR_2 = Period.ofYears(15); // Tenor more than 10Y to be after the last node on the discounting curve (10Y).
+  private static final SwapFixedIborDefinition SWAP_FIXED_IBOR_2_DEFINITION = SwapFixedIborDefinition.from(SETTLEMENT_DATE, SWAP_TENOR_2, USD6MLIBOR3M, NOTIONAL, RATE_FIXED, true);
 
   // Swap Ibor-ibor
   private static final double SPREAD3 = 0.0020;
@@ -102,16 +110,59 @@ public class SwapCalculatorTest {
   private static final PV01CurveParametersCalculator<MulticurveProviderInterface> PV01CPC = new PV01CurveParametersCalculator<>(PresentValueCurveSensitivityDiscountingCalculator.getInstance());
   private static final PresentValueCurveSensitivityDiscountingCalculator PVCSDC = PresentValueCurveSensitivityDiscountingCalculator.getInstance();
   private static final ParameterSensitivityParameterCalculator<MulticurveProviderInterface> PSPVC = new ParameterSensitivityParameterCalculator<>(PVCSDC);
+  private static final ParameterSensitivityParameterAbstractCalculator<MulticurveProviderInterface> PSUC = new ParameterSensitivityUnderlyingParameterCalculator<>(PVCSDC);
+  private static final MarketQuoteSensitivityBlockCalculator<MulticurveProviderInterface> MQSUBC = new MarketQuoteSensitivityBlockCalculator<>(PSUC);
   private static final CrossGammaSingleCurveCalculator CGC = new CrossGammaSingleCurveCalculator(PVCSDC);
 
   private static final double TOLERANCE_PV = 1.0E-2; // one cent out of 100m
+  private static final double TOLERANCE_PV_DELTA = 1.0E+2;
   private static final double TOLERANCE_PV_GAMMA = 2.0E+0;
   private static final double TOLERANCE_PV_GAMMA_RELATIF = 5.0E-4;
 
-  //  private static final double TOLERANCE_SPREAD_DELTA = 1.0E-6;
-
   private static final double BP1 = 1.0E-4; // The size of the scaling: 1 basis point.
   private static final double SHIFT = 1.0E-4;
+  private static final double SHIFT_2 = 1.0E-5;
+
+  @Test
+  /** 
+   * Test the market quote sensitivity in the case of curve calibrated as a spread on an exisiting curve.
+   * The parameter sensitivity calculator is the ParameterSensitivityUnderlyingParameterCalculator which take into account the underlying curves.
+   */
+  public void marketQuoteSensitivitySpreadCurve() {
+    double[] mqDsc = StandardDataSetsMulticurveUSD.getMarketDataDsc1();
+    double[] mqFwd3 = StandardDataSetsMulticurveUSD.getMarketDataFwd31();
+    String nameDsc = StandardDataSetsMulticurveUSD.getDscCurveName();
+    String nameFwd3 = StandardDataSetsMulticurveUSD.getFwd3CurveName();
+    Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> multicurveSpreadPair = StandardDataSetsMulticurveUSD.getCurvesUSDOisSpreadL3();
+    MulticurveProviderInterface multicurveSpread = multicurveSpreadPair.getFirst();
+    CurveBuildingBlockBundle blockSpread = multicurveSpreadPair.getSecond();
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 5, 14);
+    final SwapFixedCoupon<Coupon> swap = SWAP_FIXED_IBOR_2_DEFINITION.toDerivative(referenceDate);
+    double pv = swap.accept(PVDC, multicurveSpread).getAmount(USD);
+    MultipleCurrencyParameterSensitivity mqs = MQSUBC.fromInstrument(swap, multicurveSpread, blockSpread);
+    int nbNodDsc = mqDsc.length;
+    double[] mqsDscComputed = mqs.getSensitivity(nameDsc, USD).getData();
+    double[] mqsDscExpected = new double[nbNodDsc];
+    for (int loopnodedsc = 0; loopnodedsc < nbNodDsc; loopnodedsc++) {
+      double[] mqDscShifted = mqDsc.clone();
+      mqDscShifted[loopnodedsc] += SHIFT_2;
+      MulticurveProviderDiscount multicurveShifted = StandardDataSetsMulticurveUSD.getCurvesUSDOisSpreadL3(mqDscShifted, mqFwd3).getFirst();
+      double pvShifted = swap.accept(PVDC, multicurveShifted).getAmount(USD);
+      mqsDscExpected[loopnodedsc] = (pvShifted - pv) / SHIFT_2;
+      assertEquals("ParameterSensitivityUnderlyingParameterCalculator - " + loopnodedsc, mqsDscExpected[loopnodedsc], mqsDscComputed[loopnodedsc], TOLERANCE_PV_DELTA);
+    }
+    int nbNodeFwd3 = mqFwd3.length;
+    double[] mqsFwd3Computed = mqs.getSensitivity(nameFwd3, USD).getData();
+    double[] mqsFwd3Expected = new double[nbNodeFwd3];
+    for (int loopnodefwd = 0; loopnodefwd < nbNodeFwd3; loopnodefwd++) {
+      double[] mqFwdShifted = mqFwd3.clone();
+      mqFwdShifted[loopnodefwd] += SHIFT_2;
+      MulticurveProviderDiscount multicurveShifted = StandardDataSetsMulticurveUSD.getCurvesUSDOisSpreadL3(mqDsc, mqFwdShifted).getFirst();
+      double pvShifted = swap.accept(PVDC, multicurveShifted).getAmount(USD);
+      mqsFwd3Expected[loopnodefwd] = (pvShifted - pv) / SHIFT_2;
+      assertEquals("ParameterSensitivityUnderlyingParameterCalculator - " + loopnodefwd, mqsFwd3Expected[loopnodefwd], mqsFwd3Computed[loopnodefwd], TOLERANCE_PV_DELTA);
+    }
+  }
 
   @Test
   public void crossGamma() {
