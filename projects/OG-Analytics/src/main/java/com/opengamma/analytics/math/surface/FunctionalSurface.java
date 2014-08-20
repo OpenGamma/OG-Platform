@@ -12,13 +12,19 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
 /**
-  * @param <U> Type of the arguments (i.e. x & y)
+ * A surface backed by a {@link Function2D}. This could be regarded as a generalisation of a {@link FunctionalDoublesSurface}
+ * as there is no restriction on the types of the ordinates. 
+ * @param <U> Type of the arguments (i.e. x & y)
  * @param <V> Type of the surface (z)
  */
 public class FunctionalSurface<U, V> extends Surface<U, U, V> {
 
   private final Function2D<U, V> _function;
 
+  /**
+   * Create a FunctionalSurface
+   * @param function a a {@link Function2D} that describes the surface.
+   */
   public FunctionalSurface(final Function2D<U, V> function) {
     ArgumentChecker.notNull(function, "function");
     _function = function;

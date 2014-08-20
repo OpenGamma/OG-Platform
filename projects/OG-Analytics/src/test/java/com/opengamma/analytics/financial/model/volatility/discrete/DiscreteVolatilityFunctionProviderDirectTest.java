@@ -27,7 +27,7 @@ import com.opengamma.util.tuple.DoublesPair;
  * 
  */
 @Test(groups = TestGroup.UNIT)
-public class DiscreateVolatilityFunctionProviderDirectTest {
+public class DiscreteVolatilityFunctionProviderDirectTest {
 
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister.DEFAULT_SEED);
 
@@ -52,5 +52,23 @@ public class DiscreateVolatilityFunctionProviderDirectTest {
 
     assertEquals(nSamples, func.getLengthOfDomain());
     assertEquals(nSamples, func.getLengthOfRange());
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void wrongLengthTest() {
+    final int nSamples = 10;
+    final List<DoublesPair> points = new ArrayList<>(nSamples);
+    final DoubleMatrix1D x = new DoubleMatrix1D(nSamples + 1);
+    x.getData()[0] = RANDOM.nextDouble();
+    for (int i = 0; i < nSamples; i++) {
+      final double t = RANDOM.nextDouble() * 20.0;
+      final double k = RANDOM.nextDouble() * 0.15;
+      points.add(DoublesPair.of(t, k));
+      x.getData()[i + 1] = RANDOM.nextDouble();
+    }
+
+    final DiscreteVolatilityFunctionProvider pro = new DiscreteVolatilityFunctionProviderDirect();
+    final DiscreteVolatilityFunction func = pro.from(points);
+    func.evaluate(x);
   }
 }
