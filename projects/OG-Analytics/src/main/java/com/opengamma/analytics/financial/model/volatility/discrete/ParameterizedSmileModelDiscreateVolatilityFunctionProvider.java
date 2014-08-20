@@ -114,7 +114,7 @@ public abstract class ParameterizedSmileModelDiscreateVolatilityFunctionProvider
     final double[] expiries = ArrayUtils.toPrimitive(expSet.toArray(new Double[0]));
     final int nExpiries = expiries.length;
 
-    //create vectorFunctions that give the smile model parameters at the expiries and concatanate these to one function
+    //create vectorFunctions that give the smile model parameters at the expiries and concatenate these to one function
     int n = _smileModelParameterProviders.length;
     VectorFunction[] funcs = new VectorFunction[n];
     for (int i = 0; i < n; i++) {
