@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.model.fixedincome;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.threeten.bp.LocalDate;
@@ -85,12 +86,14 @@ public final class CashFlowDetailsCalculator extends InstrumentDerivativeVisitor
     Pair<LocalDate[], LocalDate[]> accrualDates = legDefinition.accept(AnnuityAccrualDatesVisitor.getInstance(), valuationTime);
     List<LocalDate> accrualStartDates = Lists.newArrayList(accrualDates.getFirst());
     List<LocalDate> accrualEndDates = Lists.newArrayList(accrualDates.getSecond());
+    List<LocalDate> paymentDates = Lists.newArrayList(legDefinition.accept(AnnuityPaymentDatesVisitor.getInstance(), valuationTime));
 
     if (provider.isFixed()) {
       return new FixedLegCashFlows(accrualStartDates,
           accrualEndDates,
           discountFactors,
           paymentTimes,
+          paymentDates,
           paymentFractions,
           paymentAmounts,
           notionals,
@@ -102,7 +105,6 @@ public final class CashFlowDetailsCalculator extends InstrumentDerivativeVisitor
     List<Double> forwardRates = Lists.newArrayList(legDerivative.accept(AnnuityForwardRatesVisitor.getInstance(), bundle));
     List<Double> spreads = Doubles.asList(legDefinition.accept(AnnuitySpreadsVisitor.getInstance(), valuationTime));
     List<Double> gearings = Doubles.asList(legDefinition.accept(AnnuityGearingsVisitor.getInstance(), valuationTime));
-    List<LocalDate> paymentDates = Lists.newArrayList(legDefinition.accept(AnnuityPaymentDatesVisitor.getInstance(), valuationTime));
     List<CurrencyAmount> projectedAmounts = Lists.newArrayList(legDerivative.accept(AnnuityProjectedPaymentsVisitor.getInstance(), bundle));
     List<Tenor> indexTenors = Lists.newArrayList(legDefinition.accept(AnnuityIndexTenorsVisitor.getInstance(), valuationTime));
 
@@ -121,7 +123,6 @@ public final class CashFlowDetailsCalculator extends InstrumentDerivativeVisitor
         paymentDates,
         paymentTimes,
         discountFactors,
-        paymentAmounts,
         projectedAmounts,
         notionals,
         spreads,
