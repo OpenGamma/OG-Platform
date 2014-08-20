@@ -60,13 +60,15 @@ public class InterpolatedCurveVectorFunctionTest {
   public void badKnotsTest() {
     final double[] knots = new double[] {-1, 0, -0.5, 1.5, 3.0 };
     final Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
+    @SuppressWarnings("unused")
     final InterpolatedCurveVectorFunction vf = new InterpolatedCurveVectorFunction(knots, interpolator, knots);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void badKnotsTest2() {
+  public void badKnotsInterpolatedVectorFunctionProviderTest() {
     final double[] knots = new double[] {-1, 0, -0.5, 1.5, 3.0 };
     final Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
+    @SuppressWarnings("unused")
     final InterpolatedVectorFunctionProvider pro = new InterpolatedVectorFunctionProvider(interpolator, knots);
   }
 
