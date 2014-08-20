@@ -40,10 +40,4 @@ public abstract class ParameterizedCurve extends ParameterizedFunction<Double, D
     };
   }
 
-  /**
-   * Get the number of parameters specifying the curve
-   * @return the number of parameters specifying the curve
-   */
-  public abstract int getNumParameters();
-
 }
