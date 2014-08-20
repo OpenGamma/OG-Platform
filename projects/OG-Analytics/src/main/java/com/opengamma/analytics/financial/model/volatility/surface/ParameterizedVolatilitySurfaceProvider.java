@@ -18,11 +18,15 @@ import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
+ * This effectively acts as a converter from a {@link ParameterizedSurface} to a {@link VolatilitySurfaceProvider}
  */
 public class ParameterizedVolatilitySurfaceProvider implements VolatilitySurfaceProvider {
   private final ParameterizedSurface _surface;
 
+  /**
+   * Convert from a  {@link ParameterizedSurface} to a {@link VolatilitySurfaceProvider}
+   * @param surface a {@link ParameterizedSurface}
+   */
   public ParameterizedVolatilitySurfaceProvider(final ParameterizedSurface surface) {
     ArgumentChecker.notNull(surface, "surface");
     _surface = surface;
@@ -31,8 +35,8 @@ public class ParameterizedVolatilitySurfaceProvider implements VolatilitySurface
   @Override
   public VolatilitySurface getVolSurface(final DoubleMatrix1D modelParameters) {
 
-    //Comment - need to change a function that maps from a DoublesPair to a Double, to one that maps from two 
-    //Doubles to a Double. 
+    //Comment - need to change a function that maps from a DoublesPair to a Double, to one that maps from two Doubles to a Double. 
+    //method asFunctionOfArguments checks modelParameters for null, and its length
     final Function1D<DoublesPair, Double> func = _surface.asFunctionOfArguments(modelParameters);
 
     final Function2D<Double, Double> func2D = new Function2D<Double, Double>() {

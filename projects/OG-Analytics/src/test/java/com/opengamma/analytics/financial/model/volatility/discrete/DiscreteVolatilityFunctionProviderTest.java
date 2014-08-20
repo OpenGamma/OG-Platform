@@ -25,7 +25,7 @@ import com.opengamma.util.tuple.DoublesPair;
  * 
  */
 @Test(groups = TestGroup.UNIT)
-public class DiscreateVolatilityFunctionProviderTest {
+public class DiscreteVolatilityFunctionProviderTest {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister.DEFAULT_SEED);
 
   @Test

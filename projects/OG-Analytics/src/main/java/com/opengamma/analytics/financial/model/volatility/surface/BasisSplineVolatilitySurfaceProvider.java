@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -54,6 +54,8 @@ public class BasisSplineVolatilitySurfaceProvider implements VolatilitySurfacePr
    */
   @Override
   public VolatilitySurface getVolSurface(final DoubleMatrix1D modelParameters) {
+    ArgumentChecker.notNull(modelParameters, "modelParameters");
+    //BasisFunctionAggregation checks length of modelParameters
     final Function1D<double[], Double> func = new BasisFunctionAggregation<>(_bSplines, modelParameters.getData());
 
     final Function2D<Double, Double> func2D = new Function2D<Double, Double>() {
@@ -73,6 +75,8 @@ public class BasisSplineVolatilitySurfaceProvider implements VolatilitySurfacePr
    */
   @Override
   public Surface<Double, Double, DoubleMatrix1D> getParameterSensitivitySurface(final DoubleMatrix1D modelParameters) {
+    ArgumentChecker.notNull(modelParameters, "modelParameters");
+    //BasisFunctionAggregation checks length of modelParameters
     final BasisFunctionAggregation<double[]> bSpline = new BasisFunctionAggregation<>(_bSplines, modelParameters.getData());
 
     final Function2D<Double, DoubleMatrix1D> func = new Function2D<Double, DoubleMatrix1D>() {
@@ -87,6 +91,8 @@ public class BasisSplineVolatilitySurfaceProvider implements VolatilitySurfacePr
 
   @Override
   public Surface<Double, Double, Pair<Double, DoubleMatrix1D>> getVolAndParameterSensitivitySurface(final DoubleMatrix1D modelParameters) {
+    ArgumentChecker.notNull(modelParameters, "modelParameters");
+    //BasisFunctionAggregation checks length of modelParameters
     final BasisFunctionAggregation<double[]> bSpline = new BasisFunctionAggregation<>(_bSplines, modelParameters.getData());
 
     final Function2D<Double, Pair<Double, DoubleMatrix1D>> func = new Function2D<Double, Pair<Double, DoubleMatrix1D>>() {
