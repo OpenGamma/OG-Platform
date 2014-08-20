@@ -43,6 +43,8 @@ public class InterpolatedVolatilityTermStructureProvider implements VolatilitySu
    */
   @Override
   public VolatilitySurface getVolSurface(final DoubleMatrix1D modelParameters) {
+    ArgumentChecker.notNull(modelParameters, "modelParameters");
+    //InterpolatedDoublesCurve checks length of modelParameters, so is not repeated here 
     final InterpolatedDoublesCurve curve = new InterpolatedDoublesCurve(_knots, modelParameters.getData(), _interpolator, true);
 
     final Function<Double, Double> function = new Function<Double, Double>() {
@@ -61,7 +63,8 @@ public class InterpolatedVolatilityTermStructureProvider implements VolatilitySu
    */
   @Override
   public Surface<Double, Double, DoubleMatrix1D> getParameterSensitivitySurface(final DoubleMatrix1D modelParameters) {
-
+    ArgumentChecker.notNull(modelParameters, "modelParameters");
+    //InterpolatedDoublesCurve checks length of modelParameters, so is not repeated here 
     final InterpolatedDoublesCurve curve = new InterpolatedDoublesCurve(_knots, modelParameters.getData(), _interpolator, true);
     final Function2D<Double, DoubleMatrix1D> func = new Function2D<Double, DoubleMatrix1D>() {
       @Override
@@ -76,7 +79,8 @@ public class InterpolatedVolatilityTermStructureProvider implements VolatilitySu
 
   @Override
   public Surface<Double, Double, Pair<Double, DoubleMatrix1D>> getVolAndParameterSensitivitySurface(final DoubleMatrix1D modelParameters) {
-
+    ArgumentChecker.notNull(modelParameters, "modelParameters");
+    //InterpolatedDoublesCurve checks length of modelParameters, so is not repeated here 
     final InterpolatedDoublesCurve curve = new InterpolatedDoublesCurve(_knots, modelParameters.getData(), _interpolator, true);
     final Function2D<Double, Pair<Double, DoubleMatrix1D>> func = new Function2D<Double, Pair<Double, DoubleMatrix1D>>() {
       @Override

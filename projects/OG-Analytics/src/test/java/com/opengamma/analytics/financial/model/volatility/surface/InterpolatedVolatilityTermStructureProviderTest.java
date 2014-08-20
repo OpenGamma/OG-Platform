@@ -101,4 +101,11 @@ public class InterpolatedVolatilityTermStructureProviderTest {
     AssertMatrix.assertEqualsMatrix(fdJac, jac, 2e-4);
   }
 
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void knotsOutOfOrderTest() {
+    double[] knots = new double[] {0.5, 1.0, 2.0, 7.0, 5.0, 3.0, 10.0 };
+    @SuppressWarnings("unused")
+    final VolatilitySurfaceProvider surfPro = new InterpolatedVolatilityTermStructureProvider(knots, INTERPOLATOR);
+  }
+
 }

@@ -55,6 +55,8 @@ public class BasisSplineVolatilityTermStructureProvider implements VolatilitySur
    */
   @Override
   public VolatilitySurface getVolSurface(final DoubleMatrix1D modelParameters) {
+    ArgumentChecker.notNull(modelParameters, "modelParameters");
+    //BasisFunctionAggregation checks length of modelParameters
     final Function1D<Double, Double> func = new BasisFunctionAggregation<>(_bSplines, modelParameters.getData());
 
     final Function2D<Double, Double> func2D = new Function2D<Double, Double>() {
@@ -74,6 +76,8 @@ public class BasisSplineVolatilityTermStructureProvider implements VolatilitySur
    */
   @Override
   public Surface<Double, Double, DoubleMatrix1D> getParameterSensitivitySurface(final DoubleMatrix1D modelParameters) {
+    ArgumentChecker.notNull(modelParameters, "modelParameters");
+    //BasisFunctionAggregation checks length of modelParameters
     final BasisFunctionAggregation<Double> bSpline = new BasisFunctionAggregation<>(_bSplines, modelParameters.getData());
 
     final Function2D<Double, DoubleMatrix1D> func = new Function2D<Double, DoubleMatrix1D>() {
@@ -88,6 +92,8 @@ public class BasisSplineVolatilityTermStructureProvider implements VolatilitySur
 
   @Override
   public Surface<Double, Double, Pair<Double, DoubleMatrix1D>> getVolAndParameterSensitivitySurface(final DoubleMatrix1D modelParameters) {
+    ArgumentChecker.notNull(modelParameters, "modelParameters");
+    //BasisFunctionAggregation checks length of modelParameters
     final BasisFunctionAggregation<Double> bSpline = new BasisFunctionAggregation<>(_bSplines, modelParameters.getData());
 
     final Function2D<Double, Pair<Double, DoubleMatrix1D>> func = new Function2D<Double, Pair<Double, DoubleMatrix1D>>() {

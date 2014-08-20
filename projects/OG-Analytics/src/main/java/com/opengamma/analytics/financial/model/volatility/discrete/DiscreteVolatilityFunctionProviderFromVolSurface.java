@@ -38,16 +38,21 @@ public class DiscreteVolatilityFunctionProviderFromVolSurface extends DiscreteVo
 
       @Override
       public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
-        final double[] res = new double[n];
+        ArgumentChecker.notNull(x, "x");
+        //length of x checked by _volatilitySurfacePro
+        DoubleMatrix1D res = new DoubleMatrix1D(n);
+        double[] data = res.getData();
         final VolatilitySurface vs = _volatilitySurfacePro.getVolSurface(x);
         for (int i = 0; i < n; i++) {
-          res[i] = vs.getVolatility(expiryStrikePoints[i]);
+          data[i] = vs.getVolatility(expiryStrikePoints[i]);
         }
-        return new DoubleMatrix1D(res);
+        return res;
       }
 
       @Override
       public DoubleMatrix2D calculateJacobian(final DoubleMatrix1D x) {
+        ArgumentChecker.notNull(x, "x");
+        //length of x checked by _volatilitySurfacePro
         final Surface<Double, Double, DoubleMatrix1D> volSurfaceAdjoint = _volatilitySurfacePro.getParameterSensitivitySurface(x);
         final DoubleMatrix2D res = new DoubleMatrix2D(n, _volatilitySurfacePro.getNumModelParameters());
         for (int i = 0; i < n; i++) {

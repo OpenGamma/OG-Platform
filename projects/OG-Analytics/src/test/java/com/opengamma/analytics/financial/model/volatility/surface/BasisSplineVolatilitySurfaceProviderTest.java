@@ -32,7 +32,7 @@ import com.opengamma.util.tuple.Pair;
  * 
  */
 @Test(groups = TestGroup.UNIT)
-public class BasisSpineVolatilitySurfaceProviderTest {
+public class BasisSplineVolatilitySurfaceProviderTest {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister.DEFAULT_SEED);
 
   @Test

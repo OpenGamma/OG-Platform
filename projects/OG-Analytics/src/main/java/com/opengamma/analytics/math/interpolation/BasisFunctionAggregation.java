@@ -27,7 +27,7 @@ public class BasisFunctionAggregation<T> extends Function1D<T, Double> {
     Validate.notNull(weights, "no weights");
     Validate.isTrue(functions.size() == weights.length);
     _f = functions;
-    _w = weights;
+    _w = weights.clone();
   }
 
   @Override
