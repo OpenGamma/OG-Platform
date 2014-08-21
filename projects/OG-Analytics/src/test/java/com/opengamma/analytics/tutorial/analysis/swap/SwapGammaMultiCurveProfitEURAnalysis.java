@@ -143,7 +143,7 @@ public class SwapGammaMultiCurveProfitEURAnalysis {
   }
 
   @SuppressWarnings("unused")
-  @Test(enabled = true)
+  @Test(enabled = false)
   public void crossGammaMulticurveIntraCurve() {
     HashMap<String, DoubleMatrix2D> crossGammaIntra = CGMCC.calculateCrossGammaIntraCurve(SWAP_EUR, MULTICURVE);
     HashMap<String, DoubleMatrix2D> crossGammaSingle1 = CGMCC.calculateCrossGammaIntraCurve(SWAP_EUR, SINGLECURVE);

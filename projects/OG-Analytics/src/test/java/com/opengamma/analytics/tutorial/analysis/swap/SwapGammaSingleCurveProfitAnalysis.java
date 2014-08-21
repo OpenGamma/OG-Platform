@@ -47,7 +47,6 @@ import com.opengamma.util.tuple.Pair;
 
 /**
  * Analysis of cross-gamma to zero-coupon and market rates.
- * @author marc
  */
 public class SwapGammaSingleCurveProfitAnalysis {
 
@@ -143,7 +142,7 @@ public class SwapGammaSingleCurveProfitAnalysis {
   }
 
   @SuppressWarnings("unused")
-  @Test(enabled = true)
+  @Test(enabled = false)
   public void crossGammaDiagonalComp() {
     double[] marketMvtArray = new double[NB_NODE_EUR];
     Arrays.fill(marketMvtArray, 0.0010);
@@ -162,8 +161,6 @@ public class SwapGammaSingleCurveProfitAnalysis {
     for (int loopcol = 0; loopcol < NB_NODE_EUR; loopcol++) {
       plCol += GAMMA_SUM_EUR[loopcol] * marketMvtArray[loopcol] * marketMvtArray[loopcol];
     }
-
-    int t = 0;
   }
 
   @SuppressWarnings("unused")
@@ -188,7 +185,7 @@ public class SwapGammaSingleCurveProfitAnalysis {
    * The result file is exported in the root directory of OG-Analytics.
    * @throws IOException
    */
-  @Test(enabled = true)
+  @Test(enabled = false)
   public void crossGammaDiagonalCompGbpHts() throws IOException {
     final String sheetFilePath = "src/test/resources/analysis/historical_time_series/curve-changes-gbp-10y.csv";
     double[][] shift = GammaAnalysisUtils.parseShifts(sheetFilePath, BP1);
