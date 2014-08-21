@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.model.volatility.discrete;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -28,6 +29,7 @@ import com.opengamma.analytics.math.matrix.MatrixAlgebra;
 import com.opengamma.analytics.math.matrix.OGMatrixAlgebra;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.util.tuple.FirstThenSecondDoublesPairComparator;
 
 /**
  * The parameters of the smile model (e.g. SABR, Heston, SVI) are themselves represented as parameterised term structures
@@ -38,15 +40,13 @@ import com.opengamma.util.tuple.DoublesPair;
  * parameters and the (Black) volatilities at the required points. 
  * @param <T> The type of smile model data 
  */
-public abstract class ParameterizedSmileModelDiscreateVolatilityFunctionProvider<T extends SmileModelData> extends DiscreteVolatilityFunctionProvider {
+public abstract class ParameterizedSmileModelDiscreteVolatilityFunctionProvider<T extends SmileModelData> extends DiscreteVolatilityFunctionProvider {
 
   private static final MatrixAlgebra MA = new OGMatrixAlgebra();
 
   private final VolatilityFunctionProvider<T> _volFuncPro;
   private final ForwardCurve _fwdCurve;;
   private final DoublesVectorFunctionProvider[] _smileModelParameterProviders;
-
-  // private final int _nParms;
 
   /**
    * Set up the {@link DiscreteVolatilityFunctionProvider} 
@@ -57,15 +57,12 @@ public abstract class ParameterizedSmileModelDiscreateVolatilityFunctionProvider
    * {@link VectorFunction} that gives the corresponding smile model parameter at each expiry for a set of model 
    * parameters. This gives a lot of flexibility as to how the (smile model) parameter term structures are represented. 
    */
-  public ParameterizedSmileModelDiscreateVolatilityFunctionProvider(final VolatilityFunctionProvider<T> volFuncPro, final ForwardCurve fwdCurve,
+  public ParameterizedSmileModelDiscreteVolatilityFunctionProvider(final VolatilityFunctionProvider<T> volFuncPro, final ForwardCurve fwdCurve,
       final DoublesVectorFunctionProvider[] smileModelParameterProviders) {
-
-    //TODO change this to take a ParameterizedCurveVectorFunctionProvider so the sample expiry points do not need to 
-    //be known in advance 
     ArgumentChecker.notNull(volFuncPro, "volFuncPro");
     ArgumentChecker.notNull(fwdCurve, "fwdCurve");
     ArgumentChecker.noNulls(smileModelParameterProviders, "modelToSmileModelParms");
-    ArgumentChecker.isTrue(getNumSmileModelParamters() == smileModelParameterProviders.length, "Incorrect number of smileModelParameterProviders");
+    ArgumentChecker.isTrue(getNumSmileModelParameters() == smileModelParameterProviders.length, "Incorrect number of smileModelParameterProviders");
     _volFuncPro = volFuncPro;
     _fwdCurve = fwdCurve;
     _smileModelParameterProviders = smileModelParameterProviders;
@@ -78,17 +75,16 @@ public abstract class ParameterizedSmileModelDiscreateVolatilityFunctionProvider
    * @param smileParameterTS each of these represents a different smile parameter term structure- <b>there 
    * must be one for each smile model parameter</b>. 
    */
-  public ParameterizedSmileModelDiscreateVolatilityFunctionProvider(final VolatilityFunctionProvider<T> volFuncPro, final ForwardCurve fwdCurve, final ParameterizedCurve[] smileParameterTS) {
+  public ParameterizedSmileModelDiscreteVolatilityFunctionProvider(final VolatilityFunctionProvider<T> volFuncPro, final ForwardCurve fwdCurve, final ParameterizedCurve[] smileParameterTS) {
     ArgumentChecker.notNull(volFuncPro, "volFuncPro");
     ArgumentChecker.notNull(fwdCurve, "fwdCurve");
     ArgumentChecker.noNulls(smileParameterTS, "smileParameterTS");
-    ArgumentChecker.isTrue(getNumSmileModelParamters() == smileParameterTS.length, "Incorrect number of smileParameterTS");
+    ArgumentChecker.isTrue(getNumSmileModelParameters() == smileParameterTS.length, "Incorrect number of smileParameterTS");
 
-    DoublesVectorFunctionProvider[] vfp = new DoublesVectorFunctionProvider[getNumSmileModelParamters()];
-    for (int i = 0; i < getNumSmileModelParamters(); i++) {
+    DoublesVectorFunctionProvider[] vfp = new DoublesVectorFunctionProvider[getNumSmileModelParameters()];
+    for (int i = 0; i < getNumSmileModelParameters(); i++) {
       vfp[i] = new ParameterizedCurveVectorFunctionProvider(smileParameterTS[i]);
     }
-
     _volFuncPro = volFuncPro;
     _fwdCurve = fwdCurve;
     _smileModelParameterProviders = vfp;
@@ -102,66 +98,66 @@ public abstract class ParameterizedSmileModelDiscreateVolatilityFunctionProvider
   @Override
   public DiscreteVolatilityFunction from(final DoublesPair[] expiryStrikePoints) {
     ArgumentChecker.noNulls(expiryStrikePoints, "expiryStrikePoints");
-    final int nSmileModelParms = getNumSmileModelParamters();
     final int nOptions = expiryStrikePoints.length;
+    ArgumentChecker.isTrue(nOptions > 0, "Require at least one expiryStrikePoints");
+    final int nSmileModelParms = getNumSmileModelParameters();
 
-    //get the (sorted) array of unique expiries 
+    //order expiryStrikePoints first by expiry then strike and ensure they are unique  
+    //Also get the (sorted) array of unique expiries 
+    Set<DoublesPair> expStrikeSet = new TreeSet<>(new FirstThenSecondDoublesPairComparator());
     final Set<Double> expSet = new TreeSet<>();
-    for (int i = 0; i < nOptions; i++) {
-      final double t = expiryStrikePoints[i].first;
+    for (DoublesPair point : expiryStrikePoints) {
+      double t = point.first;
+      double k = point.second;
+      if (!expStrikeSet.add(point)) {
+        throw new IllegalArgumentException("expiryStrikePoints are not unique. Point with expiry of " + t + " and a strike of " + k + " already present");
+      }
       expSet.add(t);
     }
     final double[] expiries = ArrayUtils.toPrimitive(expSet.toArray(new Double[0]));
     final int nExpiries = expiries.length;
 
+    //for each expiry, get the (sorted) array of unique strikes by walking the expStrikeSet (which is sorted first by expiry then strike)
+    final double[][] strikes = new double[nExpiries][];
+    Iterator<DoublesPair> iter = expStrikeSet.iterator();
+    int expIndex = 0;
+    DoublesPair p = iter.next(); //set must have at least one entry 
+    double t0 = p.first;
+    List<Double> strikeList = new ArrayList<>();
+    strikeList.add(p.second);
+    while (iter.hasNext()) {
+      p = iter.next();
+      if (p.first > t0) {
+        strikes[expIndex++] = ArrayUtils.toPrimitive(strikeList.toArray(new Double[0]));
+        t0 = p.first;
+        strikeList = new ArrayList<>();
+      }
+      strikeList.add(p.second);
+    }
+    strikes[expIndex++] = ArrayUtils.toPrimitive(strikeList.toArray(new Double[0]));
+
+    //find the reverse map to go from the (sorted) expiry and strike arrays to the positions in the input 
+    //expiryStrikePoints array - this allows the output vols from evaluate (and the vol sensitivities from calculateJacobian)
+    //to be in the same order as the input expiryStrikePoints
+    final int[][] revMap = new int[nExpiries][];
+    for (int i = 0; i < nExpiries; i++) {
+      revMap[i] = new int[strikes[i].length];
+    }
+    int index = 0;
+    for (DoublesPair point : expiryStrikePoints) {
+      double t = point.first;
+      double k = point.second;
+      int tIndex = Arrays.binarySearch(expiries, t);
+      int kIndex = Arrays.binarySearch(strikes[tIndex], k);
+      revMap[tIndex][kIndex] = index++;
+    }
+
     //create vectorFunctions that give the smile model parameters at the expiries and concatenate these to one function
-    int n = _smileModelParameterProviders.length;
-    VectorFunction[] funcs = new VectorFunction[n];
-    for (int i = 0; i < n; i++) {
+    VectorFunction[] funcs = new VectorFunction[nSmileModelParms];
+    for (int i = 0; i < nSmileModelParms; i++) {
       funcs[i] = _smileModelParameterProviders[i].from(expiries);
     }
     final VectorFunction modelToSmileModelParms = new ConcatenatedVectorFunction(funcs);
-
-    //for each expiry, get the (sorted) array of unique strikes 
-    final double[][] strikes = new double[nExpiries][];
-    final List<Set<Double>> strikeSets = new ArrayList<>(nExpiries);
-    for (int i = 0; i < nExpiries; i++) {
-      final Set<Double> s = new TreeSet<>();
-      strikeSets.add(s);
-    }
-
-    final int[] optToExpMap = new int[nOptions];
-    for (int i = 0; i < nOptions; i++) {
-      final double t = expiryStrikePoints[i].first;
-      final double k = expiryStrikePoints[i].second;
-      final int index = Arrays.binarySearch(expiries, t);
-      optToExpMap[i] = index;
-      final Set<Double> s = strikeSets.get(index);
-      if (!s.add(k)) {
-        throw new IllegalArgumentException("This code should be unreachable");
-      }
-    }
-
-    //find the reverse map to go from the (sorted) expiry and strike arrays to the positions in the input 
-    //expiryStrikePoints array
-    final int[][] revMap = new int[nExpiries][];
-    for (int i = 0; i < nExpiries; i++) {
-      final Set<Double> s = strikeSets.get(i);
-      strikes[i] = ArrayUtils.toPrimitive(s.toArray(new Double[0]));
-      final int nStrikes = strikes[i].length;
-      revMap[i] = new int[nStrikes];
-    }
-
-    for (int i = 0; i < nOptions; i++) {
-      final int tIndex = optToExpMap[i];
-      final double[] strikesAtT = strikes[tIndex];
-      final double k = expiryStrikePoints[i].second;
-      final int kIndex = Arrays.binarySearch(strikesAtT, k);
-      if (kIndex < 0) {
-        throw new IllegalArgumentException("This code should be unreachable");
-      }
-      revMap[tIndex][kIndex] = i;
-    }
 
     //this is a list of functions that map from model parameters (SmileModelData) to smiles (volatilities at fixed
     //strikes at particular expiry)
@@ -210,15 +206,12 @@ public abstract class ParameterizedSmileModelDiscreateVolatilityFunctionProvider
 
       @Override
       public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
-
-        final DoubleMatrix1D res = new DoubleMatrix1D(new double[nOptions]);
-
         // the vector theta are the smile model parameters, order as 1st parameter for all expiries, 2nd parameter for
         //all expiries, etc
+        //x is checked in this call
         final DoubleMatrix1D theta = modelToSmileModelParms.evaluate(x);
-        ArgumentChecker.isTrue(theta.getNumberOfElements() == nSmileModelParms * nExpiries, "Length of x ({}) inconsistent with number of smile model parameters ({}) and number of expiries ({})",
-            theta.getNumberOfElements(), nSmileModelParms, nExpiries);
 
+        final DoubleMatrix1D res = new DoubleMatrix1D(new double[nOptions]);
         final double[] parms = new double[nSmileModelParms];
         for (int i = 0; i < nExpiries; i++) {
           for (int j = 0; j < nSmileModelParms; j++) {
@@ -253,7 +246,7 @@ public abstract class ParameterizedSmileModelDiscreateVolatilityFunctionProvider
    * The number of smile model parameters 
    * @return number of smile model parameters 
    */
-  public abstract int getNumSmileModelParamters();
+  public abstract int getNumSmileModelParameters();
 
   /**
    * Convert the modelParameter array to SmileModelData

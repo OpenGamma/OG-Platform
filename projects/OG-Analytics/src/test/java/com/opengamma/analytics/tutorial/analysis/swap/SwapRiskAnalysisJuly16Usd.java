@@ -5,10 +5,6 @@
  */
 package com.opengamma.analytics.tutorial.analysis.swap;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertTrue;
-
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
@@ -33,7 +29,6 @@ import com.opengamma.analytics.financial.instrument.payment.CouponDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapCouponFixedCouponDefinition;
-import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParRateDiscountingCalculator;
@@ -45,10 +40,6 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
-import com.opengamma.analytics.tutorial.datasets.ComputedDataSetsMulticurveImmUsd;
-import com.opengamma.analytics.tutorial.datasets.GbpDatasetJuly16;
-import com.opengamma.analytics.tutorial.datasets.RecentDataSetsMulticurveFFSUsd;
-import com.opengamma.analytics.tutorial.datasets.RecentDataSetsMulticurveFutures3MUsd;
 import com.opengamma.analytics.tutorial.datasets.RecentDataSetsMulticurveStandardUsd;
 import com.opengamma.analytics.tutorial.datasets.UsdDatasetJuly16;
 import com.opengamma.analytics.tutorial.utils.ExportUtils;
@@ -57,7 +48,6 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.rolldate.RollConvention;
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Pair;
@@ -291,17 +281,17 @@ public class SwapRiskAnalysisJuly16Usd {
   final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> m_cashOisHedgeCurveBundle;
 
   public SwapRiskAnalysisJuly16Usd() {
-    m_stdCurveBundle = UsdDatasetJuly16.getStandardCurveBundle(VALUATION_DATE, true, 
-        UsdDatasetJuly16.INTERPOLATOR_LINEAR);
+    m_stdCurveBundle = UsdDatasetJuly16.getStandardCurveBundle(VALUATION_DATE, false, 
+        UsdDatasetJuly16.INTERPOLATOR_LOG_LINEAR);
 
     m_cashImmHedgeCurveBundle = UsdDatasetJuly16.getHedgeCurveBundle(VALUATION_DATE, m_stdCurveBundle.getFirst(), 
-        UsdDatasetJuly16.INTERPOLATOR_LINEAR, 0, 48, 0, 0);
+        UsdDatasetJuly16.INTERPOLATOR_LOG_LINEAR, 0, 48, 0, 0, false);
 
     m_cashOisFedFundHedgeCurveBundle = UsdDatasetJuly16.getHedgeCurveBundle(VALUATION_DATE, m_stdCurveBundle.getFirst(), 
-        UsdDatasetJuly16.INTERPOLATOR_LINEAR, 1, 0, 14, 17);
+        UsdDatasetJuly16.INTERPOLATOR_LOG_LINEAR, 1, 0, 14, 17, false);
 
     m_cashOisHedgeCurveBundle = UsdDatasetJuly16.getHedgeCurveBundle(VALUATION_DATE, m_stdCurveBundle.getFirst(), 
-        UsdDatasetJuly16.INTERPOLATOR_LINEAR, 1, 0, 31, 0);
+        UsdDatasetJuly16.INTERPOLATOR_LOG_LINEAR, 1, 0, 31, 0, false);
   }
   
   @Test
