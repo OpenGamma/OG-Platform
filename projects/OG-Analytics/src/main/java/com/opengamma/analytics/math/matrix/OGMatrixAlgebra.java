@@ -163,6 +163,9 @@ public class OGMatrixAlgebra extends MatrixAlgebra {
   @Override
   public DoubleMatrix2D getTranspose(final Matrix<?> m) {
     Validate.notNull(m, "m");
+    if (m instanceof IdentityMatrix) {
+      return (IdentityMatrix) m;
+    }
     if (m instanceof DoubleMatrix2D) {
       final double[][] data = ((DoubleMatrix2D) m).getData();
       final int rows = data.length;

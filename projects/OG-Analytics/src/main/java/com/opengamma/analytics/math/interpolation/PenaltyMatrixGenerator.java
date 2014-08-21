@@ -38,12 +38,9 @@ public abstract class PenaltyMatrixGenerator {
    * @return The k^th order difference matrix 
    */
   public static DoubleMatrix2D getDifferanceMatrix(final int m, final int k) {
-    ArgumentChecker.notNegative(m, "m");
+    ArgumentChecker.notNegativeOrZero(m, "m");
     ArgumentChecker.notNegative(k, "k");
-    ArgumentChecker.isTrue(k < m, "Difference order too high, m = {} and k = {}", m, k);
-    if (m == 0) {
-      return DoubleMatrix2D.EMPTY_MATRIX;
-    }
+    ArgumentChecker.isTrue(k < m, "Difference order too high, require m > k, but have: m = {} and k = {}", m, k);
     if (k == 0) {
       return new IdentityMatrix(m);
     }
@@ -75,12 +72,9 @@ public abstract class PenaltyMatrixGenerator {
    * @return The k^th order penalty matrix, P
    */
   public static DoubleMatrix2D getPenaltyMatrix(final int m, final int k) {
-    ArgumentChecker.notNegative(m, "m");
+    ArgumentChecker.notNegativeOrZero(m, "m");
     ArgumentChecker.notNegative(k, "k");
-    ArgumentChecker.isTrue(k < m, "Difference order too high, m = {} and k = {}", m, k);
-    if (m == 0) {
-      return DoubleMatrix2D.EMPTY_MATRIX;
-    }
+    ArgumentChecker.isTrue(k < m, "Difference order too high, require m > k, but have: m = {} and k = {}", m, k);
     if (k == 0) {
       return new IdentityMatrix(m);
     }
@@ -151,12 +145,13 @@ public abstract class PenaltyMatrixGenerator {
     ArgumentChecker.notEmpty(x, "x");
     ArgumentChecker.notNegative(k, "k");
     final int size = x.length;
-    ArgumentChecker.isTrue(k < size, "order order too high");
+    ArgumentChecker.isTrue(k < size, "order order too high. Length of x is {}, and k is {}", size, k);
     if (k == 0) {
       return new IdentityMatrix(size);
     } else if (k > 2) {
       throw new NotImplementedException("cannot handle order (k) > 2");
     } else {
+      ArgumentChecker.isTrue(size > 2, "Need at least 3 points for a three point estimate");
       final double[] dx = new double[size - 1];
       final double[] dx2 = new double[size - 1];
       for (int i = 0; i < (size - 1); i++) {
@@ -216,7 +211,15 @@ public abstract class PenaltyMatrixGenerator {
    * @return The k^th order penalty matrix
    */
   public static DoubleMatrix2D getPenaltyMatrix(final double[] x, final int k) {
+    ArgumentChecker.notEmpty(x, "x");
+    if (x.length == 1) {
+      if (k == 0) {
+        return new IdentityMatrix(1);
+      }
+      throw new IllegalArgumentException("order order too high. Length of x is 1 and k is " + k);
+    }
     final double range = x[x.length - 1] - x[0];
+    ArgumentChecker.notNegativeOrZero(range, "range of x");
     final double scale = Math.pow(range, k);
     final DoubleMatrix2D d = (DoubleMatrix2D) MA.scale(getDiffMatrix(x, k, false), scale);
     final DoubleMatrix2D dt = MA.getTranspose(d);
