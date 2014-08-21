@@ -40,10 +40,10 @@ public class BasisSplineVolatilityTermStructureProviderTest {
     final DoubleMatrix1D w = new DoubleMatrix1D(0.3, 0.35, 0.4, 0.2, 0.6, 0.6, 0.7, 0.14, 0.26, 0.4, 0.41);
     final VolatilitySurface volSurf = pro.getVolSurface(w);
 
-    //check values at knots
+    //check values at knots 
     final int n = w.getNumberOfElements();
     for (int i = 0; i < n; i++) {
-      final double vol = volSurf.getVolatility(i, 0.05); //Arbitrary strike 
+      double vol = volSurf.getVolatility(i, 0.05); //Arbitrary strike 
       assertEquals(w.getEntry(i), vol, 1e-15);
     }
     //between knots

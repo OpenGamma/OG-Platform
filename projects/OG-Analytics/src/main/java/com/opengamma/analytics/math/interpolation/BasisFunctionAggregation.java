@@ -11,6 +11,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 
@@ -32,6 +33,7 @@ public class BasisFunctionAggregation<T> extends Function1D<T, Double> {
 
   @Override
   public Double evaluate(final T x) {
+    ArgumentChecker.notNull(x, "x");
     double sum = 0;
     final int n = _w.length;
     for (int i = 0; i < n; i++) {
@@ -49,6 +51,7 @@ public class BasisFunctionAggregation<T> extends Function1D<T, Double> {
    * @return sensitivity w
    */
   public DoubleMatrix1D weightSensitivity(final T x) {
+    ArgumentChecker.notNull(x, "x");
     final int n = _w.length;
     final DoubleMatrix1D res = new DoubleMatrix1D(n);
     final double[] data = res.getData();
@@ -64,6 +67,7 @@ public class BasisFunctionAggregation<T> extends Function1D<T, Double> {
    * @return value and weight sensitivity 
    */
   public Pair<Double, DoubleMatrix1D> valueAndWeightSensitivity(final T x) {
+    ArgumentChecker.notNull(x, "x");
     final int n = _w.length;
     double sum = 0;
     final DoubleMatrix1D sense = new DoubleMatrix1D(n);
