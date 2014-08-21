@@ -67,7 +67,7 @@ public abstract class ParameterizedSmileModelDiscreteVolatilityFunctionProvider<
     ArgumentChecker.notNull(volFuncPro, "volFuncPro");
     ArgumentChecker.notNull(fwdCurve, "fwdCurve");
     ArgumentChecker.noNulls(smileModelParameterProviders, "modelToSmileModelParms");
-    ArgumentChecker.isTrue(getNumSmileModelParamters() == smileModelParameterProviders.length, "Incorrect number of smileModelParameterProviders");
+    ArgumentChecker.isTrue(getNumSmileModelParameters() == smileModelParameterProviders.length, "Incorrect number of smileModelParameterProviders");
     _volFuncPro = volFuncPro;
     _fwdCurve = fwdCurve;
     _smileModelParameterProviders = smileModelParameterProviders;
@@ -84,10 +84,10 @@ public abstract class ParameterizedSmileModelDiscreteVolatilityFunctionProvider<
     ArgumentChecker.notNull(volFuncPro, "volFuncPro");
     ArgumentChecker.notNull(fwdCurve, "fwdCurve");
     ArgumentChecker.noNulls(smileParameterTS, "smileParameterTS");
-    ArgumentChecker.isTrue(getNumSmileModelParamters() == smileParameterTS.length, "Incorrect number of smileParameterTS");
+    ArgumentChecker.isTrue(getNumSmileModelParameters() == smileParameterTS.length, "Incorrect number of smileParameterTS");
 
-    DoublesVectorFunctionProvider[] vfp = new DoublesVectorFunctionProvider[getNumSmileModelParamters()];
-    for (int i = 0; i < getNumSmileModelParamters(); i++) {
+    DoublesVectorFunctionProvider[] vfp = new DoublesVectorFunctionProvider[getNumSmileModelParameters()];
+    for (int i = 0; i < getNumSmileModelParameters(); i++) {
       vfp[i] = new ParameterizedCurveVectorFunctionProvider(smileParameterTS[i]);
     }
 
@@ -106,7 +106,7 @@ public abstract class ParameterizedSmileModelDiscreteVolatilityFunctionProvider<
     ArgumentChecker.noNulls(expiryStrikePoints, "expiryStrikePoints");
     final int nOptions = expiryStrikePoints.length;
     ArgumentChecker.isTrue(nOptions > 0, "Require at least one expiryStrikePoints");
-    final int nSmileModelParms = getNumSmileModelParamters();
+    final int nSmileModelParms = getNumSmileModelParameters();
 
     //order expiryStrikePoints first by expiry then strike and ensure they are unique  
     //Also get the (sorted) array of unique expiries 
@@ -255,7 +255,7 @@ public abstract class ParameterizedSmileModelDiscreteVolatilityFunctionProvider<
    * The number of smile model parameters 
    * @return number of smile model parameters 
    */
-  public abstract int getNumSmileModelParamters();
+  public abstract int getNumSmileModelParameters();
 
   /**
    * Convert the modelParameter array to SmileModelData

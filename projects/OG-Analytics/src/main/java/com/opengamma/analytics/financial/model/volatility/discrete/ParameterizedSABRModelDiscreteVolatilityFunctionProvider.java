@@ -45,12 +45,13 @@ public class ParameterizedSABRModelDiscreteVolatilityFunctionProvider extends Pa
   }
 
   @Override
-  public int getNumSmileModelParamters() {
+  public int getNumSmileModelParameters() {
     return NUM_MODEL_PARMS;
   }
 
   @Override
   protected SABRFormulaData toSmileModelData(final double[] modelParameters) {
+    //args are checked by SABRFormulaData
     return new SABRFormulaData(modelParameters);
   }
 

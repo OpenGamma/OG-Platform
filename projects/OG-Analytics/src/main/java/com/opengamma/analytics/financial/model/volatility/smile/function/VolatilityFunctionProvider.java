@@ -24,10 +24,7 @@ import com.opengamma.util.ArgumentChecker;
 public abstract class VolatilityFunctionProvider<T extends SmileModelData> {
 
   private static final MatrixAlgebra MA = new OGMatrixAlgebra();
-
   private static final double EPS = 1e-6;
-
-  // public abstract int getNumberOfParameters();
 
   /**
    * Returns a function that, given data of type T, calculates the volatility.
