@@ -151,4 +151,55 @@ public class ParameterizedSABRModelDiscreteVolatilityFunctionProviderTest {
     @SuppressWarnings("unused")
     DiscreteVolatilityFunction func = dvfp.from(points);
   }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void nonUniquePointsTest() {
+    ParameterizedCurve[] curves = new ParameterizedCurve[4];
+    Arrays.fill(curves, s_flat);
+    ParameterizedSABRModelDiscreteVolatilityFunctionProvider dvfp = new ParameterizedSABRModelDiscreteVolatilityFunctionProvider(s_fwdCurve, curves);
+    List<DoublesPair> points = new ArrayList<>();
+    points.add(DoublesPair.of(1.0, 0.05));
+    points.add(DoublesPair.of(1.2, 0.05));
+    points.add(DoublesPair.of(1.0, 0.06));
+    points.add(DoublesPair.of(1.0, 0.05));
+
+    @SuppressWarnings("unused")
+    DiscreteVolatilityFunction func = dvfp.from(points);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void wrongNumberOfModelParmsTest() {
+    ParameterizedCurve[] curves = new ParameterizedCurve[4];
+    Arrays.fill(curves, s_flat);
+    ParameterizedSABRModelDiscreteVolatilityFunctionProvider dvfp = new ParameterizedSABRModelDiscreteVolatilityFunctionProvider(s_fwdCurve, curves);
+    List<DoublesPair> points = new ArrayList<>();
+    points.add(DoublesPair.of(1.0, 0.05));
+    points.add(DoublesPair.of(1.2, 0.05));
+    points.add(DoublesPair.of(1.5, 0.06));
+    points.add(DoublesPair.of(2.0, 0.05));
+
+    DiscreteVolatilityFunction func = dvfp.from(points);
+    func.evaluate(new DoubleMatrix1D(15, 1.0));
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void wrongNumberOfCurvesTest() {
+    ParameterizedCurve[] curves = new ParameterizedCurve[3];
+    Arrays.fill(curves, s_flat);
+    ParameterizedSABRModelDiscreteVolatilityFunctionProvider dvfp = new ParameterizedSABRModelDiscreteVolatilityFunctionProvider(s_fwdCurve, curves);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void wrongNumberOfMixedCurvesTest() {
+    Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
+
+    DoublesVectorFunctionProvider alpha = new InterpolatedVectorFunctionProvider(interpolator, new double[] {1.0, 3.0, 5.0, 7.0, 10.0 });
+    DoublesVectorFunctionProvider beta = new ParameterizedCurveVectorFunctionProvider(s_flat);
+    DoublesVectorFunctionProvider rho = new InterpolatedVectorFunctionProvider(interpolator, new double[] {3.0, 7.0, 10.0 });
+    DoublesVectorFunctionProvider nu = new InterpolatedVectorFunctionProvider(interpolator, new double[] {1.0, 3.0, 5.0, 7.0, 10.0 });
+    DoublesVectorFunctionProvider[] toSmileParms = new DoublesVectorFunctionProvider[] {alpha, beta, rho };
+
+    DiscreteVolatilityFunctionProvider dvfp = new ParameterizedSABRModelDiscreteVolatilityFunctionProvider(s_fwdCurve, toSmileParms);
+  }
+
 }

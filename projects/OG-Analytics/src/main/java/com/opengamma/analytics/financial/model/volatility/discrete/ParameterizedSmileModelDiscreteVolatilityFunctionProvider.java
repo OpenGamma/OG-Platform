@@ -212,15 +212,12 @@ public abstract class ParameterizedSmileModelDiscreteVolatilityFunctionProvider<
 
       @Override
       public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
-
-        final DoubleMatrix1D res = new DoubleMatrix1D(new double[nOptions]);
-
         // the vector theta are the smile model parameters, order as 1st parameter for all expiries, 2nd parameter for
         //all expiries, etc
+        //x is checked in this call
         final DoubleMatrix1D theta = modelToSmileModelParms.evaluate(x);
-        ArgumentChecker.isTrue(theta.getNumberOfElements() == nSmileModelParms * nExpiries, "Length of x ({}) inconsistent with number of smile model parameters ({}) and number of expiries ({})",
-            theta.getNumberOfElements(), nSmileModelParms, nExpiries);
 
+        final DoubleMatrix1D res = new DoubleMatrix1D(new double[nOptions]);
         final double[] parms = new double[nSmileModelParms];
         for (int i = 0; i < nExpiries; i++) {
           for (int j = 0; j < nSmileModelParms; j++) {
