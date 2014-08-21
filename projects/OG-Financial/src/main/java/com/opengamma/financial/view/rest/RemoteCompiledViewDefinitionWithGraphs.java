@@ -5,8 +5,6 @@
  */
 package com.opengamma.financial.view.rest;
 
-import static com.opengamma.lambdava.streams.Lambdava.merge;
-
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -165,7 +163,7 @@ public class RemoteCompiledViewDefinitionWithGraphs implements CompiledViewDefin
     final Map<ValueSpecification, Set<ValueRequirement>> terminalValuesRequirements = new HashMap<ValueSpecification, Set<ValueRequirement>>();
     final Collection<CompiledViewCalculationConfiguration> compiledCalculationConfigurations = getCompiledCalculationConfigurations();
     for (final CompiledViewCalculationConfiguration compiledCalculationConfiguration : compiledCalculationConfigurations) {
-      merge(terminalValuesRequirements, compiledCalculationConfiguration.getTerminalOutputSpecifications());
+      terminalValuesRequirements.putAll(compiledCalculationConfiguration.getTerminalOutputSpecifications());
     }
     return terminalValuesRequirements;
   }

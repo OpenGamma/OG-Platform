@@ -27,8 +27,11 @@ import com.opengamma.util.money.Currency;
 
 /**
  * A security for FRAs.
+ * 
+ * @deprecated Using ForwardRateAgreementSecurity instead
  */
 @BeanDefinition
+@Deprecated
 @SecurityDescription(type = FRASecurity.SECURITY_TYPE, description = "Fra")
 public class FRASecurity extends FinancialSecurity {
 

@@ -16,7 +16,7 @@ import com.google.common.collect.Lists;
 import com.opengamma.core.position.PortfolioNode;
 
 /**
- * Contains utilities to transform the nodes and positions in a portfolio using a {@code PortfolioMapperFunction}. 
+ * Contains utilities to transform the nodes and positions in a portfolio using a {@code PortfolioMapperFunction}.
  */
 public final class PortfolioMapper {
 

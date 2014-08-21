@@ -6,8 +6,8 @@
 package com.opengamma.master;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static com.opengamma.lambdava.streams.Lambdava.functional;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -20,7 +20,6 @@ import org.threeten.bp.Instant;
 
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
-import com.opengamma.lambdava.functions.Function1;
 
 /**
  * Utilities for managing masters.
@@ -90,12 +89,11 @@ public class MasterUtils {
   }
 
   public static <D extends UniqueIdentifiable> List<UniqueId> mapToUniqueIDs(List<D> documents) {
-    return functional(documents).map(new Function1<D, UniqueId>() {
-      @Override
-      public UniqueId execute(D d) {
-        return d.getUniqueId();
-      }
-    }).asList();
+    List<UniqueId> result = new ArrayList<UniqueId>();
+    for (D doc : documents) {
+      result.add(doc.getUniqueId());
+    }
+    return result;
   }
 
 }

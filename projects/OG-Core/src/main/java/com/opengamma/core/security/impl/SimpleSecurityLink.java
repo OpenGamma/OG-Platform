@@ -53,7 +53,7 @@ public class SimpleSecurityLink extends AbstractLink<Security>
   /**
    * The target security.
    */
-  @PropertyDefinition
+  @PropertyDefinition(overrideGet = true)
   private Security _target;
   // TODO: remove
 
@@ -159,6 +159,7 @@ public class SimpleSecurityLink extends AbstractLink<Security>
    * @throws DataNotFoundException if the security could not be resolved
    * @throws RuntimeException if an error occurs while resolving
    */
+  @Override
   public Security resolve(SecuritySource source) {
     return resolve(source, VersionCorrection.LATEST);
   }
@@ -172,6 +173,7 @@ public class SimpleSecurityLink extends AbstractLink<Security>
    * @throws DataNotFoundException if the security could not be resolved
    * @throws RuntimeException if an error occurs while resolving
    */
+  @Override
   public Security resolve(SecuritySource source, VersionCorrection versionCorrection) {
     ObjectId objectId = getObjectId();
     if (objectId != null) {
@@ -197,6 +199,7 @@ public class SimpleSecurityLink extends AbstractLink<Security>
    * @param source  the source to use to resolve, not null
    * @return the resolved security, null if unable to resolve
    */
+  @Override
   public Security resolveQuiet(SecuritySource source) {
     try {
       return resolve(source);
@@ -233,6 +236,7 @@ public class SimpleSecurityLink extends AbstractLink<Security>
    * Gets the target security.
    * @return the value of the property
    */
+  @Override
   public Security getTarget() {
     return _target;
   }

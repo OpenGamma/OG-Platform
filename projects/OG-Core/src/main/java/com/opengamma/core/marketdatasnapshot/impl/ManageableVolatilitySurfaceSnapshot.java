@@ -42,7 +42,7 @@ public class ManageableVolatilitySurfaceSnapshot implements Bean, VolatilitySurf
   /**
    * The values in the snapshot.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private Map<Pair<Object, Object>, ValueSnapshot> _values;
   
   /**
@@ -144,6 +144,7 @@ public class ManageableVolatilitySurfaceSnapshot implements Bean, VolatilitySurf
    * Gets the values in the snapshot.
    * @return the value of the property, not null
    */
+  @Override
   public Map<Pair<Object, Object>, ValueSnapshot> getValues() {
     return _values;
   }

@@ -49,8 +49,8 @@ public class RegionUtils {
         resultRegions.add(regionSource.getHighestLevelRegion(ExternalSchemes.financialRegionId(region)));
       }
       return resultRegions;
-    } 
-    return Collections.singleton(regionSource.getHighestLevelRegion(regionId)); 
+    }
+    return Collections.singleton(regionSource.getHighestLevelRegion(regionId));
   }
 
 }

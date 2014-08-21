@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.provider.curve;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.LinkedHashMap;
@@ -39,13 +40,13 @@ import com.opengamma.util.tuple.Pair;
 
 public class CurveCalibrationTestsUtils {
 
-  public static void exportIborForwardIborCurve(ZonedDateTime calibrationDate, MulticurveProviderInterface multicurve, IborIndex index, Calendar cal,
-      String fileName, int startIndex, int nbDate, int jump) {
+  public static void exportIborForwardIborCurve(
+      ZonedDateTime calibrationDate, MulticurveProviderInterface multicurve, IborIndex index, Calendar cal,
+      File file, int startIndex, int nbDate, int jump) {
     ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(calibrationDate, index.getSpotLag() + startIndex * jump, cal);
     final double[] rateDsc = new double[nbDate];
     final double[] startTime = new double[nbDate];
-    try {
-      final FileWriter writer = new FileWriter(fileName);
+    try (FileWriter writer = new FileWriter(file)) {
       for (int loopdate = 0; loopdate < nbDate; loopdate++) {
         startTime[loopdate] = TimeCalculator.getTimeBetween(calibrationDate, startDate);
         final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, index, cal);
@@ -56,19 +57,18 @@ public class CurveCalibrationTestsUtils {
         writer.append(0.0 + "," + startTime[loopdate] + "," + rateDsc[loopdate] + "\n");
       }
       writer.flush();
-      writer.close();
     } catch (final IOException e) {
       e.printStackTrace();
     }
   }
 
-  public static void exportONForwardONCurve(ZonedDateTime calibrationDate, MulticurveProviderInterface multicurve, IndexON index, Calendar cal,
-      String fileName, int nbDate, int jump) {
+  public static void exportONForwardONCurve(
+      ZonedDateTime calibrationDate, MulticurveProviderInterface multicurve, IndexON index, Calendar cal,
+      File file, int nbDate, int jump) {
     ZonedDateTime startDate = calibrationDate;
     final double[] rateDsc = new double[nbDate];
     final double[] startTime = new double[nbDate];
-    try {
-      final FileWriter writer = new FileWriter(fileName);
+    try (FileWriter writer = new FileWriter(file)) {
       for (int loopdate = 0; loopdate < nbDate; loopdate++) {
         startTime[loopdate] = TimeCalculator.getTimeBetween(calibrationDate, startDate);
         final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, 1, cal);
@@ -79,19 +79,18 @@ public class CurveCalibrationTestsUtils {
         writer.append(0.0 + "," + startTime[loopdate] + "," + rateDsc[loopdate] + "\n");
       }
       writer.flush();
-      writer.close();
     } catch (final IOException e) {
       e.printStackTrace();
     }
   }
 
-  public static void exportONForwardIborCurve(ZonedDateTime calibrationDate, MulticurveProviderInterface multicurve, IborIndex index, Calendar cal,
-      String fileName, int nbDate, int jump) {
+  public static void exportONForwardIborCurve(
+      ZonedDateTime calibrationDate, MulticurveProviderInterface multicurve, IborIndex index, Calendar cal,
+      File file, int nbDate, int jump) {
     ZonedDateTime startDate = calibrationDate;
     final double[] rateDsc = new double[nbDate];
     final double[] startTime = new double[nbDate];
-    try {
-      final FileWriter writer = new FileWriter(fileName);
+    try (FileWriter writer = new FileWriter(file)) {
       for (int loopdate = 0; loopdate < nbDate; loopdate++) {
         startTime[loopdate] = TimeCalculator.getTimeBetween(calibrationDate, startDate);
         final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, 1, cal);
@@ -102,19 +101,18 @@ public class CurveCalibrationTestsUtils {
         writer.append(0.0 + "," + startTime[loopdate] + "," + rateDsc[loopdate] + "\n");
       }
       writer.flush();
-      writer.close();
     } catch (final IOException e) {
       e.printStackTrace();
     }
   }
 
-  public static void exportZCRatesONCurve(ZonedDateTime calibrationDate, MulticurveProviderDiscount multicurve, IndexON index, Calendar cal,
-      String fileName, int nbDate, int jump) {
+  public static void exportZCRatesONCurve(
+      ZonedDateTime calibrationDate, MulticurveProviderDiscount multicurve, IndexON index, Calendar cal,
+      File file, int nbDate, int jump) {
     ZonedDateTime startDate = calibrationDate;
     final double[] rateZC = new double[nbDate];
     final double[] startTime = new double[nbDate];
-    try {
-      final FileWriter writer = new FileWriter(fileName);
+    try (FileWriter writer = new FileWriter(file)) {
       for (int loopdate = 0; loopdate < nbDate; loopdate++) {
         startTime[loopdate] = TimeCalculator.getTimeBetween(calibrationDate, startDate);
         rateZC[loopdate] = multicurve.getCurve(index).getInterestRate(startTime[loopdate]);
@@ -122,19 +120,18 @@ public class CurveCalibrationTestsUtils {
         writer.append(0.0 + "," + startTime[loopdate] + "," + rateZC[loopdate] + "\n");
       }
       writer.flush();
-      writer.close();
     } catch (final IOException e) {
       e.printStackTrace();
     }
   }
 
-  public static void exportZCRatesIborCurve(ZonedDateTime calibrationDate, MulticurveProviderDiscount multicurve, IborIndex index, Calendar cal,
-      String fileName, int nbDate, int jump) {
+  public static void exportZCRatesIborCurve(
+      ZonedDateTime calibrationDate, MulticurveProviderDiscount multicurve, IborIndex index, Calendar cal,
+      File file, int nbDate, int jump) {
     ZonedDateTime startDate = calibrationDate;
     final double[] rateZC = new double[nbDate];
     final double[] startTime = new double[nbDate];
-    try {
-      final FileWriter writer = new FileWriter(fileName);
+    try (FileWriter writer = new FileWriter(file)) {
       for (int loopdate = 0; loopdate < nbDate; loopdate++) {
         startTime[loopdate] = TimeCalculator.getTimeBetween(calibrationDate, startDate);
         rateZC[loopdate] = multicurve.getCurve(index).getInterestRate(startTime[loopdate]);
@@ -142,7 +139,6 @@ public class CurveCalibrationTestsUtils {
         writer.append(0.0 + "," + startTime[loopdate] + "," + rateZC[loopdate] + "\n");
       }
       writer.flush();
-      writer.close();
     } catch (final IOException e) {
       e.printStackTrace();
     }

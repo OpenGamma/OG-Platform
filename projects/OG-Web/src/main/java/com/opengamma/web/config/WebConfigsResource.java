@@ -285,6 +285,7 @@ public class WebConfigsResource extends AbstractWebConfigResource {
    * Creates the output root data.
    * @return the output root data, not null
    */
+  @Override
   protected FlexiBean createRootData() {
     FlexiBean out = super.createRootData();
     ConfigSearchRequest<Object> searchRequest = new ConfigSearchRequest<Object>();

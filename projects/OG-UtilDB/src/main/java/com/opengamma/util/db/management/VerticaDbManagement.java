@@ -77,9 +77,9 @@ public final class VerticaDbManagement extends AbstractDbManagement {
 
   @Override
   public void setActiveSchema(Connection connection, String schema) throws SQLException {
-    Statement statement = connection.createStatement();
-    statement.executeUpdate("SET SEARCH_PATH TO " + schema);
-    statement.close();
+    try (Statement statement = connection.createStatement()) {
+      statement.executeUpdate("SET SEARCH_PATH TO " + schema);
+    }
   }
 
   @Override
@@ -172,31 +172,16 @@ public final class VerticaDbManagement extends AbstractDbManagement {
 
     @Override
     public boolean catalogExists(String catalog) {
-      Connection connection = null;
-      try {
-        connection = connect(catalog);
+      try (Connection connection = connect(catalog)) {
         Statement statement = connection.createStatement();
         String sql = getAllSchemasSQL(catalog);
-        ResultSet rs = statement.executeQuery(sql);
-        
         boolean exists;
-        if (rs.next()) {
-          exists = true;                                
-        } else {
-          exists = false;        
+        try (ResultSet rs = statement.executeQuery(sql)) {
+          exists = rs.next();                                
         }
-        rs.close();
         return exists;
-      
       } catch (SQLException e) {
         throw new OpenGammaRuntimeException("Failed to check catalog existence", e);      
-      } finally {
-        try {
-          if (connection != null) {
-            connection.close();
-          }
-        } catch (SQLException e) {
-        }
       }        
     }
 

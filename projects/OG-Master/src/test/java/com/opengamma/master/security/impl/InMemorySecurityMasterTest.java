@@ -10,6 +10,7 @@ import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertSame;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.testng.annotations.BeforeMethod;
@@ -26,6 +27,7 @@ import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.test.TestGroup;
 
 /**
@@ -217,6 +219,16 @@ public class InMemorySecurityMasterTest {
     List<SecurityDocument> docs = result.getDocuments();
     assertEquals(1, docs.size());
     assertEquals(true, docs.contains(doc2));
+  }
+
+  public void test_replace_adds_uniqueid() {
+    // remove UniqueId() from updated doc, search will use ExternalId and UniqueId of replaced version returned
+    ManageableSecurity withoutId = SEC1.clone();
+    withoutId.setUniqueId(null);
+    SecurityDocument tempDoc = new SecurityDocument();
+    tempDoc.setSecurity(withoutId);
+    List<UniqueId> ids = testPopulated.replaceAllVersions(SEC1.getUniqueId().getObjectId(), Collections.singletonList(tempDoc));
+    ArgumentChecker.noNulls(ids, "ids");
   }
 
 }

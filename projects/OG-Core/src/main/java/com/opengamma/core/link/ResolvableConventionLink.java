@@ -324,7 +324,7 @@ public class ResolvableConventionLink<T extends Convention> extends ConventionLi
 
     @Override
     public Builder<T> setString(MetaProperty<?> property, String value) {
-      super.set(property, value);
+      super.setString(property, value);
       return this;
     }
 

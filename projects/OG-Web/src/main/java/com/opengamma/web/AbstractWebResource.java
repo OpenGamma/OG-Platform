@@ -96,17 +96,17 @@ public abstract class AbstractWebResource {
     if (StringUtils.isEmpty(order)) {
       return defaultOrder;
     }
-    order = order.toUpperCase(Locale.ENGLISH);
-    if (order.endsWith(" ASC")) {
-      order = StringUtils.replace(order, " ASC", "_ASC");
-    } else if (order.endsWith(" DESC")) {
-      order = StringUtils.replace(order, " DESC", "_DESC");
-    } else if (order.endsWith("_ASC") == false && order.endsWith("_DESC") == false) {
-      order = order + "_ASC";
+    String parsedOrder = order.toUpperCase(Locale.ENGLISH);
+    if (parsedOrder.endsWith(" ASC")) {
+      parsedOrder = StringUtils.replace(parsedOrder, " ASC", "_ASC");
+    } else if (parsedOrder.endsWith(" DESC")) {
+      parsedOrder = StringUtils.replace(parsedOrder, " DESC", "_DESC");
+    } else if (parsedOrder.endsWith("_ASC") == false && parsedOrder.endsWith("_DESC") == false) {
+      parsedOrder = parsedOrder + "_ASC";
     }
     try {
       Class<T> cls = defaultOrder.getDeclaringClass();
-      return Enum.valueOf(cls, order);
+      return Enum.valueOf(cls, parsedOrder);
     } catch (IllegalArgumentException ex) {
       return defaultOrder;
     }

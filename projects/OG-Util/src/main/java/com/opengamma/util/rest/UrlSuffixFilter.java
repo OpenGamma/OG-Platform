@@ -41,6 +41,7 @@ public class UrlSuffixFilter implements ContainerRequestFilter {
         .put(".xml", MediaType.APPLICATION_XML)
         .put(".fudge", FudgeRest.MEDIA)
         .put(".html", MediaType.TEXT_HTML)
+        .put(".jbjson", JodaBeanMimeType.JSON)
         .put(".jbxml", JodaBeanMimeType.XML)
         .put(".jbbin", JodaBeanMimeType.BINARY)
         .build();

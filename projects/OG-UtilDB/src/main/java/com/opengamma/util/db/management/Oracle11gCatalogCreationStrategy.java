@@ -56,6 +56,7 @@ public class Oracle11gCatalogCreationStrategy implements CatalogCreationStrategy
   //-------------------------------------------------------------------------
   @Override
   public boolean catalogExists(String catalog) {
+    @SuppressWarnings("resource")
     Connection conn = null;
     try {
       if (_systemUser != null && !_systemUser.equals("")) {
@@ -70,20 +71,17 @@ public class Oracle11gCatalogCreationStrategy implements CatalogCreationStrategy
       }
       conn.setAutoCommit(true);
 
-      Statement statement = conn.createStatement();
-      ResultSet rs = statement.executeQuery(_allCatalogsSql);
-
       boolean catalogAlreadyExists = false;
-      while (rs.next()) {
-        String name = rs.getString("name");
-        if (name.equalsIgnoreCase(_user)) {
-          catalogAlreadyExists = true;
+      try (Statement statement = conn.createStatement()) {
+        try (ResultSet rs = statement.executeQuery(_allCatalogsSql)) {
+          while (rs.next()) {
+            String name = rs.getString("name");
+            if (name.equalsIgnoreCase(_user)) {
+              catalogAlreadyExists = true;
+            }
+          }
         }
       }
-
-      rs.close();
-      statement.close();
-
       return catalogAlreadyExists;
 
     } catch (SQLException e) {
@@ -112,6 +110,7 @@ public class Oracle11gCatalogCreationStrategy implements CatalogCreationStrategy
       return; // nothing to do
     }
 
+    @SuppressWarnings("resource")
     Connection conn = null;
     try {
       if (_systemUser != null && !_systemUser.equals("")) {
@@ -129,14 +128,14 @@ public class Oracle11gCatalogCreationStrategy implements CatalogCreationStrategy
       //"GRANT CREATE TABLE TO " + _user + ";\n" +
       //"GRANT CREATE SEQUENCE TO " + _user + ";";
 
-      Statement statement = conn.createStatement();
-      //statement.addBatch("DROP USER " + _user + " CASCADE");
-      statement.addBatch(createCatalogSql);
-      statement.addBatch("GRANT CONNECT TO " + _user);
-      statement.addBatch("GRANT CREATE TABLE TO " + _user);
-      statement.addBatch("GRANT CREATE SEQUENCE TO " + _user);
-      statement.executeBatch();
-      statement.close();
+      try (Statement statement = conn.createStatement()) {
+        //statement.addBatch("DROP USER " + _user + " CASCADE");
+        statement.addBatch(createCatalogSql);
+        statement.addBatch("GRANT CONNECT TO " + _user);
+        statement.addBatch("GRANT CREATE TABLE TO " + _user);
+        statement.addBatch("GRANT CREATE SEQUENCE TO " + _user);
+        statement.executeBatch();
+      }
 
     } catch (SQLException e) {
       throw new OpenGammaRuntimeException("Failed to create catalog", e);

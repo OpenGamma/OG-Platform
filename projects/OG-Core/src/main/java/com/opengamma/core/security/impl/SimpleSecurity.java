@@ -47,28 +47,28 @@ public class SimpleSecurity extends DirectBean
   /**
    * The unique identifier.
    */
-  @PropertyDefinition
+  @PropertyDefinition(overrideGet = true, overrideSet = true)
   private UniqueId _uniqueId;
   /**
    * The external identifier bundle.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private ExternalIdBundle _externalIdBundle = ExternalIdBundle.EMPTY;
   /**
    * The security type.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private String _securityType;
   /**
    * The display name.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private String _name = "";
   /**
    * The general purpose security attributes.
    * These can be used to add arbitrary additional information to the object.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true, overrideSet = true)
   private final Map<String, String> _attributes = Maps.newHashMap();
 
   /**
@@ -143,6 +143,7 @@ public class SimpleSecurity extends DirectBean
    * Gets the unique identifier.
    * @return the value of the property
    */
+  @Override
   public UniqueId getUniqueId() {
     return _uniqueId;
   }
@@ -151,6 +152,7 @@ public class SimpleSecurity extends DirectBean
    * Sets the unique identifier.
    * @param uniqueId  the new value of the property
    */
+  @Override
   public void setUniqueId(UniqueId uniqueId) {
     this._uniqueId = uniqueId;
   }
@@ -168,6 +170,7 @@ public class SimpleSecurity extends DirectBean
    * Gets the external identifier bundle.
    * @return the value of the property, not null
    */
+  @Override
   public ExternalIdBundle getExternalIdBundle() {
     return _externalIdBundle;
   }
@@ -194,6 +197,7 @@ public class SimpleSecurity extends DirectBean
    * Gets the security type.
    * @return the value of the property, not null
    */
+  @Override
   public String getSecurityType() {
     return _securityType;
   }
@@ -220,6 +224,7 @@ public class SimpleSecurity extends DirectBean
    * Gets the display name.
    * @return the value of the property, not null
    */
+  @Override
   public String getName() {
     return _name;
   }
@@ -247,6 +252,7 @@ public class SimpleSecurity extends DirectBean
    * These can be used to add arbitrary additional information to the object.
    * @return the value of the property, not null
    */
+  @Override
   public Map<String, String> getAttributes() {
     return _attributes;
   }
@@ -256,6 +262,7 @@ public class SimpleSecurity extends DirectBean
    * These can be used to add arbitrary additional information to the object.
    * @param attributes  the new value of the property, not null
    */
+  @Override
   public void setAttributes(Map<String, String> attributes) {
     JodaBeanUtils.notNull(attributes, "attributes");
     this._attributes.clear();

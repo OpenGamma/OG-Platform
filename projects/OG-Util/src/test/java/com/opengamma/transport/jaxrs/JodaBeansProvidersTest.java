@@ -67,8 +67,13 @@ public class JodaBeansProvidersTest {
     testBeans(pc, pc);
   }
 
-  public void testXML() {
+  public void testXml() {
     JodaBeanXmlProducerConsumer pc = new JodaBeanXmlProducerConsumer();
+    testBeans(pc, pc);
+  }
+
+  public void testJson() {
+    JodaBeanJsonProducerConsumer pc = new JodaBeanJsonProducerConsumer();
     testBeans(pc, pc);
   }
 

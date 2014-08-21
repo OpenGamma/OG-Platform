@@ -182,6 +182,7 @@ public class WebUsersResource extends AbstractWebUserResource {
    * Creates the output root data.
    * @return the output root data, not null
    */
+  @Override
   protected FlexiBean createRootData() {
     FlexiBean out = super.createRootData();
     UserSearchRequest searchRequest = new UserSearchRequest();

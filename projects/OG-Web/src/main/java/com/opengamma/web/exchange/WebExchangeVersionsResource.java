@@ -75,6 +75,7 @@ public class WebExchangeVersionsResource extends AbstractWebExchangeResource {
    * Creates the output root data.
    * @return the output root data, not null
    */
+  @Override
   protected FlexiBean createRootData() {
     FlexiBean out = super.createRootData();
     ExchangeDocument doc = data().getExchange();

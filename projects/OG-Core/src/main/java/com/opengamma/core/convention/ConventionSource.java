@@ -51,7 +51,7 @@ public interface ConventionSource
    * <p>
    * This retrieves the object stored using the object identifier at the instant
    * specified by the version-correction. If not found, an exception is thrown.
-   * In combination, the object identifier and version-correction are equivalent to 
+   * In combination, the object identifier and version-correction are equivalent to
    * a unique identifier.
    * 
    * @param <T>  the type of the convention to get
@@ -207,7 +207,7 @@ public interface ConventionSource
    * The default behavior in standard implementations should be to return any
    * element with <strong>any</strong> external identifier that matches <strong>any</strong>
    * identifier in the bundle. While specific implementations may modify this behavior,
-   * this should be explicitly documented to avoid confusion. 
+   * this should be explicitly documented to avoid confusion.
    *
    * @param bundle  the external identifier bundle to search for, not null
    * @return all objects matching the bundle, empty if no matches, not null

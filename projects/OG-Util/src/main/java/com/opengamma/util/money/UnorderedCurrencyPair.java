@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.ImmutableConstructor;
@@ -311,7 +312,7 @@ public final class UnorderedCurrencyPair implements ImmutableBean,
     }
 
     @Override
-    public UnorderedCurrencyPair.Builder builder() {
+    public BeanBuilder<? extends UnorderedCurrencyPair> builder() {
       return new UnorderedCurrencyPair.Builder();
     }
 
@@ -422,7 +423,7 @@ public final class UnorderedCurrencyPair implements ImmutableBean,
 
     @Override
     public Builder setString(MetaProperty<?> property, String value) {
-      super.set(property, value);
+      super.setString(property, value);
       return this;
     }
 

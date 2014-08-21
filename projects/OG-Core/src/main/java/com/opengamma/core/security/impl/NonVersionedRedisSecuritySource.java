@@ -176,7 +176,7 @@ public class NonVersionedRedisSecuritySource implements SecuritySource {
     }
     
     try (Timer.Context context = _putTimer.time()) {
-      byte[] securityData = SecurityFudgeUtil.convertToFudge(getFudgeContext(), security); 
+      byte[] securityData = SecurityFudgeUtil.convertToFudge(getFudgeContext(), security);
 
       Jedis jedis = getJedisPool().getResource();
       try {
@@ -307,6 +307,7 @@ public class NonVersionedRedisSecuritySource implements SecuritySource {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
 
     Security result = executeGet(new GetWorker<Security>() {
+      @Override
       public Security query(Jedis jedis) {
         return getInJedis(jedis, uniqueId);
       }
@@ -319,6 +320,7 @@ public class NonVersionedRedisSecuritySource implements SecuritySource {
     ArgumentChecker.notNull(objectId, "objectId");
 
     Security result = executeGet(new GetWorker<Security>() {
+      @Override
       public Security query(Jedis jedis) {
         return getInJedis(jedis, UniqueId.of(objectId, null));
       }

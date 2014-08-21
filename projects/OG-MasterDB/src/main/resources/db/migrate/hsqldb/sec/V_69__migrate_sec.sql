@@ -9,7 +9,7 @@ START TRANSACTION;
   ALTER TABLE sec_future ADD bondFutureFirstNoticeDate_zone varchar(50) NULL;
   
   -- add bond future last notice date column
-  ALTER TABLE sec_future ADD bondFutureLastNoticeDate timestamp without time zone zone NULL;
+  ALTER TABLE sec_future ADD bondFutureLastNoticeDate timestamp without time zone NULL;
   
   -- add bond future last notice date zone column
   ALTER TABLE sec_future ADD bondFutureLastNoticeDate_zone varchar(50) NULL;

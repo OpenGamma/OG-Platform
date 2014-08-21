@@ -20,7 +20,6 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.batch.BatchMaster;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.core.config.ConfigSource;
@@ -64,11 +63,6 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
   @PropertyDefinition
   private String _classifier;
 
-  /**
-   * The batch master.
-   */
-  @PropertyDefinition
-  private BatchMaster _batchMaster;
   /**
    * The config master.
    */
@@ -271,31 +265,6 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
    */
   public final Property<String> classifier() {
     return metaBean().classifier().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the batch master.
-   * @return the value of the property
-   */
-  public BatchMaster getBatchMaster() {
-    return _batchMaster;
-  }
-
-  /**
-   * Sets the batch master.
-   * @param batchMaster  the new value of the property
-   */
-  public void setBatchMaster(BatchMaster batchMaster) {
-    this._batchMaster = batchMaster;
-  }
-
-  /**
-   * Gets the the {@code batchMaster} property.
-   * @return the property, not null
-   */
-  public final Property<BatchMaster> batchMaster() {
-    return metaBean().batchMaster().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -987,7 +956,6 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
     if (obj != null && obj.getClass() == this.getClass()) {
       ToolContextComponentFactory other = (ToolContextComponentFactory) obj;
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
-          JodaBeanUtils.equal(getBatchMaster(), other.getBatchMaster()) &&
           JodaBeanUtils.equal(getConfigMaster(), other.getConfigMaster()) &&
           JodaBeanUtils.equal(getExchangeMaster(), other.getExchangeMaster()) &&
           JodaBeanUtils.equal(getHolidayMaster(), other.getHolidayMaster()) &&
@@ -1024,7 +992,6 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
   public int hashCode() {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBatchMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getConfigMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getExchangeMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getHolidayMaster());
@@ -1057,7 +1024,7 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(960);
+    StringBuilder buf = new StringBuilder(928);
     buf.append("ToolContextComponentFactory{");
     int len = buf.length();
     toString(buf);
@@ -1072,7 +1039,6 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
   protected void toString(StringBuilder buf) {
     super.toString(buf);
     buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
-    buf.append("batchMaster").append('=').append(JodaBeanUtils.toString(getBatchMaster())).append(',').append(' ');
     buf.append("configMaster").append('=').append(JodaBeanUtils.toString(getConfigMaster())).append(',').append(' ');
     buf.append("exchangeMaster").append('=').append(JodaBeanUtils.toString(getExchangeMaster())).append(',').append(' ');
     buf.append("holidayMaster").append('=').append(JodaBeanUtils.toString(getHolidayMaster())).append(',').append(' ');
@@ -1117,11 +1083,6 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
      */
     private final MetaProperty<String> _classifier = DirectMetaProperty.ofReadWrite(
         this, "classifier", ToolContextComponentFactory.class, String.class);
-    /**
-     * The meta-property for the {@code batchMaster} property.
-     */
-    private final MetaProperty<BatchMaster> _batchMaster = DirectMetaProperty.ofReadWrite(
-        this, "batchMaster", ToolContextComponentFactory.class, BatchMaster.class);
     /**
      * The meta-property for the {@code configMaster} property.
      */
@@ -1263,7 +1224,6 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
-        "batchMaster",
         "configMaster",
         "exchangeMaster",
         "holidayMaster",
@@ -1303,8 +1263,6 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
       switch (propertyName.hashCode()) {
         case -281470431:  // classifier
           return _classifier;
-        case -252634564:  // batchMaster
-          return _batchMaster;
         case 10395716:  // configMaster
           return _configMaster;
         case -652001691:  // exchangeMaster
@@ -1385,14 +1343,6 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<String> classifier() {
       return _classifier;
-    }
-
-    /**
-     * The meta-property for the {@code batchMaster} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<BatchMaster> batchMaster() {
-      return _batchMaster;
     }
 
     /**
@@ -1617,8 +1567,6 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
       switch (propertyName.hashCode()) {
         case -281470431:  // classifier
           return ((ToolContextComponentFactory) bean).getClassifier();
-        case -252634564:  // batchMaster
-          return ((ToolContextComponentFactory) bean).getBatchMaster();
         case 10395716:  // configMaster
           return ((ToolContextComponentFactory) bean).getConfigMaster();
         case -652001691:  // exchangeMaster
@@ -1682,9 +1630,6 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
       switch (propertyName.hashCode()) {
         case -281470431:  // classifier
           ((ToolContextComponentFactory) bean).setClassifier((String) newValue);
-          return;
-        case -252634564:  // batchMaster
-          ((ToolContextComponentFactory) bean).setBatchMaster((BatchMaster) newValue);
           return;
         case 10395716:  // configMaster
           ((ToolContextComponentFactory) bean).setConfigMaster((ConfigMaster) newValue);

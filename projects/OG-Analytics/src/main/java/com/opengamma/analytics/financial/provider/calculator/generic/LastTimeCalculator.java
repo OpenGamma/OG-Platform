@@ -162,7 +162,7 @@ public class LastTimeCalculator extends InstrumentDerivativeVisitorAdapter<Objec
 
   @Override
   public Double visitCouponIborCompoundingFlatSpread(final CouponIborCompoundingFlatSpread payment) {
-    return Math.max(payment.getFixingSubperiodsEndTimes()[payment.getFixingSubperiodsEndTimes().length - 1], payment.getPaymentTime());
+    return Math.max(payment.getFixingPeriodEndTimes()[payment.getFixingPeriodEndTimes().length - 1], payment.getPaymentTime());
   }
 
   @Override
@@ -265,7 +265,7 @@ public class LastTimeCalculator extends InstrumentDerivativeVisitorAdapter<Objec
     return bond.getBondStandard().accept(this);
   }
 
-  // -----     Bond     -----
+  // -----     Bill     -----
 
   @Override
   public Double visitBillTransaction(final BillTransaction bill) {

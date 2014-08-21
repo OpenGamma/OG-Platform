@@ -265,34 +265,6 @@
   </bean>
 
   <!-- ================================================================== -->
-  <!-- Batch -->
-  <bean id="batchDataSource" class="com.jolbox.bonecp.BoneCPDataSource" destroy-method="close">
-    <property name="driverClass" value="${opengamma.overnight-batch.jdbc.driver}" />
-    <property name="jdbcUrl" value="${opengamma.overnight-batch.jdbc.url}" />
-    <property name="username" value="${opengamma.overnight-batch.jdbc.username}" />
-    <property name="password" value="${opengamma.overnight-batch.jdbc.password}" />
-    <property name="poolName" value="Batch"/>
-    <property name="partitionCount" value="1"/>
-    <property name="acquireIncrement" value="1"/>
-    <property name="minConnectionsPerPartition" value="1"/>
-    <property name="maxConnectionsPerPartition" value="10"/>
-  </bean>
-  <bean id="batchDbConnector" parent="abstractDbConnector">
-    <property name="name" value="Batch"/>
-    <property name="dataSource" ref="batchDataSource"/>
-    <property name="dialectName" value="${opengamma.overnight-batch.db.dbdialect}"/>
-    <property name="allowHibernateThreadBoundSession" value="true"/>
-    <property name="hibernateMappingFiles">
-      <list>
-        <bean class="com.opengamma.masterdb.batch.HibernateBatchDbFiles"/>
-      </list> 
-    </property>
-  </bean>
-  <bean id="dbBatchMaster" class="com.opengamma.masterdb.batch.DbBatchMaster">
-    <constructor-arg ref="batchDbConnector"/>  	
-  </bean>
-
-  <!-- ================================================================== -->
   <!-- Function configuration -->
   <bean id="sharedFunctionConfigurationSource" class="com.opengamma.engine.function.config.CombiningFunctionConfigurationSource">
     <constructor-arg>

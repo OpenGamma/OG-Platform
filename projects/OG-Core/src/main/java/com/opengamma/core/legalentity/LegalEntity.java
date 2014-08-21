@@ -16,10 +16,10 @@ import com.opengamma.util.PublicAPI;
 
 /**
  * A legal entity that provides common or shared information about a financial product.
- * <p/>
+ * <p>
  * A legal entity is used to capture information that is common in a market.
  * For example, they are used in curve and security construction.
- * <p/>
+ * <p>
  * This interface is read-only.
  * Implementations may be mutable.
  */
@@ -28,7 +28,7 @@ public interface LegalEntity extends UniqueIdentifiable, ExternalBundleIdentifia
 
   /**
    * Gets the external identifier bundle that defines the legal entity.
-   * <p/>
+   * <p>
    * Each external system has one or more identifiers by which they refer to the legal entity.
    * Some of these may be unique within that system, while others may be more descriptive.
    * This bundle stores the set of these external identifiers.
@@ -89,7 +89,7 @@ public interface LegalEntity extends UniqueIdentifiable, ExternalBundleIdentifia
 
   /**
    * Gets the entire set of details.
-   * <p/>
+   * <p>
    * Details are used to tag the object with additional information.
    *
    * @return the complete set of details, not null
@@ -98,7 +98,7 @@ public interface LegalEntity extends UniqueIdentifiable, ExternalBundleIdentifia
 
   /**
    * Sets the entire set of details.
-   * <p/>
+   * <p>
    * Details are used to tag the object with additional information.
    *
    * @param details the new set of details, not null
@@ -107,7 +107,7 @@ public interface LegalEntity extends UniqueIdentifiable, ExternalBundleIdentifia
 
   /**
    * Adds a key-value pair to the set of details
-   * <p/>
+   * <p>
    * Details are used to tag the object with additional information.
    *
    * @param key the key to add, not null

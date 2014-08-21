@@ -418,11 +418,6 @@ public class DbTool {
     }
     executeSql(catalog, schema, sql);
 
-    // -- DBTOOLDONOTCLEAR
-    // create table rsk_computation_target_type (
-    //
-    // -> extract rsk_computation_target_type
-
     final String doNotClear = "DBTOOLDONOTCLEAR";
 
     int doNotClearIndex = sql.indexOf(doNotClear);

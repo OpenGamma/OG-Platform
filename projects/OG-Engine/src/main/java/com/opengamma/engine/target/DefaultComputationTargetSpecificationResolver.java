@@ -23,8 +23,8 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.lambdava.functions.Function2;
 import com.opengamma.util.PoolExecutor;
+import com.opengamma.util.function.BinaryOperator;
 
 /**
  * Standard implementation of a {@link ComputationTargetSpecificationResolver}.
@@ -185,9 +185,9 @@ public class DefaultComputationTargetSpecificationResolver implements Computatio
 
   }
 
-  private static final Function2<SpecificationResolver, SpecificationResolver, SpecificationResolver> s_fold = new Function2<SpecificationResolver, SpecificationResolver, SpecificationResolver>() {
+  private static final BinaryOperator<SpecificationResolver> s_fold = new BinaryOperator<SpecificationResolver>() {
     @Override
-    public SpecificationResolver execute(final SpecificationResolver a, final SpecificationResolver b) {
+    public SpecificationResolver apply(final SpecificationResolver a, final SpecificationResolver b) {
       return new FoldedSpecificationResolver(a, b);
     }
   };

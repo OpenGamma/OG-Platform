@@ -17,7 +17,7 @@ public final class HistoricalTimeSeriesConstants {
   /** Default observation time**/
   public static final String DEFAULT_OBSERVATION_TIME = "DEFAULT";
   /** London close observation time **/
-  public static final String LONDON_CLOSE = "LONDON_CLOSE"; 
+  public static final String LONDON_CLOSE = "LONDON_CLOSE";
   /** Tokyo close observation time **/
   public static final String TOKYO_CLOSE = "TOKYO_CLOSE";
   /** NewYork close observation time **/

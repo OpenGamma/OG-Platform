@@ -32,7 +32,7 @@ public interface SourceWithExternalBundle<V extends UniqueIdentifiable & Externa
    * The default behavior in standard implementations should be to return any
    * element with <strong>any</strong> external identifier that matches <strong>any</strong>
    * identifier in the bundle. While specific implementations may modify this behavior,
-   * this should be explicitly documented to avoid confusion. 
+   * this should be explicitly documented to avoid confusion.
    *
    * @param bundle  the external identifier bundle to search for, not null
    * @param versionCorrection  the version-correction, not null
@@ -71,7 +71,7 @@ public interface SourceWithExternalBundle<V extends UniqueIdentifiable & Externa
    * The default behavior in standard implementations should be to return any
    * element with <strong>any</strong> external identifier that matches <strong>any</strong>
    * identifier in the bundle. While specific implementations may modify this behavior,
-   * this should be explicitly documented to avoid confusion. 
+   * this should be explicitly documented to avoid confusion.
    *
    * @param bundle  the external identifier bundle to search for, not null
    * @return all objects matching the bundle, empty if no matches, not null

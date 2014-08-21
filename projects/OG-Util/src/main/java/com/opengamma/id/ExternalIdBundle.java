@@ -19,6 +19,7 @@ import java.util.TreeSet;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.text.StrBuilder;
 import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
@@ -563,7 +564,7 @@ public final class ExternalIdBundle implements ImmutableBean, Iterable<ExternalI
     }
 
     @Override
-    public ExternalIdBundle.Builder builder() {
+    public BeanBuilder<? extends ExternalIdBundle> builder() {
       return new ExternalIdBundle.Builder();
     }
 
@@ -659,7 +660,7 @@ public final class ExternalIdBundle implements ImmutableBean, Iterable<ExternalI
 
     @Override
     public Builder setString(MetaProperty<?> property, String value) {
-      super.set(property, value);
+      super.setString(property, value);
       return this;
     }
 

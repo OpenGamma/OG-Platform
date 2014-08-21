@@ -54,57 +54,57 @@ public class SimpleLegalEntity extends DirectBean
   /**
    * The unique identifier of the legal entity.
    */
-  @PropertyDefinition
+  @PropertyDefinition(overrideGet = true, overrideSet = true)
   private UniqueId _uniqueId;
   /**
    * The bundle of external identifiers that define the legal entity.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private ExternalIdBundle _externalIdBundle = ExternalIdBundle.EMPTY;
   /**
    * The map of attributes, which can be used for attaching additional application-level information.
    */
-  @PropertyDefinition
+  @PropertyDefinition(overrideGet = true, overrideSet = true)
   private final Map<String, String> _attributes = new HashMap<>();
   /**
    * The map of details, which can be used for attaching additional application-level information.
    */
-  @PropertyDefinition
+  @PropertyDefinition(overrideGet = true, overrideSet = true)
   private final Map<String, String> _details = new HashMap<>();
   /**
    * The name of the legal entity.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private String _name = "";
   /**
    * The ratings.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private List<Rating> _ratings = new ArrayList<>();
   /**
    * The capabilities.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private List<Capability> _capabilities = new ArrayList<>();
   /**
    * The external identifier bundle.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private List<ExternalIdBundle> _issuedSecurities = new ArrayList<>();
   /**
    * The obligations.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private List<Obligation> _obligations = new ArrayList<>();
   /**
    * The root portfolio.
    */
-  @PropertyDefinition()
+  @PropertyDefinition(overrideGet = true)
   private RootPortfolio _rootPortfolio;
   /**
    * The accounts.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private List<Account> _accounts = new ArrayList<>();
 
   /**
@@ -189,6 +189,7 @@ public class SimpleLegalEntity extends DirectBean
    * Gets the unique identifier of the legal entity.
    * @return the value of the property
    */
+  @Override
   public UniqueId getUniqueId() {
     return _uniqueId;
   }
@@ -197,6 +198,7 @@ public class SimpleLegalEntity extends DirectBean
    * Sets the unique identifier of the legal entity.
    * @param uniqueId  the new value of the property
    */
+  @Override
   public void setUniqueId(UniqueId uniqueId) {
     this._uniqueId = uniqueId;
   }
@@ -214,6 +216,7 @@ public class SimpleLegalEntity extends DirectBean
    * Gets the bundle of external identifiers that define the legal entity.
    * @return the value of the property, not null
    */
+  @Override
   public ExternalIdBundle getExternalIdBundle() {
     return _externalIdBundle;
   }
@@ -240,6 +243,7 @@ public class SimpleLegalEntity extends DirectBean
    * Gets the map of attributes, which can be used for attaching additional application-level information.
    * @return the value of the property, not null
    */
+  @Override
   public Map<String, String> getAttributes() {
     return _attributes;
   }
@@ -248,6 +252,7 @@ public class SimpleLegalEntity extends DirectBean
    * Sets the map of attributes, which can be used for attaching additional application-level information.
    * @param attributes  the new value of the property, not null
    */
+  @Override
   public void setAttributes(Map<String, String> attributes) {
     JodaBeanUtils.notNull(attributes, "attributes");
     this._attributes.clear();
@@ -267,6 +272,7 @@ public class SimpleLegalEntity extends DirectBean
    * Gets the map of details, which can be used for attaching additional application-level information.
    * @return the value of the property, not null
    */
+  @Override
   public Map<String, String> getDetails() {
     return _details;
   }
@@ -275,6 +281,7 @@ public class SimpleLegalEntity extends DirectBean
    * Sets the map of details, which can be used for attaching additional application-level information.
    * @param details  the new value of the property, not null
    */
+  @Override
   public void setDetails(Map<String, String> details) {
     JodaBeanUtils.notNull(details, "details");
     this._details.clear();
@@ -294,6 +301,7 @@ public class SimpleLegalEntity extends DirectBean
    * Gets the name of the legal entity.
    * @return the value of the property, not null
    */
+  @Override
   public String getName() {
     return _name;
   }
@@ -320,6 +328,7 @@ public class SimpleLegalEntity extends DirectBean
    * Gets the ratings.
    * @return the value of the property, not null
    */
+  @Override
   public List<Rating> getRatings() {
     return _ratings;
   }
@@ -346,6 +355,7 @@ public class SimpleLegalEntity extends DirectBean
    * Gets the capabilities.
    * @return the value of the property, not null
    */
+  @Override
   public List<Capability> getCapabilities() {
     return _capabilities;
   }
@@ -372,6 +382,7 @@ public class SimpleLegalEntity extends DirectBean
    * Gets the external identifier bundle.
    * @return the value of the property, not null
    */
+  @Override
   public List<ExternalIdBundle> getIssuedSecurities() {
     return _issuedSecurities;
   }
@@ -398,6 +409,7 @@ public class SimpleLegalEntity extends DirectBean
    * Gets the obligations.
    * @return the value of the property, not null
    */
+  @Override
   public List<Obligation> getObligations() {
     return _obligations;
   }
@@ -424,6 +436,7 @@ public class SimpleLegalEntity extends DirectBean
    * Gets the root portfolio.
    * @return the value of the property
    */
+  @Override
   public RootPortfolio getRootPortfolio() {
     return _rootPortfolio;
   }
@@ -449,6 +462,7 @@ public class SimpleLegalEntity extends DirectBean
    * Gets the accounts.
    * @return the value of the property, not null
    */
+  @Override
   public List<Account> getAccounts() {
     return _accounts;
   }

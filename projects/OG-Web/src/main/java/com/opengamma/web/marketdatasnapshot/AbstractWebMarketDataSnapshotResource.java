@@ -108,6 +108,7 @@ public abstract class AbstractWebMarketDataSnapshotResource
    * Gets the fudgeContext.
    * @return the fudgeContext
    */
+  @Override
   public FudgeContext getFudgeContext() {
     return _fudgeContext;
   }

@@ -368,7 +368,7 @@ public final class CreditCurveDataSnapshot implements NamedSnapshot, ImmutableBe
 
     @Override
     public Builder setString(MetaProperty<?> property, String value) {
-      super.set(property, value);
+      super.setString(property, value);
       return this;
     }
 

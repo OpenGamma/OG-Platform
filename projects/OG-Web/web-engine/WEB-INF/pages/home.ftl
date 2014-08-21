@@ -24,6 +24,7 @@
       <@link text="Functions" uriObj=functionUris!""/>
       <@link text="Holidays" uriObj=holidayUris!""/>
       <@link text="Legal Entities" uriObj=legalEntityUris!""/>
+      <@link text="NamedSnapshots" uriObj=namedSnapshotUris!""/>
 <#if userSecurity.isPermitted('PortfolioMaster:view')>
       <@link text="Portfolios" uriObj=portfolioUris!""/>
 </#if>

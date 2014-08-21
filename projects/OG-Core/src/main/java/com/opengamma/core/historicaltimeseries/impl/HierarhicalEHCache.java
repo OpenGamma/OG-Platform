@@ -15,8 +15,8 @@ import net.sf.ehcache.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.lambdava.functions.Function0;
 import com.opengamma.util.ehcache.EHCacheUtils;
+import com.opengamma.util.function.Supplier;
 
 /**
  * Abstract cache.
@@ -90,11 +90,11 @@ public abstract class HierarhicalEHCache<A, B> {
     return value;
   }
 
-  private B deepInsertAndMarkMissed(A aKey, Function0<B> closure) {
+  private B deepInsertAndMarkMissed(A aKey, Supplier<B> closure) {
     if (closure == null) {
       return null;
     }
-    B b = closure.execute();
+    B b = closure.get();
     if (b == null) {
       _missedCache.put(new Element(aKey, null));
       return null;
@@ -130,11 +130,11 @@ public abstract class HierarhicalEHCache<A, B> {
     return value;
   }
 
-  private B shallowInsertAndMarkMissed(Object bKey, Function0<B> closure) {
+  private B shallowInsertAndMarkMissed(Object bKey, Supplier<B> closure) {
     if (closure == null) {
       return null;
     }
-    B b = closure.execute();
+    B b = closure.get();
     if (b == null) {
       _missedCache.put(new Element(bKey, null));
       return null;
@@ -144,7 +144,7 @@ public abstract class HierarhicalEHCache<A, B> {
     }
   }
 
-  public B get(A aKey, Function0<B> closure) {
+  public B get(A aKey, Supplier<B> closure) {
     if (_missedCache.isKeyInCache(aKey)) {
       s_logger.debug(getCachePrefix() + ": Caching miss on {}", aKey);
       return null;
@@ -167,7 +167,7 @@ public abstract class HierarhicalEHCache<A, B> {
     return deepInsertAndMarkMissed(aKey, closure);
   }
 
-  public B getBySecondKey(Object bKey, Function0<B> closure) {
+  public B getBySecondKey(Object bKey, Supplier<B> closure) {
     if (_missedCache.isKeyInCache(bKey)) {
       s_logger.debug(getCachePrefix() + ": Caching miss on {}", bKey);
       return null;

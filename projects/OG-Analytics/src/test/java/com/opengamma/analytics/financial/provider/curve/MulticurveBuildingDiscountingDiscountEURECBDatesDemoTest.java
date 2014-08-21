@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.provider.curve;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -47,6 +48,7 @@ import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
+import com.opengamma.util.FileUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
@@ -201,8 +203,14 @@ public class MulticurveBuildingDiscountingDiscountEURECBDatesDemoTest {
   @Test(enabled = false)
   /** Export the forward ON curve to a csv file. */
   public void forwardAnalysis() {
-    CurveCalibrationTestsUtils.exportONForwardONCurve(CALIBRATION_DATE, CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(0).getFirst(), EONIA, TARGET,
-        "demo-test-fwd-eur-eonia.csv", 500, 1);
+    CurveCalibrationTestsUtils.exportONForwardONCurve(
+        CALIBRATION_DATE,
+        CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(0).getFirst(),
+        EONIA,
+        TARGET,
+        new File(FileUtils.TEMP_DIR, "demo-test-fwd-eur-eonia.csv"),
+        500,
+        1);
   }
 
   @SuppressWarnings("unchecked")

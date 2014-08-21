@@ -37,30 +37,30 @@ public class MockConvention implements Bean, Convention {
   /**
    * The type.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private ConventionType _conventionType;
   /**
    * The unique identifier of the convention.
    * This must be null when adding to a master and not null when retrieved from a master.
    */
-  @PropertyDefinition
+  @PropertyDefinition(overrideGet = true)
   private UniqueId _uniqueId;
   /**
    * The bundle of external identifiers that define the convention.
    * This field must not be null for the object to be valid.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private ExternalIdBundle _externalIdBundle = ExternalIdBundle.EMPTY;
   /**
    * The map of attributes, which can be used for attaching additional application-level information.
    */
-  @PropertyDefinition
+  @PropertyDefinition(overrideGet = true, overrideSet = true)
   private final Map<String, String> _attributes = new HashMap<String, String>();
   /**
    * The name of the convention intended for display purposes.
    * This field must not be null for the object to be valid.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private String _name = "";
 
   /**
@@ -144,6 +144,7 @@ public class MockConvention implements Bean, Convention {
    * Gets the type.
    * @return the value of the property, not null
    */
+  @Override
   public ConventionType getConventionType() {
     return _conventionType;
   }
@@ -171,6 +172,7 @@ public class MockConvention implements Bean, Convention {
    * This must be null when adding to a master and not null when retrieved from a master.
    * @return the value of the property
    */
+  @Override
   public UniqueId getUniqueId() {
     return _uniqueId;
   }
@@ -199,6 +201,7 @@ public class MockConvention implements Bean, Convention {
    * This field must not be null for the object to be valid.
    * @return the value of the property, not null
    */
+  @Override
   public ExternalIdBundle getExternalIdBundle() {
     return _externalIdBundle;
   }
@@ -227,6 +230,7 @@ public class MockConvention implements Bean, Convention {
    * Gets the map of attributes, which can be used for attaching additional application-level information.
    * @return the value of the property, not null
    */
+  @Override
   public Map<String, String> getAttributes() {
     return _attributes;
   }
@@ -235,6 +239,7 @@ public class MockConvention implements Bean, Convention {
    * Sets the map of attributes, which can be used for attaching additional application-level information.
    * @param attributes  the new value of the property, not null
    */
+  @Override
   public void setAttributes(Map<String, String> attributes) {
     JodaBeanUtils.notNull(attributes, "attributes");
     this._attributes.clear();
@@ -255,6 +260,7 @@ public class MockConvention implements Bean, Convention {
    * This field must not be null for the object to be valid.
    * @return the value of the property, not null
    */
+  @Override
   public String getName() {
     return _name;
   }

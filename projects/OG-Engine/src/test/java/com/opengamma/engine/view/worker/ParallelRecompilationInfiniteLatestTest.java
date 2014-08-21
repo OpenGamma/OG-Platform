@@ -54,7 +54,7 @@ import com.opengamma.engine.view.impl.ViewProcessContext;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.lambdava.functions.Function2;
+import com.opengamma.util.function.BiFunction;
 import com.opengamma.util.test.TestGroup;
 
 /**
@@ -169,7 +169,7 @@ public class ParallelRecompilationInfiniteLatestTest extends AbstractParallelRec
   }
 
   @Override
-  protected void testImpl(final Function2<ParallelRecompilationViewProcessWorker, ViewExecutionOptions, Void> callback) throws InterruptedException {
+  protected void testImpl(final BiFunction<ParallelRecompilationViewProcessWorker, ViewExecutionOptions, Void> callback) throws InterruptedException {
     final ExecutorService executor = Executors.newCachedThreadPool();
     try {
       final Map<ComputationTargetReference, UniqueId> resolutions = new HashMap<ComputationTargetReference, UniqueId>();
@@ -187,7 +187,7 @@ public class ParallelRecompilationInfiniteLatestTest extends AbstractParallelRec
       final ViewExecutionOptions options = ExecutionOptions.infinite(MarketData.live(), ExecutionFlags.none().ignoreCompilationValidity().get());
       final ViewDefinition viewDefinition = Mockito.mock(ViewDefinition.class);
       final ParallelRecompilationViewProcessWorker worker = new ParallelRecompilationViewProcessWorker(workerFactory(executor, resolutions), context, options, viewDefinition);
-      callback.execute(worker, options);
+      callback.apply(worker, options);
       s_logger.debug("Waiting for initial compilation");
       assertEquals(context.event(), "view definition compiled"); // From primary worker
       for (int j = 0; j < 5; j++) {

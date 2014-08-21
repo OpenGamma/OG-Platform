@@ -327,7 +327,7 @@ public final class ResolvedSecurityLink<S extends Security>
 
     @Override
     public Builder<S> setString(MetaProperty<?> property, String value) {
-      super.set(property, value);
+      super.setString(property, value);
       return this;
     }
 

@@ -77,6 +77,7 @@ public class WebRegionVersionResource extends AbstractWebRegionResource {
    * Creates the output root data.
    * @return the output root data, not null
    */
+  @Override
   protected FlexiBean createRootData() {
     FlexiBean out = super.createRootData();
     RegionDocument latestDoc = data().getRegion();

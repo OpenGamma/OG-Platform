@@ -341,30 +341,36 @@ public class MockHistoricalTimeSeriesSource implements HistoricalTimeSeriesSourc
     if (timeSeries == null || timeSeries.isEmpty()) {
       return hts;
     }
+    LocalDate effectiveStart;
     if (start == null) {
-      start = timeSeries.getEarliestTime();
+      effectiveStart = timeSeries.getEarliestTime();
     } else {
-      if (!includeStart) {
-        start = start.plusDays(1);
+      if (includeStart) {
+        effectiveStart = start;
+      } else {
+        effectiveStart = start.plusDays(1);
       }
       if (start.isBefore(timeSeries.getEarliestTime())) {
-        start = timeSeries.getEarliestTime();
+        effectiveStart = timeSeries.getEarliestTime();
       }
     }
+    LocalDate effectiveEnd;
     if (end == null) {
-      end = timeSeries.getLatestTime();
+      effectiveEnd = timeSeries.getLatestTime();
     } else {
-      if (!includeEnd) {
-        end = end.minusDays(1);
+      if (includeEnd) {
+        effectiveEnd = end;
+      } else {
+        effectiveEnd = end.minusDays(1);
       }
       if (end.isAfter(timeSeries.getLatestTime())) {
-        end = timeSeries.getLatestTime();
+        effectiveEnd = timeSeries.getLatestTime();
       }
     }
-    if (start.isAfter(timeSeries.getLatestTime()) || end.isBefore(timeSeries.getEarliestTime())) {
+    if (effectiveStart.isAfter(timeSeries.getLatestTime()) || effectiveEnd.isBefore(timeSeries.getEarliestTime())) {
       return new SimpleHistoricalTimeSeries(hts.getUniqueId(), ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES);
     }
-    timeSeries = timeSeries.subSeries(start, true, end, true);
+    timeSeries = timeSeries.subSeries(effectiveStart, true, effectiveEnd, true);
     if (((maxPoints != null) && (Math.abs(maxPoints) < timeSeries.size()))) {
       timeSeries = maxPoints >= 0 ? timeSeries.head(maxPoints) : timeSeries.tail(-maxPoints);
     }
