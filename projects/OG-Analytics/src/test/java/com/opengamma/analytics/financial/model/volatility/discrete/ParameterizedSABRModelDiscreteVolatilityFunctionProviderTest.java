@@ -148,6 +148,7 @@ public class ParameterizedSABRModelDiscreteVolatilityFunctionProviderTest {
     Arrays.fill(curves, s_flat);
     ParameterizedSABRModelDiscreteVolatilityFunctionProvider dvfp = new ParameterizedSABRModelDiscreteVolatilityFunctionProvider(s_fwdCurve, curves);
     List<DoublesPair> points = new ArrayList<>();
+    @SuppressWarnings("unused")
     DiscreteVolatilityFunction func = dvfp.from(points);
   }
 }
