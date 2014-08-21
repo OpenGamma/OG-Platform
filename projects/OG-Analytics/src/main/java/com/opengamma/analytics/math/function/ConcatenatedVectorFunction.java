@@ -48,6 +48,7 @@ public class ConcatenatedVectorFunction extends VectorFunction {
 
   @Override
   public DoubleMatrix2D calculateJacobian(final DoubleMatrix1D x) {
+    //arg check done by partition
     final DoubleMatrix1D[] subX = partition(x);
     final DoubleMatrix2D jac = new DoubleMatrix2D(getLengthOfRange(), getLengthOfDomain());
 
@@ -71,6 +72,7 @@ public class ConcatenatedVectorFunction extends VectorFunction {
 
   @Override
   public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
+    //arg check done by partition
     final DoubleMatrix1D[] subX = partition(x); //split the vector into sub vectors 
     final DoubleMatrix1D y = new DoubleMatrix1D(getLengthOfRange());
     int pos = 0;
@@ -90,6 +92,8 @@ public class ConcatenatedVectorFunction extends VectorFunction {
    * @return a set of sub vectors 
    */
   private DoubleMatrix1D[] partition(final DoubleMatrix1D x) {
+    ArgumentChecker.notNull(x, "x");
+    ArgumentChecker.isTrue(x.getNumberOfElements() == getLengthOfDomain(), "Incorrect length of x. Is {} but should be {}", x.getNumberOfElements(), getLengthOfDomain());
     final DoubleMatrix1D[] res = new DoubleMatrix1D[_nPartitions];
     int pos = 0;
     for (int i = 0; i < _nPartitions; i++) {
