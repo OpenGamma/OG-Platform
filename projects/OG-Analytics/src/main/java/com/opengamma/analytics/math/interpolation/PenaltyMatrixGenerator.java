@@ -162,7 +162,7 @@ public abstract class PenaltyMatrixGenerator {
       }
       final double[] w = new double[size - 2];
       for (int i = 0; i < (size - 2); i++) {
-        w[i] = 1.0 / dx[i] / dx[i + 1] / (dx[i] + dx[i + 1]);
+        w[i] = 1.0 / (dx[i] * dx[i + 1] * (dx[i] + dx[i + 1]));
       }
 
       final DoubleMatrix2D res = new DoubleMatrix2D(size, size);
