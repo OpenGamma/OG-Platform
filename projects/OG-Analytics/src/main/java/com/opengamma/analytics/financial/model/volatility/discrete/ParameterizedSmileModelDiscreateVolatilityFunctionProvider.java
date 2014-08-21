@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.model.volatility.discrete;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -28,6 +29,7 @@ import com.opengamma.analytics.math.matrix.MatrixAlgebra;
 import com.opengamma.analytics.math.matrix.OGMatrixAlgebra;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.util.tuple.FirstThenSecondDoublesPairComparator;
 
 /**
  * The parameters of the smile model (e.g. SABR, Heston, SVI) are themselves represented as parameterised term structures
@@ -102,66 +104,66 @@ public abstract class ParameterizedSmileModelDiscreateVolatilityFunctionProvider
   @Override
   public DiscreteVolatilityFunction from(final DoublesPair[] expiryStrikePoints) {
     ArgumentChecker.noNulls(expiryStrikePoints, "expiryStrikePoints");
-    final int nSmileModelParms = getNumSmileModelParamters();
     final int nOptions = expiryStrikePoints.length;
+    ArgumentChecker.isTrue(nOptions > 0, "Require at least one expiryStrikePoints");
+    final int nSmileModelParms = getNumSmileModelParamters();
 
-    //get the (sorted) array of unique expiries 
+    //order expiryStrikePoints first by expiry then strike and ensure they are unique  
+    //Also get the (sorted) array of unique expiries 
+    Set<DoublesPair> expStrikeSet = new TreeSet<>(new FirstThenSecondDoublesPairComparator());
     final Set<Double> expSet = new TreeSet<>();
-    for (int i = 0; i < nOptions; i++) {
-      final double t = expiryStrikePoints[i].first;
+    for (DoublesPair point : expiryStrikePoints) {
+      double t = point.first;
+      double k = point.second;
+      if (!expStrikeSet.add(point)) {
+        throw new IllegalArgumentException("expiryStrikePoints are not unique. Point with expiry of " + t + " and a strike of " + k + " already present");
+      }
       expSet.add(t);
     }
     final double[] expiries = ArrayUtils.toPrimitive(expSet.toArray(new Double[0]));
     final int nExpiries = expiries.length;
 
-    //create vectorFunctions that give the smile model parameters at the expiries and concatanate these to one function
-    int n = _smileModelParameterProviders.length;
-    VectorFunction[] funcs = new VectorFunction[n];
-    for (int i = 0; i < n; i++) {
+    //for each expiry, get the (sorted) array of unique strikes by walking the expStrikeSet (which is sorted first by expiry then strike)
+    final double[][] strikes = new double[nExpiries][];
+    Iterator<DoublesPair> iter = expStrikeSet.iterator();
+    int expIndex = 0;
+    DoublesPair p = iter.next(); //set must have at least one entry 
+    double t0 = p.first;
+    List<Double> strikeList = new ArrayList<>();
+    strikeList.add(p.second);
+    while (iter.hasNext()) {
+      p = iter.next();
+      if (p.first > t0) {
+        strikes[expIndex++] = ArrayUtils.toPrimitive(strikeList.toArray(new Double[0]));
+        t0 = p.first;
+        strikeList = new ArrayList<>();
+      }
+      strikeList.add(p.second);
+    }
+    strikes[expIndex++] = ArrayUtils.toPrimitive(strikeList.toArray(new Double[0]));
+
+    //find the reverse map to go from the (sorted) expiry and strike arrays to the positions in the input 
+    //expiryStrikePoints array - this allows the output vols from evaluate (and the vol sensitivities from calculateJacobian)
+    //to be in the same order as the input expiryStrikePoints
+    final int[][] revMap = new int[nExpiries][];
+    for (int i = 0; i < nExpiries; i++) {
+      revMap[i] = new int[strikes[i].length];
+    }
+    int index = 0;
+    for (DoublesPair point : expiryStrikePoints) {
+      double t = point.first;
+      double k = point.second;
+      int tIndex = Arrays.binarySearch(expiries, t);
+      int kIndex = Arrays.binarySearch(strikes[tIndex], k);
+      revMap[tIndex][kIndex] = index++;
+    }
+
+    //create vectorFunctions that give the smile model parameters at the expiries and concatenate these to one function
+    VectorFunction[] funcs = new VectorFunction[nSmileModelParms];
+    for (int i = 0; i < nSmileModelParms; i++) {
       funcs[i] = _smileModelParameterProviders[i].from(expiries);
     }
     final VectorFunction modelToSmileModelParms = new ConcatenatedVectorFunction(funcs);
-
-    //for each expiry, get the (sorted) array of unique strikes 
-    final double[][] strikes = new double[nExpiries][];
-    final List<Set<Double>> strikeSets = new ArrayList<>(nExpiries);
-    for (int i = 0; i < nExpiries; i++) {
-      final Set<Double> s = new TreeSet<>();
-      strikeSets.add(s);
-    }
-
-    final int[] optToExpMap = new int[nOptions];
-    for (int i = 0; i < nOptions; i++) {
-      final double t = expiryStrikePoints[i].first;
-      final double k = expiryStrikePoints[i].second;
-      final int index = Arrays.binarySearch(expiries, t);
-      optToExpMap[i] = index;
-      final Set<Double> s = strikeSets.get(index);
-      if (!s.add(k)) {
-        throw new IllegalArgumentException("This code should be unreachable");
-      }
-    }
-
-    //find the reverse map to go from the (sorted) expiry and strike arrays to the positions in the input 
-    //expiryStrikePoints array
-    final int[][] revMap = new int[nExpiries][];
-    for (int i = 0; i < nExpiries; i++) {
-      final Set<Double> s = strikeSets.get(i);
-      strikes[i] = ArrayUtils.toPrimitive(s.toArray(new Double[0]));
-      final int nStrikes = strikes[i].length;
-      revMap[i] = new int[nStrikes];
-    }
-
-    for (int i = 0; i < nOptions; i++) {
-      final int tIndex = optToExpMap[i];
-      final double[] strikesAtT = strikes[tIndex];
-      final double k = expiryStrikePoints[i].second;
-      final int kIndex = Arrays.binarySearch(strikesAtT, k);
-      if (kIndex < 0) {
-        throw new IllegalArgumentException("This code should be unreachable");
-      }
-      revMap[tIndex][kIndex] = i;
-    }
 
     //this is a list of functions that map from model parameters (SmileModelData) to smiles (volatilities at fixed
     //strikes at particular expiry)
