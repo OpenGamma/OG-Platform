@@ -11,7 +11,7 @@ import java.util.List;
  * Interface for anything the provides a vector function which depends on some extraneous data
  * @param <T> type of extraneous data 
  * @see {@link VectorFunction}
- *   */
+ */
 public interface VectorFunctionProvider<T> {
 
   /**
@@ -27,11 +27,5 @@ public interface VectorFunctionProvider<T> {
    * @return a {@link VectorFunction}
    */
   VectorFunction from(final T[] samplePoints);
-
-  //  /**
-  //   * Get the number of 'model' parameters
-  //   * @return the number of 'model' parameters
-  //   */
-  //  int getNumberOfParameters();
 
 }
