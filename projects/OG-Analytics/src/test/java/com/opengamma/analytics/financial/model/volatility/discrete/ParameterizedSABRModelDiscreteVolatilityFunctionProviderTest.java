@@ -141,4 +141,13 @@ public class ParameterizedSABRModelDiscreteVolatilityFunctionProviderTest {
     DoubleMatrix2D jacFD = func.calculateJacobianViaFD(parms);
     AssertMatrix.assertEqualsMatrix(jacFD, jac, 5e-5);
   }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void noPointsTest() {
+    ParameterizedCurve[] curves = new ParameterizedCurve[4];
+    Arrays.fill(curves, s_flat);
+    ParameterizedSABRModelDiscreteVolatilityFunctionProvider dvfp = new ParameterizedSABRModelDiscreteVolatilityFunctionProvider(s_fwdCurve, curves);
+    List<DoublesPair> points = new ArrayList<>();
+    DiscreteVolatilityFunction func = dvfp.from(points);
+  }
 }
