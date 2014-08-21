@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.provider.calculator.discounting;
 
+import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.HashMap;
@@ -14,6 +15,7 @@ import org.testng.annotations.Test;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.analytics.financial.forex.datasets.StandardDataSetsEURUSDForex;
 import com.opengamma.analytics.financial.instrument.index.GeneratorAttributeIR;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIborMaster;
@@ -64,6 +66,7 @@ public class CrossGammaMultiCurveCalculatorTest {
   private static final double SPREAD_BS = 0.0005;
   private static final SwapFixedIborDefinition SWAP_FIXED_IBOR_DEFINITION =
       SwapFixedIborDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, JPY6MLIBOR6M, NOTIONAL, RATE_FIXED, true);
+  private static final SwapFixedCoupon<Coupon> SWAP_FIXED_IBOR = SWAP_FIXED_IBOR_DEFINITION.toDerivative(CALIBRATION_DATE);
   private static final SwapIborIborDefinition SWAP_IBOR_IBOR_DEFINITION =
       JPYLIBOR3MLIBOR6M.generateInstrument(CALIBRATION_DATE, SPREAD_BS, NOTIONAL, new GeneratorAttributeIR(SWAP_TENOR));
   /** Calculators */
@@ -77,12 +80,35 @@ public class CrossGammaMultiCurveCalculatorTest {
   private static final double SHIFT = 1.0E-4;
   private static final double TOLERANCE_PV_GAMMA = 2.0E+0;
   private static final double TOLERANCE_PV_GAMMA_RELATIF = 6.0E-4;
+  /** Default size of bump: 1 basis point. */
+  private static final double BP1 = 1.0E-4;
+  /** Default size of bump: 1 basis point. */
+  private static final DoubleMatrix2D GAMMA_CROSS_CURVES = CGC.calculateCrossGammaCrossCurve(SWAP_FIXED_IBOR, MULTICURVE);
+
+  @Test
+  public void constructor() {
+    CrossGammaMultiCurveCalculator cgcShift = new CrossGammaMultiCurveCalculator(BP1 * 10, PVCSDC);
+    DoubleMatrix2D gammaCrossCurve10 = cgcShift.calculateCrossGammaCrossCurve(SWAP_FIXED_IBOR, MULTICURVE);
+    int nbNode = GAMMA_CROSS_CURVES.getNumberOfColumns();
+    boolean unchanged = true;
+    for (int i = 0; i < nbNode; i++) {
+      for (int j = 0; j < nbNode; j++) {
+        unchanged = unchanged && (Math.abs(GAMMA_CROSS_CURVES.getEntry(i, j) - gammaCrossCurve10.getEntry(i, j)) > TOLERANCE_PV_GAMMA);
+      }
+    }
+    assertFalse("CrossGammaMultiCurveCalculator", unchanged); // Changing the shift is changing the results.
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void multicurrencies() {
+    MulticurveProviderDiscount multicurveMulticcy = StandardDataSetsEURUSDForex.getCurvesEUROisUSDOis().getFirst();
+    CGC.calculateCrossGammaIntraCurve(SWAP_FIXED_IBOR, multicurveMulticcy);
+  }
 
   @Test
   public void crossGammaCrossCurveIrs() {
     final SwapFixedCoupon<Coupon> swap = SWAP_FIXED_IBOR_DEFINITION.toDerivative(CALIBRATION_DATE);
     HashMap<String, DoubleMatrix2D> gammaIntraCurve = CGC.calculateCrossGammaIntraCurve(swap, MULTICURVE);
-    DoubleMatrix2D gammaCrossCurve = CGC.calculateCrossGammaCrossCurve(swap, MULTICURVE);
     // Checking that overlap is coherent
     Set<String> names = MULTICURVE.getAllNames();
     int submatrixsize = 0;
@@ -97,7 +123,7 @@ public class CrossGammaMultiCurveCalculatorTest {
       for (int i = 0; i < nbNode; i++) {
         for (int j = 0; j < nbNode; j++) {
           double ic = gamma.getEntry(i, j);
-          double cc = gammaCrossCurve.getEntry(submatrixsize + i, submatrixsize + j);
+          double cc = GAMMA_CROSS_CURVES.getEntry(submatrixsize + i, submatrixsize + j);
           assertTrue("CrossGammaMultiCurveCalculator - cross-gamma cross-curves - " + i + " - " + j + " / " + ic + " - " + cc,
               (Math.abs(ic / cc - 1) < TOLERANCE_PV_GAMMA_RELATIF) || // If relative difference is small enough
                   (Math.abs(ic - cc) < TOLERANCE_PV_GAMMA)); // If absolute difference is small enough
@@ -122,7 +148,7 @@ public class CrossGammaMultiCurveCalculatorTest {
   private void crossGammaIntraCurve(Swap<?, ?> swap) {
     HashMap<String, DoubleMatrix2D> gammaMap = CGC.calculateCrossGammaIntraCurve(swap, MULTICURVE);
     Set<String> names = MULTICURVE.getAllNames();
-    for (String name : names) { // Start curves
+    for (String name : names) { // Start curves 
       Set<Currency> ccys = MULTICURVE.getCurrencies();
       ArgumentChecker.isTrue(ccys.size() == 1, "only one currency allowed for multi-curve gamma");
       Currency ccy = ccys.iterator().next();

@@ -17,18 +17,21 @@ import java.util.zip.ZipInputStream;
 
 import au.com.bytecode.opencsv.CSVReader;
 
+import com.opengamma.util.ArgumentChecker;
+
 /**
  * Utilities for the different Gamma analysis tutorials.
  */
 public class GammaAnalysisUtils {
-  
+
   /**
    * Parse a csv file to extract the curves shifts.
    * @param filename The name of the file (and its path).
-   * @return The shifts as a double[][]
+   * @return The shifts as a double[][] : shift[i][j] is the i-th scenario and j-th node.
    * @throws IOException
    */
   public static double[][] parseShifts(String filename, double scaling) throws IOException {
+    ArgumentChecker.notNull(filename, "fine name");
     ArrayList<double[]> list = new ArrayList<>();
     double[][] shift;
     try (CSVReader reader = getCSVReader(filename)) {

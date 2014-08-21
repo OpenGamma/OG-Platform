@@ -126,7 +126,6 @@ public class SwapGammaMultiCurveProfitJPYAnalysis {
   }
   private static final MultipleCurrencyParameterSensitivity DELTA = PSC.calculateSensitivity(IRS_JPY, MULTICURVE);
 
-  @SuppressWarnings("unused")
   @Test(enabled = false)
   public void crossGammaMulticurveIntraCurve() {
     HashMap<String, DoubleMatrix2D> crossGammaIntraIrs = CGMCC.calculateCrossGammaIntraCurve(IRS_JPY, MULTICURVE);
@@ -137,7 +136,6 @@ public class SwapGammaMultiCurveProfitJPYAnalysis {
     for (String name : crossGammaIntraBs.keySet()) {
       exportMatrix(crossGammaIntraBs.get(name).getData(), "cross-gamma-jpy-bs-" + name + ".csv");
     }
-    int t = 0;
   }
 
   private void exportMatrix(double[][] matrix, String fileName) {
