@@ -11,6 +11,7 @@ import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.E
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.analytics.financial.model.volatility.smile.function.VolatilityFunctionProvider;
 import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * SABR smile interpolator with left and right extrapolation by {@link SmileExtrapolationFunctionSABRProvider}
@@ -23,6 +24,7 @@ public class SmileInterpolatorSABRWithExtrapolation extends SmileInterpolatorSAB
    * @param extrapolationFunctionProvider The extrapolation method
    */
   public SmileInterpolatorSABRWithExtrapolation(final SmileExtrapolationFunctionSABRProvider extrapolationFunctionProvider) {
+    ArgumentChecker.notNull(extrapolationFunctionProvider, "extrapolationFunctionProvider");
     _extrapolationFunctionProvider = extrapolationFunctionProvider;
   }
 
@@ -33,6 +35,7 @@ public class SmileInterpolatorSABRWithExtrapolation extends SmileInterpolatorSAB
    */
   public SmileInterpolatorSABRWithExtrapolation(final VolatilityFunctionProvider<SABRFormulaData> formula, final SmileExtrapolationFunctionSABRProvider extrapolationFunctionProvider) {
     super(formula);
+    ArgumentChecker.notNull(extrapolationFunctionProvider, "extrapolationFunctionProvider");
     _extrapolationFunctionProvider = extrapolationFunctionProvider;
   }
 
@@ -47,11 +50,15 @@ public class SmileInterpolatorSABRWithExtrapolation extends SmileInterpolatorSAB
   public SmileInterpolatorSABRWithExtrapolation(final int seed, final VolatilityFunctionProvider<SABRFormulaData> formula, final double beta, final WeightingFunction weightFunction,
       final SmileExtrapolationFunctionSABRProvider extrapolationFunctionProvider) {
     super(seed, formula, beta, weightFunction);
+    ArgumentChecker.notNull(extrapolationFunctionProvider, "extrapolationFunctionProvider");
     _extrapolationFunctionProvider = extrapolationFunctionProvider;
   }
 
   @Override
   public Function1D<Double, Double> getVolatilityFunction(final double forward, final double[] strikes, final double expiry, final double[] impliedVols) {
+    ArgumentChecker.notNull(strikes, "strikes");
+    ArgumentChecker.notNull(impliedVols, "impliedVols");
+
     final int nStrikes = strikes.length;
     final double cutOffStrikeLow = strikes[0];
     final double cutOffStrikeHigh = strikes[nStrikes - 1];
@@ -118,4 +125,35 @@ public class SmileInterpolatorSABRWithExtrapolation extends SmileInterpolatorSAB
       }
     };
   }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    result = prime * result + ((_extrapolationFunctionProvider == null) ? 0 : _extrapolationFunctionProvider.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!super.equals(obj)) {
+      return false;
+    }
+    if (!(obj instanceof SmileInterpolatorSABRWithExtrapolation)) {
+      return false;
+    }
+    SmileInterpolatorSABRWithExtrapolation other = (SmileInterpolatorSABRWithExtrapolation) obj;
+    if (_extrapolationFunctionProvider == null) {
+      if (other._extrapolationFunctionProvider != null) {
+        return false;
+      }
+    } else if (!_extrapolationFunctionProvider.equals(other._extrapolationFunctionProvider)) {
+      return false;
+    }
+    return true;
+  }
+
 }

@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation;
 
+import java.util.Arrays;
+
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
@@ -19,6 +21,7 @@ import com.opengamma.analytics.math.differentiation.FiniteDifferenceType;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.rootfinding.BracketRoot;
 import com.opengamma.analytics.math.rootfinding.RidderSingleRootFinder;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Counterpart of {@link SABRExtrapolationRightFunction}. 
@@ -27,45 +30,16 @@ import com.opengamma.analytics.math.rootfinding.RidderSingleRootFinder;
 public class SABRExtrapolationLeftFunction {
 
   private final double _forward;
-  /**
-   * The SABR parameter for the pricing below the cut-off strike.
-   */
   private final SABRFormulaData _sabrData;
-  /**
-   * The cut-off strike. The smile is extrapolated above that level.
-   */
   private final double _cutOffStrike;
-  /**
-   * The tail thickness parameter.
-   */
   private final double _mu;
-  /**
-   * An array containing the three fitting parameters.
-   */
   private final double[] _parameter;
-  /**
-   * The Black implied volatility at the cut-off strike.
-   */
   private double _volatilityK;
-  /**
-   * The price and its derivatives of order 1 and 2 at the cut-off strike.
-   */
   private final double[] _priceK = new double[3];
-  /**
-   * The time to option expiry.
-   */
   private final double _timeToExpiry;
-  /**
-   * Volatility provider function. Currently implemented only for SABRHaganVolatilityFunction.
-   */
   private final VolatilityFunctionProvider<SABRFormulaData> _sabrFunction;
-  /**
-   * Black function used.
-   */
+
   private static final BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
-  /**
-   * Value below which the time-to-expiry is considered to be 0 and the price of the fitting parameters fit a price of 0 (OTM).
-   */
   private static final double SMALL_EXPIRY = 1.0E-6;
   private static final double SMALL_PARAMETER = -1.0E4;
 
@@ -90,7 +64,7 @@ public class SABRExtrapolationLeftFunction {
     _sabrFunction = volatilityFunction;
     if (timeToExpiry > SMALL_EXPIRY) {
       _parameter = computesFittingParameters();
-    } else { // Implementation note: when time to expiry is very small, the price above the cut-off strike and its derivatives should be 0 (or at least very small).
+    } else {
       _parameter = new double[] {SMALL_PARAMETER, 0.0, 0.0 };
     }
   }
@@ -101,14 +75,19 @@ public class SABRExtrapolationLeftFunction {
    * @return The option price.
    */
   public double price(final EuropeanVanillaOption option) {
-    double p = 0.0;
-    final double k = option.getStrike();
+    ArgumentChecker.notNull(option, "option");
 
-    if (k >= _cutOffStrike) { // Uses Hagan et al SABR function.
-      final Function1D<SABRFormulaData, Double> funcSabr = _sabrFunction.getVolatilityFunction(option, _forward);
-      final double volatility = funcSabr.evaluate(_sabrData);
-      final BlackFunctionData dataBlack = new BlackFunctionData(_forward, 1.0, volatility);
-      final Function1D<BlackFunctionData, Double> funcBlack = BLACK_FUNCTION.getPriceFunction(option);
+    double p = 0.0;
+    double k = option.getStrike();
+
+    if (k >= _cutOffStrike) { // Uses Hagan SABR function.
+      Function1D<SABRFormulaData, Double> funcSabr = _sabrFunction.getVolatilityFunction(option, _forward);
+      double volatility = funcSabr.evaluate(_sabrData);
+      if (volatility < 0.0) {
+        volatility = 0.0;
+      }
+      BlackFunctionData dataBlack = new BlackFunctionData(_forward, 1.0, volatility);
+      Function1D<BlackFunctionData, Double> funcBlack = BLACK_FUNCTION.getPriceFunction(option);
       p = funcBlack.evaluate(dataBlack);
     } else { // Uses extrapolation for put.
       p = extrapolation(k);
@@ -161,6 +140,14 @@ public class SABRExtrapolationLeftFunction {
   }
 
   /**
+   * Gets the SABR function
+   * @return The SABR function
+   */
+  public VolatilityFunctionProvider<SABRFormulaData> getSABRFunction() {
+    return _sabrFunction;
+  }
+
+  /**
    * Computes the three fitting parameters to ensure a C^2 price curve.
    * @return The parameters.
    */
@@ -170,15 +157,18 @@ public class SABRExtrapolationLeftFunction {
     final double[] vD = new double[6];
     final double[][] vD2 = new double[2][2];
     _volatilityK = getVolatilityAdjoint2(option, _forward, _sabrData, vD, vD2);
-    final BlackFunctionData dataBlack = new BlackFunctionData(_forward, 1.0, _volatilityK);
     final double[] bsD = new double[3];
     final double[][] bsD2 = new double[3][3];
-    _priceK[0] = BLACK_FUNCTION.getPriceAdjoint2(option, dataBlack, bsD, bsD2);
+    if (_volatilityK < 0.0) { // all the sensitivities are set to be zero
+      _volatilityK = 0.0;
+    } else {
+      final BlackFunctionData dataBlack = new BlackFunctionData(_forward, 1.0, _volatilityK);
+      _priceK[0] = BLACK_FUNCTION.getPriceAdjoint2(option, dataBlack, bsD, bsD2);
+    }
     _priceK[1] = bsD[2] + bsD[1] * vD[1];
     _priceK[2] = bsD2[2][2] + bsD2[1][2] * vD[1] + (bsD2[2][1] + bsD2[1][1] * vD[1]) * vD[1] + bsD[1] * vD2[1][1];
     double eps = 1.0E-15;
     if (Math.abs(_priceK[0]) < eps && Math.abs(_priceK[1]) < eps && Math.abs(_priceK[2]) < eps) {
-      // Implementation note: If value and its derivatives is too small, then parameters are such that the extrapolated price is "very small".
       return new double[] {-100.0, 0, 0 };
     }
     final CFunction toSolveC = new CFunction(_priceK, _cutOffStrike, _mu);
@@ -206,24 +196,40 @@ public class SABRExtrapolationLeftFunction {
       return ((SABRHaganVolatilityFunction) _sabrFunction).getVolatilityAdjoint2(option, forward, data, volatilityD, volatilityD2);
     }
 
-    //TODO Implement analytic formula for each volatility function
+    // Use finite difference approximation for other formula
     double eps = 1.0e-6;
-    volatilityD[0] = fdSensitivity(option, forward, data, 3, eps);
-    volatilityD[1] = fdSensitivity(option, forward, data, 4, eps);
-    volatilityD[2] = fdSensitivity(option, forward, data, 5, eps);
-    volatilityD[3] = fdSensitivity(option, forward, data, 6, eps);
-
-    double fwdUp = fdSensitivity(option, forward + eps, data, 1, eps);
-    double fwdDw = fdSensitivity(option, forward - eps, data, 1, eps);
-    double crUp = fdSensitivity(option, forward + eps, data, 2, eps);
-    double crDw = fdSensitivity(option, forward - eps, data, 2, eps);
-    double strUp = fdSensitivity(option.withStrike(option.getStrike() + eps), forward, data, 2, eps);
-    double strDw = fdSensitivity(option.withStrike(option.getStrike() - eps), forward, data, 2, eps);
-
-    volatilityD2[0][0] = 0.5 * (fwdUp - fwdDw) / eps;
-    volatilityD2[1][0] = 0.5 * (crUp - crDw) / eps;
-    volatilityD2[0][1] = volatilityD2[1][0];
-    volatilityD2[1][1] = 0.5 * (strUp - strDw) / eps;
+    volatilityD[0] = fdSensitivity(option, forward, data, 1, eps);
+    volatilityD[1] = fdSensitivity(option, forward, data, 2, eps);
+    if (forward > eps) {
+      double fwdUp = fdSensitivity(option, forward + eps, data, 1, eps);
+      double fwdDw = fdSensitivity(option, forward - eps, data, 1, eps);
+      double crUp = fdSensitivity(option, forward + eps, data, 2, eps);
+      double crDw = fdSensitivity(option, forward - eps, data, 2, eps);
+      volatilityD2[0][0] = 0.5 * (fwdUp - fwdDw) / eps;
+      volatilityD2[1][0] = 0.5 * (crUp - crDw) / eps;
+      volatilityD2[0][1] = volatilityD2[1][0];
+    } else {
+      double fwdBase = fdSensitivity(option, forward, data, 1, eps);
+      double fwdUp = fdSensitivity(option, forward + eps, data, 1, eps);
+      double fwdUpUp = fdSensitivity(option, forward + 2.0 * eps, data, 1, eps);
+      double crBase = fdSensitivity(option, forward, data, 2, eps);
+      double crUp = fdSensitivity(option, forward + eps, data, 2, eps);
+      double crUpUp = fdSensitivity(option, forward + 2.0 * eps, data, 2, eps);
+      volatilityD2[0][0] = (2.0 * fwdUp - 0.5 * fwdUpUp - 1.5 * fwdBase) / eps;
+      volatilityD2[1][0] = (2.0 * crUp - 0.5 * crUpUp - 1.5 * crBase) / eps;
+      volatilityD2[0][1] = volatilityD2[1][0];
+    }
+    double strike = option.getStrike();
+    if (strike > eps) {
+      double strUp = fdSensitivity(option.withStrike(strike + eps), forward, data, 2, eps);
+      double strDw = fdSensitivity(option.withStrike(strike - eps), forward, data, 2, eps);
+      volatilityD2[1][1] = 0.5 * (strUp - strDw) / eps;
+    } else {
+      double strBase = fdSensitivity(option.withStrike(strike), forward, data, 2, eps);
+      double strUp = fdSensitivity(option.withStrike(strike + eps), forward, data, 2, eps);
+      double strUpUp = fdSensitivity(option.withStrike(strike + 2.0 * eps), forward, data, 2, eps);
+      volatilityD2[1][1] = 0.5 * (2.0 * strUp - 0.5 * strUpUp - 1.5 * strBase) / eps;
+    }
     return _sabrFunction.getVolatilityFunction(option, forward).evaluate(data);
   }
 
@@ -271,75 +277,6 @@ public class SABRExtrapolationLeftFunction {
         dataB = sabrData;
         dataA = sabrData;
         break;
-      case 3:
-        final double a = sabrData.getAlpha();
-        if (a >= delta) {
-          fdType = FiniteDifferenceType.CENTRAL;
-          dataA = sabrData.withAlpha(a - delta);
-          dataC = sabrData.withAlpha(a + delta);
-        } else {
-          fdType = FiniteDifferenceType.FORWARD;
-          dataA = sabrData;
-          dataB = sabrData.withAlpha(a + delta);
-          dataC = sabrData.withAlpha(a + 2 * delta);
-        }
-        funcC = func;
-        funcB = func;
-        funcA = func;
-        break;
-      case 4:
-        final double b = sabrData.getBeta();
-        if (b >= delta) {
-          fdType = FiniteDifferenceType.CENTRAL;
-          dataA = sabrData.withBeta(b - delta);
-          dataC = sabrData.withBeta(b + delta);
-        } else {
-          fdType = FiniteDifferenceType.FORWARD;
-          dataA = sabrData;
-          dataB = sabrData.withBeta(b + delta);
-          dataC = sabrData.withBeta(b + 2 * delta);
-        }
-        funcC = func;
-        funcB = func;
-        funcA = func;
-        break;
-      case 5:
-        final double r = sabrData.getRho();
-        if ((r + 1) < delta) {
-          fdType = FiniteDifferenceType.FORWARD;
-          dataA = sabrData;
-          dataB = sabrData.withRho(r + delta);
-          dataC = sabrData.withRho(r + 2 * delta);
-        } else if ((1 - r) < delta) {
-          fdType = FiniteDifferenceType.BACKWARD;
-          dataA = sabrData.withRho(r - 2 * delta);
-          dataB = sabrData.withRho(r - delta);
-          dataC = sabrData;
-        } else {
-          fdType = FiniteDifferenceType.CENTRAL;
-          dataC = sabrData.withRho(r + delta);
-          dataA = sabrData.withRho(r - delta);
-        }
-        funcC = func;
-        funcB = func;
-        funcA = func;
-        break;
-      case 6:
-        final double n = sabrData.getNu();
-        if (n >= delta) {
-          fdType = FiniteDifferenceType.CENTRAL;
-          dataA = sabrData.withNu(n - delta);
-          dataC = sabrData.withNu(n + delta);
-        } else {
-          fdType = FiniteDifferenceType.FORWARD;
-          dataA = sabrData;
-          dataB = sabrData.withNu(n + delta);
-          dataC = sabrData.withNu(n + 2 * delta);
-        }
-        funcC = func;
-        funcB = func;
-        funcA = func;
-        break;
       default:
         throw new MathException();
     }
@@ -348,10 +285,8 @@ public class SABRExtrapolationLeftFunction {
       switch (fdType) {
         case FORWARD:
           return (-1.5 * funcA.evaluate(dataA) + 2.0 * funcB.evaluate(dataB) - 0.5 * funcC.evaluate(dataC)) / delta;
-        case BACKWARD:
-          return (0.5 * funcA.evaluate(dataA) - 2.0 * funcB.evaluate(dataB) + 1.5 * funcC.evaluate(dataC)) / delta;
         case CENTRAL:
-          return (funcC.evaluate(dataC) - funcA.evaluate(dataA)) / 2.0 / delta;
+          return 0.5 * (funcC.evaluate(dataC) - funcA.evaluate(dataA)) / delta;
         default:
           throw new MathException("enum not found");
       }
@@ -397,4 +332,77 @@ public class SABRExtrapolationLeftFunction {
       return res;
     }
   }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    long temp;
+    temp = Double.doubleToLongBits(_cutOffStrike);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_forward);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_mu);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + Arrays.hashCode(_parameter);
+    result = prime * result + Arrays.hashCode(_priceK);
+    result = prime * result + ((_sabrData == null) ? 0 : _sabrData.hashCode());
+    result = prime * result + ((_sabrFunction == null) ? 0 : _sabrFunction.hashCode());
+    temp = Double.doubleToLongBits(_timeToExpiry);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_volatilityK);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (!(obj instanceof SABRExtrapolationLeftFunction)) {
+      return false;
+    }
+    SABRExtrapolationLeftFunction other = (SABRExtrapolationLeftFunction) obj;
+    if (Double.doubleToLongBits(_cutOffStrike) != Double.doubleToLongBits(other._cutOffStrike)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_forward) != Double.doubleToLongBits(other._forward)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_mu) != Double.doubleToLongBits(other._mu)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_timeToExpiry) != Double.doubleToLongBits(other._timeToExpiry)) {
+      return false;
+    }
+    if (_sabrData == null) {
+      if (other._sabrData != null) {
+        return false;
+      }
+    } else if (!_sabrData.equals(other._sabrData)) {
+      return false;
+    }
+    if (_sabrFunction == null) {
+      if (other._sabrFunction != null) {
+        return false;
+      }
+    } else if (!_sabrFunction.equals(other._sabrFunction)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_volatilityK) != Double.doubleToLongBits(other._volatilityK)) {
+      return false;
+    }
+    if (!Arrays.equals(_priceK, other._priceK)) {
+      return false;
+    }
+    if (!Arrays.equals(_parameter, other._parameter)) {
+      return false;
+    }
+    return true;
+  }
+
 }

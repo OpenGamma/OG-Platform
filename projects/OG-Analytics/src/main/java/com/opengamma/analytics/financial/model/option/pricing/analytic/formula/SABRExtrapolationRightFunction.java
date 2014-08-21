@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.model.option.pricing.analytic.formula;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRFormulaData;
@@ -549,18 +550,7 @@ public class SABRExtrapolationRightFunction {
     if (_sabrFunction instanceof SABRHaganVolatilityFunction) {
       return ((SABRHaganVolatilityFunction) _sabrFunction).getVolatilityAdjoint(option, forward, data);
     }
-
-    //TODO Implement analytic formula for each volatility function
-    double eps = 1.0e-6;
-    double[] res = new double[7];
-    res[0] = _sabrFunction.getVolatilityFunction(option, forward).evaluate(data);
-    res[1] = fdSensitivity(option, forward, data, 1, eps);
-    res[2] = fdSensitivity(option, forward, data, 2, eps);
-    res[3] = fdSensitivity(option, forward, data, 3, eps);
-    res[4] = fdSensitivity(option, forward, data, 4, eps);
-    res[5] = fdSensitivity(option, forward, data, 5, eps);
-    res[6] = fdSensitivity(option, forward, data, 6, eps);
-    return res;
+    throw new NotImplementedException();
   }
 
   private double getVolatilityAdjoint2(final EuropeanVanillaOption option, final double forward, final SABRFormulaData data, final double[] volatilityD, final double[][] volatilityD2) {
@@ -570,22 +560,39 @@ public class SABRExtrapolationRightFunction {
 
     //TODO Implement analytic formula for each volatility function
     double eps = 1.0e-6;
-    volatilityD[0] = fdSensitivity(option, forward, data, 3, eps);
-    volatilityD[1] = fdSensitivity(option, forward, data, 4, eps);
-    volatilityD[2] = fdSensitivity(option, forward, data, 5, eps);
-    volatilityD[3] = fdSensitivity(option, forward, data, 6, eps);
+    volatilityD[0] = fdSensitivity(option, forward, data, 1, eps);
+    volatilityD[1] = fdSensitivity(option, forward, data, 2, eps);
 
-    double fwdUp = fdSensitivity(option, forward + eps, data, 1, eps);
-    double fwdDw = fdSensitivity(option, forward - eps, data, 1, eps);
-    double crUp = fdSensitivity(option, forward + eps, data, 2, eps);
-    double crDw = fdSensitivity(option, forward - eps, data, 2, eps);
-    double strUp = fdSensitivity(option.withStrike(option.getStrike() + eps), forward, data, 2, eps);
-    double strDw = fdSensitivity(option.withStrike(option.getStrike() - eps), forward, data, 2, eps);
-
-    volatilityD2[0][0] = 0.5 * (fwdUp - fwdDw) / eps;
-    volatilityD2[1][0] = 0.5 * (crUp - crDw) / eps;
-    volatilityD2[0][1] = volatilityD2[1][0];
-    volatilityD2[1][1] = 0.5 * (strUp - strDw) / eps;
+    if (forward > eps) {
+      double fwdUp = fdSensitivity(option, forward + eps, data, 1, eps);
+      double fwdDw = fdSensitivity(option, forward - eps, data, 1, eps);
+      double crUp = fdSensitivity(option, forward + eps, data, 2, eps);
+      double crDw = fdSensitivity(option, forward - eps, data, 2, eps);
+      volatilityD2[0][0] = 0.5 * (fwdUp - fwdDw) / eps;
+      volatilityD2[1][0] = 0.5 * (crUp - crDw) / eps;
+      volatilityD2[0][1] = volatilityD2[1][0];
+    } else {
+      double fwdBase = fdSensitivity(option, forward, data, 1, eps);
+      double fwdUp = fdSensitivity(option, forward + eps, data, 1, eps);
+      double fwdUpUp = fdSensitivity(option, forward + 2.0 * eps, data, 1, eps);
+      double crBase = fdSensitivity(option, forward, data, 2, eps);
+      double crUp = fdSensitivity(option, forward + eps, data, 2, eps);
+      double crUpUp = fdSensitivity(option, forward + 2.0 * eps, data, 2, eps);
+      volatilityD2[0][0] = (2.0 * fwdUp - 0.5 * fwdUpUp - 1.5 * fwdBase) / eps;
+      volatilityD2[1][0] = (2.0 * crUp - 0.5 * crUpUp - 1.5 * crBase) / eps;
+      volatilityD2[0][1] = volatilityD2[1][0];
+    }
+    double strike = option.getStrike();
+    if (strike > eps) {
+      double strUp = fdSensitivity(option.withStrike(strike + eps), forward, data, 2, eps);
+      double strDw = fdSensitivity(option.withStrike(strike - eps), forward, data, 2, eps);
+      volatilityD2[1][1] = 0.5 * (strUp - strDw) / eps;
+    } else {
+      double strBase = fdSensitivity(option.withStrike(strike), forward, data, 2, eps);
+      double strUp = fdSensitivity(option.withStrike(strike + eps), forward, data, 2, eps);
+      double strUpUp = fdSensitivity(option.withStrike(strike + 2.0 * eps), forward, data, 2, eps);
+      volatilityD2[1][1] = 0.5 * (2.0 * strUp - 0.5 * strUpUp - 1.5 * strBase) / eps;
+    }
     return _sabrFunction.getVolatilityFunction(option, forward).evaluate(data);
   }
 
@@ -633,75 +640,6 @@ public class SABRExtrapolationRightFunction {
         dataB = sabrData;
         dataA = sabrData;
         break;
-      case 3:
-        final double a = sabrData.getAlpha();
-        if (a >= delta) {
-          fdType = FiniteDifferenceType.CENTRAL;
-          dataA = sabrData.withAlpha(a - delta);
-          dataC = sabrData.withAlpha(a + delta);
-        } else {
-          fdType = FiniteDifferenceType.FORWARD;
-          dataA = sabrData;
-          dataB = sabrData.withAlpha(a + delta);
-          dataC = sabrData.withAlpha(a + 2 * delta);
-        }
-        funcC = func;
-        funcB = func;
-        funcA = func;
-        break;
-      case 4:
-        final double b = sabrData.getBeta();
-        if (b >= delta) {
-          fdType = FiniteDifferenceType.CENTRAL;
-          dataA = sabrData.withBeta(b - delta);
-          dataC = sabrData.withBeta(b + delta);
-        } else {
-          fdType = FiniteDifferenceType.FORWARD;
-          dataA = sabrData;
-          dataB = sabrData.withBeta(b + delta);
-          dataC = sabrData.withBeta(b + 2 * delta);
-        }
-        funcC = func;
-        funcB = func;
-        funcA = func;
-        break;
-      case 5:
-        final double r = sabrData.getRho();
-        if ((r + 1) < delta) {
-          fdType = FiniteDifferenceType.FORWARD;
-          dataA = sabrData;
-          dataB = sabrData.withRho(r + delta);
-          dataC = sabrData.withRho(r + 2 * delta);
-        } else if ((1 - r) < delta) {
-          fdType = FiniteDifferenceType.BACKWARD;
-          dataA = sabrData.withRho(r - 2 * delta);
-          dataB = sabrData.withRho(r - delta);
-          dataC = sabrData;
-        } else {
-          fdType = FiniteDifferenceType.CENTRAL;
-          dataC = sabrData.withRho(r + delta);
-          dataA = sabrData.withRho(r - delta);
-        }
-        funcC = func;
-        funcB = func;
-        funcA = func;
-        break;
-      case 6:
-        final double n = sabrData.getNu();
-        if (n >= delta) {
-          fdType = FiniteDifferenceType.CENTRAL;
-          dataA = sabrData.withNu(n - delta);
-          dataC = sabrData.withNu(n + delta);
-        } else {
-          fdType = FiniteDifferenceType.FORWARD;
-          dataA = sabrData;
-          dataB = sabrData.withNu(n + delta);
-          dataC = sabrData.withNu(n + 2 * delta);
-        }
-        funcC = func;
-        funcB = func;
-        funcA = func;
-        break;
       default:
         throw new MathException();
     }
@@ -710,8 +648,6 @@ public class SABRExtrapolationRightFunction {
       switch (fdType) {
         case FORWARD:
           return (-1.5 * funcA.evaluate(dataA) + 2.0 * funcB.evaluate(dataB) - 0.5 * funcC.evaluate(dataC)) / delta;
-        case BACKWARD:
-          return (0.5 * funcA.evaluate(dataA) - 2.0 * funcB.evaluate(dataB) + 1.5 * funcC.evaluate(dataC)) / delta;
         case CENTRAL:
           return (funcC.evaluate(dataC) - funcA.evaluate(dataA)) / 2.0 / delta;
         default:

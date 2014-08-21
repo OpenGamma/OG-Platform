@@ -21,10 +21,12 @@ public class ShiftedLogNormalExtrapolationFunctionProvider extends SmileExtrapol
   private static final ShiftedLogNormalTailExtrapolationFitter TAIL_FITTER = new ShiftedLogNormalTailExtrapolationFitter();
   private static final ScalarFirstOrderDifferentiator DIFFERENTIATOR = new ScalarFirstOrderDifferentiator();
 
-  private static final String s_exception = "Exception"; // OG-Financial's BlackVolatilitySurfacePropertyNamesAndValues.EXCEPTION_SPLINE_EXTRAPOLATOR_FAILURE; 
-  private static final String s_flat = "Flat"; // OG-Financial's BlackVolatilitySurfacePropertyNamesAndValues.FLAT_SPLINE_EXTRAPOLATOR_FAILURE;
-  private static final String s_quiet = "Quiet"; // OG-Financial's BlackVolatilitySurfacePropertyNamesAndValues.QUIET_SPLINE_EXTRAPOLATOR_FAILURE;
-
+  /*
+   * Failure behaviors. See {@link SmileInterpolatorSpline} for detail.
+   */
+  private static final String s_exception = "Exception";
+  private static final String s_flat = "Flat";
+  private static final String s_quiet = "Quiet";
   private final String _extrapolatorFailureBehaviour;
 
   /**
@@ -39,12 +41,17 @@ public class ShiftedLogNormalExtrapolationFunctionProvider extends SmileExtrapol
    * @param extrapolatorFailureBehaviour The expected behavior
    */
   public ShiftedLogNormalExtrapolationFunctionProvider(final String extrapolatorFailureBehaviour) {
+    ArgumentChecker.notNull(extrapolatorFailureBehaviour, "extrapolatorFailureBehaviour");
     _extrapolatorFailureBehaviour = extrapolatorFailureBehaviour;
   }
 
   @Override
   public Function1D<Double, Double> getExtrapolationFunction(final SABRFormulaData sabrDataLow, final SABRFormulaData sabrDataHigh,
       final VolatilityFunctionProvider<SABRFormulaData> volatilityFunction, final double forward, final double expiry, final double cutOffStrikeLow, final double cutOffStrikeHigh) {
+    ArgumentChecker.notNull(sabrDataLow, "sabrDataLow");
+    ArgumentChecker.notNull(sabrDataHigh, "sabrDataHigh");
+    ArgumentChecker.notNull(volatilityFunction, "volatilityFunction");
+    ArgumentChecker.isTrue(0.0 < cutOffStrikeLow, "cutOffStrikeLow should be positive");
 
     final Function1D<Double, Boolean> domain = new Function1D<Double, Boolean>() {
       @Override
@@ -74,24 +81,20 @@ public class ShiftedLogNormalExtrapolationFunctionProvider extends SmileExtrapol
     final double[] shiftLnVolLowTail;
     final double[] shiftLnVolHighTail;
 
-    // Volatility gradient (dVol/dStrike) of interpolator
     final Function1D<Double, Double> dSigmaDxLow = DIFFERENTIATOR.differentiate(interpFuncLow, domain);
     final Function1D<Double, Double> dSigmaDxHigh = DIFFERENTIATOR.differentiate(interpFuncHigh, domain);
 
-    // The 'quiet' method reduces smile if the volatility gradient is either out of bounds of ShiftedLognormal model, or if root-finder fails to find solution
     if (_extrapolatorFailureBehaviour.equalsIgnoreCase(s_quiet)) {
       ArgumentChecker.isTrue(cutOffStrikeLow <= forward, "Cannot do left tail extrapolation when the lowest strike ({}) is greater than the forward ({})", cutOffStrikeLow, forward);
       ArgumentChecker.isTrue(cutOffStrikeHigh >= forward, "Cannot do right tail extrapolation when the highest strike ({}) is less than the forward ({})", cutOffStrikeHigh, forward);
       shiftLnVolHighTail = TAIL_FITTER.fitVolatilityAndGradRecursivelyByReducingSmile(forward, cutOffStrikeHigh, interpFuncHigh.evaluate(cutOffStrikeHigh), dSigmaDxHigh.evaluate(cutOffStrikeHigh),
           expiry);
       shiftLnVolLowTail = TAIL_FITTER.fitVolatilityAndGradRecursivelyByReducingSmile(forward, cutOffStrikeLow, interpFuncLow.evaluate(cutOffStrikeLow), dSigmaDxLow.evaluate(cutOffStrikeLow), expiry);
-      // 'Exception' will throw an exception if it fails to fit to target vol and gradient provided by interpolating function at the boundary
     } else if (_extrapolatorFailureBehaviour.equalsIgnoreCase(s_exception)) {
       ArgumentChecker.isTrue(cutOffStrikeLow <= forward, "Cannot do left tail extrapolation when the lowest strike ({}) is greater than the forward ({})", cutOffStrikeLow, forward);
       ArgumentChecker.isTrue(cutOffStrikeHigh >= forward, "Cannot do right tail extrapolation when the highest strike ({}) is less than the forward ({})", cutOffStrikeHigh, forward);
       shiftLnVolHighTail = TAIL_FITTER.fitVolatilityAndGrad(forward, cutOffStrikeHigh, interpFuncHigh.evaluate(cutOffStrikeHigh), dSigmaDxHigh.evaluate(cutOffStrikeHigh), expiry);
       shiftLnVolLowTail = TAIL_FITTER.fitVolatilityAndGrad(forward, cutOffStrikeLow, interpFuncLow.evaluate(cutOffStrikeLow), dSigmaDxLow.evaluate(cutOffStrikeLow), expiry);
-      // 'Flat' will simply return the target volatility at the boundary. Thus the target gradient is zero.
     } else if (_extrapolatorFailureBehaviour.equalsIgnoreCase(s_flat)) {
       shiftLnVolHighTail = TAIL_FITTER.fitVolatilityAndGrad(forward, cutOffStrikeHigh, interpFuncHigh.evaluate(cutOffStrikeHigh), 0.0, expiry);
       shiftLnVolLowTail = TAIL_FITTER.fitVolatilityAndGrad(forward, cutOffStrikeLow, interpFuncLow.evaluate(cutOffStrikeLow), 0.0, expiry);

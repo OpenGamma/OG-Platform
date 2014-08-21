@@ -14,7 +14,6 @@ import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpol
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.ShiftedLogNormalTailExtrapolationFitter;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.SmileInterpolatorMixedLogNormal;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.SmileInterpolatorSABR;
-import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.SmileInterpolatorSABRWithRightExtrapolation;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.SmileInterpolatorSpline;
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRBerestyckiVolatilityFunction;
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRFormulaData;
@@ -59,26 +58,27 @@ public class SimleInterpolationExtrapolationExamples {
     GeneralSmileInterpolator interp0 = new SmileInterpolatorSpline();
     GeneralSmileInterpolator interp1 = new SmileInterpolatorMixedLogNormal();
     GeneralSmileInterpolator interp2 = new SmileInterpolatorSABR();
-    GeneralSmileInterpolator interp3 = new SmileInterpolatorSABRWithRightExtrapolation(forward * 3.0, 2.5);
+    //    GeneralSmileInterpolator interp3 = new SmileInterpolatorSABRWithRightExtrapolation(forward * 3.0, 2.5);
     GeneralSmileInterpolator interp4 = new SmileInterpolatorSABR(new SABRBerestyckiVolatilityFunction());
-    GeneralSmileInterpolator interp5 = new SmileInterpolatorSABRWithRightExtrapolation(new SABRBerestyckiVolatilityFunction(), forward * 3.0, 2.5);
+    //    GeneralSmileInterpolator interp5 = new SmileInterpolatorSABRWithRightExtrapolation(new SABRBerestyckiVolatilityFunction(), forward * 3.0, 2.5);
     GeneralSmileInterpolator interp6 = new SmileInterpolatorSABR(new SABRPaulotVolatilityFunction());
-    GeneralSmileInterpolator interp7 = new SmileInterpolatorSABRWithRightExtrapolation(new SABRPaulotVolatilityFunction(), forward * 3.0, 2.5);
+    //    GeneralSmileInterpolator interp7 = new SmileInterpolatorSABRWithRightExtrapolation(new SABRPaulotVolatilityFunction(), forward * 3.0, 2.5);
     GeneralSmileInterpolator interp8 = new SmileInterpolatorSABR(new SABRHaganAlternativeVolatilityFunction());
-    GeneralSmileInterpolator interp9 = new SmileInterpolatorSABRWithRightExtrapolation(new SABRHaganAlternativeVolatilityFunction(), forward * 3.0, 2.5);
+    //    GeneralSmileInterpolator interp9 = new SmileInterpolatorSABRWithRightExtrapolation(new SABRHaganAlternativeVolatilityFunction(), forward * 3.0, 2.5);
 
     //    SABRJohnsonVolatilityFunction is not supported due to restriction on beta
     //    GeneralSmileInterpolator interp10 = new SmileInterpolatorSABR(new SABRJohnsonVolatilityFunction());
     //    GeneralSmileInterpolator interp11 = new SmileInterpolatorSABRWithRightExtrapolation(new SABRJohnsonVolatilityFunction(), forward * 3.0, 2.5);
 
     GeneralSmileInterpolator[] interps = new GeneralSmileInterpolator[] {
-        interp0, interp1, interp2, interp3,
+        interp0, interp1, interp2,
+        //        interp3,
         interp4,
-        interp5,
+        //        interp5,
         interp6,
-        interp7,
+        //        interp7,
         interp8,
-        interp9,
+        //        interp9,
         //        interp10,
         //        interp11
     };

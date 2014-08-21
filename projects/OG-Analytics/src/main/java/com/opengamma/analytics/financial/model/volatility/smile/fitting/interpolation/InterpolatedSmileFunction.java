@@ -40,6 +40,7 @@ public class InterpolatedSmileFunction {
    * @return The volatility
    */
   public Double getVolatility(final Double strike) {
+    ArgumentChecker.notNull(strike, "strike");
     return _smileFunction.evaluate(strike);
   }
 
