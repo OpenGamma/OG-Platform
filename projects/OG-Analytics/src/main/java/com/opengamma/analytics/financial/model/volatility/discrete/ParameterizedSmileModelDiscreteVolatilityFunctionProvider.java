@@ -40,7 +40,7 @@ import com.opengamma.util.tuple.FirstThenSecondDoublesPairComparator;
  * parameters and the (Black) volatilities at the required points. 
  * @param <T> The type of smile model data 
  */
-public abstract class ParameterizedSmileModelDiscreateVolatilityFunctionProvider<T extends SmileModelData> extends DiscreteVolatilityFunctionProvider {
+public abstract class ParameterizedSmileModelDiscreteVolatilityFunctionProvider<T extends SmileModelData> extends DiscreteVolatilityFunctionProvider {
 
   private static final MatrixAlgebra MA = new OGMatrixAlgebra();
 
@@ -59,7 +59,7 @@ public abstract class ParameterizedSmileModelDiscreateVolatilityFunctionProvider
    * {@link VectorFunction} that gives the corresponding smile model parameter at each expiry for a set of model 
    * parameters. This gives a lot of flexibility as to how the (smile model) parameter term structures are represented. 
    */
-  public ParameterizedSmileModelDiscreateVolatilityFunctionProvider(final VolatilityFunctionProvider<T> volFuncPro, final ForwardCurve fwdCurve,
+  public ParameterizedSmileModelDiscreteVolatilityFunctionProvider(final VolatilityFunctionProvider<T> volFuncPro, final ForwardCurve fwdCurve,
       final DoublesVectorFunctionProvider[] smileModelParameterProviders) {
 
     //TODO change this to take a ParameterizedCurveVectorFunctionProvider so the sample expiry points do not need to 
@@ -80,7 +80,7 @@ public abstract class ParameterizedSmileModelDiscreateVolatilityFunctionProvider
    * @param smileParameterTS each of these represents a different smile parameter term structure- <b>there 
    * must be one for each smile model parameter</b>. 
    */
-  public ParameterizedSmileModelDiscreateVolatilityFunctionProvider(final VolatilityFunctionProvider<T> volFuncPro, final ForwardCurve fwdCurve, final ParameterizedCurve[] smileParameterTS) {
+  public ParameterizedSmileModelDiscreteVolatilityFunctionProvider(final VolatilityFunctionProvider<T> volFuncPro, final ForwardCurve fwdCurve, final ParameterizedCurve[] smileParameterTS) {
     ArgumentChecker.notNull(volFuncPro, "volFuncPro");
     ArgumentChecker.notNull(fwdCurve, "fwdCurve");
     ArgumentChecker.noNulls(smileParameterTS, "smileParameterTS");

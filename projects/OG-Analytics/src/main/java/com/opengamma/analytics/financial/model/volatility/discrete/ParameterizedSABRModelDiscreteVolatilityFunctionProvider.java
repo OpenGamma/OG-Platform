@@ -14,10 +14,10 @@ import com.opengamma.analytics.math.function.ParameterizedCurve;
 import com.opengamma.analytics.math.function.VectorFunction;
 
 /**
- * This is a concrete implementation of a ParameterizedSmileModelDiscreateVolatilityFunctionProvider where the 
+ * This is a concrete implementation of a ParameterizedSmileModelDiscreteVolatilityFunctionProvider where the 
  * 'smile' model is Hagan's SABR formula 
  */
-public class ParameterizedSABRModelDiscreteVolatilityFunctionProvider extends ParameterizedSmileModelDiscreateVolatilityFunctionProvider<SABRFormulaData> {
+public class ParameterizedSABRModelDiscreteVolatilityFunctionProvider extends ParameterizedSmileModelDiscreteVolatilityFunctionProvider<SABRFormulaData> {
   private static final int NUM_MODEL_PARMS = 4;
 
   private static final VolatilityFunctionProvider<SABRFormulaData> SABR = new SABRHaganVolatilityFunction();
