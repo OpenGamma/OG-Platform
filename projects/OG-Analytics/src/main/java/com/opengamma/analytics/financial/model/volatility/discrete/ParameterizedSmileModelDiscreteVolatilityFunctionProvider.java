@@ -48,8 +48,6 @@ public abstract class ParameterizedSmileModelDiscreteVolatilityFunctionProvider<
   private final ForwardCurve _fwdCurve;;
   private final DoublesVectorFunctionProvider[] _smileModelParameterProviders;
 
-  // private final int _nParms;
-
   /**
    * Set up the {@link DiscreteVolatilityFunctionProvider} 
    * @param volFuncPro The smile model 
@@ -61,9 +59,6 @@ public abstract class ParameterizedSmileModelDiscreteVolatilityFunctionProvider<
    */
   public ParameterizedSmileModelDiscreteVolatilityFunctionProvider(final VolatilityFunctionProvider<T> volFuncPro, final ForwardCurve fwdCurve,
       final DoublesVectorFunctionProvider[] smileModelParameterProviders) {
-
-    //TODO change this to take a ParameterizedCurveVectorFunctionProvider so the sample expiry points do not need to 
-    //be known in advance 
     ArgumentChecker.notNull(volFuncPro, "volFuncPro");
     ArgumentChecker.notNull(fwdCurve, "fwdCurve");
     ArgumentChecker.noNulls(smileModelParameterProviders, "modelToSmileModelParms");
@@ -90,7 +85,6 @@ public abstract class ParameterizedSmileModelDiscreteVolatilityFunctionProvider<
     for (int i = 0; i < getNumSmileModelParameters(); i++) {
       vfp[i] = new ParameterizedCurveVectorFunctionProvider(smileParameterTS[i]);
     }
-
     _volFuncPro = volFuncPro;
     _fwdCurve = fwdCurve;
     _smileModelParameterProviders = vfp;
