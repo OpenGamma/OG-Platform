@@ -159,7 +159,7 @@ public abstract class AbstractCashFlowDetails implements CashFlowDetails, Immuta
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the paymentDate.
+   * Gets the payment date of the cash flow.
    * @return the value of the property, not null
    */
   public LocalDate getPaymentDate() {
@@ -168,7 +168,7 @@ public abstract class AbstractCashFlowDetails implements CashFlowDetails, Immuta
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the accrualStartDate.
+   * Gets the accrual start date of the cash flow.
    * @return the value of the property, not null
    */
   public LocalDate getAccrualStartDate() {
@@ -177,7 +177,7 @@ public abstract class AbstractCashFlowDetails implements CashFlowDetails, Immuta
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the accrualEndDate.
+   * Gets the accrual end date of the cash flow.
    * @return the value of the property, not null
    */
   public LocalDate getAccrualEndDate() {
@@ -186,7 +186,7 @@ public abstract class AbstractCashFlowDetails implements CashFlowDetails, Immuta
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the accrualFactor.
+   * Gets the accrual factor of the cash flow.
    * @return the value of the property, not null
    */
   public double getAccrualFactor() {
@@ -195,7 +195,7 @@ public abstract class AbstractCashFlowDetails implements CashFlowDetails, Immuta
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the notional.
+   * Gets the currency and notional amount of the cash flow.
    * @return the value of the property, not null
    */
   public CurrencyAmount getNotional() {
@@ -204,7 +204,7 @@ public abstract class AbstractCashFlowDetails implements CashFlowDetails, Immuta
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the df.
+   * Gets the discount factor used to discount the cash flow.
    * @return the value of the property, not null
    */
   public double getDf() {
@@ -535,7 +535,7 @@ public abstract class AbstractCashFlowDetails implements CashFlowDetails, Immuta
 
     @Override
     public Builder setString(MetaProperty<?> property, String value) {
-      super.set(property, value);
+      super.setString(property, value);
       return this;
     }
 
