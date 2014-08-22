@@ -208,7 +208,7 @@ public abstract class PenaltyMatrixGenerator {
   /**
    * get a k^th order penalty matrix,P, for a non-uniform grid, x. $P = D^T D$ where D is the kth order finite difference
    * matrix (not including the ends). Given values y = f(x) at the grid points, y^T*P*y = |Dy|^2 is the sum of squares 
-   * of the of k^th order derivative estimates at the points.<p>
+   * of the k^th order derivative estimates at the points.<p>
    * <b>Note:</b> In certain applications we may need an estimate of $\frac{1}{b-a}\int_a^b \left(\frac{d^k y}{dx^k}\right)^2 dx$ 
    * i.e. the RMS value of the k^th order derivative, between a & b - for a uniform x this forms a crude approximation. 
    * @param x A non-uniform set of points
@@ -295,7 +295,7 @@ public abstract class PenaltyMatrixGenerator {
   }
 
   /**
-   * Assume a tensor has been flatten to a vector as {A_{0,0}, A_{0,1},...._A_{0,m}, A_{1,0}, A_{1,1},...._A_{1,m},...,A_{n,0}, A_{n,1},...._A_{n,m}}
+   * Assume a tensor has been flattened to a vector as {A_{0,0}, A_{0,1},...._A_{0,m}, A_{1,0}, A_{1,1},...._A_{1,m},...,A_{n,0}, A_{n,1},...._A_{n,m}}
    *  (see {@link flattenMatrix}) that is, the <b>last</b> index changes most rapidly. 
    * Given a matrix, M, that acts on the elements of one index only, i.e.
    * $$y_{i, i_1, i_2, \dots,i_{k-1}, i_{k+1},\dots, i_n} =  \sum_{i_k=0}^{N_k-1} M_{i,i_k}  x_{i_1, i_2, \dots,i_k,\dots, i_n} $$
