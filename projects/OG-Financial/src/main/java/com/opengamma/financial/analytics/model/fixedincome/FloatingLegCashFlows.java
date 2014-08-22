@@ -437,23 +437,7 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       FloatingLegCashFlows other = (FloatingLegCashFlows) obj;
-      return JodaBeanUtils.equal(getCashFlowDetails(), other.getCashFlowDetails()) &&
-          (getNumberOfCashFlows() == other.getNumberOfCashFlows()) &&
-          JodaBeanUtils.equal(getPaymentAmounts(), other.getPaymentAmounts()) &&
-          JodaBeanUtils.equal(getDiscountedPaymentAmounts(), other.getDiscountedPaymentAmounts()) &&
-          JodaBeanUtils.equal(getNotionals(), other.getNotionals()) &&
-          JodaBeanUtils.equal(getAccrualStart(), other.getAccrualStart()) &&
-          JodaBeanUtils.equal(getAccrualEnd(), other.getAccrualEnd()) &&
-          JodaBeanUtils.equal(getAccrualYearFractions(), other.getAccrualYearFractions()) &&
-          JodaBeanUtils.equal(getPaymentDates(), other.getPaymentDates()) &&
-          JodaBeanUtils.equal(getFixedRates(), other.getFixedRates()) &&
-          JodaBeanUtils.equal(getForwardRates(), other.getForwardRates()) &&
-          JodaBeanUtils.equal(getPaymentDiscountFactors(), other.getPaymentDiscountFactors()) &&
-          JodaBeanUtils.equal(getFixingStart(), other.getFixingStart()) &&
-          JodaBeanUtils.equal(getFixingEnd(), other.getFixingEnd()) &&
-          JodaBeanUtils.equal(getFixingYearFractions(), other.getFixingYearFractions()) &&
-          JodaBeanUtils.equal(getSpreads(), other.getSpreads()) &&
-          JodaBeanUtils.equal(getGearings(), other.getGearings());
+      return JodaBeanUtils.equal(getCashFlowDetails(), other.getCashFlowDetails());
     }
     return false;
   }
@@ -462,28 +446,12 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
   public int hashCode() {
     int hash = getClass().hashCode();
     hash += hash * 31 + JodaBeanUtils.hashCode(getCashFlowDetails());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNumberOfCashFlows());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentAmounts());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDiscountedPaymentAmounts());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNotionals());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAccrualStart());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAccrualEnd());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAccrualYearFractions());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentDates());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFixedRates());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getForwardRates());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentDiscountFactors());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFixingStart());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFixingEnd());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFixingYearFractions());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSpreads());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getGearings());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(576);
+    StringBuilder buf = new StringBuilder(64);
     buf.append("FloatingLegCashFlows{");
     int len = buf.length();
     toString(buf);
@@ -496,22 +464,6 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
 
   protected void toString(StringBuilder buf) {
     buf.append("cashFlowDetails").append('=').append(JodaBeanUtils.toString(getCashFlowDetails())).append(',').append(' ');
-    buf.append("numberOfCashFlows").append('=').append(JodaBeanUtils.toString(getNumberOfCashFlows())).append(',').append(' ');
-    buf.append("paymentAmounts").append('=').append(JodaBeanUtils.toString(getPaymentAmounts())).append(',').append(' ');
-    buf.append("discountedPaymentAmounts").append('=').append(JodaBeanUtils.toString(getDiscountedPaymentAmounts())).append(',').append(' ');
-    buf.append("notionals").append('=').append(JodaBeanUtils.toString(getNotionals())).append(',').append(' ');
-    buf.append("accrualStart").append('=').append(JodaBeanUtils.toString(getAccrualStart())).append(',').append(' ');
-    buf.append("accrualEnd").append('=').append(JodaBeanUtils.toString(getAccrualEnd())).append(',').append(' ');
-    buf.append("accrualYearFractions").append('=').append(JodaBeanUtils.toString(getAccrualYearFractions())).append(',').append(' ');
-    buf.append("paymentDates").append('=').append(JodaBeanUtils.toString(getPaymentDates())).append(',').append(' ');
-    buf.append("fixedRates").append('=').append(JodaBeanUtils.toString(getFixedRates())).append(',').append(' ');
-    buf.append("forwardRates").append('=').append(JodaBeanUtils.toString(getForwardRates())).append(',').append(' ');
-    buf.append("paymentDiscountFactors").append('=').append(JodaBeanUtils.toString(getPaymentDiscountFactors())).append(',').append(' ');
-    buf.append("fixingStart").append('=').append(JodaBeanUtils.toString(getFixingStart())).append(',').append(' ');
-    buf.append("fixingEnd").append('=').append(JodaBeanUtils.toString(getFixingEnd())).append(',').append(' ');
-    buf.append("fixingYearFractions").append('=').append(JodaBeanUtils.toString(getFixingYearFractions())).append(',').append(' ');
-    buf.append("spreads").append('=').append(JodaBeanUtils.toString(getSpreads())).append(',').append(' ');
-    buf.append("gearings").append('=').append(JodaBeanUtils.toString(getGearings())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -531,122 +483,11 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
     private final MetaProperty<List<FloatingCashFlowDetails>> _cashFlowDetails = DirectMetaProperty.ofImmutable(
         this, "cashFlowDetails", FloatingLegCashFlows.class, (Class) List.class);
     /**
-     * The meta-property for the {@code numberOfCashFlows} property.
-     */
-    private final MetaProperty<Integer> _numberOfCashFlows = DirectMetaProperty.ofDerived(
-        this, "numberOfCashFlows", FloatingLegCashFlows.class, Integer.TYPE);
-    /**
-     * The meta-property for the {@code paymentAmounts} property.
-     */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<CurrencyAmount>> _paymentAmounts = DirectMetaProperty.ofDerived(
-        this, "paymentAmounts", FloatingLegCashFlows.class, (Class) List.class);
-    /**
-     * The meta-property for the {@code discountedPaymentAmounts} property.
-     */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<CurrencyAmount>> _discountedPaymentAmounts = DirectMetaProperty.ofDerived(
-        this, "discountedPaymentAmounts", FloatingLegCashFlows.class, (Class) List.class);
-    /**
-     * The meta-property for the {@code notionals} property.
-     */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<CurrencyAmount>> _notionals = DirectMetaProperty.ofDerived(
-        this, "notionals", FloatingLegCashFlows.class, (Class) List.class);
-    /**
-     * The meta-property for the {@code accrualStart} property.
-     */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<LocalDate>> _accrualStart = DirectMetaProperty.ofDerived(
-        this, "accrualStart", FloatingLegCashFlows.class, (Class) List.class);
-    /**
-     * The meta-property for the {@code accrualEnd} property.
-     */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<LocalDate>> _accrualEnd = DirectMetaProperty.ofDerived(
-        this, "accrualEnd", FloatingLegCashFlows.class, (Class) List.class);
-    /**
-     * The meta-property for the {@code accrualYearFractions} property.
-     */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<Double>> _accrualYearFractions = DirectMetaProperty.ofDerived(
-        this, "accrualYearFractions", FloatingLegCashFlows.class, (Class) List.class);
-    /**
-     * The meta-property for the {@code paymentDates} property.
-     */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<LocalDate>> _paymentDates = DirectMetaProperty.ofDerived(
-        this, "paymentDates", FloatingLegCashFlows.class, (Class) List.class);
-    /**
-     * The meta-property for the {@code fixedRates} property.
-     */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<Double>> _fixedRates = DirectMetaProperty.ofDerived(
-        this, "fixedRates", FloatingLegCashFlows.class, (Class) List.class);
-    /**
-     * The meta-property for the {@code forwardRates} property.
-     */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<Double>> _forwardRates = DirectMetaProperty.ofDerived(
-        this, "forwardRates", FloatingLegCashFlows.class, (Class) List.class);
-    /**
-     * The meta-property for the {@code paymentDiscountFactors} property.
-     */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<Double>> _paymentDiscountFactors = DirectMetaProperty.ofDerived(
-        this, "paymentDiscountFactors", FloatingLegCashFlows.class, (Class) List.class);
-    /**
-     * The meta-property for the {@code fixingStart} property.
-     */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<LocalDate>> _fixingStart = DirectMetaProperty.ofDerived(
-        this, "fixingStart", FloatingLegCashFlows.class, (Class) List.class);
-    /**
-     * The meta-property for the {@code fixingEnd} property.
-     */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<LocalDate>> _fixingEnd = DirectMetaProperty.ofDerived(
-        this, "fixingEnd", FloatingLegCashFlows.class, (Class) List.class);
-    /**
-     * The meta-property for the {@code fixingYearFractions} property.
-     */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<Double>> _fixingYearFractions = DirectMetaProperty.ofDerived(
-        this, "fixingYearFractions", FloatingLegCashFlows.class, (Class) List.class);
-    /**
-     * The meta-property for the {@code spreads} property.
-     */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<Double>> _spreads = DirectMetaProperty.ofDerived(
-        this, "spreads", FloatingLegCashFlows.class, (Class) List.class);
-    /**
-     * The meta-property for the {@code gearings} property.
-     */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<Double>> _gearings = DirectMetaProperty.ofDerived(
-        this, "gearings", FloatingLegCashFlows.class, (Class) List.class);
-    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "cashFlowDetails",
-        "numberOfCashFlows",
-        "paymentAmounts",
-        "discountedPaymentAmounts",
-        "notionals",
-        "accrualStart",
-        "accrualEnd",
-        "accrualYearFractions",
-        "paymentDates",
-        "fixedRates",
-        "forwardRates",
-        "paymentDiscountFactors",
-        "fixingStart",
-        "fixingEnd",
-        "fixingYearFractions",
-        "spreads",
-        "gearings");
+        "cashFlowDetails");
 
     /**
      * Restricted constructor.
@@ -659,38 +500,6 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
       switch (propertyName.hashCode()) {
         case -1294419967:  // cashFlowDetails
           return _cashFlowDetails;
-        case -338982286:  // numberOfCashFlows
-          return _numberOfCashFlows;
-        case -1875448267:  // paymentAmounts
-          return _paymentAmounts;
-        case 178231285:  // discountedPaymentAmounts
-          return _discountedPaymentAmounts;
-        case 1910080819:  // notionals
-          return _notionals;
-        case 1071260659:  // accrualStart
-          return _accrualStart;
-        case 1846909100:  // accrualEnd
-          return _accrualEnd;
-        case 1516259717:  // accrualYearFractions
-          return _accrualYearFractions;
-        case -522438625:  // paymentDates
-          return _paymentDates;
-        case 1695350911:  // fixedRates
-          return _fixedRates;
-        case -291258418:  // forwardRates
-          return _forwardRates;
-        case -650014307:  // paymentDiscountFactors
-          return _paymentDiscountFactors;
-        case 270958773:  // fixingStart
-          return _fixingStart;
-        case 871775726:  // fixingEnd
-          return _fixingEnd;
-        case 309118023:  // fixingYearFractions
-          return _fixingYearFractions;
-        case -1996407456:  // spreads
-          return _spreads;
-        case 1449942752:  // gearings
-          return _gearings;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -719,172 +528,12 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
       return _cashFlowDetails;
     }
 
-    /**
-     * The meta-property for the {@code numberOfCashFlows} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Integer> numberOfCashFlows() {
-      return _numberOfCashFlows;
-    }
-
-    /**
-     * The meta-property for the {@code paymentAmounts} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<List<CurrencyAmount>> paymentAmounts() {
-      return _paymentAmounts;
-    }
-
-    /**
-     * The meta-property for the {@code discountedPaymentAmounts} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<List<CurrencyAmount>> discountedPaymentAmounts() {
-      return _discountedPaymentAmounts;
-    }
-
-    /**
-     * The meta-property for the {@code notionals} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<List<CurrencyAmount>> notionals() {
-      return _notionals;
-    }
-
-    /**
-     * The meta-property for the {@code accrualStart} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<List<LocalDate>> accrualStart() {
-      return _accrualStart;
-    }
-
-    /**
-     * The meta-property for the {@code accrualEnd} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<List<LocalDate>> accrualEnd() {
-      return _accrualEnd;
-    }
-
-    /**
-     * The meta-property for the {@code accrualYearFractions} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<List<Double>> accrualYearFractions() {
-      return _accrualYearFractions;
-    }
-
-    /**
-     * The meta-property for the {@code paymentDates} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<List<LocalDate>> paymentDates() {
-      return _paymentDates;
-    }
-
-    /**
-     * The meta-property for the {@code fixedRates} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<List<Double>> fixedRates() {
-      return _fixedRates;
-    }
-
-    /**
-     * The meta-property for the {@code forwardRates} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<List<Double>> forwardRates() {
-      return _forwardRates;
-    }
-
-    /**
-     * The meta-property for the {@code paymentDiscountFactors} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<List<Double>> paymentDiscountFactors() {
-      return _paymentDiscountFactors;
-    }
-
-    /**
-     * The meta-property for the {@code fixingStart} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<List<LocalDate>> fixingStart() {
-      return _fixingStart;
-    }
-
-    /**
-     * The meta-property for the {@code fixingEnd} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<List<LocalDate>> fixingEnd() {
-      return _fixingEnd;
-    }
-
-    /**
-     * The meta-property for the {@code fixingYearFractions} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<List<Double>> fixingYearFractions() {
-      return _fixingYearFractions;
-    }
-
-    /**
-     * The meta-property for the {@code spreads} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<List<Double>> spreads() {
-      return _spreads;
-    }
-
-    /**
-     * The meta-property for the {@code gearings} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<List<Double>> gearings() {
-      return _gearings;
-    }
-
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -1294419967:  // cashFlowDetails
           return ((FloatingLegCashFlows) bean).getCashFlowDetails();
-        case -338982286:  // numberOfCashFlows
-          return ((FloatingLegCashFlows) bean).getNumberOfCashFlows();
-        case -1875448267:  // paymentAmounts
-          return ((FloatingLegCashFlows) bean).getPaymentAmounts();
-        case 178231285:  // discountedPaymentAmounts
-          return ((FloatingLegCashFlows) bean).getDiscountedPaymentAmounts();
-        case 1910080819:  // notionals
-          return ((FloatingLegCashFlows) bean).getNotionals();
-        case 1071260659:  // accrualStart
-          return ((FloatingLegCashFlows) bean).getAccrualStart();
-        case 1846909100:  // accrualEnd
-          return ((FloatingLegCashFlows) bean).getAccrualEnd();
-        case 1516259717:  // accrualYearFractions
-          return ((FloatingLegCashFlows) bean).getAccrualYearFractions();
-        case -522438625:  // paymentDates
-          return ((FloatingLegCashFlows) bean).getPaymentDates();
-        case 1695350911:  // fixedRates
-          return ((FloatingLegCashFlows) bean).getFixedRates();
-        case -291258418:  // forwardRates
-          return ((FloatingLegCashFlows) bean).getForwardRates();
-        case -650014307:  // paymentDiscountFactors
-          return ((FloatingLegCashFlows) bean).getPaymentDiscountFactors();
-        case 270958773:  // fixingStart
-          return ((FloatingLegCashFlows) bean).getFixingStart();
-        case 871775726:  // fixingEnd
-          return ((FloatingLegCashFlows) bean).getFixingEnd();
-        case 309118023:  // fixingYearFractions
-          return ((FloatingLegCashFlows) bean).getFixingYearFractions();
-        case -1996407456:  // spreads
-          return ((FloatingLegCashFlows) bean).getSpreads();
-        case 1449942752:  // gearings
-          return ((FloatingLegCashFlows) bean).getGearings();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }

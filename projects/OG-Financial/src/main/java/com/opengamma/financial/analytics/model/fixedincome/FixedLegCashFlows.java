@@ -281,7 +281,7 @@ public class FixedLegCashFlows implements ImmutableBean, SwapLegCashFlows {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the cashFlowDetails.
+   * Gets the details of fixed cash flows.
    * @return the value of the property, not null
    */
   public List<FixedCashFlowDetails> getCashFlowDetails() {
@@ -304,16 +304,7 @@ public class FixedLegCashFlows implements ImmutableBean, SwapLegCashFlows {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       FixedLegCashFlows other = (FixedLegCashFlows) obj;
-      return JodaBeanUtils.equal(getCashFlowDetails(), other.getCashFlowDetails()) &&
-          JodaBeanUtils.equal(getNotionals(), other.getNotionals()) &&
-          JodaBeanUtils.equal(getAccrualStart(), other.getAccrualStart()) &&
-          JodaBeanUtils.equal(getAccrualEnd(), other.getAccrualEnd()) &&
-          JodaBeanUtils.equal(getPaymentFractions(), other.getPaymentFractions()) &&
-          JodaBeanUtils.equal(getFixedRates(), other.getFixedRates()) &&
-          JodaBeanUtils.equal(getDiscountedPaymentAmounts(), other.getDiscountedPaymentAmounts()) &&
-          (getNumberOfCashFlows() == other.getNumberOfCashFlows()) &&
-          JodaBeanUtils.equal(getDiscountFactors(), other.getDiscountFactors()) &&
-          JodaBeanUtils.equal(getPaymentAmounts(), other.getPaymentAmounts());
+      return JodaBeanUtils.equal(getCashFlowDetails(), other.getCashFlowDetails());
     }
     return false;
   }
@@ -322,21 +313,12 @@ public class FixedLegCashFlows implements ImmutableBean, SwapLegCashFlows {
   public int hashCode() {
     int hash = getClass().hashCode();
     hash += hash * 31 + JodaBeanUtils.hashCode(getCashFlowDetails());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNotionals());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAccrualStart());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAccrualEnd());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentFractions());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFixedRates());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDiscountedPaymentAmounts());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNumberOfCashFlows());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDiscountFactors());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentAmounts());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(352);
+    StringBuilder buf = new StringBuilder(64);
     buf.append("FixedLegCashFlows{");
     int len = buf.length();
     toString(buf);
@@ -349,15 +331,6 @@ public class FixedLegCashFlows implements ImmutableBean, SwapLegCashFlows {
 
   protected void toString(StringBuilder buf) {
     buf.append("cashFlowDetails").append('=').append(JodaBeanUtils.toString(getCashFlowDetails())).append(',').append(' ');
-    buf.append("notionals").append('=').append(JodaBeanUtils.toString(getNotionals())).append(',').append(' ');
-    buf.append("accrualStart").append('=').append(JodaBeanUtils.toString(getAccrualStart())).append(',').append(' ');
-    buf.append("accrualEnd").append('=').append(JodaBeanUtils.toString(getAccrualEnd())).append(',').append(' ');
-    buf.append("paymentFractions").append('=').append(JodaBeanUtils.toString(getPaymentFractions())).append(',').append(' ');
-    buf.append("fixedRates").append('=').append(JodaBeanUtils.toString(getFixedRates())).append(',').append(' ');
-    buf.append("discountedPaymentAmounts").append('=').append(JodaBeanUtils.toString(getDiscountedPaymentAmounts())).append(',').append(' ');
-    buf.append("numberOfCashFlows").append('=').append(JodaBeanUtils.toString(getNumberOfCashFlows())).append(',').append(' ');
-    buf.append("discountFactors").append('=').append(JodaBeanUtils.toString(getDiscountFactors())).append(',').append(' ');
-    buf.append("paymentAmounts").append('=').append(JodaBeanUtils.toString(getPaymentAmounts())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -377,73 +350,11 @@ public class FixedLegCashFlows implements ImmutableBean, SwapLegCashFlows {
     private final MetaProperty<List<FixedCashFlowDetails>> _cashFlowDetails = DirectMetaProperty.ofImmutable(
         this, "cashFlowDetails", FixedLegCashFlows.class, (Class) List.class);
     /**
-     * The meta-property for the {@code notionals} property.
-     */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<CurrencyAmount>> _notionals = DirectMetaProperty.ofDerived(
-        this, "notionals", FixedLegCashFlows.class, (Class) List.class);
-    /**
-     * The meta-property for the {@code accrualStart} property.
-     */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<LocalDate>> _accrualStart = DirectMetaProperty.ofDerived(
-        this, "accrualStart", FixedLegCashFlows.class, (Class) List.class);
-    /**
-     * The meta-property for the {@code accrualEnd} property.
-     */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<LocalDate>> _accrualEnd = DirectMetaProperty.ofDerived(
-        this, "accrualEnd", FixedLegCashFlows.class, (Class) List.class);
-    /**
-     * The meta-property for the {@code paymentFractions} property.
-     */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<Double>> _paymentFractions = DirectMetaProperty.ofDerived(
-        this, "paymentFractions", FixedLegCashFlows.class, (Class) List.class);
-    /**
-     * The meta-property for the {@code fixedRates} property.
-     */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<Double>> _fixedRates = DirectMetaProperty.ofDerived(
-        this, "fixedRates", FixedLegCashFlows.class, (Class) List.class);
-    /**
-     * The meta-property for the {@code discountedPaymentAmounts} property.
-     */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<CurrencyAmount>> _discountedPaymentAmounts = DirectMetaProperty.ofDerived(
-        this, "discountedPaymentAmounts", FixedLegCashFlows.class, (Class) List.class);
-    /**
-     * The meta-property for the {@code numberOfCashFlows} property.
-     */
-    private final MetaProperty<Integer> _numberOfCashFlows = DirectMetaProperty.ofDerived(
-        this, "numberOfCashFlows", FixedLegCashFlows.class, Integer.TYPE);
-    /**
-     * The meta-property for the {@code discountFactors} property.
-     */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<Double>> _discountFactors = DirectMetaProperty.ofDerived(
-        this, "discountFactors", FixedLegCashFlows.class, (Class) List.class);
-    /**
-     * The meta-property for the {@code paymentAmounts} property.
-     */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<CurrencyAmount>> _paymentAmounts = DirectMetaProperty.ofDerived(
-        this, "paymentAmounts", FixedLegCashFlows.class, (Class) List.class);
-    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "cashFlowDetails",
-        "notionals",
-        "accrualStart",
-        "accrualEnd",
-        "paymentFractions",
-        "fixedRates",
-        "discountedPaymentAmounts",
-        "numberOfCashFlows",
-        "discountFactors",
-        "paymentAmounts");
+        "cashFlowDetails");
 
     /**
      * Restricted constructor.
@@ -456,24 +367,6 @@ public class FixedLegCashFlows implements ImmutableBean, SwapLegCashFlows {
       switch (propertyName.hashCode()) {
         case -1294419967:  // cashFlowDetails
           return _cashFlowDetails;
-        case 1910080819:  // notionals
-          return _notionals;
-        case 1071260659:  // accrualStart
-          return _accrualStart;
-        case 1846909100:  // accrualEnd
-          return _accrualEnd;
-        case 1206997835:  // paymentFractions
-          return _paymentFractions;
-        case 1695350911:  // fixedRates
-          return _fixedRates;
-        case 178231285:  // discountedPaymentAmounts
-          return _discountedPaymentAmounts;
-        case -338982286:  // numberOfCashFlows
-          return _numberOfCashFlows;
-        case -91613053:  // discountFactors
-          return _discountFactors;
-        case -1875448267:  // paymentAmounts
-          return _paymentAmounts;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -502,102 +395,12 @@ public class FixedLegCashFlows implements ImmutableBean, SwapLegCashFlows {
       return _cashFlowDetails;
     }
 
-    /**
-     * The meta-property for the {@code notionals} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<List<CurrencyAmount>> notionals() {
-      return _notionals;
-    }
-
-    /**
-     * The meta-property for the {@code accrualStart} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<List<LocalDate>> accrualStart() {
-      return _accrualStart;
-    }
-
-    /**
-     * The meta-property for the {@code accrualEnd} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<List<LocalDate>> accrualEnd() {
-      return _accrualEnd;
-    }
-
-    /**
-     * The meta-property for the {@code paymentFractions} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<List<Double>> paymentFractions() {
-      return _paymentFractions;
-    }
-
-    /**
-     * The meta-property for the {@code fixedRates} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<List<Double>> fixedRates() {
-      return _fixedRates;
-    }
-
-    /**
-     * The meta-property for the {@code discountedPaymentAmounts} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<List<CurrencyAmount>> discountedPaymentAmounts() {
-      return _discountedPaymentAmounts;
-    }
-
-    /**
-     * The meta-property for the {@code numberOfCashFlows} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Integer> numberOfCashFlows() {
-      return _numberOfCashFlows;
-    }
-
-    /**
-     * The meta-property for the {@code discountFactors} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<List<Double>> discountFactors() {
-      return _discountFactors;
-    }
-
-    /**
-     * The meta-property for the {@code paymentAmounts} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<List<CurrencyAmount>> paymentAmounts() {
-      return _paymentAmounts;
-    }
-
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -1294419967:  // cashFlowDetails
           return ((FixedLegCashFlows) bean).getCashFlowDetails();
-        case 1910080819:  // notionals
-          return ((FixedLegCashFlows) bean).getNotionals();
-        case 1071260659:  // accrualStart
-          return ((FixedLegCashFlows) bean).getAccrualStart();
-        case 1846909100:  // accrualEnd
-          return ((FixedLegCashFlows) bean).getAccrualEnd();
-        case 1206997835:  // paymentFractions
-          return ((FixedLegCashFlows) bean).getPaymentFractions();
-        case 1695350911:  // fixedRates
-          return ((FixedLegCashFlows) bean).getFixedRates();
-        case 178231285:  // discountedPaymentAmounts
-          return ((FixedLegCashFlows) bean).getDiscountedPaymentAmounts();
-        case -338982286:  // numberOfCashFlows
-          return ((FixedLegCashFlows) bean).getNumberOfCashFlows();
-        case -91613053:  // discountFactors
-          return ((FixedLegCashFlows) bean).getDiscountFactors();
-        case -1875448267:  // paymentAmounts
-          return ((FixedLegCashFlows) bean).getPaymentAmounts();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }

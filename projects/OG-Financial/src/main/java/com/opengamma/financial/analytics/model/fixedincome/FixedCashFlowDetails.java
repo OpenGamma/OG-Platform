@@ -113,7 +113,7 @@ public final class FixedCashFlowDetails extends AbstractCashFlowDetails implemen
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the rate.
+   * Gets the fixed rate of the cash flow.
    * @return the value of the property, not null
    */
   public double getRate() {
@@ -122,7 +122,7 @@ public final class FixedCashFlowDetails extends AbstractCashFlowDetails implemen
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the projectedAmount.
+   * Gets the projected amount of the cash flow.
    * @return the value of the property, not null
    */
   public CurrencyAmount getProjectedAmount() {
@@ -131,7 +131,7 @@ public final class FixedCashFlowDetails extends AbstractCashFlowDetails implemen
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the presentValue.
+   * Gets the present value of the cash flow.
    * @return the value of the property, not null
    */
   public CurrencyAmount getPresentValue() {
@@ -143,6 +143,7 @@ public final class FixedCashFlowDetails extends AbstractCashFlowDetails implemen
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
    */
+  @Override
   public Builder toBuilder() {
     return new Builder(this);
   }
@@ -384,7 +385,7 @@ public final class FixedCashFlowDetails extends AbstractCashFlowDetails implemen
 
     @Override
     public Builder setString(MetaProperty<?> property, String value) {
-      super.set(property, value);
+      super.setString(property, value);
       return this;
     }
 

@@ -233,7 +233,7 @@ public final class FloatingCashFlowDetails extends AbstractCashFlowDetails {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the fixingStartDate.
+   * Gets the fixing start date of the cash flow.
    * @return the value of the property, not null
    */
   public LocalDate getFixingStartDate() {
@@ -242,7 +242,7 @@ public final class FloatingCashFlowDetails extends AbstractCashFlowDetails {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the fixingEndDate.
+   * Gets the fixing end date of the cash flow.
    * @return the value of the property, not null
    */
   public LocalDate getFixingEndDate() {
@@ -251,7 +251,7 @@ public final class FloatingCashFlowDetails extends AbstractCashFlowDetails {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the fixingYearFrac.
+   * Gets the fixing year fraction of the cash flow.
    * @return the value of the property, not null
    */
   public double getFixingYearFrac() {
@@ -260,7 +260,7 @@ public final class FloatingCashFlowDetails extends AbstractCashFlowDetails {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the fixedRate.
+   * Gets the fixed, or reset, rate of the cash flow.
    * @return the value of the property
    */
   public Double getFixedRate() {
@@ -269,7 +269,7 @@ public final class FloatingCashFlowDetails extends AbstractCashFlowDetails {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the forwardRate.
+   * Gets the forward rate of the cash flow.
    * @return the value of the property
    */
   public Double getForwardRate() {
@@ -278,7 +278,7 @@ public final class FloatingCashFlowDetails extends AbstractCashFlowDetails {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the spread.
+   * Gets the spread of the cash flow.
    * @return the value of the property
    */
   public Double getSpread() {
@@ -287,7 +287,7 @@ public final class FloatingCashFlowDetails extends AbstractCashFlowDetails {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the gearing.
+   * Gets the gearing of the cash flow.
    * @return the value of the property
    */
   public Double getGearing() {
@@ -296,7 +296,7 @@ public final class FloatingCashFlowDetails extends AbstractCashFlowDetails {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the indexTenors.
+   * Gets the index tenors of the cash flow.
    * @return the value of the property, not null
    */
   public Set<Tenor> getIndexTenors() {
@@ -305,7 +305,7 @@ public final class FloatingCashFlowDetails extends AbstractCashFlowDetails {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the projectedAmount.
+   * Gets the projected amount of the cash flow.
    * @return the value of the property, not null
    */
   public CurrencyAmount getProjectedAmount() {
@@ -314,7 +314,7 @@ public final class FloatingCashFlowDetails extends AbstractCashFlowDetails {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the presentValue.
+   * Gets the present value of the cash flow.
    * @return the value of the property, not null
    */
   public CurrencyAmount getPresentValue() {
@@ -326,6 +326,7 @@ public final class FloatingCashFlowDetails extends AbstractCashFlowDetails {
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
    */
+  @Override
   public Builder toBuilder() {
     return new Builder(this);
   }
@@ -765,7 +766,7 @@ public final class FloatingCashFlowDetails extends AbstractCashFlowDetails {
 
     @Override
     public Builder setString(MetaProperty<?> property, String value) {
-      super.set(property, value);
+      super.setString(property, value);
       return this;
     }
 
