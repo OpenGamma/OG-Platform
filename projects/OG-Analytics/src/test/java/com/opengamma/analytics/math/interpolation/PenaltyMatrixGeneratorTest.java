@@ -12,6 +12,7 @@ import static com.opengamma.analytics.math.interpolation.PenaltyMatrixGenerator.
 import static org.testng.AssertJUnit.assertEquals;
 
 import org.apache.commons.lang.NotImplementedException;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.FunctionUtils;
@@ -232,13 +233,12 @@ public class PenaltyMatrixGeneratorTest {
     assertEquals(880, r, 1e-9);
   }
 
-  @Test
-  public void derivativeMatrix1DTest() {
+  @DataProvider
+  public Object[][] data() {
+    Object[][] obj = new Object[1][4];
     double[] x = new double[] {0.0, 0.3, 0.7, 0.8, 1.2, 2.0 };
+    obj[0][0] = x;
     int n = x.length;
-
-    DoubleMatrix2D d0 = getDerivativeMatrix(x, 0, true);
-    AssertMatrix.assertEqualsMatrix(new IdentityMatrix(n), d0, 1e-14);
 
     DoubleMatrix1D y = new DoubleMatrix1D(n);
     DoubleMatrix1D dydx = new DoubleMatrix1D(n);
@@ -249,6 +249,18 @@ public class PenaltyMatrixGeneratorTest {
       dydx.getData()[i] = 0.7 - 0.8 * xi;
       d2ydx2.getData()[i] = -0.8;
     }
+    obj[0][1] = y;
+    obj[0][2] = dydx;
+    obj[0][3] = d2ydx2;
+    return obj;
+  }
+
+  @Test(dataProvider = "data")
+  public void derivativeMatrix1DTest(double[] x, DoubleMatrix1D y, DoubleMatrix1D dydx, DoubleMatrix1D d2ydx2) {
+
+    int n = x.length;
+    DoubleMatrix2D d0 = getDerivativeMatrix(x, 0, true);
+    AssertMatrix.assertEqualsMatrix(new IdentityMatrix(n), d0, 1e-14);
 
     DoubleMatrix2D d1 = getDerivativeMatrix(x, 1, true);
     DoubleMatrix2D d2 = getDerivativeMatrix(x, 2, true);
@@ -257,13 +269,23 @@ public class PenaltyMatrixGeneratorTest {
     AssertMatrix.assertEqualsVectors(dydx, d1y, 1e-13);
     AssertMatrix.assertEqualsVectors(d2ydx2, d2y, 1e-13);
 
-    //also check penalty matrix
+  }
+
+  @Test(dataProvider = "data")
+  public void penaltyMatrix1DTest(double[] x, DoubleMatrix1D y, DoubleMatrix1D dydx, DoubleMatrix1D d2ydx2) {
+    int n = x.length;
+    double expected = 0.0;
+    for (int i = 0; i < n; i++) {
+      if (i > 0 && i < (n - 1)) { // we not not use the end points
+        expected += FunctionUtils.square(d2ydx2.getEntry(i));
+      }
+    }
+    double scale = Math.pow(2.0, 4); //((2.0-0.0)^2^2)
+    expected *= scale;
+
     DoubleMatrix2D p2 = getPenaltyMatrix(x, 2);
     double r = MA.getInnerProduct(y, MA.multiply(p2, y));
-    double scale = Math.pow(2.0, 4);
-    //this is the 2nd div squared ((-0.8)^2 = 0.64) times the number of elements (n-2 since we not not use the 
-    //end points) times the scale ((2.0-0.0)^2^2)
-    assertEquals(0.64 * (n - 2) * scale, r, 1e-11);
+    assertEquals(expected, r, 1e-11);
   }
 
   @Test(expectedExceptions = NotImplementedException.class)
