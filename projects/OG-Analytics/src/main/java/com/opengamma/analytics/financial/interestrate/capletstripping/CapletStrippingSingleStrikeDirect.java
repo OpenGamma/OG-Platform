@@ -16,7 +16,7 @@ import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
-import com.opengamma.analytics.math.interpolation.PSplineFitter;
+import com.opengamma.analytics.math.interpolation.PenaltyMatrixGenerator;
 import com.opengamma.analytics.math.matrix.ColtMatrixAlgebra;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
@@ -41,8 +41,7 @@ public class CapletStrippingSingleStrikeDirect extends CapletStrippingAbsoluteSt
   public CapletStrippingSingleStrikeDirect(final List<CapFloor> caps, final MulticurveProviderInterface curves) {
     super(caps, curves);
 
-    final PSplineFitter psf = new PSplineFitter();
-    _penalty = (DoubleMatrix2D) MA.scale(psf.getPenaltyMatrix(getnCaplets(), DIFFERENCE_ORDER), LAMBDA);
+    _penalty = (DoubleMatrix2D) MA.scale(PenaltyMatrixGenerator.getPenaltyMatrix(getnCaplets(), DIFFERENCE_ORDER), LAMBDA);
     _interpolator = DEFAULT_INTERPOLATOR;
     // _altCapletStripper = new CapletStrippingAbsoluteStrikeInterpolation(caps, yieldCurves);
   }
