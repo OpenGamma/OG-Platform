@@ -12,7 +12,7 @@ import com.opengamma.analytics.math.function.Function1D;
 /**
  * Left and right extrapolation used with SABR smile interpolation model, {@link SmileInterpolatorSABRWithExtrapolation}
  */
-abstract class SmileExtrapolationFunctionSABRProvider {
+public abstract class SmileExtrapolationFunctionSABRProvider {
 
   /**
    * @param sabrDataLow The SABR data for the leftmost subinterval 

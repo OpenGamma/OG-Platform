@@ -15,7 +15,8 @@ import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Left and right extrapolation for SABR smile interpolation by using the method {@link SABRExtrapolationRightFunction}
+ * Left and right extrapolation for SABR smile interpolation based on 
+ * Benaim, S., Dodgson, M., and Kainth, D. (2008). An arbitrage-free method for smile extrapolation. Technical report, Royal Bank of Scotland.
  */
 public class BenaimDodgsonKainthExtrapolationFunctionProvider extends SmileExtrapolationFunctionSABRProvider {
 

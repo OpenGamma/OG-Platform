@@ -14,7 +14,7 @@ import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * SABR smile interpolator with left and right extrapolation by {@link SmileExtrapolationFunctionSABRProvider}
+ * SABR smile interpolator with left and right extrapolation by using {@link SmileExtrapolationFunctionSABRProvider}
  */
 public class SmileInterpolatorSABRWithExtrapolation extends SmileInterpolatorSABR {
   private final SmileExtrapolationFunctionSABRProvider _extrapolationFunctionProvider;

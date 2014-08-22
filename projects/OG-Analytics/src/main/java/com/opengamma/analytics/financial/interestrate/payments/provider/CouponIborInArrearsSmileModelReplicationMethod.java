@@ -13,7 +13,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
- * 
+ * Computes an Ibor coupon in arrears by replication
  */
 public class CouponIborInArrearsSmileModelReplicationMethod {
 
