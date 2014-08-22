@@ -18,6 +18,7 @@ import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
@@ -141,8 +142,11 @@ public class CouponTenorVisitorTest {
   @Test
   public void testCouponIborAverageIndexDefinition() {
     CouponIborAverageIndexDefinition coupon =
-        CouponIborAverageIndexDefinition.from(USD_LIBOR_3M_COUPON, END_DATE, USD_LIBOR_3M, USD_LIBOR_6M, 1, 1, TEST_CALENDAR, TEST_CALENDAR);
-    assertTrue("Expected no tenor", coupon.accept(INSTANCE).isEmpty());
+        CouponIborAverageIndexDefinition.from(USD_LIBOR_3M_COUPON,
+                                              END_DATE, USD_LIBOR_3M, USD_LIBOR_6M, 1, 1, TEST_CALENDAR, TEST_CALENDAR);
+    assertEquals("Expected two tenors", Sets.newHashSet(Tenor.of(USD_LIBOR_3M.getTenor()),
+                                                        Tenor.of(USD_LIBOR_6M.getTenor())),
+                 coupon.accept(INSTANCE));
   }
   
   @Test
