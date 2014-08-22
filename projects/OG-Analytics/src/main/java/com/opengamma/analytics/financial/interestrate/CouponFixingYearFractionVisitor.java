@@ -7,7 +7,6 @@ package com.opengamma.analytics.financial.interestrate;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitorAdapter;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
-import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageFixingDatesCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageIndexDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingFlatSpreadDefinition;
@@ -23,7 +22,7 @@ import com.opengamma.analytics.financial.instrument.payment.CouponONArithmeticAv
 import com.opengamma.analytics.financial.instrument.payment.CouponONDefinition;
 
 /**
- *
+ * Returns the fixing year fraction of the cash flow.
  */
 public class CouponFixingYearFractionVisitor extends InstrumentDefinitionVisitorAdapter<Void, Double> {
 
@@ -66,7 +65,7 @@ public class CouponFixingYearFractionVisitor extends InstrumentDefinitionVisitor
   }
 
   @Override
-  public Double visitCouponArithmeticAverageONSpreadDefinition(final CouponONArithmeticAverageSpreadDefinition payment) {
+  public Double visitCouponArithmeticAverageONSpreadDefinition(CouponONArithmeticAverageSpreadDefinition payment) {
     double total = 0.0;
     for (double fraction : payment.getFixingPeriodAccrualFactors()) {
       total += fraction;
@@ -75,7 +74,7 @@ public class CouponFixingYearFractionVisitor extends InstrumentDefinitionVisitor
   }
 
   @Override
-  public Double visitCouponIborCompoundingFlatSpreadDefinition(final CouponIborCompoundingFlatSpreadDefinition payment) {
+  public Double visitCouponIborCompoundingFlatSpreadDefinition(CouponIborCompoundingFlatSpreadDefinition payment) {
     double total = 0.0;
     for (double fraction : payment.getFixingSubperiodAccrualFactors()) {
       total += fraction;
@@ -121,7 +120,8 @@ public class CouponFixingYearFractionVisitor extends InstrumentDefinitionVisitor
   }
   
   @Override
-  public Double visitCouponArithmeticAverageONSpreadSimplifiedDefinition(CouponONArithmeticAverageSpreadSimplifiedDefinition payment) {
+  public Double visitCouponArithmeticAverageONSpreadSimplifiedDefinition(
+      CouponONArithmeticAverageSpreadSimplifiedDefinition payment) {
     return null;
   }
 }

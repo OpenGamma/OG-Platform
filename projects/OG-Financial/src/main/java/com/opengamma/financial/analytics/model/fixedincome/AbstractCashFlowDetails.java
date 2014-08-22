@@ -38,30 +38,64 @@ import com.opengamma.util.tuple.Pair;
 @BeanDefinition
 public abstract class AbstractCashFlowDetails implements CashFlowDetails, ImmutableBean {
   
+  /**
+   * The visitor used to calculate the accrual start and end dates of the cash flow.
+   */
   private static final CouponAccrualDatesVisitor ACCRUAL_DATES_VISITOR = new CouponAccrualDatesVisitor();
-  
+
+  /**
+   * The visitor used to calculate the accrual factor of the cash flow.
+   */
   private static final CouponPaymentYearFractionVisitor ACCRUAL_FACTOR_VISITOR = new CouponPaymentYearFractionVisitor();
-  
+
+  /**
+   * The visitor used to calculate the discount factor of the cash flow.
+   */
   private static final CouponPaymentDiscountFactorVisitor DISCOUNT_FACTOR_VISITOR = new CouponPaymentDiscountFactorVisitor();
 
+  /**
+   * The payment date of the cash flow.
+   */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate _paymentDate;
   
+  /**
+   * The accrual start date of the cash flow.
+   */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate _accrualStartDate;
   
+  /**
+   * The accrual end date of the cash flow.
+   */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate _accrualEndDate;
 
+  /**
+   * The accrual factor of the cash flow.
+   */
   @PropertyDefinition(validate = "notNull")
   private final double _accrualFactor;
 
+  /**
+   * The currency and notional amount of the cash flow.
+   */
   @PropertyDefinition(validate = "notNull")
   private final CurrencyAmount _notional;
 
+  /**
+   * The discount factor used to discount the cash flow.
+   */
   @PropertyDefinition(validate = "notNull")
   private final double _df;
   
+  /**
+   * Constructs a cash flow details instance from the OG-Analytics definition and derivative forms of a cash flow, using
+   * the provided curves to calculate the discount factor used to discount the cash flow.
+   * @param definition the definition form of the cash flow.
+   * @param derivative the derivative form of the cash flow.
+   * @param curves the curves used to discount the cash flow.
+   */
   public AbstractCashFlowDetails(PaymentDefinition definition, Payment derivative, MulticurveProviderInterface curves) {
     ArgumentChecker.notNull(definition, "definition");
     ArgumentChecker.notNull(derivative, "derivative");

@@ -62,13 +62,15 @@ public class CouponFixingDatesVisitor extends InstrumentDefinitionVisitorAdapter
   }
 
   @Override
-  public Pair<LocalDate, LocalDate> visitCouponArithmeticAverageONDefinition(final CouponONArithmeticAverageDefinition payment) {
+  public Pair<LocalDate, LocalDate> visitCouponArithmeticAverageONDefinition(
+      CouponONArithmeticAverageDefinition payment) {
     return Pairs.of(payment.getFixingPeriodStartDates()[0].toLocalDate(),
                     payment.getFixingPeriodEndDates()[payment.getFixingPeriodEndDates().length - 1].toLocalDate());
   }
 
   @Override
-  public Pair<LocalDate, LocalDate> visitCouponArithmeticAverageONSpreadDefinition(final CouponONArithmeticAverageSpreadDefinition payment) {
+  public Pair<LocalDate, LocalDate> visitCouponArithmeticAverageONSpreadDefinition(
+      CouponONArithmeticAverageSpreadDefinition payment) {
     return Pairs.of(payment.getFixingPeriodDates()[0].toLocalDate(),
                     payment.getFixingPeriodDates()[payment.getFixingPeriodDates().length - 1].toLocalDate());
   }
@@ -85,19 +87,22 @@ public class CouponFixingDatesVisitor extends InstrumentDefinitionVisitorAdapter
   }
   
   @Override
-  public Pair<LocalDate, LocalDate> visitCouponIborCompoundingFlatSpreadDefinition(CouponIborCompoundingFlatSpreadDefinition payment) {
+  public Pair<LocalDate, LocalDate> visitCouponIborCompoundingFlatSpreadDefinition(
+      CouponIborCompoundingFlatSpreadDefinition payment) {
     return Pairs.of(payment.getFixingSubperiodStartDates()[0].toLocalDate(),
                     payment.getFixingSubperiodEndDates()[payment.getFixingSubperiodEndDates().length - 1].toLocalDate());
   }
   
   @Override
-  public Pair<LocalDate, LocalDate> visitCouponIborCompoundingSimpleSpreadDefinition(CouponIborCompoundingSimpleSpreadDefinition payment) {
+  public Pair<LocalDate, LocalDate> visitCouponIborCompoundingSimpleSpreadDefinition(
+      CouponIborCompoundingSimpleSpreadDefinition payment) {
     return Pairs.of(payment.getFixingSubperiodStartDates()[0].toLocalDate(),
                     payment.getFixingSubperiodEndDates()[payment.getFixingSubperiodEndDates().length - 1].toLocalDate());
   }
   
   @Override
-  public Pair<LocalDate, LocalDate> visitCouponIborCompoundingSpreadDefinition(CouponIborCompoundingSpreadDefinition payment) {
+  public Pair<LocalDate, LocalDate> visitCouponIborCompoundingSpreadDefinition(
+      CouponIborCompoundingSpreadDefinition payment) {
     return Pairs.of(payment.getFixingPeriodStartDates()[0].toLocalDate(),
                     payment.getFixingPeriodEndDates()[payment.getFixingPeriodEndDates().length - 1].toLocalDate());
   }

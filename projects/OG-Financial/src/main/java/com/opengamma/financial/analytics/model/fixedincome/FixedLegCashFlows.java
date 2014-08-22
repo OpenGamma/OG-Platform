@@ -13,7 +13,6 @@ import java.util.Set;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
-import org.joda.beans.DerivedProperty;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
@@ -48,6 +47,9 @@ import com.opengamma.util.money.CurrencyAmount;
 @BeanDefinition
 public class FixedLegCashFlows implements ImmutableBean, SwapLegCashFlows {
 
+  /**
+   * The details of fixed cash flows.
+   */
   @PropertyDefinition(validate = "notNull")
   private final List<FixedCashFlowDetails> _cashFlowDetails;
 
@@ -109,23 +111,12 @@ public class FixedLegCashFlows implements ImmutableBean, SwapLegCashFlows {
     }
     
     _cashFlowDetails = cashFlows;
-
-//    _accrualStart = Collections.unmodifiableList(Lists.newArrayList(startAccrualDates));
-//    _accrualEnd = Collections.unmodifiableList(Lists.newArrayList(endAccrualDates));
-//    _notionals = Collections.unmodifiableList(Lists.newArrayList(notionals));
-//    _paymentTimes = Collections.unmodifiableList(Lists.newArrayList(paymentTimes));
-//    _discountFactors = Collections.unmodifiableList(Lists.newArrayList(discountFactors));
-//    _paymentFractions = Collections.unmodifiableList(Lists.newArrayList(paymentFractions));
-//    _paymentAmounts = Collections.unmodifiableList(Lists.newArrayList(paymentAmounts));
-//    _fixedRates = Collections.unmodifiableList(Lists.newArrayList(fixedRates));
-
   }
   
   /**
    * Returns the notional of the cash flow.
    * @return the notional of the cash flow.
    */
-  @DerivedProperty
   public List<CurrencyAmount> getNotionals() {
     List<FixedCashFlowDetails> cashFlowDetails = getCashFlowDetails();
     
@@ -140,7 +131,6 @@ public class FixedLegCashFlows implements ImmutableBean, SwapLegCashFlows {
    * Returns the accrual start dates of the cash flow.
    * @return the accrual start dates of the cash flow.
    */
-  @DerivedProperty
   public List<LocalDate> getAccrualStart() {
     List<FixedCashFlowDetails> cashFlowDetails = getCashFlowDetails();
     
@@ -155,7 +145,6 @@ public class FixedLegCashFlows implements ImmutableBean, SwapLegCashFlows {
    * Returns the accrual end dates of the cash flow.
    * @return the accrual end dates of the cash flow.
    */
-  @DerivedProperty
   public List<LocalDate> getAccrualEnd() {
     List<FixedCashFlowDetails> cashFlowDetails = getCashFlowDetails();
     
@@ -170,7 +159,6 @@ public class FixedLegCashFlows implements ImmutableBean, SwapLegCashFlows {
    * Returns the payment fraction, or accrual factor, of the cash flow.
    * @return the payment fraction, or accrual factor, of the cash flow.
    */
-  @DerivedProperty
   public List<Double> getPaymentFractions() {
     List<FixedCashFlowDetails> cashFlowDetails = getCashFlowDetails();
     
@@ -185,7 +173,6 @@ public class FixedLegCashFlows implements ImmutableBean, SwapLegCashFlows {
    * Returns the fixed rate of the cash flow.
    * @return the fixed rate of the cash flow.
    */
-  @DerivedProperty
   public List<Double> getFixedRates() {
     List<FixedCashFlowDetails> cashFlowDetails = getCashFlowDetails();
     
@@ -200,7 +187,6 @@ public class FixedLegCashFlows implements ImmutableBean, SwapLegCashFlows {
    * Gets the discounted payment amounts.
    * @return the discounted cashflows
    */
-  @DerivedProperty
   public List<CurrencyAmount> getDiscountedPaymentAmounts() {
     List<FixedCashFlowDetails> cashFlowDetails = getCashFlowDetails();
     
@@ -215,7 +201,6 @@ public class FixedLegCashFlows implements ImmutableBean, SwapLegCashFlows {
    * Gets the total number of cash-flows.
    * @return The total number of cash-flows
    */
-  @DerivedProperty
   public int getNumberOfCashFlows() {
     return getCashFlowDetails().size();
   }
@@ -224,7 +209,6 @@ public class FixedLegCashFlows implements ImmutableBean, SwapLegCashFlows {
    * Returns the discount factors used to discount the cash flows.
    * @return the discount factors used to discount the cash flows.
    */
-  @DerivedProperty
   public List<Double> getDiscountFactors() {
     List<FixedCashFlowDetails> cashFlowDetails = getCashFlowDetails();
     
@@ -239,7 +223,6 @@ public class FixedLegCashFlows implements ImmutableBean, SwapLegCashFlows {
    * Returns the payment amount, or projected amount of the cash flow.
    * @return the payment amount, or projected amount of the cash flow.
    */
-  @DerivedProperty
   public List<CurrencyAmount> getPaymentAmounts() {
     List<FixedCashFlowDetails> cashFlowDetails = getCashFlowDetails();
     

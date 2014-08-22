@@ -28,16 +28,31 @@ import com.opengamma.util.money.CurrencyAmount;
 @BeanDefinition(hierarchy = "immutable")
 public final class FixedCashFlowDetails extends AbstractCashFlowDetails implements CashFlowDetails {
   
+  /**
+   * The visitor used to retrieve the fixed rate from the cash flow.
+   */
   private static final CouponFixedRateVisitor FIXED_RATE_VISITOR = new CouponFixedRateVisitor();
   
+  /**
+   * The visitor used to calculate the projected amount of the cash flow.
+   */
   private static final CouponPaymentVisitor PROJECTED_AMOUNT_VISITOR = new CouponPaymentVisitor();
   
+  /**
+   * The fixed rate of the cash flow.
+   */
   @PropertyDefinition(validate = "notNull")
   private final double _rate;
 
+  /**
+   * The projected amount of the cash flow.
+   */
   @PropertyDefinition(validate = "notNull")
   private final CurrencyAmount _projectedAmount;
 
+  /**
+   * The present value of the cash flow.
+   */
   @PropertyDefinition(validate = "notNull")
   private final CurrencyAmount _presentValue;
   

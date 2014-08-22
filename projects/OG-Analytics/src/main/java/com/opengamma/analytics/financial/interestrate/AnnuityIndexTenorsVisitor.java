@@ -20,11 +20,14 @@ import com.opengamma.util.time.Tenor;
 /**
  * Gets the index tenors for the coupons in an annuity.
  */
-public final class AnnuityIndexTenorsVisitor extends InstrumentDefinitionVisitorAdapter<ZonedDateTime, List<Set<Tenor>>> {
+public final class AnnuityIndexTenorsVisitor
+  extends InstrumentDefinitionVisitorAdapter<ZonedDateTime, List<Set<Tenor>>> {
+  
   /** The coupon accrual year fraction visitor */
   private static final InstrumentDefinitionVisitor<Void, Set<Tenor>> COUPON_VISITOR = CouponTenorVisitor.getInstance();
   /** A singleton instance */
-  private static final InstrumentDefinitionVisitor<ZonedDateTime, List<Set<Tenor>>> INSTANCE = new AnnuityIndexTenorsVisitor();
+  private static final InstrumentDefinitionVisitor<ZonedDateTime, List<Set<Tenor>>> INSTANCE =
+      new AnnuityIndexTenorsVisitor();
 
   /**
    * Gets the singleton instance.
@@ -41,7 +44,8 @@ public final class AnnuityIndexTenorsVisitor extends InstrumentDefinitionVisitor
   }
 
   @Override
-  public List<Set<Tenor>> visitAnnuityDefinition(final AnnuityDefinition<? extends PaymentDefinition> annuity, final ZonedDateTime date) {
+  public List<Set<Tenor>> visitAnnuityDefinition(AnnuityDefinition<? extends PaymentDefinition> annuity,
+                                                 ZonedDateTime date) {
     final int n = annuity.getNumberOfPayments();
     final List<Set<Tenor>> tenors = new ArrayList<>();
     for (int i = 0; i < n; i++) {
