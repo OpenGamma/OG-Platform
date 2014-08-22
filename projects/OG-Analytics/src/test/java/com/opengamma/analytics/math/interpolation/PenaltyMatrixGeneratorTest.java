@@ -233,7 +233,7 @@ public class PenaltyMatrixGeneratorTest {
   }
 
   @Test
-  public void diffMatrix1DTest() {
+  public void derivativeMatrix1DTest() {
     double[] x = new double[] {0.0, 0.3, 0.7, 0.8, 1.2, 2.0 };
     int n = x.length;
 
