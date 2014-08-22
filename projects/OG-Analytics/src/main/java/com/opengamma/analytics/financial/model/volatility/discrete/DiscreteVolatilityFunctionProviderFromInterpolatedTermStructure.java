@@ -5,7 +5,7 @@
  */
 package com.opengamma.analytics.financial.model.volatility.discrete;
 
-import com.opengamma.analytics.financial.interestrate.capletstripping.InterpolatedVolatilityTermStructureProvider;
+import com.opengamma.analytics.financial.model.volatility.surface.InterpolatedVolatilityTermStructureProvider;
 import com.opengamma.analytics.math.function.InterpolatedVectorFunctionProvider;
 import com.opengamma.analytics.math.function.VectorFunction;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
