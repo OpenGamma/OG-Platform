@@ -1695,7 +1695,7 @@ public final class ValueRequirementNames {
   ///// Externally-sourced values
   // Existing value requirement names with a suffix
   // NOTE jonathan 2012-07-13 -- simply to allow clearer column headers. Should be removed once we have a better solution.
-  private static final String EXTERNAL_SUFFIX = " (ext)";
+  public static final String EXTERNAL_SUFFIX = " (ext)";
   /**
    * External value of {@link #CONDITIONAL_HISTORICAL_VAR}
    */
