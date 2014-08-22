@@ -16,12 +16,16 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverageFixingDatesCompoundingFlatSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingFlatSpread;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingSimpleSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborGearing;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponON;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONArithmeticAverage;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONArithmeticAverageSpread;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONArithmeticAverageSpreadSimplified;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONCompounded;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONSpread;
 
 /**
  *
@@ -110,6 +114,26 @@ public class CouponPaymentYearFractionVisitor extends InstrumentDerivativeVisito
 
   @Override
   public Double visitCouponIborAverageFlatCompoundingSpread(final CouponIborAverageFixingDatesCompoundingFlatSpread payment) {
+    return payment.getPaymentYearFraction();
+  }
+  
+  @Override
+  public Double visitCouponONArithmeticAverage(CouponONArithmeticAverage payment) {
+    return payment.getPaymentYearFraction();
+  }
+  
+  @Override
+  public Double visitCouponONArithmeticAverageSpreadSimplified(CouponONArithmeticAverageSpreadSimplified payment) {
+    return payment.getPaymentYearFraction();
+  }
+  
+  @Override
+  public Double visitCouponONSpread(CouponONSpread payment) {
+    return payment.getPaymentYearFraction();
+  }
+  
+  @Override
+  public Double visitCouponIborCompoundingSimpleSpread(CouponIborCompoundingSimpleSpread payment) {
     return payment.getPaymentYearFraction();
   }
 }

@@ -23,6 +23,7 @@ import com.opengamma.analytics.financial.instrument.payment.CouponIborDefinition
 import com.opengamma.analytics.financial.instrument.payment.CouponIborGearingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborRatchetDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborSpreadDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponONArithmeticAverageDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponONArithmeticAverageSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponONCompoundedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponONDefinition;
@@ -41,112 +42,130 @@ public class CouponAccrualDatesVisitor extends InstrumentDefinitionVisitorAdapte
   }
 
   @Override
-  public Pair<LocalDate, LocalDate> visitCouponFixedAccruedCompoundingDefinition(final CouponFixedAccruedCompoundingDefinition payment) {
+  public Pair<LocalDate, LocalDate> visitCouponFixedAccruedCompoundingDefinition(
+      CouponFixedAccruedCompoundingDefinition payment) {
     return Pairs.of(payment.getAccrualStartDate().toLocalDate(), payment.getAccrualEndDate().toLocalDate());
   }
 
   @Override
-  public Pair<LocalDate, LocalDate> visitCouponIborDefinition(final CouponIborDefinition payment) {
+  public Pair<LocalDate, LocalDate> visitCouponIborDefinition(CouponIborDefinition payment) {
     return Pairs.of(payment.getAccrualStartDate().toLocalDate(), payment.getAccrualEndDate().toLocalDate());
   }
 
   @Override
-  public Pair<LocalDate, LocalDate> visitCouponIborAverageDefinition(final CouponIborAverageIndexDefinition payment) {
+  public Pair<LocalDate, LocalDate> visitCouponIborAverageDefinition(CouponIborAverageIndexDefinition payment) {
     return Pairs.of(payment.getAccrualStartDate().toLocalDate(), payment.getAccrualEndDate().toLocalDate());
   }
 
   @Override
-  public Pair<LocalDate, LocalDate> visitCouponIborSpreadDefinition(final CouponIborSpreadDefinition payment) {
+  public Pair<LocalDate, LocalDate> visitCouponIborSpreadDefinition(CouponIborSpreadDefinition payment) {
     return Pairs.of(payment.getAccrualStartDate().toLocalDate(), payment.getAccrualEndDate().toLocalDate());
   }
 
   @Override
-  public Pair<LocalDate, LocalDate> visitCouponIborGearingDefinition(final CouponIborGearingDefinition payment) {
+  public Pair<LocalDate, LocalDate> visitCouponIborGearingDefinition(CouponIborGearingDefinition payment) {
     return Pairs.of(payment.getAccrualStartDate().toLocalDate(), payment.getAccrualEndDate().toLocalDate());
   }
 
   @Override
-  public Pair<LocalDate, LocalDate> visitCouponIborCompoundingDefinition(final CouponIborCompoundingDefinition payment) {
+  public Pair<LocalDate, LocalDate> visitCouponIborCompoundingDefinition(CouponIborCompoundingDefinition payment) {
     return Pairs.of(payment.getAccrualStartDate().toLocalDate(), payment.getAccrualEndDate().toLocalDate());
   }
 
   @Override
-  public Pair<LocalDate, LocalDate> visitCouponIborCompoundingSpreadDefinition(final CouponIborCompoundingSpreadDefinition payment) {
+  public Pair<LocalDate, LocalDate> visitCouponIborCompoundingSpreadDefinition(
+      CouponIborCompoundingSpreadDefinition payment) {
     return Pairs.of(payment.getAccrualStartDate().toLocalDate(), payment.getAccrualEndDate().toLocalDate());
   }
 
   @Override
-  public Pair<LocalDate, LocalDate> visitCouponIborCompoundingFlatSpreadDefinition(final CouponIborCompoundingFlatSpreadDefinition payment) {
+  public Pair<LocalDate, LocalDate> visitCouponIborCompoundingFlatSpreadDefinition(
+      CouponIborCompoundingFlatSpreadDefinition payment) {
     return Pairs.of(payment.getAccrualStartDate().toLocalDate(), payment.getAccrualEndDate().toLocalDate());
   }
 
   @Override
-  public Pair<LocalDate, LocalDate> visitCouponIborRatchetDefinition(final CouponIborRatchetDefinition payment) {
+  public Pair<LocalDate, LocalDate> visitCouponIborRatchetDefinition(CouponIborRatchetDefinition payment) {
     return Pairs.of(payment.getAccrualStartDate().toLocalDate(), payment.getAccrualEndDate().toLocalDate());
   }
 
   @Override
-  public Pair<LocalDate, LocalDate> visitCouponOISDefinition(final CouponONDefinition payment) {
+  public Pair<LocalDate, LocalDate> visitCouponOISDefinition(CouponONDefinition payment) {
     return Pairs.of(payment.getAccrualStartDate().toLocalDate(), payment.getAccrualEndDate().toLocalDate());
   }
 
   @Override
-  public Pair<LocalDate, LocalDate> visitCouponONCompoundedDefinition(final CouponONCompoundedDefinition payment) {
+  public Pair<LocalDate, LocalDate> visitCouponONCompoundedDefinition(CouponONCompoundedDefinition payment) {
     return Pairs.of(payment.getAccrualStartDate().toLocalDate(), payment.getAccrualEndDate().toLocalDate());
   }
 
   @Override
-  public Pair<LocalDate, LocalDate> visitCouponCMSDefinition(final CouponCMSDefinition payment) {
+  public Pair<LocalDate, LocalDate> visitCouponCMSDefinition(CouponCMSDefinition payment) {
     return Pairs.of(payment.getAccrualStartDate().toLocalDate(), payment.getAccrualEndDate().toLocalDate());
   }
 
   @Override
-  public Pair<LocalDate, LocalDate> visitCouponFixedCompoundingDefinition(final CouponFixedCompoundingDefinition payment) {
+  public Pair<LocalDate, LocalDate> visitCouponFixedCompoundingDefinition(CouponFixedCompoundingDefinition payment) {
     return Pairs.of(payment.getAccrualStartDate().toLocalDate(), payment.getAccrualEndDate().toLocalDate());
   }
 
   @Override
-  public Pair<LocalDate, LocalDate> visitCouponArithmeticAverageONSpreadDefinition(final CouponONArithmeticAverageSpreadDefinition payment) {
+  public Pair<LocalDate, LocalDate> visitCouponArithmeticAverageONSpreadDefinition(
+      CouponONArithmeticAverageSpreadDefinition payment) {
     return Pairs.of(payment.getAccrualStartDate().toLocalDate(), payment.getAccrualEndDate().toLocalDate());
   }
 
   @Override
-  public Pair<LocalDate, LocalDate> visitCouponONSpreadDefinition(CouponONSpreadDefinition payment, Void data) {
+  public Pair<LocalDate, LocalDate> visitCouponONSpreadDefinition(
+      CouponONSpreadDefinition payment, Void data) {
     return Pairs.of(payment.getAccrualStartDate().toLocalDate(), payment.getAccrualEndDate().toLocalDate());
   }
 
   @Override
-  public Pair<LocalDate, LocalDate> visitCouponONSpreadDefinition(CouponONSpreadDefinition payment) {
+  public Pair<LocalDate, LocalDate> visitCouponONSpreadDefinition(
+      CouponONSpreadDefinition payment) {
+    return Pairs.of(payment.getAccrualStartDate().toLocalDate(), payment.getAccrualEndDate().toLocalDate());
+  }
+  
+  @Override
+  public Pair<LocalDate, LocalDate> visitCouponArithmeticAverageONDefinition(
+      CouponONArithmeticAverageDefinition payment) {
     return Pairs.of(payment.getAccrualStartDate().toLocalDate(), payment.getAccrualEndDate().toLocalDate());
   }
 
   @Override
-  public Pair<LocalDate, LocalDate> visitCouponIborAverageFixingDatesDefinition(CouponIborAverageFixingDatesDefinition payment, Void data) {
+  public Pair<LocalDate, LocalDate> visitCouponIborAverageFixingDatesDefinition(
+      CouponIborAverageFixingDatesDefinition payment, Void data) {
     return Pairs.of(payment.getAccrualStartDate().toLocalDate(), payment.getAccrualEndDate().toLocalDate());
   }
 
   @Override
-  public Pair<LocalDate, LocalDate> visitCouponIborAverageFixingDatesDefinition(CouponIborAverageFixingDatesDefinition payment) {
+  public Pair<LocalDate, LocalDate> visitCouponIborAverageFixingDatesDefinition(
+      CouponIborAverageFixingDatesDefinition payment) {
     return Pairs.of(payment.getAccrualStartDate().toLocalDate(), payment.getAccrualEndDate().toLocalDate());
   }
 
   @Override
-  public Pair<LocalDate, LocalDate> visitCouponIborAverageCompoundingDefinition(CouponIborAverageFixingDatesCompoundingDefinition payment, Void data) {
+  public Pair<LocalDate, LocalDate> visitCouponIborAverageCompoundingDefinition(
+      CouponIborAverageFixingDatesCompoundingDefinition payment, Void data) {
     return Pairs.of(payment.getAccrualStartDate().toLocalDate(), payment.getAccrualEndDate().toLocalDate());
   }
 
   @Override
-  public Pair<LocalDate, LocalDate> visitCouponIborAverageCompoundingDefinition(CouponIborAverageFixingDatesCompoundingDefinition payment) {
+  public Pair<LocalDate, LocalDate> visitCouponIborAverageCompoundingDefinition(
+      CouponIborAverageFixingDatesCompoundingDefinition payment) {
     return Pairs.of(payment.getAccrualStartDate().toLocalDate(), payment.getAccrualEndDate().toLocalDate());
   }
 
   @Override
-  public Pair<LocalDate, LocalDate> visitCouponIborAverageFlatCompoundingSpreadDefinition(CouponIborAverageFixingDatesCompoundingFlatSpreadDefinition payment, Void data) {
+  public Pair<LocalDate, LocalDate> visitCouponIborAverageFlatCompoundingSpreadDefinition(
+      CouponIborAverageFixingDatesCompoundingFlatSpreadDefinition payment, Void data) {
     return Pairs.of(payment.getAccrualStartDate().toLocalDate(), payment.getAccrualEndDate().toLocalDate());
   }
 
   @Override
-  public Pair<LocalDate, LocalDate> visitCouponIborAverageFlatCompoundingSpreadDefinition(CouponIborAverageFixingDatesCompoundingFlatSpreadDefinition payment) {
+  public Pair<LocalDate, LocalDate> visitCouponIborAverageFlatCompoundingSpreadDefinition(
+      CouponIborAverageFixingDatesCompoundingFlatSpreadDefinition payment) {
     return Pairs.of(payment.getAccrualStartDate().toLocalDate(), payment.getAccrualEndDate().toLocalDate());
   }
 }
