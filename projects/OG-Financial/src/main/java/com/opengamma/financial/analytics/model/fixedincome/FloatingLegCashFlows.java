@@ -13,7 +13,6 @@ import java.util.Set;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
-import org.joda.beans.DerivedProperty;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
@@ -153,7 +152,6 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
    * Gets the number of cash-flows.
    * @return the number of cash-flows
    */
-  @DerivedProperty
   public int getNumberOfCashFlows() {
     return _cashFlowDetails.size();
   }
@@ -162,7 +160,6 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
    * Gets the discounted payment amounts.
    * @return the discounted cashflows
    */
-  @DerivedProperty
   public List<CurrencyAmount> getPaymentAmounts() {
     List<FloatingCashFlowDetails> cashFlowDetails = getCashFlowDetails();
     
@@ -177,7 +174,6 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
    * Gets the discounted payment amounts.
    * @return the discounted cashflows
    */
-  @DerivedProperty
   public List<CurrencyAmount> getDiscountedPaymentAmounts() {
     List<FloatingCashFlowDetails> cashFlowDetails = getCashFlowDetails();
     
@@ -192,7 +188,6 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
    * Returns the notionals of the cash flows.
    * @return the notionals of the cash flows.
    */
-  @DerivedProperty
   public List<CurrencyAmount> getNotionals() {
     List<FloatingCashFlowDetails> cashFlowDetails = getCashFlowDetails();
 
@@ -207,7 +202,6 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
    * Returns the accrual start dates of the cash flow.
    * @return the accrual start dates of the cash flow.
    */
-  @DerivedProperty
   public List<LocalDate> getAccrualStart() {
     List<FloatingCashFlowDetails> cashFlowDetails = getCashFlowDetails();
     
@@ -222,7 +216,6 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
    * Returns the accrual end dates of the cash flow.
    * @return the accrual end dates of the cash flow.
    */
-  @DerivedProperty
   public List<LocalDate> getAccrualEnd() {
     List<FloatingCashFlowDetails> cashFlowDetails = getCashFlowDetails();
     
@@ -237,7 +230,6 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
    * Returns the payment fraction, or accrual factor, of the cash flow.
    * @return the payment fraction, or accrual factor, of the cash flow.
    */
-  @DerivedProperty
   public List<Double> getAccrualYearFractions() {
     List<FloatingCashFlowDetails> cashFlowDetails = getCashFlowDetails();
     
@@ -252,7 +244,6 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
    * Returns the payment dates of the cash flow.
    * @return the payment dates of the cash flow.
    */
-  @DerivedProperty
   public List<LocalDate> getPaymentDates() {
     List<FloatingCashFlowDetails> cashFlowDetails = getCashFlowDetails();
     
@@ -267,7 +258,6 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
    * Returns the fixed rate of the cash flow.
    * @return the fixed rate of the cash flow.
    */
-  @DerivedProperty
   public List<Double> getFixedRates() {
     List<FloatingCashFlowDetails> cashFlowDetails = getCashFlowDetails();
     
@@ -282,7 +272,6 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
    * Returns the forward rate of the cash flow.
    * @return the forward rate of the cash flow.
    */
-  @DerivedProperty
   public List<Double> getForwardRates() {
     List<FloatingCashFlowDetails> cashFlowDetails = getCashFlowDetails();
     
@@ -297,7 +286,6 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
    * Returns the discount factors used to discount the cash flows.
    * @return the discount factors used to discount the cash flows.
    */
-  @DerivedProperty
   public List<Double> getPaymentDiscountFactors() {
     List<FloatingCashFlowDetails> cashFlowDetails = getCashFlowDetails();
     
@@ -312,7 +300,6 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
    * Returns the fixing start dates of the cash flow.
    * @return the fixing start dates of the cash flow.
    */
-  @DerivedProperty
   public List<LocalDate> getFixingStart() {
     List<FloatingCashFlowDetails> cashFlowDetails = getCashFlowDetails();
     
@@ -327,7 +314,6 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
    * Returns the fixing end dates of the cash flow.
    * @return the fixing end dates of the cash flow.
    */
-  @DerivedProperty
   public List<LocalDate> getFixingEnd() {
     List<FloatingCashFlowDetails> cashFlowDetails = getCashFlowDetails();
     
@@ -342,7 +328,6 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
    * Returns the fixing year fractions used to compute the forward rate.
    * @return the fixing year fractions used to compute the forward rate.
    */
-  @DerivedProperty
   public List<Double> getFixingYearFractions() {
     List<FloatingCashFlowDetails> cashFlowDetails = getCashFlowDetails();
     
@@ -357,7 +342,6 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
    * Returns the spreads of the cash flows.
    * @return the spreads of the cash flows.
    */
-  @DerivedProperty
   public List<Double> getSpreads() {
     List<FloatingCashFlowDetails> cashFlowDetails = getCashFlowDetails();
     
@@ -372,7 +356,6 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
    * Returns the gearing of the cash flows.
    * @return the gearing of the cash flows.
    */
-  @DerivedProperty
   public List<Double> getGearings() {
     List<FloatingCashFlowDetails> cashFlowDetails = getCashFlowDetails();
     

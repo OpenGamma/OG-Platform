@@ -43,52 +43,116 @@ import com.opengamma.util.tuple.Pair;
 @BeanDefinition(hierarchy = "immutable")
 public final class FloatingCashFlowDetails extends AbstractCashFlowDetails {
   
+  /**
+   * The visitor used to calculate the fixing period dates of the cash flow.
+   */
   private static final CouponFixingDatesVisitor FIXING_DATES_VISITOR = new CouponFixingDatesVisitor();
   
-  private static final CouponFixingYearFractionVisitor FIXING_YEAR_FRACTION_VISITOR = new CouponFixingYearFractionVisitor();
+  /**
+   * The visitor used to calculate the fixing year fraction of the cash flow.
+   */
+  private static final CouponFixingYearFractionVisitor FIXING_YEAR_FRACTION_VISITOR =
+      new CouponFixingYearFractionVisitor();
   
+  /**
+   * The visitor used to calculate the fixed, or reset rate, of the cash flow.
+   */
   private static final CouponFixedRateVisitor FIXED_RATE_VISITOR = new CouponFixedRateVisitor();
   
+  /**
+   * The visitor used to calculate the forward rate of the cash flow.
+   */
   private static final CouponForwardRateVisitor FORWARD_RATE_VISITOR = new CouponForwardRateVisitor();
   
+  /**
+   * The visitor used to retrieve the spread on the cash flow.
+   */
   private static final InstrumentDefinitionVisitor<Void, Double> SPREAD_VISITOR = CouponSpreadVisitor.getInstance();
   
+  /**
+   * The visitor used to retrieve the gearing on the cash flow.
+   */
   private static final InstrumentDefinitionVisitor<Void, Double> GEARING_VISITOR = CouponGearingVisitor.getInstance();
   
-  private static final InstrumentDefinitionVisitor<Void, Set<Tenor>> INDEX_TENOR_VISITOR = CouponTenorVisitor.getInstance();
+  /**
+   * The visitor used to retrieve the index tenors of the cash flow.
+   */
+  private static final InstrumentDefinitionVisitor<Void, Set<Tenor>> INDEX_TENOR_VISITOR =
+      CouponTenorVisitor.getInstance();
   
-  private static final InstrumentDerivativeVisitor<MulticurveProviderInterface, MultipleCurrencyAmount> PRESENT_VALUE_VISITOR = PresentValueDiscountingCalculator.getInstance();
+  /**
+   * The visitor used to retrieve the present values of the cash flows.
+   */
+  private static final InstrumentDerivativeVisitor<MulticurveProviderInterface, MultipleCurrencyAmount> PV_VISITOR = 
+      PresentValueDiscountingCalculator.getInstance();
   
+  /**
+   * The fixing start date of the cash flow.
+   */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate _fixingStartDate;
   
+  /**
+   * The fixing end date of the cash flow.
+   */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate _fixingEndDate;
 
+  /**
+   * The fixing year fraction of the cash flow.
+   */
   @PropertyDefinition(validate = "notNull")
   private final double _fixingYearFrac;
 
+  /**
+   * The fixed, or reset, rate of the cash flow.
+   */
   @PropertyDefinition
   private final Double _fixedRate;
 
+  /**
+   * The forward rate of the cash flow.
+   */
   @PropertyDefinition
   private final Double _forwardRate;
   
+  /**
+   * The spread of the cash flow.
+   */
   @PropertyDefinition
   private final Double _spread;
   
+  /**
+   * The gearing of the cash flow.
+   */
   @PropertyDefinition
   private final Double _gearing;
   
+  /**
+   * The index tenors of the cash flow.
+   */
   @PropertyDefinition(validate = "notNull")
   private final Set<Tenor> _indexTenors;
 
+  /**
+   * The projected amount of the cash flow.
+   */
   @PropertyDefinition(validate = "notNull")
   private final CurrencyAmount _projectedAmount;
 
+  /**
+   * The present value of the cash flow.
+   */
   @PropertyDefinition(validate = "notNull")
   private final CurrencyAmount _presentValue;
   
+  /**
+   * Constructor that uses the definition and derivative versions of a payment to construct a description of a fixed cash
+   * flow.
+   * @param definition the definition representation of a cash flow.
+   * @param derivative the derivative representation of a cash flow.
+   * @param curves the curve bundle used to retrieve discount factors.
+   */
   public FloatingCashFlowDetails(PaymentDefinition definition, Payment derivative, MulticurveProviderInterface curves) {
     super(definition, derivative, curves);
     Pair<LocalDate, LocalDate> fixingDates = definition.accept(FIXING_DATES_VISITOR);
@@ -112,7 +176,7 @@ public final class FloatingCashFlowDetails extends AbstractCashFlowDetails {
     _spread = definition.accept(SPREAD_VISITOR);
     _gearing = definition.accept(GEARING_VISITOR);
     _indexTenors = definition.accept(INDEX_TENOR_VISITOR);
-    _presentValue = derivative.accept(PRESENT_VALUE_VISITOR, curves).getCurrencyAmount(derivative.getCurrency());
+    _presentValue = derivative.accept(PV_VISITOR, curves).getCurrencyAmount(derivative.getCurrency());
     _projectedAmount = _presentValue.multipliedBy(1 / getDf());
   }
   

@@ -52,32 +52,34 @@ public final class CouponTenorVisitor extends InstrumentDefinitionVisitorAdapter
   }
 
   @Override
-  public Set<Tenor> visitCouponIborDefinition(final CouponIborDefinition definition) {
+  public Set<Tenor> visitCouponIborDefinition(CouponIborDefinition definition) {
     return Sets.newHashSet(Tenor.of(definition.getIndex().getTenor()));
   }
 
   @Override
-  public Set<Tenor> visitCouponIborSpreadDefinition(final CouponIborSpreadDefinition definition) {
+  public Set<Tenor> visitCouponIborSpreadDefinition(CouponIborSpreadDefinition definition) {
     return Sets.newHashSet(Tenor.of(definition.getIndex().getTenor()));
   }
 
   @Override
-  public Set<Tenor> visitCouponIborGearingDefinition(final CouponIborGearingDefinition definition) {
+  public Set<Tenor> visitCouponIborGearingDefinition(CouponIborGearingDefinition definition) {
     return Sets.newHashSet(Tenor.of(definition.getIndex().getTenor()));
   }
 
   @Override
-  public Set<Tenor> visitCouponIborCompoundingDefinition(final CouponIborCompoundingDefinition definition) {
+  public Set<Tenor> visitCouponIborCompoundingDefinition(CouponIborCompoundingDefinition definition) {
     return Sets.newHashSet(Tenor.of(definition.getIndex().getTenor()));
   }
 
   @Override
-  public Set<Tenor> visitCouponIborCompoundingFlatSpreadDefinition(final CouponIborCompoundingFlatSpreadDefinition definition) {
+  public Set<Tenor> visitCouponIborCompoundingFlatSpreadDefinition(
+      CouponIborCompoundingFlatSpreadDefinition definition) {
     return Sets.newHashSet(Tenor.of(definition.getIndex().getTenor()));
   }
   
   @Override
-  public Set<Tenor> visitCouponIborCompoundingSimpleSpreadDefinition(CouponIborCompoundingSimpleSpreadDefinition payment) {
+  public Set<Tenor> visitCouponIborCompoundingSimpleSpreadDefinition(
+      CouponIborCompoundingSimpleSpreadDefinition payment) {
     return Sets.newHashSet(Tenor.of(payment.getIndex().getTenor()));
   }
   
@@ -92,7 +94,8 @@ public final class CouponTenorVisitor extends InstrumentDefinitionVisitorAdapter
   }
   
   @Override
-  public Set<Tenor> visitCouponIborAverageCompoundingDefinition(CouponIborAverageFixingDatesCompoundingDefinition payment) {
+  public Set<Tenor> visitCouponIborAverageCompoundingDefinition(
+        CouponIborAverageFixingDatesCompoundingDefinition payment) {
     return Sets.newHashSet(Tenor.of(payment.getIndex().getTenor()));
   }
   
@@ -102,12 +105,13 @@ public final class CouponTenorVisitor extends InstrumentDefinitionVisitorAdapter
   }
   
   @Override
-  public Set<Tenor> visitCouponIborAverageFlatCompoundingSpreadDefinition(CouponIborAverageFixingDatesCompoundingFlatSpreadDefinition payment) {
+  public Set<Tenor> visitCouponIborAverageFlatCompoundingSpreadDefinition(
+        CouponIborAverageFixingDatesCompoundingFlatSpreadDefinition payment) {
     return Sets.newHashSet(Tenor.of(payment.getIndex().getTenor()));
   }
 
   @Override
-  public Set<Tenor> visitCouponOISDefinition(final CouponONDefinition definition) {
+  public Set<Tenor> visitCouponOISDefinition(CouponONDefinition definition) {
     return Sets.newHashSet(Tenor.ON);
   }
   
@@ -122,12 +126,14 @@ public final class CouponTenorVisitor extends InstrumentDefinitionVisitorAdapter
   }
 
   @Override
-  public Set<Tenor> visitCouponArithmeticAverageONSpreadDefinition(final CouponONArithmeticAverageSpreadDefinition definition) {
+  public Set<Tenor> visitCouponArithmeticAverageONSpreadDefinition(
+      CouponONArithmeticAverageSpreadDefinition definition) {
     return Sets.newHashSet(Tenor.ON);
   }
   
   @Override
-  public Set<Tenor> visitCouponArithmeticAverageONSpreadSimplifiedDefinition(CouponONArithmeticAverageSpreadSimplifiedDefinition payment) {
+  public Set<Tenor> visitCouponArithmeticAverageONSpreadSimplifiedDefinition(
+      CouponONArithmeticAverageSpreadSimplifiedDefinition payment) {
     return Sets.newHashSet(Tenor.ON);
   }
 
