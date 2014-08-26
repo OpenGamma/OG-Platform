@@ -98,7 +98,13 @@
       <fileMode>644</fileMode>
       <excludes>
         <exclude>analytics/</exclude>
-        <exclude>prototype/</exclude>
+        <exclude>prototype/data/</exclude>
+        <exclude>prototype/fonts/</exclude>
+        <exclude>prototype/images/</exclude>
+        <exclude>prototype/modules/</exclude>
+        <exclude>prototype/scripts/og/</exclude>
+        <exclude>prototype/styles/</exclude>
+        <exclude>prototype/index.html</exclude>
         <exclude>calcNode/</exclude>
         <exclude>js/</exclude>
         <exclude>css/</exclude>

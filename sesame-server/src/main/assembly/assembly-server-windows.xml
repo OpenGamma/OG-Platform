@@ -83,6 +83,21 @@
     <fileSet>
       <directory>${project.build.directory}/assembly/web-engine</directory>
       <outputDirectory>/platform/web-engine</outputDirectory>
+      <excludes>
+        <exclude>analytics/</exclude>
+        <exclude>prototype/data/</exclude>
+        <exclude>prototype/fonts/</exclude>
+        <exclude>prototype/images/</exclude>
+        <exclude>prototype/modules/</exclude>
+        <exclude>prototype/scripts/og/</exclude>
+        <exclude>prototype/styles/</exclude>
+        <exclude>prototype/index.html</exclude>
+        <exclude>calcNode/</exclude>
+        <exclude>js/</exclude>
+        <exclude>css/</exclude>
+        <exclude>WEB-INF/pages/prototype/</exclude>
+        <exclude>index.html</exclude>
+      </excludes>
     </fileSet>
     <fileSet>
       <directory>${project.build.directory}/assembly/web-marketdata</directory>
