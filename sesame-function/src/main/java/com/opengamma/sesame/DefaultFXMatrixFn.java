@@ -30,6 +30,7 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
 
 /**
@@ -120,15 +121,20 @@ public class DefaultFXMatrixFn implements FXMatrixFn {
   public Result<FXMatrix> getFXMatrix(Environment env, CurveConstructionConfiguration configuration) {
     // todo - should this actually be another function or set of functions
     final Set<Currency> currencies = extractCurrencies(configuration, new CurveNodeCurrencyVisitor(_conventionSource, _securitySource));
-    return buildResult(env, currencies);
+    return buildResult(env, currencies, true);
   }
 
   @Override
   public Result<FXMatrix> getFXMatrix(Environment env, Set<Currency> currencies) {
-    return buildResult(env, currencies);
+    return buildResult(env, currencies, true);
   }
 
-  private Result<FXMatrix> buildResult(Environment env, Set<Currency> currencies) {
+  @Override
+  public Result<FXMatrix> getAvailableFxRates(Environment env, Set<Currency> currencies) {
+    return buildResult(env, currencies, false);
+  }
+
+  private Result<FXMatrix> buildResult(Environment env, Set<Currency> currencies, boolean failOnMissingConversion) {
     // todo - if we don't have all the data, do we return a partial/empty fx matrix or an error, doing the latter
 
     final FXMatrix matrix = new FXMatrix();
@@ -146,14 +152,19 @@ public class DefaultFXMatrixFn implements FXMatrixFn {
         CurrencyPair currencyPair = CurrencyPair.of(refCurr, currency);
         Result<Double> marketDataResult = _marketDataFn.getFxRate(env, currencyPair);
 
-        if (!marketDataResult.isSuccess()) {
-          return Result.failure(marketDataResult);
-        } else {
+        if (marketDataResult.isSuccess()) {
           matrix.addCurrency(currency, refCurr, marketDataResult.getValue());
+        } else if (failOnMissingConversion) {
+          return Result.failure(marketDataResult);
         }
       }
     }
-    return Result.success(matrix);
+    
+    if (currencies.size() >= 2 && matrix.getCurrencies().isEmpty()) {
+      return Result.failure(FailureStatus.MISSING_DATA, new OpenGammaRuntimeException("Could not find any fx rates"));
+    } else {  
+      return Result.success(matrix);
+    }
   }
 
 }
