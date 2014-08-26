@@ -27,55 +27,27 @@ public class CapletStrippingBootstrapTest extends CapletStrippingSetup {
   @Test
   public void test() {
 
-    final boolean print = true;
-    if (print) {
-      System.out.println("CapletStrippingBootstrapTest");
-    }
-    final int nSamples = 101;
     final MulticurveProviderDiscount yieldCurve = getYieldCurves();
     final int n = getNumberOfStrikes();
 
-    final double[][] curve = new double[nSamples][n];
-
     for (int i = 0; i < n; i++) {
       final List<CapFloor> caps = getCaps(i);
+
       final double[] capVols = getCapVols(i);
       final CapletStrippingBootstrap bootstrap = new CapletStrippingBootstrap(caps, yieldCurve);
+
       final double[] capletVols = bootstrap.capletVolsFromCapVols(capVols);
 
       final MultiCapFloorPricer pricer = new MultiCapFloorPricer(caps, yieldCurve);
+
       final VolatilitySurface volCurve = getPiecewise(capletVols, bootstrap.getEndTimes());
       final double[] fittedCapVols = pricer.impliedVols(volCurve);
       final int m = fittedCapVols.length;
-
-      if (print) {
-        for (int index = 0; index < nSamples; index++) {
-          final double t = index * 10.0 / (nSamples - 1);
-          curve[index][i] = volCurve.getVolatility(t, getStrikes()[i]);
-        }
-      }
 
       for (int j = 0; j < m; j++) {
         assertEquals(i + "\t" + j, capVols[j], fittedCapVols[j], 2e-9);
       }
 
-    }
-
-    if (print) {
-      System.out.print("\n");
-      final double[] strikes = getStrikes();
-      for (int i = 0; i < n; i++) {
-        System.out.print("\t" + strikes[i]);
-      }
-      System.out.print("\n");
-      for (int index = 0; index < nSamples; index++) {
-        final double t = index * 10.0 / (nSamples - 1);
-        System.out.print(t);
-        for (int i = 0; i < n; i++) {
-          System.out.print("\t" + curve[index][i]);
-        }
-        System.out.print("\n");
-      }
     }
 
   }

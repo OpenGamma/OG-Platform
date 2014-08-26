@@ -95,7 +95,7 @@ public abstract class CapletStrippingSetup {
     return CAP_ATM_VOL;
   }
 
-  protected MulticurveProviderDiscount getYieldCurves() {
+  protected static MulticurveProviderDiscount getYieldCurves() {
     return YIELD_CURVES;
   }
 

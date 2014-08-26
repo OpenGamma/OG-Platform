@@ -17,10 +17,12 @@ import com.opengamma.analytics.financial.model.volatility.SimpleOptionData;
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * 
  */
+@Test(groups = TestGroup.UNIT)
 public class CapFloorPricerTest extends CapletStrippingSetup {
 
   private static final double s_flatVol = 0.45;
