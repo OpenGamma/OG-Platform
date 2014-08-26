@@ -8,7 +8,6 @@ package com.opengamma.analytics.financial.interestrate.capletstripping;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -244,7 +243,7 @@ public class MultiCapFloorPricerTest extends CapletStrippingSetup {
     int nCaps = caps.size();
     assertEquals(nCaps, intrVal.length);
     for (int i = 0; i < nCaps; i++) {
-      assertTrue(intrVal[i]>0.0); //Cap ATM means the strike equals the swap rate - individual caplets may be ITM 
+      assertTrue(intrVal[i] > 0.0); //Cap ATM means the strike equals the swap rate - individual caplets may be ITM 
     }
   }
 
@@ -257,53 +256,41 @@ public class MultiCapFloorPricerTest extends CapletStrippingSetup {
 
     MulticurveProviderDiscount yieldCurve = getYieldCurves();
 
-    int nStrikes = getNumberOfStrikes();
-    MultiCapFloorPricer[] multiPricers = new MultiCapFloorPricer[nStrikes];
-    CapFloorPricer[][] pricers = new CapFloorPricer[nStrikes][];
+    List<CapFloor> caps = getAllCaps();
+    int nCaps = caps.size();
+
+    MultiCapFloorPricer multiPricer = new MultiCapFloorPricer(caps, yieldCurve);
+    CapFloorPricer[] pricers = new CapFloorPricer[nCaps];
     //   List<List<CapFloor>> allCaps = new ArrayList<>(nStrikes);
-    for (int i = 0; i < nStrikes; i++) {
-      List<CapFloor> caps = getCaps(i);
-      multiPricers[i] = new MultiCapFloorPricer(caps, yieldCurve);
-      int n = caps.size();
-      pricers[i] = new CapFloorPricer[n];
-      for (int j = 0; j < n; j++) {
-        pricers[i][j] = new CapFloorPricer(caps.get(j), yieldCurve);
-      }
+
+    for (int i = 0; i < nCaps; i++) {
+      pricers[i] = new CapFloorPricer(caps.get(i), yieldCurve);
     }
 
     for (int count = 0; count < warmup; count++) {
-      for (int i = 0; i < nStrikes; i++) {
-        double[] prices = multiPricers[i].price(s_VolSurface);
-      }
+      double[] prices = multiPricer.price(s_VolSurface);
     }
 
     if (benchmarkCycles > 0) {
       OperationTimer timer = new OperationTimer(LOGGER, "processing {} cycles on timeTest - multiPricer", benchmarkCycles);
       for (int count = 0; count < benchmarkCycles; count++) {
-        for (int i = 0; i < nStrikes; i++) {
-          double[] prices = multiPricers[i].price(s_VolSurface);
-        }
+        double[] prices = multiPricer.price(s_VolSurface);
       }
       timer.finished();
     }
 
     for (int count = 0; count < warmup; count++) {
-      for (int i = 0; i < nStrikes; i++) {
-        int n = pricers[i].length;
-        for (int j = 0; j < n; j++) {
-          double p = pricers[i][j].price(s_VolSurface);
-        }
+      for (int i = 0; i < nCaps; i++) {
+        double p = pricers[i].price(s_VolSurface);
       }
+
     }
 
     if (benchmarkCycles > 0) {
       OperationTimer timer2 = new OperationTimer(LOGGER, "processing {} cycles on timeTest - single Pricer", benchmarkCycles);
       for (int count = 0; count < benchmarkCycles; count++) {
-        for (int i = 0; i < nStrikes; i++) {
-          int n = pricers[i].length;
-          for (int j = 0; j < n; j++) {
-            double p = pricers[i][j].price(s_VolSurface);
-          }
+        for (int i = 0; i < nCaps; i++) {
+          double p = pricers[i].price(s_VolSurface);
         }
       }
       timer2.finished();
@@ -320,54 +307,39 @@ public class MultiCapFloorPricerTest extends CapletStrippingSetup {
     int benchmarkCycles = 0;
 
     MulticurveProviderDiscount yieldCurve = getYieldCurves();
+    List<CapFloor> caps = getAllCaps();
+    int nCaps = caps.size();
 
-    int nStrikes = getNumberOfStrikes();
-    MultiCapFloorPricer[] multiPricers = new MultiCapFloorPricer[nStrikes];
-    CapFloorPricer[][] pricers = new CapFloorPricer[nStrikes][];
-    List<List<CapFloor>> allCaps = new ArrayList<>(nStrikes);
-    for (int i = 0; i < nStrikes; i++) {
-      List<CapFloor> caps = getCaps(i);
-      multiPricers[i] = new MultiCapFloorPricer(caps, yieldCurve);
-      int n = caps.size();
-      pricers[i] = new CapFloorPricer[n];
-      for (int j = 0; j < n; j++) {
-        pricers[i][j] = new CapFloorPricer(caps.get(j), yieldCurve);
-      }
+    MultiCapFloorPricer multiPricer = new MultiCapFloorPricer(caps, yieldCurve);
+    CapFloorPricer[] pricers = new CapFloorPricer[nCaps];
+
+    for (int i = 0; i < nCaps; i++) {
+      pricers[i] = new CapFloorPricer(caps.get(i), yieldCurve);
     }
 
     for (int count = 0; count < warmup; count++) {
-      for (int i = 0; i < nStrikes; i++) {
-        double[] vols = multiPricers[i].impliedVols(s_VolSurface);
-      }
+      double[] vols = multiPricer.impliedVols(s_VolSurface);
     }
 
     if (benchmarkCycles > 0) {
       OperationTimer timer = new OperationTimer(LOGGER, "processing {} cycles on timeTest - multiPricer", benchmarkCycles);
       for (int count = 0; count < benchmarkCycles; count++) {
-        for (int i = 0; i < nStrikes; i++) {
-          double[] vols = multiPricers[i].impliedVols(s_VolSurface);
-        }
+        double[] vols = multiPricer.impliedVols(s_VolSurface);
       }
       timer.finished();
     }
 
     for (int count = 0; count < warmup; count++) {
-      for (int i = 0; i < nStrikes; i++) {
-        int n = pricers[i].length;
-        for (int j = 0; j < n; j++) {
-          double v = pricers[i][j].impliedVol(s_VolSurface);
-        }
+      for (int i = 0; i < nCaps; i++) {
+        double v = pricers[i].impliedVol(s_VolSurface);
       }
     }
 
     if (benchmarkCycles > 0) {
       OperationTimer timer2 = new OperationTimer(LOGGER, "processing {} cycles on timeTest - single Pricer", benchmarkCycles);
       for (int count = 0; count < benchmarkCycles; count++) {
-        for (int i = 0; i < nStrikes; i++) {
-          int n = pricers[i].length;
-          for (int j = 0; j < n; j++) {
-            double v = pricers[i][j].impliedVol(s_VolSurface);
-          }
+        for (int i = 0; i < nCaps; i++) {
+          double v = pricers[i].impliedVol(s_VolSurface);
         }
       }
       timer2.finished();
