@@ -59,11 +59,14 @@ public class InterpolatedSmileFunctionTest {
    */
   @Test
   public void hashCodeEqualsTest() {
-    GeneralSmileInterpolator[] interpolators = new GeneralSmileInterpolator[] {new SmileInterpolatorSpline(), new SmileInterpolatorSABR() };
+    GeneralSmileInterpolator[] interpolators = new GeneralSmileInterpolator[] {new SmileInterpolatorSpline(),
+        new SmileInterpolatorSABR() };
     InterpolatedSmileFunction func1 = new InterpolatedSmileFunction(interpolators[0], FORWARD, STRIKES, EXPIRY, VOLS);
     InterpolatedSmileFunction func2 = new InterpolatedSmileFunction(interpolators[1], FORWARD, STRIKES, EXPIRY, VOLS);
-    InterpolatedSmileFunction func3 = new InterpolatedSmileFunction(interpolators[0], FORWARD * 0.9, STRIKES, EXPIRY, VOLS);
-    InterpolatedSmileFunction func4 = new InterpolatedSmileFunction(new SmileInterpolatorSpline(), FORWARD, STRIKES, EXPIRY, VOLS);
+    InterpolatedSmileFunction func3 = new InterpolatedSmileFunction(interpolators[0], FORWARD * 0.9, STRIKES, EXPIRY,
+        VOLS);
+    InterpolatedSmileFunction func4 = new InterpolatedSmileFunction(new SmileInterpolatorSpline(), FORWARD, STRIKES,
+        EXPIRY, VOLS);
     InterpolatedSmileFunction func5 = func1;
 
     assertTrue(func1.equals(func1));

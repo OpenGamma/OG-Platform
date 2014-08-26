@@ -45,7 +45,8 @@ public class SABRExtrapolationLeftFunctionTest {
   private static final SABRHaganAlternativeVolatilityFunction FUNC_HAGAN_ALT = new SABRHaganAlternativeVolatilityFunction();
   private static final SABRBerestyckiVolatilityFunction FUNC_BERESTYCKI = new SABRBerestyckiVolatilityFunction();
   private static final SABRPaulotVolatilityFunction FUNC_PAULOT = new SABRPaulotVolatilityFunction();
-  private static final VolatilityFunctionProvider<SABRFormulaData>[] FUNCTIONS = new VolatilityFunctionProvider[] {FUNC_HAGAN, FUNC_JOHNSON, FUNC_HAGAN_ALT, FUNC_BERESTYCKI, FUNC_PAULOT };
+  private static final VolatilityFunctionProvider<SABRFormulaData>[] FUNCTIONS = new VolatilityFunctionProvider[] {
+      FUNC_HAGAN, FUNC_JOHNSON, FUNC_HAGAN_ALT, FUNC_BERESTYCKI, FUNC_PAULOT };
 
   /**
    * C2 continuity and accessors are tested
@@ -99,7 +100,8 @@ public class SABRExtrapolationLeftFunctionTest {
   public void smallCutoffTest() {
     double smallCutoff = 0.5e-6;
     for (VolatilityFunctionProvider<SABRFormulaData> func : FUNCTIONS) {
-      SABRExtrapolationLeftFunction left = new SABRExtrapolationLeftFunction(FORWARD * 0.01, DATA, smallCutoff, EXPIRY, MU, func);
+      SABRExtrapolationLeftFunction left = new SABRExtrapolationLeftFunction(FORWARD * 0.01, DATA, smallCutoff, EXPIRY,
+          MU, func);
       EuropeanVanillaOption optionBase = new EuropeanVanillaOption(smallCutoff, EXPIRY, false);
       EuropeanVanillaOption optionUp = new EuropeanVanillaOption(smallCutoff + EPS * 0.1, EXPIRY, false);
       EuropeanVanillaOption optionDw = new EuropeanVanillaOption(smallCutoff - EPS * 0.1, EXPIRY, false);
@@ -126,7 +128,8 @@ public class SABRExtrapolationLeftFunctionTest {
     double smallForward = 0.9e-6;
     double smallCutoff = 0.5e-6;
     for (VolatilityFunctionProvider<SABRFormulaData> func : FUNCTIONS) {
-      SABRExtrapolationLeftFunction left = new SABRExtrapolationLeftFunction(smallForward, DATA, smallCutoff, EXPIRY, MU, func);
+      SABRExtrapolationLeftFunction left = new SABRExtrapolationLeftFunction(smallForward, DATA, smallCutoff, EXPIRY,
+          MU, func);
       EuropeanVanillaOption optionBase = new EuropeanVanillaOption(smallCutoff, EXPIRY, false);
       EuropeanVanillaOption optionUp = new EuropeanVanillaOption(smallCutoff + EPS * 0.1, EXPIRY, false);
       EuropeanVanillaOption optionDw = new EuropeanVanillaOption(smallCutoff - EPS * 0.1, EXPIRY, false);
@@ -146,7 +149,8 @@ public class SABRExtrapolationLeftFunctionTest {
     double smallExpiry = 0.5e-6;
 
     for (VolatilityFunctionProvider<SABRFormulaData> func : FUNCTIONS) {
-      SABRExtrapolationLeftFunction left = new SABRExtrapolationLeftFunction(FORWARD * 0.01, DATA, CUTOFF, smallExpiry, MU, func);
+      SABRExtrapolationLeftFunction left = new SABRExtrapolationLeftFunction(FORWARD * 0.01, DATA, CUTOFF, smallExpiry,
+          MU, func);
       EuropeanVanillaOption optionBase = new EuropeanVanillaOption(CUTOFF, smallExpiry, false);
       EuropeanVanillaOption optionUp = new EuropeanVanillaOption(CUTOFF + EPS * 0.1, smallExpiry, false);
       EuropeanVanillaOption optionDw = new EuropeanVanillaOption(CUTOFF - EPS * 0.1, smallExpiry, false);
@@ -169,15 +173,23 @@ public class SABRExtrapolationLeftFunctionTest {
    */
   @Test
   public void hashCodeAndEqualsTest() {
-    SABRExtrapolationLeftFunction func1 = new SABRExtrapolationLeftFunction(FORWARD, DATA, CUTOFF, EXPIRY, MU, FUNCTIONS[0]);
-    SABRExtrapolationLeftFunction func2 = new SABRExtrapolationLeftFunction(FORWARD, DATA, CUTOFF, EXPIRY, MU * 0.9, FUNCTIONS[0]);
-    SABRExtrapolationLeftFunction func3 = new SABRExtrapolationLeftFunction(FORWARD, DATA, CUTOFF, EXPIRY * 0.9, MU, FUNCTIONS[0]);
-    SABRExtrapolationLeftFunction func4 = new SABRExtrapolationLeftFunction(FORWARD, DATA, CUTOFF * 0.9, EXPIRY, MU, FUNCTIONS[0]);
-    SABRExtrapolationLeftFunction func5 = new SABRExtrapolationLeftFunction(FORWARD * 0.9, DATA, CUTOFF, EXPIRY, MU, FUNCTIONS[0]);
-    SABRExtrapolationLeftFunction func6 = new SABRExtrapolationLeftFunction(FORWARD, DATA.withAlpha(ALPHA * 0.97), CUTOFF, EXPIRY, MU, FUNCTIONS[0]);
+    SABRExtrapolationLeftFunction func1 = new SABRExtrapolationLeftFunction(FORWARD, DATA, CUTOFF, EXPIRY, MU,
+        FUNCTIONS[0]);
+    SABRExtrapolationLeftFunction func2 = new SABRExtrapolationLeftFunction(FORWARD, DATA, CUTOFF, EXPIRY, MU * 0.9,
+        FUNCTIONS[0]);
+    SABRExtrapolationLeftFunction func3 = new SABRExtrapolationLeftFunction(FORWARD, DATA, CUTOFF, EXPIRY * 0.9, MU,
+        FUNCTIONS[0]);
+    SABRExtrapolationLeftFunction func4 = new SABRExtrapolationLeftFunction(FORWARD, DATA, CUTOFF * 0.9, EXPIRY, MU,
+        FUNCTIONS[0]);
+    SABRExtrapolationLeftFunction func5 = new SABRExtrapolationLeftFunction(FORWARD * 0.9, DATA, CUTOFF, EXPIRY, MU,
+        FUNCTIONS[0]);
+    SABRExtrapolationLeftFunction func6 = new SABRExtrapolationLeftFunction(FORWARD, DATA.withAlpha(ALPHA * 0.97),
+        CUTOFF, EXPIRY, MU, FUNCTIONS[0]);
     SABRExtrapolationLeftFunction func7 = func1;
-    SABRExtrapolationLeftFunction func8 = new SABRExtrapolationLeftFunction(FORWARD, DATA, CUTOFF, EXPIRY, MU, FUNCTIONS[0]);
-    SABRExtrapolationLeftFunction func9 = new SABRExtrapolationLeftFunction(FORWARD, DATA, CUTOFF, EXPIRY, MU, FUNCTIONS[1]);
+    SABRExtrapolationLeftFunction func8 = new SABRExtrapolationLeftFunction(FORWARD, DATA, CUTOFF, EXPIRY, MU,
+        FUNCTIONS[0]);
+    SABRExtrapolationLeftFunction func9 = new SABRExtrapolationLeftFunction(FORWARD, DATA, CUTOFF, EXPIRY, MU,
+        FUNCTIONS[1]);
 
     assertTrue(func1.equals(func1));
 

@@ -24,8 +24,7 @@ import com.opengamma.analytics.math.rootfinding.RidderSingleRootFinder;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Counterpart of {@link SABRExtrapolationRightFunction}. 
- * Note that several functionalities are absent in this class. 
+ * Counterpart of {@link SABRExtrapolationRightFunction}. Note that several functionalities are absent in this class. 
  */
 public class SABRExtrapolationLeftFunction {
 
@@ -52,8 +51,8 @@ public class SABRExtrapolationLeftFunction {
    * @param mu The mu parameter.
    * @param volatilityFunction The SABR volatility function
    */
-  public SABRExtrapolationLeftFunction(final double forward, final SABRFormulaData sabrData, final double cutOffStrike, final double timeToExpiry, final double mu,
-      final VolatilityFunctionProvider<SABRFormulaData> volatilityFunction) {
+  public SABRExtrapolationLeftFunction(final double forward, final SABRFormulaData sabrData, final double cutOffStrike,
+      final double timeToExpiry, final double mu, final VolatilityFunctionProvider<SABRFormulaData> volatilityFunction) {
     Validate.notNull(sabrData, "SABR data");
     Validate.notNull(volatilityFunction, "volatilityFunction");
     _forward = forward;
@@ -178,7 +177,8 @@ public class SABRExtrapolationLeftFunction {
     final double[] range = bracketer.getBracketedPoints(toSolveC, -1.0, 1.0);
     param[2] = rootFinder.getRoot(toSolveC, range[0], range[1]);
     param[1] = -2 * param[2] * _cutOffStrike + _priceK[1] / _priceK[0] - _mu / _cutOffStrike;
-    param[0] = Math.log(_priceK[0] / Math.pow(_cutOffStrike, _mu)) - param[1] * _cutOffStrike - param[2] * (_cutOffStrike * _cutOffStrike);
+    param[0] = Math.log(_priceK[0] / Math.pow(_cutOffStrike, _mu)) - param[1] * _cutOffStrike - param[2] *
+        (_cutOffStrike * _cutOffStrike);
     return param;
   }
 
@@ -191,9 +191,11 @@ public class SABRExtrapolationLeftFunction {
     return Math.pow(strike, _mu) * Math.exp(_parameter[0] + _parameter[1] * strike + _parameter[2] * (strike * strike));
   }
 
-  private double getVolatilityAdjoint2(final EuropeanVanillaOption option, final double forward, final SABRFormulaData data, final double[] volatilityD, final double[][] volatilityD2) {
+  private double getVolatilityAdjoint2(final EuropeanVanillaOption option, final double forward,
+      final SABRFormulaData data, final double[] volatilityD, final double[][] volatilityD2) {
     if (_sabrFunction instanceof SABRHaganVolatilityFunction) {
-      return ((SABRHaganVolatilityFunction) _sabrFunction).getVolatilityAdjoint2(option, forward, data, volatilityD, volatilityD2);
+      return ((SABRHaganVolatilityFunction) _sabrFunction).getVolatilityAdjoint2(option, forward, data, volatilityD,
+          volatilityD2);
     }
 
     // Use finite difference approximation for other formula
@@ -233,7 +235,8 @@ public class SABRExtrapolationLeftFunction {
     return _sabrFunction.getVolatilityFunction(option, forward).evaluate(data);
   }
 
-  private double fdSensitivity(final EuropeanVanillaOption optionData, final double forward, final SABRFormulaData sabrData, final int sense, final double delta) {
+  private double fdSensitivity(final EuropeanVanillaOption optionData, final double forward,
+      final SABRFormulaData sabrData, final int sense, final double delta) {
 
     Function1D<SABRFormulaData, Double> funcC = null;
     Function1D<SABRFormulaData, Double> funcB = null;
@@ -327,7 +330,8 @@ public class SABRExtrapolationLeftFunction {
     public Double evaluate(Double c) {
       double b = -2 * c * _cCutOffStrike + _cPriceK[1] / _cPriceK[0] - _cMu / _cCutOffStrike;
       double k2 = _cCutOffStrike * _cCutOffStrike;
-      double res = -_cPriceK[2] / _cPriceK[0] * k2 + _cMu * (_cMu - 1) + 2 * b * _cMu * _cCutOffStrike + (2 * c * (2 * _cMu + 1) + b * b) * k2 + 4 * b * c * (k2 * _cCutOffStrike) + 4 * c * c
+      double res = -_cPriceK[2] / _cPriceK[0] * k2 + _cMu * (_cMu - 1) + 2 * b * _cMu * _cCutOffStrike +
+          (2 * c * (2 * _cMu + 1) + b * b) * k2 + 4 * b * c * (k2 * _cCutOffStrike) + 4 * c * c
           * (k2 * k2);
       return res;
     }

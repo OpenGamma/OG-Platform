@@ -10,13 +10,15 @@ import com.opengamma.analytics.financial.model.volatility.smile.function.Volatil
 import com.opengamma.analytics.math.function.Function1D;
 
 /**
- * Left and right extrapolation used with SABR smile interpolation model, {@link SmileInterpolatorSABRWithExtrapolation}
+ * Left and right extrapolation used with SABR smile interpolation model, 
+ * {@link SmileInterpolatorSABRWithExtrapolation}
  */
 public abstract class SmileExtrapolationFunctionSABRProvider {
 
   /**
    * @param sabrDataLow The SABR data for the leftmost subinterval 
-   * @param sabrDataHigh The SABR data for the rightmost subinterval. If interpolated globally, we have sabrDataLow == sabrDataHigh
+   * @param sabrDataHigh The SABR data for the rightmost subinterval. If interpolated globally, 
+   * we have sabrDataLow == sabrDataHigh
    * @param volatilityFunction The volatility formula
    * @param forward The forward
    * @param expiry The expiry
@@ -24,7 +26,9 @@ public abstract class SmileExtrapolationFunctionSABRProvider {
    * @param cutOffStrikeHigh The right cutoff
    * @return Volatility function of the extrapolation
    */
-  abstract Function1D<Double, Double> getExtrapolationFunction(final SABRFormulaData sabrDataLow, final SABRFormulaData sabrDataHigh,
-      final VolatilityFunctionProvider<SABRFormulaData> volatilityFunction, final double forward, final double expiry, final double cutOffStrikeLow, final double cutOffStrikeHigh);
+  abstract Function1D<Double, Double> getExtrapolationFunction(final SABRFormulaData sabrDataLow,
+      final SABRFormulaData sabrDataHigh,
+      final VolatilityFunctionProvider<SABRFormulaData> volatilityFunction, final double forward, final double expiry,
+      final double cutOffStrikeLow, final double cutOffStrikeHigh);
 
 }

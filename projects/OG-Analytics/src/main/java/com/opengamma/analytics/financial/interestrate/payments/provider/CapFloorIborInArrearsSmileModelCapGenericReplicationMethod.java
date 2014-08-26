@@ -23,10 +23,12 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
  *  Class used to compute the price and sensitivity of a Ibor cap/floor in arrears.
- *  The cap/floor are supposed to be exactly in arrears. The payment date is ignored and the start fixing period date is used instead.
+ *  The cap/floor are supposed to be exactly in arrears. 
+ *  The payment date is ignored and the start fixing period date is used instead.
  */
 public class CapFloorIborInArrearsSmileModelCapGenericReplicationMethod {
-  private static final Logger LOGGER = LoggerFactory.getLogger(CapFloorIborInArrearsSmileModelCapGenericReplicationMethod.class);
+  private static final Logger LOGGER = LoggerFactory
+      .getLogger(CapFloorIborInArrearsSmileModelCapGenericReplicationMethod.class);
 
   private static final BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
   private static final int MINIMUM_STEP = 6;
@@ -56,12 +58,17 @@ public class CapFloorIborInArrearsSmileModelCapGenericReplicationMethod {
     ArgumentChecker.notNull(cap, "The cap/floor shoud not be null");
     ArgumentChecker.notNull(curves, "curves");
     final Currency ccy = cap.getCurrency();
-    final CapFloorIbor capStandard = new CapFloorIbor(cap.getCurrency(), cap.getFixingPeriodEndTime(), cap.getPaymentYearFraction(), cap.getNotional(), cap.getFixingTime(),
-        cap.getIndex(), cap.getFixingPeriodStartTime(), cap.getFixingPeriodEndTime(), cap.getFixingAccrualFactor(), cap.getStrike(), cap.isCap());
-    final double forward = curves.getSimplyCompoundForwardRate(cap.getIndex(), cap.getFixingPeriodStartTime(), cap.getFixingPeriodEndTime(), cap.getFixingAccrualFactor());
-    final double beta = (1.0 + cap.getFixingAccrualFactor() * forward) * curves.getDiscountFactor(ccy, cap.getFixingPeriodEndTime())
+    final CapFloorIbor capStandard = new CapFloorIbor(cap.getCurrency(), cap.getFixingPeriodEndTime(),
+        cap.getPaymentYearFraction(), cap.getNotional(), cap.getFixingTime(), cap.getIndex(),
+        cap.getFixingPeriodStartTime(), cap.getFixingPeriodEndTime(), cap.getFixingAccrualFactor(), cap.getStrike(),
+        cap.isCap());
+    final double forward = curves.getSimplyCompoundForwardRate(cap.getIndex(), cap.getFixingPeriodStartTime(),
+        cap.getFixingPeriodEndTime(), cap.getFixingAccrualFactor());
+    final double beta = (1.0 + cap.getFixingAccrualFactor() * forward) *
+        curves.getDiscountFactor(ccy, cap.getFixingPeriodEndTime())
         / curves.getDiscountFactor(ccy, cap.getFixingPeriodStartTime());
-    final double strikePart = (1.0 + cap.getFixingAccrualFactor() * cap.getStrike()) * presentValueStandard(capStandard, curves).getAmount(ccy);
+    final double strikePart = (1.0 + cap.getFixingAccrualFactor() * cap.getStrike()) *
+        presentValueStandard(capStandard, curves).getAmount(ccy);
 
     final InArrearsIntegrant integrant = new InArrearsIntegrant(capStandard, curves);
     double integralPart;
@@ -115,7 +122,8 @@ public class CapFloorIborInArrearsSmileModelCapGenericReplicationMethod {
 
   private MultipleCurrencyAmount presentValueStandard(final CapFloorIbor cap, final MulticurveProviderInterface curves) {
     final EuropeanVanillaOption option = new EuropeanVanillaOption(cap.getStrike(), cap.getFixingTime(), cap.isCap());
-    final double forward = curves.getSimplyCompoundForwardRate(cap.getIndex(), cap.getFixingPeriodStartTime(), cap.getFixingPeriodEndTime(), cap.getFixingAccrualFactor());
+    final double forward = curves.getSimplyCompoundForwardRate(cap.getIndex(), cap.getFixingPeriodStartTime(),
+        cap.getFixingPeriodEndTime(), cap.getFixingAccrualFactor());
     final double df = curves.getDiscountFactor(cap.getCurrency(), cap.getPaymentTime());
     final double volatility = _smileFunction.getVolatility(cap.getStrike());
     final BlackFunctionData dataBlack = new BlackFunctionData(forward, df, volatility);

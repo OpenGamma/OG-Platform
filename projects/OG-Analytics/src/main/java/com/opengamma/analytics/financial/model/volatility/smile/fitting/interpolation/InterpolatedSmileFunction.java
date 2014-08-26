@@ -10,7 +10,8 @@ import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Interpolated (extrapolated) smile function returning volatility value for a given strike, used for {@link CapFloorIborInArrearsSmileModelCapGenericReplicationMethod}. 
+ * Interpolated (extrapolated) smile function returning volatility value for a given strike, 
+ * used for {@link CapFloorIborInArrearsSmileModelCapGenericReplicationMethod}. 
  * Wrapping volatility function part of {@link GeneralSmileInterpolator} for type safety.
  */
 public class InterpolatedSmileFunction {
@@ -25,7 +26,8 @@ public class InterpolatedSmileFunction {
    * @param expiry The expiry
    * @param impliedVols The volatilities
    */
-  public InterpolatedSmileFunction(final GeneralSmileInterpolator interpolator, final double forward, final double[] strikes, final double expiry, final double[] impliedVols) {
+  public InterpolatedSmileFunction(final GeneralSmileInterpolator interpolator, final double forward,
+      final double[] strikes, final double expiry, final double[] impliedVols) {
     ArgumentChecker.notNull(interpolator, "interpolator");
     ArgumentChecker.notNull(strikes, "strikes");
     ArgumentChecker.notNull(impliedVols, "impliedVols");

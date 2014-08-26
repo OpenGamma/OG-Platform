@@ -16,7 +16,8 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Left and right extrapolation for SABR smile interpolation based on 
- * Benaim, S., Dodgson, M., and Kainth, D. (2008). An arbitrage-free method for smile extrapolation. Technical report, Royal Bank of Scotland.
+ * Benaim, S., Dodgson, M., and Kainth, D. (2008). An arbitrage-free method for smile extrapolation. 
+ * Technical report, Royal Bank of Scotland.
  */
 public class BenaimDodgsonKainthExtrapolationFunctionProvider extends SmileExtrapolationFunctionSABRProvider {
 
@@ -36,16 +37,21 @@ public class BenaimDodgsonKainthExtrapolationFunctionProvider extends SmileExtra
   }
 
   @Override
-  public Function1D<Double, Double> getExtrapolationFunction(final SABRFormulaData sabrDataLow, final SABRFormulaData sabrDataHigh,
-      final VolatilityFunctionProvider<SABRFormulaData> volatilityFunction, final double forward, final double expiry, final double cutOffStrikeLow, final double cutOffStrikeHigh) {
+  public Function1D<Double, Double> getExtrapolationFunction(final SABRFormulaData sabrDataLow,
+      final SABRFormulaData sabrDataHigh,
+      final VolatilityFunctionProvider<SABRFormulaData> volatilityFunction, final double forward, final double expiry,
+      final double cutOffStrikeLow, final double cutOffStrikeHigh) {
     ArgumentChecker.notNull(sabrDataLow, "sabrDataLow");
     ArgumentChecker.notNull(sabrDataHigh, "sabrDataHigh");
     ArgumentChecker.notNull(volatilityFunction, "volatilityFunction");
     ArgumentChecker.isTrue(0.0 < cutOffStrikeLow, "cutOffStrikeLow should be positive");
-    ArgumentChecker.isTrue(cutOffStrikeLow < cutOffStrikeHigh, "cutOffStrikeLow < cutOffStrikeHigh should be satisfied");
+    ArgumentChecker
+        .isTrue(cutOffStrikeLow < cutOffStrikeHigh, "cutOffStrikeLow < cutOffStrikeHigh should be satisfied");
 
-    final SABRExtrapolationLeftFunction sabrLeftExtrapolation = new SABRExtrapolationLeftFunction(forward, sabrDataLow, cutOffStrikeLow, expiry, _muLow, volatilityFunction);
-    final SABRExtrapolationRightFunction sabrRightExtrapolation = new SABRExtrapolationRightFunction(forward, sabrDataHigh, cutOffStrikeHigh, expiry, _muHigh, volatilityFunction);
+    final SABRExtrapolationLeftFunction sabrLeftExtrapolation = new SABRExtrapolationLeftFunction(forward, sabrDataLow,
+        cutOffStrikeLow, expiry, _muLow, volatilityFunction);
+    final SABRExtrapolationRightFunction sabrRightExtrapolation = new SABRExtrapolationRightFunction(forward,
+        sabrDataHigh, cutOffStrikeHigh, expiry, _muHigh, volatilityFunction);
 
     return new Function1D<Double, Double>() {
       @Override
@@ -60,7 +66,8 @@ public class BenaimDodgsonKainthExtrapolationFunctionProvider extends SmileExtra
           double price = sabrRightExtrapolation.price(option);
           return BlackFormulaRepository.impliedVolatility(price, forward, strike, expiry, option.isCall());
         }
-        throw new OpenGammaRuntimeException("Use smile interpolation method for cutOffStrikeLow <= strike <= cutOffStrikeHigh");
+        throw new OpenGammaRuntimeException(
+            "Use smile interpolation method for cutOffStrikeLow <= strike <= cutOffStrikeHigh");
       }
     };
   }

@@ -46,8 +46,10 @@ public class ShiftedLogNormalExtrapolationFunctionProvider extends SmileExtrapol
   }
 
   @Override
-  public Function1D<Double, Double> getExtrapolationFunction(final SABRFormulaData sabrDataLow, final SABRFormulaData sabrDataHigh,
-      final VolatilityFunctionProvider<SABRFormulaData> volatilityFunction, final double forward, final double expiry, final double cutOffStrikeLow, final double cutOffStrikeHigh) {
+  public Function1D<Double, Double> getExtrapolationFunction(final SABRFormulaData sabrDataLow,
+      final SABRFormulaData sabrDataHigh,
+      final VolatilityFunctionProvider<SABRFormulaData> volatilityFunction, final double forward, final double expiry,
+      final double cutOffStrikeLow, final double cutOffStrikeHigh) {
     ArgumentChecker.notNull(sabrDataLow, "sabrDataLow");
     ArgumentChecker.notNull(sabrDataHigh, "sabrDataHigh");
     ArgumentChecker.notNull(volatilityFunction, "volatilityFunction");
@@ -85,33 +87,50 @@ public class ShiftedLogNormalExtrapolationFunctionProvider extends SmileExtrapol
     final Function1D<Double, Double> dSigmaDxHigh = DIFFERENTIATOR.differentiate(interpFuncHigh, domain);
 
     if (_extrapolatorFailureBehaviour.equalsIgnoreCase(s_quiet)) {
-      ArgumentChecker.isTrue(cutOffStrikeLow <= forward, "Cannot do left tail extrapolation when the lowest strike ({}) is greater than the forward ({})", cutOffStrikeLow, forward);
-      ArgumentChecker.isTrue(cutOffStrikeHigh >= forward, "Cannot do right tail extrapolation when the highest strike ({}) is less than the forward ({})", cutOffStrikeHigh, forward);
-      shiftLnVolHighTail = TAIL_FITTER.fitVolatilityAndGradRecursivelyByReducingSmile(forward, cutOffStrikeHigh, interpFuncHigh.evaluate(cutOffStrikeHigh), dSigmaDxHigh.evaluate(cutOffStrikeHigh),
-          expiry);
-      shiftLnVolLowTail = TAIL_FITTER.fitVolatilityAndGradRecursivelyByReducingSmile(forward, cutOffStrikeLow, interpFuncLow.evaluate(cutOffStrikeLow), dSigmaDxLow.evaluate(cutOffStrikeLow), expiry);
+      ArgumentChecker.isTrue(cutOffStrikeLow <= forward,
+          "Cannot do left tail extrapolation when the lowest strike ({}) is greater than the forward ({})",
+          cutOffStrikeLow, forward);
+      ArgumentChecker.isTrue(cutOffStrikeHigh >= forward,
+          "Cannot do right tail extrapolation when the highest strike ({}) is less than the forward ({})",
+          cutOffStrikeHigh, forward);
+      shiftLnVolHighTail = TAIL_FITTER.fitVolatilityAndGradRecursivelyByReducingSmile(forward, cutOffStrikeHigh,
+          interpFuncHigh.evaluate(cutOffStrikeHigh), dSigmaDxHigh.evaluate(cutOffStrikeHigh), expiry);
+      shiftLnVolLowTail = TAIL_FITTER.fitVolatilityAndGradRecursivelyByReducingSmile(forward, cutOffStrikeLow,
+          interpFuncLow.evaluate(cutOffStrikeLow), dSigmaDxLow.evaluate(cutOffStrikeLow), expiry);
     } else if (_extrapolatorFailureBehaviour.equalsIgnoreCase(s_exception)) {
-      ArgumentChecker.isTrue(cutOffStrikeLow <= forward, "Cannot do left tail extrapolation when the lowest strike ({}) is greater than the forward ({})", cutOffStrikeLow, forward);
-      ArgumentChecker.isTrue(cutOffStrikeHigh >= forward, "Cannot do right tail extrapolation when the highest strike ({}) is less than the forward ({})", cutOffStrikeHigh, forward);
-      shiftLnVolHighTail = TAIL_FITTER.fitVolatilityAndGrad(forward, cutOffStrikeHigh, interpFuncHigh.evaluate(cutOffStrikeHigh), dSigmaDxHigh.evaluate(cutOffStrikeHigh), expiry);
-      shiftLnVolLowTail = TAIL_FITTER.fitVolatilityAndGrad(forward, cutOffStrikeLow, interpFuncLow.evaluate(cutOffStrikeLow), dSigmaDxLow.evaluate(cutOffStrikeLow), expiry);
+      ArgumentChecker.isTrue(cutOffStrikeLow <= forward,
+          "Cannot do left tail extrapolation when the lowest strike ({}) is greater than the forward ({})",
+          cutOffStrikeLow, forward);
+      ArgumentChecker.isTrue(cutOffStrikeHigh >= forward,
+          "Cannot do right tail extrapolation when the highest strike ({}) is less than the forward ({})",
+          cutOffStrikeHigh, forward);
+      shiftLnVolHighTail = TAIL_FITTER.fitVolatilityAndGrad(forward, cutOffStrikeHigh,
+          interpFuncHigh.evaluate(cutOffStrikeHigh), dSigmaDxHigh.evaluate(cutOffStrikeHigh), expiry);
+      shiftLnVolLowTail = TAIL_FITTER.fitVolatilityAndGrad(forward, cutOffStrikeLow,
+          interpFuncLow.evaluate(cutOffStrikeLow), dSigmaDxLow.evaluate(cutOffStrikeLow), expiry);
     } else if (_extrapolatorFailureBehaviour.equalsIgnoreCase(s_flat)) {
-      shiftLnVolHighTail = TAIL_FITTER.fitVolatilityAndGrad(forward, cutOffStrikeHigh, interpFuncHigh.evaluate(cutOffStrikeHigh), 0.0, expiry);
-      shiftLnVolLowTail = TAIL_FITTER.fitVolatilityAndGrad(forward, cutOffStrikeLow, interpFuncLow.evaluate(cutOffStrikeLow), 0.0, expiry);
+      shiftLnVolHighTail = TAIL_FITTER.fitVolatilityAndGrad(forward, cutOffStrikeHigh,
+          interpFuncHigh.evaluate(cutOffStrikeHigh), 0.0, expiry);
+      shiftLnVolLowTail = TAIL_FITTER.fitVolatilityAndGrad(forward, cutOffStrikeLow,
+          interpFuncLow.evaluate(cutOffStrikeLow), 0.0, expiry);
     } else {
-      throw new OpenGammaRuntimeException("Unrecognized _extrapolatorFailureBehaviour. Looking for one of Exception, Quiet, or Flat");
+      throw new OpenGammaRuntimeException(
+          "Unrecognized _extrapolatorFailureBehaviour. Looking for one of Exception, Quiet, or Flat");
     }
 
     return new Function1D<Double, Double>() {
       @Override
       public Double evaluate(final Double strike) {
         if (strike < cutOffStrikeLow) {
-          return ShiftedLogNormalTailExtrapolation.impliedVolatility(forward, strike, expiry, shiftLnVolLowTail[0], shiftLnVolLowTail[1]);
+          return ShiftedLogNormalTailExtrapolation.impliedVolatility(forward, strike, expiry, shiftLnVolLowTail[0],
+              shiftLnVolLowTail[1]);
         }
         if (strike > cutOffStrikeHigh) {
-          return ShiftedLogNormalTailExtrapolation.impliedVolatility(forward, strike, expiry, shiftLnVolHighTail[0], shiftLnVolHighTail[1]);
+          return ShiftedLogNormalTailExtrapolation.impliedVolatility(forward, strike, expiry, shiftLnVolHighTail[0],
+              shiftLnVolHighTail[1]);
         }
-        throw new OpenGammaRuntimeException("Use smile interpolation method for cutOffStrikeLow <= strike <= cutOffStrikeHigh");
+        throw new OpenGammaRuntimeException(
+            "Use smile interpolation method for cutOffStrikeLow <= strike <= cutOffStrikeHigh");
       }
     };
   }

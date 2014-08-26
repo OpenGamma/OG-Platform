@@ -20,7 +20,8 @@ import com.opengamma.util.test.TestGroup;
 
 /**
  * Test class for {@link SmileExtrapolationFunctionSABRProvider} and its subclasses. 
- * As these classes should be used with {@link SmileInterpolatorSABRWithExtrapolation}, nontrivial tests are in {@link SmileInterpolatorSABRWithExtrapolationTest}. 
+ * As these classes should be used with {@link SmileInterpolatorSABRWithExtrapolation}, 
+ * nontrivial tests are in {@link SmileInterpolatorSABRWithExtrapolationTest}. 
  */
 @Test(groups = TestGroup.UNIT)
 public class SmileExtrapolationFunctionSABRProviderTest {
@@ -32,12 +33,16 @@ public class SmileExtrapolationFunctionSABRProviderTest {
   @Test
   public void hashCodeAndEqualsErrorBDKTest() {
 
-    BenaimDodgsonKainthExtrapolationFunctionProvider provider1 = new BenaimDodgsonKainthExtrapolationFunctionProvider(2.0, 3.5);
-    BenaimDodgsonKainthExtrapolationFunctionProvider provider2 = new BenaimDodgsonKainthExtrapolationFunctionProvider(2.0, 1.5);
-    BenaimDodgsonKainthExtrapolationFunctionProvider provider3 = new BenaimDodgsonKainthExtrapolationFunctionProvider(1.0, 3.5);
+    BenaimDodgsonKainthExtrapolationFunctionProvider provider1 = new BenaimDodgsonKainthExtrapolationFunctionProvider(
+        2.0, 3.5);
+    BenaimDodgsonKainthExtrapolationFunctionProvider provider2 = new BenaimDodgsonKainthExtrapolationFunctionProvider(
+        2.0, 1.5);
+    BenaimDodgsonKainthExtrapolationFunctionProvider provider3 = new BenaimDodgsonKainthExtrapolationFunctionProvider(
+        1.0, 3.5);
     ShiftedLogNormalExtrapolationFunctionProvider provider4 = new ShiftedLogNormalExtrapolationFunctionProvider();
     BenaimDodgsonKainthExtrapolationFunctionProvider provider5 = provider1;
-    BenaimDodgsonKainthExtrapolationFunctionProvider provider6 = new BenaimDodgsonKainthExtrapolationFunctionProvider(2.0, 3.5);
+    BenaimDodgsonKainthExtrapolationFunctionProvider provider6 = new BenaimDodgsonKainthExtrapolationFunctionProvider(
+        2.0, 3.5);
 
     assertTrue(provider1.equals(provider1));
 
@@ -87,20 +92,26 @@ public class SmileExtrapolationFunctionSABRProviderTest {
     for (int i = 0; i < nStrikes; ++i) {
       strikes[i] = forward * (0.85 + i * 0.05);
     }
-    double muLow = strikes[0] * BlackFormulaRepository.dualDelta(forward, strikes[0], expiry, impliedVols[0], false) / BlackFormulaRepository.price(forward, strikes[0], expiry, impliedVols[0], false);
-    double muHigh = -strikes[nStrikes - 1] * BlackFormulaRepository.dualDelta(forward, strikes[nStrikes - 1], expiry, impliedVols[nStrikes - 1], true) /
+    double muLow = strikes[0] * BlackFormulaRepository.dualDelta(forward, strikes[0], expiry, impliedVols[0], false) /
+        BlackFormulaRepository.price(forward, strikes[0], expiry, impliedVols[0], false);
+    double muHigh = -strikes[nStrikes - 1] *
+        BlackFormulaRepository.dualDelta(forward, strikes[nStrikes - 1], expiry, impliedVols[nStrikes - 1], true) /
         BlackFormulaRepository.price(forward, strikes[nStrikes - 1], expiry, impliedVols[nStrikes - 1], true);
-    List<SABRFormulaData> modelParams = (new SmileInterpolatorSABR()).getFittedModelParameters(forward, strikes, expiry, impliedVols);
-    BenaimDodgsonKainthExtrapolationFunctionProvider provider = new BenaimDodgsonKainthExtrapolationFunctionProvider(muLow, muHigh);
+    List<SABRFormulaData> modelParams = (new SmileInterpolatorSABR()).getFittedModelParameters(forward, strikes,
+        expiry, impliedVols);
+    BenaimDodgsonKainthExtrapolationFunctionProvider provider = new BenaimDodgsonKainthExtrapolationFunctionProvider(
+        muLow, muHigh);
 
     try {
-      provider.getExtrapolationFunction(modelParams.get(0), modelParams.get(nStrikes - 3), new SABRHaganVolatilityFunction(), forward, expiry, -strikes[0], strikes[nStrikes - 1]);
+      provider.getExtrapolationFunction(modelParams.get(0), modelParams.get(nStrikes - 3),
+          new SABRHaganVolatilityFunction(), forward, expiry, -strikes[0], strikes[nStrikes - 1]);
       throw new RuntimeException();
     } catch (final Exception e) {
       assertEquals("cutOffStrikeLow should be positive", e.getMessage());
     }
     try {
-      provider.getExtrapolationFunction(modelParams.get(0), modelParams.get(nStrikes - 3), new SABRHaganVolatilityFunction(), forward, expiry, strikes[0], -strikes[nStrikes - 1]);
+      provider.getExtrapolationFunction(modelParams.get(0), modelParams.get(nStrikes - 3),
+          new SABRHaganVolatilityFunction(), forward, expiry, strikes[0], -strikes[nStrikes - 1]);
       throw new RuntimeException();
     } catch (final Exception e) {
       assertEquals("cutOffStrikeLow < cutOffStrikeHigh should be satisfied", e.getMessage());
@@ -113,12 +124,15 @@ public class SmileExtrapolationFunctionSABRProviderTest {
   @Test
   public void hashCodeAndEqualsErrorSLNTest() {
 
-    ShiftedLogNormalExtrapolationFunctionProvider provider1 = new ShiftedLogNormalExtrapolationFunctionProvider("Exception");
+    ShiftedLogNormalExtrapolationFunctionProvider provider1 = new ShiftedLogNormalExtrapolationFunctionProvider(
+        "Exception");
     ShiftedLogNormalExtrapolationFunctionProvider provider2 = new ShiftedLogNormalExtrapolationFunctionProvider("Flat");
     ShiftedLogNormalExtrapolationFunctionProvider provider3 = new ShiftedLogNormalExtrapolationFunctionProvider("Quiet");
-    BenaimDodgsonKainthExtrapolationFunctionProvider provider4 = new BenaimDodgsonKainthExtrapolationFunctionProvider(2.0, 3.0);
+    BenaimDodgsonKainthExtrapolationFunctionProvider provider4 = new BenaimDodgsonKainthExtrapolationFunctionProvider(
+        2.0, 3.0);
     ShiftedLogNormalExtrapolationFunctionProvider provider5 = provider1;
-    ShiftedLogNormalExtrapolationFunctionProvider provider6 = new ShiftedLogNormalExtrapolationFunctionProvider("Exception");
+    ShiftedLogNormalExtrapolationFunctionProvider provider6 = new ShiftedLogNormalExtrapolationFunctionProvider(
+        "Exception");
 
     assertTrue(provider1.equals(provider1));
 
@@ -155,47 +169,58 @@ public class SmileExtrapolationFunctionSABRProviderTest {
     for (int i = 0; i < nStrikes; ++i) {
       strikes[i] = forward * (0.85 + i * 0.05);
     }
-    List<SABRFormulaData> modelParams = (new SmileInterpolatorSABR()).getFittedModelParameters(forward, strikes, expiry, impliedVols);
-    ShiftedLogNormalExtrapolationFunctionProvider providerExce = new ShiftedLogNormalExtrapolationFunctionProvider("Exception");
-    ShiftedLogNormalExtrapolationFunctionProvider providerNext = new ShiftedLogNormalExtrapolationFunctionProvider("Quiet");
+    List<SABRFormulaData> modelParams = (new SmileInterpolatorSABR()).getFittedModelParameters(forward, strikes,
+        expiry, impliedVols);
+    ShiftedLogNormalExtrapolationFunctionProvider providerExce = new ShiftedLogNormalExtrapolationFunctionProvider(
+        "Exception");
+    ShiftedLogNormalExtrapolationFunctionProvider providerNext = new ShiftedLogNormalExtrapolationFunctionProvider(
+        "Quiet");
 
     try {
-      providerExce.getExtrapolationFunction(modelParams.get(0), modelParams.get(nStrikes - 3), new SABRHaganVolatilityFunction(), forward, expiry, -strikes[0], strikes[nStrikes - 1]);
+      providerExce.getExtrapolationFunction(modelParams.get(0), modelParams.get(nStrikes - 3),
+          new SABRHaganVolatilityFunction(), forward, expiry, -strikes[0], strikes[nStrikes - 1]);
       throw new RuntimeException();
     } catch (final Exception e) {
       assertEquals("cutOffStrikeLow should be positive", e.getMessage());
     }
 
     try {
-      providerExce.getExtrapolationFunction(modelParams.get(0), modelParams.get(nStrikes - 3), new SABRHaganVolatilityFunction(), forward, expiry, forward * 1.01, strikes[nStrikes - 1]);
+      providerExce.getExtrapolationFunction(modelParams.get(0), modelParams.get(nStrikes - 3),
+          new SABRHaganVolatilityFunction(), forward, expiry, forward * 1.01, strikes[nStrikes - 1]);
       throw new RuntimeException();
     } catch (final Exception e) {
       assertTrue(e instanceof IllegalArgumentException);
     }
     try {
-      providerExce.getExtrapolationFunction(modelParams.get(0), modelParams.get(nStrikes - 3), new SABRHaganVolatilityFunction(), forward, expiry, strikes[0], forward * 0.99);
+      providerExce.getExtrapolationFunction(modelParams.get(0), modelParams.get(nStrikes - 3),
+          new SABRHaganVolatilityFunction(), forward, expiry, strikes[0], forward * 0.99);
       throw new RuntimeException();
     } catch (final Exception e) {
       assertTrue(e instanceof IllegalArgumentException);
     }
     try {
-      providerNext.getExtrapolationFunction(modelParams.get(0), modelParams.get(nStrikes - 3), new SABRHaganVolatilityFunction(), forward, expiry, forward * 1.01, strikes[nStrikes - 1]);
+      providerNext.getExtrapolationFunction(modelParams.get(0), modelParams.get(nStrikes - 3),
+          new SABRHaganVolatilityFunction(), forward, expiry, forward * 1.01, strikes[nStrikes - 1]);
       throw new RuntimeException();
     } catch (final Exception e) {
       assertTrue(e instanceof IllegalArgumentException);
     }
     try {
-      providerNext.getExtrapolationFunction(modelParams.get(0), modelParams.get(nStrikes - 3), new SABRHaganVolatilityFunction(), forward, expiry, strikes[0], forward * 0.99);
+      providerNext.getExtrapolationFunction(modelParams.get(0), modelParams.get(nStrikes - 3),
+          new SABRHaganVolatilityFunction(), forward, expiry, strikes[0], forward * 0.99);
       throw new RuntimeException();
     } catch (final Exception e) {
       assertTrue(e instanceof IllegalArgumentException);
     }
 
-    ShiftedLogNormalExtrapolationFunctionProvider providerFail = new ShiftedLogNormalExtrapolationFunctionProvider("None");
+    ShiftedLogNormalExtrapolationFunctionProvider providerFail = new ShiftedLogNormalExtrapolationFunctionProvider(
+        "None");
     try {
-      providerFail.getExtrapolationFunction(modelParams.get(0), modelParams.get(nStrikes - 3), new SABRHaganVolatilityFunction(), forward, expiry, strikes[0], strikes[nStrikes - 1]);
+      providerFail.getExtrapolationFunction(modelParams.get(0), modelParams.get(nStrikes - 3),
+          new SABRHaganVolatilityFunction(), forward, expiry, strikes[0], strikes[nStrikes - 1]);
     } catch (final Exception e) {
-      assertEquals("Unrecognized _extrapolatorFailureBehaviour. Looking for one of Exception, Quiet, or Flat", e.getMessage());
+      assertEquals("Unrecognized _extrapolatorFailureBehaviour. Looking for one of Exception, Quiet, or Flat",
+          e.getMessage());
     }
   }
 }

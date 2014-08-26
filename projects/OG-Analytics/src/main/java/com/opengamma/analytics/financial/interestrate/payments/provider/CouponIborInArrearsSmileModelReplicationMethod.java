@@ -27,7 +27,8 @@ public class CouponIborInArrearsSmileModelReplicationMethod {
   }
 
   /**
-   * Computes the present value of an Ibor coupon in arrears by replication. The coupon is price as an cap with strike 0.
+   * Computes the present value of an Ibor coupon in arrears by replication. 
+   * The coupon is price as an cap with strike 0.
    * @param coupon Ibor coupon in arrears
    * @param curves The curves
    * @return The present value

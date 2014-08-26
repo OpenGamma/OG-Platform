@@ -25,13 +25,15 @@ import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.util.test.TestGroup;
 
 /**
- * Test class for {@link SmileInterpolatorSABRWithExtrapolation} and its underlying class, {@link SmileExtrapolationFunctionSABRProvider}
+ * Test class for {@link SmileInterpolatorSABRWithExtrapolation} and its underlying class, 
+ * {@link SmileExtrapolationFunctionSABRProvider}
  */
 @Test(groups = TestGroup.UNIT)
 public class SmileInterpolatorSABRWithExtrapolationTest {
 
   /**
-   * Test interpolation part, essentially consistent with the super class (where extrapolation is absent) iff local fitting is applied. 
+   * Test interpolation part, essentially consistent with the super class (where extrapolation is absent) 
+   * iff local fitting is applied. 
    * If global fit is used, resulting interpolation is tested with larger tolerance
    */
   @Test
@@ -51,9 +53,12 @@ public class SmileInterpolatorSABRWithExtrapolationTest {
     int seed = 4729;
     double beta = 0.95;
 
-    ShiftedLogNormalExtrapolationFunctionProvider extapQuiet = new ShiftedLogNormalExtrapolationFunctionProvider("Quiet");
-    SmileInterpolatorSABRWithExtrapolation interpQuiet = new SmileInterpolatorSABRWithExtrapolation(seed, new SABRHaganVolatilityFunction(), beta, weight, extapQuiet);
-    InterpolatedSmileFunction funcQuiet = new InterpolatedSmileFunction(interpQuiet, forward, strikes, expiry, impliedVols);
+    ShiftedLogNormalExtrapolationFunctionProvider extapQuiet = new ShiftedLogNormalExtrapolationFunctionProvider(
+        "Quiet");
+    SmileInterpolatorSABRWithExtrapolation interpQuiet = new SmileInterpolatorSABRWithExtrapolation(seed,
+        new SABRHaganVolatilityFunction(), beta, weight, extapQuiet);
+    InterpolatedSmileFunction funcQuiet = new InterpolatedSmileFunction(interpQuiet, forward, strikes, expiry,
+        impliedVols);
     SmileInterpolatorSABR sabr = new SmileInterpolatorSABR(seed, new SABRHaganVolatilityFunction(), beta, weight);
     Function1D<Double, Double> volFunc = sabr.getVolatilityFunction(forward, strikes, expiry, impliedVols);
 
@@ -63,12 +68,18 @@ public class SmileInterpolatorSABRWithExtrapolationTest {
       assertEquals(volFunc.evaluate(key), funcQuiet.getVolatility(key), eps);
     }
 
-    SmileInterpolatorSABRWithExtrapolation interpGlobal1 = new SmileInterpolatorSABRWithExtrapolation(new SABRPaulotVolatilityFunction(), extapQuiet);
-    SmileInterpolatorSABRWithExtrapolation interpGlobal2 = new SmileInterpolatorSABRWithExtrapolation(new SABRBerestyckiVolatilityFunction(), extapQuiet);
-    SmileInterpolatorSABRWithExtrapolation interpGlobal3 = new SmileInterpolatorSABRWithExtrapolation(new SABRHaganAlternativeVolatilityFunction(), extapQuiet);
-    InterpolatedSmileFunction funcGlobal1 = new InterpolatedSmileFunction(interpGlobal1, forward, strikes, expiry, impliedVols);
-    InterpolatedSmileFunction funcGlobal2 = new InterpolatedSmileFunction(interpGlobal2, forward, strikes, expiry, impliedVols);
-    InterpolatedSmileFunction funcGlobal3 = new InterpolatedSmileFunction(interpGlobal3, forward, strikes, expiry, impliedVols);
+    SmileInterpolatorSABRWithExtrapolation interpGlobal1 = new SmileInterpolatorSABRWithExtrapolation(
+        new SABRPaulotVolatilityFunction(), extapQuiet);
+    SmileInterpolatorSABRWithExtrapolation interpGlobal2 = new SmileInterpolatorSABRWithExtrapolation(
+        new SABRBerestyckiVolatilityFunction(), extapQuiet);
+    SmileInterpolatorSABRWithExtrapolation interpGlobal3 = new SmileInterpolatorSABRWithExtrapolation(
+        new SABRHaganAlternativeVolatilityFunction(), extapQuiet);
+    InterpolatedSmileFunction funcGlobal1 = new InterpolatedSmileFunction(interpGlobal1, forward, strikes, expiry,
+        impliedVols);
+    InterpolatedSmileFunction funcGlobal2 = new InterpolatedSmileFunction(interpGlobal2, forward, strikes, expiry,
+        impliedVols);
+    InterpolatedSmileFunction funcGlobal3 = new InterpolatedSmileFunction(interpGlobal3, forward, strikes, expiry,
+        impliedVols);
     for (int i = 0; i < nKeys + 1; ++i) {
       Double key = strikes[0] + (strikes[nStrikes - 1] - strikes[0]) * i / nKeys;
       double ref = funcQuiet.getVolatility(key);
@@ -87,13 +98,18 @@ public class SmileInterpolatorSABRWithExtrapolationTest {
     WeightingFunction weight = LinearWeightingFunction.getInstance();
     int seed = 4729;
     double beta = 0.95;
-    ShiftedLogNormalExtrapolationFunctionProvider extapQuiet = new ShiftedLogNormalExtrapolationFunctionProvider("Quiet");
+    ShiftedLogNormalExtrapolationFunctionProvider extapQuiet = new ShiftedLogNormalExtrapolationFunctionProvider(
+        "Quiet");
     ShiftedLogNormalExtrapolationFunctionProvider extapFlat = new ShiftedLogNormalExtrapolationFunctionProvider("Flat");
-    SmileInterpolatorSABRWithExtrapolation interpQuiet1 = new SmileInterpolatorSABRWithExtrapolation(seed, new SABRHaganVolatilityFunction(), beta, weight, extapQuiet);
-    SmileInterpolatorSABRWithExtrapolation interpQuiet2 = new SmileInterpolatorSABRWithExtrapolation(seed, new SABRHaganVolatilityFunction(), beta * 0.9, weight, extapQuiet);
+    SmileInterpolatorSABRWithExtrapolation interpQuiet1 = new SmileInterpolatorSABRWithExtrapolation(seed,
+        new SABRHaganVolatilityFunction(), beta, weight, extapQuiet);
+    SmileInterpolatorSABRWithExtrapolation interpQuiet2 = new SmileInterpolatorSABRWithExtrapolation(seed,
+        new SABRHaganVolatilityFunction(), beta * 0.9, weight, extapQuiet);
     SmileInterpolatorSABRWithExtrapolation interpQuiet3 = interpQuiet1;
-    SmileInterpolatorSABRWithExtrapolation interpQuiet4 = new SmileInterpolatorSABRWithExtrapolation(seed, new SABRHaganVolatilityFunction(), beta, weight, extapQuiet);
-    SmileInterpolatorSABRWithExtrapolation interpFlat = new SmileInterpolatorSABRWithExtrapolation(seed, new SABRHaganVolatilityFunction(), beta, weight, extapFlat);
+    SmileInterpolatorSABRWithExtrapolation interpQuiet4 = new SmileInterpolatorSABRWithExtrapolation(seed,
+        new SABRHaganVolatilityFunction(), beta, weight, extapQuiet);
+    SmileInterpolatorSABRWithExtrapolation interpFlat = new SmileInterpolatorSABRWithExtrapolation(seed,
+        new SABRHaganVolatilityFunction(), beta, weight, extapFlat);
 
     assertTrue(interpQuiet1.equals(interpQuiet1));
 
@@ -132,7 +148,8 @@ public class SmileInterpolatorSABRWithExtrapolationTest {
     }
     ShiftedLogNormalExtrapolationFunctionProvider extapFlat = new ShiftedLogNormalExtrapolationFunctionProvider("Flat");
     SmileInterpolatorSABRWithExtrapolation interpFlat = new SmileInterpolatorSABRWithExtrapolation(extapFlat);
-    InterpolatedSmileFunction funcFlat = new InterpolatedSmileFunction(interpFlat, forward, strikes, expiry, impliedVols);
+    InterpolatedSmileFunction funcFlat = new InterpolatedSmileFunction(interpFlat, forward, strikes, expiry,
+        impliedVols);
     double[] keys = new double[] {0.1 * strikes[0], 0.36 * strikes[0], 0.99 * strikes[0] };
     for (int i = 0; i < keys.length; ++i) {
       assertEquals(impliedVols[0], funcFlat.getVolatility(keys[i]), 1.e-8);
@@ -142,9 +159,11 @@ public class SmileInterpolatorSABRWithExtrapolationTest {
       assertEquals(impliedVols[nStrikes - 1], funcFlat.getVolatility(keys[i]), 1.e-8);
     }
 
-    ShiftedLogNormalExtrapolationFunctionProvider extapQuiet = new ShiftedLogNormalExtrapolationFunctionProvider("Quiet");
+    ShiftedLogNormalExtrapolationFunctionProvider extapQuiet = new ShiftedLogNormalExtrapolationFunctionProvider(
+        "Quiet");
     SmileInterpolatorSABRWithExtrapolation interpQuiet = new SmileInterpolatorSABRWithExtrapolation(extapQuiet);
-    InterpolatedSmileFunction funcQuiet = new InterpolatedSmileFunction(interpQuiet, forward, strikes, expiry, impliedVols);
+    InterpolatedSmileFunction funcQuiet = new InterpolatedSmileFunction(interpQuiet, forward, strikes, expiry,
+        impliedVols);
     /*
      * Only C0 continuity is kept
      */
@@ -184,7 +203,8 @@ public class SmileInterpolatorSABRWithExtrapolationTest {
       strikes[i] = forward * (0.85 + i * 0.05);
     }
     ShiftedLogNormalExtrapolationFunctionProvider extapSLN = new ShiftedLogNormalExtrapolationFunctionProvider();
-    SmileInterpolatorSABRWithExtrapolation interpSLN = new SmileInterpolatorSABRWithExtrapolation(new SABRHaganVolatilityFunction(), extapSLN);
+    SmileInterpolatorSABRWithExtrapolation interpSLN = new SmileInterpolatorSABRWithExtrapolation(
+        new SABRHaganVolatilityFunction(), extapSLN);
     InterpolatedSmileFunction funcSLN = new InterpolatedSmileFunction(interpSLN, forward, strikes, expiry, impliedVols);
 
     /*
@@ -297,17 +317,23 @@ public class SmileInterpolatorSABRWithExtrapolationTest {
       strikes[i] = forward * (0.85 + i * 0.05);
     }
 
-    double muLow = strikes[0] * BlackFormulaRepository.dualDelta(forward, strikes[0], expiry, impliedVols[0], false) / BlackFormulaRepository.price(forward, strikes[0], expiry, impliedVols[0], false);
-    double muHigh = -strikes[nStrikes - 1] * BlackFormulaRepository.dualDelta(forward, strikes[nStrikes - 1], expiry, impliedVols[nStrikes - 1], true) /
+    double muLow = strikes[0] * BlackFormulaRepository.dualDelta(forward, strikes[0], expiry, impliedVols[0], false) /
+        BlackFormulaRepository.price(forward, strikes[0], expiry, impliedVols[0], false);
+    double muHigh = -strikes[nStrikes - 1] *
+        BlackFormulaRepository.dualDelta(forward, strikes[nStrikes - 1], expiry, impliedVols[nStrikes - 1], true) /
         BlackFormulaRepository.price(forward, strikes[nStrikes - 1], expiry, impliedVols[nStrikes - 1], true);
 
-    SmileExtrapolationFunctionSABRProvider extrapBDK = new BenaimDodgsonKainthExtrapolationFunctionProvider(muLow, muHigh);
+    SmileExtrapolationFunctionSABRProvider extrapBDK = new BenaimDodgsonKainthExtrapolationFunctionProvider(muLow,
+        muHigh);
     SmileInterpolatorSABRWithExtrapolation interpBDK = new SmileInterpolatorSABRWithExtrapolation(extrapBDK);
     InterpolatedSmileFunction funcBDK = new InterpolatedSmileFunction(interpBDK, forward, strikes, expiry, impliedVols);
 
-    List<SABRFormulaData> modelParams = (new SmileInterpolatorSABR()).getFittedModelParameters(forward, strikes, expiry, impliedVols);
-    SABRExtrapolationLeftFunction sabrLeftExtrapolation = new SABRExtrapolationLeftFunction(forward, modelParams.get(0), strikes[0], expiry, muLow, new SABRHaganVolatilityFunction());
-    SABRExtrapolationRightFunction sabrRightExtrapolation = new SABRExtrapolationRightFunction(forward, modelParams.get(nStrikes - 3), strikes[nStrikes - 1], expiry, muHigh,
+    List<SABRFormulaData> modelParams = (new SmileInterpolatorSABR()).getFittedModelParameters(forward, strikes,
+        expiry, impliedVols);
+    SABRExtrapolationLeftFunction sabrLeftExtrapolation = new SABRExtrapolationLeftFunction(forward,
+        modelParams.get(0), strikes[0], expiry, muLow, new SABRHaganVolatilityFunction());
+    SABRExtrapolationRightFunction sabrRightExtrapolation = new SABRExtrapolationRightFunction(forward,
+        modelParams.get(nStrikes - 3), strikes[nStrikes - 1], expiry, muHigh,
         new SABRHaganVolatilityFunction());
 
     /*
@@ -352,7 +378,8 @@ public class SmileInterpolatorSABRWithExtrapolationTest {
      */
     {
       // Checking underlying extrapolation
-      double boundaryValue = sabrRightExtrapolation.price(new EuropeanVanillaOption(strikes[nStrikes - 1], expiry, true));
+      double boundaryValue = sabrRightExtrapolation
+          .price(new EuropeanVanillaOption(strikes[nStrikes - 1], expiry, true));
       double CutoffUp = strikes[nStrikes - 1] + eps;
       double CutoffDw = strikes[nStrikes - 1] - eps;
       double optionPriceExt = sabrRightExtrapolation.price(new EuropeanVanillaOption(CutoffUp, expiry, true));
