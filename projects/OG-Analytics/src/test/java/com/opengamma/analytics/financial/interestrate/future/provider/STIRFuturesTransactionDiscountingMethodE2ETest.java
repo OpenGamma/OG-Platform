@@ -50,7 +50,8 @@ public class STIRFuturesTransactionDiscountingMethodE2ETest {
   private static final Calendar CALENDAR = StandardDataSetsMulticurveEUR.calendarArray()[0];
   private static final Currency EUR = EUREURIBOR3M.getCurrency();
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2014, 2, 18);
-  private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_PAIR = StandardDataSetsMulticurveEUR.getCurvesUSDOisL3();
+  private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_PAIR = 
+      StandardDataSetsMulticurveEUR.getCurvesUSDOisL3();
   private static final MulticurveProviderDiscount MULTICURVE = MULTICURVE_PAIR.getFirst();
   private static final CurveBuildingBlockBundle BLOCK = MULTICURVE_PAIR.getSecond();
   /** Instruments */
@@ -65,14 +66,19 @@ public class STIRFuturesTransactionDiscountingMethodE2ETest {
   private static final double TRADE_PRICE = 0.999;
   private static final InterestRateFutureTransactionDefinition ERZ4_TRA_DEFINITION =
       new InterestRateFutureTransactionDefinition(ERZ4_SEC_DEFINITION, QUANTITY, TRADE_DATE, TRADE_PRICE);
-  private static final double LAST_MARGIN_PRICE = 0.9973; // Closing on (2014, 2, 18); Using the last fixing before or on valuation date.
-  private static final InterestRateFutureTransaction ERZ4_TRA = ERZ4_TRA_DEFINITION.toDerivative(REFERENCE_DATE, LAST_MARGIN_PRICE);
+  private static final double LAST_MARGIN_PRICE = 0.9973; 
+  // Closing on (2014, 2, 18); Using the last fixing before or on valuation date.
+  private static final InterestRateFutureTransaction ERZ4_TRA = 
+      ERZ4_TRA_DEFINITION.toDerivative(REFERENCE_DATE, LAST_MARGIN_PRICE);
   /** Calculators */
   private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
   private static final ParRateDiscountingCalculator PRDC = ParRateDiscountingCalculator.getInstance();
-  private static final PresentValueCurveSensitivityDiscountingCalculator PVCSDC = PresentValueCurveSensitivityDiscountingCalculator.getInstance();
-  private static final ParameterSensitivityParameterCalculator<MulticurveProviderInterface> PSC = new ParameterSensitivityParameterCalculator<>(PVCSDC);
-  private static final MarketQuoteSensitivityBlockCalculator<MulticurveProviderInterface> MQSBC = new MarketQuoteSensitivityBlockCalculator<>(PSC);
+  private static final PresentValueCurveSensitivityDiscountingCalculator PVCSDC = 
+      PresentValueCurveSensitivityDiscountingCalculator.getInstance();
+  private static final ParameterSensitivityParameterCalculator<MulticurveProviderInterface> PSC = 
+      new ParameterSensitivityParameterCalculator<>(PVCSDC);
+  private static final MarketQuoteSensitivityBlockCalculator<MulticurveProviderInterface> MQSBC = 
+      new MarketQuoteSensitivityBlockCalculator<>(PSC);
   private static final double TOLERANCE_PV = 1.0E-4;
   private static final double TOLERANCE_PV_DELTA = 1.0E-2;
   private static final double TOLERANCE_RATE = 1.0E-8;
@@ -86,7 +92,8 @@ public class STIRFuturesTransactionDiscountingMethodE2ETest {
     final MultipleCurrencyAmount pvComputed = ERZ4_TRA.accept(PVDC, MULTICURVE);
     assertTrue("STIRFuturesTransactionDiscountingMethodE2ETest: present value from standard curves", pvComputed.size() == 1);
     final MultipleCurrencyAmount pvExpected = MultipleCurrencyAmount.of(Currency.EUR, -262.767172);
-    assertEquals("STIRFuturesTransactionDiscountingMethodE2ETest: present value from standard curves", pvExpected.getAmount(EUR), pvComputed.getAmount(EUR), TOLERANCE_PV);
+    assertEquals("STIRFuturesTransactionDiscountingMethodE2ETest: present value from standard curves", 
+        pvExpected.getAmount(EUR), pvComputed.getAmount(EUR), TOLERANCE_PV);
   }
 
   @Test
@@ -94,14 +101,17 @@ public class STIRFuturesTransactionDiscountingMethodE2ETest {
    * Tests bucketed PV01 with a standard set of data against hard-coded values.
    */
   public void BucketedPV01() {
-    final double[] deltaDsc = {0.0003, 0.0003, 0.0000, 0.0000, 1.7334, 3.0714, 4.6402, -18.8887, -0.9835, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000 };
-    final double[] deltaFwd = {-2398.5241, -2479.7772, -2479.1440, 9422.5946, 912.6277, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000 };
+    final double[] deltaDsc = {0.0003, 0.0003, 0.0000, 0.0000, 1.7334, 3.0714, 4.6402, -18.8887, -0.9835, 
+      0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000 };
+    final double[] deltaFwd = {-2398.5241, -2479.7772, -2479.1440, 9422.5946, 912.6277, 0.0000, 0.0000, 
+      0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000 };
     final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> sensitivity = new LinkedHashMap<>();
     sensitivity.put(ObjectsPair.of(MULTICURVE.getName(EUR), EUR), new DoubleMatrix1D(deltaDsc));
     sensitivity.put(ObjectsPair.of(MULTICURVE.getName(EUREURIBOR3M), EUR), new DoubleMatrix1D(deltaFwd));
     final MultipleCurrencyParameterSensitivity pvpsExpected = new MultipleCurrencyParameterSensitivity(sensitivity);
     final MultipleCurrencyParameterSensitivity pvpsComputed = MQSBC.fromInstrument(ERZ4_TRA, MULTICURVE, BLOCK).multipliedBy(BP1);
-    AssertSensitivityObjects.assertEquals("STIRFuturesTransactionDiscountingMethodE2ETest: bucketed delts from standard curves", pvpsExpected, pvpsComputed, TOLERANCE_PV_DELTA);
+    AssertSensitivityObjects.assertEquals("STIRFuturesTransactionDiscountingMethodE2ETest: bucketed delts from standard curves", 
+        pvpsExpected, pvpsComputed, TOLERANCE_PV_DELTA);
   }
 
   @Test
@@ -111,7 +121,8 @@ public class STIRFuturesTransactionDiscountingMethodE2ETest {
   public void parRate() {
     final double parRate = ERZ4_TRA.accept(PRDC, MULTICURVE);
     final double parRateExpected = 0.00269159145050768;
-    assertEquals("STIRFuturesTransactionDiscountingMethodE2ETest: par rate from standard curves", parRateExpected, parRate, TOLERANCE_RATE);
+    assertEquals("STIRFuturesTransactionDiscountingMethodE2ETest: par rate from standard curves", 
+        parRateExpected, parRate, TOLERANCE_RATE);
   }
 
 }
