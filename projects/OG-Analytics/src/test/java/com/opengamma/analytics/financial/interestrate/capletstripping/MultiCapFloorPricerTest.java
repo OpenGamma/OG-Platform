@@ -6,6 +6,7 @@
 package com.opengamma.analytics.financial.interestrate.capletstripping;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,6 +24,7 @@ import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
 import com.opengamma.analytics.util.AssertMatrix;
 import com.opengamma.util.monitor.OperationTimer;
 import com.opengamma.util.test.TestGroup;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * 
@@ -202,6 +204,48 @@ public class MultiCapFloorPricerTest extends CapletStrippingSetup {
     //is fairly low
     AssertMatrix.assertEqualsMatrix(fdVega, capVolVega, 5e-6);
 
+  }
+
+  @Test
+  public void accessTest() {
+    MulticurveProviderDiscount yieldCurve = getYieldCurves();
+    List<CapFloor> caps = getCaps(0); // this includes the 10 year cap
+    int n = caps.size();
+    MultiCapFloorPricer multiPricer = new MultiCapFloorPricer(caps, yieldCurve);
+    assertEquals(n, multiPricer.getNumCaps());
+    assertEquals(39, multiPricer.getCapletExpiries().length); //4*10 - 1
+    assertEquals(1, multiPricer.getStrikes().length);
+    assertEquals(1, multiPricer.getCapStartTimes().length); //one common start time
+    assertEquals(n, multiPricer.getCapEndTimes().length);
+  }
+
+  @Test
+  public void capletFwdTest() {
+    MulticurveProviderDiscount yieldCurve = getYieldCurves();
+    List<CapFloor> caps = getATMCaps();
+    MultiCapFloorPricer multiPricer = new MultiCapFloorPricer(caps, yieldCurve);
+    double[] exp = multiPricer.getCapletExpiries();
+    double[] fwd = multiPricer.getCapletForwardRates();
+    DoublesPair[] points = multiPricer.getExpiryStrikeArray();
+    int nCaplets = multiPricer.getNumCaplets();
+    int nExp = exp.length;
+
+    assertEquals("fwd length", nExp, fwd.length);
+    assertEquals("points length", nCaplets, points.length);
+
+  }
+
+  @Test
+  public void capIntrTest() {
+    MulticurveProviderDiscount yieldCurve = getYieldCurves();
+    List<CapFloor> caps = getATMCaps();
+    MultiCapFloorPricer multiPricer = new MultiCapFloorPricer(caps, yieldCurve);
+    double[] intrVal = multiPricer.getIntrinsicCapValues();
+    int nCaps = caps.size();
+    assertEquals(nCaps, intrVal.length);
+    for (int i = 0; i < nCaps; i++) {
+      assertTrue(intrVal[i]>0.0); //Cap ATM means the strike equals the swap rate - individual caplets may be ITM 
+    }
   }
 
   @SuppressWarnings("unused")
