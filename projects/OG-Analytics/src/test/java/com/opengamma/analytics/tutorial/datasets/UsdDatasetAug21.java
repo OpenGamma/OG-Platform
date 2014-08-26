@@ -80,7 +80,7 @@ public class UsdDatasetAug21 {
   private static final GeneratorSwapFixedIbor USD6MLIBOR3M = GENERATOR_IRS_MASTER.getGenerator("USD6MLIBOR3M", NYC);
   private static final IborIndex USDLIBOR3M = USD6MLIBOR3M.getIborIndex();
   private static final IborIndex USDLIBOR1M = IBOR_MASTER.getIndex("USDLIBOR1M");
-  private static final IborIndex USDLIBOR6M = IBOR_MASTER.getIndex("USDLIBOR6M");
+  public static final IborIndex USDLIBOR6M = IBOR_MASTER.getIndex("USDLIBOR6M");
 
   private static final String CURVE_NAME_DSC_USD = "USD-DSCON-OIS";
   private static final String CURVE_NAME_FWD3_USD = "USD-LIBOR3M-FRAIRS";

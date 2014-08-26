@@ -52,26 +52,29 @@ public class SwapRiskAnalysisAug21Usd {
       
       System.out.println("Curve name,Curve X,Curve Y,Start date,End date,Forward"); 
       for(int i = 0; i < dateFractions.length; ++i) {
+        double t1 = DayCounts.ACT_360.getDayCountFraction(evalDate, UsdDatasetAug21.s_startDates[i]);
+        double t2 = DayCounts.ACT_360.getDayCountFraction(evalDate, UsdDatasetAug21.s_endDates[i]);
+        double accrualPeriod = 
+            DayCounts.ACT_360.getDayCountFraction(UsdDatasetAug21.s_startDates[i], UsdDatasetAug21.s_endDates[i]);
+        double forward = curves.getSimplyCompoundForwardRate(UsdDatasetAug21.USDLIBOR6M, t1, t2, accrualPeriod);
         System.out.println(
             yieldCurveName + "," +
                 String.valueOf(dateFractions[i]) + "," +
                 String.valueOf(100. * zeroRates[i]) + "," + 
                 UsdDatasetAug21.s_startDates[i].toLocalDate().toString() + "," +
                 UsdDatasetAug21.s_endDates[i].toLocalDate().toString() + "," +
-                String.valueOf(100. * yieldAndDiscountCurve.getForwardRate(
-                    dateFractions[i])) + "," +
-                String.valueOf(100. * yieldAndDiscountCurve.getForwardRate(
-                    DayCounts.ACT_360.getDayCountFraction(evalDate, UsdDatasetAug21.s_endDates[i]))) + "," +
-                String.valueOf(100. * yieldAndDiscountCurve.getForwardRate(
-                    DayCounts.ACT_360.getDayCountFraction(evalDate, UsdDatasetAug21.s_startDates[i].plusMonths(6)))) + "," +
-                String.valueOf(100. * yieldAndDiscountCurve.getForwardRate(
-                    DayCounts.ACT_360.getDayCountFraction(evalDate, UsdDatasetAug21.s_startDates[i]))));
+                String.valueOf(100. * forward)
+                );
       }
       
       double t1 = DayCounts.ACT_360.getDayCountFraction(evalDate, DateUtils.getUTCDate(2015, 7, 9));
       double t2 = DayCounts.ACT_360.getDayCountFraction(evalDate, DateUtils.getUTCDate(2016, 1, 9));
+      double accrualPeriod = 
+          DayCounts.ACT_360.getDayCountFraction(DateUtils.getUTCDate(2015, 7, 9), DateUtils.getUTCDate(2016, 1, 9));
+      double forward = curves.getSimplyCompoundForwardRate(UsdDatasetAug21.USDLIBOR6M, t1, t2, accrualPeriod);
+
       System.out.println("t1,t2,forward");
-      System.out.println(String.valueOf(t1) + "," + String.valueOf(t2) + "," + String.valueOf(yieldAndDiscountCurve.getForwardRate(t1) * 100));
+      System.out.println(String.valueOf(t1) + "," + String.valueOf(t2) + "," + String.valueOf(forward * 100));
     }
     
   }
