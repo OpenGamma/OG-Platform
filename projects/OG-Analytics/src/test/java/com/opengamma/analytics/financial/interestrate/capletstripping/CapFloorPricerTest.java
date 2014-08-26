@@ -36,6 +36,7 @@ public class CapFloorPricerTest extends CapletStrippingSetup {
     //note - spot starting caps (floors) (usually) do not include the first caplet (floorlet), as the spot Libor is already 
     //known, so is not an option but a fixed cash-flow. Hence in makeCap have start = 1
     CapFloor cap = makeCap(ccy, index, 1, 20, strike, false);
+    assertEquals(false, cap.isCap());
     CapFloorPricer pricer = new CapFloorPricer(cap, getYieldCurves());
 
     //see comment above as to why there are 19 rather than 20 caplets 
