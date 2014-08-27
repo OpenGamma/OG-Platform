@@ -7,6 +7,7 @@ package com.opengamma.sesame;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -133,12 +134,15 @@ public class DefaultFXMatrixFn implements FXMatrixFn {
   }
 
   @Override
-  public Result<FXMatrix> getAvailableFxRates(Environment env, CurrencyPairSet currencyPairs) {
-    final FXMatrix matrix = new FXMatrix();
+  public Result<Map<Currency, FXMatrix>> getAvailableFxRates(Environment env, CurrencyPairSet currencyPairs) {
+    final Map<Currency, FXMatrix> fxMatrices = new HashMap<Currency, FXMatrix>();
     for (CurrencyPair currencyPair : currencyPairs.getCurrencyPairs()) {
-      addFxRate(env, currencyPair, matrix);
+      if (!fxMatrices.containsKey(currencyPair.getBase())) {
+        fxMatrices.put(currencyPair.getBase(), new FXMatrix(currencyPair.getBase()));
+      }
+      addFxRate(env, currencyPair, fxMatrices.get(currencyPair.getBase()));
     }
-    return Result.success(matrix);
+    return Result.success(fxMatrices);
   }
 
   private Result<FXMatrix> buildResult(Environment env, Set<Currency> currencies, boolean failOnMissingConversion) {

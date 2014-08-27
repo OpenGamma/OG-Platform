@@ -5,6 +5,7 @@
  */
 package com.opengamma.sesame;
 
+import java.util.Map;
 import java.util.Set;
 
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
@@ -52,6 +53,6 @@ public interface FXMatrixFn {
    */
   @Cacheable(CacheLifetime.FOREVER)
   @Output(OutputNames.AVAILABLE_FX_RATES)
-  Result<FXMatrix> getAvailableFxRates(Environment env, CurrencyPairSet currencyPairs);
+  Result<Map<Currency, FXMatrix>> getAvailableFxRates(Environment env, CurrencyPairSet currencyPairs);
 
 }
