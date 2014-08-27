@@ -18,6 +18,21 @@ import com.opengamma.financial.convention.calendar.CalendarNoHoliday;
 public final class GeneratorSwapIborIborMaster {
 
   /**
+   * Reference for a EUR EURIBOR 3M float vs EURIBOR 6M float swap.
+   */
+  public static final String EUREURIBOR3MEURIBOR6M = "EUREURIBOR3MEURIBOR6M";
+
+  /**
+   * Reference for a AUD BBSW 3M float vs BBSW 6M float swap.
+   */
+  public static final String AUDBBSW3MBBSW6M = "AUDBBSW3MBBSW6M";
+  
+  /**
+   * Reference for a JPY LIBOR 6M float vs LIBOR 3M float swap.
+   */
+  public static final String JPYLIBOR6MLIBOR3M = "JPYLIBOR6MLIBOR3M";
+
+  /**
    * The method unique instance.
    */
   private static final GeneratorSwapIborIborMaster INSTANCE = new GeneratorSwapIborIborMaster();
@@ -47,10 +62,24 @@ public final class GeneratorSwapIborIborMaster {
     _iborIndexMaster = IndexIborMaster.getInstance();
     final Calendar baseCalendar = new CalendarNoHoliday("No Holidays");
     _generatorSwap = new HashMap<>();
-    _generatorSwap.put("AUDBBSW3MBBSW6M", new GeneratorSwapIborIbor("AUDBBSW3MBBSW6M", _iborIndexMaster.getIndex("AUDBB3M"), _iborIndexMaster.getIndex("AUDBB6M"),
-        baseCalendar, baseCalendar));
-    _generatorSwap.put("EUREURIBOR3MEURIBOR6M", new GeneratorSwapIborIbor("EUREURIBOR3MEURIBOR6M", _iborIndexMaster.getIndex("EURIBOR3M"), _iborIndexMaster.getIndex("EURIBOR6M"),
-        baseCalendar, baseCalendar));
+    _generatorSwap.put(AUDBBSW3MBBSW6M,
+                       new GeneratorSwapIborIbor(AUDBBSW3MBBSW6M,
+                                                 _iborIndexMaster.getIndex(IndexIborMaster.AUDBB3M),
+                                                 _iborIndexMaster.getIndex(IndexIborMaster.AUDBB6M),
+                                                 baseCalendar,
+                                                 baseCalendar));
+    _generatorSwap.put(EUREURIBOR3MEURIBOR6M,
+                       new GeneratorSwapIborIbor(EUREURIBOR3MEURIBOR6M,
+                                                 _iborIndexMaster.getIndex(IndexIborMaster.EURIBOR3M),
+                                                 _iborIndexMaster.getIndex(IndexIborMaster.EURIBOR6M),
+                                                 baseCalendar,
+                                                 baseCalendar));
+    _generatorSwap.put(JPYLIBOR6MLIBOR3M,
+                       new GeneratorSwapIborIbor(JPYLIBOR6MLIBOR3M,
+                                                 _iborIndexMaster.getIndex(IndexIborMaster.JPYLIBOR3M),
+                                                 _iborIndexMaster.getIndex(IndexIborMaster.JPYLIBOR6M),
+                                                 baseCalendar,
+                                                 baseCalendar));
   }
 
   public GeneratorSwapIborIbor getGenerator(final String name, final Calendar cal) {
