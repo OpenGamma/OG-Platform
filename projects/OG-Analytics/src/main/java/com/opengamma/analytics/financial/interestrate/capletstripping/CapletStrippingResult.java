@@ -113,6 +113,7 @@ public abstract class CapletStrippingResult {
    * @param out an output stream 
    */
   public void printCapletVols(final PrintStream out) {
+    ArgumentChecker.notNull(out, "out");
     final DoublesPair[] expStrikes = _pricer.getExpiryStrikeArray();
     final DoubleMatrix1D vols = getCapletVols();
     final int n = expStrikes.length;
@@ -133,6 +134,9 @@ public abstract class CapletStrippingResult {
    * @param nStrikePoints number of sample points in the strike direction 
    */
   public void printSurface(final PrintStream out, final int nExpPoints, final int nStrikePoints) {
+    ArgumentChecker.notNull(out, "out");
+    ArgumentChecker.isTrue(nExpPoints > 1, "need at least 2 expiry points");
+    ArgumentChecker.isTrue(nExpPoints > 2, "need at least 2 strike points");
     final double[] t = _pricer.getCapletExpiries();
     final double[] k = _pricer.getStrikes();
     final double timeRange = t[t.length - 1] - t[0];
