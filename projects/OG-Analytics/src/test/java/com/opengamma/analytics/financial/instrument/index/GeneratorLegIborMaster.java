@@ -51,8 +51,11 @@ public final class GeneratorLegIborMaster {
     final Calendar baseCalendar = new CalendarNoHoliday("No Holidays");
     _generatorSwap = new HashMap<>();
     IborIndex usdlibor3M = _iborIndexMaster.getIndex("USDLIBOR3M");
+    IborIndex usdlibor6M = _iborIndexMaster.getIndex("USDLIBOR6M");
     _generatorSwap.put("USDLIBOR3M", new GeneratorLegIbor("USDLIBOR3M", usdlibor3M, Period.ofMonths(3), 2, 0,
         usdlibor3M.getBusinessDayConvention(), true, StubType.SHORT_START, false, baseCalendar, baseCalendar));
+    _generatorSwap.put("USDLIBOR6M", new GeneratorLegIbor("USDLIBOR6M", usdlibor6M, Period.ofMonths(6), 2, 0,
+        usdlibor6M.getBusinessDayConvention(), true, StubType.SHORT_START, false, baseCalendar, baseCalendar));
   }
 
   public GeneratorLegIbor getGenerator(final String name, final Calendar cal) {
