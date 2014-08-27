@@ -34,8 +34,10 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
+@Test(groups = TestGroup.UNIT)
 public class LastTimeIndexCalculatorTest {
 
   /** Generators */
@@ -46,14 +48,14 @@ public class LastTimeIndexCalculatorTest {
   private static final IborIndex JPYLIBOR3M = JPY6MLIBOR3M.getIborIndex();
   private static final IborIndex JPYLIBOR6M = JPY6MLIBOR6M.getIborIndex();
   private static final GeneratorSwapIborIborMaster GENERATOR_BS_MASTER = GeneratorSwapIborIborMaster.getInstance();
-  private static final GeneratorSwapIborIbor JPYLIBOR6MLIBOR3M = GENERATOR_BS_MASTER.getGenerator(GeneratorSwapIborIborMaster.JPYLIBOR6MLIBOR3M, TOK);
+  private static final GeneratorSwapIborIbor JPYLIBOR3MLIBOR6M = GENERATOR_BS_MASTER.getGenerator(GeneratorSwapIborIborMaster.JPYLIBOR3MLIBOR6M, TOK);
   /** Dates */
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2014, 7, 1);
   /** Instruments */
   private static final GeneratorAttributeIR ATTRIBUTE_1 = new GeneratorAttributeIR(Period.ofYears(40));
   private static final SwapFixedIborDefinition IRS_1_DEFINIITON = JPY6MLIBOR6M.generateInstrument(REFERENCE_DATE, 0.01, 1, ATTRIBUTE_1);
   private static final Swap<?, ?> IRS_1 = IRS_1_DEFINIITON.toDerivative(REFERENCE_DATE);
-  private static final SwapIborIborDefinition BS_1_DEFINITION = JPYLIBOR6MLIBOR3M.generateInstrument(REFERENCE_DATE, 0.0010, 1, ATTRIBUTE_1);
+  private static final SwapIborIborDefinition BS_1_DEFINITION = JPYLIBOR3MLIBOR6M.generateInstrument(REFERENCE_DATE, 0.0010, 1, ATTRIBUTE_1);
   private static final Swap<?, ?> BS_1 = BS_1_DEFINITION.toDerivative(REFERENCE_DATE);
   /** Calculators with different indexes **/
   private static final LastTimeIndexCalculator LAST_TIME_JPYLIBOR3M = new LastTimeIndexCalculator(JPYLIBOR3M);
