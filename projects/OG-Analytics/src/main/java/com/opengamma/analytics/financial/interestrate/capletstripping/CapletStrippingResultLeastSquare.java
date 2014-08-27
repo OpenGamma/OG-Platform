@@ -24,7 +24,7 @@ public class CapletStrippingResultLeastSquare extends CapletStrippingResult {
    * @param pricer The pricer (which contained the details of the market values of the caps/floors) used in the calibrate
    */
   public CapletStrippingResultLeastSquare(final LeastSquareResults results, final DiscreteVolatilityFunction func, final MultiCapFloorPricer pricer) {
-    super(check(results), func, pricer);
+    super(getFitParams(results), func, pricer);
     _results = results;
   }
 
@@ -37,7 +37,7 @@ public class CapletStrippingResultLeastSquare extends CapletStrippingResult {
     return _results.getChiSq();
   }
 
-  private static DoubleMatrix1D check(final LeastSquareResults results) {
+  private static DoubleMatrix1D getFitParams(final LeastSquareResults results) {
     ArgumentChecker.notNull(results, "results");
     return results.getFitParameters();
   }
