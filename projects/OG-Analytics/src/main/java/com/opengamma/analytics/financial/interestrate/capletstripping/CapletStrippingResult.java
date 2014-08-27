@@ -34,7 +34,7 @@ public abstract class CapletStrippingResult {
    * @param func the function that maps model parameters into caplet volatilities 
    * @param pricer The pricer (which contained the details of the market values of the caps/floors) used in the calibrate
    */
-  public CapletStrippingResult(final DoubleMatrix1D fitParms, final DiscreteVolatilityFunction func, final MultiCapFloorPricer pricer) {
+  public CapletStrippingResult(DoubleMatrix1D fitParms, DiscreteVolatilityFunction func, MultiCapFloorPricer pricer) {
     ArgumentChecker.notNull(fitParms, "fitParms");
     ArgumentChecker.notNull(func, "func");
     ArgumentChecker.notNull(pricer, "pricer");
@@ -93,7 +93,7 @@ public abstract class CapletStrippingResult {
 
   @Override
   public String toString() {
-    final StringBuilder builder = new StringBuilder();
+    StringBuilder builder = new StringBuilder();
     builder.append("Caplet Stripping Results\nchi2:\t");
     builder.append(getChiSq());
     builder.append("\nFit Parameters:");
@@ -112,11 +112,11 @@ public abstract class CapletStrippingResult {
    * into Excel) 
    * @param out an output stream 
    */
-  public void printCapletVols(final PrintStream out) {
+  public void printCapletVols(PrintStream out) {
     ArgumentChecker.notNull(out, "out");
-    final DoublesPair[] expStrikes = _pricer.getExpiryStrikeArray();
-    final DoubleMatrix1D vols = getCapletVols();
-    final int n = expStrikes.length;
+    DoublesPair[] expStrikes = _pricer.getExpiryStrikeArray();
+    DoubleMatrix1D vols = getCapletVols();
+    int n = expStrikes.length;
     out.println("List of calibrated caplet volatilities");
     out.println("Expiry\tStrike\tVolatility");
     for (int i = 0; i < n; i++) {
@@ -133,29 +133,29 @@ public abstract class CapletStrippingResult {
    * @param nExpPoints number of sample points in the expiry direction 
    * @param nStrikePoints number of sample points in the strike direction 
    */
-  public void printSurface(final PrintStream out, final int nExpPoints, final int nStrikePoints) {
+  public void printSurface(PrintStream out, int nExpPoints, int nStrikePoints) {
     ArgumentChecker.notNull(out, "out");
     ArgumentChecker.isTrue(nExpPoints > 1, "need at least 2 expiry points");
     ArgumentChecker.isTrue(nExpPoints > 2, "need at least 2 strike points");
-    final double[] t = _pricer.getCapletExpiries();
-    final double[] k = _pricer.getStrikes();
-    final double timeRange = t[t.length - 1] - t[0];
-    final double strikeRange = k[k.length - 1] - k[0];
+    double[] t = _pricer.getCapletExpiries();
+    double[] k = _pricer.getStrikes();
+    double timeRange = t[t.length - 1] - t[0];
+    double strikeRange = k[k.length - 1] - k[0];
 
-    final DoublesPair[] expStrikes = _pricer.getExpiryStrikeArray();
-    final DoubleMatrix1D vols = getCapletVols();
-    final int n = expStrikes.length;
-    final Map<DoublesPair, Double> map = new HashMap<>(n);
+    DoublesPair[] expStrikes = _pricer.getExpiryStrikeArray();
+    DoubleMatrix1D vols = getCapletVols();
+    int n = expStrikes.length;
+    Map<DoublesPair, Double> map = new HashMap<>(n);
 
     for (int i = 0; i < n; i++) {
       map.put(expStrikes[i], vols.getEntry(i));
     }
-    final CombinedInterpolatorExtrapolator interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
-    final GridInterpolator2D interpolator2D = new GridInterpolator2D(interpolator, interpolator);
-    final Map<Double, Interpolator1DDataBundle> db = interpolator2D.getDataBundle(map);
+    CombinedInterpolatorExtrapolator interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
+    GridInterpolator2D interpolator2D = new GridInterpolator2D(interpolator, interpolator);
+    Map<Double, Interpolator1DDataBundle> db = interpolator2D.getDataBundle(map);
 
-    final double[] times = new double[nExpPoints];
-    final double[] strikes = new double[nStrikePoints];
+    double[] times = new double[nExpPoints];
+    double[] strikes = new double[nStrikePoints];
     for (int i = 0; i < nStrikePoints; i++) {
       strikes[i] = k[0] + strikeRange * i / (nStrikePoints - 1.0);
     }
@@ -168,19 +168,19 @@ public abstract class CapletStrippingResult {
     for (int i = 0; i < nStrikePoints; i++) {
       out.print("\n" + strikes[i]);
       for (int j = 0; j < nExpPoints; j++) {
-        final Double vol = interpolator2D.interpolate(db, DoublesPair.of(times[j], strikes[i]));
+        Double vol = interpolator2D.interpolate(db, DoublesPair.of(times[j], strikes[i]));
         out.print("\t" + vol);
       }
     }
     out.println();
   }
 
-  private void toTabSeparated(final StringBuilder builder, final DoubleMatrix1D data) {
+  private void toTabSeparated(StringBuilder builder, DoubleMatrix1D data) {
     toTabSeparated(builder, data.getData());
   }
 
-  private void toTabSeparated(final StringBuilder builder, final double[] data) {
-    final int n = data.length;
+  private void toTabSeparated(StringBuilder builder, double[] data) {
+    int n = data.length;
     for (int i = 0; i < n; i++) {
       builder.append("\t");
       builder.append(data[i]);
