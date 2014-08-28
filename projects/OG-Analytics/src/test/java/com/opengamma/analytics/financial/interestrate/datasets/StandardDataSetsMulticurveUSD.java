@@ -309,17 +309,17 @@ public class StandardDataSetsMulticurveUSD {
     0.0009000000, 0.0009100000, 0.0009150000, 0.0010000000, 0.0012450000, 0.0018050000,
     0.0016300600, 0.0017810300, 0.0019273500, 0.0020548700, 0.0021300000,
     0.0021972300, 0.0022500000, 0.0022900000, 0.0023218600, 0.0023700000,
-    0.0023848500, 0.0024500000, 0.0024126500};
+    0.0023848500, 0.0024500000, 0.0024400000, 0.0024126500};
   /** Generators for the dsc USD curve */
   private static final int NB_ONDEPO_3 = 1;
   private static final GeneratorInstrument<? extends GeneratorAttribute>[] DSC_3_USD_GENERATORS = 
-      CurveCalibrationConventionDataSets.generatorUsdOnOisFfs(NB_ONDEPO_3, 6, 13);
+      CurveCalibrationConventionDataSets.generatorUsdOnOisFfs(NB_ONDEPO_3, 6, 14);
   /** Tenors for the dsc USD curve */
   private static final Period[] DSC_3_USD_TENOR = new Period[] {Period.ofDays(0),
     Period.ofMonths(1), Period.ofMonths(2), Period.ofMonths(3), Period.ofMonths(6), Period.ofMonths(9), Period.ofYears(1), 
     Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5), Period.ofYears(6), 
     Period.ofYears(7), Period.ofYears(8), Period.ofYears(9), Period.ofYears(10), Period.ofYears(12), 
-    Period.ofYears(15), Period.ofYears(20), Period.ofYears(30) };
+    Period.ofYears(15), Period.ofYears(20), Period.ofYears(25), Period.ofYears(30) };
   private static final GeneratorAttributeIR[] DSC_3_USD_ATTR = new GeneratorAttributeIR[DSC_3_USD_TENOR.length];
   static {
     for (int loopins = 0; loopins < NB_ONDEPO_3; loopins++) {
