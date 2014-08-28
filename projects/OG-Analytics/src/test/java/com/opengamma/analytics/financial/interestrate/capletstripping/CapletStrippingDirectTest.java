@@ -113,7 +113,7 @@ public class CapletStrippingDirectTest extends CapletStrippingSetup {
 
     CapletStrippingResult res = stripper.solve(capVols, MarketDataType.VOL, errors, guess);
     double expectedChi2 = 106.90744994488705;
-    assertEquals(expectedChi2, res.getChiSq(), expectedChi2 * 1e-13);
+    assertEquals(expectedChi2, res.getChiSq(), expectedChi2 * 1e-8);
   }
 
   @Test(groups = TestGroup.UNIT_SLOW)
@@ -287,7 +287,7 @@ public class CapletStrippingDirectTest extends CapletStrippingSetup {
 
   /**
    * Calculate the jacobian (for price and volatility) are a random set of points to establish the average time to
-   * compute. This is about 7ms and 0.3ms for vol and price Jacobian respectively
+   * compute. This is about 7ms and 0.3ms for vol and price Jacobian respectively (for 975 by 975 matrices)
    */
   @Test(groups = TestGroup.UNIT_SLOW)
   public void timingTest() {
