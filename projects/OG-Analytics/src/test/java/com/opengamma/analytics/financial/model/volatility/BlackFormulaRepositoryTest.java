@@ -263,22 +263,6 @@ public class BlackFormulaRepositoryTest {
     // Performance note: strike+derivatives: 18-Jul-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 80 ms for 100000.
   }
 
-  @Test
-  public void debugTest() {
-    SimpleOptionData[] options = new SimpleOptionData[3];
-    options[0] = new SimpleOptionData(0.00311372151156597, 0.035, 0.25, 0.24984014969067805, true);
-    options[1] = new SimpleOptionData(0.003390446347019349, 0.035, 0.5, 0.24975245913931368, true);
-    options[2] = new SimpleOptionData(0.0035037780530577933, 0.035, 0.75, 0.24965389467634747, true);
-    double price = 4.378854241284628E-17;
-    for (int i = 0; i < 20; i++) {
-      double vol = 0.3 + 0.01 * i;
-      System.out.println(vol + "\t" + BlackFormulaRepository.price(options, vol));
-
-    }
-    double iv = BlackFormulaRepository.impliedVolatility(options, price);
-    System.out.println(iv);
-  }
-
   /*
    * 
    * 
