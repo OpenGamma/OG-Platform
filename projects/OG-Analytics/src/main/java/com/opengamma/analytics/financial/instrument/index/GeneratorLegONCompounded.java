@@ -23,11 +23,12 @@ import com.opengamma.financial.convention.businessday.BusinessDayConventionFacto
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.rolldate.RollConvention;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 
 /**
  * Generator (or template) for leg paying composition of overnight rate (plus a spread).
  */
-public class GeneratorLegONCompounded extends GeneratorInstrument<GeneratorAttributeIR> {
+public class GeneratorLegONCompounded extends GeneratorLeg {
 
   /** The ON index on which the fixing is done. */
   private final IndexON _indexON;
@@ -53,6 +54,7 @@ public class GeneratorLegONCompounded extends GeneratorInstrument<GeneratorAttri
   /**
    * Constructor from all the details.
    * @param name The generator name.
+   * @param ccy The leg currency.
    * @param indexON The overnight index underlying the leg.
    * @param paymentPeriod The period between two payments.
    * @param spotOffset The offset in business days between trade and settlement date (usually 2 or 0).
@@ -64,10 +66,10 @@ public class GeneratorLegONCompounded extends GeneratorInstrument<GeneratorAttri
    * @param indexCalendar The calendar associated with the overnight index.
    * @param paymentCalendar The calendar used for the payments.
    */
-  public GeneratorLegONCompounded(String name, IndexON indexON, Period paymentPeriod, int spotOffset, int paymentOffset,
+  public GeneratorLegONCompounded(String name, Currency ccy, IndexON indexON, Period paymentPeriod, int spotOffset, int paymentOffset,
       BusinessDayConvention businessDayConvention, boolean endOfMonth, StubType stubType, boolean isExchangeNotional,
       Calendar indexCalendar, Calendar paymentCalendar) {
-    super(name);
+    super(name, ccy);
     ArgumentChecker.notNull(name, "Name");
     ArgumentChecker.notNull(indexON, "Index ON");
     ArgumentChecker.notNull(paymentPeriod, "payment period");
@@ -183,7 +185,7 @@ public class GeneratorLegONCompounded extends GeneratorInstrument<GeneratorAttri
     AdjustedDateParameters adjustedDateIndex = new AdjustedDateParameters(_indexCalendar, _businessDayConvention);
     OffsetAdjustedDateParameters offsetFixing = new OffsetAdjustedDateParameters(0, OffsetType.BUSINESS, _indexCalendar, 
         BusinessDayConventionFactory.of("Following"));
-    OffsetAdjustedDateParameters offsetPayment = new OffsetAdjustedDateParameters(2, OffsetType.BUSINESS, _paymentCalendar, 
+    OffsetAdjustedDateParameters offsetPayment = new OffsetAdjustedDateParameters(_paymentOffset, OffsetType.BUSINESS, _paymentCalendar, 
         BusinessDayConventionFactory.of("Following"));
     AnnuityDefinition<?> leg = new FloatingAnnuityDefinitionBuilder().
         payer(false).notional(notionalProvider).startDate(startDate.toLocalDate()).endDate(endDate.toLocalDate()).index(_indexON).

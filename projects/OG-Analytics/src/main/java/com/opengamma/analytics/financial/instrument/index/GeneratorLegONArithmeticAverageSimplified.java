@@ -5,30 +5,24 @@
  */
 package com.opengamma.analytics.financial.instrument.index;
 
-import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.analytics.financial.instrument.NotionalProvider;
-import com.opengamma.analytics.financial.instrument.annuity.AdjustedDateParameters;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
-import com.opengamma.analytics.financial.instrument.annuity.FloatingAnnuityDefinitionBuilder;
-import com.opengamma.analytics.financial.instrument.annuity.OffsetAdjustedDateParameters;
-import com.opengamma.analytics.financial.instrument.annuity.OffsetType;
+import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinitionBuilder;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.financial.convention.rolldate.RollConvention;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
  * Generator (or template) for leg paying arithmetic average of overnight rate (plus a spread).
- * The generated coupons have all the intermediary date.
+ * The generated coupons are simplified with only the start and end fixing dates (and not all
+ * the intermediary dates).
  */
-public class GeneratorLegONArithmeticAverage extends GeneratorLegONArithmeticAverageAbstract {
+public class GeneratorLegONArithmeticAverageSimplified extends GeneratorLegONArithmeticAverageAbstract {
 
   /**
    * Constructor from all the details.
@@ -45,7 +39,7 @@ public class GeneratorLegONArithmeticAverage extends GeneratorLegONArithmeticAve
    * @param indexCalendar The calendar associated with the overnight index.
    * @param paymentCalendar The calendar used for the payments.
    */
-  public GeneratorLegONArithmeticAverage(String name, Currency ccy, IndexON indexON, Period paymentPeriod, int spotOffset, 
+  public GeneratorLegONArithmeticAverageSimplified(String name, Currency ccy, IndexON indexON, Period paymentPeriod, int spotOffset, 
       int paymentOffset, BusinessDayConvention businessDayConvention, boolean endOfMonth, StubType stubType, 
       boolean isExchangeNotional, Calendar indexCalendar, Calendar paymentCalendar) {
     super(name, ccy, indexON, paymentPeriod, spotOffset, paymentOffset, businessDayConvention, endOfMonth, stubType, 
@@ -61,22 +55,9 @@ public class GeneratorLegONArithmeticAverage extends GeneratorLegONArithmeticAve
     ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spot, attribute.getStartPeriod(), 
         getBusinessDayConvention(), getPaymentCalendar(), isEndOfMonth());
     ZonedDateTime endDate = startDate.plus(attribute.getEndPeriod());
-    NotionalProvider notionalProvider = new NotionalProvider() {
-      @Override
-      public double getAmount(final LocalDate date) {
-        return notional;
-      }
-    };
-    AdjustedDateParameters adjustedDateIndex = new AdjustedDateParameters(getIndexCalendar(), getBusinessDayConvention());
-    OffsetAdjustedDateParameters offsetFixing = new OffsetAdjustedDateParameters(0, OffsetType.BUSINESS, 
-        getIndexCalendar(), BusinessDayConventionFactory.of("Following"));
-    AnnuityDefinition<?> leg = new FloatingAnnuityDefinitionBuilder().
-        payer(false).notional(notionalProvider).startDate(startDate.toLocalDate()).endDate(endDate.toLocalDate()).
-        index(getIndexON()).accrualPeriodFrequency(getPaymentPeriod()).rollDateAdjuster(RollConvention.NONE.getRollDateAdjuster(0)).
-        resetDateAdjustmentParameters(adjustedDateIndex).accrualPeriodParameters(adjustedDateIndex).
-        dayCount(getIndexON().getDayCount()).fixingDateAdjustmentParameters(offsetFixing).
-        currency(getIndexON().getCurrency()).spread(marketQuote).build();
-    return leg;
+    return AnnuityDefinitionBuilder.couponONArithmeticAverageSpreadSimplified(startDate, endDate, getPaymentPeriod(), 
+        notional, marketQuote, getIndexON(), false, getBusinessDayConvention(), isEndOfMonth(), getIndexCalendar(), 
+        getStubType());
   }
 
 }

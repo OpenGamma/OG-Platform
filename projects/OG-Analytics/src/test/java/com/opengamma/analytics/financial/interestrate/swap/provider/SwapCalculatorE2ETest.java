@@ -17,7 +17,7 @@ import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIborMaster;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedON;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedONMaster;
-import com.opengamma.analytics.financial.instrument.index.GeneratorSwapONAAIbor;
+import com.opengamma.analytics.financial.instrument.index.GeneratorSwapSingleCurrency;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
@@ -89,7 +89,7 @@ public class SwapCalculatorE2ETest {
   private static final GeneratorSwapFixedON USD1YFEDFUND = GENERATOR_SWAP_FIXED_ONCMP_MASTER.getGenerator("USD1YFEDFUND", NYC);
   private static final GeneratorLegIbor LEG_USDLIBOR3M =  GeneratorLegIborMaster.getInstance().getGenerator("USDLIBOR3M", NYC);
   private static final GeneratorLegIbor LEG_USDLIBOR6M =  GeneratorLegIborMaster.getInstance().getGenerator("USDLIBOR6M", NYC);
-  private static final GeneratorSwapONAAIbor USDFFAA3MLIBOR3M = new GeneratorSwapONAAIbor("USDFEDFUNDAA3MLIBOR3M",
+  private static final GeneratorSwapSingleCurrency USDFFAA3MLIBOR3M = new GeneratorSwapSingleCurrency("USDFEDFUNDAA3MLIBOR3M",
       GeneratorLegOnAaMaster.getInstance().getGenerator("USDFEDFUNDAA3M", NYC),LEG_USDLIBOR3M);
   /** Fixing data */
   private static final ZonedDateTimeDoubleTimeSeries TS_USDLIBOR3M = 

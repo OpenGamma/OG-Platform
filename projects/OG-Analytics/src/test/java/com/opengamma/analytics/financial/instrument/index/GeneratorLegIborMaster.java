@@ -14,6 +14,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.CalendarNoHoliday;
+import com.opengamma.util.money.Currency;
 
 /**
  * A list of swap generators that can be used in the tests.
@@ -52,9 +53,9 @@ public final class GeneratorLegIborMaster {
     _generatorSwap = new HashMap<>();
     IborIndex usdlibor3M = _iborIndexMaster.getIndex("USDLIBOR3M");
     IborIndex usdlibor6M = _iborIndexMaster.getIndex("USDLIBOR6M");
-    _generatorSwap.put("USDLIBOR3M", new GeneratorLegIbor("USDLIBOR3M", usdlibor3M, Period.ofMonths(3), 2, 0,
+    _generatorSwap.put("USDLIBOR3M", new GeneratorLegIbor("USDLIBOR3M", Currency.USD, usdlibor3M, Period.ofMonths(3), 2, 0,
         usdlibor3M.getBusinessDayConvention(), true, StubType.SHORT_START, false, baseCalendar, baseCalendar));
-    _generatorSwap.put("USDLIBOR6M", new GeneratorLegIbor("USDLIBOR6M", usdlibor6M, Period.ofMonths(6), 2, 0,
+    _generatorSwap.put("USDLIBOR6M", new GeneratorLegIbor("USDLIBOR6M", Currency.USD, usdlibor6M, Period.ofMonths(6), 2, 0,
         usdlibor6M.getBusinessDayConvention(), true, StubType.SHORT_START, false, baseCalendar, baseCalendar));
   }
 
@@ -63,9 +64,10 @@ public final class GeneratorLegIborMaster {
     if (generatorNoCalendar == null) {
       throw new OpenGammaRuntimeException("Could not get Ibor index for " + name);
     }
-    return new GeneratorLegIbor(generatorNoCalendar.getName(), generatorNoCalendar.getIndexIbor(), generatorNoCalendar.getPaymentPeriod(),
-        generatorNoCalendar.getSpotOffset(), generatorNoCalendar.getPaymentOffset(), generatorNoCalendar.getBusinessDayConvention(),
-        generatorNoCalendar.isEndOfMonth(), generatorNoCalendar.getStubType(), generatorNoCalendar.isExchangeNotional(), cal, cal);
+    return new GeneratorLegIbor(generatorNoCalendar.getName(), generatorNoCalendar.getCcy(), generatorNoCalendar.getIndexIbor(), 
+        generatorNoCalendar.getPaymentPeriod(), generatorNoCalendar.getSpotOffset(), generatorNoCalendar.getPaymentOffset(), 
+        generatorNoCalendar.getBusinessDayConvention(), generatorNoCalendar.isEndOfMonth(), generatorNoCalendar.getStubType(), 
+        generatorNoCalendar.isExchangeNotional(), cal, cal);
   }
 
 }

@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.provider.curve;
 
+import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorCurveYieldInterpolated;
@@ -19,14 +20,14 @@ import com.opengamma.analytics.financial.instrument.index.GeneratorFRA;
 import com.opengamma.analytics.financial.instrument.index.GeneratorInstrument;
 import com.opengamma.analytics.financial.instrument.index.GeneratorInterestRateFutures;
 import com.opengamma.analytics.financial.instrument.index.GeneratorLegIborMaster;
-import com.opengamma.analytics.financial.instrument.index.GeneratorLegOnAaMaster;
+import com.opengamma.analytics.financial.instrument.index.GeneratorLegONArithmeticAverageSimplified;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIborMaster;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedON;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedONMaster;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapIborIbor;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapIborIborMaster;
-import com.opengamma.analytics.financial.instrument.index.GeneratorSwapONAAIbor;
+import com.opengamma.analytics.financial.instrument.index.GeneratorSwapSingleCurrency;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.provider.calculator.generic.LastTimeCalculator;
@@ -36,6 +37,8 @@ import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
+import com.opengamma.financial.convention.StubType;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.rolldate.QuarterlyIMMRollDateAdjuster;
@@ -205,8 +208,14 @@ public class CurveCalibrationConventionDataSets {
   private static final IborIndex USDLIBOR3M = USD6MLIBOR3M.getIborIndex();
   private static final GeneratorDepositIbor GENERATOR_USDLIBOR3M = new GeneratorDepositIbor("GENERATOR_USDLIBOR3M", USDLIBOR3M, NYC);
   private static final GeneratorFRA GENERATOR_FRA_3M_USD = new GeneratorFRA("GENERATOR USD FRA 3M", USDLIBOR3M, NYC);
-  private static final GeneratorSwapONAAIbor GENERATOR_FFAA_USDLIBOR3M = new GeneratorSwapONAAIbor("USDFEDFUNDAA3MLIBOR3M",
-      GeneratorLegOnAaMaster.getInstance().getGenerator("USDFEDFUNDAA3M", NYC), GeneratorLegIborMaster.getInstance().getGenerator("USDLIBOR3M", NYC));
+  private static final GeneratorLegONArithmeticAverageSimplified USDFEDFUNDAA3M = 
+      new GeneratorLegONArithmeticAverageSimplified("USDFEDFUNDAA3M", USD, INDEX_FEDFUND_USD, Period.ofMonths(3), 2, 0, 
+          BusinessDayConventions.MODIFIED_FOLLOWING, true, StubType.SHORT_START, false, NYC, NYC);
+  private static final GeneratorSwapSingleCurrency GENERATOR_FFAA_USDLIBOR3M = new GeneratorSwapSingleCurrency("USDFEDFUNDAA3MLIBOR3M",
+      USDFEDFUNDAA3M, GeneratorLegIborMaster.getInstance().getGenerator("USDLIBOR3M", NYC)); 
+//  private static final GeneratorSwapSingleCurrency GENERATOR_FFAA_USDLIBOR3M = new GeneratorSwapSingleCurrency("USDFEDFUNDAA3MLIBOR3M",
+//      GeneratorLegOnAaMaster.getInstance().getGenerator("USDFEDFUNDAA3M", NYC), 
+//      GeneratorLegIborMaster.getInstance().getGenerator("USDLIBOR3M", NYC)); 
 
   @SuppressWarnings("unchecked")
   public static GeneratorInstrument<? extends GeneratorAttribute>[] generatorUsdOnOisFfs(int nbDepositON, int nbOis, int nbFF) {
