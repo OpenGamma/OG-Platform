@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -26,7 +26,8 @@ import com.opengamma.util.tuple.Pairs;
 /**
  * For an instrument, computes the sensitivity of a value (often the present value) to the parameters used in the curve.
  * The meaning of "parameters" will depend of the way the curve is stored (interpolated yield, function parameters, etc.).
- * The return format is ParameterSensitivity object.
+ * The sensitivity is computed for the underlying curves up to one level deep, not fuether.
+ * The return format is MultipleCurrencyParameterSensitivity object.
  * @param <DATA_TYPE> Data type.
  */
 public class ParameterSensitivityUnderlyingParameterCalculator<DATA_TYPE extends ParameterProviderInterface> 

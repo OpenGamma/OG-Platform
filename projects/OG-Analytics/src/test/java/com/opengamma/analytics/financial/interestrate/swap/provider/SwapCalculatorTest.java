@@ -88,28 +88,32 @@ public class SwapCalculatorTest {
   private static final Period SWAP_TENOR_2 = Period.ofYears(15); // Tenor more than 10Y to be after the last node on the discounting curve (10Y).
   private static final SwapFixedIborDefinition SWAP_FIXED_IBOR_2_DEFINITION = 
       SwapFixedIborDefinition.from(SETTLEMENT_DATE, SWAP_TENOR_2, USD6MLIBOR3M, NOTIONAL, RATE_FIXED, true);
-
-  // Swap Ibor-ibor
+  /** Basis Swap LIBOR3M v LIBOR6M */
   private static final double SPREAD3 = 0.0020;
   private static final double SPREAD6 = 0.0005;
   private static final SwapIborIborDefinition SWAP_IBORSPREAD_IBORSPREAD_DEFINITION = 
       new SwapIborIborDefinition(AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, NOTIONAL,
-      USDLIBOR3M, SPREAD3, true, NYC), AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, NOTIONAL, USDLIBOR6M, SPREAD6, false, NYC));
+      USDLIBOR3M, SPREAD3, true, NYC), AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, NOTIONAL, 
+          USDLIBOR6M, SPREAD6, false, NYC));
   private static final SwapDefinition SWAP_IBOR_IBORSPREAD_DEFINITION = 
       new SwapDefinition(AnnuityCouponIborDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, NOTIONAL, USDLIBOR3M, true, NYC),
       AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, NOTIONAL, USDLIBOR6M, SPREAD6, false, NYC));
 
   private static final ZonedDateTimeDoubleTimeSeries FIXING_TS_3 = 
-      ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2012, 5, 10),
-    DateUtils.getUTCDate(2012, 5, 14), DateUtils.getUTCDate(2012, 5, 15), DateUtils.getUTCDate(2012, 5, 16), DateUtils.getUTCDate(2012, 8, 15), DateUtils.getUTCDate(2012, 11, 15) }, new double[] {
-    0.0080, 0.0090, 0.0100, 0.0110, 0.0140, 0.0160 });
+      ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(
+          new ZonedDateTime[] {DateUtils.getUTCDate(2012, 5, 10), DateUtils.getUTCDate(2012, 5, 14), 
+            DateUtils.getUTCDate(2012, 5, 15), DateUtils.getUTCDate(2012, 5, 16), DateUtils.getUTCDate(2012, 8, 15), 
+            DateUtils.getUTCDate(2012, 11, 15) }, 
+            new double[] {0.0080, 0.0090, 0.0100, 0.0110, 0.0140, 0.0160 });
   private static final ZonedDateTimeDoubleTimeSeries FIXING_TS_6 = 
       ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2012, 5, 10),
     DateUtils.getUTCDate(2012, 5, 15), DateUtils.getUTCDate(2012, 5, 16) }, new double[] {0.0095, 0.0120, 0.0130 });
-  private static final ZonedDateTimeDoubleTimeSeries[] FIXING_TS_3_6 = new ZonedDateTimeDoubleTimeSeries[] {FIXING_TS_3, FIXING_TS_6 };
+  private static final ZonedDateTimeDoubleTimeSeries[] FIXING_TS_3_6 = 
+      new ZonedDateTimeDoubleTimeSeries[] {FIXING_TS_3, FIXING_TS_6 };
 
-  // Calculators
-  private static final ParSpreadMarketQuoteDiscountingCalculator PSMQDC = ParSpreadMarketQuoteDiscountingCalculator.getInstance();
+  /** Calculators */
+  private static final ParSpreadMarketQuoteDiscountingCalculator PSMQDC = 
+      ParSpreadMarketQuoteDiscountingCalculator.getInstance();
   private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
   private static final ParRateDiscountingCalculator PRDC = ParRateDiscountingCalculator.getInstance();
   private static final TodayPaymentCalculator TPC = TodayPaymentCalculator.getInstance();
@@ -137,7 +141,8 @@ public class SwapCalculatorTest {
   @Test
   /** 
    * Test the market quote sensitivity in the case of curve calibrated as a spread on an existing curve.
-   * The parameter sensitivity calculator is the ParameterSensitivityUnderlyingParameterCalculator which take into account the underlying curves.
+   * The parameter sensitivity calculator is the ParameterSensitivityUnderlyingParameterCalculator which takes into 
+   * account the underlying curves up to one level deep.
    * The test is done versus a finite difference computation with full curve re-calibration.
    */
   public void marketQuoteSensitivitySpreadCurve() {
@@ -182,6 +187,7 @@ public class SwapCalculatorTest {
   }
 
   @Test
+  /** Tests the cross-gamma calculator vs bump and recompute. */
   public void crossGamma() {
     MulticurveProviderDiscount singleCurve = MulticurveProviderDiscountDataSets.createSingleCurveUsd();
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 5, 14);
@@ -226,8 +232,8 @@ public class SwapCalculatorTest {
       for (int j = 0; j < nbNode; j++) {
         if (Math.abs(gammaExpected[i][j]) > 1 || Math.abs(gammaComputed[i][j]) > 1) { // Check only the meaningful numbers
           assertTrue("CrossGammaSingleCurveCalculator - " + i + " - " + j + " / " + gammaExpected[i][j] + " - " + gammaComputed[i][j],
-              (Math.abs(gammaExpected[i][j] / gammaComputed[i][j] - 1) < TOLERANCE_PV_GAMMA_RELATIF) || // If relative difference is small enough
-                  (Math.abs(gammaExpected[i][j] - gammaComputed[i][j]) < TOLERANCE_PV_GAMMA)); // If absolute difference is small enough
+              (Math.abs(gammaExpected[i][j] / gammaComputed[i][j] - 1) < TOLERANCE_PV_GAMMA_RELATIF) || // Relative diff small
+                  (Math.abs(gammaExpected[i][j] - gammaComputed[i][j]) < TOLERANCE_PV_GAMMA)); // Absolute diff small
         }
       }
     }
@@ -296,9 +302,7 @@ public class SwapCalculatorTest {
   }
 
   @Test
-  /**
-   * Test for a swap with first leg without spread and par spread computed on that leg.
-   */
+  /** Test for a swap with first leg without spread and par spread computed on that leg. */
   public void parSpreadIborIborBeforeFirstFixing() {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 5, 14);
     final Swap<? extends Payment, ? extends Payment> swap = 
@@ -455,6 +459,40 @@ public class SwapCalculatorTest {
 
   }
 
+  /** Create a very simplified example of swap and curve to produce a detailed workout of AD for curve sensitivity. */
+  private static final Interpolator1D LINEAR_FLAT = 
+      CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, 
+          Interpolator1DFactory.FLAT_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+  private static final double[] CURVE_TIME = new double[] {0.25, 0.50, 1.00, 2.00 };
+  private static final double[] CURVE_RATE = new double[] {0.01, 0.0125, 0.0150, 0.0175 };
+  private static final String CURVE_NAME = "USD All";
+  private static final YieldAndDiscountCurve CURVE_SIMPLE = 
+      new YieldCurve(CURVE_NAME, new InterpolatedDoublesCurve(CURVE_TIME, CURVE_RATE, LINEAR_FLAT, true, CURVE_NAME));
+  private static final MulticurveProviderDiscount MULTICURVE_SIMPLIFIED = new MulticurveProviderDiscount();
+  static {
+    MULTICURVE_SIMPLIFIED.setCurve(Currency.USD, CURVE_SIMPLE);
+    MULTICURVE_SIMPLIFIED.setCurve(USDLIBOR3M, CURVE_SIMPLE);
+  }
+  private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2014, 6, 13);
+  private static final ZonedDateTime SPOT_DATE = 
+      ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, USDLIBOR3M.getSpotLag(), NYC);
+  private static final Period SWAP_SIMPLE_START = Period.ofMonths(6);
+  private static final Period SWAP_SIMPLE_TENOR = Period.ofYears(1);
+  private static final ZonedDateTime SETTLEMENT_DATE_SIMPLE = 
+      ScheduleCalculator.getAdjustedDate(SPOT_DATE, SWAP_SIMPLE_START, USDLIBOR3M, NYC);
+  private static final double NOTIONAL_SIMPLE = 100000000; //100m
+  private static final double RATE_FIXED_SIMPLE = 0.0200;
+  private static final SwapFixedIborDefinition SWAP_SIMPLE_DEFINITION = 
+      SwapFixedIborDefinition.from(SETTLEMENT_DATE_SIMPLE, SWAP_SIMPLE_TENOR, USD6MLIBOR3M, NOTIONAL_SIMPLE, RATE_FIXED_SIMPLE, true);
+  private static final SwapFixedCoupon<Coupon> SWAP_SIMPLE = SWAP_SIMPLE_DEFINITION.toDerivative(REFERENCE_DATE);
+
+  @SuppressWarnings("unused")
+  @Test(enabled = false)
+  public void workoutADExample() {
+    MultipleCurrencyMulticurveSensitivity pvcs = SWAP_SIMPLE.accept(PVCSDC, MULTICURVE_SIMPLIFIED);
+    MultipleCurrencyParameterSensitivity ps = PSPVC.calculateSensitivity(SWAP_SIMPLE, MULTICURVE_SIMPLIFIED);
+  }
+  
   //  @Test
   //  public void thetaFixedIborBeforeFirstFixing() {
   //    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 5, 11);
@@ -497,39 +535,5 @@ public class SwapCalculatorTest {
   //    assertEquals("ThetaCalculator: fixed-coupon swap", pvTomorrow - (pvToday - todayCash), theta.getAmount(USDLIBOR3M.getCurrency()), TOLERANCE_PV);
   //    assertEquals("ThetaCalculator: fixed-coupon swap", 1, theta.getCurrencyAmounts().length);
   //  }
-
-  // Create a very simplified example of swap and curve to produce a detailed workout of AD for curve sensitivity
-  private static final Interpolator1D LINEAR_FLAT = 
-      CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, 
-          Interpolator1DFactory.FLAT_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
-  private static final double[] CURVE_TIME = new double[] {0.25, 0.50, 1.00, 2.00 };
-  private static final double[] CURVE_RATE = new double[] {0.01, 0.0125, 0.0150, 0.0175 };
-  private static final String CURVE_NAME = "USD All";
-  private static final YieldAndDiscountCurve CURVE_SIMPLE = 
-      new YieldCurve(CURVE_NAME, new InterpolatedDoublesCurve(CURVE_TIME, CURVE_RATE, LINEAR_FLAT, true, CURVE_NAME));
-  private static final MulticurveProviderDiscount MULTICURVE_SIMPLIFIED = new MulticurveProviderDiscount();
-  static {
-    MULTICURVE_SIMPLIFIED.setCurve(Currency.USD, CURVE_SIMPLE);
-    MULTICURVE_SIMPLIFIED.setCurve(USDLIBOR3M, CURVE_SIMPLE);
-  }
-  private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2014, 6, 13);
-  private static final ZonedDateTime SPOT_DATE = 
-      ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, USDLIBOR3M.getSpotLag(), NYC);
-  private static final Period SWAP_SIMPLE_START = Period.ofMonths(6);
-  private static final Period SWAP_SIMPLE_TENOR = Period.ofYears(1);
-  private static final ZonedDateTime SETTLEMENT_DATE_SIMPLE = 
-      ScheduleCalculator.getAdjustedDate(SPOT_DATE, SWAP_SIMPLE_START, USDLIBOR3M, NYC);
-  private static final double NOTIONAL_SIMPLE = 100000000; //100m
-  private static final double RATE_FIXED_SIMPLE = 0.0200;
-  private static final SwapFixedIborDefinition SWAP_SIMPLE_DEFINITION = 
-      SwapFixedIborDefinition.from(SETTLEMENT_DATE_SIMPLE, SWAP_SIMPLE_TENOR, USD6MLIBOR3M, NOTIONAL_SIMPLE, RATE_FIXED_SIMPLE, true);
-  private static final SwapFixedCoupon<Coupon> SWAP_SIMPLE = SWAP_SIMPLE_DEFINITION.toDerivative(REFERENCE_DATE);
-
-  @SuppressWarnings("unused")
-  @Test(enabled = false)
-  public void workoutADExample() {
-    MultipleCurrencyMulticurveSensitivity pvcs = SWAP_SIMPLE.accept(PVCSDC, MULTICURVE_SIMPLIFIED);
-    MultipleCurrencyParameterSensitivity ps = PSPVC.calculateSensitivity(SWAP_SIMPLE, MULTICURVE_SIMPLIFIED);
-  }
 
 }
