@@ -334,13 +334,10 @@ public class NonVersionedRedisConfigSource implements ConfigSource {
         // try fallback lookup to see if known by another compatible class
         Class<? super R> superClazz = clazz.getSuperclass();
         boolean recordFound = false;
-        if (superClazz != null) {
-          recordFound = jedis.sismember(getClassKeyName(superClazz), configName); 
-          while (superClazz != null && !recordFound) {
+        while (superClazz != null && !recordFound) {
+          recordFound = jedis.sismember(getClassKeyName(superClazz), configName);
+          if (!recordFound) {
             superClazz = superClazz.getSuperclass();
-            if (superClazz != null) {
-              recordFound = jedis.sismember(getClassKeyName(superClazz), configName);
-            }
           }
         }          
         if (recordFound) {
