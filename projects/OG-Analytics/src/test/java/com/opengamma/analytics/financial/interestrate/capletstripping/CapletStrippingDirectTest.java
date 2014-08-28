@@ -66,12 +66,12 @@ public class CapletStrippingDirectTest extends CapletStrippingSetup {
       CapletStrippingResult res = stripper.solve(capVols, MarketDataType.VOL, errors, guess);
       singleStrikeResults[i] = res;
       guess = res.getFitParameters();
-      assertEquals(expectedChi2[i], res.getChiSq(), 1e-14);
+      assertEquals(expectedChi2[i], res.getChiSq(), 1e-8);
     }
   }
 
   /**
-   * R White - This takes about 53s on my machine
+   * R White - This takes about 9s on my machine (2.66GHz Quad-Core Intel Xeon)
    * It takes 32 iterations of {@link NonLinearLeastSquareWithPenalty} to converge
    */
   @Test(groups = TestGroup.UNIT_SLOW)
@@ -92,14 +92,15 @@ public class CapletStrippingDirectTest extends CapletStrippingSetup {
 
     CapletStrippingResult res = stripper.solve(capPrices, MarketDataType.PRICE, capVega, guess);
     double expectedChi2 = 106.9017523660732;
-    assertEquals(expectedChi2, res.getChiSq(), expectedChi2 * 1e-13);
+    assertEquals(expectedChi2, res.getChiSq(), expectedChi2 * 1e-8);
   }
 
   /**
-   * R White - this takes about 20s on my machine
+   * R White - this takes about 4s on my machine (2.66GHz Quad-Core Intel Xeon)
    * it takes 11 iterations of {@link NonLinearLeastSquareWithPenalty} to converge
    */
-  @Test(groups = TestGroup.UNIT_SLOW)
+  @Test
+  // (groups = TestGroup.UNIT_SLOW)
   public void volTest() {
     double lambda = 0.03; // this is chosen to give a chi2/DoF of around 1
     MultiCapFloorPricerGrid pricer = new MultiCapFloorPricerGrid(getAllCapsExATM(), getYieldCurves());
@@ -116,7 +117,8 @@ public class CapletStrippingDirectTest extends CapletStrippingSetup {
     assertEquals(expectedChi2, res.getChiSq(), expectedChi2 * 1e-8);
   }
 
-  @Test(groups = TestGroup.UNIT_SLOW)
+  @Test
+  // (groups = TestGroup.UNIT_SLOW)
   public void atmCapsVolTest() {
     double lambda = 0.7; // this is chosen to give a chi2/DoF of around 1
     MultiCapFloorPricerGrid pricer = new MultiCapFloorPricerGrid(getATMCaps(), getYieldCurves());
@@ -130,9 +132,13 @@ public class CapletStrippingDirectTest extends CapletStrippingSetup {
 
     CapletStrippingResult res = stripper.solve(capVols, MarketDataType.VOL, errors, guess);
     // System.out.println(res);
-    assertEquals(5.7604902403614915, res.getChiSq(), 1e-13);
+    assertEquals(5.7604902403614915, res.getChiSq(), 1e-8);
   }
 
+  /**
+   * R White - This takes about 6s on my machine (2.66GHz Quad-Core Intel Xeon)
+   * It takes 8 iterations of {@link NonLinearLeastSquareWithPenalty} to converge
+   */
   @Test(groups = TestGroup.UNIT_SLOW)
   public void allCapsVolTest() {
     double lambdaT = 0.01; // this is chosen to give a chi2/DoF of around 1
@@ -156,8 +162,8 @@ public class CapletStrippingDirectTest extends CapletStrippingSetup {
     DoubleMatrix1D guess = new DoubleMatrix1D(pricer.getGridSize(), 0.7);
 
     CapletStrippingResult res = stripper.solve(capVols, MarketDataType.VOL, errors, guess);
-    double expChiSq = 131.50829082252767;
-    assertEquals(expChiSq, res.getChiSq(), expChiSq * 1e-13);
+    double expChiSq = 131.50826639955596;
+    assertEquals(expChiSq, res.getChiSq(), expChiSq * 1e-8);
 
   }
 
@@ -209,7 +215,7 @@ public class CapletStrippingDirectTest extends CapletStrippingSetup {
     // System.out.println(guess);
     CapletStrippingResult res = stripper.solve(capVols, MarketDataType.VOL, errors, guess);
     double expChi2 = 106.90677987330128;
-    assertEquals(expChi2, res.getChiSq(), expChi2 * 1e-13);
+    assertEquals(expChi2, res.getChiSq(), expChi2 * 1e-8);
   }
 
   /**
