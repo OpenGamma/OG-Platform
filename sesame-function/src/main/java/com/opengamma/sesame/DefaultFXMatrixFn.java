@@ -7,6 +7,7 @@ package com.opengamma.sesame;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -27,10 +28,14 @@ import com.opengamma.financial.analytics.curve.CurveTypeConfiguration;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.sesame.component.CurrencyPairSet;
 import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
+import com.opengamma.util.result.ResultStatus;
+import com.opengamma.util.result.SuccessStatus;
 
 /**
  * Function implementation that provides a FX matrix.
@@ -120,22 +125,30 @@ public class DefaultFXMatrixFn implements FXMatrixFn {
   public Result<FXMatrix> getFXMatrix(Environment env, CurveConstructionConfiguration configuration) {
     // todo - should this actually be another function or set of functions
     final Set<Currency> currencies = extractCurrencies(configuration, new CurveNodeCurrencyVisitor(_conventionSource, _securitySource));
-    return buildResult(env, currencies);
+    return buildResult(env, currencies, true);
   }
 
   @Override
   public Result<FXMatrix> getFXMatrix(Environment env, Set<Currency> currencies) {
-    return buildResult(env, currencies);
+    return buildResult(env, currencies, true);
   }
 
-  private Result<FXMatrix> buildResult(Environment env, Set<Currency> currencies) {
-    // todo - if we don't have all the data, do we return a partial/empty fx matrix or an error, doing the latter
+  @Override
+  public Result<Map<Currency, FXMatrix>> getAvailableFxRates(Environment env, CurrencyPairSet currencyPairs) {
+    final Map<Currency, FXMatrix> fxMatrices = new HashMap<Currency, FXMatrix>();
+    for (CurrencyPair currencyPair : currencyPairs.getCurrencyPairs()) {
+      if (!fxMatrices.containsKey(currencyPair.getBase())) {
+        fxMatrices.put(currencyPair.getBase(), new FXMatrix(currencyPair.getBase()));
+      }
+      addFxRate(env, currencyPair, fxMatrices.get(currencyPair.getBase()));
+    }
+    return Result.success(fxMatrices);
+  }
 
+  private Result<FXMatrix> buildResult(Environment env, Set<Currency> currencies, boolean failOnMissingConversion) {
     final FXMatrix matrix = new FXMatrix();
-
     Currency refCurr = null;
 
-    // TODO don't bail out early, collect all results using combineWith
     for (Currency currency : currencies) {
       // Use the first currency in the set as the reference currency in the matrix
       if (refCurr == null) {
@@ -144,16 +157,31 @@ public class DefaultFXMatrixFn implements FXMatrixFn {
         //note - currency matrix will ensure the spotRate returned is interpreted correctly,
         //depending on the order base and counter are specified in.
         CurrencyPair currencyPair = CurrencyPair.of(refCurr, currency);
-        Result<Double> marketDataResult = _marketDataFn.getFxRate(env, currencyPair);
-
-        if (!marketDataResult.isSuccess()) {
-          return Result.failure(marketDataResult);
-        } else {
-          matrix.addCurrency(currency, refCurr, marketDataResult.getValue());
+        
+        ResultStatus resultStatus = addFxRate(env, currencyPair, matrix);
+        if (resultStatus != SuccessStatus.SUCCESS && failOnMissingConversion) {
+          return Result.failure((FailureStatus) resultStatus, 
+              new OpenGammaRuntimeException("Missing fx rate for " + currencyPair.toString()));
         }
       }
     }
-    return Result.success(matrix);
+    
+    if (currencies.size() >= 2 && matrix.getCurrencies().isEmpty()) {
+      return Result.failure(FailureStatus.MISSING_DATA, new OpenGammaRuntimeException("Could not find any fx rates"));
+    } else {  
+      return Result.success(matrix);
+    }
+  }
+
+  private ResultStatus addFxRate(Environment env, CurrencyPair currencyPair, FXMatrix outputMatrix) {
+    Result<Double> marketDataResult = _marketDataFn.getFxRate(env, currencyPair);
+
+    if (marketDataResult.isSuccess()) {
+      outputMatrix.addCurrency(currencyPair.getCounter(), currencyPair.getBase(), marketDataResult.getValue());
+      return SuccessStatus.SUCCESS;
+    } else {
+      return FailureStatus.MISSING_DATA;
+    }
   }
 
 }

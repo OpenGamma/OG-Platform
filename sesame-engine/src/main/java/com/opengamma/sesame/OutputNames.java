@@ -136,6 +136,16 @@ public final class OutputNames {
    */
   public static final String RECEIVE_LEG_CASH_FLOWS = "Receive Leg Cash Flow Details";
   /**
+   *  The FX matrix 
+   */
+  public static final String FX_MATRIX = "FX Matrix";
+  /**
+   *  The FX matrix 
+   */
+  public static final String AVAILABLE_FX_RATES = "Available FX Rates";
+
+
+  /**
    * Restricted constructor.
    */
   private OutputNames() {
