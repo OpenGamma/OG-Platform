@@ -1031,7 +1031,7 @@ public abstract class BlackFormulaRepository {
       }
     }
 
-    return sigma;
+    return sigma + actChange; // apply final change
   }
 
   /**

@@ -285,10 +285,14 @@ public class CapletStrippingDirectTest extends CapletStrippingSetup {
     }
   }
 
-  @Test
+  /**
+   * Calculate the jacobian (for price and volatility) are a random set of points to establish the average time to
+   * compute. This is about 7ms and 0.3ms for vol and price Jacobian respectively
+   */
+  @Test(groups = TestGroup.UNIT_SLOW)
   public void timingTest() {
-    MultiCapFloorPricerGrid pricer = new MultiCapFloorPricerGrid(getAllCapsExATM(), getYieldCurves());
-    int size = pricer.getNumCaplets();
+    MultiCapFloorPricerGrid pricer = new MultiCapFloorPricerGrid(getAllCaps(), getYieldCurves());
+    int size = pricer.getGridSize();
     DiscreteVolatilityFunctionProvider volPro = new DiscreteVolatilityFunctionProviderDirect();
     CapletStrippingImp imp = new CapletStrippingImp(pricer, volPro);
 
