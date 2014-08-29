@@ -20,6 +20,6 @@ From within your project directory run::
 
     mvn package
 
-The resulting jar file can then be placed in *{OG install location}/lib/*, which will be available on the classpath of the fullstack server after a restart.
+The resulting jar file is generated in the *target* folder of the project, it can then be placed in *{OG install location}/lib/*, which will be available on the classpath of the fullstack server after a restart.
 
 This can be tested by firing up the local fullstack server rather than through the IDE and running any remote views that call into the custom code.
