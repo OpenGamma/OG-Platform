@@ -1,0 +1,24 @@
+======================================
+Running the example remote view client
+======================================
+
+Once you have set up the OpenGamma marketdata and fullstack servers, and added the configuration and supporting snapshot and time-series data, you are ready to run the example remote view client
+
+The **ExampleRemoteClientTool** is an example of a client application that can be run against a remote server. This tool is set up to output Present Value and Bucketed PV01 into the console for a number of example interest rate swaps defined in **RemoteViewUtils**
+
+You can run the in your IDE **ExampleRemoteClientTool** with the following example arguments:
+
++ -c http://localhost:8080 
++ -l com/opengamma/util/warn-logback.xml 
++ -d 20140122 
++ -ef "USD CSA Exposure Functions"
++ -s DbSnp~1000
++ -ld Bloomberg
+
+The **-d** date option accepts the format *YYYYMMDD*
+
+The **-ef** option refers to the name of the exposure function from your uploaded configuration. Visit http://devsvr-lx-3:8080/jax/configs?type=ExposureFunctions&name= for a full list of exposure functions.
+
+The **-s** and **-ld** options refers to the market data source. -s is the ID of an existing snapshot. -ld is the name of the live data provider. These arguments are optional and default to Bloomberg live data if no snapshot or live data is specified. Snapshots can be seen here http://localhost:8080/jax/snapshots
+
+Alternatively, run the **single-config-import-tool** from *{OG install location}/platform/scripts* with the same arguments.
