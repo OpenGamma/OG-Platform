@@ -23,7 +23,7 @@ public final class ConfigProperty {
    */
   private final String _key;
   /**
-   * The resolved property value. Null indicates no property has been defined.
+   * The resolved property value.
    */
   private final String _value;
   /**
@@ -44,19 +44,6 @@ public final class ConfigProperty {
     ArgumentChecker.notNull(key, "key");
     ArgumentChecker.notNull(value, "value");
     return new ConfigProperty(key, value, hidden);
-  }
-
-  /**
-   * Obtains a property object consisting of a key, missing optional value
-   * and whether it is hidden.
-   *
-   * @param key  the key, not null
-   * @param hidden  whether the value is hidden
-   * @return the property, not null
-   */
-  public static ConfigProperty optional(String key, boolean hidden) {
-    ArgumentChecker.notNull(key, "key");
-    return new ConfigProperty(key, null, hidden);
   }
 
   //-------------------------------------------------------------------------
@@ -84,12 +71,9 @@ public final class ConfigProperty {
   }
 
   /**
-   * Gets the value. If no value has been defined (i.e. an optional
-   * property value) and this method is called, an exception will be
-   * thrown. Call {@link #isDefined()} first to avoid this.
+   * Gets the value.
    * 
    * @return the value, not null
-   * @throws IllegalStateException if called when no property value is defined
    */
   public String getValue() {
     return _value;
@@ -102,15 +86,6 @@ public final class ConfigProperty {
    */
   public boolean isHidden() {
     return _hidden;
-  }
-
-  /**
-   * Indicates whether a property value has been defined for this property.
-   *
-   * @return whether a property value has been defined for this property
-   */
-  public boolean isDefined() {
-    return _value != null;
   }
 
   /**
@@ -129,7 +104,7 @@ public final class ConfigProperty {
    * @return the loggable value, not null
    */
   public String loggableValue() {
-    return (isHidden() ? ConfigProperties.HIDDEN : (isDefined() ? getValue() : ConfigProperties.OPTIONAL));
+    return (isHidden() ? ConfigProperties.HIDDEN : getValue());
   }
 
   //-------------------------------------------------------------------------
@@ -141,8 +116,7 @@ public final class ConfigProperty {
     if (obj instanceof ConfigProperty) {
       ConfigProperty other = (ConfigProperty) obj;
       return getKey().equals(other.getKey()) &&
-          // Allow for null value
-          Objects.equals(getValue(), other.getValue()) &&
+          getValue().equals(other.getValue()) &&
           isHidden() == other.isHidden();
     }
     return false;
@@ -157,4 +131,5 @@ public final class ConfigProperty {
   public String toString() {
     return _key + "=" + loggableValue();
   }
+
 }

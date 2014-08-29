@@ -116,16 +116,17 @@ public class ComponentConfigIniLoader extends AbstractComponentConfigLoader {
         
         // resolve ${} references
         ConfigProperty resolved = getProperties().resolveProperty(key, value, lineNum);
-        
-        // handle includes
-        if (key.equals(ComponentManager.MANAGER_INCLUDE)) {
-          handleInclude(resource, resolved.getValue(), depth, config);
-        } else {
-          // store property
-          config.getGroup(group).add(resolved);
-          // global section treated as setup of properties (which do not override)
-          if (group.equals("global")) {
-            getProperties().addIfAbsent(resolved);
+        if (resolved != null) {
+          // handle includes
+          if (key.equals(ComponentManager.MANAGER_INCLUDE)) {
+            handleInclude(resource, resolved.getValue(), depth, config);
+          } else {
+            // store property
+            config.getGroup(group).add(resolved);
+            // global section treated as setup of properties (which do not override)
+            if (group.equals("global")) {
+              getProperties().addIfAbsent(resolved);
+            }
           }
         }
       }
