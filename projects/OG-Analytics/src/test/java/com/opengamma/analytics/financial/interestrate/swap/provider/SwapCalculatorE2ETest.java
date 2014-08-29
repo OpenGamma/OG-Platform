@@ -233,7 +233,7 @@ public class SwapCalculatorE2ETest {
     assertEquals("IRS Fixed v LIBOR3M: present value - OIS based curves", 
         pvExpected.getAmount(USD), pvComputed.getAmount(USD), TOLERANCE_PV);
     final MultipleCurrencyAmount pvComputed2 = SWAP_FIXED_3M.accept(PVDC, MULTICURVE_FFS);
-    final MultipleCurrencyAmount pvExpected2 = MultipleCurrencyAmount.of(Currency.USD, 5955009.22874869);
+    final MultipleCurrencyAmount pvExpected2 = MultipleCurrencyAmount.of(Currency.USD, 6065111.8810);
     assertEquals("IRS Fixed v LIBOR3M: present value - Fed Fund swap based curve", 
         pvExpected2.getAmount(USD), pvComputed2.getAmount(USD), TOLERANCE_PV);
   }
@@ -253,7 +253,7 @@ public class SwapCalculatorE2ETest {
     final double parRateExpected = 0.025894715668195054;
     assertEquals("IRS Fixed v LIBOR3M: par rate", parRateExpected, parRate, TOLERANCE_RATE);
     final double parRate2 = SWAP_FIXED_3M.accept(PRDC, MULTICURVE_FFS);
-    final double parRateExpected2 = 0.02409130854113013;
+    final double parRateExpected2 = 0.024262727477023297;
     assertEquals("IRS Fixed v LIBOR3M: par rate", parRateExpected2, parRate2, TOLERANCE_RATE);
   }
 
@@ -278,14 +278,15 @@ public class SwapCalculatorE2ETest {
     AssertSensitivityObjects.assertEquals("IRS Fixed v LIBOR3M: bucketed deltas", 
         pvpsExpected, pvpsComputed, TOLERANCE_PV_DELTA);
     final double[] deltaDsc2 = 
-      {-3.22806, -0.09800, 0.00155, 0.97739, -49.21086, 
-      -0.51236, -70.71941, 132.99650, 194.14790, 257.42643, 
-      321.31318, 390.02558, 767.15843, 148.47870, -147.34084, 
-      -70.41661, 0.00000, 0.00000, 0.00000, 0.00000 };
+      {-3.24106, -0.17486, 0.08672, 0.76798, -49.17171, 
+      2.42819, -70.15064, 140.71112, 183.35751, 319.67396, 
+      360.95413, 157.18368, 844.78287, 226.54263, -234.85103, 
+      57.18048, 28.57051, -9.64710, 2.37465, -0.76109, 
+      0.14930 };
     final double[] deltaFwd32 = 
-      {-3136.94688, -3202.32258, -168.29691, -203.28712, -265.68773, 
-      -497.19938, 55493.21357, 15477.36900, 0.00000, 
-      0.00000, 0.00000, 0.00000, 0.00000 };
+      {-2545.40838, -4467.09828, 1217.58588, -3009.98103, 9615.49437, 
+      -20168.36507, 70744.04947, 17070.26570, -5800.63056, 848.03566, 
+      -129.99027, 34.28334, -5.96436 };
     final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> sensitivity2 = new LinkedHashMap<>();
     sensitivity2.put(ObjectsPair.of(MULTICURVE_OIS.getName(USD), USD), new DoubleMatrix1D(deltaDsc2));
     sensitivity2.put(ObjectsPair.of(MULTICURVE_OIS.getName(USDLIBOR3M), USD), new DoubleMatrix1D(deltaFwd32));
