@@ -29,7 +29,7 @@ public class ComponentManagerTest {
     assertEquals("testserver", mgr.getServerName());
     assertEquals(3, mgr.getConfigIni().getGroups().size());
     assertEquals(1, mgr.getConfigIni().getGroup("global").size());
-    assertEquals(4, mgr.getConfigIni().getGroup("one").size());
+    assertEquals(3, mgr.getConfigIni().getGroup("one").size());
     assertEquals(5, mgr.getConfigIni().getGroup("two").size());
     assertEquals("one", mgr.getConfigIni().getGroup("one").getValue("alpha"));
   }
@@ -42,7 +42,7 @@ public class ComponentManagerTest {
     assertEquals("testserver", mgr.getServerName());
     assertEquals(3, mgr.getConfigIni().getGroups().size());
     assertEquals(1, mgr.getConfigIni().getGroup("global").size());
-    assertEquals(4, mgr.getConfigIni().getGroup("one").size());
+    assertEquals(3, mgr.getConfigIni().getGroup("one").size());
     assertEquals(5, mgr.getConfigIni().getGroup("two").size());
     assertEquals("two", mgr.getConfigIni().getGroup("one").getValue("alpha"));
     assertNull("two", mgr.getConfigIni().getGroup("one").getValue("gamma"));
