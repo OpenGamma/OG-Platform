@@ -7,6 +7,9 @@ package com.opengamma.master.convention.impl;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -20,6 +23,9 @@ import com.opengamma.master.convention.ConventionDocument;
 import com.opengamma.master.convention.ConventionSearchRequest;
 import com.opengamma.master.convention.ConventionSearchResult;
 import com.opengamma.master.convention.ManageableConvention;
+import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.master.security.SecurityDocument;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
 
@@ -146,6 +152,19 @@ public class InMemoryConventionMasterTest {
     ConventionSearchResult result = master.search(request);
     assertEquals(1, result.getDocuments().size());
     assertEquals(addedDoc, result.getFirstDocument());
+  }
+
+  public void test_replace_adds_uniqueid() {
+    ConventionSearchRequest request = new ConventionSearchRequest();
+    request.setName(NAME);
+    ConventionSearchResult result = master.search(request);
+    assertEquals(1, result.getDocuments().size());
+    ConventionDocument retrievedDoc = result.getFirstDocument();
+    UniqueId uniqueId = retrievedDoc.getUniqueId();
+    retrievedDoc.getValue().setUniqueId(null);
+    ConventionDocument updatedDoc = master.update(retrievedDoc);
+    assertEquals(uniqueId.toLatest(), updatedDoc.getUniqueId().toLatest());
+    assertEquals(uniqueId.toLatest(), updatedDoc.getConvention().getUniqueId().toLatest());
   }
 
 }

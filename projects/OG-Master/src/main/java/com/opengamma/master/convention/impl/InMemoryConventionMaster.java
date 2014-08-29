@@ -185,6 +185,7 @@ public class InMemoryConventionMaster
     document.setCorrectionFromInstant(now);
     document.setCorrectionToInstant(null);
     document.setUniqueId(uniqueId.withVersion(""));
+    document.getValue().setUniqueId(uniqueId.withVersion(""));
     if (_store.replace(uniqueId.getObjectId(), storedDocument, document) == false) {
       throw new IllegalArgumentException("Concurrent modification");
     }
