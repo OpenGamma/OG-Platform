@@ -420,9 +420,9 @@ public class StandardDataSetsMulticurveUSD {
   public static Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> getCurvesUSDOisSpreadL3(
       double[] dscMarketQuotes, double[] fwd3MarketQuotes) {
     InstrumentDefinition<?>[] dscDefinition = getDefinitions(dscMarketQuotes, DSC_1_USD_GENERATORS, DSC_1_USD_ATTR, 
-        REFERENCE_DATE[0]);
+        REFERENCE_DATE[2]);
     InstrumentDefinition<?>[] fwd3Definition = getDefinitions(fwd3MarketQuotes, FWD3_1_USD_GENERATORS, FWD3_1_USD_ATTR, 
-        REFERENCE_DATE[0]);
+        REFERENCE_DATE[2]);
     InstrumentDefinition<?>[][][] unitDefinition = new InstrumentDefinition<?>[][][] {{fwd3Definition, dscDefinition } };
     return makeCurvesFromDefinitions(unitDefinition, REFERENCE_DATE[0], GENERATORS_UNITS[2], NAMES_UNITS[2], KNOWN_DATA,
         PSMQC, PSMQCSC, false);
