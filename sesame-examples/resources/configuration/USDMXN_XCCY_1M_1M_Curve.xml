@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bean type="com.opengamma.financial.analytics.curve.InterpolatedCurveDefinition"> 
+ <name>USDMXN XCCY 1M 1M Curve</name>
+ <nodes>
+  <item type="com.opengamma.financial.analytics.ircurve.strips.FXForwardNode">
+   <curveNodeIdMapperName>USDMXN Forward Bloomberg Mapper</curveNodeIdMapperName>
+   <startTenor>P0D</startTenor>
+   <maturityTenor>P7D</maturityTenor>
+   <fxForwardConvention>CONVENTION~USDMXN Forward Convention</fxForwardConvention>
+   <payCurrency>MXN</payCurrency>
+   <receiveCurrency>USD</receiveCurrency>
+  </item>
+  <item type="FXForwardNode">
+   <curveNodeIdMapperName>USDMXN Forward Bloomberg Mapper</curveNodeIdMapperName>
+   <startTenor>P0D</startTenor>
+   <maturityTenor>P1M</maturityTenor>
+   <fxForwardConvention>CONVENTION~USDMXN Forward Convention</fxForwardConvention>
+   <payCurrency>MXN</payCurrency>
+   <receiveCurrency>USD</receiveCurrency>
+  </item>
+  <item type="FXForwardNode">
+   <curveNodeIdMapperName>USDMXN Forward Bloomberg Mapper</curveNodeIdMapperName>
+   <startTenor>P0D</startTenor>
+   <maturityTenor>P2M</maturityTenor>
+   <fxForwardConvention>CONVENTION~USDMXN Forward Convention</fxForwardConvention>
+   <payCurrency>MXN</payCurrency>
+   <receiveCurrency>USD</receiveCurrency>
+  </item>
+  <item type="FXForwardNode">
+   <curveNodeIdMapperName>USDMXN Forward Bloomberg Mapper</curveNodeIdMapperName>
+   <startTenor>P0D</startTenor>
+   <maturityTenor>P3M</maturityTenor>
+   <fxForwardConvention>CONVENTION~USDMXN Forward Convention</fxForwardConvention>
+   <payCurrency>MXN</payCurrency>
+   <receiveCurrency>USD</receiveCurrency>
+  </item>
+  <item type="FXForwardNode">
+   <curveNodeIdMapperName>USDMXN Forward Bloomberg Mapper</curveNodeIdMapperName>
+   <startTenor>P0D</startTenor>
+   <maturityTenor>P6M</maturityTenor>
+   <fxForwardConvention>CONVENTION~USDMXN Forward Convention</fxForwardConvention>
+   <payCurrency>MXN</payCurrency>
+   <receiveCurrency>USD</receiveCurrency>
+  </item>
+  <item type="com.opengamma.financial.analytics.ircurve.strips.SwapNode">
+   <curveNodeIdMapperName>USDMXN Swap Libor Bloomberg Mapper</curveNodeIdMapperName>
+   <startTenor>P0D</startTenor>
+   <maturityTenor>P9M</maturityTenor>
+   <payLegConvention>CONVENTION~MXN Interbank 1M Leg Convention</payLegConvention>
+   <receiveLegConvention>CONVENTION~USD LIBOR 1M Leg Convention</receiveLegConvention>
+   <useFixings>true</useFixings>
+  </item>
+  <item type="SwapNode">
+   <curveNodeIdMapperName>USDMXN Swap Libor Bloomberg Mapper</curveNodeIdMapperName>
+   <startTenor>P0D</startTenor>
+   <maturityTenor>P13M</maturityTenor>
+   <payLegConvention>CONVENTION~MXN Interbank 1M Leg Convention</payLegConvention>
+   <receiveLegConvention>CONVENTION~USD LIBOR 1M Leg Convention</receiveLegConvention>
+   <useFixings>true</useFixings>
+  </item>
+  <item type="SwapNode">
+   <curveNodeIdMapperName>USDMXN Swap Libor Bloomberg Mapper</curveNodeIdMapperName>
+   <startTenor>P0D</startTenor>
+   <maturityTenor>P26M</maturityTenor>
+   <payLegConvention>CONVENTION~MXN Interbank 1M Leg Convention</payLegConvention>
+   <receiveLegConvention>CONVENTION~USD LIBOR 1M Leg Convention</receiveLegConvention>
+   <useFixings>true</useFixings>
+  </item>
+  <item type="SwapNode">
+   <curveNodeIdMapperName>USDMXN Swap Libor Bloomberg Mapper</curveNodeIdMapperName>
+   <startTenor>P0D</startTenor>
+   <maturityTenor>P39M</maturityTenor>
+   <payLegConvention>CONVENTION~MXN Interbank 1M Leg Convention</payLegConvention>
+   <receiveLegConvention>CONVENTION~USD LIBOR 1M Leg Convention</receiveLegConvention>
+   <useFixings>true</useFixings>
+  </item>
+  <item type="SwapNode">
+   <curveNodeIdMapperName>USDMXN Swap Libor Bloomberg Mapper</curveNodeIdMapperName>
+   <startTenor>P0D</startTenor>
+   <maturityTenor>P52M</maturityTenor>
+   <payLegConvention>CONVENTION~MXN Interbank 1M Leg Convention</payLegConvention>
+   <receiveLegConvention>CONVENTION~USD LIBOR 1M Leg Convention</receiveLegConvention>
+   <useFixings>true</useFixings>
+  </item>
+  <item type="SwapNode">
+   <curveNodeIdMapperName>USDMXN Swap Libor Bloomberg Mapper</curveNodeIdMapperName>
+   <startTenor>P0D</startTenor>
+   <maturityTenor>P65M</maturityTenor>
+   <payLegConvention>CONVENTION~MXN Interbank 1M Leg Convention</payLegConvention>
+   <receiveLegConvention>CONVENTION~USD LIBOR 1M Leg Convention</receiveLegConvention>
+   <useFixings>true</useFixings>
+  </item>
+  <item type="SwapNode">
+   <curveNodeIdMapperName>USDMXN Swap Libor Bloomberg Mapper</curveNodeIdMapperName>
+   <startTenor>P0D</startTenor>
+   <maturityTenor>P91M</maturityTenor>
+   <payLegConvention>CONVENTION~MXN Interbank 1M Leg Convention</payLegConvention>
+   <receiveLegConvention>CONVENTION~USD LIBOR 1M Leg Convention</receiveLegConvention>
+   <useFixings>true</useFixings>
+  </item>
+  <item type="SwapNode">
+   <curveNodeIdMapperName>USDMXN Swap Libor Bloomberg Mapper</curveNodeIdMapperName>
+   <startTenor>P0D</startTenor>
+   <maturityTenor>P130M</maturityTenor>
+   <payLegConvention>CONVENTION~MXN Interbank 1M Leg Convention</payLegConvention>
+   <receiveLegConvention>CONVENTION~USD LIBOR 1M Leg Convention</receiveLegConvention>
+   <useFixings>true</useFixings>
+  </item>
+  <item type="SwapNode">
+   <curveNodeIdMapperName>USDMXN Swap Libor Bloomberg Mapper</curveNodeIdMapperName>
+   <startTenor>P0D</startTenor>
+   <maturityTenor>P195M</maturityTenor>
+   <payLegConvention>CONVENTION~MXN Interbank 1M Leg Convention</payLegConvention>
+   <receiveLegConvention>CONVENTION~USD LIBOR 1M Leg Convention</receiveLegConvention>
+   <useFixings>true</useFixings>
+  </item>
+  <item type="SwapNode">
+   <curveNodeIdMapperName>USDMXN Swap Libor Bloomberg Mapper</curveNodeIdMapperName>
+   <startTenor>P0D</startTenor>
+   <maturityTenor>P260M</maturityTenor>
+   <payLegConvention>CONVENTION~MXN Interbank 1M Leg Convention</payLegConvention>
+   <receiveLegConvention>CONVENTION~USD LIBOR 1M Leg Convention</receiveLegConvention>
+   <useFixings>true</useFixings>
+  </item>
+  <item type="SwapNode">
+   <curveNodeIdMapperName>USDMXN Swap Libor Bloomberg Mapper</curveNodeIdMapperName>
+   <startTenor>P0D</startTenor>
+   <maturityTenor>P390M</maturityTenor>
+   <payLegConvention>CONVENTION~MXN Interbank 1M Leg Convention</payLegConvention>
+   <receiveLegConvention>CONVENTION~USD LIBOR 1M Leg Convention</receiveLegConvention>
+   <useFixings>true</useFixings>
+  </item>  
+ </nodes>
+ <interpolatorName>NaturalCubicSpline</interpolatorName>
+ <rightExtrapolatorName>FlatExtrapolator</rightExtrapolatorName>
+ <leftExtrapolatorName>FlatExtrapolator</leftExtrapolatorName>
+</bean>

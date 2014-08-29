@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bean type="com.opengamma.financial.convention.VanillaIborLegConvention">
+  <externalIdBundle>
+    <externalIds>
+      <item>CONVENTION~JPY LIBOR 6M Leg Convention</item>
+    </externalIds>
+  </externalIdBundle>
+  <attributes/>
+  <name>JPY LIBOR 6M Leg Convention</name>
+  <iborIndexConvention>BLOOMBERG_TICKER~JY0006M Index</iborIndexConvention>
+  <isAdvanceFixing>true</isAdvanceFixing>
+  <interpolationMethod>Linear</interpolationMethod>
+  <resetTenor>P6M</resetTenor>
+  <settlementDays>2</settlementDays>
+  <isEOM>true</isEOM>
+  <stubType>SHORT_START</stubType>
+  <isExchangeNotional>false</isExchangeNotional>
+  <paymentLag>0</paymentLag>
+</bean>

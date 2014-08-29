@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bean type="com.opengamma.financial.convention.IborIndexConvention">
+  <externalIdBundle>
+    <externalIds>
+      <item>CONVENTION~JPY LIBOR Convention</item>
+    </externalIds>
+  </externalIdBundle>
+  <attributes/>
+  <name>JPY LIBOR Convention</name>
+  <dayCount>Actual/360</dayCount>
+  <businessDayConvention>Modified Following</businessDayConvention>
+  <settlementDays>2</settlementDays>
+  <isEOM>true</isEOM>
+  <currency>JPY</currency>
+  <fixingTime>11:00</fixingTime>
+  <fixingTimeZone>JP</fixingTimeZone>
+  <fixingCalendar>FINANCIAL_REGION~JP+GB</fixingCalendar>
+  <regionCalendar>FINANCIAL_REGION~JP</regionCalendar>
+  <fixingPage></fixingPage>
+</bean>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bean type="com.opengamma.financial.security.index.IndexFamily">
+ <externalIdBundle>
+  <externalIds>
+   <item>INDEX_FAMILY~CAD Bankers Acceptance Index Family</item>
+  </externalIds>
+ </externalIdBundle>
+ <name>CAD Bankers Acceptance Index Family</name>
+ <securityType>INDEX_FAMILY</securityType>
+ <attributes/>
+ <members>
+  <entry key="P3M">BLOOMBERG_TICKER~CDOR03 Index</entry>
+ </members>
+</bean>

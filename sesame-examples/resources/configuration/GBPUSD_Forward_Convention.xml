@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bean type="com.opengamma.financial.convention.FXForwardAndSwapConvention"> 
+ <externalIdBundle>
+  <externalIds>
+   <item>CONVENTION~GBPUSD Forward Convention</item>
+  </externalIds>
+ </externalIdBundle>
+ <attributes/>
+ <name>GBPUSD Forward Convention</name>
+ <spotConvention>CONVENTION~GBPUSD Spot Convention</spotConvention>
+ <businessDayConvention>Following</businessDayConvention>
+ <isEOM>false</isEOM>
+ <settlementRegion>FINANCIAL_REGION~GB+US</settlementRegion>
+</bean>

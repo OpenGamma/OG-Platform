@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bean type="com.opengamma.financial.analytics.curve.InterpolatedCurveDefinition">
+ <name>CAD CSA CAD ON Curve</name>
+ <nodes>
+  <item type="com.opengamma.financial.analytics.ircurve.strips.CashNode">
+   <curveNodeIdMapperName>CAD Deposit ON Bloomberg Mapper</curveNodeIdMapperName>
+   <startTenor>P0D</startTenor>
+   <maturityTenor>OVERNIGHT</maturityTenor>
+   <convention>CONVENTION~CAD Deposit Convention</convention>
+  </item>
+  <item type="CashNode">
+   <curveNodeIdMapperName>CAD Deposit T1 Bloomberg Mapper</curveNodeIdMapperName>
+   <startTenor>OVERNIGHT</startTenor>
+   <maturityTenor>OVERNIGHT</maturityTenor>
+   <convention>CONVENTION~CAD Deposit Convention</convention>
+  </item>
+  <item type="com.opengamma.financial.analytics.ircurve.strips.SwapNode">
+   <curveNodeIdMapperName>CAD Swap ON Bloomberg Mapper</curveNodeIdMapperName>
+   <startTenor>P0D</startTenor>
+   <maturityTenor>P1M</maturityTenor>
+   <payLegConvention>CONVENTION~CAD Fixed 1Y Leg Convention</payLegConvention>
+   <receiveLegConvention>CONVENTION~CAD ON Leg Convention</receiveLegConvention>
+   <useFixings>true</useFixings>
+  </item>
+  <item type="SwapNode">
+   <curveNodeIdMapperName>CAD Swap ON Bloomberg Mapper</curveNodeIdMapperName>
+   <startTenor>P0D</startTenor>
+   <maturityTenor>P2M</maturityTenor>
+   <payLegConvention>CONVENTION~CAD Fixed 1Y Leg Convention</payLegConvention>
+   <receiveLegConvention>CONVENTION~CAD ON Leg Convention</receiveLegConvention>
+   <useFixings>true</useFixings>
+  </item>
+  <item type="SwapNode">
+   <curveNodeIdMapperName>CAD Swap ON Bloomberg Mapper</curveNodeIdMapperName>
+   <startTenor>P0D</startTenor>
+   <maturityTenor>P3M</maturityTenor>
+   <payLegConvention>CONVENTION~CAD Fixed 1Y Leg Convention</payLegConvention>
+   <receiveLegConvention>CONVENTION~CAD ON Leg Convention</receiveLegConvention>
+   <useFixings>true</useFixings>
+  </item>
+  <item type="SwapNode">
+   <curveNodeIdMapperName>CAD Swap ON Bloomberg Mapper</curveNodeIdMapperName>
+   <startTenor>P0D</startTenor>
+   <maturityTenor>P6M</maturityTenor>
+   <payLegConvention>CONVENTION~CAD Fixed 1Y Leg Convention</payLegConvention>
+   <receiveLegConvention>CONVENTION~CAD ON Leg Convention</receiveLegConvention>
+   <useFixings>true</useFixings>
+  </item>
+  <item type="SwapNode">
+   <curveNodeIdMapperName>CAD Swap ON Bloomberg Mapper</curveNodeIdMapperName>
+   <startTenor>P0D</startTenor>
+   <maturityTenor>P9M</maturityTenor>
+   <payLegConvention>CONVENTION~CAD Fixed 1Y Leg Convention</payLegConvention>
+   <receiveLegConvention>CONVENTION~CAD ON Leg Convention</receiveLegConvention>
+   <useFixings>true</useFixings>
+  </item>
+  <item type="SwapNode">
+   <curveNodeIdMapperName>CAD Swap ON Bloomberg Mapper</curveNodeIdMapperName>
+   <startTenor>P0D</startTenor>
+   <maturityTenor>P1Y</maturityTenor>
+   <payLegConvention>CONVENTION~CAD Fixed 1Y Leg Convention</payLegConvention>
+   <receiveLegConvention>CONVENTION~CAD ON Leg Convention</receiveLegConvention>
+   <useFixings>true</useFixings>
+  </item>
+  <item type="SwapNode">
+   <curveNodeIdMapperName>CAD Swap ON Bloomberg Mapper</curveNodeIdMapperName>
+   <startTenor>P0D</startTenor>
+   <maturityTenor>P2Y</maturityTenor>
+   <payLegConvention>CONVENTION~CAD Fixed 1Y Leg Convention</payLegConvention>
+   <receiveLegConvention>CONVENTION~CAD ON Leg Convention</receiveLegConvention>
+   <useFixings>true</useFixings>
+  </item>
+  <item type="SwapNode">
+   <curveNodeIdMapperName>CAD Swap ON Bloomberg Mapper</curveNodeIdMapperName>
+   <startTenor>P0D</startTenor>
+   <maturityTenor>P3Y</maturityTenor>
+   <payLegConvention>CONVENTION~CAD Fixed 1Y Leg Convention</payLegConvention>
+   <receiveLegConvention>CONVENTION~CAD ON Leg Convention</receiveLegConvention>
+   <useFixings>true</useFixings>
+  </item>
+  <item type="SwapNode">
+   <curveNodeIdMapperName>CAD Swap ON Bloomberg Mapper</curveNodeIdMapperName>
+   <startTenor>P0D</startTenor>
+   <maturityTenor>P4Y</maturityTenor>
+   <payLegConvention>CONVENTION~CAD Fixed 1Y Leg Convention</payLegConvention>
+   <receiveLegConvention>CONVENTION~CAD ON Leg Convention</receiveLegConvention>
+   <useFixings>true</useFixings>
+  </item>
+  <item type="SwapNode">
+   <curveNodeIdMapperName>CAD Swap ON Bloomberg Mapper</curveNodeIdMapperName>
+   <startTenor>P0D</startTenor>
+   <maturityTenor>P5Y</maturityTenor>
+   <payLegConvention>CONVENTION~CAD Fixed 1Y Leg Convention</payLegConvention>
+   <receiveLegConvention>CONVENTION~CAD ON Leg Convention</receiveLegConvention>
+   <useFixings>true</useFixings>
+  </item>
+  <item type="SwapNode">
+   <curveNodeIdMapperName>CAD Swap ON Bloomberg Mapper</curveNodeIdMapperName>
+   <startTenor>P0D</startTenor>
+   <maturityTenor>P10Y</maturityTenor>
+   <payLegConvention>CONVENTION~CAD Fixed 1Y Leg Convention</payLegConvention>
+   <receiveLegConvention>CONVENTION~CAD ON Leg Convention</receiveLegConvention>
+   <useFixings>true</useFixings>
+  </item>
+ </nodes>
+ <interpolatorName>NaturalCubicSpline</interpolatorName>
+ <rightExtrapolatorName>FlatExtrapolator</rightExtrapolatorName>
+ <leftExtrapolatorName>FlatExtrapolator</leftExtrapolatorName>
+</bean>

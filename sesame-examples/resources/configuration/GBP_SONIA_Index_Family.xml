@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bean type="com.opengamma.financial.security.index.IndexFamily">
+ <externalIdBundle>
+  <externalIds>
+   <item>INDEX_FAMILY~GBP SONIA Index Family</item>
+  </externalIds>
+ </externalIdBundle>
+ <name>GBP SONIA Index Family</name>
+ <securityType>INDEX_FAMILY</securityType>
+ <attributes/>
+ <members>
+  <entry key="OVERNIGHT">BLOOMBERG_TICKER~SONIO/N Index</entry>
+ </members>
+</bean>

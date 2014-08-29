@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bean type="com.opengamma.financial.analytics.curve.exposure.ExposureFunctions">
+ <name>USD OIS Exposure Functions</name>
+ <exposureFunctions>
+  <item>Currency</item>
+ </exposureFunctions>
+ <idsToNames>
+  <entry key="CurrencyISO~USD">USD OIS Curve Construction Configuration</entry>
+ </idsToNames>
+</bean>

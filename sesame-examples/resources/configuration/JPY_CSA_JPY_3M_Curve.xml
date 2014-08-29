@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bean type="com.opengamma.financial.analytics.curve.InterpolatedCurveDefinition">
+ <name>JPY CSA JPY 3M Curve</name>
+ <nodes> 	
+ 	
+ </nodes>
+ <interpolatorName>NaturalCubicSpline</interpolatorName>
+ <rightExtrapolatorName>FlatExtrapolator</rightExtrapolatorName>
+ <leftExtrapolatorName>FlatExtrapolator</leftExtrapolatorName>
+</bean>

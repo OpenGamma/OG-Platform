@@ -1,25 +1,35 @@
-===================
-Extending OpenGamma
-===================
+======================================
+Running the example remote view client
+======================================
 
-Custom Analytics
-================
+Once you have set up the OpenGamma marketdata and fullstack servers, and added the configuration and supporting snapshot/time-series data, you are ready to run the example remote view client.
 
-A simple example of calculating your own PV on an interest rate swap via an *InterestRateSwapCalculator* implementation can be seen in *ThirdPartyInterestRateSwapCalculator*
+Running in the IDE
+==================
 
-Here a *MultipleCurrencyAmount* of $42 is returned for all PV calculations.
+The **ExampleRemoteClientTool** is an example of a client application that can be run against a remote server. This tool is set up to output Present Value and Bucketed PV01 into the console for a number of example interest rate swaps defined in **RemoteViewUtils**
 
-The *ThirdPartyRemoteTest* class shows how this third party implementation is fed into the *ViewConfig* rather than the OG specific *InterestRateSwapCalculatorFactory* class
+You can run this in your IDE **ExampleRemoteClientTool** with the following example arguments:
 
-With the marketdata and fullstack servers running in your IDE the *ThirdPartyRemoteTest* can be run against the 'remote' fullstack server.
++ -c http://localhost:8080 
++ -l com/opengamma/util/warn-logback.xml 
++ -d 20140122 
++ -ef "USD CSA Exposure Functions"
++ -s DbSnp~1000
++ -ld Bloomberg
 
-Adding custom code to an OG server
-==================================
+The **-d** date option accepts the format *YYYYMMDD*
 
-From within your project directory run::
+The **-ef** option refers to the name of the exposure function from your uploaded configuration. Visit http://devsvr-lx-3:8080/jax/configs?type=ExposureFunctions&name= for a full list of exposure functions.
 
-    mvn package
+The **-s** and **-ld** options refers to the market data source. -s is the ID of an existing snapshot. -ld is the name of the live data provider. These arguments are optional and default to Bloomberg live data if no snapshot or live data is specified.
 
-The resulting jar file can then be placed in *{OG install location}/lib/*, which will be available on the classpath of the fullstack server after a restart.
+Available snapshots can be seen here http://localhost:8080/jax/snapshots
 
-This can be tested by firing up the local fullstack server rather than through the IDE and running any remote views that call into the custom code.
+Running in the command line
+===========================
+
+It is also possible to take the compiled jar of OG-Solutions and place it in *{OG install location}/lib/* then from within the root of the OG installation run the following::
+
+      java -cp lib/*:platform/lib/* com.opengamma.solutions.ExampleRemoteClientTool -l com/opengamma/util/warn-logback.xml -c http://localhost:8080 -d 20140122 -ef "USD CSA Exposure Functions" -ld Bloomberg
+

@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bean type="com.opengamma.financial.analytics.curve.InterpolatedCurveDefinition">
+ <name>JPY CSA JPY 6M Curve</name>
+ <nodes> 	
+ 	 <item type="com.opengamma.financial.analytics.ircurve.strips.CashNode">
+      <curveNodeIdMapperName>JPY LIBOR Bloomberg Mapper</curveNodeIdMapperName>
+      <startTenor>P0D</startTenor>
+      <maturityTenor>P6M</maturityTenor>
+      <convention>BLOOMBERG_TICKER~JY0006M Index</convention>
+    </item>
+    <item type="com.opengamma.financial.analytics.ircurve.strips.SwapNode">
+      <curveNodeIdMapperName>JPY Swap 6M Bloomberg Mapper</curveNodeIdMapperName>
+      <startTenor>P0D</startTenor>
+      <maturityTenor>P1Y</maturityTenor>
+      <payLegConvention>CONVENTION~JPY Fixed 6M Leg Convention</payLegConvention>
+      <receiveLegConvention>CONVENTION~JPY LIBOR 6M Leg Convention</receiveLegConvention>
+      <useFixings>true</useFixings>
+    </item>
+    <item type="com.opengamma.financial.analytics.ircurve.strips.SwapNode">
+      <curveNodeIdMapperName>JPY Swap 6M Bloomberg Mapper</curveNodeIdMapperName>
+      <startTenor>P0D</startTenor>
+      <maturityTenor>P18M</maturityTenor>
+      <payLegConvention>CONVENTION~JPY Fixed 6M Leg Convention</payLegConvention>
+      <receiveLegConvention>CONVENTION~JPY LIBOR 6M Leg Convention</receiveLegConvention>
+      <useFixings>true</useFixings>
+    </item>
+    <item type="com.opengamma.financial.analytics.ircurve.strips.SwapNode">
+      <curveNodeIdMapperName>JPY Swap 6M Bloomberg Mapper</curveNodeIdMapperName>
+      <startTenor>P0D</startTenor>
+      <maturityTenor>P2Y</maturityTenor>
+      <payLegConvention>CONVENTION~JPY Fixed 6M Leg Convention</payLegConvention>
+      <receiveLegConvention>CONVENTION~JPY LIBOR 6M Leg Convention</receiveLegConvention>
+      <useFixings>true</useFixings>
+    </item>
+    <item type="com.opengamma.financial.analytics.ircurve.strips.SwapNode">
+      <curveNodeIdMapperName>JPY Swap 6M Bloomberg Mapper</curveNodeIdMapperName>
+      <startTenor>P0D</startTenor>
+      <maturityTenor>P3Y</maturityTenor>
+      <payLegConvention>CONVENTION~JPY Fixed 6M Leg Convention</payLegConvention>
+      <receiveLegConvention>CONVENTION~JPY LIBOR 6M Leg Convention</receiveLegConvention>
+      <useFixings>true</useFixings>
+    </item>
+    <item type="com.opengamma.financial.analytics.ircurve.strips.SwapNode">
+      <curveNodeIdMapperName>JPY Swap 6M Bloomberg Mapper</curveNodeIdMapperName>
+      <startTenor>P0D</startTenor>
+      <maturityTenor>P4Y</maturityTenor>
+      <payLegConvention>CONVENTION~JPY Fixed 6M Leg Convention</payLegConvention>
+      <receiveLegConvention>CONVENTION~JPY LIBOR 6M Leg Convention</receiveLegConvention>
+      <useFixings>true</useFixings>
+    </item>
+    <item type="com.opengamma.financial.analytics.ircurve.strips.SwapNode">
+      <curveNodeIdMapperName>JPY Swap 6M Bloomberg Mapper</curveNodeIdMapperName>
+      <startTenor>P0D</startTenor>
+      <maturityTenor>P5Y</maturityTenor>
+      <payLegConvention>CONVENTION~JPY Fixed 6M Leg Convention</payLegConvention>
+      <receiveLegConvention>CONVENTION~JPY LIBOR 6M Leg Convention</receiveLegConvention>
+      <useFixings>true</useFixings>
+    </item>
+    <item type="com.opengamma.financial.analytics.ircurve.strips.SwapNode">
+      <curveNodeIdMapperName>JPY Swap 6M Bloomberg Mapper</curveNodeIdMapperName>
+      <startTenor>P0D</startTenor>
+      <maturityTenor>P6Y</maturityTenor>
+      <payLegConvention>CONVENTION~JPY Fixed 6M Leg Convention</payLegConvention>
+      <receiveLegConvention>CONVENTION~JPY LIBOR 6M Leg Convention</receiveLegConvention>
+      <useFixings>true</useFixings>
+    </item>
+    <item type="com.opengamma.financial.analytics.ircurve.strips.SwapNode">
+      <curveNodeIdMapperName>JPY Swap 6M Bloomberg Mapper</curveNodeIdMapperName>
+      <startTenor>P0D</startTenor>
+      <maturityTenor>P7Y</maturityTenor>
+      <payLegConvention>CONVENTION~JPY Fixed 6M Leg Convention</payLegConvention>
+      <receiveLegConvention>CONVENTION~JPY LIBOR 6M Leg Convention</receiveLegConvention>
+      <useFixings>true</useFixings>
+    </item>
+    <item type="com.opengamma.financial.analytics.ircurve.strips.SwapNode">
+      <curveNodeIdMapperName>JPY Swap 6M Bloomberg Mapper</curveNodeIdMapperName>
+      <startTenor>P0D</startTenor>
+      <maturityTenor>P8Y</maturityTenor>
+      <payLegConvention>CONVENTION~JPY Fixed 6M Leg Convention</payLegConvention>
+      <receiveLegConvention>CONVENTION~JPY LIBOR 6M Leg Convention</receiveLegConvention>
+      <useFixings>true</useFixings>
+    </item>
+    <item type="com.opengamma.financial.analytics.ircurve.strips.SwapNode">
+      <curveNodeIdMapperName>JPY Swap 6M Bloomberg Mapper</curveNodeIdMapperName>
+      <startTenor>P0D</startTenor>
+      <maturityTenor>P9Y</maturityTenor>
+      <payLegConvention>CONVENTION~JPY Fixed 6M Leg Convention</payLegConvention>
+      <receiveLegConvention>CONVENTION~JPY LIBOR 6M Leg Convention</receiveLegConvention>
+      <useFixings>true</useFixings>
+    </item>
+    <item type="com.opengamma.financial.analytics.ircurve.strips.SwapNode">
+      <curveNodeIdMapperName>JPY Swap 6M Bloomberg Mapper</curveNodeIdMapperName>
+      <startTenor>P0D</startTenor>
+      <maturityTenor>P10Y</maturityTenor>
+      <payLegConvention>CONVENTION~JPY Fixed 6M Leg Convention</payLegConvention>
+      <receiveLegConvention>CONVENTION~JPY LIBOR 6M Leg Convention</receiveLegConvention>
+      <useFixings>true</useFixings>
+    </item>
+    <item type="com.opengamma.financial.analytics.ircurve.strips.SwapNode">
+      <curveNodeIdMapperName>JPY Swap 6M Bloomberg Mapper</curveNodeIdMapperName>
+      <startTenor>P0D</startTenor>
+      <maturityTenor>P12Y</maturityTenor>
+      <payLegConvention>CONVENTION~JPY Fixed 6M Leg Convention</payLegConvention>
+      <receiveLegConvention>CONVENTION~JPY LIBOR 6M Leg Convention</receiveLegConvention>
+      <useFixings>true</useFixings>
+    </item>
+    <item type="com.opengamma.financial.analytics.ircurve.strips.SwapNode">
+      <curveNodeIdMapperName>JPY Swap 6M Bloomberg Mapper</curveNodeIdMapperName>
+      <startTenor>P0D</startTenor>
+      <maturityTenor>P15Y</maturityTenor>
+      <payLegConvention>CONVENTION~JPY Fixed 6M Leg Convention</payLegConvention>
+      <receiveLegConvention>CONVENTION~JPY LIBOR 6M Leg Convention</receiveLegConvention>
+      <useFixings>true</useFixings>
+    </item>
+    <item type="com.opengamma.financial.analytics.ircurve.strips.SwapNode">
+      <curveNodeIdMapperName>JPY Swap 6M Bloomberg Mapper</curveNodeIdMapperName>
+      <startTenor>P0D</startTenor>
+      <maturityTenor>P20Y</maturityTenor>
+      <payLegConvention>CONVENTION~JPY Fixed 6M Leg Convention</payLegConvention>
+      <receiveLegConvention>CONVENTION~JPY LIBOR 6M Leg Convention</receiveLegConvention>
+      <useFixings>true</useFixings>
+    </item>
+    <item type="com.opengamma.financial.analytics.ircurve.strips.SwapNode">
+      <curveNodeIdMapperName>JPY Swap 6M Bloomberg Mapper</curveNodeIdMapperName>
+      <startTenor>P0D</startTenor>
+      <maturityTenor>P25Y</maturityTenor>
+      <payLegConvention>CONVENTION~JPY Fixed 6M Leg Convention</payLegConvention>
+      <receiveLegConvention>CONVENTION~JPY LIBOR 6M Leg Convention</receiveLegConvention>
+      <useFixings>true</useFixings>
+    </item>
+    <item type="com.opengamma.financial.analytics.ircurve.strips.SwapNode">
+      <curveNodeIdMapperName>JPY Swap 6M Bloomberg Mapper</curveNodeIdMapperName>
+      <startTenor>P0D</startTenor>
+      <maturityTenor>P30Y</maturityTenor>
+      <payLegConvention>CONVENTION~JPY Fixed 6M Leg Convention</payLegConvention>
+      <receiveLegConvention>CONVENTION~JPY LIBOR 6M Leg Convention</receiveLegConvention>
+      <useFixings>true</useFixings>
+    </item>
+ </nodes>
+ <interpolatorName>NaturalCubicSpline</interpolatorName>
+ <rightExtrapolatorName>FlatExtrapolator</rightExtrapolatorName>
+ <leftExtrapolatorName>FlatExtrapolator</leftExtrapolatorName>
+</bean>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bean type="com.opengamma.financial.convention.SwapFixedLegConvention">
+ <externalIdBundle>
+  <externalIds>
+   <item>CONVENTION~GBP Fixed 1Y ON Leg Convention</item>
+  </externalIds>
+ </externalIdBundle>
+ <attributes/>
+ <name>GBP Fixed 1Y ON Leg Convention</name>
+ <paymentTenor>P1Y</paymentTenor>
+ <dayCount>Actual/365</dayCount>
+ <businessDayConvention>Modified Following</businessDayConvention>
+ <currency>GBP</currency>
+ <regionCalendar>FINANCIAL_REGION~GB</regionCalendar>
+ <settlementDays>0</settlementDays>
+ <isEOM>true</isEOM>
+ <stubType>SHORT_START</stubType>
+ <isExchangeNotional>false</isExchangeNotional>
+ <paymentLag>1</paymentLag>
+</bean>

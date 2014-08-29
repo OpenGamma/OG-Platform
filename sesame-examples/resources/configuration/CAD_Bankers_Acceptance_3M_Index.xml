@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bean type="com.opengamma.financial.security.index.IborIndex">
+ <externalIdBundle>
+  <externalIds>
+   <item>BLOOMBERG_TICKER~CDOR03 Index</item>
+  </externalIds>
+ </externalIdBundle>
+ <name>CAD Bankers Acceptance 3M Index</name>
+ <securityType>IBOR_INDEX</securityType>
+ <attributes/>
+ <indexFamilyId>INDEX_FAMILY~CAD Bankers Acceptance Index Family</indexFamilyId>
+ <tenor>P3M</tenor>
+ <conventionId>CONVENTION~CAD Bankers Acceptance Convention</conventionId>
+</bean>

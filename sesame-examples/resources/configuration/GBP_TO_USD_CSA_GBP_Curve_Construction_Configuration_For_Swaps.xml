@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bean type="com.opengamma.financial.analytics.curve.CurveConstructionConfiguration">
+ <name>GBP TO USD CSA GBP Curve Construction Configuration For Swaps</name>
+ <curveGroups>
+  <item>
+   <order>0</order>
+   <typesForCurves>
+    <entry key="GBP CSA GBP ON Curve">
+     <item type="DiscountingCurveTypeConfiguration">
+      <reference>GBP</reference>
+     </item>
+     <item type="OvernightCurveTypeConfiguration">
+      <convention>BLOOMBERG_TICKER~SONIO/N Index</convention>
+     </item>
+    </entry>
+   </typesForCurves>
+  </item>
+  <item>
+   <order>1</order>
+   <typesForCurves>
+    <entry key="GBP CSA GBP 3M Curve">
+     <item type="IborCurveTypeConfiguration">
+      <convention>BLOOMBERG_TICKER~BP0003M Index</convention>
+      <tenor>P3M</tenor>
+     </item>
+    </entry>
+   </typesForCurves>
+  </item>
+  <item>
+   <order>3</order>
+   <typesForCurves>
+    <entry key="GBP CSA GBP 6M Curve">
+     <item type="IborCurveTypeConfiguration">
+      <convention>BLOOMBERG_TICKER~BP0006M Index</convention>
+      <tenor>P6M</tenor>
+     </item>     
+    </entry>
+   </typesForCurves>
+  </item>
+  <item>
+   <order>4</order>
+   <typesForCurves>
+    <entry key="USD CSA GBP 3M Curve">
+     <item type="IborCurveTypeConfiguration">
+      <convention>BLOOMBERG_TICKER~US0003M Index</convention>
+      <tenor>P3M</tenor>
+     </item>
+    </entry>
+    <entry key="GBPUSD XCCY 3M 3M Curve">
+     <item type="DiscountingCurveTypeConfiguration">
+      <reference>USD</reference>
+     </item>
+    </entry>
+   </typesForCurves>
+  </item>
+  <item>
+   <order>5</order>
+   <typesForCurves>
+    <entry key="USD CSA GBP 6M Curve">
+     <item type="IborCurveTypeConfiguration">
+      <convention>BLOOMBERG_TICKER~US0006M Index</convention>
+      <tenor>P6M</tenor>
+     </item>
+    </entry>
+   </typesForCurves>
+  </item>
+ </curveGroups>
+ <exogenousConfigurations/>
+</bean>

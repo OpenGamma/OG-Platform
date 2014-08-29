@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bean type="com.opengamma.financial.convention.DepositConvention"> 
+ <externalIdBundle>
+  <externalIds>
+   <item>CONVENTION~CAD Deposit Convention</item>
+  </externalIds>
+ </externalIdBundle>
+ <attributes/>
+ <name>CAD Deposit Convention</name>
+ <dayCount>Actual/360</dayCount>
+ <businessDayConvention>Modified Following</businessDayConvention>
+ <settlementDays>0</settlementDays>
+ <isEOM>true</isEOM>
+ <currency>CAD</currency>
+ <regionCalendar>FINANCIAL_REGION~CA</regionCalendar>
+</bean>

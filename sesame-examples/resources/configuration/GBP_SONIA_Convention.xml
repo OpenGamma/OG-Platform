@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bean type="com.opengamma.financial.convention.OvernightIndexConvention">
+  <externalIdBundle>
+    <externalIds>
+      <item>CONVENTION~GBP SONIA Convention</item>
+    </externalIds>
+  </externalIdBundle>
+  <attributes/>
+  <name>GBP SONIA Convention</name>
+  <dayCount>Actual/365</dayCount>
+  <publicationLag>0</publicationLag>
+  <currency>GBP</currency>
+  <regionCalendar>FINANCIAL_REGION~GB</regionCalendar>
+</bean>

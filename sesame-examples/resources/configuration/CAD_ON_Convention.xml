@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bean type="com.opengamma.financial.convention.OvernightIndexConvention">
+  <externalIdBundle>
+    <externalIds>
+      <item>CONVENTION~CAD ON Convention</item>
+    </externalIds>
+  </externalIdBundle>
+  <attributes/>
+  <name>CAD ON Convention</name>
+  <dayCount>Actual/360</dayCount>
+  <publicationLag>0</publicationLag>
+  <currency>CAD</currency>
+  <regionCalendar>FINANCIAL_REGION~CA</regionCalendar>
+</bean>

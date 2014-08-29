@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bean type="com.opengamma.financial.convention.OISLegConvention">
+ <externalIdBundle>
+  <externalIds>
+   <item>CONVENTION~CAD ON Leg Convention</item>
+  </externalIds>
+ </externalIdBundle>
+ <attributes/>
+ <name>CAD ON Leg Convention</name>
+ <overnightIndexConvention>BLOOMBERG_TICKER~CAONREPO Index</overnightIndexConvention>
+ <paymentTenor>P1Y</paymentTenor>
+ <paymentLag>0</paymentLag>
+ <businessDayConvention>Modified Following</businessDayConvention>
+ <settlementDays>0</settlementDays>
+ <isEOM>true</isEOM>
+ <stubType>NONE</stubType>
+ <isExchangeNotional>false</isExchangeNotional>
+</bean>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bean type="com.opengamma.financial.convention.SwapFixedLegConvention">
+ <externalIdBundle>
+  <externalIds>
+   <item>CONVENTION~MXN Fixed 1M Leg Convention</item>
+  </externalIds>
+ </externalIdBundle>
+ <attributes/>
+ <name>MXN Fixed 1M Leg Convention</name>
+ <paymentTenor>P1M</paymentTenor>
+ <dayCount>28/360</dayCount>
+ <businessDayConvention>Modified Following</businessDayConvention>
+ <currency>MXN</currency>
+ <regionCalendar>FINANCIAL_REGION~MX</regionCalendar>
+ <settlementDays>1</settlementDays>
+ <isEOM>true</isEOM>
+ <stubType>SHORT_START</stubType>
+ <isExchangeNotional>false</isExchangeNotional>
+ <paymentLag>0</paymentLag>
+</bean>

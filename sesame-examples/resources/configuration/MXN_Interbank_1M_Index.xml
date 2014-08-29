@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bean type="com.opengamma.financial.security.index.IborIndex">
+ <externalIdBundle>
+  <externalIds>
+   <item>BLOOMBERG_TICKER~MXIBTIIE Index</item>
+  </externalIds>
+ </externalIdBundle>
+ <name>MXN Interbank 1M Index</name>
+ <securityType>IBOR_INDEX</securityType>
+ <attributes/>
+ <indexFamilyId>INDEX_FAMILY~MXN Interbank Index Family</indexFamilyId>
+ <tenor>P28D</tenor>
+ <conventionId>CONVENTION~MXN Interbank Convention</conventionId>
+</bean>

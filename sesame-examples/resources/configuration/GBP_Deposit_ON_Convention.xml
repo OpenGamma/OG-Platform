@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bean type="com.opengamma.financial.convention.DepositConvention">
+ <externalIdBundle>
+  <externalIds>
+   <item>CONVENTION~GBP Deposit ON Convention</item>
+  </externalIds>
+ </externalIdBundle>
+ <attributes/>
+ <name>GBP Deposit ON Convention</name>
+ <dayCount>Actual/365</dayCount>
+ <businessDayConvention>Following</businessDayConvention>
+ <settlementDays>0</settlementDays>
+ <isEOM>false</isEOM>
+ <currency>GBP</currency>
+ <regionCalendar>FINANCIAL_REGION~GB</regionCalendar>
+</bean>

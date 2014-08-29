@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bean type="com.opengamma.financial.analytics.curve.exposure.ExposureFunctions">
+ <name>GBP RPI Inflation Exposure Functions For Swaps</name>
+ <exposureFunctions>
+  <item>Security / Currency</item>
+  <item>Currency</item>
+ </exposureFunctions>
+ <idsToNames>
+  <entry key="CurrencyISO~GBP">GBP RPI Inflation Curve Construction Configuration For Swaps</entry>
+ </idsToNames>
+</bean>

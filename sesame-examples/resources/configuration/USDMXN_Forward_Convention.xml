@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bean type="com.opengamma.financial.convention.FXForwardAndSwapConvention"> 
+ <externalIdBundle>
+  <externalIds>
+   <item>CONVENTION~USDMXN Forward Convention</item>
+  </externalIds>
+ </externalIdBundle>
+ <attributes/>
+ <name>USDMXN Forward Convention</name>
+ <spotConvention>CONVENTION~USDMXN Spot Convention</spotConvention>
+ <businessDayConvention>Following</businessDayConvention>
+ <isEOM>false</isEOM>
+ <settlementRegion>FINANCIAL_REGION~MX+US</settlementRegion>
+</bean>

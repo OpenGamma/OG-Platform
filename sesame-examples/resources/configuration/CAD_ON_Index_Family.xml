@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bean type="com.opengamma.financial.security.index.IndexFamily">
+ <externalIdBundle>
+  <externalIds>
+   <item>INDEX_FAMILY~CAD ON Index Family</item>
+  </externalIds>
+ </externalIdBundle>
+ <name>CAD ON Index Family</name>
+ <securityType>INDEX_FAMILY</securityType>
+ <attributes/>
+ <members>
+  <entry key="OVERNIGHT">BLOOMBERG_TICKER~CAONREPO Index</entry>
+ </members>
+</bean>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bean type="com.opengamma.financial.analytics.curve.CurveConstructionConfiguration">
+ <name>GBP RPI Inflation Curve Construction Configuration</name>
+ <curveGroups>
+  <item>
+   <order>0</order>
+   <typesForCurves>
+    <entry key="GBP RPI Inflation Curve">
+     <item type="InflationIssuerCurveTypeConfiguration">
+      <reference>GBP</reference>
+      <priceIndex>BLOOMBERG_TICKER~UKRPI Index</priceIndex>
+     </item>
+    </entry>
+   </typesForCurves>
+  </item>
+ </curveGroups>
+ <exogenousConfigurations>
+  <item>GBP TO USD CSA GBP Curve Construction Configuration</item>
+ </exogenousConfigurations>
+</bean>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bean type="com.opengamma.financial.security.index.IborIndex">
+ <externalIdBundle>
+  <externalIds>
+   <item>BLOOMBERG_TICKER~EUR006M Index</item>
+  </externalIds>
+ </externalIdBundle>
+ <name>EUR EURIBOR 6M Index</name>
+ <securityType>IBOR_INDEX</securityType>
+ <attributes/>
+ <indexFamilyId>INDEX_FAMILY~EUR EURIBOR Index Family</indexFamilyId>
+ <tenor>P6M</tenor>
+ <conventionId>CONVENTION~EUR EURIBOR Convention</conventionId>
+</bean>

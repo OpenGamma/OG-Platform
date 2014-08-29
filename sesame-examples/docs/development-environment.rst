@@ -6,7 +6,7 @@ Set up
 ======
 Firstly, go though the process of setting up a local OG server instance. This will include obtaining the OG server zip/tarball, creating and initializing a postgres database, installing ActiveMQ and then configuring the *fullstack* and *marketdata* servers
  
-Next, simply create a new maven project, adding the dependencies needed for the OG-Platform, databases and test framworks. The pom.xml included in this project shows an example of this.
+Next, import this project into your IDE as a maven project.
 
 Running the marketdata server from you IDE
 ==========================================
