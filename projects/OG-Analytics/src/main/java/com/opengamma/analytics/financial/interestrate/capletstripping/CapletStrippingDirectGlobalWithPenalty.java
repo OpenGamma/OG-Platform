@@ -54,6 +54,7 @@ public class CapletStrippingDirectGlobalWithPenalty {
    * @param lambdaStrike Smoothing parameter for strike direction
    * @param lambdaTime Smoothing parameter for time direction
    */
+  @SuppressWarnings("unchecked")
   public CapletStrippingDirectGlobalWithPenalty(final List<CapFloor>[] caps, final MulticurveProviderInterface curves, final CapletVolatilityNodalSurfaceProvider nodalSurfaceProvider,
       final double lambdaStrike, final double lambdaTime) {
     ArgumentChecker.noNulls(caps, "caps");
@@ -158,7 +159,7 @@ public class CapletStrippingDirectGlobalWithPenalty {
     }
   }
 
-  private Function1D<DoubleMatrix1D, DoubleMatrix1D> _capVols = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
+  private final Function1D<DoubleMatrix1D, DoubleMatrix1D> _capVols = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
     @Override
     public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
       NodalObjectsSurface<Integer, Integer, Double> surface = _nodalSurfaceProvider.evaluate(x);
@@ -171,7 +172,7 @@ public class CapletStrippingDirectGlobalWithPenalty {
         for (int j = 0; j < len; ++j) {
           CapFloorPricer pricer = _capPricers[i].get(j);
           int nCaplets = pricer.getNumberCaplets();
-          Double[] capVols = new Double[nCaplets];
+          double[] capVols = new double[nCaplets];
           for (int k = 0; k < nCaplets; ++k) {
             capVols[k] = surface.getZValue(i, k);
           }
@@ -182,7 +183,7 @@ public class CapletStrippingDirectGlobalWithPenalty {
     }
   };
 
-  private Function1D<DoubleMatrix1D, DoubleMatrix2D> _capVolsGrad = new Function1D<DoubleMatrix1D, DoubleMatrix2D>() {
+  private final Function1D<DoubleMatrix1D, DoubleMatrix2D> _capVolsGrad = new Function1D<DoubleMatrix1D, DoubleMatrix2D>() {
     @Override
     public DoubleMatrix2D evaluate(final DoubleMatrix1D x) {
       int nParams = x.getNumberOfElements();
@@ -197,7 +198,7 @@ public class CapletStrippingDirectGlobalWithPenalty {
         for (int j = 0; j < len; ++j) {
           CapFloorPricer pricer = _capPricers[i].get(j);
           int nCaplets = pricer.getNumberCaplets();
-          Double[] capVols = new Double[nCaplets];
+          double[] capVols = new double[nCaplets];
           for (int k = 0; k < nCaplets; ++k) {
             capVols[k] = surface.getZValue(i, k);
           }

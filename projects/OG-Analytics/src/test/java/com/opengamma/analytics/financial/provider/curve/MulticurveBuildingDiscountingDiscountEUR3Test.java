@@ -90,59 +90,59 @@ public class MulticurveBuildingDiscountingDiscountEUR3Test {
   private static final double NOTIONAL = 1.0;
 
   private static final GeneratorSwapFixedON GENERATOR_OIS_EUR = GeneratorSwapFixedONMaster.getInstance().
-                                                                    getGenerator("EUR1YEONIA", TARGET);
+      getGenerator("EUR1YEONIA", TARGET);
   private static final IndexON INDEX_ON_EUR = GENERATOR_OIS_EUR.getIndex();
-  private static final GeneratorDepositON GENERATOR_DEPOSIT_ON_EUR = 
-                            new GeneratorDepositON("EUR Deposit ON", EUR, TARGET, INDEX_ON_EUR.getDayCount());
+  private static final GeneratorDepositON GENERATOR_DEPOSIT_ON_EUR =
+      new GeneratorDepositON("EUR Deposit ON", EUR, TARGET, INDEX_ON_EUR.getDayCount());
   private static final GeneratorSwapFixedIborMaster GENERATOR_SWAP_MASTER = GeneratorSwapFixedIborMaster.getInstance();
-  private static final GeneratorSwapFixedIbor EUR1YEURIBOR3M = 
-                            GENERATOR_SWAP_MASTER.getGenerator("EUR1YEURIBOR3M", TARGET);
-  private static final GeneratorSwapFixedIbor EUR1YEURIBOR6M = 
-                            GENERATOR_SWAP_MASTER.getGenerator("EUR1YEURIBOR6M", TARGET);
+  private static final GeneratorSwapFixedIbor EUR1YEURIBOR3M =
+      GENERATOR_SWAP_MASTER.getGenerator("EUR1YEURIBOR3M", TARGET);
+  private static final GeneratorSwapFixedIbor EUR1YEURIBOR6M =
+      GENERATOR_SWAP_MASTER.getGenerator("EUR1YEURIBOR6M", TARGET);
   private static final IborIndex EURIBOR3M = EUR1YEURIBOR3M.getIborIndex();
   private static final IborIndex EURIBOR6M = EUR1YEURIBOR6M.getIborIndex();
-  private static final IborIndex EUROLIBOR3M = 
-                        new IborIndex(EUR, Period.ofMonths(3), 2, EURIBOR3M.getDayCount(), 
-                                         EURIBOR3M.getBusinessDayConvention(), true, "EUROLIBOR3M");
-  private static final IborIndex EUROLIBOR6M = 
-                        new IborIndex(EUR, Period.ofMonths(6), 2, EURIBOR6M.getDayCount(), 
-                                         EURIBOR6M.getBusinessDayConvention(), true, "EUROLIBOR6M");
+  private static final IborIndex EUROLIBOR3M =
+      new IborIndex(EUR, Period.ofMonths(3), 2, EURIBOR3M.getDayCount(),
+          EURIBOR3M.getBusinessDayConvention(), true, "EUROLIBOR3M");
+  private static final IborIndex EUROLIBOR6M =
+      new IborIndex(EUR, Period.ofMonths(6), 2, EURIBOR6M.getDayCount(),
+          EURIBOR6M.getBusinessDayConvention(), true, "EUROLIBOR6M");
   private static final GeneratorFRA GENERATOR_FRA_3M = new GeneratorFRA("GENERATOR_FRA_3M", EURIBOR3M, TARGET);
   private static final GeneratorFRA GENERATOR_FRA_6M = new GeneratorFRA("GENERATOR_FRA_6M", EURIBOR6M, TARGET);
-  private static final GeneratorDepositIbor GENERATOR_EURIBOR3M = 
-                        new GeneratorDepositIbor("GENERATOR_EURIBOR3M", EURIBOR3M, TARGET);
-  private static final GeneratorDepositIbor GENERATOR_EURIBOR6M = 
-                        new GeneratorDepositIbor("GENERATOR_EURIBOR6M", EURIBOR6M, TARGET);
-  private static final LastFixingTimeIndexCalculator MATURITY_CALCULATOR_EURIBOR3M = 
-                        new LastFixingTimeIndexCalculator(EURIBOR3M);
-  private static final LastFixingTimeIndexCalculator MATURITY_CALCULATOR_EURIBOR6M = 
-                        new LastFixingTimeIndexCalculator(EURIBOR6M);
+  private static final GeneratorDepositIbor GENERATOR_EURIBOR3M =
+      new GeneratorDepositIbor("GENERATOR_EURIBOR3M", EURIBOR3M, TARGET);
+  private static final GeneratorDepositIbor GENERATOR_EURIBOR6M =
+      new GeneratorDepositIbor("GENERATOR_EURIBOR6M", EURIBOR6M, TARGET);
+  private static final LastFixingTimeIndexCalculator MATURITY_CALCULATOR_EURIBOR3M =
+      new LastFixingTimeIndexCalculator(EURIBOR3M);
+  private static final LastFixingTimeIndexCalculator MATURITY_CALCULATOR_EURIBOR6M =
+      new LastFixingTimeIndexCalculator(EURIBOR6M);
 
   private static final ZonedDateTime NOW = DateUtils.getUTCDate(2011, 9, 28);
 
   private static final ZonedDateTimeDoubleTimeSeries TS_EMPTY = ImmutableZonedDateTimeDoubleTimeSeries.ofEmptyUTC();
-  private static final ZonedDateTimeDoubleTimeSeries TS_ON_EUR_WITH_TODAY = 
-                  ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 27),
-                      DateUtils.getUTCDate(2011, 9, 28) }, new double[] {0.07, 0.08 });
-  private static final ZonedDateTimeDoubleTimeSeries TS_ON_EUR_WITHOUT_TODAY = 
-                  ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 27),
-                      DateUtils.getUTCDate(2011, 9, 28) }, new double[] {0.07, 0.08 });
-  private static final ZonedDateTimeDoubleTimeSeries[] TS_FIXED_OIS_EUR_WITH_TODAY = 
-                  new ZonedDateTimeDoubleTimeSeries[] {TS_EMPTY, TS_ON_EUR_WITH_TODAY };
-  private static final ZonedDateTimeDoubleTimeSeries[] TS_FIXED_OIS_EUR_WITHOUT_TODAY = 
-                  new ZonedDateTimeDoubleTimeSeries[] {TS_EMPTY, TS_ON_EUR_WITHOUT_TODAY };
+  private static final ZonedDateTimeDoubleTimeSeries TS_ON_EUR_WITH_TODAY =
+      ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 27),
+        DateUtils.getUTCDate(2011, 9, 28) }, new double[] {0.07, 0.08 });
+  private static final ZonedDateTimeDoubleTimeSeries TS_ON_EUR_WITHOUT_TODAY =
+      ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 27),
+        DateUtils.getUTCDate(2011, 9, 28) }, new double[] {0.07, 0.08 });
+  private static final ZonedDateTimeDoubleTimeSeries[] TS_FIXED_OIS_EUR_WITH_TODAY =
+      new ZonedDateTimeDoubleTimeSeries[] {TS_EMPTY, TS_ON_EUR_WITH_TODAY };
+  private static final ZonedDateTimeDoubleTimeSeries[] TS_FIXED_OIS_EUR_WITHOUT_TODAY =
+      new ZonedDateTimeDoubleTimeSeries[] {TS_EMPTY, TS_ON_EUR_WITHOUT_TODAY };
 
-  private static final ZonedDateTimeDoubleTimeSeries TS_IBOR_EUR3M_WITH_TODAY = 
-                  ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 27),
-                      DateUtils.getUTCDate(2011, 9, 28) }, new double[] {0.0035, 0.0036 });
-  private static final ZonedDateTimeDoubleTimeSeries TS_IBOR_EUR3M_WITHOUT_TODAY = 
-                  ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 27) },
-                      new double[] {0.0035 });
+  private static final ZonedDateTimeDoubleTimeSeries TS_IBOR_EUR3M_WITH_TODAY =
+      ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 27),
+        DateUtils.getUTCDate(2011, 9, 28) }, new double[] {0.0035, 0.0036 });
+  private static final ZonedDateTimeDoubleTimeSeries TS_IBOR_EUR3M_WITHOUT_TODAY =
+      ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 27) },
+          new double[] {0.0035 });
 
-  private static final ZonedDateTimeDoubleTimeSeries[] TS_FIXED_IBOR_EUR3M_WITH_TODAY = 
-                  new ZonedDateTimeDoubleTimeSeries[] {TS_IBOR_EUR3M_WITH_TODAY };
-  private static final ZonedDateTimeDoubleTimeSeries[] TS_FIXED_IBOR_EUR3M_WITHOUT_TODAY = 
-                  new ZonedDateTimeDoubleTimeSeries[] {TS_IBOR_EUR3M_WITHOUT_TODAY };
+  private static final ZonedDateTimeDoubleTimeSeries[] TS_FIXED_IBOR_EUR3M_WITH_TODAY =
+      new ZonedDateTimeDoubleTimeSeries[] {TS_IBOR_EUR3M_WITH_TODAY };
+  private static final ZonedDateTimeDoubleTimeSeries[] TS_FIXED_IBOR_EUR3M_WITHOUT_TODAY =
+      new ZonedDateTimeDoubleTimeSeries[] {TS_IBOR_EUR3M_WITHOUT_TODAY };
 
   private static final String CURVE_NAME_DSC_EUR = "EUR Dsc";
   private static final String CURVE_NAME_FWD3_EUR = "EUR Fwd 3M";
@@ -458,10 +458,10 @@ public class MulticurveBuildingDiscountingDiscountEUR3Test {
 
   }
 
-  private void curveConstructionCheck(InstrumentDefinition<?>[][][] definitions, 
-                                      MulticurveProviderDiscount curves, 
-                                      boolean withToday, 
-                                      int block) {
+  private void curveConstructionCheck(InstrumentDefinition<?>[][][] definitions,
+      MulticurveProviderDiscount curves,
+      boolean withToday,
+      int block) {
     final int nbBlocks = definitions.length;
     for (int loopblock = 0; loopblock < nbBlocks; loopblock++) {
       final InstrumentDerivative[][] instruments = convert(definitions[loopblock], withToday);
@@ -470,9 +470,9 @@ public class MulticurveBuildingDiscountingDiscountEUR3Test {
         pv[loopcurve] = new double[instruments[loopcurve].length];
         for (int loopins = 0; loopins < instruments[loopcurve].length; loopins++) {
           pv[loopcurve][loopins] = curves.getFxRates().convert(
-                instruments[loopcurve][loopins].accept(PVDC, curves), EUR).getAmount();
-          assertEquals("Curve construction: block " + block + ", unit " + loopblock + " - instrument " 
-                + loopins, 0, pv[loopcurve][loopins], TOLERANCE_CAL);
+              instruments[loopcurve][loopins].accept(PVDC, curves), EUR).getAmount();
+          assertEquals("Curve construction: block " + block + ", unit " + loopblock + " - instrument "
+              + loopins, 0, pv[loopcurve][loopins], TOLERANCE_CAL);
         }
       }
     }
@@ -513,7 +513,7 @@ public class MulticurveBuildingDiscountingDiscountEUR3Test {
       InstrumentDefinition<?>[][][] definitions, GeneratorYDCurve[][] curveGenerators,
       String[][] curveNames, MulticurveProviderDiscount knownData, CurveBuildingBlockBundle knownBlockBundle,
       InstrumentDerivativeVisitor<MulticurveProviderInterface, Double> calculator,
-      InstrumentDerivativeVisitor<MulticurveProviderInterface, MulticurveSensitivity> sensitivityCalculator, 
+      InstrumentDerivativeVisitor<MulticurveProviderInterface, MulticurveSensitivity> sensitivityCalculator,
       boolean withToday) {
     int nUnits = definitions.length;
     MultiCurveBundle<GeneratorYDCurve>[] curveBundles = new MultiCurveBundle[nUnits];
@@ -552,7 +552,7 @@ public class MulticurveBuildingDiscountingDiscountEUR3Test {
           } else {
             if (instrument instanceof InterestRateFutureTransactionDefinition) {
               // Trade date = today, reference price not used.
-              ird = ((InterestRateFutureTransactionDefinition) instrument).toDerivative(NOW, 0.0); 
+              ird = ((InterestRateFutureTransactionDefinition) instrument).toDerivative(NOW, 0.0);
             } else {
               ird = instrument.toDerivative(NOW);
             }
@@ -573,8 +573,8 @@ public class MulticurveBuildingDiscountingDiscountEUR3Test {
         ird = ((SwapFixedIborDefinition) instrument).toDerivative(NOW, getTSSwapFixedIbor(withToday));
       } else {
         if (instrument instanceof InterestRateFutureTransactionDefinition) {
-       // Trade date = today, reference price not used.
-          ird = ((InterestRateFutureTransactionDefinition) instrument).toDerivative(NOW, 0.0); 
+          // Trade date = today, reference price not used.
+          ird = ((InterestRateFutureTransactionDefinition) instrument).toDerivative(NOW, 0.0);
         } else {
           ird = instrument.toDerivative(NOW);
         }
@@ -587,7 +587,7 @@ public class MulticurveBuildingDiscountingDiscountEUR3Test {
     return withToday ? TS_FIXED_OIS_EUR_WITH_TODAY : TS_FIXED_OIS_EUR_WITHOUT_TODAY;
   }
 
-  private static ZonedDateTimeDoubleTimeSeries[] getTSSwapFixedIbor(final Boolean withToday) { 
+  private static ZonedDateTimeDoubleTimeSeries[] getTSSwapFixedIbor(final Boolean withToday) {
     // TODO: different fixing for 3 and 6 m
     return withToday ? TS_FIXED_IBOR_EUR3M_WITH_TODAY : TS_FIXED_IBOR_EUR3M_WITHOUT_TODAY;
   }

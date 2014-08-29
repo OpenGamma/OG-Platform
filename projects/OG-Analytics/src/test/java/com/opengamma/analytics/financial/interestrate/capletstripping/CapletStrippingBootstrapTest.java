@@ -12,11 +12,10 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.model.volatility.VolatilityTermStructure;
-import com.opengamma.analytics.financial.model.volatility.curve.VolatilityCurve;
+import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
-import com.opengamma.analytics.math.curve.FunctionalDoublesCurve;
-import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.function.Function2D;
+import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
 import com.opengamma.util.test.TestGroup;
 
 /**
@@ -28,33 +27,22 @@ public class CapletStrippingBootstrapTest extends CapletStrippingSetup {
   @Test
   public void test() {
 
-    final boolean print = false;
-    if (print) {
-      System.out.println("CapletStrippingBootstrapTest");
-    }
-    final int nSamples = 101;
     final MulticurveProviderDiscount yieldCurve = getYieldCurves();
     final int n = getNumberOfStrikes();
 
-    final double[][] curve = new double[nSamples][n];
-
     for (int i = 0; i < n; i++) {
       final List<CapFloor> caps = getCaps(i);
+
       final double[] capVols = getCapVols(i);
       final CapletStrippingBootstrap bootstrap = new CapletStrippingBootstrap(caps, yieldCurve);
+
       final double[] capletVols = bootstrap.capletVolsFromCapVols(capVols);
 
       final MultiCapFloorPricer pricer = new MultiCapFloorPricer(caps, yieldCurve);
-      final VolatilityTermStructure volCurve = getPiecewise(capletVols, bootstrap.getEndTimes());
+
+      final VolatilitySurface volCurve = getPiecewise(capletVols, bootstrap.getEndTimes());
       final double[] fittedCapVols = pricer.impliedVols(volCurve);
       final int m = fittedCapVols.length;
-
-      if (print) {
-        for (int index = 0; index < nSamples; index++) {
-          final double t = index * 10.0 / (nSamples - 1);
-          curve[index][i] = volCurve.getVolatility(t);
-        }
-      }
 
       for (int j = 0; j < m; j++) {
         assertEquals(i + "\t" + j, capVols[j], fittedCapVols[j], 2e-9);
@@ -62,31 +50,14 @@ public class CapletStrippingBootstrapTest extends CapletStrippingSetup {
 
     }
 
-    if (print) {
-      System.out.print("\n");
-      final double[] strikes = getStrikes();
-      for (int i = 0; i < n; i++) {
-        System.out.print("\t" + strikes[i]);
-      }
-      System.out.print("\n");
-      for (int index = 0; index < nSamples; index++) {
-        final double t = index * 10.0 / (nSamples - 1);
-        System.out.print(t);
-        for (int i = 0; i < n; i++) {
-          System.out.print("\t" + curve[index][i]);
-        }
-        System.out.print("\n");
-      }
-    }
-
   }
 
-  private VolatilityTermStructure getPiecewise(final double[] capletVols, final double[] endTimes) {
+  private VolatilitySurface getPiecewise(final double[] capletVols, final double[] endTimes) {
     final int n = capletVols.length;
-    final Function1D<Double, Double> func = new Function1D<Double, Double>() {
+    final Function2D<Double, Double> func = new Function2D<Double, Double>() {
 
       @Override
-      public Double evaluate(final Double t) {
+      public Double evaluate(final Double t, final Double k) {
         final int index = Arrays.binarySearch(endTimes, t);
         if (index >= 0) {
           if (index >= (n - 1)) {
@@ -101,7 +72,7 @@ public class CapletStrippingBootstrapTest extends CapletStrippingSetup {
       }
     };
 
-    return new VolatilityCurve(FunctionalDoublesCurve.from(func));
+    return new VolatilitySurface(FunctionalDoublesSurface.from(func));
   }
 
 }

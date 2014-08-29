@@ -177,7 +177,7 @@ public class SingleConfigImportTool extends AbstractTool<ToolContext> {
           } catch (Exception fe) {
             s_logger.error("Exception thrown when loading as both JodaXML and as FudgeXML");
             s_logger.error("JodaXML trace", e);
-            s_logger.error("Fudge trace", e);
+            s_logger.error("Fudge trace", fe);
           }
         }
       } catch (ClassNotFoundException ex) {
@@ -198,7 +198,7 @@ public class SingleConfigImportTool extends AbstractTool<ToolContext> {
         } catch (Exception fe) {
           s_logger.error("Exception thrown when loading as both JodaXML and as FudgeXML");
           s_logger.error("JodaXML trace", e);
-          s_logger.error("Fudge trace", e);                  
+          s_logger.error("Fudge trace", fe);
         }
       }
     }

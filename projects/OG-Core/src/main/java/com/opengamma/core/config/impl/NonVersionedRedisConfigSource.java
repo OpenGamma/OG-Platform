@@ -332,8 +332,16 @@ public class NonVersionedRedisConfigSource implements ConfigSource {
         }
       } else {
         // try fallback lookup to see if known by another compatible class
-        if (jedis.sismember(Object.class.getName(), configName)) {
-          String uniqueIdText = jedis.hget(getClassNameRedisKey(Object.class, configName), "UniqueId");
+        Class<? super R> superClazz = clazz.getSuperclass();
+        boolean recordFound = false;
+        while (superClazz != null && !recordFound) {
+          recordFound = jedis.sismember(getClassKeyName(superClazz), configName);
+          if (!recordFound) {
+            superClazz = superClazz.getSuperclass();
+          }
+        }          
+        if (recordFound) {
+          String uniqueIdText = jedis.hget(getClassNameRedisKey(superClazz, configName), "UniqueId");
           if (uniqueIdText != null) {
             uniqueId = UniqueId.parse(uniqueIdText);
             byte[] uniqueIdKey = getUniqueIdKey(uniqueId);

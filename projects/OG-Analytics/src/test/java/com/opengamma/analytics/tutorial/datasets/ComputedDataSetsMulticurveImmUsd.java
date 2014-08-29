@@ -241,10 +241,10 @@ public class ComputedDataSetsMulticurveImmUsd {
   private static final ZonedDateTimeDoubleTimeSeries TS_IBOR_USD3M_WITHOUT_TODAY = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 27) },
       new double[] {0.0035 });
 
-  private static final ZonedDateTimeDoubleTimeSeries[] TS_FIXED_IBOR_USD3M_WITH_TODAY = new ZonedDateTimeDoubleTimeSeries[] {TS_IBOR_USD3M_WITH_TODAY };
-  private static final ZonedDateTimeDoubleTimeSeries[] TS_FIXED_IBOR_USD3M_WITHOUT_TODAY = new ZonedDateTimeDoubleTimeSeries[] {TS_IBOR_USD3M_WITHOUT_TODAY };
+  public static final ZonedDateTimeDoubleTimeSeries[] TS_FIXED_IBOR_USD3M_WITH_TODAY = new ZonedDateTimeDoubleTimeSeries[] {TS_IBOR_USD3M_WITH_TODAY };
+  public static final ZonedDateTimeDoubleTimeSeries[] TS_FIXED_IBOR_USD3M_WITHOUT_TODAY = new ZonedDateTimeDoubleTimeSeries[] {TS_IBOR_USD3M_WITHOUT_TODAY };
 
-  private static InstrumentDefinition<?>[] generateImmIrs(ZonedDateTime[] immDates, double[] fixedRate) {
+  public static InstrumentDefinition<?>[] generateImmIrs(ZonedDateTime[] immDates, double[] fixedRate) {
     int nbSwap = immDates.length - 1;
     SwapCouponFixedCouponDefinition[] swap = new SwapCouponFixedCouponDefinition[nbSwap];
     for (int loopimm = 0; loopimm < nbSwap; loopimm++) {
@@ -283,7 +283,7 @@ public class ComputedDataSetsMulticurveImmUsd {
     return swap;
   }
 
-  private static InstrumentDefinition<?>[] generateImmOis(ZonedDateTime[] immDates, double[] fixedRate) {
+  public static InstrumentDefinition<?>[] generateImmOis(ZonedDateTime[] immDates, double[] fixedRate) {
     int nbSwap = immDates.length - 1;
     SwapCouponFixedCouponDefinition[] swap = new SwapCouponFixedCouponDefinition[nbSwap];
     for (int loopimm = 0; loopimm < nbSwap; loopimm++) {
