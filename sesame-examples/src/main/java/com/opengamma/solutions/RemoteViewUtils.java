@@ -5,24 +5,6 @@
  */
 package com.opengamma.solutions;
 
-import static com.opengamma.sesame.config.ConfigBuilder.argument;
-import static com.opengamma.sesame.config.ConfigBuilder.arguments;
-import static com.opengamma.sesame.config.ConfigBuilder.column;
-import static com.opengamma.sesame.config.ConfigBuilder.config;
-import static com.opengamma.sesame.config.ConfigBuilder.function;
-import static com.opengamma.sesame.config.ConfigBuilder.implementations;
-import static com.opengamma.sesame.config.ConfigBuilder.output;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import com.opengamma.analytics.financial.instrument.annuity.CompoundingMethod;
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.Period;
-
 import com.google.common.collect.Sets;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.link.ConfigLink;
@@ -33,22 +15,12 @@ import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.currency.CurrencyMatrix;
-import com.opengamma.financial.security.irs.FixedInterestRateSwapLeg;
-import com.opengamma.financial.security.irs.FloatingInterestRateSwapLeg;
-import com.opengamma.financial.security.irs.InterestRateSwapLeg;
-import com.opengamma.financial.security.irs.InterestRateSwapNotional;
-import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
-import com.opengamma.financial.security.irs.PayReceiveType;
-import com.opengamma.financial.security.irs.Rate;
+import com.opengamma.financial.security.irs.*;
 import com.opengamma.financial.security.swap.FloatingRateType;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.security.ManageableSecurity;
-import com.opengamma.sesame.ConfigDbMarketExposureSelectorFn;
-import com.opengamma.sesame.DefaultCurveNodeConverterFn;
-import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
-import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
-import com.opengamma.sesame.RootFinderConfiguration;
+import com.opengamma.sesame.*;
 import com.opengamma.sesame.component.RetrievalPeriod;
 import com.opengamma.sesame.component.StringSet;
 import com.opengamma.sesame.config.ViewColumn;
@@ -63,6 +35,12 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.tuple.Pair;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Period;
+
+import java.util.*;
+
+import static com.opengamma.sesame.config.ConfigBuilder.*;
 
 /**
  * Utility class for remote views
@@ -77,14 +55,12 @@ public final class RemoteViewUtils {
     {
       add(createVanillaFixedVsLiborSwap());
       add(createVanillaFixedVsONCompoundedSwap());
-      add(createVanillaFFAAVsLiborSwap());
     }
   };
 
   /** List of Spread IRS inputs */
   public static  List<ManageableSecurity> SPREAD_INPUTS = new ArrayList<ManageableSecurity>() {
     {
-      add(createSpreadFFAAVsLiborSwap());
       add(createSpreadLiborVsLiborSwap());
       add(createSpreadFixedVsONCompoundedSwap());
     }
@@ -148,150 +124,28 @@ public final class RemoteViewUtils {
 
   public static void outputBucketedCurveSensitivities(String label, Result result) {
 
-//    if (result.isSuccess()) {
-//      System.out.println(label  + ": Bucketed PV01");
-//
-//      BucketedCurveSensitivities bcs = (BucketedCurveSensitivities) result.getValue();
-//      Map sensitivities = bcs.getSensitivities();
-//      Iterator entryIterator = sensitivities.entrySet().iterator();
-//      while(entryIterator.hasNext()) {
-//        Map.Entry entry = (Map.Entry) entryIterator.next();
-//        Pair pair = (Pair) entry.getKey();
-//        DoubleLabelledMatrix1D matrix = (DoubleLabelledMatrix1D) sensitivities.get(pair);
-//        System.out.println("  " + pair.getFirst().toString() + ": " + pair.getSecond().toString());
-//        for (int i=0; i < matrix.getLabels().length; i++) {
-//          System.out.println("    " + matrix.getLabels()[i].toString() + ": " + matrix.getValues()[i]);
-//        }
-//      }
-//    } else {
-//      System.out.println(label + ": Error - " + result.getFailureMessage());
-//    }
+    if (result.isSuccess()) {
+      System.out.println(label  + ": Bucketed PV01");
+
+      BucketedCurveSensitivities bcs = (BucketedCurveSensitivities) result.getValue();
+      Map sensitivities = bcs.getSensitivities();
+      Iterator entryIterator = sensitivities.entrySet().iterator();
+      while(entryIterator.hasNext()) {
+        Map.Entry entry = (Map.Entry) entryIterator.next();
+        Pair pair = (Pair) entry.getKey();
+        DoubleLabelledMatrix1D matrix = (DoubleLabelledMatrix1D) sensitivities.get(pair);
+        System.out.println("  " + pair.getFirst().toString() + ": " + pair.getSecond().toString());
+        for (int i=0; i < matrix.getLabels().length; i++) {
+          System.out.println("    " + matrix.getLabels()[i].toString() + ": " + matrix.getValues()[i]);
+        }
+      }
+    } else {
+      System.out.println(label + ": Error - " + result.getFailureMessage());
+    }
 
   }
 
   /* Sample Interest Rate Swaps */
-  /* Vanilla */
-
-
-  public static InterestRateSwapSecurity createVanillaFFAAVsLiborSwap() {
-
-    InterestRateSwapNotional notional = new InterestRateSwapNotional(Currency.USD, 100_000_000);
-    PeriodFrequency freq3m = PeriodFrequency.of(Period.ofMonths(3));
-    Set<ExternalId> calendarUSNY = Sets.newHashSet(ExternalId.of(ExternalSchemes.ISDA_HOLIDAY, "USNY"));
-    List<InterestRateSwapLeg> legs = new ArrayList<>();
-
-    FloatingInterestRateSwapLeg payLeg = new FloatingInterestRateSwapLeg();
-    payLeg.setNotional(notional);
-    payLeg.setDayCountConvention(DayCounts.ACT_360);
-    payLeg.setPaymentDateFrequency(freq3m);
-    payLeg.setPaymentDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
-    payLeg.setPaymentDateCalendars(calendarUSNY);
-    payLeg.setAccrualPeriodFrequency(freq3m);
-    payLeg.setAccrualPeriodBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
-    payLeg.setAccrualPeriodCalendars(calendarUSNY);
-    payLeg.setResetPeriodFrequency(freq3m); //? Daily
-    payLeg.setResetPeriodBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
-    payLeg.setResetPeriodCalendars(calendarUSNY);
-    payLeg.setFixingDateBusinessDayConvention(BusinessDayConventions.PRECEDING);
-    payLeg.setMaturityDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
-    payLeg.setFixingDateCalendars(calendarUSNY);
-    payLeg.setFixingDateOffset(0);
-    payLeg.setFloatingRateType(FloatingRateType.OVERNIGHT_ARITHMETIC_AVERAGE);
-    payLeg.setFloatingReferenceRateId(ExternalId.of("BLOOMBERG_TICKER", "FEDL01 Index"));
-    payLeg.setPayReceiveType(PayReceiveType.PAY);
-    legs.add(payLeg);
-
-
-    FloatingInterestRateSwapLeg receiveLeg = new FloatingInterestRateSwapLeg();
-    receiveLeg.setNotional(notional);
-    receiveLeg.setDayCountConvention(DayCounts.ACT_360);
-    receiveLeg.setPaymentDateFrequency(freq3m);
-    receiveLeg.setPaymentDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
-    receiveLeg.setPaymentDateCalendars(calendarUSNY);
-    receiveLeg.setAccrualPeriodFrequency(freq3m);
-    receiveLeg.setAccrualPeriodBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
-    receiveLeg.setAccrualPeriodCalendars(calendarUSNY);
-    receiveLeg.setResetPeriodFrequency(freq3m);
-    receiveLeg.setResetPeriodBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
-    receiveLeg.setResetPeriodCalendars(calendarUSNY);
-    receiveLeg.setFixingDateBusinessDayConvention(BusinessDayConventions.PRECEDING);
-    receiveLeg.setMaturityDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
-    receiveLeg.setFixingDateCalendars(calendarUSNY);
-    receiveLeg.setFixingDateOffset(-2);
-    receiveLeg.setFloatingRateType(FloatingRateType.IBOR);
-    receiveLeg.setFloatingReferenceRateId(ExternalId.of("BLOOMBERG_TICKER", "US0003M Index"));
-    receiveLeg.setPayReceiveType(PayReceiveType.RECEIVE);
-
-    legs.add(receiveLeg);
-
-    return new InterestRateSwapSecurity(
-        ExternalIdBundle.of(ExternalId.of("UUID", GUIDGenerator.generate().toString())),
-        "Vanilla FF AA Libor 3m",
-        LocalDate.of(2014, 8, 27), // effective date
-        LocalDate.of(2024, 8, 27), // maturity date,
-        legs);
-  }
-
-  public static InterestRateSwapSecurity createSpreadFFAAVsLiborSwap() {
-
-    InterestRateSwapNotional notional = new InterestRateSwapNotional(Currency.USD, 100_000_000);
-    PeriodFrequency freq3m = PeriodFrequency.of(Period.ofMonths(3));
-    Set<ExternalId> calendarUSNY = Sets.newHashSet(ExternalId.of(ExternalSchemes.ISDA_HOLIDAY, "USNY"));
-    List<InterestRateSwapLeg> legs = new ArrayList<>();
-
-    FloatingInterestRateSwapLeg payLeg = new FloatingInterestRateSwapLeg();
-    payLeg.setNotional(notional);
-    payLeg.setDayCountConvention(DayCounts.ACT_360);
-    payLeg.setPaymentDateFrequency(freq3m);
-    payLeg.setPaymentDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
-    payLeg.setPaymentDateCalendars(calendarUSNY);
-    payLeg.setAccrualPeriodFrequency(freq3m);
-    payLeg.setAccrualPeriodBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
-    payLeg.setAccrualPeriodCalendars(calendarUSNY);
-    payLeg.setResetPeriodFrequency(freq3m); //? Daily
-    payLeg.setResetPeriodBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
-    payLeg.setResetPeriodCalendars(calendarUSNY);
-    payLeg.setFixingDateBusinessDayConvention(BusinessDayConventions.PRECEDING);
-    payLeg.setMaturityDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
-    payLeg.setFixingDateCalendars(calendarUSNY);
-    payLeg.setFixingDateOffset(0);
-    payLeg.setFloatingRateType(FloatingRateType.OVERNIGHT_ARITHMETIC_AVERAGE);
-    payLeg.setCompoundingMethod(CompoundingMethod.NONE);
-    payLeg.setFloatingReferenceRateId(ExternalId.of("BLOOMBERG_TICKER", "FEDL01 Index"));
-    payLeg.setPayReceiveType(PayReceiveType.PAY);
-    payLeg.setSpreadSchedule(new Rate(0.0025));
-    legs.add(payLeg);
-
-
-    FloatingInterestRateSwapLeg receiveLeg = new FloatingInterestRateSwapLeg();
-    receiveLeg.setNotional(notional);
-    receiveLeg.setDayCountConvention(DayCounts.ACT_360);
-    receiveLeg.setPaymentDateFrequency(freq3m);
-    receiveLeg.setPaymentDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
-    receiveLeg.setPaymentDateCalendars(calendarUSNY);
-    receiveLeg.setAccrualPeriodFrequency(freq3m);
-    receiveLeg.setAccrualPeriodBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
-    receiveLeg.setAccrualPeriodCalendars(calendarUSNY);
-    receiveLeg.setResetPeriodFrequency(freq3m);
-    receiveLeg.setResetPeriodBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
-    receiveLeg.setResetPeriodCalendars(calendarUSNY);
-    receiveLeg.setFixingDateBusinessDayConvention(BusinessDayConventions.PRECEDING);
-    receiveLeg.setMaturityDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
-    receiveLeg.setFixingDateCalendars(calendarUSNY);
-    receiveLeg.setFixingDateOffset(-2);
-    receiveLeg.setFloatingRateType(FloatingRateType.IBOR);
-    receiveLeg.setFloatingReferenceRateId(ExternalId.of("BLOOMBERG_TICKER", "US0003M Index"));
-    receiveLeg.setPayReceiveType(PayReceiveType.RECEIVE);
-
-    legs.add(receiveLeg);
-
-    return new InterestRateSwapSecurity(
-        ExternalIdBundle.of(ExternalId.of("UUID", GUIDGenerator.generate().toString())),
-        "Spread FF AA vs Libor 3m",
-        LocalDate.of(2014, 8, 27), // effective date
-        LocalDate.of(2024, 8, 27), // maturity date,
-        legs);
-  }
 
   public static InterestRateSwapSecurity createSpreadLiborVsLiborSwap() {
     InterestRateSwapNotional notional = new InterestRateSwapNotional(Currency.USD, 100_000_000);
@@ -341,7 +195,6 @@ public final class RemoteViewUtils {
     receiveLeg.setFloatingReferenceRateId(ExternalId.of("BLOOMBERG_TICKER", "US0003M Index"));
     receiveLeg.setPayReceiveType(PayReceiveType.RECEIVE);
     receiveLeg.setSpreadSchedule(new Rate(0.001));
-
     legs.add(receiveLeg);
 
     return new InterestRateSwapSecurity(
@@ -405,7 +258,6 @@ public final class RemoteViewUtils {
         legs);
 
   }
-
 
   public static InterestRateSwapSecurity createVanillaFixedVsONCompoundedSwap() { //(X)
     InterestRateSwapNotional notional = new InterestRateSwapNotional(Currency.USD, 100_000_000);
@@ -509,8 +361,5 @@ public final class RemoteViewUtils {
         LocalDate.of(2021, 9, 12), // maturity date,
         legs);
   }
-
-    /* Spread */
-
 
 }

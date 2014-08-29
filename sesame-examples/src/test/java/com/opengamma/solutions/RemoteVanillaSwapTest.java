@@ -5,13 +5,6 @@
  */
 package com.opengamma.solutions;
 
-import static com.opengamma.sesame.config.ConfigBuilder.configureView;
-
-import java.net.URI;
-
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
-
 import com.opengamma.core.link.ConfigLink;
 import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
 import com.opengamma.financial.analytics.curve.exposure.ExposureFunctions;
@@ -28,6 +21,12 @@ import com.opengamma.sesame.server.IndividualCycleOptions;
 import com.opengamma.sesame.server.RemoteFunctionServer;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
+import java.net.URI;
+
+import static com.opengamma.sesame.config.ConfigBuilder.configureView;
 
 /**
  * Integration tests run against a remote server
@@ -50,7 +49,7 @@ public class RemoteVanillaSwapTest {
     _functionServer = new RemoteFunctionServer(URI.create(URL));
     _cycleOptions = IndividualCycleOptions.builder()
         .valuationTime(DateUtils.getUTCDate(2014, 1, 22))
-        .marketDataSpec(UserMarketDataSpecification.of(UniqueId.of("DbSnp", "1039")))
+        .marketDataSpec(UserMarketDataSpecification.of(UniqueId.of("DbSnp", "1000")))
         .build();
 
     _exposureConfig = ConfigLink.resolvable("USD CSA Exposure Functions", ExposureFunctions.class);

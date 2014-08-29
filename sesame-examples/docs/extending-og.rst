@@ -11,7 +11,7 @@ The **ExampleRemoteClientTool** is an example of a client application that can b
 
 You can run this in your IDE **ExampleRemoteClientTool** with the following example arguments:
 
-+ -c http://localhost:8080 
++ -c http://your-server-ip:8080
 + -l com/opengamma/util/warn-logback.xml 
 + -d 20140122 
 + -ef "USD CSA Exposure Functions"
@@ -24,12 +24,12 @@ The **-ef** option refers to the name of the exposure function from your uploade
 
 The **-s** and **-ld** options refers to the market data source. -s is the ID of an existing snapshot. -ld is the name of the live data provider. These arguments are optional and default to Bloomberg live data if no snapshot or live data is specified.
 
-Available snapshots can be seen here http://localhost:8080/jax/snapshots
+Available snapshots can be seen here http://your-server-ip:8080/jax/snapshots
 
 Running in the command line
 ===========================
 
 It is also possible to take the compiled jar of OG-Solutions and place it in *{OG install location}/lib/* then from within the root of the OG installation run the following::
 
-      java -cp lib/*:platform/lib/* com.opengamma.solutions.ExampleRemoteClientTool -l com/opengamma/util/warn-logback.xml -c http://localhost:8080 -d 20140122 -ef "USD CSA Exposure Functions" -ld Bloomberg
+      java -cp lib/*:platform/lib/* com.opengamma.solutions.ExampleRemoteClientTool -l com/opengamma/util/warn-logback.xml -c http://your-server-ip:8080 -d 20140122 -ef "USD CSA Exposure Functions" -ld Bloomberg
 

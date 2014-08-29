@@ -1,12 +1,12 @@
 =======================================
-Setting up an OpenGamma dev environment
+Setting up an OpenGamma development environment
 =======================================
 
 Set up
 ======
 Firstly, go though the process of setting up a local OG server instance. This will include obtaining the OG server zip/tarball, creating and initializing a postgres database, installing ActiveMQ and then configuring the *fullstack* and *marketdata* servers
  
-Next, import this project into your IDE as a maven project.
+Next, download the zip or clone this project and import it into your IDE as a maven project.
 
 Running the marketdata server from you IDE
 ==========================================
