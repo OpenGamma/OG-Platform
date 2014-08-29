@@ -20,7 +20,6 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponON;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
@@ -201,8 +200,9 @@ public class CouponONSpreadDefinition extends CouponDefinition implements Instru
     for (final Double element : _fixingPeriodAccrualFactor) {
       fixingAccrualFactorTotal += element;
     }
-    final CouponON cpn = new CouponON(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), _index, fixingPeriodStartTime,
-        fixingPeriodEndTime, fixingAccrualFactorTotal, getNotional());
+    double spreadAmount = _spread * getNotional() * getPaymentYearFraction();
+    final CouponONSpread cpn = new CouponONSpread(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), _index, fixingPeriodStartTime,
+        fixingPeriodEndTime, fixingAccrualFactorTotal, getNotional(), spreadAmount);
     return cpn;
   }
 
@@ -265,8 +265,9 @@ public class CouponONSpreadDefinition extends CouponDefinition implements Instru
         for (int loopperiod = fixedPeriod; loopperiod < _fixingPeriodAccrualFactor.length; loopperiod++) {
           fixingAccrualFactorLeft += _fixingPeriodAccrualFactor[loopperiod];
         }
+        double spreadAmount = _spread * getNotional() * getPaymentYearFraction();
         final CouponONSpread cpn = new CouponONSpread(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), _index, fixingPeriodStartTime,
-            fixingPeriodEndTime, fixingAccrualFactorLeft, accruedNotional, _spread);
+            fixingPeriodEndTime, fixingAccrualFactorLeft, accruedNotional, spreadAmount);
         return cpn;
       }
       return new CouponFixed(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), (accruedNotional / getNotional() - 1.0)

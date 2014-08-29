@@ -38,7 +38,7 @@ public final class GeneratorLegOnAaMaster {
   /**
    * The map with the list of names and the swap generators.
    */
-  private final Map<String, GeneratorLegONArithmeticAverageAbstract> _generatorLeg;
+  private final Map<String, GeneratorLegONArithmeticAverage> _generatorLeg;
 
   /**
    * Private constructor.
@@ -53,8 +53,8 @@ public final class GeneratorLegOnAaMaster {
         baseCalendar, baseCalendar));
   }
 
-  public GeneratorLegONArithmeticAverageAbstract getGenerator(final String name, final Calendar cal) {
-    final GeneratorLegONArithmeticAverageAbstract generatorNoCalendar = _generatorLeg.get(name);
+  public GeneratorLegONArithmeticAverage getGenerator(final String name, final Calendar cal) {
+    final GeneratorLegONArithmeticAverage generatorNoCalendar = _generatorLeg.get(name);
     if (generatorNoCalendar == null) {
       throw new OpenGammaRuntimeException("Could not get Ibor index for " + name);
     }
