@@ -343,6 +343,9 @@ public class SwapCalculatorE2ETest {
     final MultipleCurrencyAmount pvComputed = BS_3M_S_6M.accept(PVDC, MULTICURVE_OIS);
     final MultipleCurrencyAmount pvExpected = MultipleCurrencyAmount.of(Currency.USD, -13844.3872);
     assertEquals("Basis swap L3M v L6M: present value", pvExpected.getAmount(USD), pvComputed.getAmount(USD), TOLERANCE_PV);
+    final MultipleCurrencyAmount pvComputed2 = BS_3M_S_6M.accept(PVDC, MULTICURVE_FFS);
+    final MultipleCurrencyAmount pvExpected2 = MultipleCurrencyAmount.of(Currency.USD, 72748.9893);
+    assertEquals("Basis swap L3M v L6M: present value", pvExpected2.getAmount(USD), pvComputed2.getAmount(USD), TOLERANCE_PV);
   }
 
   @Test
