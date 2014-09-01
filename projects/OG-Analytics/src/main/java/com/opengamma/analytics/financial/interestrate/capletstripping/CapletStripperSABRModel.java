@@ -65,7 +65,7 @@ public class CapletStripperSABRModel extends CapletStripperSmileModel<SABRFormul
 
     double[] capletExpiries = pricer.getCapletExpiries();
     double[] fwds = pricer.getCapletForwardRates();
-    // TODO seams unnecessary to build an interpolated curve that will only be hit at the knots
+    // this interpolated forward curve that will only be hit at the knots, so don't need anything more than linear
     ForwardCurve fwdCurve = new ForwardCurve(InterpolatedDoublesCurve.from(capletExpiries, fwds,
         CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR,
             Interpolator1DFactory.FLAT_EXTRAPOLATOR)));
