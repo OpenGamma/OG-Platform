@@ -181,32 +181,37 @@ public class SwapRiskUsdEurAnalysis {
   private static final MarketQuoteSensitivityBlockCalculator<MulticurveProviderInterface> MQSBC = new MarketQuoteSensitivityBlockCalculator<>(PSC);
 
   private static final double TOLERANCE_PV = 1.0E-2;
-  private static final double TOLERANCE_PV_2 = 1.0E+4;
   private static final double BP1 = 1.0E-4;
 
   @SuppressWarnings("unused")
   @Test(enabled = true)
   public void presentValue() {
+    // USD instrument: Same PV
     MultipleCurrencyAmount pvIrs1FfEo = IRS_1.accept(PVDC, MULTICURVE_FF_EO);
-    MultipleCurrencyAmount pvIrs2FfEo = IRS_2.accept(PVDC, MULTICURVE_FF_EO);
     MultipleCurrencyAmount pvIrs1Ff1 = IRS_1.accept(PVDC, MULTICURVE_FF_1);
-    MultipleCurrencyAmount pvIrs2Ff1 = IRS_2.accept(PVDC, MULTICURVE_FF_1);
     assertEquals("Tutorial - Change of collateral", pvIrs1FfEo.getAmount(USD), pvIrs1Ff1.getAmount(USD), TOLERANCE_PV);
-    int t = 0;
+    // EUR instrument
+    MultipleCurrencyAmount pvIrs2FfEo = IRS_2.accept(PVDC, MULTICURVE_FF_EO);
+    MultipleCurrencyAmount pvIrs2Ff1 = IRS_2.accept(PVDC, MULTICURVE_FF_1);
   }
 
-  @SuppressWarnings("unused")
   @Test(enabled = true)
   public void bucketedPv01() {
     MultipleCurrencyParameterSensitivity pvmqsIrs1FfEo = MQSBC.fromInstrument(IRS_1, MULTICURVE_FF_EO, BLOCK_FF_EO).multipliedBy(BP1);
     MultipleCurrencyParameterSensitivity pvmqsIrs2FfEo = MQSBC.fromInstrument(IRS_2, MULTICURVE_FF_EO, BLOCK_FF_EO).multipliedBy(BP1);
-    //    ExportUtils.exportMultipleCurrencyParameterSensitivity(pvmqsIrs1FfEo, "irs-usd-mqs-ff-eo.csv");
-    //    ExportUtils.exportMultipleCurrencyParameterSensitivity(pvmqsIrs2FfEo, "irs-eur-mqs-ff-eo.csv");
+    ExportUtils.exportMultipleCurrencyParameterSensitivity(pvmqsIrs1FfEo, "irs-usd-mqs-ff-eo.csv");
+    ExportUtils.exportMultipleCurrencyParameterSensitivity(pvmqsIrs2FfEo, "irs-eur-mqs-ff-eo.csv");
     MultipleCurrencyParameterSensitivity pvmqsIrs1Ff1 = MQSBC.fromInstrument(IRS_1, MULTICURVE_FF_1, BLOCK_FF_1).multipliedBy(BP1);
     MultipleCurrencyParameterSensitivity pvmqsIrs2Ff1 = MQSBC.fromInstrument(IRS_2, MULTICURVE_FF_1, BLOCK_FF_1).multipliedBy(BP1);
     ExportUtils.exportMultipleCurrencyParameterSensitivity(pvmqsIrs1Ff1, "irs-usd-mqs-ff-fxxccy.csv");
     ExportUtils.exportMultipleCurrencyParameterSensitivity(pvmqsIrs2Ff1, "irs-eur-mqs-ff-fxxccy.csv");
-    int t = 0;
+  }
+  
+
+  @Test(enabled = false)
+  public void exportCurves() {
+    ExportUtils.exportMulticurveProviderDiscount(MULTICURVE_FF_EO, "multicurve-localcurrencycollateral.csv");
+    ExportUtils.exportMulticurveProviderDiscount(MULTICURVE_FF_1, "multicurve-fedfundcollateral-1.csv");
   }
 
 }
