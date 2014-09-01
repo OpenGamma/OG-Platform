@@ -40,12 +40,12 @@ public class NonLinearLeastSquareWithPenalty {
   // Review should we use Cholesky as default
   private static final Decomposition<?> DEFAULT_DECOMP = DecompositionFactory.SV_COLT;
   private static final OGMatrixAlgebra MA = new OGMatrixAlgebra();
-  private static final double EPS = 1e-8;
+  private static final double EPS = 1e-8; //Default convergence tolerance on the relative change in chi2
 
   /**
    * Unconstrained allowed function - always returns true
    */
-  public static final Function1D<DoubleMatrix1D, Boolean> UNCONSTAINED = new Function1D<DoubleMatrix1D, Boolean>() {
+  public static final Function1D<DoubleMatrix1D, Boolean> UNCONSTRAINED = new Function1D<DoubleMatrix1D, Boolean>() {
     @Override
     public Boolean evaluate(final DoubleMatrix1D x) {
       return true;
@@ -76,7 +76,7 @@ public class NonLinearLeastSquareWithPenalty {
       final double eps) {
     ArgumentChecker.notNull(decomposition, "decomposition");
     ArgumentChecker.notNull(algebra, "algebra");
-    ArgumentChecker.isTrue(eps > 0, "must have possitive eps");
+    ArgumentChecker.isTrue(eps > 0, "must have positive eps");
     _decomposition = decomposition;
     _algebra = algebra;
     _eps = eps;
@@ -153,7 +153,7 @@ public class NonLinearLeastSquareWithPenalty {
   public LeastSquareWithPenaltyResults solve(final DoubleMatrix1D observedValues, final DoubleMatrix1D sigma,
       final Function1D<DoubleMatrix1D, DoubleMatrix1D> func, final Function1D<DoubleMatrix1D, DoubleMatrix2D> jac,
       final DoubleMatrix1D startPos, final DoubleMatrix2D penalty) {
-    return solve(observedValues, sigma, func, jac, startPos, penalty, UNCONSTAINED);
+    return solve(observedValues, sigma, func, jac, startPos, penalty, UNCONSTRAINED);
   }
 
   /**

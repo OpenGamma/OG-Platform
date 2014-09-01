@@ -341,7 +341,7 @@ public abstract class MatrixAlgebra {
     for (int i = 0; i < m; i++) {
       double sum = 0.0;
       for (int k = 0; k < n; k++) {
-        sum += FunctionUtils.square(aData[k][i]);
+        sum += aData[k][i] * aData[k][i];
       }
       data[i][i] = sum;
 
