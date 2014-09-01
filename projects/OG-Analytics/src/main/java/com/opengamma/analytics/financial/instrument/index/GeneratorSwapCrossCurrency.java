@@ -7,13 +7,14 @@ package com.opengamma.analytics.financial.instrument.index;
 
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Generator (or template) for a swap described by its two legs generators. Both legs are in the same currency.
+ * Generator (or template) for a swap described by its two legs generators.
  */
-public class GeneratorSwapSingleCurrency extends GeneratorInstrument<GeneratorAttributeIR> {
+public class GeneratorSwapCrossCurrency extends GeneratorInstrument<GeneratorAttributeFX> {
 
   /** The first leg generator. The market quote will be applied on this leg. */
   private final GeneratorLeg _leg1;
@@ -24,13 +25,12 @@ public class GeneratorSwapSingleCurrency extends GeneratorInstrument<GeneratorAt
    * Constructor.
    * @param name The generator name.
    * @param leg1 The first leg generator. The market quote will be applied on this leg.
-   * @param leg2 The second leg generator. Both leg should be in the same currency.
+   * @param leg2 The second leg generator.
    */
-  public GeneratorSwapSingleCurrency(String name, GeneratorLeg leg1, GeneratorLeg leg2) {
+  public GeneratorSwapCrossCurrency(String name, GeneratorLeg leg1, GeneratorLeg leg2) {
     super(name);
     ArgumentChecker.notNull(leg1, "first leg");
     ArgumentChecker.notNull(leg2, "second leg");
-    ArgumentChecker.isTrue(leg1.getCcy().equals(leg2.getCcy()), "Both legs should be in the same currency");
     _leg1 = leg1;
     _leg2 = leg2;
   }
@@ -52,9 +52,12 @@ public class GeneratorSwapSingleCurrency extends GeneratorInstrument<GeneratorAt
   }
 
   @Override
-  public SwapDefinition generateInstrument(ZonedDateTime date, double marketQuote, double notional, GeneratorAttributeIR attribute) {
-    return new SwapDefinition(_leg1.generateInstrument(date, marketQuote, notional, attribute), 
-        _leg2.generateInstrument(date, 0.0, -notional, attribute));
+  public SwapDefinition generateInstrument(ZonedDateTime date, double marketQuote, double notional, GeneratorAttributeFX attribute) {
+    GeneratorAttributeIR attributeIr = new GeneratorAttributeIR(attribute.getStartPeriod(), attribute.getEndPeriod());
+    AnnuityDefinition<?> leg1 = _leg1.generateInstrument(date, marketQuote, notional, attributeIr);
+    final double fx = attribute.getFXMatrix().getFxRate(_leg1.getCcy(), _leg2.getCcy());
+    AnnuityDefinition<?> leg2 = _leg1.generateInstrument(date, 0.0, -fx * notional, attributeIr);
+    return new SwapDefinition(leg1, leg2);
   }
 
 }

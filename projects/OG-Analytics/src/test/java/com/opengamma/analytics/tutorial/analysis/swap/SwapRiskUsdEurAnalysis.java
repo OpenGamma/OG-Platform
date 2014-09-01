@@ -32,6 +32,7 @@ import com.opengamma.analytics.financial.instrument.payment.CouponDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapCouponFixedCouponDefinition;
+import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParRateDiscountingCalculator;
@@ -43,7 +44,6 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
-import com.opengamma.analytics.tutorial.datasets.RecentDataSetsMulticurveStandardUsd;
 import com.opengamma.analytics.tutorial.datasets.RecentDataSetsMulticurveXCcyUsdEur;
 import com.opengamma.analytics.tutorial.utils.ExportUtils;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -109,6 +109,11 @@ public class SwapRiskUsdEurAnalysis {
   private static final LocalDate MATURITY_DATE_2 = LocalDate.of(2018, 7, 18);
   private static final double FIXED_RATE_2 = 0.0250;
   private static final boolean PAYER_2 = false;
+  /** EUREURIBOR3M + Spread v USDLIBOR3M */
+  private static final LocalDate EFFECTIVE_DATE_3 = LocalDate.of(2015, 7, 18);
+  private static final LocalDate MATURITY_DATE_3 = LocalDate.of(2018, 7, 18);
+  private static final double SPREAD_3 = 0.0250;
+  private static final boolean PAYER_3 = false;
 
   /** IRS 1 - USD - Fixed v LIBOR3M **/
   /** Fixed leg */
@@ -145,7 +150,7 @@ public class SwapRiskUsdEurAnalysis {
     }
   }
   private static final AnnuityCouponFixedDefinition FIXED_LEG_2_DEFINITION = new AnnuityCouponFixedDefinition(CPN_FIXED_2_DEFINITION, NYC);
-  /** Ibor leg */
+  /** Euribor leg */
   private static final AnnuityDefinition<? extends CouponDefinition> IBOR_LEG_2_DEFINITION = (AnnuityDefinition<? extends CouponDefinition>)
       new FloatingAnnuityDefinitionBuilder().payer(!PAYER_2).notional(NOTIONAL_PROV_1).startDate(EFFECTIVE_DATE_2).
           endDate(MATURITY_DATE_2).index(EURIBOR6M).accrualPeriodFrequency(EURIBOR6M.getTenor()).
@@ -154,9 +159,33 @@ public class SwapRiskUsdEurAnalysis {
           currency(EURIBOR6M.getCurrency()).build();
   private static final SwapCouponFixedCouponDefinition IRS_2_DEFINITION = new SwapCouponFixedCouponDefinition(FIXED_LEG_2_DEFINITION, IBOR_LEG_2_DEFINITION);
 
+  /** BS 2 - EUR EURIBOR3M v USD LIBOR3M **/
+  /** EUR Euribor leg */
+  private static final AnnuityDefinition<? extends CouponDefinition> IBOR_LEG_3_1_DEFINITION = (AnnuityDefinition<? extends CouponDefinition>)
+      new FloatingAnnuityDefinitionBuilder().payer(PAYER_3).notional(NOTIONAL_PROV_1).startDate(EFFECTIVE_DATE_3).
+          endDate(MATURITY_DATE_3).index(EURIBOR3M).accrualPeriodFrequency(EURIBOR3M.getTenor()).
+          rollDateAdjuster(RollConvention.NONE.getRollDateAdjuster(0)).resetDateAdjustmentParameters(ADJUSTED_DATE_EUREURIBOR).
+          accrualPeriodParameters(ADJUSTED_DATE_EUREURIBOR).dayCount(EURIBOR3M.getDayCount()).fixingDateAdjustmentParameters(OFFSET_ADJ_EUREURIBOR).
+          currency(EURIBOR3M.getCurrency()).exchangeInitialNotional(true).exchangeFinalNotional(true).
+          startDateAdjustmentParameters(ADJUSTED_DATE_EUREURIBOR).endDateAdjustmentParameters(ADJUSTED_DATE_EUREURIBOR).build();
+  /** ISD LIBOR leg */
+  private static final AnnuityDefinition<? extends CouponDefinition> IBOR_LEG_3_2_DEFINITION = (AnnuityDefinition<? extends CouponDefinition>)
+      new FloatingAnnuityDefinitionBuilder().payer(!PAYER_3).notional(NOTIONAL_PROV_1).startDate(EFFECTIVE_DATE_3).
+          endDate(MATURITY_DATE_3).index(USDLIBOR3M).accrualPeriodFrequency(USDLIBOR3M.getTenor()).
+          rollDateAdjuster(RollConvention.NONE.getRollDateAdjuster(0)).resetDateAdjustmentParameters(ADJUSTED_DATE_USDLIBOR).
+          accrualPeriodParameters(ADJUSTED_DATE_USDLIBOR).dayCount(USDLIBOR3M.getDayCount()).fixingDateAdjustmentParameters(OFFSET_ADJ_USDLIBOR).
+          currency(USDLIBOR3M.getCurrency()).exchangeInitialNotional(true).exchangeFinalNotional(true).
+          startDateAdjustmentParameters(ADJUSTED_DATE_USDLIBOR).endDateAdjustmentParameters(ADJUSTED_DATE_USDLIBOR).build();
+  private static final SwapDefinition XCCY_1_DEFINITION = new SwapDefinition(IBOR_LEG_3_1_DEFINITION, IBOR_LEG_3_2_DEFINITION);
+
+  
   /** Curves and fixing */
-  private static final ZonedDateTimeDoubleTimeSeries TS_FIXED_IBOR_USD3M_WITHOUT_TODAY = RecentDataSetsMulticurveStandardUsd.fixingUsdLibor3MWithoutLast();
-  private static final ZonedDateTimeDoubleTimeSeries TS_FIXED_ON_USD_WITHOUT_TODAY = RecentDataSetsMulticurveStandardUsd.fixingUsdOnWithoutLast();
+  private static final ZonedDateTimeDoubleTimeSeries TS_FIXED_IBOR_USD3M_WITHOUT_TODAY = 
+      RecentDataSetsMulticurveXCcyUsdEur.fixingUsdLibor3MWithoutLast();
+  private static final ZonedDateTimeDoubleTimeSeries TS_FIXED_ON_USD_WITHOUT_TODAY = 
+      RecentDataSetsMulticurveXCcyUsdEur.fixingUsdOnWithoutLast();
+  private static final ZonedDateTimeDoubleTimeSeries TS_FIXED_IBOR_EUR3M_WITHOUT_TODAY = 
+      RecentDataSetsMulticurveXCcyUsdEur.fixingEurEuribor3MWithoutLast();
 
   private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_FF_EO_PAIR =
       RecentDataSetsMulticurveXCcyUsdEur.getCurvesUsdOisL3EurOisE3E6(VALUATION_DATE);
@@ -172,6 +201,8 @@ public class SwapRiskUsdEurAnalysis {
       new ZonedDateTimeDoubleTimeSeries[] {TS_FIXED_IBOR_USD3M_WITHOUT_TODAY, TS_FIXED_IBOR_USD3M_WITHOUT_TODAY });
   private static final Swap<? extends Payment, ? extends Payment> IRS_2 = IRS_2_DEFINITION.toDerivative(VALUATION_DATE,
       new ZonedDateTimeDoubleTimeSeries[] {TS_FIXED_IBOR_USD3M_WITHOUT_TODAY, TS_FIXED_IBOR_USD3M_WITHOUT_TODAY });
+  private static final Swap<? extends Payment, ? extends Payment> XCCY_1 = XCCY_1_DEFINITION.toDerivative(VALUATION_DATE,
+      new ZonedDateTimeDoubleTimeSeries[] {TS_FIXED_IBOR_EUR3M_WITHOUT_TODAY, TS_FIXED_IBOR_USD3M_WITHOUT_TODAY });
 
   /** Calculators **/
   private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
@@ -192,6 +223,10 @@ public class SwapRiskUsdEurAnalysis {
     MultipleCurrencyAmount pvIrs1Ff1 = IRS_1.accept(PVDC, MULTICURVE_FF_1);
     MultipleCurrencyAmount pvIrs2Ff1 = IRS_2.accept(PVDC, MULTICURVE_FF_1);
     assertEquals("Tutorial - Change of collateral", pvIrs1FfEo.getAmount(USD), pvIrs1Ff1.getAmount(USD), TOLERANCE_PV);
+
+    MultipleCurrencyAmount pvXCcy1FfEo = XCCY_1.accept(PVDC, MULTICURVE_FF_EO);
+    MultipleCurrencyAmount pvXCcy1Ff1 = XCCY_1.accept(PVDC, MULTICURVE_FF_1);
+    
     int t = 0;
   }
 
