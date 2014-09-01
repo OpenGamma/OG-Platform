@@ -19,7 +19,6 @@ import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.rolldate.RollDateAdjuster;
-import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -495,7 +494,7 @@ public abstract class AbstractAnnuityDefinitionBuilder<T extends AbstractAnnuity
         startDate, // accrual start
         startDate, // accrual end
         1.0, // year frac
-        (isPayer() ? -1 : 1) * getNotional().getAmount(_startDate),
+        (isPayer() ? 1 : -1) * getNotional().getAmount(_startDate), // The initial notional has opposite sign.
         1.0); // rate
   }
   
