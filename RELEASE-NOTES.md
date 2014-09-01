@@ -6,6 +6,16 @@ These release notes cover changes from v2.3 to v2.4.
 Upgrading to 2.4.0 from 2.3.0
 =============================
 
+* Bug
+    * [PLAT-6712] - Fix WARN message on server start up when initializing webBasics
+    * [PLAT-6715] - A number of config files in demo-lx-1 aren't quite right and exit status on fullstack.sh doesn't seem right either.
+* Improvement
+    * [PLAT-6675] - Deprecating old security types
+    * [PLAT-6676] - Forward rate agreement
+    * [PLAT-6708] - Using class hierarchy when retrieving configurations from redis
+    * [PLAT-6713] - Ensure snapshot market data is configured on deployment template
+
+
 To 2.4.0-M2
 -----------
 

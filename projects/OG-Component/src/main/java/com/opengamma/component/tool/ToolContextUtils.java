@@ -123,7 +123,7 @@ public final class ToolContextUtils {
         try {
           ComponentInfo componentInfo = getComponentInfo(componentServer, classifierChain, metaProperty.propertyType());
           if (componentInfo == null) {
-            s_logger.warn("Unable to populate tool context '" + metaProperty.name() +
+            s_logger.info("Unable to populate tool context '" + metaProperty.name() +
                 "', no appropriate component found on the server");
             continue;
           }

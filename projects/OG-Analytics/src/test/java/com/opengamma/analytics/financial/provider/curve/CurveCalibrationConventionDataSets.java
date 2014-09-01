@@ -160,6 +160,63 @@ public class CurveCalibrationConventionDataSets {
     return generator;
   }
 
+  /** JPY **/
+  private static final Calendar TYO = new MondayToFridayCalendar("TYO");
+  private static final Currency JPY = Currency.JPY;
+  private static final GeneratorSwapFixedON GENERATOR_OIS_JPY = GeneratorSwapFixedONMaster.getInstance().getGenerator("JPY1YTONAR", TYO);
+  private static final IndexON TONAR = GENERATOR_OIS_JPY.getIndex();
+  private static final GeneratorDepositON GENERATOR_DEPOSIT_ON_JPY = new GeneratorDepositON("JPY Deposit ON", JPY, TYO, TONAR.getDayCount());
+  private static final GeneratorSwapFixedIbor JPY6MLIBOR6M = GENERATOR_IRS_MASTER.getGenerator("JPY6MLIBOR6M", TYO);
+  private static final GeneratorSwapIborIbor JPYLIBOR3MLIBOR6M = GENERATOR_BS_MASTER.getGenerator("JPYLIBOR3MLIBOR6M", TYO);
+  private static final IborIndex JPYLIBOR3M = JPYLIBOR3MLIBOR6M.getIborIndex1();
+  private static final IborIndex JPYLIBOR6M = JPY6MLIBOR6M.getIborIndex();
+  private static final GeneratorFRA GENERATOR_FRA_3M_JPY = new GeneratorFRA("GENERATOR_FRA_3M", JPYLIBOR3M, TYO);
+  private static final GeneratorFRA GENERATOR_FRA_6M_JPY = new GeneratorFRA("GENERATOR_FRA_6M", JPYLIBOR6M, TYO);
+  private static final GeneratorDepositIbor GENERATOR_JPYLIBOR3M = new GeneratorDepositIbor("GENERATOR_JPYLIBOR3M", JPYLIBOR3M, TYO);
+  private static final GeneratorDepositIbor GENERATOR_JPYLIBOR6M = new GeneratorDepositIbor("GENERATOR_JPYLIBOR6M", JPYLIBOR6M, TYO);
+
+  @SuppressWarnings("unchecked")
+  public static GeneratorInstrument<? extends GeneratorAttribute>[] generatorJpyOnOis(int nbDepositON, int nbOis) {
+    GeneratorInstrument<? extends GeneratorAttribute>[] generator = new GeneratorInstrument[nbDepositON + nbOis];
+    for (int loopdepo = 0; loopdepo < nbDepositON; loopdepo++) {
+      generator[loopdepo] = GENERATOR_DEPOSIT_ON_JPY;
+    }
+    for (int loopois = 0; loopois < nbOis; loopois++) {
+      generator[nbDepositON + loopois] = GENERATOR_OIS_JPY;
+    }
+    return generator;
+  }
+
+  @SuppressWarnings("unchecked")
+  public static GeneratorInstrument<? extends GeneratorAttribute>[] generatorJpyIbor6Fra6Irs6(int nbIbor, int nbFra, int nbIrs) {
+    GeneratorInstrument<? extends GeneratorAttribute>[] generator = new GeneratorInstrument[nbIbor + nbFra + nbIrs];
+    for (int loopibor = 0; loopibor < nbIbor; loopibor++) {
+      generator[loopibor] = GENERATOR_JPYLIBOR6M;
+    }
+    for (int loopfra = 0; loopfra < nbFra; loopfra++) {
+      generator[nbIbor + loopfra] = GENERATOR_FRA_6M_JPY;
+    }
+    for (int loopirs = 0; loopirs < nbIrs; loopirs++) {
+      generator[nbIbor + nbFra + loopirs] = JPY6MLIBOR6M;
+    }
+    return generator;
+  }
+
+  @SuppressWarnings("unchecked")
+  public static GeneratorInstrument<? extends GeneratorAttribute>[] generatorJpyIbor3Fra3Bs3(int nbIbor, int nbFra, int nbBs) {
+    GeneratorInstrument<? extends GeneratorAttribute>[] generator = new GeneratorInstrument[nbIbor + nbFra + nbBs];
+    for (int loopibor = 0; loopibor < nbIbor; loopibor++) {
+      generator[loopibor] = GENERATOR_JPYLIBOR3M;
+    }
+    for (int loopfra = 0; loopfra < nbFra; loopfra++) {
+      generator[nbIbor + loopfra] = GENERATOR_FRA_3M_JPY;
+    }
+    for (int loopirs = 0; loopirs < nbBs; loopirs++) {
+      generator[nbIbor + nbFra + loopirs] = JPYLIBOR3MLIBOR6M;
+    }
+    return generator;
+  }
+
   /** GBP **/
   private static final Calendar LON = new CalendarGBP("LON");
   private static final Currency GBP = Currency.GBP;

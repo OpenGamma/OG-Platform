@@ -8,7 +8,7 @@ package com.opengamma.analytics.financial.interestrate.capletstripping;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.financial.model.volatility.SimpleOptionData;
 import com.opengamma.analytics.financial.model.volatility.VolatilityModel1D;
-import com.opengamma.analytics.financial.model.volatility.VolatilityTermStructure;
+import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.util.ArgumentChecker;
 
@@ -32,6 +32,11 @@ public class CapFloorPricer {
     _n = _caplets.length;
   }
 
+  /**
+   * price a cap given its volatility 
+   * @param vol The cap volatility 
+   * @return cap price
+   */
   public double price(final double vol) {
     double sum = 0;
     for (int i = 0; i < _n; i++) {
@@ -45,7 +50,9 @@ public class CapFloorPricer {
    * parameters for the same model), with repeating calculations (e.g. as part of a caplet stripping routine)
    * @param volModel VolatilityModel1D  which gives a Black vol for a particular forward/strike/expiry
    * @return The cap (floor) price
+   * @deprecated discourage use of {@link VolatilityModel1D}
    */
+  @Deprecated
   public double price(final VolatilityModel1D volModel) {
     double sum = 0;
     for (int i = 0; i < _n; i++) {
@@ -55,16 +62,28 @@ public class CapFloorPricer {
     return sum;
   }
 
-  public double price(final VolatilityTermStructure volCurve) {
+  /**
+   * Price the cap using a (caplet) volatility surface. This will give a (Black) volatility dependent on the
+   * strike and expiry of each caplet. The cap price is of course the sum of the prices of each of the constituent caplets.
+   * @param volSurface the (Black) volatility surface of the underlying caplets
+   * @return The cap/floor price
+   */
+  public double price(final VolatilitySurface volSurface) {
     double sum = 0;
     for (int i = 0; i < _n; i++) {
-      final double vol = volCurve.getVolatility(_caplets[i].getTimeToExpiry());
+      final SimpleOptionData caplet = _caplets[i];
+      final double vol = volSurface.getVolatility(caplet.getTimeToExpiry(), caplet.getStrike());
       sum += BlackFormulaRepository.price(_caplets[i], vol);
     }
     return sum;
   }
 
-  public double price(final Double[] capletVols) {
+  /**
+   * Price the cap from the volatilities of its caplets. 
+   * @param capletVols The (Black) volatility of caplets. These <b>must</b> be order by (ascending) order of fixing time.
+   * @return The cap price
+   */
+  public double price(final double[] capletVols) {
     ArgumentChecker.isTrue(capletVols.length == _n, "number of caplets is not equal to number of vols");
     double sum = 0;
     for (int i = 0; i < _n; i++) {
@@ -74,25 +93,53 @@ public class CapFloorPricer {
     return sum;
   }
 
+  /**
+   * The implied volatility of a cap. 
+   * @param capPrice The cap price
+   * @return The cap implied volatility 
+   */
   public double impliedVol(final double capPrice) {
     return BlackFormulaRepository.impliedVolatility(_caplets, capPrice);
   }
 
+  /**
+   * 
+   * @param capletVolModel model of caplet volatility 
+   * @return the implied volatility 
+   * @deprecated discourage use of {@link VolatilityModel1D}
+   */
+  @Deprecated
   public double impliedVol(final VolatilityModel1D capletVolModel) {
     final double price = price(capletVolModel);
     return impliedVol(price);
   }
 
-  public double impliedVol(final VolatilityTermStructure volCurve) {
-    final double price = price(volCurve);
+  /**
+   * get the implied volatility of a cap from a (caplet) volatility surface - this will give a (Black) volatility dependent on the
+   * strike and expiry of each caplet.
+   * @param volSurface The (caplet) volatility surface
+   * @return The cap implied volatility 
+   */
+  public double impliedVol(final VolatilitySurface volSurface) {
+    final double price = price(volSurface);
     return impliedVol(price);
   }
 
-  public double impliedVol(final Double[] capletVols) {
+  /**
+   * get the implied volatility of a cap from  the volatilities of the underlying caplets. 
+   * @param capletVols The (Black) volatility of caplets. These <b>must</b> be order by (ascending) order of fixing time.
+   * @return The cap implied volatility 
+   */
+  public double impliedVol(final double[] capletVols) {
     final double price = price(capletVols);
     return impliedVol(price);
   }
 
+  /**
+   * get the cap vega; the sensitivity of its price to its volatility 
+   * @param capVolatility The cap volatility 
+   * @return The cap vega
+   */
   public double vega(final double capVolatility) {
     double sum = 0;
     for (int i = 0; i < _n; i++) {
@@ -101,26 +148,43 @@ public class CapFloorPricer {
     return sum;
   }
 
+  /**
+   * 
+   * @param capletVolModel model of caplet volatility 
+   * @return the vega
+   * @deprecated discourage use of {@link VolatilityModel1D}
+   */
+  @Deprecated
   public double vega(final VolatilityModel1D capletVolModel) {
     final double vol = impliedVol(capletVolModel);
     return vega(vol);
   }
 
-  public double vega(final VolatilityTermStructure volCurve) {
-    final double vol = impliedVol(volCurve);
+  /**
+   * get the cap vega; the sensitivity of its price to its volatility 
+   * @param volSurface The (caplet) volatility surface
+   * @return the cap vega
+   */
+  public double vega(final VolatilitySurface volSurface) {
+    final double vol = impliedVol(volSurface);
     return vega(vol);
   }
 
-  public double vega(final Double[] capletVols) {
+  /**
+   * get the cap vega; the sensitivity of its price to its volatility 
+   * @param capletVols The (Black) volatility of caplets. These <b>must</b> be order by (ascending) order of fixing time.
+   * @return the cap vega
+   */
+  public double vega(final double[] capletVols) {
     final double vol = impliedVol(capletVols);
     return vega(vol);
   }
 
   /**
-   * Gets the fwds.
-   * @return the fwds
+   * Get the forward rates for the period covered by the caplets. 
+   * @return the forward rates - these are order by (caplet) fixing time
    */
-  protected double[] getForwards() {
+  public double[] getCapletForwardRates() {
     final double[] fwds = new double[_n];
     for (int i = 0; i < _n; i++) {
       fwds[i] = _caplets[i].getForward();
@@ -128,12 +192,16 @@ public class CapFloorPricer {
     return fwds;
   }
 
-  //COMMENT - this is the swap rate (the discount factor includes the accrual fraction)
+  /**
+   * get the cap forward. This is the swap rate for the same period (on the same index).  
+   * @return The cap forward 
+   */
   protected double getCapForward() {
     double sum1 = 0;
     double sum2 = 0;
     final double[] df = getDiscountFactors();
-    final double[] fwds = getForwards();
+    final double[] fwds = getCapletForwardRates();
+    //COMMENT - the discount factor includes the accrual fraction
     for (int i = 0; i < _n; i++) {
       sum1 += df[i] * fwds[i];
       sum2 += df[i];
@@ -142,10 +210,10 @@ public class CapFloorPricer {
   }
 
   /**
-   * Gets the t.
-   * @return the t
+   * Gets the caplet expiries.
+   * @return the caplet expiries
    */
-  protected double[] getExpiries() {
+  public double[] getCapletExpiries() {
     final double[] t = new double[_n];
     for (int i = 0; i < _n; i++) {
       t[i] = _caplets[i].getTimeToExpiry();
@@ -154,8 +222,10 @@ public class CapFloorPricer {
   }
 
   /**
-   * Gets the df.
-   * @return the df
+   * Gets the discount factors. <b>Note</b> this is purely the number to multiple the result of Black's formula 
+   * ({@link BlackFormulaRepository}) by; this is the discount factor from the end of the period (when payment is
+   * made) multiplied by the year fraction. 
+   * @return the discount factors 
    */
   protected double[] getDiscountFactors() {
     final double[] df = new double[_n];
@@ -166,21 +236,25 @@ public class CapFloorPricer {
   }
 
   /**
-   * Gets the k.
-   * @return the k
+   * Gets the strike
+   * @return the strike
    */
   protected double getStrike() {
     return _caplets[0].getStrike();
   }
 
   /**
-   * Gets the n.
-   * @return the n
+   * Gets the number of caplets 
+   * @return the number of caplets 
    */
-  protected int getNumberCaplets() {
+  public int getNumberCaplets() {
     return _n;
   }
 
+  /**
+   *  get the underlying caplets (order by fixing time) as an array of {@link SimpleOptionData}
+   * @return array of {@link SimpleOptionData}
+   */
   public SimpleOptionData[] getCapletAsOptionData() {
     return _caplets;
   }
