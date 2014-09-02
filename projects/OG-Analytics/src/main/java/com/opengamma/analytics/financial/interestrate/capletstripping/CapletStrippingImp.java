@@ -90,10 +90,10 @@ public class CapletStrippingImp {
       try {
         return rootFindForCapPrices(capPrices, start);
       } catch (final MathException e) {
+        LOG.warn("Root-find failed. Trying to solve by least-squares");
       }
     }
-    // if the root-finder failed or there are more market prices than model parameters, try to solve in a least-square
-    // sence
+    // if the root-finder failed or there are more market prices than model parameters, try to solve in a least-square sense
     return leastSqrSolveForCapPrices(capPrices, start);
   }
 

@@ -70,7 +70,7 @@ public class CapletStrippingDirectTest extends CapletStrippingSetup {
   }
 
   /**
-   * R White - This takes about 9s on my machine (2.66GHz Quad-Core Intel Xeon)
+   * R White - This takes about 25s on my machine (2.66GHz Quad-Core Intel Xeon)
    * It takes 32 iterations of {@link NonLinearLeastSquareWithPenalty} to converge
    */
   @Test(groups = TestGroup.UNIT_SLOW)
@@ -87,10 +87,9 @@ public class CapletStrippingDirectTest extends CapletStrippingSetup {
     }
 
     CapletStripperDirect stripper = new CapletStripperDirect(pricer, lambda);
-    DoubleMatrix1D guess = new DoubleMatrix1D(pricer.getNumCaplets(), 0.7);
 
-    CapletStrippingResult res = stripper.solve(capPrices, MarketDataType.PRICE, capVega, guess);
-    double expectedChi2 = 106.9017523660732;
+    CapletStrippingResult res = stripper.solve(capPrices, MarketDataType.PRICE, capVega);
+    double expectedChi2 = 106.900149325811982;
     assertEquals(expectedChi2, res.getChiSqr(), expectedChi2 * 1e-8);
   }
 
@@ -111,10 +110,45 @@ public class CapletStrippingDirectTest extends CapletStrippingSetup {
     Arrays.fill(errors, 1e-4); // 1bps
     DoubleMatrix1D guess = new DoubleMatrix1D(pricer.getGridSize(), 0.7);
 
-    CapletStrippingResult res = stripper.solve(capVols, MarketDataType.VOL, errors, guess);
+    CapletStrippingResult  res = stripper.solve(capVols, MarketDataType.VOL, errors, guess);
     double expectedChi2 = 106.90744994488705;
     assertEquals(expectedChi2, res.getChiSqr(), expectedChi2 * 1e-8);
   }
+
+  /**
+   * Run the same test as above, with a unit error - we must also scale lambda to obtain the same result (see comment below)
+   */
+  @Test
+  public void unitErrorVolTest() {
+    double lambda = 1e-8 *  0.03; //scale lambda
+    MultiCapFloorPricerGrid pricer = new MultiCapFloorPricerGrid(getAllCapsExATM(), getYieldCurves());
+    CapletStripperDirect stripper = new CapletStripperDirect(pricer, lambda);
+
+    double[] capVols = getAllCapVolsExATM();
+    DoubleMatrix1D guess = new DoubleMatrix1D(pricer.getGridSize(), 0.7);
+
+    CapletStrippingResult res = stripper.solve(capVols, MarketDataType.VOL, guess);
+    //Comment this is significantly different from a scaled (by 1e-8) value of the chi2 in the previous test
+    double expectedChi2 = 1.201797943622287E-6;
+    assertEquals(expectedChi2, res.getChiSqr(), expectedChi2 * 1e-8);
+  }
+
+  /**
+   * as the previous test, but use default starting position 
+   */
+  @Test
+  public void defaultGuessUnitErrorVolTest() {
+    double lambda = 1e-8 *  0.03; //scale lambda
+    MultiCapFloorPricerGrid pricer = new MultiCapFloorPricerGrid(getAllCapsExATM(), getYieldCurves());
+    CapletStripperDirect stripper = new CapletStripperDirect(pricer, lambda);
+
+    double[] capVols = getAllCapVolsExATM();
+    CapletStrippingResult res = stripper.solve(capVols, MarketDataType.VOL);
+    //Comment this is must closer to the scaled chi2 
+    double expectedChi2 = 1.0691292714566707E-6;
+    assertEquals(expectedChi2, res.getChiSqr(), expectedChi2 * 1e-8);
+  }
+
 
   @Test
   // (groups = TestGroup.UNIT_SLOW)
@@ -163,7 +197,6 @@ public class CapletStrippingDirectTest extends CapletStrippingSetup {
     CapletStrippingResult res = stripper.solve(capVols, MarketDataType.VOL, errors, guess);
     double expChiSqr = 131.50826639955596;
     assertEquals(expChiSqr, res.getChiSqr(), expChiSqr * 1e-8);
-
   }
 
   /**
