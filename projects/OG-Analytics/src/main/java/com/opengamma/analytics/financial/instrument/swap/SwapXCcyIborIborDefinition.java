@@ -56,7 +56,6 @@ public class SwapXCcyIborIborDefinition extends SwapDefinition {
     ArgumentChecker.notNull(generator, "Swap generator");
     // TODO: create a mechanism for the simultaneous payments on both legs, i.e. joint calendar
     final ZonedDateTime maturityDate = settlementDate.plus(tenor);
-//        ScheduleCalculator.getAdjustedDate(settlementDate, tenor, generator.getIborIndex1(), calendar1);
     return from(settlementDate, maturityDate, generator, notional1, notional2, spread, 0.0, isPayer);
   }
 
