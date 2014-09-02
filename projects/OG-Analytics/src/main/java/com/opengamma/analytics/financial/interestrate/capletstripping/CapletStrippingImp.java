@@ -335,7 +335,7 @@ public class CapletStrippingImp {
    * @return the results of the stripping
    */
   public CapletStrippingResult solveForCapVols(final double[] capVols, final double[] errors, final DoubleMatrix1D start, final DoubleMatrix2D penaltyMatrix) {
-    return solveForCapVols(capVols, errors, start, penaltyMatrix, NonLinearLeastSquareWithPenalty.UNCONSTAINED);
+    return solveForCapVols(capVols, errors, start, penaltyMatrix, NonLinearLeastSquareWithPenalty.UNCONSTRAINED);
   }
 
   /**

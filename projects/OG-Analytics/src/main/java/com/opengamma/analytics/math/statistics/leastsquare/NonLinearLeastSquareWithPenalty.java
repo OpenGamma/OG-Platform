@@ -45,7 +45,7 @@ public class NonLinearLeastSquareWithPenalty {
   /**
    * Unconstrained allowed function - always returns true
    */
-  public static final Function1D<DoubleMatrix1D, Boolean> UNCONSTAINED = new Function1D<DoubleMatrix1D, Boolean>() {
+  public static final Function1D<DoubleMatrix1D, Boolean> UNCONSTRAINED = new Function1D<DoubleMatrix1D, Boolean>() {
     @Override
     public Boolean evaluate(final DoubleMatrix1D x) {
       return true;
@@ -153,7 +153,7 @@ public class NonLinearLeastSquareWithPenalty {
   public LeastSquareWithPenaltyResults solve(final DoubleMatrix1D observedValues, final DoubleMatrix1D sigma,
       final Function1D<DoubleMatrix1D, DoubleMatrix1D> func, final Function1D<DoubleMatrix1D, DoubleMatrix2D> jac,
       final DoubleMatrix1D startPos, final DoubleMatrix2D penalty) {
-    return solve(observedValues, sigma, func, jac, startPos, penalty, UNCONSTAINED);
+    return solve(observedValues, sigma, func, jac, startPos, penalty, UNCONSTRAINED);
   }
 
   /**

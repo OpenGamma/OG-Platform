@@ -144,7 +144,7 @@ public class NonLinearLeastSquareWithPenaltyTest {
     }
     final DoubleMatrix1D start = new DoubleMatrix1D(temp);
 
-    final LeastSquareResults lsRes = NLLSWP.solve(new DoubleMatrix1D(obs), new DoubleMatrix1D(n, 0.01), func, jac, start, penalty);
+    LeastSquareWithPenaltyResults lsRes = NLLSWP.solve(new DoubleMatrix1D(obs), new DoubleMatrix1D(n, 0.01), func, jac, start, penalty);
     if (print) {
       System.out.println("chi2: " + lsRes.getChiSq());
       System.out.println(lsRes.getFitParameters());
@@ -152,6 +152,8 @@ public class NonLinearLeastSquareWithPenaltyTest {
     for (int i = 0; i < n; i++) {
       assertEquals(obs[i], lsRes.getFitParameters().getEntry(onIndex[i]), 0.01);
     }
+    double expPen = 20.87912357454752;
+    assertEquals(expPen, lsRes.getPenalty(), 1e-9);
   }
 
   /**
