@@ -58,7 +58,7 @@ public final class GeneratorLegOnAaMaster {
     if (generatorNoCalendar == null) {
       throw new OpenGammaRuntimeException("Could not get Ibor index for " + name);
     }
-    return new GeneratorLegONArithmeticAverage(generatorNoCalendar.getName(), generatorNoCalendar.getCcy(), 
+    return new GeneratorLegONArithmeticAverage(generatorNoCalendar.getName(), generatorNoCalendar.getCurrency(), 
         generatorNoCalendar.getIndexON(), generatorNoCalendar.getPaymentPeriod(), generatorNoCalendar.getSpotOffset(), 
         generatorNoCalendar.getPaymentOffset(), generatorNoCalendar.getBusinessDayConvention(), 
         generatorNoCalendar.isEndOfMonth(), generatorNoCalendar.getStubType(), generatorNoCalendar.isExchangeNotional(), 

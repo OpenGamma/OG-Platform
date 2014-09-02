@@ -37,8 +37,8 @@ public class GeneratorLegONArithmeticAverageTest {
   private static final String NAME = "LEG_USD1YFEDFUND";
   private static final int OFFSET_SPOT = 2;
   private static final int OFFSET_PAYMENT = 0;
-  private static final GeneratorLegONArithmeticAverage GENERATOR = new GeneratorLegONArithmeticAverage(NAME, USD, FEDFUND,
-      Period.ofMonths(12), OFFSET_SPOT, OFFSET_PAYMENT, BusinessDayConventions.MODIFIED_FOLLOWING, true, 
+  private static final GeneratorLegONArithmeticAverage GENERATOR = new GeneratorLegONArithmeticAverage(NAME, USD, 
+      FEDFUND, Period.ofMonths(12), OFFSET_SPOT, OFFSET_PAYMENT, BusinessDayConventions.MODIFIED_FOLLOWING, true, 
       StubType.SHORT_START, false, NYC, NYC);
   private static final GeneratorLegONArithmeticAverageSimplified GENERATOR_SIMPLE = 
       new GeneratorLegONArithmeticAverageSimplified(NAME, USD, FEDFUND,
@@ -94,7 +94,8 @@ public class GeneratorLegONArithmeticAverageTest {
     assertEquals("GeneratorLegONArithmeticAverage: getter", Period.ofMonths(12), GENERATOR.getPaymentPeriod());
     assertEquals("GeneratorLegONArithmeticAverage: getter", OFFSET_SPOT, GENERATOR.getSpotOffset());
     assertEquals("GeneratorLegONArithmeticAverage: getter", OFFSET_PAYMENT, GENERATOR.getPaymentOffset());
-    assertEquals("GeneratorLegONArithmeticAverage: getter", BusinessDayConventions.MODIFIED_FOLLOWING, GENERATOR.getBusinessDayConvention());
+    assertEquals("GeneratorLegONArithmeticAverage: getter", 
+        BusinessDayConventions.MODIFIED_FOLLOWING, GENERATOR.getBusinessDayConvention());
     assertEquals("GeneratorLegONArithmeticAverage: getter", true, GENERATOR.isEndOfMonth());
     assertEquals("GeneratorLegONArithmeticAverage: getter", StubType.SHORT_START, GENERATOR.getStubType());
     assertEquals("GeneratorLegONArithmeticAverage: getter", false, GENERATOR.isExchangeNotional());

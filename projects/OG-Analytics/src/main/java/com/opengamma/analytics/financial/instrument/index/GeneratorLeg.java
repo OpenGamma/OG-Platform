@@ -35,7 +35,7 @@ public abstract class GeneratorLeg extends GeneratorInstrument<GeneratorAttribut
    * Returns the leg generator currency.
    * @return The currency.
    */
-  public Currency getCcy() {
+  public Currency getCurrency() {
     return _ccy;
   }
   

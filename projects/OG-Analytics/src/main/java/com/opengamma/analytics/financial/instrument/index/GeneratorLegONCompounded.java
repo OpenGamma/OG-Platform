@@ -66,9 +66,9 @@ public class GeneratorLegONCompounded extends GeneratorLeg {
    * @param indexCalendar The calendar associated with the overnight index.
    * @param paymentCalendar The calendar used for the payments.
    */
-  public GeneratorLegONCompounded(String name, Currency ccy, IndexON indexON, Period paymentPeriod, int spotOffset, int paymentOffset,
-      BusinessDayConvention businessDayConvention, boolean endOfMonth, StubType stubType, boolean isExchangeNotional,
-      Calendar indexCalendar, Calendar paymentCalendar) {
+  public GeneratorLegONCompounded(String name, Currency ccy, IndexON indexON, Period paymentPeriod, int spotOffset, 
+      int paymentOffset, BusinessDayConvention businessDayConvention, boolean endOfMonth, StubType stubType, 
+      boolean isExchangeNotional, Calendar indexCalendar, Calendar paymentCalendar) {
     super(name, ccy);
     ArgumentChecker.notNull(name, "Name");
     ArgumentChecker.notNull(indexON, "Index ON");
@@ -170,11 +170,13 @@ public class GeneratorLegONCompounded extends GeneratorLeg {
   }
 
   @Override
-  public AnnuityDefinition<?> generateInstrument(final ZonedDateTime date, final double marketQuote, final double notional, final GeneratorAttributeIR attribute) {
+  public AnnuityDefinition<?> generateInstrument(final ZonedDateTime date, final double marketQuote, 
+      final double notional, final GeneratorAttributeIR attribute) {
     ArgumentChecker.notNull(date, "Reference date");
     ArgumentChecker.notNull(attribute, "Attributes");
     final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, _spotOffset, _paymentCalendar);
-    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spot, attribute.getStartPeriod(), _businessDayConvention, _paymentCalendar, _endOfMonth);
+    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spot, attribute.getStartPeriod(), 
+        _businessDayConvention, _paymentCalendar, _endOfMonth);
     final ZonedDateTime endDate = startDate.plus(attribute.getEndPeriod());
     NotionalProvider notionalProvider = new NotionalProvider() {
       @Override
@@ -185,13 +187,14 @@ public class GeneratorLegONCompounded extends GeneratorLeg {
     AdjustedDateParameters adjustedDateIndex = new AdjustedDateParameters(_indexCalendar, _businessDayConvention);
     OffsetAdjustedDateParameters offsetFixing = new OffsetAdjustedDateParameters(0, OffsetType.BUSINESS, _indexCalendar, 
         BusinessDayConventionFactory.of("Following"));
-    OffsetAdjustedDateParameters offsetPayment = new OffsetAdjustedDateParameters(_paymentOffset, OffsetType.BUSINESS, _paymentCalendar, 
-        BusinessDayConventionFactory.of("Following"));
+    OffsetAdjustedDateParameters offsetPayment = new OffsetAdjustedDateParameters(_paymentOffset, OffsetType.BUSINESS, 
+        _paymentCalendar, BusinessDayConventionFactory.of("Following"));
     AnnuityDefinition<?> leg = new FloatingAnnuityDefinitionBuilder().
-        payer(false).notional(notionalProvider).startDate(startDate.toLocalDate()).endDate(endDate.toLocalDate()).index(_indexON).
-        accrualPeriodFrequency(_paymentPeriod).rollDateAdjuster(RollConvention.NONE.getRollDateAdjuster(0)).
-        resetDateAdjustmentParameters(adjustedDateIndex).accrualPeriodParameters(adjustedDateIndex).
-        dayCount(_indexON.getDayCount()).fixingDateAdjustmentParameters(offsetFixing).currency(_indexON.getCurrency()).spread(marketQuote).
+        payer(false).notional(notionalProvider).startDate(startDate.toLocalDate()).endDate(endDate.toLocalDate()).
+        index(_indexON).accrualPeriodFrequency(_paymentPeriod).
+        rollDateAdjuster(RollConvention.NONE.getRollDateAdjuster(0)).resetDateAdjustmentParameters(adjustedDateIndex).
+        accrualPeriodParameters(adjustedDateIndex).dayCount(_indexON.getDayCount()).
+        fixingDateAdjustmentParameters(offsetFixing).currency(_indexON.getCurrency()).spread(marketQuote).
         compoundingMethod(CompoundingMethod.SPREAD_EXCLUSIVE).paymentDateAdjustmentParameters(offsetPayment).build();
     return leg;
   }

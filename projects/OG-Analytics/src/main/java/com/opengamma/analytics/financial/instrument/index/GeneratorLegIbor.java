@@ -65,9 +65,9 @@ public class GeneratorLegIbor extends GeneratorLeg {
    * @param indexCalendar The calendar associated with the overnight index.
    * @param paymentCalendar The calendar used for the payments.
    */
-  public GeneratorLegIbor(String name, Currency ccy, IborIndex indexIbor, Period paymentPeriod, int spotOffset, int paymentOffset,
-      BusinessDayConvention businessDayConvention, boolean endOfMonth, StubType stubType, boolean isExchangeNotional,
-      Calendar indexCalendar, Calendar paymentCalendar) {
+  public GeneratorLegIbor(String name, Currency ccy, IborIndex indexIbor, Period paymentPeriod, int spotOffset, 
+      int paymentOffset, BusinessDayConvention businessDayConvention, boolean endOfMonth, StubType stubType, 
+      boolean isExchangeNotional, Calendar indexCalendar, Calendar paymentCalendar) {
     super(name, ccy);
     ArgumentChecker.notNull(indexIbor, "Index Ibor");
     ArgumentChecker.notNull(businessDayConvention, "Business day convention");
@@ -92,23 +92,23 @@ public class GeneratorLegIbor extends GeneratorLeg {
   }
 
   /**
-   * Gets the paymentPeriod.
-   * @return the paymentPeriod
+   * Gets the payment period.
+   * @return the payment period.
    */
   public Period getPaymentPeriod() {
     return _paymentPeriod;
   }
 
   /**
-   * Gets the spotOffset.
-   * @return the spotOffset
+   * Gets the spot offset.
+   * @return the spot offset.
    */
   public int getSpotOffset() {
     return _spotOffset;
   }
 
   /**
-   * Gets the paymentOffset.
+   * Gets the payment offset.
    * @return the paymentOffset
    */
   public int getPaymentOffset() {
@@ -116,7 +116,7 @@ public class GeneratorLegIbor extends GeneratorLeg {
   }
 
   /**
-   * Gets the businessDayConvention.
+   * Gets the business day convention.
    * @return the businessDayConvention
    */
   public BusinessDayConvention getBusinessDayConvention() {
@@ -124,7 +124,7 @@ public class GeneratorLegIbor extends GeneratorLeg {
   }
 
   /**
-   * Gets the endOfMonth.
+   * Gets the end-of-month flag.
    * @return the endOfMonth
    */
   public boolean isEndOfMonth() {
@@ -140,7 +140,7 @@ public class GeneratorLegIbor extends GeneratorLeg {
   }
 
   /**
-   * Gets the isExchangeNotional.
+   * Gets the notional exchange flag.
    * @return the isExchangeNotional
    */
   public boolean isExchangeNotional() {
@@ -164,11 +164,13 @@ public class GeneratorLegIbor extends GeneratorLeg {
   }
 
   @Override
-  public AnnuityDefinition<?> generateInstrument(final ZonedDateTime date, final double marketQuote, final double notional, final GeneratorAttributeIR attribute) {
+  public AnnuityDefinition<?> generateInstrument(final ZonedDateTime date, final double marketQuote, 
+      final double notional, final GeneratorAttributeIR attribute) {
     ArgumentChecker.notNull(date, "Reference date");
     ArgumentChecker.notNull(attribute, "Attributes");
     final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, _spotOffset, _paymentCalendar);
-    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spot, attribute.getStartPeriod(), _businessDayConvention, _paymentCalendar, _endOfMonth);
+    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spot, attribute.getStartPeriod(), 
+        _businessDayConvention, _paymentCalendar, _endOfMonth);
     final ZonedDateTime endDate = startDate.plus(attribute.getEndPeriod());
     NotionalProvider notionalProvider = new NotionalProvider() {
       @Override
@@ -177,13 +179,14 @@ public class GeneratorLegIbor extends GeneratorLeg {
       }
     };
     AdjustedDateParameters adjustedDateIndex = new AdjustedDateParameters(_indexCalendar, _businessDayConvention);
-    OffsetAdjustedDateParameters offsetFixing = new OffsetAdjustedDateParameters(-_indexIbor.getSpotLag(), OffsetType.BUSINESS, _indexCalendar, BusinessDayConventionFactory.of("Following"));
+    OffsetAdjustedDateParameters offsetFixing = new OffsetAdjustedDateParameters(-_indexIbor.getSpotLag(), 
+        OffsetType.BUSINESS, _indexCalendar, BusinessDayConventionFactory.of("Following"));
     AnnuityDefinition<?> leg = new FloatingAnnuityDefinitionBuilder().
-        payer(false).notional(notionalProvider).startDate(startDate.toLocalDate()).endDate(endDate.toLocalDate()).index(_indexIbor).
-        accrualPeriodFrequency(_paymentPeriod).rollDateAdjuster(RollConvention.NONE.getRollDateAdjuster(0)).
-        resetDateAdjustmentParameters(adjustedDateIndex).accrualPeriodParameters(adjustedDateIndex).
-        dayCount(_indexIbor.getDayCount()).fixingDateAdjustmentParameters(offsetFixing).currency(_indexIbor.getCurrency()).spread(marketQuote).
-        build();
+        payer(false).notional(notionalProvider).startDate(startDate.toLocalDate()).endDate(endDate.toLocalDate()).
+        index(_indexIbor).accrualPeriodFrequency(_paymentPeriod).
+        rollDateAdjuster(RollConvention.NONE.getRollDateAdjuster(0)).resetDateAdjustmentParameters(adjustedDateIndex).
+        accrualPeriodParameters(adjustedDateIndex).dayCount(_indexIbor.getDayCount()).
+        fixingDateAdjustmentParameters(offsetFixing).currency(_indexIbor.getCurrency()).spread(marketQuote).build();
     return leg;
   }
 

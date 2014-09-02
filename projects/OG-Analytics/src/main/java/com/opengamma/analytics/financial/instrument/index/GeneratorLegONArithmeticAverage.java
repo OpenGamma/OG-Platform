@@ -45,9 +45,9 @@ public class GeneratorLegONArithmeticAverage extends GeneratorLegONArithmeticAve
    * @param indexCalendar The calendar associated with the overnight index.
    * @param paymentCalendar The calendar used for the payments.
    */
-  public GeneratorLegONArithmeticAverage(String name, Currency ccy, IndexON indexON, Period paymentPeriod, int spotOffset, 
-      int paymentOffset, BusinessDayConvention businessDayConvention, boolean endOfMonth, StubType stubType, 
-      boolean isExchangeNotional, Calendar indexCalendar, Calendar paymentCalendar) {
+  public GeneratorLegONArithmeticAverage(String name, Currency ccy, IndexON indexON, Period paymentPeriod, 
+      int spotOffset, int paymentOffset, BusinessDayConvention businessDayConvention, boolean endOfMonth, 
+      StubType stubType, boolean isExchangeNotional, Calendar indexCalendar, Calendar paymentCalendar) {
     super(name, ccy, indexON, paymentPeriod, spotOffset, paymentOffset, businessDayConvention, endOfMonth, stubType, 
         isExchangeNotional, indexCalendar, paymentCalendar);
   }
@@ -72,10 +72,10 @@ public class GeneratorLegONArithmeticAverage extends GeneratorLegONArithmeticAve
         getIndexCalendar(), BusinessDayConventionFactory.of("Following"));
     AnnuityDefinition<?> leg = new FloatingAnnuityDefinitionBuilder().
         payer(false).notional(notionalProvider).startDate(startDate.toLocalDate()).endDate(endDate.toLocalDate()).
-        index(getIndexON()).accrualPeriodFrequency(getPaymentPeriod()).rollDateAdjuster(RollConvention.NONE.getRollDateAdjuster(0)).
-        resetDateAdjustmentParameters(adjustedDateIndex).accrualPeriodParameters(adjustedDateIndex).
-        dayCount(getIndexON().getDayCount()).fixingDateAdjustmentParameters(offsetFixing).
-        currency(getIndexON().getCurrency()).spread(marketQuote).build();
+        index(getIndexON()).accrualPeriodFrequency(getPaymentPeriod()).
+        rollDateAdjuster(RollConvention.NONE.getRollDateAdjuster(0)).resetDateAdjustmentParameters(adjustedDateIndex).
+        accrualPeriodParameters(adjustedDateIndex).dayCount(getIndexON().getDayCount()).
+        fixingDateAdjustmentParameters(offsetFixing).currency(getIndexON().getCurrency()).spread(marketQuote).build();
     return leg;
   }
 

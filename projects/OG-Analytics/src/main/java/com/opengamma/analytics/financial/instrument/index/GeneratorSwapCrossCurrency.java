@@ -13,6 +13,7 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Generator (or template) for a swap described by its two legs generators.
+ * The two legs have potentially different currencies.
  */
 public class GeneratorSwapCrossCurrency extends GeneratorInstrument<GeneratorAttributeFX> {
 
@@ -36,7 +37,7 @@ public class GeneratorSwapCrossCurrency extends GeneratorInstrument<GeneratorAtt
   }
 
   /**
-   * Gets the legOnAa.
+   * Gets the first leg generator.
    * @return the legOnAa
    */
   public GeneratorLeg getLeg1() {
@@ -44,7 +45,7 @@ public class GeneratorSwapCrossCurrency extends GeneratorInstrument<GeneratorAtt
   }
 
   /**
-   * Gets the legIbor.
+   * Gets the second leg generator.
    * @return the legIbor
    */
   public GeneratorLeg getLeg2() {
@@ -52,10 +53,16 @@ public class GeneratorSwapCrossCurrency extends GeneratorInstrument<GeneratorAtt
   }
 
   @Override
-  public SwapDefinition generateInstrument(ZonedDateTime date, double marketQuote, double notional, GeneratorAttributeFX attribute) {
+  /**
+   * When the legs have different currencies, the notional of the first leg is the notional provided. 
+   * The notional of the second leg is the notional of the first leg converted in the currency of the second leg
+   * using the FX matrix in the attribute.
+   */
+  public SwapDefinition generateInstrument(ZonedDateTime date, double marketQuote, double notional, 
+      GeneratorAttributeFX attribute) {
     GeneratorAttributeIR attributeIr = new GeneratorAttributeIR(attribute.getStartPeriod(), attribute.getEndPeriod());
     AnnuityDefinition<?> leg1 = _leg1.generateInstrument(date, marketQuote, notional, attributeIr);
-    final double fx = attribute.getFXMatrix().getFxRate(_leg1.getCcy(), _leg2.getCcy());
+    final double fx = attribute.getFXMatrix().getFxRate(_leg1.getCurrency(), _leg2.getCurrency());
     AnnuityDefinition<?> leg2 = _leg1.generateInstrument(date, 0.0, -fx * notional, attributeIr);
     return new SwapDefinition(leg1, leg2);
   }

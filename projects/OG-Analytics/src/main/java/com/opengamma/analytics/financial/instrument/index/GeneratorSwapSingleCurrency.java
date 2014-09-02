@@ -30,29 +30,30 @@ public class GeneratorSwapSingleCurrency extends GeneratorInstrument<GeneratorAt
     super(name);
     ArgumentChecker.notNull(leg1, "first leg");
     ArgumentChecker.notNull(leg2, "second leg");
-    ArgumentChecker.isTrue(leg1.getCcy().equals(leg2.getCcy()), "Both legs should be in the same currency");
+    ArgumentChecker.isTrue(leg1.getCurrency().equals(leg2.getCurrency()), "Both legs should be in the same currency");
     _leg1 = leg1;
     _leg2 = leg2;
   }
 
   /**
-   * Gets the legOnAa.
-   * @return the legOnAa
+   * Returns the first leg generator.
+   * @return The generator.
    */
   public GeneratorLeg getLeg1() {
     return _leg1;
   }
 
   /**
-   * Gets the legIbor.
-   * @return the legIbor
+   * Return the second leg generator.
+   * @return The generator.
    */
   public GeneratorLeg getLeg2() {
     return _leg2;
   }
 
   @Override
-  public SwapDefinition generateInstrument(ZonedDateTime date, double marketQuote, double notional, GeneratorAttributeIR attribute) {
+  public SwapDefinition generateInstrument(ZonedDateTime date, double marketQuote, double notional, 
+      GeneratorAttributeIR attribute) {
     return new SwapDefinition(_leg1.generateInstrument(date, marketQuote, notional, attribute), 
         _leg2.generateInstrument(date, 0.0, -notional, attribute));
   }
