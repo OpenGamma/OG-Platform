@@ -157,6 +157,27 @@ public class CurveCalibrationConventionDataSets {
     return generator;
   }
 
+
+  @SuppressWarnings("unchecked")
+  public static GeneratorInstrument<? extends GeneratorAttribute>[] generatorEurIbor3Fut3Irs3(ZonedDateTime calibrationDate, 
+      int nbIbor, int nbFut, int nbIrs) {
+    GeneratorInstrument<? extends GeneratorAttribute>[] generator = new GeneratorInstrument[nbIbor + nbFut + nbIrs];
+    for (int loopibor = 0; loopibor < nbIbor; loopibor++) {
+      generator[loopibor] = GENERATOR_EURIBOR3M;
+    }
+    ZonedDateTime spotDate = ScheduleCalculator.getAdjustedDate(calibrationDate, EURIBOR3M.getSpotLag(), NYC);
+    for (int loopfut = 0; loopfut < nbFut; loopfut++) {
+      ZonedDateTime immDate = RollDateAdjusterUtils.nthDate(spotDate, IMM_QUARTERLY_ADJUSTER, loopfut + 1);
+      InterestRateFutureSecurityDefinition stirFutures = InterestRateFutureSecurityDefinition
+          .fromFixingPeriodStartDate(immDate, EURIBOR3M, 1.0, 0.25, "STIR Futures", TARGET);
+      generator[nbIbor + loopfut] = new GeneratorInterestRateFutures("STIR Futures" + loopfut, stirFutures);
+    }
+    for (int loopirs = 0; loopirs < nbIrs; loopirs++) {
+      generator[nbIbor + nbFut + loopirs] = EUR1YEURIBOR3M;
+    }
+    return generator;
+  }
+
   /** JPY **/
   private static final Calendar TYO = new MondayToFridayCalendar("TYO");
   private static final Currency JPY = Currency.JPY;

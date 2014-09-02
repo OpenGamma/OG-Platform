@@ -134,7 +134,6 @@ public class RecentDataSetsMulticurveFutures3MUsd {
     0.011142, 0.014996, 0.017995, 0.020411, //0.00667, 
     0.022352, 0.02395, 0.0253, 0.026465, 0.02835,
     0.030288, 0.032007, 0.032775, 0.033145, 0.03333 }; //27
-  /** Generators for the Fwd 3M USD curve */
   /** Tenors for the Fwd 3M USD curve */
   private static final Period[] FWD3_2_USD_TENOR = new Period[] {Period.ofMonths(1), Period.ofMonths(2), Period.ofMonths(3),
     Period.ofMonths(0), Period.ofMonths(0), Period.ofMonths(0), Period.ofMonths(0), Period.ofMonths(0),
