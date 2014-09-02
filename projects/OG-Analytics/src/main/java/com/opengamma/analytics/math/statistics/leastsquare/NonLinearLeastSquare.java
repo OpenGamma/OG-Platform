@@ -499,11 +499,6 @@ public class NonLinearLeastSquare {
         error = newError;
         jacobian = getJacobian(jac, sigma, trialTheta);
         beta = getChiSqrGrad(error, jacobian);
-
-        // check for convergence
-        // if (_algebra.getNorm2(beta) < _eps * g0) {
-        // return finish(newChiSqr, jacobian, trialTheta, sigma);
-        // }
         oldChiSqr = newChiSqr;
       } else {
         lambda = increaseLambda(lambda);

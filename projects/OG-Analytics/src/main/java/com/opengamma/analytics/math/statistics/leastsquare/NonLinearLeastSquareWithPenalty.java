@@ -17,6 +17,7 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.matrix.DoubleMatrixUtils;
 import com.opengamma.analytics.math.matrix.MatrixAlgebra;
+import com.opengamma.analytics.math.matrix.MatrixAlgebraFactory;
 import com.opengamma.analytics.math.matrix.OGMatrixAlgebra;
 import com.opengamma.util.ArgumentChecker;
 
@@ -53,22 +54,44 @@ public class NonLinearLeastSquareWithPenalty {
   private final Decomposition<?> _decomposition;
   private final MatrixAlgebra _algebra;
 
+  /**
+   * Default constructor. This uses SVD (Colt), {@link OGMatrixAlgebra} and a convergence tolerance of 1e-8
+   */
   public NonLinearLeastSquareWithPenalty() {
     this(DEFAULT_DECOMP, MA, EPS);
   }
 
+  /**
+   * Constructor allowing matrix decomposition to be set. This uses {@link OGMatrixAlgebra} and a convergence tolerance of 1e-8
+   * @param decomposition Matrix decomposition (see {@link DecompositionFactory} for list)
+   */
   public NonLinearLeastSquareWithPenalty(final Decomposition<?> decomposition) {
     this(decomposition, MA, EPS);
   }
 
+  /**
+   * Constructor allowing convergence tolerance to be set. This uses SVD (Colt) and {@link OGMatrixAlgebra}
+   * @param eps Convergence tolerance
+   */
   public NonLinearLeastSquareWithPenalty(final double eps) {
     this(DEFAULT_DECOMP, MA, eps);
   }
 
+  /**
+   * Constructor allowing matrix decomposition and convergence tolerance to be set. This uses {@link OGMatrixAlgebra}
+   * @param decomposition Matrix decomposition (see {@link DecompositionFactory} for list)
+   * @param eps Convergence tolerance
+   */
   public NonLinearLeastSquareWithPenalty(final Decomposition<?> decomposition, final double eps) {
     this(decomposition, MA, eps);
   }
 
+  /**
+   * General constructor 
+   * @param decomposition Matrix decomposition (see {@link DecompositionFactory} for list)
+   * @param algebra  The matrix algebra (see {@link MatrixAlgebraFactory} for list)
+   * @param eps Convergence tolerance
+   */
   public NonLinearLeastSquareWithPenalty(final Decomposition<?> decomposition, final MatrixAlgebra algebra, final double eps) {
     ArgumentChecker.notNull(decomposition, "decomposition");
     ArgumentChecker.notNull(algebra, "algebra");
@@ -190,15 +213,8 @@ public class NonLinearLeastSquareWithPenalty {
 
     oldChiSqr = getChiSqr(error);
     double p = getANorm(penalty, theta);
-    // if (p < 0.0) {
-    // throw new IllegalArgumentException("penalty matrix not positive semi-definite");
-    // }
     oldChiSqr += p;
 
-    // If we start at the solution we are done
-    if (oldChiSqr == 0.0) {
-      return finish(0.0, 0.0, jacobian, theta, sigma);
-    }
 
     DoubleMatrix1D beta = getChiSqrGrad(error, jacobian);
     DoubleMatrix1D temp = (DoubleMatrix1D) _algebra.multiply(penalty, theta);
@@ -268,28 +284,6 @@ public class NonLinearLeastSquareWithPenalty {
     return lambda * 10;
   }
 
-  /**
-   * 
-   * the inverse-Jacobian where the i-j entry is the sensitivity of the ith (fitted) parameter (a_i) to the jth data
-   * point (y_j).
-   * @param sigma Set of measurement errors
-   * @param jac The model sensitivity to its parameters (i.e. the Jacobian matrix) as a function of its parameters only
-   * @param originalSolution The value of the parameters at a converged solution
-   * @return inverse-Jacobian
-   */
-  public DoubleMatrix2D calInverseJacobian(final DoubleMatrix1D sigma, final Function1D<DoubleMatrix1D, DoubleMatrix2D> jac, final DoubleMatrix1D originalSolution) {
-    final DoubleMatrix2D jacobian = getJacobian(jac, sigma, originalSolution);
-    final DoubleMatrix2D a = getModifiedCurvatureMatrix(jacobian, 0.0);
-    final DoubleMatrix2D bT = getBTranspose(jacobian, sigma);
-    final DecompositionResult decRes = _decomposition.evaluate(a);
-    return decRes.solve(bT);
-  }
-
-  private LeastSquareWithPenaltyResults finish(final double chiSqr, final double penalty, final DoubleMatrix2D jacobian, final DoubleMatrix1D newTheta, final DoubleMatrix1D sigma) {
-    final DoubleMatrix2D alpha = getModifiedCurvatureMatrix(jacobian, 0.0);
-    final DecompositionResult decmp = _decomposition.evaluate(alpha);
-    return finish(alpha, decmp, chiSqr, penalty, jacobian, newTheta, sigma);
-  }
 
   private LeastSquareWithPenaltyResults finish(final DoubleMatrix2D alpha, final DecompositionResult decmp, final double chiSqr, final double penalty, final DoubleMatrix2D jacobian,
       final DoubleMatrix1D newTheta, final DoubleMatrix1D sigma) {
@@ -357,19 +351,6 @@ public class NonLinearLeastSquareWithPenalty {
     double onePLambda = 1.0 + lambda;
     final int m = jacobian.getNumberOfColumns();
     DoubleMatrix2D alpha = (DoubleMatrix2D) MA.add(MA.matrixTransposeMultiplyMatrix(jacobian), penalty);
-    // scale the diagonal
-    double[][] data = alpha.getData();
-    for (int i = 0; i < m; i++) {
-      data[i][i] *= onePLambda;
-    }
-    return alpha;
-  }
-
-  private DoubleMatrix2D getModifiedCurvatureMatrix(final DoubleMatrix2D jacobian, final double lambda) {
-
-    final int m = jacobian.getNumberOfColumns();
-    double onePLambda = 1.0 + lambda;
-    DoubleMatrix2D alpha = MA.matrixTransposeMultiplyMatrix(jacobian);
     // scale the diagonal
     double[][] data = alpha.getData();
     for (int i = 0; i < m; i++) {

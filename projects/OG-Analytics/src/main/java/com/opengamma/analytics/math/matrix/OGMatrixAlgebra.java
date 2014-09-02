@@ -203,7 +203,7 @@ public class OGMatrixAlgebra extends MatrixAlgebra {
       } else if (m2 instanceof DoubleMatrix2D) {
         return multiply((IdentityMatrix) m1, (DoubleMatrix2D) m2);
       }
-      throw new IllegalArgumentException("can only handle identity by DoubleMatrix2D or DoubleMatrix1D, have " +
+      throw new IllegalArgumentException("can only handle IdentityMatrix by DoubleMatrix2D or DoubleMatrix1D, have " +
           m1.getClass() + " and " + m2.getClass());
     }
     if (m2 instanceof IdentityMatrix) {
@@ -212,7 +212,7 @@ public class OGMatrixAlgebra extends MatrixAlgebra {
       } else if (m1 instanceof DoubleMatrix2D) {
         return multiply((DoubleMatrix2D) m1, (IdentityMatrix) m2);
       }
-      throw new IllegalArgumentException("can only handle identity by DoubleMatrix2D or DoubleMatrix1D, have " +
+      throw new IllegalArgumentException("can only handle  DoubleMatrix2D or DoubleMatrix1D by IdentityMatrix, have " +
           m1.getClass() + " and " + m2.getClass());
     }
     if (m1 instanceof TridiagonalMatrix && m2 instanceof DoubleMatrix1D) {
