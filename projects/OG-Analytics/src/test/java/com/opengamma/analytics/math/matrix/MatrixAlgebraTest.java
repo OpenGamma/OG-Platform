@@ -23,10 +23,8 @@ public class MatrixAlgebraTest {
 
   private static final DoubleMatrix1D M1 = new DoubleMatrix1D(new double[] {1, 2 });
   private static final DoubleMatrix1D M2 = new DoubleMatrix1D(new double[] {3, 4 });
-  private static final DoubleMatrix2D M3 = new DoubleMatrix2D(new double[][] {new double[] {1, 2 },
-    new double[] {3, 4 } });
-  private static final DoubleMatrix2D M4 = new DoubleMatrix2D(new double[][] {new double[] {5, 6 },
-    new double[] {7, 8 } });
+  private static final DoubleMatrix2D M3 = new DoubleMatrix2D(new double[][] {new double[] {1, 2 }, new double[] {3, 4 } });
+  private static final DoubleMatrix2D M4 = new DoubleMatrix2D(new double[][] {new double[] {5, 6 }, new double[] {7, 8 } });
   private static final Matrix<?> M5 = new Matrix<Double>() {
 
     @Override
@@ -54,8 +52,7 @@ public class MatrixAlgebraTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testAddDifferentRowNumber2D() {
-    ALGEBRA.add(M3, new DoubleMatrix2D(
-        new double[][] {new double[] {1, 2 }, new double[] {3, 4 }, new double[] {5, 6 } }));
+    ALGEBRA.add(M3, new DoubleMatrix2D(new double[][] {new double[] {1, 2 }, new double[] {3, 4 }, new double[] {5, 6 } }));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -100,8 +97,7 @@ public class MatrixAlgebraTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testSubtractDifferentRowNumber2D() {
-    ALGEBRA.subtract(M3, new DoubleMatrix2D(new double[][] {new double[] {1, 2 }, new double[] {3, 4 },
-      new double[] {5, 6 } }));
+    ALGEBRA.subtract(M3, new DoubleMatrix2D(new double[][] {new double[] {1, 2 }, new double[] {3, 4 }, new double[] {5, 6 } }));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -168,8 +164,7 @@ public class MatrixAlgebraTest {
     Matrix<?> m = ALGEBRA.kroneckerProduct(M3, M4);
     assertTrue(m instanceof DoubleMatrix2D);
 
-    assertMatrixEquals(m, new DoubleMatrix2D(new double[][] { {5, 6, 10, 12 }, {7, 8, 14, 16 }, {15, 18, 20, 24 },
-      {21, 24, 28, 32 } }));
+    assertMatrixEquals(m, new DoubleMatrix2D(new double[][] { {5, 6, 10, 12 }, {7, 8, 14, 16 }, {15, 18, 20, 24 }, {21, 24, 28, 32 } }));
 
   }
 
