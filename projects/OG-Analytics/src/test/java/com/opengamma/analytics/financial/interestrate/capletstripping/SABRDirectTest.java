@@ -5,8 +5,6 @@
  */
 package com.opengamma.analytics.financial.interestrate.capletstripping;
 
-import static com.opengamma.analytics.math.matrix.AssertMatrix.assertEqualsMatrix;
-
 import java.util.Arrays;
 
 import org.testng.annotations.Test;
@@ -22,7 +20,6 @@ import com.opengamma.analytics.math.function.VectorFunction;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.math.interpolation.PenaltyMatrixGenerator;
-import com.opengamma.analytics.math.matrix.AssertMatrix;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.matrix.IdentityMatrix;

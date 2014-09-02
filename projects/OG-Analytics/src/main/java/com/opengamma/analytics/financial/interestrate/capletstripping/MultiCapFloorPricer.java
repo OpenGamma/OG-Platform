@@ -267,8 +267,8 @@ public class MultiCapFloorPricer {
     final DoubleMatrix2D jac = new DoubleMatrix2D(_nCaps, _nCaplets);
     for (int i = 0; i < _nCaps; i++) {
       final double[] data = jac.getData()[i];
-      final int[] indicies = _capToCapletsMap[i];
-      for (final int index : indicies) {
+      final int[] indices = _capToCapletsMap[i];
+      for (final int index : indices) {
         data[index] = capletVega[index];
       }
     }
@@ -343,11 +343,11 @@ public class MultiCapFloorPricer {
 
     final double[] res = new double[_nCaps];
     for (int i = 0; i < _nCaps; i++) {
-      final int[] indicies = _capToCapletsMap[i];
-      final int n = indicies.length;
+      final int[] indices = _capToCapletsMap[i];
+      final int n = indices.length;
       double sum = 0;
       for (int j = 0; j < n; j++) {
-        final int index = indicies[j];
+        final int index = indices[j];
         sum += values[index];
       }
       res[i] = sum;

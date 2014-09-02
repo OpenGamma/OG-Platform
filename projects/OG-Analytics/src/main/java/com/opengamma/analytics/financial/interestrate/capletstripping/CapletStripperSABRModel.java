@@ -63,12 +63,10 @@ public class CapletStripperSABRModel extends CapletStripperSmileModel<SABRFormul
     ArgumentChecker.isTrue(NUM_MODEL_PARMS == smileModelParameterProviders.length,
         "Require {} smileModelParameterProviders", NUM_MODEL_PARMS);
 
-    double[] capletExpiries = pricer.getCapletExpiries();
-    double[] fwds = pricer.getCapletForwardRates();
     // this interpolated forward curve that will only be hit at the knots, so don't need anything more than linear
-    ForwardCurve fwdCurve = new ForwardCurve(InterpolatedDoublesCurve.from(capletExpiries, fwds,
-        CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR,
-            Interpolator1DFactory.FLAT_EXTRAPOLATOR)));
+    ForwardCurve fwdCurve = new ForwardCurve(InterpolatedDoublesCurve.from(pricer.getCapletExpiries(), pricer
+        .getCapletForwardRates(), CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR,
+        Interpolator1DFactory.FLAT_EXTRAPOLATOR)));
     return new ParameterizedSABRModelDiscreteVolatilityFunctionProvider(fwdCurve, smileModelParameterProviders);
   }
 

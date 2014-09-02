@@ -127,8 +127,8 @@ public class MultiCapFloorPricerGrid extends MultiCapFloorPricer {
     DoubleMatrix2D jac = new DoubleMatrix2D(nCaps, _gridSize);
     for (int i = 0; i < nCaps; i++) {
       double[] data = jac.getData()[i];
-      int[] indicies = _capToGridMap[i];
-      for (int index : indicies) {
+      int[] indices = _capToGridMap[i];
+      for (int index : indices) {
         data[index] = capletVega[index];
       }
     }

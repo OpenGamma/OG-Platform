@@ -48,25 +48,25 @@ public class CapletStripperPSplineTermStructureTest extends CapletStrippingSetup
       }
 
       CapletStrippingResult res = stripper.solve(vols, MarketDataType.VOL, errors, guess);
-      assertEquals(expChi2[i], res.getChiSq(), 1e-13);
+      assertEquals(expChi2[i], res.getChiSqr(), 1e-13);
 
       // use default guess - won't get exactly the same solution due to stopping criteria and implied vol tolerance
       res = stripper.solve(vols, MarketDataType.VOL, errors);
-      assertEquals(expChi2[i], res.getChiSq(), 1e-5);
+      assertEquals(expChi2[i], res.getChiSqr(), 1e-5);
 
       // solve for price (weighted by vega), starting from vol solution - this should give a very similar chiSq
       res = stripper.solve(prices, MarketDataType.PRICE, vega, res.getFitParameters());
-      assertEquals(expChi2[i], res.getChiSq(), 1e-4);
+      assertEquals(expChi2[i], res.getChiSqr(), 1e-4);
 
       // this is effectively setting errors to 1 - must also scale lambda.
       // Since we have scaled the problem, but not the stopping criteria, there is a poor match with the (scaled chi2)
       stripper = new CapletStripperPSplineTermStructure(pricer, vtsp, oneBP * oneBP * lambda);
       res = stripper.solve(vols, MarketDataType.VOL, guess);
-      assertEquals(expChi2[i], res.getChiSq() / oneBP / oneBP, 1e-4);
+      assertEquals(expChi2[i], res.getChiSqr() / oneBP / oneBP, 1e-4);
 
       // use default guess and errors = 1.0
       res = stripper.solve(vols, MarketDataType.VOL);
-      assertEquals(expChi2[i], res.getChiSq() / oneBP / oneBP, 1e-4);
+      assertEquals(expChi2[i], res.getChiSqr() / oneBP / oneBP, 1e-4);
     }
   }
 }

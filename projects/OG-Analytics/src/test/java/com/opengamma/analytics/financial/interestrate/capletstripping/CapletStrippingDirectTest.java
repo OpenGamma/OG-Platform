@@ -44,10 +44,9 @@ public class CapletStrippingDirectTest extends CapletStrippingSetup {
    */
   public void singleStrikeTest() {
     double lambda = 0.03;
-    double[] expectedChi2 = new double[] {0.0497568716950382, 0.000394311340185193, 0.0300620236899078,
-      3.77865527010357E-05, 0.0898729134093798, 0.000191249811885008, 0.0128366199450198, 0.0359160057932825,
-      0.00017725008058278, 0.0226437526116605, 0.013244786627002, 0.00852026735632804, 0.000499800863515531,
-      0.00124709904489161, 0.000268966976046058, 0.000348516506562646, 0.00157397923356938, 0.00153840887006406 };
+    double[] expectedChi2 = new double[] {0.0497568716950382, 0.000394311340185193, 0.0300620236899078, 3.77865527010357E-05, 0.0898729134093798, 0.000191249811885008, 0.0128366199450198,
+      0.0359160057932825, 0.00017725008058278, 0.0226437526116605, 0.013244786627002, 0.00852026735632804, 0.000499800863515531, 0.00124709904489161, 0.000268966976046058, 0.000348516506562646,
+      0.00157397923356938, 0.00153840887006406 };
     DoubleMatrix1D guess = null;
     int nStrikes = getNumberOfStrikes();
     CapletStrippingResult[] singleStrikeResults = new CapletStrippingResult[nStrikes];
@@ -66,7 +65,7 @@ public class CapletStrippingDirectTest extends CapletStrippingSetup {
       CapletStrippingResult res = stripper.solve(capVols, MarketDataType.VOL, errors, guess);
       singleStrikeResults[i] = res;
       guess = res.getFitParameters();
-      assertEquals(expectedChi2[i], res.getChiSq(), 1e-8);
+      assertEquals(expectedChi2[i], res.getChiSqr(), 1e-8);
     }
   }
 
@@ -92,7 +91,7 @@ public class CapletStrippingDirectTest extends CapletStrippingSetup {
 
     CapletStrippingResult res = stripper.solve(capPrices, MarketDataType.PRICE, capVega, guess);
     double expectedChi2 = 106.9017523660732;
-    assertEquals(expectedChi2, res.getChiSq(), expectedChi2 * 1e-8);
+    assertEquals(expectedChi2, res.getChiSqr(), expectedChi2 * 1e-8);
   }
 
   /**
@@ -114,7 +113,7 @@ public class CapletStrippingDirectTest extends CapletStrippingSetup {
 
     CapletStrippingResult res = stripper.solve(capVols, MarketDataType.VOL, errors, guess);
     double expectedChi2 = 106.90744994488705;
-    assertEquals(expectedChi2, res.getChiSq(), expectedChi2 * 1e-8);
+    assertEquals(expectedChi2, res.getChiSqr(), expectedChi2 * 1e-8);
   }
 
   @Test
@@ -132,7 +131,7 @@ public class CapletStrippingDirectTest extends CapletStrippingSetup {
 
     CapletStrippingResult res = stripper.solve(capVols, MarketDataType.VOL, errors, guess);
     // System.out.println(res);
-    assertEquals(5.7604902403614915, res.getChiSq(), 1e-8);
+    assertEquals(5.7604902403614915, res.getChiSqr(), 1e-8);
   }
 
   /**
@@ -162,8 +161,8 @@ public class CapletStrippingDirectTest extends CapletStrippingSetup {
     DoubleMatrix1D guess = new DoubleMatrix1D(pricer.getGridSize(), 0.7);
 
     CapletStrippingResult res = stripper.solve(capVols, MarketDataType.VOL, errors, guess);
-    double expChiSq = 131.50826639955596;
-    assertEquals(expChiSq, res.getChiSq(), expChiSq * 1e-8);
+    double expChiSqr = 131.50826639955596;
+    assertEquals(expChiSqr, res.getChiSqr(), expChiSqr * 1e-8);
 
   }
 
@@ -215,7 +214,7 @@ public class CapletStrippingDirectTest extends CapletStrippingSetup {
     // System.out.println(guess);
     CapletStrippingResult res = stripper.solve(capVols, MarketDataType.VOL, errors, guess);
     double expChi2 = 106.90677987330128;
-    assertEquals(expChi2, res.getChiSq(), expChi2 * 1e-8);
+    assertEquals(expChi2, res.getChiSqr(), expChi2 * 1e-8);
   }
 
   /**
@@ -347,18 +346,18 @@ public class CapletStrippingDirectTest extends CapletStrippingSetup {
   private double jacTiming(int nParms, Function1D<DoubleMatrix1D, DoubleMatrix2D> jacFunc, int warmup, int hotspot) {
 
     for (int i = 0; i < warmup; i++) {
-      genjac(nParms, jacFunc);
+      genJac(nParms, jacFunc);
     }
 
     long tStart = System.nanoTime();
     for (int i = 0; i < hotspot; i++) {
-      genjac(nParms, jacFunc);
+      genJac(nParms, jacFunc);
     }
     long tEnd = System.nanoTime();
     return (1e-9 * (tEnd - tStart)) / hotspot;
   }
 
-  private double genjac(int nParms, Function1D<DoubleMatrix1D, DoubleMatrix2D> jacFunc) {
+  private double genJac(int nParms, Function1D<DoubleMatrix1D, DoubleMatrix2D> jacFunc) {
     DoubleMatrix1D x = new DoubleMatrix1D(new double[nParms]);
     double[] data = x.getData();
 

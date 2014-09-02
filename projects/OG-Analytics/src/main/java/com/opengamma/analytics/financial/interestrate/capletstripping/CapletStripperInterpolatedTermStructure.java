@@ -23,12 +23,12 @@ import com.opengamma.analytics.math.minimization.SingleRangeLimitTransform;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * This represents the (caplet) volatility surface using an interpolated curve in the expiry direction only (i.e. 
- * there is no strike dependence). This is mainly used to strip a single strike, in which case one can have as many knots 
+ * This represents the (caplet) volatility surface using an interpolated curve in the expiry direction only (i.e.
+ * there is no strike dependence). This is mainly used to strip a single strike, in which case one can have as many knots
  * as caps (of a single strike) and root find for the knot values.
- * <P> If used with multiple strikes, the lack of strike
- * dependence will make it impossible to recover the market values. 
- *@see {@link CapletStripperPSplineTermStructure}
+ * <P>
+ * If used with multiple strikes, the lack of strike dependence will make it impossible to recover the market values.
+ * @see {@link CapletStripperPSplineTermStructure}
  */
 public class CapletStripperInterpolatedTermStructure implements CapletStripper {
 
@@ -44,7 +44,7 @@ public class CapletStripperInterpolatedTermStructure implements CapletStripper {
   /**
    * Set up the stripper with a double-quadratic interpolator ({@link DoubleQuadraticInterpolator1D}) and a linear extrapolator ({@link LinearExtrapolator1D}).
    * The transformation (using {@link SingleRangeLimitTransform}) ensures the caplet volatility is always positive (regardless of the value of the knots).
-   * Here the knots positions are auto generated. 
+   * Here the knots positions are auto generated.
    * @param pricer The pricer (which contained the details of the market values of the caps/floors)
    */
   public CapletStripperInterpolatedTermStructure(final MultiCapFloorPricer pricer) {
@@ -55,13 +55,13 @@ public class CapletStripperInterpolatedTermStructure implements CapletStripper {
     _interpolator = new TransformedInterpolator1D(CombinedInterpolatorExtrapolatorFactory.getInterpolator(DEFAULT_INTERPOLATOR, DEFAULT_EXTRAPOLATOR), _transform);
   }
 
-  //TODO provide constructors to set interpolator and knots   
+  // TODO provide constructors to set interpolator and knots
   /**
    * Set up the stripper with a transformed double-quadratic interpolator ({@link DoubleQuadraticInterpolator1D}) and a linear extrapolator ({@link LinearExtrapolator1D}).
    * The transformation (using {@link SingleRangeLimitTransform}) ensures the caplet volatility is always positive (regardless of the value of the knots).
    * @param pricer The pricer (which contained the details of the market values of the caps/floors)
    * @param knots The knots. The knot positions will have a large effect on the shape of the term structure, and hence
-   * the quality of the solution. The number of knots must not exceed the number of caps.  
+   * the quality of the solution. The number of knots must not exceed the number of caps.
    */
   public CapletStripperInterpolatedTermStructure(final MultiCapFloorPricer pricer, final double[] knots) {
     ArgumentChecker.notNull(pricer, "pricer");
@@ -78,7 +78,7 @@ public class CapletStripperInterpolatedTermStructure implements CapletStripper {
   public CapletStrippingResult solve(final double[] marketValues, final MarketDataType type) {
     final CapletStrippingImp imp = getImp(marketValues);
     final double[] impliedVol = type == MarketDataType.PRICE ? _pricer.impliedVols(marketValues) : marketValues;
-    final DoubleMatrix1D start = getStartValue(impliedVol, imp.getnModelParms());
+    final DoubleMatrix1D start = getStartValue(impliedVol, imp.getNumModelParms());
     if (type == MarketDataType.PRICE) {
       return imp.solveForCapPrices(marketValues, start);
     } else if (type == MarketDataType.VOL) {
@@ -91,7 +91,7 @@ public class CapletStripperInterpolatedTermStructure implements CapletStripper {
   public CapletStrippingResult solve(final double[] marketValues, final MarketDataType type, final double[] errors) {
     final CapletStrippingImp imp = getImp(marketValues);
     final double[] impliedVol = type == MarketDataType.PRICE ? _pricer.impliedVols(marketValues) : marketValues;
-    final DoubleMatrix1D start = getStartValue(impliedVol, imp.getnModelParms());
+    final DoubleMatrix1D start = getStartValue(impliedVol, imp.getNumModelParms());
     if (type == MarketDataType.PRICE) {
       return imp.solveForCapPrices(marketValues, errors, start);
     } else if (type == MarketDataType.VOL) {
@@ -135,10 +135,10 @@ public class CapletStripperInterpolatedTermStructure implements CapletStripper {
   }
 
   /**
-   * get a rough starting value of model parameters from cap volatilities. 
-   * @param capVols cap volatilities 
-   * @param n number of model parameters 
-   * @return starting guess 
+   * get a rough starting value of model parameters from cap volatilities.
+   * @param capVols cap volatilities
+   * @param n number of model parameters
+   * @return starting guess
    */
   public DoubleMatrix1D getStartValue(final double[] capVols, final int n) {
     final double[] temp = new double[n];
@@ -166,7 +166,7 @@ public class CapletStripperInterpolatedTermStructure implements CapletStripper {
       return times;
     }
 
-    //use the first nCaps times 
+    // use the first nCaps times
     final double[] knots = new double[nCaps];
     System.arraycopy(times, 0, knots, 0, nCaps);
 

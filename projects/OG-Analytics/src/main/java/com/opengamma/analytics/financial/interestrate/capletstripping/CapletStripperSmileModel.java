@@ -11,6 +11,7 @@ import org.apache.commons.lang.NotImplementedException;
 
 import com.opengamma.analytics.financial.model.volatility.discrete.ParameterizedSmileModelDiscreteVolatilityFunctionProvider;
 import com.opengamma.analytics.financial.model.volatility.smile.function.SmileModelData;
+import com.opengamma.analytics.math.function.VectorFunctionProvider;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.ArgumentChecker;
 
@@ -33,6 +34,7 @@ public class CapletStripperSmileModel<T extends SmileModelData> implements Caple
   /**
    * Set up the stripper.
    * @param pricer The pricer (which contained the details of the market values of the caps/floors)
+   * @param volFuncProvider A {@link VectorFunctionProvider} backed by a smile model
    */
   public CapletStripperSmileModel(MultiCapFloorPricer pricer,
       ParameterizedSmileModelDiscreteVolatilityFunctionProvider<T> volFuncProvider) {

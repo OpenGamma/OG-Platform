@@ -13,16 +13,11 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
-import com.opengamma.analytics.financial.model.volatility.discrete.DiscreteVolatilityFunctionProvider;
 import com.opengamma.analytics.financial.model.volatility.discrete.ParameterizedSABRModelDiscreteVolatilityFunctionProvider;
-import com.opengamma.analytics.financial.model.volatility.smile.function.SABRFormulaData;
-import com.opengamma.analytics.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
-import com.opengamma.analytics.math.function.ConcatenatedVectorFunction;
 import com.opengamma.analytics.math.function.DoublesVectorFunctionProvider;
 import com.opengamma.analytics.math.function.InterpolatedVectorFunctionProvider;
-import com.opengamma.analytics.math.function.VectorFunction;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
@@ -34,7 +29,7 @@ import com.opengamma.analytics.math.minimization.ParameterLimitsTransform.LimitT
 import com.opengamma.analytics.math.minimization.SingleRangeLimitTransform;
 
 /**
- * This tests {@link CapletStripperSABRModel} where the parameter term structures are represented at interpolated curves 
+ * This tests {@link CapletStripperSABRModel} where the parameter term structures are represented at interpolated curves
  */
 public class CapletStripperSABRModelTest extends CapletStrippingSetup {
 
@@ -90,7 +85,8 @@ public class CapletStripperSABRModelTest extends CapletStrippingSetup {
   }
 
   /**
-   * Fit all the cap (109 including ATM) using the SABR model with parameters given by interpolated term structures. The fit is
+   * Fit all the cap (109 including ATM) using the SABR model with parameters given by interpolated term structures. The
+   * fit is
    * poor (RMS error around 93bps), but is does produce a very smooth (caplet) volatility surface.
    */
   @Test
@@ -109,12 +105,13 @@ public class CapletStripperSABRModelTest extends CapletStrippingSetup {
     CapletStripper stripper = new CapletStripperSABRModel(pricer, s_providers);
     CapletStrippingResult res = stripper.solve(vols, MarketDataType.VOL, errors, START);
 
-    double expectedChi2 = 936380.0252991668; //this corresponds to a RMS errors of about 93bps 
-    assertEquals(expectedChi2, res.getChiSq(), 1e-12 * expectedChi2);
+    double expectedChi2 = 936380.0252991668; // this corresponds to a RMS errors of about 93bps
+    assertEquals(expectedChi2, res.getChiSqr(), 1e-12 * expectedChi2);
   }
-  
+
   /**
-   * Fit all the cap prices (weighted by vega) (109 including ATM) using the SABR model with parameters given by interpolated term structures. The fit is
+   * Fit all the cap prices (weighted by vega) (109 including ATM) using the SABR model with parameters given by
+   * interpolated term structures. The fit is
    * poor (RMS error around 93bps), but is does produce a very smooth (caplet) volatility surface.
    */
   @Test
@@ -133,20 +130,21 @@ public class CapletStripperSABRModelTest extends CapletStrippingSetup {
     double[] errors = new double[nCaps];
     Arrays.fill(errors, oneBP); // 1bps
     CapletStripper stripper = new CapletStripperSABRModel(pricer, s_providers);
-  
-    //Fit to price (weighted by vega)
-    //scale vega
+
+    // Fit to price (weighted by vega)
+    // scale vega
     for (int i = 0; i < nCaps; i++) {
       vega[i] *= oneBP;
     }
 
     CapletStrippingResult res = stripper.solve(pricers, MarketDataType.PRICE, vega, START);
     double expectedChi2 = 925326.9058053035;
-    assertEquals(expectedChi2, res.getChiSq(), 1e-12 * expectedChi2);
+    assertEquals(expectedChi2, res.getChiSqr(), 1e-12 * expectedChi2);
   }
 
   /**
-   * Fit all the cap excluding the ATM (102) using the SABR model with parameters given by interpolated term structures. The fit is
+   * Fit all the cap excluding the ATM (102) using the SABR model with parameters given by interpolated term structures.
+   * The fit is
    * poor (RMS error around 82bps), but is does produce a very smooth (caplet) volatility surface.
    */
   @Test
@@ -159,11 +157,11 @@ public class CapletStripperSABRModelTest extends CapletStrippingSetup {
     MultiCapFloorPricer pricer = new MultiCapFloorPricer(caps, yc);
 
     CapletStripper stripper = new CapletStripperSABRModel(pricer, s_providers);
-    //error is effectively 10,000bps
+    // error is effectively 10,000bps
     CapletStrippingResult res = stripper.solve(vols, MarketDataType.VOL, START);
 
-    double expectedChi2 = 0.006812970733200472; //this corresponds to a RMS errors of about 82bps 
-    assertEquals(expectedChi2, res.getChiSq(), 1e-12 * expectedChi2);
+    double expectedChi2 = 0.006812970733200472; // this corresponds to a RMS errors of about 82bps
+    assertEquals(expectedChi2, res.getChiSqr(), 1e-12 * expectedChi2);
   }
 
   @Test
@@ -180,11 +178,12 @@ public class CapletStripperSABRModelTest extends CapletStrippingSetup {
         CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR,
             Interpolator1DFactory.FLAT_EXTRAPOLATOR)));
 
-    ParameterizedSABRModelDiscreteVolatilityFunctionProvider dvfp = new ParameterizedSABRModelDiscreteVolatilityFunctionProvider(fwdCurve, s_providers);
+    ParameterizedSABRModelDiscreteVolatilityFunctionProvider dvfp = new ParameterizedSABRModelDiscreteVolatilityFunctionProvider(
+        fwdCurve, s_providers);
     CapletStripper stripper = new CapletStripperSABRModel(pricer, dvfp);
     CapletStrippingResult res = stripper.solve(vols, MarketDataType.VOL, START);
 
-    double expectedChi2 = 0.009363800283928515; //this corresponds to a RMS errors of about 93bps 
-    assertEquals(expectedChi2, res.getChiSq(), 1e-12 * expectedChi2);
+    double expectedChi2 = 0.009363800283928515; // this corresponds to a RMS errors of about 93bps
+    assertEquals(expectedChi2, res.getChiSqr(), 1e-12 * expectedChi2);
   }
 }
