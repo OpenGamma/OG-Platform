@@ -14,9 +14,9 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * Generator (or template) for leg paying arithmetic average of overnight rate (plus a spread).
+ * Generator (or template) for leg paying overnight rate (plus a spread).
  */
-public abstract class GeneratorLegONArithmeticAverageAbstract extends GeneratorLeg {
+public abstract class GeneratorLegONAbstract extends GeneratorLeg {
 
   /** The ON index on which the fixing is done. */
   private final IndexON _indexON;
@@ -54,11 +54,10 @@ public abstract class GeneratorLegONArithmeticAverageAbstract extends GeneratorL
    * @param indexCalendar The calendar associated with the overnight index.
    * @param paymentCalendar The calendar used for the payments.
    */
-  public GeneratorLegONArithmeticAverageAbstract(String name, Currency ccy, IndexON indexON, Period paymentPeriod, int spotOffset, int paymentOffset,
+  public GeneratorLegONAbstract(String name, Currency ccy, IndexON indexON, Period paymentPeriod, int spotOffset, int paymentOffset,
       BusinessDayConvention businessDayConvention, boolean endOfMonth, StubType stubType, boolean isExchangeNotional,
       Calendar indexCalendar, Calendar paymentCalendar) {
     super(name, ccy);
-    ArgumentChecker.notNull(name, "Name");
     ArgumentChecker.notNull(indexON, "Index ON");
     ArgumentChecker.notNull(paymentPeriod, "payment period");
     ArgumentChecker.notNull(businessDayConvention, "Business day convention");

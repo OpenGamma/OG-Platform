@@ -57,10 +57,15 @@ public final class GeneratorLegIborMaster {
     IborIndex eurEuribor6M = _iborIndexMaster.getIndex("EURIBOR6M");
     _generatorSwap.put("USDLIBOR3M", new GeneratorLegIbor("USDLIBOR3M", Currency.USD, usdlibor3M, Period.ofMonths(3), 
         2, 0, usdlibor3M.getBusinessDayConvention(), true, StubType.SHORT_START, false, baseCalendar, baseCalendar));
+    _generatorSwap.put("USDLIBOR3M_X", new GeneratorLegIbor("USDLIBOR3M_X", Currency.USD, usdlibor3M, Period.ofMonths(3), 
+        2, 0, usdlibor3M.getBusinessDayConvention(), true, StubType.SHORT_START, true, baseCalendar, baseCalendar));
     _generatorSwap.put("USDLIBOR6M", new GeneratorLegIbor("USDLIBOR6M", Currency.USD, usdlibor6M, Period.ofMonths(6), 
         2, 0, usdlibor6M.getBusinessDayConvention(), true, StubType.SHORT_START, false, baseCalendar, baseCalendar));
     _generatorSwap.put("EUREURIBOR3M", new GeneratorLegIbor("EUREURIBOR3M", Currency.EUR, eurEuribor3M, 
         Period.ofMonths(3), 2, 0, eurEuribor3M.getBusinessDayConvention(), true, StubType.SHORT_START, false, 
+        baseCalendar, baseCalendar));
+    _generatorSwap.put("EUREURIBOR3M_X", new GeneratorLegIbor("EUREURIBOR3M_X", Currency.EUR, eurEuribor3M, 
+        Period.ofMonths(3), 2, 0, eurEuribor3M.getBusinessDayConvention(), true, StubType.SHORT_START, true, 
         baseCalendar, baseCalendar));
     _generatorSwap.put("EUREURIBOR6M", new GeneratorLegIbor("EUREURIBOR6M", Currency.EUR, eurEuribor6M, 
         Period.ofMonths(6), 2, 0, eurEuribor6M.getBusinessDayConvention(), true, StubType.SHORT_START, false, 

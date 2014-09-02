@@ -43,7 +43,7 @@ public abstract class GeneratorLeg extends GeneratorInstrument<GeneratorAttribut
   /**
    * The leg generated is a receiver leg. To obtain a payer leg, use a negative notional.
    */
-  public abstract  AnnuityDefinition<?> generateInstrument(final ZonedDateTime date, final double marketQuote, 
-      final double notional, final GeneratorAttributeIR attribute);
+  public abstract  AnnuityDefinition<?> generateInstrument(ZonedDateTime date, double marketQuote, 
+      double notional, GeneratorAttributeIR attribute);
 
 }

@@ -186,7 +186,10 @@ public class GeneratorLegIbor extends GeneratorLeg {
         index(_indexIbor).accrualPeriodFrequency(_paymentPeriod).
         rollDateAdjuster(RollConvention.NONE.getRollDateAdjuster(0)).resetDateAdjustmentParameters(adjustedDateIndex).
         accrualPeriodParameters(adjustedDateIndex).dayCount(_indexIbor.getDayCount()).
-        fixingDateAdjustmentParameters(offsetFixing).currency(_indexIbor.getCurrency()).spread(marketQuote).build();
+        fixingDateAdjustmentParameters(offsetFixing).currency(_indexIbor.getCurrency()).spread(marketQuote).
+        exchangeInitialNotional(_isExchangeNotional).startDateAdjustmentParameters(adjustedDateIndex).
+        exchangeFinalNotional(_isExchangeNotional).endDateAdjustmentParameters(adjustedDateIndex).
+        build();
     return leg;
   }
 

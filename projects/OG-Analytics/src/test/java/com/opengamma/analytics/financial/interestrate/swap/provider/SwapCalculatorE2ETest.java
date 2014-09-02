@@ -233,29 +233,28 @@ public class SwapCalculatorE2ETest {
   @Test
   /** Tests Bucketed PV01 of ON Arithmetic Average (+ spread) vs Libor3M swaps. */
   public void BucketedPV01ONAA3M() {
-    final double[] deltaDsc = {-0.53657, -0.53657, 1.50563, -20.38650, 156.45965, 
-      -3141.24234, -3355.04638, -13.91364, 42.96362, 61.31768, 
-      44.65782, -104.16588, 23501.58783, 40086.81647, 0.00000, 
-      0.00000, 0.00000};
-    final double[] deltaFwd3 = {2605.09563, 2632.09625, 1176.12448, -27.11358, 33.63026,
-      6.79543, 7.46515, -11436.33187, -52207.12832, 0.00000,
+    final double[] deltaDsc = {-0.5362, -0.5362, 1.5056, -20.3864, 156.4589, 
+      -3141.2267, -3355.0095, -13.7148, 44.0214, 62.8386, 
+      45.9853, -102.8615, 23497.7198, 40079.2957, 0.0000, 
+      0.0000, 0.0000};
+    final double[] deltaFwd3 = {2605.0956, 2632.0962, 1176.1245, -27.1136 , 33.6303, 
+      6.7954, 7.4652, -11436.3319, -52207.1283, 0.00000,
       0.00000, 0.00000, 0.00000, 0.00000, 0.00000 };
     final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> sensitivity = new LinkedHashMap<>();
     sensitivity.put(ObjectsPair.of(MULTICURVE_OIS.getName(USD), USD), new DoubleMatrix1D(deltaDsc));
     sensitivity.put(ObjectsPair.of(MULTICURVE_OIS.getName(USDLIBOR3M), USD), new DoubleMatrix1D(deltaFwd3));
     final MultipleCurrencyParameterSensitivity pvpsExpected = new MultipleCurrencyParameterSensitivity(sensitivity);
     final MultipleCurrencyParameterSensitivity pvpsComputed = MQSBC.fromInstrument(SWAP_FF_3M, MULTICURVE_OIS, BLOCK_OIS).multipliedBy(BP1);
-    AssertSensitivityObjects.assertEquals("Swap ON Arithmetic Average: bucketed delts from standard curves", 
+    AssertSensitivityObjects.assertEquals("Swap ON Arithmetic Average: bucketed deltas - standard curves", 
         pvpsExpected, pvpsComputed, TOLERANCE_PV_DELTA);
     final double[] deltaDsc2 = 
-      {-66.31295, 438.46099, -1360.48013, 1803.08608, -3862.18158, 
-      -3801.55530, 423.61328, -96.19724, 449.78233, -1657.18726, 
-      6317.44130, -26686.19065, -49587.59466, 8891.50944, -2332.60713, 
-      504.95697, -49.67549, 7.21692, -1.09692, 0.28813,
-      -0.04997};
-    final double[] deltaFwd32 = {2582.04592, 4305.96924, -675.08162, 199.50496, -74.21168, 
-      -15.26747, -15.62373, 7.30970, -2.81489,  0.40987,
-      -0.06426, 0.01694, -0.00295 };
+      {-66.3101, 438.4449, -1360.4301, 1803.0197, -3862.0535, 
+      -3801.7400, 424.2098, -97.2625, 448.7985, -1657.1109, 
+      6315.9521, -26682.5922, -49580.1061, 8890.1666, -2332.2614, 
+      504.8825, -49.6669, 7.2155, -1.0967, 0.2881, -0.0500};
+    final double[] deltaFwd32 = {2582.0522, 4305.9415, -673.9309, 200.0968, -72.8718, 
+      -17.0822, -23.7277, 7.9026, -3.0249, 0.4406, 
+      -0.0690, 0.0182, -0.0032 };
     final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> sensitivity2 = new LinkedHashMap<>();
     sensitivity2.put(ObjectsPair.of(MULTICURVE_OIS.getName(USD), USD), new DoubleMatrix1D(deltaDsc2));
     sensitivity2.put(ObjectsPair.of(MULTICURVE_OIS.getName(USDLIBOR3M), USD), new DoubleMatrix1D(deltaFwd32));
@@ -429,14 +428,14 @@ public class SwapCalculatorE2ETest {
   /**Tests Bucketed PV01 for a ON Cmp + spread v ON AA. */
   public void bucketedPV01ONCmpONAA() {
     final double[] deltaDsc = 
-      {0.41631, -0.95799, 3.01036, -3.99167, 7.75864, 
-      -14.61157, 34.32035, -66.41695, -61.32115, -96.11870, 
-      111.21034, 199.91616, -41.42691, 11.14523, -3.06123, 
-      0.67014, -0.03987, 0.00160, 0.00045, -0.00022, 0.00005};
+      {0.4188, -0.9726, 3.0558, -4.0519, 7.8819, 
+      -14.7705, 34.8685, -67.5583, -62.0034, -97.1414, 
+      114.4679, 205.5575, -42.4933, 11.4320, -3.1404, 
+      0.6875, -0.0408, 0.0016, 0.0005, -0.0002, 0.0001};
     final double[] deltaFwd3 = 
-      {0.29992, -1.31828, 70.25413, 42.44996, 161.86718, 
-      -268.90988, -66.77958, 12.49152, -4.42467, 0.64687, 
-      -0.09916, 0.02615, -0.00455};
+      {0.3084, -1.3555, 71.5146, 42.6154, 164.7760, 
+      -276.6229, -68.7434, 12.8506, -4.5519, 0.6655, 
+      -0.1020, 0.0269, -0.0047};
     final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> sensitivity = new LinkedHashMap<>();
     sensitivity.put(ObjectsPair.of(MULTICURVE_OIS.getName(USD), USD), new DoubleMatrix1D(deltaDsc));
     sensitivity.put(ObjectsPair.of(MULTICURVE_OIS.getName(USDLIBOR3M), USD), new DoubleMatrix1D(deltaFwd3));

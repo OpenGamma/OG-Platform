@@ -22,7 +22,7 @@ import com.opengamma.util.money.Currency;
  * The generated coupons are simplified with only the start and end fixing dates (and not all
  * the intermediary dates).
  */
-public class GeneratorLegONArithmeticAverageSimplified extends GeneratorLegONArithmeticAverageAbstract {
+public class GeneratorLegONArithmeticAverageSimplified extends GeneratorLegONAbstract {
 
   /**
    * Constructor from all the details.

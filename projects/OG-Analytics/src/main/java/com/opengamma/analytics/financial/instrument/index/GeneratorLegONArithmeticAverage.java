@@ -28,7 +28,7 @@ import com.opengamma.util.money.Currency;
  * Generator (or template) for leg paying arithmetic average of overnight rate (plus a spread).
  * The generated coupons have all the intermediary date.
  */
-public class GeneratorLegONArithmeticAverage extends GeneratorLegONArithmeticAverageAbstract {
+public class GeneratorLegONArithmeticAverage extends GeneratorLegONAbstract {
 
   /**
    * Constructor from all the details.

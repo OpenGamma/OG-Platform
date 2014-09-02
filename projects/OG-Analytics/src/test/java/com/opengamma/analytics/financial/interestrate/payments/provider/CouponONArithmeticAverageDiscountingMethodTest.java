@@ -129,6 +129,7 @@ public class CouponONArithmeticAverageDiscountingMethodTest {
   private static final double TOLERANCE_PV_DELTA = 1.0E+2;
   private static final double TOLERANCE_REL = 1.0E-6; // 0.01 bp
   private static final double TOLERANCE_REL_DELTA = 1.0E-3;
+  private static final double TOLERANCE_REL_DELTA_2 = 1.0E-4;
 
   @Test
   public void presentValueExactVsApprox() {
@@ -180,6 +181,14 @@ public class CouponONArithmeticAverageDiscountingMethodTest {
     final MultipleCurrencyParameterSensitivity pvpsApprox = PSC.calculateSensitivity(FEDFUND_CPN_3MFWD, MULTICURVES, MULTICURVES.getAllNames());
     final MultipleCurrencyParameterSensitivity pvpsFD = PSC_DSC_FD.calculateSensitivity(FEDFUND_CPN_3MFWD, MULTICURVES);
     AssertSensitivityObjects.assertEquals("CashDiscountingProviderMethod: presentValueCurveSensitivity ", pvpsApprox, pvpsFD, TOLERANCE_PV_DELTA);
+  }
+
+  @Test
+  public void presentValueCurveSensitivitySpreadExactVsApprox() {
+    final MultipleCurrencyParameterSensitivity pvcs3MExact = PSC2.calculateSensitivity(FEDFUND_CPN_SPREAD_3MFWD, MULTICURVES);
+    final MultipleCurrencyParameterSensitivity pvcs3MAppro = PSC.calculateSensitivity(FEDFUND_CPN_SPREAD_3MFWD, MULTICURVES);;
+    AssertSensitivityObjects.assertEquals("CouponArithmeticAverageONDiscountingMethod: present value curve sensitivity", 
+        pvcs3MExact, pvcs3MAppro, TOLERANCE_REL_DELTA_2 * NOTIONAL);
   }
 
   @Test

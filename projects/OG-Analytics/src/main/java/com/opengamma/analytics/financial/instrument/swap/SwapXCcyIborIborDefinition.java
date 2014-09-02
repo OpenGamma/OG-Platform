@@ -16,7 +16,6 @@ import com.opengamma.analytics.financial.instrument.payment.CouponDefinition;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
-import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
@@ -56,7 +55,8 @@ public class SwapXCcyIborIborDefinition extends SwapDefinition {
     ArgumentChecker.notNull(tenor, "Tenor");
     ArgumentChecker.notNull(generator, "Swap generator");
     // TODO: create a mechanism for the simultaneous payments on both legs, i.e. joint calendar
-    final ZonedDateTime maturityDate = ScheduleCalculator.getAdjustedDate(settlementDate, tenor, generator.getIborIndex1(), calendar1);
+    final ZonedDateTime maturityDate = settlementDate.plus(tenor);
+//        ScheduleCalculator.getAdjustedDate(settlementDate, tenor, generator.getIborIndex1(), calendar1);
     return from(settlementDate, maturityDate, generator, notional1, notional2, spread, 0.0, isPayer);
   }
 
