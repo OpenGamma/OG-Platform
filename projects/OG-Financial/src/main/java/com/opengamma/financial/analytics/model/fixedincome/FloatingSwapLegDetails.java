@@ -34,6 +34,7 @@ import com.opengamma.util.time.Tenor;
  * entries
  * <p>
  * <li></li>
+ * @deprecated Use FloatingLegCashFlows
  */
 @Deprecated
 @BeanDefinition
