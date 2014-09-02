@@ -104,7 +104,7 @@ public class FlatSurfaceFitTest extends CapletStrippingSetup {
 
     // since this is an unbiased LS fit to cap volatilities, the fit is very close to the average cap volatility
     assertEquals(sum, res.getFitParameters().getEntry(0), 1e-7);
-    assertEquals(0.6051342199655784, res.getFitParameters().getEntry(0), 1e-15);
+    assertEquals(0.6051342199655784, res.getFitParameters().getEntry(0), 1e-8);
   }
 
   /**

@@ -47,8 +47,7 @@ public class CapletStripperSABRModelTest extends CapletStrippingSetup {
   private static final DoublesVectorFunctionProvider[] s_providers;
 
   static {
-    BASE_INTERPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC,
-        Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
+    BASE_INTERPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
     ALPHA_TRANSFORM = new SingleRangeLimitTransform(0.0, LimitType.GREATER_THAN);
     BETA_TRANSFORM = new DoubleRangeLimitTransform(0.1, 1);
     RHO_TRANSFORM = new DoubleRangeLimitTransform(-1, 1);
@@ -71,15 +70,11 @@ public class CapletStripperSABRModelTest extends CapletStrippingSetup {
     Arrays.fill(temp, NU_TRANSFORM.transform(0.5));
     System.arraycopy(temp, 0, START.getData(), nAlphaKnots + nBetaKnots + nRhoKnots, nNuKnots);
 
-    InterpolatedVectorFunctionProvider alphaPro = new InterpolatedVectorFunctionProvider(new TransformedInterpolator1D(
-        BASE_INTERPOLATOR, ALPHA_TRANSFORM), ALPHA_KNOTS);
-    InterpolatedVectorFunctionProvider betaPro = new InterpolatedVectorFunctionProvider(new TransformedInterpolator1D(
-        CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR,
-            Interpolator1DFactory.FLAT_EXTRAPOLATOR), BETA_TRANSFORM), BETA_KNOTS);
-    InterpolatedVectorFunctionProvider rhoPro = new InterpolatedVectorFunctionProvider(new TransformedInterpolator1D(
-        BASE_INTERPOLATOR, RHO_TRANSFORM), RHO_KNOTS);
-    InterpolatedVectorFunctionProvider nuPro = new InterpolatedVectorFunctionProvider(new TransformedInterpolator1D(
-        BASE_INTERPOLATOR, NU_TRANSFORM), NU_KNOTS);
+    InterpolatedVectorFunctionProvider alphaPro = new InterpolatedVectorFunctionProvider(new TransformedInterpolator1D(BASE_INTERPOLATOR, ALPHA_TRANSFORM), ALPHA_KNOTS);
+    InterpolatedVectorFunctionProvider betaPro = new InterpolatedVectorFunctionProvider(new TransformedInterpolator1D(CombinedInterpolatorExtrapolatorFactory.getInterpolator(
+        Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR), BETA_TRANSFORM), BETA_KNOTS);
+    InterpolatedVectorFunctionProvider rhoPro = new InterpolatedVectorFunctionProvider(new TransformedInterpolator1D(BASE_INTERPOLATOR, RHO_TRANSFORM), RHO_KNOTS);
+    InterpolatedVectorFunctionProvider nuPro = new InterpolatedVectorFunctionProvider(new TransformedInterpolator1D(BASE_INTERPOLATOR, NU_TRANSFORM), NU_KNOTS);
 
     s_providers = new DoublesVectorFunctionProvider[] {alphaPro, betaPro, rhoPro, nuPro };
   }
@@ -106,7 +101,7 @@ public class CapletStripperSABRModelTest extends CapletStrippingSetup {
     CapletStrippingResult res = stripper.solve(vols, MarketDataType.VOL, errors, START);
 
     double expectedChi2 = 936380.0252991668; // this corresponds to a RMS errors of about 93bps
-    assertEquals(expectedChi2, res.getChiSqr(), 1e-12 * expectedChi2);
+    assertEquals(expectedChi2, res.getChiSqr(), 1e-9 * expectedChi2);
   }
 
   /**
@@ -139,7 +134,7 @@ public class CapletStripperSABRModelTest extends CapletStrippingSetup {
 
     CapletStrippingResult res = stripper.solve(pricers, MarketDataType.PRICE, vega, START);
     double expectedChi2 = 925326.9058053035;
-    assertEquals(expectedChi2, res.getChiSqr(), 1e-12 * expectedChi2);
+    assertEquals(expectedChi2, res.getChiSqr(), 1e-8 * expectedChi2);
   }
 
   /**
@@ -161,7 +156,7 @@ public class CapletStripperSABRModelTest extends CapletStrippingSetup {
     CapletStrippingResult res = stripper.solve(vols, MarketDataType.VOL, START);
 
     double expectedChi2 = 0.006812970733200472; // this corresponds to a RMS errors of about 82bps
-    assertEquals(expectedChi2, res.getChiSqr(), 1e-12 * expectedChi2);
+    assertEquals(expectedChi2, res.getChiSqr(), 1e-9 * expectedChi2);
   }
 
   @Test
@@ -175,15 +170,13 @@ public class CapletStripperSABRModelTest extends CapletStrippingSetup {
     double[] fwds = pricer.getCapletForwardRates();
     // this interpolated forward curve that will only be hit at the knots, so don't need anything more than linear
     ForwardCurve fwdCurve = new ForwardCurve(InterpolatedDoublesCurve.from(capletExpiries, fwds,
-        CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR,
-            Interpolator1DFactory.FLAT_EXTRAPOLATOR)));
+        CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR)));
 
-    ParameterizedSABRModelDiscreteVolatilityFunctionProvider dvfp = new ParameterizedSABRModelDiscreteVolatilityFunctionProvider(
-        fwdCurve, s_providers);
+    ParameterizedSABRModelDiscreteVolatilityFunctionProvider dvfp = new ParameterizedSABRModelDiscreteVolatilityFunctionProvider(fwdCurve, s_providers);
     CapletStripper stripper = new CapletStripperSABRModel(pricer, dvfp);
     CapletStrippingResult res = stripper.solve(vols, MarketDataType.VOL, START);
 
     double expectedChi2 = 0.009363800283928515; // this corresponds to a RMS errors of about 93bps
-    assertEquals(expectedChi2, res.getChiSqr(), 1e-12 * expectedChi2);
+    assertEquals(expectedChi2, res.getChiSqr(), 1e-9 * expectedChi2);
   }
 }

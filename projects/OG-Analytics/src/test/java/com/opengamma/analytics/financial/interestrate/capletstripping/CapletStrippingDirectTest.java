@@ -220,7 +220,7 @@ public class CapletStrippingDirectTest extends CapletStrippingSetup {
   /**
    * Test the analytic Jacobian against finite difference when ATM cap are excluded
    */
-  @Test
+  @Test(groups = TestGroup.UNIT_SLOW)
   public void jacobianExATMTest() {
 
     MultiCapFloorPricer pricer = new MultiCapFloorPricer(getAllCapsExATM(), getYieldCurves());
@@ -257,7 +257,7 @@ public class CapletStrippingDirectTest extends CapletStrippingSetup {
   /**
    * Test the analytic Jacobian against finite difference when ATM cap are included
    */
-  @Test
+  @Test(groups = TestGroup.UNIT_SLOW)
   public void jacobianTest() {
 
     MultiCapFloorPricerGrid pricer = new MultiCapFloorPricerGrid(getAllCaps(), getYieldCurves());
@@ -291,10 +291,10 @@ public class CapletStrippingDirectTest extends CapletStrippingSetup {
   }
 
   /**
-   * Calculate the jacobian (for price and volatility) are a random set of points to establish the average time to
+   * Calculate the jacobian (for price and volatility) at a random set of points to establish the average time to
    * compute. This is about 7ms and 0.3ms for vol and price Jacobian respectively (for 975 by 975 matrices)
    */
-  @Test(groups = TestGroup.UNIT_SLOW)
+  @Test(enabled = false, groups = TestGroup.UNIT_SLOW)
   public void timingTest() {
     MultiCapFloorPricerGrid pricer = new MultiCapFloorPricerGrid(getAllCaps(), getYieldCurves());
     int size = pricer.getGridSize();
