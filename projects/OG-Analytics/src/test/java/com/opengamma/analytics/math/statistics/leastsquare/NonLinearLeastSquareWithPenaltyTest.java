@@ -245,12 +245,12 @@ public class NonLinearLeastSquareWithPenaltyTest {
       assertEquals(vols[i], agg.evaluate(strikes[i]), 1e-5); // Accurate to 0.1bps
     }
     double expChi2 = 0.06671526449702014;
-    assertEquals(expChi2, res.getChiSq(), expChi2 * 1e-10);
+    assertEquals(expChi2, res.getChiSq(), expChi2 * 5e-9);
 
     //Change tolerance (default is 1e-8)
     NonLinearLeastSquareWithPenalty nllswp = new NonLinearLeastSquareWithPenalty(1e-6);
     res = nllswp.solve(new DoubleMatrix1D(prices), sigma, priceFunc, priceJac, start, p);
-    assertEquals(expChi2, res.getChiSq(), expChi2 * 1e-10);
+    assertEquals(expChi2, res.getChiSq(), expChi2 * 1e-8);
 
 
     //default decomposition is SVD (colt) - try some others; they all end up at slightly different solutions  
