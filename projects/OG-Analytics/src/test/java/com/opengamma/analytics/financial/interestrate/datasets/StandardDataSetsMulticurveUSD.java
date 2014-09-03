@@ -12,6 +12,7 @@ import java.util.List;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorCurveAddYieldExisiting;
 import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorCurveYieldInterpolated;
 import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorYDCurve;
 import com.opengamma.analytics.financial.datasets.CalendarUSD;
@@ -62,22 +63,26 @@ import com.opengamma.util.tuple.Pair;
  * Curves calibration in USD: 
  * 0) ONDSC-OIS/LIBOR3M-FRAIRS
  * 1) ONDSC-OIS/LIBOR3M-FRAIRS/LIBOR1M-BS/LIBOR6M-BS
- * 2) ONDSC-OISFFS/LIBOR3M-FRAIRS/LIBOR1M-BS/LIBOR6M-BS
+ * 2) ONDSC-OIS/LIBOR3M-FRAIRS with ONDSC-OIS a spread to LIBOR3M-FRAIRS
+ * 3) ONDSC-OISFFS/LIBOR3M-FRAIRS/LIBOR1M-BS/LIBOR6M-BS
  * Data stored in snapshots for comparison with platform.
  */
 public class StandardDataSetsMulticurveUSD {
 
-  private static final ZonedDateTime[] REFERENCE_DATE = new ZonedDateTime[3];
+  private static final ZonedDateTime[] REFERENCE_DATE = new ZonedDateTime[4];
   static {
     REFERENCE_DATE[0] = DateUtils.getUTCDate(2014, 1, 22);
     REFERENCE_DATE[1] = DateUtils.getUTCDate(2014, 1, 22);
     REFERENCE_DATE[2] = DateUtils.getUTCDate(2014, 1, 22);
+    REFERENCE_DATE[3] = DateUtils.getUTCDate(2014, 1, 22);
   }
 
-  private static final Interpolator1D INTERPOLATOR_LINEAR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(
-      Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
-  private static final Interpolator1D INTERPOLATOR_NCS = CombinedInterpolatorExtrapolatorFactory.getInterpolator(
-      Interpolator1DFactory.NATURAL_CUBIC_SPLINE, Interpolator1DFactory.FLAT_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+  private static final Interpolator1D INTERPOLATOR_LINEAR = 
+      CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, 
+          Interpolator1DFactory.FLAT_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+  private static final Interpolator1D INTERPOLATOR_NCS = 
+      CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.NATURAL_CUBIC_SPLINE, 
+          Interpolator1DFactory.FLAT_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
 
   private static final LastTimeCalculator MATURITY_CALCULATOR = LastTimeCalculator.getInstance();
   private static final double TOLERANCE_ROOT = 1.0E-10;
@@ -131,9 +136,9 @@ public class StandardDataSetsMulticurveUSD {
       new ZonedDateTimeDoubleTimeSeries[] {TS_EMPTY, TS_ON_USD_WITHOUT_TODAY };
 
   private static final ZonedDateTimeDoubleTimeSeries TS_IBOR_USD3M_WITH_TODAY = 
-      ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {
-        DateUtils.getUTCDate(2011, 9, 27), DateUtils.getUTCDate(2011, 9, 28) }, 
-        new double[] {0.0035, 0.0036 });
+      ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(
+          new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 27), DateUtils.getUTCDate(2011, 9, 28) }, 
+          new double[] {0.0035, 0.0036 });
   private static final ZonedDateTimeDoubleTimeSeries TS_IBOR_USD3M_WITHOUT_TODAY = 
       ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(
           new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 27) },
@@ -180,7 +185,8 @@ public class StandardDataSetsMulticurveUSD {
   private static final double[] FWD3_1_USD_MARKET_QUOTES = new double[] {0.00236600,
     0.00258250, 0.00296050,
     0.00294300, 0.00503000, 0.00939150, 0.01380800, 0.01732000,
-    0.02396200, 0.02930000, 0.03195000, 0.03423500, 0.03615500, 0.03696850, 0.03734500 }; //15
+    0.02396200, 0.02930000, 0.03195000, 0.03423500, 0.03615500, 
+    0.03696850, 0.03734500 }; //15
   /** Generators for the Fwd 3M USD curve */
   private static final GeneratorInstrument<? extends GeneratorAttribute>[] FWD3_1_USD_GENERATORS = 
       new GeneratorInstrument<?>[] {GENERATOR_USDLIBOR3M,
@@ -232,7 +238,8 @@ public class StandardDataSetsMulticurveUSD {
   private static final double[] FWD3_2_USD_MARKET_QUOTES = new double[] {0.0023455,
     0.0024275, 0.0026280,
     0.00265, 0.004487, 0.008125, 0.012333, 0.016305,
-    0.02258, 0.02841, 0.030909, 0.033357, 0.035392, 0.036308, 0.036746 }; //15
+    0.02258, 0.02841, 0.030909, 0.033357, 0.035392, 
+    0.036308, 0.036746 }; //15
   /** Generators for the Fwd 3M USD curve */
   private static final GeneratorInstrument<? extends GeneratorAttribute>[] FWD3_2_USD_GENERATORS = 
       new GeneratorInstrument<?>[] {GENERATOR_USDLIBOR3M,
@@ -418,7 +425,7 @@ public class StandardDataSetsMulticurveUSD {
   private static final InstrumentDefinition<?>[] DEFINITIONS_FWD6_3_USD;
 
   /** Units of curves */
-  private static final int[] NB_UNITS = new int[] {2, 4, 3 };
+  private static final int[] NB_UNITS = new int[] {2, 4, 1, 3 };
   private static final int NB_BLOCKS = NB_UNITS.length;
   private static final InstrumentDefinition<?>[][][][] DEFINITIONS_UNITS = new InstrumentDefinition<?>[NB_BLOCKS][][][];
   private static final GeneratorYDCurve[][][] GENERATORS_UNITS = new GeneratorYDCurve[NB_BLOCKS][][];
@@ -450,29 +457,33 @@ public class StandardDataSetsMulticurveUSD {
     DEFINITIONS_UNITS[1][1] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD3_2_USD };
     DEFINITIONS_UNITS[1][2] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD1_2_USD };
     DEFINITIONS_UNITS[1][3] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD6_2_USD };
-    DEFINITIONS_UNITS[2][0] = new InstrumentDefinition<?>[][] {DEFINITIONS_DSC_3_USD, DEFINITIONS_FWD3_3_USD };
-    DEFINITIONS_UNITS[2][1] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD1_3_USD };
-    DEFINITIONS_UNITS[2][2] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD6_3_USD };
+    DEFINITIONS_UNITS[2][0] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD3_1_USD, DEFINITIONS_DSC_1_USD };
+    DEFINITIONS_UNITS[3][0] = new InstrumentDefinition<?>[][] {DEFINITIONS_DSC_3_USD, DEFINITIONS_FWD3_3_USD };
+    DEFINITIONS_UNITS[3][1] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD1_3_USD };
+    DEFINITIONS_UNITS[3][2] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD6_3_USD };
     final GeneratorYDCurve genIntLin = new GeneratorCurveYieldInterpolated(MATURITY_CALCULATOR, INTERPOLATOR_LINEAR);
+    GeneratorYDCurve genAddExistFwd3 = new GeneratorCurveAddYieldExisiting(genIntLin, false, CURVE_NAME_FWD3_USD);
     GENERATORS_UNITS[0][0] = new GeneratorYDCurve[] {genIntLin };
     GENERATORS_UNITS[0][1] = new GeneratorYDCurve[] {genIntLin };
     GENERATORS_UNITS[1][0] = new GeneratorYDCurve[] {genIntLin };
     GENERATORS_UNITS[1][1] = new GeneratorYDCurve[] {genIntLin };
     GENERATORS_UNITS[1][2] = new GeneratorYDCurve[] {genIntLin };
     GENERATORS_UNITS[1][3] = new GeneratorYDCurve[] {genIntLin };
+    GENERATORS_UNITS[2][0] = new GeneratorYDCurve[] {genIntLin, genAddExistFwd3 };
     final GeneratorYDCurve genIntNcs = new GeneratorCurveYieldInterpolated(MATURITY_CALCULATOR, INTERPOLATOR_NCS);
-    GENERATORS_UNITS[2][0] = new GeneratorYDCurve[] {genIntNcs, genIntNcs };
-    GENERATORS_UNITS[2][1] = new GeneratorYDCurve[] {genIntNcs };
-    GENERATORS_UNITS[2][2] = new GeneratorYDCurve[] {genIntNcs };
+    GENERATORS_UNITS[3][0] = new GeneratorYDCurve[] {genIntNcs, genIntNcs };
+    GENERATORS_UNITS[3][1] = new GeneratorYDCurve[] {genIntNcs };
+    GENERATORS_UNITS[3][2] = new GeneratorYDCurve[] {genIntNcs };
     NAMES_UNITS[0][0] = new String[] {CURVE_NAME_DSC_USD };
     NAMES_UNITS[0][1] = new String[] {CURVE_NAME_FWD3_USD };
     NAMES_UNITS[1][0] = new String[] {CURVE_NAME_DSC_USD };
     NAMES_UNITS[1][1] = new String[] {CURVE_NAME_FWD3_USD };
     NAMES_UNITS[1][2] = new String[] {CURVE_NAME_FWD1_USD };
     NAMES_UNITS[1][3] = new String[] {CURVE_NAME_FWD6_USD };
-    NAMES_UNITS[2][0] = new String[] {CURVE_NAME_DSC_USD ,CURVE_NAME_FWD3_USD };
-    NAMES_UNITS[2][1] = new String[] {CURVE_NAME_FWD1_USD };
-    NAMES_UNITS[2][2] = new String[] {CURVE_NAME_FWD6_USD };
+    NAMES_UNITS[2][0] = new String[] {CURVE_NAME_FWD3_USD, CURVE_NAME_DSC_USD };
+    NAMES_UNITS[3][0] = new String[] {CURVE_NAME_DSC_USD ,CURVE_NAME_FWD3_USD };
+    NAMES_UNITS[3][1] = new String[] {CURVE_NAME_FWD1_USD };
+    NAMES_UNITS[3][2] = new String[] {CURVE_NAME_FWD6_USD };
     DSC_MAP.put(CURVE_NAME_DSC_USD, USD);
     FWD_ON_MAP.put(CURVE_NAME_DSC_USD, new IndexON[] {USDFEDFUND });
     FWD_IBOR_MAP.put(CURVE_NAME_FWD3_USD, new IborIndex[] {USDLIBOR3M });
@@ -508,8 +519,42 @@ public class StandardDataSetsMulticurveUSD {
     }
   }
 
+  /**
+   * Returns the multi-curve and block for two curves (ONDSC-OIS/LIBOR3M-FRAIRS). 
+   * ONDSC-OIS is calibrated on OIS up to 10Y and LIBOR3M-FRAIRS is calibrated on FRA and IRS up to 30Y.
+   * The market quotes used for the calibration are the default quotes of the data set.
+   * @return The curves.
+   */
   public static Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> getCurvesUSDOisL3() {
     return CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(0);
+  }
+
+  /**
+   * Returns the multi-curve and block for two curves (ONDSC-OIS/LIBOR3M-FRAIRS) with the ONDSC-OIS curve constructed 
+   * as a spread to the LIBOR3M-FRAIRS curve.
+   * The market quotes used for the calibration are the default quotes of the data set.
+   * @return The curves.
+   */
+  public static Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> getCurvesUSDOisSpreadL3() {
+    return CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(2);
+  }
+
+  /**
+   * Returns the multi-curve and block for two curves (ONDSC-OIS/LIBOR3M-FRAIRS) with the ONDSC-OIS curve constructed 
+   * as a spread to the LIBOR3M-FRAIRS curve.
+   * @param dscMarketQuotes The market quotes to be used for the discounting curve.
+   * @param fwd3MarketQuotes The market quotes to be used for the forward LIBOR3M curve.
+   * @return The curves.
+   */
+  public static Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> getCurvesUSDOisSpreadL3(
+      double[] dscMarketQuotes, double[] fwd3MarketQuotes) {
+    InstrumentDefinition<?>[] dscDefinition = getDefinitions(dscMarketQuotes, DSC_1_USD_GENERATORS, DSC_1_USD_ATTR, 
+        REFERENCE_DATE[2]);
+    InstrumentDefinition<?>[] fwd3Definition = getDefinitions(fwd3MarketQuotes, FWD3_1_USD_GENERATORS, FWD3_1_USD_ATTR, 
+        REFERENCE_DATE[2]);
+    InstrumentDefinition<?>[][][] unitDefinition = new InstrumentDefinition<?>[][][] {{fwd3Definition, dscDefinition } };
+    return makeCurvesFromDefinitions(unitDefinition, REFERENCE_DATE[0], GENERATORS_UNITS[2], NAMES_UNITS[2], KNOWN_DATA,
+        PSMQC, PSMQCSC, false);
   }
 
   public static Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> getCurvesUSDOisL1L3L6() {
@@ -517,7 +562,7 @@ public class StandardDataSetsMulticurveUSD {
   }
 
   public static Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> getCurvesUSDOisFFL1L3L6() {
-    return CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(2);
+    return CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(3);
   }
 
   /**
@@ -552,11 +597,45 @@ public class StandardDataSetsMulticurveUSD {
     return new Calendar[] {NYC };
   }
 
+  /**
+   * Returns the market quotes for the discounting curve.
+   * @return The market quotes.
+   */
+  public static double[] getMarketDataDsc1() {
+    return DSC_1_USD_MARKET_QUOTES;
+  }
+
+  /**
+   * Returns the market quotes for the forward 3M curve.
+   * @return The market quotes.
+   */
+  public static double[] getMarketDataFwd31() {
+    return FWD3_1_USD_MARKET_QUOTES;
+  }
+
+  /**
+   * Returns the name of the discounting curve.
+   * @return The name.
+   */
+  public static String getDscCurveName() {
+    return CURVE_NAME_DSC_USD;
+  }
+
+  /**
+   * Returns the name of the forward LIBOR3M curve.
+   * @return The name.
+   */
+  public static String getFwd3CurveName() {
+    return CURVE_NAME_FWD3_USD;
+  }
+
   @SuppressWarnings("unchecked")
-  private static Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> makeCurvesFromDefinitions(final InstrumentDefinition<?>[][][] definitions,
-      final ZonedDateTime calibrationDate, final GeneratorYDCurve[][] curveGenerators,
-      final String[][] curveNames, final MulticurveProviderDiscount knownData, final InstrumentDerivativeVisitor<MulticurveProviderInterface, Double> calculator,
-      final InstrumentDerivativeVisitor<MulticurveProviderInterface, MulticurveSensitivity> sensitivityCalculator, final boolean withToday) {
+  private static Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> makeCurvesFromDefinitions(
+      final InstrumentDefinition<?>[][][] definitions, final ZonedDateTime calibrationDate, 
+      final GeneratorYDCurve[][] curveGenerators, final String[][] curveNames, final MulticurveProviderDiscount knownData, 
+      final InstrumentDerivativeVisitor<MulticurveProviderInterface, Double> calculator,
+      final InstrumentDerivativeVisitor<MulticurveProviderInterface, MulticurveSensitivity> sensitivityCalculator, 
+      final boolean withToday) {
     final int nbUnits = curveGenerators.length;
     final MultiCurveBundle<GeneratorYDCurve>[] curveBundles = new MultiCurveBundle[nbUnits];
     for (int i = 0; i < nbUnits; i++) {
@@ -575,8 +654,8 @@ public class StandardDataSetsMulticurveUSD {
       }
       curveBundles[i] = new MultiCurveBundle<>(singleCurves);
     }
-    return CURVE_BUILDING_REPOSITORY.makeCurvesFromDerivatives(curveBundles, knownData, DSC_MAP, FWD_IBOR_MAP, FWD_ON_MAP, calculator,
-        sensitivityCalculator);
+    return CURVE_BUILDING_REPOSITORY.makeCurvesFromDerivatives(curveBundles, knownData, DSC_MAP, FWD_IBOR_MAP, FWD_ON_MAP, 
+        calculator, sensitivityCalculator);
   }
 
   private static InstrumentDerivative convert(final InstrumentDefinition<?> definition, final ZonedDateTime date, 
