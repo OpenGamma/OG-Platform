@@ -21,8 +21,8 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * Class describing the pricing of Fed Fund swap-like floating coupon (arithmetic average on overnight rates) by estimation and discounting (no convexity adjustment is computed).
- * The estimation is done through an approximation.
+ * Class describing the pricing of Fed Fund swap-like floating coupon (arithmetic average on overnight rates) by 
+ * estimation and discounting (no convexity adjustment is computed). The estimation is done through an approximation.
  * <p>Reference: Overnight Indexes Related Products. OpenGamma Documentation n. 20, Version 1.0, February 2013.
  */
 public final class CouponONArithmeticAverageSpreadSimplifiedDiscountingApproxMethod {
