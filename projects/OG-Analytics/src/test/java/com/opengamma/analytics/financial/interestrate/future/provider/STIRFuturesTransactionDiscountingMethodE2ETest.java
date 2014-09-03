@@ -110,7 +110,7 @@ public class STIRFuturesTransactionDiscountingMethodE2ETest {
     sensitivity.put(ObjectsPair.of(MULTICURVE.getName(EUREURIBOR3M), EUR), new DoubleMatrix1D(deltaFwd));
     final MultipleCurrencyParameterSensitivity pvpsExpected = new MultipleCurrencyParameterSensitivity(sensitivity);
     final MultipleCurrencyParameterSensitivity pvpsComputed = MQSBC.fromInstrument(ERZ4_TRA, MULTICURVE, BLOCK).multipliedBy(BP1);
-    AssertSensitivityObjects.assertEquals("STIRFuturesTransactionDiscountingMethodE2ETest: bucketed delts from standard curves", 
+    AssertSensitivityObjects.assertEquals("STIRFuturesTransactionDiscountingMethodE2ETest: bucketed deltas from standard curves", 
         pvpsExpected, pvpsComputed, TOLERANCE_PV_DELTA);
   }
 
