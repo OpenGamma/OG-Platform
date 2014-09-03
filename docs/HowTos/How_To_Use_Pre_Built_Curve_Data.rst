@@ -38,19 +38,19 @@ sampled curve pillars. We will configure an OpenGamma curve with these pre-confi
    <nodes>
     <item type="com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode.DiscountFactorNode">
      <curveNodeIdMapperName>DiscountFactor Mapper</curveNodeIdMapperName>
-     <tenor>P1M</startTenor>
+     <tenor>P1M</tenor>
     </item>
     <item type="com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode.DiscountFactorNode">
      <curveNodeIdMapperName>DiscountFactor Mapper</curveNodeIdMapperName>
-     <tenor>P6M</startTenor>
+     <tenor>P6M</tenor>
     </item>
     <item type="com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode.DiscountFactorNode">
      <curveNodeIdMapperName>DiscountFactor Mapper</curveNodeIdMapperName>
-     <tenor>P1Y</startTenor>
+     <tenor>P1Y</tenor>
     </item>
     <item type="com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode.DiscountFactorNode">
      <curveNodeIdMapperName>DiscountFactor Mapper</curveNodeIdMapperName>
-     <tenor>P2Y</startTenor>
+     <tenor>P2Y</tenor>
     </item>
    </nodes>
    <interpolatorName>Linear</interpolatorName>
