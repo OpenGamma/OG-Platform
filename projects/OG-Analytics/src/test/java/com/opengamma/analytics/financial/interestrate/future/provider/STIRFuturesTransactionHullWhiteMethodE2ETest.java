@@ -109,41 +109,47 @@ public class STIRFuturesTransactionHullWhiteMethodE2ETest {
   private static final double TOLERANCE_PV_DELTA = 1.0E-2;
   private static final double BP1 = 1.0E-4;
 
+  /** Test market quote with curves calibrated without convexity adjustment. */
   @Test
-  /**
-   * Test market quote with curves calibrated with and without convexity adjustment.
-   */
-  public void price() {
+  public void priceNoConvexityAjustment() {
     double mqExpected = MQ_3M_CAL[2]; // Dec 14 price
     Double mqComputedDsc = ERZ4_TRA.getUnderlyingSecurity().accept(MQDC, MULTICURVE_DSC);
     assertEquals("STIRFuturesTransactionHullWhiteMethodE2ETest: price - discounting", 
         mqExpected, mqComputedDsc, TOLERANCE_PRICE);
+  }
+
+  /** Test market quote with curves calibrated with convexity adjustment. */
+  @Test
+  public void priceConvexityAdjustmentHullWhite() {
+    double mqExpected = MQ_3M_CAL[2]; // Dec 14 price
     Double mqComputedHw = ERZ4_TRA.getUnderlyingSecurity().accept(MQHWC, MULTICURVE_HW);
     assertEquals("STIRFuturesTransactionHullWhiteMethodE2ETest: price - Hull-White", 
         mqExpected, mqComputedHw, TOLERANCE_PRICE);
   }
 
+  /** Test present value with curves calibrated without convexity adjustment. */
   @Test
-  /**
-   * Test present value with curves calibrated with and without convexity adjustment.
-   */
-  public void presentValue() {
+  public void presentValueNoConvexityAjustment() {
     double mqExpected = MQ_3M_CAL[2]; // Dec 14 price
     double pvExpected = (mqExpected - LAST_MARGIN_PRICE) * NOTIONAL * FUTURE_FACTOR * QUANTITY;
     MultipleCurrencyAmount pvComputedDsc = ERZ4_TRA.accept(PVDC, MULTICURVE_DSC);
     assertEquals("STIRFuturesTransactionHullWhiteMethodE2ETest: present value - discounting", 
         pvExpected, pvComputedDsc.getAmount(EUR), TOLERANCE_PV);
+  }
+
+  /** Test present value with curves calibrated with convexity adjustment. */
+  @Test
+  public void presentValueConvexityAdjustmentHullWhite() {
+    double mqExpected = MQ_3M_CAL[2]; // Dec 14 price
+    double pvExpected = (mqExpected - LAST_MARGIN_PRICE) * NOTIONAL * FUTURE_FACTOR * QUANTITY;
     MultipleCurrencyAmount pvComputedHw = ERZ4_TRA.accept(PVHWC, MULTICURVE_HW);
     assertEquals("STIRFuturesTransactionHullWhiteMethodE2ETest: present value - Hull-White", 
         pvExpected, pvComputedHw.getAmount(EUR), TOLERANCE_PV);
   }
   
-  @SuppressWarnings("unused")
+  /** Test present value with curves calibrated with and without convexity adjustment. */
   @Test
-  /**
-   * Test present value with curves calibrated with and without convexity adjustment.
-   */
-  public void marketQuoteBucketedPV01() {
+  public void marketQuoteBucketedPV01NoConvexityAjustment() {
     double deltaUnderlying = QUANTITY * FUTURE_FACTOR * NOTIONAL * BP1; // Sensitivity to the underlying
     final double[] deltaDsc = new double[MQ_OIS_CAL.length];
     final double[] deltaFwd = new double[MQ_3M_CAL.length];
@@ -156,10 +162,23 @@ public class STIRFuturesTransactionHullWhiteMethodE2ETest {
         multipliedBy(BP1);
     AssertSensitivityObjects.assertEquals("STIRFuturesTransactionDiscountingMethodE2ETest: bucketed deltas from standard curves", 
         pvpsExpected, pvpsComputedDsc, TOLERANCE_PV_DELTA);
+  }
+  
+  /** Test present value with curves calibrated with and without convexity adjustment. */
+  @Test
+  public void marketQuoteBucketedPV01ConvexityAdjustmentHullWhite() {
+    double deltaUnderlying = QUANTITY * FUTURE_FACTOR * NOTIONAL * BP1; // Sensitivity to the underlying
+    final double[] deltaDsc = new double[MQ_OIS_CAL.length];
+    final double[] deltaFwd = new double[MQ_3M_CAL.length];
+    deltaFwd[2] = deltaUnderlying;
+    final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> sensitivity = new LinkedHashMap<>();
+    sensitivity.put(ObjectsPair.of(MULTICURVE_DSC.getName(EUR), EUR), new DoubleMatrix1D(deltaDsc));
+    sensitivity.put(ObjectsPair.of(MULTICURVE_DSC.getName(EUREURIBOR3M), EUR), new DoubleMatrix1D(deltaFwd));
+    final MultipleCurrencyParameterSensitivity pvpsExpected = new MultipleCurrencyParameterSensitivity(sensitivity);
     final MultipleCurrencyParameterSensitivity pvpsComputedHw = MQSBHWC.fromInstrument(ERZ4_TRA, MULTICURVE_HW, BLOCK_HW).
         multipliedBy(BP1);
     AssertSensitivityObjects.assertEquals("STIRFuturesTransactionDiscountingMethodE2ETest: bucketed deltas from standard curves", 
-        pvpsExpected, pvpsComputedDsc, TOLERANCE_PV_DELTA);
+        pvpsExpected, pvpsComputedHw, TOLERANCE_PV_DELTA);
   }
 
 }
