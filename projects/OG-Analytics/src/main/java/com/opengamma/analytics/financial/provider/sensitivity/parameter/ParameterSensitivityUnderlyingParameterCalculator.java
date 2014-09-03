@@ -24,11 +24,16 @@ import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Pairs;
 
 /**
- * For an instrument, computes the sensitivity of a value (often the present value) to the parameters used in the curve.
- * The meaning of "parameters" will depend of the way the curve is stored (interpolated yield, function parameters, etc.).
- * The sensitivity is computed for the underlying curves up to one level deep, not fuether.
- * The return format is MultipleCurrencyParameterSensitivity object.
- * @param <DATA_TYPE> Data type.
+ * For an instrument, computes the sensitivity of a multi-currency value (often the present value) to the 
+ * parameters used in the curve.
+ * The meaning of "parameters" will depend of the way the curve is stored (interpolated zero-coupon rates, 
+ * function parameters, etc.).
+ * The sensitivity is computed for the underlying curves up to one level deep, not further (see reference
+ * documentation for more explanation).
+ * The return format is a MultipleCurrencyParameterSensitivity object.
+ * <p>
+ * Reference: Sensitivity computation, OpenGamma Documentation n. 23, September 2014.
+ * @param <DATA_TYPE> Data type extending ParameterProviderInterface.
  */
 public class ParameterSensitivityUnderlyingParameterCalculator<DATA_TYPE extends ParameterProviderInterface> 
   extends ParameterSensitivityParameterAbstractCalculator<DATA_TYPE> {
@@ -78,7 +83,6 @@ public class ParameterSensitivityUnderlyingParameterCalculator<DATA_TYPE extends
         }
       }
     }
-    // Implementation note: nbNewParamSensiCurve
     final int[][] indexOtherMulticurve = new int[nbMultiCurve][];
     // Implementation note: indexOtherMultiCurve - for each curve in the multi-curve, the index of the underlying curves in the same set
     final int[] startOwnParameter = new int[nbMultiCurve];
