@@ -45,7 +45,7 @@ public class CapletStripperDirect implements CapletStripper {
   /**
    * Set up the stripper
    * @param pricer The pricer
-   * @param lambdaK the curvature penalty in the expiry direction
+   * @param lambdaK the curvature penalty in the strike direction
    * @param lambdaT the curvature penalty in the expiry direction
    */
   public CapletStripperDirect(MultiCapFloorPricerGrid pricer, double lambdaK, double lambdaT) {
@@ -103,6 +103,14 @@ public class CapletStripperDirect implements CapletStripper {
     return new CapletStrippingImp(_pricer, volPro);
   }
 
+  /**
+   * get the penalty matrix. Note: this has protected access for testing 
+   * @param strikes array of strikes
+   * @param expiries array of expiries 
+   * @param lambdaK the curvature penalty in the strike direction
+   * @param lambdaT the curvature penalty in the expiry direction
+   * @return The penalty matrix 
+   */
   protected DoubleMatrix2D getPenaltyMatrix(double[] strikes, double[] expiries, double lambdaK, double lambdaT) {
 
     // use second order difference unless too few points

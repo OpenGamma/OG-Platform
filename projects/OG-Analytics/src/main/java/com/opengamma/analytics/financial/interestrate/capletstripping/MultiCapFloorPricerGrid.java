@@ -135,6 +135,11 @@ public class MultiCapFloorPricerGrid extends MultiCapFloorPricer {
     return jac;
   }
 
+  /**
+   * get the size of the grid. Since phantom caplets may be used to complete the grid, this may be greater than the
+   * actual number of (unique) caplets (returned by getNumCaplets())
+   * @return The size of the grid
+   */
   public int getGridSize() {
     return _gridSize;
   }
