@@ -6,7 +6,7 @@
 package com.opengamma.component;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertNull;
 
 import java.util.Map;
 
@@ -163,6 +163,7 @@ public class ComponentPropertiesTest {
     assertEquals("a=" + ConfigProperties.HIDDEN, ConfigProperty.of("a", "AA", true).toString());
   }
 
+  //-------------------------------------------------------------------------
   @Test(expectedExceptions = ComponentConfigException.class)
   public void test_missing_throws_exception() {
     ConfigProperties test = new ConfigProperties();
@@ -170,10 +171,29 @@ public class ComponentPropertiesTest {
   }
 
   @Test
+  public void test_optional_is_defined() {
+    ConfigProperties test = new ConfigProperties();
+    test.add(ConfigProperty.of("bar", "1", false));
+    ConfigProperty property = test.resolveProperty("foo", "${bar?}", 0);
+    assertEquals("foo", property.getKey());
+    assertEquals("1", property.getValue());
+  }
+
+  @Test
+  public void test_embedded_optional() {
+    ConfigProperties test = new ConfigProperties();
+    test.add(ConfigProperty.of("inner", "1", false));
+    test.add(ConfigProperty.of("outer1", "1234", false));
+
+    ConfigProperty property = test.resolveProperty("foo", "${outer${inner?}?}", 0);
+    assertEquals("1234", property.getValue());
+  }
+
+  @Test
   public void test_missing_but_optional_is_not_defined() {
     ConfigProperties test = new ConfigProperties();
     ConfigProperty property = test.resolveProperty("foo", "${bar?}", 0);
-    assertFalse(property.isDefined());
+    assertNull(property);
   }
 
   @Test
@@ -201,7 +221,7 @@ public class ComponentPropertiesTest {
     test.add(ConfigProperty.of("inner", "1234", false));
 
     ConfigProperty property = test.resolveProperty("foo", "${out${inner}er?}", 0);
-    assertFalse(property.isDefined());
+    assertNull(property);
   }
 
   @Test
