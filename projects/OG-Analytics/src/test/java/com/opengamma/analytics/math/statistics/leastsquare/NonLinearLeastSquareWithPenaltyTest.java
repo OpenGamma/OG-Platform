@@ -171,7 +171,7 @@ public class NonLinearLeastSquareWithPenaltyTest {
     final double fwd = 0.023;
     final double t = 2.0;
     // SABR parameters
-    double alpha = 0.02;
+    double alpha = 0.2;
     double beta = 0.9;
     double rho = -0.2;
     double nu = 0.5;
@@ -244,30 +244,31 @@ public class NonLinearLeastSquareWithPenaltyTest {
     for (int i = 0; i < nStrikes; i++) {
       assertEquals(vols[i], agg.evaluate(strikes[i]), 1e-5); // Accurate to 0.1bps
     }
-    double expChi2 = 0.024249543272645724;
-    assertEquals(expChi2, res.getChiSq(), expChi2 * 1e-4);
+    double expChi2 = 0.06671526449702014;
+    System.out.println(res.getChiSq());
+    assertEquals(expChi2, res.getChiSq(), expChi2 * 1e-10);
 
     //Change tolerance (default is 1e-8)
     NonLinearLeastSquareWithPenalty nllswp = new NonLinearLeastSquareWithPenalty(1e-6);
     res = nllswp.solve(new DoubleMatrix1D(prices), sigma, priceFunc, priceJac, start, p);
-    assertEquals(expChi2, res.getChiSq(), expChi2 * 5e-4);
+    assertEquals(expChi2, res.getChiSq(), expChi2 * 1e-10);
 
 
     //default decomposition is SVD (colt) - try some others; they all end up at slightly different solutions  
     nllswp = new NonLinearLeastSquareWithPenalty(DecompositionFactory.LU_COMMONS);
     res = nllswp.solve(new DoubleMatrix1D(prices), sigma, priceFunc, priceJac, start, p);
-    assertEquals(expChi2, res.getChiSq(), expChi2 * 5e-5);
+    assertEquals(expChi2, res.getChiSq(), expChi2 * 2e-8);
 
     nllswp = new NonLinearLeastSquareWithPenalty(DecompositionFactory.QR_COMMONS);
     res = nllswp.solve(new DoubleMatrix1D(prices), sigma, priceFunc, priceJac, start, p);
-    assertEquals(expChi2, res.getChiSq(), expChi2 * 5e-5);
+    assertEquals(expChi2, res.getChiSq(), expChi2 * 2e-8);
 
     nllswp = new NonLinearLeastSquareWithPenalty(new CholeskyDecompositionCommons()); //TODO why isn't this in DecompositionFactory?
     res = nllswp.solve(new DoubleMatrix1D(prices), sigma, priceFunc, priceJac, start, p);
-    assertEquals(expChi2, res.getChiSq(), expChi2 * 1e-3);
+    assertEquals(expChi2, res.getChiSq(), expChi2 * 2e-8);
 
     nllswp = new NonLinearLeastSquareWithPenalty(new CholeskyDecompositionCommons(), 1e-4);
-    assertEquals(expChi2, res.getChiSq(), expChi2 * 1e-3);
+    assertEquals(expChi2, res.getChiSq(), expChi2 * 2e-8);
   }
 
 
