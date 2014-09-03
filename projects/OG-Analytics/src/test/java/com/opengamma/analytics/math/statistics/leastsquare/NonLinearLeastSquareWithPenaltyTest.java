@@ -245,7 +245,7 @@ public class NonLinearLeastSquareWithPenaltyTest {
       assertEquals(vols[i], agg.evaluate(strikes[i]), 1e-5); // Accurate to 0.1bps
     }
     double expChi2 = 0.024249543272645724;
-    assertEquals(expChi2, res.getChiSq(), expChi2 * 1e-12);
+    assertEquals(expChi2, res.getChiSq(), expChi2 * 1e-10);
 
     //Change tolerance (default is 1e-8)
     NonLinearLeastSquareWithPenalty nllswp = new NonLinearLeastSquareWithPenalty(1e-6);
