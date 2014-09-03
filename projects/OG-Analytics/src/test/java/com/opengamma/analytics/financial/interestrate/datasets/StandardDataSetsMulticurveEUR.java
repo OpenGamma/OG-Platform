@@ -104,13 +104,19 @@ public class StandardDataSetsMulticurveEUR {
   private static final ZonedDateTimeDoubleTimeSeries[] TS_FIXED_OIS_EUR_WITH_TODAY = new ZonedDateTimeDoubleTimeSeries[] {TS_EMPTY, TS_ON_EUR_WITH_TODAY };
   private static final ZonedDateTimeDoubleTimeSeries[] TS_FIXED_OIS_EUR_WITHOUT_TODAY = new ZonedDateTimeDoubleTimeSeries[] {TS_EMPTY, TS_ON_EUR_WITHOUT_TODAY };
 
-  private static final ZonedDateTimeDoubleTimeSeries TS_IBOR_EUR3M_WITH_TODAY = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 27),
-    DateUtils.getUTCDate(2011, 9, 28) }, new double[] {0.0035, 0.0036 });
-  private static final ZonedDateTimeDoubleTimeSeries TS_IBOR_EUR3M_WITHOUT_TO = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 27) },
+  private static final ZonedDateTimeDoubleTimeSeries TS_IBOR_EUR3M_WITH_TODAY = 
+      ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(
+          new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 27), DateUtils.getUTCDate(2011, 9, 28) }, 
+          new double[] {0.0035, 0.0036 });
+  private static final ZonedDateTimeDoubleTimeSeries TS_IBOR_EUR3M_WITHOUT_TO = 
+      ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(
+          new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 27) },
       new double[] {0.0035 });
 
-  private static final ZonedDateTimeDoubleTimeSeries[] TS_FIXED_IBOR_EUR3M_WITH_TODAY = new ZonedDateTimeDoubleTimeSeries[] {TS_IBOR_EUR3M_WITH_TODAY };
-  private static final ZonedDateTimeDoubleTimeSeries[] TS_FIXED_IBOR_EUR3M_WITHOUT_TODAY = new ZonedDateTimeDoubleTimeSeries[] {TS_IBOR_EUR3M_WITHOUT_TO };
+  private static final ZonedDateTimeDoubleTimeSeries[] TS_FIXED_IBOR_EUR3M_WITH_TODAY = 
+      new ZonedDateTimeDoubleTimeSeries[] {TS_IBOR_EUR3M_WITH_TODAY };
+  private static final ZonedDateTimeDoubleTimeSeries[] TS_FIXED_IBOR_EUR3M_WITHOUT_TODAY = 
+      new ZonedDateTimeDoubleTimeSeries[] {TS_IBOR_EUR3M_WITHOUT_TO };
 
   private static final String CURVE_NAME_DSC_EUR = "EUR-DSCON-OIS";
   private static final String CURVE_NAME_FWD3_EUR = "EUR-EURIBOR3M-FRAIRS";
@@ -123,7 +129,8 @@ public class StandardDataSetsMulticurveEUR {
     0.0010555, 0.00143, 0.00249, 0.00428, 0.006325,
     0.01037, 0.01549, 0.0178, 0.020365 }; //16
   /** Generators for the dsc EUR curve */
-  private static final GeneratorInstrument<? extends GeneratorAttribute>[] DSC_1_EUR_GENERATORS = new GeneratorInstrument<?>[] {GENERATOR_DEPOSIT_ON_EUR, GENERATOR_DEPOSIT_ON_EUR,
+  private static final GeneratorInstrument<? extends GeneratorAttribute>[] DSC_1_EUR_GENERATORS = 
+      new GeneratorInstrument<?>[] {GENERATOR_DEPOSIT_ON_EUR, GENERATOR_DEPOSIT_ON_EUR,
     GENERATOR_OIS_EUR, GENERATOR_OIS_EUR, GENERATOR_OIS_EUR, GENERATOR_OIS_EUR, GENERATOR_OIS_EUR,
     GENERATOR_OIS_EUR, GENERATOR_OIS_EUR, GENERATOR_OIS_EUR, GENERATOR_OIS_EUR, GENERATOR_OIS_EUR,
     GENERATOR_OIS_EUR, GENERATOR_OIS_EUR, GENERATOR_OIS_EUR, GENERATOR_OIS_EUR };
@@ -149,7 +156,8 @@ public class StandardDataSetsMulticurveEUR {
     0.010655, 0.012655, 0.01448, 0.016122, 0.017565,
     0.0199725, 0.022365, 0.0241245, 0.024807 }; // 17
   /** Generators for the Fwd 3M EUR curve */
-  private static final GeneratorInstrument<? extends GeneratorAttribute>[] FWD3_1_EUR_GENERATORS = new GeneratorInstrument<?>[] {GENERATOR_EUREURIBOR3M,
+  private static final GeneratorInstrument<? extends GeneratorAttribute>[] FWD3_1_EUR_GENERATORS = 
+      new GeneratorInstrument<?>[] {GENERATOR_EUREURIBOR3M,
     GENERATOR_FRA3M, GENERATOR_FRA3M,
     EUR1YEURIBOR3M, EUR1YEURIBOR3M, EUR1YEURIBOR3M, EUR1YEURIBOR3M, EUR1YEURIBOR3M,
     EUR1YEURIBOR3M, EUR1YEURIBOR3M, EUR1YEURIBOR3M, EUR1YEURIBOR3M, EUR1YEURIBOR3M,
@@ -167,9 +175,9 @@ public class StandardDataSetsMulticurveEUR {
     }
   }
 
-  /** Standard USD discounting curve instrument definitions */
+  /** Standard EUR discounting curve instrument definitions */
   private static final InstrumentDefinition<?>[] DEFINITIONS_DSC_1_EUR;
-  /** Standard USD Forward 3M curve instrument definitions */
+  /** Standard EUR Forward 3M curve instrument definitions */
   private static final InstrumentDefinition<?>[] DEFINITIONS_FWD3_1_EUR;
 
   /** Units of curves */

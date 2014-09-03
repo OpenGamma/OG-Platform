@@ -53,8 +53,6 @@ public abstract class ParameterSensitivityMulticurveMatrixAbstractCalculator {
     Validate.notNull(multicurves, "null multicurve");
     Validate.notNull(curvesSet, "null curves set");
     MulticurveSensitivity sensitivity = instrument.accept(_curveSensitivityCalculator, multicurves);
-    sensitivity = sensitivity.cleaned();
-    // TODO: for testing purposes mainly. Could be removed after the tests.
     return pointToParameterSensitivity(sensitivity, multicurves, curvesSet);
   }
 

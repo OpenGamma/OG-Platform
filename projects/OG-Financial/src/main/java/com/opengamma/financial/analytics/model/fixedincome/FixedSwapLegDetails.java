@@ -40,6 +40,7 @@ import com.opengamma.util.money.CurrencyAmount;
  * <li>Discounted payment amount</li>
  * <p>
  * There is an entry for each coupon in a fixed leg.
+ * @deprecated Use FixedLegCashFlows
  */
 @Deprecated
 @BeanDefinition

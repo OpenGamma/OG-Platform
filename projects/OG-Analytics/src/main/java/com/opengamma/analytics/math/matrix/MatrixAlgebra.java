@@ -8,7 +8,6 @@ package com.opengamma.analytics.math.matrix;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.analytics.math.FunctionUtils;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -90,18 +89,13 @@ public abstract class MatrixAlgebra {
    * \end{pmatrix}\\
    * &=
    * \begin{pmatrix}
-   * a_{11}b_{11} & a_{11}b_{12} & \cdots & a_{11}b_{1q} & \cdots & a_{1n}b_{11} & a_{1n}b_{12} & \cdots & a_{1n}b_{1q}
-   * \\
-   * a_{11}b_{21} & a_{11}b_{22} & \cdots & a_{11}b_{2q} & \cdots & a_{1n}b_{21} & a_{1n}b_{22} & \cdots & a_{1n}b_{2q}
-   * \\
+   * a_{11}b_{11} & a_{11}b_{12} & \cdots & a_{11}b_{1q} & \cdots & a_{1n}b_{11} & a_{1n}b_{12} & \cdots & a_{1n}b_{1q}\\
+   * a_{11}b_{21} & a_{11}b_{22} & \cdots & a_{11}b_{2q} & \cdots & a_{1n}b_{21} & a_{1n}b_{22} & \cdots & a_{1n}b_{2q} \\
    * \vdots & \vdots & \ddots & \vdots & \cdots & \vdots & \vdots & \ddots & \cdots \\
-   * a_{11}b_{p1} & a_{11}b_{p2} & \cdots & a_{11}b_{pq} & \cdots & a_{1n}b_{p1} & a_{1n}b_{p2} & \cdots & a_{1n}b_{pq}
-   * \\
+   * a_{11}b_{p1} & a_{11}b_{p2} & \cdots & a_{11}b_{pq} & \cdots & a_{1n}b_{p1} & a_{1n}b_{p2} & \cdots & a_{1n}b_{pq} \\
    * \vdots & \vdots & & \vdots & \ddots & \vdots & \vdots & & \cdots \\
-   * a_{m1}b_{11} & a_{m1}b_{12} & \cdots & a_{m1}b_{1q} & \cdots & a_{mn}b_{11} & a_{mn}b_{12} & \cdots & a_{mn}b_{1q}
-   * \\
-   * a_{m1}b_{21} & a_{m1}b_{22} & \cdots & a_{m1}b_{2q} & \cdots & a_{mn}b_{21} & a_{mn}b_{22} & \cdots & a_{mn}b_{2q}
-   * \\
+   * a_{m1}b_{11} & a_{m1}b_{12} & \cdots & a_{m1}b_{1q} & \cdots & a_{mn}b_{11} & a_{mn}b_{12} & \cdots & a_{mn}b_{1q} \\
+   * a_{m1}b_{21} & a_{m1}b_{22} & \cdots & a_{m1}b_{2q} & \cdots & a_{mn}b_{21} & a_{mn}b_{22} & \cdots & a_{mn}b_{2q} \\
    * \vdots & \vdots & \ddots & \vdots & \cdots & \vdots & \vdots & \ddots & \cdots \\
    * a_{m1}b_{p1} & a_{m1}b_{p2} & \cdots & a_{m1}b_{pq} & \cdots & a_{mn}b_{p1} & a_{mn}b_{p2} & \cdots & a_{mn}b_{pq}
    * \end{pmatrix}
@@ -266,8 +260,7 @@ public abstract class MatrixAlgebra {
    * For a vector, returns the <a href="http://mathworld.wolfram.com/L1-Norm.html">$L_1$ norm</a>
    * (also known as the Taxicab norm or Manhattan norm), i.e. $\Sigma |x_i|$.
    * <p>
-   * For a matrix, returns the <a href="http://mathworld.wolfram.com/MaximumAbsoluteColumnSumNorm.html">maximum absolute
-   * column sum norm</a> of the matrix.
+   * For a matrix, returns the <a href="http://mathworld.wolfram.com/MaximumAbsoluteColumnSumNorm.html">maximum absolute column sum norm</a> of the matrix.
    * @param m A vector or matrix, not null
    * @return The $L_1$ norm
    */
@@ -287,8 +280,7 @@ public abstract class MatrixAlgebra {
    * For a vector, returns the <a href="http://mathworld.wolfram.com/L-Infinity-Norm.html">$L_\infty$ norm</a>.
    * $L_\infty$ norm is the maximum of the absolute values of the elements.
    * <p>
-   * For a matrix, returns the <a href="http://mathworld.wolfram.com/MaximumAbsoluteRowSumNorm.html">maximum absolute
-   * row sum norm</a>
+   * For a matrix, returns the <a href="http://mathworld.wolfram.com/MaximumAbsoluteRowSumNorm.html">maximum absolute row sum norm</a>
    * @param m a vector or a matrix, not null
    * @return the norm
    */
@@ -341,7 +333,7 @@ public abstract class MatrixAlgebra {
     for (int i = 0; i < m; i++) {
       double sum = 0.0;
       for (int k = 0; k < n; k++) {
-        sum += FunctionUtils.square(aData[k][i]);
+        sum += aData[k][i] * aData[k][i];
       }
       data[i][i] = sum;
 
