@@ -506,7 +506,7 @@ public abstract class AbstractAnnuityDefinitionBuilder<T extends AbstractAnnuity
         endDate, // accrual start
         endDate, // accrual end
         1.0, // year frac
-        (isPayer() ? -1 : 1) * Math.abs(getNotional().getAmount(_endDate)),
+        (isPayer() ? -1 : 1) * getNotional().getAmount(_endDate),
         1.0); // rate
   }
   
