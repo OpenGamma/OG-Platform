@@ -1,10 +1,11 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.analytics.math.statistics.leastsquare;
 
+import static com.opengamma.analytics.math.interpolation.PenaltyMatrixGenerator.getPenaltyMatrix;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.Arrays;
@@ -16,6 +17,9 @@ import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
+import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
+import com.opengamma.analytics.financial.model.volatility.smile.function.SABRFormulaData;
+import com.opengamma.analytics.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
 import com.opengamma.analytics.math.curve.Curve;
 import com.opengamma.analytics.math.curve.FunctionalDoublesCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
@@ -26,6 +30,8 @@ import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolat
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.math.interpolation.PenaltyMatrixGenerator;
+import com.opengamma.analytics.math.linearalgebra.CholeskyDecompositionCommons;
+import com.opengamma.analytics.math.linearalgebra.DecompositionFactory;
 import com.opengamma.analytics.math.matrix.ColtMatrixAlgebra;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
@@ -107,7 +113,7 @@ public class NonLinearLeastSquareWithPenaltyTest {
     final int nWeights = 20;
     final int diffOrder = 2;
     final double lambda = 100.0;
-    final DoubleMatrix2D penalty = (DoubleMatrix2D) MA.scale(PenaltyMatrixGenerator.getPenaltyMatrix(nWeights, diffOrder), lambda);
+    final DoubleMatrix2D penalty = (DoubleMatrix2D) MA.scale(getPenaltyMatrix(nWeights, diffOrder), lambda);
     // final boolean[] on = new boolean[nWeights];
     final int[] onIndex = new int[] {1, 4, 11, 12, 15, 17 };
     final double[] obs = new double[] {0, 1.0, 1.0, 1.0, 0.0, 0.0 };
@@ -144,7 +150,7 @@ public class NonLinearLeastSquareWithPenaltyTest {
     }
     final DoubleMatrix1D start = new DoubleMatrix1D(temp);
 
-    final LeastSquareResults lsRes = NLLSWP.solve(new DoubleMatrix1D(obs), new DoubleMatrix1D(n, 0.01), func, jac, start, penalty);
+    final LeastSquareWithPenaltyResults lsRes = NLLSWP.solve(new DoubleMatrix1D(obs), new DoubleMatrix1D(n, 0.01), func, jac, start, penalty);
     if (print) {
       System.out.println("chi2: " + lsRes.getChiSq());
       System.out.println(lsRes.getFitParameters());
@@ -152,7 +158,118 @@ public class NonLinearLeastSquareWithPenaltyTest {
     for (int i = 0; i < n; i++) {
       assertEquals(obs[i], lsRes.getFitParameters().getEntry(onIndex[i]), 0.01);
     }
+    double expPen = 20.87912357454752;
+    assertEquals(expPen, lsRes.getPenalty(), 1e-9);
   }
+
+  @Test
+  public void volTermStructureTest() {
+    double lowStrike = 0.001;
+    double highStrike = 0.05;
+
+    // mkt parameters
+    final double fwd = 0.023;
+    final double t = 2.0;
+    // SABR parameters
+    double alpha = 0.2;
+    double beta = 0.9;
+    double rho = -0.2;
+    double nu = 0.5;
+    SABRFormulaData sabr = new SABRFormulaData(alpha, beta, rho, nu);
+
+    final double[] strikes = new double[] {0.002, 0.004, 0.006, 0.01, 0.02, 0.03, 0.05 };
+    SABRHaganVolatilityFunction volFunc = new SABRHaganVolatilityFunction();
+    double[] vols = volFunc.getVolatilityFunction(fwd, strikes, t).evaluate(sabr);
+    final int nStrikes = strikes.length;
+    double[] prices = new double[nStrikes];
+    double[] vega = new double[nStrikes];
+    for (int i = 0; i < nStrikes; i++) {
+      prices[i] = BlackFormulaRepository.price(fwd, strikes[i], t, vols[i], true);
+      vega[i] = BlackFormulaRepository.vega(fwd, strikes[i], t, vols[i]);
+    }
+
+    BasisFunctionGenerator gen = new BasisFunctionGenerator();
+
+    final List<Function1D<Double, Double>> basisFuncs = gen.generateSet(lowStrike, highStrike, 12, 2);
+    final int nWeights = basisFuncs.size();
+
+    double lambda = 10000.0;
+    DoubleMatrix2D p = (DoubleMatrix2D) MA.scale(getPenaltyMatrix(nWeights, 2), lambda); // second order penalty
+
+    // The option prices as a function of the weights
+    Function1D<DoubleMatrix1D, DoubleMatrix1D> priceFunc = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
+      @Override
+      public DoubleMatrix1D evaluate(DoubleMatrix1D w) {
+        BasisFunctionAggregation<Double> agg = new BasisFunctionAggregation<>(basisFuncs, w.getData());
+        DoubleMatrix1D res = new DoubleMatrix1D(nStrikes);
+        double[] data = res.getData();
+        for (int i = 0; i < nStrikes; i++) {
+          data[i] = BlackFormulaRepository.price(fwd, strikes[i], t, agg.evaluate(strikes[i]), true);
+        }
+        return res;
+      }
+    };
+
+    // The option price sensitivity to the weights
+    Function1D<DoubleMatrix1D, DoubleMatrix2D> priceJac = new Function1D<DoubleMatrix1D, DoubleMatrix2D>() {
+      @Override
+      public DoubleMatrix2D evaluate(DoubleMatrix1D w) {
+        BasisFunctionAggregation<Double> agg = new BasisFunctionAggregation<>(basisFuncs, w.getData());
+        DoubleMatrix2D res = new DoubleMatrix2D(nStrikes, nWeights);
+        double[][] data = res.getData();
+        for (int i = 0; i < nStrikes; i++) {
+          double vega = BlackFormulaRepository.vega(fwd, strikes[i], t, agg.evaluate(strikes[i]));
+          DoubleMatrix1D dSigmaDW = agg.weightSensitivity(strikes[i]);
+          double[] temp = dSigmaDW.toArray();
+          for (int j = 0; j < nWeights; j++) {
+            temp[j] *= vega;
+          }
+          data[i] = temp;
+        }
+        return res;
+      }
+    };
+
+    double oneBP = 1e-4;
+    DoubleMatrix1D sigma = new DoubleMatrix1D(nStrikes);
+    for (int i = 0; i < nStrikes; i++) {
+      sigma.getData()[i] = vega[i] * 0.1 * oneBP; // 0.1bps error
+    }
+
+    DoubleMatrix1D start = new DoubleMatrix1D(nWeights, 0.3);
+
+    LeastSquareWithPenaltyResults res = NLLSWP.solve(new DoubleMatrix1D(prices), sigma, priceFunc, priceJac, start, p);
+    DoubleMatrix1D weights = res.getFitParameters();
+    BasisFunctionAggregation<Double> agg = new BasisFunctionAggregation<>(basisFuncs, weights.getData());
+    for (int i = 0; i < nStrikes; i++) {
+      assertEquals(vols[i], agg.evaluate(strikes[i]), 1e-5); // Accurate to 0.1bps
+    }
+    double expChi2 = 0.06671526449702014;
+    assertEquals(expChi2, res.getChiSq(), expChi2 * 5e-9);
+
+    //Change tolerance (default is 1e-8)
+    NonLinearLeastSquareWithPenalty nllswp = new NonLinearLeastSquareWithPenalty(1e-6);
+    res = nllswp.solve(new DoubleMatrix1D(prices), sigma, priceFunc, priceJac, start, p);
+    assertEquals(expChi2, res.getChiSq(), expChi2 * 1e-8);
+
+
+    //default decomposition is SVD (colt) - try some others; they all end up at slightly different solutions  
+    nllswp = new NonLinearLeastSquareWithPenalty(DecompositionFactory.LU_COMMONS);
+    res = nllswp.solve(new DoubleMatrix1D(prices), sigma, priceFunc, priceJac, start, p);
+    assertEquals(expChi2, res.getChiSq(), expChi2 * 2e-8);
+
+    nllswp = new NonLinearLeastSquareWithPenalty(DecompositionFactory.QR_COMMONS);
+    res = nllswp.solve(new DoubleMatrix1D(prices), sigma, priceFunc, priceJac, start, p);
+    assertEquals(expChi2, res.getChiSq(), expChi2 * 2e-8);
+
+    nllswp = new NonLinearLeastSquareWithPenalty(new CholeskyDecompositionCommons()); //TODO why isn't this in DecompositionFactory?
+    res = nllswp.solve(new DoubleMatrix1D(prices), sigma, priceFunc, priceJac, start, p);
+    assertEquals(expChi2, res.getChiSq(), expChi2 * 2e-8);
+
+    nllswp = new NonLinearLeastSquareWithPenalty(new CholeskyDecompositionCommons(), 1e-4);
+    assertEquals(expChi2, res.getChiSq(), expChi2 * 2e-8);
+  }
+
 
   /**
    * This simply prints out all the basis functions
