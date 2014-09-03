@@ -21,12 +21,9 @@ public class CapFloorPricer {
   private final int _n;
 
   /**
-   * Decomposes a cap (floor) down to relevant information about its caplets (floorlets), i.e. the forward (ibor)
-   * values, the fixing times and
-   * the discount factors. Each caplet (floorlet), and hence the whole cap (floor) can then be priced by suppling a
-   * VolatilityModel1D
-   * (which gives a Black vol for a particular forward/strike/expiry) or a VolatilityTermStructure (which gives the vol
-   * simply as a function of expiry)
+   * Decomposes a cap (floor) down to relevant information about its caplets (floorlets), i.e. the forward (ibor) values,
+   * the fixing times and the discount factors. Each caplet (floorlet), and hence the whole cap (floor) can then be priced by suppling a VolatilityModel1D
+   * (which gives a Black vol for a particular forward/strike/expiry) or a VolatilityTermStructure (which gives the vol simply as a function of expiry)
    * @param cap a cap or floor
    * @param curves The relevant curves
    */
@@ -49,8 +46,7 @@ public class CapFloorPricer {
   }
 
   /**
-   * Price a cap (floor) with a VolatilityModel1D. This allows the same cap to be prices with different models
-   * (different models include different
+   * Price a cap (floor) with a VolatilityModel1D. This allows the same cap to be prices with different models (different models include different
    * parameters for the same model), with repeating calculations (e.g. as part of a caplet stripping routine)
    * @param volModel VolatilityModel1D which gives a Black vol for a particular forward/strike/expiry
    * @return The cap (floor) price
@@ -68,8 +64,7 @@ public class CapFloorPricer {
 
   /**
    * Price the cap using a (caplet) volatility surface. This will give a (Black) volatility dependent on the
-   * strike and expiry of each caplet. The cap price is of course the sum of the prices of each of the constituent
-   * caplets.
+   * strike and expiry of each caplet. The cap price is of course the sum of the prices of each of the constituent caplets.
    * @param volSurface the (Black) volatility surface of the underlying caplets
    * @return The cap/floor price
    */
@@ -85,8 +80,7 @@ public class CapFloorPricer {
 
   /**
    * Price the cap from the volatilities of its caplets.
-   * @param capletVols The (Black) volatility of caplets. These <b>must</b> be order by (ascending) order of fixing
-   * time.
+   * @param capletVols The (Black) volatility of caplets. These <b>must</b> be order by (ascending) order of fixing time.
    * @return The cap price
    */
   public double price(final double[] capletVols) {
@@ -121,8 +115,7 @@ public class CapFloorPricer {
   }
 
   /**
-   * get the implied volatility of a cap from a (caplet) volatility surface - this will give a (Black) volatility
-   * dependent on the
+   * get the implied volatility of a cap from a (caplet) volatility surface - this will give a (Black) volatility dependent on the
    * strike and expiry of each caplet.
    * @param volSurface The (caplet) volatility surface
    * @return The cap implied volatility
@@ -134,8 +127,7 @@ public class CapFloorPricer {
 
   /**
    * get the implied volatility of a cap from the volatilities of the underlying caplets.
-   * @param capletVols The (Black) volatility of caplets. These <b>must</b> be order by (ascending) order of fixing
-   * time.
+   * @param capletVols The (Black) volatility of caplets. These <b>must</b> be order by (ascending) order of fixing time.
    * @return The cap implied volatility
    */
   public double impliedVol(final double[] capletVols) {
@@ -180,8 +172,7 @@ public class CapFloorPricer {
 
   /**
    * get the cap vega; the sensitivity of its price to its volatility
-   * @param capletVols The (Black) volatility of caplets. These <b>must</b> be order by (ascending) order of fixing
-   * time.
+   * @param capletVols The (Black) volatility of caplets. These <b>must</b> be order by (ascending) order of fixing time.
    * @return the cap vega
    */
   public double vega(final double[] capletVols) {

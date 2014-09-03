@@ -15,14 +15,10 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Simplest possible caplet stripping algorithm. Each cap must be at the same strike (cap are normally quoted at fixed
- * absolute strikes, except for the ATM
- * which this cannot handle), and have the same start (this could be relaxed with better decomposition logic). The
- * co-starting caps are decomposed into a set
- * of spanning caps (simply by taking price difference). Since these spanning caps do not (by construction) share any
- * underlying caplets, implied volatilities
- * (i.e. the common volatility of the caplet set) can be found that price each spanning cap. The resultant expiry
- * dependent caplet volatility curve with of course
+ * Simplest possible caplet stripping algorithm. Each cap must be at the same strike (cap are normally quoted at fixed absolute strikes, except for the ATM
+ * which this cannot handle), and have the same start (this could be relaxed with better decomposition logic). The co-starting caps are decomposed into a set
+ * of spanning caps (simply by taking price difference). Since these spanning caps do not (by construction) share any underlying caplets, implied volatilities
+ * (i.e. the common volatility of the caplet set) can be found that price each spanning cap. The resultant expiry dependent caplet volatility curve with of course
  * by piecewise constant.
  */
 public class CapletStrippingBootstrap {
@@ -63,8 +59,8 @@ public class CapletStrippingBootstrap {
       ArgumentChecker.isTrue(cap.getStrike() == strike, "caps must have same strike for this method");
       ArgumentChecker.isTrue(cap.getStartTime() == startTime, "caps must be co-starting");
       final double temp = cap.getEndTime();
-      ArgumentChecker.isTrue(temp > endTime, "caps must be in order of increasing end time"); // TODO remove this by
-                                                                                              // sorting caps
+      ArgumentChecker.isTrue(temp > endTime, "caps must be in order of increasing end time"); // TODO remove this by sorting caps
+
       // decompose caps
       final int i2 = cap.getNumberOfPayments();
       final CapFloorIbor[] caplets = cap.getPayments();
@@ -90,7 +86,7 @@ public class CapletStrippingBootstrap {
   }
 
   /**
-   * 
+   * The caplet vols for each piecewise constant period 
    * @param mktCapFlPrices market prices of caps
    * @return The set caplet/floorlet volatilities (indexed in ascending time order)
    */
@@ -98,14 +94,12 @@ public class CapletStrippingBootstrap {
     ArgumentChecker.notEmpty(mktCapFlPrices, "null cap prices");
     final int n = _caplets.length;
     ArgumentChecker.isTrue(n == mktCapFlPrices.length, "length of prices does not match number of caps");
-    ArgumentChecker.isTrue(mktCapFlPrices[0] > _intrinsicValues[0],
-        "prices must be greater than or equal to their intrinsic values");
+    ArgumentChecker.isTrue(mktCapFlPrices[0] > _intrinsicValues[0], "prices must be greater than or equal to their intrinsic values");
     final double[] diffs = new double[n];
     diffs[0] = mktCapFlPrices[0];
     for (int i = 1; i < n; i++) {
       diffs[i] = mktCapFlPrices[i] - mktCapFlPrices[i - 1];
-      ArgumentChecker.isTrue(diffs[i] >= _intrinsicValues[i],
-          "prices must be greater than or equal to their intrinsic values");
+      ArgumentChecker.isTrue(diffs[i] >= _intrinsicValues[i], "prices must be greater than or equal to their intrinsic values");
     }
 
     return capletVolsFromPriceDiff(diffs);
@@ -121,7 +115,7 @@ public class CapletStrippingBootstrap {
   }
 
   /**
-   * 
+   * The caplet vols for each piecewise constant period 
    * @param mktCapFlVols market implied volatilities of caps
    * @return he set caplet/floorlet volatilities (indexed in ascending time order)
    */

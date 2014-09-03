@@ -20,7 +20,7 @@ public final class CapFloorDecomposer {
   /**
    * Private constructor
    */
-  private CapFloorDecomposer() {
+  private CapFloorDecomposer() { 
   }
 
   /**
