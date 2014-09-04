@@ -86,7 +86,6 @@ public class CapFloorIborInArrearsSmileModelCapGenericReplicationMethodTest {
   private static final CapFloorIbor FLOOR_SHORT = (CapFloorIbor) FLOOR_IA_SHORT_DEFINITION.toDerivative(REFERENCE_DATE);
   // Methods
   private static final double MU = 8.00;
-  private static final CapFloorIborSABRCapMethod METHOD_SABR_STD = CapFloorIborSABRCapMethod.getInstance();
 
   // Extracted Sample data
   private static final double[] STRIKES = new double[] {0.005, 0.01, 0.014844615790478254, 0.015, 0.02, 0.025, 0.03,
@@ -114,10 +113,6 @@ public class CapFloorIborInArrearsSmileModelCapGenericReplicationMethodTest {
      */
     CapFloorIbor[] derivatives = new CapFloorIbor[] {CAP_LONG, CAP_SHORT, FLOOR_SHORT };
     for (final CapFloorIbor derivative : derivatives) {
-      CapFloorIborInArrearsSABRCapGenericReplicationMethod methodSabr = new CapFloorIborInArrearsSABRCapGenericReplicationMethod(
-          METHOD_SABR_STD);
-      MultipleCurrencyAmount res1 = methodSabr.presentValue(derivative, SABR_MULTICURVES);
-
       double forward = SABR_MULTICURVES.getMulticurveProvider().getSimplyCompoundForwardRate(derivative.getIndex(),
           derivative.getFixingPeriodStartTime(), derivative.getFixingPeriodEndTime(),
           derivative.getFixingAccrualFactor());
@@ -157,9 +152,6 @@ public class CapFloorIborInArrearsSmileModelCapGenericReplicationMethodTest {
     /**
      * Coupon Ibor
      */
-    CouponIborInArrearsReplicationMethod methodSabr = new CouponIborInArrearsReplicationMethod(METHOD_SABR_STD);
-    MultipleCurrencyAmount res1 = methodSabr.presentValue(COUPON_IBOR, SABR_MULTICURVES);
-
     double forward = SABR_MULTICURVES.getMulticurveProvider().getSimplyCompoundForwardRate(COUPON_IBOR.getIndex(),
         COUPON_IBOR.getFixingPeriodStartTime(), COUPON_IBOR.getFixingPeriodEndTime(),
         COUPON_IBOR.getFixingAccrualFactor());

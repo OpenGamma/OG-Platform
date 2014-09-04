@@ -9,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
-import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.InterpolatedSmileFunction;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
@@ -29,7 +28,6 @@ public class CapFloorIborInArrearsSmileModelCapGenericReplicationMethod {
   private static final Logger LOGGER = LoggerFactory
       .getLogger(CapFloorIborInArrearsSmileModelCapGenericReplicationMethod.class);
 
-  private static final BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
   private static final int MINIMUM_STEP = 6;
   private static final int MAX_COUNT = 10; // the maximum iteration count 
   private static final double ABS_TOL = 1.0;
