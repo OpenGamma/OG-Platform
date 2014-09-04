@@ -27,10 +27,12 @@ import com.opengamma.analytics.math.minimization.DoubleRangeLimitTransform;
 import com.opengamma.analytics.math.minimization.ParameterLimitsTransform;
 import com.opengamma.analytics.math.minimization.ParameterLimitsTransform.LimitType;
 import com.opengamma.analytics.math.minimization.SingleRangeLimitTransform;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * This tests {@link CapletStripperSABRModel} where the parameter term structures are represented at interpolated curves
  */
+@Test(groups=TestGroup.UNIT)
 public class CapletStripperSABRModelTest extends CapletStrippingSetup {
 
   private static final double[] ALPHA_KNOTS = new double[] {1, 2, 3, 5, 7, 10 };
