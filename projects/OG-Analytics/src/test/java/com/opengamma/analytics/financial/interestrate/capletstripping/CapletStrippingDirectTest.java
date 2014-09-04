@@ -261,7 +261,7 @@ public class CapletStrippingDirectTest extends CapletStrippingSetup {
     DoubleMatrix1D flat = new DoubleMatrix1D(size, 0.4);
 
     DiscreteVolatilityFunctionProvider volPro = new DiscreteVolatilityFunctionProviderDirect();
-    CapletStrippingImp imp = new CapletStrippingImp(pricer, volPro);
+    CapletStrippingCore imp = new CapletStrippingCore(pricer, volPro);
 
     Function1D<DoubleMatrix1D, DoubleMatrix1D> pFunc = imp.getCapPriceFunction();
     Function1D<DoubleMatrix1D, DoubleMatrix2D> pJacFun = imp.getCapPriceJacobianFunction();
@@ -298,7 +298,7 @@ public class CapletStrippingDirectTest extends CapletStrippingSetup {
     DoubleMatrix1D flat = new DoubleMatrix1D(size, 0.4);
 
     DiscreteVolatilityFunctionProvider volPro = new DiscreteVolatilityFunctionProviderDirect();
-    CapletStrippingImp imp = new CapletStrippingImp(pricer, volPro);
+    CapletStrippingCore imp = new CapletStrippingCore(pricer, volPro);
 
     Function1D<DoubleMatrix1D, DoubleMatrix1D> pFunc = imp.getCapPriceFunction();
     Function1D<DoubleMatrix1D, DoubleMatrix2D> pJacFun = imp.getCapPriceJacobianFunction();
@@ -332,7 +332,7 @@ public class CapletStrippingDirectTest extends CapletStrippingSetup {
     MultiCapFloorPricerGrid pricer = new MultiCapFloorPricerGrid(getAllCaps(), getYieldCurves());
     int size = pricer.getGridSize();
     DiscreteVolatilityFunctionProvider volPro = new DiscreteVolatilityFunctionProviderDirect();
-    CapletStrippingImp imp = new CapletStrippingImp(pricer, volPro);
+    CapletStrippingCore imp = new CapletStrippingCore(pricer, volPro);
 
     Function1D<DoubleMatrix1D, DoubleMatrix1D> vFunc = imp.getCapVolFunction();
     Function1D<DoubleMatrix1D, DoubleMatrix1D> pFunc = imp.getCapPriceFunction();

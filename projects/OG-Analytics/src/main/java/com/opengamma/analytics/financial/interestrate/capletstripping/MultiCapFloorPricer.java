@@ -54,7 +54,7 @@ public class MultiCapFloorPricer {
    * returning cap values. 
    * @param curves The discount and index curves 
    */
-  public MultiCapFloorPricer( List<CapFloor> caps,  MulticurveProviderInterface curves) {
+  public MultiCapFloorPricer(List<CapFloor> caps,  MulticurveProviderInterface curves) {
     ArgumentChecker.noNulls(caps, "null caps");
     ArgumentChecker.notNull(curves, "null curve");
 
@@ -118,7 +118,7 @@ public class MultiCapFloorPricer {
    */
   private class CapletsComparator implements Comparator<CapFloorIbor> {
     @Override
-    public int compare( CapFloorIbor o1,  CapFloorIbor o2) {
+    public int compare(CapFloorIbor o1,  CapFloorIbor o2) {
       int a = Doubles.compare(o1.getStrike(), o2.getStrike());
       if (a != 0) {
         return a;
@@ -134,7 +134,7 @@ public class MultiCapFloorPricer {
    * @param volSurface A volatility surface
    * @return caplet volatilities 
    */
-  public double[] getCapletVols( VolatilitySurface volSurface) {
+  public double[] getCapletVols(VolatilitySurface volSurface) {
     int nCaplets = _capletsArray.length;
     double[] vols = new double[nCaplets];
     for (int i = 0; i < nCaplets; i++) {
@@ -151,7 +151,7 @@ public class MultiCapFloorPricer {
    * @param volSurface the (Black) volatility surface of the underlying caplets
    * @return The cap/floor prices (in the same order the caps were given in the constructor)
    */
-  public double[] price( VolatilitySurface volSurface) {
+  public double[] price(VolatilitySurface volSurface) {
     return priceFromCapletVols(getCapletVols(volSurface));
   }
 
@@ -162,7 +162,7 @@ public class MultiCapFloorPricer {
    *  then by (ascending) order of strike.
    * @return The cap/floor prices (in the same order the caps were given in the constructor)
    */
-  public double[] priceFromCapletVols( double[] capletVols) {
+  public double[] priceFromCapletVols(double[] capletVols) {
     ArgumentChecker.notEmpty(capletVols, "null caplet volatilities");
     ArgumentChecker.isTrue(_nCaplets == capletVols.length, "Expected {} caplet vols but given ", _nCaplets, capletVols.length);
     double[] capletPrices = new double[_nCaplets];
@@ -179,7 +179,7 @@ public class MultiCapFloorPricer {
    * @param capVolatilities the cap/floor (Black) volatilities. These must be in the same order as the cap passed to the constructor.
    * @return The cap/floor prices (in the same order the caps were given in the constructor)
    */
-  public double[] price( double[] capVolatilities) {
+  public double[] price(double[] capVolatilities) {
     ArgumentChecker.notEmpty(capVolatilities, "null cap volatilities");
     ArgumentChecker.isTrue(_nCaps == capVolatilities.length, "capVolatilities wrong length");
     double[] res = new double[_nCaps];
@@ -195,7 +195,7 @@ public class MultiCapFloorPricer {
    *  then by (ascending) order of strike.
    * @return The cap/floor prices (in the same order the caps were given in the constructor)
    */
-  protected double[] priceFromCapletPrices( double[] capletPrices) {
+  protected double[] priceFromCapletPrices(double[] capletPrices) {
     return aggregateToCaps(capletPrices);
   }
 
@@ -207,7 +207,7 @@ public class MultiCapFloorPricer {
    * @param capPrices The cap prices (in the same order the caps were given in the constructor)
    * @return The cap/floor implied volatilities (in the same order the caps were given in the constructor)
    */
-  public double[] impliedVols( double[] capPrices) {
+  public double[] impliedVols(double[] capPrices) {
     ArgumentChecker.notEmpty(capPrices, "null cap prices");
     ArgumentChecker.isTrue(_nCaps == capPrices.length, "capPrices wrong length");
     double[] res = new double[_nCaps];
@@ -224,7 +224,7 @@ public class MultiCapFloorPricer {
    * @param volSurface model describing the (Black) volatility of the underlying caplets
    * @return The cap/floor implied volatilities (in the same order the caps were given in the constructor)
    */
-  public double[] impliedVols( VolatilitySurface volSurface) {
+  public double[] impliedVols(VolatilitySurface volSurface) {
     double[] prices = price(volSurface);
     return impliedVols(prices);
   }
@@ -234,7 +234,7 @@ public class MultiCapFloorPricer {
    * @param capVolatilities the cap/floor (Black) volatilities
    * @return The cap/floor vega (in the same order the caps were given in the constructor)
    */
-  public double[] vega( double[] capVolatilities) {
+  public double[] vega(double[] capVolatilities) {
     ArgumentChecker.notEmpty(capVolatilities, "null cap volatilities");
     ArgumentChecker.isTrue(_nCaps == capVolatilities.length, "capVolatilities wrong length");
     double[] res = new double[_nCaps];
@@ -255,7 +255,7 @@ public class MultiCapFloorPricer {
    * @param capletVols The volatilities of all the caplets that make up the set of caps
    * @return  vega matrix
    */
-  public DoubleMatrix2D vegaFromCapletVols( double[] capletVols) {
+  public DoubleMatrix2D vegaFromCapletVols(double[] capletVols) {
     ArgumentChecker.notEmpty(capletVols, "null caplet volatilities");
     ArgumentChecker.isTrue(_nCaplets == capletVols.length, "Expected {} caplet vols but given ", _nCaplets, capletVols.length);
 
@@ -268,7 +268,7 @@ public class MultiCapFloorPricer {
     for (int i = 0; i < _nCaps; i++) {
       double[] data = jac.getData()[i];
       int[] indices = _capToCapletsMap[i];
-      for ( int index : indices) {
+      for (int index : indices) {
         data[index] = capletVega[index];
       }
     }
@@ -281,7 +281,7 @@ public class MultiCapFloorPricer {
    * @param capletVols The volatilities of all the caplets that make up the set of caps
    * @return  cap volatility-vega matrix
    */
-  public DoubleMatrix2D capVolVega( double[] capletVols) {
+  public DoubleMatrix2D capVolVega(double[] capletVols) {
 
     //cap vega matrix - sensitivity of cap prices to the volatilities of the caplets 
     DoubleMatrix2D vega = vegaFromCapletVols(capletVols);
@@ -339,7 +339,7 @@ public class MultiCapFloorPricer {
    * @param values computed on caplets
    * @return values aggregated to caps
    */
-  private double[] aggregateToCaps( double[] values) {
+  private double[] aggregateToCaps(double[] values) {
 
     double[] res = new double[_nCaps];
     for (int i = 0; i < _nCaps; i++) {
@@ -407,7 +407,7 @@ public class MultiCapFloorPricer {
    * @param index The index of the cap (using the same order as the constructor)
    * @return indices of the caplets belonging to the cap 
    */
-  protected int[] getCapToCapletMap( int index) {
+  protected int[] getCapToCapletMap(int index) {
     return _capToCapletsMap[index];
   }
 
@@ -416,7 +416,7 @@ public class MultiCapFloorPricer {
    * @param index the caplet index 
    * @return caplet as a {@link SimpleOptionData}
    */
-  protected SimpleOptionData getOption( int index) {
+  protected SimpleOptionData getOption(int index) {
     return _capletsArray[index];
   }
 

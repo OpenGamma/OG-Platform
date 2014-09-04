@@ -29,7 +29,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class CapletStripperSmileModel<T extends SmileModelData> implements CapletStripper {
 
-  private final CapletStrippingImp _imp;
+  private final CapletStrippingCore _imp;
 
   /**
    * Set up the stripper.
@@ -40,7 +40,7 @@ public class CapletStripperSmileModel<T extends SmileModelData> implements Caple
       ParameterizedSmileModelDiscreteVolatilityFunctionProvider<T> volFuncProvider) {
     ArgumentChecker.notNull(pricer, "pricer");
     ArgumentChecker.notNull(volFuncProvider, "volFuncProvider");
-    _imp = new CapletStrippingImp(pricer, volFuncProvider);
+    _imp = new CapletStrippingCore(pricer, volFuncProvider);
   }
 
   @Override

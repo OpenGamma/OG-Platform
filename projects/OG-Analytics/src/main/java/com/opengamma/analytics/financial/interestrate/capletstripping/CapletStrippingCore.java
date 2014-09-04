@@ -28,13 +28,13 @@ import com.opengamma.analytics.math.statistics.leastsquare.NonLinearLeastSquareW
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Implementation for caplet stripping. This can be used directly by supplying either a {@link VolatilitySurfaceProvider}
- * or a {@link DiscreteVolatilityFunctionProvider} and (in the case of penalty based methods) a penalty matrix.
- * Alternatively one can use a concrete implementation of {@link CapletStripper} which wraps this.
+ * Class that does the <i>core</i> work for caplet stripping. This can be used directly by supplying either a
+ * {@link VolatilitySurfaceProvider}  or a {@link DiscreteVolatilityFunctionProvider} and (in the case of penalty based
+ * methods) a penalty matrix. Alternatively one can use a concrete implementation of {@link CapletStripper} which wraps this.
  */
-public class CapletStrippingImp {
+public class CapletStrippingCore {
 
-  private static final Logger LOG = LoggerFactory.getLogger(CapletStrippingImp.class);
+  private static final Logger LOG = LoggerFactory.getLogger(CapletStrippingCore.class);
 
   private static final OGMatrixAlgebra MA = new OGMatrixAlgebra();
 
@@ -51,7 +51,7 @@ public class CapletStrippingImp {
    * @param pricer The pricer (which contained the details of the market values of the caps/floors)
    * @param volSurfProvider A parameterised description of a (caplet) volatility surface
    */
-  public CapletStrippingImp(MultiCapFloorPricer pricer, VolatilitySurfaceProvider volSurfProvider) {
+  public CapletStrippingCore(MultiCapFloorPricer pricer, VolatilitySurfaceProvider volSurfProvider) {
     this(pricer, new DiscreteVolatilityFunctionProviderFromVolSurface(volSurfProvider));
   }
 
@@ -61,7 +61,7 @@ public class CapletStrippingImp {
    * @param volFuncProv A mapping between model parameters and caplet volatility (strictly in the order expected by
    * the pricer)
    */
-  public CapletStrippingImp(MultiCapFloorPricer pricer, DiscreteVolatilityFunctionProvider volFuncProv) {
+  public CapletStrippingCore(MultiCapFloorPricer pricer, DiscreteVolatilityFunctionProvider volFuncProv) {
     ArgumentChecker.notNull(pricer, "pricer");
     ArgumentChecker.notNull(volFuncProv, "volFuncProv");
 

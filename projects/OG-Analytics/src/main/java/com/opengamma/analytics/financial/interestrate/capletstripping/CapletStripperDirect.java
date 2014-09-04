@@ -85,7 +85,7 @@ public class CapletStripperDirect implements CapletStripper {
   @Override
   public CapletStrippingResult solve(double[] marketValues, MarketDataType type, double[] errors, DoubleMatrix1D guess) {
     DoubleMatrix2D p = getPenaltyMatrix(_pricer.getStrikes(), _pricer.getCapletExpiries(), _lambdaK, _lambdaT);
-    CapletStrippingImp imp = getImp(marketValues);
+    CapletStrippingCore imp = getImp(marketValues);
     if (type == MarketDataType.PRICE) {
       return imp.solveForCapPrices(marketValues, errors, guess, p, POSITIVE);
     } else if (type == MarketDataType.VOL) {
@@ -94,13 +94,13 @@ public class CapletStripperDirect implements CapletStripper {
     throw new IllegalArgumentException("Unknown MarketDataType " + type.toString());
   }
 
-  private CapletStrippingImp getImp(double[] values) {
+  private CapletStrippingCore getImp(double[] values) {
 
     ArgumentChecker.notEmpty(values, "values");
     int nCaps = _pricer.getNumCaps();
     ArgumentChecker.isTrue(nCaps == values.length, "Expected {} cap prices, but only given {}", nCaps, values.length);
     DiscreteVolatilityFunctionProvider volPro = new DiscreteVolatilityFunctionProviderDirect();
-    return new CapletStrippingImp(_pricer, volPro);
+    return new CapletStrippingCore(_pricer, volPro);
   }
 
   /**
