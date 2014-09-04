@@ -23,7 +23,6 @@ import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpol
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.InterpolatedSmileFunction;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.ShiftedLogNormalExtrapolationFunctionProvider;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.SmileExtrapolationFunctionSABRProvider;
-import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.SmileInterpolatorSABR;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.SmileInterpolatorSABRWithExtrapolation;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.SmileInterpolatorSpline;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
@@ -69,16 +68,16 @@ public class CapFloorIborInArrearsSmileModelCapGenericReplicationMethodTest {
   private static final boolean IS_CAP = true;
   // Definition description: In arrears
   private static final CapFloorIborDefinition CAP_IA_LONG_DEFINITION = new CapFloorIborDefinition(EUR,
-      END_ACCRUAL_DATE, START_ACCRUAL_DATE, END_ACCRUAL_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE,
+      FIXING_DATE, START_ACCRUAL_DATE, END_ACCRUAL_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE,
       EURIBOR6M, STRIKE, IS_CAP, CALENDAR);
-  private static final CouponIborDefinition COUPON_IBOR_IA_DEFINITION = new CouponIborDefinition(EUR, END_ACCRUAL_DATE,
+  private static final CouponIborDefinition COUPON_IBOR_IA_DEFINITION = new CouponIborDefinition(EUR, FIXING_DATE,
       START_ACCRUAL_DATE, END_ACCRUAL_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE,
       EURIBOR6M, CALENDAR);
   private static final CapFloorIborDefinition CAP_IA_SHORT_DEFINITION = new CapFloorIborDefinition(EUR,
-      END_ACCRUAL_DATE, START_ACCRUAL_DATE, END_ACCRUAL_DATE, ACCRUAL_FACTOR, -NOTIONAL, FIXING_DATE,
+      FIXING_DATE, START_ACCRUAL_DATE, END_ACCRUAL_DATE, ACCRUAL_FACTOR, -NOTIONAL, FIXING_DATE,
       EURIBOR6M, STRIKE, IS_CAP, CALENDAR);
   private static final CapFloorIborDefinition FLOOR_IA_SHORT_DEFINITION = new CapFloorIborDefinition(EUR,
-      END_ACCRUAL_DATE, START_ACCRUAL_DATE, END_ACCRUAL_DATE, ACCRUAL_FACTOR, -NOTIONAL,
+      FIXING_DATE, START_ACCRUAL_DATE, END_ACCRUAL_DATE, ACCRUAL_FACTOR, -NOTIONAL,
       FIXING_DATE, EURIBOR6M, STRIKE, !IS_CAP, CALENDAR);
   // To derivative
   private static final CapFloorIbor CAP_LONG = (CapFloorIbor) CAP_IA_LONG_DEFINITION.toDerivative(REFERENCE_DATE);
@@ -123,26 +122,15 @@ public class CapFloorIborInArrearsSmileModelCapGenericReplicationMethodTest {
           derivative.getFixingPeriodStartTime(), derivative.getFixingPeriodEndTime(),
           derivative.getFixingAccrualFactor());
       double maturity = derivative.getFixingPeriodEndTime() - derivative.getFixingPeriodStartTime();
-      int nSample = 1000;
+      int nSample = 50;
       double[] sampleStrikes = new double[nSample];
       double[] sampleVolatilities = new double[nSample];
       for (int i = 0; i < nSample; ++i) {
-        sampleStrikes[i] = forward * (i * 0.001 + 0.002);
+        sampleStrikes[i] = forward * (i * 0.04 + 0.001);
         sampleVolatilities[i] = SABR_PARAMETER.getVolatility(derivative.getFixingTime(), maturity, sampleStrikes[i],
             forward);
       }
 
-      /*
-       * Without extrapolation
-       */
-      SmileInterpolatorSABR sabrInterp = new SmileInterpolatorSABR();
-      InterpolatedSmileFunction smileFunction = new InterpolatedSmileFunction(sabrInterp, forward, sampleStrikes,
-          derivative.getFixingTime(), sampleVolatilities);
-      CapFloorIborInArrearsSmileModelCapGenericReplicationMethod methodSabrGeneral = new CapFloorIborInArrearsSmileModelCapGenericReplicationMethod(
-          smileFunction);
-      MultipleCurrencyAmount res2 = methodSabrGeneral.presentValue(derivative, MULTICURVES);
-      double ref = res1.getAmount(derivative.getCurrency());
-      assertEquals(ref, res2.getAmount(derivative.getCurrency()), Math.abs(ref) * 1.e-1);
 
       /*
        * With extrapolation
@@ -176,26 +164,14 @@ public class CapFloorIborInArrearsSmileModelCapGenericReplicationMethodTest {
         COUPON_IBOR.getFixingPeriodStartTime(), COUPON_IBOR.getFixingPeriodEndTime(),
         COUPON_IBOR.getFixingAccrualFactor());
     double maturity = COUPON_IBOR.getFixingPeriodEndTime() - COUPON_IBOR.getFixingPeriodStartTime();
-    int nSample = 1000;
+    int nSample = 50;
     double[] sampleStrikes = new double[nSample];
     double[] sampleVolatilities = new double[nSample];
     for (int i = 0; i < nSample; ++i) {
-      sampleStrikes[i] = forward * (i * 0.001 + 0.002);
+      sampleStrikes[i] = forward * (i * 0.04 + 0.001);
       sampleVolatilities[i] = SABR_PARAMETER.getVolatility(COUPON_IBOR.getFixingTime(), maturity, sampleStrikes[i],
           forward);
     }
-
-    /*
-     * Without extrapolation
-     */
-    SmileInterpolatorSABR sabrInterp = new SmileInterpolatorSABR();
-    InterpolatedSmileFunction smileFunction = new InterpolatedSmileFunction(sabrInterp, forward, sampleStrikes,
-        COUPON_IBOR.getFixingTime(), sampleVolatilities);
-    CouponIborInArrearsSmileModelReplicationMethod methodSabrGeneral = new CouponIborInArrearsSmileModelReplicationMethod(
-        smileFunction);
-    MultipleCurrencyAmount res2 = methodSabrGeneral.presentValue(COUPON_IBOR, MULTICURVES);
-    double ref = res1.getAmount(COUPON_IBOR.getCurrency());
-    assertEquals(ref, res2.getAmount(COUPON_IBOR.getCurrency()), Math.abs(ref) * 1.e-1);
 
     /*
      * With extrapolation
@@ -228,7 +204,7 @@ public class CapFloorIborInArrearsSmileModelCapGenericReplicationMethodTest {
     CapFloorIbor[] derivatives = new CapFloorIbor[] {CAP_LONG, CAP_SHORT, FLOOR_SHORT };
     for (final CapFloorIbor derivative : derivatives) {
       double muLow = 18.0;
-      double muHigh = 1.145;
+      double muHigh = 1.217;
 
       BenaimDodgsonKainthExtrapolationFunctionProvider provider = new BenaimDodgsonKainthExtrapolationFunctionProvider(
           muLow, muHigh);
@@ -264,7 +240,7 @@ public class CapFloorIborInArrearsSmileModelCapGenericReplicationMethodTest {
      * Coupon Ibor
      */
     double muLow = 14.05;
-    double muHigh = 1.145;
+    double muHigh = 1.217;
 
     BenaimDodgsonKainthExtrapolationFunctionProvider provider = new BenaimDodgsonKainthExtrapolationFunctionProvider(
         muLow, muHigh);

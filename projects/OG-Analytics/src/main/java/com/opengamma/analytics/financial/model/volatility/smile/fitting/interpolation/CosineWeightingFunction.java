@@ -24,7 +24,7 @@ public final class CosineWeightingFunction extends WeightingFunction {
   @Override
   public double getWeight(final double y) {
     ArgumentChecker.isInRangeInclusive(0, 1, y);
-    final double cos = Math.cos(Math.PI / 2 * (y - 1.0));
+    final double cos = Math.cos(Math.PI / 6 * (2.0 * y * y + y - 3.0));
     return cos;
   }
 

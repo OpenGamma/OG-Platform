@@ -33,6 +33,10 @@ public class SmileInterpolatorSABR extends SmileInterpolator<SABRFormulaData> {
   private static final VolatilityFunctionProvider<SABRFormulaData> DEFAULT_SABR = new SABRHaganVolatilityFunction();
   private static final double FIT_ERROR = 1e-4; //1bps
 
+  // The following parameters are for global fit, may require fine-tuning for specific purposes 
+  private static final int MAX_TRY = 20;
+  private static final int MAX_COUNT = 5;
+
   private final double _beta;
   private final boolean _externalBeta;
 
@@ -217,10 +221,9 @@ public class SmileInterpolatorSABR extends SmileInterpolator<SABRFormulaData> {
     LeastSquareResultsWithTransform gBest = null;
     double chiSqr = Double.POSITIVE_INFINITY;
 
-    //TODO set these in sub classes
     int tries = 0;
     int count = 0;
-    while (chiSqr > 100.0 * n && count < 5) { //10bps average error
+    while (chiSqr > 100.0 * n && count < MAX_COUNT) { //10bps average error
       final DoubleMatrix1D gStart = getGlobalStart(forward, strikes, expiry, impliedVols);
       try {
         final LeastSquareResultsWithTransform glsRes = globalFitter.solve(gStart, gFixed);
@@ -230,11 +233,10 @@ public class SmileInterpolatorSABR extends SmileInterpolator<SABRFormulaData> {
         }
         count++;
       } catch (final Exception e) {
-        System.out.println(e.getMessage());
       }
       tries++;
-      if (tries > 20) {
-        throw new MathException("Cannot fit data");
+      if (tries > MAX_TRY) {
+        throw new MathException("Cannot fit data in " + MAX_TRY + "trials");
       }
     }
     if (gBest == null) {
@@ -249,46 +251,37 @@ public class SmileInterpolatorSABR extends SmileInterpolator<SABRFormulaData> {
     return modelParameters;
   }
 
+
   @Override
   public Function1D<Double, Double> getVolatilityFunction(final double forward, final double[] strikes, final double expiry, final double[] impliedVols) {
 
     final List<SABRFormulaData> modelParams;
     final int n;
 
-    if (getModel() instanceof SABRHaganVolatilityFunction) {
-      modelParams = getFittedModelParameters(forward, strikes, expiry, impliedVols);
-      n = strikes.length;
-    } else {
-      modelParams = getFittedModelParametersGlobal(forward, strikes, expiry, impliedVols);
-      n = 1;
+    List<SABRFormulaData> modelParamsTmp;
+    int nTmp;
+    try {
+      modelParamsTmp = getFittedModelParameters(forward, strikes, expiry, impliedVols);
+      nTmp = strikes.length;
+    } catch (final Exception e) { //try global fit if local fit failed
+      nTmp = 1;
+      modelParamsTmp = getFittedModelParametersGlobal(forward, strikes, expiry, impliedVols);
     }
+    modelParams = modelParamsTmp;
+    n = nTmp;
 
-    return new Function1D<Double, Double>() {
-      @SuppressWarnings("synthetic-access")
-      @Override
-      public Double evaluate(final Double strike) {
-        final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, expiry, true);
-        final Function1D<SABRFormulaData, Double> volFunc = getModel().getVolatilityFunction(option, forward);
-        if (n == 1) {
+    if (n == 1) {
+      return new Function1D<Double, Double>() {
+        @SuppressWarnings("synthetic-access")
+        @Override
+        public Double evaluate(final Double strike) {
+          final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, expiry, true);
+          final Function1D<SABRFormulaData, Double> volFunc = getModel().getVolatilityFunction(option, forward);
           return volFunc.evaluate(modelParams.get(0));
         }
-        final int index = SurfaceArrayUtils.getLowerBoundIndex(strikes, strike);
-        if (index == 0) {
-          return volFunc.evaluate(modelParams.get(0));
-        }
-        if (index >= n - 2) {
-          return volFunc.evaluate(modelParams.get(n - 3));
-        }
-        final double w = getWeightingFunction().getWeight(strikes, index, strike);
-        if (w == 1) {
-          return volFunc.evaluate(modelParams.get(index - 1));
-        } else if (w == 0) {
-          return volFunc.evaluate(modelParams.get(index));
-        } else {
-          return w * volFunc.evaluate(modelParams.get(index - 1)) + (1 - w) * volFunc.evaluate(modelParams.get(index));
-        }
-      }
-    };
+      };
+    }
+    return getVolatilityFunctionFromModelParameters(forward, strikes, expiry, modelParams);
   }
 
   @Override

@@ -284,9 +284,6 @@ public class SABRHaganVolatilityFunctionTest extends SABRVolatilityFunctionTestC
     double z = 0.975;
     double strike = strikeForZ(z, F, ALPHA, BETA, NU);
 
-    double[] adjModel = FUNCTION.getVolatilityModelAdjoint(CALL_ATM.withStrike(strike), F, data);
-    double[] adj = FUNCTION.getVolatilityAdjoint(CALL_ATM.withStrike(strike), F, data);
-
     testVolatilityModelAdjoint(F, CALL_ATM.withStrike(strike), data, eps, 5e-2);
     z = -2.0;
     strike = strikeForZ(z, F, ALPHA, BETA, NU);
@@ -486,40 +483,6 @@ public class SABRHaganVolatilityFunctionTest extends SABRVolatilityFunctionTestC
     }
   }
 
-  @Test(enabled = false)
-  public void testExtremeParameters2() {
-    @SuppressWarnings("unused")
-    final double alpha = 0.2 * ALPHA;
-    //    double beta = 0.5;
-    //    double nu = 0.2;
-    @SuppressWarnings("unused")
-    final double rho = 1 - 1e-9;
-
-    //    double strike = 1e-8;
-    //    EuropeanVanillaOption option = CALL_ITM.withStrike(strike);
-
-    //  EuropeanVanillaOption option = CALL_STRIKE.withStrike(forward * 1.01);
-
-    for (int i = 0; i < 200; i++) {
-      //      double e = -5 - 15.*i/199;
-      //      rho = 1.0 - Math.pow(10,e);
-      final double forward = 0.045 + 0.01 * i / 199;
-
-      final double volatility = FUNCTION.getVolatilityFunction(CALL_ITM, forward).evaluate(DATA);
-      final double[] volatilityAdjoint = FUNCTION.getVolatilityAdjoint(CALL_ITM, F, DATA);
-      System.out.println(forward + "\t" + volatility + "\t" + volatilityAdjoint[1]);
-
-    }
-    //
-    //    SABRFormulaData data = new SABRFormulaData(forward, alpha, beta, nu, rho);
-    //    double volatility = FUNCTION.getVolatilityFunction(option).evaluate(data);
-    //
-    //    double[] volatilityAdjoint = FUNCTION.getVolatilityAdjointDebug(option, data);
-    //    System.out.println(volatility + "\t" + volatilityAdjoint[2]);
-
-    //    testVolatilityAdjoint(option, data, 1e-6);
-    //    testVolatilityAdjoint(CALL_ATM, data, 1e-5);
-  }
 
   /**
    * Calculate the true SABR delta and gamma and compare with that found by finite difference
@@ -568,13 +531,17 @@ public class SABRHaganVolatilityFunctionTest extends SABRVolatilityFunctionTestC
   }
 
   /**
-   * Check that rho \simeq 1 case is smoothly connected with a general case
-   * Note that the resulting numbers contain a large error if rho \simeq 1 and z \simeq 1 are true at the same time
+   * Check that $\rho \simeq 1$ case is smoothly connected with a general case, i.e., 
+   * comparing the approximated computation and full computation around the cutoff, which is currently $\rho = 1.0 - 1.0e-5$
+   * Note that the resulting numbers contain a large error if $\rho \simeq 1$ and $z \simeq 1$ are true at the same time
    */
   @Test
   public void largeRhoSmoothnessTest() {
     double rhoEps = 1.e-5;
+    // rhoIn is larger than the cutoff, 
+    // thus vol and sensitivities are computed by approximation formulas which are regular in the limit rho -> 1. 
     double rhoIn = 1.0 - 0.5 * rhoEps;
+    // rhoOut is smaller than the cutoff, thus vol and sensitivities are computed by full formula. 
     double rhoOut = 1.0 - 1.5 * rhoEps;
     SABRFormulaData dataIn = new SABRFormulaData(ALPHA, BETA, rhoIn, NU);
     SABRFormulaData dataOut = new SABRFormulaData(ALPHA, BETA, rhoOut, NU);

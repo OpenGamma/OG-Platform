@@ -82,7 +82,7 @@ public class SABRExtrapolationLeftFunctionTest {
         assertEquals(secondRef, secondDw, secondRef * 0.15);
       }
 
-      assertTrue(left.getSABRFunction().equals(func));
+      assertTrue(left.getVolatilityFunction().equals(func));
       assertEquals(EXPIRY, left.getTimeToExpiry());
       assertEquals(MU, left.getMu());
       assertEquals(CUTOFF, left.getCutOffStrike());

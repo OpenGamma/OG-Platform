@@ -41,7 +41,6 @@ public class ShiftedLogNormalTailExtrapolationFitter {
   private static final NonLinearParameterTransforms TRANSFORMS;
 
   static {
-    //    final ParameterLimitsTransform a = new NullTransform();
     final ParameterLimitsTransform b = new SingleRangeLimitTransform(0.0, LimitType.GREATER_THAN);
     DoubleRangeLimitTransform a = new DoubleRangeLimitTransform(-40.0, 40.0);
     TRANSFORMS = new UncoupledParameterTransforms(new DoubleMatrix1D(0.0, 1.0), new ParameterLimitsTransform[] {a, b}, new BitSet());

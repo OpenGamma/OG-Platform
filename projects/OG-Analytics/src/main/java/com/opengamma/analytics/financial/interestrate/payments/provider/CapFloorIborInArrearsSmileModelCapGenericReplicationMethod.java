@@ -9,9 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
-import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
-import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
+import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.InterpolatedSmileFunction;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.math.MathException;
@@ -32,6 +31,7 @@ public class CapFloorIborInArrearsSmileModelCapGenericReplicationMethod {
 
   private static final BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
   private static final int MINIMUM_STEP = 6;
+  private static final int MAX_COUNT = 10; // the maximum iteration count 
   private static final double ABS_TOL = 1.0;
   private static final double REL_TOL = 1E-10;
   private static final double REL_ERROR = 1E-9;
@@ -49,7 +49,9 @@ public class CapFloorIborInArrearsSmileModelCapGenericReplicationMethod {
   }
 
   /**
-   * Computes the present value of an Ibor cap/floor in arrears by replication.
+   * Computes the present value of an Ibor cap/floor in arrears by replication based on the paper, 
+   * "Swap and Cap/Floors with Fixing in Arrears or Payment Delay," OpenGamma Quantitative Documentation
+   * http://developers.opengamma.com/quantitative-research/In-Arrears-and-Payment-Delay-Swaps-and-Caps-OpenGamma.pdf
    * @param cap The cap/floor
    * @param curves The curves
    * @return The present value
@@ -58,7 +60,8 @@ public class CapFloorIborInArrearsSmileModelCapGenericReplicationMethod {
     ArgumentChecker.notNull(cap, "The cap/floor shoud not be null");
     ArgumentChecker.notNull(curves, "curves");
     final Currency ccy = cap.getCurrency();
-    final CapFloorIbor capStandard = new CapFloorIbor(cap.getCurrency(), cap.getFixingPeriodEndTime(),
+    // Construct a "standard" CapFloorIbor whose paymentTime is set to be fixingPeriodEndTime
+    CapFloorIbor capStandard = new CapFloorIbor(cap.getCurrency(), cap.getFixingPeriodEndTime(),
         cap.getPaymentYearFraction(), cap.getNotional(), cap.getFixingTime(), cap.getIndex(),
         cap.getFixingPeriodStartTime(), cap.getFixingPeriodEndTime(), cap.getFixingAccrualFactor(), cap.getStrike(),
         cap.isCap());
@@ -67,28 +70,34 @@ public class CapFloorIborInArrearsSmileModelCapGenericReplicationMethod {
     final double beta = (1.0 + cap.getFixingAccrualFactor() * forward) *
         curves.getDiscountFactor(ccy, cap.getFixingPeriodEndTime())
         / curves.getDiscountFactor(ccy, cap.getFixingPeriodStartTime());
-    final double strikePart = (1.0 + cap.getFixingAccrualFactor() * cap.getStrike()) *
-        presentValueStandard(capStandard, curves).getAmount(ccy);
+
+    final double df = curves.getDiscountFactor(capStandard.getCurrency(), capStandard.getPaymentTime());
+    final double strikePart = (1.0 + cap.getFixingAccrualFactor() * capStandard.getStrike()) *
+        presentValueStandard(forward, capStandard.getStrike(), capStandard.getFixingTime(),
+            capStandard.isCap(), df, capStandard.getNotional(), capStandard.getPaymentYearFraction());
 
     final InArrearsIntegrant integrant = new InArrearsIntegrant(capStandard, curves);
     double integralPart;
     try {
       if (cap.isCap()) {
-        double upper = forward * Math.exp(Math.sqrt(cap.getFixingTime()));
+        double atmVol = _smileFunction.getVolatility(forward);
+        double upper = forward * Math.exp(6.0 * atmVol * Math.sqrt(cap.getFixingTime()));
         double strike = cap.getStrike();
         integralPart = INTEGRATOR.integrate(integrant, strike, upper);
         double reminder = integrant.evaluate(upper) * upper;
         double error = reminder / integralPart;
 
         int count = 0;
-        while (Math.abs(error) > REL_ERROR && count < 10) {
+        while (Math.abs(error) > REL_ERROR && count < MAX_COUNT) {
           integralPart += INTEGRATOR.integrate(integrant, upper, 2.0 * upper);
           upper *= 2.0;
+          // The increase of integralPart in the next loop is bounded by reminder
           reminder = integrant.evaluate(upper) * upper;
           error = reminder / integralPart;
           ++count;
-          if (count == 10) {
-            LOGGER.info("Relative error is greater than " + REL_ERROR);
+          if (count == MAX_COUNT) {
+            LOGGER.info("Maximum iteration count, " + MAX_COUNT +
+                ", has been reached. Relative error is greater than " + REL_ERROR);
           }
         }
       } else {
@@ -106,29 +115,30 @@ public class CapFloorIborInArrearsSmileModelCapGenericReplicationMethod {
   private final class InArrearsIntegrant extends Function1D<Double, Double> {
 
     private final CapFloorIbor _capStandard;
-    private final MulticurveProviderInterface _curves;
+    private final double _forward;
+    private final double _expiry;
+    private final double _df;
 
     public InArrearsIntegrant(final CapFloorIbor capStandard, final MulticurveProviderInterface curves) {
       _capStandard = capStandard;
-      _curves = curves;
+      _forward = curves.getSimplyCompoundForwardRate(capStandard.getIndex(), capStandard.getFixingPeriodStartTime(),
+          capStandard.getFixingPeriodEndTime(), capStandard.getFixingAccrualFactor());
+      _expiry = capStandard.getFixingTime();
+      _df = curves.getDiscountFactor(capStandard.getCurrency(), capStandard.getPaymentTime());
     }
 
     @Override
     public Double evaluate(final Double x) {
-      final CapFloorIbor capStrike = _capStandard.withStrike(x);
-      return presentValueStandard(capStrike, _curves).getAmount(_capStandard.getCurrency());
+      return presentValueStandard(_forward, x, _expiry, _capStandard.isCap(), _df, _capStandard.getNotional(),
+          _capStandard.getPaymentYearFraction());
     }
   }
 
-  private MultipleCurrencyAmount presentValueStandard(final CapFloorIbor cap, final MulticurveProviderInterface curves) {
-    final EuropeanVanillaOption option = new EuropeanVanillaOption(cap.getStrike(), cap.getFixingTime(), cap.isCap());
-    final double forward = curves.getSimplyCompoundForwardRate(cap.getIndex(), cap.getFixingPeriodStartTime(),
-        cap.getFixingPeriodEndTime(), cap.getFixingAccrualFactor());
-    final double df = curves.getDiscountFactor(cap.getCurrency(), cap.getPaymentTime());
-    final double volatility = _smileFunction.getVolatility(cap.getStrike());
-    final BlackFunctionData dataBlack = new BlackFunctionData(forward, df, volatility);
-    final Function1D<BlackFunctionData, Double> func = BLACK_FUNCTION.getPriceFunction(option);
-    final double price = func.evaluate(dataBlack) * cap.getNotional() * cap.getPaymentYearFraction();
-    return MultipleCurrencyAmount.of(cap.getCurrency(), price);
+  private double presentValueStandard(final double forward, final double strike, final double expiry,
+      final boolean isCall, final double df, final double nortional, final double yearFraction) {
+    double volatility = _smileFunction.getVolatility(strike);
+    double price = BlackFormulaRepository.price(forward, strike, expiry, volatility, isCall) *
+        df * nortional * yearFraction;
+    return price;
   }
 }

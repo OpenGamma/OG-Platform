@@ -63,6 +63,7 @@ public class SmileInterpolatorSABRWithExtrapolation extends SmileInterpolatorSAB
       final double expiry, final double[] impliedVols) {
     ArgumentChecker.notNull(strikes, "strikes");
     ArgumentChecker.notNull(impliedVols, "impliedVols");
+    ArgumentChecker.isTrue(strikes.length == impliedVols.length, "strikes and impliedVols should have the same length");
 
     final int nStrikes = strikes.length;
     final double cutOffStrikeLow = strikes[0];
@@ -78,8 +79,9 @@ public class SmileInterpolatorSABRWithExtrapolation extends SmileInterpolatorSAB
     try {
       modelParamsTmp = getFittedModelParameters(forward, strikes, expiry, impliedVols);
       nTmp = strikes.length;
+      int ref = Math.max(0, nTmp - 3);
       sabrDataLow = modelParamsTmp.get(0);
-      sabrDataHigh = modelParamsTmp.get(nTmp - 3);
+      sabrDataHigh = modelParamsTmp.get(ref);
     } catch (final Exception e) { //try global fit if local fit failed
       nTmp = 1;
       modelParamsTmp = getFittedModelParametersGlobal(forward, strikes, expiry, impliedVols);
@@ -89,31 +91,20 @@ public class SmileInterpolatorSABRWithExtrapolation extends SmileInterpolatorSAB
     modelParams = modelParamsTmp;
     n = nTmp;
 
-    final Function1D<Double, Double> interpFunc = new Function1D<Double, Double>() {
-      @Override
-      public Double evaluate(final Double strike) {
-        EuropeanVanillaOption option = new EuropeanVanillaOption(strike, expiry, true);
-        final Function1D<SABRFormulaData, Double> volFunc = getModel().getVolatilityFunction(option, forward);
-        if (n == 1) {
+    final Function1D<Double, Double> interpFunc;
+    if (n == 1) {
+      interpFunc = new Function1D<Double, Double>() {
+        @SuppressWarnings("synthetic-access")
+        @Override
+        public Double evaluate(final Double strike) {
+          final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, expiry, true);
+          final Function1D<SABRFormulaData, Double> volFunc = getModel().getVolatilityFunction(option, forward);
           return volFunc.evaluate(modelParams.get(0));
         }
-        final int index = SurfaceArrayUtils.getLowerBoundIndex(strikes, strike);
-        if (index == 0) {
-          return volFunc.evaluate(modelParams.get(0));
-        }
-        if (index >= n - 2) {
-          return volFunc.evaluate(modelParams.get(n - 3));
-        }
-        final double w = getWeightingFunction().getWeight(strikes, index, strike);
-        if (w == 1) {
-          return volFunc.evaluate(modelParams.get(index - 1));
-        } else if (w == 0) {
-          return volFunc.evaluate(modelParams.get(index));
-        } else {
-          return w * volFunc.evaluate(modelParams.get(index - 1)) + (1 - w) * volFunc.evaluate(modelParams.get(index));
-        }
-      }
-    };
+      };
+    } else {
+      interpFunc = getVolatilityFunctionFromModelParameters(forward, strikes, expiry, modelParams);
+    }
 
     final Function1D<Double, Double> extrapFunc = _extrapolationFunctionProvider.getExtrapolationFunction(sabrDataLow,
         sabrDataHigh, getModel(), forward, expiry, cutOffStrikeLow, cutOffStrikeHigh);
@@ -121,6 +112,7 @@ public class SmileInterpolatorSABRWithExtrapolation extends SmileInterpolatorSAB
     return new Function1D<Double, Double>() {
       @Override
       public Double evaluate(final Double strike) {
+        ArgumentChecker.notNegative(strike, "strike");
         if (strike < cutOffStrikeLow) {
           return extrapFunc.evaluate(strike);
         }

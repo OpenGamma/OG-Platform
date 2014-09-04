@@ -325,7 +325,8 @@ public class SmileInterpolatorSABRWithExtrapolationTest {
 
     SmileExtrapolationFunctionSABRProvider extrapBDK = new BenaimDodgsonKainthExtrapolationFunctionProvider(muLow,
         muHigh);
-    SmileInterpolatorSABRWithExtrapolation interpBDK = new SmileInterpolatorSABRWithExtrapolation(extrapBDK);
+    SmileInterpolatorSABRWithExtrapolation interpBDK = new SmileInterpolatorSABRWithExtrapolation(
+        new SABRBerestyckiVolatilityFunction(), extrapBDK);
     InterpolatedSmileFunction funcBDK = new InterpolatedSmileFunction(interpBDK, forward, strikes, expiry, impliedVols);
 
     List<SABRFormulaData> modelParams = (new SmileInterpolatorSABR()).getFittedModelParameters(forward, strikes,
@@ -451,7 +452,8 @@ public class SmileInterpolatorSABRWithExtrapolationTest {
       vols[i] = vol;
     }
     SmileExtrapolationFunctionSABRProvider extrapBDK = new BenaimDodgsonKainthExtrapolationFunctionProvider(mu, mu);
-    SmileInterpolatorSABRWithExtrapolation interpBDK = new SmileInterpolatorSABRWithExtrapolation(extrapBDK);
+    SmileInterpolatorSABRWithExtrapolation interpBDK = new SmileInterpolatorSABRWithExtrapolation(
+        new SABRBerestyckiVolatilityFunction(), extrapBDK);
     InterpolatedSmileFunction funcBDK = new InterpolatedSmileFunction(interpBDK, forward, strikes, expiry, vols);
     double[] keys = new double[] {forward * 0.1, forward * 0.5, forward * 0.66 };
     for (int i = 0; i < keys.length; ++i) {

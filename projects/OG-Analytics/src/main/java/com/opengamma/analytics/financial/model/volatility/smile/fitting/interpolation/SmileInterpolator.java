@@ -233,10 +233,21 @@ public abstract class SmileInterpolator<T extends SmileModelData> implements Gen
 
   @Override
   public Function1D<Double, Double> getVolatilityFunction(final double forward, final double[] strikes, final double expiry, final double[] impliedVols) {
-
     final List<T> modelParams = getFittedModelParameters(forward, strikes, expiry, impliedVols);
-    final int n = strikes.length;
+    return getVolatilityFunctionFromModelParameters(forward, strikes, expiry, modelParams);
+  }
 
+  /**
+   * Produce volatility function given data and model parameters
+   * @param forward The forward
+   * @param strikes The strikes 
+   * @param expiry The expiry
+   * @param modelParams The model parameters
+   * @return The volatility function
+   */
+  protected Function1D<Double, Double> getVolatilityFunctionFromModelParameters(final double forward,
+      final double[] strikes, final double expiry, final List<T> modelParams) {
+    final int n = strikes.length;
     return new Function1D<Double, Double>() {
       @SuppressWarnings("synthetic-access")
       @Override

@@ -31,6 +31,7 @@ public class InterpolatedSmileFunction {
     ArgumentChecker.notNull(interpolator, "interpolator");
     ArgumentChecker.notNull(strikes, "strikes");
     ArgumentChecker.notNull(impliedVols, "impliedVols");
+    ArgumentChecker.isTrue(strikes.length == impliedVols.length, "strikes and impliedVols should have the same length");
 
     _interpolator = interpolator;
     _smileFunction = interpolator.getVolatilityFunction(forward, strikes, expiry, impliedVols);
