@@ -49,7 +49,7 @@ public class InterpolatedSmileFunctionTest {
       assertEquals(interpolators[i], func.getInterpolator());
       for (int j = 0; j < nSamples; ++j) {
         Double key = FORWARD * (0.01 + 0.1 * j);
-        assertEquals(refFunc.evaluate(key), func.getVolatility(key), 1.e-8); //due to randomness of SABR
+        assertEquals(refFunc.evaluate(key), func.getVolatility(key), 1.e-7); //due to randomness of SABR
       }
     }
   }
