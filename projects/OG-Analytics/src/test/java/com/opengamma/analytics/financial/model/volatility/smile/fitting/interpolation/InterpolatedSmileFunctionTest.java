@@ -42,14 +42,15 @@ public class InterpolatedSmileFunctionTest {
         new SmileInterpolatorSpline(), new SmileInterpolatorSABR() };
     int nInterps = interpolators.length;
     int nSamples = 40;
+    double interval = (STRIKES[NUM_DATA - 1] - STRIKES[0]) / (NUM_DATA - 1);
 
     for (int i = 0; i < nInterps; ++i) {
       Function1D<Double, Double> refFunc = interpolators[i].getVolatilityFunction(FORWARD, STRIKES, EXPIRY, VOLS);
       InterpolatedSmileFunction func = new InterpolatedSmileFunction(interpolators[i], FORWARD, STRIKES, EXPIRY, VOLS);
       assertEquals(interpolators[i], func.getInterpolator());
       for (int j = 0; j < nSamples; ++j) {
-        Double key = FORWARD * (0.01 + 0.1 * j);
-        assertEquals(refFunc.evaluate(key), func.getVolatility(key), 1.e-7); //due to randomness of SABR
+        Double key = interval * j + STRIKES[0];
+        assertEquals(refFunc.evaluate(key), func.getVolatility(key), 1.e-8); //due to randomness of SABR
       }
     }
   }
