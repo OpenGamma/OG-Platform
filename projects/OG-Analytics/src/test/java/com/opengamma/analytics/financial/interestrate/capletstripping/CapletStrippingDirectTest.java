@@ -73,7 +73,7 @@ public class CapletStrippingDirectTest extends CapletStrippingSetup {
    * R White - This takes about 25s on my machine (2.66GHz Quad-Core Intel Xeon)
    * It takes 32 iterations of {@link NonLinearLeastSquareWithPenalty} to converge
    */
-  @Test(groups = TestGroup.UNIT_SLOW)
+  @Test//(groups = TestGroup.UNIT_SLOW)
   public void priceTest() {
     double lambda = 0.03; // this is chosen to give a chi2/DoF of around 1
 
@@ -172,7 +172,7 @@ public class CapletStrippingDirectTest extends CapletStrippingSetup {
    * R White - This takes about 6s on my machine (2.66GHz Quad-Core Intel Xeon)
    * It takes 8 iterations of {@link NonLinearLeastSquareWithPenalty} to converge
    */
-  @Test(groups = TestGroup.UNIT_SLOW)
+  @Test//(groups = TestGroup.UNIT_SLOW)
   public void allCapsVolTest() {
     double lambdaT = 0.01; // this is chosen to give a chi2/DoF of around 1
     double lambdaK = 0.0002;
@@ -204,7 +204,7 @@ public class CapletStrippingDirectTest extends CapletStrippingSetup {
    * guess of a global fit; this doesn't make much different - converge in 9 rather than 11 iterations,
    * to a slightly different point from above.
    */
-  @Test(groups = TestGroup.UNIT_SLOW)
+  @Test//(groups = TestGroup.UNIT_SLOW)
   public void singleStrikeSeedTest() {
     double lambda = 0.03;
     DoubleMatrix1D guess = null;
@@ -253,7 +253,7 @@ public class CapletStrippingDirectTest extends CapletStrippingSetup {
   /**
    * Test the analytic Jacobian against finite difference when ATM cap are excluded
    */
-  @Test(groups = TestGroup.UNIT_SLOW)
+  @Test//(groups = TestGroup.UNIT_SLOW)
   public void jacobianExATMTest() {
 
     MultiCapFloorPricer pricer = new MultiCapFloorPricer(getAllCapsExATM(), getYieldCurves());
@@ -290,7 +290,7 @@ public class CapletStrippingDirectTest extends CapletStrippingSetup {
   /**
    * Test the analytic Jacobian against finite difference when ATM cap are included
    */
-  @Test(groups = TestGroup.UNIT_SLOW)
+  @Test//(groups = TestGroup.UNIT_SLOW)
   public void jacobianTest() {
 
     MultiCapFloorPricerGrid pricer = new MultiCapFloorPricerGrid(getAllCaps(), getYieldCurves());
