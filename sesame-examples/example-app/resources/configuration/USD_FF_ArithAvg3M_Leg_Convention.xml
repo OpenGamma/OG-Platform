@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bean type="com.opengamma.financial.convention.OISLegConvention">
-  <externalIdBundle>
-    <externalIds>
-      <item>CONVENTION~USD FF Arith Avg 3M Leg Convention</item>
-    </externalIds>
-  </externalIdBundle>
-  <attributes/>
-  <name>USD FF Arith Avg 3M Leg Convention</name>
-  <overnightIndexConvention>BLOOMBERG_TICKER~FEDL01 Index</overnightIndexConvention>
-  <paymentTenor>P3M</paymentTenor>
-  <paymentLag>0</paymentLag>
-  <businessDayConvention>Modified Following</businessDayConvention>
-  <settlementDays>2</settlementDays>
-  <isEOM>true</isEOM>
-  <stubType>SHORT_START</stubType>
-  <isExchangeNotional>false</isExchangeNotional>
+<bean type="com.opengamma.financial.convention.ONArithmeticAverageLegConvention">
+    <externalIdBundle>
+        <externalIds>
+            <item>CONVENTION~USD FF Arith Avg 3M Leg Convention</item>
+        </externalIds>
+    </externalIdBundle>
+    <attributes/>
+    <name>USD FF Arith Avg 3M Leg Convention</name>
+    <overnightIndexConvention>BLOOMBERG_TICKER~FEDL01 Index</overnightIndexConvention>
+    <paymentTenor>P3M</paymentTenor>
+    <paymentLag>0</paymentLag>
+    <businessDayConvention>Modified Following</businessDayConvention>
+    <settlementDays>2</settlementDays>
+    <isEOM>true</isEOM>
+    <stubType>SHORT_START</stubType>
+    <isExchangeNotional>false</isExchangeNotional>
 </bean>
