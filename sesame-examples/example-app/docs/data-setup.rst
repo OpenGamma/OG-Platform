@@ -53,3 +53,19 @@ Command::
   bloomberg-hts-master-updater-tool.bat -c http://localhost:8080
 
 Substituting .bat for .sh and localhost as necessary
+
+
+Loading calendars
+=================
+
+A sample US holiday calendar is provided in the *resource/calendar* folder. Locate the **CalendarLoaderTool** class from within og-integration in your IDE and run it with the following arguments:
+
++ -c http://your-server-ip:8080
++ -f path/to/your/resources/calendar/usny.csv
++ -s ISDA_HOLIDAY
++ -n USNY
+
+Alternatively, run the **calendar-loader-tool** from *{OG install location}/platform/scripts* with the same arguments.
+
+Navigate to http://your-server-ip:8080/jax/holidays to see your uploaded snapshot
+
