@@ -55,7 +55,6 @@ public class CapletStripperInterpolatedTermStructure implements CapletStripper {
     _interpolator = new TransformedInterpolator1D(CombinedInterpolatorExtrapolatorFactory.getInterpolator(DEFAULT_INTERPOLATOR, DEFAULT_EXTRAPOLATOR), _transform);
   }
 
-  // TODO provide constructors to set interpolator and knots
   /**
    * Set up the stripper with a transformed double-quadratic interpolator ({@link DoubleQuadraticInterpolator1D}) and a linear extrapolator ({@link LinearExtrapolator1D}).
    * The transformation (using {@link SingleRangeLimitTransform}) ensures the caplet volatility is always positive (regardless of the value of the knots).
@@ -63,7 +62,7 @@ public class CapletStripperInterpolatedTermStructure implements CapletStripper {
    * @param knots The knots. The knot positions will have a large effect on the shape of the term structure, and hence
    * the quality of the solution. The number of knots must not exceed the number of caps.
    */
-  public CapletStripperInterpolatedTermStructure(final MultiCapFloorPricer pricer, final double[] knots) {
+  public CapletStripperInterpolatedTermStructure(MultiCapFloorPricer pricer, double[] knots) {
     ArgumentChecker.notNull(pricer, "pricer");
     ArgumentChecker.notEmpty(knots, "knots");
     ArgumentChecker.isTrue(pricer.getNumCaps() >= knots.length, "#knots ({}) is greater than number of caps ({}). Please reduce the number of knots", knots.length, pricer.getNumCaps());
@@ -71,14 +70,14 @@ public class CapletStripperInterpolatedTermStructure implements CapletStripper {
     _transform = TRANSFORM;
 
     _interpolator = new TransformedInterpolator1D(CombinedInterpolatorExtrapolatorFactory.getInterpolator(DEFAULT_INTERPOLATOR, DEFAULT_EXTRAPOLATOR), _transform);
-    _knots = knots;
+    _knots = knots.clone();
   }
 
   @Override
-  public CapletStrippingResult solve(final double[] marketValues, final MarketDataType type) {
-    final CapletStrippingImp imp = getImp(marketValues);
-    final double[] impliedVol = type == MarketDataType.PRICE ? _pricer.impliedVols(marketValues) : marketValues;
-    final DoubleMatrix1D start = getStartValue(impliedVol, imp.getNumModelParms());
+  public CapletStrippingResult solve(double[] marketValues, MarketDataType type) {
+    CapletStrippingCore imp = getImp(marketValues);
+    double[] impliedVol = type == MarketDataType.PRICE ? _pricer.impliedVols(marketValues) : marketValues;
+    DoubleMatrix1D start = getStartValue(impliedVol, imp.getNumModelParms());
     if (type == MarketDataType.PRICE) {
       return imp.solveForCapPrices(marketValues, start);
     } else if (type == MarketDataType.VOL) {
@@ -88,10 +87,10 @@ public class CapletStripperInterpolatedTermStructure implements CapletStripper {
   }
 
   @Override
-  public CapletStrippingResult solve(final double[] marketValues, final MarketDataType type, final double[] errors) {
-    final CapletStrippingImp imp = getImp(marketValues);
-    final double[] impliedVol = type == MarketDataType.PRICE ? _pricer.impliedVols(marketValues) : marketValues;
-    final DoubleMatrix1D start = getStartValue(impliedVol, imp.getNumModelParms());
+  public CapletStrippingResult solve(double[] marketValues, MarketDataType type, double[] errors) {
+    CapletStrippingCore imp = getImp(marketValues);
+    double[] impliedVol = type == MarketDataType.PRICE ? _pricer.impliedVols(marketValues) : marketValues;
+    DoubleMatrix1D start = getStartValue(impliedVol, imp.getNumModelParms());
     if (type == MarketDataType.PRICE) {
       return imp.solveForCapPrices(marketValues, errors, start);
     } else if (type == MarketDataType.VOL) {
@@ -101,9 +100,9 @@ public class CapletStripperInterpolatedTermStructure implements CapletStripper {
   }
 
   @Override
-  public CapletStrippingResult solve(final double[] marketValues, final MarketDataType type, final DoubleMatrix1D guess) {
+  public CapletStrippingResult solve(double[] marketValues, MarketDataType type, DoubleMatrix1D guess) {
 
-    final CapletStrippingImp imp = getImp(marketValues);
+    CapletStrippingCore imp = getImp(marketValues);
     if (type == MarketDataType.PRICE) {
       return imp.solveForCapPrices(marketValues, guess);
     } else if (type == MarketDataType.VOL) {
@@ -113,9 +112,9 @@ public class CapletStripperInterpolatedTermStructure implements CapletStripper {
   }
 
   @Override
-  public CapletStrippingResult solve(final double[] marketValues, final MarketDataType type, final double[] errors, final DoubleMatrix1D guess) {
+  public CapletStrippingResult solve(double[] marketValues, MarketDataType type, double[] errors, DoubleMatrix1D guess) {
 
-    final CapletStrippingImp imp = getImp(marketValues);
+    CapletStrippingCore imp = getImp(marketValues);
     if (type == MarketDataType.PRICE) {
       return imp.solveForCapPrices(marketValues, errors, guess);
     } else if (type == MarketDataType.VOL) {
@@ -124,14 +123,14 @@ public class CapletStripperInterpolatedTermStructure implements CapletStripper {
     throw new IllegalArgumentException("Unknown MarketDataType " + type.toString());
   }
 
-  private CapletStrippingImp getImp(final double[] values) {
+  private CapletStrippingCore getImp(double[] values) {
 
     ArgumentChecker.notEmpty(values, "values");
-    final int nCaps = _pricer.getNumCaps();
+    int nCaps = _pricer.getNumCaps();
     ArgumentChecker.isTrue(nCaps == values.length, "Expected {} cap prices, but only given {}", nCaps, values.length);
-    final double[] knots = _knots == null ? getKnots(_pricer.getCapStartTimes(), _pricer.getCapEndTimes(), nCaps) : _knots;
-    final DiscreteVolatilityFunctionProvider volPro = new DiscreteVolatilityFunctionProviderFromInterpolatedTermStructure(knots, _interpolator);
-    return new CapletStrippingImp(_pricer, volPro);
+    double[] knots = _knots == null ? getKnots(_pricer.getCapStartTimes(), _pricer.getCapEndTimes(), nCaps) : _knots;
+    DiscreteVolatilityFunctionProvider volPro = new DiscreteVolatilityFunctionProviderFromInterpolatedTermStructure(knots, _interpolator);
+    return new CapletStrippingCore(_pricer, volPro);
   }
 
   /**
@@ -140,8 +139,8 @@ public class CapletStripperInterpolatedTermStructure implements CapletStripper {
    * @param n number of model parameters
    * @return starting guess
    */
-  public DoubleMatrix1D getStartValue(final double[] capVols, final int n) {
-    final double[] temp = new double[n];
+  public DoubleMatrix1D getStartValue(double[] capVols, int n) {
+    double[] temp = new double[n];
     System.arraycopy(capVols, 0, temp, 0, n);
     if (n > capVols.length) {
       Arrays.fill(temp, capVols.length, n, capVols[capVols.length - 1]);
@@ -152,14 +151,14 @@ public class CapletStripperInterpolatedTermStructure implements CapletStripper {
     return new DoubleMatrix1D(temp);
   }
 
-  private double[] getKnots(final double[] s, final double[] e, final int nCaps) {
+  private double[] getKnots(double[] s, double[] e, int nCaps) {
 
-    final int ns = s.length;
-    final int ne = e.length;
-    final double[] temp = new double[ns + ne];
+    int ns = s.length;
+    int ne = e.length;
+    double[] temp = new double[ns + ne];
     System.arraycopy(s, 0, temp, 0, ns);
     System.arraycopy(e, 0, temp, ns, ne);
-    final double[] times = FunctionUtils.unique(temp);
+    double[] times = FunctionUtils.unique(temp);
 
     ArgumentChecker.isTrue(times.length >= nCaps, "Cannot auto generate knots for this set of caps. Please supply knots");
     if (times.length == nCaps) {
@@ -167,7 +166,7 @@ public class CapletStripperInterpolatedTermStructure implements CapletStripper {
     }
 
     // use the first nCaps times
-    final double[] knots = new double[nCaps];
+    double[] knots = new double[nCaps];
     System.arraycopy(times, 0, knots, 0, nCaps);
 
     return knots;

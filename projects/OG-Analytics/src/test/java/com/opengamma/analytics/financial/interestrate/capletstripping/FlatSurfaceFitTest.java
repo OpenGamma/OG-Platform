@@ -21,6 +21,7 @@ import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.function.ParameterizedSurface;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -28,6 +29,7 @@ import com.opengamma.util.tuple.DoublesPair;
  * a good fit in terms of recovering the market values, however this does test a lot of the functionality of the caplet
  * stripper.
  */
+@Test(groups = TestGroup.UNIT)
 public class FlatSurfaceFitTest extends CapletStrippingSetup {
 
   private final static DiscreteVolatilityFunctionProvider DISCRETE_FLAT_SURFACE;
@@ -94,7 +96,7 @@ public class FlatSurfaceFitTest extends CapletStrippingSetup {
     MultiCapFloorPricer pricer = new MultiCapFloorPricer(caps, getYieldCurves());
     double price = pricer.price(new double[] {vol })[0];
 
-    final CapletStrippingImp imp = new CapletStrippingImp(pricer, FLAT_SURFACE);
+    final CapletStrippingCore imp = new CapletStrippingCore(pricer, FLAT_SURFACE);
     CapletStrippingResult res = imp.rootFindForCapPrices(new double[] {price }, new DoubleMatrix1D(1, 0.3));
     DoubleMatrix1D fitParms = res.getFitParameters();
     assertEquals(1, fitParms.getNumberOfElements());
@@ -104,7 +106,7 @@ public class FlatSurfaceFitTest extends CapletStrippingSetup {
   @Test
   public void priceFitTest() {
     final MultiCapFloorPricer pricer = new MultiCapFloorPricer(getAllCaps(), getYieldCurves());
-    final CapletStrippingImp imp = new CapletStrippingImp(pricer, DISCRETE_FLAT_SURFACE);
+    final CapletStrippingCore imp = new CapletStrippingCore(pricer, DISCRETE_FLAT_SURFACE);
     final CapletStrippingResult res = imp.leastSqrSolveForCapPrices(getAllCapPrices(), new DoubleMatrix1D(0.4));
 
     // since this is an unbiased LS fit to price it is skewed to fitting the long (10 year caps)
@@ -114,7 +116,7 @@ public class FlatSurfaceFitTest extends CapletStrippingSetup {
   @Test
   public void priceVegaFitTest() {
     final MultiCapFloorPricer pricer = new MultiCapFloorPricer(getAllCaps(), getYieldCurves());
-    final CapletStrippingImp imp = new CapletStrippingImp(pricer, DISCRETE_FLAT_SURFACE);
+    final CapletStrippingCore imp = new CapletStrippingCore(pricer, DISCRETE_FLAT_SURFACE);
     final double[] capVols = getAllCapVols();
     final double[] vega = pricer.vega(capVols);
     final double[] prices = pricer.price(capVols);
@@ -135,7 +137,7 @@ public class FlatSurfaceFitTest extends CapletStrippingSetup {
     }
     sum /= n;
     final MultiCapFloorPricer pricer = new MultiCapFloorPricer(getAllCaps(), getYieldCurves());
-    final CapletStrippingImp imp = new CapletStrippingImp(pricer, DISCRETE_FLAT_SURFACE);
+    final CapletStrippingCore imp = new CapletStrippingCore(pricer, DISCRETE_FLAT_SURFACE);
 
     final CapletStrippingResult res = imp.leastSqrSolveForCapVols(vols, new DoubleMatrix1D(0.4));
 
@@ -152,7 +154,7 @@ public class FlatSurfaceFitTest extends CapletStrippingSetup {
     final double vol = 0.4;
 
     final MultiCapFloorPricer pricer = new MultiCapFloorPricer(getAllCaps(), getYieldCurves());
-    final CapletStrippingImp imp = new CapletStrippingImp(pricer, DISCRETE_FLAT_SURFACE);
+    final CapletStrippingCore imp = new CapletStrippingCore(pricer, DISCRETE_FLAT_SURFACE);
 
     final Function1D<DoubleMatrix1D, DoubleMatrix1D> func = imp.getCapVolFunction();
     final VectorFieldFirstOrderDifferentiator diff = new VectorFieldFirstOrderDifferentiator();

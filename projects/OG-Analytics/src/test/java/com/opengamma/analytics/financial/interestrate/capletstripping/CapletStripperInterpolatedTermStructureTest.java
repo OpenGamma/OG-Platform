@@ -183,7 +183,7 @@ public class CapletStripperInterpolatedTermStructureTest extends CapletStripping
 
     TransformedInterpolator1D interpolator = new TransformedInterpolator1D(CombinedInterpolatorExtrapolatorFactory.getInterpolator(DEFAULT_INTERPOLATOR, DEFAULT_EXTRAPOLATOR), TRANSFORM);
     DiscreteVolatilityFunctionProvider pro = new DiscreteVolatilityFunctionProviderFromInterpolatedTermStructure(knots, interpolator);
-    CapletStrippingImp imp = new CapletStrippingImp(pricer, pro);
+    CapletStrippingCore imp = new CapletStrippingCore(pricer, pro);
 
     Function1D<DoubleMatrix1D, DoubleMatrix1D> func = imp.getCapVolFunction();
     Function1D<DoubleMatrix1D, DoubleMatrix2D> jacFunc = imp.getCapVolJacobianFunction();

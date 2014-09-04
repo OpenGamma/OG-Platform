@@ -30,7 +30,7 @@ import com.opengamma.util.ArgumentChecker;
 public class CapletStripperPSplineTermStructure implements CapletStripper {
   private static final MatrixAlgebra MA = new OGMatrixAlgebra();
   private static final Function1D<DoubleMatrix1D, Boolean> POSITIVE = new PositiveOrZero();
-  private final CapletStrippingImp _imp;
+  private final CapletStrippingCore _imp;
   private final DoubleMatrix2D _penalty;
   private final int _size;
 
@@ -42,11 +42,9 @@ public class CapletStripperPSplineTermStructure implements CapletStripper {
    */
   public CapletStripperPSplineTermStructure(final MultiCapFloorPricer pricer, final BasisSplineVolatilityTermStructureProvider vtsp, final double lambda) {
     final DiscreteVolatilityFunctionProvider volFuncPro = new DiscreteVolatilityFunctionProviderFromVolSurface(vtsp);
-    _imp = new CapletStrippingImp(pricer, volFuncPro);
+    _imp = new CapletStrippingCore(pricer, volFuncPro);
     _size = vtsp.getNumModelParameters();
     _penalty = (DoubleMatrix2D) MA.scale(PenaltyMatrixGenerator.getPenaltyMatrix(_size, 2), lambda);
-
-    //     (DoubleMatrix2D) MA.scale(psf.getPenaltyMatrix(_nWeights, DIFFERENCE_ORDER), LAMBDA);
   }
 
   @Override
