@@ -13,6 +13,7 @@ import com.opengamma.analytics.financial.model.volatility.smile.function.SABRFor
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.function.DoublesVectorFunctionProvider;
 import com.opengamma.analytics.math.function.VectorFunction;
+import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.util.ArgumentChecker;
 
@@ -22,9 +23,8 @@ import com.opengamma.util.ArgumentChecker;
  * caplet, we can find the smile model parameters at its expiry, then (using the SABR formula) find the (Black)
  * volatility at its strike; hence the model parameters describe a caplet volatility surface.
  * <p>
- * For a set of market cap values, we can find, in a least-square sense, the optimal set of model parameters to reproduce 
- * the market values. Since the smiles are smooth functions of a few (4) parameters, it is generally not possible to
- * recover exactly market values using this method.
+ * For a set of market cap values, we can find, in a least-square sense, the optimal set of model parameters to reproduce the market values. Since the smiles are smooth functions of a few (4)
+ * parameters, it is generally not possible to recover exactly market values using this method.
  */
 public class CapletStripperSABRModel extends CapletStripperSmileModel<SABRFormulaData> {
 
@@ -53,17 +53,14 @@ public class CapletStripperSABRModel extends CapletStripperSmileModel<SABRFormul
     super(pricer, getDiscreteVolatilityFunctionProvider(pricer, smileModelParameterProviders));
   }
 
-  private static ParameterizedSABRModelDiscreteVolatilityFunctionProvider getDiscreteVolatilityFunctionProvider(MultiCapFloorPricer pricer,
-      DoublesVectorFunctionProvider[] smileModelParameterProviders) {
+  private static ParameterizedSABRModelDiscreteVolatilityFunctionProvider getDiscreteVolatilityFunctionProvider(MultiCapFloorPricer pricer, DoublesVectorFunctionProvider[] smileModelParameterProviders) {
     ArgumentChecker.notNull(pricer, "pricer");
     ArgumentChecker.noNulls(smileModelParameterProviders, "smileModelParameterProviders");
-    ArgumentChecker.isTrue(NUM_MODEL_PARMS == smileModelParameterProviders.length, "Require {} smileModelParameterProviders",
-        NUM_MODEL_PARMS);
+    ArgumentChecker.isTrue(NUM_MODEL_PARMS == smileModelParameterProviders.length, "Require {} smileModelParameterProviders", NUM_MODEL_PARMS);
 
     // this interpolated forward curve that will only be hit at the knots, so don't need anything more than linear
     ForwardCurve fwdCurve = new ForwardCurve(InterpolatedDoublesCurve.from(pricer.getCapletExpiries(), pricer.getCapletForwardRates(),
-        Interpolator1DFactory.LINEAR_INSTANCE));
+        CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.LINEAR_EXTRAPOLATOR)));
     return new ParameterizedSABRModelDiscreteVolatilityFunctionProvider(fwdCurve, smileModelParameterProviders);
   }
-
 }
