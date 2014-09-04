@@ -288,6 +288,11 @@ public abstract class SmileInterpolator<T extends SmileModelData> implements Gen
         final double c = parameters.getEntry(2);
         return a + b * x1 + c * x1 * x1;
       }
+
+      @Override
+      public int getNumberOfParameters() {
+        return 3;
+      }
     };
 
     //TODO replace this with an explicit polynomial fitter
@@ -304,8 +309,7 @@ public abstract class SmileInterpolator<T extends SmileModelData> implements Gen
   protected void validateStrikes(final double[] strikes) {
     final int n = strikes.length;
     for (int i = 1; i < n; i++) {
-      ArgumentChecker.isTrue(strikes[i] > strikes[i - 1],
-          "strikes must be in ascending order; have {} (element {}) and {} (element {})", strikes[i - 1], i - 1, strikes[i], i);
+      ArgumentChecker.isTrue(strikes[i] > strikes[i - 1], "strikes must be in ascending order; have {} (element {}) and {} (element {})", strikes[i - 1], i - 1, strikes[i], i);
     }
   }
 

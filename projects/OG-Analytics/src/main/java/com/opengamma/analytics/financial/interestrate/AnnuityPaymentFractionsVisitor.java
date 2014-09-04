@@ -29,7 +29,7 @@ public final class AnnuityPaymentFractionsVisitor extends InstrumentDerivativeVi
     final int n = annuity.getNumberOfPayments();
     final double[] fractions = new double[n];
     for (int i = 0; i < n; i++) {
-      fractions[i] = annuity.getNthPayment(i).accept(COUPON_VISITOR);
+      fractions[i] = annuity.getNthPayment(i).getPaymentTime();
     }
     return fractions;
   }

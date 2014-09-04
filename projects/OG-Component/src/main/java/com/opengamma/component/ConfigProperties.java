@@ -12,8 +12,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.apache.commons.lang.StringUtils;
-
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -30,10 +28,6 @@ public final class ConfigProperties {
    * Text used for hidden configuration.
    */
   public static final String HIDDEN = "*** HIDDEN ***";
-  /**
-   * Text used where a property was optional and has not been defined.
-   */
-  public static final String OPTIONAL = "*** NOT DEFINED ***";
   /**
    * The key-value pairs.
    */
@@ -78,7 +72,7 @@ public final class ConfigProperties {
    */
   public String getValue(String key) {
     ConfigProperty cp = get(key);
-    return ((cp != null && cp.isDefined()) ? cp.getValue() : null);
+    return (cp != null ? cp.getValue() : null);
   }
 
   /**
@@ -181,38 +175,40 @@ public final class ConfigProperties {
    * @param key  the key, not null
    * @param value  the value to resolve, not null
    * @param lineNum  the line number, for error messages
-   * @return the resolved value, not null
+   * @return the resolved property, null if an optional property was undefined
    * @throws ComponentConfigException if a variable expansion is not found
    */
   public ConfigProperty resolveProperty(String key, String value, int lineNum) {
+    // hide certain properties from peeking
     boolean hidden = (key.contains("password") || key.startsWith("shiro."));
+    // find ${foo} reference
     String variable = findVariable(value);
     while (variable != null) {
-
+      // need actual start/end for correct interpolation
+      int start = value.lastIndexOf("${");
+      int end = value.indexOf("}", start) + 1;
+      // optional properties do not cause an error if property is missing
       boolean isOptional = false;
+      String variableName = variable;
       if (variable.endsWith("?")) {
         isOptional = true;
-        variable = variable.substring(0, variable.length() - 1);
+        variableName = variable.substring(0, variable.length() - 1);
       }
-
-      ConfigProperty variableProperty = _properties.get(variable);
-      if (variableProperty == null) {
-        if (isOptional) {
-          variableProperty = ConfigProperty.optional(key, hidden);
-        } else {
-          throw new ComponentConfigException("Variable expansion not found: ${" + variable + "}, line " + lineNum);
+      // lookup and interpolate property
+      ConfigProperty variableProperty = _properties.get(variableName);
+      if (variableProperty != null) {
+        value = value.substring(0, start) + variableProperty.getValue() + value.substring(end);
+        hidden = hidden || variableProperty.isHidden();
+      } else if (isOptional) {
+        value = value.substring(0, start) + value.substring(end);
+        if (value.isEmpty()) {
+          return null;
         }
+      } else {
+        throw new ComponentConfigException("Variable expansion not found: ${" + variableName + "}, line " + lineNum);
       }
-
-      hidden = hidden || variableProperty.isHidden();
-      value = isOptional ?
-          StringUtils.replaceOnce(value, "${" + variable + "?}", "") :
-          StringUtils.replaceOnce(value, "${" + variable + "}", variableProperty.getValue());
-
+      // find next ${foo} reference
       variable = findVariable(value);
-      if (isOptional && variable == null && "".equals(value)) {
-        return variableProperty;
-      }
     }
     return ConfigProperty.of(key, value, hidden);
   }

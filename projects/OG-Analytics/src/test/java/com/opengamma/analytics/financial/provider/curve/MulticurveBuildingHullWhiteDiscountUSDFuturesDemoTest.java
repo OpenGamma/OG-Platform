@@ -93,9 +93,9 @@ public class MulticurveBuildingHullWhiteDiscountUSDFuturesDemoTest {
   private static final ZonedDateTime EDH4_START_PERIOD = DateUtils.getUTCDate(2014, 3, 19);
   private static final InterestRateFutureSecurityDefinition EDH4_DEFINITION = InterestRateFutureSecurityDefinition
       .fromFixingPeriodStartDate(EDH4_START_PERIOD, USDLIBOR3M, NOTIONAL, 0.25, "EDH4", NYC);
-  private static final ZonedDateTime EDM4_START_PERIOD = DateUtils.getUTCDate(2014, 6, 18);
-  private static final InterestRateFutureSecurityDefinition EDM4_DEFINITION = InterestRateFutureSecurityDefinition
-      .fromFixingPeriodStartDate(EDM4_START_PERIOD, USDLIBOR3M, NOTIONAL, 0.25, "EDM4", NYC);
+  //  private static final ZonedDateTime EDM4_START_PERIOD = DateUtils.getUTCDate(2014, 6, 18);
+  //  private static final InterestRateFutureSecurityDefinition EDM4_DEFINITION = InterestRateFutureSecurityDefinition
+  //      .fromFixingPeriodStartDate(EDM4_START_PERIOD, USDLIBOR3M, NOTIONAL, 0.25, "EDM4", NYC);
   private static final ZonedDateTime EDU4_START_PERIOD = DateUtils.getUTCDate(2014, 9, 17);
   private static final InterestRateFutureSecurityDefinition EDU4_DEFINITION = InterestRateFutureSecurityDefinition
       .fromFixingPeriodStartDate(EDU4_START_PERIOD, USDLIBOR3M, NOTIONAL, 0.25, "EDM4", NYC);
@@ -119,7 +119,7 @@ public class MulticurveBuildingHullWhiteDiscountUSDFuturesDemoTest {
   private static final GeneratorInterestRateFutures GENERATOR_EDU3 = new GeneratorInterestRateFutures("EDU3", EDU3_DEFINITION);
   private static final GeneratorInterestRateFutures GENERATOR_EDZ3 = new GeneratorInterestRateFutures("EDZ3", EDZ3_DEFINITION);
   private static final GeneratorInterestRateFutures GENERATOR_EDH4 = new GeneratorInterestRateFutures("EDH4", EDH4_DEFINITION);
-  private static final GeneratorInterestRateFutures GENERATOR_EDM4 = new GeneratorInterestRateFutures("EDM4", EDM4_DEFINITION);
+  //  private static final GeneratorInterestRateFutures GENERATOR_EDM4 = new GeneratorInterestRateFutures("EDM4", EDM4_DEFINITION);
   private static final GeneratorInterestRateFutures GENERATOR_EDU4 = new GeneratorInterestRateFutures("EDU4", EDU4_DEFINITION);
   private static final GeneratorSwapFuturesDeliverable GENERATOR_CTPM3 = new GeneratorSwapFuturesDeliverable("CTPM3", CTPM3_DEFINITION);
   private static final GeneratorSwapFuturesDeliverable GENERATOR_CFPM3 = new GeneratorSwapFuturesDeliverable("CFPM3", CFPM3_DEFINITION);
@@ -295,7 +295,7 @@ public class MulticurveBuildingHullWhiteDiscountUSDFuturesDemoTest {
     }
   }
 
-  @Test(enabled = true)
+  @Test(enabled = false)
   public void performance() {
     long startTime, endTime;
     final int nbTest = 100;

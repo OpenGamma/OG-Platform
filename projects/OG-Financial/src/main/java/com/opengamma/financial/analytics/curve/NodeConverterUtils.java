@@ -155,10 +155,12 @@ public class NodeConverterUtils {
     ArgumentChecker.notNull(dataId, "data id");
     ArgumentChecker.notNull(valuationTime, "valuation time");
     final boolean isFloatFloat = isFloatFloatRoll(payLegConvention, receiveLegConvention);
-    final AnnuityDefinition<? extends PaymentDefinition> payLeg = getRollDateSwapLeg(payLegConvention, unadjustedStartDate, startNumberRollDate, endNumberRollDate, adjuster, 
-        securitySource, regionSource, holidaySource, conventionSource, marketData, dataId, valuationTime, true, isFloatFloat);
-    final AnnuityDefinition<? extends PaymentDefinition> receiveLeg = getRollDateSwapLeg(receiveLegConvention, unadjustedStartDate, startNumberRollDate, endNumberRollDate, adjuster, 
-        securitySource, regionSource, holidaySource, conventionSource, marketData, dataId, valuationTime, false, isFloatFloat);
+    final AnnuityDefinition<? extends PaymentDefinition> payLeg = getRollDateSwapLeg(payLegConvention, unadjustedStartDate, 
+        startNumberRollDate, endNumberRollDate, adjuster, securitySource, regionSource, holidaySource, conventionSource, 
+        marketData, dataId, valuationTime, true, isFloatFloat);
+    final AnnuityDefinition<? extends PaymentDefinition> receiveLeg = getRollDateSwapLeg(receiveLegConvention, unadjustedStartDate, 
+        startNumberRollDate, endNumberRollDate, adjuster, securitySource, regionSource, holidaySource, conventionSource, 
+        marketData, dataId, valuationTime, false, isFloatFloat);
     return new SwapDefinition(payLeg, receiveLeg);
   }
 

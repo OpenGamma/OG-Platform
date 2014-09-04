@@ -12,7 +12,7 @@ import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlock;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
-import com.opengamma.analytics.financial.provider.sensitivity.parameter.AbstractParameterSensitivityParameterCalculator;
+import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterAbstractCalculator;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.matrix.MatrixAlgebra;
@@ -37,13 +37,13 @@ public final class MarketQuoteSensitivityBlockCalculator<DATA_TYPE extends Param
   /**
    * The parameter sensitivity calculator. The parameters are the parameters used to described the curve.
    */
-  private final AbstractParameterSensitivityParameterCalculator<DATA_TYPE> _parameterSensitivityCalculator;
+  private final ParameterSensitivityParameterAbstractCalculator<DATA_TYPE> _parameterSensitivityCalculator;
 
   /**
    * The constructor.
    * @param parameterSensitivityCalculator The parameter sensitivity calculator.
    */
-  public MarketQuoteSensitivityBlockCalculator(final AbstractParameterSensitivityParameterCalculator<DATA_TYPE> parameterSensitivityCalculator) {
+  public MarketQuoteSensitivityBlockCalculator(final ParameterSensitivityParameterAbstractCalculator<DATA_TYPE> parameterSensitivityCalculator) {
     _parameterSensitivityCalculator = parameterSensitivityCalculator;
   }
 

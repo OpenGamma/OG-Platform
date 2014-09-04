@@ -42,9 +42,9 @@ public class PortfolioHedgingCalculatorTest {
   private static final double EUR_USD = 1.25;
   private static final FXMatrix FX_MATRIX = new FXMatrix(EUR, USD, EUR_USD);
 
-  private static final double[] SENSI_1 = {1.0, 2.0, 3.0, 0.4};
+  private static final double[] SENSI_1 = {1.0, 2.0, 3.0, 0.4 };
   private static final int NB_SENSI_1 = SENSI_1.length;
-  private static final double[] SENSI_2 = {0.5, 1.0, 0.5, 1.0, 0.5};
+  private static final double[] SENSI_2 = {0.5, 1.0, 0.5, 1.0, 0.5 };
   private static final int NB_SENSI_2 = SENSI_2.length;
 
   private static final LinkedHashSet<Pair<String, Integer>> ORDER = new LinkedHashSet<>();
@@ -91,7 +91,7 @@ public class PortfolioHedgingCalculatorTest {
     final double[] hedging2 = PortfolioHedgingCalculator.hedgeQuantity(ps, rs, w2, order, FX_MATRIX);
     assertArrayEquals("PortfolioHedgingCalculator: ", sensiOpposite, hedging2, TOLERANCE);
     // Tri-diagonal weights
-    final double[][] w3Array = { {1.0, 0.5, 0, 0}, {0.5, 1.0, 0.5, 0}, {0, 0.5, 1.0, 0.5}, {0, 0, 0.5, 1.0}};
+    final double[][] w3Array = { {1.0, 0.5, 0, 0 }, {0.5, 1.0, 0.5, 0 }, {0, 0.5, 1.0, 0.5 }, {0, 0, 0.5, 1.0 } };
     final DoubleMatrix2D w3 = new DoubleMatrix2D(w3Array);
     final double[] hedging3 = PortfolioHedgingCalculator.hedgeQuantity(ps, rs, w3, order, FX_MATRIX);
     assertArrayEquals("PortfolioHedgingCalculator: ", sensiOpposite, hedging3, TOLERANCE);
@@ -109,17 +109,17 @@ public class PortfolioHedgingCalculatorTest {
     final int nbReference = 4;
     final MultipleCurrencyParameterSensitivity[] rs = new MultipleCurrencyParameterSensitivity[nbReference];
     rs[0] = new MultipleCurrencyParameterSensitivity();
-    rs[0] = rs[0].plus(NAME_1_EUR, new DoubleMatrix1D(new double[] {1.0, 0.0, 0.0, 0.0}));
-    rs[0] = rs[0].plus(NAME_2_EUR, new DoubleMatrix1D(new double[] {1.0, 0.0, 0.0, 0.0, 0.0}));
+    rs[0] = rs[0].plus(NAME_1_EUR, new DoubleMatrix1D(new double[] {1.0, 0.0, 0.0, 0.0 }));
+    rs[0] = rs[0].plus(NAME_2_EUR, new DoubleMatrix1D(new double[] {1.0, 0.0, 0.0, 0.0, 0.0 }));
     rs[1] = new MultipleCurrencyParameterSensitivity();
-    rs[1] = rs[1].plus(NAME_1_EUR, new DoubleMatrix1D(new double[] {0.0, 0.5, 0.0, 0.0}));
-    rs[1] = rs[1].plus(NAME_2_EUR, new DoubleMatrix1D(new double[] {0.0, 1.0, 0.0, 0.0, 0.0}));
+    rs[1] = rs[1].plus(NAME_1_EUR, new DoubleMatrix1D(new double[] {0.0, 0.5, 0.0, 0.0 }));
+    rs[1] = rs[1].plus(NAME_2_EUR, new DoubleMatrix1D(new double[] {0.0, 1.0, 0.0, 0.0, 0.0 }));
     rs[2] = new MultipleCurrencyParameterSensitivity();
-    rs[2] = rs[2].plus(NAME_1_EUR, new DoubleMatrix1D(new double[] {0.0, 0.0, 1.0, 2.0}));
-    rs[2] = rs[2].plus(NAME_2_EUR, new DoubleMatrix1D(new double[] {0.0, 0.0, 0.0, 0.0, 0.0}));
+    rs[2] = rs[2].plus(NAME_1_EUR, new DoubleMatrix1D(new double[] {0.0, 0.0, 1.0, 2.0 }));
+    rs[2] = rs[2].plus(NAME_2_EUR, new DoubleMatrix1D(new double[] {0.0, 0.0, 0.0, 0.0, 0.0 }));
     rs[3] = new MultipleCurrencyParameterSensitivity();
-    rs[3] = rs[3].plus(NAME_1_EUR, new DoubleMatrix1D(new double[] {0.0, 0.0, 0.0, 0.0}));
-    rs[3] = rs[3].plus(NAME_2_EUR, new DoubleMatrix1D(new double[] {0.0, 0.0, 1.0, 1.0, 1.0}));
+    rs[3] = rs[3].plus(NAME_1_EUR, new DoubleMatrix1D(new double[] {0.0, 0.0, 0.0, 0.0 }));
+    rs[3] = rs[3].plus(NAME_2_EUR, new DoubleMatrix1D(new double[] {0.0, 0.0, 1.0, 1.0, 1.0 }));
     // Weights: tridiagonal + sum by curve
     final DoubleMatrix2D w = new DoubleMatrix2D(nbSensi + 2, nbSensi);
     for (int loopnode = 0; loopnode < nbSensi; loopnode++) {
@@ -129,8 +129,8 @@ public class PortfolioHedgingCalculatorTest {
       w.getData()[loopnode][loopnode + 1] = 0.5;
       w.getData()[loopnode + 1][loopnode] = 0.5;
     }
-    w.getData()[NB_SENSI_1 + NB_SENSI_2] = new double[] {1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0}; // Order?
-    w.getData()[NB_SENSI_1 + NB_SENSI_2 + 1] = new double[] {0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0};
+    w.getData()[NB_SENSI_1 + NB_SENSI_2] = new double[] {1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0 }; // Order?
+    w.getData()[NB_SENSI_1 + NB_SENSI_2 + 1] = new double[] {0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
     final DoubleMatrix2D wtW = (DoubleMatrix2D) MATRIX.multiply(MATRIX.getTranspose(w), w);
     // Hedging
     final double[] hedging = PortfolioHedgingCalculator.hedgeQuantity(ps, rs, w, ORDER, FX_MATRIX);
@@ -140,7 +140,7 @@ public class PortfolioHedgingCalculatorTest {
       psMin = psMin.plus(rs[loopref].multipliedBy(hedging[loopref]));
     }
     final DoubleMatrix1D psMinMatrix = PortfolioHedgingCalculator.toMatrix(psMin.converted(FX_MATRIX, EUR), ORDER);
-    final DoubleMatrix2D psMinMatrixT = new DoubleMatrix2D(new double[][] {psMinMatrix.getData()});
+    final DoubleMatrix2D psMinMatrixT = new DoubleMatrix2D(new double[][] {psMinMatrix.getData() });
     final double penalty = ((DoubleMatrix2D) MATRIX.multiply(psMinMatrixT, MATRIX.multiply(wtW, psMinMatrix))).getEntry(0, 0);
 
     final double shift = 0.01;
@@ -151,7 +151,7 @@ public class PortfolioHedgingCalculatorTest {
       psPertPlus = psPertPlus.plus(psMin);
       psPertPlus = psPertPlus.plus(rs[loopref].multipliedBy(shift));
       final DoubleMatrix1D psPertPlusMat = PortfolioHedgingCalculator.toMatrix(psPertPlus.converted(FX_MATRIX, EUR), ORDER);
-      final DoubleMatrix2D psPertPlusMatT = new DoubleMatrix2D(new double[][] {psPertPlusMat.getData()});
+      final DoubleMatrix2D psPertPlusMatT = new DoubleMatrix2D(new double[][] {psPertPlusMat.getData() });
       penaltyPlus[loopref] = ((DoubleMatrix2D) MATRIX.multiply(psPertPlusMatT, MATRIX.multiply(wtW, psPertPlusMat))).getEntry(0, 0);
       assertTrue("PortfolioHedgingCalculator: minimum", penalty < penaltyPlus[loopref]);
 
@@ -159,7 +159,7 @@ public class PortfolioHedgingCalculatorTest {
       psPertMinus = psPertMinus.plus(psMin);
       psPertMinus = psPertMinus.plus(rs[loopref].multipliedBy(-shift));
       final DoubleMatrix1D psPertMinusMat = PortfolioHedgingCalculator.toMatrix(psPertMinus.converted(FX_MATRIX, EUR), ORDER);
-      final DoubleMatrix2D psPertMinusMatT = new DoubleMatrix2D(new double[][] {psPertMinusMat.getData()});
+      final DoubleMatrix2D psPertMinusMatT = new DoubleMatrix2D(new double[][] {psPertMinusMat.getData() });
       penaltyMinus[loopref] = ((DoubleMatrix2D) MATRIX.multiply(psPertMinusMatT, MATRIX.multiply(wtW, psPertMinusMat))).getEntry(0, 0);
       assertTrue("PortfolioHedgingCalculator: minimum " + loopref, penalty < penaltyMinus[loopref]);
     }
@@ -195,5 +195,4 @@ public class PortfolioHedgingCalculatorTest {
     assertEquals("PortfolioHedgingCalculator: toMatrix", expectedMatrix1, PortfolioHedgingCalculator.toMatrix(sensitivity3, ORDER));
     assertFalse("Test toMatrix, unequal sensitivities: ", expectedMatrix1.equals(PortfolioHedgingCalculator.toMatrix(sensitivity2, ORDER)));
   }
-
 }

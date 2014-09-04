@@ -22,10 +22,12 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.matrix.MatrixAlgebra;
 import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResults;
 import com.opengamma.analytics.math.surface.NodalObjectsSurface;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * 
  */
+@Test(groups = TestGroup.UNIT)
 public class CapletStrippingDirectGlobalWithPenaltyTest extends CapletStrippingSetup {
 
   /**
@@ -109,7 +111,7 @@ public class CapletStrippingDirectGlobalWithPenaltyTest extends CapletStrippingS
     System.out.println(res.getChiSq());
 
     DoubleMatrix1D resVec = res.getFitParameters();
-    Double[][] resMatrix = new Double[nStrikes + nCapEndTimes][nPayments];
+    double[][] resMatrix = new double[nStrikes + nCapEndTimes][nPayments];
     for (int i = 0; i < nStrikes + nCapEndTimes; ++i) {
       for (int j = 0; j < nPayments; ++j) {
         resMatrix[i][j] = resVec.getEntry(i * nPayments + j);
@@ -122,7 +124,7 @@ public class CapletStrippingDirectGlobalWithPenaltyTest extends CapletStrippingS
         CapFloor cf = caps[i].get(j);
         CapFloorPricer pr = new CapFloorPricer(cf, getYieldCurves());
         final int nP = pr.getNumberCaplets();
-        final Double[] vols = Arrays.copyOf(resMatrix[i], nP);
+        final double[] vols = Arrays.copyOf(resMatrix[i], nP);
         System.out.println(capVols[i][j] + "\t" + pr.impliedVol(vols));
       }
     }
@@ -172,7 +174,7 @@ public class CapletStrippingDirectGlobalWithPenaltyTest extends CapletStrippingS
     System.out.println(res.getChiSq());
 
     DoubleMatrix1D resVec = res.getFitParameters();
-    Double[][] resMatrix = new Double[nStrikes][nPayments];
+    double[][] resMatrix = new double[nStrikes][nPayments];
     for (int i = 0; i < nStrikes; ++i) {
       for (int j = 0; j < nPayments; ++j) {
         resMatrix[i][j] = resVec.getEntry(i * nPayments + j);
@@ -186,7 +188,7 @@ public class CapletStrippingDirectGlobalWithPenaltyTest extends CapletStrippingS
         CapFloor cf = caps[i].get(j);
         CapFloorPricer pr = new CapFloorPricer(cf, getYieldCurves());
         final int nP = pr.getNumberCaplets();
-        final Double[] vols = Arrays.copyOf(resMatrix[i], nP);
+        final double[] vols = Arrays.copyOf(resMatrix[i], nP);
         System.out.println(capVols[i][j] + "\t" + pr.impliedVol(vols));
       }
     }
@@ -241,8 +243,8 @@ public class CapletStrippingDirectGlobalWithPenaltyTest extends CapletStrippingS
 
     final MatrixAlgebra alg = new ColtMatrixAlgebra();
     double penalty = alg.getInnerProduct(sampleVec1D, alg.multiply(matrix, sampleVec1D));
-    double expPenalty = 4.0 * Math.pow(lambdaK * (4.0 / dk[1] - 4.0 / dk[0]) / dk[0], 2.0) + 3.0 * Math.pow(lambdaT * (1.0 / dt[1] - 1.0 / dt[0]) / dt[0], 2.0) +
-        3.0 * Math.pow(lambdaT * (1.0 / dt[2] - 1.0 / dt[1]) / dt[1], 2.0);
+    double expPenalty = 4.0 * Math.pow(lambdaK * (4.0 / dk[1] - 4.0 / dk[0]) / dk[0], 2.0) + 3.0 * Math.pow(lambdaT * (1.0 / dt[1] - 1.0 / dt[0]) / dt[0], 2.0) + 3.0 *
+        Math.pow(lambdaT * (1.0 / dt[2] - 1.0 / dt[1]) / dt[1], 2.0);
     assertEquals(expPenalty, penalty, epsLocal);
   }
 
@@ -366,8 +368,8 @@ public class CapletStrippingDirectGlobalWithPenaltyTest extends CapletStrippingS
 
     DoubleMatrix1D resVec = res.getFitParameters();
     DoubleMatrix1D resVec1 = res1.getFitParameters();
-    Double[][] resMatrix = new Double[nStrikesUse][nPayments];
-    Double[][] resMatrix1 = new Double[nStrikesUse][nPayments];
+    double[][] resMatrix = new double[nStrikesUse][nPayments];
+    double[][] resMatrix1 = new double[nStrikesUse][nPayments];
     for (int i = 0; i < nStrikesUse; ++i) {
       for (int j = 0; j < nPayments; ++j) {
         resMatrix[i][j] = resVec.getEntry(i * nPayments + j);
@@ -380,10 +382,10 @@ public class CapletStrippingDirectGlobalWithPenaltyTest extends CapletStrippingS
         CapFloor cf = capsUse[i].get(j);
         CapFloorPricer pr = new CapFloorPricer(cf, getYieldCurves());
         final int nP = pr.getNumberCaplets();
-        final Double[] vols = Arrays.copyOf(resMatrix[i], nP);
+        final double[] vols = Arrays.copyOf(resMatrix[i], nP);
         assertEquals(capVolsUse[i][j], pr.impliedVol(vols), 1.e-2);
 
-        final Double[] vols1 = Arrays.copyOf(resMatrix1[i], nP);
+        final double[] vols1 = Arrays.copyOf(resMatrix1[i], nP);
         assertEquals(capVolsUse[i][j], pr.impliedVol(vols1), 1.e-2);
       }
     }

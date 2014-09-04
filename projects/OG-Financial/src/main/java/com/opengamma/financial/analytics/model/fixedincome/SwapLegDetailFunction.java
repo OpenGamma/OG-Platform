@@ -9,6 +9,7 @@ import static com.opengamma.engine.value.ValueRequirementNames.SWAP_PAY_LEG_DETA
 import static com.opengamma.engine.value.ValueRequirementNames.SWAP_RECEIVE_LEG_DETAILS;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 import org.threeten.bp.Clock;
@@ -158,7 +159,7 @@ public class SwapLegDetailFunction extends InterestRateInstrumentFunction {
     final CurrencyAmount[] projectedAmounts = legDerivative.accept(AnnuityProjectedPaymentsVisitor.getInstance(), bundle);
     final double[] spreads = legDefinition.accept(AnnuitySpreadsVisitor.getInstance(), now);
     final double[] gearings = legDefinition.accept(AnnuityGearingsVisitor.getInstance(), now);
-    final Tenor[] indexTenors = legDefinition.accept(AnnuityIndexTenorsVisitor.getInstance(), now);
+    final List<Set<Tenor>> indexTenors = legDefinition.accept(AnnuityIndexTenorsVisitor.getInstance(), now);
     final FloatingSwapLegDetails details = new FloatingSwapLegDetails(accrualDates.getFirst(), accrualDates.getSecond(), paymentFractions, fixingDates.getFirst(), fixingDates.getSecond(),
         fixingYearFractions, forwardRates, fixedRates, paymentDates, paymentTimes, discountFactors, paymentAmounts, projectedAmounts, notionals, spreads, gearings, indexTenors);
     return Collections.singleton(new ComputedValue(spec, details));

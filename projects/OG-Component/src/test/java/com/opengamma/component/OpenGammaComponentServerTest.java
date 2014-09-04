@@ -20,7 +20,7 @@ import com.opengamma.util.test.TestGroup;
 public class OpenGammaComponentServerTest extends AbstractFudgeBuilderTestCase {
 
   @DataProvider(name = "extractName")
-  public Object[][] data_extractName() {
+  Object[][] data_extractName() {
       return new Object[][] {
         {"classpath:/toolcontext/toolcontext-dev.properties", "toolcontext-dev"},
         {"classpath:/foobar/toolcontext-dev.properties", "foobar-toolcontext-dev"},

@@ -9,10 +9,11 @@ import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.math.linearalgebra.TridiagonalMatrix;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- * An absolutely minimal implementation of matrix algebra - only various multiplications covered. For more advanced stuff (e.g. calculating the inverse) use {@link ColtMatrixAlgebra} or
- * {@link CommonsMatrixAlgebra}
+ * An absolutely minimal implementation of matrix algebra - only various multiplications covered. For more advanced
+ * stuff (e.g. calculating the inverse) use {@link ColtMatrixAlgebra} or {@link CommonsMatrixAlgebra}
  */
 public class OGMatrixAlgebra extends MatrixAlgebra {
 
@@ -52,7 +53,8 @@ public class OGMatrixAlgebra extends MatrixAlgebra {
       }
       return sum;
     }
-    throw new IllegalArgumentException("Can only find inner product of DoubleMatrix1D; have " + m1.getClass() + " and " + m2.getClass());
+    throw new IllegalArgumentException("Can only find inner product of DoubleMatrix1D; have " + m1.getClass() +
+        " and " + m2.getClass());
   }
 
   /**
@@ -74,8 +76,7 @@ public class OGMatrixAlgebra extends MatrixAlgebra {
   }
 
   /**
-   * {@inheritDoc}
-   * This is only implemented for {@link DoubleMatrix1D}.
+   * {@inheritDoc} This is only implemented for {@link DoubleMatrix1D}.
    * @throws IllegalArgumentException If the matrix is not a {@link DoubleMatrix1D}
    */
   @Override
@@ -125,7 +126,8 @@ public class OGMatrixAlgebra extends MatrixAlgebra {
       }
       return new DoubleMatrix2D(res);
     }
-    throw new IllegalArgumentException("Can only find outer product of DoubleMatrix1D; have " + m1.getClass() + " and " + m2.getClass());
+    throw new IllegalArgumentException("Can only find outer product of DoubleMatrix1D; have " + m1.getClass() +
+        " and " + m2.getClass());
   }
 
   /**
@@ -162,6 +164,9 @@ public class OGMatrixAlgebra extends MatrixAlgebra {
   @Override
   public DoubleMatrix2D getTranspose(final Matrix<?> m) {
     Validate.notNull(m, "m");
+    if (m instanceof IdentityMatrix) {
+      return (IdentityMatrix) m;
+    }
     if (m instanceof DoubleMatrix2D) {
       final double[][] data = ((DoubleMatrix2D) m).getData();
       final int rows = data.length;
@@ -179,18 +184,37 @@ public class OGMatrixAlgebra extends MatrixAlgebra {
   }
 
   /**
-   * {@inheritDoc}
-   * The following combinations of input matrices m1 and m2 are allowed:
+   * {@inheritDoc} The following combinations of input matrices m1 and m2 are allowed:
    * <ul>
-   * <li> m1 = 2-D matrix, m2 = 2-D matrix, returns $\mathbf{C} = \mathbf{AB}$
-   * <li> m1 = 2-D matrix, m2 = 1-D matrix, returns $\mathbf{C} = \mathbf{A}b$
-   * <li> m1 = 1-D matrix, m2 = 2-D matrix, returns $\mathbf{C} = a^T\mathbf{B}$
+   * <li>m1 = 2-D matrix, m2 = 2-D matrix, returns $\mathbf{C} = \mathbf{AB}$
+   * <li>m1 = 2-D matrix, m2 = 1-D matrix, returns $\mathbf{C} = \mathbf{A}b$
+   * <li>m1 = 1-D matrix, m2 = 2-D matrix, returns $\mathbf{C} = a^T\mathbf{B}$
    * </ul>
    */
   @Override
   public Matrix<?> multiply(final Matrix<?> m1, final Matrix<?> m2) {
     Validate.notNull(m1, "m1");
     Validate.notNull(m2, "m2");
+    if (m1 instanceof IdentityMatrix) {
+      if (m2 instanceof IdentityMatrix) {
+        return multiply((IdentityMatrix) m1, (IdentityMatrix) m2);
+      } else if (m2 instanceof DoubleMatrix1D) {
+        return multiply((IdentityMatrix) m1, (DoubleMatrix1D) m2);
+      } else if (m2 instanceof DoubleMatrix2D) {
+        return multiply((IdentityMatrix) m1, (DoubleMatrix2D) m2);
+      }
+      throw new IllegalArgumentException("can only handle IdentityMatrix by DoubleMatrix2D or DoubleMatrix1D, have " +
+          m1.getClass() + " and " + m2.getClass());
+    }
+    if (m2 instanceof IdentityMatrix) {
+      if (m1 instanceof DoubleMatrix1D) {
+        return multiply((DoubleMatrix1D) m1, (IdentityMatrix) m2);
+      } else if (m1 instanceof DoubleMatrix2D) {
+        return multiply((DoubleMatrix2D) m1, (IdentityMatrix) m2);
+      }
+      throw new IllegalArgumentException("can only handle  DoubleMatrix2D or DoubleMatrix1D by IdentityMatrix, have " +
+          m1.getClass() + " and " + m2.getClass());
+    }
     if (m1 instanceof TridiagonalMatrix && m2 instanceof DoubleMatrix1D) {
       return multiply((TridiagonalMatrix) m1, (DoubleMatrix1D) m2);
     } else if (m1 instanceof DoubleMatrix1D && m2 instanceof TridiagonalMatrix) {
@@ -202,8 +226,9 @@ public class OGMatrixAlgebra extends MatrixAlgebra {
     } else if (m1 instanceof DoubleMatrix1D && m2 instanceof DoubleMatrix2D) {
       return multiply((DoubleMatrix1D) m1, (DoubleMatrix2D) m2);
     }
-    throw new IllegalArgumentException("Can only multiply two DoubleMatrix2D; a DoubleMatrix2D and a DoubleMatrix1D; or a DoubleMatrix1D and a DoubleMatrix2D. have " + m1.getClass() + " and "
-        + m2.getClass());
+    throw new IllegalArgumentException(
+        "Can only multiply two DoubleMatrix2D; a DoubleMatrix2D and a DoubleMatrix1D; or a DoubleMatrix1D and a DoubleMatrix2D. have " +
+            m1.getClass() + " and " + m2.getClass());
   }
 
   /**
@@ -215,12 +240,33 @@ public class OGMatrixAlgebra extends MatrixAlgebra {
     throw new NotImplementedException();
   }
 
+  private DoubleMatrix2D multiply(final IdentityMatrix idet, final DoubleMatrix2D m) {
+    ArgumentChecker.isTrue(idet.getSize() == m.getNumberOfRows(),
+        "size of identity matrix ({}) does not match number or rows of m ({})", idet.getSize(), m.getNumberOfRows());
+    return m;
+  }
+
+  private DoubleMatrix2D multiply(final DoubleMatrix2D m, final IdentityMatrix idet) {
+    ArgumentChecker.isTrue(idet.getSize() == m.getNumberOfColumns(),
+        "size of identity matrix ({}) does not match number or columns of m ({})", idet.getSize(),
+        m.getNumberOfColumns());
+    return m;
+  }
+
+  private IdentityMatrix multiply(final IdentityMatrix i1, final IdentityMatrix i2) {
+    ArgumentChecker.isTrue(i1.getSize() == i2.getSize(),
+        "size of identity matrix 1 ({}) does not match size of identity matrix 2 ({})", i1.getSize(), i2.getSize());
+    return i1;
+  }
+
   private DoubleMatrix2D multiply(final DoubleMatrix2D m1, final DoubleMatrix2D m2) {
     final double[][] a = m1.getData();
     final double[][] b = m2.getData();
     final int p = b.length;
-    Validate.isTrue(a[0].length == p, "Matrix size mismatch. m1 is " + m1.getNumberOfRows() + " by "
-        + m1.getNumberOfColumns() + ", but m2 is " + m2.getNumberOfRows() + " by " + m2.getNumberOfColumns());
+    Validate.isTrue(
+        a[0].length == p,
+        "Matrix size mismatch. m1 is " + m1.getNumberOfRows() + " by " + m1.getNumberOfColumns() + ", but m2 is " +
+            m2.getNumberOfRows() + " by " + m2.getNumberOfColumns());
     final int m = a.length;
     final int n = b[0].length;
     double sum;
@@ -236,6 +282,20 @@ public class OGMatrixAlgebra extends MatrixAlgebra {
       }
     }
     return new DoubleMatrix2D(res);
+  }
+
+  private DoubleMatrix1D multiply(final IdentityMatrix matrix, final DoubleMatrix1D vector) {
+    ArgumentChecker.isTrue(matrix.getSize() == vector.getNumberOfElements(),
+        "size of identity matrix ({}) does not match size of vector ({})", matrix.getSize(),
+        vector.getNumberOfElements());
+    return vector;
+  }
+
+  private DoubleMatrix1D multiply(final DoubleMatrix1D vector, final IdentityMatrix matrix) {
+    ArgumentChecker.isTrue(matrix.getSize() == vector.getNumberOfElements(),
+        "size of identity matrix ({}) does not match size of vector ({})", matrix.getSize(),
+        vector.getNumberOfElements());
+    return vector;
   }
 
   private DoubleMatrix1D multiply(final DoubleMatrix2D matrix, final DoubleMatrix1D vector) {

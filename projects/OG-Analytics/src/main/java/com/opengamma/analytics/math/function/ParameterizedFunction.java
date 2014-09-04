@@ -94,4 +94,10 @@ public abstract class ParameterizedFunction<S, T, U> {
     };
   }
 
+  /**
+   * Get the number of parameters 
+   * @return the number of parameters 
+   */
+  public abstract int getNumberOfParameters();
+
 }

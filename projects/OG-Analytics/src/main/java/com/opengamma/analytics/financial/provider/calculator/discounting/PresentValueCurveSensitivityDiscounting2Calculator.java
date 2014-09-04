@@ -9,8 +9,10 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONArithmeticAverage;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONArithmeticAverageSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.provider.CouponONArithmeticAverageDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.payments.provider.CouponONArithmeticAverageSpreadDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
@@ -43,16 +45,24 @@ public final class PresentValueCurveSensitivityDiscounting2Calculator extends In
   private PresentValueCurveSensitivityDiscounting2Calculator() {
   }
 
-  /**
-   * The methods used by the different instruments.
-   */
-  private static final CouponONArithmeticAverageDiscountingMethod METHOD_CPN_AAON_EXACT = CouponONArithmeticAverageDiscountingMethod.getInstance();
+  /** The methods used by the different instruments. */
+  private static final CouponONArithmeticAverageDiscountingMethod METHOD_CPN_AAON_EXACT = 
+      CouponONArithmeticAverageDiscountingMethod.getInstance();
+  private static final CouponONArithmeticAverageSpreadDiscountingMethod METHOD_CPN_AAON_SPREAD_EXACT = 
+      CouponONArithmeticAverageSpreadDiscountingMethod.getInstance();
 
   // -----     Payment/Coupon     ------
 
   @Override
-  public MultipleCurrencyMulticurveSensitivity visitCouponONArithmeticAverage(final CouponONArithmeticAverage payment, final MulticurveProviderInterface multicurve) {
+  public MultipleCurrencyMulticurveSensitivity visitCouponONArithmeticAverage(final CouponONArithmeticAverage payment, 
+      final MulticurveProviderInterface multicurve) {
     return METHOD_CPN_AAON_EXACT.presentValueCurveSensitivity(payment, multicurve);
+  }
+
+  @Override
+  public MultipleCurrencyMulticurveSensitivity visitCouponONArithmeticAverageSpread(final CouponONArithmeticAverageSpread payment, 
+      final MulticurveProviderInterface multicurve) {
+    return METHOD_CPN_AAON_SPREAD_EXACT.presentValueCurveSensitivity(payment, multicurve);
   }
 
   // -----     Annuity     ------

@@ -110,7 +110,7 @@ public class MulticurveBuildingDiscountingDiscountEURCommitteeSpreadTest {
   private static final String CURVE_NAME_DSC_EUR = "EUR Dsc";
   private static final String CURVE_NAME_FWD6_EUR = "EUR Fwd 6M";
 
-  /** Market values for the dsc USD curve */
+  /** Market values for the dsc EUR curve */
   private static final double[] DSC_EUR_MARKET_QUOTES = new double[] {0.0050, 0.0050,
     0.0050, 0.0051, 0.0051, 0.0051, 0.0054,
     0.0062, 0.0069, 0.0071, 0.0072, 0.0070,
@@ -264,7 +264,7 @@ public class MulticurveBuildingDiscountingDiscountEURCommitteeSpreadTest {
     }
   }
 
-  @Test(enabled = true)
+  @Test(enabled = false)
   public void performance() {
     long startTime, endTime;
     final int nbTest = 100;
@@ -278,7 +278,7 @@ public class MulticurveBuildingDiscountingDiscountEURCommitteeSpreadTest {
           TS_FIXED_IBOR_EUR6M_WITH_TODAY, TS_FIXED_IBOR_EUR6M_WITHOUT_TODAY);
     }
     endTime = System.currentTimeMillis();
-    System.out.println(nbTest + " curve construction / 2 units: " + (endTime - startTime) + " ms");
+    System.out.println("MulticurveBuildingDiscountingDiscountEURCommitteeSpreadTest" + nbTest + " curve construction / 2 units: " + (endTime - startTime) + " ms");
     // Performance note: Curve construction 1 units: 07-Jan-2013: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 685 ms for 100 sets.
 
     startTime = System.currentTimeMillis();
@@ -290,7 +290,7 @@ public class MulticurveBuildingDiscountingDiscountEURCommitteeSpreadTest {
           TS_FIXED_IBOR_EUR6M_WITH_TODAY, TS_FIXED_IBOR_EUR6M_WITHOUT_TODAY);
     }
     endTime = System.currentTimeMillis();
-    System.out.println(nbTest + " curve construction / 1 unit + spread: " + (endTime - startTime) + " ms");
+    System.out.println("MulticurveBuildingDiscountingDiscountEURCommitteeSpreadTest" + nbTest + " curve construction / 1 unit + spread: " + (endTime - startTime) + " ms");
     // Performance note: Curve construction 1 unit: 07-Jan-2013: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 740 ms for 100 sets.
 
   }
