@@ -42,3 +42,14 @@ Next go to http://your-server-ip:8080/jax/timeseries to add time-series:
 Repeat this for US0006M Index
 
 This step can be repeated for any ticker you wish to add
+
+Bulk loading time-series
+========================
+
+The following command will update all the time series for all the securities listed in the system.
+
+Command::
+
+  bloomberg-hts-master-updater-tool.bat -c http://localhost:8080
+
+Substituting .bat for .sh and localhost as necessary
