@@ -547,7 +547,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
       //set premium
       final Object premiumValue = rs.getObject("PREMIUM_VALUE");
       if (premiumValue != null) {
-        _trade.setPremium((Double) premiumValue);
+        _trade.setPremium(rs.getDouble("PREMIUM_VALUE"));
       }
       final String currencyCode = rs.getString("PREMIUM_CURRENCY");
       if (currencyCode != null) {

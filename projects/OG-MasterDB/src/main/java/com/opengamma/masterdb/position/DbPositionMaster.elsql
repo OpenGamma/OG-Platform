@@ -240,7 +240,7 @@
         position_id
       HAVING
         COUNT(position_id) >= :security_id_search_size
-    ) AS a, (
+    ) a, (
       SELECT
         position_id AS total_doc_id,
         COUNT(position_id) AS total_count
@@ -252,7 +252,7 @@
         AND pos_position.corr_from_instant <= :corrected_to_instant AND pos_position.corr_to_instant > :corrected_to_instant
       GROUP BY
         position_id
-    ) AS b
+    ) b
   WHERE matched_doc_id = total_doc_id
     AND matched_count = total_count
 

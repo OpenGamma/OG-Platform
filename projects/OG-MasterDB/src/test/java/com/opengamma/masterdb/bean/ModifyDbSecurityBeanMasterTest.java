@@ -138,6 +138,7 @@ public class ModifyDbSecurityBeanMasterTest extends AbstractDbSecurityBeanMaster
   public void test_add_addWithMinimalProperties() {
     ManageableSecurity security = new ManageableSecurity();
     SecurityDocument doc = new SecurityDocument(security);
+    security.setName("Test");
     _secMaster.add(doc);
   }
 

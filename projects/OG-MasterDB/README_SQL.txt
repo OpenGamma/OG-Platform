@@ -64,3 +64,24 @@ Converting a column from NOT NULL to NULL
 
   ALTER TABLE my_table ALTER COLUMN my_column my_data_type NULL;
 
+
+
+Oracle
+------
+Date types:
+
+varchar(n) -> NVARCHAR2(n)
+bigint -> NUMBER(19)
+DECIMAL(p) -> NUMBER(p)
+DECIMAL(p,s) -> NUMBER(p,s)
+timestamp without time zone -> TIMESTAMP
+date -> TIMESTAMP
+time -> TIMESTAMP
+
+Sequences do not specify "AS BIGINT"
+Sequences "NO CYCLE" -> "NOCYCLE"
+
+Max table/item name length is 30 chars
+
+When using a table alias in the FROM clause, the keyword "AS" must not be used
+
