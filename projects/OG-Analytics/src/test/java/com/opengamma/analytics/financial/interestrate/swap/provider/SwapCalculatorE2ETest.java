@@ -139,6 +139,24 @@ public class SwapCalculatorE2ETest {
   }
 
   @Test
+  /** Test present value for a swap LIBOR1M Compounding V LIBOR3M. */
+  public void presentValue1MCmp3M() {
+    presentValueTest(SwapInstrumentsDataSet.BS_1MCMP_3M, MULTICURVE_OIS, USD, -340415.3431,
+        "Basis swap L1MFlat v L3M: present value");
+    presentValueTest(SwapInstrumentsDataSet.BS_1MCMP_3M, MULTICURVE_FFS, USD, -534937.1336,
+        "Basis swap L1MFlat v L3M: present value");
+  }
+
+  @Test
+  /** Test present value for a swap LIBOR1M Compounding FLAT + Spread V LIBOR3M. */
+  public void presentValue1MSpreadFlat3M() {
+    presentValueTest(SwapInstrumentsDataSet.BS_1MCMP_S_3M, MULTICURVE_OIS, USD, 152396.2410,
+        "Basis swap L1MFlat v L3M: present value");
+    presentValueTest(SwapInstrumentsDataSet.BS_1MCMP_S_3M, MULTICURVE_FFS, USD, -46130.4883,
+        "Basis swap L1MFlat v L3M: present value");
+  }
+
+  @Test
   /**Test present value for a swap fixed vs LIBOR1M. */
   public void presentValue1M() {
     presentValueTest(SwapInstrumentsDataSet.SWAP_FIXED_1M, MULTICURVE_OIS, USD, -1003685.179128858,
