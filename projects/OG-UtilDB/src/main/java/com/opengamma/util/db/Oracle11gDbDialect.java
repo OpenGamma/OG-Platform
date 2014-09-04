@@ -9,8 +9,6 @@ import java.sql.Driver;
 
 import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.Oracle10gDialect;
-import org.hsqldb.Database;
-import org.hsqldb.DatabaseManager;
 import org.springframework.jdbc.support.lob.DefaultLobHandler;
 import org.springframework.jdbc.support.lob.LobHandler;
 
@@ -75,15 +73,6 @@ public class Oracle11gDbDialect extends DbDialect {
     DefaultLobHandler handler = new DefaultLobHandler();
     handler.setWrapAsLob(false);
     return handler;
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Closes the Oracle database, initiating a shutdown.
-   */
-  @Override
-  public void close() {
-    DatabaseManager.closeDatabases(Database.CLOSEMODE_NORMAL);
   }
 
 }
