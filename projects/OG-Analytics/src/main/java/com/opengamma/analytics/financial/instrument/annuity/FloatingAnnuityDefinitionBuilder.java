@@ -396,7 +396,7 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
     return coupons;
   }
   
-  private CouponDefinition getOISDefinition(
+  private CouponDefinition getONArithmeticAverageDefinition(
       double notional,
       ZonedDateTime paymentDate,
       ZonedDateTime accrualStartDate,
@@ -406,7 +406,7 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
       ZonedDateTime fixingPeriodEndDate) {
     CouponDefinition coupon;
     if (hasGearing()) {
-      throw new OpenGammaRuntimeException("Unsupported OIS geared coupon");
+      throw new OpenGammaRuntimeException("Unsupported ON Arithmetic Average geared coupon");
     } else if (hasSpread()) {
       coupon = new CouponONArithmeticAverageSpreadDefinition(
           getCurrency(),
@@ -751,7 +751,7 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
       }
     } else {
       //Over night arithmetic average
-      coupon = getOISDefinition(
+      coupon = getONArithmeticAverageDefinition(
           notional,
           paymentDate,
           adjustedAccrualStartDate,
