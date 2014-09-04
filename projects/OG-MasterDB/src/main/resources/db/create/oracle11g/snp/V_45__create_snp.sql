@@ -16,17 +16,16 @@ INSERT INTO snp_schema_version (version_key, version_value) VALUES ('schema_patc
 CREATE SEQUENCE snp_snapshot_seq
     START WITH 1000 INCREMENT BY 1 NOCYCLE;
 
-
 CREATE TABLE snp_snapshot (
-    id decimal(19) NOT NULL,
-    oid decimal(19) NOT NULL,
-    ver_from_instant timestamp  NOT NULL,
-    ver_to_instant timestamp  NOT NULL,
-    corr_from_instant timestamp  NOT NULL,
-    corr_to_instant timestamp  NOT NULL,
+    id NUMBER(19) NOT NULL,
+    oid NUMBER(19) NOT NULL,
+    ver_from_instant TIMESTAMP NOT NULL,
+    ver_to_instant TIMESTAMP NOT NULL,
+    corr_from_instant TIMESTAMP NOT NULL,
+    corr_to_instant TIMESTAMP NOT NULL,
     name NVARCHAR2(255) NOT NULL,
     time_zone NVARCHAR2(255),
-    detail blob NOT NULL,
+    detail BLOB NOT NULL,
     PRIMARY KEY (id),
     CONSTRAINT snp_chk_snapshot_ver_order CHECK (ver_from_instant <= ver_to_instant),
     CONSTRAINT snp_chk_snapshot_corr_order CHECK (corr_from_instant <= corr_to_instant)

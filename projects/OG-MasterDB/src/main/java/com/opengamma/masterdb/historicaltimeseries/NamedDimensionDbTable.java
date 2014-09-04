@@ -201,7 +201,8 @@ public class NamedDimensionDbTable {
       .addValue(getVariableName(), name);
     List<Map<String, Object>> result = getDbConnector().getJdbcTemplate().queryForList(select, args);
     if (result.size() == 1) {
-      return (Long) result.get(0).get("dim_id");
+      Object obj = result.get(0).get("dim_id");
+      return ((Number) obj).longValue();
     }
     final long id = nextId();
     args.addValue("dim_id", id);

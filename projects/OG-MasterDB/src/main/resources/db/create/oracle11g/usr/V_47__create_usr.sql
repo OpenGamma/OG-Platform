@@ -15,12 +15,12 @@ CREATE SEQUENCE usr_idkey_seq
     START WITH 1000 INCREMENT BY 1 NOCYCLE;
 
 CREATE TABLE usr_oguser (
-    id decimal(19) NOT NULL,
-    oid decimal(19) NOT NULL,
-    ver_from_instant timestamp  NOT NULL,
-    ver_to_instant timestamp  NOT NULL,
-    corr_from_instant timestamp  NOT NULL,
-    corr_to_instant timestamp  NOT NULL,
+    id NUMBER(19) NOT NULL,
+    oid NUMBER(19) NOT NULL,
+    ver_from_instant TIMESTAMP NOT NULL,
+    ver_to_instant TIMESTAMP NOT NULL,
+    corr_from_instant TIMESTAMP NOT NULL,
+    corr_to_instant TIMESTAMP NOT NULL,
     userid NVARCHAR2(255) NOT NULL,
     password NVARCHAR2(255),
     name NVARCHAR2(255),
@@ -41,7 +41,7 @@ CREATE INDEX ix_usr_oguser_zone ON usr_oguser(time_zone);
 CREATE INDEX ix_usr_oguser_email ON usr_oguser(email_address);
 
 CREATE TABLE usr_idkey (
-    id decimal(19) NOT NULL,
+    id NUMBER(19) NOT NULL,
     key_scheme NVARCHAR2(255) NOT NULL,
     key_value NVARCHAR2(255) NOT NULL,
     PRIMARY KEY (id),
@@ -49,8 +49,8 @@ CREATE TABLE usr_idkey (
 );
 
 CREATE TABLE usr_oguser2idkey (
-    oguser_id decimal(19) NOT NULL,
-    idkey_id decimal(19) NOT NULL,
+    oguser_id NUMBER(19) NOT NULL,
+    idkey_id NUMBER(19) NOT NULL,
     PRIMARY KEY (oguser_id, idkey_id),
     CONSTRAINT usr_fk_oguseridkey2exg FOREIGN KEY (oguser_id) REFERENCES usr_oguser (id) ON DELETE CASCADE,
     CONSTRAINT usr_fk_oguseridkey2idkey FOREIGN KEY (idkey_id) REFERENCES usr_idkey (id) ON DELETE CASCADE
@@ -58,8 +58,8 @@ CREATE TABLE usr_oguser2idkey (
 CREATE INDEX ix_usr_oguser2idkey_idkey ON usr_oguser2idkey(idkey_id);
 
 CREATE TABLE usr_entitlement (
-    oguser_id decimal(19) NOT NULL,
-    entitlement_index int NOT NULL,
+    oguser_id NUMBER(19) NOT NULL,
+    entitlement_index INT NOT NULL,
     entitlement_pattern NVARCHAR2(255) NOT NULL,
     PRIMARY KEY (oguser_id, entitlement_index),
     CONSTRAINT usr_fk_entit2oguser FOREIGN KEY (oguser_id) REFERENCES usr_oguser (id) ON DELETE CASCADE
