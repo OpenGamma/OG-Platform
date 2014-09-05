@@ -6,7 +6,7 @@
 
     <groupId>com.opengamma.solutions</groupId>
     <artifactId>example-app</artifactId>
-    <version>0.1</version>
+    <version>0.2</version>
 
     <dependencies>
         <!-- OG Platform -->
