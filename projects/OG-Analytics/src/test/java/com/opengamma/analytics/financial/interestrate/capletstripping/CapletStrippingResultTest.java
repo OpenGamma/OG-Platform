@@ -35,7 +35,7 @@ public class CapletStrippingResultTest extends CapletStrippingSetup {
   }
 
   @Test
-  public void rootfindTest() {
+  public void rootFindTest() {
 
     int nCaps = s_pricer.getNumCaps();
     int nCaplets = s_pricer.getNumCaplets();
@@ -46,7 +46,7 @@ public class CapletStrippingResultTest extends CapletStrippingSetup {
     CapletStrippingResult results = new CapletStrippingResultRootFind(fitParms, s_dvf, s_pricer);
 
     AssertMatrix.assertEqualsVectors(fitParms, results.getCapletVols(), 1e-15);
-    assertEquals(0.0, results.getChiSq());
+    assertEquals(0.0, results.getChiSqr());
     AssertMatrix.assertEqualsVectors(fitParms, results.getFitParameters(), 1e-15);
     double[] mCapPrices = results.getModelCapPrices();
     double[] mCapVols = results.getModelCapVols();
@@ -69,7 +69,7 @@ public class CapletStrippingResultTest extends CapletStrippingSetup {
     LeastSquareResults res = new LeastSquareResults(chi2, fitParms, cov);
     CapletStrippingResult results = new CapletStrippingResultLeastSquare(res, s_dvf, s_pricer);
     AssertMatrix.assertEqualsVectors(fitParms, results.getCapletVols(), 1e-15);
-    assertEquals(chi2, results.getChiSq());
+    assertEquals(chi2, results.getChiSqr());
     AssertMatrix.assertEqualsVectors(fitParms, results.getFitParameters(), 1e-15);
     double[] mCapPrices = results.getModelCapPrices();
     double[] mCapVols = results.getModelCapVols();

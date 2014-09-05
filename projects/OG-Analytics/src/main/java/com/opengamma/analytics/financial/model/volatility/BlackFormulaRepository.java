@@ -889,7 +889,7 @@ public abstract class BlackFormulaRepository {
     final double intrinsicPrice = Math.max(0., (isCall ? 1 : -1) * (forward - strike));
 
     final double targetPrice = price - intrinsicPrice; // Math.max(0., price - intrinsicPrice) should not used for least
-                                                       // chi square
+    // chi square
     final double sigmaGuess = 0.3;
     return impliedVolatility(targetPrice, forward, strike, timeToExpiry, sigmaGuess);
   }
