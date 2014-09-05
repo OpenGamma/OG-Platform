@@ -28,7 +28,7 @@ import com.opengamma.elsql.ElSqlConfig;
  * An empty string is treated as null in Oracle.
  * The {@link #toDatabaseString(String)} and {@link #fromDatabaseString(String)}
  * methods allow the distinction to be preserved.
- * They replace an empty string by a single character string.
+ * They replace an empty string with a single space.
  * Any string consisting of all spaces is replaced by a string with one additional space.
  */
 public class Oracle11gDbDialect extends DbDialect {
