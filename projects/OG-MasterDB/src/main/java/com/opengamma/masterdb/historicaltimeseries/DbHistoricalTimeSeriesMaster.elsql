@@ -203,7 +203,7 @@
         doc_id
       HAVING
         COUNT(doc_id) >= :id_search_size
-    ) AS a, (
+    ) a, (
       SELECT
         doc_id AS total_doc_id,
         COUNT(doc_id) AS total_count
@@ -217,7 +217,7 @@
           hts_doc2idkey.valid_from <= :id_validity_date AND hts_doc2idkey.valid_to >= :id_validity_date
       GROUP BY
         doc_id
-    ) AS b
+    ) b
   WHERE matched_doc_id = total_doc_id
     AND matched_count = total_count
 
@@ -436,34 +436,33 @@
 
 -- ==========================================================================
 @NAME(SelectDataPoints)
-  SELECT
-    *
-  FROM
-    (
-      @PAGING(:paging_offset,:paging_fetch)
-        SELECT
-          point_date,
-          point_value
-        FROM
-          hts_point p
-        WHERE doc_oid = :doc_oid
-          AND ver_instant <= :version_as_of_instant
-          AND corr_instant <= :corrected_to_instant
-          AND point_date >= :start_date
-          AND point_date <= :end_date
-          AND corr_instant =
-            (
-              SELECT
-                max(corr_instant)
-              FROM 
-                hts_point 
-              WHERE doc_oid = :doc_oid
-                AND ver_instant <= :version_as_of_instant
-                AND corr_instant <= :corrected_to_instant
-                AND point_date = p.point_date
-            )
-        ORDER BY point_date @VALUE(:order) 
-    ) AS points
+  WITH points AS (
+    @PAGING(:paging_offset,:paging_fetch)
+      SELECT
+        point_date,
+        point_value
+      FROM
+        hts_point p
+      WHERE doc_oid = :doc_oid
+        AND ver_instant <= :version_as_of_instant
+        AND corr_instant <= :corrected_to_instant
+        AND point_date >= :start_date
+        AND point_date <= :end_date
+        AND corr_instant =
+          (
+            SELECT
+              max(corr_instant)
+            FROM 
+              hts_point 
+            WHERE doc_oid = :doc_oid
+              AND ver_instant <= :version_as_of_instant
+              AND corr_instant <= :corrected_to_instant
+              AND point_date = p.point_date
+          )
+      ORDER BY point_date @VALUE(:order) 
+  )
+  SELECT *
+  FROM points
   ORDER BY point_date ASC
 
 -- ==========================================================================

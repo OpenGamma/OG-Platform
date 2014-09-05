@@ -112,7 +112,7 @@
         exchange_id
       HAVING
         COUNT(exchange_id) >= :id_search_size
-    ) AS a, (
+    ) a, (
       SELECT
         exchange_id AS total_doc_id,
         COUNT(exchange_id) AS total_count
@@ -124,7 +124,7 @@
         AND exg_exchange.corr_from_instant <= :corrected_to_instant AND exg_exchange.corr_to_instant > :corrected_to_instant
       GROUP BY
         exchange_id
-    ) AS b
+    ) b
   WHERE matched_doc_id = total_doc_id
     AND matched_count = total_count
 

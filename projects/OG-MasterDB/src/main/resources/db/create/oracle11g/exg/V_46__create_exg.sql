@@ -24,18 +24,16 @@ CREATE TABLE hol_schema_version (
 );
 INSERT INTO hol_schema_version (version_key, version_value) VALUES ('schema_patch', '46');
 
-
 CREATE SEQUENCE hol_holiday_seq
     START WITH 1000 INCREMENT BY 1 NOCYCLE;
 
-
 CREATE TABLE hol_holiday (
-    id decimal(19) PRIMARY KEY NOT NULL,
-    oid decimal(19) NOT NULL,
-    ver_from_instant timestamp NOT NULL,
-    ver_to_instant timestamp NOT NULL,
-    corr_from_instant timestamp NOT NULL,
-    corr_to_instant timestamp NOT NULL,
+    id NUMBER(19) NOT NULL,
+    oid NUMBER(19) NOT NULL,
+    ver_from_instant TIMESTAMP NOT NULL,
+    ver_to_instant TIMESTAMP NOT NULL,
+    corr_from_instant TIMESTAMP NOT NULL,
+    corr_to_instant TIMESTAMP NOT NULL,
     name NVARCHAR2(255) NOT NULL,
     provider_scheme NVARCHAR2(255),
     provider_value NVARCHAR2(255),
@@ -47,6 +45,7 @@ CREATE TABLE hol_holiday (
     custom_scheme NVARCHAR2(255),
     custom_value NVARCHAR2(255),
     currency_iso NVARCHAR2(255),
+    PRIMARY KEY (id),
     CONSTRAINT hol_chk_holiday_ver_order CHECK (ver_from_instant <= ver_to_instant),
     CONSTRAINT hol_chk_holiday_corr_order CHECK (corr_from_instant <= corr_to_instant)
 );
@@ -69,8 +68,8 @@ CREATE INDEX ix_hol_holiday_custom_value ON hol_holiday(custom_value);
 CREATE INDEX ix_hol_holiday_currency_iso ON hol_holiday(currency_iso);
 
 CREATE TABLE hol_date (
-    holiday_id decimal(19) NOT NULL,
-    hol_date date NOT NULL,
+    holiday_id NUMBER(19) NOT NULL,
+    hol_date TIMESTAMP NOT NULL,
     CONSTRAINT hol_fk_date2hol FOREIGN KEY (holiday_id) REFERENCES hol_holiday (id)
 );
 CREATE INDEX ix_hol_date_holiday_id ON hol_date(holiday_id);
@@ -88,23 +87,19 @@ CREATE TABLE exg_schema_version (
 );
 INSERT INTO exg_schema_version (version_key, version_value) VALUES ('schema_patch', '46');
 
-
 CREATE SEQUENCE exg_exchange_seq
     START WITH 1000 INCREMENT BY 1 NOCYCLE;
-
-
 CREATE SEQUENCE exg_idkey_seq
     START WITH 1000 INCREMENT BY 1 NOCYCLE;
 
 
-
 CREATE TABLE exg_exchange (
-    id decimal(19) NOT NULL,
-    oid decimal(19) NOT NULL,
-    ver_from_instant timestamp NOT NULL,
-    ver_to_instant timestamp NOT NULL,
-    corr_from_instant timestamp NOT NULL,
-    corr_to_instant timestamp NOT NULL,
+    id NUMBER(19) NOT NULL,
+    oid NUMBER(19) NOT NULL,
+    ver_from_instant TIMESTAMP NOT NULL,
+    ver_to_instant TIMESTAMP NOT NULL,
+    corr_from_instant TIMESTAMP NOT NULL,
+    corr_to_instant TIMESTAMP NOT NULL,
     name NVARCHAR2(255) NOT NULL,
     time_zone NVARCHAR2(255),
     detail BLOB NOT NULL,
@@ -122,7 +117,7 @@ CREATE INDEX ix_exg_exchange_nameu ON exg_exchange(UPPER(name));
 
 
 CREATE TABLE exg_idkey (
-    id decimal(19) NOT NULL,
+    id NUMBER(19) NOT NULL,
     key_scheme NVARCHAR2(255) NOT NULL,
     key_value NVARCHAR2(255) NOT NULL,
     PRIMARY KEY (id),
@@ -130,8 +125,8 @@ CREATE TABLE exg_idkey (
 );
 
 CREATE TABLE exg_exchange2idkey (
-    exchange_id decimal(19) NOT NULL,
-    idkey_id decimal(19) NOT NULL,
+    exchange_id NUMBER(19) NOT NULL,
+    idkey_id NUMBER(19) NOT NULL,
     PRIMARY KEY (exchange_id, idkey_id),
     CONSTRAINT exg_fk_exgidkey2exg FOREIGN KEY (exchange_id) REFERENCES exg_exchange (id),
     CONSTRAINT exg_fk_exgidkey2idkey FOREIGN KEY (idkey_id) REFERENCES exg_idkey (id)
