@@ -5,19 +5,6 @@
  */
 package com.opengamma.solutions;
 
-import static com.opengamma.sesame.config.ConfigBuilder.configureView;
-
-import java.net.URI;
-
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.ZonedDateTime;
-
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.link.ConfigLink;
 import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
@@ -27,20 +14,8 @@ import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.id.UniqueId;
-import com.opengamma.integration.copier.sheet.SheetFormat;
-import com.opengamma.integration.copier.snapshot.copier.SimpleSnapshotCopier;
-import com.opengamma.integration.copier.snapshot.copier.SnapshotCopier;
-import com.opengamma.integration.copier.snapshot.reader.MasterSnapshotReader;
-import com.opengamma.integration.copier.snapshot.reader.SnapshotReader;
-import com.opengamma.integration.copier.snapshot.writer.CsvSnapshotWriter;
-import com.opengamma.integration.copier.snapshot.writer.SnapshotWriter;
-import com.opengamma.integration.copier.snapshot.writer.XlsSnapshotWriter;
-import com.opengamma.integration.tool.marketdata.MarketDataSnapshotToolUtils;
-import com.opengamma.integration.tool.marketdata.SnapshotUtils;
-import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.scripts.Scriptable;
 import com.opengamma.sesame.OutputNames;
-import com.opengamma.sesame.config.ViewConfig;
 import com.opengamma.sesame.engine.ResultRow;
 import com.opengamma.sesame.engine.Results;
 import com.opengamma.sesame.server.FunctionServer;
@@ -48,6 +23,14 @@ import com.opengamma.sesame.server.FunctionServerRequest;
 import com.opengamma.sesame.server.IndividualCycleOptions;
 import com.opengamma.sesame.server.RemoteFunctionServer;
 import com.opengamma.util.time.DateUtils;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.threeten.bp.LocalDate;
+
+import java.net.URI;
+
+import static com.opengamma.sesame.config.ConfigBuilder.configureView;
 
 /** The entry point for running an example remote view. */
 @Scriptable
@@ -67,7 +50,7 @@ public class ExampleRemoteClientTool extends AbstractTool<ToolContext> {
   //-------------------------------------------------------------------------
   /**
    * Main method to run the tool.
-   * 
+   *
    * @param args the standard tool arguments, not null
    */
   public static void main(final String[] args) { // CSIGNORE
@@ -104,8 +87,8 @@ public class ExampleRemoteClientTool extends AbstractTool<ToolContext> {
     /* Configuration links matching the curve exposure function and currency matrix as named on the remote server.
        These are needed as specific arguments in the creation of the ViewConfig. */
     ConfigLink<ExposureFunctions> exposureConfig =
-        ConfigLink.resolvable(commandLine.getOptionValue(EXPOSURE_FUNCTION), ExposureFunctions.class);;
-    ConfigLink<CurrencyMatrix> currencyMatrixLink = ConfigLink.resolvable("BloombergLiveData", CurrencyMatrix.class);;
+        ConfigLink.resolvable(commandLine.getOptionValue(EXPOSURE_FUNCTION), ExposureFunctions.class);
+    ConfigLink<CurrencyMatrix> currencyMatrixLink = ConfigLink.resolvable("BloombergLiveData", CurrencyMatrix.class);
 
 
     /* Building the output specific request, based on a the view config, the single cycle options
@@ -115,11 +98,11 @@ public class ExampleRemoteClientTool extends AbstractTool<ToolContext> {
             .viewConfig(configureView(
                 "IRS remote view",
                 RemoteViewUtils.createInterestRateSwapViewColumn(OutputNames.PRESENT_VALUE,
-                                                                 exposureConfig,
-                                                                 currencyMatrixLink),
+                    exposureConfig,
+                    currencyMatrixLink),
                 RemoteViewUtils.createInterestRateSwapViewColumn(OutputNames.BUCKETED_PV01,
-                                                                 exposureConfig,
-                                                                 currencyMatrixLink)))
+                    exposureConfig,
+                    currencyMatrixLink)))
             .inputs(RemoteViewUtils.SWAP_INPUTS)
             .cycleOptions(cycleOptions)
             .build();
@@ -171,9 +154,9 @@ public class ExampleRemoteClientTool extends AbstractTool<ToolContext> {
 
   private static Option createLiveDataNameOption() {
     final Option option = new Option(LIVE_DATA,
-                                     "liveData",
-                                     true,
-                                     "live data provider, defaults to Bloomberg if no snapshot or live data is specified");
+        "liveData",
+        true,
+        "live data provider, defaults to Bloomberg if no snapshot or live data is specified");
     option.setArgName("live data provider");
     option.setOptionalArg(true);
     return option;

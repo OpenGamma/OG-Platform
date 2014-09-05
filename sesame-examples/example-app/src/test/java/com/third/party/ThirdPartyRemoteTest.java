@@ -1,19 +1,11 @@
 package com.third.party;
 
-import com.google.common.collect.Sets;
-import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.link.ConfigLink;
 import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.exposure.ExposureFunctions;
-import com.opengamma.financial.convention.businessday.BusinessDayConventions;
-import com.opengamma.financial.convention.daycount.DayCounts;
-import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.financial.security.irs.*;
-import com.opengamma.financial.security.swap.FloatingRateType;
-import com.opengamma.id.ExternalId;
-import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.sesame.*;
 import com.opengamma.sesame.component.RetrievalPeriod;
@@ -30,20 +22,16 @@ import com.opengamma.sesame.server.FunctionServerRequest;
 import com.opengamma.sesame.server.IndividualCycleOptions;
 import com.opengamma.sesame.server.RemoteFunctionServer;
 import com.opengamma.solutions.RemoteViewUtils;
-import com.opengamma.util.GUIDGenerator;
-import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import static com.opengamma.sesame.config.ConfigBuilder.*;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -89,7 +77,7 @@ public class ThirdPartyRemoteTest {
                 CurveConstructionConfiguration.class);
 
         /* Add a single Fixed vs Libor 3m Swap to the ManageableSecurity list */
-        _inputs.add(RemoteViewUtils.createVanillaFixedVsLiborSwap());
+        _inputs.add(RemoteViewUtils.createVanillaFixedVsLibor3mSwap());
     }
 
     @Test(enabled = false)
