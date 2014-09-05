@@ -11,6 +11,7 @@ import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.primitives.Doubles;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.analytics.math.FunctionUtils;
 import com.opengamma.analytics.math.MathException;
@@ -34,7 +35,8 @@ public class SABRHaganVolatilityFunction extends VolatilityFunctionProvider<SABR
   private static final double LARGE_NEG_Z = -1e6;
   private static final double LARGE_POS_Z = 1e8;
   private static final double BETA_EPS = 1e-8;
-  private static final double RHO_EPS = 1e-8;
+  private static final double RHO_EPS = 1e-5;
+  private static final double RHO_EPS_NEGATIVE = 1e-8;
   private static final double ATM_EPS = 1e-7;
 
   //  private static final double EPS = 1e-15;
@@ -114,7 +116,7 @@ public class SABRHaganVolatilityFunction extends VolatilityFunctionProvider<SABR
     final double cutoff = forward * CUTOFF_MONEYNESS;
     final double k;
     if (strike < cutoff) {
-      s_logger.info("Given strike of {} is less than cutoff at {}, therefore the strike is taken as {}", new Object[] {strike, cutoff, cutoff});
+      s_logger.info("Given strike of {} is less than cutoff at {}, therefore the strike is taken as {}", new Object[] {strike, cutoff, cutoff });
       k = cutoff;
     } else {
       k = strike;
@@ -176,7 +178,7 @@ public class SABRHaganVolatilityFunction extends VolatilityFunctionProvider<SABR
     double strike = option.getStrike();
     final double cutoff = forward * CUTOFF_MONEYNESS;
     if (strike < cutoff) {
-      s_logger.info("Given strike of {} is less than cutoff at {}, therefore the strike is taken as {}", new Object[] {strike, cutoff, cutoff});
+      s_logger.info("Given strike of {} is less than cutoff at {}, therefore the strike is taken as {}", new Object[] {strike, cutoff, cutoff });
       strike = cutoff;
     }
 
@@ -252,7 +254,7 @@ public class SABRHaganVolatilityFunction extends VolatilityFunctionProvider<SABR
     double strike = option.getStrike();
     final double cutoff = forward * CUTOFF_MONEYNESS;
     if (strike < cutoff) {
-      s_logger.info("Given strike of {} is less than cutoff at {}, therefore the strike is taken as {}", new Object[] {strike, cutoff, cutoff});
+      s_logger.info("Given strike of {} is less than cutoff at {}, therefore the strike is taken as {}", new Object[] {strike, cutoff, cutoff });
       strike = cutoff;
     }
 
@@ -289,12 +291,13 @@ public class SABRHaganVolatilityFunction extends VolatilityFunctionProvider<SABR
         if (z >= 1.0) {
           if (rhoStar == 0.0) {
             rzxz = 0.0;
+            xz = Double.POSITIVE_INFINITY;
           } else {
             xz = (Math.log(2 * (z - 1)) - Math.log(rhoStar));
             rzxz = z / xz;
           }
         } else {
-          xz = -Math.log(1 - z);
+          xz = -Math.log(1 - z) - 0.5 * Math.pow(z / (z - 1.0), 2) * rhoStar;
           rzxz = z / xz;
         }
       } else {
@@ -324,7 +327,7 @@ public class SABRHaganVolatilityFunction extends VolatilityFunctionProvider<SABR
     final double sf1Bar = -alpha / (sf1 * sf1) * rzxz * sf2 * vBar;
     final double rzxzBar = alpha / sf1 * sf2 * vBar;
     double zBar;
-    double xzBar = 0;
+    double xzBar = 0.0;
     if (CompareUtils.closeEquals(z, 0.0, SMALL_Z)) {
       zBar = -rho / 2 * rzxzBar;
     } else {
@@ -367,12 +370,12 @@ public class SABRHaganVolatilityFunction extends VolatilityFunctionProvider<SABR
       if (CompareUtils.closeEquals(rhoStar, 0.0, RHO_EPS)) {
         if (z >= 1) {
           if (rhoStar == 0.0) {
-            rhoBar = xzBar / RHO_EPS; //the derivative at rho = 1 is infinite  - this sets it to some arbitrary large number
+            rhoBar = Double.NEGATIVE_INFINITY; //the derivative at rho = 1 is infinite  - this sets it to some arbitrary large number
           } else {
-            rhoBar = xzBar / rhoStar;
+            rhoBar = xzBar * (1.0 / rhoStar + (0.5 - z) / (z - 1.0) / (z - 1.0));
           }
         } else {
-          rhoBar = z * z / (2 * (1 - z) * (1 - z) + z * z * rhoStar) * xzBar;
+          rhoBar = (0.5 * Math.pow(z / (1 - z), 2) + 0.25 * (z - 4.0) * Math.pow(z / (1.0 - z), 3) / (1.0 - z) * rhoStar) * xzBar;
         }
       } else {
         rhoBar = (1 / (Math.sqrt(1 - 2 * rho * z + z * z) + z - rho) * (-Math.pow(1 - 2 * rho * z + z * z, -0.5) * z - 1) + 1 / rhoStar) * xzBar;
@@ -432,17 +435,19 @@ public class SABRHaganVolatilityFunction extends VolatilityFunctionProvider<SABR
     if (CompareUtils.closeEquals(f2, 0.0, SMALL_Z)) {
       f2x = 1.0 - 0.5 * f2 * rho; //small f2 expansion to f2^2 terms
     } else {
-      x = Math.log((sqrtf2 + f2 - rho) / (1 - rho));
-      xp = ((-2 * rho + 2 * f2) / sqrtf2 / 2.0 + 1) / (sqrtf2 + f2 - rho);
-      xpp = -((-2 * rho + 2 * f2) / sqrtf2 / 2.0 + 1) * ((-2 * rho + 2 * f2) / sqrtf2 / 2.0 + 1) / ((sqrtf2 + f2 - rho) * (sqrtf2 + f2 - rho))
-          + (-(-2 * rho + 2 * f2) * (-2 * rho + 2 * f2) / (sqrtf2 * sqrtf2 * sqrtf2) / 4.0 + 1.0 / sqrtf2) / (sqrtf2 + f2 - rho);
+      if (CompareUtils.closeEquals(rho, 1.0, RHO_EPS)) {
+        x = f2 < 1.0 ? -Math.log(1.0 - f2) - 0.5 * Math.pow(f2 / (f2 - 1.0), 2) * (1.0 - rho) : Math.log(2.0 * f2 - 2.0) - Math.log(1.0 - rho);
+      } else {
+        x = Math.log((sqrtf2 + f2 - rho) / (1 - rho));
+      }
+      xp = 1. / sqrtf2;
+      xpp = (rho - f2) / Math.pow(sqrtf2, 3.0);
       f2x = f2 / x;
     }
     final double sigma = alpha / f1 * f2x * (1 + f3 * theta);
     // First level
     final double h0Dbeta = -0.5;
     final double sigmaDf1 = -sigma / f1;
-    final double xDr = (-f2 / sqrtf2 - 1 + (sqrtf2 + f2 - rho) / (1 - rho)) / (sqrtf2 + f2 - rho);
     double sigmaDf2 = 0;
     if (CompareUtils.closeEquals(f2, 0.0, SMALL_Z)) {
       sigmaDf2 = alpha / f1 * (1 + f3 * theta) * -0.5 * rho;
@@ -537,7 +542,18 @@ public class SABRHaganVolatilityFunction extends VolatilityFunctionProvider<SABR
     if (CompareUtils.closeEquals(f2, 0.0, SMALL_Z)) {
       volatilityD[4] = -0.5 * f2 + sigmaDf3 * f3Dp[2];
     } else {
-      volatilityD[4] = sigmaDf1 * f1Dp[2] + sigmaDx * xDr + sigmaDf3 * f3Dp[2] + sigmaDf4 * f4Dp[2];
+      double xDr;
+      if (CompareUtils.closeEquals(rho, 1.0, RHO_EPS)) {
+        xDr = f2 > 1.0 ? 1.0 / (1.0 - rho) + (0.5 - f2) / (f2 - 1.0) / (f2 - 1.0) : 0.5 * Math.pow(f2 / (1.0 - f2), 2.0) + 0.25 * (f2 - 4.0) * Math.pow(f2 / (f2 - 1.0), 3) / (f2 - 1.0) * (1.0 - rho);
+        if (Doubles.isFinite(xDr)) {
+          volatilityD[4] = sigmaDf1 * f1Dp[2] + sigmaDx * xDr + sigmaDf3 * f3Dp[2] + sigmaDf4 * f4Dp[2];
+        } else {
+          volatilityD[4] = Double.NEGATIVE_INFINITY;
+        }
+      } else {
+        xDr = (-f2 / sqrtf2 - 1 + (sqrtf2 + f2 - rho) / (1 - rho)) / (sqrtf2 + f2 - rho);
+        volatilityD[4] = sigmaDf1 * f1Dp[2] + sigmaDx * xDr + sigmaDf3 * f3Dp[2] + sigmaDf4 * f4Dp[2];
+      }
     }
     volatilityD[5] = sigmaDf1 * f1Dp[3] + sigmaDf2 * f2Dp[3] + sigmaDf3 * f3Dp[3] + sigmaDf4 * f4Dp[3];
     volatilityD2[0][0] = (sigmaD2hh[0][0] * h1Df + sigmaD2hh[0][1] * h2Df) * h1Df + sigmaDh1 * h1D2ff + (sigmaD2hh[0][1] * h1Df + sigmaD2hh[1][1] * h2Df) * h2Df + sigmaDh2 * h2D2ff;
@@ -562,14 +578,14 @@ public class SABRHaganVolatilityFunction extends VolatilityFunctionProvider<SABR
         }
         return z / (Math.log(2 * (z - 1)) - Math.log(rhoStar));
       } else if (z < 1.0) {
-        return -z / Math.log(1 - z);
+        return z / (-Math.log(1 - z) - 0.5 * FunctionUtils.square(z / (z - 1.0)) * rhoStar);
       } else {
         return 0.0;
       }
     }
 
     final double rhoHat = 1 + rho;
-    if (CompareUtils.closeEquals(rhoHat, 0.0, RHO_EPS)) {
+    if (CompareUtils.closeEquals(rhoHat, 0.0, RHO_EPS_NEGATIVE)) {
       if (z > -1) {
         return z / Math.log(1 + z);
       } else if (z < -1) {
@@ -621,27 +637,26 @@ public class SABRHaganVolatilityFunction extends VolatilityFunctionProvider<SABR
       if (z > 1) {
         if (rhoStar == 0) {
           res[0] = 0.0;
-          final double temp = Math.log(2 * (z - 1)) - Math.log(RHO_EPS);
-          res[1] = -z / RHO_EPS / FunctionUtils.square(temp); //This should be -infinity
+          res[1] = Double.NEGATIVE_INFINITY;
           res[2] = 0;
         } else {
           final double temp = Math.log(2 * (z - 1)) - Math.log(rhoStar);
           res[0] = z / temp;
-          res[1] = -z / rhoStar / FunctionUtils.square(temp);
-          res[2] = 1 / temp - z / (z - 1) / FunctionUtils.square(temp);
+          res[1] = -z / temp / temp * (1.0 / rhoStar + (0.5 - z) / FunctionUtils.square(z - 1.0));
+          res[2] = 1 / temp - z / temp / temp / Math.sqrt(1.0 - 2.0 * rho * z + z * z);
         }
       } else if (z < 1) {
-        final double temp = Math.log(1 - z);
-        res[0] = -z / temp;
-        res[1] = -FunctionUtils.cube(z) / 2 / FunctionUtils.square((1 - z) * temp);
-        res[2] = -1 / temp - z / (1 - z) / temp / temp;
+        final double temp = -Math.log(1 - z) - 0.5 * FunctionUtils.square(z / (z - 1.0)) * rhoStar;
+        res[0] = z / temp;
+        res[1] = -z / temp / temp * (0.5 * FunctionUtils.square(z / (z - 1.0)) + (0.25 * z - 1.0) * FunctionUtils.cube(z / (z - 1.0)) / (z - 1.0) * rhoStar);
+        res[2] = 1 / temp - z / temp / temp / Math.sqrt(1.0 - 2.0 * rho * z + z * z);
       } else {
         throw new MathException("can't handle z=1, rho=1");
       }
       return res;
     }
     final double rhoHat = 1 + rho;
-    if (CompareUtils.closeEquals(rhoHat, 0.0, RHO_EPS)) {
+    if (CompareUtils.closeEquals(rhoHat, 0.0, RHO_EPS_NEGATIVE)) {
       if (z > -1) {
         final double temp = Math.log(1 + z);
         final double temp2 = temp * temp;
@@ -651,8 +666,8 @@ public class SABRHaganVolatilityFunction extends VolatilityFunctionProvider<SABR
       } else if (z < -1) {
         if (rhoHat == 0) {
           res[0] = 0;
-          final double chi = Math.log(RHO_EPS) - Math.log(-(1 + z) / rhoStar);
-          final double chiRho = 1 / RHO_EPS + 1 / rhoStar - FunctionUtils.square(z / (1 + z));
+          final double chi = Math.log(RHO_EPS_NEGATIVE) - Math.log(-(1 + z) / rhoStar);
+          final double chiRho = 1 / RHO_EPS_NEGATIVE + 1 / rhoStar - FunctionUtils.square(z / (1 + z));
           res[1] = -chiRho * z / chi / chi; //should be +infinity
           res[2] = 0.0;
         } else {
