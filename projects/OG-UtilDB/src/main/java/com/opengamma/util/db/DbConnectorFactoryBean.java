@@ -243,7 +243,7 @@ public class DbConnectorFactoryBean extends SingletonFactoryBean<DbConnector> {
     ArgumentChecker.notNull(getName(), "name");
     ArgumentChecker.notNull(getDataSource(), "dataSource");
     DbDialect dialect = createDialect();
-    NamedParameterJdbcTemplate jdbcTemplate = createNamedParameterJdbcTemplate();
+    NamedParameterJdbcTemplate jdbcTemplate = createNamedParameterJdbcTemplate(dialect);
     SessionFactory hbFactory = createSessionFactory(dialect);
     HibernateTemplate hbTemplate = createHibernateTemplate(hbFactory);
     TransactionTemplate transTemplate = createTransactionTemplate(hbFactory);
@@ -275,10 +275,11 @@ public class DbConnectorFactoryBean extends SingletonFactoryBean<DbConnector> {
   /**
    * Creates the JDBC template, using the data source.
    * 
+   * @param dialect  the dialect instance, not null
    * @return the JDBC template, not null
    */
-  protected NamedParameterJdbcTemplate createNamedParameterJdbcTemplate() {
-    return new NamedParameterJdbcTemplate(getDataSource());
+  protected NamedParameterJdbcTemplate createNamedParameterJdbcTemplate(DbDialect dialect) {
+    return dialect.getNamedParameterJdbcTemplate(getDataSource());
   }
 
   //-------------------------------------------------------------------------
