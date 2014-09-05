@@ -71,12 +71,13 @@ Oracle
 Date types:
 
 varchar(n) -> NVARCHAR2(n)
-bigint -> NUMBER(19)
-DECIMAL(p) -> NUMBER(p)
-DECIMAL(p,s) -> NUMBER(p,s)
+bigint -> NUMBER(19)                          = like a BigInteger/BigDecimal
+DECIMAL(p) -> NUMBER(p)                       = like a BigInteger/BigDecimal
+DECIMAL(p,s) -> NUMBER(p,s)                   = like a BigDecimal
 timestamp without time zone -> TIMESTAMP
 date -> TIMESTAMP
 time -> TIMESTAMP
+DOUBLE PRECISION -> DOUBLE PRECISION          = like a double (64 bit floating)
 
 Sequences do not specify "AS BIGINT"
 Sequences "NO CYCLE" -> "NOCYCLE"
@@ -84,4 +85,6 @@ Sequences "NO CYCLE" -> "NOCYCLE"
 Max table/item name length is 30 chars
 
 When using a table alias in the FROM clause, the keyword "AS" must not be used
+
+Cannot store an empty string.
 

@@ -201,6 +201,7 @@ public class NamedDimensionDbTable {
       .addValue(getVariableName(), name);
     List<Map<String, Object>> result = getDbConnector().getJdbcTemplate().queryForList(select, args);
     if (result.size() == 1) {
+      // different databases return different types, notably BigDecimal and Long
       Object obj = result.get(0).get("dim_id");
       return ((Number) obj).longValue();
     }

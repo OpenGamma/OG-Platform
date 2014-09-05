@@ -544,7 +544,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
       if (providerScheme != null && providerValue != null) {
         _trade.setProviderId(ExternalId.of(providerScheme, providerValue));
       }
-      //set premium
+      // different databases return different types, notably BigDecimal and Double
       final Object premiumValue = rs.getObject("PREMIUM_VALUE");
       if (premiumValue != null) {
         _trade.setPremium(rs.getDouble("PREMIUM_VALUE"));

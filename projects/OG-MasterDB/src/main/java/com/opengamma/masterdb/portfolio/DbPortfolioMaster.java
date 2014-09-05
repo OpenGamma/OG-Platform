@@ -453,6 +453,7 @@ public class DbPortfolioMaster
       _node.setPortfolioId(_portfolio.getUniqueId());
       if (_nodes.size() == 0) {
         if (_complete == false) {
+          // different databases return different types, notably BigDecimal and Long
           final Number parentNodeId = (Number) rs.getObject("PARENT_NODE_ID");
           final Number parentNodeOid = (Number) rs.getObject("PARENT_NODE_OID");
           if (parentNodeId != null && parentNodeOid != null) {

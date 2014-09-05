@@ -428,10 +428,11 @@ public class DbHistoricalTimeSeriesDataPointsWorker extends AbstractDbMaster {
         LocalDate date = DbDateUtils.fromSqlDateAllowNull(rs.getDate("POINT_DATE"));
         if (date.equals(last) == false) {
           last = date;
-          Number value = (Number) rs.getObject("POINT_VALUE");
+          // different databases return different types, notably BigDecimal and Double
+          Object value = rs.getObject("POINT_VALUE");
           if (value != null) {
             dates.add(date);
-            values.add(value.doubleValue());
+            values.add(rs.getDouble("POINT_VALUE"));
           }
         } else {
           // The data points query should return no more than one value per date
