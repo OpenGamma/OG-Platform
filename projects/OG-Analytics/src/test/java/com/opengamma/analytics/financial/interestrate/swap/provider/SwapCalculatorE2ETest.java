@@ -101,13 +101,13 @@ public class SwapCalculatorE2ETest {
   @Test
   /** Tests present value of ON Arithmetic Average (+ spread) vs Libor3M swaps. */
   public void presentValueONAA3M() {
-    presentValueTest(SwapInstrumentsDataSet.SWAP_FF_3M_0, MULTICURVE_OIS, USD, -1617070.5290,
+    presentValueTest(SwapInstrumentsDataSet.SWAP_FF_3M_0, MULTICURVE_OIS, USD, -1617940.0428,
         "Swap ON Arithmetic Average: present value");
-    presentValueTest(SwapInstrumentsDataSet.SWAP_FF_3M, MULTICURVE_OIS, USD, -159794.3224,
+    presentValueTest(SwapInstrumentsDataSet.SWAP_FF_3M, MULTICURVE_OIS, USD, -160663.8362,
         "Swap ON Arithmetic Average: present value");
-    presentValueTest(SwapInstrumentsDataSet.SWAP_FF_3M_0, MULTICURVE_FFS, USD, -1296026.5680,
+    presentValueTest(SwapInstrumentsDataSet.SWAP_FF_3M_0, MULTICURVE_FFS, USD, -1296763.1943,
         "Swap ON Arithmetic Average: present value");
-    presentValueTest(SwapInstrumentsDataSet.SWAP_FF_3M, MULTICURVE_FFS, USD, 150865.03547,
+    presentValueTest(SwapInstrumentsDataSet.SWAP_FF_3M, MULTICURVE_FFS, USD, 150128.4091,
         "Swap ON Arithmetic Average: present value");
   }
 
@@ -166,7 +166,7 @@ public class SwapCalculatorE2ETest {
   @Test
   /**Tests present value for a ON Cmp + spread v ON AA. */
   public void presentValueONCmpONAA() {
-    presentValueTest(SwapInstrumentsDataSet.BS_ONCMP_S_ONAA, MULTICURVE_FFS, USD, -507436.3058,
+    presentValueTest(SwapInstrumentsDataSet.BS_ONCMP_S_ONAA, MULTICURVE_FFS, USD, -507970.1126,
         "Basis swap ON Cmp + spread v ON AA: present value - FF swap based curves");
   }
   
@@ -211,7 +211,7 @@ public class SwapCalculatorE2ETest {
   /** Tests par spread for ON Arithmetic Average (+ spread) vs Libor3M swaps. */
   public void parSpreadMarketQuoteONAA3M() {
     final double parSpread = SwapInstrumentsDataSet.SWAP_FF_3M_0.accept(PSMQDC, MULTICURVE_OIS);
-    final double parSpreadExpected = 0.0027741318;
+    final double parSpreadExpected = 0.0027756235; // 0.0027741318;
     assertEquals("Swap ON Arithmetic Average: par spread", parSpreadExpected, parSpread, TOLERANCE_RATE);
   }
 
