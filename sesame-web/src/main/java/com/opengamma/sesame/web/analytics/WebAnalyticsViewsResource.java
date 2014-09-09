@@ -200,13 +200,13 @@ public class WebAnalyticsViewsResource extends AbstractWebAnalyticsResource {
 //        .marketDataSpec(new FixedHistoricalMarketDataSpecification(LocalDate.now().minusDays(2)))
         .build();
     
-    ImmutableList<ManageableSecurity> securities = ImmutableList.<ManageableSecurity>of(
+    ImmutableList<Object> inputs = ImmutableList.<Object>of(
         createRandomFxForwardSecurity(), createRandomFxForwardSecurity(), createRandomFxForwardSecurity(),
         createEquitySecurity1(), createEquitySecurity2(), createEquitySecurity3(), createEquitySecurity4(), createEquitySecurity5());
     FunctionServerRequest<IndividualCycleOptions> request =
         FunctionServerRequest.<IndividualCycleOptions>builder()
             .viewConfig(viewConfig)
-            .inputs(securities)
+            .inputs(inputs)
             .cycleOptions(cycleOptions)
             .build();
     return request;

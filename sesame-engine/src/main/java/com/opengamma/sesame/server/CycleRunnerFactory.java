@@ -107,7 +107,7 @@ public class CycleRunnerFactory {
   }
 
   private View createView(FunctionServerRequest<?> request) {
-    return _viewFactory.createView(request.getViewConfig(), EngineUtils.getSecurityTypes(request.getInputs()));
+    return _viewFactory.createView(request.getViewConfig(), EngineUtils.getInputTypes(request.getInputs()));
   }
 
 }

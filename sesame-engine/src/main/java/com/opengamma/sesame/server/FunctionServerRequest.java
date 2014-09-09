@@ -24,7 +24,6 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.sesame.config.ViewConfig;
 
 /**
@@ -54,10 +53,9 @@ public final class FunctionServerRequest<T extends CycleOptions>
   /**
    * The inputs for which the view is to be executed, may be empty.
    */
-  // todo - security is probably not correct, need to represent trade/security/position/...
-  // todo - should this be on the cycle options?
+  // TODO - should this be on the cycle options?
   @PropertyDefinition(validate = "notNull")
-  private final List<ManageableSecurity> _inputs;
+  private final List<Object> _inputs;
 
   // todo - request should carry user information as well
 
@@ -99,7 +97,7 @@ public final class FunctionServerRequest<T extends CycleOptions>
   private FunctionServerRequest(
       ViewConfig viewConfig,
       T cycleOptions,
-      List<ManageableSecurity> inputs) {
+      List<Object> inputs) {
     JodaBeanUtils.notNull(viewConfig, "viewConfig");
     JodaBeanUtils.notNull(cycleOptions, "cycleOptions");
     JodaBeanUtils.notNull(inputs, "inputs");
@@ -147,7 +145,7 @@ public final class FunctionServerRequest<T extends CycleOptions>
    * Gets the inputs.
    * @return the value of the property, not null
    */
-  public List<ManageableSecurity> getInputs() {
+  public List<Object> getInputs() {
     return _inputs;
   }
 
@@ -221,7 +219,7 @@ public final class FunctionServerRequest<T extends CycleOptions>
      * The meta-property for the {@code inputs} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<ManageableSecurity>> _inputs = DirectMetaProperty.ofImmutable(
+    private final MetaProperty<List<Object>> _inputs = DirectMetaProperty.ofImmutable(
         this, "inputs", FunctionServerRequest.class, (Class) List.class);
     /**
      * The meta-properties.
@@ -288,7 +286,7 @@ public final class FunctionServerRequest<T extends CycleOptions>
      * The meta-property for the {@code inputs} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<List<ManageableSecurity>> inputs() {
+    public MetaProperty<List<Object>> inputs() {
       return _inputs;
     }
 
@@ -326,7 +324,7 @@ public final class FunctionServerRequest<T extends CycleOptions>
 
     private ViewConfig _viewConfig;
     private T _cycleOptions;
-    private List<ManageableSecurity> _inputs = new ArrayList<ManageableSecurity>();
+    private List<Object> _inputs = new ArrayList<Object>();
 
     /**
      * Restricted constructor.
@@ -341,7 +339,7 @@ public final class FunctionServerRequest<T extends CycleOptions>
     private Builder(FunctionServerRequest<T> beanToCopy) {
       this._viewConfig = beanToCopy.getViewConfig();
       this._cycleOptions = beanToCopy.getCycleOptions();
-      this._inputs = new ArrayList<ManageableSecurity>(beanToCopy.getInputs());
+      this._inputs = new ArrayList<Object>(beanToCopy.getInputs());
     }
 
     //-----------------------------------------------------------------------
@@ -370,7 +368,7 @@ public final class FunctionServerRequest<T extends CycleOptions>
           this._cycleOptions = (T) newValue;
           break;
         case -1183866391:  // inputs
-          this._inputs = (List<ManageableSecurity>) newValue;
+          this._inputs = (List<Object>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -438,7 +436,7 @@ public final class FunctionServerRequest<T extends CycleOptions>
      * @param inputs  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder<T> inputs(List<ManageableSecurity> inputs) {
+    public Builder<T> inputs(List<Object> inputs) {
       JodaBeanUtils.notNull(inputs, "inputs");
       this._inputs = inputs;
       return this;

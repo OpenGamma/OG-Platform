@@ -93,7 +93,7 @@ public class RemoteInterestRateSwapTest {
   private ConfigLink<ExposureFunctions> _exposureConfig;
   private ConfigLink<CurrencyMatrix> _currencyMatrixLink;
   private ConfigLink<CurveConstructionConfiguration> _curveConstructionConfiguration;
-  private List<ManageableSecurity> _inputs = new ArrayList<>();
+  private List<Object> _inputs = new ArrayList<>();
 
 
   @BeforeClass
