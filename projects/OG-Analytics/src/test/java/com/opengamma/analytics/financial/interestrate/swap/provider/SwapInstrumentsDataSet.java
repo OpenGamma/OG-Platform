@@ -83,16 +83,22 @@ public class SwapInstrumentsDataSet {
       new ZonedDateTimeDoubleTimeSeries[] {TS_USDON };
 
   /** Standard market conventions */
+  private static final CompoundingMethod CMP_FLAT = CompoundingMethod.FLAT;
   private static final IborIndex USDLIBOR1M = IndexIborMaster.getInstance().getIndex("USDLIBOR1M");
   private static final int OFFSET_SPOT = 2;
   private static final int OFFSET_PAYMENT = 0;
   private static final Period P3M = Period.ofMonths(3);
   private static final GeneratorLegIbor LEG_USDLIBOR3M =  GeneratorLegIborMaster.getInstance().getGenerator("USDLIBOR3M", NYC);
   private static final GeneratorLegIbor LEG_USDLIBOR6M =  GeneratorLegIborMaster.getInstance().getGenerator("USDLIBOR6M", NYC);
-  private static final GeneratorLegONArithmeticAverage LEG_USDFEDFUNDAA3M = GeneratorLegOnAaMaster.getInstance().getGenerator("USDFEDFUNDAA3M", NYC);
+  private static final GeneratorLegONArithmeticAverage LEG_USDFEDFUNDAA3M = 
+      GeneratorLegOnAaMaster.getInstance().getGenerator("USDFEDFUNDAA3M", NYC);
   private static final GeneratorLegONCompounded LEG_USDFEDFUNDCMP1Y =
       new GeneratorLegONCompounded("LEG", USD, LEG_USDFEDFUNDAA3M.getIndexON(), Period.ofMonths(12), 2, 2, 
           LEG_USDFEDFUNDAA3M.getBusinessDayConvention(), true, StubType.SHORT_START, false, NYC, NYC);
+  private static final GeneratorLegIborCompounding LEG_USDLIBOR1MCMP3M = 
+      new GeneratorLegIborCompounding("LEG_USDLIBOR1MCMP3M", USD, USDLIBOR1M, 
+      P3M, CMP_FLAT, OFFSET_SPOT, OFFSET_PAYMENT, BusinessDayConventions.MODIFIED_FOLLOWING, true, 
+      StubType.SHORT_START, false, NYC, NYC);
   private static final GeneratorSwapSingleCurrency USDFFAA3MLIBOR3M = new GeneratorSwapSingleCurrency("USDFEDFUNDAA3MLIBOR3M",
       LEG_USDFEDFUNDAA3M, LEG_USDLIBOR3M);
   private static final GeneratorSwapFixedIborMaster GENERATOR_SWAP_FIXED_IBOR_MASTER = GeneratorSwapFixedIborMaster.getInstance();
@@ -100,11 +106,6 @@ public class SwapInstrumentsDataSet {
   private static final GeneratorSwapFixedIbor USD6MLIBOR1M = GENERATOR_SWAP_FIXED_IBOR_MASTER.getGenerator("USD6MLIBOR1M", NYC);
   private static final GeneratorSwapFixedIbor USD6MLIBOR3M = GENERATOR_SWAP_FIXED_IBOR_MASTER.getGenerator("USD6MLIBOR3M", NYC);
   private static final GeneratorSwapFixedON USD1YFEDFUND = GENERATOR_SWAP_FIXED_ONCMP_MASTER.getGenerator("USD1YFEDFUND", NYC);
-  private static final CompoundingMethod CMP_FLAT = CompoundingMethod.FLAT;
-  private static final GeneratorLegIborCompounding LEG_USDLIBOR1MCMP3M = 
-      new GeneratorLegIborCompounding("LEG_USDLIBOR1MCMP3M", USD, USDLIBOR1M, 
-      P3M, CMP_FLAT, OFFSET_SPOT, OFFSET_PAYMENT, BusinessDayConventions.MODIFIED_FOLLOWING, true, 
-      StubType.SHORT_START, false, NYC, NYC);
 
   /** Instruments descriptions */
   private static final double NOTIONAL = 100000000; //100 m
@@ -222,6 +223,16 @@ public class SwapInstrumentsDataSet {
   private static final SwapDefinition BS_1MCMP_3M_DEFINITION = new SwapDefinition(LEG_1MCMP, LEG_3MCMP_2);
   public static final Swap<? extends Payment, ? extends Payment> BS_1MCMP_3M = 
       BS_1MCMP_3M_DEFINITION.toDerivative(VALUATION_DATE, TS_ARRAY_USDLIBOR1M_USDLIBOR3M);
+  
+  // Instrument description: Swap Fixed vs Libor3M - Stub 3M
+  private static final ZonedDateTime TRADE_DATE_3M_STUB1 = DateUtils.getUTCDate(2014, 9, 10);
+  private static final Period TENOR_SWAP_3M_STUB1 = Period.ofMonths(21);
+  private static final double FIXED_RATE_3M_STUB1 = 0.0150;
+  private static final GeneratorAttributeIR ATTRIBUTE_3M_STUB1 = new GeneratorAttributeIR(TENOR_SWAP_3M_STUB1);
+  private static final SwapDefinition SWAP_FIXED_3M_DEFINITION_STUB1 = 
+      USD6MLIBOR3M.generateInstrument(TRADE_DATE_3M_STUB1, FIXED_RATE_3M_STUB1, NOTIONAL, ATTRIBUTE_3M_STUB1);
+  public static final Swap<? extends Payment, ? extends Payment> SWAP_FIXED_3M_STUB1 =
+      SWAP_FIXED_3M_DEFINITION_STUB1.toDerivative(VALUATION_DATE);
   
 
 }
