@@ -66,7 +66,7 @@ public class CycleRunner {
    * The trades/securities to execute the cycles with, not null
    * but may be empty.
    */
-  private final List<ManageableSecurity> _inputs;
+  private final List<Object> _inputs;
   /**
    * Handles the results produced by each cycle of the engine, not null.
    */
@@ -100,7 +100,7 @@ public class CycleRunner {
   public CycleRunner(View view,
                      MarketDataFactory marketDataFactory,
                      CycleOptions cycleOptions,
-                     List<ManageableSecurity> inputs,
+                     List<Object> inputs,
                      CycleResultsHandler handler,
                      CycleTerminator cycleTerminator,
                      Duration minimumTimeBetweenCycles) {

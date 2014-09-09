@@ -296,16 +296,16 @@ public final class EngineUtils {
   /**
    * Converts a set of inputs to security types.
    * 
-   * @param securities  the collection of input securities
+   * @param inputs the collection of input securities/trades
    * @return a set of the types of the securities
    */
-  public static Set<Class<?>> getSecurityTypes(List<ManageableSecurity> securities) {
-    Set<Class<?>> securityTypes = new HashSet<>();
+  public static Set<Class<?>> getInputTypes(List<Object> inputs) {
+    Set<Class<?>> inputTypes = new HashSet<>();
 
-    for (ManageableSecurity security : ArgumentChecker.notNull(securities, "securities")) {
-      securityTypes.add(security.getClass());
+    for (Object input : ArgumentChecker.notNull(inputs, "securities")) {
+      inputTypes.add(input.getClass());
     }
-    return securityTypes;
+    return inputTypes;
   }
 
   /**

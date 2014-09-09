@@ -83,7 +83,7 @@ import com.opengamma.util.time.DateUtils;
  * and a the curve bundle used to price the swap.
  */
 
-@Test(groups = TestGroup.INTEGRATION, enabled = false)
+@Test(groups = TestGroup.INTEGRATION)
 public class RemoteInterestRateSwapTest {
 
   private static final String URL = "http://localhost:8080/jax";
@@ -93,7 +93,7 @@ public class RemoteInterestRateSwapTest {
   private ConfigLink<ExposureFunctions> _exposureConfig;
   private ConfigLink<CurrencyMatrix> _currencyMatrixLink;
   private ConfigLink<CurveConstructionConfiguration> _curveConstructionConfiguration;
-  private List<ManageableSecurity> _inputs = new ArrayList<>();
+  private List<Object> _inputs = new ArrayList<>();
 
 
   @BeforeClass
@@ -126,7 +126,7 @@ public class RemoteInterestRateSwapTest {
     _inputs.add(createFixedVsLibor3mSwap(0.018));
   }
 
-  @Test(enabled = false)
+  @Test()
   public void testSwapPVExecution() {
 
     /* Building the output specific request, based on a the view config, the single cycle options
