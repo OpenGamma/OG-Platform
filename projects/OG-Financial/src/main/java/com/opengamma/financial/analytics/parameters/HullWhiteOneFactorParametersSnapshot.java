@@ -58,12 +58,24 @@ public class HullWhiteOneFactorParametersSnapshot implements NamedSnapshot, Immu
   @PropertyDefinition
   private final double _meanReversion;
 
+  /**
+   * The business day convention to use when interpreting the tenors
+   * in the volatility table.
+   */
   @PropertyDefinition(validate = "notNull")
   private final BusinessDayConvention _businessDayConvention;
 
+  /**
+   * Whether to use the end of month rule when interpreting the tenors
+   * in the volatility table.
+   */
   @PropertyDefinition
   private final boolean _endOfMonth;
 
+  /**
+   * The region to be used when interpreting the tenors in the
+   * volatility table.
+   */
   @PropertyDefinition(validate = "notNull")
   private final ExternalId _region;
 
@@ -176,7 +188,8 @@ public class HullWhiteOneFactorParametersSnapshot implements NamedSnapshot, Immu
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the businessDayConvention.
+   * Gets the business day convention to use when interpreting the tenors
+   * in the volatility table.
    * @return the value of the property, not null
    */
   public BusinessDayConvention getBusinessDayConvention() {
@@ -185,7 +198,8 @@ public class HullWhiteOneFactorParametersSnapshot implements NamedSnapshot, Immu
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the endOfMonth.
+   * Gets whether to use the end of month rule when interpreting the tenors
+   * in the volatility table.
    * @return the value of the property
    */
   public boolean isEndOfMonth() {
@@ -194,7 +208,8 @@ public class HullWhiteOneFactorParametersSnapshot implements NamedSnapshot, Immu
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the region.
+   * Gets the region to be used when interpreting the tenors in the
+   * volatility table.
    * @return the value of the property, not null
    */
   public ExternalId getRegion() {
