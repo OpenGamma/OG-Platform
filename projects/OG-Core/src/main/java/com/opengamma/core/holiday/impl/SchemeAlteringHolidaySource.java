@@ -128,4 +128,31 @@ public class SchemeAlteringHolidaySource implements HolidaySource {
     return getUnderlying().isHoliday(dateToCheck, holidayType, translatedId);
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    SchemeAlteringHolidaySource that = (SchemeAlteringHolidaySource) o;
+
+    if (!_schemeMappings.equals(that._schemeMappings)) {
+      return false;
+    }
+    if (!_underlying.equals(that._underlying)) {
+      return false;
+    }
+
+    return true;
+  }
+
+  @Override
+  public int hashCode() {
+    int result = _underlying.hashCode();
+    result = 31 * result + _schemeMappings.hashCode();
+    return result;
+  }
 }
