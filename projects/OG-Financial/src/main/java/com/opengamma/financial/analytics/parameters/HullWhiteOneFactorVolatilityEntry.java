@@ -29,15 +29,15 @@ import com.opengamma.util.time.Tenor;
 
 /**
  * Represents a volatility entry within a table defined by
- * {@link HullWhiteOneFactorVolatilityTable}. An entry
- * generally consists of the volatility between a start
- * tenor (inclusive) and the end tenor (exclusive).
- * However, in order to allow an infinite range to be
- * covered, the end tenor can be set to null. Within a
- * table of entries, at most one can have a null end tenor.
+ * {@link HullWhiteOneFactorVolatilityTable}. An entry generally
+ * consists of the volatility between a start tenor (inclusive)
+ * and the end tenor (exclusive). However, in order to allow an
+ * infinite range to be covered, the end tenor can be set to null.
+ * Within a table of entries, at most one can have a null end tenor.
  */
 @BeanDefinition
-public final class HullWhiteOneFactorVolatilityEntry implements ImmutableBean, Comparable<HullWhiteOneFactorVolatilityEntry> {
+public final class HullWhiteOneFactorVolatilityEntry
+    implements ImmutableBean, Comparable<HullWhiteOneFactorVolatilityEntry> {
 
   /**
    * The start tenor for this entry.
