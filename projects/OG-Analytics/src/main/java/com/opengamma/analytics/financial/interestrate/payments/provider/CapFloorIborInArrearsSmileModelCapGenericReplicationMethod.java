@@ -133,10 +133,10 @@ public class CapFloorIborInArrearsSmileModelCapGenericReplicationMethod {
   }
 
   private double presentValueStandard(final double forward, final double strike, final double expiry,
-      final boolean isCall, final double df, final double nortional, final double yearFraction) {
+      final boolean isCall, final double df, final double notional, final double yearFraction) {
     double volatility = _smileFunction.getVolatility(strike);
     double price = BlackFormulaRepository.price(forward, strike, expiry, volatility, isCall) *
-        df * nortional * yearFraction;
+        df * notional * yearFraction;
     return price;
   }
 }
