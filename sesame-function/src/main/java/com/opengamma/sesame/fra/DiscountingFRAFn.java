@@ -35,7 +35,7 @@ public class DiscountingFRAFn implements FRAFn {
     if (!calculatorResult.isSuccess()) {
       return Result.failure(calculatorResult);
     }
-    return Result.success(calculatorResult.getValue().calculatePV().getValue());
+    return calculatorResult.getValue().calculatePV();
   }
 
   @Override
@@ -45,7 +45,7 @@ public class DiscountingFRAFn implements FRAFn {
     if (!calculatorResult.isSuccess()) {
       return Result.failure(calculatorResult);
     }
-    return Result.success(calculatorResult.getValue().calculateRate().getValue());
+    return calculatorResult.getValue().calculateRate();
   }
   
   @Override
@@ -55,7 +55,7 @@ public class DiscountingFRAFn implements FRAFn {
     if (!calculatorResult.isSuccess()) {
       return Result.failure(calculatorResult);
     }
-    return Result.success(calculatorResult.getValue().calculatePV().getValue());
+    return calculatorResult.getValue().calculatePV();
   }
 
   @Override
@@ -65,7 +65,7 @@ public class DiscountingFRAFn implements FRAFn {
     if (!calculatorResult.isSuccess()) {
       return Result.failure(calculatorResult);
     }
-    return Result.success(calculatorResult.getValue().calculateRate().getValue());
+    return calculatorResult.getValue().calculateRate();
   }
 
 }

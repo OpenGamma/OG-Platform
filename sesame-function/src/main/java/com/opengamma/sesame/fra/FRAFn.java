@@ -25,7 +25,7 @@ public interface FRAFn {
    * @param security the FRA to calculate the rate for
    * @return result containing the rate if successful, a Failure otherwise
    */
-  @Output(value = OutputNames.PAR_RATE)
+  @Output(OutputNames.PAR_RATE)
   Result<Double> calculateParRate(Environment env, FRASecurity security);
 
   /**
@@ -35,7 +35,7 @@ public interface FRAFn {
    * @param security the FRA to calculate the PV for
    * @return result containing the present value if successful, a Failure otherwise
    */
-  @Output(value = OutputNames.PRESENT_VALUE)
+  @Output(OutputNames.PRESENT_VALUE)
   Result<MultipleCurrencyAmount> calculatePV(Environment env, FRASecurity security);
   
   /**
@@ -45,7 +45,7 @@ public interface FRAFn {
    * @param security the FRA to calculate the rate for
    * @return result containing the rate if successful, a Failure otherwise
    */
-  @Output(value = OutputNames.PAR_RATE)
+  @Output(OutputNames.PAR_RATE)
   Result<Double> calculateParRate(Environment env, ForwardRateAgreementSecurity security);
 
   /**
@@ -55,7 +55,7 @@ public interface FRAFn {
    * @param security the FRA to calculate the PV for
    * @return result containing the present value if successful, a Failure otherwise
    */
-  @Output(value = OutputNames.PRESENT_VALUE)
+  @Output(OutputNames.PRESENT_VALUE)
   Result<MultipleCurrencyAmount> calculatePV(Environment env, ForwardRateAgreementSecurity security);
 
 }
