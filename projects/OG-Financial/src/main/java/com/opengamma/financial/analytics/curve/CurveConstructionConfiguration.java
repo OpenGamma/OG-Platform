@@ -28,8 +28,6 @@ import com.google.common.collect.Lists;
 import com.opengamma.core.config.Config;
 import com.opengamma.core.config.ConfigGroups;
 import com.opengamma.core.link.ConfigLink;
-import com.opengamma.core.link.SnapshotLink;
-import com.opengamma.financial.analytics.parameters.HullWhiteOneFactorParametersSnapshot;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
@@ -37,7 +35,7 @@ import com.opengamma.service.ServiceContext;
 
 /**
  * Configuration object that contains a list of {@link CurveGroupConfiguration}s and any
- * exogenous curve configurations that are required. Also
+ * exogenous curve configurations that are required.
  */
 @BeanDefinition
 @Config(description = "Curve construction configuration", group = ConfigGroups.CURVES)
@@ -71,72 +69,26 @@ public class CurveConstructionConfiguration extends DirectBean implements Serial
   private List<String> _exogenousConfigurations = ImmutableList.of();
 
   /**
-   * A list of snapshot links holding Hull White convexity adjustment
-   * parameters. If parameter snapshots are available then the first
-   * applicable one will be used during curve calibration if futures
-   * are specified in the curve.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private List<SnapshotLink<HullWhiteOneFactorParametersSnapshot>> _convexityAdjustmentLinks = ImmutableList.of();
-
-  /**
-   * Indicates if convexity adjustments are defined whether they
-   * should be applied for curves in this configuration. By default
-   * they will be applied.
-   */
-  @PropertyDefinition
-  private boolean _applyConvexityAdjustment = true;
-
-  /**
    * The links to any exogenous curve configs.
    * Currently these are private - in the future we may want to expose the links directly.
    */
   private List<ConfigLink<CurveConstructionConfiguration>> _exogenousLinks = ImmutableList.of();
 
   /**
-   * Creates a CurveConstructionConfiguration. Intended for use by the builder.
+   * For the builder.
    */
-  CurveConstructionConfiguration() {
+  /* package */CurveConstructionConfiguration() {
   }
 
   /**
-   * Creates a CurveConstructionConfiguration.
-   *
    * @param name The curve construction configuration name, not null
    * @param curveGroups The curve groups, not null
    * @param exogenousConfigurations The exogenous configuration to be used in curve construction
    */
-  public CurveConstructionConfiguration(String name, List<CurveGroupConfiguration> curveGroups,
-                                        List<String> exogenousConfigurations) {
-    this(name, curveGroups, exogenousConfigurations,
-         ImmutableList.<SnapshotLink<HullWhiteOneFactorParametersSnapshot>>of(), true);
-  }
-
-  /**
-   * Creates a CurveConstructionConfiguration.
-   *
-   * @param name  the curve construction configuration name, not null
-   * @param curveGroups  the curve groups, not null
-   * @param exogenousConfigurations  the exogenous configuration to be
-   *   used in curve construction
-   * @param convexityAdjustmentParameterLinks  a list of snapshot links
-   *   holding Hull White convexity adjustment parameters. If parameter
-   *   snapshots are available then the first applicable one will be
-   *   used during curve calibration if futures are specified in the curve.
-   * @param applyConvexityAdjustment  if convexity adjustments are defined,
-   *   whether they should be applied for curves in this configuration
-   */
-  public CurveConstructionConfiguration(
-      String name,
-      List<CurveGroupConfiguration> curveGroups,
-      List<String> exogenousConfigurations,
-      List<SnapshotLink<HullWhiteOneFactorParametersSnapshot>> convexityAdjustmentParameterLinks,
-      boolean applyConvexityAdjustment) {
+  public CurveConstructionConfiguration(final String name, final List<CurveGroupConfiguration> curveGroups, final List<String> exogenousConfigurations) {
     setName(name);
     setCurveGroups(curveGroups);
     setExogenousConfigurations(exogenousConfigurations);
-    setConvexityAdjustmentLinks(convexityAdjustmentParameterLinks);
-    setApplyConvexityAdjustment(applyConvexityAdjustment);
   }
 
   /**
@@ -296,72 +248,6 @@ public class CurveConstructionConfiguration extends DirectBean implements Serial
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Gets a list of snapshot links holding Hull White convexity adjustment
-   * parameters. If parameter snapshots are available then the first
-   * applicable one will be used during curve calibration if futures
-   * are specified in the curve.
-   * @return the value of the property, not null
-   */
-  public List<SnapshotLink<HullWhiteOneFactorParametersSnapshot>> getConvexityAdjustmentLinks() {
-    return _convexityAdjustmentLinks;
-  }
-
-  /**
-   * Sets a list of snapshot links holding Hull White convexity adjustment
-   * parameters. If parameter snapshots are available then the first
-   * applicable one will be used during curve calibration if futures
-   * are specified in the curve.
-   * @param convexityAdjustmentLinks  the new value of the property, not null
-   */
-  public void setConvexityAdjustmentLinks(List<SnapshotLink<HullWhiteOneFactorParametersSnapshot>> convexityAdjustmentLinks) {
-    JodaBeanUtils.notNull(convexityAdjustmentLinks, "convexityAdjustmentLinks");
-    this._convexityAdjustmentLinks = convexityAdjustmentLinks;
-  }
-
-  /**
-   * Gets the the {@code convexityAdjustmentLinks} property.
-   * parameters. If parameter snapshots are available then the first
-   * applicable one will be used during curve calibration if futures
-   * are specified in the curve.
-   * @return the property, not null
-   */
-  public final Property<List<SnapshotLink<HullWhiteOneFactorParametersSnapshot>>> convexityAdjustmentLinks() {
-    return metaBean().convexityAdjustmentLinks().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets indicates if convexity adjustments are defined whether they
-   * should be applied for curves in this configuration. By default
-   * they will be applied.
-   * @return the value of the property
-   */
-  public boolean isApplyConvexityAdjustment() {
-    return _applyConvexityAdjustment;
-  }
-
-  /**
-   * Sets indicates if convexity adjustments are defined whether they
-   * should be applied for curves in this configuration. By default
-   * they will be applied.
-   * @param applyConvexityAdjustment  the new value of the property
-   */
-  public void setApplyConvexityAdjustment(boolean applyConvexityAdjustment) {
-    this._applyConvexityAdjustment = applyConvexityAdjustment;
-  }
-
-  /**
-   * Gets the the {@code applyConvexityAdjustment} property.
-   * should be applied for curves in this configuration. By default
-   * they will be applied.
-   * @return the property, not null
-   */
-  public final Property<Boolean> applyConvexityAdjustment() {
-    return metaBean().applyConvexityAdjustment().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
   @Override
   public CurveConstructionConfiguration clone() {
     return JodaBeanUtils.cloneAlways(this);
@@ -377,9 +263,7 @@ public class CurveConstructionConfiguration extends DirectBean implements Serial
       return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
           JodaBeanUtils.equal(getName(), other.getName()) &&
           JodaBeanUtils.equal(getCurveGroups(), other.getCurveGroups()) &&
-          JodaBeanUtils.equal(getExogenousConfigurations(), other.getExogenousConfigurations()) &&
-          JodaBeanUtils.equal(getConvexityAdjustmentLinks(), other.getConvexityAdjustmentLinks()) &&
-          (isApplyConvexityAdjustment() == other.isApplyConvexityAdjustment());
+          JodaBeanUtils.equal(getExogenousConfigurations(), other.getExogenousConfigurations());
     }
     return false;
   }
@@ -391,14 +275,12 @@ public class CurveConstructionConfiguration extends DirectBean implements Serial
     hash += hash * 31 + JodaBeanUtils.hashCode(getName());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCurveGroups());
     hash += hash * 31 + JodaBeanUtils.hashCode(getExogenousConfigurations());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConvexityAdjustmentLinks());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isApplyConvexityAdjustment());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(224);
+    StringBuilder buf = new StringBuilder(160);
     buf.append("CurveConstructionConfiguration{");
     int len = buf.length();
     toString(buf);
@@ -414,8 +296,6 @@ public class CurveConstructionConfiguration extends DirectBean implements Serial
     buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
     buf.append("curveGroups").append('=').append(JodaBeanUtils.toString(getCurveGroups())).append(',').append(' ');
     buf.append("exogenousConfigurations").append('=').append(JodaBeanUtils.toString(getExogenousConfigurations())).append(',').append(' ');
-    buf.append("convexityAdjustmentLinks").append('=').append(JodaBeanUtils.toString(getConvexityAdjustmentLinks())).append(',').append(' ');
-    buf.append("applyConvexityAdjustment").append('=').append(JodaBeanUtils.toString(isApplyConvexityAdjustment())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -451,17 +331,6 @@ public class CurveConstructionConfiguration extends DirectBean implements Serial
     private final MetaProperty<List<String>> _exogenousConfigurations = DirectMetaProperty.ofReadWrite(
         this, "exogenousConfigurations", CurveConstructionConfiguration.class, (Class) List.class);
     /**
-     * The meta-property for the {@code convexityAdjustmentLinks} property.
-     */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<SnapshotLink<HullWhiteOneFactorParametersSnapshot>>> _convexityAdjustmentLinks = DirectMetaProperty.ofReadWrite(
-        this, "convexityAdjustmentLinks", CurveConstructionConfiguration.class, (Class) List.class);
-    /**
-     * The meta-property for the {@code applyConvexityAdjustment} property.
-     */
-    private final MetaProperty<Boolean> _applyConvexityAdjustment = DirectMetaProperty.ofReadWrite(
-        this, "applyConvexityAdjustment", CurveConstructionConfiguration.class, Boolean.TYPE);
-    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -469,9 +338,7 @@ public class CurveConstructionConfiguration extends DirectBean implements Serial
         "uniqueId",
         "name",
         "curveGroups",
-        "exogenousConfigurations",
-        "convexityAdjustmentLinks",
-        "applyConvexityAdjustment");
+        "exogenousConfigurations");
 
     /**
      * Restricted constructor.
@@ -490,10 +357,6 @@ public class CurveConstructionConfiguration extends DirectBean implements Serial
           return _curveGroups;
         case -1107510858:  // exogenousConfigurations
           return _exogenousConfigurations;
-        case 1502752485:  // convexityAdjustmentLinks
-          return _convexityAdjustmentLinks;
-        case 980046566:  // applyConvexityAdjustment
-          return _applyConvexityAdjustment;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -546,22 +409,6 @@ public class CurveConstructionConfiguration extends DirectBean implements Serial
       return _exogenousConfigurations;
     }
 
-    /**
-     * The meta-property for the {@code convexityAdjustmentLinks} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<List<SnapshotLink<HullWhiteOneFactorParametersSnapshot>>> convexityAdjustmentLinks() {
-      return _convexityAdjustmentLinks;
-    }
-
-    /**
-     * The meta-property for the {@code applyConvexityAdjustment} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Boolean> applyConvexityAdjustment() {
-      return _applyConvexityAdjustment;
-    }
-
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -574,10 +421,6 @@ public class CurveConstructionConfiguration extends DirectBean implements Serial
           return ((CurveConstructionConfiguration) bean).getCurveGroups();
         case -1107510858:  // exogenousConfigurations
           return ((CurveConstructionConfiguration) bean).getExogenousConfigurations();
-        case 1502752485:  // convexityAdjustmentLinks
-          return ((CurveConstructionConfiguration) bean).getConvexityAdjustmentLinks();
-        case 980046566:  // applyConvexityAdjustment
-          return ((CurveConstructionConfiguration) bean).isApplyConvexityAdjustment();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -598,12 +441,6 @@ public class CurveConstructionConfiguration extends DirectBean implements Serial
         case -1107510858:  // exogenousConfigurations
           ((CurveConstructionConfiguration) bean).setExogenousConfigurations((List<String>) newValue);
           return;
-        case 1502752485:  // convexityAdjustmentLinks
-          ((CurveConstructionConfiguration) bean).setConvexityAdjustmentLinks((List<SnapshotLink<HullWhiteOneFactorParametersSnapshot>>) newValue);
-          return;
-        case 980046566:  // applyConvexityAdjustment
-          ((CurveConstructionConfiguration) bean).setApplyConvexityAdjustment((Boolean) newValue);
-          return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
     }
@@ -613,7 +450,6 @@ public class CurveConstructionConfiguration extends DirectBean implements Serial
       JodaBeanUtils.notNull(((CurveConstructionConfiguration) bean)._name, "name");
       JodaBeanUtils.notNull(((CurveConstructionConfiguration) bean)._curveGroups, "curveGroups");
       JodaBeanUtils.notNull(((CurveConstructionConfiguration) bean)._exogenousConfigurations, "exogenousConfigurations");
-      JodaBeanUtils.notNull(((CurveConstructionConfiguration) bean)._convexityAdjustmentLinks, "convexityAdjustmentLinks");
     }
 
   }
