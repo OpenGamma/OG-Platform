@@ -15,6 +15,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Map;
 
 import org.testng.annotations.BeforeClass;
@@ -29,7 +30,11 @@ import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigur
 import com.opengamma.financial.analytics.curve.CurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.exposure.ConfigDBInstrumentExposuresProvider;
 import com.opengamma.financial.analytics.curve.exposure.InstrumentExposuresProvider;
+import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.security.fra.FRASecurity;
+import com.opengamma.financial.security.fra.ForwardRateAgreementSecurity;
 import com.opengamma.service.ServiceContext;
 import com.opengamma.service.ThreadLocalServiceContext;
 import com.opengamma.service.VersionCorrectionProvider;
@@ -93,6 +98,7 @@ public class FRAFnTest {
 
   private FRAFn _fraFunction;
   private FRASecurity _fraSecurity = createSingleFra();
+  private ForwardRateAgreementSecurity _forwardRateAgreementSecurity = createSingleForwardRateAgreement();
 
   @BeforeClass
   public void setUpClass() throws IOException {
@@ -162,10 +168,50 @@ public class FRAFnTest {
     assertThat(parRate, is(closeTo(EXPECTED_PAR_RATE, STD_TOLERANCE_RATE)));
   }
 
+  @Test
+  public void discountingForwardRateAgreementPV() {
+    MarketDataSource dataSource = InterestRateMockSources.createMarketDataSource();
+    Environment env = new SimpleEnvironment(VALUATION_TIME, dataSource);
+    Result<MultipleCurrencyAmount> resultPV = _fraFunction.calculatePV(env, _forwardRateAgreementSecurity);
+    assertThat(resultPV.isSuccess(), is((true)));
+
+    MultipleCurrencyAmount mca = resultPV.getValue();
+    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(EXPECTED_PV, STD_TOLERANCE_PV)));
+  }
+
+  @Test
+  public void parRateForwardRateAgreement() {
+    MarketDataSource dataSource = InterestRateMockSources.createMarketDataSource();
+    Environment env = new SimpleEnvironment(VALUATION_TIME, dataSource);
+    Result<Double> resultParRate = _fraFunction.calculateParRate(env, _forwardRateAgreementSecurity);
+    assertThat(resultParRate.isSuccess(), is((true)));
+
+    Double parRate = resultParRate.getValue();
+    assertThat(parRate, is(closeTo(EXPECTED_PAR_RATE, STD_TOLERANCE_RATE)));
+  }
+
+
+  
   private FRASecurity createSingleFra() {
     return new FRASecurity(Currency.USD, ExternalSchemes.financialRegionId("US"), STD_ACCRUAL_START_DATE,
                            STD_ACCRUAL_END_DATE, 0.0125, -10000000, InterestRateMockSources.getLiborIndexId(),
                            STD_REFERENCE_DATE);
+  }
+
+  private ForwardRateAgreementSecurity createSingleForwardRateAgreement() {
+    return new ForwardRateAgreementSecurity(
+        Currency.USD,
+        InterestRateMockSources.getLiborIndexId(),
+        SimpleFrequency.QUARTERLY,
+        STD_ACCRUAL_START_DATE.toLocalDate(),
+        STD_ACCRUAL_END_DATE.toLocalDate(),
+        0.0125,
+        -10000000,
+        DayCountFactory.of("30/360"), 
+        BusinessDayConventionFactory.of("Modified Following"), 
+        Collections.singleton(ExternalSchemes.financialRegionId("US")), 
+        Collections.singleton(ExternalSchemes.financialRegionId("US")),
+        2);
   }
 
 }
