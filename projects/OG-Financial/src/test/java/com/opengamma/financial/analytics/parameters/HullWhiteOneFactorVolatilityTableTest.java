@@ -177,6 +177,22 @@ public class HullWhiteOneFactorVolatilityTableTest {
   }
 
   @Test
+  public void initialStartTenorCanUseAnyUnits() {
+
+    SortedSet<HullWhiteOneFactorVolatilityEntry> entries = ImmutableSortedSet.of(
+        HullWhiteOneFactorVolatilityEntry.builder()
+            .startTenor(Tenor.ofYears(0))
+            .volatility(1.0)
+            .build());
+
+    HullWhiteOneFactorVolatilityTable table = HullWhiteOneFactorVolatilityTable.builder()
+        .entries(entries)
+        .build();
+
+    assertThat(table.getEntries().size(), is(1));
+  }
+
+  @Test
   public void multipleEntriesAreValid() {
 
     SortedSet<HullWhiteOneFactorVolatilityEntry> entries = ImmutableSortedSet.of(
