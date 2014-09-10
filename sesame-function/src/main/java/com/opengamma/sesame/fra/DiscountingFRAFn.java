@@ -6,6 +6,7 @@
 package com.opengamma.sesame.fra;
 
 import com.opengamma.financial.security.fra.FRASecurity;
+import com.opengamma.financial.security.fra.ForwardRateAgreementSecurity;
 import com.opengamma.sesame.Environment;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
@@ -34,7 +35,7 @@ public class DiscountingFRAFn implements FRAFn {
     if (!calculatorResult.isSuccess()) {
       return Result.failure(calculatorResult);
     }
-    return Result.success(calculatorResult.getValue().calculatePV().getValue());
+    return calculatorResult.getValue().calculatePV();
   }
 
   @Override
@@ -44,6 +45,27 @@ public class DiscountingFRAFn implements FRAFn {
     if (!calculatorResult.isSuccess()) {
       return Result.failure(calculatorResult);
     }
-    return Result.success(calculatorResult.getValue().calculateRate().getValue());
+    return calculatorResult.getValue().calculateRate();
   }
+  
+  @Override
+  public Result<MultipleCurrencyAmount> calculatePV(Environment env, ForwardRateAgreementSecurity security) {
+    Result<FRACalculator> calculatorResult = _fraCalculatorFactory.createCalculator(env, security);
+
+    if (!calculatorResult.isSuccess()) {
+      return Result.failure(calculatorResult);
+    }
+    return calculatorResult.getValue().calculatePV();
+  }
+
+  @Override
+  public Result<Double> calculateParRate(Environment env, ForwardRateAgreementSecurity security) {
+    Result<FRACalculator> calculatorResult = _fraCalculatorFactory.createCalculator(env, security);
+
+    if (!calculatorResult.isSuccess()) {
+      return Result.failure(calculatorResult);
+    }
+    return calculatorResult.getValue().calculateRate();
+  }
+
 }

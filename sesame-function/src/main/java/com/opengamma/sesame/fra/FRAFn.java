@@ -6,6 +6,7 @@
 package com.opengamma.sesame.fra;
 
 import com.opengamma.financial.security.fra.FRASecurity;
+import com.opengamma.financial.security.fra.ForwardRateAgreementSecurity;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.function.Output;
@@ -24,7 +25,7 @@ public interface FRAFn {
    * @param security the FRA to calculate the rate for
    * @return result containing the rate if successful, a Failure otherwise
    */
-  @Output(value = OutputNames.PAR_RATE)
+  @Output(OutputNames.PAR_RATE)
   Result<Double> calculateParRate(Environment env, FRASecurity security);
 
   /**
@@ -34,6 +35,27 @@ public interface FRAFn {
    * @param security the FRA to calculate the PV for
    * @return result containing the present value if successful, a Failure otherwise
    */
-  @Output(value = OutputNames.PRESENT_VALUE)
+  @Output(OutputNames.PRESENT_VALUE)
   Result<MultipleCurrencyAmount> calculatePV(Environment env, FRASecurity security);
+  
+  /**
+   * Calculate the par rate for a FRA security.
+   *
+   * @param env the environment used for calculation
+   * @param security the FRA to calculate the rate for
+   * @return result containing the rate if successful, a Failure otherwise
+   */
+  @Output(OutputNames.PAR_RATE)
+  Result<Double> calculateParRate(Environment env, ForwardRateAgreementSecurity security);
+
+  /**
+   * Calculate the present value for a FRA security.
+   *
+   * @param env the environment used for calculation
+   * @param security the FRA to calculate the PV for
+   * @return result containing the present value if successful, a Failure otherwise
+   */
+  @Output(OutputNames.PRESENT_VALUE)
+  Result<MultipleCurrencyAmount> calculatePV(Environment env, ForwardRateAgreementSecurity security);
+
 }
