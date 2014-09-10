@@ -5,12 +5,21 @@
  */
 package com.opengamma.analytics.financial.interestrate.swap.provider;
 
+import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.analytics.financial.instrument.NotionalProvider;
+import com.opengamma.analytics.financial.instrument.annuity.AbstractAnnuityDefinitionBuilder.CouponStub;
+import com.opengamma.analytics.financial.instrument.annuity.AdjustedDateParameters;
+import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.CompoundingMethod;
+import com.opengamma.analytics.financial.instrument.annuity.FloatingAnnuityDefinitionBuilder;
+import com.opengamma.analytics.financial.instrument.annuity.OffsetAdjustedDateParameters;
+import com.opengamma.analytics.financial.instrument.annuity.OffsetType;
 import com.opengamma.analytics.financial.instrument.index.GeneratorAttributeIR;
+import com.opengamma.analytics.financial.instrument.index.GeneratorLegFixed;
 import com.opengamma.analytics.financial.instrument.index.GeneratorLegIbor;
 import com.opengamma.analytics.financial.instrument.index.GeneratorLegIborCompounding;
 import com.opengamma.analytics.financial.instrument.index.GeneratorLegIborMaster;
@@ -24,14 +33,23 @@ import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedONMa
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapSingleCurrency;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexIborMaster;
+import com.opengamma.analytics.financial.instrument.payment.CouponDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
+import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
+import com.opengamma.analytics.financial.instrument.swap.SwapCouponFixedCouponDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.analytics.financial.interestrate.datasets.StandardDataSetsMulticurveUSD;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
+import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.StubType;
+import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.daycount.DayCounts;
+import com.opengamma.financial.convention.rolldate.RollConvention;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
@@ -47,9 +65,9 @@ public class SwapInstrumentsDataSet {
   private static final ZonedDateTime VALUATION_DATE = DateUtils.getUTCDate(2014, 1, 22);
   private static final Calendar NYC = StandardDataSetsMulticurveUSD.calendarArray()[0];
   private static final IndexIborMaster MASTER_IBOR = IndexIborMaster.getInstance();
-//  private static final IborIndex USDLIBOR1M = MASTER_IBOR.getIndex("USDLIBOR1M");
+  private static final IborIndex USDLIBOR1M = MASTER_IBOR.getIndex("USDLIBOR1M");
   private static final IborIndex USDLIBOR3M = MASTER_IBOR.getIndex("USDLIBOR3M");
-//  private static final IborIndex USDLIBOR6M = MASTER_IBOR.getIndex("USDLIBOR6M");
+  private static final IborIndex USDLIBOR6M = MASTER_IBOR.getIndex("USDLIBOR6M");
   private static final Currency USD = USDLIBOR3M.getCurrency();
   
   /** Fixing data */
@@ -75,6 +93,8 @@ public class SwapInstrumentsDataSet {
           new double[] {0.0007, 0.0007, 0.0007});
   private static final ZonedDateTimeDoubleTimeSeries[] TS_ARRAY_USDLIBOR3M = 
       new ZonedDateTimeDoubleTimeSeries[] {TS_USDLIBOR3M };
+  private static final ZonedDateTimeDoubleTimeSeries[] TS_ARRAY_USDLIBOR3M_2X = 
+      new ZonedDateTimeDoubleTimeSeries[] {TS_USDLIBOR3M, TS_USDLIBOR3M };
   private static final ZonedDateTimeDoubleTimeSeries[] TS_ARRAY_USDLIBOR3M_USDLIBOR6M = 
       new ZonedDateTimeDoubleTimeSeries[] {TS_USDLIBOR3M, TS_USDLIBOR6M };
   private static final ZonedDateTimeDoubleTimeSeries[] TS_ARRAY_USDLIBOR1M_USDLIBOR3M = 
@@ -84,21 +104,31 @@ public class SwapInstrumentsDataSet {
 
   /** Standard market conventions */
   private static final CompoundingMethod CMP_FLAT = CompoundingMethod.FLAT;
-  private static final IborIndex USDLIBOR1M = IndexIborMaster.getInstance().getIndex("USDLIBOR1M");
   private static final int OFFSET_SPOT = 2;
   private static final int OFFSET_PAYMENT = 0;
   private static final Period P3M = Period.ofMonths(3);
+  private static final Period P6M = Period.ofMonths(6);
+  private static final DayCount DC_30U_360 = DayCounts.THIRTY_U_360;
+  private static final BusinessDayConvention BDC_MODFOL = BusinessDayConventions.MODIFIED_FOLLOWING;
+  private static final BusinessDayConvention BDC_FOL = BusinessDayConventions.FOLLOWING;
+  private static final StubType STUB_SHORT_START = StubType.SHORT_START;
+  private static final AdjustedDateParameters ADJUSTED_DATE_USDLIBOR = 
+      new AdjustedDateParameters(NYC, BDC_MODFOL);
+  private static final OffsetAdjustedDateParameters OFFSET_FIXING_USDLIBOR = 
+      new OffsetAdjustedDateParameters(-OFFSET_SPOT, OffsetType.BUSINESS, NYC, BDC_FOL);
   private static final GeneratorLegIbor LEG_USDLIBOR3M =  GeneratorLegIborMaster.getInstance().getGenerator("USDLIBOR3M", NYC);
   private static final GeneratorLegIbor LEG_USDLIBOR6M =  GeneratorLegIborMaster.getInstance().getGenerator("USDLIBOR6M", NYC);
   private static final GeneratorLegONArithmeticAverage LEG_USDFEDFUNDAA3M = 
       GeneratorLegOnAaMaster.getInstance().getGenerator("USDFEDFUNDAA3M", NYC);
   private static final GeneratorLegONCompounded LEG_USDFEDFUNDCMP1Y =
-      new GeneratorLegONCompounded("LEG", USD, LEG_USDFEDFUNDAA3M.getIndexON(), Period.ofMonths(12), 2, 2, 
-          LEG_USDFEDFUNDAA3M.getBusinessDayConvention(), true, StubType.SHORT_START, false, NYC, NYC);
+      new GeneratorLegONCompounded("LEG_USDFEDFUNDCMP1Y", USD, LEG_USDFEDFUNDAA3M.getIndexON(), Period.ofMonths(12), 
+          2, 2, LEG_USDFEDFUNDAA3M.getBusinessDayConvention(), true, STUB_SHORT_START, false, NYC, NYC);
   private static final GeneratorLegIborCompounding LEG_USDLIBOR1MCMP3M = 
       new GeneratorLegIborCompounding("LEG_USDLIBOR1MCMP3M", USD, USDLIBOR1M, 
       P3M, CMP_FLAT, OFFSET_SPOT, OFFSET_PAYMENT, BusinessDayConventions.MODIFIED_FOLLOWING, true, 
-      StubType.SHORT_START, false, NYC, NYC);
+      STUB_SHORT_START, false, NYC, NYC);
+  private static final GeneratorLegFixed LEG_USDFixed1Y = new GeneratorLegFixed("LEG_USDFixed1Y", USD, OFFSET_SPOT, 
+      P6M, DC_30U_360, BDC_MODFOL, OFFSET_PAYMENT, true, STUB_SHORT_START, false, NYC);
   private static final GeneratorSwapSingleCurrency USDFFAA3MLIBOR3M = new GeneratorSwapSingleCurrency("USDFEDFUNDAA3MLIBOR3M",
       LEG_USDFEDFUNDAA3M, LEG_USDLIBOR3M);
   private static final GeneratorSwapFixedIborMaster GENERATOR_SWAP_FIXED_IBOR_MASTER = GeneratorSwapFixedIborMaster.getInstance();
@@ -109,6 +139,12 @@ public class SwapInstrumentsDataSet {
 
   /** Instruments descriptions */
   private static final double NOTIONAL = 100000000; //100 m
+  static NotionalProvider NOTIONAL_PROVIDER = new NotionalProvider() {
+    @Override
+    public double getAmount(final LocalDate date) {
+      return NOTIONAL;
+    }
+  };
   
   // Instrument description: Swap Fixed vs ON Cmp (X)
   private static final ZonedDateTime TRADE_DATE_ON = DateUtils.getUTCDate(2014, 2, 3);
@@ -227,12 +263,112 @@ public class SwapInstrumentsDataSet {
   // Instrument description: Swap Fixed vs Libor3M - Stub 3M
   private static final ZonedDateTime TRADE_DATE_3M_STUB1 = DateUtils.getUTCDate(2014, 9, 10);
   private static final Period TENOR_SWAP_3M_STUB1 = Period.ofMonths(21);
-  private static final double FIXED_RATE_3M_STUB1 = 0.0150;
+  private static final double FIXED_RATE_3M_STUB1 = 0.0100;
   private static final GeneratorAttributeIR ATTRIBUTE_3M_STUB1 = new GeneratorAttributeIR(TENOR_SWAP_3M_STUB1);
-  private static final SwapDefinition SWAP_FIXED_3M_DEFINITION_STUB1 = 
-      USD6MLIBOR3M.generateInstrument(TRADE_DATE_3M_STUB1, FIXED_RATE_3M_STUB1, NOTIONAL, ATTRIBUTE_3M_STUB1);
-  public static final Swap<? extends Payment, ? extends Payment> SWAP_FIXED_3M_STUB1 =
-      SWAP_FIXED_3M_DEFINITION_STUB1.toDerivative(VALUATION_DATE);
+  private static final PaymentDefinition[] PAYMENT_FIXED_STUB1 = LEG_USDFixed1Y.generateInstrument(TRADE_DATE_3M_STUB1, 
+      FIXED_RATE_3M_STUB1, NOTIONAL, ATTRIBUTE_3M_STUB1).getPayments();
+  private static final CouponFixedDefinition[] CPN_FIXED_STUB1_DEFINITION = new CouponFixedDefinition[PAYMENT_FIXED_STUB1.length];
+  static {
+    for (int loopcpn = 0; loopcpn < PAYMENT_FIXED_STUB1.length; loopcpn++) {
+      CPN_FIXED_STUB1_DEFINITION[loopcpn] = (CouponFixedDefinition) PAYMENT_FIXED_STUB1[loopcpn];
+    }
+  }
+  private static final AnnuityCouponFixedDefinition LEG_FIXED_STUB1 = 
+      new AnnuityCouponFixedDefinition(CPN_FIXED_STUB1_DEFINITION, NYC);
+  private static final AnnuityDefinition<? extends CouponDefinition> LEG_IBOR_STUB1 = 
+      (AnnuityDefinition<? extends CouponDefinition>) 
+      LEG_USDLIBOR3M.generateInstrument(TRADE_DATE_3M_STUB1, 0.0, -NOTIONAL, ATTRIBUTE_3M_STUB1);
+  private static final SwapCouponFixedCouponDefinition IRS_STUB1_DEFINITION = 
+      new SwapCouponFixedCouponDefinition(LEG_FIXED_STUB1, LEG_IBOR_STUB1);
+  public static final Swap<? extends Payment, ? extends Payment> IRS_STUB1 = 
+      IRS_STUB1_DEFINITION.toDerivative(VALUATION_DATE, TS_ARRAY_USDLIBOR3M_2X);
+  
+  // Instrument description: IRS Fixed vs Libor3M - Stub 1M: Accrual period is 1M / fixing rate is based on 3M
+  private static final ZonedDateTime TRADE_DATE_3M_STUB2 = DateUtils.getUTCDate(2014, 9, 10);
+  private static final Period TENOR_SWAP_3M_STUB2 = Period.ofMonths(22);
+  private static final double FIXED_RATE_3M_STUB2 = 0.0100;
+  private static final GeneratorAttributeIR ATTRIBUTE_3M_STUB2 = new GeneratorAttributeIR(TENOR_SWAP_3M_STUB2);
+  private static final PaymentDefinition[] PAYMENT_FIXED_STUB2 = LEG_USDFixed1Y.generateInstrument(TRADE_DATE_3M_STUB2, 
+      FIXED_RATE_3M_STUB2, NOTIONAL, ATTRIBUTE_3M_STUB2).getPayments();
+  private static final CouponFixedDefinition[] CPN_FIXED_STUB2_DEFINITION = new CouponFixedDefinition[PAYMENT_FIXED_STUB2.length];
+  static {
+    for (int loopcpn = 0; loopcpn < PAYMENT_FIXED_STUB2.length; loopcpn++) {
+      CPN_FIXED_STUB2_DEFINITION[loopcpn] = (CouponFixedDefinition) PAYMENT_FIXED_STUB2[loopcpn];
+    }
+  }
+  private static final AnnuityCouponFixedDefinition LEG_FIXED_STUB2 = 
+      new AnnuityCouponFixedDefinition(CPN_FIXED_STUB2_DEFINITION, NYC);
+  private static final AnnuityDefinition<? extends CouponDefinition> LEG_IBOR_STUB2 = 
+      (AnnuityDefinition<? extends CouponDefinition>) 
+      LEG_USDLIBOR3M.generateInstrument(TRADE_DATE_3M_STUB2, 0.0, -NOTIONAL, ATTRIBUTE_3M_STUB2);
+  private static final SwapCouponFixedCouponDefinition IRS_STUB2_DEFINITION = 
+      new SwapCouponFixedCouponDefinition(LEG_FIXED_STUB2, LEG_IBOR_STUB2);
+  public static final Swap<? extends Payment, ? extends Payment> IRS_STUB2 = 
+      IRS_STUB2_DEFINITION.toDerivative(VALUATION_DATE, TS_ARRAY_USDLIBOR3M_2X);
+  
+  // Instrument description: IRS Fixed vs Libor6M - Stub 3M: Accrual period is 3M / fixing rate is based on 3M
+  private static final ZonedDateTime TRADE_DATE_3M_STUB3 = DateUtils.getUTCDate(2014, 9, 10);
+  private static final ZonedDateTime SPOT_DATE_STUB3 = 
+      ScheduleCalculator.getAdjustedDate(TRADE_DATE_3M_STUB3, OFFSET_SPOT, NYC);
+  private static final Period TENOR_SWAP_3M_STUB3 = Period.ofMonths(21);
+  private static final ZonedDateTime END_DATE_STUB3 = SPOT_DATE_STUB3.plus(TENOR_SWAP_3M_STUB3);
+  private static final double FIXED_RATE_3M_STUB3 = 0.0100;
+  private static final GeneratorAttributeIR ATTRIBUTE_3M_STUB3 = new GeneratorAttributeIR(TENOR_SWAP_3M_STUB3);
+  private static final PaymentDefinition[] PAYMENT_FIXED_STUB3 = LEG_USDFixed1Y.generateInstrument(TRADE_DATE_3M_STUB3, 
+      FIXED_RATE_3M_STUB3, NOTIONAL, ATTRIBUTE_3M_STUB3).getPayments();
+  private static final CouponFixedDefinition[] CPN_FIXED_STUB3_DEFINITION = new CouponFixedDefinition[PAYMENT_FIXED_STUB3.length];
+  static {
+    for (int loopcpn = 0; loopcpn < PAYMENT_FIXED_STUB3.length; loopcpn++) {
+      CPN_FIXED_STUB3_DEFINITION[loopcpn] = (CouponFixedDefinition) PAYMENT_FIXED_STUB3[loopcpn];
+    }
+  }
+  private static final AnnuityCouponFixedDefinition LEG_FIXED_STUB3 = 
+      new AnnuityCouponFixedDefinition(CPN_FIXED_STUB3_DEFINITION, NYC);
+  private static final CouponStub CPN_STUB3 = new CouponStub(STUB_SHORT_START, USDLIBOR3M, USDLIBOR6M);
+  private static final AnnuityDefinition<? extends CouponDefinition> LEG_IBOR_STUB3 =
+      (AnnuityDefinition<? extends CouponDefinition>) 
+      new FloatingAnnuityDefinitionBuilder().payer(true).notional(NOTIONAL_PROVIDER).
+      startDate(SPOT_DATE_STUB3.toLocalDate()).endDate(END_DATE_STUB3.toLocalDate()).index(USDLIBOR6M).
+      accrualPeriodFrequency(P6M).rollDateAdjuster(RollConvention.NONE.getRollDateAdjuster(0)).
+      resetDateAdjustmentParameters(ADJUSTED_DATE_USDLIBOR).accrualPeriodParameters(ADJUSTED_DATE_USDLIBOR).
+      dayCount(USDLIBOR6M.getDayCount()).fixingDateAdjustmentParameters(OFFSET_FIXING_USDLIBOR).
+      currency(USD).spread(0.0).startStub(CPN_STUB3).build();
+  private static final SwapCouponFixedCouponDefinition IRS_STUB3_DEFINITION = 
+      new SwapCouponFixedCouponDefinition(LEG_FIXED_STUB3, LEG_IBOR_STUB3);
+  public static final Swap<? extends Payment, ? extends Payment> IRS_STUB3 = 
+      IRS_STUB3_DEFINITION.toDerivative(VALUATION_DATE, TS_ARRAY_USDLIBOR3M_2X);
+  
+  // Instrument description: IRS Fixed vs Libor6M - Stub 4M: Accrual period is 4M / fixing rate average 3M and 4M
+  private static final ZonedDateTime TRADE_DATE_3M_STUB4 = DateUtils.getUTCDate(2014, 9, 10);
+  private static final ZonedDateTime SPOT_DATE_STUB4 = 
+      ScheduleCalculator.getAdjustedDate(TRADE_DATE_3M_STUB3, OFFSET_SPOT, NYC);
+  private static final Period TENOR_SWAP_3M_STUB4 = Period.ofMonths(22);
+  private static final ZonedDateTime END_DATE_STUB4 = SPOT_DATE_STUB4.plus(TENOR_SWAP_3M_STUB4);
+  private static final double FIXED_RATE_3M_STUB4 = 0.0100;
+  private static final GeneratorAttributeIR ATTRIBUTE_3M_STUB4 = new GeneratorAttributeIR(TENOR_SWAP_3M_STUB4);
+  private static final PaymentDefinition[] PAYMENT_FIXED_STUB4 = LEG_USDFixed1Y.generateInstrument(TRADE_DATE_3M_STUB4, 
+      FIXED_RATE_3M_STUB4, NOTIONAL, ATTRIBUTE_3M_STUB4).getPayments();
+  private static final CouponFixedDefinition[] CPN_FIXED_STUB4_DEFINITION = new CouponFixedDefinition[PAYMENT_FIXED_STUB4.length];
+  static {
+    for (int loopcpn = 0; loopcpn < PAYMENT_FIXED_STUB4.length; loopcpn++) {
+      CPN_FIXED_STUB4_DEFINITION[loopcpn] = (CouponFixedDefinition) PAYMENT_FIXED_STUB4[loopcpn];
+    }
+  }
+  private static final AnnuityCouponFixedDefinition LEG_FIXED_STUB4 = 
+      new AnnuityCouponFixedDefinition(CPN_FIXED_STUB4_DEFINITION, NYC);
+  private static final CouponStub CPN_STUB4 = new CouponStub(STUB_SHORT_START, USDLIBOR3M, USDLIBOR6M);
+  private static final AnnuityDefinition<? extends CouponDefinition> LEG_IBOR_STUB4 =
+      (AnnuityDefinition<? extends CouponDefinition>) 
+      new FloatingAnnuityDefinitionBuilder().payer(true).notional(NOTIONAL_PROVIDER).
+      startDate(SPOT_DATE_STUB4.toLocalDate()).endDate(END_DATE_STUB4.toLocalDate()).index(USDLIBOR6M).
+      accrualPeriodFrequency(P6M).rollDateAdjuster(RollConvention.NONE.getRollDateAdjuster(0)).
+      resetDateAdjustmentParameters(ADJUSTED_DATE_USDLIBOR).accrualPeriodParameters(ADJUSTED_DATE_USDLIBOR).
+      dayCount(USDLIBOR6M.getDayCount()).fixingDateAdjustmentParameters(OFFSET_FIXING_USDLIBOR).
+      currency(USD).spread(0.0).startStub(CPN_STUB4).build();
+  private static final SwapCouponFixedCouponDefinition IRS_STUB4_DEFINITION = 
+      new SwapCouponFixedCouponDefinition(LEG_FIXED_STUB4, LEG_IBOR_STUB4);
+  public static final Swap<? extends Payment, ? extends Payment> IRS_STUB4 = 
+      IRS_STUB4_DEFINITION.toDerivative(VALUATION_DATE, TS_ARRAY_USDLIBOR3M_2X);
   
 
 }

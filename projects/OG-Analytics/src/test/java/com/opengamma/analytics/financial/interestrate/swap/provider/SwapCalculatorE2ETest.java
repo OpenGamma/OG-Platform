@@ -170,6 +170,34 @@ public class SwapCalculatorE2ETest {
         "Basis swap ON Cmp + spread v ON AA: present value - FF swap based curves");
   }
   
+  @Test
+  /**Tests present value for an IRS with stub - fixed leg. */
+  public void presentValueStub1() {
+    presentValueTest(SwapInstrumentsDataSet.IRS_STUB1, MULTICURVE_FFS, USD, -180869.2122,
+        "IRS with STUB: present value - FF swap based curves");
+  }  
+  
+  @Test
+  /**Tests present value for an IRS with stub - ibor leg / same index */
+  public void presentValueStub2() {
+    presentValueTest(SwapInstrumentsDataSet.IRS_STUB2, MULTICURVE_FFS, USD, -258994.3839,
+        "IRS with STUB: present value - FF swap based curves");
+  }  
+  
+  @Test
+  /**Tests present value for an IRS with stub - ibor leg / interpolated index */
+  public void presentValueStub3() {
+    presentValueTest(SwapInstrumentsDataSet.IRS_STUB3, MULTICURVE_FFS, USD, -319533.7849,
+        "IRS with STUB: present value - FF swap based curves");
+  }   
+  
+  @Test
+  /**Tests present value for an IRS with stub - ibor leg / interpolated index */
+  public void presentValueStub4() {
+    presentValueTest(SwapInstrumentsDataSet.IRS_STUB4, MULTICURVE_FFS, USD, -405631.5512,
+        "IRS with STUB: present value - FF swap based curves");
+  }  
+  
   /**
    * Test the parrate versus a hard-coded number.
    * @param ins The instrument to test.
@@ -205,6 +233,13 @@ public class SwapCalculatorE2ETest {
   public void parRate1M() {
     parRateTest(SwapInstrumentsDataSet.SWAP_FIXED_1M, MULTICURVE_OIS, 0.007452504182638092,
         "IRS Fixed v LIBOR1M: par rate from standard curves");
+  }
+
+  @Test
+  /** Test forward rate for a swap fixed vs LIBOR3M - stub. */
+  public void parRateStub1() {
+    parRateTest(SwapInstrumentsDataSet.IRS_STUB1, MULTICURVE_FFS, 0.0110411215,
+        "IRS Fixed v LIBOR3M - stub: par rate");
   }
 
   @Test

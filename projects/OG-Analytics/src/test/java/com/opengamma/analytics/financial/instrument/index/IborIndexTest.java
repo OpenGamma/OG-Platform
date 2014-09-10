@@ -104,6 +104,8 @@ public class IborIndexTest {
     assertFalse(INDEX.equals(indexModified));
     assertFalse(INDEX.equals(null));
     assertFalse(INDEX.equals(CUR));
+    IndexON indexOn = new IndexON(NAME, CUR, DAY_COUNT, SETTLEMENT_DAYS);
+    assertFalse(INDEX.equals(indexOn));
   }
 
 }
