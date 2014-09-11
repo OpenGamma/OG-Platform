@@ -10,6 +10,7 @@ import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.NotionalProvider;
+import com.opengamma.analytics.financial.instrument.annuity.AbstractAnnuityDefinitionBuilder.CouponStub;
 import com.opengamma.analytics.financial.instrument.annuity.AdjustedDateParameters;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.FixedAnnuityDefinitionBuilder;
@@ -173,7 +174,7 @@ public class GeneratorLegFixed extends GeneratorLeg {
         accrualPeriodParameters(adjustedDate).
         exchangeInitialNotional(_isExchangeNotional).startDateAdjustmentParameters(adjustedDate).
         exchangeFinalNotional(_isExchangeNotional).endDateAdjustmentParameters(adjustedDate).
-        build();
+        startStub(new CouponStub(_stubType)).build();
     return leg;
   }
   

@@ -159,7 +159,7 @@ public class SwapCalculatorE2ETest {
   @Test
   /**Test present value for a swap fixed vs LIBOR1M. */
   public void presentValue1M() {
-    presentValueTest(SwapInstrumentsDataSet.SWAP_FIXED_1M, MULTICURVE_OIS, USD, -1003685.179128858,
+    presentValueTest(SwapInstrumentsDataSet.SWAP_FIXED_1M, MULTICURVE_OIS, USD, -1003685.1791,
         "IRS Fixed v LIBOR1M: present value from standard curves");
   }
   
@@ -189,14 +189,21 @@ public class SwapCalculatorE2ETest {
   public void presentValueStub3() {
     presentValueTest(SwapInstrumentsDataSet.IRS_STUB3, MULTICURVE_FFS, USD, -319533.7849,
         "IRS with STUB: present value - FF swap based curves");
-  }   
+  }
   
   @Test
   /**Tests present value for an IRS with stub - ibor leg / interpolated index */
   public void presentValueStub4() {
     presentValueTest(SwapInstrumentsDataSet.IRS_STUB4, MULTICURVE_FFS, USD, -405631.5512,
         "IRS with STUB: present value - FF swap based curves");
-  }  
+  }
+  
+  @Test
+  /**Tests present value for an IRS with stub - ibor leg / interpolated index  - long first*/
+  public void presentValueStub5() {
+    presentValueTest(SwapInstrumentsDataSet.IRS_STUB5, MULTICURVE_FFS, USD, 0.0,
+        "IRS with STUB: present value - FF swap based curves");
+  }
   
   /**
    * Test the parrate versus a hard-coded number.
