@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.convention.daycount;
 
+import static com.opengamma.financial.convention.businessday.BusinessDayDateUtils.getDaysBetween;
+
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
@@ -32,7 +34,7 @@ public class BusinessTwoFiveTwo extends StatelessDayCount {
   @Override
   public double getDayCountFraction(final LocalDate firstDate, final LocalDate secondDate, final Calendar calendar) {
     // Arguments are checked in BusinessDays
-    return BusinessDays.getDaysBetween(firstDate, secondDate, calendar) / TWO_FIVE_TWO;
+    return getDaysBetween(firstDate, secondDate, calendar) / TWO_FIVE_TWO;
   }
 
   @Override
