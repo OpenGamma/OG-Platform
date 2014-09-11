@@ -6,18 +6,27 @@
 package com.opengamma.analytics.financial.interestrate.future.provider;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.LinkedHashMap;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureTransactionDefinition;
+import com.opengamma.analytics.financial.instrument.index.GeneratorAttributeIR;
+import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedON;
+import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedONMaster;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
+import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
 import com.opengamma.analytics.financial.interestrate.datasets.StandardDataSetsMulticurveEUR;
 import com.opengamma.analytics.financial.interestrate.datasets.StandardDataSetsMulticurveFuturesEUR;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
+import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.provider.calculator.discounting.MarketQuoteDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
@@ -97,6 +106,17 @@ public class STIRFuturesTransactionHullWhiteMethodE2ETest {
   private static final double LAST_MARGIN_PRICE_ERF5 = 0.9975; 
   private static final InterestRateFutureTransaction ERF5_TRA = 
       ERF5_TRA_DEFINITION.toDerivative(VALUATION_DATE, LAST_MARGIN_PRICE_ERF5);
+
+  private static final GeneratorSwapFixedON EUR1YEONIA = 
+      GeneratorSwapFixedONMaster.getInstance().getGenerator("EUR1YEONIA", CALENDAR);
+  private static final ZonedDateTime TRADE_DATE_ON = DateUtils.getUTCDate(2015, 9, 2);
+  private static final Period TENOR_SWAP_ON = Period.ofYears(1);
+  private static final double FIXED_RATE_ON = 0.0025;
+  private static final GeneratorAttributeIR ATTRIBUTE_ON = new GeneratorAttributeIR(TENOR_SWAP_ON);
+  private static final SwapDefinition SWAP_FIXED_ON_DEFINITION = 
+      EUR1YEONIA.generateInstrument(TRADE_DATE_ON, FIXED_RATE_ON, NOTIONAL, ATTRIBUTE_ON);
+  private static final Swap<? extends Payment, ? extends Payment> SWAP_FIXED_ON = 
+      SWAP_FIXED_ON_DEFINITION.toDerivative(VALUATION_DATE);
   
   /** Calculators */
   private static final MarketQuoteDiscountingCalculator MQDC = MarketQuoteDiscountingCalculator.getInstance();
@@ -151,6 +171,15 @@ public class STIRFuturesTransactionHullWhiteMethodE2ETest {
         mqExpected, mqComputedHw, TOLERANCE_PRICE);
   }
 
+  /** Compare market quote for curves calibrated with and without convexity adjustment. */
+  @Test
+  public void priceF5Comparison() {
+    Double mqHw = ERF5_TRA.getUnderlyingSecurity().accept(MQHWC, MULTICURVE_HW);
+    Double mqDsc = ERF5_TRA.getUnderlyingSecurity().accept(MQDC, MULTICURVE_DSC);
+    assertFalse("STIRFuturesTransactionHullWhiteMethodE2ETest: price - Hull-White", 
+        Math.abs(mqHw - mqDsc) < TOLERANCE_PRICE);
+  }
+
   /** Test present value with curves calibrated without convexity adjustment. */
   @Test
   public void presentValueNoConvexityAjustment() {
@@ -178,6 +207,15 @@ public class STIRFuturesTransactionHullWhiteMethodE2ETest {
     MultipleCurrencyAmount pvComputedHw = ERF5_TRA.accept(PVHWC, MULTICURVE_HW);
     assertEquals("STIRFuturesTransactionHullWhiteMethodE2ETest: present value - Hull-White", 
         pvExpected, pvComputedHw.getAmount(EUR), TOLERANCE_PV);
+  }
+
+  /** Tests that swaps not impacted by the futures have the same pv with both calibrations. */
+  @Test
+  public void presentValueOisWithAndWithoutConvexity() {
+    MultipleCurrencyAmount pvHw = SWAP_FIXED_ON.accept(PVHWC, MULTICURVE_HW);
+    MultipleCurrencyAmount pvDsc = SWAP_FIXED_ON.accept(PVDC, MULTICURVE_DSC);
+    assertTrue("STIRFuturesTransactionHullWhiteMethodE2ETest: price - Hull-White v Discounting", 
+        Math.abs(pvHw.getAmount(EUR) - pvDsc.getAmount(EUR)) < TOLERANCE_PV);
   }
   
   /** Test present value with curves calibrated with and without convexity adjustment. */
