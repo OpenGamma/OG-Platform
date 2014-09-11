@@ -57,6 +57,9 @@ public class ForwardRateAgreementDiscountingMethodE2ETest {
   private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_PAIR = StandardDataSetsMulticurveUSD.getCurvesUSDOisL3();
   private static final MulticurveProviderDiscount MULTICURVE = MULTICURVE_PAIR.getFirst();
   private static final CurveBuildingBlockBundle BLOCK = MULTICURVE_PAIR.getSecond();
+  private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_FF_PAIR =
+      StandardDataSetsMulticurveUSD.getCurvesUSDOisFFL1L3L6();
+  private static final MulticurveProviderDiscount MULTICURVE_FFS = MULTICURVE_FF_PAIR.getFirst();
   private static final IborIndex[] INDEX_IBOR_LIST = StandardDataSetsMulticurveUSD.indexIborArrayUSDOisL3();
   private static final IborIndex USDLIBOR3M = INDEX_IBOR_LIST[0];
   private static final Calendar CALENDAR = StandardDataSetsMulticurveUSD.calendarArray()[0];
@@ -90,7 +93,13 @@ public class ForwardRateAgreementDiscountingMethodE2ETest {
   public void presentValue() {
     final MultipleCurrencyAmount pvComputed = FRA.accept(PVDC, MULTICURVE);
     final MultipleCurrencyAmount pvExpected = MultipleCurrencyAmount.of(Currency.USD, 23182.5437);
-    assertEquals("ForwardRateAgreementDiscountingMethod: present value from standard curves", pvExpected.getAmount(USD), pvComputed.getAmount(USD), TOLERANCE_PV);
+    assertEquals("ForwardRateAgreementDiscountingMethod: present value from standard curves",
+                 pvExpected.getAmount(USD), pvComputed.getAmount(USD), TOLERANCE_PV);
+
+    final MultipleCurrencyAmount pvComputed2 = FRA.accept(PVDC, MULTICURVE_FFS);
+    final MultipleCurrencyAmount pvExpected2 = MultipleCurrencyAmount.of(Currency.USD, 21751.36342);
+    assertEquals("ForwardRateAgreementDiscountingMethod: present value Fed Fund swap based curves",
+                 pvExpected2.getAmount(USD), pvComputed2.getAmount(USD), TOLERANCE_PV);
   }
 
   @Test
