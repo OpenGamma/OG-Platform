@@ -28,7 +28,7 @@ public class TimeSeriesRelativeWeightedDifferenceOperatorTest {
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void seriesMustHaveOneMoreElementThaWeights() {
+  public void seriesMustHaveOneMoreElementThanWeights() {
     LocalDate[] dates = {LocalDate.of(2014, 1, 1), LocalDate.of(2014, 1, 2), LocalDate.of(2014, 1, 3)};
     double[] values = {1.23, 2.34, 3.45};
     LocalDateDoubleTimeSeries series = ImmutableLocalDateDoubleTimeSeries.of(dates, values);
