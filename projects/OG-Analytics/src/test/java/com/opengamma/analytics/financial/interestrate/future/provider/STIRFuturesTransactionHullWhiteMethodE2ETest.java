@@ -61,7 +61,6 @@ public class STIRFuturesTransactionHullWhiteMethodE2ETest {
       StandardDataSetsMulticurveFuturesEUR.getCurvesUSDOisFutL3Discounting(VALUATION_DATE);
   private static final MulticurveProviderDiscount MULTICURVE_DSC = MULTICURVE_DSC_PAIR.getFirst();
   private static final CurveBuildingBlockBundle BLOCK_DSC = MULTICURVE_DSC_PAIR.getSecond();
-
   
   private static final Pair<HullWhiteOneFactorProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_HW_PAIR = 
       StandardDataSetsMulticurveFuturesEUR.getCurvesUSDOisFutL3HullWhite(VALUATION_DATE);
@@ -85,7 +84,6 @@ public class STIRFuturesTransactionHullWhiteMethodE2ETest {
   private static final InterestRateFutureTransaction ERZ4_TRA = 
       ERZ4_TRA_DEFINITION.toDerivative(VALUATION_DATE, LAST_MARGIN_PRICE_ERZ4);
   
-
   private static final ZonedDateTime LAST_TRADING_DATE_ERF5 = DateUtils.getUTCDate(2015, 1, 19);
   private static final String NAME_ERF5 = "ERF5";
   private static final InterestRateFutureSecurityDefinition ERF5_SEC_DEFINITION =
@@ -99,7 +97,6 @@ public class STIRFuturesTransactionHullWhiteMethodE2ETest {
   private static final double LAST_MARGIN_PRICE_ERF5 = 0.9975; 
   private static final InterestRateFutureTransaction ERF5_TRA = 
       ERF5_TRA_DEFINITION.toDerivative(VALUATION_DATE, LAST_MARGIN_PRICE_ERF5);
-  
   
   /** Calculators */
   private static final MarketQuoteDiscountingCalculator MQDC = MarketQuoteDiscountingCalculator.getInstance();
