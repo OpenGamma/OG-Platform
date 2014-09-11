@@ -305,7 +305,7 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
             holiday.getExchangeExternalId() != null ? holiday.getExchangeExternalId().getValue() : null,
             Types.VARCHAR)
         .addValue("custom_scheme",
-            holiday.getCustomExternalId() != null ? holiday.getCustomExternalId().getValue() : null,
+            holiday.getCustomExternalId() != null ? holiday.getCustomExternalId().getScheme().getName() : null,
             Types.VARCHAR)
         .addValue("custom_value",
             holiday.getCustomExternalId() != null ? holiday.getCustomExternalId().getValue() : null,
@@ -374,6 +374,7 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
       final String customScheme = rs.getString("CUSTOM_SCHEME");
       final String customValue = rs.getString("CUSTOM_VALUE");
       final String currencyISO = rs.getString("CURRENCY_ISO");
+
       UniqueId uniqueId = createUniqueId(docOid, docId);
       ManageableHoliday holiday = new ManageableHoliday();
       holiday.setUniqueId(uniqueId);
