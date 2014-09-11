@@ -133,6 +133,8 @@
       UPPER(name) @LIKE UPPER(:name)
     @AND(:sql_search_region_ids)
       ( @VALUE(:sql_search_region_ids) )
+    @AND(:sql_search_custom_ids)
+      ( @VALUE(:sql_search_custom_ids) )
     @AND(:sql_search_exchange_ids)
       ( @VALUE(:sql_search_exchange_ids) )
 
