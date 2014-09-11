@@ -14,7 +14,7 @@ foo~
 /dist/
 /generated/
 /lib/
-/target/
+*/target/
 /temp/
 /tests/classes/
 /tests/output/

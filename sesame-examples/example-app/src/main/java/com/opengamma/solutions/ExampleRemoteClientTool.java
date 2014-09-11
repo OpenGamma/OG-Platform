@@ -97,13 +97,13 @@ public class ExampleRemoteClientTool extends AbstractTool<ToolContext> {
         FunctionServerRequest.<IndividualCycleOptions>builder()
             .viewConfig(configureView(
                 "IRS remote view",
-                RemoteViewUtils.createInterestRateSwapViewColumn(OutputNames.PRESENT_VALUE,
+                RemoteViewSwapUtils.createInterestRateSwapViewColumn(OutputNames.PRESENT_VALUE,
                     exposureConfig,
                     currencyMatrixLink),
-                RemoteViewUtils.createInterestRateSwapViewColumn(OutputNames.BUCKETED_PV01,
+                RemoteViewSwapUtils.createInterestRateSwapViewColumn(OutputNames.BUCKETED_PV01,
                     exposureConfig,
                     currencyMatrixLink)))
-            .inputs(RemoteViewUtils.SWAP_INPUTS)
+            .inputs(RemoteViewSwapUtils.SWAP_INPUTS)
             .cycleOptions(cycleOptions)
             .build();
 
@@ -113,9 +113,9 @@ public class ExampleRemoteClientTool extends AbstractTool<ToolContext> {
     for (ResultRow row : results.getRows()) {
       InterestRateSwapSecurity irs =  (InterestRateSwapSecurity) row.getInput();
       // Output PV
-      RemoteViewUtils.outputMultipleCurrencyAmount(irs.getName(), row.get(0).getResult());
+      RemoteViewSwapUtils.outputMultipleCurrencyAmount(irs.getName(), row.get(0).getResult());
       // Output Bucketed PV01
-      RemoteViewUtils.outputBucketedCurveSensitivities(irs.getName(), row.get(1).getResult());
+      RemoteViewSwapUtils.outputBucketedCurveSensitivities(irs.getName(), row.get(1).getResult());
     }
     System.exit(0);
   }

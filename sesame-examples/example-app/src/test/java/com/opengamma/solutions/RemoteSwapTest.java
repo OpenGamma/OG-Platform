@@ -28,10 +28,10 @@ import org.testng.annotations.Test;
 import java.net.URI;
 
 import static com.opengamma.sesame.config.ConfigBuilder.configureView;
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
-import static org.hamcrest.CoreMatchers.instanceOf;
 
 /**
  * Integration tests run against a remote server
@@ -51,6 +51,7 @@ public class RemoteSwapTest {
   private Results _spreadResults;
   private Results _fixingResults;
   private Results _compoundingResults;
+  private Results _stubResults;
 
   private static final double STD_TOLERANCE_PV = 1.0E-3;
 
@@ -60,7 +61,7 @@ public class RemoteSwapTest {
     _functionServer = new RemoteFunctionServer(URI.create(URL));
     _cycleOptions = IndividualCycleOptions.builder()
         .valuationTime(DateUtils.getUTCDate(2014, 1, 22))
-        .marketDataSpec(UserMarketDataSpecification.of(UniqueId.of("DbSnp", "1000")))
+        .marketDataSpec(UserMarketDataSpecification.of(UniqueId.of("DbSnp", "1039")))
         .build();
 
     _exposureConfig = ConfigLink.resolvable("USD CSA Exposure Functions", ExposureFunctions.class);
@@ -69,7 +70,7 @@ public class RemoteSwapTest {
     FunctionServerRequest<IndividualCycleOptions> vanillaRequest =
         FunctionServerRequest.<IndividualCycleOptions>builder()
             .viewConfig(createViewConfig())
-            .inputs(RemoteViewUtils.VANILLA_INPUTS)
+            .inputs(RemoteViewSwapUtils.VANILLA_INPUTS)
             .cycleOptions(_cycleOptions)
             .build();
 
@@ -78,7 +79,7 @@ public class RemoteSwapTest {
     FunctionServerRequest<IndividualCycleOptions> spreadRequest =
         FunctionServerRequest.<IndividualCycleOptions>builder()
             .viewConfig(createViewConfig())
-            .inputs(RemoteViewUtils.SPREAD_INPUTS)
+            .inputs(RemoteViewSwapUtils.SPREAD_INPUTS)
             .cycleOptions(_cycleOptions)
             .build();
 
@@ -87,7 +88,7 @@ public class RemoteSwapTest {
     FunctionServerRequest<IndividualCycleOptions> fixingRequest =
         FunctionServerRequest.<IndividualCycleOptions>builder()
             .viewConfig(createViewConfig())
-            .inputs(RemoteViewUtils.FIXING_INPUTS)
+            .inputs(RemoteViewSwapUtils.FIXING_INPUTS)
             .cycleOptions(_cycleOptions)
             .build();
 
@@ -96,11 +97,20 @@ public class RemoteSwapTest {
     FunctionServerRequest<IndividualCycleOptions> compoundingRequest =
         FunctionServerRequest.<IndividualCycleOptions>builder()
             .viewConfig(createViewConfig())
-            .inputs(RemoteViewUtils.COMPOUNDING_INPUTS)
+            .inputs(RemoteViewSwapUtils.COMPOUNDING_INPUTS)
             .cycleOptions(_cycleOptions)
             .build();
 
     _compoundingResults = _functionServer.executeSingleCycle(compoundingRequest);
+
+    FunctionServerRequest<IndividualCycleOptions> stubRequest =
+        FunctionServerRequest.<IndividualCycleOptions>builder()
+            .viewConfig(createViewConfig())
+            .inputs(RemoteViewSwapUtils.STUB_INPUTS)
+            .cycleOptions(_cycleOptions)
+            .build();
+
+    _stubResults = _functionServer.executeSingleCycle(stubRequest);
 
   }
 
@@ -109,10 +119,10 @@ public class RemoteSwapTest {
     return
         configureView(
             "IRS Remote view",
-            RemoteViewUtils.createInterestRateSwapViewColumn(OutputNames.PRESENT_VALUE,
+            RemoteViewSwapUtils.createInterestRateSwapViewColumn(OutputNames.PRESENT_VALUE,
                 _exposureConfig,
                 _currencyMatrixLink),
-            RemoteViewUtils.createInterestRateSwapViewColumn(OutputNames.BUCKETED_PV01,
+            RemoteViewSwapUtils.createInterestRateSwapViewColumn(OutputNames.BUCKETED_PV01,
                 _exposureConfig,
                 _currencyMatrixLink)
         );
@@ -145,7 +155,6 @@ public class RemoteSwapTest {
   @Test(enabled = true)
   public void testCompoundingFFAAVsLiborSwapPV() {
 
-    //TODO PLAT-6741
     Result result = _compoundingResults.get(1, 0).getResult();
     assertThat(result.isSuccess(), is(true));
     assertThat(result.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
@@ -211,6 +220,51 @@ public class RemoteSwapTest {
     assertThat(result.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
     MultipleCurrencyAmount mca = (MultipleCurrencyAmount) result.getValue();
     assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(-5569.499485016839, STD_TOLERANCE_PV)));
+
+  }
+
+  /* Stubs */
+  @Test(enabled = true)
+  public void testFixedVsLibor3mStub3MSwapPV() {
+
+    Result result = _stubResults.get(0, 0).getResult();
+    assertThat(result.isSuccess(), is(true));
+    assertThat(result.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
+    MultipleCurrencyAmount mca = (MultipleCurrencyAmount) result.getValue();
+    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(-180869.2122, STD_TOLERANCE_PV)));
+
+  }
+
+  @Test(enabled = true)
+  public void testFixedVsLibor3mStub1MSwapPV() {
+
+    Result result = _stubResults.get(1, 0).getResult();
+    assertThat(result.isSuccess(), is(true));
+    assertThat(result.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
+    MultipleCurrencyAmount mca = (MultipleCurrencyAmount) result.getValue();
+    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(-259294.50118048675, STD_TOLERANCE_PV)));
+
+  }
+
+  @Test(enabled = true)
+  public void testFixedVsLibor6mStub3MSwapPV() {
+
+    Result result = _stubResults.get(2, 0).getResult();
+    assertThat(result.isSuccess(), is(true));
+    assertThat(result.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
+    MultipleCurrencyAmount mca = (MultipleCurrencyAmount) result.getValue();
+    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(-319533.7849, STD_TOLERANCE_PV)));
+
+  }
+
+  @Test(enabled = true)
+  public void testFixedVsLibor6mStub4MSwapPV() {
+
+    Result result = _stubResults.get(3, 0).getResult();
+    assertThat(result.isSuccess(), is(true));
+    assertThat(result.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
+    MultipleCurrencyAmount mca = (MultipleCurrencyAmount) result.getValue();
+    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(-405631.5512, STD_TOLERANCE_PV)));
 
   }
 
