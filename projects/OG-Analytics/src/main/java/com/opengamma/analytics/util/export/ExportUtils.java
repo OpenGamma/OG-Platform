@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.analytics.tutorial.utils;
+package com.opengamma.analytics.util.export;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -54,6 +54,41 @@ public class ExportUtils {
       e.printStackTrace();
     }
   }
+
+  /**
+   * Export a multi-curve parameter sensitivity into a csv file.
+   * @param sensitivity The sensitivity.
+   * @param labels The map with the nodes labels.
+   * @param fileName The file name.
+   */
+  public static void exportMultipleCurrencyParameterSensitivity(MultipleCurrencyParameterSensitivity sensitivity, 
+      Map<String, String[]> labels, String fileName) {
+    Map<Pair<String, Currency>, DoubleMatrix1D> map = sensitivity.getSensitivities();
+    try {
+      final FileWriter writer = new FileWriter(fileName);
+      for (Pair<String, Currency> pair : map.keySet()) {
+        writer.append(pair.getFirst().toString() + ", " + pair.getSecond().toString() + "\n");
+        String[] labelCurve = labels.get(pair.getFirst());
+        String rowLabels = "";
+        for (int i = 0; i < labelCurve.length; i++) {
+          rowLabels = rowLabels + labelCurve[i] + ", ";
+        }
+        rowLabels = rowLabels + "\n";
+        writer.append(rowLabels);
+        double[] matrix = map.get(pair).getData();
+        String row = "";
+        for (int i = 0; i < matrix.length; i++) {
+          row = row + matrix[i] + ", ";
+        }
+        row = row + "\n";
+        writer.append(row);
+      }
+      writer.flush();
+      writer.close();
+    } catch (final IOException e) {
+      e.printStackTrace();
+    }
+  }
   
   /**
    * Export a MulticurveProviderDiscounting into a csv file. 
@@ -70,25 +105,25 @@ public class ExportUtils {
     Set<String> curveNamesSet = multicurve.getAllCurveNames();
     try {
       final FileWriter writer = new FileWriter(fileName);
-      for(String name: curveNamesSet) {
+      for (String name: curveNamesSet) {
         writer.append("Curve name: " + name + "\n");
         YieldAndDiscountCurve curve = multicurve.getCurve(name);
         Currency ccy = multicurve.getCurrencyForName(name);
-        if(ccy != null) {
+        if (ccy != null) {
           writer.append("Currency: " + ccy.toString() + "\n");
         }
         IborIndex indexIbor = multicurve.getIborIndexForName(name);
-        if(indexIbor != null) {
+        if (indexIbor != null) {
           writer.append("Ibor Index: " + indexIbor.toString() + "\n");
         }
         IndexON indexOn = multicurve.getOvernightIndexForName(name);
-        if(indexOn != null) {
+        if (indexOn != null) {
           writer.append("Overnight Index: " + indexOn.toString() + "\n");
         }
         ArgumentChecker.isTrue((curve instanceof YieldCurve) || (curve instanceof DiscountCurve) , 
             "curve should be YieldCurve or DiscountCurve");
         InterpolatedDoublesCurve interpolatedCurve;
-        if(curve instanceof YieldCurve) { // YieldCurve
+        if (curve instanceof YieldCurve) { // YieldCurve
           writer.append("Time, Rate \n");
           YieldCurve yieldCurve = (YieldCurve) curve;
           ArgumentChecker.isTrue(yieldCurve.getCurve() instanceof InterpolatedDoublesCurve, 
@@ -104,7 +139,7 @@ public class ExportUtils {
         double[] x = interpolatedCurve.getXDataAsPrimitive();
         double[] y = interpolatedCurve.getYDataAsPrimitive();
         int nbNode = x.length;
-        for(int loopnode=0; loopnode<nbNode; loopnode++) {
+        for (int loopnode = 0; loopnode < nbNode; loopnode++) {
           writer.append(x[loopnode] + ", " + y[loopnode] + "\n");
         }
       }
@@ -132,9 +167,9 @@ public class ExportUtils {
       Curve<Double, Double> yieldCurveValues = null;
 
       if (yieldAndDiscountCurve instanceof YieldCurve) {
-        yieldCurveValues = ((YieldCurve)yieldAndDiscountCurve).getCurve();
+        yieldCurveValues = ((YieldCurve) yieldAndDiscountCurve).getCurve();
       } else if (yieldAndDiscountCurve instanceof DiscountCurve) {
-        yieldCurveValues = ((DiscountCurve)yieldAndDiscountCurve).getCurve();
+        yieldCurveValues = ((DiscountCurve) yieldAndDiscountCurve).getCurve();
         transformDfToZeroRates = true;
       }
       Double[] dateFractions = yieldCurveValues.getXData();
@@ -142,7 +177,7 @@ public class ExportUtils {
       Map<Currency, DoubleMatrix1D> sensitivitiesPerCcy = sensitivities.getSensitivityByName(yieldCurveName);
       for (Currency ccy : sensitivitiesPerCcy.keySet()) {
         double[] sensitivitiesValues = sensitivitiesPerCcy.get(ccy).getData();
-        for(int i = 0; i < sensitivitiesValues.length; ++i) {
+        for (int i = 0; i < sensitivitiesValues.length; ++i) {
           System.out.println(
               yieldCurveName + "," +
               ccy + "," +
