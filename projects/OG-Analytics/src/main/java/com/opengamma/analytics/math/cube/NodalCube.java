@@ -224,6 +224,7 @@ public class NodalCube<X, Y, Z, V> extends Cube<X, Y, Z, V> {
     return _vData.length;
   }
 
+  @Override
   public String getName() {
     return _name;
   }

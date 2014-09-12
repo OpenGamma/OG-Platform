@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.capletstripping;
@@ -20,7 +20,7 @@ public final class CapFloorDecomposer {
   /**
    * Private constructor
    */
-  private CapFloorDecomposer() {
+  private CapFloorDecomposer() { 
   }
 
   /**

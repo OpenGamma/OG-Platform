@@ -49,7 +49,7 @@ public abstract class CapletStrippingResult {
    * the market and (calibrated) model values  
    * @return The chi-squared 
    */
-  public abstract double getChiSq();
+  public abstract double getChiSqr();
 
   /**
    * The calibrated model parameters 
@@ -95,7 +95,7 @@ public abstract class CapletStrippingResult {
   public String toString() {
     StringBuilder builder = new StringBuilder();
     builder.append("Caplet Stripping Results\nchi2:\t");
-    builder.append(getChiSq());
+    builder.append(getChiSqr());
     builder.append("\nFit Parameters:");
     toTabSeparated(builder, getFitParameters());
     builder.append("\nCap Volatilities:");

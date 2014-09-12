@@ -11,6 +11,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 import org.fudgemsg.AnnotationReflector;
 import org.fudgemsg.FudgeContext;
@@ -30,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalIdBundleWithDates;
@@ -91,17 +95,27 @@ public final class OpenGammaFudgeContext {
       } catch (Exception ex) {
         // ignore
       }
-      Configuration config = new ConfigurationBuilder()
-        .setUrls(ClasspathHelper.forManifest(ClasspathHelper.forJavaClassPath()))
-        .setScanners(new TypeAnnotationsScanner(), new FieldAnnotationsScanner(), new SubTypesScanner(false))
-        .filterInputsBy(FilterBuilder.parse(AnnotationReflector.DEFAULT_ANNOTATION_REFLECTOR_FILTER))
-        .addClassLoaders(loaders)
-        .useParallelExecutor();
-      AnnotationReflector.initDefaultReflector(new AnnotationReflector(config));
-      AnnotationReflector reflector = AnnotationReflector.getDefaultReflector();
       
-      fudgeContext.getObjectDictionary().addAllAnnotatedBuilders(reflector);
-      fudgeContext.getTypeDictionary().addAllAnnotatedSecondaryTypes(reflector);
+      int availableProcessors = Runtime.getRuntime().availableProcessors();
+      ThreadFactory factory = new ThreadFactoryBuilder().setNameFormat("Reflections-scan-%d").build();
+      ExecutorService executorService = Executors.newFixedThreadPool(availableProcessors, factory);
+      
+      try {
+        Configuration config = new ConfigurationBuilder()
+          .setUrls(ClasspathHelper.forManifest(ClasspathHelper.forJavaClassPath()))
+          .setScanners(new TypeAnnotationsScanner(), new FieldAnnotationsScanner(), new SubTypesScanner(false))
+          .filterInputsBy(FilterBuilder.parse(AnnotationReflector.DEFAULT_ANNOTATION_REFLECTOR_FILTER))
+          .addClassLoaders(loaders)
+          .setExecutorService(executorService);
+      
+        AnnotationReflector.initDefaultReflector(new AnnotationReflector(config));
+        AnnotationReflector reflector = AnnotationReflector.getDefaultReflector();
+        
+        fudgeContext.getObjectDictionary().addAllAnnotatedBuilders(reflector);
+        fudgeContext.getTypeDictionary().addAllAnnotatedSecondaryTypes(reflector);
+      } finally {
+        executorService.shutdown();
+      }
       
       FudgeTypeDictionary td = fudgeContext.getTypeDictionary();
       td.registerClassRename("com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries", ImmutableZonedDateTimeDoubleTimeSeries.class);
@@ -161,15 +175,18 @@ public final class OpenGammaFudgeContext {
       this._file = file;
     }
 
+    @Override
     public String getPath() {
       return _file.getPath().replace("\\", "/");
     }
 
 
+    @Override
     public Iterable<Vfs.File> getFiles() {
       return Collections.emptyList();  // just return no files
     }
 
+    @Override
     public void close() {
     }
 

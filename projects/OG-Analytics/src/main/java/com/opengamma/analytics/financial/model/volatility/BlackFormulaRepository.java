@@ -877,9 +877,9 @@ public abstract class BlackFormulaRepository {
    */
   public static double impliedVolatility(final double price, final double forward, final double strike,
       final double timeToExpiry, final boolean isCall) {
-    ArgumentChecker.isTrue(price > 0.0, "negative/NaN price; have {}", price);
+    ArgumentChecker.isTrue(price >= 0.0, "negative/NaN price; have {}", price);
     ArgumentChecker.isTrue(forward > 0.0, "negative/NaN forward; have {}", forward);
-    ArgumentChecker.isTrue(strike > 0.0, "negative/NaN strike; have {}", strike);
+    ArgumentChecker.isTrue(strike >= 0.0, "negative/NaN strike; have {}", strike);
     ArgumentChecker.isTrue(timeToExpiry >= 0.0, "negative/NaN timeToExpiry; have {}", timeToExpiry);
 
     ArgumentChecker.isFalse(Double.isInfinite(forward), "forward is Infinity");
@@ -889,7 +889,7 @@ public abstract class BlackFormulaRepository {
     final double intrinsicPrice = Math.max(0., (isCall ? 1 : -1) * (forward - strike));
 
     final double targetPrice = price - intrinsicPrice; // Math.max(0., price - intrinsicPrice) should not used for least
-                                                       // chi square
+    // chi square
     final double sigmaGuess = 0.3;
     return impliedVolatility(targetPrice, forward, strike, timeToExpiry, sigmaGuess);
   }

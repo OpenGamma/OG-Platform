@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.analytics.financial.interestrate.payments.provider;
 
 import java.util.ArrayList;
@@ -15,8 +20,11 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
 
-public class CouponONArithmeticAverageSpreadDiscountingMethod {
-  // FIXME: Class under construction, don't use yet.
+/**
+ * Class describing the pricing of Fed Fund swap-like floating coupon (arithmetic average on overnight rates) by 
+ * estimation and discounting (no convexity adjustment is computed). 
+ */
+public final class CouponONArithmeticAverageSpreadDiscountingMethod {
 
   /**
    * The method unique instance.

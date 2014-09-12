@@ -58,7 +58,7 @@
     SELECT
       inner_doc.id AS id
     FROM
-      @VALUE(:table_prefix)_document AS inner_doc
+      @VALUE(:table_prefix)_document inner_doc
     @INCLUDE(SearchWhere)
     ORDER BY
       @VALUE(:sort_order),
@@ -70,7 +70,7 @@
   SELECT
     COUNT(count_main.id)
   FROM
-    @VALUE(:table_prefix)_document AS count_main
+    @VALUE(:table_prefix)_document count_main
   @INCLUDE(SearchWhere)
 
 
@@ -148,7 +148,7 @@
         doc_id
       HAVING
         COUNT(doc_id) >= :id_search_size
-    ) AS a, (
+    ) a, (
       SELECT
         doc_id AS total_doc_id,
         COUNT(doc_id) AS total_count
@@ -160,7 +160,7 @@
         AND kve_doc.corr_from_instant <= :corrected_to_instant AND kve_doc.corr_to_instant > :corrected_to_instant
       GROUP BY
         doc_id
-    ) AS b
+    ) b
   WHERE matched_doc_id = total_doc_id
     AND matched_count = total_count
 

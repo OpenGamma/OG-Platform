@@ -326,13 +326,12 @@ public class HullWhiteProviderDiscountBuildingRepository {
         generatorsSoFar.put(curveName, tmp);
         unitMap.put(curveName, Pairs.of(startUnit + startCurve[iCurve], nbIns[iCurve]));
       }
-
       knownSoFarData = makeUnit(instrumentsUnit, parametersGuess, knownSoFarData,
           discountingMap, forwardIborMap, forwardONMap, gen, calculator, sensitivityCalculator);
       updateBlockBundle(instrumentsUnit, knownSoFarData, curveBundle.getNames(), totalBundle, sensitivityCalculator);
       startUnit = startUnit + nbInsUnit;
     }
-    return Pairs.of(knownSoFarData, new CurveBuildingBlockBundle(unitBundleSoFar));
+    return Pairs.of(knownSoFarData, totalBundle);
   }
 
 }

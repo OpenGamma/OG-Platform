@@ -1,0 +1,20 @@
+-- Time Test SQL code
+-- Oracle differences
+
+-- ==========================================================================
+@NAME(DropTstTimes)
+  BEGIN
+    EXECUTE IMMEDIATE 'DROP TABLE tst_times';
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLCODE != -942 THEN
+        RAISE;
+      END IF;
+  END;
+
+-- ==========================================================================
+@NAME(CreateTstTimes)
+  CREATE TABLE 
+    tst_times ( id NUMBER(19) NOT NULL, ver TIMESTAMP NOT NULL )
+
+-- ==========================================================================

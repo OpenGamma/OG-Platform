@@ -7,7 +7,6 @@ package com.opengamma.analytics.math.statistics.leastsquare;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.analytics.math.FunctionUtils;
 import com.opengamma.analytics.math.MathException;
 import com.opengamma.analytics.math.differentiation.VectorFieldFirstOrderDifferentiator;
 import com.opengamma.analytics.math.function.Function1D;
@@ -19,20 +18,32 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.matrix.DoubleMatrixUtils;
 import com.opengamma.analytics.math.matrix.MatrixAlgebra;
 import com.opengamma.analytics.math.matrix.MatrixAlgebraFactory;
+import com.opengamma.analytics.math.matrix.OGMatrixAlgebra;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Modification to NonLinearLeastSquare to use a penalty function add to the normal chi^2 term of the form $a^TPa$ where $a$ is the vector of model parameters sort and P 
- * is some matrix. The idea is to extend the p-spline concept to non-linear models of the form $\hat{y}_j = H\left(\sum_{i=0}^{M-1} w_i b_i (x_j)\right)$ where $H(\cdot)$ is
- * some non-linear function, $b_i(\cdot)$ are a set of basis functions and $w_i$ are the weights (to be found). As with (linear) p-splines, smoothness of the function is obtained
- * by having a penalty on the nth order difference of the weights. The modified chi-squared is written as  
- * $\chi^2 = \sum_{i=0}^{N-1} \left(\frac{y_i-H\left(\sum_{k=0}^{M-1} w_k b_k (x_i)\right)}{\sigma_i} \right)^2 + \sum_{i,j=0}^{M-1}P_{i,j}x_ix_j$ <p>
- * This is currently for research as part of PLAT-2215
+ * Modification to NonLinearLeastSquare to use a penalty function add to the normal chi^2 term of the form $a^TPa$ where
+ * $a$ is the vector of model parameters sort and P is some matrix. The idea is to extend the p-spline concept to
+ * non-linear models of the form $\hat{y}_j = H\left(\sum_{i=0}^{M-1} w_i b_i (x_j)\right)$ where $H(\cdot)$ is
+ * some non-linear function, $b_i(\cdot)$ are a set of basis functions and $w_i$ are the weights (to be found). As with
+ * (linear) p-splines, smoothness of the function is obtained by having a penalty on the nth order difference of the
+ * weights. The modified chi-squared is written as
+ * $\chi^2 = \sum_{i=0}^{N-1} \left(\frac{y_i-H\left(\sum_{k=0}^{M-1} w_k b_k (x_i)\right)}{\sigma_i} \right)^2 +
+ * \sum_{i,j=0}^{M-1}P_{i,j}x_ix_j$
  */
 public class NonLinearLeastSquareWithPenalty {
   // private static final Logger LOGGER = LoggerFactory.getLogger(NonLinearLeastSquareWithPenalty.class);
   private static final int MAX_ATTEMPTS = 100000;
-  private static final Function1D<DoubleMatrix1D, Boolean> UNCONSTAINED = new Function1D<DoubleMatrix1D, Boolean>() {
+
+  // Review should we use Cholesky as default
+  private static final Decomposition<?> DEFAULT_DECOMP = DecompositionFactory.SV_COLT;
+  private static final OGMatrixAlgebra MA = new OGMatrixAlgebra();
+  private static final double EPS = 1e-8; // Default convergence tolerance on the relative change in chi2
+
+  /**
+   * Unconstrained allowed function - always returns true
+   */
+  public static final Function1D<DoubleMatrix1D, Boolean> UNCONSTRAINED = new Function1D<DoubleMatrix1D, Boolean>() {
     @Override
     public Boolean evaluate(final DoubleMatrix1D x) {
       return true;
@@ -43,95 +54,141 @@ public class NonLinearLeastSquareWithPenalty {
   private final Decomposition<?> _decomposition;
   private final MatrixAlgebra _algebra;
 
+  /**
+   * Default constructor. This uses SVD (Colt), {@link OGMatrixAlgebra} and a convergence tolerance of 1e-8
+   */
   public NonLinearLeastSquareWithPenalty() {
-    this(DecompositionFactory.SV_COLT, MatrixAlgebraFactory.OG_ALGEBRA, 1e-8);
+    this(DEFAULT_DECOMP, MA, EPS);
   }
 
+  /**
+   * Constructor allowing matrix decomposition to be set. This uses {@link OGMatrixAlgebra} and a convergence tolerance of 1e-8
+   * @param decomposition Matrix decomposition (see {@link DecompositionFactory} for list)
+   */
+  public NonLinearLeastSquareWithPenalty(final Decomposition<?> decomposition) {
+    this(decomposition, MA, EPS);
+  }
+
+  /**
+   * Constructor allowing convergence tolerance to be set. This uses SVD (Colt) and {@link OGMatrixAlgebra}
+   * @param eps Convergence tolerance
+   */
+  public NonLinearLeastSquareWithPenalty(final double eps) {
+    this(DEFAULT_DECOMP, MA, eps);
+  }
+
+  /**
+   * Constructor allowing matrix decomposition and convergence tolerance to be set. This uses {@link OGMatrixAlgebra}
+   * @param decomposition Matrix decomposition (see {@link DecompositionFactory} for list)
+   * @param eps Convergence tolerance
+   */
+  public NonLinearLeastSquareWithPenalty(final Decomposition<?> decomposition, final double eps) {
+    this(decomposition, MA, eps);
+  }
+
+  /**
+   * General constructor 
+   * @param decomposition Matrix decomposition (see {@link DecompositionFactory} for list)
+   * @param algebra  The matrix algebra (see {@link MatrixAlgebraFactory} for list)
+   * @param eps Convergence tolerance
+   */
   public NonLinearLeastSquareWithPenalty(final Decomposition<?> decomposition, final MatrixAlgebra algebra, final double eps) {
+    ArgumentChecker.notNull(decomposition, "decomposition");
+    ArgumentChecker.notNull(algebra, "algebra");
+    ArgumentChecker.isTrue(eps > 0, "must have positive eps");
     _decomposition = decomposition;
     _algebra = algebra;
     _eps = eps;
   }
 
   /**
-   *  Use this when the model is given as a function of its parameters only (i.e. a function that takes a set of parameters and return a set of model values,
-   *  so the measurement points are already known to the function), and  analytic parameter sensitivity is not available
+   * Use this when the model is given as a function of its parameters only (i.e. a function that takes a set of
+   * parameters and return a set of model values,
+   * so the measurement points are already known to the function), and analytic parameter sensitivity is not available
    * @param observedValues Set of measurement values
    * @param func The model as a function of its parameters only
-   * @param startPos  Initial value of the parameters
-   * @param penalty Penalty matrix 
+   * @param startPos Initial value of the parameters
+   * @param penalty Penalty matrix
    * @return value of the fitted parameters
    */
-  public LeastSquareResults solve(final DoubleMatrix1D observedValues, final Function1D<DoubleMatrix1D, DoubleMatrix1D> func, final DoubleMatrix1D startPos, final DoubleMatrix2D penalty) {
+  public LeastSquareWithPenaltyResults solve(final DoubleMatrix1D observedValues, final Function1D<DoubleMatrix1D, DoubleMatrix1D> func, final DoubleMatrix1D startPos, final DoubleMatrix2D penalty) {
     final int n = observedValues.getNumberOfElements();
     final VectorFieldFirstOrderDifferentiator jac = new VectorFieldFirstOrderDifferentiator();
     return solve(observedValues, new DoubleMatrix1D(n, 1.0), func, jac.differentiate(func), startPos, penalty);
   }
 
   /**
-   *  Use this when the model is given as a function of its parameters only (i.e. a function that takes a set of parameters and return a set of model values,
-   *  so the measurement points are already known to the function), and  analytic parameter sensitivity is not available
+   * Use this when the model is given as a function of its parameters only (i.e. a function that takes a set of
+   * parameters and return a set of model values,
+   * so the measurement points are already known to the function), and analytic parameter sensitivity is not available
    * @param observedValues Set of measurement values
    * @param sigma Set of measurement errors
    * @param func The model as a function of its parameters only
-   * @param startPos  Initial value of the parameters
-    * @param penalty Penalty matrix 
+   * @param startPos Initial value of the parameters
+   * @param penalty Penalty matrix
    * @return value of the fitted parameters
    */
-  public LeastSquareResults solve(final DoubleMatrix1D observedValues, final DoubleMatrix1D sigma, final Function1D<DoubleMatrix1D, DoubleMatrix1D> func, final DoubleMatrix1D startPos,
+  public LeastSquareWithPenaltyResults solve(final DoubleMatrix1D observedValues, final DoubleMatrix1D sigma, final Function1D<DoubleMatrix1D, DoubleMatrix1D> func, final DoubleMatrix1D startPos,
       final DoubleMatrix2D penalty) {
     final VectorFieldFirstOrderDifferentiator jac = new VectorFieldFirstOrderDifferentiator();
     return solve(observedValues, sigma, func, jac.differentiate(func), startPos, penalty);
   }
 
   /**
-   *  Use this when the model is given as a function of its parameters only (i.e. a function that takes a set of parameters and return a set of model values,
-   *  so the measurement points are already known to the function), and  analytic parameter sensitivity is not available
+   * Use this when the model is given as a function of its parameters only (i.e. a function that takes a set of
+   * parameters and return a set of model values,
+   * so the measurement points are already known to the function), and analytic parameter sensitivity is not available
    * @param observedValues Set of measurement values
    * @param sigma Set of measurement errors
    * @param func The model as a function of its parameters only
-   * @param startPos  Initial value of the parameters
-    * @param penalty Penalty matrix 
-  * @param allowedValue a function which returned true if the new trial position is allowed by the model. An example would be to enforce positive parameters
-  * without resorting to a non-linear parameter transform. In some circumstances this approach will lead to slow convergence.
+   * @param startPos Initial value of the parameters
+   * @param penalty Penalty matrix
+   * @param allowedValue a function which returned true if the new trial position is allowed by the model. An example
+   * would be to enforce positive parameters
+   * without resorting to a non-linear parameter transform. In some circumstances this approach will lead to slow
+   * convergence.
    * @return value of the fitted parameters
    */
-  public LeastSquareResults solve(final DoubleMatrix1D observedValues, final DoubleMatrix1D sigma, final Function1D<DoubleMatrix1D, DoubleMatrix1D> func, final DoubleMatrix1D startPos,
+  public LeastSquareWithPenaltyResults solve(final DoubleMatrix1D observedValues, final DoubleMatrix1D sigma, final Function1D<DoubleMatrix1D, DoubleMatrix1D> func, final DoubleMatrix1D startPos,
       final DoubleMatrix2D penalty, final Function1D<DoubleMatrix1D, Boolean> allowedValue) {
     final VectorFieldFirstOrderDifferentiator jac = new VectorFieldFirstOrderDifferentiator();
     return solve(observedValues, sigma, func, jac.differentiate(func), startPos, penalty, allowedValue);
   }
 
   /**
-   * Use this when the model is given as a function of its parameters only (i.e. a function that takes a set of parameters and return a set of model values,
-   * so the measurement points are already known to the function), and  analytic parameter sensitivity is available
+   * Use this when the model is given as a function of its parameters only (i.e. a function that takes a set of
+   * parameters and return a set of model values,
+   * so the measurement points are already known to the function), and analytic parameter sensitivity is available
    * @param observedValues Set of measurement values
    * @param sigma Set of measurement errors
    * @param func The model as a function of its parameters only
    * @param jac The model sensitivity to its parameters (i.e. the Jacobian matrix) as a function of its parameters only
-  * @param startPos  Initial value of the parameters
-  * @param penalty Penalty matrix 
-   * @return the least-square results 
+   * @param startPos Initial value of the parameters
+   * @param penalty Penalty matrix
+   * @return the least-square results
    */
-  public LeastSquareResults solve(final DoubleMatrix1D observedValues, final DoubleMatrix1D sigma, final Function1D<DoubleMatrix1D, DoubleMatrix1D> func,
+  public LeastSquareWithPenaltyResults solve(final DoubleMatrix1D observedValues, final DoubleMatrix1D sigma, final Function1D<DoubleMatrix1D, DoubleMatrix1D> func,
       final Function1D<DoubleMatrix1D, DoubleMatrix2D> jac, final DoubleMatrix1D startPos, final DoubleMatrix2D penalty) {
-    return solve(observedValues, sigma, func, jac, startPos, penalty, UNCONSTAINED);
+    return solve(observedValues, sigma, func, jac, startPos, penalty, UNCONSTRAINED);
   }
 
   /**
-   * Use this when the model is given as a function of its parameters only (i.e. a function that takes a set of parameters and return a set of model values,
-   * so the measurement points are already known to the function), and  analytic parameter sensitivity is available
+   * Use this when the model is given as a function of its parameters only (i.e. a function that takes a set of
+   * parameters and return a set of model values,
+   * so the measurement points are already known to the function), and analytic parameter sensitivity is available
    * @param observedValues Set of measurement values
    * @param sigma Set of measurement errors
    * @param func The model as a function of its parameters only
    * @param jac The model sensitivity to its parameters (i.e. the Jacobian matrix) as a function of its parameters only
-  * @param startPos  Initial value of the parameters
-  * @param penalty Penalty matrix 
-  * @param allowedValue a function which returned true if the new trial position is allowed by the model. An example would be to enforce positive parameters
-  * without resorting to a non-linear parameter transform. In some circumstances this approach will lead to slow convergence.
-   * @return the least-square results 
+   * @param startPos Initial value of the parameters
+   * @param penalty Penalty matrix (must be positive semi-definite)
+   * @param allowedValue a function which returned true if the new trial position is allowed by the model. An example
+   * would be to enforce positive parameters
+   * without resorting to a non-linear parameter transform. In some circumstances this approach will lead to slow
+   * convergence.
+   * @return the least-square results
    */
-  public LeastSquareResults solve(final DoubleMatrix1D observedValues, final DoubleMatrix1D sigma, final Function1D<DoubleMatrix1D, DoubleMatrix1D> func,
+  public LeastSquareWithPenaltyResults solve(final DoubleMatrix1D observedValues, final DoubleMatrix1D sigma, final Function1D<DoubleMatrix1D, DoubleMatrix1D> func,
       final Function1D<DoubleMatrix1D, DoubleMatrix2D> jac, final DoubleMatrix1D startPos, final DoubleMatrix2D penalty, final Function1D<DoubleMatrix1D, Boolean> allowedValue) {
 
     Validate.notNull(observedValues, "observedValues");
@@ -158,19 +215,16 @@ public class NonLinearLeastSquareWithPenalty {
     double p = getANorm(penalty, theta);
     oldChiSqr += p;
 
-    // If we start at the solution we are done
-    if (oldChiSqr == 0.0) {
-      return finish(oldChiSqr, jacobian, theta, sigma);
-    }
 
     DoubleMatrix1D beta = getChiSqrGrad(error, jacobian);
     DoubleMatrix1D temp = (DoubleMatrix1D) _algebra.multiply(penalty, theta);
     beta = (DoubleMatrix1D) _algebra.subtract(beta, temp);
 
     for (int count = 0; count < MAX_ATTEMPTS; count++) {
-      alpha = getModifiedCurvatureMatrix(jacobian, lambda, penalty);
 
+      alpha = getModifiedCurvatureMatrix(jacobian, lambda, penalty);
       DoubleMatrix1D deltaTheta;
+
       try {
         decmp = _decomposition.evaluate(alpha);
         deltaTheta = decmp.solve(beta);
@@ -178,7 +232,7 @@ public class NonLinearLeastSquareWithPenalty {
         throw new MathException(e);
       }
 
-      DoubleMatrix1D trialTheta = (DoubleMatrix1D) _algebra.add(theta, deltaTheta);
+      final DoubleMatrix1D trialTheta = (DoubleMatrix1D) _algebra.add(theta, deltaTheta);
 
       // if the new value of theta is not in the model domain keep increasing lambda until an acceptable step is found
       if (!allowedValue.evaluate(trialTheta)) {
@@ -199,7 +253,7 @@ public class NonLinearLeastSquareWithPenalty {
         if (lambda > 0.0) {
           decmp = _decomposition.evaluate(alpha0);
         }
-        return finish(alpha0, decmp, newChiSqr, jacobian, trialTheta, sigma);
+        return finish(alpha0, decmp, newChiSqr - p, p, jacobian, trialTheta, sigma);
       }
 
       if (newChiSqr < oldChiSqr) {
@@ -230,34 +284,13 @@ public class NonLinearLeastSquareWithPenalty {
     return lambda * 10;
   }
 
-  /**
-   *
-   * the inverse-Jacobian where the i-j entry is the sensitivity of the ith (fitted) parameter (a_i) to the jth data point (y_j).
-   * @param sigma Set of measurement errors
-   * @param jac The model sensitivity to its parameters (i.e. the Jacobian matrix) as a function of its parameters only
-   * @param originalSolution The value of the parameters at a converged solution
-   * @return inverse-Jacobian
-   */
-  public DoubleMatrix2D calInverseJacobian(final DoubleMatrix1D sigma, final Function1D<DoubleMatrix1D, DoubleMatrix2D> jac, final DoubleMatrix1D originalSolution) {
-    final DoubleMatrix2D jacobian = getJacobian(jac, sigma, originalSolution);
-    final DoubleMatrix2D a = getModifiedCurvatureMatrix(jacobian, 0.0);
-    final DoubleMatrix2D bT = getBTranspose(jacobian, sigma);
-    final DecompositionResult decRes = _decomposition.evaluate(a);
-    return decRes.solve(bT);
-  }
 
-  private LeastSquareResults finish(final double newChiSqr, final DoubleMatrix2D jacobian, final DoubleMatrix1D newTheta, final DoubleMatrix1D sigma) {
-    final DoubleMatrix2D alpha = getModifiedCurvatureMatrix(jacobian, 0.0);
-    final DecompositionResult decmp = _decomposition.evaluate(alpha);
-    return finish(alpha, decmp, newChiSqr, jacobian, newTheta, sigma);
-  }
-
-  private LeastSquareResults finish(final DoubleMatrix2D alpha, final DecompositionResult decmp, final double newChiSqr, final DoubleMatrix2D jacobian, final DoubleMatrix1D newTheta,
-      final DoubleMatrix1D sigma) {
+  private LeastSquareWithPenaltyResults finish(final DoubleMatrix2D alpha, final DecompositionResult decmp, final double chiSqr, final double penalty, final DoubleMatrix2D jacobian,
+      final DoubleMatrix1D newTheta, final DoubleMatrix1D sigma) {
     final DoubleMatrix2D covariance = decmp.solve(DoubleMatrixUtils.getIdentityMatrix2D(alpha.getNumberOfRows()));
     final DoubleMatrix2D bT = getBTranspose(jacobian, sigma);
     final DoubleMatrix2D inverseJacobian = decmp.solve(bT);
-    return new LeastSquareResults(newChiSqr, newTheta, covariance, inverseJacobian);
+    return new LeastSquareWithPenaltyResults(chiSqr, penalty, newTheta, covariance, inverseJacobian);
   }
 
   private DoubleMatrix1D getError(final Function1D<DoubleMatrix1D, DoubleMatrix1D> func, final DoubleMatrix1D observedValues, final DoubleMatrix1D sigma, final DoubleMatrix1D theta) {
@@ -276,14 +309,17 @@ public class NonLinearLeastSquareWithPenalty {
     final int n = jacobian.getNumberOfRows();
     final int m = jacobian.getNumberOfColumns();
 
-    final double[][] res = new double[m][n];
+    DoubleMatrix2D res = new DoubleMatrix2D(m, n);
+    double[][] data = res.getData();
+    double[][] jacData = jacobian.getData();
 
-    for (int k = 0; k < m; k++) {
-      for (int i = 0; i < n; i++) {
-        res[k][i] = jacobian.getEntry(i, k) / sigma.getEntry(i);
+    for (int i = 0; i < n; i++) {
+      double sigmaInv = 1.0 / sigma.getEntry(i);
+      for (int k = 0; k < m; k++) {
+        data[k][i] = jacData[i][k] * sigmaInv;
       }
     }
-    return new DoubleMatrix2D(res);
+    return res;
   }
 
   private DoubleMatrix2D getJacobian(final Function1D<DoubleMatrix1D, DoubleMatrix2D> jac, final DoubleMatrix1D sigma, final DoubleMatrix1D theta) {
@@ -295,8 +331,9 @@ public class NonLinearLeastSquareWithPenalty {
     Validate.isTrue(sigma.getNumberOfElements() == n, "Jacobian is wrong size");
 
     for (int i = 0; i < n; i++) {
+      double sigmaInv = 1.0 / sigma.getEntry(i);
       for (int j = 0; j < m; j++) {
-        data[i][j] /= sigma.getEntry(i);
+        data[i][j] *= sigmaInv;
       }
     }
     return res;
@@ -310,78 +347,21 @@ public class NonLinearLeastSquareWithPenalty {
     return (DoubleMatrix1D) _algebra.multiply(error, jacobian);
   }
 
-  @SuppressWarnings("unused")
-  private DoubleMatrix1D getDiagonalCurvatureMatrix(final DoubleMatrix2D jacobian) {
-    final int n = jacobian.getNumberOfRows();
-    final int m = jacobian.getNumberOfColumns();
-
-    final double[] alpha = new double[m];
-
-    for (int i = 0; i < m; i++) {
-      double sum = 0.0;
-      for (int k = 0; k < n; k++) {
-        sum += FunctionUtils.square(jacobian.getEntry(k, i));
-      }
-      alpha[i] = sum;
-    }
-    return new DoubleMatrix1D(alpha);
-  }
-
   private DoubleMatrix2D getModifiedCurvatureMatrix(final DoubleMatrix2D jacobian, final double lambda, final DoubleMatrix2D penalty) {
-    final int n = jacobian.getNumberOfRows();
+    double onePLambda = 1.0 + lambda;
     final int m = jacobian.getNumberOfColumns();
-
-    final double[][] alpha = new double[m][m];
-
+    DoubleMatrix2D alpha = (DoubleMatrix2D) MA.add(MA.matrixTransposeMultiplyMatrix(jacobian), penalty);
+    // scale the diagonal
+    double[][] data = alpha.getData();
     for (int i = 0; i < m; i++) {
-      double sum = 0.0;
-      for (int k = 0; k < n; k++) {
-        sum += FunctionUtils.square(jacobian.getEntry(k, i));
-      }
-
-      alpha[i][i] = (1 + lambda) * (sum + penalty.getEntry(i, i));
-
-      for (int j = i + 1; j < m; j++) {
-        sum = 0.0;
-        for (int k = 0; k < n; k++) {
-          sum += jacobian.getEntry(k, i) * jacobian.getEntry(k, j);
-        }
-        alpha[i][j] = sum + penalty.getEntry(i, j);
-        alpha[j][i] = sum + penalty.getEntry(j, i);
-      }
+      data[i][i] *= onePLambda;
     }
-    return new DoubleMatrix2D(alpha);
-  }
-
-  private DoubleMatrix2D getModifiedCurvatureMatrix(final DoubleMatrix2D jacobian, final double lambda) {
-    final int n = jacobian.getNumberOfRows();
-    final int m = jacobian.getNumberOfColumns();
-
-    final double[][] alpha = new double[m][m];
-
-    for (int i = 0; i < m; i++) {
-      double sum = 0.0;
-      for (int k = 0; k < n; k++) {
-        sum += FunctionUtils.square(jacobian.getEntry(k, i));
-      }
-
-      alpha[i][i] = (1 + lambda) * (sum);
-
-      for (int j = i + 1; j < m; j++) {
-        sum = 0.0;
-        for (int k = 0; k < n; k++) {
-          sum += jacobian.getEntry(k, i) * jacobian.getEntry(k, j);
-        }
-        alpha[i][j] = sum;
-        alpha[j][i] = sum;
-      }
-    }
-    return new DoubleMatrix2D(alpha);
+    return alpha;
   }
 
   private double getANorm(final DoubleMatrix2D aM, final DoubleMatrix1D xV) {
-    double[][] a = aM.getData();
-    double[] x = xV.getData();
+    final double[][] a = aM.getData();
+    final double[] x = xV.getData();
     final int n = x.length;
     double sum = 0.0;
     for (int i = 0; i < n; i++) {

@@ -1,0 +1,39 @@
+-- SQL for historical time series master
+-- Oracle differences
+
+-- ==========================================================================
+@NAME(InsertPermission)
+  INSERT INTO hts_permission
+    (id, doc_id, permission)
+  VALUES
+    (hts_dimension_seq.NEXTVAL, :doc_id, :permission)
+
+
+-- ==========================================================================
+@NAME(InsertDoc2IdKey)
+  INSERT INTO hts_doc2idkey
+    (id, doc_id, idkey_id, valid_from, valid_to)
+  VALUES
+    (hts_doc2idkey_seq.NEXTVAL, :doc_id, ( @INCLUDE(SelectIdKey) ), :valid_from, :valid_to)
+
+
+-- ==========================================================================
+-- should not have to ORDER/FETCH1 within inner SELECT, but bad DB data causes
+-- problems if we do not double check here
+@NAME(InsertCorrectDataPoint)
+  INSERT INTO hts_point
+    (doc_oid, point_date, ver_instant, corr_instant, point_value)
+  VALUES
+    (:doc_oid, :point_date,
+      COALESCE(
+        (SELECT * FROM
+          (SELECT ver_instant FROM hts_point
+           WHERE doc_oid = :doc_oid AND point_date = :point_date AND ver_instant = corr_instant
+           ORDER BY ver_instant)
+         WHERE ROWNUM <= 1),
+        :corr_instant
+      ),
+    :corr_instant, :point_value)
+
+
+-- ==========================================================================

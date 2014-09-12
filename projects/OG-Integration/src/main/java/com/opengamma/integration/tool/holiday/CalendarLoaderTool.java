@@ -28,6 +28,7 @@ import com.opengamma.core.holiday.Holiday;
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.HolidayMaster;
 import com.opengamma.master.holiday.ManageableHoliday;
@@ -44,6 +45,12 @@ public class CalendarLoaderTool extends AbstractTool<ToolContext> {
   private static final Logger s_logger = LoggerFactory.getLogger(CalendarLoaderTool.class);
   /** Determines whether this tool persists the calendar to the holiday master */
   private static final String DO_NOT_PERSIST = "do-not-persist";
+  /** File name option flag */
+  private static final String FILE_NAME_OPTION = "f";
+  /** Calendar scheme option flag */
+  private static final String CALENDAR_SCHEME_OPTION = "s";
+  /** Calendar name option flag */
+  private static final String CALENDAR_NAME_OPTION = "n";
 
   //-------------------------------------------------------------------------
   /**
@@ -52,7 +59,6 @@ public class CalendarLoaderTool extends AbstractTool<ToolContext> {
    * @param args  the standard tool arguments, not null
    */
   public static void main(final String[] args) {  // CSIGNORE
-    ArgumentChecker.isTrue(args.length > 3, "At least three arguments required: data file name, scheme name and calendar name");
     new CalendarLoaderTool().invokeAndTerminate(args);
   }
 
@@ -62,11 +68,12 @@ public class CalendarLoaderTool extends AbstractTool<ToolContext> {
     final CommandLine commandLine = getCommandLine();
     final boolean persist = !commandLine.hasOption(DO_NOT_PERSIST);
     final ToolContext toolContext = getToolContext();
-    final HolidayMaster holidayMaster = toolContext.getHolidayMaster();  
-    final String[] args = getCommandLine().getArgs();    
-    final Holiday holiday = createManageableHoliday(args[0], args[1], args[2]);
+    final HolidayMaster holidayMaster = toolContext.getHolidayMaster();
+    final Holiday holiday = createManageableHoliday(getCommandLine().getOptionValue(FILE_NAME_OPTION),
+                                                    getCommandLine().getOptionValue(CALENDAR_SCHEME_OPTION),
+                                                    getCommandLine().getOptionValue(CALENDAR_NAME_OPTION));
     if (persist) {
-      final HolidayDocument holidayDocument = new HolidayDocument(holiday);    
+      HolidayDocument holidayDocument = new HolidayDocument(holiday);
       holidayMaster.add(holidayDocument);
     }
     toolContext.close();
@@ -86,7 +93,9 @@ public class CalendarLoaderTool extends AbstractTool<ToolContext> {
     holiday.setCustomExternalId(ExternalId.of(schemeName, calendarName));
     CSVReader reader = null;
     try {
-      reader = new CSVReader(new BufferedReader(new FileReader(filePath)), CSVParser.DEFAULT_SEPARATOR, CSVParser.DEFAULT_QUOTE_CHARACTER, 
+      reader = new CSVReader(new BufferedReader(new FileReader(filePath)),
+                             CSVParser.DEFAULT_SEPARATOR,
+                             CSVParser.DEFAULT_QUOTE_CHARACTER,
           CSVParser.DEFAULT_ESCAPE_CHARACTER);
       String[] currentLine;
       while ((currentLine = reader.readNext()) != null) {
@@ -114,11 +123,37 @@ public class CalendarLoaderTool extends AbstractTool<ToolContext> {
   @Override
   protected Options createOptions(boolean mandatoryConfig) {
     Options options = super.createOptions(mandatoryConfig);
+    options.addOption(createFilenameOption());
+    options.addOption(createCalendarSchemOption());
+    options.addOption(createCalendarNameOption());
     options.addOption(createDoNotPersistOption());
     options.addOption(createVerboseOption());
     return options;
   }
-  
+
+  private static Option createFilenameOption() {
+    final Option option = new Option(FILE_NAME_OPTION, "filename", true, "The path to the file to import");
+    option.setRequired(true);
+    option.setArgName("file path/name");
+    return option;
+  }
+
+
+  private static Option createCalendarSchemOption() {
+    final Option option = new Option(CALENDAR_SCHEME_OPTION, "schema", true,
+                                     "The schema for the calendar id, for example ISDA_HOLIDAY");
+    option.setRequired(true);
+    option.setArgName("schema");
+    return option;
+  }
+
+  private static Option createCalendarNameOption() {
+    final Option option = new Option(CALENDAR_NAME_OPTION, "name", true, "The name of the calendar");
+    option.setRequired(true);
+    option.setArgName("name");
+    return option;
+  }
+
   /**
    * Creates an option to turn persistence on and off.
    * @return The option

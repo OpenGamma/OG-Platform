@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.capletstripping;
@@ -59,7 +59,8 @@ public class CapletStrippingBootstrap {
       ArgumentChecker.isTrue(cap.getStrike() == strike, "caps must have same strike for this method");
       ArgumentChecker.isTrue(cap.getStartTime() == startTime, "caps must be co-starting");
       final double temp = cap.getEndTime();
-      ArgumentChecker.isTrue(temp > endTime, "caps must be in order of increasing end time"); //TODO remove this by sorting caps
+      ArgumentChecker.isTrue(temp > endTime, "caps must be in order of increasing end time"); // TODO remove this by sorting caps
+
       // decompose caps
       final int i2 = cap.getNumberOfPayments();
       final CapFloorIbor[] caplets = cap.getPayments();
@@ -85,7 +86,7 @@ public class CapletStrippingBootstrap {
   }
 
   /**
-   *
+   * The caplet vols for each piecewise constant period 
    * @param mktCapFlPrices market prices of caps
    * @return The set caplet/floorlet volatilities (indexed in ascending time order)
    */
@@ -114,7 +115,7 @@ public class CapletStrippingBootstrap {
   }
 
   /**
-   *
+   * The caplet vols for each piecewise constant period 
    * @param mktCapFlVols market implied volatilities of caps
    * @return he set caplet/floorlet volatilities (indexed in ascending time order)
    */
