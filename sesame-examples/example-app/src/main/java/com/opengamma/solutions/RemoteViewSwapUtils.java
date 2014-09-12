@@ -12,13 +12,13 @@ import static com.opengamma.sesame.config.ConfigBuilder.config;
 import static com.opengamma.sesame.config.ConfigBuilder.function;
 import static com.opengamma.sesame.config.ConfigBuilder.implementations;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.link.ConfigLink;
@@ -53,6 +53,7 @@ import com.opengamma.sesame.irs.InterestRateSwapCalculatorFactory;
 import com.opengamma.sesame.irs.InterestRateSwapFn;
 import com.opengamma.sesame.marketdata.DefaultHistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.GUIDGenerator;
 import com.opengamma.util.money.Currency;
 
@@ -71,74 +72,62 @@ public final class RemoteViewSwapUtils {
   private static final Set<ExternalId> USNY = Sets.newHashSet(ExternalId.of(ExternalSchemes.ISDA_HOLIDAY, "USNY"));
   private static final Set<ExternalId> GB = Sets.newHashSet(ExternalId.of(ExternalSchemes.ISDA_HOLIDAY, "GBLO"));
 
-
   /** List of Vanilla IRS inputs */
-  public static final List<Object> VANILLA_INPUTS = new ArrayList<Object>() {
-    {
-      add(createVanillaFixedVsLibor3mSwap());
-    }
-  };
+  public static final List<Object> VANILLA_INPUTS = ImmutableList.<Object>of(createVanillaFixedVsLibor3mSwap());
 
   /** List of Compounding IRS inputs */
-  public static final List<Object> COMPOUNDING_INPUTS = new ArrayList<Object>() {
-    {
-      add(createFixedVsONCompoundedSwap());
-      add(createCompoundingFFAAVsLibor3mSwap());
-      add(createLibor3mCompounded6mVsLibor6mSwap());
-    }
-  };
+  public static final List<Object> COMPOUNDING_INPUTS = ImmutableList.<Object>of(
+      createFixedVsONCompoundedSwap(),
+      createCompoundingFFAAVsLibor3mSwap(),
+      createLibor3mCompounded6mVsLibor6mSwap());
 
   /** List of Spread IRS inputs */
-  public static final List<Object> SPREAD_INPUTS = new ArrayList<Object>() {
-    {
-      add(createLibor3mSpreadVsLibor6mSwap());
-      add(createSpreadFFAAVsLibor3mSwap());
-    }
-  };
+  public static final List<Object> SPREAD_INPUTS = ImmutableList.<Object>of(
+      createLibor3mSpreadVsLibor6mSwap(),
+      createSpreadFFAAVsLibor3mSwap());
 
   /** List of Fixing IRS inputs */
-  public static final List<Object> FIXING_INPUTS = new ArrayList<Object>() {
-    {
-      add(createFixingFixedVsLibor3mSwap());
-      add(createFixingFixedVsONSwap());
-    }
-  };
+  public static final List<Object> FIXING_INPUTS = ImmutableList.<Object>of(
+      createFixingFixedVsLibor3mSwap(),
+      createFixingFixedVsONSwap());
 
   /** List of Stub IRS inputs */
-  public static final List<Object> STUB_INPUTS = new ArrayList<Object>() {
-    {
-      add(createFixedVsLibor3mStub3MSwap());
-      add(createFixedVsLibor3mStub1MSwap());
-      add(createFixedVsLibor6mStub3MSwap());
-      add(createFixedVsLibor6mStub4MSwap());
-      add(createFixedVsLibor3mLongStartStub6MSwap());
-      add(createFixedVsLibor6mShortEndStub2MSwap());
-    }
-  };
+  public static final List<Object> STUB_INPUTS = ImmutableList.<Object>of(
+      createFixedVsLibor3mStub3MSwap(),
+      createFixedVsLibor3mStub1MSwap(),
+      createFixedVsLibor6mStub3MSwap(),
+      createFixedVsLibor6mStub4MSwap(),
+      createFixedVsLibor3mLongStartStub6MSwap(),
+      createFixedVsLibor6mShortEndStub2MSwap());
 
   /** List of Cross Currency IRS inputs */
-  public static final List<Object> XCCY_INPUTS = new ArrayList<Object>() {
-    {
-      add(createLiborBP3MVsLiborUS3MSwap());
-      add(createFixedUSVsLiborBP3mSwap());
-    }
-  };
+  public static final List<Object> XCCY_INPUTS = ImmutableList.<Object>of(
+      createLiborBP3MVsLiborUS3MSwap(),
+      createFixedUSVsLiborBP3mSwap());
 
   /** List of All IRS inputs */
-  public static final List<Object> SWAP_INPUTS = new ArrayList<Object>() {
-    {
-      addAll(VANILLA_INPUTS);
-      addAll(COMPOUNDING_INPUTS);
-      addAll(SPREAD_INPUTS);
-      addAll(FIXING_INPUTS);
-      addAll(STUB_INPUTS);
-      addAll(XCCY_INPUTS);
-    }
-  };
+  public static final List<Object> SWAP_INPUTS = ImmutableList.<Object>builder()
+      .addAll(VANILLA_INPUTS)
+      .addAll(COMPOUNDING_INPUTS)
+      .addAll(SPREAD_INPUTS)
+      .addAll(FIXING_INPUTS)
+      .addAll(STUB_INPUTS)
+      .addAll(XCCY_INPUTS)
+      .build();
 
+  /**
+   * Utility for creating a fra specific view column
+   * @param output output name, not null
+   * @param exposureConfig exposure function config, not null
+   * @param currencyMatrixLink currency matrix config, not null
+   */
   public static ViewColumn createInterestRateSwapViewColumn(String output,
                                                             ConfigLink<ExposureFunctions> exposureConfig,
                                                             ConfigLink<CurrencyMatrix> currencyMatrixLink) {
+    ArgumentChecker.notNull(output, "output");
+    ArgumentChecker.notNull(exposureConfig, "exposureConfig");
+    ArgumentChecker.notNull(currencyMatrixLink, "currencyMatrixLink");
+
     return
         column(output,
             config(
@@ -218,9 +207,7 @@ public final class RemoteViewSwapUtils {
     receiveLeg.setFloatingReferenceRateId(ExternalId.of("BLOOMBERG_TICKER", "US0003M Index"));
     receiveLeg.setPayReceiveType(PayReceiveType.RECEIVE);
 
-    List<InterestRateSwapLeg> legs = new ArrayList<>();
-    legs.add(payLeg);
-    legs.add(receiveLeg);
+    List<InterestRateSwapLeg> legs = ImmutableList.<InterestRateSwapLeg>of(payLeg, receiveLeg);
 
     return new InterestRateSwapSecurity(
         ExternalIdBundle.of(ExternalId.of("UUID", GUIDGenerator.generate().toString())),
@@ -273,9 +260,7 @@ public final class RemoteViewSwapUtils {
     receiveLeg.setPayReceiveType(PayReceiveType.RECEIVE);
     receiveLeg.setSpreadSchedule(new Rate(0.001));
 
-    List<InterestRateSwapLeg> legs = new ArrayList<>();
-    legs.add(payLeg);
-    legs.add(receiveLeg);
+    List<InterestRateSwapLeg> legs = ImmutableList.<InterestRateSwapLeg>of(payLeg, receiveLeg);
 
     return new InterestRateSwapSecurity(
         ExternalIdBundle.of(ExternalId.of("UUID", GUIDGenerator.generate().toString())),
@@ -322,9 +307,7 @@ public final class RemoteViewSwapUtils {
     receiveLeg.setFloatingReferenceRateId(ExternalId.of("BLOOMBERG_TICKER", "FEDL01 Index"));
     receiveLeg.setPayReceiveType(PayReceiveType.RECEIVE);
 
-    List<InterestRateSwapLeg> legs = new ArrayList<>();
-    legs.add(payLeg);
-    legs.add(receiveLeg);
+    List<InterestRateSwapLeg> legs = ImmutableList.<InterestRateSwapLeg>of(payLeg, receiveLeg);
 
     return new InterestRateSwapSecurity(
         ExternalIdBundle.of(ExternalId.of("UUID", GUIDGenerator.generate().toString())),
@@ -371,9 +354,7 @@ public final class RemoteViewSwapUtils {
     receiveLeg.setFloatingReferenceRateId(ExternalId.of("BLOOMBERG_TICKER", "FEDL01 Index"));
     receiveLeg.setPayReceiveType(PayReceiveType.RECEIVE);
 
-    List<InterestRateSwapLeg> legs = new ArrayList<>();
-    legs.add(payLeg);
-    legs.add(receiveLeg);
+    List<InterestRateSwapLeg> legs = ImmutableList.<InterestRateSwapLeg>of(payLeg, receiveLeg);;
 
     return new InterestRateSwapSecurity(
         ExternalIdBundle.of(ExternalId.of("UUID", GUIDGenerator.generate().toString())),
@@ -418,9 +399,7 @@ public final class RemoteViewSwapUtils {
     receiveLeg.setFloatingReferenceRateId(ExternalId.of("BLOOMBERG_TICKER", "US0003M Index"));
     receiveLeg.setPayReceiveType(PayReceiveType.RECEIVE);
 
-    List<InterestRateSwapLeg> legs = new ArrayList<>();
-    legs.add(payLeg);
-    legs.add(receiveLeg);
+    List<InterestRateSwapLeg> legs = ImmutableList.<InterestRateSwapLeg>of(payLeg, receiveLeg);
 
     return new InterestRateSwapSecurity(
         ExternalIdBundle.of(ExternalId.of("UUID", GUIDGenerator.generate().toString())),
@@ -465,9 +444,7 @@ public final class RemoteViewSwapUtils {
     receiveLeg.setFloatingReferenceRateId(ExternalId.of("BLOOMBERG_TICKER", "US0003M Index"));
     receiveLeg.setPayReceiveType(PayReceiveType.RECEIVE);
 
-    List<InterestRateSwapLeg> legs = new ArrayList<>();
-    legs.add(payLeg);
-    legs.add(receiveLeg);
+    List<InterestRateSwapLeg> legs = ImmutableList.<InterestRateSwapLeg>of(payLeg, receiveLeg);
 
     return new InterestRateSwapSecurity(
         ExternalIdBundle.of(ExternalId.of("UUID", GUIDGenerator.generate().toString())),
@@ -518,9 +495,7 @@ public final class RemoteViewSwapUtils {
     receiveLeg.setFloatingReferenceRateId(ExternalId.of("BLOOMBERG_TICKER", "FEDL01 Index"));
     receiveLeg.setPayReceiveType(PayReceiveType.RECEIVE);
 
-    List<InterestRateSwapLeg> legs = new ArrayList<>();
-    legs.add(payLeg);
-    legs.add(receiveLeg);
+    List<InterestRateSwapLeg> legs = ImmutableList.<InterestRateSwapLeg>of(payLeg, receiveLeg);
 
     return new InterestRateSwapSecurity(
         ExternalIdBundle.of(ExternalId.of("UUID", GUIDGenerator.generate().toString())),
@@ -572,9 +547,7 @@ public final class RemoteViewSwapUtils {
     receiveLeg.setPayReceiveType(PayReceiveType.RECEIVE);
     receiveLeg.setSpreadSchedule(new Rate(0.0025));
 
-    List<InterestRateSwapLeg> legs = new ArrayList<>();
-    legs.add(payLeg);
-    legs.add(receiveLeg);
+    List<InterestRateSwapLeg> legs = ImmutableList.<InterestRateSwapLeg>of(payLeg, receiveLeg);
 
     return new InterestRateSwapSecurity(
         ExternalIdBundle.of(ExternalId.of("UUID", GUIDGenerator.generate().toString())),
@@ -627,9 +600,7 @@ public final class RemoteViewSwapUtils {
     receiveLeg.setStubCalculationMethod(stub);
     receiveLeg.setPayReceiveType(PayReceiveType.RECEIVE);
 
-    List<InterestRateSwapLeg> legs = new ArrayList<>();
-    legs.add(payLeg);
-    legs.add(receiveLeg);
+    List<InterestRateSwapLeg> legs = ImmutableList.<InterestRateSwapLeg>of(payLeg, receiveLeg);
 
     return new InterestRateSwapSecurity(
         ExternalIdBundle.of(ExternalId.of("UUID", GUIDGenerator.generate().toString())),
@@ -683,9 +654,7 @@ public final class RemoteViewSwapUtils {
     receiveLeg.setStubCalculationMethod(stub);
     receiveLeg.setPayReceiveType(PayReceiveType.RECEIVE);
 
-    List<InterestRateSwapLeg> legs = new ArrayList<>();
-    legs.add(payLeg);
-    legs.add(receiveLeg);
+    List<InterestRateSwapLeg> legs = ImmutableList.<InterestRateSwapLeg>of(payLeg, receiveLeg);
 
     return new InterestRateSwapSecurity(
         ExternalIdBundle.of(ExternalId.of("UUID", GUIDGenerator.generate().toString())),
@@ -741,9 +710,7 @@ public final class RemoteViewSwapUtils {
     receiveLeg.setStubCalculationMethod(stub);
     receiveLeg.setPayReceiveType(PayReceiveType.RECEIVE);
 
-    List<InterestRateSwapLeg> legs = new ArrayList<>();
-    legs.add(payLeg);
-    legs.add(receiveLeg);
+    List<InterestRateSwapLeg> legs = ImmutableList.<InterestRateSwapLeg>of(payLeg, receiveLeg);
 
     return new InterestRateSwapSecurity(
         ExternalIdBundle.of(ExternalId.of("UUID", GUIDGenerator.generate().toString())),
@@ -798,9 +765,7 @@ public final class RemoteViewSwapUtils {
     receiveLeg.setStubCalculationMethod(stub);
     receiveLeg.setPayReceiveType(PayReceiveType.RECEIVE);
 
-    List<InterestRateSwapLeg> legs = new ArrayList<>();
-    legs.add(payLeg);
-    legs.add(receiveLeg);
+    List<InterestRateSwapLeg> legs = ImmutableList.<InterestRateSwapLeg>of(payLeg, receiveLeg);
 
     return new InterestRateSwapSecurity(
         ExternalIdBundle.of(ExternalId.of("UUID", GUIDGenerator.generate().toString())),
@@ -854,9 +819,7 @@ public final class RemoteViewSwapUtils {
     payLeg.setStubCalculationMethod(stub);
     receiveLeg.setPayReceiveType(PayReceiveType.RECEIVE);
 
-    List<InterestRateSwapLeg> legs = new ArrayList<>();
-    legs.add(payLeg);
-    legs.add(receiveLeg);
+    List<InterestRateSwapLeg> legs = ImmutableList.<InterestRateSwapLeg>of(payLeg, receiveLeg);
 
     return new InterestRateSwapSecurity(
         ExternalIdBundle.of(ExternalId.of("UUID", GUIDGenerator.generate().toString())),
@@ -913,9 +876,7 @@ public final class RemoteViewSwapUtils {
     receiveLeg.setStubCalculationMethod(stub);
     receiveLeg.setPayReceiveType(PayReceiveType.RECEIVE);
 
-    List<InterestRateSwapLeg> legs = new ArrayList<>();
-    legs.add(payLeg);
-    legs.add(receiveLeg);
+    List<InterestRateSwapLeg> legs = ImmutableList.<InterestRateSwapLeg>of(payLeg, receiveLeg);
 
     return new InterestRateSwapSecurity(
         ExternalIdBundle.of(ExternalId.of("UUID", GUIDGenerator.generate().toString())),
@@ -971,9 +932,7 @@ public final class RemoteViewSwapUtils {
     receiveLeg.setFloatingReferenceRateId(ExternalId.of("BLOOMBERG_TICKER", "US0003M Index"));
     receiveLeg.setPayReceiveType(PayReceiveType.RECEIVE);
 
-    List<InterestRateSwapLeg> legs = new ArrayList<>();
-    legs.add(payLeg);
-    legs.add(receiveLeg);
+    List<InterestRateSwapLeg> legs = ImmutableList.<InterestRateSwapLeg>of(payLeg, receiveLeg);
 
     return new InterestRateSwapSecurity(
         ExternalIdBundle.of(ExternalId.of("UUID", GUIDGenerator.generate().toString())),
@@ -1018,9 +977,7 @@ public final class RemoteViewSwapUtils {
     receiveLeg.setFloatingReferenceRateId(ExternalId.of("BLOOMBERG_TICKER", "BP0003M Index"));
     receiveLeg.setPayReceiveType(PayReceiveType.RECEIVE);
 
-    List<InterestRateSwapLeg> legs = new ArrayList<>();
-    legs.add(payLeg);
-    legs.add(receiveLeg);
+    List<InterestRateSwapLeg> legs = ImmutableList.<InterestRateSwapLeg>of(payLeg, receiveLeg);
 
     return new InterestRateSwapSecurity(
         ExternalIdBundle.of(ExternalId.of("UUID", GUIDGenerator.generate().toString())),
