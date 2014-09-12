@@ -5,22 +5,45 @@
  */
 package com.opengamma.solutions;
 
+import static com.opengamma.sesame.config.ConfigBuilder.argument;
+import static com.opengamma.sesame.config.ConfigBuilder.arguments;
+import static com.opengamma.sesame.config.ConfigBuilder.column;
+import static com.opengamma.sesame.config.ConfigBuilder.config;
+import static com.opengamma.sesame.config.ConfigBuilder.function;
+import static com.opengamma.sesame.config.ConfigBuilder.implementations;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Period;
+
 import com.google.common.collect.Sets;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.link.ConfigLink;
-import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
 import com.opengamma.financial.analytics.curve.exposure.ExposureFunctions;
-import com.opengamma.financial.analytics.model.fixedincome.BucketedCurveSensitivities;
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.currency.CurrencyMatrix;
-import com.opengamma.financial.security.irs.*;
+import com.opengamma.financial.security.irs.FixedInterestRateSwapLeg;
+import com.opengamma.financial.security.irs.FloatingInterestRateSwapLeg;
+import com.opengamma.financial.security.irs.InterestRateSwapLeg;
+import com.opengamma.financial.security.irs.InterestRateSwapNotional;
+import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
+import com.opengamma.financial.security.irs.PayReceiveType;
+import com.opengamma.financial.security.irs.Rate;
+import com.opengamma.financial.security.irs.StubCalculationMethod;
 import com.opengamma.financial.security.swap.FloatingRateType;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.sesame.*;
+import com.opengamma.sesame.ConfigDbMarketExposureSelectorFn;
+import com.opengamma.sesame.DefaultCurveNodeConverterFn;
+import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
+import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
+import com.opengamma.sesame.RootFinderConfiguration;
 import com.opengamma.sesame.component.RetrievalPeriod;
 import com.opengamma.sesame.component.StringSet;
 import com.opengamma.sesame.config.ViewColumn;
@@ -32,15 +55,6 @@ import com.opengamma.sesame.marketdata.DefaultHistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
 import com.opengamma.util.GUIDGenerator;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.money.MultipleCurrencyAmount;
-import com.opengamma.util.result.Result;
-import com.opengamma.util.tuple.Pair;
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.Period;
-
-import java.util.*;
-
-import static com.opengamma.sesame.config.ConfigBuilder.*;
 
 /**
  * Utility class for remote views
@@ -49,24 +63,24 @@ public final class RemoteViewSwapUtils {
 
   private RemoteViewSwapUtils() { /* private constructor */ }
 
-  private static InterestRateSwapNotional USD_NOTIONAL = new InterestRateSwapNotional(Currency.USD, 100_000_000);
-  private static InterestRateSwapNotional GBP_NOTIONAL = new InterestRateSwapNotional(Currency.GBP, 61_600_000);
-  private static PeriodFrequency P6M = PeriodFrequency.of(Period.ofMonths(6));
-  private static PeriodFrequency P3M = PeriodFrequency.of(Period.ofMonths(3));
-  private static PeriodFrequency P1Y = PeriodFrequency.of(Period.ofYears(1));
-  private static Set<ExternalId> USNY = Sets.newHashSet(ExternalId.of(ExternalSchemes.ISDA_HOLIDAY, "USNY"));
-  private static Set<ExternalId> GB = Sets.newHashSet(ExternalId.of(ExternalSchemes.ISDA_HOLIDAY, "GBLO"));
+  private static final InterestRateSwapNotional USD_NOTIONAL = new InterestRateSwapNotional(Currency.USD, 100_000_000);
+  private static final InterestRateSwapNotional GBP_NOTIONAL = new InterestRateSwapNotional(Currency.GBP, 61_600_000);
+  private static final PeriodFrequency P6M = PeriodFrequency.of(Period.ofMonths(6));
+  private static final PeriodFrequency P3M = PeriodFrequency.of(Period.ofMonths(3));
+  private static final PeriodFrequency P1Y = PeriodFrequency.of(Period.ofYears(1));
+  private static final Set<ExternalId> USNY = Sets.newHashSet(ExternalId.of(ExternalSchemes.ISDA_HOLIDAY, "USNY"));
+  private static final Set<ExternalId> GB = Sets.newHashSet(ExternalId.of(ExternalSchemes.ISDA_HOLIDAY, "GBLO"));
 
 
   /** List of Vanilla IRS inputs */
-  public static  List<Object> VANILLA_INPUTS = new ArrayList<Object>() {
+  public static final List<Object> VANILLA_INPUTS = new ArrayList<Object>() {
     {
       add(createVanillaFixedVsLibor3mSwap());
     }
   };
 
   /** List of Compounding IRS inputs */
-  public static  List<Object> COMPOUNDING_INPUTS = new ArrayList<Object>() {
+  public static final List<Object> COMPOUNDING_INPUTS = new ArrayList<Object>() {
     {
       add(createFixedVsONCompoundedSwap());
       add(createCompoundingFFAAVsLibor3mSwap());
@@ -75,7 +89,7 @@ public final class RemoteViewSwapUtils {
   };
 
   /** List of Spread IRS inputs */
-  public static  List<Object> SPREAD_INPUTS = new ArrayList<Object>() {
+  public static final List<Object> SPREAD_INPUTS = new ArrayList<Object>() {
     {
       add(createLibor3mSpreadVsLibor6mSwap());
       add(createSpreadFFAAVsLibor3mSwap());
@@ -83,7 +97,7 @@ public final class RemoteViewSwapUtils {
   };
 
   /** List of Fixing IRS inputs */
-  public static  List<Object> FIXING_INPUTS = new ArrayList<Object>() {
+  public static final List<Object> FIXING_INPUTS = new ArrayList<Object>() {
     {
       add(createFixingFixedVsLibor3mSwap());
       add(createFixingFixedVsONSwap());
@@ -91,17 +105,19 @@ public final class RemoteViewSwapUtils {
   };
 
   /** List of Stub IRS inputs */
-  public static  List<Object> STUB_INPUTS = new ArrayList<Object>() {
+  public static final List<Object> STUB_INPUTS = new ArrayList<Object>() {
     {
       add(createFixedVsLibor3mStub3MSwap());
       add(createFixedVsLibor3mStub1MSwap());
       add(createFixedVsLibor6mStub3MSwap());
       add(createFixedVsLibor6mStub4MSwap());
+      add(createFixedVsLibor3mLongStartStub6MSwap());
+      add(createFixedVsLibor6mShortEndStub2MSwap());
     }
   };
 
   /** List of Cross Currency IRS inputs */
-  public static  List<Object> XCCY_INPUTS = new ArrayList<Object>() {
+  public static final List<Object> XCCY_INPUTS = new ArrayList<Object>() {
     {
       add(createLiborBP3MVsLiborUS3MSwap());
       add(createFixedUSVsLiborBP3mSwap());
@@ -109,7 +125,7 @@ public final class RemoteViewSwapUtils {
   };
 
   /** List of All IRS inputs */
-  public static  List<Object> SWAP_INPUTS = new ArrayList<Object>() {
+  public static final List<Object> SWAP_INPUTS = new ArrayList<Object>() {
     {
       addAll(VANILLA_INPUTS);
       addAll(COMPOUNDING_INPUTS);
@@ -117,8 +133,6 @@ public final class RemoteViewSwapUtils {
       addAll(FIXING_INPUTS);
       addAll(STUB_INPUTS);
       addAll(XCCY_INPUTS);
-
-
     }
   };
 
@@ -158,39 +172,6 @@ public final class RemoteViewSwapUtils {
                     DiscountingInterestRateSwapCalculatorFactory.class)
             )
         );
-  }
-
-  public static void outputMultipleCurrencyAmount(String label, Result result) {
-
-    if (result.isSuccess()) {
-      MultipleCurrencyAmount mca = (MultipleCurrencyAmount) result.getValue();
-      System.out.println(label + ": PV "  + mca.toString());
-    } else {
-      System.out.println(label + ": Error - " + result.getFailureMessage());
-    }
-  }
-
-  public static void outputBucketedCurveSensitivities(String label, Result result) {
-
-    if (result.isSuccess()) {
-      System.out.println(label  + ": Bucketed PV01");
-
-      BucketedCurveSensitivities bcs = (BucketedCurveSensitivities) result.getValue();
-      Map sensitivities = bcs.getSensitivities();
-      Iterator entryIterator = sensitivities.entrySet().iterator();
-      while(entryIterator.hasNext()) {
-        Map.Entry entry = (Map.Entry) entryIterator.next();
-        Pair pair = (Pair) entry.getKey();
-        DoubleLabelledMatrix1D matrix = (DoubleLabelledMatrix1D) sensitivities.get(pair);
-        System.out.println("  " + pair.getFirst().toString() + ": " + pair.getSecond().toString());
-        for (int i=0; i < matrix.getLabels().length; i++) {
-          System.out.println("    " + matrix.getLabels()[i].toString() + ": " + matrix.getValues()[i]);
-        }
-      }
-    } else {
-      System.out.println(label + ": Error - " + result.getFailureMessage());
-    }
-
   }
 
   /* Sample Interest Rate Swaps */
@@ -652,7 +633,7 @@ public final class RemoteViewSwapUtils {
 
     return new InterestRateSwapSecurity(
         ExternalIdBundle.of(ExternalId.of("UUID", GUIDGenerator.generate().toString())),
-        "Swap Fixed vs Libor3M - Stub 3M",
+        "Stub - Swap Fixed vs Libor3M - Short Start Stub 3M",
         LocalDate.of(2014, 9, 12), // effective date
         LocalDate.of(2016, 6, 12), // maturity date,
         legs);
@@ -708,7 +689,7 @@ public final class RemoteViewSwapUtils {
 
     return new InterestRateSwapSecurity(
         ExternalIdBundle.of(ExternalId.of("UUID", GUIDGenerator.generate().toString())),
-        "Swap Fixed vs Libor3M - Stub 1M",
+        "Stub - Swap Fixed vs Libor3M - Short Start Stub 1M",
         LocalDate.of(2014, 9, 12), // effective date
         LocalDate.of(2016, 7, 12), // maturity date,
         legs);
@@ -766,7 +747,7 @@ public final class RemoteViewSwapUtils {
 
     return new InterestRateSwapSecurity(
         ExternalIdBundle.of(ExternalId.of("UUID", GUIDGenerator.generate().toString())),
-        "Swap Fixed vs Libor6M - Stub 3M",
+        "Stub - Swap Fixed vs Libor6M - Short Start Stub 3M",
         LocalDate.of(2014, 9, 12), // effective date
         LocalDate.of(2016, 6, 12), // maturity date,
         legs);
@@ -823,11 +804,129 @@ public final class RemoteViewSwapUtils {
 
     return new InterestRateSwapSecurity(
         ExternalIdBundle.of(ExternalId.of("UUID", GUIDGenerator.generate().toString())),
-        "Swap Fixed vs Libor6M - Stub 4M",
+        "Stub - Swap Fixed vs Libor6M - Short Start Stub 4M",
         LocalDate.of(2014, 9, 12), // effective date
         LocalDate.of(2016, 7, 12), // maturity date,
         legs);
   }
+
+  private static InterestRateSwapSecurity createFixedVsLibor3mLongStartStub6MSwap() {
+
+    StubCalculationMethod.Builder stubBuilder = StubCalculationMethod.builder()
+        .type(StubType.LONG_START)
+        .firstStubEndDate(LocalDate.of(2014, 9, 12))
+        .firstStubStartReferenceRateId(ExternalId.of("BLOOMBERG_TICKER", "US0006M Index"))
+        .firstStubEndReferenceRateId(ExternalId.of("BLOOMBERG_TICKER", "US0006M Index"));
+    StubCalculationMethod stub = stubBuilder.build();
+
+    FixedInterestRateSwapLeg payLeg = new FixedInterestRateSwapLeg();
+    payLeg.setNotional(USD_NOTIONAL);
+    payLeg.setDayCountConvention(DayCounts.THIRTY_U_360);
+    payLeg.setPaymentDateFrequency(P6M);
+    payLeg.setPaymentDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
+    payLeg.setPaymentDateCalendars(USNY);
+    payLeg.setAccrualPeriodFrequency(P6M);
+    payLeg.setAccrualPeriodBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
+    payLeg.setMaturityDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
+    payLeg.setAccrualPeriodCalendars(USNY);
+    payLeg.setRate(new Rate(0.015));
+    payLeg.setStubCalculationMethod(stub);
+    payLeg.setPayReceiveType(PayReceiveType.PAY);
+
+    FloatingInterestRateSwapLeg receiveLeg = new FloatingInterestRateSwapLeg();
+    receiveLeg.setNotional(USD_NOTIONAL);
+    receiveLeg.setDayCountConvention(DayCounts.ACT_360);
+    receiveLeg.setPaymentDateFrequency(P3M);
+    receiveLeg.setPaymentDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
+    receiveLeg.setPaymentDateCalendars(USNY);
+    receiveLeg.setAccrualPeriodFrequency(P3M);
+    receiveLeg.setAccrualPeriodBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
+    receiveLeg.setAccrualPeriodCalendars(USNY);
+    receiveLeg.setResetPeriodFrequency(P3M);
+    receiveLeg.setResetPeriodBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
+    receiveLeg.setResetPeriodCalendars(USNY);
+    receiveLeg.setFixingDateBusinessDayConvention(BusinessDayConventions.PRECEDING);
+    receiveLeg.setMaturityDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
+    receiveLeg.setFixingDateCalendars(USNY);
+    receiveLeg.setFixingDateOffset(-2);
+    receiveLeg.setFloatingRateType(FloatingRateType.IBOR);
+    receiveLeg.setFloatingReferenceRateId(ExternalId.of("BLOOMBERG_TICKER", "US0003M Index"));
+    payLeg.setStubCalculationMethod(stub);
+    receiveLeg.setPayReceiveType(PayReceiveType.RECEIVE);
+
+    List<InterestRateSwapLeg> legs = new ArrayList<>();
+    legs.add(payLeg);
+    legs.add(receiveLeg);
+
+    return new InterestRateSwapSecurity(
+        ExternalIdBundle.of(ExternalId.of("UUID", GUIDGenerator.generate().toString())),
+        "Stub - Swap Fixed vs Libor 3m - Long Start Stub 6M ",
+        LocalDate.of(2014, 3, 12), // effective date
+        LocalDate.of(2021, 9, 11), // maturity date,
+        legs);
+
+  }
+
+  private static InterestRateSwapSecurity createFixedVsLibor6mShortEndStub2MSwap() {
+
+    StubCalculationMethod.Builder stubBuilder = StubCalculationMethod.builder()
+
+        .type(StubType.SHORT_END)
+        .lastStubEndDate(LocalDate.of(2021, 11, 12))
+        .lastStubStartReferenceRateId(ExternalId.of("BLOOMBERG_TICKER", "US0001M Index"))
+        .lastStubEndReferenceRateId(ExternalId.of("BLOOMBERG_TICKER", "US0003M Index"));
+
+    StubCalculationMethod stub = stubBuilder.build();
+
+    FixedInterestRateSwapLeg payLeg = new FixedInterestRateSwapLeg();
+    payLeg.setNotional(USD_NOTIONAL);
+    payLeg.setDayCountConvention(DayCounts.THIRTY_U_360);
+    payLeg.setPaymentDateFrequency(P6M);
+    payLeg.setPaymentDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
+    payLeg.setPaymentDateCalendars(USNY);
+    payLeg.setAccrualPeriodFrequency(P6M);
+    payLeg.setAccrualPeriodBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
+    payLeg.setMaturityDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
+    payLeg.setAccrualPeriodCalendars(USNY);
+    payLeg.setRate(new Rate(0.015));
+    payLeg.setStubCalculationMethod(stub);
+    payLeg.setPayReceiveType(PayReceiveType.PAY);
+
+    FloatingInterestRateSwapLeg receiveLeg = new FloatingInterestRateSwapLeg();
+    receiveLeg.setNotional(USD_NOTIONAL);
+    receiveLeg.setDayCountConvention(DayCounts.ACT_360);
+    receiveLeg.setPaymentDateFrequency(P6M);
+    receiveLeg.setPaymentDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
+    receiveLeg.setPaymentDateCalendars(USNY);
+    receiveLeg.setAccrualPeriodFrequency(P6M);
+    receiveLeg.setAccrualPeriodBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
+    receiveLeg.setAccrualPeriodCalendars(USNY);
+    receiveLeg.setResetPeriodFrequency(P6M);
+    receiveLeg.setResetPeriodBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
+    receiveLeg.setResetPeriodCalendars(USNY);
+    receiveLeg.setFixingDateBusinessDayConvention(BusinessDayConventions.PRECEDING);
+    receiveLeg.setMaturityDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
+    receiveLeg.setFixingDateCalendars(USNY);
+    receiveLeg.setFixingDateOffset(-2);
+    receiveLeg.setFloatingRateType(FloatingRateType.IBOR);
+    receiveLeg.setFloatingReferenceRateId(ExternalId.of("BLOOMBERG_TICKER", "US0006M Index"));
+    receiveLeg.setStubCalculationMethod(stub);
+    receiveLeg.setPayReceiveType(PayReceiveType.RECEIVE);
+
+    List<InterestRateSwapLeg> legs = new ArrayList<>();
+    legs.add(payLeg);
+    legs.add(receiveLeg);
+
+    return new InterestRateSwapSecurity(
+        ExternalIdBundle.of(ExternalId.of("UUID", GUIDGenerator.generate().toString())),
+        "Stub - Swap Fixed vs Libor 3m - Short End Stub 2M ",
+        LocalDate.of(2014, 9, 12), // effective date
+        LocalDate.of(2021, 11, 12), // maturity date,
+        legs);
+  }
+
+
+
 
   private static InterestRateSwapSecurity createLiborBP3MVsLiborUS3MSwap() {
 

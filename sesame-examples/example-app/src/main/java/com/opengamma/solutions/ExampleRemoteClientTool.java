@@ -113,9 +113,9 @@ public class ExampleRemoteClientTool extends AbstractTool<ToolContext> {
     for (ResultRow row : results.getRows()) {
       InterestRateSwapSecurity irs =  (InterestRateSwapSecurity) row.getInput();
       // Output PV
-      RemoteViewSwapUtils.outputMultipleCurrencyAmount(irs.getName(), row.get(0).getResult());
+      RemoteViewUtils.outputMultipleCurrencyAmount(irs.getName(), row.get(0).getResult());
       // Output Bucketed PV01
-      RemoteViewSwapUtils.outputBucketedCurveSensitivities(irs.getName(), row.get(1).getResult());
+      RemoteViewUtils.outputBucketedCurveSensitivities(irs.getName(), row.get(1).getResult());
     }
     System.exit(0);
   }

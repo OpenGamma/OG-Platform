@@ -290,6 +290,26 @@ public class RemoteSwapTest {
 
   }
 
+  @Test(enabled = true)
+  public void testFixedVsLibor3mLongStartStub6MSwapPV() {
+
+    //TODO PLAT-6777
+    Result result = _stubResults.get(4, 0).getResult();
+    assertThat(result.isSuccess(), is(true));
+    assertThat(result.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
+
+  }
+
+  @Test(enabled = true)
+  public void testFixedVsLibor6mShortEndStub2MSwapPV() {
+
+    //TODO PLAT-6777
+    Result result = _stubResults.get(5, 0).getResult();
+    assertThat(result.isSuccess(), is(true));
+    assertThat(result.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
+
+  }
+
   /* Stubs - end */
 
   /* XCCY - start */
