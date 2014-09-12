@@ -47,6 +47,8 @@ import com.opengamma.sesame.function.AvailableOutputs;
 import com.opengamma.sesame.function.InvalidInputFunction;
 import com.opengamma.sesame.function.InvokableFunction;
 import com.opengamma.sesame.function.PermissionDeniedFunction;
+import com.opengamma.sesame.function.scenarios.FilteredScenarioDefinition;
+import com.opengamma.sesame.function.scenarios.ScenarioDefinition;
 import com.opengamma.sesame.graph.CompositeNodeDecorator;
 import com.opengamma.sesame.graph.FunctionBuilder;
 import com.opengamma.sesame.graph.FunctionModel;
@@ -240,12 +242,11 @@ public class View {
 
     Environment env = new EngineEnvironment(cycleArguments.getValuationTime(),
                                             cycleInitializer.getCycleMarketDataFactory(),
-                                            cycleArguments.getScenarioArguments(),
                                             _cacheInvalidator);
 
     List<Task> tasks = new ArrayList<>();
     Graph graph = cycleInitializer.getGraph();
-    tasks.addAll(portfolioTasks(env, cycleArguments, inputs, graph));
+    tasks.addAll(portfolioTasks(env, cycleArguments, inputs, graph, _viewConfig.getScenarioDefinition()));
     tasks.addAll(nonPortfolioTasks(env, cycleArguments, graph));
     List<Future<TaskResult>> futures;
 
@@ -299,12 +300,19 @@ public class View {
     return _graphModel.getFunctionModel(outputName);
   }
 
-  private List<Task> portfolioTasks(Environment env, CycleArguments cycleArguments, List<?> inputs, Graph graph) {
+  private List<Task> portfolioTasks(Environment env,
+                                    CycleArguments cycleArguments,
+                                    List<?> inputs,
+                                    Graph graph,
+                                    ScenarioDefinition scenarioDefinition) {
     // create tasks for the portfolio outputs
     int colIndex = 0;
     List<Task> portfolioTasks = Lists.newArrayList();
     for (ViewColumn column : _viewConfig.getColumns()) {
+      FilteredScenarioDefinition filteredDef = scenarioDefinition.filter(column.getName());
+      Environment columnEnv = env.withScenarioDefinition(filteredDef);
       Map<Class<?>, InvokableFunction> functions = graph.getFunctionsForColumn(column.getName());
+
       int rowIndex = 0;
       for (Object input : inputs) {
         // the function that is determined from the input
@@ -353,7 +361,7 @@ public class View {
         FunctionArguments args =
             cycleArguments.getFunctionArguments().mergedWith(functionModelConfig.getFunctionArguments(implType),
                                                              functionModelConfig.getFunctionArguments(declaringType));
-        portfolioTasks.add(new PortfolioTask(env, functionInput, args, rowIndex++, colIndex, function, tracer));
+        portfolioTasks.add(new PortfolioTask(columnEnv, functionInput, args, rowIndex++, colIndex, function, tracer));
       }
       colIndex++;
     }

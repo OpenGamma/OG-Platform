@@ -18,9 +18,10 @@ import static org.testng.AssertJUnit.assertTrue;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.LinkedList;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+
+import javax.annotation.Nullable;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
@@ -36,6 +37,9 @@ import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.function.Output;
+import com.opengamma.sesame.function.scenarios.AbstractScenarioArgument;
+import com.opengamma.sesame.function.scenarios.FilteredScenarioDefinition;
+import com.opengamma.sesame.function.scenarios.ScenarioFunction;
 import com.opengamma.sesame.graph.FunctionBuilder;
 import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.sesame.marketdata.FieldName;
@@ -367,7 +371,7 @@ public class CachingProxyDecoratorTest {
    * can be affected by the scenario.
    */
   @Test
-  public void scenarioArguments() throws ExecutionException, InterruptedException {
+  public void pruneScenarioArguments() throws ExecutionException, InterruptedException {
     FunctionModelConfig config = config(implementations(ScenarioArgumentsI1.class, ScenarioArgumentsC1.class,
                                                         ScenarioArgumentsI2.class, ScenarioArgumentsC2.class));
     CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheProvider);
@@ -379,11 +383,19 @@ public class CachingProxyDecoratorTest {
         throw new UnsupportedOperationException("get not implemented");
       }
     };
-    Map<Class<?>, Object> scenarioArgs1 = ImmutableMap.<Class<?>, Object>of(ScenarioArgumentsC1.class, "c1args",
-                                                                            ScenarioArgumentsC2.class, "c2args");
-    Map<Class<?>, Object> scenarioArgs2 = ImmutableMap.<Class<?>, Object>of(ScenarioArgumentsC2.class, "c2args");
-    SimpleEnvironment env1 = new SimpleEnvironment(valuationTime, marketDataSource, scenarioArgs1);
-    SimpleEnvironment env2 = new SimpleEnvironment(valuationTime, marketDataSource, scenarioArgs2);
+    // for calls to ScenarioArgumentsC1 the args for ScenarioArgumentsC2 will be included in the key
+    // because ScenarioArgumentsC1 calls ScenarioArgumentsC2
+    FilteredScenarioDefinition scenarioDef1 = new FilteredScenarioDefinition(new Args1(), new Args2());
+    // for calls to ScenarioArgumentsC2 the args for ScenarioArgumentsC1 will be filtered out because
+    // ScenarioArgumentsC2 doesn't call ScenarioArgumentsC1 and therefore its scenario arguments can't affect
+    // any values calculated by ScenarioArgumentsC2
+    FilteredScenarioDefinition scenarioDef2 = new FilteredScenarioDefinition(new Args2());
+
+    // env1 is passed to the functions. it contains scenario arguments for all classes
+    SimpleEnvironment env1 = new SimpleEnvironment(valuationTime, marketDataSource, scenarioDef1);
+    // env2 is the environment that should be passed to ScenarioArgumentsC2 - its scenario arguments have been
+    // filtered to only include the ones applicable to ScenarioArgumentsC2 and its dependencies
+    SimpleEnvironment env2 = new SimpleEnvironment(valuationTime, marketDataSource, scenarioDef2);
     i1.fn(env1, "s1", 1);
     i1.fn(env1, "s2", 2);
 
@@ -392,18 +404,30 @@ public class CachingProxyDecoratorTest {
     Method method1 = EngineUtils.getMethod(ScenarioArgumentsI1.class, "fn");
     Method method2 = EngineUtils.getMethod(ScenarioArgumentsI2.class, "fn");
 
-    checkValue(env1, "s1", 1, c1, method1, "S1 1");
-    checkValue(env1, "s2", 2, c1, method1, "S2 2");
-    checkValue(env2, "s1", 1, c2, method2, "s1 1");
-    checkValue(env2, "s2", 2, c2, method2, "s2 2");
+    checkValueIsInCache(env1, "s1", 1, c1, method1, "S1 1");
+    checkValueIsInCache(env1, "s2", 2, c1, method1, "S2 2");
+    checkValueIsInCache(env2, "s1", 1, c2, method2, "s1 1");
+    checkValueIsInCache(env2, "s2", 2, c2, method2, "s2 2");
   }
 
-  private void checkValue(Environment env,
-                          String stringArg,
-                          int intArg,
-                          Object receiver,
-                          Method method,
-                          String expectedValue) throws InterruptedException, ExecutionException {
+  /**
+   * Checks a value is in the cache after a call to a cacheable method.
+   * <p>
+   * The arguments, the receiver and the method are used to build a key which is used to look up the cached value.
+   *
+   * @param env  the environment argument to the method
+   * @param stringArg  the string argument to the method
+   * @param intArg  the int argument to the method
+   * @param receiver  the receiver of the method call
+   * @param method  the method called
+   * @param expectedValue  the value that should be in the cache
+   */
+  private void checkValueIsInCache(Environment env,
+                                   String stringArg,
+                                   int intArg,
+                                   Object receiver,
+                                   Method method,
+                                   String expectedValue) throws InterruptedException, ExecutionException {
     MethodInvocationKey key = new MethodInvocationKey(receiver, method, new Object[]{env, stringArg, intArg});
     Object value = _cacheProvider.get().getIfPresent(key);
     assertNotNull(value);
@@ -416,7 +440,7 @@ public class CachingProxyDecoratorTest {
     Object fn(Environment env, String s, Integer i);
   }
 
-  public static class ScenarioArgumentsC1 implements ScenarioArgumentsI1 {
+  public static class ScenarioArgumentsC1 implements ScenarioArgumentsI1, ScenarioFunction<Args1> {
 
     private final ScenarioArgumentsI2 _i2;
 
@@ -428,6 +452,12 @@ public class CachingProxyDecoratorTest {
     public Object fn(Environment env, String s, Integer i) {
       return _i2.fn(env, s, i).toUpperCase();
     }
+
+    @Nullable
+    @Override
+    public Class<Args1> getArgumentType() {
+      return Args1.class;
+    }
   }
 
   interface ScenarioArgumentsI2 {
@@ -436,11 +466,51 @@ public class CachingProxyDecoratorTest {
     String fn(Environment env, String s, Integer i);
   }
 
-  public static class ScenarioArgumentsC2 implements ScenarioArgumentsI2 {
+  public static class ScenarioArgumentsC2 implements ScenarioArgumentsI2, ScenarioFunction<Args2> {
 
     @Override
     public String fn(Environment env, String s, Integer i) {
       return s + " " + i;
+    }
+
+    @Nullable
+    @Override
+    public Class<Args2> getArgumentType() {
+      return Args2.class;
+    }
+  }
+
+  public static class Args1 extends AbstractScenarioArgument<ScenarioArgumentsC1> {
+
+    private Args1() {
+      super(ScenarioArgumentsC1.class);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      return obj instanceof Args1;
+    }
+
+    @Override
+    public int hashCode() {
+      return 1;
+    }
+  }
+
+  public static class Args2 extends AbstractScenarioArgument<ScenarioArgumentsC2> {
+
+    private Args2() {
+      super(ScenarioArgumentsC2.class);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      return obj instanceof Args2;
+    }
+
+    @Override
+    public int hashCode() {
+      return 2;
     }
   }
 }

@@ -75,6 +75,7 @@ import com.opengamma.sesame.function.AvailableImplementationsImpl;
 import com.opengamma.sesame.function.AvailableOutputs;
 import com.opengamma.sesame.function.AvailableOutputsImpl;
 import com.opengamma.sesame.function.Output;
+import com.opengamma.sesame.function.scenarios.ScenarioDefinition;
 import com.opengamma.sesame.marketdata.CycleMarketDataFactory;
 import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
 import com.opengamma.sesame.marketdata.DefaultStrategyAwareMarketDataSource;
@@ -354,13 +355,13 @@ public class ViewFactoryTest {
         ImmutableMap.of(Pairs.of(0, 0), TraceType.FULL_AS_STRING);
 
     CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(),
-        VersionCorrection.LATEST,
-        mockCycleMarketDataFactory(),
-        FunctionArguments.EMPTY,
-        ImmutableMap.<Class<?>, Object>of(),
-        traceCells,
-        ImmutableMap.<String, TraceType>of(),
-        false);
+                                                       VersionCorrection.LATEST,
+                                                       mockCycleMarketDataFactory(),
+                                                       FunctionArguments.EMPTY,
+                                                       ScenarioDefinition.EMPTY,
+                                                       traceCells,
+                                                       ImmutableMap.<String, TraceType>of(),
+                                                       false);
     Results results = view.run(cycleArguments, trades);
     CallGraph trace = results.get(0, 0).getCallGraph();
     assertNotNull(trace);
@@ -461,7 +462,7 @@ public class ViewFactoryTest {
                                                        VersionCorrection.LATEST,
                                                        mockCycleMarketDataFactory(),
                                                        FunctionArguments.EMPTY,
-                                                       ImmutableMap.<Class<?>, Object>of(),
+                                                       ScenarioDefinition.EMPTY,
                                                        ImmutableMap.<Pair<Integer, Integer>, TraceType>of(),
                                                        ImmutableMap.of(name, TraceType.FULL_AS_STRING),
                                                        false);

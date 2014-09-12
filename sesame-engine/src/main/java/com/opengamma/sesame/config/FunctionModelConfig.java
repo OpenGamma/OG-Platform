@@ -9,6 +9,7 @@ import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +36,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import com.opengamma.sesame.function.Parameter;
+import com.opengamma.sesame.function.scenarios.ScenarioFunction;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -242,11 +244,18 @@ public class FunctionModelConfig implements ImmutableBean {
       mergedArguments.put(fnType, mergeArguments(_arguments.get(fnType), arguments.get(fnType)));
     }
 
-    // get the set of interfaces implemented by the decorator - only one is supported at the moment
-    Set<Class<?>> interfaces = EngineUtils.getInterfaces(decorator);
+    // get the set of interfaces implemented by the decorator
+    // only one is supported at the moment apart from ScenarioDecorator which is mandatory
+    Set<Class<?>> interfaces = new HashSet<>(EngineUtils.getInterfaces(decorator));
+
+    if (!interfaces.contains(ScenarioFunction.class)) {
+      throw new IllegalArgumentException(decorator.getName() + " doesn't implement ScenarioFunction");
+    }
+    interfaces.remove(ScenarioFunction.class);
 
     if (interfaces.size() != 1) {
-      throw new IllegalArgumentException("Decorator class " + decorator.getName() + " must implement exactly one interface");
+      throw new IllegalArgumentException("Decorator class " + decorator.getName() + " must implement ScenarioDecorator" +
+                                             "and one other one interface");
     }
     Class<?> interfaceType = interfaces.iterator().next();
     LinkedHashSet<Class<?>> decorators = _decoratorsByFn.get(interfaceType);

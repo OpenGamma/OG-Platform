@@ -51,7 +51,7 @@ public class DefaultCycleRecorder implements CycleRecorder {
   public Results complete(Results results) {
     ViewInputs viewInputs = new ViewInputs(
         _tradeInputs, _viewConfig, _cycleArguments.getFunctionArguments(), _cycleArguments.getValuationTime(),
-        _cycleArguments.getScenarioArguments(), _proxiedCycleMarketData.retrieveMarketDataResults(),
+        _cycleArguments.getScenarioDefinition(), _proxiedCycleMarketData.retrieveMarketDataResults(),
         _proxiedComponentMap.retrieveResults(), _proxiedComponentMap.retrieveHtsResults());
     return results.withViewInputs(viewInputs);
   }

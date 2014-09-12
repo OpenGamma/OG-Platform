@@ -17,6 +17,7 @@ import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.sesame.function.scenarios.ScenarioArgument;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
@@ -25,13 +26,18 @@ import com.opengamma.util.time.Tenor;
 /**
  * Shifts to apply to the points in a curve, specified by the tenors of the points to which they apply.
  */
-public abstract class CurveDataPointShifts {
+public abstract class CurveDataPointShifts implements ScenarioArgument<CurveDataPointShiftsDecorator> {
 
   /** Curves are only shifted if they match this matcher. */
   private final CurveSpecificationMatcher _matcher;
 
   /** Shift amounts keyed by tenor of the point to which they apply. */
   private final Map<Tenor, Double> _shifts;
+
+  @Override
+  public Class<CurveDataPointShiftsDecorator> getFunctionType() {
+    return CurveDataPointShiftsDecorator.class;
+  }
 
   protected CurveDataPointShifts(CurveSpecificationMatcher matcher, List<PointShift> shifts) {
     ArgumentChecker.notNull(shifts, "shifts");

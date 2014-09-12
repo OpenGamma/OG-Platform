@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import javax.annotation.Nullable;
+
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
@@ -26,6 +28,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
+import com.opengamma.sesame.function.scenarios.ScenarioDefinition;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -38,29 +41,25 @@ import com.opengamma.util.ArgumentChecker;
 @BeanDefinition
 public final class ViewConfig implements ImmutableBean {
 
-  /**
-   * The view name.
-   */
+  /** The view name. */
   @PropertyDefinition(validate = "notNull")
   private final String _name;
   
-  /**
-   * The default configuration for the entire view.
-   */
+  /** The default configuration for the entire view. */
   @PropertyDefinition(validate = "notNull")
   private final FunctionModelConfig _defaultConfig;
 
-  /**
-   * The columns in the view.
-   */
+  /** The columns in the view. */
   @PropertyDefinition(validate = "notNull")
   private final ImmutableList<ViewColumn> _columns;
 
-  /**
-   * The list of outputs that stand-alone and are not connected to a column.
-   */
+  /** The list of outputs that stand-alone and are not connected to a column. */
   @PropertyDefinition(validate = "notNull")
   private final ImmutableList<NonPortfolioOutput> _nonPortfolioOutputs;
+
+  /** Definition of the scenario that will be applied to the calculations when the view is executed. */
+  @PropertyDefinition(validate = "notNull")
+  private final ScenarioDefinition _scenarioDefinition;
 
   /**
    * Creates an instance.
@@ -70,22 +69,28 @@ public final class ViewConfig implements ImmutableBean {
    * @param columns  the list of columns, not null
    */
   public ViewConfig(String name, FunctionModelConfig defaultConfig, List<ViewColumn> columns) {
-    this(name, defaultConfig, columns, ImmutableList.<NonPortfolioOutput>of());
+    this(name, defaultConfig, columns, ImmutableList.<NonPortfolioOutput>of(), ScenarioDefinition.EMPTY);
   }
 
   /**
    * Creates an instance.
-   * 
-   * @param name  the view name, not null
-   * @param defaultConfig  the default configuration, not null
-   * @param columns  the list of columns, not null
-   * @param nonPortfolioOutputs  the list of stand-alone outputs, not null
+   *
+   * @param name  the view name
+   * @param defaultConfig  the default configuration
+   * @param columns  the list of columns
+   * @param nonPortfolioOutputs  the list of stand-alone outputs
+   * @param scenarioDefinition  definition of the scenario that will be run when the view is executed
    */
   @ImmutableConstructor
   public ViewConfig(String name,
                     FunctionModelConfig defaultConfig,
                     List<ViewColumn> columns,
-                    List<NonPortfolioOutput> nonPortfolioOutputs) {
+                    List<NonPortfolioOutput> nonPortfolioOutputs,
+                    // TODO I don't like this but there are old versions serialized in regression tests without it
+                    // need to investigate Joda beans migrations to see if they offer a cleaner solution
+                    @Nullable ScenarioDefinition scenarioDefinition) {
+    _scenarioDefinition = scenarioDefinition != null ?
+        scenarioDefinition : ScenarioDefinition.EMPTY;
     _defaultConfig = ArgumentChecker.notNull(defaultConfig, "defaultConfig");
     _name = ArgumentChecker.notEmpty(name, "name");
     _columns = ImmutableList.copyOf(ArgumentChecker.notNull(columns, "columns"));
@@ -94,17 +99,29 @@ public final class ViewConfig implements ImmutableBean {
     Set<String> nonPortfolioOutputNames = Sets.newHashSetWithExpectedSize(nonPortfolioOutputs.size());
     for (NonPortfolioOutput output : nonPortfolioOutputs) {
       if (!nonPortfolioOutputNames.add(output.getName())) {
-        throw new IllegalArgumentException("Non-portfolio output names must be unique, '" + output.getName() + "' is repeated");
+        throw new IllegalArgumentException("Non-portfolio output names must be unique, '" +
+                                               output.getName() + "' is repeated");
       }
     }
   }
 
+  /**
+   * Creates a new view configuration derived from this one that will apply a scenario when performing calculations.
+   *
+   * @param scenarioDefinition  definition of the scenario
+   * @return  a new view configuration derived from this one that contains the scenario definition and
+   *   scenario functions required to execute the scenario
+   */
+  public ViewConfig withScenario(ScenarioDefinition scenarioDefinition) {
+    ArgumentChecker.notNull(scenarioDefinition, "scenarioDefinition");
 
-  //-------------------------------------------------------------------------
-  @Override
-  public String toString() {
-    return "ViewConfig [_name='" + _name + "', _defaultConfig=" + _defaultConfig +
-        ", _columns=" + _columns + ", _nonPortfolioOutputs=" + _nonPortfolioOutputs + "]";
+    ScenarioDefinition mergedDefinition = _scenarioDefinition.mergedWith(scenarioDefinition);
+    FunctionModelConfig decoratedConfig = _defaultConfig;
+
+    for (Class<?> decoratorType : mergedDefinition.getFunctionTypes()) {
+      decoratedConfig = decoratedConfig.decoratedWith(decoratorType);
+    }
+    return new ViewConfig(_name, decoratedConfig, _columns, _nonPortfolioOutputs, mergedDefinition);
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -182,6 +199,15 @@ public final class ViewConfig implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the scenarioDefinition.
+   * @return the value of the property, not null
+   */
+  public ScenarioDefinition getScenarioDefinition() {
+    return _scenarioDefinition;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
    */
@@ -199,7 +225,8 @@ public final class ViewConfig implements ImmutableBean {
       return JodaBeanUtils.equal(getName(), other.getName()) &&
           JodaBeanUtils.equal(getDefaultConfig(), other.getDefaultConfig()) &&
           JodaBeanUtils.equal(getColumns(), other.getColumns()) &&
-          JodaBeanUtils.equal(getNonPortfolioOutputs(), other.getNonPortfolioOutputs());
+          JodaBeanUtils.equal(getNonPortfolioOutputs(), other.getNonPortfolioOutputs()) &&
+          JodaBeanUtils.equal(getScenarioDefinition(), other.getScenarioDefinition());
     }
     return false;
   }
@@ -211,7 +238,21 @@ public final class ViewConfig implements ImmutableBean {
     hash += hash * 31 + JodaBeanUtils.hashCode(getDefaultConfig());
     hash += hash * 31 + JodaBeanUtils.hashCode(getColumns());
     hash += hash * 31 + JodaBeanUtils.hashCode(getNonPortfolioOutputs());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getScenarioDefinition());
     return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(192);
+    buf.append("ViewConfig{");
+    buf.append("name").append('=').append(getName()).append(',').append(' ');
+    buf.append("defaultConfig").append('=').append(getDefaultConfig()).append(',').append(' ');
+    buf.append("columns").append('=').append(getColumns()).append(',').append(' ');
+    buf.append("nonPortfolioOutputs").append('=').append(getNonPortfolioOutputs()).append(',').append(' ');
+    buf.append("scenarioDefinition").append('=').append(JodaBeanUtils.toString(getScenarioDefinition()));
+    buf.append('}');
+    return buf.toString();
   }
 
   //-----------------------------------------------------------------------
@@ -247,6 +288,11 @@ public final class ViewConfig implements ImmutableBean {
     private final MetaProperty<ImmutableList<NonPortfolioOutput>> _nonPortfolioOutputs = DirectMetaProperty.ofImmutable(
         this, "nonPortfolioOutputs", ViewConfig.class, (Class) ImmutableList.class);
     /**
+     * The meta-property for the {@code scenarioDefinition} property.
+     */
+    private final MetaProperty<ScenarioDefinition> _scenarioDefinition = DirectMetaProperty.ofImmutable(
+        this, "scenarioDefinition", ViewConfig.class, ScenarioDefinition.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -254,7 +300,8 @@ public final class ViewConfig implements ImmutableBean {
         "name",
         "defaultConfig",
         "columns",
-        "nonPortfolioOutputs");
+        "nonPortfolioOutputs",
+        "scenarioDefinition");
 
     /**
      * Restricted constructor.
@@ -273,6 +320,8 @@ public final class ViewConfig implements ImmutableBean {
           return _columns;
         case 171658775:  // nonPortfolioOutputs
           return _nonPortfolioOutputs;
+        case -690925309:  // scenarioDefinition
+          return _scenarioDefinition;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -325,6 +374,14 @@ public final class ViewConfig implements ImmutableBean {
       return _nonPortfolioOutputs;
     }
 
+    /**
+     * The meta-property for the {@code scenarioDefinition} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<ScenarioDefinition> scenarioDefinition() {
+      return _scenarioDefinition;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -337,6 +394,8 @@ public final class ViewConfig implements ImmutableBean {
           return ((ViewConfig) bean).getColumns();
         case 171658775:  // nonPortfolioOutputs
           return ((ViewConfig) bean).getNonPortfolioOutputs();
+        case -690925309:  // scenarioDefinition
+          return ((ViewConfig) bean).getScenarioDefinition();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -362,6 +421,7 @@ public final class ViewConfig implements ImmutableBean {
     private FunctionModelConfig _defaultConfig;
     private List<ViewColumn> _columns = new ArrayList<ViewColumn>();
     private List<NonPortfolioOutput> _nonPortfolioOutputs = new ArrayList<NonPortfolioOutput>();
+    private ScenarioDefinition _scenarioDefinition;
 
     /**
      * Restricted constructor.
@@ -378,6 +438,7 @@ public final class ViewConfig implements ImmutableBean {
       this._defaultConfig = beanToCopy.getDefaultConfig();
       this._columns = new ArrayList<ViewColumn>(beanToCopy.getColumns());
       this._nonPortfolioOutputs = new ArrayList<NonPortfolioOutput>(beanToCopy.getNonPortfolioOutputs());
+      this._scenarioDefinition = beanToCopy.getScenarioDefinition();
     }
 
     //-----------------------------------------------------------------------
@@ -392,6 +453,8 @@ public final class ViewConfig implements ImmutableBean {
           return _columns;
         case 171658775:  // nonPortfolioOutputs
           return _nonPortfolioOutputs;
+        case -690925309:  // scenarioDefinition
+          return _scenarioDefinition;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -412,6 +475,9 @@ public final class ViewConfig implements ImmutableBean {
           break;
         case 171658775:  // nonPortfolioOutputs
           this._nonPortfolioOutputs = (List<NonPortfolioOutput>) newValue;
+          break;
+        case -690925309:  // scenarioDefinition
+          this._scenarioDefinition = (ScenarioDefinition) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -449,7 +515,8 @@ public final class ViewConfig implements ImmutableBean {
           _name,
           _defaultConfig,
           _columns,
-          _nonPortfolioOutputs);
+          _nonPortfolioOutputs,
+          _scenarioDefinition);
     }
 
     //-----------------------------------------------------------------------
@@ -497,15 +564,27 @@ public final class ViewConfig implements ImmutableBean {
       return this;
     }
 
+    /**
+     * Sets the {@code scenarioDefinition} property in the builder.
+     * @param scenarioDefinition  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder scenarioDefinition(ScenarioDefinition scenarioDefinition) {
+      JodaBeanUtils.notNull(scenarioDefinition, "scenarioDefinition");
+      this._scenarioDefinition = scenarioDefinition;
+      return this;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(160);
+      StringBuilder buf = new StringBuilder(192);
       buf.append("ViewConfig.Builder{");
       buf.append("name").append('=').append(JodaBeanUtils.toString(_name)).append(',').append(' ');
       buf.append("defaultConfig").append('=').append(JodaBeanUtils.toString(_defaultConfig)).append(',').append(' ');
       buf.append("columns").append('=').append(JodaBeanUtils.toString(_columns)).append(',').append(' ');
-      buf.append("nonPortfolioOutputs").append('=').append(JodaBeanUtils.toString(_nonPortfolioOutputs));
+      buf.append("nonPortfolioOutputs").append('=').append(JodaBeanUtils.toString(_nonPortfolioOutputs)).append(',').append(' ');
+      buf.append("scenarioDefinition").append('=').append(JodaBeanUtils.toString(_scenarioDefinition));
       buf.append('}');
       return buf.toString();
     }

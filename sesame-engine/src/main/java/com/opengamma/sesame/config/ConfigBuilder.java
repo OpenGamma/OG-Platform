@@ -14,6 +14,7 @@ import javax.inject.Provider;
 
 import com.google.common.collect.Maps;
 import com.opengamma.sesame.OutputName;
+import com.opengamma.sesame.function.scenarios.ScenarioDefinition;
 
 /**
  * Mini DSL for building instances of {@link ViewConfig} and related classes in code.
@@ -35,18 +36,30 @@ public final class ConfigBuilder {
   }
 
   public static ViewConfig configureView(String name, NonPortfolioOutput... nonPortfolioOutputs) {
-    return new ViewConfig(name, FunctionModelConfig.EMPTY, Collections.<ViewColumn>emptyList(), Arrays.asList(nonPortfolioOutputs));
+    return new ViewConfig(name,
+                          FunctionModelConfig.EMPTY,
+                          Collections.<ViewColumn>emptyList(),
+                          Arrays.asList(nonPortfolioOutputs),
+                          ScenarioDefinition.EMPTY);
   }
 
   public static ViewConfig configureView(String name, Columns columns, OtherOutputs otherOutputs) {
-    return new ViewConfig(name, columns.getDefaultConfig(), columns.getViewColumns(), otherOutputs.getNonPortfolioOutputs());
+    return new ViewConfig(name,
+                          columns.getDefaultConfig(),
+                          columns.getViewColumns(),
+                          otherOutputs.getNonPortfolioOutputs(),
+                          ScenarioDefinition.EMPTY);
   }
 
   public static ViewConfig configureView(String name,
                                          FunctionModelConfig defaultConfig,
                                          Columns columns,
                                          OtherOutputs otherOutputs) {
-    return new ViewConfig(name, defaultConfig, columns.getViewColumns(), otherOutputs.getNonPortfolioOutputs());
+    return new ViewConfig(name,
+                          defaultConfig,
+                          columns.getViewColumns(),
+                          otherOutputs.getNonPortfolioOutputs(),
+                          ScenarioDefinition.EMPTY);
   }
 
   public static Columns columns(ViewColumn... columns) {

@@ -21,12 +21,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Nullable;
+
 import org.testng.annotations.Test;
 
 import com.opengamma.sesame.function.AvailableImplementations;
 import com.opengamma.sesame.function.AvailableImplementationsImpl;
 import com.opengamma.sesame.function.Output;
 import com.opengamma.sesame.function.Parameter;
+import com.opengamma.sesame.function.scenarios.ScenarioArgument;
+import com.opengamma.sesame.function.scenarios.ScenarioFunction;
 import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.util.test.TestGroup;
 
@@ -182,7 +186,7 @@ public class FunctionModelConfigTest {
     }
   }
 
-  public static class Decorator1 implements Fn {
+  public static class Decorator1 implements Fn, ScenarioFunction<Arg1> {
 
     public Decorator1(Fn delegate) { }
 
@@ -190,15 +194,27 @@ public class FunctionModelConfigTest {
     public String foo(Double d) {
       return null;
     }
+
+    @Nullable
+    @Override
+    public Class<Arg1> getArgumentType() {
+      return Arg1.class;
+    }
   }
 
-  public static class Decorator2 implements Fn {
+  public static class Decorator2 implements Fn, ScenarioFunction<Arg2> {
 
     public Decorator2(Fn fn) { }
 
     @Override
     public String foo(Double d) {
       return null;
+    }
+
+    @Nullable
+    @Override
+    public Class<Arg2> getArgumentType() {
+      return Arg2.class;
     }
   }
 
@@ -213,6 +229,22 @@ public class FunctionModelConfigTest {
     @Override
     public String bar(Double d) {
       return null;
+    }
+  }
+
+  public static class Arg1 implements ScenarioArgument<Decorator1> {
+
+    @Override
+    public Class<Decorator1> getFunctionType() {
+      return Decorator1.class;
+    }
+  }
+
+  public static class Arg2 implements ScenarioArgument<Decorator2> {
+
+    @Override
+    public Class<Decorator2> getFunctionType() {
+      return Decorator2.class;
     }
   }
 }

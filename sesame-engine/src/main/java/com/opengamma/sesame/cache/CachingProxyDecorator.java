@@ -8,7 +8,6 @@ package com.opengamma.sesame.cache;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -16,10 +15,10 @@ import java.util.concurrent.Callable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.config.EngineUtils;
+import com.opengamma.sesame.function.scenarios.FilteredScenarioDefinition;
 import com.opengamma.sesame.graph.ClassNode;
 import com.opengamma.sesame.graph.FunctionModelNode;
 import com.opengamma.sesame.graph.InterfaceNode;
@@ -32,7 +31,6 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Decorates a node in the graph with a proxy which performs memoization using a cache.
- * TODO thorough docs for the basis of caching, i.e. has to be the same function instance but instances are shared
  */
 public class CachingProxyDecorator extends NodeDecorator {
 
@@ -271,15 +269,14 @@ public class CachingProxyDecorator extends NodeDecorator {
       }
       Environment env = (Environment) args[0];
 
-      if (env.getScenarioArguments().isEmpty()) {
+      if (env.getScenarioDefinition().isEmpty()) {
         return args;
       }
       Object[] keyArgs;
       keyArgs = new Object[args.length];
       System.arraycopy(args, 0, keyArgs, 0, args.length);
-      Map<Class<?>, Object> scenarioArgs = Maps.newHashMap(env.getScenarioArguments());
-      scenarioArgs.keySet().retainAll(_subtreeTypes);
-      Environment newEnv = env.withScenarioArguments(scenarioArgs);
+      FilteredScenarioDefinition scenarioDef = env.getScenarioDefinition().forFunctions(_subtreeTypes);
+      Environment newEnv = env.withScenarioDefinition(scenarioDef);
       keyArgs[0] = newEnv;
       return keyArgs;
     }

@@ -35,6 +35,7 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.sesame.config.ViewConfig;
+import com.opengamma.sesame.function.scenarios.ScenarioDefinition;
 import com.opengamma.sesame.marketdata.FieldName;
 import com.opengamma.sesame.marketdata.HtsRequestKey;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
@@ -58,7 +59,7 @@ public class ViewInputs implements ImmutableBean {
   @PropertyDefinition(validate = "notNull")
   private final ZonedDateTime _valuationTime;
   @PropertyDefinition(validate = "notNull")
-  private final Map<Class<?>, Object> _scenarioArguments;
+  private final ScenarioDefinition _scenarioDefinition;
   @PropertyDefinition(validate = "notNull")
   private final Map<ZonedDateTime, Map<Pair<ExternalIdBundle, FieldName>, Result<?>>> _marketData;
   @PropertyDefinition(validate = "notNull")
@@ -73,7 +74,7 @@ public class ViewInputs implements ImmutableBean {
    * @param viewConfig  the view config used for the cycle
    * @param functionArguments  the function arguments use for the cycle
    * @param valuationTime  the valuation time for the cycle
-   * @param scenarioArguments  the scenario arguments used for the cycle
+   * @param scenarioDefinition  the scenario arguments used for the cycle
    * @param marketData  all the market data used for the cycle
    * @param configData  all the other data (config, conventions etc)
    * @param htsData  the historical timeseries data used for the cycle
@@ -83,7 +84,7 @@ public class ViewInputs implements ImmutableBean {
                     ViewConfig viewConfig,
                     FunctionArguments functionArguments,
                     ZonedDateTime valuationTime,
-                    Map<Class<?>, Object> scenarioArguments,
+                    ScenarioDefinition scenarioDefinition,
                     Map<ZonedDateTime, Map<Pair<ExternalIdBundle, FieldName>, Result<?>>> marketData,
                     Multimap<Class<?>, UniqueIdentifiable> configData,
                     Multimap<HtsRequestKey, LocalDateDoubleTimeSeries> htsData) {
@@ -94,7 +95,7 @@ public class ViewInputs implements ImmutableBean {
     _viewConfig = ArgumentChecker.notNull(viewConfig, "viewConfig");
     _functionArguments = ArgumentChecker.notNull(functionArguments, "functionArguments");
     _valuationTime = ArgumentChecker.notNull(valuationTime, "valuationTime");
-    _scenarioArguments = ImmutableMap.copyOf(ArgumentChecker.notNull(scenarioArguments, "scenarioArguments"));
+    _scenarioDefinition = ArgumentChecker.notNull(scenarioDefinition, "scenarioArguments");
     _marketData = ImmutableMap.copyOf(ArgumentChecker.notNull(marketData, "marketData"));
     _configData = ImmutableMultimap.copyOf(ArgumentChecker.notNull(configData, "configData"));
     _htsData = ImmutableMultimap.copyOf(ArgumentChecker.notNull(htsData, "htsData"));
@@ -175,11 +176,11 @@ public class ViewInputs implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the scenarioArguments.
+   * Gets the scenarioDefinition.
    * @return the value of the property, not null
    */
-  public Map<Class<?>, Object> getScenarioArguments() {
-    return _scenarioArguments;
+  public ScenarioDefinition getScenarioDefinition() {
+    return _scenarioDefinition;
   }
 
   //-----------------------------------------------------------------------
@@ -229,7 +230,7 @@ public class ViewInputs implements ImmutableBean {
           JodaBeanUtils.equal(getViewConfig(), other.getViewConfig()) &&
           JodaBeanUtils.equal(getFunctionArguments(), other.getFunctionArguments()) &&
           JodaBeanUtils.equal(getValuationTime(), other.getValuationTime()) &&
-          JodaBeanUtils.equal(getScenarioArguments(), other.getScenarioArguments()) &&
+          JodaBeanUtils.equal(getScenarioDefinition(), other.getScenarioDefinition()) &&
           JodaBeanUtils.equal(getMarketData(), other.getMarketData()) &&
           JodaBeanUtils.equal(getConfigData(), other.getConfigData()) &&
           JodaBeanUtils.equal(getHtsData(), other.getHtsData());
@@ -244,7 +245,7 @@ public class ViewInputs implements ImmutableBean {
     hash += hash * 31 + JodaBeanUtils.hashCode(getViewConfig());
     hash += hash * 31 + JodaBeanUtils.hashCode(getFunctionArguments());
     hash += hash * 31 + JodaBeanUtils.hashCode(getValuationTime());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getScenarioArguments());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getScenarioDefinition());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMarketData());
     hash += hash * 31 + JodaBeanUtils.hashCode(getConfigData());
     hash += hash * 31 + JodaBeanUtils.hashCode(getHtsData());
@@ -269,7 +270,7 @@ public class ViewInputs implements ImmutableBean {
     buf.append("viewConfig").append('=').append(JodaBeanUtils.toString(getViewConfig())).append(',').append(' ');
     buf.append("functionArguments").append('=').append(JodaBeanUtils.toString(getFunctionArguments())).append(',').append(' ');
     buf.append("valuationTime").append('=').append(JodaBeanUtils.toString(getValuationTime())).append(',').append(' ');
-    buf.append("scenarioArguments").append('=').append(JodaBeanUtils.toString(getScenarioArguments())).append(',').append(' ');
+    buf.append("scenarioDefinition").append('=').append(JodaBeanUtils.toString(getScenarioDefinition())).append(',').append(' ');
     buf.append("marketData").append('=').append(JodaBeanUtils.toString(getMarketData())).append(',').append(' ');
     buf.append("configData").append('=').append(JodaBeanUtils.toString(getConfigData())).append(',').append(' ');
     buf.append("htsData").append('=').append(JodaBeanUtils.toString(getHtsData())).append(',').append(' ');
@@ -307,11 +308,10 @@ public class ViewInputs implements ImmutableBean {
     private final MetaProperty<ZonedDateTime> _valuationTime = DirectMetaProperty.ofImmutable(
         this, "valuationTime", ViewInputs.class, ZonedDateTime.class);
     /**
-     * The meta-property for the {@code scenarioArguments} property.
+     * The meta-property for the {@code scenarioDefinition} property.
      */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Map<Class<?>, Object>> _scenarioArguments = DirectMetaProperty.ofImmutable(
-        this, "scenarioArguments", ViewInputs.class, (Class) Map.class);
+    private final MetaProperty<ScenarioDefinition> _scenarioDefinition = DirectMetaProperty.ofImmutable(
+        this, "scenarioDefinition", ViewInputs.class, ScenarioDefinition.class);
     /**
      * The meta-property for the {@code marketData} property.
      */
@@ -339,7 +339,7 @@ public class ViewInputs implements ImmutableBean {
         "viewConfig",
         "functionArguments",
         "valuationTime",
-        "scenarioArguments",
+        "scenarioDefinition",
         "marketData",
         "configData",
         "htsData");
@@ -361,8 +361,8 @@ public class ViewInputs implements ImmutableBean {
           return _functionArguments;
         case 113591406:  // valuationTime
           return _valuationTime;
-        case -1055250522:  // scenarioArguments
-          return _scenarioArguments;
+        case -690925309:  // scenarioDefinition
+          return _scenarioDefinition;
         case 1116764678:  // marketData
           return _marketData;
         case 831026700:  // configData
@@ -422,11 +422,11 @@ public class ViewInputs implements ImmutableBean {
     }
 
     /**
-     * The meta-property for the {@code scenarioArguments} property.
+     * The meta-property for the {@code scenarioDefinition} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Map<Class<?>, Object>> scenarioArguments() {
-      return _scenarioArguments;
+    public final MetaProperty<ScenarioDefinition> scenarioDefinition() {
+      return _scenarioDefinition;
     }
 
     /**
@@ -465,8 +465,8 @@ public class ViewInputs implements ImmutableBean {
           return ((ViewInputs) bean).getFunctionArguments();
         case 113591406:  // valuationTime
           return ((ViewInputs) bean).getValuationTime();
-        case -1055250522:  // scenarioArguments
-          return ((ViewInputs) bean).getScenarioArguments();
+        case -690925309:  // scenarioDefinition
+          return ((ViewInputs) bean).getScenarioDefinition();
         case 1116764678:  // marketData
           return ((ViewInputs) bean).getMarketData();
         case 831026700:  // configData
@@ -498,7 +498,7 @@ public class ViewInputs implements ImmutableBean {
     private ViewConfig _viewConfig;
     private FunctionArguments _functionArguments;
     private ZonedDateTime _valuationTime;
-    private Map<Class<?>, Object> _scenarioArguments = new HashMap<Class<?>, Object>();
+    private ScenarioDefinition _scenarioDefinition;
     private Map<ZonedDateTime, Map<Pair<ExternalIdBundle, FieldName>, Result<?>>> _marketData = new HashMap<ZonedDateTime, Map<Pair<ExternalIdBundle, FieldName>, Result<?>>>();
     private Multimap<Class<?>, UniqueIdentifiable> _configData = ArrayListMultimap.create();
     private Multimap<HtsRequestKey, LocalDateDoubleTimeSeries> _htsData;
@@ -518,7 +518,7 @@ public class ViewInputs implements ImmutableBean {
       this._viewConfig = beanToCopy.getViewConfig();
       this._functionArguments = beanToCopy.getFunctionArguments();
       this._valuationTime = beanToCopy.getValuationTime();
-      this._scenarioArguments = new HashMap<Class<?>, Object>(beanToCopy.getScenarioArguments());
+      this._scenarioDefinition = beanToCopy.getScenarioDefinition();
       this._marketData = new HashMap<ZonedDateTime, Map<Pair<ExternalIdBundle, FieldName>, Result<?>>>(beanToCopy.getMarketData());
       this._configData = ArrayListMultimap.create(beanToCopy.getConfigData());
       this._htsData = (beanToCopy.getHtsData() != null ? ArrayListMultimap.create(beanToCopy.getHtsData()) : null);
@@ -536,8 +536,8 @@ public class ViewInputs implements ImmutableBean {
           return _functionArguments;
         case 113591406:  // valuationTime
           return _valuationTime;
-        case -1055250522:  // scenarioArguments
-          return _scenarioArguments;
+        case -690925309:  // scenarioDefinition
+          return _scenarioDefinition;
         case 1116764678:  // marketData
           return _marketData;
         case 831026700:  // configData
@@ -565,8 +565,8 @@ public class ViewInputs implements ImmutableBean {
         case 113591406:  // valuationTime
           this._valuationTime = (ZonedDateTime) newValue;
           break;
-        case -1055250522:  // scenarioArguments
-          this._scenarioArguments = (Map<Class<?>, Object>) newValue;
+        case -690925309:  // scenarioDefinition
+          this._scenarioDefinition = (ScenarioDefinition) newValue;
           break;
         case 1116764678:  // marketData
           this._marketData = (Map<ZonedDateTime, Map<Pair<ExternalIdBundle, FieldName>, Result<?>>>) newValue;
@@ -614,7 +614,7 @@ public class ViewInputs implements ImmutableBean {
           _viewConfig,
           _functionArguments,
           _valuationTime,
-          _scenarioArguments,
+          _scenarioDefinition,
           _marketData,
           _configData,
           _htsData);
@@ -665,13 +665,13 @@ public class ViewInputs implements ImmutableBean {
     }
 
     /**
-     * Sets the {@code scenarioArguments} property in the builder.
-     * @param scenarioArguments  the new value, not null
+     * Sets the {@code scenarioDefinition} property in the builder.
+     * @param scenarioDefinition  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder scenarioArguments(Map<Class<?>, Object> scenarioArguments) {
-      JodaBeanUtils.notNull(scenarioArguments, "scenarioArguments");
-      this._scenarioArguments = scenarioArguments;
+    public Builder scenarioDefinition(ScenarioDefinition scenarioDefinition) {
+      JodaBeanUtils.notNull(scenarioDefinition, "scenarioDefinition");
+      this._scenarioDefinition = scenarioDefinition;
       return this;
     }
 
@@ -726,7 +726,7 @@ public class ViewInputs implements ImmutableBean {
       buf.append("viewConfig").append('=').append(JodaBeanUtils.toString(_viewConfig)).append(',').append(' ');
       buf.append("functionArguments").append('=').append(JodaBeanUtils.toString(_functionArguments)).append(',').append(' ');
       buf.append("valuationTime").append('=').append(JodaBeanUtils.toString(_valuationTime)).append(',').append(' ');
-      buf.append("scenarioArguments").append('=').append(JodaBeanUtils.toString(_scenarioArguments)).append(',').append(' ');
+      buf.append("scenarioDefinition").append('=').append(JodaBeanUtils.toString(_scenarioDefinition)).append(',').append(' ');
       buf.append("marketData").append('=').append(JodaBeanUtils.toString(_marketData)).append(',').append(' ');
       buf.append("configData").append('=').append(JodaBeanUtils.toString(_configData)).append(',').append(' ');
       buf.append("htsData").append('=').append(JodaBeanUtils.toString(_htsData)).append(',').append(' ');

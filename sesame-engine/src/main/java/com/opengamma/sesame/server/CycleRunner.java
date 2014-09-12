@@ -18,7 +18,6 @@ import org.threeten.bp.Duration;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.sesame.engine.CycleArguments;
 import com.opengamma.sesame.engine.Results;

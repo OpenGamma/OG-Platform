@@ -11,7 +11,6 @@ import static com.opengamma.sesame.config.ConfigBuilder.config;
 import static com.opengamma.sesame.config.ConfigBuilder.function;
 import static com.opengamma.sesame.config.ConfigBuilder.implementations;
 import static com.opengamma.sesame.function.scenarios.curvedata.CurveDataPointShifts.PointShift;
-import static com.opengamma.sesame.function.scenarios.curvedata.CurveDataPointShiftsDecorator.Shifts;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.List;
@@ -21,7 +20,6 @@ import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.opengamma.financial.analytics.curve.CurveSpecification;
 import com.opengamma.financial.currency.SimpleCurrencyMatrix;
@@ -32,6 +30,7 @@ import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.SimpleEnvironment;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.function.Output;
+import com.opengamma.sesame.function.scenarios.FilteredScenarioDefinition;
 import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
 import com.opengamma.sesame.marketdata.MapMarketDataSource;
@@ -70,9 +69,8 @@ public class CurveDataPointShiftsDecoratorTest {
   @Test
   public void absolute() {
     CurveDataPointShifts pointShifts = CurveDataPointShifts.absolute(MATCHER, SHIFT_LIST);
-    CurveDataPointShiftsDecorator.Shifts shifts = CurveDataPointShiftsDecorator.shifts(pointShifts);
-    Map<Class<?>, Object> scenarioArgs = ImmutableMap.<Class<?>, Object>of(CurveDataPointShiftsDecorator.class, shifts);
-    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), MARKET_DATA_SOURCE, scenarioArgs);
+    FilteredScenarioDefinition scenarioDef = new FilteredScenarioDefinition(pointShifts);
+    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), MARKET_DATA_SOURCE, scenarioDef);
 
     Result<Map<ExternalIdBundle, Double>> result = FN.foo(env, CurveTestUtils.CURVE_SPEC);
     assertTrue(result.isSuccess());
@@ -82,9 +80,8 @@ public class CurveDataPointShiftsDecoratorTest {
   @Test
   public void relative() {
     CurveDataPointShifts pointShifts = CurveDataPointShifts.relative(MATCHER, SHIFT_LIST);
-    Shifts shifts = CurveDataPointShiftsDecorator.shifts(pointShifts);
-    Map<Class<?>, Object> scenarioArgs = ImmutableMap.<Class<?>, Object>of(CurveDataPointShiftsDecorator.class, shifts);
-    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), MARKET_DATA_SOURCE, scenarioArgs);
+    FilteredScenarioDefinition scenarioDef = new FilteredScenarioDefinition(pointShifts);
+    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), MARKET_DATA_SOURCE, scenarioDef);
 
     Result<Map<ExternalIdBundle, Double>> result = FN.foo(env, CurveTestUtils.CURVE_SPEC);
     assertTrue(result.isSuccess());
@@ -94,9 +91,8 @@ public class CurveDataPointShiftsDecoratorTest {
   @Test
   public void noMatch() {
     CurveDataPointShifts pointShifts = CurveDataPointShifts.absolute(MATCHER, SHIFT_LIST);
-    Shifts shifts = CurveDataPointShiftsDecorator.shifts(pointShifts);
-    Map<Class<?>, Object> scenarioArgs = ImmutableMap.<Class<?>, Object>of(CurveDataPointShiftsDecorator.class, shifts);
-    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), MARKET_DATA_SOURCE, scenarioArgs);
+    FilteredScenarioDefinition scenarioDef = new FilteredScenarioDefinition(pointShifts);
+    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), MARKET_DATA_SOURCE, scenarioDef);
 
     CurveSpecification curveSpec = new CurveSpecification(LocalDate.now(), "a different name", CurveTestUtils.NODES);
     Result<Map<ExternalIdBundle, Double>> result = FN.foo(env, curveSpec);
@@ -108,9 +104,8 @@ public class CurveDataPointShiftsDecoratorTest {
   public void multipleSameType() {
     CurveDataPointShifts pointShifts1 = CurveDataPointShifts.absolute(MATCHER, SHIFT_LIST);
     CurveDataPointShifts pointShifts2 = CurveDataPointShifts.absolute(MATCHER, SHIFT_LIST);
-    Shifts shifts = CurveDataPointShiftsDecorator.shifts(pointShifts1, pointShifts2);
-    Map<Class<?>, Object> scenarioArgs = ImmutableMap.<Class<?>, Object>of(CurveDataPointShiftsDecorator.class, shifts);
-    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), MARKET_DATA_SOURCE, scenarioArgs);
+    FilteredScenarioDefinition scenarioDef = new FilteredScenarioDefinition(pointShifts1, pointShifts2);
+    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), MARKET_DATA_SOURCE, scenarioDef);
 
     Result<Map<ExternalIdBundle, Double>> result = FN.foo(env, CurveTestUtils.CURVE_SPEC);
     assertTrue(result.isSuccess());
@@ -122,9 +117,8 @@ public class CurveDataPointShiftsDecoratorTest {
   public void multipleDifferentTypes() {
     CurveDataPointShifts abs = CurveDataPointShifts.absolute(MATCHER, SHIFT_LIST);
     CurveDataPointShifts rel = CurveDataPointShifts.relative(MATCHER, SHIFT_LIST);
-    Shifts shifts = CurveDataPointShiftsDecorator.shifts(abs, rel);
-    Map<Class<?>, Object> scenarioArgs = ImmutableMap.<Class<?>, Object>of(CurveDataPointShiftsDecorator.class, shifts);
-    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), MARKET_DATA_SOURCE, scenarioArgs);
+    FilteredScenarioDefinition scenarioDef = new FilteredScenarioDefinition(abs, rel);
+    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), MARKET_DATA_SOURCE, scenarioDef);
 
     Result<Map<ExternalIdBundle, Double>> result = FN.foo(env, CurveTestUtils.CURVE_SPEC);
     assertTrue(result.isSuccess());
@@ -136,9 +130,8 @@ public class CurveDataPointShiftsDecoratorTest {
   public void multipleReversed() {
     CurveDataPointShifts rel = CurveDataPointShifts.relative(MATCHER, SHIFT_LIST);
     CurveDataPointShifts abs = CurveDataPointShifts.absolute(MATCHER, SHIFT_LIST);
-    Shifts shifts = CurveDataPointShiftsDecorator.shifts(rel, abs);
-    Map<Class<?>, Object> scenarioArgs = ImmutableMap.<Class<?>, Object>of(CurveDataPointShiftsDecorator.class, shifts);
-    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), MARKET_DATA_SOURCE, scenarioArgs);
+    FilteredScenarioDefinition scenarioDef = new FilteredScenarioDefinition(rel, abs);
+    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), MARKET_DATA_SOURCE, scenarioDef);
 
     Result<Map<ExternalIdBundle, Double>> result = FN.foo(env, CurveTestUtils.CURVE_SPEC);
     assertTrue(result.isSuccess());
