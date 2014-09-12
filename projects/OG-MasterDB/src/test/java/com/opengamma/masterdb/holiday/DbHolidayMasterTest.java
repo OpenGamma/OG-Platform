@@ -16,7 +16,11 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 
+import com.opengamma.core.holiday.HolidayType;
+import com.opengamma.id.ExternalId;
 import com.opengamma.master.holiday.HolidayDocument;
+import com.opengamma.master.holiday.HolidaySearchRequest;
+import com.opengamma.master.holiday.HolidaySearchResult;
 import com.opengamma.master.holiday.ManageableHoliday;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.AbstractDbTest;
@@ -69,6 +73,66 @@ public class DbHolidayMasterTest extends AbstractDbTest {
     HolidayDocument loaded = _holMaster.get(added.getUniqueId());
     assertEquals(added, loaded);
   }
+
+
+  @Test
+  public void test_custom_holidays() throws Exception {
+
+    LocalDate newYears = LocalDate.of(2010, 1, 1);
+    LocalDate mayDay = LocalDate.of(2010, 5, 1);
+    LocalDate christmas = LocalDate.of(2010, 12, 25);
+
+    ExternalId firstId = ExternalId.of("TEST", "first");
+    ManageableHoliday first = new ManageableHoliday();
+    first.setType(HolidayType.CUSTOM);
+    first.setCustomExternalId(firstId);
+    first.getHolidayDates().add(newYears);
+    first.getHolidayDates().add(mayDay);
+    HolidayDocument firstDoc = new HolidayDocument(first);
+    _holMaster.add(firstDoc);
+
+    ExternalId secondId = ExternalId.of("TEST", "second");
+    ManageableHoliday second = new ManageableHoliday();
+    second.setType(HolidayType.CUSTOM);
+    second.setCustomExternalId(secondId);
+    second.getHolidayDates().add(christmas);
+    HolidayDocument secondDoc = new HolidayDocument(second);
+    _holMaster.add(secondDoc);
+
+    HolidaySearchRequest firstSearch = new HolidaySearchRequest();
+    firstSearch.setType(HolidayType.CUSTOM);
+    firstSearch.addCustomExternalId(firstId);
+    HolidaySearchResult firstResult = _holMaster.search(firstSearch);
+
+    assertEquals(firstResult.getDocuments().size(), 1);
+    assertEquals(firstResult.getFirstHoliday().getType(), HolidayType.CUSTOM);
+    assertEquals(firstResult.getFirstHoliday().customExternalId().get().getValue(), firstId.getValue());
+    assertEquals(firstResult.getFirstHoliday().getHolidayDates().size(), 2);
+    assertEquals(firstResult.getFirstHoliday().getHolidayDates().contains(mayDay), true);
+    assertEquals(firstResult.getFirstHoliday().getHolidayDates().contains(christmas), false);
+
+    firstResult.getFirstHoliday().getHolidayDates().add(christmas);
+    assertEquals(firstResult.getFirstHoliday().getHolidayDates().contains(christmas), true);
+
+    HolidaySearchRequest secondSearch = new HolidaySearchRequest();
+    secondSearch.setType(HolidayType.CUSTOM);
+    secondSearch.addCustomExternalId(secondId);
+    HolidaySearchResult secondResult = _holMaster.search(secondSearch);
+
+    assertEquals(secondResult.getDocuments().size(), 1);
+    assertEquals(secondResult.getFirstHoliday().getType(), HolidayType.CUSTOM);
+    assertEquals(secondResult.getFirstHoliday().customExternalId().get().getValue(), secondId.getValue());
+    assertEquals(secondResult.getFirstHoliday().getHolidayDates().size(), 1);
+
+    HolidaySearchRequest bothSearch = new HolidaySearchRequest();
+    bothSearch.setType(HolidayType.CUSTOM);
+    HolidaySearchResult bothResult = _holMaster.search(bothSearch);
+
+    assertEquals(bothResult.getDocuments().size(), 2);
+    assertEquals(bothResult.getFirstHoliday().getType(), HolidayType.CUSTOM);
+
+  }
+
 
   //-------------------------------------------------------------------------
   @Test
