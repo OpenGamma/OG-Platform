@@ -6,7 +6,6 @@ import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.exposure.ExposureFunctions;
 import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.financial.security.irs.*;
-import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.sesame.*;
 import com.opengamma.sesame.component.RetrievalPeriod;
 import com.opengamma.sesame.component.StringSet;
@@ -21,7 +20,7 @@ import com.opengamma.sesame.server.FunctionServer;
 import com.opengamma.sesame.server.FunctionServerRequest;
 import com.opengamma.sesame.server.IndividualCycleOptions;
 import com.opengamma.sesame.server.RemoteFunctionServer;
-import com.opengamma.solutions.RemoteViewUtils;
+import com.opengamma.solutions.RemoteViewSwapUtils;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
@@ -30,7 +29,6 @@ import org.testng.annotations.Test;
 import org.threeten.bp.Period;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.opengamma.sesame.config.ConfigBuilder.*;
@@ -53,7 +51,8 @@ public class ThirdPartyRemoteTest {
     private ConfigLink<ExposureFunctions> _exposureConfig;
     private ConfigLink<CurrencyMatrix> _currencyMatrixLink;
     private ConfigLink<CurveConstructionConfiguration> _curveConstructionConfiguration;
-    private List<ManageableSecurity> _inputs = new ArrayList<>();
+    /* A single Fixed vs Libor 3m Swap ManageableSecurity list */
+    private List<Object> _inputs = RemoteViewSwapUtils.VANILLA_INPUTS;
 
 
     @BeforeClass
@@ -76,8 +75,7 @@ public class ThirdPartyRemoteTest {
         _curveConstructionConfiguration = ConfigLink.resolvable("USD TO GBP CSA USD Curve Construction Configuration",
                 CurveConstructionConfiguration.class);
 
-        /* Add a single Fixed vs Libor 3m Swap to the ManageableSecurity list */
-        _inputs.add(RemoteViewUtils.createVanillaFixedVsLibor3mSwap());
+
     }
 
     @Test(enabled = false)

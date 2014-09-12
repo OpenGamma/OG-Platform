@@ -67,5 +67,7 @@ A sample US holiday calendar is provided in the *resource/calendar* folder. Loca
 
 Alternatively, run the **calendar-loader-tool** from *{OG install location}/platform/scripts* with the same arguments.
 
-Navigate to http://your-server-ip:8080/jax/holidays to see your uploaded snapshot
+Navigate to http://your-server-ip:8080/jax/holidays to see your uploaded holiday
+
+Repeat this for ISDA_HOLIDAY~GBLO - gblo.csv
 

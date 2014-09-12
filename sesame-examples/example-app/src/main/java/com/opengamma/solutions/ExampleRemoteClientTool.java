@@ -97,13 +97,13 @@ public class ExampleRemoteClientTool extends AbstractTool<ToolContext> {
         FunctionServerRequest.<IndividualCycleOptions>builder()
             .viewConfig(configureView(
                 "IRS remote view",
-                RemoteViewUtils.createInterestRateSwapViewColumn(OutputNames.PRESENT_VALUE,
+                RemoteViewSwapUtils.createInterestRateSwapViewColumn(OutputNames.PRESENT_VALUE,
                     exposureConfig,
                     currencyMatrixLink),
-                RemoteViewUtils.createInterestRateSwapViewColumn(OutputNames.BUCKETED_PV01,
+                RemoteViewSwapUtils.createInterestRateSwapViewColumn(OutputNames.BUCKETED_PV01,
                     exposureConfig,
                     currencyMatrixLink)))
-            .inputs(RemoteViewUtils.SWAP_INPUTS)
+            .inputs(RemoteViewSwapUtils.SWAP_INPUTS)
             .cycleOptions(cycleOptions)
             .build();
 
