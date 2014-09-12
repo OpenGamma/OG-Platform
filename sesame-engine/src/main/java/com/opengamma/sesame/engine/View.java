@@ -247,7 +247,7 @@ public class View {
     List<Task> tasks = new ArrayList<>();
     Graph graph = cycleInitializer.getGraph();
     tasks.addAll(portfolioTasks(env, cycleArguments, inputs, graph, _viewConfig.getScenarioDefinition()));
-    tasks.addAll(nonPortfolioTasks(env, cycleArguments, graph));
+    tasks.addAll(nonPortfolioTasks(env, cycleArguments, graph, _viewConfig.getScenarioDefinition()));
     List<Future<TaskResult>> futures;
 
     try {
@@ -369,7 +369,10 @@ public class View {
   }
 
   // create tasks for the non-portfolio outputs
-  private List<Task> nonPortfolioTasks(Environment env, CycleArguments cycleArguments, Graph graph) {
+  private List<Task> nonPortfolioTasks(Environment env,
+                                       CycleArguments cycleArguments,
+                                       Graph graph,
+                                       ScenarioDefinition scenarioDefinition) {
     List<Task> tasks = Lists.newArrayList();
     for (NonPortfolioOutput output : _viewConfig.getNonPortfolioOutputs()) {
       InvokableFunction function = graph.getNonPortfolioFunction(output.getName());
@@ -384,7 +387,10 @@ public class View {
       FunctionArguments args =
           cycleArguments.getFunctionArguments().mergedWith(functionModelConfig.getFunctionArguments(implType),
                                                            functionModelConfig.getFunctionArguments(declaringType));
-      tasks.add(new NonPortfolioTask(env, args, output.getName(), function, tracer));
+      // create an environment with scenario arguments filtered for the output
+      FilteredScenarioDefinition filteredDef = scenarioDefinition.filter(output.getName());
+      Environment outputEnv = env.withScenarioDefinition(filteredDef);
+      tasks.add(new NonPortfolioTask(outputEnv, args, output.getName(), function, tracer));
     } return tasks;
   }
 
