@@ -51,6 +51,9 @@ public class CalendarLoaderTool extends AbstractTool<ToolContext> {
   private static final String CALENDAR_SCHEME_OPTION = "s";
   /** Calendar name option flag */
   private static final String CALENDAR_NAME_OPTION = "n";
+  /** Calendar delete option flag */
+  private static final String CALENDAR_DELETE_OPTION = "delete";
+
 
   //-------------------------------------------------------------------------
   /**
@@ -65,16 +68,25 @@ public class CalendarLoaderTool extends AbstractTool<ToolContext> {
   //-------------------------------------------------------------------------
   @Override
   protected void doRun() {
-    final CommandLine commandLine = getCommandLine();
-    final boolean persist = !commandLine.hasOption(DO_NOT_PERSIST);
-    final ToolContext toolContext = getToolContext();
-    final HolidayMaster holidayMaster = toolContext.getHolidayMaster();
-    final Holiday holiday = createManageableHoliday(getCommandLine().getOptionValue(FILE_NAME_OPTION),
-                                                    getCommandLine().getOptionValue(CALENDAR_SCHEME_OPTION),
-                                                    getCommandLine().getOptionValue(CALENDAR_NAME_OPTION));
-    if (persist) {
-      HolidayDocument holidayDocument = new HolidayDocument(holiday);
-      holidayMaster.add(holidayDocument);
+    CommandLine commandLine = getCommandLine();
+    boolean persist = !commandLine.hasOption(DO_NOT_PERSIST);
+    boolean delete = commandLine.hasOption(CALENDAR_DELETE_OPTION);
+
+    ToolContext toolContext = getToolContext();
+    HolidayMaster holidayMaster = toolContext.getHolidayMaster();
+
+    if (delete) {
+      holidayMaster.remove(holidayMaster.get(UniqueId.parse(commandLine.getOptionValue(CALENDAR_DELETE_OPTION))));
+    } else {
+      Holiday holiday = createManageableHoliday(getCommandLine().getOptionValue(FILE_NAME_OPTION),
+                                                getCommandLine().getOptionValue(CALENDAR_SCHEME_OPTION),
+                                                getCommandLine().getOptionValue(CALENDAR_NAME_OPTION));
+
+
+      if (persist) {
+        HolidayDocument holidayDocument = new HolidayDocument(holiday);
+        holidayMaster.add(holidayDocument);
+      }
     }
     toolContext.close();
   }
@@ -96,7 +108,7 @@ public class CalendarLoaderTool extends AbstractTool<ToolContext> {
       reader = new CSVReader(new BufferedReader(new FileReader(filePath)),
                              CSVParser.DEFAULT_SEPARATOR,
                              CSVParser.DEFAULT_QUOTE_CHARACTER,
-          CSVParser.DEFAULT_ESCAPE_CHARACTER);
+                             CSVParser.DEFAULT_ESCAPE_CHARACTER);
       String[] currentLine;
       while ((currentLine = reader.readNext()) != null) {
         for (String currentElement : currentLine) {
@@ -126,14 +138,20 @@ public class CalendarLoaderTool extends AbstractTool<ToolContext> {
     options.addOption(createFilenameOption());
     options.addOption(createCalendarSchemOption());
     options.addOption(createCalendarNameOption());
+    options.addOption(createCalendarDeleteOption());
     options.addOption(createDoNotPersistOption());
     options.addOption(createVerboseOption());
     return options;
   }
 
+  private Option createCalendarDeleteOption() {
+    final Option option = new Option(CALENDAR_DELETE_OPTION, "name", true, "Specify the ID of the calendar to delete");
+    option.setArgName("delete");
+    return option;
+  }
+
   private static Option createFilenameOption() {
     final Option option = new Option(FILE_NAME_OPTION, "filename", true, "The path to the file to import");
-    option.setRequired(true);
     option.setArgName("file path/name");
     return option;
   }
@@ -142,14 +160,12 @@ public class CalendarLoaderTool extends AbstractTool<ToolContext> {
   private static Option createCalendarSchemOption() {
     final Option option = new Option(CALENDAR_SCHEME_OPTION, "schema", true,
                                      "The schema for the calendar id, for example ISDA_HOLIDAY");
-    option.setRequired(true);
     option.setArgName("schema");
     return option;
   }
 
   private static Option createCalendarNameOption() {
     final Option option = new Option(CALENDAR_NAME_OPTION, "name", true, "The name of the calendar");
-    option.setRequired(true);
     option.setArgName("name");
     return option;
   }
