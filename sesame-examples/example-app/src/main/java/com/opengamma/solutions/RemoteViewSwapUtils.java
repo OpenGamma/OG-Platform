@@ -49,11 +49,13 @@ public final class RemoteViewSwapUtils {
 
   private RemoteViewSwapUtils() { /* private constructor */ }
 
-  private static InterestRateSwapNotional NOTIONAL = new InterestRateSwapNotional(Currency.USD, 100_000_000);
+  private static InterestRateSwapNotional USD_NOTIONAL = new InterestRateSwapNotional(Currency.USD, 100_000_000);
+  private static InterestRateSwapNotional GBP_NOTIONAL = new InterestRateSwapNotional(Currency.GBP, 61_600_000);
   private static PeriodFrequency P6M = PeriodFrequency.of(Period.ofMonths(6));
   private static PeriodFrequency P3M = PeriodFrequency.of(Period.ofMonths(3));
   private static PeriodFrequency P1Y = PeriodFrequency.of(Period.ofYears(1));
   private static Set<ExternalId> USNY = Sets.newHashSet(ExternalId.of(ExternalSchemes.ISDA_HOLIDAY, "USNY"));
+  private static Set<ExternalId> GB = Sets.newHashSet(ExternalId.of(ExternalSchemes.ISDA_HOLIDAY, "GBLO"));
 
 
   /** List of Vanilla IRS inputs */
@@ -98,6 +100,14 @@ public final class RemoteViewSwapUtils {
     }
   };
 
+  /** List of Cross Currency IRS inputs */
+  public static  List<Object> XCCY_INPUTS = new ArrayList<Object>() {
+    {
+      add(createLiborBP3MVsLiborUS3MSwap());
+      add(createFixedUSVsLiborBP3mSwap());
+    }
+  };
+
   /** List of All IRS inputs */
   public static  List<Object> SWAP_INPUTS = new ArrayList<Object>() {
     {
@@ -105,6 +115,10 @@ public final class RemoteViewSwapUtils {
       addAll(COMPOUNDING_INPUTS);
       addAll(SPREAD_INPUTS);
       addAll(FIXING_INPUTS);
+      addAll(STUB_INPUTS);
+      addAll(XCCY_INPUTS);
+
+
     }
   };
 
@@ -184,7 +198,7 @@ public final class RemoteViewSwapUtils {
   private static InterestRateSwapSecurity createLibor3mCompounded6mVsLibor6mSwap() {
 
     FloatingInterestRateSwapLeg payLeg = new FloatingInterestRateSwapLeg();
-    payLeg.setNotional(NOTIONAL);
+    payLeg.setNotional(USD_NOTIONAL);
     payLeg.setDayCountConvention(DayCounts.ACT_360);
     payLeg.setPaymentDateFrequency(P6M);
     payLeg.setPaymentDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
@@ -204,7 +218,7 @@ public final class RemoteViewSwapUtils {
     payLeg.setPayReceiveType(PayReceiveType.PAY);
 
     FloatingInterestRateSwapLeg receiveLeg = new FloatingInterestRateSwapLeg();
-    receiveLeg.setNotional(NOTIONAL);
+    receiveLeg.setNotional(USD_NOTIONAL);
     receiveLeg.setDayCountConvention(DayCounts.ACT_360);
     receiveLeg.setPaymentDateFrequency(P6M);
     receiveLeg.setPaymentDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
@@ -238,7 +252,7 @@ public final class RemoteViewSwapUtils {
   private static InterestRateSwapSecurity createLibor3mSpreadVsLibor6mSwap() {
 
     FloatingInterestRateSwapLeg payLeg = new FloatingInterestRateSwapLeg();
-    payLeg.setNotional(NOTIONAL);
+    payLeg.setNotional(USD_NOTIONAL);
     payLeg.setDayCountConvention(DayCounts.ACT_360);
     payLeg.setPaymentDateFrequency(P6M);
     payLeg.setPaymentDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
@@ -258,7 +272,7 @@ public final class RemoteViewSwapUtils {
     payLeg.setPayReceiveType(PayReceiveType.PAY);
 
     FloatingInterestRateSwapLeg receiveLeg = new FloatingInterestRateSwapLeg();
-    receiveLeg.setNotional(NOTIONAL);
+    receiveLeg.setNotional(USD_NOTIONAL);
     receiveLeg.setDayCountConvention(DayCounts.ACT_360);
     receiveLeg.setPaymentDateFrequency(P3M);
     receiveLeg.setPaymentDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
@@ -293,7 +307,7 @@ public final class RemoteViewSwapUtils {
   private static InterestRateSwapSecurity createFixedVsONCompoundedSwap() {
 
     FixedInterestRateSwapLeg payLeg = new FixedInterestRateSwapLeg();
-    payLeg.setNotional(NOTIONAL);
+    payLeg.setNotional(USD_NOTIONAL);
     payLeg.setDayCountConvention(DayCounts.ACT_360);
     payLeg.setPaymentDateFrequency(P1Y);
     payLeg.setPaymentDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
@@ -307,7 +321,7 @@ public final class RemoteViewSwapUtils {
     payLeg.setPayReceiveType(PayReceiveType.PAY);
 
     FloatingInterestRateSwapLeg receiveLeg = new FloatingInterestRateSwapLeg();
-    receiveLeg.setNotional(NOTIONAL);
+    receiveLeg.setNotional(USD_NOTIONAL);
     receiveLeg.setDayCountConvention(DayCounts.ACT_360);
     receiveLeg.setPaymentDateFrequency(P1Y);
     receiveLeg.setPaymentDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
@@ -342,7 +356,7 @@ public final class RemoteViewSwapUtils {
   private static InterestRateSwapSecurity createFixingFixedVsONSwap() {
 
     FixedInterestRateSwapLeg payLeg = new FixedInterestRateSwapLeg();
-    payLeg.setNotional(NOTIONAL);
+    payLeg.setNotional(USD_NOTIONAL);
     payLeg.setDayCountConvention(DayCounts.ACT_360);
     payLeg.setPaymentDateFrequency(P1Y);
     payLeg.setPaymentDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
@@ -356,7 +370,7 @@ public final class RemoteViewSwapUtils {
     payLeg.setPayReceiveType(PayReceiveType.PAY);
 
     FloatingInterestRateSwapLeg receiveLeg = new FloatingInterestRateSwapLeg();
-    receiveLeg.setNotional(NOTIONAL);
+    receiveLeg.setNotional(USD_NOTIONAL);
     receiveLeg.setDayCountConvention(DayCounts.ACT_360);
     receiveLeg.setPaymentDateFrequency(P1Y);
     receiveLeg.setPaymentDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
@@ -391,7 +405,7 @@ public final class RemoteViewSwapUtils {
   private static InterestRateSwapSecurity createVanillaFixedVsLibor3mSwap() {
 
     FixedInterestRateSwapLeg payLeg = new FixedInterestRateSwapLeg();
-    payLeg.setNotional(NOTIONAL);
+    payLeg.setNotional(USD_NOTIONAL);
     payLeg.setDayCountConvention(DayCounts.THIRTY_U_360);
     payLeg.setPaymentDateFrequency(P6M);
     payLeg.setPaymentDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
@@ -404,7 +418,7 @@ public final class RemoteViewSwapUtils {
     payLeg.setPayReceiveType(PayReceiveType.PAY);
 
     FloatingInterestRateSwapLeg receiveLeg = new FloatingInterestRateSwapLeg();
-    receiveLeg.setNotional(NOTIONAL);
+    receiveLeg.setNotional(USD_NOTIONAL);
     receiveLeg.setDayCountConvention(DayCounts.ACT_360);
     receiveLeg.setPaymentDateFrequency(P3M);
     receiveLeg.setPaymentDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
@@ -438,7 +452,7 @@ public final class RemoteViewSwapUtils {
   private static InterestRateSwapSecurity createFixingFixedVsLibor3mSwap() {
 
     FixedInterestRateSwapLeg payLeg = new FixedInterestRateSwapLeg();
-    payLeg.setNotional(NOTIONAL);
+    payLeg.setNotional(USD_NOTIONAL);
     payLeg.setDayCountConvention(DayCounts.THIRTY_U_360);
     payLeg.setPaymentDateFrequency(P6M);
     payLeg.setPaymentDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
@@ -451,7 +465,7 @@ public final class RemoteViewSwapUtils {
     payLeg.setPayReceiveType(PayReceiveType.PAY);
 
     FloatingInterestRateSwapLeg receiveLeg = new FloatingInterestRateSwapLeg();
-    receiveLeg.setNotional(NOTIONAL);
+    receiveLeg.setNotional(USD_NOTIONAL);
     receiveLeg.setDayCountConvention(DayCounts.ACT_360);
     receiveLeg.setPaymentDateFrequency(P3M);
     receiveLeg.setPaymentDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
@@ -485,7 +499,7 @@ public final class RemoteViewSwapUtils {
   private static InterestRateSwapSecurity createCompoundingFFAAVsLibor3mSwap() {
 
     FloatingInterestRateSwapLeg payLeg = new FloatingInterestRateSwapLeg();
-    payLeg.setNotional(NOTIONAL);
+    payLeg.setNotional(USD_NOTIONAL);
     payLeg.setDayCountConvention(DayCounts.ACT_360);
     payLeg.setPaymentDateFrequency(P3M);
     payLeg.setPaymentDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
@@ -505,7 +519,7 @@ public final class RemoteViewSwapUtils {
     payLeg.setPayReceiveType(PayReceiveType.PAY);
 
     FloatingInterestRateSwapLeg receiveLeg = new FloatingInterestRateSwapLeg();
-    receiveLeg.setNotional(NOTIONAL);
+    receiveLeg.setNotional(USD_NOTIONAL);
     receiveLeg.setDayCountConvention(DayCounts.ACT_360);
     receiveLeg.setPaymentDateFrequency(P3M);
     receiveLeg.setPaymentDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
@@ -538,7 +552,7 @@ public final class RemoteViewSwapUtils {
   private static InterestRateSwapSecurity createSpreadFFAAVsLibor3mSwap() {
 
     FloatingInterestRateSwapLeg payLeg = new FloatingInterestRateSwapLeg();
-    payLeg.setNotional(NOTIONAL);
+    payLeg.setNotional(USD_NOTIONAL);
     payLeg.setDayCountConvention(DayCounts.ACT_360);
     payLeg.setPaymentDateFrequency(P3M);
     payLeg.setPaymentDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
@@ -558,7 +572,7 @@ public final class RemoteViewSwapUtils {
     payLeg.setPayReceiveType(PayReceiveType.PAY);
 
     FloatingInterestRateSwapLeg receiveLeg = new FloatingInterestRateSwapLeg();
-    receiveLeg.setNotional(NOTIONAL);
+    receiveLeg.setNotional(USD_NOTIONAL);
     receiveLeg.setDayCountConvention(DayCounts.ACT_360);
     receiveLeg.setPaymentDateFrequency(P3M);
     receiveLeg.setPaymentDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
@@ -599,7 +613,7 @@ public final class RemoteViewSwapUtils {
     StubCalculationMethod stub = stubBuilder.build();
 
     FloatingInterestRateSwapLeg payLeg = new FloatingInterestRateSwapLeg();
-    payLeg.setNotional(NOTIONAL);
+    payLeg.setNotional(USD_NOTIONAL);
     payLeg.setDayCountConvention(DayCounts.ACT_360);
     payLeg.setPaymentDateFrequency(P3M);
     payLeg.setPaymentDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
@@ -619,7 +633,7 @@ public final class RemoteViewSwapUtils {
     payLeg.setPayReceiveType(PayReceiveType.PAY);
 
     FixedInterestRateSwapLeg receiveLeg = new FixedInterestRateSwapLeg();
-    receiveLeg.setNotional(NOTIONAL);
+    receiveLeg.setNotional(USD_NOTIONAL);
     receiveLeg.setDayCountConvention(DayCounts.THIRTY_U_360);
     receiveLeg.setPaymentDateFrequency(P6M);
     receiveLeg.setPaymentDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
@@ -654,7 +668,7 @@ public final class RemoteViewSwapUtils {
     StubCalculationMethod stub = stubBuilder.build();
 
     FloatingInterestRateSwapLeg payLeg = new FloatingInterestRateSwapLeg();
-    payLeg.setNotional(NOTIONAL);
+    payLeg.setNotional(USD_NOTIONAL);
     payLeg.setDayCountConvention(DayCounts.ACT_360);
     payLeg.setPaymentDateFrequency(P3M);
     payLeg.setPaymentDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
@@ -675,7 +689,7 @@ public final class RemoteViewSwapUtils {
     payLeg.setPayReceiveType(PayReceiveType.PAY);
 
     FixedInterestRateSwapLeg receiveLeg = new FixedInterestRateSwapLeg();
-    receiveLeg.setNotional(NOTIONAL);
+    receiveLeg.setNotional(USD_NOTIONAL);
     receiveLeg.setDayCountConvention(DayCounts.THIRTY_U_360);
     receiveLeg.setPaymentDateFrequency(P6M);
     receiveLeg.setPaymentDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
@@ -712,7 +726,7 @@ public final class RemoteViewSwapUtils {
     StubCalculationMethod stub = stubBuilder.build();
 
     FloatingInterestRateSwapLeg payLeg = new FloatingInterestRateSwapLeg();
-    payLeg.setNotional(NOTIONAL);
+    payLeg.setNotional(USD_NOTIONAL);
     payLeg.setDayCountConvention(DayCounts.ACT_360);
     payLeg.setPaymentDateFrequency(P6M);
     payLeg.setPaymentDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
@@ -733,7 +747,7 @@ public final class RemoteViewSwapUtils {
     payLeg.setPayReceiveType(PayReceiveType.PAY);
 
     FixedInterestRateSwapLeg receiveLeg = new FixedInterestRateSwapLeg();
-    receiveLeg.setNotional(NOTIONAL);
+    receiveLeg.setNotional(USD_NOTIONAL);
     receiveLeg.setDayCountConvention(DayCounts.THIRTY_U_360);
     receiveLeg.setPaymentDateFrequency(P6M);
     receiveLeg.setPaymentDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
@@ -769,7 +783,7 @@ public final class RemoteViewSwapUtils {
     StubCalculationMethod stub = stubBuilder.build();
 
     FloatingInterestRateSwapLeg payLeg = new FloatingInterestRateSwapLeg();
-    payLeg.setNotional(NOTIONAL);
+    payLeg.setNotional(USD_NOTIONAL);
     payLeg.setDayCountConvention(DayCounts.ACT_360);
     payLeg.setPaymentDateFrequency(P6M);
     payLeg.setPaymentDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
@@ -790,7 +804,7 @@ public final class RemoteViewSwapUtils {
     payLeg.setPayReceiveType(PayReceiveType.PAY);
 
     FixedInterestRateSwapLeg receiveLeg = new FixedInterestRateSwapLeg();
-    receiveLeg.setNotional(NOTIONAL);
+    receiveLeg.setNotional(USD_NOTIONAL);
     receiveLeg.setDayCountConvention(DayCounts.THIRTY_U_360);
     receiveLeg.setPaymentDateFrequency(P6M);
     receiveLeg.setPaymentDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
@@ -815,11 +829,107 @@ public final class RemoteViewSwapUtils {
         legs);
   }
 
+  private static InterestRateSwapSecurity createLiborBP3MVsLiborUS3MSwap() {
 
+    FloatingInterestRateSwapLeg payLeg = new FloatingInterestRateSwapLeg();
+    payLeg.setNotional(GBP_NOTIONAL);
+    payLeg.setDayCountConvention(DayCounts.ACT_360);
+    payLeg.setPaymentDateFrequency(P3M);
+    payLeg.setPaymentDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
+    payLeg.setPaymentDateCalendars(GB);
+    payLeg.setAccrualPeriodFrequency(P3M);
+    payLeg.setAccrualPeriodBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
+    payLeg.setAccrualPeriodCalendars(GB);
+    payLeg.setResetPeriodFrequency(P3M);
+    payLeg.setResetPeriodBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
+    payLeg.setResetPeriodCalendars(GB);
+    payLeg.setFixingDateBusinessDayConvention(BusinessDayConventions.PRECEDING);
+    payLeg.setMaturityDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
+    payLeg.setFixingDateCalendars(GB);
+    payLeg.setFixingDateOffset(-2);
+    payLeg.setFloatingRateType(FloatingRateType.IBOR);
+    payLeg.setFloatingReferenceRateId(ExternalId.of("BLOOMBERG_TICKER", "BP0003M Index"));
+    payLeg.setPayReceiveType(PayReceiveType.PAY);
 
+    FloatingInterestRateSwapLeg receiveLeg = new FloatingInterestRateSwapLeg();
+    receiveLeg.setNotional(USD_NOTIONAL);
+    receiveLeg.setDayCountConvention(DayCounts.ACT_360);
+    receiveLeg.setPaymentDateFrequency(P3M);
+    receiveLeg.setPaymentDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
+    receiveLeg.setPaymentDateCalendars(USNY);
+    receiveLeg.setAccrualPeriodFrequency(P3M);
+    receiveLeg.setAccrualPeriodBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
+    receiveLeg.setAccrualPeriodCalendars(USNY);
+    receiveLeg.setResetPeriodFrequency(P3M);
+    receiveLeg.setResetPeriodBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
+    receiveLeg.setResetPeriodCalendars(USNY);
+    receiveLeg.setFixingDateBusinessDayConvention(BusinessDayConventions.PRECEDING);
+    receiveLeg.setMaturityDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
+    receiveLeg.setFixingDateCalendars(USNY);
+    receiveLeg.setFixingDateOffset(-2);
+    receiveLeg.setSpreadSchedule(new Rate(91.0 / 10000));
+    receiveLeg.setFloatingRateType(FloatingRateType.IBOR);
+    receiveLeg.setFloatingReferenceRateId(ExternalId.of("BLOOMBERG_TICKER", "US0003M Index"));
+    receiveLeg.setPayReceiveType(PayReceiveType.RECEIVE);
 
+    List<InterestRateSwapLeg> legs = new ArrayList<>();
+    legs.add(payLeg);
+    legs.add(receiveLeg);
 
+    return new InterestRateSwapSecurity(
+        ExternalIdBundle.of(ExternalId.of("UUID", GUIDGenerator.generate().toString())),
+        "XCCY - Libor BP 3m vs Libor US 3m + Spread",
+        LocalDate.of(2014, 1, 24), // effective date
+        LocalDate.of(2021, 1, 24), // maturity date,
+        legs);
+  }
 
+  private static InterestRateSwapSecurity createFixedUSVsLiborBP3mSwap() {
+
+    FixedInterestRateSwapLeg payLeg = new FixedInterestRateSwapLeg();
+    payLeg.setNotional(USD_NOTIONAL);
+    payLeg.setDayCountConvention(DayCounts.THIRTY_U_360);
+    payLeg.setPaymentDateFrequency(P6M);
+    payLeg.setPaymentDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
+    payLeg.setPaymentDateCalendars(USNY);
+    payLeg.setAccrualPeriodFrequency(P6M);
+    payLeg.setAccrualPeriodBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
+    payLeg.setMaturityDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
+    payLeg.setAccrualPeriodCalendars(USNY);
+    payLeg.setRate(new Rate(0.03));
+    payLeg.setPayReceiveType(PayReceiveType.PAY);
+
+    FloatingInterestRateSwapLeg receiveLeg = new FloatingInterestRateSwapLeg();
+    receiveLeg.setNotional(GBP_NOTIONAL);
+    receiveLeg.setDayCountConvention(DayCounts.ACT_360);
+    receiveLeg.setPaymentDateFrequency(P3M);
+    receiveLeg.setPaymentDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
+    receiveLeg.setPaymentDateCalendars(GB);
+    receiveLeg.setAccrualPeriodFrequency(P3M);
+    receiveLeg.setAccrualPeriodBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
+    receiveLeg.setAccrualPeriodCalendars(GB);
+    receiveLeg.setResetPeriodFrequency(P3M);
+    receiveLeg.setResetPeriodBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
+    receiveLeg.setResetPeriodCalendars(GB);
+    receiveLeg.setFixingDateBusinessDayConvention(BusinessDayConventions.PRECEDING);
+    receiveLeg.setMaturityDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
+    receiveLeg.setFixingDateCalendars(GB);
+    receiveLeg.setFixingDateOffset(-2);
+    receiveLeg.setFloatingRateType(FloatingRateType.IBOR);
+    receiveLeg.setFloatingReferenceRateId(ExternalId.of("BLOOMBERG_TICKER", "BP0003M Index"));
+    receiveLeg.setPayReceiveType(PayReceiveType.RECEIVE);
+
+    List<InterestRateSwapLeg> legs = new ArrayList<>();
+    legs.add(payLeg);
+    legs.add(receiveLeg);
+
+    return new InterestRateSwapSecurity(
+        ExternalIdBundle.of(ExternalId.of("UUID", GUIDGenerator.generate().toString())),
+        "XCCY - US Fixed vs Libor BP 3m",
+        LocalDate.of(2014, 1, 24), // effective date
+        LocalDate.of(2021, 1, 24), // maturity date,
+        legs);
+  }
 
 
 

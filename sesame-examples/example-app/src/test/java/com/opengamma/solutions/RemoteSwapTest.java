@@ -12,6 +12,7 @@ import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.id.UniqueId;
 import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.config.ViewConfig;
+import com.opengamma.sesame.engine.ResultRow;
 import com.opengamma.sesame.engine.Results;
 import com.opengamma.sesame.server.FunctionServer;
 import com.opengamma.sesame.server.FunctionServerRequest;
@@ -52,6 +53,7 @@ public class RemoteSwapTest {
   private Results _fixingResults;
   private Results _compoundingResults;
   private Results _stubResults;
+  private Results _xccyResults;
 
   private static final double STD_TOLERANCE_PV = 1.0E-3;
 
@@ -112,6 +114,15 @@ public class RemoteSwapTest {
 
     _stubResults = _functionServer.executeSingleCycle(stubRequest);
 
+    FunctionServerRequest<IndividualCycleOptions> xccyRequest =
+        FunctionServerRequest.<IndividualCycleOptions>builder()
+            .viewConfig(createViewConfig())
+            .inputs(RemoteViewSwapUtils.XCCY_INPUTS)
+            .cycleOptions(_cycleOptions)
+            .build();
+
+    _xccyResults = _functionServer.executeSingleCycle(xccyRequest);
+
   }
 
   private ViewConfig createViewConfig() {
@@ -128,7 +139,7 @@ public class RemoteSwapTest {
         );
   }
 
-  /* Vanilla */
+  /* Vanilla - start */
   @Test(enabled = true)
   public void testVanillaFixedVsLiborSwapPV() {
 
@@ -140,7 +151,10 @@ public class RemoteSwapTest {
 
   }
 
-  /* Compounding */
+  /* Vanilla - end */
+
+  /* Compounding -start */
+
   @Test(enabled = true)
   public void testCompoundingFixedVsONSwapPV() {
 
@@ -175,7 +189,10 @@ public class RemoteSwapTest {
 
   }
 
-  /* Spread */
+  /* Compounding -start */
+
+  /* Spread - start */
+
   @Test(enabled = true)
   public void testSpreadLiborVsLiborSwapPV() {
 
@@ -191,16 +208,18 @@ public class RemoteSwapTest {
   @Test(enabled = true)
   public void testSpreadFFAAVsLiborSwapPV() {
 
-    //TODO PLAT-6741
     Result result = _spreadResults.get(1, 0).getResult();
     assertThat(result.isSuccess(), is(true));
     assertThat(result.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
     MultipleCurrencyAmount mca = (MultipleCurrencyAmount) result.getValue();
-    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(150891.19165888615, STD_TOLERANCE_PV)));
+    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(150128.4091, STD_TOLERANCE_PV)));
 
   }
 
-  /* Fixing */
+  /* Spread - end */
+
+  /* Fixing - start */
+
   @Test(enabled = true)
   public void testFixingFixedVsLiborSwapPV() {
 
@@ -223,7 +242,10 @@ public class RemoteSwapTest {
 
   }
 
-  /* Stubs */
+  /* Fixing - end */
+
+  /* Stubs - start */
+
   @Test(enabled = true)
   public void testFixedVsLibor3mStub3MSwapPV() {
 
@@ -267,5 +289,56 @@ public class RemoteSwapTest {
     assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(-405631.5512, STD_TOLERANCE_PV)));
 
   }
+
+  /* Stubs - end */
+
+  /* XCCY - start */
+
+  @Test(enabled = true)
+  public void testLiborUS3mVsLiborBP3mSwapPV() {
+
+    //TODO PLAT-6782
+    Result result = _xccyResults.get(0, 0).getResult();
+    assertThat(result.isSuccess(), is(true));
+    assertThat(result.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
+
+  }
+
+  @Test(enabled = true)
+  public void testFixedUSVsLiborBP3mSwapPV() {
+
+    //TODO PLAT-6782
+    Result result = _xccyResults.get(1, 0).getResult();
+    assertThat(result.isSuccess(), is(true));
+    assertThat(result.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
+
+  }
+
+  /* XCCY - end */
+
+  @Test(enabled = true)
+  public void testBuckedPV01() {
+
+    for (ResultRow result : _vanillaResults.getRows()) {
+      assertThat(result.get(1).getResult().isSuccess(), is(true));
+    }
+    for (ResultRow result : _spreadResults.getRows()) {
+      assertThat(result.get(1).getResult().isSuccess(), is(true));
+    }
+    for (ResultRow result : _fixingResults.getRows()) {
+      assertThat(result.get(1).getResult().isSuccess(), is(true));
+    }
+    for (ResultRow result : _compoundingResults.getRows()) {
+      assertThat(result.get(1).getResult().isSuccess(), is(true));
+    }
+    for (ResultRow result : _xccyResults.getRows()) {
+      assertThat(result.get(1).getResult().isSuccess(), is(true));
+    }
+    for (ResultRow result : _stubResults.getRows()) {
+      assertThat(result.get(1).getResult().isSuccess(), is(true));
+    }
+
+  }
+
 
 }
