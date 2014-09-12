@@ -53,7 +53,7 @@ import com.opengamma.analytics.tutorial.datasets.ComputedDataSetsMulticurveImmUs
 import com.opengamma.analytics.tutorial.datasets.RecentDataSetsMulticurveFFSUsd;
 import com.opengamma.analytics.tutorial.datasets.RecentDataSetsMulticurveFutures3MUsd;
 import com.opengamma.analytics.tutorial.datasets.RecentDataSetsMulticurveStandardUsd;
-import com.opengamma.analytics.tutorial.utils.ExportUtils;
+import com.opengamma.analytics.util.export.ExportUtils;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.rolldate.RollConvention;
