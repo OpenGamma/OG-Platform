@@ -42,7 +42,7 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.Multipl
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
 import com.opengamma.analytics.tutorial.datasets.RecentDataSetsMulticurveStandardUsd;
 import com.opengamma.analytics.tutorial.datasets.UsdDatasetJuly16;
-import com.opengamma.analytics.tutorial.utils.ExportUtils;
+import com.opengamma.analytics.util.export.ExportUtils;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.rolldate.RollConvention;
