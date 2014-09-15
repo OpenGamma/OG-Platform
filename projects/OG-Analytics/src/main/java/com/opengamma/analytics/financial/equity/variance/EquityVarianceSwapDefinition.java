@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.equity.variance;
@@ -8,12 +8,11 @@ package com.opengamma.analytics.financial.equity.variance;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.analytics.financial.instrument.InstrumentDefinitionUtils;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.varianceswap.VarianceSwapDefinition;
 import com.opengamma.analytics.util.time.TimeCalculator;
+import com.opengamma.financial.convention.businessday.BusinessDayDateUtils;
 import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
@@ -28,7 +27,7 @@ public class EquityVarianceSwapDefinition extends VarianceSwapDefinition {
 
   /**
    * Constructor based upon vega (volatility) parameterisation - strike and notional.
-   *
+   * 
    * @param obsStartDate Date of first observation, not null
    * @param obsEndDate Date of final observation, not null
    * @param settlementDate Date of cash settlement, not null
@@ -40,9 +39,9 @@ public class EquityVarianceSwapDefinition extends VarianceSwapDefinition {
    * @param volNotional Trade pays the difference between realized and strike variance multiplied by 0.5 * volNotional / volStrike
    * @param correctForDividends Whether to correct for dividends when pricing
    */
-  public EquityVarianceSwapDefinition(final ZonedDateTime obsStartDate, final ZonedDateTime obsEndDate, final ZonedDateTime settlementDate, final PeriodFrequency obsFreq, final Currency currency,
-      final Calendar calendar, final double annualizationFactor, final double volStrike, final double volNotional, final boolean correctForDividends) {
-    super(obsStartDate, obsEndDate, settlementDate, obsFreq, currency, calendar, annualizationFactor, volStrike, volNotional);
+  public EquityVarianceSwapDefinition(final ZonedDateTime obsStartDate, final ZonedDateTime obsEndDate, final ZonedDateTime settlementDate, final Currency currency, final Calendar calendar,
+      final double annualizationFactor, final double volStrike, final double volNotional, final boolean correctForDividends) {
+    super(obsStartDate, obsEndDate, settlementDate, currency, calendar, annualizationFactor, volStrike, volNotional);
     _correctForDividends = correctForDividends;
   }
 
@@ -60,11 +59,9 @@ public class EquityVarianceSwapDefinition extends VarianceSwapDefinition {
    * @param correctForDividends Whether to correct for dividends in pricing
    * @return The contract definition
    */
-  public static EquityVarianceSwapDefinition fromVegaParams(final ZonedDateTime obsStartDate, final ZonedDateTime obsEndDate, final ZonedDateTime settlementDate,
-      final PeriodFrequency obsFreq, final Currency currency, final Calendar calendar, final double annualizationFactor, final double volStrike, final double volNotional,
-      final boolean correctForDividends) {
-    return new EquityVarianceSwapDefinition(obsStartDate, obsEndDate, settlementDate, obsFreq, currency, calendar, annualizationFactor, volStrike, volNotional,
-        correctForDividends);
+  public static EquityVarianceSwapDefinition fromVegaParams(final ZonedDateTime obsStartDate, final ZonedDateTime obsEndDate, final ZonedDateTime settlementDate, final Currency currency,
+      final Calendar calendar, final double annualizationFactor, final double volStrike, final double volNotional, final boolean correctForDividends) {
+    return new EquityVarianceSwapDefinition(obsStartDate, obsEndDate, settlementDate, currency, calendar, annualizationFactor, volStrike, volNotional, correctForDividends);
   }
 
   /**
@@ -81,14 +78,12 @@ public class EquityVarianceSwapDefinition extends VarianceSwapDefinition {
    * @param correctForDividends Whether to correct for dividends in pricing
    * @return The contract definition
    */
-  public static EquityVarianceSwapDefinition fromVarianceParams(final ZonedDateTime obsStartDate, final ZonedDateTime obsEndDate, final ZonedDateTime settlementDate,
-      final PeriodFrequency obsFreq, final Currency currency, final Calendar calendar, final double annualizationFactor, final double varStrike, final double varNotional,
-      final boolean correctForDividends) {
+  public static EquityVarianceSwapDefinition fromVarianceParams(final ZonedDateTime obsStartDate, final ZonedDateTime obsEndDate, final ZonedDateTime settlementDate, final Currency currency,
+      final Calendar calendar, final double annualizationFactor, final double varStrike, final double varNotional, final boolean correctForDividends) {
     ArgumentChecker.notNegative(varStrike, "variance strike");
     final double volStrike = Math.sqrt(varStrike);
     final double volNotional = 2 * varNotional * volStrike;
-    return new EquityVarianceSwapDefinition(obsStartDate, obsEndDate, settlementDate, obsFreq, currency, calendar, annualizationFactor, volStrike, volNotional,
-        correctForDividends);
+    return new EquityVarianceSwapDefinition(obsStartDate, obsEndDate, settlementDate, currency, calendar, annualizationFactor, volStrike, volNotional, correctForDividends);
   }
 
   /**
@@ -105,9 +100,8 @@ public class EquityVarianceSwapDefinition extends VarianceSwapDefinition {
   }
 
   /**
-   * {@inheritDoc}
-   * The definition is responsible for constructing a view of the variance swap as of a particular date.
-   * In particular,  it resolves calendars. The VarianceSwap needs an array of observations, as well as its *expected* length.
+   * {@inheritDoc} The definition is responsible for constructing a view of the variance swap as of a particular date.
+   * In particular, it resolves calendars. The VarianceSwap needs an array of observations, as well as its *expected* length.
    * The actual number of observations may be less than that expected at trade inception because of a market disruption event.
    * ( For an example of a market disruption event, see http://cfe.cboe.com/Products/Spec_VT.aspx )
    * @param valueDate Date at which valuation will occur, not null
@@ -130,11 +124,11 @@ public class EquityVarianceSwapDefinition extends VarianceSwapDefinition {
     }
     final double[] observations = realizedTS.valuesArrayFast();
     final double[] observationWeights = {}; // TODO Case 2011-06-29 Calendar Add functionality for non-trivial weighting of observations
-    final int nGoodBusinessDays = InstrumentDefinitionUtils.countExpectedGoodDays(getObsStartDate().toLocalDate(), valueDate.toLocalDate(), getCalendar(), getObsFreq());
+    final int nGoodBusinessDays = BusinessDayDateUtils.getWorkingDaysInclusive(getObsStartDate(), valueDate, getCalendar());
     final int nObsDisrupted = nGoodBusinessDays - observations.length;
     ArgumentChecker.isTrue(nObsDisrupted >= 0, "Have more observations {} than good business days {}", observations.length, nGoodBusinessDays);
-    return new EquityVarianceSwap(timeToObsStart, timeToObsEnd, timeToSettlement, getVarStrike(), getVarNotional(), getCurrency(),
-        getAnnualizationFactor(), getObsExpected(), nObsDisrupted, observations, observationWeights, correctForDividends());
+    return new EquityVarianceSwap(timeToObsStart, timeToObsEnd, timeToSettlement, getVarStrike(), getVarNotional(), getCurrency(), getAnnualizationFactor(), getObsExpected(), nObsDisrupted,
+        observations, observationWeights, correctForDividends());
   }
 
   @Override
@@ -143,9 +137,8 @@ public class EquityVarianceSwapDefinition extends VarianceSwapDefinition {
   }
 
   /**
-   * {@inheritDoc}
-   * The definition is responsible for constructing a view of the variance swap as of a particular date.
-   * In particular,  it resolves calendars. The VarianceSwap needs an array of observations, as well as its *expected* length.
+   * {@inheritDoc} The definition is responsible for constructing a view of the variance swap as of a particular date.
+   * In particular, it resolves calendars. The VarianceSwap needs an array of observations, as well as its *expected* length.
    * The actual number of observations may be less than that expected at trade inception because of a market disruption event.
    * ( For an example of a market disruption event, see http://cfe.cboe.com/Products/Spec_VT.aspx )
    * @param valueDate Date at which valuation will occur, not null
@@ -167,11 +160,12 @@ public class EquityVarianceSwapDefinition extends VarianceSwapDefinition {
     }
     final double[] observations = realizedTS.valuesArrayFast();
     final double[] observationWeights = {}; // TODO Case 2011-06-29 Calendar Add functionality for non-trivial weighting of observations
-    final int nGoodBusinessDays = InstrumentDefinitionUtils.countExpectedGoodDays(getObsStartDate().toLocalDate(), valueDate.toLocalDate(), getCalendar(), getObsFreq());
+    ZonedDateTime finalObsDate = getObsEndDate().isAfter(valueDate) ? valueDate : getObsEndDate();
+    int nGoodBusinessDays = finalObsDate.isAfter(getObsStartDate()) ? BusinessDayDateUtils.getWorkingDaysInclusive(getObsStartDate(), finalObsDate, getCalendar()) : 0;
     final int nObsDisrupted = nGoodBusinessDays - observations.length;
     ArgumentChecker.isTrue(nObsDisrupted >= 0, "Have more observations {} than good business days {}", observations.length, nGoodBusinessDays);
-    return new EquityVarianceSwap(timeToObsStart, timeToObsEnd, timeToSettlement, getVarStrike(), getVarNotional(), getCurrency(),
-        getAnnualizationFactor(), getObsExpected(), nObsDisrupted, observations, observationWeights, correctForDividends());
+    return new EquityVarianceSwap(timeToObsStart, timeToObsEnd, timeToSettlement, getVarStrike(), getVarNotional(), getCurrency(), getAnnualizationFactor(), getObsExpected(), nObsDisrupted,
+        observations, observationWeights, correctForDividends());
   }
 
   @Override

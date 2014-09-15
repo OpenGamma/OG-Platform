@@ -181,12 +181,12 @@ public class VarianceSwapPresentValueTest {
    * After lastObs but before settlement date, presentValue == RealizedVar
    */
   public void swapObservationsCompleted() {
-    final VarianceSwap swapPaysTomorrow = new VarianceSwap(-1., -tPlusOne, tPlusOne, varStrike, varNotional, Currency.EUR, annualization, nObs - 1, 0, obs, obsWeight);
+    final VarianceSwap swapPaysTomorrow = new VarianceSwap(-1., -tPlusOne, tPlusOne, varStrike, varNotional, Currency.EUR, annualization, nObs, 0, obs, obsWeight);
 
     final double pv = PRICER.presentValue(swapPaysTomorrow, MARKET);
     final double variance = new RealizedVariance().evaluate(swapPaysTomorrow);
     final double pvOfHedge = swapStartsNow.getVarNotional() * (variance - swapStartsNow.getVarStrike()) * MARKET.getDiscountCurve().getDiscountFactor(tPlusOne);
-    assertEquals(pvOfHedge, pv, 0.01);
+    assertEquals(pvOfHedge, pv, TOLERATED);
   }
 
   @Test
