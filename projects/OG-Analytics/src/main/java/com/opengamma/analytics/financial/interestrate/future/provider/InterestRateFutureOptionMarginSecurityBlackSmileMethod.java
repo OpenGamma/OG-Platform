@@ -22,12 +22,14 @@ import com.opengamma.util.tuple.DoublesPair;
  * The Black parameters are represented by (expiration-strike-delay) surfaces. The "delay" is the time between option expiration and future last trading date,
  * i.e. 0 for quarterly options and x for x-year mid-curve options. The future prices are computed without convexity adjustments.
  */
-public final class InterestRateFutureOptionMarginSecurityBlackSmileMethod extends InterestRateFutureOptionMarginSecurityGenericMethod<BlackSTIRFuturesProviderInterface> {
+public final class InterestRateFutureOptionMarginSecurityBlackSmileMethod extends 
+    InterestRateFutureOptionMarginSecurityGenericMethod<BlackSTIRFuturesProviderInterface> {
 
   /**
    * Creates the method unique instance.
    */
-  private static final InterestRateFutureOptionMarginSecurityBlackSmileMethod INSTANCE = new InterestRateFutureOptionMarginSecurityBlackSmileMethod();
+  private static final InterestRateFutureOptionMarginSecurityBlackSmileMethod INSTANCE = 
+      new InterestRateFutureOptionMarginSecurityBlackSmileMethod();
 
   /**
    * Constructor.
@@ -51,7 +53,8 @@ public final class InterestRateFutureOptionMarginSecurityBlackSmileMethod extend
   /**
    * The method used to compute the future price. It is a method without convexity adjustment.
    */
-  private static final InterestRateFutureSecurityDiscountingMethod METHOD_FUTURE = InterestRateFutureSecurityDiscountingMethod.getInstance();
+  private static final InterestRateFutureSecurityDiscountingMethod METHOD_FUTURE = 
+      InterestRateFutureSecurityDiscountingMethod.getInstance();
 
   /**
    * Computes the option security price from future price.
@@ -60,15 +63,17 @@ public final class InterestRateFutureOptionMarginSecurityBlackSmileMethod extend
    * @param priceFuture The price of the underlying future.
    * @return The security price.
    */
-  public double priceFromFuturePrice(final InterestRateFutureOptionMarginSecurity security, final BlackSTIRFuturesProviderInterface blackData, final double priceFuture) {
+  public double priceFromFuturePrice(final InterestRateFutureOptionMarginSecurity security, 
+      final BlackSTIRFuturesProviderInterface blackData, final double priceFuture) {
     ArgumentChecker.notNull(security, "Option security");
     ArgumentChecker.notNull(blackData, "Black data");
     final double rateStrike = 1.0 - security.getStrike();
-    final EuropeanVanillaOption option = new EuropeanVanillaOption(rateStrike, security.getExpirationTime(), !security.isCall());
-    final double forward = 1 - priceFuture;
+    final EuropeanVanillaOption option = 
+        new EuropeanVanillaOption(rateStrike, security.getExpirationTime(), !security.isCall());
+    final double rateFutures = 1 - priceFuture;
     final double delay = security.getUnderlyingFuture().getTradingLastTime() - security.getExpirationTime();
-    final double volatility = blackData.getVolatility(security.getExpirationTime(), delay, security.getStrike(), rateStrike); //
-    final BlackFunctionData dataBlack = new BlackFunctionData(forward, 1.0, volatility);
+    double volatility = blackData.getVolatility(security.getExpirationTime(), delay, security.getStrike(), priceFuture);
+    final BlackFunctionData dataBlack = new BlackFunctionData(rateFutures, 1.0, volatility);
     final double priceSecurity = BLACK_FUNCTION.getPriceFunction(option).evaluate(dataBlack);
     return priceSecurity;
   }
@@ -80,7 +85,8 @@ public final class InterestRateFutureOptionMarginSecurityBlackSmileMethod extend
    * @return The security price.
    */
   @Override
-  public double price(final InterestRateFutureOptionMarginSecurity security, final BlackSTIRFuturesProviderInterface blackData) {
+  public double price(final InterestRateFutureOptionMarginSecurity security, 
+      final BlackSTIRFuturesProviderInterface blackData) {
     ArgumentChecker.notNull(security, "Option security");
     ArgumentChecker.notNull(blackData, "Black data");
     final double priceFuture = METHOD_FUTURE.price(security.getUnderlyingFuture(), blackData.getMulticurveProvider());
@@ -95,23 +101,26 @@ public final class InterestRateFutureOptionMarginSecurityBlackSmileMethod extend
    * @return The security price curve sensitivity.
    */
   @Override
-  public MulticurveSensitivity priceCurveSensitivity(final InterestRateFutureOptionMarginSecurity security, final BlackSTIRFuturesProviderInterface blackData) {
+  public MulticurveSensitivity priceCurveSensitivity(final InterestRateFutureOptionMarginSecurity security, 
+      final BlackSTIRFuturesProviderInterface blackData) {
     ArgumentChecker.notNull(security, "Option security");
     ArgumentChecker.notNull(blackData, "Black data");
     // Forward sweep
     final double priceFuture = METHOD_FUTURE.price(security.getUnderlyingFuture(), blackData.getMulticurveProvider());
     final double rateStrike = 1.0 - security.getStrike();
-    final EuropeanVanillaOption option = new EuropeanVanillaOption(rateStrike, security.getExpirationTime(), !security.isCall());
+    final EuropeanVanillaOption option = 
+        new EuropeanVanillaOption(rateStrike, security.getExpirationTime(), !security.isCall());
     final double forward = 1 - priceFuture;
     final double delay = security.getUnderlyingFuture().getTradingLastTime() - security.getExpirationTime();
-    final double volatility = blackData.getVolatility(security.getExpirationTime(), delay, security.getStrike(), rateStrike);
+    double volatility = blackData.getVolatility(security.getExpirationTime(), delay, security.getStrike(), priceFuture);
     final BlackFunctionData dataBlack = new BlackFunctionData(forward, 1.0, volatility);
     final double[] priceAdjoint = BLACK_FUNCTION.getPriceAdjoint(option, dataBlack);
     // Backward sweep
     final double priceBar = 1.0;
     final double forwardBar = priceAdjoint[1] * priceBar;
     final double priceFutureBar = -forwardBar;
-    final MulticurveSensitivity priceFutureDerivative = METHOD_FUTURE.priceCurveSensitivity(security.getUnderlyingFuture(), blackData.getMulticurveProvider());
+    MulticurveSensitivity priceFutureDerivative = 
+        METHOD_FUTURE.priceCurveSensitivity(security.getUnderlyingFuture(), blackData.getMulticurveProvider());
     return priceFutureDerivative.multipliedBy(priceFutureBar);
   }
 
@@ -121,7 +130,8 @@ public final class InterestRateFutureOptionMarginSecurityBlackSmileMethod extend
    * @param blackData The curve and Black volatility data.
    * @return The security price Black volatility sensitivity.
    */
-  public SurfaceValue priceBlackSensitivity(final InterestRateFutureOptionMarginSecurity security, final BlackSTIRFuturesProviderInterface blackData) {
+  public SurfaceValue priceBlackSensitivity(final InterestRateFutureOptionMarginSecurity security, 
+      final BlackSTIRFuturesProviderInterface blackData) {
     ArgumentChecker.notNull(security, "Option security");
     ArgumentChecker.notNull(blackData, "Black data");
     // Forward sweep
@@ -131,7 +141,7 @@ public final class InterestRateFutureOptionMarginSecurityBlackSmileMethod extend
     final EuropeanVanillaOption option = new EuropeanVanillaOption(rateStrike, security.getExpirationTime(), !security.isCall());
     final double forward = 1 - priceFuture;
     final double delay = security.getUnderlyingFuture().getTradingLastTime() - security.getExpirationTime();
-    final double volatility = blackData.getVolatility(security.getExpirationTime(), delay, security.getStrike(), rateStrike);
+    double volatility = blackData.getVolatility(security.getExpirationTime(), delay, security.getStrike(), priceFuture);
     final BlackFunctionData dataBlack = new BlackFunctionData(forward, 1.0, volatility);
     final double[] priceAdjoint = BLACK_FUNCTION.getPriceAdjoint(option, dataBlack);
     // Backward sweep
@@ -149,16 +159,17 @@ public final class InterestRateFutureOptionMarginSecurityBlackSmileMethod extend
    * @param blackData The curve and Black volatility data.
    * @return The delta.
    */
-  public double priceDelta(final InterestRateFutureOptionMarginSecurity security, final BlackSTIRFuturesProviderInterface blackData) {
+  public double priceDelta(final InterestRateFutureOptionMarginSecurity security, 
+      final BlackSTIRFuturesProviderInterface blackData) {
     ArgumentChecker.notNull(security, "Option security");
     ArgumentChecker.notNull(blackData, "Black data");
     // Forward sweep
-    final double priceFuture = METHOD_FUTURE.price(security.getUnderlyingFuture(), blackData);
+    final double priceFutures = METHOD_FUTURE.price(security.getUnderlyingFuture(), blackData);
     final double rateStrike = 1.0 - security.getStrike();
     final EuropeanVanillaOption option = new EuropeanVanillaOption(rateStrike, security.getExpirationTime(), !security.isCall());
-    final double forward = 1 - priceFuture;
+    final double forward = 1 - priceFutures;
     final double delay = security.getUnderlyingFuture().getTradingLastTime() - security.getExpirationTime();
-    final double volatility = blackData.getVolatility(security.getExpirationTime(), delay, security.getStrike(), rateStrike);
+    double volatility = blackData.getVolatility(security.getExpirationTime(), delay, security.getStrike(), priceFutures);
     final BlackFunctionData dataBlack = new BlackFunctionData(forward, 1.0, volatility);
     final double[] priceAdjoint = BLACK_FUNCTION.getPriceAdjoint(option, dataBlack);
     return -priceAdjoint[1];
@@ -171,17 +182,18 @@ public final class InterestRateFutureOptionMarginSecurityBlackSmileMethod extend
    * @param blackData The curve and Black volatility data.
    * @return The security price.
    */
-  public double priceGamma(final InterestRateFutureOptionMarginSecurity security, final BlackSTIRFuturesProviderInterface blackData) {
+  public double priceGamma(final InterestRateFutureOptionMarginSecurity security, 
+      final BlackSTIRFuturesProviderInterface blackData) {
     ArgumentChecker.notNull(security, "Option security");
     ArgumentChecker.notNull(blackData, "Black data");
     // Forward sweep
-    final double priceFuture = METHOD_FUTURE.price(security.getUnderlyingFuture(), blackData.getMulticurveProvider());
+    final double priceFutures = METHOD_FUTURE.price(security.getUnderlyingFuture(), blackData.getMulticurveProvider());
     final double strike = security.getStrike();
     final double rateStrike = 1.0 - strike;
-    final EuropeanVanillaOption option = new EuropeanVanillaOption(rateStrike, security.getExpirationTime(), !security.isCall());
-    final double forward = 1 - priceFuture;
+    EuropeanVanillaOption option = new EuropeanVanillaOption(rateStrike, security.getExpirationTime(), !security.isCall());
+    final double forward = 1 - priceFutures;
     final double delay = security.getUnderlyingFuture().getTradingLastTime() - security.getExpirationTime();
-    final double volatility = blackData.getVolatility(security.getExpirationTime(), delay, security.getStrike(), rateStrike);
+    double volatility = blackData.getVolatility(security.getExpirationTime(), delay, security.getStrike(), priceFutures);
     final BlackFunctionData dataBlack = new BlackFunctionData(forward, 1.0, volatility);
     final double[] firstDerivs = new double[3];
     final double[][] secondDerivs = new double[3][3];
@@ -195,15 +207,16 @@ public final class InterestRateFutureOptionMarginSecurityBlackSmileMethod extend
    * @param blackData The curve and Black volatility data.
    * @return Black lognormal vega.
    */
-  public double priceVega(final InterestRateFutureOptionMarginSecurity security, final BlackSTIRFuturesProviderInterface blackData) {
+  public double priceVega(final InterestRateFutureOptionMarginSecurity security, 
+      final BlackSTIRFuturesProviderInterface blackData) {
     // Forward sweep
-    final double priceFuture = METHOD_FUTURE.price(security.getUnderlyingFuture(), blackData);
+    final double priceFutures = METHOD_FUTURE.price(security.getUnderlyingFuture(), blackData);
     final double strike = security.getStrike();
     final double rateStrike = 1.0 - strike;
-    final EuropeanVanillaOption option = new EuropeanVanillaOption(rateStrike, security.getExpirationTime(), !security.isCall());
-    final double forward = 1 - priceFuture;
+    EuropeanVanillaOption option = new EuropeanVanillaOption(rateStrike, security.getExpirationTime(), !security.isCall());
+    final double forward = 1 - priceFutures;
     final double delay = security.getUnderlyingFuture().getTradingLastTime() - security.getExpirationTime();
-    final double volatility = blackData.getVolatility(security.getExpirationTime(), delay, security.getStrike(), rateStrike);
+    double volatility = blackData.getVolatility(security.getExpirationTime(), delay, security.getStrike(), priceFutures);
     final BlackFunctionData dataBlack = new BlackFunctionData(forward, 1.0, volatility);
     final double[] priceAdjoint = BLACK_FUNCTION.getPriceAdjoint(option, dataBlack);
     return priceAdjoint[2];
@@ -212,19 +225,21 @@ public final class InterestRateFutureOptionMarginSecurityBlackSmileMethod extend
   /**
    * Computes the options theta.
    * @param security the future option.
-   * @param black the curve and black volatility data.
+   * @param blackData the curve and black volatility data.
    * @return the theta.
    */
-  public double priceTheta(final InterestRateFutureOptionMarginSecurity security, final BlackSTIRFuturesProviderInterface black) {
+  public double priceTheta(final InterestRateFutureOptionMarginSecurity security, 
+      final BlackSTIRFuturesProviderInterface blackData) {
     ArgumentChecker.notNull(security, "security");
-    ArgumentChecker.notNull(black, "black");
-    final double priceFuture = METHOD_FUTURE.price(security.getUnderlyingFuture(), black);
+    ArgumentChecker.notNull(blackData, "black");
+    final double priceFutures = METHOD_FUTURE.price(security.getUnderlyingFuture(), blackData);
     final double strike = security.getStrike();
     final double rateStrike = 1.0 - strike;
-    final double forward = 1 - priceFuture;
-    final double delay = security.getUnderlyingFuture().getTradingLastTime() - security.getExpirationTime();
-    final double volatility = black.getVolatility(security.getExpirationTime(), delay, security.getStrike(), rateStrike);
-    final double rate = ((MulticurveProviderDiscount) black.getMulticurveProvider()).getCurve(security.getCurrency()).getInterestRate(security.getExpirationTime());
+    final double forward = 1 - priceFutures;
+    double delay = security.getUnderlyingFuture().getTradingLastTime() - security.getExpirationTime();
+    double volatility = blackData.getVolatility(security.getExpirationTime(), delay, security.getStrike(), priceFutures);
+    double rate = ((MulticurveProviderDiscount) blackData.getMulticurveProvider()).getCurve(security.getCurrency()).
+        getInterestRate(security.getExpirationTime());
     return BlackFormulaRepository.theta(forward, rateStrike, delay, volatility, security.isCall(), rate);
   }
 
@@ -235,11 +250,13 @@ public final class InterestRateFutureOptionMarginSecurityBlackSmileMethod extend
    * @param blackData The curve and Black volatility data.
    * @return Lognormal Implied Volatility.
    */
-  public double impliedVolatility(final InterestRateFutureOptionMarginSecurity security, final BlackSTIRFuturesProviderInterface blackData) {
+  public double impliedVolatility(final InterestRateFutureOptionMarginSecurity security, 
+      final BlackSTIRFuturesProviderInterface blackData) {
     ArgumentChecker.notNull(security, "Option security");
     ArgumentChecker.notNull(blackData, "Black data");
-    final double delay = security.getUnderlyingFuture().getTradingLastTime() - security.getExpirationTime();
-    return blackData.getVolatility(security.getExpirationTime(), delay, security.getStrike(), 1.0d - security.getStrike());
+    double priceFutures = METHOD_FUTURE.price(security.getUnderlyingFuture(), blackData);
+    double delay = security.getUnderlyingFuture().getTradingLastTime() - security.getExpirationTime();
+    return blackData.getVolatility(security.getExpirationTime(), delay, security.getStrike(), priceFutures);
   }
 
   /**
@@ -248,7 +265,8 @@ public final class InterestRateFutureOptionMarginSecurityBlackSmileMethod extend
    * @param blackData The curve and Black volatility data.
    * @return The security price.
    */
-  public double underlyingFuturesPrice(final InterestRateFutureOptionMarginSecurity security, final BlackSTIRFuturesProviderInterface blackData) {
+  public double underlyingFuturesPrice(final InterestRateFutureOptionMarginSecurity security, 
+      final BlackSTIRFuturesProviderInterface blackData) {
     return METHOD_FUTURE.price(security.getUnderlyingFuture(), blackData.getMulticurveProvider());
   }
 

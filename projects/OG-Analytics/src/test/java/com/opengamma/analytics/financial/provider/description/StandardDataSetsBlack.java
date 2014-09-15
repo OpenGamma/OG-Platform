@@ -31,7 +31,7 @@ public class StandardDataSetsBlack {
       INTERPOLATOR_LINEAR_2D);
 
   private static final double[] EXPIRY2 = new double[] {0.20, 0.20, 0.20, 0.20, 0.20, 0.45, 0.45, 0.45, 0.45, 0.45 };
-  private static final double[] LOGMONEY = new double[] {-0.010, -0.005, 0.000, 0.005, 0.010, -0.010, -0.005, 0.000, 0.005, 0.010 };
+  private static final double[] LOGMONEY = new double[] {-0.050, -0.005, 0.000, 0.005, 0.050, -0.050, -0.005, 0.000, 0.005, 0.050 };
   private static final double[] VOL_EXP_LOGMONEY = new double[] {0.50, 0.49, 0.47, 0.48, 0.51, 0.45, 0.44, 0.42, 0.43, 0.46 };
   private static final InterpolatedDoublesSurface BLACK_SURFACE_EXP_LOGMONEY = InterpolatedDoublesSurface.from(EXPIRY2,
       LOGMONEY, VOL_EXP_LOGMONEY, INTERPOLATOR_TIMESQUARE_LINEAR_2D);
