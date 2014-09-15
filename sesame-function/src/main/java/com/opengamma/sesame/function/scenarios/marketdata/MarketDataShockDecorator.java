@@ -26,7 +26,8 @@ import com.opengamma.util.result.Result;
 /**
  * Function that decorates {@link MarketDataFn} and applies shocks to the underlying market data.
  */
-public class MarketDataShockDecorator implements MarketDataFn, ScenarioFunction<MarketDataShock> {
+public class MarketDataShockDecorator
+    implements MarketDataFn, ScenarioFunction<MarketDataShock, MarketDataShockDecorator> {
 
   private static final Logger s_logger = LoggerFactory.getLogger(MarketDataShockDecorator.class);
 

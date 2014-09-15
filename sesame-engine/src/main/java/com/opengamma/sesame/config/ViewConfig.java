@@ -122,7 +122,7 @@ public final class ViewConfig implements ImmutableBean {
     ScenarioDefinition mergedDefinition = _scenarioDefinition.mergedWith(scenarioDefinition);
     FunctionModelConfig decoratedConfig = _defaultConfig;
 
-    for (Class<? extends ScenarioFunction<?>> decoratorType : mergedDefinition.getFunctionTypes()) {
+    for (Class<? extends ScenarioFunction<?, ?>> decoratorType : mergedDefinition.getFunctionTypes()) {
       decoratedConfig = decoratedConfig.decoratedWith(decoratorType);
     }
     return new ViewConfig(_name, decoratedConfig, _columns, _nonPortfolioOutputs, mergedDefinition);

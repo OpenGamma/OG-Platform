@@ -45,7 +45,7 @@ public class FilteredScenarioDefinitionTest {
     assertTrue(filteredArgs2.isEmpty());
   }
 
-  public class Function1 implements ScenarioFunction<Arg1> {
+  public class Function1 implements ScenarioFunction<Arg1, Function1> {
 
     @Nullable
     @Override
@@ -54,7 +54,7 @@ public class FilteredScenarioDefinitionTest {
     }
   }
 
-  public class Function2 implements ScenarioFunction<Arg2> {
+  public class Function2 implements ScenarioFunction<Arg2, Function2> {
 
     @Nullable
     @Override
@@ -63,7 +63,7 @@ public class FilteredScenarioDefinitionTest {
     }
   }
 
-  public static final class Arg1 implements ScenarioArgument<Function1> {
+  public static final class Arg1 implements ScenarioArgument<Arg1, Function1> {
 
     @Override
     public Class<Function1> getFunctionType() {
@@ -71,7 +71,7 @@ public class FilteredScenarioDefinitionTest {
     }
   }
 
-  public static final class Arg2 implements ScenarioArgument<Function2> {
+  public static final class Arg2 implements ScenarioArgument<Arg2, Function2> {
 
     @Override
     public Class<Function2> getFunctionType() {

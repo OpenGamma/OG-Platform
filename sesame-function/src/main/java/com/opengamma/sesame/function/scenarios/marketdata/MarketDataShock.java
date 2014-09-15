@@ -12,7 +12,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Applies a shock to a market data value if its ID matches a rule.
  */
-public abstract class MarketDataShock implements ScenarioArgument<MarketDataShockDecorator> {
+public abstract class MarketDataShock implements ScenarioArgument<MarketDataShock, MarketDataShockDecorator> {
 
   /** For matching the market data ID. */
   private final MarketDataMatcher _matcher;

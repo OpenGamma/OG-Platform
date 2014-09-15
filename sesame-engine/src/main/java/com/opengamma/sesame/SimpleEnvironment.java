@@ -70,7 +70,8 @@ public final class SimpleEnvironment implements Environment {
   }
 
   @Override
-  public <T extends ScenarioArgument<?>> List<T> getScenarioArguments(ScenarioFunction<T> scenarioFunction) {
+  public <A extends ScenarioArgument<A, F>, F extends ScenarioFunction<A, F>> List<A> getScenarioArguments(
+      ScenarioFunction<A, F> scenarioFunction) {
     return _scenarioDefinition.getArguments(scenarioFunction);
   }
 

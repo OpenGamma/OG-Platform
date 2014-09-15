@@ -21,7 +21,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Performs a parallel shift on a set of curve data if the curve matches the {@link CurveSpecificationMatcher matcher}.
  */
-public abstract class CurveDataShift implements ScenarioArgument<CurveDataShiftDecorator> {
+public abstract class CurveDataShift implements ScenarioArgument<CurveDataShift, CurveDataShiftDecorator> {
 
   /** Curves are only shifted if they match this matcher. */
   private final CurveSpecificationMatcher _matcher;

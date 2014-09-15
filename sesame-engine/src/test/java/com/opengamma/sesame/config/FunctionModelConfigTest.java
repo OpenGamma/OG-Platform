@@ -181,7 +181,7 @@ public class FunctionModelConfigTest {
     }
   }
 
-  public static class Decorator1 implements Fn, ScenarioFunction<Arg1> {
+  public static class Decorator1 implements Fn, ScenarioFunction<Arg1, Decorator1> {
 
     public Decorator1(Fn delegate) { }
 
@@ -197,7 +197,7 @@ public class FunctionModelConfigTest {
     }
   }
 
-  public static class Decorator2 implements Fn, ScenarioFunction<Arg2> {
+  public static class Decorator2 implements Fn, ScenarioFunction<Arg2, Decorator2> {
 
     public Decorator2(Fn fn) { }
 
@@ -227,7 +227,7 @@ public class FunctionModelConfigTest {
     }
   }
 
-  public static class Arg1 implements ScenarioArgument<Decorator1> {
+  public static class Arg1 implements ScenarioArgument<Arg1, Decorator1> {
 
     @Override
     public Class<Decorator1> getFunctionType() {
@@ -235,7 +235,7 @@ public class FunctionModelConfigTest {
     }
   }
 
-  public static class Arg2 implements ScenarioArgument<Decorator2> {
+  public static class Arg2 implements ScenarioArgument<Arg2, Decorator2> {
 
     @Override
     public Class<Decorator2> getFunctionType() {

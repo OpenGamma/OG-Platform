@@ -22,7 +22,7 @@ import com.opengamma.util.result.Result;
  * The points to shift are specified by tenor.
  */
 public class CurveDataPointShiftsDecorator
-    implements CurveSpecificationMarketDataFn, ScenarioFunction<CurveDataPointShifts> {
+    implements CurveSpecificationMarketDataFn, ScenarioFunction<CurveDataPointShifts, CurveDataPointShiftsDecorator> {
 
   /** The underlying function that this function decorates. */
   private final CurveSpecificationMarketDataFn _delegate;

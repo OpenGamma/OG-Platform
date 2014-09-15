@@ -36,10 +36,10 @@ public final class ScenarioArgumentKey implements ImmutableBean {
 
   /** The scenario function that consumes the argument. */
   @PropertyDefinition(validate = "notNull")
-  private final Class<? extends ScenarioFunction<?>> _functionType;
+  private final Class<? extends ScenarioFunction<?, ?>> _functionType;
 
   @ImmutableConstructor
-  public ScenarioArgumentKey(String name, Class<? extends ScenarioFunction<?>> functionType) {
+  public ScenarioArgumentKey(String name, Class<? extends ScenarioFunction<?, ?>> functionType) {
     _name = ArgumentChecker.notEmpty(name, "name");
     _functionType = ArgumentChecker.notNull(functionType, "functionType");
   }
@@ -95,7 +95,7 @@ public final class ScenarioArgumentKey implements ImmutableBean {
    * Gets the scenario function that consumes the argument.
    * @return the value of the property, not null
    */
-  public Class<? extends ScenarioFunction<?>> getFunctionType() {
+  public Class<? extends ScenarioFunction<?, ?>> getFunctionType() {
     return _functionType;
   }
 
@@ -133,25 +133,17 @@ public final class ScenarioArgumentKey implements ImmutableBean {
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("ScenarioArgumentKey{");
-    int len = buf.length();
-    toString(buf);
-    if (buf.length() > len) {
-      buf.setLength(buf.length() - 2);
-    }
+    buf.append("name").append('=').append(getName()).append(',').append(' ');
+    buf.append("functionType").append('=').append(JodaBeanUtils.toString(getFunctionType()));
     buf.append('}');
     return buf.toString();
-  }
-
-  protected void toString(StringBuilder buf) {
-    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
-    buf.append("functionType").append('=').append(JodaBeanUtils.toString(getFunctionType())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code ScenarioArgumentKey}.
    */
-  public static class Meta extends DirectMetaBean {
+  public static final class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -166,7 +158,7 @@ public final class ScenarioArgumentKey implements ImmutableBean {
      * The meta-property for the {@code functionType} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Class<? extends ScenarioFunction<?>>> _functionType = DirectMetaProperty.ofImmutable(
+    private final MetaProperty<Class<? extends ScenarioFunction<?, ?>>> _functionType = DirectMetaProperty.ofImmutable(
         this, "functionType", ScenarioArgumentKey.class, (Class) Class.class);
     /**
      * The meta-properties.
@@ -179,7 +171,7 @@ public final class ScenarioArgumentKey implements ImmutableBean {
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -213,7 +205,7 @@ public final class ScenarioArgumentKey implements ImmutableBean {
      * The meta-property for the {@code name} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<String> name() {
+    public MetaProperty<String> name() {
       return _name;
     }
 
@@ -221,7 +213,7 @@ public final class ScenarioArgumentKey implements ImmutableBean {
      * The meta-property for the {@code functionType} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Class<? extends ScenarioFunction<?>>> functionType() {
+    public MetaProperty<Class<? extends ScenarioFunction<?, ?>>> functionType() {
       return _functionType;
     }
 
@@ -252,22 +244,22 @@ public final class ScenarioArgumentKey implements ImmutableBean {
   /**
    * The bean-builder for {@code ScenarioArgumentKey}.
    */
-  public static class Builder extends DirectFieldsBeanBuilder<ScenarioArgumentKey> {
+  public static final class Builder extends DirectFieldsBeanBuilder<ScenarioArgumentKey> {
 
     private String _name;
-    private Class<? extends ScenarioFunction<?>> _functionType;
+    private Class<? extends ScenarioFunction<?, ?>> _functionType;
 
     /**
      * Restricted constructor.
      */
-    protected Builder() {
+    private Builder() {
     }
 
     /**
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    protected Builder(ScenarioArgumentKey beanToCopy) {
+    private Builder(ScenarioArgumentKey beanToCopy) {
       this._name = beanToCopy.getName();
       this._functionType = beanToCopy.getFunctionType();
     }
@@ -293,7 +285,7 @@ public final class ScenarioArgumentKey implements ImmutableBean {
           this._name = (String) newValue;
           break;
         case -211170510:  // functionType
-          this._functionType = (Class<? extends ScenarioFunction<?>>) newValue;
+          this._functionType = (Class<? extends ScenarioFunction<?, ?>>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -349,7 +341,7 @@ public final class ScenarioArgumentKey implements ImmutableBean {
      * @param functionType  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder functionType(Class<? extends ScenarioFunction<?>> functionType) {
+    public Builder functionType(Class<? extends ScenarioFunction<?, ?>> functionType) {
       JodaBeanUtils.notNull(functionType, "functionType");
       this._functionType = functionType;
       return this;
@@ -360,18 +352,10 @@ public final class ScenarioArgumentKey implements ImmutableBean {
     public String toString() {
       StringBuilder buf = new StringBuilder(96);
       buf.append("ScenarioArgumentKey.Builder{");
-      int len = buf.length();
-      toString(buf);
-      if (buf.length() > len) {
-        buf.setLength(buf.length() - 2);
-      }
+      buf.append("name").append('=').append(JodaBeanUtils.toString(_name)).append(',').append(' ');
+      buf.append("functionType").append('=').append(JodaBeanUtils.toString(_functionType));
       buf.append('}');
       return buf.toString();
-    }
-
-    protected void toString(StringBuilder buf) {
-      buf.append("name").append('=').append(JodaBeanUtils.toString(_name)).append(',').append(' ');
-      buf.append("functionType").append('=').append(JodaBeanUtils.toString(_functionType)).append(',').append(' ');
     }
 
   }

@@ -29,7 +29,7 @@ public class ScenarioDefinitionTest {
 
   @Test
   public void withArgumentsList() {
-    List<ScenarioArgument<?>> argList = ImmutableList.<ScenarioArgument<?>>of(_arg11, _arg21);
+    List<ScenarioArgument<?, ?>> argList = ImmutableList.<ScenarioArgument<?, ?>>of(_arg11, _arg21);
     ScenarioDefinition args = new ScenarioDefinition(_arg12, _arg22).with(argList);
     FilteredScenarioDefinition filteredArgs = args.filter("foo");
 
@@ -62,12 +62,12 @@ public class ScenarioDefinitionTest {
 
   @Test
   public void withArgumentsForColumn() {
-    List<ScenarioArgument<?>> argList = ImmutableList.<ScenarioArgument<?>>of(_arg11);
-    Map<String, List<ScenarioArgument<?>>> argMap =
-        ImmutableMap.<String, List<ScenarioArgument<?>>>of("foo", ImmutableList.<ScenarioArgument<?>>of(_arg21));
+    List<ScenarioArgument<?, ?>> argList = ImmutableList.<ScenarioArgument<?, ?>>of(_arg11);
+    Map<String, List<ScenarioArgument<?, ?>>> argMap =
+        ImmutableMap.<String, List<ScenarioArgument<?, ?>>>of("foo", ImmutableList.<ScenarioArgument<?, ?>>of(_arg21));
     ScenarioDefinition baseArgs = new ScenarioDefinition(argList, argMap);
 
-    List<ScenarioArgument<?>> extraArgs = ImmutableList.<ScenarioArgument<?>>of(_arg12, _arg22);
+    List<ScenarioArgument<?, ?>> extraArgs = ImmutableList.<ScenarioArgument<?, ?>>of(_arg12, _arg22);
     ScenarioDefinition scenarioDefinition = baseArgs.with(extraArgs, "foo");
     FilteredScenarioDefinition filteredArgs = scenarioDefinition.filter("foo");
 
@@ -84,9 +84,9 @@ public class ScenarioDefinitionTest {
 
   @Test
   public void filter() {
-    List<ScenarioArgument<?>> argList = ImmutableList.<ScenarioArgument<?>>of(_arg11);
-    Map<String, List<ScenarioArgument<?>>> argMap = new HashMap<>();
-    argMap.put("foo", ImmutableList.<ScenarioArgument<?>>of(_arg21));
+    List<ScenarioArgument<?, ?>> argList = ImmutableList.<ScenarioArgument<?, ?>>of(_arg11);
+    Map<String, List<ScenarioArgument<?, ?>>> argMap = new HashMap<>();
+    argMap.put("foo", ImmutableList.<ScenarioArgument<?, ?>>of(_arg21));
     ScenarioDefinition scenarioDefinition = new ScenarioDefinition(argList, argMap);
 
     FilteredScenarioDefinition barArgs = scenarioDefinition.filter("bar");
@@ -143,17 +143,17 @@ public class ScenarioDefinitionTest {
 
   @Test
   public void getFunctionTypes() {
-    List<ScenarioArgument<?>> argList = ImmutableList.<ScenarioArgument<?>>of(_arg11);
-    Map<String, List<ScenarioArgument<?>>> argMap = new HashMap<>();
-    argMap.put("foo", ImmutableList.<ScenarioArgument<?>>of(_arg21));
+    List<ScenarioArgument<?, ?>> argList = ImmutableList.<ScenarioArgument<?, ?>>of(_arg11);
+    Map<String, List<ScenarioArgument<?, ?>>> argMap = new HashMap<>();
+    argMap.put("foo", ImmutableList.<ScenarioArgument<?, ?>>of(_arg21));
     ScenarioDefinition scenarioDefinition = new ScenarioDefinition(argList, argMap);
 
-    Set<Class<? extends ScenarioFunction<?>>> functionTypes = scenarioDefinition.getFunctionTypes();
+    Set<Class<? extends ScenarioFunction<?, ?>>> functionTypes = scenarioDefinition.getFunctionTypes();
     assertTrue(functionTypes.contains(Fn1.class));
     assertTrue(functionTypes.contains(Fn2.class));
   }
 
-  public static class Arg1 implements ScenarioArgument<Fn1> {
+  public static class Arg1 implements ScenarioArgument<Arg1, Fn1> {
 
     @Override
     public Class<Fn1> getFunctionType() {
@@ -161,7 +161,7 @@ public class ScenarioDefinitionTest {
     }
   }
 
-  public static class Fn1 implements ScenarioFunction<Arg1> {
+  public static class Fn1 implements ScenarioFunction<Arg1, Fn1> {
 
     @Override
     public Class<Arg1> getArgumentType() {
@@ -169,7 +169,7 @@ public class ScenarioDefinitionTest {
     }
   }
 
-  public static class Arg2 implements ScenarioArgument<Fn2> {
+  public static class Arg2 implements ScenarioArgument<Arg2, Fn2> {
 
     @Override
     public Class<Fn2> getFunctionType() {
@@ -177,7 +177,7 @@ public class ScenarioDefinitionTest {
     }
   }
 
-  public static class Fn2 implements ScenarioFunction<Arg2> {
+  public static class Fn2 implements ScenarioFunction<Arg2, Fn2> {
 
     @Override
     public Class<Arg2> getArgumentType() {

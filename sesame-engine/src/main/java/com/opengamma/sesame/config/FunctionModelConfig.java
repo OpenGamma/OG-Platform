@@ -224,7 +224,7 @@ public class FunctionModelConfig implements ImmutableBean {
    * @param decorator  a decorator type
    * @return  a copy of this configuration decorated with the decorator
    */
-  public FunctionModelConfig decoratedWith(Class<? extends ScenarioFunction<?>> decorator) {
+  public FunctionModelConfig decoratedWith(Class<? extends ScenarioFunction<?, ?>> decorator) {
     return decoratedWith(decorator, Collections.<Class<?>, FunctionArguments>emptyMap());
   }
 
@@ -235,7 +235,7 @@ public class FunctionModelConfig implements ImmutableBean {
    * @param arguments  function arguments for building the decorator instance
    * @return  a copy of this configuration decorated with the decorator
    */
-  public FunctionModelConfig decoratedWith(Class<? extends ScenarioFunction<?>> scenarioFunction,
+  public FunctionModelConfig decoratedWith(Class<? extends ScenarioFunction<?, ?>> scenarioFunction,
                                            Map<Class<?>, FunctionArguments> arguments) {
     ArgumentChecker.notNull(scenarioFunction, "decorator");
 

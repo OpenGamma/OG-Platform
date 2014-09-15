@@ -26,7 +26,8 @@ import com.opengamma.util.time.Tenor;
 /**
  * Shifts to apply to the points in a curve, specified by the tenors of the points to which they apply.
  */
-public abstract class CurveDataPointShifts implements ScenarioArgument<CurveDataPointShiftsDecorator> {
+public abstract class CurveDataPointShifts
+    implements ScenarioArgument<CurveDataPointShifts, CurveDataPointShiftsDecorator> {
 
   /** Curves are only shifted if they match this matcher. */
   private final CurveSpecificationMatcher _matcher;

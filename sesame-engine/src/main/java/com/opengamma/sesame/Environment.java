@@ -48,10 +48,13 @@ public interface Environment {
   /**
    * Returns the scenario arguments for the specified function.
    *
+   * @param <A> the argument type
+   * @param <F> the function type
    * @param scenarioFunction  the scenario function to retrieve the arguments for
    * @return  the scenario arguments for the specified function
    */
-  <T extends ScenarioArgument<?>> List<T> getScenarioArguments(ScenarioFunction<T> scenarioFunction);
+  <A extends ScenarioArgument<A, F>, F extends ScenarioFunction<A, F>> List<A> getScenarioArguments(
+      ScenarioFunction<A, F> scenarioFunction);
 
   /**
    * @return  the environment's scenario definition

@@ -19,7 +19,8 @@ import com.opengamma.util.result.Result;
 /**
  * Function that decorates {@link CurveSpecificationMarketDataFn} and applies shifts to the underlying data.
  */
-public class CurveDataShiftDecorator implements CurveSpecificationMarketDataFn, ScenarioFunction<CurveDataShift> {
+public class CurveDataShiftDecorator
+    implements CurveSpecificationMarketDataFn, ScenarioFunction<CurveDataShift, CurveDataShiftDecorator> {
 
   /** The underlying function that this function decorates. */
   private final CurveSpecificationMarketDataFn _delegate;

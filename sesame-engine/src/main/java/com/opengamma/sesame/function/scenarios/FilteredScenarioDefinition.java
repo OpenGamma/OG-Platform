@@ -47,29 +47,29 @@ public final class FilteredScenarioDefinition implements ImmutableBean {
 
   /** Arguments for scenario functions, keyed by the type of the function that consumes them. */
   @PropertyDefinition(validate = "notNull", get = "private")
-  private final ImmutableListMultimap<Class<?>, ScenarioArgument<?>> _arguments;
+  private final ImmutableListMultimap<Class<?>, ScenarioArgument<?, ?>> _arguments;
 
   /**
    * @param arguments  arguments defining the transformations in the scenario
    */
-  public FilteredScenarioDefinition(ScenarioArgument<?>... arguments) {
+  public FilteredScenarioDefinition(ScenarioArgument<?, ?>... arguments) {
     this(Arrays.asList(arguments));
   }
 
   /**
    * @param arguments  arguments defining the transformations in the scenario
    */
-  public FilteredScenarioDefinition(List<ScenarioArgument<?>> arguments) {
+  public FilteredScenarioDefinition(List<ScenarioArgument<?, ?>> arguments) {
     ArgumentChecker.notNull(arguments, "arguments");
-    ImmutableListMultimap.Builder<Class<?>, ScenarioArgument<?>> argBuilder = ImmutableListMultimap.builder();
+    ImmutableListMultimap.Builder<Class<?>, ScenarioArgument<?, ?>> argBuilder = ImmutableListMultimap.builder();
 
-    for (ScenarioArgument<?> argument : arguments) {
+    for (ScenarioArgument<?, ?> argument : arguments) {
       argBuilder.put(argument.getFunctionType(), argument);
     }
     _arguments = argBuilder.build();
   }
 
-  private FilteredScenarioDefinition(ImmutableListMultimap<Class<?>, ScenarioArgument<?>> arguments) {
+  private FilteredScenarioDefinition(ImmutableListMultimap<Class<?>, ScenarioArgument<?, ?>> arguments) {
     _arguments = arguments;
   }
 
@@ -77,13 +77,14 @@ public final class FilteredScenarioDefinition implements ImmutableBean {
    * Returns the arguments for the specified function.
    *
    * @param scenarioFunction  a function
-   * @param <T>  the type of the scenario arguments consumed by the function
+   * @param <A>  the type of the scenario arguments consumed by the function
    * @return  the arguments for the function, possibly empty
    */
   @SuppressWarnings("unchecked")
-  public <T extends ScenarioArgument<?>> List<T> getArguments(ScenarioFunction<T> scenarioFunction) {
+  public <A extends ScenarioArgument<A, F>, F extends ScenarioFunction<A, F>> List<A> getArguments(
+      ScenarioFunction<A, F> scenarioFunction) {
     ArgumentChecker.notNull(scenarioFunction, "scenarioFunction");
-    return (List<T>) _arguments.get(scenarioFunction.getClass());
+    return (List<A>) _arguments.get(scenarioFunction.getClass());
   }
 
   /**
@@ -102,13 +103,13 @@ public final class FilteredScenarioDefinition implements ImmutableBean {
    * @return  a scenario definition that only contains arguments consumed by the specified function types.
    */
   public FilteredScenarioDefinition forFunctions(Set<Class<?>> functionTypes) {
-    Map<Class<?>, Collection<ScenarioArgument<?>>> filtered = new HashMap<>(_arguments.asMap());
+    Map<Class<?>, Collection<ScenarioArgument<?, ?>>> filtered = new HashMap<>(_arguments.asMap());
     filtered.keySet().retainAll(functionTypes);
-    ImmutableListMultimap.Builder<Class<?>, ScenarioArgument<?>> builder = ImmutableListMultimap.builder();
+    ImmutableListMultimap.Builder<Class<?>, ScenarioArgument<?, ?>> builder = ImmutableListMultimap.builder();
 
-    for (Map.Entry<Class<?>, Collection<ScenarioArgument<?>>> entry : filtered.entrySet()) {
+    for (Map.Entry<Class<?>, Collection<ScenarioArgument<?, ?>>> entry : filtered.entrySet()) {
       Class<?> decoratorType = entry.getKey();
-      Collection<ScenarioArgument<?>> args = entry.getValue();
+      Collection<ScenarioArgument<?, ?>> args = entry.getValue();
       builder.putAll(decoratorType, args);
     }
     return new FilteredScenarioDefinition(builder.build());
@@ -136,13 +137,10 @@ public final class FilteredScenarioDefinition implements ImmutableBean {
     return new FilteredScenarioDefinition.Builder();
   }
 
-  /**
-   * Restricted constructor.
-   * @param builder  the builder to copy from, not null
-   */
-  protected FilteredScenarioDefinition(FilteredScenarioDefinition.Builder builder) {
-    JodaBeanUtils.notNull(builder._arguments, "arguments");
-    this._arguments = ImmutableListMultimap.copyOf(builder._arguments);
+  private FilteredScenarioDefinition(
+      ListMultimap<Class<?>, ScenarioArgument<?, ?>> arguments) {
+    JodaBeanUtils.notNull(arguments, "arguments");
+    this._arguments = ImmutableListMultimap.copyOf(arguments);
   }
 
   @Override
@@ -165,7 +163,7 @@ public final class FilteredScenarioDefinition implements ImmutableBean {
    * Gets arguments for scenario functions, keyed by the type of the function that consumes them.
    * @return the value of the property, not null
    */
-  private ImmutableListMultimap<Class<?>, ScenarioArgument<?>> getArguments() {
+  private ImmutableListMultimap<Class<?>, ScenarioArgument<?, ?>> getArguments() {
     return _arguments;
   }
 
@@ -201,24 +199,16 @@ public final class FilteredScenarioDefinition implements ImmutableBean {
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
     buf.append("FilteredScenarioDefinition{");
-    int len = buf.length();
-    toString(buf);
-    if (buf.length() > len) {
-      buf.setLength(buf.length() - 2);
-    }
+    buf.append("arguments").append('=').append(JodaBeanUtils.toString(getArguments()));
     buf.append('}');
     return buf.toString();
-  }
-
-  protected void toString(StringBuilder buf) {
-    buf.append("arguments").append('=').append(JodaBeanUtils.toString(getArguments())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code FilteredScenarioDefinition}.
    */
-  public static class Meta extends DirectMetaBean {
+  public static final class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -228,7 +218,7 @@ public final class FilteredScenarioDefinition implements ImmutableBean {
      * The meta-property for the {@code arguments} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableListMultimap<Class<?>, ScenarioArgument<?>>> _arguments = DirectMetaProperty.ofImmutable(
+    private final MetaProperty<ImmutableListMultimap<Class<?>, ScenarioArgument<?, ?>>> _arguments = DirectMetaProperty.ofImmutable(
         this, "arguments", FilteredScenarioDefinition.class, (Class) ImmutableListMultimap.class);
     /**
      * The meta-properties.
@@ -240,7 +230,7 @@ public final class FilteredScenarioDefinition implements ImmutableBean {
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -272,7 +262,7 @@ public final class FilteredScenarioDefinition implements ImmutableBean {
      * The meta-property for the {@code arguments} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ImmutableListMultimap<Class<?>, ScenarioArgument<?>>> arguments() {
+    public MetaProperty<ImmutableListMultimap<Class<?>, ScenarioArgument<?, ?>>> arguments() {
       return _arguments;
     }
 
@@ -301,21 +291,21 @@ public final class FilteredScenarioDefinition implements ImmutableBean {
   /**
    * The bean-builder for {@code FilteredScenarioDefinition}.
    */
-  public static class Builder extends DirectFieldsBeanBuilder<FilteredScenarioDefinition> {
+  public static final class Builder extends DirectFieldsBeanBuilder<FilteredScenarioDefinition> {
 
-    private ListMultimap<Class<?>, ScenarioArgument<?>> _arguments = ArrayListMultimap.create();
+    private ListMultimap<Class<?>, ScenarioArgument<?, ?>> _arguments = ArrayListMultimap.create();
 
     /**
      * Restricted constructor.
      */
-    protected Builder() {
+    private Builder() {
     }
 
     /**
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    protected Builder(FilteredScenarioDefinition beanToCopy) {
+    private Builder(FilteredScenarioDefinition beanToCopy) {
       this._arguments = ArrayListMultimap.create(beanToCopy.getArguments());
     }
 
@@ -335,7 +325,7 @@ public final class FilteredScenarioDefinition implements ImmutableBean {
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case -2035517098:  // arguments
-          this._arguments = (ListMultimap<Class<?>, ScenarioArgument<?>>) newValue;
+          this._arguments = (ListMultimap<Class<?>, ScenarioArgument<?, ?>>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -369,7 +359,8 @@ public final class FilteredScenarioDefinition implements ImmutableBean {
 
     @Override
     public FilteredScenarioDefinition build() {
-      return new FilteredScenarioDefinition(this);
+      return new FilteredScenarioDefinition(
+          _arguments);
     }
 
     //-----------------------------------------------------------------------
@@ -378,7 +369,7 @@ public final class FilteredScenarioDefinition implements ImmutableBean {
      * @param arguments  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder arguments(ListMultimap<Class<?>, ScenarioArgument<?>> arguments) {
+    public Builder arguments(ListMultimap<Class<?>, ScenarioArgument<?, ?>> arguments) {
       JodaBeanUtils.notNull(arguments, "arguments");
       this._arguments = arguments;
       return this;
@@ -389,17 +380,9 @@ public final class FilteredScenarioDefinition implements ImmutableBean {
     public String toString() {
       StringBuilder buf = new StringBuilder(64);
       buf.append("FilteredScenarioDefinition.Builder{");
-      int len = buf.length();
-      toString(buf);
-      if (buf.length() > len) {
-        buf.setLength(buf.length() - 2);
-      }
+      buf.append("arguments").append('=').append(JodaBeanUtils.toString(_arguments));
       buf.append('}');
       return buf.toString();
-    }
-
-    protected void toString(StringBuilder buf) {
-      buf.append("arguments").append('=').append(JodaBeanUtils.toString(_arguments)).append(',').append(' ');
     }
 
   }

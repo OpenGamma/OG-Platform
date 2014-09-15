@@ -440,7 +440,7 @@ public class CachingProxyDecoratorTest {
     Object fn(Environment env, String s, Integer i);
   }
 
-  public static class ScenarioArgumentsC1 implements ScenarioArgumentsI1, ScenarioFunction<Args1> {
+  public static class ScenarioArgumentsC1 implements ScenarioArgumentsI1, ScenarioFunction<Args1, ScenarioArgumentsC1> {
 
     private final ScenarioArgumentsI2 _i2;
 
@@ -466,7 +466,7 @@ public class CachingProxyDecoratorTest {
     String fn(Environment env, String s, Integer i);
   }
 
-  public static class ScenarioArgumentsC2 implements ScenarioArgumentsI2, ScenarioFunction<Args2> {
+  public static class ScenarioArgumentsC2 implements ScenarioArgumentsI2, ScenarioFunction<Args2, ScenarioArgumentsC2> {
 
     @Override
     public String fn(Environment env, String s, Integer i) {
@@ -480,7 +480,7 @@ public class CachingProxyDecoratorTest {
     }
   }
 
-  public static class Args1 extends AbstractScenarioArgument<ScenarioArgumentsC1> {
+  public static class Args1 extends AbstractScenarioArgument<Args1, ScenarioArgumentsC1> {
 
     private Args1() {
       super(ScenarioArgumentsC1.class);
@@ -497,7 +497,7 @@ public class CachingProxyDecoratorTest {
     }
   }
 
-  public static class Args2 extends AbstractScenarioArgument<ScenarioArgumentsC2> {
+  public static class Args2 extends AbstractScenarioArgument<Args2, ScenarioArgumentsC2> {
 
     private Args2() {
       super(ScenarioArgumentsC2.class);
