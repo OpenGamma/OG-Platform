@@ -12,7 +12,6 @@ import org.threeten.bp.ZonedDateTime;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.sesame.config.FunctionArguments;
-import com.opengamma.sesame.function.scenarios.ScenarioDefinition;
 import com.opengamma.sesame.marketdata.CycleMarketDataFactory;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
@@ -59,7 +58,6 @@ public final class CycleArguments {
   private final Map<Pair<Integer, Integer>, TraceType> _traceCells;
   private final Map<String, TraceType> _traceOutputs;
   private final FunctionArguments _functionArguments;
-  private final ScenarioDefinition _scenarioDefinition;
   private final boolean _captureInputs;
 
   // TODO use a Cell class instead of Pair<Integer, Integer>
@@ -69,20 +67,17 @@ public final class CycleArguments {
     this(valuationTime,
          configVersionCorrection,
          cycleMarketDataFactory,
-         FunctionArguments.EMPTY,
-         ScenarioDefinition.EMPTY);
+         FunctionArguments.EMPTY);
   }
 
   public CycleArguments(ZonedDateTime valuationTime,
                         VersionCorrection configVersionCorrection,
                         CycleMarketDataFactory cycleMarketDataFactory,
-                        FunctionArguments functionArguments,
-                        ScenarioDefinition scenarioDefinition) {
+                        FunctionArguments functionArguments) {
     this(valuationTime,
          configVersionCorrection,
          cycleMarketDataFactory,
          functionArguments,
-         scenarioDefinition,
          ImmutableMap.<Pair<Integer, Integer>, TraceType>of(),
          ImmutableMap.<String, TraceType>of());
   }
@@ -91,11 +86,10 @@ public final class CycleArguments {
                         VersionCorrection configVersionCorrection,
                         CycleMarketDataFactory cycleMarketDataFactory,
                         FunctionArguments functionArguments,
-                        ScenarioDefinition scenarioDefinition,
                         Map<Pair<Integer, Integer>, TraceType> traceCells,
                         Map<String, TraceType> traceOutputs) {
     this(valuationTime, configVersionCorrection, cycleMarketDataFactory, functionArguments,
-         scenarioDefinition, traceCells, traceOutputs, false);
+         traceCells, traceOutputs, false);
   }
 
   public CycleArguments(ZonedDateTime valuationTime,
@@ -103,7 +97,7 @@ public final class CycleArguments {
                         CycleMarketDataFactory cycleMarketDataFactory,
                         boolean captureInputs) {
     this(valuationTime, configVersionCorrection, cycleMarketDataFactory, FunctionArguments.EMPTY,
-         ScenarioDefinition.EMPTY, ImmutableMap.<Pair<Integer, Integer>, TraceType>of(),
+         ImmutableMap.<Pair<Integer, Integer>, TraceType>of(),
          ImmutableMap.<String, TraceType>of(), captureInputs);
   }
 
@@ -111,9 +105,9 @@ public final class CycleArguments {
                         VersionCorrection configVersionCorrection,
                         CycleMarketDataFactory cycleMarketDataFactory,
                         FunctionArguments functionArguments,
-                        ScenarioDefinition scenarioDefinition, boolean captureInputs) {
+                        boolean captureInputs) {
     this(valuationTime, configVersionCorrection, cycleMarketDataFactory, functionArguments,
-         scenarioDefinition, ImmutableMap.<Pair<Integer, Integer>, TraceType>of(),
+         ImmutableMap.<Pair<Integer, Integer>, TraceType>of(),
          ImmutableMap.<String, TraceType>of(), captureInputs);
   }
 
@@ -121,12 +115,10 @@ public final class CycleArguments {
                         VersionCorrection configVersionCorrection,
                         CycleMarketDataFactory cycleMarketDataFactory,
                         FunctionArguments functionArguments,
-                        ScenarioDefinition scenarioDefinition,
                         Map<Pair<Integer, Integer>, TraceType> traceCells,
                         Map<String, TraceType> traceOutputs,
                         boolean captureInputs) {
     _functionArguments = ArgumentChecker.notNull(functionArguments, "functionArguments");
-    _scenarioDefinition = ArgumentChecker.notNull(scenarioDefinition, "scenarioArguments");
     _configVersionCorrection = ArgumentChecker.notNull(configVersionCorrection, "configVersionCorrection");
     _valuationTime = ArgumentChecker.notNull(valuationTime, "valuationTime");
     _cycleMarketDataFactory = ArgumentChecker.notNull(cycleMarketDataFactory, "cycleMarketDataFactory");
@@ -155,16 +147,6 @@ public final class CycleArguments {
 
   FunctionArguments getFunctionArguments() {
     return _functionArguments;
-  }
-
-  /**
-   *
-   * @return
-   * @deprecated  these are specified in the config now, probably don't need them here
-   */
-  @Deprecated
-  ScenarioDefinition getScenarioDefinition() {
-    return _scenarioDefinition;
   }
 
   TraceType traceType(int rowIndex, int colIndex) {

@@ -28,7 +28,7 @@ import com.opengamma.util.ArgumentChecker;
  * Key for {@link ScenarioArgument} instances used in {@link ScenarioDefinition}.
  */
 @BeanDefinition
-public class ScenarioArgumentKey implements ImmutableBean {
+public final class ScenarioArgumentKey implements ImmutableBean {
 
   /** The name of the column or output to which the argument applies. */
   @PropertyDefinition(validate = "notEmpty")

@@ -75,7 +75,6 @@ import com.opengamma.sesame.function.AvailableImplementationsImpl;
 import com.opengamma.sesame.function.AvailableOutputs;
 import com.opengamma.sesame.function.AvailableOutputsImpl;
 import com.opengamma.sesame.function.Output;
-import com.opengamma.sesame.function.scenarios.ScenarioDefinition;
 import com.opengamma.sesame.marketdata.CycleMarketDataFactory;
 import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
 import com.opengamma.sesame.marketdata.DefaultStrategyAwareMarketDataSource;
@@ -358,7 +357,6 @@ public class ViewFactoryTest {
                                                        VersionCorrection.LATEST,
                                                        mockCycleMarketDataFactory(),
                                                        FunctionArguments.EMPTY,
-                                                       ScenarioDefinition.EMPTY,
                                                        traceCells,
                                                        ImmutableMap.<String, TraceType>of(),
                                                        false);
@@ -462,7 +460,6 @@ public class ViewFactoryTest {
                                                        VersionCorrection.LATEST,
                                                        mockCycleMarketDataFactory(),
                                                        FunctionArguments.EMPTY,
-                                                       ScenarioDefinition.EMPTY,
                                                        ImmutableMap.<Pair<Integer, Integer>, TraceType>of(),
                                                        ImmutableMap.of(name, TraceType.FULL_AS_STRING),
                                                        false);

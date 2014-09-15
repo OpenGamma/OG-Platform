@@ -20,7 +20,6 @@ import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.sesame.engine.CycleArguments;
 import com.opengamma.sesame.engine.Results;
 import com.opengamma.sesame.engine.View;
-import com.opengamma.sesame.function.scenarios.ScenarioDefinition;
 import com.opengamma.sesame.marketdata.CycleMarketDataFactory;
 import com.opengamma.sesame.marketdata.FieldName;
 import com.opengamma.sesame.marketdata.MarketDataFactory;
@@ -244,7 +243,6 @@ public class CycleRunner {
                               configVersionCorrection,
                               cycleMarketDataFactory,
                               functionArguments,
-                              ScenarioDefinition.EMPTY, // probably won't need this in future, it's part of the config
                               cycleOptions.isCaptureInputs());
   }
 

@@ -48,9 +48,7 @@ import com.opengamma.util.ArgumentChecker;
 public final class ScenarioDefinition implements ImmutableBean {
 
   /** Empty instance containing no arguments. */
-  public static final ScenarioDefinition EMPTY =
-      new ScenarioDefinition(Collections.<ScenarioArgument<?>>emptyList(),
-                             Collections.<String, List<ScenarioArgument<?>>>emptyMap());
+  public static final ScenarioDefinition EMPTY = new ScenarioDefinition();
 
   /** Arguments for scenario functions, keyed by the type of the function that consumes them. */
   @PropertyDefinition(validate = "notNull", get = "private")
@@ -72,7 +70,6 @@ public final class ScenarioDefinition implements ImmutableBean {
     this(Arrays.asList(arguments), Collections.<String, List<ScenarioArgument<?>>>emptyMap());
   }
 
-
   /**
    * Creates a new definition with arguments that will apply to all calculations
    *
@@ -81,7 +78,6 @@ public final class ScenarioDefinition implements ImmutableBean {
   public ScenarioDefinition(List<ScenarioArgument<?>> arguments) {
     this(arguments, Collections.<String, List<ScenarioArgument<?>>>emptyMap());
   }
-
 
   /**
    * Creates a new definition with some arguments that will be used for all calculations and some that will only
@@ -157,6 +153,7 @@ public final class ScenarioDefinition implements ImmutableBean {
   public ScenarioDefinition mergedWith(ScenarioDefinition other) {
     ArgumentChecker.notNull(other, "other");
 
+    // merge the arguments that apply to all columns / non-portfolio outputs
     ImmutableListMultimap<Class<? extends ScenarioFunction<?>>, ScenarioArgument<?>> arguments;
 
     if (_arguments.isEmpty()) {
@@ -169,6 +166,7 @@ public final class ScenarioDefinition implements ImmutableBean {
       arguments = builder.putAll(other._arguments).putAll(_arguments).build();
     }
 
+    // merge the arguments targeted at specific columns or non-portfolio outputs
     ImmutableListMultimap<ScenarioArgumentKey, ScenarioArgument<?>> columnArguments;
 
     if (_columnArguments.isEmpty()) {
@@ -234,12 +232,12 @@ public final class ScenarioDefinition implements ImmutableBean {
     return with(ImmutableList.<ScenarioArgument<?>>of(argument), names);
   }
 
-    /**
-     * Returns a copy containing the subset of arguments for the specified column or non-portfolio output.
-     *
-     * @param name  the name of the column or non-portfolio output
-     * @return  scenario definition containing only the arguments that apply to the named column or output
-     */
+  /**
+   * Returns a copy containing the subset of arguments for the specified column or non-portfolio output.
+   *
+   * @param name  the name of the column or non-portfolio output
+   * @return  scenario definition containing only the arguments that apply to the named column or output
+   */
   public FilteredScenarioDefinition filter(String name) {
     ArgumentChecker.notEmpty(name, "name");
 
@@ -259,7 +257,13 @@ public final class ScenarioDefinition implements ImmutableBean {
   }
 
   /**
-   * @return  the scenario functions required to apply the transformations specified in this definitions
+   * Returns the scenario functions required to execute this scenario.
+   * <p>
+   * This information allows a scenario to be applied to an existing {@link ViewConfig}. The arguments in
+   * the definition describe the transformations to apply to the data and this method specifies the functions
+   * that must be added to the view configuration to perform the transformations.
+   *
+   * @return  the scenario functions required to execute this scenario
    */
   public Set<Class<? extends ScenarioFunction<?>>> getFunctionTypes() {
     Set<Class<? extends ScenarioFunction<?>>> functionTypes = new HashSet<>(_arguments.keySet());

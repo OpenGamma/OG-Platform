@@ -30,7 +30,7 @@ import com.opengamma.util.ArgumentChecker;
 public final class SimpleEnvironment implements Environment {
 
   // TODO an inner class used by all environment impls that is used for hashCode and equals
-  // makes it explicit which parts of the environment are part of the cache key are which ones are ignored
+  // makes it explicit which parts of the environment are part of the cache key and which ones are ignored
 
   /** The valuation time. */
   private final ZonedDateTime _valuationTime;
@@ -70,8 +70,8 @@ public final class SimpleEnvironment implements Environment {
   }
 
   @Override
-  public <T extends ScenarioArgument<?>> List<T> getScenarioArguments(ScenarioFunction<T> decoratorFunction) {
-    return _scenarioDefinition.getArguments(decoratorFunction);
+  public <T extends ScenarioArgument<?>> List<T> getScenarioArguments(ScenarioFunction<T> scenarioFunction) {
+    return _scenarioDefinition.getArguments(scenarioFunction);
   }
 
   @Override

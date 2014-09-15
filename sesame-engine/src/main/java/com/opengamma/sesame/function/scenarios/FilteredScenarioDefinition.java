@@ -7,7 +7,6 @@ package com.opengamma.sesame.function.scenarios;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,11 +40,10 @@ import com.opengamma.util.ArgumentChecker;
  * {@link ScenarioDefinition}.
  */
 @BeanDefinition
-public class FilteredScenarioDefinition implements ImmutableBean {
+public final class FilteredScenarioDefinition implements ImmutableBean {
 
   /** A definition containing no arguments. */
-  public static final FilteredScenarioDefinition EMPTY =
-      new FilteredScenarioDefinition(Collections.<ScenarioArgument<?>>emptyList());
+  public static final FilteredScenarioDefinition EMPTY = new FilteredScenarioDefinition();
 
   /** Arguments for scenario functions, keyed by the type of the function that consumes them. */
   @PropertyDefinition(validate = "notNull", get = "private")

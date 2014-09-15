@@ -272,11 +272,9 @@ public class CachingProxyDecorator extends NodeDecorator {
       if (env.getScenarioDefinition().isEmpty()) {
         return args;
       }
-      Object[] keyArgs;
-      keyArgs = new Object[args.length];
-      System.arraycopy(args, 0, keyArgs, 0, args.length);
       FilteredScenarioDefinition scenarioDef = env.getScenarioDefinition().forFunctions(_subtreeTypes);
       Environment newEnv = env.withScenarioDefinition(scenarioDef);
+      Object[] keyArgs = args.clone();
       keyArgs[0] = newEnv;
       return keyArgs;
     }

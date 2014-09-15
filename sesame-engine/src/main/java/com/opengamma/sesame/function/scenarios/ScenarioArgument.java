@@ -13,6 +13,10 @@ package com.opengamma.sesame.function.scenarios;
  * <p>
  * Scenario argument and function types exist in pairs. An argument's {@link #getFunctionType() function type}
  * should return the argument's type from {@link ScenarioFunction#getArgumentType()}.
+ *
+ * @param <T> The type of function that consumes this argument. Typically the argument instance describes the
+ *   transformation that should be applied to the data and the function contains the logic to perform
+ *   the transformation.
  */
 public interface ScenarioArgument<T extends ScenarioFunction<?>> {
 

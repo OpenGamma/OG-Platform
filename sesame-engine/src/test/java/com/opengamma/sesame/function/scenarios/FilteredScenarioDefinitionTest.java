@@ -18,9 +18,6 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.util.test.TestGroup;
 
-/**
- *
- */
 @Test(groups = TestGroup.UNIT)
 public class FilteredScenarioDefinitionTest {
 

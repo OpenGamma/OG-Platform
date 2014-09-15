@@ -99,11 +99,6 @@ public class FunctionModelConfigTest {
     assertEquals(Impl.class, decoratedConfig.getFunctionImplementation(DECORATOR1_PARAM, Fn.class));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void decorateWithNonDecoratorClass() {
-    config().decoratedWith(Impl.class);
-  }
-
   @Test
   public void chainedDecoratorConfig() {
     FunctionModelConfig config = config(implementations(Fn.class, Impl.class));

@@ -46,12 +46,12 @@ public interface Environment {
   MarketDataSource getMarketDataSource();
 
   /**
-   * Returns the scenario arguments.
+   * Returns the scenario arguments for the specified function.
    *
-   * @param decoratorFunction  the decorator function that requires the arguments
-   * @return the scenario arguments of the requested type
+   * @param scenarioFunction  the scenario function to retrieve the arguments for
+   * @return  the scenario arguments for the specified function
    */
-  <T extends ScenarioArgument<?>> List<T> getScenarioArguments(ScenarioFunction<T> decoratorFunction);
+  <T extends ScenarioArgument<?>> List<T> getScenarioArguments(ScenarioFunction<T> scenarioFunction);
 
   /**
    * @return  the environment's scenario definition

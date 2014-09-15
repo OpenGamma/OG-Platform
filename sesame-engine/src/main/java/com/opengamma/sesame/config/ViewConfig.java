@@ -29,6 +29,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 import com.opengamma.sesame.function.scenarios.ScenarioDefinition;
+import com.opengamma.sesame.function.scenarios.ScenarioFunction;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -107,6 +108,9 @@ public final class ViewConfig implements ImmutableBean {
 
   /**
    * Creates a new view configuration derived from this one that will apply a scenario when performing calculations.
+   * <p>
+   * If this view configuration already contains a scenario then it will be merged with the scenario definition
+   * parameter to create the scenario for the resulting view.
    *
    * @param scenarioDefinition  definition of the scenario
    * @return  a new view configuration derived from this one that contains the scenario definition and
@@ -118,7 +122,7 @@ public final class ViewConfig implements ImmutableBean {
     ScenarioDefinition mergedDefinition = _scenarioDefinition.mergedWith(scenarioDefinition);
     FunctionModelConfig decoratedConfig = _defaultConfig;
 
-    for (Class<?> decoratorType : mergedDefinition.getFunctionTypes()) {
+    for (Class<? extends ScenarioFunction<?>> decoratorType : mergedDefinition.getFunctionTypes()) {
       decoratedConfig = decoratedConfig.decoratedWith(decoratorType);
     }
     return new ViewConfig(_name, decoratedConfig, _columns, _nonPortfolioOutputs, mergedDefinition);
@@ -199,7 +203,7 @@ public final class ViewConfig implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the scenarioDefinition.
+   * Gets definition of the scenario that will be applied to the calculations when the view is executed.
    * @return the value of the property, not null
    */
   public ScenarioDefinition getScenarioDefinition() {

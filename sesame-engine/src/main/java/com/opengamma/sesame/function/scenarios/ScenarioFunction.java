@@ -11,6 +11,10 @@ package com.opengamma.sesame.function.scenarios;
  * A scenario decorator must implement this interface plus one additional interface. The other interface is
  * the function that it will decorate. Additionally the decorator implementation must have a constructor that
  * takes an instance of the other interface as an argument. This is the decorated function.
+ *
+ * @param <T> The type of argument this function requires. Typically the argument instance describes the
+ *   transformation that should be applied to the data and the function contains the logic to perform
+ *   the transformation.
  */
 public interface ScenarioFunction<T extends ScenarioArgument<?>> {
 
