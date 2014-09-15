@@ -372,10 +372,10 @@ public class CachingProxyDecoratorTest {
    */
   @Test
   public void pruneScenarioArguments() throws ExecutionException, InterruptedException {
-    FunctionModelConfig config = config(implementations(ScenarioArgumentsI1.class, ScenarioArgumentsC1.class,
-                                                        ScenarioArgumentsI2.class, ScenarioArgumentsC2.class));
+    FunctionModelConfig config = config(implementations(Fn1.class, ScenarioImpl1.class,
+                                                        Fn2.class, ScenarioImpl2.class));
     CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheProvider);
-    ScenarioArgumentsI1 i1 = FunctionModel.build(ScenarioArgumentsI1.class, config, ComponentMap.EMPTY, cachingDecorator);
+    Fn1 i1 = FunctionModel.build(Fn1.class, config, ComponentMap.EMPTY, cachingDecorator);
     ZonedDateTime valuationTime = ZonedDateTime.now();
     MarketDataSource marketDataSource = new MarketDataSource() {
       @Override
@@ -399,10 +399,10 @@ public class CachingProxyDecoratorTest {
     i1.fn(env1, "s1", 1);
     i1.fn(env1, "s2", 2);
 
-    ScenarioArgumentsC1 c1 = (ScenarioArgumentsC1) EngineUtils.getProxiedObject(i1);
-    ScenarioArgumentsC2 c2 = (ScenarioArgumentsC2) EngineUtils.getProxiedObject(c1._i2);
-    Method method1 = EngineUtils.getMethod(ScenarioArgumentsI1.class, "fn");
-    Method method2 = EngineUtils.getMethod(ScenarioArgumentsI2.class, "fn");
+    ScenarioImpl1 c1 = (ScenarioImpl1) EngineUtils.getProxiedObject(i1);
+    ScenarioImpl2 c2 = (ScenarioImpl2) EngineUtils.getProxiedObject(c1._fn2);
+    Method method1 = EngineUtils.getMethod(Fn1.class, "fn");
+    Method method2 = EngineUtils.getMethod(Fn2.class, "fn");
 
     checkValueIsInCache(env1, "s1", 1, c1, method1, "S1 1");
     checkValueIsInCache(env1, "s2", 2, c1, method1, "S2 2");
@@ -434,23 +434,23 @@ public class CachingProxyDecoratorTest {
     assertEquals(expectedValue, value);
   }
 
-  interface ScenarioArgumentsI1 {
+  interface Fn1 {
 
     @Cacheable
     Object fn(Environment env, String s, Integer i);
   }
 
-  public static class ScenarioArgumentsC1 implements ScenarioArgumentsI1, ScenarioFunction<Args1, ScenarioArgumentsC1> {
+  public static class ScenarioImpl1 implements Fn1, ScenarioFunction<Args1, ScenarioImpl1> {
 
-    private final ScenarioArgumentsI2 _i2;
+    private final Fn2 _fn2;
 
-    public ScenarioArgumentsC1(ScenarioArgumentsI2 i2) {
-      _i2 = i2;
+    public ScenarioImpl1(Fn2 fn2) {
+      _fn2 = fn2;
     }
 
     @Override
     public Object fn(Environment env, String s, Integer i) {
-      return _i2.fn(env, s, i).toUpperCase();
+      return _fn2.fn(env, s, i).toUpperCase();
     }
 
     @Nullable
@@ -460,13 +460,13 @@ public class CachingProxyDecoratorTest {
     }
   }
 
-  interface ScenarioArgumentsI2 {
+  interface Fn2 {
 
     @Cacheable
     String fn(Environment env, String s, Integer i);
   }
 
-  public static class ScenarioArgumentsC2 implements ScenarioArgumentsI2, ScenarioFunction<Args2, ScenarioArgumentsC2> {
+  public static class ScenarioImpl2 implements Fn2, ScenarioFunction<Args2, ScenarioImpl2> {
 
     @Override
     public String fn(Environment env, String s, Integer i) {
@@ -480,10 +480,10 @@ public class CachingProxyDecoratorTest {
     }
   }
 
-  public static class Args1 extends AbstractScenarioArgument<Args1, ScenarioArgumentsC1> {
+  public static class Args1 extends AbstractScenarioArgument<Args1, ScenarioImpl1> {
 
     private Args1() {
-      super(ScenarioArgumentsC1.class);
+      super(ScenarioImpl1.class);
     }
 
     @Override
@@ -497,10 +497,10 @@ public class CachingProxyDecoratorTest {
     }
   }
 
-  public static class Args2 extends AbstractScenarioArgument<Args2, ScenarioArgumentsC2> {
+  public static class Args2 extends AbstractScenarioArgument<Args2, ScenarioImpl2> {
 
     private Args2() {
-      super(ScenarioArgumentsC2.class);
+      super(ScenarioImpl2.class);
     }
 
     @Override
