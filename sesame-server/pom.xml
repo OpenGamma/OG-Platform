@@ -9,7 +9,7 @@
     <groupId>com.opengamma.platform</groupId>
     <artifactId>og-platform</artifactId>
     <version>2.5.0-SNAPSHOT</version>
-    <relativePath>..</relativePath>
+    <relativePath></relativePath>
   </parent>
   <artifactId>sesame-server</artifactId>
   <packaging>jar</packaging>
@@ -26,19 +26,19 @@
   </licenses>
 
   <!-- ==================================================================== -->
+  <!-- override to ensure deployment to dedicated repository -->
   <distributionManagement>
-    <site>
-      <id>og-public-site</id>
-      <name>OpenGamma public site</name>
-      <url>http://developers.opengamma.com</url>
-    </site>
+    <repository>
+      <id>og-sesame-release</id>
+      <name>OpenGamma sesame maven repository</name>
+      <url>${og-sesame-release.url}</url>
+    </repository>
+    <snapshotRepository>
+      <id>og-sesame-snapshot</id>
+      <name>OpenGamma sesame snapshot maven repository</name>
+      <url>${og-sesame-snapshot.url}</url>
+    </snapshotRepository>
   </distributionManagement>
-
-  <!-- ==================================================================== -->
-  <properties>
-    <!-- Properties for maven-javadoc-plugin -->
-    <javadoc.footer.license>Released under the Apache License, Version 2.0</javadoc.footer.license>
-  </properties>
 
   <!-- ==================================================================== -->
   <build>
@@ -158,19 +158,16 @@
       <artifactId>sesame-function</artifactId>
       <version>${project.version}</version>
     </dependency>
-
     <dependency>
       <groupId>com.opengamma.platform</groupId>
       <artifactId>sesame-component</artifactId>
       <version>${project.version}</version>
     </dependency>
-
     <dependency>
       <groupId>com.opengamma.platform</groupId>
       <artifactId>sesame-engine</artifactId>
       <version>${project.version}</version>
     </dependency>
-
     <dependency>
       <groupId>org.apache.activemq</groupId>
       <artifactId>activemq-pool</artifactId>
