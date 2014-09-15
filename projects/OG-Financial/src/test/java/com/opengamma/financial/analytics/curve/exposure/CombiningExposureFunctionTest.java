@@ -117,7 +117,10 @@ public class CombiningExposureFunctionTest {
     Trade trade = ExposureFunctionTestHelper.getTrade(security);
     List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
-    assertEquals(ExternalSchemes.syntheticSecurityId("USD 10y Swap" + ExposureFunction.SEPARATOR + "USD 15y Swap"), ids.get(0));
+    assertTrue(ids.get(0).equals(ExternalSchemes.syntheticSecurityId("USD 10y Swap" + ExposureFunction.SEPARATOR +
+                                                                         "USD 15y Swap")) ||
+                   ids.get(0).equals(ExternalSchemes.syntheticSecurityId("USD 15y Swap" + ExposureFunction.SEPARATOR +
+                                                                             "USD 10y Swap")));
   }
 
   @Test
@@ -418,8 +421,10 @@ public class CombiningExposureFunctionTest {
     Trade trade = ExposureFunctionTestHelper.getTrade(security);
     List<ExternalId> ids = EXPOSURE_FUNCTION.getIds(trade);
     assertEquals(1, ids.size());
-    assertEquals(ExternalSchemes.syntheticSecurityId("3m USD Libor" + ExposureFunction.SEPARATOR + "6m Euribor"),
-                 ids.get(0));
+    assertTrue(ids.get(0).equals(ExternalSchemes.syntheticSecurityId("3m USD Libor" + ExposureFunction.SEPARATOR +
+                                                                         "6m Euribor")) ||
+        ids.get(0).equals(ExternalSchemes.syntheticSecurityId("6m Euribor" + ExposureFunction.SEPARATOR +
+                                                                  "3m USD Libor")));
   }
 
   @Test
