@@ -175,7 +175,7 @@ public class VarianceSwapDefinitionTest extends AnalyticsTestBase {
     final VarianceSwap varianceSwap = definition.toDerivative(NOW.plusYears(1), ts);
     assertEquals(OBS_PER_YEAR, varianceSwap.getAnnualizationFactor());
     assertEquals(CCY, varianceSwap.getCurrency());
-    assertEquals(1, varianceSwap.getObsDisrupted());
+    assertEquals(0, varianceSwap.getObsDisrupted());
     ArrayAsserts.assertArrayEquals(vars, varianceSwap.getObservations(), 0);
     ArrayAsserts.assertArrayEquals(new double[0], varianceSwap.getObservationWeights(), 0);
     assertEquals(1827, varianceSwap.getObsExpected());

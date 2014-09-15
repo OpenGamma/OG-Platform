@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.financial.equity.variance;
 
+import static com.opengamma.financial.convention.businessday.BusinessDayDateUtils.getDaysBetween;
+
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
@@ -50,7 +52,6 @@ public class EquityVarianceSwapDefinition extends VarianceSwapDefinition {
    * @param obsStartDate Date of the first observation, not null
    * @param obsEndDate Date of the last observation, not null
    * @param settlementDate The settlement date, not null
-   * @param obsFreq The observation frequency, not null
    * @param currency The currency, not null
    * @param calendar The calendar used for calculating good business days, not null
    * @param annualizationFactor The annualisation factor
@@ -124,9 +125,11 @@ public class EquityVarianceSwapDefinition extends VarianceSwapDefinition {
     }
     final double[] observations = realizedTS.valuesArrayFast();
     final double[] observationWeights = {}; // TODO Case 2011-06-29 Calendar Add functionality for non-trivial weighting of observations
-    final int nGoodBusinessDays = BusinessDayDateUtils.getWorkingDaysInclusive(getObsStartDate(), valueDate, getCalendar());
-    final int nObsDisrupted = nGoodBusinessDays - observations.length;
-    ArgumentChecker.isTrue(nObsDisrupted >= 0, "Have more observations {} than good business days {}", observations.length, nGoodBusinessDays);
+    // if we view this option on some date between the observation start and end dates, then the observation on that particular
+    // date will not have been made (observations are closing levels)
+    final int nObservations = valueDate.isAfter(getObsEndDate()) ? getObsExpected() : (valueDate.isBefore(getObsStartDate()) ? 0 : getDaysBetween(getObsStartDate(), valueDate, getCalendar()));
+    final int nObsDisrupted = nObservations - observations.length;
+    ArgumentChecker.isTrue(nObsDisrupted >= 0, "Have more observations {} than good business days {}", observations.length, nObservations);
     return new EquityVarianceSwap(timeToObsStart, timeToObsEnd, timeToSettlement, getVarStrike(), getVarNotional(), getCurrency(), getAnnualizationFactor(), getObsExpected(), nObsDisrupted,
         observations, observationWeights, correctForDividends());
   }
