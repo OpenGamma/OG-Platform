@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -25,6 +26,7 @@
   </licenses>
 
   <!-- ==================================================================== -->
+  <!-- override to ensure deployment to dedicated repository -->
   <distributionManagement>
     <repository>
       <id>og-sesame-release</id>
@@ -41,37 +43,31 @@
   <!-- ==================================================================== -->
   <dependencies>
     <!-- OpenGamma dependencies -->
-
     <dependency>
       <groupId>com.opengamma.platform</groupId>
       <artifactId>og-core</artifactId>
       <version>${project.version}</version>
     </dependency>
-
     <dependency>
       <groupId>com.opengamma.platform</groupId>
       <artifactId>og-financial</artifactId>
       <version>${project.version}</version>
     </dependency>
-
     <dependency>
       <groupId>com.opengamma.platform</groupId>
       <artifactId>og-financial-types</artifactId>
       <version>${project.version}</version>
     </dependency>
-
     <dependency>
       <groupId>com.opengamma.platform</groupId>
       <artifactId>og-engine</artifactId>
       <version>${project.version}</version>
     </dependency>
-
     <dependency>
       <groupId>com.opengamma.platform</groupId>
       <artifactId>og-component</artifactId>
       <version>${project.version}</version>
     </dependency>
-
     <dependency>
       <groupId>com.opengamma.platform</groupId>
       <artifactId>og-integration</artifactId>
@@ -79,38 +75,31 @@
     </dependency>
 
     <!-- 3rd party dependencies -->
-
     <dependency>
       <groupId>org.joda</groupId>
       <artifactId>joda-beans</artifactId>
     </dependency>
-
     <dependency>
       <groupId>org.joda</groupId>
       <artifactId>joda-convert</artifactId>
     </dependency>
-
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
     </dependency>
-
     <dependency>
       <groupId>com.thoughtworks.paranamer</groupId>
       <artifactId>paranamer</artifactId>
     </dependency>
-
     <dependency>
       <groupId>javax.inject</groupId>
       <artifactId>javax.inject</artifactId>
       <version>1</version>
     </dependency>
-
     <dependency>
       <groupId>net.sf.ehcache</groupId>
       <artifactId>ehcache-core</artifactId>
     </dependency>
-
     <dependency>
       <groupId>com.google.code.findbugs</groupId>
       <artifactId>jsr305</artifactId>
@@ -118,26 +107,21 @@
     </dependency>
 
     <!-- test dependencies -->
-
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
       <scope>test</scope>
     </dependency>
-
     <dependency>
       <groupId>org.testng</groupId>
       <artifactId>testng</artifactId>
       <scope>test</scope>
     </dependency>
-
-    <!-- TODO should we be using these or TestNG asserts? -->
     <dependency>
       <groupId>org.hamcrest</groupId>
       <artifactId>hamcrest-library</artifactId>
       <scope>test</scope>
       <version>1.3</version>
     </dependency>
-
   </dependencies>
 </project>
