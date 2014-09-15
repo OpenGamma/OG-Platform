@@ -60,7 +60,7 @@ public final class FuturesPriceBlackSensitivityBlackSTIRFuturesCalculator extend
     final EuropeanVanillaOption option = new EuropeanVanillaOption(rateStrike, security.getExpirationTime(), !security.isCall());
     final double forward = 1 - priceFuture;
     final double delay = security.getUnderlyingFuture().getTradingLastTime() - security.getExpirationTime();
-    final double volatility = black.getVolatility(security.getExpirationTime(), delay, security.getStrike(), rateStrike);
+    final double volatility = black.getVolatility(security.getExpirationTime(), delay, security.getStrike(), priceFuture);
     final BlackFunctionData dataBlack = new BlackFunctionData(forward, 1.0, volatility);
     final double[] priceAdjoint = BLACK_FUNCTION.getPriceAdjoint(option, dataBlack);
     // Backward sweep
