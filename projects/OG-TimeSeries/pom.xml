@@ -8,7 +8,7 @@
   <parent>
     <groupId>com.opengamma.platform</groupId>
     <artifactId>og-platform-public</artifactId>
-    <version>2.5.0-M2</version>
+    <version>2.5.0-M2p01-SNAPSHOT</version>
     <relativePath>..</relativePath>
   </parent>
   <artifactId>og-timeseries</artifactId>
