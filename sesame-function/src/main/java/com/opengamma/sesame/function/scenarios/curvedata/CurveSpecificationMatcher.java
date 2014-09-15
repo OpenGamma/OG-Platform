@@ -17,6 +17,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Tests if a {@link CurveSpecification} matches a rule.
  * Used for deciding whether a curve should be affected by a scenario.
+ * TODO rename CurveMatcher?
  */
 public abstract class CurveSpecificationMatcher {
 

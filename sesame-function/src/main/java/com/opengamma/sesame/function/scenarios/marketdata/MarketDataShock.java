@@ -6,15 +6,21 @@
 package com.opengamma.sesame.function.scenarios.marketdata;
 
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.sesame.function.scenarios.ScenarioArgument;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * Applies a shock to a market data value if its ID matches a rule.
  */
-public abstract class MarketDataShock {
+public abstract class MarketDataShock implements ScenarioArgument<MarketDataShock, MarketDataShockDecorator> {
 
   /** For matching the market data ID. */
   private final MarketDataMatcher _matcher;
+
+  @Override
+  public Class<MarketDataShockDecorator> getFunctionType() {
+    return MarketDataShockDecorator.class;
+  }
 
   /**
    * @param matcher for matching the market data ID

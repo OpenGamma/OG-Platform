@@ -18,7 +18,6 @@ import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
-import com.google.common.collect.ImmutableMap;
 import com.opengamma.financial.analytics.curve.CurveSpecification;
 import com.opengamma.financial.currency.SimpleCurrencyMatrix;
 import com.opengamma.id.ExternalIdBundle;
@@ -28,6 +27,7 @@ import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.SimpleEnvironment;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.function.Output;
+import com.opengamma.sesame.function.scenarios.FilteredScenarioDefinition;
 import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
 import com.opengamma.sesame.marketdata.MapMarketDataSource;
@@ -61,9 +61,8 @@ public class CurveDataShiftDecoratorTest {
   @Test
   public void absolute() {
     CurveDataParallelShift shift = new CurveDataParallelShift(0.1, MATCHER);
-    CurveDataShiftDecorator.Shifts shifts = CurveDataShiftDecorator.shifts(shift);
-    Map<Class<?>, Object> scenarioArgs = ImmutableMap.<Class<?>, Object>of(CurveDataShiftDecorator.class, shifts);
-    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), MARKET_DATA_SOURCE, scenarioArgs);
+    FilteredScenarioDefinition scenarioDef = new FilteredScenarioDefinition(shift);
+    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), MARKET_DATA_SOURCE, scenarioDef);
 
     Result<Map<ExternalIdBundle, Double>> result = FN.foo(env, CurveTestUtils.CURVE_SPEC);
     assertTrue(result.isSuccess());
@@ -74,9 +73,8 @@ public class CurveDataShiftDecoratorTest {
   @Test
   public void relative() {
     CurveDataRelativeShift shift = new CurveDataRelativeShift(0.1, MATCHER);
-    CurveDataShiftDecorator.Shifts shifts = CurveDataShiftDecorator.shifts(shift);
-    Map<Class<?>, Object> scenarioArgs = ImmutableMap.<Class<?>, Object>of(CurveDataShiftDecorator.class, shifts);
-    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), MARKET_DATA_SOURCE, scenarioArgs);
+    FilteredScenarioDefinition scenarioDef = new FilteredScenarioDefinition(shift);
+    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), MARKET_DATA_SOURCE, scenarioDef);
 
     Result<Map<ExternalIdBundle, Double>> result = FN.foo(env, CurveTestUtils.CURVE_SPEC);
     assertTrue(result.isSuccess());
@@ -87,9 +85,8 @@ public class CurveDataShiftDecoratorTest {
   @Test
   public void noMatch() {
     CurveDataParallelShift shift = new CurveDataParallelShift(0.1, MATCHER);
-    CurveDataShiftDecorator.Shifts shifts = CurveDataShiftDecorator.shifts(shift);
-    Map<Class<?>, Object> scenarioArgs = ImmutableMap.<Class<?>, Object>of(CurveDataShiftDecorator.class, shifts);
-    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), MARKET_DATA_SOURCE, scenarioArgs);
+    FilteredScenarioDefinition scenarioDef = new FilteredScenarioDefinition(shift);
+    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), MARKET_DATA_SOURCE, scenarioDef);
 
     CurveSpecification curveSpec = new CurveSpecification(LocalDate.now(), "a different name", CurveTestUtils.NODES);
     Result<Map<ExternalIdBundle, Double>> result = FN.foo(env, curveSpec);
@@ -102,9 +99,8 @@ public class CurveDataShiftDecoratorTest {
   public void multipleSameType() {
     CurveDataParallelShift shift1 = new CurveDataParallelShift(0.1, MATCHER);
     CurveDataParallelShift shift2 = new CurveDataParallelShift(0.2, MATCHER);
-    CurveDataShiftDecorator.Shifts shifts = CurveDataShiftDecorator.shifts(shift1, shift2);
-    Map<Class<?>, Object> scenarioArgs = ImmutableMap.<Class<?>, Object>of(CurveDataShiftDecorator.class, shifts);
-    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), MARKET_DATA_SOURCE, scenarioArgs);
+    FilteredScenarioDefinition scenarioDef = new FilteredScenarioDefinition(shift1, shift2);
+    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), MARKET_DATA_SOURCE, scenarioDef);
 
     Result<Map<ExternalIdBundle, Double>> result = FN.foo(env, CurveTestUtils.CURVE_SPEC);
     assertTrue(result.isSuccess());
@@ -116,9 +112,8 @@ public class CurveDataShiftDecoratorTest {
   public void multipleDifferentTypes() {
     CurveDataParallelShift abs = new CurveDataParallelShift(0.1, MATCHER);
     CurveDataRelativeShift rel = new CurveDataRelativeShift(0.1, MATCHER);
-    CurveDataShiftDecorator.Shifts shifts = CurveDataShiftDecorator.shifts(abs, rel);
-    Map<Class<?>, Object> scenarioArgs = ImmutableMap.<Class<?>, Object>of(CurveDataShiftDecorator.class, shifts);
-    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), MARKET_DATA_SOURCE, scenarioArgs);
+    FilteredScenarioDefinition scenarioDef = new FilteredScenarioDefinition(abs, rel);
+    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), MARKET_DATA_SOURCE, scenarioDef);
 
     Result<Map<ExternalIdBundle, Double>> result = FN.foo(env, CurveTestUtils.CURVE_SPEC);
     assertTrue(result.isSuccess());
@@ -130,9 +125,8 @@ public class CurveDataShiftDecoratorTest {
   public void multipleReversed() {
     CurveDataRelativeShift rel = new CurveDataRelativeShift(0.1, MATCHER);
     CurveDataParallelShift abs = new CurveDataParallelShift(0.1, MATCHER);
-    CurveDataShiftDecorator.Shifts shifts = CurveDataShiftDecorator.shifts(rel, abs);
-    Map<Class<?>, Object> scenarioArgs = ImmutableMap.<Class<?>, Object>of(CurveDataShiftDecorator.class, shifts);
-    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), MARKET_DATA_SOURCE, scenarioArgs);
+    FilteredScenarioDefinition scenarioDef = new FilteredScenarioDefinition(rel, abs);
+    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), MARKET_DATA_SOURCE, scenarioDef);
 
     Result<Map<ExternalIdBundle, Double>> result = FN.foo(env, CurveTestUtils.CURVE_SPEC);
     assertTrue(result.isSuccess());

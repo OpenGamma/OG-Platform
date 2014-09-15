@@ -5,10 +5,8 @@
  */
 package com.opengamma.sesame.server;
 
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -18,7 +16,6 @@ import org.threeten.bp.Duration;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.sesame.engine.CycleArguments;
 import com.opengamma.sesame.engine.Results;
@@ -240,14 +237,12 @@ public class CycleRunner {
 
     // todo - these need real values
     FunctionArguments functionArguments = FunctionArguments.EMPTY;
-    Map<Class<?>, Object> scenarioArguments = Collections.emptyMap();
     VersionCorrection configVersionCorrection = VersionCorrection.LATEST;
 
     return new CycleArguments(cycleOptions.getValuationTime(),
                               configVersionCorrection,
                               cycleMarketDataFactory,
                               functionArguments,
-                              scenarioArguments,
                               cycleOptions.isCaptureInputs());
   }
 

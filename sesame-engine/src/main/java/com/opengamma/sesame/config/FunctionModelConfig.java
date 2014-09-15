@@ -9,6 +9,7 @@ import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +36,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import com.opengamma.sesame.function.Parameter;
+import com.opengamma.sesame.function.scenarios.ScenarioFunction;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -222,19 +224,20 @@ public class FunctionModelConfig implements ImmutableBean {
    * @param decorator  a decorator type
    * @return  a copy of this configuration decorated with the decorator
    */
-  public FunctionModelConfig decoratedWith(Class<?> decorator) {
+  public FunctionModelConfig decoratedWith(Class<? extends ScenarioFunction<?, ?>> decorator) {
     return decoratedWith(decorator, Collections.<Class<?>, FunctionArguments>emptyMap());
   }
 
   /**
    * Returns a copy of this configuration decorated with a decorator.
    *
-   * @param decorator  a decorator type
+   * @param scenarioFunction  a decorator type
    * @param arguments  function arguments for building the decorator instance
    * @return  a copy of this configuration decorated with the decorator
    */
-  public FunctionModelConfig decoratedWith(Class<?> decorator, Map<Class<?>, FunctionArguments> arguments) {
-    ArgumentChecker.notNull(decorator, "decorator");
+  public FunctionModelConfig decoratedWith(Class<? extends ScenarioFunction<?, ?>> scenarioFunction,
+                                           Map<Class<?>, FunctionArguments> arguments) {
+    ArgumentChecker.notNull(scenarioFunction, "decorator");
 
     Set<Class<?>> functionTypesWithArgs = Sets.union(_arguments.keySet(), arguments.keySet());
     Map<Class<?>, FunctionArguments> mergedArguments = new HashMap<>();
@@ -242,17 +245,20 @@ public class FunctionModelConfig implements ImmutableBean {
       mergedArguments.put(fnType, mergeArguments(_arguments.get(fnType), arguments.get(fnType)));
     }
 
-    // get the set of interfaces implemented by the decorator - only one is supported at the moment
-    Set<Class<?>> interfaces = EngineUtils.getInterfaces(decorator);
+    // get the set of interfaces implemented by the decorator
+    // only one is supported at the moment apart from ScenarioDecorator which is mandatory
+    Set<Class<?>> interfaces = new HashSet<>(EngineUtils.getInterfaces(scenarioFunction));
+    interfaces.remove(ScenarioFunction.class);
 
     if (interfaces.size() != 1) {
-      throw new IllegalArgumentException("Decorator class " + decorator.getName() + " must implement exactly one interface");
+      throw new IllegalArgumentException("Decorator class " + scenarioFunction.getName() + " must implement " +
+                                             "ScenarioFunction and one other one interface");
     }
     Class<?> interfaceType = interfaces.iterator().next();
     LinkedHashSet<Class<?>> decorators = _decoratorsByFn.get(interfaceType);
     LinkedHashSet<Class<?>> mergedDecorators = new LinkedHashSet<>();
 
-    mergedDecorators.add(decorator);
+    mergedDecorators.add(scenarioFunction);
     if (decorators != null) {
       mergedDecorators.addAll(decorators);
     }

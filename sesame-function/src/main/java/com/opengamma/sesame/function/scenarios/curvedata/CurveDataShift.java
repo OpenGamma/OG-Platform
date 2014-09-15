@@ -15,18 +15,24 @@ import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.sesame.function.scenarios.ScenarioArgument;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * Performs a parallel shift on a set of curve data if the curve matches the {@link CurveSpecificationMatcher matcher}.
  */
-public abstract class CurveDataShift {
+public abstract class CurveDataShift implements ScenarioArgument<CurveDataShift, CurveDataShiftDecorator> {
 
   /** Curves are only shifted if they match this matcher. */
   private final CurveSpecificationMatcher _matcher;
 
   /** The amount to add to each point on the curve. */
   private final double _shiftAmount;
+
+  @Override
+  public Class<CurveDataShiftDecorator> getFunctionType() {
+    return CurveDataShiftDecorator.class;
+  }
 
   /**
    * Creates a shift that adds an absolute amount to each market data point in the curve.

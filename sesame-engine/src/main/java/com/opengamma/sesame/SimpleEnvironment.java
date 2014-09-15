@@ -5,14 +5,15 @@
  */
 package com.opengamma.sesame;
 
-import java.util.Collections;
-import java.util.Map;
+import java.util.List;
 import java.util.Objects;
 
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
-import com.google.common.collect.ImmutableMap;
+import com.opengamma.sesame.function.scenarios.FilteredScenarioDefinition;
+import com.opengamma.sesame.function.scenarios.ScenarioArgument;
+import com.opengamma.sesame.function.scenarios.ScenarioFunction;
 import com.opengamma.sesame.marketdata.MarketDataSource;
 import com.opengamma.util.ArgumentChecker;
 
@@ -28,26 +29,29 @@ import com.opengamma.util.ArgumentChecker;
  */
 public final class SimpleEnvironment implements Environment {
 
+  // TODO an inner class used by all environment impls that is used for hashCode and equals
+  // makes it explicit which parts of the environment are part of the cache key and which ones are ignored
+
   /** The valuation time. */
   private final ZonedDateTime _valuationTime;
 
   /** The function that provides market data. */
   private final MarketDataSource _marketDataSource;
 
-  /** Scenario arguments, keyed by the type of function implementation that uses them. */
-  private final Map<Class<?>, Object> _scenarioArguments;
+  /** Scenario definition. */
+  private final FilteredScenarioDefinition _scenarioDefinition;
 
   public SimpleEnvironment(ZonedDateTime valuationTime,
                            MarketDataSource marketDataSource) {
-    this(valuationTime, marketDataSource, Collections.<Class<?>, Object>emptyMap());
+    this(valuationTime, marketDataSource, FilteredScenarioDefinition.EMPTY);
   }
 
   public SimpleEnvironment(ZonedDateTime valuationTime,
                            MarketDataSource marketDataSource,
-                           Map<Class<?>, Object> scenarioArguments) {
+                           FilteredScenarioDefinition scenarioDefinition) {
     _valuationTime = ArgumentChecker.notNull(valuationTime, "valuationTime");
     _marketDataSource = ArgumentChecker.notNull(marketDataSource, "marketDataSource");
-    _scenarioArguments = ImmutableMap.copyOf(ArgumentChecker.notNull(scenarioArguments, "scenarioArguments"));
+    _scenarioDefinition = ArgumentChecker.notNull(scenarioDefinition, "scenarioDefinition");
   }
 
   @Override
@@ -66,40 +70,41 @@ public final class SimpleEnvironment implements Environment {
   }
 
   @Override
-  public Object getScenarioArgument(Object function) {
-    return _scenarioArguments.get(ArgumentChecker.notNull(function, "function").getClass());
+  public <A extends ScenarioArgument<A, F>, F extends ScenarioFunction<A, F>> List<A> getScenarioArguments(
+      ScenarioFunction<A, F> scenarioFunction) {
+    return _scenarioDefinition.getArguments(scenarioFunction);
   }
 
   @Override
-  public Map<Class<?>, Object> getScenarioArguments() {
-    return _scenarioArguments;
+  public FilteredScenarioDefinition getScenarioDefinition() {
+    return _scenarioDefinition;
   }
 
   @Override
   public Environment withValuationTime(ZonedDateTime valuationTime) {
     return new SimpleEnvironment(
-        ArgumentChecker.notNull(valuationTime, "valuationTime"), _marketDataSource, _scenarioArguments);
+        ArgumentChecker.notNull(valuationTime, "valuationTime"), _marketDataSource, _scenarioDefinition);
   }
 
   @Override
   public Environment withValuationTimeAndFixedMarketData(ZonedDateTime valuationTime) {
     return new SimpleEnvironment(
-        ArgumentChecker.notNull(valuationTime, "valuationTime"), _marketDataSource, _scenarioArguments);
+        ArgumentChecker.notNull(valuationTime, "valuationTime"), _marketDataSource, _scenarioDefinition);
   }
 
   @Override
   public Environment withMarketData(MarketDataSource marketData) {
-    return new SimpleEnvironment(_valuationTime, ArgumentChecker.notNull(marketData, "marketData"), _scenarioArguments);
+    return new SimpleEnvironment(_valuationTime, ArgumentChecker.notNull(marketData, "marketData"), _scenarioDefinition);
   }
 
   @Override
-  public Environment withScenarioArguments(Map<Class<?>, Object> scenarioArguments) {
-    return new SimpleEnvironment(_valuationTime, _marketDataSource, scenarioArguments);
+  public Environment withScenarioDefinition(FilteredScenarioDefinition scenarioDefinition) {
+    return new SimpleEnvironment(_valuationTime, _marketDataSource, scenarioDefinition);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(_valuationTime, _marketDataSource, _scenarioArguments);
+    return Objects.hash(_valuationTime, _marketDataSource, _scenarioDefinition);
   }
 
   @Override
@@ -113,7 +118,7 @@ public final class SimpleEnvironment implements Environment {
     final SimpleEnvironment other = (SimpleEnvironment) obj;
     return Objects.equals(this._valuationTime, other._valuationTime) &&
            Objects.equals(this._marketDataSource, other._marketDataSource) &&
-           Objects.equals(this._scenarioArguments, other._scenarioArguments);
+           Objects.equals(this._scenarioDefinition, other._scenarioDefinition);
   }
 
   @Override
@@ -121,7 +126,7 @@ public final class SimpleEnvironment implements Environment {
     return "SimpleEnvironment [" +
         "_valuationTime=" + _valuationTime +
         ", _marketDataSource=" + _marketDataSource +
-        ", _scenarioArguments=" + _scenarioArguments +
+        ", _scenarioArguments=" + _scenarioDefinition +
         "]";
   }
 }

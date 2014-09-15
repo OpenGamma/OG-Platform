@@ -5,8 +5,6 @@
  */
 package com.opengamma.sesame.function.scenarios.curvedata;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -14,13 +12,15 @@ import com.opengamma.financial.analytics.curve.CurveSpecification;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.sesame.CurveSpecificationMarketDataFn;
 import com.opengamma.sesame.Environment;
+import com.opengamma.sesame.function.scenarios.ScenarioFunction;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
 
 /**
  * Function that decorates {@link CurveSpecificationMarketDataFn} and applies shifts to the underlying data.
  */
-public class CurveDataShiftDecorator implements CurveSpecificationMarketDataFn {
+public class CurveDataShiftDecorator
+    implements CurveSpecificationMarketDataFn, ScenarioFunction<CurveDataShift, CurveDataShiftDecorator> {
 
   /** The underlying function that this function decorates. */
   private final CurveSpecificationMarketDataFn _delegate;
@@ -39,46 +39,17 @@ public class CurveDataShiftDecorator implements CurveSpecificationMarketDataFn {
     if (!result.isSuccess()) {
       return result;
     }
-    Shifts shifts = (Shifts) env.getScenarioArgument(this);
-
-    if (shifts == null) {
-      return result;
-    }
     Map<ExternalIdBundle, Double> results = result.getValue();
+    List<CurveDataShift> shifts = env.getScenarioArguments(this);
 
-    for (CurveDataShift shift : shifts._shifts) {
+    for (CurveDataShift shift : shifts) {
       results = shift.apply(curveSpecification, results);
     }
     return Result.success(results);
   }
 
-  /**
-   * Creates an instance of {@link Shifts} wrapping some {@link CurveDataShift} instances.
-   *
-   * @param shifts some shifts
-   * @return an instance of {@link Shifts} wrapping the shifts
-   */
-  public static Shifts shifts(CurveDataShift... shifts) {
-    List<CurveDataShift> shiftList = new ArrayList<>(shifts.length);
-
-    for (CurveDataShift shift : shifts) {
-      if (shift == null) {
-        throw new IllegalArgumentException("Null shifts not allowed");
-      }
-      shiftList.add(shift);
-    }
-    return new Shifts(Collections.unmodifiableList(shiftList));
-  }
-
-  /**
-   * Wraps a list of {@link CurveDataShift} instances.
-   */
-  public static final class Shifts {
-
-    private final List<CurveDataShift> _shifts;
-
-    private Shifts(List<CurveDataShift> shifts) {
-      _shifts = shifts;
-    }
+  @Override
+  public Class<CurveDataShift> getArgumentType() {
+    return CurveDataShift.class;
   }
 }

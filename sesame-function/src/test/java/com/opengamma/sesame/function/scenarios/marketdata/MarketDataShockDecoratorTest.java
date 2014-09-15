@@ -15,12 +15,9 @@ import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 
-import java.util.Map;
-
 import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
 
-import com.google.common.collect.ImmutableMap;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.currency.SimpleCurrencyMatrix;
 import com.opengamma.id.ExternalIdBundle;
@@ -28,6 +25,7 @@ import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.SimpleEnvironment;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.function.Output;
+import com.opengamma.sesame.function.scenarios.FilteredScenarioDefinition;
 import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
 import com.opengamma.sesame.marketdata.FieldName;
@@ -69,9 +67,8 @@ public class MarketDataShockDecoratorTest {
   @Test
   public void singleShock() {
     MarketDataShock shock = MarketDataShock.relativeShift(0.5, MATCHER1);
-    MarketDataShockDecorator.Shocks shocks = MarketDataShockDecorator.shocks(shock);
-    Map<Class<?>, Object> scenarioArgs = ImmutableMap.<Class<?>, Object>of(MarketDataShockDecorator.class, shocks);
-    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), MARKET_DATA_SOURCE, scenarioArgs);
+    FilteredScenarioDefinition scenarioDef = new FilteredScenarioDefinition(shock);
+    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), MARKET_DATA_SOURCE, scenarioDef);
 
     assertEquals(1.5, FN.foo(env, ID1).getValue(), DELTA);
     assertEquals(2d, FN.foo(env, ID2).getValue(), DELTA);
@@ -84,9 +81,8 @@ public class MarketDataShockDecoratorTest {
   public void multipleSeparateShocks() {
     MarketDataShock relativeShift = MarketDataShock.relativeShift(0.5, MATCHER1);
     MarketDataShock absoluteShift = MarketDataShock.absoluteShift(0.1, MATCHER2);
-    MarketDataShockDecorator.Shocks shocks = MarketDataShockDecorator.shocks(absoluteShift, relativeShift);
-    Map<Class<?>, Object> scenarioArgs = ImmutableMap.<Class<?>, Object>of(MarketDataShockDecorator.class, shocks);
-    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), MARKET_DATA_SOURCE, scenarioArgs);
+    FilteredScenarioDefinition scenarioDef = new FilteredScenarioDefinition(absoluteShift, relativeShift);
+    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), MARKET_DATA_SOURCE, scenarioDef);
 
     assertEquals(1.5, FN.foo(env, ID1).getValue(), DELTA);
     assertEquals(2.1, FN.foo(env, ID2).getValue(), DELTA);
@@ -99,9 +95,8 @@ public class MarketDataShockDecoratorTest {
   public void multipleShocksOnSameData() {
     MarketDataShock absoluteShift = MarketDataShock.absoluteShift(0.1, MATCHER1);
     MarketDataShock relativeShift = MarketDataShock.relativeShift(0.5, MATCHER1);
-    MarketDataShockDecorator.Shocks shocks = MarketDataShockDecorator.shocks(absoluteShift, relativeShift);
-    Map<Class<?>, Object> scenarioArgs = ImmutableMap.<Class<?>, Object>of(MarketDataShockDecorator.class, shocks);
-    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), MARKET_DATA_SOURCE, scenarioArgs);
+    FilteredScenarioDefinition scenarioDef = new FilteredScenarioDefinition(absoluteShift, relativeShift);
+    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), MARKET_DATA_SOURCE, scenarioDef);
 
     assertEquals(1.65, FN.foo(env, ID1).getValue(), DELTA);
     assertEquals(2d, FN.foo(env, ID2).getValue(), DELTA);
@@ -115,9 +110,8 @@ public class MarketDataShockDecoratorTest {
   public void multipleShocksOnSameDataReversed() {
     MarketDataShock relativeShift = MarketDataShock.relativeShift(0.5, MATCHER1);
     MarketDataShock absoluteShift = MarketDataShock.absoluteShift(0.1, MATCHER1);
-    MarketDataShockDecorator.Shocks shocks = MarketDataShockDecorator.shocks(relativeShift, absoluteShift);
-    Map<Class<?>, Object> scenarioArgs = ImmutableMap.<Class<?>, Object>of(MarketDataShockDecorator.class, shocks);
-    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), MARKET_DATA_SOURCE, scenarioArgs);
+    FilteredScenarioDefinition scenarioDef = new FilteredScenarioDefinition(relativeShift, absoluteShift);
+    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), MARKET_DATA_SOURCE, scenarioDef);
 
     assertEquals(1.6, FN.foo(env, ID1).getValue(), DELTA);
     assertEquals(2d, FN.foo(env, ID2).getValue(), DELTA);
@@ -131,9 +125,8 @@ public class MarketDataShockDecoratorTest {
     when(marketDataSource.get(ID1, FIELD_NAME)).thenReturn((Result) Result.success("not a double"));
     when(marketDataSource.get(ID2, FIELD_NAME)).thenReturn((Result) Result.success(2d));
     MarketDataShock shock = MarketDataShock.relativeShift(0.5, MATCHER1);
-    MarketDataShockDecorator.Shocks shocks = MarketDataShockDecorator.shocks(shock);
-    Map<Class<?>, Object> scenarioArgs = ImmutableMap.<Class<?>, Object>of(MarketDataShockDecorator.class, shocks);
-    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), marketDataSource, scenarioArgs);
+    FilteredScenarioDefinition scenarioDef = new FilteredScenarioDefinition(shock);
+    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), marketDataSource, scenarioDef);
 
     assertFalse(FN.foo(env, ID1).isSuccess());
     assertEquals(2d, FN.foo(env, ID2).getValue(), DELTA);

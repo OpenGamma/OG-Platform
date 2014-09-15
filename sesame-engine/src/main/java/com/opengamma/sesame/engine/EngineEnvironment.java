@@ -5,17 +5,19 @@
  */
 package com.opengamma.sesame.engine;
 
-import java.util.Map;
+import java.util.List;
 import java.util.Objects;
 
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
-import com.google.common.collect.ImmutableMap;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.cache.CacheInvalidator;
 import com.opengamma.sesame.cache.ValuationTimeCacheEntry;
+import com.opengamma.sesame.function.scenarios.FilteredScenarioDefinition;
+import com.opengamma.sesame.function.scenarios.ScenarioArgument;
+import com.opengamma.sesame.function.scenarios.ScenarioFunction;
 import com.opengamma.sesame.marketdata.CycleMarketDataFactory;
 import com.opengamma.sesame.marketdata.FieldName;
 import com.opengamma.sesame.marketdata.MarketDataSource;
@@ -31,6 +33,9 @@ import com.opengamma.util.result.Result;
  */
 final class EngineEnvironment implements Environment {
 
+  // TODO an inner class used by all environment impls that is used for hashCode and equals
+  // makes it explicit which parts of the environment are part of the cache key and which ones are ignored
+
   /** The valuation time. */
   private final ZonedDateTime _valuationTime;
 
@@ -40,27 +45,29 @@ final class EngineEnvironment implements Environment {
   private final MarketDataSource _marketDataSource;
 
   /** Scenario arguments, keyed by the type of function implementation that uses them. */
-  private final ImmutableMap<Class<?>, Object> _scenarioArguments;
+  private final FilteredScenarioDefinition _scenarioDefinition;
 
   private final CacheInvalidator _cacheInvalidator;
 
   EngineEnvironment(ZonedDateTime valuationTime,
-                                  CycleMarketDataFactory cycleMarketDataFactory,
-                                  Map<Class<?>, Object> scenarioArguments,
-                                  CacheInvalidator cacheInvalidator) {
-    this(valuationTime, cycleMarketDataFactory, cycleMarketDataFactory.getPrimaryMarketDataSource(),
-         scenarioArguments, cacheInvalidator);
+                    CycleMarketDataFactory cycleMarketDataFactory,
+                    CacheInvalidator cacheInvalidator) {
+    this(valuationTime,
+         cycleMarketDataFactory,
+         cycleMarketDataFactory.getPrimaryMarketDataSource(),
+         FilteredScenarioDefinition.EMPTY,
+         cacheInvalidator);
   }
 
   private EngineEnvironment(ZonedDateTime valuationTime,
                             CycleMarketDataFactory cycleMarketDataFactory,
                             MarketDataSource marketDataSource,
-                            Map<Class<?>, Object> scenarioArguments,
+                            FilteredScenarioDefinition scenarioDefinition,
                             CacheInvalidator cacheInvalidator) {
 
     _valuationTime = ArgumentChecker.notNull(valuationTime, "valuationTime");
     _cycleMarketDataFactory = ArgumentChecker.notNull(cycleMarketDataFactory, "cycleMarketDataFactory");
-    _scenarioArguments = ImmutableMap.copyOf(ArgumentChecker.notNull(scenarioArguments, "scenarioArguments"));
+    _scenarioDefinition = ArgumentChecker.notNull(scenarioDefinition, "scenarioDefinition");
     _marketDataSource = ArgumentChecker.notNull(marketDataSource, "marketDataSource");
     _cacheInvalidator = ArgumentChecker.notNull(cacheInvalidator, "cacheInvalidator");
   }
@@ -90,38 +97,42 @@ final class EngineEnvironment implements Environment {
   }
 
   @Override
-  public Object getScenarioArgument(Object function) {
-    return _scenarioArguments.get(ArgumentChecker.notNull(function, "function").getClass());
+  public <A extends ScenarioArgument<A, F>, F extends ScenarioFunction<A, F>> List<A> getScenarioArguments(
+      ScenarioFunction<A, F> scenarioFunction) {
+    return _scenarioDefinition.getArguments(scenarioFunction);
   }
 
   @Override
-  public Map<Class<?>, Object> getScenarioArguments() {
-    return _scenarioArguments;
+  public FilteredScenarioDefinition getScenarioDefinition() {
+    return _scenarioDefinition;
   }
 
   @Override
   public Environment withValuationTime(ZonedDateTime valuationTime) {
     MarketDataSource marketDataSource = _cycleMarketDataFactory.getMarketDataSourceForDate(valuationTime);
     return new EngineEnvironment(valuationTime, _cycleMarketDataFactory, marketDataSource,
-                                 _scenarioArguments, _cacheInvalidator);
+                                 _scenarioDefinition, _cacheInvalidator);
   }
 
   @Override
   public Environment withValuationTimeAndFixedMarketData(ZonedDateTime valuationTime) {
     return new EngineEnvironment(valuationTime, _cycleMarketDataFactory, _marketDataSource,
-                                 _scenarioArguments, _cacheInvalidator);
+                                 _scenarioDefinition, _cacheInvalidator);
   }
 
   @Override
   public Environment withMarketData(MarketDataSource marketDataSource) {
     return new EngineEnvironment(_valuationTime, _cycleMarketDataFactory, marketDataSource,
-                                 _scenarioArguments, _cacheInvalidator);
+                                 _scenarioDefinition, _cacheInvalidator);
   }
 
   @Override
-  public Environment withScenarioArguments(Map<Class<?>, Object> scenarioArguments) {
-    return new EngineEnvironment(_valuationTime, _cycleMarketDataFactory, _marketDataSource,
-                                 scenarioArguments, _cacheInvalidator);
+  public Environment withScenarioDefinition(FilteredScenarioDefinition scenarioDefinition) {
+    return new EngineEnvironment(_valuationTime,
+                                 _cycleMarketDataFactory,
+                                 _marketDataSource,
+                                 scenarioDefinition,
+                                 _cacheInvalidator);
   }
 
   @Override
@@ -136,12 +147,12 @@ final class EngineEnvironment implements Environment {
     EngineEnvironment that = (EngineEnvironment) o;
     return _valuationTime.equals(that._valuationTime) &&
         _marketDataSource.equals(that._marketDataSource) &&
-        _scenarioArguments.equals(that._scenarioArguments);
+        _scenarioDefinition.equals(that._scenarioDefinition);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(_valuationTime, _marketDataSource, _scenarioArguments);
+    return Objects.hash(_valuationTime, _marketDataSource, _scenarioDefinition);
   }
 
 }

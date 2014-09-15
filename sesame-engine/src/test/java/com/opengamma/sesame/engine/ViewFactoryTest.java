@@ -354,13 +354,12 @@ public class ViewFactoryTest {
         ImmutableMap.of(Pairs.of(0, 0), TraceType.FULL_AS_STRING);
 
     CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(),
-        VersionCorrection.LATEST,
-        mockCycleMarketDataFactory(),
-        FunctionArguments.EMPTY,
-        ImmutableMap.<Class<?>, Object>of(),
-        traceCells,
-        ImmutableMap.<String, TraceType>of(),
-        false);
+                                                       VersionCorrection.LATEST,
+                                                       mockCycleMarketDataFactory(),
+                                                       FunctionArguments.EMPTY,
+                                                       traceCells,
+                                                       ImmutableMap.<String, TraceType>of(),
+                                                       false);
     Results results = view.run(cycleArguments, trades);
     CallGraph trace = results.get(0, 0).getCallGraph();
     assertNotNull(trace);
@@ -461,7 +460,6 @@ public class ViewFactoryTest {
                                                        VersionCorrection.LATEST,
                                                        mockCycleMarketDataFactory(),
                                                        FunctionArguments.EMPTY,
-                                                       ImmutableMap.<Class<?>, Object>of(),
                                                        ImmutableMap.<Pair<Integer, Integer>, TraceType>of(),
                                                        ImmutableMap.of(name, TraceType.FULL_AS_STRING),
                                                        false);
