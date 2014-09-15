@@ -48,7 +48,6 @@ public class ExportUtils {
         row = row + "\n";
         writer.append(row);
       }
-      writer.flush();
       writer.close();
     } catch (final IOException e) {
       e.printStackTrace();
@@ -83,7 +82,6 @@ public class ExportUtils {
         row = row + "\n";
         writer.append(row);
       }
-      writer.flush();
       writer.close();
     } catch (final IOException e) {
       e.printStackTrace();
@@ -103,6 +101,21 @@ public class ExportUtils {
    */
   public static void exportMulticurveProviderDiscount(MulticurveProviderDiscount multicurve, String fileName) {
     Set<String> curveNamesSet = multicurve.getAllCurveNames();
+    // Checking curve is of correct type
+    for (String name: curveNamesSet) {
+      YieldAndDiscountCurve curve = multicurve.getCurve(name);
+      ArgumentChecker.isTrue((curve instanceof YieldCurve) || (curve instanceof DiscountCurve) , 
+          "curve should be YieldCurve or DiscountCurve");
+      if (curve instanceof YieldCurve) { // YieldCurve
+        YieldCurve yieldCurve = (YieldCurve) curve;
+        ArgumentChecker.isTrue(yieldCurve.getCurve() instanceof InterpolatedDoublesCurve, 
+            "curve underlying should be of the type interpolatedDoublesCurve");
+      } else { // DiscountCurve
+        DiscountCurve discountCurve = (DiscountCurve) curve;
+        ArgumentChecker.isTrue(discountCurve.getCurve() instanceof InterpolatedDoublesCurve, 
+            "curve underlying should be of the type interpolatedDoublesCurve");
+      }
+    }    
     try {
       final FileWriter writer = new FileWriter(fileName);
       for (String name: curveNamesSet) {
@@ -120,20 +133,14 @@ public class ExportUtils {
         if (indexOn != null) {
           writer.append("Overnight Index: " + indexOn.toString() + "\n");
         }
-        ArgumentChecker.isTrue((curve instanceof YieldCurve) || (curve instanceof DiscountCurve) , 
-            "curve should be YieldCurve or DiscountCurve");
         InterpolatedDoublesCurve interpolatedCurve;
         if (curve instanceof YieldCurve) { // YieldCurve
           writer.append("Time, Rate \n");
           YieldCurve yieldCurve = (YieldCurve) curve;
-          ArgumentChecker.isTrue(yieldCurve.getCurve() instanceof InterpolatedDoublesCurve, 
-              "curve underlying should be of the type interpolatedDoublesCurve");
           interpolatedCurve = (InterpolatedDoublesCurve) yieldCurve.getCurve();
         } else { // DiscountCurve
           writer.append("Time, Discount Factor \n");
           DiscountCurve discountCurve = (DiscountCurve) curve;
-          ArgumentChecker.isTrue(discountCurve.getCurve() instanceof InterpolatedDoublesCurve, 
-              "curve underlying should be of the type interpolatedDoublesCurve");
           interpolatedCurve = (InterpolatedDoublesCurve) discountCurve.getCurve();
         }
         double[] x = interpolatedCurve.getXDataAsPrimitive();
@@ -143,7 +150,6 @@ public class ExportUtils {
           writer.append(x[loopnode] + ", " + y[loopnode] + "\n");
         }
       }
-      writer.flush();
       writer.close();
     } catch (final IOException e) {
       e.printStackTrace();
