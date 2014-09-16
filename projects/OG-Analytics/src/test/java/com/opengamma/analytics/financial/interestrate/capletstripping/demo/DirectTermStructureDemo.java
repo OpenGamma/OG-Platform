@@ -16,7 +16,6 @@ import com.opengamma.analytics.financial.interestrate.capletstripping.CapletStri
 import com.opengamma.analytics.financial.interestrate.capletstripping.CombinedCapletStrippingResults;
 import com.opengamma.analytics.financial.interestrate.capletstripping.MarketDataType;
 import com.opengamma.analytics.financial.interestrate.capletstripping.MultiCapFloorPricerGrid;
-import com.opengamma.util.test.TestGroup;
 
 /**
  * Here we fit all the caplets with a common strike directly, applying a penalty on the curvature in the expiry direction.
@@ -32,7 +31,7 @@ public class DirectTermStructureDemo extends CapletStrippingSetup{
   /**
    * This fits each strike in turn (excluding the ATM) and combines the results into a caplet volatility surface   
    */
-  @Test(groups = TestGroup.UNIT_SLOW)
+  @Test(description = "Demo of infering a caplet volatility surface")
   public void singleStrikeExATMTest() {
     final double lambda = 0.1; //this is chosen to recover the cap vols to better than 1bps 
 

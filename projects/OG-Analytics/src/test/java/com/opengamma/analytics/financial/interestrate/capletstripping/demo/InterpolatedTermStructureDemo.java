@@ -14,7 +14,6 @@ import com.opengamma.analytics.financial.interestrate.capletstripping.CapletStri
 import com.opengamma.analytics.financial.interestrate.capletstripping.CombinedCapletStrippingResults;
 import com.opengamma.analytics.financial.interestrate.capletstripping.MarketDataType;
 import com.opengamma.analytics.financial.interestrate.capletstripping.MultiCapFloorPricer;
-import com.opengamma.util.test.TestGroup;
 
 /**
  * Here we represent caplet volatilities at different expiries but a single strike by an interpolated curve (a term
@@ -30,7 +29,7 @@ public class InterpolatedTermStructureDemo extends CapletStrippingSetup {
    * The output is this surface sampled on a grid (101 by 101), such that it can be plotted as an Excel surface plot
    *  (or imported into some other visualisation tool).
    */
-  @Test(groups = TestGroup.UNIT_SLOW)
+  @Test(description = "Demo of infering a caplet volatility surface")
   public void singleStrikeExATMTest() {
 
     final int n = getNumberOfStrikes();
@@ -57,7 +56,7 @@ public class InterpolatedTermStructureDemo extends CapletStrippingSetup {
    * The output is this surface sampled on a grid (101 by 101), such that it can be plotted as an Excel surface plot (or
    * imported into some other visualisation tool).
    */
-  @Test(groups = TestGroup.UNIT_SLOW)
+  @Test(description = "Demo of infering a caplet volatility surface")
   public void singleStrikeSWithATMTest() {
 
     final int n = getNumberOfStrikes();

@@ -26,7 +26,7 @@ import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
  */
 public class CapletStrippingBootstrapDemo extends CapletStrippingSetup {
 
-  @Test
+  @Test(description = "Demo of infering a caplet volatility surface by seperate bootstapping of absolute strike quotes")
   public void test() {
 
     final int nSamples = 101;

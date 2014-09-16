@@ -27,7 +27,7 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
  */
 public class CapletStrippingPSplineTermStructureDemo extends CapletStrippingSetup {
 
-  @Test
+  @Test(description = "Demo of infering a caplet volatility surface by seperate P-spline fit of absolute strike quotes")
   public void singleStrikeTest() {
     final BasisSplineVolatilityTermStructureProvider vtsp = new BasisSplineVolatilityTermStructureProvider(0, 10.0, 10, 2);
     final int size = vtsp.getNumModelParameters();

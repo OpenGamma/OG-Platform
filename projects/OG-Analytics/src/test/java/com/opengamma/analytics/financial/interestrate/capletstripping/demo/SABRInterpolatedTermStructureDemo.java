@@ -100,7 +100,7 @@ public class SABRInterpolatedTermStructureDemo extends CapletStrippingSetup {
    * <p>
    * The output is this surface sampled on a grid (101 by 101), such that it can be plotted as an Excel surface plot (or imported into some other visualisation tool).
    */
-  @Test
+  @Test(description = "Demo of infering a caplet volatility surface")
   public void test() {
 
     final MulticurveProviderDiscount yc = getYieldCurves();
