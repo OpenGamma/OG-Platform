@@ -14,7 +14,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedFXReset;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedFxReset;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.timeseries.DoubleTimeSeries;
@@ -95,7 +95,7 @@ public class CouponFixedFxResetDefinition extends CouponDefinition
   }
 
   @Override
-  public CouponFixedFXReset toDerivative(ZonedDateTime dateTime) {
+  public CouponFixedFxReset toDerivative(ZonedDateTime dateTime) {
     ArgumentChecker.notNull(dateTime, "date");
     LocalDate conversionDate = dateTime.toLocalDate();
     LocalDate fixingDate = _fxFixingDate.toLocalDate();
@@ -104,7 +104,7 @@ public class CouponFixedFxResetDefinition extends CouponDefinition
         conversionDate, fixingDate);
     double paymentTime = TimeCalculator.getTimeBetween(dateTime, getPaymentDate());
     double fixingTime = TimeCalculator.getTimeBetween(dateTime, _fxFixingDate);
-    return new CouponFixedFXReset(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), _rate, 
+    return new CouponFixedFxReset(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), _rate, 
         _referenceCurrency, fixingTime);
   }
 
@@ -136,7 +136,7 @@ public class CouponFixedFxResetDefinition extends CouponDefinition
       }
     } // Default: no fixing
     double fixingTime = TimeCalculator.getTimeBetween(dateTime, _fxFixingDate);
-    return new CouponFixedFXReset(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), _rate, 
+    return new CouponFixedFxReset(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), _rate, 
         _referenceCurrency, fixingTime);
   }
 

@@ -5,7 +5,10 @@
  */
 package com.opengamma.analytics.financial.interestrate.payments.derivative;
 
+import org.apache.commons.lang.ObjectUtils;
+
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -14,7 +17,7 @@ import com.opengamma.util.money.Currency;
  * The notional is expressed in the reference currency, from which the FX reset will be computed.
  * The payment is (getNotional() * FX(at FX reset date) * _rate * getPaymentYearFraction())
  */
-public class CouponFixedFXReset extends Coupon {
+public class CouponFixedFxReset extends Coupon {
 
   /** The fixed rate of the fixed coupon. */
   private final double _rate;
@@ -31,13 +34,14 @@ public class CouponFixedFXReset extends Coupon {
    * @param paymentAccrualFactor Accrual factor of the accrual period.
    * @param notional Coupon notional in the reference currency.
    * @param rate Fixed rate.
-   * @param referenceCurrency The reference currency for the FX reset.
+   * @param referenceCurrency The reference currency for the FX reset. Not null.
    * @param fxFixingTime The FX fixing date. The notional used for the payment is the FX rate between the reference 
    * currency (RC) and the payment currency (PC): 1 RC = X . PC.
    */
-  public CouponFixedFXReset(Currency currency, double paymentTime, double paymentAccrualFactor, double notional, 
+  public CouponFixedFxReset(Currency currency, double paymentTime, double paymentAccrualFactor, double notional, 
       double rate, Currency referenceCurrency, double fxFixingTime) {
     super(currency, paymentTime, paymentAccrualFactor, notional);
+    ArgumentChecker.notNull(referenceCurrency, "reference currency");
     _rate = rate;
     _referenceCurrency = referenceCurrency;
     _fxFixingTime = fxFixingTime;
@@ -78,12 +82,51 @@ public class CouponFixedFXReset extends Coupon {
 
   @Override
   public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
-    return null;
+    ArgumentChecker.notNull(visitor, "visitor");
+    return visitor.visitCouponFixedFxReset(this, data);
   }
 
   @Override
   public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
-    return null;
+    ArgumentChecker.notNull(visitor, "visitor");
+    return visitor.visitCouponFixedFxReset(this);
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    long temp;
+    temp = Double.doubleToLongBits(_fxFixingTime);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_rate);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + _referenceCurrency.hashCode();
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!super.equals(obj)) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    CouponFixedFxReset other = (CouponFixedFxReset) obj;
+    if (Double.doubleToLongBits(_fxFixingTime) != Double.doubleToLongBits(other._fxFixingTime)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_rate) != Double.doubleToLongBits(other._rate)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_referenceCurrency, other._referenceCurrency)) {
+      return false;
+    }
+    return true;
   }
 
   @Override
