@@ -111,9 +111,10 @@ import com.opengamma.analytics.financial.instrument.payment.CouponCMSDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedAccruedCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponFixedFxResetDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageFixingDatesCompoundingDefinition;
-import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageFixingDatesDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageFixingDatesCompoundingFlatSpreadDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageFixingDatesDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageIndexDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingFlatSpreadDefinition;
@@ -1629,6 +1630,16 @@ public class InstrumentDefinitionVisitorTest {
 
     @Override
     public String visitBillTotalReturnSwapDefinition(BillTotalReturnSwapDefinition totalReturnSwap, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponFixedFxResetDefinition(CouponFixedFxResetDefinition payment, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponFixedFxResetDefinition(CouponFixedFxResetDefinition payment) {
       return null;
     }
 
