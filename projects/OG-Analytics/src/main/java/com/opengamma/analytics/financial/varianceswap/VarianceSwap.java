@@ -14,12 +14,11 @@ import com.opengamma.util.money.Currency;
 
 /**
  * A variance swap is a forward contract on the realised variance of a generic underlying. This could be a single equity price, the value of an equity index,
- * an FX rate or <b>any</b> other financial metric on which a variance swap contract is based.
- * <p>
+ * an FX rate or <b>any</b> other financial metric on which a variance swap contract is based.<p>
  * The floating leg of a variance swap is the realized variance and is calculated using the second moment of log returns of the underlying asset.
  * <p>
- * Because variance is additive in time, the value of a variance swap can be decomposed at any point in time between realized and implied variance as _varNotional * Z(t,T) * [ t/T * RealizedVol(0,t)^2
- * + (T-t)/T * ImpliedVol(t,T)^2 - volStrike^2 ]
+ * Because variance is additive in time, the value of a variance swap can be decomposed at any point in time between realized and implied variance as
+ * _varNotional * Z(t,T) * [ t/T * RealizedVol(0,t)^2 + (T-t)/T * ImpliedVol(t,T)^2 - volStrike^2 ]
  */
 public class VarianceSwap implements InstrumentDerivative {
   /** The time in years to the start of variance observations */
@@ -58,17 +57,9 @@ public class VarianceSwap implements InstrumentDerivative {
    * @param observations Array of observations of the underlying spot
    * @param observationWeights Array of weights to give observation returns. If null, all weights are 1. Else, length must be: observations.length-1
    */
-  public VarianceSwap(final double timeToObsStart, final double timeToObsEnd, final double timeToSettlement, final double varStrike, final double varNotional, final Currency currency,
-      final double annualizationFactor, final int nObsExpected, final int nObsDisrupted, final double[] observations, final double[] observationWeights) {
-
-    ArgumentChecker.isTrue(varStrike >= 0, "Require varStrike >= 0");
-    ArgumentChecker.isTrue(varNotional > 0, "Require varNotional > 0");
-    ArgumentChecker.notNull(currency, "currency");
-    ArgumentChecker.isTrue(annualizationFactor > 0, "Require annualizationFactor > 0");
-    ArgumentChecker.isTrue(nObsExpected > 0, "Encountered a VarianceSwap with 0 expected observations");
-    ArgumentChecker.notNull(observations, "observations");
-    ArgumentChecker.notNull(observationWeights, "observationWeights");
-    ArgumentChecker.isTrue(nObsExpected >= observations.length, "Number of observations ({}) great than expected ({})", observations.length, nObsExpected);
+  public VarianceSwap(final double timeToObsStart, final double timeToObsEnd, final double timeToSettlement,
+      final double varStrike, final double varNotional, final Currency currency, final double annualizationFactor,
+      final int nObsExpected, final int nObsDisrupted, final double[] observations, final double[] observationWeights) {
 
     _timeToObsStart = timeToObsStart;
     _timeToObsEnd = timeToObsEnd;
@@ -79,16 +70,16 @@ public class VarianceSwap implements InstrumentDerivative {
     _annualizationFactor = annualizationFactor;
     _nObsExpected = nObsExpected;
     _nObsDisrupted = nObsDisrupted;
-
-    _observations = observations.clone();
-    _observationWeights = observationWeights.clone();
+    _observations = observations;
+    _observationWeights = observationWeights;
     if (_observationWeights.length > 1) {
       final int nWeights = _observationWeights.length;
       final int nObs = _observations.length;
-      ArgumentChecker.isTrue(nWeights + 1 == nObs, "If provided, observationWeights must be of length one less than observations, as they weight returns log(obs[i]/obs[i-1])."
-          + " Found {} weights and {} observations.", nWeights, nObs);
+      ArgumentChecker.isTrue(nWeights + 1 == nObs,
+          "If provided, observationWeights must be of length one less than observations, as they weight returns log(obs[i]/obs[i-1])."
+              + " Found {} weights and {} observations.", nWeights, nObs);
     }
-
+    ArgumentChecker.isTrue(_nObsExpected > 0, "Encountered a VarianceSwap with 0 expected observations");
   }
 
   /**

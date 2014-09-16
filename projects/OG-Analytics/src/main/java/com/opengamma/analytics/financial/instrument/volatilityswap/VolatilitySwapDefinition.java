@@ -9,11 +9,11 @@ import org.apache.commons.lang.ObjectUtils;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
+import com.opengamma.analytics.financial.instrument.InstrumentDefinitionUtils;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.volatilityswap.VolatilitySwap;
 import com.opengamma.analytics.util.time.TimeCalculator;
-import com.opengamma.financial.convention.businessday.BusinessDayDateUtils;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.util.ArgumentChecker;
@@ -54,7 +54,7 @@ public class VolatilitySwapDefinition implements InstrumentDefinition<Volatility
    * @param observationEndDate The observation end date, not null
    * @param effectiveDate The effective date, not null
    * @param maturityDate The maturity date, not null
-   * @param observationFrequency The observation frequency, not null, must be daily 
+   * @param observationFrequency The observation frequency, not null
    * @param annualizationFactor The annualization factor, greater than zero
    * @param calendar The holiday calendar, not null
    */
@@ -82,7 +82,7 @@ public class VolatilitySwapDefinition implements InstrumentDefinition<Volatility
     _observationFrequency = observationFrequency;
     _annualizationFactor = annualizationFactor;
     _calendar = calendar;
-    _nObservations = BusinessDayDateUtils.getWorkingDaysInclusive(observationStartDate, observationEndDate, calendar);
+    _nObservations = InstrumentDefinitionUtils.countExpectedGoodDays(observationStartDate.toLocalDate(), observationEndDate.toLocalDate(), calendar, observationFrequency);
   }
 
   /**
