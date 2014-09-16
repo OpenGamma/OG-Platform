@@ -33,7 +33,6 @@ public class EquityVarianceSwapDefinition extends VarianceSwapDefinition {
    * @param obsStartDate Date of first observation, not null
    * @param obsEndDate Date of final observation, not null
    * @param settlementDate Date of cash settlement, not null
-   * @param obsFreq The frequency of observations, not null
    * @param currency Currency of cash settlement, not null
    * @param calendar Specification of good business days (and holidays), not null
    * @param annualizationFactor Number of business days per year, not null
@@ -70,7 +69,6 @@ public class EquityVarianceSwapDefinition extends VarianceSwapDefinition {
    * @param obsStartDate Date of the first observation, not null
    * @param obsEndDate Date of the last observation, not null
    * @param settlementDate The settlement date, not null
-   * @param obsFreq The observation frequency, not null
    * @param currency The currency, not null
    * @param calendar The calendar used for calculating good business days, not null
    * @param annualizationFactor The annualisation factor

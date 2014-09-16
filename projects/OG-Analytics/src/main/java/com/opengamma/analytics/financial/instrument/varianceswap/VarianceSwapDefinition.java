@@ -56,7 +56,6 @@ public class VarianceSwapDefinition implements InstrumentDefinitionWithData<Vari
    * @param obsStartDate Date of first observation, not null
    * @param obsEndDate Date of final observation, not null
    * @param settlementDate Date of cash settlement, not null
-   * @param obsFreq The frequency of observations, not null
    * @param currency Currency of cash settlement, not null
    * @param calendar Specification of good business days (and holidays), not null
    * @param annualizationFactor Number of business days per year, not null
