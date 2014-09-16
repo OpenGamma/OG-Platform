@@ -41,6 +41,10 @@ public class CombinedCapletStrippingResults {
     _results = results;
   }
 
+  /**
+   * get the sorted array of unique caplet expiry times from the set of caps in each set of results 
+   * @return caplet expiry times 
+   */
   protected double[] getCapletExpiries() {
     int nRes = _results.length;
     double[][] t = new double[nRes][];
@@ -50,6 +54,10 @@ public class CombinedCapletStrippingResults {
     return toUnique(t);
   }
 
+  /**
+   * get the sorted array of unique caplet strikes from the set of caps in each set of results 
+   * @return caplet strikes
+   */
   protected double[] getStrikes() {
     int nRes = _results.length;
     double[][] k = new double[nRes][];
