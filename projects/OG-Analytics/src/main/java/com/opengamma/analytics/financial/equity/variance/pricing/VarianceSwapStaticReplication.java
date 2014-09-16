@@ -32,8 +32,7 @@ public class VarianceSwapStaticReplication {
   private final ExpectedVarianceStaticReplicationCalculator _cal;
 
   /**
-   * // * Constructor that uses the default values for expected variance calculations.
-   * //
+   * Constructor that uses the default values for expected variance calculations.
    */
   public VarianceSwapStaticReplication() {
     _cal = new ExpectedVarianceStaticReplicationCalculator();
@@ -81,18 +80,16 @@ public class VarianceSwapStaticReplication {
     final double remainingVar = expectedVariance(deriv, market); // Remaining variance implied by option prices
 
     // Compute weighting
-    int nObsExpected = deriv.getObsExpected(); // Expected number of observed as of trade inception
-    int nObsDisrupted = deriv.getObsDisrupted(); // Number of observations missed due to market disruption
+    final double nObsExpected = deriv.getObsExpected(); // Expected number as of trade inception
+    final double nObsDisrupted = deriv.getObsDisrupted(); // Number of observations missed due to market disruption
+    double nObsActual = 0;
 
-    double totalVar = 0.0;
-    if (deriv.getTimeToObsStart() > 0) { // no observations have been made
-      totalVar = remainingVar;
-    } else {
+    if (deriv.getTimeToObsStart() <= 0) {
       ArgumentChecker.isTrue(deriv.getObservations().length > 0, "presentValue requested after first observation date, yet no observations have been provided.");
-      int nObsActual = deriv.getObservations().length; // From observation start until valuation
-      totalVar = (realizedVar * (nObsActual - 1) + remainingVar * (nObsExpected - nObsActual - nObsDisrupted)) / (nObsExpected - 1);
+      nObsActual = deriv.getObservations().length - 1; // From observation start until valuation
     }
 
+    final double totalVar = realizedVar * (nObsActual / nObsExpected) + remainingVar * (nObsExpected - nObsActual - nObsDisrupted) / nObsExpected;
     final double finalPayment = deriv.getVarNotional() * (totalVar - deriv.getVarStrike());
 
     final double df = market.getDiscountCurve().getDiscountFactor(deriv.getTimeToSettlement());
@@ -102,8 +99,7 @@ public class VarianceSwapStaticReplication {
 
   /**
    * Computes the fair value strike of a spot starting VarianceSwap parameterised in 'variance' terms,
-   * It is quoted as an annual variance value, hence 1/T * integral(0,T) {sigmaSquared dt}
-   * <p>
+   * It is quoted as an annual variance value, hence 1/T * integral(0,T) {sigmaSquared dt} <p>
    * 
    * @param deriv VarianceSwap derivative to be priced
    * @param market EquityOptionDataBundle containing volatility surface, forward underlying, and funding curve
@@ -114,7 +110,7 @@ public class VarianceSwapStaticReplication {
     validateData(deriv, market);
 
     final double timeToLastObs = deriv.getTimeToObsEnd();
-    if (timeToLastObs <= 0) { // expired swap returns 0 variance
+    if (timeToLastObs <= 0) { //expired swap returns 0 variance
       return 0.0;
     }
 
@@ -144,8 +140,7 @@ public class VarianceSwapStaticReplication {
 
   /**
    * Computes the fair value strike of a spot starting VarianceSwap parameterized in 'variance' terms,
-   * It is quoted as an annual variance value, hence 1/T * integral(0,T) {sigmaSquared dt}
-   * <p>
+   * It is quoted as an annual variance value, hence 1/T * integral(0,T) {sigmaSquared dt} <p>
    * 
    * @param expiry Time from spot until last observation
    * @param market EquityOptionDataBundle containing volatility surface, forward underlying, and funding curve
@@ -175,7 +170,7 @@ public class VarianceSwapStaticReplication {
 
   /**
    * This is just a wrapper around ExpectedVarianceCalculator which uses a visitor pattern to farm out the calculation to the correct method of ExpectedVarianceCalculator
-   * depending on the type of BlackVolatilitySurface
+   * depending on the type of BlackVolatilitySurface 
    */
   private class VarianceCalculator implements BlackVolatilitySurfaceVisitor<DoublesPair, Double> {
     /** The time to expiry */
@@ -192,9 +187,9 @@ public class VarianceSwapStaticReplication {
       return surf.accept(this);
     }
 
-    // ********************************************
+    //********************************************
     // strike surfaces
-    // ********************************************
+    //********************************************
 
     @Override
     public Double visitStrike(final BlackVolatilitySurfaceStrike surface, final DoublesPair data) {
@@ -207,9 +202,9 @@ public class VarianceSwapStaticReplication {
       return _cal.getAnnualizedVariance(_f, _t, surface);
     }
 
-    // ********************************************
+    //********************************************
     // delta surfaces
-    // ********************************************
+    //********************************************
 
     @Override
     public Double visitDelta(final BlackVolatilitySurfaceDelta surface, final DoublesPair data) {
@@ -222,9 +217,9 @@ public class VarianceSwapStaticReplication {
       return _cal.getAnnualizedVariance(_f, _t, surface);
     }
 
-    // ********************************************
+    //********************************************
     // moneyness surfaces
-    // ********************************************
+    //********************************************
 
     @Override
     public Double visitMoneyness(final BlackVolatilitySurfaceMoneyness surface, final DoublesPair data) {
@@ -237,9 +232,9 @@ public class VarianceSwapStaticReplication {
       return _cal.getAnnualizedVariance(_t, surface);
     }
 
-    // ********************************************
+    //********************************************
     // log-moneyness surfaces
-    // ********************************************
+    //********************************************
 
     /**
      * Only use if the integral limits have been calculated elsewhere, or you need the contribution from a specific range
