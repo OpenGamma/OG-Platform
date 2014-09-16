@@ -50,9 +50,8 @@ public class BondFutureOptionTradeConverter implements TradeConverter {
     BondFutureOptionSecurity security = (BondFutureOptionSecurity) trade.getSecurity();
     final InstrumentDefinition<?> securityDefinition = security.accept(_securityConverter);
     ArgumentChecker.notNull(trade.getPremium(), "Bond future option trade must have a premium set. The interpretation of premium is the market price, without unit, i.e. not %");
-    //TODO fix the next two lines - it's here to avoid double-multiplying when stuff is scaled at the position level
-    final int quantity = 1;
-    final double premium = -trade.getPremium() * Math.signum(trade.getQuantity().doubleValue());
+    final int quantity = trade.getQuantity().intValue();
+    final double premium = trade.getPremium();
     // Get DateTime of trade to add to Transaction. Handle case when time isn't available.
     final ZonedDateTime tradeDate;
     LocalDate tradeDateLocal = trade.getTradeDate();
