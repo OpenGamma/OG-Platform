@@ -54,7 +54,9 @@ public class CouponFixedFxResetDefinitionTest {
   private static final DoubleTimeSeries<ZonedDateTime> FX_FIXING_TS0 = 
       ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(
           new ZonedDateTime[] {FX_FIXING_DATE.minusDays(2), FX_FIXING_DATE.minusDays(1), FX_FIXING_DATE }, 
-          new double[] {1.38, 1.39, FX_FIXING_RATE });  
+          new double[] {1.38, 1.39, FX_FIXING_RATE });
+  
+  private static final double TOLERANCE_AMOUNT = 1.0E-6;
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullReferenceCurrency() {
@@ -74,12 +76,21 @@ public class CouponFixedFxResetDefinitionTest {
     assertEquals("CouponFixedFxResetDefinition: getter", CUR_REF, CPN.getReferenceCurrency());
     assertEquals("CouponFixedFxResetDefinition: getter", FX_FIXING_DATE, CPN.getFxFixingDate());
   }
-
+  
+  @Test
+  public void paymentAmount() {
+    double amountExpected = NOTIONAL * FX_FIXING_RATE * RATE * ACCRUAL_FACTOR;
+    double amountComputed = CPN.paymentAmount(FX_FIXING_RATE);
+    assertEquals("CouponFixedFxResetDefinition: paymentAmount", amountExpected, amountComputed, TOLERANCE_AMOUNT);
+  }
 
   @Test
   public void equalHash() {
     assertEquals("CouponFixedFxResetDefinition: hash-equal", CPN, CPN);
     assertFalse("CouponFixedFxResetDefinition: hash-equal", CPN.equals(CUR_REF));
+    CouponFixedDefinition cpnOther = new CouponFixedDefinition(CUR_PAY, PAYMENT_DATE, ACCRUAL_START_DATE, 
+        ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FX_FIXING_RATE);
+    assertFalse("CouponFixedFxResetDefinition: hash-equal", CPN.equals(cpnOther));
     CouponFixedFxResetDefinition other = new CouponFixedFxResetDefinition(CUR_PAY, PAYMENT_DATE, 
         ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, RATE, CUR_REF, FX_FIXING_DATE);
     assertEquals("CouponFixedFxResetDefinition: hash-equal", CPN, other);
@@ -161,5 +172,19 @@ public class CouponFixedFxResetDefinitionTest {
     Payment cpnConverted = CPN.toDerivative(valuationDate, FX_FIXING_TS0);
     assertEquals("CouponFixedFxResetDefinition: toDerivative", cpnExpected, cpnConverted);     
   }
+  
+  @SuppressWarnings("deprecation")
+  @Test(expectedExceptions = UnsupportedOperationException.class)
+  public void toDerivativeDeprecated1() {
+    CPN.toDerivative(PAYMENT_DATE, "curve-name");
+  }
+  
+  @SuppressWarnings("deprecation")
+  @Test(expectedExceptions = UnsupportedOperationException.class)
+  public void toDerivativeDeprecated2() {
+    CPN.toDerivative(PAYMENT_DATE, FX_FIXING_TS0, "curve-name");
+  }
+  
+  
   
 }

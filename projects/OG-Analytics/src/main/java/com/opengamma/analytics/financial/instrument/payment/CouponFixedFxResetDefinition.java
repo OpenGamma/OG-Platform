@@ -87,6 +87,7 @@ public class CouponFixedFxResetDefinition extends CouponDefinition
 
   /**
    * Returns the amount paid for a given FX reset rate.
+   * The amount is "getNotional() * fxRate * _rate * getPaymentYearFraction()".
    * @param fxRate The exchange rate between the reference currency (RC) and the payment currency (PC): 1 RC = X . PC.
    * @return The amount.
    */

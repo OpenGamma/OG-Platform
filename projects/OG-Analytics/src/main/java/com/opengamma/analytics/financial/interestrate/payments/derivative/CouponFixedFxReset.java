@@ -18,6 +18,8 @@ import com.opengamma.util.money.Currency;
  * The payment is (getNotional() * FX(at FX reset date) * _rate * getPaymentYearFraction())
  */
 public class CouponFixedFxReset extends Coupon {
+  
+  // TODO: nominal exchange?
 
   /** The fixed rate of the fixed coupon. */
   private final double _rate;

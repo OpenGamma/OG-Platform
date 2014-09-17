@@ -13,11 +13,13 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests the constructors and equal/hash for CouponFixedFxReset.
  */
+@Test(groups = TestGroup.UNIT)
 public class CouponFixedFxResetTest {
   
   /** Details coupon. */
@@ -34,6 +36,10 @@ public class CouponFixedFxResetTest {
   
   private static final CouponFixedFxReset CPN = new CouponFixedFxReset(CUR_PAY, PAYMENT_TIME, ACCRUAL_FACTOR, 
       NOTIONAL, RATE, CUR_REF, FX_FIXING_TIME);
+  
+  private static final double FX_FIXING_RATE = 1.40;
+  
+  private static final double TOLERANCE_AMOUNT = 1.0E-6;
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullReferenceCurrency() {
@@ -45,6 +51,13 @@ public class CouponFixedFxResetTest {
     assertEquals("CouponFixedFxReset: getter", RATE, CPN.getRate());
     assertEquals("CouponFixedFxReset: getter", CUR_REF, CPN.getReferenceCurrency());
     assertEquals("CouponFixedFxReset: getter", FX_FIXING_TIME, CPN.getFxFixingTime());
+  }
+  
+  @Test
+  public void paymentAmount() {
+    double amountExpected = NOTIONAL * FX_FIXING_RATE * RATE * ACCRUAL_FACTOR;
+    double amountComputed = CPN.paymentAmount(FX_FIXING_RATE);
+    assertEquals("CouponFixedFxResetDefinition: paymentAmount", amountExpected, amountComputed, TOLERANCE_AMOUNT);
   }
 
   @Test
