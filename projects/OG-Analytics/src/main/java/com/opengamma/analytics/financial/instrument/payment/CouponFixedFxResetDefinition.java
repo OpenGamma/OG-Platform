@@ -37,6 +37,8 @@ public class CouponFixedFxResetDefinition extends CouponDefinition
   /** The FX fixing date. The notional used for the payment is the FX rate between the reference currency (RC) and the 
    *  payment currency (PC): 1 RC = X . PC. */
   private final ZonedDateTime _fxFixingDate;
+  /** The spot (delivery) date for the FX transaction underlying the FX fixing. */
+  private final ZonedDateTime _fxDeliveryDate;
   
   /**
    * @param currency The payment currency.
@@ -49,16 +51,19 @@ public class CouponFixedFxResetDefinition extends CouponDefinition
    * @param referenceCurrency The reference currency for the FX reset.
    * @param fxFixingDate The FX fixing or reset date. The notional used for the payment is the FX rate between the 
    * reference currency (RC) and the payment currency (PC): 1 RC = X . PC.
+   * @param fxDeliveryDate The spot or delivery date for the FX transaction underlying the FX fixing.
    */
   public CouponFixedFxResetDefinition(Currency currency, ZonedDateTime paymentDate, ZonedDateTime accrualStartDate, 
       ZonedDateTime accrualEndDate, double paymentAccrualFactor, double notional,
-      double rate, Currency referenceCurrency, ZonedDateTime fxFixingDate) {
+      double rate, Currency referenceCurrency, ZonedDateTime fxFixingDate, ZonedDateTime fxDeliveryDate) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, paymentAccrualFactor, notional);
     ArgumentChecker.notNull(referenceCurrency, "reference currency");
     ArgumentChecker.notNull(fxFixingDate, "FX fixing date");
+    ArgumentChecker.notNull(fxDeliveryDate, "FX delivery date");
     _rate = rate;
     _referenceCurrency = referenceCurrency;
     _fxFixingDate = fxFixingDate;
+    _fxDeliveryDate = fxDeliveryDate;
   }
 
   /**
@@ -86,6 +91,14 @@ public class CouponFixedFxResetDefinition extends CouponDefinition
   }
 
   /**
+   * Returns the FX delivery date.
+   * @return The date.
+   */
+  public ZonedDateTime getFxDeliveryDate() {
+    return _fxDeliveryDate;
+  }
+
+  /**
    * Returns the amount paid for a given FX reset rate.
    * The amount is "getNotional() * fxRate * _rate * getPaymentYearFraction()".
    * @param fxRate The exchange rate between the reference currency (RC) and the payment currency (PC): 1 RC = X . PC.
@@ -105,8 +118,9 @@ public class CouponFixedFxResetDefinition extends CouponDefinition
         conversionDate, fixingDate);
     double paymentTime = TimeCalculator.getTimeBetween(dateTime, getPaymentDate());
     double fixingTime = TimeCalculator.getTimeBetween(dateTime, _fxFixingDate);
+    double deliveryTime = TimeCalculator.getTimeBetween(dateTime, _fxDeliveryDate);
     return new CouponFixedFxReset(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), _rate, 
-        _referenceCurrency, fixingTime);
+        _referenceCurrency, fixingTime, deliveryTime);
   }
 
   /**
@@ -137,8 +151,9 @@ public class CouponFixedFxResetDefinition extends CouponDefinition
       }
     } // Default: no fixing
     double fixingTime = TimeCalculator.getTimeBetween(dateTime, _fxFixingDate);
+    double deliveryTime = TimeCalculator.getTimeBetween(dateTime, _fxDeliveryDate);
     return new CouponFixedFxReset(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), _rate, 
-        _referenceCurrency, fixingTime);
+        _referenceCurrency, fixingTime, deliveryTime);
   }
 
   @Override
@@ -158,6 +173,7 @@ public class CouponFixedFxResetDefinition extends CouponDefinition
     final int prime = 31;
     int result = super.hashCode();
     result = prime * result +  _fxFixingDate.hashCode();
+    result = prime * result +  _fxDeliveryDate.hashCode();
     long temp;
     temp = Double.doubleToLongBits(_rate);
     result = prime * result + (int) (temp ^ (temp >>> 32));
@@ -178,6 +194,9 @@ public class CouponFixedFxResetDefinition extends CouponDefinition
     }
     CouponFixedFxResetDefinition other = (CouponFixedFxResetDefinition) obj;
     if (!ObjectUtils.equals(_fxFixingDate, other._fxFixingDate)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_fxDeliveryDate, other._fxDeliveryDate)) {
       return false;
     }
     if (Double.doubleToLongBits(_rate) != Double.doubleToLongBits(other._rate)) {

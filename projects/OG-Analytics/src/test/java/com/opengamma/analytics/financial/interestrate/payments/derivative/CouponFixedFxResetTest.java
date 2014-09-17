@@ -27,15 +27,17 @@ public class CouponFixedFxResetTest {
   private static final Currency CUR_PAY = Currency.USD;
   private static final ZonedDateTime PAYMENT_DATE = DateUtils.getUTCDate(2011, 4, 6);
   private static final ZonedDateTime FX_FIXING_DATE = DateUtils.getUTCDate(2011, 1, 3);
+  private static final ZonedDateTime FX_DELIVERY_DATE = DateUtils.getUTCDate(2011, 1, 6);
   private static final double ACCRUAL_FACTOR = 0.267;
   private static final double NOTIONAL = 1000000; //1m
   private static final double RATE = 0.04;
   private static final ZonedDateTime VALUATION_DATE = DateUtils.getUTCDate(2010, 7, 1);
   private static final double PAYMENT_TIME = TimeCalculator.getTimeBetween(VALUATION_DATE, PAYMENT_DATE);
   private static final double FX_FIXING_TIME = TimeCalculator.getTimeBetween(VALUATION_DATE, FX_FIXING_DATE);
+  private static final double FX_DELIVERY_TIME = TimeCalculator.getTimeBetween(VALUATION_DATE, FX_DELIVERY_DATE);
   
   private static final CouponFixedFxReset CPN = new CouponFixedFxReset(CUR_PAY, PAYMENT_TIME, ACCRUAL_FACTOR, 
-      NOTIONAL, RATE, CUR_REF, FX_FIXING_TIME);
+      NOTIONAL, RATE, CUR_REF, FX_FIXING_TIME, FX_DELIVERY_TIME);
   
   private static final double FX_FIXING_RATE = 1.40;
   
@@ -43,7 +45,7 @@ public class CouponFixedFxResetTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullReferenceCurrency() {
-    new CouponFixedFxReset(CUR_PAY, PAYMENT_TIME, ACCRUAL_FACTOR, NOTIONAL, RATE, null, FX_FIXING_TIME);
+    new CouponFixedFxReset(CUR_PAY, PAYMENT_TIME, ACCRUAL_FACTOR, NOTIONAL, RATE, null, FX_FIXING_TIME, FX_DELIVERY_TIME);
   }
   
   @Test
@@ -51,6 +53,7 @@ public class CouponFixedFxResetTest {
     assertEquals("CouponFixedFxReset: getter", RATE, CPN.getRate());
     assertEquals("CouponFixedFxReset: getter", CUR_REF, CPN.getReferenceCurrency());
     assertEquals("CouponFixedFxReset: getter", FX_FIXING_TIME, CPN.getFxFixingTime());
+    assertEquals("CouponFixedFxReset: getter", FX_DELIVERY_TIME, CPN.getFxDeliveryTime());
   }
   
   @Test
@@ -65,17 +68,24 @@ public class CouponFixedFxResetTest {
     assertEquals("CouponFixedFxReset: hash-equal", CPN, CPN);
     assertFalse("CouponFixedFxReset: hash-equal", CPN.equals(CUR_REF));
     CouponFixedFxReset other = new CouponFixedFxReset(CUR_PAY, PAYMENT_TIME, ACCRUAL_FACTOR, 
-        NOTIONAL, RATE, CUR_REF, FX_FIXING_TIME);
+        NOTIONAL, RATE, CUR_REF, FX_FIXING_TIME, FX_DELIVERY_TIME);
     assertEquals("CouponFixedFxReset: hash-equal", CPN, other);
     assertEquals("CouponFixedFxResetDefinition: hash-equal", CPN.hashCode(), other.hashCode());
     CouponFixedFxReset modified;
-    modified = new CouponFixedFxReset(CUR_REF, PAYMENT_TIME, ACCRUAL_FACTOR, NOTIONAL, RATE, CUR_REF, FX_FIXING_TIME);
+    modified = new CouponFixedFxReset(CUR_REF, PAYMENT_TIME, ACCRUAL_FACTOR, NOTIONAL, RATE, CUR_REF, FX_FIXING_TIME, 
+        FX_DELIVERY_TIME);
     assertFalse("CouponFixedFxResetDefinition: hash-equal", CPN.equals(modified));
-    modified = new CouponFixedFxReset(CUR_PAY, PAYMENT_TIME, ACCRUAL_FACTOR, NOTIONAL, 0.01, CUR_REF, FX_FIXING_TIME);
+    modified = new CouponFixedFxReset(CUR_PAY, PAYMENT_TIME, ACCRUAL_FACTOR, NOTIONAL, 0.01, CUR_REF, FX_FIXING_TIME, 
+        FX_DELIVERY_TIME);
     assertFalse("CouponFixedFxResetDefinition: hash-equal", CPN.equals(modified));
-    modified = new CouponFixedFxReset(CUR_PAY, PAYMENT_TIME, ACCRUAL_FACTOR, NOTIONAL, RATE, Currency.AUD, FX_FIXING_TIME);
+    modified = new CouponFixedFxReset(CUR_PAY, PAYMENT_TIME, ACCRUAL_FACTOR, NOTIONAL, RATE, Currency.AUD, 
+        FX_FIXING_TIME, FX_DELIVERY_TIME);
     assertFalse("CouponFixedFxResetDefinition: hash-equal", CPN.equals(modified));
-    modified = new CouponFixedFxReset(CUR_PAY, PAYMENT_TIME, ACCRUAL_FACTOR, NOTIONAL, RATE, CUR_REF, 0.0123456);
+    modified = new CouponFixedFxReset(CUR_PAY, PAYMENT_TIME, ACCRUAL_FACTOR, NOTIONAL, RATE, CUR_REF, 0.0123456, 
+        FX_DELIVERY_TIME);
+    assertFalse("CouponFixedFxResetDefinition: hash-equal", CPN.equals(modified));
+    modified = new CouponFixedFxReset(CUR_PAY, PAYMENT_TIME, ACCRUAL_FACTOR, NOTIONAL, RATE, CUR_REF, FX_FIXING_TIME, 
+        0.0123456);
     assertFalse("CouponFixedFxResetDefinition: hash-equal", CPN.equals(modified));
   }
   

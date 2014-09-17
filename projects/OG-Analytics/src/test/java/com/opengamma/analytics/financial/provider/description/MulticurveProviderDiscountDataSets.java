@@ -229,6 +229,7 @@ public class MulticurveProviderDiscountDataSets {
 
   private static final MulticurveProviderDiscount MULTICURVES_EUR_USD = new MulticurveProviderDiscount();
   static {
+    MULTICURVES_EUR_USD.setForexMatrix(FX_MATRIX);
     MULTICURVES_EUR_USD.setCurve(Currency.USD, USD_DSC);
     MULTICURVES_EUR_USD.setCurve(FEDFUND, USD_DSC);
     MULTICURVES_EUR_USD.setCurve(Currency.EUR, EUR_DSC);
