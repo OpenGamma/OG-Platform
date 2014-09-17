@@ -372,39 +372,37 @@ public class SwapInstrumentsDataSet {
       IRS_STUB4_DEFINITION.toDerivative(VALUATION_DATE, TS_ARRAY_USDLIBOR3M_2X);
   
   // Instrument description: IRS Fixed vs Libor3M - Stub Long Start 6M: Accrual period is 5M30D / fixing rate 6M
-//  private static final ZonedDateTime SPOT_DATE_STUB5 = DateUtils.getUTCDate(2014, 3, 12);
-//  private static final ZonedDateTime END_DATE_STUB5 = DateUtils.getUTCDate(2021, 8, 1);
-//  private static final double FIXED_RATE_3M_STUB5 = 0.0150;  
-//  private static final CouponStub CPN_FIXED_STUB5 = new CouponStub(StubType.LONG_START);
-//  private static final PaymentDefinition[] PAYMENT_FIXED_STUB5 = new FixedAnnuityDefinitionBuilder().
-//      payer(false).currency(USD6MLIBOR3M.getCurrency()).notional(NOTIONAL_PROVIDER).startDate(SPOT_DATE_STUB5.toLocalDate()).
-//      endDate(END_DATE_STUB5.toLocalDate()).dayCount(USD6MLIBOR3M.getFixedLegDayCount()).
-//      accrualPeriodFrequency(USD6MLIBOR3M.getFixedLegPeriod()).rate(FIXED_RATE_3M_STUB5).
-//      accrualPeriodParameters(ADJUSTED_DATE_USDLIBOR).startStub(CPN_FIXED_STUB5).
-//      build().getPayments();
-//  private static final CouponFixedDefinition[] CPN_FIXED_STUB5_DEFINITION = new CouponFixedDefinition[PAYMENT_FIXED_STUB5.length];
-//  static {
-//    for (int loopcpn = 0; loopcpn < PAYMENT_FIXED_STUB5.length; loopcpn++) {
-//      CPN_FIXED_STUB5_DEFINITION[loopcpn] = (CouponFixedDefinition) PAYMENT_FIXED_STUB5[loopcpn];
-//    }
-//  }
-//  private static final CouponStub CPN_IBOR_STUB5 = new CouponStub(StubType.LONG_START, USDLIBOR6M, USDLIBOR6M);
-//  private static final AnnuityCouponFixedDefinition LEG_FIXED_STUB5 = 
-//      new AnnuityCouponFixedDefinition(CPN_FIXED_STUB5_DEFINITION, NYC);
-//  private static final AnnuityDefinition<? extends CouponDefinition> LEG_IBOR_STUB5 =
-//      (AnnuityDefinition<? extends CouponDefinition>) 
-//      new FloatingAnnuityDefinitionBuilder().payer(true).notional(NOTIONAL_PROVIDER).
-//      startDate(SPOT_DATE_STUB5.toLocalDate()).endDate(END_DATE_STUB5.toLocalDate()).index(USDLIBOR3M).
-//      accrualPeriodFrequency(P3M).rollDateAdjuster(RollConvention.NONE.getRollDateAdjuster(0)).
-//      resetDateAdjustmentParameters(ADJUSTED_DATE_USDLIBOR).accrualPeriodParameters(ADJUSTED_DATE_USDLIBOR).
-//      dayCount(USDLIBOR3M.getDayCount()).fixingDateAdjustmentParameters(OFFSET_FIXING_USDLIBOR).
-//      currency(USD).spread(0.0).startStub(CPN_IBOR_STUB5).build();
-//  private static final SwapCouponFixedCouponDefinition IRS_STUB5_DEFINITION = 
-//      new SwapCouponFixedCouponDefinition(LEG_FIXED_STUB5, LEG_IBOR_STUB5);
-//  public static final Swap<? extends Payment, ? extends Payment> IRS_STUB5 = 
-//      IRS_STUB5_DEFINITION.toDerivative(VALUATION_DATE, TS_ARRAY_USDLIBOR3M_2X);
-  
-
+  private static final ZonedDateTime SPOT_DATE_STUB5 = DateUtils.getUTCDate(2014, 3, 12);
+  private static final ZonedDateTime END_DATE_STUB5 = DateUtils.getUTCDate(2021, 9, 11);
+  private static final double FIXED_RATE_3M_STUB5 = 0.0150;  
+  private static final CouponStub CPN_FIXED_STUB5 = new CouponStub(StubType.LONG_START);
+  private static final PaymentDefinition[] PAYMENT_FIXED_STUB5 = new FixedAnnuityDefinitionBuilder().
+      payer(false).currency(USD6MLIBOR3M.getCurrency()).notional(NOTIONAL_PROVIDER).startDate(SPOT_DATE_STUB5.toLocalDate()).
+      endDate(END_DATE_STUB5.toLocalDate()).dayCount(USD6MLIBOR3M.getFixedLegDayCount()).
+      accrualPeriodFrequency(USD6MLIBOR3M.getFixedLegPeriod()).rate(FIXED_RATE_3M_STUB5).
+      accrualPeriodParameters(ADJUSTED_DATE_USDLIBOR).startStub(CPN_FIXED_STUB5).
+      build().getPayments();
+  private static final CouponFixedDefinition[] CPN_FIXED_STUB5_DEFINITION = new CouponFixedDefinition[PAYMENT_FIXED_STUB5.length];
+  static {
+    for (int loopcpn = 0; loopcpn < PAYMENT_FIXED_STUB5.length; loopcpn++) {
+      CPN_FIXED_STUB5_DEFINITION[loopcpn] = (CouponFixedDefinition) PAYMENT_FIXED_STUB5[loopcpn];
+    }
+  }
+  private static final CouponStub CPN_IBOR_STUB5 = new CouponStub(StubType.LONG_START, USDLIBOR6M, USDLIBOR6M);
+  private static final AnnuityCouponFixedDefinition LEG_FIXED_STUB5 = 
+      new AnnuityCouponFixedDefinition(CPN_FIXED_STUB5_DEFINITION, NYC);
+  private static final AnnuityDefinition<? extends CouponDefinition> LEG_IBOR_STUB5 =
+      (AnnuityDefinition<? extends CouponDefinition>) 
+      new FloatingAnnuityDefinitionBuilder().payer(true).notional(NOTIONAL_PROVIDER).
+      startDate(SPOT_DATE_STUB5.toLocalDate()).endDate(END_DATE_STUB5.toLocalDate()).index(USDLIBOR3M).
+      accrualPeriodFrequency(P3M).rollDateAdjuster(RollConvention.NONE.getRollDateAdjuster(0)).
+      resetDateAdjustmentParameters(ADJUSTED_DATE_USDLIBOR).accrualPeriodParameters(ADJUSTED_DATE_USDLIBOR).
+      dayCount(USDLIBOR3M.getDayCount()).fixingDateAdjustmentParameters(OFFSET_FIXING_USDLIBOR).
+      currency(USD).spread(0.0).startStub(CPN_IBOR_STUB5).build();
+  private static final SwapCouponFixedCouponDefinition IRS_STUB5_DEFINITION = 
+      new SwapCouponFixedCouponDefinition(LEG_FIXED_STUB5, LEG_IBOR_STUB5);
+  public static final Swap<? extends Payment, ? extends Payment> IRS_STUB5 = 
+      IRS_STUB5_DEFINITION.toDerivative(VALUATION_DATE, TS_ARRAY_USDLIBOR3M_2X);
   
   // Instrument description: IRS Fixed vs Libor3M - Short end Stub 2M: Accrual period is 2M / fixing rate average 1M and 3M
 private static final ZonedDateTime SPOT_DATE_STUB6 = DateUtils.getUTCDate(2014, 3, 12);

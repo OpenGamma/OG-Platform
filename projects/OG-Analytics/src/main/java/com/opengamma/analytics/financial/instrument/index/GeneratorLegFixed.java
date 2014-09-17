@@ -177,7 +177,5 @@ public class GeneratorLegFixed extends GeneratorLeg {
         startStub(new CouponStub(_stubType)).build();
     return leg;
   }
-  
-  
 
 }

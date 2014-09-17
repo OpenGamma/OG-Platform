@@ -197,13 +197,20 @@ public class SwapCalculatorE2ETest {
     presentValueTest(SwapInstrumentsDataSet.IRS_STUB4, MULTICURVE_FFS, USD, -405631.5512,
         "IRS with STUB: present value - FF swap based curves");
   }
+
+  @Test(enabled=false) // TODO: reinstall the test when the stub problem [PLAT-6777]
+  /**Tests present value for an IRS with stub - ibor leg / interpolated index  - short end*/
+  public void presentValueStub5() {
+    presentValueTest(SwapInstrumentsDataSet.IRS_STUB5, MULTICURVE_FFS, USD, 0.0,
+        "IRS with STUB: present value - FF swap based curves");
+  }
   
-//  @Test
-//  /**Tests present value for an IRS with stub - ibor leg / interpolated index  - short end*/
-//  public void presentValueStub6() {
-//    presentValueTest(SwapInstrumentsDataSet.IRS_STUB6, MULTICURVE_FFS, USD, 0.0,
-//        "IRS with STUB: present value - FF swap based curves");
-//  }
+  @Test(enabled=false) // TODO: reinstall the test when the stub problem [PLAT-6777]
+  /**Tests present value for an IRS with stub - ibor leg / interpolated index  - short end*/
+  public void presentValueStub6() {
+    presentValueTest(SwapInstrumentsDataSet.IRS_STUB6, MULTICURVE_FFS, USD, 0.0,
+        "IRS with STUB: present value - FF swap based curves");
+  }
   
   /**
    * Test the parrate versus a hard-coded number.
