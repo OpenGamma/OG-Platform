@@ -24,11 +24,13 @@ import com.opengamma.analytics.financial.provider.sensitivity.parameter.Paramete
 import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests the pricing method for fixed coupon with FX reset notional.
  */
+@Test(groups = TestGroup.UNIT)
 public class CouponFixedFxResetDiscountingMethodTest {
   
   private static final ZonedDateTime VALUATION_DATE = DateUtils.getUTCDate(2010, 1, 6);
