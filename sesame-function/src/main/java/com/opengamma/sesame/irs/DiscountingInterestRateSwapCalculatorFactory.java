@@ -15,6 +15,7 @@ import com.opengamma.financial.analytics.conversion.InterestRateSwapSecurityConv
 import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
+import com.opengamma.financial.trade.InterestRateSwapTrade;
 import com.opengamma.sesame.CurveDefinitionFn;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.Environment;
@@ -91,6 +92,33 @@ public class DiscountingInterestRateSwapCalculatorFactory implements InterestRat
 
       InterestRateSwapCalculator calculator =
           new DiscountingInterestRateSwapCalculator(security, bundleResult.getValue().getFirst(),
+                                                    bundleResult.getValue().getSecond(), _swapConverter,
+                                                    env.getValuationTime(), _fixedIncomeConverterDataProvider,
+                                                    fixings.getValue(), curveDefinitions.getValue());
+      return Result.success(calculator);
+    } else {
+      return Result.failure(bundleResult, fixings);
+    }
+  }
+
+  @Override
+  public Result<InterestRateSwapCalculator> createCalculator(Environment env, InterestRateSwapTrade trade) {
+
+    Result<HistoricalTimeSeriesBundle> fixings = _htsFn.getFixingsForSecurity(env, trade.getSecurity());
+    Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundleResult =
+        _discountingMulticurveCombinerFn.createMergedMulticurveBundle(env, trade, new FXMatrix());
+
+    if (Result.allSuccessful(bundleResult, fixings)) {
+
+      Result<Map<String, CurveDefinition>> curveDefinitions =
+          _curveDefinitionFn.getCurveDefinitions(bundleResult.getValue().getSecond().getData().keySet());
+
+      if (!curveDefinitions.isSuccess()) {
+        return Result.failure(curveDefinitions);
+      }
+
+      InterestRateSwapCalculator calculator =
+          new DiscountingInterestRateSwapCalculator(trade, bundleResult.getValue().getFirst(),
                                                     bundleResult.getValue().getSecond(), _swapConverter,
                                                     env.getValuationTime(), _fixedIncomeConverterDataProvider,
                                                     fixings.getValue(), curveDefinitions.getValue());

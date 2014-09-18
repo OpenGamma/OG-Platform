@@ -38,6 +38,7 @@ import com.opengamma.financial.analytics.model.multicurve.MultiCurveUtils;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.financial.security.irs.PayReceiveType;
+import com.opengamma.financial.trade.InterestRateSwapTrade;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -151,6 +152,46 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
     _curveBuildingBlockBundle = ArgumentChecker.notNull(curveBuildingBlockBundle, "curveBuildingBlockBundle");
     _valuationTime = valuationTime;
     _security = security;
+    _curveDefinitions = ArgumentChecker.notNull(curveDefinitions, "curveDefinitions");
+    ArgumentChecker.isTrue(curveDefinitions.size() == curveBuildingBlockBundle.getData().size(),
+                           "Require same number of curves & definitions");
+    for (String curveName : curveBuildingBlockBundle.getData().keySet()) {
+      ArgumentChecker.isTrue(curveDefinitions.containsKey(curveName), "curve definition not present {}", curveName);
+    }
+  }
+
+  /**
+   * Creates a calculator for a InterestRateSwapSecurity.
+   *
+   * @param trade the swap to calculate values for
+   * @param bundle the multicurve bundle, including the curves
+   * @param curveBuildingBlockBundle the curve block building bundle
+   * @param swapConverter the InterestRateSwapSecurityConverter
+   * @param valuationTime the ZonedDateTime
+   * @param definitionConverter the FixedIncomeConverterDataProvider
+   * @param fixings the HistoricalTimeSeriesBundle, a collection of historical time-series objects
+   * @param curveDefinitions the curve definitions
+   */
+  public DiscountingInterestRateSwapCalculator(InterestRateSwapTrade trade,
+                                               MulticurveProviderInterface bundle,
+                                               CurveBuildingBlockBundle curveBuildingBlockBundle,
+                                               InterestRateSwapSecurityConverter swapConverter,
+                                               ZonedDateTime valuationTime,
+                                               FixedIncomeConverterDataProvider definitionConverter,
+                                               HistoricalTimeSeriesBundle fixings,
+                                               Map<String, CurveDefinition> curveDefinitions) {
+    ArgumentChecker.notNull(trade, "trade");
+    ArgumentChecker.notNull(swapConverter, "swapConverter");
+    ArgumentChecker.notNull(valuationTime, "valuationTime");
+    ArgumentChecker.notNull(definitionConverter, "definitionConverter");
+    ArgumentChecker.notNull(fixings, "fixings");
+    _security = trade.getSecurity();
+    _definition = (SwapDefinition) _security.accept(swapConverter);
+    _derivative = createInstrumentDerivative(_security, valuationTime, definitionConverter, fixings);
+    _bundle = ArgumentChecker.notNull(bundle, "bundle");
+    _curveBuildingBlockBundle = ArgumentChecker.notNull(curveBuildingBlockBundle, "curveBuildingBlockBundle");
+    _valuationTime = valuationTime;
+
     _curveDefinitions = ArgumentChecker.notNull(curveDefinitions, "curveDefinitions");
     ArgumentChecker.isTrue(curveDefinitions.size() == curveBuildingBlockBundle.getData().size(),
                            "Require same number of curves & definitions");
