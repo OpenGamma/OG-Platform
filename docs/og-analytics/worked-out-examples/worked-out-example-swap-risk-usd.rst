@@ -1,6 +1,8 @@
 Swap risk - USD
 ==========
 
+The code is available in the class **SwapUsdAnalysis**.
+
 Curves
 -----
 

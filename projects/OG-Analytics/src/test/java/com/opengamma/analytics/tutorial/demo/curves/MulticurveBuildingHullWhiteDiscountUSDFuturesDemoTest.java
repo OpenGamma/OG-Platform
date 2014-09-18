@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.provider.curve;
+package com.opengamma.analytics.tutorial.demo.curves;
 
 import static org.testng.AssertJUnit.assertEquals;
 
@@ -42,6 +42,9 @@ import com.opengamma.analytics.financial.provider.calculator.discounting.Present
 import com.opengamma.analytics.financial.provider.calculator.hullwhite.ParSpreadMarketQuoteCurveSensitivityHullWhiteCalculator;
 import com.opengamma.analytics.financial.provider.calculator.hullwhite.ParSpreadMarketQuoteHullWhiteCalculator;
 import com.opengamma.analytics.financial.provider.calculator.hullwhite.PresentValueHullWhiteCalculator;
+import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
+import com.opengamma.analytics.financial.provider.curve.CurveCalibrationConventionDataSets;
+import com.opengamma.analytics.financial.provider.curve.CurveCalibrationTestsUtils;
 import com.opengamma.analytics.financial.provider.curve.hullwhite.HullWhiteProviderDiscountBuildingRepository;
 import com.opengamma.analytics.financial.provider.curve.multicurve.MulticurveDiscountBuildingRepository;
 import com.opengamma.analytics.financial.provider.description.interestrate.HullWhiteOneFactorProviderDiscount;

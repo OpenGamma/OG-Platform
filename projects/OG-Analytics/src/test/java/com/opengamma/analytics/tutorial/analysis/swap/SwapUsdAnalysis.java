@@ -8,8 +8,6 @@ package com.opengamma.analytics.tutorial.analysis.swap;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
-import java.util.Map;
-
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
@@ -37,7 +35,6 @@ import com.opengamma.analytics.financial.instrument.swap.SwapCouponFixedCouponDe
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParRateDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
@@ -47,8 +44,6 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
-import com.opengamma.analytics.math.curve.DoublesCurve;
-import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.tutorial.datasets.ComputedDataSetsMulticurveImmUsd;
 import com.opengamma.analytics.tutorial.datasets.RecentDataSetsMulticurveFFSUsd;
 import com.opengamma.analytics.tutorial.datasets.RecentDataSetsMulticurveFutures3MUsd;
@@ -60,7 +55,6 @@ import com.opengamma.financial.convention.rolldate.RollConvention;
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
-import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Pair;
 
@@ -68,8 +62,7 @@ import com.opengamma.util.tuple.Pair;
  * Examples of risk analysis for different swaps in USD.
  * Those examples can be used for tutorials. 
  */
-@Test(groups = TestGroup.UNIT)
-public class SwapRiskUsdAnalysis {
+public class SwapUsdAnalysis {
 
   private static final ZonedDateTime VALUATION_DATE = DateUtils.getUTCDate(2014, 7, 16);
 
@@ -85,9 +78,9 @@ public class SwapRiskUsdAnalysis {
   private static final OffsetAdjustedDateParameters OFFSET_ADJ_LIBOR =
       new OffsetAdjustedDateParameters(-2, OffsetType.BUSINESS, NYC, USD6MLIBOR3M.getBusinessDayConvention());
   private static final AdjustedDateParameters ADJUSTED_DATE_FEDFUND = new AdjustedDateParameters(NYC, GENERATOR_OIS_USD.getBusinessDayConvention());
-  private static final OffsetAdjustedDateParameters OFFSET_PAY_SONIA =
+  private static final OffsetAdjustedDateParameters OFFSET_PAY_FEDFUND =
       new OffsetAdjustedDateParameters(GENERATOR_OIS_USD.getPaymentLag(), OffsetType.BUSINESS, NYC, BusinessDayConventionFactory.of("Following"));
-  private static final OffsetAdjustedDateParameters OFFSET_FIX_SONIA =
+  private static final OffsetAdjustedDateParameters OFFSET_FIX_FEDFUND =
       new OffsetAdjustedDateParameters(0, OffsetType.BUSINESS, NYC, BusinessDayConventionFactory.of("Following"));
 
   /** USD Fixed v USDLIBOR3M */
@@ -204,7 +197,7 @@ public class SwapRiskUsdAnalysis {
   private static final PaymentDefinition[] PAYMENT_OIS_LEG_1_DEFINITION = new FixedAnnuityDefinitionBuilder().
       payer(PAYER_4).currency(USD).notional(NOTIONAL_PROV_1).startDate(EFFECTIVE_DATE_4).endDate(MATURITY_DATE_4).
       dayCount(GENERATOR_OIS_USD.getFixedLegDayCount()).accrualPeriodFrequency(GENERATOR_OIS_USD.getLegsPeriod()).
-      rate(FIXED_RATE_4).accrualPeriodParameters(ADJUSTED_DATE_FEDFUND).paymentDateAdjustmentParameters(OFFSET_PAY_SONIA).
+      rate(FIXED_RATE_4).accrualPeriodParameters(ADJUSTED_DATE_FEDFUND).paymentDateAdjustmentParameters(OFFSET_PAY_FEDFUND).
       build().getPayments();
   private static final CouponFixedDefinition[] CPN_FIXED_OIS_1_DEFINITION = new CouponFixedDefinition[PAYMENT_OIS_LEG_1_DEFINITION.length];
   static {
@@ -219,7 +212,7 @@ public class SwapRiskUsdAnalysis {
       payer(!PAYER_4).notional(NOTIONAL_PROV_1).startDate(EFFECTIVE_DATE_4).endDate(MATURITY_DATE_4).index(USDFEDFUND).
       accrualPeriodFrequency(GENERATOR_OIS_USD.getLegsPeriod()).rollDateAdjuster(RollConvention.NONE.getRollDateAdjuster(0)).
       resetDateAdjustmentParameters(ADJUSTED_DATE_FEDFUND).accrualPeriodParameters(ADJUSTED_DATE_FEDFUND).
-      dayCount(USDFEDFUND.getDayCount()).fixingDateAdjustmentParameters(OFFSET_FIX_SONIA).currency(USD).compoundingMethod(CompoundingMethod.FLAT).
+      dayCount(USDFEDFUND.getDayCount()).fixingDateAdjustmentParameters(OFFSET_FIX_FEDFUND).currency(USD).compoundingMethod(CompoundingMethod.FLAT).
       build();
   private static final SwapCouponFixedCouponDefinition OIS_1_DEFINITION = new SwapCouponFixedCouponDefinition(FIXED_OIS_LEG_1_DEFINITION, ON_LEG_1_DEFINITION);
 
@@ -233,7 +226,7 @@ public class SwapRiskUsdAnalysis {
   private static final CurveBuildingBlockBundle BLOCK_FUT = MULTICURVE_FUT_PAIR.getSecond();
 
   private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_STD_PAIR =
-      RecentDataSetsMulticurveStandardUsd.getCurvesUSDOisL1L3L6(VALUATION_DATE);
+      RecentDataSetsMulticurveStandardUsd.getCurvesUSDOisL1L3L6_20140728(VALUATION_DATE);
   private static final MulticurveProviderDiscount MULTICURVE_STD = MULTICURVE_STD_PAIR.getFirst();
   private static final CurveBuildingBlockBundle BLOCK_STD = MULTICURVE_STD_PAIR.getSecond();
 
