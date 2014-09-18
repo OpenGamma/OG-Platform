@@ -25,9 +25,11 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * A class to facilitate importing portfolio data from a JDBC query result
+ * A class to facilitate importing portfolio data from a JDBC query result.
  */
 public class JdbcSheetReader extends SheetReader {
+  // NOTE: This class uses JdbcTemplate rather than DbConnector
+  // as such it may not work reliably across databases, notably Oracle
 
   private DataSource _dataSource;
   private JdbcTemplate _jdbcTemplate;

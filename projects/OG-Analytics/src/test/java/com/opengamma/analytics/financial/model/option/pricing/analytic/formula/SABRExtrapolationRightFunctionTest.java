@@ -11,8 +11,13 @@ import static org.testng.AssertJUnit.assertTrue;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.model.volatility.BlackImpliedVolatilityFormula;
+import com.opengamma.analytics.financial.model.volatility.smile.function.SABRBerestyckiVolatilityFunction;
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRFormulaData;
+import com.opengamma.analytics.financial.model.volatility.smile.function.SABRHaganAlternativeVolatilityFunction;
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
+import com.opengamma.analytics.financial.model.volatility.smile.function.SABRJohnsonVolatilityFunction;
+import com.opengamma.analytics.financial.model.volatility.smile.function.SABRPaulotVolatilityFunction;
+import com.opengamma.analytics.financial.model.volatility.smile.function.VolatilityFunctionProvider;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.util.test.TestGroup;
 
@@ -73,7 +78,7 @@ public class SABRExtrapolationRightFunctionTest {
    * Tests the price for options in SABR model with extrapolation.
    */
   public void priceCloseToExpiry() {
-    double[] timeToExpiry = {1.0 / 365, 0.0}; // One day and on expiry day.
+    double[] timeToExpiry = {1.0 / 365, 0.0 }; // One day and on expiry day.
     double strikeIn = 0.08;
     double strikeAt = CUT_OFF_STRIKE;
     double strikeOut = 0.12;
@@ -374,7 +379,7 @@ public class SABRExtrapolationRightFunctionTest {
    */
   public void smileSmoothMaturity() {
     int nbPts = 100;
-    double[] timeToExpiry = new double[] {2.0, 1.0, 0.50, 0.25, 1.0d / 12.0d, 1.0d / 52.0d, 1.0d / 365d};
+    double[] timeToExpiry = new double[] {2.0, 1.0, 0.50, 0.25, 1.0d / 12.0d, 1.0d / 52.0d, 1.0d / 365d };
     int nbTTM = timeToExpiry.length;
     double rangeStrike = 0.02;
     double[] strike = new double[nbPts + 1];
@@ -419,7 +424,7 @@ public class SABRExtrapolationRightFunctionTest {
    * To graph the smile for different tail parameters.
    */
   public void smileMultiMu() {
-    double[] mu = new double[] {5.0, 40.0, 90.0, 150.0};
+    double[] mu = new double[] {5.0, 40.0, 90.0, 150.0 };
     int nbMu = mu.length;
     int nbPts = 100;
     double rangeStrike = 0.02;
@@ -436,6 +441,97 @@ public class SABRExtrapolationRightFunctionTest {
         price[loopmu][looppts] = sabrExtra.price(option);
         impliedVolatility[loopmu][looppts] = implied.getImpliedVolatility(blackData, option, price[loopmu][looppts]);
       }
+    }
+  }
+
+  /***************************************************************************************************
+   * Tests below are for newly added functionalities allowing one to use various volatility formulas
+   ***************************************************************************************************/
+  private static final double EPS = 1.0e-6;
+  private static final SABRHaganVolatilityFunction FUNC_HAGAN = new SABRHaganVolatilityFunction();
+  private static final SABRJohnsonVolatilityFunction FUNC_JOHNSON = new SABRJohnsonVolatilityFunction();
+  private static final SABRHaganAlternativeVolatilityFunction FUNC_HAGAN_ALT = new SABRHaganAlternativeVolatilityFunction();
+  private static final SABRBerestyckiVolatilityFunction FUNC_BERESTYCKI = new SABRBerestyckiVolatilityFunction();
+  private static final SABRPaulotVolatilityFunction FUNC_PAULOT = new SABRPaulotVolatilityFunction();
+  @SuppressWarnings("unchecked")
+  private static final VolatilityFunctionProvider<SABRFormulaData>[] FUNCTIONS = new VolatilityFunctionProvider[] {FUNC_HAGAN, FUNC_JOHNSON, FUNC_HAGAN_ALT, FUNC_BERESTYCKI, FUNC_PAULOT };
+
+  /**
+   * Testing C2 continuity
+   */
+  @Test
+  public void smoothnessTest() {
+    for (VolatilityFunctionProvider<SABRFormulaData> func : FUNCTIONS) {
+      SABRExtrapolationRightFunction extrapolation = new SABRExtrapolationRightFunction(FORWARD, SABR_DATA, CUT_OFF_STRIKE, TIME_TO_EXPIRY, MU, func);
+      for (boolean isCall : new boolean[] {true, false }) {
+        EuropeanVanillaOption optionBase = new EuropeanVanillaOption(CUT_OFF_STRIKE, TIME_TO_EXPIRY, isCall);
+        EuropeanVanillaOption optionUp = new EuropeanVanillaOption(CUT_OFF_STRIKE + EPS, TIME_TO_EXPIRY, isCall);
+        EuropeanVanillaOption optionDw = new EuropeanVanillaOption(CUT_OFF_STRIKE - EPS, TIME_TO_EXPIRY, isCall);
+        double priceBase = extrapolation.price(optionBase);
+        double priceUp = extrapolation.price(optionUp);
+        double priceDw = extrapolation.price(optionDw);
+        assertEquals(priceBase, priceUp, EPS);
+        assertEquals(priceBase, priceDw, EPS);
+        EuropeanVanillaOption optionUpUp = new EuropeanVanillaOption(CUT_OFF_STRIKE + 2.0 * EPS, TIME_TO_EXPIRY, isCall);
+        EuropeanVanillaOption optionDwDw = new EuropeanVanillaOption(CUT_OFF_STRIKE - 2.0 * EPS, TIME_TO_EXPIRY, isCall);
+        double priceUpUp = extrapolation.price(optionUpUp);
+        double priceDwDw = extrapolation.price(optionDwDw);
+        double firstUp = (-0.5 * priceUpUp + 2.0 * priceUp - 1.5 * priceBase) / EPS;
+        double firstDw = (-2.0 * priceDw + 0.5 * priceDwDw + 1.5 * priceBase) / EPS;
+        assertEquals(firstDw, firstUp, EPS);
+
+        // The second derivative values are poorly connected due to finite difference approximation 
+        double firstUpUp = 0.5 * (priceUpUp - priceBase) / EPS;
+        double firstDwDw = 0.5 * (priceBase - priceDwDw) / EPS;
+        double secondUp = (firstUpUp - firstUp) / EPS;
+        double secondDw = (firstDw - firstDwDw) / EPS;
+        double secondRef = 0.5 * (firstUpUp - firstDwDw) / EPS;
+        assertEquals(secondRef, secondUp, secondRef * 0.15);
+        assertEquals(secondRef, secondDw, secondRef * 0.15);
+      }
+    }
+  }
+
+  /**
+   * 
+   */
+  @Test
+  public void smallForwardTest() {
+    double smallForward = 0.1e-6;
+    double smallCutoff = 0.9e-6;
+    for (VolatilityFunctionProvider<SABRFormulaData> func : FUNCTIONS) {
+      SABRExtrapolationRightFunction right = new SABRExtrapolationRightFunction(smallForward, SABR_DATA, smallCutoff, TIME_TO_EXPIRY, MU, func);
+      EuropeanVanillaOption optionBase = new EuropeanVanillaOption(smallCutoff, TIME_TO_EXPIRY, false);
+      EuropeanVanillaOption optionUp = new EuropeanVanillaOption(smallCutoff + EPS * 0.1, TIME_TO_EXPIRY, false);
+      EuropeanVanillaOption optionDw = new EuropeanVanillaOption(smallCutoff - EPS * 0.1, TIME_TO_EXPIRY, false);
+      double priceBase = right.price(optionBase);
+      double priceUp = right.price(optionUp);
+      double priceDw = right.price(optionDw);
+      assertEquals(priceBase, priceUp, EPS * 10.0);
+      assertEquals(priceBase, priceDw, EPS * 10.0);
+    }
+  }
+
+  /**
+   * Extrapolator is not calibrated in this case, then the gap may be produced at the cutoff. 
+   */
+  @Test
+  public void smallExpiryTest() {
+    double smallExpiry = 0.5e-6;
+    for (VolatilityFunctionProvider<SABRFormulaData> func : FUNCTIONS) {
+      SABRExtrapolationRightFunction right = new SABRExtrapolationRightFunction(FORWARD * 0.01, SABR_DATA, CUT_OFF_STRIKE, smallExpiry, MU, func);
+      EuropeanVanillaOption optionBase = new EuropeanVanillaOption(CUT_OFF_STRIKE, smallExpiry, false);
+      EuropeanVanillaOption optionUp = new EuropeanVanillaOption(CUT_OFF_STRIKE + EPS * 0.1, smallExpiry, false);
+      EuropeanVanillaOption optionDw = new EuropeanVanillaOption(CUT_OFF_STRIKE - EPS * 0.1, smallExpiry, false);
+      double priceBase = right.price(optionBase);
+      double priceUp = right.price(optionUp);
+      double priceDw = right.price(optionDw);
+      assertEquals(priceBase, priceUp, EPS);
+      assertEquals(priceBase, priceDw, EPS);
+
+      assertEquals(right.getParameter()[0], -1.0E4, 1.e-12);
+      assertEquals(right.getParameter()[1], 0.0, 1.e-12);
+      assertEquals(right.getParameter()[2], 0.0, 1.e-12);
     }
   }
 }

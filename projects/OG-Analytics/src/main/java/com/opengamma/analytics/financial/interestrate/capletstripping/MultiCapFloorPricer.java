@@ -54,35 +54,35 @@ public class MultiCapFloorPricer {
    * returning cap values. 
    * @param curves The discount and index curves 
    */
-  public MultiCapFloorPricer(final List<CapFloor> caps, final MulticurveProviderInterface curves) {
+  public MultiCapFloorPricer(List<CapFloor> caps,  MulticurveProviderInterface curves) {
     ArgumentChecker.noNulls(caps, "null caps");
     ArgumentChecker.notNull(curves, "null curve");
 
-    final IborIndex iborIndex = caps.get(0).getNthPayment(0).getIndex();
+    IborIndex iborIndex = caps.get(0).getNthPayment(0).getIndex();
 
     _nCaps = caps.size();
     _capToCapletsMap = new int[_nCaps][];
     _capToOptionsMap = new SimpleOptionData[_nCaps][];
 
     // ensure a unique set of caplets in ascending order of strike then fixing time
-    final Set<CapFloorIbor> capletSet = new TreeSet<>(new CapletsComparator());
-    final Set<Double> strikes = new TreeSet<>();
-    final Set<Double> expiries = new TreeSet<>();
-    final Set<Double> capStartTimes = new TreeSet<>();
-    final Set<Double> capEndTimes = new TreeSet<>();
+    Set<CapFloorIbor> capletSet = new TreeSet<>(new CapletsComparator());
+    Set<Double> strikes = new TreeSet<>();
+    Set<Double> expiries = new TreeSet<>();
+    Set<Double> capStartTimes = new TreeSet<>();
+    Set<Double> capEndTimes = new TreeSet<>();
     int count = 0;
-    final Iterator<CapFloor> iter = caps.iterator();
+    Iterator<CapFloor> iter = caps.iterator();
     while (iter.hasNext()) {
-      final CapFloor cap = iter.next();
+      CapFloor cap = iter.next();
       // check all the caps are on the same index
       ArgumentChecker.isTrue(iborIndex.equals(cap.getNthPayment(0).getIndex()), "caps of different index");
       capStartTimes.add(cap.getStartTime());
       capEndTimes.add(cap.getEndTime());
-      final CapFloorIbor[] capletArray = cap.getPayments();
-      final int n = capletArray.length;
+      CapFloorIbor[] capletArray = cap.getPayments();
+      int n = capletArray.length;
       _capToCapletsMap[count++] = new int[n];
       for (int j = 0; j < n; j++) {
-        final CapFloorIbor caplet = capletArray[j];
+        CapFloorIbor caplet = capletArray[j];
         strikes.add(caplet.getStrike());
         expiries.add(caplet.getFixingTime());
         capletSet.add(caplet);
@@ -99,14 +99,14 @@ public class MultiCapFloorPricer {
     _nCaplets = _capletsArray.length;
 
     // Form a map from caplets in individual caps to the master caplet list (we are only sorting the extra references here)
-    final List<CapFloorIbor> capletList = new ArrayList<>(capletSet);
+    List<CapFloorIbor> capletList = new ArrayList<>(capletSet);
     for (int i = 0; i < _nCaps; i++) {
-      final CapFloor cap = caps.get(i);
-      final CapFloorIbor[] capletArray = cap.getPayments();
-      final int n = capletArray.length;
+      CapFloor cap = caps.get(i);
+      CapFloorIbor[] capletArray = cap.getPayments();
+      int n = capletArray.length;
       _capToOptionsMap[i] = new SimpleOptionData[n];
       for (int j = 0; j < n; j++) {
-        final int index = capletList.indexOf(capletArray[j]);
+        int index = capletList.indexOf(capletArray[j]);
         _capToCapletsMap[i][j] = index;
         _capToOptionsMap[i][j] = _capletsArray[index];
       }
@@ -118,8 +118,8 @@ public class MultiCapFloorPricer {
    */
   private class CapletsComparator implements Comparator<CapFloorIbor> {
     @Override
-    public int compare(final CapFloorIbor o1, final CapFloorIbor o2) {
-      final int a = Doubles.compare(o1.getStrike(), o2.getStrike());
+    public int compare(CapFloorIbor o1,  CapFloorIbor o2) {
+      int a = Doubles.compare(o1.getStrike(), o2.getStrike());
       if (a != 0) {
         return a;
       }
@@ -134,11 +134,11 @@ public class MultiCapFloorPricer {
    * @param volSurface A volatility surface
    * @return caplet volatilities 
    */
-  public double[] getCapletVols(final VolatilitySurface volSurface) {
-    final int nCaplets = _capletsArray.length;
-    final double[] vols = new double[nCaplets];
+  public double[] getCapletVols(VolatilitySurface volSurface) {
+    int nCaplets = _capletsArray.length;
+    double[] vols = new double[nCaplets];
     for (int i = 0; i < nCaplets; i++) {
-      final SimpleOptionData caplet = _capletsArray[i];
+      SimpleOptionData caplet = _capletsArray[i];
       vols[i] = volSurface.getVolatility(caplet.getTimeToExpiry(), caplet.getStrike());
     }
     return vols;
@@ -151,7 +151,7 @@ public class MultiCapFloorPricer {
    * @param volSurface the (Black) volatility surface of the underlying caplets
    * @return The cap/floor prices (in the same order the caps were given in the constructor)
    */
-  public double[] price(final VolatilitySurface volSurface) {
+  public double[] price(VolatilitySurface volSurface) {
     return priceFromCapletVols(getCapletVols(volSurface));
   }
 
@@ -162,10 +162,10 @@ public class MultiCapFloorPricer {
    *  then by (ascending) order of strike.
    * @return The cap/floor prices (in the same order the caps were given in the constructor)
    */
-  public double[] priceFromCapletVols(final double[] capletVols) {
+  public double[] priceFromCapletVols(double[] capletVols) {
     ArgumentChecker.notEmpty(capletVols, "null caplet volatilities");
     ArgumentChecker.isTrue(_nCaplets == capletVols.length, "Expected {} caplet vols but given ", _nCaplets, capletVols.length);
-    final double[] capletPrices = new double[_nCaplets];
+    double[] capletPrices = new double[_nCaplets];
     for (int i = 0; i < _nCaplets; i++) {
       capletPrices[i] = BlackFormulaRepository.price(_capletsArray[i], capletVols[i]);
     }
@@ -179,10 +179,10 @@ public class MultiCapFloorPricer {
    * @param capVolatilities the cap/floor (Black) volatilities. These must be in the same order as the cap passed to the constructor.
    * @return The cap/floor prices (in the same order the caps were given in the constructor)
    */
-  public double[] price(final double[] capVolatilities) {
+  public double[] price(double[] capVolatilities) {
     ArgumentChecker.notEmpty(capVolatilities, "null cap volatilities");
     ArgumentChecker.isTrue(_nCaps == capVolatilities.length, "capVolatilities wrong length");
-    final double[] res = new double[_nCaps];
+    double[] res = new double[_nCaps];
     for (int i = 0; i < _nCaps; i++) {
       res[i] = BlackFormulaRepository.price(_capToOptionsMap[i], capVolatilities[i]);
     }
@@ -195,7 +195,7 @@ public class MultiCapFloorPricer {
    *  then by (ascending) order of strike.
    * @return The cap/floor prices (in the same order the caps were given in the constructor)
    */
-  protected double[] priceFromCapletPrices(final double[] capletPrices) {
+  protected double[] priceFromCapletPrices(double[] capletPrices) {
     return aggregateToCaps(capletPrices);
   }
 
@@ -207,10 +207,10 @@ public class MultiCapFloorPricer {
    * @param capPrices The cap prices (in the same order the caps were given in the constructor)
    * @return The cap/floor implied volatilities (in the same order the caps were given in the constructor)
    */
-  public double[] impliedVols(final double[] capPrices) {
+  public double[] impliedVols(double[] capPrices) {
     ArgumentChecker.notEmpty(capPrices, "null cap prices");
     ArgumentChecker.isTrue(_nCaps == capPrices.length, "capPrices wrong length");
-    final double[] res = new double[_nCaps];
+    double[] res = new double[_nCaps];
     for (int i = 0; i < _nCaps; i++) {
       res[i] = BlackFormulaRepository.impliedVolatility(_capToOptionsMap[i], capPrices[i]);
     }
@@ -224,8 +224,8 @@ public class MultiCapFloorPricer {
    * @param volSurface model describing the (Black) volatility of the underlying caplets
    * @return The cap/floor implied volatilities (in the same order the caps were given in the constructor)
    */
-  public double[] impliedVols(final VolatilitySurface volSurface) {
-    final double[] prices = price(volSurface);
+  public double[] impliedVols(VolatilitySurface volSurface) {
+    double[] prices = price(volSurface);
     return impliedVols(prices);
   }
 
@@ -234,12 +234,12 @@ public class MultiCapFloorPricer {
    * @param capVolatilities the cap/floor (Black) volatilities
    * @return The cap/floor vega (in the same order the caps were given in the constructor)
    */
-  public double[] vega(final double[] capVolatilities) {
+  public double[] vega(double[] capVolatilities) {
     ArgumentChecker.notEmpty(capVolatilities, "null cap volatilities");
     ArgumentChecker.isTrue(_nCaps == capVolatilities.length, "capVolatilities wrong length");
-    final double[] res = new double[_nCaps];
+    double[] res = new double[_nCaps];
     for (int i = 0; i < _nCaps; i++) {
-      final int n = _capToCapletsMap[i].length;
+      int n = _capToCapletsMap[i].length;
       double sum = 0.0;
       for (int j = 0; j < n; j++) {
         sum += BlackFormulaRepository.vega(_capToOptionsMap[i][j], capVolatilities[i]);
@@ -255,20 +255,20 @@ public class MultiCapFloorPricer {
    * @param capletVols The volatilities of all the caplets that make up the set of caps
    * @return  vega matrix
    */
-  public DoubleMatrix2D vegaFromCapletVols(final double[] capletVols) {
+  public DoubleMatrix2D vegaFromCapletVols(double[] capletVols) {
     ArgumentChecker.notEmpty(capletVols, "null caplet volatilities");
     ArgumentChecker.isTrue(_nCaplets == capletVols.length, "Expected {} caplet vols but given ", _nCaplets, capletVols.length);
 
-    final double[] capletVega = new double[_nCaplets];
+    double[] capletVega = new double[_nCaplets];
     for (int i = 0; i < _nCaplets; i++) {
       capletVega[i] = BlackFormulaRepository.vega(_capletsArray[i], capletVols[i]);
     }
 
-    final DoubleMatrix2D jac = new DoubleMatrix2D(_nCaps, _nCaplets);
+    DoubleMatrix2D jac = new DoubleMatrix2D(_nCaps, _nCaplets);
     for (int i = 0; i < _nCaps; i++) {
-      final double[] data = jac.getData()[i];
-      final int[] indicies = _capToCapletsMap[i];
-      for (final int index : indicies) {
+      double[] data = jac.getData()[i];
+      int[] indices = _capToCapletsMap[i];
+      for (int index : indices) {
         data[index] = capletVega[index];
       }
     }
@@ -281,22 +281,22 @@ public class MultiCapFloorPricer {
    * @param capletVols The volatilities of all the caplets that make up the set of caps
    * @return  cap volatility-vega matrix
    */
-  public DoubleMatrix2D capVolVega(final double[] capletVols) {
+  public DoubleMatrix2D capVolVega(double[] capletVols) {
 
     //cap vega matrix - sensitivity of cap prices to the volatilities of the caplets 
-    final DoubleMatrix2D vega = vegaFromCapletVols(capletVols);
-    final double[] capPrices = priceFromCapletVols(capletVols);
-    final double[] capVols = impliedVols(capPrices);
+    DoubleMatrix2D vega = vegaFromCapletVols(capletVols);
+    double[] capPrices = priceFromCapletVols(capletVols);
+    double[] capVols = impliedVols(capPrices);
 
     //sensitivity of the cap prices to their volatilities 
-    final double[] capVega = vega(capVols);
+    double[] capVega = vega(capVols);
 
-    final int nCaplets = capletVols.length;
-    final DoubleMatrix2D capVolVega = new DoubleMatrix2D(_nCaps, nCaplets);
+    int nCaplets = capletVols.length;
+    DoubleMatrix2D capVolVega = new DoubleMatrix2D(_nCaps, nCaplets);
     for (int i = 0; i < _nCaps; i++) {
-      final double[] temp = capVolVega.getData()[i];
-      final double[] vegaRow = vega.getData()[i];
-      final double invVega = 1.0 / capVega[i];
+      double[] temp = capVolVega.getData()[i];
+      double[] vegaRow = vega.getData()[i];
+      double invVega = 1.0 / capVega[i];
       for (int j = 0; j < nCaplets; j++) {
         temp[j] = invVega * vegaRow[j];
       }
@@ -326,8 +326,8 @@ public class MultiCapFloorPricer {
    * @return The intrinsic values
    */
   public double[] getIntrinsicCapValues() {
-    final int n = _nCaplets;
-    final double[] intr = new double[n];
+    int n = _nCaplets;
+    double[] intr = new double[n];
     for (int i = 0; i < n; i++) {
       intr[i] = _capletsArray[i].getIntrinsicValue();
     }
@@ -339,15 +339,15 @@ public class MultiCapFloorPricer {
    * @param values computed on caplets
    * @return values aggregated to caps
    */
-  private double[] aggregateToCaps(final double[] values) {
+  private double[] aggregateToCaps(double[] values) {
 
-    final double[] res = new double[_nCaps];
+    double[] res = new double[_nCaps];
     for (int i = 0; i < _nCaps; i++) {
-      final int[] indicies = _capToCapletsMap[i];
-      final int n = indicies.length;
+      int[] indices = _capToCapletsMap[i];
+      int n = indices.length;
       double sum = 0;
       for (int j = 0; j < n; j++) {
-        final int index = indicies[j];
+        int index = indices[j];
         sum += values[index];
       }
       res[i] = sum;
@@ -377,9 +377,9 @@ public class MultiCapFloorPricer {
    * @return DoublesPair of caplet expiry and strike 
    */
   public DoublesPair[] getExpiryStrikeArray() {
-    final DoublesPair[] res = new DoublesPair[_nCaplets];
+    DoublesPair[] res = new DoublesPair[_nCaplets];
     for (int i = 0; i < _nCaplets; i++) {
-      final SimpleOptionData option = _capletsArray[i];
+      SimpleOptionData option = _capletsArray[i];
       res[i] = DoublesPair.of(option.getTimeToExpiry(), option.getStrike());
     }
     return res;
@@ -407,7 +407,7 @@ public class MultiCapFloorPricer {
    * @param index The index of the cap (using the same order as the constructor)
    * @return indices of the caplets belonging to the cap 
    */
-  protected int[] getCapToCapletMap(final int index) {
+  protected int[] getCapToCapletMap(int index) {
     return _capToCapletsMap[index];
   }
 
@@ -416,7 +416,7 @@ public class MultiCapFloorPricer {
    * @param index the caplet index 
    * @return caplet as a {@link SimpleOptionData}
    */
-  protected SimpleOptionData getOption(final int index) {
+  protected SimpleOptionData getOption(int index) {
     return _capletsArray[index];
   }
 
@@ -433,8 +433,8 @@ public class MultiCapFloorPricer {
    * @return the forward rates - these are order by (caplet) fixing time, then strike.
    */
   public double[] getCapletForwardRates() {
-    final int n = _capletsArray.length;
-    final Set<Double> ts = new TreeSet<>();
+    int n = _capletsArray.length;
+    Set<Double> ts = new TreeSet<>();
     for (int i = 0; i < n; i++) {
       ts.add(_capletsArray[i].getForward());
     }

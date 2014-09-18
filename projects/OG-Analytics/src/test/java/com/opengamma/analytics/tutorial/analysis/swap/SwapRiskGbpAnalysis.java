@@ -50,7 +50,7 @@ import com.opengamma.analytics.financial.provider.sensitivity.parameter.Paramete
 import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.analytics.tutorial.datasets.RecentDataSetsMulticurveOisMeetingDatesGbp;
 import com.opengamma.analytics.tutorial.datasets.RecentDataSetsMulticurveStandardGbp;
-import com.opengamma.analytics.tutorial.utils.ExportUtils;
+import com.opengamma.analytics.util.export.ExportUtils;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.rolldate.RollConvention;

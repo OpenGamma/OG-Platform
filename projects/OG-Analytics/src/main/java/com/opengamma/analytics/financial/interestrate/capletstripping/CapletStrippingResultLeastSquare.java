@@ -33,7 +33,7 @@ public class CapletStrippingResultLeastSquare extends CapletStrippingResult {
    * @return the chi-squared
    */
   @Override
-  public double getChiSq() {
+  public double getChiSqr() {
     return _results.getChiSq();
   }
 

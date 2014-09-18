@@ -80,6 +80,21 @@ public class DbDialectTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_toDatabaseString() {
+    assertEquals(null, _dialect.toDatabaseString(null));
+    assertEquals("", _dialect.toDatabaseString(""));
+    assertEquals("  ", _dialect.toDatabaseString("  "));
+    assertEquals("A", _dialect.toDatabaseString("A"));
+  }
+
+  public void test_fromDatabaseString() {
+    assertEquals(null, _dialect.fromDatabaseString(null));
+    assertEquals("", _dialect.fromDatabaseString(""));
+    assertEquals("  ", _dialect.fromDatabaseString("  "));
+    assertEquals("A", _dialect.fromDatabaseString("A"));
+  }
+
+  //-------------------------------------------------------------------------
   public void test_sqlApplyPaging_noPaging() {
     assertEquals(
         "SELECT foo FROM bar WHERE TRUE ORDER BY foo ",

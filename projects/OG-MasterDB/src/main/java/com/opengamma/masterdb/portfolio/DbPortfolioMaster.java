@@ -453,10 +453,11 @@ public class DbPortfolioMaster
       _node.setPortfolioId(_portfolio.getUniqueId());
       if (_nodes.size() == 0) {
         if (_complete == false) {
-          final Long parentNodeId = (Long) rs.getObject("PARENT_NODE_ID");
-          final Long parentNodeOid = (Long) rs.getObject("PARENT_NODE_OID");
+          // different databases return different types, notably BigDecimal and Long
+          final Number parentNodeId = (Number) rs.getObject("PARENT_NODE_ID");
+          final Number parentNodeOid = (Number) rs.getObject("PARENT_NODE_OID");
           if (parentNodeId != null && parentNodeOid != null) {
-            _node.setParentNodeId(createUniqueId(parentNodeOid, parentNodeId));
+            _node.setParentNodeId(createUniqueId(parentNodeOid.longValue(), parentNodeId.longValue()));
           }
         }
         _portfolio.setRootNode(_node);

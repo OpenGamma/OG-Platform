@@ -24,7 +24,7 @@ public class CapletStrippingResultRootFind extends CapletStrippingResult {
   }
 
   @Override
-  public double getChiSq() {
+  public double getChiSqr() {
     return 0;
   }
 

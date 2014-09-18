@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.capletstripping;
@@ -32,9 +32,12 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * This contains market data for testing caplet stripping methods 
+ * This contains market data for testing caplet stripping methods
  */
 public abstract class CapletStrippingSetup {
+
+  private static final double TINY = 1e-20;
+
   private static final double[] INDEX_CURVE_NODES = new double[] {0.0438356164383561, 0.0876712328767123, 0.172602739726027, 0.254794520547945, 0.506849315068493, 0.758904109589041, 1.00547945205479,
     2.01369863013698, 3.01020285949547, 4.00547945205479, 5.00547945205479, 6.00547945205479, 7.01839958080694, 8.01095890410959, 9.00821917808219, 10.0082191780821, 15.0074706190583,
     20.0082191780821, 25.0109589041095, 30.0136986301369 };
@@ -49,8 +52,8 @@ public abstract class CapletStrippingSetup {
     0.00127592397233014, 0.00132302501180961, 0.00138688847322639, 0.00172748279241698, 0.00254381216780551, 0.00410024606039574, 0.00628782387356631, 0.0170033466745807 };
 
   private static final double[] CAP_STRIKES = new double[] {0.005, 0.01, 0.015, 0.02, 0.025, 0.03, 0.035, 0.04, 0.045, 0.05, 0.055, 0.06, 0.07, 0.08, 0.09, 0.1, 0.11, 0.12 };
-  private static final double[] CAP_STARTTIMES = new double[] {0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25 };
-  private static final double[] CAP_ENDTIMES = new double[] {1, 2, 3, 4, 5, 7, 10 };
+  private static final double[] CAP_START_TIMES = new double[] {0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25 };
+  private static final double[] CAP_END_TIMES = new double[] {1, 2, 3, 4, 5, 7, 10 };
 
   // cal vol at each strike - NaN represents missing data
   private static final double[][] CAP_VOLS = new double[][] { {0.7175, 0.7781, 0.8366, Double.NaN, 0.8101, 0.7633, 0.714 }, {Double.NaN, Double.NaN, 0.7523, 0.7056, 0.66095, 0.5933, 0.5313 },
@@ -84,7 +87,7 @@ public abstract class CapletStrippingSetup {
     // single curve for discount and projection (this is consistent with Bloomberg's cap quotes)
     final YieldCurve indexCurve = YieldCurve.from(curve1);
     final YieldCurve disCurve = YieldCurve.from(curve2);
-    //    YIELD_CURVES = new YieldCurveBundle();
+    // YIELD_CURVES = new YieldCurveBundle();
     YIELD_CURVES = new MulticurveProviderDiscount();
     YIELD_CURVES.setCurve(CUR, disCurve);
     YIELD_CURVES.setCurve(INDEX, indexCurve);
@@ -108,11 +111,11 @@ public abstract class CapletStrippingSetup {
   }
 
   protected static double[] getCapStartTimes() {
-    return CAP_STARTTIMES;
+    return CAP_START_TIMES;
   }
 
   protected static double[] getCapEndTimes() {
-    return CAP_ENDTIMES;
+    return CAP_END_TIMES;
   }
 
   static protected IborIndex getIndex() {
@@ -140,8 +143,8 @@ public abstract class CapletStrippingSetup {
   }
 
   protected static double[] getAllCapVolsExATM() {
-    final int nStrikes = CAP_STRIKES.length; //number of absolute strikes 
-    final int nTimes = CAP_ENDTIMES.length;
+    final int nStrikes = CAP_STRIKES.length; // number of absolute strikes
+    final int nTimes = CAP_END_TIMES.length;
     final double[] temp = new double[nStrikes * nTimes];
     int jj = 0;
     for (int i = 0; i < nStrikes; i++) {
@@ -156,8 +159,8 @@ public abstract class CapletStrippingSetup {
   }
 
   protected static double[] getAllCapVols() {
-    final int nStrikes = CAP_STRIKES.length; //number of absolute strikes 
-    final int nTimes = CAP_ENDTIMES.length;
+    final int nStrikes = CAP_STRIKES.length; // number of absolute strikes
+    final int nTimes = CAP_END_TIMES.length;
     final double[] temp = new double[(nStrikes + 1) * nTimes];
     int jj = 0;
     for (int i = 0; i < nStrikes; i++) {
@@ -196,7 +199,7 @@ public abstract class CapletStrippingSetup {
     int ii = 0;
     for (int i = 0; i < n; i++) {
       if (!Double.isNaN(vols[i])) {
-        temp[ii++] = CAP_ENDTIMES[i];
+        temp[ii++] = CAP_END_TIMES[i];
       }
     }
     final double[] times = new double[ii];
@@ -208,18 +211,18 @@ public abstract class CapletStrippingSetup {
   }
 
   /**
-   * Get the set of ATM caps. The strike (cap forward or swap rate) is determined from the know yield curves 
-   * @return set of ATM caps 
+   * Get the set of ATM caps. The strike (cap forward or swap rate) is determined from the know yield curves
+   * @return set of ATM caps
    */
   protected static List<CapFloor> getATMCaps() {
-    final int n = CAP_ENDTIMES.length;
+    final int n = CAP_END_TIMES.length;
     final double[] dummyK = new double[n];
-    final List<CapFloor> dummyCaps = makeCaps(dummyK, CAP_ENDTIMES);
+    final List<CapFloor> dummyCaps = makeCaps(dummyK, CAP_END_TIMES);
     final List<CapFloor> caps = new ArrayList<>(n);
 
-    final Iterator<CapFloor> interator = dummyCaps.iterator();
-    while (interator.hasNext()) {
-      final CapFloor c = interator.next();
+    final Iterator<CapFloor> iterator = dummyCaps.iterator();
+    while (iterator.hasNext()) {
+      final CapFloor c = iterator.next();
       final CapFloorPricer pricer = new CapFloorPricer(c, YIELD_CURVES);
       final double fwd = pricer.getCapForward();
       caps.add(c.withStrike(fwd));
@@ -234,8 +237,8 @@ public abstract class CapletStrippingSetup {
   }
 
   protected static List<CapFloor> getAllCapsExATM() {
-    final int nStrikes = CAP_STRIKES.length; //number of absolute strikes 
-    final List<CapFloor> caps = new ArrayList<>((nStrikes + 1) * CAP_ENDTIMES.length);
+    final int nStrikes = CAP_STRIKES.length; // number of absolute strikes
+    final List<CapFloor> caps = new ArrayList<>((nStrikes + 1) * CAP_END_TIMES.length);
     for (int i = 0; i < nStrikes; i++) {
       caps.addAll(getCaps(i));
     }
@@ -253,19 +256,86 @@ public abstract class CapletStrippingSetup {
     return caps;
   }
 
-  public void testStripping(final CapletStripper stripper, final List<CapFloor> caps, final double[] mktValues, final MarketDataType type, final double expChi2, final double[] expModelParms,
-      final double tol, final boolean print) {
+  /**
+   * Run a caplet stripper and test it against known results
+   * @param stripper The caplet stripper
+   * @param mktValues market value of the cap/floors
+   * @param type Are the market values prices or volatilities
+   * @param expectedResults The expected result
+   * @param tol A machine tolerance to compare results
+   */
+  public void testStripping(CapletStripper stripper, double[] mktValues, MarketDataType type, double expChiSqr, DoubleMatrix1D expFitParms, double tol, boolean print) {
 
+    CapletStrippingResult results = stripper.solve(mktValues, type);
     if (print) {
       System.out.println(this.toString() + "testStripping");
-    }
-
-    final CapletStrippingResult res = stripper.solve(mktValues, type);
-
-    if (print) {
-      System.out.print(res);
+      System.out.print(results);
     } else {
-      assertEquals("chi2", expChi2, res.getChiSq(), tol);
+      assertEquals("chi2", expChiSqr, results.getChiSqr(), tol * expChiSqr + TINY);
+      AssertMatrix.assertEqualsVectors(expFitParms, results.getFitParameters(), tol);
+    }
+  }
+
+  /**
+   * Run a caplet stripper and test it against known results
+   * @param stripper The caplet stripper
+   * @param mktValues market value of the cap/floors
+   * @param type Are the market values prices or volatilities
+   * @param errors The errors use for a least-squares fit
+   * @param expectedResults The expected result
+   * @param tol A machine tolerance to compare results
+   */
+  public void testStripping(CapletStripper stripper, double[] mktValues, MarketDataType type, double[] errors, double expChiSqr, DoubleMatrix1D expFitParms, double tol, boolean print) {
+
+    CapletStrippingResult results = stripper.solve(mktValues, type, errors);
+    if (print) {
+      System.out.println(this.toString() + "testStripping");
+      System.out.print(results);
+    } else {
+      assertEquals("chi2", expChiSqr, results.getChiSqr(), tol * expChiSqr + TINY);
+      AssertMatrix.assertEqualsVectors(expFitParms, results.getFitParameters(), tol);
+    }
+  }
+
+  /**
+   * Run a caplet stripper and test it against known results
+   * @param stripper The caplet stripper
+   * @param mktValues market value of the cap/floors
+   * @param type Are the market values prices or volatilities
+   * @param guess Starting guess of model parameters
+   * @param expectedResults The expected result
+   * @param tol A machine tolerance to compare results
+   */
+  public void testStripping(CapletStripper stripper, double[] mktValues, MarketDataType type, DoubleMatrix1D guess, double expChiSqr, DoubleMatrix1D expFitParms, double tol, boolean print) {
+    CapletStrippingResult results = stripper.solve(mktValues, type, guess);
+    if (print) {
+      System.out.println(this.toString() + "testStripping");
+      System.out.print(results);
+    } else {
+      assertEquals("chi2", expChiSqr, results.getChiSqr(), tol * expChiSqr + TINY);
+      AssertMatrix.assertEqualsVectors(expFitParms, results.getFitParameters(), tol);
+    }
+  }
+
+  /**
+   * Run a caplet stripper and test it against known results
+   * @param stripper The caplet stripper
+   * @param mktValues market value of the cap/floors
+   * @param type Are the market values prices or volatilities
+   * @param errors The errors use for a least-squares fit
+   * @param guess Starting guess of model parameters
+   * @param expectedResults The expected result
+   * @param tol A machine tolerance to compare results
+   */
+  public void testStripping(CapletStripper stripper, double[] mktValues, MarketDataType type, double[] errors, DoubleMatrix1D guess, double expChiSqr, DoubleMatrix1D expFitParms, double tol,
+      boolean print) {
+    CapletStrippingResult results = stripper.solve(mktValues, type, errors, guess);
+    if (print) {
+      System.out.println(this.toString() + "testStripping");
+      System.out.print(results);
+    } else {
+      assertEquals("chi2", expChiSqr, results.getChiSqr(), tol * expChiSqr + TINY);
+      AssertMatrix.assertEqualsVectors(expFitParms, results.getFitParameters(), tol);
     }
   }
 
