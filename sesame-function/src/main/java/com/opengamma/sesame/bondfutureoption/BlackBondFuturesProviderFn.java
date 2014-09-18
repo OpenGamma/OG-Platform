@@ -7,7 +7,7 @@ package com.opengamma.sesame.bondfutureoption;
 
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackBondFuturesProviderInterface;
 import com.opengamma.sesame.Environment;
-import com.opengamma.sesame.trade.BondFutureOptionTrade;
+import com.opengamma.financial.trade.BondFutureOptionTrade;
 import com.opengamma.util.result.Result;
 
 /**

@@ -34,7 +34,7 @@ import com.opengamma.financial.analytics.model.fixedincome.BucketedCurveSensitiv
 import com.opengamma.financial.analytics.model.multicurve.MultiCurveUtils;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.marketdata.MarketDataFn;
-import com.opengamma.sesame.trade.BondTrade;
+import com.opengamma.financial.trade.BondTrade;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;

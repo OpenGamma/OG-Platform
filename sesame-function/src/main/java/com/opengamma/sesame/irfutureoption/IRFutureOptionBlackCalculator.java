@@ -28,7 +28,7 @@ import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.model.fixedincome.BucketedCurveSensitivities;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.sesame.ZeroIRDeltaBucketingUtils;
-import com.opengamma.sesame.trade.IRFutureOptionTrade;
+import com.opengamma.financial.trade.IRFutureOptionTrade;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;

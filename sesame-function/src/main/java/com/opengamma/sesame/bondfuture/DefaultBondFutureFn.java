@@ -7,7 +7,7 @@ package com.opengamma.sesame.bondfuture;
 
 import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.sesame.Environment;
-import com.opengamma.sesame.trade.BondFutureTrade;
+import com.opengamma.financial.trade.BondFutureTrade;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;

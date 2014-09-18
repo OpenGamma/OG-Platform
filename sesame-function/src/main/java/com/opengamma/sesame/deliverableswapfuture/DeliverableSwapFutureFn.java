@@ -10,7 +10,7 @@ import com.opengamma.financial.analytics.model.fixedincome.BucketedCurveSensitiv
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.function.Output;
-import com.opengamma.sesame.trade.DeliverableSwapFutureTrade;
+import com.opengamma.financial.trade.DeliverableSwapFutureTrade;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.tuple.Pair;

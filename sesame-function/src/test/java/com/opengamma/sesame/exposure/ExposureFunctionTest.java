@@ -77,7 +77,7 @@ import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.sesame.marketdata.StrategyAwareMarketDataSource;
-import com.opengamma.sesame.trade.InterestRateFutureTrade;
+import com.opengamma.financial.trade.InterestRateFutureTrade;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;

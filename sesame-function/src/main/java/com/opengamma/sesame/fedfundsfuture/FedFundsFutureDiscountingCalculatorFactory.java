@@ -15,7 +15,7 @@ import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.HistoricalTimeSeriesFn;
-import com.opengamma.sesame.trade.FedFundsFutureTrade;
+import com.opengamma.financial.trade.FedFundsFutureTrade;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.tuple.Pair;

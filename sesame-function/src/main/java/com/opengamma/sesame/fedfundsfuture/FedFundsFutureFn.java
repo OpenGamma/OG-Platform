@@ -8,7 +8,7 @@ package com.opengamma.sesame.fedfundsfuture;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.function.Output;
-import com.opengamma.sesame.trade.FedFundsFutureTrade;
+import com.opengamma.financial.trade.FedFundsFutureTrade;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
 

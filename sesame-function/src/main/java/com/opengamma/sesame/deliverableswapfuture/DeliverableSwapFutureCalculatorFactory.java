@@ -6,7 +6,7 @@
 package com.opengamma.sesame.deliverableswapfuture;
 
 import com.opengamma.sesame.Environment;
-import com.opengamma.sesame.trade.DeliverableSwapFutureTrade;
+import com.opengamma.financial.trade.DeliverableSwapFutureTrade;
 import com.opengamma.util.result.Result;
 
 /**

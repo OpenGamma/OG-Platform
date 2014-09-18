@@ -25,7 +25,7 @@ import com.opengamma.core.security.Security;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.analytics.conversion.BondFutureOptionTradeConverter;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
-import com.opengamma.sesame.trade.BondFutureOptionTrade;
+import com.opengamma.financial.trade.BondFutureOptionTrade;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;

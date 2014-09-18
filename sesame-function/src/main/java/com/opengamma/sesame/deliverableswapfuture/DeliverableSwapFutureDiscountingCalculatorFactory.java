@@ -16,12 +16,11 @@ import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProv
 import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.security.future.DeliverableSwapFutureSecurity;
-import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.sesame.CurveDefinitionFn;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.HistoricalTimeSeriesFn;
-import com.opengamma.sesame.trade.DeliverableSwapFutureTrade;
+import com.opengamma.financial.trade.DeliverableSwapFutureTrade;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.tuple.Pair;

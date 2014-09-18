@@ -82,7 +82,7 @@ import com.opengamma.sesame.fedfundsfuture.FedFundsFutureDiscountingCalculatorFa
 import com.opengamma.sesame.fedfundsfuture.FedFundsFutureFn;
 import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.sesame.interestrate.InterestRateMockSources;
-import com.opengamma.sesame.trade.FedFundsFutureTrade;
+import com.opengamma.financial.trade.FedFundsFutureTrade;
 import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;

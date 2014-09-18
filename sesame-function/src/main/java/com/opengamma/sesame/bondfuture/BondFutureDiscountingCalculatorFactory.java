@@ -14,7 +14,7 @@ import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.HistoricalTimeSeriesFn;
 import com.opengamma.sesame.IssuerProviderFn;
-import com.opengamma.sesame.trade.BondFutureTrade;
+import com.opengamma.financial.trade.BondFutureTrade;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.tuple.Pair;

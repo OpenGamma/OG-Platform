@@ -6,7 +6,7 @@
 package com.opengamma.sesame.irfuture;
 
 import com.opengamma.sesame.Environment;
-import com.opengamma.sesame.trade.InterestRateFutureTrade;
+import com.opengamma.financial.trade.InterestRateFutureTrade;
 import com.opengamma.util.result.Result;
 
 /**

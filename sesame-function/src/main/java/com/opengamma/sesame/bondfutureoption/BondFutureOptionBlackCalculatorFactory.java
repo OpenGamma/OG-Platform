@@ -11,7 +11,7 @@ import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.HistoricalTimeSeriesFn;
-import com.opengamma.sesame.trade.BondFutureOptionTrade;
+import com.opengamma.financial.trade.BondFutureOptionTrade;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
 
