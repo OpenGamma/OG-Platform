@@ -189,9 +189,6 @@ public class CouponFixedFxResetDefinition extends CouponDefinition
     if (!super.equals(obj)) {
       return false;
     }
-    if (getClass() != obj.getClass()) {
-      return false;
-    }
     CouponFixedFxResetDefinition other = (CouponFixedFxResetDefinition) obj;
     if (!ObjectUtils.equals(_fxFixingDate, other._fxFixingDate)) {
       return false;

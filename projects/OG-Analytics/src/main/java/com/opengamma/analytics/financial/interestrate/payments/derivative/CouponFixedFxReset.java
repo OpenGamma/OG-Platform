@@ -129,9 +129,6 @@ public class CouponFixedFxReset extends Coupon {
     if (!super.equals(obj)) {
       return false;
     }
-    if (getClass() != obj.getClass()) {
-      return false;
-    }
     CouponFixedFxReset other = (CouponFixedFxReset) obj;
     if (Double.doubleToLongBits(_fxFixingTime) != Double.doubleToLongBits(other._fxFixingTime)) {
       return false;

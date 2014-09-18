@@ -98,7 +98,7 @@ public class CouponFixedFxResetDefinitionTest {
     assertFalse("CouponFixedFxResetDefinition: hash-equal", CPN.equals(CUR_REF));
     CouponFixedDefinition cpnOther = new CouponFixedDefinition(CUR_PAY, PAYMENT_DATE, ACCRUAL_START_DATE, 
         ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FX_FIXING_RATE);
-    assertFalse("CouponFixedFxResetDefinition: hash-equal", CPN.equals(cpnOther));
+   assertFalse("CouponFixedFxResetDefinition: hash-equal", CPN.equals(cpnOther));
     CouponFixedFxResetDefinition other = new CouponFixedFxResetDefinition(CUR_PAY, PAYMENT_DATE, ACCRUAL_START_DATE, 
         ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, RATE, CUR_REF, FX_FIXING_DATE, FX_DELIVERY_DATE);
     assertEquals("CouponFixedFxResetDefinition: hash-equal", CPN, other);
