@@ -21,6 +21,7 @@ import org.threeten.bp.OffsetTime;
 
 import com.opengamma.core.position.impl.SimpleCounterparty;
 import com.opengamma.core.position.impl.SimpleTrade;
+import com.opengamma.core.security.Security;
 import com.opengamma.core.security.impl.SimpleSecurityLink;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -53,6 +54,8 @@ public class TradeFudgeBuilder implements FudgeBuilder<Trade> {
   /** Field name. */
   protected static final String SECURITY_ID_FIELD_NAME = "securityId";
   /** Field name. */
+  protected static final String SECURITY_TARGET = "securityTarget";
+  /** Field name. */
   public static final String COUNTERPARTY_FIELD_NAME = "counterpartyKey";
   /** Field name. */
   public static final String TRADE_DATE_FIELD_NAME = "tradeDate";
@@ -61,6 +64,7 @@ public class TradeFudgeBuilder implements FudgeBuilder<Trade> {
 
   protected static MutableFudgeMsg buildMessageImpl(final FudgeSerializer serializer, final Trade trade) {
     final MutableFudgeMsg message = serializer.newMessage();
+
     if (trade.getUniqueId() != null) {
       serializer.addToMessage(message, UNIQUE_ID_FIELD_NAME, null, trade.getUniqueId());
     }
@@ -72,6 +76,9 @@ public class TradeFudgeBuilder implements FudgeBuilder<Trade> {
     }
     if (trade.getSecurityLink().getObjectId() != null) {
       serializer.addToMessage(message, SECURITY_ID_FIELD_NAME, null, trade.getSecurityLink().getObjectId());
+    }
+    if (trade.getSecurityLink().getTarget() != null) {
+      serializer.addToMessageWithClassHeaders(message, SECURITY_TARGET, null, trade.getSecurityLink().getTarget());
     }
     if (trade.getCounterparty() != null) {
       serializer.addToMessage(message, COUNTERPARTY_FIELD_NAME, null, trade.getCounterparty().getExternalId());
@@ -127,6 +134,12 @@ public class TradeFudgeBuilder implements FudgeBuilder<Trade> {
       FudgeField secIdField = message.getByName(SECURITY_ID_FIELD_NAME);
       if (secIdField != null) {
         secLink.setObjectId(deserializer.fieldValueToObject(ObjectId.class, secIdField));
+      }
+    }
+    if (message.hasField(SECURITY_TARGET)) {
+      FudgeField secTargetField = message.getByName(SECURITY_TARGET);
+      if (secTargetField != null) {
+        secLink.setTarget(deserializer.fieldValueToObject(Security.class, secTargetField));
       }
     }
     
