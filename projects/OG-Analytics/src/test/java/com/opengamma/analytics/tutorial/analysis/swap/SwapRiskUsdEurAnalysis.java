@@ -284,7 +284,7 @@ public class SwapRiskUsdEurAnalysis {
     int t = 0;
   }
 
-  @Test(enabled = true)
+  @Test(enabled = false)
   public void bucketedPv01() {
     MultipleCurrencyParameterSensitivity pvmqsIrs1FfEo = MQSBC.fromInstrument(IRS_1, MULTICURVE_FF_EO, BLOCK_FF_EO).multipliedBy(BP1);
     MultipleCurrencyParameterSensitivity pvmqsIrs2FfEo = MQSBC.fromInstrument(IRS_2, MULTICURVE_FF_EO, BLOCK_FF_EO).multipliedBy(BP1);
