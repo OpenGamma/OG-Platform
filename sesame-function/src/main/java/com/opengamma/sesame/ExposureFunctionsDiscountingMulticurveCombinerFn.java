@@ -5,25 +5,16 @@
  */
 package com.opengamma.sesame;
 
-import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.OffsetTime;
 
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.ProviderUtils;
-import com.opengamma.core.position.Counterparty;
-import com.opengamma.core.position.Trade;
-import com.opengamma.core.position.impl.SimpleCounterparty;
-import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
-import com.opengamma.financial.security.FinancialSecurity;
-import com.opengamma.id.ExternalId;
+import com.opengamma.sesame.trade.TradeWrapper;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
@@ -60,21 +51,21 @@ public class ExposureFunctionsDiscountingMulticurveCombinerFn implements Discoun
     _bundleResolver = ArgumentChecker.notNull(bundleResolver, "bundleResolver");
   }
 
-  @Override
-  public Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> createMergedMulticurveBundle(
-      Environment env, FinancialSecurity security, FXMatrix fxMatrix) {
-
-    Trade trade = new SimpleTrade(security,
-                                  BigDecimal.ONE,
-                                  new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "CPARTY")),
-                                  LocalDate.now(),
-                                  OffsetTime.now());
-    return createMergedMulticurveBundle(env, trade, fxMatrix);
-  }
+  //@Override
+  //public Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> createMergedMulticurveBundle(
+  //    Environment env, FinancialSecurity security, FXMatrix fxMatrix) {
+  //
+  //  Trade trade = new SimpleTrade(security,
+  //                                BigDecimal.ONE,
+  //                                new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "CPARTY")),
+  //                                LocalDate.now(),
+  //                                OffsetTime.now());
+  //  return createMergedMulticurveBundle(env, trade, fxMatrix);
+  //}
   
   @Override
   public Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> createMergedMulticurveBundle(
-      Environment env, Trade trade, FXMatrix fxMatrix) {
+      Environment env, TradeWrapper trade, FXMatrix fxMatrix) {
     Result<MarketExposureSelector> mesResult = _marketExposureSelectorFn.getMarketExposureSelector();
 
     if (mesResult.isSuccess()) {
@@ -83,7 +74,7 @@ public class ExposureFunctionsDiscountingMulticurveCombinerFn implements Discoun
       CurveBuildingBlockBundle mergedJacobianBundle = new CurveBuildingBlockBundle();
 
       MarketExposureSelector selector = mesResult.getValue();
-      Set<CurveConstructionConfiguration> curveConfigs = selector.determineCurveConfigurations(trade);
+      Set<CurveConstructionConfiguration> curveConfigs = selector.determineCurveConfigurations(trade.getTrade());
       for (CurveConstructionConfiguration curveConfig : curveConfigs) {
 
         Result<MulticurveBundle> bundleResult = _bundleResolver.generateBundle(env, curveConfig);

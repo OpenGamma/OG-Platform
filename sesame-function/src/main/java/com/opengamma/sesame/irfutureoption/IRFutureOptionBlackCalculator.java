@@ -28,7 +28,7 @@ import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.model.fixedincome.BucketedCurveSensitivities;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.sesame.ZeroIRDeltaBucketingUtils;
-import com.opengamma.financial.trade.IRFutureOptionTrade;
+import com.opengamma.sesame.trade.IRFutureOptionTrade;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
@@ -127,13 +127,13 @@ public class IRFutureOptionBlackCalculator implements IRFutureOptionCalculator {
     _curveDefinitions = ArgumentChecker.notNull(curveDefinitions, "curveDefinitions");
   }
 
-  private InstrumentDerivative createInstrumentDerivative(IRFutureOptionTrade trade,
+  private InstrumentDerivative createInstrumentDerivative(IRFutureOptionTrade tradeWrapper,
       InterestRateFutureOptionTradeConverter converter,
       ZonedDateTime valTime,
       FixedIncomeConverterDataProvider definitionToDerivativeConverter,
       HistoricalTimeSeriesBundle fixings) {
-    InstrumentDefinition<?> definition = converter.convert(trade);
-    return definitionToDerivativeConverter.convert(trade.getSecurity(), definition, valTime, fixings);
+    InstrumentDefinition<?> definition = converter.convert(tradeWrapper.getTrade());
+    return definitionToDerivativeConverter.convert(tradeWrapper.getSecurity(), definition, valTime, fixings);
   }
 
   @Override

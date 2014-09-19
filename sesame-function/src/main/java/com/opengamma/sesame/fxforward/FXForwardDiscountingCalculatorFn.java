@@ -5,16 +5,26 @@
  */
 package com.opengamma.sesame.fxforward;
 
+import java.math.BigDecimal;
 import java.util.Set;
+
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.OffsetTime;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
+import com.opengamma.core.position.Counterparty;
+import com.opengamma.core.position.Trade;
+import com.opengamma.core.position.impl.SimpleCounterparty;
+import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.id.ExternalId;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.FXMatrixFn;
+import com.opengamma.sesame.trade.FXForwardTrade;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
@@ -67,8 +77,16 @@ public class FXForwardDiscountingCalculatorFn implements FXForwardCalculatorFn {
     // Even if we can't get a matrix we want to get as far as we can to
     // ensure market data population, so ignore the result for now
     Result<FXMatrix> fxmResult = _fxMatrixProvider.getFXMatrix(env, currencies);
+
+    Trade trade = new SimpleTrade(security,
+                                  BigDecimal.ONE,
+                                  new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "CPARTY")),
+                                  LocalDate.now(),
+                                  OffsetTime.now());
+    FXForwardTrade tradeWrapper = new FXForwardTrade(trade);
+
     if (fxmResult.isSuccess()) {
-      return _discountingMulticurveCombinerFn.createMergedMulticurveBundle(env, security, fxmResult.getValue());
+      return _discountingMulticurveCombinerFn.createMergedMulticurveBundle(env, tradeWrapper, fxmResult.getValue());
     } else {
       return Result.failure(fxmResult);
     }

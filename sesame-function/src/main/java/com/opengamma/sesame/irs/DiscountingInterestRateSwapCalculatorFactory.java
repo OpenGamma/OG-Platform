@@ -5,21 +5,30 @@
  */
 package com.opengamma.sesame.irs;
 
+import java.math.BigDecimal;
 import java.util.Map;
+
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.OffsetTime;
 
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
+import com.opengamma.core.position.Counterparty;
+import com.opengamma.core.position.Trade;
+import com.opengamma.core.position.impl.SimpleCounterparty;
+import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.conversion.InterestRateSwapSecurityConverter;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
-import com.opengamma.financial.trade.InterestRateSwapTrade;
+import com.opengamma.id.ExternalId;
 import com.opengamma.sesame.CurveDefinitionFn;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.HistoricalTimeSeriesFn;
+import com.opengamma.sesame.trade.InterestRateSwapTrade;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.tuple.Pair;
@@ -77,28 +86,14 @@ public class DiscountingInterestRateSwapCalculatorFactory implements InterestRat
   @Override
   public Result<InterestRateSwapCalculator> createCalculator(Environment env, InterestRateSwapSecurity security) {
 
-    Result<HistoricalTimeSeriesBundle> fixings = _htsFn.getFixingsForSecurity(env, security);
-    Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundleResult =
-        _discountingMulticurveCombinerFn.createMergedMulticurveBundle(env, security, new FXMatrix());
+    Trade trade = new SimpleTrade(security,
+                                  BigDecimal.ONE,
+                                  new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "CPARTY")),
+                                  LocalDate.now(),
+                                  OffsetTime.now());
+    InterestRateSwapTrade tradeWrapper = new InterestRateSwapTrade(trade);
+    return createCalculator(env, tradeWrapper);
 
-    if (Result.allSuccessful(bundleResult, fixings)) {
-
-      Result<Map<String, CurveDefinition>> curveDefinitions =
-          _curveDefinitionFn.getCurveDefinitions(bundleResult.getValue().getSecond().getData().keySet());
-
-      if (!curveDefinitions.isSuccess()) {
-        return Result.failure(curveDefinitions);
-      }
-
-      InterestRateSwapCalculator calculator =
-          new DiscountingInterestRateSwapCalculator(security, bundleResult.getValue().getFirst(),
-                                                    bundleResult.getValue().getSecond(), _swapConverter,
-                                                    env.getValuationTime(), _fixedIncomeConverterDataProvider,
-                                                    fixings.getValue(), curveDefinitions.getValue());
-      return Result.success(calculator);
-    } else {
-      return Result.failure(bundleResult, fixings);
-    }
   }
 
   @Override

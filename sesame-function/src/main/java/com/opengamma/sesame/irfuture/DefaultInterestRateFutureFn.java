@@ -8,7 +8,7 @@ package com.opengamma.sesame.irfuture;
 import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.financial.analytics.model.fixedincome.BucketedCurveSensitivities;
 import com.opengamma.sesame.Environment;
-import com.opengamma.financial.trade.InterestRateFutureTrade;
+import com.opengamma.sesame.trade.InterestRateFutureTrade;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;

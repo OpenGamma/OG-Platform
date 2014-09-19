@@ -15,7 +15,7 @@ import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.HistoricalTimeSeriesFn;
-import com.opengamma.financial.trade.FedFundsFutureTrade;
+import com.opengamma.sesame.trade.FedFundsFutureTrade;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.tuple.Pair;
@@ -57,7 +57,7 @@ public class FedFundsFutureDiscountingCalculatorFactory implements FedFundsFutur
   @Override
   public Result<FedFundsFutureCalculator> createCalculator(Environment env, FedFundsFutureTrade trade) {
 
-    FinancialSecurity security = (FinancialSecurity) trade.getSecurity();
+    FinancialSecurity security = trade.getSecurity();
     
     Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundleResult =
         _discountingMulticurveCombinerFn.createMergedMulticurveBundle(env, trade, new FXMatrix());

@@ -14,7 +14,7 @@ import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.HistoricalTimeSeriesFn;
 import com.opengamma.sesame.IssuerProviderFn;
-import com.opengamma.financial.trade.BondFutureTrade;
+import com.opengamma.sesame.trade.BondFutureTrade;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.tuple.Pair;
@@ -41,10 +41,10 @@ public class BondFutureDiscountingCalculatorFactory implements BondFutureCalcula
   @Override
   public Result<BondFutureDiscountingCalculator> createCalculator(Environment env,
                                                BondFutureTrade bondFutureTrade) {
-    FinancialSecurity security = (FinancialSecurity) bondFutureTrade.getSecurity();
+    FinancialSecurity security = bondFutureTrade.getSecurity();
     
     Result<Pair<ParameterIssuerProviderInterface, CurveBuildingBlockBundle>> bundleResult =
-        _issuerProviderFn.createBundle(env, bondFutureTrade, new FXMatrix());
+        _issuerProviderFn.createBundle(env, bondFutureTrade.getTrade(), new FXMatrix());
     
     Result<HistoricalTimeSeriesBundle> fixingsResult = _htsFn.getFixingsForSecurity(env, security);
     

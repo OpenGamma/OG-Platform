@@ -5,17 +5,29 @@
  */
 package com.opengamma.sesame.fra;
 
+import java.math.BigDecimal;
+
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.OffsetTime;
+
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
+import com.opengamma.core.position.Counterparty;
+import com.opengamma.core.position.Trade;
+import com.opengamma.core.position.impl.SimpleCounterparty;
+import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.financial.analytics.conversion.FRASecurityConverter;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.fra.ForwardRateAgreementSecurity;
+import com.opengamma.id.ExternalId;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.HistoricalTimeSeriesFn;
+import com.opengamma.sesame.trade.ForwardRateAgreementTrade;
+import com.opengamma.sesame.trade.FraTrade;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.tuple.Pair;
@@ -69,8 +81,15 @@ public class DiscountingFRACalculatorFactory implements FRACalculatorFactory {
   @Override
   public Result<FRACalculator> createCalculator(Environment env, FRASecurity security) {
 
+    Trade trade = new SimpleTrade(security,
+                                  BigDecimal.ONE,
+                                  new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "CPARTY")),
+                                  LocalDate.now(),
+                                  OffsetTime.now());
+    FraTrade tradeWrapper = new FraTrade(trade);
+
     Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundleResult =
-               _discountingMulticurveCombinerFn.createMergedMulticurveBundle(env, security, new FXMatrix());
+               _discountingMulticurveCombinerFn.createMergedMulticurveBundle(env, tradeWrapper, new FXMatrix());
 
     if (bundleResult.isSuccess()) {
       FRACalculator calculator = new DiscountingFRACalculator(security,
@@ -86,8 +105,16 @@ public class DiscountingFRACalculatorFactory implements FRACalculatorFactory {
   @Override
   public Result<FRACalculator> createCalculator(Environment env, ForwardRateAgreementSecurity security) {
     Result<HistoricalTimeSeriesBundle> fixings = _htsFn.getFixingsForSecurity(env, security);
+
+    Trade trade = new SimpleTrade(security,
+                                  BigDecimal.ONE,
+                                  new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "CPARTY")),
+                                  LocalDate.now(),
+                                  OffsetTime.now());
+    ForwardRateAgreementTrade tradeWrapper = new ForwardRateAgreementTrade(trade);
+
     Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundleResult =
-               _discountingMulticurveCombinerFn.createMergedMulticurveBundle(env, security, new FXMatrix());
+               _discountingMulticurveCombinerFn.createMergedMulticurveBundle(env, tradeWrapper, new FXMatrix());
 
     if (Result.allSuccessful(bundleResult, fixings)) {
       FRACalculator calculator = new DiscountingFRACalculator(security,

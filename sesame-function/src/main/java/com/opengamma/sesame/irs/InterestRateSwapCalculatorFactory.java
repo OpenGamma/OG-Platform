@@ -6,8 +6,8 @@
 package com.opengamma.sesame.irs;
 
 import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
-import com.opengamma.financial.trade.InterestRateSwapTrade;
 import com.opengamma.sesame.Environment;
+import com.opengamma.sesame.trade.InterestRateSwapTrade;
 import com.opengamma.util.result.Result;
 
 /**

@@ -6,7 +6,7 @@
 package com.opengamma.sesame.bondfuture;
 
 import com.opengamma.sesame.Environment;
-import com.opengamma.financial.trade.BondFutureTrade;
+import com.opengamma.sesame.trade.BondFutureTrade;
 import com.opengamma.util.result.Result;
 
 /**

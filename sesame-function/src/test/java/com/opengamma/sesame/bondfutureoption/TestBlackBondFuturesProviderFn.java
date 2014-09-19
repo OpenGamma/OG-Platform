@@ -20,7 +20,7 @@ import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.analytics.math.surface.Surface;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.IssuerProviderFn;
-import com.opengamma.financial.trade.BondFutureOptionTrade;
+import com.opengamma.sesame.trade.BondFutureOptionTrade;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.tuple.Pair;
@@ -39,10 +39,10 @@ public final class TestBlackBondFuturesProviderFn implements BlackBondFuturesPro
   }
 
   @Override
-  public Result<BlackBondFuturesProviderInterface> getBlackBondFuturesProvider(Environment env, BondFutureOptionTrade trade) {
+  public Result<BlackBondFuturesProviderInterface> getBlackBondFuturesProvider(Environment env, BondFutureOptionTrade tradeWrapper) {
     
     Result<Pair<ParameterIssuerProviderInterface, CurveBuildingBlockBundle>> bundleResult =
-        _discountingMulticurveCombinerFn.createBundle(env, trade, new FXMatrix());
+        _discountingMulticurveCombinerFn.createBundle(env, tradeWrapper.getTrade(), new FXMatrix());
     
     if (bundleResult.isSuccess()) {
 

@@ -68,7 +68,7 @@ import com.opengamma.sesame.irs.DiscountingInterestRateSwapFn;
 import com.opengamma.sesame.irs.InterestRateSwapFn;
 import com.opengamma.sesame.marketdata.DefaultHistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataFn;
-import com.opengamma.financial.trade.InterestRateFutureTrade;
+import com.opengamma.sesame.trade.InterestRateFutureTrade;
 
 import spark.Request;
 import spark.Response;

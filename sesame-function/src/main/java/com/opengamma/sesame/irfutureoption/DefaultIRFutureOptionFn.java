@@ -8,7 +8,7 @@ package com.opengamma.sesame.irfutureoption;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.financial.analytics.model.fixedincome.BucketedCurveSensitivities;
 import com.opengamma.sesame.Environment;
-import com.opengamma.financial.trade.IRFutureOptionTrade;
+import com.opengamma.sesame.trade.IRFutureOptionTrade;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
 

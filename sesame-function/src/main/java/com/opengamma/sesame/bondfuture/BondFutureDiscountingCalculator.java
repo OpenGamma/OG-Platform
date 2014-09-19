@@ -22,7 +22,7 @@ import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.analytics.conversion.BondAndBondFutureTradeConverter;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.security.FinancialSecurity;
-import com.opengamma.financial.trade.BondFutureTrade;
+import com.opengamma.sesame.trade.BondFutureTrade;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
@@ -76,7 +76,7 @@ public class BondFutureDiscountingCalculator implements BondFutureCalculator {
     final FinancialSecurity security = bondFutureTrade.getSecurity();
     HistoricalTimeSeries fixingsTS = fixings.get(MarketDataRequirementNames.MARKET_VALUE, security.getExternalIdBundle());
     double lastMarginPrice = fixingsTS.getTimeSeries().getLatestValue();
-    InstrumentDefinition<?> definition = converter.convert(bondFutureTrade);
+    InstrumentDefinition<?> definition = converter.convert(bondFutureTrade.getTrade());
     return ((BondFuturesTransactionDefinition) definition).toDerivative(valuationTime, lastMarginPrice);
   }
 }

@@ -24,7 +24,7 @@ import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.engine.FixedInstantVersionCorrectionProvider;
 import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.sesame.sources.BondMockSources;
-import com.opengamma.financial.trade.BondTrade;
+import com.opengamma.sesame.trade.BondTrade;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;

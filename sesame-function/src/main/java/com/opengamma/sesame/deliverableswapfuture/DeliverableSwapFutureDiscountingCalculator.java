@@ -26,7 +26,7 @@ import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.model.fixedincome.BucketedCurveSensitivities;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.sesame.ZeroIRDeltaBucketingUtils;
-import com.opengamma.financial.trade.DeliverableSwapFutureTrade;
+import com.opengamma.sesame.trade.DeliverableSwapFutureTrade;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
@@ -155,7 +155,7 @@ public class DeliverableSwapFutureDiscountingCalculator implements DeliverableSw
                                                           ZonedDateTime valuationTime,
                                                           FixedIncomeConverterDataProvider definitionToDerivConverter,
                                                           HistoricalTimeSeriesBundle tsBundle) {
-    InstrumentDefinition<?> definition = converter.convert(deliverableSwapFutureTrade);
+    InstrumentDefinition<?> definition = converter.convert(deliverableSwapFutureTrade.getTrade());
     return definitionToDerivConverter.convert(deliverableSwapFutureTrade.getSecurity(), 
                                                    definition, 
                                                    valuationTime, 

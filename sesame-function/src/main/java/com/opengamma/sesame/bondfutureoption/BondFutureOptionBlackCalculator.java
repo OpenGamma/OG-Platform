@@ -21,11 +21,12 @@ import com.opengamma.analytics.financial.provider.calculator.blackbondfutures.Pr
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackBondFuturesProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
+import com.opengamma.core.position.Trade;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.analytics.conversion.BondFutureOptionTradeConverter;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
-import com.opengamma.financial.trade.BondFutureOptionTrade;
+import com.opengamma.sesame.trade.BondFutureOptionTrade;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
@@ -107,12 +108,13 @@ public class BondFutureOptionBlackCalculator implements BondFutureOptionCalculat
   }
   
   @SuppressWarnings("unchecked")
-  private InstrumentDerivative createInstrumentDerivative(BondFutureOptionTrade trade,
+  private InstrumentDerivative createInstrumentDerivative(BondFutureOptionTrade tradeWrapper,
                                                           BondFutureOptionTradeConverter converter,
                                                           ZonedDateTime valTime,
                                                           HistoricalTimeSeriesBundle timeSeries) {
+    Trade trade = tradeWrapper.getTrade();
     InstrumentDefinition<?> definition = converter.convert(trade);
-    final Security security = trade.getSecurity();
+    final Security security = tradeWrapper.getSecurity();
     final HistoricalTimeSeries ts = timeSeries.get(MarketDataRequirementNames.MARKET_VALUE, security.getExternalIdBundle());
     Double lastMarginPrice;
     if (valTime.toLocalDate().equals(trade.getTradeDate())) {

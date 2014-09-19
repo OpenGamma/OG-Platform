@@ -16,7 +16,7 @@ import com.opengamma.sesame.CurveDefinitionFn;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.IssuerProviderFn;
 import com.opengamma.sesame.marketdata.MarketDataFn;
-import com.opengamma.financial.trade.BondTrade;
+import com.opengamma.sesame.trade.BondTrade;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.tuple.Pair;
@@ -51,10 +51,10 @@ public class DiscountingBondCalculatorFactory implements BondCalculatorFactory {
   }
 
   @Override
-  public Result<BondCalculator> createCalculator(Environment env, BondTrade trade) {
+  public Result<BondCalculator> createCalculator(Environment env, BondTrade tradeWrapper) {
 
     Result<Pair<ParameterIssuerProviderInterface, CurveBuildingBlockBundle>> bundleResult =
-        _issuerProviderFn.createBundle(env, trade, new FXMatrix());
+        _issuerProviderFn.createBundle(env, tradeWrapper.getTrade(), new FXMatrix());
 
     if (bundleResult.isSuccess()) {
 
@@ -67,7 +67,7 @@ public class DiscountingBondCalculatorFactory implements BondCalculatorFactory {
 
       ParameterIssuerProviderInterface curves = bundleResult.getValue().getFirst();
       CurveBuildingBlockBundle blocks = bundleResult.getValue().getSecond();
-      BondCalculator calculator = new DiscountingBondCalculator(trade, curves, blocks,  _converter, env,
+      BondCalculator calculator = new DiscountingBondCalculator(tradeWrapper, curves, blocks,  _converter, env,
                                                                 curveDefinitions.getValue(), _marketDataFn);
       return Result.success(calculator);
     } else {

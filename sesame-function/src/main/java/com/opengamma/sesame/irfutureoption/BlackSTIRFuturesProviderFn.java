@@ -7,7 +7,7 @@ package com.opengamma.sesame.irfutureoption;
 
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackSTIRFuturesProviderInterface;
 import com.opengamma.sesame.Environment;
-import com.opengamma.financial.trade.IRFutureOptionTrade;
+import com.opengamma.sesame.trade.IRFutureOptionTrade;
 import com.opengamma.util.result.Result;
 
 /**

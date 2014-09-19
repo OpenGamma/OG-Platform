@@ -10,6 +10,7 @@ import java.util.Map;
 
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
@@ -18,6 +19,7 @@ import com.opengamma.analytics.financial.provider.calculator.discounting.PV01Cur
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParRateDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
+import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingMultipleInstrumentsCalculator;
 import com.opengamma.analytics.financial.provider.calculator.generic.MarketQuoteSensitivityBlockCalculator;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
@@ -29,6 +31,7 @@ import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.conversion.InterestRateSwapSecurityConverter;
+import com.opengamma.financial.analytics.conversion.TradeFeeConverter;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.model.fixedincome.BucketedCurveSensitivities;
 import com.opengamma.financial.analytics.model.fixedincome.CashFlowDetailsCalculator;
@@ -38,12 +41,13 @@ import com.opengamma.financial.analytics.model.multicurve.MultiCurveUtils;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.financial.security.irs.PayReceiveType;
-import com.opengamma.financial.trade.InterestRateSwapTrade;
+import com.opengamma.sesame.trade.InterestRateSwapTrade;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Calculator for Discounting swaps.
@@ -59,6 +63,11 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
    * Calculator for present value.
    */
   private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
+
+  /**
+   * Calculator for present value for fees.
+   */
+  private static final PresentValueDiscountingMultipleInstrumentsCalculator PVDMIC = PresentValueDiscountingMultipleInstrumentsCalculator.getInstance();
 
   /**
    * Calculator for par rate.
@@ -112,6 +121,11 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
   private final InterestRateSwapSecurity _security;
 
   /**
+   * The swap trade.
+   */
+  private final InterestRateSwapTrade _trade;
+
+  /**
    * The ZonedDateTime valuation time.
    */
   private final ZonedDateTime _valuationTime;
@@ -120,6 +134,7 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
    * The curve definitions
    */
   private final Map<String, CurveDefinition> _curveDefinitions;
+
 
   /**
    * Creates a calculator for a InterestRateSwapSecurity.
@@ -146,6 +161,7 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
     ArgumentChecker.notNull(valuationTime, "valuationTime");
     ArgumentChecker.notNull(definitionConverter, "definitionConverter");
     ArgumentChecker.notNull(fixings, "fixings");
+    _trade = null;
     _definition = (SwapDefinition) security.accept(swapConverter);
     _derivative = createInstrumentDerivative(security, valuationTime, definitionConverter, fixings);
     _bundle = ArgumentChecker.notNull(bundle, "bundle");
@@ -158,6 +174,7 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
     for (String curveName : curveBuildingBlockBundle.getData().keySet()) {
       ArgumentChecker.isTrue(curveDefinitions.containsKey(curveName), "curve definition not present {}", curveName);
     }
+
   }
 
   /**
@@ -185,6 +202,7 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
     ArgumentChecker.notNull(valuationTime, "valuationTime");
     ArgumentChecker.notNull(definitionConverter, "definitionConverter");
     ArgumentChecker.notNull(fixings, "fixings");
+    _trade = trade;
     _security = trade.getSecurity();
     _definition = (SwapDefinition) _security.accept(swapConverter);
     _derivative = createInstrumentDerivative(_security, valuationTime, definitionConverter, fixings);
@@ -202,7 +220,18 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
 
   @Override
   public Result<MultipleCurrencyAmount> calculatePV() {
+
+    if (_trade != null) {
+      InstrumentDefinition<?> feeDefinition = TradeFeeConverter.getInstance().convert(_trade.getTrade());
+      if (feeDefinition != null) {
+        Pair<InstrumentDerivative[], MulticurveProviderInterface> data =
+            Pairs.of(new InstrumentDerivative[] {feeDefinition.toDerivative(_valuationTime) }, _bundle);
+        return Result.success(_derivative.accept(PVDMIC, data));
+      }
+    }
+
     return Result.success(calculateResult(PVDC));
+
   }
 
   @Override

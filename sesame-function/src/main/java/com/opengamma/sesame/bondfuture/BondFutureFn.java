@@ -9,7 +9,7 @@ import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.function.Output;
-import com.opengamma.financial.trade.BondFutureTrade;
+import com.opengamma.sesame.trade.BondFutureTrade;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;

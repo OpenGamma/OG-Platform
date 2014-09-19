@@ -18,7 +18,7 @@ import com.opengamma.financial.convention.businessday.ModifiedFollowingBusinessD
 import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.Environment;
-import com.opengamma.financial.trade.IRFutureOptionTrade;
+import com.opengamma.sesame.trade.IRFutureOptionTrade;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;

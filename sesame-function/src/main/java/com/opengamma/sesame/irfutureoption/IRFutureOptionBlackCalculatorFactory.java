@@ -19,7 +19,7 @@ import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.sesame.CurveDefinitionFn;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.HistoricalTimeSeriesFn;
-import com.opengamma.financial.trade.IRFutureOptionTrade;
+import com.opengamma.sesame.trade.IRFutureOptionTrade;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
 

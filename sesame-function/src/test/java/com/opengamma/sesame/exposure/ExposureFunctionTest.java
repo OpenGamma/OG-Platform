@@ -34,6 +34,7 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.link.ConfigLink;
 import com.opengamma.core.position.Counterparty;
+import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.SimpleCounterparty;
 import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.engine.marketdata.spec.FixedHistoricalMarketDataSpecification;
@@ -77,7 +78,8 @@ import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.sesame.marketdata.StrategyAwareMarketDataSource;
-import com.opengamma.financial.trade.InterestRateFutureTrade;
+import com.opengamma.sesame.trade.FraTrade;
+import com.opengamma.sesame.trade.InterestRateFutureTrade;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
@@ -164,7 +166,7 @@ public class ExposureFunctionTest {
             ComponentMap.of(_components));
 
     InterestRateFutureTrade trade = createInterestRateFutureTrade();
-    trade.addAttribute("TEST", "PASS");
+    trade.getTrade().addAttribute("TEST", "PASS");
 
     Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> result =
         multicurveCombinerFunction.createMergedMulticurveBundle(_environment, trade, _emptyFxMatrix);
@@ -192,7 +194,7 @@ public class ExposureFunctionTest {
             ComponentMap.of(_components));
 
     InterestRateFutureTrade trade = createInterestRateFutureTrade();
-    trade.addAttribute("TEST", "FAIL");
+    trade.getTrade().addAttribute("TEST", "FAIL");
 
     Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> result =
         multicurveCombinerFunction.createMergedMulticurveBundle(_environment, trade, _emptyFxMatrix);
@@ -266,8 +268,15 @@ public class ExposureFunctionTest {
 
     FRASecurity security = createSingleFra(Currency.USD);
 
+    Trade trade = new SimpleTrade(security,
+                                  BigDecimal.ONE,
+                                  new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "CPARTY")),
+                                  LocalDate.now(),
+                                  OffsetTime.now());
+    FraTrade tradeWrapper = new FraTrade(trade);
+
     Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> result =
-        multicurveCombinerFunction.createMergedMulticurveBundle(_environment, security, _emptyFxMatrix);
+        multicurveCombinerFunction.createMergedMulticurveBundle(_environment, tradeWrapper, _emptyFxMatrix);
 
     assertThat(result.isSuccess(), is((true)));
 

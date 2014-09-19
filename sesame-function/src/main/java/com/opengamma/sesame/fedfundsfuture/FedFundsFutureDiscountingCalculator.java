@@ -14,7 +14,7 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 import com.opengamma.financial.analytics.conversion.FederalFundsFutureTradeConverter;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
-import com.opengamma.financial.trade.FedFundsFutureTrade;
+import com.opengamma.sesame.trade.FedFundsFutureTrade;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
@@ -40,13 +40,13 @@ public class FedFundsFutureDiscountingCalculator implements FedFundsFutureCalcul
     _bundle = ArgumentChecker.notNull(bundle, "bundle");
   }
   
-  private InstrumentDerivative createInstrumentDerivative(FedFundsFutureTrade trade,
+  private InstrumentDerivative createInstrumentDerivative(FedFundsFutureTrade tradeWrapper,
                                                           FederalFundsFutureTradeConverter converter,
                                                           ZonedDateTime valuationTime,
                                                           FixedIncomeConverterDataProvider definitionToDerivativeConverter,
                                                           HistoricalTimeSeriesBundle fixings) {
-    InstrumentDefinition<?> definition = converter.convert(trade);
-    return definitionToDerivativeConverter.convert(trade.getSecurity(), definition, valuationTime, fixings);
+    InstrumentDefinition<?> definition = converter.convert(tradeWrapper.getTrade());
+    return definitionToDerivativeConverter.convert(tradeWrapper.getSecurity(), definition, valuationTime, fixings);
   }
   
   @Override

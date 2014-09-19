@@ -30,7 +30,7 @@ import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.model.fixedincome.BucketedCurveSensitivities;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.sesame.ZeroIRDeltaBucketingUtils;
-import com.opengamma.financial.trade.InterestRateFutureTrade;
+import com.opengamma.sesame.trade.InterestRateFutureTrade;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -168,7 +168,7 @@ public class InterestRateFutureDiscountingCalculator implements InterestRateFutu
                                                           ZonedDateTime valuationTime,
                                                           FixedIncomeConverterDataProvider definitionToDerivativeConverter,
                                                           HistoricalTimeSeriesBundle fixings) {
-    InstrumentDefinition<?> definition = converter.convert(irFutureTrade);
+    InstrumentDefinition<?> definition = converter.convert(irFutureTrade.getTrade());
     return definitionToDerivativeConverter.convert(irFutureTrade.getSecurity(), definition, valuationTime, fixings);
   }
 }

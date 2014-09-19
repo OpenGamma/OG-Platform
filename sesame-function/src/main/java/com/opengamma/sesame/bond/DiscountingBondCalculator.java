@@ -34,7 +34,7 @@ import com.opengamma.financial.analytics.model.fixedincome.BucketedCurveSensitiv
 import com.opengamma.financial.analytics.model.multicurve.MultiCurveUtils;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.marketdata.MarketDataFn;
-import com.opengamma.financial.trade.BondTrade;
+import com.opengamma.sesame.trade.BondTrade;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -198,7 +198,7 @@ public class DiscountingBondCalculator implements BondCalculator {
   private BondFixedTransaction createInstrumentDerivative(BondTrade bondTrade,
                                                           BondAndBondFutureTradeConverter converter,
                                                           ZonedDateTime valuationTime) {
-    InstrumentDefinition<?> definition = converter.convert(bondTrade);
+    InstrumentDefinition<?> definition = converter.convert(bondTrade.getTrade());
     return ((BondFixedTransactionDefinition) definition).toDerivative(valuationTime);
   }
 
