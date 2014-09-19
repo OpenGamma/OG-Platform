@@ -49,6 +49,8 @@ public final class GeneratorSwapFixedIborMaster {
    * Reference to a GBP 6M fix vs LIBOR 6M float
    */
   public static final String GBP6MLIBOR6M = "GBP6MLIBOR6M";
+   /** Reference to a GBP 3M fix vs LIBOR 3M float */
+  public static final String GBP3MLIBOR3M = "GBP3MLIBOR3M";
 
   /**
    * Reference to a GBP 1Y fix vs LIBOR 3M float
@@ -163,6 +165,9 @@ public final class GeneratorSwapFixedIborMaster {
                                                   DayCounts.ACT_365,
                                                   _iborIndexMaster.getIndex(IndexIborMaster.GBPLIBOR6M),
                                                   baseCalendar));
+    _generatorSwap.put(GBP3MLIBOR3M, 
+        new GeneratorSwapFixedIbor(GBP3MLIBOR3M, Period.ofMonths(3), DayCounts.ACT_365, 
+            _iborIndexMaster.getIndex(IndexIborMaster.GBPLIBOR3M), baseCalendar));
     _generatorSwap.put(DKK1YCIBOR6M,
                        new GeneratorSwapFixedIbor(DKK1YCIBOR6M,
                                                   Period.ofMonths(12),
