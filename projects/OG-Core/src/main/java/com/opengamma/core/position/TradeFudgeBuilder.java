@@ -6,8 +6,10 @@
 package com.opengamma.core.position;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Map.Entry;
 
+import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
@@ -16,17 +18,21 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.mapping.GenericFudgeBuilderFor;
 import org.fudgemsg.wire.types.FudgeWireType;
+import org.joda.beans.JodaBeanUtils;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.OffsetTime;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.impl.SimpleCounterparty;
 import com.opengamma.core.position.impl.SimpleTrade;
+import com.opengamma.core.position.impl.TradeWrapper;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.impl.SimpleSecurityLink;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.fudgemsg.DirectBeanFudgeBuilder;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -117,10 +123,47 @@ public class TradeFudgeBuilder implements FudgeBuilder<Trade> {
 
   @Override
   public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final Trade trade) {
-    final MutableFudgeMsg message = buildMessageImpl(serializer, trade);
-    message.add(null, FudgeSerializer.TYPES_HEADER_ORDINAL, FudgeWireType.STRING, Trade.class.getName());
-    return message;
+
+    if (trade instanceof TradeWrapper) {
+
+      TradeWrapper tradeWrapper = (TradeWrapper) trade;
+      DirectBeanFudgeBuilder<TradeWrapper> builder = new DirectBeanFudgeBuilder<>(JodaBeanUtils.metaBean(trade.getClass()));
+      MutableFudgeMsg wrapperMsg = builder.buildMessage(serializer, tradeWrapper);
+      FudgeSerializer.addClassHeader(wrapperMsg, trade.getClass());
+      return wrapperMsg;
+
+    } else {
+
+      final MutableFudgeMsg tradeMsg = buildMessageImpl(serializer, trade);
+      tradeMsg.add(null, FudgeSerializer.TYPES_HEADER_ORDINAL, FudgeWireType.STRING, Trade.class.getName());
+      return tradeMsg;
+
+    }
   }
+
+  @Override
+  public Trade buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+    FudgeContext fudgeContext = deserializer.getFudgeContext();
+    List<FudgeField> types = message.getAllByOrdinal(FudgeSerializer.TYPES_HEADER_ORDINAL);
+
+    if (types.size() != 0 && types.get(0).getValue() instanceof String) {
+      String clazzString = (String) types.get(0).getValue();
+      Class<?> possibleClazz;
+      try {
+        possibleClazz = fudgeContext.getTypeDictionary().loadClass(clazzString);
+        if (TradeWrapper.class.isAssignableFrom(possibleClazz)) {
+          DirectBeanFudgeBuilder<TradeWrapper> builder = new DirectBeanFudgeBuilder<>(JodaBeanUtils.metaBean(possibleClazz));
+          return builder.buildObject(deserializer, message);
+        } else {
+          return buildObjectImpl(deserializer, message);
+        }
+      } catch (ClassNotFoundException e) {
+        throw new OpenGammaRuntimeException("Trade deserialization error for " + clazzString, e);
+      }
+    }
+    throw new OpenGammaRuntimeException("Trade deserialization error, either no type information or type is not a String");
+  }
+
 
   protected static SimpleTrade buildObjectImpl(final FudgeDeserializer deserializer, final FudgeMsg message) {
     SimpleSecurityLink secLink = new SimpleSecurityLink();
@@ -207,11 +250,6 @@ public class TradeFudgeBuilder implements FudgeBuilder<Trade> {
       }
     }
     return trade;
-  }
-
-  @Override
-  public Trade buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
-    return buildObjectImpl(deserializer, message);
   }
 
 }
