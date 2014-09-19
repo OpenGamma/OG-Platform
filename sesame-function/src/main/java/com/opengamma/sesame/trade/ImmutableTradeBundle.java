@@ -42,12 +42,12 @@ public final class ImmutableTradeBundle implements ImmutableBean {
   /**
    * The unique identifier of the trade.
    */
-  @PropertyDefinition()
+  @PropertyDefinition
   private final UniqueId _uniqueId;
   /**
    * The number of units in the trade.
    */
-  @PropertyDefinition()
+  @PropertyDefinition(validate = "notNull")
   private final BigDecimal _quantity;
   /**
    * The link referencing the security, not null.
@@ -58,37 +58,37 @@ public final class ImmutableTradeBundle implements ImmutableBean {
   /**
    * The counterparty.
    */
-  @PropertyDefinition()
+  @PropertyDefinition
   private final Counterparty _counterparty;
   /**
    * The trade date.
    */
-  @PropertyDefinition()
+  @PropertyDefinition(validate = "notNull")
   private final LocalDate _tradeDate;
   /**
    * The trade time with offset, null if not known.
    */
-  @PropertyDefinition()
+  @PropertyDefinition
   private final OffsetTime _tradeTime;
   /**
    * Amount paid for trade at time of purchase, null if not known.
    */
-  @PropertyDefinition()
+  @PropertyDefinition
   private final Double _premium;
   /**
    * Currency of payment at time of purchase, null if not known.
    */
-  @PropertyDefinition()
+  @PropertyDefinition
   private final Currency _premiumCurrency;
   /**
    * Date of premium payment, null if not known.
    */
-  @PropertyDefinition()
+  @PropertyDefinition
   private final LocalDate _premiumDate;
   /**
    * Time of premium payment, null if not known.
    */
-  @PropertyDefinition()
+  @PropertyDefinition
   private final OffsetTime _premiumTime;
   /**
    * The general purpose trade attributes.
@@ -131,16 +131,16 @@ public final class ImmutableTradeBundle implements ImmutableBean {
                               LocalDate premiumDate,
                               OffsetTime premiumTime,
                               Map<String, String> attributes) {
-    _uniqueId = ArgumentChecker.notNull(uniqueId, "uniqueId");
+    _uniqueId = uniqueId;
     _quantity = ArgumentChecker.notNull(quantity, "quantity");
     _security = ArgumentChecker.notNull(security, "security");
-    _counterparty = ArgumentChecker.notNull(counterparty, "counterparty");
+    _counterparty = counterparty;
     _tradeDate = ArgumentChecker.notNull(tradeDate, "tradeDate");
-    _tradeTime = ArgumentChecker.notNull(tradeTime, "tradeTime");
-    _premium = ArgumentChecker.notNull(premium, "premium");
-    _premiumCurrency = ArgumentChecker.notNull(premiumCurrency, "premiumCurrency");
-    _premiumDate = ArgumentChecker.notNull(premiumDate, "premiumDate");
-    _premiumTime = ArgumentChecker.notNull(premiumTime, "premiumTime");
+    _tradeTime = tradeTime;
+    _premium = premium;
+    _premiumCurrency = premiumCurrency;
+    _premiumDate = premiumDate;
+    _premiumTime = premiumTime;
     _attributes = ArgumentChecker.notNull(attributes, "attributes");
   }
 
