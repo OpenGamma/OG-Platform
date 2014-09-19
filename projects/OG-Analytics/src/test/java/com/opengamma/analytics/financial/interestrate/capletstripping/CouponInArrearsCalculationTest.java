@@ -38,7 +38,9 @@ import com.opengamma.analytics.financial.provider.calculator.discounting.Present
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
+import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.analytics.math.function.DoublesVectorFunctionProvider;
 import com.opengamma.analytics.math.function.InterpolatedVectorFunctionProvider;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolator;
@@ -178,6 +180,9 @@ public class CouponInArrearsCalculationTest {
   private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_OIS_PAIR =
       StandardDataSetsMulticurveUSD.getCurvesUSDOisL1L3L6();
   private static final MulticurveProviderDiscount MULTICURVE_OIS = MULTICURVE_OIS_PAIR.getFirst();
+  private static final CurveBuildingBlockBundle BLOCK_OIS = MULTICURVE_OIS_PAIR.getSecond();
+
+  private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
 
   /**
    * Minimal consistency test for subsequent demos
@@ -282,7 +287,7 @@ public class CouponInArrearsCalculationTest {
     MultipleCurrencyAmount secondPV = cal.presentValue((CouponIbor) SWAP_FIXED_1M.getSecondLeg().getNthPayment(0),
         sabrExtrapQuiet);
     for (int j = 1; j < SWAP_FIXED_1M.getSecondLeg().getNumberOfPayments(); j++) {
-      secondPV.plus(cal.presentValue((CouponIbor) SWAP_FIXED_1M.getSecondLeg().getNthPayment(j),
+      secondPV = secondPV.plus(cal.presentValue((CouponIbor) SWAP_FIXED_1M.getSecondLeg().getNthPayment(j),
           sabrExtrapQuiet));
     }
     MultipleCurrencyAmount ref = firstPV.plus(secondPV);
@@ -297,6 +302,21 @@ public class CouponInArrearsCalculationTest {
 
     assertEquals(ref.getAmount(USD), res1.getAmount(USD), Math.abs(ref.getAmount(USD)) * 1.0e-12);
     assertEquals(ref.getAmount(USD), res2.getAmount(USD), Math.abs(ref.getAmount(USD)) * 1.0e-12);
+
+    SmileInterpolatorSABRWithExtrapolation sabrExtrapQuiet3 = new SmileInterpolatorSABRWithExtrapolation(provider);
+    double parRate = cal.parRate(SWAP_FIXED_1M, sabrExtrapQuiet3);
+    double firstPVMod = firstPV.getAmount(USD) * parRate / 0.0125;
+    assertTrue(Math.abs((secondPV.getAmount(USD) + firstPVMod)) < Math.abs(ref.getAmount(USD)) * 1.e-10);
+
+    SmileInterpolatorSABRWithExtrapolation sabrExtrapQuiet4 = new SmileInterpolatorSABRWithExtrapolation(provider);
+    MultipleCurrencyParameterSensitivity sense = cal.presentValueCurveSensitivity(SWAP_FIXED_1M, BLOCK_OIS,
+        sabrExtrapQuiet4).multipliedBy(oneBP);
+    assertEquals(sense.getAllNamesCurrency().iterator().next().getSecond(), USD);
+
+    SmileInterpolatorSABRWithExtrapolation sabrExtrapQuiet5 = new SmileInterpolatorSABRWithExtrapolation(provider);
+    MultipleCurrencyParameterSensitivity sense1 = cal.presentValueCurveSensitivity(swap, BLOCK_OIS,
+        sabrExtrapQuiet5).multipliedBy(oneBP);
+    AssertSensitivityObjects.assertEquals("two identical swaps", sense, sense1, 1.0e-10);
   }
 
   /**
@@ -329,7 +349,6 @@ public class CouponInArrearsCalculationTest {
     CapletStripperDirect stripper = new CapletStripperDirect(pricer, lambda);
     CouponInArrearsCalculation cal = new CouponInArrearsCalculation(stripper, caps, capVols, MarketDataType.VOL,
         errors, guess, MULTICURVE_OIS);
-    PresentValueDiscountingCalculator pvdc = PresentValueDiscountingCalculator.getInstance();
     System.out.println("Chi2: " + cal.getChiSq());
     System.out.println("Time for stripping :" + cal.getTime() + "s");
     System.out.println();
@@ -339,15 +358,10 @@ public class CouponInArrearsCalculationTest {
       BenaimDodgsonKainthExtrapolationFunctionProvider provider = new BenaimDodgsonKainthExtrapolationFunctionProvider(
           mu, mu);
       SmileInterpolatorSABRWithExtrapolation sabrExtrapQuiet = new SmileInterpolatorSABRWithExtrapolation(provider);
-
-      MultipleCurrencyAmount firstPV = SWAP_FIXED_1M.getFirstLeg().accept(pvdc, MULTICURVE_OIS);
-      MultipleCurrencyAmount secondPV = cal.presentValue((CouponIbor) SWAP_FIXED_1M.getSecondLeg().getNthPayment(0),
-          sabrExtrapQuiet);
-      for (int j = 1; j < SWAP_FIXED_1M.getSecondLeg().getNumberOfPayments(); j++) {
-        secondPV.plus(cal.presentValue((CouponIbor) SWAP_FIXED_1M.getSecondLeg().getNthPayment(j),
-            sabrExtrapQuiet));
-      }
-      System.out.println("mu: " + mu + ", pv: " + firstPV.plus(secondPV));
+      MultipleCurrencyAmount pv = cal.presentValue(SWAP_FIXED_1M, sabrExtrapQuiet);
+      SmileInterpolatorSABRWithExtrapolation sabrExtrapQuiet1 = new SmileInterpolatorSABRWithExtrapolation(provider);
+      Double parRate = cal.parRate(SWAP_FIXED_1M, sabrExtrapQuiet1);
+      System.out.println("mu: " + mu + ", pv: " + pv + ", parRate: " + parRate);
     }
     System.out.println();
 
@@ -365,18 +379,13 @@ public class CouponInArrearsCalculationTest {
 
     for (int i = 0; i < 11; i++) {
       double mu = 1.0 + 0.25 * i;
-    BenaimDodgsonKainthExtrapolationFunctionProvider provider = new BenaimDodgsonKainthExtrapolationFunctionProvider(
+      BenaimDodgsonKainthExtrapolationFunctionProvider provider = new BenaimDodgsonKainthExtrapolationFunctionProvider(
           mu, mu);
-    SmileInterpolatorSABRWithExtrapolation sabrExtrapQuiet = new SmileInterpolatorSABRWithExtrapolation(provider);
-
-    MultipleCurrencyAmount firstPV = SWAP_FIXED_1M.getFirstLeg().accept(pvdc, MULTICURVE_OIS);
-    MultipleCurrencyAmount secondPV = cal.presentValue((CouponIbor) SWAP_FIXED_1M.getSecondLeg().getNthPayment(0),
-        sabrExtrapQuiet);
-      for (int j = 1; j < SWAP_FIXED_1M.getFirstLeg().getNumberOfPayments(); j++) {
-        secondPV.plus(calLarge.presentValue((CouponIbor) SWAP_FIXED_1M.getSecondLeg().getNthPayment(j),
-          sabrExtrapQuiet));
-      }
-      System.out.println("mu: " + mu + ", pv: " + firstPV.plus(secondPV));
+      SmileInterpolatorSABRWithExtrapolation sabrExtrapQuiet = new SmileInterpolatorSABRWithExtrapolation(provider);
+      MultipleCurrencyAmount pv = calLarge.presentValue(SWAP_FIXED_1M, sabrExtrapQuiet);
+      SmileInterpolatorSABRWithExtrapolation sabrExtrapQuiet1 = new SmileInterpolatorSABRWithExtrapolation(provider);
+      Double parRate = calLarge.parRate(SWAP_FIXED_1M, sabrExtrapQuiet1);
+      System.out.println("mu: " + mu + ", pv: " + pv + ", parRate: " + parRate);
     }
     System.out.println();
   }
