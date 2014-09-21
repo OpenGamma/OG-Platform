@@ -5,27 +5,10 @@ import static org.testng.AssertJUnit.assertEquals;
 import java.util.LinkedHashMap;
 
 import org.testng.annotations.Test;
-import org.threeten.bp.Period;
-import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
-import com.opengamma.analytics.financial.instrument.index.GeneratorAttributeIR;
-import com.opengamma.analytics.financial.instrument.index.GeneratorLegIbor;
-import com.opengamma.analytics.financial.instrument.index.GeneratorLegIborMaster;
-import com.opengamma.analytics.financial.instrument.index.GeneratorLegONArithmeticAverage;
-import com.opengamma.analytics.financial.instrument.index.GeneratorLegONCompounded;
-import com.opengamma.analytics.financial.instrument.index.GeneratorLegOnAaMaster;
-import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
-import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIborMaster;
-import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedON;
-import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedONMaster;
-import com.opengamma.analytics.financial.instrument.index.GeneratorSwapSingleCurrency;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
-import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
-import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.datasets.StandardDataSetsMulticurveUSD;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
-import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParRateDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueCurveSensitivityDiscountingCalculator;
@@ -38,14 +21,9 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.Multipl
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
 import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
-import com.opengamma.financial.convention.StubType;
-import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
-import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.test.TestGroup;
-import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 
@@ -57,12 +35,10 @@ import com.opengamma.util.tuple.Pair;
 @Test(groups = TestGroup.UNIT)
 public class SwapCalculatorE2ETest {
 
-  private static final ZonedDateTime VALUATION_DATE = DateUtils.getUTCDate(2014, 1, 22);
   private static final IborIndex[] INDEX_IBOR_LIST = StandardDataSetsMulticurveUSD.indexIborArrayUSDOisL1L3L6();
   private static final IborIndex USDLIBOR1M = INDEX_IBOR_LIST[0];
   private static final IborIndex USDLIBOR3M = INDEX_IBOR_LIST[1];
   private static final IborIndex USDLIBOR6M = INDEX_IBOR_LIST[2];
-  private static final Calendar NYC = StandardDataSetsMulticurveUSD.calendarArray()[0];
   private static final Currency USD = USDLIBOR3M.getCurrency();
   /** Calculators */
   private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
@@ -84,149 +60,207 @@ public class SwapCalculatorE2ETest {
       StandardDataSetsMulticurveUSD.getCurvesUSDOisFFL1L3L6();
   private static final MulticurveProviderDiscount MULTICURVE_FFS = MULTICURVE_FF_PAIR.getFirst();
   private static final CurveBuildingBlockBundle BLOCK_FFS = MULTICURVE_FF_PAIR.getSecond();
-  /** Standard market conventions */
-  private static final GeneratorLegIbor LEG_USDLIBOR3M =  GeneratorLegIborMaster.getInstance().getGenerator("USDLIBOR3M", NYC);
-  private static final GeneratorLegIbor LEG_USDLIBOR6M =  GeneratorLegIborMaster.getInstance().getGenerator("USDLIBOR6M", NYC);
-  private static final GeneratorLegONArithmeticAverage LEG_USDFEDFUNDAA3M = GeneratorLegOnAaMaster.getInstance().getGenerator("USDFEDFUNDAA3M", NYC);
-  private static final GeneratorLegONCompounded LEG_USDFEDFUNDCMP1Y =
-      new GeneratorLegONCompounded("LEG", USD, LEG_USDFEDFUNDAA3M.getIndexON(), Period.ofMonths(12), 2, 2, 
-          LEG_USDFEDFUNDAA3M.getBusinessDayConvention(), true, StubType.SHORT_START, false, NYC, NYC);
-  private static final GeneratorSwapSingleCurrency USDFFAA3MLIBOR3M = new GeneratorSwapSingleCurrency("USDFEDFUNDAA3MLIBOR3M",
-      LEG_USDFEDFUNDAA3M, LEG_USDLIBOR3M);
-  private static final GeneratorSwapFixedIborMaster GENERATOR_SWAP_FIXED_IBOR_MASTER = GeneratorSwapFixedIborMaster.getInstance();
-  private static final GeneratorSwapFixedONMaster GENERATOR_SWAP_FIXED_ONCMP_MASTER = GeneratorSwapFixedONMaster.getInstance();
-  private static final GeneratorSwapFixedIbor USD6MLIBOR1M = GENERATOR_SWAP_FIXED_IBOR_MASTER.getGenerator("USD6MLIBOR1M", NYC);
-  private static final GeneratorSwapFixedIbor USD6MLIBOR3M = GENERATOR_SWAP_FIXED_IBOR_MASTER.getGenerator("USD6MLIBOR3M", NYC);
-  private static final GeneratorSwapFixedON USD1YFEDFUND = GENERATOR_SWAP_FIXED_ONCMP_MASTER.getGenerator("USD1YFEDFUND", NYC);
-  
-  /** Fixing data */
-  private static final ZonedDateTimeDoubleTimeSeries TS_USDLIBOR3M = 
-      ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(
-          new ZonedDateTime[] {DateUtils.getUTCDate(2013, 12, 10), DateUtils.getUTCDate(2013, 12, 12) }, 
-          new double[] {0.0024185, 0.0100 });
-  private static final ZonedDateTimeDoubleTimeSeries TS_USDLIBOR6M = 
-      ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(
-          new ZonedDateTime[] {DateUtils.getUTCDate(2013, 12, 10), DateUtils.getUTCDate(2013, 12, 12) }, 
-          new double[] {0.0030, 0.0035 });
-  private static final ZonedDateTimeDoubleTimeSeries[] TS_ARRAY_USDLIBOR3M = 
-      new ZonedDateTimeDoubleTimeSeries[] {TS_USDLIBOR3M };
-  private static final ZonedDateTimeDoubleTimeSeries[] TS_ARRAY_USDLIBOR3M_USDLIBOR6M = 
-      new ZonedDateTimeDoubleTimeSeries[] {TS_USDLIBOR3M, TS_USDLIBOR6M };
-  /** Instruments descriptions */
-  private static final double NOTIONAL = 100000000; //100 m
-  // Instrument description: Swap Fixed vs ON Cmp (X)
-  private static final ZonedDateTime TRADE_DATE_ON = DateUtils.getUTCDate(2014, 2, 3);
-  private static final Period TENOR_SWAP_ON = Period.ofMonths(2);
-  private static final double FIXED_RATE_ON = 0.00123;
-  private static final GeneratorAttributeIR ATTRIBUTE_ON = new GeneratorAttributeIR(TENOR_SWAP_ON);
-  private static final SwapDefinition SWAP_FIXED_ON_DEFINITION = 
-      USD1YFEDFUND.generateInstrument(TRADE_DATE_ON, FIXED_RATE_ON, NOTIONAL, ATTRIBUTE_ON);
-  private static final Swap<? extends Payment, ? extends Payment> SWAP_FIXED_ON = SWAP_FIXED_ON_DEFINITION.toDerivative(VALUATION_DATE);
-  // Instrument description: Swap ON AA + Spread vs Libor 3M (X)
-  private static final ZonedDateTime TRADE_DATE_FF = DateUtils.getUTCDate(2014, 9, 10);
-  private static final Period TENOR_SWAP_FF = Period.ofYears(6);
-  private static final double SPREAD_FF = 0.0025;
-  private static final GeneratorAttributeIR ATTRIBUTE_FF = new GeneratorAttributeIR(TENOR_SWAP_FF);
-  private static final SwapDefinition SWAP_FF_3M_0_DEFINITION = 
-      USDFFAA3MLIBOR3M.generateInstrument(TRADE_DATE_FF, 0.0, NOTIONAL, ATTRIBUTE_FF);
-  private static final Swap<? extends Payment, ? extends Payment> SWAP_FF_3M_0 = SWAP_FF_3M_0_DEFINITION.toDerivative(VALUATION_DATE);
-  private static final SwapDefinition SWAP_FF_3M_DEFINITION = 
-      USDFFAA3MLIBOR3M.generateInstrument(TRADE_DATE_FF, SPREAD_FF, NOTIONAL, ATTRIBUTE_FF);
-  private static final Swap<? extends Payment, ? extends Payment> SWAP_FF_3M = SWAP_FF_3M_DEFINITION.toDerivative(VALUATION_DATE);
-  // Instrument description: Swap Fixed vs Libor3M (X)
-  private static final ZonedDateTime TRADE_DATE_3M = DateUtils.getUTCDate(2014, 9, 10);
-  private static final Period TENOR_SWAP_3M = Period.ofYears(7);
-  private static final double FIXED_RATE_3M = 0.0150;
-  private static final GeneratorAttributeIR ATTRIBUTE_3M = new GeneratorAttributeIR(TENOR_SWAP_3M);
-  private static final SwapDefinition SWAP_FIXED_3M_DEFINITION = 
-      USD6MLIBOR3M.generateInstrument(TRADE_DATE_3M, FIXED_RATE_3M, NOTIONAL, ATTRIBUTE_3M);
-  private static final Swap<? extends Payment, ? extends Payment> SWAP_FIXED_3M = SWAP_FIXED_3M_DEFINITION.toDerivative(VALUATION_DATE);
-  // Instrument description: Swap Fixed vs Libor1M
-  private static final ZonedDateTime TRADE_DATE_1M = DateUtils.getUTCDate(2014, 9, 10);
-  private static final Period TENOR_SWAP_1M = Period.ofYears(2);
-  private static final double FIXED_RATE_1M = 0.0125;
-  private static final GeneratorAttributeIR ATTRIBUTE_1M = new GeneratorAttributeIR(TENOR_SWAP_1M);
-  private static final SwapDefinition SWAP_FIXED_1M_DEFINITION = 
-      USD6MLIBOR1M.generateInstrument(TRADE_DATE_1M, FIXED_RATE_1M, NOTIONAL, ATTRIBUTE_1M);
-  private static final Swap<? extends Payment, ? extends Payment> SWAP_FIXED_1M = SWAP_FIXED_1M_DEFINITION.toDerivative(VALUATION_DATE);
-  // Instrument description: Swap Fixed vs Libor3M Already started (with fixing) (X)
-  private static final ZonedDateTime TRADE_DATE_3M_S = DateUtils.getUTCDate(2013, 9, 10);
-  private static final Period TENOR_SWAP_3M_S = Period.ofYears(7);
-  private static final double FIXED_RATE_3M_S = 0.0150;
-  private static final GeneratorAttributeIR ATTRIBUTE_3M_S = new GeneratorAttributeIR(TENOR_SWAP_3M_S);
-  private static final SwapFixedIborDefinition SWAP_FIXED_3M_S_DEFINITION = 
-      USD6MLIBOR3M.generateInstrument(TRADE_DATE_3M_S, FIXED_RATE_3M_S, NOTIONAL, ATTRIBUTE_3M_S);
-  private static final Swap<? extends Payment, ? extends Payment> SWAP_FIXED_3M_S = 
-      SWAP_FIXED_3M_S_DEFINITION.toDerivative(VALUATION_DATE, TS_ARRAY_USDLIBOR3M);
-  // Instrument description: Swap Libor3M+S vs Libor6M (X)
-  private static final ZonedDateTime TRADE_DATE_3M_6M_BS = DateUtils.getUTCDate(2014, 8, 27);
-  private static final Period TENOR_SWAP_3M_6M_BS = Period.ofYears(10);
-  private static final double SPREAD_3M_6M_BS = 0.0010;
-  private static final GeneratorAttributeIR ATTRIBUTE_3M_6M_BS = new GeneratorAttributeIR(TENOR_SWAP_3M_6M_BS);
-  private static final AnnuityDefinition<?> LEG_3M_S = 
-      LEG_USDLIBOR3M.generateInstrument(TRADE_DATE_3M_6M_BS, SPREAD_3M_6M_BS, NOTIONAL, ATTRIBUTE_3M_6M_BS); // Receiver
-  private static final AnnuityDefinition<?> LEG_6M = 
-      LEG_USDLIBOR6M.generateInstrument(TRADE_DATE_3M_6M_BS, 0.0, -NOTIONAL, ATTRIBUTE_3M_6M_BS); // Payer
-  private static final SwapDefinition BS_3M_S_6M_DEFINITION = new SwapDefinition(LEG_3M_S, LEG_6M);
-  private static final Swap<? extends Payment, ? extends Payment> BS_3M_S_6M = 
-      BS_3M_S_6M_DEFINITION.toDerivative(VALUATION_DATE, TS_ARRAY_USDLIBOR3M_USDLIBOR6M);
-  // Instrument description: Swap ON Comp+spread v ON AA - Such swap would not be traded, used only for testing (X)
-  private static final ZonedDateTime TRADE_DATE_ONCMP_AA = DateUtils.getUTCDate(2014, 8, 27);
-  private static final Period TENOR_SWAP_ONCMP_AA = Period.ofYears(5);
-  private static final double SPREAD_ONCMP_AA = 0.0010;
-  private static final GeneratorAttributeIR ATTRIBUTE_ONCMP_AA = new GeneratorAttributeIR(TENOR_SWAP_ONCMP_AA);
-  private static final AnnuityDefinition<?> LEG_ONCMP_S = 
-      LEG_USDFEDFUNDCMP1Y.generateInstrument(TRADE_DATE_ONCMP_AA, SPREAD_ONCMP_AA, -NOTIONAL, ATTRIBUTE_ONCMP_AA); // Payer
-  private static final AnnuityDefinition<?> LEG_ONAA = 
-      LEG_USDFEDFUNDAA3M.generateInstrument(TRADE_DATE_ONCMP_AA, 0.0, NOTIONAL, ATTRIBUTE_ONCMP_AA); // Receiver
-  private static final SwapDefinition BS_ONCMP_S_ONAA_DEFINITION = new SwapDefinition(LEG_ONCMP_S, LEG_ONAA);
-  private static final Swap<? extends Payment, ? extends Payment> BS_ONCMP_S_ONAA = 
-      BS_ONCMP_S_ONAA_DEFINITION.toDerivative(VALUATION_DATE);
   
   private static final double TOLERANCE_PV = 1.0E-3;
   private static final double TOLERANCE_PV_DELTA = 1.0E-4;
   private static final double TOLERANCE_RATE = 1.0E-8;
   private static final double BP1 = 1.0E-4;
+  
+  /**
+   * Test the present value versus a hard-coded number.
+   * @param ins The instrument to test.
+   * @param multicurve The multi-curve provider.
+   * @param ccy The currency of the expected PV.
+   * @param expectedPv The expected PV amount.
+   * @param msg The assert message.
+   */
+  private void presentValueTest(InstrumentDerivative ins, MulticurveProviderDiscount multicurve, Currency ccy, 
+      double expectedPv, String msg) {
+    MultipleCurrencyAmount pvComputed = ins.accept(PVDC, multicurve);
+    assertEquals(msg, expectedPv, pvComputed.getAmount(ccy), TOLERANCE_PV);
+  }
 
   @Test
   /** Tests present value for a swap fixed vs Fed Fund compounded. */
   public void presentValueONCmp() {
-    final MultipleCurrencyAmount pvComputed = SWAP_FIXED_ON.accept(PVDC, MULTICURVE_OIS);
-    final MultipleCurrencyAmount pvExpected = MultipleCurrencyAmount.of(Currency.USD, -9723.264518929138);
-    assertEquals("Swap Fixed v ON compounded: present value from standard curves", 
-        pvExpected.getAmount(USD), pvComputed.getAmount(USD), TOLERANCE_PV);
-    final MultipleCurrencyAmount pvComputed2 = SWAP_FIXED_ON.accept(PVDC, MULTICURVE_FFS);
-    final MultipleCurrencyAmount pvExpected2 = MultipleCurrencyAmount.of(Currency.USD, -5969.7908);
-    assertEquals("Swap Fixed v ON compounded: present value - Fed Fund swap based curves", 
-        pvExpected2.getAmount(USD), pvComputed2.getAmount(USD), TOLERANCE_PV);
+    presentValueTest(SwapInstrumentsDataSet.SWAP_FIXED_ON, MULTICURVE_OIS, USD, -9723.264518929138,
+        "Swap Fixed v ON compounded: present value from standard curves");
+    presentValueTest(SwapInstrumentsDataSet.SWAP_FIXED_ON, MULTICURVE_FFS, USD, -5969.7908,
+        "Swap Fixed v ON compounded: present value - Fed Fund swap based curves");
   }
 
   @Test
-  /** Tests forward rate for a swap fixed vs Fed Fund compounded. */
-  public void parRateONCmp() {
-    final double parRate = SWAP_FIXED_ON.accept(PRDC, MULTICURVE_OIS);
-    final double parRateExpected = 6.560723881400023E-4;
-    assertEquals("Swap Fixed v ON compounded: par rate from standard curves", parRateExpected, parRate, TOLERANCE_RATE);
+  /** Tests present value for a swap fixed vs Fed Fund compounded with fixing. */
+  public void presentValueONCmpWithFixing() {
+    presentValueTest(SwapInstrumentsDataSet.SWAP_FIXED_ON_S, MULTICURVE_OIS, USD, -7352.973875972721,
+        "Swap Fixed v ON compounded: present value from standard curves");
+    presentValueTest(SwapInstrumentsDataSet.SWAP_FIXED_ON_S, MULTICURVE_FFS, USD, -5569.499485016839,
+        "Swap Fixed v ON compounded: present value from standard curves");
   }
 
   @Test
   /** Tests present value of ON Arithmetic Average (+ spread) vs Libor3M swaps. */
   public void presentValueONAA3M() {
-    final MultipleCurrencyAmount pv0Computed = SWAP_FF_3M_0.accept(PVDC, MULTICURVE_OIS); // Spread = 0
-    final MultipleCurrencyAmount pv0Expected = MultipleCurrencyAmount.of(Currency.USD, -1617070.5290);
-    assertEquals("Swap ON Arithmetic Average: present value", 
-        pv0Expected.getAmount(USD), pv0Computed.getAmount(USD), TOLERANCE_PV);
-    final MultipleCurrencyAmount pvComputed = SWAP_FF_3M.accept(PVDC, MULTICURVE_OIS); // Spread 
-    final MultipleCurrencyAmount pvExpected = MultipleCurrencyAmount.of(Currency.USD, -159794.3224);
-    assertEquals("Swap ON Arithmetic Average: present value", 
-        pvExpected.getAmount(USD), pvComputed.getAmount(USD), TOLERANCE_PV);
+    presentValueTest(SwapInstrumentsDataSet.SWAP_FF_3M_0, MULTICURVE_OIS, USD, -1617940.0428,
+        "Swap ON Arithmetic Average: present value");
+    presentValueTest(SwapInstrumentsDataSet.SWAP_FF_3M, MULTICURVE_OIS, USD, -160663.8362,
+        "Swap ON Arithmetic Average: present value");
+    presentValueTest(SwapInstrumentsDataSet.SWAP_FF_3M_0, MULTICURVE_FFS, USD, -1296763.1943,
+        "Swap ON Arithmetic Average: present value");
+    presentValueTest(SwapInstrumentsDataSet.SWAP_FF_3M, MULTICURVE_FFS, USD, 150128.4091,
+        "Swap ON Arithmetic Average: present value");
+  }
+
+  @Test
+  /** Test present value for a swap fixed vs LIBOR3M. Curves with OIS and curves with Fed Fund swaps.*/
+  public void presentValue3M() {
+    presentValueTest(SwapInstrumentsDataSet.SWAP_FIXED_3M, MULTICURVE_OIS, USD, 7170391.798257509,
+        "IRS Fixed v LIBOR3M: present value - OIS based curves");
+    presentValueTest(SwapInstrumentsDataSet.SWAP_FIXED_3M, MULTICURVE_FFS, USD, 6065111.8810,
+        "IRS Fixed v LIBOR3M: present value - Fed Fund swap based curve");
+  }
+
+  @Test
+  /** Test present value for a swap fixed vs LIBOR3M with fixing. */
+  public void presentValue3MWithFixing() {
+    presentValueTest(SwapInstrumentsDataSet.SWAP_FIXED_3M_S, MULTICURVE_OIS, USD, 3588376.471608199,
+        "IRS Fixed v LIBOR3M: present value - OIS based curves");
+    presentValueTest(SwapInstrumentsDataSet.SWAP_FIXED_3M_S, MULTICURVE_FFS, USD, 3193775.0940362737,
+        "IRS Fixed v LIBOR3M: present value - Fed Fund swap based curve");
+  }
+
+  @Test
+  /** Test present value for a swap LIBOR3M + Spread V LIBOR6M. */
+  public void presentValue3M6M() {
+    presentValueTest(SwapInstrumentsDataSet.BS_3M_S_6M, MULTICURVE_OIS, USD, -13844.3872,
+        "Basis swap L3M v L6M: present value");
+    presentValueTest(SwapInstrumentsDataSet.BS_3M_S_6M, MULTICURVE_FFS, USD, 72748.9893,
+        "Basis swap L3M v L6M: present value");
+  }
+
+  @Test
+  /** Test present value for a swap LIBOR1M Compounding V LIBOR3M. */
+  public void presentValue1MCmp3M() {
+    presentValueTest(SwapInstrumentsDataSet.BS_1MCMP_3M, MULTICURVE_OIS, USD, -340415.3431,
+        "Basis swap L1MFlat v L3M: present value");
+    presentValueTest(SwapInstrumentsDataSet.BS_1MCMP_3M, MULTICURVE_FFS, USD, -534937.1336,
+        "Basis swap L1MFlat v L3M: present value");
+  }
+
+  @Test
+  /** Test present value for a swap LIBOR1M Compounding FLAT + Spread V LIBOR3M. */
+  public void presentValue1MSpreadFlat3M() {
+    presentValueTest(SwapInstrumentsDataSet.BS_1MCMP_S_3M, MULTICURVE_OIS, USD, 152396.2410,
+        "Basis swap L1MFlat v L3M: present value");
+    presentValueTest(SwapInstrumentsDataSet.BS_1MCMP_S_3M, MULTICURVE_FFS, USD, -46130.4883,
+        "Basis swap L1MFlat v L3M: present value");
+  }
+
+  @Test
+  /**Test present value for a swap fixed vs LIBOR1M. */
+  public void presentValue1M() {
+    presentValueTest(SwapInstrumentsDataSet.SWAP_FIXED_1M, MULTICURVE_OIS, USD, -1003685.1791,
+        "IRS Fixed v LIBOR1M: present value from standard curves");
+  }
+  
+  @Test
+  /**Tests present value for a ON Cmp + spread v ON AA. */
+  public void presentValueONCmpONAA() {
+    presentValueTest(SwapInstrumentsDataSet.BS_ONCMP_S_ONAA, MULTICURVE_FFS, USD, -507970.1126,
+        "Basis swap ON Cmp + spread v ON AA: present value - FF swap based curves");
+  }
+  
+  @Test
+  /**Tests present value for an IRS with stub - fixed leg. */
+  public void presentValueStub1() {
+    presentValueTest(SwapInstrumentsDataSet.IRS_STUB1, MULTICURVE_FFS, USD, -180869.2122,
+        "IRS with STUB: present value - FF swap based curves");
+  }  
+  
+  @Test
+  /**Tests present value for an IRS with stub - ibor leg / same index */
+  public void presentValueStub2() {
+    presentValueTest(SwapInstrumentsDataSet.IRS_STUB2, MULTICURVE_FFS, USD, -258994.3839,
+        "IRS with STUB: present value - FF swap based curves");
+  }  
+  
+  @Test
+  /**Tests present value for an IRS with stub - ibor leg / interpolated index */
+  public void presentValueStub3() {
+    presentValueTest(SwapInstrumentsDataSet.IRS_STUB3, MULTICURVE_FFS, USD, -319533.7849,
+        "IRS with STUB: present value - FF swap based curves");
+  }
+  
+  @Test
+  /**Tests present value for an IRS with stub - ibor leg / interpolated index */
+  public void presentValueStub4() {
+    presentValueTest(SwapInstrumentsDataSet.IRS_STUB4, MULTICURVE_FFS, USD, -405631.5512,
+        "IRS with STUB: present value - FF swap based curves");
+  }
+
+  @Test(enabled=false) // TODO: reinstall the test when the stub problem [PLAT-6777]
+  /**Tests present value for an IRS with stub - ibor leg / interpolated index  - short end*/
+  public void presentValueStub5() {
+    presentValueTest(SwapInstrumentsDataSet.IRS_STUB5, MULTICURVE_FFS, USD, 0.0,
+        "IRS with STUB: present value - FF swap based curves");
+  }
+  
+  @Test(enabled=false) // TODO: reinstall the test when the stub problem [PLAT-6777]
+  /**Tests present value for an IRS with stub - ibor leg / interpolated index  - short end*/
+  public void presentValueStub6() {
+    presentValueTest(SwapInstrumentsDataSet.IRS_STUB6, MULTICURVE_FFS, USD, 0.0,
+        "IRS with STUB: present value - FF swap based curves");
+  }
+  
+  /**
+   * Test the parrate versus a hard-coded number.
+   * @param ins The instrument to test.
+   * @param multicurve The multi-curve provider.
+   * @param ccy The currency of the expected PV.
+   * @param expectedPv The expected PV amount.
+   * @param msg The assert message.
+   */
+  private void parRateTest(InstrumentDerivative ins, MulticurveProviderDiscount multicurve, double prExpected, 
+      String msg) {
+    double prComputed = ins.accept(PRDC, multicurve);
+    assertEquals(msg, prExpected, prComputed, TOLERANCE_RATE);
+  }
+
+  @Test
+  /** Tests forward rate for a swap fixed vs Fed Fund compounded. */
+  public void parRateONCmp() {
+    parRateTest(SwapInstrumentsDataSet.SWAP_FIXED_ON, MULTICURVE_OIS, 6.560723881400023E-4, 
+        "Swap Fixed v ON compounded: par rate from standard curves");
+  }
+
+  @Test
+  /** Test forward rate  for a swap fixed vs LIBOR3M. Curves with OIS and curves with Fed Fund swaps. */
+  public void parRate3M() {
+    parRateTest(SwapInstrumentsDataSet.SWAP_FIXED_3M, MULTICURVE_OIS, 0.025894715668195054, 
+        "IRS Fixed v LIBOR3M: par rate");
+    parRateTest(SwapInstrumentsDataSet.SWAP_FIXED_3M, MULTICURVE_FFS, 0.024262727477023297, 
+        "IRS Fixed v LIBOR3M: par rate");
+  }
+
+  @Test
+  /** Test forward rate for a swap fixed vs LIBOR1M. */
+  public void parRate1M() {
+    parRateTest(SwapInstrumentsDataSet.SWAP_FIXED_1M, MULTICURVE_OIS, 0.007452504182638092,
+        "IRS Fixed v LIBOR1M: par rate from standard curves");
+  }
+
+  @Test
+  /** Test forward rate for a swap fixed vs LIBOR3M - stub. */
+  public void parRateStub1() {
+    parRateTest(SwapInstrumentsDataSet.IRS_STUB1, MULTICURVE_FFS, 0.0110411215,
+        "IRS Fixed v LIBOR3M - stub: par rate");
   }
 
   @Test
   /** Tests par spread for ON Arithmetic Average (+ spread) vs Libor3M swaps. */
   public void parSpreadMarketQuoteONAA3M() {
-    final double parSpread = SWAP_FF_3M_0.accept(PSMQDC, MULTICURVE_OIS);
-    final double parSpreadExpected = 0.0027741318;
+    final double parSpread = SwapInstrumentsDataSet.SWAP_FF_3M_0.accept(PSMQDC, MULTICURVE_OIS);
+    final double parSpreadExpected = 0.0027756235; // 0.0027741318;
     assertEquals("Swap ON Arithmetic Average: par spread", parSpreadExpected, parSpread, TOLERANCE_RATE);
   }
 
@@ -244,7 +278,7 @@ public class SwapCalculatorE2ETest {
     sensitivity.put(ObjectsPair.of(MULTICURVE_OIS.getName(USD), USD), new DoubleMatrix1D(deltaDsc));
     sensitivity.put(ObjectsPair.of(MULTICURVE_OIS.getName(USDLIBOR3M), USD), new DoubleMatrix1D(deltaFwd3));
     final MultipleCurrencyParameterSensitivity pvpsExpected = new MultipleCurrencyParameterSensitivity(sensitivity);
-    final MultipleCurrencyParameterSensitivity pvpsComputed = MQSBC.fromInstrument(SWAP_FF_3M, MULTICURVE_OIS, BLOCK_OIS).multipliedBy(BP1);
+    final MultipleCurrencyParameterSensitivity pvpsComputed = MQSBC.fromInstrument(SwapInstrumentsDataSet.SWAP_FF_3M, MULTICURVE_OIS, BLOCK_OIS).multipliedBy(BP1);
     AssertSensitivityObjects.assertEquals("Swap ON Arithmetic Average: bucketed deltas - standard curves", 
         pvpsExpected, pvpsComputed, TOLERANCE_PV_DELTA);
     final double[] deltaDsc2 = 
@@ -259,41 +293,9 @@ public class SwapCalculatorE2ETest {
     sensitivity2.put(ObjectsPair.of(MULTICURVE_OIS.getName(USD), USD), new DoubleMatrix1D(deltaDsc2));
     sensitivity2.put(ObjectsPair.of(MULTICURVE_OIS.getName(USDLIBOR3M), USD), new DoubleMatrix1D(deltaFwd32));
     final MultipleCurrencyParameterSensitivity pvpsExpected2 = new MultipleCurrencyParameterSensitivity(sensitivity2);
-    final MultipleCurrencyParameterSensitivity pvpsComputed2 = MQSBC.fromInstrument(SWAP_FF_3M, MULTICURVE_FFS, BLOCK_FFS).multipliedBy(BP1);
+    final MultipleCurrencyParameterSensitivity pvpsComputed2 = MQSBC.fromInstrument(SwapInstrumentsDataSet.SWAP_FF_3M, MULTICURVE_FFS, BLOCK_FFS).multipliedBy(BP1);
     AssertSensitivityObjects.assertEquals("Swap ON Arithmetic Average: bucketed deltas - fed fund based curve", 
         pvpsExpected2, pvpsComputed2, TOLERANCE_PV_DELTA);
-  }
-
-  @Test
-  /** Test present value for a swap fixed vs LIBOR3M. Curves with OIS and curves with Fed Fund swaps.*/
-  public void presentValue3M() {
-    final MultipleCurrencyAmount pvComputed = SWAP_FIXED_3M.accept(PVDC, MULTICURVE_OIS);
-    final MultipleCurrencyAmount pvExpected = MultipleCurrencyAmount.of(Currency.USD, 7170391.798257509);
-    assertEquals("IRS Fixed v LIBOR3M: present value - OIS based curves", 
-        pvExpected.getAmount(USD), pvComputed.getAmount(USD), TOLERANCE_PV);
-    final MultipleCurrencyAmount pvComputed2 = SWAP_FIXED_3M.accept(PVDC, MULTICURVE_FFS);
-    final MultipleCurrencyAmount pvExpected2 = MultipleCurrencyAmount.of(Currency.USD, 6065111.8810);
-    assertEquals("IRS Fixed v LIBOR3M: present value - Fed Fund swap based curve", 
-        pvExpected2.getAmount(USD), pvComputed2.getAmount(USD), TOLERANCE_PV);
-  }
-
-  @Test
-  /** Test present value for a swap fixed vs LIBOR3M. */
-  public void presentValue3MWithFixing() {
-    final MultipleCurrencyAmount pvComputed = SWAP_FIXED_3M_S.accept(PVDC, MULTICURVE_OIS);
-    final MultipleCurrencyAmount pvExpected = MultipleCurrencyAmount.of(Currency.USD, 3588376.471608199);
-    assertEquals("IRS Fixed v LIBOR3M: present value", pvExpected.getAmount(USD), pvComputed.getAmount(USD), TOLERANCE_PV);
-  }
-
-  @Test
-  /** Test forward rate  for a swap fixed vs LIBOR3M. Curves with OIS and curves with Fed Fund swaps. */
-  public void parRate3M() {
-    final double parRate = SWAP_FIXED_3M.accept(PRDC, MULTICURVE_OIS);
-    final double parRateExpected = 0.025894715668195054;
-    assertEquals("IRS Fixed v LIBOR3M: par rate", parRateExpected, parRate, TOLERANCE_RATE);
-    final double parRate2 = SWAP_FIXED_3M.accept(PRDC, MULTICURVE_FFS);
-    final double parRateExpected2 = 0.024262727477023297;
-    assertEquals("IRS Fixed v LIBOR3M: par rate", parRateExpected2, parRate2, TOLERANCE_RATE);
   }
 
   @Test
@@ -313,7 +315,7 @@ public class SwapCalculatorE2ETest {
     sensitivity.put(ObjectsPair.of(MULTICURVE_OIS.getName(USDLIBOR3M), USD), new DoubleMatrix1D(deltaFwd3));
     final MultipleCurrencyParameterSensitivity pvpsExpected = new MultipleCurrencyParameterSensitivity(sensitivity);
     final MultipleCurrencyParameterSensitivity pvpsComputed = 
-        MQSBC.fromInstrument(SWAP_FIXED_3M, MULTICURVE_OIS, BLOCK_OIS).multipliedBy(BP1);
+        MQSBC.fromInstrument(SwapInstrumentsDataSet.SWAP_FIXED_3M, MULTICURVE_OIS, BLOCK_OIS).multipliedBy(BP1);
     AssertSensitivityObjects.assertEquals("IRS Fixed v LIBOR3M: bucketed deltas", 
         pvpsExpected, pvpsComputed, TOLERANCE_PV_DELTA);
     final double[] deltaDsc2 = 
@@ -331,20 +333,9 @@ public class SwapCalculatorE2ETest {
     sensitivity2.put(ObjectsPair.of(MULTICURVE_OIS.getName(USDLIBOR3M), USD), new DoubleMatrix1D(deltaFwd32));
     final MultipleCurrencyParameterSensitivity pvpsExpected2 = new MultipleCurrencyParameterSensitivity(sensitivity2);
     final MultipleCurrencyParameterSensitivity pvpsComputed2 = 
-        MQSBC.fromInstrument(SWAP_FIXED_3M, MULTICURVE_FFS, BLOCK_FFS).multipliedBy(BP1);
+        MQSBC.fromInstrument(SwapInstrumentsDataSet.SWAP_FIXED_3M, MULTICURVE_FFS, BLOCK_FFS).multipliedBy(BP1);
     AssertSensitivityObjects.assertEquals("IRS Fixed v LIBOR3M: bucketed deltas", 
         pvpsExpected2, pvpsComputed2, TOLERANCE_PV_DELTA);
-  }
-
-  @Test
-  /** Test present value for a swap LIBOR3M + Spread V LIBOR6M. */
-  public void presentValue3M6M() {
-    final MultipleCurrencyAmount pvComputed = BS_3M_S_6M.accept(PVDC, MULTICURVE_OIS);
-    final MultipleCurrencyAmount pvExpected = MultipleCurrencyAmount.of(Currency.USD, -13844.3872);
-    assertEquals("Basis swap L3M v L6M: present value", pvExpected.getAmount(USD), pvComputed.getAmount(USD), TOLERANCE_PV);
-    final MultipleCurrencyAmount pvComputed2 = BS_3M_S_6M.accept(PVDC, MULTICURVE_FFS);
-    final MultipleCurrencyAmount pvExpected2 = MultipleCurrencyAmount.of(Currency.USD, 72748.9893);
-    assertEquals("Basis swap L3M v L6M: present value", pvExpected2.getAmount(USD), pvComputed2.getAmount(USD), TOLERANCE_PV);
   }
 
   @Test
@@ -368,26 +359,9 @@ public class SwapCalculatorE2ETest {
     sensitivity.put(ObjectsPair.of(MULTICURVE_OIS.getName(USDLIBOR6M), USD), new DoubleMatrix1D(deltaFwd6));
     final MultipleCurrencyParameterSensitivity pvpsExpected = new MultipleCurrencyParameterSensitivity(sensitivity);
     final MultipleCurrencyParameterSensitivity pvpsComputed = 
-        MQSBC.fromInstrument(BS_3M_S_6M, MULTICURVE_OIS, BLOCK_OIS).multipliedBy(BP1);
+        MQSBC.fromInstrument(SwapInstrumentsDataSet.BS_3M_S_6M, MULTICURVE_OIS, BLOCK_OIS).multipliedBy(BP1);
     AssertSensitivityObjects.assertEquals("Basis swap L3M v L6M: bucketed deltas", 
         pvpsExpected, pvpsComputed, TOLERANCE_PV_DELTA);
-  }
-
-  @Test
-  /**Test present value for a swap fixed vs LIBOR1M. */
-  public void presentValue1M() {
-    final MultipleCurrencyAmount pvComputed = SWAP_FIXED_1M.accept(PVDC, MULTICURVE_OIS);
-    final MultipleCurrencyAmount pvExpected = MultipleCurrencyAmount.of(Currency.USD, -1003685.179128858);
-    assertEquals("IRS Fixed v LIBOR1M: present value from standard curves", 
-        pvExpected.getAmount(USD), pvComputed.getAmount(USD), TOLERANCE_PV);
-  }
-
-  @Test
-  /** Test forward rate for a swap fixed vs LIBOR1M. */
-  public void parRate1M() {
-    final double parRate = SWAP_FIXED_1M.accept(PRDC, MULTICURVE_OIS);
-    final double parRateExpected = 0.007452504182638092;
-    assertEquals("IRS Fixed v LIBOR1M: par rate from standard curves", parRateExpected, parRate, TOLERANCE_RATE);
   }
 
   @Test
@@ -410,18 +384,9 @@ public class SwapCalculatorE2ETest {
     sensitivity.put(ObjectsPair.of(MULTICURVE_OIS.getName(USDLIBOR1M), USD), new DoubleMatrix1D(deltaFwd1));
     sensitivity.put(ObjectsPair.of(MULTICURVE_OIS.getName(USDLIBOR3M), USD), new DoubleMatrix1D(deltaFwd3));
     final MultipleCurrencyParameterSensitivity pvpsExpected = new MultipleCurrencyParameterSensitivity(sensitivity);
-    final MultipleCurrencyParameterSensitivity pvpsComputed = MQSBC.fromInstrument(SWAP_FIXED_1M, MULTICURVE_OIS, BLOCK_OIS).multipliedBy(BP1);
+    final MultipleCurrencyParameterSensitivity pvpsComputed = MQSBC.fromInstrument(SwapInstrumentsDataSet.SWAP_FIXED_1M, MULTICURVE_OIS, BLOCK_OIS).multipliedBy(BP1);
     AssertSensitivityObjects.assertEquals("IRS Fixed v LIBOR1M: bucketed deltas", 
         pvpsExpected, pvpsComputed, TOLERANCE_PV_DELTA);
-  }
-  
-  @Test
-  /**Tests present value for a ON Cmp + spread v ON AA. */
-  public void presentValueONCmpONAA() {
-    final MultipleCurrencyAmount pvComputed = BS_ONCMP_S_ONAA.accept(PVDC, MULTICURVE_FFS);
-    final MultipleCurrencyAmount pvExpected = MultipleCurrencyAmount.of(Currency.USD, -507436.3058);
-    assertEquals("Basis swap ON Cmp + spread v ON AA: present value - FF swap based curves", 
-        pvExpected.getAmount(USD), pvComputed.getAmount(USD), TOLERANCE_PV);
   }
   
   @Test
@@ -441,7 +406,7 @@ public class SwapCalculatorE2ETest {
     sensitivity.put(ObjectsPair.of(MULTICURVE_OIS.getName(USDLIBOR3M), USD), new DoubleMatrix1D(deltaFwd3));
     final MultipleCurrencyParameterSensitivity pvpsExpected = new MultipleCurrencyParameterSensitivity(sensitivity);
     final MultipleCurrencyParameterSensitivity pvpsComputed = 
-        MQSBC.fromInstrument(BS_ONCMP_S_ONAA, MULTICURVE_FFS, BLOCK_FFS).multipliedBy(BP1);
+        MQSBC.fromInstrument(SwapInstrumentsDataSet.BS_ONCMP_S_ONAA, MULTICURVE_FFS, BLOCK_FFS).multipliedBy(BP1);
     AssertSensitivityObjects.assertEquals("Basis swap ON Cmp + spread v ON AA: bucketed deltas", 
         pvpsExpected, pvpsComputed, TOLERANCE_PV_DELTA);
   }

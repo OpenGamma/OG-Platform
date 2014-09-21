@@ -12,6 +12,7 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.analytics.financial.instrument.NotionalProvider;
 import com.opengamma.analytics.financial.instrument.annuity.AdjustedDateParameters;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
+import com.opengamma.analytics.financial.instrument.annuity.CompoundingMethod;
 import com.opengamma.analytics.financial.instrument.annuity.FloatingAnnuityDefinitionBuilder;
 import com.opengamma.analytics.financial.instrument.annuity.OffsetAdjustedDateParameters;
 import com.opengamma.analytics.financial.instrument.annuity.OffsetType;
@@ -27,12 +28,14 @@ import com.opengamma.util.money.Currency;
 /**
  * Generator (or template) for leg paying an Ibor rate (plus a spread).
  */
-public class GeneratorLegIbor extends GeneratorLeg {
+public class GeneratorLegIborCompounding extends GeneratorLeg {
 
   /** The ON index on which the fixing is done. */
   private final IborIndex _indexIbor;
   /** The period between two payments. */
   private final Period _paymentPeriod;
+  /** The compounding method for the different Ibor fixings. */
+  private final CompoundingMethod _compoundingMethod;
   /** The offset in business days between trade and settlement date (usually 2 or 0). */
   private final int _spotOffset;
   /** The offset in days between end of the accrual period and the payment. */
@@ -56,6 +59,7 @@ public class GeneratorLegIbor extends GeneratorLeg {
    * @param ccy The leg currency.
    * @param indexIbor The overnight index underlying the leg.
    * @param paymentPeriod The period between two payments.
+   * @param compoundingMethod The compounding method.
    * @param spotOffset The offset in business days between trade and settlement date (usually 2 or 0).
    * @param paymentOffset The offset in days between the last ON fixing date and the coupon payment.
    * @param businessDayConvention The business day convention for the payments.
@@ -63,16 +67,23 @@ public class GeneratorLegIbor extends GeneratorLeg {
    * @param stubType The stub type.
    * @param isExchangeNotional Whether the notional exchanged (at start and at end).
    * @param indexCalendar The calendar associated with the overnight index.
-   * @param paymentCalendar The calendar used to adjust the payments.
+   * @param paymentCalendar The calendar used for the payments.
    */
-  public GeneratorLegIbor(String name, Currency ccy, IborIndex indexIbor, Period paymentPeriod, int spotOffset, 
-      int paymentOffset, BusinessDayConvention businessDayConvention, boolean endOfMonth, StubType stubType, 
-      boolean isExchangeNotional, Calendar indexCalendar, Calendar paymentCalendar) {
+  public GeneratorLegIborCompounding(String name, Currency ccy, IborIndex indexIbor, Period paymentPeriod, 
+      CompoundingMethod compoundingMethod, int spotOffset, int paymentOffset, 
+      BusinessDayConvention businessDayConvention, boolean endOfMonth, StubType stubType,  boolean isExchangeNotional, 
+      Calendar indexCalendar, Calendar paymentCalendar) {
     super(name, ccy);
     ArgumentChecker.notNull(indexIbor, "Index Ibor");
+    ArgumentChecker.notNull(paymentPeriod, "payment period");
+    ArgumentChecker.notNull(compoundingMethod, "compounding method");
     ArgumentChecker.notNull(businessDayConvention, "Business day convention");
+    ArgumentChecker.notNull(stubType, "stub type");
+    ArgumentChecker.notNull(indexCalendar, "index calendar");
+    ArgumentChecker.notNull(paymentCalendar, "payment calendar");
     _indexIbor = indexIbor;
     _paymentPeriod = paymentPeriod;
+    _compoundingMethod = compoundingMethod;
     _spotOffset = spotOffset;
     _paymentOffset = paymentOffset;
     _businessDayConvention = businessDayConvention;
@@ -100,6 +111,14 @@ public class GeneratorLegIbor extends GeneratorLeg {
   }
 
   /**
+   * Gets the compounding method.
+   * @return The compounding method.
+   */
+  public CompoundingMethod getCompoundingMethod() {
+    return _compoundingMethod;
+  }
+
+  /**
    * Gets the spot offset.
    * @return the spot offset.
    */
@@ -124,16 +143,16 @@ public class GeneratorLegIbor extends GeneratorLeg {
   }
 
   /**
-   * Returns the end-of-month flag.
-   * @return The flag.
+   * Gets the end-of-month flag.
+   * @return the endOfMonth
    */
   public boolean isEndOfMonth() {
     return _endOfMonth;
   }
 
   /**
-   * Returns the stub type.
-   * @return The stub type.
+   * Gets the stubType.
+   * @return the stubType
    */
   public StubType getStubType() {
     return _stubType;
@@ -141,7 +160,7 @@ public class GeneratorLegIbor extends GeneratorLeg {
 
   /**
    * Gets the notional exchange flag.
-   * @return The flag.
+   * @return the isExchangeNotional
    */
   public boolean isExchangeNotional() {
     return _isExchangeNotional;
@@ -156,8 +175,8 @@ public class GeneratorLegIbor extends GeneratorLeg {
   }
 
   /**
-   * Returns the payment calendar.
-   * @return The calendar.
+   * Gets the paymentCalendar.
+   * @return the paymentCalendar
    */
   public Calendar getPaymentCalendar() {
     return _paymentCalendar;
@@ -189,7 +208,7 @@ public class GeneratorLegIbor extends GeneratorLeg {
         fixingDateAdjustmentParameters(offsetFixing).currency(_indexIbor.getCurrency()).spread(marketQuote).
         exchangeInitialNotional(_isExchangeNotional).startDateAdjustmentParameters(adjustedDateIndex).
         exchangeFinalNotional(_isExchangeNotional).endDateAdjustmentParameters(adjustedDateIndex).
-        build();
+        compoundingMethod(_compoundingMethod).build();
     return leg;
   }
 

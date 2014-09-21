@@ -33,7 +33,6 @@ import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.HolidayMaster;
 import com.opengamma.master.holiday.ManageableHoliday;
 import com.opengamma.scripts.Scriptable;
-import com.opengamma.util.ArgumentChecker;
 
 /**
  * Tool to load a calendar from a file.
@@ -54,7 +53,6 @@ public class CalendarLoaderTool extends AbstractTool<ToolContext> {
   /** Calendar delete option flag */
   private static final String CALENDAR_DELETE_OPTION = "delete";
 
-
   //-------------------------------------------------------------------------
   /**
    * Main method to run the tool.
@@ -68,6 +66,7 @@ public class CalendarLoaderTool extends AbstractTool<ToolContext> {
   //-------------------------------------------------------------------------
   @Override
   protected void doRun() {
+
     CommandLine commandLine = getCommandLine();
     boolean persist = !commandLine.hasOption(DO_NOT_PERSIST);
     boolean delete = commandLine.hasOption(CALENDAR_DELETE_OPTION);

@@ -24,6 +24,7 @@ public class CalendarUSD extends MondayToFridayCalendar {
       addNonWorkingDay(LocalDate.of(loopy, 7, 4));
       addNonWorkingDay(LocalDate.of(loopy, 12, 25));
     }
+    addNonWorkingDay(LocalDate.of(2014, 1, 20));
     addNonWorkingDay(LocalDate.of(2015, 1, 19));
     addNonWorkingDay(LocalDate.of(2015, 2, 16));
     addNonWorkingDay(LocalDate.of(2015, 5, 25));
