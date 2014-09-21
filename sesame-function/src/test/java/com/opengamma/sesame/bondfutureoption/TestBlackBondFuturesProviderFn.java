@@ -39,7 +39,8 @@ public final class TestBlackBondFuturesProviderFn implements BlackBondFuturesPro
   }
 
   @Override
-  public Result<BlackBondFuturesProviderInterface> getBlackBondFuturesProvider(Environment env, BondFutureOptionTrade tradeWrapper) {
+  public Result<BlackBondFuturesProviderInterface> getBlackBondFuturesProvider(Environment env,
+                                                                               BondFutureOptionTrade tradeWrapper) {
     
     Result<Pair<ParameterIssuerProviderInterface, CurveBuildingBlockBundle>> bundleResult =
         _discountingMulticurveCombinerFn.createBundle(env, tradeWrapper.getTrade(), new FXMatrix());
@@ -51,7 +52,8 @@ public final class TestBlackBondFuturesProviderFn implements BlackBondFuturesPro
       Surface<Double, Double, Double> blackParameters = testSurface;
             
       LegalEntity simpleLegalEntity = new LegalEntity("", "", Sets.<CreditRating>newHashSet(), Sector.of(""), Region.of(""));
-      BlackBondFuturesProviderInterface black = new BlackBondFuturesFlatProviderDiscount(multicurve, blackParameters, simpleLegalEntity);
+      BlackBondFuturesProviderInterface black =
+          new BlackBondFuturesFlatProviderDiscount(multicurve, blackParameters, simpleLegalEntity);
       
       return Result.success(black);
     }

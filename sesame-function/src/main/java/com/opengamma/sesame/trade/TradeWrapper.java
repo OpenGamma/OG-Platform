@@ -20,7 +20,7 @@ public abstract class TradeWrapper<S extends Security> {
   /**
    * Base trade wrapper constructor that wraps a trade in an explicit instrument type.
    * @param clazz the type of instrument, not null.
-   * @param tradeBundle object containing the trade
+   * @param tradeBundle object containing the trade data
    */
   public TradeWrapper(Class<S> clazz, ImmutableTradeBundle tradeBundle) {
     Security security = tradeBundle.getSecurity();
@@ -30,7 +30,7 @@ public abstract class TradeWrapper<S extends Security> {
 
   /**
    * Gets the trade.
-   * @return the value of the property, not null
+   * @return the an ImmutableTrade, built from the TradeBundle, not null
    */
   public ImmutableTrade getTrade() {
     return ImmutableTrade.of(getTradeBundle());

@@ -34,7 +34,8 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * Immutable trade bundle to wrap up ImmutableTrade
+ * Immutable trade bundle to wrap up ImmutableTrade. It is paired with ImmutableTrade, which the allows
+ * fudge de/serialization. Once fudge is replaced these two classes can be merged.
  */
 @BeanDefinition
 public final class ImmutableTradeBundle implements ImmutableBean {
@@ -98,29 +99,20 @@ public final class ImmutableTradeBundle implements ImmutableBean {
   @PropertyDefinition(validate = "notNull")
   private final Map<String, String> _attributes;
 
-  public static ImmutableTradeBundle of(Trade trade) {
-    return new ImmutableTradeBundle(trade.getUniqueId(), trade.getQuantity(), trade.getSecurity(), trade.getCounterparty(),
-                              trade.getTradeDate(), trade.getTradeTime(), trade.getPremium(), trade.getPremiumCurrency(),
-                              trade.getPremiumDate(), trade.getPremiumTime(), trade.getAttributes());
-  }
-
   /**
    * Creates a trade bundle needed to create an Immutable trade post serialization
-   * @param uniqueId unique id for the trade, not null
-   * @param quantity quantity of trades, not null
-   * @param security underlying security, not null
-   * @param counterparty trade counterparty, not null
-   * @param tradeDate trade date, not null
-   * @param tradeTime trade time, not null
-   * @param premium premium amount, not null
-   * @param premiumCurrency premium currency, not null
-   * @param premiumDate premium date, not null
-   * @param premiumTime premium time, not null
-   * @param attributes trade attributes, not null
+   * @param trade the mutable trade used to create a immutable version, not null
    *
    */
+  public static ImmutableTradeBundle of(Trade trade) {
+    return new ImmutableTradeBundle(trade.getUniqueId(), trade.getQuantity(), trade.getSecurity(),
+                                    trade.getCounterparty(), trade.getTradeDate(), trade.getTradeTime(),
+                                    trade.getPremium(), trade.getPremiumCurrency(), trade.getPremiumDate(),
+                                    trade.getPremiumTime(), trade.getAttributes());
+  }
+
   @ImmutableConstructor
-  public ImmutableTradeBundle(UniqueId uniqueId,
+  private ImmutableTradeBundle(UniqueId uniqueId,
                               BigDecimal quantity,
                               Security security,
                               Counterparty counterparty,

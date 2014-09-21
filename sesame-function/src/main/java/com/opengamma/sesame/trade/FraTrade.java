@@ -28,7 +28,6 @@ import com.opengamma.financial.security.fra.FRASecurity;
 /**
  * Trade wrapper for FRA trades.
  */
-
 @BeanDefinition
 public final class FraTrade extends TradeWrapper<FRASecurity> implements ImmutableBean {
 

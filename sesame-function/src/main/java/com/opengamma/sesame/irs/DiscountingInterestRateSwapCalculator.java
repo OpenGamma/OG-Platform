@@ -41,6 +41,7 @@ import com.opengamma.financial.analytics.model.multicurve.MultiCurveUtils;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.financial.security.irs.PayReceiveType;
+import com.opengamma.sesame.trade.ImmutableTrade;
 import com.opengamma.sesame.trade.InterestRateSwapTrade;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -60,6 +61,11 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
   private static final CashFlowDetailsCalculator CFDC = new CashFlowDetailsCalculator();
 
   /**
+   * Converter for fees defined in the Trade.
+   */
+  private static final TradeFeeConverter TFC = TradeFeeConverter.getInstance();
+
+  /**
    * Calculator for present value.
    */
   private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
@@ -67,7 +73,8 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
   /**
    * Calculator for present value for fees.
    */
-  private static final PresentValueDiscountingMultipleInstrumentsCalculator PVDMIC = PresentValueDiscountingMultipleInstrumentsCalculator.getInstance();
+  private static final PresentValueDiscountingMultipleInstrumentsCalculator PVDMIC =
+      PresentValueDiscountingMultipleInstrumentsCalculator.getInstance();
 
   /**
    * Calculator for par rate.
@@ -121,9 +128,10 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
   private final InterestRateSwapSecurity _security;
 
   /**
-   * The swap trade.
+   * The swap trade. Can be null, as it is possible to use the InterestRateSwapSecurity
    */
-  private final InterestRateSwapTrade _trade;
+
+  private final ImmutableTrade _trade;
 
   /**
    * The ZonedDateTime valuation time.
@@ -156,9 +164,9 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
                                                FixedIncomeConverterDataProvider definitionConverter,
                                                HistoricalTimeSeriesBundle fixings,
                                                Map<String, CurveDefinition> curveDefinitions) {
-    ArgumentChecker.notNull(security, "security");
+    _security = ArgumentChecker.notNull(security, "security");
     ArgumentChecker.notNull(swapConverter, "swapConverter");
-    ArgumentChecker.notNull(valuationTime, "valuationTime");
+    _valuationTime = ArgumentChecker.notNull(valuationTime, "valuationTime");
     ArgumentChecker.notNull(definitionConverter, "definitionConverter");
     ArgumentChecker.notNull(fixings, "fixings");
     _trade = null;
@@ -166,8 +174,6 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
     _derivative = createInstrumentDerivative(security, valuationTime, definitionConverter, fixings);
     _bundle = ArgumentChecker.notNull(bundle, "bundle");
     _curveBuildingBlockBundle = ArgumentChecker.notNull(curveBuildingBlockBundle, "curveBuildingBlockBundle");
-    _valuationTime = valuationTime;
-    _security = security;
     _curveDefinitions = ArgumentChecker.notNull(curveDefinitions, "curveDefinitions");
     ArgumentChecker.isTrue(curveDefinitions.size() == curveBuildingBlockBundle.getData().size(),
                            "Require same number of curves & definitions");
@@ -180,7 +186,7 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
   /**
    * Creates a calculator for a InterestRateSwapSecurity.
    *
-   * @param trade the swap to calculate values for
+   * @param interestRateSwapTrade the swap to calculate values for
    * @param bundle the multicurve bundle, including the curves
    * @param curveBuildingBlockBundle the curve block building bundle
    * @param swapConverter the InterestRateSwapSecurityConverter
@@ -189,7 +195,7 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
    * @param fixings the HistoricalTimeSeriesBundle, a collection of historical time-series objects
    * @param curveDefinitions the curve definitions
    */
-  public DiscountingInterestRateSwapCalculator(InterestRateSwapTrade trade,
+  public DiscountingInterestRateSwapCalculator(InterestRateSwapTrade interestRateSwapTrade,
                                                MulticurveProviderInterface bundle,
                                                CurveBuildingBlockBundle curveBuildingBlockBundle,
                                                InterestRateSwapSecurityConverter swapConverter,
@@ -197,20 +203,19 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
                                                FixedIncomeConverterDataProvider definitionConverter,
                                                HistoricalTimeSeriesBundle fixings,
                                                Map<String, CurveDefinition> curveDefinitions) {
-    ArgumentChecker.notNull(trade, "trade");
+    ArgumentChecker.notNull(interestRateSwapTrade, "interestRateSwapTrade");
     ArgumentChecker.notNull(swapConverter, "swapConverter");
-    ArgumentChecker.notNull(valuationTime, "valuationTime");
+    _valuationTime = ArgumentChecker.notNull(valuationTime, "valuationTime");
     ArgumentChecker.notNull(definitionConverter, "definitionConverter");
     ArgumentChecker.notNull(fixings, "fixings");
-    _trade = trade;
-    _security = trade.getSecurity();
+    _trade = interestRateSwapTrade.getTrade();
+    _security = interestRateSwapTrade.getSecurity();
     _definition = (SwapDefinition) _security.accept(swapConverter);
     _derivative = createInstrumentDerivative(_security, valuationTime, definitionConverter, fixings);
     _bundle = ArgumentChecker.notNull(bundle, "bundle");
     _curveBuildingBlockBundle = ArgumentChecker.notNull(curveBuildingBlockBundle, "curveBuildingBlockBundle");
-    _valuationTime = valuationTime;
-
     _curveDefinitions = ArgumentChecker.notNull(curveDefinitions, "curveDefinitions");
+
     ArgumentChecker.isTrue(curveDefinitions.size() == curveBuildingBlockBundle.getData().size(),
                            "Require same number of curves & definitions");
     for (String curveName : curveBuildingBlockBundle.getData().keySet()) {
@@ -222,7 +227,7 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
   public Result<MultipleCurrencyAmount> calculatePV() {
 
     if (_trade != null) {
-      InstrumentDefinition<?> feeDefinition = TradeFeeConverter.getInstance().convert(_trade.getTrade());
+      InstrumentDefinition<?> feeDefinition = TFC.convert(_trade);
       if (feeDefinition != null) {
         Pair<InstrumentDerivative[], MulticurveProviderInterface> data =
             Pairs.of(new InstrumentDerivative[] {feeDefinition.toDerivative(_valuationTime) }, _bundle);

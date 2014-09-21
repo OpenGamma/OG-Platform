@@ -37,7 +37,8 @@ public class DiscountingInterestRateSwapFn implements InterestRateSwapFn {
 
   @Override
   public Result<Double> calculateParRate(Environment env, InterestRateSwapSecurity security) {
-    Result<InterestRateSwapCalculator> calculatorResult = _interestRateSwapCalculatorFactory.createCalculator(env, security);
+    Result<InterestRateSwapCalculator> calculatorResult =
+        _interestRateSwapCalculatorFactory.createCalculator(env, security);
 
     if (!calculatorResult.isSuccess()) {
       return Result.failure(calculatorResult);
