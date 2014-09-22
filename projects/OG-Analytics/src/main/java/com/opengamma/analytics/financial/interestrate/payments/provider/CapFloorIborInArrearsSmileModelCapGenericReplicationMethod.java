@@ -187,16 +187,20 @@ public class CapFloorIborInArrearsSmileModelCapGenericReplicationMethod {
 
     double betaFwd = cap.getFixingAccrualFactor() * curves.getDiscountFactor(ccy, cap.getFixingPeriodEndTime())
         / curves.getDiscountFactor(ccy, cap.getFixingPeriodStartTime());
-    double betaDsc = (1.0 + cap.getFixingAccrualFactor() * forward) *
+    double betaDscStart = (1.0 + cap.getFixingAccrualFactor() * forward) *
         curves.getDiscountFactor(ccy, cap.getFixingPeriodEndTime()) *
-        (cap.getFixingPeriodStartTime() - cap.getFixingPeriodEndTime())
-        / curves.getDiscountFactor(ccy, cap.getFixingPeriodStartTime());
+        cap.getFixingPeriodStartTime() / curves.getDiscountFactor(ccy, cap.getFixingPeriodStartTime());
+    double betaDscEnd = -(1.0 + cap.getFixingAccrualFactor() * forward) *
+        curves.getDiscountFactor(ccy, cap.getFixingPeriodEndTime()) *
+        cap.getFixingPeriodEndTime() / curves.getDiscountFactor(ccy, cap.getFixingPeriodStartTime());
 
     List<DoublesPair> listDiscounting = new ArrayList<>();
     double strikePartDsc = -capStandard.getPaymentTime() * strikePart;
     double integralPartDsc = -capStandard.getPaymentTime() * integralPart;
-    listDiscounting.add(DoublesPair.of(capStandard.getPaymentTime(), (strikePartDsc + integralPartDsc - pv * betaDsc) /
+    listDiscounting.add(DoublesPair.of(capStandard.getPaymentTime(), (strikePartDsc + integralPartDsc) /
         beta));
+    listDiscounting.add(DoublesPair.of(cap.getFixingPeriodStartTime(), -pv * betaDscStart / beta));
+    listDiscounting.add(DoublesPair.of(cap.getFixingPeriodEndTime(), -pv * betaDscEnd / beta));
     Map<String, List<DoublesPair>> mapDsc = new HashMap<>();
     mapDsc.put(curves.getName(capStandard.getCurrency()), listDiscounting);
 
