@@ -24,7 +24,9 @@ public abstract class TradeWrapper<S extends Security> {
    */
   public TradeWrapper(Class<S> clazz, ImmutableTradeBundle tradeBundle) {
     Security security = tradeBundle.getSecurity();
-    ArgumentChecker.isTrue(clazz.isAssignableFrom(security.getClass()), security + " is not a " + clazz);
+
+    ArgumentChecker.isTrue(clazz.isAssignableFrom(security.getClass()), "Failed to wrap trade, due to security type. " +
+        "{} is not a {}", security, clazz);
     _clazz = ArgumentChecker.notNull(clazz, "clazz");
   }
 
