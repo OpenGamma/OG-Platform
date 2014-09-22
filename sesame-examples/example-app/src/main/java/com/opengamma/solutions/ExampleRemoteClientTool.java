@@ -1,10 +1,21 @@
 /**
- * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 package com.opengamma.solutions;
 
+import static com.opengamma.sesame.config.ConfigBuilder.configureView;
+
+import java.net.URI;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
+
+import com.google.common.collect.ImmutableList;
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.link.ConfigLink;
 import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
@@ -14,6 +25,8 @@ import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.id.UniqueId;
+import com.opengamma.master.security.SecurityDocument;
+import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.scripts.Scriptable;
 import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.engine.ResultRow;
@@ -23,14 +36,6 @@ import com.opengamma.sesame.server.FunctionServerRequest;
 import com.opengamma.sesame.server.IndividualCycleOptions;
 import com.opengamma.sesame.server.RemoteFunctionServer;
 import com.opengamma.util.time.DateUtils;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-import org.threeten.bp.LocalDate;
-
-import java.net.URI;
-
-import static com.opengamma.sesame.config.ConfigBuilder.configureView;
 
 /** The entry point for running an example remote view. */
 @Scriptable
@@ -44,6 +49,8 @@ public class ExampleRemoteClientTool extends AbstractTool<ToolContext> {
   private static final String LIVE_DATA = "ld";
   /** Valuation data flag. Format: YYYYMMDD */
   private static final String VALUATION_DATE = "d";
+  /** Security inputs */
+  private static final String SECURITY_INPUTS = "is";
 
   private static ToolContext s_context;
 
@@ -63,6 +70,7 @@ public class ExampleRemoteClientTool extends AbstractTool<ToolContext> {
 
     s_context = getToolContext();
     CommandLine commandLine  = getCommandLine();
+    ImmutableList.Builder<Object> inputs = ImmutableList.<Object>builder();
 
     /* Create a RemoteFunctionServer to executes view requests RESTfully.*/
     String url = commandLine.getOptionValue(CONFIG_RESOURCE_OPTION) + "/jax";
@@ -70,8 +78,12 @@ public class ExampleRemoteClientTool extends AbstractTool<ToolContext> {
 
     /* Single cycle options containing the market data specification and valuation time. */
     IndividualCycleOptions.Builder builder = IndividualCycleOptions.builder();
-    LocalDate val = DateUtils.toLocalDate(commandLine.getOptionValue(VALUATION_DATE));
-    builder.valuationTime(DateUtils.getUTCDate(val.getYear(), val.getMonthValue(), val.getDayOfMonth()));
+    if (commandLine.hasOption(VALUATION_DATE)) {
+      LocalDate val = DateUtils.toLocalDate(commandLine.getOptionValue(VALUATION_DATE));
+      builder.valuationTime(DateUtils.getUTCDate(val.getYear(), val.getMonthValue(), val.getDayOfMonth()));
+    } else {
+      builder.valuationTime(ZonedDateTime.now());
+    }
 
     if (commandLine.hasOption(SNAPSHOT_UID)) {
       builder.marketDataSpec(UserMarketDataSpecification.of(UniqueId.parse(commandLine.getOptionValue(SNAPSHOT_UID))));
@@ -80,6 +92,14 @@ public class ExampleRemoteClientTool extends AbstractTool<ToolContext> {
     } else {
       // Default to Bloomberg if snapshot or live data provider is not stipulated
       builder.marketDataSpec(LiveMarketDataSpecification.of("Bloomberg"));
+    }
+
+    if (commandLine.hasOption(SECURITY_INPUTS)) {
+      SecurityMaster securityMaster = s_context.getSecurityMaster();
+      SecurityDocument doc = securityMaster.get(UniqueId.parse(commandLine.getOptionValue(SECURITY_INPUTS)));
+      inputs.add(doc.getSecurity());
+    } else {
+      inputs.addAll(RemoteViewSwapUtils.SWAP_INPUTS);
     }
 
     IndividualCycleOptions cycleOptions = builder.build();
@@ -103,7 +123,7 @@ public class ExampleRemoteClientTool extends AbstractTool<ToolContext> {
                 RemoteViewSwapUtils.createInterestRateSwapViewColumn(OutputNames.BUCKETED_PV01,
                     exposureConfig,
                     currencyMatrixLink)))
-            .inputs(RemoteViewSwapUtils.SWAP_INPUTS)
+            .inputs(inputs.build())
             .cycleOptions(cycleOptions)
             .build();
 
@@ -128,18 +148,26 @@ public class ExampleRemoteClientTool extends AbstractTool<ToolContext> {
     options.addOption(createValuationDateOption());
     options.addOption(createExposureFunctionOption());
     options.addOption(createLiveDataNameOption());
+    options.addOption(createSecurityInputsOption());
     return options;
   }
 
   private static Option createValuationDateOption() {
-    final Option option = new Option(VALUATION_DATE, "valuationDate", true, "valuation Date, in the format YYYYMMDD");
-    option.setRequired(true);
+    final Option option = new Option(VALUATION_DATE, "valuationDate", true,
+                                     "valuation Date, in the format YYYYMMDD, default to now");
     option.setArgName("valuation date");
     return option;
   }
 
+  private static Option createSecurityInputsOption() {
+    final Option option = new Option(SECURITY_INPUTS, "inputs", true, "security inputs by ID");
+    option.setArgName("security inputs");
+    return option;
+  }
+
   private static Option createExposureFunctionOption() {
-    final Option option = new Option(EXPOSURE_FUNCTION, "exposureFunction", true, "name of the exposure function configuration");
+    final Option option = new Option(EXPOSURE_FUNCTION, "exposureFunction", true,
+                                     "name of the exposure function configuration");
     option.setRequired(true);
     option.setArgName("exposure function");
     return option;

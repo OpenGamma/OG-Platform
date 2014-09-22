@@ -1,4 +1,11 @@
+/**
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.third.party;
+
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.util.amount.ReferenceAmount;
@@ -10,8 +17,10 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.tuple.Pair;
-import org.threeten.bp.ZonedDateTime;
 
+/**
+ * Example implementation of a third party IRS calculator
+ */
 public class ThirdPartyInterestRateSwapCalculator implements InterestRateSwapCalculator {
 
   public ThirdPartyInterestRateSwapCalculator(InterestRateSwapSecurity security,
@@ -28,37 +37,37 @@ public class ThirdPartyInterestRateSwapCalculator implements InterestRateSwapCal
   /* Not implemented */
   @Override
   public Result<MultipleCurrencyAmount> calculatePv(MulticurveProviderInterface multicurveProviderInterface) {
-    return null;
+    throw new UnsupportedOperationException();
   }
 
   /* Not implemented */
   @Override
   public Result<Double> calculateRate() {
-    return null;
+    throw new UnsupportedOperationException();
   }
 
   /* Not implemented */
   @Override
   public Result<ReferenceAmount<Pair<String, Currency>>> calculatePV01() {
-    return null;
+    throw new UnsupportedOperationException();
   }
 
   /* Not implemented */
   @Override
   public Result<SwapLegCashFlows> calculatePayLegCashFlows() {
-    return null;
+    throw new UnsupportedOperationException();
   }
 
   /* Not implemented */
   @Override
   public Result<SwapLegCashFlows> calculateReceiveLegCashFlows() {
-    return null;
+    throw new UnsupportedOperationException();
   }
 
   /* Not implemented */
   @Override
   public Result<BucketedCurveSensitivities> calculateBucketedPV01() {
-    return null;
+    throw new UnsupportedOperationException();
   }
 
 }
