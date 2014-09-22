@@ -30,7 +30,6 @@ import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.convention.rolldate.EndOfMonthRollDateAdjuster;
 import com.opengamma.financial.convention.rolldate.RollDateAdjuster;
-import com.opengamma.financial.convention.rolldate.RollDateAdjusterFactory;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Tenor;
@@ -451,7 +450,7 @@ public final class ScheduleCalculator {
       }
       return result;
     }
-    if (adjuster != null) {
+    if (adjuster != null && !(adjuster instanceof EndOfMonthRollDateAdjuster)) {
       for (int loopdate = 0; loopdate < dates.length; loopdate++) {
         result[loopdate] = convention.adjustDate(calendar, dates[loopdate].with(adjuster));
       }
@@ -516,17 +515,44 @@ public final class ScheduleCalculator {
     return getAdjustedDateSchedule(unadjustedDateSchedule, convention, calendar, eomApply, adjuster);
   }
 
+  /**
+   * Calculate a schedule of adjusted dates, but not the start date.
+   * 
+   * @param startDate  the start date
+   * @param endDate  the end date
+   * @param schedulePeriod  the periodic frequency
+   * @param stub  the stub type
+   * @param convention  the business day convention
+   * @param calendar  the holiday calendar
+   * @param adjuster  the roll convention
+   * @return the schedule array, not including the start date
+   */
   public static ZonedDateTime[] getAdjustedDateSchedule(
-      final ZonedDateTime startDate,
-      final ZonedDateTime endDate,
-      final Period schedulePeriod,
-      final StubType stub,
-      final BusinessDayConvention convention,
-      final Calendar calendar,
-      final RollDateAdjuster adjuster) {
-    final ZonedDateTime[] unadjustedDateSchedule = getUnadjustedDateSchedule(startDate, endDate, schedulePeriod, stub);
-    final boolean eomApply = (RollDateAdjusterFactory.END_OF_MONTH_ROLL_STRING.equals(adjuster) && (getAdjustedDate(startDate, 1, calendar).getMonth() != startDate.getMonth()));
-    return getAdjustedDateSchedule(unadjustedDateSchedule, convention, calendar, eomApply, adjuster);
+      ZonedDateTime startDate,
+      ZonedDateTime endDate,
+      Period schedulePeriod,
+      StubType stub,
+      BusinessDayConvention convention,
+      Calendar calendar,
+      RollDateAdjuster adjuster) {
+    ZonedDateTime[] unadjustedDateSchedule = getUnadjustedDateSchedule(startDate, endDate, schedulePeriod, stub);
+    // convert roll adjuster into end-of-month flag and apply correctly
+    if (adjuster instanceof EndOfMonthRollDateAdjuster) {
+      // if calculating backwards, use end date to determine if rule applies, otherwise use start date
+      if (stub.equals(StubType.LONG_START) || stub.equals(StubType.SHORT_START)) {
+        boolean eomApply = (getAdjustedDate(endDate, 1, calendar).getMonth() != endDate.getMonth());
+        return getAdjustedDateSchedule(unadjustedDateSchedule, convention, calendar, eomApply, adjuster);
+      } else {
+        boolean eomApply = (getAdjustedDate(startDate, 1, calendar).getMonth() != startDate.getMonth());
+        ZonedDateTime[] adj = getAdjustedDateSchedule(unadjustedDateSchedule, convention, calendar, eomApply, adjuster);
+        // ensure date is not rolled beyond end date
+        if (adj.length > 0 && adj[adj.length - 1].isAfter(endDate)) {
+          adj[adj.length - 1] = endDate;
+        }
+        return adj;
+      }
+    }
+    return getAdjustedDateSchedule(unadjustedDateSchedule, convention, calendar, false, adjuster);
   }
 
   public static ZonedDateTime[] getAdjustedDateSchedule(
