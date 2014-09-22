@@ -488,7 +488,7 @@ public class ScheduleCalculatorTest {
     Period freq = Period.ofMonths(3);
     RollDateAdjuster eom = EndOfMonthRollDateAdjuster.getAdjuster();
     ZonedDateTime[] test = ScheduleCalculator.getAdjustedDateSchedule(
-        start, end, freq, StubType.SHORT_START, MOD_FOL, CALENDAR, eom);
+        start, end, freq, StubType.NONE, MOD_FOL, CALENDAR, eom);
     assertEquals(4, test.length);
     assertEquals(ZonedDateTime.of(2012, 7, 31, 0, 0, 0, 0, ZoneOffset.UTC), test[0]);
     assertEquals(ZonedDateTime.of(2012, 10, 31, 0, 0, 0, 0, ZoneOffset.UTC), test[1]);
