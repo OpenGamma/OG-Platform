@@ -56,10 +56,11 @@ public final class CapFloorDecomposer {
     ArgumentChecker.notNull(caplet, "caplet");
     ArgumentChecker.notNull(curves, "null yield curves");
 
-    final double fwd = caplet.accept(PRC, curves);
-    final double t = caplet.getFixingTime();
+    double fwd = caplet.accept(PRC, curves);
+    double t = caplet.getFixingTime();
     // Vol is at fixing time, discounting from payment. This included the year fraction
-    final double df = curves.getDiscountFactor(caplet.getCurrency(), caplet.getPaymentTime()) * caplet.getPaymentYearFraction();
+    double df = curves.getDiscountFactor(caplet.getCurrency(), caplet.getPaymentTime()) *
+        caplet.getPaymentYearFraction();
     SimpleOptionData options = new SimpleOptionData(fwd, caplet.getStrike(), t, df, caplet.isCap());
     return options;
   }

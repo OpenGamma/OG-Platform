@@ -182,7 +182,21 @@ public class CouponInArrearsCalculationTest {
   private static final MulticurveProviderDiscount MULTICURVE_OIS = MULTICURVE_OIS_PAIR.getFirst();
   private static final CurveBuildingBlockBundle BLOCK_OIS = MULTICURVE_OIS_PAIR.getSecond();
 
-  private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
+  private static final GeneratorSwapFixedIbor USD6MLIBOR3M = GENERATOR_SWAP_FIXED_IBOR_MASTER.getGenerator(
+      "USD6MLIBOR3M", NYC);
+  private static final ZonedDateTime TRADE_DATE_3M = DateUtils.getUTCDate(2014, 9, 10);
+  private static final Period TENOR_SWAP_3M = Period.ofYears(7);
+  private static final double FIXED_RATE_3M = 0.0150;
+  private static final GeneratorAttributeIR ATTRIBUTE_3M = new GeneratorAttributeIR(TENOR_SWAP_3M);
+  private static final SwapDefinition SWAP_FIXED_3M_DEFINITION =
+      USD6MLIBOR3M.generateInstrument(TRADE_DATE_3M, FIXED_RATE_3M, NOTIONAL, ATTRIBUTE_3M);
+  private static final Swap<? extends Payment, ? extends Payment> SWAP_FIXED_3M = SWAP_FIXED_3M_DEFINITION
+      .toDerivative(VALUATION_DATE);
+
+  private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_FF_PAIR =
+      StandardDataSetsMulticurveUSD.getCurvesUSDOisFFL1L3L6();
+  private static final MulticurveProviderDiscount MULTICURVE_FFS = MULTICURVE_FF_PAIR.getFirst();
+  private static final CurveBuildingBlockBundle BLOCK_FFS = MULTICURVE_FF_PAIR.getSecond();
 
   /**
    * Minimal consistency test for subsequent demos
@@ -323,7 +337,9 @@ public class CouponInArrearsCalculationTest {
    * BDK can not be used if forward is outside strike range
    */
   @Test(description = "demo test", enabled = false)
-  public void SwapExampleTest() {
+  public void SwapFixed1MExampleTest() {
+    boolean printPm = false;
+
     System.out.println("***Global Direct stripper***");
     List<CapFloor> caps = CapletStrippingSetup.getAllCapsExATM();
     double[] capVols = CapletStrippingSetup.getAllCapVolsExATM();
@@ -341,6 +357,13 @@ public class CouponInArrearsCalculationTest {
     avVol /= nCaps;
     DoubleMatrix1D guess = new DoubleMatrix1D(pricer.getGridSize(), avVol); // set the initial guess equal to the average cap vol
 
+    double[] pvExp = new double[] {-999256.6452057632, -999612.9915298112, -999719.000398742, -999767.3095724229,
+        -999796.3194925257, -999816.7613261989, -999832.1593903063, -999844.8322095645, -999855.1842177836,
+        -999864.2914286759, -999872.796355135, -999300.6017961318, -999638.3711596527, -999738.9160627383,
+        -999784.9565502962, -999812.6365483969, -999832.0825131405, -999847.0944008618, -999859.0744759005,
+        -999869.2581859969, -999877.6731890535, -999885.2848242149 };
+    int pos = 0;
+
     /*
      * lambda = 0.02
      */
@@ -349,9 +372,11 @@ public class CouponInArrearsCalculationTest {
     CapletStripperDirect stripper = new CapletStripperDirect(pricer, lambda);
     CouponInArrearsCalculation cal = new CouponInArrearsCalculation(stripper, caps, capVols, MarketDataType.VOL,
         errors, guess, MULTICURVE_OIS);
-    System.out.println("Chi2: " + cal.getChiSq());
-    System.out.println("Time for stripping :" + cal.getTime() + "s");
-    System.out.println();
+    if (printPm == true) {
+      System.out.println("Chi2: " + cal.getChiSq());
+      System.out.println("Time for stripping :" + cal.getTime() + "s");
+      System.out.println();
+    }
 
     for (int i = 0; i < 11; i++) {
       double mu = 1.0 + 0.25 * i;
@@ -362,6 +387,11 @@ public class CouponInArrearsCalculationTest {
       SmileInterpolatorSABRWithExtrapolation sabrExtrapQuiet1 = new SmileInterpolatorSABRWithExtrapolation(provider);
       Double parRate = cal.parRate(SWAP_FIXED_1M, sabrExtrapQuiet1);
       System.out.println("mu: " + mu + ", pv: " + pv + ", parRate: " + parRate);
+      assertEquals(pvExp[pos], pv.getAmount(USD), Math.abs(pvExp[pos]) * 1.0e-10);
+      pos++;
+      SmileInterpolatorSABRWithExtrapolation sabrExtrapQuiet2 = new SmileInterpolatorSABRWithExtrapolation(provider);
+      System.out.println(cal.presentValueCurveSensitivity(SWAP_FIXED_1M, BLOCK_OIS, sabrExtrapQuiet2).multipliedBy(
+          oneBP));
     }
     System.out.println();
 
@@ -373,9 +403,11 @@ public class CouponInArrearsCalculationTest {
     CapletStripperDirect stripperLarge = new CapletStripperDirect(pricer, lambdaLarge);
     CouponInArrearsCalculation calLarge = new CouponInArrearsCalculation(stripperLarge, caps, capVols,
         MarketDataType.VOL, errors, guess, MULTICURVE_OIS);
-    System.out.println("Chi2: " + calLarge.getChiSq());
-    System.out.println("Time for stripping :" + calLarge.getTime() + "s");
-    System.out.println();
+    if (printPm == true) {
+      System.out.println("Chi2: " + calLarge.getChiSq());
+      System.out.println("Time for stripping :" + calLarge.getTime() + "s");
+      System.out.println();
+    }
 
     for (int i = 0; i < 11; i++) {
       double mu = 1.0 + 0.25 * i;
@@ -386,11 +418,109 @@ public class CouponInArrearsCalculationTest {
       SmileInterpolatorSABRWithExtrapolation sabrExtrapQuiet1 = new SmileInterpolatorSABRWithExtrapolation(provider);
       Double parRate = calLarge.parRate(SWAP_FIXED_1M, sabrExtrapQuiet1);
       System.out.println("mu: " + mu + ", pv: " + pv + ", parRate: " + parRate);
+      assertEquals(pvExp[pos], pv.getAmount(USD), Math.abs(pvExp[pos]) * 1.0e-10);
+      pos++;
+      SmileInterpolatorSABRWithExtrapolation sabrExtrapQuiet2 = new SmileInterpolatorSABRWithExtrapolation(provider);
+      System.out.println(calLarge.presentValueCurveSensitivity(SWAP_FIXED_1M, BLOCK_OIS, sabrExtrapQuiet2)
+          .multipliedBy(oneBP));
     }
     System.out.println();
   }
   
-  
+  /**
+   * BDK can not be used if forward is outside strike range
+   */
+  @Test(description = "demo test", enabled = false)
+  public void SwapFixed3MFFSExampleTest() {
+    boolean printPm = false;
+
+    System.out.println("***Global Direct stripper***");
+    List<CapFloor> caps = CapletStrippingSetup.getAllCapsExATM();
+    double[] capVols = CapletStrippingSetup.getAllCapVolsExATM();
+    MultiCapFloorPricerGrid pricer = new MultiCapFloorPricerGrid(caps, MULTICURVE_OIS);
+
+    // Setting up errors and guess values
+    double oneBP = 1e-4;
+    int nCaps = caps.size();
+    double[] errors = new double[nCaps];
+    Arrays.fill(errors, oneBP);
+    double avVol = 0.0;
+    for (int i = 0; i < nCaps; i++) {
+      avVol += capVols[i];
+    }
+    avVol /= nCaps;
+    DoubleMatrix1D guess = new DoubleMatrix1D(pricer.getGridSize(), avVol); // set the initial guess equal to the average cap vol
+
+    double[] pvExp = new double[] {6520434.641867844, 6398669.449687583, 6362290.156999622,
+        6346915.570986342, 6338521.628707422, 6333136.846634999, 6329318.698859148,
+        6326428.057337409, 6324137.781339593, 6322263.637458503, 6320684.844994415,
+        6485449.284607982, 6386210.883078229, 6356269.952578809, 6343375.078376908,
+        6336185.403058179, 6331484.482977858, 6328101.927802069, 6325505.240991287,
+        6323426.590608101, 6321706.978522498, 6320251.668892078 };
+    int pos = 0;
+    /*
+     * lambda = 0.02
+     */
+    System.out.println("<<lambda = 0.02>>");
+    double lambda = 0.02; // this is chosen to give a chi2/DoF of around 1
+    CapletStripperDirect stripper = new CapletStripperDirect(pricer, lambda);
+    CouponInArrearsCalculation cal = new CouponInArrearsCalculation(stripper, caps, capVols, MarketDataType.VOL,
+        errors, guess, MULTICURVE_FFS);
+    if (printPm == true) {
+      System.out.println("Chi2: " + cal.getChiSq());
+      System.out.println("Time for stripping :" + cal.getTime() + "s");
+      System.out.println();
+    }
+
+    for (int i = 0; i < 11; i++) {
+      double mu = 1.0 + 0.25 * i;
+      BenaimDodgsonKainthExtrapolationFunctionProvider provider = new BenaimDodgsonKainthExtrapolationFunctionProvider(
+          mu, mu);
+      SmileInterpolatorSABRWithExtrapolation sabrExtrapQuiet = new SmileInterpolatorSABRWithExtrapolation(provider);
+      MultipleCurrencyAmount pv = cal.presentValue(SWAP_FIXED_3M, sabrExtrapQuiet);
+      SmileInterpolatorSABRWithExtrapolation sabrExtrapQuiet1 = new SmileInterpolatorSABRWithExtrapolation(provider);
+      Double parRate = cal.parRate(SWAP_FIXED_3M, sabrExtrapQuiet1);
+      System.out.println("mu: " + mu + ", pv: " + pv + ", parRate: " + parRate);
+      assertEquals(pvExp[pos], pv.getAmount(USD), Math.abs(pvExp[pos]) * 1.0e-10);
+      pos++;
+      SmileInterpolatorSABRWithExtrapolation sabrExtrapQuiet2 = new SmileInterpolatorSABRWithExtrapolation(provider);
+      System.out.println(cal.presentValueCurveSensitivity(SWAP_FIXED_3M, BLOCK_FFS, sabrExtrapQuiet2).multipliedBy(
+          oneBP));
+    }
+    System.out.println();
+
+    /*
+     * lambda = 1.0
+     */
+    System.out.println("<<lambda = 1.0>>");
+    double lambdaLarge = 1.0;
+    CapletStripperDirect stripperLarge = new CapletStripperDirect(pricer, lambdaLarge);
+    CouponInArrearsCalculation calLarge = new CouponInArrearsCalculation(stripperLarge, caps, capVols,
+        MarketDataType.VOL, errors, guess, MULTICURVE_FFS);
+    if (printPm == true) {
+      System.out.println("Chi2: " + calLarge.getChiSq());
+      System.out.println("Time for stripping :" + calLarge.getTime() + "s");
+      System.out.println();
+    }
+
+    for (int i = 0; i < 11; i++) {
+      double mu = 1.0 + 0.25 * i;
+      BenaimDodgsonKainthExtrapolationFunctionProvider provider = new BenaimDodgsonKainthExtrapolationFunctionProvider(
+          mu, mu);
+      SmileInterpolatorSABRWithExtrapolation sabrExtrapQuiet = new SmileInterpolatorSABRWithExtrapolation(provider);
+      MultipleCurrencyAmount pv = calLarge.presentValue(SWAP_FIXED_3M, sabrExtrapQuiet);
+      SmileInterpolatorSABRWithExtrapolation sabrExtrapQuiet1 = new SmileInterpolatorSABRWithExtrapolation(provider);
+      Double parRate = calLarge.parRate(SWAP_FIXED_3M, sabrExtrapQuiet1);
+      System.out.println("mu: " + mu + ", pv: " + pv + ", parRate: " + parRate);
+      assertEquals(pvExp[pos], pv.getAmount(USD), Math.abs(pvExp[pos]) * 1.0e-10);
+      pos++;
+      SmileInterpolatorSABRWithExtrapolation sabrExtrapQuiet2 = new SmileInterpolatorSABRWithExtrapolation(provider);
+      System.out.println(calLarge.presentValueCurveSensitivity(SWAP_FIXED_3M, BLOCK_FFS, sabrExtrapQuiet2)
+          .multipliedBy(
+          oneBP));
+    }
+    System.out.println();
+  }
   
   /**
    * Use CapletStripperDirect as the caplet stripper, then model the smile with a SABR interpolator and
