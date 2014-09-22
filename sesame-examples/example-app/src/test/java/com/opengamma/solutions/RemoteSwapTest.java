@@ -56,9 +56,10 @@ public class RemoteSwapTest {
   private Results _stubResults;
   private Results _xccyResults;
   private Results _feesResults;
-
+  private Results _singleLegResults;
 
   private static final double STD_TOLERANCE_PV = 1.0E-3;
+
 
   @BeforeClass
   public void setUp() {
@@ -135,6 +136,16 @@ public class RemoteSwapTest {
 
     _feesResults = _functionServer.executeSingleCycle(feesRequest);
 
+    FunctionServerRequest<IndividualCycleOptions> singleLegRequest =
+        FunctionServerRequest.<IndividualCycleOptions>builder()
+            .viewConfig(createViewConfig())
+            .inputs(RemoteViewSwapUtils.SINGLE_LEG_INPUT)
+            .cycleOptions(_cycleOptions)
+            .build();
+
+    _singleLegResults = _functionServer.executeSingleCycle(singleLegRequest);
+
+
   }
 
   private ViewConfig createViewConfig() {
@@ -143,14 +154,43 @@ public class RemoteSwapTest {
         configureView(
             "IRS Remote view",
             RemoteViewSwapUtils.createInterestRateSwapViewColumn(OutputNames.PRESENT_VALUE,
-                _exposureConfig,
-                _currencyMatrixLink),
+                                                                 _exposureConfig,
+                                                                 _currencyMatrixLink),
             RemoteViewSwapUtils.createInterestRateSwapViewColumn(OutputNames.BUCKETED_PV01,
-                _exposureConfig,
-                _currencyMatrixLink)
+                                                                 _exposureConfig,
+                                                                 _currencyMatrixLink),
+            RemoteViewSwapUtils.createInterestRateSwapViewColumn(OutputNames.PAY_LEG_CASH_FLOWS,
+                                                                 _exposureConfig,
+                                                                 _currencyMatrixLink),
+            RemoteViewSwapUtils.createInterestRateSwapViewColumn(OutputNames.RECEIVE_LEG_CASH_FLOWS,
+                                                                 _exposureConfig,
+                                                                 _currencyMatrixLink)
         );
   }
 
+  /* Single Leg - start */
+
+  @Test(enabled = true)
+  public void testSingleLegSwapPV() {
+
+    Result fixedResult = _singleLegResults.get(0, 0).getResult();
+    assertThat(fixedResult.isSuccess(), is(true));
+    assertThat(fixedResult.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
+    MultipleCurrencyAmount fixedMca = (MultipleCurrencyAmount) fixedResult.getValue();
+
+    Result floatResult = _singleLegResults.get(1, 0).getResult();
+    assertThat(floatResult.isSuccess(), is(true));
+    assertThat(floatResult.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
+    MultipleCurrencyAmount floatMca = (MultipleCurrencyAmount) floatResult.getValue();
+
+    // assert that the two single leg swaps parts equal the whole
+    Double combined = fixedMca.getCurrencyAmount(Currency.USD).getAmount() +
+        floatMca.getCurrencyAmount(Currency.USD).getAmount();
+    assertThat(combined, is(closeTo(6065111.8810, STD_TOLERANCE_PV)));
+
+  }
+
+  /* Single Leg - end */
 
   /* Fees - start */
 
@@ -241,7 +281,7 @@ public class RemoteSwapTest {
     assertThat(result.isSuccess(), is(true));
     assertThat(result.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
     MultipleCurrencyAmount mca = (MultipleCurrencyAmount) result.getValue();
-    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(150891.19165888615, STD_TOLERANCE_PV)));
+    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(150128.4091, STD_TOLERANCE_PV)));
 
   }
 
@@ -389,6 +429,65 @@ public class RemoteSwapTest {
     for (ResultRow result : _feesResults.getRows()) {
       assertThat(result.get(1).getResult().isSuccess(), is(true));
     }
+    for (ResultRow result : _singleLegResults.getRows()) {
+      assertThat(result.get(1).getResult().isSuccess(), is(true));
+    }
+
+  }
+
+  @Test(enabled = true)
+  public void testPayLegCashFlows() {
+
+    for (ResultRow result : _vanillaResults.getRows()) {
+      assertThat(result.get(2).getResult().isSuccess(), is(true));
+    }
+    for (ResultRow result : _spreadResults.getRows()) {
+      assertThat(result.get(2).getResult().isSuccess(), is(true));
+    }
+    for (ResultRow result : _fixingResults.getRows()) {
+      assertThat(result.get(2).getResult().isSuccess(), is(true));
+    }
+    for (ResultRow result : _compoundingResults.getRows()) {
+      assertThat(result.get(2).getResult().isSuccess(), is(true));
+    }
+    for (ResultRow result : _xccyResults.getRows()) {
+      assertThat(result.get(2).getResult().isSuccess(), is(true));
+    }
+    for (ResultRow result : _stubResults.getRows()) {
+      assertThat(result.get(2).getResult().isSuccess(), is(true));
+    }
+    for (ResultRow result : _feesResults.getRows()) {
+      assertThat(result.get(2).getResult().isSuccess(), is(true));
+    }
+    //TODO PLAT-6796 _singleLegResults
+
+  }
+
+  @Test(enabled = true)
+  public void testReceiveLegCashFlows() {
+
+    for (ResultRow result : _vanillaResults.getRows()) {
+      assertThat(result.get(3).getResult().isSuccess(), is(true));
+    }
+    for (ResultRow result : _spreadResults.getRows()) {
+      assertThat(result.get(3).getResult().isSuccess(), is(true));
+    }
+    for (ResultRow result : _fixingResults.getRows()) {
+      assertThat(result.get(3).getResult().isSuccess(), is(true));
+    }
+    for (ResultRow result : _compoundingResults.getRows()) {
+      assertThat(result.get(3).getResult().isSuccess(), is(true));
+    }
+    for (ResultRow result : _xccyResults.getRows()) {
+      assertThat(result.get(3).getResult().isSuccess(), is(true));
+    }
+    for (ResultRow result : _stubResults.getRows()) {
+      assertThat(result.get(3).getResult().isSuccess(), is(true));
+    }
+    for (ResultRow result : _feesResults.getRows()) {
+      assertThat(result.get(3).getResult().isSuccess(), is(true));
+    }
+    //TODO PLAT-6796 _singleLegResults
 
   }
 
