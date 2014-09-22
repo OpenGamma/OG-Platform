@@ -168,7 +168,7 @@ public class InterestRateFutureDiscountingCalculator implements InterestRateFutu
                                                           ZonedDateTime valuationTime,
                                                           FixedIncomeConverterDataProvider definitionToDerivativeConverter,
                                                           HistoricalTimeSeriesBundle fixings) {
-    InstrumentDefinition<?> definition = converter.convert(irFutureTrade);
+    InstrumentDefinition<?> definition = converter.convert(irFutureTrade.getTrade());
     return definitionToDerivativeConverter.convert(irFutureTrade.getSecurity(), definition, valuationTime, fixings);
   }
 }

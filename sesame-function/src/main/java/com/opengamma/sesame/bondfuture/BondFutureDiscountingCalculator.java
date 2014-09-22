@@ -76,7 +76,7 @@ public class BondFutureDiscountingCalculator implements BondFutureCalculator {
     final FinancialSecurity security = bondFutureTrade.getSecurity();
     HistoricalTimeSeries fixingsTS = fixings.get(MarketDataRequirementNames.MARKET_VALUE, security.getExternalIdBundle());
     double lastMarginPrice = fixingsTS.getTimeSeries().getLatestValue();
-    InstrumentDefinition<?> definition = converter.convert(bondFutureTrade);
+    InstrumentDefinition<?> definition = converter.convert(bondFutureTrade.getTrade());
     return ((BondFuturesTransactionDefinition) definition).toDerivative(valuationTime, lastMarginPrice);
   }
 }

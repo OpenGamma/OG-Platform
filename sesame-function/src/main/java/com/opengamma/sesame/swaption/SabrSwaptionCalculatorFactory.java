@@ -5,6 +5,10 @@
  */
 package com.opengamma.sesame.swaption;
 
+import java.math.BigDecimal;
+
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.OffsetTime;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
@@ -13,15 +17,21 @@ import com.opengamma.analytics.financial.interestrate.swaption.derivative.Swapti
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.SABRSwaptionProviderDiscount;
+import com.opengamma.core.position.Counterparty;
+import com.opengamma.core.position.Trade;
+import com.opengamma.core.position.impl.SimpleCounterparty;
+import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.conversion.SwaptionSecurityConverter;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.security.option.SwaptionSecurity;
+import com.opengamma.id.ExternalId;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.HistoricalTimeSeriesFn;
 import com.opengamma.sesame.sabr.SabrParametersConfiguration;
 import com.opengamma.sesame.sabr.SabrParametersProviderFn;
+import com.opengamma.sesame.trade.SwaptionTrade;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.tuple.Pair;
@@ -90,8 +100,15 @@ public class SabrSwaptionCalculatorFactory implements SwaptionCalculatorFactory 
   public Result<SwaptionCalculator> createCalculator(Environment env,
                                                      SwaptionSecurity security) {
 
+    Trade trade = new SimpleTrade(security,
+                                  BigDecimal.ONE,
+                                  new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "CPARTY")),
+                                  LocalDate.now(),
+                                  OffsetTime.now());
+    SwaptionTrade tradeWrapper = new SwaptionTrade(trade);
+
     Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundleResult =
-        _discountingMulticurveCombinerFn.createMergedMulticurveBundle(env, security, new FXMatrix());
+        _discountingMulticurveCombinerFn.createMergedMulticurveBundle(env, tradeWrapper, new FXMatrix());
 
     Result<HistoricalTimeSeriesBundle> fixingsResult = _htsFn.getFixingsForSecurity(env, security);
 

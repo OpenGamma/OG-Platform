@@ -34,6 +34,7 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.link.ConfigLink;
 import com.opengamma.core.position.Counterparty;
+import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.SimpleCounterparty;
 import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.engine.marketdata.spec.FixedHistoricalMarketDataSpecification;
@@ -77,6 +78,7 @@ import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.sesame.marketdata.StrategyAwareMarketDataSource;
+import com.opengamma.sesame.trade.FraTrade;
 import com.opengamma.sesame.trade.InterestRateFutureTrade;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
@@ -163,8 +165,7 @@ public class ExposureFunctionTest {
             config,
             ComponentMap.of(_components));
 
-    InterestRateFutureTrade trade = createInterestRateFutureTrade();
-    trade.addAttribute("TEST", "PASS");
+    InterestRateFutureTrade trade = createInterestRateFutureTrade(true);
 
     Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> result =
         multicurveCombinerFunction.createMergedMulticurveBundle(_environment, trade, _emptyFxMatrix);
@@ -191,8 +192,7 @@ public class ExposureFunctionTest {
             config,
             ComponentMap.of(_components));
 
-    InterestRateFutureTrade trade = createInterestRateFutureTrade();
-    trade.addAttribute("TEST", "FAIL");
+    InterestRateFutureTrade trade = createInterestRateFutureTrade(false);
 
     Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> result =
         multicurveCombinerFunction.createMergedMulticurveBundle(_environment, trade, _emptyFxMatrix);
@@ -200,6 +200,7 @@ public class ExposureFunctionTest {
     //There are no curves for this trade defined in the exposure function, so the result should fail
     assertThat(result.isSuccess(), is((false)));
   }
+
 
 
   @Test
@@ -215,7 +216,7 @@ public class ExposureFunctionTest {
 
     InterestRateFutureSecurity security = createInterestRateFutureSecurity(Currency.USD);
     SimpleCounterparty counterparty = new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "PASS"));
-    InterestRateFutureTrade trade = createInterestRateFutureTrade(security, counterparty);
+    InterestRateFutureTrade trade = createInterestRateFutureTrade(security, counterparty, true);
 
     Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> result =
         multicurveCombinerFunction.createMergedMulticurveBundle(_environment, trade, _emptyFxMatrix);
@@ -244,7 +245,7 @@ public class ExposureFunctionTest {
 
     InterestRateFutureSecurity security = createInterestRateFutureSecurity(Currency.USD);
     SimpleCounterparty counterparty = new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "FAIL"));
-    InterestRateFutureTrade trade = createInterestRateFutureTrade(security, counterparty);
+    InterestRateFutureTrade trade = createInterestRateFutureTrade(security, counterparty, true);
 
     Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> result =
         multicurveCombinerFunction.createMergedMulticurveBundle(_environment, trade, _emptyFxMatrix);
@@ -266,8 +267,15 @@ public class ExposureFunctionTest {
 
     FRASecurity security = createSingleFra(Currency.USD);
 
+    Trade trade = new SimpleTrade(security,
+                                  BigDecimal.ONE,
+                                  new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "CPARTY")),
+                                  LocalDate.now(),
+                                  OffsetTime.now());
+    FraTrade tradeWrapper = new FraTrade(trade);
+
     Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> result =
-        multicurveCombinerFunction.createMergedMulticurveBundle(_environment, security, _emptyFxMatrix);
+        multicurveCombinerFunction.createMergedMulticurveBundle(_environment, tradeWrapper, _emptyFxMatrix);
 
     assertThat(result.isSuccess(), is((true)));
 
@@ -292,7 +300,7 @@ public class ExposureFunctionTest {
             ComponentMap.of(_components));
 
     InterestRateFutureSecurity security = createInterestRateFutureSecurity(Currency.USD);
-    InterestRateFutureTrade trade = createInterestRateFutureTrade(security);
+    InterestRateFutureTrade trade = createInterestRateFutureTrade(security, true);
 
     Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> result =
         multicurveCombinerFunction.createMergedMulticurveBundle(_environment, trade, _emptyFxMatrix);
@@ -319,7 +327,7 @@ public class ExposureFunctionTest {
             ComponentMap.of(_components));
 
     InterestRateFutureSecurity security = createInterestRateFutureSecurity(Currency.GBP);
-    InterestRateFutureTrade trade = createInterestRateFutureTrade(security);
+    InterestRateFutureTrade trade = createInterestRateFutureTrade(security, true);
 
     Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> result =
         multicurveCombinerFunction.createMergedMulticurveBundle(_environment, trade, _emptyFxMatrix);
@@ -341,23 +349,30 @@ public class ExposureFunctionTest {
                            DateUtils.getUTCDate(2014, 1, 22));
   }
 
-  private InterestRateFutureTrade createInterestRateFutureTrade() {
-    return createInterestRateFutureTrade(createInterestRateFutureSecurity());
+  private InterestRateFutureTrade createInterestRateFutureTrade(boolean pass) {
+    return createInterestRateFutureTrade(createInterestRateFutureSecurity(), pass);
   }
 
-  private InterestRateFutureTrade createInterestRateFutureTrade(InterestRateFutureSecurity security) {
+  private InterestRateFutureTrade createInterestRateFutureTrade(InterestRateFutureSecurity security, boolean pass) {
     SimpleCounterparty counterparty = new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "TEST"));
-    return createInterestRateFutureTrade(security, counterparty);
+    return createInterestRateFutureTrade(security, counterparty, pass);
   }
 
   private InterestRateFutureTrade createInterestRateFutureTrade(InterestRateFutureSecurity security,
-                                                                SimpleCounterparty counterparty) {
+                                                                SimpleCounterparty counterparty,
+                                                                boolean pass) {
     BigDecimal tradeQuantity = BigDecimal.valueOf(10);
     LocalDate tradeDate = LocalDate.of(2000, 1, 1);
     OffsetTime tradeTime = OffsetTime.of(LocalTime.of(0, 0), ZoneOffset.UTC);
     SimpleTrade trade = new SimpleTrade(security, tradeQuantity, counterparty, tradeDate, tradeTime);
     trade.setPremium(0.0);
     trade.setPremiumCurrency(security.getCurrency());
+    if (pass) {
+      trade.addAttribute("TEST", "PASS");
+    } else {
+      trade.addAttribute("TEST", "FAIL");
+    }
+
     return new InterestRateFutureTrade(trade);
   }
 

@@ -30,6 +30,7 @@ import org.threeten.bp.Instant;
 import com.codahale.metrics.MetricRegistry;
 import com.google.common.base.Optional;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.opengamma.OpenGammaRuntimeException;
@@ -40,7 +41,9 @@ import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.core.position.Position;
 import com.opengamma.core.region.RegionSource;
+import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.marketdata.live.LiveMarketDataProviderFactory;
 import com.opengamma.financial.analytics.conversion.FXForwardSecurityConverter;
@@ -96,6 +99,7 @@ import com.opengamma.sesame.marketdata.DefaultHistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
 import com.opengamma.sesame.marketdata.FixedHistoricalMarketDataFactory;
 import com.opengamma.sesame.pnl.DefaultHistoricalPnLFXConverterFn;
+import com.opengamma.sesame.trade.TradeWrapper;
 import com.opengamma.util.auth.AuthUtils;
 
 /**
@@ -230,7 +234,9 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
    * @return the available outputs, not null
    */
   protected AvailableOutputs createAvailableOutputs(ComponentRepository repo) {
-    AvailableOutputs available = new AvailableOutputsImpl();
+    AvailableOutputs available = new AvailableOutputsImpl(ImmutableSet.of(Position.class,
+                                                                          Security.class,
+                                                                          TradeWrapper.class));
     available.register(EquityPresentValueFn.class,
         FRAFn.class,
         InterestRateSwapFn.class,

@@ -57,7 +57,7 @@ public class FedFundsFutureDiscountingCalculatorFactory implements FedFundsFutur
   @Override
   public Result<FedFundsFutureCalculator> createCalculator(Environment env, FedFundsFutureTrade trade) {
 
-    FinancialSecurity security = (FinancialSecurity) trade.getSecurity();
+    FinancialSecurity security = trade.getSecurity();
     
     Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundleResult =
         _discountingMulticurveCombinerFn.createMergedMulticurveBundle(env, trade, new FXMatrix());

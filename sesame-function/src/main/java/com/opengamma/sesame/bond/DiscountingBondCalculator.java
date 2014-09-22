@@ -198,7 +198,7 @@ public class DiscountingBondCalculator implements BondCalculator {
   private BondFixedTransaction createInstrumentDerivative(BondTrade bondTrade,
                                                           BondAndBondFutureTradeConverter converter,
                                                           ZonedDateTime valuationTime) {
-    InstrumentDefinition<?> definition = converter.convert(bondTrade);
+    InstrumentDefinition<?> definition = converter.convert(bondTrade.getTrade());
     return ((BondFixedTransactionDefinition) definition).toDerivative(valuationTime);
   }
 

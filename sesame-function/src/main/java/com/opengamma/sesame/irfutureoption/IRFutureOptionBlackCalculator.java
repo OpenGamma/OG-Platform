@@ -127,13 +127,13 @@ public class IRFutureOptionBlackCalculator implements IRFutureOptionCalculator {
     _curveDefinitions = ArgumentChecker.notNull(curveDefinitions, "curveDefinitions");
   }
 
-  private InstrumentDerivative createInstrumentDerivative(IRFutureOptionTrade trade,
+  private InstrumentDerivative createInstrumentDerivative(IRFutureOptionTrade tradeWrapper,
       InterestRateFutureOptionTradeConverter converter,
       ZonedDateTime valTime,
       FixedIncomeConverterDataProvider definitionToDerivativeConverter,
       HistoricalTimeSeriesBundle fixings) {
-    InstrumentDefinition<?> definition = converter.convert(trade);
-    return definitionToDerivativeConverter.convert(trade.getSecurity(), definition, valTime, fixings);
+    InstrumentDefinition<?> definition = converter.convert(tradeWrapper.getTrade());
+    return definitionToDerivativeConverter.convert(tradeWrapper.getSecurity(), definition, valTime, fixings);
   }
 
   @Override

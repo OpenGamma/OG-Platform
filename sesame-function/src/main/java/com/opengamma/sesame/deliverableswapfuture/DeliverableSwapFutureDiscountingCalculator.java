@@ -155,7 +155,7 @@ public class DeliverableSwapFutureDiscountingCalculator implements DeliverableSw
                                                           ZonedDateTime valuationTime,
                                                           FixedIncomeConverterDataProvider definitionToDerivConverter,
                                                           HistoricalTimeSeriesBundle tsBundle) {
-    InstrumentDefinition<?> definition = converter.convert(deliverableSwapFutureTrade);
+    InstrumentDefinition<?> definition = converter.convert(deliverableSwapFutureTrade.getTrade());
     return definitionToDerivConverter.convert(deliverableSwapFutureTrade.getSecurity(), 
                                                    definition, 
                                                    valuationTime, 

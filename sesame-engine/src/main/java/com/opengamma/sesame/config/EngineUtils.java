@@ -302,7 +302,7 @@ public final class EngineUtils {
   public static Set<Class<?>> getInputTypes(List<Object> inputs) {
     Set<Class<?>> inputTypes = new HashSet<>();
 
-    for (Object input : ArgumentChecker.notNull(inputs, "securities")) {
+    for (Object input : ArgumentChecker.notNull(inputs, "inputs")) {
       inputTypes.add(input.getClass());
     }
     return inputTypes;
