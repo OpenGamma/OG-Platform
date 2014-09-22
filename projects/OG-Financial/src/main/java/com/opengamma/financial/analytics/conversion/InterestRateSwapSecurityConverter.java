@@ -11,8 +11,8 @@ import javax.inject.Inject;
 
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
-
 import com.opengamma.DataNotFoundException;
+import com.google.common.collect.Lists;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.NotionalProvider;
@@ -597,7 +597,7 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
   //TODO: Would be nice to make this support Notional
   private static NotionalProvider getNotionalProvider(InterestRateSwapNotional notional, BusinessDayConvention convention, Calendar calendar) {
     final InterestRateSwapNotionalVisitor<LocalDate, Double> visitor = new InterestRateSwapNotionalAmountVisitor();
-    final List<LocalDate> dates = notional.getDates();
+    final List<LocalDate> dates = Lists.newArrayList(notional.getDates());
     if (!dates.isEmpty()) {
       for (int i = 0; i < dates.size(); i++) {
         LocalDate date = dates.remove(i);
