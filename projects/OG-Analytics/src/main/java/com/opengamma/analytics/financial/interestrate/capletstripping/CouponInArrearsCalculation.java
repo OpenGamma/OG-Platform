@@ -79,6 +79,12 @@ public class CouponInArrearsCalculation {
    */
   public CouponInArrearsCalculation(CapletStripper stripper, List<CapFloor> caps, double[] mrkPrices,
       MarketDataType type, double[] errors, DoubleMatrix1D guess, MulticurveProviderInterface curves) {
+    ArgumentChecker.notNull(stripper, "stripper");
+    ArgumentChecker.notNull(caps, "caps");
+    ArgumentChecker.notNull(type, "type");
+    ArgumentChecker.notNull(guess, "guess");
+    ArgumentChecker.notNull(curves, "curves");
+
     ArgumentChecker.notNull(mrkPrices, "mrkPrices");
     ArgumentChecker.notNull(errors, "errors");
 
@@ -111,6 +117,7 @@ public class CouponInArrearsCalculation {
    * @return The caplet price
    */
   public double simpleOptionPrice(SimpleOptionData option) {
+    ArgumentChecker.notNull(option, "option");
     return BlackFormulaRepository.price(option, _surface.getZValue(option.getTimeToExpiry(), option.getStrike()));
   }
 
@@ -120,6 +127,7 @@ public class CouponInArrearsCalculation {
    * @return The caplet price
    */
   public double simpleCapletPrice(CapFloorIbor caplet) {
+    ArgumentChecker.notNull(caplet, "caplet");
     // Construct a "standard" CapFloorIbor whose paymentTime is set to be fixingPeriodEndTime
     CapFloorIbor capStandard = new CapFloorIbor(caplet.getCurrency(), caplet.getFixingPeriodEndTime(),
         caplet.getPaymentYearFraction(), caplet.getNotional(), caplet.getFixingTime(), caplet.getIndex(),
@@ -305,6 +313,9 @@ public class CouponInArrearsCalculation {
   public MultipleCurrencyParameterSensitivity presentValueCurveSensitivity(
       final Swap<? extends Payment, ? extends Payment> swap, final CurveBuildingBlockBundle blockBundle,
       final GeneralSmileInterpolator interpolator) {
+    ArgumentChecker.notNull(swap, "swap");
+    ArgumentChecker.notNull(blockBundle, "blockBundle");
+    ArgumentChecker.notNull(interpolator, "interpolator");
 
     MultipleCurrencyParameterSensitivity firstSense;
     MultipleCurrencyParameterSensitivity secondSense;
