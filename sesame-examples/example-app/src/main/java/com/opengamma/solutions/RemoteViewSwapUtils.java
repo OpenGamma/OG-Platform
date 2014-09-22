@@ -395,7 +395,7 @@ public final class RemoteViewSwapUtils {
     trade.setPremiumCurrency(Currency.GBP);
 
     /* Fees are added as attributes on the Trade object.
-    *  Multiple fees are added by grouping them in the pattern "FEE_{number}_{PART}.
+    *  Multiple fees are added by grouping them in the following pattern: "FEE_{number}_{PART}.
     *  Fees are made up of four parts
     *  1. 'DATE' in the format YYYY-MM-DD
     *  2. 'CURRENCY' ISO currency code
