@@ -161,7 +161,7 @@ public class CouponInArrearsCalculationTest {
   }
 
   /*
-   * Swap example
+   * Swap examples
    */
   private static final Calendar NYC = StandardDataSetsMulticurveUSD.calendarArray()[0];
   private static final GeneratorSwapFixedIborMaster GENERATOR_SWAP_FIXED_IBOR_MASTER = GeneratorSwapFixedIborMaster

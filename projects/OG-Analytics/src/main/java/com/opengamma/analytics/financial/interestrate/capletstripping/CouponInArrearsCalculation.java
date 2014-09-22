@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.interestrate.capletstripping;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -58,6 +59,8 @@ public class CouponInArrearsCalculation {
   private static final MarketQuoteSensitivityBlockCalculator<MulticurveProviderInterface> MQSBC =
       new MarketQuoteSensitivityBlockCalculator<>(PSC);
 
+  private final double[] _mrkPrices;
+  private final double[] _errors;
   private final CapletStrippingResult _capletStrippingResult;
   private final MulticurveProviderInterface _curves;
   private final InterpolatedDoublesSurface _surface;
@@ -76,10 +79,15 @@ public class CouponInArrearsCalculation {
    */
   public CouponInArrearsCalculation(CapletStripper stripper, List<CapFloor> caps, double[] mrkPrices,
       MarketDataType type, double[] errors, DoubleMatrix1D guess, MulticurveProviderInterface curves) {
+    ArgumentChecker.notNull(mrkPrices, "mrkPrices");
+    ArgumentChecker.notNull(errors, "errors");
+
+    _mrkPrices = Arrays.copyOf(mrkPrices, mrkPrices.length);
+    _errors = Arrays.copyOf(errors, errors.length);
 
     // perform caplet stripping
     long t0 = System.nanoTime();
-    _capletStrippingResult = stripper.solve(mrkPrices, type, errors, guess);
+    _capletStrippingResult = stripper.solve(_mrkPrices, type, _errors, guess);
     long t1 = System.nanoTime();
     _time = (t1 - t0) * 1e-9;
     _curves = curves;
