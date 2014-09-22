@@ -1,9 +1,19 @@
 /**
- * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 package com.opengamma.solutions;
+
+import static com.opengamma.sesame.config.ConfigBuilder.configureView;
+
+import java.net.URI;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.component.tool.AbstractTool;
@@ -26,16 +36,6 @@ import com.opengamma.sesame.server.FunctionServerRequest;
 import com.opengamma.sesame.server.IndividualCycleOptions;
 import com.opengamma.sesame.server.RemoteFunctionServer;
 import com.opengamma.util.time.DateUtils;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.ZonedDateTime;
-
-import java.net.URI;
-import java.util.List;
-
-import static com.opengamma.sesame.config.ConfigBuilder.configureView;
 
 /** The entry point for running an example remote view. */
 @Scriptable
@@ -153,7 +153,8 @@ public class ExampleRemoteClientTool extends AbstractTool<ToolContext> {
   }
 
   private static Option createValuationDateOption() {
-    final Option option = new Option(VALUATION_DATE, "valuationDate", true, "valuation Date, in the format YYYYMMDD, default to now");
+    final Option option = new Option(VALUATION_DATE, "valuationDate", true,
+                                     "valuation Date, in the format YYYYMMDD, default to now");
     option.setArgName("valuation date");
     return option;
   }
@@ -165,7 +166,8 @@ public class ExampleRemoteClientTool extends AbstractTool<ToolContext> {
   }
 
   private static Option createExposureFunctionOption() {
-    final Option option = new Option(EXPOSURE_FUNCTION, "exposureFunction", true, "name of the exposure function configuration");
+    final Option option = new Option(EXPOSURE_FUNCTION, "exposureFunction", true,
+                                     "name of the exposure function configuration");
     option.setRequired(true);
     option.setArgName("exposure function");
     return option;

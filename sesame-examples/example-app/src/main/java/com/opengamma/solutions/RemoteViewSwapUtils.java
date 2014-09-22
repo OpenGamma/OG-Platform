@@ -12,16 +12,23 @@ import static com.opengamma.sesame.config.ConfigBuilder.config;
 import static com.opengamma.sesame.config.ConfigBuilder.function;
 import static com.opengamma.sesame.config.ConfigBuilder.implementations;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
 
 import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalTime;
+import org.threeten.bp.OffsetTime;
 import org.threeten.bp.Period;
+import org.threeten.bp.ZoneOffset;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.link.ConfigLink;
+import com.opengamma.core.position.Counterparty;
+import com.opengamma.core.position.impl.SimpleCounterparty;
+import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.financial.analytics.curve.exposure.ExposureFunctions;
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
@@ -53,6 +60,7 @@ import com.opengamma.sesame.irs.InterestRateSwapCalculatorFactory;
 import com.opengamma.sesame.irs.InterestRateSwapFn;
 import com.opengamma.sesame.marketdata.DefaultHistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
+import com.opengamma.sesame.trade.InterestRateSwapTrade;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.GUIDGenerator;
 import com.opengamma.util.money.Currency;
@@ -104,6 +112,11 @@ public final class RemoteViewSwapUtils {
   public static final List<Object> XCCY_INPUTS = ImmutableList.<Object>of(
       createLiborBP3MVsLiborUS3MSwap(),
       createFixedUSVsLiborBP3mSwap());
+
+  /** List of Fee IRS inputs */
+  public static final List<Object> FEES_INPUT = ImmutableList.<Object>of(
+      createFeeFixedVsLibor3mSwap());
+
 
   /** List of All IRS inputs */
   public static final List<Object> SWAP_INPUTS = ImmutableList.<Object>builder()
@@ -362,6 +375,41 @@ public final class RemoteViewSwapUtils {
         LocalDate.of(2014, 1, 17), // effective date
         LocalDate.of(2014, 3, 17), // maturity date,
         legs);
+  }
+
+  private static InterestRateSwapTrade createFeeFixedVsLibor3mSwap() {
+
+    Counterparty counterparty = new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "COUNTERPARTY"));
+    BigDecimal tradeQuantity = BigDecimal.valueOf(1);
+    LocalDate tradeDate = LocalDate.of(2014, 1, 22);
+    OffsetTime tradeTime = OffsetTime.of(LocalTime.of(0, 0), ZoneOffset.UTC);
+    SimpleTrade trade = new SimpleTrade(createVanillaFixedVsLibor3mSwap(), tradeQuantity, counterparty, tradeDate, tradeTime);
+    trade.setPremium(0.0);
+    trade.setPremiumDate(tradeDate);
+    trade.setPremiumCurrency(Currency.GBP);
+
+    /* Fees are added as attributes on the Trade object.
+    *  Multiple fees are added by grouping them in the pattern "FEE_{number}_{PART}.
+    *  Fees are made up of four parts
+    *  1. 'DATE' in the format YYYY-MM-DD
+    *  2. 'CURRENCY' ISO currency code
+    *  3. 'AMOUNT' fee payable
+    *  4. 'DIRECTION' either 'PAY' or 'RECEIVE' */
+
+    trade.addAttribute("FEE_1_DATE", "2014-05-22");
+    trade.addAttribute("FEE_1_CURRENCY", "USD");
+    trade.addAttribute("FEE_1_AMOUNT", "2000");
+    trade.addAttribute("FEE_1_DIRECTION", "PAY");
+
+    trade.addAttribute("FEE_2_DATE", "2014-03-22");
+    trade.addAttribute("FEE_2_CURRENCY", "USD");
+    trade.addAttribute("FEE_2_AMOUNT", "1000");
+    trade.addAttribute("FEE_2_DIRECTION", "RECEIVE");
+
+    /* A specific InterestRateSwapTrade object here is used to 'wrap' the underlying generic SimpleTrade */
+
+    return new InterestRateSwapTrade(trade);
+
   }
 
   private static InterestRateSwapSecurity createVanillaFixedVsLibor3mSwap() {

@@ -5,6 +5,17 @@
  */
 package com.opengamma.solutions;
 
+import static com.opengamma.sesame.config.ConfigBuilder.configureView;
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.closeTo;
+
+import java.net.URI;
+
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
 import com.opengamma.core.link.ConfigLink;
 import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
 import com.opengamma.financial.analytics.curve.exposure.ExposureFunctions;
@@ -23,16 +34,6 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
-
-import java.net.URI;
-
-import static com.opengamma.sesame.config.ConfigBuilder.configureView;
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.closeTo;
 
 /**
  * Integration tests run against a remote server
@@ -54,6 +55,8 @@ public class RemoteSwapTest {
   private Results _compoundingResults;
   private Results _stubResults;
   private Results _xccyResults;
+  private Results _feesResults;
+
 
   private static final double STD_TOLERANCE_PV = 1.0E-3;
 
@@ -63,7 +66,7 @@ public class RemoteSwapTest {
     _functionServer = new RemoteFunctionServer(URI.create(URL));
     _cycleOptions = IndividualCycleOptions.builder()
         .valuationTime(DateUtils.getUTCDate(2014, 1, 22))
-        .marketDataSpec(UserMarketDataSpecification.of(UniqueId.of("DbSnp", "1000")))
+        .marketDataSpec(UserMarketDataSpecification.of(UniqueId.of("DbSnp", "1039")))
         .build();
 
     _exposureConfig = ConfigLink.resolvable("USD CSA Exposure Functions", ExposureFunctions.class);
@@ -123,6 +126,15 @@ public class RemoteSwapTest {
 
     _xccyResults = _functionServer.executeSingleCycle(xccyRequest);
 
+    FunctionServerRequest<IndividualCycleOptions> feesRequest =
+        FunctionServerRequest.<IndividualCycleOptions>builder()
+            .viewConfig(createViewConfig())
+            .inputs(RemoteViewSwapUtils.FEES_INPUT)
+            .cycleOptions(_cycleOptions)
+            .build();
+
+    _feesResults = _functionServer.executeSingleCycle(feesRequest);
+
   }
 
   private ViewConfig createViewConfig() {
@@ -138,6 +150,22 @@ public class RemoteSwapTest {
                 _currencyMatrixLink)
         );
   }
+
+
+  /* Fees - start */
+
+  @Test(enabled = true)
+  public void testFeesFixedVsLiborSwapPV() {
+
+    Result result = _feesResults.get(0, 0).getResult();
+    assertThat(result.isSuccess(), is(true));
+    assertThat(result.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
+    MultipleCurrencyAmount mca = (MultipleCurrencyAmount) result.getValue();
+    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(6064112.3389, STD_TOLERANCE_PV)));
+
+  }
+
+  /* Fees - end */
 
   /* Vanilla - start */
   @Test(enabled = true)
@@ -208,11 +236,12 @@ public class RemoteSwapTest {
   @Test(enabled = true)
   public void testSpreadFFAAVsLiborSwapPV() {
 
+    //TODO PLAT-6794
     Result result = _spreadResults.get(1, 0).getResult();
     assertThat(result.isSuccess(), is(true));
     assertThat(result.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
     MultipleCurrencyAmount mca = (MultipleCurrencyAmount) result.getValue();
-    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(150128.4091, STD_TOLERANCE_PV)));
+    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(150891.19165888615, STD_TOLERANCE_PV)));
 
   }
 
@@ -355,6 +384,9 @@ public class RemoteSwapTest {
       assertThat(result.get(1).getResult().isSuccess(), is(true));
     }
     for (ResultRow result : _stubResults.getRows()) {
+      assertThat(result.get(1).getResult().isSuccess(), is(true));
+    }
+    for (ResultRow result : _feesResults.getRows()) {
       assertThat(result.get(1).getResult().isSuccess(), is(true));
     }
 
