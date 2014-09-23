@@ -1,5 +1,7 @@
 package com.opengamma.financial.analytics.model.credit.isdanew;
 
+import static com.opengamma.analytics.financial.credit.isdastandardmodel.IMMDateLogic.getPrevIMMDate;
+
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 
@@ -66,11 +68,16 @@ public class CDSAnalyticVisitor extends FinancialSecurityVisitorAdapter<CDSAnaly
     final StubType stubType = security.getStubType().toAnalyticsType();
     final Period period = (IMMDateGenerator.isIMMDate(security.getMaturityDate())) ? getPeriodFrequency(security.getCouponFrequency()).getPeriod() :
         Period.ofMonths(6); // non IMM forced to semi annual
+
+    // Start date modified if not a business day
+    LocalDate startDateMod = _startDate == null ? security.getStartDate().toLocalDate() : _startDate;
+    startDateMod = security.getBusinessDayConvention().adjustDate(calendar, startDateMod);
+    
     final CDSAnalytic cdsAnalytic = new CDSAnalytic(_valuationDate,
                                                     security.getEffectiveDate().toLocalDate(),
                                                     // Hard code or get from somewhere?
                                                     BusinessDayDateUtils.addWorkDays(_valuationDate, 3, calendar),
-                                                    _startDate == null ? security.getStartDate().toLocalDate() : _startDate,
+                                                    startDateMod,
                                                     _maturityDate == null ? security.getMaturityDate().toLocalDate() : _maturityDate,
                                                     true, // Do we have this info anywhere?
                                                     period,
@@ -89,11 +96,16 @@ public class CDSAnalyticVisitor extends FinancialSecurityVisitorAdapter<CDSAnaly
     final StubType stubType = security.getStubType().toAnalyticsType();
     final Period period = (IMMDateGenerator.isIMMDate(security.getMaturityDate())) ? getPeriodFrequency(security.getCouponFrequency()).getPeriod() :
         Period.ofMonths(6); // non IMM forced to semi annual
+
+    // Start date modified if not a business day
+    LocalDate startDateMod = _startDate == null ? security.getStartDate().toLocalDate() : _startDate;
+    startDateMod = security.getBusinessDayConvention().adjustDate(calendar, startDateMod);
+    
     final CDSAnalytic cdsAnalytic = new CDSAnalytic(_valuationDate,
                                                     security.getEffectiveDate().toLocalDate(),
                                                     // Hard code or get from somewhere?
                                                     BusinessDayDateUtils.addWorkDays(_valuationDate, 3, calendar),
-                                                    _startDate == null ? security.getStartDate().toLocalDate() : _startDate,
+                                                    startDateMod,
                                                     _maturityDate == null ? security.getMaturityDate().toLocalDate() : _maturityDate,
                                                     true, // Do we have this info anywhere?
                                                     period,
