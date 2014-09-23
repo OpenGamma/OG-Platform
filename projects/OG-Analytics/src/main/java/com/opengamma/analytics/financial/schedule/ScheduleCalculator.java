@@ -1120,6 +1120,9 @@ public final class ScheduleCalculator {
 
   /**
    * Checks if the EOM rule applies.
+   * <p>
+   * If generation occurs forwards, check if the start date is the last day of the month.
+   * If generation occurs backwards, check if the end date is the last day of the month.
    * 
    * @param fromEnd  true if generating from the end backwards
    * @param startDate  the start date
