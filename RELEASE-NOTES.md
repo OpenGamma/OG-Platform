@@ -3,6 +3,11 @@ OpenGamma Platform 2.2 milestones
 
 These release notes cover changes from v2.1 to v2.2.
 
+2.2.0-M2p04
+===========
+
+[PLAT-6798] Add date adjustment for start date
+
 
 2.2.0-M2p02
 ===========
