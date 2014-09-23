@@ -17,6 +17,7 @@ import com.opengamma.financial.analytics.ircurve.strips.DeliverableSwapFutureNod
 import com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
 import com.opengamma.financial.analytics.ircurve.strips.FXForwardNode;
+import com.opengamma.financial.analytics.ircurve.strips.FXSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.PeriodicallyCompoundedRateNode;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.RollDateFRANode;
@@ -106,6 +107,11 @@ public class CurveNodeVisitorAdapter<T> implements CurveNodeVisitor<T> {
 
   @Override
   public T visitFXForwardNode(final FXForwardNode node) {
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), node));
+  }
+
+  @Override
+  public T visitFXSwapNode(final FXSwapNode node) {
     throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), node));
   }
 
@@ -348,6 +354,22 @@ public class CurveNodeVisitorAdapter<T> implements CurveNodeVisitor<T> {
         @Override
         public T visitFXForwardNode(final FXForwardNode node) {
           return visitor.visitFXForwardNode(node);
+        }
+      };
+      return this;
+    }
+
+    /**
+     * Adds a visitor for {@link FXSwapNode}s
+     * @param visitor The original visitor.
+     * @return A visitor that can also handle FX swap nodes
+     */
+    public Builder<T> fxSwapNode(final CurveNodeVisitor<T> visitor) {
+      _visitor = new CurveNodeVisitorDelegate<T>(_visitor) {
+
+        @Override
+        public T visitFXSwapNode(final FXSwapNode node) {
+          return visitor.visitFXSwapNode(node);
         }
       };
       return this;
