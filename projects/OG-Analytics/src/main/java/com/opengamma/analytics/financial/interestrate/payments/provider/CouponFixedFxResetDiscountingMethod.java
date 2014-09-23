@@ -24,7 +24,7 @@ import com.opengamma.util.tuple.DoublesPair;
  * Method to compute results for fixed coupon with FX reset notional.
  * See documentation for the hypothesis used to obtain the explicit formula.
  * <P>
- * Reference: Coupons with FX reset. OpenGamma Documentation, xx. September 2014.
+ * Reference: Coupon with FX Reset Notional, OpenGamma Documentation 26, September 2014.
  */
 public final class CouponFixedFxResetDiscountingMethod {
 
@@ -91,7 +91,6 @@ public final class CouponFixedFxResetDiscountingMethod {
     double dfCcyPaymentAtPayment = multicurve.getDiscountFactor(ccyPayment, tp);
     double dfCcyReferenceAtDelivery = multicurve.getDiscountFactor(ccyReference, t0);
     double dfCcyPaymentAtDelivery = multicurve.getDiscountFactor(ccyPayment, t0);
-//    double pv = amount * dfCcyPaymentAtPayment * dfCcyReferenceAtDelivery / dfCcyPaymentAtDelivery;
     // Backward sweep.
     double pvBar = 1.0;
     double dfCcyPaymentAtDeliveryBar = -amount * 
@@ -112,7 +111,6 @@ public final class CouponFixedFxResetDiscountingMethod {
     result = result.plus(ccyPayment, MulticurveSensitivity.ofYieldDiscounting(mapDscCcyReference));
     return result;
   }
-
 
   /**
    * Compute the currency exposure of a Fixed coupon with FX reset notional by discounting. 

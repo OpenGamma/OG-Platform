@@ -16,6 +16,9 @@ import com.opengamma.util.money.Currency;
  * The currency is the currency of the payment. 
  * The notional is expressed in the reference currency, from which the FX reset will be computed.
  * The payment is (getNotional() * FX(at FX reset date) * _rate * getPaymentYearFraction())
+ * For exact description of the instrument, see reference.
+ * <P>
+ * Reference: Coupon with FX Reset Notional, OpenGamma Documentation 26, September 2014.
  */
 public class CouponFixedFxReset extends Coupon {
   

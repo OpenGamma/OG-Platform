@@ -127,6 +127,11 @@ public class CouponFixedFxResetDefinitionTest {
     CPN.toDerivative(valuationDate);
   }
 
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void toDerivativeNullFixing() {
+    CPN.toDerivative(FX_FIXING_DATE, (DoubleTimeSeries<ZonedDateTime>)null);
+  }
+
   @Test
   public void toDerivativeBeforeFixingNoHts() {
     ZonedDateTime valuationDate = FX_FIXING_DATE.minusDays(10);

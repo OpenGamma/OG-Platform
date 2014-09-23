@@ -13,6 +13,7 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedFxReset;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
@@ -26,6 +27,9 @@ import com.opengamma.util.money.Currency;
  * The currency is the currency of the payment. 
  * The notional is expressed in the reference currency, from which the FX reset will be computed.
  * The payment is (getNotional() * FX(at FX reset date) * _rate * getPaymentYearFraction())
+ * For exact description of the instrument, see reference.
+ * <P>
+ * Reference: Coupon with FX Reset Notional, OpenGamma Documentation 26, September 2014.
  */
 public class CouponFixedFxResetDefinition extends CouponDefinition 
     implements InstrumentDefinitionWithData<Payment, DoubleTimeSeries<ZonedDateTime>> {
@@ -128,8 +132,9 @@ public class CouponFixedFxResetDefinition extends CouponDefinition
    * The data is the time series of FX fixing rates.
    */
   @Override
-  public Payment toDerivative(ZonedDateTime dateTime, DoubleTimeSeries<ZonedDateTime> fxFixingHts) {
+  public Coupon toDerivative(ZonedDateTime dateTime, DoubleTimeSeries<ZonedDateTime> fxFixingHts) {
     ArgumentChecker.notNull(dateTime, "date");
+    ArgumentChecker.notNull(fxFixingHts, "time series of FX resets");
     LocalDate conversionDate = dateTime.toLocalDate();
     LocalDate fixingDate = _fxFixingDate.toLocalDate();
     double paymentTime = TimeCalculator.getTimeBetween(dateTime, getPaymentDate());
