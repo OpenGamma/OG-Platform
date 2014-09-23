@@ -104,10 +104,11 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedAccruedCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedCompounding;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedFxReset;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverage;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverageFixingDatesCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverageFixingDates;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverageFixingDatesCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverageFixingDatesCompoundingFlatSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingFlatSpread;
@@ -416,6 +417,16 @@ public abstract class InstrumentDerivativeVisitorAdapter<DATA_TYPE, RESULT_TYPE>
 
   @Override
   public RESULT_TYPE visitInterpolatedStubCoupon(final InterpolatedStubCoupon<? extends DepositIndexCoupon<? extends IndexDeposit>, ? extends IndexDeposit> payment) {
+    return getException(payment);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponFixedFxReset(final CouponFixedFxReset payment, final DATA_TYPE data) {
+    return getException(payment, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponFixedFxReset(final CouponFixedFxReset payment) {
     return getException(payment);
   }
 
