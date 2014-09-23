@@ -36,19 +36,19 @@ sampled curve pillars. We will configure an OpenGamma curve with these pre-confi
   <bean type="com.opengamma.financial.analytics.curve.InterpolatedCurveDefinition">
    <name>Curve from pre built discount factors</name>
    <nodes>
-    <item type="com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode.DiscountFactorNode">
+    <item type="com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode">
      <curveNodeIdMapperName>DiscountFactor Mapper</curveNodeIdMapperName>
      <tenor>P1M</tenor>
     </item>
-    <item type="com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode.DiscountFactorNode">
+    <item type="com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode">
      <curveNodeIdMapperName>DiscountFactor Mapper</curveNodeIdMapperName>
      <tenor>P6M</tenor>
     </item>
-    <item type="com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode.DiscountFactorNode">
+    <item type="com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode">
      <curveNodeIdMapperName>DiscountFactor Mapper</curveNodeIdMapperName>
      <tenor>P1Y</tenor>
     </item>
-    <item type="com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode.DiscountFactorNode">
+    <item type="com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode">
      <curveNodeIdMapperName>DiscountFactor Mapper</curveNodeIdMapperName>
      <tenor>P2Y</tenor>
     </item>
@@ -66,7 +66,7 @@ Combining this with a CurveNodeIdMapper:
   <fudgeEnvelope>
     <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.curve.CurveNodeIdMapper</fudgeField0>
     <name type="string">DiscountFactor Mapper</name>
-    <discountFactorNodeIds type="message">
+    <discountFactorIds type="message">
       <P1M type="message">
         <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider</fudgeField0>
         <instrument type="string">CURVE_POINT~1M</instrument>
@@ -91,7 +91,7 @@ Combining this with a CurveNodeIdMapper:
         <dataField type="string">Market_Value</dataField>
         <typeField type="string">OUTRIGHT</typeField>
       </P2Y>
-    </discountFactorNodeIds>
+    </discountFactorIds>
   </fudgeEnvelope>
 
 The above configuration objects can be created programmatically via the Java API.
@@ -106,6 +106,22 @@ time series or live market data. Any naming scheme can be adopted to match an ex
 
 Once configured this curve appears the same to the pricing logic as any other curve, and thus can be used to price
 any supported instrument.
+
+Function configuration
+----------------------
+
+When using a pre built curve a specialised instance of ``com.opengamma.sesame.DiscountingMulticurveBundleFn`` should be
+used. Instead of the default implementation ``com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn`` use
+``com.opengamma.sesame.InterpolatedMulticurveBundleFn`` when creating a view, e.g.
+
+.. code:: java
+
+  FunctionModelConfig config = ConfigBuilder.config(
+    ConfigBuilder.implementations(DiscountingMulticurveBundleFn.class, InterpolatedMulticurveBundleFn.class,
+                                  // ... other required functions ...
+                                  ),
+    ConfigBuilder.arguments( /* function arguments - curve expposure configurations etc */),
+
 
 Model daycount
 --------------

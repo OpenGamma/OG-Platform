@@ -152,9 +152,6 @@ public class IborIndex extends IndexDeposit {
     if (!super.equals(obj)) {
       return false;
     }
-    if (getClass() != obj.getClass()) {
-      return false;
-    }
     final IborIndex other = (IborIndex) obj;
     if (!ObjectUtils.equals(_businessDayConvention, other._businessDayConvention)) {
       return false;

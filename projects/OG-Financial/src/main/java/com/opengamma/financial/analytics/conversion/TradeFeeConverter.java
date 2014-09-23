@@ -24,7 +24,7 @@ import com.opengamma.financial.security.irs.PayReceiveType;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
-//TODO: Holidays and calendars
+//TODO: REQS-554 Holidays and calendars
 
 /**
  * Convert fees on a trade to an instrument definition.
