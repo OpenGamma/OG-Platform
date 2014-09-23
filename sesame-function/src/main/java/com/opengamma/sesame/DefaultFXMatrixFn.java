@@ -5,6 +5,7 @@
  */
 package com.opengamma.sesame;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -32,10 +33,7 @@ import com.opengamma.sesame.component.CurrencyPairSet;
 import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
-import com.opengamma.util.result.ResultStatus;
-import com.opengamma.util.result.SuccessStatus;
 
 /**
  * Function implementation that provides a FX matrix.
@@ -109,11 +107,11 @@ public class DefaultFXMatrixFn implements FXMatrixFn {
 
   private AbstractCurveDefinition findCurveDefinition(String curveName) {
 
-    final Collection<ConfigItem<Object>> items =
+    Collection<ConfigItem<Object>> items =
         _configSource.get(Object.class, curveName, VersionCorrection.LATEST);
 
     for (ConfigItem<Object> item : items) {
-      final Object value = item.getValue();
+      Object value = item.getValue();
       if (value instanceof AbstractCurveDefinition) {
         return (AbstractCurveDefinition) value;
       }
@@ -124,63 +122,62 @@ public class DefaultFXMatrixFn implements FXMatrixFn {
   @Override
   public Result<FXMatrix> getFXMatrix(Environment env, CurveConstructionConfiguration configuration) {
     // todo - should this actually be another function or set of functions
-    final Set<Currency> currencies = extractCurrencies(configuration, new CurveNodeCurrencyVisitor(_conventionSource, _securitySource));
-    return buildResult(env, currencies, true);
+    Set<Currency> currencies =
+        extractCurrencies(configuration, new CurveNodeCurrencyVisitor(_conventionSource, _securitySource));
+    return buildResult(env, currencies);
   }
 
   @Override
   public Result<FXMatrix> getFXMatrix(Environment env, Set<Currency> currencies) {
-    return buildResult(env, currencies, true);
+    return buildResult(env, currencies);
   }
 
   @Override
   public Result<Map<Currency, FXMatrix>> getAvailableFxRates(Environment env, CurrencyPairSet currencyPairs) {
-    final Map<Currency, FXMatrix> fxMatrices = new HashMap<Currency, FXMatrix>();
+
+    Map<Currency, FXMatrix> fxMatrices = new HashMap<Currency, FXMatrix>();
+
     for (CurrencyPair currencyPair : currencyPairs.getCurrencyPairs()) {
       if (!fxMatrices.containsKey(currencyPair.getBase())) {
         fxMatrices.put(currencyPair.getBase(), new FXMatrix(currencyPair.getBase()));
       }
-      addFxRate(env, currencyPair, fxMatrices.get(currencyPair.getBase()));
+
+      FXMatrix matrix = fxMatrices.get(currencyPair.getBase());
+      Result<Double> marketDataResult = _marketDataFn.getFxRate(env, currencyPair);
+      if (marketDataResult.isSuccess()) {
+        matrix.addCurrency(currencyPair.getCounter(), currencyPair.getBase(), marketDataResult.getValue());
+      }
     }
     return Result.success(fxMatrices);
   }
 
-  private Result<FXMatrix> buildResult(Environment env, Set<Currency> currencies, boolean failOnMissingConversion) {
-    final FXMatrix matrix = new FXMatrix();
+  private Result<FXMatrix> buildResult(Environment env, Set<Currency> currencies) {
+    FXMatrix matrix = new FXMatrix();
     Currency refCurr = null;
+    List<Result<?>> failures = new ArrayList<>();
 
     for (Currency currency : currencies) {
       // Use the first currency in the set as the reference currency in the matrix
       if (refCurr == null) {
         refCurr = currency;
       } else {
-        //note - currency matrix will ensure the spotRate returned is interpreted correctly,
-        //depending on the order base and counter are specified in.
+        // currency matrix will ensure the spotRate returned is interpreted correctly,
+        // depending on the order base and counter are specified in.
         CurrencyPair currencyPair = CurrencyPair.of(refCurr, currency);
-        
-        ResultStatus resultStatus = addFxRate(env, currencyPair, matrix);
-        if (resultStatus != SuccessStatus.SUCCESS && failOnMissingConversion) {
-          return Result.failure((FailureStatus) resultStatus, 
-              new OpenGammaRuntimeException("Missing fx rate for " + currencyPair.toString()));
+
+        Result<Double> marketDataResult = _marketDataFn.getFxRate(env, currencyPair);
+        if (marketDataResult.isSuccess()) {
+          matrix.addCurrency(currencyPair.getCounter(), currencyPair.getBase(), marketDataResult.getValue());
+        } else {
+          failures.add(marketDataResult);
         }
       }
     }
     
-    if (currencies.size() >= 2 && matrix.getCurrencies().isEmpty()) {
-      return Result.failure(FailureStatus.MISSING_DATA, new OpenGammaRuntimeException("Could not find any fx rates"));
-    } else {  
+    if (failures.isEmpty()) {
       return Result.success(matrix);
-    }
-  }
-
-  private ResultStatus addFxRate(Environment env, CurrencyPair currencyPair, FXMatrix outputMatrix) {
-    Result<Double> marketDataResult = _marketDataFn.getFxRate(env, currencyPair);
-
-    if (marketDataResult.isSuccess()) {
-      outputMatrix.addCurrency(currencyPair.getCounter(), currencyPair.getBase(), marketDataResult.getValue());
-      return SuccessStatus.SUCCESS;
     } else {
-      return FailureStatus.MISSING_DATA;
+      return Result.failure(failures);
     }
   }
 

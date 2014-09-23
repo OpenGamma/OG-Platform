@@ -37,18 +37,22 @@ public class DefaultCurveSpecificationMarketDataFn implements CurveSpecification
     Result<Boolean> result = Result.success(true);
 
     for (CurveNodeWithIdentifier node : curveSpecification.getNodes()) {
+
+      Result<Double> fwdItem = _marketDataFn.getCurveNodeValue(env, node);
+
       if (node instanceof PointsCurveNodeWithIdentifier) {
+
+        // For these curves there are 2 tickers and we need access to both of them
         PointsCurveNodeWithIdentifier pointsNode = (PointsCurveNodeWithIdentifier) node;
-        Result<Double> fwdItem = _marketDataFn.getCurveNodeValue(env, node);
         Result<Double> spotItem = _marketDataFn.getCurveNodeUnderlyingValue(env, pointsNode);
 
         if (Result.allSuccessful(fwdItem, spotItem)) {
-          curveData.put(node.getIdentifier().toBundle(), fwdItem.getValue() + spotItem.getValue());
+          curveData.put(node.getIdentifier().toBundle(), fwdItem.getValue());
+          curveData.put(pointsNode.getUnderlyingIdentifier().toBundle(), spotItem.getValue());
         } else {
           result = Result.failure(result, fwdItem, spotItem);
         }
       } else {
-        Result<Double> fwdItem = _marketDataFn.getCurveNodeValue(env, node);
 
         if (fwdItem.isSuccess()) {
           curveData.put(node.getIdentifier().toBundle(), fwdItem.getValue());
