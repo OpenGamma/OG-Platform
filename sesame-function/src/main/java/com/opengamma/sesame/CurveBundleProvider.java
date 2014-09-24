@@ -90,7 +90,6 @@ public final class CurveBundleProvider {
   /**
    * Creates the curve bundle provider.
    *
-
    * @param curveNodeConverter converter bor curve nodes, not null.
    * @param curveSpecificationProvider provides the curve spec, not null.
    * @param curveSpecMarketDataProvider market data required for a curve specification, not null.
