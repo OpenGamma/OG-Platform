@@ -9,7 +9,7 @@ Overview
 
 This guide provides instructions on how to deploy a new instance of the OpenGamma platform.
 
-It is assumed that Bloomberg market-data is available, postgreSQL is installed and is your database of choice, and that you have appropriate user permissions on the server.
+It is assumed that Bloomberg market-data is available, Oracle 11g or PostgreSQL is installed and is your database of choice, and that you have appropriate user permissions on the server.
 
 Obtaining the source code
 -------------------------
@@ -143,7 +143,16 @@ Oracle (11g)
 Install
 ~~~~~~~
 
-Create an empty og_db database schema using Oracle standard tools
+Create an empty user and database schema using Oracle standard tools (e.g. ``sqlplus`` with the following script (replacing ``<password>`` as appropriate::
+
+    CREATE USER opengamma IDENTIFIED BY <password>
+    DEFAULT TABLESPACE users
+    TEMPORARY TABLESPACE temp
+    QUOTA UNLIMITED ON users;
+
+    GRANT CONNECT TO opengamma;
+    GRANT CREATE TABLE TO opengamma;
+    GRANT CREATE SEQUENCE TO opengamma;
 
 DB Tools Connection config
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -159,18 +168,18 @@ For Oracle support, it should contain the following lines::
 
     db.dialect = com.opengamma.util.db.Oracle11gDbDialect
     db.driver = oracle.jdbc.driver.OracleDriver
-    db.url = dbc:oracle:thin:@//[HOST][:PORT]/SERVICE
+    db.url = jdbc:oracle:thin:@//REPLACE-ORACLE-HOST[:REPLACE-ORACLE-PORT]/REPLACE-ORACLE-SERVICE-NAME
     db.username = REPLACE-ORACLE-USERNAME
     db.password = REPLACE-ORACLE-PASSWORD
 
-    db.schemaNames = cfg,cnv,eng,exg,pos,prt,secb,snp,usr,len,hts,cfg
+    db.schemaNames = cfg,cnv,exg,pos,prt,secb,snp,usr,len,hts,cfg
 
     db.scriptsResource = classpath:db
 
     #Global
     time.zone = Europe/London
 
-``Replace ORACLE-HOST, SERVICE-NAME, REPLACE-ORACLE-USERNAME and REPLACE-ORACLE-PASSWORD with the appropriate values``
+``Replace REPLACE-ORACLE-HOST, REPLACE-ORACLE-SERVICE-NAME, REPLACE-ORACLE-USERNAME and REPLACE-ORACLE-PASSWORD with the appropriate values. Either replace or remove REPLACE-ORACLE-PORT as appropriate, depending on whether the default port is in use.``
 
 **Important Note : db.schemaNames, db.scriptsResource, time.zone, MANAGER.NEXT.FILE properties must have the same values as the default dbtoolcontext-postgres.properties**
 
@@ -233,7 +242,7 @@ Update the database details in ``config/fullstack/fullstack.properties`` accordi
 
     db.dialect = com.opengamma.util.db.Oracle11gDbDialect
     db.driver = oracle.jdbc.driver.OracleDriver
-    db.url = dbc:oracle:thin:@//[HOST][:PORT]/SERVICE
+    db.url = jdbc:oracle:thin:@//[REPLACE-ORACLE-HOST][:REPLACE-ORACLE-PORT]/REPLACE-ORACLE-SERVICE-NAME
     db.username = REPLACE-ORACLE-USERNAME
     db.password = REPLACE-ORACLE-PASSWORD
 
