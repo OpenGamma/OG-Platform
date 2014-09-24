@@ -9,7 +9,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.google.common.collect.Sets;
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.ConfigSource;
@@ -28,6 +28,7 @@ import com.opengamma.financial.analytics.ircurve.strips.DeliverableSwapFutureNod
 import com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
 import com.opengamma.financial.analytics.ircurve.strips.FXForwardNode;
+import com.opengamma.financial.analytics.ircurve.strips.FXSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.PeriodicallyCompoundedRateNode;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.RollDateFRANode;
@@ -241,7 +242,12 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
 
   @Override
   public Set<Currency> visitFXForwardNode(final FXForwardNode node) {
-    return Sets.newHashSet(node.getPayCurrency(), node.getReceiveCurrency());
+    return ImmutableSet.of(node.getPayCurrency(), node.getReceiveCurrency());
+  }
+
+  @Override
+  public Set<Currency> visitFXSwapNode(final FXSwapNode node) {
+    return ImmutableSet.of(node.getPayCurrency(), node.getReceiveCurrency());
   }
 
   @Override

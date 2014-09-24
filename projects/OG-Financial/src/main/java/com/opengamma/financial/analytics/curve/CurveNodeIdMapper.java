@@ -35,10 +35,6 @@ import com.opengamma.util.time.Tenor;
  */
 @Config(description = "Curve node ID mapper", group = ConfigGroups.CURVES)
 public class CurveNodeIdMapper {
-  /**
-   * The names of the curve instrument providers.
-   */
-  public static final List<String> s_curveIdMapperNames = getCurveIdMapperNames();
   /** The name of this configuration */
   private final String _name;
   /** Curve instrument providers for bill nodes */
@@ -63,6 +59,8 @@ public class CurveNodeIdMapper {
   private final Map<Tenor, CurveInstrumentProvider> _fraNodeIds;
   /** Curve instrument providers for FX forward nodes */
   private final Map<Tenor, CurveInstrumentProvider> _fxForwardNodeIds;
+  /** Curve instrument providers for FX swap nodes */
+  private final Map<Tenor, CurveInstrumentProvider> _fxSwapNodeIds;
   /** Curve instrument providers for IMM FRA nodes */
   private final Map<Tenor, CurveInstrumentProvider> _immFRANodeIds;
   /** Curve instrument providers for IMM swap nodes */
@@ -105,6 +103,8 @@ public class CurveNodeIdMapper {
     private Map<Tenor, CurveInstrumentProvider> _fraNodeIds;
     /** Curve instrument providers for FX forward nodes */
     private Map<Tenor, CurveInstrumentProvider> _fxForwardNodeIds;
+    /** Curve instrument providers for FX swap nodes */
+    private Map<Tenor, CurveInstrumentProvider> _fxSwapNodeIds;
     /** Curve instrument providers for IMM FRA nodes */
     private Map<Tenor, CurveInstrumentProvider> _immFRANodeIds;
     /** Curve instrument providers for IMM swap nodes */
@@ -243,6 +243,17 @@ public class CurveNodeIdMapper {
     }
 
     /**
+     * Curve instrument providers for FX swap nodes.
+     *
+     * @param fxSwapNodeIds the fxSwapNodeIds
+     * @return this
+     */
+    public Builder fxSwapNodeIds(final Map<Tenor, CurveInstrumentProvider> fxSwapNodeIds) {
+      _fxSwapNodeIds = fxSwapNodeIds;
+      return this;
+    }
+
+    /**
      * Curve instrument providers for IMM FRA nodes
      * @param immFRANodeIds The immFRANodeIds
      * @return this
@@ -317,6 +328,7 @@ public class CurveNodeIdMapper {
           _discountFactorNodeIds,
           _fraNodeIds,
           _fxForwardNodeIds,
+          _fxSwapNodeIds,
           _immFRANodeIds,
           _immSwapNodeIds,
           _rateFutureNodeIds,
@@ -365,6 +377,7 @@ public class CurveNodeIdMapper {
       final Map<Tenor, CurveInstrumentProvider> discountFactorNodeIds,
       final Map<Tenor, CurveInstrumentProvider> fraNodeIds,
       final Map<Tenor, CurveInstrumentProvider> fxForwardNodeIds,
+      final Map<Tenor, CurveInstrumentProvider> fxSwapNodeIds,
       final Map<Tenor, CurveInstrumentProvider> immFRANodeIds,
       final Map<Tenor, CurveInstrumentProvider> immSwapNodeIds,
       final Map<Tenor, CurveInstrumentProvider> rateFutureNodeIds,
@@ -383,6 +396,7 @@ public class CurveNodeIdMapper {
     _discountFactorNodeIds = discountFactorNodeIds;
     _fraNodeIds = fraNodeIds;
     _fxForwardNodeIds = fxForwardNodeIds;
+    _fxSwapNodeIds = fxSwapNodeIds;
     _immFRANodeIds = immFRANodeIds;
     _immSwapNodeIds = immSwapNodeIds;
     _rateFutureNodeIds = rateFutureNodeIds;
@@ -532,11 +546,24 @@ public class CurveNodeIdMapper {
 
   /**
    * Gets the FX forward node ids.
-   * @return The FX forward node ids
+   *
+   * @return the FX forward node ids
    */
   public Map<Tenor, CurveInstrumentProvider> getFXForwardNodeIds() {
     if (_fxForwardNodeIds != null) {
       return Collections.unmodifiableMap(_fxForwardNodeIds);
+    }
+    return null;
+  }
+
+  /**
+   * Gets the FX swap node ids.
+   *
+   * @return the FX swap node ids
+   */
+  public Map<Tenor, CurveInstrumentProvider> getFXSwapNodeIds() {
+    if (_fxSwapNodeIds != null) {
+      return Collections.unmodifiableMap(_fxSwapNodeIds);
     }
     return null;
   }
@@ -1062,6 +1089,46 @@ public class CurveNodeIdMapper {
   }
 
   /**
+   * Gets the external id of the FX swap node at a particular tenor that is valid for that curve date.
+   * @param curveDate the curve date
+   * @param tenor the tenor
+   * @return the external id
+   * @throws OpenGammaRuntimeException if the external id for this tenor and date could not be found.
+   */
+  public ExternalId getFXSwapNodeId(final LocalDate curveDate, final Tenor tenor) {
+    if (_fxSwapNodeIds == null) {
+      throw new OpenGammaRuntimeException("Cannot get FX swap node id provider for curve node id mapper called " + _name);
+    }
+    return getId(_fxSwapNodeIds, curveDate, tenor);
+  }
+
+  /**
+   * Gets the market data field of the FX swap node at a particular tenor.
+   * @param tenor the tenor
+   * @return the market data field
+   * @throws OpenGammaRuntimeException if the market data field for this tenor could not be found.
+   */
+  public String getFXSwapNodeDataField(final Tenor tenor) {
+    if (_fxSwapNodeIds == null) {
+      throw new OpenGammaRuntimeException("Cannot get FX swap node id provider for curve node id mapper called " + _name);
+    }
+    return getMarketDataField(_fxSwapNodeIds, tenor);
+  }
+
+  /**
+   * Gets the data field type of the FX swap node at a particular tenor.
+   * @param tenor the tenor
+   * @return the data field type
+   * @throws OpenGammaRuntimeException if the data field type for this tenor could not be found.
+   */
+  public DataFieldType getFXSwapNodeDataFieldType(final Tenor tenor) {
+    if (_fxSwapNodeIds == null) {
+      throw new OpenGammaRuntimeException("Cannot get FX swap node id provider for curve node id mapper called " + _name);
+    }
+    return getDataFieldType(_fxSwapNodeIds, tenor);
+  }
+
+  /**
    * Gets the external id of the IMM FRA node at a particular tenor that is valid for that curve date.
    * @param curveDate The curve date
    * @param startTenor The start tenor
@@ -1358,6 +1425,9 @@ public class CurveNodeIdMapper {
     if (_fxForwardNodeIds != null) {
       allTenors.addAll(_fxForwardNodeIds.keySet());
     }
+    if (_fxSwapNodeIds != null) {
+      allTenors.addAll(_fxSwapNodeIds.keySet());
+    }
     if (_immFRANodeIds != null) {
       allTenors.addAll(_immFRANodeIds.keySet());
     }
@@ -1442,6 +1512,7 @@ public class CurveNodeIdMapper {
         ObjectUtils.equals(_discountFactorNodeIds, other._discountFactorNodeIds) &&
         ObjectUtils.equals(_fraNodeIds, other._fraNodeIds) &&
         ObjectUtils.equals(_fxForwardNodeIds, other._fxForwardNodeIds) &&
+        ObjectUtils.equals(_fxSwapNodeIds, other._fxSwapNodeIds) &&
         ObjectUtils.equals(_immFRANodeIds, other._immFRANodeIds) &&
         ObjectUtils.equals(_immSwapNodeIds, other._immSwapNodeIds) &&
         ObjectUtils.equals(_rateFutureNodeIds, other._rateFutureNodeIds) &&
@@ -1465,6 +1536,7 @@ public class CurveNodeIdMapper {
     result = prime * result + ((_discountFactorNodeIds == null) ? 0 : _discountFactorNodeIds.hashCode());
     result = prime * result + ((_fraNodeIds == null) ? 0 : _fraNodeIds.hashCode());
     result = prime * result + ((_fxForwardNodeIds == null) ? 0 : _fxForwardNodeIds.hashCode());
+    result = prime * result + ((_fxSwapNodeIds == null) ? 0 : _fxSwapNodeIds.hashCode());
     result = prime * result + ((_immFRANodeIds == null) ? 0 : _immFRANodeIds.hashCode());
     result = prime * result + ((_immSwapNodeIds == null) ? 0 : _immSwapNodeIds.hashCode());
     result = prime * result + ((_rateFutureNodeIds == null) ? 0 : _rateFutureNodeIds.hashCode());
