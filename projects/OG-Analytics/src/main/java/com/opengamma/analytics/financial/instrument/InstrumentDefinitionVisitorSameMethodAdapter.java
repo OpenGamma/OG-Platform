@@ -109,6 +109,7 @@ import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundin
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingSimpleSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborFxResetDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborGearingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborRatchetDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborSpreadDefinition;
@@ -509,6 +510,16 @@ public abstract class InstrumentDefinitionVisitorSameMethodAdapter<DATA_TYPE, RE
 
   @Override
   public RESULT_TYPE visitCouponFixedFxResetDefinition(final CouponFixedFxResetDefinition payment) {
+    return visit(payment);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponIborFxResetDefinition(final CouponIborFxResetDefinition payment, final DATA_TYPE data) {
+    return visit(payment, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponIborFxResetDefinition(final CouponIborFxResetDefinition payment) {
     return visit(payment);
   }
 
