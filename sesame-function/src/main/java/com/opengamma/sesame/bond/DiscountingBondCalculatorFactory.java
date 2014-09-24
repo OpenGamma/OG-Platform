@@ -14,12 +14,12 @@ import com.opengamma.financial.analytics.conversion.BondAndBondFutureTradeConver
 import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.sesame.CurveDefinitionFn;
 import com.opengamma.sesame.Environment;
+import com.opengamma.sesame.IssuerProviderBundle;
 import com.opengamma.sesame.IssuerProviderFn;
 import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.sesame.trade.BondTrade;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * Implementation of the BondCalculatorFactory that uses the discounting calculator to return values.
@@ -53,20 +53,21 @@ public class DiscountingBondCalculatorFactory implements BondCalculatorFactory {
   @Override
   public Result<BondCalculator> createCalculator(Environment env, BondTrade tradeWrapper) {
 
-    Result<Pair<ParameterIssuerProviderInterface, CurveBuildingBlockBundle>> bundleResult =
+    Result<IssuerProviderBundle> bundleResult =
         _issuerProviderFn.createBundle(env, tradeWrapper.getTrade(), new FXMatrix());
 
     if (bundleResult.isSuccess()) {
+      CurveBuildingBlockBundle blocks = bundleResult.getValue().getCurveBuildingBlockBundle();
 
       Result<Map<String, CurveDefinition>> curveDefinitions =
-          _curveDefinitionFn.getCurveDefinitions(bundleResult.getValue().getSecond().getData().keySet());
+          _curveDefinitionFn.getCurveDefinitions(blocks.getData().keySet());
 
       if (!curveDefinitions.isSuccess()) {
         return Result.failure(curveDefinitions);
       }
 
-      ParameterIssuerProviderInterface curves = bundleResult.getValue().getFirst();
-      CurveBuildingBlockBundle blocks = bundleResult.getValue().getSecond();
+      ParameterIssuerProviderInterface curves = bundleResult.getValue().getParameterIssuerProviderInterface();
+
       BondCalculator calculator = new DiscountingBondCalculator(tradeWrapper, curves, blocks,  _converter, env,
                                                                 curveDefinitions.getValue(), _marketDataFn);
       return Result.success(calculator);

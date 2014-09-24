@@ -66,6 +66,7 @@ import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
 import com.opengamma.sesame.DiscountingMulticurveBundleResolverFn;
 import com.opengamma.sesame.ExposureFunctionsDiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.FXMatrixFn;
+import com.opengamma.sesame.bond.BondFn;
 import com.opengamma.sesame.cache.CacheInvalidator;
 import com.opengamma.sesame.cache.NoOpCacheInvalidator;
 import com.opengamma.sesame.cache.source.CacheAwareConfigSource;
@@ -245,7 +246,8 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
         FXForwardPVFn.class,
         FXForwardYCNSPnLSeriesFn.class,
         FXForwardYieldCurveNodeSensitivitiesFn.class,
-        FXMatrixFn.class);
+        FXMatrixFn.class,
+        BondFn.class);
     return available;
   }
 
