@@ -57,6 +57,7 @@ public class RemoteSwapTest {
   private Results _xccyResults;
   private Results _feesResults;
   private Results _singleLegResults;
+  private Results _zeroCouponResults;
 
   private static final double STD_TOLERANCE_PV = 1.0E-3;
 
@@ -67,7 +68,7 @@ public class RemoteSwapTest {
     _functionServer = new RemoteFunctionServer(URI.create(URL));
     _cycleOptions = IndividualCycleOptions.builder()
         .valuationTime(DateUtils.getUTCDate(2014, 1, 22))
-        .marketDataSpec(UserMarketDataSpecification.of(UniqueId.of("DbSnp", "1000")))
+        .marketDataSpec(UserMarketDataSpecification.of(UniqueId.of("DbSnp", "1039")))
         .build();
 
     _exposureConfig = ConfigLink.resolvable("USD CSA Exposure Functions", ExposureFunctions.class);
@@ -145,6 +146,15 @@ public class RemoteSwapTest {
 
     _singleLegResults = _functionServer.executeSingleCycle(singleLegRequest);
 
+    FunctionServerRequest<IndividualCycleOptions> zeroCouponRequest =
+        FunctionServerRequest.<IndividualCycleOptions>builder()
+            .viewConfig(createViewConfig())
+            .inputs(RemoteViewSwapUtils.ZERO_COUPON_COMPOUNDING_INPUT)
+            .cycleOptions(_cycleOptions)
+            .build();
+
+    _zeroCouponResults = _functionServer.executeSingleCycle(zeroCouponRequest);
+
 
   }
 
@@ -191,6 +201,18 @@ public class RemoteSwapTest {
   }
 
   /* Single Leg - end */
+
+  @Test(enabled = true)
+  public void testZeroCouponSwapPV() {
+
+    Result fixedResult = _zeroCouponResults.get(0, 0).getResult();
+    assertThat(fixedResult.isSuccess(), is(true));
+    assertThat(fixedResult.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
+    MultipleCurrencyAmount amount = (MultipleCurrencyAmount) fixedResult.getValue();
+    // TODO - this value has not been derived from an equivalent analytics test
+    assertThat(amount.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(6598909.63457769, STD_TOLERANCE_PV)));
+  }
+
 
   /* Fees - start */
 
@@ -432,6 +454,9 @@ public class RemoteSwapTest {
     for (ResultRow result : _singleLegResults.getRows()) {
       assertThat(result.get(1).getResult().isSuccess(), is(true));
     }
+    for (ResultRow result : _zeroCouponResults.getRows()) {
+      assertThat(result.get(1).getResult().isSuccess(), is(true));
+    }
 
   }
 
@@ -457,6 +482,9 @@ public class RemoteSwapTest {
       assertThat(result.get(2).getResult().isSuccess(), is(true));
     }
     for (ResultRow result : _feesResults.getRows()) {
+      assertThat(result.get(2).getResult().isSuccess(), is(true));
+    }
+    for (ResultRow result : _zeroCouponResults.getRows()) {
       assertThat(result.get(2).getResult().isSuccess(), is(true));
     }
     //TODO PLAT-6796 _singleLegResults
@@ -485,6 +513,9 @@ public class RemoteSwapTest {
       assertThat(result.get(3).getResult().isSuccess(), is(true));
     }
     for (ResultRow result : _feesResults.getRows()) {
+      assertThat(result.get(3).getResult().isSuccess(), is(true));
+    }
+    for (ResultRow result : _zeroCouponResults.getRows()) {
       assertThat(result.get(3).getResult().isSuccess(), is(true));
     }
     //TODO PLAT-6796 _singleLegResults
