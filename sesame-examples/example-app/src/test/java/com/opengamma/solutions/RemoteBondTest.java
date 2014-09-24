@@ -104,7 +104,7 @@ public class RemoteBondTest {
     assertThat(result.isSuccess(), is(true));
     assertThat(result.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
     MultipleCurrencyAmount mca = (MultipleCurrencyAmount) result.getValue();
-    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(9999.290864101724, STD_TOLERANCE_PV)));
+    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(9970.724476313493, STD_TOLERANCE_PV)));
 
   }
 
