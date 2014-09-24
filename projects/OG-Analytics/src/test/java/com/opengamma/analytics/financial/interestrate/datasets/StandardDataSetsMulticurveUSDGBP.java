@@ -313,7 +313,7 @@ public class StandardDataSetsMulticurveUSDGBP {
    * @param calibrationDate The calibration date.
    * @return The curves and the Jacobian matrices.
    */
-  public static Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> getCurvesUSDOisL1L3L6(ZonedDateTime calibrationDate) {
+  public static Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> getCurvesUsdDscL1L3L6GbpDscL3(ZonedDateTime calibrationDate) {
     InstrumentDefinition<?>[][][] definitionsUnits = new InstrumentDefinition<?>[NB_UNITS[0]][][];
     InstrumentDefinition<?>[] definitionsUsdDsc = getDefinitions(USD_OISFFS_1_MARKET_QUOTES, USD_OISFFS_1_GENERATORS, 
         USD_OISFFS_1_ATTR, calibrationDate);

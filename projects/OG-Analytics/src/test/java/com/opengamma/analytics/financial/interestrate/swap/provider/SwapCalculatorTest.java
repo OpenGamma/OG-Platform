@@ -316,6 +316,8 @@ public class SwapCalculatorTest {
     final MultipleCurrencyAmount pv = swap0.accept(PVDC, MULTICURVES);
     assertEquals("ParSpreadCalculator: fixed-coupon swap", pv.getAmount(swap.getFirstLeg().getCurrency()), 0, TOLERANCE_PV);
   }
+  
+  //TODO: ParSpreadMarketQuote XCcy swap (with notional exchange).
 
   @Test
   public void pv01CurveParametersBeforeFirstFixing() {

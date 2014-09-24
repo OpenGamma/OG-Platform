@@ -518,15 +518,20 @@ public class MulticurveBuildingDiscountingDiscountXCcyTest {
     for (int loopblock = 0; loopblock < nbBlocks; loopblock++) {
       final InstrumentDerivative[][] instruments = convert(definitions[loopblock], withToday);
       final double[][] pv = new double[instruments.length][];
+      final double[][] ps = new double[instruments.length][];
       for (int loopcurve = 0; loopcurve < instruments.length; loopcurve++) {
         pv[loopcurve] = new double[instruments[loopcurve].length];
+        ps[loopcurve] = new double[instruments[loopcurve].length];
         for (int loopins = 0; loopins < instruments[loopcurve].length; loopins++) {
           pv[loopcurve][loopins] = curves.getFxRates().convert(instruments[loopcurve][loopins].accept(PVDC, curves), EUR).getAmount();
+          ps[loopcurve][loopins] = instruments[loopcurve][loopins].accept(PSMQDC, curves);
           assertEquals("Curve construction: block " + block + ", unit " + loopblock + " - instrument " + loopins, 0, pv[loopcurve][loopins], TOLERANCE_CAL);
         }
       }
+      @SuppressWarnings("unused")
+      int t=0;
     }
-  }
+  } //TODO: test parSpreadMarketQuote
 
   @Test(enabled = true)
   /**
