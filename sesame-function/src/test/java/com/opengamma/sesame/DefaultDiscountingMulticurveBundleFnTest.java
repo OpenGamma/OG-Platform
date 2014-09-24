@@ -18,6 +18,10 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
+import com.opengamma.core.convention.ConventionSource;
+import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.region.RegionSource;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.curve.CurveGroupConfiguration;
@@ -41,7 +45,15 @@ public class DefaultDiscountingMulticurveBundleFnTest {
   
   @BeforeMethod
   public void setup() {
-    _fn = new DefaultDiscountingMulticurveBundleFn(null, null, null, _fxmProvider, null, null, null, null, null, null, StringSet.of(IMPLIED_DEPO));
+    RootFinderConfiguration rootFinderConfig = new RootFinderConfiguration(1e-9, 1e-9, 1000);
+    HolidaySource holidaySource = mock(HolidaySource.class);
+    _fn = new DefaultDiscountingMulticurveBundleFn(
+        null, null, null, _fxmProvider,
+        holidaySource, null, rootFinderConfig,
+        new CurveNodeInstrumentDefinitionFactory(
+            mock(SecuritySource.class), mock(ConventionSource.class),
+            holidaySource, mock(RegionSource.class)),
+        StringSet.of(IMPLIED_DEPO));
   }
 
   @SuppressWarnings("unchecked")

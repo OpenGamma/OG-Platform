@@ -63,7 +63,8 @@ public class ClassNode extends DependentNode {
     try {
       return _constructor.newInstance(dependencies.toArray());
     } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-      throw new OpenGammaRuntimeException("Failed to create of " + _constructor.getDeclaringClass().getName(), e);
+      throw new OpenGammaRuntimeException(
+          "Failed to create an instance of " + _constructor.getDeclaringClass().getName(), e);
     }
   }
 

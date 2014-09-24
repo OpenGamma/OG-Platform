@@ -47,38 +47,25 @@ import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolat
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.core.convention.Convention;
-import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.link.ConventionLink;
 import com.opengamma.core.link.SecurityLink;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
-import com.opengamma.core.region.RegionSource;
-import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.analytics.conversion.CalendarUtils;
 import com.opengamma.financial.analytics.curve.AbstractCurveDefinition;
 import com.opengamma.financial.analytics.curve.AbstractCurveSpecification;
-import com.opengamma.financial.analytics.curve.CashNodeConverter;
 import com.opengamma.financial.analytics.curve.ConverterUtils;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.curve.CurveGroupConfiguration;
-import com.opengamma.financial.analytics.curve.CurveNodeVisitorAdapter;
 import com.opengamma.financial.analytics.curve.CurveSpecification;
 import com.opengamma.financial.analytics.curve.CurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.DiscountingCurveTypeConfiguration;
-import com.opengamma.financial.analytics.curve.FRANodeConverter;
-import com.opengamma.financial.analytics.curve.FXForwardNodeConverter;
 import com.opengamma.financial.analytics.curve.FixedDateInterpolatedCurveDefinition;
 import com.opengamma.financial.analytics.curve.IborCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.InterpolatedCurveDefinition;
 import com.opengamma.financial.analytics.curve.OvernightCurveTypeConfiguration;
-import com.opengamma.financial.analytics.curve.RateFutureNodeConverter;
-import com.opengamma.financial.analytics.curve.RollDateFRANodeConverter;
-import com.opengamma.financial.analytics.curve.RollDateSwapNodeConverter;
-import com.opengamma.financial.analytics.curve.SwapNodeConverter;
-import com.opengamma.financial.analytics.curve.ThreeLegBasisSwapNodeConverter;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
-import com.opengamma.financial.analytics.ircurve.strips.CurveNodeVisitor;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.convention.DepositConvention;
 import com.opengamma.financial.convention.IborIndexConvention;
@@ -87,7 +74,6 @@ import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.security.index.OvernightIndex;
-import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.sesame.component.StringSet;
 import com.opengamma.util.money.Currency;
@@ -114,10 +100,7 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
   private final CurveSpecificationMarketDataFn _curveSpecificationMarketDataProvider;
   private final FXMatrixFn _fxMatrixProvider;
 
-  private final SecuritySource _securitySource;
-  private final ConventionSource _conventionSource;
   private final HolidaySource _holidaySource;
-  private final RegionSource _regionSource;
   private final CurveNodeConverterFn _curveNodeConverter;
 
   private final RootFinderConfiguration _rootFinderConfiguration;
@@ -129,29 +112,27 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
   // todo - this is only a temporary solution to determine the implied deposit curves
   private final Set<String> _impliedCurveNames;
 
+  private final CurveNodeInstrumentDefinitionFactory _curveNodeInstrumentDefinitionFactory;
+
   public DefaultDiscountingMulticurveBundleFn(CurveDefinitionFn curveDefinitionProvider,
                                               CurveSpecificationFn curveSpecificationProvider,
                                               CurveSpecificationMarketDataFn curveSpecificationMarketDataProvider,
                                               FXMatrixFn fxMatrixProvider,
-                                              SecuritySource securitySource,
-                                              ConventionSource conventionSource,
                                               HolidaySource holidaySource,
-                                              RegionSource regionSource,
                                               CurveNodeConverterFn curveNodeConverter,
                                               RootFinderConfiguration rootFinderConfiguration,
+                                              CurveNodeInstrumentDefinitionFactory curveNodeInstrumentDefinitionFactory,
                                               StringSet impliedCurveNames) {
 
     _curveDefinitionProvider = curveDefinitionProvider;
     _curveSpecificationProvider = curveSpecificationProvider;
     _curveSpecificationMarketDataProvider = curveSpecificationMarketDataProvider;
     _fxMatrixProvider = fxMatrixProvider;
-    _securitySource = securitySource;
-    _conventionSource = conventionSource;
     _holidaySource = holidaySource;
-    _regionSource = regionSource;
     _curveNodeConverter = curveNodeConverter;
     _rootFinderConfiguration = rootFinderConfiguration;
     _impliedCurveNames = impliedCurveNames.getStrings();
+    _curveNodeInstrumentDefinitionFactory = curveNodeInstrumentDefinitionFactory;
   }
 
   //-------------------------------------------------------------------------
@@ -479,17 +460,17 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
     List<Result<?>> failures = new ArrayList<>();
 
     for (CurveNodeWithIdentifier node : nodes) {
-      CurveNodeVisitor<InstrumentDefinition<?>> nodeVisitor =
-          createCurveNodeVisitor(node.getIdentifier(), snapshot, valuationTime, fxMatrix);
-      InstrumentDefinition<?> definitionForNode = node.getCurveNode().accept(nodeVisitor);
+      InstrumentDefinition<?> instrumentDefn =
+          _curveNodeInstrumentDefinitionFactory.createInstrumentDefinition(node, snapshot, valuationTime, fxMatrix);
       Result<InstrumentDerivative> derivativeResult =
-          _curveNodeConverter.getDerivative(env, node, definitionForNode, valuationTime);
+          _curveNodeConverter.getDerivative(env, node, instrumentDefn, valuationTime);
       if (derivativeResult.isSuccess()) {
         derivativesForCurve.add(derivativeResult.getValue());
       } else {
         failures.add(derivativeResult);
       }
     }
+
     if (failures.isEmpty()) {
       return Result.success(derivativesForCurve.toArray(new InstrumentDerivative[derivativesForCurve.size()]));
     } else {
@@ -562,59 +543,4 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
     }
   }
 
-  private CurveNodeVisitor<InstrumentDefinition<?>> createCurveNodeVisitor(ExternalId dataId,
-                                                                           SnapshotDataBundle
-                                                                               marketData,
-                                                                           ZonedDateTime valuationTime,
-                                                                           FXMatrix fxMatrix) {
-    return CurveNodeVisitorAdapter.<InstrumentDefinition<?>>builder()
-        .cashNodeVisitor(new CashNodeConverter(_securitySource, _conventionSource, _holidaySource, _regionSource,
-                                               marketData, dataId, valuationTime))
-        .fraNode(new FRANodeConverter(_securitySource,
-                                      _conventionSource,
-                                      _holidaySource,
-                                      _regionSource,
-                                      marketData,
-                                      dataId,
-                                      valuationTime))
-        .fxForwardNode(new FXForwardNodeConverter(_conventionSource, _holidaySource, _regionSource,
-                                                  marketData, dataId, valuationTime))
-        .immFRANode(new RollDateFRANodeConverter(_securitySource,
-                                                 _conventionSource,
-                                                 _holidaySource,
-                                                 _regionSource,
-                                                 marketData,
-                                                 dataId,
-                                                 valuationTime))
-        .immSwapNode(new RollDateSwapNodeConverter(_securitySource,
-                                                   _conventionSource,
-                                                   _holidaySource,
-                                                   _regionSource,
-                                                   marketData,
-                                                   dataId,
-                                                   valuationTime))
-        .rateFutureNode(new RateFutureNodeConverter(_securitySource,
-                                                    _conventionSource,
-                                                    _holidaySource,
-                                                    _regionSource,
-                                                    marketData,
-                                                    dataId,
-                                                    valuationTime))
-        .swapNode(new SwapNodeConverter(_securitySource,
-                                        _conventionSource,
-                                        _holidaySource,
-                                        _regionSource,
-                                        marketData,
-                                        dataId,
-                                        valuationTime,
-                                        fxMatrix))
-        .threeLegBasisSwapNode(new ThreeLegBasisSwapNodeConverter(_securitySource,
-                                                                  _conventionSource,
-                                                                  _holidaySource,
-                                                                  _regionSource,
-                                                                  marketData,
-                                                                  dataId,
-                                                                  valuationTime))
-        .create();
-  }
 }
