@@ -174,7 +174,7 @@ public class CurveNodeWithIdentifierBuilder implements CurveNodeVisitor<CurveNod
     final Tenor tenor = node.getMaturityTenor();
     CurveInstrumentProvider curveInstrumentProvider = ids.get(tenor);
     if (curveInstrumentProvider instanceof StaticCurvePointsInstrumentProvider) {
-      return createCurveNodeWithIdentifier(curveInstrumentProvider, tenor, node);
+      return createCurveNodeWithIdentifier(tenor, node, (StaticCurvePointsInstrumentProvider) curveInstrumentProvider);
     } else {
       final ExternalId identifier = _nodeIdMapper.getFXForwardNodeId(_curveDate, tenor);
       final String dataField = _nodeIdMapper.getFXForwardNodeDataField(tenor);
@@ -189,7 +189,7 @@ public class CurveNodeWithIdentifierBuilder implements CurveNodeVisitor<CurveNod
     final Tenor tenor = node.getMaturityTenor();
     CurveInstrumentProvider curveInstrumentProvider = ids.get(tenor);
     if (curveInstrumentProvider instanceof StaticCurvePointsInstrumentProvider) {
-      return createCurveNodeWithIdentifier(curveInstrumentProvider, tenor, node);
+      return createCurveNodeWithIdentifier(tenor, node, (StaticCurvePointsInstrumentProvider) curveInstrumentProvider);
     } else {
       final ExternalId identifier = _nodeIdMapper.getFXSwapNodeId(_curveDate, tenor);
       final String dataField = _nodeIdMapper.getFXSwapNodeDataField(tenor);
@@ -198,14 +198,13 @@ public class CurveNodeWithIdentifierBuilder implements CurveNodeVisitor<CurveNod
     }
   }
 
-  private CurveNodeWithIdentifier createCurveNodeWithIdentifier(CurveInstrumentProvider provider,
-                                                                Tenor tenor, CurveNode node) {
-    // Cast is safe as already validated by caller
-    StaticCurvePointsInstrumentProvider pointsInstrumentProvider = (StaticCurvePointsInstrumentProvider) provider;
-    ExternalId identifier = pointsInstrumentProvider.getInstrument(_curveDate, tenor);
-    String dataField = pointsInstrumentProvider.getMarketDataField();
-    ExternalId underlyingId = pointsInstrumentProvider.getUnderlyingInstrument();
-    String underlyingField = pointsInstrumentProvider.getUnderlyingMarketDataField();
+  private CurveNodeWithIdentifier createCurveNodeWithIdentifier(Tenor tenor,
+                                                                CurveNode node,
+                                                                StaticCurvePointsInstrumentProvider provider) {
+    ExternalId identifier = provider.getInstrument(_curveDate, tenor);
+    String dataField = provider.getMarketDataField();
+    ExternalId underlyingId = provider.getUnderlyingInstrument();
+    String underlyingField = provider.getUnderlyingMarketDataField();
     return new PointsCurveNodeWithIdentifier(
         node, identifier, dataField, DataFieldType.POINTS, underlyingId, underlyingField);
   }
