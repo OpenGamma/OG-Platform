@@ -98,9 +98,9 @@ public class CurveNodeInstrumentDefinitionFactory {
   }
 
   private CurveNodeVisitor<InstrumentDefinition<?>> createCurveNodeVisitor(final CurveNodeWithIdentifier nodeWithId,
-                                                                          final SnapshotDataBundle marketData,
-                                                                          final ZonedDateTime valuationTime,
-                                                                          final FXMatrix fxMatrix) {
+                                                                           final SnapshotDataBundle marketData,
+                                                                           final ZonedDateTime valuationTime,
+                                                                           final FXMatrix fxMatrix) {
     final ExternalId nodeDataId = nodeWithId.getIdentifier();
 
     return new CurveNodeVisitorAdapter<InstrumentDefinition<?>>() {

@@ -124,34 +124,11 @@ public class DefaultFXMatrixFn implements FXMatrixFn {
     // todo - should this actually be another function or set of functions
     Set<Currency> currencies =
         extractCurrencies(configuration, new CurveNodeCurrencyVisitor(_conventionSource, _securitySource));
-    return buildResult(env, currencies);
+    return getFXMatrix(env, currencies);
   }
 
   @Override
   public Result<FXMatrix> getFXMatrix(Environment env, Set<Currency> currencies) {
-    return buildResult(env, currencies);
-  }
-
-  @Override
-  public Result<Map<Currency, FXMatrix>> getAvailableFxRates(Environment env, CurrencyPairSet currencyPairs) {
-
-    Map<Currency, FXMatrix> fxMatrices = new HashMap<Currency, FXMatrix>();
-
-    for (CurrencyPair currencyPair : currencyPairs.getCurrencyPairs()) {
-      if (!fxMatrices.containsKey(currencyPair.getBase())) {
-        fxMatrices.put(currencyPair.getBase(), new FXMatrix(currencyPair.getBase()));
-      }
-
-      FXMatrix matrix = fxMatrices.get(currencyPair.getBase());
-      Result<Double> marketDataResult = _marketDataFn.getFxRate(env, currencyPair);
-      if (marketDataResult.isSuccess()) {
-        matrix.addCurrency(currencyPair.getCounter(), currencyPair.getBase(), marketDataResult.getValue());
-      }
-    }
-    return Result.success(fxMatrices);
-  }
-
-  private Result<FXMatrix> buildResult(Environment env, Set<Currency> currencies) {
     FXMatrix matrix = new FXMatrix();
     Currency refCurr = null;
     List<Result<?>> failures = new ArrayList<>();
@@ -173,12 +150,31 @@ public class DefaultFXMatrixFn implements FXMatrixFn {
         }
       }
     }
-    
+
     if (failures.isEmpty()) {
       return Result.success(matrix);
     } else {
       return Result.failure(failures);
     }
+  }
+
+  @Override
+  public Result<Map<Currency, FXMatrix>> getAvailableFxRates(Environment env, CurrencyPairSet currencyPairs) {
+
+    Map<Currency, FXMatrix> fxMatrices = new HashMap<Currency, FXMatrix>();
+
+    for (CurrencyPair currencyPair : currencyPairs.getCurrencyPairs()) {
+      if (!fxMatrices.containsKey(currencyPair.getBase())) {
+        fxMatrices.put(currencyPair.getBase(), new FXMatrix(currencyPair.getBase()));
+      }
+
+      FXMatrix matrix = fxMatrices.get(currencyPair.getBase());
+      Result<Double> marketDataResult = _marketDataFn.getFxRate(env, currencyPair);
+      if (marketDataResult.isSuccess()) {
+        matrix.addCurrency(currencyPair.getCounter(), currencyPair.getBase(), marketDataResult.getValue());
+      }
+    }
+    return Result.success(fxMatrices);
   }
 
 }

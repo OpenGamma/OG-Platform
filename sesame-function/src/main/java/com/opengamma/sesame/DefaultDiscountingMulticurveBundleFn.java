@@ -472,7 +472,7 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
     }
 
     if (failures.isEmpty()) {
-      return Result.success(derivativesForCurve.toArray(new InstrumentDerivative[derivativesForCurve.size() ]));
+      return Result.success(derivativesForCurve.toArray(new InstrumentDerivative[derivativesForCurve.size()]));
     } else {
       return Result.failure(failures);
     }

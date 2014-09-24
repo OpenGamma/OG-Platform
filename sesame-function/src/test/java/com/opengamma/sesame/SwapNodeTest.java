@@ -166,21 +166,25 @@ public class SwapNodeTest {
 
     ComponentMap components = ComponentMap.of(builder.build());
 
-    FunctionModelConfig config = config(
-        arguments(
-            function(DefaultDiscountingMulticurveBundleFn.class,
-                     argument("rootFinderConfiguration", rootFinderConfig),
-                     argument("impliedCurveNames", StringSet.of())),
-            function(DefaultCurveNodeConverterFn.class,
-                     argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofDays(1))))),
-        implementations(CurveDefinitionFn.class, DefaultCurveDefinitionFn.class,
-                        CurveSpecificationFn.class, DefaultCurveSpecificationFn.class,
-                        CurveSpecificationMarketDataFn.class, DefaultCurveSpecificationMarketDataFn.class,
-                        CurveNodeConverterFn.class, DefaultCurveNodeConverterFn.class,
-                        FXMatrixFn.class, DefaultFXMatrixFn.class,
-                        DiscountingMulticurveBundleFn.class, DefaultDiscountingMulticurveBundleFn.class,
-                        DiscountingMulticurveBundleResolverFn.class, DefaultDiscountingMulticurveBundleResolverFn.class,
-                        MarketDataFn.class, DefaultMarketDataFn.class));
+    FunctionModelConfig config =
+        config(
+            arguments(
+                function(
+                    DefaultDiscountingMulticurveBundleFn.class,
+                    argument("rootFinderConfiguration", rootFinderConfig),
+                    argument("impliedCurveNames", StringSet.of())),
+                function(
+                    DefaultCurveNodeConverterFn.class,
+                    argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofDays(1))))),
+            implementations(
+                CurveDefinitionFn.class, DefaultCurveDefinitionFn.class,
+                CurveSpecificationFn.class, DefaultCurveSpecificationFn.class,
+                CurveSpecificationMarketDataFn.class, DefaultCurveSpecificationMarketDataFn.class,
+                CurveNodeConverterFn.class, DefaultCurveNodeConverterFn.class,
+                FXMatrixFn.class, DefaultFXMatrixFn.class,
+                DiscountingMulticurveBundleFn.class, DefaultDiscountingMulticurveBundleFn.class,
+                DiscountingMulticurveBundleResolverFn.class, DefaultDiscountingMulticurveBundleResolverFn.class,
+                MarketDataFn.class, DefaultMarketDataFn.class));
 
     _curveFunction = FunctionModel.build(DiscountingMulticurveBundleResolverFn.class, config, components);
 
