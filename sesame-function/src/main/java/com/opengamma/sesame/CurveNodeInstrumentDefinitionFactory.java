@@ -15,11 +15,14 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.legalentity.LegalEntitySource;
 import com.opengamma.core.link.ConventionLink;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.analytics.conversion.CalendarUtils;
+import com.opengamma.financial.analytics.curve.BillNodeConverter;
+import com.opengamma.financial.analytics.curve.BondNodeConverter;
 import com.opengamma.financial.analytics.curve.CashNodeConverter;
 import com.opengamma.financial.analytics.curve.CurveNodeVisitorAdapter;
 import com.opengamma.financial.analytics.curve.FRANodeConverter;
@@ -28,6 +31,8 @@ import com.opengamma.financial.analytics.curve.RollDateFRANodeConverter;
 import com.opengamma.financial.analytics.curve.RollDateSwapNodeConverter;
 import com.opengamma.financial.analytics.curve.SwapNodeConverter;
 import com.opengamma.financial.analytics.curve.ThreeLegBasisSwapNodeConverter;
+import com.opengamma.financial.analytics.ircurve.strips.BillNode;
+import com.opengamma.financial.analytics.ircurve.strips.BondNode;
 import com.opengamma.financial.analytics.ircurve.strips.CashNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeVisitor;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
@@ -40,6 +45,7 @@ import com.opengamma.financial.analytics.ircurve.strips.RollDateFRANode;
 import com.opengamma.financial.analytics.ircurve.strips.RollDateSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.ThreeLegBasisSwapNode;
+import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.FXForwardAndSwapConvention;
 import com.opengamma.financial.convention.FXSpotConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -58,6 +64,8 @@ public class CurveNodeInstrumentDefinitionFactory {
 
   private final SecuritySource _securitySource;
   private final ConventionSource _conventionSource;
+  private final ConventionBundleSource _conventionBundleSource;
+  private final LegalEntitySource _legalEntitySource;
   private final HolidaySource _holidaySource;
   private final RegionSource _regionSource;
 
@@ -68,13 +76,19 @@ public class CurveNodeInstrumentDefinitionFactory {
    * @param conventionSource the convention source
    * @param holidaySource the holiday source
    * @param regionSource the region source
+   * @param conventionBundleSource the convention bundle source
+   * @param legalEntitySource the legal entity source
    */
   public CurveNodeInstrumentDefinitionFactory(SecuritySource securitySource, ConventionSource conventionSource,
-                                              HolidaySource holidaySource, RegionSource regionSource) {
+                                              HolidaySource holidaySource, RegionSource regionSource,
+                                              ConventionBundleSource conventionBundleSource,
+                                              LegalEntitySource legalEntitySource) {
     _securitySource = ArgumentChecker.notNull(securitySource, "securitySource");
     _conventionSource = ArgumentChecker.notNull(conventionSource, "conventionSource");
     _holidaySource = ArgumentChecker.notNull(holidaySource, "holidaySource");
     _regionSource = ArgumentChecker.notNull(regionSource, "regionSource");
+    _conventionBundleSource = ArgumentChecker.notNull(conventionBundleSource, "conventionBundleSource");
+    _legalEntitySource = ArgumentChecker.notNull(legalEntitySource, "legalEntitySource");
   }
 
   /**
@@ -220,6 +234,22 @@ public class CurveNodeInstrumentDefinitionFactory {
             _securitySource, _conventionSource, _holidaySource, _regionSource,
             marketData, nodeDataId, valuationTime, fxMatrix);
         return nodeConverter.visitSwapNode(node);
+      }
+
+      @Override
+      public InstrumentDefinition<?> visitBillNode(BillNode node) {
+        BillNodeConverter nodeConverter = new BillNodeConverter(
+            _holidaySource, _regionSource, _securitySource, _legalEntitySource,
+            marketData, nodeDataId, valuationTime);
+        return nodeConverter.visitBillNode(node);
+      }
+
+      @Override
+      public InstrumentDefinition<?> visitBondNode(BondNode node) {
+        BondNodeConverter nodeConverter = new BondNodeConverter(
+            _conventionBundleSource, _holidaySource, _regionSource, _securitySource,
+            marketData, nodeDataId, valuationTime);
+        return nodeConverter.visitBondNode(node);
       }
 
       private Calendar getCalendar(ExternalId calendarId) {

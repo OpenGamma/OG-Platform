@@ -48,8 +48,7 @@ public class ExposureFunctionsIssuerProviderFn implements IssuerProviderFn {
 
   
   @Override
-  public Result<IssuerProviderBundle>
-  createBundle(Environment env, Trade trade, FXMatrix fxMatrix) {
+  public Result<IssuerProviderBundle> createBundle(Environment env, Trade trade, FXMatrix fxMatrix) {
 
     Result<MarketExposureSelector> mesResult = _marketExposureSelectorFn.getMarketExposureSelector();
 

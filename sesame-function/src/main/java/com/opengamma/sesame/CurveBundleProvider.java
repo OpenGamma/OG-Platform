@@ -40,44 +40,26 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Issue
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.util.time.TimeCalculator;
-import com.opengamma.core.convention.ConventionSource;
-import com.opengamma.core.holiday.HolidaySource;
-import com.opengamma.core.legalentity.LegalEntitySource;
 import com.opengamma.core.link.ConventionLink;
 import com.opengamma.core.link.SecurityLink;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
-import com.opengamma.core.region.RegionSource;
-import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.analytics.curve.AbstractCurveDefinition;
 import com.opengamma.financial.analytics.curve.AbstractCurveSpecification;
-import com.opengamma.financial.analytics.curve.BillNodeConverter;
-import com.opengamma.financial.analytics.curve.BondNodeConverter;
-import com.opengamma.financial.analytics.curve.CashNodeConverter;
 import com.opengamma.financial.analytics.curve.ConverterUtils;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveGroupConfiguration;
-import com.opengamma.financial.analytics.curve.CurveNodeVisitorAdapter;
 import com.opengamma.financial.analytics.curve.CurveSpecification;
 import com.opengamma.financial.analytics.curve.CurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.DiscountingCurveTypeConfiguration;
-import com.opengamma.financial.analytics.curve.FRANodeConverter;
-import com.opengamma.financial.analytics.curve.FXForwardNodeConverter;
 import com.opengamma.financial.analytics.curve.FixedDateInterpolatedCurveDefinition;
 import com.opengamma.financial.analytics.curve.IborCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.InterpolatedCurveDefinition;
 import com.opengamma.financial.analytics.curve.IssuerCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.OvernightCurveTypeConfiguration;
-import com.opengamma.financial.analytics.curve.RateFutureNodeConverter;
-import com.opengamma.financial.analytics.curve.RollDateFRANodeConverter;
-import com.opengamma.financial.analytics.curve.RollDateSwapNodeConverter;
-import com.opengamma.financial.analytics.curve.SwapNodeConverter;
-import com.opengamma.financial.analytics.ircurve.strips.CurveNodeVisitor;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
-import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.OvernightIndexConvention;
 import com.opengamma.financial.security.index.OvernightIndex;
-import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -93,15 +75,10 @@ import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 //TODO SSM-164 this provider is currently only working for Issue Provider curves, not Multicurve
 public final class CurveBundleProvider {
 
-  private final SecuritySource _securitySource;
-  private final ConventionSource _conventionSource;
-  private final HolidaySource _holidaySource;
-  private final RegionSource _regionSource;
   private final CurveNodeConverterFn _curveNodeConverter;
-  private final LegalEntitySource _legalEntitySource;
-  private final ConventionBundleSource _conventionBundleSource;
   private final CurveSpecificationFn _curveSpecificationProvider;
   private final CurveSpecificationMarketDataFn _curveSpecMarketDataProvider;
+  private final CurveNodeInstrumentDefinitionFactory _curveNodeInstrumentDefinitionFactory;
 
   private static final ParSpreadMarketQuoteIssuerDiscountingCalculator DISCOUNTING_CALCULATOR =
       ParSpreadMarketQuoteIssuerDiscountingCalculator.getInstance();
@@ -113,36 +90,22 @@ public final class CurveBundleProvider {
   /**
    * Creates the curve bundle provider.
    *
-   * @param conventionSource source for conventions, not null.
-   * @param conventionBundleSource source for convention bundle, not null.
-   * @param holidaySource source for holidays, not null.
-   * @param regionSource source for regions, not null.
-   * @param legalEntitySource source for legal entities, not null.
-   * @param securitySource source for securities, not null.
+
    * @param curveNodeConverter converter bor curve nodes, not null.
    * @param curveSpecificationProvider provides the curve spec, not null.
    * @param curveSpecMarketDataProvider market data required for a curve specification, not null.
+   * @param curveNodeInstrumentDefinitionFactory factory to build node definitions, not null.
    *
    */
-  //TODO PLAT-6801 remove conventionBundleSource once BondNodeConverter no longer uses it
-  public CurveBundleProvider(ConventionSource conventionSource,
-                             ConventionBundleSource conventionBundleSource,
-                             HolidaySource holidaySource,
-                             RegionSource regionSource,
-                             LegalEntitySource legalEntitySource,
-                             SecuritySource securitySource,
-                             CurveNodeConverterFn curveNodeConverter,
+  public CurveBundleProvider(CurveNodeConverterFn curveNodeConverter,
                              CurveSpecificationFn curveSpecificationProvider,
-                             CurveSpecificationMarketDataFn curveSpecMarketDataProvider) {
-    _conventionSource = ArgumentChecker.notNull(conventionSource, "conventionSource");
-    _conventionBundleSource = ArgumentChecker.notNull(conventionBundleSource, "conventionBundleSource");
-    _holidaySource = ArgumentChecker.notNull(holidaySource, "holidaySource");
-    _regionSource = ArgumentChecker.notNull(regionSource, "regionSource");
-    _legalEntitySource = ArgumentChecker.notNull(legalEntitySource, "legalEntitySource");
+                             CurveSpecificationMarketDataFn curveSpecMarketDataProvider,
+                             CurveNodeInstrumentDefinitionFactory curveNodeInstrumentDefinitionFactory) {
     _curveNodeConverter = ArgumentChecker.notNull(curveNodeConverter, "curveNodeConverter");
-    _securitySource = ArgumentChecker.notNull(securitySource, "securitySource");
     _curveSpecificationProvider = ArgumentChecker.notNull(curveSpecificationProvider, "curveSpecificationProvider");
     _curveSpecMarketDataProvider = ArgumentChecker.notNull(curveSpecMarketDataProvider, "curveSpecMarketDataProvider");
+    _curveNodeInstrumentDefinitionFactory =
+        ArgumentChecker.notNull(curveNodeInstrumentDefinitionFactory, "curveNodeInstrumentDefinitionFactory");
   }
 
   private SnapshotDataBundle createSnapshotDataBundle(Map<ExternalIdBundle, Double> marketData) {
@@ -360,14 +323,11 @@ public final class CurveBundleProvider {
     List<Result<?>> failures = new ArrayList<>();
 
     for (CurveNodeWithIdentifier node : nodes) {
-      CurveNodeVisitor<InstrumentDefinition<?>> nodeVisitor =
-          createCurveNodeVisitor(node.getIdentifier(),
-                                 snapshot,
-                                 valuationTime,
-                                 fxMatrix);
-      InstrumentDefinition<?> definitionForNode = node.getCurveNode().accept(nodeVisitor);
+      InstrumentDefinition<?> definitionForNode =
+          _curveNodeInstrumentDefinitionFactory.createInstrumentDefinition(node, snapshot, valuationTime, fxMatrix);
       Result<InstrumentDerivative> derivativeResult =
           _curveNodeConverter.getDerivative(env, node, definitionForNode, valuationTime);
+
       if (derivativeResult.isSuccess()) {
         derivativesForCurve.add(derivativeResult.getValue());
       } else {
@@ -379,87 +339,6 @@ public final class CurveBundleProvider {
     } else {
       return Result.failure(failures);
     }
-  }
-
-  private CurveNodeVisitor<InstrumentDefinition<?>> createCurveNodeVisitor(ExternalId dataId,
-                                                                           SnapshotDataBundle marketData,
-                                                                           ZonedDateTime valuationTime,
-                                                                           FXMatrix fxMatrix) {
-    return CurveNodeVisitorAdapter.<InstrumentDefinition<?>>builder()
-        .cashNodeVisitor(new CashNodeConverter(
-            _securitySource,
-            _conventionSource,
-            _holidaySource,
-            _regionSource,
-            marketData,
-            dataId,
-            valuationTime))
-        .fraNode(new FRANodeConverter(
-            _securitySource,
-            _conventionSource,
-            _holidaySource,
-            _regionSource,
-            marketData,
-            dataId,
-            valuationTime))
-        .fxForwardNode(new FXForwardNodeConverter(
-            _conventionSource,
-            _holidaySource,
-            _regionSource,
-            marketData,
-            dataId,
-            valuationTime))
-        .immFRANode(new RollDateFRANodeConverter(
-            _securitySource,
-            _conventionSource,
-            _holidaySource,
-            _regionSource,
-            marketData,
-            dataId,
-            valuationTime))
-        .immSwapNode(new RollDateSwapNodeConverter(
-            _securitySource,
-            _conventionSource,
-            _holidaySource,
-            _regionSource,
-            marketData,
-            dataId,
-            valuationTime))
-        .rateFutureNode(new RateFutureNodeConverter(
-            _securitySource,
-            _conventionSource,
-            _holidaySource,
-            _regionSource,
-            marketData,
-            dataId,
-            valuationTime))
-        .swapNode(new SwapNodeConverter(
-            _securitySource,
-            _conventionSource,
-            _holidaySource,
-            _regionSource,
-            marketData,
-            dataId,
-            valuationTime,
-            fxMatrix))
-        .billNodeVisitor(new BillNodeConverter(
-            _holidaySource,
-            _regionSource,
-            _securitySource,
-            _legalEntitySource,
-            marketData,
-            dataId,
-            valuationTime))
-        .bondNodeVisitor(new BondNodeConverter(
-            _conventionBundleSource,
-            _holidaySource,
-            _regionSource,
-            _securitySource,
-            marketData,
-            dataId,
-            valuationTime))
-
-        .create();
   }
 
 }

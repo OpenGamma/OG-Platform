@@ -66,7 +66,7 @@ public class DiscountingBondCalculatorFactory implements BondCalculatorFactory {
         return Result.failure(curveDefinitions);
       }
 
-      ParameterIssuerProviderInterface curves = bundleResult.getValue().getParameterIssuerProviderInterface();
+      ParameterIssuerProviderInterface curves = bundleResult.getValue().getParameterIssuerProvider();
 
       BondCalculator calculator = new DiscountingBondCalculator(tradeWrapper, curves, blocks,  _converter, env,
                                                                 curveDefinitions.getValue(), _marketDataFn);

@@ -46,7 +46,7 @@ public final class TestBlackBondFuturesProviderFn implements BlackBondFuturesPro
     if (bundleResult.isSuccess()) {
 
       IssuerProviderDiscount multicurve =
-          (IssuerProviderDiscount) bundleResult.getValue().getParameterIssuerProviderInterface();
+          (IssuerProviderDiscount) bundleResult.getValue().getParameterIssuerProvider();
       
       Surface<Double, Double, Double> blackParameters = testSurface;
             

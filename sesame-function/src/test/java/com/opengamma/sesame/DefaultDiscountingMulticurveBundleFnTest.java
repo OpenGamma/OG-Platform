@@ -20,12 +20,14 @@ import com.google.common.collect.Lists;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.legalentity.LegalEntitySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.curve.CurveGroupConfiguration;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
+import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.sesame.component.StringSet;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
@@ -52,7 +54,8 @@ public class DefaultDiscountingMulticurveBundleFnTest {
         holidaySource, null, rootFinderConfig,
         new CurveNodeInstrumentDefinitionFactory(
             mock(SecuritySource.class), mock(ConventionSource.class),
-            holidaySource, mock(RegionSource.class)),
+            holidaySource, mock(RegionSource.class), mock(ConventionBundleSource.class),
+            mock(LegalEntitySource.class)),
         StringSet.of(IMPLIED_DEPO));
   }
 

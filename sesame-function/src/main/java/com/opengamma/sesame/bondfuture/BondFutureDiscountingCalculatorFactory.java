@@ -48,7 +48,7 @@ public class BondFutureDiscountingCalculatorFactory implements BondFutureCalcula
     Result<HistoricalTimeSeriesBundle> fixingsResult = _htsFn.getFixingsForSecurity(env, security);
     
     if (Result.allSuccessful(bundleResult, fixingsResult)) {
-      ParameterIssuerProviderInterface curves = bundleResult.getValue().getParameterIssuerProviderInterface();
+      ParameterIssuerProviderInterface curves = bundleResult.getValue().getParameterIssuerProvider();
       
       HistoricalTimeSeriesBundle fixings = fixingsResult.getValue();
       

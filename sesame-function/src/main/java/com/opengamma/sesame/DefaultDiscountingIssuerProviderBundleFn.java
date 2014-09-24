@@ -11,13 +11,7 @@ import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.curve.issuer.IssuerDiscountBuildingRepository;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderDiscount;
-import com.opengamma.core.convention.ConventionSource;
-import com.opengamma.core.holiday.HolidaySource;
-import com.opengamma.core.legalentity.LegalEntitySource;
-import com.opengamma.core.region.RegionSource;
-import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
-import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.sesame.component.StringSet;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
@@ -31,14 +25,9 @@ public class DefaultDiscountingIssuerProviderBundleFn implements IssuerProviderB
   private final CurveSpecificationFn _curveSpecificationProvider;
   private final CurveSpecificationMarketDataFn _curveSpecMarketDataProvider;
   private final FXMatrixFn _fxMatrixProvider;
-  private final SecuritySource _securitySource;
-  private final ConventionSource _conventionSource;
-  private final HolidaySource _holidaySource;
-  private final RegionSource _regionSource;
   private final CurveNodeConverterFn _curveNodeConverter;
-  private final LegalEntitySource _legalEntitySource;
-  private final ConventionBundleSource _conventionBundleSource;
   private final RootFinderConfiguration _rootFinderConfiguration;
+  private final CurveNodeInstrumentDefinitionFactory _curveNodeInstrumentDefinitionFactory;
   private final Set<String> _impliedCurveNames;
 
   /**
@@ -47,14 +36,9 @@ public class DefaultDiscountingIssuerProviderBundleFn implements IssuerProviderB
    * @param curveSpecificationProvider provides the curve spec, not null.
    * @param curveSpecMarketDataProvider market data required for a curve specification, not null.
    * @param fxMatrixProvider provides the fx matrix, not null.
-   * @param securitySource source for securities, not null.
-   * @param conventionSource source for conventions, not null.
-   * @param conventionBundleSource source for convention bundle, not null.
-   * @param holidaySource source for holidays, not null.
-   * @param regionSource source for regions, not null.
-   * @param legalEntitySource source for legal entities, not null.
    * @param curveNodeConverter converter bor curve nodes, not null.
    * @param rootFinderConfiguration root finder config, not null.
+   * @param curveNodeInstrumentDefinitionFactory factory to build node definitions, not null.
    * @param impliedCurveNames set of implied curve names not null.
    *
    */
@@ -62,27 +46,18 @@ public class DefaultDiscountingIssuerProviderBundleFn implements IssuerProviderB
   public DefaultDiscountingIssuerProviderBundleFn(CurveSpecificationFn curveSpecificationProvider,
                                                   CurveSpecificationMarketDataFn curveSpecMarketDataProvider,
                                                   FXMatrixFn fxMatrixProvider,
-                                                  SecuritySource securitySource,
-                                                  ConventionSource conventionSource,
-                                                  ConventionBundleSource conventionBundleSource,
-                                                  HolidaySource holidaySource,
-                                                  RegionSource regionSource,
-                                                  LegalEntitySource legalEntitySource,
                                                   CurveNodeConverterFn curveNodeConverter,
                                                   RootFinderConfiguration rootFinderConfiguration,
+                                                  CurveNodeInstrumentDefinitionFactory curveNodeInstrumentDefinitionFactory,
                                                   StringSet impliedCurveNames) {
 
     _curveSpecificationProvider = ArgumentChecker.notNull(curveSpecificationProvider, "curveSpecificationProvider");
     _curveSpecMarketDataProvider = ArgumentChecker.notNull(curveSpecMarketDataProvider, "curveSpecMarketDataProvider");
     _fxMatrixProvider = ArgumentChecker.notNull(fxMatrixProvider, "fxMatrixProvider");
-    _securitySource = ArgumentChecker.notNull(securitySource, "securitySource");
-    _conventionSource = ArgumentChecker.notNull(conventionSource, "conventionSource");
-    _conventionBundleSource = ArgumentChecker.notNull(conventionBundleSource, "conventionBundleSource");
-    _holidaySource = ArgumentChecker.notNull(holidaySource, "holidaySource");
-    _regionSource = ArgumentChecker.notNull(regionSource, "regionSource");
-    _legalEntitySource = ArgumentChecker.notNull(legalEntitySource, "legalEntitySource");
     _curveNodeConverter = ArgumentChecker.notNull(curveNodeConverter, "curveNodeConverter");
     _rootFinderConfiguration = ArgumentChecker.notNull(rootFinderConfiguration, "rootFinderConfiguration");
+    _curveNodeInstrumentDefinitionFactory =
+        ArgumentChecker.notNull(curveNodeInstrumentDefinitionFactory, "curveNodeInstrumentDefinitionFactory");
     ArgumentChecker.notNull(impliedCurveNames, "impliedCurveNames");
     _impliedCurveNames = impliedCurveNames.getStrings();
   }
@@ -93,15 +68,10 @@ public class DefaultDiscountingIssuerProviderBundleFn implements IssuerProviderB
 
     Result<IssuerProviderDiscount> exogenousBundles = buildExogenousBundles(fxMatrixResult);
 
-    CurveBundleProvider utils = new CurveBundleProvider(_conventionSource,
-                                                        _conventionBundleSource,
-                                                        _holidaySource,
-                                                        _regionSource,
-                                                        _legalEntitySource,
-                                                        _securitySource,
-                                                        _curveNodeConverter,
+    CurveBundleProvider utils = new CurveBundleProvider(_curveNodeConverter,
                                                         _curveSpecificationProvider,
-                                                        _curveSpecMarketDataProvider);
+                                                        _curveSpecMarketDataProvider,
+                                                        _curveNodeInstrumentDefinitionFactory);
     Result<Pair<IssuerProviderDiscount, CurveBuildingBlockBundle>> calibratedCurves =
         utils.getCurves(env, curveConfig, exogenousBundles, fxMatrixResult, _impliedCurveNames, createBuilder());
     IssuerProviderBundle bundle = new IssuerProviderBundle(calibratedCurves.getValue().getFirst(), calibratedCurves.getValue().getSecond());

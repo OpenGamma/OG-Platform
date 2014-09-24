@@ -37,7 +37,7 @@ public final class IssuerProviderBundle implements ImmutableBean {
    * The calibrated issuer provider bundle.
    */
   @PropertyDefinition(validate = "notNull")
-  private final ParameterIssuerProviderInterface _parameterIssuerProviderInterface;
+  private final ParameterIssuerProviderInterface _parameterIssuerProvider;
 
   /**
    * The curve building blocks used to calibrate the curves.
@@ -46,9 +46,9 @@ public final class IssuerProviderBundle implements ImmutableBean {
   private final CurveBuildingBlockBundle _curveBuildingBlockBundle;
 
   @ImmutableConstructor
-  public IssuerProviderBundle(ParameterIssuerProviderInterface issuerProviderDiscount,
+  public IssuerProviderBundle(ParameterIssuerProviderInterface issuerProvider,
                               CurveBuildingBlockBundle curveBuildingBlockBundle) {
-    _parameterIssuerProviderInterface = ArgumentChecker.notNull(issuerProviderDiscount, "issuerProviderDiscount");
+    _parameterIssuerProvider = ArgumentChecker.notNull(issuerProvider, "issuerProvider");
     _curveBuildingBlockBundle = ArgumentChecker.notNull(curveBuildingBlockBundle, "curveBuildingBlockBundle");
   }
 
@@ -92,11 +92,11 @@ public final class IssuerProviderBundle implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the calibrated multicurves.
+   * Gets the calibrated issuer provider bundle.
    * @return the value of the property, not null
    */
-  public ParameterIssuerProviderInterface getParameterIssuerProviderInterface() {
-    return _parameterIssuerProviderInterface;
+  public ParameterIssuerProviderInterface getParameterIssuerProvider() {
+    return _parameterIssuerProvider;
   }
 
   //-----------------------------------------------------------------------
@@ -124,7 +124,7 @@ public final class IssuerProviderBundle implements ImmutableBean {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       IssuerProviderBundle other = (IssuerProviderBundle) obj;
-      return JodaBeanUtils.equal(getParameterIssuerProviderInterface(), other.getParameterIssuerProviderInterface()) &&
+      return JodaBeanUtils.equal(getParameterIssuerProvider(), other.getParameterIssuerProvider()) &&
           JodaBeanUtils.equal(getCurveBuildingBlockBundle(), other.getCurveBuildingBlockBundle());
     }
     return false;
@@ -133,7 +133,7 @@ public final class IssuerProviderBundle implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getParameterIssuerProviderInterface());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getParameterIssuerProvider());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCurveBuildingBlockBundle());
     return hash;
   }
@@ -142,7 +142,7 @@ public final class IssuerProviderBundle implements ImmutableBean {
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("IssuerProviderBundle{");
-    buf.append("parameterIssuerProviderInterface").append('=').append(getParameterIssuerProviderInterface()).append(',').append(' ');
+    buf.append("parameterIssuerProvider").append('=').append(getParameterIssuerProvider()).append(',').append(' ');
     buf.append("curveBuildingBlockBundle").append('=').append(JodaBeanUtils.toString(getCurveBuildingBlockBundle()));
     buf.append('}');
     return buf.toString();
@@ -159,10 +159,10 @@ public final class IssuerProviderBundle implements ImmutableBean {
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code parameterIssuerProviderInterface} property.
+     * The meta-property for the {@code parameterIssuerProvider} property.
      */
-    private final MetaProperty<ParameterIssuerProviderInterface> _parameterIssuerProviderInterface = DirectMetaProperty.ofImmutable(
-        this, "parameterIssuerProviderInterface", IssuerProviderBundle.class, ParameterIssuerProviderInterface.class);
+    private final MetaProperty<ParameterIssuerProviderInterface> _parameterIssuerProvider = DirectMetaProperty.ofImmutable(
+        this, "parameterIssuerProvider", IssuerProviderBundle.class, ParameterIssuerProviderInterface.class);
     /**
      * The meta-property for the {@code curveBuildingBlockBundle} property.
      */
@@ -173,7 +173,7 @@ public final class IssuerProviderBundle implements ImmutableBean {
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "parameterIssuerProviderInterface",
+        "parameterIssuerProvider",
         "curveBuildingBlockBundle");
 
     /**
@@ -185,8 +185,8 @@ public final class IssuerProviderBundle implements ImmutableBean {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 1185165990:  // parameterIssuerProviderInterface
-          return _parameterIssuerProviderInterface;
+        case -1140754477:  // parameterIssuerProvider
+          return _parameterIssuerProvider;
         case 1604389548:  // curveBuildingBlockBundle
           return _curveBuildingBlockBundle;
       }
@@ -210,11 +210,11 @@ public final class IssuerProviderBundle implements ImmutableBean {
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code parameterIssuerProviderInterface} property.
+     * The meta-property for the {@code parameterIssuerProvider} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ParameterIssuerProviderInterface> parameterIssuerProviderInterface() {
-      return _parameterIssuerProviderInterface;
+    public MetaProperty<ParameterIssuerProviderInterface> parameterIssuerProvider() {
+      return _parameterIssuerProvider;
     }
 
     /**
@@ -229,8 +229,8 @@ public final class IssuerProviderBundle implements ImmutableBean {
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 1185165990:  // parameterIssuerProviderInterface
-          return ((IssuerProviderBundle) bean).getParameterIssuerProviderInterface();
+        case -1140754477:  // parameterIssuerProvider
+          return ((IssuerProviderBundle) bean).getParameterIssuerProvider();
         case 1604389548:  // curveBuildingBlockBundle
           return ((IssuerProviderBundle) bean).getCurveBuildingBlockBundle();
       }
@@ -254,7 +254,7 @@ public final class IssuerProviderBundle implements ImmutableBean {
    */
   public static final class Builder extends DirectFieldsBeanBuilder<IssuerProviderBundle> {
 
-    private ParameterIssuerProviderInterface _parameterIssuerProviderInterface;
+    private ParameterIssuerProviderInterface _parameterIssuerProvider;
     private CurveBuildingBlockBundle _curveBuildingBlockBundle;
 
     /**
@@ -268,7 +268,7 @@ public final class IssuerProviderBundle implements ImmutableBean {
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(IssuerProviderBundle beanToCopy) {
-      this._parameterIssuerProviderInterface = beanToCopy.getParameterIssuerProviderInterface();
+      this._parameterIssuerProvider = beanToCopy.getParameterIssuerProvider();
       this._curveBuildingBlockBundle = beanToCopy.getCurveBuildingBlockBundle();
     }
 
@@ -276,8 +276,8 @@ public final class IssuerProviderBundle implements ImmutableBean {
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 1185165990:  // parameterIssuerProviderInterface
-          return _parameterIssuerProviderInterface;
+        case -1140754477:  // parameterIssuerProvider
+          return _parameterIssuerProvider;
         case 1604389548:  // curveBuildingBlockBundle
           return _curveBuildingBlockBundle;
         default:
@@ -288,8 +288,8 @@ public final class IssuerProviderBundle implements ImmutableBean {
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 1185165990:  // parameterIssuerProviderInterface
-          this._parameterIssuerProviderInterface = (ParameterIssuerProviderInterface) newValue;
+        case -1140754477:  // parameterIssuerProvider
+          this._parameterIssuerProvider = (ParameterIssuerProviderInterface) newValue;
           break;
         case 1604389548:  // curveBuildingBlockBundle
           this._curveBuildingBlockBundle = (CurveBuildingBlockBundle) newValue;
@@ -327,19 +327,19 @@ public final class IssuerProviderBundle implements ImmutableBean {
     @Override
     public IssuerProviderBundle build() {
       return new IssuerProviderBundle(
-          _parameterIssuerProviderInterface,
+          _parameterIssuerProvider,
           _curveBuildingBlockBundle);
     }
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code parameterIssuerProviderInterface} property in the builder.
-     * @param parameterIssuerProviderInterface  the new value, not null
+     * Sets the {@code parameterIssuerProvider} property in the builder.
+     * @param parameterIssuerProvider  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder parameterIssuerProviderInterface(ParameterIssuerProviderInterface parameterIssuerProviderInterface) {
-      JodaBeanUtils.notNull(parameterIssuerProviderInterface, "parameterIssuerProviderInterface");
-      this._parameterIssuerProviderInterface = parameterIssuerProviderInterface;
+    public Builder parameterIssuerProvider(ParameterIssuerProviderInterface parameterIssuerProvider) {
+      JodaBeanUtils.notNull(parameterIssuerProvider, "parameterIssuerProvider");
+      this._parameterIssuerProvider = parameterIssuerProvider;
       return this;
     }
 
@@ -359,7 +359,7 @@ public final class IssuerProviderBundle implements ImmutableBean {
     public String toString() {
       StringBuilder buf = new StringBuilder(96);
       buf.append("IssuerProviderBundle.Builder{");
-      buf.append("parameterIssuerProviderInterface").append('=').append(JodaBeanUtils.toString(_parameterIssuerProviderInterface)).append(',').append(' ');
+      buf.append("parameterIssuerProvider").append('=').append(JodaBeanUtils.toString(_parameterIssuerProvider)).append(',').append(' ');
       buf.append("curveBuildingBlockBundle").append('=').append(JodaBeanUtils.toString(_curveBuildingBlockBundle));
       buf.append('}');
       return buf.toString();
