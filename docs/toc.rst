@@ -2,11 +2,10 @@ Platform
 ========
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 6
    :glob:
 
+   og-analytics/*
    HowTos/*
-   Product types/Interest Rates/*
-   Product types/credit/*
+   Product types/*
    Market data/*
-   Quant/*

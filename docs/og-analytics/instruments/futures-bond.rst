@@ -1,4 +1,4 @@
- Bond futures
+Bond futures
 ============
 
 This documentation described the bond futures used in the main currencies (USD, EUR, GBP, JPY).

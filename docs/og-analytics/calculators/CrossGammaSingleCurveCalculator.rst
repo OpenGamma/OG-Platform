@@ -1,5 +1,5 @@
 CrossGammaSingleCurveCalculator
-==============
+===============================
 
 Computes the cross-gamma to the curve parameters for a single curve. The single curve is represented by a **MulticurveProviderDiscount** containing a unique curve.
 

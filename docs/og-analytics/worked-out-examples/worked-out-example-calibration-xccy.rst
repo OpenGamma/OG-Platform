@@ -1,5 +1,5 @@
 Curve calibration: multiple currencies
-========================
+======================================
 
 In this example we construct a set of curve composed of curves in USD, EUR and JPY. The curves in EUR and JPY are constructed from the USD curves using curss currency instruments (FX swaps and cross-currency swaps). The code related to the example can be found in the demo test **MulticurveBuildingDiscountingDiscountXCcyTest**.
 
