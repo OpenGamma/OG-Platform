@@ -9,7 +9,7 @@ Overview
 
 This guide provides instructions on how to deploy a new instance of the OpenGamma platform.
 
-It is assumed that Bloomberg market-data is available, postgreSQL is installed and is your database of choice, and that you have appropriate user permissions on the server.
+It is assumed that Bloomberg market-data is available, Oracle 11g or PostgreSQL is installed and is your database of choice, and that you have appropriate user permissions on the server.
 
 Obtaining the source code
 -------------------------
@@ -120,7 +120,7 @@ Windows::
   Here we can create og_db_owner as a Login Role, and set the role to own a newly created og_db database.
   **Please note down the password for og_db_owner as you will need it as part of the next step.**
 
-Edit the config/dbtoolcontect/dbtoolcontext-postgres-batch.properties file  as illustrated below::
+Edit the config/dbtoolcontect/dbtoolcontext-postgres.properties file  as illustrated below::
 
   db.url = jdbc:postgresql://REPLACE-POSTGRES-BATCH-SERVER/og_db
   db.username = og_db_owner
@@ -135,6 +135,65 @@ Unix::
 Windows::
 
   db-create-tool.bat -c classpath:dbtoolcontext\dbtoolcontext-postgres.properties -w
+
+
+Oracle (11g)
+------------
+
+Install
+~~~~~~~
+
+Create an empty user and database schema using Oracle standard tools (e.g. ``sqlplus`` with the following script (replacing ``<password>`` as appropriate::
+
+    CREATE USER opengamma IDENTIFIED BY <password>
+    DEFAULT TABLESPACE users
+    TEMPORARY TABLESPACE temp
+    QUOTA UNLIMITED ON users;
+
+    GRANT CONNECT TO opengamma;
+    GRANT CREATE TABLE TO opengamma;
+    GRANT CREATE SEQUENCE TO opengamma;
+
+DB Tools Connection config
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Enable OpenGamma DB tools to connect top your database.
+
+In ``config/dbtoolcontext`` directory, create a **dbtoolcontext-oracle.properties** file (by copying the existing dbtoolcontext-postgres.properties file).
+
+For Oracle support, it should contain the following lines::
+
+    # Next configuration file in the chain is the INI file
+    MANAGER.NEXT.FILE = classpath:dbtoolcontext/dbtoolcontext.ini
+
+    db.dialect = com.opengamma.util.db.Oracle11gDbDialect
+    db.driver = oracle.jdbc.driver.OracleDriver
+    db.url = jdbc:oracle:thin:@//REPLACE-ORACLE-HOST[:REPLACE-ORACLE-PORT]/REPLACE-ORACLE-SERVICE-NAME
+    db.username = REPLACE-ORACLE-USERNAME
+    db.password = REPLACE-ORACLE-PASSWORD
+
+    db.schemaNames = cfg,cnv,exg,pos,prt,secb,snp,usr,len,hts,cfg
+
+    db.scriptsResource = classpath:db
+
+    #Global
+    time.zone = Europe/London
+
+``Replace REPLACE-ORACLE-HOST, REPLACE-ORACLE-SERVICE-NAME, REPLACE-ORACLE-USERNAME and REPLACE-ORACLE-PASSWORD with the appropriate values. Either replace or remove REPLACE-ORACLE-PORT as appropriate, depending on whether the default port is in use.``
+
+**Important Note : db.schemaNames, db.scriptsResource, time.zone, MANAGER.NEXT.FILE properties must have the same values as the default dbtoolcontext-postgres.properties**
+
+
+Initialise the database using the db-create-tool in platform/scripts
+
+Unix::
+
+  db-create-tool.sh -c classpath:dbtoolcontext/dbtoolcontext-oracle.properties -w
+
+Windows::
+
+  db-create-tool.bat -c classpath:dbtoolcontext\dbtoolcontext-oracle.properties -w
+
 
 Bloomberg access
 ----------------
@@ -168,6 +227,24 @@ Windows::
 
 Fullstack server
 ----------------
+
+Update the database details in ``config/fullstack/fullstack.properties`` according to your database:
+
+**PostgreSQL** ::
+
+    db.dialect = com.opengamma.util.db.PostgresDbDialect
+    db.driver = org.postgresql.Driver
+    db.url = jdbc:postgresql://REPLACE-POSTGRES-FIN-SERVER/og_db
+    db.username = REPLACE-POSTGRES-FIN-USERNAME
+    db.password = REPLACE-POSTGRES-FIN-PASSWORD
+
+**Oracle (11g)** ::
+
+    db.dialect = com.opengamma.util.db.Oracle11gDbDialect
+    db.driver = oracle.jdbc.driver.OracleDriver
+    db.url = jdbc:oracle:thin:@//[REPLACE-ORACLE-HOST][:REPLACE-ORACLE-PORT]/REPLACE-ORACLE-SERVICE-NAME
+    db.username = REPLACE-ORACLE-USERNAME
+    db.password = REPLACE-ORACLE-PASSWORD
 
 With the Bloomberg server, ActiveMQ and database details updated in fullstack.properties, it is now possible to start the fullstack server
 From within ``platform/scripts``, you can run the fullstack server.
