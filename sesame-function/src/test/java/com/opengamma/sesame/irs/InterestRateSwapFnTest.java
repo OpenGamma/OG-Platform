@@ -144,7 +144,7 @@ public class InterestRateSwapFnTest {
 
         build();
 
-  private static final double EXPECTED_FIXING_PV = -2434664.6871909914;
+  private static final double EXPECTED_FIXING_PV = -2434639.5774440686;
 
   private static final double NOTIONAL = 100000000; //100m
 
@@ -546,6 +546,7 @@ public class InterestRateSwapFnTest {
 
   @Test
   public void fixedVsLibor3mWithFixingSwapPv() {
+    // the number in this test has not been validated from first principles
     Result<MultipleCurrencyAmount> resultPv = _swapFunction.calculatePV(ENV, _fixedVsLiborWithFixingSwapSecurity);
     assertThat(resultPv.isSuccess(), is((true)));
 
