@@ -42,6 +42,7 @@ import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.core.legalentity.LegalEntitySource;
 import com.opengamma.core.link.ConfigLink;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
@@ -129,6 +130,7 @@ public class FXForwardPnlSeriesFunctionTest {
                                              ConventionSource.class,
                                              ConventionBundleSource.class,
                                              HistoricalTimeSeriesResolver.class,
+                                             LegalEntitySource.class,
                                              SecuritySource.class,
                                              HolidaySource.class,
                                              HistoricalTimeSeriesSource.class,

@@ -5,6 +5,8 @@
  */
 package com.opengamma.sesame.component;
 
+import static org.mockito.Mockito.mock;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -27,6 +29,7 @@ import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.Holiday;
 import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.legalentity.LegalEntitySource;
 import com.opengamma.core.region.Region;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
@@ -288,6 +291,8 @@ public class CapturedResultsLoader {
         .put(HistoricalTimeSeriesSource.class, historicalTimeSeriesSource)
         .put(HistoricalTimeSeriesResolver.class, resolver)
         .put(ConventionBundleSource.class, conventionBundleSource)
+        // TODO - we need a capturing legal entity source but don't have one at present
+        .put(LegalEntitySource.class, mock(LegalEntitySource.class))
         .build();
   }
 

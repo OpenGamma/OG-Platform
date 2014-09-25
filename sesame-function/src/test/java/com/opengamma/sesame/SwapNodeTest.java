@@ -33,6 +33,7 @@ import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.holiday.impl.WeekendHolidaySource;
+import com.opengamma.core.legalentity.LegalEntitySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.region.impl.SimpleRegion;
 import com.opengamma.core.security.SecuritySource;
@@ -50,6 +51,7 @@ import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
 import com.opengamma.financial.analytics.ircurve.strips.DataFieldType;
 import com.opengamma.financial.analytics.ircurve.strips.FXSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
+import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.FXForwardAndSwapConvention;
 import com.opengamma.financial.convention.FXSpotConvention;
 import com.opengamma.financial.convention.FinancialConvention;
@@ -161,6 +163,8 @@ public class SwapNodeTest {
         .put(HolidaySource.class, new WeekendHolidaySource())
         .put(RegionSource.class, regionSource)
         .put(HistoricalMarketDataFn.class, mock(HistoricalMarketDataFn.class))
+        .put(LegalEntitySource.class, mock(LegalEntitySource.class))
+        .put(ConventionBundleSource.class, mock(ConventionBundleSource.class))
         .put(CurrencyMatrix.class, matrix)
         .put(SecuritySource.class, new MasterSecuritySource(_securityMaster));
 

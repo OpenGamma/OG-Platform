@@ -46,6 +46,7 @@ import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.historicaltimeseries.impl.SimpleHistoricalTimeSeries;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.core.legalentity.LegalEntitySource;
 import com.opengamma.core.link.ConfigLink;
 import com.opengamma.core.link.ConventionLink;
 import com.opengamma.core.link.SnapshotLink;
@@ -225,6 +226,7 @@ public class InterestRateMockSources {
                                 mockRegionSource(),
                                 mockConventionSource(),
                                 mock(ConventionBundleSource.class),
+                                mock(LegalEntitySource.class),
                                 mockConfigSource(),
                                 mockSecuritySource(),
                                 mockHistoricalTimeSeriesSource(),
