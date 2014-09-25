@@ -7,14 +7,13 @@ package com.opengamma.master.holiday.impl;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import org.threeten.bp.DayOfWeek;
 import org.threeten.bp.LocalDate;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.core.holiday.Holiday;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.holiday.HolidayType;
@@ -36,12 +35,19 @@ import com.opengamma.util.money.Currency;
 /**
  * A {@code HolidaySource} implemented using an underlying {@code HolidayMaster}.
  * <p>
- * The {@link HolidaySource} interface provides holidays to the application via a narrow API. This class provides the source on top of a standard {@link HolidayMaster}.
+ * The {@link HolidaySource} interface provides holidays to the application via a narrow API.
+ * This class provides the source on top of a standard {@link HolidayMaster}.
  */
 @PublicSPI
-public class MasterHolidaySource extends AbstractMasterSource<Holiday, HolidayDocument, HolidayMaster> implements HolidaySource {
+public class MasterHolidaySource
+    extends AbstractMasterSource<Holiday, HolidayDocument, HolidayMaster>
+    implements HolidaySource {
+
+  // an empty list of dates
+  private static final ImmutableSet<LocalDate> EMPTY = ImmutableSet.of();
+
   private final boolean _cacheHolidayCalendars;
-  private final ConcurrentMap<HolidaySearchRequest, List<LocalDate>> _cachedHolidays = new ConcurrentHashMap<HolidaySearchRequest, List<LocalDate>>();
+  private final ConcurrentMap<HolidaySearchRequest, ImmutableSet<LocalDate>> _cachedHolidays = new ConcurrentHashMap<>();
 
   /**
    * Creates an instance with an underlying master.
@@ -63,6 +69,7 @@ public class MasterHolidaySource extends AbstractMasterSource<Holiday, HolidayDo
     _cacheHolidayCalendars = cacheCalendars;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public Collection<Holiday> get(HolidayType holidayType,
                                  ExternalIdBundle regionOrExchangeIds) {
@@ -82,12 +89,27 @@ public class MasterHolidaySource extends AbstractMasterSource<Holiday, HolidayDo
 
   @Override
   public boolean isHoliday(LocalDate dateToCheck, Currency currency) {
+    if (_cacheHolidayCalendars) {
+      ArgumentChecker.notNull(dateToCheck, "dateToCheck");
+      ArgumentChecker.notNull(currency, "currency");
+      if (isWeekend(dateToCheck)) {
+        return true;
+      }
+    }
     HolidaySearchRequest request = createCurrencySearchRequest(currency);
     return isHoliday(request, dateToCheck);
   }
 
   @Override
   public boolean isHoliday(LocalDate dateToCheck, HolidayType holidayType, ExternalIdBundle regionOrExchangeIds) {
+    if (_cacheHolidayCalendars) {
+      ArgumentChecker.notNull(dateToCheck, "dateToCheck");
+      ArgumentChecker.notNull(holidayType, "holidayType");
+      ArgumentChecker.notNull(regionOrExchangeIds, "regionOrExchangeIds");
+      if (isWeekend(dateToCheck)) {
+        return true;
+      }
+    }
     HolidaySearchRequest request = createNonCurrencySearchRequest(holidayType, regionOrExchangeIds);
     return isHoliday(request, dateToCheck);
   }
@@ -113,6 +135,14 @@ public class MasterHolidaySource extends AbstractMasterSource<Holiday, HolidayDo
 
   @Override
   public boolean isHoliday(final LocalDate dateToCheck, final HolidayType holidayType, final ExternalId regionOrExchangeId) {
+    if (_cacheHolidayCalendars) {
+      ArgumentChecker.notNull(dateToCheck, "dateToCheck");
+      ArgumentChecker.notNull(holidayType, "holidayType");
+      ArgumentChecker.notNull(regionOrExchangeId, "regionOrExchangeId");
+      if (isWeekend(dateToCheck)) {
+        return true;
+      }
+    }
     HolidaySearchRequest request = new HolidaySearchRequest(holidayType, ExternalIdBundle.of(regionOrExchangeId));
     return isHoliday(request, dateToCheck);
   }
@@ -131,33 +161,29 @@ public class MasterHolidaySource extends AbstractMasterSource<Holiday, HolidayDo
     if (isWeekend(dateToCheck)) {
       return true;
     }
-    HolidaySearchRequest cacheKey = request.clone();
 
     if (_cacheHolidayCalendars) {
-      List<LocalDate> cachedDates = _cachedHolidays.get(cacheKey);
+      ImmutableSet<LocalDate> cachedDates = _cachedHolidays.get(request);
       if (cachedDates != null) {
         if (cachedDates.isEmpty()) {
           // Sign that we couldn't find anything.
           return false;
         }
-        return isHoliday(cachedDates, dateToCheck);
+        return cachedDates.contains(dateToCheck);
       }
-    }
-
-    HolidayDocument doc;
-    if (_cacheHolidayCalendars) {
       // get all holidays and cache
-      doc = getMaster().search(cacheKey).getFirstDocument();
+      HolidayDocument doc = getMaster().search(request).getFirstDocument();
+      HolidaySearchRequest cacheKey = request.clone();
       if (doc == null) {
-        _cachedHolidays.put(cacheKey, Collections.<LocalDate>emptyList());
+        _cachedHolidays.put(cacheKey, EMPTY);
       } else {
-        _cachedHolidays.put(cacheKey, doc.getHoliday().getHolidayDates());
+        _cachedHolidays.put(cacheKey, ImmutableSet.copyOf(doc.getHoliday().getHolidayDates()));
       }
-    } else {
-      // Not caching, search for this date only.
-      request.setDateToCheck(dateToCheck);
-      doc = getMaster().search(request).getFirstDocument();
+      return isHoliday(doc, dateToCheck);
     }
+    // Not caching, search for this date only.
+    request.setDateToCheck(dateToCheck);
+    HolidayDocument doc = getMaster().search(request).getFirstDocument();
     return isHoliday(doc, dateToCheck);
   }
 
@@ -166,17 +192,14 @@ public class MasterHolidaySource extends AbstractMasterSource<Holiday, HolidayDo
    * 
    * @param doc document retrieved from underlying holiday master, may be null
    * @param dateToCheck the date to check, not null
-   * @return false if nothing was retrieved from underlying holiday master. Otherwise, true if and only if the date is a holiday based on the underlying holiday master
+   * @return false if nothing was retrieved from underlying holiday master.
+   *  Otherwise, true if and only if the date is a holiday based on the underlying holiday master
    */
   protected boolean isHoliday(final HolidayDocument doc, final LocalDate dateToCheck) {
     if (doc == null) {
       return false;
     }
     return Collections.binarySearch(doc.getHoliday().getHolidayDates(), dateToCheck) >= 0;
-  }
-
-  protected boolean isHoliday(final List<LocalDate> dates, final LocalDate dateToCheck) {
-    return Collections.binarySearch(dates, dateToCheck) >= 0;
   }
 
   /**
@@ -186,7 +209,8 @@ public class MasterHolidaySource extends AbstractMasterSource<Holiday, HolidayDo
    * @return true if it is a weekend
    */
   protected boolean isWeekend(LocalDate date) {
-    return (date.getDayOfWeek() == DayOfWeek.SATURDAY || date.getDayOfWeek() == DayOfWeek.SUNDAY);
+    // avoids calling date.getDayOfWeek() twice
+    return date.getDayOfWeek().getValue() >= 6;
   }
 
 }

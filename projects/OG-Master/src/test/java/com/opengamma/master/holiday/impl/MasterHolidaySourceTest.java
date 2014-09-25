@@ -179,6 +179,55 @@ public class MasterHolidaySourceTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_isHoliday_cached_LocalDateCurrency_holiday() throws Exception {
+    HolidayMaster mock = mock(HolidayMaster.class);
+    HolidaySearchRequest request = new HolidaySearchRequest(GBP);
+    ManageableHoliday holiday = new ManageableHoliday(GBP, Collections.singletonList(DATE_MONDAY));
+    HolidaySearchResult result = new HolidaySearchResult();
+    result.getDocuments().add(new HolidayDocument(holiday));
+
+    when(mock.search(request)).thenReturn(result);
+    MasterHolidaySource test = new MasterHolidaySource(mock, true);
+    boolean testResult = test.isHoliday(DATE_MONDAY, GBP);
+    verify(mock, times(1)).search(request);
+    assertEquals(true, testResult);
+    
+    testResult = test.isHoliday(DATE_MONDAY, GBP);
+    verify(mock, times(1)).search(request);
+    assertEquals(true, testResult);
+  }
+
+  public void test_isHoliday_cached_LocalDateCurrency_workday() throws Exception {
+    HolidayMaster mock = mock(HolidayMaster.class);
+    HolidaySearchRequest request = new HolidaySearchRequest(GBP);
+    HolidaySearchResult result = new HolidaySearchResult();
+
+    when(mock.search(request)).thenReturn(result);
+    MasterHolidaySource test = new MasterHolidaySource(mock, true);
+    boolean testResult = test.isHoliday(DATE_MONDAY, GBP);
+    verify(mock, times(1)).search(request);
+    assertEquals(false, testResult);
+    
+    testResult = test.isHoliday(DATE_MONDAY, GBP);
+    verify(mock, times(1)).search(request);
+    assertEquals(false, testResult);
+  }
+
+  public void test_isHoliday_cached_LocalDateCurrency_sunday() throws Exception {
+    HolidayMaster mock = mock(HolidayMaster.class);
+    HolidaySearchRequest request = new HolidaySearchRequest(GBP);
+    request.setVersionCorrection(VC);
+    HolidaySearchResult result = new HolidaySearchResult();
+
+    when(mock.search(request)).thenReturn(result);
+    MasterHolidaySource test = new MasterHolidaySource(mock, true);
+    boolean testResult = test.isHoliday(DATE_SUNDAY, GBP);
+    verify(mock, times(0)).search(request);
+
+    assertEquals(true, testResult);
+  }
+
+  //-------------------------------------------------------------------------
   public void test_isHoliday_LocalDateTypeExternalId_holiday() throws Exception {
     HolidayMaster mock = mock(HolidayMaster.class);
     HolidaySearchRequest request = new HolidaySearchRequest(HolidayType.BANK, ExternalIdBundle.of(ID));
