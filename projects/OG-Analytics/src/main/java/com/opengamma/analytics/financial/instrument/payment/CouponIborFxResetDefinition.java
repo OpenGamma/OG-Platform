@@ -15,6 +15,7 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborFxReset;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
@@ -255,15 +256,15 @@ public class CouponIborFxResetDefinition extends CouponDefinition implements
   @Override
   public CouponIborFxReset toDerivative(ZonedDateTime dateTime) {
     ArgumentChecker.notNull(dateTime, "dateTime");
-    final LocalDate dayConversion = dateTime.toLocalDate();
+    LocalDate dayConversion = dateTime.toLocalDate();
     ArgumentChecker.isTrue(!dayConversion.isAfter(getFixingDate().toLocalDate()),
         "Do not have any fixing data but are asking for a derivative at " + dateTime + " which is after fixing date "
             + getFixingDate());
     ArgumentChecker.isTrue(!dayConversion.isAfter(getPaymentDate().toLocalDate()), "date is after payment date");
-    final double paymentTime = TimeCalculator.getTimeBetween(dateTime, getPaymentDate());
-    final double fixingTime = TimeCalculator.getTimeBetween(dateTime, getFixingDate());
-    final double fixingPeriodStartTime = TimeCalculator.getTimeBetween(dateTime, getFixingPeriodStartDate());
-    final double fixingPeriodEndTime = TimeCalculator.getTimeBetween(dateTime, getFixingPeriodEndDate());
+    double paymentTime = TimeCalculator.getTimeBetween(dateTime, getPaymentDate());
+    double fixingTime = TimeCalculator.getTimeBetween(dateTime, getFixingDate());
+    double fixingPeriodStartTime = TimeCalculator.getTimeBetween(dateTime, getFixingPeriodStartDate());
+    double fixingPeriodEndTime = TimeCalculator.getTimeBetween(dateTime, getFixingPeriodEndDate());
     double fxFixingTime = TimeCalculator.getTimeBetween(dateTime, _fxFixingDate);
     double fxDeliveryTime = TimeCalculator.getTimeBetween(dateTime, _fxDeliveryDate);
     return new CouponIborFxReset(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), fixingTime,
@@ -290,19 +291,19 @@ public class CouponIborFxResetDefinition extends CouponDefinition implements
   @Override
   public Coupon toDerivative(ZonedDateTime dateTime, DoubleTimeSeries<ZonedDateTime>[] timeSeries) {
     ArgumentChecker.notNull(dateTime, "dateTime");
-    final LocalDate dayConversion = dateTime.toLocalDate();
+    LocalDate dayConversion = dateTime.toLocalDate();
     ArgumentChecker.isTrue(!dayConversion.isAfter(getPaymentDate().toLocalDate()), "date is after payment date");
     ArgumentChecker.noNulls(timeSeries, "Time series");
     ArgumentChecker.isTrue(timeSeries.length >= 2, "At least two time series");
     DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries = timeSeries[0];
     DoubleTimeSeries<ZonedDateTime> fxFixingTimeSeries = timeSeries[1];
 
-    final LocalDate indexFixingDate = getFixingDate().toLocalDate();
-    final LocalDate fxFixingDate = getFxFixingDate().toLocalDate();
+    LocalDate indexFixingDate = getFixingDate().toLocalDate();
+    LocalDate fxFixingDate = getFxFixingDate().toLocalDate();
 
     if (dayConversion.isAfter(indexFixingDate)) { // Index fixing should be known
-      final ZonedDateTime rezonedFixingDate = getFixingDate().toLocalDate().atStartOfDay(ZoneOffset.UTC);
-      final Double fixedRate = indexFixingTimeSeries.getValue(rezonedFixingDate);
+      ZonedDateTime rezonedFixingDate = getFixingDate().toLocalDate().atStartOfDay(ZoneOffset.UTC);
+      Double fixedRate = indexFixingTimeSeries.getValue(rezonedFixingDate);
       if (fixedRate == null) {
         throw new OpenGammaRuntimeException("Could not get fixing value for date " + getFixingDate());
       }
@@ -312,7 +313,7 @@ public class CouponIborFxResetDefinition extends CouponDefinition implements
       return fixedFxResetDfn.toDerivative(dateTime, fxFixingTimeSeries);
     }
     if (dayConversion.equals(indexFixingDate)) { // On index fixing date: use fixing if present
-      final Double fixedRate = indexFixingTimeSeries.getValue(getFixingDate());
+      Double fixedRate = indexFixingTimeSeries.getValue(getFixingDate());
       if (fixedRate != null) {
         CouponFixedFxResetDefinition fixedFxResetDfn = new CouponFixedFxResetDefinition(getCurrency(),
             getPaymentDate(), getAccrualStartDate(), getAccrualEndDate(), getPaymentYearFraction(), getNotional(),
@@ -321,6 +322,11 @@ public class CouponIborFxResetDefinition extends CouponDefinition implements
       }
     }
 
+    double paymentTime = TimeCalculator.getTimeBetween(dateTime, getPaymentDate());
+    double fixingTime = TimeCalculator.getTimeBetween(dateTime, getFixingDate());
+    double fixingPeriodStartTime = TimeCalculator.getTimeBetween(dateTime, getFixingPeriodStartDate());
+    double fixingPeriodEndTime = TimeCalculator.getTimeBetween(dateTime, getFixingPeriodEndDate());
+
     if (dayConversion.isAfter(fxFixingDate)) { // FX fixing should be known
       ZonedDateTime rezonedFixingDate = _fxFixingDate.toLocalDate().atStartOfDay(ZoneOffset.UTC);
       Double fxRate = fxFixingTimeSeries.getValue(rezonedFixingDate);
@@ -328,28 +334,20 @@ public class CouponIborFxResetDefinition extends CouponDefinition implements
         throw new OpenGammaRuntimeException("Could not get fixing value for date " + _fxFixingDate);
       }
       double notional = getNotional() * fxRate;
-      CouponIborSpreadDefinition dfn = new CouponIborSpreadDefinition(getCurrency(), getPaymentDate(),
-          getAccrualStartDate(), getAccrualEndDate(), getPaymentYearFraction(), notional, _fixingDate,
-          _fixingPeriodStartDate, _fixingPeriodEndDate, _fixingPeriodAccrualFactor, _index, _spread, _calendar);
-      return dfn.toDerivative(dateTime, indexFixingTimeSeries);
+      return new CouponIborSpread(getCurrency(), paymentTime, getPaymentYearFraction(), notional, fixingTime, _index,
+          fixingPeriodStartTime, fixingPeriodEndTime, getFixingPeriodAccrualFactor(), _spread);
     }
     if (dayConversion.equals(fxFixingDate)) { // On FX fixing date: use fixing if present
       ZonedDateTime rezonedFixingDate = _fxFixingDate.toLocalDate().atStartOfDay(ZoneOffset.UTC);
       Double fxRate = fxFixingTimeSeries.getValue(rezonedFixingDate);
       if (fxRate != null) {
         double notional = getNotional() * fxRate;
-        CouponIborSpreadDefinition dfn = new CouponIborSpreadDefinition(getCurrency(), getPaymentDate(),
-            getAccrualStartDate(), getAccrualEndDate(), getPaymentYearFraction(), notional, _fixingDate,
-            _fixingPeriodStartDate, _fixingPeriodEndDate, _fixingPeriodAccrualFactor, _index, _spread, _calendar);
-        return dfn.toDerivative(dateTime, indexFixingTimeSeries);
+        return new CouponIborSpread(getCurrency(), paymentTime, getPaymentYearFraction(), notional, fixingTime, _index,
+            fixingPeriodStartTime, fixingPeriodEndTime, getFixingPeriodAccrualFactor(), _spread);
       }
     }
 
     // Default: no fixing
-    double paymentTime = TimeCalculator.getTimeBetween(dateTime, getPaymentDate());
-    double fixingTime = TimeCalculator.getTimeBetween(dateTime, getFixingDate());
-    double fixingPeriodStartTime = TimeCalculator.getTimeBetween(dateTime, getFixingPeriodStartDate());
-    double fixingPeriodEndTime = TimeCalculator.getTimeBetween(dateTime, getFixingPeriodEndDate());
     double fxFixingTime = TimeCalculator.getTimeBetween(dateTime, _fxFixingDate);
     double fxDeliveryTime = TimeCalculator.getTimeBetween(dateTime, _fxDeliveryDate);
     return new CouponIborFxReset(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), fixingTime,
@@ -367,6 +365,104 @@ public class CouponIborFxResetDefinition extends CouponDefinition implements
   public <V> V accept(InstrumentDefinitionVisitor<?, V> visitor) {
     ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitCouponIborFxResetDefinition(this);
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    result = prime * result + ((_calendar == null) ? 0 : _calendar.hashCode());
+    result = prime * result + ((_fixingDate == null) ? 0 : _fixingDate.hashCode());
+    long temp;
+    temp = Double.doubleToLongBits(_fixingPeriodAccrualFactor);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + ((_fixingPeriodEndDate == null) ? 0 : _fixingPeriodEndDate.hashCode());
+    result = prime * result + ((_fixingPeriodStartDate == null) ? 0 : _fixingPeriodStartDate.hashCode());
+    result = prime * result + ((_fxDeliveryDate == null) ? 0 : _fxDeliveryDate.hashCode());
+    result = prime * result + ((_fxFixingDate == null) ? 0 : _fxFixingDate.hashCode());
+    result = prime * result + ((_index == null) ? 0 : _index.hashCode());
+    result = prime * result + ((_referenceCurrency == null) ? 0 : _referenceCurrency.hashCode());
+    temp = Double.doubleToLongBits(_spread);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!super.equals(obj)) {
+      return false;
+    }
+    if (!(obj instanceof CouponIborFxResetDefinition)) {
+      return false;
+    }
+    CouponIborFxResetDefinition other = (CouponIborFxResetDefinition) obj;
+    if (_calendar == null) {
+      if (other._calendar != null) {
+        return false;
+      }
+    } else if (!_calendar.equals(other._calendar)) {
+      return false;
+    }
+    if (_fixingDate == null) {
+      if (other._fixingDate != null) {
+        return false;
+      }
+    } else if (!_fixingDate.equals(other._fixingDate)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_fixingPeriodAccrualFactor) != Double
+        .doubleToLongBits(other._fixingPeriodAccrualFactor)) {
+      return false;
+    }
+    if (_fixingPeriodEndDate == null) {
+      if (other._fixingPeriodEndDate != null) {
+        return false;
+      }
+    } else if (!_fixingPeriodEndDate.equals(other._fixingPeriodEndDate)) {
+      return false;
+    }
+    if (_fixingPeriodStartDate == null) {
+      if (other._fixingPeriodStartDate != null) {
+        return false;
+      }
+    } else if (!_fixingPeriodStartDate.equals(other._fixingPeriodStartDate)) {
+      return false;
+    }
+    if (_fxDeliveryDate == null) {
+      if (other._fxDeliveryDate != null) {
+        return false;
+      }
+    } else if (!_fxDeliveryDate.equals(other._fxDeliveryDate)) {
+      return false;
+    }
+    if (_fxFixingDate == null) {
+      if (other._fxFixingDate != null) {
+        return false;
+      }
+    } else if (!_fxFixingDate.equals(other._fxFixingDate)) {
+      return false;
+    }
+    if (_index == null) {
+      if (other._index != null) {
+        return false;
+      }
+    } else if (!_index.equals(other._index)) {
+      return false;
+    }
+    if (_referenceCurrency == null) {
+      if (other._referenceCurrency != null) {
+        return false;
+      }
+    } else if (!_referenceCurrency.equals(other._referenceCurrency)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_spread) != Double.doubleToLongBits(other._spread)) {
+      return false;
+    }
+    return true;
   }
 
 }
