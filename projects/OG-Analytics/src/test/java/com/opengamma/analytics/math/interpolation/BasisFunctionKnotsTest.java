@@ -10,9 +10,12 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 import org.testng.internal.junit.ArrayAsserts;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * 
  */
+@Test(groups = TestGroup.UNIT)
 public class BasisFunctionKnotsTest {
 
   private static final double[] KNOTS;
