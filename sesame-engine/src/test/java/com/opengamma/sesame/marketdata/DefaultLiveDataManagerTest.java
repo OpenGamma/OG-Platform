@@ -590,7 +590,7 @@ public class DefaultLiveDataManagerTest {
     _manager.subscribe(client3, createIdBundles("T2", "T3"));
 
     // Sleep as the subscribe/unsubscribe is happening on another thread
-    Thread.sleep(10);
+    Thread.sleep(20);
     verify(_mockLiveDataClient, times(2))
         .subscribe(any(UserPrincipal.class), any(Collection.class), any(LiveDataListener.class));
     verifyNoMoreInteractions(_mockLiveDataClient);
