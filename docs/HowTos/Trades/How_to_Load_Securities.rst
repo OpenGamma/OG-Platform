@@ -115,7 +115,9 @@ And of type:
 
 Further security definitions can be found by inspecting the subclasses of ``com.opengamma.master.security.ManageableSecurity``.
 
-Currently the ``com/opengamma/integration/tool/portfolio/SecurityLoaderTool.java'' tool exists to add securities in bulk via an external identifier, for example a Bloomberg Ticker. A similar tool could be written to load XML inputs or the REST endpoint could be accessed programmatically to load the securities.
+Currently the ``com/opengamma/integration/tool/portfolio/SecurityLoaderTool.java`` tool exists to add securities in bulk via an external identifier, for example a Bloomberg Ticker.
+
+A similar tool could be written to load XML inputs or the REST endpoint could be accessed programmatically to load the securities.
 
 The main functionality of a tool would need the following
 

@@ -1,3 +1,6 @@
+Frequency
+=========
+
 Frequencies may be specified in 3 ways:
 
 #. Descriptive name, e.g. "MONTHLY", "ANNUAL" full list available `here <http://docs-static.opengamma.com/2.1.0/java/javadocs/com/opengamma/financial/convention/frequency/Frequency.html>`_.

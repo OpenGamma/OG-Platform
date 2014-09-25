@@ -37,6 +37,7 @@ The market data for the different instruments are::
     double[] FWD3_USD_MARKET_QUOTES = new double[] {0.0027560,
         0.99715, 0.99700, 0.99680, 0.99660,
         (100 + 7.0 / 32.0 + 3.0 / (32.0 * 4.0)) / 100.0, (100 + 17.0 / 32.0) / 100.0, (101 + 2.0 / 32.0) / 100.0, (98 + 21.0 / 32.0) / 100.0 };
+
 The data was selected to represent the level of the market at the calibration date. The DSF have strange quotes as the are quoted in 32th and quarter of 32th.
 
 The indexes used in the curves are::

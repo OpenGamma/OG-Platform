@@ -1,5 +1,5 @@
 CrossGammaMultiCurveCalculator
-==============
+==============================
 
 Computes the cross-gamma to the curve parameters for a multi-curve provider. The provider should be a **MulticurveProviderDiscount** with all the curves related to the same currency. 
 
