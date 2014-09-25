@@ -6,8 +6,16 @@ These release notes cover changes from v2.2 to v2.3.
 Upgrading from 2.2.0
 ====================
 
+To 2.3.0-M2p2
+-------------
+
+* Improvement
+    * [REQS-387] - Added more flexibilty in the construction of bond futures security definition. Notice dates and delivery dates can be passed separately.
+* Bug
+    * [REQS-498] - Overnight arithmetic average conversion, better error logging for missing fixing data.
+
 To 2.3.0-M2p1
------------
+-------------
 
 * Improvement
     * [REQS-388] - Review bond futures converter, in particular notice and delivery dates
