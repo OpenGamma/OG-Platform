@@ -13,7 +13,7 @@ import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * Generator for a set of basis functions
  */
 public class BasisFunctionGenerator {
 
@@ -21,140 +21,127 @@ public class BasisFunctionGenerator {
    * Generates a set of b-splines with knots a fixed distance apart
    * @param xa minimum value of the function domain
    * @param xb maximum value of the function domain
-   * @param nKnots number of internal knots (minimum 2 - 1 at xa and 1 at xb)
+   * @param nKnots number of internal knots (minimum of degree + 1)
    * @param degree The order of the polynomial splines
    * @return a List of functions
+   * @deprecated Use generateSet(BasisFunctionKnots knots)
    */
+  @Deprecated
   public List<Function1D<Double, Double>> generateSet(final double xa, final double xb, final int nKnots, final int degree) {
+    // args are checked in the constructor below
+    BasisFunctionKnots k = BasisFunctionKnots.fromUniform(xa, xb, nKnots, degree);
+    return generateSet(k);
+  }
 
-    final int n = nKnots + 2 * degree;
-    final int nSplines = nKnots + degree - 1;
-    final List<Function1D<Double, Double>> functions = new ArrayList<>(nSplines);
-    final double[] knots = new double[n];
-    final double dx = (xb - xa) / (nKnots - 1);
+  /**
+   * Generates a set of b-splines a given polynomial degree on the specified knots
+   * @param internalKnots the internal knots. The start of the range is the first knot and the end is the last.
+   * @param degree the polynomial degree of the basis functions (this will determine how many external knots are required)
+   * @return a List of functions
+   * @deprecated Use generateSet(BasisFunctionKnots knots)
+   */
+  @Deprecated
+  public List<Function1D<Double, Double>> generateSet(final double[] internalKnots, final int degree) {
+    // args are checked in the constructor below
+    BasisFunctionKnots k = BasisFunctionKnots.fromInternalKnots(internalKnots, degree);
+    return generateSet(k);
+  }
 
-    // knots to the left and right of the range
-    for (int i = 0; i < degree; i++) {
-      knots[i] = (i - degree) * dx + xa;
-      knots[degree + nKnots + i] = xb + dx * (i + 1);
+  /**
+   * Generate a set of b-splines with a given polynomial degree on the specified knots
+   * @param knots holder for the knots and degree
+   * @return a List of functions
+   */
+  public List<Function1D<Double, Double>> generateSet(BasisFunctionKnots knots) {
+    ArgumentChecker.notNull(knots, "knots");
+
+    double[] k = knots.getKnots();
+    List<Function1D<Double, Double>> set = null;
+    for (int d = 0; d <= knots.getDegree(); d++) {
+      set = generateSet(k, d, set);
     }
-    // knots in the main range
-    for (int i = 0; i < nKnots - 1; i++) {
-      knots[i + degree] = xa + i * dx;
-    }
-    knots[nKnots + degree - 1] = xb;
+    return set;
+  }
 
-    for (int i = 0; i < nSplines; i++) {
-      functions.add(generate(knots, degree, i));
+  /**
+   * Generate a set of N-dimensional b-splines as the produce of 1-dimensional b-splines with a given polynomial degree
+   * on the specified knots
+   * @param knots holder for the knots and degree in each dimension
+   * @return a List of functions
+   */
+  public List<Function1D<double[], Double>> generateSet(BasisFunctionKnots[] knots) {
+    ArgumentChecker.noNulls(knots, "knots");
+    int dim = knots.length;
+    int[] nSplines = new int[dim];
+    int product = 1;
+    List<List<Function1D<Double, Double>>> oneDSets = new ArrayList<>(dim);
+    for (int i = 0; i < dim; i++) {
+      oneDSets.add(generateSet(knots[i]));
+      nSplines[i] = knots[i].getNumSplines();
+      product *= nSplines[i];
+    }
+    final List<Function1D<double[], Double>> functions = new ArrayList<>(product);
+
+    for (int i = 0; i < product; i++) {
+      int[] indices = FunctionUtils.fromTensorIndex(i, nSplines);
+      functions.add(generateMultiDim(oneDSets, indices));
     }
     return functions;
   }
 
+  /**
+   * Generate a set of N-dimensional b-splines as the produce of 1-dimensional b-splines with a given polynomial degree
+   * @param xa minimum value of the function domain in each dimension
+   * @param xb maximum value of the function domain in each dimension
+   * @param nKnots number of internal knots (minimum of degree + 1) in each dimension
+   * @param degree The order of the polynomial splines in each dimension
+   * @return a List of functions
+   * @deprecated use generateSet(BasisFunctionKnots[] knots)
+   */
+  @Deprecated
   public List<Function1D<double[], Double>> generateSet(final double[] xa, final double[] xb, final int[] nKnots, final int[] degree) {
 
     final int dim = xa.length;
     ArgumentChecker.isTrue(dim == xb.length, "xb wrong dimension");
     ArgumentChecker.isTrue(dim == nKnots.length, "nKnots wrong dimension");
     ArgumentChecker.isTrue(dim == degree.length, "degree wrong dimension");
-
-    final int[] n = new int[dim];
-    final int[] nSplines = new int[dim];
-    final double[][] knots = new double[dim][];
-
-    final double[] dx = new double[dim];
-    int product = 1;
-    for (int k = 0; k < dim; k++) {
-      final int p = nKnots[k] + 2 * degree[k];
-      n[k] = p;
-      knots[k] = new double[p];
-      nSplines[k] = nKnots[k] + degree[k] - 1;
-      product *= nSplines[k];
-      dx[k] = (xb[k] - xa[k]) / (nKnots[k] - 1);
-
-      // knots to the left and right of the range
-      for (int i = 0; i < degree[k]; i++) {
-        knots[k][i] = (i - degree[k]) * dx[k] + xa[k];
-        knots[k][degree[k] + nKnots[k] + i] = xb[k] + dx[k] * (i + 1);
-      }
-      // knots in the main range
-      for (int i = 0; i < nKnots[k] - 1; i++) {
-        knots[k][i + degree[k]] = xa[k] + i * dx[k];
-      }
-      knots[k][nKnots[k] + degree[k] - 1] = xb[k];
+    BasisFunctionKnots[] knots = new BasisFunctionKnots[dim];
+    for (int i = 0; i < dim; i++) {
+      knots[i] = BasisFunctionKnots.fromUniform(xa[i], xb[i], nKnots[i], degree[i]);
     }
-
-    final List<Function1D<double[], Double>> functions = new ArrayList<>(product);
-
-    for (int i = 0; i < product; i++) {
-      final int[] indicies = FunctionUtils.fromTensorIndex(i, nSplines);
-      functions.add(generate(knots, degree, indicies));
-    }
-    return functions;
+    return generateSet(knots);
   }
 
-  public List<Function1D<Double, Double>> generateSet(final double[] internalKnots, final int degree) {
-
-    final int nKnots = internalKnots.length;
-    final int n = nKnots + 2 * degree;
-    final double[] knots = new double[n];
-
-    final double dxa = internalKnots[1] - internalKnots[0];
-    final double dxb = internalKnots[nKnots - 1] - internalKnots[nKnots - 2];
-
-    final List<Function1D<Double, Double>> functions = new ArrayList<>(n);
-
-    // knots to the left and right of the range
-    for (int i = 0; i < degree; i++) {
-      knots[i] = (i - degree) * dxa + internalKnots[0];
-      knots[degree + nKnots + i] = internalKnots[nKnots - 1] + dxb * (i + 1);
-    }
-    // knots in the main range
-    for (int i = 0; i < nKnots; i++) {
-      knots[i + degree] = internalKnots[i];
-    }
-
-    final int nSplines = nKnots + degree - 1;
-    for (int i = 0; i < nSplines; i++) {
-      functions.add(generate(knots, degree, i));
-    }
-    return functions;
+  /**
+   * Generate the i^th basis function
+   * @param data Container for the knots and degree of the basis function
+   * @param index The index (from zero) of the function. Must be in range 0 to data.getNumSplines() (exclusive)
+   * For example if the degree is 1, and index is 0, this will cover the first three knots.
+   * @return The i^th basis function
+   */
+  protected Function1D<Double, Double> generate(BasisFunctionKnots data, final int index) {
+    ArgumentChecker.notNull(data, "data");
+    ArgumentChecker.isTrue(index >= 0 && index < data.getNumSplines(), "index must be in range {] to {} (exclusive)", 0, data.getNumSplines());
+    return generate(data.getKnots(), data.getDegree(), index);
   }
 
-  public Function1D<Double, Double> generate(final double xa, final double xb, final int nKnots, final int degree, final int j) {
-    ArgumentChecker.isTrue(xb > xa, "the range should be from xa to xb");
-    ArgumentChecker.isTrue(j >= 0, "basis functions are index from zero");
-    ArgumentChecker.isTrue(degree >= 0, "degree must zero or more");
-
-    final double[] knots = new double[nKnots + 2 * degree];
-    final double dx = (xb - xa) / (nKnots - 1);
-
-    // knots to the left and right of the range
-    for (int i = 0; i < degree; i++) {
-      knots[i] = (i - degree) * dx + xa;
-      knots[nKnots + i] = xb + (i + 1);
-    }
-    // knots in the main range
-    for (int i = 0; i < nKnots - 1; i++) {
-      knots[i + degree] = xa + i * dx;
-    }
-    knots[nKnots - 1] = xb;
-
-    return generate(knots, degree, j);
-  }
-
-  public Function1D<double[], Double> generate(final double[][] knots, final int[] degree, final int[] index) {
-    ArgumentChecker.notNull(knots, "knots are null");
-    final int dim = knots.length;
-    ArgumentChecker.isTrue(dim == degree.length, "degree wrong dimension");
-    ArgumentChecker.isTrue(dim == index.length, "index wrong dimension");
+  /**
+   * Generate the n-dimensional basis function for the given index position. This is formed as the product of 1-d basis
+   * functions.
+   * @param oneDSets The sets of basis functions in each dimension
+   * @param index index (from zero) of the basis function in each dimension.
+   * @return A n-dimensional basis function
+   */
+  private Function1D<double[], Double> generateMultiDim(List<List<Function1D<Double, Double>>> oneDSets, int[] index) {
+    final int dim = index.length;
     final List<Function1D<Double, Double>> funcs = new ArrayList<>(dim);
     for (int i = 0; i < dim; i++) {
-      funcs.add(generate(knots[i], degree[i], index[i]));
+      funcs.add(oneDSets.get(i).get(index[i]));
     }
-    return new Function1D<double[], Double>() {
 
+    return new Function1D<double[], Double>() {
       @Override
-      public Double evaluate(final double[] x) {
+      public Double evaluate(double[] x) {
         double product = 1.0;
         ArgumentChecker.isTrue(dim == x.length, "length of x {} was not equal to dimension {}", x.length, dim);
         for (int i = 0; i < dim; i++) {
@@ -163,37 +150,82 @@ public class BasisFunctionGenerator {
         return product;
       }
     };
-
   }
 
-  public Function1D<Double, Double> generate(final double[] knots, final int degree, final int j) {
+  private List<Function1D<Double, Double>> generateSet(final double[] knots, final int degree, final List<Function1D<Double, Double>> degreeM1Set) {
 
-    ArgumentChecker.notNull(knots, "knots are null");
-    ArgumentChecker.isTrue(j >= 0, "basis functions are index from zero");
-    ArgumentChecker.isTrue(degree >= 0, "degree must zero or more");
-    final int m = knots.length;
-    ArgumentChecker.isTrue(j < m - degree - 1, "last basis function index is degree + 1 less than last knot index");
+    int nSplines = knots.length - degree - 1;
+    final List<Function1D<Double, Double>> functions = new ArrayList<>(nSplines);
+    for (int i = 0; i < nSplines; i++) {
+      functions.add(generate(knots, degree, i, degreeM1Set));
+    }
+    return functions;
+  }
+
+  /**
+   * Generate a basis function of the required degree either by using the set of functions one degree lower, or by recursion
+   * @param knots The knots that support the basis functions
+   * @param degree The required degree
+   * @param index The index of the required function
+   * @param degreeM1Set Set of basis functions one degree lower than required (can be null)
+   * @return The basis function
+   */
+  private Function1D<Double, Double> generate(final double[] knots, final int degree, final int index, final List<Function1D<Double, Double>> degreeM1Set) {
 
     if (degree == 0) {
       return new Function1D<Double, Double>() {
+        private final double _l = knots[index];
+        private final double _h = knots[index + 1];
 
         @Override
         public Double evaluate(final Double x) {
-          return (x >= knots[j] && x < knots[j + 1]) ? 1.0 : 0.0;
+          return (x >= _l && x < _h) ? 1.0 : 0.0;
         }
       };
     }
 
+    if (degree == 1) {
+      return new Function1D<Double, Double>() {
+        private final double _l = knots[index];
+        private final double _m = knots[index + 1];
+        private final double _h = knots[index + 2];
+        private final double _inv1 = 1.0 / (knots[index + 1] - knots[index]);
+        private final double _inv2 = 1.0 / (knots[index + 2] - knots[index + 1]);
+
+        @Override
+        public Double evaluate(final Double x) {
+          return (x <= _l || x >= _h) ? 0.0 : (x <= _m ? (x - _l) * _inv1 : (_h - x) * _inv2);
+        }
+      };
+    }
+
+    // if degreeM1Set is unavailable, use the recursion
+    final Function1D<Double, Double> fa = degreeM1Set == null ? generate(knots, degree - 1, index) : degreeM1Set.get(index);
+    final Function1D<Double, Double> fb = degreeM1Set == null ? generate(knots, degree - 1, index + 1) : degreeM1Set.get(index + 1);
+
     return new Function1D<Double, Double>() {
+      private final double _inv1 = 1.0 / (knots[index + degree] - knots[index]);
+      private final double _inv2 = 1.0 / (knots[index + degree + 1] - knots[index + 1]);
+      private final double _xa = knots[index];
+      private final double _xb = knots[index + degree + 1];
 
       @Override
       public Double evaluate(final Double x) {
-        final Function1D<Double, Double> fa = generate(knots, degree - 1, j);
-        final Function1D<Double, Double> fb = generate(knots, degree - 1, j + 1);
-        return (x - knots[j]) / (knots[j + degree] - knots[j]) * fa.evaluate(x) + (knots[j + degree + 1] - x) / (knots[j + degree + 1] - knots[j + 1]) * fb.evaluate(x);
+        return (x - _xa) * _inv1 * fa.evaluate(x) + (_xb - x) * _inv2 * fb.evaluate(x);
       }
-
     };
 
   }
+
+  /**
+   * Generate a basis function of the required degree by recursion
+   * @param knots The knots that support the basis functions
+   * @param degree The required degree
+   * @param index The index of the required function
+   * @return The basis function
+   */
+  private Function1D<Double, Double> generate(final double[] knots, final int degree, final int index) {
+    return generate(knots, degree, index, null);
+  }
+
 }

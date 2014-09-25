@@ -229,7 +229,7 @@ public class GeneralizedLeastSquareTest {
 
     final LeastSquareResults results = gls.solve(X_COS_EXP, Y_COS_EXP, SIGMA_COS_EXP, BASIS_FUNCTIONS_2D);
     final Function1D<double[], Double> spline = new BasisFunctionAggregation<>(BASIS_FUNCTIONS_2D, results.getFitParameters().getData());
-    assertEquals(0.0, results.getChiSq(), 1e-25);
+    assertEquals(0.0, results.getChiSq(), 1e-16);
     assertEquals(0.05161579, spline.evaluate(new double[] {4, 3 }), 1e-8);
 
     /*
@@ -300,15 +300,15 @@ public class GeneralizedLeastSquareTest {
 
     final double[] xData = new double[] {7. / 365, 14 / 365., 21 / 365., 1 / 12., 3 / 12., 0.5, 0.75, 1, 5, 10 };
     final double[] yData = new double[] {0.972452371,
-        0.749039802,
-        0.759792085,
-        0.714206462,
-        0.604446956,
-        0.517955313,
-        0.474807307,
-        0.443532132,
-        0.2404755,
-        0.197128583,
+      0.749039802,
+      0.759792085,
+      0.714206462,
+      0.604446956,
+      0.517955313,
+      0.474807307,
+      0.443532132,
+      0.2404755,
+      0.197128583,
 
     };
 
@@ -364,7 +364,7 @@ public class GeneralizedLeastSquareTest {
 
     assertEquals(0.0, results.getChiSq(), 1e-9);
     final Function1D<double[], Double> spline = results.getFunction();
-    assertEquals(0.462288104, spline.evaluate(new double[] {4, 3 }), 1e-8);
+    assertEquals(0.4635978895963084, spline.evaluate(new double[] {4, 3 }), 1e-8);
 
     /*
      * Print out function for debugging
