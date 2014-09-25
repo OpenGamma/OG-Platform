@@ -186,4 +186,78 @@ public class CouponIborFxReset extends Coupon implements DepositIndexCoupon<Ibor
     throw new UnsupportedOperationException("CouponIborFxReset does not support withNotional method.");
   }
 
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    long temp;
+    temp = Double.doubleToLongBits(_fixingAccrualFactor);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_fixingPeriodEndTime);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_fixingPeriodStartTime);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_fixingTime);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_fxDeliveryTime);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_fxFixingTime);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + ((_index == null) ? 0 : _index.hashCode());
+    result = prime * result + ((_referenceCurrency == null) ? 0 : _referenceCurrency.hashCode());
+    temp = Double.doubleToLongBits(_spread);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!super.equals(obj)) {
+      return false;
+    }
+    if (!(obj instanceof CouponIborFxReset)) {
+      return false;
+    }
+    CouponIborFxReset other = (CouponIborFxReset) obj;
+    if (Double.doubleToLongBits(_fixingAccrualFactor) != Double.doubleToLongBits(other._fixingAccrualFactor)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_fixingPeriodEndTime) != Double.doubleToLongBits(other._fixingPeriodEndTime)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_fixingPeriodStartTime) != Double.doubleToLongBits(other._fixingPeriodStartTime)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_fixingTime) != Double.doubleToLongBits(other._fixingTime)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_fxDeliveryTime) != Double.doubleToLongBits(other._fxDeliveryTime)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_fxFixingTime) != Double.doubleToLongBits(other._fxFixingTime)) {
+      return false;
+    }
+    if (_index == null) {
+      if (other._index != null) {
+        return false;
+      }
+    } else if (!_index.equals(other._index)) {
+      return false;
+    }
+    if (_referenceCurrency == null) {
+      if (other._referenceCurrency != null) {
+        return false;
+      }
+    } else if (!_referenceCurrency.equals(other._referenceCurrency)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_spread) != Double.doubleToLongBits(other._spread)) {
+      return false;
+    }
+    return true;
+  }
+
 }
