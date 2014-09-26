@@ -128,10 +128,6 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
     List<FloatingCashFlowDetails> cashFlows = new ArrayList<>();
     for (int i = 0; i < n; i++) {
       FloatingCashFlowDetails.Builder builder = (FloatingCashFlowDetails.Builder) FloatingCashFlowDetails.builder()
-          //.fixingStartDate(fixingStart.get(i))
-          //.fixingEndDate(fixingEnd.get(i))
-          //.fixingYearFrac(fixingYearFractions.get(i))
-          //.forwardRate(forwardRates.get(i))
           .spread(spreads.get(i))
           .gearing(gearings.get(i))
           .projectedAmount(projectedAmounts.get(i))
@@ -158,9 +154,6 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
       if (forwardRates.get(i) != null) {
         builder.forwardRate(forwardRates.get(i));
       }
-
-
-
       cashFlows.add((FloatingCashFlowDetails) builder.build());
     }
     

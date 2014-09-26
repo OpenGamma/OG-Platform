@@ -436,8 +436,6 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
     return new FixedAnnuityDefinitionBuilder().
         payer(payer).
         currency(leg.getNotional().getCurrency()).
-        //        notional((payer ? -1 : 1) * leg.getNotional().getAmount()).
-
         notional(getNotionalProvider(leg.getNotional(), leg.getAccrualPeriodBusinessDayConvention(),
             new HolidaySourceCalendarAdapter(_holidaySource, leg.getAccrualPeriodCalendars().toArray(new ExternalId[leg.getAccrualPeriodCalendars().size()])))).
         startDate(startDate).
