@@ -26,6 +26,7 @@ import com.opengamma.util.time.DateUtils;
 /**
  * Tests for CouponIborFxReset.
  */
+@SuppressWarnings("unused")
 @Test(groups = TestGroup.UNIT)
 public class CouponIborFxResetTest {
   private static final double RESET_TIME = 0.24;
@@ -59,6 +60,9 @@ public class CouponIborFxResetTest {
       NOTIONAL, RESET_TIME, INDEX, FIXING_PERIOD_START_TIME, FIXING_PERIOD_END_TIME, FORWARD_YEAR_FRACTION, SPREAD,
       CUR_REF, FX_FIXING_TIME, FX_DELIVERY_TIME);
 
+  /**
+   * 
+   */
   @Test
   public void getter() {
     assertEquals("CouponIborFxReset", CUR_REF, CPN.getReferenceCurrency());
@@ -72,6 +76,9 @@ public class CouponIborFxResetTest {
     assertEquals("CouponIborFxReset", FIXING_PERIOD_END_TIME, CPN.getFixingPeriodEndTime());
   }
 
+  /**
+   * 
+   */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void largeFixingiImeTest() {
     new CouponIborFxReset(CUR_PAY, PAYMENT_TIME, ACCRUAL_FACTOR,
@@ -79,6 +86,9 @@ public class CouponIborFxResetTest {
         SPREAD, CUR_REF, FX_FIXING_TIME, FX_DELIVERY_TIME);
   }
 
+  /**
+   * 
+   */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void startAfterEndTest() {
     new CouponIborFxReset(CUR_PAY, PAYMENT_TIME, ACCRUAL_FACTOR,
@@ -86,6 +96,9 @@ public class CouponIborFxResetTest {
         SPREAD, CUR_REF, FX_FIXING_TIME, FX_DELIVERY_TIME);
   }
 
+  /**
+   * 
+   */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeFixingYearFractionTest() {
     new CouponIborFxReset(CUR_PAY, PAYMENT_TIME, ACCRUAL_FACTOR,
@@ -93,6 +106,9 @@ public class CouponIborFxResetTest {
         CUR_REF, FX_FIXING_TIME, FX_DELIVERY_TIME);
   }
 
+  /**
+   * 
+   */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeFixingTimeTest() {
     new CouponIborFxReset(CUR_PAY, PAYMENT_TIME, ACCRUAL_FACTOR,
@@ -100,6 +116,9 @@ public class CouponIborFxResetTest {
         CUR_REF, FX_FIXING_TIME, FX_DELIVERY_TIME);
   }
 
+  /**
+   * 
+   */
   @Test
   public void hashCodeAndEqualsTest() {
     CouponIborFxReset cpn0 = new CouponIborFxReset(CUR_PAY, PAYMENT_TIME, ACCRUAL_FACTOR,

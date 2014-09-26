@@ -114,12 +114,12 @@ public final class CouponIborFxResetDiscountingMethod {
     final List<DoublesPair> listDscCcyReference = new ArrayList<>();
     listDscCcyReference.add(DoublesPair.of(t0, -t0 * dfCcyReferenceAtDelivery * dfCcyReferenceAtDeliveryBar));
     mapDscCcyReference.put(multicurves.getName(ccyReference), listDscCcyReference);
-    result = result.plus(ccyReference, MulticurveSensitivity.ofYieldDiscounting(mapDscCcyReference));
+    result = result.plus(ccyPayment, MulticurveSensitivity.ofYieldDiscounting(mapDscCcyReference));
     final Map<String, List<ForwardSensitivity>> mapFwd = new HashMap<>();
     final List<ForwardSensitivity> listForward = new ArrayList<>();
     listForward.add(new SimplyCompoundedForwardSensitivity(coupon.getFixingPeriodStartTime(), coupon.getFixingPeriodEndTime(), coupon.getFixingAccrualFactor(), forwardBar));
     mapFwd.put(multicurves.getName(coupon.getIndex()), listForward);
-    result = result.plus(coupon.getIndex().getCurrency(), MulticurveSensitivity.ofForward(mapFwd));
+    result = result.plus(ccyPayment, MulticurveSensitivity.ofForward(mapFwd));
     return result;
   }
 
