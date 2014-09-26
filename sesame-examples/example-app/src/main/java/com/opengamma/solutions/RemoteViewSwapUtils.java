@@ -130,10 +130,10 @@ public final class RemoteViewSwapUtils {
   public static final List<Object> ZERO_COUPON_COMPOUNDING_INPUT = ImmutableList.<Object>of(
       createZeroCouponCompoundingSwap());
 
-  /** List of zero coupon compounding swap inputs */
+  /** List of notional exchange swap inputs */
+  //TODO REQS-462 - Interim exchange
   public static final List<Object> NOTIONAL_EXCHANGE_INPUT = ImmutableList.<Object>of(
       createInitialNotionalExchangeSwap(),
-      createInterimNotionalExchangeSwap(),
       createFinalNotionalExchangeSwap());
 
   /** List of All IRS inputs */
@@ -1196,9 +1196,9 @@ public final class RemoteViewSwapUtils {
   private static InterestRateSwapSecurity createFinalNotionalExchangeSwap() {
 
     NotionalExchange notionalExchange = NotionalExchange.builder().exchangeFinalNotional(true).build();
-    InterestRateSwapSecurity swap = createVanillaFixedVsLibor3mSwap();
+    InterestRateSwapSecurity swap = createFixedUSVsLiborBP3mSwap();
     swap.setNotionalExchange(notionalExchange);
-    swap.setName("Final notional exchange - Fixed vs Libor 3m");
+    swap.setName("Final notional exchange - US Fixed vs Libor BP 3m");
     return swap;
 
   }
@@ -1206,19 +1206,9 @@ public final class RemoteViewSwapUtils {
   private static InterestRateSwapSecurity createInitialNotionalExchangeSwap() {
 
     NotionalExchange notionalExchange = NotionalExchange.builder().exchangeInitialNotional(true).build();
-    InterestRateSwapSecurity swap = createVanillaFixedVsLibor3mSwap();
+    InterestRateSwapSecurity swap = createFixedUSVsLiborBP3mSwap();
     swap.setNotionalExchange(notionalExchange);
-    swap.setName("Initial notional exchange - Fixed vs Libor 3m");
-    return swap;
-
-  }
-
-  private static InterestRateSwapSecurity createInterimNotionalExchangeSwap() {
-
-    NotionalExchange notionalExchange = NotionalExchange.builder().exchangeInterimNotional(true).build();
-    InterestRateSwapSecurity swap = createVanillaFixedVsLibor3mSwap();
-    swap.setNotionalExchange(notionalExchange);
-    swap.setName("Interim notional exchange - Fixed vs Libor 3m");
+    swap.setName("Initial notional exchange - US Fixed vs Libor BP 3m");
     return swap;
 
   }
