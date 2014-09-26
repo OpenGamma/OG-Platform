@@ -12,8 +12,10 @@ import com.opengamma.analytics.financial.forex.provider.ForexNonDeliverableForwa
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorDelegate;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedFxReset;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborFxReset;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.provider.CouponFixedFxResetDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.payments.provider.CouponIborFxResetDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapMultileg;
@@ -52,6 +54,8 @@ public final class CurrencyExposureDiscountingCalculator extends InstrumentDeriv
    */
   private static final CouponFixedFxResetDiscountingMethod METHOD_CPN_FIXED_FXRESET = 
       CouponFixedFxResetDiscountingMethod.getInstance();
+  private static final CouponIborFxResetDiscountingMethod METHOD_CPN_IBOR_FXRESET =
+      CouponIborFxResetDiscountingMethod.getInstance();
   private static final ForexDiscountingMethod METHOD_FOREX = ForexDiscountingMethod.getInstance();
   private static final ForexNonDeliverableForwardDiscountingMethod METHOD_FOREX_NDF = 
       ForexNonDeliverableForwardDiscountingMethod.getInstance();
@@ -62,6 +66,12 @@ public final class CurrencyExposureDiscountingCalculator extends InstrumentDeriv
   public MultipleCurrencyAmount visitCouponFixedFxReset(final CouponFixedFxReset coupon, 
       final MulticurveProviderInterface multicurve) {
     return METHOD_CPN_FIXED_FXRESET.currencyExposure(coupon, multicurve);
+  }
+
+  @Override
+  public MultipleCurrencyAmount visitCouponIborFxReset(final CouponIborFxReset coupon,
+      final MulticurveProviderInterface multicurve) {
+    return METHOD_CPN_IBOR_FXRESET.currencyExposure(coupon, multicurve);
   }
 
   // -----     Forex     ------

@@ -456,10 +456,6 @@ public class CouponIborFxResetDefinitionTest {
     assertTrue(cpnRe.hashCode() == CPN_SAME_FIXING_DATES.hashCode());
     assertTrue(cpnRe.equals(cpnRe));
 
-    CouponIborFxResetDefinition cpn1 = new CouponIborFxResetDefinition(Currency.JPY, PAYMENT_DATE, ACCRUAL_START_DATE,
-        ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FX_FIXING_DATE, expFixingPeriodStartDate, expFixingPeriodEndDate,
-        INDEX.getDayCount().getDayCountFraction(expFixingPeriodStartDate, expFixingPeriodEndDate, CALENDAR), INDEX,
-        SPREAD, CALENDAR, CUR_REF, FX_FIXING_DATE, FX_DELIVERY_DATE);
     CouponIborFxResetDefinition cpn2 = new CouponIborFxResetDefinition(CUR_PAY, PAYMENT_DATE, ACCRUAL_START_DATE,
         ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FX_FIXING_DATE, expFixingPeriodStartDate, expFixingPeriodEndDate,
         INDEX.getDayCount().getDayCountFraction(expFixingPeriodStartDate, expFixingPeriodEndDate, CALENDAR), INDEX,
@@ -532,7 +528,7 @@ public class CouponIborFxResetDefinitionTest {
             expFixingPeriodStartDate, expFixingPeriodEndDate, CALENDAR), INDEX, SPREAD, CALENDAR, CUR_REF,
         FX_FIXING_DATE, FX_DELIVERY_DATE.plusDays(1));
 
-    CouponIborFxResetDefinition[] cpnArray = new CouponIborFxResetDefinition[] {cpn1, cpn2, cpn3, cpn4, cpn5, cpn6,
+    CouponIborFxResetDefinition[] cpnArray = new CouponIborFxResetDefinition[] {cpn2, cpn3, cpn4, cpn5, cpn6,
         cpn7, cpn8, cpn9, cpn10, cpn11, cpn12, cpn13, cpn14, cpn15, null };
     for (int i = 0; i < cpnArray.length; ++i) {
       assertFalse(cpnRe.equals(cpnArray[i]));

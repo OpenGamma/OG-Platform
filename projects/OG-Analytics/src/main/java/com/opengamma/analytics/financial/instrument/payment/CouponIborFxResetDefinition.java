@@ -96,8 +96,8 @@ public class CouponIborFxResetDefinition extends CouponDefinition implements
   public CouponIborFxResetDefinition(final Currency currency, final ZonedDateTime paymentDate,
       final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double paymentAccrualFactor,
       final double notional, final ZonedDateTime fixingDate, final IborIndex index, final double spread,
-      final Calendar calendar,
-      final Currency referenceCurrency, final ZonedDateTime fxFixingDate, final ZonedDateTime fxDeliveryDate) {
+      final Calendar calendar, final Currency referenceCurrency, final ZonedDateTime fxFixingDate,
+      final ZonedDateTime fxDeliveryDate) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, paymentAccrualFactor, notional);
     ArgumentChecker.notNull(fixingDate, "fixing date");
     ArgumentChecker.notNull(index, "index");

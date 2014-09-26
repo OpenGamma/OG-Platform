@@ -118,11 +118,8 @@ public final class CouponIborSpreadDiscountingMethod {
     final List<ForwardSensitivity> listForward = new ArrayList<>();
     listForward.add(new SimplyCompoundedForwardSensitivity(coupon.getFixingPeriodStartTime(), coupon.getFixingPeriodEndTime(), coupon.getFixingAccrualFactor(), forwardBar));
     mapFwd.put(multicurves.getName(coupon.getIndex()), listForward);
-
     MultipleCurrencyMulticurveSensitivity result = MultipleCurrencyMulticurveSensitivity.of(coupon.getCurrency(),
-        MulticurveSensitivity.ofYieldDiscounting(mapDsc));
-    result = result.plus(MultipleCurrencyMulticurveSensitivity.of(coupon.getIndex().getCurrency(),
-        MulticurveSensitivity.ofForward(mapFwd)));
+        MulticurveSensitivity.of(mapDsc, mapFwd));
     return result;
   }
 
