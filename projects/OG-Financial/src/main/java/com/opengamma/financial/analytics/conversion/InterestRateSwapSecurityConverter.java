@@ -258,6 +258,7 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
         startDate(startDate).
         endDate(endDate).
         endDateAdjustmentParameters(maturityDateParameters).
+        startDateAdjustmentParameters(accrualPeriodParameters).
         dayCount(leg.getDayCountConvention()).
         rollDateAdjuster(rollDateAdjuster).
         exchangeInitialNotional(notionalExchange.isExchangeInitialNotional()).
@@ -431,15 +432,16 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
 
     CompoundingMethod compoundingMethod = leg.getCompoundingMethod();
 
+
     return new FixedAnnuityDefinitionBuilder().
         payer(payer).
         currency(leg.getNotional().getCurrency()).
-        //        notional((payer ? -1 : 1) * leg.getNotional().getAmount()).
         notional(getNotionalProvider(leg.getNotional(), leg.getAccrualPeriodBusinessDayConvention(),
             new HolidaySourceCalendarAdapter(_holidaySource, leg.getAccrualPeriodCalendars().toArray(new ExternalId[leg.getAccrualPeriodCalendars().size()])))).
         startDate(startDate).
         endDate(endDate).
         endDateAdjustmentParameters(maturityDateParameters).
+        startDateAdjustmentParameters(accrualPeriodParameters).
         dayCount(leg.getDayCountConvention()).
         rollDateAdjuster(rollDateAdjuster).
         exchangeInitialNotional(notionalExchange.isExchangeInitialNotional()).
