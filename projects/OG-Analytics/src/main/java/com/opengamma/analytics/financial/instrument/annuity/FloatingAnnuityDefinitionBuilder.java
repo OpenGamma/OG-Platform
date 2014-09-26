@@ -782,7 +782,6 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
                                                                               couponStub != null ? couponStub.getStubType() : StubType.NONE, couponStub != null ? couponStub.getStubType() : StubType.NONE,
                                                                               adjustedAccrualStartDate, adjustedAccrualEndDate, isFirstCoupon, isLastCoupon);
 
-    //TODO improve this logic - PLAT-6729
     final CouponDefinition coupon;
     if (isCompounding()) {
       if (hasSpread()) {
@@ -812,7 +811,6 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
             _adjustedResetDateParameters.getCalendar());
       }
     } else {
-      //Over night arithmetic average
       coupon = getOISDefinition(
           notional,
           paymentDate,

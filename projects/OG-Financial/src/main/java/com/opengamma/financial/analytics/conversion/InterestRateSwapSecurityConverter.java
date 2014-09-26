@@ -178,41 +178,12 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
 
     final int paymentOffset = floatLeg.getPaymentOffset();
 
-    CompoundingMethod compoundingMethod;
-
     final IndexDeposit index;
     if (FloatingRateType.IBOR == floatLeg.getFloatingRateType()) {
       index = getIborIndex(floatLeg);
 
-      /* The compounding method is only relevant for Ibor */
-      switch (floatLeg.getCompoundingMethod()) {
-        case FLAT:
-          compoundingMethod = CompoundingMethod.FLAT;
-          break;
-        case STRAIGHT:
-          compoundingMethod = CompoundingMethod.STRAIGHT;
-          break;
-        case SPREAD_EXCLUSIVE:
-          compoundingMethod = CompoundingMethod.SPREAD_EXCLUSIVE;
-          break;
-        case NONE:
-          compoundingMethod = null;
-          break;
-        default:
-          throw new OpenGammaRuntimeException("Unsupported compounding method");
-      }
-
     } else if (FloatingRateType.OIS == floatLeg.getFloatingRateType()) {
       index = getONIndex(floatLeg);
-      // TODO PLAT-6729 compounding is incorrectly set here to distinguish between ON Arithmetic Average
-      // when used in the FloatingAnnuityDefinitionBuilder
-      compoundingMethod = CompoundingMethod.FLAT;
-
-    } else if (FloatingRateType.OVERNIGHT_ARITHMETIC_AVERAGE == floatLeg.getFloatingRateType()) {
-      index = getONIndex(floatLeg);
-      // TODO PLAT-6729 compounding is incorrectly set here to distinguish between OIS
-      // when used in the FloatingAnnuityDefinitionBuilder
-      compoundingMethod = null;
 
     } else {
       throw new OpenGammaRuntimeException("Unsupported floating rate type " + floatLeg.getFloatingRateType());
@@ -230,6 +201,25 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
       fixingDateParameters = new OffsetAdjustedDateParameters(floatLeg.getFixingDateOffset(), floatLeg.getFixingDateOffsetType(), fixingDateCalendar, floatLeg.getFixingDateBusinessDayConvention());
     }
 
+    com.opengamma.analytics.financial.instrument.annuity.CompoundingMethod compoundingMethod;
+    switch (floatLeg.getCompoundingMethod()) {
+      case FLAT:
+        compoundingMethod = com.opengamma.analytics.financial.instrument.annuity.CompoundingMethod.FLAT;
+        break;
+      case STRAIGHT:
+        compoundingMethod = com.opengamma.analytics.financial.instrument.annuity.CompoundingMethod.STRAIGHT;
+        break;
+      case SPREAD_EXCLUSIVE:
+        compoundingMethod = com.opengamma.analytics.financial.instrument.annuity.CompoundingMethod.SPREAD_EXCLUSIVE;
+        break;
+      case NONE:
+        compoundingMethod = null;
+        break;
+      default:
+        throw new OpenGammaRuntimeException("Unsupported compounding method");
+    }
+
+    
     CouponStub startStub = null;
     CouponStub endStub = null;
     StubCalculationMethod stubCalcMethod = leg.getStubCalculationMethod();
