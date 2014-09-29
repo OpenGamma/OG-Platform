@@ -245,29 +245,29 @@ public class NonLinearLeastSquareWithPenaltyTest {
       assertEquals(vols[i], agg.evaluate(strikes[i]), 1e-5); // Accurate to 0.1bps
     }
     double expChi2 = 0.06671526449702014;
-    assertEquals(expChi2, res.getChiSq(), expChi2 * 5e-9);
+    assertEquals(expChi2, res.getChiSq(), 1e-8);
 
     //Change tolerance (default is 1e-8)
     NonLinearLeastSquareWithPenalty nllswp = new NonLinearLeastSquareWithPenalty(1e-6);
     res = nllswp.solve(new DoubleMatrix1D(prices), sigma, priceFunc, priceJac, start, p);
-    assertEquals(expChi2, res.getChiSq(), expChi2 * 1e-8);
+    assertEquals(expChi2, res.getChiSq(),  1e-8);
 
 
     //default decomposition is SVD (colt) - try some others; they all end up at slightly different solutions  
     nllswp = new NonLinearLeastSquareWithPenalty(DecompositionFactory.LU_COMMONS);
     res = nllswp.solve(new DoubleMatrix1D(prices), sigma, priceFunc, priceJac, start, p);
-    assertEquals(expChi2, res.getChiSq(), expChi2 * 2e-8);
+    assertEquals(expChi2, res.getChiSq(),  2e-8);
 
     nllswp = new NonLinearLeastSquareWithPenalty(DecompositionFactory.QR_COMMONS);
     res = nllswp.solve(new DoubleMatrix1D(prices), sigma, priceFunc, priceJac, start, p);
-    assertEquals(expChi2, res.getChiSq(), expChi2 * 2e-8);
+    assertEquals(expChi2, res.getChiSq(),  2e-8);
 
     nllswp = new NonLinearLeastSquareWithPenalty(new CholeskyDecompositionCommons()); //TODO why isn't this in DecompositionFactory?
     res = nllswp.solve(new DoubleMatrix1D(prices), sigma, priceFunc, priceJac, start, p);
-    assertEquals(expChi2, res.getChiSq(), expChi2 * 2e-8);
+    assertEquals(expChi2, res.getChiSq(),  2e-8);
 
     nllswp = new NonLinearLeastSquareWithPenalty(new CholeskyDecompositionCommons(), 1e-4);
-    assertEquals(expChi2, res.getChiSq(), expChi2 * 2e-8);
+    assertEquals(expChi2, res.getChiSq(),  2e-8);
   }
 
 
