@@ -9,6 +9,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFlo
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.InterpolatedSmileFunction;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
@@ -38,5 +39,19 @@ public class CouponIborInArrearsSmileModelReplicationMethod {
     ArgumentChecker.notNull(curves, "curves");
     CapFloorIbor cap0 = CapFloorIbor.from(coupon, 0.0, true);
     return _method.presentValue(cap0, curves);
+  }
+
+  /**
+   * Computes pv sensitivity
+   * @param coupon Ibor coupon in arrears
+   * @param curves The curves
+   * @return The sensitivity
+   */
+  public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final CouponIbor coupon,
+      final MulticurveProviderInterface curves) {
+    ArgumentChecker.notNull(coupon, "coupon");
+    ArgumentChecker.notNull(curves, "curves");
+    CapFloorIbor cap0 = CapFloorIbor.from(coupon, 0.0, true);
+    return _method.presentValueCurveSensitivity(cap0, curves);
   }
 }
