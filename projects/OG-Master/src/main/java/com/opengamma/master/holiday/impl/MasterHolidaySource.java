@@ -43,7 +43,7 @@ public class MasterHolidaySource
     extends AbstractMasterSource<Holiday, HolidayDocument, HolidayMaster>
     implements HolidaySource {
 
-  // an empty list of dates
+  // an empty set of dates
   private static final ImmutableSet<LocalDate> EMPTY = ImmutableSet.of();
 
   private final boolean _cacheHolidayCalendars;
@@ -165,10 +165,6 @@ public class MasterHolidaySource
     if (_cacheHolidayCalendars) {
       ImmutableSet<LocalDate> cachedDates = _cachedHolidays.get(request);
       if (cachedDates != null) {
-        if (cachedDates.isEmpty()) {
-          // Sign that we couldn't find anything.
-          return false;
-        }
         return cachedDates.contains(dateToCheck);
       }
       // get all holidays and cache

@@ -192,6 +192,7 @@ public class MasterHolidaySourceTest {
     verify(mock, times(1)).search(request);
     assertEquals(true, testResult);
     
+    // check master only called once and caching works
     testResult = test.isHoliday(DATE_MONDAY, GBP);
     verify(mock, times(1)).search(request);
     assertEquals(true, testResult);
@@ -208,6 +209,7 @@ public class MasterHolidaySourceTest {
     verify(mock, times(1)).search(request);
     assertEquals(false, testResult);
     
+    // check master only called once and caching works
     testResult = test.isHoliday(DATE_MONDAY, GBP);
     verify(mock, times(1)).search(request);
     assertEquals(false, testResult);
@@ -219,6 +221,7 @@ public class MasterHolidaySourceTest {
     request.setVersionCorrection(VC);
     HolidaySearchResult result = new HolidaySearchResult();
 
+    // check master not called as date is a weekend
     when(mock.search(request)).thenReturn(result);
     MasterHolidaySource test = new MasterHolidaySource(mock, true);
     boolean testResult = test.isHoliday(DATE_SUNDAY, GBP);
