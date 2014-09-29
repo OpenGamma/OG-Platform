@@ -90,13 +90,13 @@ public class CouponIborFxResetDiscountingMethodTest {
   private static final double TOLERANCE_PV_DELTA = 1.0E+0;
 
   /**
-   * 
+   * Test Coupon Ibor PV
    */
   @Test
   public void presentValue() {
     double fxToday = MULTICURVE.getFxRate(CUR_REF, CUR_PAY);
-    double forward = MULTICURVE.getSimplyCompoundForwardRate(EURIBOR3M, CPN.getFixingPeriodStartTime(),
-        CPN.getFixingPeriodEndTime(), CPN.getFixingAccrualFactor());
+    double forward = MULTICURVE.getSimplyCompoundForwardRate(EURIBOR3M, CPN.getIborIndexFixingPeriodStartTime(),
+        CPN.getIborIndexFixingPeriodEndTime(), CPN.getIborIndexFixingAccrualFactor());
     double amount = fxToday * CPN.getNotional() * (forward + SPREAD) * CPN.getPaymentYearFraction();
     double dfXTp = MULTICURVE.getDiscountFactor(CUR_PAY, CPN.getPaymentTime());
     double dfYT0 = MULTICURVE.getDiscountFactor(CUR_REF, CPN.getFxDeliveryTime());
@@ -109,7 +109,7 @@ public class CouponIborFxResetDiscountingMethodTest {
   }
 
   /**
-   * 
+   * Test Coupon Ibor currency exposure
    */
   @Test
   public void currencyExposure() {
@@ -120,8 +120,8 @@ public class CouponIborFxResetDiscountingMethodTest {
         MULTICURVE.getFxRates().convert(pvComputed, CUR_PAY).getAmount(), TOLERANCE_PV);
     assertTrue("CouponIborFxResetDiscountingMethod: present currencyExposure",
         Math.abs(ceComputed.getAmount(CUR_REF)) > TOLERANCE_PV);
-    double forward = MULTICURVE.getSimplyCompoundForwardRate(EURIBOR3M, CPN.getFixingPeriodStartTime(),
-        CPN.getFixingPeriodEndTime(), CPN.getFixingAccrualFactor());
+    double forward = MULTICURVE.getSimplyCompoundForwardRate(EURIBOR3M, CPN.getIborIndexFixingPeriodStartTime(),
+        CPN.getIborIndexFixingPeriodEndTime(), CPN.getIborIndexFixingAccrualFactor());
     double amount = CPN.getNotional() * (forward + SPREAD) * CPN.getPaymentYearFraction();
     double dfXTp = MULTICURVE.getDiscountFactor(CUR_PAY, CPN.getPaymentTime());
     double dfYT0 = MULTICURVE.getDiscountFactor(CUR_REF, CPN.getFxDeliveryTime());
@@ -132,7 +132,7 @@ public class CouponIborFxResetDiscountingMethodTest {
   }
 
   /**
-   * 
+   * Currency exposure via Calculator
    */
   @Test
   public void currencyExposureCalculatorVsMethod() {
@@ -143,7 +143,7 @@ public class CouponIborFxResetDiscountingMethodTest {
   }
 
   /**
-   * 
+   * PV via Calculator
    */
   @Test
   public void presentValueCalculatorVsMethod() {
@@ -154,7 +154,7 @@ public class CouponIborFxResetDiscountingMethodTest {
   }
 
   /**
-   * 
+   * Test PV sensitivity against finite difference approximation
    */
   @Test
   public void presentValueCurveSensitivity() {
@@ -236,7 +236,7 @@ public class CouponIborFxResetDiscountingMethodTest {
       .toDerivative(VALUATION_DATE);
 
   /**
-   * 
+   * Swap present value
    */
   @Test
   public void presentValueSwap() {
@@ -252,7 +252,7 @@ public class CouponIborFxResetDiscountingMethodTest {
   }
 
   /**
-   * 
+   * Swap currency exposure
    */
   @Test
   public void currencyExposureSwap() {

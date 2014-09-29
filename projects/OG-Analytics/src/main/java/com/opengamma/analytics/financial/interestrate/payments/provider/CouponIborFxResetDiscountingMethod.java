@@ -23,6 +23,8 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Method to compute present value and present value sensitivity for Ibor coupon with FX reset.
+ * <P>
+ * Reference: Coupon with FX Reset Notional, OpenGamma Documentation 26, September 2014.
  */
 public final class CouponIborFxResetDiscountingMethod {
 
@@ -56,8 +58,9 @@ public final class CouponIborFxResetDiscountingMethod {
       final MulticurveProviderInterface multicurves) {
     ArgumentChecker.notNull(coupon, "coupon");
     ArgumentChecker.notNull(multicurves, "multicurves");
-    double forward = multicurves.getSimplyCompoundForwardRate(coupon.getIndex(), coupon.getFixingPeriodStartTime(),
-        coupon.getFixingPeriodEndTime(), coupon.getFixingAccrualFactor());
+    double forward = multicurves.getSimplyCompoundForwardRate(coupon.getIndex(),
+        coupon.getIborIndexFixingPeriodStartTime(), coupon.getIborIndexFixingPeriodEndTime(),
+        coupon.getIborIndexFixingAccrualFactor());
     double tp = coupon.getPaymentTime();
     double t0 = coupon.getFxDeliveryTime();
     Currency ccyPayment = coupon.getCurrency();
@@ -83,8 +86,9 @@ public final class CouponIborFxResetDiscountingMethod {
     ArgumentChecker.notNull(coupon, "Coupon");
     ArgumentChecker.notNull(multicurves, "Multi-curves");
 
-    double forward = multicurves.getSimplyCompoundForwardRate(coupon.getIndex(), coupon.getFixingPeriodStartTime(),
-        coupon.getFixingPeriodEndTime(), coupon.getFixingAccrualFactor());
+    double forward = multicurves.getSimplyCompoundForwardRate(coupon.getIndex(),
+        coupon.getIborIndexFixingPeriodStartTime(), coupon.getIborIndexFixingPeriodEndTime(),
+        coupon.getIborIndexFixingAccrualFactor());
     Currency ccyPayment = coupon.getCurrency();
     Currency ccyReference = coupon.getReferenceCurrency();
     double tp = coupon.getPaymentTime();
@@ -117,7 +121,8 @@ public final class CouponIborFxResetDiscountingMethod {
     result = result.plus(ccyPayment, MulticurveSensitivity.ofYieldDiscounting(mapDscCcyReference));
     final Map<String, List<ForwardSensitivity>> mapFwd = new HashMap<>();
     final List<ForwardSensitivity> listForward = new ArrayList<>();
-    listForward.add(new SimplyCompoundedForwardSensitivity(coupon.getFixingPeriodStartTime(), coupon.getFixingPeriodEndTime(), coupon.getFixingAccrualFactor(), forwardBar));
+    listForward.add(new SimplyCompoundedForwardSensitivity(coupon.getIborIndexFixingPeriodStartTime(), coupon
+        .getIborIndexFixingPeriodEndTime(), coupon.getIborIndexFixingAccrualFactor(), forwardBar));
     mapFwd.put(multicurves.getName(coupon.getIndex()), listForward);
     result = result.plus(ccyPayment, MulticurveSensitivity.ofForward(mapFwd));
     return result;
@@ -134,8 +139,9 @@ public final class CouponIborFxResetDiscountingMethod {
       final MulticurveProviderInterface multicurves) {
     ArgumentChecker.notNull(coupon, "coupon");
     ArgumentChecker.notNull(multicurves, "multicurves");
-    double forward = multicurves.getSimplyCompoundForwardRate(coupon.getIndex(), coupon.getFixingPeriodStartTime(),
-        coupon.getFixingPeriodEndTime(), coupon.getFixingAccrualFactor());
+    double forward = multicurves.getSimplyCompoundForwardRate(coupon.getIndex(),
+        coupon.getIborIndexFixingPeriodStartTime(), coupon.getIborIndexFixingPeriodEndTime(),
+        coupon.getIborIndexFixingAccrualFactor());
     double tp = coupon.getPaymentTime();
     double t0 = coupon.getFxDeliveryTime();
     Currency ccyPayment = coupon.getCurrency();

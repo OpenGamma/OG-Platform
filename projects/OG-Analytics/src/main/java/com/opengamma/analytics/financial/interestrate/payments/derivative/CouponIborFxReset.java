@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.financial.interestrate.payments.derivative;
 
+import org.apache.commons.lang.ObjectUtils;
+
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.util.ArgumentChecker;
@@ -23,23 +25,23 @@ public class CouponIborFxReset extends Coupon implements DepositIndexCoupon<Ibor
   /**
    * The floating coupon fixing time.
    */
-  private final double _fixingTime;
+  private final double _iborIndexFixingTime;
   /**
    * The Ibor-like index on which the coupon fixes. The index currency should be the same as the index currency.
    */
   private final IborIndex _index;
   /**
-   * The fixing period start time (in years).
+   * The ibor index fixing period start time (in years).
    */
-  private final double _fixingPeriodStartTime;
+  private final double _iborIndexFixingPeriodStartTime;
   /**
-   * The fixing period end time (in years).
+   * The ibor index fixing period end time (in years).
    */
-  private final double _fixingPeriodEndTime;
+  private final double _iborIndexFixingPeriodEndTime;
   /**
-   * The fixing period year fraction (or accrual factor) in the fixing convention.
+   * The ibor index fixing period year fraction (or accrual factor) in the fixing convention.
    */
-  private final double _fixingAccrualFactor;
+  private final double _iborIndexFixingAccrualFactor;
   /**
    * The spread paid above Ibor.
    */
@@ -63,11 +65,11 @@ public class CouponIborFxReset extends Coupon implements DepositIndexCoupon<Ibor
    * @param paymentTime Time (in years) up to the payment.
    * @param paymentYearFraction The year fraction (or accrual factor) for the coupon payment.
    * @param notional Coupon notional in the reference currency.
-   * @param fixingTime Time (in years) up to fixing.
+   * @param iborIndexFixingTime Time (in years) up to ibor index fixing.
    * @param index The Ibor-like index on which the coupon fixes.
-   * @param fixingPeriodStartTime The fixing period start time (in years).
-   * @param fixingPeriodEndTime The fixing period end time (in years).
-   * @param fixingYearFraction The year fraction (or accrual factor) for the fixing period.
+   * @param iborIndexFixingPeriodStartTime The ibor index fixing period start time (in years).
+   * @param iborIndexFixingPeriodEndTime The ibor index fixing period end time (in years).
+   * @param iborIndexFixingYearFraction The year fraction (or accrual factor) for the ibor index fixing period.
    * @param spread The spread.
    * @param referenceCurrency The reference currency for the FX reset. Not null.
    * @param fxFixingTime The FX fixing date. The notional used for the payment is the FX rate between the reference 
@@ -75,20 +77,23 @@ public class CouponIborFxReset extends Coupon implements DepositIndexCoupon<Ibor
    * @param fxDeliveryTime The spot or delivery date for the FX transaction underlying the FX fixing.
    */
   public CouponIborFxReset(final Currency currency, final double paymentTime, final double paymentYearFraction,
-      final double notional, final double fixingTime, final IborIndex index, final double fixingPeriodStartTime,
-      final double fixingPeriodEndTime, final double fixingYearFraction, final double spread,
-      final Currency referenceCurrency, double fxFixingTime, double fxDeliveryTime) {
+      final double notional, final double iborIndexFixingTime, final IborIndex index,
+      final double iborIndexFixingPeriodStartTime, final double iborIndexFixingPeriodEndTime,
+      final double iborIndexFixingYearFraction, final double spread, final Currency referenceCurrency,
+      double fxFixingTime, double fxDeliveryTime) {
     super(currency, paymentTime, paymentYearFraction, notional);
-    ArgumentChecker.isTrue(fixingPeriodStartTime >= fixingTime, "fixing period start < fixing time");
-    ArgumentChecker.isTrue(fixingPeriodEndTime >= fixingPeriodStartTime, "fixing period end < fixing period start");
-    ArgumentChecker.isTrue(fixingYearFraction >= 0, "forward year fraction < 0");
+    ArgumentChecker.isTrue(iborIndexFixingPeriodStartTime >= iborIndexFixingTime,
+        "ibor index fixing period start < ibor index fixing time");
+    ArgumentChecker.isTrue(iborIndexFixingPeriodEndTime >= iborIndexFixingPeriodStartTime,
+        "ibor index fixing period end < ibor index fixing period start");
+    ArgumentChecker.isTrue(iborIndexFixingYearFraction >= 0, "ibor index fixing year fraction < 0");
     ArgumentChecker.notNull(index, "Index");
     ArgumentChecker.notNull(referenceCurrency, "reference currency");
-    ArgumentChecker.isTrue(fixingTime >= 0.0, "fixing time < 0");
-    _fixingTime = fixingTime;
-    _fixingPeriodStartTime = fixingPeriodStartTime;
-    _fixingPeriodEndTime = fixingPeriodEndTime;
-    _fixingAccrualFactor = fixingYearFraction;
+    ArgumentChecker.isTrue(iborIndexFixingTime >= 0.0, "ibor index fixing time < 0");
+    _iborIndexFixingTime = iborIndexFixingTime;
+    _iborIndexFixingPeriodStartTime = iborIndexFixingPeriodStartTime;
+    _iborIndexFixingPeriodEndTime = iborIndexFixingPeriodEndTime;
+    _iborIndexFixingAccrualFactor = iborIndexFixingYearFraction;
     _index = index;
     _spread = spread;
     _referenceCurrency = referenceCurrency;
@@ -98,34 +103,34 @@ public class CouponIborFxReset extends Coupon implements DepositIndexCoupon<Ibor
 
   /**
    * Gets the floating coupon fixing time.
-   * @return The fixing time.
+   * @return The ibor index fixing time.
    */
-  public double getFixingTime() {
-    return _fixingTime;
+  public double getIborIndexFixingTime() {
+    return _iborIndexFixingTime;
   }
 
   /**
-   * Gets the fixing period start time (in years).
-   * @return The fixing period start time.
+   * Gets the ibor index fixing period start time (in years).
+   * @return The ibor index fixing period start time.
    */
-  public double getFixingPeriodStartTime() {
-    return _fixingPeriodStartTime;
+  public double getIborIndexFixingPeriodStartTime() {
+    return _iborIndexFixingPeriodStartTime;
   }
 
   /**
-   * Gets the fixing period end time (in years).
-   * @return The fixing period end time.
+   * Gets the ibor index fixing period end time (in years).
+   * @return The ibor index fixing period end time.
    */
-  public double getFixingPeriodEndTime() {
-    return _fixingPeriodEndTime;
+  public double getIborIndexFixingPeriodEndTime() {
+    return _iborIndexFixingPeriodEndTime;
   }
 
   /**
-   * Gets the accrual factor for the fixing period.
+   * Gets the accrual factor for the ibor index fixing period.
    * @return The accrual factor.
    */
-  public double getFixingAccrualFactor() {
-    return _fixingAccrualFactor;
+  public double getIborIndexFixingAccrualFactor() {
+    return _iborIndexFixingAccrualFactor;
   }
 
   /**
@@ -191,13 +196,13 @@ public class CouponIborFxReset extends Coupon implements DepositIndexCoupon<Ibor
     final int prime = 31;
     int result = super.hashCode();
     long temp;
-    temp = Double.doubleToLongBits(_fixingAccrualFactor);
+    temp = Double.doubleToLongBits(_iborIndexFixingAccrualFactor);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    temp = Double.doubleToLongBits(_fixingPeriodEndTime);
+    temp = Double.doubleToLongBits(_iborIndexFixingPeriodEndTime);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    temp = Double.doubleToLongBits(_fixingPeriodStartTime);
+    temp = Double.doubleToLongBits(_iborIndexFixingPeriodStartTime);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    temp = Double.doubleToLongBits(_fixingTime);
+    temp = Double.doubleToLongBits(_iborIndexFixingTime);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_fxDeliveryTime);
     result = prime * result + (int) (temp ^ (temp >>> 32));
@@ -222,16 +227,19 @@ public class CouponIborFxReset extends Coupon implements DepositIndexCoupon<Ibor
       return false;
     }
     CouponIborFxReset other = (CouponIborFxReset) obj;
-    if (Double.doubleToLongBits(_fixingAccrualFactor) != Double.doubleToLongBits(other._fixingAccrualFactor)) {
+    if (Double.doubleToLongBits(_iborIndexFixingAccrualFactor) != Double
+        .doubleToLongBits(other._iborIndexFixingAccrualFactor)) {
       return false;
     }
-    if (Double.doubleToLongBits(_fixingPeriodEndTime) != Double.doubleToLongBits(other._fixingPeriodEndTime)) {
+    if (Double.doubleToLongBits(_iborIndexFixingPeriodEndTime) != Double
+        .doubleToLongBits(other._iborIndexFixingPeriodEndTime)) {
       return false;
     }
-    if (Double.doubleToLongBits(_fixingPeriodStartTime) != Double.doubleToLongBits(other._fixingPeriodStartTime)) {
+    if (Double.doubleToLongBits(_iborIndexFixingPeriodStartTime) != Double
+        .doubleToLongBits(other._iborIndexFixingPeriodStartTime)) {
       return false;
     }
-    if (Double.doubleToLongBits(_fixingTime) != Double.doubleToLongBits(other._fixingTime)) {
+    if (Double.doubleToLongBits(_iborIndexFixingTime) != Double.doubleToLongBits(other._iborIndexFixingTime)) {
       return false;
     }
     if (Double.doubleToLongBits(_fxDeliveryTime) != Double.doubleToLongBits(other._fxDeliveryTime)) {
@@ -240,18 +248,10 @@ public class CouponIborFxReset extends Coupon implements DepositIndexCoupon<Ibor
     if (Double.doubleToLongBits(_fxFixingTime) != Double.doubleToLongBits(other._fxFixingTime)) {
       return false;
     }
-    if (_index == null) {
-      if (other._index != null) {
-        return false;
-      }
-    } else if (!_index.equals(other._index)) {
+    if (!ObjectUtils.equals(_index, other._index)) {
       return false;
     }
-    if (_referenceCurrency == null) {
-      if (other._referenceCurrency != null) {
-        return false;
-      }
-    } else if (!_referenceCurrency.equals(other._referenceCurrency)) {
+    if (!ObjectUtils.equals(_referenceCurrency, other._referenceCurrency)) {
       return false;
     }
     if (Double.doubleToLongBits(_spread) != Double.doubleToLongBits(other._spread)) {
