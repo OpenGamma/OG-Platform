@@ -121,7 +121,7 @@ public class BasisFunctionGenerator {
    */
   protected Function1D<Double, Double> generate(BasisFunctionKnots data, final int index) {
     ArgumentChecker.notNull(data, "data");
-    ArgumentChecker.isTrue(index >= 0 && index < data.getNumSplines(), "index must be in range {] to {} (exclusive)", 0, data.getNumSplines());
+    ArgumentChecker.isTrue(index >= 0 && index < data.getNumSplines(), "index must be in range {} to {} (exclusive)", 0, data.getNumSplines());
     return generate(data.getKnots(), data.getDegree(), index);
   }
 

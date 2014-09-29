@@ -58,7 +58,7 @@ public final class BasisFunctionKnots {
   public static BasisFunctionKnots fromInternalKnots(double[] internalKnots, int degree) {
     ArgumentChecker.notEmpty(internalKnots, "knots");
     ArgumentChecker.notNegative(degree, "degree");
-    final int nInterKnots = internalKnots.length;
+    int nInterKnots = internalKnots.length;
     ArgumentChecker.isTrue(nInterKnots - degree > 0, "Require at least {} knots for degree {}, only given {}", degree + 1, degree, nInterKnots);
 
     // check knots are ascending
@@ -68,11 +68,11 @@ public final class BasisFunctionKnots {
 
     int nSplines = nInterKnots + degree - 1;
 
-    final int nTotalKnots = nInterKnots + 2 * degree; // add in extra knots outside the range to handle basis functions on the edge
+    int nTotalKnots = nInterKnots + 2 * degree; // add in extra knots outside the range to handle basis functions on the edge
     double[] knots = new double[nTotalKnots];
 
-    final double dxa = internalKnots[1] - internalKnots[0];
-    final double dxb = internalKnots[nInterKnots - 1] - internalKnots[nInterKnots - 2];
+    double dxa = internalKnots[1] - internalKnots[0];
+    double dxb = internalKnots[nInterKnots - 1] - internalKnots[nInterKnots - 2];
     // knots to the left and right of the range
     for (int i = 0; i < degree; i++) {
       knots[i] = (i - degree) * dxa + internalKnots[0];
@@ -94,7 +94,7 @@ public final class BasisFunctionKnots {
   public static BasisFunctionKnots fromKnots(double[] knots, int degree) {
     ArgumentChecker.notEmpty(knots, "knots");
     ArgumentChecker.notNegative(degree, "degree");
-    final int nKnots = knots.length;
+    int nKnots = knots.length;
     ArgumentChecker.isTrue(nKnots - 3 * degree > 0, "Require at least {} knots for degree {}, only given {}", 3 * degree + 1,
         degree, nKnots);
 
