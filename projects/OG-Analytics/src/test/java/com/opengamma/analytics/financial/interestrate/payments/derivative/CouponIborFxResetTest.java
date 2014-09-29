@@ -61,7 +61,7 @@ public class CouponIborFxResetTest {
       CUR_REF, FX_FIXING_TIME, FX_DELIVERY_TIME);
 
   /**
-   * 
+   * Test getters
    */
   @Test
   public void getter() {
@@ -70,14 +70,14 @@ public class CouponIborFxResetTest {
     assertEquals("CouponIborFxReset", FX_DELIVERY_TIME, CPN.getFxDeliveryTime());
     assertEquals("CouponIborFxReset", INDEX, CPN.getIndex());
     assertEquals("CouponIborFxReset", SPREAD, CPN.getSpread());
-    assertEquals("CouponIborFxReset", FORWARD_YEAR_FRACTION, CPN.getFixingAccrualFactor());
-    assertEquals("CouponIborFxReset", RESET_TIME, CPN.getFixingTime());
-    assertEquals("CouponIborFxReset", FIXING_PERIOD_START_TIME, CPN.getFixingPeriodStartTime());
-    assertEquals("CouponIborFxReset", FIXING_PERIOD_END_TIME, CPN.getFixingPeriodEndTime());
+    assertEquals("CouponIborFxReset", FORWARD_YEAR_FRACTION, CPN.getIborIndexFixingAccrualFactor());
+    assertEquals("CouponIborFxReset", RESET_TIME, CPN.getIborIndexFixingTime());
+    assertEquals("CouponIborFxReset", FIXING_PERIOD_START_TIME, CPN.getIborIndexFixingPeriodStartTime());
+    assertEquals("CouponIborFxReset", FIXING_PERIOD_END_TIME, CPN.getIborIndexFixingPeriodEndTime());
   }
 
   /**
-   * 
+   * iborIndexFixingPeriodStartTime >= iborIndexFixingTime violated
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void largeFixingiImeTest() {
@@ -87,7 +87,7 @@ public class CouponIborFxResetTest {
   }
 
   /**
-   * 
+   * iborIndexFixingPeriodEndTime >= iborIndexFixingPeriodStartTime violated
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void startAfterEndTest() {
@@ -97,7 +97,7 @@ public class CouponIborFxResetTest {
   }
 
   /**
-   * 
+   * Ibor fixing period year fraction is negative
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeFixingYearFractionTest() {
@@ -107,7 +107,7 @@ public class CouponIborFxResetTest {
   }
 
   /**
-   * 
+   * Ibor index fixing time is negative
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeFixingTimeTest() {
@@ -117,7 +117,7 @@ public class CouponIborFxResetTest {
   }
 
   /**
-   * 
+   * Test hashCode and equals
    */
   @Test
   public void hashCodeAndEqualsTest() {
