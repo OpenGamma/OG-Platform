@@ -47,7 +47,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
 
 /**
- * 
+ * Test the pricing method for coupon ibor with spread and FX reset notional. 
  */
 public class CouponIborFxResetDiscountingMethodTest {
   private static final MulticurveProviderDiscount MULTICURVE =
