@@ -33,6 +33,7 @@ import com.opengamma.analytics.financial.instrument.swap.SwapCouponFixedCouponDe
 import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
 import com.opengamma.analytics.financial.interestrate.E2EUtils;
 import com.opengamma.analytics.financial.interestrate.datasets.StandardDataSetsMulticurveUSDGBP;
+import com.opengamma.analytics.financial.interestrate.datasets.StandardTimeSeriesDataSets;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
@@ -50,6 +51,7 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.util.export.ExportUtils;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.rolldate.RollConvention;
+import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
@@ -102,6 +104,12 @@ public class SwapCrossCurrencyE2ETest {
   private static final double TOLERANCE_PV_DELTA = 1.0E-4;
   private static final double BP1 = 1.0E-4;
   
+  /** Fixing time series */
+  private static final ZonedDateTimeDoubleTimeSeries HTS_GBPLIBOR3M_INCL =
+      StandardTimeSeriesDataSets.timeSeriesGbpIbor3M2014Jan(VALUATION_DATE.plusDays(1));
+  private static final ZonedDateTimeDoubleTimeSeries HTS_USDLIBOR3M_INCL =
+      StandardTimeSeriesDataSets.timeSeriesUsdIbor3M2014Jan(VALUATION_DATE.plusDays(1));
+  
   /** USD Fixed v USDLIBOR3M */
   private static final LocalDate EFFECTIVE_DATE_1 = LocalDate.of(2016, 7, 18);
   private static final LocalDate MATURITY_DATE_1 = LocalDate.of(2021, 7, 18);
@@ -116,9 +124,9 @@ public class SwapCrossCurrencyE2ETest {
   private static final LocalDate EFFECTIVE_DATE_2 = LocalDate.of(2014, 1, 24);
   private static final LocalDate MATURITY_DATE_2 = LocalDate.of(2021, 1, 24);
   private static final double SPREAD_2 = 0.0091;
-  private static final boolean PAYER_2 = false;
-  private static final double NOTIONAL_GBP_2 = 100_000_000; // 100m GBP
-  private static final double NOTIONAL_USD_2 = 61_600_000; // GBP
+  private static final boolean PAYER_2 = true;
+  private static final double NOTIONAL_GBP_2 = 61_600_000; // GBP
+  private static final double NOTIONAL_USD_2 = 100_000_000; // USD
   private static final SwapDefinition XCCY_GBP_USD_NOT_2_DEFINITION =
       xccyGbpL3SUsdL3(EFFECTIVE_DATE_2, MATURITY_DATE_2, SPREAD_2, PAYER_2, NOTIONAL_GBP_2, NOTIONAL_USD_2, true);
   private static final SwapDefinition XCCY_GBP_USD_NONOT_2_DEFINITION =
@@ -131,24 +139,26 @@ public class SwapCrossCurrencyE2ETest {
   private static final LocalDate EFFECTIVE_DATE_3 = LocalDate.of(2014, 1, 24);
   private static final LocalDate MATURITY_DATE_3 = LocalDate.of(2021, 1, 24);
   private static final double SPREAD_3 = 0.0091;
-  private static final boolean PAYER_3 = false;
-  private static final double NOTIONAL_GBP_3 = 100_000_000; // 100m GBP
-  private static final double NOTIONAL_USD_3 = 61_600_000; // GBP
+  private static final boolean PAYER_3 = true;
+  private static final double NOTIONAL_GBP_3 = 61_600_000; // 100m GBP
+  private static final double NOTIONAL_USD_3 = 100_000_000; // GBP
   private static final SwapDefinition XCCY_GBP_USD_NONOT_3_DEFINITION =
       xccyGbpL3UsdL3S(EFFECTIVE_DATE_3, MATURITY_DATE_3, SPREAD_3, PAYER_3, NOTIONAL_GBP_3, NOTIONAL_USD_3, false);
   private static final Swap<? extends Payment, ? extends Payment> XCCY_GBP_USD_NONOT_3 = 
-      XCCY_GBP_USD_NONOT_3_DEFINITION.toDerivative(VALUATION_DATE);
+      XCCY_GBP_USD_NONOT_3_DEFINITION.toDerivative(VALUATION_DATE, 
+          new ZonedDateTimeDoubleTimeSeries[] {HTS_GBPLIBOR3M_INCL, HTS_USDLIBOR3M_INCL});
   private static final SwapDefinition XCCY_GBP_USD_NOT_3_DEFINITION =
       xccyGbpL3UsdL3S(EFFECTIVE_DATE_3, MATURITY_DATE_3, SPREAD_3, PAYER_3, NOTIONAL_GBP_3, NOTIONAL_USD_3, true);
   private static final Swap<? extends Payment, ? extends Payment> XCCY_GBP_USD_NOT_3 = 
-      XCCY_GBP_USD_NOT_3_DEFINITION.toDerivative(VALUATION_DATE);
+      XCCY_GBP_USD_NOT_3_DEFINITION.toDerivative(VALUATION_DATE, 
+          new ZonedDateTimeDoubleTimeSeries[] {HTS_GBPLIBOR3M_INCL, HTS_USDLIBOR3M_INCL});
   /** USD Fixed v GBPLIBOR3M */
   private static final LocalDate EFFECTIVE_DATE_4 = LocalDate.of(2014, 1, 24);
   private static final LocalDate MATURITY_DATE_4 = LocalDate.of(2021, 1, 24);
   private static final double FIXED_RATE_4 = 0.0300;
   private static final boolean PAYER_4 = false; // USD
-  private static final double NOTIONAL_GBP_4 = 100_000_000; // 100m GBP
-  private static final double NOTIONAL_USD_4 = 61_600_000; // GBP
+  private static final double NOTIONAL_GBP_4 = 61_600_000; // 100m GBP
+  private static final double NOTIONAL_USD_4 = 100_000_000; // GBP
   private static final SwapDefinition XCCY_GBP_USD_NONOT_4_DEFINITION =
       xccyUsdFGbpL3(EFFECTIVE_DATE_4, MATURITY_DATE_4, FIXED_RATE_4, PAYER_4, NOTIONAL_GBP_4, NOTIONAL_USD_4, false);
   private static final Swap<? extends Payment, ? extends Payment> XCCY_GBP_USD_NONOT_4 = 
