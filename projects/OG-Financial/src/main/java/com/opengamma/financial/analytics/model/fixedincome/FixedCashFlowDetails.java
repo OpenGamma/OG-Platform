@@ -41,19 +41,19 @@ public final class FixedCashFlowDetails extends AbstractCashFlowDetails implemen
   /**
    * The fixed rate of the cash flow.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private final double _rate;
 
   /**
    * The projected amount of the cash flow.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private final CurrencyAmount _projectedAmount;
 
   /**
    * The present value of the cash flow.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private final CurrencyAmount _presentValue;
   
   /**
@@ -98,9 +98,6 @@ public final class FixedCashFlowDetails extends AbstractCashFlowDetails implemen
    */
   private FixedCashFlowDetails(FixedCashFlowDetails.Builder builder) {
     super(builder);
-    JodaBeanUtils.notNull(builder._rate, "rate");
-    JodaBeanUtils.notNull(builder._projectedAmount, "projectedAmount");
-    JodaBeanUtils.notNull(builder._presentValue, "presentValue");
     this._rate = builder._rate;
     this._projectedAmount = builder._projectedAmount;
     this._presentValue = builder._presentValue;
@@ -114,7 +111,7 @@ public final class FixedCashFlowDetails extends AbstractCashFlowDetails implemen
   //-----------------------------------------------------------------------
   /**
    * Gets the fixed rate of the cash flow.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public double getRate() {
     return _rate;
@@ -123,7 +120,7 @@ public final class FixedCashFlowDetails extends AbstractCashFlowDetails implemen
   //-----------------------------------------------------------------------
   /**
    * Gets the projected amount of the cash flow.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public CurrencyAmount getProjectedAmount() {
     return _projectedAmount;
@@ -132,7 +129,7 @@ public final class FixedCashFlowDetails extends AbstractCashFlowDetails implemen
   //-----------------------------------------------------------------------
   /**
    * Gets the present value of the cash flow.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public CurrencyAmount getPresentValue() {
     return _presentValue;
@@ -403,33 +400,30 @@ public final class FixedCashFlowDetails extends AbstractCashFlowDetails implemen
     //-----------------------------------------------------------------------
     /**
      * Sets the {@code rate} property in the builder.
-     * @param rate  the new value, not null
+     * @param rate  the new value
      * @return this, for chaining, not null
      */
     public Builder rate(double rate) {
-      JodaBeanUtils.notNull(rate, "rate");
       this._rate = rate;
       return this;
     }
 
     /**
      * Sets the {@code projectedAmount} property in the builder.
-     * @param projectedAmount  the new value, not null
+     * @param projectedAmount  the new value
      * @return this, for chaining, not null
      */
     public Builder projectedAmount(CurrencyAmount projectedAmount) {
-      JodaBeanUtils.notNull(projectedAmount, "projectedAmount");
       this._projectedAmount = projectedAmount;
       return this;
     }
 
     /**
      * Sets the {@code presentValue} property in the builder.
-     * @param presentValue  the new value, not null
+     * @param presentValue  the new value
      * @return this, for chaining, not null
      */
     public Builder presentValue(CurrencyAmount presentValue) {
-      JodaBeanUtils.notNull(presentValue, "presentValue");
       this._presentValue = presentValue;
       return this;
     }

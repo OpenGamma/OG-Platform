@@ -30,6 +30,7 @@ import com.opengamma.financial.analytics.ircurve.strips.DeliverableSwapFutureNod
 import com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
 import com.opengamma.financial.analytics.ircurve.strips.FXForwardNode;
+import com.opengamma.financial.analytics.ircurve.strips.FXSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.PeriodicallyCompoundedRateNode;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.RollDateFRANode;
@@ -340,6 +341,33 @@ public final class CurveNodeValidator implements CurveNodeVisitor<Void> {
     } else {
       validationNode.setType(Convention.class);
       validationNode.getErrors().add("Can't find convention using ID " + node.getFxForwardConvention());
+      validationNode.setError(true);
+    }
+    fxValidationNode.getSubNodes().add(validationNode);
+    return null;
+  }
+
+  @Override
+  public Void visitFXSwapNode(FXSwapNode node) {
+    Map<Tenor, CurveInstrumentProvider> fxSwapNodeIds = _curveNodeIdMapper.getFXSwapNodeIds();
+    CurveInstrumentProvider curveInstrumentProvider = fxSwapNodeIds.get(node.getMaturityTenor());
+    ExternalId nodeId = curveInstrumentProvider instanceof StaticCurvePointsInstrumentProvider ?
+        curveInstrumentProvider.getInstrument(_curveDate, node.getMaturityTenor()) :
+        _curveNodeIdMapper.getFXSwapNodeId(_curveDate, node.getMaturityTenor());
+    ValidationNode fxValidationNode;
+    fxValidationNode = nodeId == null ?
+        createInvalidCurveNodeValidationNode(node.getMaturityTenor(), FXSwapNode.class, _validationNode,
+                                             "No curve node id mapper entry for " + node.getMaturityTenor()) :
+        createInvalidCurveNodeValidationNode(node.getMaturityTenor(), FXSwapNode.class, _validationNode, null);
+
+    ValidationNode validationNode = new ValidationNode();
+    validationNode.setName(node.getFxSwapConvention().getValue());
+    if (_configValidationUtils.conventionExists(node.getFxSwapConvention())) {
+      ManageableConvention convention = _configValidationUtils.getConvention(node.getFxSwapConvention());
+      validationNode.setType(convention.getClass());
+    } else {
+      validationNode.setType(Convention.class);
+      validationNode.getErrors().add("Can't find convention using ID " + node.getFxSwapConvention());
       validationNode.setError(true);
     }
     fxValidationNode.getSubNodes().add(validationNode);

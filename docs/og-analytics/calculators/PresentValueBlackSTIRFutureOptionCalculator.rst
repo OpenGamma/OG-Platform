@@ -1,5 +1,5 @@
 PresentValueBlackSTIRFutureOptionCalculator
-=============================
+===========================================
 
 Compute the present value using data comprising a multi-curve provider
 and the Black implied volatility for STIR futures at

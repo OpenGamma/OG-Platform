@@ -97,17 +97,25 @@ public class FixedLegCashFlows implements ImmutableBean, SwapLegCashFlows {
     
     List<FixedCashFlowDetails> cashFlows = new ArrayList<>();
     for (int i = 0; i < n; i++) {
-      AbstractCashFlowDetails.Builder builder = FixedCashFlowDetails.builder()
-          .rate(fixedRates.get(i))
-          .projectedAmount(paymentAmounts.get(i))
-          .presentValue(paymentAmounts.get(i).multipliedBy(discountFactors.get(i)))
+      FixedCashFlowDetails.Builder builder = (FixedCashFlowDetails.Builder) FixedCashFlowDetails.builder()
           .accrualStartDate(startAccrualDates.get(i))
           .accrualEndDate(endAccrualDates.get(i))
           .accrualFactor(paymentTimes.get(i))
           .paymentDate(paymentDates.get(i))
           .df(discountFactors.get(i))
           .notional(notionals.get(i));
-      cashFlows.add((FixedCashFlowDetails) builder.build());
+
+      if (paymentAmounts.get(i) != null) {
+        builder.projectedAmount(paymentAmounts.get(i));
+      }
+      if (paymentAmounts.get(i) != null && discountFactors.get(i) != null) {
+        builder.presentValue(paymentAmounts.get(i).multipliedBy(discountFactors.get(i)));
+      }
+      if (fixedRates.get(i) != null) {
+        builder.rate(fixedRates.get(i));
+      }
+
+      cashFlows.add(builder.build());
     }
     
     _cashFlowDetails = cashFlows;

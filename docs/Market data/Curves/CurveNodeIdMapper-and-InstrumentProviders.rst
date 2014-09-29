@@ -32,21 +32,21 @@ The following is a snippet of 2 deposit nodes on 1 and 4 day points to be used w
 
 .. code-block:: xml
 
-<fudgeEnvelope>
-  <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.curve.CurveNodeIdMapper</fudgeField0>
-  <name type="string">USD Deposit Bloomberg Mapper</name>
-  <cashIds type="message">
-    <P1D type="message">
-      <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider</fudgeField0>
-      <instrument type="string">BLOOMBERG_TICKER~USDR1T Curncy</instrument>
-      <dataField type="string">Market_Value</dataField>
-      <typeField type="string">OUTRIGHT</typeField>
-    </P1D>
-    <P4D type="message">
-      <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider</fudgeField0>
-      <instrument type="string">BLOOMBERG_TICKER~USDR2T Curncy</instrument>
-      <dataField type="string">Market_Value</dataField>
-      <typeField type="string">OUTRIGHT</typeField>
-    </P4D>
-  </cashIds>
-</fudgeEnvelope>
+    <fudgeEnvelope>
+      <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.curve.CurveNodeIdMapper</fudgeField0>
+      <name type="string">USD Deposit Bloomberg Mapper</name>
+      <cashIds type="message">
+        <P1D type="message">
+          <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider</fudgeField0>
+          <instrument type="string">BLOOMBERG_TICKER~USDR1T Curncy</instrument>
+          <dataField type="string">Market_Value</dataField>
+          <typeField type="string">OUTRIGHT</typeField>
+        </P1D>
+        <P4D type="message">
+          <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider</fudgeField0>
+          <instrument type="string">BLOOMBERG_TICKER~USDR2T Curncy</instrument>
+          <dataField type="string">Market_Value</dataField>
+          <typeField type="string">OUTRIGHT</typeField>
+        </P4D>
+      </cashIds>
+    </fudgeEnvelope>

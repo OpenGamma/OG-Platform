@@ -28,6 +28,7 @@ import com.opengamma.analytics.financial.interestrate.future.provider.FuturesTra
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedAccruedCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedCompounding;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedFxReset;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverage;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverageFixingDates;
@@ -52,6 +53,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Paymen
 import com.opengamma.analytics.financial.interestrate.payments.provider.CouponFixedAccruedCompoundingDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.provider.CouponFixedCompoundingDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.provider.CouponFixedDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.payments.provider.CouponFixedFxResetDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.provider.CouponIborAverageDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.provider.CouponIborAverageFixingDatesCompoundingDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.provider.CouponIborAverageFixingDatesCompoundingFlatSpreadDiscountingMethod;
@@ -75,9 +77,8 @@ import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedC
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapMultileg;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.money.Currency;
-import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.money.MultipleCurrencyAmountPricer;
 
 /**
  * Calculator of the present value as a multiple currency amount using cash-flow discounting and forward estimation.
@@ -112,6 +113,8 @@ public final class PresentValueDiscountingCalculator extends InstrumentDerivativ
   private static final CouponFixedDiscountingMethod METHOD_CPN_FIXED = CouponFixedDiscountingMethod.getInstance();
   private static final CouponFixedCompoundingDiscountingMethod METHOD_CPN_FIXED_COMPOUNDING = 
       CouponFixedCompoundingDiscountingMethod.getInstance();
+  private static final CouponFixedFxResetDiscountingMethod METHOD_CPN_FIXED_FXRESET = 
+      CouponFixedFxResetDiscountingMethod.getInstance();
   private static final CouponIborDiscountingMethod METHOD_CPN_IBOR = CouponIborDiscountingMethod.getInstance();
   private static final CouponIborAverageDiscountingMethod METHOD_CPN_IBOR_AVERAGE = 
       CouponIborAverageDiscountingMethod.getInstance();
@@ -183,6 +186,12 @@ public final class PresentValueDiscountingCalculator extends InstrumentDerivativ
   public MultipleCurrencyAmount visitCouponFixedCompounding(final CouponFixedCompounding coupon, 
       final MulticurveProviderInterface multicurve) {
     return METHOD_CPN_FIXED_COMPOUNDING.presentValue(coupon, multicurve);
+  }
+
+  @Override
+  public MultipleCurrencyAmount visitCouponFixedFxReset(final CouponFixedFxReset coupon, 
+      final MulticurveProviderInterface multicurve) {
+    return METHOD_CPN_FIXED_FXRESET.presentValue(coupon, multicurve);
   }
 
   @Override
@@ -306,7 +315,7 @@ public final class PresentValueDiscountingCalculator extends InstrumentDerivativ
     ArgumentChecker.notNull(annuity, "Annuity");
     ArgumentChecker.notNull(multicurve, "multicurve");
     MultipleCurrencyAmount pv = annuity.getNthPayment(0).accept(this, multicurve);
-    Pricer pricer = new Pricer(pv);
+    MultipleCurrencyAmountPricer pricer = new MultipleCurrencyAmountPricer(pv);
     for (int i = 1; i < annuity.getNumberOfPayments(); i++) {
       pricer.plus(annuity.getNthPayment(i).accept(this, multicurve));
     }
@@ -379,69 +388,6 @@ public final class PresentValueDiscountingCalculator extends InstrumentDerivativ
   public MultipleCurrencyAmount visitForexNonDeliverableForward(final ForexNonDeliverableForward derivative, 
       final MulticurveProviderInterface multicurves) {
     return METHOD_FOREX_NDF.presentValue(derivative, multicurves);
-  }
-
-  /**
-   * Pricer that keeps a running sum. It is optimised for the most common case of a series of multi currency amounts in
-   * the same currency.
-   */
-  private class Pricer {
-    // we pull out a single currency value and keep a running sum for it. This saves creating multiple transient
-    // MCA object.
-    /** running total (less the initial coupon amount) for optimised currency */
-    private double _singleCurrencySubsequentAmounts;
-    /** the currency we have optimised */
-    private Currency _optimisedCurrency;
-    /** holds the running sum - excluding subsequent payments in the optimised currency */
-    private MultipleCurrencyAmount _currencyAmount;
-
-    // the total amount is _singleCurrencySubsequentAmounts + _currencyAmount
-
-    /**
-     * Create a pricing object
-     * @param amount the initial amount in the series of payments
-     */
-    public Pricer(MultipleCurrencyAmount amount) {
-      ArgumentChecker.notNull(amount, "amount");
-      if (amount.size() > 0) {
-        // optimise the pricing of this currency by skipping intermediate MCA objects
-        CurrencyAmount currencyAmount = amount.iterator().next();
-        _singleCurrencySubsequentAmounts = 0.0;
-        _optimisedCurrency = currencyAmount.getCurrency();
-      }
-      _currencyAmount = amount;
-    }
-
-    /**
-     * Add the amount to the existing sum
-     * @param amountToAdd the amount to add
-     */
-    public void plus(MultipleCurrencyAmount amountToAdd) {
-      ArgumentChecker.notNull(amountToAdd, "amountToAdd");
-      if (_optimisedCurrency == null) {
-        _currencyAmount = _currencyAmount.plus(amountToAdd);
-      } else {
-        CurrencyAmount optimisedAmount = amountToAdd.getCurrencyAmount(_optimisedCurrency);
-        if (optimisedAmount != null && amountToAdd.size() == 1) {
-          // we only have the optimised currency so just update the running total
-          _singleCurrencySubsequentAmounts += optimisedAmount.getAmount();
-          return;
-        }
-        _currencyAmount = _currencyAmount.plus(amountToAdd);
-      }
-    }
-
-    /**
-     * Get the sum of all the payments
-     * @return the sum
-     */
-    public MultipleCurrencyAmount getSum() {
-      if (_optimisedCurrency == null) {
-        return _currencyAmount;
-      }
-      return _currencyAmount.plus(_optimisedCurrency, _singleCurrencySubsequentAmounts);
-    }
-
   }
 
 }

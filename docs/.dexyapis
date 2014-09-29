@@ -1,7 +1,0 @@
-{
-    "confluence" : {
-        "username" : "$OG_DOCS_USERNAME",
-        "password" : "$OG_DOCS_PASSWORD",
-        "url" : "http://docs.opengamma.com"
-    }
-}
