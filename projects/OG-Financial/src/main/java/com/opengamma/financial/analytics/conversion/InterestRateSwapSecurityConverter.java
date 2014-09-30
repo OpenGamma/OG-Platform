@@ -115,6 +115,15 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
     FloatingRateType floatingRateType;
     AnnuityDefinition<?> floatingLegAnnuity;
   }
+ 
+  private boolean checkPaymentDefinitionType(AnnuityDefinition<?> floatingLeg) {
+    if (floatingLeg.getPayments() instanceof CouponIborDefinition[] ||
+        floatingLeg.getPayments() instanceof CouponONDefinition[]) {
+      return true;
+    } else {
+      return false;
+    }
+  }
   
   private FixedFloatSwapHelper getFixedFloatLeg(final InterestRateSwapSecurity swap, final AnnuityDefinition<?> payLeg, 
       final AnnuityDefinition<?> receiveLeg) {
@@ -122,17 +131,18 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
     final boolean payLegFixed = isLegFixed(swap.getPayLeg(), payLeg);
     final boolean receiveLegFixed = isLegFixed(swap.getReceiveLeg(), receiveLeg);
 
-    if (payLegFixed && !receiveLegFixed) {
+    if (payLegFixed && !receiveLegFixed && checkPaymentDefinitionType(receiveLeg)) {
       fixedFloatSwap.fixedLegAnnuity = getFixedLegAnnuity(payLeg);
       fixedFloatSwap.floatingLegAnnuity = receiveLeg;
       fixedFloatSwap.floatingRateType = ((FloatingInterestRateSwapLeg) swap.getReceiveLeg()).getFloatingRateType();
-    } else if (!payLegFixed && receiveLegFixed) {
+    } else if (!payLegFixed && receiveLegFixed && checkPaymentDefinitionType(payLeg)) {
       fixedFloatSwap.fixedLegAnnuity = getFixedLegAnnuity(receiveLeg);
       fixedFloatSwap.floatingLegAnnuity = payLeg;
       fixedFloatSwap.floatingRateType = ((FloatingInterestRateSwapLeg) swap.getPayLeg()).getFloatingRateType();
     } else {
       return null;
     }
+    
     return fixedFloatSwap;
   }
   
