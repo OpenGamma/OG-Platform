@@ -13,12 +13,10 @@ import com.opengamma.analytics.financial.forex.definition.ForexSwapDefinition;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.link.ConventionLink;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
-import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.analytics.conversion.CalendarUtils;
 import com.opengamma.financial.analytics.curve.CashNodeConverter;
 import com.opengamma.financial.analytics.curve.CurveNodeVisitorAdapter;
@@ -56,23 +54,16 @@ import com.opengamma.util.time.Tenor;
  */
 public class CurveNodeInstrumentDefinitionFactory {
 
-  private final SecuritySource _securitySource;
-  private final ConventionSource _conventionSource;
   private final HolidaySource _holidaySource;
   private final RegionSource _regionSource;
 
   /**
    * Create the factory.
    *
-   * @param securitySource the securitySource
-   * @param conventionSource the convention source
    * @param holidaySource the holiday source
    * @param regionSource the region source
    */
-  public CurveNodeInstrumentDefinitionFactory(SecuritySource securitySource, ConventionSource conventionSource,
-                                              HolidaySource holidaySource, RegionSource regionSource) {
-    _securitySource = ArgumentChecker.notNull(securitySource, "securitySource");
-    _conventionSource = ArgumentChecker.notNull(conventionSource, "conventionSource");
+  public CurveNodeInstrumentDefinitionFactory(HolidaySource holidaySource, RegionSource regionSource) {
     _holidaySource = ArgumentChecker.notNull(holidaySource, "holidaySource");
     _regionSource = ArgumentChecker.notNull(regionSource, "regionSource");
   }
@@ -168,57 +159,50 @@ public class CurveNodeInstrumentDefinitionFactory {
 
       @Override
       public InstrumentDefinition<?> visitCashNode(CashNode node) {
-        CashNodeConverter nodeConverter = new CashNodeConverter(
-            _securitySource, _conventionSource, _holidaySource,
-            _regionSource, marketData, nodeDataId, valuationTime);
+        CashNodeConverter nodeConverter =
+            new CashNodeConverter(_holidaySource, _regionSource, marketData, nodeDataId, valuationTime);
         return nodeConverter.visitCashNode(node);
       }
 
       @Override
       public InstrumentDefinition<?> visitFRANode(FRANode node) {
-        FRANodeConverter nodeConverter = new FRANodeConverter(
-            _securitySource, _conventionSource, _holidaySource,
-            _regionSource, marketData, nodeDataId, valuationTime);
+        FRANodeConverter nodeConverter =
+            new FRANodeConverter(_holidaySource, _regionSource, marketData, nodeDataId, valuationTime);
         return nodeConverter.visitFRANode(node);
       }
 
       @Override
       public InstrumentDefinition<?> visitRollDateFRANode(RollDateFRANode node) {
-        RollDateFRANodeConverter nodeConverter = new RollDateFRANodeConverter(
-            _securitySource, _conventionSource, _holidaySource,
-            _regionSource, marketData, nodeDataId, valuationTime);
+        RollDateFRANodeConverter nodeConverter =
+            new RollDateFRANodeConverter(_holidaySource, _regionSource, marketData, nodeDataId, valuationTime);
         return nodeConverter.visitRollDateFRANode(node);
       }
 
       @Override
       public InstrumentDefinition<?> visitRollDateSwapNode(RollDateSwapNode node) {
-        RollDateSwapNodeConverter nodeConverter = new RollDateSwapNodeConverter(
-            _securitySource, _conventionSource, _holidaySource,
-            _regionSource, marketData, nodeDataId, valuationTime);
+        RollDateSwapNodeConverter nodeConverter =
+            new RollDateSwapNodeConverter(_holidaySource, _regionSource, marketData, nodeDataId, valuationTime);
         return nodeConverter.visitRollDateSwapNode(node);
       }
 
       @Override
       public InstrumentDefinition<?> visitRateFutureNode(RateFutureNode node) {
-        RateFutureNodeConverter nodeConverter = new RateFutureNodeConverter(
-            _securitySource, _conventionSource, _holidaySource,
-            _regionSource, marketData, nodeDataId, valuationTime);
+        RateFutureNodeConverter nodeConverter =
+            new RateFutureNodeConverter(_holidaySource, _regionSource, marketData, nodeDataId, valuationTime);
         return nodeConverter.visitRateFutureNode(node);
       }
 
       @Override
       public InstrumentDefinition<?> visitThreeLegBasisSwapNode(ThreeLegBasisSwapNode node) {
-        ThreeLegBasisSwapNodeConverter nodeConverter = new ThreeLegBasisSwapNodeConverter(
-            _securitySource, _conventionSource, _holidaySource, _regionSource,
-            marketData, nodeDataId, valuationTime);
+        ThreeLegBasisSwapNodeConverter nodeConverter =
+            new ThreeLegBasisSwapNodeConverter(_holidaySource, _regionSource, marketData, nodeDataId, valuationTime);
         return nodeConverter.visitThreeLegBasisSwapNode(node);
       }
 
       @Override
       public InstrumentDefinition<?> visitSwapNode(SwapNode node) {
-        SwapNodeConverter nodeConverter = new SwapNodeConverter(
-            _securitySource, _conventionSource, _holidaySource, _regionSource,
-            marketData, nodeDataId, valuationTime, fxMatrix);
+        SwapNodeConverter nodeConverter =
+            new SwapNodeConverter(_holidaySource, _regionSource, marketData, nodeDataId, valuationTime, fxMatrix);
         return nodeConverter.visitSwapNode(node);
       }
 

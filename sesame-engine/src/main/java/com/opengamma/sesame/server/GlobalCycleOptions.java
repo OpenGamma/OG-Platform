@@ -13,6 +13,7 @@ import java.util.Set;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.ImmutableValidator;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -23,7 +24,9 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.base.Supplier;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Contains cycle options that can be used to execute a view across multiple
@@ -53,11 +56,28 @@ public final class GlobalCycleOptions implements ImmutableBean, CycleOptions {
   @PropertyDefinition(validate = "notNull")
   private final MarketDataSpecification _marketDataSpec;
   /**
-   * The valuation time to be used during the execution.
+   * The valuation time to be used during the execution. Either {@link #_valuationTime}
+   * or {@link #_valuationTimeSupplier} must be supplied on construction. If both are
+   * provided then the {@link #_valuationTimeSupplier} will be used as the source
+   * of valuation times.
    */
-  // todo - should be able to specify a generator
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private final ZonedDateTime _valuationTime;
+  /**
+   * A supplier of valuation times. This allows a different valuation time to
+   * be used on each cycle if required. Either {@link #_valuationTime} or
+   * {@link #_valuationTimeSupplier} must be supplied on construction. If both are
+   * provided then the {@link #_valuationTimeSupplier} will be used as the source
+   * of valuation times.
+   */
+  @PropertyDefinition
+  private final Supplier<ZonedDateTime> _valuationTimeSupplier;
+
+  @ImmutableValidator
+  private void validate() {
+    ArgumentChecker.isFalse(_valuationTime == null && _valuationTimeSupplier == null,
+                            "Either valuationTime or valuationTimeSupplier must be non-null");
+  }
 
   //-------------------------------------------------------------------------
   @Override
@@ -69,6 +89,8 @@ public final class GlobalCycleOptions implements ImmutableBean, CycleOptions {
        */
       private int _index;
 
+      private final Supplier<ZonedDateTime> _valuationTimeProvider = createValuationTimeSupplier();
+
       @Override
       public boolean hasNext() {
         return _numCycles <= 0 || _index < _numCycles;
@@ -78,16 +100,27 @@ public final class GlobalCycleOptions implements ImmutableBean, CycleOptions {
       public IndividualCycleOptions next() {
 
         if (hasNext()) {
-          // We should be using generators to potentially vary values for market data or valuation time
+
           IndividualCycleOptions cycleOptions = IndividualCycleOptions.builder()
               .marketDataSpec(_marketDataSpec)
-              .valuationTime(_valuationTime)
+              .valuationTime(_valuationTimeProvider.get())
               .build();
           _index++;
           return cycleOptions;
         } else {
           throw new NoSuchElementException();
         }
+      }
+
+      private Supplier<ZonedDateTime> createValuationTimeSupplier() {
+        return _valuationTimeSupplier != null ?
+            _valuationTimeSupplier :
+            new Supplier<ZonedDateTime>() {
+              @Override
+              public ZonedDateTime get() {
+                return _valuationTime;
+              }
+            };
       }
 
       @Override
@@ -123,14 +156,16 @@ public final class GlobalCycleOptions implements ImmutableBean, CycleOptions {
       boolean awaitAllMarketData,
       int numCycles,
       MarketDataSpecification marketDataSpec,
-      ZonedDateTime valuationTime) {
+      ZonedDateTime valuationTime,
+      Supplier<ZonedDateTime> valuationTimeSupplier) {
     JodaBeanUtils.notNull(awaitAllMarketData, "awaitAllMarketData");
     JodaBeanUtils.notNull(marketDataSpec, "marketDataSpec");
-    JodaBeanUtils.notNull(valuationTime, "valuationTime");
     this._awaitAllMarketData = awaitAllMarketData;
     this._numCycles = numCycles;
     this._marketDataSpec = marketDataSpec;
     this._valuationTime = valuationTime;
+    this._valuationTimeSupplier = valuationTimeSupplier;
+    validate();
   }
 
   @Override
@@ -179,11 +214,20 @@ public final class GlobalCycleOptions implements ImmutableBean, CycleOptions {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the valuationTime.
-   * @return the value of the property, not null
+   * Gets the valuation time to be used during the execution.
+   * @return the value of the property
    */
   public ZonedDateTime getValuationTime() {
     return _valuationTime;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the valuationTimeSupplier.
+   * @return the value of the property
+   */
+  public Supplier<ZonedDateTime> getValuationTimeSupplier() {
+    return _valuationTimeSupplier;
   }
 
   //-----------------------------------------------------------------------
@@ -205,7 +249,8 @@ public final class GlobalCycleOptions implements ImmutableBean, CycleOptions {
       return (isAwaitAllMarketData() == other.isAwaitAllMarketData()) &&
           (getNumCycles() == other.getNumCycles()) &&
           JodaBeanUtils.equal(getMarketDataSpec(), other.getMarketDataSpec()) &&
-          JodaBeanUtils.equal(getValuationTime(), other.getValuationTime());
+          JodaBeanUtils.equal(getValuationTime(), other.getValuationTime()) &&
+          JodaBeanUtils.equal(getValuationTimeSupplier(), other.getValuationTimeSupplier());
     }
     return false;
   }
@@ -217,17 +262,19 @@ public final class GlobalCycleOptions implements ImmutableBean, CycleOptions {
     hash += hash * 31 + JodaBeanUtils.hashCode(getNumCycles());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataSpec());
     hash += hash * 31 + JodaBeanUtils.hashCode(getValuationTime());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getValuationTimeSupplier());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(160);
+    StringBuilder buf = new StringBuilder(192);
     buf.append("GlobalCycleOptions{");
     buf.append("awaitAllMarketData").append('=').append(isAwaitAllMarketData()).append(',').append(' ');
     buf.append("numCycles").append('=').append(getNumCycles()).append(',').append(' ');
     buf.append("marketDataSpec").append('=').append(getMarketDataSpec()).append(',').append(' ');
-    buf.append("valuationTime").append('=').append(JodaBeanUtils.toString(getValuationTime()));
+    buf.append("valuationTime").append('=').append(getValuationTime()).append(',').append(' ');
+    buf.append("valuationTimeSupplier").append('=').append(JodaBeanUtils.toString(getValuationTimeSupplier()));
     buf.append('}');
     return buf.toString();
   }
@@ -263,6 +310,12 @@ public final class GlobalCycleOptions implements ImmutableBean, CycleOptions {
     private final MetaProperty<ZonedDateTime> _valuationTime = DirectMetaProperty.ofImmutable(
         this, "valuationTime", GlobalCycleOptions.class, ZonedDateTime.class);
     /**
+     * The meta-property for the {@code valuationTimeSupplier} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<Supplier<ZonedDateTime>> _valuationTimeSupplier = DirectMetaProperty.ofImmutable(
+        this, "valuationTimeSupplier", GlobalCycleOptions.class, (Class) Supplier.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -270,7 +323,8 @@ public final class GlobalCycleOptions implements ImmutableBean, CycleOptions {
         "awaitAllMarketData",
         "numCycles",
         "marketDataSpec",
-        "valuationTime");
+        "valuationTime",
+        "valuationTimeSupplier");
 
     /**
      * Restricted constructor.
@@ -289,6 +343,8 @@ public final class GlobalCycleOptions implements ImmutableBean, CycleOptions {
           return _marketDataSpec;
         case 113591406:  // valuationTime
           return _valuationTime;
+        case -178301862:  // valuationTimeSupplier
+          return _valuationTimeSupplier;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -341,6 +397,14 @@ public final class GlobalCycleOptions implements ImmutableBean, CycleOptions {
       return _valuationTime;
     }
 
+    /**
+     * The meta-property for the {@code valuationTimeSupplier} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Supplier<ZonedDateTime>> valuationTimeSupplier() {
+      return _valuationTimeSupplier;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -353,6 +417,8 @@ public final class GlobalCycleOptions implements ImmutableBean, CycleOptions {
           return ((GlobalCycleOptions) bean).getMarketDataSpec();
         case 113591406:  // valuationTime
           return ((GlobalCycleOptions) bean).getValuationTime();
+        case -178301862:  // valuationTimeSupplier
+          return ((GlobalCycleOptions) bean).getValuationTimeSupplier();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -378,6 +444,7 @@ public final class GlobalCycleOptions implements ImmutableBean, CycleOptions {
     private int _numCycles;
     private MarketDataSpecification _marketDataSpec;
     private ZonedDateTime _valuationTime;
+    private Supplier<ZonedDateTime> _valuationTimeSupplier;
 
     /**
      * Restricted constructor.
@@ -394,6 +461,7 @@ public final class GlobalCycleOptions implements ImmutableBean, CycleOptions {
       this._numCycles = beanToCopy.getNumCycles();
       this._marketDataSpec = beanToCopy.getMarketDataSpec();
       this._valuationTime = beanToCopy.getValuationTime();
+      this._valuationTimeSupplier = beanToCopy.getValuationTimeSupplier();
     }
 
     //-----------------------------------------------------------------------
@@ -408,11 +476,14 @@ public final class GlobalCycleOptions implements ImmutableBean, CycleOptions {
           return _marketDataSpec;
         case 113591406:  // valuationTime
           return _valuationTime;
+        case -178301862:  // valuationTimeSupplier
+          return _valuationTimeSupplier;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
@@ -427,6 +498,9 @@ public final class GlobalCycleOptions implements ImmutableBean, CycleOptions {
           break;
         case 113591406:  // valuationTime
           this._valuationTime = (ZonedDateTime) newValue;
+          break;
+        case -178301862:  // valuationTimeSupplier
+          this._valuationTimeSupplier = (Supplier<ZonedDateTime>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -464,7 +538,8 @@ public final class GlobalCycleOptions implements ImmutableBean, CycleOptions {
           _awaitAllMarketData,
           _numCycles,
           _marketDataSpec,
-          _valuationTime);
+          _valuationTime,
+          _valuationTimeSupplier);
     }
 
     //-----------------------------------------------------------------------
@@ -502,24 +577,35 @@ public final class GlobalCycleOptions implements ImmutableBean, CycleOptions {
 
     /**
      * Sets the {@code valuationTime} property in the builder.
-     * @param valuationTime  the new value, not null
+     * @param valuationTime  the new value
      * @return this, for chaining, not null
      */
     public Builder valuationTime(ZonedDateTime valuationTime) {
-      JodaBeanUtils.notNull(valuationTime, "valuationTime");
       this._valuationTime = valuationTime;
+      return this;
+    }
+
+    /**
+     * Sets the {@code valuationTimeSupplier} property in the builder.
+     * @param valuationTimeSupplier  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder valuationTimeSupplier(Supplier<ZonedDateTime> valuationTimeSupplier) {
+      this._valuationTimeSupplier = valuationTimeSupplier;
       return this;
     }
 
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(160);
+      StringBuilder buf = new StringBuilder(192);
       buf.append("GlobalCycleOptions.Builder{");
-      buf.append("awaitAllMarketData").append('=').append(JodaBeanUtils.toString(_awaitAllMarketData)).append(',').append(' ');
+      buf.append("awaitAllMarketData").append('=').append(JodaBeanUtils.toString(_awaitAllMarketData)).append(',').append(
+          ' ');
       buf.append("numCycles").append('=').append(JodaBeanUtils.toString(_numCycles)).append(',').append(' ');
       buf.append("marketDataSpec").append('=').append(JodaBeanUtils.toString(_marketDataSpec)).append(',').append(' ');
-      buf.append("valuationTime").append('=').append(JodaBeanUtils.toString(_valuationTime));
+      buf.append("valuationTime").append('=').append(JodaBeanUtils.toString(_valuationTime)).append(',').append(' ');
+      buf.append("valuationTimeSupplier").append('=').append(JodaBeanUtils.toString(_valuationTimeSupplier));
       buf.append('}');
       return buf.toString();
     }
