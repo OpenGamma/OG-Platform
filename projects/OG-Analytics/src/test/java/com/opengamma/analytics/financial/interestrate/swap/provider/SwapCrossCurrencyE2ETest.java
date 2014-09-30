@@ -81,8 +81,10 @@ public class SwapCrossCurrencyE2ETest {
       new AdjustedDateParameters(NYC, USD6MLIBOR3M.getBusinessDayConvention());
   private static final AdjustedDateParameters ADJUSTED_DATE_LIBOR_LONNYC = 
       new AdjustedDateParameters(NYC, USD6MLIBOR3M.getBusinessDayConvention()); // Calendar should be LON+NYC
-  private static final OffsetAdjustedDateParameters OFFSET_ADJ_LIBOR_LON =
+  private static final OffsetAdjustedDateParameters OFFSET_ADJ_LIBOR_LON_2 =
       new OffsetAdjustedDateParameters(-2, OffsetType.BUSINESS, LON, USD6MLIBOR3M.getBusinessDayConvention());
+  private static final OffsetAdjustedDateParameters OFFSET_ADJ_LIBOR_LON_0 =
+      new OffsetAdjustedDateParameters(0, OffsetType.BUSINESS, LON, USD6MLIBOR3M.getBusinessDayConvention());
 
   /** Curve providers */
   private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_FFCOL_PAIR = 
@@ -156,15 +158,15 @@ public class SwapCrossCurrencyE2ETest {
   private static final LocalDate EFFECTIVE_DATE_4 = LocalDate.of(2014, 1, 24);
   private static final LocalDate MATURITY_DATE_4 = LocalDate.of(2021, 1, 24);
   private static final double FIXED_RATE_4 = 0.0300;
-  private static final boolean PAYER_4 = false; // USD
+  private static final boolean PAYER_4 = true; // USD
   private static final double NOTIONAL_GBP_4 = 61_600_000; // 100m GBP
   private static final double NOTIONAL_USD_4 = 100_000_000; // GBP
   private static final SwapDefinition XCCY_GBP_USD_NONOT_4_DEFINITION =
-      xccyUsdFGbpL3(EFFECTIVE_DATE_4, MATURITY_DATE_4, FIXED_RATE_4, PAYER_4, NOTIONAL_GBP_4, NOTIONAL_USD_4, false);
+      xccyUsdFGbpL3(EFFECTIVE_DATE_4, MATURITY_DATE_4, FIXED_RATE_4, PAYER_4, NOTIONAL_USD_4, NOTIONAL_GBP_4, false);
   private static final Swap<? extends Payment, ? extends Payment> XCCY_GBP_USD_NONOT_4 = 
       XCCY_GBP_USD_NONOT_4_DEFINITION.toDerivative(VALUATION_DATE);
   private static final SwapDefinition XCCY_GBP_USD_NOT_4_DEFINITION =
-      xccyUsdFGbpL3(EFFECTIVE_DATE_4, MATURITY_DATE_4, FIXED_RATE_4, PAYER_4, NOTIONAL_GBP_4, NOTIONAL_USD_4, true);
+      xccyUsdFGbpL3(EFFECTIVE_DATE_4, MATURITY_DATE_4, FIXED_RATE_4, PAYER_4, NOTIONAL_USD_4, NOTIONAL_GBP_4, true);
   private static final Swap<? extends Payment, ? extends Payment> XCCY_GBP_USD_NOT_4 = 
       XCCY_GBP_USD_NOT_4_DEFINITION.toDerivative(VALUATION_DATE);
 
@@ -292,7 +294,7 @@ public class SwapCrossCurrencyE2ETest {
             notional(notionalProvider).startDate(effectiveDate).endDate(maturityDate).index(USDLIBOR3M).
             accrualPeriodFrequency(USDLIBOR3M.getTenor()).rollDateAdjuster(RollConvention.NONE.getRollDateAdjuster(0)).
             resetDateAdjustmentParameters(ADJUSTED_DATE_LIBOR_NYC).accrualPeriodParameters(ADJUSTED_DATE_LIBOR_NYC).
-            dayCount(USDLIBOR3M.getDayCount()).fixingDateAdjustmentParameters(OFFSET_ADJ_LIBOR_LON).
+            dayCount(USDLIBOR3M.getDayCount()).fixingDateAdjustmentParameters(OFFSET_ADJ_LIBOR_LON_2).
             currency(USDLIBOR3M.getCurrency()).build();
     return new SwapCouponFixedCouponDefinition(legFixedDefinition, legIborDefinition);
   }
@@ -317,7 +319,7 @@ public class SwapCrossCurrencyE2ETest {
         notional(notionalGbpProvider).startDate(effectiveDate).endDate(maturityDate).index(GBPLIBOR3M).
         accrualPeriodFrequency(GBPLIBOR3M.getTenor()).rollDateAdjuster(RollConvention.NONE.getRollDateAdjuster(0)).
         resetDateAdjustmentParameters(ADJUSTED_DATE_LIBOR_LONNYC).accrualPeriodParameters(ADJUSTED_DATE_LIBOR_LONNYC).
-        dayCount(GBPLIBOR3M.getDayCount()).fixingDateAdjustmentParameters(OFFSET_ADJ_LIBOR_LON).
+        dayCount(GBPLIBOR3M.getDayCount()).fixingDateAdjustmentParameters(OFFSET_ADJ_LIBOR_LON_0).
         currency(GBPLIBOR3M.getCurrency()).spread(spreadGbp);
     if (exchangeNotional) {
       iborGbpBuilder = iborGbpBuilder.
@@ -329,7 +331,7 @@ public class SwapCrossCurrencyE2ETest {
         notional(notionalUsdProvider).startDate(effectiveDate).endDate(maturityDate).index(USDLIBOR3M).
         accrualPeriodFrequency(USDLIBOR3M.getTenor()).rollDateAdjuster(RollConvention.NONE.getRollDateAdjuster(0)).
         resetDateAdjustmentParameters(ADJUSTED_DATE_LIBOR_LONNYC).accrualPeriodParameters(ADJUSTED_DATE_LIBOR_LONNYC).
-        dayCount(USDLIBOR3M.getDayCount()).fixingDateAdjustmentParameters(OFFSET_ADJ_LIBOR_LON).
+        dayCount(USDLIBOR3M.getDayCount()).fixingDateAdjustmentParameters(OFFSET_ADJ_LIBOR_LON_2).
         currency(USDLIBOR3M.getCurrency());
     if (exchangeNotional) {
       iborUsdBuilder = iborUsdBuilder.
@@ -360,7 +362,7 @@ public class SwapCrossCurrencyE2ETest {
         notional(notionalGbpProvider).startDate(effectiveDate).endDate(maturityDate).index(GBPLIBOR3M).
         accrualPeriodFrequency(GBPLIBOR3M.getTenor()).rollDateAdjuster(RollConvention.NONE.getRollDateAdjuster(0)).
         resetDateAdjustmentParameters(ADJUSTED_DATE_LIBOR_LONNYC).accrualPeriodParameters(ADJUSTED_DATE_LIBOR_LONNYC).
-        dayCount(GBPLIBOR3M.getDayCount()).fixingDateAdjustmentParameters(OFFSET_ADJ_LIBOR_LON).
+        dayCount(GBPLIBOR3M.getDayCount()).fixingDateAdjustmentParameters(OFFSET_ADJ_LIBOR_LON_0).
         currency(GBPLIBOR3M.getCurrency());
     if (exchangeNotional) {
       legIborGbpBuilder = legIborGbpBuilder.
@@ -372,7 +374,7 @@ public class SwapCrossCurrencyE2ETest {
         notional(notionalUsdProvider).startDate(effectiveDate).endDate(maturityDate).index(USDLIBOR3M).
         accrualPeriodFrequency(USDLIBOR3M.getTenor()).rollDateAdjuster(RollConvention.NONE.getRollDateAdjuster(0)).
         resetDateAdjustmentParameters(ADJUSTED_DATE_LIBOR_LONNYC).accrualPeriodParameters(ADJUSTED_DATE_LIBOR_LONNYC).
-        dayCount(USDLIBOR3M.getDayCount()).fixingDateAdjustmentParameters(OFFSET_ADJ_LIBOR_LON).
+        dayCount(USDLIBOR3M.getDayCount()).fixingDateAdjustmentParameters(OFFSET_ADJ_LIBOR_LON_2).
         currency(USDLIBOR3M.getCurrency()).spread(spreadUsd);
     if (exchangeNotional) {
       legIborUsdBuilder = legIborUsdBuilder.
@@ -412,7 +414,7 @@ public class SwapCrossCurrencyE2ETest {
     notional(notionalGbpProvider).startDate(effectiveDate).endDate(maturityDate).index(GBPLIBOR3M).
     accrualPeriodFrequency(GBPLIBOR3M.getTenor()).rollDateAdjuster(RollConvention.NONE.getRollDateAdjuster(0)).
     resetDateAdjustmentParameters(ADJUSTED_DATE_LIBOR_LONNYC).accrualPeriodParameters(ADJUSTED_DATE_LIBOR_LONNYC).
-    dayCount(GBPLIBOR3M.getDayCount()).fixingDateAdjustmentParameters(OFFSET_ADJ_LIBOR_LON).
+    dayCount(GBPLIBOR3M.getDayCount()).fixingDateAdjustmentParameters(OFFSET_ADJ_LIBOR_LON_0).
     currency(GBPLIBOR3M.getCurrency());
     if (exchangeNotional) {
       iborGbpBuilder = iborGbpBuilder.

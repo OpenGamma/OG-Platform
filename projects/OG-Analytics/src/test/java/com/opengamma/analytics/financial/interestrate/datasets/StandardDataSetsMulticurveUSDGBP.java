@@ -21,7 +21,7 @@ import com.opengamma.analytics.financial.instrument.index.GeneratorAttribute;
 import com.opengamma.analytics.financial.instrument.index.GeneratorAttributeFX;
 import com.opengamma.analytics.financial.instrument.index.GeneratorAttributeIR;
 import com.opengamma.analytics.financial.instrument.index.GeneratorDepositIbor;
-import com.opengamma.analytics.financial.instrument.index.GeneratorForexSwap;
+import com.opengamma.analytics.financial.instrument.index.GeneratorForexForward;
 import com.opengamma.analytics.financial.instrument.index.GeneratorInstrument;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIborMaster;
@@ -88,8 +88,8 @@ public class StandardDataSetsMulticurveUSDGBP {
       new GeneratorSwapXCcyIborIbor("GBPLIBOR3MUSDLIBOR3M", GBPLIBOR3M, USDLIBOR3M, 
           BusinessDayConventions.MODIFIED_FOLLOWING, true, 2, LON, NYC); // Spread on GBP leg
       
-  private static final GeneratorForexSwap GENERATOR_FX_GBPUSD = 
-      new GeneratorForexSwap("GBPUSD", GBP, USD, NYC, USDLIBOR3M.getSpotLag(), USDLIBOR3M.getBusinessDayConvention(), true);
+  private static final GeneratorForexForward GENERATOR_FXFWD_GBPUSD = new GeneratorForexForward("GBPUSD", 
+      GBP, USD, NYC, USDLIBOR3M.getSpotLag(), USDLIBOR3M.getBusinessDayConvention(), true);
 
   private static final String NAME_INPUT_DSC_USD = "USD-OISFFS";
   private static final String NAME_INPUT_FWD3_USD = "USD-FRAL3M-IRSL3M";
@@ -131,10 +131,11 @@ public class StandardDataSetsMulticurveUSDGBP {
     0.0009187500, 0.0009312500};
   /** Market values for the GBPUSD-FXGBPUSD-XCCYGBPL3MUSDL3M curve */
   private static final double[] GBP_DSC_1_MARKET_QUOTES = new double[] {
-    1.65745, 1.6570345, 1.6565925, 1.654874, 1.652649,
+    -0.0004, -0.0008155, -0.0012575, -0.002976, -0.005201,
     0.0000400000, 0.0000750000, 0.0000000000, -0.0001000000, -0.0002000000,
     -0.0002750000, -0.0003000000, -0.0003800000, -0.0004400000, -0.0005000000,
     -0.0006450000, -0.0008500000, -0.0009000000, -0.0007350000, -0.0005000000};
+//1.65745, 1.6570345, 1.6565925, 1.654874, 1.652649,
   /** Market values for the GBP-FRAL3MIRSL3M curve */
   private static final double[] GBP_FWD3_1_MARKET_QUOTES = new double[] {
     0.0056400000,
@@ -216,7 +217,7 @@ public class StandardDataSetsMulticurveUSDGBP {
   
   /** Generators for the GBPUSD-FXGBPUSD-XCCYGBPL3MUSDL3M curve */
   private static final GeneratorInstrument<? extends GeneratorAttribute>[] GBP_DSC_1_GENERATORS =
-      new GeneratorInstrument<?>[] {GENERATOR_FX_GBPUSD, GENERATOR_FX_GBPUSD, GENERATOR_FX_GBPUSD, GENERATOR_FX_GBPUSD, GENERATOR_FX_GBPUSD,
+      new GeneratorInstrument<?>[] {GENERATOR_FXFWD_GBPUSD, GENERATOR_FXFWD_GBPUSD, GENERATOR_FXFWD_GBPUSD, GENERATOR_FXFWD_GBPUSD, GENERATOR_FXFWD_GBPUSD,
         GBPLIBOR3MUSDLIBOR3M, GBPLIBOR3MUSDLIBOR3M, GBPLIBOR3MUSDLIBOR3M, GBPLIBOR3MUSDLIBOR3M, GBPLIBOR3MUSDLIBOR3M,
         GBPLIBOR3MUSDLIBOR3M, GBPLIBOR3MUSDLIBOR3M, GBPLIBOR3MUSDLIBOR3M, GBPLIBOR3MUSDLIBOR3M, GBPLIBOR3MUSDLIBOR3M,
         GBPLIBOR3MUSDLIBOR3M, GBPLIBOR3MUSDLIBOR3M, GBPLIBOR3MUSDLIBOR3M, GBPLIBOR3MUSDLIBOR3M, GBPLIBOR3MUSDLIBOR3M };
@@ -266,11 +267,12 @@ public class StandardDataSetsMulticurveUSDGBP {
       GENERATORS_UNITS[loopblock] = new GeneratorYDCurve[NB_UNITS[loopblock]][];
       NAMES_UNITS[loopblock] = new String[NB_UNITS[loopblock]][];
     }
-    final GeneratorYDCurve genIntLin = CurveCalibrationConventionDataSets.generatorYDMatLin();
-    GENERATORS_UNITS[0][0] = new GeneratorYDCurve[] {genIntLin, genIntLin };
-    GENERATORS_UNITS[0][1] = new GeneratorYDCurve[] {genIntLin };
-    GENERATORS_UNITS[0][2] = new GeneratorYDCurve[] {genIntLin };
-    GENERATORS_UNITS[0][3] = new GeneratorYDCurve[] {genIntLin, genIntLin };
+//    final GeneratorYDCurve genIntLin = CurveCalibrationConventionDataSets.generatorYDMatLin();
+    final GeneratorYDCurve genIntNcs = CurveCalibrationConventionDataSets.generatorYDMatNcs();
+    GENERATORS_UNITS[0][0] = new GeneratorYDCurve[] {genIntNcs, genIntNcs };
+    GENERATORS_UNITS[0][1] = new GeneratorYDCurve[] {genIntNcs };
+    GENERATORS_UNITS[0][2] = new GeneratorYDCurve[] {genIntNcs };
+    GENERATORS_UNITS[0][3] = new GeneratorYDCurve[] {genIntNcs, genIntNcs };
     NAMES_UNITS[0][0] = new String[] {NAME_OUTPUT_DSC_USD, NAME_OUTPUT_FWD3_USD };
     NAMES_UNITS[0][1] = new String[] {NAME_OUTPUT_FWD1_USD };
     NAMES_UNITS[0][2] = new String[] {NAME_OUTPUT_FWD6_USD};
