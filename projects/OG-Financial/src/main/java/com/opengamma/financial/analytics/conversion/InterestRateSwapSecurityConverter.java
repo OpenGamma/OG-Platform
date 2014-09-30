@@ -10,6 +10,7 @@ import java.util.List;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.NotionalProvider;
@@ -33,10 +34,10 @@ import com.opengamma.analytics.financial.instrument.payment.CouponONDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedONDefinition;
-import com.opengamma.core.convention.Convention;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
-import com.opengamma.core.security.Security;
+import com.opengamma.core.link.ConventionLink;
+import com.opengamma.core.link.SecurityLink;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.analytics.curve.ConverterUtils;
 import com.opengamma.financial.convention.HolidaySourceCalendarAdapter;
@@ -75,23 +76,24 @@ import com.opengamma.util.tuple.Pairs;
 public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> {
   /** A holiday source */
   private final HolidaySource _holidaySource;
-  /** A convention source */
-  private final ConventionSource _conventionSource;
-  /** A security source */
-  private final SecuritySource _securitySource;
+
+  /**
+   * @param holidaySource The holiday source, not <code>null</code>
+   */
+  public InterestRateSwapSecurityConverter(final HolidaySource holidaySource) {
+    _holidaySource = ArgumentChecker.notNull(holidaySource, "holidaySource");
+  }
 
   /**
    * @param holidaySource The holiday source, not <code>null</code>
    * @param conventionSource The convention source, not <code>null</code>
    * @param securitySource The security source, not <code>null</code>
+   * @deprecated use constructor without conventionSource and securitySource
    */
-  public InterestRateSwapSecurityConverter(final HolidaySource holidaySource, final ConventionSource conventionSource, final SecuritySource securitySource) {
-    ArgumentChecker.notNull(holidaySource, "holidaySource");
-    ArgumentChecker.notNull(conventionSource, "conventionSource");
-    ArgumentChecker.notNull(securitySource, "securitySource");
-    _holidaySource = holidaySource;
-    _conventionSource = conventionSource;
-    _securitySource = securitySource;
+  @Deprecated
+  public InterestRateSwapSecurityConverter(HolidaySource holidaySource, ConventionSource conventionSource,
+                                           SecuritySource securitySource) {
+    this(holidaySource);
   }
 
   @Override
@@ -188,7 +190,8 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
 
     AdjustedDateParameters accrualPeriodParameters = null;
     if (leg.getAccrualPeriodCalendars() != null && leg.getAccrualPeriodBusinessDayConvention() != null) {
-      Calendar accrualPeriodCalendar = new HolidaySourceCalendarAdapter(_holidaySource, leg.getAccrualPeriodCalendars().toArray(new ExternalId[leg.getAccrualPeriodCalendars().size()]));
+      Calendar accrualPeriodCalendar =
+          new HolidaySourceCalendarAdapter(_holidaySource, leg.getAccrualPeriodCalendars().toArray(new ExternalId[leg.getAccrualPeriodCalendars().size()]));
       accrualPeriodParameters = new AdjustedDateParameters(accrualPeriodCalendar, leg.getAccrualPeriodBusinessDayConvention());
     }
     final RollDateAdjuster rollDateAdjuster = getRollDateAdjuster(leg.getRollConvention());
@@ -267,17 +270,6 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
       endStub = stubs.getSecond();      
     }
 
-    List<Double> notionalList = leg.getNotional().getNotionals();
-    double[] notionalSchedule;
-    if (notionalList.isEmpty()) {
-      notionalSchedule = new double[] {(payer ? -1 : 1) * leg.getNotional().getInitialAmount() };
-    } else {
-      notionalSchedule = new double[notionalList.size()];
-      for (int i = 0; i < notionalSchedule.length; i++) {
-        notionalSchedule[i] = (payer ? -1 : 1) * notionalList.get(i);
-      }
-    }
-
     return new FloatingAnnuityDefinitionBuilder().
         payer(payer).
         currency(leg.getNotional().getCurrency()).
@@ -309,84 +301,81 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
 
   private IndexDeposit getONIndex(FloatingInterestRateSwapLeg floatLeg) {
     // try security lookup
-    final Security sec = _securitySource.getSingle(floatLeg.getFloatingReferenceRateId().toBundle());
-    if (sec != null) {
-      final OvernightIndex indexSecurity = (OvernightIndex) sec;
-      OvernightIndexConvention indexConvention = _conventionSource.getSingle(indexSecurity.getConventionId(), OvernightIndexConvention.class);
+    try {
+      OvernightIndex indexSecurity =
+          SecurityLink.resolvable(floatLeg.getFloatingReferenceRateId(), OvernightIndex.class).resolve();
+      OvernightIndexConvention indexConvention =
+          ConventionLink.resolvable(indexSecurity.getConventionId(), OvernightIndexConvention.class).resolve();
       return ConverterUtils.indexON(indexSecurity.getName(), indexConvention);
-    }
 
-    // Fallback to convention lookup for old behaviour
-    Convention convention = _conventionSource.getSingle(floatLeg.getFloatingReferenceRateId());
-    if (!(convention instanceof OvernightIndexConvention)) {
-      throw new OpenGammaRuntimeException("Mis-match between floating rate type " + floatLeg.getFloatingRateType() + " and convention " + convention.getClass());
+    } catch (DataNotFoundException e) {
+      // Fallback to convention lookup for old behaviour
+      OvernightIndexConvention convention =
+          ConventionLink.resolvable(floatLeg.getFloatingReferenceRateId(), OvernightIndexConvention.class).resolve();
+      return new IndexON(
+          floatLeg.getFloatingReferenceRateId().getValue(),
+          floatLeg.getNotional().getCurrency(),
+          convention.getDayCount(),
+          convention.getPublicationLag());
     }
-    OvernightIndexConvention onIndexConvention = (OvernightIndexConvention) convention;
-    return new IndexON(
-        floatLeg.getFloatingReferenceRateId().getValue(),
-        floatLeg.getNotional().getCurrency(),
-        onIndexConvention.getDayCount(),
-        onIndexConvention.getPublicationLag());
   }
 
   private IndexDeposit getIborIndex(FloatingInterestRateSwapLeg floatLeg) {
     // try security lookup
-    final Security sec = _securitySource.getSingle(floatLeg.getFloatingReferenceRateId().toBundle());
-    if (sec != null) {
-      final com.opengamma.financial.security.index.IborIndex indexSecurity = (com.opengamma.financial.security.index.IborIndex) sec;
-      IborIndexConvention indexConvention = _conventionSource.getSingle(indexSecurity.getConventionId(), IborIndexConvention.class);
-      return ConverterUtils.indexIbor(indexSecurity.getName(), indexConvention, indexSecurity.getTenor());
-    }
+    try {
+      com.opengamma.financial.security.index.IborIndex sec =
+          SecurityLink.resolvable(
+              floatLeg.getFloatingReferenceRateId(),
+              com.opengamma.financial.security.index.IborIndex.class)
+              .resolve();
+      IborIndexConvention indexConvention =
+          ConventionLink.resolvable(sec.getConventionId(), IborIndexConvention.class).resolve();
+      return ConverterUtils.indexIbor(sec.getName(), indexConvention, sec.getTenor());
 
-    // Fallback to convention lookup for old behaviour
-    Convention iborLegConvention = _conventionSource.getSingle(floatLeg.getFloatingReferenceRateId());
-    if (iborLegConvention == null) {
-    }
-    if (!(iborLegConvention instanceof VanillaIborLegConvention)) {
-      throw new OpenGammaRuntimeException("Mis-match between floating rate type " + floatLeg.getFloatingRateType() + " and convention " + iborLegConvention.getClass());
-    }
-    Convention iborConvention = _conventionSource.getSingle(((VanillaIborLegConvention) iborLegConvention).getIborIndexConvention());
-    if (iborConvention == null) {
-      throw new OpenGammaRuntimeException("Convention not found for " + ((VanillaIborLegConvention) iborLegConvention).getIborIndexConvention());
-    }
-    IborIndexConvention iborIndexConvention = (IborIndexConvention) iborConvention;
+    } catch (DataNotFoundException e) {
 
-    return new IborIndex(iborIndexConvention.getCurrency(),
-        ((VanillaIborLegConvention) iborLegConvention).getResetTenor().getPeriod(),
-        iborIndexConvention.getSettlementDays(),  // fixing lag
-        iborIndexConvention.getDayCount(),
-        iborIndexConvention.getBusinessDayConvention(),
-        ((IborIndexConvention) iborConvention).isIsEOM(),
-        floatLeg.getFloatingReferenceRateId().getValue());
+      // Fallback to convention lookup for old behaviour
+      VanillaIborLegConvention iborLegConvention =
+          ConventionLink.resolvable(floatLeg.getFloatingReferenceRateId(), VanillaIborLegConvention.class).resolve();
+
+      IborIndexConvention iborConvention =
+          ConventionLink.resolvable(iborLegConvention.getIborIndexConvention(), IborIndexConvention.class).resolve();
+
+      return new IborIndex(iborConvention.getCurrency(),
+                           iborLegConvention.getResetTenor().getPeriod(),
+                           iborConvention.getSettlementDays(),  // fixing lag
+                           iborConvention.getDayCount(),
+                           iborConvention.getBusinessDayConvention(),
+                           iborConvention.isIsEOM(),
+                           floatLeg.getFloatingReferenceRateId().getValue());
+    }
   }
   
   private IndexDeposit getIborIndex(ExternalId indexId) {
     // try security lookup
-    final Security sec = _securitySource.getSingle(indexId.toBundle());
-    if (sec != null) {
-      final com.opengamma.financial.security.index.IborIndex indexSecurity = (com.opengamma.financial.security.index.IborIndex) sec;
-      IborIndexConvention indexConvention = _conventionSource.getSingle(indexSecurity.getConventionId(), IborIndexConvention.class);
+    try {
+      com.opengamma.financial.security.index.IborIndex indexSecurity =
+          SecurityLink.resolvable(indexId, com.opengamma.financial.security.index.IborIndex.class).resolve();
+      IborIndexConvention indexConvention =
+          ConventionLink.resolvable(indexSecurity.getConventionId(), IborIndexConvention.class).resolve();
       return ConverterUtils.indexIbor(indexSecurity.getName(), indexConvention, indexSecurity.getTenor());
-    }
-    
-    // Fallback to convention lookup for old behaviour
-    Convention iborLegConvention = _conventionSource.getSingle(indexId);
-    if (!(iborLegConvention instanceof VanillaIborLegConvention)) {
-      throw new OpenGammaRuntimeException("Could not resolve an index convention for rate reference id: " + indexId.getValue());
-    }
-    Convention iborConvention = _conventionSource.getSingle(((VanillaIborLegConvention) iborLegConvention).getIborIndexConvention());
-    if (iborConvention == null) {
-      throw new OpenGammaRuntimeException("Convention not found for " + ((VanillaIborLegConvention) iborLegConvention).getIborIndexConvention());
-    }
-    IborIndexConvention iborIndexConvention = (IborIndexConvention) iborConvention;
 
-    return new IborIndex(iborIndexConvention.getCurrency(),
-        ((VanillaIborLegConvention) iborLegConvention).getResetTenor().getPeriod(),
-        iborIndexConvention.getSettlementDays(),  // fixing lag
-        iborIndexConvention.getDayCount(),
-        iborIndexConvention.getBusinessDayConvention(),
-        ((IborIndexConvention) iborConvention).isIsEOM(),
-        indexId.getValue());
+    } catch (DataNotFoundException e) {
+
+      // Fallback to convention lookup for old behaviour
+      VanillaIborLegConvention iborLegConvention =
+          ConventionLink.resolvable(indexId, VanillaIborLegConvention.class).resolve();
+      IborIndexConvention iborConvention =
+          ConventionLink.resolvable(iborLegConvention.getIborIndexConvention(), IborIndexConvention.class).resolve();
+
+      return new IborIndex(iborConvention.getCurrency(),
+                           iborLegConvention.getResetTenor().getPeriod(),
+                           iborConvention.getSettlementDays(),  // fixing lag
+                           iborConvention.getDayCount(),
+                           iborConvention.getBusinessDayConvention(),
+                           iborConvention.isIsEOM(),
+                           indexId.getValue());
+    }
   }
 
   private RollDateAdjuster getRollDateAdjuster(InterestRateSwapLeg leg) {

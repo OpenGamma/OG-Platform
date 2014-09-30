@@ -6,15 +6,15 @@
 package com.opengamma.financial.analytics.curve;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.DataNotFoundException;
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.convention.ConventionSource;
-import com.opengamma.core.security.Security;
+import com.opengamma.core.link.ConfigLink;
+import com.opengamma.core.link.ConventionLink;
+import com.opengamma.core.link.SecurityLink;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.analytics.ircurve.strips.BillNode;
 import com.opengamma.financial.analytics.ircurve.strips.BondNode;
@@ -69,8 +69,7 @@ import com.opengamma.financial.security.bond.BillSecurity;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.index.OvernightIndex;
 import com.opengamma.financial.security.index.PriceIndex;
-import com.opengamma.id.VersionCorrection;
-import com.opengamma.util.ArgumentChecker;
+import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -79,369 +78,339 @@ import com.opengamma.util.money.Currency;
  * to the curve node.
  */
 public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>, FinancialConventionVisitor<Set<Currency>> {
-  /** The security source */
-  private final SecuritySource _securitySource;
-  /** The convention source */
-  private final ConventionSource _conventionSource;
-  /** The config source */
-  private final ConfigSource _configSource;
+
+  /**
+   * Creates the visitor.
+   */
+  public CurveNodeCurrencyVisitor() {
+  }
 
   /**
    * @param securitySource The security source. Not null.
    * @param conventionSource The convention source, not null
+   * @deprecated use the no-arg constructor
    */
-  public CurveNodeCurrencyVisitor(final ConventionSource conventionSource, final SecuritySource securitySource) {
-    ArgumentChecker.notNull(conventionSource, "conventionSource");
-    ArgumentChecker.notNull(securitySource, "securitySource");
-    _conventionSource = conventionSource;
-    _securitySource = securitySource;
-    _configSource = null;
+  @Deprecated
+  public CurveNodeCurrencyVisitor(ConventionSource conventionSource, SecuritySource securitySource) {
   }
 
   /**
    * @param securitySource The security source. Not null.
    * @param conventionSource The convention source, not null
    * @param configSource The config source, not null
+   * @deprecated use the no-arg constructor
    */
-  public CurveNodeCurrencyVisitor(final ConventionSource conventionSource, final SecuritySource securitySource,
-      final ConfigSource configSource) {
-    ArgumentChecker.notNull(conventionSource, "conventionSource");
-    ArgumentChecker.notNull(securitySource, "securitySource");
-    ArgumentChecker.notNull(configSource, "configSource");
-    _conventionSource = conventionSource;
-    _securitySource = securitySource;
-    _configSource = configSource;
-  }
-
-  /**
-   * Gets the convention source.
-   * @return The convention source
-   */
-  protected ConventionSource getConventionSource() {
-    return _conventionSource;
-  }
-
-  /**
-   * Gets the security source.
-   * @return The security source
-   */
-  protected SecuritySource getSecuritySource() {
-    return _securitySource;
-  }
-
-  /**
-   * Gets the config source.
-   * @return The config source
-   */
-  protected ConfigSource getConfigSource() {
-    return _configSource;
+  @Deprecated
+  public CurveNodeCurrencyVisitor(ConventionSource conventionSource, SecuritySource securitySource,
+      ConfigSource configSource) {
   }
 
   @Override
-  public Set<Currency> visitBillNode(final BillNode node) {
-    if (_configSource == null) {
-      throw new OpenGammaRuntimeException("Config source was null");
-    }
-    final CurveNodeIdMapper idMapper = _configSource.getSingle(CurveNodeIdMapper.class, node.getCurveNodeIdMapperName(), VersionCorrection.LATEST);
-    final Security security = _securitySource.getSingle(idMapper.getBillNodeId(null, node.getMaturityTenor()).toBundle()); // curve date is not relevant for bills
-    if (security == null) {
-      throw new OpenGammaRuntimeException("Security underlying bill node " + node + " was not present in security master");
-    }
-    if (security instanceof BillSecurity) {
-      return Collections.singleton(((BillSecurity) security).getCurrency());
-    }
-    throw new OpenGammaRuntimeException("Security underlying bill node " + node + " was not a bill); have " + security.getClass());
+  public Set<Currency> visitBillNode(BillNode node) {
+    CurveNodeIdMapper idMapper =
+        ConfigLink.resolvable(node.getCurveNodeIdMapperName(), CurveNodeIdMapper.class).resolve();
+    ExternalId nodeId = idMapper.getBillNodeId(null, node.getMaturityTenor()); // curve date is not relevant for bills
+    BillSecurity security = SecurityLink.resolvable(nodeId, BillSecurity.class).resolve();
+    return ImmutableSet.of(security.getCurrency());
   }
 
   @Override
-  public Set<Currency> visitBondNode(final BondNode node) {
-    if (_configSource == null) {
-      throw new OpenGammaRuntimeException("Config source was null");
-    }
-    final CurveNodeIdMapper idMapper = _configSource.getSingle(CurveNodeIdMapper.class, node.getCurveNodeIdMapperName(), VersionCorrection.LATEST);
-    final Security security = _securitySource.getSingle(idMapper.getBondNodeId(null, node.getMaturityTenor()).toBundle()); // curve date is not relevant for bonds
-    if (security == null) {
-      throw new OpenGammaRuntimeException("Security underlying bond node " + node + " was not present in security master");
-    }
-    if (security instanceof BondSecurity) {
-      return Collections.singleton(((BondSecurity) security).getCurrency());
-    }
-    throw new OpenGammaRuntimeException("Security underlying bond node " + node + " was not a bond; have " + security.getClass());
+  public Set<Currency> visitBondNode(BondNode node) {
+    CurveNodeIdMapper idMapper =
+        ConfigLink.resolvable(node.getCurveNodeIdMapperName(), CurveNodeIdMapper.class).resolve();
+    ExternalId nodeId = idMapper.getBondNodeId(null, node.getMaturityTenor()); // curve date is not relevant for bonds
+    BondSecurity security = SecurityLink.resolvable(nodeId, BondSecurity.class).resolve();
+    return ImmutableSet.of(security.getCurrency());
   }
 
   @Override
-  public Set<Currency> visitCalendarSwapNode(final CalendarSwapNode node) {
-    final FinancialConvention convention = _conventionSource.getSingle(node.getSwapConvention(), SwapConvention.class);
+  public Set<Currency> visitCalendarSwapNode(CalendarSwapNode node) {
+    FinancialConvention convention =
+        ConventionLink.resolvable(node.getSwapConvention(), SwapConvention.class).resolve();
     return convention.accept(this);
   }
 
   @Override
-  public Set<Currency> visitCashNode(final CashNode node) {
+  public Set<Currency> visitCashNode(CashNode node) {
     try {
-      final FinancialConvention convention = _conventionSource.getSingle(node.getConvention(), FinancialConvention.class);
+      FinancialConvention convention =
+          ConventionLink.resolvable(node.getConvention(), FinancialConvention.class).resolve();
       return convention.accept(this);
     } catch (DataNotFoundException e) {
       // If the convention is not found in the convention source
       // then try with the security source.
-      final Security security = _securitySource.getSingle(node.getConvention().toBundle());
-      if (security == null) {
-        throw new OpenGammaRuntimeException("Cash node in curve points to " + node.getConvention() + " which has not been loaded. Load by putting identifier into 'Add security' dialog.");
-      }
-      if (security instanceof com.opengamma.financial.security.index.IborIndex) {
-        final com.opengamma.financial.security.index.IborIndex indexSecurity = (com.opengamma.financial.security.index.IborIndex) security;
-        final IborIndexConvention indexConvention = _conventionSource.getSingle(indexSecurity.getConventionId(), IborIndexConvention.class);
-        return indexConvention.accept(this);
+      com.opengamma.financial.security.index.IborIndex security =
+          SecurityLink.resolvable(
+              node.getConvention(),
+              com.opengamma.financial.security.index.IborIndex.class)
+              .resolve();
+      IborIndexConvention indexConvention =
+            ConventionLink.resolvable(security.getConventionId(), IborIndexConvention.class).resolve();
+      return indexConvention.accept(this);
         /* } else if (security instanceof com.opengamma.financial.security.index.OvernightIndex) { // is this necessary/a good idea?
         final com.opengamma.financial.security.index.OvernightIndex indexSecurity = (com.opengamma.financial.security.index.OvernightIndex) security;
         final IborIndexConvention indexConvention = _conventionSource.getSingle(indexSecurity.getConventionId(), IborIndexConvention.class);
         return indexConvention.accept(this);*/
-      }
-      throw new OpenGammaRuntimeException("Security should be of type IborIndex or OvernightIndex, was " + security);
     }
   }
 
   @Override
-  public Set<Currency> visitContinuouslyCompoundedRateNode(final ContinuouslyCompoundedRateNode node) {
-    return Collections.emptySet();
+  public Set<Currency> visitContinuouslyCompoundedRateNode(ContinuouslyCompoundedRateNode node) {
+    return ImmutableSet.of();
   }
 
   @Override
-  public Set<Currency> visitPeriodicallyCompoundedRateNode(final PeriodicallyCompoundedRateNode node) {
-    return Collections.emptySet();
+  public Set<Currency> visitPeriodicallyCompoundedRateNode(PeriodicallyCompoundedRateNode node) {
+    return ImmutableSet.of();
   }
 
   @Override
-  public Set<Currency> visitCreditSpreadNode(final CreditSpreadNode node) {
-    return Collections.emptySet();
+  public Set<Currency> visitCreditSpreadNode(CreditSpreadNode node) {
+    return ImmutableSet.of();
   }
 
   @Override
-  public Set<Currency> visitDeliverableSwapFutureNode(final DeliverableSwapFutureNode node) {
-    final FinancialConvention convention = _conventionSource.getSingle(node.getFutureConvention(), FinancialConvention.class);
+  public Set<Currency> visitDeliverableSwapFutureNode(DeliverableSwapFutureNode node) {
+    FinancialConvention convention =
+        ConventionLink.resolvable(node.getFutureConvention(), FinancialConvention.class).resolve();
     return convention.accept(this);
   }
 
   @Override
-  public Set<Currency> visitDiscountFactorNode(final DiscountFactorNode node) {
-    return Collections.emptySet();
+  public Set<Currency> visitDiscountFactorNode(DiscountFactorNode node) {
+    return ImmutableSet.of();
   }
 
   @Override
-  public Set<Currency> visitFRANode(final FRANode node) {
-    final Security sec = _securitySource.getSingle(node.getConvention().toBundle());
-    if (sec == null) {
-      throw new OpenGammaRuntimeException("CurveNodeCurrencyVisitor.visitFRANode: Ibor index with id " + node.getConvention() + " was null");
-    }
-    final com.opengamma.financial.security.index.IborIndex indexSecurity = (com.opengamma.financial.security.index.IborIndex) sec;
-    final IborIndexConvention indexConvention = _conventionSource.getSingle(indexSecurity.getConventionId(), IborIndexConvention.class);
-    if (indexConvention == null) {
-      throw new OpenGammaRuntimeException("CurveNodeCurrencyVisitor.visitFRANode: Convention with id " + indexSecurity.getConventionId() + " was null");
-    }
+  public Set<Currency> visitFRANode(FRANode node) {
+    com.opengamma.financial.security.index.IborIndex indexSecurity =
+        SecurityLink.resolvable(node.getConvention(), com.opengamma.financial.security.index.IborIndex.class).resolve();
+    IborIndexConvention indexConvention =
+        ConventionLink.resolvable(indexSecurity.getConventionId(), IborIndexConvention.class).resolve();
     return indexConvention.accept(this);
   }
 
   @Override
-  public Set<Currency> visitFXForwardNode(final FXForwardNode node) {
+  public Set<Currency> visitFXForwardNode(FXForwardNode node) {
     return ImmutableSet.of(node.getPayCurrency(), node.getReceiveCurrency());
   }
 
   @Override
-  public Set<Currency> visitFXSwapNode(final FXSwapNode node) {
+  public Set<Currency> visitFXSwapNode(FXSwapNode node) {
     return ImmutableSet.of(node.getPayCurrency(), node.getReceiveCurrency());
   }
 
   @Override
-  public Set<Currency> visitRollDateFRANode(final RollDateFRANode node) {
-    final RollDateFRAConvention convention = _conventionSource.getSingle(node.getRollDateFRAConvention(), RollDateFRAConvention.class);
+  public Set<Currency> visitRollDateFRANode(RollDateFRANode node) {
+    RollDateFRAConvention convention =
+        ConventionLink.resolvable(node.getRollDateFRAConvention(), RollDateFRAConvention.class).resolve();
     return convention.accept(this);
   }
 
   @Override
-  public Set<Currency> visitRollDateSwapNode(final RollDateSwapNode node) {
-    final RollDateSwapConvention convention = _conventionSource.getSingle(node.getRollDateSwapConvention(), RollDateSwapConvention.class);
+  public Set<Currency> visitRollDateSwapNode(RollDateSwapNode node) {
+    RollDateSwapConvention convention =
+        ConventionLink.resolvable(node.getRollDateSwapConvention(), RollDateSwapConvention.class).resolve();
     return convention.accept(this);
   }
 
   @Override
-  public Set<Currency> visitRateFutureNode(final RateFutureNode node) {
-    final FinancialConvention convention = _conventionSource.getSingle(node.getFutureConvention(), FinancialConvention.class);
+  public Set<Currency> visitRateFutureNode(RateFutureNode node) {
+
+    FinancialConvention convention =
+        ConventionLink.resolvable(node.getFutureConvention(), FinancialConvention.class).resolve();
+
     if (convention instanceof InterestRateFutureConvention) {
-      final InterestRateFutureConvention conventionSTIRFut = (InterestRateFutureConvention) convention;
-      final Security sec = _securitySource.getSingle(conventionSTIRFut.getIndexConvention().toBundle());
-      final com.opengamma.financial.security.index.IborIndex indexSecurity = (com.opengamma.financial.security.index.IborIndex) sec;
-      final IborIndexConvention indexConvention = _conventionSource.getSingle(indexSecurity.getConventionId(), IborIndexConvention.class);
-      if (indexConvention == null) {
-        throw new OpenGammaRuntimeException("CurveNodeCurrencyVisitor.visitFRANode: Convention with id " + indexSecurity.getConventionId() + " was null");
-      }
+      InterestRateFutureConvention conventionSTIRFut = (InterestRateFutureConvention) convention;
+      com.opengamma.financial.security.index.IborIndex indexSecurity =
+          SecurityLink.resolvable(
+              conventionSTIRFut.getIndexConvention(),
+              com.opengamma.financial.security.index.IborIndex.class).resolve();
+      IborIndexConvention indexConvention =
+          ConventionLink.resolvable(indexSecurity.getConventionId(), IborIndexConvention.class).resolve();
       return indexConvention.accept(this);
     }
     final FederalFundsFutureConvention conventionFedFut = (FederalFundsFutureConvention) convention;
-    final Security sec = _securitySource.getSingle(conventionFedFut.getIndexConvention().toBundle());
-    final OvernightIndex indexSecurity = (OvernightIndex) sec;
-    return (_conventionSource.getSingle(indexSecurity.getConventionId(), OvernightIndexConvention.class)).accept(this);
+    final OvernightIndex indexSecurity =
+        SecurityLink.resolvable(conventionFedFut.getIndexConvention(), OvernightIndex.class).resolve();
+    OvernightIndexConvention indexConvention =
+        ConventionLink.resolvable(indexSecurity.getConventionId(), OvernightIndexConvention.class).resolve();
+    return indexConvention.accept(this);
   }
 
   @Override
-  public Set<Currency> visitSwapNode(final SwapNode node) {
-    final FinancialConvention payConvention = _conventionSource.getSingle(node.getPayLegConvention(), FinancialConvention.class);
-    final FinancialConvention receiveConvention = _conventionSource.getSingle(node.getReceiveLegConvention(), FinancialConvention.class);
-    final Set<Currency> currencies = new HashSet<>(payConvention.accept(this));
-    currencies.addAll(receiveConvention.accept(this));
-    return currencies;
+  public Set<Currency> visitSwapNode(SwapNode node) {
+    FinancialConvention payConvention =
+        ConventionLink.resolvable(node.getPayLegConvention(), FinancialConvention.class).resolve();
+    FinancialConvention receiveConvention =
+        ConventionLink.resolvable(node.getReceiveLegConvention(), FinancialConvention.class).resolve();
+    return combineCurrencySets(payConvention.accept(this), receiveConvention.accept(this));
   }
 
   @Override
-  public Set<Currency> visitThreeLegBasisSwapNode(final ThreeLegBasisSwapNode node) {
-    final FinancialConvention payConvention = _conventionSource.getSingle(node.getPayLegConvention(), FinancialConvention.class);
-    final FinancialConvention receiveConvention = _conventionSource.getSingle(node.getReceiveLegConvention(), FinancialConvention.class);
-    final FinancialConvention spreadConvention = _conventionSource.getSingle(node.getSpreadLegConvention(), FinancialConvention.class);
-    final Set<Currency> currencies = new HashSet<>(payConvention.accept(this));
-    currencies.addAll(receiveConvention.accept(this));
-    currencies.addAll(spreadConvention.accept(this));
-    return currencies;
+  public Set<Currency> visitThreeLegBasisSwapNode(ThreeLegBasisSwapNode node) {
+    FinancialConvention payConvention =
+        ConventionLink.resolvable(node.getPayLegConvention(), FinancialConvention.class).resolve();
+    FinancialConvention receiveConvention =
+        ConventionLink.resolvable(node.getReceiveLegConvention(), FinancialConvention.class).resolve();
+    FinancialConvention spreadConvention =
+        ConventionLink.resolvable(node.getSpreadLegConvention(), FinancialConvention.class).resolve();
+    return combineCurrencySets(
+        payConvention.accept(this), receiveConvention.accept(this), spreadConvention.accept(this));
+  }
+
+  private ImmutableSet<Currency> combineCurrencySets(Set<Currency>... currencies) {
+    ImmutableSet.Builder<Currency> builder = ImmutableSet.builder();
+    for (Set<Currency> currencySet : currencies) {
+      builder.addAll(currencySet);
+    }
+    return builder.build();
   }
 
   @Override
-  public Set<Currency> visitZeroCouponInflationNode(final ZeroCouponInflationNode node) {
-    final FinancialConvention convention = _conventionSource.getSingle(node.getInflationLegConvention(), InflationLegConvention.class);
+  public Set<Currency> visitZeroCouponInflationNode(ZeroCouponInflationNode node) {
+    final FinancialConvention convention =
+        ConventionLink.resolvable(node.getInflationLegConvention(), InflationLegConvention.class).resolve();
     return convention.accept(this);
   }
 
   @Override
-  public Set<Currency> visitBondConvention(final BondConvention convention) {
-    return Collections.emptySet();
+  public Set<Currency> visitBondConvention(BondConvention convention) {
+    return ImmutableSet.of();
   }
 
   @Override
-  public Set<Currency> visitCMSLegConvention(final CMSLegConvention convention) {
-    final FinancialConvention underlyingConvention = _conventionSource.getSingle(convention.getSwapIndexConvention(), FinancialConvention.class);
+  public Set<Currency> visitCMSLegConvention(CMSLegConvention convention) {
+    FinancialConvention underlyingConvention =
+        ConventionLink.resolvable(convention.getSwapIndexConvention(), FinancialConvention.class).resolve();
     return underlyingConvention.accept(this);
   }
 
   @Override
-  public Set<Currency> visitCompoundingIborLegConvention(final CompoundingIborLegConvention convention) {
-    final Security sec = _securitySource.getSingle(convention.getIborIndexConvention().toBundle());
-    if (sec == null) {
-      throw new OpenGammaRuntimeException("CurveNodeCurrencyVisitor.visitCompoundingIborLegConvention: Ibor index with id " + convention.getIborIndexConvention() + " was null");
-    }
-    final com.opengamma.financial.security.index.IborIndex indexSecurity = (com.opengamma.financial.security.index.IborIndex) sec;
-    final IborIndexConvention indexConvention = _conventionSource.getSingle(indexSecurity.getConventionId(), IborIndexConvention.class);
-    if (indexConvention == null) {
-      throw new OpenGammaRuntimeException("CurveNodeCurrencyVisitor.visitCompoundingIborLegConvention: Convention with id " + indexSecurity.getConventionId() + " was null");
-    }
+  public Set<Currency> visitCompoundingIborLegConvention(CompoundingIborLegConvention convention) {
+    com.opengamma.financial.security.index.IborIndex indexSecurity =
+        SecurityLink.resolvable(
+            convention.getIborIndexConvention(),
+            com.opengamma.financial.security.index.IborIndex.class)
+            .resolve();
+    IborIndexConvention indexConvention =
+        ConventionLink.resolvable(indexSecurity.getConventionId(), IborIndexConvention.class).resolve();
     return indexConvention.accept(this);
   }
 
   @Override
-  public Set<Currency> visitDepositConvention(final DepositConvention convention) {
+  public Set<Currency> visitDepositConvention(DepositConvention convention) {
     return Collections.singleton(convention.getCurrency());
   }
 
   @Override
-  public Set<Currency> visitEquityConvention(final EquityConvention convention) {
-    return Collections.emptySet();
+  public Set<Currency> visitEquityConvention(EquityConvention convention) {
+    return ImmutableSet.of();
   }
 
   @Override
-  public Set<Currency> visitDeliverablePriceQuotedSwapFutureConvention(final DeliverablePriceQuotedSwapFutureConvention convention) {
-    final FinancialConvention underlyingConvention = _conventionSource.getSingle(convention.getSwapConvention(), FinancialConvention.class);
+  public Set<Currency> visitDeliverablePriceQuotedSwapFutureConvention(DeliverablePriceQuotedSwapFutureConvention convention) {
+    FinancialConvention underlyingConvention =
+        ConventionLink.resolvable(convention.getSwapConvention(), FinancialConvention.class).resolve();
     return underlyingConvention.accept(this);
   }
 
   @Override
-  public Set<Currency> visitFederalFundsFutureConvention(final FederalFundsFutureConvention convention) {
-    final OvernightIndex index = (OvernightIndex) _securitySource.getSingle(convention.getIndexConvention().toBundle());
-    final FinancialConvention underlyingConvention = _conventionSource.getSingle(index.getConventionId(), FinancialConvention.class);
+  public Set<Currency> visitFederalFundsFutureConvention(FederalFundsFutureConvention convention) {
+    OvernightIndex index =
+        SecurityLink.resolvable(convention.getIndexConvention(), OvernightIndex.class).resolve();
+    FinancialConvention underlyingConvention =
+        ConventionLink.resolvable(index.getConventionId(), FinancialConvention.class).resolve();
     return underlyingConvention.accept(this);
   }
 
   @Override
-  public Set<Currency> visitFixedInterestRateSwapLegConvention(final FixedInterestRateSwapLegConvention convention) {
-    return Collections.emptySet();
+  public Set<Currency> visitFixedInterestRateSwapLegConvention(FixedInterestRateSwapLegConvention convention) {
+    return ImmutableSet.of();
   }
 
   @Override
-  public Set<Currency> visitFloatingInterestRateSwapLegConvention(final FloatingInterestRateSwapLegConvention convention) {
-    return Collections.emptySet();
+  public Set<Currency> visitFloatingInterestRateSwapLegConvention(FloatingInterestRateSwapLegConvention convention) {
+    return ImmutableSet.of();
   }
 
   @Override
-  public Set<Currency> visitFXForwardAndSwapConvention(final FXForwardAndSwapConvention convention) {
-    return Collections.emptySet();
+  public Set<Currency> visitFXForwardAndSwapConvention(FXForwardAndSwapConvention convention) {
+    return ImmutableSet.of();
   }
 
   @Override
-  public Set<Currency> visitFXSpotConvention(final FXSpotConvention convention) {
-    return Collections.emptySet();
+  public Set<Currency> visitFXSpotConvention(FXSpotConvention convention) {
+    return ImmutableSet.of();
   }
 
   @Override
-  public Set<Currency> visitIborIndexConvention(final IborIndexConvention convention) {
+  public Set<Currency> visitIborIndexConvention(IborIndexConvention convention) {
     return Collections.singleton(convention.getCurrency());
   }
 
   @Override
-  public Set<Currency> visitIMMFRAConvention(final RollDateFRAConvention convention) {
-    final Security sec = _securitySource.getSingle(convention.getIndexConvention().toBundle());
-    final com.opengamma.financial.security.index.IborIndex indexSecurity = (com.opengamma.financial.security.index.IborIndex) sec;
-    final IborIndexConvention indexConvention = _conventionSource.getSingle(indexSecurity.getConventionId(), IborIndexConvention.class);
+  public Set<Currency> visitIMMFRAConvention(RollDateFRAConvention convention) {
+    com.opengamma.financial.security.index.IborIndex indexSecurity =
+        SecurityLink.resolvable(
+            convention.getIndexConvention(),
+            com.opengamma.financial.security.index.IborIndex.class)
+            .resolve();
+    IborIndexConvention indexConvention =
+        ConventionLink.resolvable(indexSecurity.getConventionId(), IborIndexConvention.class).resolve();
     return indexConvention.accept(this);
   }
 
   @Override
-  public Set<Currency> visitIMMSwapConvention(final RollDateSwapConvention convention) {
-    final FinancialConvention payConvention = _conventionSource.getSingle(convention.getPayLegConvention(), FinancialConvention.class);
-    final FinancialConvention receiveConvention = _conventionSource.getSingle(convention.getReceiveLegConvention(), FinancialConvention.class);
-    final Set<Currency> currencies = new HashSet<>(payConvention.accept(this));
-    currencies.addAll(receiveConvention.accept(this));
-    return currencies;
+  public Set<Currency> visitIMMSwapConvention(RollDateSwapConvention convention) {
+    FinancialConvention payConvention =
+        ConventionLink.resolvable(convention.getPayLegConvention(), FinancialConvention.class).resolve();
+    FinancialConvention receiveConvention =
+        ConventionLink.resolvable(convention.getReceiveLegConvention(), FinancialConvention.class).resolve();
+    return combineCurrencySets(payConvention.accept(this), receiveConvention.accept(this));
   }
 
   @Override
-  public Set<Currency> visitInflationLegConvention(final InflationLegConvention convention) {
-    final Security sec = _securitySource.getSingle(convention.getPriceIndexConvention().toBundle());
-    if (sec == null) {
-      throw new OpenGammaRuntimeException("CurveNodeCurrencyVisitor.visitInflationLegConvention: index with id " + convention.getPriceIndexConvention() + " was null");
-    }
-    if (!(sec instanceof PriceIndex)) {
-      throw new OpenGammaRuntimeException("CurveNodeCurrencyVisitor.visitInflationLegConvention: index with id " + convention.getPriceIndexConvention() + " not of type PriceIndex");
-    }
-    final PriceIndex indexSecurity = (PriceIndex) sec;
-    final PriceIndexConvention indexConvention = _conventionSource.getSingle(indexSecurity.getConventionId(), PriceIndexConvention.class);
-    if (indexConvention == null) {
-      throw new OpenGammaRuntimeException("CurveNodeCurrencyVisitor.visitInflationLegConvention: Convention with id " + indexSecurity.getConventionId() + " was null");
-    }
+  public Set<Currency> visitInflationLegConvention(InflationLegConvention convention) {
+    PriceIndex indexSecurity =
+        SecurityLink.resolvable(convention.getPriceIndexConvention(), PriceIndex.class).resolve();
+    PriceIndexConvention indexConvention =
+        ConventionLink.resolvable(indexSecurity.getConventionId(), PriceIndexConvention.class).resolve();
     return indexConvention.accept(this);
   }
 
   @Override
-  public Set<Currency> visitInterestRateFutureConvention(final InterestRateFutureConvention convention) {
-    final FinancialConvention underlyingConvention = _conventionSource.getSingle(convention.getIndexConvention(), FinancialConvention.class);
+  public Set<Currency> visitInterestRateFutureConvention(InterestRateFutureConvention convention) {
+    final FinancialConvention underlyingConvention =
+        ConventionLink.resolvable(convention.getIndexConvention(), FinancialConvention.class).resolve();
     return underlyingConvention.accept(this);
   }
 
   @Override
   public Set<Currency> visitOISLegConvention(final OISLegConvention convention) {
-    final OvernightIndex index = (OvernightIndex) _securitySource.getSingle(convention.getOvernightIndexConvention().toBundle());
-    if (index == null) {
-      throw new OpenGammaRuntimeException("Overnight index with id " + convention.getOvernightIndexConvention() + " not found in security source.");
-    }
-    final FinancialConvention underlyingConvention = _conventionSource.getSingle(index.getConventionId(), FinancialConvention.class);
+    FinancialConvention underlyingConvention =
+        extractUnderlyingConvention(convention.getOvernightIndexConvention());
     return underlyingConvention.accept(this);
   }
 
   @Override
-  public Set<Currency> visitONCompoundedLegRollDateConvention(final ONCompoundedLegRollDateConvention convention) {
-    final OvernightIndex index = (OvernightIndex) _securitySource.getSingle(convention.getOvernightIndexConvention().toBundle());
-    final FinancialConvention underlyingConvention = _conventionSource.getSingle(index.getConventionId(), FinancialConvention.class);
+  public Set<Currency> visitONCompoundedLegRollDateConvention(ONCompoundedLegRollDateConvention convention) {
+    FinancialConvention underlyingConvention =
+        extractUnderlyingConvention(convention.getOvernightIndexConvention());
     return underlyingConvention.accept(this);
   }
 
   @Override
   public Set<Currency> visitONArithmeticAverageLegConvention(final ONArithmeticAverageLegConvention convention) {
-    final OvernightIndex index = (OvernightIndex) _securitySource.getSingle(convention.getOvernightIndexConvention().toBundle());
-    final FinancialConvention underlyingConvention = _conventionSource.getSingle(index.getConventionId(), FinancialConvention.class);
+    final FinancialConvention underlyingConvention =
+        extractUnderlyingConvention(convention.getOvernightIndexConvention());
     return underlyingConvention.accept(this);
+  }
+
+  private FinancialConvention extractUnderlyingConvention(ExternalId overnightIndexConvention) {
+    OvernightIndex index =
+        SecurityLink.resolvable(overnightIndexConvention, OvernightIndex.class).resolve();
+    return ConventionLink.resolvable(index.getConventionId(), FinancialConvention.class).resolve();
   }
 
   @Override
@@ -456,11 +425,11 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
 
   @Override
   public Set<Currency> visitSwapConvention(final SwapConvention convention) {
-    final FinancialConvention payConvention = _conventionSource.getSingle(convention.getPayLegConvention(), FinancialConvention.class);
-    final FinancialConvention receiveConvention = _conventionSource.getSingle(convention.getReceiveLegConvention(), FinancialConvention.class);
-    final Set<Currency> currencies = new HashSet<>(payConvention.accept(this));
-    currencies.addAll(receiveConvention.accept(this));
-    return currencies;
+    FinancialConvention payConvention = ConventionLink.resolvable(convention.getPayLegConvention(),
+                                                             FinancialConvention.class).resolve();
+    FinancialConvention receiveConvention = ConventionLink.resolvable(convention.getReceiveLegConvention(),
+                                                                 FinancialConvention.class).resolve();
+    return combineCurrencySets(payConvention.accept(this), receiveConvention.accept(this));
   }
 
   @Override
@@ -475,35 +444,32 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
 
   @Override
   public Set<Currency> visitSwapIndexConvention(final SwapIndexConvention convention) {
-    final FinancialConvention underlyingConvention = _conventionSource.getSingle(convention.getSwapConvention(), FinancialConvention.class);
+    final FinancialConvention underlyingConvention = ConventionLink.resolvable(convention.getSwapConvention(),
+                                                                    FinancialConvention.class).resolve();
     return underlyingConvention.accept(this);
   }
 
   @Override
   public Set<Currency> visitVanillaIborLegConvention(final VanillaIborLegConvention convention) {
-    final Security sec = _securitySource.getSingle(convention.getIborIndexConvention().toBundle());
-    if (sec == null) {
-      throw new OpenGammaRuntimeException("CurveNodeCurrencyVisitor.visitVanillaIborLegConvention: Ibor index with id " + convention.getIborIndexConvention() + " was null");
-    }
-    final com.opengamma.financial.security.index.IborIndex indexSecurity = (com.opengamma.financial.security.index.IborIndex) sec;
-    final IborIndexConvention indexConvention = _conventionSource.getSingle(indexSecurity.getConventionId(), IborIndexConvention.class);
-    if (indexConvention == null) {
-      throw new OpenGammaRuntimeException("CurveNodeCurrencyVisitor.visitVanillaIborLegConvention: Convention with id " + indexSecurity.getConventionId() + " was null");
-    }
+    com.opengamma.financial.security.index.IborIndex indexSecurity =
+        SecurityLink.resolvable(
+            convention.getIborIndexConvention(),
+            com.opengamma.financial.security.index.IborIndex.class)
+            .resolve();
+    IborIndexConvention indexConvention =
+        ConventionLink.resolvable(indexSecurity.getConventionId(), IborIndexConvention.class).resolve();
     return indexConvention.accept(this);
   }
 
   @Override
   public Set<Currency> visitVanillaIborLegRollDateConvention(final VanillaIborLegRollDateConvention convention) {
-    final Security sec = _securitySource.getSingle(convention.getIborIndexConvention().toBundle());
-    if (sec == null) {
-      throw new OpenGammaRuntimeException("CurveNodeCurrencyVisitor.visitVanillaIborLegRollDateConvention: Ibor index with id " + convention.getIborIndexConvention() + " was null");
-    }
-    final com.opengamma.financial.security.index.IborIndex indexSecurity = (com.opengamma.financial.security.index.IborIndex) sec;
-    final IborIndexConvention indexConvention = _conventionSource.getSingle(indexSecurity.getConventionId(), IborIndexConvention.class);
-    if (indexConvention == null) {
-      throw new OpenGammaRuntimeException("CurveNodeCurrencyVisitor.visitVanillaIborLegRollDateConvention: Convention with id " + indexSecurity.getConventionId() + " was null");
-    }
+    com.opengamma.financial.security.index.IborIndex indexSecurity =
+        SecurityLink.resolvable(
+            convention.getIborIndexConvention(),
+            com.opengamma.financial.security.index.IborIndex.class)
+            .resolve();
+    IborIndexConvention indexConvention =
+        ConventionLink.resolvable(indexSecurity.getConventionId(), IborIndexConvention.class).resolve();
     return indexConvention.accept(this);
   }
 
