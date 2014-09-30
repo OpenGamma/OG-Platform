@@ -39,6 +39,8 @@ import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.test.TestGroup;
@@ -68,11 +70,22 @@ public class CouponONArithmeticAverageDiscountingMethodTest {
 
   private static final ZonedDateTime FORWARD_DATE = 
       ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, TENOR_1Y, USDLIBOR3M, NYC);
+  
+  /** Time series **/
+  private static final ZonedDateTimeDoubleTimeSeries TS_ON = 
+      ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(
+          new ZonedDateTime[] {DateUtils.getUTCDate(2011, 5, 23), DateUtils.getUTCDate(2011, 5, 24),
+            DateUtils.getUTCDate(2011, 5, 25), DateUtils.getUTCDate(2011, 5, 26), DateUtils.getUTCDate(2011, 5, 27),
+            DateUtils.getUTCDate(2011, 5, 30), DateUtils.getUTCDate(2011, 5, 31), DateUtils.getUTCDate(2011, 6, 1),
+            DateUtils.getUTCDate(2011, 6, 2), DateUtils.getUTCDate(2011, 6, 3), DateUtils.getUTCDate(2011, 6, 6)}, 
+          new double[] {0.0500, 0.0100, 0.0100, 0.0100, 0.0100, 0.0100, 0.0200, 0.0200, 0.0200, 0.0200, 0.0200});
   /** Coupon ON AA */
   private static final CouponONArithmeticAverageDefinition FEDFUND_CPN_3M_DEF = 
       CouponONArithmeticAverageDefinition.from(FEDFUND, REFERENCE_DATE, TENOR_3M, NOTIONAL, 0,
       USDLIBOR3M.getBusinessDayConvention(), true, NYC);
   private static final CouponONArithmeticAverage FEDFUND_CPN_3M = FEDFUND_CPN_3M_DEF.toDerivative(REFERENCE_DATE);
+  private static final CouponONArithmeticAverage FEDFUND_CPN_3M_ACCRUED = 
+      (CouponONArithmeticAverage) FEDFUND_CPN_3M_DEF.toDerivative(DateUtils.getUTCDate(2011, 6, 7), TS_ON);
   private static final CouponONArithmeticAverageDefinition FEDFUND_CPN_3MFWD_DEF = 
       CouponONArithmeticAverageDefinition.from(FEDFUND, FORWARD_DATE, TENOR_3M, NOTIONAL, 0,
       USDLIBOR3M.getBusinessDayConvention(), true, NYC);
@@ -82,6 +95,14 @@ public class CouponONArithmeticAverageDiscountingMethodTest {
       USDLIBOR3M.getBusinessDayConvention(), true, NYC);
   private static final CouponONArithmeticAverage FEDFUND_CPN_1Y = FEDFUND_CPN_1Y_DEF.toDerivative(REFERENCE_DATE);
   /** Coupon ON AA - spread */
+
+  private static final CouponONArithmeticAverageSpreadDefinition FEDFUND_CPN_SPREAD_3M_DEF = 
+      CouponONArithmeticAverageSpreadDefinition.from(FEDFUND, REFERENCE_DATE, TENOR_3M, NOTIONAL, 0,
+      USDLIBOR3M.getBusinessDayConvention(), true, SPREAD, NYC);
+//  private static final CouponONArithmeticAverageSpread FEDFUND_CPN_SPREAD_3M = FEDFUND_CPN_SPREAD_3M_DEF.toDerivative(REFERENCE_DATE);
+  private static final CouponONArithmeticAverageSpread FEDFUND_CPN_SPREAD_3M_ACCRUED = 
+      (CouponONArithmeticAverageSpread) FEDFUND_CPN_SPREAD_3M_DEF.toDerivative(DateUtils.getUTCDate(2011, 6, 7), TS_ON);
+  
   private static final CouponONArithmeticAverageSpreadDefinition FEDFUND_CPN_SPREAD_3MFWD_DEF = 
       CouponONArithmeticAverageSpreadDefinition.from(FEDFUND, FORWARD_DATE, TENOR_3M, NOTIONAL, 0,
       USDLIBOR3M.getBusinessDayConvention(), true, SPREAD, NYC);
@@ -161,6 +182,23 @@ public class CouponONArithmeticAverageDiscountingMethodTest {
     assertEquals("CouponArithmeticAverageONDiscountingMethod: present value", pv3MFwdSpread0Appro.getAmount(USD), 
         pv3MFwdAppro.getAmount(USD), TOLERANCE_PV);
   }
+  
+  @Test
+  public void presentValueWithAccruedExactVsApprox() {
+    final MultipleCurrencyAmount pv3MExact = METHOD_FF_EXACT.presentValue(FEDFUND_CPN_3M_ACCRUED, MULTICURVES);
+    final MultipleCurrencyAmount pv3MAppro = METHOD_FF_APPRO.presentValue(FEDFUND_CPN_3M_ACCRUED, MULTICURVES);
+    assertEquals("CouponArithmeticAverageONDiscountingMethod: present value", pv3MExact.getAmount(USD), 
+        pv3MAppro.getAmount(USD), TOLERANCE_REL * NOTIONAL * FEDFUND_CPN_3M.getFixingPeriodRemainingAccrualFactor());
+  }
+  
+  @Test
+  public void presentValueWithAccruedWithSpreadExactVsApprox() {
+    final MultipleCurrencyAmount pv3MExact = METHOD_FF_EXACT_SPREAD.presentValue(FEDFUND_CPN_SPREAD_3M_ACCRUED, MULTICURVES);
+    final MultipleCurrencyAmount pv3MAppro = METHOD_FF_APPRO_SPREAD.presentValue(FEDFUND_CPN_SPREAD_3M_ACCRUED, MULTICURVES);
+    assertEquals("CouponArithmeticAverageONDiscountingMethod: present value", pv3MExact.getAmount(USD), 
+        pv3MAppro.getAmount(USD), TOLERANCE_REL * NOTIONAL * FEDFUND_CPN_3M.getFixingPeriodRemainingAccrualFactor());
+  }
+  
 
   @Test
   public void presentValueSpreadExactVsApprox() {
