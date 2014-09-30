@@ -26,12 +26,12 @@ public class FixedInstantVersionCorrectionProvider implements VersionCorrectionP
   @Override
   public VersionCorrection getPortfolioVersionCorrection() {
     // todo - this needs to be integrated with the new engine caching, atm this will not respond to portfolio updates
-    return VersionCorrection.ofVersionAsOf(_versionAsOf);
+    return VersionCorrection.of(_versionAsOf, _versionAsOf);
   }
 
   @Override
   public VersionCorrection getConfigVersionCorrection() {
     // todo - this needs to be integrated with the new engine caching, atm this will not respond to config updates
-    return VersionCorrection.ofVersionAsOf(_versionAsOf);
+    return VersionCorrection.of(_versionAsOf, _versionAsOf);
   }
 }
