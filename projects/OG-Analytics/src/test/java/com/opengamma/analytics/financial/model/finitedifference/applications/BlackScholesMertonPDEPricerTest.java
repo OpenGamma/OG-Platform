@@ -119,7 +119,7 @@ public class BlackScholesMertonPDEPricerTest {
   /**
    * Test that a wide range of American options price to within the accuracy of the Bjerksund-Stensland approximation on a moderately sized grid
    */
-  @Test
+  @Test(enabled = false)
   public void americanTest() {
     final double s0 = 10.0;
     final double[] kSet = {7.0, 9.0, 10.0, 13.0, 17.0 };
