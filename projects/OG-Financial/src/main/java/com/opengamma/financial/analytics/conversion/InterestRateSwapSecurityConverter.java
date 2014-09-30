@@ -89,14 +89,16 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
   /**
    * Creates the converter.
    *
-   * @param holidaySource The holiday source, not <code>null</code>
-   * @param conventionSource The convention source, not <code>null</code>
-   * @param securitySource The security source, not <code>null</code>
+   * @param holidaySource The holiday source, not null
+   * @param conventionSource The convention source, not required
+   * @param securitySource The security source, not required
    * @deprecated use constructor without conventionSource and securitySource
    */
   @Deprecated
-  public InterestRateSwapSecurityConverter(HolidaySource holidaySource, ConventionSource conventionSource,
-                                           SecuritySource securitySource) {
+  public InterestRateSwapSecurityConverter(
+      HolidaySource holidaySource,
+      ConventionSource conventionSource,
+      SecuritySource securitySource) {
     this(holidaySource);
   }
 
@@ -123,12 +125,9 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
   }
  
   private boolean checkPaymentDefinitionType(AnnuityDefinition<?> floatingLeg) {
-    if (floatingLeg.getPayments() instanceof CouponIborDefinition[] ||
-        floatingLeg.getPayments() instanceof CouponONDefinition[]) {
-      return true;
-    } else {
-      return false;
-    }
+    return
+        floatingLeg.getPayments() instanceof CouponIborDefinition[] ||
+        floatingLeg.getPayments() instanceof CouponONDefinition[];
   }
   
   private FixedFloatSwapHelper getFixedFloatLeg(final InterestRateSwapSecurity swap, final AnnuityDefinition<?> payLeg, 
