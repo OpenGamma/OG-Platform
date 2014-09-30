@@ -127,8 +127,9 @@ public class RateFutureNodeConverter extends CurveNodeVisitorAdapter<InstrumentD
    * @param price The price
    * @return The interest rate future
    */
-  private InstrumentDefinition<?> getInterestRateFuture(RateFutureNode rateFuture,
-                                                        InterestRateFutureConvention futureConvention,
+  private InstrumentDefinition<?> getInterestRateFuture(
+      RateFutureNode rateFuture,
+      InterestRateFutureConvention futureConvention,
       Double price) {
 
     String expiryCalculatorName = futureConvention.getExpiryConvention().getValue();

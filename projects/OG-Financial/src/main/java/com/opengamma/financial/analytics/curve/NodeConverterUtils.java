@@ -798,13 +798,15 @@ public class NodeConverterUtils {
                   dayCount, PeriodFrequency.of(paymentPeriod), indexConvention.getRegionCalendar(),
                   businessDayConvention, new InterestRateNotional(currency, 1), eomLeg, dataId,
                   FloatingRateType.IBOR, spread),
-              startDate, maturityDate);
+              startDate,
+              maturityDate);
         }
         return Triple.of(
             new FloatingInterestRateLeg(
                 dayCount, PeriodFrequency.of(paymentPeriod), indexConvention.getRegionCalendar(),
                 businessDayConvention, new InterestRateNotional(currency, 1), eomLeg, dataId, FloatingRateType.IBOR),
-            startDate, maturityDate);
+            startDate,
+            maturityDate);
       }
 
       @Override
@@ -902,17 +904,18 @@ public class NodeConverterUtils {
               new FloatingSpreadIRLeg(
                   dayCount, PeriodFrequency.of(convention.getResetTenor().getPeriod()),
                   indexConvention.getRegionCalendar(), businessDayConvention,
-                  new InterestRateNotional(currency, 1), eomLeg, dataId,
-                  // TODO: Should it be the Ibor Id, not the rate source?
+                  new InterestRateNotional(currency, 1), eomLeg, dataId, // TODO: Should it be the Ibor Id, not the rate source?
                   FloatingRateType.IBOR, spread),
-              startDate, maturityDate);
+              startDate,
+              maturityDate);
         }
         return Triple.of(
             new FloatingInterestRateLeg(
                 dayCount, PeriodFrequency.of(convention.getResetTenor().getPeriod()),
                 indexConvention.getRegionCalendar(), businessDayConvention, new InterestRateNotional(currency, 1),
                 eomLeg, dataId, FloatingRateType.IBOR),
-            startDate, maturityDate);
+            startDate,
+            maturityDate);
       }
     };
     return legConvention.accept(visitor);
@@ -924,15 +927,16 @@ public class NodeConverterUtils {
    * @param receiveLegConvention The receive leg convention
    * @return True if both legs are floating
    */
-  public static boolean isFloatFloat(final Convention payLegConvention, final Convention receiveLegConvention) {
-    return ((payLegConvention instanceof VanillaIborLegConvention) ||
-                                  (payLegConvention instanceof OISLegConvention) ||
-                                  (payLegConvention instanceof CompoundingIborLegConvention) ||
-                                  (payLegConvention instanceof ONArithmeticAverageLegConvention))
-        && ((receiveLegConvention instanceof VanillaIborLegConvention) ||
-            (receiveLegConvention instanceof OISLegConvention) ||
-            (receiveLegConvention instanceof CompoundingIborLegConvention) ||
-            (receiveLegConvention instanceof ONArithmeticAverageLegConvention));
+  public static boolean isFloatFloat(Convention payLegConvention, Convention receiveLegConvention) {
+    return isFloating(payLegConvention) && isFloating(receiveLegConvention);
+  }
+
+  private static boolean isFloating(Convention payLegConvention) {
+    return
+        (payLegConvention instanceof VanillaIborLegConvention) ||
+        (payLegConvention instanceof OISLegConvention) ||
+        (payLegConvention instanceof CompoundingIborLegConvention) ||
+        (payLegConvention instanceof ONArithmeticAverageLegConvention);
   }
 
   /**
@@ -941,11 +945,14 @@ public class NodeConverterUtils {
    * @param receiveLegConvention The receive leg convention
    * @return True if both legs are floating
    */
-  private static boolean isFloatFloatRoll(final Convention payLegConvention, final Convention receiveLegConvention) {
-    return ((payLegConvention instanceof VanillaIborLegRollDateConvention) ||
-        (payLegConvention instanceof ONCompoundedLegRollDateConvention))
-        && ((receiveLegConvention instanceof VanillaIborLegRollDateConvention) ||
-            (receiveLegConvention instanceof ONCompoundedLegRollDateConvention));
+  private static boolean isFloatFloatRoll(Convention payLegConvention, Convention receiveLegConvention) {
+    return isFloatRoll(payLegConvention) && isFloatRoll(receiveLegConvention);
+  }
+
+  private static boolean isFloatRoll(Convention payLegConvention) {
+    return
+        (payLegConvention instanceof VanillaIborLegRollDateConvention) ||
+        (payLegConvention instanceof ONCompoundedLegRollDateConvention);
   }
 
   /**
@@ -954,7 +961,7 @@ public class NodeConverterUtils {
    * @param indexTenor The index tenor.
    * @return The IborIndex object.
    */
-  public static IborIndex indexIbor(final IborIndexConvention indexConvention, final Period indexTenor) {
+  public static IborIndex indexIbor(IborIndexConvention indexConvention, Period indexTenor) {
     final Currency currency = indexConvention.getCurrency();
     final DayCount dayCount = indexConvention.getDayCount();
     final BusinessDayConvention businessDayConvention = indexConvention.getBusinessDayConvention();

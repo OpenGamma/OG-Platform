@@ -74,10 +74,13 @@ public class BondNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinit
    * @param valuationTime The valuation time, not null
    */
   //TODO PLAT-6801 replace conventionBundleSource with conventionSource
-  public BondNodeConverter(RegionSource regionSource,
-                           HolidaySource holidaySource,
-                           ConventionBundleSource conventionSource,
-                           SnapshotDataBundle marketData, ExternalId dataId, ZonedDateTime valuationTime) {
+  public BondNodeConverter(
+      RegionSource regionSource,
+      HolidaySource holidaySource,
+      ConventionBundleSource conventionSource,
+      SnapshotDataBundle marketData,
+      ExternalId dataId,
+      ZonedDateTime valuationTime) {
     _regionSource = ArgumentChecker.notNull(regionSource, "regionSource");
     _holidaySource = ArgumentChecker.notNull(holidaySource, "holidaySource");
     _conventionSource = ArgumentChecker.notNull(conventionSource, "conventionSource");
