@@ -65,18 +65,26 @@ public class CashNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinit
    * @param marketData The market data, not null
    * @param dataId The id of the market data, not null
    * @param valuationTime The valuation time, not null
-   * @deprecated use vonstructor without securitySource and conventionSource
+   * @deprecated use constructor without securitySource and conventionSource
    */
   @Deprecated
-  public CashNodeConverter(SecuritySource securitySource, ConventionSource conventionSource,
-                           HolidaySource holidaySource, RegionSource regionSource,
-      SnapshotDataBundle marketData, ExternalId dataId, ZonedDateTime valuationTime) {
+  public CashNodeConverter(
+      SecuritySource securitySource,
+      ConventionSource conventionSource,
+      HolidaySource holidaySource,
+      RegionSource regionSource,
+      SnapshotDataBundle marketData,
+      ExternalId dataId,
+      ZonedDateTime valuationTime) {
     this(holidaySource, regionSource, marketData, dataId, valuationTime);
   }
 
-  public CashNodeConverter(HolidaySource holidaySource,
-                           RegionSource regionSource,
-                           SnapshotDataBundle marketData, ExternalId dataId, ZonedDateTime valuationTime) {
+  public CashNodeConverter(
+      HolidaySource holidaySource,
+      RegionSource regionSource,
+      SnapshotDataBundle marketData,
+      ExternalId dataId,
+      ZonedDateTime valuationTime) {
     _holidaySource = ArgumentChecker.notNull(holidaySource, "holidaySource");
     _regionSource = ArgumentChecker.notNull(regionSource, "regionSource");
     _marketData = ArgumentChecker.notNull(marketData, "marketData");

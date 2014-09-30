@@ -78,13 +78,17 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
   private final HolidaySource _holidaySource;
 
   /**
-   * @param holidaySource The holiday source, not <code>null</code>
+   * Creates the converter.
+   *
+   * @param holidaySource The holiday source, not null
    */
   public InterestRateSwapSecurityConverter(final HolidaySource holidaySource) {
     _holidaySource = ArgumentChecker.notNull(holidaySource, "holidaySource");
   }
 
   /**
+   * Creates the converter.
+   *
    * @param holidaySource The holiday source, not <code>null</code>
    * @param conventionSource The convention source, not <code>null</code>
    * @param securitySource The security source, not <code>null</code>
