@@ -63,7 +63,7 @@ public final class CouponONArithmeticAverageSpreadDiscountingApproxMethod {
     final double tEnd = tFixingPeriods[nbFixingPeriods - 1];
     final double delta = coupon.getFixingPeriodRemainingAccrualFactor();
     final double rateAccruedCompounded = multicurve.getSimplyCompoundForwardRate(coupon.getIndex(), tStart, tEnd, delta) * delta;
-    final double rateAccrued = Math.log(1.0 + rateAccruedCompounded);
+    final double rateAccrued = coupon.getRateAccrued() + Math.log(1.0 + rateAccruedCompounded);
     final double df = multicurve.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
     final double pv = df * (rateAccrued * coupon.getNotional() + coupon.getSpreadAmount());
     return MultipleCurrencyAmount.of(coupon.getCurrency(), pv);
@@ -87,7 +87,7 @@ public final class CouponONArithmeticAverageSpreadDiscountingApproxMethod {
     final double delta = coupon.getFixingPeriodRemainingAccrualFactor();
     final double rateAccruedCompounded = multicurve.getSimplyCompoundForwardRate(coupon.getIndex(), tStart, tEnd, delta) 
         * delta;
-    final double rateAccrued = Math.log(1.0 + rateAccruedCompounded);
+    final double rateAccrued = coupon.getRateAccrued() + Math.log(1.0 + rateAccruedCompounded);
     final double df = multicurve.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
     // Backward sweep
     final double pvBar = 1.0;
