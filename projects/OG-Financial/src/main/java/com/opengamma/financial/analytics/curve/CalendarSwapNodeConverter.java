@@ -84,7 +84,9 @@ public class CalendarSwapNodeConverter extends CurveNodeVisitorAdapter<Instrumen
       throw new DataNotFoundException("DateSet not found: " + calendarSwapNode.getDateSetName());
     }
     return NodeConverterUtils.getSwapCalendarDefinition(payLegConvention, receiveLegConvention, unadjustedStartDate, calendarSwapNode.getStartDateNumber(),
-        calendarSwapNode.getEndDateNumber(), calendar, _securitySource, _regionSource, _holidaySource, _conventionSource, _marketData, _dataId, _valuationTime);
+        calendarSwapNode.getEndDateNumber(), calendar,
+        _regionSource, _holidaySource,
+        _marketData, _dataId, _valuationTime);
   }
   
 }
