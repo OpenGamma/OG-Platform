@@ -64,7 +64,7 @@ public class MetricsRepositoryComponentFactory extends AbstractComponentFactory 
    * Whether to publish over Ganglia.
    */
   @PropertyDefinition
-  private boolean _gangliaPublish = true;
+  private boolean _gangliaPublish = false;
   /**
    * The Ganglia address.
    */

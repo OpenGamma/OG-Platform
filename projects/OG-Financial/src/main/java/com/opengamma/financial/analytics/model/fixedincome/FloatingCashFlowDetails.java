@@ -89,19 +89,19 @@ public final class FloatingCashFlowDetails extends AbstractCashFlowDetails {
   /**
    * The fixing start date of the cash flow.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private final LocalDate _fixingStartDate;
   
   /**
    * The fixing end date of the cash flow.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private final LocalDate _fixingEndDate;
 
   /**
    * The fixing year fraction of the cash flow.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private final double _fixingYearFrac;
 
   /**
@@ -208,9 +208,6 @@ public final class FloatingCashFlowDetails extends AbstractCashFlowDetails {
    */
   private FloatingCashFlowDetails(FloatingCashFlowDetails.Builder builder) {
     super(builder);
-    JodaBeanUtils.notNull(builder._fixingStartDate, "fixingStartDate");
-    JodaBeanUtils.notNull(builder._fixingEndDate, "fixingEndDate");
-    JodaBeanUtils.notNull(builder._fixingYearFrac, "fixingYearFrac");
     JodaBeanUtils.notNull(builder._indexTenors, "indexTenors");
     JodaBeanUtils.notNull(builder._projectedAmount, "projectedAmount");
     JodaBeanUtils.notNull(builder._presentValue, "presentValue");
@@ -234,7 +231,7 @@ public final class FloatingCashFlowDetails extends AbstractCashFlowDetails {
   //-----------------------------------------------------------------------
   /**
    * Gets the fixing start date of the cash flow.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public LocalDate getFixingStartDate() {
     return _fixingStartDate;
@@ -243,7 +240,7 @@ public final class FloatingCashFlowDetails extends AbstractCashFlowDetails {
   //-----------------------------------------------------------------------
   /**
    * Gets the fixing end date of the cash flow.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public LocalDate getFixingEndDate() {
     return _fixingEndDate;
@@ -252,7 +249,7 @@ public final class FloatingCashFlowDetails extends AbstractCashFlowDetails {
   //-----------------------------------------------------------------------
   /**
    * Gets the fixing year fraction of the cash flow.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public double getFixingYearFrac() {
     return _fixingYearFrac;
@@ -784,33 +781,30 @@ public final class FloatingCashFlowDetails extends AbstractCashFlowDetails {
     //-----------------------------------------------------------------------
     /**
      * Sets the {@code fixingStartDate} property in the builder.
-     * @param fixingStartDate  the new value, not null
+     * @param fixingStartDate  the new value
      * @return this, for chaining, not null
      */
     public Builder fixingStartDate(LocalDate fixingStartDate) {
-      JodaBeanUtils.notNull(fixingStartDate, "fixingStartDate");
       this._fixingStartDate = fixingStartDate;
       return this;
     }
 
     /**
      * Sets the {@code fixingEndDate} property in the builder.
-     * @param fixingEndDate  the new value, not null
+     * @param fixingEndDate  the new value
      * @return this, for chaining, not null
      */
     public Builder fixingEndDate(LocalDate fixingEndDate) {
-      JodaBeanUtils.notNull(fixingEndDate, "fixingEndDate");
       this._fixingEndDate = fixingEndDate;
       return this;
     }
 
     /**
      * Sets the {@code fixingYearFrac} property in the builder.
-     * @param fixingYearFrac  the new value, not null
+     * @param fixingYearFrac  the new value
      * @return this, for chaining, not null
      */
     public Builder fixingYearFrac(double fixingYearFrac) {
-      JodaBeanUtils.notNull(fixingYearFrac, "fixingYearFrac");
       this._fixingYearFrac = fixingYearFrac;
       return this;
     }
