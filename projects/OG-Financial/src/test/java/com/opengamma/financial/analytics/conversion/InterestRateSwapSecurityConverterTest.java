@@ -1,22 +1,26 @@
+/*
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.analytics.conversion;
 
-
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import org.testng.Assert;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.threeten.bp.DayOfWeek;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.Period;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.annuity.AbstractAnnuityDefinitionBuilder.CouponStub;
@@ -44,7 +48,6 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.security.irs.FloatingInterestRateSwapLeg;
-import com.opengamma.financial.security.irs.InterestRateSwapLeg;
 import com.opengamma.financial.security.irs.InterestRateSwapNotional;
 import com.opengamma.financial.security.irs.PayReceiveType;
 import com.opengamma.financial.security.irs.StubCalculationMethod;
@@ -54,10 +57,15 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.service.ServiceContext;
+import com.opengamma.service.ThreadLocalServiceContext;
+import com.opengamma.service.VersionCorrectionProvider;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
 
+@Test(groups = TestGroup.UNIT)
 public class InterestRateSwapSecurityConverterTest {
 
   private static final String SCHEME = "Test";
@@ -126,6 +134,28 @@ public class InterestRateSwapSecurityConverterTest {
     SECURITY_SOURCE = new MySecuritySource(SECURITY_MAP);
     CONVENTION_SOURCE = new TestConventionSource(CONVENTIONS);
     HOLIDAY_SOURCE = new MockHolidaySource();
+
+  }
+
+  @BeforeMethod
+  public static void setUp() {
+    VersionCorrectionProvider versionCorrectionProvider = new VersionCorrectionProvider() {
+      @Override
+      public VersionCorrection getPortfolioVersionCorrection() {
+        return VersionCorrection.LATEST;
+      }
+
+      @Override
+      public VersionCorrection getConfigVersionCorrection() {
+        return VersionCorrection.LATEST;
+      }
+    };
+    ServiceContext serviceContext = ServiceContext.of(
+        ImmutableMap.of(
+            VersionCorrectionProvider.class, versionCorrectionProvider,
+            ConventionSource.class, CONVENTION_SOURCE,
+            SecuritySource.class, SECURITY_SOURCE));
+    ThreadLocalServiceContext.init(serviceContext);
   }
 
 
@@ -141,8 +171,7 @@ public class InterestRateSwapSecurityConverterTest {
     InterestRateSwapNotional notional = new InterestRateSwapNotional(Currency.USD, 1000000);
     PeriodFrequency freq3m = PeriodFrequency.of(Period.ofMonths(3));
     Set<ExternalId> calendarUSNY = Sets.newHashSet(ExternalId.of(ExternalSchemes.ISDA_HOLIDAY, "USNY"));
-    List<InterestRateSwapLeg> legs = new ArrayList<>();
-            
+
     FloatingInterestRateSwapLeg receiveLeg = new FloatingInterestRateSwapLeg();
     receiveLeg.setNotional(notional);
     receiveLeg.setDayCountConvention(DayCounts.ACT_360);
@@ -163,9 +192,7 @@ public class InterestRateSwapSecurityConverterTest {
     receiveLeg.setPayReceiveType(PayReceiveType.RECEIVE);
     receiveLeg.setStubCalculationMethod(shortStubBuilder.build());
     
-    legs.add(receiveLeg);
-      
-    InterestRateSwapSecurityConverter conv = new InterestRateSwapSecurityConverter(HOLIDAY_SOURCE, CONVENTION_SOURCE, SECURITY_SOURCE);    
+    InterestRateSwapSecurityConverter conv = new InterestRateSwapSecurityConverter(HOLIDAY_SOURCE);
     Pair<CouponStub, CouponStub> stubs = conv.parseStubs(receiveLeg.getStubCalculationMethod());
     CouponStub firstStub = stubs.getFirst();
     
@@ -190,8 +217,7 @@ public class InterestRateSwapSecurityConverterTest {
     InterestRateSwapNotional notional = new InterestRateSwapNotional(Currency.USD, 1000000);
     PeriodFrequency freq3m = PeriodFrequency.of(Period.ofMonths(3));
     Set<ExternalId> calendarUSNY = Sets.newHashSet(ExternalId.of(ExternalSchemes.ISDA_HOLIDAY, "USNY"));
-    List<InterestRateSwapLeg> legs = new ArrayList<>();
-            
+
     FloatingInterestRateSwapLeg receiveLeg = new FloatingInterestRateSwapLeg();
     receiveLeg.setNotional(notional);
     receiveLeg.setDayCountConvention(DayCounts.ACT_360);
@@ -212,9 +238,7 @@ public class InterestRateSwapSecurityConverterTest {
     receiveLeg.setPayReceiveType(PayReceiveType.RECEIVE);
     receiveLeg.setStubCalculationMethod(shortStubBuilder.build());
     
-    legs.add(receiveLeg);
-      
-    InterestRateSwapSecurityConverter conv = new InterestRateSwapSecurityConverter(HOLIDAY_SOURCE, CONVENTION_SOURCE, SECURITY_SOURCE);    
+    InterestRateSwapSecurityConverter conv = new InterestRateSwapSecurityConverter(HOLIDAY_SOURCE);
     Pair<CouponStub, CouponStub> stubs = conv.parseStubs(receiveLeg.getStubCalculationMethod());
     CouponStub firstStub = stubs.getFirst();
     
@@ -239,8 +263,7 @@ public class InterestRateSwapSecurityConverterTest {
     InterestRateSwapNotional notional = new InterestRateSwapNotional(Currency.USD, 1000000);
     PeriodFrequency freq3m = PeriodFrequency.of(Period.ofMonths(3));
     Set<ExternalId> calendarUSNY = Sets.newHashSet(ExternalId.of(ExternalSchemes.ISDA_HOLIDAY, "USNY"));
-    List<InterestRateSwapLeg> legs = new ArrayList<>();
-            
+
     FloatingInterestRateSwapLeg receiveLeg = new FloatingInterestRateSwapLeg();
     receiveLeg.setNotional(notional);
     receiveLeg.setDayCountConvention(DayCounts.ACT_360);
@@ -261,9 +284,7 @@ public class InterestRateSwapSecurityConverterTest {
     receiveLeg.setPayReceiveType(PayReceiveType.RECEIVE);
     receiveLeg.setStubCalculationMethod(shortStubBuilder.build());
     
-    legs.add(receiveLeg);
-      
-    InterestRateSwapSecurityConverter conv = new InterestRateSwapSecurityConverter(HOLIDAY_SOURCE, CONVENTION_SOURCE, SECURITY_SOURCE);    
+    InterestRateSwapSecurityConverter conv = new InterestRateSwapSecurityConverter(HOLIDAY_SOURCE);
     Pair<CouponStub, CouponStub> stubs = conv.parseStubs(receiveLeg.getStubCalculationMethod());
     CouponStub secondStub = stubs.getSecond();
     
@@ -288,8 +309,7 @@ public class InterestRateSwapSecurityConverterTest {
     InterestRateSwapNotional notional = new InterestRateSwapNotional(Currency.USD, 1000000);
     PeriodFrequency freq3m = PeriodFrequency.of(Period.ofMonths(3));
     Set<ExternalId> calendarUSNY = Sets.newHashSet(ExternalId.of(ExternalSchemes.ISDA_HOLIDAY, "USNY"));
-    List<InterestRateSwapLeg> legs = new ArrayList<>();
-            
+
     FloatingInterestRateSwapLeg receiveLeg = new FloatingInterestRateSwapLeg();
     receiveLeg.setNotional(notional);
     receiveLeg.setDayCountConvention(DayCounts.ACT_360);
@@ -309,10 +329,8 @@ public class InterestRateSwapSecurityConverterTest {
     receiveLeg.setFloatingReferenceRateId(ExternalId.of(TICKER, USDLIBOR3M_NAME));
     receiveLeg.setPayReceiveType(PayReceiveType.RECEIVE);
     receiveLeg.setStubCalculationMethod(shortStubBuilder.build());
-    
-    legs.add(receiveLeg);
-      
-    InterestRateSwapSecurityConverter conv = new InterestRateSwapSecurityConverter(HOLIDAY_SOURCE, CONVENTION_SOURCE, SECURITY_SOURCE);    
+
+    InterestRateSwapSecurityConverter conv = new InterestRateSwapSecurityConverter(HOLIDAY_SOURCE);
     Pair<CouponStub, CouponStub> stubs = conv.parseStubs(receiveLeg.getStubCalculationMethod());
     CouponStub secondStub = stubs.getSecond();
     
@@ -340,8 +358,7 @@ public class InterestRateSwapSecurityConverterTest {
     InterestRateSwapNotional notional = new InterestRateSwapNotional(Currency.USD, 1000000);
     PeriodFrequency freq3m = PeriodFrequency.of(Period.ofMonths(3));
     Set<ExternalId> calendarUSNY = Sets.newHashSet(ExternalId.of(ExternalSchemes.ISDA_HOLIDAY, "USNY"));
-    List<InterestRateSwapLeg> legs = new ArrayList<>();
-            
+
     FloatingInterestRateSwapLeg receiveLeg = new FloatingInterestRateSwapLeg();
     receiveLeg.setNotional(notional);
     receiveLeg.setDayCountConvention(DayCounts.ACT_360);
@@ -362,9 +379,7 @@ public class InterestRateSwapSecurityConverterTest {
     receiveLeg.setPayReceiveType(PayReceiveType.RECEIVE);
     receiveLeg.setStubCalculationMethod(shortStubBuilder.build());
     
-    legs.add(receiveLeg);
-      
-    InterestRateSwapSecurityConverter conv = new InterestRateSwapSecurityConverter(HOLIDAY_SOURCE, CONVENTION_SOURCE, SECURITY_SOURCE);    
+    InterestRateSwapSecurityConverter conv = new InterestRateSwapSecurityConverter(HOLIDAY_SOURCE);
     Pair<CouponStub, CouponStub> stubs = conv.parseStubs(receiveLeg.getStubCalculationMethod());
     CouponStub firstStub = stubs.getFirst();
     CouponStub secondStub = stubs.getSecond();
@@ -397,8 +412,7 @@ public class InterestRateSwapSecurityConverterTest {
     InterestRateSwapNotional notional = new InterestRateSwapNotional(Currency.USD, 1000000);
     PeriodFrequency freq3m = PeriodFrequency.of(Period.ofMonths(3));
     Set<ExternalId> calendarUSNY = Sets.newHashSet(ExternalId.of(ExternalSchemes.ISDA_HOLIDAY, "USNY"));
-    List<InterestRateSwapLeg> legs = new ArrayList<>();
-            
+
     FloatingInterestRateSwapLeg receiveLeg = new FloatingInterestRateSwapLeg();
     receiveLeg.setNotional(notional);
     receiveLeg.setDayCountConvention(DayCounts.ACT_360);
@@ -419,10 +433,8 @@ public class InterestRateSwapSecurityConverterTest {
     receiveLeg.setPayReceiveType(PayReceiveType.RECEIVE);
     receiveLeg.setStubCalculationMethod(shortStubBuilder.build());
     
-    legs.add(receiveLeg);
-      
-    InterestRateSwapSecurityConverter conv = new InterestRateSwapSecurityConverter(HOLIDAY_SOURCE, CONVENTION_SOURCE, SECURITY_SOURCE);    
-    Pair<CouponStub, CouponStub> stubs = conv.parseStubs(receiveLeg.getStubCalculationMethod());
+    InterestRateSwapSecurityConverter conv = new InterestRateSwapSecurityConverter(HOLIDAY_SOURCE);
+    conv.parseStubs(receiveLeg.getStubCalculationMethod());
   }
   
   @Test(expectedExceptions = OpenGammaRuntimeException.class)
@@ -435,8 +447,7 @@ public class InterestRateSwapSecurityConverterTest {
     InterestRateSwapNotional notional = new InterestRateSwapNotional(Currency.USD, 1000000);
     PeriodFrequency freq3m = PeriodFrequency.of(Period.ofMonths(3));
     Set<ExternalId> calendarUSNY = Sets.newHashSet(ExternalId.of(ExternalSchemes.ISDA_HOLIDAY, "USNY"));
-    List<InterestRateSwapLeg> legs = new ArrayList<>();
-            
+
     FloatingInterestRateSwapLeg receiveLeg = new FloatingInterestRateSwapLeg();
     receiveLeg.setNotional(notional);
     receiveLeg.setDayCountConvention(DayCounts.ACT_360);
@@ -457,10 +468,8 @@ public class InterestRateSwapSecurityConverterTest {
     receiveLeg.setPayReceiveType(PayReceiveType.RECEIVE);
     receiveLeg.setStubCalculationMethod(shortStubBuilder.build());
     
-    legs.add(receiveLeg);
-      
-    InterestRateSwapSecurityConverter conv = new InterestRateSwapSecurityConverter(HOLIDAY_SOURCE, CONVENTION_SOURCE, SECURITY_SOURCE);    
-    Pair<CouponStub, CouponStub> stubs = conv.parseStubs(receiveLeg.getStubCalculationMethod());
+    InterestRateSwapSecurityConverter conv = new InterestRateSwapSecurityConverter(HOLIDAY_SOURCE);
+    conv.parseStubs(receiveLeg.getStubCalculationMethod());
   }    
   
   @Test(expectedExceptions = OpenGammaRuntimeException.class)
@@ -473,8 +482,7 @@ public class InterestRateSwapSecurityConverterTest {
     InterestRateSwapNotional notional = new InterestRateSwapNotional(Currency.USD, 1000000);
     PeriodFrequency freq3m = PeriodFrequency.of(Period.ofMonths(3));
     Set<ExternalId> calendarUSNY = Sets.newHashSet(ExternalId.of(ExternalSchemes.ISDA_HOLIDAY, "USNY"));
-    List<InterestRateSwapLeg> legs = new ArrayList<>();
-            
+
     FloatingInterestRateSwapLeg receiveLeg = new FloatingInterestRateSwapLeg();
     receiveLeg.setNotional(notional);
     receiveLeg.setDayCountConvention(DayCounts.ACT_360);
@@ -495,10 +503,8 @@ public class InterestRateSwapSecurityConverterTest {
     receiveLeg.setPayReceiveType(PayReceiveType.RECEIVE);
     receiveLeg.setStubCalculationMethod(shortStubBuilder.build());
     
-    legs.add(receiveLeg);
-      
-    InterestRateSwapSecurityConverter conv = new InterestRateSwapSecurityConverter(HOLIDAY_SOURCE, CONVENTION_SOURCE, SECURITY_SOURCE);    
-    Pair<CouponStub, CouponStub> stubs = conv.parseStubs(receiveLeg.getStubCalculationMethod());
+    InterestRateSwapSecurityConverter conv = new InterestRateSwapSecurityConverter(HOLIDAY_SOURCE);
+    conv.parseStubs(receiveLeg.getStubCalculationMethod());
   }
   
   @Test(expectedExceptions = OpenGammaRuntimeException.class)
@@ -512,8 +518,7 @@ public class InterestRateSwapSecurityConverterTest {
     InterestRateSwapNotional notional = new InterestRateSwapNotional(Currency.USD, 1000000);
     PeriodFrequency freq3m = PeriodFrequency.of(Period.ofMonths(3));
     Set<ExternalId> calendarUSNY = Sets.newHashSet(ExternalId.of(ExternalSchemes.ISDA_HOLIDAY, "USNY"));
-    List<InterestRateSwapLeg> legs = new ArrayList<>();
-            
+
     FloatingInterestRateSwapLeg receiveLeg = new FloatingInterestRateSwapLeg();
     receiveLeg.setNotional(notional);
     receiveLeg.setDayCountConvention(DayCounts.ACT_360);
@@ -534,10 +539,8 @@ public class InterestRateSwapSecurityConverterTest {
     receiveLeg.setPayReceiveType(PayReceiveType.RECEIVE);
     receiveLeg.setStubCalculationMethod(shortStubBuilder.build());
     
-    legs.add(receiveLeg);
-      
-    InterestRateSwapSecurityConverter conv = new InterestRateSwapSecurityConverter(HOLIDAY_SOURCE, CONVENTION_SOURCE, SECURITY_SOURCE);    
-    Pair<CouponStub, CouponStub> stubs = conv.parseStubs(receiveLeg.getStubCalculationMethod());
+    InterestRateSwapSecurityConverter conv = new InterestRateSwapSecurityConverter(HOLIDAY_SOURCE);
+    conv.parseStubs(receiveLeg.getStubCalculationMethod());
   }
     
   private IndexDeposit getIborIndex(ExternalId indexId, SecuritySource securitySource, ConventionSource conventionSource) {
@@ -607,7 +610,7 @@ public class InterestRateSwapSecurityConverterTest {
 
     @Override
     public Security getSingle(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
-      return null;
+      return getSingle(bundle);
     }
 
     @Override
