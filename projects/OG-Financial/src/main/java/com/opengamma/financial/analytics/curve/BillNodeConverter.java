@@ -64,7 +64,22 @@ public class BillNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinit
    * @param dataId The market data id, not null
    * @param valuationTime The valuation time, not null
    */
+  @Deprecated
   public BillNodeConverter(HolidaySource holidaySource, RegionSource regionSource, SecuritySource securitySource,
+                           LegalEntitySource legalEntitySource, SnapshotDataBundle marketData, ExternalId dataId,
+                           ZonedDateTime valuationTime) {
+    this(holidaySource, regionSource, legalEntitySource, marketData, dataId, valuationTime);
+  }
+
+  /**
+   * @param regionSource The region source, not null
+   * @param holidaySource The holiday source, not null
+   * @param legalEntitySource The legal entity source, not null
+   * @param marketData The market data, not null
+   * @param dataId The market data id, not null
+   * @param valuationTime The valuation time, not null
+   */
+  public BillNodeConverter(HolidaySource holidaySource, RegionSource regionSource,
                            LegalEntitySource legalEntitySource, SnapshotDataBundle marketData, ExternalId dataId,
                            ZonedDateTime valuationTime) {
     ArgumentChecker.notNull(regionSource, "region source");
