@@ -274,6 +274,22 @@ public class SwapCalculatorE2ETest {
   }
 
   @Test
+  /** Tests par spread for Fixed vs Libor3M swaps. */
+  public void parSpreadMarketQuote3M() {
+    final double parSpread = SwapInstrumentsDataSet.SWAP_FIXED_3M.accept(PSMQDC, MULTICURVE_OIS);
+    final double parSpreadExpected = 0.01089471566819499;
+    assertEquals("Fixed vs Libor3M swaps: par spread", parSpreadExpected, parSpread, TOLERANCE_RATE);
+  }
+
+  @Test
+  /** Tests par spread for swap fixed vs Fed Fund compounded. */
+  public void parSpreadMarketQuoteON() {
+    final double parSpread = SwapInstrumentsDataSet.SWAP_FIXED_ON.accept(PSMQDC, MULTICURVE_OIS);
+    final double parSpreadExpected = -5.739276118599975E-4;
+    assertEquals("Fixed vs Libor3M swaps: par spread", parSpreadExpected, parSpread, TOLERANCE_RATE);
+  }
+
+  @Test
   /** Tests Bucketed PV01 of ON Arithmetic Average (+ spread) vs Libor3M swaps. */
   public void BucketedPV01ONAA3M() {
     final double[] deltaDsc = {-0.5362, -0.5362, 1.5056, -20.3864, 156.4589, 
