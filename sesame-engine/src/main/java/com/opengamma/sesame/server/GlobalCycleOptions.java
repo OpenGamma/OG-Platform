@@ -214,7 +214,10 @@ public final class GlobalCycleOptions implements ImmutableBean, CycleOptions {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the valuation time to be used during the execution.
+   * Gets the valuation time to be used during the execution. Either {@link #_valuationTime}
+   * or {@link #_valuationTimeSupplier} must be supplied on construction. If both are
+   * provided then the {@link #_valuationTimeSupplier} will be used as the source
+   * of valuation times.
    * @return the value of the property
    */
   public ZonedDateTime getValuationTime() {
@@ -223,7 +226,11 @@ public final class GlobalCycleOptions implements ImmutableBean, CycleOptions {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the valuationTimeSupplier.
+   * Gets a supplier of valuation times. This allows a different valuation time to
+   * be used on each cycle if required. Either {@link #_valuationTime} or
+   * {@link #_valuationTimeSupplier} must be supplied on construction. If both are
+   * provided then the {@link #_valuationTimeSupplier} will be used as the source
+   * of valuation times.
    * @return the value of the property
    */
   public Supplier<ZonedDateTime> getValuationTimeSupplier() {
@@ -600,8 +607,7 @@ public final class GlobalCycleOptions implements ImmutableBean, CycleOptions {
     public String toString() {
       StringBuilder buf = new StringBuilder(192);
       buf.append("GlobalCycleOptions.Builder{");
-      buf.append("awaitAllMarketData").append('=').append(JodaBeanUtils.toString(_awaitAllMarketData)).append(',').append(
-          ' ');
+      buf.append("awaitAllMarketData").append('=').append(JodaBeanUtils.toString(_awaitAllMarketData)).append(',').append(' ');
       buf.append("numCycles").append('=').append(JodaBeanUtils.toString(_numCycles)).append(',').append(' ');
       buf.append("marketDataSpec").append('=').append(JodaBeanUtils.toString(_marketDataSpec)).append(',').append(' ');
       buf.append("valuationTime").append('=').append(JodaBeanUtils.toString(_valuationTime)).append(',').append(' ');
