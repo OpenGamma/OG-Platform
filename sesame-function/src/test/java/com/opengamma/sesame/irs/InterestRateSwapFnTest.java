@@ -157,6 +157,7 @@ public class InterestRateSwapFnTest {
   private InterestRateSwapSecurity _fixedVsOnCompoundedSwapSecurity = createFixedVsOnCompoundedSwap();
   private InterestRateSwapSecurity _fixedVsLibor3mSwapSecurity = createFixedVsLibor3mSwap();
   private InterestRateSwapSecurity _fixedVsLiborWithFixingSwapSecurity = createFixedVsLiborWithFixingSwap();
+  private InterestRateSwapSecurity _fixedVsLibor3mZcSwapSecurity = createFixedVsLibor3mZcSwap();
 
   @BeforeClass
   public void setUpClass() throws IOException {
@@ -359,6 +360,56 @@ public class InterestRateSwapFnTest {
         legs);
   }
 
+  private InterestRateSwapSecurity createFixedVsLibor3mZcSwap() {
+
+    InterestRateSwapNotional notional = new InterestRateSwapNotional(Currency.USD, NOTIONAL);
+    PeriodFrequency freq6m = PeriodFrequency.of(Period.ofMonths(6));
+    PeriodFrequency freq3m = PeriodFrequency.of(Period.ofMonths(3));
+    Set<ExternalId> calendarUSNY = Sets.newHashSet(ExternalId.of(ExternalSchemes.ISDA_HOLIDAY, "USNY"));
+    List<InterestRateSwapLeg> legs = new ArrayList<>();
+
+    FixedInterestRateSwapLeg payLeg = new FixedInterestRateSwapLeg();
+    payLeg.setNotional(notional);
+    payLeg.setDayCountConvention(DayCounts.THIRTY_U_360);
+    payLeg.setPaymentDateFrequency(freq6m);
+    payLeg.setPaymentDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
+    payLeg.setPaymentDateCalendars(calendarUSNY);
+    payLeg.setAccrualPeriodFrequency(SimpleFrequency.NEVER);
+    payLeg.setAccrualPeriodBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
+    payLeg.setAccrualPeriodCalendars(calendarUSNY);
+    payLeg.setRate(new Rate(0.0150));
+    payLeg.setPayReceiveType(PayReceiveType.PAY);
+    legs.add(payLeg);
+
+    FloatingInterestRateSwapLeg receiveLeg = new FloatingInterestRateSwapLeg();
+    receiveLeg.setNotional(notional);
+    receiveLeg.setDayCountConvention(DayCounts.ACT_360);
+    receiveLeg.setPaymentDateFrequency(SimpleFrequency.NEVER);
+    receiveLeg.setPaymentDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
+    receiveLeg.setPaymentDateCalendars(calendarUSNY);
+    receiveLeg.setAccrualPeriodFrequency(freq3m);
+    receiveLeg.setAccrualPeriodBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
+    receiveLeg.setAccrualPeriodCalendars(calendarUSNY);
+    receiveLeg.setResetPeriodFrequency(freq3m);
+    receiveLeg.setResetPeriodBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
+    receiveLeg.setResetPeriodCalendars(calendarUSNY);
+    receiveLeg.setFixingDateBusinessDayConvention(BusinessDayConventions.PRECEDING);
+    receiveLeg.setFixingDateCalendars(calendarUSNY);
+    receiveLeg.setFixingDateOffset(-2);
+    receiveLeg.setFloatingRateType(FloatingRateType.IBOR);
+    receiveLeg.setFloatingReferenceRateId(InterestRateMockSources.getLiborIndexId());
+    receiveLeg.setPayReceiveType(PayReceiveType.RECEIVE);
+
+    legs.add(receiveLeg);
+
+    return new InterestRateSwapSecurity(
+        ExternalIdBundle.of(ExternalId.of("UUID", GUIDGenerator.generate().toString())),
+        "Fixed vs Libor 3m zc",
+        LocalDate.of(2013, 1, 1), // effective date
+        LocalDate.of(2021, 9, 12), // maturity date,
+        legs);
+  }
+
   @Test
   public void fixedVsLibor3mSwapLegDetails() {
     Result<SwapLegCashFlows> payResult = _swapFunction.calculatePayLegCashFlows(ENV,_fixedVsLibor3mSwapSecurity);
@@ -531,6 +582,15 @@ public class InterestRateSwapFnTest {
 
     MultipleCurrencyAmount mca = resultPv.getValue();
     assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(EXPECTED_3M_PV, STD_TOLERANCE_PV)));
+  }
+
+  @Test
+  public void fixedVsLibor3mZcSwapPv() {
+    Result<MultipleCurrencyAmount> resultPv = _swapFunction.calculatePV(ENV, _fixedVsLibor3mZcSwapSecurity);
+    assertThat(resultPv.isSuccess(), is((true)));
+
+    MultipleCurrencyAmount mca = resultPv.getValue();
+    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(-3444569.0628772983, STD_TOLERANCE_PV)));
   }
 
   //TODO when converting a swap to derivative and then getting the par rate via the ParRateDiscounting Calculator,
