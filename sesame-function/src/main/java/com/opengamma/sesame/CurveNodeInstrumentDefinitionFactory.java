@@ -13,13 +13,11 @@ import com.opengamma.analytics.financial.forex.definition.ForexSwapDefinition;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.legalentity.LegalEntitySource;
 import com.opengamma.core.link.ConventionLink;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
-import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.analytics.conversion.CalendarUtils;
 import com.opengamma.financial.analytics.curve.BillNodeConverter;
 import com.opengamma.financial.analytics.curve.BondNodeConverter;
@@ -62,8 +60,6 @@ import com.opengamma.util.time.Tenor;
  */
 public class CurveNodeInstrumentDefinitionFactory {
 
-  private final SecuritySource _securitySource;
-  private final ConventionSource _conventionSource;
   private final ConventionBundleSource _conventionBundleSource;
   private final LegalEntitySource _legalEntitySource;
   private final HolidaySource _holidaySource;
@@ -72,19 +68,15 @@ public class CurveNodeInstrumentDefinitionFactory {
   /**
    * Create the factory.
    *
-   * @param securitySource the securitySource
-   * @param conventionSource the convention source
    * @param holidaySource the holiday source
    * @param regionSource the region source
    * @param conventionBundleSource the convention bundle source
    * @param legalEntitySource the legal entity source
    */
-  public CurveNodeInstrumentDefinitionFactory(SecuritySource securitySource, ConventionSource conventionSource,
-                                              HolidaySource holidaySource, RegionSource regionSource,
+  public CurveNodeInstrumentDefinitionFactory(HolidaySource holidaySource,
+                                              RegionSource regionSource,
                                               ConventionBundleSource conventionBundleSource,
                                               LegalEntitySource legalEntitySource) {
-    _securitySource = ArgumentChecker.notNull(securitySource, "securitySource");
-    _conventionSource = ArgumentChecker.notNull(conventionSource, "conventionSource");
     _holidaySource = ArgumentChecker.notNull(holidaySource, "holidaySource");
     _regionSource = ArgumentChecker.notNull(regionSource, "regionSource");
     _conventionBundleSource = ArgumentChecker.notNull(conventionBundleSource, "conventionBundleSource");
@@ -182,73 +174,64 @@ public class CurveNodeInstrumentDefinitionFactory {
 
       @Override
       public InstrumentDefinition<?> visitCashNode(CashNode node) {
-        CashNodeConverter nodeConverter = new CashNodeConverter(
-            _securitySource, _conventionSource, _holidaySource,
-            _regionSource, marketData, nodeDataId, valuationTime);
+        CashNodeConverter nodeConverter =
+            new CashNodeConverter(_holidaySource, _regionSource, marketData, nodeDataId, valuationTime);
         return nodeConverter.visitCashNode(node);
       }
 
       @Override
       public InstrumentDefinition<?> visitFRANode(FRANode node) {
-        FRANodeConverter nodeConverter = new FRANodeConverter(
-            _securitySource, _conventionSource, _holidaySource,
-            _regionSource, marketData, nodeDataId, valuationTime);
+        FRANodeConverter nodeConverter =
+            new FRANodeConverter(_holidaySource, _regionSource, marketData, nodeDataId, valuationTime);
         return nodeConverter.visitFRANode(node);
       }
 
       @Override
       public InstrumentDefinition<?> visitRollDateFRANode(RollDateFRANode node) {
-        RollDateFRANodeConverter nodeConverter = new RollDateFRANodeConverter(
-            _securitySource, _conventionSource, _holidaySource,
-            _regionSource, marketData, nodeDataId, valuationTime);
+        RollDateFRANodeConverter nodeConverter =
+            new RollDateFRANodeConverter(_holidaySource, _regionSource, marketData, nodeDataId, valuationTime);
         return nodeConverter.visitRollDateFRANode(node);
       }
 
       @Override
       public InstrumentDefinition<?> visitRollDateSwapNode(RollDateSwapNode node) {
-        RollDateSwapNodeConverter nodeConverter = new RollDateSwapNodeConverter(
-            _securitySource, _conventionSource, _holidaySource,
-            _regionSource, marketData, nodeDataId, valuationTime);
+        RollDateSwapNodeConverter nodeConverter =
+            new RollDateSwapNodeConverter(_holidaySource, _regionSource, marketData, nodeDataId, valuationTime);
         return nodeConverter.visitRollDateSwapNode(node);
       }
 
       @Override
       public InstrumentDefinition<?> visitRateFutureNode(RateFutureNode node) {
-        RateFutureNodeConverter nodeConverter = new RateFutureNodeConverter(
-            _securitySource, _conventionSource, _holidaySource,
-            _regionSource, marketData, nodeDataId, valuationTime);
+        RateFutureNodeConverter nodeConverter =
+            new RateFutureNodeConverter(_holidaySource, _regionSource, marketData, nodeDataId, valuationTime);
         return nodeConverter.visitRateFutureNode(node);
       }
 
       @Override
       public InstrumentDefinition<?> visitThreeLegBasisSwapNode(ThreeLegBasisSwapNode node) {
-        ThreeLegBasisSwapNodeConverter nodeConverter = new ThreeLegBasisSwapNodeConverter(
-            _securitySource, _conventionSource, _holidaySource, _regionSource,
-            marketData, nodeDataId, valuationTime);
+        ThreeLegBasisSwapNodeConverter nodeConverter =
+            new ThreeLegBasisSwapNodeConverter(_holidaySource, _regionSource, marketData, nodeDataId, valuationTime);
         return nodeConverter.visitThreeLegBasisSwapNode(node);
       }
 
       @Override
       public InstrumentDefinition<?> visitSwapNode(SwapNode node) {
-        SwapNodeConverter nodeConverter = new SwapNodeConverter(
-            _securitySource, _conventionSource, _holidaySource, _regionSource,
-            marketData, nodeDataId, valuationTime, fxMatrix);
+        SwapNodeConverter nodeConverter =
+            new SwapNodeConverter(_holidaySource, _regionSource, marketData, nodeDataId, valuationTime, fxMatrix);
         return nodeConverter.visitSwapNode(node);
       }
 
       @Override
       public InstrumentDefinition<?> visitBillNode(BillNode node) {
-        BillNodeConverter nodeConverter = new BillNodeConverter(
-            _holidaySource, _regionSource, _securitySource, _legalEntitySource,
-            marketData, nodeDataId, valuationTime);
+        BillNodeConverter nodeConverter = new BillNodeConverter(_holidaySource, _regionSource,  _legalEntitySource,
+                                                                marketData, nodeDataId, valuationTime);
         return nodeConverter.visitBillNode(node);
       }
 
       @Override
       public InstrumentDefinition<?> visitBondNode(BondNode node) {
-        BondNodeConverter nodeConverter = new BondNodeConverter(
-            _conventionBundleSource, _holidaySource, _regionSource, _securitySource,
-            marketData, nodeDataId, valuationTime);
+        BondNodeConverter nodeConverter = new BondNodeConverter(_regionSource, _holidaySource, _conventionBundleSource,
+                                                                marketData, nodeDataId, valuationTime);
         return nodeConverter.visitBondNode(node);
       }
 

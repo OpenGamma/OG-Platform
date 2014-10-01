@@ -232,16 +232,31 @@ public class DiscountingMulticurveBundleFnTest {
   }
   
   private void initConventionSource(ConventionSource cs) {
-    SwapFixedLegConvention fixedLegConvention = loadConvention(SwapFixedLegConvention.class, "USD_OIS_Fixed_Leg.xml", false);
-    when(cs.getSingle(ExternalId.of("CONVENTION", "USD OIS Fixed Leg"), FinancialConvention.class)).thenReturn(fixedLegConvention);
+    SwapFixedLegConvention fixedLegConvention =
+        loadConvention(SwapFixedLegConvention.class, "USD_OIS_Fixed_Leg.xml", false);
+    ExternalId usdOisConventionId = ExternalId.of("CONVENTION", "USD OIS Fixed Leg");
+    when(cs.getSingle(usdOisConventionId, FinancialConvention.class))
+        .thenReturn(fixedLegConvention);
+    when(cs.getSingle(usdOisConventionId.toBundle(), LATEST))
+        .thenReturn(fixedLegConvention);
+
+    FinancialConvention oisOvernight =
+        loadConvention(OISLegConvention.class, "USD_OIS_Overnight_Leg.xml", false);
+    ExternalId usdOisOnConventionId = ExternalId.of("CONVENTION", "USD OIS Overnight Leg");
+    when(cs.getSingle(usdOisOnConventionId, FinancialConvention.class))
+        .thenReturn(oisOvernight);
+    when(cs.getSingle(usdOisOnConventionId.toBundle(), LATEST))
+         .thenReturn(oisOvernight);
     
-    FinancialConvention oisOvernight = loadConvention(OISLegConvention.class, "USD_OIS_Overnight_Leg.xml", false);
-    when(cs.getSingle(ExternalId.of("CONVENTION", "USD OIS Overnight Leg"), FinancialConvention.class)).thenReturn(oisOvernight);
-    
-    OvernightIndexConvention ff = loadConvention(OvernightIndexConvention.class, "FedFundsEffectiveRateU.xml", false);
-    when(cs.getSingle(ExternalId.of("BLOOMBERG_CONVENTION_NAME", "Federal Funds Effective Rate U"), FinancialConvention.class)).thenReturn(ff);
-    when(cs.getSingle(ExternalId.of("BLOOMBERG_CONVENTION_NAME", "Federal Funds Effective Rate U"), OvernightIndexConvention.class)).thenReturn(ff);
-    when(cs.getSingle(ExternalId.of("BLOOMBERG_CONVENTION_NAME", "Federal Funds Effective Rate U").toBundle(), LATEST)).thenReturn(ff);
+    OvernightIndexConvention ff =
+        loadConvention(OvernightIndexConvention.class, "FedFundsEffectiveRateU.xml", false);
+    ExternalId fffConventionId = ExternalId.of("BLOOMBERG_CONVENTION_NAME", "Federal Funds Effective Rate U");
+    when(cs.getSingle(fffConventionId, FinancialConvention.class))
+        .thenReturn(ff);
+    when(cs.getSingle(fffConventionId, OvernightIndexConvention.class))
+        .thenReturn(ff);
+    when(cs.getSingle(fffConventionId.toBundle(), LATEST))
+        .thenReturn(ff);
   }
   
   private void initSecuritySource(SecuritySource ss) {

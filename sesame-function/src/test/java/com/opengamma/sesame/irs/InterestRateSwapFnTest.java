@@ -535,7 +535,7 @@ public class InterestRateSwapFnTest {
 
   //TODO when converting a swap to derivative and then getting the par rate via the ParRateDiscounting Calculator,
   //par rate is not available as the converted swap is not of type SwapFixedCoupon
-  @Test(enabled = false)
+  @Test()
   public void fixedVsOnCompoundedSwapParRate() {
     Result<Double> resultParRate = _swapFunction.calculateParRate(ENV, _fixedVsOnCompoundedSwapSecurity);
     assertThat(resultParRate.isSuccess(), is((true)));

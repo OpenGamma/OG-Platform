@@ -35,6 +35,7 @@ import com.opengamma.sesame.server.DefaultFunctionServer;
 import com.opengamma.sesame.server.FunctionServer;
 import com.opengamma.sesame.server.streaming.DataStreamingFunctionServerResource;
 import com.opengamma.sesame.server.streaming.DefaultStreamingFunctionServer;
+import com.opengamma.sesame.server.streaming.StreamingFunctionServer;
 import com.opengamma.util.jms.JmsConnector;
 
 /**
@@ -58,9 +59,9 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
   private boolean _publishRest = true;
   /**
    * Should the component enable streaming results. If set to true, then the
-   * {@link #_jmsConnector} and {@link #_scheduledExecutor} should not be null.
+   * {@link #_scheduledExecutor} should not be null.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private boolean _enableStreamedResults = true;
   /**
    * The view factory that is responsible for creating views.
@@ -120,16 +121,16 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
                                    CycleRunnerFactory cycleRunnerFactory) {
 
     String msg = "Streaming results have been requested but %s is null - streaming will not be available";
-    if (getJmsConnector() == null) {
-      throw new OpenGammaRuntimeException(String.format(msg, "jmsConnector"));
-    } else if (getScheduledExecutor() == null) {
+    JmsConnector jmsConnector = getJmsConnector();
+    if (getScheduledExecutor() == null) {
       throw new OpenGammaRuntimeException(String.format(msg, "scheduledExecutor"));
     }
 
     DefaultStreamingFunctionServer streamingServer = new DefaultStreamingFunctionServer(server, cycleRunnerFactory);
-    repo.registerComponent(DefaultStreamingFunctionServer.class, getClassifier(), streamingServer);
-    if (isPublishRest()) {
-      repo.getRestComponents().publishResource(new DataStreamingFunctionServerResource(streamingServer, getJmsConnector(), getScheduledExecutor()));
+    repo.registerComponent(StreamingFunctionServer.class, getClassifier(), streamingServer);
+    if (isPublishRest() && jmsConnector != null) {
+      repo.getRestComponents().publishResource(
+          new DataStreamingFunctionServerResource(streamingServer, jmsConnector, getScheduledExecutor()));
     }
   }
 
@@ -211,7 +212,7 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
   /**
    * Gets should the component enable streaming results. If set to true, then the
    * {@link #_jmsConnector} and {@link #_scheduledExecutor} should not be null.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public boolean isEnableStreamedResults() {
     return _enableStreamedResults;
@@ -220,10 +221,9 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
   /**
    * Sets should the component enable streaming results. If set to true, then the
    * {@link #_jmsConnector} and {@link #_scheduledExecutor} should not be null.
-   * @param enableStreamedResults  the new value of the property, not null
+   * @param enableStreamedResults  the new value of the property
    */
   public void setEnableStreamedResults(boolean enableStreamedResults) {
-    JodaBeanUtils.notNull(enableStreamedResults, "enableStreamedResults");
     this._enableStreamedResults = enableStreamedResults;
   }
 
@@ -713,7 +713,6 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
     protected void validate(Bean bean) {
       JodaBeanUtils.notNull(((FunctionServerComponentFactory) bean)._classifier, "classifier");
       JodaBeanUtils.notNull(((FunctionServerComponentFactory) bean)._publishRest, "publishRest");
-      JodaBeanUtils.notNull(((FunctionServerComponentFactory) bean)._enableStreamedResults, "enableStreamedResults");
       JodaBeanUtils.notNull(((FunctionServerComponentFactory) bean)._viewFactory, "viewFactory");
       JodaBeanUtils.notNull(((FunctionServerComponentFactory) bean)._marketDataFactory, "marketDataFactory");
       super.validate(bean);
