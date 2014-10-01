@@ -7,6 +7,8 @@ package com.opengamma.financial.analytics.conversion;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 
@@ -82,6 +84,7 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
    *
    * @param holidaySource The holiday source, not null
    */
+  @Inject
   public InterestRateSwapSecurityConverter(final HolidaySource holidaySource) {
     _holidaySource = ArgumentChecker.notNull(holidaySource, "holidaySource");
   }
@@ -287,7 +290,8 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
         payer(payer).
         currency(leg.getNotional().getCurrency()).
         notional(getNotionalProvider(leg.getNotional(), leg.getAccrualPeriodBusinessDayConvention(),
-            new HolidaySourceCalendarAdapter(_holidaySource, leg.getAccrualPeriodCalendars().toArray(new ExternalId[leg.getAccrualPeriodCalendars().size()])))).
+                                     new HolidaySourceCalendarAdapter(_holidaySource,
+                                                                      leg.getAccrualPeriodCalendars().toArray(new ExternalId[leg.getAccrualPeriodCalendars().size()])))).
         startDate(startDate).
         endDate(endDate).
         endDateAdjustmentParameters(maturityDateParameters).
@@ -467,7 +471,8 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
         payer(payer).
         currency(leg.getNotional().getCurrency()).
         notional(getNotionalProvider(leg.getNotional(), leg.getAccrualPeriodBusinessDayConvention(),
-            new HolidaySourceCalendarAdapter(_holidaySource, leg.getAccrualPeriodCalendars().toArray(new ExternalId[leg.getAccrualPeriodCalendars().size()])))).
+                                     new HolidaySourceCalendarAdapter(_holidaySource,
+                                                                      leg.getAccrualPeriodCalendars().toArray(new ExternalId[leg.getAccrualPeriodCalendars().size()])))).
         startDate(startDate).
         endDate(endDate).
         endDateAdjustmentParameters(maturityDateParameters).
