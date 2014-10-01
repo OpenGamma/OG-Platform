@@ -18,7 +18,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Computes the price for different types of futures. Calculator using a multi-curve and issuer provider.
  */
-public final class FuturesPriceBlackSTIRFuturesCalculator extends InstrumentDerivativeVisitorAdapter<BlackSTIRFuturesProviderInterface, Double> {
+public class FuturesPriceBlackSTIRFuturesCalculator extends InstrumentDerivativeVisitorAdapter<BlackSTIRFuturesProviderInterface, Double> {
 
   /**
    * The unique instance of the calculator.
@@ -36,7 +36,7 @@ public final class FuturesPriceBlackSTIRFuturesCalculator extends InstrumentDeri
   /**
    * Constructor.
    */
-  private FuturesPriceBlackSTIRFuturesCalculator() {
+  FuturesPriceBlackSTIRFuturesCalculator() {
   }
 
   /** The Black function used in the pricing. */
@@ -50,7 +50,8 @@ public final class FuturesPriceBlackSTIRFuturesCalculator extends InstrumentDeri
   public Double visitInterestRateFutureOptionMarginSecurity(final InterestRateFutureOptionMarginSecurity security, final BlackSTIRFuturesProviderInterface black) {
     ArgumentChecker.notNull(security, "Option security");
     ArgumentChecker.notNull(black, "Black data");
-    final double priceFuture = METHOD_FUTURE.price(security.getUnderlyingFuture(), black.getMulticurveProvider());
+    double rawPriceFuture = METHOD_FUTURE.price(security.getUnderlyingFuture(), black.getMulticurveProvider());
+    double priceFuture = roundFuturesPrice(rawPriceFuture);
     final double rateStrike = 1.0 - security.getStrike();
     final EuropeanVanillaOption option = new EuropeanVanillaOption(rateStrike, security.getExpirationTime(), !security.isCall());
     final double forward = 1 - priceFuture;
@@ -65,5 +66,10 @@ public final class FuturesPriceBlackSTIRFuturesCalculator extends InstrumentDeri
   public Double visitInterestRateFutureOptionMarginTransaction(InterestRateFutureOptionMarginTransaction option, BlackSTIRFuturesProviderInterface data) {
     return visitInterestRateFutureOptionMarginSecurity(option.getUnderlyingSecurity(), data);
   }
-
+  
+  protected double roundFuturesPrice(double unrounded) {
+    return unrounded;
+  }
+  
+  
 }
