@@ -5,6 +5,7 @@
  */
 package com.opengamma.sesame.irs;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,6 +16,7 @@ import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
+import com.opengamma.analytics.financial.provider.calculator.discounting.CrossGammaMultiCurveCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PV01CurveParametersCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParRateDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueCurveSensitivityDiscountingCalculator;
@@ -22,17 +24,22 @@ import com.opengamma.analytics.financial.provider.calculator.discounting.Present
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingMultipleInstrumentsCalculator;
 import com.opengamma.analytics.financial.provider.calculator.generic.MarketQuoteSensitivityBlockCalculator;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
+import com.opengamma.analytics.math.matrix.CommonsMatrixAlgebra;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
+import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.conversion.InterestRateSwapSecurityConverter;
 import com.opengamma.financial.analytics.conversion.TradeFeeConverter;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
+import com.opengamma.financial.analytics.model.fixedincome.BucketedCrossSensitivities;
 import com.opengamma.financial.analytics.model.fixedincome.BucketedCurveSensitivities;
 import com.opengamma.financial.analytics.model.fixedincome.CashFlowDetailsCalculator;
 import com.opengamma.financial.analytics.model.fixedincome.CashFlowDetailsProvider;
@@ -96,7 +103,11 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
   /** The market quote sensitivity calculator */
   private static final MarketQuoteSensitivityBlockCalculator<MulticurveProviderInterface> BUCKETED_PV01_CALCULATOR =
       new MarketQuoteSensitivityBlockCalculator<>(PSC);
-
+  /** The calculator which will compute intra-curve gammas */
+  private static final CrossGammaMultiCurveCalculator CGC = new CrossGammaMultiCurveCalculator(PVCSDC);
+  /** Matrix algebra tooling to permit matrix manipulation */
+  private static final CommonsMatrixAlgebra MA = new CommonsMatrixAlgebra();
+  
   /**
    * Provides scaling to/from basis points.
    */
@@ -267,6 +278,21 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
       labelledMatrix1DMap.put(entry.getKey(), matrix);
     }
     return Result.success(BucketedCurveSensitivities.of(labelledMatrix1DMap));
+  }
+  
+  @Override
+  public Result<BucketedCrossSensitivities> calculateBucketedGamma() {
+    HashMap<String, DoubleMatrix2D> crossGammas = CGC.calculateCrossGammaIntraCurve(_derivative, (MulticurveProviderDiscount) _bundle);
+    Map<String, DoubleLabelledMatrix2D> labelledMatrix2DMap = new HashMap<>();
+    
+    for (Map.Entry<String, DoubleMatrix2D> entry : crossGammas.entrySet()) {
+      CurveDefinition curveDefinition = _curveDefinitions.get(entry.getKey());
+      //Values returned from analytics need to be scaled appropriately: multiplied by 1 bp ^ 1bp
+      DoubleMatrix2D scaledValues = (DoubleMatrix2D) MA.scale(entry.getValue(), BASIS_POINT_FACTOR * BASIS_POINT_FACTOR);
+      DoubleLabelledMatrix2D matrix = MultiCurveUtils.getLabelledMatrix2D(scaledValues, curveDefinition);
+      labelledMatrix2DMap.put(entry.getKey(), matrix);
+    }
+    return Result.success(BucketedCrossSensitivities.of(labelledMatrix2DMap));
   }
 
   @Override
