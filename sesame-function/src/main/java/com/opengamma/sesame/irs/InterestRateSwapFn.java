@@ -36,6 +36,17 @@ public interface InterestRateSwapFn {
   Result<Double> calculateParRate(Environment env, InterestRateSwapSecurity security);
 
   /**
+   * Compute the spread to be added to the market standard quote of the instrument for
+   * which the present value of the instrument is zero.
+   *
+   * @param env the environment used for calculation
+   * @param security the Swap to calculate the rate for
+   * @return result containing the rate if successful, a Failure otherwise
+   */
+  @Output(value = OutputNames.PAR_SPREAD_MARKET_QUOTE)
+  Result<Double> calculateParSpreadMarketQuote(Environment env, InterestRateSwapSecurity security);
+
+  /**
    * Calculate the present value for a Swap security.
    *
    * @param env the environment used for calculation

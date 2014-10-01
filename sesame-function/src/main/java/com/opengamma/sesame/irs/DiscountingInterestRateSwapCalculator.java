@@ -17,6 +17,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PV01CurveParametersCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParRateDiscountingCalculator;
+import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingMultipleInstrumentsCalculator;
@@ -96,6 +97,9 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
   /** The market quote sensitivity calculator */
   private static final MarketQuoteSensitivityBlockCalculator<MulticurveProviderInterface> BUCKETED_PV01_CALCULATOR =
       new MarketQuoteSensitivityBlockCalculator<>(PSC);
+  /** The par spread market quote calculator */
+  private static final ParSpreadMarketQuoteDiscountingCalculator PSMQC =
+      ParSpreadMarketQuoteDiscountingCalculator.getInstance();
 
   /**
    * Provides scaling to/from basis points.
@@ -248,6 +252,11 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
   @Override
   public Result<Double> calculateRate() {
     return Result.success(calculateResult(PRDC));
+  }
+
+  @Override
+  public Result<Double> calculateParSpreadMarketQuote() {
+    return Result.success(calculateResult(PSMQC));
   }
 
   @Override
