@@ -63,6 +63,7 @@ public class BillNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinit
    * @param marketData The market data, not null
    * @param dataId The market data id, not null
    * @param valuationTime The valuation time, not null
+   * @deprecated use constructor without securitySource
    */
   @Deprecated
   public BillNodeConverter(HolidaySource holidaySource, RegionSource regionSource, SecuritySource securitySource,
