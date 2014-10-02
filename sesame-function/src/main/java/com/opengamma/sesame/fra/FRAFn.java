@@ -68,7 +68,7 @@ public interface FRAFn {
    * @param security the fra to calculate the PV01 for
    * @return result containing the PV01 if successful, a Failure otherwise
    */
-  @Output(value = OutputNames.PV01)
+  @Output(OutputNames.PV01)
   Result<ReferenceAmount<Pair<String, Currency>>> calculatePV01(Environment env, ForwardRateAgreementSecurity security);
 
   /**
@@ -78,7 +78,7 @@ public interface FRAFn {
    * @param security the FRA to calculate the PV01 for
    * @return result containing the present value if successful, a Failure otherwise
    */
-  @Output(OutputNames.PRESENT_VALUE)
+  @Output(OutputNames.PV01)
   Result<ReferenceAmount<Pair<String, Currency>>> calculatePV01(Environment env, FRASecurity security);
 
 }

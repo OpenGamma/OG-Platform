@@ -78,11 +78,7 @@ public class DiscountingFRAFn implements FRAFn {
     if (!calculatorResult.isSuccess()) {
       return Result.failure(calculatorResult);
     }
-    Result<ReferenceAmount<Pair<String, Currency>>> pv01Result = calculatorResult.getValue().calculatePV01();
-    if (!pv01Result.isSuccess()) {
-      return Result.failure(pv01Result);
-    }
-    return Result.success(pv01Result.getValue());
+    return calculatorResult.getValue().calculatePV01();
   }
 
   @Override
@@ -92,11 +88,7 @@ public class DiscountingFRAFn implements FRAFn {
     if (!calculatorResult.isSuccess()) {
       return Result.failure(calculatorResult);
     }
-    Result<ReferenceAmount<Pair<String, Currency>>> pv01Result = calculatorResult.getValue().calculatePV01();
-    if (!pv01Result.isSuccess()) {
-      return Result.failure(pv01Result);
-    }
-    return Result.success(pv01Result.getValue());
+    return calculatorResult.getValue().calculatePV01();
   }
 
 }
