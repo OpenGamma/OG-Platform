@@ -44,6 +44,14 @@ public interface InterestRateSwapCalculator {
   Result<Double> calculateRate();
 
   /**
+   * Compute the spread to be added to the market standard quote of the instrument for
+   * which the present value of the instrument is zero.
+   *
+   * @return result containing the rate if successfully created, a failure result otherwise
+   */
+  Result<Double> calculateParSpread();
+
+  /**
    * Calculates the PV01 for the security
    *
    * @return result containing the PV01 if successfully created, a failure result otherwise

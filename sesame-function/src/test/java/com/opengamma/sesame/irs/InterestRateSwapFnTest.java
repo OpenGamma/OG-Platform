@@ -128,9 +128,11 @@ public class InterestRateSwapFnTest {
   private static final double EXPECTED_ON_PV = -9723.264518929138;
   private static final double EXPECTED_ON_PAR_RATE =  6.560723881400023E-4;
   private static final double EXPECTED_ON_PV01 = 0.0000; //TODO What is the correct PV here
+  private static final double EXPECTED_ON_PAR_SPREAD = -5.739276118599975E-4;
 
   private static final double EXPECTED_3M_PV = 7170391.798257509;
   private static final double EXPECTED_3M_PAR_RATE = 0.025894715668195054;
+  private static final double EXPECTED_3M_PAR_SPREAD = 0.01089471566819499;
   private static final Map<Pair<String, Currency>, DoubleMatrix1D> EXPECTED_3M_BUCKETED_PV01 =
       ImmutableMap.<Pair<String, Currency>, DoubleMatrix1D>builder().
         put(Pairs.of(InterestRateMockSources.USD_OIS_CURVE_NAME, Currency.USD),
@@ -639,15 +641,22 @@ public class InterestRateSwapFnTest {
     assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(-3444569.0628772983, STD_TOLERANCE_PV)));
   }
 
-  //TODO when converting a swap to derivative and then getting the par rate via the ParRateDiscounting Calculator,
-  //par rate is not available as the converted swap is not of type SwapFixedCoupon
-  @Test()
+  @Test
   public void fixedVsOnCompoundedSwapParRate() {
     Result<Double> resultParRate = _swapFunction.calculateParRate(ENV, _fixedVsOnCompoundedSwapSecurity);
     assertThat(resultParRate.isSuccess(), is((true)));
 
     Double parRate = resultParRate.getValue();
     assertThat(parRate, is(closeTo(EXPECTED_ON_PAR_RATE, STD_TOLERANCE_RATE)));
+  }
+
+  @Test
+  public void fixedVsOnCompoundedSwapParSpreadMarketQuote() {
+    Result<Double> resultParRate = _swapFunction.calculateParSpread(ENV, _fixedVsOnCompoundedSwapSecurity);
+    assertThat(resultParRate.isSuccess(), is((true)));
+
+    Double parRate = resultParRate.getValue();
+    assertThat(parRate, is(closeTo(EXPECTED_ON_PAR_SPREAD, STD_TOLERANCE_RATE)));
   }
 
   @Test
@@ -667,6 +676,15 @@ public class InterestRateSwapFnTest {
 
     Double parRate = resultParRate.getValue();
     assertThat(parRate, is(closeTo(EXPECTED_3M_PAR_RATE, STD_TOLERANCE_RATE)));
+  }
+
+  @Test
+  public void fixedVsLibor3mSwapParSpreadMarketQuote() {
+    Result<Double> resultParRate = _swapFunction.calculateParSpread(ENV, _fixedVsLibor3mSwapSecurity);
+    assertThat(resultParRate.isSuccess(), is((true)));
+
+    Double parRate = resultParRate.getValue();
+    assertThat(parRate, is(closeTo(EXPECTED_3M_PAR_SPREAD, STD_TOLERANCE_RATE)));
   }
 
   //TODO enable test when PV01 expected is available
