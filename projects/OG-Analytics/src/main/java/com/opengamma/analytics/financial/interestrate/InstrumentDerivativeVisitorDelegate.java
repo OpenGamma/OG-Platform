@@ -114,6 +114,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingFlatSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingSimpleSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingSpread;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborFxReset;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborGearing;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponON;
@@ -497,6 +498,16 @@ public class InstrumentDerivativeVisitorDelegate<DATA_TYPE, RESULT_TYPE> impleme
   @Override
   public RESULT_TYPE visitCouponFixedFxReset(final CouponFixedFxReset payment) {
     return _delegate.visitCouponFixedFxReset(payment);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponIborFxReset(final CouponIborFxReset payment, final DATA_TYPE data) {
+    return _delegate.visitCouponIborFxReset(payment, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponIborFxReset(final CouponIborFxReset payment) {
+    return _delegate.visitCouponIborFxReset(payment);
   }
 
   @Override
