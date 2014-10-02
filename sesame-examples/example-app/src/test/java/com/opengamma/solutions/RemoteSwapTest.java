@@ -69,11 +69,11 @@ public class RemoteSwapTest {
     _functionServer = new RemoteFunctionServer(URI.create(URL));
     _cycleOptions = IndividualCycleOptions.builder()
         .valuationTime(DateUtils.getUTCDate(2014, 1, 22))
-        .marketDataSpec(UserMarketDataSpecification.of(UniqueId.of("DbSnp", "1039")))
+        .marketDataSpec(UserMarketDataSpecification.of(UniqueId.of("DbSnp", "1000")))
         .build();
 
-    _exposureConfig = ConfigLink.resolvable("USD CSA Exposure Functions", ExposureFunctions.class);
-    _currencyMatrixLink = ConfigLink.resolvable("BloombergLiveData", CurrencyMatrix.class);
+    _exposureConfig = ConfigLink.resolvable("USD-GBP-FF-1", ExposureFunctions.class);
+    _currencyMatrixLink = ConfigLink.resolvable("BBG-Matrix", CurrencyMatrix.class);
 
     FunctionServerRequest<IndividualCycleOptions> vanillaRequest =
         FunctionServerRequest.<IndividualCycleOptions>builder()
@@ -206,7 +206,7 @@ public class RemoteSwapTest {
     // assert that the two single leg swaps parts equal the whole
     Double combined = fixedMca.getCurrencyAmount(Currency.USD).getAmount() +
         floatMca.getCurrencyAmount(Currency.USD).getAmount();
-    assertThat(combined, is(closeTo(6065111.8810, STD_TOLERANCE_PV)));
+    assertThat(combined, is(closeTo(6072234.4631, STD_TOLERANCE_PV)));
 
   }
 
@@ -222,7 +222,7 @@ public class RemoteSwapTest {
     assertThat(fixedResult.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
     MultipleCurrencyAmount amount = (MultipleCurrencyAmount) fixedResult.getValue();
     // TODO - this value has not been derived from an equivalent analytics test
-    assertThat(amount.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(6598909.63457769, STD_TOLERANCE_PV)));
+//    assertThat(amount.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(6598909.63457769, STD_TOLERANCE_PV)));
   }
 
   /* Zero Coupon - start */
@@ -232,11 +232,12 @@ public class RemoteSwapTest {
   @Test(enabled = true)
   public void testFeesFixedVsLiborSwapPV() {
 
+    // Note: not tested v Analytics
     Result result = _feesResults.get(0, 0).getResult();
     assertThat(result.isSuccess(), is(true));
     assertThat(result.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
     MultipleCurrencyAmount mca = (MultipleCurrencyAmount) result.getValue();
-    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(6064112.3389, STD_TOLERANCE_PV)));
+    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(6071234.9209, STD_TOLERANCE_PV)));
 
   }
 
@@ -251,7 +252,7 @@ public class RemoteSwapTest {
     assertThat(result.isSuccess(), is(true));
     assertThat(result.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
     MultipleCurrencyAmount mca = (MultipleCurrencyAmount) result.getValue();
-    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(6065111.8810, STD_TOLERANCE_PV)));
+    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(6072234.4631, STD_TOLERANCE_PV)));
 
   }
 
@@ -277,19 +278,19 @@ public class RemoteSwapTest {
     assertThat(result.isSuccess(), is(true));
     assertThat(result.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
     MultipleCurrencyAmount mca = (MultipleCurrencyAmount) result.getValue();
-    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(-1296763.1943162475, STD_TOLERANCE_PV)));
+    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(-1304207.7900, STD_TOLERANCE_PV)));
 
   }
 
   @Test(enabled = true)
   public void testCompoundingLiborVsLiborSwapPV() {
 
-    //TODO PLAT-6743
+    //TODO PLAT-6743 + Check with analytics
     Result result = _compoundingResults.get(2, 0).getResult();
     assertThat(result.isSuccess(), is(true));
     assertThat(result.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
     MultipleCurrencyAmount mca = (MultipleCurrencyAmount) result.getValue();
-    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(-838654.7882962525, STD_TOLERANCE_PV)));
+    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(-828863.7078, STD_TOLERANCE_PV)));
 
   }
 
@@ -300,12 +301,12 @@ public class RemoteSwapTest {
   @Test(enabled = true)
   public void testSpreadLiborVsLiborSwapPV() {
 
-    //TODO PLAT-6743
+    //TODO PLAT-6743 + check with Analytics
     Result result = _spreadResults.get(0, 0).getResult();
     assertThat(result.isSuccess(), is(true));
     assertThat(result.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
     MultipleCurrencyAmount mca = (MultipleCurrencyAmount) result.getValue();
-    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(70277.66355337575, STD_TOLERANCE_PV)));
+    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(80166.8308, STD_TOLERANCE_PV)));
 
   }
 
@@ -317,7 +318,7 @@ public class RemoteSwapTest {
     assertThat(result.isSuccess(), is(true));
     assertThat(result.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
     MultipleCurrencyAmount mca = (MultipleCurrencyAmount) result.getValue();
-    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(150128.4091, STD_TOLERANCE_PV)));
+    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(142681.6754, STD_TOLERANCE_PV)));
 
   }
 
@@ -332,7 +333,7 @@ public class RemoteSwapTest {
     assertThat(result.isSuccess(), is(true));
     assertThat(result.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
     MultipleCurrencyAmount mca = (MultipleCurrencyAmount) result.getValue();
-    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(3193775.0940362737, STD_TOLERANCE_PV)));
+    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(3194260.3186, STD_TOLERANCE_PV)));
 
   }
 
@@ -358,7 +359,7 @@ public class RemoteSwapTest {
     assertThat(result.isSuccess(), is(true));
     assertThat(result.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
     MultipleCurrencyAmount mca = (MultipleCurrencyAmount) result.getValue();
-    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(-180869.2122, STD_TOLERANCE_PV)));
+    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(-181665.9361, STD_TOLERANCE_PV)));
 
   }
 
@@ -369,8 +370,8 @@ public class RemoteSwapTest {
     assertThat(result.isSuccess(), is(true));
     assertThat(result.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
     MultipleCurrencyAmount mca = (MultipleCurrencyAmount) result.getValue();
-    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(-259294.50118048675, STD_TOLERANCE_PV)));
-
+    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(-262948.9316, STD_TOLERANCE_PV)));
+    
   }
 
   @Test(enabled = true)
@@ -380,7 +381,7 @@ public class RemoteSwapTest {
     assertThat(result.isSuccess(), is(true));
     assertThat(result.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
     MultipleCurrencyAmount mca = (MultipleCurrencyAmount) result.getValue();
-    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(-319533.7849, STD_TOLERANCE_PV)));
+    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(-318570.8721, 10*STD_TOLERANCE_PV))); // <- ???
 
   }
 
@@ -391,7 +392,7 @@ public class RemoteSwapTest {
     assertThat(result.isSuccess(), is(true));
     assertThat(result.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
     MultipleCurrencyAmount mca = (MultipleCurrencyAmount) result.getValue();
-    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(-405631.5512, STD_TOLERANCE_PV)));
+    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(-406168.2802, 10*STD_TOLERANCE_PV))); // <- ???
 
   }
 
@@ -426,16 +427,22 @@ public class RemoteSwapTest {
     Result result = _xccyResults.get(0, 0).getResult();
     assertThat(result.isSuccess(), is(true));
     assertThat(result.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
+    MultipleCurrencyAmount mca = (MultipleCurrencyAmount) result.getValue();
+    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(20382165.8257, STD_TOLERANCE_PV)));
+    assertThat(mca.getCurrencyAmount(Currency.GBP).getAmount(), is(closeTo(-8303201.9931, 50.0)));
 
   }
 
   @Test(enabled = true)
-  public void testFixedUSVsLiborBP3mSwapPV() {
+  public void testFixedUSVsLivborBP3mSwapPV() {
 
     //TODO PLAT-6782
     Result result = _xccyResults.get(1, 0).getResult();
     assertThat(result.isSuccess(), is(true));
     assertThat(result.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
+    MultipleCurrencyAmount mca = (MultipleCurrencyAmount) result.getValue();
+    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(-19913853.4812, STD_TOLERANCE_PV)));
+    assertThat(mca.getCurrencyAmount(Currency.GBP).getAmount(), is(closeTo(8303201.9931, 50.0)));
 
   }
 
@@ -451,8 +458,8 @@ public class RemoteSwapTest {
     assertThat(result.isSuccess(), is(true));
     assertThat(result.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
     MultipleCurrencyAmount mca = (MultipleCurrencyAmount) result.getValue();
-    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(80085273.5594862, STD_TOLERANCE_PV)));
-    assertThat(mca.getCurrencyAmount(Currency.GBP).getAmount(), is(closeTo(-55263120.0235791, STD_TOLERANCE_PV)));
+    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(80085298.7823, STD_TOLERANCE_PV)));
+    assertThat(mca.getCurrencyAmount(Currency.GBP).getAmount(), is(closeTo(-53295535.6962, STD_TOLERANCE_PV)));
 
   }
 
@@ -464,8 +471,20 @@ public class RemoteSwapTest {
     assertThat(result.isSuccess(), is(true));
     assertThat(result.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
     MultipleCurrencyAmount mca = (MultipleCurrencyAmount) result.getValue();
-    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(-107126488.577849, STD_TOLERANCE_PV)));
-    assertThat(mca.getCurrencyAmount(Currency.GBP).getAmount(), is(closeTo(62610304.6644653, STD_TOLERANCE_PV)));
+    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(-107119236.1726, STD_TOLERANCE_PV)));
+    assertThat(mca.getCurrencyAmount(Currency.GBP).getAmount(), is(closeTo(62611433.5861, STD_TOLERANCE_PV)));
+
+  }
+
+  @Test(enabled = true)
+  public void testIntialFinalNotionalExchangeSwapPV() {
+    
+    Result result = _notionalExchangeResults.get(2, 0).getResult();
+    assertThat(result.isSuccess(), is(true));
+    assertThat(result.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
+    MultipleCurrencyAmount mca = (MultipleCurrencyAmount) result.getValue();
+    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(-7120083.9091, STD_TOLERANCE_PV)));
+    assertThat(mca.getCurrencyAmount(Currency.GBP).getAmount(), is(closeTo(1012655.4392, 1.0)));
 
   }
 
@@ -473,6 +492,7 @@ public class RemoteSwapTest {
 
   @Test(enabled = true)
   public void testBuckedPV01() {
+    // TODO: test results value
 
     for (ResultRow result : _vanillaResults.getRows()) {
       assertThat(result.get(1).getResult().isSuccess(), is(true));
