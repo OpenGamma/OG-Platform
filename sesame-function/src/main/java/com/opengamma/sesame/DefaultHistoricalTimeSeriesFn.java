@@ -84,11 +84,12 @@ public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
      * @param ids the externalIdBundles to get series for
      * @return a historical time series bundle
      */
-    private Result<HistoricalTimeSeriesBundle> getTimeSeriesBundle(String dataField, Period period, ExternalIdBundle... ids) {
+    private Result<HistoricalTimeSeriesBundle> getTimeSeriesBundle(String dataField, LocalDate start, Period period,
+                                                                   ExternalIdBundle... ids) {
       final HistoricalTimeSeriesBundle bundle = new HistoricalTimeSeriesBundle();
       Result<?> result = Result.success(true);
       for (ExternalIdBundle id : ids) {
-        Result<HistoricalTimeSeries> series = getPreviousPeriodValues(dataField, id, period);
+        Result<HistoricalTimeSeries> series = getPreviousPeriodValues(dataField, id, period, start);
         if (series.isSuccess()) {
           bundle.add(dataField, id, series.getValue());
         } else {
@@ -102,17 +103,29 @@ public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
     }
 
     /**
-     * Returns a time series of the previous month's field values for the specified external id into the time series bundle.
+     * Returns a time series bundle of the previous month's market values for the specified security.
+     * @param dataField the data field, usually Market_Value
+     * @param period the period of time to return data for
+     * @param ids the externalIdBundles to get series for
+     * @return a historical time series bundle
+     */
+    private Result<HistoricalTimeSeriesBundle> getTimeSeriesBundle(String dataField, Period period, ExternalIdBundle... ids) {
+      return getTimeSeriesBundle(dataField, _valuationDate, period, ids);
+    }
+
+    /**
+     * Returns a time series of the previous periods values for the specified external id
      * @param field the name of the value used to lookup.
      * @param id the external id of used to lookup the field values.
      * @param length the length of time to get values for.
+     * @param startDate the start date of time to get values for.
      * @return the time series result
      */
-    private Result<HistoricalTimeSeries> getPreviousPeriodValues(String field, ExternalIdBundle id, Period length) {
+    private Result<HistoricalTimeSeries> getPreviousPeriodValues(String field, ExternalIdBundle id, Period length, LocalDate startDate) {
       final boolean includeStart = true;
       final boolean includeEnd = true;
-      final LocalDate startDate = _valuationDate.minus(length);
-      return getHistoricalTimeSeriesResult(field, id, _resolutionKey, startDate, includeStart, _valuationDate, includeEnd);
+      return getHistoricalTimeSeriesResult(field, id, _resolutionKey, startDate.minus(length), includeStart,
+                                           _valuationDate, includeEnd);
     }
 
     @Override
@@ -161,7 +174,8 @@ public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
         ExternalId id = leg.getFloatingReferenceRateId();
         ids.add(id.toBundle());
       }
-      return getTimeSeriesBundle(MarketDataRequirementNames.MARKET_VALUE, Period.ofYears(1), ids.toArray(new ExternalIdBundle[ids.size()]));
+      return getTimeSeriesBundle(MarketDataRequirementNames.MARKET_VALUE, security.getEffectiveDate(),
+                                 Period.ofYears(1), ids.toArray(new ExternalIdBundle[ids.size()]));
     }
 
     @Override
