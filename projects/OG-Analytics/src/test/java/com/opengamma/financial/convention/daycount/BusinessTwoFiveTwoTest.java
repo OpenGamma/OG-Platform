@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.convention.daycount;
@@ -107,23 +107,40 @@ public class BusinessTwoFiveTwoTest {
     assertEquals(4. / 252, DC.getDayCountFraction(d1, d3, HOLIDAY_CALENDAR), 0);
     assertEquals(11. / 252, DC.getDayCountFraction(d1, d4, WEEKEND_CALENDAR), 0);
     assertEquals(9. / 252, DC.getDayCountFraction(d1, d4, HOLIDAY_CALENDAR), 0);
-    assertEquals(9. / 252, DC.getDayCountFraction(d1, d5, WEEKEND_CALENDAR), 0);
-    assertEquals(7. / 252, DC.getDayCountFraction(d1, d5, HOLIDAY_CALENDAR), 0);
+    assertEquals(10. / 252, DC.getDayCountFraction(d1, d5, WEEKEND_CALENDAR), 0);
+    assertEquals(8. / 252, DC.getDayCountFraction(d1, d5, HOLIDAY_CALENDAR), 0);
     assertEquals(1. / 252, DC.getDayCountFraction(d6, d2, WEEKEND_CALENDAR), 0);
     assertEquals(1. / 252, DC.getDayCountFraction(d6, d2, HOLIDAY_CALENDAR), 0);
     assertEquals(5. / 252, DC.getDayCountFraction(d6, d3, WEEKEND_CALENDAR), 0);
     assertEquals(4. / 252, DC.getDayCountFraction(d6, d3, HOLIDAY_CALENDAR), 0);
     assertEquals(11. / 252, DC.getDayCountFraction(d6, d4, WEEKEND_CALENDAR), 0);
     assertEquals(9. / 252, DC.getDayCountFraction(d6, d4, HOLIDAY_CALENDAR), 0);
-    assertEquals(9. / 252, DC.getDayCountFraction(d6, d5, WEEKEND_CALENDAR), 0);
-    assertEquals(7. / 252, DC.getDayCountFraction(d6, d5, HOLIDAY_CALENDAR), 0);
+    assertEquals(10. / 252, DC.getDayCountFraction(d6, d5, WEEKEND_CALENDAR), 0);
+    assertEquals(8. / 252, DC.getDayCountFraction(d6, d5, HOLIDAY_CALENDAR), 0);
     assertEquals(8. / 252, DC.getDayCountFraction(d1, d7, WEEKEND_CALENDAR), 0);
-    assertEquals(6. / 252, DC.getDayCountFraction(d1, d7, HOLIDAY_CALENDAR), 0);
+    assertEquals(7. / 252, DC.getDayCountFraction(d1, d7, HOLIDAY_CALENDAR), 0);
+  }
+
+  /**
+   * Any day count with a fixed denominator should obey the additivity rule DCC(d1,d2) = DCC(d1,d) + DCC(d,d2) for all
+   * d1 <= d <= d2
+   */
+  @Test
+  public void additivityTest() {
+    LocalDate d1 = LocalDate.of(2014, 7, 16);
+    LocalDate d2 = LocalDate.of(2014, 8, 17);
+
+    double yf = DC.getDayCountFraction(d1, d2, WEEKEND_CALENDAR);
+    LocalDate d = d1;
+    while (!d.isAfter(d2)) {
+      assertEquals(yf, DC.getDayCountFraction(d1, d, WEEKEND_CALENDAR) + DC.getDayCountFraction(d, d2, WEEKEND_CALENDAR), 1e-15);
+      d = d.plusDays(1);
+    }
   }
 
   private static class MyCalendar extends ExceptionCalendar {
     private static final long serialVersionUID = 1L;
-    private static final LocalDate[] HOLIDAYS = new LocalDate[]{LocalDate.of(2012, 7, 19), LocalDate.of(2012, 7, 26)};
+    private static final LocalDate[] HOLIDAYS = new LocalDate[] {LocalDate.of(2012, 7, 19), LocalDate.of(2012, 7, 26) };
 
     protected MyCalendar(final String name) {
       super(name);
