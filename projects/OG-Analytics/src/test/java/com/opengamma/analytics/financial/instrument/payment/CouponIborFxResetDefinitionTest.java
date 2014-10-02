@@ -141,6 +141,9 @@ public class CouponIborFxResetDefinitionTest {
    */
   @Test
   public void toDerivativeWithoutHts() {
+    /*
+     * ibor index fixing same as fx fixing
+     */
     ZonedDateTime valuationDate = FX_FIXING_DATE.minusDays(10);
     double fixingPeriodStartTime = TimeCalculator.getTimeBetween(valuationDate,
         CPN_SAME_FIXING_DATES.getIborIndexFixingPeriodStartDate());
@@ -148,11 +151,38 @@ public class CouponIborFxResetDefinitionTest {
         CPN_SAME_FIXING_DATES.getIborIndexFixingPeriodEndDate());
     double paymentTime = TimeCalculator.getTimeBetween(valuationDate, PAYMENT_DATE);
     double fixingTime = TimeCalculator.getTimeBetween(valuationDate, FX_FIXING_DATE);
+    double iborFixingTime = fixingTime;
     double deliveryTime = TimeCalculator.getTimeBetween(valuationDate, FX_DELIVERY_DATE);
-    CouponIborFxReset cpnExpected = new CouponIborFxReset(CUR_PAY, paymentTime, ACCRUAL_FACTOR, NOTIONAL, fixingTime,
-        INDEX, fixingPeriodStartTime, fixingPeriodEndTime,
+    CouponIborFxReset cpnExpected = new CouponIborFxReset(CUR_PAY, paymentTime, ACCRUAL_FACTOR, NOTIONAL,
+        iborFixingTime, INDEX, fixingPeriodStartTime, fixingPeriodEndTime,
         CPN_SAME_FIXING_DATES.getIborIndexFixingPeriodAccrualFactor(), SPREAD, CUR, fixingTime, deliveryTime);
     CouponIborFxReset cpnConverted = CPN_SAME_FIXING_DATES.toDerivative(valuationDate);
+    assertEquals("CouponIborFxResetDefinition: toDerivative", cpnExpected, cpnConverted);
+    /*
+     * ibor index fixing before as fx fixing
+     */
+    fixingPeriodStartTime = TimeCalculator.getTimeBetween(valuationDate,
+        CPN_INDEX_FIXED_FIRST.getIborIndexFixingPeriodStartDate());
+    fixingPeriodEndTime = TimeCalculator.getTimeBetween(valuationDate,
+        CPN_INDEX_FIXED_FIRST.getIborIndexFixingPeriodEndDate());
+    iborFixingTime = TimeCalculator.getTimeBetween(valuationDate, FIXING_DATE_BEFORE_FX);
+    cpnExpected = new CouponIborFxReset(CUR_PAY, paymentTime, ACCRUAL_FACTOR, NOTIONAL, iborFixingTime, INDEX,
+        fixingPeriodStartTime, fixingPeriodEndTime, CPN_INDEX_FIXED_FIRST.getIborIndexFixingPeriodAccrualFactor(),
+        SPREAD, CUR, fixingTime, deliveryTime);
+    cpnConverted = CPN_INDEX_FIXED_FIRST.toDerivative(valuationDate);
+    assertEquals("CouponIborFxResetDefinition: toDerivative", cpnExpected, cpnConverted);
+    /*
+     * ibor index fixing after as fx fixing
+     */
+    fixingPeriodStartTime = TimeCalculator.getTimeBetween(valuationDate,
+        CPN_FX_FIXED_FIRST.getIborIndexFixingPeriodStartDate());
+    fixingPeriodEndTime = TimeCalculator.getTimeBetween(valuationDate,
+        CPN_FX_FIXED_FIRST.getIborIndexFixingPeriodEndDate());
+    iborFixingTime = TimeCalculator.getTimeBetween(valuationDate, FIXING_DATE_AFTER_FX);
+    cpnExpected = new CouponIborFxReset(CUR_PAY, paymentTime, ACCRUAL_FACTOR, NOTIONAL, iborFixingTime, INDEX,
+        fixingPeriodStartTime, fixingPeriodEndTime, CPN_FX_FIXED_FIRST.getIborIndexFixingPeriodAccrualFactor(), SPREAD,
+        CUR, fixingTime, deliveryTime);
+    cpnConverted = CPN_FX_FIXED_FIRST.toDerivative(valuationDate);
     assertEquals("CouponIborFxResetDefinition: toDerivative", cpnExpected, cpnConverted);
   }
 
@@ -193,7 +223,7 @@ public class CouponIborFxResetDefinitionTest {
         CPN_INDEX_FIXED_FIRST.getIborIndexFixingPeriodEndDate());
     CouponIborFxReset cpnExpected2 = new CouponIborFxReset(CUR_PAY, paymentTime, ACCRUAL_FACTOR, NOTIONAL, fixingTime2,
         INDEX, fixingPeriodStartTime2, fixingPeriodEndTime2,
-        CPN_SAME_FIXING_DATES.getIborIndexFixingPeriodAccrualFactor(), SPREAD, CUR, fixingTime, deliveryTime);
+        CPN_INDEX_FIXED_FIRST.getIborIndexFixingPeriodAccrualFactor(), SPREAD, CUR, fixingTime, deliveryTime);
     assertEquals("CouponIborFxResetDefinition: toDerivative", cpnExpected2, cpnConverted2);
 
     /*
@@ -208,7 +238,7 @@ public class CouponIborFxResetDefinitionTest {
         CPN_FX_FIXED_FIRST.getIborIndexFixingPeriodEndDate());
     CouponIborFxReset cpnExpected3 = new CouponIborFxReset(CUR_PAY, paymentTime, ACCRUAL_FACTOR, NOTIONAL, fixingTime3,
         INDEX, fixingPeriodStartTime3, fixingPeriodEndTime3,
-        CPN_SAME_FIXING_DATES.getIborIndexFixingPeriodAccrualFactor(), SPREAD, CUR, fixingTime, deliveryTime);
+        CPN_FX_FIXED_FIRST.getIborIndexFixingPeriodAccrualFactor(), SPREAD, CUR, fixingTime, deliveryTime);
     assertEquals("CouponIborFxResetDefinition: toDerivative", cpnExpected3, cpnConverted3);
   }
 
