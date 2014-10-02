@@ -6,6 +6,7 @@
 package com.opengamma.sesame.irs;
 
 import com.opengamma.analytics.util.amount.ReferenceAmount;
+import com.opengamma.financial.analytics.model.fixedincome.BucketedCrossSensitivities;
 import com.opengamma.financial.analytics.model.fixedincome.BucketedCurveSensitivities;
 import com.opengamma.financial.analytics.model.fixedincome.SwapLegCashFlows;
 import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
@@ -96,6 +97,15 @@ public interface InterestRateSwapFn {
   @Output(OutputNames.BUCKETED_PV01)
   Result<BucketedCurveSensitivities> calculateBucketedPV01(Environment env, InterestRateSwapSecurity security);
   
+  /**
+   * Calculate the bucketed Gamma for a swap security.
+   *
+   * @param env the environment used for calculation
+   * @param security the swap to calculate the bucketed Gamma for
+   * @return result containing the bucketed Gamma, full matrix, if successful, a Failure otherwise
+   */
+  @Output(OutputNames.BUCKETED_GAMMA)
+  Result<BucketedCrossSensitivities> calculateBucketedGamma(Environment env, InterestRateSwapSecurity security);
   
   /* Trade based model integration */
 
@@ -159,4 +169,14 @@ public interface InterestRateSwapFn {
   @Output(OutputNames.BUCKETED_PV01)
   Result<BucketedCurveSensitivities> calculateBucketedPV01(Environment env, InterestRateSwapTrade trade);
 
+  /**
+   * Calculate the bucketed Gamma (full matrix) for a swap trade.
+   *
+   * @param env the environment used for calculation
+   * @param trade the swap to calculate the bucketed Gamma for
+   * @return result containing the bucketed Gamma if successful, a Failure otherwise
+   */
+  @Output(OutputNames.BUCKETED_GAMMA)
+  Result<BucketedCrossSensitivities> calculateBucketedGamma(Environment env, InterestRateSwapTrade trade);
+  
 }

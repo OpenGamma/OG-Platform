@@ -29,6 +29,8 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.mockito.Matchers;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalTime;
 
@@ -492,7 +494,16 @@ public class InterestRateMockSources {
         any(LocalDate.class), eq(true), any(LocalDate.class), eq(true))).thenReturn(hts);
     when(mock.getHistoricalTimeSeries(anyString(), eq(getLiborIndexId().toBundle()), anyString(),
                                       any(LocalDate.class), anyBoolean(), any(LocalDate.class), anyBoolean()))
-        .thenReturn(new SimpleHistoricalTimeSeries(UniqueId.of("HTSid", LIBOR_INDEX), series.build()));
+          .thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+              Object[] args = invocationOnMock.getArguments();
+              // return series truncated to required date range
+              return new SimpleHistoricalTimeSeries(UniqueId.of("HTSid", LIBOR_INDEX),
+                  series.build().subSeries(((LocalDate) args[3]), (boolean) args[4],
+                                           (LocalDate) args[5], (boolean) args[6]));
+            }
+          });
     when(mock.getHistoricalTimeSeries(anyString(), eq(getOvernightIndexId().toBundle()), anyString(),
                                       any(LocalDate.class), anyBoolean(), any(LocalDate.class), anyBoolean()))
         .thenReturn(new SimpleHistoricalTimeSeries(UniqueId.of("HTSid", USD_OVERNIGHT_CONVENTION), series.build()));

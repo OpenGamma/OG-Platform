@@ -6,6 +6,7 @@
 package com.opengamma.sesame.irs;
 
 import com.opengamma.analytics.util.amount.ReferenceAmount;
+import com.opengamma.financial.analytics.model.fixedincome.BucketedCrossSensitivities;
 import com.opengamma.financial.analytics.model.fixedincome.BucketedCurveSensitivities;
 import com.opengamma.financial.analytics.model.fixedincome.SwapLegCashFlows;
 import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
@@ -130,23 +131,30 @@ public class DiscountingInterestRateSwapFn implements InterestRateSwapFn {
     }
     return Result.success(legResult.getValue());
   }
-
   
-    /* Trade based model integration */
-
-    @Override
-    public Result<Double> calculateParRate(Environment env, InterestRateSwapTrade trade) {
-      Result<InterestRateSwapCalculator> calculatorResult = _interestRateSwapCalculatorFactory.createCalculator(env, trade);
-
-      if (!calculatorResult.isSuccess()) {
-        return Result.failure(calculatorResult);
-      }
-      Result<Double> rateResult = calculatorResult.getValue().calculateRate();
-      if (!rateResult.isSuccess()) {
-        return Result.failure(rateResult);
-      }
-      return Result.success(rateResult.getValue());
+  @Override
+  public Result<BucketedCrossSensitivities> calculateBucketedGamma(Environment env, InterestRateSwapSecurity security) {
+    Result<InterestRateSwapCalculator> calculatorResult = _interestRateSwapCalculatorFactory.createCalculator(env, security);
+    if (!calculatorResult.isSuccess()) {
+      return Result.failure(calculatorResult);
     }
+    return calculatorResult.getValue().calculateBucketedGamma();
+  }
+  
+  /* Trade based model integration */
+  @Override
+  public Result<Double> calculateParRate(Environment env, InterestRateSwapTrade trade) {
+    Result<InterestRateSwapCalculator> calculatorResult = _interestRateSwapCalculatorFactory.createCalculator(env, trade);
+
+    if (!calculatorResult.isSuccess()) {
+      return Result.failure(calculatorResult);
+    }
+    Result<Double> rateResult = calculatorResult.getValue().calculateRate();
+    if (!rateResult.isSuccess()) {
+      return Result.failure(rateResult);
+    }
+    return Result.success(rateResult.getValue());
+  }
 
   @Override
   public Result<MultipleCurrencyAmount> calculatePV(Environment env, InterestRateSwapTrade trade) {
@@ -214,4 +222,13 @@ public class DiscountingInterestRateSwapFn implements InterestRateSwapFn {
     return Result.success(legResult.getValue());
   }
 
+  @Override
+  public Result<BucketedCrossSensitivities> calculateBucketedGamma(Environment env, InterestRateSwapTrade trade) {
+    Result<InterestRateSwapCalculator> calculatorResult = _interestRateSwapCalculatorFactory.createCalculator(env, trade);
+    
+    if (!calculatorResult.isSuccess()) {
+      return Result.failure(calculatorResult);
+    }
+    return calculatorResult.getValue().calculateBucketedGamma();
+  }
 }

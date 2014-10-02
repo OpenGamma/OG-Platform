@@ -88,6 +88,10 @@ public final class OutputNames {
    */
   public static final String BUCKETED_PV01 = "Bucketed PV01";
   /**
+   * The bucketed Gamma
+   */
+  public static final String BUCKETED_GAMMA = "Bucketed Gamma";
+  /**
    * The bucketed sensitivity with respect to zero rates.
    */
   public static final String BUCKETED_ZERO_DELTA = "Bucketed Zero Delta";
