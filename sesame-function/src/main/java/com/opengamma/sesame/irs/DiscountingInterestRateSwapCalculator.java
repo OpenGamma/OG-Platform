@@ -255,7 +255,7 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
   }
 
   @Override
-  public Result<Double> calculateParSpreadMarketQuote() {
+  public Result<Double> calculateParSpread() {
     return Result.success(calculateResult(PSMQC));
   }
 

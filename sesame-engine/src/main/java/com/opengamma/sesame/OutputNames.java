@@ -72,9 +72,9 @@ public final class OutputNames {
    */
   public static final String PAR_RATE = "Par Rate";
   /**
-   * Output name when providing Par Spread Market Quote.
+   * Output name when providing Par Spread.
    */
-  public static final String PAR_SPREAD_MARKET_QUOTE = "Par Spread Market Quote";
+  public static final String PAR_SPREAD = "Par Spread";
   /**
    * The PV01 of a cash-flow based fixed-income instrument.
    */

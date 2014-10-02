@@ -43,8 +43,8 @@ public interface InterestRateSwapFn {
    * @param security the Swap to calculate the rate for
    * @return result containing the rate if successful, a Failure otherwise
    */
-  @Output(value = OutputNames.PAR_SPREAD_MARKET_QUOTE)
-  Result<Double> calculateParSpreadMarketQuote(Environment env, InterestRateSwapSecurity security);
+  @Output(value = OutputNames.PAR_SPREAD)
+  Result<Double> calculateParSpread(Environment env, InterestRateSwapSecurity security);
 
   /**
    * Calculate the present value for a Swap security.

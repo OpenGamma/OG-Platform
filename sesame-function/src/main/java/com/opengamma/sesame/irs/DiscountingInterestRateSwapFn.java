@@ -51,14 +51,14 @@ public class DiscountingInterestRateSwapFn implements InterestRateSwapFn {
   }
 
   @Override
-  public Result<Double> calculateParSpreadMarketQuote(Environment env, InterestRateSwapSecurity security) {
+  public Result<Double> calculateParSpread(Environment env, InterestRateSwapSecurity security) {
     Result<InterestRateSwapCalculator> calculatorResult =
         _interestRateSwapCalculatorFactory.createCalculator(env, security);
 
     if (!calculatorResult.isSuccess()) {
       return Result.failure(calculatorResult);
     }
-    Result<Double> rateResult = calculatorResult.getValue().calculateParSpreadMarketQuote();
+    Result<Double> rateResult = calculatorResult.getValue().calculateParSpread();
     if (!rateResult.isSuccess()) {
       return Result.failure(rateResult);
     }

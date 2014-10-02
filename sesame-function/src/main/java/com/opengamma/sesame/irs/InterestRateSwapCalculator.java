@@ -48,7 +48,7 @@ public interface InterestRateSwapCalculator {
    *
    * @return result containing the rate if successfully created, a failure result otherwise
    */
-  Result<Double> calculateParSpreadMarketQuote();
+  Result<Double> calculateParSpread();
 
   /**
    * Calculates the PV01 for the security

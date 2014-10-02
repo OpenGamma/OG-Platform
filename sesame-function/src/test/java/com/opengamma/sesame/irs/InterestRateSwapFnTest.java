@@ -546,7 +546,7 @@ public class InterestRateSwapFnTest {
 
   @Test
   public void fixedVsOnCompoundedSwapParSpreadMarketQuote() {
-    Result<Double> resultParRate = _swapFunction.calculateParSpreadMarketQuote(ENV, _fixedVsOnCompoundedSwapSecurity);
+    Result<Double> resultParRate = _swapFunction.calculateParSpread(ENV, _fixedVsOnCompoundedSwapSecurity);
     assertThat(resultParRate.isSuccess(), is((true)));
 
     Double parRate = resultParRate.getValue();
@@ -574,7 +574,7 @@ public class InterestRateSwapFnTest {
 
   @Test
   public void fixedVsLibor3mSwapParSpreadMarketQuote() {
-    Result<Double> resultParRate = _swapFunction.calculateParSpreadMarketQuote(ENV, _fixedVsLibor3mSwapSecurity);
+    Result<Double> resultParRate = _swapFunction.calculateParSpread(ENV, _fixedVsLibor3mSwapSecurity);
     assertThat(resultParRate.isSuccess(), is((true)));
 
     Double parRate = resultParRate.getValue();
