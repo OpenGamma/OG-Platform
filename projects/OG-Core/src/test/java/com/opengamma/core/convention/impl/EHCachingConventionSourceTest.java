@@ -8,7 +8,6 @@ package com.opengamma.core.convention.impl;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
 import static org.testng.AssertJUnit.fail;
-import net.sf.ehcache.CacheManager;
 
 import org.mockito.Mockito;
 import org.testng.annotations.AfterClass;
@@ -17,6 +16,8 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
 import org.threeten.bp.temporal.ChronoUnit;
+
+import net.sf.ehcache.CacheManager;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.convention.Convention;
@@ -168,5 +169,30 @@ public class EHCachingConventionSourceTest {
     assertSame(_source.get(UID), _convention);
     Mockito.verifyNoMoreInteractions(_underlying);
   }
+
+  public void test_get_byBundleVC_notFound_cached() {
+    DataNotFoundException exception = new DataNotFoundException("MISSING");
+    Mockito.when(_underlying.getSingle(BUNDLE, VERSION_CORRECTION)).thenThrow(exception);
+    // hit underlying
+
+    try {
+      _source.getSingle(BUNDLE, VERSION_CORRECTION);
+      fail("Expected exception");
+    } catch (DataNotFoundException e) {
+      assertSame(e, exception);
+    }
+
+    Mockito.verify(_underlying, Mockito.times(1)).getSingle(BUNDLE, VERSION_CORRECTION);
+
+    // hit cache
+    try {
+      _source.getSingle(BUNDLE, VERSION_CORRECTION);
+      fail("Expected exception");
+    } catch (DataNotFoundException e) {
+      assertSame(e, exception);
+    }
+    Mockito.verifyNoMoreInteractions(_underlying);
+  }
+
 
 }

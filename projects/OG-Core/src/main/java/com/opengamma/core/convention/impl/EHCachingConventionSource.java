@@ -15,6 +15,7 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 
 import com.google.common.collect.MapMaker;
+import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.convention.Convention;
 import com.opengamma.core.convention.ConventionSource;
@@ -35,7 +36,12 @@ import com.opengamma.util.tuple.Pairs;
  * <p>
  * Any requests with a "latest" version/correction or unversioned unique identifier are not cached
  * and will always hit the underlying. This should not be an issue in practice as the engine components
- * which use the convention source will always specify an exact version/correction and versioned unique identifiers.
+ * which use the convention source will always specify an exact version/correction and versioned
+ * unique identifiers.
+ * <p>
+ * For the getSingle() methods, DataNotFoundExceptions are cached as this gives substantial
+ * performance benefits in some situations. This should become the norm across all methods
+ * and sources.
  */
 public class EHCachingConventionSource implements ConventionSource {
 
@@ -242,12 +248,22 @@ public class EHCachingConventionSource implements ConventionSource {
     }
     final Element e = _conventionCache.get(key);
     if (e != null) {
-      cached = (Convention) e.getObjectValue();
-      return addToFrontCache(cached, versionCorrection);
+      Object value = e.getObjectValue();
+      if (value instanceof DataNotFoundException)  {
+        throw (DataNotFoundException) value;
+      }
+      return addToFrontCache((Convention) value, versionCorrection);
     }
     // query underlying
-    Convention convention = getUnderlying().getSingle(bundle, versionCorrection);
-    return addToCache(convention, versionCorrection);
+    try {
+      Convention convention = getUnderlying().getSingle(bundle, versionCorrection);
+      return addToCache(convention, versionCorrection);
+    } catch (DataNotFoundException ex) {
+      // Only store the exception in the EH cache instance
+      _conventionCache.put(new Element(Pairs.of(bundle, versionCorrection), ex));
+      throw ex;
+    }
+
   }
 
   @Override
