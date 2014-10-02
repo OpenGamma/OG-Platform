@@ -48,7 +48,6 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.Multipl
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
 import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
-import com.opengamma.analytics.util.export.ExportUtils;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.rolldate.RollConvention;
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
@@ -172,36 +171,39 @@ public class SwapCrossCurrencyE2ETest {
 
   @Test
   public void presentValueUsd() {
-    E2EUtils.presentValueTest(IRS_USD_1, MULTICURVE_FFCOL, USD, -10920.1548, "IRS USD: present value");
+    E2EUtils.presentValueTest(IRS_USD_1, MULTICURVE_FFCOL, USD, -11662.2515, "IRS USD: present value");
   }
   
   @Test
+  /** GBPLIBOR3M + spread v USDLIBOR3M */
   public void presentValueXccyGbpUsd2() {
-    E2EUtils.presentValueTest(XCCY_GBP_USD_NONOT_2, MULTICURVE_FFCOL, USD, 28384741.9455, 
+    E2EUtils.presentValueTest(XCCY_GBP_USD_NONOT_2, MULTICURVE_FFCOL, USD, -5700420.7686, 
         "XCcy GBP L3 + S / USD L3: present value");
-    E2EUtils.presentValueTest(XCCY_GBP_USD_NOT_2, MULTICURVE_FFCOL, USD, 13378247.8599, 
+    E2EUtils.presentValueTest(XCCY_GBP_USD_NOT_2, MULTICURVE_FFCOL, USD, -6407557.7364, 
         "XCcy GBP L3 + S / USD L3: present value");
   }
   
   @Test
+  /** GBPLIBOR3M v USDLIBOR3M + spread */
   public void presentValueXccyGbpUsd3() {
-    E2EUtils.presentValueTest(XCCY_GBP_USD_NONOT_3, MULTICURVE_FFCOL, USD, 13105087.5354, 
+    E2EUtils.presentValueTest(XCCY_GBP_USD_NONOT_3, MULTICURVE_FFCOL, USD, 6616702.4015, 
         "XCcy GBP L3 / USD L3 + S: present value");
-    E2EUtils.presentValueTest(XCCY_GBP_USD_NOT_3, MULTICURVE_FFCOL, USD, -1901406.5501, 
+    E2EUtils.presentValueTest(XCCY_GBP_USD_NOT_3, MULTICURVE_FFCOL, USD, 5909565.4338, 
         "XCcy GBP L3 / USD L3 + S: present value");
   }
   
   @Test
+  /** USD Fixed v GBPLIBOR3M */
   public void presentValueXccyGbpUsd4() {
-    E2EUtils.presentValueTest(XCCY_GBP_USD_NONOT_4, MULTICURVE_FFCOL, USD, 4109680.0074, 
+    E2EUtils.presentValueTest(XCCY_GBP_USD_NONOT_4, MULTICURVE_FFCOL, USD, -6148390.0570, 
         "XCcy USD Fixed / GBP L3: present value");
-    E2EUtils.presentValueTest(XCCY_GBP_USD_NOT_4, MULTICURVE_FFCOL, USD, 5412672.1106, 
+    E2EUtils.presentValueTest(XCCY_GBP_USD_NOT_4, MULTICURVE_FFCOL, USD, -5441253.0892, 
         "XCcy USD Fixed / GBP L3: present value");
   }
 
   @Test
   public void parRateUsd() {
-    double prIrsUsd1Expected = 0.0289290855;
+    double prIrsUsd1Expected = 0.0290919093;
     E2EUtils.parRateTest(IRS_USD_1, MULTICURVE_FFCOL, prIrsUsd1Expected, "IRS USD: par rate");
     SwapCouponFixedCouponDefinition irsAtmDefinition = irsUsd(EFFECTIVE_DATE_1, MATURITY_DATE_1, 
         prIrsUsd1Expected, PAYER_1, NOTIONAL_1);
@@ -211,7 +213,7 @@ public class SwapCrossCurrencyE2ETest {
 
   @Test
   public void parSpreaMarketQuoteUsd() {
-    double psIrsUsd1Expected = 0.0023790855;
+    double psIrsUsd1Expected = 0.002541909269;
     double psIrsUsd1 = IRS_USD_1.accept(PSMQDC, MULTICURVE_FFCOL);
     assertEquals("SwapCrossCurrencyE2ETest", psIrsUsd1Expected, psIrsUsd1, TOLERANCE_RATE);
     SwapCouponFixedCouponDefinition irsAtmDefinition = irsUsd(EFFECTIVE_DATE_1, MATURITY_DATE_1,
@@ -224,11 +226,11 @@ public class SwapCrossCurrencyE2ETest {
   /** Test Bucketed PV01 for a swap Fixed v LIBOR3M. */
   public void BucketedPV01Irs1Usd() {
     final double[] deltaDsc = 
-      {0.0064, 0.0002, 0.0000, 0.0002, 0.3370, -0.0105, 1.2208, -2.3465, -0.0157, 1.7808, 
-        2.2325, 2.7905, 0.7033, 1.3395, 1.0956, 0.5236, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000 };
+      {0.0098,-0.0237,0.0745,-0.1060,0.5216,-0.5733,1.5341,-2.8175,0.1023,1.6374,
+      1.8413,4.5090,0.4741,0.9589,1.1476,-0.3028,-0.2125,0.0698,-0.0170,0.0055,-0.0011 };
     final double[] deltaFwd3 = 
-      {0.0129, -0.3554, 130.9978, 118.0594, -1.5985, -2.3963, -596.5304, -115.0718, 0.0000, 0.0000, 
-        0.0000, 0.0000, 0.0000 };
+      {12.4970,10.4205,17.1440,-67.2599,156.0905,161.2391,-111.7588,165.5459,-726.1585,-119.0022,
+      41.1031,-6.0092,0.9211,-0.2429,0.0423 };
     final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> sensitivity = new LinkedHashMap<>();
     sensitivity.put(ObjectsPair.of(MULTICURVE_FFCOL.getName(USD), USD), new DoubleMatrix1D(deltaDsc));
     sensitivity.put(ObjectsPair.of(MULTICURVE_FFCOL.getName(USDLIBOR3M), USD), new DoubleMatrix1D(deltaFwd3));
@@ -243,21 +245,23 @@ public class SwapCrossCurrencyE2ETest {
   /** Test Bucketed PV01 for a XCcy swap GBPLIBOR3M + S v USDLIBOR3M. */
   public void BucketedPV01XCcyGbpUsd() {
     final double[] deltaDscUsdUsd = 
-      {0.4805, 0.0146, 0.0000, 0.7866, 0.7855, 0.5071, -1.1330, 3.3275, -10.9171, -36.9129, 
-        -57.9423, -42.4685, -41979.2457, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000 };
+      {-0.7522,-0.1780,0.4435,-1.8528,-0.2675,-3.9998,5.1698,-5.7528,16.9166,62.6627,
+      76.6267,110.2680,68112.7639,-8.3781,2.0839,-0.4449,0.0654,-0.0130,0.0025,-0.0008,0.0001 };
     final double[] deltaFwd3UsdUsd = 
-      {0.0010, -0.0005, -3.2848, 10.7321, 36.3009, 77.8709, 393.0175, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000};
+      {0.3042,0.2535,0.4171,-1.6364,8.5562,-27.0588,-22.6155,-167.2095,-634.1891,10.3537,
+      -3.6670,0.5361,-0.0822,0.0217,-0.0038};
     final double[] deltaDscUsdGbp = 
-      {-1.2550,-3.5137,0.0428,-11.8702,-22.7391,-33.3420,-66.2301,169.2838,283.0948,417.1907,
-        543.4215,612.2049,68534.0438,0.0198,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000 };
+      {0.6747,1.6600,1.7811,1.0587,13.9470,-12.7788,54.2353,-104.1401,-173.2242,-260.4330,
+      -316.7749,-427.8305,-42198.6873,29.4411,-7.6645,1.6545,-0.1758,0.0276,-0.0045,0.0012,-0.0002 };
     final double[] deltaFwd3UsdGbp = 
-      {-0.0017,67.3300,5.0413,-19.4182,-62.8159,-133.5223,-643.7819,-0.0001,0.0000,0.0000,0.0000,0.0000,0.0000 };
+      {-0.1965,-0.1638,-0.2695,-55.8330,-5.1828,18.2156,15.2236,108.5490,394.1477,-6.6834,
+      2.3672,-0.3461,0.0531,-0.0140,0.0024 };
     final double[] deltaDscGbpGbp = 
-      {12.1755,-0.0787,12.7202,12.8209,12.9588,-119.3045,-240.1584,-329.1920,-419.2324,-510.8078,
-        -605.6823,-75230.4832,-0.0216,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000 };
+      {-10.7500,-7.6405,0.3396,-16.5170,12.2845,56.3878,104.4582,156.3313,211.8309,257.5053,
+      344.3316,40422.0222,-23.2651,6.1226,-1.3261,0.1299,-0.0188,0.0028,-0.0007,0.0001 };
     final double[] deltaFwd3GbpGbp = 
-      {1.9327,-4.4234,-5.9059,-100.3598,-237.5206,-341.2703,-427.4483,-519.6342,-618.9871,-430.4646,
-        -4.6575,-0.0001,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000};
+      {-1.8241,0.1527,0.2476,54.8081,106.2315,159.0364,215.2629,261.2691,349.9073,236.4169,
+      -22.2440,5.8396,-1.2612,0.1223,-0.0174,0.0026,-0.0007,0.0001};
     LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> sensitivity = new LinkedHashMap<>();
     sensitivity.put(ObjectsPair.of(MULTICURVE_FFCOL.getName(USD), USD), new DoubleMatrix1D(deltaDscUsdUsd));
     sensitivity.put(ObjectsPair.of(MULTICURVE_FFCOL.getName(USDLIBOR3M), USD), new DoubleMatrix1D(deltaFwd3UsdUsd));
@@ -268,7 +272,6 @@ public class SwapCrossCurrencyE2ETest {
     MultipleCurrencyParameterSensitivity pvpsExpected = new MultipleCurrencyParameterSensitivity(sensitivity);
     MultipleCurrencyParameterSensitivity pvpsComputed = 
         MQSBC.fromInstrument(XCCY_GBP_USD_NOT_2, MULTICURVE_FFCOL, BLOCK_FFCOL).multipliedBy(BP1);
-    ExportUtils.exportMultipleCurrencyParameterSensitivity(pvpsComputed, "test.csv");
     AssertSensitivityObjects.assertEquals("XCcy GBP / USD: bucketed deltas", 
         pvpsExpected, pvpsComputed, TOLERANCE_PV_DELTA);
   }

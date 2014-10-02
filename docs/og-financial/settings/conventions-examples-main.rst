@@ -1,5 +1,5 @@
 Conventions: Examples - Main
-===================
+============================
 
 Forex
 -----
@@ -8,12 +8,12 @@ Forex
 
 The names in the examples are **XXXYYYFXSpot** where **XXX** is the first currency (in the standard order) and **YYY** the second currency. 
 
-* EURGBPFXSpot (x)
-* EURUSDFXSpot (x)
+* EURGBPFXSpot
+* EURUSDFXSpot
 * EURCHFFXSpot
 * EURJPYFXSpot
 
-* GBPUSDFXSpot (x) 
+* GBPUSDFXSpot
 * GBPCHFFXSpot 
 * GBPJPYFXSpot
 
@@ -27,12 +27,12 @@ The names in the examples are **XXXYYYFXSpot** where **XXX** is the first curren
 
 The names in the examples are **XXXYYYFXSwap** where **XXX** is the first currency (in the standard order) and **YYY** the second currency. 
 
-* EURGBPFXSwap (x)
-* EURUSDFXSwap (x) 
+* EURGBPFXSwap
+* EURUSDFXSwap
 * EURCHFFXSwap
 * EURJPYFXSwap
 
-* GBPUSDFXSwap (x)
+* GBPUSDFXSwap
 * GBPCHFFXSwap
 * GBPJPYFXSwap
 
@@ -44,10 +44,10 @@ The names in the examples are **XXXYYYFXSwap** where **XXX** is the first curren
 Overnight Index
 -------------
 
-EUREONIA (x)
-GBPSONIA (x)
-USDFEDFUND (x)
-JPYMUTAN (x)
+EUREONIA
+GBPSONIA
+USDFEDFUND
+JPYMUTAN
 
 Ibor Index
 --------
@@ -84,8 +84,9 @@ The names in the examples are **XXXFixedYY[_comment]**. The **XXX** is the curre
 * GBPFixed6M 
 * GBPFixed1Y
 
-* USDFixed6M 
-* USDFixed1Y_PayLag: Payment lag of 2d for OIS.
+* USDFixed6M: Convention 30U/360
+* USDFixed1Y_PayLag: Payment lag of 2d for OIS, convention ACT/360
+* USDFixed1Y: Convention ACT/360
 
 **Ibor Leg**
 
@@ -99,13 +100,13 @@ The names in the examples are **XXXYYYZZ[_comment]**. The **XXX** is the currenc
 
 * GBPLIBOR1M
 * GBPLIBOR3M
-* GBPLIBOR3M_NYC
+* GBPLIBOR3M_NYC: Payment on double calendar (LON and NYC) for cross-currency swaps.
 * GBPLIBOR6M
 
 * USDLIBOR1M
 * USDLIBOR3M
-* USDLIBOR3M_TAR
-* USDLIBOR3M_LON
+* USDLIBOR3M_TAR: Payment on double calendar (NYC and TARGET) for cross-currency swaps.
+* USDLIBOR3M_LON: Payment on double calendar (NYC and LON) for cross-currency swaps.
 * USDLIBOR6M
 
 **Ibor Compounded Leg**
@@ -113,6 +114,7 @@ The names in the examples are **XXXYYYZZ[_comment]**. The **XXX** is the currenc
 The names in the examples are **XXXYYYZZCmpVV**. The **XXX** is the currency of the leg. The **YYY** is the index name (like *EURIBOR* or *LIBOR*). The **ZZ** is the index tenor (like *1M* or *3M*). The **Cmp** is a literal indicating composition. The **VV** is the payment tenor (like *6M* or *1Y*). The last part indicates the compounding type (in case of spread).
 
 * USDLIBOR1MCmp3M_Flat
+* USDLIBOR3MCmp6M_Flat
 
 **Overnight Compounded Leg**
 
@@ -120,11 +122,11 @@ The names in the examples are **XXXYYYCmpZZ**. The **XXX** is the currency of th
 
 * EUREONIACmp1Y
 * GBPSONIACmp1Y
-* USDFEDFUNDCmp1Y
+* USDFEDFUNDSCmp1Y
 
 **Overnight Arithmetic Average Leg**
 
 The names in the examples are **XXXYYYAAZZ**. The **XXX** is the currency of the leg. The **YYY** is the index name (like *FEDFUND*). The **AA** is a literal indicating arithmetic average. The **ZZ** is the payment tenor (like *3M* or *1Y*).
 
-* USDFEDFUNDAA3M
+* USDFEDFUNDSAA3M
 
