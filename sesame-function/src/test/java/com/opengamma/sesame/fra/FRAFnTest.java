@@ -24,6 +24,7 @@ import org.threeten.bp.Instant;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.link.ConfigLink;
 import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigurationSource;
@@ -81,6 +82,8 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
+import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 @Test(groups = TestGroup.UNIT)
 public class FRAFnTest {
@@ -190,8 +193,20 @@ public class FRAFnTest {
     assertThat(parRate, is(closeTo(EXPECTED_PAR_RATE, STD_TOLERANCE_RATE)));
   }
 
+  @Test
+  public void discountingForwardRateAgreementPV01() {
+    MarketDataSource dataSource = InterestRateMockSources.createMarketDataSource();
+    Environment env = new SimpleEnvironment(VALUATION_TIME, dataSource);
+    Result<ReferenceAmount<Pair<String, Currency>>> pv01 = _fraFunction.calculatePV01(env, _forwardRateAgreementSecurity);
+    assertThat(pv01.isSuccess(), is((true)));
 
-  
+    assertThat(pv01.getValue().getMap().size(), is(2));
+    assertThat(pv01.getValue().getMap().get(Pairs.of(InterestRateMockSources.USD_LIBOR3M_CURVE_NAME, Currency.USD)),
+               closeTo(-249.73451494798297, STD_TOLERANCE_PV));
+    assertThat(pv01.getValue().getMap().get(Pairs.of(InterestRateMockSources.USD_OIS_CURVE_NAME, Currency.USD)),
+               closeTo(-1.479871968614848, STD_TOLERANCE_PV));
+  }
+
   private FRASecurity createSingleFra() {
     return new FRASecurity(Currency.USD, ExternalSchemes.financialRegionId("US"), STD_ACCRUAL_START_DATE,
                            STD_ACCRUAL_END_DATE, 0.0125, -10000000, InterestRateMockSources.getLiborIndexId(),
