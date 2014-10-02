@@ -32,7 +32,7 @@ import com.opengamma.util.tuple.Pair;
  */
 public class ParameterSensitivityWeightMatrixCalculator {
   private static final Logger s_logger = LoggerFactory.getLogger(ParameterSensitivityWeightMatrixCalculator.class);
-  private static final double TOL = 1.0e-10;
+  private static final double TOL = 1.0e-8;
 
   /**
    * Matrix projecting the nodes, to which portfolio has sensitivities, to new nodes (objNodes), to which sensitivity is accounted for, where the risks of each maturity 
@@ -224,6 +224,11 @@ public class ParameterSensitivityWeightMatrixCalculator {
     Arrays.sort(tmp);
     int objNum = tmp.length;
     double[][] res = new double[objNum][nNodes];
+
+    if (objNum == 1) {
+      Arrays.fill(res[0], 1.0);
+      return new DoubleMatrix2D(res);
+    }
 
     for (int i = 1; i < objNum - 1; ++i) {
       Arrays.fill(res[i], 0.0);
