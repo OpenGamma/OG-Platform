@@ -69,7 +69,7 @@ public class RemoteSwapTest {
     _functionServer = new RemoteFunctionServer(URI.create(URL));
     _cycleOptions = IndividualCycleOptions.builder()
         .valuationTime(DateUtils.getUTCDate(2014, 1, 22))
-        .marketDataSpec(UserMarketDataSpecification.of(UniqueId.of("DbSnp", "1039")))
+        .marketDataSpec(UserMarketDataSpecification.of(UniqueId.of("DbSnp", "1000")))
         .build();
 
     _exposureConfig = ConfigLink.resolvable("USD CSA Exposure Functions", ExposureFunctions.class);
