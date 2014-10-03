@@ -118,7 +118,7 @@ Filtered Scenario Definition
 A ``ScenarioDefinition`` contains the scenario arguments that apply to all calculations, plus the sets of
 arguments that should only be used for specific columns or non-portfolio outputs.
 
-A scenario function can't requests the specific arguments for its column because functions are unaware of
+A scenario function can't request the specific arguments for its column because functions are unaware of
 which column they're in. Therefore a new environment is created for each column and output
 containing only the arguments that apply. These arguments are passed to the environment in an instance of
 ``FilteredScenarioDefinition``.
