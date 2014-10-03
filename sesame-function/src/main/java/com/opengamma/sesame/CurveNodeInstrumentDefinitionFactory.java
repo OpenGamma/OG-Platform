@@ -99,13 +99,7 @@ public class CurveNodeInstrumentDefinitionFactory {
       @Override
       public InstrumentDefinition<?> visitFXForwardNode(FXForwardNode node) {
 
-        // An FX Forward curve node could either be a PointsCurveNodeWithIdentifier
-        // with the forward and spot rates, or a CurveNodeWithIdentifier with a
-        // combined rate
-        double base = getMarketData(nodeWithId.getIdentifier());
-        double combinedRate = nodeWithId instanceof PointsCurveNodeWithIdentifier ?
-            base + getMarketData(((PointsCurveNodeWithIdentifier) nodeWithId).getUnderlyingIdentifier()) :
-            base;
+        double combinedRate = getCombinedRate();
 
         ExternalId conventionId = node.getFxForwardConvention();
         FXForwardAndSwapConvention forwardConvention =
@@ -128,6 +122,17 @@ public class CurveNodeInstrumentDefinitionFactory {
             settlementCalendar, forwardConvention.isIsEOM());
 
         return ForexDefinition.fromAmounts(payCurrency, receiveCurrency, exchangeDate, 1, -combinedRate);
+      }
+
+      private double getCombinedRate() {
+        // An FX Forward curve node could either be a PointsCurveNodeWithIdentifier
+        // with the forward and spot rates, or a CurveNodeWithIdentifier with a
+        // combined rate. In the former case we need to sum the forward and
+        // spot to get a combined rate.
+        double base = getMarketData(nodeWithId.getIdentifier());
+        return nodeWithId instanceof PointsCurveNodeWithIdentifier ?
+            base + getMarketData(((PointsCurveNodeWithIdentifier) nodeWithId).getUnderlyingIdentifier()) :
+            base;
       }
 
       @Override
