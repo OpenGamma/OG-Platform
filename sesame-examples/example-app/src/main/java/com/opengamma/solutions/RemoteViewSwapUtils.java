@@ -476,7 +476,7 @@ public final class RemoteViewSwapUtils {
 
     return new InterestRateSwapSecurity(
         ExternalIdBundle.of(ExternalId.of("UUID", GUIDGenerator.generate().toString())),
-        "Vanilla - Fixed vs Libor 3m",
+        "Zero Coupon - Fixed vs Libor 3m",
         LocalDate.of(2014, 9, 12), // effective date
         LocalDate.of(2021, 9, 12), // maturity date,
         legs);
@@ -781,7 +781,6 @@ public final class RemoteViewSwapUtils {
         LocalDate.of(2016, 7, 12), // maturity date,
         legs);
   }
-
 
   private static InterestRateSwapSecurity createFixedVsLibor6mStub3MSwap() {
 
