@@ -12,6 +12,7 @@ import org.testng.annotations.Test;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedTransaction;
 import com.opengamma.analytics.financial.interestrate.bond.provider.BondSecurityDiscountingMethod;
@@ -20,6 +21,7 @@ import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.financial.convention.daycount.AccruedInterestCalculator;
 import com.opengamma.financial.convention.daycount.ActualActualICMA;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCounts;
@@ -169,14 +171,23 @@ public class BondFixedTransactionDefinitionTest {
 
   private static final BondFixedSecurityDefinition BOND_UKT_500_20140907 = BondDataSets.bondUKT5_20140907();
 
-  /** Test the constructor with date around coupon. */
+  /** Test the constructor with settlement date in the ex-coupon period. */
   @Test
   public void settlementExCoupon() {
-    ZonedDateTime settleDate = DateUtils.getUTCDate(2011, 8, 29);
+    ZonedDateTime settleDate = DateUtils.getUTCDate(2011, 9, 2);
     BondFixedTransactionDefinition transaction = new BondFixedTransactionDefinition(BOND_UKT_500_20140907, QUANTITY,
         settleDate, PRICE_DIRTY);
-    @SuppressWarnings("unused")
-    int t = 0;
+    int cpnIndex = transaction.getCouponIndex();
+    CouponFixedDefinition cpn = BOND_UKT_500_20140907.getCoupons().getNthPayment(cpnIndex);
+    double cpnAccrued = cpn.getAmount() / cpn.getNotional();
+    final int nbCoupon = BOND_UKT_500_20140907.getCoupons().getNumberOfPayments();
+    double accruedUndajusted = AccruedInterestCalculator.getAccruedInterest(BOND_UKT_500_20140907.getDayCount(), 
+        cpnIndex, nbCoupon, transaction.getPreviousAccrualDate(), settleDate, transaction.getNextAccrualDate(), 
+        cpn.getRate(), BOND_UKT_500_20140907.getCouponPerYear(), BOND_UKT_500_20140907.isEOM());
+    double accruedAtSettle = accruedUndajusted - cpnAccrued;
+    double accruedComputed = transaction.getAccruedInterestAtSettlement();
+    assertTrue("BondFixedTransactionDefinition: ex-coupon accrued negative", accruedComputed < 0.0);
+    assertEquals("BondFixedTransactionDefinition", accruedAtSettle, accruedComputed, TOLERANCE_ACCRUED);
   }
 
   /** Test the constructor with date around coupon. */
