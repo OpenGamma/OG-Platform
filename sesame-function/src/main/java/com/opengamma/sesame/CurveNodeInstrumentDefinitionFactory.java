@@ -99,9 +99,13 @@ public class CurveNodeInstrumentDefinitionFactory {
       @Override
       public InstrumentDefinition<?> visitFXForwardNode(FXForwardNode node) {
 
-        PointsCurveNodeWithIdentifier pointsNodeWithId = (PointsCurveNodeWithIdentifier) nodeWithId;
-        double forward = getMarketData(pointsNodeWithId.getIdentifier());
-        double spot = getMarketData(pointsNodeWithId.getUnderlyingIdentifier());
+        // An FX Forward curve node could either be a PointsCurveNodeWithIdentifier
+        // with the forward and spot rates, or a CurveNodeWithIdentifier with a
+        // combined rate
+        double base = getMarketData(nodeWithId.getIdentifier());
+        double combinedRate = nodeWithId instanceof PointsCurveNodeWithIdentifier ?
+            base + getMarketData(((PointsCurveNodeWithIdentifier) nodeWithId).getUnderlyingIdentifier()) :
+            base;
 
         ExternalId conventionId = node.getFxForwardConvention();
         FXForwardAndSwapConvention forwardConvention =
@@ -114,8 +118,6 @@ public class CurveNodeInstrumentDefinitionFactory {
         Currency payCurrency = node.getPayCurrency();
         Currency receiveCurrency = node.getReceiveCurrency();
         Tenor forwardTenor = node.getMaturityTenor();
-        double payAmount = 1;
-        double receiveAmount = forward + spot;
         int settlementDays = underlyingConvention.getSettlementDays();
 
         Calendar settlementCalendar =
@@ -125,12 +127,14 @@ public class CurveNodeInstrumentDefinitionFactory {
             spotDate, forwardTenor.getPeriod(), forwardConvention.getBusinessDayConvention(),
             settlementCalendar, forwardConvention.isIsEOM());
 
-        return ForexDefinition.fromAmounts(payCurrency, receiveCurrency, exchangeDate, payAmount, -receiveAmount);
+        return ForexDefinition.fromAmounts(payCurrency, receiveCurrency, exchangeDate, 1, -combinedRate);
       }
 
       @Override
       public InstrumentDefinition<?> visitFXSwapNode(FXSwapNode node) {
 
+        // An FX Swap node must be a PointsCurveNodeWithIdentifier as we need
+        // both the forward and spot rates
         PointsCurveNodeWithIdentifier pointsNodeWithId = (PointsCurveNodeWithIdentifier) nodeWithId;
         double forward = getMarketData(pointsNodeWithId.getIdentifier());
         double spot = getMarketData(pointsNodeWithId.getUnderlyingIdentifier());
@@ -211,9 +215,9 @@ public class CurveNodeInstrumentDefinitionFactory {
       }
 
       private double getMarketData(ExternalId identifier) {
-        Double forward = marketData.getDataPoint(identifier);
-        if (forward != null) {
-          return forward;
+        Double value = marketData.getDataPoint(identifier);
+        if (value != null) {
+          return value;
         } else {
           throw new OpenGammaRuntimeException("Could not get market data for " + identifier);
         }
