@@ -136,6 +136,10 @@ public final class RemoteViewSwapUtils {
       createInitialNotionalExchangeSwap(),
       createFinalNotionalExchangeSwap());
 
+  /** List of zero coupon compounding swap inputs */
+  public static final List<Object> IBOR_COMPOUNDING_INPUT =
+      ImmutableList.<Object>of(createIborCompoundingSwap());
+
   /** List of All IRS inputs */
   public static final List<Object> SWAP_INPUTS = ImmutableList.<Object>builder()
       .addAll(VANILLA_INPUTS)
@@ -476,7 +480,56 @@ public final class RemoteViewSwapUtils {
 
     return new InterestRateSwapSecurity(
         ExternalIdBundle.of(ExternalId.of("UUID", GUIDGenerator.generate().toString())),
-        "Zero Coupon - Fixed vs Libor 3m",
+        "Zero coupon compounding swap",
+        LocalDate.of(2014, 9, 12), // effective date
+        LocalDate.of(2021, 9, 12), // maturity date,
+        legs);
+  }
+
+  private static InterestRateSwapSecurity createIborCompoundingSwap() {
+
+    // Fixed leg : Payment quarterly, no compounding
+    FixedInterestRateSwapLeg payLeg = new FixedInterestRateSwapLeg();
+    payLeg.setNotional(USD_NOTIONAL);
+    payLeg.setCompoundingMethod(CompoundingMethod.NONE);
+    payLeg.setDayCountConvention(DayCounts.THIRTY_U_360);
+    payLeg.setPaymentDateFrequency(PeriodFrequency.QUARTERLY);
+    payLeg.setPaymentDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
+    payLeg.setPaymentDateCalendars(USNY);
+    payLeg.setAccrualPeriodFrequency(P6M);
+    payLeg.setAccrualPeriodBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
+    payLeg.setMaturityDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
+    payLeg.setAccrualPeriodCalendars(USNY);
+    payLeg.setRate(new Rate(0.015));
+    payLeg.setPayReceiveType(PayReceiveType.PAY);
+
+    // FLoat leg: Reset rate monthly, payment quarterly, flat compounding
+    FloatingInterestRateSwapLeg receiveLeg = new FloatingInterestRateSwapLeg();
+    receiveLeg.setNotional(USD_NOTIONAL);
+    receiveLeg.setCompoundingMethod(CompoundingMethod.FLAT);
+    receiveLeg.setDayCountConvention(DayCounts.ACT_360);
+    receiveLeg.setPaymentDateFrequency(PeriodFrequency.QUARTERLY);
+    receiveLeg.setPaymentDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
+    receiveLeg.setPaymentDateCalendars(USNY);
+    receiveLeg.setAccrualPeriodFrequency(P3M);
+    receiveLeg.setAccrualPeriodBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
+    receiveLeg.setAccrualPeriodCalendars(USNY);
+    receiveLeg.setResetPeriodFrequency(PeriodFrequency.MONTHLY);
+    receiveLeg.setResetPeriodBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
+    receiveLeg.setResetPeriodCalendars(USNY);
+    receiveLeg.setFixingDateBusinessDayConvention(BusinessDayConventions.PRECEDING);
+    receiveLeg.setMaturityDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
+    receiveLeg.setFixingDateCalendars(USNY);
+    receiveLeg.setFixingDateOffset(-2);
+    receiveLeg.setFloatingRateType(FloatingRateType.IBOR);
+    receiveLeg.setFloatingReferenceRateId(ExternalId.of("BLOOMBERG_TICKER", "US0003M Index"));
+    receiveLeg.setPayReceiveType(PayReceiveType.RECEIVE);
+
+    List<InterestRateSwapLeg> legs = ImmutableList.<InterestRateSwapLeg>of(payLeg, receiveLeg);
+
+    return new InterestRateSwapSecurity(
+        ExternalIdBundle.of(ExternalId.of("UUID", GUIDGenerator.generate().toString())),
+        "IBOR compounding swap",
         LocalDate.of(2014, 9, 12), // effective date
         LocalDate.of(2021, 9, 12), // maturity date,
         legs);
