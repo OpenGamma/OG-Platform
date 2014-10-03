@@ -86,11 +86,10 @@ public final class CurveBundleProvider {
   private static final ParSpreadMarketQuoteCurveSensitivityIssuerDiscountingCalculator CURVE_SENSITIVITY_CALCULATOR =
       ParSpreadMarketQuoteCurveSensitivityIssuerDiscountingCalculator.getInstance();
 
-
   /**
    * Creates the curve bundle provider.
    *
-   * @param curveNodeConverter converter bor curve nodes, not null.
+   * @param curveNodeConverter converter for curve nodes, not null.
    * @param curveSpecificationProvider provides the curve spec, not null.
    * @param curveSpecMarketDataProvider market data required for a curve specification, not null.
    * @param curveNodeInstrumentDefinitionFactory factory to build node definitions, not null.
@@ -143,7 +142,6 @@ public final class CurveBundleProvider {
     throw new OpenGammaRuntimeException("Cannot handle curves of type " + definition.getClass());
   }
 
-
   private IndexON createOvernightIndex(OvernightCurveTypeConfiguration type) {
     OvernightIndex index  = SecurityLink.resolvable(type.getConvention().toBundle(), OvernightIndex.class).resolve();
     OvernightIndexConvention indexConvention =
@@ -162,8 +160,6 @@ public final class CurveBundleProvider {
     return ConverterUtils.indexIbor(indexSecurity.getName(), indexConvention, indexSecurity.getTenor());
   }
 
-
-  // TODO sort this out [SSM-164]
   public Result<Pair<IssuerProviderDiscount, CurveBuildingBlockBundle>> getCurves(
     Environment env,
     CurveConstructionConfiguration config,
@@ -171,7 +167,6 @@ public final class CurveBundleProvider {
     Result<FXMatrix> fxMatrixResult,
     Set<String> impliedCurveNames,
     IssuerDiscountBuildingRepository builder) {
-
 
     final int nGroups = config.getCurveGroups().size();
 
@@ -181,7 +176,6 @@ public final class CurveBundleProvider {
     LinkedHashMap<String, IborIndex[]> forwardIborMap = new LinkedHashMap<>();
     LinkedHashMap<String, IndexON[]> forwardONMap = new LinkedHashMap<>();
     LinkedListMultimap<String, Pair<Object, LegalEntityFilter<LegalEntity>>> issuerMap = LinkedListMultimap.create();
-
 
     //TODO comparator to sort groups by order
     int i = 0; // Implementation Note: loop on the groups
@@ -199,7 +193,8 @@ public final class CurveBundleProvider {
 
       int j = 0;
 
-      for (final Map.Entry<AbstractCurveDefinition, List<? extends CurveTypeConfiguration>> entry : group.resolveTypesForCurves().entrySet()) {
+      for (final Map.Entry<AbstractCurveDefinition, List<? extends CurveTypeConfiguration>> entry :
+          group.resolveTypesForCurves().entrySet()) {
 
         AbstractCurveDefinition curve = entry.getKey();
         String curveName = curve.getName();
@@ -241,7 +236,8 @@ public final class CurveBundleProvider {
                   //should this map check that the curve name has not already been entered?
                   discountingMap.put(curveName, currency);
                 } catch (final IllegalArgumentException e) {
-                  throw new OpenGammaRuntimeException("Cannot handle reference type " + reference + " for discounting curves");
+                  throw new OpenGammaRuntimeException("Cannot handle reference type " + reference
+                                                          + " for discounting curves");
                 }
               } else if (type instanceof IborCurveTypeConfiguration) {
                 iborIndex.add(createIborIndex((IborCurveTypeConfiguration) type));
