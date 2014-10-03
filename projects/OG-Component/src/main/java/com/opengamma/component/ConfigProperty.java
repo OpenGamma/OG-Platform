@@ -5,6 +5,8 @@
  */
 package com.opengamma.component;
 
+import java.util.Objects;
+
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -79,27 +81,26 @@ public final class ConfigProperty {
 
   /**
    * Whether the value is hidden.
-   * 
-   * @return whether the value is hidden, not null
+   *
+   * @return whether the value is hidden
    */
   public boolean isHidden() {
     return _hidden;
   }
 
-  //-------------------------------------------------------------------------
   /**
    * Returns a copy of this property with a different key.
-   * 
+   *
    * @param key  the new key, not null
    * @return the new property, not null
    */
   public ConfigProperty withKey(String key) {
-    return ConfigProperty.of(key, _value, _hidden);
+    return new ConfigProperty(key, _value, _hidden);
   }
 
   /**
    * Gets the loggable value.
-   * 
+   *
    * @return the loggable value, not null
    */
   public String loggableValue() {
@@ -114,14 +115,16 @@ public final class ConfigProperty {
     }
     if (obj instanceof ConfigProperty) {
       ConfigProperty other = (ConfigProperty) obj;
-      return getKey().equals(other.getKey()) && getValue().equals(other.getValue()) && isHidden() == other.isHidden();
+      return getKey().equals(other.getKey()) &&
+          getValue().equals(other.getValue()) &&
+          isHidden() == other.isHidden();
     }
     return false;
   }
 
   @Override
   public int hashCode() {
-    return getKey().hashCode() ^ getValue().hashCode() + (isHidden() ? 1 : 0);
+    return Objects.hash(getKey(), getValue(), isHidden());
   }
 
   @Override

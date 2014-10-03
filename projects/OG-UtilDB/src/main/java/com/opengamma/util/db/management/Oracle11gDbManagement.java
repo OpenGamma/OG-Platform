@@ -159,42 +159,32 @@ public final class Oracle11gDbManagement extends AbstractDbManagement {
   @Override
   public void dropSchema(String catalog, String schema) {
     // Does not handle triggers or stored procedures yet
-    Connection conn = null;
     try {
       if (!getCatalogCreationStrategy().catalogExists(catalog)) {
         System.out.println("Catalog " + catalog + " does not exist");
         return; // nothing to drop
       }
-
-      conn = DriverManager.getConnection(getCatalogToConnectTo(catalog), getSystemUser(), getSystemPassword());
-
-      if (schema != null) {
-        Statement statement = conn.createStatement();
-        Collection<String> schemas = getAllSchemas(catalog, statement);
-        statement.close();
-
-        if (!schemas.contains(schema)) {
-          System.out.println("Schema " + schema + " does not exist");
-          return; // nothing to drop
+      
+      try (Connection conn = DriverManager.getConnection(getCatalogToConnectTo(catalog), getSystemUser(), getSystemPassword())) {
+        if (schema != null) {
+          try (Statement statement = conn.createStatement()) {
+            Collection<String> schemas = getAllSchemas(catalog, statement);
+            if (!schemas.contains(schema)) {
+              System.out.println("Schema " + schema + " does not exist");
+              return; // nothing to drop
+            }
+          }
+        }
+  
+        setActiveSchema(conn, schema);
+        try (Statement statement = conn.createStatement()) {
+          statement.addBatch("DROP USER " + getUser() + " CASCADE");
+          statement.executeBatch();
         }
       }
-
-      setActiveSchema(conn, schema);
-      Statement statement = conn.createStatement();
-
-      statement.addBatch("DROP USER " + getUser() + " CASCADE");
-      statement.executeBatch();
-      statement.close();
 
     } catch (SQLException e) {
       throw new OpenGammaRuntimeException("Failed to drop schema", e);
-    } finally {
-      try {
-        if (conn != null) {
-          conn.close();
-        }
-      } catch (SQLException e) {
-      }
     }
   }
 

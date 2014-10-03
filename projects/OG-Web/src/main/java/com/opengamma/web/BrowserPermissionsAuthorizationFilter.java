@@ -19,6 +19,7 @@ import org.apache.shiro.web.filter.authz.AuthorizationFilter;
  */
 public final class BrowserPermissionsAuthorizationFilter extends AuthorizationFilter {
 
+  @Override
   public boolean isAccessAllowed(ServletRequest request, ServletResponse response, Object mappedValue) throws IOException {
     String accept = ((HttpServletRequest) request).getHeader("Accept");
     if (accept.contains("text/") || accept.contains("application/xhtml")) {

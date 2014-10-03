@@ -76,6 +76,7 @@ public class WebLegalEntityVersionsResource extends AbstractWebLegalEntityResour
    *
    * @return the output root data, not null
    */
+  @Override
   protected FlexiBean createRootData() {
     FlexiBean out = super.createRootData();
     LegalEntityDocument doc = data().getLegalEntity();

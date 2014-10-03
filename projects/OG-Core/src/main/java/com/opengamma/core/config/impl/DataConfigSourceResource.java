@@ -180,8 +180,7 @@ public class DataConfigSourceResource extends AbstractDataResource {
     ArgumentChecker.notNull(baseUri, "baseUri");
     ArgumentChecker.notNull(objectId, "objectId");
     final UriBuilder bld = UriBuilder.fromUri(baseUri).path("configs/{oid}/{versionCorrection}");
-    versionCorrection = versionCorrection != null ? versionCorrection : VersionCorrection.LATEST;
-    return bld.build(objectId, versionCorrection);
+    return bld.build(objectId, VersionCorrection.of(versionCorrection));
   }
 
   @GET

@@ -16,7 +16,7 @@ import java.util.Map;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.lambdava.functions.Function2;
+import com.opengamma.util.function.BinaryOperator;
 import com.opengamma.util.test.TestGroup;
 
 /**
@@ -128,9 +128,9 @@ public class ComputationTargetTypeMapTest {
   }
 
   public void testCollision_folding() {
-    final ComputationTargetTypeMap<String> map = new ComputationTargetTypeMap<String>(new Function2<String, String, String>() {
+    final ComputationTargetTypeMap<String> map = new ComputationTargetTypeMap<String>(new BinaryOperator<String>() {
       @Override
-      public String execute(final String a, final String b) {
+      public String apply(final String a, final String b) {
         return a + b;
       }
     });
@@ -143,12 +143,13 @@ public class ComputationTargetTypeMapTest {
   public void testChained() {
     final ComputationTargetTypeMap<String> map = new ComputationTargetTypeMap<String>();
     map.put(ComputationTargetType.SECURITY, "A");
-    map.put(ComputationTargetType.POSITION.containing(ComputationTargetType.TRADE.or(ComputationTargetType.of(MockSecurity.class))), "B", new Function2<String, String, String>() {
-      @Override
-      public String execute(final String a, final String b) {
-        return a + b;
-      }
-    });
+    map.put(ComputationTargetType.POSITION.containing(ComputationTargetType.TRADE.or(ComputationTargetType.of(MockSecurity.class))), "B",
+        new BinaryOperator<String>() {
+          @Override
+          public String apply(final String a, final String b) {
+            return a + b;
+          }
+        });
     assertEquals(map.get(ComputationTargetType.SECURITY), "A");
     assertEquals(map.get(ComputationTargetType.TRADE), "B");
     assertEquals(map.get(ComputationTargetType.of(MockSecurity.class)), "AB");

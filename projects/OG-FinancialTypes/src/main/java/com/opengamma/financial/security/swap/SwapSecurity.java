@@ -24,8 +24,11 @@ import com.opengamma.financial.security.FinancialSecurityVisitor;
 
 /**
  * A security for a swap.
+ * 
+ * @deprecated Using InterestRateSwapSecurity instead
  */
 @BeanDefinition
+@Deprecated
 public class SwapSecurity extends FinancialSecurity {
 
   /** Serialization version. */

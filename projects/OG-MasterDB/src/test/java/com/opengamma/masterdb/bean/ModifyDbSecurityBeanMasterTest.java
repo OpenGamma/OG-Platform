@@ -136,6 +136,7 @@ public class ModifyDbSecurityBeanMasterTest extends AbstractDbSecurityBeanMaster
 
   @Test
   public void test_add_addWithMinimalProperties() {
+    // this implicitly tests that an empty string (the name) can be round-tripped
     ManageableSecurity security = new ManageableSecurity();
     SecurityDocument doc = new SecurityDocument(security);
     _secMaster.add(doc);

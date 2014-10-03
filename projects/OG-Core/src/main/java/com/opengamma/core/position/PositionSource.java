@@ -69,7 +69,7 @@ public interface PositionSource extends ChangeProvider {
    */
   PortfolioNode getPortfolioNode(UniqueId uniqueId, VersionCorrection versionCorrection);
 
-  // REVIEW 2012-10-19 Andrew -- If PortfolioNode had a PositionLink members (like Position does to security) then we wouldn't need the v/c parameter to getPortfolioNode(UID) 
+  // REVIEW 2012-10-19 Andrew -- If PortfolioNode had a PositionLink members (like Position does to security) then we wouldn't need the v/c parameter to getPortfolioNode(UID)
 
   /**
    * Gets a position by unique identifier.

@@ -112,7 +112,7 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
         break;
       default:
         throw new IllegalArgumentException("Can only update security by XML or ID");
-    }    
+    }
     return Response.seeOther(responseURI).build();
   }
 
@@ -187,6 +187,7 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
    * Creates the output root data.
    * @return the output root data, not null
    */
+  @Override
   protected FlexiBean createRootData() {
     FlexiBean out = super.createRootData();
     SecurityDocument securityDoc = data().getSecurity();
@@ -206,7 +207,7 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
     }
 
     out.put("securityAttributes", security.getAttributes());
-    out.put("securityDoc", securityDoc); 
+    out.put("securityDoc", securityDoc);
     out.put("security", security);
     out.put("timeSeriesId", tsObjectId);
     out.put("deleted", !securityDoc.isLatest());

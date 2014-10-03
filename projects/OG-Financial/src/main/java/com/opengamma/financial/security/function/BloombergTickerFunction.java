@@ -6,21 +6,20 @@
 package com.opengamma.financial.security.function;
 
 import static com.google.common.collect.Sets.newHashSet;
-import static com.opengamma.engine.function.dsl.Function.function;
-import static com.opengamma.engine.function.dsl.Function.output;
-import static com.opengamma.engine.function.dsl.TargetSpecificationReference.originalTarget;
 import static com.opengamma.engine.value.ValueRequirementNames.BLOOMBERG_TICKER;
-import static com.opengamma.lambdava.streams.Lambdava.functional;
 
+import java.util.Collections;
 import java.util.Set;
 
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.function.AbstractFunction;
+import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
-import com.opengamma.engine.function.dsl.FunctionSignature;
-import com.opengamma.engine.function.dsl.functions.BaseNonCompiledInvoker;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
@@ -33,27 +32,15 @@ import com.opengamma.util.async.AsynchronousExecution;
 /**
  * If attached to security's ExternalIdBundle, displays its {@link ExternalSchemes.BLOOMBERG_TICKER}
  */
-public class BloombergTickerFunction extends BaseNonCompiledInvoker {
+public class BloombergTickerFunction extends AbstractFunction.NonCompiledInvoker {
 
-  @Override
-  protected FunctionSignature functionSignature() {
-
-    return function(this.getClass().getName(), ComputationTargetType.POSITION_OR_TRADE)
-      .outputs(
-          output(BLOOMBERG_TICKER)
-              .targetSpec(originalTarget())
-              .properties(ValueProperties.all())
-      )
-        .inputs();
-  }
-  
   @Override
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext,
                                     final FunctionInputs inputs,
                                     ComputationTarget target,
                                     Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
 
-    ValueRequirement desiredValue = functional(desiredValues).first();
+    ValueRequirement desiredValue = Iterables.getFirst(desiredValues, null);
     ValueSpecification valueSpecification = ValueSpecification.of(desiredValue.getValueName(),
                                                                   target.toSpecification(),
                                                                   desiredValue.getConstraints());
@@ -69,4 +56,21 @@ public class BloombergTickerFunction extends BaseNonCompiledInvoker {
     }
     return newHashSet(new ComputedValue(valueSpecification, ""));
   }
+
+  @Override
+  public ComputationTargetType getTargetType() {
+    return ComputationTargetType.POSITION_OR_TRADE;
+  }
+
+  @Override
+  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
+    return Collections.singleton(
+        new ValueSpecification(BLOOMBERG_TICKER, target.toSpecification(), ValueProperties.all()));
+  }
+
+  @Override
+  public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
+    return ImmutableSet.of();
+  }
+
 }

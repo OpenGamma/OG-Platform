@@ -11,6 +11,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.ImmutableConstructor;
@@ -235,7 +236,7 @@ public final class Expiry implements ImmutableBean, Serializable {
     }
 
     @Override
-    public Expiry.Builder builder() {
+    public BeanBuilder<? extends Expiry> builder() {
       return new Expiry.Builder();
     }
 
@@ -346,7 +347,7 @@ public final class Expiry implements ImmutableBean, Serializable {
 
     @Override
     public Builder setString(MetaProperty<?> property, String value) {
-      super.set(property, value);
+      super.setString(property, value);
       return this;
     }
 

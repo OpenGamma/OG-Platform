@@ -62,6 +62,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponON;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONArithmeticAverageSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONArithmeticAverageSpreadSimplified;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONCompounded;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONSpread;
@@ -162,7 +163,7 @@ public class LastTimeCalculator extends InstrumentDerivativeVisitorAdapter<Objec
 
   @Override
   public Double visitCouponIborCompoundingFlatSpread(final CouponIborCompoundingFlatSpread payment) {
-    return Math.max(payment.getFixingSubperiodsEndTimes()[payment.getFixingSubperiodsEndTimes().length - 1], payment.getPaymentTime());
+    return Math.max(payment.getFixingPeriodEndTimes()[payment.getFixingPeriodEndTimes().length - 1], payment.getPaymentTime());
   }
 
   @Override
@@ -239,6 +240,11 @@ public class LastTimeCalculator extends InstrumentDerivativeVisitorAdapter<Objec
   }
 
   @Override
+  public Double visitCouponONArithmeticAverageSpread(final CouponONArithmeticAverageSpread payment) {
+    return payment.getPaymentTime();
+  }
+
+  @Override
   public Double visitDepositZero(final DepositZero deposit) {
     return deposit.getEndTime();
   }
@@ -265,7 +271,7 @@ public class LastTimeCalculator extends InstrumentDerivativeVisitorAdapter<Objec
     return bond.getBondStandard().accept(this);
   }
 
-  // -----     Bond     -----
+  // -----     Bill     -----
 
   @Override
   public Double visitBillTransaction(final BillTransaction bill) {

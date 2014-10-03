@@ -36,7 +36,7 @@ import com.opengamma.util.rest.AbstractDataResource;
 
 /**
  * RESTful resource for legal entities.
- * <p/>
+ * <p>
  * The legal entities resource receives and processes RESTful calls to the legal entity source.
  */
 @Path("legalentitySource")

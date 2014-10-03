@@ -44,7 +44,7 @@ public class SVINonLinearLeastSquareFitter extends LeastSquareSmileFitter {
     TRANSFORMS[1] = new SingleRangeLimitTransform(0, LimitType.GREATER_THAN); //b
     TRANSFORMS[2] = new DoubleRangeLimitTransform(-1.0, 1.0); //rho
     TRANSFORMS[3] = new SingleRangeLimitTransform(0, LimitType.GREATER_THAN); //sigma
-    TRANSFORMS[4] = new NullTransform(); //m
+    TRANSFORMS[4] = new NullTransform(); //m 
   }
 
   public SVINonLinearLeastSquareFitter() {
@@ -95,6 +95,11 @@ public class SVINonLinearLeastSquareFitter extends LeastSquareSmileFitter {
         final double m = mp.getEntry(4);
         final SVIFormulaData newData = new SVIFormulaData(a, b, rho, sigma, m);
         return FORMULA.getVolatilityFunction(new EuropeanVanillaOption(strike, maturity, true), forward).evaluate(newData);
+      }
+
+      @Override
+      public int getNumberOfParameters() {
+        return 5;
       }
     };
 

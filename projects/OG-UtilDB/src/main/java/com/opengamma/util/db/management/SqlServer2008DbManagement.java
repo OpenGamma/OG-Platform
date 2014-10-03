@@ -17,6 +17,7 @@ import org.hibernate.dialect.SQLServerDialect;
 import org.hibernate.mapping.ForeignKey;
 import org.hibernate.mapping.Table;
 
+import com.google.common.base.Objects;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.tuple.Pair;
 
@@ -101,51 +102,41 @@ public final class SqlServer2008DbManagement extends AbstractDbManagement {
 
   @Override
   public String getAllForeignKeyConstraintsSQL(String catalog, String schema) {
-    if (schema == null) {
-      schema = SQLSERVER2008_DEFAULT_SCHEMA;
-    }
+    String effScheme = Objects.firstNonNull(schema, SQLSERVER2008_DEFAULT_SCHEMA);
     String sql = "SELECT constraint_name AS name, table_name FROM information_schema.table_constraints WHERE " +
-      "constraint_catalog = '" + catalog + "' AND constraint_schema = '" + schema + "'" + " AND constraint_type = 'FOREIGN KEY'";
+      "constraint_catalog = '" + catalog + "' AND constraint_schema = '" + effScheme + "'" + " AND constraint_type = 'FOREIGN KEY'";
     return sql;
   }
 
   @Override
   public String getAllSequencesSQL(String catalog, String schema) {
-    if (schema == null) {
-      schema = SQLSERVER2008_DEFAULT_SCHEMA;
-    }
+    String effScheme = Objects.firstNonNull(schema, SQLSERVER2008_DEFAULT_SCHEMA);
     String sql = "SELECT table_name AS name FROM information_schema.tables WHERE table_name LIKE '%_seq' AND " + 
-      "table_catalog = '" + catalog + "'" + " AND table_schema = '" + schema + "' AND table_type = 'BASE TABLE'";
+      "table_catalog = '" + catalog + "'" + " AND table_schema = '" + effScheme + "' AND table_type = 'BASE TABLE'";
     return sql;
   }
 
   @Override
   public String getAllTablesSQL(String catalog, String schema) {
-    if (schema == null) {
-      schema = SQLSERVER2008_DEFAULT_SCHEMA;
-    }
+    String effScheme = Objects.firstNonNull(schema, SQLSERVER2008_DEFAULT_SCHEMA);
     String sql = "SELECT table_name AS name FROM information_schema.tables WHERE NOT table_name LIKE '%_seq' AND " +
-      "table_catalog = '" + catalog + "'" + " AND table_schema = '" + schema + "' AND table_type = 'BASE TABLE'";
+      "table_catalog = '" + catalog + "'" + " AND table_schema = '" + effScheme + "' AND table_type = 'BASE TABLE'";
     return sql;
   }
 
   @Override
   public String getAllViewsSQL(String catalog, String schema) {
-    if (schema == null) {
-      schema = SQLSERVER2008_DEFAULT_SCHEMA;
-    }
+    String effScheme = Objects.firstNonNull(schema, SQLSERVER2008_DEFAULT_SCHEMA);
     String sql = "SELECT table_name AS name FROM information_schema.tables WHERE " +
-      "table_catalog = '" + catalog + "'" + " AND table_schema = '" + schema + "' AND table_type = 'VIEW'";
+      "table_catalog = '" + catalog + "'" + " AND table_schema = '" + effScheme + "' AND table_type = 'VIEW'";
     return sql;
   }
 
   @Override
   public String getAllColumnsSQL(String catalog, String schema, String table) {
-    if (schema == null) {
-      schema = SQLSERVER2008_DEFAULT_SCHEMA;
-    }
+    String effScheme = Objects.firstNonNull(schema, SQLSERVER2008_DEFAULT_SCHEMA);
     StringBuilder sql = new StringBuilder(GET_ALL_COLUMNS_SQL);
-    sql.append(catalog).append("' AND table_schema='").append(schema).append("' AND table_name='");
+    sql.append(catalog).append("' AND table_schema='").append(effScheme).append("' AND table_name='");
     sql.append(table).append("'");
     return sql.toString();
   }
@@ -180,96 +171,83 @@ public final class SqlServer2008DbManagement extends AbstractDbManagement {
     // Does not handle triggers or stored procedures yet
     ArrayList<String> script = new ArrayList<String>();
     
-    Connection conn = null;
     try {
       if (!getCatalogCreationStrategy().catalogExists(catalog)) {
         System.out.println("Catalog " + catalog + " does not exist");
         return; // nothing to drop
       }
       
-      conn = connect(catalog);
-      
-      if (schema != null) {
-        Statement statement = conn.createStatement(); 
-        Collection<String> schemas = getAllSchemas(catalog, statement);
-        statement.close();
-        
-        if (!schemas.contains(schema)) {
-          System.out.println("Schema " + schema + " does not exist");
-          return; // nothing to drop
+      try (Connection conn = connect(catalog)) {
+        if (schema != null) {
+          try (Statement statement = conn.createStatement()) {
+            Collection<String> schemas = getAllSchemas(catalog, statement);
+            if (!schemas.contains(schema)) {
+              System.out.println("Schema " + schema + " does not exist");
+              return; // nothing to drop
+            }
+          }
         }
-      }
-
-      setActiveSchema(conn, schema);
-      Statement statement = conn.createStatement();
-      
-      // Drop constraints SQL
-      if (getHibernateDialect().dropConstraints()) {
-        for (Pair<String, String> constraint : getAllForeignKeyConstraints(catalog, schema, statement)) {
-          String name = constraint.getFirst();
-          String table = constraint.getSecond();
-          ForeignKey fk = new ForeignKey();
-          fk.setName(name);
-          fk.setTable(new Table(table));
+  
+        setActiveSchema(conn, schema);
+        try (Statement statement = conn.createStatement()) {
+          // Drop constraints SQL
+          if (getHibernateDialect().dropConstraints()) {
+            for (Pair<String, String> constraint : getAllForeignKeyConstraints(catalog, schema, statement)) {
+              String name = constraint.getFirst();
+              String table = constraint.getSecond();
+              ForeignKey fk = new ForeignKey();
+              fk.setName(name);
+              fk.setTable(new Table(table));
+              
+              String dropConstraintSql = fk.sqlDropString(getHibernateDialect(), null, schema);
+              script.add(dropConstraintSql);
+            }
+          }
           
-          String dropConstraintSql = fk.sqlDropString(getHibernateDialect(), null, schema);
-          script.add(dropConstraintSql);
+          // Drop views SQL
+          for (String name : getAllViews(catalog, schema, statement)) {
+            Table table = new Table(name);
+            String dropViewStr = table.sqlDropString(getHibernateDialect(), null, schema);
+            dropViewStr = dropViewStr.replaceAll("drop table", "drop view");
+            script.add(dropViewStr);
+          }
+          
+          // Drop tables SQL
+          for (String name : getAllTables(catalog, schema, statement)) {
+            Table table = new Table(name);
+            String dropTableStr = table.sqlDropString(getHibernateDialect(), null, schema);
+            script.add(dropTableStr);
+          }
+        }
+        
+        // Now execute it all
+        try (Statement statement = conn.createStatement()) {
+          for (String sql : script) {
+            //System.out.println("Executing \"" + sql + "\"");
+            statement.executeUpdate(sql);
+          }
+        }
+        
+        // Drop sequences SQL
+        try (Statement statement = conn.createStatement()) {
+          script.clear();
+          for (String name : getAllSequences(catalog, schema, statement)) {
+            Table table = new Table(name);
+            String dropTableStr = table.sqlDropString(getHibernateDialect(), null, schema);
+            script.add(dropTableStr);
+          }
+        }
+        //now execute drop sequence
+        try (Statement statement = conn.createStatement()) {
+          for (String sql : script) {
+            //System.out.println("Executing \"" + sql + "\"");
+            statement.executeUpdate(sql);
+          }
         }
       }
-      
-      // Drop views SQL
-      for (String name : getAllViews(catalog, schema, statement)) {
-        Table table = new Table(name);
-        String dropViewStr = table.sqlDropString(getHibernateDialect(), null, schema);
-        dropViewStr = dropViewStr.replaceAll("drop table", "drop view");
-        script.add(dropViewStr);
-      }
-      
-      // Drop tables SQL
-      for (String name : getAllTables(catalog, schema, statement)) {
-        Table table = new Table(name);
-        String dropTableStr = table.sqlDropString(getHibernateDialect(), null, schema);
-        script.add(dropTableStr);
-      }
-      
-      // Now execute it all
-      statement.close();
-      statement = conn.createStatement();
-      for (String sql : script) {
-        //System.out.println("Executing \"" + sql + "\"");
-        statement.executeUpdate(sql);
-      }
-      
-      statement.close();
-      statement = conn.createStatement();
-      
-      // Drop sequences SQL
-      script.clear();
-      for (String name : getAllSequences(catalog, schema, statement)) {
-        Table table = new Table(name);
-        String dropTableStr = table.sqlDropString(getHibernateDialect(), null, schema);
-        script.add(dropTableStr);
-      }
-      
-      //now execute drop sequence
-      statement.close();
-      statement = conn.createStatement();
-      for (String sql : script) {
-        //System.out.println("Executing \"" + sql + "\"");
-        statement.executeUpdate(sql);
-      }
-      
-      statement.close();
     
     } catch (SQLException e) {
       throw new OpenGammaRuntimeException("Failed to drop schema", e);
-    } finally {
-      try {
-        if (conn != null) {
-          conn.close();
-        }
-      } catch (SQLException e) {
-      }
     }
   }
 

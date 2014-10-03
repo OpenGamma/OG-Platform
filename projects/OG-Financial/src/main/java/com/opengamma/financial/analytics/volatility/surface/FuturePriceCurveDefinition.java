@@ -390,7 +390,7 @@ public final class FuturePriceCurveDefinition<X> implements ImmutableBean {
 
     @Override
     public Builder<X> setString(MetaProperty<?> property, String value) {
-      super.set(property, value);
+      super.setString(property, value);
       return this;
     }
 

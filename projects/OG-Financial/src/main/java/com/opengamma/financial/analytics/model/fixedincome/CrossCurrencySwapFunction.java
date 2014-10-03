@@ -54,6 +54,7 @@ import com.opengamma.financial.analytics.model.discounting.DiscountingFunction;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.financial.security.CurrenciesVisitor;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
@@ -222,7 +223,7 @@ public abstract class CrossCurrencySwapFunction extends AbstractFunction.NonComp
       return null;
     }
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
-    final Collection<Currency> currencies = FinancialSecurityUtils.getCurrencies(security, securitySource);
+    final Collection<Currency> currencies = CurrenciesVisitor.getCurrencies(security, securitySource);
     boolean payCurrencyMatched = false;
     boolean receiveCurrencyMatched = false;
     for (final Currency currency : currencies) {

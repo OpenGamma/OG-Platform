@@ -23,6 +23,10 @@ public class ExposureFunctionFactory {
   public static ExposureFunction getExposureFunction(final SecuritySource securitySource, final String name) {
     ArgumentChecker.notNull(securitySource, "security source");
     ArgumentChecker.notNull(name, "name");
+    if (name.startsWith(CombiningExposureFunction.NAME)) {
+      String underlyingName = name.replace(CombiningExposureFunction.NAME, "");
+      return new CombiningExposureFunction(getExposureFunction(securitySource, underlyingName));
+    }
     switch (name) {
       case ContractCategoryExposureFunction.NAME:
         return new ContractCategoryExposureFunction(securitySource);

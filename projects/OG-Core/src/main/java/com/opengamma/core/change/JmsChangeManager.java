@@ -97,7 +97,7 @@ public class JmsChangeManager extends BasicChangeManager implements MessageListe
       messageConsumer.setMessageListener(this);
       
     } catch (JMSException ex) {
-      throw new OpenGammaRuntimeException("Failed to create change manager on topic: " + topicName, ex);      
+      throw new OpenGammaRuntimeException("Failed to create change manager on topic: " + topicName, ex);
     }
   }
 

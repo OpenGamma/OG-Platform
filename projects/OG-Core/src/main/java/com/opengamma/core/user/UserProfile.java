@@ -14,7 +14,7 @@ import com.opengamma.util.PublicAPI;
 
 /**
  * A user profile, containing settings specific to how the user uses the system.
- * <p> 
+ * <p>
  * This interface is read-only.
  * Implementations may be mutable.
  */

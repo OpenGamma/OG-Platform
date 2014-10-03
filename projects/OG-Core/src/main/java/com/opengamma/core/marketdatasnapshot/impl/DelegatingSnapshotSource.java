@@ -6,21 +6,19 @@
 package com.opengamma.core.marketdatasnapshot.impl;
 
 import static com.google.common.collect.Maps.newHashMap;
-import static com.opengamma.lambdava.streams.Lambdava.functional;
 
 import java.util.Collection;
 import java.util.Map;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ListMultimap;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotChangeListener;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.core.marketdatasnapshot.NamedSnapshot;
-import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdSchemeDelegator;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.lambdava.functions.Function1;
-import com.opengamma.lambdava.streams.Functional;
 
 /**
  * A source of snapshots that uses the scheme of the unique identifier to determine which underlying source should handle the request.
@@ -49,44 +47,38 @@ public class DelegatingSnapshotSource extends UniqueIdSchemeDelegator<MarketData
   }
 
   @Override
-  public StructuredMarketDataSnapshot get(ObjectId objectId, VersionCorrection versionCorrection) {
+  public NamedSnapshot get(ObjectId objectId, VersionCorrection versionCorrection) {
     return chooseDelegate(objectId.getScheme()).get(objectId, versionCorrection);
   }
 
   @Override
-  public StructuredMarketDataSnapshot get(UniqueId uniqueId) {
+  public NamedSnapshot get(UniqueId uniqueId) {
     return chooseDelegate(uniqueId.getScheme()).get(uniqueId);
   }
 
   @Override
-  public Map<UniqueId, StructuredMarketDataSnapshot> get(Collection<UniqueId> uniqueIds) {
-    Map<String, Functional<UniqueId>> groups = functional(uniqueIds).groupBy(new Function1<UniqueId, String>() {
-      @Override
-      public String execute(UniqueId uniqueId) {
-        return uniqueId.getScheme();
-      }
-    });
-
-    Map<UniqueId, StructuredMarketDataSnapshot> snapshots = newHashMap();
-
-    for (Map.Entry<String, Functional<UniqueId>> entries : groups.entrySet()) {
-      snapshots.putAll(chooseDelegate(entries.getKey()).get(entries.getValue().asList()));
+  public Map<UniqueId, NamedSnapshot> get(Collection<UniqueId> uniqueIds) {
+    final ListMultimap<String, UniqueId> groups = ArrayListMultimap.create();
+    for (UniqueId uniqueId : uniqueIds) {
+      groups.put(uniqueId.getScheme(), uniqueId);
+    }
+    Map<UniqueId, NamedSnapshot> snapshots = newHashMap();
+    for (Map.Entry<String, Collection<UniqueId>> entries : groups.asMap().entrySet()) {
+      snapshots.putAll(chooseDelegate(entries.getKey()).get(entries.getValue()));
     }
 
     return snapshots;
   }
 
   @Override
-  public Map<ObjectId, StructuredMarketDataSnapshot> get(final Collection<ObjectId> objectIds, final VersionCorrection versionCorrection) {
-    final Map<String, Functional<ObjectId>> groups = functional(objectIds).groupBy(new Function1<ObjectId, String>() {
-      @Override
-      public String execute(ObjectId objectId) {
-        return objectId.getScheme();
-      }
-    });
-    final Map<ObjectId, StructuredMarketDataSnapshot> snapshots = newHashMap();
-    for (Map.Entry<String, Functional<ObjectId>> entries : groups.entrySet()) {
-      snapshots.putAll(chooseDelegate(entries.getKey()).get(entries.getValue().asList(), versionCorrection));
+  public Map<ObjectId, NamedSnapshot> get(final Collection<ObjectId> objectIds, final VersionCorrection versionCorrection) {
+    final ListMultimap<String, ObjectId> groups = ArrayListMultimap.create();
+    for (ObjectId objectId : objectIds) {
+      groups.put(objectId.getScheme(), objectId);
+    }
+    final Map<ObjectId, NamedSnapshot> snapshots = newHashMap();
+    for (Map.Entry<String, Collection<ObjectId>> entries : groups.asMap().entrySet()) {
+      snapshots.putAll(chooseDelegate(entries.getKey()).get(entries.getValue(), versionCorrection));
     }
     return snapshots;
   }

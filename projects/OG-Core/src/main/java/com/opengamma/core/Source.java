@@ -41,7 +41,7 @@ public interface Source<V> {
    * <p>
    * This retrieves the object stored using the object identifier at the instant
    * specified by the version-correction. If not found, an exception is thrown.
-   * In combination, the object identifier and version-correction are equivalent to 
+   * In combination, the object identifier and version-correction are equivalent to
    * a unique identifier.
    * 
    * @param objectId  the object identifier to search for, not null
@@ -76,7 +76,7 @@ public interface Source<V> {
    * This retrieves a set of objects stored using the object identifiers at the instant
    * specified by the version-correction.
    * If not found, the object identifier will be missing from the result map.
-   * In combination, the object identifier and version-correction are equivalent to 
+   * In combination, the object identifier and version-correction are equivalent to
    * a unique identifier.
    * <p>
    * This bulk method is equivalent to {@link #get(ObjectId, VersionCorrection)}

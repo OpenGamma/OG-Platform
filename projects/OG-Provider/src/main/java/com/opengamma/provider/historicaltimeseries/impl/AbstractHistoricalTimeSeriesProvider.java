@@ -168,17 +168,17 @@ public abstract class AbstractHistoricalTimeSeriesProvider implements Historical
    */
   protected LocalDateDoubleTimeSeries filterResult(LocalDateDoubleTimeSeries hts, LocalDateRange dateRange, Integer maxPoints) {
     // filter by dates
-    hts = hts.subSeries(dateRange.getStartDateInclusive(), dateRange.getEndDateExclusive());
+    LocalDateDoubleTimeSeries result = hts.subSeries(dateRange.getStartDateInclusive(), dateRange.getEndDateExclusive());
     
     // filter by points
     if (maxPoints != null && hts.size() > Math.abs(maxPoints)) {
       if (maxPoints < 0) {
-        hts = hts.tail(-maxPoints);
+        result = result.tail(-maxPoints);
       } else {
-        hts = hts.head(maxPoints);
+        result = result.head(maxPoints);
       }
     }
-    return hts;
+    return result;
   }
 
   //-------------------------------------------------------------------------

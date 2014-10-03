@@ -76,7 +76,6 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.lambdava.functions.Function2;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.exchange.ExchangeMaster;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
@@ -89,6 +88,7 @@ import com.opengamma.master.security.impl.MasterSecuritySource;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.async.AsynchronousOperation;
+import com.opengamma.util.function.BiFunction;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.time.DateUtils;
@@ -137,7 +137,7 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
   private String _currencyCurveName;
   private final Map<Currency, String> _curveCalculationConfig = new HashMap<Currency, String>();
   private ExternalScheme _preferredScheme;
-  private Function2<Currency, Currency, ExternalId> _spotRateIdentifier;
+  private BiFunction<Currency, Currency, ExternalId> _spotRateIdentifier;
   private ConventionSource _conventionSource;
 
   private Currency[] _currencies;
@@ -288,11 +288,11 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
     return config;
   }
 
-  public Function2<Currency, Currency, ExternalId> getSpotRateIdentifier() {
+  public BiFunction<Currency, Currency, ExternalId> getSpotRateIdentifier() {
     return _spotRateIdentifier;
   }
 
-  public void setSpotRateIdentifier(final Function2<Currency, Currency, ExternalId> spotRateIdentifier) {
+  public void setSpotRateIdentifier(final BiFunction<Currency, Currency, ExternalId> spotRateIdentifier) {
     _spotRateIdentifier = spotRateIdentifier;
   }
 
@@ -395,7 +395,7 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
       payCurrency = currencies.getSecond();
       receiveCurrency = currencies.getFirst();
     }
-    final ExternalId spotRateIdentifier = getSpotRateIdentifier().execute(payCurrency, receiveCurrency);
+    final ExternalId spotRateIdentifier = getSpotRateIdentifier().apply(payCurrency, receiveCurrency);
     final Pair<LocalDate, Double> spotRate = getHistoricalSource().getLatestDataPoint(MarketDataRequirementNames.MARKET_VALUE,
         spotRateIdentifier.toBundle(), null);
     if (spotRate == null) {

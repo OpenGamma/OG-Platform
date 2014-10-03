@@ -191,13 +191,15 @@ public class MultiCurveInterpolatedFunction extends
       }
 
       final MulticurveProviderDiscount curveBundle = (MulticurveProviderDiscount) getKnownData(inputs);
-      final LinkedHashMap<String, Pair<Integer, Integer>> unitMap = new LinkedHashMap<>();
+
       final LinkedHashMap<String, Pair<CurveBuildingBlock, DoubleMatrix2D>> unitBundles = new LinkedHashMap<>();
-      int totalNodes = 0;
+
       for (final CurveGroupConfiguration group: _curveConstructionConfiguration.getCurveGroups()) {
 
         for (final Map.Entry<String, List<? extends CurveTypeConfiguration>> entry: group.getTypesForCurves().entrySet()) {
 
+          final LinkedHashMap<String, Pair<Integer, Integer>> unitMap = new LinkedHashMap<>();
+          int totalNodes = 0;
           final String curveName = entry.getKey();
           final List<? extends CurveTypeConfiguration> types = entry.getValue();
 
@@ -288,7 +290,7 @@ public class MultiCurveInterpolatedFunction extends
               curveBundle.setCurve(index, discountCurve);
             }
           }
-          unitMap.put(curveName, Pairs.of(totalNodes + nNodesForCurve, nNodesForCurve));
+          unitMap.put(curveName, Pairs.of(totalNodes, nNodesForCurve));
           unitBundles.put(curveName, Pairs.of(new CurveBuildingBlock(unitMap), new DoubleMatrix2D(jacobian)));
           totalNodes += nNodesForCurve;
         }

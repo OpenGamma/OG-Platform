@@ -434,6 +434,7 @@ public class NonVersionedRedisHistoricalTimeSeriesSourceTest extends AbstractRed
    * Test how fast we can add large historical timeseries using bulk insert.
    */
   @Test(enabled = false)
+  @SuppressWarnings("null")
   public void largePerformanceTestBulkInsert() {
     NonVersionedRedisHistoricalTimeSeriesSource source = new NonVersionedRedisHistoricalTimeSeriesSource(getJedisPool(), getRedisPrefix());
     double totalDurationInSec = 0.0;
@@ -452,6 +453,7 @@ public class NonVersionedRedisHistoricalTimeSeriesSourceTest extends AbstractRed
   }
   
   @Test(enabled = false)
+  @SuppressWarnings("null")
   public void largePerformanceTestRead() {
     NonVersionedRedisHistoricalTimeSeriesSource source = new NonVersionedRedisHistoricalTimeSeriesSource(getJedisPool(), getRedisPrefix());
     HistoricalTimeSeries hts = null;

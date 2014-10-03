@@ -62,6 +62,7 @@ public class WebHolidayVersionResource extends AbstractWebHolidayResource {
    * Creates the output root data.
    * @return the output root data, not null
    */
+  @Override
   protected FlexiBean createRootData() {
     FlexiBean out = super.createRootData();
     HolidayDocument latestDoc = data().getHoliday();

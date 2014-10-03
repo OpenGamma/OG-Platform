@@ -125,7 +125,7 @@ public class DbConnectorComponentFactory extends AbstractAliasedComponentFactory
    */
   protected DbConnector createDbConnector(ComponentRepository repo) {
     DbDialect dialect = createDialect(repo);
-    NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(getDataSource());
+    NamedParameterJdbcTemplate jdbcTemplate = dialect.getNamedParameterJdbcTemplate(getDataSource());
     SessionFactory hibernateSessionFactory = createHibernateSessionFactory(repo, dialect);
     HibernateTemplate hibernateTemplate = createHibernateTemplate(repo, hibernateSessionFactory);
     TransactionTemplate transactionTemplate = createTransactionTemplate(repo, hibernateSessionFactory);

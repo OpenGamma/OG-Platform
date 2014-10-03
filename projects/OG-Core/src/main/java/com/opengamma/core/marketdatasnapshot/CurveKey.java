@@ -316,7 +316,7 @@ public final class CurveKey implements ImmutableBean, StructuredMarketDataKey, C
 
     @Override
     public Builder setString(MetaProperty<?> property, String value) {
-      super.set(property, value);
+      super.setString(property, value);
       return this;
     }
 

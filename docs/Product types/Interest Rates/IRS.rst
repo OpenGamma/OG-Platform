@@ -2,7 +2,7 @@ Interest Rate Swap Security
 ===========================
 
 Supported types
-----------------
+---------------
 * Single currency vanilla swaps
 * Ibor swaps
 * OIS swaps
@@ -47,7 +47,7 @@ Notional (required)
 ~~~~~~~~~~~~~~~~~~~
 
 .. include:: InterestRateSwapNotional.rst
-  :start-line: 2 
+  :start-line: 4
 
 Pay Or Receive (required)
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -80,12 +80,14 @@ Maturity business day convention (required)
 The business day convention used to adjust the maturity date. 
 
 .. include:: BusinessDayConvention.rst
+      :start-line: 4
 
 Maturity calendars (optional)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The calendars used to adjust the maturity date. Multiple calendars can be provided.
 
 .. include:: Calendars.rst
+      :start-line: 4
 
 Payment business day convention (required)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -96,12 +98,14 @@ Payment calendars (optional)
 The calendars used to adjust payment dates in conjunction with the business day convention. Multiple calendars may be provided.
 
 .. include:: Calendars.rst
+      :start-line: 4
 
 Payment frequency (required)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The frequency of payments. 
 
 .. include:: Frequency.rst
+      :start-line: 4
 
 Payment offset (optional)
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -124,19 +128,21 @@ Accrual period business day convention (required)
 The business day convention used to determine calculation dates.
 
 .. include:: BusinessDayConvention.rst
+      :start-line: 4
 
 Accrual period calendars (optional)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The calendars used to determine calculation dates. Multiple calendars can be provided.
 
 .. include:: Calendars.rst
+      :start-line: 4
 
 Accrual period frequency (required)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The frequency used for calculation periods. 
 
 .. include:: Frequency.rst
-
+      :start-line: 4
 
 Stubs (optional)
 ~~~~~~~~~~~~~~~~
@@ -157,6 +163,8 @@ If not specified short start is assumed. The following stub types are supported:
 * SHORT_END
 * LONG_END
 * BOTH (aka dual stubs)
+
+Limitation: If there is compounding on the leg, the rate for the stub period will be calculated using the leg index and the interpolated start/end indices will be ignored.
 
 Fixed Interest Rate Swap Leg
 ----------------------------
@@ -202,12 +210,14 @@ Reset period frequency (required)
 The reset period frequency.
 
 .. include:: Frequency.rst
+      :start-line: 4
 
 Reset period business day convention (required)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The business day convention used when calculating reset dates.
 
 .. include:: BusinessDayConvention.rst
+      :start-line: 4
 
 Reset relative to (optional)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -216,19 +226,22 @@ Controls if the reset periods are relative to the start or end of the accrual pe
 Compounding method (optional)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. include:: :start-line: 4 Compounding.rst
+.. include:: Compounding.rst
+      :start-line: 4
 
 Fixing date business day convention (required)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The business day convention used to determine the fixing dates.
 
 .. include:: BusinessDayConvention.rst
+      :start-line: 4
 
 Fixing date calendars (optional)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The list of calendars used to determine the fixing dates.
 
 .. include:: Calendars.rst
+      :start-line: 4
 
 Fixing date offset (optional)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

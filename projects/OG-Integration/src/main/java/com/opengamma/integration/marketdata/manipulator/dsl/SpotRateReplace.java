@@ -276,7 +276,7 @@ public final class SpotRateReplace implements StructureManipulator<Double>, Immu
 
     @Override
     public Builder setString(MetaProperty<?> property, String value) {
-      super.set(property, value);
+      super.setString(property, value);
       return this;
     }
 

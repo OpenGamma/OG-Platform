@@ -5,7 +5,6 @@
  */
 package com.opengamma.examples.bloomberg.loader;
 
-import static com.opengamma.lambdava.streams.Lambdava.functional;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,6 +22,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
 
+import com.google.common.base.Function;
+import com.google.common.collect.FluentIterable;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.id.ExternalSchemes;
@@ -33,7 +34,6 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.integration.tool.IntegrationToolContext;
-import com.opengamma.lambdava.functions.Function1;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
@@ -163,12 +163,13 @@ public class ExampleEquityPortfolioLoader extends AbstractTool<IntegrationToolCo
     final SecurityProvider securityProvider = getToolContext().getSecurityProvider();
     final DefaultSecurityLoader securityLoader = new DefaultSecurityLoader(securityMaster, securityProvider);
 
-    final Map<ExternalIdBundle, UniqueId> loadedSecurities = securityLoader.loadSecurities(functional(identifiers).map(new Function1<ExternalId, ExternalIdBundle>() {
+    final Map<ExternalIdBundle, UniqueId> loadedSecurities = securityLoader.loadSecurities(
+        FluentIterable.from(identifiers).transform(new Function<ExternalId, ExternalIdBundle>() {
       @Override
-      public ExternalIdBundle execute(final ExternalId ticker) {
+      public ExternalIdBundle apply(final ExternalId ticker) {
         return ExternalIdBundle.of(ticker);
       }
-    }).asList());
+    }).toList());
     return loadedSecurities.values();
   }
 

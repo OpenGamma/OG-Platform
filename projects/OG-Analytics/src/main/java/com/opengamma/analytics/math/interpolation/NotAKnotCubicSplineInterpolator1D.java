@@ -8,7 +8,7 @@ package com.opengamma.analytics.math.interpolation;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 
 /**
- * 
+ * Cubic spline interpolator with not-a-knot endpoint conditions, i.e., second derivative value is set to be the same as the next knot
  */
 public class NotAKnotCubicSplineInterpolator1D extends PiecewisePolynomialInterpolator1D {
 

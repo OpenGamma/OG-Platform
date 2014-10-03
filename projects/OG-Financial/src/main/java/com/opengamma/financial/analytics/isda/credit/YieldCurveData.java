@@ -28,8 +28,8 @@ import org.threeten.bp.LocalDate;
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.Sets;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
@@ -80,10 +80,11 @@ public final class YieldCurveData implements ImmutableBean {
   private final LocalDate _spotDate;
   
   /**
-   * Calendar for use in calibration.
+   * Used to infer a calendar by region. If null, a default
+   * weekend only holiday calendar is used.
    */
-  @PropertyDefinition(validate = "notNull")
-  private final Calendar _calendar;
+  @PropertyDefinition
+  private final ExternalId _regionId;
   
   /**
    * Contract payment interval for fixed legs on swap instruments.
@@ -146,7 +147,7 @@ public final class YieldCurveData implements ImmutableBean {
       DayCount cashDayCount,
       DayCount swapDayCount,
       LocalDate spotDate,
-      Calendar calendar,
+      ExternalId regionId,
       Tenor swapFixedLegInterval,
       SortedMap<Tenor, Double> cashData,
       SortedMap<Tenor, Double> swapData) {
@@ -156,7 +157,6 @@ public final class YieldCurveData implements ImmutableBean {
     JodaBeanUtils.notNull(cashDayCount, "cashDayCount");
     JodaBeanUtils.notNull(swapDayCount, "swapDayCount");
     JodaBeanUtils.notNull(spotDate, "spotDate");
-    JodaBeanUtils.notNull(calendar, "calendar");
     JodaBeanUtils.notNull(swapFixedLegInterval, "swapFixedLegInterval");
     JodaBeanUtils.notNull(cashData, "cashData");
     JodaBeanUtils.notNull(swapData, "swapData");
@@ -166,7 +166,7 @@ public final class YieldCurveData implements ImmutableBean {
     this._cashDayCount = cashDayCount;
     this._swapDayCount = swapDayCount;
     this._spotDate = spotDate;
-    this._calendar = calendar;
+    this._regionId = regionId;
     this._swapFixedLegInterval = swapFixedLegInterval;
     this._cashData = ImmutableSortedMap.copyOfSorted(cashData);
     this._swapData = ImmutableSortedMap.copyOfSorted(swapData);
@@ -245,11 +245,12 @@ public final class YieldCurveData implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets calendar for use in calibration.
-   * @return the value of the property, not null
+   * Gets used to infer a calendar by region. If null, a default
+   * weekend only holiday calendar is used.
+   * @return the value of the property
    */
-  public Calendar getCalendar() {
-    return _calendar;
+  public ExternalId getRegionId() {
+    return _regionId;
   }
 
   //-----------------------------------------------------------------------
@@ -305,7 +306,7 @@ public final class YieldCurveData implements ImmutableBean {
           JodaBeanUtils.equal(getCashDayCount(), other.getCashDayCount()) &&
           JodaBeanUtils.equal(getSwapDayCount(), other.getSwapDayCount()) &&
           JodaBeanUtils.equal(getSpotDate(), other.getSpotDate()) &&
-          JodaBeanUtils.equal(getCalendar(), other.getCalendar()) &&
+          JodaBeanUtils.equal(getRegionId(), other.getRegionId()) &&
           JodaBeanUtils.equal(getSwapFixedLegInterval(), other.getSwapFixedLegInterval()) &&
           JodaBeanUtils.equal(getCashData(), other.getCashData()) &&
           JodaBeanUtils.equal(getSwapData(), other.getSwapData());
@@ -322,7 +323,7 @@ public final class YieldCurveData implements ImmutableBean {
     hash += hash * 31 + JodaBeanUtils.hashCode(getCashDayCount());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSwapDayCount());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSpotDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCalendar());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSwapFixedLegInterval());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCashData());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSwapData());
@@ -339,7 +340,7 @@ public final class YieldCurveData implements ImmutableBean {
     buf.append("cashDayCount").append('=').append(getCashDayCount()).append(',').append(' ');
     buf.append("swapDayCount").append('=').append(getSwapDayCount()).append(',').append(' ');
     buf.append("spotDate").append('=').append(getSpotDate()).append(',').append(' ');
-    buf.append("calendar").append('=').append(getCalendar()).append(',').append(' ');
+    buf.append("regionId").append('=').append(getRegionId()).append(',').append(' ');
     buf.append("swapFixedLegInterval").append('=').append(getSwapFixedLegInterval()).append(',').append(' ');
     buf.append("cashData").append('=').append(getCashData()).append(',').append(' ');
     buf.append("swapData").append('=').append(JodaBeanUtils.toString(getSwapData()));
@@ -388,10 +389,10 @@ public final class YieldCurveData implements ImmutableBean {
     private final MetaProperty<LocalDate> _spotDate = DirectMetaProperty.ofImmutable(
         this, "spotDate", YieldCurveData.class, LocalDate.class);
     /**
-     * The meta-property for the {@code calendar} property.
+     * The meta-property for the {@code regionId} property.
      */
-    private final MetaProperty<Calendar> _calendar = DirectMetaProperty.ofImmutable(
-        this, "calendar", YieldCurveData.class, Calendar.class);
+    private final MetaProperty<ExternalId> _regionId = DirectMetaProperty.ofImmutable(
+        this, "regionId", YieldCurveData.class, ExternalId.class);
     /**
      * The meta-property for the {@code swapFixedLegInterval} property.
      */
@@ -420,7 +421,7 @@ public final class YieldCurveData implements ImmutableBean {
         "cashDayCount",
         "swapDayCount",
         "spotDate",
-        "calendar",
+        "regionId",
         "swapFixedLegInterval",
         "cashData",
         "swapData");
@@ -446,8 +447,8 @@ public final class YieldCurveData implements ImmutableBean {
           return _swapDayCount;
         case -1831990320:  // spotDate
           return _spotDate;
-        case -178324674:  // calendar
-          return _calendar;
+        case -690339025:  // regionId
+          return _regionId;
         case 1403919506:  // swapFixedLegInterval
           return _swapFixedLegInterval;
         case 23596413:  // cashData
@@ -523,11 +524,11 @@ public final class YieldCurveData implements ImmutableBean {
     }
 
     /**
-     * The meta-property for the {@code calendar} property.
+     * The meta-property for the {@code regionId} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Calendar> calendar() {
-      return _calendar;
+    public MetaProperty<ExternalId> regionId() {
+      return _regionId;
     }
 
     /**
@@ -570,8 +571,8 @@ public final class YieldCurveData implements ImmutableBean {
           return ((YieldCurveData) bean).getSwapDayCount();
         case -1831990320:  // spotDate
           return ((YieldCurveData) bean).getSpotDate();
-        case -178324674:  // calendar
-          return ((YieldCurveData) bean).getCalendar();
+        case -690339025:  // regionId
+          return ((YieldCurveData) bean).getRegionId();
         case 1403919506:  // swapFixedLegInterval
           return ((YieldCurveData) bean).getSwapFixedLegInterval();
         case 23596413:  // cashData
@@ -605,7 +606,7 @@ public final class YieldCurveData implements ImmutableBean {
     private DayCount _cashDayCount;
     private DayCount _swapDayCount;
     private LocalDate _spotDate;
-    private Calendar _calendar;
+    private ExternalId _regionId;
     private Tenor _swapFixedLegInterval;
     private SortedMap<Tenor, Double> _cashData = new TreeMap<Tenor, Double>();
     private SortedMap<Tenor, Double> _swapData = new TreeMap<Tenor, Double>();
@@ -627,7 +628,7 @@ public final class YieldCurveData implements ImmutableBean {
       this._cashDayCount = beanToCopy.getCashDayCount();
       this._swapDayCount = beanToCopy.getSwapDayCount();
       this._spotDate = beanToCopy.getSpotDate();
-      this._calendar = beanToCopy.getCalendar();
+      this._regionId = beanToCopy.getRegionId();
       this._swapFixedLegInterval = beanToCopy.getSwapFixedLegInterval();
       this._cashData = new TreeMap<Tenor, Double>(beanToCopy.getCashData());
       this._swapData = new TreeMap<Tenor, Double>(beanToCopy.getSwapData());
@@ -649,8 +650,8 @@ public final class YieldCurveData implements ImmutableBean {
           return _swapDayCount;
         case -1831990320:  // spotDate
           return _spotDate;
-        case -178324674:  // calendar
-          return _calendar;
+        case -690339025:  // regionId
+          return _regionId;
         case 1403919506:  // swapFixedLegInterval
           return _swapFixedLegInterval;
         case 23596413:  // cashData
@@ -684,8 +685,8 @@ public final class YieldCurveData implements ImmutableBean {
         case -1831990320:  // spotDate
           this._spotDate = (LocalDate) newValue;
           break;
-        case -178324674:  // calendar
-          this._calendar = (Calendar) newValue;
+        case -690339025:  // regionId
+          this._regionId = (ExternalId) newValue;
           break;
         case 1403919506:  // swapFixedLegInterval
           this._swapFixedLegInterval = (Tenor) newValue;
@@ -716,7 +717,7 @@ public final class YieldCurveData implements ImmutableBean {
 
     @Override
     public Builder setString(MetaProperty<?> property, String value) {
-      super.set(property, value);
+      super.setString(property, value);
       return this;
     }
 
@@ -735,7 +736,7 @@ public final class YieldCurveData implements ImmutableBean {
           _cashDayCount,
           _swapDayCount,
           _spotDate,
-          _calendar,
+          _regionId,
           _swapFixedLegInterval,
           _cashData,
           _swapData);
@@ -809,13 +810,12 @@ public final class YieldCurveData implements ImmutableBean {
     }
 
     /**
-     * Sets the {@code calendar} property in the builder.
-     * @param calendar  the new value, not null
+     * Sets the {@code regionId} property in the builder.
+     * @param regionId  the new value
      * @return this, for chaining, not null
      */
-    public Builder calendar(Calendar calendar) {
-      JodaBeanUtils.notNull(calendar, "calendar");
-      this._calendar = calendar;
+    public Builder regionId(ExternalId regionId) {
+      this._regionId = regionId;
       return this;
     }
 
@@ -863,7 +863,7 @@ public final class YieldCurveData implements ImmutableBean {
       buf.append("cashDayCount").append('=').append(JodaBeanUtils.toString(_cashDayCount)).append(',').append(' ');
       buf.append("swapDayCount").append('=').append(JodaBeanUtils.toString(_swapDayCount)).append(',').append(' ');
       buf.append("spotDate").append('=').append(JodaBeanUtils.toString(_spotDate)).append(',').append(' ');
-      buf.append("calendar").append('=').append(JodaBeanUtils.toString(_calendar)).append(',').append(' ');
+      buf.append("regionId").append('=').append(JodaBeanUtils.toString(_regionId)).append(',').append(' ');
       buf.append("swapFixedLegInterval").append('=').append(JodaBeanUtils.toString(_swapFixedLegInterval)).append(',').append(' ');
       buf.append("cashData").append('=').append(JodaBeanUtils.toString(_cashData)).append(',').append(' ');
       buf.append("swapData").append('=').append(JodaBeanUtils.toString(_swapData));

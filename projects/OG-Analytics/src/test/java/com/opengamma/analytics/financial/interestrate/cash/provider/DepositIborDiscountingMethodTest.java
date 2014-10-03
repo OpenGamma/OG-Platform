@@ -148,6 +148,18 @@ public class DepositIborDiscountingMethodTest {
 
   @Test
   /**
+   * Tests parRate when the present is before the deposit start date.
+   */
+  public void parRateBeforeStart() {
+    final ZonedDateTime referenceDate = TRADE_DATE;
+    final DepositIbor deposit = DEPOSIT_IBOR_DEFINITION.toDerivative(referenceDate);
+    final double parRate = METHOD_DEPOSIT.parRate(deposit, PROVIDER_MULTICURVES);
+    double parRateExpected = PROVIDER_MULTICURVES.getSimplyCompoundForwardRate(EURIBOR3M, deposit.getStartTime(), deposit.getEndTime(), deposit.getAccrualFactor());
+    assertEquals("DepositDefinition: present value", parRateExpected, parRate, TOLERANCE_SPREAD);
+  }
+
+  @Test
+  /**
    * Tests parSpread curve sensitivity.
    */
   public void parSpreadCurveSensitivity() {

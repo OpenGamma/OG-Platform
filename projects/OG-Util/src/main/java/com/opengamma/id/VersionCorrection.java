@@ -12,6 +12,7 @@ import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.ImmutableConstructor;
@@ -430,7 +431,7 @@ public final class VersionCorrection implements ImmutableBean, Comparable<Versio
     }
 
     @Override
-    public VersionCorrection.Builder builder() {
+    public BeanBuilder<? extends VersionCorrection> builder() {
       return new VersionCorrection.Builder();
     }
 
@@ -541,7 +542,7 @@ public final class VersionCorrection implements ImmutableBean, Comparable<Versio
 
     @Override
     public Builder setString(MetaProperty<?> property, String value) {
-      super.set(property, value);
+      super.setString(property, value);
       return this;
     }
 

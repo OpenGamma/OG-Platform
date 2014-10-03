@@ -95,7 +95,10 @@ public class InMemorySecurityMaster
   @Override
   protected void updateCaches(ObjectIdentifiable replacedObject, SecurityDocument updatedDocument) {
     if (replacedObject != null) {
-      _externalIdCache.remove(((SecurityDocument) replacedObject).getSecurity());
+      SecurityDocument document = _store.get(replacedObject.getObjectId());
+      if (document != null) {
+        _externalIdCache.remove(document.getSecurity());
+      }
     }
     if (updatedDocument != null) {
       SecurityDocument updatedSecurityDocument = (SecurityDocument) updatedDocument;

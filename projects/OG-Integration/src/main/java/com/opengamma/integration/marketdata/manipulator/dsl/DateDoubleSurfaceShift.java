@@ -117,6 +117,7 @@ public final class DateDoubleSurfaceShift extends VolatilitySurfaceShiftManipula
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
    */
+  @Override
   public Builder toBuilder() {
     return new Builder(this);
   }
@@ -332,7 +333,7 @@ public final class DateDoubleSurfaceShift extends VolatilitySurfaceShiftManipula
 
     @Override
     public Builder setString(MetaProperty<?> property, String value) {
-      super.set(property, value);
+      super.setString(property, value);
       return this;
     }
 

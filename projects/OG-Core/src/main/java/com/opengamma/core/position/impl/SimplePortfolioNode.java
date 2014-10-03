@@ -214,12 +214,13 @@ public class SimplePortfolioNode implements PortfolioNode, MutableUniqueIdentifi
    */
   public void addChildNode(PortfolioNode childNode) {
     ArgumentChecker.notNull(childNode, "child node");
-    if (!ObjectUtils.equals(getUniqueId(), childNode.getParentNodeId())) {
-      final SimplePortfolioNode newChildNode = new SimplePortfolioNode(childNode);
+    PortfolioNode effectiveNode = childNode;
+    if (!ObjectUtils.equals(getUniqueId(), effectiveNode.getParentNodeId())) {
+      final SimplePortfolioNode newChildNode = new SimplePortfolioNode(effectiveNode);
       newChildNode.setParentNodeId(getUniqueId());
-      childNode = newChildNode;
+      effectiveNode = newChildNode;
     }
-    _childNodes.add(childNode);
+    _childNodes.add(effectiveNode);
   }
 
   /**

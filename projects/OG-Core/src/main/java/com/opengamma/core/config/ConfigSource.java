@@ -61,8 +61,8 @@ public interface ConfigSource extends Source<ConfigItem<?>>, ChangeProvider {
   /**
    * Gets configuration elements by name and version-correction.
    * <p>
-   * Each configuration element has a name and this method allows lookup by name. A name lookup does not guarantee to match a single configuration element but it normally will. This method returns all
-   * configurations that may match for {@link ConfigResolver} to choose from.
+   * Each configuration element has a name and this method allows lookup by name.
+   * A name lookup does not guarantee to match a single configuration element but it normally will.
    * 
    * @param <R> the type of configuration element
    * @param clazz the configuration element type, not null

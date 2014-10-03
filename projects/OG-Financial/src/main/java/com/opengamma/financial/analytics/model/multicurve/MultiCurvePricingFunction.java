@@ -71,6 +71,7 @@ import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.currency.CurrencyPair;
+import com.opengamma.financial.security.CurrenciesVisitor;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
@@ -288,7 +289,7 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
      */
     protected Set<ValueRequirement> getFXRequirements(final FinancialSecurity security, final SecuritySource securitySource) {
       final Set<ValueRequirement> requirements = new HashSet<>();
-      final Collection<Currency> currencies = FinancialSecurityUtils.getCurrencies(security, securitySource);
+      final Collection<Currency> currencies = CurrenciesVisitor.getCurrencies(security, securitySource);
       if (currencies.size() > 1) {
         final Iterator<Currency> iter = currencies.iterator();
         final Currency initialCurrency = iter.next();
@@ -360,7 +361,7 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
      */
     protected FXMatrix getFXMatrix(final FunctionInputs inputs, final ComputationTarget target, final SecuritySource securitySource) {
       final FXMatrix fxMatrix = new FXMatrix();
-      final Collection<Currency> currencies = FinancialSecurityUtils.getCurrencies(target.getTrade().getSecurity(), securitySource);
+      final Collection<Currency> currencies = CurrenciesVisitor.getCurrencies(target.getTrade().getSecurity(), securitySource);
       final Iterator<Currency> iter = currencies.iterator();
       final Currency initialCurrency = iter.next();
       while (iter.hasNext()) {

@@ -27,7 +27,7 @@ import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
 
 /**
- * Component Factory for the JMX {@code MBeanServer).
+ * Component Factory for the JMX {@code MBeanServer}.
  * <p>
  * This class is designed to allow protected methods to be overridden.
  */

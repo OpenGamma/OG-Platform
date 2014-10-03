@@ -112,15 +112,17 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedAccruedCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedCompounding;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedFxReset;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverage;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverageFixingDatesCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverageFixingDates;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverageFixingDatesCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverageFixingDatesCompoundingFlatSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingFlatSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingSimpleSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingSpread;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborFxReset;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborGearing;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponON;
@@ -1533,6 +1535,7 @@ public class ForexDerivativeVisitorTest {
       return null;
     }
 
+    @Override
     public String visitCouponIborAverageFixingDates(CouponIborAverageFixingDates payment) {
       return null;
     }
@@ -1554,6 +1557,26 @@ public class ForexDerivativeVisitorTest {
 
     @Override
     public String visitCouponIborAverageFlatCompoundingSpread(CouponIborAverageFixingDatesCompoundingFlatSpread payment) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponFixedFxReset(CouponFixedFxReset payment, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponFixedFxReset(CouponFixedFxReset payment) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponIborFxReset(CouponIborFxReset payment, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponIborFxReset(CouponIborFxReset payment) {
       return null;
     }
   }

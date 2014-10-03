@@ -15,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import com.opengamma.id.UniqueIdentifiable;
-import com.opengamma.lambdava.functions.Function2;
+import com.opengamma.util.function.BinaryOperator;
 
 /**
  * A map of {@link ComputationTargetType} instances to other values based on the target class (or classes). Instances are thread-safe for multiple readers, but only one may update the map at any one
@@ -32,7 +32,7 @@ public class ComputationTargetTypeMap<V> {
 
   private volatile V _nullTypeValue;
 
-  private final Function2<V, V, V> _fold;
+  private final BinaryOperator<V> _fold;
 
   /**
    * Creates a new instance.
@@ -47,7 +47,7 @@ public class ComputationTargetTypeMap<V> {
    * 
    * @param fold the folding operation, null for none
    */
-  public ComputationTargetTypeMap(final Function2<V, V, V> fold) {
+  public ComputationTargetTypeMap(BinaryOperator<V> fold) {
     _fold = fold;
   }
 
@@ -55,7 +55,7 @@ public class ComputationTargetTypeMap<V> {
     return _underlying;
   }
 
-  public Function2<V, V, V> getFoldFunction() {
+  public BinaryOperator<V> getFoldFunction() {
     return _fold;
   }
 
@@ -98,7 +98,7 @@ public class ComputationTargetTypeMap<V> {
               return value;
             }
           } else {
-            value = getFoldFunction().execute(value, newValue);
+            value = getFoldFunction().apply(value, newValue);
           }
         }
       }
@@ -111,7 +111,7 @@ public class ComputationTargetTypeMap<V> {
           value = newValue;
         } else {
           if (newValue != NULL) {
-            value = getFoldFunction().execute(value, newValue);
+            value = getFoldFunction().apply(value, newValue);
           }
         }
       }
@@ -149,7 +149,7 @@ public class ComputationTargetTypeMap<V> {
               result = v;
             }
           } else {
-            result = data.getFoldFunction().execute(result, v);
+            result = data.getFoldFunction().apply(result, v);
           }
         }
       }
@@ -217,7 +217,7 @@ public class ComputationTargetTypeMap<V> {
               result = v;
             }
           } else {
-            result = data.getFoldFunction().execute(result, v);
+            result = data.getFoldFunction().apply(result, v);
           }
         }
       }
@@ -292,7 +292,7 @@ public class ComputationTargetTypeMap<V> {
           }
         } else {
           if (getFoldFunction() != null) {
-            final V newValue = getFoldFunction().execute(nullValue, value);
+            final V newValue = getFoldFunction().apply(nullValue, value);
             if (replaceNullValue(nullValue, newValue)) {
               return null;
             } else {
@@ -320,7 +320,7 @@ public class ComputationTargetTypeMap<V> {
             }
           }
           if (getFoldFunction() != null) {
-            newValue = getFoldFunction().execute(previous, value);
+            newValue = getFoldFunction().apply(previous, value);
             if (newValue == null) {
               newValue = (V) NULL;
             }
@@ -346,7 +346,7 @@ public class ComputationTargetTypeMap<V> {
    * @param value the value to store, not null
    * @param replace the callback function to handle values that are already present or null to just use the new value
    */
-  public void put(final ComputationTargetType key, final V value, final Function2<V, V, V> replace) {
+  public void put(final ComputationTargetType key, final V value, final BinaryOperator<V> replace) {
     key.accept(new ComputationTargetTypeVisitor<Void, Void>() {
 
       @Override
@@ -365,7 +365,7 @@ public class ComputationTargetTypeMap<V> {
       @Override
       public Void visitNullComputationTargetType(final Void data) {
         final V oldValue = getNullValue();
-        final V newValue = ((replace != null) && (oldValue != null)) ? replace.execute(oldValue, value) : value;
+        final V newValue = ((replace != null) && (oldValue != null)) ? replace.apply(oldValue, value) : value;
         if (replaceNullValue(oldValue, newValue)) {
           return null;
         } else {
@@ -377,7 +377,7 @@ public class ComputationTargetTypeMap<V> {
       @Override
       public Void visitClassComputationTargetType(final Class<? extends UniqueIdentifiable> type, final Void data) {
         final V oldValue = getImpl(type);
-        V newValue = ((replace != null) && (oldValue != NULL)) ? replace.execute(oldValue, value) : value;
+        V newValue = ((replace != null) && (oldValue != NULL)) ? replace.apply(oldValue, value) : value;
         if (newValue == null) {
           newValue = (V) NULL;
         }

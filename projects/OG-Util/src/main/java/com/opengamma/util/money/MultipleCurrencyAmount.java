@@ -18,6 +18,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
@@ -470,7 +471,7 @@ public final class MultipleCurrencyAmount implements ImmutableBean,
     }
 
     @Override
-    public MultipleCurrencyAmount.Builder builder() {
+    public BeanBuilder<? extends MultipleCurrencyAmount> builder() {
       return new MultipleCurrencyAmount.Builder();
     }
 
@@ -566,7 +567,7 @@ public final class MultipleCurrencyAmount implements ImmutableBean,
 
     @Override
     public Builder setString(MetaProperty<?> property, String value) {
-      super.set(property, value);
+      super.setString(property, value);
       return this;
     }
 

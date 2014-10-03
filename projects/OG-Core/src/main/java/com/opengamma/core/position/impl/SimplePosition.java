@@ -51,31 +51,31 @@ public class SimplePosition extends DirectBean
   /**
    * The unique identifier of the position.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true, overrideSet = true)
   private UniqueId _uniqueId;
   /**
    * The number of units in the position.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private BigDecimal _quantity;
   /**
    * The link referencing the security, not null.
    * This may also hold the resolved security.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private SecurityLink _securityLink;
   /**
    * The trades that the make up the position, not null.
    * An empty list usually means that trade data is unavailable.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final Collection<Trade> _trades = Lists.newArrayList();
   /**
    * The general purpose position attributes.
    * These can be used to add arbitrary additional information to the object
    * and for aggregating in portfolios.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final Map<String, String> _attributes = Maps.newHashMap();
 
   /**
@@ -272,6 +272,7 @@ public class SimplePosition extends DirectBean
    * Gets the unique identifier of the position.
    * @return the value of the property, not null
    */
+  @Override
   public UniqueId getUniqueId() {
     return _uniqueId;
   }
@@ -280,6 +281,7 @@ public class SimplePosition extends DirectBean
    * Sets the unique identifier of the position.
    * @param uniqueId  the new value of the property, not null
    */
+  @Override
   public void setUniqueId(UniqueId uniqueId) {
     JodaBeanUtils.notNull(uniqueId, "uniqueId");
     this._uniqueId = uniqueId;
@@ -298,6 +300,7 @@ public class SimplePosition extends DirectBean
    * Gets the number of units in the position.
    * @return the value of the property, not null
    */
+  @Override
   public BigDecimal getQuantity() {
     return _quantity;
   }
@@ -325,6 +328,7 @@ public class SimplePosition extends DirectBean
    * This may also hold the resolved security.
    * @return the value of the property, not null
    */
+  @Override
   public SecurityLink getSecurityLink() {
     return _securityLink;
   }
@@ -354,6 +358,7 @@ public class SimplePosition extends DirectBean
    * An empty list usually means that trade data is unavailable.
    * @return the value of the property, not null
    */
+  @Override
   public Collection<Trade> getTrades() {
     return _trades;
   }
@@ -385,6 +390,7 @@ public class SimplePosition extends DirectBean
    * and for aggregating in portfolios.
    * @return the value of the property, not null
    */
+  @Override
   public Map<String, String> getAttributes() {
     return _attributes;
   }

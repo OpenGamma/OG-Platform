@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.capletstripping;
@@ -41,12 +41,27 @@ public final class CapFloorDecomposer {
 
     final SimpleOptionData[] options = new SimpleOptionData[n];
     for (int i = 0; i < n; i++) {
-      final double fwd = caplets[i].accept(PRC, curves);
-      final double t = caplets[i].getFixingTime();
-      // Vol is at fixing time, discounting from payment. This included the year fraction
-      final double df = curves.getDiscountFactor(caplets[i].getCurrency(), caplets[i].getPaymentTime()) * caplets[i].getPaymentYearFraction();
-      options[i] = new SimpleOptionData(fwd, caplets[i].getStrike(), t, df, caplets[i].isCap());
+      options[i] = toOption(caplets[i], curves);
     }
+    return options;
+  }
+
+  /**
+   * Turn a caplet/floorlet (as a {@link CapFloorIbor}) into a {@link SimpleOptionData}
+   * @param caplet The caplet/floorlet
+   * @param curves The yield curves
+   * @return a {@link SimpleOptionData}
+   */
+  public static SimpleOptionData toOption(final CapFloorIbor caplet, final MulticurveProviderInterface curves) {
+    ArgumentChecker.notNull(caplet, "caplet");
+    ArgumentChecker.notNull(curves, "null yield curves");
+
+    double fwd = caplet.accept(PRC, curves);
+    double t = caplet.getFixingTime();
+    // Vol is at fixing time, discounting from payment. This included the year fraction
+    double df = curves.getDiscountFactor(caplet.getCurrency(), caplet.getPaymentTime()) *
+        caplet.getPaymentYearFraction();
+    SimpleOptionData options = new SimpleOptionData(fwd, caplet.getStrike(), t, df, caplet.isCap());
     return options;
   }
 

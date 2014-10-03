@@ -69,7 +69,7 @@ public class UserMarketDataProvider extends AbstractMarketDataProvider {
     }
     synchronized (_initSnapshotLock) {
       if (_snapshot == null) {
-        StructuredMarketDataSnapshot structuredSnapshot = getSnapshotSource().get(getSnapshotId());
+        StructuredMarketDataSnapshot structuredSnapshot = (StructuredMarketDataSnapshot) getSnapshotSource().get(getSnapshotId());
         snapshot = new UserMarketDataSnapshot(structuredSnapshot);
         snapshot.init();
         _snapshot = snapshot;

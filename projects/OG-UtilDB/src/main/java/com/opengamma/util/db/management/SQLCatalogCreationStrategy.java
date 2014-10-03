@@ -48,6 +48,7 @@ public class SQLCatalogCreationStrategy implements CatalogCreationStrategy {
   //-------------------------------------------------------------------------
   @Override
   public boolean catalogExists(String catalog) {
+    @SuppressWarnings("resource")
     Connection conn = null;
     try {
       if (_user != null && !_user.equals("")) {
@@ -60,20 +61,17 @@ public class SQLCatalogCreationStrategy implements CatalogCreationStrategy {
       }
       conn.setAutoCommit(true);
   
-      Statement statement = conn.createStatement();
-      ResultSet rs = statement.executeQuery(_allCatalogsSql);
-      
       boolean catalogAlreadyExists = false;
-      while (rs.next()) {
-        String name = rs.getString("name");
-        if (name.equals(catalog)) {
-          catalogAlreadyExists = true;
+      try (Statement statement = conn.createStatement()) {
+        try (ResultSet rs = statement.executeQuery(_allCatalogsSql)) {
+          while (rs.next()) {
+            String name = rs.getString("name");
+            if (name.equals(catalog)) {
+              catalogAlreadyExists = true;
+            }
+          }
         }
       }
-      
-      rs.close();
-      statement.close();
-      
       return catalogAlreadyExists;
       
     } catch (SQLException e) {
@@ -102,6 +100,7 @@ public class SQLCatalogCreationStrategy implements CatalogCreationStrategy {
       return; // nothing to do
     }
     
+    @SuppressWarnings("resource")
     Connection conn = null;
     try {
       if (_user != null && !_user.equals("")) {
@@ -115,10 +114,10 @@ public class SQLCatalogCreationStrategy implements CatalogCreationStrategy {
       conn.setAutoCommit(true);
   
       String createCatalogSql = "CREATE DATABASE " + catalog;
-      Statement statement = conn.createStatement();
-      statement.executeUpdate(createCatalogSql);
-      statement.close();
-  
+      try (Statement statement = conn.createStatement()) {
+        statement.executeUpdate(createCatalogSql);
+      }
+      
     } catch (SQLException e) {
       throw new OpenGammaRuntimeException("Failed to create catalog", e);      
     } finally {

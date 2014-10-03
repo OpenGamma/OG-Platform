@@ -530,7 +530,7 @@ public final class CalculationResultKey implements ImmutableBean, Comparable<Cal
 
     @Override
     public Builder setString(MetaProperty<?> property, String value) {
-      super.set(property, value);
+      super.setString(property, value);
       return this;
     }
 

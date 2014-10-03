@@ -21,6 +21,7 @@ import org.threeten.bp.LocalTime;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
@@ -601,10 +602,20 @@ public class CurveNodeToDefinitionConverterTest {
     final double forward = 1.5;
     marketValues.setDataPoint(marketDataId, forward);
     final FXForwardNode node = new FXForwardNode(Tenor.of(Period.ZERO), Tenor.ONE_YEAR, FX_FORWARD_ID, Currency.USD, Currency.CAD, "Mapper");
-    final Map<ExternalId, Convention> conventions = Collections.<ExternalId, Convention>emptyMap();
-    final CurveNodeVisitor<InstrumentDefinition<?>> converter = new FXForwardNodeConverter(new TestConventionSource(conventions), HOLIDAY_SOURCE, REGION_SOURCE,
-        marketValues, marketDataId, NOW);
+    setupEmptyConventions();
+    final CurveNodeVisitor<InstrumentDefinition<?>> converter = new FXForwardNodeConverter(
+        HOLIDAY_SOURCE, REGION_SOURCE, marketValues, marketDataId, NOW);
     node.accept(converter);
+  }
+
+  private void setupEmptyConventions() {
+    setupConventions(ImmutableMap.<ExternalId, Convention>of());
+  }
+
+  private void setupConventions(Map<ExternalId, Convention> conventions) {
+    ServiceContext serviceContext = ThreadLocalServiceContext.getInstance()
+        .with(ConventionSource.class, new TestConventionSource(conventions));
+    ThreadLocalServiceContext.init(serviceContext);
   }
 
   @Test(expectedExceptions = OpenGammaRuntimeException.class)
@@ -614,38 +625,42 @@ public class CurveNodeToDefinitionConverterTest {
     final double forward = 1.5;
     marketValues.setDataPoint(marketDataId, forward);
     final FXForwardNode node = new FXForwardNode(Tenor.of(Period.ZERO), Tenor.ONE_YEAR, FX_FORWARD_ID, Currency.USD, Currency.CAD, "Mapper");
-    final Map<ExternalId, Convention> conventions = new HashMap<>();
-    conventions.put(FX_FORWARD_ID, FX_FORWARD);
-    final CurveNodeVisitor<InstrumentDefinition<?>> converter = new FXForwardNodeConverter(new TestConventionSource(conventions), HOLIDAY_SOURCE, REGION_SOURCE,
-        marketValues, marketDataId, NOW);
+    final Map<ExternalId, Convention> conventions = ImmutableMap.<ExternalId, Convention>of(FX_FORWARD_ID, FX_FORWARD);
+    setupConventions(conventions);
+    final CurveNodeVisitor<InstrumentDefinition<?>> converter =
+        new FXForwardNodeConverter(HOLIDAY_SOURCE, REGION_SOURCE, marketValues, marketDataId, NOW);
     node.accept(converter);
   }
 
-  @Test(expectedExceptions = OpenGammaRuntimeException.class)
+  @Test(expectedExceptions = ClassCastException.class)
   public void testWrongConventionForFXForward() {
     final ExternalId marketDataId = ExternalId.of(SCHEME, "Data");
     final SnapshotDataBundle marketValues = new SnapshotDataBundle();
     final double forward = 1.5;
     marketValues.setDataPoint(marketDataId, forward);
     final FXForwardNode node = new FXForwardNode(Tenor.of(Period.ZERO), Tenor.ONE_YEAR, LEG_USDLIBOR3M_ID, Currency.USD, Currency.CAD, "Mapper");
-    final CurveNodeVisitor<InstrumentDefinition<?>> converter = new FXForwardNodeConverter(CONVENTION_SOURCE, HOLIDAY_SOURCE, REGION_SOURCE,
+    final CurveNodeVisitor<InstrumentDefinition<?>> converter = new FXForwardNodeConverter(HOLIDAY_SOURCE, REGION_SOURCE,
         marketValues, marketDataId, NOW);
     node.accept(converter);
   }
 
-  @Test(expectedExceptions = OpenGammaRuntimeException.class)
+  @Test(expectedExceptions = ClassCastException.class)
   public void testWrongUnderlyingConventionForFXForward() {
     final ExternalId marketDataId = ExternalId.of(SCHEME, "Data");
     final SnapshotDataBundle marketValues = new SnapshotDataBundle();
     final double forward = 1.5;
     marketValues.setDataPoint(marketDataId, forward);
-    final FXForwardAndSwapConvention fxForward = new FXForwardAndSwapConvention("FX Forward", ExternalIdBundle.of(ExternalId.of(SCHEME, "FX Forward")), USDLIBOR_ACT_360_CONVENTION_ID, MODIFIED_FOLLOWING, false, US);
-    final FXForwardNode node = new FXForwardNode(Tenor.of(Period.ZERO), Tenor.ONE_YEAR, ExternalId.of(SCHEME, "FX Forward"), Currency.USD, Currency.CAD, "Mapper");
-    final Map<ExternalId, Convention> conventions = new HashMap<>();
-    conventions.put(FX_FORWARD_ID, fxForward);
-    conventions.put(USDLIBOR_ACT_360_CONVENTION_ID, USDLIBOR_ACT_360);
-    final CurveNodeVisitor<InstrumentDefinition<?>> converter = new FXForwardNodeConverter(new TestConventionSource(conventions), HOLIDAY_SOURCE, REGION_SOURCE,
-        marketValues, marketDataId, NOW);
+    final FXForwardAndSwapConvention fxForward = new FXForwardAndSwapConvention(
+        "FX Forward", ExternalIdBundle.of(ExternalId.of(SCHEME, "FX Forward")),
+        USDLIBOR_ACT_360_CONVENTION_ID, MODIFIED_FOLLOWING, false, US);
+    final FXForwardNode node = new FXForwardNode(
+        Tenor.of(Period.ZERO), Tenor.ONE_YEAR, ExternalId.of(SCHEME, "FX Forward"),
+        Currency.USD, Currency.CAD, "Mapper");
+    setupConventions(ImmutableMap.<ExternalId, Convention>of(
+        FX_FORWARD_ID, fxForward,
+        USDLIBOR_ACT_360_CONVENTION_ID, USDLIBOR_ACT_360));
+    final CurveNodeVisitor<InstrumentDefinition<?>> converter =
+        new FXForwardNodeConverter(HOLIDAY_SOURCE, REGION_SOURCE, marketValues, marketDataId, NOW);
     node.accept(converter);
   }
 

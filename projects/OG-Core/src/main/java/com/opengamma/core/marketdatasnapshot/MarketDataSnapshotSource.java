@@ -21,7 +21,7 @@ import com.opengamma.util.PublicSPI;
  * Implementations must be thread-safe.
  */
 @PublicSPI
-public interface MarketDataSnapshotSource extends Source<StructuredMarketDataSnapshot> {
+public interface MarketDataSnapshotSource extends Source<NamedSnapshot> {
 
   /**
    * Adds a listener to the source.

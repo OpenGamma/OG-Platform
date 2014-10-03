@@ -12,6 +12,7 @@ import org.testng.annotations.Test;
 import org.threeten.bp.DayOfWeek;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
+import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.GeneratorDeposit;
@@ -31,6 +32,8 @@ import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.daycount.ThirtyEThreeSixty;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
+import com.opengamma.financial.convention.rolldate.EndOfMonthRollDateAdjuster;
+import com.opengamma.financial.convention.rolldate.RollDateAdjuster;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
@@ -446,6 +449,126 @@ public class ScheduleCalculatorTest {
     assertArrayEquals("Adjusted schedule", midMonthModFolExpected, midMonthModFolFreq);
   }
 
+  //-------------------------------------------------------------------------
+  @Test
+  public void adjustedDateSchedule_rollEom_atEom_backwards_shortStub() {
+    ZonedDateTime start = ZonedDateTime.of(2012, 4, 22, 0, 0, 0, 0, ZoneOffset.UTC);
+    ZonedDateTime end = ZonedDateTime.of(2013, 4, 30, 0, 0, 0, 0, ZoneOffset.UTC);
+    Period freq = Period.ofMonths(3);
+    RollDateAdjuster eom = EndOfMonthRollDateAdjuster.getAdjuster();
+    ZonedDateTime[] test = ScheduleCalculator.getAdjustedDateSchedule(
+        start, end, freq, StubType.SHORT_START, MOD_FOL, CALENDAR, eom);
+    assertEquals(5, test.length);
+    assertEquals(ZonedDateTime.of(2012, 4, 30, 0, 0, 0, 0, ZoneOffset.UTC), test[0]);
+    assertEquals(ZonedDateTime.of(2012, 7, 31, 0, 0, 0, 0, ZoneOffset.UTC), test[1]);
+    assertEquals(ZonedDateTime.of(2012, 10, 31, 0, 0, 0, 0, ZoneOffset.UTC), test[2]);
+    assertEquals(ZonedDateTime.of(2013, 1, 31, 0, 0, 0, 0, ZoneOffset.UTC), test[3]);
+    assertEquals(ZonedDateTime.of(2013, 4, 30, 0, 0, 0, 0, ZoneOffset.UTC), test[4]);
+  }
+
+  @Test
+  public void adjustedDateSchedule_rollEom_atEom_backwards_longStub() {
+    ZonedDateTime start = ZonedDateTime.of(2012, 4, 22, 0, 0, 0, 0, ZoneOffset.UTC);
+    ZonedDateTime end = ZonedDateTime.of(2013, 4, 30, 0, 0, 0, 0, ZoneOffset.UTC);
+    Period freq = Period.ofMonths(3);
+    RollDateAdjuster eom = EndOfMonthRollDateAdjuster.getAdjuster();
+    ZonedDateTime[] test = ScheduleCalculator.getAdjustedDateSchedule(
+        start, end, freq, StubType.LONG_START, MOD_FOL, CALENDAR, eom);
+    assertEquals(4, test.length);
+    assertEquals(ZonedDateTime.of(2012, 7, 31, 0, 0, 0, 0, ZoneOffset.UTC), test[0]);
+    assertEquals(ZonedDateTime.of(2012, 10, 31, 0, 0, 0, 0, ZoneOffset.UTC), test[1]);
+    assertEquals(ZonedDateTime.of(2013, 1, 31, 0, 0, 0, 0, ZoneOffset.UTC), test[2]);
+    assertEquals(ZonedDateTime.of(2013, 4, 30, 0, 0, 0, 0, ZoneOffset.UTC), test[3]);
+  }
+
+  @Test
+  public void adjustedDateSchedule_rollEom_atEom_backwards_noStub() {
+    ZonedDateTime start = ZonedDateTime.of(2012, 4, 30, 0, 0, 0, 0, ZoneOffset.UTC);
+    ZonedDateTime end = ZonedDateTime.of(2013, 4, 30, 0, 0, 0, 0, ZoneOffset.UTC);
+    Period freq = Period.ofMonths(3);
+    RollDateAdjuster eom = EndOfMonthRollDateAdjuster.getAdjuster();
+    ZonedDateTime[] test = ScheduleCalculator.getAdjustedDateSchedule(
+        start, end, freq, StubType.NONE, MOD_FOL, CALENDAR, eom);
+    assertEquals(4, test.length);
+    assertEquals(ZonedDateTime.of(2012, 7, 31, 0, 0, 0, 0, ZoneOffset.UTC), test[0]);
+    assertEquals(ZonedDateTime.of(2012, 10, 31, 0, 0, 0, 0, ZoneOffset.UTC), test[1]);
+    assertEquals(ZonedDateTime.of(2013, 1, 31, 0, 0, 0, 0, ZoneOffset.UTC), test[2]);
+    assertEquals(ZonedDateTime.of(2013, 4, 30, 0, 0, 0, 0, ZoneOffset.UTC), test[3]);
+  }
+
+  @Test
+  public void adjustedDateSchedule_rollEom_atEom_forwards_shortStub() {
+    ZonedDateTime start = ZonedDateTime.of(2012, 4, 30, 0, 0, 0, 0, ZoneOffset.UTC);
+    ZonedDateTime end = ZonedDateTime.of(2013, 5, 2, 0, 0, 0, 0, ZoneOffset.UTC);
+    Period freq = Period.ofMonths(3);
+    RollDateAdjuster eom = EndOfMonthRollDateAdjuster.getAdjuster();
+    ZonedDateTime[] test = ScheduleCalculator.getAdjustedDateSchedule(
+        start, end, freq, StubType.SHORT_END, MOD_FOL, CALENDAR, eom);
+    assertEquals(5, test.length);
+    assertEquals(ZonedDateTime.of(2012, 7, 31, 0, 0, 0, 0, ZoneOffset.UTC), test[0]);
+    assertEquals(ZonedDateTime.of(2012, 10, 31, 0, 0, 0, 0, ZoneOffset.UTC), test[1]);
+    assertEquals(ZonedDateTime.of(2013, 1, 31, 0, 0, 0, 0, ZoneOffset.UTC), test[2]);
+    assertEquals(ZonedDateTime.of(2013, 4, 30, 0, 0, 0, 0, ZoneOffset.UTC), test[3]);
+    assertEquals(ZonedDateTime.of(2013, 5, 2, 0, 0, 0, 0, ZoneOffset.UTC), test[4]);
+  }
+
+  @Test
+  public void adjustedDateSchedule_rollEom_atEom_forwards_noStub() {
+    ZonedDateTime start = ZonedDateTime.of(2012, 4, 30, 0, 0, 0, 0, ZoneOffset.UTC);
+    ZonedDateTime end = ZonedDateTime.of(2013, 4, 30, 0, 0, 0, 0, ZoneOffset.UTC);
+    Period freq = Period.ofMonths(3);
+    RollDateAdjuster eom = EndOfMonthRollDateAdjuster.getAdjuster();
+    ZonedDateTime[] test = ScheduleCalculator.getAdjustedDateSchedule(
+        start, end, freq, StubType.NONE, MOD_FOL, CALENDAR, eom);
+    assertEquals(4, test.length);
+    assertEquals(ZonedDateTime.of(2012, 7, 31, 0, 0, 0, 0, ZoneOffset.UTC), test[0]);
+    assertEquals(ZonedDateTime.of(2012, 10, 31, 0, 0, 0, 0, ZoneOffset.UTC), test[1]);
+    assertEquals(ZonedDateTime.of(2013, 1, 31, 0, 0, 0, 0, ZoneOffset.UTC), test[2]);
+    assertEquals(ZonedDateTime.of(2013, 4, 30, 0, 0, 0, 0, ZoneOffset.UTC), test[3]);
+  }
+
+  @Test
+  public void adjustedDateSchedule_rollEom_notAtEom_backwards() {
+    ZonedDateTime start = ZonedDateTime.of(2012, 4, 22, 0, 0, 0, 0, ZoneOffset.UTC);
+    ZonedDateTime end = ZonedDateTime.of(2013, 1, 18, 0, 0, 0, 0, ZoneOffset.UTC);
+    Period freq = Period.ofMonths(3);
+    RollDateAdjuster eom = EndOfMonthRollDateAdjuster.getAdjuster();
+    ZonedDateTime[] test = ScheduleCalculator.getAdjustedDateSchedule(
+        start, end, freq, StubType.SHORT_START, MOD_FOL, CALENDAR, eom);
+    assertEquals(3, test.length);
+    assertEquals(ZonedDateTime.of(2012, 7, 18, 0, 0, 0, 0, ZoneOffset.UTC), test[0]);
+    assertEquals(ZonedDateTime.of(2012, 10, 18, 0, 0, 0, 0, ZoneOffset.UTC), test[1]);
+    assertEquals(ZonedDateTime.of(2013, 1, 18, 0, 0, 0, 0, ZoneOffset.UTC), test[2]);
+  }
+
+  @Test
+  public void adjustedDateSchedule_rollEom_notAtEom_forwards() {
+    ZonedDateTime start = ZonedDateTime.of(2012, 4, 22, 0, 0, 0, 0, ZoneOffset.UTC);
+    ZonedDateTime end = ZonedDateTime.of(2013, 1, 18, 0, 0, 0, 0, ZoneOffset.UTC);
+    Period freq = Period.ofMonths(3);
+    RollDateAdjuster eom = EndOfMonthRollDateAdjuster.getAdjuster();
+    ZonedDateTime[] test = ScheduleCalculator.getAdjustedDateSchedule(
+        start, end, freq, StubType.SHORT_END, MOD_FOL, CALENDAR, eom);
+    assertEquals(3, test.length);
+    assertEquals(ZonedDateTime.of(2012, 7, 23, 0, 0, 0, 0, ZoneOffset.UTC), test[0]);
+    assertEquals(ZonedDateTime.of(2012, 10, 22, 0, 0, 0, 0, ZoneOffset.UTC), test[1]);
+    assertEquals(ZonedDateTime.of(2013, 1, 18, 0, 0, 0, 0, ZoneOffset.UTC), test[2]);
+  }
+
+  @Test
+  public void adjustedDateSchedule_rollEom_noRoll_backwards() {
+    ZonedDateTime start = ZonedDateTime.of(2012, 4, 22, 0, 0, 0, 0, ZoneOffset.UTC);
+    ZonedDateTime end = ZonedDateTime.of(2013, 1, 18, 0, 0, 0, 0, ZoneOffset.UTC);
+    Period freq = Period.ofMonths(3);
+    ZonedDateTime[] test = ScheduleCalculator.getAdjustedDateSchedule(
+        start, end, freq, StubType.SHORT_START, MOD_FOL, CALENDAR, null);
+    assertEquals(3, test.length);
+    assertEquals(ZonedDateTime.of(2012, 7, 18, 0, 0, 0, 0, ZoneOffset.UTC), test[0]);
+    assertEquals(ZonedDateTime.of(2012, 10, 18, 0, 0, 0, 0, ZoneOffset.UTC), test[1]);
+    assertEquals(ZonedDateTime.of(2013, 1, 18, 0, 0, 0, 0, ZoneOffset.UTC), test[2]);
+  }
+
+  //-------------------------------------------------------------------------
   // TODO: review
 
   @Test(expectedExceptions = IllegalArgumentException.class)

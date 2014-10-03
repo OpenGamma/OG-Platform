@@ -64,7 +64,7 @@ public class MetricsRepositoryComponentFactory extends AbstractComponentFactory 
    * Whether to publish over Ganglia.
    */
   @PropertyDefinition
-  private boolean _gangliaPublish = true;
+  private boolean _gangliaPublish;
   /**
    * The Ganglia address.
    */
@@ -102,6 +102,11 @@ public class MetricsRepositoryComponentFactory extends AbstractComponentFactory 
     }
     OpenGammaMetricRegistry.setSummaryRegistry(summaryRegistry);
     OpenGammaMetricRegistry.setDetailedRegistry(detailedRegistry);
+
+    // Register the registries so that where possible we can avoid
+    // using the static singleton
+    repo.registerComponent(MetricRegistry.class, "summary", summaryRegistry);
+    repo.registerComponent(MetricRegistry.class, "detailed", detailedRegistry);
   }
 
   /**

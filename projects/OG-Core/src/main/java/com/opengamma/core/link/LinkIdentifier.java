@@ -356,7 +356,7 @@ public final class LinkIdentifier<I, T> implements ImmutableBean {
 
     @Override
     public Builder<I, T> setString(MetaProperty<?> property, String value) {
-      super.set(property, value);
+      super.setString(property, value);
       return this;
     }
 

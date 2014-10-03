@@ -207,7 +207,7 @@ public class ExternalSchemes {
   /**
    * Creates an EMRSID identifier.
    * <p>
-   * This is an identifier for NON-BPS bloomberg user 
+   * This is an identifier for NON-BPS bloomberg user
    * 
    *  @param emrsid the non-bps bloomberg user identifier, not null
    * @return the user emrsid identifier, not null

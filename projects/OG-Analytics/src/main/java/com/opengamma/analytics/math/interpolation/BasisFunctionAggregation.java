@@ -10,6 +10,10 @@ import java.util.List;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.ObjectsPair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * 
@@ -19,22 +23,62 @@ public class BasisFunctionAggregation<T> extends Function1D<T, Double> {
   private final List<Function1D<T, Double>> _f;
   private final double[] _w;
 
-  public BasisFunctionAggregation(List<Function1D<T, Double>> functions, double[] weights) {
+  public BasisFunctionAggregation(final List<Function1D<T, Double>> functions, final double[] weights) {
     Validate.notEmpty(functions, "no functions");
     Validate.notNull(weights, "no weights");
     Validate.isTrue(functions.size() == weights.length);
     _f = functions;
-    _w = weights;
+    _w = weights.clone();
   }
 
   @Override
-  public Double evaluate(T x) {
+  public Double evaluate(final T x) {
+    ArgumentChecker.notNull(x, "x");
     double sum = 0;
-    int n = _w.length;
+    final int n = _w.length;
     for (int i = 0; i < n; i++) {
-      sum += _w[i] * _f.get(i).evaluate(x);
+      final double temp = _f.get(i).evaluate(x);
+      if (temp != 0.0) {
+        sum += _w[i] * temp;
+      }
     }
     return sum;
   }
 
+  /**
+   * The sensitivity of the value at a point x to the weights of the basis functions 
+   * @param x value to be evaluated 
+   * @return sensitivity w
+   */
+  public DoubleMatrix1D weightSensitivity(final T x) {
+    ArgumentChecker.notNull(x, "x");
+    final int n = _w.length;
+    final DoubleMatrix1D res = new DoubleMatrix1D(n);
+    final double[] data = res.getData();
+    for (int i = 0; i < n; i++) {
+      data[i] = _f.get(i).evaluate(x);
+    }
+    return res;
+  }
+
+  /**
+   * The value of the function at the given point and its sensitivity to the weights of the basis functions
+   * @param x value to be evaluated 
+   * @return value and weight sensitivity 
+   */
+  public Pair<Double, DoubleMatrix1D> valueAndWeightSensitivity(final T x) {
+    ArgumentChecker.notNull(x, "x");
+    final int n = _w.length;
+    double sum = 0;
+    final DoubleMatrix1D sense = new DoubleMatrix1D(n);
+    final double[] data = sense.getData();
+    for (int i = 0; i < n; i++) {
+      final double temp = _f.get(i).evaluate(x);
+      if (temp != 0.0) {
+        sum += _w[i] * temp;
+        data[i] = temp;
+      }
+    }
+    return ObjectsPair.of(sum, sense);
+  }
 }

@@ -76,7 +76,7 @@ public final class FuturesPriceMulticurveCalculator extends InstrumentDerivative
 
   /**
    * The price is 1+underlying swap present value. 
-   * There is no adjustment for margining and no correction for discounting between futures settlement and valuation date.
+   * There is an adjustment for margining and a correction for discounting between futures settlement and valuation date.
    * @param futures The futures security.
    * @param multicurve The multi-curve provider.
    * @return The price.
@@ -86,7 +86,7 @@ public final class FuturesPriceMulticurveCalculator extends InstrumentDerivative
     ArgumentChecker.notNull(futures, "futures");
     ArgumentChecker.notNull(multicurve, "multi-curve provider");
     MultipleCurrencyAmount pv = futures.getUnderlyingSwap().accept(PVDC, multicurve.getMulticurveProvider());
-    return 1.0d + pv.getAmount(futures.getCurrency());
+    return 1.0d + pv.getAmount(futures.getCurrency()) / multicurve.getMulticurveProvider().getDiscountFactor(futures.getCurrency(), futures.getDeliveryTime());
   }
 
   @Override

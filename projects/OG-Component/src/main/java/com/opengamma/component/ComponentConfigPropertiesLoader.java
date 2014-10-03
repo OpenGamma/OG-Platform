@@ -89,15 +89,16 @@ public class ComponentConfigPropertiesLoader extends AbstractComponentConfigLoad
       
       // resolve ${} references
       ConfigProperty resolved = getProperties().resolveProperty(key, value, lineNum);
-      
-      // handle includes
-      if (key.equals(ComponentManager.MANAGER_INCLUDE)) {
-        handleInclude(resource, resolved.getValue(), depth);
-      } else {
-        // store property
-        fileProperties.put(key, resolved.getValue());
-        if (key.equals(ComponentManager.MANAGER_NEXT_FILE) == false) {
-          getProperties().addIfAbsent(resolved);  // first definition wins
+      if (resolved != null) {
+        // handle includes
+        if (key.equals(ComponentManager.MANAGER_INCLUDE)) {
+          handleInclude(resource, resolved.getValue(), depth);
+        } else {
+          // store property
+          fileProperties.put(key, resolved.getValue());
+          if (key.equals(ComponentManager.MANAGER_NEXT_FILE) == false) {
+            getProperties().addIfAbsent(resolved);  // first definition wins
+          }
         }
       }
     }

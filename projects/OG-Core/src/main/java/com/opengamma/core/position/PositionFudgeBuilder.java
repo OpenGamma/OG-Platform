@@ -122,7 +122,7 @@ public class PositionFudgeBuilder implements FudgeBuilder<Position> {
       FudgeField uniqueIdField = message.getByName(UNIQUE_ID_FIELD_NAME);
       if (uniqueIdField != null) {
         position.setUniqueId(deserializer.fieldValueToObject(UniqueId.class, uniqueIdField));
-      }      
+      }
     }
     if (message.hasField(QUANTITY_FIELD_NAME)) {
       FudgeField quantityField = message.getByName(QUANTITY_FIELD_NAME);

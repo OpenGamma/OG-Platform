@@ -7,8 +7,12 @@ package com.opengamma.util.db;
 
 import java.sql.Driver;
 
+import javax.sql.DataSource;
+
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.dialect.Dialect;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.lob.DefaultLobHandler;
 import org.springframework.jdbc.support.lob.LobHandler;
 import org.threeten.bp.temporal.ChronoUnit;
@@ -58,6 +62,27 @@ public abstract class DbDialect {
    * @return the driver, not null
    */
   public abstract Class<? extends Driver> getJDBCDriverClass();
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the named parameter Spring template.
+   * 
+   * @param dataSource  the data source, not null
+   * @return the template, not null
+   */
+  public NamedParameterJdbcTemplate getNamedParameterJdbcTemplate(DataSource dataSource) {
+    return new NamedParameterJdbcTemplate(dataSource);
+  }
+
+  /**
+   * Gets the basic Spring template.
+   * 
+   * @param dataSource  the data source, not null
+   * @return the template, not null
+   */
+  public JdbcTemplate getJdbcTemplate(DataSource dataSource) {
+    return new JdbcTemplate(dataSource);
+  }
 
   //-------------------------------------------------------------------------
   /**
@@ -160,6 +185,31 @@ public abstract class DbDialect {
     value = StringUtils.replace(value, "*", "%");
     value = StringUtils.replace(value, "?", "_");
     return value;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Converts the specified application format string to database format.
+   * <p>
+   * This allows databases that map empty string to null to be handled.
+   * 
+   * @param str  the string to convert, null returns null
+   * @return the converted string
+   */
+  public String toDatabaseString(String str) {
+    return str;
+  }
+
+  /**
+   * Converts the specified database format string to application format.
+   * <p>
+   * This allows databases that map empty string to null to be handled.
+   * 
+   * @param str  the string to convert, null returns null
+   * @return the converted string
+   */
+  public String fromDatabaseString(String str) {
+    return str;
   }
 
   //-------------------------------------------------------------------------

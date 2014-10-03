@@ -305,7 +305,7 @@ public final class ResolvedConventionLink<C extends Convention> extends Conventi
 
     @Override
     public Builder<C> setString(MetaProperty<?> property, String value) {
-      super.set(property, value);
+      super.setString(property, value);
       return this;
     }
 

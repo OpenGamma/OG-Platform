@@ -6,7 +6,6 @@
 package com.opengamma.examples.bloomberg.loader;
 
 import static com.google.common.collect.Sets.newHashSet;
-import static com.opengamma.lambdava.streams.Lambdava.functional;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,6 +17,8 @@ import org.slf4j.LoggerFactory;
 import org.threeten.bp.Clock;
 import org.threeten.bp.LocalDate;
 
+import com.google.common.base.Function;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.id.ExternalSchemes;
@@ -35,7 +36,6 @@ import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.lambdava.functions.Function1;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
@@ -85,12 +85,12 @@ public class CurveNodeHistoricalDataLoader {
 
     final List<LocalDate> dates = buildDates();
 
-    final Set<String> curveNames = functional(curves).map(new Function1<YieldCurveDefinition, String>() {
+    final Set<String> curveNames = FluentIterable.from(curves).transform(new Function<YieldCurveDefinition, String>() {
       @Override
-      public String execute(final YieldCurveDefinition yieldCurveDefinition) {
+      public String apply(final YieldCurveDefinition yieldCurveDefinition) {
         return yieldCurveDefinition.getName() + "_" + yieldCurveDefinition.getCurrency().getCode();
       }
-    }).asSet();
+    }).toSet();
     _curveNodesExternalIds = getCurves(configSource, curveNames, dates);
     _curveNodesExternalIds.add(ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, "EONIA Index"));
     _futuresExternalIds = getFutures(configSource, curveNames, dates);

@@ -12,6 +12,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.ImmutableConstructor;
@@ -318,7 +319,7 @@ public final class PagingRequest implements ImmutableBean {
     }
 
     @Override
-    public PagingRequest.Builder builder() {
+    public BeanBuilder<? extends PagingRequest> builder() {
       return new PagingRequest.Builder();
     }
 
@@ -429,7 +430,7 @@ public final class PagingRequest implements ImmutableBean {
 
     @Override
     public Builder setString(MetaProperty<?> property, String value) {
-      super.set(property, value);
+      super.setString(property, value);
       return this;
     }
 

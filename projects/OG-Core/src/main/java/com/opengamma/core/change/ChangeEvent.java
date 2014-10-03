@@ -81,7 +81,7 @@ public class ChangeEvent extends DirectBean implements Serializable {
    */
   public ChangeEvent(final ChangeType type, final ObjectId oid, final Instant versionFrom, final Instant versionTo, final Instant versionInstant) {
     ArgumentChecker.notNull(type, "type");
-    ArgumentChecker.notNull(oid, "oid");    
+    ArgumentChecker.notNull(oid, "oid");
     ArgumentChecker.notNull(versionInstant, "versionInstant");
     setType(type);
     setObjectId(oid);

@@ -5,14 +5,13 @@
  */
 package com.opengamma.engine.target.resolver;
 
-import static com.opengamma.lambdava.streams.Lambdava.functional;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.Iterables;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.DummyChangeManager;
 import com.opengamma.engine.target.ComputationTargetType;
@@ -160,7 +159,7 @@ public class PrimitiveResolver extends AbstractIdentifierResolver implements Res
     if (scheme.startsWith(SCHEME_PREFIX)) {
       ExternalIdBundle externalIdBundle = resolveExternalIds(uniqueId, SCHEME_PREFIX);
       if (externalIdBundle.size() == 1) {
-        return new ExternalIdentifiablePrimitive(uniqueId, functional(externalIdBundle.getExternalIds()).first());
+        return new ExternalIdentifiablePrimitive(uniqueId, Iterables.getOnlyElement(externalIdBundle.getExternalIds()));
       } else {
         return new ExternalBundleIdentifiablePrimitive(uniqueId, externalIdBundle);
       }

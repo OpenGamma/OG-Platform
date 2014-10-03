@@ -12,8 +12,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.apache.commons.lang.StringUtils;
-
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -177,19 +175,39 @@ public final class ConfigProperties {
    * @param key  the key, not null
    * @param value  the value to resolve, not null
    * @param lineNum  the line number, for error messages
-   * @return the resolved value, not null
+   * @return the resolved property, null if an optional property was undefined
    * @throws ComponentConfigException if a variable expansion is not found
    */
   public ConfigProperty resolveProperty(String key, String value, int lineNum) {
+    // hide certain properties from peeking
     boolean hidden = (key.contains("password") || key.startsWith("shiro."));
+    // find ${foo} reference
     String variable = findVariable(value);
     while (variable != null) {
-      ConfigProperty variableProperty = _properties.get(variable);
-      if (variableProperty == null) {
-        throw new ComponentConfigException("Variable expansion not found: ${" + variable + "}, line " + lineNum);
+      // need actual start/end for correct interpolation
+      int start = value.lastIndexOf("${");
+      int end = value.indexOf("}", start) + 1;
+      // optional properties do not cause an error if property is missing
+      boolean isOptional = false;
+      String variableName = variable;
+      if (variable.endsWith("?")) {
+        isOptional = true;
+        variableName = variable.substring(0, variable.length() - 1);
       }
-      hidden = hidden | variableProperty.isHidden();
-      value = StringUtils.replaceOnce(value, "${" + variable + "}", variableProperty.getValue());
+      // lookup and interpolate property
+      ConfigProperty variableProperty = _properties.get(variableName);
+      if (variableProperty != null) {
+        value = value.substring(0, start) + variableProperty.getValue() + value.substring(end);
+        hidden = hidden || variableProperty.isHidden();
+      } else if (isOptional) {
+        value = value.substring(0, start) + value.substring(end);
+        if (value.isEmpty()) {
+          return null;
+        }
+      } else {
+        throw new ComponentConfigException("Variable expansion not found: ${" + variableName + "}, line " + lineNum);
+      }
+      // find next ${foo} reference
       variable = findVariable(value);
     }
     return ConfigProperty.of(key, value, hidden);

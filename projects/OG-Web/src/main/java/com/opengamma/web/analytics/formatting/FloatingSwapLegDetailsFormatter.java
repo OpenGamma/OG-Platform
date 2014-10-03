@@ -25,14 +25,19 @@ import static com.opengamma.financial.analytics.model.fixedincome.FloatingSwapLe
 import static com.opengamma.financial.analytics.model.fixedincome.FloatingSwapLegDetails.START_ACCRUAL_DATES;
 import static com.opengamma.financial.analytics.model.fixedincome.FloatingSwapLegDetails.START_FIXING_DATES;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.model.fixedincome.FloatingSwapLegDetails;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.CurrencyAmount;
+import com.opengamma.util.time.Tenor;
 
 /**
  * Formatter for the details of the fixed leg of a swap.
@@ -115,12 +120,37 @@ import com.opengamma.util.money.CurrencyAmount;
       values[i][13] = _caFormatter.formatCell(value.getNotionals()[i], valueSpec, null);
       values[i][14] = _basisPointFormatter.formatCell(value.getSpreads()[i], valueSpec, null);
       values[i][15] = value.getGearings()[i];
-      values[i][16] = value.getIndexTenors()[i] == null ? "-" : value.getIndexTenors()[i].toFormattedString();
+      values[i][16] = formatIndexTenors(value.getIndexTenors().get(i));
       values[i][17] = value.getDiscountedPaymentAmounts()[i] == null ? "-" : _caFormatter.formatCell(value.getDiscountedPaymentAmounts()[i], valueSpec, null);
       values[i][18] = value.getDiscountedProjectedAmounts()[i] == null ? "-" : _caFormatter.formatCell(value.getDiscountedProjectedAmounts()[i], valueSpec, null);
     }
     results.put(MATRIX, values);
     return results;
+  }
+  
+  /**
+   * Returns the index tenors in a formatted string format.
+   * <p>
+   * If the index tenors are null or empty, then return <em>-</em>, otherwise return a comma separated list of ordered 
+   * index tenors.
+   * @param indexTenors the index tenors to format.
+   * @return the formatted index tenors.
+   */
+  private String formatIndexTenors(Set<Tenor> indexTenors) {
+    if (indexTenors == null || indexTenors.isEmpty()) {
+      return "-";
+    } else {
+      List<Tenor> orderedTenors = new ArrayList<>(indexTenors);
+      Collections.sort(orderedTenors);
+      StringBuffer buffer = new StringBuffer();
+      for (Tenor tenor: orderedTenors) {
+        if (buffer.length() > 0) {
+          buffer.append(", ");
+        }
+        buffer.append(tenor.toFormattedString());
+      }
+      return buffer.toString();
+    }
   }
 
   @Override

@@ -5,8 +5,6 @@
  */
 package com.opengamma.examples.simulated.generator;
 
-import com.opengamma.lambdava.functions.Function2;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 
@@ -16,6 +14,7 @@ import com.opengamma.financial.generator.AbstractPortfolioGeneratorTool;
 import com.opengamma.financial.generator.SecurityGenerator;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.id.ExternalId;
+import com.opengamma.util.function.BiFunction;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -33,9 +32,9 @@ public class SyntheticPortfolioGeneratorTool extends AbstractPortfolioGeneratorT
     securityGenerator.setCurveCalculationConfig(Currency.JPY, "DefaultTwoCurveJPYConfig");
     securityGenerator.setCurveCalculationConfig(Currency.USD, "DefaultTwoCurveUSDConfig");
     securityGenerator.setPreferredScheme(ExternalSchemes.OG_SYNTHETIC_TICKER);
-    securityGenerator.setSpotRateIdentifier(new Function2<Currency, Currency, ExternalId>() {
+    securityGenerator.setSpotRateIdentifier(new BiFunction<Currency, Currency, ExternalId>() {
       @Override
-      public ExternalId execute(final Currency a, final Currency b) {
+      public ExternalId apply(Currency a, Currency b) {
         return ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, a.getCode() + b.getCode());
       }
     });

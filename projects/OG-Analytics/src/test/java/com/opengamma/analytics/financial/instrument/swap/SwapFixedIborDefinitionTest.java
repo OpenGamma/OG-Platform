@@ -98,6 +98,13 @@ public class SwapFixedIborDefinitionTest {
     final IndexSwap cmsIndex = new IndexSwap(FIXED_PAYMENT_FREQUENCY.getPeriod(), FIXED_DAY_COUNT, IBOR_INDEX, ANNUITY_TENOR, CALENDAR);
     final SwapFixedIborDefinition swapFromCMSIndex = SwapFixedIborDefinition.from(SETTLEMENT_DATE, cmsIndex, NOTIONAL, RATE, FIXED_IS_PAYER, CALENDAR);
     assertEquals(swap, swapFromCMSIndex);
+
+    // check rate override method
+    final SwapFixedIborDefinition swapFixedRate = swap.withRate(NOTIONAL);
+    CouponFixedDefinition[] fixedPayments = swapFixedRate.getFixedLeg().getPayments();
+    for (CouponFixedDefinition payment : fixedPayments) {
+      assertEquals(payment.getRate(), NOTIONAL, 1e-6);
+    }
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

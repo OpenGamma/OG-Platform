@@ -171,6 +171,7 @@ public class WebRolesResource extends AbstractWebRoleResource {
    * Creates the output root data.
    * @return the output root data, not null
    */
+  @Override
   protected FlexiBean createRootData() {
     FlexiBean out = super.createRootData();
     RoleSearchRequest searchRequest = new RoleSearchRequest();

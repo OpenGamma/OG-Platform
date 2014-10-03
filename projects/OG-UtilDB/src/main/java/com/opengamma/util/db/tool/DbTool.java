@@ -418,11 +418,6 @@ public class DbTool {
     }
     executeSql(catalog, schema, sql);
 
-    // -- DBTOOLDONOTCLEAR
-    // create table rsk_computation_target_type (
-    //
-    // -> extract rsk_computation_target_type
-
     final String doNotClear = "DBTOOLDONOTCLEAR";
 
     int doNotClearIndex = sql.indexOf(doNotClear);
@@ -472,7 +467,9 @@ public class DbTool {
     String dbVendorName = _dialect.getDatabaseName();
     DbScript createScript = schemaGroupMetadata.getCreateScript(dbVendorName, migrateFromVersion);
     if (createScript == null) {
-      throw new OpenGammaRuntimeException("Missing create script for V" + migrateFromVersion + ", database " + dbVendorName + ", schema group " + schemaGroupMetadata.getSchemaGroupName());
+      s_logger.error("Missing create script for V" + migrateFromVersion + ", database " + dbVendorName +
+          ", schema group " + schemaGroupMetadata.getSchemaGroupName());
+      return;
     }
     s_logger.debug("Creating {} DB version {}", schemaGroupMetadata.getSchemaGroupName(), migrateFromVersion);
     s_logger.debug("Executing create script {}", createScript.getName());
