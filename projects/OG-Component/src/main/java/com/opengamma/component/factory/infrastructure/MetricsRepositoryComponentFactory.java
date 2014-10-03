@@ -5,6 +5,9 @@
  */
 package com.opengamma.component.factory.infrastructure;
 
+import info.ganglia.gmetric4j.gmetric.GMetric;
+import info.ganglia.gmetric4j.gmetric.GMetric.UDPAddressingMode;
+
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -33,9 +36,6 @@ import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.metric.OpenGammaMetricRegistry;
-
-import info.ganglia.gmetric4j.gmetric.GMetric;
-import info.ganglia.gmetric4j.gmetric.GMetric.UDPAddressingMode;
 
 /**
  * Component Factory to setup the metrics server.

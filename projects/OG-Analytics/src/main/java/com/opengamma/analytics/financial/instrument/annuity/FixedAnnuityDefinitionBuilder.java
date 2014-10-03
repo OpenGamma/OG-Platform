@@ -157,7 +157,7 @@ public class FixedAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionBuil
           accrualEndDates = ScheduleCalculator.getAdjustedDateSchedule(
               getStartDate(),
               getEndDate(),
-              Period.ofYears(1),
+              Period.ofYears(1), // PLAT-6810
               stubType,
               getAccrualPeriodAdjustmentParameters().getBusinessDayConvention(),
               getAccrualPeriodAdjustmentParameters().getCalendar(),
@@ -166,13 +166,14 @@ public class FixedAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionBuil
           accrualEndDates = ScheduleCalculator.getUnadjustedDateSchedule(
               getStartDate(),
               getEndDate(),
-              Period.ofYears(1),
+              Period.ofYears(1), // PLAT-6810
               stubType);
         }
         ZonedDateTime[] accrualStartDates = ScheduleCalculator.getStartDates(getStartDate(), accrualEndDates);
         double[] paymentYearFractions = new double[accrualEndDates.length];
         for (int i = 0; i < accrualEndDates.length; i++) {
-          paymentYearFractions[i] = AnnuityDefinitionBuilder.getDayCountFraction(Period.ofYears(1), accrualCalendar, getDayCount(), stubType, stubType,
+          paymentYearFractions[i] = AnnuityDefinitionBuilder.getDayCountFraction(Period.ofYears(1), // PLAT-6810
+              accrualCalendar, getDayCount(), stubType, stubType,
               accrualStartDates[i], accrualEndDates[i], i == 0, i == accrualEndDates.length - 1);
         }
 

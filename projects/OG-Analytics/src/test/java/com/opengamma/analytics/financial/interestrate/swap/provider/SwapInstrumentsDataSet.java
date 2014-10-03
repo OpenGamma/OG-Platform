@@ -51,6 +51,7 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.rolldate.RollConvention;
+import com.opengamma.financial.convention.rolldate.RollDateAdjuster;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
@@ -436,4 +437,33 @@ private static final SwapCouponFixedCouponDefinition IRS_STUB6_DEFINITION =
     new SwapCouponFixedCouponDefinition(LEG_FIXED_STUB6, LEG_IBOR_STUB6);
 public static final Swap<? extends Payment, ? extends Payment> IRS_STUB6 = 
     IRS_STUB6_DEFINITION.toDerivative(VALUATION_DATE, TS_ARRAY_USDLIBOR3M_2X);
+
+  // Instrument description: Zero Coupon IRS Fixed vs Libor3M
+  private static final LocalDate SPOT_DATE_ZC = LocalDate.of(2014, 9, 12);
+  private static final LocalDate END_DATE_ZC = LocalDate.of(2021, 9, 12);
+  private static final AdjustedDateParameters ADJUSTED_DATE_USDLIBOR_ZC =
+      new AdjustedDateParameters(NYC, BDC_MODFOL);
+  private static final OffsetAdjustedDateParameters OFFSET_FIXING_USDLIBOR_ZC =
+      new OffsetAdjustedDateParameters(-OFFSET_SPOT, OffsetType.BUSINESS, NYC, BDC_MODFOL);
+  private static final OffsetAdjustedDateParameters OFFSET_PAYMENT_USDLIBOR_ZC =
+      new OffsetAdjustedDateParameters(0, OffsetType.BUSINESS, NYC, BDC_MODFOL);
+  private static final Period ZERO_PERIOD = Period.ZERO;
+  private static final double FIXED_RATE_ZC = 0.0150;
+  private static final RollDateAdjuster ROLL_DATE_ADJUSTER_ZC = RollConvention.NONE.getRollDateAdjuster(0);
+  private static final AnnuityDefinition<?> LEG_FIXED = new FixedAnnuityDefinitionBuilder().
+      payer(true).currency(USD).notional(NOTIONAL_PROVIDER).startDate(SPOT_DATE_ZC).endDate(END_DATE_ZC).
+      endDateAdjustmentParameters(ADJUSTED_DATE_USDLIBOR_ZC).startDateAdjustmentParameters(ADJUSTED_DATE_USDLIBOR_ZC).
+      dayCount(DC_30U_360).accrualPeriodFrequency(ZERO_PERIOD).accrualPeriodParameters(ADJUSTED_DATE_USDLIBOR_ZC).
+      paymentDateAdjustmentParameters(OFFSET_PAYMENT_USDLIBOR_ZC).rate(FIXED_RATE_ZC).build();
+  private static final AnnuityDefinition<?> LEG_IBOR_3M = new FloatingAnnuityDefinitionBuilder().
+      payer(false).currency(USD).notional(NOTIONAL_PROVIDER).startDate(SPOT_DATE_ZC).endDate(END_DATE_ZC).
+      endDateAdjustmentParameters(ADJUSTED_DATE_USDLIBOR_ZC).startDateAdjustmentParameters(ADJUSTED_DATE_USDLIBOR_ZC).
+      dayCount(USDLIBOR3M.getDayCount()).accrualPeriodFrequency(ZERO_PERIOD)
+      .accrualPeriodParameters(ADJUSTED_DATE_USDLIBOR_ZC).paymentDateAdjustmentParameters(OFFSET_PAYMENT_USDLIBOR_ZC).
+      index(USDLIBOR3M).resetDateAdjustmentParameters(ADJUSTED_DATE_USDLIBOR_ZC).
+      fixingDateAdjustmentParameters(OFFSET_FIXING_USDLIBOR_ZC).compoundingMethod(CompoundingMethod.STRAIGHT)
+      .rollDateAdjuster(ROLL_DATE_ADJUSTER_ZC).build();
+  private static final SwapDefinition IRS_ZERO_CPN_DEFINITION = new SwapDefinition(LEG_FIXED, LEG_IBOR_3M);
+  public static final Swap<? extends Payment, ? extends Payment> IRS_ZERO_CPN =
+      IRS_ZERO_CPN_DEFINITION.toDerivative(VALUATION_DATE, TS_ARRAY_USDLIBOR3M_2X);
 }
