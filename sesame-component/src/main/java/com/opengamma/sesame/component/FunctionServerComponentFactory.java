@@ -211,7 +211,7 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets should the component enable streaming results. If set to true, then the
-   * {@link #_jmsConnector} and {@link #_scheduledExecutor} should not be null.
+   * {@link #_scheduledExecutor} should not be null.
    * @return the value of the property
    */
   public boolean isEnableStreamedResults() {
@@ -220,7 +220,7 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets should the component enable streaming results. If set to true, then the
-   * {@link #_jmsConnector} and {@link #_scheduledExecutor} should not be null.
+   * {@link #_scheduledExecutor} should not be null.
    * @param enableStreamedResults  the new value of the property
    */
   public void setEnableStreamedResults(boolean enableStreamedResults) {
@@ -229,7 +229,7 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
 
   /**
    * Gets the the {@code enableStreamedResults} property.
-   * {@link #_jmsConnector} and {@link #_scheduledExecutor} should not be null.
+   * {@link #_scheduledExecutor} should not be null.
    * @return the property, not null
    */
   public final Property<Boolean> enableStreamedResults() {
