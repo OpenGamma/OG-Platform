@@ -15,7 +15,6 @@ import com.opengamma.analytics.financial.instrument.annuity.AdjustedDateParamete
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.CompoundingMethod;
-import com.opengamma.analytics.financial.instrument.annuity.DateRelativeTo;
 import com.opengamma.analytics.financial.instrument.annuity.FixedAnnuityDefinitionBuilder;
 import com.opengamma.analytics.financial.instrument.annuity.FloatingAnnuityDefinitionBuilder;
 import com.opengamma.analytics.financial.instrument.annuity.OffsetAdjustedDateParameters;
@@ -455,16 +454,15 @@ public static final Swap<? extends Payment, ? extends Payment> IRS_STUB6 =
       payer(true).currency(USD).notional(NOTIONAL_PROVIDER).startDate(SPOT_DATE_ZC).endDate(END_DATE_ZC).
       endDateAdjustmentParameters(ADJUSTED_DATE_USDLIBOR_ZC).startDateAdjustmentParameters(ADJUSTED_DATE_USDLIBOR_ZC).
       dayCount(DC_30U_360).accrualPeriodFrequency(ZERO_PERIOD).accrualPeriodParameters(ADJUSTED_DATE_USDLIBOR_ZC).
-      paymentDateAdjustmentParameters(OFFSET_PAYMENT_USDLIBOR_ZC).rate(FIXED_RATE_ZC)
-      .compoundingMethod(CompoundingMethod.STRAIGHT).build();
+      paymentDateAdjustmentParameters(OFFSET_PAYMENT_USDLIBOR_ZC).rate(FIXED_RATE_ZC).build();
   private static final AnnuityDefinition<?> LEG_IBOR_3M = new FloatingAnnuityDefinitionBuilder().
       payer(false).currency(USD).notional(NOTIONAL_PROVIDER).startDate(SPOT_DATE_ZC).endDate(END_DATE_ZC).
       endDateAdjustmentParameters(ADJUSTED_DATE_USDLIBOR_ZC).startDateAdjustmentParameters(ADJUSTED_DATE_USDLIBOR_ZC).
       dayCount(USDLIBOR3M.getDayCount()).accrualPeriodFrequency(ZERO_PERIOD)
       .accrualPeriodParameters(ADJUSTED_DATE_USDLIBOR_ZC).paymentDateAdjustmentParameters(OFFSET_PAYMENT_USDLIBOR_ZC).
-      index(USDLIBOR3M).resetDateAdjustmentParameters(ADJUSTED_DATE_USDLIBOR_ZC).resetRelativeTo(DateRelativeTo.START).
-      fixingDateAdjustmentParameters(OFFSET_FIXING_USDLIBOR_ZC).compoundingMethod(CompoundingMethod.STRAIGHT).
-      rollDateAdjuster(ROLL_DATE_ADJUSTER_ZC).build();
+      index(USDLIBOR3M).resetDateAdjustmentParameters(ADJUSTED_DATE_USDLIBOR_ZC).
+      fixingDateAdjustmentParameters(OFFSET_FIXING_USDLIBOR_ZC).compoundingMethod(CompoundingMethod.STRAIGHT)
+      .rollDateAdjuster(ROLL_DATE_ADJUSTER_ZC).build();
   private static final SwapDefinition IRS_ZERO_CPN_DEFINITION = new SwapDefinition(LEG_FIXED, LEG_IBOR_3M);
   public static final Swap<? extends Payment, ? extends Payment> IRS_ZERO_CPN =
       IRS_ZERO_CPN_DEFINITION.toDerivative(VALUATION_DATE, TS_ARRAY_USDLIBOR3M_2X);
