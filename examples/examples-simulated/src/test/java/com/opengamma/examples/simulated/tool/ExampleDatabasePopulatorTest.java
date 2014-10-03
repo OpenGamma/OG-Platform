@@ -11,15 +11,16 @@ import static org.testng.AssertJUnit.fail;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.component.tool.ToolContextUtils;
 import com.opengamma.examples.simulated.DBTestUtils;
 import com.opengamma.examples.simulated.loader.ExampleEquityPortfolioLoader;
-import com.opengamma.examples.simulated.loader.ExampleMultiAssetPortfolioLoader;
-import com.opengamma.examples.simulated.tool.ExampleDatabasePopulator;
 import com.opengamma.financial.tool.ToolContext;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.portfolio.PortfolioSearchRequest;
 import com.opengamma.master.portfolio.PortfolioSearchResult;
+import com.opengamma.service.ServiceContext;
+import com.opengamma.service.ThreadLocalServiceContext;
+import com.opengamma.service.VersionCorrectionProvider;
 import com.opengamma.util.test.TestGroup;
 
 /**
@@ -30,41 +31,50 @@ public class ExampleDatabasePopulatorTest {
 
   private static final String CONFIG_RESOURCE_LOCATION = "classpath:/toolcontext/toolcontext-examplessimulated.properties";
 
-//  @BeforeMethod
-//  public void setUp() throws IOException {
-//    DBTestUtils.createHsqlDB(CONFIG_RESOURCE_LOCATION);
-//  }
-//  
-//  @AfterMethod
-//  public void runAfter() throws IOException {
-//    DBTestUtils.cleanUp(CONFIG_RESOURCE_LOCATION);
-//  }
-
-  @Test(enabled=false)
+  @Test
   public void testPortfolioAndDataLoaded() throws Exception {
-    DBTestUtils.createTestHsqlDB(CONFIG_RESOURCE_LOCATION);
+    // setup thread-local
+    ThreadLocalServiceContext.init(ServiceContext.of(VersionCorrectionProvider.class, new VersionCorrectionProvider() {
+      @Override
+      public VersionCorrection getPortfolioVersionCorrection() {
+        return VersionCorrection.LATEST;
+      }
+
+      @Override
+      public VersionCorrection getConfigVersionCorrection() {
+        return VersionCorrection.LATEST;
+      }
+    }));
     
-    if (!(new ExampleDatabasePopulator().run(CONFIG_RESOURCE_LOCATION, ToolContext.class))) {
-      fail();
-    }
-    
-    ToolContext toolContext = getToolContext();
-    try {
-      assertMultiAssetPortfolio(toolContext);
-      assertEquityPortfolio(toolContext);
-      assertMultiCurrencySwapPortfolio(toolContext);
-      
-    } finally {
-      if (toolContext != null) {
-        toolContext.close();
+    // override to run test with ToolContext used by populator
+    class PopulatorTest extends ExampleDatabasePopulator {
+      @Override
+      protected void doRun() {
+        // setup database
+        super.doRun();
+        
+        // test
+        ToolContext toolContext = getToolContext();
+        assertMultiCurrencySwaptionPortfolio(toolContext);
+        assertEquityPortfolio(toolContext);
+        assertMultiCurrencySwapPortfolio(toolContext);
       }
     }
-    DBTestUtils.cleanUp(CONFIG_RESOURCE_LOCATION);
+    
+    // run test
+    try {
+      DBTestUtils.createTestHsqlDB(CONFIG_RESOURCE_LOCATION);
+      if (!(new PopulatorTest().run(CONFIG_RESOURCE_LOCATION, ToolContext.class))) {
+        fail();
+      }
+    } finally {
+      DBTestUtils.cleanUp(CONFIG_RESOURCE_LOCATION);
+    }
   }
 
-  private void assertMultiAssetPortfolio(ToolContext toolContext) {
+  private void assertMultiCurrencySwaptionPortfolio(ToolContext toolContext) {
     PortfolioMaster portfolioMaster = toolContext.getPortfolioMaster();
-    assertPortfolio(portfolioMaster, ExampleMultiAssetPortfolioLoader.PORTFOLIO_NAME);
+    assertPortfolio(portfolioMaster, ExampleDatabasePopulator.MULTI_CURRENCY_SWAPTION_PORTFOLIO_NAME);
   }
 
   private void assertEquityPortfolio(ToolContext toolContext) {
@@ -85,7 +95,4 @@ public class ExampleDatabasePopulatorTest {
     assertEquals(1, portfolioSearchResult.getDocuments().size());
   }
 
-  private ToolContext getToolContext() {
-    return ToolContextUtils.getToolContext(CONFIG_RESOURCE_LOCATION, ToolContext.class);
-  }
 }
