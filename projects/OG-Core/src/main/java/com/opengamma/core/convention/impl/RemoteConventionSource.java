@@ -12,6 +12,7 @@ import java.util.Map;
 
 import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.AbstractRemoteSource;
 import com.opengamma.core.AbstractSourceWithExternalBundle;
 import com.opengamma.core.change.BasicChangeManager;
@@ -187,10 +188,8 @@ public class RemoteConventionSource
       } else {
         return (T) convention;
       }
-    } catch (DataNotFoundException ex) {
-      return null;
     } catch (UniformInterfaceException404NotFound ex) {
-      return null;
+      throw new OpenGammaRuntimeException("Unable to access remote source ", ex);
     }
   }
 
