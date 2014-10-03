@@ -118,7 +118,7 @@ The names in the examples are **XXXYYYZZCmpVV**. The **XXX** is the currency of 
 
 **Overnight Compounded Leg**
 
-The names in the examples are **XXXYYYCmpZZ**. The **XXX** is the currency of the leg. The **YYY** is the index name (like *FEDFUND* or *EONIA*). The **Cmp** is a literal indicating composition. The **ZZ** is the payment tenor (like *3M* or *1Y*).
+The names in the examples are **XXXYYYCmpZZ**. The **XXX** is the currency of the leg. The **YYY** is the index name (like *FEDFUNDS* or *EONIA*). The **Cmp** is a literal indicating composition. The **ZZ** is the payment tenor (like *3M* or *1Y*).
 
 * EUREONIACmp1Y
 * GBPSONIACmp1Y
@@ -126,7 +126,16 @@ The names in the examples are **XXXYYYCmpZZ**. The **XXX** is the currency of th
 
 **Overnight Arithmetic Average Leg**
 
-The names in the examples are **XXXYYYAAZZ**. The **XXX** is the currency of the leg. The **YYY** is the index name (like *FEDFUND*). The **AA** is a literal indicating arithmetic average. The **ZZ** is the payment tenor (like *3M* or *1Y*).
+The names in the examples are **XXXYYYAAZZ**. The **XXX** is the currency of the leg. The **YYY** is the index name (like *FEDFUNDS*). The **AA** is a literal indicating arithmetic average. The **ZZ** is the payment tenor (like *3M* or *1Y*).
 
 * USDFEDFUNDSAA3M
+
+**STIR Futures **
+
+The names in the examples are **XXXSTIRFuturesFZZ**. The **XXX** is the currency of the futures. The **STIRFutures** is a literal indicating STIR Futures. The **F** is the expiry frequency, with **Q** for the quarterly futures and **S** for serial (or monthly) futures. The **ZZ** is the underlying index tenor.
+
+* USDSTIRFuturesQ3M
+* USDSTIRFuturesS3M
+* USDSTIRFuturesS1M
+* USDSTIRFuturesQ3M
 
