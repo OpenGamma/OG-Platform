@@ -39,7 +39,7 @@ Next go to http://your-server-ip:8080/jax/timeseries to add time-series:
 + Add **PX_LAST** for *Data field*
 + Add **US0003M Index** for *Identifiers*
 
-Repeat this for US0006M Index
+Repeat this for US0006M Index, FEDL01 Index and BP0003M Index
 
 This step can be repeated for any ticker you wish to add
 
