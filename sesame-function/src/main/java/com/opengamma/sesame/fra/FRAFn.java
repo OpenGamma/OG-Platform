@@ -6,6 +6,8 @@
 package com.opengamma.sesame.fra;
 
 import com.opengamma.analytics.util.amount.ReferenceAmount;
+import com.opengamma.financial.analytics.model.fixedincome.BucketedCrossSensitivities;
+import com.opengamma.financial.analytics.model.fixedincome.BucketedCurveSensitivities;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.fra.ForwardRateAgreementSecurity;
 import com.opengamma.sesame.Environment;
@@ -80,5 +82,45 @@ public interface FRAFn {
    */
   @Output(OutputNames.PV01)
   Result<ReferenceAmount<Pair<String, Currency>>> calculatePV01(Environment env, FRASecurity security);
+
+  /**
+   * Calculate the bucketed PV01 for a security.
+   *
+   * @param env the environment used for calculation
+   * @param security the security to calculate the bucketed PV01 for
+   * @return result containing the bucketed PV01 if successful, a Failure otherwise
+   */
+  @Output(OutputNames.BUCKETED_PV01)
+  Result<BucketedCurveSensitivities> calculateBucketedPV01(Environment env, ForwardRateAgreementSecurity security);
+
+  /**
+   * Calculate the bucketed PV01 for a security.
+   *
+   * @param env the environment used for calculation
+   * @param security the security to calculate the bucketed PV01 for
+   * @return result containing the bucketed PV01 if successful, a Failure otherwise
+   */
+  @Output(OutputNames.BUCKETED_PV01)
+  Result<BucketedCurveSensitivities> calculateBucketedPV01(Environment env, FRASecurity security);
+
+  /**
+   * Calculate the bucketed Gamma for a security.
+   *
+   * @param env the environment used for calculation
+   * @param security the security to calculate the bucketed Gamma for
+   * @return result containing the bucketed Gamma, full matrix, if successful, a Failure otherwise
+   */
+  @Output(OutputNames.BUCKETED_GAMMA)
+  Result<BucketedCrossSensitivities> calculateBucketedGamma(Environment env, ForwardRateAgreementSecurity security);
+
+  /**
+   * Calculate the bucketed Gamma for a security.
+   *
+   * @param env the environment used for calculation
+   * @param security the security to calculate the bucketed Gamma for
+   * @return result containing the bucketed Gamma, full matrix, if successful, a Failure otherwise
+   */
+  @Output(OutputNames.BUCKETED_GAMMA)
+  Result<BucketedCrossSensitivities> calculateBucketedGamma(Environment env, FRASecurity security);
 
 }

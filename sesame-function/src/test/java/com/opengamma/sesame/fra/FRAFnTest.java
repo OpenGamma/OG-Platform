@@ -13,6 +13,7 @@ import static com.opengamma.sesame.config.ConfigBuilder.implementations;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
+import static org.hamcrest.core.IsNull.notNullValue;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -24,13 +25,20 @@ import org.threeten.bp.Instant;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.collect.ImmutableMap;
+import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.link.ConfigLink;
+import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
+import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
 import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.exposure.ConfigDBInstrumentExposuresProvider;
 import com.opengamma.financial.analytics.curve.exposure.InstrumentExposuresProvider;
+import com.opengamma.financial.analytics.model.fixedincome.BucketedCrossSensitivities;
+import com.opengamma.financial.analytics.model.fixedincome.BucketedCurveSensitivities;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
@@ -98,6 +106,61 @@ public class FRAFnTest {
 
   private static final double EXPECTED_PV = 23182.5437;
   private static final double EXPECTED_PAR_RATE = 0.003315;
+  private static final Map<Pair<String, Currency>, DoubleMatrix1D> EXPECTED_BUCKETED_PV01 =
+      ImmutableMap.<Pair<String, Currency>, DoubleMatrix1D>builder().
+          put(Pairs.of(InterestRateMockSources.USD_LIBOR3M_CURVE_NAME, Currency.USD),
+              new DoubleMatrix1D(119.7375367728506, 120.92969446825524, -26.46239944124458, -460.7550335902164, 0, 0, 0,
+                                 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d)
+          ).
+          put(Pairs.of(InterestRateMockSources.USD_OIS_CURVE_NAME, Currency.USD),
+              new DoubleMatrix1D(-0.006618053208045675, -0.006618053208189062, 3.4931205919522354E-4,
+                                 -0.004729686527856287, -0.031139542713136088, -0.5519190718364266, -1.0406804627639228,
+                                 0.24701401372751566, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d)
+          ).
+
+          build();
+
+  private static final Map<String, DoubleMatrix2D> EXPECTED_GAMMA_MATRICES =
+      ImmutableMap.<String, DoubleMatrix2D>builder().
+          put(InterestRateMockSources.USD_OIS_CURVE_NAME,
+              new DoubleMatrix2D(new Double[][] {
+                  {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                  {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                  {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                  {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                  {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                  {0.0, 0.0, 0.0, 0.0, 0.0, 2.361676E-5, 2.361676E-5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                  {0.0, 0.0, 0.0, 0.0, 0.0, 2.361676E-5, 2.361676E-5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                  {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                  {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                  {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                  {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                  {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                  {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                  {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                  {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                  {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                  {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+              }))
+          .put(InterestRateMockSources.USD_LIBOR3M_CURVE_NAME,
+               new DoubleMatrix2D(new Double[][] {
+                   {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                   {0.0, 0.008507, -0.002277, -0.013508, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                   {0.0, -0.002277, 6.09676e-4, 0.003616, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                   {0.0, -0.0135072, 0.003615977, 0.021447, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                   {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                   {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                   {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                   {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                   {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                   {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                   {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                   {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                   {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                   {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                   {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+               }))
+          .build();
 
   private FRAFn _fraFunction;
   private FRASecurity _fraSecurity = createSingleFra();
@@ -205,6 +268,49 @@ public class FRAFnTest {
                closeTo(-249.73451494798297, STD_TOLERANCE_PV));
     assertThat(pv01.getValue().getMap().get(Pairs.of(InterestRateMockSources.USD_OIS_CURVE_NAME, Currency.USD)),
                closeTo(-1.479871968614848, STD_TOLERANCE_PV));
+  }
+
+  @Test
+  public void discountingForwardRateAgreementBucketedPV01() {
+    MarketDataSource dataSource = InterestRateMockSources.createMarketDataSource();
+    Environment env = new SimpleEnvironment(VALUATION_TIME, dataSource);
+    Result<BucketedCurveSensitivities> pv01 = _fraFunction.calculateBucketedPV01(env, _forwardRateAgreementSecurity);
+    assertThat(pv01.isSuccess(), is((true)));
+    Map<Pair<String, Currency>, DoubleLabelledMatrix1D> pv01s = pv01.getValue().getSensitivities();
+
+    assertThat(pv01s.size(), is(EXPECTED_BUCKETED_PV01.size()));
+    for (Map.Entry<Pair<String, Currency>, DoubleLabelledMatrix1D> sensitivity : pv01s.entrySet()) {
+      DoubleMatrix1D expectedSensitivities = EXPECTED_BUCKETED_PV01.get(sensitivity.getKey());
+      assertThat(sensitivity.getKey() + " not an expected sensitivity", expectedSensitivities, is(notNullValue()));
+      assertThat(sensitivity.getValue().size(), is(expectedSensitivities.getNumberOfElements()));
+      for (int i = 0; i < expectedSensitivities.getNumberOfElements(); i++) {
+        assertThat(sensitivity.getValue().getValues()[i],
+                   is(closeTo(expectedSensitivities.getEntry(i), STD_TOLERANCE_PV)));
+      }
+    }
+  }
+
+  @Test
+  public void interestRateSwapBucketedGamma() {
+    MarketDataSource dataSource = InterestRateMockSources.createMarketDataSource();
+    Environment env = new SimpleEnvironment(VALUATION_TIME, dataSource);
+    Result<BucketedCrossSensitivities> resultCrossGamma = _fraFunction.calculateBucketedGamma(env,
+        _forwardRateAgreementSecurity);
+    assertThat(resultCrossGamma.isSuccess(), is(true));
+
+    Map<String, DoubleLabelledMatrix2D> bucketedGamma = resultCrossGamma.getValue().getCrossSensitivities();
+    assertThat(bucketedGamma.size(), is(EXPECTED_GAMMA_MATRICES.size()));
+    for (Map.Entry<String, DoubleLabelledMatrix2D> sensitivity : bucketedGamma.entrySet()) {
+      DoubleMatrix2D expectedSensitivities = new DoubleMatrix2D(EXPECTED_GAMMA_MATRICES.get(sensitivity.getKey()).getData());
+      assertThat(sensitivity.getValue().getXKeys().length, is(expectedSensitivities.getNumberOfColumns()));
+      assertThat(sensitivity.getValue().getYKeys().length, is(expectedSensitivities.getNumberOfRows()));
+      for (int i = 0; i < expectedSensitivities.getNumberOfColumns(); i++) {
+        for (int j = 0; j < expectedSensitivities.getNumberOfRows(); j++) {
+          assertThat(expectedSensitivities.getData()[i][j],
+                     is(closeTo(sensitivity.getValue().getValues()[i][j], STD_TOLERANCE_PV)));
+        }
+      }
+    }
   }
 
   private FRASecurity createSingleFra() {
