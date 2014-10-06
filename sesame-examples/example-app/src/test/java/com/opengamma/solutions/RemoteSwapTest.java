@@ -57,6 +57,9 @@ public class RemoteSwapTest {
   private Results _xccyResults;
   private Results _feesResults;
   private Results _singleLegResults;
+  private Results _zeroCouponResults;
+  private Results _iborCompoundingResults;
+  private Results _notionalExchangeResults;
 
   private static final double STD_TOLERANCE_PV = 1.0E-3;
 
@@ -145,6 +148,33 @@ public class RemoteSwapTest {
 
     _singleLegResults = _functionServer.executeSingleCycle(singleLegRequest);
 
+    FunctionServerRequest<IndividualCycleOptions> zeroCouponRequest =
+        FunctionServerRequest.<IndividualCycleOptions>builder()
+            .viewConfig(createViewConfig())
+            .inputs(RemoteViewSwapUtils.ZERO_COUPON_COMPOUNDING_INPUT)
+            .cycleOptions(_cycleOptions)
+            .build();
+
+    _zeroCouponResults = _functionServer.executeSingleCycle(zeroCouponRequest);
+
+    FunctionServerRequest<IndividualCycleOptions> iborCompoundingRequest =
+        FunctionServerRequest.<IndividualCycleOptions>builder()
+            .viewConfig(createViewConfig())
+            .inputs(RemoteViewSwapUtils.IBOR_COMPOUNDING_INPUT)
+            .cycleOptions(_cycleOptions)
+            .build();
+
+    _iborCompoundingResults = _functionServer.executeSingleCycle(iborCompoundingRequest);
+
+    FunctionServerRequest<IndividualCycleOptions> notionalExchangeRequest =
+        FunctionServerRequest.<IndividualCycleOptions>builder()
+            .viewConfig(createViewConfig())
+            .inputs(RemoteViewSwapUtils.NOTIONAL_EXCHANGE_INPUT)
+            .cycleOptions(_cycleOptions)
+            .build();
+
+    _notionalExchangeResults = _functionServer.executeSingleCycle(notionalExchangeRequest);
+
 
   }
 
@@ -192,6 +222,36 @@ public class RemoteSwapTest {
 
   /* Single Leg - end */
 
+  /* Zero Coupon - start */
+
+  @Test(enabled = true)
+  public void testZeroCouponSwapPV() {
+
+    Result fixedResult = _zeroCouponResults.get(0, 0).getResult();
+    assertThat(fixedResult.isSuccess(), is(true));
+    assertThat(fixedResult.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
+    MultipleCurrencyAmount amount = (MultipleCurrencyAmount) fixedResult.getValue();
+    assertThat(amount.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(6598909.634518711, STD_TOLERANCE_PV)));
+  }
+
+  /* Zero Coupon - end */
+
+  /* Ibor Compounding - start */
+
+  @Test
+  public void testIborCompoundingSwapPV() {
+
+    Result fixedResult = _iborCompoundingResults.get(0, 0).getResult();
+    assertThat(fixedResult.isSuccess(), is(true));
+    assertThat(fixedResult.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
+    MultipleCurrencyAmount amount = (MultipleCurrencyAmount) fixedResult.getValue();
+    // TODO - this value has not been derived from an equivalent analytics test
+    assertThat(amount.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(6037567.433125215, STD_TOLERANCE_PV)));
+  }
+
+  /* Ibor Compounding - end */
+
+
   /* Fees - start */
 
   @Test(enabled = true)
@@ -202,12 +262,12 @@ public class RemoteSwapTest {
     assertThat(result.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
     MultipleCurrencyAmount mca = (MultipleCurrencyAmount) result.getValue();
     assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(6064112.3389, STD_TOLERANCE_PV)));
-
   }
 
   /* Fees - end */
 
   /* Vanilla - start */
+
   @Test(enabled = true)
   public void testVanillaFixedVsLiborSwapPV() {
 
@@ -405,6 +465,36 @@ public class RemoteSwapTest {
 
   /* XCCY - end */
 
+  /* Notional Exchange - start */
+
+  @Test(enabled = true)
+  public void testInitialNotionalExchangeSwapPV() {
+
+    //TODO PLAT-6807
+    Result result = _notionalExchangeResults.get(0, 0).getResult();
+    assertThat(result.isSuccess(), is(true));
+    assertThat(result.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
+    MultipleCurrencyAmount mca = (MultipleCurrencyAmount) result.getValue();
+    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(80085273.5594862, STD_TOLERANCE_PV)));
+    assertThat(mca.getCurrencyAmount(Currency.GBP).getAmount(), is(closeTo(-55263120.0235791, STD_TOLERANCE_PV)));
+
+  }
+
+  @Test(enabled = true)
+  public void testFinalNotionalExchangeSwapPV() {
+
+    //TODO PLAT-6807
+    Result result = _notionalExchangeResults.get(1, 0).getResult();
+    assertThat(result.isSuccess(), is(true));
+    assertThat(result.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
+    MultipleCurrencyAmount mca = (MultipleCurrencyAmount) result.getValue();
+    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(-107126488.577849, STD_TOLERANCE_PV)));
+    assertThat(mca.getCurrencyAmount(Currency.GBP).getAmount(), is(closeTo(62610304.6644653, STD_TOLERANCE_PV)));
+
+  }
+
+  /* Notional Exchange - end */
+
   @Test(enabled = true)
   public void testBuckedPV01() {
 
@@ -430,6 +520,15 @@ public class RemoteSwapTest {
       assertThat(result.get(1).getResult().isSuccess(), is(true));
     }
     for (ResultRow result : _singleLegResults.getRows()) {
+      assertThat(result.get(1).getResult().isSuccess(), is(true));
+    }
+    for (ResultRow result : _zeroCouponResults.getRows()) {
+      assertThat(result.get(1).getResult().isSuccess(), is(true));
+    }
+    for (ResultRow result : _iborCompoundingResults.getRows()) {
+      assertThat(result.get(1).getResult().isSuccess(), is(true));
+    }
+    for (ResultRow result : _notionalExchangeResults.getRows()) {
       assertThat(result.get(1).getResult().isSuccess(), is(true));
     }
 
@@ -459,7 +558,18 @@ public class RemoteSwapTest {
     for (ResultRow result : _feesResults.getRows()) {
       assertThat(result.get(2).getResult().isSuccess(), is(true));
     }
-    //TODO PLAT-6796 _singleLegResults
+    for (ResultRow result : _zeroCouponResults.getRows()) {
+      assertThat(result.get(2).getResult().isSuccess(), is(true));
+    }
+    for (ResultRow result : _iborCompoundingResults.getRows()) {
+      assertThat(result.get(2).getResult().isSuccess(), is(true));
+    }
+    for (ResultRow result : _notionalExchangeResults.getRows()) {
+      assertThat(result.get(2).getResult().isSuccess(), is(true));
+    }
+    for (ResultRow result : _singleLegResults.getRows()) {
+      assertThat(result.get(2).getResult().isSuccess(), is(true));
+    }
 
   }
 
@@ -487,7 +597,18 @@ public class RemoteSwapTest {
     for (ResultRow result : _feesResults.getRows()) {
       assertThat(result.get(3).getResult().isSuccess(), is(true));
     }
-    //TODO PLAT-6796 _singleLegResults
+    for (ResultRow result : _zeroCouponResults.getRows()) {
+      assertThat(result.get(3).getResult().isSuccess(), is(true));
+    }
+    for (ResultRow result : _iborCompoundingResults.getRows()) {
+      assertThat(result.get(3).getResult().isSuccess(), is(true));
+    }
+    for (ResultRow result : _notionalExchangeResults.getRows()) {
+      assertThat(result.get(3).getResult().isSuccess(), is(true));
+    }
+    for (ResultRow result : _singleLegResults.getRows()) {
+      assertThat(result.get(3).getResult().isSuccess(), is(true));
+    }
 
   }
 

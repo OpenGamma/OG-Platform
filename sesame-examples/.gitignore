@@ -6,8 +6,8 @@ foo~
 .project
 .classpath
 .checkstyle
-/.clover/
-/.settings/
+.clover/
+.settings/
 /bin/
 /build/
 /data/
