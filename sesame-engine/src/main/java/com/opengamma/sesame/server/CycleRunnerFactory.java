@@ -67,15 +67,28 @@ public class CycleRunnerFactory {
    * Creates a cycle runner for the specified request, using the
    * supplied handler to process the results from the cycles. Using
    * this method means a default cycle terminator will be used that
-   * will not interrupt the running cycles.
+   * will not interrupt the running cycles. This method means the
+   * cycles will be executed as fast as possible one after the other
+   * with no pause in between. It is intended either for non-streamed
+   * results, or streamed results where the intention is to output
+   * as much data as possible as fast as possible.
    *
    * @param request the request to be executed by the cycle runner, not null
    * @param handler the handler for the results produced by the runner, not null
    * @return cycle runner primed to execute the required cycles
    */
-  public CycleRunner createCycleRunner(FunctionServerRequest<? extends CycleOptions> request,
-                                       CycleResultsHandler handler) {
-    return createCycleRunner(request, handler, DEFAULT_CYCLE_TERMINATOR);
+  public CycleRunner createDirectCycleRunner(FunctionServerRequest<? extends CycleOptions> request,
+                                             CycleResultsHandler handler) {
+
+    View view = createView(ArgumentChecker.notNull(request, "request"));
+
+    return new CycleRunner(
+        view,
+        _marketDataFactory,
+        request.getCycleOptions(),
+        request.getInputs(),
+        ArgumentChecker.notNull(handler, "handler"),
+        DEFAULT_CYCLE_TERMINATOR);
   }
 
   /**
@@ -90,9 +103,9 @@ public class CycleRunnerFactory {
    * cycle execution, not null
    * @return cycle runner primed to execute the required cycles
    */
-  public CycleRunner createCycleRunner(FunctionServerRequest<? extends CycleOptions> request,
-                                       CycleResultsHandler handler,
-                                       CycleTerminator cycleTerminator) {
+  public CycleRunner createStreamingCycleRunner(FunctionServerRequest<? extends CycleOptions> request,
+                                                CycleResultsHandler handler,
+                                                CycleTerminator cycleTerminator) {
 
     View view = createView(ArgumentChecker.notNull(request, "request"));
 

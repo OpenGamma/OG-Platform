@@ -75,7 +75,8 @@ public class DefaultStreamingFunctionServer implements StreamingFunctionServer {
     UniqueId clientId = createId();
     final PublisherAwareStreamingClient streamingClient = new DefaultStreamingClient(clientId);
 
-    CycleRunner cycleRunner = _cycleRunnerFactory.createCycleRunner(request,
+    CycleRunner cycleRunner = _cycleRunnerFactory.createStreamingCycleRunner(
+        request,
         new CycleResultsHandler() {
           @Override
           public void handleResults(Results results) {

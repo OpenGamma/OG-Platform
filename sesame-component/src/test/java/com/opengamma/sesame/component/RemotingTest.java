@@ -235,7 +235,7 @@ public class RemotingTest {
     checkCurveBundleResult(curveBundleOutputName, results.get(1));
   }
 
-  @Test(enabled = false)
+  @Test
   public void testStreamingExecution() throws InterruptedException {
 
     final String curveBundleOutputName = "Curve Bundle";
@@ -297,7 +297,7 @@ public class RemotingTest {
     assertThat(streamingClient.isStopped(), is(true));
   }
 
-  @Test(enabled = false)
+  @Test
   public void testStreamingExecutionCanBeStopped() throws InterruptedException {
 
     final String curveBundleOutputName = "Curve Bundle";
@@ -346,13 +346,13 @@ public class RemotingTest {
       public void serverConnectionFailed(Exception e) { }
     });
 
-    // By default there a 5s between each cycle so we need to give
+    // We have a 1s between each cycle so we need to give
     // it enough time to finish
-    assertThat(resultsLatch.await(30, TimeUnit.SECONDS), is(true));
+    assertThat(resultsLatch.await(10, TimeUnit.SECONDS), is(true));
 
     streamingClient.stop();
 
-   // Thread.sleep(1000);
+    Thread.sleep(1000);
 
     assertThat(streamingClient.isRunning(), is(false));
     assertThat(streamingClient.isStopped(), is(true));
@@ -478,6 +478,7 @@ public class RemotingTest {
     serverComponentFactory.setMarketDataFactory(InterestRateMockSources.createMarketDataFactory());
     serverComponentFactory.setLiveDataClient(createMockLiveDataClient());
     serverComponentFactory.setJmsConnector(createJmsConnector());
+    serverComponentFactory.setMinimumTimeBetweenCycles(1000);
 
     register(serverComponentFactory, _componentRepository);
   }
