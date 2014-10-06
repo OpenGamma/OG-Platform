@@ -7,9 +7,6 @@ package com.opengamma.sesame.server;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import org.threeten.bp.Duration;
 
@@ -69,11 +66,20 @@ public class CycleRunner {
    */
   private final CycleResultsHandler _handler;
   /**
-   * Schedules the cycles in a manner appropriate to the use case. This
-   * may involve running as fast as possible, or throttling cycles
-   * to reduce overheads.
+   * Determines whether the execution of the cycles should be terminated, not null.
+   * This is generally used when an infinite set of cycles has been requested
+   * and we want to stop processing (e.g. a UI using streaming data, which the
+   * user then decides they have finished with).
    */
-  private final CycleScheduler _cycleScheduler;
+  private final CycleTerminator _cycleTerminator;
+  /**
+   * Minimum time period between cycles when streaming, not null. If a series of
+   * cycles are to be run and the first starts at time <code>t</code>, then the next cycle
+   * will not be started until at least time <code>t + minimumTimeBetweenCycles</code>.
+   * This prevents the server "spinning" for cases where the cycles execute quickly
+   * as the underlying data has not changed since the last run.
+   */
+  private final Duration _minimumTimeBetweenCycles;
 
   /**
    * Creates the new cycle runner. Intended for views where throttling is
@@ -89,8 +95,7 @@ public class CycleRunner {
    *   engine, not null
    * @param cycleTerminator  determines whether the execution of the cycles
    *   should be terminated, not null
-   * @param minimumTimeBetweenCycles  minimum duration between cycles when
-   *   streaming, not null
+   * @param minimumTimeBetweenCycles  minimum duration between cycles, not null
    */
   public CycleRunner(View view,
                      MarketDataFactory marketDataFactory,
@@ -100,10 +105,13 @@ public class CycleRunner {
                      CycleTerminator cycleTerminator,
                      Duration minimumTimeBetweenCycles) {
 
-    this(view, marketDataFactory, cycleOptions, inputs, handler,
-         createScheduler(
-             ArgumentChecker.notNull(cycleTerminator, "cycleTerminator"),
-             minimumTimeBetweenCycles));
+    _view = ArgumentChecker.notNull(view, "view");
+    _marketDataFactory = ArgumentChecker.notNull(marketDataFactory, "marketDataFactory");
+    _cycleOptions = ArgumentChecker.notNull(cycleOptions, "cycleOptions");
+    _inputs = ArgumentChecker.notNull(inputs, "inputs");
+    _handler = ArgumentChecker.notNull(handler, "handler");
+    _cycleTerminator = ArgumentChecker.notNull(cycleTerminator, "cycleTerminator");
+    _minimumTimeBetweenCycles = ArgumentChecker.notNull(minimumTimeBetweenCycles, "minimumTimeBetweenCycles");
   }
 
   /**
@@ -127,34 +135,7 @@ public class CycleRunner {
                      List<Object> inputs,
                      CycleResultsHandler handler,
                      CycleTerminator cycleTerminator) {
-
-    this(view, marketDataFactory, cycleOptions, inputs, handler,
-         new DefaultCycleScheduler(ArgumentChecker.notNull(cycleTerminator, "cycleTerminator")));
-  }
-
-  /**
-   * Common private constructor for use by the two public ones.
-   */
-  private CycleRunner(View view,
-                      MarketDataFactory marketDataFactory,
-                      CycleOptions cycleOptions,
-                      List<Object> inputs,
-                      CycleResultsHandler handler,
-                      CycleScheduler cycleScheduler) {
-    _view = ArgumentChecker.notNull(view, "view");
-    _marketDataFactory = ArgumentChecker.notNull(marketDataFactory, "marketDataFactory");
-    _cycleOptions = ArgumentChecker.notNull(cycleOptions, "cycleOptions");
-    _inputs = ArgumentChecker.notNull(inputs, "inputs");
-    _handler = ArgumentChecker.notNull(handler, "handler");
-    _cycleScheduler = cycleScheduler;
-  }
-
-  private static CycleScheduler createScheduler(CycleTerminator cycleTerminator, Duration minimumTimeBetweenCycles) {
-    ArgumentChecker.notNull(minimumTimeBetweenCycles, "minimumTimeBetweenCycles");
-    ArgumentChecker.notNull(cycleTerminator, "cycleTerminator");
-    return minimumTimeBetweenCycles.isZero() ?
-        new DefaultCycleScheduler(cycleTerminator) :
-        new ThrottledCycleScheduler(minimumTimeBetweenCycles, cycleTerminator);
+    this(view, marketDataFactory, cycleOptions, inputs, handler, cycleTerminator, Duration.ZERO);
   }
 
   //-------------------------------------------------------------------------
@@ -167,14 +148,34 @@ public class CycleRunner {
 
     // We keep track of the market data being used so that when required we can
     // track the changes in market data between cycles
-    final CycleMarketDataFactory cycleMarketDataFactory =
+    CycleMarketDataFactory cycleMarketDataFactory =
         new DefaultCycleMarketDataFactory(_marketDataFactory, INITIAL_MARKET_DATA_SOURCE);
 
     // Iterate over the cycle options. As they may be infinite (e.g. streaming),
     // we need to check the terminator to see if external events mean we should stop.
     final Iterator<IndividualCycleOptions> cycleOptions = _cycleOptions.iterator();
 
-    _cycleScheduler.run(cycleMarketDataFactory, cycleOptions, _handler, this);
+    while (_cycleTerminator.shouldContinue() && cycleOptions.hasNext()) {
+
+      long cycleStart = System.currentTimeMillis();
+
+      Pair<Results, CycleMarketDataFactory> result =
+          cycleUntilResultsAvailable(cycleOptions.next(), cycleMarketDataFactory);
+      _handler.handleResults(result.getFirst());
+      cycleMarketDataFactory = result.getSecond();
+
+      if (!_minimumTimeBetweenCycles.isZero()) {
+
+        long delay = cycleStart + _minimumTimeBetweenCycles.toMillis() - System.currentTimeMillis();
+        if (delay > 0) {
+          try {
+            Thread.sleep(delay);
+          } catch (InterruptedException e) {
+            // Thread was interrupted, just ignore and try to keep going
+          }
+        }
+      }
+    }
   }
 
   private Pair<Results, CycleMarketDataFactory> cycleUntilResultsAvailable(
@@ -268,166 +269,6 @@ public class CycleRunner {
 
     @Override
     public void dispose() {
-    }
-  }
-
-  /**
-   * Private interface, responsible for the iteration/scheduling of
-   * cycles for the view.
-   */
-  private interface CycleScheduler {
-
-    /**
-     * Run the cycles, iterating over the cycle options.
-     *
-     * @param cycleMarketDataFactory  the source of marketdata
-     * @param cycleOptions  the cycle options determining how the cycles of the
-     *   view should be executed, not null
-     * @param handler  handler for the results produced by each cycle of the
-     *   engine, not null
-     * @param cycleRunner  the parent cycle runner
-     */
-    void run(CycleMarketDataFactory cycleMarketDataFactory,
-             Iterator<IndividualCycleOptions> cycleOptions,
-             CycleResultsHandler handler, CycleRunner cycleRunner);
-  }
-
-  /**
-   * Cycle scheduler which uses a Java scheduler to cue up the
-   * next cycle in the streaming case. This means that the cycles
-   * can be run with a minimum time gap between them. In scenarions
-   * where the market data is not ticking (fast), this means the
-   * engine does not spin, repeatedly returning the same results.
-   */
-  private static class ThrottledCycleScheduler implements CycleScheduler {
-
-    /**
-     * Minimum time period between cycles when streaming, not null. If a series of
-     * cycles are to be run and the first starts at time <code>t</code>, then the next cycle
-     * will not be started until at least time <code>t + minimumTimeBetweenCycles</code>.
-     * This prevents the server "spinning" for cases where the cycles execute quickly
-     * as the underlying data has not changed since the last run.
-     */
-    private final Duration _minimumTimeBetweenCycles;
-
-    /**
-     * Determines whether the execution of the cycles should be terminated, not null.
-     * This is generally used when an infinite set of cycles has been requested
-     * and we want to stop processing (e.g. a UI using streaming data, which the
-     * user then decides they have finished with).
-     */
-    private final CycleTerminator _cycleTerminator;
-
-    /**
-     * Create the cycle scheduler.
-     *
-     * @param minimumTimeBetweenCycles  the minimum time between cycles
-     * @param cycleTerminator  determines whether the execution of the cycles
-     *   should be terminated
-     */
-    public ThrottledCycleScheduler(Duration minimumTimeBetweenCycles, CycleTerminator cycleTerminator) {
-      _minimumTimeBetweenCycles = minimumTimeBetweenCycles;
-      _cycleTerminator = cycleTerminator;
-    }
-
-    @Override
-    public void run(CycleMarketDataFactory cycleMarketDataFactory,
-                    Iterator<IndividualCycleOptions> cycleOptions,
-                    CycleResultsHandler handler, CycleRunner cycleRunner) {
-
-      // Scheduler to be used for executing the next cycle after
-      // the minimum period has passed.
-      ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-
-      // We create an initial task and execute it immediately. The task
-      // itself will then schedule the next task, which in turn creates
-      // the next etc. There are alternative implementations that could
-      // be used and these should be reassessed:
-      //   - create a simple timed task that periodically enables a
-      //     semaphore/latch. Loop over cycle options and await the
-      //     semaphore. When acquired, execute the cycle
-      //   - use the scheduler to periodically schedule a job. Job
-      //     picks up the next cycle option and executes
-      scheduler.execute(createNextCycleTask(cycleMarketDataFactory, cycleOptions, handler, scheduler, cycleRunner));
-
-      // Wait for all work to be completed before exiting
-      try {
-        scheduler.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
-      } catch (InterruptedException e) {
-        // Thread was interrupted, just exit with no action
-      }
-    }
-
-    private Runnable createNextCycleTask(final CycleMarketDataFactory cycleMarketDataFactory,
-                                         final Iterator<IndividualCycleOptions> cycleOptions,
-                                         final CycleResultsHandler handler,
-                                         final ScheduledExecutorService scheduler,
-                                         final CycleRunner cycleRunner) {
-      return new Runnable() {
-        @Override
-        public void run() {
-          if (_cycleTerminator.shouldContinue() && cycleOptions.hasNext()) {
-            long cycleStart = System.currentTimeMillis();
-            Pair<Results, CycleMarketDataFactory> result =
-                cycleRunner.cycleUntilResultsAvailable(cycleOptions.next(), cycleMarketDataFactory);
-            handler.handleResults(result.getFirst());
-            CycleMarketDataFactory cycleMarketDataFactory = result.getSecond();
-
-            // Now schedule the next execution, negative value means
-            // it will be executed immediately
-            long delay = cycleStart + _minimumTimeBetweenCycles.toMillis() - System.currentTimeMillis();
-            Runnable task =
-                createNextCycleTask(cycleMarketDataFactory, cycleOptions, handler, scheduler, cycleRunner);
-            scheduler.schedule(task, delay, TimeUnit.MILLISECONDS);
-          } else {
-            // No more work to be done, shut down the scheduler which
-            // will allow the execute method to complete
-            scheduler.shutdown();
-          }
-        }
-      };
-    }
-  }
-
-  /**
-   * Cycle scheduler which executes cycles as fast as possible, one
-   * after another.
-   */
-  private static class DefaultCycleScheduler implements CycleScheduler {
-
-    /**
-     * Determines whether the execution of the cycles should be terminated, not null.
-     * This is generally used when an infinite set of cycles has been requested
-     * and we want to stop processing (e.g. a UI using streaming data, which the
-     * user then decides they have finished with).
-     */
-    private final CycleTerminator _cycleTerminator;
-
-    /**
-     * Create the cycle scheduler.
-     *
-     * @param cycleTerminator  determines whether the execution of the cycles
-     *   should be terminated
-     */
-    public DefaultCycleScheduler(CycleTerminator cycleTerminator) {
-      _cycleTerminator = cycleTerminator;
-    }
-
-    @Override
-    public void run(CycleMarketDataFactory cycleMarketDataFactory,
-                    Iterator<IndividualCycleOptions> cycleOptions,
-                    CycleResultsHandler handler,
-                    CycleRunner cycleRunner) {
-
-      // Iterate over the cycle options. As they may be infinite (e.g. streaming),
-      // we check the terminator to see if external events mean we should stop.
-      while (_cycleTerminator.shouldContinue() && cycleOptions.hasNext()) {
-
-        Pair<Results, CycleMarketDataFactory> result =
-            cycleRunner.cycleUntilResultsAvailable(cycleOptions.next(), cycleMarketDataFactory);
-        handler.handleResults(result.getFirst());
-        cycleMarketDataFactory = result.getSecond();
-      }
     }
   }
 
