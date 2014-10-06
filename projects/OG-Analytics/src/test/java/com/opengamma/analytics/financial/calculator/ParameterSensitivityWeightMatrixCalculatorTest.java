@@ -23,6 +23,10 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscou
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
+import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
+import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
+import com.opengamma.analytics.math.interpolation.Interpolator1D;
+import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.math.matrix.CommonsMatrixAlgebra;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -196,6 +200,67 @@ public class ParameterSensitivityWeightMatrixCalculatorTest {
       throw new RuntimeException();
     } catch (final Exception e) {
       assertEquals("All of the elements in objNodes should be found in the curves for this method", e.getMessage());
+    }
+  }
+
+  /**
+   * Number of objective nodes is one.
+   */
+  @Test
+  public void singleNodeTest() {
+    ParameterSensitivityWeightMatrixCalculator calc = new ParameterSensitivityWeightMatrixCalculator();
+    Interpolator1D linearFlat = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR,
+        Interpolator1DFactory.FLAT_EXTRAPOLATOR,
+        Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+    double[] time = new double[] {5.0 };
+    double[] rate = new double[] {0.0140 };
+    String name = "USD Dsc";
+    YieldAndDiscountCurve usdDisc = new YieldCurve(name, new InterpolatedDoublesCurve(time, rate, linearFlat, true,
+        name));
+    MulticurveProviderDiscount singleCurve = new MulticurveProviderDiscount();
+    singleCurve.setCurve(Currency.USD, usdDisc);
+
+    /*
+     * Single curve node to single curve node 
+     */
+    double[] objNodes = new double[] {5.0 };
+    LinkedHashSet<Pair<String, Integer>> order = new LinkedHashSet<>();
+    order.add(Pairs.of(name, MULTICURVES.getNumberOfParameters(name)));
+    DoubleMatrix2D matrix = calc.projectCurveNodes(singleCurve, order, objNodes);
+    assertEquals(1, matrix.getNumberOfElements());
+    assertEquals(1.0, matrix.getData()[0][0]);
+
+    /*
+     * Single curve node to multi curve-nodes 
+     */
+    objNodes = new double[] {5.0, 10.0 };
+    matrix = calc.projectCurveNodes(singleCurve, order, objNodes);
+    assertEquals(1, matrix.getNumberOfElements());
+    assertEquals(1.0, matrix.getData()[0][0]);
+
+    /*
+     * Multi curve-nodes to single curve node 
+     */
+    String name1 = MULTICURVES.getName(Currency.USD);
+    String name2 = MULTICURVES.getName(USDLIBOR3M);
+    LinkedHashSet<Pair<String, Integer>> orderMulti = new LinkedHashSet<>();
+    orderMulti.add(Pairs.of(name1, MULTICURVES.getNumberOfParameters(name1)));
+    orderMulti.add(Pairs.of(name2, MULTICURVES.getNumberOfParameters(name2)));
+    YieldCurve curve1 = (YieldCurve) MULTICURVES.getCurve(name1);
+    YieldCurve curve2 = (YieldCurve) MULTICURVES.getCurve(name2);
+    Double[] nodes1 = curve1.getCurve().getXData();
+    Double[] nodes2 = curve2.getCurve().getXData();
+    objNodes = new double[] {nodes1[4] };
+    matrix = calc.projectCurveNodes(MULTICURVES, orderMulti, objNodes);
+    assertEquals(nodes1.length + nodes2.length, matrix.getNumberOfColumns());
+    assertEquals(2, matrix.getNumberOfRows());
+    for (int i = 0; i < nodes1.length; ++i) {
+      assertEquals(1.0, matrix.getData()[0][i]);
+      assertEquals(0.0, matrix.getData()[1][i]);
+    }
+    for (int i = nodes1.length; i < nodes1.length + nodes2.length; ++i) {
+      assertEquals(0.0, matrix.getData()[0][i]);
+      assertEquals(1.0, matrix.getData()[1][i]);
     }
   }
 

@@ -12,6 +12,7 @@ import java.util.Map;
 
 import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.AbstractRemoteSource;
 import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeManager;
@@ -142,10 +143,8 @@ public class RemoteSecuritySource extends AbstractRemoteSource<Security> impleme
     try {
       URI uri = DataSecuritySourceResource.uriSearchSingle(getBaseUri(), bundle, versionCorrection);
       return accessRemote(uri).get(Security.class);
-    } catch (DataNotFoundException ex) {
-      return null;
     } catch (UniformInterfaceException404NotFound ex) {
-      return null;
+      throw new OpenGammaRuntimeException("Unable to access remote source ", ex);
     }
   }
 

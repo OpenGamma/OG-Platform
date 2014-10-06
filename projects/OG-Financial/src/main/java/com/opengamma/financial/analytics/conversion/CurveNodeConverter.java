@@ -38,16 +38,19 @@ import com.opengamma.util.ArgumentChecker;
  * Converts the curve nodes into instruments, in particular for curve calibration.
  */
 public class CurveNodeConverter {
-  
-  /** The convention source */
-  private final ConventionSource _conventionSource;
 
   /**
-   * @param conventionSource The convention source, not null
+   * Creates the converter.
    */
+  public CurveNodeConverter() {
+  }
+
+  /**
+   * @param conventionSource the convention source, not required
+   * @deprecated use no-arg constructor
+   */
+  @Deprecated
   public CurveNodeConverter(final ConventionSource conventionSource) {
-    ArgumentChecker.notNull(conventionSource, "convention source");
-    _conventionSource = conventionSource;
   }
 
   /**
@@ -60,45 +63,52 @@ public class CurveNodeConverter {
    * @return A derivative instrument
    */
   @SuppressWarnings("unchecked")
-  public InstrumentDerivative getDerivative(final CurveNodeWithIdentifier node, final InstrumentDefinition<?> definition, final ZonedDateTime now,
-      final HistoricalTimeSeriesBundle timeSeries) {
+  public InstrumentDerivative getDerivative(CurveNodeWithIdentifier node, InstrumentDefinition<?> definition,
+                                            ZonedDateTime now, HistoricalTimeSeriesBundle timeSeries) {
+
     ArgumentChecker.notNull(node, "node");
     ArgumentChecker.notNull(definition, "definition");
     ArgumentChecker.notNull(now, "now");
+
     if (definition instanceof InstrumentDefinitionWithData<?, ?> && requiresFixingSeries(node.getCurveNode())) {
+
       if (node.getCurveNode() instanceof ZeroCouponInflationNode) {
+
         ArgumentChecker.notNull(timeSeries, "time series");
-        ExternalId priceIndexId;
-        final InflationLegConvention inflationLegConvention = _conventionSource.getSingle(
-            ((ZeroCouponInflationNode) node.getCurveNode()).getInflationLegConvention(), InflationLegConvention.class);
-        final ExternalId priceIndexConventionId = inflationLegConvention.getPriceIndexConvention();
-        priceIndexId = priceIndexConventionId;
-        final HistoricalTimeSeries historicalTimeSeries = timeSeries.get(node.getDataField(), priceIndexId);
+        ExternalId legConvention = ((ZeroCouponInflationNode) node.getCurveNode()).getInflationLegConvention();
+        InflationLegConvention inflationLegConvention =
+            ConventionLink.resolvable(legConvention, InflationLegConvention.class).resolve();
+        ExternalId priceIndexId = inflationLegConvention.getPriceIndexConvention();
+
+        HistoricalTimeSeries historicalTimeSeries = timeSeries.get(node.getDataField(), priceIndexId);
         if (historicalTimeSeries == null) {
           throw new OpenGammaRuntimeException("Could not get price time series for " + priceIndexId);
         }
-        final DoubleTimeSeries<?> ts = historicalTimeSeries.getTimeSeries();
+        DoubleTimeSeries<?> ts = historicalTimeSeries.getTimeSeries();
         if (ts == null) {
           throw new OpenGammaRuntimeException("Could not get price time series for " + priceIndexId);
         }
-        final int length = ts.size();
+        int length = ts.size();
         if (length == 0) {
           throw new OpenGammaRuntimeException("Price time series for " + priceIndexId + " was empty");
         }
         // the timeseries is multiply by 100 because Bloomberg do not provide the right one
-        final ZonedDateTimeDoubleTimeSeries multiply = convertTimeSeries(ZoneId.of("UTC"), (LocalDateDoubleTimeSeries) ts.multiply(100));
+        ZonedDateTimeDoubleTimeSeries multiply =
+            convertTimeSeries(ZoneId.of("UTC"), (LocalDateDoubleTimeSeries) ts.multiply(100));
         return ((InstrumentDefinitionWithData<?, ZonedDateTimeDoubleTimeSeries[]>) definition).toDerivative(
-            now,
-            new ZonedDateTimeDoubleTimeSeries[] {multiply, multiply });
+            now, new ZonedDateTimeDoubleTimeSeries[] {multiply, multiply});
       }
       if (definition instanceof FederalFundsFutureTransactionDefinition) {
         ArgumentChecker.notNull(timeSeries, "time series");
         RateFutureNode nodeFFF = (RateFutureNode) node.getCurveNode();
-        FederalFundsFutureConvention conventionFFF =  ConventionLink.resolvable(nodeFFF.getFutureConvention(), FederalFundsFutureConvention.class).resolve();
+        FederalFundsFutureConvention conventionFFF =
+            ConventionLink.resolvable(nodeFFF.getFutureConvention(), FederalFundsFutureConvention.class).resolve();
         // Retrieving id of the underlying index.
-        final HistoricalTimeSeries historicalTimeSeriesUnderlyingIndex = timeSeries.get(node.getDataField(), conventionFFF.getIndexConvention()); 
+        HistoricalTimeSeries historicalTimeSeriesUnderlyingIndex =
+            timeSeries.get(node.getDataField(), conventionFFF.getIndexConvention());
         if (historicalTimeSeriesUnderlyingIndex == null) {
-          throw new OpenGammaRuntimeException("Could not get price time series for " + conventionFFF.getIndexConvention());
+          throw new OpenGammaRuntimeException(
+              "Could not get price time series for " + conventionFFF.getIndexConvention());
         }
         final DoubleTimeSeries<ZonedDateTime>[] tsArray = new DoubleTimeSeries[1];
         tsArray[0] = convertTimeSeries(now.getZone(), historicalTimeSeriesUnderlyingIndex.getTimeSeries());
@@ -116,7 +126,7 @@ public class CurveNodeConverter {
     return definition.toDerivative(now);
   }
 
-  public static boolean requiresFixingSeries(final CurveNode node) {
+  public static boolean requiresFixingSeries(CurveNode node) {
     /** Implementation node: fixing series are required for 
         - inflation swaps (starting price index) 
         - Fed Fund futures: underlying overnight index fixing (when fixing month has started) 
@@ -125,12 +135,12 @@ public class CurveNodeConverter {
     // [PLAT-6430] Add case for (SwapNode) node).isUseFixings()
   }
 
-  private static ZonedDateTimeDoubleTimeSeries convertTimeSeries(final ZoneId timeZone, final LocalDateDoubleTimeSeries localDateTS) {
+  private static ZonedDateTimeDoubleTimeSeries convertTimeSeries(ZoneId timeZone, LocalDateDoubleTimeSeries localDateTS) {
     // FIXME CASE Converting a daily historical time series to an arbitrary time. Bad idea
     final ZonedDateTimeDoubleTimeSeriesBuilder bld = ImmutableZonedDateTimeDoubleTimeSeries.builder(timeZone);
-    for (final LocalDateDoubleEntryIterator it = localDateTS.iterator(); it.hasNext();) {
-      final LocalDate date = it.nextTime();
-      final ZonedDateTime zdt = date.atStartOfDay(timeZone);
+    for (LocalDateDoubleEntryIterator it = localDateTS.iterator(); it.hasNext();) {
+      LocalDate date = it.nextTime();
+      ZonedDateTime zdt = date.atStartOfDay(timeZone);
       bld.put(zdt, it.currentValueFast());
     }
     return bld.build();
