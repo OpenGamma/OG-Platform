@@ -69,9 +69,10 @@ Swap Legs
 --------
 
 The usual comments are 
+
 * *_PayLag*: the payment is not done at the end of the accrual period but at a payment offset, like for OIS.
 * *_SpotLag*:  the spot lag is not the standard one, like for cross-currency swaps
-* *_ZZZ*: where ZZZ is a calendar, the payment calendar is not the stnadard one, like for cross-currency swaps.
+* *_ZZZ*: where ZZZ is a calendar, the payment calendar is not the standard one, like for cross-currency swaps.
 
 **Fixed Leg**
 
@@ -130,7 +131,7 @@ The names in the examples are **XXXYYYAAZZ**. The **XXX** is the currency of the
 
 * USDFEDFUNDSAA3M
 
-**STIR Futures **
+**STIR Futures**
 
 The names in the examples are **XXXSTIRFuturesFZZ**. The **XXX** is the currency of the futures. The **STIRFutures** is a literal indicating STIR Futures. The **F** is the expiry frequency, with **Q** for the quarterly futures and **S** for serial (or monthly) futures. The **ZZ** is the underlying index tenor.
 

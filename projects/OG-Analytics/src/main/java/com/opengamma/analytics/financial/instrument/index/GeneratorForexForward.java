@@ -52,7 +52,7 @@ public class GeneratorForexForward extends GeneratorInstrument<GeneratorAttribut
    * @param currency2 The second currency. Not null.
    * @param calendar The joint calendar of both currencies. Not null.
    * @param spotLag The index spot lag in days between trade and spot date (usually 2).
-   * @param businessDayConvention The business day convention.
+   * @param businessDayConvention The business day convention. Not null.
    * @param endOfMonth The flag indicating if the end-of-month rule is used.
    */
   public GeneratorForexForward(final String name, final Currency currency1, final Currency currency2, 

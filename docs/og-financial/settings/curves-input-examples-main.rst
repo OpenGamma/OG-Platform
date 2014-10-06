@@ -5,6 +5,7 @@ The names in the examples are **XXX-INSIND[IND][-INSIND[IND]][-INSIND[IND]][-INT
 The **XXX** is the currency. The **INS** is the type of instrument and **IND** is the relevant index in short form. Several instruments can be combined in the same curve. The name of the interpolator can be added at the end by **-INT** if the same curve is available with several interpolators. The standard names are **LIN** for linear, **NCS** for natural cubic spline and **DQ** for double quadratic.
 
 The standard instruments are
+
 * **OIS** Overnight index swap
 * **FRA** Forward Rate Agreement
 * **IRS** Interest Rate Swap

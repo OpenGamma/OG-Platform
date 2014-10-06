@@ -23,7 +23,7 @@ In this example we will use several sets of curves.
 Instruments
 ---------
 
-Different swaps are build using the **FixedAnnuityDefinitionBuilder** and the **FloatingAnnuityDefinituionBuilder**.
+Different swaps are built using the **FixedAnnuityDefinitionBuilder** and the **FloatingAnnuityDefinituionBuilder**.
 
 **IRS LIBOR3M**
 
@@ -37,30 +37,21 @@ Results
 **Swaption Standard**
 
 The 5Yx5Y swaption with July 2014 USD curves. The results computed are
+
 * *par rate* of the underlying swap
 * *present value* of the swaption using SABR model
-* Different types of curve sensitivitires: point sensitivity,
-  zero-coupon curves sensitivities and market quote sensitivities.
-
-
-**Implied volatiity**
-
+* Different types of curve sensitivities: point sensitivity, zero-coupon curves sensitivities and market quote sensitivities.
 
 
 **Market Quotes Sensitivities**
 
-The market quotes sensitivities are computed for the first swap (10Y)
-using the three curve providers. 
+The market quotes sensitivities are computed for the first swap (10Y) using the three curve providers. 
 
-Using the standard curves, the sensitivity appears mainly on the
-forward LIBOR3M curve on the 10Y node.
+Using the standard curves, the sensitivity appears mainly on the forward LIBOR3M curve on the 10Y node.
 
-Using the IMM curve, the sensitivty appears on all the quarterly IMM
+Using the IMM curve, the sensitivity appears on all the quarterly IMM
 dates swaps. This is expected as the swap are not overlapping and to
-obtain the 10Y rate wich is the most relevant for the the valuation,
-roughly 40 quarterly rates have to be composed. It is not suprising to
+obtain the 10Y rate which is the most relevant for the the valuation,
+roughly 40 quarterly rates have to be composed. It is not surprising to
 see a sensitivity to all those rates.
-
-
-**Parameters sensitivity**
 

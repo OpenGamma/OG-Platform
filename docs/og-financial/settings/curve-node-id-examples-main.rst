@@ -6,6 +6,7 @@ For single currency settings, the names in the examples are **XXX-INS-ZZZ**. The
 For multi-currency settings, the names in the examples are **XXX-YYY-INS-ZZZ**. The **XXX** and **YYY** are the currencies. The **INS** is a description of the instruments referenced. The last **ZZZ** is the data source.
 
 Common instruments are:
+
 * Depo: Deposits
 * Depo-T+1: Deposits starting at T+1; to be able to distinguish between ON and TN.
 * XIBORyM: Instruments (Fixing, FRA, STIR Futures, and IRS) linked to a unique index with tenor **yM**.
@@ -17,6 +18,7 @@ Common instruments are:
 
 USD
 -----
+
 * USD-Depo-BBG
 * USD-Depo-T+1-BBG
 * USD-FFF-FFS-BBG
@@ -29,8 +31,8 @@ USD
 
 GBP
 -----
+
 * GBP-LIBOR3M-BBG
-* 
 
 GBP/USD
 ------

@@ -29,7 +29,7 @@ public class StandardTimeSeriesDataSets {
   /**
    * Returns the GBP Ibor 3M index time series for January 2014 up to the endDate (exclusive).
    * @param endDate The end date.
-   * @return
+   * @return The time series.
    */
   public static ZonedDateTimeDoubleTimeSeries timeSeriesGbpIbor3M2014Jan(ZonedDateTime endDate) {
     return GBPLIBOR3M_2014JAN.subSeries(DateUtils.getUTCDate(2014, 1, 1), endDate);
@@ -66,7 +66,7 @@ public class StandardTimeSeriesDataSets {
   /**
    * Returns the USD Ibor 3M index time series for January 2014 up to the endDate (exclusive).
    * @param endDate The end date.
-   * @return
+   * @return The time series.
    */
   public static ZonedDateTimeDoubleTimeSeries timeSeriesUsdIbor3M2014Jan(ZonedDateTime endDate) {
     return USDLIBOR3M_2014JAN.subSeries(DateUtils.getUTCDate(2014, 1, 1), endDate);
@@ -75,7 +75,7 @@ public class StandardTimeSeriesDataSets {
   /**
    * Returns the USD Ibor 3M index time series for July 2014 up to the endDate (exclusive).
    * @param endDate The end date.
-   * @return
+   * @return The time series.
    */
   public static ZonedDateTimeDoubleTimeSeries timeSeriesUsdIbor3M2014Jul(ZonedDateTime endDate) {
     return USDLIBOR3M_2014JUL.subSeries(DateUtils.getUTCDate(2014, 7, 1), endDate);
@@ -99,35 +99,10 @@ public class StandardTimeSeriesDataSets {
   /**
    * Returns the USD overnight index time series for January 2014 up to the endDate (exclusive).
    * @param endDate The end date.
-   * @return
+   * @return The time series.
    */
   public static ZonedDateTimeDoubleTimeSeries timeSeriesUsdOn2014Jan(ZonedDateTime endDate) {
     return USDON_2014JAN.subSeries(DateUtils.getUTCDate(2014, 1, 1), endDate);
   }
-
-  
-  
-  
-  
-  
-  
- 
- 
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-
-
-
-  
-
 
 }

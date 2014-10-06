@@ -13,6 +13,8 @@ import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorYDCurve;
+import com.opengamma.analytics.financial.datasets.CalendarGBP;
+import com.opengamma.analytics.financial.datasets.CalendarUSD;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.index.GeneratorAttribute;
@@ -40,7 +42,6 @@ import com.opengamma.analytics.financial.provider.curve.multicurve.MulticurveDis
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
@@ -54,8 +55,8 @@ public class StandardDataSetsMulticurveUSDGBP {
  * Potential curve config name: USD_DSCON-OISFFS_L3M-FRAIRS_L1M-FRABSxL3M_L6M-FRABSL3Mx__GBP_DSC-FXxUSD-XCCYxL3MUSDL3M_L3M-FRAIRS
  */
 
-  private static final Calendar NYC = new MondayToFridayCalendar("NYC"); //CalendarUSD("NYC");
-  private static final Calendar LON = new MondayToFridayCalendar("LON"); //CalendarGBP("LON");
+  private static final Calendar NYC = new CalendarUSD("NYC");
+  private static final Calendar LON = new CalendarGBP("LON");
   private static final Currency USD = Currency.USD;
   private static final Currency GBP = Currency.GBP;
   private static final double FX_GBPUSD = 1.65785;
