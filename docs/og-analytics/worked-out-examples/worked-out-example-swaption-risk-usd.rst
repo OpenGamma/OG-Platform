@@ -28,6 +28,7 @@ Different swaps are built using the **FixedAnnuityDefinitionBuilder** and the **
 **IRS LIBOR3M**
 
 Two vanilla swaptions on Fixed vs LIBOR3M are constructed. 
+
 * 5Yx5Y / strike 3%
 * 1Yx2Y / Strike -0.05% / To test negative forward rates and negative strikes.
 
@@ -49,9 +50,5 @@ The market quotes sensitivities are computed for the first swap (10Y) using the 
 
 Using the standard curves, the sensitivity appears mainly on the forward LIBOR3M curve on the 10Y node.
 
-Using the IMM curve, the sensitivity appears on all the quarterly IMM
-dates swaps. This is expected as the swap are not overlapping and to
-obtain the 10Y rate which is the most relevant for the the valuation,
-roughly 40 quarterly rates have to be composed. It is not surprising to
-see a sensitivity to all those rates.
+Using the IMM curve, the sensitivity appears on all the quarterly IMM dates swaps. This is expected as the swap are not overlapping and to obtain the 10Y rate which is the most relevant for the the valuation, roughly 40 quarterly rates have to be composed. It is not surprising to see a sensitivity to all those rates.
 

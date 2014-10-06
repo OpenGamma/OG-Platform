@@ -22,7 +22,6 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.Multipl
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
 import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
-import com.opengamma.analytics.util.export.ExportUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.test.TestGroup;
@@ -224,7 +223,7 @@ public class SwapCalculatorE2ETest {
   public void presentValueZC() {
     presentValueTest(SwapInstrumentsDataSet.IRS_ZERO_CPN, MULTICURVE_OIS, USD, 7850279.042216873,
         "Zero Coupon Swap Fixed v Libor3M: present value from standard curves");
-    presentValueTest(SwapInstrumentsDataSet.IRS_ZERO_CPN, MULTICURVE_FFS, USD, 6598909.634518711,
+    presentValueTest(SwapInstrumentsDataSet.IRS_ZERO_CPN, MULTICURVE_FFS, USD, 6606079.5763,
         "Zero Coupon Swap Fixed v Libor3M: present value - Fed Fund swap based curves");
   }
   
@@ -363,7 +362,6 @@ public class SwapCalculatorE2ETest {
     final MultipleCurrencyParameterSensitivity pvpsExpected2 = new MultipleCurrencyParameterSensitivity(sensitivity2);
     final MultipleCurrencyParameterSensitivity pvpsComputed2 = 
         MQSBC.fromInstrument(SwapInstrumentsDataSet.SWAP_FIXED_3M, MULTICURVE_FFS, BLOCK_FFS).multipliedBy(BP1);
-    ExportUtils.exportMultipleCurrencyParameterSensitivity(pvpsComputed2, "test1.csv");
     AssertSensitivityObjects.assertEquals("IRS Fixed v LIBOR3M: bucketed deltas", 
         pvpsExpected2, pvpsComputed2, TOLERANCE_PV_DELTA);
   }
@@ -438,14 +436,12 @@ public class SwapCalculatorE2ETest {
   @Test
   /** Tests Bucketed PV01 for zero coupon swap, fixed vs Libor3M. */
   public void bucketedPV01IRSZC() {
-    double[] deltaDsc = {-3.9339958824096897, 2.536454106825545, -8.365562302381681, 11.977398620642957,
-        -71.24170246982732, 65.33930214395836, -188.48375667015102, 158.72043068102482, -45.96005314542022,
-        -232.12170879247404, -268.33359030158067, -1500.0007404959117, 1809.691920531959, 4280.27458960669,
-        -954.3333648664799, 213.61082768828743, 16.77180522700583, -8.510038071311298, 2.2971924904244005,
-        -0.7551682158927077, 0.15008990018863852 };
-    double[] deltaFwd3 = {-2578.20856025545, -4591.596608539543, 1039.255807228961, -3759.7613788868043,
-        10351.126671938455, -23483.903629032735, 76762.4392089204, 18862.08183330378, -6410.487860884272,
-        937.1945636004925, -143.6573268071885, 37.88785754873056, -6.591443095130714 };
+    double[] deltaDsc = {
+      -3.9356,2.5219,-8.3208,12.5841,-73.2170,67.2551,-188.1475,163.1403,-48.8872,-230.7762,
+      -269.1857,-1500.7366,1812.8021,4284.8834,-955.1795,213.7552,16.7521,-8.5082,2.2968,-0.7551,0.1501 };
+    double[] deltaFwd3 = {
+      -2529.4844,-3035.1020,-1319.5224,204.5212,335.8798,-3568.8244,10300.2451,-23472.8335,76761.5176,18862.4059,
+      -6410.6009,937.2112,-143.6599,37.8885,-6.5916};
     final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> sensitivity = new LinkedHashMap<>();
     sensitivity.put(ObjectsPair.of(MULTICURVE_OIS.getName(USD), USD), new DoubleMatrix1D(deltaDsc));
     sensitivity.put(ObjectsPair.of(MULTICURVE_OIS.getName(USDLIBOR3M), USD), new DoubleMatrix1D(deltaFwd3));
@@ -455,4 +451,5 @@ public class SwapCalculatorE2ETest {
     AssertSensitivityObjects.assertEquals("Basis swap ON Cmp + spread v ON AA: bucketed deltas",
         pvpsExpected, pvpsComputed, TOLERANCE_PV_DELTA);
   }
+  
 }
