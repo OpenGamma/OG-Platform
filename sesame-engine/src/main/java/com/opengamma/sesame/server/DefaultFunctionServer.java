@@ -36,7 +36,7 @@ public class DefaultFunctionServer implements FunctionServer {
   public Results executeSingleCycle(FunctionServerRequest<IndividualCycleOptions> request) {
 
     ResultsHolder handler = new ResultsHolder();
-    _cycleRunnerFactory.createCycleRunner(request, handler).execute();
+    _cycleRunnerFactory.createDirectCycleRunner(request, handler).execute();
     return Iterables.getOnlyElement(handler.getResults());
   }
 
@@ -44,7 +44,7 @@ public class DefaultFunctionServer implements FunctionServer {
   public List<Results> executeMultipleCycles(FunctionServerRequest<GlobalCycleOptions> request) {
 
     ResultsHolder handler = new ResultsHolder();
-    _cycleRunnerFactory.createCycleRunner(request, handler).execute();
+    _cycleRunnerFactory.createDirectCycleRunner(request, handler).execute();
     return handler.getResults();
   }
 

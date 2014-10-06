@@ -44,8 +44,10 @@ import com.opengamma.util.jms.JmsConnector;
 @BeanDefinition
 public class FunctionServerComponentFactory extends AbstractComponentFactory {
 
+  /**
+   * The default minimum time between cycles (in milliseconds) when streaming results.
+   */
   private static final int DEFAULT_MINIMUM_TIME_BETWEEN_CYCLES = 5000;
-
   /**
    * The classifier that the factory should publish under.
    */
@@ -75,7 +77,7 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
   private MarketDataFactory _marketDataFactory;
   /**
    * The JMS connector used for streaming of live results to clients. If null, then
-   * streaming will not be available.
+   * remote streaming will not be available.
    */
   @PropertyDefinition
   private JmsConnector _jmsConnector;
@@ -90,7 +92,7 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
   @PropertyDefinition
   private ScheduledExecutorService _scheduledExecutor = Executors.newScheduledThreadPool(5);
   /**
-   * The minimum time between cycles (in milliseconds).
+   * The minimum time between cycles (in milliseconds) when streaming results.
    */
   @PropertyDefinition
   private long _minimumTimeBetweenCycles = DEFAULT_MINIMUM_TIME_BETWEEN_CYCLES;
@@ -120,10 +122,10 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
                                    DefaultFunctionServer server,
                                    CycleRunnerFactory cycleRunnerFactory) {
 
-    String msg = "Streaming results have been requested but %s is null - streaming will not be available";
     JmsConnector jmsConnector = getJmsConnector();
     if (getScheduledExecutor() == null) {
-      throw new OpenGammaRuntimeException(String.format(msg, "scheduledExecutor"));
+      throw new OpenGammaRuntimeException(
+          "Streaming results have been requested but scheduledExecutor is null - streaming will not be available");
     }
 
     DefaultStreamingFunctionServer streamingServer = new DefaultStreamingFunctionServer(server, cycleRunnerFactory);
@@ -291,7 +293,7 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the JMS connector used for streaming of live results to clients. If null, then
-   * streaming will not be available.
+   * remote streaming will not be available.
    * @return the value of the property
    */
   public JmsConnector getJmsConnector() {
@@ -300,7 +302,7 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the JMS connector used for streaming of live results to clients. If null, then
-   * streaming will not be available.
+   * remote streaming will not be available.
    * @param jmsConnector  the new value of the property
    */
   public void setJmsConnector(JmsConnector jmsConnector) {
@@ -309,7 +311,7 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
 
   /**
    * Gets the the {@code jmsConnector} property.
-   * streaming will not be available.
+   * remote streaming will not be available.
    * @return the property, not null
    */
   public final Property<JmsConnector> jmsConnector() {
@@ -368,7 +370,7 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the minimum time between cycles (in milliseconds).
+   * Gets the minimum time between cycles (in milliseconds) when streaming results.
    * @return the value of the property
    */
   public long getMinimumTimeBetweenCycles() {
@@ -376,7 +378,7 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
   }
 
   /**
-   * Sets the minimum time between cycles (in milliseconds).
+   * Sets the minimum time between cycles (in milliseconds) when streaming results.
    * @param minimumTimeBetweenCycles  the new value of the property
    */
   public void setMinimumTimeBetweenCycles(long minimumTimeBetweenCycles) {
