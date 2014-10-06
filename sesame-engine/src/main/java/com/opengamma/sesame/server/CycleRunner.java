@@ -60,7 +60,7 @@ public class CycleRunner {
    * The trades/securities to execute the cycles with, not null
    * but may be empty.
    */
-  private final List<Object> _inputs;
+  private final List<?> _inputs;
   /**
    * Handles the results produced by each cycle of the engine, not null.
    */
@@ -100,7 +100,7 @@ public class CycleRunner {
   public CycleRunner(View view,
                      MarketDataFactory marketDataFactory,
                      CycleOptions cycleOptions,
-                     List<Object> inputs,
+                     List<?> inputs,
                      CycleResultsHandler handler,
                      CycleTerminator cycleTerminator,
                      Duration minimumTimeBetweenCycles) {
@@ -132,7 +132,7 @@ public class CycleRunner {
   public CycleRunner(View view,
                      MarketDataFactory marketDataFactory,
                      CycleOptions cycleOptions,
-                     List<Object> inputs,
+                     List<?> inputs,
                      CycleResultsHandler handler,
                      CycleTerminator cycleTerminator) {
     this(view, marketDataFactory, cycleOptions, inputs, handler, cycleTerminator, Duration.ZERO);
