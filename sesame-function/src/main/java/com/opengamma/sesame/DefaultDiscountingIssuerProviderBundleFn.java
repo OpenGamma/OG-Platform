@@ -22,10 +22,8 @@ import com.opengamma.util.tuple.Pair;
  */
 public class DefaultDiscountingIssuerProviderBundleFn implements IssuerProviderBundleFn {
 
-  private final CurveSpecificationFn _curveSpecificationProvider;
-  private final CurveSpecificationMarketDataFn _curveSpecMarketDataProvider;
+  private final CurveBundleProviderFn _curveBundleProviderFn;
   private final FXMatrixFn _fxMatrixProvider;
-  private final CurveNodeConverterFn _curveNodeConverter;
   private final RootFinderConfiguration _rootFinderConfiguration;
   private final CurveNodeInstrumentDefinitionFactory _curveNodeInstrumentDefinitionFactory;
   private final Set<String> _impliedCurveNames;
@@ -33,28 +31,22 @@ public class DefaultDiscountingIssuerProviderBundleFn implements IssuerProviderB
   /**
    * Creates the discounting issuer provider curve bundle.
    *
-   * @param curveSpecificationProvider provides the curve spec, not null.
-   * @param curveSpecMarketDataProvider market data required for a curve specification, not null.
+   * @param curveBundleProviderFn provides the curve bundle, not null.
    * @param fxMatrixProvider provides the fx matrix, not null.
-   * @param curveNodeConverter converter bor curve nodes, not null.
    * @param rootFinderConfiguration root finder config, not null.
    * @param curveNodeInstrumentDefinitionFactory factory to build node definitions, not null.
    * @param impliedCurveNames set of implied curve names not null.
    *
    */
   //TODO PLAT-6801 remove conventionBundleSource once BondNodeConverter no longer uses it
-  public DefaultDiscountingIssuerProviderBundleFn(CurveSpecificationFn curveSpecificationProvider,
-                                                  CurveSpecificationMarketDataFn curveSpecMarketDataProvider,
+  public DefaultDiscountingIssuerProviderBundleFn(CurveBundleProviderFn curveBundleProviderFn,
                                                   FXMatrixFn fxMatrixProvider,
-                                                  CurveNodeConverterFn curveNodeConverter,
                                                   RootFinderConfiguration rootFinderConfiguration,
                                                   CurveNodeInstrumentDefinitionFactory curveNodeInstrumentDefinitionFactory,
                                                   StringSet impliedCurveNames) {
 
-    _curveSpecificationProvider = ArgumentChecker.notNull(curveSpecificationProvider, "curveSpecificationProvider");
-    _curveSpecMarketDataProvider = ArgumentChecker.notNull(curveSpecMarketDataProvider, "curveSpecMarketDataProvider");
+    _curveBundleProviderFn = ArgumentChecker.notNull(curveBundleProviderFn, "curveBundleProviderFn");
     _fxMatrixProvider = ArgumentChecker.notNull(fxMatrixProvider, "fxMatrixProvider");
-    _curveNodeConverter = ArgumentChecker.notNull(curveNodeConverter, "curveNodeConverter");
     _rootFinderConfiguration = ArgumentChecker.notNull(rootFinderConfiguration, "rootFinderConfiguration");
     _curveNodeInstrumentDefinitionFactory =
         ArgumentChecker.notNull(curveNodeInstrumentDefinitionFactory, "curveNodeInstrumentDefinitionFactory");
@@ -65,18 +57,17 @@ public class DefaultDiscountingIssuerProviderBundleFn implements IssuerProviderB
   @Override
   public Result<IssuerProviderBundle> generateBundle(Environment env, CurveConstructionConfiguration curveConfig) {
     Result<FXMatrix> fxMatrixResult = _fxMatrixProvider.getFXMatrix(env, curveConfig);
-
     Result<IssuerProviderDiscount> exogenousBundles = buildExogenousBundles(fxMatrixResult);
 
-    CurveBundleProvider utils = new CurveBundleProvider(_curveNodeConverter,
-                                                        _curveSpecificationProvider,
-                                                        _curveSpecMarketDataProvider,
-                                                        _curveNodeInstrumentDefinitionFactory);
-    Result<Pair<IssuerProviderDiscount, CurveBuildingBlockBundle>> calibratedCurves =
-        utils.getCurves(env, curveConfig, exogenousBundles, fxMatrixResult, _impliedCurveNames, createBuilder());
-    IssuerProviderBundle bundle = new IssuerProviderBundle(calibratedCurves.getValue().getFirst(), calibratedCurves.getValue().getSecond());
-    return Result.success(bundle);
-
+    if (Result.allSuccessful(fxMatrixResult, exogenousBundles)) {
+      Result<Pair<IssuerProviderDiscount, CurveBuildingBlockBundle>> calibratedCurves = _curveBundleProviderFn.getCurves(
+          env, curveConfig, exogenousBundles.getValue(), fxMatrixResult.getValue(), _impliedCurveNames, createBuilder());
+      IssuerProviderBundle bundle = new IssuerProviderBundle(calibratedCurves.getValue().getFirst(),
+                                                             calibratedCurves.getValue().getSecond());
+      return Result.success(bundle);
+    } else {
+      return Result.failure(fxMatrixResult, exogenousBundles);
+    }
   }
 
   private IssuerDiscountBuildingRepository createBuilder() {

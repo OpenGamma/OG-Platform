@@ -72,8 +72,8 @@ import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 /**
  * Utility class for building elements of curve bundles
  */
-//TODO SSM-164 this provider is currently only working for Issue Provider curves, not Multicurve
-public final class CurveBundleProvider {
+//TODO PLT-458 this provider is currently only working for Issue Provider curves, not Multicurve
+public final class CurveBundleProviderFn {
 
   private final CurveNodeConverterFn _curveNodeConverter;
   private final CurveSpecificationFn _curveSpecificationProvider;
@@ -95,10 +95,10 @@ public final class CurveBundleProvider {
    * @param curveNodeInstrumentDefinitionFactory factory to build node definitions, not null.
    *
    */
-  public CurveBundleProvider(CurveNodeConverterFn curveNodeConverter,
-                             CurveSpecificationFn curveSpecificationProvider,
-                             CurveSpecificationMarketDataFn curveSpecMarketDataProvider,
-                             CurveNodeInstrumentDefinitionFactory curveNodeInstrumentDefinitionFactory) {
+  public CurveBundleProviderFn(CurveNodeConverterFn curveNodeConverter,
+                               CurveSpecificationFn curveSpecificationProvider,
+                               CurveSpecificationMarketDataFn curveSpecMarketDataProvider,
+                               CurveNodeInstrumentDefinitionFactory curveNodeInstrumentDefinitionFactory) {
     _curveNodeConverter = ArgumentChecker.notNull(curveNodeConverter, "curveNodeConverter");
     _curveSpecificationProvider = ArgumentChecker.notNull(curveSpecificationProvider, "curveSpecificationProvider");
     _curveSpecMarketDataProvider = ArgumentChecker.notNull(curveSpecMarketDataProvider, "curveSpecMarketDataProvider");
@@ -160,13 +160,10 @@ public final class CurveBundleProvider {
     return ConverterUtils.indexIbor(indexSecurity.getName(), indexConvention, indexSecurity.getTenor());
   }
 
+  //TODO refactor this PLT-458
   public Result<Pair<IssuerProviderDiscount, CurveBuildingBlockBundle>> getCurves(
-    Environment env,
-    CurveConstructionConfiguration config,
-    Result<IssuerProviderDiscount> exogenousBundle,
-    Result<FXMatrix> fxMatrixResult,
-    Set<String> impliedCurveNames,
-    IssuerDiscountBuildingRepository builder) {
+      Environment env, CurveConstructionConfiguration config, IssuerProviderDiscount exogenousBundle,
+      FXMatrix fxMatrix, Set<String> impliedCurveNames, IssuerDiscountBuildingRepository builder) {
 
     final int nGroups = config.getCurveGroups().size();
 
@@ -212,9 +209,7 @@ public final class CurveBundleProvider {
               _curveSpecMarketDataProvider.requestData(env, specification);
 
           // Only proceed if we have all market data values available to us
-          if (Result.allSuccessful(fxMatrixResult, marketDataResult)) {
-
-            FXMatrix fxMatrix = fxMatrixResult.getValue();
+          if (marketDataResult.isSuccess()) {
 
             // todo this is temporary to allow us to get up and running fast
             SnapshotDataBundle snapshot = createSnapshotDataBundle(marketDataResult.getValue());
@@ -245,13 +240,10 @@ public final class CurveBundleProvider {
                 overnightIndex.add(createOvernightIndex((OvernightCurveTypeConfiguration) type));
               } else if (type instanceof IssuerCurveTypeConfiguration) {
                 final IssuerCurveTypeConfiguration issuer = (IssuerCurveTypeConfiguration) type;
-                issuerMap.put(curveName, Pairs.<Object, LegalEntityFilter<LegalEntity>>of(issuer.getKeys(),
-                                                                                          issuer.getFilters()));
+                issuerMap.put(curveName, Pairs.<Object, LegalEntityFilter<LegalEntity>>of(issuer.getKeys(), issuer.getFilters()));
               } else {
-                Result<?> typeFailure =
-                    Result.failure(ERROR, "Cannot handle curveTypeConfiguration with type {} whilst building curve: {}",
-                                   type.getClass(), curveName);
-
+                Result<?> typeFailure = Result.failure(ERROR, "Cannot handle curveTypeConfiguration with type {} " +
+                    "whilst building curve: {}", type.getClass(), curveName);
                 curveBundleResult = Result.failure(curveBundleResult, typeFailure);
               }
             }
@@ -272,7 +264,7 @@ public final class CurveBundleProvider {
               curveBundleResult = Result.failure(curveBundleResult, derivativesForCurve);
             }
           } else {
-            curveBundleResult = Result.failure(curveBundleResult, fxMatrixResult, marketDataResult);
+            curveBundleResult = Result.failure(curveBundleResult, marketDataResult);
           }
         } else {
           curveBundleResult = Result.failure(curveBundleResult, curveSpecResult);
@@ -287,14 +279,13 @@ public final class CurveBundleProvider {
 
     } // Group - end
 
-    if (Result.allSuccessful(exogenousBundle, curveBundleResult)) {
+    if (curveBundleResult.isSuccess()) {
 
       //TODO PLAT-6800 remove implied curves
-      IssuerProviderDiscount knownData = exogenousBundle.getValue();
 
       Pair<IssuerProviderDiscount, CurveBuildingBlockBundle> calibratedCurves =
           builder.makeCurvesFromDerivatives(curveBundles,
-                                            knownData.getIssuerProvider(),
+                                            exogenousBundle.getIssuerProvider(),
                                             discountingMap,
                                             forwardIborMap,
                                             forwardONMap,
@@ -304,7 +295,7 @@ public final class CurveBundleProvider {
 
       return Result.success(calibratedCurves);
     } else {
-      return Result.failure(exogenousBundle, curveBundleResult);
+      return Result.failure(curveBundleResult);
     }
   }
 
