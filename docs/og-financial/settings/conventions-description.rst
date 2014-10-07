@@ -29,6 +29,7 @@ Example::
 **Swap/Forward**
 
 The fields are the 
+
 * *spotConvention*: the FX spot convention (as described in the previous section).
 * *businessDayConvention*: The business day convention to compute the end date of the swap/forward.
 * *isEOM*: The flag indicating if the end-of-month rule apply in computing the end date of the swap/forward. 
