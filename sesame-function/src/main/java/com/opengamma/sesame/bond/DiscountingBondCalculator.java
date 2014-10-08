@@ -14,6 +14,7 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BondFixedTransactionDefinition;
 import com.opengamma.analytics.financial.interestrate.bond.calculator.YieldFromCleanPriceCalculator;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedTransaction;
+import com.opengamma.analytics.financial.interestrate.bond.provider.BondSecurityDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.bond.provider.BondTransactionDiscountingMethod;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PV01CurveParametersCalculator;
 import com.opengamma.analytics.financial.provider.calculator.generic.MarketQuoteSensitivityBlockCalculator;
@@ -27,12 +28,14 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.Multipl
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.util.amount.ReferenceAmount;
+import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
 import com.opengamma.financial.analytics.conversion.BondAndBondFutureTradeConverter;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.model.fixedincome.BucketedCurveSensitivities;
 import com.opengamma.financial.analytics.model.multicurve.MultiCurveUtils;
 import com.opengamma.sesame.Environment;
+import com.opengamma.sesame.marketdata.FieldName;
 import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.sesame.trade.BondTrade;
 import com.opengamma.util.ArgumentChecker;
@@ -50,8 +53,9 @@ public class DiscountingBondCalculator implements BondCalculator {
   /** Calculator for PV from curves */
   private static final PresentValueIssuerCalculator PVIC = PresentValueIssuerCalculator.getInstance();
 
-  /** Calculator for PV from yield or clean price */
+  /** Calculators for PV, yield and price from yield, clean price or yield */
   private static final BondTransactionDiscountingMethod BTDM = BondTransactionDiscountingMethod.getInstance();
+  private static final BondSecurityDiscountingMethod BSDM = BondSecurityDiscountingMethod.getInstance();
 
   private static final PV01CurveParametersCalculator<ParameterIssuerProviderInterface> PV01C =
       new PV01CurveParametersCalculator<>(PresentValueCurveSensitivityIssuerCalculator.getInstance());
@@ -70,9 +74,6 @@ public class DiscountingBondCalculator implements BondCalculator {
   private static final YieldFromCleanPriceCalculator YFCPC = YieldFromCleanPriceCalculator.getInstance();
 
   private static final double BASIS_POINT_FACTOR = 1.0E-4;
-
-  /** Needed to scale down the market price as required by the calculators*/
-  private static final double SCALING_FACTOR = 100;
 
   private final BondFixedTransaction _derivative;
 
@@ -126,11 +127,11 @@ public class DiscountingBondCalculator implements BondCalculator {
 
   @Override
   public Result<MultipleCurrencyAmount> calculatePresentValueFromClean() {
-    Result<Double> marketResult = calculateMarketCleanPrice();
+    Result<Double> marketResult = calculateCleanPriceMarket();
     if (marketResult.isSuccess()) {
       return Result.success(BTDM.presentValueFromCleanPrice(_derivative,
                                                             _curves.getIssuerProvider(),
-                                                            marketResult.getValue() / SCALING_FACTOR));
+                                                            marketResult.getValue()));
     } else {
       return Result.failure(marketResult);
     }
@@ -138,19 +139,60 @@ public class DiscountingBondCalculator implements BondCalculator {
 
   @Override
   public Result<MultipleCurrencyAmount> calculatePresentValueFromYield() {
-    Result<Double> yieldResult = calculateYieldToMaturity();
-    if (yieldResult.isSuccess()) {
+    Result<Double> marketYield = calculateYieldToMaturityMarket();
+    if (marketYield.isSuccess()) {
       return Result.success(BTDM.presentValueFromYield(_derivative,
                                                        _curves.getIssuerProvider(),
-                                                       yieldResult.getValue()));
+                                                       marketYield.getValue()));
     } else {
-      return Result.failure(yieldResult);
+      return Result.failure(marketYield);
     }
   }
 
   @Override
-  public Result<BucketedCurveSensitivities> calculateBucketedPV01() {
+  public Result<Double> calculateCleanPriceMarket() {
+    return _marketDataFn.getMarketValue(_env, _trade.getSecurity().getExternalIdBundle());
+  }
 
+  @Override
+  public Result<Double> calculateCleanPriceFromCurves() {
+    return Result.success(BSDM.cleanPriceFromCurves(_derivative.getBondStandard(), _curves.getIssuerProvider()));
+  }
+
+  @Override
+  public Result<Double> calculateCleanPriceFromYield() {
+    Result<Double> marketYield = calculateYieldToMaturityMarket();
+    if (marketYield.isSuccess()) {
+      return Result.success(BSDM.cleanPriceFromYield(_derivative.getBondStandard(), marketYield.getValue()));
+    } else {
+      return Result.failure(marketYield);
+    }
+  }
+
+  @Override
+  public Result<Double> calculateYieldToMaturityFromCleanPrice() {
+    Result<Double> marketCleanPrice = calculateCleanPriceMarket();
+    if (marketCleanPrice.isSuccess()) {
+      return Result.success(BSDM.yieldFromCleanPrice(_derivative.getBondStandard(), 
+          marketCleanPrice.getValue()));
+    } else {
+      return Result.failure(marketCleanPrice);
+    }
+  }
+
+  @Override
+  public Result<Double> calculateYieldToMaturityFromCurves() {
+    return Result.success(BSDM.yieldFromCurves(_derivative.getBondStandard(), _curves.getIssuerProvider()));
+  }
+
+  @Override
+  public Result<Double> calculateYieldToMaturityMarket() {
+    return (Result<Double>) _marketDataFn.getValue(_env, _trade.getSecurity().getExternalIdBundle(), 
+        FieldName.of(MarketDataRequirementNames.YIELD_YIELD_TO_MATURITY_MID));
+  }
+
+  @Override
+  public Result<BucketedCurveSensitivities> calculateBucketedPV01() {
     MultipleCurrencyParameterSensitivity sensitivity = MQSBC
         .fromInstrument(_derivative, _curves, _blocks)
         .multipliedBy(BASIS_POINT_FACTOR);
@@ -167,28 +209,13 @@ public class DiscountingBondCalculator implements BondCalculator {
   public Result<ReferenceAmount<Pair<String, Currency>>> calculatePV01() {
     return Result.success(_derivative.accept(PV01C, _curves));
   }
-
-  @Override
-  public Result<Double> calculateMarketCleanPrice() {
-    return _marketDataFn.getMarketValue(_env, _trade.getSecurity().getExternalIdBundle());
-  }
-
-  @Override
-  public Result<Double> calculateYieldToMaturity() {
-    Result<Double> marketResult = calculateMarketCleanPrice();
-    if (marketResult.isSuccess()) {
-      return Result.success(_derivative.accept(YFCPC, marketResult.getValue() / SCALING_FACTOR));
-    } else {
-      return Result.failure(marketResult);
-    }
-  }
-
+  
   @Override
   public Result<Double> calculateZSpread() {
-    Result<Double> marketResult = calculateMarketCleanPrice();
+    Result<Double> marketResult = calculateCleanPriceMarket();
     if (marketResult.isSuccess()) {
       ObjectsPair<IssuerProviderInterface, Double> pair = ObjectsPair.of(_curves.getIssuerProvider(),
-                                                                         marketResult.getValue() / SCALING_FACTOR);
+                                                                         marketResult.getValue());
       return Result.success(_derivative.accept(ZSC, pair));
     } else {
       return Result.failure(marketResult);
