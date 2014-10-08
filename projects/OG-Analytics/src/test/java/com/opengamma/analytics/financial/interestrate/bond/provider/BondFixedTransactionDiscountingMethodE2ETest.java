@@ -32,7 +32,6 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.Multipl
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
 import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
-import com.opengamma.analytics.util.export.ExportUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.test.TestGroup;
@@ -206,7 +205,6 @@ public class BondFixedTransactionDiscountingMethodE2ETest {
     final MultipleCurrencyParameterSensitivity pvpsExpected = new MultipleCurrencyParameterSensitivity(sensitivity);
     final MultipleCurrencyParameterSensitivity pvpsComputed = 
         MQSBC.fromInstrument(UKT_800_20210607_TRA_SPOT, ISSUER_SWAP, BLOCK_SWAP).multipliedBy(BP1);
-    ExportUtils.exportMultipleCurrencyParameterSensitivity(pvpsComputed, "testO.csv");
     AssertSensitivityObjects.assertEquals(
         "BondFixedTransactionDiscountingMethodE2ETest: bucketed deltas from standard curves", 
         pvpsExpected, pvpsComputed, TOLERANCE_PV_DELTA);
@@ -243,7 +241,6 @@ public class BondFixedTransactionDiscountingMethodE2ETest {
     final MultipleCurrencyParameterSensitivity pvpsExpected = new MultipleCurrencyParameterSensitivity(sensitivity);
     final MultipleCurrencyParameterSensitivity pvpsComputed = 
         MQSBC.fromInstrument(UKT_800_20210607_TRA_SPOT, ISSUER_GOVT, BLOCK_GOVT).multipliedBy(BP1);
-    ExportUtils.exportMultipleCurrencyParameterSensitivity(pvpsComputed, "testG.csv");
     AssertSensitivityObjects.assertEquals(
         "BondFixedTransactionDiscountingMethodE2ETest: bucketed deltas from standard curves", 
         pvpsExpected, pvpsComputed, TOLERANCE_PV_DELTA);
