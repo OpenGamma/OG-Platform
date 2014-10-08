@@ -266,10 +266,16 @@ public class CurveCalibrationConventionDataSets {
   private static final GeneratorDepositON GENERATOR_DEPOSIT_ON_GBP = 
       new GeneratorDepositON("GBP Deposit ON", GBP, LON, SONIA.getDayCount());
   private static final GeneratorSwapFixedIbor GBP6MLIBOR6M = GENERATOR_IRS_MASTER.getGenerator("GBP6MLIBOR6M", LON);
+  private static final GeneratorSwapFixedIbor GBP3MLIBOR3M = 
+      GENERATOR_IRS_MASTER.getGenerator(GeneratorSwapFixedIborMaster.GBP3MLIBOR3M, LON);
   private static final IborIndex GBPLIBOR6M = GBP6MLIBOR6M.getIborIndex();
+  private static final IborIndex GBPLIBOR3M = GBP3MLIBOR3M.getIborIndex();
   private static final GeneratorFRA GENERATOR_FRA_6M_GBP = new GeneratorFRA("GENERATOR_FRA_6M", GBPLIBOR6M, LON);
+  private static final GeneratorFRA GENERATOR_FRA_3M_GBP = new GeneratorFRA("GENERATOR_FRA_3M", GBPLIBOR3M, LON);
   private static final GeneratorDepositIbor GENERATOR_GBPLIBOR6M = 
       new GeneratorDepositIbor("GENERATOR_GBPLIBOR6M", GBPLIBOR6M, LON);
+  private static final GeneratorDepositIbor GENERATOR_GBPLIBOR3M = 
+      new GeneratorDepositIbor("GENERATOR_GBPLIBOR3M", GBPLIBOR3M, LON);
 
   @SuppressWarnings("unchecked")
   public static GeneratorInstrument<? extends GeneratorAttribute>[] generatorGbpOnOis(int nbDepositON, int nbOis) {
@@ -295,6 +301,22 @@ public class CurveCalibrationConventionDataSets {
     }
     for (int loopirs = 0; loopirs < nbIrs; loopirs++) {
       generator[nbIbor + nbFra + loopirs] = GBP6MLIBOR6M;
+    }
+    return generator;
+  }
+
+  @SuppressWarnings("unchecked")
+  public static GeneratorInstrument<? extends GeneratorAttribute>[] generatorGbpIbor3Fra3Irs3(int nbIbor, int nbFra, 
+      int nbIrs) {
+    GeneratorInstrument<? extends GeneratorAttribute>[] generator = new GeneratorInstrument[nbIbor + nbFra + nbIrs];
+    for (int loopibor = 0; loopibor < nbIbor; loopibor++) {
+      generator[loopibor] = GENERATOR_GBPLIBOR3M;
+    }
+    for (int loopfra = 0; loopfra < nbFra; loopfra++) {
+      generator[nbIbor + loopfra] = GENERATOR_FRA_3M_GBP;
+    }
+    for (int loopirs = 0; loopirs < nbIrs; loopirs++) {
+      generator[nbIbor + nbFra + loopirs] = GBP3MLIBOR3M;
     }
     return generator;
   }

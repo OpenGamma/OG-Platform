@@ -7,6 +7,7 @@ import java.util.LinkedHashMap;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
+import com.opengamma.analytics.financial.interestrate.E2EUtils;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.datasets.StandardDataSetsMulticurveUSD;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParRateDiscountingCalculator;
@@ -105,9 +106,9 @@ public class SwapCalculatorE2ETest {
         "Swap ON Arithmetic Average: present value");
     presentValueTest(SwapInstrumentsDataSet.SWAP_FF_3M, MULTICURVE_OIS, USD, -160663.8362,
         "Swap ON Arithmetic Average: present value");
-    presentValueTest(SwapInstrumentsDataSet.SWAP_FF_3M_0, MULTICURVE_FFS, USD, -1296763.1943,
+    presentValueTest(SwapInstrumentsDataSet.SWAP_FF_3M_0, MULTICURVE_FFS, USD, -1304207.7900,
         "Swap ON Arithmetic Average: present value");
-    presentValueTest(SwapInstrumentsDataSet.SWAP_FF_3M, MULTICURVE_FFS, USD, 150128.4091,
+    presentValueTest(SwapInstrumentsDataSet.SWAP_FF_3M, MULTICURVE_FFS, USD, 142681.6754,
         "Swap ON Arithmetic Average: present value");
   }
 
@@ -116,7 +117,7 @@ public class SwapCalculatorE2ETest {
   public void presentValue3M() {
     presentValueTest(SwapInstrumentsDataSet.SWAP_FIXED_3M, MULTICURVE_OIS, USD, 7170391.798257509,
         "IRS Fixed v LIBOR3M: present value - OIS based curves");
-    presentValueTest(SwapInstrumentsDataSet.SWAP_FIXED_3M, MULTICURVE_FFS, USD, 6065111.8810,
+    presentValueTest(SwapInstrumentsDataSet.SWAP_FIXED_3M, MULTICURVE_FFS, USD, 6072234.4631,
         "IRS Fixed v LIBOR3M: present value - Fed Fund swap based curve");
   }
 
@@ -125,7 +126,7 @@ public class SwapCalculatorE2ETest {
   public void presentValue3MWithFixing() {
     presentValueTest(SwapInstrumentsDataSet.SWAP_FIXED_3M_S, MULTICURVE_OIS, USD, 3588376.471608199,
         "IRS Fixed v LIBOR3M: present value - OIS based curves");
-    presentValueTest(SwapInstrumentsDataSet.SWAP_FIXED_3M_S, MULTICURVE_FFS, USD, 3193775.0940362737,
+    presentValueTest(SwapInstrumentsDataSet.SWAP_FIXED_3M_S, MULTICURVE_FFS, USD, 3194260.3186,
         "IRS Fixed v LIBOR3M: present value - Fed Fund swap based curve");
   }
 
@@ -134,79 +135,84 @@ public class SwapCalculatorE2ETest {
   public void presentValue3M6M() {
     presentValueTest(SwapInstrumentsDataSet.BS_3M_S_6M, MULTICURVE_OIS, USD, -13844.3872,
         "Basis swap L3M v L6M: present value");
-    presentValueTest(SwapInstrumentsDataSet.BS_3M_S_6M, MULTICURVE_FFS, USD, 72748.9893,
+    presentValueTest(SwapInstrumentsDataSet.BS_3M_S_6M, MULTICURVE_FFS, USD, 83456.1099,
         "Basis swap L3M v L6M: present value");
   }
 
   @Test
   /** Test present value for a swap LIBOR1M Compounding V LIBOR3M. */
   public void presentValue1MCmp3M() {
-    presentValueTest(SwapInstrumentsDataSet.BS_1MCMP_3M, MULTICURVE_OIS, USD, -340415.3431,
+    presentValueTest(SwapInstrumentsDataSet.BS_1MCMP_3M, MULTICURVE_OIS, USD, -340426.6128,
         "Basis swap L1MFlat v L3M: present value");
-    presentValueTest(SwapInstrumentsDataSet.BS_1MCMP_3M, MULTICURVE_FFS, USD, -534937.1336,
+    presentValueTest(SwapInstrumentsDataSet.BS_1MCMP_3M, MULTICURVE_FFS, USD, -529528.6102,
         "Basis swap L1MFlat v L3M: present value");
   }
 
   @Test
   /** Test present value for a swap LIBOR1M Compounding FLAT + Spread V LIBOR3M. */
   public void presentValue1MSpreadFlat3M() {
-    presentValueTest(SwapInstrumentsDataSet.BS_1MCMP_S_3M, MULTICURVE_OIS, USD, 152396.2410,
+    presentValueTest(SwapInstrumentsDataSet.BS_1MCMP_S_3M, MULTICURVE_OIS, USD, 152384.9704,
         "Basis swap L1MFlat v L3M: present value");
-    presentValueTest(SwapInstrumentsDataSet.BS_1MCMP_S_3M, MULTICURVE_FFS, USD, -46130.4883,
+    presentValueTest(SwapInstrumentsDataSet.BS_1MCMP_S_3M, MULTICURVE_FFS, USD, -40720.9318,
         "Basis swap L1MFlat v L3M: present value");
   }
 
   @Test
   /**Test present value for a swap fixed vs LIBOR1M. */
   public void presentValue1M() {
-    presentValueTest(SwapInstrumentsDataSet.SWAP_FIXED_1M, MULTICURVE_OIS, USD, -1003685.1791,
+    presentValueTest(SwapInstrumentsDataSet.SWAP_FIXED_1M, MULTICURVE_OIS, USD, -1003684.8402,
         "IRS Fixed v LIBOR1M: present value from standard curves");
   }
   
   @Test
   /**Tests present value for a ON Cmp + spread v ON AA. */
   public void presentValueONCmpONAA() {
-    presentValueTest(SwapInstrumentsDataSet.BS_ONCMP_S_ONAA, MULTICURVE_FFS, USD, -507970.1126,
+    presentValueTest(SwapInstrumentsDataSet.BS_ONCMP_S_ONAA, MULTICURVE_FFS, USD, -507972.8394,
         "Basis swap ON Cmp + spread v ON AA: present value - FF swap based curves");
   }
   
   @Test
-  /**Tests present value for an IRS with stub - fixed leg. */
+  /**Tests present value for an IRS with stub - fixed leg. Swap Fixed vs Libor3M - Stub 3M. */
   public void presentValueStub1() {
-    presentValueTest(SwapInstrumentsDataSet.IRS_STUB1, MULTICURVE_FFS, USD, -180869.2122,
+    presentValueTest(SwapInstrumentsDataSet.IRS_STUB1, MULTICURVE_FFS, USD, -181665.9361,
         "IRS with STUB: present value - FF swap based curves");
   }  
   
   @Test
-  /**Tests present value for an IRS with stub - ibor leg / same index */
+  /**Tests present value for an IRS with stub - ibor leg / same index.
+   * IRS Fixed vs Libor3M - Stub 1M: Accrual period is 1M / fixing rate is based on 3M*/
   public void presentValueStub2() {
-    presentValueTest(SwapInstrumentsDataSet.IRS_STUB2, MULTICURVE_FFS, USD, -258994.3839,
+    E2EUtils.presentValueTest(SwapInstrumentsDataSet.IRS_STUB2, MULTICURVE_FFS, USD, -262948.9316,
         "IRS with STUB: present value - FF swap based curves");
   }  
   
   @Test
-  /**Tests present value for an IRS with stub - ibor leg / interpolated index */
+  /**Tests present value for an IRS with stub - ibor leg / interpolated index.
+   * IRS Fixed vs Libor6M - Stub 3M: Accrual period is 3M / fixing rate is based on 3M */
   public void presentValueStub3() {
-    presentValueTest(SwapInstrumentsDataSet.IRS_STUB3, MULTICURVE_FFS, USD, -319533.7849,
+    presentValueTest(SwapInstrumentsDataSet.IRS_STUB3, MULTICURVE_FFS, USD, -318570.8721,
         "IRS with STUB: present value - FF swap based curves");
   }
   
   @Test
-  /**Tests present value for an IRS with stub - ibor leg / interpolated index */
+  /**Tests present value for an IRS with stub - ibor leg / interpolated index.
+   * IRS Fixed vs Libor6M - Stub 4M: Accrual period is 4M / fixing rate average 3M and 6M */
   public void presentValueStub4() {
-    presentValueTest(SwapInstrumentsDataSet.IRS_STUB4, MULTICURVE_FFS, USD, -405631.5512,
+    presentValueTest(SwapInstrumentsDataSet.IRS_STUB4, MULTICURVE_FFS, USD, -406168.2802,
         "IRS with STUB: present value - FF swap based curves");
   }
 
   @Test(enabled=false) // TODO: reinstall the test when the stub problem [PLAT-6777]
-  /**Tests present value for an IRS with stub - ibor leg / interpolated index  - short end*/
+  /**Tests present value for an IRS with stub - ibor leg / interpolated index  - long start.
+   * IRS Fixed vs Libor3M - Stub Long Start 6M: Accrual period is 5M30D / fixing rate 6M*/
   public void presentValueStub5() {
     presentValueTest(SwapInstrumentsDataSet.IRS_STUB5, MULTICURVE_FFS, USD, 0.0,
         "IRS with STUB: present value - FF swap based curves");
   }
   
   @Test(enabled=false) // TODO: reinstall the test when the stub problem [PLAT-6777]
-  /**Tests present value for an IRS with stub - ibor leg / interpolated index  - short end*/
+  /**Tests present value for an IRS with stub - ibor leg / interpolated index  - short end.
+   * IRS Fixed vs Libor3M - Short end Stub 2M: Accrual period is 2M / fixing rate average 1M and 3M*/
   public void presentValueStub6() {
     presentValueTest(SwapInstrumentsDataSet.IRS_STUB6, MULTICURVE_FFS, USD, 0.0,
         "IRS with STUB: present value - FF swap based curves");
@@ -217,7 +223,7 @@ public class SwapCalculatorE2ETest {
   public void presentValueZC() {
     presentValueTest(SwapInstrumentsDataSet.IRS_ZERO_CPN, MULTICURVE_OIS, USD, 7850279.042216873,
         "Zero Coupon Swap Fixed v Libor3M: present value from standard curves");
-    presentValueTest(SwapInstrumentsDataSet.IRS_ZERO_CPN, MULTICURVE_FFS, USD, 6598909.634518711,
+    presentValueTest(SwapInstrumentsDataSet.IRS_ZERO_CPN, MULTICURVE_FFS, USD, 6606079.5763,
         "Zero Coupon Swap Fixed v Libor3M: present value - Fed Fund swap based curves");
   }
 
@@ -256,7 +262,7 @@ public class SwapCalculatorE2ETest {
   public void parRate3M() {
     parRateTest(SwapInstrumentsDataSet.SWAP_FIXED_3M, MULTICURVE_OIS, 0.025894715668195054, 
         "IRS Fixed v LIBOR3M: par rate");
-    parRateTest(SwapInstrumentsDataSet.SWAP_FIXED_3M, MULTICURVE_FFS, 0.024262727477023297, 
+    parRateTest(SwapInstrumentsDataSet.SWAP_FIXED_3M, MULTICURVE_FFS, 0.02427361360337821, 
         "IRS Fixed v LIBOR3M: par rate");
   }
 
@@ -270,7 +276,7 @@ public class SwapCalculatorE2ETest {
   @Test
   /** Test forward rate for a swap fixed vs LIBOR3M - stub. */
   public void parRateStub1() {
-    parRateTest(SwapInstrumentsDataSet.IRS_STUB1, MULTICURVE_FFS, 0.0110411215,
+    parRateTest(SwapInstrumentsDataSet.IRS_STUB1, MULTICURVE_FFS, 0.01104570764,
         "IRS Fixed v LIBOR3M - stub: par rate");
   }
 
@@ -316,13 +322,10 @@ public class SwapCalculatorE2ETest {
     AssertSensitivityObjects.assertEquals("Swap ON Arithmetic Average: bucketed deltas - standard curves", 
         pvpsExpected, pvpsComputed, TOLERANCE_PV_DELTA);
     final double[] deltaDsc2 = 
-      {-66.3101, 438.4449, -1360.4301, 1803.0197, -3862.0535, 
-      -3801.7400, 424.2098, -97.2625, 448.7985, -1657.1109, 
-      6315.9521, -26682.5922, -49580.1061, 8890.1666, -2332.2614, 
-      504.8825, -49.6669, 7.2155, -1.0967, 0.2881, -0.0500};
-    final double[] deltaFwd32 = {2582.0522, 4305.9415, -673.9309, 200.0968, -72.8718, 
-      -17.0822, -23.7277, 7.9026, -3.0249, 0.4406, 
-      -0.0690, 0.0182, -0.0032 };
+      {-66.2969,438.3827,-1360.2365,1802.0762,-3859.4593,-3805.4806,427.5314,-98.2780,449.5943,-1657.4869,
+      6316.1068,-26682.6988,-49579.8748,8890.0988,-2332.2439,504.8800,-49.6672,7.2156,-1.0967,0.2881,-0.0500};
+    final double[] deltaFwd32 = {2567.3874,3052.3766,1404.7849,-638.5246,42.4844,
+      6.9486,-21.9347,-28.1631,-22.6375,7.6708,-2.9427,0.4286,-0.0671,0.0177,-0.0031 };
     final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> sensitivity2 = new LinkedHashMap<>();
     sensitivity2.put(ObjectsPair.of(MULTICURVE_OIS.getName(USD), USD), new DoubleMatrix1D(deltaDsc2));
     sensitivity2.put(ObjectsPair.of(MULTICURVE_OIS.getName(USDLIBOR3M), USD), new DoubleMatrix1D(deltaFwd32));
@@ -353,15 +356,15 @@ public class SwapCalculatorE2ETest {
     AssertSensitivityObjects.assertEquals("IRS Fixed v LIBOR3M: bucketed deltas", 
         pvpsExpected, pvpsComputed, TOLERANCE_PV_DELTA);
     final double[] deltaDsc2 = 
-      {-3.24106, -0.17486, 0.08672, 0.76798, -49.17171, 
-      2.42819, -70.15064, 140.71112, 183.35751, 319.67396, 
-      360.95413, 157.18368, 844.78287, 226.54263, -234.85103, 
-      57.18048, 28.57051, -9.64710, 2.37465, -0.76109, 
-      0.14930 };
+      {-3.2539,-0.1146,-0.1009,1.6777,-51.6721,
+      6.0288,-73.3598,141.7012,182.5853,320.0508,
+      360.7834,157.2649,844.6966,226.4134,-234.8655,
+      57.1481,28.5688,-9.6478,2.3747,-0.7611,
+      0.1493 };
     final double[] deltaFwd32 = 
-      {-2545.40838, -4467.09828, 1217.58588, -3009.98103, 9615.49437, 
-      -20168.36507, 70744.04947, 17070.26570, -5800.63056, 848.03566, 
-      -129.99027, 34.28334, -5.96436 };
+      {-2503.3045,-2998.9427,-1316.8739,293.6294,523.1624,
+      -2822.7769,9566.1654,-20157.7758,70743.1874,17070.5725,
+      -5800.7375,848.0514,-129.9927,34.2840,-5.9645 };
     final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> sensitivity2 = new LinkedHashMap<>();
     sensitivity2.put(ObjectsPair.of(MULTICURVE_OIS.getName(USD), USD), new DoubleMatrix1D(deltaDsc2));
     sensitivity2.put(ObjectsPair.of(MULTICURVE_OIS.getName(USDLIBOR3M), USD), new DoubleMatrix1D(deltaFwd32));
@@ -402,17 +405,14 @@ public class SwapCalculatorE2ETest {
   /** Tests Bucketed PV01 for a swap fixed vs LIBOR1M. */
   public void BucketedPV011M() {
     final double[] deltaDsc = 
-      {0.30079551275104416, 0.30079572164276736, -9.585961874740465E-6, 1.2979495579621574E-4, 1.5085871713580485,
-      -13.566109046684943, 0.09026843918435334, 45.96990975622252, 99.74522348776304, 104.85108270307225, 
-      -9.33773534893459E-11, -4.285397912505579E-12, 0.00, 0.00, 0.00, 0.00, 0.00 };
+      {0.3008,0.3008,0.0000,0.0002,1.5114,-13.5657,0.0846,45.9662,99.7453,104.8512,
+      0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000 };
     final double[] deltaFwd1 = 
-      {-0.20863786628281816, 2887.648010427227, 3524.8181060609513, 54.75432367092116, -9894.416325570519, 
-      -16771.99913018682, -3.0220503938933227E-10, 3.729948495906336E-10, 1.6330782253589604E-10, -8.986191325519167E-11,
-      0.00, 0.00, 0.00, 0.00, 0.00 };
+      {-0.1666,2864.6265,3569.5692,33.0663,-9894.4160,-16771.9988,0.0000,0.0000,0.0000,0.0000,
+      0.0000,0.0000,0.0000,0.0000,0.0000 };
     final double[] deltaFwd3 = 
-      {-2597.896012855518, -2626.224124335432, -1187.3995581915851, -53.9916796422252, 9752.524496704595, 
-      16503.81428148996, 4.871798063348056E-10, -6.672030279745711E-10, -1.7934130597452707E-10, 1.7682040814394901E-10,
-      0.00, 0.00, 0.00, 0.00, 0.00 };
+      {-2601.2036,-2629.5677,-1202.4749,-32.6058,9752.5245,16503.8143,0.0000,0.0000,0.0000,0.0000,
+      0.0000,0.0000,0.0000,0.0000,0.0000 };
     final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> sensitivity = new LinkedHashMap<>();
     sensitivity.put(ObjectsPair.of(MULTICURVE_OIS.getName(USD), USD), new DoubleMatrix1D(deltaDsc));
     sensitivity.put(ObjectsPair.of(MULTICURVE_OIS.getName(USDLIBOR1M), USD), new DoubleMatrix1D(deltaFwd1));
@@ -427,14 +427,11 @@ public class SwapCalculatorE2ETest {
   /**Tests Bucketed PV01 for a ON Cmp + spread v ON AA. */
   public void bucketedPV01ONCmpONAA() {
     final double[] deltaDsc = 
-      {0.4188, -0.9726, 3.0558, -4.0519, 7.8819, 
-      -14.7705, 34.8685, -67.5583, -62.0034, -97.1414, 
-      114.4679, 205.5575, -42.4933, 11.4320, -3.1404, 
-      0.6875, -0.0408, 0.0016, 0.0005, -0.0002, 0.0001};
+      {0.4188,-0.9726,3.0556,-4.0519,7.8822,-14.7702,34.8675,-67.5616,-61.9951,-97.1549,
+      114.4063,205.6523,-42.5120,11.4369,-3.1418,0.6878,-0.0408,0.0016,0.0005,-0.0002,0.0001};
     final double[] deltaFwd3 = 
-      {0.3084, -1.3555, 71.5146, 42.6154, 164.7760, 
-      -276.6229, -68.7434, 12.8506, -4.5519, 0.6655, 
-      -0.1020, 0.0269, -0.0047};
+      {0.5394,0.4496,0.7397,-2.9021,71.7050,42.5490,164.8341,-276.6407,-68.7754,12.8565,
+      -4.5540,0.6658,-0.1021,0.0269,-0.0047};
     final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> sensitivity = new LinkedHashMap<>();
     sensitivity.put(ObjectsPair.of(MULTICURVE_OIS.getName(USD), USD), new DoubleMatrix1D(deltaDsc));
     sensitivity.put(ObjectsPair.of(MULTICURVE_OIS.getName(USDLIBOR3M), USD), new DoubleMatrix1D(deltaFwd3));
@@ -448,14 +445,12 @@ public class SwapCalculatorE2ETest {
   @Test
   /** Tests Bucketed PV01 for zero coupon swap, fixed vs Libor3M. */
   public void bucketedPV01IRSZC() {
-    double[] deltaDsc = {-3.9339958824096897, 2.536454106825545, -8.365562302381681, 11.977398620642957,
-        -71.24170246982732, 65.33930214395836, -188.48375667015102, 158.72043068102482, -45.96005314542022,
-        -232.12170879247404, -268.33359030158067, -1500.0007404959117, 1809.691920531959, 4280.27458960669,
-        -954.3333648664799, 213.61082768828743, 16.77180522700583, -8.510038071311298, 2.2971924904244005,
-        -0.7551682158927077, 0.15008990018863852 };
-    double[] deltaFwd3 = {-2578.20856025545, -4591.596608539543, 1039.255807228961, -3759.7613788868043,
-        10351.126671938455, -23483.903629032735, 76762.4392089204, 18862.08183330378, -6410.487860884272,
-        937.1945636004925, -143.6573268071885, 37.88785754873056, -6.591443095130714 };
+    double[] deltaDsc = {
+      -3.9356,2.5219,-8.3208,12.5841,-73.2170,67.2551,-188.1475,163.1403,-48.8872,-230.7762,
+      -269.1857,-1500.7366,1812.8021,4284.8834,-955.1795,213.7552,16.7521,-8.5082,2.2968,-0.7551,0.1501 };
+    double[] deltaFwd3 = {
+      -2529.4844,-3035.1020,-1319.5224,204.5212,335.8798,-3568.8244,10300.2451,-23472.8335,76761.5176,18862.4059,
+      -6410.6009,937.2112,-143.6599,37.8885,-6.5916};
     final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> sensitivity = new LinkedHashMap<>();
     sensitivity.put(ObjectsPair.of(MULTICURVE_OIS.getName(USD), USD), new DoubleMatrix1D(deltaDsc));
     sensitivity.put(ObjectsPair.of(MULTICURVE_OIS.getName(USDLIBOR3M), USD), new DoubleMatrix1D(deltaFwd3));
@@ -467,6 +462,7 @@ public class SwapCalculatorE2ETest {
   }
 
   @Test
+  /** Tests Bucketed PV01 for amortizing swap, fixed vs Libor3M. */
   public void bucketedPV01Amortizing() {
     double[] deltaDsc = new double[] {1.018660232177626, 0.23945867090278264, -0.595838183598077, -0.12224503254453303,
         32.37424819248587, -2.811509312911029, 3.2136728515191706, -19.5145412740481, -66.21912170849029,

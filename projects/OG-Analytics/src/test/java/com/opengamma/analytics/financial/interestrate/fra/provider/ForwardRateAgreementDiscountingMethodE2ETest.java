@@ -97,7 +97,7 @@ public class ForwardRateAgreementDiscountingMethodE2ETest {
                  pvExpected.getAmount(USD), pvComputed.getAmount(USD), TOLERANCE_PV);
 
     final MultipleCurrencyAmount pvComputed2 = FRA.accept(PVDC, MULTICURVE_FFS);
-    final MultipleCurrencyAmount pvExpected2 = MultipleCurrencyAmount.of(Currency.USD, 21751.36342);
+    final MultipleCurrencyAmount pvExpected2 = MultipleCurrencyAmount.of(Currency.USD, 21750.7625);
     assertEquals("ForwardRateAgreementDiscountingMethod: present value Fed Fund swap based curves",
                  pvExpected2.getAmount(USD), pvComputed2.getAmount(USD), TOLERANCE_PV);
   }

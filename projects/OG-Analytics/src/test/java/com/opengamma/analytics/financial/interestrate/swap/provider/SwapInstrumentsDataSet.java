@@ -268,21 +268,14 @@ public class SwapInstrumentsDataSet {
   private static final Period TENOR_SWAP_3M_STUB1 = Period.ofMonths(21);
   private static final double FIXED_RATE_3M_STUB1 = 0.0100;
   private static final GeneratorAttributeIR ATTRIBUTE_3M_STUB1 = new GeneratorAttributeIR(TENOR_SWAP_3M_STUB1);
-  private static final PaymentDefinition[] PAYMENT_FIXED_STUB1 = LEG_USDFixed1Y.generateInstrument(TRADE_DATE_3M_STUB1, 
-      FIXED_RATE_3M_STUB1, NOTIONAL, ATTRIBUTE_3M_STUB1).getPayments();
-  private static final CouponFixedDefinition[] CPN_FIXED_STUB1_DEFINITION = new CouponFixedDefinition[PAYMENT_FIXED_STUB1.length];
-  static {
-    for (int loopcpn = 0; loopcpn < PAYMENT_FIXED_STUB1.length; loopcpn++) {
-      CPN_FIXED_STUB1_DEFINITION[loopcpn] = (CouponFixedDefinition) PAYMENT_FIXED_STUB1[loopcpn];
-    }
-  }
-  private static final AnnuityCouponFixedDefinition LEG_FIXED_STUB1 = 
-      new AnnuityCouponFixedDefinition(CPN_FIXED_STUB1_DEFINITION, NYC);
+  private static final AnnuityDefinition<?> LEG_FIXED_GEN_FIXED_STUB1 = LEG_USDFixed1Y.generateInstrument(TRADE_DATE_3M_STUB1, 
+      FIXED_RATE_3M_STUB1, NOTIONAL, ATTRIBUTE_3M_STUB1);
   private static final AnnuityDefinition<? extends CouponDefinition> LEG_IBOR_STUB1 = 
       (AnnuityDefinition<? extends CouponDefinition>) 
       LEG_USDLIBOR3M.generateInstrument(TRADE_DATE_3M_STUB1, 0.0, -NOTIONAL, ATTRIBUTE_3M_STUB1);
   private static final SwapCouponFixedCouponDefinition IRS_STUB1_DEFINITION = 
-      new SwapCouponFixedCouponDefinition(LEG_FIXED_STUB1, LEG_IBOR_STUB1);
+      new SwapCouponFixedCouponDefinition(new AnnuityCouponFixedDefinition(
+          (CouponFixedDefinition[])LEG_FIXED_GEN_FIXED_STUB1.getPayments(), NYC), LEG_IBOR_STUB1);
   public static final Swap<? extends Payment, ? extends Payment> IRS_STUB1 = 
       IRS_STUB1_DEFINITION.toDerivative(VALUATION_DATE, TS_ARRAY_USDLIBOR3M_2X);
   
