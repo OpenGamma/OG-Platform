@@ -49,6 +49,8 @@ public final class GeneratorSwapFixedIborMaster {
    * Reference to a GBP 6M fix vs LIBOR 6M float
    */
   public static final String GBP6MLIBOR6M = "GBP6MLIBOR6M";
+   /** Reference to a GBP 3M fix vs LIBOR 3M float */
+  public static final String GBP3MLIBOR3M = "GBP3MLIBOR3M";
 
   /**
    * Reference to a GBP 1Y fix vs LIBOR 3M float
@@ -70,9 +72,9 @@ public final class GeneratorSwapFixedIborMaster {
    */
   public static final String USD6MLIBOR6M = "USD6MLIBOR6M";
 
-  /**
-   * Reference to a USD 1Y fix vs LIBOR 3M float
-   */
+  /** Reference to a USD 1Y ACT/360 fix vs LIBOR 1M float */
+  public static final String USD1YLIBOR1M = "USD1YLIBOR1M";
+  /** Reference to a USD 1Y ACT/360 fix vs LIBOR 3M float */
   public static final String USD1YLIBOR3M = "USD1YLIBOR3M";
 
   /**
@@ -127,6 +129,9 @@ public final class GeneratorSwapFixedIborMaster {
                                                   DayCounts.THIRTY_U_360,
                                                   _iborIndexMaster.getIndex(IndexIborMaster.USDLIBOR3M),
                                                   baseCalendar));
+    _generatorSwap.put(USD1YLIBOR1M,
+        new GeneratorSwapFixedIbor(USD1YLIBOR1M, Period.ofMonths(12), DayCounts.ACT_360,
+            _iborIndexMaster.getIndex(IndexIborMaster.USDLIBOR1M), baseCalendar));
     _generatorSwap.put(USD1YLIBOR3M,
                        new GeneratorSwapFixedIbor(USD1YLIBOR3M,
                                                   Period.ofMonths(12),
@@ -163,6 +168,9 @@ public final class GeneratorSwapFixedIborMaster {
                                                   DayCounts.ACT_365,
                                                   _iborIndexMaster.getIndex(IndexIborMaster.GBPLIBOR6M),
                                                   baseCalendar));
+    _generatorSwap.put(GBP3MLIBOR3M, 
+        new GeneratorSwapFixedIbor(GBP3MLIBOR3M, Period.ofMonths(3), DayCounts.ACT_365, 
+            _iborIndexMaster.getIndex(IndexIborMaster.GBPLIBOR3M), baseCalendar));
     _generatorSwap.put(DKK1YCIBOR6M,
                        new GeneratorSwapFixedIbor(DKK1YCIBOR6M,
                                                   Period.ofMonths(12),

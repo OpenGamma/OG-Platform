@@ -103,6 +103,8 @@ public class StandardDataSetsMulticurveUSD {
   private static final GeneratorDepositON GENERATOR_DEPOSIT_ON_USD = 
       new GeneratorDepositON("USD Deposit ON", USD, NYC, USDFEDFUND.getDayCount());
   private static final GeneratorSwapFixedIbor USD6MLIBOR3M = GENERATOR_IRS_MASTER.getGenerator("USD6MLIBOR3M", NYC);
+  private static final GeneratorSwapFixedIbor USD1YLIBOR1M = 
+      GENERATOR_IRS_MASTER.getGenerator(GeneratorSwapFixedIborMaster.USD1YLIBOR1M, NYC);
   private static final IborIndex USDLIBOR3M = USD6MLIBOR3M.getIborIndex();
   private static final IborIndex USDLIBOR1M = IBOR_MASTER.getIndex("USDLIBOR1M");
   private static final IborIndex USDLIBOR6M = IBOR_MASTER.getIndex("USDLIBOR6M");
@@ -339,14 +341,16 @@ public class StandardDataSetsMulticurveUSD {
 
   /** Market values for the Fwd 3M USD curve */
   private static final double[] FWD3_3_USD_MARKET_QUOTES = new double[] {0.0023810000,
+    0.0026000000, 0.0030000000,
     0.0033050000, 0.0071175000, 0.0114285000, 0.0150500000, 0.0177025000,
     0.0214500000, 0.0250500000, 0.0267200000, 0.0284250000, 0.0299700000,
     0.0306825000, 0.0310250000};
   /** Generators for the Fwd 3M USD curve */
   private static final GeneratorInstrument<? extends GeneratorAttribute>[] FWD3_3_USD_GENERATORS = 
-      CurveCalibrationConventionDataSets.generatorUsdIbor3Fra3Irs3(1, 0, 12);
+      CurveCalibrationConventionDataSets.generatorUsdIbor3Fra3Irs3(1, 2, 12);
   /** Tenors for the Fwd 3M USD curve */
   private static final Period[] FWD3_3_USD_TENOR = new Period[] {Period.ofMonths(0),
+    Period.ofMonths(6), Period.ofMonths(9),
     Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5),
     Period.ofYears(7), Period.ofYears(10), Period.ofYears(12), Period.ofYears(15), Period.ofYears(20), 
     Period.ofYears(25), Period.ofYears(30) };
@@ -359,17 +363,20 @@ public class StandardDataSetsMulticurveUSD {
 
   /** Market values for the Fwd 1M USD curve */
   private static final double[] FWD1_3_USD_MARKET_QUOTES = new double[] {0.0015600000,
+    0.0019000000, 0.0022000000,
     0.0008250000, 0.0008500000, 0.0008812500, 0.0009687500, 0.0010187500,
     0.0010562500, 0.0010687500, 0.0010312500, 0.0009062500, 0.0008175000,
     0.0007312500, 0.0006562500, 0.0005937500, 0.0005562500};
-  /** Generators for the Fwd 3M USD curve */
+  /** Generators for the Fwd 1M USD curve */
   private static final GeneratorInstrument<? extends GeneratorAttribute>[] FWD1_3_USD_GENERATORS = 
       new GeneratorInstrument<?>[] {GENERATOR_USDLIBOR1M,
+    USD1YLIBOR1M, USD1YLIBOR1M,
     USD3MLIBOR1MLIBOR3M, USD3MLIBOR1MLIBOR3M, USD3MLIBOR1MLIBOR3M, USD3MLIBOR1MLIBOR3M, USD3MLIBOR1MLIBOR3M, 
     USD3MLIBOR1MLIBOR3M, USD3MLIBOR1MLIBOR3M, USD3MLIBOR1MLIBOR3M, USD3MLIBOR1MLIBOR3M, USD3MLIBOR1MLIBOR3M, 
     USD3MLIBOR1MLIBOR3M, USD3MLIBOR1MLIBOR3M, USD3MLIBOR1MLIBOR3M, USD3MLIBOR1MLIBOR3M };
-  /** Tenors for the Fwd 3M USD curve */
+  /** Tenors for the Fwd 1M USD curve */
   private static final Period[] FWD1_3_USD_TENOR = new Period[] {Period.ofMonths(0),
+    Period.ofMonths(2), Period.ofMonths(3),
     Period.ofMonths(6), Period.ofMonths(9), Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), 
     Period.ofYears(4), Period.ofYears(5), Period.ofYears(7), Period.ofYears(10), Period.ofYears(12), 
     Period.ofYears(15), Period.ofYears(20), Period.ofYears(25), Period.ofYears(30) };
@@ -382,17 +389,20 @@ public class StandardDataSetsMulticurveUSD {
 
   /** Market values for the Fwd 6M USD curve */
   private static final double[] FWD6_3_USD_MARKET_QUOTES = new double[] {0.0032990000,
+    0.0040000000,
     0.0008937500, 0.0009000000, 0.0009000000, 0.0009000000, 0.0009000000,
     0.0009062500, 0.0009062500, 0.0009187500, 0.0009450000, 0.0009187500,
     0.0009187500, 0.0009312500};
-  /** Generators for the Fwd 3M USD curve */
+  /** Generators for the Fwd 6M USD curve */
   private static final GeneratorInstrument<? extends GeneratorAttribute>[] FWD6_3_USD_GENERATORS = 
       new GeneratorInstrument<?>[] {GENERATOR_USDLIBOR6M,
+    GENERATOR_FRA6M, 
     USD6MLIBOR3MLIBOR6M, USD6MLIBOR3MLIBOR6M, USD6MLIBOR3MLIBOR6M, USD6MLIBOR3MLIBOR6M, USD6MLIBOR3MLIBOR6M,
     USD6MLIBOR3MLIBOR6M, USD6MLIBOR3MLIBOR6M, USD6MLIBOR3MLIBOR6M, USD6MLIBOR3MLIBOR6M, USD6MLIBOR3MLIBOR6M, 
     USD6MLIBOR3MLIBOR6M, USD6MLIBOR3MLIBOR6M };
-  /** Tenors for the Fwd 3M USD curve */
+  /** Tenors for the Fwd 6M USD curve */
   private static final Period[] FWD6_3_USD_TENOR = new Period[] {Period.ofMonths(0),
+    Period.ofMonths(9), 
     Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5),
     Period.ofYears(7), Period.ofYears(10), Period.ofYears(12), Period.ofYears(15), Period.ofYears(20), 
     Period.ofYears(25), Period.ofYears(30) };

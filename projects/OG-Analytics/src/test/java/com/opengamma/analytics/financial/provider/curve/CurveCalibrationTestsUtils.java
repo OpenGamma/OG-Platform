@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.threeten.bp.ZonedDateTime;
 
@@ -41,10 +42,13 @@ import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
 public class CurveCalibrationTestsUtils {
+  
+  private static final ZonedDateTimeDoubleTimeSeries TS_EMPTY = ImmutableZonedDateTimeDoubleTimeSeries.ofEmptyUTC();
 
   public static void exportIborForwardIborCurve(
       ZonedDateTime calibrationDate, MulticurveProviderInterface multicurve, IborIndex index, Calendar cal,
@@ -248,8 +252,8 @@ public class CurveCalibrationTestsUtils {
       return swap.toDerivative(calibrationDate, hts);
     }
     if (instrument instanceof InterestRateFutureTransactionDefinition) {
-      return ((InterestRateFutureTransactionDefinition) instrument).toDerivative(calibrationDate, 0.0); // Trade date = today, reference price not used.
-    }
+      return ((InterestRateFutureTransactionDefinition) instrument).toDerivative(calibrationDate, 0.0); 
+    } // Trade date = today, reference price not used.
     if (instrument instanceof SwapFuturesPriceDeliverableTransactionDefinition) {
       return ((SwapFuturesPriceDeliverableTransactionDefinition) instrument).toDerivative(calibrationDate, 0.0);
     } // Trade date = today, reference price not used.
@@ -283,6 +287,88 @@ public class CurveCalibrationTestsUtils {
   public static ZonedDateTimeDoubleTimeSeries[] getTSSwapFixedIbor(final Boolean withToday,
       ZonedDateTimeDoubleTimeSeries[] htsWithToday, ZonedDateTimeDoubleTimeSeries[] htsWithoutToday) {
     return withToday ? htsWithToday : htsWithoutToday;
+  }
+
+  @SuppressWarnings("unchecked")
+  public static Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> makeCurvesFromDefinitionsMulticurve(
+      ZonedDateTime calibrationDate, final InstrumentDefinition<?>[][][] definitions,
+      final GeneratorYDCurve[][] curveGenerators, final String[][] curveNames, final MulticurveProviderDiscount knownData,
+      final InstrumentDerivativeVisitor<MulticurveProviderInterface, Double> calculator,
+      final InstrumentDerivativeVisitor<MulticurveProviderInterface, MulticurveSensitivity> sensitivityCalculator,
+      LinkedHashMap<String, Currency> dscMap, LinkedHashMap<String, IndexON[]> fwdOnMap, LinkedHashMap<String, IborIndex[]> fwdIborMap,
+      MulticurveDiscountBuildingRepository repository,
+      Map<IndexON,ZonedDateTimeDoubleTimeSeries> htsOis, Map<IborIndex,ZonedDateTimeDoubleTimeSeries> htsIbor) {
+    final int nUnits = definitions.length;
+    final MultiCurveBundle<GeneratorYDCurve>[] curveBundles = new MultiCurveBundle[nUnits];
+    for (int i = 0; i < nUnits; i++) {
+      final int nCurves = definitions[i].length;
+      final SingleCurveBundle<GeneratorYDCurve>[] singleCurves = new SingleCurveBundle[nCurves];
+      for (int j = 0; j < nCurves; j++) {
+        final int nInstruments = definitions[i][j].length;
+        final InstrumentDerivative[] derivatives = new InstrumentDerivative[nInstruments];
+        final double[] rates = new double[nInstruments];
+        for (int k = 0; k < nInstruments; k++) {
+          derivatives[k] = convert(definitions[i][j][k], calibrationDate, htsOis, htsIbor);
+          rates[k] = CurveCalibrationTestsUtils.initialGuess(definitions[i][j][k]);
+        }
+        final GeneratorYDCurve generator = curveGenerators[i][j].finalGenerator(derivatives);
+        final double[] initialGuess = generator.initialGuess(rates);
+        singleCurves[j] = new SingleCurveBundle<>(curveNames[i][j], derivatives, initialGuess, generator);
+      }
+      curveBundles[i] = new MultiCurveBundle<>(singleCurves);
+    }
+    return repository.makeCurvesFromDerivatives(curveBundles, knownData, dscMap, fwdIborMap, fwdOnMap, calculator, sensitivityCalculator);
+  }
+
+  public static InstrumentDerivative convert(final InstrumentDefinition<?> instrument, ZonedDateTime calibrationDate,
+      Map<IndexON,ZonedDateTimeDoubleTimeSeries> htsOis, Map<IborIndex,ZonedDateTimeDoubleTimeSeries> htsIbor) {
+    if (instrument instanceof SwapFixedONDefinition) {
+      IndexON index = ((SwapFixedONDefinition) instrument).getOISLeg().getOvernightIndex();
+      ZonedDateTimeDoubleTimeSeries[] hts = new ZonedDateTimeDoubleTimeSeries[] {htsOis.get(index)};
+      return ((SwapFixedONDefinition) instrument).toDerivative(calibrationDate, hts);
+    }
+    if (instrument instanceof SwapFixedIborDefinition) {
+      IborIndex index = ((SwapFixedIborDefinition) instrument).getIborLeg().getIborIndex();
+      ZonedDateTimeDoubleTimeSeries hts = htsIbor.get(index);
+      ArgumentChecker.notNull(hts, "time series from " + index.toString() + " is not present in map.");
+      ZonedDateTimeDoubleTimeSeries[] htsArray = new ZonedDateTimeDoubleTimeSeries[] {hts};
+      return ((SwapFixedIborDefinition) instrument).toDerivative(calibrationDate, htsArray);
+    }
+    if (instrument instanceof SwapDefinition) {
+      SwapDefinition swap = (SwapDefinition) instrument;
+      ZonedDateTimeDoubleTimeSeries[] hts = new ZonedDateTimeDoubleTimeSeries[2];
+      PaymentDefinition[] payment = new PaymentDefinition[2];
+      payment[0] = swap.getFirstLeg().getNthPayment(0); // TODO: Improve for swaps with notional payment.
+      payment[1] = swap.getSecondLeg().getNthPayment(0);
+      for (int loopleg = 0; loopleg < 2; loopleg++) {
+        if (payment[loopleg] instanceof CouponONDefinition) {
+          hts[loopleg] = htsOis.get(payment[loopleg].getCurrency());
+        } else {
+          if ((payment[loopleg] instanceof CouponIborDefinition)) {
+            IborIndex index = ((CouponIborDefinition) payment[loopleg]).getIndex();
+            ZonedDateTimeDoubleTimeSeries htsIndex = htsIbor.get(index);
+            ArgumentChecker.notNull(htsIndex, "time series from " + index.toString() + " is not present in map.");
+            hts[loopleg] = htsIndex;
+          } else { 
+            if (payment[loopleg] instanceof CouponIborSpreadDefinition) {
+              IborIndex index =  ((CouponIborSpreadDefinition) payment[loopleg]).getIndex();
+              ZonedDateTimeDoubleTimeSeries htsIndex = htsIbor.get(index);
+              ArgumentChecker.notNull(htsIndex, "time series from " + index.toString() + " is not present in map.");
+              hts[loopleg] = htsIndex;
+            } else {
+            hts[loopleg] = ImmutableZonedDateTimeDoubleTimeSeries.ofEmptyUTC();}
+          }
+        }
+      }
+     return swap.toDerivative(calibrationDate, hts);
+    }
+    if (instrument instanceof InterestRateFutureTransactionDefinition) {
+      return ((InterestRateFutureTransactionDefinition) instrument).toDerivative(calibrationDate, 0.0); 
+    } // Trade date = today, reference price not used.
+    if (instrument instanceof SwapFuturesPriceDeliverableTransactionDefinition) {
+      return ((SwapFuturesPriceDeliverableTransactionDefinition) instrument).toDerivative(calibrationDate, 0.0);
+    } // Trade date = today, reference price not used.
+    return instrument.toDerivative(calibrationDate);
   }
 
 }
