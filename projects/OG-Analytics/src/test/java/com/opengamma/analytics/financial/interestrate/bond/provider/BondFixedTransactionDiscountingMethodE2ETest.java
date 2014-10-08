@@ -32,8 +32,10 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.Multipl
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
 import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.analytics.util.export.ExportUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
@@ -42,6 +44,7 @@ import com.opengamma.util.tuple.Pairs;
 /**
  * Tests on (fixed coupon) bonds with static data. Data available also in interface unit test and in snapshots.
  */
+@Test(groups = TestGroup.UNIT)
 public class BondFixedTransactionDiscountingMethodE2ETest {
 
   private static final Currency GBP = Currency.GBP;
@@ -194,13 +197,19 @@ public class BondFixedTransactionDiscountingMethodE2ETest {
 
   @Test
   public void BucketedPV01Ois() {
-    final double[] deltaDsc = {18.3278, 6.1094, 19.5136, 0.8342, -8.5984, -7.0835, -18.0924, -35.6778, -109.0175, -164.1035,
-      -219.2045, -276.5186, -318.6262, -4698.4808, -2631.1414, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000 };
+    final double[] deltaDsc = {
+      9.8781,3.2928,0.4993,0.2126,-6.5819,-9.8512,-13.9385,-38.6992,-111.4245,-167.3524,
+      -223.7036,-278.8639,-961.1644,-6113.7830,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000 };
     final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> sensitivity = new LinkedHashMap<>();
-    sensitivity.put(ObjectsPair.of(ISSUER_SWAP.getName(UKT_800_20210607_SEC_DEF.getIssuerEntity()), GBP), new DoubleMatrix1D(deltaDsc));
+    sensitivity.put(
+        ObjectsPair.of(ISSUER_SWAP.getName(UKT_800_20210607_SEC_DEF.getIssuerEntity()), GBP), new DoubleMatrix1D(deltaDsc));
     final MultipleCurrencyParameterSensitivity pvpsExpected = new MultipleCurrencyParameterSensitivity(sensitivity);
-    final MultipleCurrencyParameterSensitivity pvpsComputed = MQSBC.fromInstrument(UKT_800_20210607_TRA_SPOT, ISSUER_SWAP, BLOCK_SWAP).multipliedBy(BP1);
-    AssertSensitivityObjects.assertEquals("BondFixedTransactionDiscountingMethodE2ETest: bucketed deltas from standard curves", pvpsExpected, pvpsComputed, TOLERANCE_PV_DELTA);
+    final MultipleCurrencyParameterSensitivity pvpsComputed = 
+        MQSBC.fromInstrument(UKT_800_20210607_TRA_SPOT, ISSUER_SWAP, BLOCK_SWAP).multipliedBy(BP1);
+    ExportUtils.exportMultipleCurrencyParameterSensitivity(pvpsComputed, "testO.csv");
+    AssertSensitivityObjects.assertEquals(
+        "BondFixedTransactionDiscountingMethodE2ETest: bucketed deltas from standard curves", 
+        pvpsExpected, pvpsComputed, TOLERANCE_PV_DELTA);
   }
 
   /** Curve calibrated with bills and bonds. */
@@ -222,15 +231,22 @@ public class BondFixedTransactionDiscountingMethodE2ETest {
 
   @Test
   public void BucketedPV01Govt() {
-    final double[] deltaDsc = {-12.6245, -4.0078, 85.2275, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000,
-      0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000 };
-    final double[] deltaGovt = {-4.8697, -24.8628, 185.7734, 874.1115, 413.1247 };
+    final double[] deltaDsc = {
+      -2.9421,3.2927,0.5064,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,
+      0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000
+    };
+    final double[] deltaGovt = {-4.1797,-25.1585,186.5606,899.7372,393.5744 };
     final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> sensitivity = new LinkedHashMap<>();
     sensitivity.put(ObjectsPair.of(ISSUER_GOVT.getMulticurveProvider().getName(GBP), GBP), new DoubleMatrix1D(deltaDsc));
-    sensitivity.put(ObjectsPair.of(ISSUER_GOVT.getName(UKT_800_20210607_SEC_DEF.getIssuerEntity()), GBP), new DoubleMatrix1D(deltaGovt));
+    sensitivity.put(
+        ObjectsPair.of(ISSUER_GOVT.getName(UKT_800_20210607_SEC_DEF.getIssuerEntity()), GBP), new DoubleMatrix1D(deltaGovt));
     final MultipleCurrencyParameterSensitivity pvpsExpected = new MultipleCurrencyParameterSensitivity(sensitivity);
-    final MultipleCurrencyParameterSensitivity pvpsComputed = MQSBC.fromInstrument(UKT_800_20210607_TRA_SPOT, ISSUER_GOVT, BLOCK_GOVT).multipliedBy(BP1);
-    AssertSensitivityObjects.assertEquals("BondFixedTransactionDiscountingMethodE2ETest: bucketed deltas from standard curves", pvpsExpected, pvpsComputed, TOLERANCE_PV_DELTA);
+    final MultipleCurrencyParameterSensitivity pvpsComputed = 
+        MQSBC.fromInstrument(UKT_800_20210607_TRA_SPOT, ISSUER_GOVT, BLOCK_GOVT).multipliedBy(BP1);
+    ExportUtils.exportMultipleCurrencyParameterSensitivity(pvpsComputed, "testG.csv");
+    AssertSensitivityObjects.assertEquals(
+        "BondFixedTransactionDiscountingMethodE2ETest: bucketed deltas from standard curves", 
+        pvpsExpected, pvpsComputed, TOLERANCE_PV_DELTA);
   }
 
 }
