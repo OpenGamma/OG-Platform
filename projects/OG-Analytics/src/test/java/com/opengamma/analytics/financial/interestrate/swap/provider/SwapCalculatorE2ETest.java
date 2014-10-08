@@ -220,6 +220,15 @@ public class SwapCalculatorE2ETest {
     presentValueTest(SwapInstrumentsDataSet.IRS_ZERO_CPN, MULTICURVE_FFS, USD, 6598909.634518711,
         "Zero Coupon Swap Fixed v Libor3M: present value - Fed Fund swap based curves");
   }
+
+  @Test
+  /** Tests present value for amortizing swap. */
+  public void presentValueAmortixing() {
+    presentValueTest(SwapInstrumentsDataSet.SWAP_AMORTIZING, MULTICURVE_OIS, USD, -1850080.2895532502,
+        "Amortizing Swap Fixed v Libor6M: present value from standard curves");
+    presentValueTest(SwapInstrumentsDataSet.SWAP_AMORTIZING, MULTICURVE_FFS, USD, -1955216.3737812275,
+        "Amortizing Swap Fixed v Libor6M: present value - Fed Fund swap based curves");
+  }
   
   /**
    * Test the parrate versus a hard-coded number.
@@ -455,5 +464,26 @@ public class SwapCalculatorE2ETest {
         MQSBC.fromInstrument(SwapInstrumentsDataSet.IRS_ZERO_CPN, MULTICURVE_FFS, BLOCK_FFS).multipliedBy(BP1);
     AssertSensitivityObjects.assertEquals("Basis swap ON Cmp + spread v ON AA: bucketed deltas",
         pvpsExpected, pvpsComputed, TOLERANCE_PV_DELTA);
+  }
+
+  @Test
+  public void bucketedPV01Amortizing() {
+    double[] deltaDsc = new double[] {1.018660232177626, 0.23945867090278264, -0.595838183598077, -0.12224503254453303,
+        32.37424819248587, -2.811509312911029, 3.2136728515191706, -19.5145412740481, -66.21912170849029,
+        -94.49012974492305, -148.79324529691007, -92.80793651620597, -183.6639534170744, -75.11949956748518,
+        46.3292856800609, -10.991639232191739, -4.643283272886103, 1.594667212593762, -0.3944366924947886,
+        0.12659803284746804, -0.024852653849827003 };
+    double[] deltaFwd = new double[] {2648.9811673744225, 3283.06546205277, -3029.279036054035, -3415.913105718482,
+        -4216.819364113547, -7436.517419172356, -24858.495219017062, -2877.5148804514315, 971.0315356381067,
+        -141.96203889453983, 21.760508335908387, -5.739067648010352, 0.9984393560323234 };
+    final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> sensitivity = new LinkedHashMap<>();
+    sensitivity.put(ObjectsPair.of(MULTICURVE_FFS.getName(USD), USD), new DoubleMatrix1D(deltaDsc));
+    sensitivity.put(ObjectsPair.of(MULTICURVE_FFS.getName(USDLIBOR3M), USD), new DoubleMatrix1D(deltaFwd));
+    final MultipleCurrencyParameterSensitivity pvpsExpected = new MultipleCurrencyParameterSensitivity(sensitivity);
+    final MultipleCurrencyParameterSensitivity pvpsComputed =
+        MQSBC.fromInstrument(SwapInstrumentsDataSet.SWAP_AMORTIZING, MULTICURVE_FFS, BLOCK_FFS).multipliedBy(BP1);
+    AssertSensitivityObjects.assertEquals("Amortizing swap: bucketed deltas",
+        pvpsExpected, pvpsComputed, TOLERANCE_PV_DELTA);
+
   }
 }

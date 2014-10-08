@@ -8,6 +8,8 @@ package com.opengamma.analytics.financial.instrument.annuity;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
+import java.util.Arrays;
+
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalTime;
@@ -241,7 +243,52 @@ public class FloatingAnnuityDefinitionBuilderTest {
           fixingPeriodEndDate, fixingPeriodYearFraction, USDLIBOR3M, SPREAD_1, ADJUSTED_DATE_LIBOR.getCalendar());
     }
     AnnuityDefinition<?> iborDefinitionBare = new AnnuityDefinition<>(coupons, ADJUSTED_DATE_LIBOR.getCalendar());
-
     assertEquals(iborDefinitionBare, iborDefinition);
+
+    /*
+     * Construct annuity by the builder without dates
+     */
+    provider = new VariableNotionalProvider(notionals);
+    AnnuityDefinition<? extends CouponDefinition> iborDefinition1 =
+        (AnnuityDefinition<? extends CouponDefinition>) new FloatingAnnuityDefinitionBuilder().payer(PAYER_1)
+            .startDate(EFFECTIVE_DATE_1).endDate(MATURITY_DATE_1).index(USDLIBOR3M)
+            .accrualPeriodFrequency(PAYMENT_PERIOD).rollDateAdjuster(RollConvention.NONE.getRollDateAdjuster(0))
+            .resetDateAdjustmentParameters(ADJUSTED_DATE_LIBOR).accrualPeriodParameters(ADJUSTED_DATE_LIBOR)
+            .dayCount(USDLIBOR3M.getDayCount()).fixingDateAdjustmentParameters(OFFSET_ADJ_LIBOR).currency(USD)
+            .spread(SPREAD_1).startDateAdjustmentParameters(ADJUSTED_DATE_LIBOR)
+            .endDateAdjustmentParameters(ADJUSTED_DATE_LIBOR).notional(provider).build();
+    assertEquals(iborDefinitionBare, iborDefinition1);
+  }
+
+  /**
+   * Test consistency with constant notional
+   */
+  @Test
+  public void variableNotionalConsistencyTest() {
+    int nDates = 42;
+    double[] notionals = new double[nDates];
+    Arrays.fill(notionals, NOTIONAL_1);
+    NotionalProvider provider = new VariableNotionalProvider(notionals);
+    AnnuityDefinition<? extends CouponDefinition> iborDefinition =
+        (AnnuityDefinition<? extends CouponDefinition>) new FloatingAnnuityDefinitionBuilder().payer(PAYER_1)
+            .startDate(EFFECTIVE_DATE_1).endDate(MATURITY_DATE_1).index(USDLIBOR3M)
+            .accrualPeriodFrequency(PAYMENT_PERIOD).rollDateAdjuster(RollConvention.NONE.getRollDateAdjuster(0))
+            .resetDateAdjustmentParameters(ADJUSTED_DATE_LIBOR).accrualPeriodParameters(ADJUSTED_DATE_LIBOR)
+            .dayCount(USDLIBOR3M.getDayCount()).fixingDateAdjustmentParameters(OFFSET_ADJ_LIBOR).currency(USD)
+            .spread(SPREAD_1).startDateAdjustmentParameters(ADJUSTED_DATE_LIBOR)
+            .endDateAdjustmentParameters(ADJUSTED_DATE_LIBOR).exchangeInitialNotional(true).exchangeFinalNotional(true)
+            .notional(provider).build();
+
+    AnnuityDefinition<? extends CouponDefinition> iborDefinitionConst =
+        (AnnuityDefinition<? extends CouponDefinition>) new FloatingAnnuityDefinitionBuilder().payer(PAYER_1)
+            .startDate(EFFECTIVE_DATE_1).endDate(MATURITY_DATE_1).index(USDLIBOR3M)
+            .accrualPeriodFrequency(PAYMENT_PERIOD).rollDateAdjuster(RollConvention.NONE.getRollDateAdjuster(0))
+            .resetDateAdjustmentParameters(ADJUSTED_DATE_LIBOR).accrualPeriodParameters(ADJUSTED_DATE_LIBOR)
+            .dayCount(USDLIBOR3M.getDayCount()).fixingDateAdjustmentParameters(OFFSET_ADJ_LIBOR).currency(USD)
+            .spread(SPREAD_1).startDateAdjustmentParameters(ADJUSTED_DATE_LIBOR)
+            .endDateAdjustmentParameters(ADJUSTED_DATE_LIBOR).exchangeInitialNotional(true).exchangeFinalNotional(true)
+            .notional(NOTIONAL_PROV_1).build();
+
+    assertEquals(iborDefinitionConst, iborDefinition);
   }
 }

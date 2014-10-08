@@ -7,6 +7,8 @@ package com.opengamma.analytics.financial.instrument.annuity;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.util.Arrays;
+
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalTime;
@@ -124,7 +126,42 @@ public class FixedAnnuityDefinitionBuilderTest {
           accrualEndDatesBare[i], yearFraction, notionals[i], FIXED_RATE_1);
     }
     AnnuityDefinition<?> fixedDefinitionBare = new AnnuityDefinition<>(coupons, ADJUSTED_DATE_LIBOR.getCalendar());
-
     assertEquals(fixedDefinitionBare, fixedDefinition);
+
+    /*
+     * Construct annuity by the builder without dates
+     */
+    provider = new VariableNotionalProvider(notionals);
+    AnnuityDefinition<?> fixedDefinition1 = new FixedAnnuityDefinitionBuilder().
+        payer(PAYER_1).currency(USD).startDate(EFFECTIVE_DATE_1).endDate(MATURITY_DATE_1).
+        dayCount(USD6MLIBOR3M.getFixedLegDayCount()).accrualPeriodFrequency(period).
+        rate(FIXED_RATE_1).accrualPeriodParameters(ADJUSTED_DATE_LIBOR).notional(provider).build();
+    assertEquals(fixedDefinitionBare, fixedDefinition1);
+  }
+
+  /**
+   * Test consistency with constant notional
+   */
+  @Test
+  public void variableNotionalConsistencyTest() {
+    Period period = Period.ofMonths(6);
+    int nDates = 22;
+    double[] notionals = new double[nDates];
+    Arrays.fill(notionals, NOTIONAL_1);
+    NotionalProvider provider = new VariableNotionalProvider(notionals);
+    AnnuityDefinition<?> fixedDefinition = new FixedAnnuityDefinitionBuilder().payer(PAYER_1).currency(USD)
+        .startDate(EFFECTIVE_DATE_1).endDate(MATURITY_DATE_1).dayCount(USD6MLIBOR3M.getFixedLegDayCount())
+        .accrualPeriodFrequency(period).rate(FIXED_RATE_1).accrualPeriodParameters(ADJUSTED_DATE_LIBOR)
+        .exchangeInitialNotional(true).exchangeFinalNotional(true).notional(provider)
+        .startDateAdjustmentParameters(ADJUSTED_DATE_LIBOR).endDateAdjustmentParameters(ADJUSTED_DATE_LIBOR).build();
+
+    AnnuityDefinition<?> fixedDefinitionConst = new FixedAnnuityDefinitionBuilder().
+        payer(PAYER_1).currency(USD).startDate(EFFECTIVE_DATE_1).endDate(MATURITY_DATE_1)
+        .dayCount(USD6MLIBOR3M.getFixedLegDayCount()).accrualPeriodFrequency(period).rate(FIXED_RATE_1)
+        .accrualPeriodParameters(ADJUSTED_DATE_LIBOR).exchangeInitialNotional(true).exchangeFinalNotional(true)
+        .startDateAdjustmentParameters(ADJUSTED_DATE_LIBOR).endDateAdjustmentParameters(ADJUSTED_DATE_LIBOR)
+        .notional(NOTIONAL_PROV_1).build();
+
+    assertEquals(fixedDefinitionConst, fixedDefinition);
   }
 }

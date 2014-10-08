@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.financial.instrument.annuity;
 
+import java.util.ArrayList;
+
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.Period;
@@ -13,6 +15,7 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.NotionalProvider;
+import com.opengamma.analytics.financial.instrument.VariableNotionalProvider;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
@@ -202,6 +205,34 @@ public abstract class AbstractAnnuityDefinitionBuilder<T extends AbstractAnnuity
     return _notional;
   }
   
+  /**
+   * If notional provider is VariableNotionalProvider and the date set is null, construct a new provider with the computed dates
+   * @param dates Set of dates specifying notional, i.e., accrual start date for coupon payment, adjusted start/end date for notional exchange
+   */
+  protected void resetNotionalProvider(ZonedDateTime[] dates) {
+    if (getNotional() instanceof VariableNotionalProvider) {
+      VariableNotionalProvider provider = (VariableNotionalProvider) getNotional();
+      if (provider.getDates() == null) {
+        ArrayList<ZonedDateTime> list = new ArrayList<>();
+        if (isExchangeInitialNotional()) {
+          ZonedDateTime startDate = getStartDateAdjustmentParameters().getBusinessDayConvention().adjustDate(
+              getStartDateAdjustmentParameters().getCalendar(), getStartDate());
+          list.add(startDate);
+        }
+        int nDates = dates.length;
+        for (int i = 0; i < nDates; ++i) {
+          list.add(dates[i]);
+        }
+        if (isExchangeFinalNotional()) {
+          ZonedDateTime endDate = getEndDateAdjustmentParameters().getBusinessDayConvention().adjustDate(
+              getEndDateAdjustmentParameters().getCalendar(), getEndDate());
+          list.add(endDate);
+        }
+        _notional = provider.withZonedDateTime(list);
+      }
+    }
+  }
+
   /**
    * Returns the unadjusted start date of the annuity.
    * @return the unadjusted start date of the annuity.
