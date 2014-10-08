@@ -142,6 +142,7 @@ import com.opengamma.sesame.component.RetrievalPeriod;
 import com.opengamma.sesame.component.StringSet;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
+import com.opengamma.sesame.marketdata.FieldName;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.MapMarketDataSource;
 import com.opengamma.sesame.marketdata.MarketDataFn;
@@ -329,8 +330,12 @@ public class BondMockSources {
           .add(createId("B8"), 0.02619214367588991)
           .add(createId("B9"), 0.02719250291972944)
           .add(createId("B10"), 0.02808602151907749)
-          .add(ExternalId.of("ISIN", "Test Corp bond"), 108.672)
-          .add(ExternalId.of("ISIN", "Test Gov bond"), 136.375)
+          .add(ExternalId.of("ISIN", "Test Corp bond"), 1.08672)
+          .add(ExternalId.of("ISIN", "Test Gov bond"), 1.36375)
+          .add(ExternalId.of("ISIN", "Test Corp bond"), 
+              FieldName.of(MarketDataRequirementNames.YIELD_YIELD_TO_MATURITY_MID), 0.043)
+          .add(ExternalId.of("ISIN", "Test Gov bond"), 
+              FieldName.of(MarketDataRequirementNames.YIELD_YIELD_TO_MATURITY_MID), 0.0225)
           .build();
   }
 

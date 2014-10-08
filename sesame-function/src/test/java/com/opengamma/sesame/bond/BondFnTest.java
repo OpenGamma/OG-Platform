@@ -79,8 +79,9 @@ public class BondFnTest {
     Result<MultipleCurrencyAmount> computed = _bondFn.calculatePresentValueFromYield(ENV, CORP_TRADE);
     assertThat(computed.isSuccess(), is(true));
     assertThat(computed.getValue().getCurrencyAmount(Currency.GBP).getAmount(),
-               is(closeTo(10920.525899532251, TOLERANCE_PV)));
+               is(closeTo(10954.3014, TOLERANCE_PV)));
   }
+
 
   @Test
   public void testCorporateBondPV01() {
@@ -130,14 +131,14 @@ public class BondFnTest {
   public void testCorporateBondMarketCleanPrice() {
     Result<Double> computed = _bondFn.calculateCleanPriceMarket(ENV, CORP_TRADE);
     assertThat(computed.isSuccess(), is(true));
-    assertThat(computed.getValue(), is(108.672));
+    assertThat(computed.getValue(), is(1.08672));
   }
 
   @Test
   public void testCorporateBondYTM() {
     Result<Double> computed =  _bondFn.calculateYieldToMaturityMarket(ENV, CORP_TRADE);
     assertThat(computed.isSuccess(), is(true));
-    assertThat(computed.getValue(), is(closeTo(0.04373607286006458, TOLERANCE_RATE)));
+    assertThat(computed.getValue(), is(closeTo(0.0430, TOLERANCE_RATE)));
   }
 
 
@@ -164,7 +165,7 @@ public class BondFnTest {
     Result<MultipleCurrencyAmount> computed = _bondFn.calculatePresentValueFromYield(ENV, CORP_TRADE);
     assertThat(computed.isSuccess(), is(true));
     assertThat(computed.getValue().getCurrencyAmount(Currency.GBP).getAmount(),
-               is(closeTo(10920.525899532246, TOLERANCE_PV)));
+               is(closeTo(10954.3014, TOLERANCE_PV)));
   }
 
   @Test
@@ -210,17 +211,47 @@ public class BondFnTest {
   }
 
   @Test
-  public void testGovernmentBondMarketCleanPrice() {
+  public void testGovernmentBondCleanPriceMarket() {
     Result<Double> computed = _bondFn.calculateCleanPriceMarket(ENV, GOV_TRADE);
     assertThat(computed.isSuccess(), is(true));
-    assertThat(computed.getValue(), is(136.375));
+    assertThat(computed.getValue(), is(1.36375));
   }
 
   @Test
-  public void testGovernmentBondYTM() {
+  public void testGovernmentBondCleanPriceCurves() {
+    Result<Double> computed = _bondFn.calculateCleanPriceFromCurves(ENV, GOV_TRADE);
+    assertThat(computed.isSuccess(), is(true));
+    assertThat(computed.getValue(), is(closeTo(1.35546384, TOLERANCE_RATE)));
+  }
+
+  @Test
+  public void testGovernmentBondCleanPriceYield() {
+    Result<Double> computed = _bondFn.calculateCleanPriceFromYield(ENV, GOV_TRADE);
+    assertThat(computed.isSuccess(), is(true));
+    assertThat(computed.getValue(), is(closeTo(1.3644223558, TOLERANCE_RATE)));
+  }
+
+
+  @Test
+  public void testGovernmentBondYTMMarket() {
     Result<Double> computed = _bondFn.calculateYieldToMaturityMarket(ENV, GOV_TRADE);
+    assertThat(computed.isSuccess(), is(true));
+    assertThat(computed.getValue(), is(closeTo(0.0225, TOLERANCE_RATE)));
+  }
+
+  @Test
+  public void testGovernmentBondYTMPrice() {
+    Result<Double> computed = _bondFn.calculateYieldToMaturityFromCleanPrice(ENV, GOV_TRADE);
     assertThat(computed.isSuccess(), is(true));
     assertThat(computed.getValue(), is(closeTo(0.022588052760789467, TOLERANCE_RATE)));
   }
+
+  @Test
+  public void testGovernmentBondYTMCurve() {
+    Result<Double> computed = _bondFn.calculateYieldToMaturityFromCurves(ENV, GOV_TRADE);
+    assertThat(computed.isSuccess(), is(true));
+    assertThat(computed.getValue(), is(closeTo(0.0236775591, TOLERANCE_RATE)));
+  }
+
   
 }
