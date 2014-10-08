@@ -76,15 +76,17 @@ public final class RemoteViewBondUtils {
    * @param exposureConfig exposure function config, not null
    * @param currencyMatrixLink currency matrix config, not null
    */
-  public static ViewColumn createBondViewColumn(String output,
+  public static ViewColumn createBondViewColumn(String columnName,
+                                                String output,
                                                 ConfigLink<ExposureFunctions> exposureConfig,
                                                 ConfigLink<CurrencyMatrix> currencyMatrixLink) {
+    ArgumentChecker.notNull(columnName, "column name");
     ArgumentChecker.notNull(output, "output");
     ArgumentChecker.notNull(exposureConfig, "exposureConfig");
     ArgumentChecker.notNull(currencyMatrixLink, "currencyMatrixLink");
 
     return
-        column(output,
+        column(columnName, output,
                config(
                    arguments(
                        function(ConfigDbMarketExposureSelectorFn.class,
@@ -118,22 +120,88 @@ public final class RemoteViewBondUtils {
 
 
   /** List of Bond inputs */
-  public static final List<Object> BOND_INPUTS = ImmutableList.<Object>of(createGovernmentBondTrade());
+  public static final List<Object> BOND_INPUTS = 
+      ImmutableList.<Object>of(createGovernmentBondTradeSpot(), createGovernmentBondTradePast(),
+          createGovernmentBondTradeFwd());
 
 
-  private static BondTrade createGovernmentBondTrade() {
+  private static BondTrade createGovernmentBondTradeSpot() {
     Counterparty counterparty = new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "COUNTERPARTY"));
-    BigDecimal tradeQuantity = BigDecimal.valueOf(10000);
-    LocalDate tradeDate = LocalDate.of(2014, 7, 23);
+    BigDecimal tradeQuantity = BigDecimal.valueOf(10_000_000);
+    LocalDate tradeDate = LocalDate.of(2014, 7, 11);
     OffsetTime tradeTime = OffsetTime.of(LocalTime.of(0, 0), ZoneOffset.UTC);
-    SimpleTrade trade = new SimpleTrade(createGovernmentBondSecurity(), tradeQuantity, counterparty, tradeDate, tradeTime);
-    trade.setPremium(0.0);
-    trade.setPremiumDate(tradeDate);
-    trade.setPremiumCurrency(Currency.USD);
+    SimpleTrade trade = new SimpleTrade(createGovernmentBondSecurityUK(), tradeQuantity, counterparty, tradeDate, tradeTime);
+    trade.setPremium(0.99);
+    trade.setPremiumDate(LocalDate.of(2014, 7, 16));
+    trade.setPremiumCurrency(Currency.GBP);
+    return new BondTrade(trade);
+  }
+  
+  private static BondTrade createGovernmentBondTradePast() {
+    Counterparty counterparty = new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "COUNTERPARTY"));
+    BigDecimal tradeQuantity = BigDecimal.valueOf(10_000_000);
+    LocalDate tradeDate = LocalDate.of(2014, 7, 9);
+    OffsetTime tradeTime = OffsetTime.of(LocalTime.of(0, 0), ZoneOffset.UTC);
+    SimpleTrade trade = new SimpleTrade(createGovernmentBondSecurityUK(), tradeQuantity, counterparty, tradeDate, tradeTime);
+    trade.setPremium(0.99);
+    trade.setPremiumDate(LocalDate.of(2014, 7, 10));
+    trade.setPremiumCurrency(Currency.GBP);
+    return new BondTrade(trade);
+  }
+  
+  private static BondTrade createGovernmentBondTradeFwd() {
+    Counterparty counterparty = new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "COUNTERPARTY"));
+    BigDecimal tradeQuantity = BigDecimal.valueOf(10_000_000);
+    LocalDate tradeDate = LocalDate.of(2014, 7, 11);
+    OffsetTime tradeTime = OffsetTime.of(LocalTime.of(0, 0), ZoneOffset.UTC);
+    SimpleTrade trade = new SimpleTrade(createGovernmentBondSecurityUK(), tradeQuantity, counterparty, tradeDate, tradeTime);
+    trade.setPremium(0.99);
+    trade.setPremiumDate(LocalDate.of(2014, 7, 25));
+    trade.setPremiumCurrency(Currency.GBP);
     return new BondTrade(trade);
   }
 
-  private static BondSecurity createGovernmentBondSecurity() {
+  private static BondSecurity createGovernmentBondSecurityUK() {
+    // TODO: only 1 security for 3 trade?
+
+    String issuerName = "UK TREASURY";
+    String issuerDomicile = "GB";
+    String issuerType = "Sovereign";
+    Currency currency = Currency.GBP;
+    YieldConvention yieldConvention = SimpleYieldConvention.UK_BUMP_DMO_METHOD;
+    DayCount dayCountConvention = DayCounts.ACT_ACT_ICMA;
+
+    Period couponPeriod = Period.parse("P6M");
+    String couponType = "Fixed";
+    double couponRate = 8.0;
+    Frequency couponFrequency = PeriodFrequency.of(couponPeriod);
+
+    ZonedDateTime maturityDate = DateUtils.getUTCDate(2021, 6, 7);
+    ZonedDateTime firstCouponDate = DateUtils.getUTCDate(2011, 12, 7);
+    ZonedDateTime interestAccrualDate = DateUtils.getUTCDate(2011, 6, 7);
+    ZonedDateTime settlementDate = DateUtils.getUTCDate(2011, 6, 7);
+    Expiry lastTradeDate = new Expiry(maturityDate);
+
+    double issuancePrice = 100;
+    double totalAmountIssued = 32980000000.0;
+    double minimumAmount = 100;
+    double minimumIncrement = 100;
+    double parAmount = 100;
+    double redemptionValue = 100;
+
+    GovernmentBondSecurity bond =
+        new GovernmentBondSecurity(issuerName, issuerType, issuerDomicile, issuerType, currency, yieldConvention,
+                                   lastTradeDate, couponType, couponRate, couponFrequency, dayCountConvention,
+                                   interestAccrualDate, settlementDate, firstCouponDate, issuancePrice,
+                                   totalAmountIssued, minimumAmount, minimumIncrement, parAmount, redemptionValue);
+
+    ExternalId isinId = ExternalSchemes.isinSecurityId("GB0009997999");
+    ExternalId bloombergId = ExternalSchemes.bloombergTickerSecurityId("UKT 8 2021-06-07 Govt");
+    bond.setExternalIdBundle(ExternalIdBundle.of(isinId, bloombergId));
+    return bond;
+  }
+
+  private static BondSecurity createGovernmentBondSecurityUS() {
 
     String issuerName = "US TREASURY N/B";
     String issuerDomicile = "US";
