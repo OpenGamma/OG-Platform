@@ -39,7 +39,9 @@ public class BondFutureFnTest {
     ServiceContext serviceContext = ServiceContext.of(components).with(VersionCorrectionProvider.class, vcProvider);
     ThreadLocalServiceContext.init(serviceContext);
     
-    _bondFutureFn = FunctionModel.build(BondFutureFn.class, BondMockSources.getConfig(), ComponentMap.of(components));
+    _bondFutureFn = FunctionModel.build(BondFutureFn.class,
+                                        BondMockSources.getPreCalibratedConfig(),
+                                        ComponentMap.of(components));
   }
 
   @Test
