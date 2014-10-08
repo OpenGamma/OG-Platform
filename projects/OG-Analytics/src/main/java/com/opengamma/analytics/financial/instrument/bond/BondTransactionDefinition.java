@@ -15,7 +15,6 @@ import com.opengamma.analytics.financial.interestrate.bond.definition.BondSecuri
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondTransaction;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
-import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -38,10 +37,6 @@ public abstract class BondTransactionDefinition<N extends PaymentDefinition, C e
    * Transaction settlement date.
    */
   private final ZonedDateTime _settlementDate;
-  /**
-   * The ex-coupon date associated to the settlement date, i.e. ex-coupon days after settlement date.
-   */
-  private final ZonedDateTime _settlementExCouponDate; // TODO: do we use it?
   /**
    * The (quoted) price of the transaction in relative term (i.e. 0.90 if the clean price is 90% of nominal).
    * The meaning of this number will depend on the type of bond (fixed coupon, FRN, inflation).
@@ -74,11 +69,10 @@ public abstract class BondTransactionDefinition<N extends PaymentDefinition, C e
     _underlyingBond = underlyingBond;
     _quantity = quantity;
     _settlementDate = settlementDate;
-    _settlementExCouponDate = ScheduleCalculator.getAdjustedDate(_settlementDate, _underlyingBond.getExCouponDays(), _underlyingBond.getCalendar());
     _price = price;
     final int nbCoupon = underlyingBond.getCoupons().getNumberOfPayments();
     for (int loopcpn = 0; loopcpn < nbCoupon; loopcpn++) {
-      if (underlyingBond.getCoupons().getNthPayment(loopcpn).getAccrualEndDate().isAfter(_settlementDate)) { // <=
+      if (underlyingBond.getCoupons().getNthPayment(loopcpn).getAccrualEndDate().isAfter(_settlementDate)) {
         _couponIndex = loopcpn;
         break;
       }
@@ -109,14 +103,6 @@ public abstract class BondTransactionDefinition<N extends PaymentDefinition, C e
    */
   public ZonedDateTime getSettlementDate() {
     return _settlementDate;
-  }
-
-  /**
-   * Gets the ex-coupon date associated to the settlement date, i.e. ex-coupon days before settlement date.
-   * @return The ex-coupon date.
-   */
-  public ZonedDateTime getSettlementExCouponDate() {
-    return _settlementExCouponDate;
   }
 
   /**
