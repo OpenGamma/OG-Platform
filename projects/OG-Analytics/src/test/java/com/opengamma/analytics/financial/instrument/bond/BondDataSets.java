@@ -35,7 +35,7 @@ public class BondDataSets {
   private static final DayCount DAY_COUNT_GILT = DayCounts.ACT_ACT_ICMA;
   private static final BusinessDayConvention BUSINESS_DAY_GILT = BusinessDayConventions.FOLLOWING;
   private static final boolean IS_EOM_GILT = false;
-  private static final int SETTLEMENT_DAYS_GILT = 2;
+  private static final int SETTLEMENT_DAYS_GILT = 1; // See http://www.dmo.gov.uk/?page=Links/Glossary
   private static final int EX_DIVIDEND_DAYS_GILT = 7;
   private static final YieldConvention YIELD_CONVENTION_GILT = YieldConventionFactory.INSTANCE.getYieldConvention("UK:BUMP/DMO METHOD");
 
@@ -61,7 +61,7 @@ public class BondDataSets {
   private static final double RATE_UK21 = 0.0800;
   //UKT 2 1/4 2023-09-07 - ISIN-GB00B7Z53659
   private static final Period BOND_TENOR_UK23 = Period.ofYears(10);
-  private static final ZonedDateTime START_ACCRUAL_DATE_UK23 = DateUtils.getUTCDate(2013, 7, 9);
+  private static final ZonedDateTime START_ACCRUAL_DATE_UK23 = DateUtils.getUTCDate(2013, 9, 7);
   private static final ZonedDateTime MATURITY_DATE_UK23 = START_ACCRUAL_DATE_UK23.plus(BOND_TENOR_UK23);
   private static final double RATE_UK23 = 0.0225;
 

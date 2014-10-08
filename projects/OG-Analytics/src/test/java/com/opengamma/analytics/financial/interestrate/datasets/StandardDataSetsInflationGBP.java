@@ -61,6 +61,8 @@ import com.opengamma.util.tuple.Pair;
  * 
  */
 public class StandardDataSetsInflationGBP {
+  
+  private static final ZonedDateTime CALIBRATION_DATE = DateUtils.getUTCDate(2014, 4, 11);
 
   private static final Interpolator1D INTERPOLATOR_LINEAR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
       Interpolator1DFactory.FLAT_EXTRAPOLATOR);
@@ -76,7 +78,6 @@ public class StandardDataSetsInflationGBP {
   private static final GeneratorSwapFixedInflationZeroCoupon GENERATOR_INFLATION_SWAP = GeneratorSwapFixedInflationMaster.getInstance().getGenerator("UKRPI");
   private static final IndexPrice GBP_RPI = GENERATOR_INFLATION_SWAP.getIndexPrice();
 
-  private static final ZonedDateTime NOW = DateUtils.getUTCDate(2014, 4, 11);
 
   private static final ZonedDateTimeDoubleTimeSeries TS_PRICE_INDEX_USD_WITH_TODAY = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2013, 12, 31),
     DateUtils.getUTCDate(2014, 1, 31), DateUtils.getUTCDate(2014, 2, 28) }, new double[] {253.4, 252.6, 254.2 });
@@ -112,10 +113,11 @@ public class StandardDataSetsInflationGBP {
   private static final InstrumentDefinition<?>[][][][] DEFINITIONS_UNITS = new InstrumentDefinition<?>[NB_BLOCKS][][][];
   private static final GeneratorPriceIndexCurve[][][] GENERATORS_UNITS = new GeneratorPriceIndexCurve[NB_BLOCKS][][];
   private static final String[][][] NAMES_UNITS = new String[NB_BLOCKS][][];
-
-  private static final MulticurveProviderDiscount GBP_MULTICURVE = StandardDataSetsMulticurveGBP.getCurvesGBPSonia().getFirst();
+  private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_PAIR = 
+      StandardDataSetsMulticurveGBP.getCurvesGBPSonia(CALIBRATION_DATE);
+  private static final MulticurveProviderDiscount GBP_MULTICURVE = MULTICURVE_PAIR.getFirst();
   private static final InflationProviderDiscount KNOWN_DATA = new InflationProviderDiscount(GBP_MULTICURVE);
-  private static final CurveBuildingBlockBundle KNOWN_BUNDLE = StandardDataSetsMulticurveGBP.getCurvesGBPSonia().getSecond();
+  private static final CurveBuildingBlockBundle KNOWN_BUNDLE = MULTICURVE_PAIR.getSecond();
 
   private static final LinkedHashMap<String, IndexPrice[]> GBP_RPI_MAP = new LinkedHashMap<>();
 
@@ -141,7 +143,7 @@ public class StandardDataSetsInflationGBP {
   public static InstrumentDefinition<?>[] getDefinitions(final double[] marketQuotes, final GeneratorInstrument[] generators, final GeneratorAttribute[] attribute) {
     final InstrumentDefinition<?>[] definitions = new InstrumentDefinition<?>[marketQuotes.length];
     for (int loopmv = 0; loopmv < marketQuotes.length; loopmv++) {
-      definitions[loopmv] = generators[loopmv].generateInstrument(NOW, marketQuotes[loopmv], NOTIONAL, attribute[loopmv]);
+      definitions[loopmv] = generators[loopmv].generateInstrument(CALIBRATION_DATE, marketQuotes[loopmv], NOTIONAL, attribute[loopmv]);
     }
     return definitions;
   }
@@ -234,12 +236,12 @@ public class StandardDataSetsInflationGBP {
       for (final InstrumentDefinition<?> instrument : definitions[loopcurve]) {
         InstrumentDerivative ird;
         if (instrument instanceof SwapFixedInflationZeroCouponDefinition) {
-          final Annuity<? extends Payment> ird1 = ((SwapFixedInflationZeroCouponDefinition) instrument).getFirstLeg().toDerivative(NOW);
-          final Annuity<? extends Payment> ird2 = ((SwapFixedInflationZeroCouponDefinition) instrument).getSecondLeg().toDerivative(NOW, TS_PRICE_INDEX_USD_WITH_TODAY);
+          final Annuity<? extends Payment> ird1 = ((SwapFixedInflationZeroCouponDefinition) instrument).getFirstLeg().toDerivative(CALIBRATION_DATE);
+          final Annuity<? extends Payment> ird2 = ((SwapFixedInflationZeroCouponDefinition) instrument).getSecondLeg().toDerivative(CALIBRATION_DATE, TS_PRICE_INDEX_USD_WITH_TODAY);
           ird = new Swap<>(ird1, ird2);
         }
         else {
-          ird = instrument.toDerivative(NOW);
+          ird = instrument.toDerivative(CALIBRATION_DATE);
         }
         instruments[loopcurve][loopins++] = ird;
       }
@@ -250,12 +252,12 @@ public class StandardDataSetsInflationGBP {
   private static InstrumentDerivative convert(final InstrumentDefinition<?> instrument) {
     InstrumentDerivative ird;
     if (instrument instanceof SwapFixedInflationZeroCouponDefinition) {
-      final Annuity<? extends Payment> ird1 = ((SwapFixedInflationZeroCouponDefinition) instrument).getFirstLeg().toDerivative(NOW);
-      final Annuity<? extends Payment> ird2 = ((SwapFixedInflationZeroCouponDefinition) instrument).getSecondLeg().toDerivative(NOW, TS_PRICE_INDEX_USD_WITH_TODAY);
+      final Annuity<? extends Payment> ird1 = ((SwapFixedInflationZeroCouponDefinition) instrument).getFirstLeg().toDerivative(CALIBRATION_DATE);
+      final Annuity<? extends Payment> ird2 = ((SwapFixedInflationZeroCouponDefinition) instrument).getSecondLeg().toDerivative(CALIBRATION_DATE, TS_PRICE_INDEX_USD_WITH_TODAY);
       ird = new Swap<>(ird1, ird2);
     }
     else {
-      ird = instrument.toDerivative(NOW);
+      ird = instrument.toDerivative(CALIBRATION_DATE);
     }
     return ird;
   }

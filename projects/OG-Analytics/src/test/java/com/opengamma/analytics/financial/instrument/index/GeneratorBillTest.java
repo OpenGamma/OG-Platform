@@ -62,7 +62,7 @@ public class GeneratorBillTest {
     final double marketQuote = -0.0001;
     final double notional = 123000;
     final double quantity = 123;
-    final GeneratorAttribute attribute = new GeneratorAttribute();
+    final GeneratorAttributeET attribute = new GeneratorAttributeET(false);
     final BillTransactionDefinition billGenerated = GENERATOR_BILL.generateInstrument(REFERENCE_DATE, marketQuote, notional, attribute);
     final ZonedDateTime dettleDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, SETTLEMENT_DAYS, CALENDAR);
     final BillTransactionDefinition billExpected = BillTransactionDefinition.fromYield(BILL_BEL_SEC_DEFINITION, quantity, dettleDate, marketQuote, CALENDAR);

@@ -23,6 +23,7 @@ import com.opengamma.analytics.financial.legalentity.CreditRating;
 import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.analytics.financial.legalentity.Region;
 import com.opengamma.analytics.financial.legalentity.Sector;
+import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.link.SecurityLink;
@@ -149,6 +150,7 @@ public class BondNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinit
       throw new OpenGammaRuntimeException("Could not get bond settlement days from " + conventionName);
     }
     int settlementDays = convention.getBondSettlementDays(firstAccrualDate, maturityDate);
+    int exCouponDays = convention.getExDividendDays();
     Period paymentPeriod = ConversionUtils.getTenor(bondSecurity.getCouponFrequency());
     ZonedDateTime firstCouponDate =
         ZonedDateTime.of(bondSecurity.getFirstCouponDate().toLocalDate().atStartOfDay(), zone);
@@ -174,10 +176,12 @@ public class BondNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinit
     }
     LegalEntity legalEntity = new LegalEntity(ticker, shortName, creditRatings, sector, region);
     BondFixedSecurityDefinition securityDefinition = BondFixedSecurityDefinition.from(currency, firstAccrualDate,
-        firstCouponDate, maturityDate, paymentPeriod, rate, settlementDays, calendar, dayCount, businessDay,
-        yieldConvention, isEOM, legalEntity);
+        firstCouponDate, maturityDate, paymentPeriod, rate, settlementDays, exCouponDays, calendar, dayCount, 
+        businessDay, yieldConvention, isEOM, legalEntity);
     // TODO: PLAT-5253 Standard days to settlement are missing in bond description.
-    return BondFixedTransactionDefinition.fromYield(securityDefinition, 1, _valuationTime, yield);
+    ZonedDateTime settleDate = ScheduleCalculator.getAdjustedDate(_valuationTime, settlementDays, calendar);
+    return BondFixedTransactionDefinition.fromYield(securityDefinition, 1, settleDate, yield);
+    // TODO: User should choose between yield and price.
   }
 
 }

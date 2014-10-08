@@ -12,6 +12,7 @@ import java.util.LinkedHashMap;
 
 import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.collect.LinkedListMultimap;
 import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorYDCurve;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.cash.CashDefinition;
@@ -29,12 +30,17 @@ import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedONDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.legalentity.LegalEntity;
+import com.opengamma.analytics.financial.legalentity.LegalEntityFilter;
 import com.opengamma.analytics.financial.provider.curve.hullwhite.HullWhiteProviderDiscountBuildingRepository;
+import com.opengamma.analytics.financial.provider.curve.issuer.IssuerDiscountBuildingRepository;
 import com.opengamma.analytics.financial.provider.curve.multicurve.MulticurveDiscountBuildingRepository;
 import com.opengamma.analytics.financial.provider.description.interestrate.HullWhiteOneFactorProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.HullWhiteOneFactorProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterIssuerProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
@@ -181,6 +187,42 @@ public class CurveCalibrationTestsUtils {
       curveBundles[i] = new MultiCurveBundle<>(singleCurves);
     }
     return repository.makeCurvesFromDerivatives(curveBundles, knownData, dscMap, fwdIborMap, fwdOnMap, calculator, sensitivityCalculator);
+  }
+
+  @SuppressWarnings("unchecked")
+  public static Pair<IssuerProviderDiscount, CurveBuildingBlockBundle> makeCurvesFromDefinitionsIssuer(
+      ZonedDateTime calibrationDate, final InstrumentDefinition<?>[][][] definitions,
+      final GeneratorYDCurve[][] curveGenerators, final String[][] curveNames, final IssuerProviderDiscount knownData,
+      final InstrumentDerivativeVisitor<ParameterIssuerProviderInterface, Double> calculator,
+      final InstrumentDerivativeVisitor<ParameterIssuerProviderInterface, MulticurveSensitivity> sensitivityCalculator, 
+      boolean withToday, LinkedHashMap<String, Currency> dscMap, LinkedHashMap<String, IndexON[]> fwdOnMap, 
+      LinkedHashMap<String, IborIndex[]> fwdIborMap,
+      LinkedListMultimap<String, Pair<Object, LegalEntityFilter<LegalEntity>>> issuerMap, 
+      IssuerDiscountBuildingRepository repository,
+      ZonedDateTimeDoubleTimeSeries[] htsFixedOisWithToday, ZonedDateTimeDoubleTimeSeries[] htsFixedOisWithoutToday,
+      ZonedDateTimeDoubleTimeSeries[] htsFixedIborWithToday, ZonedDateTimeDoubleTimeSeries[] htsFixedIborWithoutToday) {
+    final int nUnits = definitions.length;
+    final MultiCurveBundle<GeneratorYDCurve>[] curveBundles = new MultiCurveBundle[nUnits];
+    for (int i = 0; i < nUnits; i++) {
+      final int nCurves = definitions[i].length;
+      final SingleCurveBundle<GeneratorYDCurve>[] singleCurves = new SingleCurveBundle[nCurves];
+      for (int j = 0; j < nCurves; j++) {
+        final int nInstruments = definitions[i][j].length;
+        final InstrumentDerivative[] derivatives = new InstrumentDerivative[nInstruments];
+        final double[] rates = new double[nInstruments];
+        for (int k = 0; k < nInstruments; k++) {
+          derivatives[k] = convert(definitions[i][j][k], withToday, calibrationDate, htsFixedOisWithToday, htsFixedOisWithoutToday,
+              htsFixedIborWithToday, htsFixedIborWithoutToday);
+          rates[k] = CurveCalibrationTestsUtils.initialGuess(definitions[i][j][k]);
+        }
+        final GeneratorYDCurve generator = curveGenerators[i][j].finalGenerator(derivatives);
+        final double[] initialGuess = generator.initialGuess(rates);
+        singleCurves[j] = new SingleCurveBundle<>(curveNames[i][j], derivatives, initialGuess, generator);
+      }
+      curveBundles[i] = new MultiCurveBundle<>(singleCurves);
+    }
+    return repository.makeCurvesFromDerivatives(curveBundles, knownData, dscMap, fwdIborMap, fwdOnMap, issuerMap,
+        calculator, sensitivityCalculator);
   }
 
   @SuppressWarnings("unchecked")

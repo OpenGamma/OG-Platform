@@ -30,10 +30,8 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 import com.opengamma.analytics.financial.provider.description.interestrate.ParameterIssuerProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
-import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
-import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
@@ -47,15 +45,15 @@ import com.opengamma.util.tuple.Pairs;
 public class BondFixedTransactionDiscountingMethodE2ETest {
 
   private static final Currency GBP = Currency.GBP;
+  private static final ZonedDateTime CALIBRATION_DATE = DateUtils.getUTCDate(2014, 7, 11);
   // Curve calibrated on swaps (OIS)
-  private static final ZonedDateTime REFERENCE_DATE_SWAPCURVE = DateUtils.getUTCDate(2014, 1, 22);
-  private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_SWAP_PAIR = StandardDataSetsMulticurveGBP.getCurvesGBPSonia();
+  private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_SWAP_PAIR = 
+      StandardDataSetsMulticurveGBP.getCurvesGBPSonia(CALIBRATION_DATE);
   private static final MulticurveProviderDiscount MULTICURVE_SWAP = MULTICURVE_SWAP_PAIR.getFirst();
   private static final CurveBuildingBlockBundle BLOCK_SWAP = MULTICURVE_SWAP_PAIR.getSecond();
-  private static final Calendar LON = StandardDataSetsMulticurveGBP.calendarArray()[0];
   // Curve calibrated with bills and bonds.
-  private static final ZonedDateTime REFERENCE_DATE_GOVTCURVE = DateUtils.getUTCDate(2014, 7, 11);
-  private static final Pair<IssuerProviderDiscount, CurveBuildingBlockBundle> ISSUER_GOVT_PAIR = StandardDataSetsBondCurveGBP.getCurvesGBPSoniaGovt();
+  private static final Pair<IssuerProviderDiscount, CurveBuildingBlockBundle> ISSUER_GOVT_PAIR = 
+      StandardDataSetsBondCurveGBP.getCurvesGBPSoniaGovt(CALIBRATION_DATE);
   private static final IssuerProviderDiscount ISSUER_GOVT = ISSUER_GOVT_PAIR.getFirst();
   private static final CurveBuildingBlockBundle BLOCK_GOVT = ISSUER_GOVT_PAIR.getSecond();
 
@@ -64,29 +62,42 @@ public class BondFixedTransactionDiscountingMethodE2ETest {
   private static final String NAME_ISSUER = UKT_800_20210607_SEC_DEF.getIssuer();
   private static final IssuerProviderDiscount ISSUER_SWAP = new IssuerProviderDiscount(MULTICURVE_SWAP);
   static {
-    ISSUER_SWAP.setCurve(Pairs.of((Object) NAME_ISSUER, (LegalEntityFilter<LegalEntity>) new LegalEntityShortName()), MULTICURVE_SWAP.getCurve(GBP));
+    ISSUER_SWAP.setCurve(Pairs.of((Object) NAME_ISSUER, (LegalEntityFilter<LegalEntity>) 
+        new LegalEntityShortName()), MULTICURVE_SWAP.getCurve(GBP));
   }
   private static final double QUANTITY_UKT_800_20210607 = 10000000; // 10m
-  private static final ZonedDateTime SETTLE_DATE_UKT_800_20210607_FWD = DateUtils.getUTCDate(2014, 2, 7);
-  private static final ZonedDateTime SETTLE_DATE_UKT_800_20210607_PAST = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE_SWAPCURVE, -1, LON);
   private static final double TRADE_PRICE_800_20210607 = 0.99;
-  private static final ZonedDateTime SETTLE_DATE_UKT_800_20210607_3 = DateUtils.getUTCDate(2014, 8, 11);
-  private static final BondFixedTransactionDefinition UKT_800_20210607_TRA_DEF = new BondFixedTransactionDefinition(UKT_800_20210607_SEC_DEF,
-      QUANTITY_UKT_800_20210607, SETTLE_DATE_UKT_800_20210607_FWD, TRADE_PRICE_800_20210607);
-  private static final BondFixedTransactionDefinition UKT_800_20210607_TRA_PAST_DEF = new BondFixedTransactionDefinition(UKT_800_20210607_SEC_DEF,
-      QUANTITY_UKT_800_20210607, SETTLE_DATE_UKT_800_20210607_PAST, TRADE_PRICE_800_20210607);
-  private static final BondFixedTransactionDefinition UKT_800_20210607_TRA_3_DEF = new BondFixedTransactionDefinition(UKT_800_20210607_SEC_DEF,
-      QUANTITY_UKT_800_20210607, SETTLE_DATE_UKT_800_20210607_3, TRADE_PRICE_800_20210607);
-  private static final BondFixedTransaction UKT_800_20210607_TRA_1 = UKT_800_20210607_TRA_DEF.toDerivative(REFERENCE_DATE_SWAPCURVE);
-  private static final BondFixedTransaction UKT_800_20210607_TRA_2 = UKT_800_20210607_TRA_PAST_DEF.toDerivative(REFERENCE_DATE_SWAPCURVE);
-  private static final BondFixedTransaction UKT_800_20210607_TRA_3 = UKT_800_20210607_TRA_3_DEF.toDerivative(REFERENCE_DATE_GOVTCURVE);
+  private static final ZonedDateTime SETTLE_DATE_UKT_800_20210607_SPOT = DateUtils.getUTCDate(2014, 7, 16);
+  private static final ZonedDateTime SETTLE_DATE_UKT_800_20210607_PAST = DateUtils.getUTCDate(2014, 7, 10);
+  private static final ZonedDateTime SETTLE_DATE_UKT_800_20210607_FWD = DateUtils.getUTCDate(2014, 7, 25);
+  
+  private static final BondFixedTransactionDefinition UKT_800_20210607_TRA_SPOT_DEF = 
+      new BondFixedTransactionDefinition(UKT_800_20210607_SEC_DEF, QUANTITY_UKT_800_20210607, 
+          SETTLE_DATE_UKT_800_20210607_SPOT, TRADE_PRICE_800_20210607);
+  private static final BondFixedTransactionDefinition UKT_800_20210607_TRA_PAST_DEF = 
+      new BondFixedTransactionDefinition(UKT_800_20210607_SEC_DEF, QUANTITY_UKT_800_20210607, 
+          SETTLE_DATE_UKT_800_20210607_PAST, TRADE_PRICE_800_20210607);
+  private static final BondFixedTransactionDefinition UKT_800_20210607_TRA_FWD_DEF = 
+      new BondFixedTransactionDefinition(UKT_800_20210607_SEC_DEF, QUANTITY_UKT_800_20210607, 
+          SETTLE_DATE_UKT_800_20210607_FWD, TRADE_PRICE_800_20210607);
+  
+  private static final BondFixedTransaction UKT_800_20210607_TRA_SPOT = 
+      UKT_800_20210607_TRA_SPOT_DEF.toDerivative(CALIBRATION_DATE);
+  private static final BondFixedTransaction UKT_800_20210607_TRA_PAST = 
+      UKT_800_20210607_TRA_PAST_DEF.toDerivative(CALIBRATION_DATE);  
+  private static final BondFixedTransaction UKT_800_20210607_TRA_FWD = 
+      UKT_800_20210607_TRA_FWD_DEF.toDerivative(CALIBRATION_DATE);
 
   // Calculator and methods
   private static final PresentValueIssuerCalculator PVIC = PresentValueIssuerCalculator.getInstance();
-  private static final BondTransactionDiscountingMethod METHOD_BOND_TRA = BondTransactionDiscountingMethod.getInstance();
-  private static final BondSecurityDiscountingMethod METHOD_BOND_SEC = BondSecurityDiscountingMethod.getInstance();
-  private static final PresentValueCurveSensitivityIssuerCalculator PVCSIC = PresentValueCurveSensitivityIssuerCalculator.getInstance();
-  private static final ParameterSensitivityParameterCalculator<ParameterIssuerProviderInterface> PSC = new ParameterSensitivityParameterCalculator<>(PVCSIC);
+  private static final BondTransactionDiscountingMethod METHOD_BOND_TRA = 
+      BondTransactionDiscountingMethod.getInstance();
+  private static final BondSecurityDiscountingMethod METHOD_BOND_SEC = 
+      BondSecurityDiscountingMethod.getInstance();
+  private static final PresentValueCurveSensitivityIssuerCalculator PVCSIC = 
+      PresentValueCurveSensitivityIssuerCalculator.getInstance();
+  private static final ParameterSensitivityParameterCalculator<ParameterIssuerProviderInterface> PSC = 
+      new ParameterSensitivityParameterCalculator<>(PVCSIC);
   private static final MarketQuoteSensitivityBlockCalculator<ParameterIssuerProviderInterface> MQSBC =
       new MarketQuoteSensitivityBlockCalculator<>(PSC);
 
@@ -102,54 +113,83 @@ public class BondFixedTransactionDiscountingMethodE2ETest {
   /** Curve calibrated on swaps (OIS) */
   @Test
   public void presentValueCurveOis() {
-    double pvExpected1 = 4257244.16539445;
-    MultipleCurrencyAmount pvComputed1 = UKT_800_20210607_TRA_1.accept(PVIC, ISSUER_SWAP);
-    assertEquals("BondFixedTransactionDiscountingMethodE2ETest", pvComputed1.getAmount(GBP), pvExpected1, TOLERANCE_PV);
-    double pvExpected2 = 14291647.145374725;
-    MultipleCurrencyAmount pvComputed2 = UKT_800_20210607_TRA_2.accept(PVIC, ISSUER_SWAP);
-    assertEquals("BondFixedTransactionDiscountingMethodE2ETest", pvComputed2.getAmount(GBP), pvExpected2, TOLERANCE_PV);
-  }
-
-  @Test
-  public void yieldCurveOis() {
-    double yieldExpected = 0.01886776;
-    double yieldComputed = METHOD_BOND_SEC.yieldFromCurves(UKT_800_20210607_TRA_1.getBondStandard(), ISSUER_SWAP);
-    assertEquals("BondFixedTransactionDiscountingMethodE2ETest", yieldExpected, yieldComputed, TOLERANCE_YIELD);
-  }
-
-  @Test
-  public void priceCurveOis() {
-    double priceExpected = 1.41864835; // Clean price
-    double priceComputed = METHOD_BOND_SEC.cleanPriceFromCurves(UKT_800_20210607_TRA_1.getBondStandard(), ISSUER_SWAP);
-    assertEquals("BondFixedTransactionDiscountingMethodE2ETest", priceExpected, priceComputed, TOLERANCE_PRICE);
+    double pvExpected1 = 4079490.1191;
+    MultipleCurrencyAmount pvComputed1 = UKT_800_20210607_TRA_SPOT.accept(PVIC, ISSUER_SWAP);
+    assertEquals("BondFixedTransactionDiscountingMethodE2ETest", pvExpected1, pvComputed1.getAmount(GBP), TOLERANCE_PV);
+    double pvExpected2 = 14064158.3895;
+    MultipleCurrencyAmount pvComputed2 = UKT_800_20210607_TRA_PAST.accept(PVIC, ISSUER_SWAP);
+    assertEquals("BondFixedTransactionDiscountingMethodE2ETest", pvExpected2, pvComputed2.getAmount(GBP), TOLERANCE_PV);
+    double pvExpected3 = 4060862.9747;
+    MultipleCurrencyAmount pvComputed3 = UKT_800_20210607_TRA_FWD.accept(PVIC, ISSUER_SWAP);
+    assertEquals("BondFixedTransactionDiscountingMethodE2ETest", pvExpected3, pvComputed3.getAmount(GBP), TOLERANCE_PV);
   }
 
   @Test
   public void presentValuePriceOis() {
-    double pvExpected = 4070764.9831047133;
-    MultipleCurrencyAmount pvComputed = METHOD_BOND_TRA.presentValueFromCleanPrice(UKT_800_20210607_TRA_1, ISSUER_SWAP, BOND_QUOTED_CLEAN_PRICE);
-    assertEquals("BondFixedTransactionDiscountingMethodE2ETest", pvComputed.getAmount(GBP), pvExpected, TOLERANCE_PV);
-  }
-
-  @Test
-  public void yieldPrice() {
-    double yieldExpected = 0.02109311;
-    double yieldComputed = METHOD_BOND_SEC.yieldFromCleanPrice(UKT_800_20210607_TRA_1.getBondStandard(), BOND_QUOTED_CLEAN_PRICE);
-    assertEquals("BondFixedTransactionDiscountingMethodE2ETest", yieldExpected, yieldComputed, TOLERANCE_YIELD);
+    double pvExpected1 = 4095717.0907;
+    MultipleCurrencyAmount pvComputed1 = 
+        METHOD_BOND_TRA.presentValueFromCleanPrice(UKT_800_20210607_TRA_SPOT, ISSUER_SWAP, BOND_QUOTED_CLEAN_PRICE);
+    assertEquals("BondFixedTransactionDiscountingMethodE2ETest", pvExpected1, pvComputed1.getAmount(GBP), TOLERANCE_PV);
+    double pvExpected2 = 14080385.3611;
+    MultipleCurrencyAmount pvComputed2 = 
+        METHOD_BOND_TRA.presentValueFromCleanPrice(UKT_800_20210607_TRA_PAST, ISSUER_SWAP, BOND_QUOTED_CLEAN_PRICE);
+    assertEquals("BondFixedTransactionDiscountingMethodE2ETest", pvExpected2, pvComputed2.getAmount(GBP), TOLERANCE_PV);
+    double pvExpected3 = 4077089.9463;
+    MultipleCurrencyAmount pvComputed3 = 
+        METHOD_BOND_TRA.presentValueFromCleanPrice(UKT_800_20210607_TRA_FWD, ISSUER_SWAP, BOND_QUOTED_CLEAN_PRICE);
+    assertEquals("BondFixedTransactionDiscountingMethodE2ETest", pvExpected3, pvComputed3.getAmount(GBP), TOLERANCE_PV);
   }
 
   @Test
   public void presentValueYieldOis() {
-    double pvExpected = 4330776.44270899;
-    MultipleCurrencyAmount pvComputed = METHOD_BOND_TRA.presentValueFromYield(UKT_800_20210607_TRA_1, ISSUER_SWAP, BOND_QUOTED_YIELD);
-    assertEquals("BondFixedTransactionDiscountingMethodE2ETest", pvComputed.getAmount(GBP), pvExpected, TOLERANCE_PV);
+    double pvExpected1 = 4100927.5796;
+    MultipleCurrencyAmount pvComputed1 = 
+        METHOD_BOND_TRA.presentValueFromYield(UKT_800_20210607_TRA_SPOT, ISSUER_SWAP, BOND_QUOTED_YIELD);
+    assertEquals("BondFixedTransactionDiscountingMethodE2ETest", pvExpected1, pvComputed1.getAmount(GBP), TOLERANCE_PV);
+    double pvExpected2 = 14085595.8500;
+    MultipleCurrencyAmount pvComputed2 = 
+        METHOD_BOND_TRA.presentValueFromYield(UKT_800_20210607_TRA_PAST, ISSUER_SWAP, BOND_QUOTED_YIELD);
+    assertEquals("BondFixedTransactionDiscountingMethodE2ETest", pvExpected2, pvComputed2.getAmount(GBP), TOLERANCE_PV);
+    double pvExpected3 = 4082300.4352;
+    MultipleCurrencyAmount pvComputed3 = 
+        METHOD_BOND_TRA.presentValueFromYield(UKT_800_20210607_TRA_FWD, ISSUER_SWAP, BOND_QUOTED_YIELD);
+    assertEquals("BondFixedTransactionDiscountingMethodE2ETest", pvExpected3, pvComputed3.getAmount(GBP), TOLERANCE_PV);
+  }
+
+  @Test
+  public void priceCurveOis() {
+    double priceExpected = 1.39837725; // Clean price
+    double priceComputed1 = METHOD_BOND_SEC.cleanPriceFromCurves(UKT_800_20210607_TRA_SPOT.getBondStandard(), ISSUER_SWAP);
+    assertEquals("BondFixedTransactionDiscountingMethodE2ETest", priceExpected, priceComputed1, TOLERANCE_PRICE);
+    double priceComputed2 = METHOD_BOND_SEC.cleanPriceFromCurves(UKT_800_20210607_TRA_PAST.getBondStandard(), ISSUER_SWAP);
+    assertEquals("BondFixedTransactionDiscountingMethodE2ETest", priceExpected, priceComputed2, TOLERANCE_PRICE);
+    double priceComputed3 = METHOD_BOND_SEC.cleanPriceFromCurves(UKT_800_20210607_TRA_FWD.getBondStandard(), ISSUER_SWAP);
+    assertEquals("BondFixedTransactionDiscountingMethodE2ETest", priceExpected, priceComputed3, TOLERANCE_PRICE);
   }
 
   @Test
   public void priceYield() {
-    double priceExpected = 1.42600175; // Clean price
-    double priceComputed = METHOD_BOND_SEC.cleanPriceFromYield(UKT_800_20210607_TRA_1.getBondStandard(), BOND_QUOTED_YIELD);
-    assertEquals("BondFixedTransactionDiscountingMethodE2ETest", priceExpected, priceComputed, TOLERANCE_PRICE);
+    double priceExpected = 1.4005210670; // Clean price
+    double priceComputed1 = METHOD_BOND_SEC.cleanPriceFromYield(UKT_800_20210607_TRA_SPOT.getBondStandard(), BOND_QUOTED_YIELD);
+    assertEquals("BondFixedTransactionDiscountingMethodE2ETest", priceExpected, priceComputed1, TOLERANCE_PRICE);
+    double priceComputed2 = METHOD_BOND_SEC.cleanPriceFromYield(UKT_800_20210607_TRA_PAST.getBondStandard(), BOND_QUOTED_YIELD);
+    assertEquals("BondFixedTransactionDiscountingMethodE2ETest", priceExpected, priceComputed2, TOLERANCE_PRICE);
+    double priceComputed3 = METHOD_BOND_SEC.cleanPriceFromYield(UKT_800_20210607_TRA_FWD.getBondStandard(), BOND_QUOTED_YIELD);
+    assertEquals("BondFixedTransactionDiscountingMethodE2ETest", priceExpected, priceComputed3, TOLERANCE_PRICE);
+  }
+
+  @Test
+  public void yieldCurveOis() {
+    double yieldExpected = 0.0182715311;
+    double yieldComputed = METHOD_BOND_SEC.yieldFromCurves(UKT_800_20210607_TRA_SPOT.getBondStandard(), ISSUER_SWAP);
+    assertEquals("BondFixedTransactionDiscountingMethodE2ETest", yieldExpected, yieldComputed, TOLERANCE_YIELD);
+  }
+
+  @Test
+  public void yieldPrice() {
+    double yieldExpected = 0.0180659508;
+    double yieldComputed = METHOD_BOND_SEC.yieldFromCleanPrice(UKT_800_20210607_TRA_SPOT.getBondStandard(), BOND_QUOTED_CLEAN_PRICE);
+    assertEquals("BondFixedTransactionDiscountingMethodE2ETest", yieldExpected, yieldComputed, TOLERANCE_YIELD);
   }
 
   @Test
@@ -159,16 +199,25 @@ public class BondFixedTransactionDiscountingMethodE2ETest {
     final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> sensitivity = new LinkedHashMap<>();
     sensitivity.put(ObjectsPair.of(ISSUER_SWAP.getName(UKT_800_20210607_SEC_DEF.getIssuerEntity()), GBP), new DoubleMatrix1D(deltaDsc));
     final MultipleCurrencyParameterSensitivity pvpsExpected = new MultipleCurrencyParameterSensitivity(sensitivity);
-    final MultipleCurrencyParameterSensitivity pvpsComputed = MQSBC.fromInstrument(UKT_800_20210607_TRA_1, ISSUER_SWAP, BLOCK_SWAP).multipliedBy(BP1);
+    final MultipleCurrencyParameterSensitivity pvpsComputed = MQSBC.fromInstrument(UKT_800_20210607_TRA_SPOT, ISSUER_SWAP, BLOCK_SWAP).multipliedBy(BP1);
     AssertSensitivityObjects.assertEquals("BondFixedTransactionDiscountingMethodE2ETest: bucketed deltas from standard curves", pvpsExpected, pvpsComputed, TOLERANCE_PV_DELTA);
   }
 
   /** Curve calibrated with bills and bonds. */
   @Test
-  public void presentValueCurveGovt() {
-    double pvExpected = 3821202.2688594256;
-    MultipleCurrencyAmount pvComputed = UKT_800_20210607_TRA_3.accept(PVIC, ISSUER_GOVT);
-    assertEquals("BondFixedTransactionDiscountingMethodE2ETest", pvComputed.getAmount(GBP), pvExpected, TOLERANCE_PV);
+  public void presentValueCurveGovt() {    
+    double pvExpectedGSpot = 4045194.6254;
+    MultipleCurrencyAmount pvComputedGSpot = UKT_800_20210607_TRA_SPOT.accept(PVIC, ISSUER_GOVT);
+    assertEquals("BondFixedTransactionDiscountingMethodE2ETest", 
+        pvExpectedGSpot, pvComputedGSpot.getAmount(GBP), TOLERANCE_PV);
+    double pvExpectedGPast = 14029862.8957;
+    MultipleCurrencyAmount pvComputedGPast = UKT_800_20210607_TRA_PAST.accept(PVIC, ISSUER_GOVT);
+    assertEquals("BondFixedTransactionDiscountingMethodE2ETest", 
+        pvExpectedGPast, pvComputedGPast.getAmount(GBP), TOLERANCE_PV);
+    double pvExpectedGFwd = 4026567.4809;
+    MultipleCurrencyAmount pvComputedGFwd = UKT_800_20210607_TRA_FWD.accept(PVIC, ISSUER_GOVT);
+    assertEquals("BondFixedTransactionDiscountingMethodE2ETest", 
+        pvExpectedGFwd, pvComputedGFwd.getAmount(GBP), TOLERANCE_PV);
   }
 
   @Test
@@ -180,7 +229,7 @@ public class BondFixedTransactionDiscountingMethodE2ETest {
     sensitivity.put(ObjectsPair.of(ISSUER_GOVT.getMulticurveProvider().getName(GBP), GBP), new DoubleMatrix1D(deltaDsc));
     sensitivity.put(ObjectsPair.of(ISSUER_GOVT.getName(UKT_800_20210607_SEC_DEF.getIssuerEntity()), GBP), new DoubleMatrix1D(deltaGovt));
     final MultipleCurrencyParameterSensitivity pvpsExpected = new MultipleCurrencyParameterSensitivity(sensitivity);
-    final MultipleCurrencyParameterSensitivity pvpsComputed = MQSBC.fromInstrument(UKT_800_20210607_TRA_3, ISSUER_GOVT, BLOCK_GOVT).multipliedBy(BP1);
+    final MultipleCurrencyParameterSensitivity pvpsComputed = MQSBC.fromInstrument(UKT_800_20210607_TRA_SPOT, ISSUER_GOVT, BLOCK_GOVT).multipliedBy(BP1);
     AssertSensitivityObjects.assertEquals("BondFixedTransactionDiscountingMethodE2ETest: bucketed deltas from standard curves", pvpsExpected, pvpsComputed, TOLERANCE_PV_DELTA);
   }
 

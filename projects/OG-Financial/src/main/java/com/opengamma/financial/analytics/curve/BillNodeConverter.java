@@ -18,6 +18,7 @@ import com.opengamma.analytics.financial.instrument.bond.BillTransactionDefiniti
 import com.opengamma.analytics.financial.legalentity.CreditRating;
 import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.analytics.financial.legalentity.Region;
+import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.legalentity.LegalEntitySource;
@@ -139,7 +140,8 @@ public class BillNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinit
     BillSecurityDefinition securityDefinition =
         new BillSecurityDefinition(currency, maturityDate, 1, settlementDays, calendar,
                                    yieldConvention, dayCount, legalEntity);
-    return BillTransactionDefinition.fromYield(securityDefinition, 1, _valuationTime, yield, calendar);
+    ZonedDateTime settleDate = ScheduleCalculator.getAdjustedDate(_valuationTime, settlementDays, calendar);
+    return BillTransactionDefinition.fromYield(securityDefinition, 1, settleDate, yield, calendar);
   }
 
 }
