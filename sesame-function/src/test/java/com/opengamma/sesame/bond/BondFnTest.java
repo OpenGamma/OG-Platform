@@ -53,7 +53,7 @@ public class BondFnTest {
     VersionCorrectionProvider vcProvider = new FixedInstantVersionCorrectionProvider(Instant.now());
     ServiceContext serviceContext = ServiceContext.of(components).with(VersionCorrectionProvider.class, vcProvider);
     ThreadLocalServiceContext.init(serviceContext);
-    _bondFn = FunctionModel.build(BondFn.class, BondMockSources.getConfig(), ComponentMap.of(components));
+    _bondFn = FunctionModel.build(BondFn.class, BondMockSources.getPreCalibratedConfig(), ComponentMap.of(components));
   }
 
   /* Corporate bond tests */
@@ -86,7 +86,7 @@ public class BondFnTest {
   public void testCorporateBondPV01() {
     Result<ReferenceAmount<Pair<String, Currency>>> computed = _bondFn.calculatePV01(ENV, CORP_TRADE);
     assertThat(computed.isSuccess(), is(true));
-    ObjectsPair key = ObjectsPair.of(BondMockSources.BOND_GBP_CURVE_NAME, Currency.GBP);
+    ObjectsPair key = ObjectsPair.of(BondMockSources.BOND_GBP_PRE_CALIBRATED_CURVE_NAME, Currency.GBP);
     assertThat(computed.getValue().getMap().get(key), is(closeTo(-5.185676590681165, STD_TOLERANCE_PV01)));
   }
 
@@ -96,7 +96,7 @@ public class BondFnTest {
     assertThat(computed.isSuccess(), is(true));
 
     BucketedCurveSensitivities sensitivities = computed.getValue();
-    ObjectsPair key = ObjectsPair.of(BondMockSources.BOND_GBP_CURVE_NAME, Currency.GBP);
+    ObjectsPair key = ObjectsPair.of(BondMockSources.BOND_GBP_PRE_CALIBRATED_CURVE_NAME, Currency.GBP);
     assertThat(sensitivities.getSensitivities().containsKey(key), is(true));
 
     double[] actual = sensitivities.getSensitivities().get(key).getValues();
@@ -171,7 +171,7 @@ public class BondFnTest {
   public void testGovernmentBondPV01() {
     Result<ReferenceAmount<Pair<String, Currency>>> computed = _bondFn.calculatePV01(ENV, GOV_TRADE);
     assertThat(computed.isSuccess(), is(true));
-    ObjectsPair key = ObjectsPair.of(BondMockSources.BOND_GBP_CURVE_NAME, Currency.GBP);
+    ObjectsPair key = ObjectsPair.of(BondMockSources.BOND_GBP_PRE_CALIBRATED_CURVE_NAME, Currency.GBP);
     assertThat(computed.getValue().getMap().get(key), is(closeTo(-7.464961746079804, STD_TOLERANCE_PV01)));
   }
 
@@ -180,7 +180,7 @@ public class BondFnTest {
     Result<BucketedCurveSensitivities> computed = _bondFn.calculateBucketedPV01(ENV, GOV_TRADE);
     assertThat(computed.isSuccess(), is(true));
     BucketedCurveSensitivities sensitivities = computed.getValue();
-    ObjectsPair key = ObjectsPair.of(BondMockSources.BOND_GBP_CURVE_NAME, Currency.GBP);
+    ObjectsPair key = ObjectsPair.of(BondMockSources.BOND_GBP_PRE_CALIBRATED_CURVE_NAME, Currency.GBP);
     assertThat(sensitivities.getSensitivities().containsKey(key), is(true));
 
     double[] actual = sensitivities.getSensitivities().get(key).getValues();

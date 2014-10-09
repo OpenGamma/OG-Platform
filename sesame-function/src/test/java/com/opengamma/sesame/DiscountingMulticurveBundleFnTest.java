@@ -6,6 +6,7 @@ import static com.opengamma.sesame.config.ConfigBuilder.arguments;
 import static com.opengamma.sesame.config.ConfigBuilder.config;
 import static com.opengamma.sesame.config.ConfigBuilder.function;
 import static com.opengamma.sesame.config.ConfigBuilder.implementations;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
@@ -41,6 +42,7 @@ import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.holiday.impl.WeekendHolidaySource;
+import com.opengamma.core.legalentity.LegalEntitySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.region.impl.SimpleRegion;
 import com.opengamma.core.security.Security;
@@ -53,6 +55,7 @@ import com.opengamma.financial.analytics.curve.CurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.DiscountingCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.InterpolatedCurveDefinition;
 import com.opengamma.financial.analytics.curve.OvernightCurveTypeConfiguration;
+import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.FinancialConvention;
 import com.opengamma.financial.convention.OISLegConvention;
 import com.opengamma.financial.convention.OvernightIndexConvention;
@@ -140,7 +143,9 @@ public class DiscountingMulticurveBundleFnTest {
     
     mocks.putInstance(RootFinderConfiguration.class, ROOT_FINDER_CONFIG);
     mocks.putInstance(HolidaySource.class, new WeekendHolidaySource());
-    
+
+    mocks.putInstance(LegalEntitySource.class, mock(LegalEntitySource.class));
+    mocks.putInstance(ConventionBundleSource.class, mock(ConventionBundleSource.class));
     ComponentMap components = ComponentMap.of(mocks);
     
     FunctionModelConfig config = config(

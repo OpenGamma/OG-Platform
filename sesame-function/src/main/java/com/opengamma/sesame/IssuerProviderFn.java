@@ -6,12 +6,9 @@
 package com.opengamma.sesame;
 
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
-import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
-import com.opengamma.analytics.financial.provider.description.interestrate.ParameterIssuerProviderInterface;
 import com.opengamma.core.position.Trade;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.util.result.Result;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * Creates a multicurve bundle for curves by issuer.
@@ -31,9 +28,7 @@ public interface IssuerProviderFn {
    * @deprecated use {@link #createBundle(Environment, Trade, FXMatrix)} with the original trade.
    */
   @Deprecated
-  Result<Pair<ParameterIssuerProviderInterface, CurveBuildingBlockBundle>> createBundle(Environment env,
-                                                                                        FinancialSecurity security,
-                                                                                        FXMatrix fxMatrix);
+  Result<IssuerProviderBundle> createBundle(Environment env, FinancialSecurity security, FXMatrix fxMatrix);
 
   /**
    * Returns the multicurve bundle for curves by issuer for a specified environment, trade and FX matrix.
@@ -43,7 +38,5 @@ public interface IssuerProviderFn {
    * @param fxMatrix the FX matrix to include inside the multicurve bundle.
    * @return the multicurve bundle for curves by issuer.
    */
-  Result<Pair<ParameterIssuerProviderInterface, CurveBuildingBlockBundle>> createBundle(Environment env,
-                                                                                        Trade trade,
-                                                                                        FXMatrix fxMatrix);
+  Result<IssuerProviderBundle> createBundle(Environment env, Trade trade, FXMatrix fxMatrix);
 }

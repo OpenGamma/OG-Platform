@@ -34,7 +34,6 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -64,15 +63,17 @@ import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfigurationSource;
-import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.curve.CurveGroupConfiguration;
 import com.opengamma.financial.analytics.curve.CurveNodeIdMapper;
 import com.opengamma.financial.analytics.curve.CurveTypeConfiguration;
+import com.opengamma.financial.analytics.curve.DiscountingCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.InterpolatedCurveDefinition;
 import com.opengamma.financial.analytics.curve.IssuerCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.exposure.ExposureFunctions;
 import com.opengamma.financial.analytics.ircurve.CurveInstrumentProvider;
 import com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider;
+import com.opengamma.financial.analytics.ircurve.strips.BillNode;
+import com.opengamma.financial.analytics.ircurve.strips.BondNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
 import com.opengamma.financial.analytics.ircurve.strips.PeriodicallyCompoundedRateNode;
 import com.opengamma.financial.convention.ConventionBundle;
@@ -81,12 +82,14 @@ import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.financial.convention.businessday.ModifiedFollowingBusinessDayConvention;
 import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.currency.CurrencyMatrix;
+import com.opengamma.financial.security.bond.BillSecurity;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
@@ -99,22 +102,35 @@ import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
-import com.opengamma.id.VersionCorrection;
+import com.opengamma.master.config.ConfigDocument;
+import com.opengamma.master.config.ConfigMaster;
+import com.opengamma.master.config.impl.InMemoryConfigMaster;
+import com.opengamma.master.config.impl.MasterConfigSource;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
+import com.opengamma.master.legalentity.LegalEntityDocument;
+import com.opengamma.master.legalentity.LegalEntityMaster;
+import com.opengamma.master.legalentity.ManageableLegalEntity;
+import com.opengamma.master.legalentity.impl.InMemoryLegalEntityMaster;
+import com.opengamma.master.legalentity.impl.MasterLegalEntitySource;
+import com.opengamma.master.security.SecurityDocument;
+import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.master.security.impl.InMemorySecurityMaster;
+import com.opengamma.master.security.impl.MasterSecuritySource;
 import com.opengamma.sesame.ConfigDbMarketExposureSelectorFn;
 import com.opengamma.sesame.CurveDefinitionFn;
+import com.opengamma.sesame.CurveNodeConverterFn;
 import com.opengamma.sesame.CurveSpecificationFn;
 import com.opengamma.sesame.CurveSpecificationMarketDataFn;
 import com.opengamma.sesame.DefaultCurveDefinitionFn;
+import com.opengamma.sesame.DefaultCurveNodeConverterFn;
 import com.opengamma.sesame.DefaultCurveSpecificationFn;
 import com.opengamma.sesame.DefaultCurveSpecificationMarketDataFn;
+import com.opengamma.sesame.DefaultDiscountingIssuerProviderBundleFn;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
 import com.opengamma.sesame.DefaultFXMatrixFn;
 import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
 import com.opengamma.sesame.DiscountingMulticurveBundleFn;
-import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.Environment;
-import com.opengamma.sesame.ExposureFunctionsDiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.ExposureFunctionsIssuerProviderFn;
 import com.opengamma.sesame.FXMatrixFn;
 import com.opengamma.sesame.HistoricalTimeSeriesFn;
@@ -166,16 +182,20 @@ public class BondMockSources {
   private static final String TICKER = "Ticker";
   private static final String GOVERNMENT_BOND_ISSUER_KEY = "UK GOVERNMENT";
   private static final String CORPORATE_BOND_ISSUER_KEY = "TELECOM ITALIA SPA";
+  private static final String BOND_PRE_CALIBRATED_EXPOSURE_FUNCTIONS = "Test Bond Exposure Functions for pre-calibrated curves";
   private static final String BOND_EXPOSURE_FUNCTIONS = "Test Bond Exposure Functions";
   private static final ExternalId GB_ID = ExternalSchemes.financialRegionId("GB");
   private static final ExternalId US_ID = ExternalSchemes.financialRegionId("US");
   private static final ExternalId IT_ID = ExternalSchemes.financialRegionId("IT");
 
   /*USD and GBP curve share all the same data, except the name*/
+  private static final String BOND_PRE_CALIBRATED_CURVE_NODE_ID_MAPPER = "Test Bond Pre Calibrated Mapper";
   private static final String BOND_CURVE_NODE_ID_MAPPER = "Test Bond Mapper";
-  private static final String BOND_USD_CURVE_NAME = "USD Bond Curve";
+  private static final String BOND_USD_PRE_CALIBRATED_CURVE_NAME = "USD Bond Pre-Calibrated Curve";
+  public static final String BOND_GBP_PRE_CALIBRATED_CURVE_NAME = "GBP Bond Pre-Calibrated Curve";
   public static final String BOND_GBP_CURVE_NAME = "GBP Bond Curve";
-  private static final String BOND_CURVE_CONFIG_NAME = "Test Bond Curve Config";
+  private static final String BOND_PRE_CALIBRATED_CURVE_CONFIG_NAME = "Test Bond Pre Calibrated Curve Config";
+  public static final String BOND_CURVE_CONFIG_NAME = "Test Bond Curve Config";
 
   /*Bond*/
   public static final BondSecurity GOVERNMENT_BOND_SECURITY = createGovernmentBondSecurity();
@@ -196,59 +216,81 @@ public class BondMockSources {
   public static final Environment ENV = new SimpleEnvironment(BondMockSources.VALUATION_TIME,
                                                               BondMockSources.createMarketDataSource());
 
-  private static CurveNodeIdMapper getBondCurveNodeIdMapper() {
-    Map<Tenor, CurveInstrumentProvider> bondNodes = Maps.newHashMap();
-    bondNodes.put(Tenor.ONE_YEAR, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "B1")));
-    bondNodes.put(Tenor.TWO_YEARS, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "B2")));
-    bondNodes.put(Tenor.THREE_YEARS, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "B3")));
-    bondNodes.put(Tenor.FOUR_YEARS, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "B4")));
-    bondNodes.put(Tenor.FIVE_YEARS, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "B5")));
-    bondNodes.put(Tenor.SIX_YEARS, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "B6")));
-    bondNodes.put(Tenor.SEVEN_YEARS, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "B7")));
-    bondNodes.put(Tenor.EIGHT_YEARS, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "B8")));
-    bondNodes.put(Tenor.NINE_YEARS, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "B9")));
-    bondNodes.put(Tenor.TEN_YEARS, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "B10")));
-    return CurveNodeIdMapper.builder().name(BOND_CURVE_NODE_ID_MAPPER)
-                                      .periodicallyCompoundedRateNodeIds(bondNodes)
+  private static CurveNodeIdMapper getBondPreCalibratedCurveNodeIdMapper() {
+    Map<Tenor, CurveInstrumentProvider> nodes = Maps.newHashMap();
+    nodes.put(Tenor.ONE_YEAR, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "B1")));
+    nodes.put(Tenor.TWO_YEARS, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "B2")));
+    nodes.put(Tenor.THREE_YEARS, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "B3")));
+    nodes.put(Tenor.FOUR_YEARS, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "B4")));
+    nodes.put(Tenor.FIVE_YEARS, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "B5")));
+    nodes.put(Tenor.SIX_YEARS, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "B6")));
+    nodes.put(Tenor.SEVEN_YEARS, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "B7")));
+    nodes.put(Tenor.EIGHT_YEARS, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "B8")));
+    nodes.put(Tenor.NINE_YEARS, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "B9")));
+    nodes.put(Tenor.TEN_YEARS, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "B10")));
+    return CurveNodeIdMapper.builder().name(BOND_PRE_CALIBRATED_CURVE_NODE_ID_MAPPER)
+                                      .periodicallyCompoundedRateNodeIds(nodes)
                                       .build();
   }
 
-  private static InterpolatedCurveDefinition getBondUsdCurveDefinition() {
+  private static CurveNodeIdMapper getBondCurveNodeIdMapper() {
+    Map<Tenor, CurveInstrumentProvider> billNodes = Maps.newHashMap();
+    billNodes.put(Tenor.ONE_YEAR, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "Bill1")));
+
+    Map<Tenor, CurveInstrumentProvider> bondNodes = Maps.newHashMap();
+    bondNodes.put(Tenor.THREE_YEARS, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "Bond1")));
+    return CurveNodeIdMapper.builder().name(BOND_CURVE_NODE_ID_MAPPER)
+        .billNodeIds(billNodes)
+        .bondNodeIds(bondNodes)
+        .build();
+  }
+
+  private static InterpolatedCurveDefinition getBondUsdPreCalibratedCurveDefinition() {
     Set<CurveNode> nodes = new TreeSet<>();
-    nodes.add(new PeriodicallyCompoundedRateNode(BOND_CURVE_NODE_ID_MAPPER, Tenor.ONE_YEAR, 1));
-    nodes.add(new PeriodicallyCompoundedRateNode(BOND_CURVE_NODE_ID_MAPPER, Tenor.TWO_YEARS, 1));
-    nodes.add(new PeriodicallyCompoundedRateNode(BOND_CURVE_NODE_ID_MAPPER, Tenor.THREE_YEARS, 1));
-    nodes.add(new PeriodicallyCompoundedRateNode(BOND_CURVE_NODE_ID_MAPPER, Tenor.FOUR_YEARS, 1));
-    nodes.add(new PeriodicallyCompoundedRateNode(BOND_CURVE_NODE_ID_MAPPER, Tenor.FIVE_YEARS, 1));
-    nodes.add(new PeriodicallyCompoundedRateNode(BOND_CURVE_NODE_ID_MAPPER, Tenor.SIX_YEARS, 1));
-    return new InterpolatedCurveDefinition(BOND_USD_CURVE_NAME, nodes, Interpolator1DFactory.LINEAR,
+    nodes.add(new PeriodicallyCompoundedRateNode(BOND_PRE_CALIBRATED_CURVE_NODE_ID_MAPPER, Tenor.ONE_YEAR, 1));
+    nodes.add(new PeriodicallyCompoundedRateNode(BOND_PRE_CALIBRATED_CURVE_NODE_ID_MAPPER, Tenor.TWO_YEARS, 1));
+    nodes.add(new PeriodicallyCompoundedRateNode(BOND_PRE_CALIBRATED_CURVE_NODE_ID_MAPPER, Tenor.THREE_YEARS, 1));
+    nodes.add(new PeriodicallyCompoundedRateNode(BOND_PRE_CALIBRATED_CURVE_NODE_ID_MAPPER, Tenor.FOUR_YEARS, 1));
+    nodes.add(new PeriodicallyCompoundedRateNode(BOND_PRE_CALIBRATED_CURVE_NODE_ID_MAPPER, Tenor.FIVE_YEARS, 1));
+    nodes.add(new PeriodicallyCompoundedRateNode(BOND_PRE_CALIBRATED_CURVE_NODE_ID_MAPPER, Tenor.SIX_YEARS, 1));
+    return new InterpolatedCurveDefinition(BOND_USD_PRE_CALIBRATED_CURVE_NAME, nodes, Interpolator1DFactory.LINEAR,
                                            Interpolator1DFactory.FLAT_EXTRAPOLATOR,
                                            Interpolator1DFactory.FLAT_EXTRAPOLATOR);
   }
 
+  private static InterpolatedCurveDefinition getBondGbpPreCalibratedCurveDefinition() {
+    Set<CurveNode> nodes = new TreeSet<>();
+    nodes.add(new PeriodicallyCompoundedRateNode(BOND_PRE_CALIBRATED_CURVE_NODE_ID_MAPPER, Tenor.ONE_YEAR, 1));
+    nodes.add(new PeriodicallyCompoundedRateNode(BOND_PRE_CALIBRATED_CURVE_NODE_ID_MAPPER, Tenor.TWO_YEARS, 1));
+    nodes.add(new PeriodicallyCompoundedRateNode(BOND_PRE_CALIBRATED_CURVE_NODE_ID_MAPPER, Tenor.THREE_YEARS, 1));
+    nodes.add(new PeriodicallyCompoundedRateNode(BOND_PRE_CALIBRATED_CURVE_NODE_ID_MAPPER, Tenor.FOUR_YEARS, 1));
+    nodes.add(new PeriodicallyCompoundedRateNode(BOND_PRE_CALIBRATED_CURVE_NODE_ID_MAPPER, Tenor.FIVE_YEARS, 1));
+    nodes.add(new PeriodicallyCompoundedRateNode(BOND_PRE_CALIBRATED_CURVE_NODE_ID_MAPPER, Tenor.SIX_YEARS, 1));
+    nodes.add(new PeriodicallyCompoundedRateNode(BOND_PRE_CALIBRATED_CURVE_NODE_ID_MAPPER, Tenor.SEVEN_YEARS, 1));
+    nodes.add(new PeriodicallyCompoundedRateNode(BOND_PRE_CALIBRATED_CURVE_NODE_ID_MAPPER, Tenor.EIGHT_YEARS, 1));
+    nodes.add(new PeriodicallyCompoundedRateNode(BOND_PRE_CALIBRATED_CURVE_NODE_ID_MAPPER, Tenor.NINE_YEARS, 1));
+    nodes.add(new PeriodicallyCompoundedRateNode(BOND_PRE_CALIBRATED_CURVE_NODE_ID_MAPPER, Tenor.TEN_YEARS, 1));
+    return new InterpolatedCurveDefinition(BOND_GBP_PRE_CALIBRATED_CURVE_NAME, nodes, Interpolator1DFactory.LINEAR,
+                                           Interpolator1DFactory.FLAT_EXTRAPOLATOR,
+                                           Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+  }
+
+  // This curve def in currently only used to validate the DefaultDiscountingIssuerProviderBundleFn
   private static InterpolatedCurveDefinition getBondGbpCurveDefinition() {
     Set<CurveNode> nodes = new TreeSet<>();
-    nodes.add(new PeriodicallyCompoundedRateNode(BOND_CURVE_NODE_ID_MAPPER, Tenor.ONE_YEAR, 1));
-    nodes.add(new PeriodicallyCompoundedRateNode(BOND_CURVE_NODE_ID_MAPPER, Tenor.TWO_YEARS, 1));
-    nodes.add(new PeriodicallyCompoundedRateNode(BOND_CURVE_NODE_ID_MAPPER, Tenor.THREE_YEARS, 1));
-    nodes.add(new PeriodicallyCompoundedRateNode(BOND_CURVE_NODE_ID_MAPPER, Tenor.FOUR_YEARS, 1));
-    nodes.add(new PeriodicallyCompoundedRateNode(BOND_CURVE_NODE_ID_MAPPER, Tenor.FIVE_YEARS, 1));
-    nodes.add(new PeriodicallyCompoundedRateNode(BOND_CURVE_NODE_ID_MAPPER, Tenor.SIX_YEARS, 1));
-    nodes.add(new PeriodicallyCompoundedRateNode(BOND_CURVE_NODE_ID_MAPPER, Tenor.SEVEN_YEARS, 1));
-    nodes.add(new PeriodicallyCompoundedRateNode(BOND_CURVE_NODE_ID_MAPPER, Tenor.EIGHT_YEARS, 1));
-    nodes.add(new PeriodicallyCompoundedRateNode(BOND_CURVE_NODE_ID_MAPPER, Tenor.NINE_YEARS, 1));
-    nodes.add(new PeriodicallyCompoundedRateNode(BOND_CURVE_NODE_ID_MAPPER, Tenor.TEN_YEARS, 1));
+    nodes.add(new BillNode(Tenor.ONE_YEAR, BOND_CURVE_NODE_ID_MAPPER, "Bill " + Tenor.ONE_YEAR));
+    nodes.add(new BondNode(Tenor.THREE_YEARS, BOND_CURVE_NODE_ID_MAPPER, "Bond " + Tenor.THREE_YEARS));
     return new InterpolatedCurveDefinition(BOND_GBP_CURVE_NAME, nodes, Interpolator1DFactory.LINEAR,
                                            Interpolator1DFactory.FLAT_EXTRAPOLATOR,
                                            Interpolator1DFactory.FLAT_EXTRAPOLATOR);
   }
 
-  public static FunctionModelConfig getConfig() {
+  public static FunctionModelConfig getPreCalibratedConfig() {
 
     return config(
         arguments(
             function(ConfigDbMarketExposureSelectorFn.class,
-                     argument("exposureConfig", ConfigLink.resolvable(BondMockSources.BOND_EXPOSURE_FUNCTIONS,
+                     argument("exposureConfig", ConfigLink.resolvable(BondMockSources.BOND_PRE_CALIBRATED_EXPOSURE_FUNCTIONS,
                                                                       ExposureFunctions.class))),
             function(RootFinderConfiguration.class,
                      argument("rootFinderAbsoluteTolerance", 1e-9),
@@ -263,7 +305,6 @@ public class BondMockSources {
         ),
         implementations(CurveSpecificationMarketDataFn.class, DefaultCurveSpecificationMarketDataFn.class,
                         FXMatrixFn.class, DefaultFXMatrixFn.class,
-                        DiscountingMulticurveCombinerFn.class, ExposureFunctionsDiscountingMulticurveCombinerFn.class,
                         IssuerProviderFn.class, ExposureFunctionsIssuerProviderFn.class,
                         IssuerProviderBundleFn.class, InterpolatedIssuerBundleFn.class,
                         CurveDefinitionFn.class, DefaultCurveDefinitionFn.class,
@@ -286,9 +327,73 @@ public class BondMockSources {
     );
 
   }
-  
-  @SuppressWarnings("unchecked")
-  private static CurveConstructionConfiguration getBondCurveConfig() {
+
+  public static FunctionModelConfig getConfig() {
+
+    return config(
+        arguments(
+            function(ConfigDbMarketExposureSelectorFn.class,
+                     argument("exposureConfig", ConfigLink.resolvable(BondMockSources.BOND_EXPOSURE_FUNCTIONS,
+                                                                      ExposureFunctions.class))),
+            function(RootFinderConfiguration.class,
+                     argument("rootFinderAbsoluteTolerance", 1e-9),
+                     argument("rootFinderRelativeTolerance", 1e-9),
+                     argument("rootFinderMaxIterations", 1000)),
+            function(DefaultDiscountingIssuerProviderBundleFn.class,
+                     argument("impliedCurveNames", StringSet.of())),
+            function(DefaultCurveNodeConverterFn.class,
+                     argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofYears(1)))),
+            function(DefaultHistoricalTimeSeriesFn.class,
+                     argument("resolutionKey", "DEFAULT_TSS"),
+                     argument("htsRetrievalPeriod", RetrievalPeriod.of(Period.ofYears(1)))
+            )
+        ),
+        implementations(CurveSpecificationMarketDataFn.class, DefaultCurveSpecificationMarketDataFn.class,
+                        FXMatrixFn.class, DefaultFXMatrixFn.class,
+                        IssuerProviderFn.class, ExposureFunctionsIssuerProviderFn.class,
+                        IssuerProviderBundleFn.class, DefaultDiscountingIssuerProviderBundleFn.class,
+                        CurveDefinitionFn.class, DefaultCurveDefinitionFn.class,
+                        DiscountingMulticurveBundleFn.class, DefaultDiscountingMulticurveBundleFn.class,
+                        CurveSpecificationFn.class, DefaultCurveSpecificationFn.class,
+                        CurveConstructionConfigurationSource.class, ConfigDBCurveConstructionConfigurationSource.class,
+                        HistoricalTimeSeriesFn.class, DefaultHistoricalTimeSeriesFn.class,
+                        MarketExposureSelectorFn.class, ConfigDbMarketExposureSelectorFn.class,
+                        MarketDataFn.class, DefaultMarketDataFn.class,
+                        CurveNodeConverterFn.class, DefaultCurveNodeConverterFn.class,
+                        /*Bond*/
+                        BondFn.class, DefaultBondFn.class,
+                        BondCalculatorFactory.class, DiscountingBondCalculatorFactory.class,
+                        /*Bond Future Option*/
+                        BondFutureOptionFn.class, DefaultBondFutureOptionFn.class,
+                        BondFutureOptionCalculatorFactory.class, BondFutureOptionBlackCalculatorFactory.class,
+                        BlackBondFuturesProviderFn.class, TestBlackBondFuturesProviderFn.class,
+                        /*Bond Future*/
+                        BondFutureFn.class, DefaultBondFutureFn.class,
+                        BondFutureCalculatorFactory.class, BondFutureDiscountingCalculatorFactory.class)
+    );
+
+  }
+
+  public static CurveConstructionConfiguration getBondCurveConfig() {
+    Set<LegalEntityFilter<LegalEntity>> filters = Sets.newHashSet();
+    filters.add(new LegalEntityShortName());
+
+    Set<Object> govKeys = Sets.newHashSet();
+    govKeys.add(GOVERNMENT_BOND_ISSUER_KEY);
+
+    List<CurveTypeConfiguration> configs = Lists.newArrayList();
+    configs.add(new IssuerCurveTypeConfiguration(govKeys, filters));
+    configs.add(new DiscountingCurveTypeConfiguration(Currency.GBP.getCode()));
+
+    Map<String, List<? extends CurveTypeConfiguration>> curveTypes = Maps.newHashMap();
+    curveTypes.put(BOND_GBP_CURVE_NAME, configs);
+
+    return new CurveConstructionConfiguration(BOND_CURVE_CONFIG_NAME,
+                                              Lists.newArrayList(new CurveGroupConfiguration(0, curveTypes)),
+                                              Collections.EMPTY_LIST);
+  }
+
+  private static CurveConstructionConfiguration getBondPreCalibratedCurveConfig() {
     Set<LegalEntityFilter<LegalEntity>> filters = Sets.newHashSet();
     filters.add(new LegalEntityShortName());
 
@@ -303,13 +408,20 @@ public class BondMockSources {
     configs.add(new IssuerCurveTypeConfiguration(govKeys, filters));
     
     Map<String, List<? extends CurveTypeConfiguration>> curveTypes = Maps.newHashMap();
-    curveTypes.put(BOND_GBP_CURVE_NAME, configs);
+    curveTypes.put(BOND_GBP_PRE_CALIBRATED_CURVE_NAME, configs);
     
-    return new CurveConstructionConfiguration(BOND_CURVE_CONFIG_NAME,
+    return new CurveConstructionConfiguration(BOND_PRE_CALIBRATED_CURVE_CONFIG_NAME,
                                               Lists.newArrayList(new CurveGroupConfiguration(0, curveTypes)),
                                               Collections.EMPTY_LIST);
   }
   
+  private static ExposureFunctions getPreCalibratedExposureFunctions() {
+    List<String> exposureFunctions = ImmutableList.of("Currency");
+    Map<ExternalId, String> idsToNames = Maps.newHashMap();
+    idsToNames.put(ExternalId.of("CurrencyISO", Currency.GBP.getCode()), BOND_PRE_CALIBRATED_CURVE_CONFIG_NAME);
+    return new ExposureFunctions(BOND_PRE_CALIBRATED_EXPOSURE_FUNCTIONS, exposureFunctions, idsToNames);
+  }
+
   private static ExposureFunctions getExposureFunctions() {
     List<String> exposureFunctions = ImmutableList.of("Currency");
     Map<ExternalId, String> idsToNames = Maps.newHashMap();
@@ -329,6 +441,8 @@ public class BondMockSources {
           .add(createId("B8"), 0.02619214367588991)
           .add(createId("B9"), 0.02719250291972944)
           .add(createId("B10"), 0.02808602151907749)
+          .add(createId("Bond1"), 0.01) //Yield
+          .add(createId("Bill1"), 0.01) //Yield
           .add(ExternalId.of("ISIN", "Test Corp bond"), 108.672)
           .add(ExternalId.of("ISIN", "Test Gov bond"), 136.375)
           .build();
@@ -402,52 +516,48 @@ public class BondMockSources {
   }
   
   private static LegalEntitySource mockLegalEntitySource() {
-    return mock(LegalEntitySource.class);
+    LegalEntityMaster master = new InMemoryLegalEntityMaster();
+    ManageableLegalEntity legalEntity = new ManageableLegalEntity(GOVERNMENT_BOND_ISSUER_KEY,
+                                                                  createBillSecurity().getLegalEntityId().toBundle());
+
+    master.add(new LegalEntityDocument(legalEntity));
+    return new MasterLegalEntitySource(master);
   }
   
   private static ConfigSource mockConfigSource() {
-    ConfigSource mock = mock(ConfigSource.class);
-    when(mock.changeManager()).thenReturn(MOCK_CHANGE_MANAGER);
-    
-    // curve node id mapper
-    when(mock.getSingle(CurveNodeIdMapper.class, BOND_CURVE_NODE_ID_MAPPER, VersionCorrection.LATEST))
-      .thenReturn(getBondCurveNodeIdMapper());
-    
-    // USD curve def
-    ConfigItem<Object> bondUsdCurveDefinitionItem = ConfigItem.<Object>of(getBondUsdCurveDefinition());
-    when(mock.get(eq(Object.class), eq(BOND_USD_CURVE_NAME), any(VersionCorrection.class)))
-      .thenReturn(ImmutableSet.of(bondUsdCurveDefinitionItem));
-    when(mock.getSingle(eq(CurveDefinition.class), eq(BOND_USD_CURVE_NAME), any(VersionCorrection.class)))
-        .thenReturn((CurveDefinition) bondUsdCurveDefinitionItem.getValue());
 
-    // GBP curve def
-    ConfigItem<Object> bondGbpCurveDefinitionItem = ConfigItem.<Object>of(getBondGbpCurveDefinition());
-    when(mock.get(eq(Object.class), eq(BOND_GBP_CURVE_NAME), any(VersionCorrection.class)))
-        .thenReturn(ImmutableSet.of(bondGbpCurveDefinitionItem));
-    when(mock.getSingle(eq(CurveDefinition.class), eq(BOND_GBP_CURVE_NAME), any(VersionCorrection.class)))
-        .thenReturn((CurveDefinition) bondGbpCurveDefinitionItem.getValue());
+    ConfigMaster master = new InMemoryConfigMaster();
 
+    master.add(new ConfigDocument(ConfigItem.of(getBondPreCalibratedCurveNodeIdMapper())));
+    master.add(new ConfigDocument(ConfigItem.of(getBondCurveNodeIdMapper())));
+    master.add(new ConfigDocument(ConfigItem.of(getBondUsdPreCalibratedCurveDefinition())));
+    master.add(new ConfigDocument(ConfigItem.of(getBondGbpPreCalibratedCurveDefinition())));
+    master.add(new ConfigDocument(ConfigItem.of(getBondGbpCurveDefinition())));
+    master.add(new ConfigDocument(ConfigItem.of(getBondPreCalibratedCurveConfig())));
+    master.add(new ConfigDocument(ConfigItem.of(getBondCurveConfig())));
+    master.add(new ConfigDocument(ConfigItem.of(getPreCalibratedExposureFunctions())));
+    master.add(new ConfigDocument(ConfigItem.of(getExposureFunctions())));
 
-    // curve config
-    when(mock.get(eq(CurveConstructionConfiguration.class), eq(BOND_CURVE_CONFIG_NAME), any(VersionCorrection.class)))
-      .thenReturn(ImmutableSet.of(ConfigItem.of(getBondCurveConfig())));
-    
-    // exposure function
-    when(mock.get(eq(ExposureFunctions.class), eq(BOND_EXPOSURE_FUNCTIONS), any(VersionCorrection.class)))
-      .thenReturn(ImmutableSet.of(ConfigItem.of(getExposureFunctions())));
-    
-    return mock;
+    return new MasterConfigSource(master);
   }
   
   private static SecuritySource mockSecuritySource() {
-    SecuritySource mock = mock(SecuritySource.class);
-    when(mock.getSingle(eq(BondMockSources.GOVERNMENT_BOND_SECURITY.getExternalIdBundle())))
-        .thenReturn(BondMockSources.GOVERNMENT_BOND_SECURITY);
-    when(mock.getSingle(eq(BondMockSources.CORPORATE_BOND_SECURITY.getExternalIdBundle())))
-        .thenReturn(BondMockSources.CORPORATE_BOND_SECURITY);
-    when(mock.getSingle(eq(BondMockSources.BOND_FUTURE_SECURITY.getExternalIdBundle())))
-        .thenReturn(BondMockSources.BOND_FUTURE_SECURITY);
-    return mock;
+
+    SecurityMaster master= new InMemorySecurityMaster();
+
+    BillSecurity bill = createBillSecurity();
+    bill.addExternalId(createId("Bill1"));
+
+    BondSecurity bond = createGovernmentBondSecurity();
+    bond.addExternalId(createId("Bond1"));
+
+    master.add(new SecurityDocument(BondMockSources.GOVERNMENT_BOND_SECURITY));
+    master.add(new SecurityDocument(BondMockSources.CORPORATE_BOND_SECURITY));
+    master.add(new SecurityDocument(BondMockSources.BOND_FUTURE_SECURITY));
+    master.add(new SecurityDocument(bill));
+    master.add(new SecurityDocument(bond));
+
+    return new MasterSecuritySource(master);
   }
 
   private static HistoricalTimeSeriesSource mockHistoricalTimeSeriesSource() {
@@ -517,6 +627,12 @@ public class BondMockSources {
     ExternalId bondId = ExternalSchemes.isinSecurityId("Test Gov bond");
     bond.setExternalIdBundle(bondId.toBundle());
     return bond;
+  }
+
+  private static BillSecurity createBillSecurity() {
+    return new BillSecurity(Currency.GBP, new Expiry(ZonedDateTime.now()), ZonedDateTime.now(), 0,
+                            0, GB_ID, SimpleYieldConvention.DISCOUNT, DayCountFactory.of("30/360"),
+                            ExternalId.of("LegalEntity", "Test"));
   }
 
   private static BondSecurity createCorporateBondSecurity() {

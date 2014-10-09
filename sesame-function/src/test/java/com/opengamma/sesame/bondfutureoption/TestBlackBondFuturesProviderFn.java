@@ -7,11 +7,9 @@ import com.opengamma.analytics.financial.legalentity.CreditRating;
 import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.analytics.financial.legalentity.Region;
 import com.opengamma.analytics.financial.legalentity.Sector;
-import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackBondFuturesFlatProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackBondFuturesProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderDiscount;
-import com.opengamma.analytics.financial.provider.description.interestrate.ParameterIssuerProviderInterface;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
@@ -19,11 +17,11 @@ import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.analytics.math.surface.Surface;
 import com.opengamma.sesame.Environment;
+import com.opengamma.sesame.IssuerProviderBundle;
 import com.opengamma.sesame.IssuerProviderFn;
 import com.opengamma.sesame.trade.BondFutureOptionTrade;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * Internal test function to use the multicurve construction to build a MulticurveDiscountProvider and a static list 
@@ -42,12 +40,13 @@ public final class TestBlackBondFuturesProviderFn implements BlackBondFuturesPro
   public Result<BlackBondFuturesProviderInterface> getBlackBondFuturesProvider(Environment env,
                                                                                BondFutureOptionTrade tradeWrapper) {
     
-    Result<Pair<ParameterIssuerProviderInterface, CurveBuildingBlockBundle>> bundleResult =
+    Result<IssuerProviderBundle> bundleResult =
         _discountingMulticurveCombinerFn.createBundle(env, tradeWrapper.getTrade(), new FXMatrix());
     
     if (bundleResult.isSuccess()) {
 
-      IssuerProviderDiscount multicurve = (IssuerProviderDiscount) bundleResult.getValue().getFirst();
+      IssuerProviderDiscount multicurve =
+          (IssuerProviderDiscount) bundleResult.getValue().getParameterIssuerProvider();
       
       Surface<Double, Double, Double> blackParameters = testSurface;
             

@@ -40,7 +40,7 @@ public class BondFutureOptionFnTest {
     ThreadLocalServiceContext.init(serviceContext);
     
     _bondFutureOptionFn = FunctionModel.build(BondFutureOptionFn.class,
-                                              BondMockSources.getConfig(),
+                                              BondMockSources.getPreCalibratedConfig(),
                                               ComponentMap.of(components));
   }
 

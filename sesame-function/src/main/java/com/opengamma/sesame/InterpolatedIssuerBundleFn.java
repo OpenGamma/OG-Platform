@@ -25,7 +25,6 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldPeriodicC
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlock;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderDiscount;
-import com.opengamma.analytics.financial.provider.description.interestrate.ParameterIssuerProviderInterface;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
@@ -69,8 +68,7 @@ public class InterpolatedIssuerBundleFn implements IssuerProviderBundleFn {
   }
 
   @Override
-  public Result<Pair<ParameterIssuerProviderInterface, CurveBuildingBlockBundle>> generateBundle(Environment env,
-                                                                                                 CurveConstructionConfiguration curveConfig) {
+  public Result<IssuerProviderBundle> generateBundle(Environment env, CurveConstructionConfiguration curveConfig) {
     boolean valid = true;
     ZonedDateTime now = env.getValuationTime();
     IssuerProviderDiscount curveBundle = new IssuerProviderDiscount(new FXMatrix());
@@ -183,7 +181,7 @@ public class InterpolatedIssuerBundleFn implements IssuerProviderBundleFn {
     }
     
     if (valid) {
-      return Result.success(Pairs.of((ParameterIssuerProviderInterface) curveBundle, new CurveBuildingBlockBundle(unitBundles)));
+      return Result.success(new IssuerProviderBundle(curveBundle, new CurveBuildingBlockBundle(unitBundles)));
     } else {
       // todo - supply some useful information in the failure message!
       return Result.failure(MISSING_DATA, "Unable to get intermediate data");
