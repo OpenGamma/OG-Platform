@@ -41,6 +41,7 @@ javadoc-data.json
 .idea/libraries
 .idea/workspace.xml
 .idea/misc.xml
+.idea/vcs.xml
 .idea/compiler.xml
 .idea/modules.xml
 .idea/encodings.xml
