@@ -402,7 +402,7 @@ public class BjerksundStenslandModel {
    * @param isCall true for calls
    * @return A function from volatility (sigma) to price and vega
    */
-  public Function1D<Double, double[]> getPriceAndVegaFunction(double s0, double k, double r, double b, double t, boolean isCall) {
+  public Function1D<Double, double[]> getPriceAndVegaFunction(final double s0, final double k, final double r, final double b, final double t, final boolean isCall) {
 
     return new Function1D<Double, double[]>() {
       @Override
