@@ -18,10 +18,15 @@ import com.opengamma.analytics.financial.model.option.definition.StandardOptionD
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
+import com.opengamma.analytics.math.differentiation.ScalarFieldFirstOrderDifferentiator;
+import com.opengamma.analytics.math.differentiation.VectorFieldFirstOrderDifferentiator;
 import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.statistics.distribution.BivariateNormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
+import com.opengamma.analytics.util.AssertMatrix;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
@@ -31,11 +36,66 @@ import com.opengamma.util.time.Expiry;
  */
 @Test(groups = TestGroup.UNIT)
 public class BjerksundStenslandModelTest {
-
+  
+  private static  final BjerksundStenslandModel model = new BjerksundStenslandModel();
+  
+  private static final ScalarFieldFirstOrderDifferentiator SCALAR_FIELD_DIFF = new ScalarFieldFirstOrderDifferentiator();
+  private static final VectorFieldFirstOrderDifferentiator VEC_FIELD_DIFF = new VectorFieldFirstOrderDifferentiator();
+  
   private static final ProbabilityDistribution<double[]> BIVARIATE_NORMAL = new BivariateNormalDistribution();
 
+  private static final Function1D<DoubleMatrix1D, Double> CALL_PRICE_FUNC = new Function1D<DoubleMatrix1D, Double>() {
+    @Override
+    public Double evaluate(DoubleMatrix1D parms) {
+      double[] p = parms.getData();
+      return model.price(p[0], p[1], p[2], p[3], p[4], p[5], true);
+    }
+  };
+  
+  private static final Function1D<DoubleMatrix1D, Double> PUT_PRICE_FUNC = new Function1D<DoubleMatrix1D, Double>() {
+    @Override
+    public Double evaluate(DoubleMatrix1D parms) {
+      double[] p = parms.getData();
+      return model.price(p[0], p[1], p[2], p[3], p[4], p[5], false);
+    }
+  };
+  
+  private static final Function1D<DoubleMatrix1D,DoubleMatrix1D> CALL_SENSE_FUNC = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
+    @Override
+    public DoubleMatrix1D evaluate(DoubleMatrix1D parms) {
+      double[] p = parms.getData();
+      double[] adj =  model.getPriceAdjoint(p[0], p[1], p[2], p[3], p[4], p[5], true);
+      double[] temp = new double[6];
+      System.arraycopy(adj, 1, temp, 0, 6);
+      return new DoubleMatrix1D(temp);
+    }
+  };
+  
+  private static final Function1D<DoubleMatrix1D,DoubleMatrix1D> PUT_SENSE_FUNC = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
+    @Override
+    public DoubleMatrix1D evaluate(DoubleMatrix1D parms) {
+      double[] p = parms.getData();
+      double[] adj =  model.getPriceAdjoint(p[0], p[1], p[2], p[3], p[4], p[5], false);
+      double[] temp = new double[6];
+      System.arraycopy(adj, 1, temp, 0, 6);
+      return new DoubleMatrix1D(temp);
+    }
+  };
 
-  @Test(enabled = false)
+  private static final Function1D<DoubleMatrix1D, Boolean> DOMAIN = new Function1D<DoubleMatrix1D, Boolean>() {
+    @Override
+    public Boolean evaluate(DoubleMatrix1D parms) {
+      double[] x = parms.getData();
+      return x[0] >= 0.0 && x[1] >= 0.0 && x[4] >= 0.0 && x[5] >= 0.0;
+    }
+  };
+
+  
+
+  private static final Function1D<DoubleMatrix1D, DoubleMatrix1D> CALL_ADJOINT_FD = SCALAR_FIELD_DIFF.differentiate(CALL_PRICE_FUNC, DOMAIN);
+  private static final Function1D<DoubleMatrix1D, DoubleMatrix1D> PUT_ADJOINT_FD = SCALAR_FIELD_DIFF.differentiate(PUT_PRICE_FUNC, DOMAIN);
+  
+  @Test
   public void priceTest() {
     final double s0 = 120;
     final double r = 0.08;
@@ -48,29 +108,35 @@ public class BjerksundStenslandModelTest {
     final BjerksundStenslandModel bs = new BjerksundStenslandModel();
     final double eurPrice = Math.exp(-r * t) * BlackFormulaRepository.price(s0 * Math.exp(b * t), k, t, sigma, true);
     final double amPrice = bs.price(s0, k, r, b, t, sigma, true);
-    System.out.println(eurPrice + "\t" + amPrice);
+    //System.out.println(eurPrice + "\t" + amPrice);
+    assertTrue(amPrice > eurPrice);
+    assertEquals(20.193913138412203, amPrice, 1e-15);
   }
 
-  @Test(enabled = false)
+  @Test
+  //(enabled = false)
   public void priceAdjointBsRecapTest() {
     final double s0 = 120;
     final double r = -0.12;
-    final double[] costs = new double[] {0.12 };
+    final double[] costs = new double[] {-0.12, 0.12 };
     final double k = 100.0;
     final double t = 0.25;
-    final double[] sigmas = new double[] {0.2 };
+    final double[] sigmas = new double[] {0.0, 0.2, 0.5 };
 
     final BjerksundStenslandModel bs = new BjerksundStenslandModel();
     for (final double sigma : sigmas) {
       for (final double b : costs) {
         final double resPrice = bs.price(s0, k, r, b, t, sigma, false);
         final double[] resGamma = bs.getPriceDeltaGamma(s0, k, r, b, t, sigma, false);
-        assertEquals(b + "\t" + sigma, resPrice, resGamma[0], Math.abs(resPrice) * 1e-14);
-
+        assertEquals(b + "\t" + sigma, resPrice, resGamma[0], 1e-13);
       }
     }
   }
 
+  /**
+   * Check the sensitivity calculated by getPriceAdjoint and getPriceDeltaGamma agree with the finite-difference 
+   * calculation
+   */
   @Test
   public void priceAdjointBsTest() {
     final double s0 = 120;
@@ -78,38 +144,31 @@ public class BjerksundStenslandModelTest {
     final double[] costs = new double[] {-0.12, 0.12 };
     final double k = 100.0;
     final double t = 0.25;
-    final double[] sigmas = new double[] {0.2, 0.25, 0.3 };
+    final double[] sigmas = new double[] {0.0, 0.2, 0.25, 0.3 };
 
-    final BjerksundStenslandModel bs = new BjerksundStenslandModel();
+    Function1D<DoubleMatrix1D, DoubleMatrix2D> fd2OrderFunc = VEC_FIELD_DIFF.differentiate(PUT_SENSE_FUNC, DOMAIN);
     for (final double sigma : sigmas) {
       for (final double b : costs) {
-        final double[] params = new double[] {s0, k, r, b, t, sigma };
-        final int nParams = params.length;
-        final double[] res = bs.getPriceAdjoint(s0, k, r, b, t, sigma, false);
-        final double resPrice = bs.price(s0, k, r, b, t, sigma, false);
-        assertEquals(b + "\t" + sigma, resPrice, res[0], Math.abs(resPrice) * 1e-14);
+        DoubleMatrix1D pVec = new DoubleMatrix1D(s0, k, r, b, t, sigma );
+        double price = PUT_PRICE_FUNC.evaluate(pVec);       
+        double[] res = model.getPriceAdjoint(s0, k, r, b, t, sigma, false);  
+        assertEquals(b + "\t" + sigma, price, res[0], Math.abs(price) * 1e-14);
+        double[] temp = new double[6];
+        System.arraycopy(res, 1, temp, 0, 6);
+        DoubleMatrix1D priceAdj = new DoubleMatrix1D(temp);
+        
+        //compute adjoint by FD
+        DoubleMatrix1D fdPriceAdj = PUT_ADJOINT_FD.evaluate(pVec);
+        AssertMatrix.assertEqualsVectors(fdPriceAdj, priceAdj, 1e-8);
 
-        for (int i = 0; i < nParams; ++i) {
-          final double[] up = new double[nParams];
-          final double[] down = new double[nParams];
-          System.arraycopy(params, 0, up, 0, nParams);
-          System.arraycopy(params, 0, down, 0, nParams);
-          up[i] *= (1. + 1.e-4);
-          down[i] *= (1. - 1.e-4);
-          final double upRes = bs.price(up[0], up[1], up[2], up[3], up[4], up[5], false);
-          final double downRes = bs.price(down[0], down[1], down[2], down[3], down[4], down[5], false);
-          final double fin = 0.5 * (upRes - downRes) / params[i] / 1.e-4;
-          assertEquals(i + "", fin, res[i + 1], Math.abs(params[i]) * 1e-4);
-        }
-
-        final double[] resGamma = bs.getPriceDeltaGamma(s0, k, r, b, t, sigma, false);
-        assertEquals(b + "\t" + sigma, resPrice, resGamma[0], Math.max(1.e-14, Math.abs(resPrice) * 1e-14));
+        //check the this produces the correct price and delta, and check the gamma against fd (of the delta)
+        final double[] resGamma = model.getPriceDeltaGamma(s0, k, r, b, t, sigma, false);
+        assertEquals(b + "\t" + sigma, price, resGamma[0], Math.max(1.e-14, Math.abs(price) * 1e-14));
         assertEquals(res[1], resGamma[1], Math.max(1.e-14, Math.abs(res[1]) * 1e-14));
-        final double[] resUp = bs.getPriceAdjoint(s0 * (1. + 1.e-4), k, r, b, t, sigma, false);
-        final double[] resDown = bs.getPriceAdjoint(s0 * (1. - 1.e-4), k, r, b, t, sigma, false);
-        assertEquals(0.5 * (resUp[1] - resDown[1]) / s0 / 1.e-4, resGamma[2], Math.abs(s0) * 1e-4);
-
-      }
+              
+        double fd_gamma = fd2OrderFunc.evaluate(pVec).getEntry(0,0);
+        assertEquals(fd_gamma, resGamma[2], Math.abs(fd_gamma) * 1e-8);
+     }
     }
   }
 
@@ -124,7 +183,7 @@ public class BjerksundStenslandModelTest {
     final double[] costs = new double[] {-0.12 };
     final double k = 100.0;
     final double t = 0.25;
-    final double[] sigmas = new double[] {0.3 };
+    final double[] sigmas = new double[] { 0.3 };
 
     final BjerksundStenslandModel bs = new BjerksundStenslandModel();
     for (final double sigma : sigmas) {
@@ -234,27 +293,7 @@ public class BjerksundStenslandModelTest {
     }
   }
 
-  @Test
-  public void debugTest() {
-    final BjerksundStenslandModel bs = new BjerksundStenslandModel();
-    final double s0 = 90;
-    final double k = 100;
-    final double r = 0.0;
-    final double b = 0.11;
-    final double sigma = 0.35;
-    final double t = 0.5;
-    final boolean isCall = false;
 
-    final double price = bs.price(s0, k, r, b, t, sigma, isCall);
-    final double[] sense = bs.getPriceAdjoint(s0, k, r, b, t, sigma, isCall);
-    // System.out.println(price + "\t" + sense[0]);
-
-    // System.out.println(sense[3]);
-    final double eps = 1e-4;
-    final double up = bs.price(s0, k, r + eps, b, t, sigma, isCall);
-    final double down = bs.price(s0, k, r - eps, b, t, sigma, isCall);
-    // System.out.println(up + "\t" + down + "\t" + (up - down) / 2 / eps);
-  }
 
   @Test
   // (enabled = false)
@@ -727,4 +766,5 @@ public class BjerksundStenslandModelTest {
     double expected = Math.exp(-r * t) * Math.max(strike - spot * Math.exp(b * t), 0.0);
     assertEquals(expected, price, 1e-14);
   }
+
 }

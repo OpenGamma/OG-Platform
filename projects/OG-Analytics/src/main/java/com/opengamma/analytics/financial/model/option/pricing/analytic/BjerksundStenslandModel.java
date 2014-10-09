@@ -322,6 +322,11 @@ public class BjerksundStenslandModel {
   public double[] getPriceAdjoint(double s0, double k, double r, double b, double t, double sigma, boolean isCall) {
 
     double bsmPrice = Math.exp(-r * t) * BlackFormulaRepository.price(s0 * Math.exp(b * t), k, t, sigma, isCall);
+    // if the volatility is zero it is either optimal to exercise immediatly or wait til expiry
+    if (sigma * Math.sqrt(t) < SMALL) {
+      return  lowBoundPriceAdjoint(s0, k, r, b, t, sigma, isCall, bsmPrice);
+    }
+
     if (isCall) {
       return getCallPriceAdjoint(s0, k, r, b, t, sigma, bsmPrice);
     }
@@ -342,36 +347,22 @@ public class BjerksundStenslandModel {
    * @return length 3 array of price, delta and gamma
    */
   public double[] getPriceDeltaGamma(double s0, double k, double r, double b, double t, double sigma, boolean isCall) {
-    if (isCall) {
-      double[] deltaGamma = getCallDeltaGamma(s0, k, r, b, t, sigma);
-      return deltaGammaModifier(s0, k, r, b, t, sigma, true, deltaGamma);
+   
+    double bsmPrice = Math.exp(-r * t) * BlackFormulaRepository.price(s0 * Math.exp(b * t), k, t, sigma, isCall);
+    // if the volatility is zero it is either optimal to exercise immediatly or wait til expiry
+    if (sigma * Math.sqrt(t) < SMALL) {
+      return lowBoundPriceDeltaGamma(s0, k, r, b, t, sigma, isCall, bsmPrice);
     }
-    double[] deltaGamma = getPutDeltaGamma(s0, k, r, b, t, sigma);
-    return deltaGammaModifier(s0, k, r, b, t, sigma, false, deltaGamma);
-  }
 
-  private double[] deltaGammaModifier(double s0, double k, double r, double b, double t, double sigma, boolean isCall, double[] deltaGamma) {
-    double sign = isCall ? 1. : -1.;
-    double fwd = s0 * Math.exp(b * t);
-    double df = Math.exp(-r * t);
-    double bsPrice = df * BlackFormulaRepository.price(fwd, k, t, sigma, isCall);
-    double intrinsic = sign * (s0 - k);
-    boolean bsIsMin = intrinsic <= bsPrice;
-    double minPrice = bsIsMin ? bsPrice : intrinsic;
-    if (deltaGamma[0] < minPrice) {
-      double[] res = new double[3];
-      res[0] = minPrice;
-      if (bsIsMin) {
-        double expbt = Math.exp(b * t);
-        res[1] = expbt * df * BlackFormulaRepository.delta(fwd, k, t, sigma, isCall);
-        res[2] = expbt * expbt * df * BlackFormulaRepository.gamma(fwd, k, t, sigma);
-        return res;
-      }
-      res[1] = sign;
-      res[2] = 0.0;
+    double[] res = isCall ? getCallDeltaGamma(s0, k, r, b, t, sigma, bsmPrice) : getPutDeltaGamma(s0, k, r, b, t, sigma);
+   
+    //If the calculated price is less than the immediate exicse or  European price, must handle the greeks differently
+    double lowerBoundPrice = Math.max((isCall ? s0 - k : k - s0), bsmPrice);
+    if (res[0] < lowerBoundPrice) { 
+      return lowBoundPriceDeltaGamma(s0, k, r, b, t, sigma, isCall, bsmPrice);
+    } else {
       return res;
     }
-    return deltaGamma;
   }
 
   /**
@@ -606,7 +597,7 @@ public class BjerksundStenslandModel {
   private double[] lowBoundPriceAdjoint(double s0, double k, double r, double b, double t, double sigma, boolean isCall, double blackScholesMertonPrice) {
     double immediateExPrice = isCall ? Math.max(s0 - k, 0.0) : Math.max(k - s0, 0.0);
     double[] res = new double[7];
-    if (immediateExPrice >= blackScholesMertonPrice) {
+    if (immediateExPrice > blackScholesMertonPrice) {
       res[0] = immediateExPrice;
       res[1] = isCall ? 1.0 : -1.0;
       res[2] = -res[1];
@@ -624,20 +615,43 @@ public class BjerksundStenslandModel {
     }
     return res;
   }
+  
+  /**
+   * In the case of immediate excise or no early excise (European price) the sensitivities should be handled separately
+   * @param s0 The spot
+   * @param k The strike
+   * @param r The risk-free rate
+   * @param b The cost-of-carry
+   * @param t The time-to-expiry
+   * @param sigma The volatility
+   * @param bsPrice
+   * @param isCall true for calls
+   * @param blackScholesMertonPrice The Black-Scholes-Merton price of a European option
+   * @return length 3 arrays containing the price, delta and gamma
+   */
+  private double[] lowBoundPriceDeltaGamma(double s0, double k, double r, double b, double t, double sigma, boolean isCall, double blackScholesMertonPrice) {
+    double immediateExPrice = isCall ? Math.max(s0 - k, 0.0) : Math.max(k - s0, 0.0);
+    double[] res = new double[3];
+    if (immediateExPrice > blackScholesMertonPrice) {
+      res[0] = immediateExPrice;
+      res[1] = isCall ? 1.0 : -1.0;
+    } else {
+      double expbt = Math.exp(b * t);
+      double fwd = s0 * expbt;
+      double df = Math.exp(-r * t);
+      res[0] = blackScholesMertonPrice;
+      res[1] = expbt * df * BlackFormulaRepository.delta(fwd, k, t, sigma, isCall);
+      res[2] = expbt * expbt * df * BlackFormulaRepository.gamma(fwd, k, t, sigma);
+    }
+    return res;
+  }
 
-  protected double[] getCallDeltaGamma(double s0, double k, double r, double b, double t, double sigma) {
+  protected double[] getCallDeltaGamma(double s0, double k, double r, double b, double t, double sigma, double bsmPrice) {
 
     double[] res = new double[3];
     // European option case
     if (b >= r) {
-      double expbt = Math.exp(b * t);
-      double fwd = s0 * expbt;
-      double df = Math.exp(-r * t);
-      // TODO these calls have a lot of repeat calculations - could move in-house
-      res[0] = df * BlackFormulaRepository.price(fwd, k, t, sigma, true);
-      res[1] = expbt * df * BlackFormulaRepository.delta(fwd, k, t, sigma, true);
-      res[2] = expbt * expbt * df * BlackFormulaRepository.gamma(fwd, k, t, sigma);
-      return res;
+    return lowBoundPriceDeltaGamma(s0, k, r, b, t, sigma, true, bsmPrice);
     }
 
     double sigmaSq = sigma * sigma;
@@ -714,9 +728,7 @@ public class BjerksundStenslandModel {
    * @return price, delta and gamma
    */
   protected double[] getPutDeltaGamma(double s0, double k, double r, double b, double t, double sigma) {
-
     return BjerksundStenslandModelDualDeltaGammaSolver.getCallDualDeltaGamma(k, s0, r - b, -b, t, sigma);
-
   }
 
   /**
