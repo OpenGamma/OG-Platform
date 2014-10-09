@@ -49,9 +49,9 @@ public class StandardTimeSeriesInflationDataSets {
     System.arraycopy(USCPI_VALUE_2011, 0, USCPI_VALUE, 72, 12);
     System.arraycopy(USCPI_VALUE_2012, 0, USCPI_VALUE, 84, 12);
     System.arraycopy(USCPI_VALUE_2013, 0, USCPI_VALUE, 96, 12);
-    System.arraycopy(USCPI_VALUE_2014, 0, USCPI_VALUE, 108, USCPI_VALUE_2013.length);
+    System.arraycopy(USCPI_VALUE_2014, 0, USCPI_VALUE, 108, USCPI_VALUE_2014.length);
   }
-  private static final ZonedDateTime USCPI_START_DATE = DateUtils.getUTCDate(2005, 2, 31);
+  private static final ZonedDateTime USCPI_START_DATE = DateUtils.getUTCDate(2005, 1, 31);
   private static final ZonedDateTime[] USCPI_DATE = new ZonedDateTime[USCPI_VALUE.length];
   static
   {
@@ -62,6 +62,15 @@ public class StandardTimeSeriesInflationDataSets {
   
   private static final ZonedDateTimeDoubleTimeSeries USCPI_TIME_SERIES = 
       ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(USCPI_DATE, USCPI_VALUE);
+  
+  /**
+   * Returns the US CPU index time series from January 2005 up to the endDate (exclusive).
+   * @param endDate The end date.
+   * @return The time series.
+   */
+  public static ZonedDateTimeDoubleTimeSeries timeSeriesUsCpi(ZonedDateTime endDate) {
+    return USCPI_TIME_SERIES.subSeries(DateUtils.getUTCDate(2014, 1, 1), endDate);
+  }
 
 
 }

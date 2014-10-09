@@ -378,6 +378,14 @@ public class CurveCalibrationTestsUtils {
       ZonedDateTimeDoubleTimeSeries[] htsArray = new ZonedDateTimeDoubleTimeSeries[] {hts};
       return ((SwapFixedIborDefinition) instrument).toDerivative(calibrationDate, htsArray);
     }
+    if (instrument instanceof SwapFixedInflationZeroCouponDefinition) {
+      PaymentDefinition cpn = ((SwapFixedInflationZeroCouponDefinition) instrument).getSecondLeg().getNthPayment(0);
+      IndexPrice index = ((CouponInflationDefinition) cpn).getPriceIndex();
+      ZonedDateTimeDoubleTimeSeries hts = htsPrice.get(index);
+      ArgumentChecker.notNull(hts, "time series from " + index.toString() + " is not present in map.");
+      ZonedDateTimeDoubleTimeSeries[] htsArray = new ZonedDateTimeDoubleTimeSeries[] {TS_EMPTY, hts};
+      return ((SwapFixedInflationZeroCouponDefinition) instrument).toDerivative(calibrationDate, htsArray);      
+    }
     if (instrument instanceof SwapDefinition) {
       SwapDefinition swap = (SwapDefinition) instrument;
       ZonedDateTimeDoubleTimeSeries[] hts = new ZonedDateTimeDoubleTimeSeries[2];
@@ -412,14 +420,6 @@ public class CurveCalibrationTestsUtils {
     if (instrument instanceof SwapFuturesPriceDeliverableTransactionDefinition) {
       return ((SwapFuturesPriceDeliverableTransactionDefinition) instrument).toDerivative(calibrationDate, 0.0);
     } // Trade date = today, reference price not used.
-    if (instrument instanceof SwapFixedInflationZeroCouponDefinition) {
-      PaymentDefinition cpn = ((SwapFixedInflationZeroCouponDefinition) instrument).getSecondLeg().getNthPayment(0);
-      IndexPrice index = ((CouponInflationDefinition) cpn).getPriceIndex();
-      ZonedDateTimeDoubleTimeSeries hts = htsIbor.get(index);
-      ArgumentChecker.notNull(hts, "time series from " + index.toString() + " is not present in map.");
-      ZonedDateTimeDoubleTimeSeries[] htsArray = new ZonedDateTimeDoubleTimeSeries[] {hts};
-      return ((SwapFixedIborDefinition) instrument).toDerivative(calibrationDate, htsArray);      
-    }
     return instrument.toDerivative(calibrationDate);
   }
   

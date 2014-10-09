@@ -71,8 +71,7 @@ public class StandardDataSetsInflationUSD {
   private static final GeneratorPriceIndexCurve GENERATOR_PI_FIX_EXP = 
       CurveCalibrationConventionDataSets.generatorPiFixExp();
   private static final GeneratorYDCurve GENERATOR_YD_MAT_LIN = 
-      CurveCalibrationConventionDataSets.generatorYDMatLin();
-  
+      CurveCalibrationConventionDataSets.generatorYDMatLin();  
   
   /** Market values for the dsc USD curve */
   private static final double[] OIS_MARKET_QUOTES = new double[] {0.0016, 0.0016,
@@ -97,7 +96,7 @@ public class StandardDataSetsInflationUSD {
     }
   } 
   
-  /** Market values for the HICP USD curve */
+  /** Market values for the HICP USD curve */ /** USSWITx Interpolation 3M lag */
   public static final double[] CPI_USD_MARKET_QUOTES = 
       new double[] {0.0200, 0.0200, 0.0200, 0.0200, 0.0200, 0.0200, 0.0200, 0.0200, 0.0200, 0.0200, 
     0.0200, 0.0200, 0.0200, 0.0200, 0.0200 };
@@ -115,29 +114,19 @@ public class StandardDataSetsInflationUSD {
       HICP_USD_ATTR[loopins] = new GeneratorAttributeIR(HICP_USD_TENOR[loopins]);
     }
   }
-
-  /** Units of curves */
-  private static final int[] NB_UNITS = new int[] {2 };
-  private static final int NB_BLOCKS = NB_UNITS.length;
-  private static final String[][][] NAMES_UNITS = new String[NB_BLOCKS][][];
-
+  
+  /** Map of index/curves */
   private static final LinkedHashMap<String, Currency> DSC_MAP = new LinkedHashMap<>();
   private static final LinkedHashMap<String, IndexON[]> FWD_ON_MAP = new LinkedHashMap<>();
   private static final LinkedHashMap<String, IborIndex[]> FWD_IBOR_MAP = new LinkedHashMap<>();
   private static final LinkedHashMap<String, IndexPrice[]> USD_HICP_MAP = new LinkedHashMap<>();
 
   static {
-    for (int loopblock = 0; loopblock < NB_BLOCKS; loopblock++) {
-      NAMES_UNITS[loopblock] = new String[NB_UNITS[loopblock]][];
-    }
-    NAMES_UNITS[0][0] = new String[] {CURVE_NAME_CPI_USD };
-    NAMES_UNITS[0][1] = new String[] {CURVE_NAME_USD_OIS };
     DSC_MAP.put(CURVE_NAME_USD_OIS, USD);
     FWD_ON_MAP.put(CURVE_NAME_USD_OIS, new IndexON[] {USDFEDFUND });
     USD_HICP_MAP.put(CURVE_NAME_CPI_USD, new IndexPrice[] {USCPI });
   }
   
-
   /** Calculators */
   private static final ParSpreadMarketQuoteDiscountingCalculator PSMQDC = 
       ParSpreadMarketQuoteDiscountingCalculator.getInstance();
@@ -154,9 +143,9 @@ public class StandardDataSetsInflationUSD {
       CurveCalibrationConventionDataSets.curveBuildingRepositoryInflation();
   
   /**
-   * HTS: month October
-   * @param calibrationDate
-   * @return 
+   * Returns a set of calibrated curve: dsc/on with OIS and US CPI with zero-coupon swaps.
+   * @param calibrationDate The calibration date.
+   * @return  The calibrated curves and Jacobians.
    */
   public static Pair<InflationProviderDiscount, CurveBuildingBlockBundle> getCurvesUsdOisHicp(ZonedDateTime calibrationDate) {
     InstrumentDefinition<?>[] oisDefinition = CurveCalibrationTestsUtils.getDefinitions(calibrationDate, NOTIONAL,
@@ -174,10 +163,11 @@ public class StandardDataSetsInflationUSD {
     InstrumentDefinition<?>[][][] unitOnflationDefinition = new InstrumentDefinition<?>[][][] {{inflDefinition } };
     GeneratorPriceIndexCurve[][] generatorInflation = new GeneratorPriceIndexCurve[][] {{GENERATOR_PI_FIX_EXP}};
     InflationProviderDiscount knownDataInflation = new InflationProviderDiscount(multicurve_pair.getFirst());
+    String[][] namesInflation = new String[][] {{CURVE_NAME_CPI_USD}};
     Pair<InflationProviderDiscount, CurveBuildingBlockBundle> multicurveInflation = 
         CurveCalibrationTestsUtils.makeCurvesFromDefinitionsInflation(calibrationDate, unitOnflationDefinition, 
-            generatorInflation, namesMulticurve, knownDataInflation, PSIMQC, PSIMQCSDC, USD_HICP_MAP, 
-            CURVE_BUILDING_REPOSITORY_INFLATION, htsOn, HTS_IBOR, null);
+            generatorInflation, namesInflation, knownDataInflation, PSIMQC, PSIMQCSDC, USD_HICP_MAP, 
+            CURVE_BUILDING_REPOSITORY_INFLATION, htsOn, HTS_IBOR, getCpiHts(calibrationDate));
     return multicurveInflation;
   }
   
@@ -187,6 +177,13 @@ public class StandardDataSetsInflationUSD {
     Map<IndexON,ZonedDateTimeDoubleTimeSeries> htsOnMap = new HashMap<>();
     htsOnMap.put(USDFEDFUND, htsOn);    
     return htsOnMap;
+  }
+  
+  private static Map<IndexPrice,ZonedDateTimeDoubleTimeSeries> getCpiHts(ZonedDateTime calibrationDate) {
+    ZonedDateTimeDoubleTimeSeries htsCpi = StandardTimeSeriesInflationDataSets.timeSeriesUsCpi(calibrationDate);
+    Map<IndexPrice,ZonedDateTimeDoubleTimeSeries> htsCpiMap = new HashMap<>();
+    htsCpiMap.put(USCPI, htsCpi);    
+    return htsCpiMap;
   }
   
   private static final Map<IborIndex,ZonedDateTimeDoubleTimeSeries> HTS_IBOR = new HashMap<>();
