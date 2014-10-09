@@ -165,7 +165,8 @@ public class RollGeskeWhaleyModel {
     }
 
     final Function1D<Double, double[]> func = getPriceAndVegaFunction(modSpot, strike, interestRate, timeToExpiry, dividends[position], dividendTimes[position]);
-    return GenericImpliedVolatiltySolver.impliedVolatility(price, func, 0.15);
+    GenericImpliedVolatiltySolver solver = new GenericImpliedVolatiltySolver(func);
+    return solver.impliedVolatility(price, 0.15);
   }
 
   /**
@@ -301,7 +302,8 @@ public class RollGeskeWhaleyModel {
   public double impliedVolatility(final double price, final double spot, final double strike, final double interestRate, final double timeToExpiry, final double dividendAmount,
       final double dividendTime) {
     final Function1D<Double, double[]> func = getPriceAndVegaFunction(spot, strike, interestRate, timeToExpiry, dividendAmount, dividendTime);
-    return GenericImpliedVolatiltySolver.impliedVolatility(price, func, 0.15);
+    GenericImpliedVolatiltySolver solver = new GenericImpliedVolatiltySolver(func);
+    return solver.impliedVolatility(price, 0.15);
   }
 
   private double[] bsPriceAdjoint(final double modSpot, final double strike, final double timeToExpiry, final double volatility, final double interestRate, final double pVal,

@@ -30,16 +30,10 @@ import com.opengamma.util.time.Expiry;
  * Bjerksund and Stensland model test.
  */
 @Test(groups = TestGroup.UNIT)
-public class BjerksundStenslandModelTest extends AmericanAnalyticOptionModelTest {
+public class BjerksundStenslandModelTest {
 
   private static final ProbabilityDistribution<double[]> BIVARIATE_NORMAL = new BivariateNormalDistribution();
 
-  @SuppressWarnings("deprecation")
-  @Test
-  public void test() {
-    // Deprecated form used for this test
-    super.assertValid(new BjerksundStenslandModelDeprecated(), 1e-4);
-  }
 
   @Test(enabled = false)
   public void priceTest() {
@@ -120,7 +114,7 @@ public class BjerksundStenslandModelTest extends AmericanAnalyticOptionModelTest
   }
 
   /**
-   * Discontinuity of derivative value exists at b=r for call, where the switch from Bjerksund-Stensland model to Black model takes place. 
+   * Discontinuity of derivative value exists at b=r for call, where the switch from Bjerksund-Stensland model to Black model takes place.
    * In our implementation we use the derivative values of the Black model at the transition point
    */
   @Test
@@ -168,7 +162,7 @@ public class BjerksundStenslandModelTest extends AmericanAnalyticOptionModelTest
     }
   }
 
-  //[PLAT-2944]
+  // [PLAT-2944]
   @Test
   public void earlyExciseTest() {
     final double s0 = 10.0;
@@ -215,10 +209,10 @@ public class BjerksundStenslandModelTest extends AmericanAnalyticOptionModelTest
               final double up = bs.price(temp[0], temp[1], temp[2], temp[3], temp[4], temp[5], isCall);
               temp[i] -= 2 * delta;
               final double down = bs.price(temp[0], temp[1], temp[2], temp[3], temp[4], temp[5], isCall);
-              //  System.out.println("debug " + i + " " + s0 + " " + r + " " + b + " " + isCall + "\t" + up + "\t" + price + "\t" + down + "\t" + delta);
+              // System.out.println("debug " + i + " " + s0 + " " + r + " " + b + " " + isCall + "\t" + up + "\t" + price + "\t" + down + "\t" + delta);
               double fd;
-              if ((i == 3 && Math.abs(b) < delta) || (i == 2 && !isCall && r == 0.) /*|| (i == 2 && Math.abs(r) < delta)*/) {
-                //there is a discontinuity in the gradient at at b == 0 r != 0, and also for puts with r = 0 hence forward difference for the test
+              if ((i == 3 && Math.abs(b) < delta) || (i == 2 && !isCall && r == 0.) /* || (i == 2 && Math.abs(r) < delta) */) {
+                // there is a discontinuity in the gradient at at b == 0 r != 0, and also for puts with r = 0 hence forward difference for the test
                 if (isCall) {
                   fd = (up - price) / delta;
                 } else {
@@ -253,17 +247,17 @@ public class BjerksundStenslandModelTest extends AmericanAnalyticOptionModelTest
 
     final double price = bs.price(s0, k, r, b, t, sigma, isCall);
     final double[] sense = bs.getPriceAdjoint(s0, k, r, b, t, sigma, isCall);
-    //System.out.println(price + "\t" + sense[0]);
+    // System.out.println(price + "\t" + sense[0]);
 
-    //System.out.println(sense[3]);
+    // System.out.println(sense[3]);
     final double eps = 1e-4;
     final double up = bs.price(s0, k, r + eps, b, t, sigma, isCall);
     final double down = bs.price(s0, k, r - eps, b, t, sigma, isCall);
-    //System.out.println(up + "\t" + down + "\t" + (up - down) / 2 / eps);
+    // System.out.println(up + "\t" + down + "\t" + (up - down) / 2 / eps);
   }
 
   @Test
-  //(enabled = false)
+  // (enabled = false)
   public void deltaGammaTest() {
     final BjerksundStenslandModel bs = new BjerksundStenslandModel();
     final double[] s0Set = new double[] {60, 90, 100, 110, 160 };
@@ -327,7 +321,7 @@ public class BjerksundStenslandModelTest extends AmericanAnalyticOptionModelTest
             temp[i] -= 2 * delta;
             final double down = bs.getPhiAdjoint(temp[0], temp[1], temp[2], temp[3], temp[4], temp[5], temp[6], temp[7])[0];
             final double fd = (up - down) / 2 / delta;
-            //System.out.println(fd + "\t" + sense[i + 1]);
+            // System.out.println(fd + "\t" + sense[i + 1]);
             assertEquals(i + " " + x2 + " " + b + " " + gamma, fd, sense[i + 1], Math.abs(fd) * 2e-8);
           }
         }
@@ -363,7 +357,7 @@ public class BjerksundStenslandModelTest extends AmericanAnalyticOptionModelTest
           final double[] sense = bs.getPsiAdjoint(s0, t, gamma, k, x2, x1, r, b, sigma);
 
           assertEquals(impA, sense[0], 1e-12);
-          //System.out.println(impA + "\t" + sense[0]);
+          // System.out.println(impA + "\t" + sense[0]);
 
           final double eps = 1e-5;
           for (int i = 0; i < n; i++) {
@@ -374,9 +368,9 @@ public class BjerksundStenslandModelTest extends AmericanAnalyticOptionModelTest
             temp[i] -= 2 * delta;
             final double down = bs.getPsiAdjoint(temp[0], temp[1], temp[2], temp[3], temp[4], temp[5], temp[6], temp[7], temp[8])[0];
             final double fd = (up - down) / 2 / delta;
-            //           System.out.println(fd + "\t" + sense[i + 1]);
+            // System.out.println(fd + "\t" + sense[i + 1]);
 
-            assertEquals(i + " " + k + " " + b + " " + gamma, fd, sense[i + 1], Math.abs(fd) * 1e-4); //TODO would expect better agreement than this
+            assertEquals(i + " " + k + " " + b + " " + gamma, fd, sense[i + 1], Math.abs(fd) * 1e-4); // TODO would expect better agreement than this
 
           }
         }
@@ -408,7 +402,7 @@ public class BjerksundStenslandModelTest extends AmericanAnalyticOptionModelTest
 
           final double psi = bs.getPsi(s0, t1, t, gamma, k, x2, x1, r, b, sigma);
           final double[] sense = bs.getPsiDelta(s0, t, gamma, k, x2, x1, r, b, sigma);
-          //double psi = sense[0];
+          // double psi = sense[0];
           assertEquals("psi", psi, sense[0], Math.abs(psi) * 1e-15);
           final double up = bs.getPsi(s0 + eps, t1, t, gamma, k, x2, x1, r, b, sigma);
           final double down = bs.getPsi(s0 - eps, t1, t, gamma, k, x2, x1, r, b, sigma);
@@ -442,12 +436,12 @@ public class BjerksundStenslandModelTest extends AmericanAnalyticOptionModelTest
     final double aUpbDown = BIVARIATE_NORMAL.getCDF(new double[] {a + eps, b - eps, rho });
     final double aDownbUp = BIVARIATE_NORMAL.getCDF(new double[] {a - eps, b + eps, rho });
 
-    //1st
+    // 1st
     double fd = (aUp - aDown) / 2 / eps;
     assertEquals("dB/da", fd, sense[0], Math.abs(fd) * 1e-5);
     fd = (bUp - bDown) / 2 / eps;
     assertEquals("dB/db", fd, sense[1], Math.abs(fd) * 1e-5);
-    //2nd
+    // 2nd
     fd = (aUp + aDown - 2 * cent) / eps / eps;
     assertEquals("d^2B/da^2", fd, sense[2], Math.abs(fd) * 1e-4);
     fd = (bUp + bDown - 2 * cent) / eps / eps;
@@ -579,7 +573,7 @@ public class BjerksundStenslandModelTest extends AmericanAnalyticOptionModelTest
         if (r >= b) {
 
           final double[] sense = bs.getI1Adjoint(k, r, b, sigma, t);
-          //System.out.println(sense[0]);
+          // System.out.println(sense[0]);
           final double[] parms = new double[] {k, r, b, sigma, t };
           final int n = parms.length;
           final double eps = 1e-5;
@@ -590,7 +584,7 @@ public class BjerksundStenslandModelTest extends AmericanAnalyticOptionModelTest
             temp[i] -= 2 * eps;
             final double down = bs.getI1Adjoint(temp[0], temp[1], temp[2], temp[3], temp[4])[0];
             final double fd = (up - down) / 2 / eps;
-            //System.out.println(up + "\t" + down);
+            // System.out.println(up + "\t" + down);
             assertEquals(i + "\t" + r + "\t" + b, fd, sense[i + 1], Math.abs(fd) * 1e-5);
           }
         }
@@ -706,16 +700,31 @@ public class BjerksundStenslandModelTest extends AmericanAnalyticOptionModelTest
     final double vol2 = bs.impliedVolatility(optionPrice, modSpot, strike, discountRate, costOfCarry, timeToExpiry, isCall, 0.0001);
     final double vol3 = bs.impliedVolatility(optionPrice, modSpot, strike, discountRate, costOfCarry, timeToExpiry, isCall, 0.001);
     final double vol4 = bs.impliedVolatility(optionPrice, modSpot, strike, discountRate, costOfCarry, timeToExpiry, isCall, 0.01);
-    final double vol5 = bs.impliedVolatility(optionPrice, modSpot, strike, discountRate, costOfCarry, timeToExpiry, isCall, 0.1);
+    final double vol5 = bs.impliedVolatility(optionPrice, modSpot, strike, discountRate, costOfCarry, timeToExpiry, isCall, 0.15);
     final double vol6 = bs.impliedVolatility(optionPrice, modSpot, strike, discountRate, costOfCarry, timeToExpiry, isCall, 0.5);
     final double vol7 = bs.impliedVolatility(optionPrice, modSpot, strike, discountRate, costOfCarry, timeToExpiry, isCall, 1.);
-    assertEquals(vol1, vol, 1e-9);
-    assertEquals(vol1, vol2, 1e-9);
-    assertEquals(vol1, vol3, 1e-9);
-    assertEquals(vol1, vol4, 1e-9);
-    assertEquals(vol1, vol5, 1e-9);
-    assertEquals(vol1, vol6, 1e-9);
-    assertEquals(vol1, vol7, 1e-9);
+    assertEquals(vol, vol1, 1e-9);
+    assertEquals(vol, vol2, 1e-9);
+    assertEquals(vol, vol3, 1e-9);
+    assertEquals(vol, vol4, 1e-9);
+    assertEquals(vol, vol5, 1e-9);
+    assertEquals(vol, vol6, 1e-9);
+    assertEquals(vol, vol7, 1e-9);
     assertEquals(optionPrice, bs.price(modSpot, strike, discountRate, costOfCarry, timeToExpiry, vol, isCall), 1.e-5);
+  }
+
+  @Test
+  void zeroVolTest() {
+    double spot = 100;
+    double strike = 96;
+    double r = 0.01;
+    double q = 0.07;
+    double b = r - q;
+    double t = 2.0;
+    boolean isCall = false;
+    final BjerksundStenslandModel bs = new BjerksundStenslandModel();
+    double price = bs.price(spot, strike, r, b, t, 0.0, isCall);
+    double expected = Math.exp(-r * t) * Math.max(strike - spot * Math.exp(b * t), 0.0);
+    assertEquals(expected, price, 1e-14);
   }
 }

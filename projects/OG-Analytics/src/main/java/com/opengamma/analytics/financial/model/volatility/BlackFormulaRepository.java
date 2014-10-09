@@ -9,10 +9,7 @@ import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.analytics.math.MathException;
 import com.opengamma.analytics.math.function.Function1D;
-import com.opengamma.analytics.math.rootfinding.BisectionSingleRootFinder;
-import com.opengamma.analytics.math.rootfinding.BracketRoot;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.lang.annotation.ExternalFunction;
@@ -946,93 +943,95 @@ public abstract class BlackFormulaRepository {
       }
     };
 
-    return impliedVolatility(otmPrice, priceFunc, vegaFunc, volGuess);
+    GenericImpliedVolatiltySolver solver = new GenericImpliedVolatiltySolver(priceFunc, vegaFunc);
+
+    return solver.impliedVolatility(otmPrice, volGuess);
   }
 
-  /**
-   * This is a generic implied volatility solver (which is an implementation of Newton-Raphson). It just required you to
-   * supply two functions which give a price and a vega for a volatility; these could be the Black price and vega or
-   * otherwise.
-   * @param price The target price
-   * @param priceFunc Price function - gives the price for a volatility
-   * @param vegaFunc Vega function - gives the vega for a volatility
-   * @param volGuess a guess of the implied volatility
-   * @return The volatility
-   */
-  public static double impliedVolatility(double price, Function1D<Double, Double> priceFunc,
-      Function1D<Double, Double> vegaFunc, final double volGuess) {
-    ArgumentChecker.notNull(priceFunc, "priceFunc");
-    ArgumentChecker.notNull(vegaFunc, "vegaFunc");
-    ArgumentChecker.isTrue(volGuess >= 0.0, "negative/NaN volGuess; have {}", volGuess);
-    ArgumentChecker.isFalse(Double.isInfinite(volGuess), "volGuess is Infinity");
-
-    double lowerSigma;
-    double upperSigma;
-
-    try {
-      final double[] temp = bracketRoot(price, priceFunc, volGuess, Math.min(volGuess, 0.1));
-      lowerSigma = temp[0];
-      upperSigma = temp[1];
-    } catch (final MathException e) {
-      throw new IllegalArgumentException(e.toString() + " No implied Volatility for this price. price: " + price);
-    }
-    double sigma = (lowerSigma + upperSigma) / 2.0;
-    final double maxChange = 0.5;
-
-    double p = priceFunc.evaluate(sigma);
-    double v = vegaFunc.evaluate(sigma);
-    // TODO check if this is ever called
-    if (v == 0 || Double.isNaN(v)) {
-      return solveByBisection(price, priceFunc, lowerSigma, upperSigma);
-    }
-    double diff = p - price;
-    boolean above = diff > 0;
-    if (above) {
-      upperSigma = sigma;
-    } else {
-      lowerSigma = sigma;
-    }
-
-    double trialChange = -diff / v;
-    double actChange;
-    if (trialChange > 0.0) {
-      actChange = Math.min(maxChange, Math.min(trialChange, upperSigma - sigma));
-    } else {
-      actChange = Math.max(-maxChange, Math.max(trialChange, lowerSigma - sigma));
-    }
-
-    int count = 0;
-    while (Math.abs(actChange) > VOL_TOL) {
-      sigma += actChange;
-      p = priceFunc.evaluate(sigma);
-      v = vegaFunc.evaluate(sigma);
-
-      if (v == 0.0 || Double.isNaN(v)) {
-        return solveByBisection(price, priceFunc, lowerSigma, upperSigma);
-      }
-
-      diff = p - price;
-      above = diff > 0;
-      if (above) {
-        upperSigma = sigma;
-      } else {
-        lowerSigma = sigma;
-      }
-
-      trialChange = -diff / v;
-      if (trialChange > 0.0) {
-        actChange = Math.min(maxChange, Math.min(trialChange, upperSigma - sigma));
-      } else {
-        actChange = Math.max(-maxChange, Math.max(trialChange, lowerSigma - sigma));
-      }
-
-      if (count++ > MAX_ITERATIONS) {
-        return solveByBisection(price, priceFunc, lowerSigma, upperSigma);
-      }
-    }
-
-    return sigma + actChange; // apply the final change
-  }
+  //  /**
+  //   * This is a generic implied volatility solver (which is an implementation of Newton-Raphson). It just required you to
+  //   * supply two functions which give a price and a vega for a volatility; these could be the Black price and vega or
+  //   * otherwise.
+  //   * @param price The target price
+  //   * @param priceFunc Price function - gives the price for a volatility
+  //   * @param vegaFunc Vega function - gives the vega for a volatility
+  //   * @param volGuess a guess of the implied volatility
+  //   * @return The volatility
+  //   */
+  //  public static double impliedVolatility(double price, Function1D<Double, Double> priceFunc,
+  //      Function1D<Double, Double> vegaFunc, final double volGuess) {
+  //    ArgumentChecker.notNull(priceFunc, "priceFunc");
+  //    ArgumentChecker.notNull(vegaFunc, "vegaFunc");
+  //    ArgumentChecker.isTrue(volGuess >= 0.0, "negative/NaN volGuess; have {}", volGuess);
+  //    ArgumentChecker.isFalse(Double.isInfinite(volGuess), "volGuess is Infinity");
+  //
+  //    double lowerSigma;
+  //    double upperSigma;
+  //
+  //    try {
+  //      final double[] temp = bracketRoot(price, priceFunc, volGuess, Math.min(volGuess, 0.1));
+  //      lowerSigma = temp[0];
+  //      upperSigma = temp[1];
+  //    } catch (final MathException e) {
+  //      throw new IllegalArgumentException(e.toString() + " No implied Volatility for this price. price: " + price);
+  //    }
+  //    double sigma = (lowerSigma + upperSigma) / 2.0;
+  //    final double maxChange = 0.5;
+  //
+  //    double p = priceFunc.evaluate(sigma);
+  //    double v = vegaFunc.evaluate(sigma);
+  //    // TODO check if this is ever called
+  //    if (v == 0 || Double.isNaN(v)) {
+  //      return solveByBisection(price, priceFunc, lowerSigma, upperSigma);
+  //    }
+  //    double diff = p - price;
+  //    boolean above = diff > 0;
+  //    if (above) {
+  //      upperSigma = sigma;
+  //    } else {
+  //      lowerSigma = sigma;
+  //    }
+  //
+  //    double trialChange = -diff / v;
+  //    double actChange;
+  //    if (trialChange > 0.0) {
+  //      actChange = Math.min(maxChange, Math.min(trialChange, upperSigma - sigma));
+  //    } else {
+  //      actChange = Math.max(-maxChange, Math.max(trialChange, lowerSigma - sigma));
+  //    }
+  //
+  //    int count = 0;
+  //    while (Math.abs(actChange) > VOL_TOL) {
+  //      sigma += actChange;
+  //      p = priceFunc.evaluate(sigma);
+  //      v = vegaFunc.evaluate(sigma);
+  //
+  //      if (v == 0.0 || Double.isNaN(v)) {
+  //        return solveByBisection(price, priceFunc, lowerSigma, upperSigma);
+  //      }
+  //
+  //      diff = p - price;
+  //      above = diff > 0;
+  //      if (above) {
+  //        upperSigma = sigma;
+  //      } else {
+  //        lowerSigma = sigma;
+  //      }
+  //
+  //      trialChange = -diff / v;
+  //      if (trialChange > 0.0) {
+  //        actChange = Math.min(maxChange, Math.min(trialChange, upperSigma - sigma));
+  //      } else {
+  //        actChange = Math.max(-maxChange, Math.max(trialChange, lowerSigma - sigma));
+  //      }
+  //
+  //      if (count++ > MAX_ITERATIONS) {
+  //        return solveByBisection(price, priceFunc, lowerSigma, upperSigma);
+  //      }
+  //    }
+  //
+  //    return sigma + actChange; // apply the final change
+  //  }
 
   /**
    * The implied volatility of an option
@@ -1094,7 +1093,9 @@ public abstract class BlackFormulaRepository {
       }
     };
 
-    return impliedVolatility(price, priceFunc, vegaFunc, sigma);
+    GenericImpliedVolatiltySolver solver = new GenericImpliedVolatiltySolver(priceFunc, vegaFunc);
+    return solver.impliedVolatility(price, sigma);
+    //    return impliedVolatility(price, priceFunc, vegaFunc, sigma);
   }
 
   /**
@@ -1152,32 +1153,32 @@ public abstract class BlackFormulaRepository {
     return strike;
   }
 
-  private static double[] bracketRoot(final double forwardPrice, final Function1D<Double, Double> priceFunc,
-      double sigma, double change) {
-    final BracketRoot bracketer = new BracketRoot();
-    final Function1D<Double, Double> func = new Function1D<Double, Double>() {
-      @Override
-      public Double evaluate(final Double volatility) {
-        return priceFunc.evaluate(volatility) / forwardPrice - 1.0;
-      }
-    };
-    return bracketer.getBracketedPoints(func, sigma - Math.abs(change), sigma + Math.abs(change), 0,
-        Double.POSITIVE_INFINITY);
-  }
-
-  private static double solveByBisection(final double forwardPrice, final Function1D<Double, Double> priceFunc,
-      double lowerSigma, double upperSigma) {
-
-    final BisectionSingleRootFinder rootFinder = new BisectionSingleRootFinder(VOL_TOL);
-    final Function1D<Double, Double> func = new Function1D<Double, Double>() {
-
-      @Override
-      public Double evaluate(final Double volatility) {
-        final double trialPrice = priceFunc.evaluate(volatility);
-        return trialPrice / forwardPrice - 1.0;
-      }
-    };
-    return rootFinder.getRoot(func, lowerSigma, upperSigma);
-  }
+  //  private static double[] bracketRoot(final double forwardPrice, final Function1D<Double, Double> priceFunc,
+  //      double sigma, double change) {
+  //    final BracketRoot bracketer = new BracketRoot();
+  //    final Function1D<Double, Double> func = new Function1D<Double, Double>() {
+  //      @Override
+  //      public Double evaluate(final Double volatility) {
+  //        return priceFunc.evaluate(volatility) / forwardPrice - 1.0;
+  //      }
+  //    };
+  //    return bracketer.getBracketedPoints(func, sigma - Math.abs(change), sigma + Math.abs(change), 0,
+  //        Double.POSITIVE_INFINITY);
+  //  }
+  //
+  //  private static double solveByBisection(final double forwardPrice, final Function1D<Double, Double> priceFunc,
+  //      double lowerSigma, double upperSigma) {
+  //
+  //    final BisectionSingleRootFinder rootFinder = new BisectionSingleRootFinder(VOL_TOL);
+  //    final Function1D<Double, Double> func = new Function1D<Double, Double>() {
+  //
+  //      @Override
+  //      public Double evaluate(final Double volatility) {
+  //        final double trialPrice = priceFunc.evaluate(volatility);
+  //        return trialPrice / forwardPrice - 1.0;
+  //      }
+  //    };
+  //    return rootFinder.getRoot(func, lowerSigma, upperSigma);
+  //  }
 
 }
