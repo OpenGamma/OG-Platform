@@ -441,8 +441,8 @@ public class BondMockSources {
           .add(createId("B8"), 0.02619214367588991)
           .add(createId("B9"), 0.02719250291972944)
           .add(createId("B10"), 0.02808602151907749)
-          .add(createId("Bond1"), 0.0120) //Yield
-          .add(createId("Bill1"), 0.0125) //Yield
+          .add(createId("Bond1"), 0.01) //Yield
+          .add(createId("Bill1"), 0.01) //Yield
           .add(ExternalId.of("ISIN", "Test Corp bond"), 108.672)
           .add(ExternalId.of("ISIN", "Test Gov bond"), 136.375)
           .build();
