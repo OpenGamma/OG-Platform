@@ -351,7 +351,7 @@ public class StandardDataSetsMulticurveUSDGBP {
   }
   
   private static final ZonedDateTimeDoubleTimeSeries TS_USD_ON_WITHOUT_TODAY = 
-      StandardTimeSeriesDataSets.timeSeriesUsdOn2014Jan(DATA_DATE_1);
+      StandardTimeSeriesOnIborDataSets.timeSeriesUsdOn2014Jan(DATA_DATE_1);
   private static final Map<IndexON,ZonedDateTimeDoubleTimeSeries> TS_ON_WITHOUT_TODAY = 
       new HashMap<>();
       static {
@@ -359,9 +359,9 @@ public class StandardDataSetsMulticurveUSDGBP {
       }
 
   private static final ZonedDateTimeDoubleTimeSeries TS_USD_IBOR3M_WITHOUT_LAST = 
-      StandardTimeSeriesDataSets.timeSeriesUsdIbor3M2014Jan(DATA_DATE_1);
+      StandardTimeSeriesOnIborDataSets.timeSeriesUsdIbor3M2014Jan(DATA_DATE_1);
   private static final ZonedDateTimeDoubleTimeSeries TS_GBP_IBOR3M_WITHOUT_LAST = 
-      StandardTimeSeriesDataSets.timeSeriesGbpIbor3M2014Jan(DATA_DATE_1);
+      StandardTimeSeriesOnIborDataSets.timeSeriesGbpIbor3M2014Jan(DATA_DATE_1);
   private static final Map<IborIndex,ZonedDateTimeDoubleTimeSeries> TS_IBOR_WITHOUT_TODAY = 
       new HashMap<>();
       static {

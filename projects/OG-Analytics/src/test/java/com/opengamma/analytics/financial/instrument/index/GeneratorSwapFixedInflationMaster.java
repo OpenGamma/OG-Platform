@@ -46,7 +46,7 @@ public final class GeneratorSwapFixedInflationMaster {
    * Private constructor.
    */
   private GeneratorSwapFixedInflationMaster() {
-    final PriceIndexMaster priceIndexMaster = PriceIndexMaster.getInstance();
+    final IndexPriceMaster priceIndexMaster = IndexPriceMaster.getInstance();
 
     final DoubleTimeSeries<ZonedDateTime> eurPriceIndexTimeSerie = MulticurveProviderDiscountDataSets.euroHICPXFrom2009();
     final DoubleTimeSeries<ZonedDateTime> usPriceIndexTimeSerie = MulticurveProviderDiscountDataSets.usCpiFrom2009();

@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.analytics.financial.interestrate.datasets;
 
 import org.threeten.bp.ZonedDateTime;
@@ -7,9 +12,9 @@ import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.time.DateUtils;
 
 /**
- * Time series used for testing purposes.
+ * Time series of Overnight and Ibor indexes used for testing purposes.
  */
-public class StandardTimeSeriesDataSets {
+public class StandardTimeSeriesOnIborDataSets {
   
   /** ===== GBP IBOR 3M INDEX ===== */
   

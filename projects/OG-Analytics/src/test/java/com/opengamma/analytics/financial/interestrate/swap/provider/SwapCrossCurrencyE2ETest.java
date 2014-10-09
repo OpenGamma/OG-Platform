@@ -33,7 +33,7 @@ import com.opengamma.analytics.financial.instrument.swap.SwapCouponFixedCouponDe
 import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
 import com.opengamma.analytics.financial.interestrate.E2EUtils;
 import com.opengamma.analytics.financial.interestrate.datasets.StandardDataSetsMulticurveUSDGBP;
-import com.opengamma.analytics.financial.interestrate.datasets.StandardTimeSeriesDataSets;
+import com.opengamma.analytics.financial.interestrate.datasets.StandardTimeSeriesOnIborDataSets;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
@@ -107,9 +107,9 @@ public class SwapCrossCurrencyE2ETest {
   
   /** Fixing time series */
   private static final ZonedDateTimeDoubleTimeSeries HTS_GBPLIBOR3M_INCL =
-      StandardTimeSeriesDataSets.timeSeriesGbpIbor3M2014Jan(VALUATION_DATE.plusDays(1));
+      StandardTimeSeriesOnIborDataSets.timeSeriesGbpIbor3M2014Jan(VALUATION_DATE.plusDays(1));
   private static final ZonedDateTimeDoubleTimeSeries HTS_USDLIBOR3M_INCL =
-      StandardTimeSeriesDataSets.timeSeriesUsdIbor3M2014Jan(VALUATION_DATE.plusDays(1));
+      StandardTimeSeriesOnIborDataSets.timeSeriesUsdIbor3M2014Jan(VALUATION_DATE.plusDays(1));
   
   /** USD Fixed v USDLIBOR3M */
   private static final LocalDate EFFECTIVE_DATE_1 = LocalDate.of(2016, 7, 18);

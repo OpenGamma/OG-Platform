@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.interestrate.fra.provider;
+package com.opengamma.analytics.financial.interestrate.inflation.provider;
 
 import static org.testng.AssertJUnit.assertEquals;
 
