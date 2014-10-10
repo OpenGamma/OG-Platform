@@ -582,8 +582,9 @@ public class BondFixedSecurityDefinition extends BondSecurityDefinition<PaymentF
     }
     final ZonedDateTime previousAccrualDate = getCoupons().getNthPayment(couponIndex).getAccrualStartDate();
     final ZonedDateTime nextAccrualDate = getCoupons().getNthPayment(couponIndex).getAccrualEndDate();
-    final double accruedInterest = AccruedInterestCalculator.getAccruedInterest(getDayCount(), couponIndex, nbCoupon, previousAccrualDate, date, nextAccrualDate,
-        getCoupons().getNthPayment(couponIndex).getRate(), getCouponPerYear(), isEOM()) * getCoupons().getNthPayment(couponIndex).getNotional();
+    final double accruedInterest = AccruedInterestCalculator.getAccruedInterest(getDayCount(), couponIndex, nbCoupon, 
+        previousAccrualDate, date, nextAccrualDate, getCoupons().getNthPayment(couponIndex).getRate(), 
+        getCouponPerYear(), isEOM()) * getCoupons().getNthPayment(couponIndex).getNotional();
     if (getExCouponDays() != 0 && nextAccrualDate.minusDays(getExCouponDays()).isBefore(date)) {
       result = accruedInterest - getCoupons().getNthPayment(couponIndex).getAmount();
     } else {
@@ -752,8 +753,8 @@ public class BondFixedSecurityDefinition extends BondSecurityDefinition<PaymentF
         factor = (factorPeriod - factorSpot) / factorPeriod;
       }
     }
-    final BondFixedSecurity bondStandard = new BondFixedSecurity(nominalStandard, couponStandard, settleTime, accruedInterestAtSettle, factor, getYieldConvention(),
-        _couponPerYear, getIssuerEntity());
+    final BondFixedSecurity bondStandard = new BondFixedSecurity(nominalStandard, couponStandard, settleTime, 
+        accruedInterestAtSettle, factor, getYieldConvention(), _couponPerYear, getIssuerEntity());
     return bondStandard;
   }
 

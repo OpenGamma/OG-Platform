@@ -8,6 +8,7 @@ package com.opengamma.analytics.financial.interestrate.bond.provider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedTransaction;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondIborTransaction;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondSecurity;
@@ -54,7 +55,8 @@ public final class BondTransactionDiscountingMethod {
   /** The present value calculator (for the different parts of the bond transaction). */
   private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
   /** The present value calculator (for the different parts of the bond transaction). */
-  private static final PresentValueCurveSensitivityDiscountingCalculator PVCSDC = PresentValueCurveSensitivityDiscountingCalculator.getInstance();
+  private static final PresentValueCurveSensitivityDiscountingCalculator PVCSDC = 
+      PresentValueCurveSensitivityDiscountingCalculator.getInstance();
   /** Bond security calculation method **/
   private static final BondSecurityDiscountingMethod METHOD_BOND_SECURITY = BondSecurityDiscountingMethod.getInstance();
 
@@ -64,15 +66,19 @@ public final class BondTransactionDiscountingMethod {
    * @param issuerMulticurves The issuer and multi-curves provider.
    * @return The present value.
    */
-  public MultipleCurrencyAmount presentValue(final BondFixedTransaction bond, final IssuerProviderInterface issuerMulticurves) {
+  public MultipleCurrencyAmount presentValue(final BondFixedTransaction bond, 
+      final IssuerProviderInterface issuerMulticurves) {
     ArgumentChecker.notNull(bond, "Bond");
     final Currency ccy = bond.getBondTransaction().getCurrency();
-    final MulticurveProviderInterface multicurvesDecorated = new MulticurveProviderDiscountingDecoratedIssuer(issuerMulticurves, ccy, bond.getBondTransaction().getIssuerEntity());
+    final MulticurveProviderInterface multicurvesDecorated = 
+        new MulticurveProviderDiscountingDecoratedIssuer(issuerMulticurves, ccy, bond.getBondTransaction().getIssuerEntity());
     final MultipleCurrencyAmount pvNominal = bond.getBondTransaction().getNominal().accept(PVDC, multicurvesDecorated);
     final MultipleCurrencyAmount pvCoupon = bond.getBondTransaction().getCoupon().accept(PVDC, multicurvesDecorated);
-    final double settlementAmount = -(bond.getTransactionPrice() * bond.getBondTransaction().getCoupon().getNthPayment(0).getNotional() + bond.getBondTransaction().getAccruedInterest())
-        * bond.getQuantity();
-    final PaymentFixed settlement = new PaymentFixed(bond.getBondTransaction().getCurrency(), bond.getBondTransaction().getSettlementTime(), settlementAmount);
+    final double settlementAmount = -(bond.getTransactionPrice() * 
+        bond.getBondTransaction().getCoupon().getNthPayment(0).getNotional() + 
+        bond.getBondTransaction().getAccruedInterest()) * bond.getQuantity();
+    final PaymentFixed settlement = new PaymentFixed(bond.getBondTransaction().getCurrency(), 
+        bond.getBondTransaction().getSettlementTime(), settlementAmount);
     final MultipleCurrencyAmount pvSettlement = settlement.accept(PVDC, issuerMulticurves.getMulticurveProvider());
     return pvNominal.plus(pvCoupon).multipliedBy(bond.getQuantity()).plus(pvSettlement);
   }
@@ -83,7 +89,8 @@ public final class BondTransactionDiscountingMethod {
    * @param issuerMulticurves The issuer and multi-curves provider.
    * @return The present value.
    */
-  public MultipleCurrencyAmount presentValue(final BondIborTransaction bond, final IssuerProviderInterface issuerMulticurves) {
+  public MultipleCurrencyAmount presentValue(final BondIborTransaction bond, 
+      final IssuerProviderInterface issuerMulticurves) {
     ArgumentChecker.notNull(bond, "Bond");
     final Currency ccy = bond.getBondTransaction().getCurrency();
     final MulticurveProviderInterface multicurvesDecorated = new MulticurveProviderDiscountingDecoratedIssuer(issuerMulticurves, ccy, bond.getBondTransaction().getIssuerEntity());
@@ -103,8 +110,9 @@ public final class BondTransactionDiscountingMethod {
    * @param cleanPrice The bond clean price.
    * @return The present value.
    */
-  public MultipleCurrencyAmount presentValueFromCleanPrice(final BondTransaction<? extends BondSecurity<? extends Payment, ? extends Coupon>> bond, final IssuerProviderInterface issuerMulticurves,
-      final double cleanPrice) {
+  public MultipleCurrencyAmount presentValueFromCleanPrice(
+      final BondTransaction<? extends BondSecurity<? extends Payment, ? extends Coupon>> bond, 
+          final IssuerProviderInterface issuerMulticurves, final double cleanPrice) {
     ArgumentChecker.notNull(bond, "Bond");
     ArgumentChecker.isTrue(bond instanceof BondFixedTransaction, "Present value from clean price only for fixed coupon bond");
     final Currency ccy = bond.getBondTransaction().getCurrency();
@@ -118,7 +126,14 @@ public final class BondTransactionDiscountingMethod {
     final MultipleCurrencyAmount pvNominalTransaction = bond.getBondTransaction().getNominal().accept(PVDC, multicurvesDecorated);
     final MultipleCurrencyAmount pvCouponTransaction = bond.getBondTransaction().getCoupon().accept(PVDC, multicurvesDecorated);
     final MultipleCurrencyAmount pvDiscountingTransaction = pvNominalTransaction.plus(pvCouponTransaction);
-    return (pvDiscountingTransaction.plus(pvDiscountingStandard.multipliedBy(-1d)).plus(pvPriceStandard)).multipliedBy(bond.getQuantity());
+    double settlementAmount = -bond.getTransactionPrice() * bond.getBondTransaction().getCoupon().getNthPayment(0).getNotional();
+    if (bond.getBondTransaction() instanceof BondFixedSecurity) {
+      settlementAmount -= ((BondFixedSecurity) bond.getBondTransaction()).getAccruedInterest();
+    }
+    settlementAmount *= bond.getQuantity();
+    final PaymentFixed settlement = new PaymentFixed(bond.getBondTransaction().getCurrency(), bond.getBondTransaction().getSettlementTime(), settlementAmount);
+    final MultipleCurrencyAmount pvSettlement = settlement.accept(PVDC, issuerMulticurves.getMulticurveProvider());
+    return (pvDiscountingTransaction.plus(pvDiscountingStandard.multipliedBy(-1d)).plus(pvPriceStandard)).multipliedBy(bond.getQuantity()).plus(pvSettlement);
   }
 
   /**
@@ -128,14 +143,18 @@ public final class BondTransactionDiscountingMethod {
    * @param yield The bond conventional yield (in the bond convention).
    * @return The present value.
    */
-  public MultipleCurrencyAmount presentValueFromYield(final BondTransaction<? extends BondSecurity<? extends Payment, ? extends Coupon>> bond, final IssuerProviderInterface issuerMulticurves,
-      final double yield) {
+  public MultipleCurrencyAmount presentValueFromYield(
+      final BondTransaction<? extends BondSecurity<? extends Payment, ? extends Coupon>> bond, 
+          final IssuerProviderInterface issuerMulticurves, final double yield) {
     ArgumentChecker.notNull(bond, "Bond");
-    ArgumentChecker.isTrue(bond instanceof BondFixedTransaction, "Present value from clean price only for fixed coupon bond");
+    ArgumentChecker.isTrue(bond instanceof BondFixedTransaction, 
+        "Present value from clean price only for fixed coupon bond");
     final Currency ccy = bond.getBondTransaction().getCurrency();
-    final MulticurveProviderInterface multicurvesDecorated = new MulticurveProviderDiscountingDecoratedIssuer(issuerMulticurves, ccy, bond.getBondTransaction().getIssuerEntity());
+    final MulticurveProviderInterface multicurvesDecorated = new MulticurveProviderDiscountingDecoratedIssuer(
+        issuerMulticurves, ccy, bond.getBondTransaction().getIssuerEntity());
     final BondFixedTransaction bondFixed = (BondFixedTransaction) bond;
-    final double dfSettle = issuerMulticurves.getMulticurveProvider().getDiscountFactor(ccy, bondFixed.getBondStandard().getSettlementTime());
+    final double dfSettle = issuerMulticurves.getMulticurveProvider().
+        getDiscountFactor(ccy, bondFixed.getBondStandard().getSettlementTime());
     final double dirtyPrice = METHOD_BOND_SECURITY.dirtyPriceFromYield(bondFixed.getBondStandard(), yield);
     final MultipleCurrencyAmount pvPriceStandard = MultipleCurrencyAmount.of(ccy, dirtyPrice * dfSettle);
     final MultipleCurrencyAmount pvNominalStandard = bond.getBondStandard().getNominal().accept(PVDC, multicurvesDecorated);
@@ -144,7 +163,16 @@ public final class BondTransactionDiscountingMethod {
     final MultipleCurrencyAmount pvNominalTransaction = bond.getBondTransaction().getNominal().accept(PVDC, multicurvesDecorated);
     final MultipleCurrencyAmount pvCouponTransaction = bond.getBondTransaction().getCoupon().accept(PVDC, multicurvesDecorated);
     final MultipleCurrencyAmount pvDiscountingTransaction = pvNominalTransaction.plus(pvCouponTransaction);
-    return (pvDiscountingTransaction.plus(pvDiscountingStandard.multipliedBy(-1d)).plus(pvPriceStandard)).multipliedBy(bond.getQuantity());
+    double settlementAmount = -bond.getTransactionPrice() * bond.getBondTransaction().getCoupon().getNthPayment(0).getNotional();
+    if (bond.getBondTransaction() instanceof BondFixedSecurity) {
+      settlementAmount -= ((BondFixedSecurity) bond.getBondTransaction()).getAccruedInterest();
+    }
+    settlementAmount *= bond.getQuantity();
+    final PaymentFixed settlement = new PaymentFixed(bond.getBondTransaction().getCurrency(), 
+        bond.getBondTransaction().getSettlementTime(), settlementAmount);
+    final MultipleCurrencyAmount pvSettlement = settlement.accept(PVDC, issuerMulticurves.getMulticurveProvider());
+    return (pvDiscountingTransaction.plus(pvDiscountingStandard.multipliedBy(-1d)).plus(pvPriceStandard)).
+        multipliedBy(bond.getQuantity()).plus(pvSettlement);
   }
 
   /**
@@ -153,29 +181,43 @@ public final class BondTransactionDiscountingMethod {
    * @param issuerMulticurves The issuer and multi-curves provider.
    * @return The present value sensitivity.
    */
-  public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final BondFixedTransaction bond, final IssuerProviderInterface issuerMulticurves) {
+  public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final BondFixedTransaction bond, 
+      final IssuerProviderInterface issuerMulticurves) {
     ArgumentChecker.notNull(bond, "Bond");
     final Currency ccy = bond.getBondTransaction().getCurrency();
-    final MulticurveProviderInterface multicurvesDecorated = new MulticurveProviderDiscountingDecoratedIssuer(issuerMulticurves, ccy, bond.getBondTransaction().getIssuerEntity());
-    final MultipleCurrencyMulticurveSensitivity pvcsNominal = bond.getBondTransaction().getNominal().accept(PVCSDC, multicurvesDecorated);
-    final MultipleCurrencyMulticurveSensitivity pvcsCoupon = bond.getBondTransaction().getCoupon().accept(PVCSDC, multicurvesDecorated);
-    final double settlementAmount = -(bond.getTransactionPrice() * bond.getBondTransaction().getCoupon().getNthPayment(0).getNotional() + bond.getBondTransaction().getAccruedInterest())
-        * bond.getQuantity();
-    final PaymentFixed settlement = new PaymentFixed(bond.getBondTransaction().getCurrency(), bond.getBondTransaction().getSettlementTime(), settlementAmount);
-    final MultipleCurrencyMulticurveSensitivity pvcsSettlement = settlement.accept(PVCSDC, issuerMulticurves.getMulticurveProvider());
+    final MulticurveProviderInterface multicurvesDecorated = new MulticurveProviderDiscountingDecoratedIssuer(
+        issuerMulticurves, ccy, bond.getBondTransaction().getIssuerEntity());
+    final MultipleCurrencyMulticurveSensitivity pvcsNominal = 
+        bond.getBondTransaction().getNominal().accept(PVCSDC, multicurvesDecorated);
+    final MultipleCurrencyMulticurveSensitivity pvcsCoupon = 
+        bond.getBondTransaction().getCoupon().accept(PVCSDC, multicurvesDecorated);
+    final double settlementAmount = -(bond.getTransactionPrice() * 
+        bond.getBondTransaction().getCoupon().getNthPayment(0).getNotional() + 
+        bond.getBondTransaction().getAccruedInterest()) * bond.getQuantity();
+    final PaymentFixed settlement = new PaymentFixed(bond.getBondTransaction().getCurrency(), 
+        bond.getBondTransaction().getSettlementTime(), settlementAmount);
+    final MultipleCurrencyMulticurveSensitivity pvcsSettlement = 
+        settlement.accept(PVCSDC, issuerMulticurves.getMulticurveProvider());
     return pvcsNominal.plus(pvcsCoupon).multipliedBy(bond.getQuantity()).plus(pvcsSettlement);
   }
 
-  public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final BondIborTransaction bond, final IssuerProviderInterface issuerMulticurves) {
+  public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final BondIborTransaction bond, 
+      final IssuerProviderInterface issuerMulticurves) {
     ArgumentChecker.notNull(bond, "Bond");
     final Currency ccy = bond.getBondTransaction().getCurrency();
-    final MulticurveProviderInterface multicurvesDecorated = new MulticurveProviderDiscountingDecoratedIssuer(issuerMulticurves, ccy, bond.getBondTransaction().getIssuerEntity());
-    final MultipleCurrencyMulticurveSensitivity pvcsNominal = bond.getBondTransaction().getNominal().accept(PVCSDC, multicurvesDecorated);
-    final MultipleCurrencyMulticurveSensitivity pvcsCoupon = bond.getBondTransaction().getCoupon().accept(PVCSDC, multicurvesDecorated);
-    final double settlementAmount = bond.getTransactionPrice() * bond.getBondTransaction().getCoupon().getNthPayment(0).getNotional(); //FIXME: add accrued.
+    final MulticurveProviderInterface multicurvesDecorated = 
+        new MulticurveProviderDiscountingDecoratedIssuer(issuerMulticurves, ccy, bond.getBondTransaction().getIssuerEntity());
+    final MultipleCurrencyMulticurveSensitivity pvcsNominal = 
+        bond.getBondTransaction().getNominal().accept(PVCSDC, multicurvesDecorated);
+    final MultipleCurrencyMulticurveSensitivity pvcsCoupon = 
+        bond.getBondTransaction().getCoupon().accept(PVCSDC, multicurvesDecorated);
+    final double settlementAmount = bond.getTransactionPrice() * 
+        bond.getBondTransaction().getCoupon().getNthPayment(0).getNotional(); //FIXME: add accrued.
     LOGGER.error("The FRN settlement amount does not include the accrued interests.");
-    final PaymentFixed settlement = new PaymentFixed(bond.getBondTransaction().getCurrency(), bond.getBondTransaction().getSettlementTime(), settlementAmount);
-    final MultipleCurrencyMulticurveSensitivity pvcsSettlement = settlement.accept(PVCSDC, issuerMulticurves.getMulticurveProvider());
+    final PaymentFixed settlement = new PaymentFixed(bond.getBondTransaction().getCurrency(), 
+        bond.getBondTransaction().getSettlementTime(), settlementAmount);
+    final MultipleCurrencyMulticurveSensitivity pvcsSettlement = 
+        settlement.accept(PVCSDC, issuerMulticurves.getMulticurveProvider());
     return pvcsNominal.plus(pvcsCoupon).multipliedBy(bond.getQuantity()).plus(pvcsSettlement);
   }
 
@@ -190,9 +232,11 @@ public final class BondTransactionDiscountingMethod {
     ArgumentChecker.notNull(bond, "Bond");
     ArgumentChecker.notNull(issuerMulticurves, "Issuer and multi-curves provider");
     final Currency ccy = bond.getBondTransaction().getCurrency();
-    final PaymentFixed nominalAtSettlement = new PaymentFixed(bond.getBondTransaction().getCurrency(), bond.getBondTransaction().getSettlementTime(), bond.getBondTransaction().getCoupon()
+    final PaymentFixed nominalAtSettlement = new PaymentFixed(bond.getBondTransaction().getCurrency(), 
+        bond.getBondTransaction().getSettlementTime(), bond.getBondTransaction().getCoupon()
         .getNthPayment(0).getNotional() * bond.getQuantity());
-    final double pvNominalAtSettlement = nominalAtSettlement.accept(PVDC, issuerMulticurves.getMulticurveProvider()).getAmount(ccy);
+    final double pvNominalAtSettlement = 
+        nominalAtSettlement.accept(PVDC, issuerMulticurves.getMulticurveProvider()).getAmount(ccy);
     return presentValue(bond, issuerMulticurves).getAmount(ccy) / pvNominalAtSettlement;
   }
 
@@ -200,10 +244,11 @@ public final class BondTransactionDiscountingMethod {
     ArgumentChecker.notNull(bond, "Bond");
     ArgumentChecker.notNull(issuerMulticurves, "Issuer and multi-curves provider");
     final Currency ccy = bond.getBondTransaction().getCurrency();
-    final PaymentFixed nominalAtSettlement = new PaymentFixed(bond.getBondTransaction().getCurrency(), bond.getBondTransaction().getSettlementTime(), bond.getBondTransaction().getCoupon()
-        .getNthPayment(0).getNotional() *
-        bond.getQuantity());
-    final double pvNominalAtSettlement = nominalAtSettlement.accept(PVDC, issuerMulticurves.getMulticurveProvider()).getAmount(ccy);
+    final PaymentFixed nominalAtSettlement = new PaymentFixed(bond.getBondTransaction().getCurrency(), 
+        bond.getBondTransaction().getSettlementTime(), bond.getBondTransaction().getCoupon()
+        .getNthPayment(0).getNotional() * bond.getQuantity());
+    final double pvNominalAtSettlement = nominalAtSettlement.accept(PVDC, 
+        issuerMulticurves.getMulticurveProvider()).getAmount(ccy);
     return -presentValue(bond, issuerMulticurves).getAmount(ccy) / pvNominalAtSettlement;
   }
 
@@ -216,8 +261,10 @@ public final class BondTransactionDiscountingMethod {
    */
   public double parSpreadYield(final BondFixedTransaction bond, final IssuerProviderInterface issuerMulticurves) {
     final double parSpreadPrice = parSpread(bond, issuerMulticurves);
-    final double yieldAtTrade = METHOD_BOND_SECURITY.yieldFromCleanPrice(bond.getBondStandard(), bond.getTransactionPrice());
-    final double yieldAtPar = METHOD_BOND_SECURITY.yieldFromCleanPrice(bond.getBondStandard(), bond.getTransactionPrice() + parSpreadPrice);
+    final double yieldAtTrade = METHOD_BOND_SECURITY.yieldFromCleanPrice(bond.getBondStandard(), 
+        bond.getTransactionPrice());
+    final double yieldAtPar = METHOD_BOND_SECURITY.yieldFromCleanPrice(bond.getBondStandard(), 
+        bond.getTransactionPrice() + parSpreadPrice);
     return yieldAtPar - yieldAtTrade;
   }
 
@@ -231,28 +278,35 @@ public final class BondTransactionDiscountingMethod {
     ArgumentChecker.notNull(bond, "Bond");
     ArgumentChecker.notNull(issuerMulticurves, "Issuer and multi-curves provider");
     final Currency ccy = bond.getBondTransaction().getCurrency();
-    final PaymentFixed nominalAtSettlement = new PaymentFixed(bond.getBondTransaction().getCurrency(), bond.getBondTransaction().getSettlementTime(), bond.getBondTransaction().getCoupon()
-        .getNthPayment(0).getNotional() *
-        bond.getQuantity());
-    final double pvNominalAtSettlement = nominalAtSettlement.accept(PVDC, issuerMulticurves.getMulticurveProvider()).getAmount(ccy);
-    final MulticurveSensitivity pvcsNominalAtSettlement = nominalAtSettlement.accept(PVCSDC, issuerMulticurves.getMulticurveProvider()).getSensitivity(ccy);
+    final PaymentFixed nominalAtSettlement = new PaymentFixed(bond.getBondTransaction().getCurrency(), 
+        bond.getBondTransaction().getSettlementTime(), bond.getBondTransaction().getCoupon()
+        .getNthPayment(0).getNotional() * bond.getQuantity());
+    final double pvNominalAtSettlement = nominalAtSettlement.accept(PVDC, 
+        issuerMulticurves.getMulticurveProvider()).getAmount(ccy);
+    final MulticurveSensitivity pvcsNominalAtSettlement = nominalAtSettlement.accept(PVCSDC, 
+        issuerMulticurves.getMulticurveProvider()).getSensitivity(ccy);
     final MulticurveSensitivity pvcsBond = presentValueCurveSensitivity(bond, issuerMulticurves).getSensitivity(ccy);
     final double pvBond = presentValue(bond, issuerMulticurves).getAmount(ccy);
-    return pvcsBond.multipliedBy(1.0 / pvNominalAtSettlement).plus(pvcsNominalAtSettlement.multipliedBy(pvBond / (pvNominalAtSettlement * pvNominalAtSettlement)));
+    return pvcsBond.multipliedBy(1.0 / pvNominalAtSettlement).plus(pvcsNominalAtSettlement.
+        multipliedBy(pvBond / (pvNominalAtSettlement * pvNominalAtSettlement)));
   }
 
-  public MulticurveSensitivity parSpreadCurveSensitivity(final BondIborTransaction bond, final IssuerProviderInterface issuerMulticurves) {
+  public MulticurveSensitivity parSpreadCurveSensitivity(final BondIborTransaction bond, 
+      final IssuerProviderInterface issuerMulticurves) {
     ArgumentChecker.notNull(bond, "Bond");
     ArgumentChecker.notNull(issuerMulticurves, "Issuer and multi-curves provider");
     final Currency ccy = bond.getBondTransaction().getCurrency();
-    final PaymentFixed nominalAtSettlement = new PaymentFixed(bond.getBondTransaction().getCurrency(), bond.getBondTransaction().getSettlementTime(), bond.getBondTransaction().getCoupon()
-        .getNthPayment(0).getNotional() *
-        bond.getQuantity());
-    final double pvNominalAtSettlement = nominalAtSettlement.accept(PVDC, issuerMulticurves.getMulticurveProvider()).getAmount(ccy);
-    final MulticurveSensitivity pvcsNominalAtSettlement = nominalAtSettlement.accept(PVCSDC, issuerMulticurves.getMulticurveProvider()).getSensitivity(ccy);
+    final PaymentFixed nominalAtSettlement = new PaymentFixed(bond.getBondTransaction().getCurrency(), 
+        bond.getBondTransaction().getSettlementTime(), 
+        bond.getBondTransaction().getCoupon().getNthPayment(0).getNotional() * bond.getQuantity());
+    final double pvNominalAtSettlement = 
+        nominalAtSettlement.accept(PVDC, issuerMulticurves.getMulticurveProvider()).getAmount(ccy);
+    final MulticurveSensitivity pvcsNominalAtSettlement = 
+        nominalAtSettlement.accept(PVCSDC, issuerMulticurves.getMulticurveProvider()).getSensitivity(ccy);
     final MulticurveSensitivity pvcsBond = presentValueCurveSensitivity(bond, issuerMulticurves).getSensitivity(ccy);
     final double pvBond = presentValue(bond, issuerMulticurves).getAmount(ccy);
-    return pvcsBond.multipliedBy(-1 / pvNominalAtSettlement).plus(pvcsNominalAtSettlement.multipliedBy(pvBond / (pvNominalAtSettlement * pvNominalAtSettlement)));
+    return pvcsBond.multipliedBy(-1 / pvNominalAtSettlement).plus(pvcsNominalAtSettlement.
+        multipliedBy(pvBond / (pvNominalAtSettlement * pvNominalAtSettlement)));
   }
 
   /**
@@ -261,16 +315,15 @@ public final class BondTransactionDiscountingMethod {
    * @param issuerMulticurves The issuer and multi-curves provider.
    * @return The curve sensitivity.
    */
-  public MulticurveSensitivity parSpreadYieldCurveSensitivity(final BondFixedTransaction bond, final IssuerProviderInterface issuerMulticurves) {
+  public MulticurveSensitivity parSpreadYieldCurveSensitivity(final BondFixedTransaction bond, 
+      final IssuerProviderInterface issuerMulticurves) {
     final double parSpreadPrice = parSpread(bond, issuerMulticurves);
-    //    final double yieldAtTrade = METHOD_BOND_SECURITY.yieldFromCleanPrice(bond.getBondStandard(), bond.getTransactionPrice());
-    //    final double yieldAtPar = METHOD_BOND_SECURITY.yieldFromCleanPrice(bond.getBondStandard(), bond.getTransactionPrice() + parSpreadPrice);
-    //    final double parSpreadYield = yieldAtPar - yieldAtTrade;
     //Backward sweep
     final double parSpreadYieldBar = 1.0d;
     final double yieldAtParBar = parSpreadYieldBar;
     final double dirtyPriceAtPar = bond.getTransactionPrice() + parSpreadPrice + bond.getBondStandard().getAccruedInterest();
-    final double modifiedDurationAtPar = METHOD_BOND_SECURITY.modifiedDurationFromCleanPrice(bond.getBondStandard(), bond.getTransactionPrice() + parSpreadPrice);
+    final double modifiedDurationAtPar = METHOD_BOND_SECURITY.
+        modifiedDurationFromCleanPrice(bond.getBondStandard(), bond.getTransactionPrice() + parSpreadPrice);
     final double dYielddCleanAtPar = -1.0d / (modifiedDurationAtPar * dirtyPriceAtPar);
     final double parSpreadPriceBar = dYielddCleanAtPar * yieldAtParBar;
     final MulticurveSensitivity parSpreadPriceCurveSensitivity = parSpreadCurveSensitivity(bond, issuerMulticurves);
