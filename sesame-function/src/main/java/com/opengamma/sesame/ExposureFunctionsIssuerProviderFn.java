@@ -13,8 +13,6 @@ import org.threeten.bp.OffsetTime;
 
 import com.google.common.collect.Iterables;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
-import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
-import com.opengamma.analytics.financial.provider.description.interestrate.ParameterIssuerProviderInterface;
 import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.SimpleCounterparty;
@@ -24,7 +22,6 @@ import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * Default implementation of IssuerProviderFn that returns a multicurve bundle of curves by issuer.
@@ -40,9 +37,7 @@ public class ExposureFunctionsIssuerProviderFn implements IssuerProviderFn {
     _issuerProviderBundleFn = issuerProviderBundleFn;
   }
   @Override
-  public Result<Pair<ParameterIssuerProviderInterface, CurveBuildingBlockBundle>> createBundle(Environment env,
-                                                                                               FinancialSecurity security,
-                                                                                               FXMatrix fxMatrix) {
+  public Result<IssuerProviderBundle> createBundle(Environment env, FinancialSecurity security, FXMatrix fxMatrix) {
     Trade tradeWrapper = new SimpleTrade(security,
                                          BigDecimal.ONE,
                                          new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "CPARTY")),
@@ -53,8 +48,7 @@ public class ExposureFunctionsIssuerProviderFn implements IssuerProviderFn {
 
   
   @Override
-  public com.opengamma.util.result.Result<Pair<ParameterIssuerProviderInterface, CurveBuildingBlockBundle>>
-  createBundle(Environment env, Trade trade, FXMatrix fxMatrix) {
+  public Result<IssuerProviderBundle> createBundle(Environment env, Trade trade, FXMatrix fxMatrix) {
 
     Result<MarketExposureSelector> mesResult = _marketExposureSelectorFn.getMarketExposureSelector();
 
@@ -63,7 +57,7 @@ public class ExposureFunctionsIssuerProviderFn implements IssuerProviderFn {
       Set<CurveConstructionConfiguration> curveConfigs = selector.determineCurveConfigurations(trade);
       
       if (curveConfigs.size() == 1) {
-        Result<Pair<ParameterIssuerProviderInterface, CurveBuildingBlockBundle>> bundle =
+        Result<IssuerProviderBundle> bundle =
             _issuerProviderBundleFn.generateBundle(env, Iterables.getOnlyElement(curveConfigs));
         if (bundle.isSuccess()) {
           return Result.success(bundle.getValue());

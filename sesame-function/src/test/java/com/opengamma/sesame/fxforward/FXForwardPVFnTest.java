@@ -56,6 +56,7 @@ import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.core.legalentity.LegalEntitySource;
 import com.opengamma.core.link.ConfigLink;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.SimpleTrade;
@@ -171,6 +172,7 @@ public class FXForwardPVFnTest {
                                              HistoricalTimeSeriesSource.class,
                                              MarketDataFn.class,
                                              HistoricalMarketDataFn.class,
+                                             LegalEntitySource.class,
                                              RegionSource.class);
     FunctionModel functionModel = FunctionModel.forFunction(calculatePV, config, componentMap.getComponentTypes());
     Object fn = functionModel.build(new FunctionBuilder(), componentMap).getReceiver();
