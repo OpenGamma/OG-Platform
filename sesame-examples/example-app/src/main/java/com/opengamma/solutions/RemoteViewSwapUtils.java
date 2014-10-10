@@ -197,9 +197,7 @@ public final class RemoteViewSwapUtils {
                     InterestRateSwapFn.class,
                     DiscountingInterestRateSwapFn.class,
                     InterestRateSwapCalculatorFactory.class,
-                    DiscountingInterestRateSwapCalculatorFactory.class)
-            )
-        );
+                    DiscountingInterestRateSwapCalculatorFactory.class)));
   }
 
   /* Sample Interest Rate Swaps */

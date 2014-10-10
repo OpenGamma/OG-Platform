@@ -37,14 +37,13 @@ import com.opengamma.util.time.DateUtils;
 
 /**
  * Integration tests run against a remote server
- * Input: Vanilla Interest Rate Swaps, Snapshot Market Data
- * Output: Present Value
+ * Input: Various flavours of Interest Rate Swaps, Snapshot Market Data
+ * Output: Present Value / Bucketed PV01 / Cash flows
  */
 
 @Test(groups = TestGroup.INTEGRATION, enabled = true)
 public class RemoteSwapTest {
 
-  private static final String URL = "http://localhost:8080/jax";
   private FunctionServer _functionServer;
   private IndividualCycleOptions _cycleOptions;
   private ConfigLink<ExposureFunctions> _exposureConfig;
@@ -67,7 +66,10 @@ public class RemoteSwapTest {
   @BeforeClass
   public void setUp() {
 
-    _functionServer = new RemoteFunctionServer(URI.create(URL));
+    String property = System.getProperty("server.url");
+    String url = property == null ? "http://localhost:8080/jax" : property;
+
+    _functionServer = new RemoteFunctionServer(URI.create(url));
     _cycleOptions = IndividualCycleOptions.builder()
         .valuationTime(DateUtils.getUTCDate(2014, 1, 22))
         .marketDataSpec(UserMarketDataSpecification.of(UniqueId.of("DbSnp", "1000")))
