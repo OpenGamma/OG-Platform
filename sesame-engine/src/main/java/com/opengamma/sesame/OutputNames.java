@@ -124,15 +124,15 @@ public final class OutputNames {
    */
   public static final String THETA = "Theta";
   /**
-   * The bond Market Clean Price. Returns the market quote directly without computation.
+   * The Market Clean Price. Returns the market quote directly without computation.
    */
   public static final String CLEAN_PRICE_MARKET = "Market Clean Price";
   /**
-   * The bond Clean Price  computed from the issuer curves.
+   * The Clean Price  computed from the issuer curves.
    */
   public static final String CLEAN_PRICE_CURVES = "Clean Price From Curve";
   /**
-   * The bond Clean Price computed from the market yield.
+   * The Clean Price computed from the market yield.
    */
   public static final String CLEAN_PRICE_YIELD = "Clean Price from Market Yield";
   /**
@@ -140,11 +140,11 @@ public final class OutputNames {
    */
   public static final String Z_SPREAD = "Z Spread";
   /**
-   * The bond Yield To Maturity computed from the market clean price.
+   * The Yield To Maturity computed from the market clean price.
    */
   public static final String YIELD_TO_MATURITY_CLEAN_PRICE = "Yield To Maturity From Market Clean Price";
   /**
-   * The bond Yield To Maturity computed from the issuer curves.
+   * The Yield To Maturity computed from the issuer curves.
    */
   public static final String YIELD_TO_MATURITY_CURVES = "Yield To Maturity From Curve";
   /**

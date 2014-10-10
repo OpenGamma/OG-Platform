@@ -28,7 +28,7 @@ public interface BondFn {
    * @param bondTrade the bond trade to calculate the PV for.
    * @return result containing the present value if successful, a Failure otherwise.
    */
-  @Output(value = OutputNames.PRESENT_VALUE_CURVES)
+  @Output(OutputNames.PRESENT_VALUE_CURVES)
   Result<MultipleCurrencyAmount> calculatePresentValueFromCurves(Environment env, BondTrade bondTrade);
 
   /**
@@ -40,7 +40,7 @@ public interface BondFn {
    * @param bondTrade the bond trade to calculate the PV for.
    * @return result containing the present value if successful, a Failure otherwise.
    */
-  @Output(value = OutputNames.PRESENT_VALUE_CLEAN_PRICE)
+  @Output(OutputNames.PRESENT_VALUE_CLEAN_PRICE)
   Result<MultipleCurrencyAmount> calculatePresentValueFromCleanPrice(Environment env, BondTrade bondTrade);
 
   /**
@@ -52,7 +52,7 @@ public interface BondFn {
    * @param bondTrade the bond trade to calculate the PV for.
    * @return result containing the present value if successful, a Failure otherwise.
    */
-  @Output(value = OutputNames.PRESENT_VALUE_YIELD)
+  @Output(OutputNames.PRESENT_VALUE_YIELD)
   Result<MultipleCurrencyAmount> calculatePresentValueFromYield(Environment env, BondTrade bondTrade);
 
   /**
@@ -62,7 +62,7 @@ public interface BondFn {
    * @param bondTrade the bond trade to calculate the Market Clean Price for.
    * @return result containing the present value if successful, a Failure otherwise.
    */
-  @Output(value = OutputNames.CLEAN_PRICE_MARKET)
+  @Output(OutputNames.CLEAN_PRICE_MARKET)
   Result<Double> calculateCleanPriceMarket(Environment env, BondTrade bondTrade);
 
   /**
@@ -72,7 +72,7 @@ public interface BondFn {
    * @param bondTrade the bond trade to calculate the Market Clean Price for.
    * @return result containing the present value if successful, a Failure otherwise.
    */
-  @Output(value = OutputNames.CLEAN_PRICE_CURVES)
+  @Output(OutputNames.CLEAN_PRICE_CURVES)
   Result<Double> calculateCleanPriceFromCurves(Environment env, BondTrade bondTrade);
 
   /**
@@ -82,7 +82,7 @@ public interface BondFn {
    * @param bondTrade the bond trade to calculate the Market Clean Price for.
    * @return result containing the present value if successful, a Failure otherwise.
    */
-  @Output(value = OutputNames.CLEAN_PRICE_YIELD)
+  @Output(OutputNames.CLEAN_PRICE_YIELD)
   Result<Double> calculateCleanPriceFromYield(Environment env, BondTrade bondTrade);
 
   /**
@@ -92,7 +92,7 @@ public interface BondFn {
    * @param bondTrade the bond trade to calculate the Yield To Maturity for.
    * @return result containing the present value if successful, a Failure otherwise.
    */
-  @Output(value = OutputNames.YIELD_TO_MATURITY_CLEAN_PRICE)
+  @Output(OutputNames.YIELD_TO_MATURITY_CLEAN_PRICE)
   Result<Double> calculateYieldToMaturityFromCleanPrice(Environment env, BondTrade bondTrade);
 
   /**
@@ -102,7 +102,7 @@ public interface BondFn {
    * @param bondTrade the bond trade to calculate the Yield To Maturity for.
    * @return result containing the present value if successful, a Failure otherwise.
    */
-  @Output(value = OutputNames.YIELD_TO_MATURITY_CURVES)
+  @Output(OutputNames.YIELD_TO_MATURITY_CURVES)
   Result<Double> calculateYieldToMaturityFromCurves(Environment env, BondTrade bondTrade);
 
   /**
@@ -112,7 +112,7 @@ public interface BondFn {
    * @param bondTrade the bond trade to calculate the Yield To Maturity for.
    * @return result containing the present value if successful, a Failure otherwise.
    */
-  @Output(value = OutputNames.YIELD_TO_MATURITY_MARKET)
+  @Output(OutputNames.YIELD_TO_MATURITY_MARKET)
   Result<Double> calculateYieldToMaturityMarket(Environment env, BondTrade bondTrade);
 
   /**
@@ -123,7 +123,7 @@ public interface BondFn {
    * @param bondTrade the bond trade to calculate the bucketed PV01 for.
    * @return result containing the present value if successful, a Failure otherwise.
    */
-  @Output(value = OutputNames.BUCKETED_PV01)
+  @Output(OutputNames.BUCKETED_PV01)
   Result<BucketedCurveSensitivities> calculateBucketedPV01(Environment env, BondTrade bondTrade);
 
   /**
@@ -133,7 +133,7 @@ public interface BondFn {
    * @param bondTrade the bond trade to calculate the PV01 for.
    * @return result containing the present value if successful, a Failure otherwise.
    */
-  @Output(value = OutputNames.PV01)
+  @Output(OutputNames.PV01)
   Result<ReferenceAmount<Pair<String, Currency>>> calculatePV01(Environment env, BondTrade bondTrade);
 
   /**
@@ -143,7 +143,7 @@ public interface BondFn {
    * @param bondTrade the bond trade to calculate the Z-Spread for.
    * @return result containing the present value if successful, a Failure otherwise.
    */
-  @Output(value = OutputNames.Z_SPREAD)
+  @Output(OutputNames.Z_SPREAD)
   Result<Double> calculateZSpread(Environment env, BondTrade bondTrade);
 
 }
