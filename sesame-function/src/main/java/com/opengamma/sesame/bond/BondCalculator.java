@@ -39,6 +39,48 @@ public interface BondCalculator {
   Result<MultipleCurrencyAmount> calculatePresentValueFromYield();
 
   /**
+   * Calculates the Market Clean Price for the trade
+   *
+   * @return result containing the Market Clean Price if successfully created, a failure result otherwise
+   */
+  Result<Double> calculateCleanPriceMarket();
+
+  /**
+   * Calculates the Clean Price from the curves for the trade
+   *
+   * @return result containing the Market Clean Price if successfully created, a failure result otherwise
+   */
+  Result<Double> calculateCleanPriceFromCurves();
+
+  /**
+   * Calculates the Clean Price from the market yield for the trade
+   *
+   * @return result containing the Market Clean Price if successfully created, a failure result otherwise
+   */
+  Result<Double> calculateCleanPriceFromYield();
+
+  /**
+   * Calculates the Yield To Maturity from the market clean price for the trade
+   *
+   * @return result containing the Yield To Maturity if successfully created, a failure result otherwise
+   */
+  Result<Double> calculateYieldToMaturityFromCleanPrice();
+
+  /**
+   * Calculates the Yield To Maturity from the curves for the trade
+   *
+   * @return result containing the Yield To Maturity if successfully created, a failure result otherwise
+   */
+  Result<Double> calculateYieldToMaturityFromCurves();
+
+  /**
+   * Calculates the Market Yield To Maturity for the trade. 
+   *
+   * @return result containing the Yield To Maturity if successfully created, a failure result otherwise
+   */
+  Result<Double> calculateYieldToMaturityMarket();
+
+  /**
    * Calculates the bucketed PV01 for the trade
    *
    * @return result containing the bucketed PV01 if successfully created, a failure result otherwise
@@ -58,18 +100,5 @@ public interface BondCalculator {
    * @return result containing the PV01 if successfully created, a failure result otherwise
    */
   Result<Double> calculateZSpread();
-
-  /**
-   * Calculates the Market Clean Price for the trade
-   *
-   * @return result containing the Market Clean Price if successfully created, a failure result otherwise
-   */
-  Result<Double> calculateMarketCleanPrice();
-
-  /**
-   * Calculates the Yield To Maturity for the trade
-   *
-   * @return result containing the Yield To Maturity if successfully created, a failure result otherwise
-   */
-  Result<Double> calculateYieldToMaturity();
+  
 }

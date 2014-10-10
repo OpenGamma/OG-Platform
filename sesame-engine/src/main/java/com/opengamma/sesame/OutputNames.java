@@ -20,7 +20,7 @@ public final class OutputNames {
    */
   public static final String DESCRIPTION = "Description";
   /**
-   * Output name when providing Present Value.
+   * Output name when providing Present Value. The present value is a MultipleCurrencyAmount.
    */
   public static final String PRESENT_VALUE = "Present Value";
   /**
@@ -30,11 +30,11 @@ public final class OutputNames {
   /**
    * Output name when providing Present Value.
    */
-  public static final String PRESENT_VALUE_MARKET_CLEAN = "Present Value From Market Clean Price";
+  public static final String PRESENT_VALUE_CLEAN_PRICE = "Present Value From Market Clean Price";
   /**
    * Output name when providing Present Value.
    */
-  public static final String PRESENT_VALUE_YIELD = "Present Value From Yield";
+  public static final String PRESENT_VALUE_YIELD = "Present Value From Market Yield";
   /**
    * Output name when providing FX Present Value.
    */
@@ -124,17 +124,33 @@ public final class OutputNames {
    */
   public static final String THETA = "Theta";
   /**
-   * The Market Clean Price.
+   * The Market Clean Price. Returns the market quote directly without computation.
    */
-  public static final String MARKET_CLEAN_PRICE = "Market Clean Price";
+  public static final String CLEAN_PRICE_MARKET = "Market Clean Price";
+  /**
+   * The Clean Price  computed from the issuer curves.
+   */
+  public static final String CLEAN_PRICE_CURVES = "Clean Price From Curve";
+  /**
+   * The Clean Price computed from the market yield.
+   */
+  public static final String CLEAN_PRICE_YIELD = "Clean Price from Market Yield";
   /**
    * The Z Spread.
    */
   public static final String Z_SPREAD = "Z Spread";
   /**
-   * The Yield To Maturity.
+   * The Yield To Maturity computed from the market clean price.
    */
-  public static final String YIELD_TO_MATURITY = "Yield To Maturity";
+  public static final String YIELD_TO_MATURITY_CLEAN_PRICE = "Yield To Maturity From Market Clean Price";
+  /**
+   * The Yield To Maturity computed from the issuer curves.
+   */
+  public static final String YIELD_TO_MATURITY_CURVES = "Yield To Maturity From Curve";
+  /**
+   * The Yield To Maturity. Returns the market quote directly without computation.
+   */
+  public static final String YIELD_TO_MATURITY_MARKET = "Market Yield To Maturity";
   /**
    * The cash flows of the swap pay leg.
    */

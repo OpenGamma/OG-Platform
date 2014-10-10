@@ -41,7 +41,7 @@ public class DefaultBondFn implements BondFn {
   }
 
   @Override
-  public Result<MultipleCurrencyAmount> calculatePresentValueFromClean(Environment env, BondTrade bondTrade) {
+  public Result<MultipleCurrencyAmount> calculatePresentValueFromCleanPrice(Environment env, BondTrade bondTrade) {
     Result<BondCalculator> calculatorResult = _bondCalculatorFactory.createCalculator(env, bondTrade);
     if (calculatorResult.isSuccess()) {
       return calculatorResult.getValue().calculatePresentValueFromClean();
@@ -54,6 +54,60 @@ public class DefaultBondFn implements BondFn {
     Result<BondCalculator> calculatorResult = _bondCalculatorFactory.createCalculator(env, bondTrade);
     if (calculatorResult.isSuccess()) {
       return calculatorResult.getValue().calculatePresentValueFromYield();
+    }
+    return Result.failure(calculatorResult);
+  }
+
+  @Override
+  public Result<Double> calculateCleanPriceMarket(Environment env, BondTrade bondTrade) {
+    Result<BondCalculator> calculatorResult = _bondCalculatorFactory.createCalculator(env, bondTrade);
+    if (calculatorResult.isSuccess()) {
+      return calculatorResult.getValue().calculateCleanPriceMarket();
+    }
+    return Result.failure(calculatorResult);
+  }
+
+  @Override
+  public Result<Double> calculateCleanPriceFromCurves(Environment env, BondTrade bondTrade) {
+    Result<BondCalculator> calculatorResult = _bondCalculatorFactory.createCalculator(env, bondTrade);
+    if (calculatorResult.isSuccess()) {
+      return calculatorResult.getValue().calculateCleanPriceFromCurves();
+    }
+    return Result.failure(calculatorResult);
+  }
+
+  @Override
+  public Result<Double> calculateCleanPriceFromYield(Environment env, BondTrade bondTrade) {
+    Result<BondCalculator> calculatorResult = _bondCalculatorFactory.createCalculator(env, bondTrade);
+    if (calculatorResult.isSuccess()) {
+      return calculatorResult.getValue().calculateCleanPriceFromYield();
+    }
+    return Result.failure(calculatorResult);
+  }
+
+  @Override
+  public Result<Double> calculateYieldToMaturityFromCleanPrice(Environment env, BondTrade bondTrade) {
+    Result<BondCalculator> calculatorResult = _bondCalculatorFactory.createCalculator(env, bondTrade);
+    if (calculatorResult.isSuccess()) {
+      return calculatorResult.getValue().calculateYieldToMaturityFromCleanPrice();
+    }
+    return Result.failure(calculatorResult);
+  }
+
+  @Override
+  public Result<Double> calculateYieldToMaturityFromCurves(Environment env, BondTrade bondTrade) {
+    Result<BondCalculator> calculatorResult = _bondCalculatorFactory.createCalculator(env, bondTrade);
+    if (calculatorResult.isSuccess()) {
+      return calculatorResult.getValue().calculateYieldToMaturityFromCurves();
+    }
+    return Result.failure(calculatorResult);
+  }
+
+  @Override
+  public Result<Double> calculateYieldToMaturityMarket(Environment env, BondTrade bondTrade) {
+    Result<BondCalculator> calculatorResult = _bondCalculatorFactory.createCalculator(env, bondTrade);
+    if (calculatorResult.isSuccess()) {
+      return calculatorResult.getValue().calculateYieldToMaturityMarket();
     }
     return Result.failure(calculatorResult);
   }
@@ -84,22 +138,5 @@ public class DefaultBondFn implements BondFn {
     }
     return Result.failure(calculatorResult);
   }
-
-  @Override
-  public Result<Double> calculateMarketCleanPrice(Environment env, BondTrade bondTrade) {
-    Result<BondCalculator> calculatorResult = _bondCalculatorFactory.createCalculator(env, bondTrade);
-    if (calculatorResult.isSuccess()) {
-      return calculatorResult.getValue().calculateMarketCleanPrice();
-    }
-    return Result.failure(calculatorResult);
-  }
-
-  @Override
-  public Result<Double> calculateYieldToMaturity(Environment env, BondTrade bondTrade) {
-    Result<BondCalculator> calculatorResult = _bondCalculatorFactory.createCalculator(env, bondTrade);
-    if (calculatorResult.isSuccess()) {
-      return calculatorResult.getValue().calculateYieldToMaturity();
-    }
-    return Result.failure(calculatorResult);
-  }
+  
 }
