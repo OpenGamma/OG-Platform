@@ -197,6 +197,7 @@ public class IndexCDSDefinitionSecurity extends FinancialSecurity {
     super(SECURITY_TYPE);
     setExternalIdBundle(ids);
     setName(name);
+    setStartDate(startDate);
     setVersion(version);
     setSeries(series);
     setFamily(family);
