@@ -72,6 +72,7 @@ public final class RemoteViewBondUtils {
 
   /**
    * Utility for creating a fra specific view column
+   * @param columnName column output name, not null
    * @param output output name, not null
    * @param exposureConfig exposure function config, not null
    * @param currencyMatrixLink currency matrix config, not null
