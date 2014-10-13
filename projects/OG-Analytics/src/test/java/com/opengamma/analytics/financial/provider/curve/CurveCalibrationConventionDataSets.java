@@ -109,6 +109,9 @@ public class CurveCalibrationConventionDataSets {
       new GeneratorCurveYieldInterpolated(LAST_TIME_CALCULATOR, INTERPOLATOR_CCS);
   private static final GeneratorPriceIndexCurve GENERATOR_PI_FIX_EXP = 
       new GeneratorPriceIndexCurveInterpolated(LAST_FIXING_END_CALCULATOR, INTERPOLATOR_EXP);
+  // TODO: Review exponential interpolator
+  private static final GeneratorPriceIndexCurve GENERATOR_PI_FIX_LIN = 
+      new GeneratorPriceIndexCurveInterpolated(LAST_FIXING_END_CALCULATOR, INTERPOLATOR_LINEAR);
 
   private static final GeneratorSwapFixedIborMaster GENERATOR_IRS_MASTER = GeneratorSwapFixedIborMaster.getInstance();
   private static final GeneratorSwapIborIborMaster GENERATOR_BS_MASTER = GeneratorSwapIborIborMaster.getInstance();
@@ -473,6 +476,15 @@ public class CurveCalibrationConventionDataSets {
    */
   public static GeneratorPriceIndexCurve generatorPiFixExp() {
     return GENERATOR_PI_FIX_EXP;
+  }
+
+  /**
+   * Returns a price index curve generator based on node computed from the last fixing time calculator and exponential interpolation.
+   * The extrapolation is flat.
+   * @return The generator.
+   */
+  public static GeneratorPriceIndexCurve generatorPiFixLin() {
+    return GENERATOR_PI_FIX_LIN;
   }
 
 }

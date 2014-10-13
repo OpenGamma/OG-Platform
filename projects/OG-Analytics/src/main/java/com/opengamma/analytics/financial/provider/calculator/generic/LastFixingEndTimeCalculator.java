@@ -80,7 +80,7 @@ public final class LastFixingEndTimeCalculator extends InstrumentDerivativeVisit
 
   @Override
   public Double visitCouponFixedCompounding(final CouponFixedCompounding payment) {
-    return payment.getPaymentTime();
+    return 0.0; // payment.getPaymentTime();
   }
 
   // -----     Annuity     ------

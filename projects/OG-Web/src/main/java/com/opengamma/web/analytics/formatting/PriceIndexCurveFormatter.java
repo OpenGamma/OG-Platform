@@ -11,7 +11,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurveSimple;
 import com.opengamma.analytics.math.curve.FunctionalDoublesCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.curve.NodalDoublesCurve;
@@ -21,22 +21,22 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveInterpolatingFunction
 /**
  *
  */
-/* package */ class PriceIndexCurveFormatter extends AbstractFormatter<PriceIndexCurve> {
+/* package */ class PriceIndexCurveFormatter extends AbstractFormatter<PriceIndexCurveSimple> {
 
   private static final Logger s_logger = LoggerFactory.getLogger(PriceIndexCurveFormatter.class);
 
   /* package */ PriceIndexCurveFormatter() {
-    super(PriceIndexCurve.class);
-    addFormatter(new Formatter<PriceIndexCurve>(Format.EXPANDED) {
+    super(PriceIndexCurveSimple.class);
+    addFormatter(new Formatter<PriceIndexCurveSimple>(Format.EXPANDED) {
       @Override
-      Object format(PriceIndexCurve value, ValueSpecification valueSpec, Object inlineKey) {
+      Object format(PriceIndexCurveSimple value, ValueSpecification valueSpec, Object inlineKey) {
         return formatExpanded(value);
       }
     });
   }
 
   @Override
-  public List<Double[]> formatCell(PriceIndexCurve value, ValueSpecification valueSpec, Object inlineKey) {
+  public List<Double[]> formatCell(PriceIndexCurveSimple value, ValueSpecification valueSpec, Object inlineKey) {
     if (value.getCurve() instanceof InterpolatedDoublesCurve) {
       InterpolatedDoublesCurve interpolatedCurve = (InterpolatedDoublesCurve) value.getCurve();
       List<Double[]> data = new ArrayList<Double[]>();
@@ -74,7 +74,7 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveInterpolatingFunction
     }
   }
 
-  private List<Double[]> formatExpanded(PriceIndexCurve value) {
+  private List<Double[]> formatExpanded(PriceIndexCurveSimple value) {
     NodalDoublesCurve detailedCurve = YieldCurveInterpolatingFunction.interpolateCurve(value.getCurve());
     List<Double[]> detailedData = new ArrayList<Double[]>();
     Double[] xs = detailedCurve.getXData();

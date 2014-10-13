@@ -32,7 +32,7 @@ public class PriceIndexCurveTest {
   private static double[] INDEX_VALUE = new double[] {108.23, 108.64, 111.0, 115.0};
   private static double[] TIME_VALUE = new double[] {-3.0 / 12.0, -2.0 / 12.0, 9.0 / 12.0, 2.0 + 9.0 / 12.0};
   private static final InterpolatedDoublesCurve CURVE = InterpolatedDoublesCurve.from(TIME_VALUE, INDEX_VALUE, new LinearInterpolator1D());
-  private static final PriceIndexCurve PRICE_INDEX_CURVE = new PriceIndexCurve(CURVE);
+  private static final PriceIndexCurveSimple PRICE_INDEX_CURVE = new PriceIndexCurveSimple(CURVE);
 
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventions.MODIFIED_FOLLOWING;
@@ -40,7 +40,7 @@ public class PriceIndexCurveTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurve() {
-    new PriceIndexCurve(null);
+    new PriceIndexCurveSimple(null);
   }
 
   @Test
@@ -83,7 +83,7 @@ public class PriceIndexCurveTest {
       referenceDate[loopswap] = paymentDate.minusMonths(monthLag).withDayOfMonth(1);
       nodeTimeOther[loopswap] = ACT_ACT.getDayCountFraction(constructionDate, referenceDate[loopswap]);
     }
-    PriceIndexCurve priceIndexCurve = PriceIndexCurve.fromStartOfMonth(nodeTimeKnown, indexKnown, nodeTimeOther, swapRate);
+    PriceIndexCurveSimple priceIndexCurve = PriceIndexCurveSimple.fromStartOfMonth(nodeTimeKnown, indexKnown, nodeTimeOther, swapRate);
     for (int loopswap = 0; loopswap < swapTenor.length; loopswap++) {
       assertEquals("Simple price curve", indexKnown[0] * Math.pow(1 + swapRate[loopswap], swapTenor[loopswap]), priceIndexCurve.getPriceIndex(nodeTimeOther[loopswap]));
     }

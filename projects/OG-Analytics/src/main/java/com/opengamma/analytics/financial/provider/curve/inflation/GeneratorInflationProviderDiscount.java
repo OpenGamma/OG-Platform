@@ -14,7 +14,7 @@ import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorC
 import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorYDCurve;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
-import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurveSimple;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
@@ -59,8 +59,9 @@ public class GeneratorInflationProviderDiscount extends Function1D<DoubleMatrix1
    * @param inflationMap The discounting curves names map.
    * @param generatorsInflationMap The inflation generators map.
    */
-  public GeneratorInflationProviderDiscount(final InflationProviderDiscount knownData, final LinkedHashMap<String, IndexPrice[]> inflationMap,
-      final LinkedHashMap<String, GeneratorPriceIndexCurve> generatorsInflationMap) {
+  public GeneratorInflationProviderDiscount(final InflationProviderDiscount knownData, 
+      final LinkedHashMap<String, IndexPrice[]> inflationMap,
+      final LinkedHashMap<String, GeneratorCurve> generatorsInflationMap) {
     ArgumentChecker.notNull(inflationMap, "Inflation curves names map");
     _knownData = knownData;
     _discountingMap = new LinkedHashMap<>();
@@ -78,7 +79,8 @@ public class GeneratorInflationProviderDiscount extends Function1D<DoubleMatrix1
    * @param inflationMap The inflation curves names map.
    * @param generatorsMap The inflation generators map.
    */
-  public GeneratorInflationProviderDiscount(final InflationProviderDiscount knownData, final LinkedHashMap<String, Currency> discountingMap, final LinkedHashMap<String, IndexON[]> forwardONMap,
+  public GeneratorInflationProviderDiscount(final InflationProviderDiscount knownData, 
+      final LinkedHashMap<String, Currency> discountingMap, final LinkedHashMap<String, IndexON[]> forwardONMap,
       final LinkedHashMap<String, IndexPrice[]> inflationMap, final LinkedHashMap<String, GeneratorCurve> generatorsMap) {
     ArgumentChecker.notNull(inflationMap, "Inflation curves names map");
     ArgumentChecker.notNull(discountingMap, "Discount curves names map");
@@ -112,10 +114,8 @@ public class GeneratorInflationProviderDiscount extends Function1D<DoubleMatrix1
     int indexParam = 0;
     for (final String name : nameSet) {
       final GeneratorCurve generator = _generatorsMap.get(name);
-
       final double[] paramCurve = Arrays.copyOfRange(x.getData(), indexParam, indexParam + generator.getNumberOfParameter());
       indexParam += generator.getNumberOfParameter();
-
       if (generator instanceof GeneratorYDCurve) {
         final GeneratorYDCurve discountGenerator = (GeneratorYDCurve) generator;
         final YieldAndDiscountCurve curve = discountGenerator.generateCurve(name, provider.getMulticurveProvider(), paramCurve);
@@ -131,8 +131,7 @@ public class GeneratorInflationProviderDiscount extends Function1D<DoubleMatrix1
       }
       if (generator instanceof GeneratorPriceIndexCurve) {
         final GeneratorPriceIndexCurve inflationGenerator = (GeneratorPriceIndexCurve) generator;
-        final PriceIndexCurve inflationCurve = inflationGenerator.generateCurve(name, provider, paramCurve);
-
+        final PriceIndexCurveSimple inflationCurve = inflationGenerator.generateCurve(name, provider, paramCurve);
         if (_inflationMap.containsKey(name)) {
           final IndexPrice[] indexes = _inflationMap.get(name);
           for (final IndexPrice indexe : indexes) {

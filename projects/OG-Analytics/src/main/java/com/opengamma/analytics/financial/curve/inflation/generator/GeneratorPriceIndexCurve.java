@@ -6,7 +6,7 @@
 package com.opengamma.analytics.financial.curve.inflation.generator;
 
 import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorCurve;
-import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurveSimple;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationIssuerProviderInterface;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
 
@@ -21,7 +21,7 @@ public abstract class GeneratorPriceIndexCurve extends GeneratorCurve {
    * @param parameters The parameters.
    * @return The curve.
    */
-  abstract PriceIndexCurve generateCurve(final String name, final double[] parameters);
+  abstract PriceIndexCurveSimple generateCurve(final String name, final double[] parameters);
 
   /**
    * Generate a curve using the parameters of a vector and an existing bundle. The existing bundle will be required if the generated curve depends on previous curves.
@@ -30,7 +30,7 @@ public abstract class GeneratorPriceIndexCurve extends GeneratorCurve {
    * @param parameters The parameters.
    * @return The curve.
    */
-  public abstract PriceIndexCurve generateCurve(final String name, final InflationProviderInterface inflation, final double[] parameters);
+  public abstract PriceIndexCurveSimple generateCurve(final String name, final InflationProviderInterface inflation, final double[] parameters);
 
   /**
    * Generate a curve using the parameters of a vector and an existing bundle. The existing bundle will be required if the generated curve depends on previous curves.
@@ -39,7 +39,7 @@ public abstract class GeneratorPriceIndexCurve extends GeneratorCurve {
    * @param parameters The parameters.
    * @return The curve.
    */
-  public PriceIndexCurve generateCurve(final String name, final InflationIssuerProviderInterface inflation, final double[] parameters) {
+  public PriceIndexCurveSimple generateCurve(final String name, final InflationIssuerProviderInterface inflation, final double[] parameters) {
     return generateCurve(name, inflation.getInflationProvider(), parameters);
   }
 

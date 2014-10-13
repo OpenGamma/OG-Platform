@@ -8,16 +8,13 @@ package com.opengamma.analytics.financial.instrument.index;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.datasets.CalendarGBP;
-import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.CalendarNoHoliday;
-import com.opengamma.timeseries.DoubleTimeSeries;
 
 /**
  * 
@@ -48,9 +45,9 @@ public final class GeneratorSwapFixedInflationMaster {
   private GeneratorSwapFixedInflationMaster() {
     final IndexPriceMaster priceIndexMaster = IndexPriceMaster.getInstance();
 
-    final DoubleTimeSeries<ZonedDateTime> eurPriceIndexTimeSerie = MulticurveProviderDiscountDataSets.euroHICPXFrom2009();
-    final DoubleTimeSeries<ZonedDateTime> usPriceIndexTimeSerie = MulticurveProviderDiscountDataSets.usCpiFrom2009();
-    final DoubleTimeSeries<ZonedDateTime> ukPriceIndexTimeSerie = MulticurveProviderDiscountDataSets.ukRpiFrom2010();
+//    final DoubleTimeSeries<ZonedDateTime> eurPriceIndexTimeSerie = MulticurveProviderDiscountDataSets.euroHICPXFrom2009();
+//    final DoubleTimeSeries<ZonedDateTime> usPriceIndexTimeSerie = MulticurveProviderDiscountDataSets.usCpiFrom2009();
+//    final DoubleTimeSeries<ZonedDateTime> ukPriceIndexTimeSerie = MulticurveProviderDiscountDataSets.ukRpiFrom2010();
 
     final BusinessDayConvention modFol = BusinessDayConventions.MODIFIED_FOLLOWING;
     final Calendar baseCalendar = new CalendarNoHoliday("No Holidays");
@@ -62,11 +59,14 @@ public final class GeneratorSwapFixedInflationMaster {
     final boolean piecewiseconstant = false;
     _generatorSwap = new HashMap<>();
     _generatorSwap.put("EURHICP",
-        new GeneratorSwapFixedInflationZeroCoupon("EUR HICP", priceIndexMaster.getIndex("EURHICP"), modFol, baseCalendar, endOfMonth, monthLag, spotLag, piecewiseconstant));
+        new GeneratorSwapFixedInflationZeroCoupon("EUR HICP", priceIndexMaster.getIndex("EURHICP"), modFol, 
+            baseCalendar, endOfMonth, monthLag, spotLag, piecewiseconstant));
     _generatorSwap.put("UKRPI",
-        new GeneratorSwapFixedInflationZeroCoupon("UK RPI", priceIndexMaster.getIndex("UKRPI"), modFol, londonBaseCalendar, endOfMonth, monthLag, spotLag, piecewiseconstant));
+        new GeneratorSwapFixedInflationZeroCoupon("UK RPI", priceIndexMaster.getIndex("UKRPI"), modFol, 
+            londonBaseCalendar, endOfMonth, monthLag, spotLag, piecewiseconstant));
     _generatorSwap.put("USCPI",
-        new GeneratorSwapFixedInflationZeroCoupon("US CPI", priceIndexMaster.getIndex("USCPI"), modFol, baseCalendar, endOfMonth, monthLag, spotLag, linear));
+        new GeneratorSwapFixedInflationZeroCoupon("US CPI", priceIndexMaster.getIndex("USCPI"), modFol, 
+            baseCalendar, endOfMonth, monthLag, spotLag, linear));
   }
 
   public GeneratorSwapFixedInflationZeroCoupon getGenerator(final String name) {

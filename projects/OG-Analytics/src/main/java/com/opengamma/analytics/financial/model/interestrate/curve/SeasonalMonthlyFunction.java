@@ -24,18 +24,19 @@ import com.opengamma.analytics.math.interpolation.StepInterpolator1D;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 
 /**
- *
+ * Monthly seasonal adjustments (used in particular for inflation curves).
  */
-class SeasonalFunction extends Function1D<Double, Double> implements Bean {
+class SeasonalMonthlyFunction extends Function1D<Double, Double> implements Bean {
 
   /**
-   * The cumulative multiplicative seasonal factors from the reference time to the next. Array of size 12 (the 1st is 1.0, it is added to simplify the implementation).
+   * The cumulative multiplicative seasonal factors from the reference time to the next. 
+   * Array of size multiple of 12.
    */
   @PropertyDefinition(get = "private")
   private final double[] _monthlyCumulativeFactors;
 
   /**
-   * The cumulative multiplicative seasonal factors from the reference time to the next. Array of size 12 (the 1st is 1.0, it is added to simplify the implementation).
+   * The steps in the monthly seasonal adjustments.
    */
   @PropertyDefinition(get = "private")
   private final double[] _steps;
@@ -45,29 +46,31 @@ class SeasonalFunction extends Function1D<Double, Double> implements Bean {
    */
   private static final int NB_MONTH = 12;
 
-  public SeasonalFunction(double[] steps, double[] monthlyFactors, boolean isAdditive) {
+  /**
+   * Constructor for the monthly seasonal adjustments.
+   * @param steps
+   * @param monthlyFactors
+   * @param isAdditive
+   */
+  public SeasonalMonthlyFunction(double[] steps, double[] monthlyFactors, boolean isAdditive) {
     Validate.notNull(monthlyFactors, "Monthly factors");
     Validate.notNull(steps, "steps");
-    Validate.isTrue(monthlyFactors.length == 11, "Monthly factors with incorrect length; should be 11");
+    Validate.isTrue(monthlyFactors.length == NB_MONTH - 1, "Monthly factors with incorrect length; should be 11");
     Validate.notNull(isAdditive, "isAdditive");
     _steps = steps;
-
-    double[] cumulativeFactors = new double[NB_MONTH];
-    cumulativeFactors[0] = 1.0;
-
-    /**
-     *  monthlyFactors
-     */
-    for (int loopmonth = 1; loopmonth < NB_MONTH; loopmonth++) {
-      if (isAdditive) {
+    double[] cumulativeFactors = new double[NB_MONTH]; // monthly factors
+    if (isAdditive) {
+      cumulativeFactors[0] = 0.0;
+      for (int loopmonth = 1; loopmonth < NB_MONTH; loopmonth++) {
         cumulativeFactors[loopmonth] = cumulativeFactors[loopmonth - 1] + monthlyFactors[loopmonth - 1];
-      } else {
+      }
+    } else {
+      cumulativeFactors[0] = 1.0;
+      for (int loopmonth = 1; loopmonth < NB_MONTH; loopmonth++) {
         cumulativeFactors[loopmonth] = cumulativeFactors[loopmonth - 1] * monthlyFactors[loopmonth - 1];
       }
     }
-    /**
-     * Here we are constructing a 12-periodic vector of the same size of the step vector, and using the vector cumulative.
-     */
+    //Constructing a 12-periodic vector of the same size of the step vector, and using the vector cumulative.
     final int numberOfSteps = steps.length;
     _monthlyCumulativeFactors = new double[numberOfSteps];
     for (int loopmonth = 0; loopmonth < numberOfSteps; loopmonth++) {
@@ -87,17 +90,17 @@ class SeasonalFunction extends Function1D<Double, Double> implements Bean {
    * The meta-bean for {@code SeasonalFunction}.
    * @return the meta-bean, not null
    */
-  public static SeasonalFunction.Meta meta() {
-    return SeasonalFunction.Meta.INSTANCE;
+  public static SeasonalMonthlyFunction.Meta meta() {
+    return SeasonalMonthlyFunction.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(SeasonalFunction.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(SeasonalMonthlyFunction.Meta.INSTANCE);
   }
 
   @Override
-  public SeasonalFunction.Meta metaBean() {
-    return SeasonalFunction.Meta.INSTANCE;
+  public SeasonalMonthlyFunction.Meta metaBean() {
+    return SeasonalMonthlyFunction.Meta.INSTANCE;
   }
 
   @Override
@@ -146,8 +149,8 @@ class SeasonalFunction extends Function1D<Double, Double> implements Bean {
 
   //-----------------------------------------------------------------------
   @Override
-  public SeasonalFunction clone() {
-    BeanBuilder<? extends SeasonalFunction> builder = metaBean().builder();
+  public SeasonalMonthlyFunction clone() {
+    BeanBuilder<? extends SeasonalMonthlyFunction> builder = metaBean().builder();
     for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
       if (mp.style().isBuildable()) {
         Object value = mp.get(this);
@@ -166,7 +169,7 @@ class SeasonalFunction extends Function1D<Double, Double> implements Bean {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      SeasonalFunction other = (SeasonalFunction) obj;
+      SeasonalMonthlyFunction other = (SeasonalMonthlyFunction) obj;
       return JodaBeanUtils.equal(getMonthlyCumulativeFactors(), other.getMonthlyCumulativeFactors()) &&
           JodaBeanUtils.equal(getSteps(), other.getSteps());
     }
@@ -213,12 +216,12 @@ class SeasonalFunction extends Function1D<Double, Double> implements Bean {
      * The meta-property for the {@code monthlyCumulativeFactors} property.
      */
     private final MetaProperty<double[]> _monthlyCumulativeFactors = DirectMetaProperty.ofReadOnly(
-        this, "monthlyCumulativeFactors", SeasonalFunction.class, double[].class);
+        this, "monthlyCumulativeFactors", SeasonalMonthlyFunction.class, double[].class);
     /**
      * The meta-property for the {@code steps} property.
      */
     private final MetaProperty<double[]> _steps = DirectMetaProperty.ofReadOnly(
-        this, "steps", SeasonalFunction.class, double[].class);
+        this, "steps", SeasonalMonthlyFunction.class, double[].class);
     /**
      * The meta-properties.
      */
@@ -245,13 +248,13 @@ class SeasonalFunction extends Function1D<Double, Double> implements Bean {
     }
 
     @Override
-    public BeanBuilder<? extends SeasonalFunction> builder() {
+    public BeanBuilder<? extends SeasonalMonthlyFunction> builder() {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public Class<? extends SeasonalFunction> beanType() {
-      return SeasonalFunction.class;
+    public Class<? extends SeasonalMonthlyFunction> beanType() {
+      return SeasonalMonthlyFunction.class;
     }
 
     @Override
@@ -281,9 +284,9 @@ class SeasonalFunction extends Function1D<Double, Double> implements Bean {
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 457851908:  // monthlyCumulativeFactors
-          return ((SeasonalFunction) bean).getMonthlyCumulativeFactors();
+          return ((SeasonalMonthlyFunction) bean).getMonthlyCumulativeFactors();
         case 109761319:  // steps
-          return ((SeasonalFunction) bean).getSteps();
+          return ((SeasonalMonthlyFunction) bean).getSteps();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }

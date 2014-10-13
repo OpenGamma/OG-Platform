@@ -13,7 +13,7 @@ import java.util.Map;
 
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.analytics.financial.curve.inflation.generator.GeneratorPriceIndexCurve;
+import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorCurve;
 import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorYDCurve;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.cash.CashDefinition;
@@ -26,6 +26,7 @@ import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponFixedCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponONDefinition;
@@ -286,6 +287,10 @@ public class CurveCalibrationTestsUtils {
     if (instrument instanceof InterestRateFutureTransactionDefinition) {
       return 1 - ((InterestRateFutureTransactionDefinition) instrument).getTradePrice();
     }
+    if (instrument instanceof SwapFixedInflationZeroCouponDefinition) {
+      PaymentDefinition cpn = ((SwapFixedInflationZeroCouponDefinition) instrument).getFirstLeg().getNthPayment(0);
+      return ((CouponFixedCompoundingDefinition) cpn).getRate(); 
+    }
     return 0.01;
   }
 
@@ -334,18 +339,20 @@ public class CurveCalibrationTestsUtils {
   @SuppressWarnings("unchecked")
   public static Pair<InflationProviderDiscount, CurveBuildingBlockBundle> makeCurvesFromDefinitionsInflation(
       ZonedDateTime calibrationDate, final InstrumentDefinition<?>[][][] definitions,
-      final GeneratorPriceIndexCurve[][] curveGenerators, final String[][] curveNames, final InflationProviderDiscount knownData,
+      final GeneratorCurve[][] curveGenerators, final String[][] curveNames, 
+      final InflationProviderDiscount knownData, CurveBuildingBlockBundle knownBlock,
       final InstrumentDerivativeVisitor<InflationProviderInterface, Double> calculator,
       final InstrumentDerivativeVisitor<InflationProviderInterface, InflationSensitivity> sensitivityCalculator,
-      LinkedHashMap<String, IndexPrice[]> priceMap,
+      LinkedHashMap<String, Currency> dscMap, LinkedHashMap<String, IndexON[]> fwdOnMap, 
+      LinkedHashMap<String, IborIndex[]> fwdIborMap, LinkedHashMap<String, IndexPrice[]> priceMap,
       InflationDiscountBuildingRepository repository,
       Map<IndexON,ZonedDateTimeDoubleTimeSeries> htsOis, Map<IborIndex,ZonedDateTimeDoubleTimeSeries> htsIbor,
       Map<IndexPrice,ZonedDateTimeDoubleTimeSeries> htsPrice) {
     final int nUnits = definitions.length;
-    final MultiCurveBundle<GeneratorPriceIndexCurve>[] curveBundles = new MultiCurveBundle[nUnits];
+    final MultiCurveBundle<GeneratorCurve>[] curveBundles = new MultiCurveBundle[nUnits];
     for (int i = 0; i < nUnits; i++) {
       final int nCurves = definitions[i].length;
-      final SingleCurveBundle<GeneratorPriceIndexCurve>[] singleCurves = new SingleCurveBundle[nCurves];
+      final SingleCurveBundle<GeneratorCurve>[] singleCurves = new SingleCurveBundle[nCurves];
       for (int j = 0; j < nCurves; j++) {
         final int nInstruments = definitions[i][j].length;
         final InstrumentDerivative[] derivatives = new InstrumentDerivative[nInstruments];
@@ -354,13 +361,14 @@ public class CurveCalibrationTestsUtils {
           derivatives[k] = convert(definitions[i][j][k], calibrationDate, htsOis, htsIbor, htsPrice);
           rates[k] = CurveCalibrationTestsUtils.initialGuess(definitions[i][j][k]);
         }
-        final GeneratorPriceIndexCurve generator = curveGenerators[i][j].finalGenerator(derivatives);
+        final GeneratorCurve generator = curveGenerators[i][j].finalGenerator(derivatives);
         final double[] initialGuess = generator.initialGuess(rates);
         singleCurves[j] = new SingleCurveBundle<>(curveNames[i][j], derivatives, initialGuess, generator);
       }
       curveBundles[i] = new MultiCurveBundle<>(singleCurves);
     }
-    return repository.makeCurvesFromDerivatives(curveBundles, knownData, priceMap, calculator, sensitivityCalculator);
+    return repository.makeCurvesFromDerivatives(curveBundles, knownData, knownBlock, dscMap, fwdOnMap, fwdIborMap, 
+        priceMap, calculator, sensitivityCalculator);
   }
 
   public static InstrumentDerivative convert(final InstrumentDefinition<?> instrument, ZonedDateTime calibrationDate,
@@ -373,7 +381,7 @@ public class CurveCalibrationTestsUtils {
     }
     if (instrument instanceof SwapFixedIborDefinition) {
       IborIndex index = ((SwapFixedIborDefinition) instrument).getIborLeg().getIborIndex();
-      ZonedDateTimeDoubleTimeSeries hts = htsPrice.get(index);
+      ZonedDateTimeDoubleTimeSeries hts = htsIbor.get(index);
       ArgumentChecker.notNull(hts, "time series from " + index.toString() + " is not present in map.");
       ZonedDateTimeDoubleTimeSeries[] htsArray = new ZonedDateTimeDoubleTimeSeries[] {hts};
       return ((SwapFixedIborDefinition) instrument).toDerivative(calibrationDate, htsArray);

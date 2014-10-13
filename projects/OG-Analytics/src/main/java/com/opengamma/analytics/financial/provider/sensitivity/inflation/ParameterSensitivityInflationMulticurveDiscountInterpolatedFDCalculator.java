@@ -15,7 +15,7 @@ import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurveSimple;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderDiscount;
@@ -77,7 +77,7 @@ public class ParameterSensitivityInflationMulticurveDiscountInterpolatedFDCalcul
     // Inflation
     final Set<IndexPrice> indexPrice = multicurve.getPriceIndexes();
     for (final IndexPrice index : indexPrice) {
-      final PriceIndexCurve curveIndex = multicurve.getCurve(index);
+      final PriceIndexCurveSimple curveIndex = multicurve.getCurve(index);
 
       ArgumentChecker.isTrue(curveIndex.getCurve() instanceof InterpolatedDoublesCurve, "Yield curve should be based on InterpolatedDoublesCurve");
       final InterpolatedDoublesCurve curveInt = (InterpolatedDoublesCurve) curveIndex.getCurve();
@@ -86,7 +86,7 @@ public class ParameterSensitivityInflationMulticurveDiscountInterpolatedFDCalcul
       for (int loopnode = 0; loopnode < nbNodePoint; loopnode++) {
         final double[] yieldBumped = curveInt.getYDataAsPrimitive().clone();
         yieldBumped[loopnode] += _shift;
-        final PriceIndexCurve dscBumped = new PriceIndexCurve(new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumped, curveInt.getInterpolator(), true));
+        final PriceIndexCurveSimple dscBumped = new PriceIndexCurveSimple(new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumped, curveInt.getInterpolator(), true));
         final InflationProviderDiscount marketDscBumped = multicurve.withPriceIndex(index, dscBumped);
         final MultipleCurrencyAmount pvBumped = instrument.accept(_valueCalculator, marketDscBumped);
         final MultipleCurrencyAmount pvDiff = pvBumped.plus(pvInitMinus);

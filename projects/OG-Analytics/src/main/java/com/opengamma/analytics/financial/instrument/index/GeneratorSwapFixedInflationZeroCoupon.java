@@ -51,7 +51,7 @@ public class GeneratorSwapFixedInflationZeroCoupon extends GeneratorInstrument<G
    * Constructor from all the details.
    * @param name The generator name. Not null.
    * @param indexPrice The Price index..
-   * @param businessDayConvention The business day convention associated to fix leg.
+   * @param businessDayConvention The business day convention associated to fix leg. Not null.
    * @param calendar  The calendar used to compute the payment date.
    * @param endOfMonth The end-of-month flag.
    * @param monthLag The price index fixing lag in months(usually 3).
@@ -122,8 +122,8 @@ public class GeneratorSwapFixedInflationZeroCoupon extends GeneratorInstrument<G
   }
 
   /**
-   * Gets the _isLinear field.
-   * @return the _isLinear
+   * Returns the flag indicating if price index is interpolated linearly (TRUE) or piecewise constant (FALSE).
+   * @return The flag.
    */
   public boolean isLinear() {
     return _isLinear;
@@ -131,18 +131,22 @@ public class GeneratorSwapFixedInflationZeroCoupon extends GeneratorInstrument<G
 
   /**
    * {@inheritDoc}
-   * The effective date is spot+startTenor. The maturity date is effective date + endTenor
+   * The effective date is spot+startTenor. The maturity date is effective date + endTenor.
+   * The swap pays the fixed rate.
    */
   @Override
-  public SwapFixedInflationZeroCouponDefinition generateInstrument(final ZonedDateTime date, final double rate, final double notional, final GeneratorAttributeIR attribute) {
+  public SwapFixedInflationZeroCouponDefinition generateInstrument(final ZonedDateTime date, final double rate, 
+      final double notional, final GeneratorAttributeIR attribute) {
     ArgumentChecker.notNull(date, "Reference date");
     ArgumentChecker.notNull(attribute, "Attributes");
-    final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, _spotLag, _calendar);
-    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spot, attribute.getStartPeriod(), this.getCalendar());
+    ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, _spotLag, _calendar);
+    ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spot, attribute.getStartPeriod(), this.getCalendar());
     if (this._isLinear) {
-      return SwapFixedInflationZeroCouponDefinition.fromGeneratorInterpolation(startDate, rate, notional, attribute.getEndPeriod(), this, true);
+      return SwapFixedInflationZeroCouponDefinition.fromGeneratorInterpolation(startDate, rate, notional, 
+          attribute.getEndPeriod(), this, true);
     }
-    return SwapFixedInflationZeroCouponDefinition.fromGeneratorMonthly(startDate, rate, notional, attribute.getEndPeriod(), this, true);
+    return SwapFixedInflationZeroCouponDefinition.fromGeneratorMonthly(startDate, rate, notional, 
+        attribute.getEndPeriod(), this, true);
   }
 
   @Override
@@ -154,10 +158,10 @@ public class GeneratorSwapFixedInflationZeroCoupon extends GeneratorInstrument<G
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result = prime * result + ((_businessDayConvention == null) ? 0 : _businessDayConvention.hashCode());
-    result = prime * result + ((_calendar == null) ? 0 : _calendar.hashCode());
+    result = prime * result + _businessDayConvention.hashCode();
+    result = prime * result + _calendar.hashCode();
     result = prime * result + (_endOfMonth ? 1231 : 1237);
-    result = prime * result + ((_indexPrice == null) ? 0 : _indexPrice.hashCode());
+    result = prime * result + _indexPrice.hashCode();
     result = prime * result + (_isLinear ? 1231 : 1237);
     result = prime * result + _monthLag;
     result = prime * result + _spotLag;

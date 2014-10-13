@@ -47,7 +47,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
-import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurveSimple;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.provider.calculator.generic.LastTimeCalculator;
@@ -228,7 +228,7 @@ public class InflationBuildingCurveWithDiscountTestEUR {
     final InflationProviderDiscount[] units = new InflationProviderDiscount[2];
     final CurveBuildingBlockBundle[] bb = new CurveBuildingBlockBundle[2];
     final YieldAndDiscountCurve[] curveDsc = new YieldAndDiscountCurve[2];
-    final PriceIndexCurve[] curveInflation = new PriceIndexCurve[2];
+    final PriceIndexCurveSimple[] curveInflation = new PriceIndexCurveSimple[2];
 
     for (int loopblock = 0; loopblock < 2; loopblock++) {
       units[loopblock] = CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(loopblock).getFirst();

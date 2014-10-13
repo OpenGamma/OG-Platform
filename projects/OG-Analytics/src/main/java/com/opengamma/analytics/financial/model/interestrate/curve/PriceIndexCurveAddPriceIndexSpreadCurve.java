@@ -17,12 +17,12 @@ import com.opengamma.util.ArgumentChecker;
 /**
  *  PriceIndexCurve created by adding the price index of other curves.
  */
-public class PriceIndexCurveAddPriceIndexSpreadCurve extends PriceIndexCurve {
+public class PriceIndexCurveAddPriceIndexSpreadCurve extends PriceIndexCurveSimple {
 
   /**
    * The array of underlying curves.
    */
-  private final PriceIndexCurve[] _curves;
+  private final PriceIndexCurveSimple[] _curves;
 
   /**
    * If -1 the rate of all curves, except the first one, will be subtracted from the first one. If +1, all the rates are added.
@@ -37,7 +37,7 @@ public class PriceIndexCurveAddPriceIndexSpreadCurve extends PriceIndexCurve {
    * @param curves  The array of underlying curves.
 
    */
-  public PriceIndexCurveAddPriceIndexSpreadCurve(final String name, final boolean substract, final PriceIndexCurve... curves) {
+  public PriceIndexCurveAddPriceIndexSpreadCurve(final String name, final boolean substract, final PriceIndexCurveSimple... curves) {
     super(curves[0].getCurve());
     ArgumentChecker.notNull(curves, "Curves");
     _sign = substract ? -1.0 : 1.0;
@@ -79,7 +79,7 @@ public class PriceIndexCurveAddPriceIndexSpreadCurve extends PriceIndexCurve {
   @Override
   public int getNumberOfParameters() {
     int result = 0;
-    for (final PriceIndexCurve curve : _curves) {
+    for (final PriceIndexCurveSimple curve : _curves) {
       result += curve.getNumberOfParameters();
     }
     return result;
@@ -88,13 +88,13 @@ public class PriceIndexCurveAddPriceIndexSpreadCurve extends PriceIndexCurve {
   @Override
   public List<String> getUnderlyingCurvesNames() {
     final List<String> names = new ArrayList<>();
-    for (final PriceIndexCurve curve : _curves) {
+    for (final PriceIndexCurveSimple curve : _curves) {
       names.add(curve.getName());
     }
     return names;
   }
 
-  public PriceIndexCurve[] getCurves() {
+  public PriceIndexCurveSimple[] getCurves() {
     return _curves;
   }
 

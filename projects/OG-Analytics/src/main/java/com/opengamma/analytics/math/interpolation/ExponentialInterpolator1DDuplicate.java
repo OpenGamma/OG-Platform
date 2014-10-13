@@ -12,9 +12,9 @@ import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 
 /**
  * Exponential interpolator description.
- * 
+ * The interpolation is done by fitting two consecutive node with a function of the type a exp(b*x).
  */
-public class ExponentialInterpolator1D extends Interpolator1D {
+public class ExponentialInterpolator1DDuplicate extends Interpolator1D {
   private static final long serialVersionUID = 1L;
 
   @Override
@@ -29,7 +29,7 @@ public class ExponentialInterpolator1D extends Interpolator1D {
     final Double x2 = data.higherKey(x1);
     final Double y2 = data.get(x2);
     final double xDiff = x2 - x1;
-    return Math.pow(y1, value * (x2 - value) / xDiff / x1) * Math.pow(y2, value * (value - x1) / xDiff / x2);
+    return y1 * Math.pow(y2 / y1, (value - x1) / xDiff);
   }
 
   @Override
@@ -44,7 +44,7 @@ public class ExponentialInterpolator1D extends Interpolator1D {
     final Double x2 = data.higherKey(x1);
     final Double y2 = data.get(x2);
     final double xDiff = x2 - x1;
-    return Math.pow(y1, value * (x2 - value) / xDiff / x1) * Math.pow(y2, value * (value - x1) / xDiff / x2) * (Math.log(y1) * (x2 - 2. * value) / x1 + Math.log(y2) * (2. * value - x1) / x2) / xDiff;
+    return 0;
   }
 
   @Override
@@ -59,7 +59,7 @@ public class ExponentialInterpolator1D extends Interpolator1D {
 
   @Override
   public double[] getNodeSensitivitiesForValue(Interpolator1DDataBundle data, Double value) {
-    return getFiniteDifferenceSensitivities(data, value);
+    return getFiniteDifferenceSensitivities(data, value); // TODO
   }
 
 }
