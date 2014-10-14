@@ -117,8 +117,8 @@ public class RemoteComponentSwapTest {
     SnapshotMarketDataSource marketDataSource = new SnapshotMarketDataSource(component, UniqueId.of("DbSnp", "1000"));
 
     _environment = new SimpleEnvironment(DateUtils.getUTCDate(2014, 1, 22), marketDataSource);
-    _exposureConfig = ConfigLink.resolvable("USD CSA Exposure Functions", ExposureFunctions.class);
-    _currencyMatrixLink = ConfigLink.resolvable("BloombergLiveData", CurrencyMatrix.class);
+    _exposureConfig = ConfigLink.resolvable("USD-GBP-FF-1", ExposureFunctions.class);
+    _currencyMatrixLink = ConfigLink.resolvable("BBG-Matrix", CurrencyMatrix.class);
     _swapFunction = FunctionModel.build(InterestRateSwapFn.class, createConfig(), componentMap);
 
   }

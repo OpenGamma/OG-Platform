@@ -4,42 +4,28 @@ Adding curve configuration and a sample market data snapshot
 
 Once you have set up the OpenGamma marketdata and fullstack servers, you can add the configuration and supporting data needed to run the example view tool.
 
-Curve configuration
-===================
+Configuration and data
+======================
 
-Sample configuration is provided in the *resource/configuration* folder. Create a zip of the configuration folder and then upload to your running server with the **SingleConfigImportTool**. Locate this class from within og-integration in your IDE and run it with the following arguments:
+Sample configuration, and supporting data is provided in the *resource/import-data* folder. This can be uploaded to your running server with the **DatabaseRestoreTool**. Locate this class from within og-integration in your IDE and run it with the following arguments:
 
 + -c http://your-server-ip:8080
-+ -l com/opengamma/util/warn-logback.xml 
-+ -load /path/to/your/configuration.zip
++ -l com/opengamma/util/warn-logback.xml
++ -d /path/to/your/example-app/resources/Import-data/
 
-Alternatively, run the **single-config-import-tool** from *{OG install location}/platform/scripts* with the same arguments. 
+Alternatively, run the **database-restore-tool** from *{OG install location}/platform/scripts* with the same arguments.
 
 Navigate to http://your-server-ip:8080/jax/configs to see your uploaded configurations
-
-Loading a snapshot 
-==================
-
-A sample market data snapshot is provided in the *resource/snapshot* folder. Locate the **MarketDataSnapshotImportTool** class from within og-integration in your IDE and run it with the following arguments:
-
-+ -c http://your-server-ip:8080
-+ -f path/to/your/resources/snapshot/marketdata_snapshot_import.xls
-
-Alternatively, run the **market-data-snapshot-import-tool** from *{OG install location}/platform/scripts* with the same arguments.
-
-Navigate to http://your-server-ip:8080/jax/snapshots to see your uploaded snapshot
 
 Loading time-series
 ===================
 
-Next go to http://your-server-ip:8080/jax/timeseries to add time-series:
+The timeseries needed top run the example are included in the import-data. When you wish to load more you can go to http://your-server-ip:8080/jax/timeseries to add time-series:
 
 + Select **BLOOMBERG_TICKER** for the *Scheme type*
 + Add **DEFAULT** for *Data provider*
 + Add **PX_LAST** for *Data field*
 + Add **US0003M Index** for *Identifiers*
-
-Repeat this for US0006M Index, FEDL01 Index and BP0003M Index
 
 This step can be repeated for any ticker you wish to add
 
@@ -53,21 +39,4 @@ Command::
   bloomberg-hts-master-updater-tool.bat -c http://localhost:8080
 
 Substituting .bat for .sh and localhost as necessary
-
-
-Loading calendars
-=================
-
-A sample US holiday calendar is provided in the *resource/calendar* folder. Locate the **CalendarLoaderTool** class from within og-integration in your IDE and run it with the following arguments:
-
-+ -c http://your-server-ip:8080
-+ -f path/to/your/resources/calendar/usny.csv
-+ -s ISDA_HOLIDAY
-+ -n USNY
-
-Alternatively, run the **calendar-loader-tool** from *{OG install location}/platform/scripts* with the same arguments.
-
-Navigate to http://your-server-ip:8080/jax/holidays to see your uploaded holiday
-
-Repeat this for ISDA_HOLIDAY~GBLO - gblo.csv
 

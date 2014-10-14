@@ -61,8 +61,8 @@ public class RemoteFraTest {
         .marketDataSpec(UserMarketDataSpecification.of(UniqueId.of("DbSnp", "1000")))
         .build();
 
-    _exposureConfig = ConfigLink.resolvable("USD CSA Exposure Functions", ExposureFunctions.class);
-    _currencyMatrixLink = ConfigLink.resolvable("BloombergLiveData", CurrencyMatrix.class);
+    _exposureConfig = ConfigLink.resolvable("USD-GBP-FF-1", ExposureFunctions.class);
+    _currencyMatrixLink = ConfigLink.resolvable("BBG-Matrix", CurrencyMatrix.class);
 
     FunctionServerRequest<IndividualCycleOptions> request =
         FunctionServerRequest.<IndividualCycleOptions>builder()
@@ -94,7 +94,7 @@ public class RemoteFraTest {
     assertThat(result.isSuccess(), is(true));
     assertThat(result.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
     MultipleCurrencyAmount mca = (MultipleCurrencyAmount) result.getValue();
-    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(21751.363420380032, STD_TOLERANCE_PV)));
+    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(21750.76254296188, STD_TOLERANCE_PV)));
 
   }
 

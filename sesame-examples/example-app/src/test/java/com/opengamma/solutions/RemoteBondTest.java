@@ -71,7 +71,7 @@ public class RemoteBondTest {
     _functionServer = new RemoteFunctionServer(URI.create(URL));
     _cycleOptions = IndividualCycleOptions.builder()
         .valuationTime(DateUtils.getUTCDate(2014, 7, 11))
-        .marketDataSpec(UserMarketDataSpecification.of(UniqueId.of("DbSnp", "1013")))
+        .marketDataSpec(UserMarketDataSpecification.of(UniqueId.of("DbSnp", "1001")))
         .build();
 
     _exposureConfigOis = ConfigLink.resolvable("GBP_SO_DSCONISCCY-OIS", ExposureFunctions.class);
