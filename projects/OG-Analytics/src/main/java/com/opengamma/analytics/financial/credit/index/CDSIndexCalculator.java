@@ -542,6 +542,33 @@ public class CDSIndexCalculator {
   }
 
   /**
+   * Sensitivity of PV to intrinsic CDS recovery rates
+   * @param indexCDS The CDS index
+   * @param indexCoupon The index coupon
+   * @param yieldCurve The yield curve
+   * @param intrinsicData Credit curves, weights and recovery rates of the intrinsic names
+   * @return The sensitivity
+   */
+  public double[] recovery01(CDSAnalytic indexCDS, double indexCoupon, ISDACompliantYieldCurve yieldCurve,
+      IntrinsicIndexDataBundle intrinsicData) {
+    ArgumentChecker.notNull(indexCDS, "indexCDS");
+    ArgumentChecker.notNull(yieldCurve, "yieldCurve");
+    ArgumentChecker.notNull(intrinsicData, "intrinsicData");
+    CDSAnalytic zeroRR = indexCDS.withRecoveryRate(0);
+    int indexSize = intrinsicData.getIndexSize();
+    double[] res = new double[indexSize];
+    for (int i = 0; i < indexSize; ++i) {
+      if (intrinsicData.isDefaulted(i)) {
+        res[i] = 0.0;
+      } else {
+        res[i] = -_pricer.protectionLeg(zeroRR, yieldCurve, intrinsicData.getCreditCurve(i)) *
+            intrinsicData.getWeight(i);
+      }
+    }
+    return res;
+  }
+
+  /**
    * values on per-name default
    * @param indexCDS The CDS index
    * @param indexCoupon The index coupon

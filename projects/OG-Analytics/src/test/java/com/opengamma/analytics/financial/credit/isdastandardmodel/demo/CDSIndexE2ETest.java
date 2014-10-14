@@ -23,7 +23,6 @@ import com.opengamma.analytics.financial.credit.index.IntrinsicIndexDataBundle;
 import com.opengamma.analytics.financial.credit.index.PortfolioSwapAdjustment;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalytic;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalyticFactory;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.FastCreditCurveBuilder;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDABaseTest;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurve;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
@@ -81,8 +80,7 @@ public class CDSIndexE2ETest extends ISDABaseTest {
     //    }
   }
 
-  @Test
-      (enabled = false)
+  @Test(enabled = false)
   public void indexTest() {
     int pos = 1;
     final CDSAnalytic targentCDX = CDX[pos];
@@ -92,20 +90,20 @@ public class CDSIndexE2ETest extends ISDABaseTest {
     for (int i = 0; i < n; i++) {
       indexPUF[i] = PILLAR_PUF[i].getPointsUpFront();
     }
-    final IntrinsicIndexDataBundle adjCurves = PSA.adjustCurves(indexPUF, CDX, INDEX_COUPON, YIELD_CURVE,
-        INTRINSIC_DATA);
+    final IntrinsicIndexDataBundle adjCurves = PSA.adjustCurves(indexPUF[pos], CDX[pos], INDEX_COUPON, YIELD_CURVE,
+        INTRINSIC_DATA); // use single node curve
     double cleanPrice = INDEX_CAL.indexPV(targentCDX, INDEX_COUPON, YIELD_CURVE, adjCurves) * NOTIONAL;
     double dirtyPrice = INDEX_CAL.indexPV(targentCDX, INDEX_COUPON, YIELD_CURVE, adjCurves, PriceType.DIRTY) * NOTIONAL;
 
     System.out.println(cleanPrice);
     System.out.println(dirtyPrice);  // agree with 1 - PRICES[pos]
 
-    ISDACompliantCreditCurve creditCurve = (new FastCreditCurveBuilder(OG_FIX)).calibrateCreditCurve(targentCDX,
-        INDEX_COUPON, YIELD_CURVE, indexPUF[pos]);
-    double pv = PRICER_OG_FIX.pv(targentCDX, YIELD_CURVE, creditCurve, INDEX_COUPON) * NOTIONAL;
-    double pvDirty = PRICER_OG_FIX.pv(targentCDX, YIELD_CURVE, creditCurve, INDEX_COUPON, PriceType.DIRTY) * NOTIONAL;
-    System.out.println(pv);
-    System.out.println(pvDirty);
+    //    ISDACompliantCreditCurve creditCurve = (new FastCreditCurveBuilder(OG_FIX)).calibrateCreditCurve(targentCDX,
+    //        INDEX_COUPON, YIELD_CURVE, indexPUF[pos]);
+    //    double pv = PRICER_OG_FIX.pv(targentCDX, YIELD_CURVE, creditCurve, INDEX_COUPON) * NOTIONAL;
+    //    double pvDirty = PRICER_OG_FIX.pv(targentCDX, YIELD_CURVE, creditCurve, INDEX_COUPON, PriceType.DIRTY) * NOTIONAL;
+    //    System.out.println(pv);
+    //    System.out.println(pvDirty);
 
     int accruedDays = targentCDX.getAccuredDays();
     double accruedPremium = targentCDX.getAccruedPremium(INDEX_COUPON);
@@ -133,10 +131,7 @@ public class CDSIndexE2ETest extends ISDABaseTest {
     //    adjCurves.withDefault(n)
   }
 
-  //  VOD - sensitivity to an instantaneous default for single names, or widest name default for index trades
   //  JTD - per-name report for instantaneous default for index trades (decomposed)
-  //  VOD and JTD should be either curve recovery or pre-defined recovery
-  //  Index basis - expressed either as PV or in basis points
   //  Recovery01 - should apply to curve, trade or curve + trade simultaneously.
 
   //

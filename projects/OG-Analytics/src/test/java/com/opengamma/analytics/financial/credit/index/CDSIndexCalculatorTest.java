@@ -76,11 +76,14 @@ public class CDSIndexCalculatorTest extends ISDABaseTest {
     double tol = 1.0e-12;
     CDSAnalytic cdx = FACTORY.makeCDX(TRADE_DATE, Period.ofYears(5));
     double indexCoupon = 300 * 1.0e-4;
+    final int[] defaultedNames = new int[] {2, 15, 37, 51 };
+    final IntrinsicIndexDataBundle intrinsicDataWithDefaulted = INTRINSIC_DATA.withDefault(defaultedNames);
 
-    double pv = INDEX_CAL.indexPV(cdx, indexCoupon, YIELD_CURVE, INTRINSIC_DATA);
-    double parallelIR01 = INDEX_CAL.parallelIR01(cdx, indexCoupon, YIELD_CURVE, INTRINSIC_DATA);
-    double[] bucketedIR01 = INDEX_CAL.bucketedIR01(cdx, indexCoupon, YIELD_CURVE, INTRINSIC_DATA);
-    double[] jumpToDefault = INDEX_CAL.jumpToDefault(cdx, indexCoupon, YIELD_CURVE, INTRINSIC_DATA);
+    double pv = INDEX_CAL.indexPV(cdx, indexCoupon, YIELD_CURVE, intrinsicDataWithDefaulted);
+    double parallelIR01 = INDEX_CAL.parallelIR01(cdx, indexCoupon, YIELD_CURVE, intrinsicDataWithDefaulted);
+    double[] bucketedIR01 = INDEX_CAL.bucketedIR01(cdx, indexCoupon, YIELD_CURVE, intrinsicDataWithDefaulted);
+    double[] jumpToDefault = INDEX_CAL.jumpToDefault(cdx, indexCoupon, YIELD_CURVE, intrinsicDataWithDefaulted);
+    double[] recovery01 = INDEX_CAL.recovery01(cdx, indexCoupon, YIELD_CURVE, intrinsicDataWithDefaulted);
     
     double[] rates = YIELD_CURVE.getKnotZeroRates();
     int nRates = rates.length;
@@ -93,21 +96,36 @@ public class CDSIndexCalculatorTest extends ISDABaseTest {
     }
 
     ISDACompliantYieldCurve ycParallelBump = YIELD_CURVE.withRates(bumpedRatesParallel);
-    double pvParallelBump = INDEX_CAL.indexPV(cdx, indexCoupon, ycParallelBump, INTRINSIC_DATA);
+    double pvParallelBump = INDEX_CAL.indexPV(cdx, indexCoupon, ycParallelBump, intrinsicDataWithDefaulted);
     assertEquals(pvParallelBump - pv, parallelIR01, tol);
     for (int i = 0; i < nRates; ++i) {
       ISDACompliantYieldCurve ycBump = YIELD_CURVE.withRates(bumpedRatesBucket[i]);
-      double pvBump = INDEX_CAL.indexPV(cdx, indexCoupon, ycBump, INTRINSIC_DATA);
+      double pvBump = INDEX_CAL.indexPV(cdx, indexCoupon, ycBump, intrinsicDataWithDefaulted);
       assertEquals(pvBump - pv, bucketedIR01[i], tol);
     }
 
-    int size = INTRINSIC_DATA.getIndexSize();
+    int size = intrinsicDataWithDefaulted.getIndexSize();
     for (int i=0;i<size;++i) {
-      double ref = -pricer.pv(cdx, YIELD_CURVE, INTRINSIC_DATA.getCreditCurves()[i], indexCoupon) *
-          INTRINSIC_DATA.getWeight(i) * 2.0 + INTRINSIC_DATA.getLGD(i) *
-          INTRINSIC_DATA.getWeight(i) + cdx.getAccruedPremium(indexCoupon) * INTRINSIC_DATA.getWeight(i);
+      double ref = -pricer.pv(cdx, YIELD_CURVE, intrinsicDataWithDefaulted.getCreditCurves()[i], indexCoupon) *
+          intrinsicDataWithDefaulted.getWeight(i) * 2.0 + intrinsicDataWithDefaulted.getLGD(i) *
+          intrinsicDataWithDefaulted.getWeight(i) + cdx.getAccruedPremium(indexCoupon) *
+          intrinsicDataWithDefaulted.getWeight(i);
       assertEquals(ref, jumpToDefault[i], 1.0e-2);
     }
+
+    double[] zeroRates = new double[size];
+    Arrays.fill(zeroRates, 0.0);
+    double[] weights = new double[size];
+    double sum = 0.0;
+    for (int i = 0; i < size; ++i) {
+      weights[i] = intrinsicDataWithDefaulted.getWeight(i);
+      sum += recovery01[i];
+    }
+    IntrinsicIndexDataBundle bundleZeroRates = new IntrinsicIndexDataBundle(
+        intrinsicDataWithDefaulted.getCreditCurves(),
+        zeroRates, weights).withDefault(defaultedNames);
+    double ref = -INDEX_CAL.indexProtLeg(cdx, YIELD_CURVE, bundleZeroRates);
+    assertEquals(sum, ref, Math.abs(ref) * tol);
   }
 
 
