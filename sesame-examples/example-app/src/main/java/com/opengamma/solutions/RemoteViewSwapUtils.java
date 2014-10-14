@@ -134,7 +134,8 @@ public final class RemoteViewSwapUtils {
   //TODO REQS-462 - Interim exchange
   public static final List<Object> NOTIONAL_EXCHANGE_INPUT = ImmutableList.<Object>of(
       createInitialNotionalExchangeSwap(),
-      createFinalNotionalExchangeSwap());
+      createFinalNotionalExchangeSwap(),
+      createInitialFinalNotionalExchangeSwap());
 
   /** List of zero coupon compounding swap inputs */
   public static final List<Object> IBOR_COMPOUNDING_INPUT =
@@ -197,9 +198,7 @@ public final class RemoteViewSwapUtils {
                     InterestRateSwapFn.class,
                     DiscountingInterestRateSwapFn.class,
                     InterestRateSwapCalculatorFactory.class,
-                    DiscountingInterestRateSwapCalculatorFactory.class)
-            )
-        );
+                    DiscountingInterestRateSwapCalculatorFactory.class)));
   }
 
   /* Sample Interest Rate Swaps */
@@ -1060,7 +1059,7 @@ public final class RemoteViewSwapUtils {
 
     FloatingInterestRateSwapLeg payLeg = new FloatingInterestRateSwapLeg();
     payLeg.setNotional(GBP_NOTIONAL);
-    payLeg.setDayCountConvention(DayCounts.ACT_360);
+    payLeg.setDayCountConvention(DayCounts.ACT_365);
     payLeg.setPaymentDateFrequency(P3M);
     payLeg.setPaymentDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
     payLeg.setPaymentDateCalendars(GBLO);
@@ -1073,7 +1072,7 @@ public final class RemoteViewSwapUtils {
     payLeg.setFixingDateBusinessDayConvention(BusinessDayConventions.PRECEDING);
     payLeg.setMaturityDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
     payLeg.setFixingDateCalendars(GBLO);
-    payLeg.setFixingDateOffset(-2);
+    payLeg.setFixingDateOffset(0);
     payLeg.setFloatingRateType(FloatingRateType.IBOR);
     payLeg.setFloatingReferenceRateId(ExternalId.of("BLOOMBERG_TICKER", "BP0003M Index"));
     payLeg.setPayReceiveType(PayReceiveType.PAY);
@@ -1119,14 +1118,15 @@ public final class RemoteViewSwapUtils {
     payLeg.setPaymentDateCalendars(USNY);
     payLeg.setAccrualPeriodFrequency(P6M);
     payLeg.setAccrualPeriodBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
-    payLeg.setMaturityDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
     payLeg.setAccrualPeriodCalendars(USNY);
+    payLeg.setMaturityDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
+    payLeg.setMaturityDateCalendars(USNY);
     payLeg.setRate(new Rate(0.03));
     payLeg.setPayReceiveType(PayReceiveType.PAY);
 
     FloatingInterestRateSwapLeg receiveLeg = new FloatingInterestRateSwapLeg();
     receiveLeg.setNotional(GBP_NOTIONAL);
-    receiveLeg.setDayCountConvention(DayCounts.ACT_360);
+    receiveLeg.setDayCountConvention(DayCounts.ACT_365);
     receiveLeg.setPaymentDateFrequency(P3M);
     receiveLeg.setPaymentDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
     receiveLeg.setPaymentDateCalendars(GBLO);
@@ -1138,8 +1138,9 @@ public final class RemoteViewSwapUtils {
     receiveLeg.setResetPeriodCalendars(GBLO);
     receiveLeg.setFixingDateBusinessDayConvention(BusinessDayConventions.PRECEDING);
     receiveLeg.setMaturityDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
+    receiveLeg.setMaturityDateCalendars(GBLO);
     receiveLeg.setFixingDateCalendars(GBLO);
-    receiveLeg.setFixingDateOffset(-2);
+    receiveLeg.setFixingDateOffset(0);
     receiveLeg.setFloatingRateType(FloatingRateType.IBOR);
     receiveLeg.setFloatingReferenceRateId(ExternalId.of("BLOOMBERG_TICKER", "BP0003M Index"));
     receiveLeg.setPayReceiveType(PayReceiveType.RECEIVE);
@@ -1261,6 +1262,17 @@ public final class RemoteViewSwapUtils {
     InterestRateSwapSecurity swap = createFixedUSVsLiborBP3mSwap();
     swap.setNotionalExchange(notionalExchange);
     swap.setName("Initial notional exchange - US Fixed vs Libor BP 3m");
+    return swap;
+
+  }
+
+  private static InterestRateSwapSecurity createInitialFinalNotionalExchangeSwap() {
+
+    NotionalExchange notionalExchange = NotionalExchange.builder().exchangeFinalNotional(true).
+        exchangeInitialNotional(true).build();
+    InterestRateSwapSecurity swap = createFixedUSVsLiborBP3mSwap();
+    swap.setNotionalExchange(notionalExchange);
+    swap.setName("Initial and Final notional exchange - US Fixed vs Libor BP 3m");
     return swap;
 
   }
