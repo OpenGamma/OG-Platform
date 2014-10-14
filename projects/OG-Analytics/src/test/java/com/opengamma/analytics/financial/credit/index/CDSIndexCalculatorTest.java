@@ -68,6 +68,50 @@ public class CDSIndexCalculatorTest extends ISDABaseTest {
   }
 
   /**
+   * Test IR01, JTD
+   */
+  @Test
+  public void sensitivitiesTest() {
+    AnalyticCDSPricer pricer = new AnalyticCDSPricer();
+    double tol = 1.0e-12;
+    CDSAnalytic cdx = FACTORY.makeCDX(TRADE_DATE, Period.ofYears(5));
+    double indexCoupon = 300 * 1.0e-4;
+
+    double pv = INDEX_CAL.indexPV(cdx, indexCoupon, YIELD_CURVE, INTRINSIC_DATA);
+    double parallelIR01 = INDEX_CAL.parallelIR01(cdx, indexCoupon, YIELD_CURVE, INTRINSIC_DATA);
+    double[] bucketedIR01 = INDEX_CAL.bucketedIR01(cdx, indexCoupon, YIELD_CURVE, INTRINSIC_DATA);
+    double[] jumpToDefault = INDEX_CAL.jumpToDefault(cdx, indexCoupon, YIELD_CURVE, INTRINSIC_DATA);
+    
+    double[] rates = YIELD_CURVE.getKnotZeroRates();
+    int nRates = rates.length;
+    double[] bumpedRatesParallel = new double[nRates];
+    double[][] bumpedRatesBucket = new double[nRates][nRates];
+    for (int i = 0; i < nRates; ++i) {
+      bumpedRatesBucket[i] = Arrays.copyOf(rates, nRates);
+      bumpedRatesBucket[i][i] += ONE_BP;
+      bumpedRatesParallel[i] = rates[i] + ONE_BP;
+    }
+
+    ISDACompliantYieldCurve ycParallelBump = YIELD_CURVE.withRates(bumpedRatesParallel);
+    double pvParallelBump = INDEX_CAL.indexPV(cdx, indexCoupon, ycParallelBump, INTRINSIC_DATA);
+    assertEquals(pvParallelBump - pv, parallelIR01, tol);
+    for (int i = 0; i < nRates; ++i) {
+      ISDACompliantYieldCurve ycBump = YIELD_CURVE.withRates(bumpedRatesBucket[i]);
+      double pvBump = INDEX_CAL.indexPV(cdx, indexCoupon, ycBump, INTRINSIC_DATA);
+      assertEquals(pvBump - pv, bucketedIR01[i], tol);
+    }
+
+    int size = INTRINSIC_DATA.getIndexSize();
+    for (int i=0;i<size;++i) {
+      double ref = -pricer.pv(cdx, YIELD_CURVE, INTRINSIC_DATA.getCreditCurves()[i], indexCoupon) *
+          INTRINSIC_DATA.getWeight(i) * 2.0 + INTRINSIC_DATA.getLGD(i) *
+          INTRINSIC_DATA.getWeight(i) + cdx.getAccruedPremium(indexCoupon) * INTRINSIC_DATA.getWeight(i);
+      assertEquals(ref, jumpToDefault[i], 1.0e-2);
+    }
+  }
+
+
+  /**
    * 
    */
   @Test

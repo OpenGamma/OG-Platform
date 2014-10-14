@@ -17,16 +17,17 @@ import static com.opengamma.analytics.financial.credit.options.YieldCurveProvide
 
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
-import org.threeten.bp.Period;
 
 import com.opengamma.analytics.financial.credit.index.CDSIndexCalculator;
 import com.opengamma.analytics.financial.credit.index.IntrinsicIndexDataBundle;
 import com.opengamma.analytics.financial.credit.index.PortfolioSwapAdjustment;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalytic;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalyticFactory;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.FastCreditCurveBuilder;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDABaseTest;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurve;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.InterestRateSensitivityCalculator;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.PointsUpFront;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.PriceType;
 
@@ -45,25 +46,26 @@ public class CDSIndexE2ETest extends ISDABaseTest {
   private static final double INDEX_COUPON = CDX_NA_HY_21_COUPON;
   private static final double INDEX_RECOVERY = CDX_NA_HY_21_RECOVERY_RATE;
 
-  // private static final double EXP_FWD_ANNUITY = 4.83644025;
-  private static final Period TENOR = Period.ofYears(5);
+  // yield curve
+  private static ISDACompliantYieldCurve YIELD_CURVE = ISDA_USD_20140213;
 
-  private static final ISDACompliantCreditCurve[] CREDIT_CURVES = buildCreditCurves(TRADE_DATE,
-      CDX_NA_HY_20140213_PAR_SPREADS, CDX_NA_HY_20140213_RECOVERY_RATES, CDS_TENORS, ISDA_USD_20140213);  //decompose this !!!!
+  // credit curves for single names
   private static final double[] RECOVERY_RATES = CDX_NA_HY_20140213_RECOVERY_RATES;
+  private static final ISDACompliantCreditCurve[] CREDIT_CURVES = buildCreditCurves(TRADE_DATE,
+      CDX_NA_HY_20140213_PAR_SPREADS, RECOVERY_RATES, CDS_TENORS, ISDA_USD_20140213);
   private static IntrinsicIndexDataBundle INTRINSIC_DATA = new IntrinsicIndexDataBundle(CREDIT_CURVES, RECOVERY_RATES);
-  private static ISDACompliantYieldCurve YIELD_CURVE = ISDA_USD_20140213; //desompose this !!!!
+
+  // index market data
   private static double[] PRICES = CDX_NA_HY_20140213_PRICES;
   private static int INDEX_SIZE = RECOVERY_RATES.length;
 
   private static final PointsUpFront[] PILLAR_PUF;
   private static final CDSAnalyticFactory FACTORY = new CDSAnalyticFactory(INDEX_RECOVERY);
-  //  private static final CDSAnalytic FWD_START_CDX = FACTORY.makeForwardStartingCDS(TRADE_DATE, EXPIRY, MATURITY);
-  private static final CDSAnalytic CDX = FACTORY.makeCDX(TRADE_DATE, TENOR);
-  private static final CDSAnalytic[] PILLAR_CDX = FACTORY.makeCDX(TRADE_DATE, INDEX_TENORS);
+  private static final CDSAnalytic[] CDX = FACTORY.makeCDX(TRADE_DATE, INDEX_TENORS);
 
   private static final PortfolioSwapAdjustment PSA = new PortfolioSwapAdjustment();
   private static final CDSIndexCalculator INDEX_CAL = new CDSIndexCalculator();
+  private static final InterestRateSensitivityCalculator IR_CAL = new InterestRateSensitivityCalculator();
 
   //  private static final boolean PRINT = false;
 
@@ -79,76 +81,72 @@ public class CDSIndexE2ETest extends ISDABaseTest {
     //    }
   }
 
-  @Test(enabled = false)
-  public void forwardValueTest() {
+  @Test
+      (enabled = false)
+  public void indexTest() {
+    int pos = 1;
+    final CDSAnalytic targentCDX = CDX[pos];
+
     final int n = PILLAR_PUF.length;
     final double[] indexPUF = new double[n];
     for (int i = 0; i < n; i++) {
       indexPUF[i] = PILLAR_PUF[i].getPointsUpFront();
     }
-    final IntrinsicIndexDataBundle adjCurves = PSA.adjustCurves(indexPUF, PILLAR_CDX, INDEX_COUPON, YIELD_CURVE,
+    final IntrinsicIndexDataBundle adjCurves = PSA.adjustCurves(indexPUF, CDX, INDEX_COUPON, YIELD_CURVE,
         INTRINSIC_DATA);
-    double cleanPrice = INDEX_CAL.indexPV(CDX, INDEX_COUPON, YIELD_CURVE, adjCurves) * NOTIONAL;
-    double dirtyPrice = INDEX_CAL.indexPV(CDX, INDEX_COUPON, YIELD_CURVE, adjCurves, PriceType.DIRTY) * NOTIONAL;
+    double cleanPrice = INDEX_CAL.indexPV(targentCDX, INDEX_COUPON, YIELD_CURVE, adjCurves) * NOTIONAL;
+    double dirtyPrice = INDEX_CAL.indexPV(targentCDX, INDEX_COUPON, YIELD_CURVE, adjCurves, PriceType.DIRTY) * NOTIONAL;
 
     System.out.println(cleanPrice);
-    System.out.println(dirtyPrice);
-    //
-    //    final double tE = ACT365F.getDayCountFraction(TRADE_DATE, EXPIRY);
-    //    final double tES = ACT365F.getDayCountFraction(TRADE_DATE, EXERCISE_SETTLE);
-    //    final double expFwdPrice1 = -7149840.399010934 / NOTIONAL;
-    //    final double expFwdPrice2 = -7121885.71427097 / NOTIONAL;
-    //    final double expFwdPrice3 = -7150407.604015437 / NOTIONAL;
-    //    final double expFwdSpread1 = 333.22161805754155 * ONE_BP;
-    //    final double expFwdSpread2 = 333.5071399772611 * ONE_BP;
-    //    final double expFwdSpread3 = 333.06693990756 * ONE_BP;
-    //
-    //    //build (pseudo) index credit curve from PUF
-    //    final ISDACompliantCreditCurve cc = CREDIT_CURVE_BUILDER.calibrateCreditCurve(PILLAR_CDX, PILLAR_PUF, YIELD_CURVE);
-    //
-    //    final double q = cc.getSurvivalProbability(tE);
-    //    final double df = YIELD_CURVE.getDiscountFactor(tES);
-    //
-    //    final double fwdProt = PRICER.protectionLeg(FWD_START_CDX, YIELD_CURVE, cc, 0) + df * (1 - INDEX_RECOVERY) *
-    //        (1 - q);
-    //    final double fwdAnn = PRICER.annuity(FWD_START_CDX, YIELD_CURVE, cc, PriceType.CLEAN, 0);
-    //    final double fwdSpread = fwdProt / fwdAnn;
-    //
-    //    final double fwdSpread2 = INDEX_CAL.defaultAdjustedForwardSpread(FWD_START_CDX, tE, YIELD_CURVE, cc);
-    //    assertEquals(fwdSpread, fwdSpread2, 1e-15);
-    //
-    //    final double fwdIndexVal = ((fwdProt - INDEX_COUPON * fwdAnn) / df);
-    //    final double fwdIndexVal2 = INDEX_CAL.defaultAdjustedForwardIndexValue(FWD_START_CDX, tE, YIELD_CURVE,
-    //        INDEX_COUPON, cc);
-    //    assertEquals(fwdIndexVal, fwdIndexVal2, 1e-15);
-    //
-    //    if (PRINT) {
-    //      System.out.println("df: " + df);
-    //      System.out.println("Fwd Spread: " + fwdSpread * TEN_THOUSAND);
-    //      System.out.println("Fwd Index val: " + NOTIONAL * fwdIndexVal);
-    //    }
-    //
-    //    final double fwdSpreadUnAdj = INDEX_CAL
-    //        .defaultAdjustedForwardSpread(FWD_START_CDX, tE, YIELD_CURVE, INTRINSIC_DATA);
-    //    final double fwdIndexValUnAdj = INDEX_CAL.defaultAdjustedForwardIndexValue(FWD_START_CDX, tE, YIELD_CURVE,
-    //        INDEX_COUPON, INTRINSIC_DATA);
-    //
-    //    final double fwdSpreadAdj = INDEX_CAL.defaultAdjustedForwardSpread(FWD_START_CDX, tE, YIELD_CURVE, adjCurves);
-    //    final double fwdIndexValAdj = INDEX_CAL.defaultAdjustedForwardIndexValue(FWD_START_CDX, tE, YIELD_CURVE,
-    //        INDEX_COUPON, adjCurves);
-    //
-    //    if (PRINT) {//intrinsic 
-    //      System.out.println("Intrinsic fwd spread before and after adjustment:\t" + fwdSpreadUnAdj * TEN_THOUSAND + "\t" +
-    //          fwdSpreadAdj * TEN_THOUSAND);
-    //      System.out.println("Intrinsic fwd value before and after adjustment:\t" + fwdIndexValUnAdj * NOTIONAL + "\t" +
-    //          fwdIndexValAdj * NOTIONAL);
-    //    }
-    //
-    //    assertEquals("Regression test for index curve ATM Fwd", expFwdPrice1, fwdIndexVal2, 1e-15);
-    //    assertEquals("Regression test for intrinic ATM Fwd", expFwdPrice2, fwdIndexValUnAdj, 1e-15);
-    //    assertEquals("Regression test for adjusted intrinic ATM Fwd", expFwdPrice3, fwdIndexValAdj, 1e-15);
-    //    assertEquals("Regression test for index curve ATM Fwd spread", expFwdSpread1, fwdSpread2, 1e-15);
-    //    assertEquals("Regression test for intrinic ATM Fwd spread", expFwdSpread2, fwdSpreadUnAdj, 1e-15);
-    //    assertEquals("Regression test for adjusted intrinic ATM Fwd spread", expFwdSpread3, fwdSpreadAdj, 1e-15);
+    System.out.println(dirtyPrice);  // agree with 1 - PRICES[pos]
+
+    ISDACompliantCreditCurve creditCurve = (new FastCreditCurveBuilder(OG_FIX)).calibrateCreditCurve(targentCDX,
+        INDEX_COUPON, YIELD_CURVE, indexPUF[pos]);
+    double pv = PRICER_OG_FIX.pv(targentCDX, YIELD_CURVE, creditCurve, INDEX_COUPON) * NOTIONAL;
+    double pvDirty = PRICER_OG_FIX.pv(targentCDX, YIELD_CURVE, creditCurve, INDEX_COUPON, PriceType.DIRTY) * NOTIONAL;
+    System.out.println(pv);
+    System.out.println(pvDirty);
+
+    int accruedDays = targentCDX.getAccuredDays();
+    double accruedPremium = targentCDX.getAccruedPremium(INDEX_COUPON);
+    System.out.println(accruedDays);
+    System.out.println(accruedPremium);
+
+//    ISDACompliantYieldCurve ycUP = bumpYieldCurve(YIELD_CURVE, ONE_BP);
+//    double cleanPriceUp = INDEX_CAL.indexPV(targentCDX, INDEX_COUPON, ycUP, adjCurves) * NOTIONAL;
+//    System.out.println((cleanPriceUp - cleanPrice) * ONE_BP);
+//    double IR01FromSingleCurve = IR_CAL.parallelIR01(targentCDX, INDEX_COUPON, creditCurve, YIELD_CURVE) * ONE_BP *
+//        NOTIONAL;
+//    System.out.println(IR01FromSingleCurve);
+    
+    double weightedCleanRPV01 = INDEX_CAL.indexAnnuity(targentCDX, YIELD_CURVE, adjCurves);
+    System.out.println(weightedCleanRPV01);
+    double weightedDirtyRPV01 = INDEX_CAL.indexAnnuity(targentCDX, YIELD_CURVE, adjCurves, PriceType.DIRTY);
+    System.out.println(weightedDirtyRPV01);
+    double durationWeightedAverageSpread = INDEX_CAL.intrinsicIndexSpread(targentCDX, YIELD_CURVE, adjCurves) *
+        TEN_THOUSAND;
+    System.out.println(durationWeightedAverageSpread);
+
+    double expectedLoss = INDEX_CAL.expectedDefaultSettlementValue(targentCDX.getProtectionEnd(), adjCurves) * NOTIONAL;
+    System.out.println(expectedLoss);
+
+    //    adjCurves.withDefault(n)
   }
+
+  //  VOD - sensitivity to an instantaneous default for single names, or widest name default for index trades
+  //  JTD - per-name report for instantaneous default for index trades (decomposed)
+  //  VOD and JTD should be either curve recovery or pre-defined recovery
+  //  Index basis - expressed either as PV or in basis points
+  //  Recovery01 - should apply to curve, trade or curve + trade simultaneously.
+
+  //
+
+  //  private ISDACompliantYieldCurve bumpYieldCurve(final ISDACompliantYieldCurve curve, final double bumpAmount) {
+  //    final int n = curve.getNumberOfKnots();
+  //    final double[] bumped = curve.getKnotZeroRates();
+  //    for (int i = 0; i < n; i++) {
+  //      bumped[i] += bumpAmount;
+  //    }
+  //    return curve.withRates(bumped);
+  //  }
 }

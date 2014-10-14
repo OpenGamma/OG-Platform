@@ -20,6 +20,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class CDSIndexCalculator {
 
+  private static final double ONE_BPS = 1e-4;
   private final AnalyticCDSPricer _pricer;
 
   public CDSIndexCalculator() {
@@ -490,5 +491,90 @@ public class CDSIndexCalculator {
     final double q = indexCurve.getSurvivalProbability(timeToExpiry);
     final double d = (1 - defFrac) * lgd * (1 - q) + initialDefaultSettlement;
     return d;
+  }
+
+  /**
+   * the change in the price of a CDS when the yield curve is bumped by 1bps.
+   * @param indexCDS The CDS index
+   * @param indexCoupon The index coupon
+   * @param yieldCurve The yield curve
+   * @param intrinsicData Credit curves, weights and recovery rates of the intrinsic names
+   * @return parallel IR01
+   */
+  public double parallelIR01(CDSAnalytic indexCDS, double indexCoupon, ISDACompliantYieldCurve yieldCurve,
+      IntrinsicIndexDataBundle intrinsicData) {
+    ArgumentChecker.notNull(indexCDS, "indexCDS");
+    ArgumentChecker.notNull(yieldCurve, "yieldCurve");
+    ArgumentChecker.notNull(intrinsicData, "intrinsicData");
+    double pv = indexPV(indexCDS, indexCoupon, yieldCurve, intrinsicData, PriceType.DIRTY);
+    final int nKnots = yieldCurve.getNumberOfKnots();
+    final double[] rates = yieldCurve.getKnotZeroRates();
+    for (int i = 0; i < nKnots; i++) {
+      rates[i] += ONE_BPS;
+    }
+    ISDACompliantYieldCurve yieldCurveUp = yieldCurve.withRates(rates);
+    double pvUp = indexPV(indexCDS, indexCoupon, yieldCurveUp, intrinsicData, PriceType.DIRTY);
+    return pvUp - pv;
+  }
+
+  /**
+   * the change in the price of a CDS when zero rate at node points of the yield curve is bumped by 1bps.
+   * @param indexCDS The CDS index
+   * @param indexCoupon The index coupon
+   * @param yieldCurve The yield curve
+   * @param intrinsicData Credit curves, weights and recovery rates of the intrinsic names
+   * @return bucketed IR01
+   */
+  public double[] bucketedIR01(CDSAnalytic indexCDS, double indexCoupon, ISDACompliantYieldCurve yieldCurve,
+      IntrinsicIndexDataBundle intrinsicData) {
+    ArgumentChecker.notNull(indexCDS, "indexCDS");
+    ArgumentChecker.notNull(yieldCurve, "yieldCurve");
+    ArgumentChecker.notNull(intrinsicData, "intrinsicData");
+    double basePV = indexPV(indexCDS, indexCoupon, yieldCurve, intrinsicData, PriceType.DIRTY);
+    int n = yieldCurve.getNumberOfKnots();
+    double[] res = new double[n];
+    for (int i = 0; i < n; i++) {
+      ISDACompliantYieldCurve bumpedYieldCurve = yieldCurve.withRate(yieldCurve.getZeroRateAtIndex(i) + ONE_BPS, i);
+      double bumpedPV = indexPV(indexCDS, indexCoupon, bumpedYieldCurve, intrinsicData, PriceType.DIRTY);
+      res[i] = bumpedPV - basePV;
+    }
+    return res;
+  }
+
+  /**
+   * values on per-name default
+   * @param indexCDS The CDS index
+   * @param indexCoupon The index coupon
+   * @param yieldCurve The yield curve
+   * @param intrinsicData Credit curves, weights and recovery rates of the intrinsic names
+   * @return The jump to default
+   */
+  public double[] jumpToDefault(CDSAnalytic indexCDS, double indexCoupon, ISDACompliantYieldCurve yieldCurve,
+      IntrinsicIndexDataBundle intrinsicData) {
+    ArgumentChecker.notNull(indexCDS, "indexCDS");
+    ArgumentChecker.notNull(yieldCurve, "yieldCurve");
+    ArgumentChecker.notNull(intrinsicData, "intrinsicData");
+    int indexSize = intrinsicData.getIndexSize();
+    double[] res = new double[indexSize];
+    for (int i = 0; i < indexSize; ++i) {
+      if (intrinsicData.isDefaulted(i)) {
+        res[i] = 0.0;
+      } else {
+        res[i] = decomposedValueOnDefault(indexCDS, indexCoupon, yieldCurve, intrinsicData, i);
+      }
+    }
+    return res;
+  }
+
+  private double decomposedValueOnDefault(CDSAnalytic indexCDS, double indexCoupon, ISDACompliantYieldCurve yieldCurve,
+      IntrinsicIndexDataBundle intrinsicData, int singleName) {
+    double pv = indexPV(indexCDS, indexCoupon, yieldCurve, intrinsicData);
+    double protection = intrinsicData.getLGD(singleName) * intrinsicData.getWeight(singleName);
+    IntrinsicIndexDataBundle defaultedData = intrinsicData.withDefault(singleName);
+    double newPV = indexPV(indexCDS, indexCoupon, yieldCurve, defaultedData);
+    double singleNamePV = _pricer.pv(indexCDS, yieldCurve, intrinsicData.getCreditCurves()[singleName], indexCoupon) *
+        intrinsicData.getWeight(singleName);
+
+    return -pv + newPV + protection - singleNamePV;
   }
 }
