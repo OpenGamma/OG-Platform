@@ -17,6 +17,11 @@ Alternatively, run the **database-restore-tool** from *{OG install location}/pla
 
 Navigate to http://your-server-ip:8080/jax/configs to see your uploaded configurations
 
+Legal entities
+==============
+
+Navigate to http://your-server-ip:8080/jax/legalentities and paste the xml configuration from /resources/import-data/legalentities/, with the name 'United Kingdom Government', then add the legal entity.
+
 Loading time-series
 ===================
 
