@@ -93,7 +93,7 @@ public class SwapZeroCouponInflationDiscountingUsdE2ETest {
   private static final SwapFixedInflationZeroCouponDefinition ZCI_2_DEFINITION = 
       GENERATOR_ZCINFLATION_US.generateInstrument(ACCRUAL_START_DATE_2, RATE_FIXED_2, NOTIONAL, ZCI_2_ATTR);
   private static final InstrumentDerivative ZCI_2 = ZCI_2_DEFINITION.toDerivative(ACCRUAL_START_DATE_1, 
-      new ZonedDateTimeDoubleTimeSeries[] {HTS_CPI, HTS_CPI});
+      new ZonedDateTimeDoubleTimeSeries[] {HTS_CPI, HTS_CPI}); // TODO: empty hts
   
   private static final double TOLERANCE_PV = 1.0E-3;
   private static final double TOLERANCE_PV_DELTA = 1.0E-1;
@@ -125,6 +125,22 @@ public class SwapZeroCouponInflationDiscountingUsdE2ETest {
     MultipleCurrencyAmount pv3 = ZCI_2.accept(PVDIC, MULTICURVE_INFL_3);
     assertEquals("SwapZeroCouponInflationUsdDiscountingE2ETest: present value", 
         pv1.getAmount(USD), pv3.getAmount(USD), TOLERANCE_PV);
+  }
+  
+  @Test
+  public void presentValueAgedSeasonality() {
+    double pvExpectd = 557423.3817;
+    MultipleCurrencyAmount pv1 = ZCI_2.accept(PVDIC, MULTICURVE_INFL_1);
+    assertEquals("SwapZeroCouponInflationUsdDiscountingE2ETest: present value", 
+        pvExpectd, pv1.getAmount(USD), TOLERANCE_PV);
+  }
+  
+  @Test
+  public void presentValueAgedStart() {
+    double pvExpectd = 557423.3817;
+    MultipleCurrencyAmount pv1 = ZCI_2.accept(PVDIC, MULTICURVE_INFL_1);
+    assertEquals("SwapZeroCouponInflationUsdDiscountingE2ETest: present value", 
+        pvExpectd, pv1.getAmount(USD), TOLERANCE_PV);
   }
   
   @Test

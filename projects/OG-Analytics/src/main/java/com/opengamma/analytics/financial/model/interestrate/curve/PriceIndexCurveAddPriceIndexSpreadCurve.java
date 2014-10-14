@@ -9,6 +9,7 @@ import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
 
@@ -17,12 +18,14 @@ import com.opengamma.util.ArgumentChecker;
 /**
  *  PriceIndexCurve created by adding the price index of other curves.
  */
-public class PriceIndexCurveAddPriceIndexSpreadCurve extends PriceIndexCurveSimple {
+public class PriceIndexCurveAddPriceIndexSpreadCurve implements PriceIndexCurve {
 
+  /** The curve name. */
+  private final String _name; 
   /**
    * The array of underlying curves.
    */
-  private final PriceIndexCurveSimple[] _curves;
+  private final PriceIndexCurve[] _curves;
 
   /**
    * If -1 the rate of all curves, except the first one, will be subtracted from the first one. If +1, all the rates are added.
@@ -37,9 +40,9 @@ public class PriceIndexCurveAddPriceIndexSpreadCurve extends PriceIndexCurveSimp
    * @param curves  The array of underlying curves.
 
    */
-  public PriceIndexCurveAddPriceIndexSpreadCurve(final String name, final boolean substract, final PriceIndexCurveSimple... curves) {
-    super(curves[0].getCurve());
+  public PriceIndexCurveAddPriceIndexSpreadCurve(final String name, final boolean substract, final PriceIndexCurve... curves) {
     ArgumentChecker.notNull(curves, "Curves");
+    _name = name;
     _sign = substract ? -1.0 : 1.0;
     _curves = curves;
   }
@@ -79,7 +82,7 @@ public class PriceIndexCurveAddPriceIndexSpreadCurve extends PriceIndexCurveSimp
   @Override
   public int getNumberOfParameters() {
     int result = 0;
-    for (final PriceIndexCurveSimple curve : _curves) {
+    for (final PriceIndexCurve curve : _curves) {
       result += curve.getNumberOfParameters();
     }
     return result;
@@ -88,14 +91,28 @@ public class PriceIndexCurveAddPriceIndexSpreadCurve extends PriceIndexCurveSimp
   @Override
   public List<String> getUnderlyingCurvesNames() {
     final List<String> names = new ArrayList<>();
-    for (final PriceIndexCurveSimple curve : _curves) {
+    for (final PriceIndexCurve curve : _curves) {
       names.add(curve.getName());
     }
     return names;
   }
 
-  public PriceIndexCurveSimple[] getCurves() {
+  public PriceIndexCurve[] getCurves() {
     return _curves;
+  }
+
+  @Override
+  public String getName() {
+    return _name;
+  }
+
+  @Override
+  public int getNumberOfIntrinsicParameters(Set<String> curvesNames) {
+    int nb = 0;
+    for (int loopcurve = 0; loopcurve < _curves.length; loopcurve++) {
+      nb += _curves[loopcurve].getNumberOfIntrinsicParameters(curvesNames);
+    }
+    return nb;
   }
 
   @Override

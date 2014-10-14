@@ -47,6 +47,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
+import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurveSimple;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
@@ -228,7 +229,7 @@ public class InflationBuildingCurveWithDiscountTestEUR {
     final InflationProviderDiscount[] units = new InflationProviderDiscount[2];
     final CurveBuildingBlockBundle[] bb = new CurveBuildingBlockBundle[2];
     final YieldAndDiscountCurve[] curveDsc = new YieldAndDiscountCurve[2];
-    final PriceIndexCurveSimple[] curveInflation = new PriceIndexCurveSimple[2];
+    final PriceIndexCurve[] curveInflation = new PriceIndexCurve[2];
 
     for (int loopblock = 0; loopblock < 2; loopblock++) {
       units[loopblock] = CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(loopblock).getFirst();
@@ -244,10 +245,10 @@ public class InflationBuildingCurveWithDiscountTestEUR {
         ArrayUtils.toPrimitive(((YieldCurve) curveDsc[1]).getCurve().getXData()), TOLERANCE_CAL);
     assertArrayEquals("Curve construction: 1 unit / 3 units ", ArrayUtils.toPrimitive(((YieldCurve) curveDsc[0]).getCurve().getYData()),
         ArrayUtils.toPrimitive(((YieldCurve) curveDsc[1]).getCurve().getYData()), TOLERANCE_CAL);
-    assertArrayEquals("Curve construction: 1 unit / 3 units ", ArrayUtils.toPrimitive(curveInflation[0].getCurve().getXData()),
-        ArrayUtils.toPrimitive(curveInflation[1].getCurve().getXData()), TOLERANCE_CAL);
-    assertArrayEquals("Curve construction: 1 unit / 3 units ", ArrayUtils.toPrimitive(curveInflation[0].getCurve().getYData()),
-        ArrayUtils.toPrimitive(curveInflation[1].getCurve().getYData()), TOLERANCE_CAL);
+    assertArrayEquals("Curve construction: 1 unit / 3 units ", ArrayUtils.toPrimitive(((PriceIndexCurveSimple) curveInflation[0]).getCurve().getXData()),
+        ArrayUtils.toPrimitive(((PriceIndexCurveSimple) curveInflation[1]).getCurve().getXData()), TOLERANCE_CAL);
+    assertArrayEquals("Curve construction: 1 unit / 3 units ", ArrayUtils.toPrimitive(((PriceIndexCurveSimple) curveInflation[0]).getCurve().getYData()),
+        ArrayUtils.toPrimitive(((PriceIndexCurveSimple) curveInflation[1]).getCurve().getYData()), TOLERANCE_CAL);
   }
 
   @Test(enabled = false)
@@ -339,9 +340,11 @@ public class InflationBuildingCurveWithDiscountTestEUR {
       DEFINITIONS_UNITS_PLUS[0] = new InstrumentDefinition<?>[][] {DEFINITIONS_DSC_USD_PLUS };
       DEFINITIONS_UNITS_MINUS[0] = new InstrumentDefinition<?>[][] {DEFINITIONS_DSC_USD_MINUS };
       blockBundlesPlus.add(makeCurvesFromDefinitions(DEFINITIONS_UNITS_PLUS, GENERATORS_UNITS[0], NAMES_UNITS[0], KNOWN_DATA, PSIMQC, PSIMQCSC));
-      final Double[] parametersPlus = blockBundlesPlus.get(0).getFirst().getCurve(CURVE_NAME_CPI_EUR).getCurve().getYData();
+      PriceIndexCurve curvePlus = blockBundlesPlus.get(0).getFirst().getCurve(CURVE_NAME_CPI_EUR);
+      final Double[] parametersPlus = ((PriceIndexCurveSimple) curvePlus).getCurve().getYData();
       blockBundlesMinus.add(makeCurvesFromDefinitions(DEFINITIONS_UNITS_MINUS, GENERATORS_UNITS[0], NAMES_UNITS[0], KNOWN_DATA, PSIMQC, PSIMQCSC));
-      final Double[] parametersMinus = blockBundlesMinus.get(0).getFirst().getCurve(CURVE_NAME_CPI_EUR).getCurve().getYData();
+      PriceIndexCurve curveMinus = blockBundlesMinus.get(0).getFirst().getCurve(CURVE_NAME_CPI_EUR);
+      final Double[] parametersMinus = ((PriceIndexCurveSimple) curveMinus).getCurve().getYData();
       final Double[] parametersSensi = new Double[parametersMinus.length];
       DSC_USD_MARKET_QUOTES_BUMPED_PLUS[k] -= bump;
       DSC_USD_MARKET_QUOTES_BUMPED_MINUS[k] += bump;
@@ -365,9 +368,11 @@ public class InflationBuildingCurveWithDiscountTestEUR {
       DEFINITIONS_UNITS_PLUS[1] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD_USD_PLUS };
       DEFINITIONS_UNITS_MINUS[1] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD_USD_MINUS };
       blockBundlesPlus.add(makeCurvesFromDefinitions(DEFINITIONS_UNITS_PLUS, GENERATORS_UNITS[0], NAMES_UNITS[0], KNOWN_DATA, PSIMQC, PSIMQCSC));
-      final Double[] parametersPlus = blockBundlesPlus.get(0).getFirst().getCurve(CURVE_NAME_CPI_EUR).getCurve().getYData();
+      PriceIndexCurve curvePlus = blockBundlesPlus.get(0).getFirst().getCurve(CURVE_NAME_CPI_EUR);
+      final Double[] parametersPlus = ((PriceIndexCurveSimple) curvePlus).getCurve().getYData();
       blockBundlesMinus.add(makeCurvesFromDefinitions(DEFINITIONS_UNITS_MINUS, GENERATORS_UNITS[0], NAMES_UNITS[0], KNOWN_DATA, PSIMQC, PSIMQCSC));
-      final Double[] parametersMinus = blockBundlesMinus.get(0).getFirst().getCurve(CURVE_NAME_CPI_EUR).getCurve().getYData();
+      PriceIndexCurve curveMinus = blockBundlesMinus.get(0).getFirst().getCurve(CURVE_NAME_CPI_EUR);
+      final Double[] parametersMinus = ((PriceIndexCurveSimple) curveMinus).getCurve().getYData();
       final Double[] parametersSensi = new Double[parametersMinus.length];
       CPI_EUR_MARKET_QUOTES_PLUS[k] -= bump;
       CPI_EUR_MARKET_QUOTES_MINUS[k] += bump;

@@ -5,8 +5,9 @@
  */
 package com.opengamma.analytics.financial.curve.inflation.generator;
 
-import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurveSimple;
+import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurveAddPriceIndexSpreadCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurveSimple;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
 import com.opengamma.util.ArgumentChecker;
@@ -57,10 +58,10 @@ public class GeneratorPriceIndexCurveAddPriceIndexExisting extends GeneratorPric
   }
 
   @Override
-  public PriceIndexCurveSimple generateCurve(String name, InflationProviderInterface inflation, double[] parameters) {
+  public PriceIndexCurve generateCurve(String name, InflationProviderInterface inflation, double[] parameters) {
     if (inflation instanceof InflationProviderDiscount) { // TODO: improve the way the curves are generated
-      PriceIndexCurveSimple existingCurve = ((InflationProviderDiscount) inflation).getCurve(_existingCurveName);
-      PriceIndexCurveSimple newCurve = _generator.generateCurve(name + "-0", inflation, parameters);
+      PriceIndexCurve existingCurve = ((InflationProviderDiscount) inflation).getCurve(_existingCurveName);
+      PriceIndexCurve newCurve = _generator.generateCurve(name + "-0", inflation, parameters);
       return new PriceIndexCurveAddPriceIndexSpreadCurve(name, _substract, existingCurve, newCurve);
 
     }

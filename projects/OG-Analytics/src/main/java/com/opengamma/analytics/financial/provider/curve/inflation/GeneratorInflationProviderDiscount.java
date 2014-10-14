@@ -14,7 +14,7 @@ import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorC
 import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorYDCurve;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
-import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurveSimple;
+import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
@@ -131,11 +131,11 @@ public class GeneratorInflationProviderDiscount extends Function1D<DoubleMatrix1
       }
       if (generator instanceof GeneratorPriceIndexCurve) {
         final GeneratorPriceIndexCurve inflationGenerator = (GeneratorPriceIndexCurve) generator;
-        final PriceIndexCurveSimple inflationCurve = inflationGenerator.generateCurve(name, provider, paramCurve);
+        final PriceIndexCurve inflationCurve = inflationGenerator.generateCurve(name, provider, paramCurve);
         if (_inflationMap.containsKey(name)) {
           final IndexPrice[] indexes = _inflationMap.get(name);
-          for (final IndexPrice indexe : indexes) {
-            provider.setCurve(indexe, inflationCurve);
+          for (final IndexPrice index : indexes) {
+            provider.setCurve(index, inflationCurve);
           }
 
         }

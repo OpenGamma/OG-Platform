@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorCurve;
@@ -57,9 +58,31 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
+/**
+ * Utilities class for curve calibration tests and tutorials.
+ */
 public class CurveCalibrationTestsUtils {
   
   private static final ZonedDateTimeDoubleTimeSeries TS_EMPTY = ImmutableZonedDateTimeDoubleTimeSeries.ofEmptyUTC();
+  
+  public static void exportInflationCurve(
+      ZonedDateTime calibrationDate, ZonedDateTime startDate, InflationProviderDiscount multicurve, IndexPrice index,
+      File file, int nbDates, int jumpMonths) {
+    ZonedDateTime[] scheduleDate = ScheduleCalculator.getUnadjustedDateSchedule(startDate, 
+        startDate.plusMonths(nbDates * jumpMonths), Period.ofMonths(jumpMonths), true, false);
+    final double[] indexValue = new double[nbDates];
+    final double[] time = new double[nbDates];
+    try (FileWriter writer = new FileWriter(file)) {
+      for (int loopdate = 0; loopdate < nbDates; loopdate++) {
+        time[loopdate] = TimeCalculator.getTimeBetween(calibrationDate, scheduleDate[loopdate]);
+        indexValue[loopdate] = multicurve.getPriceIndex(index, time[loopdate]);
+        writer.append(0.0 + "," + time[loopdate] + "," + indexValue[loopdate] + "\n");
+      }
+      writer.flush();
+    } catch (final IOException e) {
+      e.printStackTrace();
+    }
+  }
 
   public static void exportIborForwardIborCurve(
       ZonedDateTime calibrationDate, MulticurveProviderInterface multicurve, IborIndex index, Calendar cal,

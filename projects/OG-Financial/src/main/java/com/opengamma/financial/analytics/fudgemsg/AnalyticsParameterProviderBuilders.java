@@ -26,6 +26,7 @@ import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.analytics.financial.legalentity.LegalEntityFilter;
+import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurveSimple;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.definition.G2ppPiecewiseConstantParameters;
@@ -373,7 +374,7 @@ public final class AnalyticsParameterProviderBuilders {
       final MulticurveProviderDiscount yieldCurves = deserializer.fieldValueToObject(MulticurveProviderDiscount.class, message.getByName(YIELD_CURVES_FIELD));
       final List<FudgeField> indexFields = message.getAllByName(PRICE_INDEX_FIELD);
       final List<FudgeField> indexCurveFields = message.getAllByName(PRICE_INDEX_CURVE_FIELD);
-      final Map<IndexPrice, PriceIndexCurveSimple> priceIndexCurves = new LinkedHashMap<>();
+      final Map<IndexPrice, PriceIndexCurve> priceIndexCurves = new LinkedHashMap<>();
       final int n = indexFields.size();
       for (int i = 0; i < n; i++) {
         final IndexPrice index = deserializer.fudgeMsgToObject(IndexPrice.class, (FudgeMsg) indexFields.get(i).getValue());
@@ -386,8 +387,8 @@ public final class AnalyticsParameterProviderBuilders {
     @Override
     protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final InflationProviderDiscount object) {
       serializer.addToMessageWithClassHeaders(message, YIELD_CURVES_FIELD, null, object.getMulticurveProvider());
-      final Map<IndexPrice, PriceIndexCurveSimple> priceIndexCurves = object.getPriceIndexCurves();
-      for (final Map.Entry<IndexPrice, PriceIndexCurveSimple> entry : priceIndexCurves.entrySet()) {
+      final Map<IndexPrice, PriceIndexCurve> priceIndexCurves = object.getPriceIndexCurves();
+      for (final Map.Entry<IndexPrice, PriceIndexCurve> entry : priceIndexCurves.entrySet()) {
         serializer.addToMessageWithClassHeaders(message, PRICE_INDEX_FIELD, null, entry.getKey());
         serializer.addToMessageWithClassHeaders(message, PRICE_INDEX_CURVE_FIELD, null, entry.getValue());
       }

@@ -16,6 +16,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.analytics.financial.legalentity.LegalEntityFilter;
+import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurveSimple;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
@@ -79,10 +80,11 @@ public class ParameterSensitivityIssuerInflationMulticurveDiscountInterpolatedFD
     // Inflation
     final Set<IndexPrice> indexPrice = inflationIssuer.getPriceIndexes();
     for (final IndexPrice index : indexPrice) {
-      final PriceIndexCurveSimple curveIndex = inflationIssuer.getCurve(index);
-
-      ArgumentChecker.isTrue(curveIndex.getCurve() instanceof InterpolatedDoublesCurve, "Yield curve should be based on InterpolatedDoublesCurve");
-      final InterpolatedDoublesCurve curveInt = (InterpolatedDoublesCurve) curveIndex.getCurve();
+      final PriceIndexCurve curveIndex = inflationIssuer.getCurve(index);
+      ArgumentChecker.isTrue(curveIndex instanceof PriceIndexCurveSimple, "PriceIndexCurve should be of type PriceIndexCurveSimple");
+      PriceIndexCurveSimple curveIndexSimple = (PriceIndexCurveSimple) curveIndex;
+      ArgumentChecker.isTrue(curveIndexSimple.getCurve() instanceof InterpolatedDoublesCurve, "Yield curve should be based on InterpolatedDoublesCurve");
+      final InterpolatedDoublesCurve curveInt = (InterpolatedDoublesCurve) curveIndexSimple.getCurve();
       final int nbNodePoint = curveInt.getXDataAsPrimitive().length;
       final double[][] sensitivity = new double[nbCcy][nbNodePoint];
       for (int loopnode = 0; loopnode < nbNodePoint; loopnode++) {

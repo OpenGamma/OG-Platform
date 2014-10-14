@@ -26,6 +26,7 @@ import com.opengamma.analytics.financial.legalentity.LegalEntityFilter;
 import com.opengamma.analytics.financial.legalentity.LegalEntityRegion;
 import com.opengamma.analytics.financial.legalentity.LegalEntitySector;
 import com.opengamma.analytics.financial.model.interestrate.curve.DiscountCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurveSimple;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
@@ -173,7 +174,7 @@ public class AnalyticsParameterProviderBuildersTest extends AnalyticsTestBase {
     overnight.put(new IndexON("NAME1", Currency.USD, DayCounts.ACT_360, 1), new YieldCurve("E", ConstantDoublesCurve.from(0.003, "e")));
     overnight.put(new IndexON("NAME2", Currency.EUR, DayCounts.ACT_360, 0), new YieldCurve("F", ConstantDoublesCurve.from(0.006, "f")));
     final MulticurveProviderDiscount provider = new MulticurveProviderDiscount(discounting, ibor, overnight, matrix);
-    final Map<IndexPrice, PriceIndexCurveSimple> curves = new LinkedHashMap<>();
+    final Map<IndexPrice, PriceIndexCurve> curves = new LinkedHashMap<>();
     curves.put(new IndexPrice("CPI1", Currency.USD), new PriceIndexCurveSimple(ConstantDoublesCurve.from(0.02, "A")));
     curves.put(new IndexPrice("CPI2", Currency.EUR), new PriceIndexCurveSimple(ConstantDoublesCurve.from(0.03, "B")));
     final InflationProviderDiscount inflation = new InflationProviderDiscount(provider, curves);

@@ -13,7 +13,7 @@ import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Store the details and generate the required curve. The curve is interpolated on the discount factor.
+ * Store the details and generate the required curve. The curve is interpolated on the price index.
  * Only the lastTimeCalculator is stored. The node are computed from the instruments.
  */
 public class GeneratorPriceIndexCurveInterpolated extends GeneratorPriceIndexCurve {

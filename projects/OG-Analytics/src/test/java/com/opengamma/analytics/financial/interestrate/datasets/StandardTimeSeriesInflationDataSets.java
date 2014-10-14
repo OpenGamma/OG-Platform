@@ -71,6 +71,16 @@ public class StandardTimeSeriesInflationDataSets {
   public static ZonedDateTimeDoubleTimeSeries timeSeriesUsCpi(ZonedDateTime endDate) {
     return USCPI_TIME_SERIES.subSeries(DateUtils.getUTCDate(2005, 1, 1), endDate);
   }
+  
+  /**
+   * Returns the US CPU index time series from startDate (inclusive) up to the endDate (exclusive).
+   * @param startDate The start date.
+   * @param endDate The end date.
+   * @return The time series.
+   */
+  public static ZonedDateTimeDoubleTimeSeries timeSeriesUsCpi(ZonedDateTime startDate, ZonedDateTime endDate) {
+    return USCPI_TIME_SERIES.subSeries(startDate, endDate);
+  }
 
 
 }

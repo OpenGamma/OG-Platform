@@ -7,15 +7,16 @@ package com.opengamma.analytics.financial.interestrate.datasets;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
-import org.threeten.bp.temporal.TemporalAdjuster;
 import org.threeten.bp.temporal.TemporalAdjusters;
 
 import com.opengamma.analytics.financial.curve.inflation.generator.GeneratorPriceIndexCurve;
-import com.opengamma.analytics.financial.curve.inflation.generator.GeneratorPriceIndexCurveAddSeasonality;
+import com.opengamma.analytics.financial.curve.inflation.generator.GeneratorPriceIndexCurveInterpolatedAnchor;
+import com.opengamma.analytics.financial.curve.inflation.generator.GeneratorPriceIndexCurveMultiplyFixedCurve;
 import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorCurve;
 import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorYDCurve;
 import com.opengamma.analytics.financial.datasets.CalendarUSD;
@@ -33,6 +34,7 @@ import com.opengamma.analytics.financial.instrument.index.IndexPriceMaster;
 import com.opengamma.analytics.financial.model.interestrate.curve.SeasonalCurve;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteDiscountingCalculator;
+import com.opengamma.analytics.financial.provider.calculator.generic.LastFixingEndTimeCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflation.ParSpreadInflationMarketQuoteCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflation.ParSpreadInflationMarketQuoteDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
@@ -43,11 +45,17 @@ import com.opengamma.analytics.financial.provider.curve.multicurve.MulticurveDis
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
+import com.opengamma.analytics.math.curve.DoublesCurve;
+import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
+import com.opengamma.analytics.math.curve.MultiplyCurveSpreadFunction;
+import com.opengamma.analytics.math.curve.SpreadDoublesCurve;
+import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
+import com.opengamma.analytics.math.interpolation.Interpolator1D;
+import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -78,7 +86,14 @@ public class StandardDataSetsInflationUSD {
   private static final GeneratorPriceIndexCurve GENERATOR_PI_FIX_LIN = 
       CurveCalibrationConventionDataSets.generatorPiFixLin();
   private static final GeneratorYDCurve GENERATOR_YD_MAT_LIN = 
-      CurveCalibrationConventionDataSets.generatorYDMatLin();  
+      CurveCalibrationConventionDataSets.generatorYDMatLin();
+  private static final Interpolator1D INTERPOLATOR_STEP_FLAT =
+      CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.STEP,
+          Interpolator1DFactory.FLAT_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+  private static final Interpolator1D INTERPOLATOR_LINEAR = 
+      CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, 
+          Interpolator1DFactory.FLAT_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+  private static final LastFixingEndTimeCalculator LAST_FIXING_END_CALCULATOR = LastFixingEndTimeCalculator.getInstance();
   public static final double[] SEASONAL_FACTORS = 
     {1.005, 1.001, 1.01, .999, .998, .9997, 1.004, 1.006, .994, .993, .9991 };
   
@@ -237,29 +252,125 @@ public class StandardDataSetsInflationUSD {
   /**
    * Returns a set of calibrated curve: dsc/on with OIS and US CPI with zero-coupon swaps.
    * The curves are calibrated as two units in a unique calibration.
+   * Multiplicative seasonality adjustment is included in the curve.
    * @param calibrationDate The calibration date.
    * @return  The calibrated curves and Jacobians.
    */
   public static Pair<InflationProviderDiscount, CurveBuildingBlockBundle> getCurvesUsdOisUsCpiSeasonality(
       ZonedDateTime calibrationDate) {
+    ZonedDateTimeDoubleTimeSeries htsCpi = StandardTimeSeriesInflationDataSets.timeSeriesUsCpi(
+        calibrationDate.minusMonths(7).with(TemporalAdjusters.lastDayOfMonth()), calibrationDate);
+    List<ZonedDateTime> timesList = htsCpi.times();
     // Create seasonal adjustments
-    ZonedDateTime calibrationMinus3MEom = 
-        calibrationDate.minusMonths(3).with(TemporalAdjusters.lastDayOfMonth());
-    ZonedDateTime[] seasonalityDate = ScheduleCalculator.getUnadjustedDateSchedule(calibrationMinus3MEom, 
-        calibrationMinus3MEom.plusYears(30), Period.ofMonths(1), true, false);
+    ZonedDateTime currentDataEnd = timesList.get(timesList.size()-1);
+    ZonedDateTime[] seasonalityDate = ScheduleCalculator.getUnadjustedDateSchedule(currentDataEnd, 
+        currentDataEnd.plusYears(30), Period.ofMonths(1), true, false);
     double[] seasonalStep = new double[seasonalityDate.length];
     for (int loopins = 0; loopins < seasonalityDate.length; loopins++) {
         seasonalStep[loopins] = TimeCalculator.getTimeBetween(calibrationDate, seasonalityDate[loopins]);
     }
     SeasonalCurve seasonalCurve = new SeasonalCurve(seasonalStep, SEASONAL_FACTORS, false);
     GeneratorPriceIndexCurve genInfSeasonal = 
-        new GeneratorPriceIndexCurveAddSeasonality(GENERATOR_PI_FIX_LIN, seasonalCurve);
+        new GeneratorPriceIndexCurveMultiplyFixedCurve(GENERATOR_PI_FIX_LIN, seasonalCurve);
     InstrumentDefinition<?>[] oisDefinition = CurveCalibrationTestsUtils.getDefinitions(calibrationDate, NOTIONAL,
         OIS_MARKET_QUOTES, DSC_1_USD_GENERATORS, DSC_1_USD_ATTR);
     InstrumentDefinition<?>[] inflDefinition = CurveCalibrationTestsUtils.getDefinitions(calibrationDate, NOTIONAL,
         CPI_USD_MARKET_QUOTES, HICP_USD_GENERATORS, HICP_USD_ATTR);
     InstrumentDefinition<?>[][][] unitDefinition = new InstrumentDefinition<?>[][][] {{oisDefinition}, {inflDefinition}};
     GeneratorCurve[][] generator = new GeneratorCurve[][] {{GENERATOR_YD_MAT_LIN}, {genInfSeasonal}};
+    String[][] namesCurves = new String[][] {{CURVE_NAME_USD_OIS}, {CURVE_NAME_CPI_USD}};
+    Map<IndexON, ZonedDateTimeDoubleTimeSeries> htsOn = getOnHts(calibrationDate, false);
+    InflationProviderDiscount knownDataInflation = new InflationProviderDiscount(FX_MATRIX);
+    Pair<InflationProviderDiscount, CurveBuildingBlockBundle> multicurveInflation = 
+        CurveCalibrationTestsUtils.makeCurvesFromDefinitionsInflation(calibrationDate, unitDefinition, 
+            generator, namesCurves, knownDataInflation, new CurveBuildingBlockBundle(), PSIMQC, PSIMQCSDC, DSC_MAP,
+            FWD_ON_MAP, FWD_IBOR_MAP, USD_HICP_MAP, 
+            CURVE_BUILDING_REPOSITORY_INFLATION, htsOn, HTS_IBOR, getCpiHts(calibrationDate));
+    return multicurveInflation;
+  }
+  
+  /**
+   * Returns a set of calibrated curve: dsc/on with OIS and US CPI with zero-coupon swaps.
+   * The curves are calibrated as two units in a unique calibration.
+   * The inflation curve start with the known data (CPI up to calibration date).
+   * @param calibrationDate The calibration date.
+   * @return  The calibrated curves and Jacobians.
+   */
+  public static Pair<InflationProviderDiscount, CurveBuildingBlockBundle> getCurvesUsdOisUsCpiCurrent(
+      ZonedDateTime calibrationDate) {
+    ZonedDateTimeDoubleTimeSeries htsCpi = StandardTimeSeriesInflationDataSets.timeSeriesUsCpi(
+        calibrationDate.minusMonths(7).with(TemporalAdjusters.lastDayOfMonth()), calibrationDate);
+    List<ZonedDateTime> timesList = htsCpi.times();
+    List<Double> valuesList = htsCpi.values();
+    int nbTimes = timesList.size();
+    Double[] times = new Double[nbTimes];
+    Double[] values = valuesList.toArray(new Double[0]);
+    for(int i=0; i<nbTimes; i++) {
+      times[i] = TimeCalculator.getTimeBetween(calibrationDate, timesList.get(i));
+    }
+    InterpolatedDoublesCurve startCurve = new InterpolatedDoublesCurve(times, values, INTERPOLATOR_STEP_FLAT, true);
+    GeneratorPriceIndexCurve generatorFixLinAnchor = new GeneratorPriceIndexCurveInterpolatedAnchor(
+        LAST_FIXING_END_CALCULATOR, INTERPOLATOR_LINEAR, times[nbTimes-1]);
+    GeneratorPriceIndexCurve genInfCurrent = 
+        new GeneratorPriceIndexCurveMultiplyFixedCurve(generatorFixLinAnchor, startCurve);
+    InstrumentDefinition<?>[] oisDefinition = CurveCalibrationTestsUtils.getDefinitions(calibrationDate, NOTIONAL,
+        OIS_MARKET_QUOTES, DSC_1_USD_GENERATORS, DSC_1_USD_ATTR);
+    InstrumentDefinition<?>[] inflDefinition = CurveCalibrationTestsUtils.getDefinitions(calibrationDate, NOTIONAL,
+        CPI_USD_MARKET_QUOTES, HICP_USD_GENERATORS, HICP_USD_ATTR);
+    InstrumentDefinition<?>[][][] unitDefinition = new InstrumentDefinition<?>[][][] {{oisDefinition}, {inflDefinition}};
+    GeneratorCurve[][] generator = new GeneratorCurve[][] {{GENERATOR_YD_MAT_LIN}, {genInfCurrent}};
+    String[][] namesCurves = new String[][] {{CURVE_NAME_USD_OIS}, {CURVE_NAME_CPI_USD}};
+    Map<IndexON, ZonedDateTimeDoubleTimeSeries> htsOn = getOnHts(calibrationDate, false);
+    InflationProviderDiscount knownDataInflation = new InflationProviderDiscount(FX_MATRIX);
+    Pair<InflationProviderDiscount, CurveBuildingBlockBundle> multicurveInflation = 
+        CurveCalibrationTestsUtils.makeCurvesFromDefinitionsInflation(calibrationDate, unitDefinition, 
+            generator, namesCurves, knownDataInflation, new CurveBuildingBlockBundle(), PSIMQC, PSIMQCSDC, DSC_MAP,
+            FWD_ON_MAP, FWD_IBOR_MAP, USD_HICP_MAP, 
+            CURVE_BUILDING_REPOSITORY_INFLATION, htsOn, HTS_IBOR, getCpiHts(calibrationDate));
+    return multicurveInflation;
+  }
+  
+  /**
+   * Returns a set of calibrated curve: dsc/on with OIS and US CPI with zero-coupon swaps.
+   * The curves are calibrated as two units in a unique calibration.
+   * The inflation curve start with the known data (CPI up to calibration date) and a seasonality is used.
+   * @param calibrationDate The calibration date.
+   * @return  The calibrated curves and Jacobians.
+   */
+  public static Pair<InflationProviderDiscount, CurveBuildingBlockBundle> getCurvesUsdOisUsCpiCurrentSeasonality(
+      ZonedDateTime calibrationDate) {
+    ZonedDateTimeDoubleTimeSeries htsCpi = StandardTimeSeriesInflationDataSets.timeSeriesUsCpi(
+        calibrationDate.minusMonths(7).with(TemporalAdjusters.lastDayOfMonth()), calibrationDate);
+    List<ZonedDateTime> timesList = htsCpi.times();
+    List<Double> valuesList = htsCpi.values();
+    int nbTimes = timesList.size();
+    Double[] times = new Double[nbTimes];
+    Double[] values = valuesList.toArray(new Double[0]);
+    for(int i=0; i<nbTimes; i++) {
+      times[i] = TimeCalculator.getTimeBetween(calibrationDate, timesList.get(i));
+    }
+    InterpolatedDoublesCurve startCurve = new InterpolatedDoublesCurve(times, values, INTERPOLATOR_STEP_FLAT, true);
+    // Create seasonal adjustments
+    ZonedDateTime currentDataEnd = timesList.get(timesList.size()-1);
+    ZonedDateTime[] seasonalityDate = ScheduleCalculator.getUnadjustedDateSchedule(currentDataEnd, 
+        currentDataEnd.plusYears(30), Period.ofMonths(1), true, false);
+    double[] seasonalStep = new double[seasonalityDate.length];
+    for (int loopins = 0; loopins < seasonalityDate.length; loopins++) {
+        seasonalStep[loopins] = TimeCalculator.getTimeBetween(calibrationDate, seasonalityDate[loopins]);
+    }
+    SeasonalCurve seasonalCurve = new SeasonalCurve(seasonalStep, SEASONAL_FACTORS, false);
+    // Total adjustment as multiplication between seasonal and start.
+    DoublesCurve adjustmentCurve = new SpreadDoublesCurve(MultiplyCurveSpreadFunction.getInstance(), startCurve, seasonalCurve);
+    GeneratorPriceIndexCurve generatorFixLinAnchor = new GeneratorPriceIndexCurveInterpolatedAnchor(
+        LAST_FIXING_END_CALCULATOR, INTERPOLATOR_LINEAR, times[nbTimes-1]);
+    GeneratorPriceIndexCurve genInfCurrent = 
+        new GeneratorPriceIndexCurveMultiplyFixedCurve(generatorFixLinAnchor, adjustmentCurve);
+    InstrumentDefinition<?>[] oisDefinition = CurveCalibrationTestsUtils.getDefinitions(calibrationDate, NOTIONAL,
+        OIS_MARKET_QUOTES, DSC_1_USD_GENERATORS, DSC_1_USD_ATTR);
+    InstrumentDefinition<?>[] inflDefinition = CurveCalibrationTestsUtils.getDefinitions(calibrationDate, NOTIONAL,
+        CPI_USD_MARKET_QUOTES, HICP_USD_GENERATORS, HICP_USD_ATTR);
+    InstrumentDefinition<?>[][][] unitDefinition = new InstrumentDefinition<?>[][][] {{oisDefinition}, {inflDefinition}};
+    GeneratorCurve[][] generator = new GeneratorCurve[][] {{GENERATOR_YD_MAT_LIN}, {genInfCurrent}};
     String[][] namesCurves = new String[][] {{CURVE_NAME_USD_OIS}, {CURVE_NAME_CPI_USD}};
     Map<IndexON, ZonedDateTimeDoubleTimeSeries> htsOn = getOnHts(calibrationDate, false);
     InflationProviderDiscount knownDataInflation = new InflationProviderDiscount(FX_MATRIX);

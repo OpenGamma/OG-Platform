@@ -8,8 +8,9 @@ package com.opengamma.analytics.financial.curve.inflation.generator;
 import java.util.Arrays;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurveSimple;
+import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurveAddPriceIndexSpreadCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurveSimple;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
 import com.opengamma.util.ArgumentChecker;
 
@@ -55,10 +56,10 @@ public class GeneratorPriceIndexCurveAddPriceIndex extends GeneratorPriceIndexCu
   }
 
   @Override
-  public PriceIndexCurveSimple generateCurve(String name, double[] x) {
+  public PriceIndexCurve generateCurve(String name, double[] x) {
     ArgumentChecker.notNull(name, "Name");
     ArgumentChecker.isTrue(x.length == getNumberOfParameter(), "Incorrect number of parameters");
-    PriceIndexCurveSimple[] underlyingCurves = new PriceIndexCurveSimple[_nbGenerators];
+    PriceIndexCurve[] underlyingCurves = new PriceIndexCurveSimple[_nbGenerators];
     int index = 0;
     for (int loopgen = 0; loopgen < _nbGenerators; loopgen++) {
       double[] paramCurve = Arrays.copyOfRange(x, index, index + _generators[loopgen].getNumberOfParameter());
@@ -69,7 +70,7 @@ public class GeneratorPriceIndexCurveAddPriceIndex extends GeneratorPriceIndexCu
   }
 
   @Override
-  public PriceIndexCurveSimple generateCurve(String name, InflationProviderInterface inflation, double[] parameters) {
+  public PriceIndexCurve generateCurve(String name, InflationProviderInterface inflation, double[] parameters) {
     return generateCurve(name, parameters);
   }
 

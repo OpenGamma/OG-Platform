@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.model.interestrate.curve;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
 
@@ -17,12 +18,14 @@ import com.opengamma.util.ArgumentChecker;
  * No parameter is associated to the fixed curve.
  * The fixed curve can be used for additive seasonal adjustment.
  */
-public class PriceIndexCurveAddFixedCurve extends PriceIndexCurveSimple {
+public class PriceIndexCurveAddFixedCurve implements PriceIndexCurve {
 
+  /** The curve name. */
+  private final String _name; 
   /**
    * The main underlying curve.
    */
-  private final PriceIndexCurveSimple _curve;
+  private final PriceIndexCurve _curve;
   /**
    * The fixed seasonal curve.
    */
@@ -35,10 +38,10 @@ public class PriceIndexCurveAddFixedCurve extends PriceIndexCurveSimple {
    * @param curve The main curve.
    * @param seasonalCurve The fixed curve (as a spread).
    */
-  public PriceIndexCurveAddFixedCurve(final String name, final PriceIndexCurveSimple curve, final SeasonalCurve seasonalCurve) {
-    super(curve.getCurve());
+  public PriceIndexCurveAddFixedCurve(final String name, final PriceIndexCurve curve, final SeasonalCurve seasonalCurve) {
     ArgumentChecker.notNull(curve, "Curve");
     ArgumentChecker.notNull(seasonalCurve, "Curve fixed");
+    _name = name;
     _curve = curve;
     _seasonalCurve = seasonalCurve;
   }
@@ -67,6 +70,16 @@ public class PriceIndexCurveAddFixedCurve extends PriceIndexCurveSimple {
   @Override
   public List<String> getUnderlyingCurvesNames() {
     return new ArrayList<>();
+  }
+
+  @Override
+  public String getName() {
+    return _name;
+  }
+
+  @Override
+  public int getNumberOfIntrinsicParameters(Set<String> curvesNames) {
+    return _curve.getNumberOfIntrinsicParameters(curvesNames);
   }
 
   @Override

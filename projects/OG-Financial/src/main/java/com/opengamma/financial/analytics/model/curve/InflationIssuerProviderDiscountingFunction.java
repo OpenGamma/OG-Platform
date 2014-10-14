@@ -39,7 +39,7 @@ import com.opengamma.analytics.financial.instrument.payment.CouponFixedCompoundi
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedInflationZeroCouponDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurveSimple;
+import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
 import com.opengamma.analytics.financial.provider.calculator.inflation.ParSpreadInflationMarketQuoteCurveSensitivityIssuerDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflation.ParSpreadInflationMarketQuoteIssuerDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
@@ -393,7 +393,7 @@ public class InflationIssuerProviderDiscountingFunction extends
             .withoutAny(CURVE_SENSITIVITY_CURRENCY)
             .with(CURVE, curveName)
             .get();
-        final PriceIndexCurveSimple curve = provider.getInflationProvider().getCurve(curveName);
+        final PriceIndexCurve curve = provider.getInflationProvider().getCurve(curveName);
         if (curve == null) {
           s_logger.error("Could not get curve called {} from configuration {}", curveName, getCurveConstructionConfigurationName());
         } else {

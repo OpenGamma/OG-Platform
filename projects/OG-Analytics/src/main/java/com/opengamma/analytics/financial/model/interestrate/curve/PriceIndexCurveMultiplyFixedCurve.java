@@ -24,7 +24,7 @@ public class PriceIndexCurveMultiplyFixedCurve  implements PriceIndexCurve {
   /** The curve name. */
   private final String _name; 
   /** The main underlying curve. */
-  private final PriceIndexCurveSimple _curve;
+  private final PriceIndexCurve _curve;
   /** The fixed curve. */
   private final DoublesCurve _fixedCurve;
 
@@ -35,7 +35,7 @@ public class PriceIndexCurveMultiplyFixedCurve  implements PriceIndexCurve {
    * @param curve The main curve.
    * @param fixedCurve The fixed curve (as a multiplicative spread).
    */
-  public PriceIndexCurveMultiplyFixedCurve(final String name, final PriceIndexCurveSimple curve, 
+  public PriceIndexCurveMultiplyFixedCurve(final String name, final PriceIndexCurve curve, 
       final DoublesCurve fixedCurve) {
     ArgumentChecker.notNull(curve, "Curve");
     ArgumentChecker.notNull(fixedCurve, "Curve fixed");

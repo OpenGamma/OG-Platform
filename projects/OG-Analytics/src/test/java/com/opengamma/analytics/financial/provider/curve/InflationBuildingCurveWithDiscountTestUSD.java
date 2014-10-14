@@ -47,6 +47,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
+import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurveSimple;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
@@ -229,7 +230,7 @@ public class InflationBuildingCurveWithDiscountTestUSD {
     final InflationProviderDiscount[] units = new InflationProviderDiscount[2];
     final CurveBuildingBlockBundle[] bb = new CurveBuildingBlockBundle[2];
     final YieldAndDiscountCurve[] curveDsc = new YieldAndDiscountCurve[2];
-    final PriceIndexCurveSimple[] curveInflation = new PriceIndexCurveSimple[2];
+    final PriceIndexCurve[] curveInflation = new PriceIndexCurve[2];
 
     for (int loopblock = 0; loopblock < 2; loopblock++) {
       units[loopblock] = CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(loopblock).getFirst();
@@ -245,10 +246,10 @@ public class InflationBuildingCurveWithDiscountTestUSD {
         ArrayUtils.toPrimitive(((YieldCurve) curveDsc[1]).getCurve().getXData()), TOLERANCE_CAL);
     assertArrayEquals("Curve construction: 1 unit / 3 units ", ArrayUtils.toPrimitive(((YieldCurve) curveDsc[0]).getCurve().getYData()),
         ArrayUtils.toPrimitive(((YieldCurve) curveDsc[1]).getCurve().getYData()), TOLERANCE_CAL);
-    assertArrayEquals("Curve construction: 1 unit / 3 units ", ArrayUtils.toPrimitive(curveInflation[0].getCurve().getXData()),
-        ArrayUtils.toPrimitive(curveInflation[1].getCurve().getXData()), TOLERANCE_CAL);
-    assertArrayEquals("Curve construction: 1 unit / 3 units ", ArrayUtils.toPrimitive(curveInflation[0].getCurve().getYData()),
-        ArrayUtils.toPrimitive(curveInflation[1].getCurve().getYData()), TOLERANCE_CAL);
+    assertArrayEquals("Curve construction: 1 unit / 3 units ", ArrayUtils.toPrimitive(((PriceIndexCurveSimple) curveInflation[0]).getCurve().getXData()),
+        ArrayUtils.toPrimitive(((PriceIndexCurveSimple) curveInflation[1]).getCurve().getXData()), TOLERANCE_CAL);
+    assertArrayEquals("Curve construction: 1 unit / 3 units ", ArrayUtils.toPrimitive(((PriceIndexCurveSimple) curveInflation[0]).getCurve().getYData()),
+        ArrayUtils.toPrimitive(((PriceIndexCurveSimple) curveInflation[1]).getCurve().getYData()), TOLERANCE_CAL);
   }
 
   @Test(enabled = false)
