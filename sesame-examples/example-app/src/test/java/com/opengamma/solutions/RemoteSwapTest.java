@@ -37,14 +37,13 @@ import com.opengamma.util.time.DateUtils;
 
 /**
  * Integration tests run against a remote server
- * Input: Vanilla Interest Rate Swaps, Snapshot Market Data
- * Output: Present Value
+ * Input: Various flavours of Interest Rate Swaps, Snapshot Market Data
+ * Output: Present Value / Bucketed PV01 / Cash flows
  */
 
 @Test(groups = TestGroup.INTEGRATION, enabled = true)
 public class RemoteSwapTest {
 
-  private static final String URL = "http://localhost:8080/jax";
   private FunctionServer _functionServer;
   private IndividualCycleOptions _cycleOptions;
   private ConfigLink<ExposureFunctions> _exposureConfig;
@@ -58,6 +57,7 @@ public class RemoteSwapTest {
   private Results _feesResults;
   private Results _singleLegResults;
   private Results _zeroCouponResults;
+  private Results _iborCompoundingResults;
   private Results _notionalExchangeResults;
 
   private static final double STD_TOLERANCE_PV = 1.0E-3;
@@ -66,7 +66,10 @@ public class RemoteSwapTest {
   @BeforeClass
   public void setUp() {
 
-    _functionServer = new RemoteFunctionServer(URI.create(URL));
+    String property = System.getProperty("server.url");
+    String url = property == null ? "http://localhost:8080/jax" : property;
+
+    _functionServer = new RemoteFunctionServer(URI.create(url));
     _cycleOptions = IndividualCycleOptions.builder()
         .valuationTime(DateUtils.getUTCDate(2014, 1, 22))
         .marketDataSpec(UserMarketDataSpecification.of(UniqueId.of("DbSnp", "1000")))
@@ -156,6 +159,15 @@ public class RemoteSwapTest {
 
     _zeroCouponResults = _functionServer.executeSingleCycle(zeroCouponRequest);
 
+    FunctionServerRequest<IndividualCycleOptions> iborCompoundingRequest =
+        FunctionServerRequest.<IndividualCycleOptions>builder()
+            .viewConfig(createViewConfig())
+            .inputs(RemoteViewSwapUtils.IBOR_COMPOUNDING_INPUT)
+            .cycleOptions(_cycleOptions)
+            .build();
+
+    _iborCompoundingResults = _functionServer.executeSingleCycle(iborCompoundingRequest);
+
     FunctionServerRequest<IndividualCycleOptions> notionalExchangeRequest =
         FunctionServerRequest.<IndividualCycleOptions>builder()
             .viewConfig(createViewConfig())
@@ -221,11 +233,26 @@ public class RemoteSwapTest {
     assertThat(fixedResult.isSuccess(), is(true));
     assertThat(fixedResult.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
     MultipleCurrencyAmount amount = (MultipleCurrencyAmount) fixedResult.getValue();
-    // TODO - this value has not been derived from an equivalent analytics test
-//    assertThat(amount.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(6598909.63457769, STD_TOLERANCE_PV)));
+    assertThat(amount.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(6598909.634518711, STD_TOLERANCE_PV)));
   }
 
-  /* Zero Coupon - start */
+  /* Zero Coupon - end */
+
+  /* Ibor Compounding - start */
+
+  @Test
+  public void testIborCompoundingSwapPV() {
+
+    Result fixedResult = _iborCompoundingResults.get(0, 0).getResult();
+    assertThat(fixedResult.isSuccess(), is(true));
+    assertThat(fixedResult.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
+    MultipleCurrencyAmount amount = (MultipleCurrencyAmount) fixedResult.getValue();
+    // TODO - this value has not been derived from an equivalent analytics test
+    //assertThat(amount.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(6598909.63457769, STD_TOLERANCE_PV)));
+  }
+
+  /* Ibor Compounding - end */
+
 
   /* Fees - start */
 
@@ -238,7 +265,6 @@ public class RemoteSwapTest {
     assertThat(result.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
     MultipleCurrencyAmount mca = (MultipleCurrencyAmount) result.getValue();
     assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(6071234.9209, STD_TOLERANCE_PV)));
-
   }
 
   /* Fees - end */
@@ -521,6 +547,9 @@ public class RemoteSwapTest {
     for (ResultRow result : _zeroCouponResults.getRows()) {
       assertThat(result.get(1).getResult().isSuccess(), is(true));
     }
+    for (ResultRow result : _iborCompoundingResults.getRows()) {
+      assertThat(result.get(1).getResult().isSuccess(), is(true));
+    }
     for (ResultRow result : _notionalExchangeResults.getRows()) {
       assertThat(result.get(1).getResult().isSuccess(), is(true));
     }
@@ -552,6 +581,9 @@ public class RemoteSwapTest {
       assertThat(result.get(2).getResult().isSuccess(), is(true));
     }
     for (ResultRow result : _zeroCouponResults.getRows()) {
+      assertThat(result.get(2).getResult().isSuccess(), is(true));
+    }
+    for (ResultRow result : _iborCompoundingResults.getRows()) {
       assertThat(result.get(2).getResult().isSuccess(), is(true));
     }
     for (ResultRow result : _notionalExchangeResults.getRows()) {
@@ -588,6 +620,9 @@ public class RemoteSwapTest {
       assertThat(result.get(3).getResult().isSuccess(), is(true));
     }
     for (ResultRow result : _zeroCouponResults.getRows()) {
+      assertThat(result.get(3).getResult().isSuccess(), is(true));
+    }
+    for (ResultRow result : _iborCompoundingResults.getRows()) {
       assertThat(result.get(3).getResult().isSuccess(), is(true));
     }
     for (ResultRow result : _notionalExchangeResults.getRows()) {
