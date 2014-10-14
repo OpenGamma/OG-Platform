@@ -14,7 +14,7 @@ You can run this in your IDE **ExampleRemoteClientTool** with the following exam
 + -c http://your-server-ip:8080
 + -l com/opengamma/util/warn-logback.xml 
 + -d 20140122 
-+ -ef "USD CSA Exposure Functions"
++ -ef "USD-GBP-FF-1"
 + -s DbSnp~1000
 + -ld Bloomberg
 
