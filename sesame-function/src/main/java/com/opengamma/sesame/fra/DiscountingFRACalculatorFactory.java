@@ -6,6 +6,7 @@
 package com.opengamma.sesame.fra;
 
 import java.math.BigDecimal;
+import java.util.Map;
 
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.OffsetTime;
@@ -19,10 +20,12 @@ import com.opengamma.core.position.impl.SimpleCounterparty;
 import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.financial.analytics.conversion.FRASecurityConverter;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
+import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.fra.ForwardRateAgreementSecurity;
 import com.opengamma.id.ExternalId;
+import com.opengamma.sesame.CurveDefinitionFn;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.HistoricalTimeSeriesFn;
@@ -59,23 +62,30 @@ public class DiscountingFRACalculatorFactory implements FRACalculatorFactory {
   private final HistoricalTimeSeriesFn _htsFn;
 
   /**
+   * Curve definition function
+   */
+  private final CurveDefinitionFn _curveDefinitionFn;
+
+  /**
    * Creates the factory.
    *
    * @param fraConverter for transforming a fra into its InstrumentDefinition form, not null
    * @param fixedIncomeConverterDataProvider for transforming the InstrumentDefinition into Derivative, not null
    * @param discountingMulticurveCombinerFn function for creating multicurve bundles, not null
    * @param htsFn Function to get the fixing for a security, not null
+   * @param curveDefinitionFn the curve definition function, not null.
    */
   public DiscountingFRACalculatorFactory(FRASecurityConverter fraConverter,
                                          FixedIncomeConverterDataProvider fixedIncomeConverterDataProvider,
                                          DiscountingMulticurveCombinerFn discountingMulticurveCombinerFn,
-                                         HistoricalTimeSeriesFn htsFn) {
+                                         HistoricalTimeSeriesFn htsFn, CurveDefinitionFn curveDefinitionFn) {
     _fraConverter = ArgumentChecker.notNull(fraConverter, "fraConverter");
     _fixedIncomeConverterDataProvider = 
         ArgumentChecker.notNull(fixedIncomeConverterDataProvider, "fixedIncomeConverterDataProvider");
     _discountingMulticurveCombinerFn = 
         ArgumentChecker.notNull(discountingMulticurveCombinerFn, "discountingMulticurveCombinerFn");
     _htsFn = ArgumentChecker.notNull(htsFn, "htsFn");
+    _curveDefinitionFn = curveDefinitionFn;
   }
 
   @Override
@@ -92,10 +102,20 @@ public class DiscountingFRACalculatorFactory implements FRACalculatorFactory {
                _discountingMulticurveCombinerFn.createMergedMulticurveBundle(env, tradeWrapper, new FXMatrix());
 
     if (bundleResult.isSuccess()) {
+
+      Result<Map<String, CurveDefinition>> curveDefinitions =
+          _curveDefinitionFn.getCurveDefinitions(bundleResult.getValue().getSecond().getData().keySet());
+
+      if (!curveDefinitions.isSuccess()) {
+        return Result.failure(curveDefinitions);
+      }
+
       FRACalculator calculator = new DiscountingFRACalculator(security,
                                                                bundleResult.getValue().getFirst(),
                                                                _fraConverter,
-                                                               env.getValuationTime());
+                                                               env.getValuationTime(),
+                                                               bundleResult.getValue().getSecond(),
+                                                               curveDefinitions.getValue());
       return Result.success(calculator);
     } else {
       return Result.failure(bundleResult);
@@ -117,12 +137,22 @@ public class DiscountingFRACalculatorFactory implements FRACalculatorFactory {
                _discountingMulticurveCombinerFn.createMergedMulticurveBundle(env, tradeWrapper, new FXMatrix());
 
     if (Result.allSuccessful(bundleResult, fixings)) {
+
+      Result<Map<String, CurveDefinition>> curveDefinitions =
+          _curveDefinitionFn.getCurveDefinitions(bundleResult.getValue().getSecond().getData().keySet());
+
+      if (!curveDefinitions.isSuccess()) {
+        return Result.failure(curveDefinitions);
+      }
+
       FRACalculator calculator = new DiscountingFRACalculator(security,
                                                                bundleResult.getValue().getFirst(),
                                                                _fraConverter,
                                                                env.getValuationTime(),
                                                                _fixedIncomeConverterDataProvider,
-                                                               fixings.getValue());
+                                                               fixings.getValue(),
+                                                               bundleResult.getValue().getSecond(),
+                                                               curveDefinitions.getValue());
       return Result.success(calculator);
     } else {
       return Result.failure(bundleResult);

@@ -7,6 +7,8 @@ package com.opengamma.sesame.fra;
 
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.util.amount.ReferenceAmount;
+import com.opengamma.financial.analytics.model.fixedincome.BucketedCrossSensitivities;
+import com.opengamma.financial.analytics.model.fixedincome.BucketedCurveSensitivities;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
@@ -46,5 +48,19 @@ public interface FRACalculator {
    * @return result containing the PV01 if successfully created, a failure result otherwise
    */
   Result<ReferenceAmount<Pair<String, Currency>>> calculatePV01();
+
+  /**
+   * Calculates the bucketed PV01 for the security
+   *
+   * @return the bucketed PV01
+   */
+  Result<BucketedCurveSensitivities> calculateBucketedPV01();
+
+  /**
+   * Calculates the bucketed Gamma for the security
+   *
+   * @return the bucketed Gamma
+   */
+  Result<BucketedCrossSensitivities> calculateBucketedGamma();
 
 }
