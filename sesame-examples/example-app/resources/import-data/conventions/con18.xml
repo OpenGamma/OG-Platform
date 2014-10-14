@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fudgeEnvelope>
+   <uniqueId type="string">DbCnv~1019~0</uniqueId>
+   <externalIdBundle type="message">
+      <ID type="message">
+         <Scheme type="string">CONVENTION</Scheme>
+         <Value type="string">USDFEDFUNDSAA3M</Value>
+      </ID>
+   </externalIdBundle>
+   <attributes type="message"/>
+   <name type="string">USDFEDFUNDSAA3M</name>
+   <overnightIndexConvention type="string">OG_TICKER~USDFEDFUNDS</overnightIndexConvention>
+   <paymentTenor type="string">P3M</paymentTenor>
+   <paymentLag type="byte">0</paymentLag>
+   <businessDayConvention type="string">Modified Following</businessDayConvention>
+   <settlementDays type="byte">2</settlementDays>
+   <isEOM type="boolean">true</isEOM>
+   <stubType type="message">
+      <fudgeField0 ordinal="0" type="string">com.opengamma.financial.convention.StubType</fudgeField0>
+      <fudgeField1 ordinal="1" type="string">SHORT_START</fudgeField1>
+   </stubType>
+   <isExchangeNotional type="boolean">false</isExchangeNotional>
+   <fudgeField0 ordinal="0" type="string">com.opengamma.financial.convention.ONArithmeticAverageLegConvention</fudgeField0>
+   <fudgeField0 ordinal="0" type="string">com.opengamma.financial.convention.FinancialConvention</fudgeField0>
+   <fudgeField0 ordinal="0" type="string">com.opengamma.master.convention.ManageableConvention</fudgeField0>
+</fudgeEnvelope>

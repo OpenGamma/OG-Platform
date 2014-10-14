@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fudgeEnvelope>
+   <uniqueId type="string">DbCnv~1001~0</uniqueId>
+   <externalIdBundle type="message">
+      <ID type="message">
+         <Scheme type="string">CONVENTION</Scheme>
+         <Value type="string">GBPSONIA</Value>
+      </ID>
+   </externalIdBundle>
+   <attributes type="message"/>
+   <name type="string">GBPSONIA</name>
+   <dayCount type="string">Actual/365</dayCount>
+   <publicationLag type="byte">0</publicationLag>
+   <currency type="string">GBP</currency>
+   <regionCalendar type="string">FINANCIAL_REGION~GB</regionCalendar>
+   <fudgeField0 ordinal="0" type="string">com.opengamma.financial.convention.OvernightIndexConvention</fudgeField0>
+   <fudgeField0 ordinal="0" type="string">com.opengamma.financial.convention.FinancialConvention</fudgeField0>
+   <fudgeField0 ordinal="0" type="string">com.opengamma.master.convention.ManageableConvention</fudgeField0>
+</fudgeEnvelope>

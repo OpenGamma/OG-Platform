@@ -233,7 +233,7 @@ public class RemoteSwapTest {
     assertThat(fixedResult.isSuccess(), is(true));
     assertThat(fixedResult.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
     MultipleCurrencyAmount amount = (MultipleCurrencyAmount) fixedResult.getValue();
-    assertThat(amount.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(6598909.634518711, STD_TOLERANCE_PV)));
+    assertThat(amount.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(6606079.576346258, STD_TOLERANCE_PV)));
   }
 
   /* Zero Coupon - end */

@@ -39,7 +39,7 @@ public final class RemoteViewUtils {
       BucketedCurveSensitivities bcs = (BucketedCurveSensitivities) result.getValue();
       Map sensitivities = bcs.getSensitivities();
       Iterator entryIterator = sensitivities.entrySet().iterator();
-      while(entryIterator.hasNext()) {
+      while (entryIterator.hasNext()) {
         Map.Entry entry = (Map.Entry) entryIterator.next();
         Pair pair = (Pair) entry.getKey();
         DoubleLabelledMatrix1D matrix = (DoubleLabelledMatrix1D) sensitivities.get(pair);

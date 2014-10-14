@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fudgeEnvelope>
+   <uniqueId type="string">DbSec~1024~11</uniqueId>
+   <externalIdBundle type="message">
+      <ID type="message">
+         <Scheme type="string">ISIN</Scheme>
+         <Value type="string">GB00BDNJY806</Value>
+      </ID>
+   </externalIdBundle>
+   <name type="string">UKTB 0 01/05/15</name>
+   <securityType type="string">BILL</securityType>
+   <attributes type="message"/>
+   <requiredPermissions type="message"/>
+   <currency type="string">GBP</currency>
+   <maturityDate type="message">
+      <datetime type="datetime">2015-01-05T00:00Z</datetime>
+      <timezone type="string">Z</timezone>
+   </maturityDate>
+   <issueDate type="message">
+      <datetime type="datetime">2014-06-27T17:00Z</datetime>
+      <zone type="string">Z</zone>
+   </issueDate>
+   <minimumIncrement type="double">1.0</minimumIncrement>
+   <daysToSettle type="byte">1</daysToSettle>
+   <regionId type="string">FINANCIAL_REGION~GB</regionId>
+   <yieldConvention type="string">INTEREST@MTY</yieldConvention>
+   <dayCount type="string">Actual/365</dayCount>
+   <legalEntityId type="string">OG_TICKER~UKGOVT</legalEntityId>
+   <fudgeField0 ordinal="0" type="string">com.opengamma.financial.security.bond.BillSecurity</fudgeField0>
+   <fudgeField0 ordinal="0" type="string">com.opengamma.financial.security.FinancialSecurity</fudgeField0>
+   <fudgeField0 ordinal="0" type="string">com.opengamma.master.security.ManageableSecurity</fudgeField0>
+   <fudgeField0 ordinal="0" type="string">org.joda.beans.impl.direct.DirectBean</fudgeField0>
+</fudgeEnvelope>

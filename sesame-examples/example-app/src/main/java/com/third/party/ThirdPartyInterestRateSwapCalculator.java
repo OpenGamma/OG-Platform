@@ -9,6 +9,7 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.util.amount.ReferenceAmount;
+import com.opengamma.financial.analytics.model.fixedincome.BucketedCrossSensitivities;
 import com.opengamma.financial.analytics.model.fixedincome.BucketedCurveSensitivities;
 import com.opengamma.financial.analytics.model.fixedincome.SwapLegCashFlows;
 import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
@@ -48,6 +49,12 @@ public class ThirdPartyInterestRateSwapCalculator implements InterestRateSwapCal
 
   /* Not implemented */
   @Override
+  public Result<Double> calculateParSpread() {
+    throw new UnsupportedOperationException();
+  }
+
+  /* Not implemented */
+  @Override
   public Result<ReferenceAmount<Pair<String, Currency>>> calculatePV01() {
     throw new UnsupportedOperationException();
   }
@@ -67,6 +74,12 @@ public class ThirdPartyInterestRateSwapCalculator implements InterestRateSwapCal
   /* Not implemented */
   @Override
   public Result<BucketedCurveSensitivities> calculateBucketedPV01() {
+    throw new UnsupportedOperationException();
+  }
+
+  /* Not implemented */
+  @Override
+  public Result<BucketedCrossSensitivities> calculateBucketedGamma() {
     throw new UnsupportedOperationException();
   }
 

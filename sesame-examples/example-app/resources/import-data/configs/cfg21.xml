@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fudgeEnvelope>
+   <type type="string">com.opengamma.financial.currency.CurrencyPairs</type>
+   <name type="string">DEFAULT</name>
+   <uniqueId type="string">DbCfg~1042~0</uniqueId>
+   <value type="message">
+      <uniqueId type="string">DbCfg~1042~0</uniqueId>
+      <currencyPairs type="message">
+         <fudgeField-1 ordinal="-1" type="string">java.lang.CharSequence</fudgeField-1>
+         <fudgeField1 ordinal="1" type="string">EUR/GBP</fudgeField1>
+         <fudgeField1 ordinal="1" type="string">EUR/USD</fudgeField1>
+         <fudgeField1 ordinal="1" type="string">GBP/USD</fudgeField1>
+      </currencyPairs>
+   </value>
+   <fudgeField0 ordinal="0" type="string">com.opengamma.core.config.impl.ConfigItem</fudgeField0>
+   <fudgeField0 ordinal="0" type="string">org.joda.beans.impl.direct.DirectBean</fudgeField0>
+</fudgeEnvelope>
