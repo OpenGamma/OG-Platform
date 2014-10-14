@@ -23,7 +23,6 @@ import com.opengamma.util.ArgumentChecker;
  * The maturities can be (slightly) negative as the price index are known only with a certain lag.
  * The price index for a given month is on the first of the month point.
  */
-// TODO: Improve the object to have something similar to the YieldAndDiscountCurve.
 public class PriceIndexCurveSimple implements PriceIndexCurve {
 
   /**
@@ -82,6 +81,7 @@ public class PriceIndexCurveSimple implements PriceIndexCurve {
    * Returns the curve name.
    * @return The name.
    */
+  @Override
   public String getName() {
     return _curve.getName();
   }
@@ -91,6 +91,7 @@ public class PriceIndexCurveSimple implements PriceIndexCurve {
    * @param timeToIndex The time
    * @return The price index.
    */
+  @Override
   public double getPriceIndex(final Double timeToIndex) {
     return _curve.getYValue(timeToIndex);
   }
@@ -101,6 +102,7 @@ public class PriceIndexCurveSimple implements PriceIndexCurve {
    * @param secondTime The time
    * @return The price index.
    */
+  @Override
   public double getInflationRate(final Double firstTime, final Double secondTime) {
     ArgumentChecker.isTrue(firstTime < secondTime, "firstTime should be before secondTime");
     return _curve.getYValue(secondTime) / _curve.getYValue(firstTime) - 1.0;
@@ -110,6 +112,7 @@ public class PriceIndexCurveSimple implements PriceIndexCurve {
    * Gets the number of parameters in a curve.
    * @return The number of parameters
    */
+  @Override
   public int getNumberOfParameters() {
     return _curve.size();
   }
@@ -120,6 +123,7 @@ public class PriceIndexCurveSimple implements PriceIndexCurve {
    *  @param curvesNames The list of curves names.
    *  @return The number of parameters.
    */
+  @Override
   public int getNumberOfIntrinsicParameters(final Set<String> curvesNames) {
     return _curve.size();
   }
@@ -128,6 +132,7 @@ public class PriceIndexCurveSimple implements PriceIndexCurve {
    * The list of underlying curves (up to one level).
    * @return The list.
    */
+  @Override
   public List<String> getUnderlyingCurvesNames() {
     return new ArrayList<>();
   }
@@ -138,6 +143,7 @@ public class PriceIndexCurveSimple implements PriceIndexCurve {
    * @return The sensitivities. If the time is less than 1e<sup>-6</sup>, the rate is
    * ill-defined and zero is returned.
    */
+  @Override
   public double[] getPriceIndexParameterSensitivity(final double time) {
     final Double[] curveSensitivity = _curve.getYValueParameterSensitivity(time);
     final double[] priceIndexZeroSensitivity = new double[curveSensitivity.length];

@@ -14,36 +14,54 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Store the details and generate the required curve. The curve is interpolated on the price index.
- * One extra node with value 1 is added at the mid point between the first and second point. 
+ * One extra node with a given value is added at the given anchor node.
  * This extra anchor is required when two translation invariant curves descriptions
  * are added in a spread curve (two translations would create a singular system).
  * Only the nodeTimeCalculator is stored. The node are computed from the instruments.
  */
 public class GeneratorPriceIndexCurveInterpolatedAnchor extends GeneratorPriceIndexCurve {
 
-  /**
-   * Calculator of the node associated to instruments.
-   */
+  /** Calculator of the node associated to instruments. */
   private final InstrumentDerivativeVisitorAdapter<Object, Double> _nodeTimeCalculator;
-  /**
-   * The interpolator used for the curve.
-   */
+  /** The interpolator used for the curve. */
   private final Interpolator1D _interpolator;
-  /** The anchor node */
+  /** The anchor node, i.e. the X value of the node used to anchor the curve. */
   private final double _anchorNode;
+  /** The anchor value, i.e. the Y value at the node used to anchor the curve. */
+  private final double _anchorValue;
 
   /**
    * Constructor.
    * @param nodeTimeCalculator Calculator of the node associated to instruments.
    * @param interpolator The interpolator used for the curve.
    * @param anchorNode The anchor node.
+   * @param anchorValue The anchor value.
    */
   public GeneratorPriceIndexCurveInterpolatedAnchor(
       final InstrumentDerivativeVisitorAdapter<Object, Double> nodeTimeCalculator, final Interpolator1D interpolator,
-      final double anchorNode) {
+      final double anchorNode, final double anchorValue) {
+    ArgumentChecker.notNull(nodeTimeCalculator, "node time calculator");
+    ArgumentChecker.notNull(interpolator, "interpolator");
     _nodeTimeCalculator = nodeTimeCalculator;
     _interpolator = interpolator;
     _anchorNode = anchorNode;
+    _anchorValue = anchorValue;
+  }
+
+  /**
+   * Gets the anchor node.
+   * @return The node
+   */
+  public double getAnchorNode() {
+    return _anchorNode;
+  }
+
+  /**
+   * Gets the anchor value.
+   * @return The value
+   */
+  public double getAnchorValue() {
+    return _anchorValue;
   }
 
   @Override
@@ -74,7 +92,7 @@ public class GeneratorPriceIndexCurveInterpolatedAnchor extends GeneratorPriceIn
     for (int loopins = 0; loopins < instruments.length; loopins++) {
       node[loopins] = instruments[loopins].accept(_nodeTimeCalculator);
     }
-    return new GeneratorPriceIndexCurveInterpolatedAnchorNode(node, _anchorNode, 1.0, _interpolator);
+    return new GeneratorPriceIndexCurveInterpolatedAnchorNode(node, _interpolator, _anchorNode, _anchorValue);
   }
 
 }

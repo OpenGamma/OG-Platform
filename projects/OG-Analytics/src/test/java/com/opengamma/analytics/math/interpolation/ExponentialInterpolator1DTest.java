@@ -13,7 +13,6 @@ import java.util.TreeMap;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.interpolation.data.ArrayInterpolator1DDataBundle;
-import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.util.test.TestGroup;
 
 /**
@@ -64,21 +63,6 @@ public class ExponentialInterpolator1DTest {
     data.put(t1, df1);
     data.put(t2, df2);
     assertEquals(0.7957, INTERPOLATOR.interpolate(INTERPOLATOR.getDataBundle(data), 3.5), EPS);
-  }
-
-  @Test(enabled = false)
-  public void graph() {
-    Interpolator1D interpolatorExponential = new ExponentialInterpolator1DDuplicate();
-    double[] t = {1.0, 2.0};
-    double[] v = {200.0, 250.0};
-    Interpolator1DDataBundle data = interpolatorExponential.getDataBundleFromSortedArrays(t,v);
-    int nbInt = 51;
-    double[] values = new double[nbInt];
-    for (int i=0; i<nbInt; i++) {
-      values[i] = interpolatorExponential.interpolate(data, t[0]+i*(t[1]-t[0])/(nbInt-1));
-    }
-    @SuppressWarnings("unused")
-    int a=0;
   }
   
 }

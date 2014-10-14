@@ -23,20 +23,20 @@ public class GeneratorPriceIndexCurveMultiplyFixedCurve extends GeneratorPriceIn
    */
   private final GeneratorPriceIndexCurve _generator;
   /**
-   * The name of the existing curve.
+   * The name of the existing fixed curve.
    */
-  private final DoublesCurve _seasonalCurve;
+  private final DoublesCurve _fixedCurve;
 
   /**
    * The constructor.
    * @param generator The generator for the new curve.
-   * @param seasonalCurve The seasonal curve.
+   * @param fixedCurve The fixed curve.
    */
-  public GeneratorPriceIndexCurveMultiplyFixedCurve(final GeneratorPriceIndexCurve generator, final DoublesCurve seasonalCurve) {
+  public GeneratorPriceIndexCurveMultiplyFixedCurve(final GeneratorPriceIndexCurve generator, final DoublesCurve fixedCurve) {
     ArgumentChecker.notNull(generator, "Generator");
-    ArgumentChecker.notNull(seasonalCurve, "Seasonal curve");
+    ArgumentChecker.notNull(fixedCurve, "Fixed curve");
     _generator = generator;
-    _seasonalCurve = seasonalCurve;
+    _fixedCurve = fixedCurve;
   }
 
   @Override
@@ -47,18 +47,18 @@ public class GeneratorPriceIndexCurveMultiplyFixedCurve extends GeneratorPriceIn
   @Override
   public PriceIndexCurve generateCurve(final String name, final double[] parameters) {
     final PriceIndexCurve newCurve = _generator.generateCurve(name, parameters);
-    return new PriceIndexCurveMultiplyFixedCurve(name, newCurve, _seasonalCurve);
+    return new PriceIndexCurveMultiplyFixedCurve(name, newCurve, _fixedCurve);
   }
 
   @Override
   public PriceIndexCurve generateCurve(final String name, final InflationProviderInterface inflation, final double[] parameters) {
     final PriceIndexCurve newCurve = _generator.generateCurve(name, inflation, parameters);
-    return new PriceIndexCurveMultiplyFixedCurve(name, newCurve, _seasonalCurve);
+    return new PriceIndexCurveMultiplyFixedCurve(name, newCurve, _fixedCurve);
   }
 
   @Override
   public GeneratorPriceIndexCurve finalGenerator(final Object data) {
-    return new GeneratorPriceIndexCurveMultiplyFixedCurve(_generator.finalGenerator(data), _seasonalCurve);
+    return new GeneratorPriceIndexCurveMultiplyFixedCurve(_generator.finalGenerator(data), _fixedCurve);
   }
 
   @Override

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -19,32 +19,26 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class GeneratorPriceIndexCurveInterpolatedAnchorNode extends GeneratorPriceIndexCurve {
 
-  /**
-   * The nodes (times) on which the interpolated curves is constructed. Does not include the extra anchor node.
-   */
+  /** The nodes (times) on which the interpolated curves is constructed. Does not include the extra anchor node. */
   private final double[] _nodePoints;
   /** The anchor node point. */
   private final double _anchorNode;
   /** The curve value at the anchor node point. */
   private final double _anchorValue;
-  /**
-   * The interpolator used for the curve.
-   */
+  /** The interpolator used for the curve. */
   private final Interpolator1D _interpolator;
-  /**
-   * The number of points (or nodes), not including the extra anchor.
-   */
+  /** The number of points (or nodes), not including the extra anchor. */
   private final int _nbPoints;
 
   /**
    * Constructor.
    * @param nodePoints The node points (X) used to define the interpolated curve.
+   * @param interpolator The interpolator.
    * @param anchorNode The anchor node point.
    * @param anchorValue The anchor value at the anchor node point.
-   * @param interpolator The interpolator.
    */
-  public GeneratorPriceIndexCurveInterpolatedAnchorNode(final double[] nodePoints, final double anchorNode, 
-      final double anchorValue, final Interpolator1D interpolator) {
+  public GeneratorPriceIndexCurveInterpolatedAnchorNode(final double[] nodePoints, final Interpolator1D interpolator, 
+      final double anchorNode, final double anchorValue) {
     ArgumentChecker.notNull(nodePoints, "Node points");
     ArgumentChecker.notNull(interpolator, "Interpolator");
     _nbPoints = nodePoints.length;
@@ -59,9 +53,34 @@ public class GeneratorPriceIndexCurveInterpolatedAnchorNode extends GeneratorPri
     return _nbPoints;
   }
 
+  /**
+   * Gets the node points.
+   * @return The nodes
+   */
+  public double[] getNodePoints() {
+    return _nodePoints;
+  }
+
+  /**
+   * Gets the anchor node.
+   * @return The node
+   */
+  public double getAnchorNode() {
+    return _anchorNode;
+  }
+
+  /**
+   * Gets the anchor value.
+   * @return The value
+   */
+  public double getAnchorValue() {
+    return _anchorValue;
+  }
+
   @Override
-  public PriceIndexCurve generateCurve(final String name, final double[] x) {
+  public PriceIndexCurveSimple generateCurve(final String name, final double[] x) {
     ArgumentChecker.isTrue(x.length == _nbPoints, "Incorrect dimension for the rates");
+    ArgumentChecker.notNull(name, "name");
     return new PriceIndexCurveSimple(DoublesCurveInterpolatedAnchor.from(_nodePoints, x, _anchorNode, _anchorValue, 
         _interpolator, name));
   }
