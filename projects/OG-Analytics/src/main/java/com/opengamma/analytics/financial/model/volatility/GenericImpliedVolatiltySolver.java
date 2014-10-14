@@ -5,43 +5,80 @@
  */
 package com.opengamma.analytics.financial.model.volatility;
 
+import com.google.common.primitives.Doubles;
 import com.opengamma.analytics.math.MathException;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.rootfinding.BisectionSingleRootFinder;
 import com.opengamma.analytics.math.rootfinding.BracketRoot;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Finds an implied volatility (a parameter that put into a model gives the market pirce of an option) for any option pricing model that has a 'volatility' parameter.
- *  This included the Black-Scholes-Merton model (and derivatives) for European options and Barone-Adesi & Whaley and Bjeksund and Stensland for American options   
+ * This included the Black-Scholes-Merton model (and derivatives) for European options and Barone-Adesi & Whaley and Bjeksund and Stensland for American options
  */
 public class GenericImpliedVolatiltySolver {
 
-  private static final int MAX_ITERATIONS = 20; //something's wrong if Newton-Raphson taking longer than this
+  private static final int MAX_ITERATIONS = 20; // something's wrong if Newton-Raphson taking longer than this
   private static final double VOL_TOL = 1e-9; // 1 part in 100,000 basis points will do for implied vol
+  private static final double VOL_GUESS = 0.3;
+  private static final double BRACKET_STEP = 0.1;
+  private static final double MAX_CHANGE = 0.5;
 
-  public static double impliedVolatility(final double optionPrice, final Function1D<Double, double[]> pavFunc) {
+  private final Function1D<Double, Double> _priceFunc;
+  private final Function1D<Double, double[]> _priceAndVegaFunc;
+
+  public GenericImpliedVolatiltySolver(Function1D<Double, double[]> priceAndVegaFunc) {
+    ArgumentChecker.notNull(priceAndVegaFunc, "priceAndVegaFunc");
+    _priceAndVegaFunc = priceAndVegaFunc;
+    _priceFunc = new Function1D<Double, Double>() {
+
+      @Override
+      public Double evaluate(Double sigma) {
+        return _priceAndVegaFunc.evaluate(sigma)[0];
+      }
+    };
+  }
+
+  public GenericImpliedVolatiltySolver(final Function1D<Double, Double> priceFunc, final Function1D<Double, Double> vegaFunc) {
+    ArgumentChecker.notNull(priceFunc, "priceFunc");
+    ArgumentChecker.notNull(vegaFunc, "vegaFunc");
+    _priceFunc = priceFunc;
+    _priceAndVegaFunc = new Function1D<Double, double[]>() {
+
+      @Override
+      public double[] evaluate(Double sigma) {
+        return new double[] {priceFunc.evaluate(sigma), vegaFunc.evaluate(sigma) };
+      }
+    };
+  }
+
+  public double impliedVolatility(double optionPrice) {
+    return impliedVolatility(optionPrice, VOL_GUESS);
+  }
+
+  public double impliedVolatility(double optionPrice, double volGuess) {
+    ArgumentChecker.isTrue(volGuess >= 0.0, "volGuess must be positive; have {}", volGuess);
+    ArgumentChecker.isTrue(Doubles.isFinite(volGuess), "volGuess must be finite; have {} ", volGuess);
 
     double lowerSigma;
     double upperSigma;
-    final double volGuess = 0.3;
 
     try {
-      final double[] temp = bracketRoot(optionPrice, pavFunc, volGuess, Math.min(volGuess, 0.1));
+      final double[] temp = bracketRoot(optionPrice, volGuess);
       lowerSigma = temp[0];
       upperSigma = temp[1];
     } catch (final MathException e) {
       throw new IllegalArgumentException(e.toString() + " No implied Volatility for this price. [price: " + optionPrice + "]");
     }
     double sigma = (lowerSigma + upperSigma) / 2.0;
-    final double maxChange = 0.5;
 
-    double[] pnv = pavFunc.evaluate(sigma);
+    double[] pnv = _priceAndVegaFunc.evaluate(sigma);
 
-    //This can happen for American options, where low volatilities puts you in the early excise region which obviously has zero vega 
+    // This can happen for American options, where low volatilities puts you in the early excise region which obviously has zero vega
     if (pnv[1] == 0 || Double.isNaN(pnv[1])) {
-      return solveByBisection(optionPrice, pavFunc, lowerSigma, upperSigma);
+      return solveByBisection(optionPrice, lowerSigma, upperSigma);
     }
-    double diff = pnv[0] / optionPrice - 1.0;
+    double diff = pnv[0] - optionPrice;
     boolean above = diff > 0;
     if (above) {
       upperSigma = sigma;
@@ -49,24 +86,24 @@ public class GenericImpliedVolatiltySolver {
       lowerSigma = sigma;
     }
 
-    double trialChange = -diff * optionPrice / pnv[1];
+    double trialChange = -diff / pnv[1];
     double actChange;
     if (trialChange > 0.0) {
-      actChange = Math.min(maxChange, Math.min(trialChange, upperSigma - sigma));
+      actChange = Math.min(MAX_CHANGE, Math.min(trialChange, upperSigma - sigma));
     } else {
-      actChange = Math.max(-maxChange, Math.max(trialChange, lowerSigma - sigma));
+      actChange = Math.max(-MAX_CHANGE, Math.max(trialChange, lowerSigma - sigma));
     }
 
     int count = 0;
     while (Math.abs(actChange) > VOL_TOL) {
       sigma += actChange;
-      pnv = pavFunc.evaluate(sigma);
+      pnv = _priceAndVegaFunc.evaluate(sigma);
 
       if (pnv[1] == 0 || Double.isNaN(pnv[1])) {
-        return solveByBisection(optionPrice, pavFunc, lowerSigma, upperSigma);
+        return solveByBisection(optionPrice, lowerSigma, upperSigma);
       }
 
-      diff = pnv[0] / optionPrice - 1.0;
+      diff = pnv[0] - optionPrice;
       above = diff > 0;
       if (above) {
         upperSigma = sigma;
@@ -74,131 +111,39 @@ public class GenericImpliedVolatiltySolver {
         lowerSigma = sigma;
       }
 
-      trialChange = -diff * optionPrice / pnv[1];
+      trialChange = -diff / pnv[1];
       if (trialChange > 0.0) {
-        actChange = Math.min(maxChange, Math.min(trialChange, upperSigma - sigma));
+        actChange = Math.min(MAX_CHANGE, Math.min(trialChange, upperSigma - sigma));
       } else {
-        actChange = Math.max(-maxChange, Math.max(trialChange, lowerSigma - sigma));
+        actChange = Math.max(-MAX_CHANGE, Math.max(trialChange, lowerSigma - sigma));
       }
 
       if (count++ > MAX_ITERATIONS) {
-        return solveByBisection(optionPrice, pavFunc, lowerSigma, upperSigma);
+        return solveByBisection(optionPrice, lowerSigma, upperSigma);
       }
     }
-    return sigma;
+    return sigma + actChange; // apply the final change
 
   }
 
-  /**
-   * Compute implied volatility with geuss value as an input
-   * @param optionPrice Option price
-   * @param pavFunc Model
-   * @param guess Guess value
-   * @return Implied volatility 
-   */
-  public static double impliedVolatility(final double optionPrice, final Function1D<Double, double[]> pavFunc, final double guess) {
-
-    double lowerSigma;
-    double upperSigma;
-    final double volGuess = guess < 1.e-2 ? 0.15 : guess;
-    final double shift = 1.e-2;
-
-    try {
-      final double[] temp = bracketRoot(optionPrice, pavFunc, volGuess, Math.min(volGuess, 0.1), shift);
-      lowerSigma = temp[0];
-      upperSigma = temp[1];
-    } catch (final MathException e) {
-      throw new IllegalArgumentException(e.toString() + " No implied Volatility for this price. [price: " + optionPrice + "]");
-    }
-    double sigma = (lowerSigma + upperSigma) / 2.0;
-    final double maxChange = 0.5;
-
-    double[] pnv = pavFunc.evaluate(sigma);
-
-    //This can happen for American options, where low volatilities puts you in the early excise region which obviously has zero vega 
-    if (Math.abs(pnv[1]) < 1.e-14 || Double.isNaN(pnv[1])) {
-      return solveByBisection(optionPrice, pavFunc, lowerSigma, upperSigma);
-    }
-    double diff = pnv[0] / optionPrice - 1.0;
-    boolean above = diff > 0;
-    if (above) {
-      upperSigma = sigma;
-    } else {
-      lowerSigma = sigma;
-    }
-
-    double trialChange = -diff * optionPrice / pnv[1];
-    double actChange;
-    if (trialChange > 0.0) {
-      actChange = Math.min(maxChange, Math.min(trialChange, upperSigma - sigma));
-    } else {
-      actChange = Math.max(-maxChange, Math.max(trialChange, lowerSigma - sigma));
-    }
-
-    int count = 0;
-    while (Math.abs(actChange) > VOL_TOL) {
-      sigma += actChange;
-      pnv = pavFunc.evaluate(sigma);
-
-      if (Math.abs(pnv[1]) < 1.e-14 || Double.isNaN(pnv[1])) {
-        return solveByBisection(optionPrice, pavFunc, lowerSigma, upperSigma);
-      }
-
-      diff = pnv[0] / optionPrice - 1.0;
-      above = diff > 0;
-      if (above) {
-        upperSigma = sigma;
-      } else {
-        lowerSigma = sigma;
-      }
-
-      trialChange = -diff * optionPrice / pnv[1];
-      if (trialChange > 0.0) {
-        actChange = Math.min(maxChange, Math.min(trialChange, upperSigma - sigma));
-      } else {
-        actChange = Math.max(-maxChange, Math.max(trialChange, lowerSigma - sigma));
-      }
-
-      if (count++ > MAX_ITERATIONS) {
-        return solveByBisection(optionPrice, pavFunc, lowerSigma, upperSigma);
-      }
-    }
-    return sigma;
-
-  }
-
-  private static double[] bracketRoot(final double optionPrice, final Function1D<Double, double[]> pavFunc, final double sigma, final double change) {
+  private double[] bracketRoot(final double optionPrice, final double sigma) {
     final BracketRoot bracketer = new BracketRoot();
     final Function1D<Double, Double> func = new Function1D<Double, Double>() {
       @Override
       public Double evaluate(final Double volatility) {
-        return pavFunc.evaluate(volatility)[0] / optionPrice - 1.0;
+        return _priceFunc.evaluate(volatility) / optionPrice - 1.0;
       }
     };
-    return bracketer.getBracketedPoints(func, sigma - Math.abs(change), sigma + Math.abs(change), 0, Double.POSITIVE_INFINITY);
+    return bracketer.getBracketedPoints(func, Math.max(0.0, sigma - BRACKET_STEP), sigma + BRACKET_STEP, 0.0, Double.POSITIVE_INFINITY);
   }
 
-  private static double[] bracketRoot(final double optionPrice, final Function1D<Double, double[]> pavFunc, final double sigma, final double change, final double shift) {
-    final BracketRoot bracketer = new BracketRoot();
-    final Function1D<Double, Double> func = new Function1D<Double, Double>() {
-      @Override
-      public Double evaluate(final Double volatility) {
-        return pavFunc.evaluate(volatility)[0] / optionPrice - 1.0;
-      }
-    };
-    final double absChange = Math.abs(change);
-    final double left = sigma - absChange < shift ? shift : sigma - absChange;
-    return bracketer.getBracketedPoints(func, left, sigma + absChange, shift, Double.POSITIVE_INFINITY);
-  }
-
-  private static double solveByBisection(final double optionPrice, final Function1D<Double, double[]> pavFunc, final double lowerSigma,
-      final double upperSigma) {
+  private double solveByBisection(final double optionPrice, final double lowerSigma, final double upperSigma) {
     final BisectionSingleRootFinder rootFinder = new BisectionSingleRootFinder(VOL_TOL);
     final Function1D<Double, Double> func = new Function1D<Double, Double>() {
 
       @Override
       public Double evaluate(final Double volatility) {
-        double trialPrice = pavFunc.evaluate(volatility)[0];
+        double trialPrice = _priceFunc.evaluate(volatility);
         return trialPrice / optionPrice - 1.0;
       }
     };
