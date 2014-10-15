@@ -208,7 +208,7 @@ public class AnnuityUtils {
         rollDateAdjuster(rollDateAdjuster).
         exchangeInitialNotional(notionalExchange.isExchangeInitialNotional()).
         exchangeFinalNotional(notionalExchange.isExchangeFinalNotional()).
-        accrualPeriodFrequency(ConversionUtils.getTenor(leg.getPaymentDateFrequency())).
+        accrualPeriodFrequency(ConversionUtils.getTenor(leg.getAccrualPeriodFrequency())).
         accrualPeriodParameters(accrualPeriodParameters).
         paymentDateRelativeTo(leg.getPaymentDateRelativeTo()).
         paymentDateAdjustmentParameters(paymentDateParameters).
@@ -311,7 +311,7 @@ public class AnnuityUtils {
         rollDateAdjuster(rollDateAdjuster).
         exchangeInitialNotional(notionalExchange.isExchangeInitialNotional()).
         exchangeFinalNotional(notionalExchange.isExchangeFinalNotional()).
-        accrualPeriodFrequency(ConversionUtils.getTenor(leg.getPaymentDateFrequency())).
+        accrualPeriodFrequency(ConversionUtils.getTenor(leg.getAccrualPeriodFrequency())).
         accrualPeriodParameters(accrualPeriodParameters).
         paymentDateRelativeTo(leg.getPaymentDateRelativeTo()).
         paymentDateAdjustmentParameters(paymentDateParameters).
