@@ -144,4 +144,17 @@ public class CDSIndexPrvider {
     return creditCurves;
   }
 
+  public static ISDACompliantCreditCurve[] buildCreditCurvesImp(final LocalDate tradeDate, final double[][] parSpreads, final double[] recoveryRates, final Period[] tenors,
+      final ISDACompliantYieldCurve yieldCurve) {
+    int indexSize = parSpreads.length;
+    ISDACompliantCreditCurve[] creditCurves = new ISDACompliantCreditCurve[indexSize];
+    for (int i = 0; i < indexSize; ++i) {
+      CDSAnalyticFactory factory = new CDSAnalyticFactory(recoveryRates[i]);
+      CDSAnalytic[] pillarCDS = factory.makeIMMCDS(tradeDate, tenors);
+      CreditCurveCalibrator calibrator = new CreditCurveCalibrator(pillarCDS, yieldCurve);
+      creditCurves[i] = calibrator.calibrate(parSpreads[i]);
+    }
+   return creditCurves; 
+  }
+  
 }

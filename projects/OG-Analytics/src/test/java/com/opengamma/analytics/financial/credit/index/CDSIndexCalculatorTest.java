@@ -76,8 +76,8 @@ public class CDSIndexCalculatorTest extends ISDABaseTest {
     double tol = 1.0e-12;
     CDSAnalytic cdx = FACTORY.makeCDX(TRADE_DATE, Period.ofYears(5));
     double indexCoupon = 300 * 1.0e-4;
-    final int[] defaultedNames = new int[] {2, 15, 37, 51 };
-    final IntrinsicIndexDataBundle intrinsicDataWithDefaulted = INTRINSIC_DATA.withDefault(defaultedNames);
+    int[] defaultedNames = new int[] {2, 15, 37, 51 };
+    IntrinsicIndexDataBundle intrinsicDataWithDefaulted = INTRINSIC_DATA.withDefault(defaultedNames);
 
     double pv = INDEX_CAL.indexPV(cdx, indexCoupon, YIELD_CURVE, intrinsicDataWithDefaulted);
     double parallelIR01 = INDEX_CAL.parallelIR01(cdx, indexCoupon, YIELD_CURVE, intrinsicDataWithDefaulted);
@@ -105,12 +105,18 @@ public class CDSIndexCalculatorTest extends ISDABaseTest {
     }
 
     int size = intrinsicDataWithDefaulted.getIndexSize();
-    for (int i=0;i<size;++i) {
-      double ref = -pricer.pv(cdx, YIELD_CURVE, intrinsicDataWithDefaulted.getCreditCurves()[i], indexCoupon) *
-          intrinsicDataWithDefaulted.getWeight(i) * 2.0 + intrinsicDataWithDefaulted.getLGD(i) *
-          intrinsicDataWithDefaulted.getWeight(i) + cdx.getAccruedPremium(indexCoupon) *
-          intrinsicDataWithDefaulted.getWeight(i);
-      assertEquals(ref, jumpToDefault[i], 1.0e-2);
+    for (int i = 0; i < size; ++i) {
+      double ref;
+      if (intrinsicDataWithDefaulted.isDefaulted(i)) {
+        ref = 0.0;
+      } else {
+        double weight = intrinsicDataWithDefaulted.getWeight(i);
+        IntrinsicIndexDataBundle newBundle = intrinsicDataWithDefaulted.withDefault(i);
+        double pvdefaulted = INDEX_CAL.indexPV(cdx, indexCoupon, YIELD_CURVE, newBundle);
+        ref = -pv - pricer.pv(cdx, YIELD_CURVE, intrinsicDataWithDefaulted.getCreditCurves()[i], indexCoupon) * weight +
+            pvdefaulted + intrinsicDataWithDefaulted.getLGD(i) * weight;
+      }
+      assertEquals(ref, jumpToDefault[i], tol);
     }
 
     double[] zeroRates = new double[size];

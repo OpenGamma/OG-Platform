@@ -142,7 +142,7 @@ public class SingleNameCDSE2ETest extends ISDABaseTest {
         PAY_ACC_ON_DEFAULT, PAYMENT_INTERVAL, STUB, PROCTECTION_START, RECOVERY_RATE);
 
     int accrualDays = pricingCDS.getAccuredDays();
-    double accruedPermium = pricingCDS.getAccruedPremium(COUPON) * NOTIONAL;
+    double accruedPremium = pricingCDS.getAccruedPremium(COUPON) * NOTIONAL;
     double cleanPV = PRICER_OG_FIX.pv(pricingCDS, YIELD_CURVE, CREDIT_CURVE, COUPON) * NOTIONAL;
     double dirtyPV = PRICER_OG_FIX.pv(pricingCDS, YIELD_CURVE, CREDIT_CURVE, COUPON, PriceType.DIRTY) * NOTIONAL;
     ISDACompliantYieldCurve constantCurve = new ISDACompliantYieldCurve(1.0, 0.0);
@@ -150,10 +150,10 @@ public class SingleNameCDSE2ETest extends ISDABaseTest {
     double cleanRPV01 = PRICER_OG_FIX.annuity(pricingCDS, YIELD_CURVE, CREDIT_CURVE);
     double dirtyRPV01 = PRICER_OG_FIX.annuity(pricingCDS, YIELD_CURVE, CREDIT_CURVE, PriceType.DIRTY);
     double parSpread = PRICER_OG_FIX.parSpread(pricingCDS, YIELD_CURVE, CREDIT_CURVE) * TEN_THOUSAND; // BPS
-    double parallelIR01 = IR_CAL.parallelIR01(pricingCDS, COUPON, CREDIT_CURVE, YIELD_CURVE) * ONE_BP * NOTIONAL;
+    double parallelIR01 = IR_CAL.parallelIR01(pricingCDS, COUPON, CREDIT_CURVE, YIELD_CURVE) * NOTIONAL;
     double[] bucketedIR01 = IR_CAL.bucketedIR01(pricingCDS, COUPON, CREDIT_CURVE, YIELD_CURVE);
     for (int i = 0; i < bucketedIR01.length; ++i) {
-      bucketedIR01[i] *= (NOTIONAL * ONE_BP);
+      bucketedIR01[i] *= NOTIONAL;
     }
     double parallelCS01 = FD_SPREAD_SENSE_CAL.parallelCS01FromCreditCurve(pricingCDS, COUPON, BUCKET_CDSS, YIELD_CURVE,
         CREDIT_CURVE, ONE_BP) * ONE_BP * NOTIONAL;
@@ -169,23 +169,23 @@ public class SingleNameCDSE2ETest extends ISDABaseTest {
     DoubleMatrix1D hedgeRatio = HEDGE_CAL.getHedgeRatios(pricingCDS, COUPON, HEDGE_CDSS, HEDGE_COUPON,
         CREDIT_CURVE, YIELD_CURVE);
 
-    double[] expectedBIR01 = new double[] {-3.555782404629504E-8, -1.1675043296716092E-6, 2.7624423262762043E-6,
-        2.670563847839702E-6, 3.873492337644335E-6, -1.8566826518948143E-5, -4.532600101081474E-5, 5.37004160652832E-6,
-        0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+    double[] expectedBIR01 = new double[] {-3.555782404629504E-4, -0.011675043296716092, 0.027624423262762043,
+        0.02670563847839702, 0.03873492337644335, -0.18566826518948143, -0.4532600101081474, 0.053700416065283196, 0.0,
+        0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
     double[] expectedBCS01 = new double[] {-0.059816728292805266, -0.1756625232531006, 146.41928967059485,
         74.44722664445152, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
     double[] expectedRatio = new double[] {-0.4961598054357507, 1.4961464596451923, 1.4642425207782464E-10,
         -1.7783577172741516E-11, 1.6745736381180108E-11 };
 
     assertEquals("accrual days", 86, accrualDays);
-    assertEqualsRelativeTol("accrued permium", 2388.888888888889, accruedPermium, TOL);
+    assertEqualsRelativeTol("accrued premium", 2388.888888888889, accruedPremium, TOL);
     assertEqualsRelativeTol("clean PV", 3353.352757004241, cleanPV, TOL);
     assertEqualsRelativeTol("dirty PV", 964.4638681153561, dirtyPV, TOL);
     assertEqualsRelativeTol("expected loss", 26064.180466391186, expectedLoss, TOL);
     assertEqualsRelativeTol("clean RPV01", 2.212610598169769, cleanRPV01, TOL);
     assertEqualsRelativeTol("dirty RPV01", 2.4514994870586575, dirtyRPV01, TOL);
     assertEqualsRelativeTol("par spread (BPS)", 115.15563904366216, parSpread, TOL);
-    assertEqualsRelativeTol("parallel IR01", -5.041809447575707E-5, parallelIR01, TOL);
+    assertEqualsRelativeTol("parallel IR01", -0.5041809447575707, parallelIR01, TOL);
     assertDoubleArray("bucketed IR01", expectedBIR01, bucketedIR01, TOL);
     assertEqualsRelativeTol("parallel CS01", 220.58629230464064, parallelCS01, TOL);
     assertDoubleArray("bucketed CS01", expectedBCS01, bucketedCS01, TOL);
@@ -206,7 +206,7 @@ public class SingleNameCDSE2ETest extends ISDABaseTest {
         PAY_ACC_ON_DEFAULT, PAYMENT_INTERVAL, STUB, PROCTECTION_START, RECOVERY_RATE);
 
     int accrualDays = pricingCDS.getAccuredDays();
-    double accruedPermium = pricingCDS.getAccruedPremium(COUPON) * NOTIONAL;
+    double accruedPremium = pricingCDS.getAccruedPremium(COUPON) * NOTIONAL;
     double cleanPV = PRICER_OG_FIX.pv(pricingCDS, YIELD_CURVE, CREDIT_CURVE, COUPON) * NOTIONAL;
     double dirtyPV = PRICER_OG_FIX.pv(pricingCDS, YIELD_CURVE, CREDIT_CURVE, COUPON, PriceType.DIRTY) * NOTIONAL;
     ISDACompliantYieldCurve constantCurve = new ISDACompliantYieldCurve(1.0, 0.0);
@@ -214,10 +214,10 @@ public class SingleNameCDSE2ETest extends ISDABaseTest {
     double cleanRPV01 = PRICER_OG_FIX.annuity(pricingCDS, YIELD_CURVE, CREDIT_CURVE);
     double dirtyRPV01 = PRICER_OG_FIX.annuity(pricingCDS, YIELD_CURVE, CREDIT_CURVE, PriceType.DIRTY);
     double parSpread = PRICER_OG_FIX.parSpread(pricingCDS, YIELD_CURVE, CREDIT_CURVE) * TEN_THOUSAND; // BPS
-    double parallelIR01 = IR_CAL.parallelIR01(pricingCDS, COUPON, CREDIT_CURVE, YIELD_CURVE) * ONE_BP * NOTIONAL;
+    double parallelIR01 = IR_CAL.parallelIR01(pricingCDS, COUPON, CREDIT_CURVE, YIELD_CURVE) * NOTIONAL;
     double[] bucketedIR01 = IR_CAL.bucketedIR01(pricingCDS, COUPON, CREDIT_CURVE, YIELD_CURVE);
     for (int i = 0; i < bucketedIR01.length; ++i) {
-      bucketedIR01[i] *= (NOTIONAL * ONE_BP);
+      bucketedIR01[i] *= NOTIONAL;
     }
     double parallelCS01 = FD_SPREAD_SENSE_CAL.parallelCS01FromCreditCurve(pricingCDS, COUPON, BUCKET_CDSS, YIELD_CURVE,
         CREDIT_CURVE, ONE_BP) * ONE_BP * NOTIONAL;
@@ -233,11 +233,11 @@ public class SingleNameCDSE2ETest extends ISDABaseTest {
     DoubleMatrix1D hedgeRatio = HEDGE_CAL.getHedgeRatios(pricingCDS, COUPON, HEDGE_CDSS, HEDGE_COUPON,
         CREDIT_CURVE, YIELD_CURVE);
 
-    double[] expectedBIR01 = new double[] {1.0195482158525948E-5, -1.1675043293246645E-6, 2.7624423248884256E-6,
-        2.670563847839702E-6, 3.87349233799128E-6, -1.856682651790731E-5, -8.543755121437346E-5,
-        -2.5681289602119683E-4, -5.036614058123723E-4, -6.087316588188063E-4, -7.044949288936841E-4,
-        -7.529489814500634E-4, -7.835903527680932E-4, -8.102896044359653E-4, -8.296752862790857E-4,
-        -8.394104027226179E-4, -0.0015940605492981152, -0.0025220722195518075, -3.6719633811910235E-4, 0.0, 0.0 };
+    double[] expectedBIR01 = new double[] {0.10195482158525948, -0.011675043293246645, 0.027624423248884256,
+        0.02670563847839702, 0.0387349233799128, -0.1856682651790731, -0.8543755121437346, -2.5681289602119683,
+        -5.036614058123723, -6.087316588188063, -7.0449492889368415, -7.529489814500634, -7.835903527680932,
+        -8.102896044359653, -8.296752862790857, -8.394104027226179, -15.940605492981152, -25.220722195518075,
+        -3.6719633811910235, 0.0, 0.0 };
     double[] expectedBCS01 = new double[] {-0.24881405158438952, -0.8250965690681511, -2.065006424661897,
         -2.593485656315897, -3.3336057889687964, -4.131193830109181, -5.022055333397946, -6.00285454821492,
         -7.065252961069302, -8.198950442794839, -14.137560442079034, -30.46976382278799, 482.0743103690905,
@@ -246,14 +246,14 @@ public class SingleNameCDSE2ETest extends ISDABaseTest {
         0.16704887600018242, 0.8382683669540425 };
 
     assertEquals("accrual days", 86, accrualDays);
-    assertEqualsRelativeTol("accrued permium", 2388.888888888889, accruedPermium, TOL);
+    assertEqualsRelativeTol("accrued premium", 2388.888888888889, accruedPremium, TOL);
     assertEqualsRelativeTol("clean PV", 127830.95471515371, cleanPV, TOL);
     assertEqualsRelativeTol("dirty PV", 125442.06582626482, dirtyPV, TOL);
     assertEqualsRelativeTol("expected loss", 296176.8396749446, expectedLoss, TOL);
     assertEqualsRelativeTol("clean RPV01", 10.410542259606402, cleanRPV01, TOL);
     assertEqualsRelativeTol("dirty RPV01", 10.64943114849529, dirtyRPV01, TOL);
     assertEqualsRelativeTol("par spread (BPS)", 222.7899100041564, parSpread, TOL);
-    assertEqualsRelativeTol("parallel IR01", -0.010656772035422257, parallelIR01, TOL);
+    assertEqualsRelativeTol("parallel IR01", -106.56772035422257, parallelIR01, TOL);
     assertDoubleArray("bucketed IR01", expectedBIR01, bucketedIR01, TOL);
     assertEqualsRelativeTol("parallel CS01", 891.7343555394641, parallelCS01, TOL);
     assertDoubleArray("bucketed CS01", expectedBCS01, bucketedCS01, TOL);
@@ -275,7 +275,7 @@ public class SingleNameCDSE2ETest extends ISDABaseTest {
 
     double coupon = PRICER_OG_FIX.parSpread(pricingCDS, YIELD_CURVE, CREDIT_CURVE); // coupon s.t. zero upfront value
     int accrualDays = pricingCDS.getAccuredDays();
-    double accruedPermium = pricingCDS.getAccruedPremium(COUPON) * NOTIONAL;
+    double accruedPremium = pricingCDS.getAccruedPremium(COUPON) * NOTIONAL;
     double cleanPV = PRICER_OG_FIX.pv(pricingCDS, YIELD_CURVE, CREDIT_CURVE, coupon) * NOTIONAL;
     double dirtyPV = PRICER_OG_FIX.pv(pricingCDS, YIELD_CURVE, CREDIT_CURVE, coupon, PriceType.DIRTY) * NOTIONAL;
     ISDACompliantYieldCurve constantCurve = new ISDACompliantYieldCurve(1.0, 0.0);
@@ -283,10 +283,10 @@ public class SingleNameCDSE2ETest extends ISDABaseTest {
     double cleanRPV01 = PRICER_OG_FIX.annuity(pricingCDS, YIELD_CURVE, CREDIT_CURVE);
     double dirtyRPV01 = PRICER_OG_FIX.annuity(pricingCDS, YIELD_CURVE, CREDIT_CURVE, PriceType.DIRTY);
     double parSpread = coupon * TEN_THOUSAND; // BPS
-    double parallelIR01 = IR_CAL.parallelIR01(pricingCDS, coupon, CREDIT_CURVE, YIELD_CURVE) * ONE_BP * NOTIONAL;
+    double parallelIR01 = IR_CAL.parallelIR01(pricingCDS, coupon, CREDIT_CURVE, YIELD_CURVE) * NOTIONAL;
     double[] bucketedIR01 = IR_CAL.bucketedIR01(pricingCDS, coupon, CREDIT_CURVE, YIELD_CURVE);
     for (int i = 0; i < bucketedIR01.length; ++i) {
-      bucketedIR01[i] *= (NOTIONAL * ONE_BP);
+      bucketedIR01[i] *= NOTIONAL;
     }
     double parallelCS01 = FD_SPREAD_SENSE_CAL.parallelCS01FromCreditCurve(pricingCDS, coupon, BUCKET_CDSS, YIELD_CURVE,
         CREDIT_CURVE, ONE_BP) * ONE_BP * NOTIONAL;
@@ -302,10 +302,10 @@ public class SingleNameCDSE2ETest extends ISDABaseTest {
     DoubleMatrix1D hedgeRatio = HEDGE_CAL.getHedgeRatios(pricingCDS, coupon, HEDGE_CDSS, HEDGE_COUPON,
         CREDIT_CURVE, YIELD_CURVE);
 
-    double[] expectedBIR01 = new double[] {-6.037180505513717E-7, -8.686683233838366E-7, 9.93694324602501E-6,
-        1.6375200317941818E-5, 2.41375720300141E-5, 4.872807603528706E-5, 1.2036095033973737E-4, 3.7067771235799185E-5,
-        -1.390779192395053E-4, -1.8673877487385138E-4, -2.3722823040972507E-4, -2.4827734560750603E-4,
-        -2.5615573986947915E-4, -2.5957941348631053E-4, -1.789135506413686E-6, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+    double[] expectedBIR01 = new double[] {-0.006037180505513717, -0.008686683233838366, 0.0993694324602501,
+        0.16375200317941818, 0.24137572030014098, 0.4872807603528706, 1.2036095033973737, 0.37067771235799185,
+        -1.390779192395053, -1.8673877487385138, -2.3722823040972507, -2.4827734560750603, -2.5615573986947915,
+        -2.5957941348631053, -0.01789135506413686, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
     double[] expectedBCS01 = new double[] {2.7708391137082344E-5, -3.7192471324942744E-6, 6.128070273447861E-5,
         3.3650313091548867E-4, 6.236303418116762E-4, 2.3971802320943425E-4, 5.053599205773196E-4, 6.192200641130796E-4,
         2.2392077081434536E-4, 11.28357139537628, 758.7513550775249, 0.0, 0.0, 0.0, 0.0, 0.0 };
@@ -313,14 +313,14 @@ public class SingleNameCDSE2ETest extends ISDABaseTest {
         0.887776791735758, 0.14988720733714989 };
 
     assertEquals("accrual days", 0, accrualDays);
-    assertEqualsRelativeTol("accrued permium", 0.0, accruedPermium, TOL);
+    assertEqualsRelativeTol("accrued premium", 0.0, accruedPremium, TOL);
     assertEqualsRelativeTol("clean PV", 0.0, cleanPV, TOL);
     assertEqualsRelativeTol("dirty PV", 0.0, dirtyPV, TOL);
     assertEqualsRelativeTol("expected loss", 185414.3066614696, expectedLoss, TOL);
     assertEqualsRelativeTol("clean RPV01", 7.7007461712284915, cleanRPV01, TOL);
     assertEqualsRelativeTol("dirty RPV01", 7.7007461712284915, dirtyRPV01, TOL); // no accrued for legacy CDS
     assertEqualsRelativeTol("par spread (BPS)", 208.5446941701706, parSpread, TOL);
-    assertEqualsRelativeTol("parallel IR01", -0.001073504029716621, parallelIR01, TOL);
+    assertEqualsRelativeTol("parallel IR01", -10.73504029716621, parallelIR01, TOL);
     assertDoubleArray("bucketed IR01", expectedBIR01, bucketedIR01, TOL);
     assertEqualsRelativeTol("parallel CS01", 769.4893870984209, parallelCS01, TOL);
     assertDoubleArray("bucketed CS01", expectedBCS01, bucketedCS01, TOL);

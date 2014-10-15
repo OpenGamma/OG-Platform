@@ -14,6 +14,7 @@ import static com.opengamma.analytics.financial.credit.options.CDSIndexPrvider.C
 import static com.opengamma.analytics.financial.credit.options.CDSIndexPrvider.INDEX_TENORS;
 import static com.opengamma.analytics.financial.credit.options.CDSIndexPrvider.buildCreditCurves;
 import static com.opengamma.analytics.financial.credit.options.YieldCurveProvider.ISDA_USD_20140213;
+import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
@@ -23,6 +24,7 @@ import com.opengamma.analytics.financial.credit.index.IntrinsicIndexDataBundle;
 import com.opengamma.analytics.financial.credit.index.PortfolioSwapAdjustment;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalytic;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalyticFactory;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.FastCreditCurveBuilder;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDABaseTest;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurve;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
@@ -37,11 +39,6 @@ public class CDSIndexE2ETest extends ISDABaseTest {
   private static final double NOTIONAL = 1e8;
 
   private static final LocalDate TRADE_DATE = LocalDate.of(2014, 2, 13);
-
-  private static final LocalDate EXPIRY = LocalDate.of(2014, 3, 19);
-  private static final LocalDate EXERCISE_SETTLE = LocalDate.of(2014, 3, 24);
-  private static final LocalDate MATURITY = LocalDate.of(2018, 12, 20);
-
   private static final double INDEX_COUPON = CDX_NA_HY_21_COUPON;
   private static final double INDEX_RECOVERY = CDX_NA_HY_21_RECOVERY_RATE;
 
@@ -54,19 +51,16 @@ public class CDSIndexE2ETest extends ISDABaseTest {
       CDX_NA_HY_20140213_PAR_SPREADS, RECOVERY_RATES, CDS_TENORS, ISDA_USD_20140213);
   private static IntrinsicIndexDataBundle INTRINSIC_DATA = new IntrinsicIndexDataBundle(CREDIT_CURVES, RECOVERY_RATES);
 
-  // index market data
+  // index market data (3Y, 5Y, 7Y, 10Y)
   private static double[] PRICES = CDX_NA_HY_20140213_PRICES;
-  private static int INDEX_SIZE = RECOVERY_RATES.length;
-
   private static final PointsUpFront[] PILLAR_PUF;
   private static final CDSAnalyticFactory FACTORY = new CDSAnalyticFactory(INDEX_RECOVERY);
   private static final CDSAnalytic[] CDX = FACTORY.makeCDX(TRADE_DATE, INDEX_TENORS);
 
+  // Calculators
   private static final PortfolioSwapAdjustment PSA = new PortfolioSwapAdjustment();
   private static final CDSIndexCalculator INDEX_CAL = new CDSIndexCalculator();
   private static final InterestRateSensitivityCalculator IR_CAL = new InterestRateSensitivityCalculator();
-
-  //  private static final boolean PRINT = false;
 
   static {
     final int n = PRICES.length;
@@ -74,74 +68,505 @@ public class CDSIndexE2ETest extends ISDABaseTest {
     for (int i = 0; i < n; i++) {
       PILLAR_PUF[i] = new PointsUpFront(INDEX_COUPON, 1 - PRICES[i]);
     }
-
-    //    if (PRINT) {
-    //      System.out.println("CDXNAHYTest - set PRINT to false before push");
-    //    }
   }
 
-  @Test(enabled = false)
-  public void indexTest() {
-    int pos = 1;
-    final CDSAnalytic targentCDX = CDX[pos];
+  private static final double TOL = 1.0e-10;
 
-    final int n = PILLAR_PUF.length;
-    final double[] indexPUF = new double[n];
+  /**
+   * 
+   */
+  @Test
+  public void indexSingleNodeTest() {
+    int pos = 1; // target CDX is 5Y
+    CDSAnalytic targentCDX = CDX[pos];
+    int n = PILLAR_PUF.length;
+    double[] indexPUF = new double[n];
     for (int i = 0; i < n; i++) {
       indexPUF[i] = PILLAR_PUF[i].getPointsUpFront();
     }
-    final IntrinsicIndexDataBundle adjCurves = PSA.adjustCurves(indexPUF[pos], CDX[pos], INDEX_COUPON, YIELD_CURVE,
-        INTRINSIC_DATA); // use single node curve
-    double cleanPrice = INDEX_CAL.indexPV(targentCDX, INDEX_COUPON, YIELD_CURVE, adjCurves) * NOTIONAL;
-    double dirtyPrice = INDEX_CAL.indexPV(targentCDX, INDEX_COUPON, YIELD_CURVE, adjCurves, PriceType.DIRTY) * NOTIONAL;
+    int accrualDays = targentCDX.getAccuredDays();
+    double accruedPremium = targentCDX.getAccruedPremium(INDEX_COUPON) * NOTIONAL * INTRINSIC_DATA.getIndexFactor(); // indexFactor = initialIndexSize - numDefaults) / initialIndexSize
 
-    System.out.println(cleanPrice);
-    System.out.println(dirtyPrice);  // agree with 1 - PRICES[pos]
-
-    //    ISDACompliantCreditCurve creditCurve = (new FastCreditCurveBuilder(OG_FIX)).calibrateCreditCurve(targentCDX,
-    //        INDEX_COUPON, YIELD_CURVE, indexPUF[pos]);
-    //    double pv = PRICER_OG_FIX.pv(targentCDX, YIELD_CURVE, creditCurve, INDEX_COUPON) * NOTIONAL;
-    //    double pvDirty = PRICER_OG_FIX.pv(targentCDX, YIELD_CURVE, creditCurve, INDEX_COUPON, PriceType.DIRTY) * NOTIONAL;
-    //    System.out.println(pv);
-    //    System.out.println(pvDirty);
-
-    int accruedDays = targentCDX.getAccuredDays();
-    double accruedPremium = targentCDX.getAccruedPremium(INDEX_COUPON);
-    System.out.println(accruedDays);
-    System.out.println(accruedPremium);
-
-//    ISDACompliantYieldCurve ycUP = bumpYieldCurve(YIELD_CURVE, ONE_BP);
-//    double cleanPriceUp = INDEX_CAL.indexPV(targentCDX, INDEX_COUPON, ycUP, adjCurves) * NOTIONAL;
-//    System.out.println((cleanPriceUp - cleanPrice) * ONE_BP);
-//    double IR01FromSingleCurve = IR_CAL.parallelIR01(targentCDX, INDEX_COUPON, creditCurve, YIELD_CURVE) * ONE_BP *
-//        NOTIONAL;
-//    System.out.println(IR01FromSingleCurve);
-    
-    double weightedCleanRPV01 = INDEX_CAL.indexAnnuity(targentCDX, YIELD_CURVE, adjCurves);
-    System.out.println(weightedCleanRPV01);
-    double weightedDirtyRPV01 = INDEX_CAL.indexAnnuity(targentCDX, YIELD_CURVE, adjCurves, PriceType.DIRTY);
-    System.out.println(weightedDirtyRPV01);
+    /*
+     * Using credit curves for constituent single name CDSs. 
+     * The curves are adjusted by using only the target CDX.
+     */
+    IntrinsicIndexDataBundle adjCurves = PSA.adjustCurves(indexPUF[pos], CDX[pos], INDEX_COUPON, YIELD_CURVE,
+        INTRINSIC_DATA);
+    double cleanPV = INDEX_CAL.indexPV(targentCDX, INDEX_COUPON, YIELD_CURVE, adjCurves) * NOTIONAL; // should be consistent with 1 - PRICES[pos]
+    double dirtyPV = INDEX_CAL.indexPV(targentCDX, INDEX_COUPON, YIELD_CURVE, adjCurves, PriceType.DIRTY) * NOTIONAL;
+    double expectedLoss = INDEX_CAL.expectedDefaultSettlementValue(targentCDX.getProtectionEnd(), adjCurves) * NOTIONAL;
+    double cleanRPV01 = INDEX_CAL.indexAnnuity(targentCDX, YIELD_CURVE, adjCurves);
+    double dirtyRPV01 = INDEX_CAL.indexAnnuity(targentCDX, YIELD_CURVE, adjCurves, PriceType.DIRTY);
     double durationWeightedAverageSpread = INDEX_CAL.intrinsicIndexSpread(targentCDX, YIELD_CURVE, adjCurves) *
         TEN_THOUSAND;
-    System.out.println(durationWeightedAverageSpread);
+    double parallelIR01 = INDEX_CAL.parallelIR01(targentCDX, INDEX_COUPON, YIELD_CURVE, adjCurves) * NOTIONAL;
+    double[] jumpToDefault = INDEX_CAL.jumpToDefault(targentCDX, INDEX_COUPON, YIELD_CURVE, adjCurves);
+    for (int i = 0; i < jumpToDefault.length; ++i) {
+      jumpToDefault[i] *= NOTIONAL;
+    }
+    double[] recovery01 = INDEX_CAL.recovery01(targentCDX, INDEX_COUPON, YIELD_CURVE, adjCurves);
+    for (int i = 0; i < recovery01.length; ++i) {
+      recovery01[i] *= NOTIONAL;
+    }
+    double[] expectedJTD = new double[] {911345.3276539908, 743800.3664554765, 464602.1626007504, 759514.9748069303,
+        833165.8085953749, 612623.6427863704, 757097.4095878329, 936277.8069380535, 920891.9910344195,
+        848027.6178160844, 1003293.3650886695, 778617.9576959303, 707092.2591124334, 574997.0724509163,
+        -105764.31945837072, 866863.319991735, 824488.1757355843, 889901.3687869103, 867529.1720452124,
+        856709.9184953995, 817544.5026770574, 805396.2040147893, 997788.3535806803, 737950.6677157878,
+        946842.1722364293, 893999.1101182154, 862300.0605962147, 807017.4801360253, 835683.8803182387,
+        867457.0207505407, 745724.5382656008, 788562.3703008022, 908024.8055235975, 497868.04427492793,
+        923644.1765115736, 863671.442897501, 906308.5491920839, 1072013.4651568222, 968765.2557841584,
+        999354.131401328, 935887.2413145057, 1046091.0963235861, -30702.667755861876, 722339.5345942264,
+        802464.4355684508, 936048.6524164292, 910505.9840266317, 894721.3423986161, 887991.9661139669,
+        889646.7467287894, 952208.54749057, 973115.5718154643, 251439.81650135457, 791444.1123208294,
+        843377.4210750631, 779584.2415701566, 875320.7524513716, 931202.5283073864, 980488.9977617221,
+        511030.1269970721, 998661.5880255859, 954171.3174916914, 946197.9796335888, 978917.4223926249,
+        758160.4707118025, 883465.8553106448, 937265.8781233428, 791451.5579947375, 933400.5294749915,
+        913966.4453926681, 954706.1912900875, 813483.9663487829, 6367.900468262459, 884914.5089547096,
+        1070931.7643631152, 970898.8485544712, 953695.634655914, 855458.0285159027, 658087.2862926123,
+        814275.0407504112, 67377.33835787828, 896830.3166686655, 640953.5033916779, 795595.8757910811,
+        690530.6099772599, 806548.6744587496, 56891.46430350885, 928986.6115990317, 862180.6192256529,
+        -665558.393468476, 981190.3590541574, 1005156.3695548009, 905435.0029826949, 972020.1717210423,
+        756260.8514812536, 697106.6306713185, 785956.8429922338 };
+    double[] expectedRec01 = new double[] {-139561.82865562924, -197881.1378921079, -432314.23350178037,
+        -246429.40281746117, -132896.5670220749, -340783.49697955005, -247964.97919276363, -122193.62540432697,
+        -161538.55935490542, -200571.65571915146, -81049.6672038405, -231217.74067230397, -315724.85933460743,
+        -449729.8426648982, -805581.4498512819, -151437.74682177624, -197346.35239622547, -134829.2129359926,
+        -169485.91769011554, -204268.68273479727, -204913.68430410823, -212234.2908225003, -104056.83188474829,
+        -258305.99823900295, -115059.64125910898, -150588.5176968103, -172980.04072587506, -211414.09655336005,
+        -193050.16571984955, -171405.21102143772, -301510.1910642546, -224349.96067567408, -191717.42651281646,
+        -414193.7067940033, -131367.0746051117, -172744.98294699937, -142256.73983597555, -28490.703465933566,
+        -100610.58337397527, -79978.00422443911, -226927.45065583798, -164429.32308164772, -716950.861667023,
+        -272426.862855944, -214529.35970717695, -122574.93804834444, -139676.55892938052, -150181.33912905553,
+        -160253.73504382258, -156643.12734773968, -107877.18850926857, -158980.8454276644, -541445.4343255089,
+        -296458.6505670699, -202259.79047115523, -212881.5446294847, -179365.01655038638, -125941.76597175426,
+        -93485.63393862064, -434600.13577389147, -92546.98003151374, -110433.73012572086, -115756.3137527123,
+        -93008.19303185042, -243994.76264500545, -196361.46564759, -121623.93371234722, -221443.7498806151,
+        -125120.92904143682, -176681.64065060052, -119782.9823218729, -210523.7826543962, -722602.0876610717,
+        -157408.23718205903, -142430.71544873226, -98597.39368213696, -110507.86798638091, -178004.51707988168,
+        -249476.72444247553, -205874.67398342708, -664859.7217981115, -157615.46347486821, -265492.7910438084,
+        -217340.23562921325, -296729.42472738033, -211667.08401844872, -683952.5255339593, -170521.82833434394,
+        -173828.313281286, -1015043.8482598866, -90847.55693602911, -152452.75305668917, -145785.09137900846,
+        -98052.86523129685, -246226.91785943933, -291567.1650092818, -225824.67730722172 };
 
-    double expectedLoss = INDEX_CAL.expectedDefaultSettlementValue(targentCDX.getProtectionEnd(), adjCurves) * NOTIONAL;
-    System.out.println(expectedLoss);
+    assertEquals("accrual days", 56, accrualDays);
+    assertEqualsRelativeTol("accrued permium", 777777.7777777779, accruedPremium, TOL);
+    assertEqualsRelativeTol("clean PV", -7620000.000000005, cleanPV, TOL);
+    assertEqualsRelativeTol("dirty PV", -8397777.777777774, dirtyPV, TOL);
+    assertEqualsRelativeTol("expected loss", 1.4667475235799424E7, expectedLoss, TOL);
+    assertEqualsRelativeTol("clean RPV01", 4.371798785409769, cleanRPV01, TOL);
+    assertEqualsRelativeTol("dirty RPV01", 4.527354340965325, dirtyRPV01, TOL);
+    assertEqualsRelativeTol("duration weighted average spread (BPS)", 325.70103579719597,
+        durationWeightedAverageSpread, TOL);
+    assertEqualsRelativeTol("parallel IR01", 1289.5612449798089, parallelIR01, TOL);
+    assertDoubleArray("jump to default", expectedJTD, jumpToDefault, TOL);
+    assertDoubleArray("recovery01", expectedRec01, recovery01, TOL);
 
-    //    adjCurves.withDefault(n)
+    /*
+     * Using credit curves for constituent single name CDSs
+     * The curves are adjusted by using all of the market CDXs.
+     */
+    final IntrinsicIndexDataBundle adjCurvesAll = PSA.adjustCurves(indexPUF, CDX, INDEX_COUPON, YIELD_CURVE,
+        INTRINSIC_DATA);
+    double cleanPVAll = INDEX_CAL.indexPV(targentCDX, INDEX_COUPON, YIELD_CURVE, adjCurvesAll) * NOTIONAL; // should be consistent with 1 - PRICES[pos]
+    double dirtyPVAll = INDEX_CAL.indexPV(targentCDX, INDEX_COUPON, YIELD_CURVE, adjCurvesAll, PriceType.DIRTY) *
+        NOTIONAL;
+    double expectedLossAll = INDEX_CAL.expectedDefaultSettlementValue(targentCDX.getProtectionEnd(), adjCurvesAll) *
+        NOTIONAL;
+    double cleanRPV01All = INDEX_CAL.indexAnnuity(targentCDX, YIELD_CURVE, adjCurvesAll);
+    double dirtyRPV01All = INDEX_CAL.indexAnnuity(targentCDX, YIELD_CURVE, adjCurvesAll, PriceType.DIRTY);
+    double durationWeightedAverageSpreadAll = INDEX_CAL.intrinsicIndexSpread(targentCDX, YIELD_CURVE, adjCurvesAll) *
+        TEN_THOUSAND;
+    double parallelIR01All = INDEX_CAL.parallelIR01(targentCDX, INDEX_COUPON, YIELD_CURVE, adjCurvesAll) * NOTIONAL;
+    double[] jumpToDefaultAll = INDEX_CAL.jumpToDefault(targentCDX, INDEX_COUPON, YIELD_CURVE, adjCurvesAll);
+    for (int i = 0; i < jumpToDefaultAll.length; ++i) {
+      jumpToDefaultAll[i] *= NOTIONAL;
+    }
+    double[] recovery01All = INDEX_CAL.recovery01(targentCDX, INDEX_COUPON, YIELD_CURVE, adjCurvesAll);
+    for (int i = 0; i < recovery01All.length; ++i) {
+      recovery01All[i] *= NOTIONAL;
+    }
+    double[] expectedJTDAll = new double[] {911117.2966621926, 743684.0620080531, 464807.82153855235,
+        759223.9067126575,
+        833165.0240975487, 612468.8650724612, 756757.7979662815, 936081.7902080287, 920606.4112157181,
+        847696.2561961493, 1003130.837008946, 778267.5508905826, 706585.2853926971, 575434.447571798,
+        -102734.09118324437, 866773.1354007499, 824232.0562688498, 889888.2956503782, 867277.6569587498,
+        856413.48784666, 817179.8256029161, 805101.6638018508, 997594.8056320039, 737603.5706486081, 946646.8007573524,
+        893806.462546315, 862011.8279293486, 806710.6779191344, 835324.678299081, 867189.5213716469, 745366.0059582518,
+        788230.0423103195, 907662.8963439495, 497887.1103078619, 923414.8280943261, 863373.6034965748,
+        906125.2084588979, 1071962.824839132, 968568.7419788367, 999208.6508343399, 935580.6573997962,
+        1045843.6119863535, -27368.471081125463, 721954.9506466006, 802187.6694712776, 935843.4350065616,
+        910302.3665050062, 894518.6058926492, 887720.8756418071, 889370.0850155114, 952020.7255013887,
+        972814.4876050169, 252962.3963567775, 791043.304821631, 843044.5510561961, 779418.010469228, 875027.2812050793,
+        930978.931505441, 980304.0984727633, 510969.36046119884, 998480.4231779707, 953954.81645967, 945985.8922718273,
+        978749.3412300039, 757833.9467610689, 883256.0577519427, 937061.1580099979, 791155.3508414672,
+        933159.5451201372, 913660.9906770288, 954487.1118914895, 813326.3997995246, 9096.694670997305,
+        884669.0308323012, 1070632.1827482204, 970738.9698718156, 953491.4893011524, 855179.9150333777,
+        657901.3718083191, 813988.1575336193, 69717.14984494487, 896598.6294225549, 640850.3325037715,
+        795372.2635729052, 690223.2440624324, 806251.3265616312, 59103.29148959889, 928724.0872521661, 861921.32341001,
+        -663043.3001100654, 981053.1638371393, 1004886.9525656151, 905201.540515163, 971826.7914863656,
+        755910.6329222062, 696681.9640860017, 785609.8971706526 };
+    double[] expectedRec01All = new double[] {-139887.31363230804, -198311.04924439717, -433047.3660519826,
+        -246956.81972983447, -133190.60745822816, -341441.83436994, -248499.94760151798, -122480.9384152883,
+        -161910.68773983844, -201021.8763133255, -81247.61347004696, -231724.8625275148, -316375.5826441032,
+        -450453.5274170195, -806107.3103185329, -151775.1706131768, -197783.89197669332, -135125.7824590783,
+        -169872.03369019576, -204721.4506940941, -205375.54192548816, -212703.33025622915, -104305.74247950326,
+        -258858.0751230893, -115332.28495826322, -150932.48081035985, -173374.9984498724, -211882.7087482122,
+        -193490.27755215362, -171796.2826501761, -302125.25233319344, -224843.92018546446, -192151.40621680842,
+        -414926.1845689914, -131676.43226874794, -173141.5813451517, -142583.46499727707, -28561.578246519104,
+        -100853.27604969585, -80171.67268403518, -227414.44011780957, -164799.0828676032, -717553.3879455855,
+        -273005.7085138976, -215000.30489616547, -122863.64286010184, -139999.8419646928, -150525.34019034752,
+        -160623.6616064251, -157006.52488155736, -108133.97794489434, -159347.75019215606, -542171.5435839767,
+        -297066.829632043, -202713.2880599622, -213340.7165465065, -179771.96060215813, -126238.82028127078,
+        -93712.29745817007, -435354.9698933417, -92770.7319998512, -110698.58323401344, -116031.79605223004,
+        -93231.99468124051, -244520.28436604247, -196790.29455107747, -121910.79247700267, -221929.16770117678,
+        -125418.81941270511, -177083.4862533655, -120067.18407260436, -210976.47833028637, -723232.2695170578,
+        -157770.2231849431, -142762.84388024863, -98832.65400500425, -110771.465673976, -178409.03238179607,
+        -250005.64453195556, -206331.21164342554, -665545.2476687637, -157976.1549564491, -266040.0464683889,
+        -217811.93003253266, -297338.00929545454, -212135.37760011316, -684636.7563914763, -170907.57243424605,
+        -174223.26552720048, -1015047.628733981, -91064.12512676444, -152803.5773637681, -146123.19211008097,
+        -98289.81046908897, -246759.98484680743, -292178.74657336395, -226321.8586278077 };
+
+    assertEqualsRelativeTol("clean PV", -7620000.000000005, cleanPVAll, TOL);
+    assertEqualsRelativeTol("dirty PV", -8397777.777777774, dirtyPVAll, TOL);
+    assertEqualsRelativeTol("expected loss", 1.4697623484483391E7, expectedLossAll, TOL);
+    assertEqualsRelativeTol("clean RPV01", 4.376857663631577, cleanRPV01All, TOL);
+    assertEqualsRelativeTol("dirty RPV01", 4.532413219187131, dirtyRPV01All, TOL);
+    assertEqualsRelativeTol("duration weighted average spread (BPS)", 325.90249476658744,
+        durationWeightedAverageSpreadAll, TOL);
+    assertEqualsRelativeTol("parallel IR01", 1248.341194454161, parallelIR01All, TOL);
+    assertDoubleArray("jump to default", expectedJTDAll, jumpToDefaultAll, TOL);
+    assertDoubleArray("recovery01", expectedRec01All, recovery01All, TOL);
+
+    /*
+     *  using index credit curve, i.e., a single credit curve 
+     *  Some sensitivities are irrelevant in this calculation method
+     */
+    ISDACompliantCreditCurve indexCurve = (new FastCreditCurveBuilder(OG_FIX)).calibrateCreditCurve(targentCDX,
+        INDEX_COUPON, YIELD_CURVE, indexPUF[pos]); // single node index curve
+    double cleanPriceIndexCurve = PRICER_OG_FIX.pv(targentCDX, YIELD_CURVE, indexCurve, INDEX_COUPON) *
+        INTRINSIC_DATA.getIndexFactor() * NOTIONAL; // should be consistent with 1 - PRICES[pos]
+    double dirtyPriceIndexCurve = PRICER_OG_FIX.pv(targentCDX, YIELD_CURVE, indexCurve, INDEX_COUPON,
+        PriceType.DIRTY) * INTRINSIC_DATA.getIndexFactor() * NOTIONAL;
+    double cleanRPV01IndexCurve = PRICER_OG_FIX.annuity(targentCDX, YIELD_CURVE, indexCurve) *
+        INTRINSIC_DATA.getIndexFactor();
+    double dirtyRPV01IndexCurve = PRICER_OG_FIX.annuity(targentCDX, YIELD_CURVE, indexCurve, PriceType.DIRTY) *
+        INTRINSIC_DATA.getIndexFactor();
+    double spreadIndexCurve = PRICER_OG_FIX.parSpread(targentCDX, YIELD_CURVE, indexCurve) * TEN_THOUSAND;
+    double IR01IndexCurve = IR_CAL.parallelIR01(targentCDX, INDEX_COUPON, indexCurve, YIELD_CURVE) * INTRINSIC_DATA.getIndexFactor() * NOTIONAL;
+
+    assertEqualsRelativeTol("clean PV", -7619999.999999996, cleanPriceIndexCurve, TOL);
+    assertEqualsRelativeTol("dirty PV", -8397777.777777776, dirtyPriceIndexCurve, TOL);
+    assertEqualsRelativeTol("clean RPV01", 4.299718387823459, cleanRPV01IndexCurve, TOL);
+    assertEqualsRelativeTol("dirty RPV01", 4.455273943379015, dirtyRPV01IndexCurve, TOL);
+    assertEqualsRelativeTol("duration weighted average spread (BPS)", 322.77909126375874,
+        spreadIndexCurve, TOL);
+    assertEqualsRelativeTol("parallel IR01", 2020.931376187085, IR01IndexCurve, TOL);
   }
 
-  //  JTD - per-name report for instantaneous default for index trades (decomposed)
-  //  Recovery01 - should apply to curve, trade or curve + trade simultaneously.
+  /**
+   * one tenor is missing
+   */
+  @Test
+  public void missingMarketDataTest() {
+    int pos = 2; // target CDX is 7Y, which is missing in the market data
+    CDSAnalytic targentCDX = CDX[pos];
+    int nPillars = 3;
+    double[] indexPUF = new double[nPillars];
+    CDSAnalytic[] marketCDX = new CDSAnalytic[nPillars];
+    int j = 0;
+    for (int i = 0; i < CDX.length; i++) {
+      if (i != pos) {
+        indexPUF[j] = PILLAR_PUF[i].getPointsUpFront();
+        marketCDX[j] = CDX[i];
+        ++j;
+      }
+    }
+    int accrualDays = targentCDX.getAccuredDays();
+    double accruedPremium = targentCDX.getAccruedPremium(INDEX_COUPON) * NOTIONAL * INTRINSIC_DATA.getIndexFactor();
 
-  //
+    /*
+     * Using credit curves for constituent single name CDSs. 
+     * The curves are adjusted by using only the target CDX.
+     */
+    IntrinsicIndexDataBundle adjCurves = PSA.adjustCurves(indexPUF, marketCDX, INDEX_COUPON, YIELD_CURVE,
+        INTRINSIC_DATA);
+    double cleanPV = INDEX_CAL.indexPV(targentCDX, INDEX_COUPON, YIELD_CURVE, adjCurves) * NOTIONAL;
+    double dirtyPV = INDEX_CAL.indexPV(targentCDX, INDEX_COUPON, YIELD_CURVE, adjCurves, PriceType.DIRTY) * NOTIONAL;
+    double expectedLoss = INDEX_CAL.expectedDefaultSettlementValue(targentCDX.getProtectionEnd(), adjCurves) * NOTIONAL;
+    double cleanRPV01 = INDEX_CAL.indexAnnuity(targentCDX, YIELD_CURVE, adjCurves);
+    double dirtyRPV01 = INDEX_CAL.indexAnnuity(targentCDX, YIELD_CURVE, adjCurves, PriceType.DIRTY);
+    double durationWeightedAverageSpread = INDEX_CAL.intrinsicIndexSpread(targentCDX, YIELD_CURVE, adjCurves) *
+        TEN_THOUSAND;
+    double parallelIR01 = INDEX_CAL.parallelIR01(targentCDX, INDEX_COUPON, YIELD_CURVE, adjCurves) * NOTIONAL;
+    double[] jumpToDefault = INDEX_CAL.jumpToDefault(targentCDX, INDEX_COUPON, YIELD_CURVE, adjCurves);
+    for (int i = 0; i < jumpToDefault.length; ++i) {
+      jumpToDefault[i] *= NOTIONAL;
+    }
+    double[] recovery01 = INDEX_CAL.recovery01(targentCDX, INDEX_COUPON, YIELD_CURVE, adjCurves);
+    for (int i = 0; i < recovery01.length; ++i) {
+      recovery01[i] *= NOTIONAL;
+    }
+    double[] expectedJTD = new double[] {914599.5689325226, 726419.4220053169, 353680.09865290346, 671090.5213729162,
+        865085.1214840721, 485042.3867920063, 670219.4935891106, 932779.5582258524, 879441.0990501887,
+        752995.6365588604, 1042900.3631148025, 710396.0259870344, 569149.0598797977, 398019.7419699079,
+        -207073.7092159356, 865416.2336930186, 800356.7794492643, 929630.308806143, 819772.4463265623,
+        774489.9741205043, 795147.1909591412, 734956.7740752836, 1032177.9937996054, 616471.3912794925,
+        952384.5898780626, 856406.3301732363, 825482.7686093866, 730260.4083831015, 731750.3881758627,
+        828129.6048934198, 624402.6501650237, 681509.5227961765, 857203.3458814354, 389360.88484057656,
+        900674.4670027611, 781206.1038657852, 878060.2160250074, 1200568.8516394494, 979913.1929558167,
+        1052931.8329041998, 830858.0761729588, 1017682.616900123, -119262.11135501099, 612165.0615091881,
+        711278.065858131, 950044.2328293014, 910390.5371372149, 848856.1020919572, 847190.9235036374, 876706.846212996,
+        952867.9721889064, 918991.2311620245, 147099.80274881283, 673837.2814543063, 745581.6160879546,
+        717387.4264697474, 791964.0355275698, 914607.8823210838, 1033452.5962398661, 375114.43170607305,
+        1033058.4289216434, 960723.6358046903, 940280.4759479351, 1029970.1447006644, 670822.0114601253,
+        857568.145317831, 926395.6450613311, 756156.3530270521, 952315.6606151683, 869042.8517718845,
+        938199.2607189029, 755184.7375615471, -74447.25676593765, 849800.097536522, 1047414.5744764674,
+        973429.4517629797, 955172.4188879838, 805095.1702556441, 560707.5180054958, 760982.4025894242,
+        -39817.51446671994, 825610.6997550855, 575978.747651713, 710621.7760643836, 575095.6561950092,
+        737477.1784536265, -45857.597916323844, 877206.7919706369, 842912.2293841472, -667550.0620960894,
+        1042775.7060958759, 1002271.1111744574, 874472.4276986702, 990260.2435129798, 668040.2060594165,
+        573798.3124242119, 728676.1489675208 };
+    double[] expectedRec01 = new double[] {-251304.71585144178, -325203.8789943683, -586648.2875262748,
+        -408272.41245542245, -231976.63325278417, -518427.2255781659, -408616.4390248018, -241279.61495003558,
+        -297623.20137628133, -370556.1015631285, -174530.08252026484, -381242.83384280273, -494815.845702374,
+        -619322.5489553664, -892482.0522617545, -267385.6926369762, -321038.81763184577, -223164.6416149089,
+        -313651.8278537996, -362773.3462002046, -325771.75809965876, -366605.95378705044, -195975.81736100177,
+        -442883.3332889076, -228662.95173065324, -290224.9412166137, -308905.02955725574, -370392.4924202426,
+        -373938.7747159569, -308938.7385647126, -468159.1556456556, -403199.907467821, -326605.10170459584,
+        -568745.8221210544, -263028.8006760732, -341328.08608307334, -276316.07932110055, -66036.79908427017,
+        -212093.35765289754, -163935.75798797523, -382816.2282060414, -279150.0000764281, -819110.6219412663,
+        -446205.8448061626, -383392.2773265295, -228985.1281642836, -253879.43793537148, -295829.3361200753,
+        -299935.6077249625, -277248.3937975655, -226474.29371345937, -298828.076514057, -682568.5146048665,
+        -455839.399224248, -374278.60690741404, -364422.11425286485, -344623.9531457179, -253888.2137283227,
+        -175865.97374930256, -597567.4344905142, -187204.02342164938, -223912.40040134918, -237470.36147049864,
+        -177029.48677557425, -406185.56286955916, -315368.0273917367, -246089.84691062535, -349345.485526801,
+        -227535.51142672836, -311389.2644004584, -247077.01521361168, -355567.3399960001, -811922.6934479174,
+        -294268.8525530383, -257757.4754723839, -216626.28059632398, -227652.85866954856, -322817.03363118856,
+        -433442.6383821743, -348901.89762675535, -788279.2728966378, -318697.6101580127, -420792.0724158093,
+        -381680.51683830837, -469962.64044059505, -365069.2846436973, -797769.6838405222, -310097.59439372714,
+        -296795.64640312176, -1019053.5468024287, -167713.5129068544, -257085.80124846968, -280876.22132814466,
+        -204914.38673509783, -408595.40992420504, -471591.03007073124, -368902.8331015535 };
 
-  //  private ISDACompliantYieldCurve bumpYieldCurve(final ISDACompliantYieldCurve curve, final double bumpAmount) {
-  //    final int n = curve.getNumberOfKnots();
-  //    final double[] bumped = curve.getKnotZeroRates();
-  //    for (int i = 0; i < n; i++) {
-  //      bumped[i] += bumpAmount;
-  //    }
-  //    return curve.withRates(bumped);
-  //  }
+    assertEquals("accrual days", 56, accrualDays);
+    assertEqualsRelativeTol("accrued permium", 777777.7777777779, accruedPremium, TOL);
+    assertEqualsRelativeTol("clean PV", -5914154.704818112, cleanPV, TOL);
+    assertEqualsRelativeTol("dirty PV", -6691932.482595883, dirtyPV, TOL);
+    assertEqualsRelativeTol("expected loss", 2.3610506554899197E7, expectedLoss, TOL);
+    assertEqualsRelativeTol("clean RPV01", 5.63546372361573, cleanRPV01, TOL);
+    assertEqualsRelativeTol("dirty RPV01", 5.791019279171284, dirtyRPV01, TOL);
+    assertEqualsRelativeTol("duration weighted average spread (BPS)", 395.0546930142677,
+        durationWeightedAverageSpread, TOL);
+    assertEqualsRelativeTol("parallel IR01", 376.9183762297734, parallelIR01, TOL);
+    assertDoubleArray("jump to default", expectedJTD, jumpToDefault, TOL);
+    assertDoubleArray("recovery01", expectedRec01, recovery01, TOL);
+  }
+
+  /**
+   * several single names defaulted
+   */
+  @Test
+  public void defaultedSingleNamesTest() {
+    int pos = 1; // target CDX is 5Y
+    CDSAnalytic targentCDX = CDX[pos];
+    int n = PILLAR_PUF.length;
+    double[] indexPUF = new double[n];
+    for (int i = 0; i < n; i++) {
+      indexPUF[i] = PILLAR_PUF[i].getPointsUpFront();
+    }
+    int[] defaultedNames = new int[] {2, 15, 37, 51 };
+    IntrinsicIndexDataBundle dataDefaulted = INTRINSIC_DATA.withDefault(defaultedNames);
+    int accrualDays = targentCDX.getAccuredDays();
+    double accruedPremium = targentCDX.getAccruedPremium(INDEX_COUPON) * NOTIONAL * dataDefaulted.getIndexFactor();
+
+    /*
+     * Using credit curves for constituent single name CDSs. 
+     * The curves are adjusted by using only the target CDX.
+     */
+    IntrinsicIndexDataBundle adjCurves = PSA.adjustCurves(indexPUF[pos], CDX[pos], INDEX_COUPON, YIELD_CURVE,
+        dataDefaulted);
+    double cleanPV = INDEX_CAL.indexPV(targentCDX, INDEX_COUPON, YIELD_CURVE, adjCurves) * NOTIONAL;
+    double dirtyPV = INDEX_CAL.indexPV(targentCDX, INDEX_COUPON, YIELD_CURVE, adjCurves, PriceType.DIRTY) * NOTIONAL; // should be consistent with 1 - PRICES[pos]
+    double expectedLoss = INDEX_CAL.expectedDefaultSettlementValue(targentCDX.getProtectionEnd(), adjCurves) * NOTIONAL;
+    double cleanRPV01 = INDEX_CAL.indexAnnuity(targentCDX, YIELD_CURVE, adjCurves);
+    double dirtyRPV01 = INDEX_CAL.indexAnnuity(targentCDX, YIELD_CURVE, adjCurves, PriceType.DIRTY);
+    double durationWeightedAverageSpread = INDEX_CAL.intrinsicIndexSpread(targentCDX, YIELD_CURVE, adjCurves) *
+        TEN_THOUSAND;
+    double parallelIR01 = INDEX_CAL.parallelIR01(targentCDX, INDEX_COUPON, YIELD_CURVE, adjCurves) * NOTIONAL;
+    double[] jumpToDefault = INDEX_CAL.jumpToDefault(targentCDX, INDEX_COUPON, YIELD_CURVE, adjCurves);
+    for (int i = 0; i < jumpToDefault.length; ++i) {
+      jumpToDefault[i] *= NOTIONAL;
+    }
+    double[] recovery01 = INDEX_CAL.recovery01(targentCDX, INDEX_COUPON, YIELD_CURVE, adjCurves);
+    for (int i = 0; i < recovery01.length; ++i) {
+      recovery01[i] *= NOTIONAL;
+    }
+    double[] expectedJTD = new double[] {913394.8621962295, 746476.3140592052, 0.0, 762953.789098977,
+        835053.3627723365, 617117.0053600607, 760534.0005089438, 938091.6306718069, 923311.0346457935,
+        850928.5707184967, 1004521.572562763, 781834.6857150248, 711447.5518296721, 581492.912857808,
+        -98663.37732613515, 0.0, 827323.5841359774, 891914.3729966878, 869981.6745073004, 859708.6937108497,
+        820432.9111726525, 808391.5061287251, 999383.200089488, 741496.4837564897, 948554.1995389103,
+        896211.7010950472, 864799.2051820593, 809998.2142879455, 838414.4242223006, 869935.022054733,
+        750042.1028967481, 791697.1909001863, 910918.2942541918, 503058.2268460615, 925573.229482435,
+        866156.9951530964, 908406.7157776667, 0.0, 970263.0087933547, 1000566.103684508, 939510.1072350455,
+        1048827.11638906, -23742.924728616068, 726051.3813434319, 805501.4092548393, 937864.3417389323,
+        912564.2411682841, 896927.0066170425, 890325.1595001323, 891920.3230831244, 953813.1910077595, 0.0,
+        257568.59817553818, 795845.1954479457, 846295.6774450236, 782571.2186729994, 877947.3768708413,
+        933064.3128929975, 981888.6361769849, 516637.4829848724, 1000069.1878836834, 955811.7432364841,
+        947915.8119943716, 980315.6870682745, 761546.9978562378, 886433.3255390234, 939070.0202960338,
+        794564.9853063939, 935240.3490272388, 916626.7083906191, 956499.0427303744, 816525.6524870947,
+        13589.93969723262, 887209.2603199454, 1073285.3132212104, 972376.3732399537, 955341.0478412788,
+        858017.9917390945, 661278.1291422452, 817195.3547881411, 74091.70950718204, 899153.4106094317,
+        644370.4680871989, 798678.2902378517, 694559.2964851564, 809533.7415768915, 63761.20439305581,
+        931588.511359457, 864690.4397892914, -663753.9661819863, 982566.7347817974, 1007578.2863514589,
+        907574.7847216427, 973486.1844945521, 759659.8957779743, 701031.2039561775, 789113.5989292014 };
+    double[] expectedRec01 = new double[] {-138149.57548173715, -195947.6606000404, 0.0, -244097.81927352256,
+        -131545.83603968847, -337772.9838422089, -245621.7969965156, -120944.58923027178, -159925.14300849827,
+        -198616.35209704956, -80202.04887747848, -229008.2300340679, -312884.111402761, -446108.902912447,
+        -801897.114757639, 0.0, -195417.74501631927, -133460.2517421897, -167801.1754219834, -202281.72000540156,
+        -202921.73993384934, -210180.53970277583, -102982.28219564802, -255882.29176802386, -113878.770770024,
+        -149074.3312105156, -171264.14649748185, -209367.30260189186, -191159.56727783915, -169703.46298172715,
+        -298766.73797783174, -222196.31600997454, -189837.85736557838, -410752.4288016298, -130031.51260393477,
+        -171031.43960547703, -140819.30802505297, 0.0, -99569.70678281639, -79141.06317141505, -224751.77205099774,
+        -162789.4534337523, -712891.3604025444, -269896.18822910526, -212456.219020077, -121322.31691133727,
+        -138263.1272555478, -148670.90050827194, -158651.99322127653, -155074.13898805378, -106765.52854773018, 0.0,
+        -537481.5459520443, -293750.99132652406, -200290.1358918631, -210821.50016324708, -177592.80961845216,
+        -124657.2175395878, -92514.62566640385, -431056.3574572183, -91585.17895701976, -109297.43874996468,
+        -114568.80691874986, -92041.81152625445, -241682.4919747127, -194441.08950248873, -120380.33573889127,
+        -219313.55217970957, -123844.32964480988, -174933.11167232387, -118556.99082687228, -208483.32142448518,
+        -718565.6515061635, -155832.04031048962, -140991.85357942086, -97576.1200181287, -109370.80772858317,
+        -176244.37022953568, -247121.04351310863, -203874.1627767233, -660745.7839831264, -156037.34057578622,
+        -263012.5436684385, -215243.45802745805, -294020.0348680447, -209618.15267268007, -679856.293991873,
+        -168827.63829287738, -172105.00107156037, -1014316.9351984165, -89902.42328586837, -150921.72909218515,
+        -144315.23664537718, -97036.9515497064, -243897.55289223307, -288895.9363694398, -223658.82113488184 };
+
+    assertEquals("accrual days", 56, accrualDays);
+    assertEqualsRelativeTol("accrued permium", 745704.467353952, accruedPremium, TOL);
+    assertEqualsRelativeTol("clean PV", -7305773.195876298, cleanPV, TOL);
+    assertEqualsRelativeTol("dirty PV", -8051477.663230252, dirtyPV, TOL);
+    assertEqualsRelativeTol("expected loss", 1.6613694931739897E7, expectedLoss, TOL);
+    assertEqualsRelativeTol("clean RPV01", 4.191372219024439, cleanRPV01, TOL);
+    assertEqualsRelativeTol("dirty RPV01", 4.34051311249523, dirtyRPV01, TOL);
+    assertEqualsRelativeTol("duration weighted average spread (BPS)", 325.6949558735027,
+        durationWeightedAverageSpread, TOL);
+    assertEqualsRelativeTol("parallel IR01", 1248.160240097107, parallelIR01, TOL);
+    assertDoubleArray("jump to default", expectedJTD, jumpToDefault, TOL);
+    assertDoubleArray("recovery01", expectedRec01, recovery01, TOL);
+
+    /*
+     * Using credit curves for constituent single name CDSs
+     * The curves are adjusted by using all of the market CDXs.
+     */
+    final IntrinsicIndexDataBundle adjCurvesAll = PSA.adjustCurves(indexPUF, CDX, INDEX_COUPON, YIELD_CURVE,
+        dataDefaulted);
+    double cleanPVAll = INDEX_CAL.indexPV(targentCDX, INDEX_COUPON, YIELD_CURVE, adjCurvesAll) * NOTIONAL;
+    double dirtyPVAll = INDEX_CAL.indexPV(targentCDX, INDEX_COUPON, YIELD_CURVE, adjCurvesAll, PriceType.DIRTY) *
+        NOTIONAL; // should be consistent with 1 - PRICES[pos]
+    double expectedLossAll = INDEX_CAL.expectedDefaultSettlementValue(targentCDX.getProtectionEnd(), adjCurvesAll) *
+        NOTIONAL;
+    double cleanRPV01All = INDEX_CAL.indexAnnuity(targentCDX, YIELD_CURVE, adjCurvesAll);
+    double dirtyRPV01All = INDEX_CAL.indexAnnuity(targentCDX, YIELD_CURVE, adjCurvesAll, PriceType.DIRTY);
+    double durationWeightedAverageSpreadAll = INDEX_CAL.intrinsicIndexSpread(targentCDX, YIELD_CURVE, adjCurvesAll) *
+        TEN_THOUSAND;
+    double parallelIR01All = INDEX_CAL.parallelIR01(targentCDX, INDEX_COUPON, YIELD_CURVE, adjCurvesAll) * NOTIONAL;
+    double[] jumpToDefaultAll = INDEX_CAL.jumpToDefault(targentCDX, INDEX_COUPON, YIELD_CURVE, adjCurvesAll);
+    for (int i = 0; i < jumpToDefaultAll.length; ++i) {
+      jumpToDefaultAll[i] *= NOTIONAL;
+    }
+    double[] recovery01All = INDEX_CAL.recovery01(targentCDX, INDEX_COUPON, YIELD_CURVE, adjCurvesAll);
+    for (int i = 0; i < recovery01All.length; ++i) {
+      recovery01All[i] *= NOTIONAL;
+    }
+    double[] expectedJTDAll = new double[] {913153.2320468854, 746351.5015545913, 0.0, 762643.7105725466,
+        835051.2112351491, 616948.2782774948, 760172.7478080747, 937883.9740247317, 923008.3827307107,
+        850576.9850108427, 1004349.7243480295, 781462.462772382, 710908.0706195662, 581944.699673728,
+        -95473.7532751668, 0.0, 827051.3542534923, 891899.1973784332, 869714.8119343903, 859393.7896512706,
+        820046.2124846877, 808078.518862655, 999178.3742202163, 741127.1365037857, 948347.326217619, 896007.1503669566,
+        864493.6218359309, 809672.331703508, 838033.731201494, 869651.2914346054, 749659.3449019011, 791344.1520438534,
+        910534.6291613238, 503070.8292801683, 925330.3440327982, 865841.293495156, 908212.0986060642, 0.0,
+        970055.1395791139, 1000412.2181595486, 939183.7462659898, 1048564.320371269, -20223.28967019871,
+        725642.1749280428, 805207.096558607, 937646.9960913468, 912348.3151056672, 896711.8375701754,
+        890037.8393274065, 891627.2085544942, 953614.3740741926, 0.0, 259166.6012639217, 795417.8732817244,
+        845942.4723915891, 782393.4216389699, 877636.1214977591, 932827.5666796123, 981693.0854912007,
+        516564.90775823453, 999877.5685543533, 955582.6942692968, 947691.3320263757, 980137.8466949692,
+        761199.6619428504, 886209.8034687509, 938853.2094806728, 794250.0501476979, 934985.3075818114,
+        916302.8217923832, 956267.1284210989, 816356.9618224052, 16463.714839144108, 886948.9645858823,
+        1072968.0996842608, 972207.0946550958, 955125.0058458123, 857722.9688207624, 661079.0522349237,
+        816890.5633533269, 76553.42923521555, 898907.6165381758, 644258.2271205571, 798439.9027095481,
+        694230.8276334268, 809217.8119730846, 66086.91056349588, 931309.940009892, 864415.3067232369,
+        -661018.4458584719, 982421.4322449598, 1007292.7166047151, 907327.3332560458, 973281.6453927845,
+        759287.5273064353, 700579.2960645965, 788745.1355318752 };
+    double[] expectedRec01All = new double[] {-138493.33344501475, -196402.1204427429, 0.0, -244655.72912760405,
+        -131856.40099272016, -338470.5595536771, -246187.69165036365, -121247.96399271929, -160318.27855148344,
+        -199092.2515566522, -80410.9439275213, -229544.52218031883, -313573.19211394765, -446877.686433676,
+        -802465.4011235997, 0.0, -195880.23636656074, -133773.49873810343, -168209.14057899002, -202760.3528240727,
+        -203409.95903249405, -210676.4280214344, -103245.04168247599, -256466.38045809127, -114166.6267475613,
+        -149437.67249419537, -171681.46680167055, -209862.72949444086, -191624.7159472514, -170116.6720414003,
+        -299417.9540451243, -222718.63734165512, -190296.5263422141, -411529.7389869271, -130358.19849995451,
+        -171450.48715203497, -141164.40093737486, 0.0, -99825.88719370234, -79345.44519118138, -225266.78177346976,
+        -163180.12719695616, -713537.8808726899, -270508.7262853777, -212954.1462548192, -121627.16124893786,
+        -138604.56690672343, -149034.2772725999, -159042.79483750052, -155458.0211362639, -107036.61997799102, 0.0,
+        -538254.9709705027, -294394.86062458076, -200769.5109064213, -211306.99560604902, -178022.83693937506,
+        -124970.88889342026, -92753.86385968578, -431857.7257054895, -91821.34298993986, -109577.04596002075,
+        -114859.65895969719, -92278.03186481408, -242238.36535867339, -194894.38894250017, -120683.22637602066,
+        -219826.82895797506, -124158.87399956447, -175357.73497975548, -118857.06518339552, -208961.95928662075,
+        -719242.004528812, -156214.44369808494, -141342.63982741628, -97824.45603734197, -109649.09346667683,
+        -176671.82279488846, -247680.5846075673, -204356.78917858328, -661479.3613251017, -156418.38275965303,
+        -263591.6592672253, -215742.21388910932, -294664.3388335037, -210113.24739366397, -680589.042199156,
+        -169235.22279656064, -172522.3276036287, -1014322.5661839879, -90131.00824135669, -151292.3194460656,
+        -144672.35019431746, -97287.05650471071, -244461.41670763085, -289543.31121164665, -224184.55758060206 };
+
+    assertEqualsRelativeTol("clean PV", -7305773.195876298, cleanPVAll, TOL);
+    assertEqualsRelativeTol("dirty PV", -8051477.6632302385, dirtyPVAll, TOL);
+    assertEqualsRelativeTol("expected loss", 1.664444475101973E7, expectedLossAll, TOL);
+    assertEqualsRelativeTol("clean RPV01", 4.196531715092685, cleanRPV01All, TOL);
+    assertEqualsRelativeTol("dirty RPV01", 4.345672608563473, dirtyRPV01All, TOL);
+    assertEqualsRelativeTol("duration weighted average spread (BPS)", 325.9092581237661,
+        durationWeightedAverageSpreadAll, TOL);
+    assertEqualsRelativeTol("parallel IR01", 1205.9793964708242, parallelIR01All, TOL);
+    assertDoubleArray("jump to default", expectedJTDAll, jumpToDefaultAll, TOL);
+    assertDoubleArray("recovery01", expectedRec01All, recovery01All, TOL);
+
+    /*
+     *  using index credit curve, i.e., a single credit curve 
+     *  Some sensitivities are irrelevant in this calculation method
+     */
+    ISDACompliantCreditCurve indexCurve = (new FastCreditCurveBuilder(OG_FIX)).calibrateCreditCurve(targentCDX,
+        INDEX_COUPON, YIELD_CURVE, indexPUF[pos]); // single node index curve, indexFactors cancel out
+    double cleanPriceIndexCurve = PRICER_OG_FIX.pv(targentCDX, YIELD_CURVE, indexCurve, INDEX_COUPON) *
+        dataDefaulted.getIndexFactor() * NOTIONAL;
+    double dirtyPriceIndexCurve = PRICER_OG_FIX.pv(targentCDX, YIELD_CURVE, indexCurve, INDEX_COUPON,
+        PriceType.DIRTY) * dataDefaulted.getIndexFactor() * NOTIONAL;
+    double cleanRPV01IndexCurve = PRICER_OG_FIX.annuity(targentCDX, YIELD_CURVE, indexCurve) *
+        dataDefaulted.getIndexFactor();
+    double dirtyRPV01IndexCurve = PRICER_OG_FIX.annuity(targentCDX, YIELD_CURVE, indexCurve, PriceType.DIRTY) *
+        dataDefaulted.getIndexFactor();
+    double spreadIndexCurve = PRICER_OG_FIX.parSpread(targentCDX, YIELD_CURVE, indexCurve) * TEN_THOUSAND;
+    double IR01IndexCurve = IR_CAL.parallelIR01(targentCDX, INDEX_COUPON, indexCurve, YIELD_CURVE) *
+        dataDefaulted.getIndexFactor() * NOTIONAL;
+
+    assertEqualsRelativeTol("clean PV", -7305773.195876285, cleanPriceIndexCurve, TOL);
+    assertEqualsRelativeTol("dirty PV", -8051477.663230239, dirtyPriceIndexCurve, TOL);
+    assertEqualsRelativeTol("clean RPV01", 4.122410413067852, cleanRPV01IndexCurve, TOL);
+    assertEqualsRelativeTol("dirty RPV01", 4.271551306538643, dirtyRPV01IndexCurve, TOL);
+    assertEqualsRelativeTol("duration weighted average spread (BPS)", 322.77909126375874,
+        spreadIndexCurve, TOL);
+    assertEqualsRelativeTol("parallel IR01", 1937.5939998494734, IR01IndexCurve, TOL);
+  }
+
+  private void assertEqualsRelativeTol(String message, double expected, double result, double relTol) {
+    double ref = Math.abs(expected);
+    double tol = ref < 1.0e-10 ? relTol : Math.abs(expected) * relTol;
+    assertEquals(message, expected, result, tol);
+  }
+
+  private void assertDoubleArray(String message, double[] expected, double[] result, double relTol) {
+    int nValues = expected.length;
+    assertEquals(nValues, result.length);
+    for (int i = 0; i < nValues; ++i) {
+      assertEqualsRelativeTol(message + "(" + i + "-th element)", expected[i], result[i], Math.abs(expected[i]) *
+          relTol);
+    }
+  }
 }
