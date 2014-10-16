@@ -36,7 +36,7 @@ import com.opengamma.analytics.financial.credit.isdastandardmodel.PriceType;
  * 
  */
 public class CDSIndexE2ETest extends ISDABaseTest {
-  private static final double NOTIONAL = 1e8;
+  private static final double NOTIONAL = 1.0e8;
 
   private static final LocalDate TRADE_DATE = LocalDate.of(2014, 2, 13);
   private static final double INDEX_COUPON = CDX_NA_HY_21_COUPON;
@@ -70,7 +70,7 @@ public class CDSIndexE2ETest extends ISDABaseTest {
     }
   }
 
-  private static final double TOL = 1.0e-10;
+  private static final double TOL = 1.0e-8;
 
   /**
    * 
@@ -85,7 +85,7 @@ public class CDSIndexE2ETest extends ISDABaseTest {
       indexPUF[i] = PILLAR_PUF[i].getPointsUpFront();
     }
     int accrualDays = targentCDX.getAccuredDays();
-    double accruedPremium = targentCDX.getAccruedPremium(INDEX_COUPON) * NOTIONAL * INTRINSIC_DATA.getIndexFactor(); // indexFactor = initialIndexSize - numDefaults) / initialIndexSize
+    double accruedPremium = targentCDX.getAccruedPremium(INDEX_COUPON) * INTRINSIC_DATA.getIndexFactor() * NOTIONAL; // indexFactor = (initialIndexSize - numDefaults) / initialIndexSize
 
     /*
      * Using credit curves for constituent single name CDSs. 
@@ -556,8 +556,7 @@ public class CDSIndexE2ETest extends ISDABaseTest {
   }
 
   private void assertEqualsRelativeTol(String message, double expected, double result, double relTol) {
-    double ref = Math.abs(expected);
-    double tol = ref < 1.0e-10 ? relTol : Math.abs(expected) * relTol;
+    double tol = Math.max(1.0, Math.abs(expected)) * relTol;
     assertEquals(message, expected, result, tol);
   }
 
@@ -565,8 +564,7 @@ public class CDSIndexE2ETest extends ISDABaseTest {
     int nValues = expected.length;
     assertEquals(nValues, result.length);
     for (int i = 0; i < nValues; ++i) {
-      assertEqualsRelativeTol(message + "(" + i + "-th element)", expected[i], result[i], Math.abs(expected[i]) *
-          relTol);
+      assertEqualsRelativeTol(message + "(" + i + "-th element)", expected[i], result[i], relTol);
     }
   }
 }

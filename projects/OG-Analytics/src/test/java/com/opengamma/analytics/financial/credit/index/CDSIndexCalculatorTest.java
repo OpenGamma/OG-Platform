@@ -68,7 +68,7 @@ public class CDSIndexCalculatorTest extends ISDABaseTest {
   }
 
   /**
-   * Test IR01, JTD
+   * Test IR01, JTD, recovery01
    */
   @Test
   public void sensitivitiesTest() {

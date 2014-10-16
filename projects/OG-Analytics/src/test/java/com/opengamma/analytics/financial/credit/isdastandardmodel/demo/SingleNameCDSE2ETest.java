@@ -118,7 +118,7 @@ public class SingleNameCDSE2ETest extends ISDABaseTest {
   private static final LocalDate[] BUCKET_DATES = getIMMDateSet(NEXT_IMM, BUCKETS);
   private static final CDSAnalytic[] BUCKET_CDSS = CDS_FACTORY.makeCDS(TRADE_DATE, STARTDATE, BUCKET_DATES);
 
-  // Hedge CDS
+  // Hedge CDSs
   private static final Period[] HEDGES = new Period[] {Period.of(1, 6, 0), Period.of(2, 0, 0), Period.of(6, 0, 0),
       Period.of(9, 0, 0), Period.of(20, 0, 0) };
   private static final LocalDate[] HEDGE_DATES = getIMMDateSet(NEXT_IMM, HEDGES);
@@ -128,7 +128,7 @@ public class SingleNameCDSE2ETest extends ISDABaseTest {
     Arrays.fill(HEDGE_COUPON, COUPON);
   }
 
-  private static final double TOL = 1.0e-10;
+  private static final double TOL = 1.0e-8;
   
   /**
    * Standard CDS with short maturity
@@ -330,8 +330,7 @@ public class SingleNameCDSE2ETest extends ISDABaseTest {
   }
 
   private void assertEqualsRelativeTol(String message, double expected, double result, double relTol) {
-    double ref = Math.abs(expected);
-    double tol = ref < 1.0e-10 ? relTol : Math.abs(expected) * relTol;
+    double tol = Math.max(1.0, Math.abs(expected)) * relTol;
     assertEquals(message, expected, result, tol);
   }
 
@@ -339,8 +338,7 @@ public class SingleNameCDSE2ETest extends ISDABaseTest {
     int nValues = expected.length;
     assertEquals(nValues, result.length);
     for (int i = 0; i < nValues; ++i) {
-      assertEqualsRelativeTol(message + "(" + i + "-th element)", expected[i], result[i], Math.abs(expected[i]) *
-          relTol);
+      assertEqualsRelativeTol(message + "(" + i + "-th element)", expected[i], result[i], relTol);
     }
 
   }
