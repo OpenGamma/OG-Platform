@@ -12,6 +12,7 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationIssuerProviderInterface;
+import com.opengamma.analytics.financial.provider.description.inflation.ParameterInflationIssuerProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.InflationSensitivity;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.ArgumentChecker;
@@ -28,13 +29,15 @@ public abstract class ParameterSensitivityInflationIssuerMatrixProviderAbstractC
    * The sensitivity calculator to compute the sensitivity of the value with respect to the zero-coupon continuously compounded rates at different times for the discounting curve
    * and with respect to forward rates for the forward curves.
    */
-  private final InstrumentDerivativeVisitor<InflationIssuerProviderInterface, InflationSensitivity> _curveSensitivityCalculator;
+  private final InstrumentDerivativeVisitor<ParameterInflationIssuerProviderInterface, InflationSensitivity> _curveSensitivityCalculator;
 
   /**
    * The constructor from a curve sensitivity calculator.
    * @param curveSensitivityCalculator The calculator.
    */
-  public ParameterSensitivityInflationIssuerMatrixProviderAbstractCalculator(final InstrumentDerivativeVisitor<InflationIssuerProviderInterface, InflationSensitivity> curveSensitivityCalculator) {
+  public ParameterSensitivityInflationIssuerMatrixProviderAbstractCalculator(
+      final InstrumentDerivativeVisitor<ParameterInflationIssuerProviderInterface, 
+      InflationSensitivity> curveSensitivityCalculator) {
     ArgumentChecker.notNull(curveSensitivityCalculator, "Sensitivity calculator");
     _curveSensitivityCalculator = curveSensitivityCalculator;
   }

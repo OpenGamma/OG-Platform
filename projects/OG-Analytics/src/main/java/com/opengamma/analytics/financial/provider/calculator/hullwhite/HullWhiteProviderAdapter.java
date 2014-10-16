@@ -9,16 +9,18 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorSameMethodAdapter;
 import com.opengamma.analytics.financial.provider.description.interestrate.HullWhiteOneFactorProviderInterface;
-import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 
 /**
  * 
  * @param <RESULT_TYPE> The result-type for the provider.
  */
-public class HullWhiteProviderAdapter<RESULT_TYPE> extends InstrumentDerivativeVisitorSameMethodAdapter<HullWhiteOneFactorProviderInterface, RESULT_TYPE> {
-  private final InstrumentDerivativeVisitor<MulticurveProviderInterface, RESULT_TYPE> _visitor;
+public class HullWhiteProviderAdapter<RESULT_TYPE> 
+  extends InstrumentDerivativeVisitorSameMethodAdapter<HullWhiteOneFactorProviderInterface, RESULT_TYPE> {
+    
+  private final InstrumentDerivativeVisitor<ParameterProviderInterface, RESULT_TYPE> _visitor;
 
-  public HullWhiteProviderAdapter(final InstrumentDerivativeVisitor<MulticurveProviderInterface, RESULT_TYPE> visitor) {
+  public HullWhiteProviderAdapter(final InstrumentDerivativeVisitor<ParameterProviderInterface, RESULT_TYPE> visitor) {
     _visitor = visitor;
   }
 

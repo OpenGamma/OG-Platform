@@ -16,6 +16,7 @@ import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
@@ -24,7 +25,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
  */
 public final class AnnuityProjectedPaymentsVisitor extends InstrumentDerivativeVisitorAdapter<MulticurveProviderInterface, CurrencyAmount[]> {
   /** Returns the present value of the coupons */
-  private static final InstrumentDerivativeVisitor<MulticurveProviderInterface, MultipleCurrencyAmount> COUPON_VISITOR =
+  private static final InstrumentDerivativeVisitor<ParameterProviderInterface, MultipleCurrencyAmount> COUPON_VISITOR =
       PresentValueDiscountingCalculator.getInstance();
 
   /** Returns the discount factor of the coupons */

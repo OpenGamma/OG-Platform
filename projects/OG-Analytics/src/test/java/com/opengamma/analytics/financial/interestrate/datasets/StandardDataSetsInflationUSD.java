@@ -63,6 +63,9 @@ import com.opengamma.util.tuple.Pair;
  * 1) DSCON-OIS_HICP-ZC. Both curves calibrated in a single process using two units.
  * 2) DSCON-OIS_HICP-ZC. Inflation calibrated with the Multicurve of OIS externally provided (two step process).
  * 3) DSCON-OIS_HICP-ZC. Both curves calibrated in a single process using a single unit.
+ * 4) Seasonality
+ * 5) Known index
+ * 6) Seasonality and known index
  * Data stored in snapshots for comparison with platform.
  */
 public class StandardDataSetsInflationUSD {
@@ -226,7 +229,7 @@ public class StandardDataSetsInflationUSD {
   
   /**
    * Returns a set of calibrated curve: dsc/on with OIS and US CPI with zero-coupon swaps.
-   * The curves are calibrated as two units in a unique calibration.
+   * The curves are calibrated as one units with the two curves calibrated simultaneously.
    * @param calibrationDate The calibration date.
    * @return  The calibrated curves and Jacobians.
    */

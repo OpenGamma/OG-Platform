@@ -29,7 +29,7 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurveUtils;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
-import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.money.Currency;
@@ -75,11 +75,11 @@ public class PV01CurveParametersCalculatorTest {
   private static final Swap<?, ?> SWAP_IBORSPREAD_IBORSPREAD_DEFINITION = new SwapIborIborDefinition(AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, NOTIONAL,
       USDLIBOR3M, 0.001, true, NYC), AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, NOTIONAL, USDLIBOR6M, 0.001, false, NYC)).toDerivative(REFERENCE_DATE);
   /** The PV calculator */
-  private static final InstrumentDerivativeVisitor<MulticurveProviderInterface, MultipleCurrencyAmount> PV = PresentValueDiscountingCalculator.getInstance();
+  private static final InstrumentDerivativeVisitor<ParameterProviderInterface, MultipleCurrencyAmount> PV = PresentValueDiscountingCalculator.getInstance();
   /** The PV01 calculator */
-  private static final PV01CurveParametersCalculator<MulticurveProviderInterface> PV01 = new PV01CurveParametersCalculator<>(PresentValueCurveSensitivityDiscountingCalculator.getInstance());
+  private static final PV01CurveParametersCalculator<ParameterProviderInterface> PV01 = new PV01CurveParametersCalculator<>(PresentValueCurveSensitivityDiscountingCalculator.getInstance());
   /** The gamma PV01 calculator */
-  private static final GammaPV01CurveParametersCalculator<MulticurveProviderInterface> GAMMA_PV01 = new GammaPV01CurveParametersCalculator<>(PresentValueCurveSensitivityDiscountingCalculator.getInstance());
+  private static final GammaPV01CurveParametersCalculator<ParameterProviderInterface> GAMMA_PV01 = new GammaPV01CurveParametersCalculator<>(PresentValueCurveSensitivityDiscountingCalculator.getInstance());
   /** One basis point */
   private static final double BP = 0.0001;
   /** Relative accuracy for calculations */

@@ -10,14 +10,14 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.FederalF
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.future.provider.FederalFundsFutureSecurityDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureSecurityDiscountingMethod;
-import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 
 /**
  * Compute the spread to be added to the rate-like quote of the instrument for which the present value of the instrument is zero.
  * The notion of "rate" will depend of each instrument. The "market quote" will be used for most instruments. 
  * The exceptions are: STIR futures, Fed Funds futres,
  */
-public final class ParSpreadRateDiscountingCalculator extends InstrumentDerivativeVisitorDelegate<MulticurveProviderInterface, Double> {
+public final class ParSpreadRateDiscountingCalculator extends InstrumentDerivativeVisitorDelegate<ParameterProviderInterface, Double> {
 
   /**
    * The unique instance of the calculator.
@@ -51,15 +51,15 @@ public final class ParSpreadRateDiscountingCalculator extends InstrumentDerivati
   /**
    * @return The futures rate spread for the rate = 1-price.
    */
-  public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction futures, final MulticurveProviderInterface multicurves) {
-    return METHOD_STIR_FUT.parRate(futures.getUnderlyingSecurity(), multicurves) - (1.0d - futures.getReferencePrice());
+  public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction futures, final ParameterProviderInterface multicurves) {
+    return METHOD_STIR_FUT.parRate(futures.getUnderlyingSecurity(), multicurves.getMulticurveProvider()) - (1.0d - futures.getReferencePrice());
   }
 
   @Override
   /**
    * @return The futures rate spread for the rate = 1-price.
    */
-  public Double visitFederalFundsFutureTransaction(final FederalFundsFutureTransaction future, final MulticurveProviderInterface multicurve) {
+  public Double visitFederalFundsFutureTransaction(final FederalFundsFutureTransaction future, final ParameterProviderInterface multicurve) {
     return -(METHOD_FED_FUNDS.price(future.getUnderlyingSecurity(), multicurve) - future.getReferencePrice());
   }
 

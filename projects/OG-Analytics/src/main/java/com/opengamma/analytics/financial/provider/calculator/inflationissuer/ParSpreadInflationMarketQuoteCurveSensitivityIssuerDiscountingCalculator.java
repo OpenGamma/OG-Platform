@@ -14,7 +14,7 @@ import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositCou
 import com.opengamma.analytics.financial.interestrate.cash.provider.DepositCounterpartDiscountingMethod;
 import com.opengamma.analytics.financial.provider.calculator.inflation.InflationIssuerProviderAdapter;
 import com.opengamma.analytics.financial.provider.calculator.inflation.ParSpreadInflationMarketQuoteCurveSensitivityDiscountingCalculator;
-import com.opengamma.analytics.financial.provider.description.inflation.InflationIssuerProviderInterface;
+import com.opengamma.analytics.financial.provider.description.inflation.ParameterInflationIssuerProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.InflationSensitivity;
 
 /**
@@ -23,12 +23,14 @@ import com.opengamma.analytics.financial.provider.sensitivity.inflation.Inflatio
  * transaction version of instruments like bonds and bills, as the purchase price
  * information is necessary to calculate a meaningful par spread.
  */
-public final class ParSpreadInflationMarketQuoteCurveSensitivityIssuerDiscountingCalculator extends InstrumentDerivativeVisitorDelegate<InflationIssuerProviderInterface, InflationSensitivity> {
+public final class ParSpreadInflationMarketQuoteCurveSensitivityIssuerDiscountingCalculator 
+  extends InstrumentDerivativeVisitorDelegate<ParameterInflationIssuerProviderInterface, InflationSensitivity> {
 
   /**
    * The unique instance of the calculator.
    */
-  private static final ParSpreadInflationMarketQuoteCurveSensitivityIssuerDiscountingCalculator INSTANCE = new ParSpreadInflationMarketQuoteCurveSensitivityIssuerDiscountingCalculator();
+  private static final ParSpreadInflationMarketQuoteCurveSensitivityIssuerDiscountingCalculator INSTANCE = 
+      new ParSpreadInflationMarketQuoteCurveSensitivityIssuerDiscountingCalculator();
 
   /**
    * Gets the calculator instance.
@@ -55,19 +57,19 @@ public final class ParSpreadInflationMarketQuoteCurveSensitivityIssuerDiscountin
   //     -----     Deposit     -----
 
   @Override
-  public InflationSensitivity visitDepositCounterpart(final DepositCounterpart deposit, final InflationIssuerProviderInterface issuercurves) {
+  public InflationSensitivity visitDepositCounterpart(final DepositCounterpart deposit, final ParameterInflationIssuerProviderInterface issuercurves) {
     return InflationSensitivity.of(METHOD_DEPO_CTPY.parSpreadCurveSensitivity(deposit, issuercurves.getIssuerProvider()));
   }
 
   //     -----     Bond/Bill     -----
 
   @Override
-  public InflationSensitivity visitBillTransaction(final BillTransaction bill, final InflationIssuerProviderInterface issuercurves) {
+  public InflationSensitivity visitBillTransaction(final BillTransaction bill, final ParameterInflationIssuerProviderInterface issuercurves) {
     return InflationSensitivity.of(METHOD_BILL_TR.parSpreadCurveSensitivity(bill, issuercurves.getIssuerProvider()));
   }
 
   @Override
-  public InflationSensitivity visitBondFixedTransaction(final BondFixedTransaction bond, final InflationIssuerProviderInterface issuercurves) {
+  public InflationSensitivity visitBondFixedTransaction(final BondFixedTransaction bond, final ParameterInflationIssuerProviderInterface issuercurves) {
     return InflationSensitivity.of(METHOD_BOND_TR.parSpreadCurveSensitivity(bond, issuercurves.getIssuerProvider()));
   }
 

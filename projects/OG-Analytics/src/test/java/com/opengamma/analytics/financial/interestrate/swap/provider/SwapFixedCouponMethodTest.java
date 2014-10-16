@@ -18,7 +18,7 @@ import com.opengamma.analytics.financial.provider.calculator.discounting.Present
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueBasisPointDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
-import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimpleParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimpleParameterSensitivityMulticurveDiscountInterpolatedFDCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.SimpleParameterSensitivityParameterCalculator;
@@ -61,11 +61,16 @@ public class SwapFixedCouponMethodTest {
   private static final ParRateDiscountingCalculator PRDC = ParRateDiscountingCalculator.getInstance();
   private static final PresentValueBasisPointDiscountingCalculator PVBPDC = PresentValueBasisPointDiscountingCalculator.getInstance();
   private static final ParRateCurveSensitivityDiscountingCalculator PRCSDC = ParRateCurveSensitivityDiscountingCalculator.getInstance();
-  private static final PresentValueBasisPointCurveSensitivityDiscountingCalculator PVBPCSDC = PresentValueBasisPointCurveSensitivityDiscountingCalculator.getInstance();
-  private static final SimpleParameterSensitivityParameterCalculator<MulticurveProviderInterface> PS_PR_C = new SimpleParameterSensitivityParameterCalculator<>(PRCSDC);
-  private static final SimpleParameterSensitivityParameterCalculator<MulticurveProviderInterface> PS_PVBP_C = new SimpleParameterSensitivityParameterCalculator<>(PVBPCSDC);
-  private static final SimpleParameterSensitivityMulticurveDiscountInterpolatedFDCalculator PS_PR_FDC = new SimpleParameterSensitivityMulticurveDiscountInterpolatedFDCalculator(PRDC, SHIFT_FD);
-  private static final SimpleParameterSensitivityMulticurveDiscountInterpolatedFDCalculator PS_PVBP_FDC = new SimpleParameterSensitivityMulticurveDiscountInterpolatedFDCalculator(PVBPDC, SHIFT_FD);
+  private static final PresentValueBasisPointCurveSensitivityDiscountingCalculator PVBPCSDC = 
+      PresentValueBasisPointCurveSensitivityDiscountingCalculator.getInstance();
+  private static final SimpleParameterSensitivityParameterCalculator<ParameterProviderInterface> PS_PR_C = 
+      new SimpleParameterSensitivityParameterCalculator<>(PRCSDC);
+  private static final SimpleParameterSensitivityParameterCalculator<ParameterProviderInterface> PS_PVBP_C = 
+      new SimpleParameterSensitivityParameterCalculator<>(PVBPCSDC);
+  private static final SimpleParameterSensitivityMulticurveDiscountInterpolatedFDCalculator PS_PR_FDC = 
+      new SimpleParameterSensitivityMulticurveDiscountInterpolatedFDCalculator(PRDC, SHIFT_FD);
+  private static final SimpleParameterSensitivityMulticurveDiscountInterpolatedFDCalculator PS_PVBP_FDC = 
+      new SimpleParameterSensitivityMulticurveDiscountInterpolatedFDCalculator(PVBPDC, SHIFT_FD);
 
   private static final double TOLERANCE_RATE = 1.0E-10;
   private static final double TOLERANCE_RATE_DELTA = 1.0E-8;

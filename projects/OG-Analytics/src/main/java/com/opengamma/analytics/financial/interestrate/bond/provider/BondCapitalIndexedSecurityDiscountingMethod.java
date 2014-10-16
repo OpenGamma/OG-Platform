@@ -21,8 +21,11 @@ import com.opengamma.analytics.financial.provider.calculator.inflation.PresentVa
 import com.opengamma.analytics.financial.provider.calculator.inflation.PresentValueDiscountingInflationCalculator;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationIssuerProviderInterface;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationIssuerProviderIssuerDecoratedSpread;
-import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderDecoratedIssuer;
+import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderDecoratedMulticurve;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
+import com.opengamma.analytics.financial.provider.description.inflation.ParameterInflationIssuerProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscountingDecoratedIssuer;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.MultipleCurrencyInflationSensitivity;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.rootfinding.BracketRoot;
@@ -73,11 +76,15 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
    * @param provider The provider.
    * @return The present value.
    */
-  public MultipleCurrencyAmount presentValue(final BondCapitalIndexedSecurity<?> bond, final InflationIssuerProviderInterface provider) {
+  public MultipleCurrencyAmount presentValue(final BondCapitalIndexedSecurity<?> bond, 
+      final ParameterInflationIssuerProviderInterface provider) {
     ArgumentChecker.notNull(bond, "Bond");
-    final InflationProviderInterface creditDiscounting = new InflationProviderDecoratedIssuer(provider, bond.getCurrency(), bond.getIssuerEntity());
-    final MultipleCurrencyAmount pvNominal = bond.getNominal().accept(PVIC, creditDiscounting);
-    final MultipleCurrencyAmount pvCoupon = bond.getCoupon().accept(PVIC, creditDiscounting);
+    MulticurveProviderInterface multicurveDecorated = new MulticurveProviderDiscountingDecoratedIssuer(
+        provider.getIssuerProvider(), bond.getCurrency(), bond.getIssuerEntity());
+    InflationProviderInterface inflationDecorated = new InflationProviderDecoratedMulticurve(
+        provider.getInflationProvider(), multicurveDecorated);
+    final MultipleCurrencyAmount pvNominal = bond.getNominal().accept(PVIC, inflationDecorated);
+    final MultipleCurrencyAmount pvCoupon = bond.getCoupon().accept(PVIC, inflationDecorated);
     return pvNominal.plus(pvCoupon);
   }
 
@@ -89,29 +96,34 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
    * @param cleanPriceReal The real clean price.
    * @return The present value.
    */
-  public MultipleCurrencyAmount presentValueFromCleanRealPrice(final BondCapitalIndexedSecurity<?> bond, final InflationIssuerProviderInterface market, final double cleanPriceReal) {
+  public MultipleCurrencyAmount presentValueFromCleanRealPrice(final BondCapitalIndexedSecurity<?> bond, 
+      final InflationIssuerProviderInterface market, final double cleanPriceReal) {
     Validate.notNull(bond, "Coupon");
     Validate.notNull(market, "Market");
-    final double settlement = bond.getSettlement().accept(PVIC, market.getInflationProvider()).getAmount(bond.getCurrency());
-    final double cleanPriceNominal = cleanPriceReal * settlement;
+    double settlementFactor = bond.getIndexRatio();
+    final double cleanPriceNominal = cleanPriceReal * settlementFactor;
     return presentValueFromCleanNominalPrice(bond, market, cleanPriceNominal);
   }
 
   /**
-   * Computes the security present value from a quoted clean real price. The real accrued are added to the clean real price,
-   * the result is multiplied by the inflation index ratio and then discounted from settlement time to 0 with the discounting curve.
+   * Computes the security present value from a quoted clean real price. 
+   * The real accrued inflated and discounted from settlement are added to the discounted clean nominal price.
    * @param bond The bond security.
    * @param market The market.
    * @param cleanPriceNominal The nominal clean price.
    * @return The present value.
    */
-  public MultipleCurrencyAmount presentValueFromCleanNominalPrice(final BondCapitalIndexedSecurity<?> bond, final InflationIssuerProviderInterface market, final double cleanPriceNominal) {
+  public MultipleCurrencyAmount presentValueFromCleanNominalPrice(final BondCapitalIndexedSecurity<?> bond, 
+      final InflationIssuerProviderInterface market, final double cleanPriceNominal) {
     Validate.notNull(bond, "Coupon");
     Validate.notNull(market, "Market");
+    Currency ccy = bond.getCurrency();
     final double notional = bond.getCoupon().getNthPayment(0).getNotional();
-    final MultipleCurrencyAmount nominalAccruedInterest = bond.getSettlement().accept(PVIC, market.getInflationProvider()).multipliedBy(bond.getAccruedInterest() / notional);
-    final double dirtyPriceNominal = cleanPriceNominal + nominalAccruedInterest.getAmount(bond.getCurrency());
-    return MultipleCurrencyAmount.of(bond.getCurrency(), dirtyPriceNominal);
+    final MultipleCurrencyAmount nominalAccruedInterest = 
+        bond.getSettlement().accept(PVIC, market.getInflationProvider()).multipliedBy(bond.getAccruedInterest());
+    double dfSettle = market.getDiscountFactor(ccy, bond.getSettlementTime());
+    double pvPrice = dfSettle * cleanPriceNominal *  notional;
+    return nominalAccruedInterest.plus(ccy, pvPrice);
   }
 
   /**
@@ -369,9 +381,13 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
    * @param provider The provider.
    * @return The present value.
    */
-  public MultipleCurrencyInflationSensitivity presentValueCurveSensitivity(final BondCapitalIndexedSecurity<?> bond, final InflationIssuerProviderInterface provider) {
+  public MultipleCurrencyInflationSensitivity presentValueCurveSensitivity(final BondCapitalIndexedSecurity<?> bond, 
+      final ParameterInflationIssuerProviderInterface provider) {
     ArgumentChecker.notNull(bond, "Bond");
-    final InflationProviderInterface creditDiscounting = new InflationProviderDecoratedIssuer(provider, bond.getCurrency(), bond.getIssuerEntity());
+    MulticurveProviderInterface multicurveDecorated = new MulticurveProviderDiscountingDecoratedIssuer(
+        provider.getIssuerProvider(), bond.getCurrency(), bond.getIssuerEntity());
+    InflationProviderInterface creditDiscounting = new InflationProviderDecoratedMulticurve(
+        provider.getInflationProvider(), multicurveDecorated);
     final MultipleCurrencyInflationSensitivity sensitivityNominal = bond.getNominal().accept(PVCSIC, creditDiscounting);
     final MultipleCurrencyInflationSensitivity sensitivityCoupon = bond.getCoupon().accept(PVCSIC, creditDiscounting);
     return sensitivityNominal.plus(sensitivityCoupon);

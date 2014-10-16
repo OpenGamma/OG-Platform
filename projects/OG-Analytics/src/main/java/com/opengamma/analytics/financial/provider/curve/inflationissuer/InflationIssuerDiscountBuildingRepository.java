@@ -12,16 +12,21 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.opengamma.analytics.financial.curve.inflation.generator.GeneratorPriceIndexCurve;
+import com.google.common.collect.LinkedListMultimap;
+import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorCurve;
+import com.opengamma.analytics.financial.instrument.index.IborIndex;
+import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.legalentity.LegalEntity;
+import com.opengamma.analytics.financial.legalentity.LegalEntityFilter;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlock;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.curve.MultiCurveBundle;
 import com.opengamma.analytics.financial.provider.curve.SingleCurveBundle;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationIssuerProviderDiscount;
-import com.opengamma.analytics.financial.provider.description.inflation.InflationIssuerProviderInterface;
+import com.opengamma.analytics.financial.provider.description.inflation.ParameterInflationIssuerProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.InflationSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.inflationissuer.ParameterSensitivityInflationIssuerMatrixCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.inflationissuer.ParameterSensitivityInflationIssuerUnderlyingMatrixCalculator;
@@ -33,6 +38,7 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.matrix.MatrixAlgebra;
 import com.opengamma.analytics.math.rootfinding.newton.BroydenVectorRootFinder;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
@@ -90,15 +96,21 @@ public class InflationIssuerDiscountBuildingRepository {
    * @param sensitivityCalculator The parameter sensitivity calculator.
    * @return The new curves and the calibrated parameters.
    */
-  private InflationIssuerProviderDiscount makeUnit(final InstrumentDerivative[] instruments, final double[] initGuess, final InflationIssuerProviderDiscount knownData,
-      final LinkedHashMap<String, IndexPrice[]> inflationMap,
-      final LinkedHashMap<String, GeneratorPriceIndexCurve> generatorsMap,
-      final InstrumentDerivativeVisitor<InflationIssuerProviderInterface, Double> calculator,
-      final InstrumentDerivativeVisitor<InflationIssuerProviderInterface, InflationSensitivity> sensitivityCalculator) {
-    final GeneratorInflationIssuerProviderDiscount generator = new GeneratorInflationIssuerProviderDiscount(knownData, inflationMap, generatorsMap);
+  private InflationIssuerProviderDiscount makeUnit(final InstrumentDerivative[] instruments, final double[] initGuess, 
+      final InflationIssuerProviderDiscount knownData,
+      LinkedHashMap<String, Currency> dscMap, LinkedHashMap<String, IndexON[]> fwdOnMap, 
+      LinkedHashMap<String, IborIndex[]> fwdIborMap, LinkedHashMap<String, IndexPrice[]> priceMap,
+      LinkedListMultimap<String, Pair<Object, LegalEntityFilter<LegalEntity>>> issuerMap,
+      final LinkedHashMap<String, GeneratorCurve> generatorsMap,
+      final InstrumentDerivativeVisitor<ParameterInflationIssuerProviderInterface, Double> calculator,
+      final InstrumentDerivativeVisitor<ParameterInflationIssuerProviderInterface, InflationSensitivity> sensitivityCalculator) {
+    final GeneratorInflationIssuerProviderDiscount generator = 
+        new GeneratorInflationIssuerProviderDiscount(knownData, dscMap, fwdOnMap, priceMap, issuerMap, generatorsMap);
     final InflationIssuerDiscountBuildingData data = new InflationIssuerDiscountBuildingData(instruments, generator);
-    final Function1D<DoubleMatrix1D, DoubleMatrix1D> curveCalculator = new InflationIssuerDiscountFinderFunction(calculator, data);
-    final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new InflationIssuerDiscountFinderJacobian(new ParameterSensitivityInflationIssuerMatrixCalculator(sensitivityCalculator),
+    final Function1D<DoubleMatrix1D, DoubleMatrix1D> curveCalculator = 
+        new InflationIssuerDiscountFinderFunction(calculator, data);
+    final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = 
+        new InflationIssuerDiscountFinderJacobian(new ParameterSensitivityInflationIssuerMatrixCalculator(sensitivityCalculator),
         data);
     final double[] parameters = _rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initGuess)).getData();
     final InflationIssuerProviderDiscount newCurves = data.getGeneratorMarket().evaluate(new DoubleMatrix1D(parameters));
@@ -117,9 +129,10 @@ public class InflationIssuerDiscountBuildingRepository {
    * The Jacobian matrix is the transition matrix between the curve parameters and the par spread.
    */
   private void updateBlockBundle(final InstrumentDerivative[] instruments, final InflationIssuerProviderDiscount multicurves, final List<String> currentCurvesList,
-      final CurveBuildingBlockBundle blockBundle, final InstrumentDerivativeVisitor<InflationIssuerProviderInterface, InflationSensitivity> sensitivityCalculator) {
+      final CurveBuildingBlockBundle blockBundle, final InstrumentDerivativeVisitor<ParameterInflationIssuerProviderInterface, InflationSensitivity> sensitivityCalculator) {
     // Sensitivity calculator
-    final ParameterSensitivityInflationIssuerUnderlyingMatrixCalculator parameterSensitivityCalculator = new ParameterSensitivityInflationIssuerUnderlyingMatrixCalculator(sensitivityCalculator);
+    final ParameterSensitivityInflationIssuerUnderlyingMatrixCalculator parameterSensitivityCalculator = 
+        new ParameterSensitivityInflationIssuerUnderlyingMatrixCalculator(sensitivityCalculator);
     int loopc;
     final LinkedHashMap<String, Pair<Integer, Integer>> mapBlockOut = new LinkedHashMap<>();
     // Curve names manipulation
@@ -149,7 +162,8 @@ public class InflationIssuerDiscountBuildingRepository {
     final LinkedHashSet<String> currentBeforeCurveNames = new LinkedHashSet<>(beforeCurveName);
     for (final String name : currentCurves) {
       startIndexCurrent[loopc] = nbParametersCurrentTotal;
-      nbParametersCurrent[loopc] = multicurves.getInflationProvider().getCurve(name).getNumberOfIntrinsicParameters(currentBeforeCurveNames);
+      nbParametersCurrent[loopc] = multicurves.getNumberOfIntrinsicParameters(name, currentBeforeCurveNames);
+//      nbParametersCurrent[loopc] = multicurves.getInflationProvider().getCurve(name).getNumberOfIntrinsicParameters(currentBeforeCurveNames);
       currentBeforeCurveNames.add(name);
       nbParametersCurrentTotal += nbParametersCurrent[loopc];
       loopc++;
@@ -249,16 +263,58 @@ public class InflationIssuerDiscountBuildingRepository {
    * Build a block of curves without the discount curve.
    * @param curveBundles The curve bundles, not null
    * @param knownData The known data (fx rates, other curves, model parameters, ...)
-   * @param inflationMap The inflation curves names map.
+   * @param priceMap The inflation curves names map.
    * @param calculator The calculator of the value on which the calibration is done (usually ParSpreadInflationMarketQuoteDiscountingCalculator (recommended) or converted present value).
    * @param sensitivityCalculator The parameter sensitivity calculator.
    * @return A pair with the calibrated yield curve bundle (including the known data) and the CurveBuildingBlckBundle with the relevant inverse Jacobian Matrix.
    */
-  public Pair<InflationIssuerProviderDiscount, CurveBuildingBlockBundle> makeCurvesFromDerivatives(final MultiCurveBundle<GeneratorPriceIndexCurve>[] curveBundles,
-      final InflationIssuerProviderDiscount knownData, final LinkedHashMap<String, IndexPrice[]> inflationMap,
-      final InstrumentDerivativeVisitor<InflationIssuerProviderInterface, Double> calculator,
-      final InstrumentDerivativeVisitor<InflationIssuerProviderInterface, InflationSensitivity> sensitivityCalculator) {
-    return makeCurvesFromDerivatives(curveBundles, knownData, new CurveBuildingBlockBundle(), inflationMap, calculator, sensitivityCalculator);
+  public Pair<InflationIssuerProviderDiscount, CurveBuildingBlockBundle> makeCurvesFromDerivatives(
+      final MultiCurveBundle<GeneratorCurve>[] curveBundles,
+      final InflationIssuerProviderDiscount knownData,
+      LinkedHashMap<String, IndexPrice[]> priceMap,
+      final InstrumentDerivativeVisitor<ParameterInflationIssuerProviderInterface, Double> calculator,
+      final InstrumentDerivativeVisitor<ParameterInflationIssuerProviderInterface, InflationSensitivity> sensitivityCalculator) {
+    LinkedListMultimap<String, Pair<Object, LegalEntityFilter<LegalEntity>>> issuerMap = LinkedListMultimap.create();
+    return makeCurvesFromDerivatives(curveBundles, knownData, new LinkedHashMap<String, Currency>(), 
+        new LinkedHashMap<String, IndexON[]>(), new LinkedHashMap<String, IborIndex[]>(), priceMap, 
+        issuerMap, calculator, sensitivityCalculator);
+  }
+
+  /**
+   * Build a block of curves without the discount curve.
+   * @param curveBundles The curve bundles, not null
+   * @param knownData The known data (fx rates, other curves, model parameters, ...)
+   * @param dscMap The discounting
+   * @param fwdOnMap Forward ON
+   * @param fwdIborMap Forward Ibor
+   * @param priceMap The inflation curves names map.
+   * @param issuerMap Issuer
+   * @param calculator The calculator of the value on which the calibration is done (usually ParSpreadInflationMarketQuoteDiscountingCalculator (recommended) or converted present value).
+   * @param sensitivityCalculator The parameter sensitivity calculator.
+   * @return A pair with the calibrated yield curve bundle (including the known data) and the CurveBuildingBlckBundle with the relevant inverse Jacobian Matrix.
+   */
+  public Pair<InflationIssuerProviderDiscount, CurveBuildingBlockBundle> makeCurvesFromDerivatives(
+      final MultiCurveBundle<GeneratorCurve>[] curveBundles,
+      final InflationIssuerProviderDiscount knownData, 
+      LinkedHashMap<String, Currency> dscMap, LinkedHashMap<String, IndexON[]> fwdOnMap, 
+      LinkedHashMap<String, IborIndex[]> fwdIborMap, LinkedHashMap<String, IndexPrice[]> priceMap,
+      LinkedListMultimap<String, Pair<Object, LegalEntityFilter<LegalEntity>>> issuerMap,
+      final InstrumentDerivativeVisitor<ParameterInflationIssuerProviderInterface, Double> calculator,
+      final InstrumentDerivativeVisitor<ParameterInflationIssuerProviderInterface, InflationSensitivity> sensitivityCalculator) {
+    return makeCurvesFromDerivatives(curveBundles, knownData, new CurveBuildingBlockBundle(), dscMap, fwdOnMap, 
+        fwdIborMap, priceMap, issuerMap, calculator, sensitivityCalculator);
+  }
+  
+  public Pair<InflationIssuerProviderDiscount, CurveBuildingBlockBundle> makeCurvesFromDerivatives(
+      final MultiCurveBundle<GeneratorCurve>[] curveBundles,
+      final InflationIssuerProviderDiscount knownData, final CurveBuildingBlockBundle knownBlockBundle, 
+      LinkedHashMap<String, IndexPrice[]> priceMap,
+      final InstrumentDerivativeVisitor<ParameterInflationIssuerProviderInterface, Double> calculator,
+      final InstrumentDerivativeVisitor<ParameterInflationIssuerProviderInterface, InflationSensitivity> sensitivityCalculator) {
+    LinkedListMultimap<String, Pair<Object, LegalEntityFilter<LegalEntity>>> issuerMap = LinkedListMultimap.create();
+    return makeCurvesFromDerivatives(curveBundles, knownData, knownBlockBundle, new LinkedHashMap<String, Currency>(), 
+        new LinkedHashMap<String, IndexON[]>(), new LinkedHashMap<String, IborIndex[]>(), priceMap, issuerMap,
+        calculator, sensitivityCalculator);    
   }
 
   /**
@@ -266,18 +322,26 @@ public class InflationIssuerDiscountBuildingRepository {
    * @param curveBundles The curve bundles, not null
    * @param knownData The known data (fx rates, other curves, model parameters, ...)
    * @param knownBlockBundle The already build CurveBuildingBlockBundle. This should contain all the bundles corresponding to the curves in the knownData.
-   * @param inflationMap The inflation curves names map.
+   * @param dscMap The discounting
+   * @param fwdOnMap Forward ON
+   * @param fwdIborMap Forward Ibor
+   * @param priceMap The inflation curves names map.
+   * @param issuerMap Issuer
    * @param calculator The calculator of the value on which the calibration is done (usually ParSpreadInflationMarketQuoteDiscountingCalculator (recommended) or converted present value).
    * @param sensitivityCalculator The parameter sensitivity calculator.
    * @return A pair with the calibrated yield curve bundle (including the known data) and the CurveBuildingBlckBundle with the relevant inverse Jacobian Matrix.
    */
-  public Pair<InflationIssuerProviderDiscount, CurveBuildingBlockBundle> makeCurvesFromDerivatives(final MultiCurveBundle<GeneratorPriceIndexCurve>[] curveBundles,
-      final InflationIssuerProviderDiscount knownData, final CurveBuildingBlockBundle knownBlockBundle, final LinkedHashMap<String, IndexPrice[]> inflationMap,
-      final InstrumentDerivativeVisitor<InflationIssuerProviderInterface, Double> calculator,
-      final InstrumentDerivativeVisitor<InflationIssuerProviderInterface, InflationSensitivity> sensitivityCalculator) {
+  public Pair<InflationIssuerProviderDiscount, CurveBuildingBlockBundle> makeCurvesFromDerivatives(
+      final MultiCurveBundle<GeneratorCurve>[] curveBundles,
+      final InflationIssuerProviderDiscount knownData, final CurveBuildingBlockBundle knownBlockBundle, 
+      LinkedHashMap<String, Currency> dscMap, LinkedHashMap<String, IndexON[]> fwdOnMap, 
+      LinkedHashMap<String, IborIndex[]> fwdIborMap, LinkedHashMap<String, IndexPrice[]> priceMap,
+      LinkedListMultimap<String, Pair<Object, LegalEntityFilter<LegalEntity>>> issuerMap,
+      final InstrumentDerivativeVisitor<ParameterInflationIssuerProviderInterface, Double> calculator,
+      final InstrumentDerivativeVisitor<ParameterInflationIssuerProviderInterface, InflationSensitivity> sensitivityCalculator) {
     ArgumentChecker.notNull(curveBundles, "curve bundles");
     ArgumentChecker.notNull(knownData, "known data");
-    ArgumentChecker.notNull(inflationMap, "inflation map");
+    ArgumentChecker.notNull(priceMap, "inflation map");
     ArgumentChecker.notNull(calculator, "calculator");
     ArgumentChecker.notNull(sensitivityCalculator, "sensitivity calculator");
     final int nbUnits = curveBundles.length;
@@ -286,19 +350,19 @@ public class InflationIssuerDiscountBuildingRepository {
     totalBundle.addAll(knownBlockBundle);
 
     final List<InstrumentDerivative> instrumentsSoFar = new ArrayList<>();
-    final LinkedHashMap<String, GeneratorPriceIndexCurve> generatorsSoFar = new LinkedHashMap<>();
+    final LinkedHashMap<String, GeneratorCurve> generatorsSoFar = new LinkedHashMap<>();
     final LinkedHashMap<String, Pair<Integer, Integer>> unitMap = new LinkedHashMap<>();
     int startUnit = 0;
 
     for (int iUnits = 0; iUnits < nbUnits; iUnits++) {
-      final MultiCurveBundle<GeneratorPriceIndexCurve> curveBundle = curveBundles[iUnits];
+      final MultiCurveBundle<GeneratorCurve> curveBundle = curveBundles[iUnits];
       final int nbCurve = curveBundle.size();
       final int[] startCurve = new int[nbCurve]; // First parameter index of the curve in the unit.
-      final LinkedHashMap<String, GeneratorPriceIndexCurve> generators = new LinkedHashMap<>();
+      final LinkedHashMap<String, GeneratorCurve> generators = new LinkedHashMap<>();
       final int[] nbIns = new int[curveBundle.getNumberOfInstruments()];
       int nbInsUnit = 0; // Number of instruments in the unit.
       for (int iCurve = 0; iCurve < nbCurve; iCurve++) {
-        final SingleCurveBundle<GeneratorPriceIndexCurve> singleCurve = curveBundle.getCurveBundle(iCurve);
+        final SingleCurveBundle<GeneratorCurve> singleCurve = curveBundle.getCurveBundle(iCurve);
         startCurve[iCurve] = nbInsUnit;
         nbIns[iCurve] = singleCurve.size();
         nbInsUnit += nbIns[iCurve];
@@ -307,17 +371,18 @@ public class InflationIssuerDiscountBuildingRepository {
       final InstrumentDerivative[] instrumentsUnit = new InstrumentDerivative[nbInsUnit];
       final double[] parametersGuess = new double[nbInsUnit];
       for (int iCurve = 0; iCurve < nbCurve; iCurve++) {
-        final SingleCurveBundle<GeneratorPriceIndexCurve> singleCurve = curveBundle.getCurveBundle(iCurve);
+        final SingleCurveBundle<GeneratorCurve> singleCurve = curveBundle.getCurveBundle(iCurve);
         final InstrumentDerivative[] derivatives = singleCurve.getDerivatives();
         System.arraycopy(derivatives, 0, instrumentsUnit, startCurve[iCurve], nbIns[iCurve]);
         System.arraycopy(singleCurve.getStartingPoint(), 0, parametersGuess, startCurve[iCurve], nbIns[iCurve]);
-        final GeneratorPriceIndexCurve tmp = singleCurve.getCurveGenerator().finalGenerator(derivatives);
+        final GeneratorCurve tmp = singleCurve.getCurveGenerator().finalGenerator(derivatives);
         final String curveName = singleCurve.getCurveName();
         generators.put(curveName, tmp);
         generatorsSoFar.put(curveName, tmp);
         unitMap.put(curveName, Pairs.of(startUnit + startCurve[iCurve], nbIns[iCurve]));
       }
-      knownSoFarData = makeUnit(instrumentsUnit, parametersGuess, knownSoFarData, inflationMap, generators, calculator,
+      knownSoFarData = makeUnit(instrumentsUnit, parametersGuess, knownSoFarData, dscMap, fwdOnMap, fwdIborMap, 
+          priceMap, issuerMap, generators, calculator,
           sensitivityCalculator);
       updateBlockBundle(instrumentsUnit, knownSoFarData, curveBundle.getNames(), totalBundle, sensitivityCalculator);
       startUnit = startUnit + nbInsUnit;

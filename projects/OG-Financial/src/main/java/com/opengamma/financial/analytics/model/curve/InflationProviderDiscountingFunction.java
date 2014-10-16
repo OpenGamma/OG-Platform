@@ -48,6 +48,7 @@ import com.opengamma.analytics.financial.provider.curve.SingleCurveBundle;
 import com.opengamma.analytics.financial.provider.curve.inflation.InflationDiscountBuildingRepository;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
+import com.opengamma.analytics.financial.provider.description.inflation.ParameterInflationProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.InflationSensitivity;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
@@ -102,7 +103,7 @@ import com.opengamma.util.tuple.Pairs;
  * Produces price index curves using the discounting method.
  */
 public class InflationProviderDiscountingFunction extends
-    MultiCurveFunction<InflationProviderInterface, InflationDiscountBuildingRepository, GeneratorPriceIndexCurve, InflationSensitivity> {
+    MultiCurveFunction<ParameterInflationProviderInterface, InflationDiscountBuildingRepository, GeneratorPriceIndexCurve, InflationSensitivity> {
   /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(InflationProviderDiscountingFunction.class);
   /** The calculator */
@@ -133,12 +134,12 @@ public class InflationProviderDiscountingFunction extends
 
 
   @Override
-  protected InstrumentDerivativeVisitor<InflationProviderInterface, Double> getCalculator() {
+  protected InstrumentDerivativeVisitor<ParameterInflationProviderInterface, Double> getCalculator() {
     return PSIMQC;
   }
 
   @Override
-  protected InstrumentDerivativeVisitor<InflationProviderInterface, InflationSensitivity> getSensitivityCalculator() {
+  protected InstrumentDerivativeVisitor<ParameterInflationProviderInterface, InflationSensitivity> getSensitivityCalculator() {
     return PSIMQCSC;
   }
 
@@ -190,8 +191,9 @@ public class InflationProviderDiscountingFunction extends
 
     @SuppressWarnings("unchecked")
     @Override
-    protected Pair<InflationProviderInterface, CurveBuildingBlockBundle> getCurves(final FunctionInputs inputs, final ZonedDateTime now, final InflationDiscountBuildingRepository builder,
-        final InflationProviderInterface knownData, final FunctionExecutionContext context, final FXMatrix fx) {
+    protected Pair<ParameterInflationProviderInterface, CurveBuildingBlockBundle> getCurves(
+        final FunctionInputs inputs, final ZonedDateTime now, final InflationDiscountBuildingRepository builder,
+        final ParameterInflationProviderInterface knownData, final FunctionExecutionContext context, final FXMatrix fx) {
       final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(context);
       final ConventionSource conventionSource = OpenGammaExecutionContext.getConventionSource(context);
       final ValueProperties curveConstructionProperties = ValueProperties.builder()
@@ -282,7 +284,8 @@ public class InflationProviderDiscountingFunction extends
       final CurveBuildingBlockBundle knownbundle = getKnownBundle(inputs);
       final Pair<InflationProviderDiscount, CurveBuildingBlockBundle> temp = builder.makeCurvesFromDerivatives(curveBundles,
           (InflationProviderDiscount) knownData, knownbundle, inflationMap, getCalculator(), getSensitivityCalculator());
-      final Pair<InflationProviderInterface, CurveBuildingBlockBundle> result = Pairs.of((InflationProviderInterface) temp.getFirst(), temp.getSecond());
+      final Pair<ParameterInflationProviderInterface, CurveBuildingBlockBundle> result = 
+          Pairs.of((ParameterInflationProviderInterface) temp.getFirst(), temp.getSecond());
       return result;
     }
 
@@ -356,7 +359,7 @@ public class InflationProviderDiscountingFunction extends
 
     @Override
     protected Set<ComputedValue> getResults(final ValueSpecification bundleSpec, final ValueSpecification jacobianSpec,
-        final ValueProperties bundleProperties, final Pair<InflationProviderInterface, CurveBuildingBlockBundle> pair) {
+        final ValueProperties bundleProperties, final Pair<ParameterInflationProviderInterface, CurveBuildingBlockBundle> pair) {
       final Set<ComputedValue> result = new HashSet<>();
       final InflationProviderDiscount provider = (InflationProviderDiscount) pair.getFirst();
       result.add(new ComputedValue(bundleSpec, provider));

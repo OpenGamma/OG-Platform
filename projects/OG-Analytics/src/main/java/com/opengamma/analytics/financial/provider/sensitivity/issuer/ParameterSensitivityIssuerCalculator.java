@@ -25,7 +25,8 @@ import com.opengamma.util.tuple.Pairs;
  * The return format is ParameterSensitivity object.
  * @param <DATA_TYPE> Data type.
  */
-public class ParameterSensitivityIssuerCalculator<DATA_TYPE extends ParameterIssuerProviderInterface> extends AbstractParameterSensitivityIssuerCalculator<DATA_TYPE> {
+public class ParameterSensitivityIssuerCalculator<DATA_TYPE extends ParameterIssuerProviderInterface> 
+  extends AbstractParameterSensitivityIssuerCalculator<DATA_TYPE> {
 
   /**
    * Constructor

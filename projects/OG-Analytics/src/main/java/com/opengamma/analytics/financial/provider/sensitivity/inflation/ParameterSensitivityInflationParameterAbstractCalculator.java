@@ -3,14 +3,13 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.provider.sensitivity.parameter;
+package com.opengamma.analytics.financial.provider.sensitivity.inflation;
 
 import java.util.Set;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.provider.description.inflation.ParameterInflationProviderInterface;
-import com.opengamma.analytics.financial.provider.sensitivity.inflation.MultipleCurrencyInflationSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.util.ArgumentChecker;
 
@@ -20,7 +19,7 @@ import com.opengamma.util.ArgumentChecker;
  * the parameters sensitivities are aggregated (the same parameter can be used in several curves).
  * @param <DATA_TYPE> Data type.
  */
-public abstract class AbstractParameterInflationSensitivityParameterCalculator<DATA_TYPE extends ParameterInflationProviderInterface> {
+public abstract class ParameterSensitivityInflationParameterAbstractCalculator<DATA_TYPE extends ParameterInflationProviderInterface> {
 
   /**
    * The sensitivity calculator to compute the sensitivity of the value with respect to the zero-coupon continuously compounded rates at different times (discounting) or forward rates.
@@ -31,7 +30,7 @@ public abstract class AbstractParameterInflationSensitivityParameterCalculator<D
    * The constructor from a curve sensitivity calculator.
    * @param curveSensitivityCalculator The calculator.
    */
-  public AbstractParameterInflationSensitivityParameterCalculator(final InstrumentDerivativeVisitor<DATA_TYPE, MultipleCurrencyInflationSensitivity> curveSensitivityCalculator) {
+  public ParameterSensitivityInflationParameterAbstractCalculator(final InstrumentDerivativeVisitor<DATA_TYPE, MultipleCurrencyInflationSensitivity> curveSensitivityCalculator) {
     ArgumentChecker.notNull(curveSensitivityCalculator, "curve sensitivity calculator");
     _curveSensitivityCalculator = curveSensitivityCalculator;
   }

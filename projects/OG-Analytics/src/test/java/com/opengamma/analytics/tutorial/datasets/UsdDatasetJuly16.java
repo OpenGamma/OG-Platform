@@ -41,7 +41,7 @@ import com.opengamma.analytics.financial.provider.curve.CurveCalibrationConventi
 import com.opengamma.analytics.financial.provider.curve.CurveCalibrationTestsUtils;
 import com.opengamma.analytics.financial.provider.curve.multicurve.MulticurveDiscountBuildingRepository;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
-import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
@@ -197,13 +197,13 @@ public class UsdDatasetJuly16 {
   }
 
   /** Calculators */
-  private static final InstrumentDerivativeVisitor<MulticurveProviderInterface, Double> PSMQDC =
+  private static final InstrumentDerivativeVisitor<ParameterProviderInterface, Double> PSMQDC =
       ParSpreadMarketQuoteDiscountingCalculator.getInstance(); // Market quotes 
-  private static final InstrumentDerivativeVisitor<MulticurveProviderInterface, Double> PSRDC =
+  private static final InstrumentDerivativeVisitor<ParameterProviderInterface, Double> PSRDC =
       ParSpreadRateDiscountingCalculator.getInstance(); // Rate version of market quotes, in particular future price replaced by future rate sensitivity.
-  private static final InstrumentDerivativeVisitor<MulticurveProviderInterface, MulticurveSensitivity> PSMQCSC =
+  private static final InstrumentDerivativeVisitor<ParameterProviderInterface, MulticurveSensitivity> PSMQCSC =
       ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator.getInstance(); // Market quotes 
-  private static final InstrumentDerivativeVisitor<MulticurveProviderInterface, MulticurveSensitivity> PSRCSC =
+  private static final InstrumentDerivativeVisitor<ParameterProviderInterface, MulticurveSensitivity> PSRCSC =
       ParSpreadRateCurveSensitivityDiscountingCalculator.getInstance(); // Rate version of market quotes, in particular future price replaced by future rate sensitivity.
 
   private static final MulticurveDiscountBuildingRepository CURVE_BUILDING_REPOSITORY =
@@ -226,8 +226,8 @@ public class UsdDatasetJuly16 {
         getDefinitions(FWD3_USD_MARKET_QUOTES, fwd3Generators, FWD3_USD_ATTR, calibrationDate);
     definitionsUnits[0] = new InstrumentDefinition<?>[][] {definitionsDsc };
     definitionsUnits[1] = new InstrumentDefinition<?>[][] {definitionsFwd3 };
-    InstrumentDerivativeVisitor<MulticurveProviderInterface, Double> target;
-    InstrumentDerivativeVisitor<MulticurveProviderInterface, MulticurveSensitivity> targetSensitivity;
+    InstrumentDerivativeVisitor<ParameterProviderInterface, Double> target;
+    InstrumentDerivativeVisitor<ParameterProviderInterface, MulticurveSensitivity> targetSensitivity;
     if (marketQuoteRisk) {
       target = PSMQDC;
       targetSensitivity = PSMQCSC;
@@ -250,10 +250,10 @@ public class UsdDatasetJuly16 {
   }
   
   private static Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> getImmHedgeCurveBundle(
-      ZonedDateTime calibrationDate, MulticurveProviderInterface standardCurveBundle, final Interpolator1D interpolator,
+      ZonedDateTime calibrationDate, ParameterProviderInterface standardCurveBundle, final Interpolator1D interpolator,
       int nbImmSwaps,
-      InstrumentDerivativeVisitor<MulticurveProviderInterface, Double> target,
-      InstrumentDerivativeVisitor<MulticurveProviderInterface, MulticurveSensitivity> targetSensitivity) {
+      InstrumentDerivativeVisitor<ParameterProviderInterface, Double> target,
+      InstrumentDerivativeVisitor<ParameterProviderInterface, MulticurveSensitivity> targetSensitivity) {
     ZonedDateTime spotDate = ScheduleCalculator.getAdjustedDate(calibrationDate, USDLIBOR3M.getSpotLag(), NYC);
     ZonedDateTime[] immDates = new ZonedDateTime[nbImmSwaps + 1];
     for (int loopimm = 0; loopimm < nbImmSwaps + 1; loopimm++) {
@@ -332,12 +332,12 @@ public class UsdDatasetJuly16 {
   }
   
   public static Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> getHedgeCurveBundle(
-      ZonedDateTime calibrationDate, MulticurveProviderInterface standardCurveBundle, final Interpolator1D interpolator,
+      ZonedDateTime calibrationDate, ParameterProviderInterface standardCurveBundle, final Interpolator1D interpolator,
       int nbCashInstruments, int nbImmSwaps, int nbOisVsFixedSwaps, int nbFedFundVsFixedSwaps, 
       boolean marketQuoteRisk) {
   
-    InstrumentDerivativeVisitor<MulticurveProviderInterface, Double> target;
-    InstrumentDerivativeVisitor<MulticurveProviderInterface, MulticurveSensitivity> targetSensitivity;
+    InstrumentDerivativeVisitor<ParameterProviderInterface, Double> target;
+    InstrumentDerivativeVisitor<ParameterProviderInterface, MulticurveSensitivity> targetSensitivity;
     if (marketQuoteRisk) {
       target = PSMQDC;
       targetSensitivity = PSMQCSC;

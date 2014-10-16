@@ -38,6 +38,7 @@ import com.opengamma.analytics.financial.provider.calculator.generic.LastFixingE
 import com.opengamma.analytics.financial.provider.calculator.generic.LastTimeCalculator;
 import com.opengamma.analytics.financial.provider.curve.hullwhite.HullWhiteProviderDiscountBuildingRepository;
 import com.opengamma.analytics.financial.provider.curve.inflation.InflationDiscountBuildingRepository;
+import com.opengamma.analytics.financial.provider.curve.inflationissuer.InflationIssuerDiscountBuildingRepository;
 import com.opengamma.analytics.financial.provider.curve.issuer.IssuerDiscountBuildingRepository;
 import com.opengamma.analytics.financial.provider.curve.multicurve.MulticurveDiscountBuildingRepository;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
@@ -68,6 +69,8 @@ public class CurveCalibrationConventionDataSets {
       new HullWhiteProviderDiscountBuildingRepository(TOLERANCE_ROOT, TOLERANCE_ROOT, STEP_MAX);
   private static final InflationDiscountBuildingRepository CURVE_BUILDING_REPOSITORY_INFL =
       new InflationDiscountBuildingRepository(TOLERANCE_ROOT, TOLERANCE_ROOT, STEP_MAX);
+  private static final InflationIssuerDiscountBuildingRepository CURVE_BUILDING_REPOSITORY_INFL_IS =
+      new InflationIssuerDiscountBuildingRepository(TOLERANCE_ROOT, TOLERANCE_ROOT, STEP_MAX);
   private static final RollDateAdjuster IMM_QUARTERLY_ADJUSTER = QuarterlyIMMRollDateAdjuster.getAdjuster();
 
   public static MulticurveDiscountBuildingRepository curveBuildingRepositoryMulticurve() {
@@ -84,6 +87,10 @@ public class CurveCalibrationConventionDataSets {
 
   public static InflationDiscountBuildingRepository curveBuildingRepositoryInflation() {
     return CURVE_BUILDING_REPOSITORY_INFL;
+  }
+
+  public static InflationIssuerDiscountBuildingRepository curveBuildingRepositoryInflationIssuer() {
+    return CURVE_BUILDING_REPOSITORY_INFL_IS;
   }
 
   private static final Interpolator1D INTERPOLATOR_LINEAR = 

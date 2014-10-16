@@ -41,6 +41,7 @@ import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterAbstractCalculator;
@@ -117,15 +118,15 @@ public class SwapCalculatorTest {
   private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
   private static final ParRateDiscountingCalculator PRDC = ParRateDiscountingCalculator.getInstance();
   private static final TodayPaymentCalculator TPC = TodayPaymentCalculator.getInstance();
-  private static final PV01CurveParametersCalculator<MulticurveProviderInterface> PV01CPC = 
+  private static final PV01CurveParametersCalculator<ParameterProviderInterface> PV01CPC = 
       new PV01CurveParametersCalculator<>(PresentValueCurveSensitivityDiscountingCalculator.getInstance());
   private static final PresentValueCurveSensitivityDiscountingCalculator PVCSDC = 
       PresentValueCurveSensitivityDiscountingCalculator.getInstance();
-  private static final ParameterSensitivityParameterCalculator<MulticurveProviderInterface> PSPVC = 
+  private static final ParameterSensitivityParameterCalculator<ParameterProviderInterface> PSPVC = 
       new ParameterSensitivityParameterCalculator<>(PVCSDC);
-  private static final ParameterSensitivityParameterAbstractCalculator<MulticurveProviderInterface> PSUC = 
+  private static final ParameterSensitivityParameterAbstractCalculator<ParameterProviderInterface> PSUC = 
       new ParameterSensitivityUnderlyingParameterCalculator<>(PVCSDC);
-  private static final MarketQuoteSensitivityBlockCalculator<MulticurveProviderInterface> MQSUBC = 
+  private static final MarketQuoteSensitivityBlockCalculator<ParameterProviderInterface> MQSUBC = 
       new MarketQuoteSensitivityBlockCalculator<>(PSUC);
   private static final CrossGammaSingleCurveCalculator CGC = new CrossGammaSingleCurveCalculator(PVCSDC);
 
@@ -386,7 +387,7 @@ public class SwapCalculatorTest {
     final PresentValueDiscountingCalculator pvdCalculator = PresentValueDiscountingCalculator.getInstance();
     final PresentValueCurveSensitivityDiscountingCalculator pvcsdCalculator = 
         PresentValueCurveSensitivityDiscountingCalculator.getInstance();
-    final ParameterSensitivityParameterCalculator<MulticurveProviderInterface> psCalculator = 
+    final ParameterSensitivityParameterCalculator<ParameterProviderInterface> psCalculator = 
         new ParameterSensitivityParameterCalculator<>(pvcsdCalculator);
 
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 5, 14);
