@@ -75,7 +75,7 @@ public class CDSIndexCalculatorTest extends ISDABaseTest {
     AnalyticCDSPricer pricer = new AnalyticCDSPricer();
     double tol = 1.0e-12;
     CDSAnalytic cdx = FACTORY.makeCDX(TRADE_DATE, Period.ofYears(5));
-    double indexCoupon = 300 * 1.0e-4;
+    double indexCoupon = 300 * ONE_BP;
     int[] defaultedNames = new int[] {2, 15, 37, 51 };
     IntrinsicIndexDataBundle intrinsicDataWithDefaulted = INTRINSIC_DATA.withDefault(defaultedNames);
 
@@ -111,10 +111,8 @@ public class CDSIndexCalculatorTest extends ISDABaseTest {
         ref = 0.0;
       } else {
         double weight = intrinsicDataWithDefaulted.getWeight(i);
-        IntrinsicIndexDataBundle newBundle = intrinsicDataWithDefaulted.withDefault(i);
-        double pvdefaulted = INDEX_CAL.indexPV(cdx, indexCoupon, YIELD_CURVE, newBundle);
-        ref = -pv - pricer.pv(cdx, YIELD_CURVE, intrinsicDataWithDefaulted.getCreditCurves()[i], indexCoupon) * weight +
-            pvdefaulted + intrinsicDataWithDefaulted.getLGD(i) * weight;
+        ref = intrinsicDataWithDefaulted.getLGD(i) * weight -
+            pricer.pv(cdx, YIELD_CURVE, intrinsicDataWithDefaulted.getCreditCurves()[i], indexCoupon) * weight;
       }
       assertEquals(ref, jumpToDefault[i], tol);
     }
@@ -127,10 +125,10 @@ public class CDSIndexCalculatorTest extends ISDABaseTest {
       weights[i] = intrinsicDataWithDefaulted.getWeight(i);
       sum += recovery01[i];
     }
-    IntrinsicIndexDataBundle bundleZeroRates = new IntrinsicIndexDataBundle(
+    IntrinsicIndexDataBundle bundleZeroRecoveryRates = new IntrinsicIndexDataBundle(
         intrinsicDataWithDefaulted.getCreditCurves(),
         zeroRates, weights).withDefault(defaultedNames);
-    double ref = -INDEX_CAL.indexProtLeg(cdx, YIELD_CURVE, bundleZeroRates);
+    double ref = -INDEX_CAL.indexProtLeg(cdx, YIELD_CURVE, bundleZeroRecoveryRates);
     assertEquals(sum, ref, Math.abs(ref) * tol);
   }
 

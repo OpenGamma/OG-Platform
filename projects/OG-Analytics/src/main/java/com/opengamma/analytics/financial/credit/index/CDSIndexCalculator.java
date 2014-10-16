@@ -582,25 +582,22 @@ public class CDSIndexCalculator {
     ArgumentChecker.notNull(yieldCurve, "yieldCurve");
     ArgumentChecker.notNull(intrinsicData, "intrinsicData");
     int indexSize = intrinsicData.getIndexSize();
-    double pv = indexPV(indexCDS, indexCoupon, yieldCurve, intrinsicData);
     double[] res = new double[indexSize];
     for (int i = 0; i < indexSize; ++i) {
       if (intrinsicData.isDefaulted(i)) {
         res[i] = 0.0;
       } else {
-        res[i] = decomposedValueOnDefault(indexCDS, indexCoupon, yieldCurve, intrinsicData, pv, i);
+        res[i] = decomposedValueOnDefault(indexCDS, indexCoupon, yieldCurve, intrinsicData, i);
       }
     }
     return res;
   }
 
   private double decomposedValueOnDefault(CDSAnalytic indexCDS, double indexCoupon, ISDACompliantYieldCurve yieldCurve,
-      IntrinsicIndexDataBundle intrinsicData, double presentValue, int singleName) {
+      IntrinsicIndexDataBundle intrinsicData, int singleName) {
     double protection = intrinsicData.getLGD(singleName) * intrinsicData.getWeight(singleName);
-    IntrinsicIndexDataBundle defaultedData = intrinsicData.withDefault(singleName);
-    double newPV = indexPV(indexCDS, indexCoupon, yieldCurve, defaultedData);
     double singleNamePV = _pricer.pv(indexCDS, yieldCurve, intrinsicData.getCreditCurves()[singleName], indexCoupon) *
         intrinsicData.getWeight(singleName);
-    return newPV + protection - singleNamePV - presentValue;
+    return protection - singleNamePV;
   }
 }
