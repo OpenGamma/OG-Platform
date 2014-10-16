@@ -12,6 +12,9 @@ import com.opengamma.core.config.ConfigSource;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.curve.credit.ConfigDBCurveDefinitionSource;
 import com.opengamma.financial.analytics.curve.credit.CurveDefinitionSource;
+import com.opengamma.id.VersionCorrection;
+import com.opengamma.service.ThreadLocalServiceContext;
+import com.opengamma.service.VersionCorrectionProvider;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
@@ -36,7 +39,9 @@ public class DefaultCurveDefinitionFn implements CurveDefinitionFn {
   @Override
   public Result<CurveDefinition> getCurveDefinition(String curveName) {
 
-    final CurveDefinition curveDefinition = _curveDefinitionSource.getCurveDefinition(curveName);
+    VersionCorrectionProvider version = ThreadLocalServiceContext.getInstance().get(VersionCorrectionProvider.class);
+    final CurveDefinition curveDefinition = _curveDefinitionSource.getCurveDefinition(curveName,
+        version.getConfigVersionCorrection());
     if (curveDefinition != null) {
       return Result.success(curveDefinition);
     } else {
