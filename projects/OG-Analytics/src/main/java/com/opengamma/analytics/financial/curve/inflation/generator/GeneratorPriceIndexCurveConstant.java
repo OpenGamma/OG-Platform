@@ -6,6 +6,7 @@
 package com.opengamma.analytics.financial.curve.inflation.generator;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurveSimple;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.util.ArgumentChecker;
@@ -23,7 +24,7 @@ public class GeneratorPriceIndexCurveConstant extends GeneratorPriceIndexCurve {
   @Override
   public PriceIndexCurve generateCurve(String name, double[] parameters) {
     ArgumentChecker.isTrue(parameters.length == 1, "Constant curve should have one parameter");
-    return new PriceIndexCurve(new ConstantDoublesCurve(parameters[0], name));
+    return new PriceIndexCurveSimple(new ConstantDoublesCurve(parameters[0], name));
   }
 
   @Override

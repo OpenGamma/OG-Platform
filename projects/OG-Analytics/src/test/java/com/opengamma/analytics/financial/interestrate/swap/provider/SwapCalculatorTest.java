@@ -33,6 +33,7 @@ import com.opengamma.analytics.financial.provider.calculator.generic.TodayPaymen
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
@@ -88,8 +89,8 @@ public class SwapCalculatorTest {
     DateUtils.getUTCDate(2012, 5, 15), DateUtils.getUTCDate(2012, 5, 16) }, new double[] {0.0095, 0.0120, 0.0130 });
   private static final ZonedDateTimeDoubleTimeSeries[] FIXING_TS_3_6 = new ZonedDateTimeDoubleTimeSeries[] {FIXING_TS_3, FIXING_TS_6 };
 
-  private static final PV01CurveParametersCalculator<MulticurveProviderInterface> PV01CPC = new PV01CurveParametersCalculator<>(PresentValueCurveSensitivityDiscountingCalculator.getInstance());
-  private static final ParameterSensitivityParameterCalculator<MulticurveProviderInterface> PSPVC = new ParameterSensitivityParameterCalculator<>(
+  private static final PV01CurveParametersCalculator<ParameterProviderInterface> PV01CPC = new PV01CurveParametersCalculator<>(PresentValueCurveSensitivityDiscountingCalculator.getInstance());
+  private static final ParameterSensitivityParameterCalculator<ParameterProviderInterface> PSPVC = new ParameterSensitivityParameterCalculator<>(
       PresentValueCurveSensitivityDiscountingCalculator.getInstance());
 
   private static final double TOLERANCE_PV = 1.0E-2; // one cent out of 100m
@@ -227,9 +228,10 @@ public class SwapCalculatorTest {
     final int nbTest = 100;
 
     final PresentValueDiscountingCalculator pvdCalculator = PresentValueDiscountingCalculator.getInstance();
-    final PresentValueCurveSensitivityDiscountingCalculator pvcsdCalculator = PresentValueCurveSensitivityDiscountingCalculator.getInstance();
-    final ParameterSensitivityParameterCalculator<MulticurveProviderInterface> psCalculator = new ParameterSensitivityParameterCalculator<>(pvcsdCalculator);
-
+    final PresentValueCurveSensitivityDiscountingCalculator pvcsdCalculator =
+        PresentValueCurveSensitivityDiscountingCalculator.getInstance();
+    final ParameterSensitivityParameterCalculator<ParameterProviderInterface> psCalculator = 
+        new ParameterSensitivityParameterCalculator<>(pvcsdCalculator);
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 5, 14);
 
     final int nbSwap = 100;

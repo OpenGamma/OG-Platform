@@ -6,6 +6,7 @@
 package com.opengamma.analytics.financial.curve.inflation.generator;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurveSimple;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
@@ -50,7 +51,7 @@ public class GeneratorPriceIndexCurveInterpolatedNode extends GeneratorPriceInde
   @Override
   public PriceIndexCurve generateCurve(String name, double[] parameters) {
     ArgumentChecker.isTrue(parameters.length == _nbPoints, "Incorrect dimension for the price indices");
-    return new PriceIndexCurve(new InterpolatedDoublesCurve(_nodePoints, parameters, _interpolator, true, name));
+    return new PriceIndexCurveSimple(new InterpolatedDoublesCurve(_nodePoints, parameters, _interpolator, true, name));
   }
 
   @Override

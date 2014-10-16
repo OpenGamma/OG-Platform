@@ -23,7 +23,7 @@ import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueMarketQuoteSensitivityDiscountingCalculator;
-import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
+import com.opengamma.analytics.financial.provider.description.inflation.ParameterInflationProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.util.ArgumentChecker;
 
@@ -31,7 +31,8 @@ import com.opengamma.util.ArgumentChecker;
  * Compute the spread to be added to the market standard quote of the instrument for which the present value of the instrument is zero.
  * The notion of "market quote" will depend of each instrument.
  */
-public final class ParSpreadInflationMarketQuoteDiscountingCalculator extends InstrumentDerivativeVisitorAdapter<InflationProviderInterface, Double> {
+public final class ParSpreadInflationMarketQuoteDiscountingCalculator 
+  extends InstrumentDerivativeVisitorAdapter<ParameterInflationProviderInterface, Double> {
 
   /**
    * The unique instance of the calculator.
@@ -67,19 +68,19 @@ public final class ParSpreadInflationMarketQuoteDiscountingCalculator extends In
   //-----     Deposit     -----
 
   @Override
-  public Double visitCash(final Cash deposit, final InflationProviderInterface inflation) {
+  public Double visitCash(final Cash deposit, final ParameterInflationProviderInterface inflation) {
     return METHOD_DEPOSIT.parSpread(deposit, inflation.getMulticurveProvider());
   }
 
   @Override
-  public Double visitDepositIbor(final DepositIbor deposit, final InflationProviderInterface inflation) {
+  public Double visitDepositIbor(final DepositIbor deposit, final ParameterInflationProviderInterface inflation) {
     return METHOD_DEPOSIT_IBOR.parSpread(deposit, inflation.getMulticurveProvider());
   }
 
   // -----     Payment/Coupon     ------
 
   @Override
-  public Double visitForwardRateAgreement(final ForwardRateAgreement fra, final InflationProviderInterface inflation) {
+  public Double visitForwardRateAgreement(final ForwardRateAgreement fra, final ParameterInflationProviderInterface inflation) {
     return METHOD_FRA.parSpread(fra, inflation.getMulticurveProvider());
   }
 
@@ -94,13 +95,13 @@ public final class ParSpreadInflationMarketQuoteDiscountingCalculator extends In
   * @return The par spread.
   */
   @Override
-  public Double visitSwap(final Swap<?, ?> swap, final InflationProviderInterface inflation) {
+  public Double visitSwap(final Swap<?, ?> swap, final ParameterInflationProviderInterface inflation) {
     ArgumentChecker.notNull(inflation, "Market");
     ArgumentChecker.notNull(swap, "Swap");
     if (swap.getFirstLeg().getNumberOfPayments() == 1 && swap.getFirstLeg().getNthPayment(0) instanceof CouponFixedCompounding) {
       final CouponFixedCompounding cpn = (CouponFixedCompounding) swap.getFirstLeg().getNthPayment(0);
       final double pvInflationLeg = swap.getSecondLeg().accept(PVIC, inflation).getAmount(swap.getSecondLeg().getCurrency());
-      final double discountFactor = inflation.getDiscountFactor(swap.getFirstLeg().getCurrency(), cpn.getPaymentTime());
+      final double discountFactor = inflation.getInflationProvider().getDiscountFactor(swap.getFirstLeg().getCurrency(), cpn.getPaymentTime());
       final double tenor = cpn.getPaymentAccrualFactors().length;
       final double notional = ((CouponInflation) swap.getSecondLeg().getNthPayment(0)).getNotional();
       return Math.pow(pvInflationLeg / discountFactor / notional + 1, 1 / tenor) - 1 - cpn.getFixedRate();
@@ -110,14 +111,14 @@ public final class ParSpreadInflationMarketQuoteDiscountingCalculator extends In
   }
 
   @Override
-  public Double visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final InflationProviderInterface inflation) {
+  public Double visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final ParameterInflationProviderInterface inflation) {
     return visitSwap(swap, inflation);
   }
 
   //-----     Futures     -----
 
   @Override
-  public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction futures, final InflationProviderInterface inflation) {
+  public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction futures, final ParameterInflationProviderInterface inflation) {
     return METHOD_IR_FUT.price(futures.getUnderlyingSecurity(), inflation.getMulticurveProvider()) - futures.getReferencePrice();
   }
 
@@ -130,7 +131,7 @@ public final class ParSpreadInflationMarketQuoteDiscountingCalculator extends In
   * @return The spread.
   */
   @Override
-  public Double visitForexSwap(final ForexSwap fx, final InflationProviderInterface inflation) {
+  public Double visitForexSwap(final ForexSwap fx, final ParameterInflationProviderInterface inflation) {
     return METHOD_FOREX_SWAP.parSpread(fx, inflation.getMulticurveProvider());
   }
 

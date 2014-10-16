@@ -19,6 +19,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.provider.calculator.inflation.ParSpreadInflationMarketQuoteDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
+import com.opengamma.analytics.financial.provider.description.inflation.ParameterInflationProviderInterface;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -36,7 +37,7 @@ import com.opengamma.engine.value.ValueSpecification;
  */
 public class DiscountingInflationParSpreadFunction extends DiscountingInflationFunction {
   /** The par spread calculator */
-  private static final InstrumentDerivativeVisitor<InflationProviderInterface, Double> CALCULATOR = ParSpreadInflationMarketQuoteDiscountingCalculator.getInstance();
+  private static final InstrumentDerivativeVisitor<ParameterInflationProviderInterface, Double> CALCULATOR = ParSpreadInflationMarketQuoteDiscountingCalculator.getInstance();
 
   /**
    * Sets the value requirements to {@link ValueRequirementNames#PAR_SPREAD}

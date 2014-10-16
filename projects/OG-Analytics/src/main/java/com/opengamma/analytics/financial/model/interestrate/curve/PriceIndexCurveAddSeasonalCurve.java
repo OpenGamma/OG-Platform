@@ -1,43 +1,47 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.interestrate.curve;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *  PriceIndexCurve created by adding a seasonal curve to a price index curve. The seasonal curve is fixed and there is no sensitivity to that curve.
- * No parameter is associated to the seasonal curve.
+ * PriceIndexCurve created by adding a fixed curve to a price index curve. 
+ * No parameter is associated to the fixed curve.
+ * The fixed curve can be used for additive seasonal adjustment.
  */
-public class PriceIndexCurveAddSeasonalCurve extends PriceIndexCurve {
+public class PriceIndexCurveAddSeasonalCurve implements PriceIndexCurve {
 
+  /** The curve name. */
+  private final String _name;
   /**
    * The main underlying curve.
    */
   private final PriceIndexCurve _curve;
   /**
-   * The fixed curve.
+   * The fixed seasonal curve.
    */
   private final SeasonalCurve _seasonalCurve;
 
   /**
    * Constructor from an array of curves.
-   * The new price index curve  will be the sum (or the difference) of the different underlying curves.
+   * The new price index curve  will be the sum of the underlying curve and the seasonal curve.
    * @param name The curve name.
    * @param curve The main curve.
    * @param seasonalCurve The fixed curve (as a spread).
    */
   public PriceIndexCurveAddSeasonalCurve(final String name, final PriceIndexCurve curve, final SeasonalCurve seasonalCurve) {
-    super(curve.getCurve());
     ArgumentChecker.notNull(curve, "Curve");
     ArgumentChecker.notNull(seasonalCurve, "Curve fixed");
+    _name = name;
     _curve = curve;
     _seasonalCurve = seasonalCurve;
   }
@@ -66,6 +70,16 @@ public class PriceIndexCurveAddSeasonalCurve extends PriceIndexCurve {
   @Override
   public List<String> getUnderlyingCurvesNames() {
     return new ArrayList<>();
+  }
+
+  @Override
+  public String getName() {
+    return _name;
+  }
+
+  @Override
+  public int getNumberOfIntrinsicParameters(Set<String> curvesNames) {
+    return _curve.getNumberOfIntrinsicParameters(curvesNames);
   }
 
   @Override

@@ -150,7 +150,7 @@ public class InflationProviderDiscount implements InflationProviderInterface {
   @Override
   public String getName(final IndexPrice index) {
     if (_priceIndexCurves.containsKey(index)) {
-      return _priceIndexCurves.get(index).getCurve().getName();
+      return _priceIndexCurves.get(index).getName();
     }
     throw new IllegalArgumentException("Price index curve not found: " + index);
   }
@@ -397,7 +397,8 @@ public class InflationProviderDiscount implements InflationProviderInterface {
   }
 
   /**
-   * Return the number of intrinsic parameters for the definition of the curve. Which is the total number of parameters minus the parameters of the curves in curvesNames (If they are in curves).
+   * Return the number of intrinsic parameters for the definition of the curve. 
+   * Which is the total number of parameters minus the parameters of the curves in curvesNames (If they are in curves).
    *  @param name the name of the curve.
    *  @param curvesNames The list of curves names.
    *  @return The number of parameters.

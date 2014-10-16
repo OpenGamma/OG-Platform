@@ -19,6 +19,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParRateDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -36,7 +37,7 @@ import com.opengamma.engine.value.ValueSpecification;
  */
 public class G2ppDiscountingParRateFunction extends G2ppDiscountingFunction {
   /** The par rate calculator */
-  private static final InstrumentDerivativeVisitor<MulticurveProviderInterface, Double> CALCULATOR = ParRateDiscountingCalculator.getInstance();
+  private static final InstrumentDerivativeVisitor<ParameterProviderInterface, Double> CALCULATOR = ParRateDiscountingCalculator.getInstance();
 
   /**
    * Sets the value requirements to {@link ValueRequirementNames#PAR_RATE}

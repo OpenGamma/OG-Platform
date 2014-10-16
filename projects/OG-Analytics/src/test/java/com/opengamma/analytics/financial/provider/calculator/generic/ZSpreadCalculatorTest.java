@@ -28,7 +28,7 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
-import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
@@ -60,7 +60,7 @@ public class ZSpreadCalculatorTest {
   private static final Annuity<CouponFixed> PAYMENTS;
   private static final double YIELD = 0.04;
   private static final Currency CUR = Currency.EUR;
-  private static final ZSpreadCalculator<MulticurveProviderInterface> CALCULATOR = new ZSpreadCalculator<>(
+  private static final ZSpreadCalculator<ParameterProviderInterface> CALCULATOR = new ZSpreadCalculator<>(
       PV_CALCULATOR, PVS_CALCULATOR);
   private static final Interpolator1D INTERPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC,
       Interpolator1DFactory.LINEAR_EXTRAPOLATOR, Interpolator1DFactory.LINEAR_EXTRAPOLATOR);

@@ -12,6 +12,7 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.financial.curve.inflation.generator.GeneratorPriceIndexCurveConstant;
 import com.opengamma.analytics.financial.curve.inflation.generator.GeneratorPriceIndexCurveInterpolatedNode;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurveSimple;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
@@ -54,14 +55,14 @@ public class GeneratorInflationCurveTest {
   @Test
   public void generateCurveYieldInterpolated() {
     final PriceIndexCurve curveGenerated = GENERATOR_PRICE_INDEX_INTERPOLATED_NODE.generateCurve(CURVE_NAME_1, CPI);
-    final PriceIndexCurve curveExpected = new PriceIndexCurve(new InterpolatedDoublesCurve(NODES, CPI, LINEAR_FLAT, true, CURVE_NAME_1));
+    final PriceIndexCurve curveExpected = new PriceIndexCurveSimple(new InterpolatedDoublesCurve(NODES, CPI, LINEAR_FLAT, true, CURVE_NAME_1));
     assertEquals("GeneratorPriceIndexCurveInterpolatedNode: generate curve", curveExpected, curveGenerated);
   }
 
   @Test
   public void generateCurveYieldConstant() {
     final PriceIndexCurve curveGenerated = GENERATOR_PRICE_INDEX_CONSTANT.generateCurve(CURVE_NAME_1, new double[] {CST });
-    final PriceIndexCurve curveExpected = new PriceIndexCurve(new ConstantDoublesCurve(CST, CURVE_NAME_1));
+    final PriceIndexCurve curveExpected = new PriceIndexCurveSimple(new ConstantDoublesCurve(CST, CURVE_NAME_1));
     assertEquals("GeneratorPriceIndexCurveConstant: generate curve", curveExpected, curveGenerated);
   }
 

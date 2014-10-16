@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.interestrate.curve;
@@ -17,12 +17,12 @@ import com.opengamma.util.ArgumentChecker;
  * In general the fixed curve represent a static adjustment like a seasonality adjustment.
  * The term "fixed" for the second curve means that no parameter is associated to that curve.
  */
-public class PriceIndexCurveAddInflationRateFixedCurve extends PriceIndexCurve {
+public class PriceIndexCurveAddInflationRateFixedCurve extends PriceIndexCurveSimple {
 
   /**
    * The main underlying curve.
    */
-  private final PriceIndexCurve _curve;
+  private final PriceIndexCurveSimple _curve;
   /**
    * The fixed curve.
    */
@@ -46,7 +46,7 @@ public class PriceIndexCurveAddInflationRateFixedCurve extends PriceIndexCurve {
    * @param curveFixed The fixed curve (as a spread).
    * @param referencePriceIndex The reference price index value, use to calculate the rate of all the curve.
    */
-  public PriceIndexCurveAddInflationRateFixedCurve(final String name, final PriceIndexCurve curve, final DoublesCurve curveFixed, final boolean substract, final double referencePriceIndex) {
+  public PriceIndexCurveAddInflationRateFixedCurve(final String name, final PriceIndexCurveSimple curve, final DoublesCurve curveFixed, final boolean substract, final double referencePriceIndex) {
     super(curve.getCurve());
     ArgumentChecker.notNull(curve, "Curve");
     ArgumentChecker.notNull(curveFixed, "Curve fixed");

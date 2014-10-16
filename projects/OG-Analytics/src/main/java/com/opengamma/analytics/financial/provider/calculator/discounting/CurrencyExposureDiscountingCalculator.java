@@ -11,12 +11,14 @@ import com.opengamma.analytics.financial.forex.provider.ForexDiscountingMethod;
 import com.opengamma.analytics.financial.forex.provider.ForexNonDeliverableForwardDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorDelegate;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
  * Calculates the present value of an inflation instruments by discounting for a given MarketBundle
  */
-public final class CurrencyExposureDiscountingCalculator extends InstrumentDerivativeVisitorDelegate<MulticurveProviderInterface, MultipleCurrencyAmount> {
+public final class CurrencyExposureDiscountingCalculator 
+  extends InstrumentDerivativeVisitorDelegate<ParameterProviderInterface, MultipleCurrencyAmount> {
 
   /**
    * The unique instance of the calculator.
@@ -47,13 +49,13 @@ public final class CurrencyExposureDiscountingCalculator extends InstrumentDeriv
   // -----     Forex     ------
 
   @Override
-  public MultipleCurrencyAmount visitForex(final Forex derivative, final MulticurveProviderInterface multicurves) {
-    return METHOD_FOREX.currencyExposure(derivative, multicurves);
+  public MultipleCurrencyAmount visitForex(final Forex derivative, final ParameterProviderInterface multicurves) {
+    return METHOD_FOREX.currencyExposure(derivative, multicurves.getMulticurveProvider());
   }
 
   @Override
-  public MultipleCurrencyAmount visitForexNonDeliverableForward(final ForexNonDeliverableForward derivative, final MulticurveProviderInterface multicurves) {
-    return METHOD_FOREX_NDF.currencyExposure(derivative, multicurves);
+  public MultipleCurrencyAmount visitForexNonDeliverableForward(final ForexNonDeliverableForward derivative, final ParameterProviderInterface multicurves) {
+    return METHOD_FOREX_NDF.currencyExposure(derivative, multicurves.getMulticurveProvider());
   }
 
 }

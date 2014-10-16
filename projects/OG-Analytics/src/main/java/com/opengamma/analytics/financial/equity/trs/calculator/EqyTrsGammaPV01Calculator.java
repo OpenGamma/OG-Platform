@@ -10,7 +10,7 @@ import com.opengamma.analytics.financial.equity.trs.definition.EquityTotalReturn
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.provider.calculator.discounting.GammaPV01CurveParametersCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueCurveSensitivityDiscountingCalculator;
-import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -20,7 +20,7 @@ public final class EqyTrsGammaPV01Calculator extends InstrumentDerivativeVisitor
   /** The singleton instance */
   private static final EqyTrsGammaPV01Calculator INSTANCE = new EqyTrsGammaPV01Calculator();
   /** The gamma PV01 calculator */
-  private static final GammaPV01CurveParametersCalculator<MulticurveProviderInterface> CALCULATOR =
+  private static final GammaPV01CurveParametersCalculator<ParameterProviderInterface> CALCULATOR =
       new GammaPV01CurveParametersCalculator<>(PresentValueCurveSensitivityDiscountingCalculator.getInstance());
 
   /**

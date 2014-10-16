@@ -32,7 +32,7 @@ public interface ParameterProviderInterface {
   // REVIEW emcleod 2013-9-16 Yes, they should be moved - these classes do far too much and there's
   // quite a lot of code repeated between various providers.
   /**
-   * Gets the sensitivities to the curve parameters.
+   * Gets the sensitivities to the curve parameters in the MulticurveProvider.
    * @param name The curve name
    * @param pointSensitivity The point sensitivities
    * @return The sensitivities to the parameters

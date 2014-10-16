@@ -22,6 +22,7 @@ import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.analytics.financial.legalentity.LegalEntityFilter;
 import com.opengamma.analytics.financial.legalentity.LegalEntityShortName;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurveSimple;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationIssuerProviderDiscount;
@@ -155,21 +156,21 @@ public class MulticurveProviderDiscountDataSets {
   private static final double[] INDEX_VALUE_EUR = new double[] {113.11, 113.10, 115.12, 123.23, 133.33, 155.55, 175.55, 195.55 }; // May11, June11, 1Y, 5Y, 10Y, 20Y
   private static final double[] TIME_VALUE_EUR = new double[] {-4.0 / 12.0, -2.0 / 12.0, 9.0 / 12.0, 4.0 + 9.0 / 12.0, 9.0 + 9.0 / 12.0, 19.0 + 9.0 / 12.0, 29.0 + 9.0 / 12.0, 39.0 + 9.0 / 12.0 };
   private static final InterpolatedDoublesCurve CURVE_EUR = InterpolatedDoublesCurve.from(TIME_VALUE_EUR, INDEX_VALUE_EUR, new LinearInterpolator1D(), NAME_EUR_PRICE_INDEX);
-  private static final PriceIndexCurve PRICE_INDEX_CURVE_EUR = new PriceIndexCurve(CURVE_EUR);
+  private static final PriceIndexCurve PRICE_INDEX_CURVE_EUR = new PriceIndexCurveSimple(CURVE_EUR);
 
   private static final String NAME_GBP_PRICE_INDEX = "UK RPI";
   private static final IndexPrice PRICE_INDEX_GBP = new IndexPrice(NAME_GBP_PRICE_INDEX, Currency.GBP);
   private static final double[] INDEX_VALUE_GBP = new double[] {228.4, 232.0, 240.0, 251.1, 275.2, 456.7 }; // Dec10, 1Y, 5Y, 10Y, 20Y, 50Y
   private static final double[] TIME_VALUE_GBP = new double[] {-8.0 / 12.0, 4.0 / 12.0, 4.0 + 4.0 / 12.0, 9.0 + 4.0 / 12.0, 19.0 + 4.0 / 12.0, 49.0 + 4.0 / 12.0 };
   private static final InterpolatedDoublesCurve CURVE_GBP = InterpolatedDoublesCurve.from(TIME_VALUE_GBP, INDEX_VALUE_GBP, new LinearInterpolator1D(), NAME_GBP_PRICE_INDEX);
-  private static final PriceIndexCurve PRICE_INDEX_CURVE_GBP = new PriceIndexCurve(CURVE_GBP);
+  private static final PriceIndexCurve PRICE_INDEX_CURVE_GBP = new PriceIndexCurveSimple(CURVE_GBP);
 
   private static final String NAME_USD_PRICE_INDEX = "US CPI-U";
   private static final IndexPrice PRICE_INDEX_USD = new IndexPrice(NAME_USD_PRICE_INDEX, Currency.USD);
   private static final double[] INDEX_VALUE_USD = new double[] {225.964, 225.722, 230.0, 251.1, 280.2, 452.7 }; // May11, June11, 1Y, 5Y, 10Y, 20Y, 50Y
   private static final double[] TIME_VALUE_USD = new double[] {-8.0 / 12.0, 4.0 / 12.0, 4.0 + 4.0 / 12.0, 9.0 + 4.0 / 12.0, 19.0 + 4.0 / 12.0, 49.0 + 4.0 / 12.0 };
   private static final InterpolatedDoublesCurve CURVE_USD = InterpolatedDoublesCurve.from(TIME_VALUE_USD, INDEX_VALUE_USD, new LinearInterpolator1D(), NAME_USD_PRICE_INDEX);
-  private static final PriceIndexCurve PRICE_INDEX_CURVE_USD = new PriceIndexCurve(CURVE_USD);
+  private static final PriceIndexCurve PRICE_INDEX_CURVE_USD = new PriceIndexCurveSimple(CURVE_USD);
   private static final int MONTH_LAG_US = 3;
   private static final int SPOT_LAG_US = 1;
   private static final BusinessDayConvention BUSINESS_DAY_USD = BusinessDayConventions.FOLLOWING;
@@ -179,7 +180,7 @@ public class MulticurveProviderDiscountDataSets {
   private static final double[] INDEX_VALUE_AUD = new double[] {113.10, 115.12, 123.23, 133.33, 155.55, 175.55, 195.55 }; // May11, June11, 1Y, 5Y, 10Y, 20Y
   private static final double[] TIME_VALUE_AUD = new double[] {-3.0 / 12.0, 9.0 / 12.0, 4.0 + 9.0 / 12.0, 9.0 + 9.0 / 12.0, 19.0 + 9.0 / 12.0, 29.0 + 9.0 / 12.0, 39.0 + 9.0 / 12.0 };
   private static final InterpolatedDoublesCurve CURVE_AUD = InterpolatedDoublesCurve.from(TIME_VALUE_AUD, INDEX_VALUE_AUD, new LinearInterpolator1D(), NAME_AUD_PRICE_INDEX);
-  private static final PriceIndexCurve PRICE_INDEX_CURVE_AUD = new PriceIndexCurve(CURVE_AUD);
+  private static final PriceIndexCurve PRICE_INDEX_CURVE_AUD = new PriceIndexCurveSimple(CURVE_AUD);
 
   private static final LegalEntityFilter<LegalEntity> META = new LegalEntityShortName();
   private static final Pair<Object, LegalEntityFilter<LegalEntity>> ISSUER_UK_GOVT = Pairs.of((Object) "UK GOVT", META);
@@ -426,7 +427,7 @@ public class MulticurveProviderDiscountDataSets {
       indexValueUs[2 + 2 * loopus + 1] = indexValueUs[1] * Math.pow(1 + 0.02, yearUs[loopus]); // 2% inflation a year.
     }
     final InterpolatedDoublesCurve curveUs = InterpolatedDoublesCurve.from(timeValueUs, indexValueUs, new LinearInterpolator1D(), NAME_USD_PRICE_INDEX);
-    final PriceIndexCurve priceIndexCurveUs = new PriceIndexCurve(curveUs);
+    final PriceIndexCurve priceIndexCurveUs = new PriceIndexCurveSimple(curveUs);
     market.setCurve(PRICE_INDEX_USD, priceIndexCurveUs);
     return market;
   }

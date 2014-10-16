@@ -20,7 +20,8 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * 
+ * An inflation provider modified by a spread. The discount factors for all currencies are multiplied by exp(-s*t)
+ * with s the spread and t the time.
  */
 public class InflationProviderDecorated implements InflationProviderInterface {
 

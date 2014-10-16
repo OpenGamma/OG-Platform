@@ -14,6 +14,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurveSimple;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountAddZeroSpreadCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
@@ -62,7 +63,7 @@ public class ModelInterestRateCurveTest extends AnalyticsTestBase {
     map.put(1., 0.03);
     map.put(2., 0.04);
     map.put(3., 0.05);
-    final PriceIndexCurve curve = new PriceIndexCurve(InterpolatedDoublesCurve.from(map, Interpolator1DFactory.getInterpolator("Linear")));
+    final PriceIndexCurve curve = new PriceIndexCurveSimple(InterpolatedDoublesCurve.from(map, Interpolator1DFactory.getInterpolator("Linear")));
     assertEquals(curve, cycleObject(PriceIndexCurve.class, curve));
   }
 

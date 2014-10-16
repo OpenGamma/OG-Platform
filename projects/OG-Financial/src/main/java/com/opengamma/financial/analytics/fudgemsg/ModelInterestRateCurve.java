@@ -18,6 +18,7 @@ import com.google.common.collect.Lists;
 import com.opengamma.analytics.financial.model.interestrate.curve.DayPeriodPreCalculatedDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurveSimple;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountAddZeroSpreadCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
@@ -125,18 +126,18 @@ import com.opengamma.analytics.math.curve.DoublesCurve;
    * Fudge builder for {@link PriceIndexCurve}
    */
   @FudgeBuilderFor(PriceIndexCurve.class)
-  public static final class PriceIndexCurveBuilder extends AbstractFudgeBuilder<PriceIndexCurve> {
+  public static final class PriceIndexCurveBuilder extends AbstractFudgeBuilder<PriceIndexCurveSimple> {
     /** The curve field */
     private static final String CURVE_FIELD = "curve";
 
     @Override
-    public PriceIndexCurve buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+    public PriceIndexCurveSimple buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       final DoublesCurve curve = deserializer.fieldValueToObject(DoublesCurve.class, message.getByName(CURVE_FIELD));
-      return new PriceIndexCurve(curve);
+      return new PriceIndexCurveSimple(curve);
     }
 
     @Override
-    protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final PriceIndexCurve object) {
+    protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final PriceIndexCurveSimple object) {
       serializer.addToMessageWithClassHeaders(message, CURVE_FIELD, null, object.getCurve(), DoublesCurve.class);
     }
 

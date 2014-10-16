@@ -27,9 +27,9 @@ import com.opengamma.analytics.financial.provider.description.inflation.BlackSmi
 import com.opengamma.analytics.financial.provider.description.inflation.BlackSmileCapInflationZeroCouponProviderInterface;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationIssuerProviderDiscount;
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.MultipleCurrencyInflationSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.inflation.ParameterSensitivityInflationParameterCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.ParameterSensitivityBlackSmileZeroCouponCapDiscountInterpolatedFDCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
-import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterInflationSensitivityParameterCalculator;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.analytics.math.function.Function1D;
@@ -87,7 +87,7 @@ public class CapFloorInflationZeroCouponMonthlyBlackSmileMethodTest {
   private static final CapFloorInflationZeroCouponMonthlyBlackSmileMethod METHOD = CapFloorInflationZeroCouponMonthlyBlackSmileMethod.getInstance();
   private static final PresentValueBlackSmileInflationZeroCouponCalculator PVIC = PresentValueBlackSmileInflationZeroCouponCalculator.getInstance();
   private static final PresentValueCurveSensitivityBlackSmileInflationZeroCouponCalculator PVCSDC = PresentValueCurveSensitivityBlackSmileInflationZeroCouponCalculator.getInstance();
-  private static final ParameterInflationSensitivityParameterCalculator<BlackSmileCapInflationZeroCouponProviderInterface> PSC = new ParameterInflationSensitivityParameterCalculator<>(PVCSDC);
+  private static final ParameterSensitivityInflationParameterCalculator<BlackSmileCapInflationZeroCouponProviderInterface> PSC = new ParameterSensitivityInflationParameterCalculator<>(PVCSDC);
   private static final ParameterSensitivityBlackSmileZeroCouponCapDiscountInterpolatedFDCalculator PS_PV_FDC = new ParameterSensitivityBlackSmileZeroCouponCapDiscountInterpolatedFDCalculator(PVIC,
       SHIFT_FD);
 

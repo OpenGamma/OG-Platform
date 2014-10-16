@@ -27,9 +27,9 @@ import com.opengamma.analytics.financial.provider.description.inflation.BlackSmi
 import com.opengamma.analytics.financial.provider.description.inflation.BlackSmileCapInflationYearOnYearProviderInterface;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationIssuerProviderDiscount;
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.MultipleCurrencyInflationSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.inflation.ParameterSensitivityInflationParameterCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.ParameterSensitivityBlackSmileYearOnYearCapDiscountInterpolatedFDCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
-import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterInflationSensitivityParameterCalculator;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.analytics.math.function.Function1D;
@@ -82,7 +82,7 @@ public class CapFloorInflationyearOnYearInterpolationBlackNormalSmileMethodTest 
   private static final CapFloorInflationYearOnYearInterpolationBlackNormalSmileMethod METHOD = CapFloorInflationYearOnYearInterpolationBlackNormalSmileMethod.getInstance();
   private static final PresentValueBlackSmileInflationYearOnYearCalculator PVIC = PresentValueBlackSmileInflationYearOnYearCalculator.getInstance();
   private static final PresentValueCurveSensitivityBlackSmileInflationYearOnYearCalculator PVCSDC = PresentValueCurveSensitivityBlackSmileInflationYearOnYearCalculator.getInstance();
-  private static final ParameterInflationSensitivityParameterCalculator<BlackSmileCapInflationYearOnYearProviderInterface> PSC = new ParameterInflationSensitivityParameterCalculator<>(PVCSDC);
+  private static final ParameterSensitivityInflationParameterCalculator<BlackSmileCapInflationYearOnYearProviderInterface> PSC = new ParameterSensitivityInflationParameterCalculator<>(PVCSDC);
   private static final ParameterSensitivityBlackSmileYearOnYearCapDiscountInterpolatedFDCalculator PS_PV_FDC = new ParameterSensitivityBlackSmileYearOnYearCapDiscountInterpolatedFDCalculator(PVIC,
       SHIFT_FD);
 

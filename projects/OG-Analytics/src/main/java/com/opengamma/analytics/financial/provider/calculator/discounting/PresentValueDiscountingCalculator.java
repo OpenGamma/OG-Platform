@@ -65,14 +65,15 @@ import com.opengamma.analytics.financial.interestrate.payments.provider.PaymentF
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapMultileg;
-import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
  * Calculator of the present value as a multiple currency amount using cash-flow discounting and forward estimation.
  */
-public final class PresentValueDiscountingCalculator extends InstrumentDerivativeVisitorAdapter<MulticurveProviderInterface, MultipleCurrencyAmount> {
+public final class PresentValueDiscountingCalculator extends 
+  InstrumentDerivativeVisitorAdapter<ParameterProviderInterface, MultipleCurrencyAmount> {
 
   /**
    * The unique instance of the calculator.
@@ -110,7 +111,8 @@ public final class PresentValueDiscountingCalculator extends InstrumentDerivativ
   private static final CouponIborCompoundingFlatSpreadDiscountingMethod METHOD_CPN_IBOR_COMP_FLAT_SPREAD = CouponIborCompoundingFlatSpreadDiscountingMethod.getInstance();
   private static final CouponONDiscountingMethod METHOD_CPN_ON = CouponONDiscountingMethod.getInstance();
   private static final CouponONSpreadDiscountingMethod METHOD_CPN_ON_SPREAD = CouponONSpreadDiscountingMethod.getInstance();
-  private static final CouponONArithmeticAverageDiscountingApproxMethod METHOD_CPN_AAON_APPROX = CouponONArithmeticAverageDiscountingApproxMethod.getInstance();
+  private static final CouponONArithmeticAverageDiscountingApproxMethod METHOD_CPN_AAON =
+      CouponONArithmeticAverageDiscountingApproxMethod.getInstance();
   private static final CouponONArithmeticAverageSpreadDiscountingMethod METHOD_CPN_AAON_SPREAD = CouponONArithmeticAverageSpreadDiscountingMethod.getInstance();
   private static final CouponONArithmeticAverageSpreadSimplifiedDiscountingApproxMethod METHOD_CPN_ONAA_SPREADSIMPL_APPROX =
       CouponONArithmeticAverageSpreadSimplifiedDiscountingApproxMethod.getInstance();
@@ -126,118 +128,123 @@ public final class PresentValueDiscountingCalculator extends InstrumentDerivativ
   //     -----     Deposit     -----
 
   @Override
-  public MultipleCurrencyAmount visitCash(final Cash deposit, final MulticurveProviderInterface multicurve) {
-    return METHOD_DEPOSIT.presentValue(deposit, multicurve);
+  public MultipleCurrencyAmount visitCash(final Cash deposit, final ParameterProviderInterface multicurve) {
+    return METHOD_DEPOSIT.presentValue(deposit, multicurve.getMulticurveProvider());
   }
 
   @Override
-  public MultipleCurrencyAmount visitDepositIbor(final DepositIbor deposit, final MulticurveProviderInterface multicurve) {
-    return METHOD_DEPOSIT_IBOR.presentValue(deposit, multicurve);
+  public MultipleCurrencyAmount visitDepositIbor(final DepositIbor deposit, final ParameterProviderInterface multicurve) {
+    return METHOD_DEPOSIT_IBOR.presentValue(deposit, multicurve.getMulticurveProvider());
   }
 
   // -----     Payment/Coupon     ------
 
   @Override
-  public MultipleCurrencyAmount visitFixedPayment(final PaymentFixed payment, final MulticurveProviderInterface multicurve) {
-    return METHOD_PAY_FIXED.presentValue(payment, multicurve);
+  public MultipleCurrencyAmount visitFixedPayment(final PaymentFixed payment, final ParameterProviderInterface multicurve) {
+    return METHOD_PAY_FIXED.presentValue(payment, multicurve.getMulticurveProvider());
   }
 
   @Override
-  public MultipleCurrencyAmount visitCouponFixed(final CouponFixed coupon, final MulticurveProviderInterface multicurve) {
-    return METHOD_CPN_FIXED.presentValue(coupon, multicurve);
+  public MultipleCurrencyAmount visitCouponFixed(final CouponFixed coupon, final ParameterProviderInterface multicurve) {
+    return METHOD_CPN_FIXED.presentValue(coupon, multicurve.getMulticurveProvider());
   }
 
   @Override
-  public MultipleCurrencyAmount visitCouponFixedCompounding(final CouponFixedCompounding coupon, final MulticurveProviderInterface multicurve) {
-    return METHOD_CPN_FIXED_COMPOUNDING.presentValue(coupon, multicurve);
+  public MultipleCurrencyAmount visitCouponFixedCompounding(final CouponFixedCompounding coupon,
+      final ParameterProviderInterface multicurve) {
+    return METHOD_CPN_FIXED_COMPOUNDING.presentValue(coupon, multicurve.getMulticurveProvider());
   }
 
   @Override
-  public MultipleCurrencyAmount visitInterpolatedStubCoupon(
+   public MultipleCurrencyAmount visitInterpolatedStubCoupon(
       final InterpolatedStubCoupon<? extends DepositIndexCoupon<? extends IndexDeposit>, ? extends IndexDeposit> payment,
-      final MulticurveProviderInterface data) {
-    return payment.getFullCoupon().accept(METHOD_CPN_INTERP_STUB, InterpolatedStubData.of(data, payment));
+      final ParameterProviderInterface data) {
+    return payment.getFullCoupon().accept(METHOD_CPN_INTERP_STUB, InterpolatedStubData.of(data.getMulticurveProvider(), payment));
   }
 
   @Override
-  public MultipleCurrencyAmount visitCouponIbor(final CouponIbor coupon, final MulticurveProviderInterface multicurve) {
-    return METHOD_CPN_IBOR.presentValue(coupon, multicurve);
+  public MultipleCurrencyAmount visitCouponIbor(final CouponIbor coupon, final ParameterProviderInterface multicurve) {
+    return METHOD_CPN_IBOR.presentValue(coupon, multicurve.getMulticurveProvider());
   }
 
   @Override
-  public MultipleCurrencyAmount visitCouponIborAverage(final CouponIborAverage coupon, final MulticurveProviderInterface multicurve) {
-    return METHOD_CPN_IBOR_AVERAGE.presentValue(coupon, multicurve);
+  public MultipleCurrencyAmount visitCouponIborAverage(final CouponIborAverage coupon, final ParameterProviderInterface multicurve) {
+    return METHOD_CPN_IBOR_AVERAGE.presentValue(coupon, multicurve.getMulticurveProvider());
   }
 
   @Override
-  public MultipleCurrencyAmount visitCouponIborSpread(final CouponIborSpread coupon, final MulticurveProviderInterface multicurve) {
-    return METHOD_CPN_IBOR_SPREAD.presentValue(coupon, multicurve);
+  public MultipleCurrencyAmount visitCouponIborSpread(final CouponIborSpread coupon, final ParameterProviderInterface multicurve) {
+    return METHOD_CPN_IBOR_SPREAD.presentValue(coupon, multicurve.getMulticurveProvider());
   }
 
   @Override
-  public MultipleCurrencyAmount visitCouponIborGearing(final CouponIborGearing coupon, final MulticurveProviderInterface multicurve) {
-    return METHOD_CPN_IBOR_GEARING.presentValue(coupon, multicurve);
+  public MultipleCurrencyAmount visitCouponIborGearing(final CouponIborGearing coupon, final ParameterProviderInterface multicurve) {
+    return METHOD_CPN_IBOR_GEARING.presentValue(coupon, multicurve.getMulticurveProvider());
   }
 
   @Override
-  public MultipleCurrencyAmount visitCouponIborCompounding(final CouponIborCompounding coupon, final MulticurveProviderInterface multicurve) {
-    return METHOD_CPN_IBOR_COMP.presentValue(coupon, multicurve);
+  public MultipleCurrencyAmount visitCouponIborCompounding(final CouponIborCompounding coupon,
+      final ParameterProviderInterface multicurve) {
+    return METHOD_CPN_IBOR_COMP.presentValue(coupon, multicurve.getMulticurveProvider());
   }
 
   @Override
-  public MultipleCurrencyAmount visitCouponIborCompoundingSpread(final CouponIborCompoundingSpread coupon, final MulticurveProviderInterface multicurve) {
-    return METHOD_CPN_IBOR_COMP_SPREAD.presentValue(coupon, multicurve);
+  public MultipleCurrencyAmount visitCouponIborCompoundingSpread(final CouponIborCompoundingSpread coupon, 
+      final ParameterProviderInterface multicurve) {
+    return METHOD_CPN_IBOR_COMP_SPREAD.presentValue(coupon, multicurve.getMulticurveProvider());
   }
 
   @Override
-  public MultipleCurrencyAmount visitCouponIborCompoundingFlatSpread(final CouponIborCompoundingFlatSpread coupon, final MulticurveProviderInterface multicurve) {
-    return METHOD_CPN_IBOR_COMP_FLAT_SPREAD.presentValue(coupon, multicurve);
+  public MultipleCurrencyAmount visitCouponIborCompoundingFlatSpread(final CouponIborCompoundingFlatSpread coupon, 
+      final ParameterProviderInterface multicurve) {
+    return METHOD_CPN_IBOR_COMP_FLAT_SPREAD.presentValue(coupon, multicurve.getMulticurveProvider());
   }
 
   @Override
-  public MultipleCurrencyAmount visitCouponOIS(final CouponON coupon, final MulticurveProviderInterface multicurve) {
-    return METHOD_CPN_ON.presentValue(coupon, multicurve);
+  public MultipleCurrencyAmount visitCouponOIS(final CouponON coupon, final ParameterProviderInterface multicurve) {
+    return METHOD_CPN_ON.presentValue(coupon, multicurve.getMulticurveProvider());
   }
 
   @Override
-  public MultipleCurrencyAmount visitCouponONSpread(final CouponONSpread coupon, final MulticurveProviderInterface multicurve) {
-    return METHOD_CPN_ON_SPREAD.presentValue(coupon, multicurve);
+  public MultipleCurrencyAmount visitCouponONSpread(final CouponONSpread coupon, final ParameterProviderInterface multicurve) {
+    return METHOD_CPN_ON_SPREAD.presentValue(coupon, multicurve.getMulticurveProvider());
   }
 
   @Override
-  public MultipleCurrencyAmount visitCouponONArithmeticAverage(final CouponONArithmeticAverage coupon, final MulticurveProviderInterface multicurve) {
-    return METHOD_CPN_AAON_APPROX.presentValue(coupon, multicurve);
+  public MultipleCurrencyAmount visitCouponONArithmeticAverage(final CouponONArithmeticAverage coupon, final ParameterProviderInterface multicurve) {
+    return METHOD_CPN_AAON.presentValue(coupon, multicurve.getMulticurveProvider());
   }
 
   @Override
-  public MultipleCurrencyAmount visitCouponONArithmeticAverageSpread(CouponONArithmeticAverageSpread coupon, MulticurveProviderInterface multicurve) {
-    return METHOD_CPN_AAON_SPREAD.presentValue(coupon, multicurve);
+  public MultipleCurrencyAmount visitCouponONArithmeticAverageSpread(CouponONArithmeticAverageSpread coupon, ParameterProviderInterface multicurve) {
+    return METHOD_CPN_AAON_SPREAD.presentValue(coupon, multicurve.getMulticurveProvider());
   }
 
   @Override
-  public MultipleCurrencyAmount visitCouponONArithmeticAverageSpreadSimplified(final CouponONArithmeticAverageSpreadSimplified coupon, final MulticurveProviderInterface multicurve) {
-    return METHOD_CPN_ONAA_SPREADSIMPL_APPROX.presentValue(coupon, multicurve);
+  public MultipleCurrencyAmount visitCouponONArithmeticAverageSpreadSimplified(final CouponONArithmeticAverageSpreadSimplified coupon, final ParameterProviderInterface multicurve) {
+    return METHOD_CPN_ONAA_SPREADSIMPL_APPROX.presentValue(coupon, multicurve.getMulticurveProvider());
   }
 
   @Override
-  public MultipleCurrencyAmount visitForwardRateAgreement(final ForwardRateAgreement fra, final MulticurveProviderInterface multicurve) {
-    return METHOD_FRA.presentValue(fra, multicurve);
+  public MultipleCurrencyAmount visitForwardRateAgreement(final ForwardRateAgreement fra, final ParameterProviderInterface multicurve) {
+    return METHOD_FRA.presentValue(fra, multicurve.getMulticurveProvider());
   }
 
   @Override
-  public MultipleCurrencyAmount visitCouponFixedAccruedCompounding(final CouponFixedAccruedCompounding coupon, final MulticurveProviderInterface multicurve) {
-    return METHOD_CPN_FIXED_ACCRUED_COMPOUNDING.presentValue(coupon, multicurve);
+  public MultipleCurrencyAmount visitCouponFixedAccruedCompounding(final CouponFixedAccruedCompounding coupon,
+      final ParameterProviderInterface multicurve) {
+    return METHOD_CPN_FIXED_ACCRUED_COMPOUNDING.presentValue(coupon, multicurve.getMulticurveProvider());
   }
 
   @Override
-  public MultipleCurrencyAmount visitCouponONCompounded(final CouponONCompounded coupon, final MulticurveProviderInterface multicurve) {
-    return METHOD_CPN_ON_COMPOUNDING.presentValue(coupon, multicurve);
+  public MultipleCurrencyAmount visitCouponONCompounded(final CouponONCompounded coupon, final ParameterProviderInterface multicurve) {
+    return METHOD_CPN_ON_COMPOUNDING.presentValue(coupon, multicurve.getMulticurveProvider());
   }
 
   // -----     Annuity     ------
 
   @Override
-  public MultipleCurrencyAmount visitGenericAnnuity(final Annuity<? extends Payment> annuity, final MulticurveProviderInterface multicurve) {
+  public MultipleCurrencyAmount visitGenericAnnuity(final Annuity<? extends Payment> annuity, final ParameterProviderInterface multicurve) {
     ArgumentChecker.notNull(annuity, "Annuity");
     ArgumentChecker.notNull(multicurve, "multicurve");
     MultipleCurrencyAmount pv = annuity.getNthPayment(0).accept(this, multicurve);
@@ -248,26 +255,27 @@ public final class PresentValueDiscountingCalculator extends InstrumentDerivativ
   }
 
   @Override
-  public MultipleCurrencyAmount visitFixedCouponAnnuity(final AnnuityCouponFixed annuity, final MulticurveProviderInterface multicurve) {
+  public MultipleCurrencyAmount visitFixedCouponAnnuity(final AnnuityCouponFixed annuity,
+      final ParameterProviderInterface multicurve) {
     return visitGenericAnnuity(annuity, multicurve);
   }
 
   // -----     Swap     ------
 
   @Override
-  public MultipleCurrencyAmount visitSwap(final Swap<?, ?> swap, final MulticurveProviderInterface multicurve) {
+  public MultipleCurrencyAmount visitSwap(final Swap<?, ?> swap, final ParameterProviderInterface multicurve) {
     final MultipleCurrencyAmount pv1 = swap.getFirstLeg().accept(this, multicurve);
     final MultipleCurrencyAmount pv2 = swap.getSecondLeg().accept(this, multicurve);
     return pv1.plus(pv2);
   }
 
   @Override
-  public MultipleCurrencyAmount visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final MulticurveProviderInterface multicurves) {
+  public MultipleCurrencyAmount visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final ParameterProviderInterface multicurves) {
     return visitSwap(swap, multicurves);
   }
 
   @Override
-  public MultipleCurrencyAmount visitSwapMultileg(final SwapMultileg swap, final MulticurveProviderInterface multicurve) {
+  public MultipleCurrencyAmount visitSwapMultileg(final SwapMultileg swap, final ParameterProviderInterface multicurve) {
     final int nbLegs = swap.getLegs().length;
     MultipleCurrencyAmount pv = swap.getLegs()[0].accept(this, multicurve);
     for (int loopleg = 1; loopleg < nbLegs; loopleg++) {
@@ -279,35 +287,39 @@ public final class PresentValueDiscountingCalculator extends InstrumentDerivativ
   // -----     Futures     ------
 
   @Override
-  public MultipleCurrencyAmount visitFederalFundsFutureTransaction(final FederalFundsFutureTransaction futures, final MulticurveProviderInterface multicurves) {
+  public MultipleCurrencyAmount visitFederalFundsFutureTransaction(final FederalFundsFutureTransaction futures,
+      final ParameterProviderInterface multicurves) {
     return METHOD_FUT.presentValue(futures, multicurves);
   }
 
   @Override
-  public MultipleCurrencyAmount visitInterestRateFutureTransaction(final InterestRateFutureTransaction future, final MulticurveProviderInterface multicurves) {
+  public MultipleCurrencyAmount visitInterestRateFutureTransaction(final InterestRateFutureTransaction future,
+      final ParameterProviderInterface multicurves) {
     return METHOD_FUT.presentValue(future, multicurves);
   }
 
   @Override
-  public MultipleCurrencyAmount visitSwapFuturesPriceDeliverableTransaction(final SwapFuturesPriceDeliverableTransaction future, final MulticurveProviderInterface multicurves) {
+  public MultipleCurrencyAmount visitSwapFuturesPriceDeliverableTransaction(final SwapFuturesPriceDeliverableTransaction future,
+      final ParameterProviderInterface multicurves) {
     return METHOD_FUT.presentValue(future, multicurves);
   }
 
   // -----     Forex     ------
 
   @Override
-  public MultipleCurrencyAmount visitForex(final Forex derivative, final MulticurveProviderInterface multicurves) {
-    return METHOD_FOREX.presentValue(derivative, multicurves);
+  public MultipleCurrencyAmount visitForex(final Forex derivative, final ParameterProviderInterface multicurves) {
+    return METHOD_FOREX.presentValue(derivative, multicurves.getMulticurveProvider());
   }
 
   @Override
-  public MultipleCurrencyAmount visitForexSwap(final ForexSwap derivative, final MulticurveProviderInterface multicurves) {
-    return METHOD_FOREX_SWAP.presentValue(derivative, multicurves);
+  public MultipleCurrencyAmount visitForexSwap(final ForexSwap derivative, final ParameterProviderInterface multicurves) {
+    return METHOD_FOREX_SWAP.presentValue(derivative, multicurves.getMulticurveProvider());
   }
 
   @Override
-  public MultipleCurrencyAmount visitForexNonDeliverableForward(final ForexNonDeliverableForward derivative, final MulticurveProviderInterface multicurves) {
-    return METHOD_FOREX_NDF.presentValue(derivative, multicurves);
+  public MultipleCurrencyAmount visitForexNonDeliverableForward(final ForexNonDeliverableForward derivative,
+      final ParameterProviderInterface multicurves) {
+    return METHOD_FOREX_NDF.presentValue(derivative, multicurves.getMulticurveProvider());
   }
 
 }

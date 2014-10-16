@@ -1,24 +1,27 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.interestrate.curve;
 
-import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
-
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.util.ArgumentChecker;
 
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
+
 /**
  *  PriceIndexCurve created by adding the price index of other curves.
  */
-public class PriceIndexCurveAddPriceIndexSpreadCurve extends PriceIndexCurve {
+public class PriceIndexCurveAddPriceIndexSpreadCurve implements PriceIndexCurve {
 
+  /** The curve name. */
+  private final String _name;
   /**
    * The array of underlying curves.
    */
@@ -35,11 +38,10 @@ public class PriceIndexCurveAddPriceIndexSpreadCurve extends PriceIndexCurve {
    * @param name The curve name.
    * @param substract If true, the rate of all curves, except the first one, will be subtracted from the first one. If false, all the rates are added.
    * @param curves  The array of underlying curves.
-
    */
   public PriceIndexCurveAddPriceIndexSpreadCurve(final String name, final boolean substract, final PriceIndexCurve... curves) {
-    super(curves[0].getCurve());
     ArgumentChecker.notNull(curves, "Curves");
+    _name = name;
     _sign = substract ? -1.0 : 1.0;
     _curves = curves;
   }
@@ -96,6 +98,20 @@ public class PriceIndexCurveAddPriceIndexSpreadCurve extends PriceIndexCurve {
 
   public PriceIndexCurve[] getCurves() {
     return _curves;
+  }
+
+  @Override
+  public String getName() {
+    return _name;
+  }
+
+  @Override
+  public int getNumberOfIntrinsicParameters(Set<String> curvesNames) {
+    int nb = 0;
+    for (int loopcurve = 0; loopcurve < _curves.length; loopcurve++) {
+      nb += _curves[loopcurve].getNumberOfIntrinsicParameters(curvesNames);
+    }
+    return nb;
   }
 
   @Override

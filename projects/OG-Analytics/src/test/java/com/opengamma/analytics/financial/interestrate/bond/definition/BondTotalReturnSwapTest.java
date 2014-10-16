@@ -11,7 +11,7 @@ import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
-import com.opengamma.analytics.financial.instrument.bond.BondDataSets;
+import com.opengamma.analytics.financial.instrument.bond.BondDataSetsGbp;
 import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
@@ -36,7 +36,7 @@ public class BondTotalReturnSwapTest {
   private static final double NOTIONAL_TRS = 123456000;
   // Bond (UKT)
   private static final double NOTIONAL_BND = 100000000;
-  private static final BondFixedSecurityDefinition UKT14_DEFINITION = BondDataSets.bondUKT5_20140907();
+  private static final BondFixedSecurityDefinition UKT14_DEFINITION = BondDataSetsGbp.bondUKT5_20140907();
   private static final BondFixedSecurity UKT14_1_1 = UKT14_DEFINITION.toDerivative(REFERENCE_DATE_1, EFFECTIVE_DATE_1);
   // Funding: unique fixed coupon in GBP: receive TRS bond, pay funding
   private static final double RATE = 0.0043;

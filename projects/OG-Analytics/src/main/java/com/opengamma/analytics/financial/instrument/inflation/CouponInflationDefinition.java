@@ -11,6 +11,7 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.instrument.payment.CouponDefinition;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
@@ -19,7 +20,8 @@ import com.opengamma.util.money.Currency;
 /**
  * Class describing inflation coupon.
  */
-public abstract class CouponInflationDefinition extends CouponDefinition implements InstrumentDefinitionWithData<Payment, DoubleTimeSeries<ZonedDateTime>> {
+public abstract class CouponInflationDefinition extends CouponDefinition 
+  implements InstrumentDefinitionWithData<Payment, DoubleTimeSeries<ZonedDateTime>> {
 
   /**
    * The price index associated to the coupon.
@@ -53,6 +55,12 @@ public abstract class CouponInflationDefinition extends CouponDefinition impleme
    */
   public abstract CouponInflationDefinition with(ZonedDateTime paymentDate, ZonedDateTime accrualStartDate, ZonedDateTime accrualEndDate, double notional);
 
+  @Override
+  public abstract Coupon toDerivative(final ZonedDateTime date);
+  
+  @Override
+  public abstract Coupon toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> priceIndexTimeSeries);
+  
   /**
    * Gets the price index associated to the coupon.
    * @return The price index.

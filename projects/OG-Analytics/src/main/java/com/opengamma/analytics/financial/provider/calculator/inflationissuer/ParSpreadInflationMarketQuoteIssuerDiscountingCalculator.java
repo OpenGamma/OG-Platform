@@ -14,19 +14,21 @@ import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositCou
 import com.opengamma.analytics.financial.interestrate.cash.provider.DepositCounterpartDiscountingMethod;
 import com.opengamma.analytics.financial.provider.calculator.inflation.InflationIssuerProviderAdapter;
 import com.opengamma.analytics.financial.provider.calculator.inflation.ParSpreadInflationMarketQuoteDiscountingCalculator;
-import com.opengamma.analytics.financial.provider.description.inflation.InflationIssuerProviderInterface;
+import com.opengamma.analytics.financial.provider.description.inflation.ParameterInflationIssuerProviderInterface;
 
 /**
  * Calculates the par spread (to the market quote) of issuer-specific instruments by discounting.
  * This calculator requires the transaction version of instruments like bonds and bills, as the
  * purchase price information is necessary to calculate a meaningful par spread.
  */
-public final class ParSpreadInflationMarketQuoteIssuerDiscountingCalculator extends InstrumentDerivativeVisitorDelegate<InflationIssuerProviderInterface, Double> {
+public final class ParSpreadInflationMarketQuoteIssuerDiscountingCalculator 
+  extends InstrumentDerivativeVisitorDelegate<ParameterInflationIssuerProviderInterface, Double> {
 
   /**
    * The unique instance of the calculator.
    */
-  private static final ParSpreadInflationMarketQuoteIssuerDiscountingCalculator INSTANCE = new ParSpreadInflationMarketQuoteIssuerDiscountingCalculator();
+  private static final ParSpreadInflationMarketQuoteIssuerDiscountingCalculator INSTANCE = 
+      new ParSpreadInflationMarketQuoteIssuerDiscountingCalculator();
 
   /**
    * Gets the calculator instance.
@@ -53,19 +55,19 @@ public final class ParSpreadInflationMarketQuoteIssuerDiscountingCalculator exte
   //     -----     Deposit     -----
 
   @Override
-  public Double visitDepositCounterpart(final DepositCounterpart deposit, final InflationIssuerProviderInterface issuercurves) {
+  public Double visitDepositCounterpart(final DepositCounterpart deposit, final ParameterInflationIssuerProviderInterface issuercurves) {
     return METHOD_DEPO_CTPY.parSpread(deposit, issuercurves.getIssuerProvider());
   }
 
   //     -----     Bond/Bill     -----
 
   @Override
-  public Double visitBillTransaction(final BillTransaction bill, final InflationIssuerProviderInterface issuercurves) {
+  public Double visitBillTransaction(final BillTransaction bill, final ParameterInflationIssuerProviderInterface issuercurves) {
     return METHOD_BILL_TR.parSpread(bill, issuercurves.getIssuerProvider());
   }
 
   @Override
-  public Double visitBondFixedTransaction(final BondFixedTransaction bond, final InflationIssuerProviderInterface issuercurves) {
+  public Double visitBondFixedTransaction(final BondFixedTransaction bond, final ParameterInflationIssuerProviderInterface issuercurves) {
     return METHOD_BOND_TR.parSpread(bond, issuercurves.getIssuerProvider());
   }
 

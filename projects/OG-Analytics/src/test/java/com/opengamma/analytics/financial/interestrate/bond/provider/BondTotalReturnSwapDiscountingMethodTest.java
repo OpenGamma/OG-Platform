@@ -15,7 +15,7 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.analytics.financial.datasets.CalendarUSD;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinitionBuilder;
-import com.opengamma.analytics.financial.instrument.bond.BondDataSets;
+import com.opengamma.analytics.financial.instrument.bond.BondDataSetsGbp;
 import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BondTotalReturnSwapDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
@@ -77,7 +77,7 @@ public class BondTotalReturnSwapDiscountingMethodTest {
   private static final double NOTIONAL_TRS = 123456000;
   // Bond (UKT)
   private static final double NOTIONAL_BND = 100000000;
-  private static final BondFixedSecurityDefinition UKT14_DEFINITION = BondDataSets.bondUKT5_20140907();
+  private static final BondFixedSecurityDefinition UKT14_DEFINITION = BondDataSetsGbp.bondUKT5_20140907();
   private static final BondFixedSecurity UKT14_1_1 = UKT14_DEFINITION.toDerivative(REFERENCE_DATE_1, EFFECTIVE_DATE_1);
   private static final BondFixedSecurity UKT14_1_2 = UKT14_DEFINITION.toDerivative(REFERENCE_DATE_1, EFFECTIVE_DATE_2);
   private static final BondFixedSecurity UKT14_2_1 = UKT14_DEFINITION.toDerivative(REFERENCE_DATE_2, EFFECTIVE_DATE_1);

@@ -12,6 +12,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.provider.calculator.inflation.PresentValueCurveSensitivityDiscountingInflationCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflation.PresentValueDiscountingInflationCalculator;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationIssuerProviderInterface;
+import com.opengamma.analytics.financial.provider.description.inflation.ParameterInflationIssuerProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.MultipleCurrencyInflationSensitivity;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
@@ -41,7 +42,8 @@ public final class BondCapitalIndexedTransactionDiscountingMethod {
   /**
    * The method used for security computation.
    */
-  private static final BondCapitalIndexedSecurityDiscountingMethod METHOD_SECURITY = new BondCapitalIndexedSecurityDiscountingMethod();
+  private static final BondCapitalIndexedSecurityDiscountingMethod METHOD_SECURITY = 
+      new BondCapitalIndexedSecurityDiscountingMethod();
 
   /**
    * Computes the present value of a capital indexed bond transaction by index estimation and discounting.
@@ -133,7 +135,7 @@ public final class BondCapitalIndexedTransactionDiscountingMethod {
    * @return The present value.
    */
   public MultipleCurrencyInflationSensitivity presentValueCurveSensitivity(final BondCapitalIndexedTransaction<?> bond, 
-      final InflationIssuerProviderInterface provider) {
+      final ParameterInflationIssuerProviderInterface provider) {
     final MultipleCurrencyInflationSensitivity sensitivityBond = METHOD_SECURITY.presentValueCurveSensitivity(bond.getBondTransaction(), provider);
     final MultipleCurrencyInflationSensitivity sensitivitySettlement = bond.getBondTransaction().getSettlement().
         accept(PVCSIC, provider.getInflationProvider()).multipliedBy(-bond.getQuantity() * bond.getTransactionPrice());

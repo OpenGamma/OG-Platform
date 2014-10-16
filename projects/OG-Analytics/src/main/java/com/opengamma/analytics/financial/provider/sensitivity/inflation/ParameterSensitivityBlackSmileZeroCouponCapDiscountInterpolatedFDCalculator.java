@@ -15,6 +15,7 @@ import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurveSimple;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.provider.description.inflation.BlackSmileCapInflationZeroCouponProviderDiscount;
@@ -78,15 +79,15 @@ public class ParameterSensitivityBlackSmileZeroCouponCapDiscountInterpolatedFDCa
     final Set<IndexPrice> indexPrice = black.getInflationProvider().getPriceIndexes();
     for (final IndexPrice index : indexPrice) {
       final PriceIndexCurve curveIndex = black.getInflationProvider().getCurve(index);
-
-      ArgumentChecker.isTrue(curveIndex.getCurve() instanceof InterpolatedDoublesCurve, "Yield curve should be based on InterpolatedDoublesCurve");
-      final InterpolatedDoublesCurve curveInt = (InterpolatedDoublesCurve) curveIndex.getCurve();
+      PriceIndexCurveSimple curveIndexSimple = (PriceIndexCurveSimple) curveIndex;
+      ArgumentChecker.isTrue(curveIndexSimple.getCurve() instanceof InterpolatedDoublesCurve, "Yield curve should be based on InterpolatedDoublesCurve");
+      final InterpolatedDoublesCurve curveInt = (InterpolatedDoublesCurve) curveIndexSimple.getCurve();
       final int nbNodePoint = curveInt.getXDataAsPrimitive().length;
       final double[][] sensitivity = new double[nbCcy][nbNodePoint];
       for (int loopnode = 0; loopnode < nbNodePoint; loopnode++) {
         final double[] yieldBumped = curveInt.getYDataAsPrimitive().clone();
         yieldBumped[loopnode] += _shift;
-        final PriceIndexCurve dscBumped = new PriceIndexCurve(new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumped, curveInt.getInterpolator(), true));
+        final PriceIndexCurve dscBumped = new PriceIndexCurveSimple(new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumped, curveInt.getInterpolator(), true));
         final BlackSmileCapInflationZeroCouponProviderDiscount marketDscBumped = new BlackSmileCapInflationZeroCouponProviderDiscount(black.getInflationProvider().withPriceIndex(index, dscBumped),
             black.getBlackParameters());
         final MultipleCurrencyAmount pvBumped = instrument.accept(_valueCalculator, marketDscBumped);

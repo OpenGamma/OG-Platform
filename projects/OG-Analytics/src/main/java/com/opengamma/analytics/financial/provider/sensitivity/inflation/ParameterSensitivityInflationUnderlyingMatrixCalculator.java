@@ -16,6 +16,7 @@ import org.apache.commons.lang.ArrayUtils;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
+import com.opengamma.analytics.financial.provider.description.inflation.ParameterInflationProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.ArgumentChecker;
@@ -32,7 +33,7 @@ public class ParameterSensitivityInflationUnderlyingMatrixCalculator extends Par
    * Constructor
    * @param curveSensitivityCalculator The curve sensitivity calculator.
    */
-  public ParameterSensitivityInflationUnderlyingMatrixCalculator(final InstrumentDerivativeVisitor<InflationProviderInterface, InflationSensitivity> curveSensitivityCalculator) {
+  public ParameterSensitivityInflationUnderlyingMatrixCalculator(final InstrumentDerivativeVisitor<ParameterInflationProviderInterface, InflationSensitivity> curveSensitivityCalculator) {
     super(curveSensitivityCalculator);
   }
 

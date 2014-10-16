@@ -29,6 +29,7 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.curve.inflation.generator.GeneratorPriceIndexCurve;
 import com.opengamma.analytics.financial.curve.inflation.generator.GeneratorPriceIndexCurveInterpolated;
+import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorCurve;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
@@ -39,14 +40,15 @@ import com.opengamma.analytics.financial.instrument.swap.SwapFixedInflationZeroC
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
-import com.opengamma.analytics.financial.provider.calculator.inflation.ParSpreadInflationMarketQuoteCurveSensitivityIssuerDiscountingCalculator;
-import com.opengamma.analytics.financial.provider.calculator.inflation.ParSpreadInflationMarketQuoteIssuerDiscountingCalculator;
+import com.opengamma.analytics.financial.provider.calculator.inflationissuer.ParSpreadInflationMarketQuoteCurveSensitivityIssuerDiscountingCalculator;
+import com.opengamma.analytics.financial.provider.calculator.inflationissuer.ParSpreadInflationMarketQuoteIssuerDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.curve.MultiCurveBundle;
 import com.opengamma.analytics.financial.provider.curve.SingleCurveBundle;
 import com.opengamma.analytics.financial.provider.curve.inflationissuer.InflationIssuerDiscountBuildingRepository;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationIssuerProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationIssuerProviderInterface;
+import com.opengamma.analytics.financial.provider.description.inflation.ParameterInflationIssuerProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderDiscount;
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.InflationSensitivity;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
@@ -103,7 +105,7 @@ import com.opengamma.util.tuple.Pairs;
  */
 public class InflationIssuerProviderDiscountingFunction extends
 
-    MultiCurveFunction<InflationIssuerProviderInterface, InflationIssuerDiscountBuildingRepository, GeneratorPriceIndexCurve, InflationSensitivity> {
+    MultiCurveFunction<ParameterInflationIssuerProviderInterface, InflationIssuerDiscountBuildingRepository, GeneratorPriceIndexCurve, InflationSensitivity> {
 
   /** The logger */
 
@@ -136,21 +138,21 @@ public class InflationIssuerProviderDiscountingFunction extends
     return new MyCompiledFunctionDefinition(earliestInvokation, latestInvokation, curveNames, exogenousRequirements, curveConstructionConfiguration);
   }
 
-  protected InstrumentDerivativeVisitor<InflationIssuerProviderInterface, Double> getCalculatorWithoutIssuer() {
+  protected InstrumentDerivativeVisitor<ParameterInflationIssuerProviderInterface, Double> getCalculatorWithoutIssuer() {
     return PSIMQCWI;
   }
 
-  protected InstrumentDerivativeVisitor<InflationIssuerProviderInterface, InflationSensitivity> getSensitivityCalculatorWithoutIssuer() {
+  protected InstrumentDerivativeVisitor<ParameterInflationIssuerProviderInterface, InflationSensitivity> getSensitivityCalculatorWithoutIssuer() {
     return PSIMQCSCWI;
   }
 
   @Override
-  protected InstrumentDerivativeVisitor<InflationIssuerProviderInterface, Double> getCalculator() {
+  protected InstrumentDerivativeVisitor<ParameterInflationIssuerProviderInterface, Double> getCalculator() {
     return PSIMQC;
   }
 
   @Override
-  protected InstrumentDerivativeVisitor<InflationIssuerProviderInterface, InflationSensitivity> getSensitivityCalculator() {
+  protected InstrumentDerivativeVisitor<ParameterInflationIssuerProviderInterface, InflationSensitivity> getSensitivityCalculator() {
     return PSIMQCSC;
   }
 
@@ -185,8 +187,9 @@ public class InflationIssuerProviderDiscountingFunction extends
 
     @SuppressWarnings("unchecked")
     @Override
-    protected Pair<InflationIssuerProviderInterface, CurveBuildingBlockBundle> getCurves(final FunctionInputs inputs, final ZonedDateTime now, final InflationIssuerDiscountBuildingRepository builder,
-        final InflationIssuerProviderInterface knownData, final FunctionExecutionContext context, final FXMatrix fx) {
+    protected Pair<ParameterInflationIssuerProviderInterface, CurveBuildingBlockBundle> getCurves(
+        final FunctionInputs inputs, final ZonedDateTime now, final InflationIssuerDiscountBuildingRepository builder,
+        final ParameterInflationIssuerProviderInterface knownData, final FunctionExecutionContext context, final FXMatrix fx) {
       final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(context);
       final ConventionSource conventionSource = OpenGammaExecutionContext.getConventionSource(context);
       final ValueProperties curveConstructionProperties = ValueProperties.builder()
@@ -196,7 +199,7 @@ public class InflationIssuerProviderDiscountingFunction extends
           (HistoricalTimeSeriesBundle) inputs.getValue(new ValueRequirement(ValueRequirementNames.CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES,
               ComputationTargetSpecification.NULL, curveConstructionProperties));
       final int nGroups = _curveConstructionConfiguration.getCurveGroups().size();
-      final MultiCurveBundle<GeneratorPriceIndexCurve>[] curveBundles = new MultiCurveBundle[nGroups];
+      final MultiCurveBundle<GeneratorCurve>[] curveBundles = new MultiCurveBundle[nGroups];
       final LinkedHashMap<String, IndexPrice[]> inflationMap = new LinkedHashMap<>();
       // seasonal time step construction
       final ZonedDateTime[] seasonalityDate = ScheduleCalculator.getUnadjustedDateSchedule(now.withDayOfMonth(1), now.withDayOfMonth(1).plusYears(50), Period.ofMonths(1), true, false);
@@ -209,7 +212,7 @@ public class InflationIssuerProviderDiscountingFunction extends
       for (final CurveGroupConfiguration group : _curveConstructionConfiguration.getCurveGroups()) { // Group - start
         int j = 0;
         final int nCurves = group.getTypesForCurves().size();
-        final SingleCurveBundle<GeneratorPriceIndexCurve>[] singleCurves = new SingleCurveBundle[nCurves];
+        final SingleCurveBundle<GeneratorCurve>[] singleCurves = new SingleCurveBundle[nCurves];
         for (final Map.Entry<String, List<? extends CurveTypeConfiguration>> entry : group.getTypesForCurves().entrySet()) {
           final List<IndexPrice> inflation = new ArrayList<>();
           final String curveName = entry.getKey();
@@ -267,21 +270,23 @@ public class InflationIssuerProviderDiscountingFunction extends
           if (!inflation.isEmpty()) {
             inflationMap.put(curveName, inflation.toArray(new IndexPrice[inflation.size()]));
           }
-          final GeneratorPriceIndexCurve generator = getGenerator(definition, now.toLocalDate());
+          final GeneratorCurve generator = getGenerator(definition, now.toLocalDate());
           singleCurves[j++] = new SingleCurveBundle<>(curveName, derivativesForCurve, generator.initialGuess(parameterGuessForCurves), generator);
           // seasonal curve construction
           // TODO : inputs () should be retrieve from historical data, for this we need two things :
           // 1) historical value of the price index (this can be retrieve from bloomberg using the appropriate ticker)
           // 2) A statistical treatment on this data should be done, usually a kind of specific ARIMA.
         }
-        final MultiCurveBundle<GeneratorPriceIndexCurve> groupBundle = new MultiCurveBundle<>(singleCurves);
+        final MultiCurveBundle<GeneratorCurve> groupBundle = new MultiCurveBundle<>(singleCurves);
         curveBundles[i++] = groupBundle;
       } // Group - end
       //TODO this is only in here because the code in analytics doesn't use generics properly
       final CurveBuildingBlockBundle knownbundle = getKnownBundle(inputs);
-      final Pair<InflationIssuerProviderDiscount, CurveBuildingBlockBundle> temp = builder.makeCurvesFromDerivatives(curveBundles,
-          (InflationIssuerProviderDiscount) knownData, knownbundle, inflationMap, getCalculatorWithoutIssuer(), getSensitivityCalculatorWithoutIssuer());
-      final Pair<InflationIssuerProviderInterface, CurveBuildingBlockBundle> result = Pairs.of((InflationIssuerProviderInterface) temp.getFirst(), temp.getSecond());
+      final Pair<InflationIssuerProviderDiscount, CurveBuildingBlockBundle> temp = builder.makeCurvesFromDerivatives(
+          curveBundles, (InflationIssuerProviderDiscount) knownData, knownbundle, inflationMap, 
+          getCalculatorWithoutIssuer(), getSensitivityCalculatorWithoutIssuer());
+      final Pair<ParameterInflationIssuerProviderInterface, CurveBuildingBlockBundle> result = 
+          Pairs.of((ParameterInflationIssuerProviderInterface) temp.getFirst(), temp.getSecond());
       return result;
     }
 
@@ -355,7 +360,7 @@ public class InflationIssuerProviderDiscountingFunction extends
 
     @Override
     protected Set<ComputedValue> getResults(final ValueSpecification bundleSpec, final ValueSpecification jacobianSpec,
-        final ValueProperties bundleProperties, final Pair<InflationIssuerProviderInterface, CurveBuildingBlockBundle> pair) {
+        final ValueProperties bundleProperties, final Pair<ParameterInflationIssuerProviderInterface, CurveBuildingBlockBundle> pair) {
       final Set<ComputedValue> result = new HashSet<>();
       final InflationIssuerProviderDiscount provider = (InflationIssuerProviderDiscount) pair.getFirst();
       result.add(new ComputedValue(bundleSpec, provider));

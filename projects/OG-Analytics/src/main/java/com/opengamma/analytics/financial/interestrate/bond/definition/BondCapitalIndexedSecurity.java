@@ -5,10 +5,8 @@
  */
 package com.opengamma.analytics.financial.interestrate.bond.definition;
 
-import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
-import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflation;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.financial.convention.yield.YieldConvention;
@@ -43,7 +41,7 @@ public class BondCapitalIndexedSecurity<C extends Coupon> extends BondSecurity<C
   private final double _ratioPeriodToNextCoupon;
   /**
    * The description of the bond settlement. It is used only for the dates and inflation calculation.
-   * The notional is 0 if the settlement is in the past and 1 if not.
+   * The notional is 0 if the settlement is in the past and the bond notional if not.
    */
   private final Coupon _settlement;
   /**
@@ -61,7 +59,7 @@ public class BondCapitalIndexedSecurity<C extends Coupon> extends BondSecurity<C
   private final double _lastKnownFixingTime;
 
   /**
-   * The index ratio.
+   * The index ratio. TODO: explain
    */
   private final double _indexRatio;
 
@@ -79,7 +77,7 @@ public class BondCapitalIndexedSecurity<C extends Coupon> extends BondSecurity<C
    * @param indexStartValue The index value at the start of the bond.
    * @param lastIndexKnownFixing The last index known fixing.
    * @param lastKnownFixingTime The last known fixing.
-   * @param indexRatio The last known fixing.
+   * @param indexRatio The ratio between the (price) index at settlement and the index at the bond start.
    * @param issuer The bond issuer name.
    */
   public BondCapitalIndexedSecurity(final Annuity<C> nominal, final Annuity<C> coupon, final double settlementTime, final double accruedInterest, final double factorToNextCoupon,
@@ -104,7 +102,7 @@ public class BondCapitalIndexedSecurity<C extends Coupon> extends BondSecurity<C
    * @param indexStartValue The index value at the start of the bond.
    * @param lastIndexKnownFixing The last index known fixing.
    * @param lastKnownFixingTime The last known fixing.
-   * @param indexRatio The index Ratio.
+   * @param indexRatio The ratio between the (price) index at settlement and the index at the bond start.
    * @param issuer The bond issuer name.
    */
   public BondCapitalIndexedSecurity(final Annuity<C> nominal, final Annuity<C> coupon, final double settlementTime, final double accruedInterest, final double factorToNextCoupon,
@@ -198,7 +196,7 @@ public class BondCapitalIndexedSecurity<C extends Coupon> extends BondSecurity<C
   }
 
   /**
-   * Gets the index value at the start of the bond.
+   * Gets the ratio between the (price) index at settlement and the index at the bond start.
    * @return The index value.
    */
   public double getIndexRatio() {
@@ -206,8 +204,8 @@ public class BondCapitalIndexedSecurity<C extends Coupon> extends BondSecurity<C
   }
 
   /**
-   * Gets the index value at the start of the bond.
-   * @return The index value.
+   * Gets the settlement cash flow of the bond for a price of 1 described by an inflation coupon.
+   * @return The settlement flow.
    */
   public Coupon getSettlement() {
     return _settlement;
