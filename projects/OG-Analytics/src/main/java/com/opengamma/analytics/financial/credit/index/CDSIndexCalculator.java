@@ -509,7 +509,7 @@ public class CDSIndexCalculator {
     double pv = indexPV(indexCDS, indexCoupon, yieldCurve, intrinsicData, PriceType.DIRTY);
     final int nKnots = yieldCurve.getNumberOfKnots();
     final double[] rates = yieldCurve.getKnotZeroRates();
-    for (int i = 0; i < nKnots; i++) {
+    for (int i = 0; i < nKnots; ++i) {
       rates[i] += ONE_BPS;
     }
     ISDACompliantYieldCurve yieldCurveUp = yieldCurve.withRates(rates);
@@ -533,7 +533,7 @@ public class CDSIndexCalculator {
     double basePV = indexPV(indexCDS, indexCoupon, yieldCurve, intrinsicData, PriceType.DIRTY);
     int n = yieldCurve.getNumberOfKnots();
     double[] res = new double[n];
-    for (int i = 0; i < n; i++) {
+    for (int i = 0; i < n; ++i) {
       ISDACompliantYieldCurve bumpedYieldCurve = yieldCurve.withRate(yieldCurve.getZeroRateAtIndex(i) + ONE_BPS, i);
       double bumpedPV = indexPV(indexCDS, indexCoupon, bumpedYieldCurve, intrinsicData, PriceType.DIRTY);
       res[i] = bumpedPV - basePV;
@@ -554,7 +554,7 @@ public class CDSIndexCalculator {
     ArgumentChecker.notNull(indexCDS, "indexCDS");
     ArgumentChecker.notNull(yieldCurve, "yieldCurve");
     ArgumentChecker.notNull(intrinsicData, "intrinsicData");
-    CDSAnalytic zeroRR = indexCDS.withRecoveryRate(0);
+    CDSAnalytic zeroRR = indexCDS.withRecoveryRate(0.0);
     int indexSize = intrinsicData.getIndexSize();
     double[] res = new double[indexSize];
     for (int i = 0; i < indexSize; ++i) {
@@ -582,26 +582,25 @@ public class CDSIndexCalculator {
     ArgumentChecker.notNull(yieldCurve, "yieldCurve");
     ArgumentChecker.notNull(intrinsicData, "intrinsicData");
     int indexSize = intrinsicData.getIndexSize();
+    double pv = indexPV(indexCDS, indexCoupon, yieldCurve, intrinsicData);
     double[] res = new double[indexSize];
     for (int i = 0; i < indexSize; ++i) {
       if (intrinsicData.isDefaulted(i)) {
         res[i] = 0.0;
       } else {
-        res[i] = decomposedValueOnDefault(indexCDS, indexCoupon, yieldCurve, intrinsicData, i);
+        res[i] = decomposedValueOnDefault(indexCDS, indexCoupon, yieldCurve, intrinsicData, pv, i);
       }
     }
     return res;
   }
 
   private double decomposedValueOnDefault(CDSAnalytic indexCDS, double indexCoupon, ISDACompliantYieldCurve yieldCurve,
-      IntrinsicIndexDataBundle intrinsicData, int singleName) {
-    double pv = indexPV(indexCDS, indexCoupon, yieldCurve, intrinsicData);
+      IntrinsicIndexDataBundle intrinsicData, double presentValue, int singleName) {
     double protection = intrinsicData.getLGD(singleName) * intrinsicData.getWeight(singleName);
     IntrinsicIndexDataBundle defaultedData = intrinsicData.withDefault(singleName);
     double newPV = indexPV(indexCDS, indexCoupon, yieldCurve, defaultedData);
     double singleNamePV = _pricer.pv(indexCDS, yieldCurve, intrinsicData.getCreditCurves()[singleName], indexCoupon) *
         intrinsicData.getWeight(singleName);
-
-    return -pv + newPV + protection - singleNamePV;
+    return newPV + protection - singleNamePV - presentValue;
   }
 }
