@@ -117,8 +117,8 @@ public class CDSIndexCalculatorTest extends ISDABaseTest {
       assertEquals(ref, jumpToDefault[i], tol);
     }
 
-    double[] zeroRates = new double[size];
-    Arrays.fill(zeroRates, 0.0);
+    double[] zeroRecoveryRates = new double[size];
+    Arrays.fill(zeroRecoveryRates, 0.0);
     double[] weights = new double[size];
     double sum = 0.0;
     for (int i = 0; i < size; ++i) {
@@ -127,7 +127,7 @@ public class CDSIndexCalculatorTest extends ISDABaseTest {
     }
     IntrinsicIndexDataBundle bundleZeroRecoveryRates = new IntrinsicIndexDataBundle(
         intrinsicDataWithDefaulted.getCreditCurves(),
-        zeroRates, weights).withDefault(defaultedNames);
+        zeroRecoveryRates, weights).withDefault(defaultedNames);
     double ref = -INDEX_CAL.indexProtLeg(cdx, YIELD_CURVE, bundleZeroRecoveryRates);
     assertEquals(sum, ref, Math.abs(ref) * tol);
   }
