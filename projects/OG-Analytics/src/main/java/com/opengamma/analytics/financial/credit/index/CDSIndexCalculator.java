@@ -11,6 +11,7 @@ import com.opengamma.analytics.financial.credit.isdastandardmodel.AnalyticCDSPri
 import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalytic;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurve;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.InterestRateSensitivityCalculator;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.PriceType;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.fastcalibration.CreditCurveCalibrator;
 import com.opengamma.util.ArgumentChecker;
@@ -494,7 +495,8 @@ public class CDSIndexCalculator {
   }
 
   /**
-   * the change in the price of a CDS when the yield curve is bumped by 1bps.
+   * The change in the intrinsic value of a CDS index when the yield curve is bumped by 1bps.
+   * If the index is priced as a single name CDS, use {@link InterestRateSensitivityCalculator} 
    * @param indexCDS The CDS index
    * @param indexCoupon The index coupon
    * @param yieldCurve The yield curve
@@ -518,7 +520,8 @@ public class CDSIndexCalculator {
   }
 
   /**
-   * the change in the price of a CDS when zero rate at node points of the yield curve is bumped by 1bps.
+   * The change in the intrinsic value of a CDS index when zero rate at node points of the yield curve is bumped by 1bps.
+   * If the index is priced as a single name CDS, use {@link InterestRateSensitivityCalculator} 
    * @param indexCDS The CDS index
    * @param indexCoupon The index coupon
    * @param yieldCurve The yield curve
@@ -542,7 +545,7 @@ public class CDSIndexCalculator {
   }
 
   /**
-   * Sensitivity of PV to intrinsic CDS recovery rates
+   * Sensitivity of the intrinsic value of a CDS index to intrinsic CDS recovery rates
    * @param indexCDS The CDS index
    * @param indexCoupon The index coupon
    * @param yieldCurve The yield curve
@@ -569,7 +572,7 @@ public class CDSIndexCalculator {
   }
 
   /**
-   * values on per-name default
+   * Values on per-name default
    * @param indexCDS The CDS index
    * @param indexCoupon The index coupon
    * @param yieldCurve The yield curve
@@ -595,9 +598,9 @@ public class CDSIndexCalculator {
 
   private double decomposedValueOnDefault(CDSAnalytic indexCDS, double indexCoupon, ISDACompliantYieldCurve yieldCurve,
       IntrinsicIndexDataBundle intrinsicData, int singleName) {
-    double protection = intrinsicData.getLGD(singleName) * intrinsicData.getWeight(singleName);
-    double singleNamePV = _pricer.pv(indexCDS, yieldCurve, intrinsicData.getCreditCurves()[singleName], indexCoupon) *
-        intrinsicData.getWeight(singleName);
-    return protection - singleNamePV;
+    double weight = intrinsicData.getWeight(singleName);
+    double protection = intrinsicData.getLGD(singleName);
+    double singleNamePV = _pricer.pv(indexCDS, yieldCurve, intrinsicData.getCreditCurves()[singleName], indexCoupon);
+    return weight * (protection - singleNamePV);
   }
 }
