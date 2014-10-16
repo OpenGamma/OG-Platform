@@ -92,8 +92,10 @@ public final class GraphBuilder {
           FunctionModel functionModel =
               FunctionModel.forFunction(function, config, _availableComponents, _nodeDecorator, _argumentConverter);
           functions.put(inputType, functionModel);
-          s_logger.debug("created function for {}/{}\n{}",
-                         column.getName(), inputType.getSimpleName(), functionModel.prettyPrint());
+          if (s_logger.isDebugEnabled()) {
+            s_logger.debug("created function for {}/{}\n{}",
+                           column.getName(), inputType.getSimpleName(), functionModel.prettyPrint());
+          }
         } else {
           if (outputName != null) {
             s_logger.warn("No function registered that can produce output '{}' for input type {}, column '{}'",
@@ -120,7 +122,9 @@ public final class GraphBuilder {
         FunctionModel functionModel =
             FunctionModel.forFunction(function, config, _availableComponents, _nodeDecorator, _argumentConverter);
         nonPortfolioFunctionModels.put(output.getName(), functionModel);
-        s_logger.debug("created function for {}/{}\n{}", output.getName(), functionModel.prettyPrint());
+        if (s_logger.isDebugEnabled()) {
+          s_logger.debug("created function for {}/{}\n{}", output.getName(), functionModel.prettyPrint());
+        }
       } else {
         nonPortfolioFunctionModels.put(output.getName(), FunctionModel.forFunction(NoOutputFunction.METADATA));
         s_logger.warn("Failed to find function to provide output named {}", outputName);
