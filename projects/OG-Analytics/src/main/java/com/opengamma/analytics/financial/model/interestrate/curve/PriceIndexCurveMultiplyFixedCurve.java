@@ -31,12 +31,13 @@ public class PriceIndexCurveMultiplyFixedCurve  implements PriceIndexCurve {
   /**
    * Constructor from an array of curves.
    * The new price index curve will be the multiplication of the underlying curve and the seasonal curve.
-   * @param name The curve name.
-   * @param curve The main curve.
-   * @param fixedCurve The fixed curve (as a multiplicative spread).
+   * @param name The curve name. Not null.
+   * @param curve The main curve. Not null.
+   * @param fixedCurve The fixed curve (as a multiplicative spread). Not null.
    */
   public PriceIndexCurveMultiplyFixedCurve(final String name, final PriceIndexCurve curve, 
       final DoublesCurve fixedCurve) {
+    ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(curve, "Curve");
     ArgumentChecker.notNull(fixedCurve, "Curve fixed");
     _name = name;
@@ -51,7 +52,7 @@ public class PriceIndexCurveMultiplyFixedCurve  implements PriceIndexCurve {
 
   @Override
   public double getInflationRate(final Double firstTime, final Double secondTime) {
-    ArgumentChecker.isTrue(firstTime < secondTime, "firstTime should be before secondTime");
+    ArgumentChecker.isTrue(firstTime < secondTime, "first time {} should be before second time {}", firstTime, secondTime);
     return this.getPriceIndex(secondTime) / this.getPriceIndex(firstTime) - 1.0;
   }
 
@@ -91,6 +92,7 @@ public class PriceIndexCurveMultiplyFixedCurve  implements PriceIndexCurve {
     int result = 1;
     result = prime * result + _curve.hashCode();
     result = prime * result + _fixedCurve.hashCode();
+    result = prime * result + _name.hashCode();
     return result;
   }
 

@@ -42,7 +42,7 @@ public class GeneratorPriceIndexCurveInterpolatedAnchorNode extends GeneratorPri
     ArgumentChecker.notNull(nodePoints, "Node points");
     ArgumentChecker.notNull(interpolator, "Interpolator");
     _nbPoints = nodePoints.length;
-    _nodePoints = nodePoints;
+    _nodePoints = nodePoints.clone();
     _anchorNode = anchorNode;
     _anchorValue = anchorValue;
     _interpolator = interpolator;

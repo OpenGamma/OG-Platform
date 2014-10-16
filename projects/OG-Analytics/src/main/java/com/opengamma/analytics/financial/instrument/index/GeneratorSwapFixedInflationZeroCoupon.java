@@ -50,9 +50,9 @@ public class GeneratorSwapFixedInflationZeroCoupon extends GeneratorInstrument<G
   /**
    * Constructor from all the details.
    * @param name The generator name. Not null.
-   * @param indexPrice The Price index..
+   * @param indexPrice The Price index. Not null.
    * @param businessDayConvention The business day convention associated to fix leg. Not null.
-   * @param calendar  The calendar used to compute the payment date.
+   * @param calendar  The calendar used to compute the payment date. Not null.
    * @param endOfMonth The end-of-month flag.
    * @param monthLag The price index fixing lag in months(usually 3).
    * @param spotLag Lag between today and the spot date.
@@ -64,6 +64,7 @@ public class GeneratorSwapFixedInflationZeroCoupon extends GeneratorInstrument<G
     ArgumentChecker.notNull(indexPrice, "index price");
     ArgumentChecker.notNull(calendar, "calendar");
     ArgumentChecker.notNull(businessDayConvention, "businessDayConvention");
+    ArgumentChecker.notNull(calendar, "calendar");
     _indexPrice = indexPrice;
     _businessDayConvention = businessDayConvention;
     _calendar = calendar;
