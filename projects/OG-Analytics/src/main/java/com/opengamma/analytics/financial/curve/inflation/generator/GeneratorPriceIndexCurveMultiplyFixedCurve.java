@@ -1,14 +1,14 @@
 /**
- * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.curve.inflation.generator;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
-import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurveAddFixedCurve;
-import com.opengamma.analytics.financial.model.interestrate.curve.SeasonalCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurveMultiplyFixedCurve;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
+import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -16,27 +16,27 @@ import com.opengamma.util.ArgumentChecker;
  * (operation on the continuously-compounded zero-coupon rates): an existing curve referenced by its name and a new curve. 
  * The generated curve is a PriceIndexCurve.
  */
-public class GeneratorPriceIndexCurveAddSeasonality extends GeneratorPriceIndexCurve {
+public class GeneratorPriceIndexCurveMultiplyFixedCurve extends GeneratorPriceIndexCurve {
 
   /**
    * The generator for the new curve.
    */
   private final GeneratorPriceIndexCurve _generator;
   /**
-   * The name of the existing curve.
+   * The name of the existing fixed curve.
    */
-  private final SeasonalCurve _seasonalCurve;
+  private final DoublesCurve _fixedCurve;
 
   /**
    * The constructor.
    * @param generator The generator for the new curve.
-   * @param seasonalCurve The seasonal curve.
+   * @param fixedCurve The fixed curve.
    */
-  public GeneratorPriceIndexCurveAddSeasonality(final GeneratorPriceIndexCurve generator, final SeasonalCurve seasonalCurve) {
+  public GeneratorPriceIndexCurveMultiplyFixedCurve(final GeneratorPriceIndexCurve generator, final DoublesCurve fixedCurve) {
     ArgumentChecker.notNull(generator, "Generator");
-    ArgumentChecker.notNull(seasonalCurve, "Seasonal curve");
+    ArgumentChecker.notNull(fixedCurve, "Fixed curve");
     _generator = generator;
-    _seasonalCurve = seasonalCurve;
+    _fixedCurve = fixedCurve;
   }
 
   @Override
@@ -47,18 +47,18 @@ public class GeneratorPriceIndexCurveAddSeasonality extends GeneratorPriceIndexC
   @Override
   public PriceIndexCurve generateCurve(final String name, final double[] parameters) {
     final PriceIndexCurve newCurve = _generator.generateCurve(name, parameters);
-    return new PriceIndexCurveAddFixedCurve(name, newCurve, _seasonalCurve);
+    return new PriceIndexCurveMultiplyFixedCurve(name, newCurve, _fixedCurve);
   }
 
   @Override
   public PriceIndexCurve generateCurve(final String name, final InflationProviderInterface inflation, final double[] parameters) {
     final PriceIndexCurve newCurve = _generator.generateCurve(name, inflation, parameters);
-    return new PriceIndexCurveAddFixedCurve(name, newCurve, _seasonalCurve);
+    return new PriceIndexCurveMultiplyFixedCurve(name, newCurve, _fixedCurve);
   }
 
   @Override
   public GeneratorPriceIndexCurve finalGenerator(final Object data) {
-    return new GeneratorPriceIndexCurveAddSeasonality(_generator.finalGenerator(data), _seasonalCurve);
+    return new GeneratorPriceIndexCurveMultiplyFixedCurve(_generator.finalGenerator(data), _fixedCurve);
   }
 
   @Override

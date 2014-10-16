@@ -26,6 +26,8 @@ import com.opengamma.analytics.financial.instrument.index.GeneratorAttributeIR;
 import com.opengamma.analytics.financial.instrument.index.GeneratorInstrument;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedInflationMaster;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedInflationZeroCoupon;
+import com.opengamma.analytics.financial.instrument.index.IborIndex;
+import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponInterpolationDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponMonthlyDefinition;
@@ -243,8 +245,8 @@ public class InflationBuildingCurveSimpleTestEUR {
       }
       curveBundles[i] = new MultiCurveBundle<>(singleCurves);
     }
-    return CURVE_BUILDING_REPOSITORY.makeCurvesFromDerivatives(curveBundles, knownData, knownBundle, US_CPI_MAP, calculator,
-        sensitivityCalculator);
+    return CURVE_BUILDING_REPOSITORY.makeCurvesFromDerivatives(curveBundles, knownData, knownBundle, 
+        US_CPI_MAP, calculator, sensitivityCalculator);
   }
 
   private static InstrumentDerivative[][] convert(final InstrumentDefinition<?>[][] definitions) {

@@ -17,16 +17,16 @@ import com.opengamma.util.ArgumentChecker;
  * In general the fixed curve represent a static adjustment like a seasonality adjustment.
  * The term "fixed" for the second curve means that no parameter is associated to that curve.
  */
-public class PriceIndexCurveAddPriceIndexFixedCurve extends PriceIndexCurve {
+public class PriceIndexCurveAddPriceIndexFixedCurve extends PriceIndexCurveSimple {
 
   /**
    * The main underlying curve.
    */
-  private final PriceIndexCurve _curve;
+  private final PriceIndexCurveSimple _curve;
   /**
    * The fixed curve.
    */
-  private final PriceIndexCurve _curveFixed;
+  private final PriceIndexCurveSimple _curveFixed;
   /**
    * If 1 the rates are added, if -1, they are subtracted (curve - curveFixed).
    */
@@ -40,7 +40,7 @@ public class PriceIndexCurveAddPriceIndexFixedCurve extends PriceIndexCurve {
    * @param curve The main curve.
    * @param curveFixed The fixed curve (as a spread).
    */
-  public PriceIndexCurveAddPriceIndexFixedCurve(final String name, final boolean substract, final PriceIndexCurve curve, final PriceIndexCurve curveFixed) {
+  public PriceIndexCurveAddPriceIndexFixedCurve(final String name, final boolean substract, final PriceIndexCurveSimple curve, final PriceIndexCurveSimple curveFixed) {
     super(curve.getCurve());
     ArgumentChecker.notNull(curve, "Curve");
     ArgumentChecker.notNull(curveFixed, "Curve fixed");

@@ -18,7 +18,7 @@ import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
-import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurveSimple;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderForward;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
@@ -43,12 +43,12 @@ public class InflationProviderForward implements InflationProviderInterface {
   /**
    * A map with one price curve by price index.
    */
-  private final Map<IndexPrice, PriceIndexCurve> _priceIndexCurves;
+  private final Map<IndexPrice, PriceIndexCurveSimple> _priceIndexCurves;
 
   /**
    * Map of all curves used in the provider. The order is ???
    */
-  private Map<String, PriceIndexCurve> _allCurves;
+  private Map<String, PriceIndexCurveSimple> _allCurves;
 
   /**
    * Constructor with empty maps for discounting, forward and price index.
@@ -78,7 +78,7 @@ public class InflationProviderForward implements InflationProviderInterface {
    * @param fxMatrix The FXMatrix.
    */
   public InflationProviderForward(final Map<Currency, YieldAndDiscountCurve> discountingCurves, final Map<IborIndex, DoublesCurve> forwardIborCurves,
-      final Map<IndexON, YieldAndDiscountCurve> forwardONCurves, final Map<IndexPrice, PriceIndexCurve> priceIndexCurves, final FXMatrix fxMatrix) {
+      final Map<IndexON, YieldAndDiscountCurve> forwardONCurves, final Map<IndexPrice, PriceIndexCurveSimple> priceIndexCurves, final FXMatrix fxMatrix) {
     ArgumentChecker.notNull(priceIndexCurves, "priceIndexCurves");
     _multicurveProvider = new MulticurveProviderForward(discountingCurves, forwardIborCurves, forwardONCurves, fxMatrix);
     _priceIndexCurves = priceIndexCurves;
@@ -90,7 +90,7 @@ public class InflationProviderForward implements InflationProviderInterface {
    * @param multicurve The multi-curves provider.
    * @param priceIndexCurves The map with price index curves.
    */
-  public InflationProviderForward(final MulticurveProviderForward multicurve, final Map<IndexPrice, PriceIndexCurve> priceIndexCurves) {
+  public InflationProviderForward(final MulticurveProviderForward multicurve, final Map<IndexPrice, PriceIndexCurveSimple> priceIndexCurves) {
     _multicurveProvider = multicurve;
     _priceIndexCurves = priceIndexCurves;
     setInflationCurves();
@@ -112,7 +112,7 @@ public class InflationProviderForward implements InflationProviderInterface {
   @Override
   public InflationProviderForward copy() {
     final MulticurveProviderForward multicurveProvider = _multicurveProvider.copy();
-    final LinkedHashMap<IndexPrice, PriceIndexCurve> priceIndexCurves = new LinkedHashMap<>(_priceIndexCurves);
+    final LinkedHashMap<IndexPrice, PriceIndexCurveSimple> priceIndexCurves = new LinkedHashMap<>(_priceIndexCurves);
     return new InflationProviderForward(multicurveProvider, priceIndexCurves);
   }
 
@@ -137,7 +137,7 @@ public class InflationProviderForward implements InflationProviderInterface {
    * @param index The Price index.
    * @return The curve.
    */
-  public PriceIndexCurve getCurve(final IndexPrice index) {
+  public PriceIndexCurveSimple getCurve(final IndexPrice index) {
     if (_priceIndexCurves.containsKey(index)) {
       return _priceIndexCurves.get(index);
     }
@@ -154,7 +154,7 @@ public class InflationProviderForward implements InflationProviderInterface {
    * @param index The price index.
    * @param curve The curve.
    */
-  public void setCurve(final IndexPrice index, final PriceIndexCurve curve) {
+  public void setCurve(final IndexPrice index, final PriceIndexCurveSimple curve) {
     ArgumentChecker.notNull(index, "index");
     ArgumentChecker.notNull(curve, "curve");
     if (_priceIndexCurves.containsKey(index)) {
@@ -165,7 +165,7 @@ public class InflationProviderForward implements InflationProviderInterface {
 
   @Override
   public Integer getNumberOfParameters(final String name) {
-    final PriceIndexCurve curve = _allCurves.get(name);
+    final PriceIndexCurveSimple curve = _allCurves.get(name);
     return curve.getNumberOfParameters();
   }
 
@@ -322,7 +322,7 @@ public class InflationProviderForward implements InflationProviderInterface {
    * @param curve The price curve for the index.
    *  @throws IllegalArgumentException if curve name NOT already present
    */
-  public void replaceCurve(final IndexPrice index, final PriceIndexCurve curve) {
+  public void replaceCurve(final IndexPrice index, final PriceIndexCurveSimple curve) {
     ArgumentChecker.notNull(index, "Price index");
     ArgumentChecker.notNull(curve, "curve");
     if (!_priceIndexCurves.containsKey(index)) {
@@ -368,7 +368,7 @@ public class InflationProviderForward implements InflationProviderInterface {
 
   @Override
   public double[] parameterInflationSensitivity(final String name, final List<DoublesPair> pointSensitivity) {
-    final PriceIndexCurve curve = _allCurves.get(name);
+    final PriceIndexCurveSimple curve = _allCurves.get(name);
     final int nbParameters = curve.getNumberOfParameters();
     final double[] result = new double[nbParameters];
     if (pointSensitivity != null && pointSensitivity.size() > 0) {

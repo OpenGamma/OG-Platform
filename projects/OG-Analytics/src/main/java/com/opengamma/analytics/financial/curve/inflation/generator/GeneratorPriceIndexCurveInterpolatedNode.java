@@ -5,7 +5,7 @@
  */
 package com.opengamma.analytics.financial.curve.inflation.generator;
 
-import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurveSimple;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
@@ -48,14 +48,28 @@ public class GeneratorPriceIndexCurveInterpolatedNode extends GeneratorPriceInde
   }
 
   @Override
-  public PriceIndexCurve generateCurve(String name, double[] parameters) {
+  public PriceIndexCurveSimple generateCurve(String name, double[] parameters) {
     ArgumentChecker.isTrue(parameters.length == _nbPoints, "Incorrect dimension for the price indices");
-    return new PriceIndexCurve(new InterpolatedDoublesCurve(_nodePoints, parameters, _interpolator, true, name));
+    return new PriceIndexCurveSimple(new InterpolatedDoublesCurve(_nodePoints, parameters, _interpolator, true, name));
   }
 
   @Override
-  public PriceIndexCurve generateCurve(String name, InflationProviderInterface inflation, double[] parameters) {
+  public PriceIndexCurveSimple generateCurve(String name, InflationProviderInterface inflation, double[] parameters) {
     return generateCurve(name, parameters);
+  }
+
+  /**
+   * Returns the initial guess for the index. It is 100 * (1+rate*node).
+   * @param rates The data rates.
+   * @return The initial guess for the index.
+   */
+  @Override
+  public double[] initialGuess(double[] rates) {
+    double[] index = new double[rates.length];
+    for (int looprate = 0; looprate < rates.length; looprate++) {
+      index[looprate] = 100.0 * (1 + rates[looprate] * _nodePoints[looprate]);
+    }
+    return index;
   }
 
 }

@@ -14,18 +14,18 @@ import com.opengamma.util.money.Currency;
 /**
  *
  */
-public final class PriceIndexMaster {
+public final class IndexPriceMaster {
 
   /**
    * The method unique instance.
    */
-  private static final PriceIndexMaster INSTANCE = new PriceIndexMaster();
+  private static final IndexPriceMaster INSTANCE = new IndexPriceMaster();
 
   /**
    * Return the unique instance of the class.
    * @return The instance.
    */
-  public static PriceIndexMaster getInstance() {
+  public static IndexPriceMaster getInstance() {
     return INSTANCE;
   }
 
@@ -37,7 +37,7 @@ public final class PriceIndexMaster {
   /**
    * Private constructor.
    */
-  private PriceIndexMaster() {
+  private IndexPriceMaster() {
 
     _priceIndex = new HashMap<>();
     _priceIndex.put(

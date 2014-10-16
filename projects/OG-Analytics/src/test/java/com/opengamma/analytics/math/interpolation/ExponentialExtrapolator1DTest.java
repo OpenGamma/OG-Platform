@@ -13,7 +13,7 @@ import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.util.test.TestGroup;
 
 /**
- * Test.
+ * Test related to the exponential extrapolator.
  */
 @Test(groups = TestGroup.UNIT)
 public class ExponentialExtrapolator1DTest {

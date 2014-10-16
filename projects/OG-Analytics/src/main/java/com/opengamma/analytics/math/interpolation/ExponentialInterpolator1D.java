@@ -11,7 +11,7 @@ import com.opengamma.analytics.math.interpolation.data.ArrayInterpolator1DDataBu
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 
 /**
- * 
+ * Exponential interpolator description.
  * 
  */
 public class ExponentialInterpolator1D extends Interpolator1D {

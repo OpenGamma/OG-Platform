@@ -12,7 +12,7 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexIborMaster;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
-import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurveSimple;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderForward;
@@ -47,7 +47,7 @@ public class CurveForwardProviderTest {
   private static double[] INDEX_VALUE = new double[] {108.23, 108.64, 111.0, 119.0, 129.0, 149.0 };
   private static double[] TIME_VALUE = new double[] {-3.0 / 12.0, -2.0 / 12.0, 9.0 / 12.0, 4.0 + 9.0 / 12.0, 9.0 + 9.0 / 12.0, 19.0 + 9.0 / 12.0 };
   private static final InterpolatedDoublesCurve CURVE_HICP = InterpolatedDoublesCurve.from(TIME_VALUE, INDEX_VALUE, LINEAR_FLAT);
-  private static final PriceIndexCurve PRICE_INDEX_HICP_CURVE = new PriceIndexCurve(CURVE_HICP);
+  private static final PriceIndexCurveSimple PRICE_INDEX_HICP_CURVE = new PriceIndexCurveSimple(CURVE_HICP);
   static {
     MARKET_1.setCurve(Currency.EUR, CURVE_50);
     MARKET_1.setCurve(Currency.USD, CURVE_45);
