@@ -75,6 +75,9 @@ import com.opengamma.sesame.cache.source.CacheAwareHistoricalTimeSeriesSource;
 import com.opengamma.sesame.cache.source.CacheAwareRegionSource;
 import com.opengamma.sesame.cache.source.CacheAwareSecuritySource;
 import com.opengamma.sesame.config.FunctionModelConfig;
+import com.opengamma.sesame.credit.IsdaCompliantCreditCurveFn;
+import com.opengamma.sesame.credit.IsdaCompliantYieldCurveFn;
+import com.opengamma.sesame.credit.measures.CreditPvFn;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.engine.FixedInstantVersionCorrectionProvider;
 import com.opengamma.sesame.engine.FunctionService;
@@ -249,7 +252,10 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
         FXForwardYCNSPnLSeriesFn.class,
         FXForwardYieldCurveNodeSensitivitiesFn.class,
         FXMatrixFn.class,
-        BondFn.class);
+        BondFn.class,
+        IsdaCompliantYieldCurveFn.class,
+        IsdaCompliantCreditCurveFn.class,
+        CreditPvFn.class);
     return available;
   }
 
