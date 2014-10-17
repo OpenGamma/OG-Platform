@@ -8,9 +8,6 @@ package com.opengamma.analytics.math.interpolation;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.opengamma.analytics.financial.credit.cds.ISDAExtrapolator1D;
-import com.opengamma.analytics.financial.credit.cds.ISDAInterpolator1D;
-
 /**
  * 
  */
@@ -89,12 +86,7 @@ public final class Interpolator1DFactory {
   public static final FlatExtrapolator1D FLAT_EXTRAPOLATOR_INSTANCE = new FlatExtrapolator1D();
   /** Exponential extrapolator instance */
   public static final ExponentialExtrapolator1D EXPONENTIAL_EXTRAPOLATOR_INSTANCE = new ExponentialExtrapolator1D();
-  /** ISDA interpolator instance */
-  public static final ISDAInterpolator1D ISDA_INTERPOLATOR_INSTANCE = new ISDAInterpolator1D();
-  /** ISDA extrapolator instance */
-  public static final ISDAExtrapolator1D ISDA_EXTRAPOLATOR_INSTANCE = new ISDAExtrapolator1D();
-  /** 
-   */
+
 
   /**Cubic spline with clamped endpoint conditions*/
   public static final String CLAMPED_CUBIC = "ClampedCubicSpline";
@@ -242,10 +234,7 @@ public final class Interpolator1DFactory {
     instanceNames.put(FlatExtrapolator1D.class, FLAT_EXTRAPOLATOR);
     staticInstances.put(EXPONENTIAL_EXTRAPOLATOR, EXPONENTIAL_EXTRAPOLATOR_INSTANCE);
     instanceNames.put(ExponentialExtrapolator1D.class, EXPONENTIAL_EXTRAPOLATOR);
-    staticInstances.put(ISDA_INTERPOLATOR, ISDA_INTERPOLATOR_INSTANCE);
-    instanceNames.put(ISDAInterpolator1D.class, ISDA_INTERPOLATOR);
-    staticInstances.put(ISDA_EXTRAPOLATOR, ISDA_EXTRAPOLATOR_INSTANCE);
-    instanceNames.put(ISDAExtrapolator1D.class, ISDA_EXTRAPOLATOR);
+
 
     staticInstances.put(CLAMPED_CUBIC, CLAMPED_CUBIC_INSTANCE);
     instanceNames.put(ClampedCubicSplineInterpolator1D.class, CLAMPED_CUBIC);

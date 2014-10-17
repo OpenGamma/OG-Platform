@@ -24,7 +24,6 @@ import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivativ
 import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative.ForwardCommodityPhysicalSettle;
 import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative.MetalFutureSecurity;
 import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative.MetalFutureTransaction;
-import com.opengamma.analytics.financial.credit.cds.ISDACDSDerivative;
 import com.opengamma.analytics.financial.equity.Equity;
 import com.opengamma.analytics.financial.equity.future.derivative.CashSettledFuture;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityFuture;
@@ -293,10 +292,7 @@ public class InstrumentDerivativeVisitorSameValueAdapter<DATA_TYPE, RESULT_TYPE>
     return _value;
   }
 
-  @Override
-  public RESULT_TYPE visitCDSDerivative(final ISDACDSDerivative cds, final DATA_TYPE data) {
-    return _value;
-  }
+
 
   @Override
   public RESULT_TYPE visitBondFixedSecurity(final BondFixedSecurity bond) {
@@ -443,10 +439,6 @@ public class InstrumentDerivativeVisitorSameValueAdapter<DATA_TYPE, RESULT_TYPE>
     return _value;
   }
 
-  @Override
-  public RESULT_TYPE visitCDSDerivative(final ISDACDSDerivative cds) {
-    return _value;
-  }
 
   @Override
   public RESULT_TYPE visitCouponFixed(final CouponFixed payment, final DATA_TYPE data) {
