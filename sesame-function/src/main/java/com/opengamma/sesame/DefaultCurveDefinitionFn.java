@@ -8,6 +8,8 @@ package com.opengamma.sesame;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+
+import com.opengamma.DataNotFoundException;
 import com.opengamma.core.link.ConfigLink;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.util.result.FailureStatus;
@@ -23,11 +25,9 @@ public class DefaultCurveDefinitionFn implements CurveDefinitionFn {
   //-------------------------------------------------------------------------
   @Override
   public Result<CurveDefinition> getCurveDefinition(String curveName) {
-
-    CurveDefinition curveDefinition = ConfigLink.resolvable(curveName, CurveDefinition.class).resolve();
-    if (curveDefinition != null) {
-      return Result.success(curveDefinition);
-    } else {
+    try {
+      return Result.success(ConfigLink.resolvable(curveName, CurveDefinition.class).resolve());
+    } catch (DataNotFoundException ex) {
       return Result.failure(FailureStatus.MISSING_DATA, "Could not get curve definition called {}", curveName);
     }
   }
