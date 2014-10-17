@@ -16,7 +16,7 @@ import com.opengamma.util.result.Result;
 /**
  * PV function for credit types.
  */
-public interface CreditPvFn extends CreditRiskMesasureFn<CurrencyAmount> {
+public interface CreditPvFn extends CreditRiskMeasureFn<CurrencyAmount> {
   
   @Override
   @Output(OutputNames.PRESENT_VALUE)

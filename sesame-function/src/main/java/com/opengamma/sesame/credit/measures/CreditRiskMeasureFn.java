@@ -15,7 +15,7 @@ import com.opengamma.util.result.Result;
  * 
  * @param <T> the result type
  */
-public interface CreditRiskMesasureFn<T> {
+public interface CreditRiskMeasureFn<T> {
 
   /**
    * Calculate a risk measure for a standard cds

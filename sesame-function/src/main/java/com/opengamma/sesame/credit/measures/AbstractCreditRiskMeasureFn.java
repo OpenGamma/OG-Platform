@@ -34,7 +34,7 @@ import com.opengamma.util.result.Result;
  * 
  * @param <T> the type of risk measure this function produces
  */
-public abstract class AbstractCreditRiskMeasureFn<T> implements CreditRiskMesasureFn<T> {
+public abstract class AbstractCreditRiskMeasureFn<T> implements CreditRiskMeasureFn<T> {
   
   private final LegacyCdsConverterFn _legacyCdsConverterFn;
   private final StandardCdsConverterFn _standardCdsConverterFn;
@@ -143,8 +143,8 @@ public abstract class AbstractCreditRiskMeasureFn<T> implements CreditRiskMesasu
    * @return a result of the appropriate type
    */
   protected abstract Result<T> price(CdsData cdsData, 
-                                      CDSAnalytic cdsAnalytic, 
-                                      IsdaCreditCurve curve);
+                                     CDSAnalytic cdsAnalytic,
+                                     IsdaCreditCurve curve);
   
   
   /**
