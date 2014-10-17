@@ -21,10 +21,15 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
+import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
+import com.opengamma.sesame.marketdata.DefaultStrategyAwareMarketDataSource;
+import com.opengamma.sesame.marketdata.EmptyMarketDataSpec;
 import com.opengamma.sesame.marketdata.FixedHistoricalMarketDataFactory;
 import com.opengamma.sesame.marketdata.LiveMarketDataFactory;
+import com.opengamma.sesame.marketdata.MapMarketDataSource;
 import com.opengamma.sesame.marketdata.MarketDataFactory;
 import com.opengamma.sesame.marketdata.SnapshotMarketDataFactory;
+import com.opengamma.sesame.marketdata.StrategyAwareMarketDataSource;
 import com.opengamma.sesame.marketdata.TypeDelegatingMarketDataFactory;
 
 /**
@@ -74,6 +79,12 @@ public class CombiningMarketDataFactoryComponentFactory extends AbstractComponen
     if (getUserSnapshotMarketDataFactory() != null) {
       builder.snapshot(getUserSnapshotMarketDataFactory());
     }
+    builder.put(EmptyMarketDataSpec.class, new MarketDataFactory() {
+      @Override
+      public StrategyAwareMarketDataSource create(MarketDataSpecification spec) {
+        return new DefaultStrategyAwareMarketDataSource(EmptyMarketDataSpec.INSTANCE, MapMarketDataSource.of());
+      }
+    });
     repo.registerComponent(MarketDataFactory.class, getClassifier(), builder.build());
   }
 
