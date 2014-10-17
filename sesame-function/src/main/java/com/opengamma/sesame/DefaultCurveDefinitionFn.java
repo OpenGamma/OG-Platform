@@ -28,7 +28,7 @@ public class DefaultCurveDefinitionFn implements CurveDefinitionFn {
     try {
       return Result.success(ConfigLink.resolvable(curveName, CurveDefinition.class).resolve());
     } catch (DataNotFoundException ex) {
-      return Result.failure(FailureStatus.MISSING_DATA, "Could not get curve definition called {}", curveName);
+      return Result.failure(FailureStatus.MISSING_DATA, ex, "Could not get curve definition called {}", curveName);
     }
   }
 
