@@ -44,7 +44,9 @@ public final class FunctionBuilder {
         s_logger.debug("Returning existing function for node {}, {}", existing, node.prettyPrint(false));
         return existing;
       } else {
-        s_logger.debug("No existing function found for node {}", node.prettyPrint(false));
+        if (s_logger.isDebugEnabled()) {
+          s_logger.debug("No existing function found for node {}", node.prettyPrint(false));
+        }
       }
     }
     List<Object> dependencies = Lists.newArrayListWithCapacity(node.getDependencies().size());
