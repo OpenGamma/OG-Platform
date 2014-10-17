@@ -6,8 +6,12 @@
 package com.opengamma.sesame.server;
 
 import org.threeten.bp.Duration;
+import org.threeten.bp.Instant;
 
+import com.opengamma.service.ThreadLocalServiceContext;
+import com.opengamma.service.VersionCorrectionProvider;
 import com.opengamma.sesame.config.EngineUtils;
+import com.opengamma.sesame.engine.FixedInstantVersionCorrectionProvider;
 import com.opengamma.sesame.engine.View;
 import com.opengamma.sesame.engine.ViewFactory;
 import com.opengamma.sesame.marketdata.MarketDataFactory;
@@ -49,18 +53,26 @@ public class CycleRunnerFactory {
   private final Duration _minimumTimeBetweenCycles;
 
   /**
+   * Set which version correction instant to be used when running a cycle.
+   */
+  private CycleVersionCorrectionInstant _versionCorrectionInstant;
+
+  /**
    * Creates the factory.
    *
    * @param viewFactory factory used to create the views which will be executed, not null
    * @param marketDataFactory  used to handle the market data requirements
-   * @param minimumTimeBetweenCycles  minimum time period between cycles, not null
+   * @param minimumTimeBetweenCycles minimum time period between cycles, not null
+   * @param versionCorrectionInstant version correction instant, not null
    */
   public CycleRunnerFactory(ViewFactory viewFactory,
                             MarketDataFactory marketDataFactory,
-                            Duration minimumTimeBetweenCycles) {
+                            Duration minimumTimeBetweenCycles,
+                            CycleVersionCorrectionInstant versionCorrectionInstant) {
     _viewFactory = ArgumentChecker.notNull(viewFactory, "viewFactory");
     _marketDataFactory = ArgumentChecker.notNull(marketDataFactory, "marketDataFactory");
     _minimumTimeBetweenCycles = ArgumentChecker.notNull(minimumTimeBetweenCycles, "minimumTimeBetweenCycles");
+    _versionCorrectionInstant = ArgumentChecker.notNull(versionCorrectionInstant, "versionCorrectionInstant");
   }
 
   /**
@@ -120,6 +132,11 @@ public class CycleRunnerFactory {
   }
 
   private View createView(FunctionServerRequest<?> request) {
+
+    if (_versionCorrectionInstant == CycleVersionCorrectionInstant.CYCLE_START) {
+      ThreadLocalServiceContext.init(ThreadLocalServiceContext.getInstance().with(
+          VersionCorrectionProvider.class, new FixedInstantVersionCorrectionProvider(Instant.now())));
+    }
     return _viewFactory.createView(request.getViewConfig(), EngineUtils.getInputTypes(request.getInputs()));
   }
 

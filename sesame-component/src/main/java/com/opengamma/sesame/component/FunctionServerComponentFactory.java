@@ -30,6 +30,7 @@ import com.opengamma.livedata.LiveDataClient;
 import com.opengamma.sesame.engine.ViewFactory;
 import com.opengamma.sesame.marketdata.MarketDataFactory;
 import com.opengamma.sesame.server.CycleRunnerFactory;
+import com.opengamma.sesame.server.CycleVersionCorrectionInstant;
 import com.opengamma.sesame.server.DataFunctionServerResource;
 import com.opengamma.sesame.server.DefaultFunctionServer;
 import com.opengamma.sesame.server.FunctionServer;
@@ -59,6 +60,12 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
    */
   @PropertyDefinition(validate = "notNull")
   private boolean _publishRest = true;
+  /**
+   * Set which version correction instant to be used when running a cycle.
+   * Defaults to server start.
+   */
+  @PropertyDefinition
+  private CycleVersionCorrectionInstant _versionCorrectionInstant = CycleVersionCorrectionInstant.SERVER_START;
   /**
    * Should the component enable streaming results. If set to true, then the
    * {@link #_scheduledExecutor} should not be null.
@@ -102,7 +109,8 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
 
     CycleRunnerFactory cycleRunnerFactory = new CycleRunnerFactory(
-        getViewFactory(), getMarketDataFactory(), Duration.of(_minimumTimeBetweenCycles, ChronoUnit.MILLIS));
+        getViewFactory(), getMarketDataFactory(), Duration.of(_minimumTimeBetweenCycles, ChronoUnit.MILLIS),
+        _versionCorrectionInstant);
     DefaultFunctionServer server = initFunctionServer(repo, cycleRunnerFactory);
     if (isEnableStreamedResults()) {
       initStreamingServer(repo, server, cycleRunnerFactory);
@@ -208,6 +216,34 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
    */
   public final Property<Boolean> publishRest() {
     return metaBean().publishRest().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets set which version correction instant to be used when running a cycle.
+   * Defaults to server start.
+   * @return the value of the property
+   */
+  public CycleVersionCorrectionInstant getVersionCorrectionInstant() {
+    return _versionCorrectionInstant;
+  }
+
+  /**
+   * Sets set which version correction instant to be used when running a cycle.
+   * Defaults to server start.
+   * @param versionCorrectionInstant  the new value of the property
+   */
+  public void setVersionCorrectionInstant(CycleVersionCorrectionInstant versionCorrectionInstant) {
+    this._versionCorrectionInstant = versionCorrectionInstant;
+  }
+
+  /**
+   * Gets the the {@code versionCorrectionInstant} property.
+   * Defaults to server start.
+   * @return the property, not null
+   */
+  public final Property<CycleVersionCorrectionInstant> versionCorrectionInstant() {
+    return metaBean().versionCorrectionInstant().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -408,6 +444,7 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
       FunctionServerComponentFactory other = (FunctionServerComponentFactory) obj;
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
           (isPublishRest() == other.isPublishRest()) &&
+          JodaBeanUtils.equal(getVersionCorrectionInstant(), other.getVersionCorrectionInstant()) &&
           (isEnableStreamedResults() == other.isEnableStreamedResults()) &&
           JodaBeanUtils.equal(getViewFactory(), other.getViewFactory()) &&
           JodaBeanUtils.equal(getMarketDataFactory(), other.getMarketDataFactory()) &&
@@ -425,6 +462,7 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
     hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getVersionCorrectionInstant());
     hash += hash * 31 + JodaBeanUtils.hashCode(isEnableStreamedResults());
     hash += hash * 31 + JodaBeanUtils.hashCode(getViewFactory());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataFactory());
@@ -437,7 +475,7 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(320);
+    StringBuilder buf = new StringBuilder(352);
     buf.append("FunctionServerComponentFactory{");
     int len = buf.length();
     toString(buf);
@@ -453,6 +491,7 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
     super.toString(buf);
     buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
     buf.append("publishRest").append('=').append(JodaBeanUtils.toString(isPublishRest())).append(',').append(' ');
+    buf.append("versionCorrectionInstant").append('=').append(JodaBeanUtils.toString(getVersionCorrectionInstant())).append(',').append(' ');
     buf.append("enableStreamedResults").append('=').append(JodaBeanUtils.toString(isEnableStreamedResults())).append(',').append(' ');
     buf.append("viewFactory").append('=').append(JodaBeanUtils.toString(getViewFactory())).append(',').append(' ');
     buf.append("marketDataFactory").append('=').append(JodaBeanUtils.toString(getMarketDataFactory())).append(',').append(' ');
@@ -482,6 +521,11 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
      */
     private final MetaProperty<Boolean> _publishRest = DirectMetaProperty.ofReadWrite(
         this, "publishRest", FunctionServerComponentFactory.class, Boolean.TYPE);
+    /**
+     * The meta-property for the {@code versionCorrectionInstant} property.
+     */
+    private final MetaProperty<CycleVersionCorrectionInstant> _versionCorrectionInstant = DirectMetaProperty.ofReadWrite(
+        this, "versionCorrectionInstant", FunctionServerComponentFactory.class, CycleVersionCorrectionInstant.class);
     /**
      * The meta-property for the {@code enableStreamedResults} property.
      */
@@ -524,6 +568,7 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
         "publishRest",
+        "versionCorrectionInstant",
         "enableStreamedResults",
         "viewFactory",
         "marketDataFactory",
@@ -545,6 +590,8 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
           return _classifier;
         case -614707837:  // publishRest
           return _publishRest;
+        case -1474058581:  // versionCorrectionInstant
+          return _versionCorrectionInstant;
         case -1827093804:  // enableStreamedResults
           return _enableStreamedResults;
         case -1101448539:  // viewFactory
@@ -593,6 +640,14 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<Boolean> publishRest() {
       return _publishRest;
+    }
+
+    /**
+     * The meta-property for the {@code versionCorrectionInstant} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<CycleVersionCorrectionInstant> versionCorrectionInstant() {
+      return _versionCorrectionInstant;
     }
 
     /**
@@ -659,6 +714,8 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
           return ((FunctionServerComponentFactory) bean).getClassifier();
         case -614707837:  // publishRest
           return ((FunctionServerComponentFactory) bean).isPublishRest();
+        case -1474058581:  // versionCorrectionInstant
+          return ((FunctionServerComponentFactory) bean).getVersionCorrectionInstant();
         case -1827093804:  // enableStreamedResults
           return ((FunctionServerComponentFactory) bean).isEnableStreamedResults();
         case -1101448539:  // viewFactory
@@ -685,6 +742,9 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
           return;
         case -614707837:  // publishRest
           ((FunctionServerComponentFactory) bean).setPublishRest((Boolean) newValue);
+          return;
+        case -1474058581:  // versionCorrectionInstant
+          ((FunctionServerComponentFactory) bean).setVersionCorrectionInstant((CycleVersionCorrectionInstant) newValue);
           return;
         case -1827093804:  // enableStreamedResults
           ((FunctionServerComponentFactory) bean).setEnableStreamedResults((Boolean) newValue);
