@@ -157,6 +157,7 @@ public class LegacyCDSSecurity extends FinancialSecurity {
    *
    * @param ids the trade identifier, not null
    * @param tradeDate the trade date, not null
+   * @param startDate the start date, not null
    * @param maturityDate the maturity date, not null
    * @param referenceEntity the reference entity, not null
    * @param notional the notional, not null
@@ -173,7 +174,8 @@ public class LegacyCDSSecurity extends FinancialSecurity {
    * @param accruedOnDefault accrual on default flag, not null
    */
   public LegacyCDSSecurity(final ExternalIdBundle ids, 
-                           final LocalDate tradeDate, 
+                           final LocalDate tradeDate,
+                           final LocalDate startDate,
                            final LocalDate maturityDate, 
                            final ExternalId referenceEntity,
                            final InterestRateNotional notional, 
@@ -191,6 +193,7 @@ public class LegacyCDSSecurity extends FinancialSecurity {
     super(SECURITY_TYPE);
     setExternalIdBundle(ids);
     setTradeDate(tradeDate);
+    setStartDate(startDate);
     setMaturityDate(maturityDate);
     setReferenceEntity(referenceEntity);
     setNotional(notional);
@@ -212,6 +215,7 @@ public class LegacyCDSSecurity extends FinancialSecurity {
    * @param ids the trade identifier, not null
    * @param name descriptive name for the security, not null
    * @param tradeDate the trade date, not null
+   * @param startDate the start date, not null
    * @param maturityDate the maturity date, not null
    * @param referenceEntity the reference entity, not null
    * @param notional the notional, not null
@@ -229,7 +233,8 @@ public class LegacyCDSSecurity extends FinancialSecurity {
    */
   public LegacyCDSSecurity(final ExternalIdBundle ids, 
                            final String name, 
-                           final LocalDate tradeDate, 
+                           final LocalDate tradeDate,
+                           final LocalDate startDate,
                            final LocalDate maturityDate, 
                            final ExternalId referenceEntity,
                            final InterestRateNotional notional, 
@@ -248,6 +253,7 @@ public class LegacyCDSSecurity extends FinancialSecurity {
     setName(name);
     setExternalIdBundle(ids);
     setTradeDate(tradeDate);
+    setStartDate(startDate);
     setMaturityDate(maturityDate);
     setReferenceEntity(referenceEntity);
     setNotional(notional);
