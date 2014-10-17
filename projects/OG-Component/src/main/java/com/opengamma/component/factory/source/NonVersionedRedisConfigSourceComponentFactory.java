@@ -23,6 +23,7 @@ import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.config.impl.DataConfigSourceResource;
 import com.opengamma.core.config.impl.DelegatingConfigSource;
+import com.opengamma.core.config.impl.EHCachingConfigSource;
 import com.opengamma.core.config.impl.NonVersionedRedisConfigSource;
 import com.opengamma.core.config.impl.RemoteConfigSource;
 import com.opengamma.master.config.ConfigMaster;
@@ -31,6 +32,8 @@ import com.opengamma.master.config.impl.MasterConfigSource;
 import org.joda.beans.Bean;
 import org.joda.beans.Property;
 import org.joda.beans.impl.direct.DirectMetaProperty;
+
+import net.sf.ehcache.CacheManager;
 
 /**
  * 
@@ -45,15 +48,15 @@ public class NonVersionedRedisConfigSourceComponentFactory extends AbstractNonVe
   
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
-    ConfigSource source = new NonVersionedRedisConfigSource(getRedisConnector().getJedisPool(), getRedisPrefix());
-    
-    
+    ConfigSource redisSource = new NonVersionedRedisConfigSource(getRedisConnector().getJedisPool(), getRedisPrefix());
+    ConfigSource source = redisSource;
+
     ConfigSource userSource = initUser(repo, configuration);
     Map<String, ConfigSource> map = new HashMap<String, ConfigSource>();
     if (userSource != null) {
       String scheme = repo.getInfo(getUserConfigMaster()).getAttribute(ComponentInfoAttributes.UNIQUE_ID_SCHEME);
       map.put(scheme, userSource);
-      source = new DelegatingConfigSource(source, map);
+      source = new EHCachingConfigSource(new DelegatingConfigSource(source, map), CacheManager.getInstance());
     }
     
     ComponentInfo info = new ComponentInfo(ConfigSource.class, getClassifier());
@@ -66,7 +69,7 @@ public class NonVersionedRedisConfigSourceComponentFactory extends AbstractNonVe
 
     info = new ComponentInfo(NonVersionedRedisConfigSource.class, getClassifier());
     info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
-    repo.registerComponent(info, source instanceof DelegatingConfigSource ? ((DelegatingConfigSource) source).getDefaultDelegate() : source);
+    repo.registerComponent(info, redisSource);
   }
   
   protected ConfigSource initUser(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
