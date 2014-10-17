@@ -184,15 +184,22 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
   /**
    * Computes the clean price of a bond security from curves.
    * @param bond The bond security.
-   * @param issuerMulticurves The issuer and multi-curves provider.
+   * @param curves The issuer and inflation curve provider.
    * @return The clean price.
    */
-  public double cleanRealPriceFromCurves(final BondCapitalIndexedSecurity<?> bond, final InflationIssuerProviderInterface issuerMulticurves) {
-    final double indexRatio = bond.getIndexRatio();
-    final double notional = bond.getCoupon().getNthPayment(0).getNotional();
-    final double df = issuerMulticurves.getMulticurveProvider().getDiscountFactor(bond.getCurrency(), bond.getSettlementTime());
-    final double pvReal = presentValue(bond, issuerMulticurves).getAmount(bond.getCurrency()) / indexRatio / df / notional;
-    return pvReal - bond.getAccruedInterest() / notional;
+  public double cleanRealPriceFromCurves(final BondCapitalIndexedSecurity<?> bond, 
+      final InflationIssuerProviderInterface curves) {
+    Validate.notNull(bond, "Coupon");
+    Validate.notNull(curves, "Curves");
+    Currency ccy = bond.getCurrency();
+    double indexRatioAtSettlement = bond.getIndexRatio();
+    double notional = bond.getCoupon().getNthPayment(0).getNotional();
+    MultipleCurrencyAmount nominalAccruedInterest = 
+      bond.getSettlement().accept(PVIC, curves.getInflationProvider()).multipliedBy(bond.getAccruedInterest());
+    double df = curves.getMulticurveProvider().getDiscountFactor(bond.getCurrency(), bond.getSettlementTime());
+    double pv = presentValue(bond, curves).getAmount(bond.getCurrency());
+    double pvPriceNominal = pv - nominalAccruedInterest.getAmount(ccy);
+    return pvPriceNominal / df / notional / indexRatioAtSettlement;
   }
 
   /**
