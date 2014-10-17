@@ -34,6 +34,7 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
@@ -41,6 +42,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * End-to-end tests for inflation curve calibration and pricing of inflation zero-coupon swaps.
  */
+@Test(groups = TestGroup.UNIT)
 public class SwapZeroCouponInflationDiscountingUsdE2ETest {
 
   private static final ZonedDateTime CALIBRATION_DATE = DateUtils.getUTCDate(2014, 10, 9);

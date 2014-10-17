@@ -44,13 +44,14 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Issue
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.MultipleCurrencyInflationSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.ParameterSensitivityInflationParameterCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
+import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
-import com.opengamma.analytics.util.export.ExportUtils;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
@@ -58,6 +59,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * End-to-end tests for (inflation) capital indexed bonds.
  */
+@Test(groups = TestGroup.UNIT)
 public class BondCapitalIndexedDiscountingE2ETest {
 
   private static final ZonedDateTime CALIBRATION_DATE = DateUtils.getUTCDate(2014, 10, 9);
@@ -167,7 +169,7 @@ public class BondCapitalIndexedDiscountingE2ETest {
   
   @Test
   public void presentValueTips() {
-    double pvExpected = 531301.6270;
+    double pvExpected = 471980.9359;
     MultipleCurrencyAmount pv1 = TIPS_16_TRA.accept(PVInflIssuerC, INFL_ISSUER_GOVT);
     assertEquals("BondCapitalIndexedDiscountingE2E: present value TIPS", 
         pvExpected, pv1.getAmount(USD), TOLERANCE_PV);
@@ -175,7 +177,7 @@ public class BondCapitalIndexedDiscountingE2ETest {
   
   @Test
   public void presentValueTipsSeasonalityCurrent() {
-    double pvExpected = 490721.8173;
+    double pvExpected = 431401.1262;
     MultipleCurrencyAmount pv1 = TIPS_16_TRA.accept(PVInflIssuerC, INFL_ISSUER_GOVT_2);
     assertEquals("BondCapitalIndexedDiscountingE2E: present value TIPS", 
         pvExpected, pv1.getAmount(USD), TOLERANCE_PV);
@@ -198,7 +200,6 @@ public class BondCapitalIndexedDiscountingE2ETest {
     MultipleCurrencyParameterSensitivity pvpsExpected = new MultipleCurrencyParameterSensitivity(sensitivity);
     MultipleCurrencyParameterSensitivity pvpsComputed = 
         MQISBC.fromInstrument(TIPS_16_TRA, INFL_ISSUER_GOVT, INFL_ISSUER_GOVT_BLOCK).multipliedBy(BP1);
-    ExportUtils.exportMultipleCurrencyParameterSensitivity(pvpsComputed, "test_infl.csv");
     AssertSensitivityObjects.assertEquals("BondCapitalIndexedDiscountingE2E", 
         pvpsExpected, pvpsComputed, TOLERANCE_PV_DELTA);
   }
@@ -241,6 +242,21 @@ public class BondCapitalIndexedDiscountingE2ETest {
     double yieldRealExpected = -0.012391583129356336;
     double yieldReal = METHOD_CAPIND_BOND_SEC.yieldRealFromCurves(TIPS_16_TRA.getBondStandard(), INFL_ISSUER_GOVT_2);
     assertEquals("BondCapitalIndexedDiscountingE2E: real yield TIPS", yieldRealExpected, yieldReal, TOLERANCE_PRICE);
+  }
+  
+  @Test
+  public void consistencyPricePvTips() {
+    double cleanRealPrice = METHOD_CAPIND_BOND_SEC.cleanRealPriceFromCurves(TIPS_16_TRA.getBondStandard(), 
+        INFL_ISSUER_GOVT_2);
+    ZonedDateTime settleDateStandard = ScheduleCalculator.getAdjustedDate(CALIBRATION_DATE, 
+        TIPS_16_SEC_DEFINITION.getSettlementDays(), TIPS_16_SEC_DEFINITION.getCalendar());
+    BondCapitalIndexedTransactionDefinition<CouponInflationZeroCouponInterpolationGearingDefinition> 
+        tipsAtmDefinition = new BondCapitalIndexedTransactionDefinition<>(TIPS_16_SEC_DEFINITION, QUANTITY_TIPS_1, 
+            settleDateStandard, cleanRealPrice);
+    BondCapitalIndexedTransaction<?> tipsAtm = tipsAtmDefinition.toDerivative(CALIBRATION_DATE, HTS_CPI);
+    MultipleCurrencyAmount pv1 = tipsAtm.accept(PVInflIssuerC, INFL_ISSUER_GOVT_2);
+    assertEquals("BondCapitalIndexedDiscountingE2E: present value TIPS", 
+        0.0, pv1.getAmount(USD), TOLERANCE_PV);
   }
   
 }
