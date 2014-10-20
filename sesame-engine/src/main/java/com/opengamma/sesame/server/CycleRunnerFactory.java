@@ -53,7 +53,7 @@ public class CycleRunnerFactory {
   private final Duration _minimumTimeBetweenCycles;
 
   /**
-   * Set which version correction instant to be used when running a cycle.
+   * The strategy used to determine what the version correction time should be set to when running a cycle..
    */
   private CycleVersionCorrectionStrategy _versionCorrectionStrategy;
 

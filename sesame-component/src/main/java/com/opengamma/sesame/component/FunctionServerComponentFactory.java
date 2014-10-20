@@ -61,7 +61,7 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
   @PropertyDefinition(validate = "notNull")
   private boolean _publishRest = true;
   /**
-   * Set which version correction instant to be used when running a cycle.
+   * The strategy used to determine what the version correction time should be set to when running a cycle.
    */
   @PropertyDefinition
   private CycleVersionCorrectionStrategy _versionCorrectionStrategy = CycleVersionCorrectionStrategy.SERVER_START;
