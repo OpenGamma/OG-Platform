@@ -93,7 +93,7 @@ public class SwapZeroCouponInflationDiscountingUsdE2ETest {
   private static final double RATE_FIXED_1 = 0.0200;
   private static final SwapFixedInflationZeroCouponDefinition ZCI_1_DEFINITION = 
       GENERATOR_ZCINFLATION_US.generateInstrument(ACCRUAL_START_DATE_1, RATE_FIXED_1, NOTIONAL, ZCI_1_ATTR);
-  private static final InstrumentDerivative ZCI_1 = ZCI_1_DEFINITION.toDerivative(ACCRUAL_START_DATE_1, 
+  private static final InstrumentDerivative ZCI_1 = ZCI_1_DEFINITION.toDerivative(CALIBRATION_DATE, 
       new ZonedDateTimeDoubleTimeSeries[] {HTS_CPI, HTS_CPI});
   
   /** Zero-coupon Inflation US (linear interpolation of Price Index). 5Y aged. */
@@ -102,8 +102,8 @@ public class SwapZeroCouponInflationDiscountingUsdE2ETest {
   private static final double RATE_FIXED_2 = 0.0100;
   private static final SwapFixedInflationZeroCouponDefinition ZCI_2_DEFINITION = 
       GENERATOR_ZCINFLATION_US.generateInstrument(ACCRUAL_START_DATE_2, RATE_FIXED_2, NOTIONAL, ZCI_2_ATTR);
-  private static final InstrumentDerivative ZCI_2 = ZCI_2_DEFINITION.toDerivative(ACCRUAL_START_DATE_2, 
-      new ZonedDateTimeDoubleTimeSeries[] {HTS_CPI, HTS_CPI}); // TODO: empty hts
+  private static final InstrumentDerivative ZCI_2 = ZCI_2_DEFINITION.toDerivative(CALIBRATION_DATE, 
+      new ZonedDateTimeDoubleTimeSeries[] {HTS_CPI, HTS_CPI});
   
   private static final double TOLERANCE_PV = 1.0E-3;
   private static final double TOLERANCE_PV_DELTA = 1.0E-1;
@@ -125,7 +125,7 @@ public class SwapZeroCouponInflationDiscountingUsdE2ETest {
   
   @Test
   public void presentValueAged() {
-    double pvExpectd = 697518.0714;
+    double pvExpectd = 557423.3817;
     MultipleCurrencyAmount pv1 = ZCI_2.accept(PVDIC, MULTICURVE_INFL_1);
     assertEquals("SwapZeroCouponInflationUsdDiscountingE2ETest: present value", 
         pvExpectd, pv1.getAmount(USD), TOLERANCE_PV);
@@ -139,7 +139,7 @@ public class SwapZeroCouponInflationDiscountingUsdE2ETest {
   
   @Test
   public void presentValueAgedSeasonality() {
-    double pvExpectd = 697821.1632;
+    double pvExpectd = 515419.8416;
     MultipleCurrencyAmount pv1 = ZCI_2.accept(PVDIC, MULTICURVE_INFL_4);
     assertEquals("SwapZeroCouponInflationUsdDiscountingE2ETest: present value", 
         pvExpectd, pv1.getAmount(USD), TOLERANCE_PV);
@@ -147,7 +147,7 @@ public class SwapZeroCouponInflationDiscountingUsdE2ETest {
   
   @Test
   public void presentValueAgedStart() {
-    double pvExpectd = 697518.0690;
+    double pvExpectd = 557421.1232;
     MultipleCurrencyAmount pv1 = ZCI_2.accept(PVDIC, MULTICURVE_INFL_5);
     assertEquals("SwapZeroCouponInflationUsdDiscountingE2ETest: present value", 
         pvExpectd, pv1.getAmount(USD), TOLERANCE_PV);

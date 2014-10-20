@@ -19,12 +19,13 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.Interest
 import com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureSecurityDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.interestrate.swap.provider.SwapFixedCouponDiscountingMethod;
-import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 
 /**
  * Calculate the market quote of instruments in models using a multi-curve provider.
  */
-public final class MarketQuoteDiscountingCalculator extends InstrumentDerivativeVisitorAdapter<MulticurveProviderInterface, Double> {
+public final class MarketQuoteDiscountingCalculator 
+  extends InstrumentDerivativeVisitorAdapter<ParameterProviderInterface, Double> {
 
   /**
    * The unique instance of the calculator.
@@ -57,20 +58,20 @@ public final class MarketQuoteDiscountingCalculator extends InstrumentDerivative
   //     -----     Deposit     ------
 
   @Override
-  public Double visitCash(final Cash deposit, final MulticurveProviderInterface multicurves) {
-    return METHOD_DEPO.parRate(deposit, multicurves);
+  public Double visitCash(final Cash deposit, final ParameterProviderInterface multicurves) {
+    return METHOD_DEPO.parRate(deposit, multicurves.getMulticurveProvider());
   }
 
   @Override
-  public Double visitDepositIbor(final DepositIbor deposit, final MulticurveProviderInterface multicurves) {
-    return METHOD_IBOR.parRate(deposit, multicurves);
+  public Double visitDepositIbor(final DepositIbor deposit, final ParameterProviderInterface multicurves) {
+    return METHOD_IBOR.parRate(deposit, multicurves.getMulticurveProvider());
   }
 
   //     -----     Payment/Coupon     ------
 
   @Override
-  public Double visitForwardRateAgreement(final ForwardRateAgreement fra, final MulticurveProviderInterface multicurves) {
-    return METHOD_FRA.parRate(fra, multicurves);
+  public Double visitForwardRateAgreement(final ForwardRateAgreement fra, final ParameterProviderInterface multicurves) {
+    return METHOD_FRA.parRate(fra, multicurves.getMulticurveProvider());
   }
 
   /**
@@ -80,11 +81,11 @@ public final class MarketQuoteDiscountingCalculator extends InstrumentDerivative
    * @return The par swap rate. If the fixed leg has been set up with some fixed payments these are ignored for the purposes of finding the swap rate
    */
   @Override
-  public Double visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final MulticurveProviderInterface multicurves) {
+  public Double visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final ParameterProviderInterface multicurves) {
     //TODO: check currency
     final double pvSecond = swap.getSecondLeg().accept(PVC, multicurves).getAmount(swap.getSecondLeg().getCurrency()) 
         * Math.signum(swap.getSecondLeg().getNthPayment(0).getNotional());
-    final double pvbp = METHOD_SWAP.presentValueBasisPoint(swap, multicurves);
+    final double pvbp = METHOD_SWAP.presentValueBasisPoint(swap, multicurves.getMulticurveProvider());
     return pvSecond / pvbp;
   }
   
@@ -93,12 +94,12 @@ public final class MarketQuoteDiscountingCalculator extends InstrumentDerivative
   //     -----     Futures     -----
 
   @Override
-  public Double visitInterestRateFutureSecurity(final InterestRateFutureSecurity futures, final MulticurveProviderInterface multicurves) {
+  public Double visitInterestRateFutureSecurity(final InterestRateFutureSecurity futures, final ParameterProviderInterface multicurves) {
     return METHOD_IR_FUT.price(futures, multicurves);
   }
 
   @Override
-  public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction futures, final MulticurveProviderInterface multicurves) {
+  public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction futures, final ParameterProviderInterface multicurves) {
     return METHOD_IR_FUT.price(futures.getUnderlyingSecurity(), multicurves);
   }
 
@@ -111,8 +112,8 @@ public final class MarketQuoteDiscountingCalculator extends InstrumentDerivative
    * @return The forward forex rate.
    */
   @Override
-  public Double visitForex(final Forex forex, final MulticurveProviderInterface multicurves) {
-    return METHOD_FOREX.forwardForexRate(forex, multicurves);
+  public Double visitForex(final Forex forex, final ParameterProviderInterface multicurves) {
+    return METHOD_FOREX.forwardForexRate(forex, multicurves.getMulticurveProvider());
   }
 
 }
