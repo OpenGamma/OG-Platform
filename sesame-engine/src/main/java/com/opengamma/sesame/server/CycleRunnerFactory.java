@@ -63,7 +63,8 @@ public class CycleRunnerFactory {
    * @param viewFactory factory used to create the views which will be executed, not null
    * @param marketDataFactory  used to handle the market data requirements
    * @param minimumTimeBetweenCycles minimum time period between cycles, not null
-   * @param versionCorrectionStrategy version correction strategy, not null
+   * @param versionCorrectionStrategy strategy used to determine what the version correction time should be set to
+   * when running a cycle, not null
    */
   public CycleRunnerFactory(ViewFactory viewFactory,
                             MarketDataFactory marketDataFactory,
