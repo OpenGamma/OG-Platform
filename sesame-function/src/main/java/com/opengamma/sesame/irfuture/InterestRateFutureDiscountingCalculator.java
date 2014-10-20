@@ -20,6 +20,7 @@ import com.opengamma.analytics.financial.provider.calculator.discounting.ParRate
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
@@ -55,7 +56,7 @@ public class InterestRateFutureDiscountingCalculator implements InterestRateFutu
   /**
    * Calculator for PV01
    */
-  private static final PV01CurveParametersCalculator<MulticurveProviderInterface> PV01C =
+  private static final PV01CurveParametersCalculator<ParameterProviderInterface> PV01C =
       new PV01CurveParametersCalculator<>(PresentValueCurveSensitivityDiscountingCalculator.getInstance());
       
   private static final MarginPriceVisitor MPV = MarginPriceVisitor.getInstance();
@@ -65,13 +66,13 @@ public class InterestRateFutureDiscountingCalculator implements InterestRateFutu
   /** 
    * The present value curve sensitivity discounting calculator 
    */
-  private static final InstrumentDerivativeVisitor<MulticurveProviderInterface, MultipleCurrencyMulticurveSensitivity> PVCSDC =
+  private static final InstrumentDerivativeVisitor<ParameterProviderInterface, MultipleCurrencyMulticurveSensitivity> PVCSDC =
       PresentValueCurveSensitivityDiscountingCalculator.getInstance();
   
   /** 
    * The parameter sensitivity calculator 
    * */
-  private static final ParameterSensitivityParameterCalculator<MulticurveProviderInterface> PSC =
+  private static final ParameterSensitivityParameterCalculator<ParameterProviderInterface> PSC =
       new ParameterSensitivityParameterCalculator<>(PVCSDC);
 
   /**
@@ -153,12 +154,12 @@ public class InterestRateFutureDiscountingCalculator implements InterestRateFutu
     return Result.success(bucketedSensitivities);
   }
 
-  private <T> T calculateResult(InstrumentDerivativeVisitorAdapter<MulticurveProviderInterface, T> calculator) {
+  private <T> T calculateResult(InstrumentDerivativeVisitorAdapter<ParameterProviderInterface, T> calculator) {
     return _derivative.accept(calculator, _bundle);
   }
 
   private ReferenceAmount<Pair<String, Currency>> 
-  calculateResult(InstrumentDerivativeVisitor<MulticurveProviderInterface, 
+  calculateResult(InstrumentDerivativeVisitor<ParameterProviderInterface, 
                   ReferenceAmount<Pair<String, Currency>>> calculator) {
     return _derivative.accept(calculator, _bundle);
   }

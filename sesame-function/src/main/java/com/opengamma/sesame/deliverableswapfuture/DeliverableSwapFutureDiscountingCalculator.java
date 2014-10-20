@@ -16,6 +16,7 @@ import com.opengamma.analytics.financial.interestrate.future.calculator.FuturesP
 import com.opengamma.analytics.financial.provider.calculator.discounting.PV01CurveParametersCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
@@ -45,19 +46,19 @@ public class DeliverableSwapFutureDiscountingCalculator implements DeliverableSw
   /**
    * Calculator for the PV01.
    */  
-  private static final PV01CurveParametersCalculator<MulticurveProviderInterface> PV01C =
+  private static final PV01CurveParametersCalculator<ParameterProviderInterface> PV01C =
       new PV01CurveParametersCalculator<>(PresentValueCurveSensitivityDiscountingCalculator.getInstance());
   
   /** 
    * The curve sensitivity calculator 
    */
-  private static final InstrumentDerivativeVisitor<MulticurveProviderInterface, MultipleCurrencyMulticurveSensitivity> 
+  private static final InstrumentDerivativeVisitor<ParameterProviderInterface, MultipleCurrencyMulticurveSensitivity> 
   PVCSDC = PresentValueCurveSensitivityDiscountingCalculator.getInstance();
   
   /** 
    * The parameter sensitivity calculator 
    */
-  private static final ParameterSensitivityParameterCalculator<MulticurveProviderInterface> PSC =
+  private static final ParameterSensitivityParameterCalculator<ParameterProviderInterface> PSC =
       new ParameterSensitivityParameterCalculator<>(PVCSDC);
             
   /**

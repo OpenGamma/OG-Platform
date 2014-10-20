@@ -16,6 +16,7 @@ import com.opengamma.analytics.financial.provider.calculator.generic.MarketQuote
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
@@ -37,17 +38,17 @@ public class FXForwardCalculator {
   private static final HistoricalTimeSeriesBundle EMPTY_TIME_SERIES_BUNDLE = new HistoricalTimeSeriesBundle();
 
   /** The curve sensitivity calculator */
-  private static final InstrumentDerivativeVisitor<MulticurveProviderInterface, MultipleCurrencyMulticurveSensitivity> PVCSDC =
+  private static final InstrumentDerivativeVisitor<ParameterProviderInterface, MultipleCurrencyMulticurveSensitivity> PVCSDC =
       PresentValueCurveSensitivityDiscountingCalculator.getInstance();
   /** The parameter sensitivity calculator */
-  private static final ParameterSensitivityParameterCalculator<MulticurveProviderInterface> PSC =
+  private static final ParameterSensitivityParameterCalculator<ParameterProviderInterface> PSC =
       new ParameterSensitivityParameterCalculator<>(PVCSDC);
   /** The market quote sensitivity calculator */
-  private static final MarketQuoteSensitivityBlockCalculator<MulticurveProviderInterface> SENSITIVITY_CALCULATOR =
+  private static final MarketQuoteSensitivityBlockCalculator<ParameterProviderInterface> SENSITIVITY_CALCULATOR =
       new MarketQuoteSensitivityBlockCalculator<>(PSC);
 
   /** The analytics present value calculator */
-  private static final InstrumentDerivativeVisitor<MulticurveProviderInterface, MultipleCurrencyAmount> PV_CALCULATOR =
+  private static final InstrumentDerivativeVisitor<ParameterProviderInterface, MultipleCurrencyAmount> PV_CALCULATOR =
       PresentValueDiscountingCalculator.getInstance();
 
   private final FXForwardSecurity _security;
