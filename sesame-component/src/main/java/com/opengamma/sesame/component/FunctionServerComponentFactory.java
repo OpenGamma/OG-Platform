@@ -220,7 +220,7 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets set which version correction instant to be used when running a cycle.
+   * Gets the strategy used to determine what the version correction time should be set to when running a cycle.
    * @return the value of the property
    */
   public CycleVersionCorrectionStrategy getVersionCorrectionStrategy() {
@@ -228,7 +228,7 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
   }
 
   /**
-   * Sets set which version correction instant to be used when running a cycle.
+   * Sets the strategy used to determine what the version correction time should be set to when running a cycle.
    * @param versionCorrectionStrategy  the new value of the property
    */
   public void setVersionCorrectionStrategy(CycleVersionCorrectionStrategy versionCorrectionStrategy) {
