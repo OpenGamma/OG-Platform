@@ -8,7 +8,7 @@ package com.opengamma.sesame.marketdata;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 
 /**
- * Place holder market data specification used in cases when no market data is specification is needed
+ * Placeholder market data specification used in cases when no market data is specification is needed
  */
 public final class EmptyMarketDataSpec implements MarketDataSpecification {
 

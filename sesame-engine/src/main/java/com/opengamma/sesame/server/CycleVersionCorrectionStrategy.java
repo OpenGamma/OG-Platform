@@ -7,9 +7,9 @@ package com.opengamma.sesame.server;
 
 /**
  * Enables the FunctionServerComponentFactory to provide which version correction instant is to be
- * used in the CycleRunner. Cycle start is necessary for in-memory masters
+ * used in the CycleRunner. Using cycle start mean that caching will not be as effective
  */
-public enum CycleVersionCorrectionInstant {
+public enum CycleVersionCorrectionStrategy {
   /**
    * Version correction is set to the server start time
    */
@@ -17,5 +17,5 @@ public enum CycleVersionCorrectionInstant {
   /**
    * Version correction is set to cycle start type when a cycle runs
    */
-  CYCLE_START,
+  CYCLE_START
 }

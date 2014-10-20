@@ -55,7 +55,7 @@ public class CycleRunnerFactory {
   /**
    * Set which version correction instant to be used when running a cycle.
    */
-  private CycleVersionCorrectionInstant _versionCorrectionInstant;
+  private CycleVersionCorrectionStrategy _versionCorrectionStrategy;
 
   /**
    * Creates the factory.
@@ -63,16 +63,16 @@ public class CycleRunnerFactory {
    * @param viewFactory factory used to create the views which will be executed, not null
    * @param marketDataFactory  used to handle the market data requirements
    * @param minimumTimeBetweenCycles minimum time period between cycles, not null
-   * @param versionCorrectionInstant version correction instant, not null
+   * @param versionCorrectionStrategy version correction instant, not null
    */
   public CycleRunnerFactory(ViewFactory viewFactory,
                             MarketDataFactory marketDataFactory,
                             Duration minimumTimeBetweenCycles,
-                            CycleVersionCorrectionInstant versionCorrectionInstant) {
+                            CycleVersionCorrectionStrategy versionCorrectionStrategy) {
     _viewFactory = ArgumentChecker.notNull(viewFactory, "viewFactory");
     _marketDataFactory = ArgumentChecker.notNull(marketDataFactory, "marketDataFactory");
     _minimumTimeBetweenCycles = ArgumentChecker.notNull(minimumTimeBetweenCycles, "minimumTimeBetweenCycles");
-    _versionCorrectionInstant = ArgumentChecker.notNull(versionCorrectionInstant, "versionCorrectionInstant");
+    _versionCorrectionStrategy = ArgumentChecker.notNull(versionCorrectionStrategy, "versionCorrectionStrategy");
   }
 
   /**
@@ -133,7 +133,7 @@ public class CycleRunnerFactory {
 
   private View createView(FunctionServerRequest<?> request) {
 
-    if (_versionCorrectionInstant == CycleVersionCorrectionInstant.CYCLE_START) {
+    if (_versionCorrectionStrategy == CycleVersionCorrectionStrategy.CYCLE_START) {
       ThreadLocalServiceContext.init(ThreadLocalServiceContext.getInstance().with(
           VersionCorrectionProvider.class, new FixedInstantVersionCorrectionProvider(Instant.now())));
     }
