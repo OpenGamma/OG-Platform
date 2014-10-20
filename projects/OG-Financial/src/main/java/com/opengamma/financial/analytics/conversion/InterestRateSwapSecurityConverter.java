@@ -636,4 +636,27 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
     }
     return rollDateAdjuster;
   }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    InterestRateSwapSecurityConverter that = (InterestRateSwapSecurityConverter) o;
+
+    if (!_holidaySource.equals(that._holidaySource)) {
+      return false;
+    }
+
+    return true;
+  }
+
+  @Override
+  public int hashCode() {
+    return _holidaySource.hashCode();
+  }
 }

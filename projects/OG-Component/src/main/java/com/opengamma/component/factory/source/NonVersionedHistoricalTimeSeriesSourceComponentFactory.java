@@ -20,11 +20,14 @@ import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.historicaltimeseries.impl.DataHistoricalTimeSeriesSourceResource;
+import com.opengamma.core.historicaltimeseries.impl.EHCachingHistoricalTimeSeriesSource;
 import com.opengamma.core.historicaltimeseries.impl.NonVersionedRedisHistoricalTimeSeriesSource;
 import com.opengamma.core.historicaltimeseries.impl.RemoteHistoricalTimeSeriesSource;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.master.historicaltimeseries.impl.DataHistoricalTimeSeriesResolverResource;
 import com.opengamma.master.historicaltimeseries.impl.RedisSimulationSeriesResolver;
+
+import net.sf.ehcache.CacheManager;
 
 /**
  * 
@@ -35,13 +38,14 @@ public class NonVersionedHistoricalTimeSeriesSourceComponentFactory extends Abst
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
     NonVersionedRedisHistoricalTimeSeriesSource source = new NonVersionedRedisHistoricalTimeSeriesSource(getRedisConnector().getJedisPool(), getRedisPrefix());
-    
+    HistoricalTimeSeriesSource cachedSource = new EHCachingHistoricalTimeSeriesSource(source, CacheManager.create());
+
     ComponentInfo info = new ComponentInfo(HistoricalTimeSeriesSource.class, getClassifier());
     info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
     info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteHistoricalTimeSeriesSource.class);
-    repo.registerComponent(info, source);
+    repo.registerComponent(info, cachedSource);
     if (isPublishRest()) {
-      repo.getRestComponents().publish(info, new DataHistoricalTimeSeriesSourceResource(source));
+      repo.getRestComponents().publish(info, new DataHistoricalTimeSeriesSourceResource(cachedSource));
     }
 
     info = new ComponentInfo(NonVersionedRedisHistoricalTimeSeriesSource.class, getClassifier());
