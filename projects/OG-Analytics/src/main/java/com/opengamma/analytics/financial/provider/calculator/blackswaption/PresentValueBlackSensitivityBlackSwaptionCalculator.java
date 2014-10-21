@@ -6,7 +6,7 @@
 package com.opengamma.analytics.financial.provider.calculator.blackswaption;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
-import com.opengamma.analytics.financial.interestrate.sensitivity.PresentValueBlackSwaptionSensitivity;
+import com.opengamma.analytics.financial.interestrate.sensitivity.PresentValueSwaptionSurfaceSensitivity;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.analytics.financial.interestrate.swaption.provider.SwaptionCashFixedIborBlackMethod;
@@ -16,7 +16,7 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Black
 /**
  * Calculator of the present value as a multiple currency amount.
  */
-public final class PresentValueBlackSensitivityBlackSwaptionCalculator extends InstrumentDerivativeVisitorAdapter<BlackSwaptionFlatProviderInterface, PresentValueBlackSwaptionSensitivity> {
+public final class PresentValueBlackSensitivityBlackSwaptionCalculator extends InstrumentDerivativeVisitorAdapter<BlackSwaptionFlatProviderInterface, PresentValueSwaptionSurfaceSensitivity> {
 
   /**
    * The unique instance of the calculator.
@@ -43,12 +43,12 @@ public final class PresentValueBlackSensitivityBlackSwaptionCalculator extends I
   private static final SwaptionCashFixedIborBlackMethod METHOD_SWT_CASH = SwaptionCashFixedIborBlackMethod.getInstance();
 
   @Override
-  public PresentValueBlackSwaptionSensitivity visitSwaptionPhysicalFixedIbor(final SwaptionPhysicalFixedIbor swaption, final BlackSwaptionFlatProviderInterface black) {
+  public PresentValueSwaptionSurfaceSensitivity visitSwaptionPhysicalFixedIbor(final SwaptionPhysicalFixedIbor swaption, final BlackSwaptionFlatProviderInterface black) {
     return METHOD_SWT_PHYS.presentValueBlackSensitivity(swaption, black);
   }
 
   @Override
-  public PresentValueBlackSwaptionSensitivity visitSwaptionCashFixedIbor(final SwaptionCashFixedIbor swaption, final BlackSwaptionFlatProviderInterface black) {
+  public PresentValueSwaptionSurfaceSensitivity visitSwaptionCashFixedIbor(final SwaptionCashFixedIbor swaption, final BlackSwaptionFlatProviderInterface black) {
     return METHOD_SWT_CASH.presentValueBlackSensitivity(swaption, black);
   }
 }

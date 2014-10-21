@@ -22,7 +22,7 @@ import com.opengamma.analytics.financial.interestrate.TestsDataSetsBlack;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedAccruedCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONCompounded;
-import com.opengamma.analytics.financial.interestrate.sensitivity.PresentValueBlackSwaptionSensitivity;
+import com.opengamma.analytics.financial.interestrate.sensitivity.PresentValueSwaptionSurfaceSensitivity;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.method.SwapFixedCompoundingONCompoundingDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedCompoundedONCompounded;
@@ -134,7 +134,7 @@ public class SwaptionPhysicalFixedCompoundedONCompoundedBlackMethodTest {
   @Test
   public void presentValueBlackSensitivity() {
     final double shift = 1.0E-6;
-    final PresentValueBlackSwaptionSensitivity pvbvs = METHOD_BLACK.presentValueBlackSensitivity(SWAPTION_LONG_REC, CURVES_BLACK);
+    final PresentValueSwaptionSurfaceSensitivity pvbvs = METHOD_BLACK.presentValueBlackSensitivity(SWAPTION_LONG_REC, CURVES_BLACK);
     final BlackFlatSwaptionParameters BlackP = TestsDataSetsBlack.createBlackSwaptionBRLShift(shift);
     final YieldCurveWithBlackSwaptionBundle curvesBlackP = new YieldCurveWithBlackSwaptionBundle(BlackP, CURVES);
     final CurrencyAmount pvP = METHOD_BLACK.presentValue(SWAPTION_LONG_REC, curvesBlackP);
@@ -147,8 +147,8 @@ public class SwaptionPhysicalFixedCompoundedONCompoundedBlackMethodTest {
 
   @Test
   public void presentValueBlackSensitivityMethodVsCalculator() {
-    final PresentValueBlackSwaptionSensitivity pvbsMethod = METHOD_BLACK.presentValueBlackSensitivity(SWAPTION_LONG_REC, CURVES_BLACK);
-    final PresentValueBlackSwaptionSensitivity pvbsCalculator = SWAPTION_LONG_REC.accept(PVBSBC, CURVES_BLACK);
+    final PresentValueSwaptionSurfaceSensitivity pvbsMethod = METHOD_BLACK.presentValueBlackSensitivity(SWAPTION_LONG_REC, CURVES_BLACK);
+    final PresentValueSwaptionSurfaceSensitivity pvbsCalculator = SWAPTION_LONG_REC.accept(PVBSBC, CURVES_BLACK);
     assertEquals("SwaptionPhysicalFixedCompoundedONCompoundedBlackMethod: presentValueBlackSensitivity", pvbsMethod, pvbsCalculator);
 
   }

@@ -18,14 +18,15 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * Class describing the present value Black volatility sensitivity.
  */
-public class PresentValueBlackSwaptionSensitivity {
+public class PresentValueSwaptionSurfaceSensitivity {
 
   /**
-   * The object containing the volatility sensitivity. Not null.
+   * The object containing the volatility sensitivity. The sensitivity is in the currency of the swap generator. Not null.
    */
   private final SurfaceValue _sensitivity;
   /**
-   * The standard swap generator (in particular fixed leg convention and floating leg tenor) for which the volatility surface is valid. Not null.
+   * The standard swap generator (in particular fixed leg convention and floating leg tenor) for which the 
+   * volatility surface is valid. Not null.
    */
   private final GeneratorInstrument<GeneratorAttributeIR> _generatorSwap;
 
@@ -33,7 +34,7 @@ public class PresentValueBlackSwaptionSensitivity {
    * Constructor with empty sensitivity.
    * @param generatorSwap The standard swap generator for which the volatility surface is valid.
    */
-  public PresentValueBlackSwaptionSensitivity(final GeneratorInstrument<GeneratorAttributeIR> generatorSwap) {
+  public PresentValueSwaptionSurfaceSensitivity(final GeneratorInstrument<GeneratorAttributeIR> generatorSwap) {
     ArgumentChecker.notNull(generatorSwap, "Swap generator");
     _sensitivity = new SurfaceValue();
     _generatorSwap = generatorSwap;
@@ -44,7 +45,8 @@ public class PresentValueBlackSwaptionSensitivity {
    * @param sensitivity The volatility sensitivity as a map.
    * @param generatorSwap The standard swap generator for which the volatility surface is valid.
    */
-  public PresentValueBlackSwaptionSensitivity(final Map<DoublesPair, Double> sensitivity, final GeneratorInstrument<GeneratorAttributeIR> generatorSwap) {
+  public PresentValueSwaptionSurfaceSensitivity(final Map<DoublesPair, Double> sensitivity, 
+      final GeneratorInstrument<GeneratorAttributeIR> generatorSwap) {
     ArgumentChecker.notNull(sensitivity, "Sensitivity");
     ArgumentChecker.notNull(generatorSwap, "Swap generator");
     _sensitivity = SurfaceValue.from(sensitivity);
@@ -56,7 +58,8 @@ public class PresentValueBlackSwaptionSensitivity {
    * @param sensitivity The volatility sensitivity as a SurfaceValue.
    * @param generatorSwap The standard swap generator for which the volatility surface is valid.
    */
-  public PresentValueBlackSwaptionSensitivity(final SurfaceValue sensitivity, final GeneratorInstrument<GeneratorAttributeIR> generatorSwap) {
+  public PresentValueSwaptionSurfaceSensitivity(final SurfaceValue sensitivity, 
+      final GeneratorInstrument<GeneratorAttributeIR> generatorSwap) {
     ArgumentChecker.notNull(sensitivity, "Sensitivity");
     ArgumentChecker.notNull(generatorSwap, "Swap generator");
     _sensitivity = sensitivity;
@@ -79,8 +82,9 @@ public class PresentValueBlackSwaptionSensitivity {
    * @param factor The multiplicative factor.
    * @return The multiplied sensitivity.
    */
-  public static PresentValueBlackSwaptionSensitivity multiplyBy(final PresentValueBlackSwaptionSensitivity sensi, final double factor) {
-    return new PresentValueBlackSwaptionSensitivity(SurfaceValue.multiplyBy(sensi._sensitivity, factor), sensi._generatorSwap);
+  public static PresentValueSwaptionSurfaceSensitivity multiplyBy(final PresentValueSwaptionSurfaceSensitivity sensi, 
+      final double factor) {
+    return new PresentValueSwaptionSurfaceSensitivity(SurfaceValue.multiplyBy(sensi._sensitivity, factor), sensi._generatorSwap);
   }
 
   /**
@@ -89,9 +93,10 @@ public class PresentValueBlackSwaptionSensitivity {
    * @param sensi2 The second Black sensitivity.
    * @return The sum sensitivity.
    */
-  public static PresentValueBlackSwaptionSensitivity plus(final PresentValueBlackSwaptionSensitivity sensi1, final PresentValueBlackSwaptionSensitivity sensi2) {
+  public static PresentValueSwaptionSurfaceSensitivity plus(final PresentValueSwaptionSurfaceSensitivity sensi1, 
+      final PresentValueSwaptionSurfaceSensitivity sensi2) {
     ArgumentChecker.isTrue(sensi1._generatorSwap.equals(sensi2._generatorSwap), "Swap generators should be equal to add sensitivities");
-    return new PresentValueBlackSwaptionSensitivity(SurfaceValue.plus(sensi1._sensitivity, sensi2._sensitivity), sensi1._generatorSwap);
+    return new PresentValueSwaptionSurfaceSensitivity(SurfaceValue.plus(sensi1._sensitivity, sensi2._sensitivity), sensi1._generatorSwap);
   }
 
   /**
@@ -130,7 +135,7 @@ public class PresentValueBlackSwaptionSensitivity {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final PresentValueBlackSwaptionSensitivity other = (PresentValueBlackSwaptionSensitivity) obj;
+    final PresentValueSwaptionSurfaceSensitivity other = (PresentValueSwaptionSurfaceSensitivity) obj;
     if (!ObjectUtils.equals(_generatorSwap, other._generatorSwap)) {
       return false;
     }

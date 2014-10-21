@@ -48,8 +48,25 @@ public class NormalDataSets {
   private static final InterpolatedDoublesSurface NORMAL_SURFACE_SWAPTION_EXP_TENOR = 
       InterpolatedDoublesSurface.from(EXPIRATIONS_2, SWAPTION_TENOR_2, VOLATILITIES_2, INTERPOLATOR_2D);
 
+  /**
+   * Returns a simple expiration/tenor normal volatility surface.
+   * @return Volatility surface.
+   */
   public static InterpolatedDoublesSurface normalSurfaceSwaptionExpiryTenor() {
     return NORMAL_SURFACE_SWAPTION_EXP_TENOR;
   }
+  
+  /**
+   * Returns the simple expiration/tenor normal volatility surface shifted by the given amount.
+   * @return Volatility surface.
+   */
+  public static InterpolatedDoublesSurface normalSurfaceSwaptionExpiryTenor(double shift) {
+    double[] volShifted = VOLATILITIES_2.clone();
+    for(int loopvol = 0; loopvol<volShifted.length; loopvol++) {
+      volShifted[loopvol] += shift;
+    }
+    return InterpolatedDoublesSurface.from(EXPIRATIONS_2, SWAPTION_TENOR_2, volShifted, INTERPOLATOR_2D);
+  }
+  
   
 }

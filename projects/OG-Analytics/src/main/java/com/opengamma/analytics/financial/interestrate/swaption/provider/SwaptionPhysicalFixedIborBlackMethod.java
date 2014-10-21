@@ -13,7 +13,7 @@ import com.opengamma.analytics.financial.instrument.index.GeneratorInstrument;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedCompoundedONCompounded;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedON;
-import com.opengamma.analytics.financial.interestrate.sensitivity.PresentValueBlackSwaptionSensitivity;
+import com.opengamma.analytics.financial.interestrate.sensitivity.PresentValueSwaptionSurfaceSensitivity;
 import com.opengamma.analytics.financial.interestrate.swap.provider.SwapFixedCouponDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
@@ -236,7 +236,7 @@ public final class SwaptionPhysicalFixedIborBlackMethod {
    * @param blackMulticurves Black volatility for swaption and multi-curves provider.
    * @return The present value Black sensitivity.
    */
-  public PresentValueBlackSwaptionSensitivity presentValueBlackSensitivity(final SwaptionPhysicalFixedIbor swaption, final BlackSwaptionFlatProviderInterface blackMulticurves) {
+  public PresentValueSwaptionSurfaceSensitivity presentValueBlackSensitivity(final SwaptionPhysicalFixedIbor swaption, final BlackSwaptionFlatProviderInterface blackMulticurves) {
     ArgumentChecker.notNull(swaption, "Swaption");
     ArgumentChecker.notNull(blackMulticurves, "Black volatility for swaption and multicurve");
     final GeneratorInstrument<GeneratorAttributeIR> generatorSwap = blackMulticurves.getBlackParameters().getGeneratorSwap();
@@ -271,7 +271,7 @@ public final class SwaptionPhysicalFixedIborBlackMethod {
     final double[] bsAdjoint = blackFunction.getPriceAdjoint(option, dataBlack);
     final Map<DoublesPair, Double> sensitivity = new HashMap<>();
     sensitivity.put(point, bsAdjoint[2] * pvbpModified * (swaption.isLong() ? 1.0 : -1.0));
-    return new PresentValueBlackSwaptionSensitivity(sensitivity, blackMulticurves.getBlackParameters().getGeneratorSwap());
+    return new PresentValueSwaptionSurfaceSensitivity(sensitivity, blackMulticurves.getBlackParameters().getGeneratorSwap());
   }
 
 }

@@ -8,7 +8,7 @@ package com.opengamma.analytics.financial.interestrate;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.opengamma.analytics.financial.interestrate.sensitivity.PresentValueBlackSwaptionSensitivity;
+import com.opengamma.analytics.financial.interestrate.sensitivity.PresentValueSwaptionSurfaceSensitivity;
 import com.opengamma.analytics.financial.model.option.parameters.BlackFlatSwaptionParameters;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
@@ -27,7 +27,7 @@ public class BlackSwaptionSensitivityNodeCalculator {
    * @param parameters The surface parameters. The underlying volatility surface should be of type InterpolatedDoublesSurface.
    * @return The sensitivity to the nodes.
    */
-  public PresentValueBlackSwaptionSensitivity calculateNodeSensitivities(final PresentValueBlackSwaptionSensitivity sensitivities, final BlackFlatSwaptionParameters parameters) {
+  public PresentValueSwaptionSurfaceSensitivity calculateNodeSensitivities(final PresentValueSwaptionSurfaceSensitivity sensitivities, final BlackFlatSwaptionParameters parameters) {
     ArgumentChecker.notNull(sensitivities, "Black swaption sensitivities");
     ArgumentChecker.notNull(parameters, "Black swaption parameters");
     ArgumentChecker.isTrue(parameters.getGeneratorSwap().equals(sensitivities.getGeneratorSwap()), "Sensitivities and parameters should refer to the same swap generator");
@@ -39,7 +39,7 @@ public class BlackSwaptionSensitivityNodeCalculator {
       final Map<DoublesPair, Double> weight = interpolatedSurface.getInterpolator().getNodeSensitivitiesForValue(volatilityData, entry.getKey());
       volatilityNode = SurfaceValue.plus(volatilityNode, SurfaceValue.multiplyBy(SurfaceValue.from(weight), entry.getValue()));
     }
-    return new PresentValueBlackSwaptionSensitivity(volatilityNode, parameters.getGeneratorSwap());
+    return new PresentValueSwaptionSurfaceSensitivity(volatilityNode, parameters.getGeneratorSwap());
   }
 
 }
