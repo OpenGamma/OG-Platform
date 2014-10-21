@@ -16,7 +16,7 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.ChangeType;
-import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
+import com.opengamma.core.marketdatasnapshot.NamedSnapshot;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdSupplier;
 import com.opengamma.id.ObjectIdentifiable;
@@ -139,12 +139,10 @@ public class InMemorySnapshotMaster
   @Override
   public MarketDataSnapshotDocument add(final MarketDataSnapshotDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getSnapshot(), "document.snapshot");
 
     final ObjectId objectId = _objectIdSupplier.get();
     final UniqueId uniqueId = objectId.atVersion("");
-    final ManageableMarketDataSnapshot snapshot = document.getSnapshot();
-    snapshot.setUniqueId(uniqueId);
+    final NamedSnapshot snapshot = document.getNamedSnapshot().withUniqueId(uniqueId);
     final Instant now = Instant.now();
     final MarketDataSnapshotDocument doc = new MarketDataSnapshotDocument(snapshot);
     doc.setVersionFromInstant(now);

@@ -21,6 +21,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.threeten.bp.LocalDate;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.util.ArgumentChecker;
@@ -168,9 +169,9 @@ public final class InterestRateSwapNotional extends InterestRateNotional {
     super(ccy, ArgumentChecker.notEmpty(notionals, "notionals").iterator().next());
     ArgumentChecker.isTrue(overridePeriods.size() == notionals.size(), "Different overrides & notionals");
     ArgumentChecker.isTrue(overridePeriods.size() == types.size(), "Different overrides & adjustment types");
-    _dates = Lists.newArrayList(overridePeriods);
-    _notionals = notionals;
-    _shiftTypes = types;
+    _dates = ImmutableList.copyOf(overridePeriods);
+    _notionals = ImmutableList.copyOf(notionals);
+    _shiftTypes = ImmutableList.copyOf(types);
   }
 
   /**

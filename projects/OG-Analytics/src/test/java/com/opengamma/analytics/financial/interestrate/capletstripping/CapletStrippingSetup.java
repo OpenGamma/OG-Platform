@@ -74,7 +74,8 @@ public abstract class CapletStrippingSetup {
   private static final DayCount DAY_COUNT_INDEX = DayCounts.ACT_360;
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventions.MODIFIED_FOLLOWING;
   private static final boolean IS_EOM = true;
-  private static final IborIndex INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM, "Ibor");
+  private static final IborIndex INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM, "USDLIBOR3M");
+
 
   private static final MulticurveProviderDiscount YIELD_CURVES;
   private static final MultiCapFloorPricer PRICER;

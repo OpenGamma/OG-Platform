@@ -36,9 +36,12 @@ import com.opengamma.util.time.Tenor;
 /**
  * Convert a cash node into an Instrument definition.
  * The dates of the deposits are computed in the following way: 
- * - The spot date is computed from the valuation date adding the "Settlement Days" (i.e. the number of business days) of the convention.
- * - The start date is computed from the spot date adding the "StartTenor" of the node and using the business-day-convention, calendar and EOM of the convention.
- * - The end date is computed from the start date adding the "MaturityTenor" of the node and using the business-day-convention, calendar and EOM of the convention.
+ * - The spot date is computed from the valuation date adding the "Settlement Days"
+ *   (i.e. the number of business days) of the convention.
+ * - The start date is computed from the spot date adding the "StartTenor" of the node
+ *   and using the business-day-convention, calendar and EOM of the convention.
+ * - The end date is computed from the start date adding the "MaturityTenor" of the
+ *   node and using the business-day-convention, calendar and EOM of the convention.
  * The deposit notional is 1.
  */
 public class CashNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinition<?>> {
@@ -55,33 +58,45 @@ public class CashNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinit
   private final ZonedDateTime _valuationTime;
 
   /**
-   * @param securitySource The security source, not null
-   * @param conventionSource The convention source, not null
+   * @param securitySource The security source, not required
+   * @param conventionSource The convention source, not required
    * @param holidaySource The holiday source, not null
    * @param regionSource The region source, not null
    * @param marketData The market data, not null
    * @param dataId The id of the market data, not null
    * @param valuationTime The valuation time, not null
+   * @deprecated use constructor without securitySource and conventionSource
    */
-  public CashNodeConverter(final SecuritySource securitySource, final ConventionSource conventionSource, final HolidaySource holidaySource, final RegionSource regionSource,
-      final SnapshotDataBundle marketData, final ExternalId dataId, final ZonedDateTime valuationTime) {
-    ArgumentChecker.notNull(holidaySource, "holiday source");
-    ArgumentChecker.notNull(regionSource, "region source");
-    ArgumentChecker.notNull(marketData, "market data");
-    ArgumentChecker.notNull(dataId, "data id");
-    ArgumentChecker.notNull(valuationTime, "valuation time");
-    _holidaySource = holidaySource;
-    _regionSource = regionSource;
-    _marketData = marketData;
-    _dataId = dataId;
-    _valuationTime = valuationTime;
+  @Deprecated
+  public CashNodeConverter(
+      SecuritySource securitySource,
+      ConventionSource conventionSource,
+      HolidaySource holidaySource,
+      RegionSource regionSource,
+      SnapshotDataBundle marketData,
+      ExternalId dataId,
+      ZonedDateTime valuationTime) {
+    this(holidaySource, regionSource, marketData, dataId, valuationTime);
+  }
+
+  public CashNodeConverter(
+      HolidaySource holidaySource,
+      RegionSource regionSource,
+      SnapshotDataBundle marketData,
+      ExternalId dataId,
+      ZonedDateTime valuationTime) {
+    _holidaySource = ArgumentChecker.notNull(holidaySource, "holidaySource");
+    _regionSource = ArgumentChecker.notNull(regionSource, "regionSource");
+    _marketData = ArgumentChecker.notNull(marketData, "marketData");
+    _dataId = ArgumentChecker.notNull(dataId, "dataId");
+    _valuationTime = ArgumentChecker.notNull(valuationTime, "valuationTime");
   }
 
   @Override
-  public InstrumentDefinition<?> visitCashNode(final CashNode cashNode) {
-    final Tenor startTenor = cashNode.getStartTenor();
-    final Tenor maturityTenor = cashNode.getMaturityTenor();
-    final Double rate = _marketData.getDataPoint(_dataId);
+  public InstrumentDefinition<?> visitCashNode(CashNode cashNode) {
+    Tenor startTenor = cashNode.getStartTenor();
+    Tenor maturityTenor = cashNode.getMaturityTenor();
+    Double rate = _marketData.getDataPoint(_dataId);
     if (rate == null) {
       throw new OpenGammaRuntimeException("Could not get market data for " + _dataId);
     }
@@ -90,16 +105,18 @@ public class CashNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinit
       DepositConvention depositConvention =
           ConventionLink.resolvable(cashNode.getConvention(), DepositConvention.class).resolve();
 
-      final Currency currency = depositConvention.getCurrency();
-      final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, depositConvention.getRegionCalendar());
-      final BusinessDayConvention businessDayConvention = depositConvention.getBusinessDayConvention();
-      final boolean isEOM = depositConvention.isIsEOM();
-      final DayCount dayCount = depositConvention.getDayCount();
-      final int settlementDays = depositConvention.getSettlementDays();
-      final ZonedDateTime spotDate = ScheduleCalculator.getAdjustedDate(_valuationTime, settlementDays, calendar);
-      final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spotDate, startTenor, businessDayConvention, calendar, isEOM);
-      final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, maturityTenor, businessDayConvention, calendar, isEOM);
-      final double accrualFactor = dayCount.getDayCountFraction(startDate, endDate);
+      Currency currency = depositConvention.getCurrency();
+      Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, depositConvention.getRegionCalendar());
+      BusinessDayConvention businessDayConvention = depositConvention.getBusinessDayConvention();
+      boolean isEOM = depositConvention.isIsEOM();
+      DayCount dayCount = depositConvention.getDayCount();
+      int settlementDays = depositConvention.getSettlementDays();
+      ZonedDateTime spotDate = ScheduleCalculator.getAdjustedDate(_valuationTime, settlementDays, calendar);
+      ZonedDateTime startDate =
+          ScheduleCalculator.getAdjustedDate(spotDate, startTenor, businessDayConvention, calendar, isEOM);
+      ZonedDateTime endDate =
+          ScheduleCalculator.getAdjustedDate(startDate, maturityTenor, businessDayConvention, calendar, isEOM);
+      double accrualFactor = dayCount.getDayCountFraction(startDate, endDate);
       return new CashDefinition(currency, startDate, endDate, 1, rate, accrualFactor);
 
     } catch (DataNotFoundException e) {
@@ -116,8 +133,10 @@ public class CashNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinit
       DayCount dayCount = indexConvention.getDayCount();
       int settlementDays = indexConvention.getSettlementDays();
       ZonedDateTime spotDate = ScheduleCalculator.getAdjustedDate(_valuationTime, settlementDays, calendar);
-      ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spotDate, startTenor, businessDayConvention, calendar, isEOM);
-      ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, maturityTenor, businessDayConvention, calendar, isEOM);
+      ZonedDateTime startDate =
+          ScheduleCalculator.getAdjustedDate(spotDate, startTenor, businessDayConvention, calendar, isEOM);
+      ZonedDateTime endDate =
+          ScheduleCalculator.getAdjustedDate(startDate, maturityTenor, businessDayConvention, calendar, isEOM);
       double accrualFactor = dayCount.getDayCountFraction(startDate, endDate);
       com.opengamma.analytics.financial.instrument.index.IborIndex index =
           ConverterUtils.indexIbor(indexSecurity.getName(), indexConvention, indexSecurity.getTenor());

@@ -16,7 +16,7 @@ import com.opengamma.analytics.math.interpolation.data.ArrayInterpolator1DDataBu
 import com.opengamma.util.test.TestGroup;
 
 /**
- * Test.
+ * Tests related to the exponential interpolator.
  */
 @Test(groups = TestGroup.UNIT)
 public class ExponentialInterpolator1DTest {
@@ -64,4 +64,5 @@ public class ExponentialInterpolator1DTest {
     data.put(t2, df2);
     assertEquals(0.7957, INTERPOLATOR.interpolate(INTERPOLATOR.getDataBundle(data), 3.5), EPS);
   }
+  
 }

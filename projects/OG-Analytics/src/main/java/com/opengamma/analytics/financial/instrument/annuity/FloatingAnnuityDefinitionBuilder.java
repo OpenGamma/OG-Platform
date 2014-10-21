@@ -306,7 +306,7 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
       }
       coupons[c + couponOffset] = coupon;
     }
-    return downCastIborCoupons(coupons);
+    return downCastONCoupons(downCastIborCoupons(coupons));
   }
 
   /**
@@ -330,6 +330,29 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
     }
     return coupons;
   }
+  
+  /**
+   * Function to downcast overnight coupons to help identify vanilla fix/float swaps to downstream code
+   *
+   * @param coupons the coupons
+   * @return coupons cast into array of CouponONDefinition or original list if not all ON-like
+   */
+  private CouponDefinition[] downCastONCoupons(CouponDefinition[] coupons) {
+    boolean allONCoupons = true;
+    for (CouponDefinition coupon : coupons) {
+      if (!(coupon instanceof CouponONDefinition)) {
+        allONCoupons = false;
+        break;
+      }
+    }
+    if (allONCoupons) {
+      CouponONDefinition[] onCoupons = new CouponONDefinition[coupons.length];
+      System.arraycopy(coupons, 0, onCoupons, 0, coupons.length);
+      return onCoupons;
+    }
+    return coupons;
+  }
+
 
   private CouponDefinition[] generateZeroCouponFlows(int exchangeNotionalCouponCount) {
     CouponDefinition[] coupons;

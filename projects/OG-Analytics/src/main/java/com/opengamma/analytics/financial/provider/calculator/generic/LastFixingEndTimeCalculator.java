@@ -10,6 +10,7 @@ import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositIbor;
+import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationYearOnYearInterpolation;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationYearOnYearMonthly;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponInterpolation;
@@ -80,7 +81,12 @@ public final class LastFixingEndTimeCalculator extends InstrumentDerivativeVisit
 
   @Override
   public Double visitCouponFixedCompounding(final CouponFixedCompounding payment) {
-    return payment.getPaymentTime();
+    return 0.0;
+  }
+
+  @Override
+  public Double visitForwardRateAgreement(final ForwardRateAgreement fra) {
+    return fra.getFixingPeriodEndTime();
   }
 
   // -----     Annuity     ------

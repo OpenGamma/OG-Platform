@@ -161,7 +161,7 @@ public class GBConventions {
     ArgumentChecker.notNull(conventionMaster, "convention master");
     final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("GB_TREASURY_BOND_CONVENTION")), "GB_TREASURY_BOND_CONVENTION", false,
-        true, 6, 0, true);
+        true, 7, 1, true); // T+1: and 7 days ex-dividend: http://www.dmo.gov.uk/?page=Links/Glossary
   }
 
   /**

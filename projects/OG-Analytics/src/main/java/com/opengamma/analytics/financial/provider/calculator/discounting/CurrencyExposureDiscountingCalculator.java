@@ -10,8 +10,19 @@ import com.opengamma.analytics.financial.forex.derivative.ForexNonDeliverableFor
 import com.opengamma.analytics.financial.forex.provider.ForexDiscountingMethod;
 import com.opengamma.analytics.financial.forex.provider.ForexNonDeliverableForwardDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorDelegate;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedFxReset;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborFxReset;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
+import com.opengamma.analytics.financial.interestrate.payments.provider.CouponFixedFxResetDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.payments.provider.CouponIborFxResetDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
+import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
+import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapMultileg;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.money.MultipleCurrencyAmountPricer;
 
 /**
  * Calculates the present value of an inflation instruments by discounting for a given MarketBundle
@@ -41,8 +52,27 @@ public final class CurrencyExposureDiscountingCalculator extends InstrumentDeriv
   /**
    * The methods used by the different instruments.
    */
+  private static final CouponFixedFxResetDiscountingMethod METHOD_CPN_FIXED_FXRESET = 
+      CouponFixedFxResetDiscountingMethod.getInstance();
+  private static final CouponIborFxResetDiscountingMethod METHOD_CPN_IBOR_FXRESET =
+      CouponIborFxResetDiscountingMethod.getInstance();
   private static final ForexDiscountingMethod METHOD_FOREX = ForexDiscountingMethod.getInstance();
-  private static final ForexNonDeliverableForwardDiscountingMethod METHOD_FOREX_NDF = ForexNonDeliverableForwardDiscountingMethod.getInstance();
+  private static final ForexNonDeliverableForwardDiscountingMethod METHOD_FOREX_NDF = 
+      ForexNonDeliverableForwardDiscountingMethod.getInstance();
+
+  // -----     Coupon     ------
+
+  @Override
+  public MultipleCurrencyAmount visitCouponFixedFxReset(final CouponFixedFxReset coupon, 
+      final MulticurveProviderInterface multicurve) {
+    return METHOD_CPN_FIXED_FXRESET.currencyExposure(coupon, multicurve);
+  }
+
+  @Override
+  public MultipleCurrencyAmount visitCouponIborFxReset(final CouponIborFxReset coupon,
+      final MulticurveProviderInterface multicurve) {
+    return METHOD_CPN_IBOR_FXRESET.currencyExposure(coupon, multicurve);
+  }
 
   // -----     Forex     ------
 
@@ -52,8 +82,47 @@ public final class CurrencyExposureDiscountingCalculator extends InstrumentDeriv
   }
 
   @Override
-  public MultipleCurrencyAmount visitForexNonDeliverableForward(final ForexNonDeliverableForward derivative, final MulticurveProviderInterface multicurves) {
+  public MultipleCurrencyAmount visitForexNonDeliverableForward(final ForexNonDeliverableForward derivative, 
+      final MulticurveProviderInterface multicurves) {
     return METHOD_FOREX_NDF.currencyExposure(derivative, multicurves);
+  }
+
+  // -----     Annuity     ------
+
+  @Override
+  public MultipleCurrencyAmount visitGenericAnnuity(final Annuity<? extends Payment> annuity, final MulticurveProviderInterface multicurve) {
+    ArgumentChecker.notNull(annuity, "Annuity");
+    ArgumentChecker.notNull(multicurve, "multicurve");
+    MultipleCurrencyAmount pv = annuity.getNthPayment(0).accept(this, multicurve);
+    MultipleCurrencyAmountPricer pricer = new MultipleCurrencyAmountPricer(pv);
+    for (int i = 1; i < annuity.getNumberOfPayments(); i++) {
+      pricer.plus(annuity.getNthPayment(i).accept(this, multicurve));
+    }
+    return pricer.getSum();
+  }
+
+  // -----     Swap     ------
+
+  @Override
+  public MultipleCurrencyAmount visitSwap(final Swap<?, ?> swap, final MulticurveProviderInterface multicurve) {
+    final MultipleCurrencyAmount ce1 = swap.getFirstLeg().accept(this, multicurve);
+    final MultipleCurrencyAmount ce2 = swap.getSecondLeg().accept(this, multicurve);
+    return ce1.plus(ce2);
+  }
+
+  @Override
+  public MultipleCurrencyAmount visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final MulticurveProviderInterface multicurves) {
+    return visitSwap(swap, multicurves);
+  }
+
+  @Override
+  public MultipleCurrencyAmount visitSwapMultileg(final SwapMultileg swap, final MulticurveProviderInterface multicurve) {
+    final int nbLegs = swap.getLegs().length;
+    MultipleCurrencyAmount ce = swap.getLegs()[0].accept(this, multicurve);
+    for (int loopleg = 1; loopleg < nbLegs; loopleg++) {
+      ce = ce.plus(swap.getLegs()[loopleg].accept(this, multicurve));
+    }
+    return ce;
   }
 
 }

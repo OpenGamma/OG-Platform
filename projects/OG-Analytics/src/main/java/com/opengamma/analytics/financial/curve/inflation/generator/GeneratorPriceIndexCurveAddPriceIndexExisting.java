@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.curve.inflation.generator;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurveAddPriceIndexSpreadCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurveSimple;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
 import com.opengamma.util.ArgumentChecker;
@@ -52,7 +53,7 @@ public class GeneratorPriceIndexCurveAddPriceIndexExisting extends GeneratorPric
   }
 
   @Override
-  public PriceIndexCurve generateCurve(String name, double[] parameters) {
+  public PriceIndexCurveSimple generateCurve(String name, double[] parameters) {
     throw new UnsupportedOperationException("Cannot create the curve form the generator without an existing curve");
   }
 

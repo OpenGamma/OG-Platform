@@ -8,15 +8,16 @@ package com.opengamma.financial.analytics.curve;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalTime;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
+import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.interestrate.CompoundingType;
 import com.opengamma.core.change.ChangeManager;
@@ -40,6 +41,7 @@ import com.opengamma.financial.analytics.ircurve.strips.ZeroCouponInflationNode;
 import com.opengamma.financial.convention.CMSLegConvention;
 import com.opengamma.financial.convention.CompoundingIborLegConvention;
 import com.opengamma.financial.convention.DepositConvention;
+import com.opengamma.financial.convention.FinancialConvention;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.InflationLegConvention;
 import com.opengamma.financial.convention.InterestRateFutureConvention;
@@ -65,6 +67,9 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.service.ServiceContext;
+import com.opengamma.service.ThreadLocalServiceContext;
+import com.opengamma.service.VersionCorrectionProvider;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Tenor;
@@ -165,260 +170,263 @@ public class CurveNodeCurrencyVisitorTest {
   private static final CMSLegConvention CMS = new CMSLegConvention("USD CMS", ExternalId.of(SCHEME, "USD CMS").toBundle(), SWAP_INDEX_ID, Tenor.SIX_MONTHS, false);
   private static final RollDateSwapConvention IMM_SWAP = new RollDateSwapConvention("USD IMM Swap", ExternalId.of(SCHEME, "USD IMM Swap").toBundle(), FIXED_LEG_ID, SWAP_3M_IBOR_ID, IMM_3M_EXPIRY_CONVENTION);
   private static final RollDateFRAConvention IMM_FRA = new RollDateFRAConvention("USD IMM FRA", ExternalId.of(SCHEME, "USD IMM FRA").toBundle(), USDLIBOR3M_ID, IMM_3M_EXPIRY_CONVENTION);
-  private static final Map<ExternalId, Convention> CONVENTIONS = new HashMap<>();
-  private static final ConventionSource CONVENTION_SOURCE;
-  private static final CurveNodeCurrencyVisitor VISITOR;
-  
 
-  private static final Map<ExternalIdBundle, Security> SECURITY_MAP = new HashMap<>();
-  private static final SecuritySource SECURITY_SOURCE;
-  
-  
-  private static final CurveNodeCurrencyVisitor EMPTY_CONVENTIONS = new CurveNodeCurrencyVisitor(new TestConventionSource(Collections.<ExternalId, Convention>emptyMap()),
-      new MySecuritySource(new HashMap<ExternalIdBundle, Security>()));
+  private final Map<ExternalId, Convention> _conventions = ImmutableMap.<ExternalId, Convention>builder()
+      .put(DEPOSIT_1M_ID, DEPOSIT_1M)
+      .put(FIXED_LEG_ID, FIXED_LEG)
+      .put(RATE_FUTURE_3M_ID, RATE_FUTURE_3M)
+      .put(SWAP_3M_IBOR_ID, SWAP_3M_LIBOR)
+      .put(OIS_ID, OIS)
+      .put(OVERNIGHT_CONVENTION_ID, OVERNIGHT)
+      .put(SWAP_INDEX_ID, SWAP_INDEX)
+      .put(CMS_SWAP_ID, CMS)
+      .put(SWAP_6M_EURIBOR_ID, SWAP_6M_EURIBOR)
+      .put(COMPOUNDING_IBOR_ID, COMPOUNDING_IBOR)
+      .put(PRICE_INDEX_US_CONVENTION_ID, PRICE_INDEX_CONVENTION)
+      .put(ZERO_COUPON_INFLATION_ID, INFLATION_LEG)
+      .put(IMM_SWAP_ID, IMM_SWAP)
+      .put(IMM_FRA_ID, IMM_FRA)
+      .put(EURIBOR_CONVENTION_ID, EURIBOR_CONVENTION)
+      .put(USDLIBOR_CONVENTION_ID, USDLIBOR_CONVENTION)
+      .build();
 
-  static {
-    CONVENTIONS.put(DEPOSIT_1M_ID, DEPOSIT_1M);
-    CONVENTIONS.put(FIXED_LEG_ID, FIXED_LEG);
-    CONVENTIONS.put(RATE_FUTURE_3M_ID, RATE_FUTURE_3M);
-    CONVENTIONS.put(SWAP_3M_IBOR_ID, SWAP_3M_LIBOR);
-    CONVENTIONS.put(OIS_ID, OIS);
-    CONVENTIONS.put(OVERNIGHT_CONVENTION_ID, OVERNIGHT);
-    CONVENTIONS.put(SWAP_INDEX_ID, SWAP_INDEX);
-    CONVENTIONS.put(CMS_SWAP_ID, CMS);
-    CONVENTIONS.put(SWAP_6M_EURIBOR_ID, SWAP_6M_EURIBOR);
-    CONVENTIONS.put(COMPOUNDING_IBOR_ID, COMPOUNDING_IBOR);
-    CONVENTIONS.put(PRICE_INDEX_US_CONVENTION_ID, PRICE_INDEX_CONVENTION);
-    CONVENTIONS.put(ZERO_COUPON_INFLATION_ID, INFLATION_LEG);
-    CONVENTIONS.put(IMM_SWAP_ID, IMM_SWAP);
-    CONVENTIONS.put(IMM_FRA_ID, IMM_FRA);
-    CONVENTIONS.put(EURIBOR_CONVENTION_ID, EURIBOR_CONVENTION);
-    CONVENTIONS.put(USDLIBOR_CONVENTION_ID, USDLIBOR_CONVENTION);
-    CONVENTION_SOURCE = new TestConventionSource(CONVENTIONS);
-    // Security map. Used for index.
-    SECURITY_MAP.put(USD_OVERNIGHT_ID.toBundle(), USD_OVERNIGHT);
-    SECURITY_MAP.put(USDLIBOR1M_ID.toBundle(), USDLIBOR1M);
-    SECURITY_MAP.put(USDLIBOR3M_ID.toBundle(), USDLIBOR3M);
-    SECURITY_MAP.put(USDLIBOR6M_ID.toBundle(), USDLIBOR6M);
-    SECURITY_MAP.put(EURIBOR1M_ID.toBundle(), EURIBOR1M);
-    SECURITY_MAP.put(EURIBOR3M_ID.toBundle(), EURIBOR3M);
-    SECURITY_MAP.put(EURIBOR6M_ID.toBundle(), EURIBOR6M);
-    SECURITY_MAP.put(PRICE_INDEX_US_ID.toBundle(), PRICE_INDEX_US);
-    SECURITY_SOURCE = new MySecuritySource(SECURITY_MAP);
-    VISITOR = new CurveNodeCurrencyVisitor(CONVENTION_SOURCE, SECURITY_SOURCE);
-  }
+  // Security map. Used for index.
+  private final Map<ExternalIdBundle, Security> _securities = ImmutableMap.<ExternalIdBundle, Security>builder()
+      .put(USD_OVERNIGHT_ID.toBundle(), USD_OVERNIGHT)
+      .put(USDLIBOR1M_ID.toBundle(), USDLIBOR1M)
+      .put(USDLIBOR3M_ID.toBundle(), USDLIBOR3M)
+      .put(USDLIBOR6M_ID.toBundle(), USDLIBOR6M)
+      .put(EURIBOR1M_ID.toBundle(), EURIBOR1M)
+      .put(EURIBOR3M_ID.toBundle(), EURIBOR3M)
+      .put(EURIBOR6M_ID.toBundle(), EURIBOR6M)
+      .put(PRICE_INDEX_US_ID.toBundle(), PRICE_INDEX_US)
+      .build();
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullConventionSource() {
-    new CurveNodeCurrencyVisitor(null, null);
+  private final CurveNodeCurrencyVisitor _visitor = new CurveNodeCurrencyVisitor();
+
+  @BeforeMethod
+  public void setup() {
+
+    ConventionSource conventionSource = new TestConventionSource(_conventions);
+    SecuritySource securitySource = new MySecuritySource(_securities);
+
+    VersionCorrectionProvider vcProvider = new VersionCorrectionProvider() {
+      @Override
+      public VersionCorrection getPortfolioVersionCorrection() {
+        return VersionCorrection.LATEST;
+      }
+
+      @Override
+      public VersionCorrection getConfigVersionCorrection() {
+        return VersionCorrection.LATEST;
+      }
+    };
+
+    ThreadLocalServiceContext.init(
+        ServiceContext.of(
+            ImmutableMap.of(
+                SecuritySource.class, securitySource,
+                ConventionSource.class, conventionSource,
+                VersionCorrectionProvider.class, vcProvider)));
   }
 
   @Test(expectedExceptions = OpenGammaRuntimeException.class)
   public void testNullCashConvention() {
+    setupEmptyConventionSource();
     final CashNode node = new CashNode(Tenor.ONE_DAY, Tenor.ONE_WEEK, DEPOSIT_1M_ID, SCHEME);
-    node.accept(EMPTY_CONVENTIONS);
+    node.accept(_visitor);
   }
 
   @Test(expectedExceptions = OpenGammaRuntimeException.class)
   public void testNullFRAConvention() {
     final FRANode node = new FRANode(Tenor.ONE_DAY, Tenor.THREE_MONTHS, USDLIBOR3M_ID, SCHEME);
-    node.accept(EMPTY_CONVENTIONS);
+    setupEmptyConventionSource();
+    node.accept(_visitor);
+  }
+
+  private void setupEmptyConventionSource() {
+    setupConventionSource(ImmutableMap.<ExternalId, Convention>of());
   }
 
   @Test(expectedExceptions = OpenGammaRuntimeException.class)
   public void testNullRateFutureConvention() {
-    final RateFutureNode node = new RateFutureNode(2, Tenor.ONE_DAY, Tenor.THREE_MONTHS, Tenor.THREE_MONTHS, RATE_FUTURE_3M_ID, SCHEME);
-    node.accept(EMPTY_CONVENTIONS);
+    final RateFutureNode node =
+        new RateFutureNode(2, Tenor.ONE_DAY, Tenor.THREE_MONTHS, Tenor.THREE_MONTHS, RATE_FUTURE_3M_ID, SCHEME);
+    setupEmptyConventionSource();
+    node.accept(_visitor);
   }
 
   @Test(expectedExceptions = OpenGammaRuntimeException.class)
   public void testNullRateFutureUnderlyingConvention() {
-    final Map<ExternalId, Convention> map = new HashMap<>();
-    map.put(RATE_FUTURE_3M_ID, RATE_FUTURE_3M);
-    final CurveNodeCurrencyVisitor visitor = new CurveNodeCurrencyVisitor(new TestConventionSource(map), SECURITY_SOURCE);
-    final RateFutureNode node = new RateFutureNode(2, Tenor.ONE_DAY, Tenor.THREE_MONTHS, Tenor.THREE_MONTHS, RATE_FUTURE_3M_ID, SCHEME);
-    node.accept(visitor);
+    setupConventionSource(ImmutableMap.<ExternalId, Convention>of(RATE_FUTURE_3M_ID, RATE_FUTURE_3M));
+    final RateFutureNode node =
+        new RateFutureNode(2, Tenor.ONE_DAY, Tenor.THREE_MONTHS, Tenor.THREE_MONTHS, RATE_FUTURE_3M_ID, SCHEME);
+    node.accept(_visitor);
   }
 
   @Test(expectedExceptions = OpenGammaRuntimeException.class)
   public void testNullSwapPayConvention() {
     final SwapNode node = new SwapNode(Tenor.ONE_DAY, Tenor.TEN_YEARS, FIXED_LEG_ID, SWAP_3M_IBOR_ID, SCHEME);
-    node.accept(EMPTY_CONVENTIONS);
+    setupEmptyConventionSource();
+    node.accept(_visitor);
   }
 
   @Test(expectedExceptions = OpenGammaRuntimeException.class)
   public void testNullSwapReceiveConvention() {
-    final Map<ExternalId, Convention> map = new HashMap<>();
-    map.put(FIXED_LEG_ID, FIXED_LEG);
-    final CurveNodeCurrencyVisitor visitor = new CurveNodeCurrencyVisitor(new TestConventionSource(map), SECURITY_SOURCE);
     final SwapNode node = new SwapNode(Tenor.ONE_DAY, Tenor.TEN_YEARS, FIXED_LEG_ID, SWAP_3M_IBOR_ID, SCHEME);
-    node.accept(visitor);
+    setupConventionSource(ImmutableMap.<ExternalId, Convention>of(FIXED_LEG_ID, FIXED_LEG));
+    node.accept(_visitor);
   }
 
   @Test(expectedExceptions = OpenGammaRuntimeException.class)
   public void testNullIborUnderlyingConvention() {
-    final Map<ExternalId, Convention> map = new HashMap<>();
-    map.put(FIXED_LEG_ID, FIXED_LEG);
-    map.put(SWAP_3M_IBOR_ID, SWAP_3M_LIBOR);
-    final CurveNodeCurrencyVisitor visitor = new CurveNodeCurrencyVisitor(new TestConventionSource(map), SECURITY_SOURCE);
     final SwapNode node = new SwapNode(Tenor.ONE_DAY, Tenor.TEN_YEARS, FIXED_LEG_ID, SWAP_3M_IBOR_ID, SCHEME);
-    node.accept(visitor);
+    setupConventionSource(ImmutableMap.<ExternalId, Convention>of(
+        FIXED_LEG_ID, FIXED_LEG,
+        SWAP_3M_IBOR_ID, SWAP_3M_LIBOR));
+    node.accept(_visitor);
   }
 
   @Test(expectedExceptions = OpenGammaRuntimeException.class)
   public void testNullCMSIndexUnderlyingConvention() {
-    final Map<ExternalId, Convention> map = new HashMap<>();
-    map.put(FIXED_LEG_ID, FIXED_LEG);
-    map.put(SWAP_INDEX_ID, SWAP_INDEX);
-    final CurveNodeCurrencyVisitor visitor = new CurveNodeCurrencyVisitor(new TestConventionSource(map), SECURITY_SOURCE);
+    setupConventionSource(ImmutableMap.<ExternalId, Convention>of(FIXED_LEG_ID, FIXED_LEG,SWAP_INDEX_ID, SWAP_INDEX));
     final SwapNode node = new SwapNode(Tenor.ONE_DAY, Tenor.TEN_YEARS, FIXED_LEG_ID, SWAP_INDEX_ID, SCHEME);
-    node.accept(visitor);
+    node.accept(_visitor);
   }
 
   @Test(expectedExceptions = OpenGammaRuntimeException.class)
   public void testNullCMSUnderlyingConvention() {
-    final Map<ExternalId, Convention> map = new HashMap<>();
-    map.put(FIXED_LEG_ID, FIXED_LEG);
-    map.put(CMS_SWAP_ID, CMS);
-    final CurveNodeCurrencyVisitor visitor = new CurveNodeCurrencyVisitor(new TestConventionSource(map), SECURITY_SOURCE);
+    setupConventionSource(ImmutableMap.<ExternalId, Convention>of(
+        FIXED_LEG_ID, FIXED_LEG,
+        CMS_SWAP_ID, CMS));
     final SwapNode node = new SwapNode(Tenor.ONE_DAY, Tenor.TEN_YEARS, FIXED_LEG_ID, CMS_SWAP_ID, SCHEME);
-    node.accept(visitor);
+    node.accept(_visitor);
   }
 
   @Test(expectedExceptions = OpenGammaRuntimeException.class)
   public void testNullOISUnderlyingConvention() {
-    final Map<ExternalId, Convention> map = new HashMap<>();
-    map.put(FIXED_LEG_ID, FIXED_LEG);
-    map.put(OIS_ID, OIS);
-    final CurveNodeCurrencyVisitor visitor = new CurveNodeCurrencyVisitor(new TestConventionSource(map), SECURITY_SOURCE);
+    setupConventionSource(ImmutableMap.<ExternalId, Convention>of(
+        FIXED_LEG_ID, FIXED_LEG,
+        OIS_ID, OIS));
     final SwapNode node = new SwapNode(Tenor.ONE_DAY, Tenor.TEN_YEARS, FIXED_LEG_ID, OIS_ID, SCHEME);
-    node.accept(visitor);
+    node.accept(_visitor);
   }
 
   @Test(expectedExceptions = OpenGammaRuntimeException.class)
   public void testNullFixedLegConvention() {
-    final Map<ExternalId, Convention> map = new HashMap<>();
-    map.put(OIS_ID, OIS);
-    final CurveNodeCurrencyVisitor visitor = new CurveNodeCurrencyVisitor(new TestConventionSource(map), SECURITY_SOURCE);
+    setupConventionSource(ImmutableMap.<ExternalId, Convention>of(OIS_ID, OIS));
     final SwapNode node = new SwapNode(Tenor.ONE_DAY, Tenor.TEN_YEARS, FIXED_LEG_ID, OIS_ID, SCHEME);
-    node.accept(visitor);
+    node.accept(_visitor);
   }
 
   @Test(expectedExceptions = OpenGammaRuntimeException.class)
   public void testNullCompoundingIborLegConvention() {
-    final Map<ExternalId, Convention> map = new HashMap<>();
-    final CompoundingIborLegConvention compoundingIbor = new CompoundingIborLegConvention("USD Compounding Libor", ExternalId.of(SCHEME, "USD Compounding Libor").toBundle(),
-        USDLIBOR3M_ID, Tenor.THREE_MONTHS, CompoundingType.COMPOUNDING, Tenor.ONE_MONTH, StubType.SHORT_START, 2, false, StubType.LONG_START, true, 1);
-    map.put(FIXED_LEG_ID, FIXED_LEG);
-    map.put(COMPOUNDING_IBOR_ID, compoundingIbor);
-    final CurveNodeCurrencyVisitor visitor = new CurveNodeCurrencyVisitor(new TestConventionSource(map), SECURITY_SOURCE);
+    final CompoundingIborLegConvention compoundingIbor =
+        new CompoundingIborLegConvention(
+            "USD Compounding Libor", ExternalId.of(SCHEME, "USD Compounding Libor").toBundle(),
+            USDLIBOR3M_ID, Tenor.THREE_MONTHS, CompoundingType.COMPOUNDING, Tenor.ONE_MONTH,
+            StubType.SHORT_START, 2, false, StubType.LONG_START, true, 1);
+    setupConventionSource(ImmutableMap.<ExternalId, Convention>of(
+        FIXED_LEG_ID, FIXED_LEG,
+        COMPOUNDING_IBOR_ID, compoundingIbor));
     final SwapNode node = new SwapNode(Tenor.ONE_DAY, Tenor.TEN_YEARS, FIXED_LEG_ID, COMPOUNDING_IBOR_ID, SCHEME);
-    node.accept(visitor);
+    node.accept(_visitor);
   }
 
-  @Test(expectedExceptions = OpenGammaRuntimeException.class)
+  @Test(expectedExceptions = DataNotFoundException.class)
   public void testWrongUnderlyingCompoundingIborLegConvention() {
-    final Map<ExternalId, Convention> map = new HashMap<>();
-    map.put(FIXED_LEG_ID, FIXED_LEG);
-    map.put(COMPOUNDING_IBOR_ID, COMPOUNDING_IBOR);
-    final CurveNodeCurrencyVisitor visitor = new CurveNodeCurrencyVisitor(new TestConventionSource(map), SECURITY_SOURCE);
+    setupConventionSource(ImmutableMap.<ExternalId, Convention>of(
+        FIXED_LEG_ID, FIXED_LEG,
+        COMPOUNDING_IBOR_ID, COMPOUNDING_IBOR));
     final SwapNode node = new SwapNode(Tenor.ONE_DAY, Tenor.TEN_YEARS, FIXED_LEG_ID, COMPOUNDING_IBOR_ID, SCHEME);
-    node.accept(visitor);
+    node.accept(_visitor);
+  }
+
+  private void setupConventionSource(Map<ExternalId, Convention> conventions) {
+    ServiceContext context = ThreadLocalServiceContext.getInstance()
+        .with(ConventionSource.class, new TestConventionSource(conventions));
+    ThreadLocalServiceContext.init(context);
   }
 
   @Test(expectedExceptions = OpenGammaRuntimeException.class)
   public void testNullZeroCouponInflationConvention() {
-    final ZeroCouponInflationNode node = new ZeroCouponInflationNode(Tenor.EIGHT_MONTHS, ZERO_COUPON_INFLATION_ID, FIXED_LEG_ID, InflationNodeType.INTERPOLATED, "TEST");
-    node.accept(EMPTY_CONVENTIONS);
+    setupEmptyConventionSource();
+    final ZeroCouponInflationNode node = new ZeroCouponInflationNode(
+        Tenor.EIGHT_MONTHS, ZERO_COUPON_INFLATION_ID, FIXED_LEG_ID, InflationNodeType.INTERPOLATED, "TEST");
+    node.accept(_visitor);
   }
 
   @Test(expectedExceptions = OpenGammaRuntimeException.class)
   public void testNullPriceIndexConvention() {
-    final Map<ExternalId, Convention> map = new HashMap<>();
-    map.put(ZERO_COUPON_INFLATION_ID, INFLATION_LEG);
-    final CurveNodeCurrencyVisitor visitor = new CurveNodeCurrencyVisitor(new TestConventionSource(map), SECURITY_SOURCE);
-    final ZeroCouponInflationNode node = new ZeroCouponInflationNode(Tenor.EIGHT_MONTHS, ZERO_COUPON_INFLATION_ID, FIXED_LEG_ID, InflationNodeType.MONTHLY, "TEST");
-    node.accept(visitor);
-  }
-
-  @Test(expectedExceptions = OpenGammaRuntimeException.class)
-  public void testWrongTypeZeroCouponInflationConvention() {
-    final ZeroCouponInflationNode node = new ZeroCouponInflationNode(Tenor.EIGHT_MONTHS, SWAP_3M_IBOR_ID, FIXED_LEG_ID, InflationNodeType.INTERPOLATED, "TEST");
-    node.accept(VISITOR);
+    setupConventionSource(ImmutableMap.<ExternalId, Convention>of(ZERO_COUPON_INFLATION_ID, INFLATION_LEG));
+    final ZeroCouponInflationNode node = new ZeroCouponInflationNode(
+            Tenor.EIGHT_MONTHS, ZERO_COUPON_INFLATION_ID, FIXED_LEG_ID, InflationNodeType.MONTHLY, "TEST");
+    node.accept(_visitor);
   }
 
   @Test(expectedExceptions = OpenGammaRuntimeException.class)
   public void testNullIMMFRAConvention() {
-    final Map<ExternalId, Convention> map = new HashMap<>();
-    map.put(USDLIBOR_CONVENTION_ID, USDLIBOR_CONVENTION);
-    final CurveNodeCurrencyVisitor visitor = new CurveNodeCurrencyVisitor(new TestConventionSource(map), SECURITY_SOURCE);
+    setupConventionSource(ImmutableMap.<ExternalId, Convention>of(USDLIBOR_CONVENTION_ID, USDLIBOR_CONVENTION));
     final RollDateFRANode node = new RollDateFRANode(Tenor.ONE_DAY, Tenor.THREE_MONTHS, 4, 40, IMM_FRA_ID, "Test");
-    node.accept(visitor);
+    node.accept(_visitor);
   }
 
-  @Test(expectedExceptions = OpenGammaRuntimeException.class)
+  @Test(expectedExceptions = ClassCastException.class)
   public void testWrongTypeIMMFRAConvention() {
-    final Map<ExternalId, Convention> map = new HashMap<>();
-    map.put(IMM_FRA_ID, FIXED_LEG);
-    final CurveNodeCurrencyVisitor visitor = new CurveNodeCurrencyVisitor(new TestConventionSource(map), SECURITY_SOURCE);
+    setupConventionSource(ImmutableMap.<ExternalId, Convention>of(IMM_FRA_ID, FIXED_LEG));
     final RollDateSwapNode node = new RollDateSwapNode(Tenor.ONE_DAY, 4, 40, IMM_FRA_ID, "Test");
-    node.accept(visitor);
+    node.accept(_visitor);
   }
 
   @Test(expectedExceptions = OpenGammaRuntimeException.class)
   public void testNullIMMSwapConvention() {
-    final Map<ExternalId, Convention> map = new HashMap<>();
-    map.put(FIXED_LEG_ID, FIXED_LEG);
-    map.put(SWAP_3M_IBOR_ID, SWAP_3M_LIBOR);
-    final CurveNodeCurrencyVisitor visitor = new CurveNodeCurrencyVisitor(new TestConventionSource(map), SECURITY_SOURCE);
+    setupConventionSource(ImmutableMap.<ExternalId, Convention>of(
+        FIXED_LEG_ID, FIXED_LEG,
+        SWAP_3M_IBOR_ID, SWAP_3M_LIBOR));
     final RollDateSwapNode node = new RollDateSwapNode(Tenor.ONE_DAY, 4, 40, IMM_SWAP_ID, "Test");
-    node.accept(visitor);
+    node.accept(_visitor);
   }
 
-  @Test(expectedExceptions = OpenGammaRuntimeException.class)
+  @Test(expectedExceptions = ClassCastException.class)
   public void testWrongTypeIMMSwapConvention() {
-    final Map<ExternalId, Convention> map = new HashMap<>();
-    map.put(IMM_SWAP_ID, FIXED_LEG);
-    final CurveNodeCurrencyVisitor visitor = new CurveNodeCurrencyVisitor(new TestConventionSource(map), SECURITY_SOURCE);
+    setupConventionSource(ImmutableMap.<ExternalId, Convention>of(IMM_SWAP_ID, FIXED_LEG));
     final RollDateSwapNode node = new RollDateSwapNode(Tenor.ONE_DAY, 4, 40, IMM_SWAP_ID, "Test");
-    node.accept(visitor);
+    node.accept(_visitor);
   }
 
   @Test(expectedExceptions = OpenGammaRuntimeException.class)
   public void testNullPayIMMSwapConvention() {
-    final Map<ExternalId, Convention> map = new HashMap<>();
-    map.put(IMM_SWAP_ID, IMM_SWAP);
-    map.put(SWAP_3M_IBOR_ID, SWAP_3M_LIBOR);
-    final CurveNodeCurrencyVisitor visitor = new CurveNodeCurrencyVisitor(new TestConventionSource(map), SECURITY_SOURCE);
+    setupConventionSource(ImmutableMap.<ExternalId, Convention>of(
+        IMM_SWAP_ID, IMM_SWAP,
+        SWAP_3M_IBOR_ID, SWAP_3M_LIBOR));
     final RollDateSwapNode node = new RollDateSwapNode(Tenor.ONE_DAY, 4, 40, IMM_SWAP_ID, "Test");
-    node.accept(visitor);
+    node.accept(_visitor);
   }
 
   @Test(expectedExceptions = OpenGammaRuntimeException.class)
   public void testNullReceiveIMMSwapConvention() {
-    final Map<ExternalId, Convention> map = new HashMap<>();
-    map.put(IMM_SWAP_ID, IMM_SWAP);
-    map.put(FIXED_LEG_ID, FIXED_LEG);
-    final CurveNodeCurrencyVisitor visitor = new CurveNodeCurrencyVisitor(new TestConventionSource(map), SECURITY_SOURCE);
+    setupConventionSource(ImmutableMap.<ExternalId, Convention>of(
+        IMM_SWAP_ID, IMM_SWAP,
+        FIXED_LEG_ID, FIXED_LEG));
     final RollDateSwapNode node = new RollDateSwapNode(Tenor.ONE_DAY, 4, 40, IMM_SWAP_ID, "Test");
-    node.accept(visitor);
+    node.accept(_visitor);
   }
 
   @Test(expectedExceptions = IllegalStateException.class)
   public void testUnhandledConvention() {
-    final Convention convention = new MockConvention(UniqueId.of("Convention", "Test"), "Mock", ExternalIdBundle.of("A", "B"), Currency.GBP);
-    final Map<ExternalId, Convention> map = new HashMap<>();
-    map.put(FIXED_LEG_ID, FIXED_LEG);
-    map.put(ExternalId.of("A", "B"), convention);
-    final CurveNodeCurrencyVisitor visitor = new CurveNodeCurrencyVisitor(new TestConventionSource(map), SECURITY_SOURCE);
+    final FinancialConvention convention = new MockConvention(
+        UniqueId.of("Convention", "Test"), "Mock", ExternalIdBundle.of("A", "B"), Currency.GBP);
+    setupConventionSource(ImmutableMap.<ExternalId, Convention>of(
+        FIXED_LEG_ID, FIXED_LEG,
+        ExternalId.of("A", "B"), convention));
     final SwapNode node = new SwapNode(Tenor.ONE_DAY, Tenor.TEN_YEARS, FIXED_LEG_ID, ExternalId.of("A", "B"), SCHEME);
-    node.accept(visitor);
+    node.accept(_visitor);
   }
 
   @Test
   public void testCash() {
     final CashNode node = new CashNode(Tenor.ONE_DAY, Tenor.ONE_WEEK, DEPOSIT_1M_ID, SCHEME);
-    final Set<Currency> currencies = node.accept(VISITOR);
+    final Set<Currency> currencies = node.accept(_visitor);
     assertEquals(1, currencies.size());
     assertEquals(Currency.USD, currencies.iterator().next());
   }
@@ -426,25 +434,25 @@ public class CurveNodeCurrencyVisitorTest {
   @Test
   public void testContinuouslyCompoundedRateNode() {
     final ContinuouslyCompoundedRateNode node = new ContinuouslyCompoundedRateNode(SCHEME, Tenor.TWELVE_MONTHS);
-    assertEquals(0, node.accept(VISITOR).size());
+    assertEquals(0, node.accept(_visitor).size());
   }
 
   @Test
   public void testCreditSpreadNode() {
     final CreditSpreadNode node = new CreditSpreadNode(SCHEME, Tenor.THREE_MONTHS);
-    assertEquals(0, node.accept(VISITOR).size());
+    assertEquals(0, node.accept(_visitor).size());
   }
 
   @Test
   public void testDiscountFactorNode() {
     final DiscountFactorNode node = new DiscountFactorNode(SCHEME, Tenor.FIVE_YEARS);
-    assertEquals(0, node.accept(VISITOR).size());
+    assertEquals(0, node.accept(_visitor).size());
   }
 
   @Test
   public void testFRANode() {
     final FRANode node = new FRANode(Tenor.ONE_DAY, Tenor.THREE_MONTHS, USDLIBOR3M_ID, SCHEME);
-    final Set<Currency> currencies = node.accept(VISITOR);
+    final Set<Currency> currencies = node.accept(_visitor);
     assertEquals(1, currencies.size());
     assertEquals(Currency.USD, currencies.iterator().next());
   }
@@ -452,7 +460,7 @@ public class CurveNodeCurrencyVisitorTest {
   @Test
   public void testFXForwardNode() {
     final FXForwardNode node = new FXForwardNode(Tenor.ONE_DAY, Tenor.ONE_YEAR, FX_FORWARD_ID, Currency.EUR, Currency.AUD, SCHEME);
-    final Set<Currency> currencies = node.accept(VISITOR);
+    final Set<Currency> currencies = node.accept(_visitor);
     assertEquals(2, currencies.size());
     assertEquals(Sets.newHashSet(Currency.EUR, Currency.AUD), currencies);
   }
@@ -460,7 +468,7 @@ public class CurveNodeCurrencyVisitorTest {
   @Test
   public void testIMMFRANode() {
     final RollDateFRANode node = new RollDateFRANode(Tenor.ONE_DAY, Tenor.THREE_MONTHS, 4, 40, IMM_FRA_ID, "Test");
-    final Set<Currency> currencies = node.accept(VISITOR);
+    final Set<Currency> currencies = node.accept(_visitor);
     assertEquals(1, currencies.size());
     assertEquals(Currency.USD, currencies.iterator().next());
   }
@@ -468,7 +476,7 @@ public class CurveNodeCurrencyVisitorTest {
   @Test
   public void testIMMSwapNode() {
     final RollDateSwapNode node = new RollDateSwapNode(Tenor.ONE_DAY, 4, 40, IMM_SWAP_ID, "Test");
-    final Set<Currency> currencies = node.accept(VISITOR);
+    final Set<Currency> currencies = node.accept(_visitor);
     assertEquals(1, currencies.size());
     assertEquals(Currency.USD, currencies.iterator().next());
   }
@@ -476,7 +484,7 @@ public class CurveNodeCurrencyVisitorTest {
   @Test
   public void testRateFutureNode() {
     final RateFutureNode node = new RateFutureNode(2, Tenor.ONE_DAY, Tenor.THREE_MONTHS, Tenor.THREE_MONTHS, RATE_FUTURE_3M_ID, SCHEME);
-    final Set<Currency> currencies = node.accept(VISITOR);
+    final Set<Currency> currencies = node.accept(_visitor);
     assertEquals(1, currencies.size());
     assertEquals(Currency.USD, currencies.iterator().next());
   }
@@ -484,31 +492,32 @@ public class CurveNodeCurrencyVisitorTest {
   @Test
   public void testSwapNode() {
     SwapNode node = new SwapNode(Tenor.ONE_DAY, Tenor.TEN_YEARS, FIXED_LEG_ID, SWAP_3M_IBOR_ID, SCHEME);
-    Set<Currency> currencies = node.accept(VISITOR);
+    Set<Currency> currencies = node.accept(_visitor);
     assertEquals(1, currencies.size());
     assertEquals(Currency.USD, currencies.iterator().next());
     node = new SwapNode(Tenor.ONE_DAY, Tenor.TEN_YEARS, FIXED_LEG_ID, OIS_ID, SCHEME);
-    currencies = node.accept(VISITOR);
+    currencies = node.accept(_visitor);
     assertEquals(1, currencies.size());
     assertEquals(Currency.USD, currencies.iterator().next());
     node = new SwapNode(Tenor.ONE_DAY, Tenor.TEN_YEARS, FIXED_LEG_ID, CMS_SWAP_ID, SCHEME);
-    currencies = node.accept(VISITOR);
+    currencies = node.accept(_visitor);
     assertEquals(1, currencies.size());
     assertEquals(Currency.USD, currencies.iterator().next());
     node = new SwapNode(Tenor.ONE_DAY, Tenor.TEN_YEARS, FIXED_LEG_ID, COMPOUNDING_IBOR_ID, SCHEME);
-    currencies = node.accept(VISITOR);
+    currencies = node.accept(_visitor);
     assertEquals(1, currencies.size());
     assertEquals(Currency.USD, currencies.iterator().next());
     node = new SwapNode(Tenor.ONE_DAY, Tenor.TEN_YEARS, SWAP_3M_IBOR_ID, SWAP_6M_EURIBOR_ID, SCHEME);
-    currencies = node.accept(VISITOR);
+    currencies = node.accept(_visitor);
     assertEquals(2, currencies.size());
     assertEquals(Sets.newHashSet(Currency.EUR, Currency.USD), currencies);
   }
 
   @Test
   public void testZeroCouponInflationNode() {
-    final ZeroCouponInflationNode node = new ZeroCouponInflationNode(Tenor.EIGHT_YEARS, ZERO_COUPON_INFLATION_ID, FIXED_LEG_ID, InflationNodeType.INTERPOLATED, "TEST");
-    final Set<Currency> currencies = node.accept(VISITOR);
+    final ZeroCouponInflationNode node = new ZeroCouponInflationNode(
+        Tenor.EIGHT_YEARS, ZERO_COUPON_INFLATION_ID, FIXED_LEG_ID, InflationNodeType.INTERPOLATED, "TEST");
+    final Set<Currency> currencies = node.accept(_visitor);
     assertEquals(1, currencies.size());
     assertEquals(Currency.USD, currencies.iterator().next());
   }
@@ -525,7 +534,6 @@ public class CurveNodeCurrencyVisitorTest {
      * @param map The map of id/Security
      */
     public MySecuritySource(Map<ExternalIdBundle, Security> map) {
-      super();
       _map = map;
     }
 
@@ -551,7 +559,7 @@ public class CurveNodeCurrencyVisitorTest {
 
     @Override
     public Security getSingle(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
-      return null;
+      return _map.get(bundle);
     }
 
     @Override

@@ -127,11 +127,7 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
     
     List<FloatingCashFlowDetails> cashFlows = new ArrayList<>();
     for (int i = 0; i < n; i++) {
-      AbstractCashFlowDetails.Builder builder = FloatingCashFlowDetails.builder()
-          .fixingStartDate(fixingStart.get(i))
-          .fixingEndDate(fixingEnd.get(i))
-          .fixingYearFrac(fixingYearFractions.get(i))
-          .forwardRate(forwardRates.get(i))
+      FloatingCashFlowDetails.Builder builder = (FloatingCashFlowDetails.Builder) FloatingCashFlowDetails.builder()
           .spread(spreads.get(i))
           .gearing(gearings.get(i))
           .projectedAmount(projectedAmounts.get(i))
@@ -142,6 +138,22 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
           .paymentDate(paymentDates.get(i))
           .df(paymentDiscountFactors.get(i))
           .notional(notionals.get(i));
+
+      if (fixingStart.get(i) != null) {
+        builder.fixingStartDate(fixingStart.get(i));
+      }
+      if (fixingEnd.get(i) != null) {
+        builder.fixingEndDate(fixingEnd.get(i));
+      }
+      if (fixingYearFractions.get(i) != null) {
+        builder.fixingYearFrac(fixingYearFractions.get(i));
+      }
+      if (fixingStart.get(i) != null) {
+        builder.fixingStartDate(fixingStart.get(i));
+      }
+      if (forwardRates.get(i) != null) {
+        builder.forwardRate(forwardRates.get(i));
+      }
       cashFlows.add((FloatingCashFlowDetails) builder.build());
     }
     

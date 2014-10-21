@@ -150,7 +150,7 @@ public class InflationProviderDiscount implements InflationProviderInterface {
   @Override
   public String getName(final IndexPrice index) {
     if (_priceIndexCurves.containsKey(index)) {
-      return _priceIndexCurves.get(index).getCurve().getName();
+      return _priceIndexCurves.get(index).getName();
     }
     throw new IllegalArgumentException("Price index curve not found: " + index);
   }

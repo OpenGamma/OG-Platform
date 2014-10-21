@@ -1,5 +1,5 @@
 PresentValueCurveSensitivityBlackSTIRFutureOptionCalculator
-=======================================
+===========================================================
 
 The calculator computes the present value curve sensitivity using data comprising a multi-curve provider
 and the Black implied volatility for STIR futures at

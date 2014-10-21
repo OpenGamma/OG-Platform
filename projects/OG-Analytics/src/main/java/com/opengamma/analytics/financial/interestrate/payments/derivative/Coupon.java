@@ -16,7 +16,7 @@ public abstract class Coupon extends Payment {
   /**
    * The payment period year fraction (or accrual factor).
    */
-  private final double _paymentYearFraction;
+  private final double _paymentAccrualFactor;
   /**
    * The coupon notional.
    */
@@ -35,7 +35,7 @@ public abstract class Coupon extends Payment {
   public Coupon(final Currency currency, final double paymentTime, final String fundingCurveName, final double paymentYearFraction, final double notional) {
     super(currency, paymentTime, fundingCurveName);
     ArgumentChecker.isTrue(paymentYearFraction >= 0, "year fraction < 0");
-    _paymentYearFraction = paymentYearFraction;
+    _paymentAccrualFactor = paymentYearFraction;
     _notional = notional;
   }
 
@@ -43,13 +43,13 @@ public abstract class Coupon extends Payment {
    * Constructor of a generic coupon from details.
    * @param currency The payment currency.
    * @param paymentTime Time (in years) up to the payment.
-   * @param paymentYearFraction The year fraction (or accrual factor) for the coupon payment.
+   * @param paymentAccrualFactor The accrual factor (or year fraction) for the coupon payment.
    * @param notional Coupon notional.
    */
-  public Coupon(final Currency currency, final double paymentTime, final double paymentYearFraction, final double notional) {
+  public Coupon(final Currency currency, final double paymentTime, final double paymentAccrualFactor, final double notional) {
     super(currency, paymentTime);
-    ArgumentChecker.isTrue(paymentYearFraction >= 0, "year fraction < 0");
-    _paymentYearFraction = paymentYearFraction;
+    ArgumentChecker.isTrue(paymentAccrualFactor >= 0, "year fraction < 0");
+    _paymentAccrualFactor = paymentAccrualFactor;
     _notional = notional;
   }
 
@@ -58,7 +58,7 @@ public abstract class Coupon extends Payment {
    * @return The payment year fraction.
    */
   public double getPaymentYearFraction() {
-    return _paymentYearFraction;
+    return _paymentAccrualFactor;
   }
 
   /**
@@ -93,7 +93,7 @@ public abstract class Coupon extends Payment {
     long temp;
     temp = Double.doubleToLongBits(_notional);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    temp = Double.doubleToLongBits(_paymentYearFraction);
+    temp = Double.doubleToLongBits(_paymentAccrualFactor);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     return result;
   }
@@ -113,7 +113,7 @@ public abstract class Coupon extends Payment {
     if (Double.doubleToLongBits(_notional) != Double.doubleToLongBits(other._notional)) {
       return false;
     }
-    if (Double.doubleToLongBits(_paymentYearFraction) != Double.doubleToLongBits(other._paymentYearFraction)) {
+    if (Double.doubleToLongBits(_paymentAccrualFactor) != Double.doubleToLongBits(other._paymentAccrualFactor)) {
       return false;
     }
     return true;

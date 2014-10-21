@@ -104,15 +104,17 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedAccruedCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedCompounding;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedFxReset;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverage;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverageFixingDatesCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverageFixingDates;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverageFixingDatesCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverageFixingDatesCompoundingFlatSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingFlatSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingSimpleSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingSpread;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborFxReset;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborGearing;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponON;
@@ -374,6 +376,14 @@ public interface InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> {
   RESULT_TYPE visitInterpolatedStubCoupon(InterpolatedStubCoupon<? extends DepositIndexCoupon<? extends IndexDeposit>, ? extends IndexDeposit> payment, DATA_TYPE data);
 
   RESULT_TYPE visitInterpolatedStubCoupon(InterpolatedStubCoupon<? extends DepositIndexCoupon<? extends IndexDeposit>, ? extends IndexDeposit> payment);
+  
+  RESULT_TYPE visitCouponFixedFxReset(CouponFixedFxReset payment, DATA_TYPE data);
+
+  RESULT_TYPE visitCouponFixedFxReset(CouponFixedFxReset payment);
+  
+  RESULT_TYPE visitCouponIborFxReset(CouponIborFxReset payment, DATA_TYPE data);
+
+  RESULT_TYPE visitCouponIborFxReset(CouponIborFxReset payment);
 
   RESULT_TYPE visitCouponIbor(CouponIbor payment, DATA_TYPE data);
 

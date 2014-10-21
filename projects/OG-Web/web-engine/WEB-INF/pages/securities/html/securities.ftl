@@ -55,16 +55,7 @@
 <@section title="Add security by XML" if=userSecurity.isPermitted('SecurityMaster:edit:add')>
   <@form method="POST" action="${uris.securities()}" id="addSecurityForm">
   <p>
-    <#if uniqueIdSchemes?exists>
-    <@rowin label="UniqueId Scheme">
-      <select name="uniqueIdScheme">
-        <option value="" <#if searchRequest.uniqueIdScheme = ''>selected</#if>></option>
-        <#list uniqueIdSchemes as uniqueIdScheme>
-        <option value="${uniqueIdScheme}" <#if searchRequest.uniqueIdScheme = '${uniqueIdScheme}'>selected</#if>>${uniqueIdScheme}</option>
-        </#list>
-      </select>
-    </@rowin>
-    </#if>  
+    <input type="hidden" name="uniqueIdScheme" value="DbSec"/> 
     <@rowin>
       <div id="ace-xml-editor"></div>
     </@rowin>

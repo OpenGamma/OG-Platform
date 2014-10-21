@@ -1,3 +1,6 @@
+Business Day Convention
+=======================
+
 The `FpML business day convention schema`_ is used.
 
 * NONE

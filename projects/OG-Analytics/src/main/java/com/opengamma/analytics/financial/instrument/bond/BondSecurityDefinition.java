@@ -151,7 +151,7 @@ public abstract class BondSecurityDefinition<N extends PaymentDefinition, C exte
   }
 
   /**
-   * Gets the number of ex-coupon days.
+   * Gets the number of ex-coupon days (business days).
    * @return The ex-coupon days.
    */
   public int getExCouponDays() {

@@ -15,7 +15,6 @@ import com.opengamma.analytics.financial.interestrate.bond.definition.BondSecuri
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondTransaction;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
-import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -39,11 +38,7 @@ public abstract class BondTransactionDefinition<N extends PaymentDefinition, C e
    */
   private final ZonedDateTime _settlementDate;
   /**
-   * The ex-coupon date associated to the settlement date, i.e. ex-coupon days after settlement date.
-   */
-  private final ZonedDateTime _settlementExCouponDate;
-  /**
-   * The (quoted) price of the transaction in relative term (i.e. 0.90 if the dirty price is 90% of nominal).
+   * The (quoted) price of the transaction in relative term (i.e. 0.90 if the clean price is 90% of nominal).
    * The meaning of this number will depend on the type of bond (fixed coupon, FRN, inflation).
    */
   private final double _price;
@@ -52,11 +47,12 @@ public abstract class BondTransactionDefinition<N extends PaymentDefinition, C e
    */
   private int _couponIndex;
   /**
-   * Previous accrual date. Take the ex-coupon period into account.
+   * Previous accrual date. Take the ex-coupon period into account, i.e. the previous and next accrual dates are relative 
+   * to the settlement date plus the ex-coupon period.
    */
   private final ZonedDateTime _previousAccrualDate;
   /**
-   * Next accrual date.
+   * Next accrual date. The next accrual date is the first end accrual date which is strictly after the settlement date plus ex-coupon period.
    */
   private final ZonedDateTime _nextAccrualDate;
 
@@ -73,11 +69,10 @@ public abstract class BondTransactionDefinition<N extends PaymentDefinition, C e
     _underlyingBond = underlyingBond;
     _quantity = quantity;
     _settlementDate = settlementDate;
-    _settlementExCouponDate = ScheduleCalculator.getAdjustedDate(_settlementDate, _underlyingBond.getExCouponDays(), _underlyingBond.getCalendar());
     _price = price;
     final int nbCoupon = underlyingBond.getCoupons().getNumberOfPayments();
     for (int loopcpn = 0; loopcpn < nbCoupon; loopcpn++) {
-      if (underlyingBond.getCoupons().getNthPayment(loopcpn).getAccrualEndDate().isAfter(_settlementExCouponDate)) {
+      if (underlyingBond.getCoupons().getNthPayment(loopcpn).getAccrualEndDate().isAfter(_settlementDate)) {
         _couponIndex = loopcpn;
         break;
       }
@@ -108,14 +103,6 @@ public abstract class BondTransactionDefinition<N extends PaymentDefinition, C e
    */
   public ZonedDateTime getSettlementDate() {
     return _settlementDate;
-  }
-
-  /**
-   * Gets the ex-coupon date associated to the settlement date, i.e. ex-coupon days before settlement date.
-   * @return The ex-coupon date.
-   */
-  public ZonedDateTime getSettlementExCouponDate() {
-    return _settlementExCouponDate;
   }
 
   /**

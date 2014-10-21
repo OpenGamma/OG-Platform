@@ -9,12 +9,16 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.model.interestrate.curve.DiscountCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurveSimple;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.math.curve.Curve;
@@ -143,6 +147,99 @@ public class ExportUtils {
           DiscountCurve discountCurve = (DiscountCurve) curve;
           interpolatedCurve = (InterpolatedDoublesCurve) discountCurve.getCurve();
         }
+        double[] x = interpolatedCurve.getXDataAsPrimitive();
+        double[] y = interpolatedCurve.getYDataAsPrimitive();
+        int nbNode = x.length;
+        for (int loopnode = 0; loopnode < nbNode; loopnode++) {
+          writer.append(x[loopnode] + ", " + y[loopnode] + "\n");
+        }
+      }
+      writer.close();
+    } catch (final IOException e) {
+      e.printStackTrace();
+    }
+  }
+  
+  /**
+   * Export a InflationProviderDiscounting into a csv file. 
+   * Each curve of the underlying MulticurveProvider should be of the type YieldCurve or DiscountCurve.
+   * The underlying of each curve should be an InterpolatedDoublesCurve.
+   * Each inflation curve should be of the type PriceIndexCurveSimple with an InterpolatedDoublesCurve as underlying.
+   * A file is created locally. Each curve is represented by its name, each currency for which it is a discounting 
+   * curve and each index (Ibor or Overnight) for which it is a forward curve.
+   * The YieldCurve are described by the nodes times and rates (zero-coupon continously compounded). 
+   * The DiscountCurve are described by the nodes times and discount factors. 
+   * The PriceIndexCurve are described by the nodes times and price index.
+   * @param inflation The inflation provider.
+   * @param fileName The name of the file in which the curve description is exported.
+   */
+  public static void exportInflationProviderDiscount(InflationProviderDiscount inflation, String fileName) {
+    MulticurveProviderDiscount multicurve = inflation.getMulticurveProvider();
+    Set<String> curveNamesMulticurveSet = multicurve.getAllCurveNames();
+    // Checking curve is of correct type
+    for (String name: curveNamesMulticurveSet) {
+      YieldAndDiscountCurve curve = multicurve.getCurve(name);
+      ArgumentChecker.isTrue((curve instanceof YieldCurve) || (curve instanceof DiscountCurve) , 
+          "curve should be YieldCurve or DiscountCurve");
+      if (curve instanceof YieldCurve) { // YieldCurve
+        YieldCurve yieldCurve = (YieldCurve) curve;
+        ArgumentChecker.isTrue(yieldCurve.getCurve() instanceof InterpolatedDoublesCurve, 
+            "curve underlying should be of the type interpolatedDoublesCurve");
+      } else { // DiscountCurve
+        DiscountCurve discountCurve = (DiscountCurve) curve;
+        ArgumentChecker.isTrue(discountCurve.getCurve() instanceof InterpolatedDoublesCurve, 
+            "curve underlying should be of the type interpolatedDoublesCurve");
+      }
+    }
+    Set<String> curveNamesInflationSet = inflation.getAllCurveNames();
+    Set<String> curveNamesInflationSet2 = new TreeSet<>(curveNamesInflationSet);
+    curveNamesInflationSet2.removeAll(curveNamesMulticurveSet);
+    for (String name : curveNamesInflationSet2) {
+      PriceIndexCurve curve = inflation.getCurve(name);
+      ArgumentChecker.isTrue(curve instanceof PriceIndexCurveSimple, "curve should be PriceIndexCurveSimple");
+      PriceIndexCurveSimple curveSimple = (PriceIndexCurveSimple) curve;
+      ArgumentChecker.isTrue(curveSimple.getCurve() instanceof InterpolatedDoublesCurve,
+          "curve underlying should be of the type interpolatedDoublesCurve");
+    }
+    try {
+      final FileWriter writer = new FileWriter(fileName);
+      for (String name: curveNamesMulticurveSet) {
+        writer.append("Curve name: " + name + "\n");
+        YieldAndDiscountCurve curve = multicurve.getCurve(name);
+        Currency ccy = multicurve.getCurrencyForName(name);
+        if (ccy != null) {
+          writer.append("Currency: " + ccy.toString() + "\n");
+        }
+        IborIndex indexIbor = multicurve.getIborIndexForName(name);
+        if (indexIbor != null) {
+          writer.append("Ibor Index: " + indexIbor.toString() + "\n");
+        }
+        IndexON indexOn = multicurve.getOvernightIndexForName(name);
+        if (indexOn != null) {
+          writer.append("Overnight Index: " + indexOn.toString() + "\n");
+        }
+        InterpolatedDoublesCurve interpolatedCurve;
+        if (curve instanceof YieldCurve) { // YieldCurve
+          writer.append("Time, Rate \n");
+          YieldCurve yieldCurve = (YieldCurve) curve;
+          interpolatedCurve = (InterpolatedDoublesCurve) yieldCurve.getCurve();
+        } else { // DiscountCurve
+          writer.append("Time, Discount Factor \n");
+          DiscountCurve discountCurve = (DiscountCurve) curve;
+          interpolatedCurve = (InterpolatedDoublesCurve) discountCurve.getCurve();
+        }
+        double[] x = interpolatedCurve.getXDataAsPrimitive();
+        double[] y = interpolatedCurve.getYDataAsPrimitive();
+        int nbNode = x.length;
+        for (int loopnode = 0; loopnode < nbNode; loopnode++) {
+          writer.append(x[loopnode] + ", " + y[loopnode] + "\n");
+        }
+      }
+      for (String name: curveNamesInflationSet2) {
+        writer.append("Curve name: " + name + "\n");
+        PriceIndexCurveSimple curve = (PriceIndexCurveSimple) inflation.getCurve(name);
+        writer.append("Time, Index \n");
+        InterpolatedDoublesCurve interpolatedCurve = (InterpolatedDoublesCurve) curve.getCurve();
         double[] x = interpolatedCurve.getXDataAsPrimitive();
         double[] y = interpolatedCurve.getYDataAsPrimitive();
         int nbNode = x.length;

@@ -106,7 +106,8 @@ public final class ParSpreadInflationMarketQuoteDiscountingCalculator extends In
       return Math.pow(pvInflationLeg / discountFactor / notional + 1, 1 / tenor) - 1 - cpn.getFixedRate();
     }
     final MulticurveProviderInterface multicurves = inflation.getMulticurveProvider();
-    return -multicurves.getFxRates().convert(swap.accept(PVMC, multicurves), swap.getFirstLeg().getCurrency()).getAmount() / swap.getFirstLeg().accept(PVMQSC, multicurves);
+    return -multicurves.getFxRates().convert(swap.accept(PVMC, multicurves), swap.getFirstLeg().getCurrency()).getAmount() 
+        / swap.getFirstLeg().accept(PVMQSC, multicurves);
   }
 
   @Override

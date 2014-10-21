@@ -8,6 +8,8 @@ package com.opengamma.analytics.financial.provider.curve;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.analytics.financial.curve.inflation.generator.GeneratorPriceIndexCurve;
+import com.opengamma.analytics.financial.curve.inflation.generator.GeneratorPriceIndexCurveInterpolated;
 import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorCurveYieldInterpolated;
 import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorYDCurve;
 import com.opengamma.analytics.financial.datasets.CalendarGBP;
@@ -23,6 +25,8 @@ import com.opengamma.analytics.financial.instrument.index.GeneratorLegIborMaster
 import com.opengamma.analytics.financial.instrument.index.GeneratorLegONArithmeticAverageSimplified;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIborMaster;
+import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedInflationMaster;
+import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedInflationZeroCoupon;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedON;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedONMaster;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapIborIbor;
@@ -30,8 +34,11 @@ import com.opengamma.analytics.financial.instrument.index.GeneratorSwapIborIborM
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapSingleCurrency;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
+import com.opengamma.analytics.financial.provider.calculator.generic.LastFixingEndTimeCalculator;
 import com.opengamma.analytics.financial.provider.calculator.generic.LastTimeCalculator;
 import com.opengamma.analytics.financial.provider.curve.hullwhite.HullWhiteProviderDiscountBuildingRepository;
+import com.opengamma.analytics.financial.provider.curve.inflation.InflationDiscountBuildingRepository;
+import com.opengamma.analytics.financial.provider.curve.issuer.IssuerDiscountBuildingRepository;
 import com.opengamma.analytics.financial.provider.curve.multicurve.MulticurveDiscountBuildingRepository;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
@@ -55,16 +62,28 @@ public class CurveCalibrationConventionDataSets {
   private static final int STEP_MAX = 100;
   private static final MulticurveDiscountBuildingRepository CURVE_BUILDING_REPOSITORY_MC =
       new MulticurveDiscountBuildingRepository(TOLERANCE_ROOT, TOLERANCE_ROOT, STEP_MAX);
+  private static final IssuerDiscountBuildingRepository CURVE_BUILDING_REPOSITORY_IS =
+      new IssuerDiscountBuildingRepository(TOLERANCE_ROOT, TOLERANCE_ROOT, STEP_MAX);
   private static final HullWhiteProviderDiscountBuildingRepository CURVE_BUILDING_REPOSITORY_HW =
       new HullWhiteProviderDiscountBuildingRepository(TOLERANCE_ROOT, TOLERANCE_ROOT, STEP_MAX);
+  private static final InflationDiscountBuildingRepository CURVE_BUILDING_REPOSITORY_INFL =
+      new InflationDiscountBuildingRepository(TOLERANCE_ROOT, TOLERANCE_ROOT, STEP_MAX);
   private static final RollDateAdjuster IMM_QUARTERLY_ADJUSTER = QuarterlyIMMRollDateAdjuster.getAdjuster();
 
   public static MulticurveDiscountBuildingRepository curveBuildingRepositoryMulticurve() {
     return CURVE_BUILDING_REPOSITORY_MC;
   }
 
+  public static IssuerDiscountBuildingRepository curveBuildingRepositoryIssuer() {
+    return CURVE_BUILDING_REPOSITORY_IS;
+  }
+
   public static HullWhiteProviderDiscountBuildingRepository curveBuildingRepositoryHullWhite() {
     return CURVE_BUILDING_REPOSITORY_HW;
+  }
+
+  public static InflationDiscountBuildingRepository curveBuildingRepositoryInflation() {
+    return CURVE_BUILDING_REPOSITORY_INFL;
   }
 
   private static final Interpolator1D INTERPOLATOR_LINEAR = 
@@ -79,21 +98,32 @@ public class CurveCalibrationConventionDataSets {
   private static final Interpolator1D INTERPOLATOR_CCS = 
       CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.CLAMPED_CUBIC, 
           Interpolator1DFactory.FLAT_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+  private static final Interpolator1D INTERPOLATOR_EXP = 
+      CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.EXPONENTIAL, 
+          Interpolator1DFactory.FLAT_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
   //  private static final Interpolator1D INTERPOLATOR_LL = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LOG_LINEAR, Interpolator1DFactory.EXPONENTIAL_EXTRAPOLATOR,
   //      Interpolator1DFactory.EXPONENTIAL_EXTRAPOLATOR); // Log-linear on the discount factor = step on the instantaneous rates
 
-  private static final LastTimeCalculator MATURITY_CALCULATOR = LastTimeCalculator.getInstance();
+  private static final LastTimeCalculator LAST_TIME_CALCULATOR = LastTimeCalculator.getInstance();
+  private static final LastFixingEndTimeCalculator LAST_FIXING_END_CALCULATOR = LastFixingEndTimeCalculator.getInstance();
   private static final GeneratorYDCurve GENERATOR_YD_MAT_LIN = 
-      new GeneratorCurveYieldInterpolated(MATURITY_CALCULATOR, INTERPOLATOR_LINEAR);
+      new GeneratorCurveYieldInterpolated(LAST_TIME_CALCULATOR, INTERPOLATOR_LINEAR);
   private static final GeneratorYDCurve GENERATOR_YD_MAT_DQ = 
-      new GeneratorCurveYieldInterpolated(MATURITY_CALCULATOR, INTERPOLATOR_DQ);
+      new GeneratorCurveYieldInterpolated(LAST_TIME_CALCULATOR, INTERPOLATOR_DQ);
   private static final GeneratorYDCurve GENERATOR_YD_MAT_NCS = 
-      new GeneratorCurveYieldInterpolated(MATURITY_CALCULATOR, INTERPOLATOR_NCS);
+      new GeneratorCurveYieldInterpolated(LAST_TIME_CALCULATOR, INTERPOLATOR_NCS);
   private static final GeneratorYDCurve GENERATOR_YD_MAT_CCS = 
-      new GeneratorCurveYieldInterpolated(MATURITY_CALCULATOR, INTERPOLATOR_CCS);
+      new GeneratorCurveYieldInterpolated(LAST_TIME_CALCULATOR, INTERPOLATOR_CCS);
+  private static final GeneratorPriceIndexCurve GENERATOR_PI_FIX_EXP = 
+      new GeneratorPriceIndexCurveInterpolated(LAST_FIXING_END_CALCULATOR, INTERPOLATOR_EXP);
+  // TODO: Review exponential interpolator
+  private static final GeneratorPriceIndexCurve GENERATOR_PI_FIX_LIN = 
+      new GeneratorPriceIndexCurveInterpolated(LAST_FIXING_END_CALCULATOR, INTERPOLATOR_LINEAR);
 
   private static final GeneratorSwapFixedIborMaster GENERATOR_IRS_MASTER = GeneratorSwapFixedIborMaster.getInstance();
   private static final GeneratorSwapIborIborMaster GENERATOR_BS_MASTER = GeneratorSwapIborIborMaster.getInstance();
+  private static final GeneratorSwapFixedInflationMaster GENERATOR_INFL_MASTER = 
+      GeneratorSwapFixedInflationMaster.getInstance();
 
   /** EUR **/
   private static final Calendar TARGET = new MondayToFridayCalendar("TARGET");
@@ -266,10 +296,16 @@ public class CurveCalibrationConventionDataSets {
   private static final GeneratorDepositON GENERATOR_DEPOSIT_ON_GBP = 
       new GeneratorDepositON("GBP Deposit ON", GBP, LON, SONIA.getDayCount());
   private static final GeneratorSwapFixedIbor GBP6MLIBOR6M = GENERATOR_IRS_MASTER.getGenerator("GBP6MLIBOR6M", LON);
+  private static final GeneratorSwapFixedIbor GBP3MLIBOR3M = 
+      GENERATOR_IRS_MASTER.getGenerator(GeneratorSwapFixedIborMaster.GBP3MLIBOR3M, LON);
   private static final IborIndex GBPLIBOR6M = GBP6MLIBOR6M.getIborIndex();
+  private static final IborIndex GBPLIBOR3M = GBP3MLIBOR3M.getIborIndex();
   private static final GeneratorFRA GENERATOR_FRA_6M_GBP = new GeneratorFRA("GENERATOR_FRA_6M", GBPLIBOR6M, LON);
+  private static final GeneratorFRA GENERATOR_FRA_3M_GBP = new GeneratorFRA("GENERATOR_FRA_3M", GBPLIBOR3M, LON);
   private static final GeneratorDepositIbor GENERATOR_GBPLIBOR6M = 
       new GeneratorDepositIbor("GENERATOR_GBPLIBOR6M", GBPLIBOR6M, LON);
+  private static final GeneratorDepositIbor GENERATOR_GBPLIBOR3M = 
+      new GeneratorDepositIbor("GENERATOR_GBPLIBOR3M", GBPLIBOR3M, LON);
 
   @SuppressWarnings("unchecked")
   public static GeneratorInstrument<? extends GeneratorAttribute>[] generatorGbpOnOis(int nbDepositON, int nbOis) {
@@ -299,6 +335,22 @@ public class CurveCalibrationConventionDataSets {
     return generator;
   }
 
+  @SuppressWarnings("unchecked")
+  public static GeneratorInstrument<? extends GeneratorAttribute>[] generatorGbpIbor3Fra3Irs3(int nbIbor, int nbFra, 
+      int nbIrs) {
+    GeneratorInstrument<? extends GeneratorAttribute>[] generator = new GeneratorInstrument[nbIbor + nbFra + nbIrs];
+    for (int loopibor = 0; loopibor < nbIbor; loopibor++) {
+      generator[loopibor] = GENERATOR_GBPLIBOR3M;
+    }
+    for (int loopfra = 0; loopfra < nbFra; loopfra++) {
+      generator[nbIbor + loopfra] = GENERATOR_FRA_3M_GBP;
+    }
+    for (int loopirs = 0; loopirs < nbIrs; loopirs++) {
+      generator[nbIbor + nbFra + loopirs] = GBP3MLIBOR3M;
+    }
+    return generator;
+  }
+
   /** USD **/
   private static final Calendar NYC = new CalendarUSD("NYC");
   private static final Currency USD = Currency.USD;
@@ -318,6 +370,9 @@ public class CurveCalibrationConventionDataSets {
   private static final GeneratorSwapSingleCurrency GENERATOR_FFAA_USDLIBOR3M = 
       new GeneratorSwapSingleCurrency("USDFEDFUNDAA3MLIBOR3M",
           USDFEDFUNDAA3M, GeneratorLegIborMaster.getInstance().getGenerator("USDLIBOR3M", NYC));
+  private static final GeneratorSwapFixedInflationZeroCoupon USCPI = 
+      GENERATOR_INFL_MASTER.getGenerator("USCPI");
+  
 
   @SuppressWarnings("unchecked")
   public static GeneratorInstrument<? extends GeneratorAttribute>[] generatorUsdOnOisFfs(int nbDepositON, int nbOis, 
@@ -370,6 +425,20 @@ public class CurveCalibrationConventionDataSets {
     }
     return generator;
   }
+  
+  /**
+   * Returns an array of generators for US CPI zero coupons swaps.
+   * @param nbZc The number of zero-coupon swaps.
+   * @return The generators.
+   */
+  @SuppressWarnings("unchecked")
+  public static GeneratorInstrument<? extends GeneratorAttribute>[] generatorUsdCpi(int nbZc) {
+    GeneratorInstrument<? extends GeneratorAttribute>[] generator = new GeneratorInstrument[nbZc];
+    for (int loopirs = 0; loopirs < nbZc; loopirs++) {
+      generator[loopirs] = USCPI;
+    }
+    return generator;
+  }
 
   /**
    * Returns a Yield and discount curve generator based on node computed from the maturity calculator and linear interpolation.
@@ -405,6 +474,24 @@ public class CurveCalibrationConventionDataSets {
    */
   public static GeneratorYDCurve generatorYDMatCcs() {
     return GENERATOR_YD_MAT_CCS;
+  }
+
+  /**
+   * Returns a price index curve generator based on node computed from the last fixing time calculator and exponential interpolation.
+   * The extrapolation is flat.
+   * @return The generator.
+   */
+  public static GeneratorPriceIndexCurve generatorPiFixExp() {
+    return GENERATOR_PI_FIX_EXP;
+  }
+
+  /**
+   * Returns a price index curve generator based on node computed from the last fixing time calculator and exponential interpolation.
+   * The extrapolation is flat.
+   * @return The generator.
+   */
+  public static GeneratorPriceIndexCurve generatorPiFixLin() {
+    return GENERATOR_PI_FIX_LIN;
   }
 
 }

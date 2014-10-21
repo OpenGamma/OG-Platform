@@ -63,7 +63,7 @@ public class GeneratorLegIbor extends GeneratorLeg {
    * @param stubType The stub type.
    * @param isExchangeNotional Whether the notional exchanged (at start and at end).
    * @param indexCalendar The calendar associated with the overnight index.
-   * @param paymentCalendar The calendar used for the payments.
+   * @param paymentCalendar The calendar used to adjust the payments.
    */
   public GeneratorLegIbor(String name, Currency ccy, IborIndex indexIbor, Period paymentPeriod, int spotOffset, 
       int paymentOffset, BusinessDayConvention businessDayConvention, boolean endOfMonth, StubType stubType, 
@@ -124,16 +124,16 @@ public class GeneratorLegIbor extends GeneratorLeg {
   }
 
   /**
-   * Gets the end-of-month flag.
-   * @return the endOfMonth
+   * Returns the end-of-month flag.
+   * @return The flag.
    */
   public boolean isEndOfMonth() {
     return _endOfMonth;
   }
 
   /**
-   * Gets the stubType.
-   * @return the stubType
+   * Returns the stub type.
+   * @return The stub type.
    */
   public StubType getStubType() {
     return _stubType;
@@ -141,7 +141,7 @@ public class GeneratorLegIbor extends GeneratorLeg {
 
   /**
    * Gets the notional exchange flag.
-   * @return the isExchangeNotional
+   * @return The flag.
    */
   public boolean isExchangeNotional() {
     return _isExchangeNotional;
@@ -156,8 +156,8 @@ public class GeneratorLegIbor extends GeneratorLeg {
   }
 
   /**
-   * Gets the paymentCalendar.
-   * @return the paymentCalendar
+   * Returns the payment calendar.
+   * @return The calendar.
    */
   public Calendar getPaymentCalendar() {
     return _paymentCalendar;

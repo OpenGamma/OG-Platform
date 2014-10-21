@@ -209,4 +209,26 @@ public class CachedHolidaySource extends AbstractSource<Holiday> implements Holi
     }
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    CachedHolidaySource that = (CachedHolidaySource) o;
+
+    if (!_underlying.equals(that._underlying)) {
+      return false;
+    }
+
+    return true;
+  }
+
+  @Override
+  public int hashCode() {
+    return _underlying.hashCode();
+  }
 }

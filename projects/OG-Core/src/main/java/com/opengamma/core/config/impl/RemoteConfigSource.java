@@ -14,6 +14,7 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 
 import com.google.common.collect.Lists;
 import com.opengamma.DataNotFoundException;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.AbstractRemoteSource;
 import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeManager;
@@ -119,10 +120,8 @@ public class RemoteConfigSource extends AbstractRemoteSource<ConfigItem<?>> impl
     try {
       final URI uri = DataConfigSourceResource.uriSearchSingle(getBaseUri(), configName, versionCorrection, clazz);
       return accessRemote(uri).get(clazz);
-    } catch (DataNotFoundException ex) {
-      return null;
     } catch (UniformInterfaceException404NotFound ex) {
-      return null;
+      throw new OpenGammaRuntimeException("Unable to access remote source ", ex);
     }
   }
 

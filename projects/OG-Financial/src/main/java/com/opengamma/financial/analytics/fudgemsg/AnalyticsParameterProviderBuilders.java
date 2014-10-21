@@ -27,6 +27,7 @@ import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.analytics.financial.legalentity.LegalEntityFilter;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurveSimple;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.definition.G2ppPiecewiseConstantParameters;
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
@@ -377,7 +378,7 @@ public final class AnalyticsParameterProviderBuilders {
       final int n = indexFields.size();
       for (int i = 0; i < n; i++) {
         final IndexPrice index = deserializer.fudgeMsgToObject(IndexPrice.class, (FudgeMsg) indexFields.get(i).getValue());
-        final PriceIndexCurve curve = deserializer.fudgeMsgToObject(PriceIndexCurve.class, (FudgeMsg) indexCurveFields.get(i).getValue());
+        final PriceIndexCurveSimple curve = deserializer.fudgeMsgToObject(PriceIndexCurveSimple.class, (FudgeMsg) indexCurveFields.get(i).getValue());
         priceIndexCurves.put(index, curve);
       }
       return new InflationProviderDiscount(yieldCurves, priceIndexCurves);

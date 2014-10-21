@@ -40,13 +40,13 @@ public class RealizedVarianceTest {
   final VarianceSwap swapOneObs = new VarianceSwap(0, expiry, expiry, varStrike, varNotional, Currency.EUR, annualizationFactor, nObsExpected, noMktDisruptions, oneObs, defaultWeights);
 
   double[] twoObs = {100.0, 150.0 };
-  final VarianceSwap swapTwoObs = new VarianceSwap(0, expiry, expiry, varStrike, varNotional, Currency.EUR, annualizationFactor, 1, noMktDisruptions, twoObs, defaultWeights);
+  final VarianceSwap swapTwoObs = new VarianceSwap(0, expiry, expiry, varStrike, varNotional, Currency.EUR, annualizationFactor, 2, noMktDisruptions, twoObs, defaultWeights);
 
   double[] threeObs = {100.0, 150.0, 100.0 };
-  final VarianceSwap swapThreeObs = new VarianceSwap(0, expiry, expiry, varStrike, varNotional, Currency.EUR, annualizationFactor, 2, noMktDisruptions, threeObs, defaultWeights);
+  final VarianceSwap swapThreeObs = new VarianceSwap(0, expiry, expiry, varStrike, varNotional, Currency.EUR, annualizationFactor, 3, noMktDisruptions, threeObs, defaultWeights);
 
   double[] obsWithZero = {100.0, 150.0, 0.0 };
-  final VarianceSwap swapWithZeroObs = new VarianceSwap(0, expiry, expiry, varStrike, varNotional, Currency.EUR, annualizationFactor, 2, noMktDisruptions, obsWithZero, defaultWeights);
+  final VarianceSwap swapWithZeroObs = new VarianceSwap(0, expiry, expiry, varStrike, varNotional, Currency.EUR, annualizationFactor, 3, noMktDisruptions, obsWithZero, defaultWeights);
 
   // -------------------------------- TESTS ------------------------------------------
 

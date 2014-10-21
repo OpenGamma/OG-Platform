@@ -1,5 +1,5 @@
 Workout examples: interest rate instrument pricing and curve calibration
-=================================================
+========================================================================
 
 Present value and risk measures
 -------------------------------
@@ -16,6 +16,6 @@ We suggest to start with the calibration examples in the following order:
 
 * Simple USD curve calibration: :doc:`worked-out-example-calibration-simple`
 * Curve calibration with futures: :doc:`worked-out-example-calibration-futures`
-* Curve calibration using exogenous dates: :doc:``
+* Curve calibration using exogenous dates: TODO
 * Curve calibration with cross-currency instruments: :doc:`worked-out-example-calibration-xccy`
 * Curve calibration with spread curves (turn-of-year, different interpolators in different part of the curve, LIBOR curve as a spread to overnight curve): :doc:`worked-out-example-calibration-meeting-spread`

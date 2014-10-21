@@ -377,6 +377,26 @@ public class BondFixedSecurityDefinitionTest {
     assertEquals("Bond Fixed Security Definition to derivative", bondExpected.getYieldConvention(), bondConverted.getYieldConvention());
   }
 
+  /** Test the toDerivative for each business date around the ex-dividend period. */
+  @Test
+  public void toDerivativeUKTAllDate() {
+    ZonedDateTime referenceDate2 = DateUtils.getUTCDate(2011, 8, 1); // Ex-dividend is 30-Aug-2011
+    int nbDateTest = 40; // 2M
+    double[] accruedInterest = new double[nbDateTest];
+    for (int loopref = 0; loopref < nbDateTest; loopref++) {
+      referenceDate2 = ScheduleCalculator.getAdjustedDate(referenceDate2, 1, CALENDAR_G);
+      final BondFixedSecurity bondConverted = BOND_SECURITY_DEFINITION_G.toDerivative(referenceDate2);
+      accruedInterest[loopref] = bondConverted.getAccruedInterest();
+    }
+    int indexJump = 19;
+    for (int loopref = 0; loopref < nbDateTest - 1; loopref++) {
+      if (loopref != indexJump) {
+        assertTrue("Bond Fixed Security Definition to derivative - " + loopref,
+            accruedInterest[loopref + 1] - accruedInterest[loopref] < NOTIONAL_G * RATE_G / 360 * 3); // 3 days of accrued
+      }
+    }
+  }
+
   // DBR 1 1/2 02/15/23 - ISIN: DE0001102309 - Check the long first coupon
 
   private static final Currency EUR = Currency.EUR;

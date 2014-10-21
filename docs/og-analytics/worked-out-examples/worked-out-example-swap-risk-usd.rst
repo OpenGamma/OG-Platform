@@ -1,10 +1,10 @@
 Swap risk - USD
-==========
+===============
 
 The code is available in the class **SwapUsdAnalysis**.
 
 Curves
------
+------
 
 In this example we will use several sets of curves.
 
@@ -15,7 +15,7 @@ In this example we will use several sets of curves.
 * IMM dates. Take as an input another multi-curve provider. From the provider, compute synthetic rates for IMM dates swaps (OIS and IRS). This allow to compute the risk related to IMM dates with curve coherent with market data on standard swaps. In the example, the input provider used for the IMM date curves is the standard provider. It can be changed to the futures based curves (or any other curves) easily.
 
 Instruments
----------
+-----------
 
 Different swaps are build using the **FixedAnnuityDefinitionBuilder** and the **FloatingAnnuityDefinituionBuilder**.
 
@@ -33,7 +33,7 @@ Three vanilla Fixed vs LIBOR3M are constructed.
 **Fed Fund swaps**
 
 Results
-------
+-------
 
 **Present Value**
 

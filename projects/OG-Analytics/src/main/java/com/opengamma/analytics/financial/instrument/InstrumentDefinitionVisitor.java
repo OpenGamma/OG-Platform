@@ -99,15 +99,17 @@ import com.opengamma.analytics.financial.instrument.payment.CouponCMSDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedAccruedCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponFixedFxResetDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageFixingDatesCompoundingDefinition;
-import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageFixingDatesDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageFixingDatesCompoundingFlatSpreadDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageFixingDatesDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageIndexDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingFlatSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingSimpleSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborFxResetDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborGearingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborRatchetDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborSpreadDefinition;
@@ -667,6 +669,36 @@ public interface InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
    * @return The result
    */
   RESULT_TYPE visitCouponFixedAccruedCompoundingDefinition(CouponFixedAccruedCompoundingDefinition payment);
+
+  /**
+   * Fixed coupon with FX reset method that takes data.
+   * @param payment A fixed coupon
+   * @param data The data
+   * @return The result
+   */
+  RESULT_TYPE visitCouponFixedFxResetDefinition(CouponFixedFxResetDefinition payment, DATA_TYPE data);
+
+  /**
+   * Fixed coupon method.
+   * @param payment A fixed coupon
+   * @return The result
+   */
+  RESULT_TYPE visitCouponFixedFxResetDefinition(CouponFixedFxResetDefinition payment);
+
+  /**
+   * Ibor coupon with FX reset method that takes data.
+   * @param payment A ibor coupon
+   * @param data The data
+   * @return The result
+   */
+  RESULT_TYPE visitCouponIborFxResetDefinition(CouponIborFxResetDefinition payment, DATA_TYPE data);
+
+  /**
+   * Ibor coupon with FX reset method.
+   * @param payment A ibor coupon
+   * @return The result
+   */
+  RESULT_TYPE visitCouponIborFxResetDefinition(CouponIborFxResetDefinition payment);
 
   /**
    * Ibor coupon method that takes data.
