@@ -36,7 +36,7 @@ public class SABRModelFitterConstrained extends SmileModelFitter<SABRFormulaData
   }
 
   @Override
-  protected SABRFormulaData toSmileModelData(final DoubleMatrix1D modelParameters) {
+  public SABRFormulaData toSmileModelData(final DoubleMatrix1D modelParameters) {
     return new SABRFormulaData(modelParameters.getData());
   }
 
