@@ -156,10 +156,11 @@ public abstract class AbstractCreditRiskMeasureFn<T> implements CreditRiskMeasur
   private CdsData extractForStandardCds(StandardCDSSecurity cds) {
     
     return CdsData.builder()
-                    .coupon(cds.getCoupon())
-                    .interestRateNotional(cds.getNotional())
-                    .build();
-    
+                  .coupon(cds.getCoupon())
+                  .interestRateNotional(cds.getNotional())
+                  .buy(cds.isBuyProtection())
+                  .build();
+
   }
   
   /**
@@ -170,9 +171,10 @@ public abstract class AbstractCreditRiskMeasureFn<T> implements CreditRiskMeasur
    */
   private CdsData extractForLegacyCds(LegacyCDSSecurity cds) {
     return CdsData.builder()
-                    .coupon(cds.getCoupon())
-                    .interestRateNotional(cds.getNotional())
-                    .build();
+                  .coupon(cds.getCoupon())
+                  .interestRateNotional(cds.getNotional())
+                  .buy(cds.isBuyProtection())
+                  .build();
   }
   
 }
