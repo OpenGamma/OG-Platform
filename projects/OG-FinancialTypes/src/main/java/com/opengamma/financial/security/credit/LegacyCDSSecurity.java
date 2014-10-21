@@ -22,6 +22,7 @@ import org.threeten.bp.LocalDate;
 
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.core.legalentity.SeniorityLevel;
+import com.opengamma.core.position.Trade;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
@@ -154,7 +155,6 @@ public class LegacyCDSSecurity extends FinancialSecurity {
   }
 
   /**
-   *
    * @param ids the trade identifier, not null
    * @param tradeDate the trade date, not null
    * @param maturityDate the maturity date, not null
@@ -171,44 +171,31 @@ public class LegacyCDSSecurity extends FinancialSecurity {
    * @param upfrontPayment the upfront payment, not null
    * @param feeSettlementDate the settlement date, not null
    * @param accruedOnDefault accrual on default flag, not null
+   *
+   * @deprecated use constructor that uses start date.
    */
-  public LegacyCDSSecurity(final ExternalIdBundle ids, 
-                           final LocalDate tradeDate, 
-                           final LocalDate maturityDate, 
+  @Deprecated
+  public LegacyCDSSecurity(final ExternalIdBundle ids,
+                           final LocalDate tradeDate,
+                           final LocalDate maturityDate,
                            final ExternalId referenceEntity,
-                           final InterestRateNotional notional, 
-                           final boolean isBuy, 
-                           final double coupon, 
+                           final InterestRateNotional notional,
+                           final boolean isBuy,
+                           final double coupon,
                            final SeniorityLevel seniority,
-                           final Frequency couponFrequency, 
-                           final DayCount daycount, 
+                           final Frequency couponFrequency,
+                           final DayCount daycount,
                            final BusinessDayConvention businessDayConvention,
-                           final Set<ExternalId> calendars, 
-                           final RestructuringClause restructuring, 
+                           final Set<ExternalId> calendars,
+                           final RestructuringClause restructuring,
                            final InterestRateNotional upfrontPayment,
-                           final LocalDate feeSettlementDate, 
+                           final LocalDate feeSettlementDate,
                            final boolean accruedOnDefault) {
     super(SECURITY_TYPE);
-    setExternalIdBundle(ids);
-    setTradeDate(tradeDate);
-    setMaturityDate(maturityDate);
-    setReferenceEntity(referenceEntity);
-    setNotional(notional);
-    setBuyProtection(isBuy);
-    setCoupon(coupon);
-    setSeniority(seniority);
-    setCouponFrequency(couponFrequency);
-    setDayCount(daycount);
-    setBusinessDayConvention(businessDayConvention);
-    setCalendars(calendars);
-    setRestructuringClause(restructuring);
-    setUpfrontPayment(upfrontPayment);
-    setFeeSettlementDate(feeSettlementDate);
-    setAccruedOnDefault(accruedOnDefault);
+    throw new UnsupportedOperationException("Unsupported LegacyCDSSecurity constructor.");
   }
 
   /**
-   *
    * @param ids the trade identifier, not null
    * @param name descriptive name for the security, not null
    * @param tradeDate the trade date, not null
@@ -226,10 +213,111 @@ public class LegacyCDSSecurity extends FinancialSecurity {
    * @param upfrontPayment the upfront payment, not null
    * @param feeSettlementDate the settlement date, not null
    * @param accruedOnDefault accrual on default flag, not null
+   *
+   * @deprecated use constructor that uses start date.
+   */
+  @Deprecated
+  public LegacyCDSSecurity(final ExternalIdBundle ids,
+                           final String name,
+                           final LocalDate tradeDate,
+                           final LocalDate maturityDate,
+                           final ExternalId referenceEntity,
+                           final InterestRateNotional notional,
+                           final boolean isBuy,
+                           final double coupon,
+                           final SeniorityLevel seniority,
+                           final Frequency couponFrequency,
+                           final DayCount daycount,
+                           final BusinessDayConvention businessDayConvention,
+                           final Set<ExternalId> calendars,
+                           final RestructuringClause restructuring,
+                           final InterestRateNotional upfrontPayment,
+                           final LocalDate feeSettlementDate,
+                           final boolean accruedOnDefault) {
+    super(SECURITY_TYPE);
+    throw new UnsupportedOperationException("Unsupported LegacyCDSSecurity constructor.");
+  }
+
+  /**
+   * @param ids the trade identifier, not null
+   * @param tradeDate the trade date, not null
+   * @param startDate the start date, not null
+   * @param maturityDate the maturity date, not null
+   * @param referenceEntity the reference entity, not null
+   * @param notional the notional, not null
+   * @param isBuy is protection being bought, not null
+   * @param coupon the coupon, in basis points, not null
+   * @param seniority the seniority, not null
+   * @param couponFrequency the coupon frequency, not null
+   * @param daycount the daycount, not null
+   * @param businessDayConvention the business day convention, not null
+   * @param calendars the holiday calendars, not null
+   * @param restructuring the restructuring clause, not null
+   * @param upfrontPayment the upfront payment, not null
+   * @param feeSettlementDate the settlement date, not null
+   * @param accruedOnDefault accrual on default flag, not null
+   */
+  public LegacyCDSSecurity(final ExternalIdBundle ids, 
+                           final LocalDate tradeDate,
+                           final LocalDate startDate,
+                           final LocalDate maturityDate, 
+                           final ExternalId referenceEntity,
+                           final InterestRateNotional notional, 
+                           final boolean isBuy, 
+                           final double coupon, 
+                           final SeniorityLevel seniority,
+                           final Frequency couponFrequency, 
+                           final DayCount daycount, 
+                           final BusinessDayConvention businessDayConvention,
+                           final Set<ExternalId> calendars, 
+                           final RestructuringClause restructuring, 
+                           final InterestRateNotional upfrontPayment,
+                           final LocalDate feeSettlementDate, 
+                           final boolean accruedOnDefault) {
+    super(SECURITY_TYPE);
+    setExternalIdBundle(ids);
+    setTradeDate(tradeDate);
+    setStartDate(startDate);
+    setMaturityDate(maturityDate);
+    setReferenceEntity(referenceEntity);
+    setNotional(notional);
+    setBuyProtection(isBuy);
+    setCoupon(coupon);
+    setSeniority(seniority);
+    setCouponFrequency(couponFrequency);
+    setDayCount(daycount);
+    setBusinessDayConvention(businessDayConvention);
+    setCalendars(calendars);
+    setRestructuringClause(restructuring);
+    setUpfrontPayment(upfrontPayment);
+    setFeeSettlementDate(feeSettlementDate);
+    setAccruedOnDefault(accruedOnDefault);
+  }
+
+  /**
+   * @param ids the trade identifier, not null
+   * @param name descriptive name for the security, not null
+   * @param tradeDate the trade date, not null
+   * @param startDate the start date, not null
+   * @param maturityDate the maturity date, not null
+   * @param referenceEntity the reference entity, not null
+   * @param notional the notional, not null
+   * @param isBuy is protection being bought, not null
+   * @param coupon the coupon, in basis points, not null
+   * @param seniority the seniority, not null
+   * @param couponFrequency the coupon frequency, not null
+   * @param daycount the daycount, not null
+   * @param businessDayConvention the business day convention, not null
+   * @param calendars the holiday calendars, not null
+   * @param restructuring the restructuring clause, not null
+   * @param upfrontPayment the upfront payment, not null
+   * @param feeSettlementDate the settlement date, not null
+   * @param accruedOnDefault accrual on default flag, not null
    */
   public LegacyCDSSecurity(final ExternalIdBundle ids, 
                            final String name, 
-                           final LocalDate tradeDate, 
+                           final LocalDate tradeDate,
+                           final LocalDate startDate,
                            final LocalDate maturityDate, 
                            final ExternalId referenceEntity,
                            final InterestRateNotional notional, 
@@ -248,6 +336,7 @@ public class LegacyCDSSecurity extends FinancialSecurity {
     setName(name);
     setExternalIdBundle(ids);
     setTradeDate(tradeDate);
+    setStartDate(startDate);
     setMaturityDate(maturityDate);
     setReferenceEntity(referenceEntity);
     setNotional(notional);
