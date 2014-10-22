@@ -461,6 +461,12 @@ public abstract class DoubleTimeSeriesTest<T> {
     assertEquals(dts2.getTimeAtIndex(3), unionResult.getTimeAtIndex(6));
     assertEquals(dts2.getTimeAtIndex(4), unionResult.getTimeAtIndex(7));
     assertEquals(dts2.getTimeAtIndex(5), unionResult.getTimeAtIndex(8));
+
+    // check optional paths which may be used if series share times
+    DoubleTimeSeries<T> unionResult2 = dts.unionAdd(dts);
+    assertEquals(dts.multiply(2), unionResult2);
+    DoubleTimeSeries<T> result3 = dts.add(dts);
+    assertEquals(dts.multiply(2), result3);
   }
 
   @Test
