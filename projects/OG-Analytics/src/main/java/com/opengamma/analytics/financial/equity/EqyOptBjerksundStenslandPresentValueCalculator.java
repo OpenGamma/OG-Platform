@@ -5,13 +5,12 @@
  */
 package com.opengamma.analytics.financial.equity;
 
+import com.opengamma.analytics.financial.ExerciseDecisionType;
 import com.opengamma.analytics.financial.equity.option.EquityIndexFutureOption;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.equity.option.EquityOption;
-import com.opengamma.analytics.financial.equity.variance.pricing.AffineDividends;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
-import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurveAffineDividends;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.BjerksundStenslandModel;
 import com.opengamma.util.ArgumentChecker;
 
@@ -39,6 +38,7 @@ public final class EqyOptBjerksundStenslandPresentValueCalculator extends Instru
   public Double visitEquityIndexOption(final EquityIndexOption option, final StaticReplicationDataBundle data) {
     ArgumentChecker.notNull(option, "option");
     ArgumentChecker.notNull(data, "data");
+    ArgumentChecker.isTrue(option.getExerciseType() == ExerciseDecisionType.AMERICAN, "option must be American");
     ForwardCurve forwardCurve = data.getForwardCurve();
     final double spot = forwardCurve.getSpot();
     final double strike = option.getStrike();
@@ -46,7 +46,7 @@ public final class EqyOptBjerksundStenslandPresentValueCalculator extends Instru
     final double sigma = data.getVolatilitySurface().getVolatility(time, strike);
     final boolean isCall = option.isCall();
     final double interestRate = data.getDiscountCurve().getInterestRate(time);
-    final double costOfCarry = time > 0 ? Math.log(forwardCurve.getForward(time) / spot) / time : interestRate;
+    double costOfCarry = time > 0 ? Math.log(forwardCurve.getForward(time) / spot) / time : interestRate;
     return option.getUnitAmount() * MODEL.price(spot, strike, interestRate, costOfCarry, time, sigma, isCall);
   }
 
@@ -54,28 +54,16 @@ public final class EqyOptBjerksundStenslandPresentValueCalculator extends Instru
   public Double visitEquityOption(final EquityOption option, final StaticReplicationDataBundle data) {
     ArgumentChecker.notNull(option, "option");
     ArgumentChecker.notNull(data, "data");
-    final double spot = data.getForwardCurve().getSpot();
+    ArgumentChecker.isTrue(option.getExerciseType() == ExerciseDecisionType.AMERICAN, "option must be American");
+    ForwardCurve forwardCurve = data.getForwardCurve();
+    final double spot = forwardCurve.getSpot();
     final double strike = option.getStrike();
     final double time = option.getTimeToExpiry();
     final double sigma = data.getVolatilitySurface().getVolatility(time, strike);
     final boolean isCall = option.isCall();
     final double interestRate = data.getDiscountCurve().getInterestRate(time);
-    double costOfCarry = interestRate;
-    double modSpot = spot;
-
-    final ForwardCurve fCurve = data.getForwardCurve();
-    if (fCurve instanceof ForwardCurveAffineDividends) {
-      final AffineDividends div = ((ForwardCurveAffineDividends) fCurve).getDividends();
-      final int number = div.getNumberOfDividends();
-      int i = 0;
-      while (i < number && div.getTau(i) < time) {
-        modSpot = modSpot * (1. - div.getBeta(i)) - div.getAlpha(i) * data.getDiscountCurve().getDiscountFactor(div.getTau(i));
-        ++i;
-      }
-    } else {
-      costOfCarry = Math.log(fCurve.getForward(time) / spot) / time;
-    }
-    return option.getUnitAmount() * MODEL.price(modSpot, strike, interestRate, costOfCarry, time, sigma, isCall);
+    double costOfCarry = time > 0 ? Math.log(forwardCurve.getForward(time) / spot) / time : interestRate;
+    return option.getUnitAmount() * MODEL.price(spot, strike, interestRate, costOfCarry, time, sigma, isCall);
   }
 
   @Override

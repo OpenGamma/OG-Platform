@@ -218,12 +218,21 @@ public class BjerksundStenslandModel {
       x2 = getX(b0, bInfinity, h2);
     }
 
+    if (s0 >= x2) {
+      return s0 - k;
+    }
+
     double alpha1 = getAlpha(x1, beta, k);
     double alpha2 = getAlpha(x2, beta, k);
-    return alpha2 * Math.pow(s0, beta) - alpha2 * getPhi(s0, t1, beta, x2, x2, r, b, sigma) + getPhi(s0, t1, 1, x2, x2, r, b, sigma)
-        - getPhi(s0, t1, 1, x1, x2, r, b, sigma) - k * getPhi(s0, t1, 0, x2, x2, r, b, sigma) + k * getPhi(s0, t1, 0, x1, x2, r, b, sigma) + alpha1
-        * getPhi(s0, t1, beta, x1, x2, r, b, sigma) - alpha1 * getPsi(s0, t1, t, beta, x1, x2, x1, r, b, sigma) + getPsi(s0, t1, t, 1, x1, x2, x1, r, b, sigma)
-        - getPsi(s0, t1, t, 1, k, x2, x1, r, b, sigma) - k * getPsi(s0, t1, t, 0, x1, x2, x1, r, b, sigma) + k * getPsi(s0, t1, t, 0, k, x2, x1, r, b, sigma);
+
+    return alpha2 * Math.pow(s0, beta) - alpha2 * getPhi(s0, t1, beta, x2, x2, r, b, sigma) +
+        getPhi(s0, t1, 1, x2, x2, r, b, sigma)
+        - getPhi(s0, t1, 1, x1, x2, r, b, sigma) - k * getPhi(s0, t1, 0, x2, x2, r, b, sigma) + k *
+        getPhi(s0, t1, 0, x1, x2, r, b, sigma) + alpha1
+        * getPhi(s0, t1, beta, x1, x2, r, b, sigma) - alpha1 * getPsi(s0, t1, t, beta, x1, x2, x1, r, b, sigma) +
+        getPsi(s0, t1, t, 1, x1, x2, x1, r, b, sigma)
+        - getPsi(s0, t1, t, 1, k, x2, x1, r, b, sigma) - k * getPsi(s0, t1, t, 0, x1, x2, x1, r, b, sigma) + k *
+        getPsi(s0, t1, t, 0, k, x2, x1, r, b, sigma);
   }
 
   private double getH(double b, double t, double sigma, double k, double b0, double bInfinity) {
@@ -453,6 +462,13 @@ public class BjerksundStenslandModel {
     double[] res = new double[7];
 
     double[] x2Adj = getI2Adjoint(k, r, b, sigma, t);
+    //early exercise
+    if (s0 >= x2Adj[0]) {
+      res[0] = s0 - k;
+      res[1] = 1.0;
+      res[2] = -1.0;
+      return res;
+    }
 
     double[] x1Adj = getI1Adjoint(k, r, b, sigma, t);
     double sigmaSq = sigma * sigma;
@@ -662,6 +678,13 @@ public class BjerksundStenslandModel {
     double h2 = getH(b, t, sigma, k, b0, bInfinity);
     double x2 = getX(b0, bInfinity, h2);
 
+    //early exercise
+    if (s0 >= x2) {
+      res[0] = s0 - k;
+      res[1] = 1.0;
+      res[2] = 0.0;
+      return res;
+    }
 
     double t1 = RHO2 * t;
     double h1 = getH(b, t1, sigma, k, b0, bInfinity);

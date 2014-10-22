@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.equity;
 
+import com.opengamma.analytics.financial.ExerciseDecisionType;
 import com.opengamma.analytics.financial.equity.option.EquityIndexFutureOption;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.equity.option.EquityOption;
@@ -43,18 +44,19 @@ public final class EqyOptBjerksundStenslandGreekCalculator extends InstrumentDer
   public GreekResultCollection visitEquityIndexOption(final EquityIndexOption option, final StaticReplicationDataBundle data) {
     ArgumentChecker.notNull(option, "option");
     ArgumentChecker.notNull(data, "data");
+    ArgumentChecker.isTrue(option.getExerciseType() == ExerciseDecisionType.AMERICAN, "option must be American");
     final double s = data.getForwardCurve().getSpot();
     final double k = option.getStrike();
     final double t = option.getTimeToExpiry();
     final double r = data.getDiscountCurve().getInterestRate(t);
-    final double b = r; //TODO
+    final double b = t > 0 ? Math.log(data.getForwardCurve().getForward(t) / s) / t : r;
     final double volatility = data.getVolatilitySurface().getVolatility(t, k);
     final boolean isCall = option.isCall();
     final double[] greeks = MODEL.getPriceAdjoint(s, k, r, b, t, volatility, isCall);
     final GreekResultCollection result = new GreekResultCollection();
     result.put(Greek.DELTA, greeks[1]);
     result.put(Greek.DUAL_DELTA, greeks[2]);
-    result.put(Greek.RHO, greeks[3] / 100.);
+    result.put(Greek.RHO, greeks[3] / 100. + greeks[4] / 100.);
     result.put(Greek.CARRY_RHO, greeks[4] / 100.);
     result.put(Greek.THETA, -greeks[5] / 365.);
     result.put(Greek.VEGA, greeks[6] / 100.);
@@ -67,11 +69,12 @@ public final class EqyOptBjerksundStenslandGreekCalculator extends InstrumentDer
   public GreekResultCollection visitEquityOption(final EquityOption option, final StaticReplicationDataBundle data) {
     ArgumentChecker.notNull(option, "option");
     ArgumentChecker.notNull(data, "data");
+    ArgumentChecker.isTrue(option.getExerciseType() == ExerciseDecisionType.AMERICAN, "option must be American");
     final double s = data.getForwardCurve().getSpot();
     final double k = option.getStrike();
     final double t = option.getTimeToExpiry();
     final double r = data.getDiscountCurve().getInterestRate(t);
-    final double b = Math.log(data.getForwardCurve().getForward(t) / s) / t;
+    final double b = t > 0 ? Math.log(data.getForwardCurve().getForward(t) / s) / t : r;
     final double volatility = data.getVolatilitySurface().getVolatility(t, k);
     final boolean isCall = option.isCall();
 
