@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.interestrate.datasets;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -24,12 +25,14 @@ import com.opengamma.analytics.financial.datasets.CalendarUSD;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BillSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.bond.BondCapitalIndexedSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BondDataSetsUsd;
 import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.index.GeneratorAttribute;
 import com.opengamma.analytics.financial.instrument.index.GeneratorAttributeET;
 import com.opengamma.analytics.financial.instrument.index.GeneratorAttributeIR;
 import com.opengamma.analytics.financial.instrument.index.GeneratorBill;
+import com.opengamma.analytics.financial.instrument.index.GeneratorBondCapitalIndexed;
 import com.opengamma.analytics.financial.instrument.index.GeneratorBondFixed;
 import com.opengamma.analytics.financial.instrument.index.GeneratorInstrument;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedON;
@@ -38,13 +41,14 @@ import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.instrument.index.IndexPriceMaster;
+import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponInterpolationGearingDefinition;
 import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.analytics.financial.legalentity.LegalEntityFilter;
 import com.opengamma.analytics.financial.legalentity.LegalEntityShortName;
 import com.opengamma.analytics.financial.model.interestrate.curve.SeasonalCurve;
 import com.opengamma.analytics.financial.provider.calculator.generic.LastFixingEndTimeCalculator;
-import com.opengamma.analytics.financial.provider.calculator.inflationissuer.ParSpreadInflationMarketQuoteCurveSensitivityIssuerDiscountingCalculator;
-import com.opengamma.analytics.financial.provider.calculator.inflationissuer.ParSpreadInflationMarketQuoteIssuerDiscountingCalculator;
+import com.opengamma.analytics.financial.provider.calculator.inflationissuer.ParSpreadMarketQuoteCurveSensitivityInflationIssuerDiscountingCalculator;
+import com.opengamma.analytics.financial.provider.calculator.inflationissuer.ParSpreadMarketQuoteInflationIssuerDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.issuer.ParSpreadMarketQuoteCurveSensitivityIssuerDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.issuer.ParSpreadMarketQuoteIssuerDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
@@ -116,30 +120,24 @@ public class StandardDataSetsGovtUsInflationUSD {
     0.00118500, 0.00318650, 0.00704000, 0.01121500, 0.01515000,
     0.01845500, 0.02111000, 0.02332000, 0.02513500, 0.02668500 }; //17
   /** Generators for the dsc USD curve */
-  private static final GeneratorInstrument<? extends GeneratorAttribute>[] DSC_1_USD_GENERATORS = 
+  private static final GeneratorInstrument<? extends GeneratorAttribute>[] OIS_GENERATORS = 
       CurveCalibrationConventionDataSets.generatorUsdOnOisFfs(2, 15, 0);
   /** Tenors for the dsc USD curve */
   private static final Period[] DSC_1_USD_TENOR = new Period[] {Period.ofDays(0), Period.ofDays(1),
     Period.ofMonths(1), Period.ofMonths(2), Period.ofMonths(3), Period.ofMonths(6), Period.ofMonths(9),
     Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5),
     Period.ofYears(6), Period.ofYears(7), Period.ofYears(8), Period.ofYears(9), Period.ofYears(10) };
-  private static final GeneratorAttributeIR[] DSC_1_USD_ATTR = new GeneratorAttributeIR[DSC_1_USD_TENOR.length];
+  private static final GeneratorAttributeIR[] OIS_ATTR = new GeneratorAttributeIR[DSC_1_USD_TENOR.length];
   static {
     for (int loopins = 0; loopins < 2; loopins++) {
-      DSC_1_USD_ATTR[loopins] = new GeneratorAttributeIR(DSC_1_USD_TENOR[loopins], Period.ofDays(0));
+      OIS_ATTR[loopins] = new GeneratorAttributeIR(DSC_1_USD_TENOR[loopins], Period.ofDays(0));
     }
     for (int loopins = 2; loopins < DSC_1_USD_TENOR.length; loopins++) {
-      DSC_1_USD_ATTR[loopins] = new GeneratorAttributeIR(DSC_1_USD_TENOR[loopins]);
+      OIS_ATTR[loopins] = new GeneratorAttributeIR(DSC_1_USD_TENOR[loopins]);
     }
   }
   
   /** Market quotes for the USD-USGVT curve */
-  // 3M: 2015-01-08
-  // 6M: 2015-04-09
-  // 12M: 2015-09-17
-  // 2Y: 2016-09-30 Street Convention - 0.0050 100-07 - CT2 GOVT - US912828F478
-  // 5Y: 2019-09-30 0.0175 101-11 - US912828F395
-  // 10Y: 2024-08-15 0.02375 101-10 - US912828D564
   private static final ZonedDateTime[] BILL_MATURITY = new ZonedDateTime[] {DateUtils.getUTCDate(2015, 1, 8),
     DateUtils.getUTCDate(2015, 4, 9), DateUtils.getUTCDate(2015, 9, 17) };
   private static final int NB_BILL = BILL_MATURITY.length;
@@ -200,6 +198,30 @@ public class StandardDataSetsGovtUsInflationUSD {
     }
   }
   
+  /** Market quotes for the USD-TIPSUSGVT curve */
+  private static final int NB_TIPS = 3;
+  private static final List<BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponInterpolationGearingDefinition>> 
+    TIPS_SECURITY = new ArrayList<>();
+  private static final GeneratorInstrument<? extends GeneratorAttribute>[] TIPS_GENERATORS = new GeneratorBondCapitalIndexed[NB_TIPS];
+  static {
+    TIPS_SECURITY.add(BondDataSetsUsd.bondTIPS_20160715(NOTIONAL));
+    TIPS_SECURITY.add(BondDataSetsUsd.bondTIPS_20190715(NOTIONAL));
+    TIPS_SECURITY.add(BondDataSetsUsd.bondTIPS_20240715(NOTIONAL));
+    for (int loopbnd = 0; loopbnd < NB_BOND; loopbnd++) {
+      TIPS_GENERATORS[loopbnd] = new GeneratorBondCapitalIndexed("GeneratorBond" + loopbnd, TIPS_SECURITY.get(loopbnd));
+    }
+  }
+  /** Market values for the US TIPS curve */
+  private static final double[] TIPS_MARKET_QUOTES =
+      new double[] {1.06d + 6.0d / 100.0d / 32.0d, 1.10d + 15.0d / 100.0d / 32.0d, 0.98 + 23.5d / 100.0d / 32.0d };
+  /** Attributes for the US Govt curve */
+  private static final GeneratorAttributeET[] TIPS_ATTR = new GeneratorAttributeET[TIPS_MARKET_QUOTES.length];
+  static {
+    for (int loopins = 0; loopins < TIPS_MARKET_QUOTES.length; loopins++) {
+      TIPS_ATTR[loopins] = new GeneratorAttributeET(true);
+    }
+  }
+  
   /** Map of index/curves */
   private static final LinkedHashMap<String, Currency> DSC_MAP = new LinkedHashMap<>();
   private static final LinkedHashMap<String, IndexON[]> FWD_ON_MAP = new LinkedHashMap<>();
@@ -220,10 +242,10 @@ public class StandardDataSetsGovtUsInflationUSD {
       ParSpreadMarketQuoteIssuerDiscountingCalculator.getInstance();
   private static final ParSpreadMarketQuoteCurveSensitivityIssuerDiscountingCalculator PSMQCSIDC =
       ParSpreadMarketQuoteCurveSensitivityIssuerDiscountingCalculator.getInstance();
-  private static final ParSpreadInflationMarketQuoteIssuerDiscountingCalculator PSMQIssuerInflationC = 
-      ParSpreadInflationMarketQuoteIssuerDiscountingCalculator.getInstance();
-  private static final ParSpreadInflationMarketQuoteCurveSensitivityIssuerDiscountingCalculator PSMQCSIssuerInflationC = 
-      ParSpreadInflationMarketQuoteCurveSensitivityIssuerDiscountingCalculator.getInstance();
+  private static final ParSpreadMarketQuoteInflationIssuerDiscountingCalculator PSMQIssuerInflationC = 
+      ParSpreadMarketQuoteInflationIssuerDiscountingCalculator.getInstance();
+  private static final ParSpreadMarketQuoteCurveSensitivityInflationIssuerDiscountingCalculator PSMQCSIssuerInflationC = 
+      ParSpreadMarketQuoteCurveSensitivityInflationIssuerDiscountingCalculator.getInstance();
 
   private static final IssuerDiscountBuildingRepository CURVE_BUILDING_REPOSITORY_ISSUER = 
       CurveCalibrationConventionDataSets.curveBuildingRepositoryIssuer();
@@ -239,7 +261,7 @@ public class StandardDataSetsGovtUsInflationUSD {
   public static Pair<IssuerProviderDiscount, CurveBuildingBlockBundle> getCurvesUsdOisUsGovt(
       ZonedDateTime calibrationDate) {
     InstrumentDefinition<?>[] oisDefinition = CurveCalibrationTestsUtils.getDefinitions(calibrationDate, NOTIONAL,
-        OIS_MARKET_QUOTES, DSC_1_USD_GENERATORS, DSC_1_USD_ATTR);
+        OIS_MARKET_QUOTES, OIS_GENERATORS, OIS_ATTR);
     InstrumentDefinition<?>[] govtDefinition = CurveCalibrationTestsUtils.getDefinitions(calibrationDate, NOTIONAL,
         GOVT_MARKET_QUOTES, GOVT_GENERATORS, GOVT_ATTR);
     InstrumentDefinition<?>[][][] unitDefinition = 
@@ -266,7 +288,7 @@ public class StandardDataSetsGovtUsInflationUSD {
   public static Pair<InflationIssuerProviderDiscount, CurveBuildingBlockBundle> getCurvesUsdOisUsGovtUsCpi(
       ZonedDateTime calibrationDate) {
     InstrumentDefinition<?>[] oisDefinition = CurveCalibrationTestsUtils.getDefinitions(calibrationDate, NOTIONAL,
-        OIS_MARKET_QUOTES, DSC_1_USD_GENERATORS, DSC_1_USD_ATTR);
+        OIS_MARKET_QUOTES, OIS_GENERATORS, OIS_ATTR);
     InstrumentDefinition<?>[] govtDefinition = CurveCalibrationTestsUtils.getDefinitions(calibrationDate, NOTIONAL,
         GOVT_MARKET_QUOTES, GOVT_GENERATORS, GOVT_ATTR);
     InstrumentDefinition<?>[] inflDefinition = CurveCalibrationTestsUtils.getDefinitions(calibrationDate, NOTIONAL,
@@ -322,11 +344,55 @@ public class StandardDataSetsGovtUsInflationUSD {
     GeneratorPriceIndexCurve genAdjustment = 
         new GeneratorPriceIndexCurveMultiplyFixedCurve(generatorFixLinAnchor, adjustmentCurve);
     InstrumentDefinition<?>[] oisDefinition = CurveCalibrationTestsUtils.getDefinitions(calibrationDate, NOTIONAL,
-        OIS_MARKET_QUOTES, DSC_1_USD_GENERATORS, DSC_1_USD_ATTR);
+        OIS_MARKET_QUOTES, OIS_GENERATORS, OIS_ATTR);
     InstrumentDefinition<?>[] govtDefinition = CurveCalibrationTestsUtils.getDefinitions(calibrationDate, NOTIONAL,
         GOVT_MARKET_QUOTES, GOVT_GENERATORS, GOVT_ATTR);
     InstrumentDefinition<?>[] inflDefinition = CurveCalibrationTestsUtils.getDefinitions(calibrationDate, NOTIONAL,
         CPI_USD_MARKET_QUOTES, HICP_USD_GENERATORS, HICP_USD_ATTR);
+    InstrumentDefinition<?>[][][] unitDefinition = 
+        new InstrumentDefinition<?>[][][] {{oisDefinition}, {govtDefinition}, {inflDefinition}};
+    GeneratorCurve[][] generator = 
+        new GeneratorCurve[][] {{GENERATOR_YD_MAT_LIN}, {GENERATOR_YD_MAT_LIN}, {genAdjustment}};
+    String[][] namesCurves = new String[][] {{CURVE_NAME_OIS}, {CURVE_NAME_GVT}, {CURVE_NAME_CPI}};
+    Map<IndexON, ZonedDateTimeDoubleTimeSeries> htsOn = getOnHts(calibrationDate, false);
+    InflationIssuerProviderDiscount knownDataIssuer = new InflationIssuerProviderDiscount(FX_MATRIX);
+    Pair<InflationIssuerProviderDiscount, CurveBuildingBlockBundle> multicurveInflation = 
+        CurveCalibrationTestsUtils.makeCurvesFromDefinitionsInflationIssuer(calibrationDate, unitDefinition, 
+            generator, namesCurves, knownDataIssuer, new CurveBuildingBlockBundle(), PSMQIssuerInflationC, 
+            PSMQCSIssuerInflationC, DSC_MAP, FWD_ON_MAP, FWD_IBOR_MAP, USD_HICP_MAP, DSC_ISS_MAP, 
+            CURVE_BUILDING_REPOSITORY_INFLATION_ISSUER, htsOn, HTS_IBOR, getCpiHts(calibrationDate));
+    return multicurveInflation;
+  }
+  
+  /**
+   * Returns a set of calibrated curve: dsc/on with OIS, US Govt on bills and treasiries and US CPI on TIPS.
+   * The curves are calibrated as three units in a unique calibration.
+   * @param calibrationDate The calibration date.
+   * @return  The calibrated curves and Jacobians.
+   */
+  public static Pair<InflationIssuerProviderDiscount, CurveBuildingBlockBundle> getCurvesUsdOisUsGovtUsTips(
+      ZonedDateTime calibrationDate) {
+    ZonedDateTimeDoubleTimeSeries htsCpi = StandardTimeSeriesInflationDataSets.timeSeriesUsCpi(
+        calibrationDate.minusMonths(7).with(TemporalAdjusters.lastDayOfMonth()), calibrationDate);
+    List<ZonedDateTime> timesList = htsCpi.times();
+    List<Double> valuesList = htsCpi.values();
+    int nbTimes = timesList.size();
+    Double[] times = new Double[nbTimes];
+    Double[] values = valuesList.toArray(new Double[0]);
+    for(int i=0; i<nbTimes; i++) {
+      times[i] = TimeCalculator.getTimeBetween(calibrationDate, timesList.get(i));
+    }
+    InterpolatedDoublesCurve startCurve = new InterpolatedDoublesCurve(times, values, INTERPOLATOR_STEP_FLAT, true);
+    GeneratorPriceIndexCurve generatorFixLinAnchor = new GeneratorPriceIndexCurveInterpolatedAnchor(
+        LAST_FIXING_END_CALCULATOR, INTERPOLATOR_LINEAR, times[nbTimes-1], 1.0);
+    GeneratorPriceIndexCurve genAdjustment = 
+        new GeneratorPriceIndexCurveMultiplyFixedCurve(generatorFixLinAnchor, startCurve);
+    InstrumentDefinition<?>[] oisDefinition = CurveCalibrationTestsUtils.getDefinitions(calibrationDate, NOTIONAL,
+        OIS_MARKET_QUOTES, OIS_GENERATORS, OIS_ATTR);
+    InstrumentDefinition<?>[] govtDefinition = CurveCalibrationTestsUtils.getDefinitions(calibrationDate, NOTIONAL,
+        GOVT_MARKET_QUOTES, GOVT_GENERATORS, GOVT_ATTR);
+    InstrumentDefinition<?>[] inflDefinition = CurveCalibrationTestsUtils.getDefinitions(calibrationDate, NOTIONAL,
+        TIPS_MARKET_QUOTES, TIPS_GENERATORS, TIPS_ATTR);
     InstrumentDefinition<?>[][][] unitDefinition = 
         new InstrumentDefinition<?>[][][] {{oisDefinition}, {govtDefinition}, {inflDefinition}};
     GeneratorCurve[][] generator = 

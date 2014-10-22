@@ -18,7 +18,7 @@ import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.provider.calculator.inflation.PresentValueFromCurvesCalculator;
-import com.opengamma.analytics.financial.provider.calculator.inflationissuer.PresentValueDiscountingInflationIssuerCalculator;
+import com.opengamma.analytics.financial.provider.calculator.inflationissuer.PresentValueInflationIssuerDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationIssuerProviderInterface;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionExecutionContext;
@@ -56,7 +56,7 @@ public class InflationBondPresentValueFromCurvesFunction extends InflationBondFr
     final InstrumentDerivative derivative = BondAndBondFutureFunctionUtils.getBondOrBondFutureDerivative(executionContext, target, now, inputs);
     final InflationIssuerProviderInterface issuerCurves = (InflationIssuerProviderInterface) inputs.getValue(CURVE_BUNDLE);
     final ValueSpecification spec = new ValueSpecification(PRESENT_VALUE, target.toSpecification(), properties);
-    final MultipleCurrencyAmount pv = derivative.accept(PresentValueDiscountingInflationIssuerCalculator.getInstance(), issuerCurves);
+    final MultipleCurrencyAmount pv = derivative.accept(PresentValueInflationIssuerDiscountingCalculator.getInstance(), issuerCurves);
     final String expectedCurrency = spec.getProperty(CURRENCY);
     if (pv.size() != 1 || !(expectedCurrency.equals(pv.getCurrencyAmounts()[0].getCurrency().getCode()))) {
       throw new OpenGammaRuntimeException("Expecting a single result in " + expectedCurrency);

@@ -24,26 +24,26 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  * Calculates the present value of an inflation instruments by discounting for a given MarketBundle
  */
-public final class PresentValueDiscountingInflationIssuerCalculator 
+public final class PresentValueInflationIssuerDiscountingCalculator 
   extends InstrumentDerivativeVisitorDelegate<ParameterInflationIssuerProviderInterface, MultipleCurrencyAmount> {
 
   /**
    * The unique instance of the calculator.
    */
-  private static final PresentValueDiscountingInflationIssuerCalculator INSTANCE = new PresentValueDiscountingInflationIssuerCalculator();
+  private static final PresentValueInflationIssuerDiscountingCalculator INSTANCE = new PresentValueInflationIssuerDiscountingCalculator();
 
   /**
    * Gets the calculator instance.
    * @return The calculator.
    */
-  public static PresentValueDiscountingInflationIssuerCalculator getInstance() {
+  public static PresentValueInflationIssuerDiscountingCalculator getInstance() {
     return INSTANCE;
   }
 
   /**
    * Constructor.
    */
-  private PresentValueDiscountingInflationIssuerCalculator() {
+  private PresentValueInflationIssuerDiscountingCalculator() {
     super(new InflationIssuerProviderAdapter<>(PresentValueDiscountingInflationCalculator.getInstance()));
   }
 

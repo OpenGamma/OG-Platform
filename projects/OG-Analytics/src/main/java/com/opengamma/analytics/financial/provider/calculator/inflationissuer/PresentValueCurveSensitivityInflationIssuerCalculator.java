@@ -22,26 +22,26 @@ import com.opengamma.analytics.financial.provider.sensitivity.inflation.Multiple
 /**
  * 
  */
-public final class PresentValueCurveSensitivityIssuerInflationCalculator 
+public final class PresentValueCurveSensitivityInflationIssuerCalculator 
   extends InstrumentDerivativeVisitorDelegate<ParameterInflationIssuerProviderInterface, MultipleCurrencyInflationSensitivity> {
 
   /**
    * The unique instance of the calculator.
    */
-  private static final PresentValueCurveSensitivityIssuerInflationCalculator INSTANCE = new PresentValueCurveSensitivityIssuerInflationCalculator();
+  private static final PresentValueCurveSensitivityInflationIssuerCalculator INSTANCE = new PresentValueCurveSensitivityInflationIssuerCalculator();
 
   /**
    * Gets the calculator instance.
    * @return The calculator.
    */
-  public static PresentValueCurveSensitivityIssuerInflationCalculator getInstance() {
+  public static PresentValueCurveSensitivityInflationIssuerCalculator getInstance() {
     return INSTANCE;
   }
 
   /**
    * Private constructor.
    */
-  private PresentValueCurveSensitivityIssuerInflationCalculator() {
+  private PresentValueCurveSensitivityInflationIssuerCalculator() {
     super(new InflationIssuerProviderAdapter<>(PresentValueCurveSensitivityDiscountingInflationCalculator.getInstance()));
   }
 

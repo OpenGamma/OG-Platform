@@ -33,8 +33,8 @@ import com.opengamma.analytics.financial.interestrate.datasets.StandardDataSetsI
 import com.opengamma.analytics.financial.interestrate.datasets.StandardTimeSeriesInflationDataSets;
 import com.opengamma.analytics.financial.provider.calculator.inflation.MarketQuoteInflationSensitivityBlockCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflation.PresentValueDiscountingInflationCalculator;
-import com.opengamma.analytics.financial.provider.calculator.inflationissuer.PresentValueCurveSensitivityIssuerInflationCalculator;
-import com.opengamma.analytics.financial.provider.calculator.inflationissuer.PresentValueDiscountingInflationIssuerCalculator;
+import com.opengamma.analytics.financial.provider.calculator.inflationissuer.PresentValueCurveSensitivityInflationIssuerCalculator;
+import com.opengamma.analytics.financial.provider.calculator.inflationissuer.PresentValueInflationIssuerDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.issuer.PresentValueIssuerCalculator;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationIssuerProviderDiscount;
@@ -80,10 +80,10 @@ public class BondCapitalIndexedDiscountingE2ETest {
       PresentValueIssuerCalculator.getInstance();
   private static final PresentValueDiscountingInflationCalculator PVInflC = 
       PresentValueDiscountingInflationCalculator.getInstance();
-  private static final PresentValueDiscountingInflationIssuerCalculator PVInflIssuerC =
-      PresentValueDiscountingInflationIssuerCalculator.getInstance();
-  private static final PresentValueCurveSensitivityIssuerInflationCalculator PVCSInflIssuerC =
-      PresentValueCurveSensitivityIssuerInflationCalculator.getInstance();
+  private static final PresentValueInflationIssuerDiscountingCalculator PVInflIssuerC =
+      PresentValueInflationIssuerDiscountingCalculator.getInstance();
+  private static final PresentValueCurveSensitivityInflationIssuerCalculator PVCSInflIssuerC =
+      PresentValueCurveSensitivityInflationIssuerCalculator.getInstance();
 
   private static final ParameterSensitivityInflationParameterCalculator<ParameterInflationIssuerProviderInterface> PSIC = 
       new ParameterSensitivityInflationParameterCalculator<>(PVCSInflIssuerC);
@@ -119,7 +119,7 @@ public class BondCapitalIndexedDiscountingE2ETest {
   private static final BondCapitalIndexedTransactionDefinition<CouponInflationZeroCouponInterpolationGearingDefinition> 
     TIPS_16_TRA_DEFINITION = new BondCapitalIndexedTransactionDefinition<>(TIPS_16_SEC_DEFINITION, QUANTITY_TIPS_1, 
         SETTLE_DATE_TIPS_1, TRADE_PRICE_TIPS_1);
-  private static final BondCapitalIndexedTransaction<?> TIPS_16_TRA = 
+  private static final BondCapitalIndexedTransaction<?> TIPS_16_1_TRA = 
       TIPS_16_TRA_DEFINITION.toDerivative(CALIBRATION_DATE, HTS_CPI);
   
   /** Curves **/
@@ -133,12 +133,16 @@ public class BondCapitalIndexedDiscountingE2ETest {
 //  private static final CurveBuildingBlockBundle INFL_BLOCK = INFL_PAIR.getSecond();
   private static final Pair<InflationIssuerProviderDiscount, CurveBuildingBlockBundle> INFL_ISSUER_GOVT_PAIR = 
       StandardDataSetsGovtUsInflationUSD.getCurvesUsdOisUsGovtUsCpi(CALIBRATION_DATE);
-  private static final InflationIssuerProviderDiscount INFL_ISSUER_GOVT = INFL_ISSUER_GOVT_PAIR.getFirst();
-  private static final CurveBuildingBlockBundle INFL_ISSUER_GOVT_BLOCK = INFL_ISSUER_GOVT_PAIR.getSecond();
+  private static final InflationIssuerProviderDiscount INFL_ISSUER_GOVT_1 = INFL_ISSUER_GOVT_PAIR.getFirst();
+  private static final CurveBuildingBlockBundle INFL_ISSUER_GOVT_BLOCK_1 = INFL_ISSUER_GOVT_PAIR.getSecond();
   private static final Pair<InflationIssuerProviderDiscount, CurveBuildingBlockBundle> INFL_ISSUER_GOVT_2_PAIR = 
       StandardDataSetsGovtUsInflationUSD.getCurvesUsdOisUsGovtUsCpiCurrentSeasonality(CALIBRATION_DATE);
   private static final InflationIssuerProviderDiscount INFL_ISSUER_GOVT_2 = INFL_ISSUER_GOVT_2_PAIR.getFirst();
   private static final CurveBuildingBlockBundle INFL_ISSUER_GOVT_2_BLOCK = INFL_ISSUER_GOVT_2_PAIR.getSecond();
+  private static final Pair<InflationIssuerProviderDiscount, CurveBuildingBlockBundle> INFL_ISSUER_GOVT_3_PAIR = 
+      StandardDataSetsGovtUsInflationUSD.getCurvesUsdOisUsGovtUsTips(CALIBRATION_DATE);
+  private static final InflationIssuerProviderDiscount INFL_ISSUER_GOVT_3 = INFL_ISSUER_GOVT_3_PAIR.getFirst();
+  private static final CurveBuildingBlockBundle INFL_ISSUER_GOVT_3_BLOCK = INFL_ISSUER_GOVT_3_PAIR.getSecond();
   
   private static final double TOLERANCE_PV = 1.0E-3;
   private static final double TOLERANCE_PV_DELTA = 1.0E-1;
@@ -151,7 +155,7 @@ public class BondCapitalIndexedDiscountingE2ETest {
     MultipleCurrencyAmount pvComputedIs = UST_TRA.accept(PVIssuerC, ISSUER_GOVT);
     assertEquals("BondCapitalIndexedDiscountingE2E: present value bond fixed", 
         pvExpected, pvComputedIs.getAmount(USD), TOLERANCE_PV);
-    MultipleCurrencyAmount pvComputedInIs = UST_TRA.accept(PVInflIssuerC, INFL_ISSUER_GOVT);
+    MultipleCurrencyAmount pvComputedInIs = UST_TRA.accept(PVInflIssuerC, INFL_ISSUER_GOVT_1);
     assertEquals("BondCapitalIndexedDiscountingE2E: present value bond fixed", 
         pvExpected, pvComputedInIs.getAmount(USD), TOLERANCE_PV);
   }
@@ -162,29 +166,37 @@ public class BondCapitalIndexedDiscountingE2ETest {
     MultipleCurrencyAmount pvIn = ZCI_2.accept(PVInflC, INFL);
     assertEquals("BondCapitalIndexedDiscountingE2E: present value ZC", 
         pvExpected, pvIn.getAmount(USD), TOLERANCE_PV);
-    MultipleCurrencyAmount pvInIs = ZCI_2.accept(PVInflIssuerC, INFL_ISSUER_GOVT);
+    MultipleCurrencyAmount pvInIs = ZCI_2.accept(PVInflIssuerC, INFL_ISSUER_GOVT_1);
     assertEquals("BondCapitalIndexedDiscountingE2E: present value ZC", 
         pvExpected, pvInIs.getAmount(USD), TOLERANCE_PV);
   }
   
   @Test
   public void presentValueTips() {
-    double pvExpected = 471980.9359;
-    MultipleCurrencyAmount pv1 = TIPS_16_TRA.accept(PVInflIssuerC, INFL_ISSUER_GOVT);
+    double pvExpected = 474588.4388;
+    MultipleCurrencyAmount pv1 = TIPS_16_1_TRA.accept(PVInflIssuerC, INFL_ISSUER_GOVT_1);
     assertEquals("BondCapitalIndexedDiscountingE2E: present value TIPS", 
         pvExpected, pv1.getAmount(USD), TOLERANCE_PV);
   }
   
   @Test
   public void presentValueTipsSeasonalityCurrent() {
-    double pvExpected = 431401.1262;
-    MultipleCurrencyAmount pv1 = TIPS_16_TRA.accept(PVInflIssuerC, INFL_ISSUER_GOVT_2);
+    double pvExpected = 434008.6291;
+    MultipleCurrencyAmount pv1 = TIPS_16_1_TRA.accept(PVInflIssuerC, INFL_ISSUER_GOVT_2);
     assertEquals("BondCapitalIndexedDiscountingE2E: present value TIPS", 
         pvExpected, pv1.getAmount(USD), TOLERANCE_PV);
   }
   
   @Test
-  public void bucketeParameterInflationProviderInterfacedPV01Tips() {
+  public void presentValueTipsFromTips() {
+    double pvExpected = 937819.3845;
+    MultipleCurrencyAmount pv1 = TIPS_16_1_TRA.accept(PVInflIssuerC, INFL_ISSUER_GOVT_3);
+    assertEquals("BondCapitalIndexedDiscountingE2E: present value TIPS", 
+        pvExpected, pv1.getAmount(USD), TOLERANCE_PV);
+  }
+  
+  @Test
+  public void bucketePV01TipsToZCITreasury() {
     final double[] deltaDsc = 
       {-0.0250,15.3801,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,
       0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000};
@@ -193,19 +205,19 @@ public class BondCapitalIndexedDiscountingE2ETest {
     final double[] deltaCpi = 
       {954.1522,524.2191,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000};
     final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> sensitivity = new LinkedHashMap<>();
-    sensitivity.put(ObjectsPair.of(INFL_ISSUER_GOVT.getName(USD), USD), new DoubleMatrix1D(deltaDsc));
-    sensitivity.put(ObjectsPair.of(INFL_ISSUER_GOVT.getIssuerProvider().getName(TIPS_16_SEC_DEFINITION.getIssuerEntity()), USD), 
+    sensitivity.put(ObjectsPair.of(INFL_ISSUER_GOVT_1.getName(USD), USD), new DoubleMatrix1D(deltaDsc));
+    sensitivity.put(ObjectsPair.of(INFL_ISSUER_GOVT_1.getIssuerProvider().getName(TIPS_16_SEC_DEFINITION.getIssuerEntity()), USD), 
         new DoubleMatrix1D(deltaGovt));
-    sensitivity.put(ObjectsPair.of(INFL_ISSUER_GOVT.getName(US_CPI), USD), new DoubleMatrix1D(deltaCpi));
+    sensitivity.put(ObjectsPair.of(INFL_ISSUER_GOVT_1.getName(US_CPI), USD), new DoubleMatrix1D(deltaCpi));
     MultipleCurrencyParameterSensitivity pvpsExpected = new MultipleCurrencyParameterSensitivity(sensitivity);
     MultipleCurrencyParameterSensitivity pvpsComputed = 
-        MQISBC.fromInstrument(TIPS_16_TRA, INFL_ISSUER_GOVT, INFL_ISSUER_GOVT_BLOCK).multipliedBy(BP1);
+        MQISBC.fromInstrument(TIPS_16_1_TRA, INFL_ISSUER_GOVT_1, INFL_ISSUER_GOVT_BLOCK_1).multipliedBy(BP1);
     AssertSensitivityObjects.assertEquals("BondCapitalIndexedDiscountingE2E", 
         pvpsExpected, pvpsComputed, TOLERANCE_PV_DELTA);
   }
   
   @Test
-  public void bucketeParameterInflationProviderInterfacedPV01TipsSeasonalityCurrent() {
+  public void bucketeTipsToZCITreasuryWithSeasonalityCurrent() {
     final double[] deltaDsc = 
       {-0.0123,15.3801,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,
       0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000};
@@ -214,39 +226,60 @@ public class BondCapitalIndexedDiscountingE2ETest {
     final double[] deltaCpi = 
       {994.7588,522.2729,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000};
     final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> sensitivity = new LinkedHashMap<>();
-    sensitivity.put(ObjectsPair.of(INFL_ISSUER_GOVT.getName(USD), USD), new DoubleMatrix1D(deltaDsc));
-    sensitivity.put(ObjectsPair.of(INFL_ISSUER_GOVT.getIssuerProvider().getName(TIPS_16_SEC_DEFINITION.getIssuerEntity()), USD), 
+    sensitivity.put(ObjectsPair.of(INFL_ISSUER_GOVT_2.getName(USD), USD), new DoubleMatrix1D(deltaDsc));
+    sensitivity.put(ObjectsPair.of(INFL_ISSUER_GOVT_2.getIssuerProvider().getName(TIPS_16_SEC_DEFINITION.getIssuerEntity()), USD), 
         new DoubleMatrix1D(deltaGovt));
-    sensitivity.put(ObjectsPair.of(INFL_ISSUER_GOVT.getName(US_CPI), USD), new DoubleMatrix1D(deltaCpi));
+    sensitivity.put(ObjectsPair.of(INFL_ISSUER_GOVT_2.getName(US_CPI), USD), new DoubleMatrix1D(deltaCpi));
     MultipleCurrencyParameterSensitivity pvpsExpected = new MultipleCurrencyParameterSensitivity(sensitivity);
     MultipleCurrencyParameterSensitivity pvpsComputed = 
-        MQISBC.fromInstrument(TIPS_16_TRA, INFL_ISSUER_GOVT_2, INFL_ISSUER_GOVT_2_BLOCK).multipliedBy(BP1);
+        MQISBC.fromInstrument(TIPS_16_1_TRA, INFL_ISSUER_GOVT_2, INFL_ISSUER_GOVT_2_BLOCK).multipliedBy(BP1);
     @SuppressWarnings("unused")
-    MultipleCurrencyInflationSensitivity pvcsPoint = TIPS_16_TRA.accept(PVCSInflIssuerC, INFL_ISSUER_GOVT_2);
+    MultipleCurrencyInflationSensitivity pvcsPoint = TIPS_16_1_TRA.accept(PVCSInflIssuerC, INFL_ISSUER_GOVT_2);
     @SuppressWarnings("unused")
-    MultipleCurrencyParameterSensitivity pvcsParam = PSIC.calculateSensitivity(TIPS_16_TRA, INFL_ISSUER_GOVT_2);
+    MultipleCurrencyParameterSensitivity pvcsParam = PSIC.calculateSensitivity(TIPS_16_1_TRA, INFL_ISSUER_GOVT_2);
+    AssertSensitivityObjects.assertEquals("BondCapitalIndexedDiscountingE2E", 
+        pvpsExpected, pvpsComputed, TOLERANCE_PV_DELTA);
+  }
+  
+  @Test
+  public void bucketeTipsToZCITIPSWithCurrent() {
+    final double[] deltaDsc = 
+      {0.0831, 15.4536,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,
+      0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000};
+    final double[] deltaGovt = 
+      {-0.7353, -4.8187, -784.6413, -416.7951,0.0000,0.0000};
+    final double[] deltaCpi = 
+      {881.5432, 0.0000,0.0000};
+    final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> sensitivity = new LinkedHashMap<>();
+    sensitivity.put(ObjectsPair.of(INFL_ISSUER_GOVT_3.getName(USD), USD), new DoubleMatrix1D(deltaDsc));
+    sensitivity.put(ObjectsPair.of(INFL_ISSUER_GOVT_3.getIssuerProvider().getName(TIPS_16_SEC_DEFINITION.getIssuerEntity()), USD), 
+        new DoubleMatrix1D(deltaGovt));
+    sensitivity.put(ObjectsPair.of(INFL_ISSUER_GOVT_3.getName(US_CPI), USD), new DoubleMatrix1D(deltaCpi));
+    MultipleCurrencyParameterSensitivity pvpsExpected = new MultipleCurrencyParameterSensitivity(sensitivity);
+    MultipleCurrencyParameterSensitivity pvpsComputed = 
+        MQISBC.fromInstrument(TIPS_16_1_TRA, INFL_ISSUER_GOVT_3, INFL_ISSUER_GOVT_3_BLOCK).multipliedBy(BP1);
     AssertSensitivityObjects.assertEquals("BondCapitalIndexedDiscountingE2E", 
         pvpsExpected, pvpsComputed, TOLERANCE_PV_DELTA);
   }
   
   @Test
   public void cleanRealPriceTips() {
-    double cleanRealPriceExpected = 1.0259067846;
-    double cleanRealPrice = METHOD_CAPIND_BOND_SEC.cleanRealPriceFromCurves(TIPS_16_TRA.getBondStandard(), INFL_ISSUER_GOVT_2);
+    double cleanRealPriceExpected = 1.0258835457;
+    double cleanRealPrice = METHOD_CAPIND_BOND_SEC.cleanRealPriceFromCurves(TIPS_16_1_TRA.getBondStandard(), INFL_ISSUER_GOVT_2);
     assertEquals("BondCapitalIndexedDiscountingE2E: clean real price TIPS", 
         cleanRealPriceExpected, cleanRealPrice, TOLERANCE_PRICE);
   }
   
   @Test
   public void yieldRealTips() {
-    double yieldRealExpected = -0.012391583129356336;
-    double yieldReal = METHOD_CAPIND_BOND_SEC.yieldRealFromCurves(TIPS_16_TRA.getBondStandard(), INFL_ISSUER_GOVT_2);
+    double yieldRealExpected = -0.012113884588;
+    double yieldReal = METHOD_CAPIND_BOND_SEC.yieldRealFromCurves(TIPS_16_1_TRA.getBondStandard(), INFL_ISSUER_GOVT_2);
     assertEquals("BondCapitalIndexedDiscountingE2E: real yield TIPS", yieldRealExpected, yieldReal, TOLERANCE_PRICE);
   }
   
   @Test
   public void consistencyPricePvTips() {
-    double cleanRealPrice = METHOD_CAPIND_BOND_SEC.cleanRealPriceFromCurves(TIPS_16_TRA.getBondStandard(), 
+    double cleanRealPrice = METHOD_CAPIND_BOND_SEC.cleanRealPriceFromCurves(TIPS_16_1_TRA.getBondStandard(), 
         INFL_ISSUER_GOVT_2);
     ZonedDateTime settleDateStandard = ScheduleCalculator.getAdjustedDate(CALIBRATION_DATE, 
         TIPS_16_SEC_DEFINITION.getSettlementDays(), TIPS_16_SEC_DEFINITION.getCalendar());

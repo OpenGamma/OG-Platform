@@ -137,14 +137,32 @@ public class BondDataSetsUsd {
   private static final int MONTH_LAG_TIPS = 3;
   private static final Period COUPON_PERIOD_TIPS = Period.ofMonths(6);
   private static final YieldConvention YIELD_CONVENTION_TIPS = SimpleYieldConvention.US_IL_REAL;
-  private static final int SETTLEMENT_DAYS_TIPS = 2;
+  private static final int SETTLEMENT_DAYS_TIPS = 1;
   private static final double NOTIONAL_TIPS = 1.00;
   
   // 2% 10-YEAR TREASURY INFLATION-PROTECTED SECURITIES (TIPS) Due January 15, 2016 - US912828ET33
-  private static final ZonedDateTime START_DATE_TIPS_16 = DateUtils.getUTCDate(2006, 1, 15);
-  private static final ZonedDateTime MATURITY_DATE_TIPS_16 = DateUtils.getUTCDate(2016, 1, 15);
-  private static final double INDEX_START_TIPS_16 = 198.47742; // Date:
-  private static final double REAL_RATE_TIPS_16 = 0.02;
+  private static final ZonedDateTime START_DATE_TIPS_16_1 = DateUtils.getUTCDate(2006, 1, 15);
+  private static final ZonedDateTime MATURITY_DATE_TIPS_16_1 = DateUtils.getUTCDate(2016, 1, 15);
+  private static final double INDEX_START_TIPS_16_1 = 198.47742; // Date:
+  private static final double REAL_RATE_TIPS_16_1 = 0.02;
+  
+  //2.50% 10-YEAR TREASURY INFLATION-PROTECTED SECURITIES (TIPS) Due July 15, 2016 - US912828FL97
+  private static final ZonedDateTime START_DATE_TIPS_16_7 = DateUtils.getUTCDate(2006, 7, 15);
+  private static final ZonedDateTime MATURITY_DATE_TIPS_16_7 = DateUtils.getUTCDate(2016, 7, 15);
+  private static final double INDEX_START_TIPS_16_7 = 201.95161;
+  private static final double REAL_RATE_TIPS_16_7 = 0.0250;
+  
+  //1.875% 10-YEAR TREASURY INFLATION-PROTECTED SECURITIES (TIPS) Due July 15, 2019 - US912828LA68
+  private static final ZonedDateTime START_DATE_TIPS_19_7 = DateUtils.getUTCDate(2006, 7, 15);
+  private static final ZonedDateTime MATURITY_DATE_TIPS_19_7 = DateUtils.getUTCDate(2019, 7, 15);
+  private static final double INDEX_START_TIPS_19_7 = 213.51819;
+  private static final double REAL_RATE_TIPS_19_7 = 0.01875;
+  
+  //2.50% 10-YEAR TREASURY INFLATION-PROTECTED SECURITIES (TIPS) Due July 15, 2024 - US912828FL97
+  private static final ZonedDateTime START_DATE_TIPS_24_7 = DateUtils.getUTCDate(2006, 7, 15);
+  private static final ZonedDateTime MATURITY_DATE_TIPS_24_7 = DateUtils.getUTCDate(2024, 7, 15);
+  private static final double INDEX_START_TIPS_24_7 = 237.44594;
+  private static final double REAL_RATE_TIPS_24_7 = 0.00125;
 
   /**
    * Returns the definition of the TIPS 2.00 2016-01-15 - ISIN-US912828ET33 security.
@@ -154,8 +172,47 @@ public class BondDataSetsUsd {
   public static BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponInterpolationGearingDefinition> 
     bondTIPS_20160115(double notional) {
     return BondCapitalIndexedSecurityDefinition.fromInterpolation(USCPI, MONTH_LAG_TIPS, 
-        START_DATE_TIPS_16, INDEX_START_TIPS_16, MATURITY_DATE_TIPS_16, COUPON_PERIOD_TIPS, NOTIONAL_TIPS, 
-        REAL_RATE_TIPS_16, BUSINESS_DAY, SETTLEMENT_DAYS_TIPS, NYC, DAY_COUNT, YIELD_CONVENTION_TIPS, IS_EOM_TIPS, 
+        START_DATE_TIPS_16_1, INDEX_START_TIPS_16_1, MATURITY_DATE_TIPS_16_1, COUPON_PERIOD_TIPS, NOTIONAL_TIPS, 
+        REAL_RATE_TIPS_16_1, BUSINESS_DAY, SETTLEMENT_DAYS_TIPS, NYC, DAY_COUNT, YIELD_CONVENTION_TIPS, IS_EOM_TIPS, 
+        US_GOVT_LEGAL_ENTITY);
+  }
+
+  /**
+   * Returns the definition of the TIPS 2.50 2016-07-15 - ISIN-US912828FL97 security.
+   * @param notional The bond notional.
+   * @return The bond.
+   */
+  public static BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponInterpolationGearingDefinition> 
+    bondTIPS_20160715(double notional) {
+    return BondCapitalIndexedSecurityDefinition.fromInterpolation(USCPI, MONTH_LAG_TIPS, 
+        START_DATE_TIPS_16_7, INDEX_START_TIPS_16_7, MATURITY_DATE_TIPS_16_7, COUPON_PERIOD_TIPS, NOTIONAL_TIPS, 
+        REAL_RATE_TIPS_16_7, BUSINESS_DAY, SETTLEMENT_DAYS_TIPS, NYC, DAY_COUNT, YIELD_CONVENTION_TIPS, IS_EOM_TIPS, 
+        US_GOVT_LEGAL_ENTITY);
+  }
+
+  /**
+   * Returns the definition of the TIPS 1.875 2019-07-15 - ISIN-US912828LA68 security.
+   * @param notional The bond notional.
+   * @return The bond.
+   */
+  public static BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponInterpolationGearingDefinition> 
+    bondTIPS_20190715(double notional) {
+    return BondCapitalIndexedSecurityDefinition.fromInterpolation(USCPI, MONTH_LAG_TIPS, 
+        START_DATE_TIPS_19_7, INDEX_START_TIPS_19_7, MATURITY_DATE_TIPS_19_7, COUPON_PERIOD_TIPS, NOTIONAL_TIPS, 
+        REAL_RATE_TIPS_19_7, BUSINESS_DAY, SETTLEMENT_DAYS_TIPS, NYC, DAY_COUNT, YIELD_CONVENTION_TIPS, IS_EOM_TIPS, 
+        US_GOVT_LEGAL_ENTITY);
+  }
+
+  /**
+   * Returns the definition of the TIPS 0.125 2024-07-15 - ISIN-US912828FL97 security.
+   * @param notional The bond notional.
+   * @return The bond.
+   */
+  public static BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponInterpolationGearingDefinition> 
+    bondTIPS_20240715(double notional) {
+    return BondCapitalIndexedSecurityDefinition.fromInterpolation(USCPI, MONTH_LAG_TIPS, 
+        START_DATE_TIPS_24_7, INDEX_START_TIPS_24_7, MATURITY_DATE_TIPS_24_7, COUPON_PERIOD_TIPS, NOTIONAL_TIPS, 
+        REAL_RATE_TIPS_24_7, BUSINESS_DAY, SETTLEMENT_DAYS_TIPS, NYC, DAY_COUNT, YIELD_CONVENTION_TIPS, IS_EOM_TIPS, 
         US_GOVT_LEGAL_ENTITY);
   }
   

@@ -577,8 +577,10 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
       final ZonedDateTime refInterpolatedStartDate = settlementDate2.minusMonths(monthLag);
       referenceStartDates[0] = refInterpolatedStartDate.with(TemporalAdjusters.lastDayOfMonth()).withHour(0).withMinute(0).withSecond(0).withNano(0);
       referenceStartDates[1] = referenceStartDates[0].plusMonths(1).with(TemporalAdjusters.lastDayOfMonth()).withHour(0).withMinute(0).withSecond(0).withNano(0);
-      final double indexEnd0 = data.getValue(referenceStartDates[0]);
-      final double indexEnd1 = data.getValue(referenceStartDates[1]);
+      Double indexEnd0 = data.getValue(referenceStartDates[0]);
+      ArgumentChecker.isFalse(indexEnd0 == null, "missing Price Index for date {}", referenceStartDates[0]);
+      Double indexEnd1 = data.getValue(referenceStartDates[1]);
+      ArgumentChecker.isFalse(indexEnd1 == null, "missing Price Index for date {}", referenceStartDates[1]);
       final double weight = 1.0 - (settlementDate2.getDayOfMonth() - 1.0) / settlementDate2.toLocalDate().lengthOfMonth();
       final double indexEndValue = weight * indexEnd0 + (1 - weight) * indexEnd1;
       indexRatio = indexEndValue / _indexStartValue;
