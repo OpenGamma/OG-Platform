@@ -166,7 +166,7 @@ public class BlackPriceFunctionTest {
   }
 
   @Test
-  public void testPriceAdjoint2() {
+  public void testPriceAdjoint2Call() {
     // Price
     double[] priceAdjoint = FUNCTION.getPriceAdjoint(ITM_CALL, ATM_DATA);
     double[] bsD = new double[3];
@@ -204,6 +204,61 @@ public class BlackPriceFunctionTest {
     double deltaK = 0.001;
     EuropeanVanillaOption optionKP = new EuropeanVanillaOption(F - DELTA + deltaK, T, true);
     EuropeanVanillaOption optionKM = new EuropeanVanillaOption(F - DELTA - deltaK, T, true);
+    double priceKP = FUNCTION.getPriceFunction(optionKP).evaluate(ATM_DATA);
+    double priceKM = FUNCTION.getPriceFunction(optionKM).evaluate(ATM_DATA);
+    double derivativeKK_FD = (priceKP + priceKM - 2 * bs) / (deltaK * deltaK);
+    assertEquals(derivativeKK_FD, bsD2[2][2], 1E-8);
+    // Derivative forward-strike.
+    double priceFPKP = FUNCTION.getPriceFunction(optionKP).evaluate(dataFP);
+    double derivativeFK_FD = (priceFPKP + bs - priceFP - priceKP) / (deltaF * deltaK);
+    assertEquals(derivativeFK_FD, bsD2[2][0], 1E-7);
+    assertEquals(bsD2[0][2], bsD2[2][0], 1E-10);
+    // Derivative strike-volatility.
+    double priceKPVP = FUNCTION.getPriceFunction(optionKP).evaluate(dataVP);
+    double derivativeKV_FD = (priceKPVP + bs - priceKP - priceVP) / (deltaV * deltaK);
+    assertEquals(derivativeKV_FD, bsD2[2][1], 1E-4);
+    assertEquals(bsD2[1][2], bsD2[2][1], 1E-10);
+  }
+
+  @Test
+  public void testPriceAdjoint2Put() {
+    // Price
+    double[] priceAdjoint = FUNCTION.getPriceAdjoint(OTM_PUT, ATM_DATA);
+    double[] bsD = new double[3];
+    double[][] bsD2 = new double[3][3];
+    double bs = FUNCTION.getPriceAdjoint2(OTM_PUT, ATM_DATA, bsD, bsD2);
+    assertEquals(priceAdjoint[0], bs, 1E-10);
+    // First derivative
+    for (int loopder = 0; loopder < 3; loopder++) {
+      assertEquals(priceAdjoint[loopder + 1], bsD[loopder], 1E-10);
+    }
+    // Second derivative
+    // Derivative forward-forward.
+    double deltaF = 0.001;
+    BlackFunctionData dataFP = new BlackFunctionData(F + deltaF, DF, SIGMA);
+    BlackFunctionData dataFM = new BlackFunctionData(F - deltaF, DF, SIGMA);
+    double priceFP = FUNCTION.getPriceFunction(OTM_PUT).evaluate(dataFP);
+    double priceFM = FUNCTION.getPriceFunction(OTM_PUT).evaluate(dataFM);
+    double derivativeFF_FD = (priceFP + priceFM - 2 * bs) / (deltaF * deltaF);
+    assertEquals(derivativeFF_FD, bsD2[0][0], 1E-7);
+    // Derivative volatility-volatility.
+    double deltaV = 0.00001;
+    BlackFunctionData dataVP = new BlackFunctionData(F, DF, SIGMA + deltaV);
+    BlackFunctionData dataVM = new BlackFunctionData(F, DF, SIGMA - deltaV);
+    double priceVP = FUNCTION.getPriceFunction(OTM_PUT).evaluate(dataVP);
+    double priceVM = FUNCTION.getPriceFunction(OTM_PUT).evaluate(dataVM);
+    double derivativeVV_FD = (priceVP + priceVM - 2 * bs) / (deltaV * deltaV);
+    assertEquals(derivativeVV_FD, bsD2[1][1], 1E-3);
+    // Derivative forward-volatility.
+    BlackFunctionData dataFPVP = new BlackFunctionData(F + deltaF, DF, SIGMA + deltaV);
+    double priceFPVP = FUNCTION.getPriceFunction(OTM_PUT).evaluate(dataFPVP);
+    double derivativeFV_FD = (priceFPVP + bs - priceFP - priceVP) / (deltaF * deltaV);
+    assertEquals(derivativeFV_FD, bsD2[1][0], 1E-5);
+    assertEquals(bsD2[0][1], bsD2[1][0], 1E-10);
+    // Derivative strike-strike.
+    double deltaK = 0.001;
+    EuropeanVanillaOption optionKP = new EuropeanVanillaOption(F - DELTA + deltaK, T, false);
+    EuropeanVanillaOption optionKM = new EuropeanVanillaOption(F - DELTA - deltaK, T, false);
     double priceKP = FUNCTION.getPriceFunction(optionKP).evaluate(ATM_DATA);
     double priceKM = FUNCTION.getPriceFunction(optionKM).evaluate(ATM_DATA);
     double derivativeKK_FD = (priceKP + priceKM - 2 * bs) / (deltaK * deltaK);
