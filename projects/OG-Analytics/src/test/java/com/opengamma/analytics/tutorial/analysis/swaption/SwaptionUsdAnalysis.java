@@ -28,6 +28,7 @@ import com.opengamma.analytics.financial.instrument.payment.CouponIborDefinition
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
 import com.opengamma.analytics.financial.interestrate.PresentValueSABRSensitivityDataBundle;
+import com.opengamma.analytics.financial.interestrate.SwaptionSurfaceSensitivityNodeCalculator;
 import com.opengamma.analytics.financial.interestrate.datasets.StandardDataSetsSABRSwaptionUSD;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.sensitivity.PresentValueSwaptionSurfaceSensitivity;
@@ -101,6 +102,8 @@ public class SwaptionUsdAnalysis {
       new MarketQuoteSensitivityBlockCalculator<>(PSSSC);
   private static final PresentValueSABRSensitivitySABRSwaptionCalculator PVSSSSC =
       PresentValueSABRSensitivitySABRSwaptionCalculator.getInstance();
+  private static final SwaptionSurfaceSensitivityNodeCalculator SSSNC =
+      new SwaptionSurfaceSensitivityNodeCalculator();
 
   private static final Calendar NYC = new CalendarUSD("NYC");
   private static final GeneratorSwapFixedIborMaster GENERATOR_IRS_MASTER = GeneratorSwapFixedIborMaster.getInstance();
@@ -130,7 +133,7 @@ public class SwaptionUsdAnalysis {
   private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_NEG_PAIR =
       RecentDataSetsMulticurveStandardUsd.getCurvesUSDOisL1L3L6_Negative(VALUATION_DATE);
   private static final MulticurveProviderDiscount MULTICURVE_NEG = MULTICURVE_NEG_PAIR.getFirst();
-  private static final NormalSwaptionProviderInterface MULTICURVE_NEG_NORMAL = 
+  private static final NormalSwaptionExpiryTenorProvider MULTICURVE_NEG_NORMAL = 
       new NormalSwaptionExpiryTenorProvider(MULTICURVE_NEG, NORMAL_SURFACE_SWAPTION_EXP_TENOR, USD6MLIBOR3M);
   
   private static final ZonedDateTimeDoubleTimeSeries TS_FIXED_IBOR_USD3M_WITHOUT_TODAY = 
@@ -151,9 +154,9 @@ public class SwaptionUsdAnalysis {
   
 
 /** SWAPTION 2 : USD Fixed v USDLIBOR3M */
-private static final ZonedDateTime EXPIRATION_DATE_2 = DateUtils.getUTCDate(2015, 7, 14);
-private static final LocalDate EFFECTIVE_DATE_2 = LocalDate.of(2015, 7, 18);
-private static final LocalDate MATURITY_DATE_2 = LocalDate.of(2017, 7, 18);
+private static final ZonedDateTime EXPIRATION_DATE_2 = DateUtils.getUTCDate(2016, 1, 18);
+private static final LocalDate EFFECTIVE_DATE_2 = LocalDate.of(2016, 1, 20);
+private static final LocalDate MATURITY_DATE_2 = LocalDate.of(2019, 1, 20);
 private static final double FIXED_RATE_2 = -0.0005;
 private static final boolean PAYER_2 = false;
 private static final boolean LONG_2 = true;
@@ -212,6 +215,7 @@ private static final SwaptionPhysicalFixedIbor SWPT_R_L_1 = SWPT_R_L_1_DEFINITIO
     // Vega (sensitivity to normal vol)
     PresentValueSwaptionSurfaceSensitivity pvvs2NegNorm = 
         METHOD_SWPT_NORMAL.presentValueVolatilitySensitivity(SWPT_R_L_2, MULTICURVE_NEG_NORMAL);
+    PresentValueSwaptionSurfaceSensitivity pvnns = SSSNC.calculateNodeSensitivities(pvvs2NegNorm, MULTICURVE_NEG_NORMAL);
     int t = 0;
   }
   

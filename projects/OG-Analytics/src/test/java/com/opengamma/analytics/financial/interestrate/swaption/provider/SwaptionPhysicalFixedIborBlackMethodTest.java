@@ -16,7 +16,7 @@ import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
-import com.opengamma.analytics.financial.interestrate.BlackSwaptionSensitivityNodeCalculator;
+import com.opengamma.analytics.financial.interestrate.SwaptionSurfaceSensitivityNodeCalculator;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.sensitivity.PresentValueSwaptionSurfaceSensitivity;
 import com.opengamma.analytics.financial.interestrate.swap.provider.SwapFixedCouponDiscountingMethod;
@@ -98,7 +98,7 @@ public class SwaptionPhysicalFixedIborBlackMethodTest {
   private static final ParameterSensitivityParameterCalculator<BlackSwaptionFlatProviderInterface> PS_BS_C = new ParameterSensitivityParameterCalculator<>(PVCSBSC);
   private static final ParameterSensitivityBlackSwaptionDiscountInterpolatedFDCalculator PS_BS_FDC = new ParameterSensitivityBlackSwaptionDiscountInterpolatedFDCalculator(PVBSC, SHIFT);
 
-  private static final BlackSwaptionSensitivityNodeCalculator BSSNC = new BlackSwaptionSensitivityNodeCalculator();
+  private static final SwaptionSurfaceSensitivityNodeCalculator BSSNC = new SwaptionSurfaceSensitivityNodeCalculator();
 
   @Test
   public void presentValue() {
@@ -193,8 +193,8 @@ public class SwaptionPhysicalFixedIborBlackMethodTest {
     final double shift = 1.0E-6;
     final PresentValueSwaptionSurfaceSensitivity pvbvs = METHOD_BLACK.presentValueBlackSensitivity(SWAPTION_LONG_REC, BLACK_MULTICURVES);
     final PresentValueSwaptionSurfaceSensitivity pvbns = BSSNC.calculateNodeSensitivities(pvbvs, BLACK);
-    final double[] x = ((InterpolatedDoublesSurface) BLACK.getVolatilitySurface()).getXDataAsPrimitive();
-    final double[] y = ((InterpolatedDoublesSurface) BLACK.getVolatilitySurface()).getYDataAsPrimitive();
+    final double[] x = ((InterpolatedDoublesSurface) BLACK.getParameterSurface()).getXDataAsPrimitive();
+    final double[] y = ((InterpolatedDoublesSurface) BLACK.getParameterSurface()).getYDataAsPrimitive();
     for (int loopindex = 0; loopindex < x.length; loopindex++) {
       final BlackFlatSwaptionParameters BlackP = BlackDataSets.createBlackSwaptionEUR6Shift(loopindex, shift);
       final BlackSwaptionFlatProviderDiscount curvesBlackP = new BlackSwaptionFlatProviderDiscount(MULTICURVES, BlackP);

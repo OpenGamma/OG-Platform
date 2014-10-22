@@ -21,7 +21,7 @@ import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIborMaster;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
-import com.opengamma.analytics.financial.interestrate.BlackSwaptionSensitivityNodeCalculator;
+import com.opengamma.analytics.financial.interestrate.SwaptionSurfaceSensitivityNodeCalculator;
 import com.opengamma.analytics.financial.interestrate.FDCurveSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
@@ -88,7 +88,7 @@ public class SwaptionPhysicalFixedIborBlackMethodTest {
   private static final PresentValueCurveSensitivityBlackCalculator PVCSC_BLACK = PresentValueCurveSensitivityBlackCalculator.getInstance();
   private static final PresentValueBlackSwaptionSensitivityBlackCalculator PVBSC_BLACK = PresentValueBlackSwaptionSensitivityBlackCalculator.getInstance();
   private static final ParRateCalculator PRC = ParRateCalculator.getInstance();
-  private static final BlackSwaptionSensitivityNodeCalculator BSSNC = new BlackSwaptionSensitivityNodeCalculator();
+  private static final SwaptionSurfaceSensitivityNodeCalculator BSSNC = new SwaptionSurfaceSensitivityNodeCalculator();
   private static final SwapFixedCouponDiscountingMethod METHOD_SWAP = SwapFixedCouponDiscountingMethod.getInstance();
   private static final ConstantSpreadHorizonThetaCalculator THETAC = ConstantSpreadHorizonThetaCalculator.getInstance();
   private static final ConstantSpreadSwaptionBlackRolldown SWAPTION_ROLLDOWN = ConstantSpreadSwaptionBlackRolldown.getInstance();
@@ -209,8 +209,8 @@ public class SwaptionPhysicalFixedIborBlackMethodTest {
     final double shift = 1.0E-6;
     final PresentValueSwaptionSurfaceSensitivity pvbvs = METHOD_BLACK.presentValueBlackSensitivity(SWAPTION_LONG_REC, CURVES_BLACK);
     final PresentValueSwaptionSurfaceSensitivity pvbns = BSSNC.calculateNodeSensitivities(pvbvs, BLACK);
-    final double[] x = ((InterpolatedDoublesSurface) BLACK.getVolatilitySurface()).getXDataAsPrimitive();
-    final double[] y = ((InterpolatedDoublesSurface) BLACK.getVolatilitySurface()).getYDataAsPrimitive();
+    final double[] x = ((InterpolatedDoublesSurface) BLACK.getParameterSurface()).getXDataAsPrimitive();
+    final double[] y = ((InterpolatedDoublesSurface) BLACK.getParameterSurface()).getYDataAsPrimitive();
     for (int loopindex = 0; loopindex < x.length; loopindex++) {
       final BlackFlatSwaptionParameters BlackP = TestsDataSetsBlack.createBlackSwaptionEUR6Shift(loopindex, shift);
       final YieldCurveWithBlackSwaptionBundle curvesBlackP = new YieldCurveWithBlackSwaptionBundle(BlackP, CURVES);

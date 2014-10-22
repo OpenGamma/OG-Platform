@@ -15,7 +15,7 @@ import org.threeten.bp.Instant;
 
 import com.google.common.collect.Iterables;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
-import com.opengamma.analytics.financial.interestrate.BlackSwaptionSensitivityNodeCalculator;
+import com.opengamma.analytics.financial.interestrate.SwaptionSurfaceSensitivityNodeCalculator;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.sensitivity.PresentValueSwaptionSurfaceSensitivity;
@@ -68,7 +68,7 @@ public class BlackDiscountingVegaMatrixSwaptionFunction extends BlackDiscounting
         // Compute scalar value of the Black Vega
         final PresentValueSwaptionSurfaceSensitivity vegaSens = derivative.accept(VEGA_CALCULATOR, blackData);
         // Distribute the vega back onto the nodes of the Vol Surface according to the interpolator
-        final PresentValueSwaptionSurfaceSensitivity vegaMap = (new BlackSwaptionSensitivityNodeCalculator()).calculateNodeSensitivities(vegaSens, blackData.getBlackParameters());
+        final PresentValueSwaptionSurfaceSensitivity vegaMap = (new SwaptionSurfaceSensitivityNodeCalculator()).calculateNodeSensitivities(vegaSens, blackData.getBlackParameters());
         // Repackage the sensitivities into a format easy that's fit for display
         DoubleLabelledMatrix2D vegaMatrix = VegaMatrixUtils.getVegaSwaptionMatrix(vegaMap);
         final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);

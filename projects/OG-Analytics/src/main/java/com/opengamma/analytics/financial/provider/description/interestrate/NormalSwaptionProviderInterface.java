@@ -31,10 +31,10 @@ public interface NormalSwaptionProviderInterface extends ParameterProviderInterf
   double getVolatility(final double expiry, final double tenor, final double strikeRate, double forwardRate);
 
   /**
-   * Returns the swap generator for which the SABR data is valid, 
-   * i.e. the data is calibrated to swaption on vanilla swaps with the description contains in the generator.
+   * Returns the swap generator for which the parameters are valid, 
+   * i.e. the data is calibrated to swaption on vanilla swaps with conventions as described in the generator.
    * @return The generator.
    */
-  GeneratorSwapFixedIbor getSwapGenerator();
+  GeneratorSwapFixedIbor getGeneratorSwap();
 
 }

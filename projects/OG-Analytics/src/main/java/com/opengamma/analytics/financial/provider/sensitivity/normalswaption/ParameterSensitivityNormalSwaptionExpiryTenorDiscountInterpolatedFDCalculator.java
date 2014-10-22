@@ -94,16 +94,16 @@ public class ParameterSensitivityNormalSwaptionExpiryTenorDiscountInterpolatedFD
         YieldAndDiscountCurve dscBumpedPlus = new YieldCurve(curveInt.getName(), 
             new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumpedPlus, curveInt.getInterpolator(), true));
         NormalSwaptionExpiryTenorProvider marketDscBumpedPlus = new NormalSwaptionExpiryTenorProvider(
-            multicurve.withDiscountFactor(ccy, dscBumpedPlus), normalMulticurve.getVolatilitySurface(), 
-            normalMulticurve.getSwapGenerator());
+            multicurve.withDiscountFactor(ccy, dscBumpedPlus), normalMulticurve.getParameterSurface(), 
+            normalMulticurve.getGeneratorSwap());
         final MultipleCurrencyAmount pvBumpedPlus = instrument.accept(_valueCalculator, marketDscBumpedPlus);
         final double[] yieldBumpedMinus = curveInt.getYDataAsPrimitive().clone();
         yieldBumpedMinus[loopnode] -= _shift;
         final YieldAndDiscountCurve dscBumpedMinus = new YieldCurve(curveInt.getName(),
             new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumpedMinus, curveInt.getInterpolator(), true));
         final NormalSwaptionExpiryTenorProvider marketDscBumpedMinus = new NormalSwaptionExpiryTenorProvider(
-            multicurve.withDiscountFactor(ccy, dscBumpedMinus), normalMulticurve.getVolatilitySurface(), 
-            normalMulticurve.getSwapGenerator());
+            multicurve.withDiscountFactor(ccy, dscBumpedMinus), normalMulticurve.getParameterSurface(), 
+            normalMulticurve.getGeneratorSwap());
         final MultipleCurrencyAmount pvBumpedMinus = instrument.accept(_valueCalculator, marketDscBumpedMinus);
         final MultipleCurrencyAmount pvDiff = pvBumpedPlus.plus(pvBumpedMinus.multipliedBy(-1.0));
         for (int loopccypv = 0; loopccypv < nbCcy; loopccypv++) {
@@ -132,16 +132,16 @@ public class ParameterSensitivityNormalSwaptionExpiryTenorDiscountInterpolatedFD
         YieldAndDiscountCurve dscBumpedPlus = new YieldCurve(curveInt.getName(), 
             new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumpedPlus, curveInt.getInterpolator(), true));
         NormalSwaptionExpiryTenorProvider marketFwdBumpedPlus = new NormalSwaptionExpiryTenorProvider(
-            multicurve.withForward(index, dscBumpedPlus), normalMulticurve.getVolatilitySurface(), 
-            normalMulticurve.getSwapGenerator());
+            multicurve.withForward(index, dscBumpedPlus), normalMulticurve.getParameterSurface(), 
+            normalMulticurve.getGeneratorSwap());
         final MultipleCurrencyAmount pvBumpedPlus = instrument.accept(_valueCalculator, marketFwdBumpedPlus);
         final double[] yieldBumpedMinus = curveInt.getYDataAsPrimitive().clone();
         yieldBumpedMinus[loopnode] -= _shift;
         final YieldAndDiscountCurve dscBumpedMinus = new YieldCurve(curveInt.getName(),
             new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumpedMinus, curveInt.getInterpolator(), true));
         NormalSwaptionExpiryTenorProvider marketFwdBumpedMinus = new NormalSwaptionExpiryTenorProvider(
-            multicurve.withForward(index, dscBumpedMinus), normalMulticurve.getVolatilitySurface(), 
-            normalMulticurve.getSwapGenerator());
+            multicurve.withForward(index, dscBumpedMinus), normalMulticurve.getParameterSurface(), 
+            normalMulticurve.getGeneratorSwap());
         final MultipleCurrencyAmount pvBumpedMinus = instrument.accept(_valueCalculator, marketFwdBumpedMinus);
         final MultipleCurrencyAmount pvDiff = pvBumpedPlus.plus(pvBumpedMinus.multipliedBy(-1.0));
         for (int loopccypv = 0; loopccypv < nbCcy; loopccypv++) {
@@ -168,16 +168,16 @@ public class ParameterSensitivityNormalSwaptionExpiryTenorDiscountInterpolatedFD
         yieldBumpedPlus[loopnode] += _shift;
         final YieldAndDiscountCurve dscBumpedPlus = new YieldCurve(curveInt.getName(), new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumpedPlus, curveInt.getInterpolator(), true));
         NormalSwaptionExpiryTenorProvider marketFwdBumpedPlus = new NormalSwaptionExpiryTenorProvider(
-            multicurve.withForward(index, dscBumpedPlus), normalMulticurve.getVolatilitySurface(), 
-            normalMulticurve.getSwapGenerator());
+            multicurve.withForward(index, dscBumpedPlus), normalMulticurve.getParameterSurface(), 
+            normalMulticurve.getGeneratorSwap());
         final MultipleCurrencyAmount pvBumpedPlus = instrument.accept(_valueCalculator, marketFwdBumpedPlus);
         final double[] yieldBumpedMinus = curveInt.getYDataAsPrimitive().clone();
         yieldBumpedMinus[loopnode] -= _shift;
         final YieldAndDiscountCurve dscBumpedMinus = new YieldCurve(curveInt.getName(),
             new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumpedMinus, curveInt.getInterpolator(), true));
         NormalSwaptionExpiryTenorProvider marketFwdBumpedMinus = new NormalSwaptionExpiryTenorProvider(
-            multicurve.withForward(index, dscBumpedMinus), normalMulticurve.getVolatilitySurface(), 
-            normalMulticurve.getSwapGenerator());
+            multicurve.withForward(index, dscBumpedMinus), normalMulticurve.getParameterSurface(), 
+            normalMulticurve.getGeneratorSwap());
         final MultipleCurrencyAmount pvBumpedMinus = instrument.accept(_valueCalculator, marketFwdBumpedMinus);
         final MultipleCurrencyAmount pvDiff = pvBumpedPlus.plus(pvBumpedMinus.multipliedBy(-1.0));
         for (int loopccypv = 0; loopccypv < nbCcy; loopccypv++) {

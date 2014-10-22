@@ -41,7 +41,7 @@ public final class ConstantSpreadSwaptionBlackRolldown implements RolldownFuncti
   @Override
   public YieldCurveWithBlackSwaptionBundle rollDown(final YieldCurveWithBlackSwaptionBundle data, final double time) {
     final YieldCurveBundle shiftedCurves = CURVES_ROLLDOWN.rollDown(data, time);
-    final Surface<Double, Double, Double> surface = data.getBlackParameters().getVolatilitySurface();
+    final Surface<Double, Double, Double> surface = data.getBlackParameters().getParameterSurface();
     final Surface<Double, Double, Double> shiftedVolatilitySurface = SURFACE_ROLLDOWN.rollDown(surface, time);
     final BlackFlatSwaptionParameters shiftedParameters = new BlackFlatSwaptionParameters(shiftedVolatilitySurface, data.getBlackParameters().getGeneratorSwap());
     return new YieldCurveWithBlackSwaptionBundle(shiftedParameters, shiftedCurves);

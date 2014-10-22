@@ -18,7 +18,7 @@ import com.opengamma.util.tuple.DoublesPair;
  * Provider of normal (Bachelier) smile for swaptions. 
  * The volatility is time to expiration/tenor dependent. 
  */
-public class NormalSwaptionExpiryTenorProvider implements NormalSwaptionProviderInterface {
+public class NormalSwaptionExpiryTenorProvider implements NormalSwaptionProviderInterface, SwaptionSurfaceProvider {
 
   /** The multicurve provider. */
   private final MulticurveProviderInterface _multicurve;
@@ -61,7 +61,7 @@ public class NormalSwaptionExpiryTenorProvider implements NormalSwaptionProvider
   }
 
   @Override
-  public GeneratorSwapFixedIbor getSwapGenerator() {
+  public GeneratorSwapFixedIbor getGeneratorSwap() {
     return _generator;
   }
 
@@ -84,7 +84,8 @@ public class NormalSwaptionExpiryTenorProvider implements NormalSwaptionProvider
    * Returns the The normal (Bachelier) volatility surface. The dimensions are expiration and tenor.
    * @return The surface
    */
-  public Surface<Double, Double, Double> getVolatilitySurface() {
+  @Override
+  public Surface<Double, Double, Double> getParameterSurface() {
     return _parameters;
   }
 

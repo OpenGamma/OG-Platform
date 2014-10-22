@@ -61,7 +61,7 @@ public class NormalSwaptionExpiryTenorProviderTest {
     assertEquals("NormalSwaptionExpiryTenorProvider: getter", 
         MULTICURVE_BACHELIER_SWAPTION.getMulticurveProvider(), MULTICURVE);
     assertEquals("NormalSwaptionExpiryTenorProvider: getter", 
-        MULTICURVE_BACHELIER_SWAPTION.getSwapGenerator(), USD6MLIBOR3M);
+        MULTICURVE_BACHELIER_SWAPTION.getGeneratorSwap(), USD6MLIBOR3M);
   }
   
 

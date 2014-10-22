@@ -73,7 +73,7 @@ public final class SwaptionPhysicalFixedIborNormalMethod {
     ArgumentChecker.notNull(swaption, "Swaption");
     ArgumentChecker.notNull(multicurveParameters, "normal volatility for swaption and multicurve");
     MulticurveProviderInterface multicurve = multicurveParameters.getMulticurveProvider();
-    final GeneratorSwapFixedIbor generatorSwap = multicurveParameters.getSwapGenerator();
+    final GeneratorSwapFixedIbor generatorSwap = multicurveParameters.getGeneratorSwap();
     DayCount dayCountModification = generatorSwap.getFixedLegDayCount();
     Calendar calendar = generatorSwap.getCalendar();
     final double pvbpModified = METHOD_SWAP.presentValueBasisPoint(swaption.getUnderlyingSwap(), dayCountModification,
@@ -103,7 +103,7 @@ public final class SwaptionPhysicalFixedIborNormalMethod {
     ArgumentChecker.notNull(swaption, "Swaption");
     ArgumentChecker.notNull(multicurveParameters, "normal volatility for swaption and multicurve");
     MulticurveProviderInterface multicurve = multicurveParameters.getMulticurveProvider();
-    final GeneratorSwapFixedIbor generatorSwap = multicurveParameters.getSwapGenerator();
+    final GeneratorSwapFixedIbor generatorSwap = multicurveParameters.getGeneratorSwap();
     DayCount dayCountModification = generatorSwap.getFixedLegDayCount();
     Calendar calendar = generatorSwap.getCalendar();
     final double pvbpModified = METHOD_SWAP.presentValueBasisPoint(swaption.getUnderlyingSwap(), dayCountModification,
@@ -127,7 +127,7 @@ public final class SwaptionPhysicalFixedIborNormalMethod {
     ArgumentChecker.notNull(swaption, "Swaption");
     ArgumentChecker.notNull(multicurveParameters, "normal volatility for swaption and multicurve");
     MulticurveProviderInterface multicurve = multicurveParameters.getMulticurveProvider();
-    final GeneratorSwapFixedIbor generatorSwap = multicurveParameters.getSwapGenerator();
+    final GeneratorSwapFixedIbor generatorSwap = multicurveParameters.getGeneratorSwap();
     DayCount dayCountModification = generatorSwap.getFixedLegDayCount();
     Calendar calendar = generatorSwap.getCalendar();
     final double pvbpModified = METHOD_SWAP.presentValueBasisPoint(swaption.getUnderlyingSwap(), dayCountModification,
@@ -169,7 +169,7 @@ public final class SwaptionPhysicalFixedIborNormalMethod {
     ArgumentChecker.notNull(swaption, "Swaption");
     ArgumentChecker.notNull(multicurveParameters, "normal volatility for swaption and multicurve");
     MulticurveProviderInterface multicurve = multicurveParameters.getMulticurveProvider();
-    final GeneratorSwapFixedIbor generatorSwap = multicurveParameters.getSwapGenerator();
+    final GeneratorSwapFixedIbor generatorSwap = multicurveParameters.getGeneratorSwap();
     DayCount dayCountModification = generatorSwap.getFixedLegDayCount();
     Calendar calendar = generatorSwap.getCalendar();
     final double pvbpModified = METHOD_SWAP.presentValueBasisPoint(swaption.getUnderlyingSwap(), dayCountModification,
