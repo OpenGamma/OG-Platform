@@ -759,4 +759,13 @@ public class ImmutableLocalDateDoubleTimeSeriesTest extends LocalDateDoubleTimeS
     assertEquals("Builder[size=1]", bld.put(20120630, 1.0).toString());
   }
 
+  public void test_noCopy() {
+    int[] times = new int[] {10101, 10102, 10103, 10104};
+    double[] values = new double[] {0d, 1d, 2d, 3d};
+    LocalDateDoubleTimeSeries series = ImmutableLocalDateDoubleTimeSeries.noCopy(times, values);
+    assertEquals(2d, series.getValueAtIndex(2));
+    values[2] = 5;   // modification of backing array will be reflected in time series
+    assertEquals(5d, series.getValueAtIndex(2));
+  }
+
 }
