@@ -759,4 +759,14 @@ public class ImmutableLocalDateDoubleTimeSeriesTest extends LocalDateDoubleTimeS
     assertEquals("Builder[size=1]", bld.put(20120630, 1.0).toString());
   }
 
+  public void test_withValues() {
+    int[] times = new int[] {10101, 10102, 10103, 10104};
+    double[] values = new double[] {0d, 1d, 2d, 3d};
+    LocalDateDoubleTimeSeries series = ImmutableLocalDateDoubleTimeSeries.of(times, values);
+    assertEquals(2d, series.getValueAtIndex(2));
+    values[2] = 5;
+    LocalDateDoubleTimeSeries series2 = series.withValues(values);
+    assertEquals(5d, series2.getValueAtIndex(2));
+  }
+
 }

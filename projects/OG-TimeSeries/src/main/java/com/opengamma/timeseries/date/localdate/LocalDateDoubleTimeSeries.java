@@ -55,6 +55,14 @@ public interface LocalDateDoubleTimeSeries
   @Override  // override for covariant return type
   LocalDateDoubleTimeSeries lag(int lagCount);
 
+  /**
+   * Obtain a new time-series with the same times and new values
+   *
+   * @param values the new values, not null
+   * @return time series, not null
+   */
+  LocalDateDoubleTimeSeries withValues(double[] values);
+
   //-------------------------------------------------------------------------
   @Override  // override for covariant return type
   LocalDateDoubleTimeSeries operate(UnaryOperator operator);
