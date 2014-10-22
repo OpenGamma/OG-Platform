@@ -111,19 +111,6 @@ public final class ImmutableLocalDateDoubleTimeSeries
 
   /**
    * Obtains a time-series from matching arrays of dates and values.
-   * Arrays are *not* copied on construction. If either array is modified the time-series will also be modified.
-   *
-   * @param dates  the date array, not null
-   * @param values  the value array, not null
-   * @return the time-series, not null
-   */
-  public static ImmutableLocalDateDoubleTimeSeries noCopy(int[] dates, double[] values) {
-    validate(dates, values);
-    return new ImmutableLocalDateDoubleTimeSeries(dates, values);
-  }
-
-  /**
-   * Obtains a time-series from matching arrays of dates and values.
    * 
    * @param dates  the date list, not null
    * @param values  the value list, not null
@@ -395,6 +382,17 @@ public final class ImmutableLocalDateDoubleTimeSeries
   @Override
   public LocalDateDoubleTimeSeriesBuilder toBuilder() {
     return builder().putAll(this);
+  }
+
+  /**
+   * Obtain a new time-series with the same times and new values
+   *
+   * @param values the new values, not null
+   * @return time series, not null
+   */
+  public LocalDateDoubleTimeSeries withValues(double[] values) {
+    validate(_times, values);
+    return new ImmutableLocalDateDoubleTimeSeries(_times, values.clone()); // immutable, so can share times
   }
 
 }
