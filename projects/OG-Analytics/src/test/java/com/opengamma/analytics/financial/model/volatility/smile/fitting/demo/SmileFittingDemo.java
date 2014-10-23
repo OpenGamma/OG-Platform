@@ -12,9 +12,6 @@ import java.util.List;
 import org.apache.commons.lang.ArrayUtils;
 import org.testng.annotations.Test;
 
-import cern.jet.random.engine.MersenneTwister;
-import cern.jet.random.engine.RandomEngine;
-
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.HestonModelFitter;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.MixedLogNormalModelFitter;
@@ -44,34 +41,38 @@ import com.opengamma.analytics.math.statistics.leastsquare.GeneralizedLeastSquar
 import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResultsWithTransform;
 
 /**
- * This uses Dec-2014 options on the S&P 500 index. The trade date is 20-Oct-2014 09:40 and the expiry is 19-Dec-2014 21:15
+ * The purpose of this class is to demonstrate the various methods in analytics for fitting/interpolating volatility 
+ * smiles, and extrapolating out to low and high strikes beyond the data range.
+ * <p>
+ * The market data is Dec-2014 options on the S&P 500 index. The trade date is 20-Oct-2014 09:40 and the expiry is 19-Dec-2014 21:15
  * (nominal expiry is 20-Dec-2014, which is a Saturday)
  */
 public class SmileFittingDemo {
-  private static RandomEngine RANDOM = new MersenneTwister();
-  private static final double fwd = 1879.52;
-  private static final double r = 0.00231;
-  private static final double t = 60.49514 / 365.;
-  private static final double[] strikes = new double[] {1700, 1750, 1800, 1850, 1900, 1950, 2000, 2050, 2150, 2250 };
-  private static final double[] iv = new double[] {0.25907, 0.23819, 0.21715, 0.19517, 0.17684, 0.15383, 0.13577, 0.12505, 0.1564, 0.17344 };
+  private static final double FORWORD = 1879.52;
+  @SuppressWarnings("unused")
+  private static final double RATE = 0.00231;
+  private static final double EXPIRY = 60.49514 / 365.;
+  private static final double[] STRIKES = new double[] {1700, 1750, 1800, 1850, 1900, 1950, 2000, 2050, 2150, 2250 };
+  private static final double[] IMPLIED_VOLS = new double[] {0.25907, 0.23819, 0.21715, 0.19517, 0.17684, 0.15383, 0.13577, 0.12505, 0.1564, 0.17344 };
   private static VolatilityFunctionProvider<SABRFormulaData> SABR = new SABRHaganVolatilityFunction();
-  private static double[] errors;
-  private static final GeneralSmileInterpolator SABR_INTERPOLATOR = new SmileInterpolatorSABR();
+  private static double[] ERRORS;
 
+  // These control how often the smile is sampled and the range used
   private static final int NUM_SAMPLES = 101;
   private static final double LOWER_STRIKE = 1500.0;
   private static final double UPPER_STRIKE = 2500.0;
 
+  // For least squares fit use an error of 10bps - this only affects the reported chi-square
   static {
-    int n = iv.length;
-    errors = new double[n];
-    Arrays.fill(errors, 1e-3); // 10bps
+    int n = IMPLIED_VOLS.length;
+    ERRORS = new double[n];
+    Arrays.fill(ERRORS, 1e-3); // 10bps
   }
 
-  /**
-   * Global fitters: These fit a smile model to market data in a least squares sense. Extrapolation just involves
-   * using the calibrated parameters with the model for strikes outside the fitted range.
-   */
+  // ****************************************************************************************************************
+  // Global fitters: These fit a smile model to market data in a least squares sense. Extrapolation just involves
+  // using the calibrated parameters with the model for strikes outside the fitted range.
+  // ****************************************************************************************************************
 
   /**
    * Fit the SABR model to market implied volatilities. The parameter beta is fixed at 1, so a three parameter fit is
@@ -86,55 +87,13 @@ public class SmileFittingDemo {
     double beta = 1.0;
     double rho = -0.9;
     double nu = 1.8;
-    double alpha = atmVol * Math.pow(fwd, 1 - beta);
+    double alpha = atmVol * Math.pow(FORWORD, 1 - beta);
 
     DoubleMatrix1D start = new DoubleMatrix1D(alpha, beta, rho, nu);
-    SmileModelFitter<SABRFormulaData> sabrFitter = new SABRModelFitter(fwd, strikes, t, iv, errors, SABR);
-    fitAndPrintSmile(sabrFitter, start, fixed);
+    SmileModelFitter<SABRFormulaData> sabrFitter = new SABRModelFitter(FORWORD, STRIKES, EXPIRY, IMPLIED_VOLS, ERRORS, SABR);
+    Function1D<Double, Double> smile = fitSmile(sabrFitter, start, fixed);
+    printSmile(smile);
   }
-
-  /**
-   * Fit the SABR model to market implied volatilities. The parameter beta is fixed at 1, so a three parameter fit is
-   * made. This differs from the example above in that outside the range of market strikes a shifted log-normal is
-   * use to extrapolate the smile. 
-   */
-  @Test(description = "Demo")
-  public void globalSabrFitWithExtrapolationDemo() {
-    BitSet fixed = new BitSet();
-    fixed.set(1);
-    double atmVol = 0.18;
-    double beta = 1.0;
-    double rho = -0.9;
-    double nu = 1.8;
-    double alpha = atmVol * Math.pow(fwd, 1 - beta);
-
-    DoubleMatrix1D start = new DoubleMatrix1D(alpha, beta, rho, nu);
-    SmileModelFitter<SABRFormulaData> sabrFitter = new SABRModelFitter(fwd, strikes, t, iv, errors, SABR);
-    fitAndPrintSmile(sabrFitter, start, fixed, strikes[0], strikes[strikes.length-1]);
-  }
-
-
-  /**
-   * Again fit global SABR, but now use Benaim-Dodgson-Kainth extrapolation
-   */
-  @Test(description = "Demo")
-  public void globalSabrFitWithBDKExtrapolationDemo() {
-    BitSet fixed = new BitSet();
-    fixed.set(1);
-    double atmVol = 0.18;
-    double beta = 1.0;
-    double rho = -0.9;
-    double nu = 1.8;
-    double alpha = atmVol * Math.pow(fwd, 1 - beta);
-
-    double muLow = 4.0;
-    double muHigh = 0.6;
-
-    DoubleMatrix1D start = new DoubleMatrix1D(alpha, beta, rho, nu);
-    SABRModelFitter sabrFitter = new SABRModelFitter(fwd, strikes, t, iv, errors, SABR);
-    fitAndPrintSmile(sabrFitter, start, fixed, strikes[0], strikes[strikes.length-1],muLow,muHigh);
-  }
-
 
   /**
    * Fit the SVI model to market implied volatilities
@@ -147,10 +106,11 @@ public class SmileFittingDemo {
   @Test(description = "Demo")
   public void globalSVIFitDemo() {
     SVIVolatilityFunction model = new SVIVolatilityFunction();
-    SVIModelFitter sviFitter = new SVIModelFitter(fwd, strikes, t, iv, errors, model);
+    SVIModelFitter fitter = new SVIModelFitter(FORWORD, STRIKES, EXPIRY, IMPLIED_VOLS, ERRORS, model);
     DoubleMatrix1D start = new DoubleMatrix1D(0.015, 0.1, -0.3, 0.3, 0.0);
     BitSet fixed = new BitSet();
-    fitAndPrintSmile(sviFitter, start, fixed);
+    Function1D<Double, Double> smile = fitSmile(fitter, start, fixed);
+    printSmile(smile);
   }
 
   /**
@@ -170,10 +130,11 @@ public class SmileFittingDemo {
   @Test(description = "Demo")
   public void globalHestonFitDemo() {
     HestonVolatilityFunction model = new HestonVolatilityFunction();
-    HestonModelFitter fitter = new HestonModelFitter(fwd, strikes, t, iv, errors, model);
+    HestonModelFitter fitter = new HestonModelFitter(FORWORD, STRIKES, EXPIRY, IMPLIED_VOLS, ERRORS, model);
     DoubleMatrix1D start = new DoubleMatrix1D(0.1, 0.02, 0.02, 0.4, -0.5);
     BitSet fixed = new BitSet();
-    fitAndPrintSmile(fitter, start, fixed);
+    Function1D<Double, Double> smile = fitSmile(fitter, start, fixed);
+    printSmile(smile);
   }
 
   /**
@@ -186,85 +147,129 @@ public class SmileFittingDemo {
     int nNorms = 2;
     boolean useShiftedMeans = true;
     MixedLogNormalVolatilityFunction model = MixedLogNormalVolatilityFunction.getInstance();
-    MixedLogNormalModelFitter fitter = new MixedLogNormalModelFitter(fwd, strikes, t, iv, errors, model, nNorms, useShiftedMeans);
+    MixedLogNormalModelFitter fitter = new MixedLogNormalModelFitter(FORWORD, STRIKES, EXPIRY, IMPLIED_VOLS, ERRORS, model, nNorms, useShiftedMeans);
     DoubleMatrix1D start = new DoubleMatrix1D(0.1, 0.2, 1.5, 1.5);
     BitSet fixed = new BitSet();
-    fitAndPrintSmile(fitter, start, fixed);
-  }
-
-  /**
-   * Fit a smile model to the data set, and print the resultant smile between LOWER_STRIKE and UPPER_STRIKE
-   * @param fitter the smile fitter
-   * @param start this initial starting point of the model parameters
-   * @param fixed map of any fixed parameters
-   */
-  private void fitAndPrintSmile(SmileModelFitter<? extends SmileModelData> fitter, DoubleMatrix1D start, BitSet fixed) {
-    LeastSquareResultsWithTransform res = fitter.solve(start, fixed);
-    System.out.println("chi-Square: " + res.getChiSq());
-    VolatilityFunctionProvider<?> model = fitter.getModel();
-    SmileModelData data = fitter.toSmileModelData(res.getModelParameters());
-
-    Function1D<Double, Double> smile = toSmileFunction(fwd, t, data, model);
+    Function1D<Double, Double> smile = fitSmile(fitter, start, fixed);
     printSmile(smile);
   }
 
+  // ****************************************************************************************************************
+  // SABR Global fitters: These fit SABR to market data in a least squares sense. Extrapolation is with
+  // shifted log-normal and Benaim-Dodgson-Kainth
+  // ****************************************************************************************************************
 
-  private void fitAndPrintSmile(SmileModelFitter<? extends SmileModelData> fitter, DoubleMatrix1D start, BitSet fixed,
-      double lowerStrike, double upperStrike) {
-    LeastSquareResultsWithTransform res = fitter.solve(start, fixed);
-    System.out.println("chi-Square: " + res.getChiSq());
-    VolatilityFunctionProvider<?> model = fitter.getModel();
-    SmileModelData data = fitter.toSmileModelData(res.getModelParameters());
+  /**
+   * Fit the SABR model to market implied volatilities. The parameter beta is fixed at 1, so a three parameter fit is
+   * made. This differs from the example above in that outside the range of market strikes a shifted log-normal is
+   * use to extrapolate the smile.
+   */
+  @Test(description = "Demo")
+  public void globalSabrFitWithExtrapolationDemo() {
+    BitSet fixed = new BitSet();
+    fixed.set(1);
+    double atmVol = 0.18;
+    double beta = 1.0;
+    double rho = -0.9;
+    double nu = 1.8;
+    double alpha = atmVol * Math.pow(FORWORD, 1 - beta);
 
-    Function1D<Double, Double> smile = toSmileFunction(fwd, t, data, model);
-    Function1D<Double, Double> extrapSmile = fitShiftedLogNormalTails(fwd, t, smile, lowerStrike, upperStrike);
-
-    printSmile(extrapSmile);
+    DoubleMatrix1D start = new DoubleMatrix1D(alpha, beta, rho, nu);
+    SmileModelFitter<SABRFormulaData> sabrFitter = new SABRModelFitter(FORWORD, STRIKES, EXPIRY, IMPLIED_VOLS, ERRORS, SABR);
+    Function1D<Double, Double> smile = fitSmile(sabrFitter, start, fixed, STRIKES[0], STRIKES[STRIKES.length - 1]);
+    printSmile(smile);
   }
 
+  /**
+   * Again fit global SABR, but now use Benaim-Dodgson-Kainth extrapolation
+   * <p>
+   * Note: currently our Benaim-Dodgson-Kainth implementation is hard coded to SABR so cannot be used with other smile models
+   */
+  @Test(description = "Demo")
+  public void globalSabrFitWithBDKExtrapolationDemo() {
+    BitSet fixed = new BitSet();
+    fixed.set(1);
+    double atmVol = 0.18;
+    double beta = 1.0;
+    double rho = -0.9;
+    double nu = 1.8;
+    double alpha = atmVol * Math.pow(FORWORD, 1 - beta);
 
-  private void fitAndPrintSmile(SABRModelFitter fitter, DoubleMatrix1D start, BitSet fixed,
-      final double lowerStrike, final double upperStrike, double lowerMu, double upperMu) {
-    LeastSquareResultsWithTransform res = fitter.solve(start, fixed);
-    System.out.println("chi-Square: " + res.getChiSq());
-    VolatilityFunctionProvider<SABRFormulaData> model = fitter.getModel();
-    SABRFormulaData data = fitter.toSmileModelData(res.getModelParameters());
+    double muLow = 1.0;
+    double muHigh = 1.0;
 
-    final Function1D<Double, Double> smile = toSmileFunction(fwd, t, data, model);
+    DoubleMatrix1D start = new DoubleMatrix1D(alpha, beta, rho, nu);
+    SABRModelFitter sabrFitter = new SABRModelFitter(FORWORD, STRIKES, EXPIRY, IMPLIED_VOLS, ERRORS, SABR);
+    Function1D<Double, Double> smile = fitSmile(sabrFitter, start, fixed, STRIKES[0], STRIKES[STRIKES.length - 1], muLow, muHigh);
+    printSmile(smile);
+  }
 
-    BenaimDodgsonKainthExtrapolationFunctionProvider tailPro = new BenaimDodgsonKainthExtrapolationFunctionProvider(lowerMu, upperMu);
-    final Function1D<Double, Double> extrapFunc = tailPro.getExtrapolationFunction(data,data,model,fwd,t,lowerStrike,upperStrike);
+  // ****************************************************************************************************************
+  // Local fitters: These can be classed as smile interpolators, in that they fit all the market points. Extrapolation
+  // is either native or using shifted log-normal or Benaim-Dodgson-Kainth
+  // ****************************************************************************************************************
 
-    Function1D<Double, Double> smileWithExtrap = new Function1D<Double, Double>() {
+  /**
+   * The SABR interpolator fits the SABR model (with a fixed Beta) to consecutive triplets of implied vols with
+   * smooth pasting in between. Extrapolation used the SABR fits for the end points.
+   */
+  @Test(description = "Demo")
+  void sabrInterpolationTest() {
+    GeneralSmileInterpolator sabr_interpolator = new SmileInterpolatorSABR();
+    Function1D<Double, Double> smile = sabr_interpolator.getVolatilityFunction(FORWORD, STRIKES, EXPIRY, IMPLIED_VOLS);
+    printSmile(smile);
+  }
 
+  /**
+   * Spline interpolator fits a spline (the default is double-quadratic) through the market implied volatilities and
+   * uses shifted log-normal to handle the extrapolation.
+   */
+  @Test
+  void splineInterpolatorTest() {
+    GeneralSmileInterpolator spline = new SmileInterpolatorSpline();
+    Function1D<Double, Double> smile = spline.getVolatilityFunction(FORWORD, STRIKES, EXPIRY, IMPLIED_VOLS);
+    printSmile(smile);
+  }
+
+  /**
+   * Fit the market variances (volatility squared) using a non-parametric curve. The parameter, lambda, controls the
+   * smoothness of the curve (penalty on the curvature), so for high values the curve will be smooth, but not match the
+   * market values. The extrapolated values will be linear in variance.
+   */
+  @Test
+  void pSplineTest() {
+    int nKnots = 20; // 20 internal knots to represent the variance curve
+    int degree = 3; // Curve made from third order polynomial pieces
+    int penaltyOrder = 2; // Penalty on curvature
+    GeneralizedLeastSquare gls = new GeneralizedLeastSquare();
+    BasisFunctionGenerator gen = new BasisFunctionGenerator();
+    BasisFunctionKnots knots = BasisFunctionKnots.fromUniform(LOWER_STRIKE, UPPER_STRIKE, nKnots, degree);
+    List<Function1D<Double, Double>> set = gen.generateSet(knots);
+
+    int n = IMPLIED_VOLS.length;
+    double[] var = new double[n];
+    for (int i = 0; i < n; i++) {
+      var[i] = IMPLIED_VOLS[i] * IMPLIED_VOLS[i];
+    }
+
+    double log10Lambda = 6;
+    double lambda = Math.pow(10.0, log10Lambda);
+
+    GeneralizedLeastSquareResults<Double> res = gls.solve(ArrayUtils.toObject(STRIKES), var, ERRORS, set, lambda, penaltyOrder);
+    final Function1D<Double, Double> varFunc = res.getFunction();
+    Function1D<Double, Double> smile = new Function1D<Double, Double>() {
       @Override
       public Double evaluate(Double k) {
-        if(k < lowerStrike || k > upperStrike) {
-          return extrapFunc.evaluate(k);
-        }
-        return smile.evaluate(k);
+        return Math.sqrt(varFunc.evaluate(k));
       }
     };
 
-    printSmile(smileWithExtrap);
+    printSmile(smile);
   }
 
-
-
-  private void  printSmile( Function1D<Double, Double> smile) {
-    System.out.println("Strike\tImplied Volatility");
-    double range = (UPPER_STRIKE - LOWER_STRIKE) / (NUM_SAMPLES - 1.0);
-    for (int i = 0; i < NUM_SAMPLES; i++) {
-      double k = LOWER_STRIKE + i * range;
-      double vol = smile.evaluate(k);
-      System.out.println(k + "\t" + vol);
-    }
-  }
-
-  @Test
-  void golbalSABRwithShiftedLogNormalExtrapolation() {
-    ShiftedLogNormalTailExtrapolationFitter tailfitter = new ShiftedLogNormalTailExtrapolationFitter();
-  }
+  // ****************************************************************************************************************
+  // Helper methods. If 'smile' fitting is brought under a common API, these could form part of that design
+  // ****************************************************************************************************************
 
   /**
    * Extrapolate a volatility smile to low and high strikes by fitting (separately) a shifted-log-normal model at
@@ -341,56 +346,84 @@ public class SmileFittingDemo {
     };
   }
 
-  @Test
-  void sabrInterpolationTest() {
-    Function1D<Double, Double> func = SABR_INTERPOLATOR.getVolatilityFunction(fwd, strikes, t, iv);
-    int nSamples = 100;
-    System.out.println("Strike\tImplied Volatility");
-    for (int i = 0; i < nSamples; i++) {
-      double k = 1500 + 1000. * i / (nSamples - 1.0);
-      double vol = func.evaluate(k);
-      System.out.println(k + "\t" + vol);
-    }
+  /**
+   * Fit a smile model to the data set and return the smile
+   * @param fitter the smile fitter
+   * @param start this initial starting point of the model parameters
+   * @param fixed map of any fixed parameters
+   * @return the smile function
+   */
+  private Function1D<Double, Double> fitSmile(SmileModelFitter<? extends SmileModelData> fitter, DoubleMatrix1D start, BitSet fixed) {
+    LeastSquareResultsWithTransform res = fitter.solve(start, fixed);
+    System.out.println("chi-Square: " + res.getChiSq());
+    VolatilityFunctionProvider<?> model = fitter.getModel();
+    SmileModelData data = fitter.toSmileModelData(res.getModelParameters());
 
+    return toSmileFunction(FORWORD, EXPIRY, data, model);
   }
 
-  @Test
-  void splineInterpolatorTest() {
-    GeneralSmileInterpolator spline = new SmileInterpolatorSpline();
-    Function1D<Double, Double> func = spline.getVolatilityFunction(fwd, strikes, t, iv);
-    int nSamples = 100;
-    System.out.println("Strike\tImplied Volatility");
-    for (int i = 0; i < nSamples; i++) {
-      double k = 1500 + 1000. * i / (nSamples - 1.0);
-      double vol = func.evaluate(k);
-      System.out.println(k + "\t" + vol);
-    }
+  /**
+   * Fit a smile model to the data set and return the smile. Outside the given range use shifted log-normal extrapolation
+   * @param fitter the smile fitter
+   * @param start this initial starting point of the model parameters
+   * @param fixed map of any fixed parameters
+   * @param lowerStrike start of the left extrapolation
+   * @param upperStrike start of the right extrapolation
+   * @return the smile function
+   */
+  private Function1D<Double, Double> fitSmile(SmileModelFitter<? extends SmileModelData> fitter, DoubleMatrix1D start, BitSet fixed, double lowerStrike, double upperStrike) {
+    LeastSquareResultsWithTransform res = fitter.solve(start, fixed);
+    System.out.println("chi-Square: " + res.getChiSq());
+    VolatilityFunctionProvider<?> model = fitter.getModel();
+    SmileModelData data = fitter.toSmileModelData(res.getModelParameters());
+
+    Function1D<Double, Double> smile = toSmileFunction(FORWORD, EXPIRY, data, model);
+    return fitShiftedLogNormalTails(FORWORD, EXPIRY, smile, lowerStrike, upperStrike);
   }
 
-  @Test
-  void pSplineTest() {
-    BasisFunctionGenerator gen = new BasisFunctionGenerator();
-    BasisFunctionKnots knots = BasisFunctionKnots.fromUniform(1500, 2500, 20, 3);
-    List<Function1D<Double, Double>> set = gen.generateSet(knots);
-    GeneralizedLeastSquare gls = new GeneralizedLeastSquare();
+  /**
+   * Fit a smile model to the data set and return the smile. Outside the given range use Benaim-Dodgson-Kainth extrapolation
+   * @param fitter the smile fitter
+   * @param start this initial starting point of the model parameters
+   * @param fixed map of any fixed parameters
+   * @param lowerStrike start of the left extrapolation
+   * @param upperStrike start of the right extrapolation
+   * @param lowerMu the left tail control parameter
+   * @param upperMu the right tail control parameter
+   * @return the smile function
+   */
+  private Function1D<Double, Double> fitSmile(SABRModelFitter fitter, DoubleMatrix1D start, BitSet fixed, final double lowerStrike, final double upperStrike, double lowerMu, double upperMu) {
+    LeastSquareResultsWithTransform res = fitter.solve(start, fixed);
+    System.out.println("chi-Square: " + res.getChiSq());
+    VolatilityFunctionProvider<SABRFormulaData> model = fitter.getModel();
+    SABRFormulaData data = fitter.toSmileModelData(res.getModelParameters());
 
-    int n = iv.length;
-    double[] var = new double[n];
-    for (int i = 0; i < n; i++) {
-      var[i] = iv[i] * iv[i];
-    }
+    final Function1D<Double, Double> smile = toSmileFunction(FORWORD, EXPIRY, data, model);
 
-    double log10Lambda = 6;
-    double lambda = Math.pow(10.0, log10Lambda);
+    BenaimDodgsonKainthExtrapolationFunctionProvider tailPro = new BenaimDodgsonKainthExtrapolationFunctionProvider(lowerMu, upperMu);
+    final Function1D<Double, Double> extrapFunc = tailPro.getExtrapolationFunction(data, data, model, FORWORD, EXPIRY, lowerStrike, upperStrike);
 
-    GeneralizedLeastSquareResults<Double> res = gls.solve(ArrayUtils.toObject(strikes), var, errors, set, lambda, 2);
-    // System.out.println(res);
-    Function1D<Double, Double> func = res.getFunction();
-    int nSamples = 100;
+    return new Function1D<Double, Double>() {
+      @Override
+      public Double evaluate(Double k) {
+        if (k < lowerStrike || k > upperStrike) {
+          return extrapFunc.evaluate(k);
+        }
+        return smile.evaluate(k);
+      }
+    };
+  }
+
+  /**
+   * Print the smile. The number of sample and range is controlled by static variables  
+   * @param smile the smile function 
+   */
+  private void printSmile(Function1D<Double, Double> smile) {
     System.out.println("Strike\tImplied Volatility");
-    for (int i = 0; i < nSamples; i++) {
-      double k = 1500 + 1000. * i / (nSamples - 1.0);
-      double vol = Math.sqrt(func.evaluate(k));
+    double range = (UPPER_STRIKE - LOWER_STRIKE) / (NUM_SAMPLES - 1.0);
+    for (int i = 0; i < NUM_SAMPLES; i++) {
+      double k = LOWER_STRIKE + i * range;
+      double vol = smile.evaluate(k);
       System.out.println(k + "\t" + vol);
     }
   }
