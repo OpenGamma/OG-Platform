@@ -292,4 +292,71 @@ public class BondCapitalIndexedDiscountingE2ETest {
         0.0, pv1.getAmount(USD), TOLERANCE_PV);
   }
   
+  @Test(enabled = false)
+  public void performanceCalibration() {
+    long startTime, endTime;
+    final int nbTest = 100;
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      StandardDataSetsGovtUsInflationUSD.getCurvesUsdOisUsGovtUsCpiCurrentSeasonality(CALIBRATION_DATE);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " curve calibration (OIS, GOVT, ZCCPI): " + (endTime - startTime) + " ms");
+    // Performance note: Curve construction 2 units: 22-Oct-2014: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 1800 ms for 100 sets.  
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      StandardDataSetsGovtUsInflationUSD.getCurvesUsdOisUsGovtUsTips(CALIBRATION_DATE);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " curve calibration (OIS, GOVT, TIPS): " + (endTime - startTime) + " ms");
+    // Performance note: Curve construction 2 units: 22-Oct-2014: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 800 ms for 100 sets. 
+  }
+  
+  @Test(enabled = false)
+  public void performancePvBucketedPv01() {
+    
+    long startTime, endTime;
+    final int nbTest = 1000;
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      @SuppressWarnings("unused")
+      MultipleCurrencyAmount pvIn = ZCI_2.accept(PVInflC, INFL);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " PV ZC Swap: " + (endTime - startTime) + " ms");
+    // Performance note: Present Value: 22-Oct-2014: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 5 ms for 1000 ZC swaps.
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      @SuppressWarnings("unused")
+      MultipleCurrencyAmount pv1 = TIPS_16_1_TRA.accept(PVInflIssuerC, INFL_ISSUER_GOVT_3);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " PV TIPS: " + (endTime - startTime) + " ms");
+    // Performance note: Present Value: 22-Oct-2014: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 30 ms for 1000 TIPS.
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      @SuppressWarnings("unused")
+      MultipleCurrencyParameterSensitivity pvpsComputed = 
+        MQISBC.fromInstrument(ZCI_2, INFL_ISSUER_GOVT_2, INFL_ISSUER_GOVT_2_BLOCK).multipliedBy(BP1);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " bucketed PV01 ZC Swap: " + (endTime - startTime) + " ms");
+    // Performance note: BucketedPV01: 22-Oct-2014: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 165 ms for 1000 ZC swaps.
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      @SuppressWarnings("unused")
+      MultipleCurrencyParameterSensitivity pvpsComputed = 
+        MQISBC.fromInstrument(TIPS_16_1_TRA, INFL_ISSUER_GOVT_2, INFL_ISSUER_GOVT_2_BLOCK).multipliedBy(BP1);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " bucketed PV01 TIPS: " + (endTime - startTime) + " ms");
+    // Performance note: BucketedPV01: 22-Oct-2014: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 550 ms for 1000 TIPS.
+  }
+  
 }

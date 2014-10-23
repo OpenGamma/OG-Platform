@@ -302,6 +302,25 @@ public class RecentDataSetsMulticurveStandardUsd {
   }
 
   /**
+   * Calibrate curves with hard-coded data.
+   * The curves are discounting/overnight forward and Libor3M forward.
+   * OIS are used for the discounting curve from 1 month up to 30 years.
+   * @param calibrationDate The calibration date.
+   * @return The curves and the Jacobian matrices.
+   */
+  public static Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> getCurvesUSDOisL3(ZonedDateTime calibrationDate) {
+    InstrumentDefinition<?>[] definitionsDsc = getDefinitions(DSC_USD_MARKET_QUOTES, DSC_USD_GENERATORS, DSC_USD_ATTR, calibrationDate);
+    InstrumentDefinition<?>[] definitionsFwd3 = getDefinitions(FWD3_USD_MARKET_QUOTES, FWD3_USD_GENERATORS, FWD3_USD_ATTR, calibrationDate);
+    InstrumentDefinition<?>[][][] definitionsUnits = new InstrumentDefinition<?>[NB_UNITS[1]][][];
+    definitionsUnits[0] = new InstrumentDefinition<?>[][] {definitionsDsc };
+    definitionsUnits[1] = new InstrumentDefinition<?>[][] {definitionsFwd3 };
+    return CurveCalibrationTestsUtils.makeCurvesFromDefinitionsMulticurve(calibrationDate, definitionsUnits, 
+        GENERATORS_UNITS[1], NAMES_UNITS[1],
+        KNOWN_DATA, PSMQC, PSMQCSC, false, DSC_MAP, FWD_ON_MAP, FWD_IBOR_MAP, CURVE_BUILDING_REPOSITORY,
+        TS_FIXED_OIS_USD_WITH_TODAY, TS_FIXED_OIS_USD_WITHOUT_TODAY, TS_FIXED_IBOR_USD3M_WITH_LAST, TS_FIXED_IBOR_USD3M_WITHOUT_LAST);
+  }
+
+  /**
    * Returns the array of Ibor index used in the curve data set. 
    * @return The array: USDLIBOR1M, USDLIBOR3M, USDLIBOR6M
    */
