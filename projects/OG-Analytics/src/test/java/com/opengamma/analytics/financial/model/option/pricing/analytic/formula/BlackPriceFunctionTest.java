@@ -165,114 +165,106 @@ public class BlackPriceFunctionTest {
     assertEquals(derivativeV_FD, priceAdjoint[2], 1E-6);
   }
 
+  private static final double TOLERANCE_1 = 1.0E-10;
+  private static final double TOLERANCE_2_FWD_FWD = 1.0E-4;
+  private static final double TOLERANCE_2_VOL_VOL = 1.0E-3;
+  private static final double TOLERANCE_2_STR_STR = 1.0E-3;
+  private static final double TOLERANCE_2_FWD_VOL = 1.0E-6;
+  private static final double TOLERANCE_2_FWD_STR = 1.0E-4;
+  private static final double TOLERANCE_2_STR_VOL = 1.0E-3;
+  
+  /** Tests second order Algorithmic Differentiation version of BlackFunction with several data sets. */
   @Test
-  public void testPriceAdjoint2Call() {
-    // Price
-    double[] priceAdjoint = FUNCTION.getPriceAdjoint(ITM_CALL, ATM_DATA);
-    double[] bsD = new double[3];
-    double[][] bsD2 = new double[3][3];
-    double bs = FUNCTION.getPriceAdjoint2(ITM_CALL, ATM_DATA, bsD, bsD2);
-    assertEquals(priceAdjoint[0], bs, 1E-10);
-    // First derivative
-    for (int loopder = 0; loopder < 3; loopder++) {
-      assertEquals(priceAdjoint[loopder + 1], bsD[loopder], 1E-10);
+  public void testPriceAdjoint2() {
+    // forward, numeraire, sigma, strike, time
+    double[][] testData = {
+      {104.0d, 0.9d, 0.50d, 94.0d, 4.5d},
+      {104.0d, 0.9d, 0.50d, 124.0d, 4.5d},
+      {104.0d, 0.9d, 0.50d, 104.0d, 4.5d},
+      {0.0250d, 1000.0d, 0.25d, 0.0150d, 10.0d},
+      {0.0250d, 1000.0d, 0.25d, 0.0400d, 10.0d},
+      {1700.0d, 0.9d, 1.00d, 1500.0d, 0.01d},
+      {1700.0d, 0.9d, 1.00d, 1900.0d, 20.0d}
+    };
+    int nbTest = testData.length;
+    for(int i=0; i<nbTest; i++) {
+      testPriceAdjointSecondOrder(testData[i][0],testData[i][1],testData[i][2],testData[i][3],testData[i][4], true, i);
+      testPriceAdjointSecondOrder(testData[i][0],testData[i][1],testData[i][2],testData[i][3],testData[i][4], false, i);
     }
-    // Second derivative
-    // Derivative forward-forward.
-    double deltaF = 0.001;
-    BlackFunctionData dataFP = new BlackFunctionData(F + deltaF, DF, SIGMA);
-    BlackFunctionData dataFM = new BlackFunctionData(F - deltaF, DF, SIGMA);
-    double priceFP = FUNCTION.getPriceFunction(ITM_CALL).evaluate(dataFP);
-    double priceFM = FUNCTION.getPriceFunction(ITM_CALL).evaluate(dataFM);
-    double derivativeFF_FD = (priceFP + priceFM - 2 * bs) / (deltaF * deltaF);
-    assertEquals(derivativeFF_FD, bsD2[0][0], 1E-7);
-    // Derivative volatility-volatility.
-    double deltaV = 0.00001;
-    BlackFunctionData dataVP = new BlackFunctionData(F, DF, SIGMA + deltaV);
-    BlackFunctionData dataVM = new BlackFunctionData(F, DF, SIGMA - deltaV);
-    double priceVP = FUNCTION.getPriceFunction(ITM_CALL).evaluate(dataVP);
-    double priceVM = FUNCTION.getPriceFunction(ITM_CALL).evaluate(dataVM);
-    double derivativeVV_FD = (priceVP + priceVM - 2 * bs) / (deltaV * deltaV);
-    assertEquals(derivativeVV_FD, bsD2[1][1], 1E-3);
-    // Derivative forward-volatility.
-    BlackFunctionData dataFPVP = new BlackFunctionData(F + deltaF, DF, SIGMA + deltaV);
-    double priceFPVP = FUNCTION.getPriceFunction(ITM_CALL).evaluate(dataFPVP);
-    double derivativeFV_FD = (priceFPVP + bs - priceFP - priceVP) / (deltaF * deltaV);
-    assertEquals(derivativeFV_FD, bsD2[1][0], 1E-5);
-    assertEquals(bsD2[0][1], bsD2[1][0], 1E-10);
-    // Derivative strike-strike.
-    double deltaK = 0.001;
-    EuropeanVanillaOption optionKP = new EuropeanVanillaOption(F - DELTA + deltaK, T, true);
-    EuropeanVanillaOption optionKM = new EuropeanVanillaOption(F - DELTA - deltaK, T, true);
-    double priceKP = FUNCTION.getPriceFunction(optionKP).evaluate(ATM_DATA);
-    double priceKM = FUNCTION.getPriceFunction(optionKM).evaluate(ATM_DATA);
-    double derivativeKK_FD = (priceKP + priceKM - 2 * bs) / (deltaK * deltaK);
-    assertEquals(derivativeKK_FD, bsD2[2][2], 1E-8);
-    // Derivative forward-strike.
-    double priceFPKP = FUNCTION.getPriceFunction(optionKP).evaluate(dataFP);
-    double derivativeFK_FD = (priceFPKP + bs - priceFP - priceKP) / (deltaF * deltaK);
-    assertEquals(derivativeFK_FD, bsD2[2][0], 1E-7);
-    assertEquals(bsD2[0][2], bsD2[2][0], 1E-10);
-    // Derivative strike-volatility.
-    double priceKPVP = FUNCTION.getPriceFunction(optionKP).evaluate(dataVP);
-    double derivativeKV_FD = (priceKPVP + bs - priceKP - priceVP) / (deltaV * deltaK);
-    assertEquals(derivativeKV_FD, bsD2[2][1], 1E-4);
-    assertEquals(bsD2[1][2], bsD2[2][1], 1E-10);
   }
-
-  @Test
-  public void testPriceAdjoint2Put() {
+  
+  private void testPriceAdjointSecondOrder(double forward, double numeraire, double sigma, double strike, double time,
+      boolean isCall, int i) {
+    EuropeanVanillaOption option = new EuropeanVanillaOption(strike, time, isCall);
+    BlackFunctionData data = new BlackFunctionData(forward, numeraire, sigma);
     // Price
-    double[] priceAdjoint = FUNCTION.getPriceAdjoint(OTM_PUT, ATM_DATA);
+    double[] priceAdjoint = FUNCTION.getPriceAdjoint(option, data);
     double[] bsD = new double[3];
     double[][] bsD2 = new double[3][3];
-    double bs = FUNCTION.getPriceAdjoint2(OTM_PUT, ATM_DATA, bsD, bsD2);
-    assertEquals(priceAdjoint[0], bs, 1E-10);
+    double bs = FUNCTION.getPriceAdjoint2(option, data, bsD, bsD2);
+    assertEquals("AD Second order: price", priceAdjoint[0], bs, TOLERANCE_1);
     // First derivative
     for (int loopder = 0; loopder < 3; loopder++) {
-      assertEquals(priceAdjoint[loopder + 1], bsD[loopder], 1E-10);
+      assertEquals("AD Second order: 1st", priceAdjoint[loopder + 1], bsD[loopder], TOLERANCE_1);
     }
     // Second derivative
     // Derivative forward-forward.
-    double deltaF = 0.001;
-    BlackFunctionData dataFP = new BlackFunctionData(F + deltaF, DF, SIGMA);
-    BlackFunctionData dataFM = new BlackFunctionData(F - deltaF, DF, SIGMA);
-    double priceFP = FUNCTION.getPriceFunction(OTM_PUT).evaluate(dataFP);
-    double priceFM = FUNCTION.getPriceFunction(OTM_PUT).evaluate(dataFM);
-    double derivativeFF_FD = (priceFP + priceFM - 2 * bs) / (deltaF * deltaF);
-    assertEquals(derivativeFF_FD, bsD2[0][0], 1E-7);
+    double deltaF = 1.0E-3 * forward;
+    BlackFunctionData dataFP = new BlackFunctionData(forward + deltaF, numeraire, sigma);
+    BlackFunctionData dataFM = new BlackFunctionData(forward - deltaF, numeraire, sigma);
+    BlackFunctionData dataFP2 = new BlackFunctionData(forward + 2 * deltaF, numeraire, sigma);
+    BlackFunctionData dataFM2 = new BlackFunctionData(forward - 2 * deltaF, numeraire, sigma);
+    BlackFunctionData dataFP3 = new BlackFunctionData(forward + 3 * deltaF, numeraire, sigma);
+    BlackFunctionData dataFM3 = new BlackFunctionData(forward - 3 * deltaF, numeraire, sigma);
+    double priceFP = FUNCTION.getPriceFunction(option).evaluate(dataFP);
+    double priceFM = FUNCTION.getPriceFunction(option).evaluate(dataFM);
+    double priceFP2 = FUNCTION.getPriceFunction(option).evaluate(dataFP2);
+    double priceFM2 = FUNCTION.getPriceFunction(option).evaluate(dataFM2);
+    double priceFP3 = FUNCTION.getPriceFunction(option).evaluate(dataFP3);
+    double priceFM3 = FUNCTION.getPriceFunction(option).evaluate(dataFM3);
+    double derivativeFF_FD = (8 * (priceFP2 - bs) - (priceFP3 - priceFM) - 8 * (bs - priceFM2) + (priceFP - priceFM3) )
+        / (24 * deltaF * deltaF); // Second order derivative approximation with lower residual to improve convergence.
+//    double derivativeFF_FD = (priceFP + priceFM - 2 * bs) / (deltaF * deltaF);
+    assertEquals("AD Second order: 2nd - fwd-fwd " + i, 
+        derivativeFF_FD, bsD2[0][0], TOLERANCE_2_FWD_FWD * Math.abs(derivativeFF_FD));
     // Derivative volatility-volatility.
     double deltaV = 0.00001;
-    BlackFunctionData dataVP = new BlackFunctionData(F, DF, SIGMA + deltaV);
-    BlackFunctionData dataVM = new BlackFunctionData(F, DF, SIGMA - deltaV);
-    double priceVP = FUNCTION.getPriceFunction(OTM_PUT).evaluate(dataVP);
-    double priceVM = FUNCTION.getPriceFunction(OTM_PUT).evaluate(dataVM);
+    double deltaV2 = (deltaF * deltaV);
+    BlackFunctionData dataVP = new BlackFunctionData(forward, numeraire, sigma + deltaV);
+    BlackFunctionData dataVM = new BlackFunctionData(forward, numeraire, sigma - deltaV);
+    double priceVP = FUNCTION.getPriceFunction(option).evaluate(dataVP);
+    double priceVM = FUNCTION.getPriceFunction(option).evaluate(dataVM);
     double derivativeVV_FD = (priceVP + priceVM - 2 * bs) / (deltaV * deltaV);
-    assertEquals(derivativeVV_FD, bsD2[1][1], 1E-3);
+    assertEquals("AD Second order: 2nd - vol-vol " + i,
+        derivativeVV_FD, bsD2[1][1], TOLERANCE_2_VOL_VOL * Math.abs(bs / deltaV2));
     // Derivative forward-volatility.
-    BlackFunctionData dataFPVP = new BlackFunctionData(F + deltaF, DF, SIGMA + deltaV);
-    double priceFPVP = FUNCTION.getPriceFunction(OTM_PUT).evaluate(dataFPVP);
+    BlackFunctionData dataFPVP = new BlackFunctionData(forward + deltaF, numeraire, sigma + deltaV);
+    double priceFPVP = FUNCTION.getPriceFunction(option).evaluate(dataFPVP);
     double derivativeFV_FD = (priceFPVP + bs - priceFP - priceVP) / (deltaF * deltaV);
-    assertEquals(derivativeFV_FD, bsD2[1][0], 1E-5);
-    assertEquals(bsD2[0][1], bsD2[1][0], 1E-10);
+    assertEquals("AD Second order: 2nd - fwd-vol " + i,
+        derivativeFV_FD, bsD2[1][0], TOLERANCE_2_FWD_VOL * Math.abs(bs / (deltaF * deltaV)));
+    assertEquals("AD Second order: 2nd - fwd-vol", bsD2[0][1], bsD2[1][0], TOLERANCE_1);
     // Derivative strike-strike.
-    double deltaK = 0.001;
-    EuropeanVanillaOption optionKP = new EuropeanVanillaOption(F - DELTA + deltaK, T, false);
-    EuropeanVanillaOption optionKM = new EuropeanVanillaOption(F - DELTA - deltaK, T, false);
-    double priceKP = FUNCTION.getPriceFunction(optionKP).evaluate(ATM_DATA);
-    double priceKM = FUNCTION.getPriceFunction(optionKM).evaluate(ATM_DATA);
+    double deltaK = 1.0E-3 * strike;
+    EuropeanVanillaOption optionKP = new EuropeanVanillaOption(strike + deltaK, time, isCall);
+    EuropeanVanillaOption optionKM = new EuropeanVanillaOption(strike - deltaK, time, isCall);
+    double priceKP = FUNCTION.getPriceFunction(optionKP).evaluate(data);
+    double priceKM = FUNCTION.getPriceFunction(optionKM).evaluate(data);
     double derivativeKK_FD = (priceKP + priceKM - 2 * bs) / (deltaK * deltaK);
-    assertEquals(derivativeKK_FD, bsD2[2][2], 1E-8);
+    assertEquals("AD Second order: 2nd - strike-strike " + i,
+        derivativeKK_FD, bsD2[2][2], TOLERANCE_2_STR_STR * Math.abs(derivativeKK_FD));
     // Derivative forward-strike.
     double priceFPKP = FUNCTION.getPriceFunction(optionKP).evaluate(dataFP);
     double derivativeFK_FD = (priceFPKP + bs - priceFP - priceKP) / (deltaF * deltaK);
-    assertEquals(derivativeFK_FD, bsD2[2][0], 1E-7);
-    assertEquals(bsD2[0][2], bsD2[2][0], 1E-10);
+    assertEquals("AD Second order: 2nd - fwd-str " + i,
+        derivativeFK_FD, bsD2[2][0], TOLERANCE_2_FWD_STR * Math.abs(bs / (deltaF * deltaK)));
+    assertEquals("AD Second order: 2nd - fwd-str", bsD2[0][2], bsD2[2][0], TOLERANCE_1);
     // Derivative strike-volatility.
     double priceKPVP = FUNCTION.getPriceFunction(optionKP).evaluate(dataVP);
     double derivativeKV_FD = (priceKPVP + bs - priceKP - priceVP) / (deltaV * deltaK);
-    assertEquals(derivativeKV_FD, bsD2[2][1], 1E-4);
-    assertEquals(bsD2[1][2], bsD2[2][1], 1E-10);
+    assertEquals("AD Second order: 2nd - str-vol " + i,
+        derivativeKV_FD, bsD2[2][1], TOLERANCE_2_STR_VOL * Math.abs(bs / (deltaV * deltaK)));
+    assertEquals("AD Second order: 2nd - str-vol", bsD2[1][2], bsD2[2][1], TOLERANCE_1);    
   }
 
   @Test(enabled = false)
