@@ -22,8 +22,6 @@ import com.opengamma.financial.analytics.model.bondcurves.inflationbondcurves.In
 import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionFunctions;
 import com.opengamma.financial.analytics.model.bondyield.BondYieldFunctions;
 import com.opengamma.financial.analytics.model.carrlee.CarrLeeFunctions;
-import com.opengamma.financial.analytics.model.cds.CDSFunctions;
-import com.opengamma.financial.analytics.model.credit.CreditFunctions;
 import com.opengamma.financial.analytics.model.curve.CurveFunctions;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardFunctions;
 import com.opengamma.financial.analytics.model.curve.interestrate.InterestRateFunctions;
@@ -133,21 +131,6 @@ public class ModelFunctions extends AbstractFunctionConfigurationBean {
     return CarrLeeFunctions.instance();
   }
 
-  /**
-   * Adds CDS functions.
-   * @return A configuration source containing CDS functions
-   */
-  protected FunctionConfigurationSource cdsFunctionConfiguration() {
-    return CDSFunctions.instance();
-  }
-
-  /**
-   * Adds credit functions.
-   * @return A configuration source containing credit functions
-   */
-  protected FunctionConfigurationSource creditFunctionConfiguration() {
-    return CreditFunctions.instance();
-  }
 
   /**
    * Adds functions that produce curves.
@@ -339,8 +322,6 @@ public class ModelFunctions extends AbstractFunctionConfigurationBean {
         inflationbondCurveFunctionConfiguration(),
         bondYieldFunctionConfiguration(),
         carrLeeFunctionConfiguration(),
-        cdsFunctionConfiguration(),
-        creditFunctionConfiguration(),
         curveFunctionConfiguration(),
         equityFunctionConfiguration(),
         fixedIncomeFunctionConfiguration(),

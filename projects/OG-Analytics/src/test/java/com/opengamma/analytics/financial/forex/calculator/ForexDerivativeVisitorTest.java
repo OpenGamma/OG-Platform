@@ -29,7 +29,6 @@ import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivativ
 import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative.ForwardCommodityPhysicalSettle;
 import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative.MetalFutureSecurity;
 import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative.MetalFutureTransaction;
-import com.opengamma.analytics.financial.credit.cds.ISDACDSDerivative;
 import com.opengamma.analytics.financial.equity.Equity;
 import com.opengamma.analytics.financial.equity.future.derivative.CashSettledFuture;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityFuture;
@@ -780,15 +779,6 @@ public class ForexDerivativeVisitorTest {
       return null;
     }
 
-    @Override
-    public String visitCDSDerivative(final ISDACDSDerivative cds, final T data) {
-      return null;
-    }
-
-    @Override
-    public String visitCDSDerivative(final ISDACDSDerivative cds) {
-      return null;
-    }
 
     @Override
     public String visitSwapFuturesPriceDeliverableSecurity(final SwapFuturesPriceDeliverableSecurity futures, final T data) {

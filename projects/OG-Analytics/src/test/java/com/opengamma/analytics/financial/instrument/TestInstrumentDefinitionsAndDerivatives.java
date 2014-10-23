@@ -55,8 +55,6 @@ import com.opengamma.analytics.financial.instrument.cash.CashDefinition;
 import com.opengamma.analytics.financial.instrument.cash.DepositCounterpartDefinition;
 import com.opengamma.analytics.financial.instrument.cash.DepositIborDefinition;
 import com.opengamma.analytics.financial.instrument.cash.DepositZeroDefinition;
-import com.opengamma.analytics.financial.instrument.cds.ISDACDSDefinition;
-import com.opengamma.analytics.financial.instrument.cds.ISDACDSPremiumDefinition;
 import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumSecurityDefinition;
@@ -109,14 +107,12 @@ import com.opengamma.analytics.financial.model.option.definition.Barrier;
 import com.opengamma.analytics.financial.model.option.definition.Barrier.BarrierType;
 import com.opengamma.analytics.financial.model.option.definition.Barrier.KnockType;
 import com.opengamma.analytics.financial.model.option.definition.Barrier.ObservationType;
-import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCounts;
-import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.id.ExternalId;
 import com.opengamma.timeseries.DoubleTimeSeries;
@@ -154,8 +150,7 @@ public class TestInstrumentDefinitionsAndDerivatives {
   public static final GeneratorSwapXCcyIborIbor XCCY_GENERATOR = new GeneratorSwapXCcyIborIbor("XCCY", IBOR_INDEX_2, IBOR_INDEX_1, C, C);
   public static final IndexPrice INDEX_PRICE = new IndexPrice("CPI", CUR);
   public static final Convention CONVENTION = new Convention(2, FIXED_DAY_COUNT, BD, C, "");
-  public static final ISDACDSPremiumDefinition ISDA_PREMIUM = ISDACDSPremiumDefinition.from(SETTLE_DATE, SETTLE_DATE.plusYears(5), PeriodFrequency.SEMI_ANNUAL, CONVENTION, StubType.LONG_END, false,
-      NOTIONAL, SPREAD, CUR, C);
+
 
   public static final CouponFixedDefinition COUPON_FIXED = CouponFixedDefinition.from(CUR, SETTLE_DATE, SETTLE_DATE, SETTLE_DATE, SPOT_LAG, NOTIONAL, FIXED_RATE);
   public static final CouponIborDefinition COUPON_IBOR = CouponIborDefinition.from(NOTIONAL, SETTLE_DATE, IBOR_INDEX_1, C);
@@ -265,8 +260,6 @@ public class TestInstrumentDefinitionsAndDerivatives {
 
   public static final SwapXCcyIborIborDefinition XCCY_SWAP = SwapXCcyIborIborDefinition.from(SETTLE_DATE, TENOR, XCCY_GENERATOR, NOTIONAL, NOTIONAL, SPREAD, IS_PAYER, C, C);
 
-  public static final ISDACDSDefinition ISDA_CDS = new ISDACDSDefinition(SETTLE_DATE, SETTLE_DATE.plusYears(2), ISDA_PREMIUM, NOTIONAL, SPREAD, FIXED_RATE, false, false, true,
-      PeriodFrequency.SEMI_ANNUAL, CONVENTION, StubType.LONG_END);
 
   public static final ForexDefinition FX = ForexDefinition.fromAmounts(CUR, Currency.AUD, SETTLE_DATE, NOTIONAL, -NOTIONAL * 1.5);
   public static final ForexSwapDefinition FX_SWAP = new ForexSwapDefinition(FX, ForexDefinition.fromAmounts(CUR, Currency.AUD, SETTLE_DATE.plusMonths(3), -NOTIONAL, NOTIONAL * 1.5));
@@ -350,7 +343,6 @@ public class TestInstrumentDefinitionsAndDerivatives {
     ALL_INSTRUMENTS.add(IR_FUT_OPT_PREMIUM_SEC_DEF);
     ALL_INSTRUMENTS.add(IR_FUT_OPT_PREMIUM_T_DEF);
     ALL_INSTRUMENTS.add(IR_FUT_SECURITY_DEFINITION);
-    ALL_INSTRUMENTS.add(ISDA_CDS);
     ALL_INSTRUMENTS.add(METAL_FUTURE);
     ALL_INSTRUMENTS.add(METAL_FUTURE_OPTION);
     ALL_INSTRUMENTS.add(METAL_FWD);
@@ -441,7 +433,6 @@ public class TestInstrumentDefinitionsAndDerivatives {
     ALL_DERIVATIVES.add(IR_FUT_OPT_PREMIUM_SEC_DEF.toDerivative(IR_FUT_OPT_PREMIUM_SEC_DEF.getExpirationDate().minusDays(1)));
     ALL_DERIVATIVES.add(IR_FUT_OPT_PREMIUM_T_DEF.toDerivative(IR_FUT_OPT_PREMIUM_T_DEF.getUnderlyingOption().getExpirationDate().minusDays(1)));
     ALL_DERIVATIVES.add(IR_FUT_SECURITY_DEFINITION.toDerivative(IR_FUT_SECURITY_DEFINITION.getLastTradingDate().minusDays(1)));
-    ALL_DERIVATIVES.add(ISDA_CDS.toDerivative(ISDA_CDS.getMaturity().minusDays(10)));
     ALL_DERIVATIVES.add(METAL_FUTURE.toDerivative(METAL_FUTURE.getSettlementDate()));
     ALL_DERIVATIVES.add(METAL_FUTURE_OPTION.toDerivative(METAL_FUTURE_OPTION.getExpiryDate().minusDays(1)));
     ALL_DERIVATIVES.add(METAL_FWD.toDerivative(METAL_FWD.getSettlementDate()));

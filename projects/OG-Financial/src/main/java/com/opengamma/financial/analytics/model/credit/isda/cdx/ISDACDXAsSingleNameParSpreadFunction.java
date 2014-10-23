@@ -30,10 +30,8 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.credit.CreditSecurityToIdentifierVisitor;
 import com.opengamma.financial.analytics.model.credit.isda.cds.StandardVanillaParSpreadCDSFunction;
-import com.opengamma.financial.analytics.model.credit.isda.cds.StandardVanillaRR01CDSFunction;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.util.time.Tenor;
 
@@ -48,9 +46,9 @@ public class ISDACDXAsSingleNameParSpreadFunction extends ISDACDXAsSingleNameFun
 
   @Override
   protected Set<ComputedValue> getComputedValue(final CreditDefaultSwapDefinition definition, final ISDACompliantYieldCurve yieldCurve,
-                                                final ZonedDateTime[] times, final double[] marketSpreads, final ZonedDateTime valuationDate,
-                                                final ComputationTarget target, final ValueProperties properties, final FunctionInputs inputs,
-                                                ISDACompliantCreditCurve hazardCurve, CDSAnalytic analytic, Tenor[] tenors) {
+      final ZonedDateTime[] times, final double[] marketSpreads, final ZonedDateTime valuationDate,
+      final ComputationTarget target, final ValueProperties properties, final FunctionInputs inputs,
+      ISDACompliantCreditCurve hazardCurve, CDSAnalytic analytic, Tenor[] tenors) {
     final double parSpread = StandardVanillaParSpreadCDSFunction.getParSpread(yieldCurve, hazardCurve, analytic);
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.PAR_SPREAD, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, parSpread));
