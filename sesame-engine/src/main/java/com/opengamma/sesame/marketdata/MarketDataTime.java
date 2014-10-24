@@ -29,7 +29,7 @@ import com.opengamma.util.time.LocalDateRange;
 
 /**
  * Represents the time at which a piece of market data is valid.
- * TODO I'm not keen on the design of this, revisit. particularly the time series
+ * TODO review: Chris - I'm not keen on the design of this, revisit. particularly the time series
  */
 @BeanDefinition(builderScope = "private")
 public final class MarketDataTime implements ImmutableBean {

@@ -82,7 +82,6 @@ public final class MapMarketDataBundle implements MarketDataBundle, ImmutableBea
     }
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public <T> Result<DateTimeSeries<LocalDate, T>> get(MarketDataId id,
                                                       Class<T> dataType,
@@ -92,6 +91,7 @@ public final class MapMarketDataBundle implements MarketDataBundle, ImmutableBea
     // TODO should the size only be checked if the date range is non-empty?
     if (timeSeries != null && timeSeries.size() > 0) {
       // TODO type check
+      @SuppressWarnings("unchecked")
       DateTimeSeries<LocalDate, T> castTimeSeries = (DateTimeSeries<LocalDate, T>) timeSeries;
       LocalDate start = dateRange.getStartDateInclusive();
       LocalDate end = dateRange.getEndDateInclusive();
