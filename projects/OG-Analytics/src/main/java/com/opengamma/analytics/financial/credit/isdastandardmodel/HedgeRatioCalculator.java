@@ -29,6 +29,16 @@ public class HedgeRatioCalculator {
   }
 
   /**
+   * Constructor specifying formula used in pricer and credit curve builder
+   * @param formula The formula
+   */
+  public HedgeRatioCalculator(AccrualOnDefaultFormulae formula) {
+    ArgumentChecker.notNull(formula, "formula");
+    _pricer = new AnalyticCDSPricer(formula);
+    _builder = new FastCreditCurveBuilder(formula);
+  }
+
+  /**
    * The sensitivity of the PV of a CDS to the zero hazard rates at the knots of the credit curve 
    *TODO this should be handled directly by the pricer  
    * @param cds The CDS 
