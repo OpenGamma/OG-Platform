@@ -13,7 +13,7 @@ import com.opengamma.analytics.financial.model.volatility.BlackScholesFormulaRep
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * Calculates the Black-Scholes theta
  */
 public final class EquityOptionBlackScholesThetaCalculator extends
     InstrumentDerivativeVisitorAdapter<StaticReplicationDataBundle, Double> {
