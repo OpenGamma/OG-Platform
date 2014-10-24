@@ -28,6 +28,7 @@ import com.opengamma.analytics.financial.provider.sensitivity.parameter.Paramete
 import com.opengamma.analytics.math.matrix.CommonsMatrixAlgebra;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
@@ -64,17 +65,17 @@ public class DiscountingFRACalculator implements FRACalculator {
   /**
    * Calculator for PV01
    */
-  private static final PV01CurveParametersCalculator<MulticurveProviderInterface> PV01C =
+  private static final PV01CurveParametersCalculator<ParameterProviderInterface> PV01C =
       new PV01CurveParametersCalculator<>(PresentValueCurveSensitivityDiscountingCalculator.getInstance());
 
   /** The curve sensitivity calculator */
-  private static final InstrumentDerivativeVisitor<MulticurveProviderInterface, MultipleCurrencyMulticurveSensitivity> PVCSDC =
+  private static final InstrumentDerivativeVisitor<ParameterProviderInterface, MultipleCurrencyMulticurveSensitivity> PVCSDC =
       PresentValueCurveSensitivityDiscountingCalculator.getInstance();
   /** The parameter sensitivity calculator */
-  private static final ParameterSensitivityParameterCalculator<MulticurveProviderInterface> PSC =
+  private static final ParameterSensitivityParameterCalculator<ParameterProviderInterface> PSC =
       new ParameterSensitivityParameterCalculator<>(PVCSDC);
   /** The market quote sensitivity calculator */
-  private static final MarketQuoteSensitivityBlockCalculator<MulticurveProviderInterface> BUCKETED_PV01_CALCULATOR =
+  private static final MarketQuoteSensitivityBlockCalculator<ParameterProviderInterface> BUCKETED_PV01_CALCULATOR =
       new MarketQuoteSensitivityBlockCalculator<>(PSC);
   /** The calculator which will compute intra-curve gammas */
   private static final CrossGammaMultiCurveCalculator CGC = new CrossGammaMultiCurveCalculator(PVCSDC);
@@ -178,7 +179,7 @@ public class DiscountingFRACalculator implements FRACalculator {
     return Result.success(calculateResult(PRDC));
   }
 
-  private <T> T calculateResult(InstrumentDerivativeVisitor<MulticurveProviderInterface, T> calculator) {
+  private <T> T calculateResult(InstrumentDerivativeVisitor<ParameterProviderInterface, T> calculator) {
     return _derivative.accept(calculator, _bundle);
   }
 

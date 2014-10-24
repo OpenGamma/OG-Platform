@@ -27,6 +27,7 @@ import com.opengamma.analytics.financial.provider.calculator.generic.MarketQuote
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
@@ -92,17 +93,17 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
   /**
    * Calculator for PV01
    */
-  private static final PV01CurveParametersCalculator<MulticurveProviderInterface> PV01C =
+  private static final PV01CurveParametersCalculator<ParameterProviderInterface> PV01C =
       new PV01CurveParametersCalculator<>(PresentValueCurveSensitivityDiscountingCalculator.getInstance());
 
   /** The curve sensitivity calculator */
-  private static final InstrumentDerivativeVisitor<MulticurveProviderInterface, MultipleCurrencyMulticurveSensitivity> PVCSDC =
+  private static final InstrumentDerivativeVisitor<ParameterProviderInterface, MultipleCurrencyMulticurveSensitivity> PVCSDC =
       PresentValueCurveSensitivityDiscountingCalculator.getInstance();
   /** The parameter sensitivity calculator */
-  private static final ParameterSensitivityParameterCalculator<MulticurveProviderInterface> PSC =
+  private static final ParameterSensitivityParameterCalculator<ParameterProviderInterface> PSC =
       new ParameterSensitivityParameterCalculator<>(PVCSDC);
   /** The market quote sensitivity calculator */
-  private static final MarketQuoteSensitivityBlockCalculator<MulticurveProviderInterface> BUCKETED_PV01_CALCULATOR =
+  private static final MarketQuoteSensitivityBlockCalculator<ParameterProviderInterface> BUCKETED_PV01_CALCULATOR =
       new MarketQuoteSensitivityBlockCalculator<>(PSC);
   /** The par spread market quote calculator */
   private static final ParSpreadMarketQuoteDiscountingCalculator PSMQC =
@@ -314,11 +315,11 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
     return Result.success(_derivative.accept(CFDC, createCashFlowDetailsProvider(PayReceiveType.RECEIVE)));
   }
 
-  private <T> T calculateResult(InstrumentDerivativeVisitorAdapter<MulticurveProviderInterface, T> calculator) {
+  private <T> T calculateResult(InstrumentDerivativeVisitorAdapter<ParameterProviderInterface, T> calculator) {
     return _derivative.accept(calculator, _bundle);
   }
 
-  private ReferenceAmount<Pair<String, Currency>> calculateResult(InstrumentDerivativeVisitor<MulticurveProviderInterface, ReferenceAmount<Pair<String, Currency>>> calculator) {
+  private ReferenceAmount<Pair<String, Currency>> calculateResult(InstrumentDerivativeVisitor<ParameterProviderInterface, ReferenceAmount<Pair<String, Currency>>> calculator) {
     return _derivative.accept(calculator, _bundle);
   }
 
