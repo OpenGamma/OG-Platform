@@ -15,14 +15,6 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.analytics.financial.ExerciseDecisionType;
 import com.opengamma.analytics.financial.commodity.definition.SettlementType;
 import com.opengamma.analytics.financial.datasets.CalendarUSD;
-import com.opengamma.analytics.financial.equity.EquityOptionBlackPresentValueCalculator;
-import com.opengamma.analytics.financial.equity.EquityOptionBlackScholesRhoCalculator;
-import com.opengamma.analytics.financial.equity.EquityOptionBlackScholesThetaCalculator;
-import com.opengamma.analytics.financial.equity.EquityOptionBlackSpotDeltaCalculator;
-import com.opengamma.analytics.financial.equity.EquityOptionBlackSpotGammaCalculator;
-import com.opengamma.analytics.financial.equity.EquityOptionBlackVegaCalculator;
-import com.opengamma.analytics.financial.equity.EqyOptBjerksundStenslandGreekCalculator;
-import com.opengamma.analytics.financial.equity.EqyOptBjerksundStenslandPresentValueCalculator;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.equity.variance.pricing.AffineDividends;
 import com.opengamma.analytics.financial.greeks.Greek;
@@ -39,25 +31,6 @@ import com.opengamma.util.test.TestGroup;
  */
 @Test(groups = TestGroup.UNIT)
 public class EquityOptionE2ETest extends EquityE2ETestMaster {
-  // Calculators for European options
-  private static final EquityOptionBlackPresentValueCalculator PV_EUROPEAN = EquityOptionBlackPresentValueCalculator
-      .getInstance();
-  private static final EquityOptionBlackScholesRhoCalculator RHO_EUROPEAN = EquityOptionBlackScholesRhoCalculator
-      .getInstance();
-  private static final EquityOptionBlackSpotDeltaCalculator DELTA_EUROPEAN = EquityOptionBlackSpotDeltaCalculator
-      .getInstance();
-  private static final EquityOptionBlackSpotGammaCalculator GAMMA_EUROPEAN = EquityOptionBlackSpotGammaCalculator
-      .getInstance();
-  private static final EquityOptionBlackScholesThetaCalculator THETA_EUROPEAN = EquityOptionBlackScholesThetaCalculator
-      .getInstance();
-  private static final EquityOptionBlackVegaCalculator VEGA_EUROPEAN = EquityOptionBlackVegaCalculator.getInstance();
-
-  // Calculators for American options
-  private static final EqyOptBjerksundStenslandPresentValueCalculator PV_AMERICAN = EqyOptBjerksundStenslandPresentValueCalculator
-      .getInstance();
-  private static final EqyOptBjerksundStenslandGreekCalculator GREEKS_AMERICAN = EqyOptBjerksundStenslandGreekCalculator
-      .getInstance();
-
   // trade
   private static final ZoneId ZID = ZoneId.of("EST");
   private static final ZonedDateTime TRADE_DATE = ZonedDateTime.of(2014, 3, 26, 13, 46, 0, 0, ZID);
@@ -439,7 +412,7 @@ public class EquityOptionE2ETest extends EquityE2ETestMaster {
     // OTM call option
     ZonedDateTime expiryDate3 = EXPIRY_DATES[2];
     LocalDate settlementDate3 = BusinessDayDateUtils.addWorkDays(expiryDate3.toLocalDate(), 3, NYC);
-    double targetStrike3 = 57.5;
+    double targetStrike3 = 57.5; // OTM
     EquityOptionDefinition targetOption3Dfn = new EquityOptionDefinition(true, targetStrike3, USD,
         exerciseType, expiryDate3, settlementDate3, POINT_VALUE, SettlementType.PHYSICAL);
     EquityOption targetOption3 = targetOption3Dfn.toDerivative(TRADE_DATE);
@@ -466,7 +439,7 @@ public class EquityOptionE2ETest extends EquityE2ETestMaster {
     // OTM put option
     ZonedDateTime expiryDate4 = ZonedDateTime.of(2014, 6, 6, 15, 0, 0, 0, ZID);
     LocalDate settlementDate4 = BusinessDayDateUtils.addWorkDays(expiryDate4.toLocalDate(), 3, NYC);
-    double targetStrike4 = 51.5;
+    double targetStrike4 = 51.5; // OTM
     EquityOptionDefinition targetOption4Dfn = new EquityOptionDefinition(false, targetStrike4, USD,
         exerciseType, expiryDate4, settlementDate4, 100.0, SettlementType.PHYSICAL);
     EquityOption targetOption4 = targetOption4Dfn.toDerivative(TRADE_DATE);

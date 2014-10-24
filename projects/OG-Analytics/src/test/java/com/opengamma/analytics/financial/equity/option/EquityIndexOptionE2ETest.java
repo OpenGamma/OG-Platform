@@ -15,14 +15,6 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.analytics.financial.ExerciseDecisionType;
 import com.opengamma.analytics.financial.commodity.definition.SettlementType;
 import com.opengamma.analytics.financial.datasets.CalendarUSD;
-import com.opengamma.analytics.financial.equity.EquityOptionBlackPresentValueCalculator;
-import com.opengamma.analytics.financial.equity.EquityOptionBlackScholesRhoCalculator;
-import com.opengamma.analytics.financial.equity.EquityOptionBlackScholesThetaCalculator;
-import com.opengamma.analytics.financial.equity.EquityOptionBlackSpotDeltaCalculator;
-import com.opengamma.analytics.financial.equity.EquityOptionBlackSpotGammaCalculator;
-import com.opengamma.analytics.financial.equity.EquityOptionBlackVegaCalculator;
-import com.opengamma.analytics.financial.equity.EqyOptBjerksundStenslandGreekCalculator;
-import com.opengamma.analytics.financial.equity.EqyOptBjerksundStenslandPresentValueCalculator;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.greeks.Greek;
 import com.opengamma.analytics.financial.greeks.GreekResultCollection;
@@ -42,25 +34,6 @@ import com.opengamma.util.test.TestGroup;
  */
 @Test(groups = TestGroup.UNIT)
 public class EquityIndexOptionE2ETest extends EquityE2ETestMaster {
-  // Calculators for European options
-  private static final EquityOptionBlackPresentValueCalculator PV_EUROPEAN = EquityOptionBlackPresentValueCalculator
-      .getInstance();
-  private static final EquityOptionBlackScholesRhoCalculator RHO_EUROPEAN = EquityOptionBlackScholesRhoCalculator
-      .getInstance();
-  private static final EquityOptionBlackSpotDeltaCalculator DELTA_EUROPEAN = EquityOptionBlackSpotDeltaCalculator
-      .getInstance();
-  private static final EquityOptionBlackSpotGammaCalculator GAMMA_EUROPEAN = EquityOptionBlackSpotGammaCalculator
-      .getInstance();
-  private static final EquityOptionBlackScholesThetaCalculator THETA_EUROPEAN = EquityOptionBlackScholesThetaCalculator
-      .getInstance();
-  private static final EquityOptionBlackVegaCalculator VEGA_EUROPEAN = EquityOptionBlackVegaCalculator.getInstance();
-
-  // Calculators for American options
-  private static final EqyOptBjerksundStenslandPresentValueCalculator PV_AMERICAN = EqyOptBjerksundStenslandPresentValueCalculator
-      .getInstance();
-  private static final EqyOptBjerksundStenslandGreekCalculator GREEKS_AMERICAN = EqyOptBjerksundStenslandGreekCalculator
-      .getInstance();
-
   // trade
   private static final ZoneId ZID = ZoneId.of("EST");
   private static final ZonedDateTime TRADE_DATE = ZonedDateTime.of(2014, 10, 23, 13, 46, 0, 0, ZID);

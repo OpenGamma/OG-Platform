@@ -12,6 +12,14 @@ import java.util.ArrayList;
 
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.analytics.financial.equity.EquityOptionBlackPresentValueCalculator;
+import com.opengamma.analytics.financial.equity.EquityOptionBlackScholesRhoCalculator;
+import com.opengamma.analytics.financial.equity.EquityOptionBlackScholesThetaCalculator;
+import com.opengamma.analytics.financial.equity.EquityOptionBlackSpotDeltaCalculator;
+import com.opengamma.analytics.financial.equity.EquityOptionBlackSpotGammaCalculator;
+import com.opengamma.analytics.financial.equity.EquityOptionBlackVegaCalculator;
+import com.opengamma.analytics.financial.equity.EqyOptBjerksundStenslandGreekCalculator;
+import com.opengamma.analytics.financial.equity.EqyOptBjerksundStenslandPresentValueCalculator;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
@@ -33,6 +41,24 @@ import com.opengamma.financial.convention.daycount.DayCounts;
  */
 @SuppressWarnings("javadoc")
 public class EquityE2ETestMaster {
+  // Calculators for European options
+  protected static final EquityOptionBlackPresentValueCalculator PV_EUROPEAN = EquityOptionBlackPresentValueCalculator
+      .getInstance();
+  protected static final EquityOptionBlackScholesRhoCalculator RHO_EUROPEAN = EquityOptionBlackScholesRhoCalculator
+      .getInstance();
+  protected static final EquityOptionBlackSpotDeltaCalculator DELTA_EUROPEAN = EquityOptionBlackSpotDeltaCalculator
+      .getInstance();
+  protected static final EquityOptionBlackSpotGammaCalculator GAMMA_EUROPEAN = EquityOptionBlackSpotGammaCalculator
+      .getInstance();
+  protected static final EquityOptionBlackScholesThetaCalculator THETA_EUROPEAN = EquityOptionBlackScholesThetaCalculator
+      .getInstance();
+  protected static final EquityOptionBlackVegaCalculator VEGA_EUROPEAN = EquityOptionBlackVegaCalculator.getInstance();
+
+  // Calculators for American options
+  protected static final EqyOptBjerksundStenslandPresentValueCalculator PV_AMERICAN = EqyOptBjerksundStenslandPresentValueCalculator
+      .getInstance();
+  protected static final EqyOptBjerksundStenslandGreekCalculator GREEKS_AMERICAN = EqyOptBjerksundStenslandGreekCalculator
+      .getInstance();
 
   // yield curve
   private static final double[] SINGLE_CURVE_TIME = new double[] {0.002739726, 0.093150685, 0.257534247, 0.515068493,
@@ -109,11 +135,6 @@ public class EquityE2ETestMaster {
     return new BlackVolatilitySurfaceStrike(surface);
   }
 
-  /**
-   * @param baseDate The base date
-   * @param targetDates The target dates
-   * @return Year fraction based on ACT/365
-   */
   protected double[] toDateToDouble(ZonedDateTime baseDate, ZonedDateTime[] targetDates) {
     int nDates = targetDates.length;
     double[] res = new double[nDates];
@@ -123,12 +144,6 @@ public class EquityE2ETestMaster {
     return res;
   }
 
-  /**
-   * @param messages The messages 
-   * @param expected The expected values 
-   * @param result The obtained values
-   * @param relativeTol The relative tolerance
-   */
   protected void assertEqualsArray(String[] messages, double[] expected, double[] result, double relativeTol) {
     int nData = messages.length;
     for (int i = 0; i < nData; ++i) {
@@ -136,12 +151,6 @@ public class EquityE2ETestMaster {
     }
   }
 
-  /**
-   * @param message The message 
-   * @param expected The expected value 
-   * @param result The obtained value
-   * @param relativeTol The relative tolerance
-   */
   protected void assertEqualsRelative(String message, double expected, double result, double relativeTol) {
     double tol = Math.max(1.0, Math.abs(expected)) * relativeTol;
     assertEquals(message, expected, result, tol);
