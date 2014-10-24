@@ -16,7 +16,6 @@ import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.analytics.financial.legalentity.LegalEntityFilter;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
-import com.opengamma.analytics.financial.provider.description.interestrate.ParameterIssuerProviderInterface;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
@@ -24,7 +23,7 @@ import com.opengamma.util.tuple.Pair;
  * Interface specific to inflation curves.
  * Compose the MulticurveProviderInterface.
  */
-public interface InflationIssuerProviderInterface extends ParameterIssuerProviderInterface, ParameterInflationProviderInterface {
+public interface InflationIssuerProviderInterface extends ParameterInflationIssuerProviderInterface {
 
   /**
    * Create a new copy of the provider.

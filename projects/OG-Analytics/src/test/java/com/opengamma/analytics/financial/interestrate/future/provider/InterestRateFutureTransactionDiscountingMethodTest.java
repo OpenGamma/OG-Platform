@@ -21,7 +21,7 @@ import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpre
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadRateDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
-import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimpleParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimpleParameterSensitivityMulticurveDiscountInterpolatedFDCalculator;
@@ -72,7 +72,7 @@ public class InterestRateFutureTransactionDiscountingMethodTest {
   private static final double SHIFT_FD = 1.0E-6;
   private static final ParSpreadRateCurveSensitivityDiscountingCalculator PSRCSDC = ParSpreadRateCurveSensitivityDiscountingCalculator.getInstance();
   private static final ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator PSMQCSDC = ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator.getInstance();
-  private static final SimpleParameterSensitivityParameterCalculator<MulticurveProviderInterface> PSC = new SimpleParameterSensitivityParameterCalculator<>(PSRCSDC);
+  private static final SimpleParameterSensitivityParameterCalculator<ParameterProviderInterface> PSC = new SimpleParameterSensitivityParameterCalculator<>(PSRCSDC);
   private static final SimpleParameterSensitivityMulticurveDiscountInterpolatedFDCalculator PSC_DSC_FD =
       new SimpleParameterSensitivityMulticurveDiscountInterpolatedFDCalculator(PSRDC, SHIFT_FD);
 

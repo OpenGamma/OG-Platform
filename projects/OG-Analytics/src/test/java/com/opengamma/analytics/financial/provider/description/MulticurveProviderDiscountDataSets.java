@@ -177,7 +177,7 @@ public class MulticurveProviderDiscountDataSets {
   private static final PriceIndexCurveSimple PRICE_INDEX_CURVE_GBP = new PriceIndexCurveSimple(CURVE_GBP);
 
   private static final String NAME_USD_PRICE_INDEX = "US CPI-U";
-  private static final IndexPrice PRICE_INDEX_USD = new IndexPrice(NAME_USD_PRICE_INDEX, Currency.EUR);
+  private static final IndexPrice PRICE_INDEX_USD = new IndexPrice(NAME_USD_PRICE_INDEX, Currency.USD);
   private static final double[] INDEX_VALUE_USD = new double[] {225.964, 225.722, 230.0, 251.1, 280.2, 452.7 }; // May11, June11, 1Y, 5Y, 10Y, 20Y, 50Y
   private static final double[] TIME_VALUE_USD = new double[] {-8.0 / 12.0, 4.0 / 12.0, 4.0 + 4.0 / 12.0, 9.0 + 4.0 / 12.0, 19.0 + 4.0 / 12.0, 49.0 + 4.0 / 12.0 };
   private static final InterpolatedDoublesCurve CURVE_USD = InterpolatedDoublesCurve.from(TIME_VALUE_USD, INDEX_VALUE_USD, new LinearInterpolator1D(), NAME_USD_PRICE_INDEX);

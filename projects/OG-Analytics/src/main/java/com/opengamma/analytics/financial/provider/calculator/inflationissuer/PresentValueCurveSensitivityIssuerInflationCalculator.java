@@ -7,20 +7,23 @@ package com.opengamma.analytics.financial.provider.calculator.inflationissuer;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorDelegate;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillTransaction;
+import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedTransaction;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedTransaction;
 import com.opengamma.analytics.financial.interestrate.bond.provider.BillTransactionDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.bond.provider.BondCapitalIndexedTransactionDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.bond.provider.BondTransactionDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositCounterpart;
 import com.opengamma.analytics.financial.interestrate.cash.provider.DepositCounterpartDiscountingMethod;
 import com.opengamma.analytics.financial.provider.calculator.inflation.InflationIssuerProviderAdapter;
 import com.opengamma.analytics.financial.provider.calculator.inflation.PresentValueCurveSensitivityDiscountingInflationCalculator;
-import com.opengamma.analytics.financial.provider.description.inflation.InflationIssuerProviderInterface;
+import com.opengamma.analytics.financial.provider.description.inflation.ParameterInflationIssuerProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.MultipleCurrencyInflationSensitivity;
 
 /**
  * 
  */
-public final class PresentValueCurveSensitivityIssuerInflationCalculator extends InstrumentDerivativeVisitorDelegate<InflationIssuerProviderInterface, MultipleCurrencyInflationSensitivity> {
+public final class PresentValueCurveSensitivityIssuerInflationCalculator 
+  extends InstrumentDerivativeVisitorDelegate<ParameterInflationIssuerProviderInterface, MultipleCurrencyInflationSensitivity> {
 
   /**
    * The unique instance of the calculator.
@@ -42,32 +45,42 @@ public final class PresentValueCurveSensitivityIssuerInflationCalculator extends
     super(new InflationIssuerProviderAdapter<>(PresentValueCurveSensitivityDiscountingInflationCalculator.getInstance()));
   }
 
-  /** Calculator for deposits */
+  /** Calculators */
   private static final DepositCounterpartDiscountingMethod METHOD_DEPO_CTPY = DepositCounterpartDiscountingMethod.getInstance();
-  /** Calculator for bill transactions */
   private static final BillTransactionDiscountingMethod METHOD_BILL_TR = BillTransactionDiscountingMethod.getInstance();
-  /** Calculator for bond transactions */
   private static final BondTransactionDiscountingMethod METHOD_BOND_TR = BondTransactionDiscountingMethod.getInstance();
+  private static final BondCapitalIndexedTransactionDiscountingMethod METHOD_CAPIND_BOND_TR = 
+      BondCapitalIndexedTransactionDiscountingMethod.getInstance();
 
   //     -----     Deposit     -----
 
   @Override
-  public MultipleCurrencyInflationSensitivity visitDepositCounterpart(final DepositCounterpart deposit, final InflationIssuerProviderInterface issuercurves) {
-    return MultipleCurrencyInflationSensitivity.of(METHOD_DEPO_CTPY.presentValueCurveSensitivity(deposit, issuercurves.getIssuerProvider()));
+  public MultipleCurrencyInflationSensitivity visitDepositCounterpart(final DepositCounterpart deposit, 
+      final ParameterInflationIssuerProviderInterface issuercurves) {
+    return MultipleCurrencyInflationSensitivity.of(
+        METHOD_DEPO_CTPY.presentValueCurveSensitivity(deposit, issuercurves.getIssuerProvider()));
   }
-
+ 
   //     -----     Bond/Bill     -----
 
   @Override
-  public MultipleCurrencyInflationSensitivity visitBillTransaction(final BillTransaction bill, final InflationIssuerProviderInterface issuercurves) {
-    return MultipleCurrencyInflationSensitivity.of(METHOD_BILL_TR.presentValueCurveSensitivity(bill, issuercurves.getIssuerProvider()));
+  public MultipleCurrencyInflationSensitivity visitBillTransaction(final BillTransaction bill, 
+      final ParameterInflationIssuerProviderInterface issuercurves) {
+    return MultipleCurrencyInflationSensitivity.of(
+        METHOD_BILL_TR.presentValueCurveSensitivity(bill, issuercurves.getIssuerProvider()));
   }
 
   @Override
-  public MultipleCurrencyInflationSensitivity visitBondFixedTransaction(final BondFixedTransaction bond, final InflationIssuerProviderInterface issuercurves) {
-    return MultipleCurrencyInflationSensitivity.of(METHOD_BOND_TR.presentValueCurveSensitivity(bond, issuercurves.getIssuerProvider()));
+  public MultipleCurrencyInflationSensitivity visitBondFixedTransaction(final BondFixedTransaction bond, 
+      final ParameterInflationIssuerProviderInterface issuercurves) {
+    return MultipleCurrencyInflationSensitivity.of(
+        METHOD_BOND_TR.presentValueCurveSensitivity(bond, issuercurves.getIssuerProvider()));
   }
 
-  // TODO : add inflation bonds
+  @Override
+  public MultipleCurrencyInflationSensitivity visitBondCapitalIndexedTransaction(final BondCapitalIndexedTransaction<?> bond, 
+      final ParameterInflationIssuerProviderInterface curves) {
+    return METHOD_CAPIND_BOND_TR.presentValueCurveSensitivity(bond, curves);
+  }
 
 }

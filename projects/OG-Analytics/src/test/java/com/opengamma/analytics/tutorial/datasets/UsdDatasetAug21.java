@@ -34,7 +34,7 @@ import com.opengamma.analytics.financial.provider.curve.CurveCalibrationConventi
 import com.opengamma.analytics.financial.provider.curve.CurveCalibrationTestsUtils;
 import com.opengamma.analytics.financial.provider.curve.multicurve.MulticurveDiscountBuildingRepository;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
-import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
@@ -164,13 +164,13 @@ public class UsdDatasetAug21 {
   }
 
   /** Calculators */
-  private static final InstrumentDerivativeVisitor<MulticurveProviderInterface, Double> PSMQDC =
+  private static final InstrumentDerivativeVisitor<ParameterProviderInterface, Double> PSMQDC =
       ParSpreadMarketQuoteDiscountingCalculator.getInstance(); // Market quotes 
-  private static final InstrumentDerivativeVisitor<MulticurveProviderInterface, Double> PSRDC =
+  private static final InstrumentDerivativeVisitor<ParameterProviderInterface, Double> PSRDC =
       ParSpreadRateDiscountingCalculator.getInstance(); // Rate version of market quotes, in particular future price replaced by future rate sensitivity.
-  private static final InstrumentDerivativeVisitor<MulticurveProviderInterface, MulticurveSensitivity> PSMQCSC =
+  private static final InstrumentDerivativeVisitor<ParameterProviderInterface, MulticurveSensitivity> PSMQCSC =
       ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator.getInstance(); // Market quotes 
-  private static final InstrumentDerivativeVisitor<MulticurveProviderInterface, MulticurveSensitivity> PSRCSC =
+  private static final InstrumentDerivativeVisitor<ParameterProviderInterface, MulticurveSensitivity> PSRCSC =
       ParSpreadRateCurveSensitivityDiscountingCalculator.getInstance(); // Rate version of market quotes, in particular future price replaced by future rate sensitivity.
 
   private static final MulticurveDiscountBuildingRepository CURVE_BUILDING_REPOSITORY =
@@ -183,8 +183,8 @@ public class UsdDatasetAug21 {
     
     definitionsUnits[0] = new InstrumentDefinition<?>[][] {definitions};
     
-    InstrumentDerivativeVisitor<MulticurveProviderInterface, Double> target;
-    InstrumentDerivativeVisitor<MulticurveProviderInterface, MulticurveSensitivity> targetSensitivity;
+    InstrumentDerivativeVisitor<ParameterProviderInterface, Double> target;
+    InstrumentDerivativeVisitor<ParameterProviderInterface, MulticurveSensitivity> targetSensitivity;
     
     if (marketQuoteRisk) {
       target = PSMQDC;

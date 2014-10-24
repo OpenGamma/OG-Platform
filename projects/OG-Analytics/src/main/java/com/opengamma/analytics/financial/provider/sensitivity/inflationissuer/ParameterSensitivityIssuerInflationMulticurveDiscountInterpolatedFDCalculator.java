@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.provider.sensitivity.inflation;
+package com.opengamma.analytics.financial.provider.sensitivity.inflationissuer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +21,7 @@ import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurv
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationIssuerProviderDiscount;
-import com.opengamma.analytics.financial.provider.description.inflation.InflationIssuerProviderInterface;
+import com.opengamma.analytics.financial.provider.description.inflation.ParameterInflationIssuerProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
@@ -42,7 +42,7 @@ public class ParameterSensitivityIssuerInflationMulticurveDiscountInterpolatedFD
   /**
    * The value calculator.
    */
-  private final InstrumentDerivativeVisitor<InflationIssuerProviderInterface, MultipleCurrencyAmount> _valueCalculator;
+  private final InstrumentDerivativeVisitor<ParameterInflationIssuerProviderInterface, MultipleCurrencyAmount> _valueCalculator;
   /**
    * The shift used for finite difference.
    */
@@ -53,7 +53,8 @@ public class ParameterSensitivityIssuerInflationMulticurveDiscountInterpolatedFD
    * @param valueCalculator The value calculator.
    * @param shift The shift used for finite difference.
    */
-  public ParameterSensitivityIssuerInflationMulticurveDiscountInterpolatedFDCalculator(final InstrumentDerivativeVisitor<InflationIssuerProviderInterface, MultipleCurrencyAmount> valueCalculator,
+  public ParameterSensitivityIssuerInflationMulticurveDiscountInterpolatedFDCalculator(
+      final InstrumentDerivativeVisitor<ParameterInflationIssuerProviderInterface, MultipleCurrencyAmount> valueCalculator,
       final double shift) {
     ArgumentChecker.notNull(valueCalculator, "Calculator");
     _valueCalculator = valueCalculator;

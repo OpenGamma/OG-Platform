@@ -12,7 +12,7 @@ import java.util.LinkedHashMap;
 import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.analytics.financial.instrument.bond.BondDataSets;
+import com.opengamma.analytics.financial.instrument.bond.BondDataSetsGbp;
 import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BondFixedTransactionDefinition;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedTransaction;
@@ -60,7 +60,7 @@ public class BondFixedTransactionDiscountingMethodE2ETest {
   private static final CurveBuildingBlockBundle BLOCK_GOVT = ISSUER_GOVT_PAIR.getSecond();
 
   // Bond description
-  private static final BondFixedSecurityDefinition UKT_800_20210607_SEC_DEF = BondDataSets.bondUKT800_20210607(1.0);
+  private static final BondFixedSecurityDefinition UKT_800_20210607_SEC_DEF = BondDataSetsGbp.bondUKT800_20210607(1.0);
   private static final String NAME_ISSUER = UKT_800_20210607_SEC_DEF.getIssuer();
   private static final IssuerProviderDiscount ISSUER_SWAP = new IssuerProviderDiscount(MULTICURVE_SWAP);
   static {

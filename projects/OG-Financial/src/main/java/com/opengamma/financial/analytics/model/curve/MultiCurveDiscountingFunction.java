@@ -10,6 +10,7 @@ import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CONSTRUCTION_C
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_SENSITIVITY_CURRENCY;
 import static com.opengamma.engine.value.ValueRequirementNames.YIELD_CURVE;
 import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.DISCOUNTING;
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -42,6 +43,7 @@ import com.opengamma.analytics.financial.provider.curve.SingleCurveBundle;
 import com.opengamma.analytics.financial.provider.curve.multicurve.MulticurveDiscountBuildingRepository;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
@@ -99,13 +101,11 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
 
-import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
-
 /**
  * Produces yield curves using the discounting method.
  */
 public class MultiCurveDiscountingFunction extends
-    MultiCurveFunction<MulticurveProviderInterface, MulticurveDiscountBuildingRepository, GeneratorYDCurve, MulticurveSensitivity> {
+    MultiCurveFunction<ParameterProviderInterface, MulticurveDiscountBuildingRepository, GeneratorYDCurve, MulticurveSensitivity> {
   /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(MultiCurveDiscountingFunction.class);
   /** The calculator */
@@ -134,12 +134,12 @@ public class MultiCurveDiscountingFunction extends
   }
 
   @Override
-  protected InstrumentDerivativeVisitor<MulticurveProviderInterface, Double> getCalculator() {
+  protected InstrumentDerivativeVisitor<ParameterProviderInterface, Double> getCalculator() {
     return PSMQC;
   }
 
   @Override
-  protected InstrumentDerivativeVisitor<MulticurveProviderInterface, MulticurveSensitivity> getSensitivityCalculator() {
+  protected InstrumentDerivativeVisitor<ParameterProviderInterface, MulticurveSensitivity> getSensitivityCalculator() {
     return PSMQCSC;
   }
 
@@ -184,8 +184,8 @@ public class MultiCurveDiscountingFunction extends
     }
 
     @Override
-    protected Pair<MulticurveProviderInterface, CurveBuildingBlockBundle> getCurves(final FunctionInputs inputs, final ZonedDateTime now,
-        final MulticurveDiscountBuildingRepository builder, final MulticurveProviderInterface knownData, final FunctionExecutionContext context,
+    protected Pair<ParameterProviderInterface, CurveBuildingBlockBundle> getCurves(final FunctionInputs inputs, final ZonedDateTime now,
+        final MulticurveDiscountBuildingRepository builder, final ParameterProviderInterface knownData, final FunctionExecutionContext context,
         final FXMatrix fx) {
       final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(context);
       final ConventionSource conventionSource = OpenGammaExecutionContext.getConventionSource(context);
@@ -279,7 +279,7 @@ public class MultiCurveDiscountingFunction extends
       //TODO this is only in here because the code in analytics doesn't use generics properly
       final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> temp = builder.makeCurvesFromDerivatives(curveBundles,
           (MulticurveProviderDiscount) knownData, discountingMap, forwardIborMap, forwardONMap, getCalculator(), getSensitivityCalculator());
-      final Pair<MulticurveProviderInterface, CurveBuildingBlockBundle> result = Pairs.of((MulticurveProviderInterface) temp.getFirst(), temp.getSecond());
+      final Pair<ParameterProviderInterface, CurveBuildingBlockBundle> result = Pairs.of((ParameterProviderInterface) temp.getFirst(), temp.getSecond());
       return result;
     }
 
@@ -349,7 +349,7 @@ public class MultiCurveDiscountingFunction extends
 
     @Override
     protected Set<ComputedValue> getResults(final ValueSpecification bundleSpec, final ValueSpecification jacobianSpec,
-        final ValueProperties bundleProperties, final Pair<MulticurveProviderInterface, CurveBuildingBlockBundle> pair) {
+        final ValueProperties bundleProperties, final Pair<ParameterProviderInterface, CurveBuildingBlockBundle> pair) {
       final Set<ComputedValue> result = new HashSet<>();
       final MulticurveProviderDiscount provider = (MulticurveProviderDiscount) pair.getFirst();
       result.add(new ComputedValue(bundleSpec, provider));
