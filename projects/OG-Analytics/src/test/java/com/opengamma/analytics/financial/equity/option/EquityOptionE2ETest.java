@@ -17,8 +17,6 @@ import com.opengamma.analytics.financial.commodity.definition.SettlementType;
 import com.opengamma.analytics.financial.datasets.CalendarUSD;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.equity.variance.pricing.AffineDividends;
-import com.opengamma.analytics.financial.greeks.Greek;
-import com.opengamma.analytics.financial.greeks.GreekResultCollection;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurveAffineDividends;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceStrike;
 import com.opengamma.financial.convention.businessday.BusinessDayDateUtils;
@@ -82,13 +80,12 @@ public class EquityOptionE2ETest extends EquityE2ETestMaster {
       isCalls[i] = new boolean[nOptions];
       Arrays.fill(isCalls[i], true);
     }
-    boolean isAmerican = exerciseType == ExerciseDecisionType.AMERICAN ? true : false;
     double[] timeToExpiries = toDateToDouble(TRADE_DATE, EXPIRY_DATES);
     double[] tau = toDateToDouble(TRADE_DATE, DIVIDEND_DATES);
     AffineDividends dividend = new AffineDividends(tau, ALPHA, BETA);
     ForwardCurveAffineDividends forwardCurve = new ForwardCurveAffineDividends(SPOT, SINGLE_CURVE, dividend);
     BlackVolatilitySurfaceStrike volSurface = createSurface(SPOT, timeToExpiries, STRIKES, CALL_PRICES, isCalls,
-        forwardCurve, isAmerican);
+        forwardCurve, exerciseType);
     StaticReplicationDataBundle data = new StaticReplicationDataBundle(volSurface, SINGLE_CURVE, forwardCurve);
 
     // Option 1
@@ -98,25 +95,10 @@ public class EquityOptionE2ETest extends EquityE2ETestMaster {
     EquityOptionDefinition targetOption1Dfn = new EquityOptionDefinition(true, targetStrike1, USD,
         exerciseType, expiryDate1, settlementDate1, POINT_VALUE, SettlementType.PHYSICAL);
     EquityOption targetOption1 = targetOption1Dfn.toDerivative(TRADE_DATE);
-    Double pvPerContract1 = targetOption1.accept(PV_AMERICAN, data);
-    Double pv1 = targetOption1.accept(PV_AMERICAN, data) * NOTIONAL;
-    GreekResultCollection greeks1 = targetOption1.accept(GREEKS_AMERICAN, data);
-    double delta1 = greeks1.get(Greek.DELTA);
-    double gamma1 = greeks1.get(Greek.GAMMA);
-    double theta1 = greeks1.get(Greek.THETA);
-    double rho1 = greeks1.get(Greek.RHO);
-    double vega1 = greeks1.get(Greek.VEGA);
-    double positionDelta1 = greeks1.get(Greek.DELTA) * targetOption1.getUnitAmount() * NOTIONAL;
-    double positionGamma1 = greeks1.get(Greek.GAMMA) * targetOption1.getUnitAmount() * NOTIONAL;
-    double positionTheta1 = greeks1.get(Greek.THETA) * targetOption1.getUnitAmount() * NOTIONAL;
-    double positionRho1 = greeks1.get(Greek.RHO) * targetOption1.getUnitAmount() * NOTIONAL;
-    double positionVega1 = greeks1.get(Greek.VEGA) * targetOption1.getUnitAmount() * NOTIONAL;
-    double[] res1 = new double[] {pvPerContract1, pv1, delta1, gamma1, theta1, rho1, vega1, positionDelta1,
-        positionGamma1, positionTheta1, positionRho1, positionVega1 };
     double[] expected1 = new double[] {291.56750963236584, 94759.4406305189, 0.7433580421991999, 0.09387569587899836,
         -0.028143893730161934, 0.011158414048770745, 0.03669291093468003, 24159.136371473996, 3050.960116067447,
         -914.6765462302628, 362.6484565850492, 1192.519605377101 };
-    assertEqualsArray(COMPUTE_VALUES, expected1, res1, TOL);
+    assertOptionResult(targetOption1, NOTIONAL, data, expected1);
 
     // Option 2
     ZonedDateTime expiryDate2 = ZonedDateTime.of(2014, 6, 6, 15, 0, 0, 0, ZID); // between expiryDates[1] and expiryDates[2]
@@ -125,25 +107,10 @@ public class EquityOptionE2ETest extends EquityE2ETestMaster {
     EquityOptionDefinition targetOption2Dfn = new EquityOptionDefinition(true, targetStrike2, USD,
         exerciseType, expiryDate2, settlementDate2, POINT_VALUE, SettlementType.PHYSICAL);
     EquityOption targetOption2 = targetOption2Dfn.toDerivative(TRADE_DATE);
-    Double pvPerContract2 = targetOption2.accept(PV_AMERICAN, data);
-    Double pv2 = targetOption2.accept(PV_AMERICAN, data) * NOTIONAL;
-    GreekResultCollection greeks2 = targetOption2.accept(GREEKS_AMERICAN, data);
-    double delta2 = greeks2.get(Greek.DELTA);
-    double gamma2 = greeks2.get(Greek.GAMMA);
-    double theta2 = greeks2.get(Greek.THETA);
-    double rho2 = greeks2.get(Greek.RHO);
-    double vega2 = greeks2.get(Greek.VEGA);
-    double positionDelta2 = greeks2.get(Greek.DELTA) * targetOption2.getUnitAmount() * NOTIONAL;
-    double positionGamma2 = greeks2.get(Greek.GAMMA) * targetOption2.getUnitAmount() * NOTIONAL;
-    double positionTheta2 = greeks2.get(Greek.THETA) * targetOption2.getUnitAmount() * NOTIONAL;
-    double positionRho2 = greeks2.get(Greek.RHO) * targetOption2.getUnitAmount() * NOTIONAL;
-    double positionVega2 = greeks2.get(Greek.VEGA) * targetOption2.getUnitAmount() * NOTIONAL;
-    double[] res2 = new double[] {pvPerContract2, pv2, delta2, gamma2, theta2, rho2, vega2, positionDelta2,
-        positionGamma2, positionTheta2, positionRho2, positionVega2 };
     double[] expected2 = new double[] {188.76756455195363, 61349.45847938493, 0.41601610970443836,
         0.058690007627269086, -0.01619733480905359, 0.0386020497360748, 0.09652116218314116, 13520.523565394247,
         1907.4252478862454, -526.4133812942416, 1254.566616422431, 3136.9377709520877 };
-    assertEqualsArray(COMPUTE_VALUES, expected2, res2, TOL);
+    assertOptionResult(targetOption2, NOTIONAL, data, expected2);
  }
 
   /**
@@ -160,13 +127,12 @@ public class EquityOptionE2ETest extends EquityE2ETestMaster {
       isCalls[i] = new boolean[nOptions];
       Arrays.fill(isCalls[i], false);
     }
-    boolean isAmerican = exerciseType == ExerciseDecisionType.AMERICAN ? true : false;
     double[] timeToExpiries = toDateToDouble(TRADE_DATE, EXPIRY_DATES);
     double[] tau = toDateToDouble(TRADE_DATE, DIVIDEND_DATES);
     AffineDividends dividend = new AffineDividends(tau, ALPHA, BETA);
     ForwardCurveAffineDividends forwardCurve = new ForwardCurveAffineDividends(SPOT, SINGLE_CURVE, dividend);
     BlackVolatilitySurfaceStrike volSurface = createSurface(SPOT, timeToExpiries, STRIKES, PUT_PRICES, isCalls,
-        forwardCurve, isAmerican);
+        forwardCurve, exerciseType);
     StaticReplicationDataBundle data = new StaticReplicationDataBundle(volSurface, SINGLE_CURVE, forwardCurve);
 
     // Option 1
@@ -176,25 +142,10 @@ public class EquityOptionE2ETest extends EquityE2ETestMaster {
     EquityOptionDefinition targetOption1Dfn = new EquityOptionDefinition(false, targetStrike1, USD,
         exerciseType, expiryDate1, settlementDate1, 100.0, SettlementType.PHYSICAL);
     EquityOption targetOption1 = targetOption1Dfn.toDerivative(TRADE_DATE);
-    Double pvPerContract1 = targetOption1.accept(PV_AMERICAN, data);
-    Double pv1 = targetOption1.accept(PV_AMERICAN, data) * NOTIONAL;
-    GreekResultCollection greeks1 = targetOption1.accept(GREEKS_AMERICAN, data);
-    double delta1 = greeks1.get(Greek.DELTA);
-    double gamma1 = greeks1.get(Greek.GAMMA);
-    double theta1 = greeks1.get(Greek.THETA);
-    double rho1 = greeks1.get(Greek.RHO);
-    double vega1 = greeks1.get(Greek.VEGA);
-    double positionDelta1 = greeks1.get(Greek.DELTA) * targetOption1.getUnitAmount() * NOTIONAL;
-    double positionGamma1 = greeks1.get(Greek.GAMMA) * targetOption1.getUnitAmount() * NOTIONAL;
-    double positionTheta1 = greeks1.get(Greek.THETA) * targetOption1.getUnitAmount() * NOTIONAL;
-    double positionRho1 = greeks1.get(Greek.RHO) * targetOption1.getUnitAmount() * NOTIONAL;
-    double positionVega1 = greeks1.get(Greek.VEGA) * targetOption1.getUnitAmount() * NOTIONAL;
-    double[] res1 = new double[] {pvPerContract1, pv1, delta1, gamma1, theta1, rho1, vega1, positionDelta1,
-        positionGamma1, positionTheta1, positionRho1, positionVega1 };
     double[] expected1 = new double[] {40.86299068016362, 13280.471971053177, -0.22632187721042948,
         0.09894526790792406, -0.0337728538179612, -0.005734862479160847, 0.03517593490085753, -7355.461009338958,
         3215.721207007532, -1097.617749083739, -186.38303057272753, 1143.2178842778699 };
-    assertEqualsArray(COMPUTE_VALUES, expected1, res1, TOL);
+    assertOptionResult(targetOption1, NOTIONAL, data, expected1);
 
     // Option 2
     ZonedDateTime expiryDate2 = ZonedDateTime.of(2014, 6, 6, 15, 0, 0, 0, ZID); // between expiryDates[1] and expiryDates[2]
@@ -203,25 +154,10 @@ public class EquityOptionE2ETest extends EquityE2ETestMaster {
     EquityOptionDefinition targetOption2Dfn = new EquityOptionDefinition(false, targetStrike2, USD,
         exerciseType, expiryDate2, settlementDate2, 100.0, SettlementType.PHYSICAL);
     EquityOption targetOption2 = targetOption2Dfn.toDerivative(TRADE_DATE);
-    Double pvPerContract2 = targetOption2.accept(PV_AMERICAN, data);
-    Double pv2 = targetOption2.accept(PV_AMERICAN, data) * NOTIONAL;
-    GreekResultCollection greeks2 = targetOption2.accept(GREEKS_AMERICAN, data);
-    double delta2 = greeks2.get(Greek.DELTA);
-    double gamma2 = greeks2.get(Greek.GAMMA);
-    double theta2 = greeks2.get(Greek.THETA);
-    double rho2 = greeks2.get(Greek.RHO);
-    double vega2 = greeks2.get(Greek.VEGA);
-    double positionDelta2 = greeks2.get(Greek.DELTA) * targetOption2.getUnitAmount() * NOTIONAL;
-    double positionGamma2 = greeks2.get(Greek.GAMMA) * targetOption2.getUnitAmount() * NOTIONAL;
-    double positionTheta2 = greeks2.get(Greek.THETA) * targetOption2.getUnitAmount() * NOTIONAL;
-    double positionRho2 = greeks2.get(Greek.RHO) * targetOption2.getUnitAmount() * NOTIONAL;
-    double positionVega2 = greeks2.get(Greek.VEGA) * targetOption2.getUnitAmount() * NOTIONAL;
-    double[] res2 = new double[] {pvPerContract2, pv2, delta2, gamma2, theta2, rho2, vega2, positionDelta2,
-        positionGamma2, positionTheta2, positionRho2, positionVega2 };
     double[] expected2 = new double[] {389.5706476110104, 126610.46047357837, -0.680130005903282, 0.06622597074777498,
         -0.01656306237658076, -0.08281575479676825, 0.08778111393062614, -22104.225191856665, 2152.344049302687,
         -538.2995272388747, -2691.512030894968, 2852.8862027453497 };
-    assertEqualsArray(COMPUTE_VALUES, expected2, res2, TOL);
+    assertOptionResult(targetOption2, NOTIONAL, data, expected2);
   }
 
   /**
@@ -248,13 +184,12 @@ public class EquityOptionE2ETest extends EquityE2ETestMaster {
         }
       }
     }
-    boolean isAmerican = exerciseType == ExerciseDecisionType.AMERICAN ? true : false;
     double[] timeToExpiries = toDateToDouble(TRADE_DATE, EXPIRY_DATES);
     double[] tau = toDateToDouble(TRADE_DATE, DIVIDEND_DATES);
     AffineDividends dividend = new AffineDividends(tau, ALPHA, BETA);
     ForwardCurveAffineDividends forwardCurve = new ForwardCurveAffineDividends(SPOT, SINGLE_CURVE, dividend);
     BlackVolatilitySurfaceStrike volSurface = createSurface(SPOT, timeToExpiries, STRIKES, optionPrices, isCalls,
-        forwardCurve, isAmerican);
+        forwardCurve, exerciseType);
     StaticReplicationDataBundle data = new StaticReplicationDataBundle(volSurface, SINGLE_CURVE, forwardCurve);
 
     // ITM call option
@@ -264,25 +199,10 @@ public class EquityOptionE2ETest extends EquityE2ETestMaster {
     EquityOptionDefinition targetOption1Dfn = new EquityOptionDefinition(true, targetStrike1, USD,
         exerciseType, expiryDate1, settlementDate1, POINT_VALUE, SettlementType.PHYSICAL);
     EquityOption targetOption1 = targetOption1Dfn.toDerivative(TRADE_DATE);
-    Double pvPerContract1 = targetOption1.accept(PV_AMERICAN, data);
-    Double pv1 = targetOption1.accept(PV_AMERICAN, data) * NOTIONAL;
-    GreekResultCollection greeks1 = targetOption1.accept(GREEKS_AMERICAN, data);
-    double delta1 = greeks1.get(Greek.DELTA);
-    double gamma1 = greeks1.get(Greek.GAMMA);
-    double theta1 = greeks1.get(Greek.THETA);
-    double rho1 = greeks1.get(Greek.RHO);
-    double vega1 = greeks1.get(Greek.VEGA);
-    double positionDelta1 = greeks1.get(Greek.DELTA) * targetOption1.getUnitAmount() * NOTIONAL;
-    double positionGamma1 = greeks1.get(Greek.GAMMA) * targetOption1.getUnitAmount() * NOTIONAL;
-    double positionTheta1 = greeks1.get(Greek.THETA) * targetOption1.getUnitAmount() * NOTIONAL;
-    double positionRho1 = greeks1.get(Greek.RHO) * targetOption1.getUnitAmount() * NOTIONAL;
-    double positionVega1 = greeks1.get(Greek.VEGA) * targetOption1.getUnitAmount() * NOTIONAL;
-    double[] res1 = new double[] {pvPerContract1, pv1, delta1, gamma1, theta1, rho1, vega1, positionDelta1,
-        positionGamma1, positionTheta1, positionRho1, positionVega1 };
     double[] expected1 = new double[] {263.49044651502817, 85634.39511738415, 0.8249842622485184, 0.12405698831215517,
         -0.013847882501060185, 0.009035557820894862, 0.028178878648973716, 26811.98852307685, 4031.852120145043,
         -450.056181284456, 293.655629179083, 915.8135560916459 };
-    assertEqualsArray(COMPUTE_VALUES, expected1, res1, TOL);
+    assertOptionResult(targetOption1, NOTIONAL, data, expected1);
 
     // ITM put option
     ZonedDateTime expiryDate2 = ZonedDateTime.of(2014, 6, 6, 15, 0, 0, 0, ZID); // between expiryDates[1] and expiryDates[2]
@@ -291,25 +211,10 @@ public class EquityOptionE2ETest extends EquityE2ETestMaster {
     EquityOptionDefinition targetOption2Dfn = new EquityOptionDefinition(false, targetStrike2, USD,
         exerciseType, expiryDate2, settlementDate2, 100.0, SettlementType.PHYSICAL);
     EquityOption targetOption2 = targetOption2Dfn.toDerivative(TRADE_DATE);
-    Double pvPerContract2 = targetOption2.accept(PV_AMERICAN, data);
-    Double pv2 = targetOption2.accept(PV_AMERICAN, data) * NOTIONAL;
-    GreekResultCollection greeks2 = targetOption2.accept(GREEKS_AMERICAN, data);
-    double delta2 = greeks2.get(Greek.DELTA);
-    double gamma2 = greeks2.get(Greek.GAMMA);
-    double theta2 = greeks2.get(Greek.THETA);
-    double rho2 = greeks2.get(Greek.RHO);
-    double vega2 = greeks2.get(Greek.VEGA);
-    double positionDelta2 = greeks2.get(Greek.DELTA) * targetOption2.getUnitAmount() * NOTIONAL;
-    double positionGamma2 = greeks2.get(Greek.GAMMA) * targetOption2.getUnitAmount() * NOTIONAL;
-    double positionTheta2 = greeks2.get(Greek.THETA) * targetOption2.getUnitAmount() * NOTIONAL;
-    double positionRho2 = greeks2.get(Greek.RHO) * targetOption2.getUnitAmount() * NOTIONAL;
-    double positionVega2 = greeks2.get(Greek.VEGA) * targetOption2.getUnitAmount() * NOTIONAL;
-    double[] res2 = new double[] {pvPerContract2, pv2, delta2, gamma2, theta2, rho2, vega2, positionDelta2,
-        positionGamma2, positionTheta2, positionRho2, positionVega2 };
     double[] expected2 = new double[] {449.8314803750468, 146195.23112189022, -0.6292338338039938,
         0.053545033644796146, -0.02136148161220006, -0.07838217763747224, 0.09297744638761118, -20450.099598629797,
         1740.2135934558748, -694.248152396502, -2547.420773217848, 3021.7670075973633 };
-    assertEqualsArray(COMPUTE_VALUES, expected2, res2, TOL);
+    assertOptionResult(targetOption2, NOTIONAL, data, expected2);
   }
 
   /**
@@ -318,7 +223,6 @@ public class EquityOptionE2ETest extends EquityE2ETestMaster {
   @Test
   public void europeanTest() {
     ExerciseDecisionType exerciseType = ExerciseDecisionType.EUROPEAN;
-    boolean isAmerican = exerciseType == ExerciseDecisionType.AMERICAN ? true : false;
     double[][] euCallPrices = new double[][] {
         {5.1, 4.1, 3.08, 2.07, 1.13, 0.31, 0.105, 0.05, 0.025, 0.02 },
         {5.175, 4.175, 3.34, 2.51, 1.702, 1.021, 0.64, 0.435, 0.345, 0.31 },
@@ -353,7 +257,7 @@ public class EquityOptionE2ETest extends EquityE2ETestMaster {
       }
     }
     BlackVolatilitySurfaceStrike volSurface = createSurface(SPOT, timeToExpiries, STRIKES, optionPrices, isCalls,
-        forwardCurve, isAmerican);
+        forwardCurve, exerciseType);
     StaticReplicationDataBundle data = new StaticReplicationDataBundle(volSurface, SINGLE_CURVE, forwardCurve);
 
     // ITM call option
@@ -363,24 +267,10 @@ public class EquityOptionE2ETest extends EquityE2ETestMaster {
     EquityOptionDefinition targetOption1Dfn = new EquityOptionDefinition(true, targetStrike1, USD,
         exerciseType, expiryDate1, settlementDate1, POINT_VALUE, SettlementType.PHYSICAL);
     EquityOption targetOption1 = targetOption1Dfn.toDerivative(TRADE_DATE);
-    Double pvPerContract1 = targetOption1.accept(PV_EUROPEAN, data);
-    Double pv1 = targetOption1.accept(PV_EUROPEAN, data) * NOTIONAL;
-    Double delta1 = targetOption1.accept(DELTA_EUROPEAN, data);
-    Double gamma1 = targetOption1.accept(GAMMA_EUROPEAN, data);
-    Double theta1 = targetOption1.accept(THETA_EUROPEAN, data);
-    Double rho1 = targetOption1.accept(RHO_EUROPEAN, data);
-    Double vega1 = targetOption1.accept(VEGA_EUROPEAN, data);
-    double positionDelta1 = delta1 * targetOption1.getUnitAmount() * NOTIONAL;
-    double positionGamma1 = gamma1 * targetOption1.getUnitAmount() * NOTIONAL;
-    double positionTheta1 = theta1 * targetOption1.getUnitAmount() * NOTIONAL;
-    double positionRho1 = rho1 * targetOption1.getUnitAmount() * NOTIONAL;
-    double positionVega1 = vega1 * targetOption1.getUnitAmount() * NOTIONAL;
-    double[] res1 = new double[] {pvPerContract1, pv1, delta1, gamma1, theta1, rho1, vega1, positionDelta1,
-        positionGamma1, positionTheta1, positionRho1, positionVega1 };
     double[] expected1 = new double[] {291.9372446579417, 94879.60451383104, 0.7049649450883742, 0.08035708404397142,
         -0.028315856794856677, 1.602571593572363, 3.9874876101033134, 22911.36071537216, 2611.605231429071,
         -920.2653458328421, 52083.5767911018, 129593.34732835769 };
-    assertEqualsArray(COMPUTE_VALUES, expected1, res1, TOL);
+    assertOptionResult(targetOption1, NOTIONAL, data, expected1);
 
 
     // ITM put option
@@ -390,24 +280,10 @@ public class EquityOptionE2ETest extends EquityE2ETestMaster {
     EquityOptionDefinition targetOption2Dfn = new EquityOptionDefinition(false, targetStrike2, USD,
         exerciseType, expiryDate2, settlementDate2, 100.0, SettlementType.PHYSICAL);
     EquityOption targetOption2 = targetOption2Dfn.toDerivative(TRADE_DATE);
-    Double pvPerContract2 = targetOption2.accept(PV_EUROPEAN, data);
-    Double pv2 = targetOption2.accept(PV_EUROPEAN, data) * NOTIONAL;
-    Double delta2 = targetOption2.accept(DELTA_EUROPEAN, data);
-    Double gamma2 = targetOption2.accept(GAMMA_EUROPEAN, data);
-    Double theta2 = targetOption2.accept(THETA_EUROPEAN, data);
-    Double rho2 = targetOption2.accept(RHO_EUROPEAN, data);
-    Double vega2 = targetOption2.accept(VEGA_EUROPEAN, data);
-    double positionDelta2 = delta2 * targetOption2.getUnitAmount() * NOTIONAL;
-    double positionGamma2 = gamma2 * targetOption2.getUnitAmount() * NOTIONAL;
-    double positionTheta2 = theta2 * targetOption2.getUnitAmount() * NOTIONAL;
-    double positionRho2 = rho2 * targetOption2.getUnitAmount() * NOTIONAL;
-    double positionVega2 = vega2 * targetOption2.getUnitAmount() * NOTIONAL;
-    double[] res2 = new double[] {pvPerContract2, pv2, delta2, gamma2, theta2, rho2, vega2, positionDelta2,
-        positionGamma2, positionTheta2, positionRho2, positionVega2 };
     double[] expected2 = new double[] {438.3525829195858, 142464.5894488654, -0.6371842871074586, 0.05559556867013955,
         -0.02047344552497136, 7.903399740601026, 9.227915017241902, -20708.4893309924, 1806.8559817795356,
         -665.3869795615693, 256860.49156953333, 299907.2380603618 };
-    assertEqualsArray(COMPUTE_VALUES, expected2, res2, TOL);
+    assertOptionResult(targetOption2, NOTIONAL, data, expected2);
 
     // OTM call option
     ZonedDateTime expiryDate3 = EXPIRY_DATES[2];
@@ -416,25 +292,10 @@ public class EquityOptionE2ETest extends EquityE2ETestMaster {
     EquityOptionDefinition targetOption3Dfn = new EquityOptionDefinition(true, targetStrike3, USD,
         exerciseType, expiryDate3, settlementDate3, POINT_VALUE, SettlementType.PHYSICAL);
     EquityOption targetOption3 = targetOption3Dfn.toDerivative(TRADE_DATE);
-
-    Double pvPerContract3 = targetOption3.accept(PV_EUROPEAN, data);
-    Double pv3 = targetOption3.accept(PV_EUROPEAN, data) * NOTIONAL;
-    Double delta3 = targetOption3.accept(DELTA_EUROPEAN, data);
-    Double gamma3 = targetOption3.accept(GAMMA_EUROPEAN, data);
-    Double theta3 = targetOption3.accept(THETA_EUROPEAN, data);
-    Double rho3 = targetOption3.accept(RHO_EUROPEAN, data);
-    Double vega3 = targetOption3.accept(VEGA_EUROPEAN, data);
-    double positionDelta3 = delta3 * targetOption3.getUnitAmount() * NOTIONAL;
-    double positionGamma3 = gamma3 * targetOption3.getUnitAmount() * NOTIONAL;
-    double positionTheta3 = theta3 * targetOption3.getUnitAmount() * NOTIONAL;
-    double positionRho3 = rho3 * targetOption3.getUnitAmount() * NOTIONAL;
-    double positionVega3 = vega3 * targetOption3.getUnitAmount() * NOTIONAL;
-    double[] res3 = new double[] {pvPerContract3, pv3, delta3, gamma3, theta3, rho3, vega3, positionDelta3,
-        positionGamma3, positionTheta3, positionRho3, positionVega3 };
     double[] expected3 = new double[] {96.1168240349344, 31237.96781135368, 0.3454892853212746, 0.08494846834611697,
         -0.022095497012336332, 1.5111971291212627, 5.892958177166839, 11228.401772941424, 2760.8252212488014,
         -718.1036529009308, 49113.90669644104, 191521.14075792223 };
-    assertEqualsArray(COMPUTE_VALUES, expected3, res3, TOL);
+    assertOptionResult(targetOption3, NOTIONAL, data, expected3);
 
     // OTM put option
     ZonedDateTime expiryDate4 = ZonedDateTime.of(2014, 6, 6, 15, 0, 0, 0, ZID);
@@ -443,24 +304,10 @@ public class EquityOptionE2ETest extends EquityE2ETestMaster {
     EquityOptionDefinition targetOption4Dfn = new EquityOptionDefinition(false, targetStrike4, USD,
         exerciseType, expiryDate4, settlementDate4, 100.0, SettlementType.PHYSICAL);
     EquityOption targetOption4 = targetOption4Dfn.toDerivative(TRADE_DATE);
-    Double pvPerContract4 = targetOption4.accept(PV_EUROPEAN, data);
-    Double pv4 = targetOption4.accept(PV_EUROPEAN, data) * NOTIONAL;
-    Double delta4 = targetOption4.accept(DELTA_EUROPEAN, data);
-    Double gamma4 = targetOption4.accept(GAMMA_EUROPEAN, data);
-    Double theta4 = targetOption4.accept(THETA_EUROPEAN, data);
-    Double rho4 = targetOption4.accept(RHO_EUROPEAN, data);
-    Double vega4 = targetOption4.accept(VEGA_EUROPEAN, data);
-    double positionDelta4 = delta4 * targetOption4.getUnitAmount() * NOTIONAL;
-    double positionGamma4 = gamma4 * targetOption4.getUnitAmount() * NOTIONAL;
-    double positionTheta4 = theta4 * targetOption4.getUnitAmount() * NOTIONAL;
-    double positionRho4 = rho4 * targetOption4.getUnitAmount() * NOTIONAL;
-    double positionVega4 = vega4 * targetOption4.getUnitAmount() * NOTIONAL;
-    double[] res4 = new double[] {pvPerContract4, pv4, delta4, gamma4, theta4, rho4, vega4, positionDelta4,
-        positionGamma4, positionTheta4, positionRho4, positionVega4 };
     double[] expected4 = new double[] {139.18639622061397, 45235.57877169954, -0.26708010101144775,
         0.04138149377665815, -0.019400255824207735, 3.224879924813697, 8.15126668810231, -8680.103282872053,
         1344.89854774139, -630.5083142867514, 104808.59755644515, 264916.1673633251 };
-    assertEqualsArray(COMPUTE_VALUES, expected4, res4, TOL);
+    assertOptionResult(targetOption4, NOTIONAL, data, expected4);
   }
 
   /**
@@ -477,7 +324,6 @@ public class EquityOptionE2ETest extends EquityE2ETestMaster {
       isCalls[i] = new boolean[nOptions];
       Arrays.fill(isCalls[i], false);
     }
-    boolean isAmerican = exerciseType == ExerciseDecisionType.AMERICAN ? true : false;
     double[] timeToExpiries = toDateToDouble(TRADE_DATE, EXPIRY_DATES);
     double[] tau = new double[] {};
     double[] alpha = new double[] {};
@@ -488,7 +334,7 @@ public class EquityOptionE2ETest extends EquityE2ETestMaster {
     //       YieldAndDiscountCurve constantCurve = YieldCurve.from(ConstantDoublesCurve.from(0.0));
     //    ForwardCurveYieldImplied forwardCurve = new ForwardCurveYieldImplied(SPOT, SINGLE_CURVE, constantCurve);
     BlackVolatilitySurfaceStrike volSurface = createSurface(SPOT, timeToExpiries, STRIKES, PUT_PRICES, isCalls,
-        forwardCurve, isAmerican);
+        forwardCurve, exerciseType);
     StaticReplicationDataBundle data = new StaticReplicationDataBundle(volSurface, SINGLE_CURVE, forwardCurve);
 
     // Option 1
@@ -498,25 +344,10 @@ public class EquityOptionE2ETest extends EquityE2ETestMaster {
     EquityOptionDefinition targetOption1Dfn = new EquityOptionDefinition(false, targetStrike1, USD,
         exerciseType, expiryDate1, settlementDate1, 100.0, SettlementType.PHYSICAL);
     EquityOption targetOption1 = targetOption1Dfn.toDerivative(TRADE_DATE);
-    Double pvPerContract1 = targetOption1.accept(PV_AMERICAN, data);
-    Double pv1 = targetOption1.accept(PV_AMERICAN, data) * NOTIONAL;
-    GreekResultCollection greeks1 = targetOption1.accept(GREEKS_AMERICAN, data);
-    double delta1 = greeks1.get(Greek.DELTA);
-    double gamma1 = greeks1.get(Greek.GAMMA);
-    double theta1 = greeks1.get(Greek.THETA);
-    double rho1 = greeks1.get(Greek.RHO);
-    double vega1 = greeks1.get(Greek.VEGA);
-    double positionDelta1 = greeks1.get(Greek.DELTA) * targetOption1.getUnitAmount() * NOTIONAL;
-    double positionGamma1 = greeks1.get(Greek.GAMMA) * targetOption1.getUnitAmount() * NOTIONAL;
-    double positionTheta1 = greeks1.get(Greek.THETA) * targetOption1.getUnitAmount() * NOTIONAL;
-    double positionRho1 = greeks1.get(Greek.RHO) * targetOption1.getUnitAmount() * NOTIONAL;
-    double positionVega1 = greeks1.get(Greek.VEGA) * targetOption1.getUnitAmount() * NOTIONAL;
-    double[] res1 = new double[] {pvPerContract1, pv1, delta1, gamma1, theta1, rho1, vega1, positionDelta1,
-        positionGamma1, positionTheta1, positionRho1, positionVega1 };
     double[] expected1 = new double[] {40.85549009446838, 13278.034280702223, -0.211236426949203, 0.0872436729523134,
         -0.02991197901689341, -0.005364512793468524, 0.03390731790197594, -6865.183875849098, 2835.4193709501856,
         -972.1393180490358, -174.346665787727, 1101.987831814218 };
-    assertEqualsArray(COMPUTE_VALUES, expected1, res1, TOL);
+    assertOptionResult(targetOption1, NOTIONAL, data, expected1);
 
     // Option 2
     ZonedDateTime expiryDate2 = ZonedDateTime.of(2014, 6, 6, 15, 0, 0, 0, ZID); // between expiryDates[1] and expiryDates[1]
@@ -525,24 +356,9 @@ public class EquityOptionE2ETest extends EquityE2ETestMaster {
     EquityOptionDefinition targetOption2Dfn = new EquityOptionDefinition(false, targetStrike2, USD,
         exerciseType, expiryDate2, settlementDate2, 100.0, SettlementType.PHYSICAL);
     EquityOption targetOption2 = targetOption2Dfn.toDerivative(TRADE_DATE);
-    Double pvPerContract2 = targetOption2.accept(PV_AMERICAN, data);
-    Double pv2 = targetOption2.accept(PV_AMERICAN, data) * NOTIONAL;
-    GreekResultCollection greeks2 = targetOption2.accept(GREEKS_AMERICAN, data);
-    double delta2 = greeks2.get(Greek.DELTA);
-    double gamma2 = greeks2.get(Greek.GAMMA);
-    double theta2 = greeks2.get(Greek.THETA);
-    double rho2 = greeks2.get(Greek.RHO);
-    double vega2 = greeks2.get(Greek.VEGA);
-    double positionDelta2 = greeks2.get(Greek.DELTA) * targetOption2.getUnitAmount() * NOTIONAL;
-    double positionGamma2 = greeks2.get(Greek.GAMMA) * targetOption2.getUnitAmount() * NOTIONAL;
-    double positionTheta2 = greeks2.get(Greek.THETA) * targetOption2.getUnitAmount() * NOTIONAL;
-    double positionRho2 = greeks2.get(Greek.RHO) * targetOption2.getUnitAmount() * NOTIONAL;
-    double positionVega2 = greeks2.get(Greek.VEGA) * targetOption2.getUnitAmount() * NOTIONAL;
-    double[] res2 = new double[] {pvPerContract2, pv2, delta2, gamma2, theta2, rho2, vega2, positionDelta2,
-        positionGamma2, positionTheta2, positionRho2, positionVega2 };
     double[] expected2 = new double[] {388.8222088041128, 126367.21786133666, -0.6378366779223801, 0.0625115852644212,
         -0.015518137566435322, -0.07812902673210956, 0.09324125158922084, -20729.692032477353, 2031.626521093689,
         -504.33947090914796, -2539.1933687935607, 3030.340676649677 };
-    assertEqualsArray(COMPUTE_VALUES, expected2, res2, TOL);
+    assertOptionResult(targetOption2, NOTIONAL, data, expected2);
   }
 }

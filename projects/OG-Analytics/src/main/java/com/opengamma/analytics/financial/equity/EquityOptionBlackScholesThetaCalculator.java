@@ -13,7 +13,7 @@ import com.opengamma.analytics.financial.model.volatility.BlackScholesFormulaRep
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Calculates the Black-Scholes theta
+ * Calculates the Black-Scholes daily theta
  */
 public final class EquityOptionBlackScholesThetaCalculator extends
     InstrumentDerivativeVisitorAdapter<StaticReplicationDataBundle, Double> {
@@ -32,7 +32,7 @@ public final class EquityOptionBlackScholesThetaCalculator extends
   }
 
   @Override
-  public Double visitEquityIndexOption(final EquityIndexOption option, final StaticReplicationDataBundle data) {
+  public Double visitEquityIndexOption(EquityIndexOption option, StaticReplicationDataBundle data) {
     ArgumentChecker.notNull(option, "option");
     ArgumentChecker.notNull(data, "data");
     double t = option.getTimeToExpiry();
@@ -42,7 +42,7 @@ public final class EquityOptionBlackScholesThetaCalculator extends
   }
 
   @Override
-  public Double visitEquityOption(final EquityOption option, final StaticReplicationDataBundle data) {
+  public Double visitEquityOption(EquityOption option, StaticReplicationDataBundle data) {
     ArgumentChecker.notNull(option, "option");
     ArgumentChecker.notNull(data, "data");
     double t = option.getTimeToExpiry();
@@ -52,7 +52,7 @@ public final class EquityOptionBlackScholesThetaCalculator extends
   }
 
   @Override
-  public Double visitEquityIndexFutureOption(final EquityIndexFutureOption option,
+  public Double visitEquityIndexFutureOption(EquityIndexFutureOption option,
       final StaticReplicationDataBundle data) {
     ArgumentChecker.notNull(option, "option");
     ArgumentChecker.notNull(data, "data");

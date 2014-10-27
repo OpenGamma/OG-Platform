@@ -41,54 +41,25 @@ public final class EqyOptBjerksundStenslandGreekCalculator extends InstrumentDer
   }
 
   @Override
-  public GreekResultCollection visitEquityIndexOption(final EquityIndexOption option, final StaticReplicationDataBundle data) {
+  public GreekResultCollection visitEquityIndexOption(EquityIndexOption option, StaticReplicationDataBundle data) {
     ArgumentChecker.notNull(option, "option");
     ArgumentChecker.notNull(data, "data");
     ArgumentChecker.isTrue(option.getExerciseType() == ExerciseDecisionType.AMERICAN, "option must be American");
-    final double s = data.getForwardCurve().getSpot();
     final double k = option.getStrike();
     final double t = option.getTimeToExpiry();
-    final double r = data.getDiscountCurve().getInterestRate(t);
-    final double b = t > 0 ? Math.log(data.getForwardCurve().getForward(t) / s) / t : r;
-    final double volatility = data.getVolatilitySurface().getVolatility(t, k);
     final boolean isCall = option.isCall();
-    final double[] greeks = MODEL.getPriceAdjoint(s, k, r, b, t, volatility, isCall);
-    final GreekResultCollection result = new GreekResultCollection();
-    result.put(Greek.DELTA, greeks[1]);
-    result.put(Greek.DUAL_DELTA, greeks[2]);
-    result.put(Greek.RHO, greeks[3] / 100. + greeks[4] / 100.);
-    result.put(Greek.CARRY_RHO, greeks[4] / 100.);
-    result.put(Greek.THETA, -greeks[5] / 365.);
-    result.put(Greek.VEGA, greeks[6] / 100.);
-    final double[] pdg = MODEL.getPriceDeltaGamma(s, k, r, b, t, volatility, isCall);
-    result.put(Greek.GAMMA, pdg[2]);
-    return result;
+    return computeGreeks(k, t, isCall, data);
   }
 
   @Override
-  public GreekResultCollection visitEquityOption(final EquityOption option, final StaticReplicationDataBundle data) {
+  public GreekResultCollection visitEquityOption(EquityOption option, StaticReplicationDataBundle data) {
     ArgumentChecker.notNull(option, "option");
     ArgumentChecker.notNull(data, "data");
     ArgumentChecker.isTrue(option.getExerciseType() == ExerciseDecisionType.AMERICAN, "option must be American");
-    final double s = data.getForwardCurve().getSpot();
     final double k = option.getStrike();
     final double t = option.getTimeToExpiry();
-    final double r = data.getDiscountCurve().getInterestRate(t);
-    final double b = t > 0 ? Math.log(data.getForwardCurve().getForward(t) / s) / t : r;
-    final double volatility = data.getVolatilitySurface().getVolatility(t, k);
     final boolean isCall = option.isCall();
-
-    final double[] greeks = MODEL.getPriceAdjoint(s, k, r, b, t, volatility, isCall);
-    final GreekResultCollection result = new GreekResultCollection();
-    result.put(Greek.DELTA, greeks[1]);
-    result.put(Greek.DUAL_DELTA, greeks[2]);
-    result.put(Greek.RHO, greeks[3] / 100. + greeks[4] / 100.);
-    result.put(Greek.CARRY_RHO, greeks[4] / 100.);
-    result.put(Greek.THETA, -greeks[5] / 365.);
-    result.put(Greek.VEGA, greeks[6] / 100.);
-    final double[] pdg = MODEL.getPriceDeltaGamma(s, k, r, b, t, volatility, isCall);
-    result.put(Greek.GAMMA, pdg[2]);
-    return result;
+    return computeGreeks(k, t, isCall, data);
   }
 
   /**
@@ -165,6 +136,27 @@ public final class EqyOptBjerksundStenslandGreekCalculator extends InstrumentDer
     result.put(Greek.THETA, -greeks[5] / 365.);
     result.put(Greek.VEGA, greeks[6] / 100.);
     final double[] pdg = MODEL.getPriceDeltaGamma(s, k, r, b, t, volatility, isCall);
+    result.put(Greek.GAMMA, pdg[2]);
+    return result;
+  }
+
+  private GreekResultCollection computeGreeks(double strike, double time, boolean isCall,
+      StaticReplicationDataBundle data) {
+    double s = data.getForwardCurve().getSpot();
+    double r = data.getDiscountCurve().getInterestRate(time);
+    double b = time > 0 ? Math.log(data.getForwardCurve().getForward(time) / s) / time : r;
+    double volatility = data.getVolatilitySurface().getVolatility(time, strike);
+    double[] greeks = MODEL.getPriceAdjoint(s, strike, r, b, time, volatility, isCall);
+    GreekResultCollection result = new GreekResultCollection();
+    result.put(Greek.DELTA, greeks[1]);
+    result.put(Greek.DUAL_DELTA, greeks[2]);
+    // The standard rho assumes that the yield, q, is fixed where b = r - q, 
+    // thus carry rho should be added. 
+    result.put(Greek.RHO, greeks[3] / 100. + greeks[4] / 100.);
+    result.put(Greek.CARRY_RHO, greeks[4] / 100.);
+    result.put(Greek.THETA, -greeks[5] / 365.);
+    result.put(Greek.VEGA, greeks[6] / 100.);
+    double[] pdg = MODEL.getPriceDeltaGamma(s, strike, r, b, time, volatility, isCall);
     result.put(Greek.GAMMA, pdg[2]);
     return result;
   }

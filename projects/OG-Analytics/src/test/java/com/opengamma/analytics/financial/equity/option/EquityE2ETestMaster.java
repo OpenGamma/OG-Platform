@@ -12,6 +12,7 @@ import java.util.ArrayList;
 
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.analytics.financial.ExerciseDecisionType;
 import com.opengamma.analytics.financial.equity.EquityOptionBlackPresentValueCalculator;
 import com.opengamma.analytics.financial.equity.EquityOptionBlackScholesRhoCalculator;
 import com.opengamma.analytics.financial.equity.EquityOptionBlackScholesThetaCalculator;
@@ -20,6 +21,10 @@ import com.opengamma.analytics.financial.equity.EquityOptionBlackSpotGammaCalcul
 import com.opengamma.analytics.financial.equity.EquityOptionBlackVegaCalculator;
 import com.opengamma.analytics.financial.equity.EqyOptBjerksundStenslandGreekCalculator;
 import com.opengamma.analytics.financial.equity.EqyOptBjerksundStenslandPresentValueCalculator;
+import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
+import com.opengamma.analytics.financial.greeks.Greek;
+import com.opengamma.analytics.financial.greeks.GreekResultCollection;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
@@ -99,7 +104,7 @@ public class EquityE2ETestMaster {
    * @return BlackVolatilitySurfaceStrike
    */
   protected BlackVolatilitySurfaceStrike createSurface(double spot, double[] timeToExpiries, double[][] strikes,
-      double[][] marketPrices, boolean[][] isCalls, ForwardCurve forwardCurve, boolean isAmerican) {
+      double[][] marketPrices, boolean[][] isCalls, ForwardCurve forwardCurve, ExerciseDecisionType exerciseType) {
     int nExpiry = timeToExpiries.length;
     ArrayList<Double> expiryList = new ArrayList<>();
     ArrayList<Double> strikeList = new ArrayList<>();
@@ -116,7 +121,7 @@ public class EquityE2ETestMaster {
           double costOfCarry = Math.log(forwardCurve.getForward(expiry) / spot) / expiry;
           boolean isCall = isCalls[i][j];
           double impliedVol;
-          if (isAmerican) {
+          if (exerciseType == ExerciseDecisionType.AMERICAN) {
             impliedVol = AMERICAN_MODEL.impliedVolatility(marketPrices[i][j], spot, strike, interestRate,
                 costOfCarry, expiry, isCall);
           } else {
@@ -144,14 +149,65 @@ public class EquityE2ETestMaster {
     return res;
   }
 
-  protected void assertEqualsArray(String[] messages, double[] expected, double[] result, double relativeTol) {
+  protected void assertOptionResult(InstrumentDerivative targetInstrument, double notional,
+      StaticReplicationDataBundle data, double[] expected) {
+    double unitAmount;
+    ExerciseDecisionType exerciseType;
+    if (targetInstrument instanceof EquityOption) {
+      EquityOption targetOption = (EquityOption) targetInstrument;
+      unitAmount = targetOption.getUnitAmount();
+      exerciseType = targetOption.getExerciseType();
+    } else if (targetInstrument instanceof EquityIndexOption) {
+      EquityIndexOption targetOption = (EquityIndexOption) targetInstrument;
+      unitAmount = targetOption.getUnitAmount();
+      exerciseType = targetOption.getExerciseType();
+    } else {
+      throw new IllegalArgumentException("instrument should be EquityOption or EquityIndexOption");
+    }
+
+    Double pvPerContract;
+    Double pv;
+    Double delta;
+    Double gamma;
+    Double theta;
+    Double rho;
+    Double vega;
+    if (exerciseType == ExerciseDecisionType.AMERICAN) {
+      pvPerContract = targetInstrument.accept(PV_AMERICAN, data);
+      pv = targetInstrument.accept(PV_AMERICAN, data) * notional;
+      GreekResultCollection greeks = targetInstrument.accept(GREEKS_AMERICAN, data);
+      delta = greeks.get(Greek.DELTA);
+      gamma = greeks.get(Greek.GAMMA);
+      theta = greeks.get(Greek.THETA);
+      rho = greeks.get(Greek.RHO);
+      vega = greeks.get(Greek.VEGA);
+    } else {
+      pvPerContract = targetInstrument.accept(PV_EUROPEAN, data);
+      pv = targetInstrument.accept(PV_EUROPEAN, data) * notional;
+      delta = targetInstrument.accept(DELTA_EUROPEAN, data);
+      gamma = targetInstrument.accept(GAMMA_EUROPEAN, data);
+      theta = targetInstrument.accept(THETA_EUROPEAN, data);
+      rho = targetInstrument.accept(RHO_EUROPEAN, data);
+      vega = targetInstrument.accept(VEGA_EUROPEAN, data);
+    }
+    double positionDelta = delta * unitAmount * notional;
+    double positionGamma = gamma * unitAmount * notional;
+    double positionTheta = theta * unitAmount * notional;
+    double positionRho = rho * unitAmount * notional;
+    double positionVega = vega * unitAmount * notional;
+    double[] res = new double[] {pvPerContract, pv, delta, gamma, theta, rho, vega, positionDelta,
+        positionGamma, positionTheta, positionRho, positionVega };
+    assertEqualsArray(COMPUTE_VALUES, expected, res, TOL);
+  }
+
+  private void assertEqualsArray(String[] messages, double[] expected, double[] result, double relativeTol) {
     int nData = messages.length;
     for (int i = 0; i < nData; ++i) {
       assertEqualsRelative(messages[i], expected[i], result[i], relativeTol);
     }
   }
 
-  protected void assertEqualsRelative(String message, double expected, double result, double relativeTol) {
+  private void assertEqualsRelative(String message, double expected, double result, double relativeTol) {
     double tol = Math.max(1.0, Math.abs(expected)) * relativeTol;
     assertEquals(message, expected, result, tol);
   }
