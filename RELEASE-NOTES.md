@@ -1,43 +1,22 @@
-OpenGamma Platform 2.5
+OpenGamma Platform 2.6
 ----------------------
 
-These release notes cover changes from v2.4 to v2.5.
+These release notes cover changes from v2.5 to v2.6.
 
-Upgrading to 2.5.0 from 2.4.0
+Upgrading to 2.6.0 from 2.5.0
 =============================
 
-To 2.5.0
+To 2.6.0
 -----------
 
 * Bug
-    * [PLAT-6795] - Fix application of EOM flag when not at EOM
-
-
-To 2.5.0-M3
------------
-
-* Bug
-    * [PLAT-6734] - InterestRateFutureOptionMarginSecurityBlackSmileMethod: bug in the way the volatility is called
-    * [PLAT-6796] - NPE on  single leg swap cashflow 
+    * [PLAT-6808] - OG-Analytics: CouponONArithmeticAverageSpreadDiscountingApproxMethod - error with accrued
+    * [PLAT-6755] - EngineDbDatabaseUpgradeTest.setUp failures
+    * [PLAT-6761] - ExampleDatabasePopulatorTest.testPortfolioAndDataLoaded fails
+    * [PLAT-6814] - Remote Sources getSingle should throw error, not return null
+    * [PLAT-6823] - IndexCDSDefinitionSecurity startDate not set correctly
+    * [PLAT-6843] - Fix GeneratorPriceIndexCurveInterpolatedAnchorNodeTest
+    * [PLAT-6844] - Scenario DSL tests failing
 * Improvement
-    * [PLAT-6806] - Ensure Cashflow outputs work for single leg swaps/notional exchange
-
-
-To 2.5.0-M2
------------
-
-* Bug
-    * [PLAT-6741] - PV inconsistencies with CouponONArithmeticAverage and CouponONArithmeticAverageSpread
-    * [PLAT-6745] - OpenGammaFudgeContext leaves non-daemon threads open
-
-
-To 2.5.0-M1
------------
-
-* New Feature
-    * [PLAT-4609] - Support Oracle for DB Masters
-* Bug
-    * [PLAT-6728] - FloatingAnnuityDefinitionBuilder does not handle initial notional correctly
-* Task
-    * [PLAT-6727] - Create end-to-end test for curves calibrated on STIR futures.
-
+    * [PLAT-6802] - Enhance performance of MasterHolidaySource
+    * [PLAT-6811] - Hamcrest matcher support
