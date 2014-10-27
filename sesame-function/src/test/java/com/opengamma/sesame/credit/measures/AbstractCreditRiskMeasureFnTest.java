@@ -8,10 +8,7 @@ import static org.testng.AssertJUnit.assertTrue;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.google.common.collect.ImmutableList;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalytic;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurve;
-import com.opengamma.financial.analytics.isda.credit.CreditCurveData;
 import com.opengamma.financial.analytics.isda.credit.CreditCurveDataKey;
 import com.opengamma.financial.security.credit.LegacyCDSSecurity;
 import com.opengamma.financial.security.credit.StandardCDSSecurity;
@@ -20,7 +17,6 @@ import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.credit.CdsData;
 import com.opengamma.sesame.credit.IsdaCompliantCreditCurveFn;
 import com.opengamma.sesame.credit.IsdaCreditCurve;
-import com.opengamma.sesame.credit.IsdaYieldCurve;
 import com.opengamma.sesame.credit.converter.LegacyCdsConverterFn;
 import com.opengamma.sesame.credit.converter.StandardCdsConverterFn;
 import com.opengamma.sesame.credit.market.LegacyCdsMarketDataResolverFn;
@@ -85,14 +81,6 @@ public class AbstractCreditRiskMeasureFnTest {
     IsdaCompliantCreditCurveFn curveFn = mock(IsdaCompliantCreditCurveFn.class);
     
     Result<IsdaCreditCurve> isdaCurveResult = mock(Result.class);
-    IsdaCurveData curveData = new IsdaCurveData();
-    IsdaCreditCurve isdaCreditCurve = IsdaCreditCurve.builder()
-        .curveData(curveData._curveData)
-        .calibratedCds(curveData._calibratedCds)
-        .calibratedCurve(curveData._calibratedCurve)
-        .yieldCurve(curveData._yieldCurve)
-        .build();
-    when(isdaCurveResult.getValue()).thenReturn(isdaCreditCurve);
     when(isdaCurveResult.isSuccess()).thenReturn(true);
     when(curveFn.buildIsdaCompliantCreditCurve(any(Environment.class), any(CreditCurveDataKey.class))).thenReturn(isdaCurveResult);
     
@@ -120,14 +108,6 @@ public class AbstractCreditRiskMeasureFnTest {
     IsdaCreditCurve _curve;
   }
 
-  class IsdaCurveData {
-    IsdaYieldCurve _yieldCurve;
-    CreditCurveData _curveData;
-    ISDACompliantCreditCurve _calibratedCurve;
-    ImmutableList<CDSAnalytic> _calibratedCds;
-  }
-  
-  
   @Test
   public void priceLegacyCds() {
     Result<RiskResult> result = _fn.priceLegacyCds(_env, _legCds);

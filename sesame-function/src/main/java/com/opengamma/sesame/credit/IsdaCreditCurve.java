@@ -30,10 +30,10 @@ import com.opengamma.financial.analytics.isda.credit.CreditCurveData;
 
 /**
  * Represents a credit curve for use in pricing on the ISDA model.
- * As well as holding the calibrated curve, the curve data used
- * as input to calibration is also captured. This is useful when
- * access to term structure, base market data and/or the underlying
- * yield curve is required.
+ * As well as holding the calibrated curve, the cds nodes used to
+ * calibrate the curve, the curve data used as input to calibration
+ * is also captured. This is useful when access to term structure,
+ * base market data and/or the underlying yield curve is required.
  */
 @BeanDefinition
 public final class IsdaCreditCurve implements ImmutableBean {
