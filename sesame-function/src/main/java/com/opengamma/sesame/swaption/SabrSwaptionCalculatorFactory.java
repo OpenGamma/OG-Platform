@@ -11,7 +11,6 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.OffsetTime;
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
@@ -29,12 +28,12 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.HistoricalTimeSeriesFn;
+import com.opengamma.sesame.MulticurveBundle;
 import com.opengamma.sesame.sabr.SabrParametersConfiguration;
 import com.opengamma.sesame.sabr.SabrParametersProviderFn;
 import com.opengamma.sesame.trade.SwaptionTrade;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * Factory class for creating a calculator for a swaption using SABR data.
@@ -107,8 +106,7 @@ public class SabrSwaptionCalculatorFactory implements SwaptionCalculatorFactory 
                                   OffsetTime.now());
     SwaptionTrade tradeWrapper = new SwaptionTrade(trade);
 
-    Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundleResult =
-        _discountingMulticurveCombinerFn.createMergedMulticurveBundle(env, tradeWrapper, new FXMatrix());
+    Result<MulticurveBundle> bundleResult = _discountingMulticurveCombinerFn.getMulticurveBundle(env, tradeWrapper);
 
     Result<HistoricalTimeSeriesBundle> fixingsResult = _htsFn.getFixingsForSecurity(env, security);
 
@@ -116,8 +114,8 @@ public class SabrSwaptionCalculatorFactory implements SwaptionCalculatorFactory 
 
     if (Result.allSuccessful(bundleResult, fixingsResult, sabrResult)) {
 
-      MulticurveProviderDiscount multicurveBundle = bundleResult.getValue().getFirst();
-      CurveBuildingBlockBundle blockBundle = bundleResult.getValue().getSecond();
+      MulticurveProviderDiscount multicurveBundle = bundleResult.getValue().getMulticurveProvider();
+      CurveBuildingBlockBundle blockBundle = bundleResult.getValue().getCurveBuildingBlockBundle();
       SwaptionPhysicalFixedIbor swaption =
           createInstrumentDerivative(security, env.getValuationTime(), fixingsResult.getValue());
       SabrParametersConfiguration sabrConfig = sabrResult.getValue();

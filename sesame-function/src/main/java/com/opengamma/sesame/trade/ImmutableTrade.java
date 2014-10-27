@@ -7,6 +7,7 @@ package com.opengamma.sesame.trade;
 
 import java.math.BigDecimal;
 import java.util.Map;
+import java.util.Objects;
 
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.OffsetTime;
@@ -117,5 +118,22 @@ public class ImmutableTrade implements Trade {
   @Override
   public Security getSecurity() {
     return _tradeBundle.getSecurity();
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(_tradeBundle);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
+    }
+    ImmutableTrade other = (ImmutableTrade) obj;
+    return Objects.equals(this._tradeBundle, other._tradeBundle);
   }
 }

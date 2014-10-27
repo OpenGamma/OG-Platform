@@ -4,7 +4,6 @@ import org.threeten.bp.Period;
 
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
-import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackSTIRFuturesProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackSTIRFuturesSmileProvider;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
@@ -18,11 +17,11 @@ import com.opengamma.financial.convention.businessday.ModifiedFollowingBusinessD
 import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.Environment;
+import com.opengamma.sesame.MulticurveBundle;
 import com.opengamma.sesame.trade.IRFutureOptionTrade;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * Internal test function to use the multicurve construction to build a MulticurveDiscountProvider and a static list 
@@ -40,13 +39,13 @@ public final class TestBlackSTIRFuturesProviderFn implements BlackSTIRFuturesPro
   @Override
   public Result<BlackSTIRFuturesProviderInterface> getBlackSTIRFuturesProvider(Environment env, IRFutureOptionTrade trade) {
     
-    Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundleResult =
-        _discountingMulticurveCombinerFn.createMergedMulticurveBundle(env, trade, new FXMatrix());
+    Result<MulticurveBundle> bundleResult =
+        _discountingMulticurveCombinerFn.getMulticurveBundle(env, trade, new FXMatrix());
     
     if (bundleResult.isSuccess()) {
 
-      MulticurveProviderDiscount multicurve = bundleResult.getValue().getFirst();
-      
+      MulticurveProviderDiscount multicurve = bundleResult.getValue().getMulticurveProvider();
+
       IborIndex index = new IborIndex(Currency.USD, Period.ofMonths(3), 2, DayCounts.ACT_360, new ModifiedFollowingBusinessDayConvention(), true, "USD");
       
       Surface<Double, Double, Double> blackParameters = testSurface;

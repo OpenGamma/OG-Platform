@@ -128,7 +128,7 @@ public final class SingleValueRequirement extends MarketDataRequirement implemen
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the marketDataId.
+   * Gets the ID of the data
    * @return the value of the property, not null
    */
   public MarketDataId getMarketDataId() {
@@ -137,7 +137,7 @@ public final class SingleValueRequirement extends MarketDataRequirement implemen
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the marketDataTime.
+   * Gets the time for which the data is valid
    * @return the value of the property, not null
    */
   public MarketDataTime getMarketDataTime() {

@@ -8,7 +8,6 @@ package com.opengamma.sesame.irfuture;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
@@ -20,10 +19,10 @@ import com.opengamma.sesame.CurveDefinitionFn;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.HistoricalTimeSeriesFn;
+import com.opengamma.sesame.MulticurveBundle;
 import com.opengamma.sesame.trade.InterestRateFutureTrade;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * Default factory for interest rate future calculators that provides the converter used to convert the security to an
@@ -75,8 +74,7 @@ public class InterestRateFutureDiscountingCalculatorFactory implements InterestR
     Map<String, CurveDefinition> curveDefinitions = new HashMap<>();
     FinancialSecurity security = trade.getSecurity();
 
-    Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundleResult =
-        _discountingMulticurveCombinerFn.createMergedMulticurveBundle(env, trade, new FXMatrix());
+    Result<MulticurveBundle> bundleResult = _discountingMulticurveCombinerFn.getMulticurveBundle(env, trade);
 
     Result<HistoricalTimeSeriesBundle> fixingsResult = _htsFn.getFixingsForSecurity(env, security);
 
@@ -90,10 +88,10 @@ public class InterestRateFutureDiscountingCalculatorFactory implements InterestR
 
       } else {
 
-        multicurveBundle = bundleResult.getValue().getFirst();
+        multicurveBundle = bundleResult.getValue().getMulticurveProvider();
         fixings = fixingsResult.getValue();
 
-        CurveBuildingBlockBundle buildingBlockBundle = bundleResult.getValue().getSecond();
+        CurveBuildingBlockBundle buildingBlockBundle = bundleResult.getValue().getCurveBuildingBlockBundle();
         for (String curveName : buildingBlockBundle.getData().keySet()) {
           Result<CurveDefinition> curveDefinition = _curveDefinitionFn.getCurveDefinition(curveName);
 

@@ -30,6 +30,7 @@ import com.opengamma.financial.currency.CurrencyPair;
 @BeanDefinition(builderScope = "private")
 public final class FxRateId implements MarketDataId<Double>, ImmutableBean {
 
+  /** The currency pair whose rate this identifies. */
   @PropertyDefinition(validate = "notNull")
   private final CurrencyPair _currencyPair;
 
@@ -85,7 +86,7 @@ public final class FxRateId implements MarketDataId<Double>, ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the currencyPair.
+   * Gets the currency pair whose rate this identifies.
    * @return the value of the property, not null
    */
   public CurrencyPair getCurrencyPair() {

@@ -5,8 +5,6 @@
  */
 package com.opengamma.sesame.fedfundsfuture;
 
-import com.opengamma.analytics.financial.forex.method.FXMatrix;
-import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.financial.analytics.conversion.FederalFundsFutureTradeConverter;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
@@ -15,10 +13,10 @@ import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.HistoricalTimeSeriesFn;
+import com.opengamma.sesame.MulticurveBundle;
 import com.opengamma.sesame.trade.FedFundsFutureTrade;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * Discounting calculator factory for federal funds futures.
@@ -59,14 +57,13 @@ public class FedFundsFutureDiscountingCalculatorFactory implements FedFundsFutur
 
     FinancialSecurity security = trade.getSecurity();
     
-    Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundleResult =
-        _discountingMulticurveCombinerFn.createMergedMulticurveBundle(env, trade, new FXMatrix());
+    Result<MulticurveBundle> bundleResult = _discountingMulticurveCombinerFn.getMulticurveBundle(env, trade);
 
     Result<HistoricalTimeSeriesBundle> fixingsResult = _htsFn.getFixingsForSecurity(env, security);
     
     if (Result.allSuccessful(bundleResult, fixingsResult)) {
     
-      MulticurveProviderDiscount bundle = bundleResult.getValue().getFirst();
+      MulticurveProviderDiscount bundle = bundleResult.getValue().getMulticurveProvider();
     
       HistoricalTimeSeriesBundle fixings = fixingsResult.getValue();
     

@@ -11,9 +11,6 @@ import java.util.Map;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.OffsetTime;
 
-import com.opengamma.analytics.financial.forex.method.FXMatrix;
-import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
-import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.SimpleCounterparty;
@@ -29,11 +26,11 @@ import com.opengamma.sesame.CurveDefinitionFn;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.HistoricalTimeSeriesFn;
+import com.opengamma.sesame.MulticurveBundle;
 import com.opengamma.sesame.trade.ForwardRateAgreementTrade;
 import com.opengamma.sesame.trade.FraTrade;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * Factory class for creating a calculator for a discounting FRA.
@@ -98,23 +95,22 @@ public class DiscountingFRACalculatorFactory implements FRACalculatorFactory {
                                   OffsetTime.now());
     FraTrade tradeWrapper = new FraTrade(trade);
 
-    Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundleResult =
-               _discountingMulticurveCombinerFn.createMergedMulticurveBundle(env, tradeWrapper, new FXMatrix());
+    Result<MulticurveBundle> bundleResult = _discountingMulticurveCombinerFn.getMulticurveBundle(env, tradeWrapper);
 
     if (bundleResult.isSuccess()) {
 
       Result<Map<String, CurveDefinition>> curveDefinitions =
-          _curveDefinitionFn.getCurveDefinitions(bundleResult.getValue().getSecond().getData().keySet());
+          _curveDefinitionFn.getCurveDefinitions(bundleResult.getValue().getCurveBuildingBlockBundle().getData().keySet());
 
       if (!curveDefinitions.isSuccess()) {
         return Result.failure(curveDefinitions);
       }
 
       FRACalculator calculator = new DiscountingFRACalculator(security,
-                                                               bundleResult.getValue().getFirst(),
+                                                               bundleResult.getValue().getMulticurveProvider(),
                                                                _fraConverter,
                                                                env.getValuationTime(),
-                                                               bundleResult.getValue().getSecond(),
+                                                               bundleResult.getValue().getCurveBuildingBlockBundle(),
                                                                curveDefinitions.getValue());
       return Result.success(calculator);
     } else {
@@ -133,25 +129,24 @@ public class DiscountingFRACalculatorFactory implements FRACalculatorFactory {
                                   OffsetTime.now());
     ForwardRateAgreementTrade tradeWrapper = new ForwardRateAgreementTrade(trade);
 
-    Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundleResult =
-               _discountingMulticurveCombinerFn.createMergedMulticurveBundle(env, tradeWrapper, new FXMatrix());
+    Result<MulticurveBundle> bundleResult = _discountingMulticurveCombinerFn.getMulticurveBundle(env, tradeWrapper);
 
     if (Result.allSuccessful(bundleResult, fixings)) {
 
       Result<Map<String, CurveDefinition>> curveDefinitions =
-          _curveDefinitionFn.getCurveDefinitions(bundleResult.getValue().getSecond().getData().keySet());
+          _curveDefinitionFn.getCurveDefinitions(bundleResult.getValue().getCurveBuildingBlockBundle().getData().keySet());
 
       if (!curveDefinitions.isSuccess()) {
         return Result.failure(curveDefinitions);
       }
 
       FRACalculator calculator = new DiscountingFRACalculator(security,
-                                                               bundleResult.getValue().getFirst(),
+                                                               bundleResult.getValue().getMulticurveProvider(),
                                                                _fraConverter,
                                                                env.getValuationTime(),
                                                                _fixedIncomeConverterDataProvider,
                                                                fixings.getValue(),
-                                                               bundleResult.getValue().getSecond(),
+                                                               bundleResult.getValue().getCurveBuildingBlockBundle(),
                                                                curveDefinitions.getValue());
       return Result.success(calculator);
     } else {

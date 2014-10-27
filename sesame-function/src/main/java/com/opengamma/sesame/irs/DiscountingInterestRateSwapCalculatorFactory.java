@@ -11,9 +11,6 @@ import java.util.Map;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.OffsetTime;
 
-import com.opengamma.analytics.financial.forex.method.FXMatrix;
-import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
-import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.SimpleCounterparty;
@@ -28,10 +25,10 @@ import com.opengamma.sesame.CurveDefinitionFn;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.HistoricalTimeSeriesFn;
+import com.opengamma.sesame.MulticurveBundle;
 import com.opengamma.sesame.trade.InterestRateSwapTrade;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * Factory class for creating a calculator for a discounting swap.
@@ -100,21 +97,20 @@ public class DiscountingInterestRateSwapCalculatorFactory implements InterestRat
   public Result<InterestRateSwapCalculator> createCalculator(Environment env, InterestRateSwapTrade trade) {
 
     Result<HistoricalTimeSeriesBundle> fixings = _htsFn.getFixingsForSecurity(env, trade.getSecurity());
-    Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundleResult =
-        _discountingMulticurveCombinerFn.createMergedMulticurveBundle(env, trade, new FXMatrix());
+    Result<MulticurveBundle> bundleResult = _discountingMulticurveCombinerFn.getMulticurveBundle(env, trade);
 
     if (Result.allSuccessful(bundleResult, fixings)) {
 
       Result<Map<String, CurveDefinition>> curveDefinitions =
-          _curveDefinitionFn.getCurveDefinitions(bundleResult.getValue().getSecond().getData().keySet());
+          _curveDefinitionFn.getCurveDefinitions(bundleResult.getValue().getCurveBuildingBlockBundle().getData().keySet());
 
       if (!curveDefinitions.isSuccess()) {
         return Result.failure(curveDefinitions);
       }
 
       InterestRateSwapCalculator calculator =
-          new DiscountingInterestRateSwapCalculator(trade, bundleResult.getValue().getFirst(),
-                                                    bundleResult.getValue().getSecond(), _swapConverter,
+          new DiscountingInterestRateSwapCalculator(trade, bundleResult.getValue().getMulticurveProvider(),
+                                                    bundleResult.getValue().getCurveBuildingBlockBundle(), _swapConverter,
                                                     env.getValuationTime(), _fixedIncomeConverterDataProvider,
                                                     fixings.getValue(), curveDefinitions.getValue());
       return Result.success(calculator);

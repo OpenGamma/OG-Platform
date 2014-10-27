@@ -11,7 +11,9 @@ import com.opengamma.util.result.Result;
 
 /**
  * Function capable of providing a market exposure selector.
+ * @deprecated this serves no useful purpose, the engine can create {@link MarketExposureSelector} directly.
  */
+@Deprecated
 public interface MarketExposureSelectorFn {
 
   /**

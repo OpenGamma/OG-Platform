@@ -64,8 +64,7 @@ public class ExposureFunctionsDiscountingMulticurveCombinerFn implements Discoun
   //}
   
   @Override
-  public Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> createMergedMulticurveBundle(
-      Environment env, TradeWrapper trade, FXMatrix fxMatrix) {
+  public Result<MulticurveBundle> getMulticurveBundle(Environment env, TradeWrapper trade, FXMatrix fxMatrix) {
     Result<MarketExposureSelector> mesResult = _marketExposureSelectorFn.getMarketExposureSelector();
 
     if (mesResult.isSuccess()) {
@@ -90,7 +89,7 @@ public class ExposureFunctionsDiscountingMulticurveCombinerFn implements Discoun
 
       // TODO this can be cleaned up
       if (!curveConfigs.isEmpty() && incompleteBundles.isEmpty()) {
-        return Result.success(Pairs.of(mergeBundlesAndMatrix(bundles, fxMatrix), mergedJacobianBundle));
+        return Result.success(new MulticurveBundle(mergeBundlesAndMatrix(bundles, fxMatrix), mergedJacobianBundle));
       } else if (curveConfigs.isEmpty()) {
         return Result.failure(FailureStatus.MISSING_DATA, "No matching curves found for trade: {}", trade);
       } else {
@@ -99,6 +98,23 @@ public class ExposureFunctionsDiscountingMulticurveCombinerFn implements Discoun
     } else {
       return Result.failure(mesResult);
     }
+  }
+
+  @Override
+  public Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> createMergedMulticurveBundle(
+      Environment env, TradeWrapper trade, FXMatrix fxMatrix) {
+    Result<MulticurveBundle> result = getMulticurveBundle(env, trade, fxMatrix);
+
+    if (!result.isSuccess()) {
+      return Result.failure(result);
+    }
+    MulticurveBundle multicurve = result.getValue();
+    return Result.success(Pairs.of(multicurve.getMulticurveProvider(), multicurve.getCurveBuildingBlockBundle()));
+  }
+
+  @Override
+  public Result<MulticurveBundle> getMulticurveBundle(Environment env, TradeWrapper<?> trade) {
+    return getMulticurveBundle(env, trade, new FXMatrix());
   }
 
 

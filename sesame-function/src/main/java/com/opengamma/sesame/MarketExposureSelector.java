@@ -17,7 +17,6 @@ import org.threeten.bp.OffsetTime;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.link.ConfigLink;
 import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.position.Trade;
@@ -39,17 +38,14 @@ import com.opengamma.util.ArgumentChecker;
  * Note that this functionality should really be provided by the ExposureFunctions config
  * object i.e. obeying tell, don't ask.
  */
-public class MarketExposureSelector {
+public class MarketExposureSelector implements CurveSelectorFn {
 
   private final SecuritySource _securitySource;
-  private final ConfigSource _configSource;
-
   private final List<ExposureFunction> _exposureFunctions;
   private final Map<ExternalId, String> _idsToNames;
 
-  public MarketExposureSelector(ExposureFunctions exposure, SecuritySource securitySource, ConfigSource configSource) {
+  public MarketExposureSelector(ExposureFunctions exposure, SecuritySource securitySource) {
     _securitySource = securitySource;
-    _configSource = configSource;
     ArgumentChecker.notNull(exposure, "exposure");
 
     _exposureFunctions = extractFunctions(exposure.getExposureFunctions());
@@ -57,7 +53,6 @@ public class MarketExposureSelector {
   }
 
   private List<ExposureFunction> extractFunctions(List<String> exposureFunctions) {
-
     return Lists.transform(exposureFunctions, new Function<String, ExposureFunction>() {
       @Override
       public ExposureFunction apply(String name) {
@@ -73,29 +68,33 @@ public class MarketExposureSelector {
    * @return the set of curve configurations that are required for a given trade.
    */
   public Set<CurveConstructionConfiguration> determineCurveConfigurations(Trade trade) {
-    
-    for (ExposureFunction exposureFunction : _exposureFunctions) {
+    Set<CurveConstructionConfiguration> curveConfigs = new HashSet<>();
 
+    for (String curveName : getMulticurveNames(trade)) {
+      curveConfigs.add(resolve(curveName));
+    }
+    return curveConfigs;
+  }
+
+  public Set<String> getMulticurveNames(Trade trade) {
+    for (ExposureFunction exposureFunction : _exposureFunctions) {
       List<ExternalId> ids = exposureFunction.getIds(trade);
 
       if (ids != null && !ids.isEmpty()) {
+        Set<String> curveNames = new HashSet<>();
 
-        Set<CurveConstructionConfiguration> curveConfigs = new HashSet<>();
+        for (ExternalId id : ids) {
+          String name = _idsToNames.get(id);
 
-        for (final ExternalId id : ids) {
-
-          final String name = _idsToNames.get(id);
           if (name != null) {
-            curveConfigs.add(resolve(name));
+            curveNames.add(name);
           } else {
             break;
           }
         }
-
-        return curveConfigs;
+        return curveNames;
       }
     }
-
     return ImmutableSet.of();
   }
 
