@@ -68,7 +68,7 @@ public final class EquityOptionBlackScholesThetaCalculator extends
     double r = data.getDiscountCurve().getInterestRate(t);
     double b = t > 0 ? Math.log(fwd / s) / t : r;
     double volatility = data.getVolatilitySurface().getVolatility(t, k);
-    double theta = BlackScholesFormulaRepository.theta(s, k, t, volatility, r, b, isCall) / 365.0;
+    double theta = BlackScholesFormulaRepository.theta(s, k, t, volatility, r, b, isCall) / 365.0; // daily theta
     return theta;
   }
 

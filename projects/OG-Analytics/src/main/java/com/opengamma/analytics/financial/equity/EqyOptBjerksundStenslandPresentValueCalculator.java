@@ -35,35 +35,25 @@ public final class EqyOptBjerksundStenslandPresentValueCalculator extends Instru
   }
 
   @Override
-  public Double visitEquityIndexOption(final EquityIndexOption option, final StaticReplicationDataBundle data) {
+  public Double visitEquityIndexOption(EquityIndexOption option, StaticReplicationDataBundle data) {
     ArgumentChecker.notNull(option, "option");
     ArgumentChecker.notNull(data, "data");
     ArgumentChecker.isTrue(option.getExerciseType() == ExerciseDecisionType.AMERICAN, "option must be American");
-    ForwardCurve forwardCurve = data.getForwardCurve();
-    final double spot = forwardCurve.getSpot();
-    final double strike = option.getStrike();
-    final double time = option.getTimeToExpiry();
-    final double sigma = data.getVolatilitySurface().getVolatility(time, strike);
-    final boolean isCall = option.isCall();
-    final double interestRate = data.getDiscountCurve().getInterestRate(time);
-    double costOfCarry = time > 0 ? Math.log(forwardCurve.getForward(time) / spot) / time : interestRate;
-    return option.getUnitAmount() * MODEL.price(spot, strike, interestRate, costOfCarry, time, sigma, isCall);
+    double strike = option.getStrike();
+    double time = option.getTimeToExpiry();
+    boolean isCall = option.isCall();
+    return option.getUnitAmount() * computePrice(strike, time, isCall, data);
   }
 
   @Override
-  public Double visitEquityOption(final EquityOption option, final StaticReplicationDataBundle data) {
+  public Double visitEquityOption(EquityOption option, StaticReplicationDataBundle data) {
     ArgumentChecker.notNull(option, "option");
     ArgumentChecker.notNull(data, "data");
     ArgumentChecker.isTrue(option.getExerciseType() == ExerciseDecisionType.AMERICAN, "option must be American");
-    ForwardCurve forwardCurve = data.getForwardCurve();
-    final double spot = forwardCurve.getSpot();
-    final double strike = option.getStrike();
-    final double time = option.getTimeToExpiry();
-    final double sigma = data.getVolatilitySurface().getVolatility(time, strike);
-    final boolean isCall = option.isCall();
-    final double interestRate = data.getDiscountCurve().getInterestRate(time);
-    double costOfCarry = time > 0 ? Math.log(forwardCurve.getForward(time) / spot) / time : interestRate;
-    return option.getUnitAmount() * MODEL.price(spot, strike, interestRate, costOfCarry, time, sigma, isCall);
+    double strike = option.getStrike();
+    double time = option.getTimeToExpiry();
+    boolean isCall = option.isCall();
+    return option.getUnitAmount() * computePrice(strike, time, isCall, data);
   }
 
   @Override
@@ -79,5 +69,14 @@ public final class EqyOptBjerksundStenslandPresentValueCalculator extends Instru
     final double interestRate = data.getDiscountCurve().getInterestRate(time);
     final double costOfCarry = time > 0 ? Math.log(forwardCurve.getForward(time) / spot) / time : interestRate;
     return option.getPointValue() * MODEL.price(spot, strike, interestRate, costOfCarry, time, sigma, isCall);
+  }
+
+  private double computePrice(double strike, double time, boolean isCall, StaticReplicationDataBundle data) {
+    ForwardCurve forwardCurve = data.getForwardCurve();
+    double spot = forwardCurve.getSpot();
+    double sigma = data.getVolatilitySurface().getVolatility(time, strike);
+    double interestRate = data.getDiscountCurve().getInterestRate(time);
+    double costOfCarry = time > 0 ? Math.log(forwardCurve.getForward(time) / spot) / time : interestRate;
+    return MODEL.price(spot, strike, interestRate, costOfCarry, time, sigma, isCall);
   }
 }
