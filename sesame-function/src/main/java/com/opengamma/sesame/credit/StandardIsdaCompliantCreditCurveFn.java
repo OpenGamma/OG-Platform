@@ -52,6 +52,8 @@ public class StandardIsdaCompliantCreditCurveFn implements IsdaCompliantCreditCu
   private final HolidaySource _holidaySource;
 
   private final RegionSource _regionSource;
+
+  private List<CDSAnalytic> _calibrationCdsList;
   
   /**
    * Constructor for function.
@@ -60,7 +62,7 @@ public class StandardIsdaCompliantCreditCurveFn implements IsdaCompliantCreditCu
    * @param holidaySource holiday source for sourcing calendars
    * @param regionSource region source for sourcing calendars
    */
-  public StandardIsdaCompliantCreditCurveFn(IsdaCompliantYieldCurveFn yieldCurveFn, 
+  public StandardIsdaCompliantCreditCurveFn(IsdaCompliantYieldCurveFn yieldCurveFn,
                                             CreditCurveDataProviderFn curveDataProviderFn, 
                                             HolidaySource holidaySource, 
                                             RegionSource regionSource) {
@@ -90,10 +92,11 @@ public class StandardIsdaCompliantCreditCurveFn implements IsdaCompliantCreditCu
                                                            creditCurveDataResult.getValue());
     
     return Result.success(IsdaCreditCurve.builder()
-                                            .calibratedCurve(curve)
-                                            .curveData(creditCurveDataResult.getValue())
-                                            .yieldCurve(yieldCurve)
-                                            .build());
+                                         .calibratedCurve(curve)
+                                         .curveData(creditCurveDataResult.getValue())
+                                         .yieldCurve(yieldCurve)
+                                         .calibratedCds(_calibrationCdsList)
+                                         .build());
   }
 
   private ISDACompliantCreditCurve buildWithResolvedData(Environment env, 
@@ -104,7 +107,8 @@ public class StandardIsdaCompliantCreditCurveFn implements IsdaCompliantCreditCu
     
     SortedMap<Tenor, CdsQuote> spreadData = creditCurveData.getCdsQuotes();
     
-    List<CDSAnalytic> calibrationCdsList = new ArrayList<>(spreadData.size());
+    //List<CDSAnalytic> calibrationCdsList = new ArrayList<>(spreadData.size());
+    _calibrationCdsList = new ArrayList<>(spreadData.size());
     List<CDSQuoteConvention> quoteList = new ArrayList<>(spreadData.size());
     
     ExternalId regionId = convention.getRegionId();
@@ -130,12 +134,12 @@ public class StandardIsdaCompliantCreditCurveFn implements IsdaCompliantCreditCu
       CDSAnalytic cdsAnalytic = cdsFactory.makeIMMCDS(valuationDate, spreadEntry.getKey().getPeriod());
       CDSQuoteConvention quoteConvention = spreadEntry.getValue().toQuoteConvention();
       
-      calibrationCdsList.add(cdsAnalytic);
+      _calibrationCdsList.add(cdsAnalytic);
       quoteList.add(quoteConvention);
     }
     
     return CREDIT_CURVE_BUILDER.calibrateCreditCurve(
-                                          calibrationCdsList.toArray(new CDSAnalytic[calibrationCdsList.size()]), 
+                                          _calibrationCdsList.toArray(new CDSAnalytic[_calibrationCdsList.size()]),
                                           quoteList.toArray(new CDSQuoteConvention[quoteList.size()]), 
                                           yieldCurve);
     

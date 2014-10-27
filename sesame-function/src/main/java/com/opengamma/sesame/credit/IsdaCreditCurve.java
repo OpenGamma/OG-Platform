@@ -5,6 +5,8 @@
  */
 package com.opengamma.sesame.credit;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -21,6 +23,8 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.google.common.collect.ImmutableList;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalytic;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurve;
 import com.opengamma.financial.analytics.isda.credit.CreditCurveData;
 
@@ -52,6 +56,12 @@ public final class IsdaCreditCurve implements ImmutableBean {
    */
   @PropertyDefinition(validate = "notNull")
   private final ISDACompliantCreditCurve _calibratedCurve;
+
+  /**
+   * The calibrated CDS nodes of the curve.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final ImmutableList<CDSAnalytic> _calibratedCds;
   
   
   
@@ -80,13 +90,16 @@ public final class IsdaCreditCurve implements ImmutableBean {
   private IsdaCreditCurve(
       IsdaYieldCurve yieldCurve,
       CreditCurveData curveData,
-      ISDACompliantCreditCurve calibratedCurve) {
+      ISDACompliantCreditCurve calibratedCurve,
+      List<CDSAnalytic> calibratedCds) {
     JodaBeanUtils.notNull(yieldCurve, "yieldCurve");
     JodaBeanUtils.notNull(curveData, "curveData");
     JodaBeanUtils.notNull(calibratedCurve, "calibratedCurve");
+    JodaBeanUtils.notNull(calibratedCds, "calibratedCds");
     this._yieldCurve = yieldCurve;
     this._curveData = curveData;
     this._calibratedCurve = calibratedCurve;
+    this._calibratedCds = ImmutableList.copyOf(calibratedCds);
   }
 
   @Override
@@ -134,6 +147,15 @@ public final class IsdaCreditCurve implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the calibrated CDS nodes of the curve.
+   * @return the value of the property, not null
+   */
+  public ImmutableList<CDSAnalytic> getCalibratedCds() {
+    return _calibratedCds;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
    */
@@ -150,7 +172,8 @@ public final class IsdaCreditCurve implements ImmutableBean {
       IsdaCreditCurve other = (IsdaCreditCurve) obj;
       return JodaBeanUtils.equal(getYieldCurve(), other.getYieldCurve()) &&
           JodaBeanUtils.equal(getCurveData(), other.getCurveData()) &&
-          JodaBeanUtils.equal(getCalibratedCurve(), other.getCalibratedCurve());
+          JodaBeanUtils.equal(getCalibratedCurve(), other.getCalibratedCurve()) &&
+          JodaBeanUtils.equal(getCalibratedCds(), other.getCalibratedCds());
     }
     return false;
   }
@@ -161,16 +184,18 @@ public final class IsdaCreditCurve implements ImmutableBean {
     hash += hash * 31 + JodaBeanUtils.hashCode(getYieldCurve());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCurveData());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCalibratedCurve());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCalibratedCds());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(128);
+    StringBuilder buf = new StringBuilder(160);
     buf.append("IsdaCreditCurve{");
     buf.append("yieldCurve").append('=').append(getYieldCurve()).append(',').append(' ');
     buf.append("curveData").append('=').append(getCurveData()).append(',').append(' ');
-    buf.append("calibratedCurve").append('=').append(JodaBeanUtils.toString(getCalibratedCurve()));
+    buf.append("calibratedCurve").append('=').append(getCalibratedCurve()).append(',').append(' ');
+    buf.append("calibratedCds").append('=').append(JodaBeanUtils.toString(getCalibratedCds()));
     buf.append('}');
     return buf.toString();
   }
@@ -201,13 +226,20 @@ public final class IsdaCreditCurve implements ImmutableBean {
     private final MetaProperty<ISDACompliantCreditCurve> _calibratedCurve = DirectMetaProperty.ofImmutable(
         this, "calibratedCurve", IsdaCreditCurve.class, ISDACompliantCreditCurve.class);
     /**
+     * The meta-property for the {@code calibratedCds} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<ImmutableList<CDSAnalytic>> _calibratedCds = DirectMetaProperty.ofImmutable(
+        this, "calibratedCds", IsdaCreditCurve.class, (Class) ImmutableList.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "yieldCurve",
         "curveData",
-        "calibratedCurve");
+        "calibratedCurve",
+        "calibratedCds");
 
     /**
      * Restricted constructor.
@@ -224,6 +256,8 @@ public final class IsdaCreditCurve implements ImmutableBean {
           return _curveData;
         case -1314959246:  // calibratedCurve
           return _calibratedCurve;
+        case 83547253:  // calibratedCds
+          return _calibratedCds;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -268,6 +302,14 @@ public final class IsdaCreditCurve implements ImmutableBean {
       return _calibratedCurve;
     }
 
+    /**
+     * The meta-property for the {@code calibratedCds} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<ImmutableList<CDSAnalytic>> calibratedCds() {
+      return _calibratedCds;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -278,6 +320,8 @@ public final class IsdaCreditCurve implements ImmutableBean {
           return ((IsdaCreditCurve) bean).getCurveData();
         case -1314959246:  // calibratedCurve
           return ((IsdaCreditCurve) bean).getCalibratedCurve();
+        case 83547253:  // calibratedCds
+          return ((IsdaCreditCurve) bean).getCalibratedCds();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -302,6 +346,7 @@ public final class IsdaCreditCurve implements ImmutableBean {
     private IsdaYieldCurve _yieldCurve;
     private CreditCurveData _curveData;
     private ISDACompliantCreditCurve _calibratedCurve;
+    private List<CDSAnalytic> _calibratedCds = new ArrayList<CDSAnalytic>();
 
     /**
      * Restricted constructor.
@@ -317,6 +362,7 @@ public final class IsdaCreditCurve implements ImmutableBean {
       this._yieldCurve = beanToCopy.getYieldCurve();
       this._curveData = beanToCopy.getCurveData();
       this._calibratedCurve = beanToCopy.getCalibratedCurve();
+      this._calibratedCds = new ArrayList<CDSAnalytic>(beanToCopy.getCalibratedCds());
     }
 
     //-----------------------------------------------------------------------
@@ -329,11 +375,14 @@ public final class IsdaCreditCurve implements ImmutableBean {
           return _curveData;
         case -1314959246:  // calibratedCurve
           return _calibratedCurve;
+        case 83547253:  // calibratedCds
+          return _calibratedCds;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
@@ -345,6 +394,9 @@ public final class IsdaCreditCurve implements ImmutableBean {
           break;
         case -1314959246:  // calibratedCurve
           this._calibratedCurve = (ISDACompliantCreditCurve) newValue;
+          break;
+        case 83547253:  // calibratedCds
+          this._calibratedCds = (List<CDSAnalytic>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -381,7 +433,8 @@ public final class IsdaCreditCurve implements ImmutableBean {
       return new IsdaCreditCurve(
           _yieldCurve,
           _curveData,
-          _calibratedCurve);
+          _calibratedCurve,
+          _calibratedCds);
     }
 
     //-----------------------------------------------------------------------
@@ -418,14 +471,26 @@ public final class IsdaCreditCurve implements ImmutableBean {
       return this;
     }
 
+    /**
+     * Sets the {@code calibratedCds} property in the builder.
+     * @param calibratedCds  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder calibratedCds(List<CDSAnalytic> calibratedCds) {
+      JodaBeanUtils.notNull(calibratedCds, "calibratedCds");
+      this._calibratedCds = calibratedCds;
+      return this;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(128);
+      StringBuilder buf = new StringBuilder(160);
       buf.append("IsdaCreditCurve.Builder{");
       buf.append("yieldCurve").append('=').append(JodaBeanUtils.toString(_yieldCurve)).append(',').append(' ');
       buf.append("curveData").append('=').append(JodaBeanUtils.toString(_curveData)).append(',').append(' ');
-      buf.append("calibratedCurve").append('=').append(JodaBeanUtils.toString(_calibratedCurve));
+      buf.append("calibratedCurve").append('=').append(JodaBeanUtils.toString(_calibratedCurve)).append(',').append(' ');
+      buf.append("calibratedCds").append('=').append(JodaBeanUtils.toString(_calibratedCds));
       buf.append('}');
       return buf.toString();
     }
