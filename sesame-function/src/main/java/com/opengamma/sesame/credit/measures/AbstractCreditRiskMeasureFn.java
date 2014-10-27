@@ -123,7 +123,7 @@ public abstract class AbstractCreditRiskMeasureFn<T> implements CreditRiskMeasur
     Result<CDSAnalytic> analyticResult = _standardCdsConverterFn.toCdsAnalytic(env, cds, creditCurve);
     
     if (analyticResult.isSuccess()) {
-      return price(extractForStandardCds(cds),  
+      return price(extractForStandardCds(cds),
                    analyticResult.getValue(), 
                    creditCurve);
     } else {
@@ -150,6 +150,7 @@ public abstract class AbstractCreditRiskMeasureFn<T> implements CreditRiskMeasur
   /**
    * Extracts relevant fields from standard cds security to CdsData.
    * 
+   *
    * @param cds the standard cds
    * @return a CdsData instance
    */
@@ -160,7 +161,6 @@ public abstract class AbstractCreditRiskMeasureFn<T> implements CreditRiskMeasur
                   .interestRateNotional(cds.getNotional())
                   .buy(cds.isBuyProtection())
                   .build();
-
   }
   
   /**

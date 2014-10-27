@@ -167,7 +167,10 @@ public final class OutputNames {
    *  The FX matrix 
    */
   public static final String AVAILABLE_FX_RATES = "Available FX Rates";
-
+  /**
+   *  The CS01 of a credit default swap
+   */
+  public static final String CS01 = "CS01";
 
   /**
    * Restricted constructor.

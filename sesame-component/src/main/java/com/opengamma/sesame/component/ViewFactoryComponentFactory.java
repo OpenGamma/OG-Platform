@@ -77,6 +77,7 @@ import com.opengamma.sesame.cache.source.CacheAwareSecuritySource;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.credit.IsdaCompliantCreditCurveFn;
 import com.opengamma.sesame.credit.IsdaCompliantYieldCurveFn;
+import com.opengamma.sesame.credit.measures.CreditCs01Fn;
 import com.opengamma.sesame.credit.measures.CreditPvFn;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.engine.FixedInstantVersionCorrectionProvider;
@@ -255,7 +256,8 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
         BondFn.class,
         IsdaCompliantYieldCurveFn.class,
         IsdaCompliantCreditCurveFn.class,
-        CreditPvFn.class);
+        CreditPvFn.class,
+        CreditCs01Fn.class);
     return available;
   }
 

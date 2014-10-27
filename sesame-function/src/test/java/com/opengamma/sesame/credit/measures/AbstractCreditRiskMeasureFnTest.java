@@ -107,8 +107,7 @@ public class AbstractCreditRiskMeasureFnTest {
     CDSAnalytic _cdsAnalytic;
     IsdaCreditCurve _curve;
   }
-  
-  
+
   @Test
   public void priceLegacyCds() {
     Result<RiskResult> result = _fn.priceLegacyCds(_env, _legCds);
