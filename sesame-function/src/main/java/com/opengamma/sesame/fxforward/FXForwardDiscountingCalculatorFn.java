@@ -13,8 +13,6 @@ import org.threeten.bp.OffsetTime;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
-import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
-import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.SimpleCounterparty;
@@ -24,11 +22,11 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.FXMatrixFn;
+import com.opengamma.sesame.MulticurveBundle;
 import com.opengamma.sesame.trade.FXForwardTrade;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
-import com.opengamma.util.tuple.Pair;
 
 public class FXForwardDiscountingCalculatorFn implements FXForwardCalculatorFn {
 
@@ -58,18 +56,19 @@ public class FXForwardDiscountingCalculatorFn implements FXForwardCalculatorFn {
 
   @Override
   public Result<FXForwardCalculator> generateCalculator(Environment env, final FXForwardSecurity security) {
-    Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundleResult = createBundle(env, security);
+    Result<MulticurveBundle> bundleResult = createBundle(env, security);
 
     if (bundleResult.isSuccess()) {
-      Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> value = bundleResult.getValue();
-      return Result.success(_factory.createCalculator(security, value.getFirst(), value.getSecond()));
+      MulticurveBundle value = bundleResult.getValue();
+      return Result.success(_factory.createCalculator(security,
+                                                      value.getMulticurveProvider(),
+                                                      value.getCurveBuildingBlockBundle()));
     } else {
       return Result.failure(bundleResult);
     }
   }
 
-  private Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> createBundle(Environment env,
-                                                                                          FXForwardSecurity security) {
+  private Result<MulticurveBundle> createBundle(Environment env, FXForwardSecurity security) {
 
     // get currencies from security, probably should use visitor/utils
     Set<Currency> currencies = ImmutableSet.of(security.getPayCurrency(), security.getReceiveCurrency());
@@ -86,7 +85,7 @@ public class FXForwardDiscountingCalculatorFn implements FXForwardCalculatorFn {
     FXForwardTrade tradeWrapper = new FXForwardTrade(trade);
 
     if (fxmResult.isSuccess()) {
-      return _discountingMulticurveCombinerFn.createMergedMulticurveBundle(env, tradeWrapper, fxmResult.getValue());
+      return _discountingMulticurveCombinerFn.getMulticurveBundle(env, tradeWrapper, fxmResult.getValue());
     } else {
       return Result.failure(fxmResult);
     }

@@ -8,8 +8,6 @@ package com.opengamma.sesame.deliverableswapfuture;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.opengamma.analytics.financial.forex.method.FXMatrix;
-import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.financial.analytics.conversion.DeliverableSwapFutureTradeConverter;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
@@ -20,10 +18,10 @@ import com.opengamma.sesame.CurveDefinitionFn;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.HistoricalTimeSeriesFn;
+import com.opengamma.sesame.MulticurveBundle;
 import com.opengamma.sesame.trade.DeliverableSwapFutureTrade;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * Default factory for deliverable swap future calculators that provides the converter used to convert the security to an
@@ -96,8 +94,7 @@ public DeliverableSwapFutureDiscountingCalculatorFactory(DeliverableSwapFutureTr
     HistoricalTimeSeriesBundle fixingBundle = null;
     Map<String, CurveDefinition> curveDefinitions = new HashMap<String, CurveDefinition>();
 
-    Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundleResult =
-                      _discountingMultiCurveCombinerFn.createMergedMulticurveBundle(env, trade, new FXMatrix());
+    Result<MulticurveBundle> bundleResult = _discountingMultiCurveCombinerFn.getMulticurveBundle(env, trade);
 
     Result<HistoricalTimeSeriesBundle> fixings = _htsFn.getFixingsForSecurity(env, security);
 
@@ -105,10 +102,10 @@ public DeliverableSwapFutureDiscountingCalculatorFactory(DeliverableSwapFutureTr
       result = Result.failure(bundleResult, fixings);
     } else {
 
-      bundle = bundleResult.getValue().getFirst();
+      bundle = bundleResult.getValue().getMulticurveProvider();
       fixingBundle = fixings.getValue();
 
-      for (String curveName : bundleResult.getValue().getValue().getData().keySet()) {
+      for (String curveName : bundleResult.getValue().getCurveBuildingBlockBundle().getData().keySet()) {
         Result<CurveDefinition> curveDefinition = _curveDefinitionFn.getCurveDefinition(curveName);
         if (curveDefinition.isSuccess()) {
           curveDefinitions.put(curveName, curveDefinition.getValue());

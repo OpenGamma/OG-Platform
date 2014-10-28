@@ -64,7 +64,6 @@ public class MarketExposureSelectorTest {
   public void testEmptyCurveConfigs() {
 
     ConfigMaster configMaster = new InMemoryConfigMaster();
-    ConfigSource configSource = new MasterConfigSource(configMaster);
     SecuritySource securitySource = new MasterSecuritySource(new InMemorySecurityMaster());
 
     String name = "test";
@@ -73,7 +72,7 @@ public class MarketExposureSelectorTest {
     ExposureFunctions exposures = new ExposureFunctions(name, exposureFunctions, idsToNames);
     ConfigMasterUtils.storeByName(configMaster, ConfigItem.of(exposures));
     
-    MarketExposureSelector selector = new MarketExposureSelector(exposures, securitySource, configSource);
+    MarketExposureSelector selector = new MarketExposureSelector(exposures, securitySource);
 
     FRASecurity security = getFRASecurity();
     Trade trade = new SimpleTrade(security,
@@ -128,7 +127,7 @@ public class MarketExposureSelectorTest {
         .with(VersionCorrectionProvider.class, new FixedInstantVersionCorrectionProvider());
     ThreadLocalServiceContext.init(serviceContext);
 
-    MarketExposureSelector selector = new MarketExposureSelector(exposures, securitySource, configSource);
+    MarketExposureSelector selector = new MarketExposureSelector(exposures, securitySource);
     
     Trade trade = new SimpleTrade(security,
                                   BigDecimal.ONE,
