@@ -57,13 +57,13 @@ import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 @Test(groups = TestGroup.UNIT)
 public class DefaultScenarioRunnerTest {
 
   private static final String BUNDLE1 = "bundle1";
   private static final String BUNDLE2 = "bundle2";
-  private static final String SUCCESS = "SUCCESS!";
   private static final ViewConfig CONFIG =
       configureView(
           "view name",
@@ -80,14 +80,42 @@ public class DefaultScenarioRunnerTest {
     DefaultScenarioRunner scenarioRunner = new DefaultScenarioRunner(viewFactory);
     MarketDataEnvironmentBuilder<String> builder = new MarketDataEnvironmentBuilder<>();
     MarketDataEnvironment<String> marketDataEnvironment =
-        builder.addMulticurve("base", BUNDLE1, createMulticurve(Currency.USD))
-               .addMulticurve("base", BUNDLE2, createMulticurve(Currency.EUR))
+        builder.addMulticurve("base", BUNDLE1, createMulticurve(Currency.USD, 1))
+               .addMulticurve("base", BUNDLE2, createMulticurve(Currency.EUR, 2))
                .build();
     List<?> trades = ImmutableList.of(createTrade());
     Results results = scenarioRunner.runScenario(CONFIG, marketDataEnvironment, ZonedDateTime.now(), trades);
 
     assertEquals(1, results.getRows().size());
-    assertEquals(SUCCESS, results.get(0, 0).getResult().getValue());
+    assertEquals(1, results.get(0).getItems().size());
+    assertEquals("col1", results.getColumnNames().get(0));
+    assertEquals(Pairs.of(1.0, 2.0), results.get(0, 0).getResult().getValue());
+  }
+
+  @Test
+  public void multipleScenarios() {
+    ViewFactory viewFactory = createViewFactory();
+    DefaultScenarioRunner scenarioRunner = new DefaultScenarioRunner(viewFactory);
+    MarketDataEnvironmentBuilder<String> builder = new MarketDataEnvironmentBuilder<>();
+    MarketDataEnvironment<String> marketDataEnvironment =
+        builder.addMulticurve("base", BUNDLE1, createMulticurve(Currency.USD, 1))
+               .addMulticurve("base", BUNDLE2, createMulticurve(Currency.EUR, 2))
+               .addMulticurve("s1", BUNDLE1, createMulticurve(Currency.USD, 3))
+               .addMulticurve("s1", BUNDLE2, createMulticurve(Currency.EUR, 4))
+               .addMulticurve("s2", BUNDLE1, createMulticurve(Currency.USD, 5))
+               .addMulticurve("s2", BUNDLE2, createMulticurve(Currency.EUR, 6))
+               .build();
+    List<?> trades = ImmutableList.of(createTrade());
+    Results results = scenarioRunner.runScenario(CONFIG, marketDataEnvironment, ZonedDateTime.now(), trades);
+
+    assertEquals(1, results.getRows().size());
+    assertEquals(3, results.get(0).getItems().size());
+    assertEquals("base / col1", results.getColumnNames().get(0));
+    assertEquals("s1 / col1", results.getColumnNames().get(1));
+    assertEquals("s2 / col1", results.getColumnNames().get(2));
+    assertEquals(Pairs.of(1.0, 2.0), results.get(0, 0).getResult().getValue());
+    assertEquals(Pairs.of(3.0, 4.0), results.get(0, 1).getResult().getValue());
+    assertEquals(Pairs.of(5.0, 6.0), results.get(0, 2).getResult().getValue());
   }
 
   private ViewFactory createViewFactory() {
@@ -114,8 +142,8 @@ public class DefaultScenarioRunnerTest {
     return new BondTrade(trade);
   }
 
-  private static MulticurveBundle createMulticurve(Currency currency) {
-    ConstantDoublesCurve curve = new ConstantDoublesCurve(1);
+  private static MulticurveBundle createMulticurve(Currency currency, double curveValue) {
+    ConstantDoublesCurve curve = new ConstantDoublesCurve(curveValue);
     YieldCurve yieldCurve = new YieldCurve(currency.getCode() + " discounting", curve);
     LinkedHashMap<String, Pair<CurveBuildingBlock, DoubleMatrix2D>> linkedMap = new LinkedHashMap<>();
     MulticurveProviderDiscount emptyProvider = new MulticurveProviderDiscount();
@@ -126,7 +154,7 @@ public class DefaultScenarioRunnerTest {
   public interface TestFn {
 
     @Output("Foo")
-    Result<String> foo(Environment env, BondTrade trade);
+    Result<Pair<Double, Double>> foo(Environment env, BondTrade trade);
   }
 
   public static class TestImpl implements TestFn {
@@ -138,7 +166,7 @@ public class DefaultScenarioRunnerTest {
     }
 
     @Override
-    public Result<String> foo(Environment env, BondTrade trade) {
+    public Result<Pair<Double, Double>> foo(Environment env, BondTrade trade) {
       Result<MulticurveBundle> result = _curveFn.getMulticurveBundle(env, trade);
 
       if (!result.isSuccess()) {
@@ -149,7 +177,7 @@ public class DefaultScenarioRunnerTest {
       YieldAndDiscountCurve curve2 = multicurve.getMulticurveProvider().getCurve("EUR discounting");
 
       if (curve1 != null && curve2 != null) {
-        return Result.success(SUCCESS);
+        return Result.success(Pairs.of(curve1.getInterestRate(0.0), curve2.getInterestRate(0.0)));
       } else {
         return Result.failure(FailureStatus.MISSING_DATA, "curve1: {}, curve2: {}", curve1, curve2);
       }

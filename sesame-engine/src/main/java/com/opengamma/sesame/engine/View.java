@@ -246,10 +246,8 @@ public class View {
 
     List<Task> tasks = new ArrayList<>();
     Graph graph = cycleInitializer.getGraph();
-    ScenarioDefinition scenarioDefinition =
-        cycleArguments.getScenarioDefinition().mergedWith(_viewConfig.getScenarioDefinition());
-    tasks.addAll(portfolioTasks(env, cycleArguments, inputs, graph, scenarioDefinition));
-    tasks.addAll(nonPortfolioTasks(env, cycleArguments, graph, scenarioDefinition));
+    tasks.addAll(portfolioTasks(env, cycleArguments, inputs, graph, _viewConfig.getScenarioDefinition()));
+    tasks.addAll(nonPortfolioTasks(env, cycleArguments, graph, _viewConfig.getScenarioDefinition()));
     List<Future<TaskResult>> futures;
 
     try {

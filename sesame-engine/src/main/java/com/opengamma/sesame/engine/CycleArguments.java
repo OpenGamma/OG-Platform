@@ -59,7 +59,6 @@ public final class CycleArguments {
   private final Map<String, TraceType> _traceOutputs;
   private final FunctionArguments _functionArguments;
   private final boolean _captureInputs;
-  private final ScenarioDefinition _scenarioDefinition;
 
   /**
    * @deprecated this will be removed, use {@link #builder}
@@ -106,8 +105,7 @@ public final class CycleArguments {
          functionArguments,
          traceCells,
          traceOutputs,
-         false,
-         ScenarioDefinition.EMPTY);
+         false);
   }
 
   /**
@@ -124,8 +122,7 @@ public final class CycleArguments {
          FunctionArguments.EMPTY,
          ImmutableMap.<Cell, TraceType>of(),
          ImmutableMap.<String, TraceType>of(),
-         captureInputs,
-         ScenarioDefinition.EMPTY);
+         captureInputs);
   }
 
   /**
@@ -143,8 +140,7 @@ public final class CycleArguments {
          functionArguments,
          ImmutableMap.<Cell, TraceType>of(),
          ImmutableMap.<String, TraceType>of(),
-         captureInputs,
-         ScenarioDefinition.EMPTY);
+         captureInputs);
   }
 
   /**
@@ -157,9 +153,7 @@ public final class CycleArguments {
                         FunctionArguments functionArguments,
                         Map<Cell, TraceType> traceCells,
                         Map<String, TraceType> traceOutputs,
-                        boolean captureInputs,
-                        ScenarioDefinition scenarioDefinition) {
-    _scenarioDefinition = ArgumentChecker.notNull(scenarioDefinition, "scenarioDefinition");
+                        boolean captureInputs) {
     _functionArguments = ArgumentChecker.notNull(functionArguments, "functionArguments");
     _configVersionCorrection = ArgumentChecker.notNull(configVersionCorrection, "configVersionCorrection");
     _valuationTime = ArgumentChecker.notNull(valuationTime, "valuationTime");
@@ -189,10 +183,6 @@ public final class CycleArguments {
 
   FunctionArguments getFunctionArguments() {
     return _functionArguments;
-  }
-
-  ScenarioDefinition getScenarioDefinition() {
-    return _scenarioDefinition;
   }
 
   TraceType traceType(int rowIndex, int colIndex) {
@@ -284,8 +274,7 @@ public final class CycleArguments {
                                 _functionArguments,
                                 _traceCells,
                                 _traceOutputs,
-                                _captureInputs,
-                                _scenarioDefinition);
+                                _captureInputs);
     }
 
     /**

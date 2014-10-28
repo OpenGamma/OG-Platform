@@ -5,6 +5,7 @@
  */
 package com.opengamma.sesame.engine;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -17,7 +18,10 @@ import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.sesame.MulticurveBundle;
 import com.opengamma.sesame.PreCalibratedMulticurveArguments;
+import com.opengamma.sesame.config.NonPortfolioOutput;
+import com.opengamma.sesame.config.ViewColumn;
 import com.opengamma.sesame.config.ViewConfig;
+import com.opengamma.sesame.function.scenarios.ScenarioDefinition;
 import com.opengamma.sesame.marketdata.CycleMarketDataFactory;
 import com.opengamma.sesame.marketdata.FieldName;
 import com.opengamma.sesame.marketdata.MapMarketDataBundle;
@@ -53,8 +57,6 @@ public class DefaultScenarioRunner implements ScenarioRunner {
    * This only handles one very specific use case: views whose calculations require curves and no other market data.
    * The pre-calibrated multicurve bundles must be in the market data environment.
    *
-   * TODO currently this only supports a single scenario
-   *
    * @param viewConfig configuration of the view that performs the calculations
    * @param marketDataEnvironment contains the market data for the scenarios
    * @param valuationTime the valuation time used in the calculations
@@ -69,20 +71,54 @@ public class DefaultScenarioRunner implements ScenarioRunner {
     Map<?, MapMarketDataBundle> scenarioData = marketDataEnvironment.getData();
 
     if (scenarioData.size() == 1) {
-      return runOnlyScenario(viewConfig, scenarioData.values().iterator().next(), valuationTime, portfolio);
+      return runSingleScenario(viewConfig, scenarioData.values().iterator().next(), valuationTime, portfolio);
     }
-    /*
-    TODO handle multiple scenarios
-      iterate over scenarios
-        duplicate columns in viewConfig
-        create scenario arguments
-      create scenario definition
-      create view config with all columns, prefixing with scenario ID if there's more than 1 scenario
-      create view config with the scenario
-      create a view
-      run the view
-    */
-    throw new UnsupportedOperationException("Only one scenario is supported at the moment");
+    List<ViewColumn> columns = new ArrayList<>();
+    List<NonPortfolioOutput> outputs = new ArrayList<>();
+    ScenarioDefinition scenarioDefinition = viewConfig.getScenarioDefinition();
+
+    for (Map.Entry<?, MapMarketDataBundle> entry : scenarioData.entrySet()) {
+      Object scenarioId = entry.getKey();
+      MapMarketDataBundle scenarioDataBundle = entry.getValue();
+      PreCalibratedMulticurveArguments scenarioArgument = getScenarioArguments(scenarioDataBundle);
+
+      for (ViewColumn column : viewConfig.getColumns()) {
+        // add a copy of the column for this scenario, use a name created from the column and scenario names
+        String columnName = mungeName(column.getName(), scenarioId);
+        ViewColumn copiedColumn = column.toBuilder().name(columnName).build();
+        columns.add(copiedColumn);
+        // add the scenario arg with this scenario's curve to the scenario definition for this column
+        scenarioDefinition = scenarioDefinition.with(scenarioArgument, columnName);
+      }
+      for (NonPortfolioOutput output : viewConfig.getNonPortfolioOutputs()) {
+        // add a copy of the output for this scenario, use a name created from the output and scenario names
+        String outputName = mungeName(output.getName(), scenarioId);
+        NonPortfolioOutput copiedOutput = output.toBuilder().name(outputName).build();
+        outputs.add(copiedOutput);
+        // add the scenario arg with this scenario's curve to the scenario definition for this output
+        scenarioDefinition = scenarioDefinition.with(scenarioArgument, outputName);
+      }
+    }
+    ViewConfig scenarioViewConfig = viewConfig.toBuilder()
+                                              .columns(columns)
+                                              .nonPortfolioOutputs(outputs)
+                                              .scenarioDefinition(scenarioDefinition)
+                                              .build();
+    View view = _viewFactory.createView(scenarioViewConfig, inputTypes(portfolio));
+    EmptyMarketDataFactory marketDataFactory = new EmptyMarketDataFactory();
+    CycleArguments cycleArguments = CycleArguments.builder(marketDataFactory).valuationTime(valuationTime).build();
+    return view.run(cycleArguments, portfolio);
+  }
+
+  /**
+   * Creates a unique name for a column or non-portfolio output by combining the name with the scenario ID.
+   *
+   * @param name the column or output name
+   * @param scenarioId the scenario ID
+   * @return a name derived from the original name and the scenario ID
+   */
+  private static String mungeName(String name, Object scenarioId) {
+    return scenarioId.toString() + " / " + name;
   }
 
   /**
@@ -97,14 +133,28 @@ public class DefaultScenarioRunner implements ScenarioRunner {
    * @param portfolio the portfolio used as input to the calculations
    * @return the calculation results
    */
-  private Results runOnlyScenario(ViewConfig viewConfig,
-                                  MapMarketDataBundle marketDataBundle,
-                                  ZonedDateTime valuationTime,
-                                  List<?> portfolio) {
-    Map<MarketDataRequirement, Object> marketData = marketDataBundle.getMarketData();
+  private Results runSingleScenario(ViewConfig viewConfig,
+                                    MapMarketDataBundle marketDataBundle,
+                                    ZonedDateTime valuationTime,
+                                    List<?> portfolio) {
+    ScenarioDefinition scenarioDefinition = new ScenarioDefinition(getScenarioArguments(marketDataBundle));
+    ViewConfig scenarioViewConfig = viewConfig.toBuilder().scenarioDefinition(scenarioDefinition).build();
+    View view = _viewFactory.createView(scenarioViewConfig, inputTypes(portfolio));
+    EmptyMarketDataFactory marketDataFactory = new EmptyMarketDataFactory();
+    CycleArguments cycleArguments = CycleArguments.builder(marketDataFactory).valuationTime(valuationTime).build();
+    return view.run(cycleArguments, portfolio);
+  }
+
+  /**
+   * Creates the scenario arguments to feed the pre-calibrated curves into the curve function.
+   *
+   * @param marketDataBundle the market data bundle for a scenario containing pre-calibrated curves
+   * @return the scenario arguments that pass the curves into the engine
+   */
+  private PreCalibratedMulticurveArguments getScenarioArguments(MapMarketDataBundle marketDataBundle) {
     Map<String, MulticurveBundle> multicurves = new HashMap<>();
 
-    for (Map.Entry<MarketDataRequirement, Object> entry : marketData.entrySet()) {
+    for (Map.Entry<MarketDataRequirement, Object> entry : marketDataBundle.getMarketData().entrySet()) {
       MarketDataId<?> id = entry.getKey().getMarketDataId();
       Object marketDataItem = entry.getValue();
 
@@ -115,16 +165,15 @@ public class DefaultScenarioRunner implements ScenarioRunner {
         multicurves.put(multicurveId.getName(), multicurve);
       }
     }
-    PreCalibratedMulticurveArguments scenarioArgs = new PreCalibratedMulticurveArguments(multicurves);
-    View view = _viewFactory.createView(viewConfig, inputTypes(portfolio));
-    EmptyMarketDataFactory marketDataFactory = new EmptyMarketDataFactory();
-    CycleArguments cycleArguments = CycleArguments.builder(marketDataFactory)
-                                                  .valuationTime(valuationTime)
-                                                  .scenarioArguments(scenarioArgs)
-                                                  .build();
-    return view.run(cycleArguments, portfolio);
+    return new PreCalibratedMulticurveArguments(multicurves);
   }
 
+  /**
+   * Returns the set of the types of all items in the portfolio.
+   *
+   * @param portfolio a list of portfolio items
+   * @return the set of the types of all items in the portfolio
+   */
   private Set<Class<?>> inputTypes(List<?> portfolio) {
     Set<Class<?>> types = new HashSet<>();
 
