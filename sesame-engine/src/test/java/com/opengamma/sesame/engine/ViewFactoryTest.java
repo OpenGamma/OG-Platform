@@ -56,7 +56,6 @@ import com.opengamma.sesame.LazyLinkedPositionOrTrade;
 import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.cache.Cacheable;
 import com.opengamma.sesame.cache.NoOpCacheInvalidator;
-import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.config.ViewConfig;
 import com.opengamma.sesame.engine.CycleArguments.TraceType;
@@ -86,8 +85,6 @@ import com.opengamma.sesame.trace.CallGraph;
 import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
-import com.opengamma.util.tuple.Pair;
-import com.opengamma.util.tuple.Pairs;
 
 @Test(groups = TestGroup.UNIT)
 public class ViewFactoryTest {
@@ -126,7 +123,7 @@ public class ViewFactoryTest {
 
   private CycleArguments createCycleArguments(ZonedDateTime valuationTime) {
     CycleMarketDataFactory cycleMarketDataFactory = mockCycleMarketDataFactory();
-    return new CycleArguments(valuationTime, VersionCorrection.LATEST, cycleMarketDataFactory);
+    return CycleArguments.builder(cycleMarketDataFactory).valuationTime(valuationTime).build();
   }
 
   private CycleMarketDataFactory mockCycleMarketDataFactory() {
@@ -229,7 +226,7 @@ public class ViewFactoryTest {
         MarketDataSpecification.class), dataSource));
 
     View view = viewFactory.createView(viewConfig, EquitySecurity.class);
-    CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST, cycleMarketDataFactory);
+    CycleArguments cycleArguments = CycleArguments.builder(cycleMarketDataFactory).build();
     Results results = view.run(cycleArguments, trades);
     assertEquals(123.45, results.get(0, 0).getResult().getValue());
     System.out.println(results);
@@ -350,16 +347,10 @@ public class ViewFactoryTest {
     List<SimpleTrade> trades = ImmutableList.of(EngineTestUtils.createEquityTrade());
     View view = viewFactory.createView(viewConfig, EquitySecurity.class);
 
-    Map<Pair<Integer, Integer>, TraceType> traceCells =
-        ImmutableMap.of(Pairs.of(0, 0), TraceType.FULL_AS_STRING);
+    Map<CycleArguments.Cell, TraceType> traceCells =
+        ImmutableMap.of(new CycleArguments.Cell(0, 0), TraceType.FULL_AS_STRING);
 
-    CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(),
-                                                       VersionCorrection.LATEST,
-                                                       mockCycleMarketDataFactory(),
-                                                       FunctionArguments.EMPTY,
-                                                       traceCells,
-                                                       ImmutableMap.<String, TraceType>of(),
-                                                       false);
+    CycleArguments cycleArguments = CycleArguments.builder(mockCycleMarketDataFactory()).traceCells(traceCells).build();
     Results results = view.run(cycleArguments, trades);
     CallGraph trace = results.get(0, 0).getCallGraph();
     assertNotNull(trace);
@@ -456,13 +447,9 @@ public class ViewFactoryTest {
                                               new NoOpCacheInvalidator(),
                                               Optional.<MetricRegistry>absent());
     View view = viewFactory.createView(viewConfig);
-    CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(),
-                                                       VersionCorrection.LATEST,
-                                                       mockCycleMarketDataFactory(),
-                                                       FunctionArguments.EMPTY,
-                                                       ImmutableMap.<Pair<Integer, Integer>, TraceType>of(),
-                                                       ImmutableMap.of(name, TraceType.FULL_AS_STRING),
-                                                       false);
+    CycleArguments cycleArguments = CycleArguments.builder(mockCycleMarketDataFactory())
+                                                  .traceOutputs(ImmutableMap.of(name, TraceType.FULL_AS_STRING))
+                                                  .build();
     Results results = view.run(cycleArguments);
     ResultItem item = results.get(name);
     assertNotNull(item);
@@ -684,9 +671,7 @@ public class ViewFactoryTest {
     View view = viewFactory.createView(viewConfig, EquitySecurity.class);
     CycleMarketDataFactory cycleMarketDataFactory = mock(CycleMarketDataFactory.class);
     when(cycleMarketDataFactory.getPrimaryMarketDataSource()).thenReturn(mock(MarketDataSource.class));
-    CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(),
-                                                       VersionCorrection.LATEST,
-                                                       cycleMarketDataFactory);
+    CycleArguments cycleArguments = CycleArguments.builder(cycleMarketDataFactory).build();
     Trade equityTrade = EngineTestUtils.createEquityTrade();
 
     Results results1 = view.run(cycleArguments, ImmutableList.of(equityTrade));
@@ -721,9 +706,7 @@ public class ViewFactoryTest {
 
     CycleMarketDataFactory cycleMarketDataFactory = mock(CycleMarketDataFactory.class);
     when(cycleMarketDataFactory.getPrimaryMarketDataSource()).thenReturn(mock(MarketDataSource.class));
-    CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(),
-                                                       VersionCorrection.LATEST,
-                                                       cycleMarketDataFactory);
+    CycleArguments cycleArguments = CycleArguments.builder(cycleMarketDataFactory).build();
     Trade equityTrade = EngineTestUtils.createEquityTrade();
 
     Results results1 = view1.run(cycleArguments, ImmutableList.of(equityTrade));
@@ -756,9 +739,7 @@ public class ViewFactoryTest {
     View view = viewFactory.createView(viewConfig, EquitySecurity.class);
     CycleMarketDataFactory cycleMarketDataFactory = mock(CycleMarketDataFactory.class);
     when(cycleMarketDataFactory.getPrimaryMarketDataSource()).thenReturn(mock(MarketDataSource.class));
-    CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(),
-                                                       VersionCorrection.LATEST,
-                                                       cycleMarketDataFactory);
+    CycleArguments cycleArguments = CycleArguments.builder(cycleMarketDataFactory).build();
     Trade equityTrade = EngineTestUtils.createEquityTrade();
 
     // check that the same result is return from 2 calls to TestFn.foo() even if the cache is cleared between

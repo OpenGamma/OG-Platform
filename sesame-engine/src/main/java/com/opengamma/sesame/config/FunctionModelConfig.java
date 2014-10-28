@@ -252,7 +252,7 @@ public class FunctionModelConfig implements ImmutableBean {
 
     if (interfaces.size() != 1) {
       throw new IllegalArgumentException("Decorator class " + scenarioFunction.getName() + " must implement " +
-                                             "ScenarioFunction and one other one interface");
+                                             "ScenarioFunction and one other interface");
     }
     Class<?> interfaceType = interfaces.iterator().next();
     LinkedHashSet<Class<?>> decorators = _decoratorsByFn.get(interfaceType);
