@@ -51,6 +51,10 @@ public final class EquityOptionBlackScholesThetaCalculator extends
     return computeTheta(k, t, isCall, data);
   }
 
+  /*
+   * For index options, standard theta is driftless theta, i.e., b=r=0.  
+   * Thus use {@link EquityOptionBlackThetaCalculator} for this instrument.
+   */
   @Override
   public Double visitEquityIndexFutureOption(EquityIndexFutureOption option,
       final StaticReplicationDataBundle data) {
