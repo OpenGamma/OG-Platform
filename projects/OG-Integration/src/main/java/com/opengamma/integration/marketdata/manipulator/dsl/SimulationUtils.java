@@ -39,6 +39,7 @@ import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.util.RegexUtils;
 
 /**
  * Utilities for creating and running {@link Simulation}s and {@link Scenario}s.
@@ -189,28 +190,11 @@ public final class SimulationUtils {
    * characters themselves.
    * @param glob The glob string
    * @return A pattern for matching the glob
+   * @deprecated Use RegexUtils.globToPattern(glob)
    */
+  @Deprecated
   public static Pattern patternForGlob(String glob) {
-    Map<Character, String> replacements = ImmutableMap.of('?', ".", '*', ".*?", '%', ".*?");
-    StringBuilder builder = new StringBuilder();
-    StringBuilder tokenBuilder = new StringBuilder();
-    for (int i = 0; i < glob.length(); i++) {
-      char c = glob.charAt(i);
-      if (!replacements.containsKey(c)) {
-        tokenBuilder.append(c);
-      } else {
-        if (tokenBuilder.length() != 0) {
-          String quotedToken = Pattern.quote(tokenBuilder.toString());
-          builder.append(quotedToken);
-          tokenBuilder.setLength(0);
-        }
-        builder.append(replacements.get(c));
-      }
-    }
-    if (tokenBuilder.length() != 0) {
-      builder.append(Pattern.quote(tokenBuilder.toString()));
-    }
-    return Pattern.compile(builder.toString());
+    return RegexUtils.globToPattern(glob);
   }
 
   public static YieldCurveBucketedShift bucketedShift(Period start, Period end, double shift) {

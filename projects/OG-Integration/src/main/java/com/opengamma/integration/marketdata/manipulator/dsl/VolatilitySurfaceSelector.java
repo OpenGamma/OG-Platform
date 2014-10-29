@@ -22,6 +22,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.RegexUtils;
 
 /**
  * Selects volatility surfaces for manipulation.
@@ -248,7 +249,7 @@ public class VolatilitySurfaceSelector implements DistinctMarketDataSelector {
       if (_nameMatchPattern != null) {
         throw new IllegalStateException("Can't specify exact name and a regular expression for the name");
       }
-      _nameLikePattern = SimulationUtils.patternForGlob(glob);
+      _nameLikePattern = RegexUtils.globToPattern(glob);
       return this;
     }
 
