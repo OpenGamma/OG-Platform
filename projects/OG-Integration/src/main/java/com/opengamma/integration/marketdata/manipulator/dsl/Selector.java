@@ -16,6 +16,7 @@ import com.opengamma.engine.marketdata.manipulator.DistinctMarketDataSelector;
 import com.opengamma.engine.marketdata.manipulator.SelectorResolver;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.RegexUtils;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -204,7 +205,7 @@ import com.opengamma.util.money.Currency;
       if (_nameMatchPattern != null) {
         throw new IllegalStateException("Only one of named() and nameMatches() and nameLike() can be used");
       }
-      _nameLikePattern = SimulationUtils.patternForGlob(glob);
+      _nameLikePattern = RegexUtils.globToPattern(glob);
       return this;
     }
 
