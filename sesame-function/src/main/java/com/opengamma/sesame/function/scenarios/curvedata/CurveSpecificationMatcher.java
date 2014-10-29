@@ -13,6 +13,7 @@ import java.util.regex.Pattern;
 import com.opengamma.financial.analytics.curve.CurveSpecification;
 import com.opengamma.integration.marketdata.manipulator.dsl.SimulationUtils;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.RegexUtils;
 
 /**
  * Tests if a {@link CurveSpecification} matches a rule.
@@ -87,7 +88,7 @@ public abstract class CurveSpecificationMatcher {
 
     private NameLike(String glob) {
       ArgumentChecker.notEmpty(glob, "glob");
-      _pattern = SimulationUtils.patternForGlob(glob);
+      _pattern = RegexUtils.globToPattern(glob);
     }
 
     @Override
