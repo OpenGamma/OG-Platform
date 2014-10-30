@@ -122,7 +122,7 @@ public class StandardIsdaCompliantCreditCurveFnTest {
                 .cdsQuotes(spreadData)
                 .build();
     
-    when(_curveDataProviderFn.retrieveCreditCurveData(_goodKey)).thenReturn(Result.success(curveData));
+    when(_curveDataProviderFn.retrieveCreditCurveData(_env, _goodKey)).thenReturn(Result.success(curveData));
     
   }
   
@@ -148,7 +148,7 @@ public class StandardIsdaCompliantCreditCurveFnTest {
   public void testMissingCreditCurveData() {
     //credit curve data missing but yc present
     when(_yieldCurveFn.buildIsdaCompliantCurve(_env, Currency.GBP)).thenReturn(Result.success(YIELD_CURVE));
-    when(_curveDataProviderFn.retrieveCreditCurveData(_badKey))
+    when(_curveDataProviderFn.retrieveCreditCurveData(_env, _badKey))
         .thenReturn(Result.<CreditCurveData> failure(FailureStatus.ERROR, "Error"));
     
     Result<IsdaCreditCurve> result = _fn.buildIsdaCompliantCreditCurve(_env, _badKey);
@@ -161,7 +161,7 @@ public class StandardIsdaCompliantCreditCurveFnTest {
     //yc missing but credit curve data present
     when(_yieldCurveFn.buildIsdaCompliantCurve(_env, Currency.GBP))
         .thenReturn(Result.<IsdaYieldCurve> failure(FailureStatus.ERROR, "Error"));
-    when(_curveDataProviderFn.retrieveCreditCurveData(_badKey))
+    when(_curveDataProviderFn.retrieveCreditCurveData(_env, _badKey))
         .thenReturn(Result.success(mock(CreditCurveData.class)));
     
     Result<IsdaCreditCurve> result = _fn.buildIsdaCompliantCreditCurve(_env, _badKey);

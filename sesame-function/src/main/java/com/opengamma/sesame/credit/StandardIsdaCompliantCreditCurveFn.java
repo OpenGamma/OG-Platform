@@ -80,7 +80,7 @@ public class StandardIsdaCompliantCreditCurveFn implements IsdaCompliantCreditCu
         _yieldCurveFn.buildIsdaCompliantCurve(env, creditCurveKey.getCurrency());
     
     Result<CreditCurveData> creditCurveDataResult = 
-        _curveDataProviderFn.retrieveCreditCurveData(creditCurveKey);
+        _curveDataProviderFn.retrieveCreditCurveData(env, creditCurveKey);
     
     if (Result.anyFailures(creditCurveDataResult, yieldCurveResult)) {
       return Result.failure(creditCurveDataResult, yieldCurveResult);
