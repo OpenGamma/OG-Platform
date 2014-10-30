@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
 
 import com.google.common.reflect.TypeToken;
 
-import groovy.json.StringEscapeUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 
 /**
  * Helper methods for use when creating {@link ParameterType} instances and converting between arguments and strings.
