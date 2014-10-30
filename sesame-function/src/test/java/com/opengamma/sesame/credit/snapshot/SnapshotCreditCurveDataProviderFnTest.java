@@ -7,6 +7,7 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.DataNotFoundException;
@@ -14,6 +15,7 @@ import com.opengamma.core.link.SnapshotLink;
 import com.opengamma.financial.analytics.isda.credit.CreditCurveData;
 import com.opengamma.financial.analytics.isda.credit.CreditCurveDataKey;
 import com.opengamma.financial.analytics.isda.credit.CreditCurveDataSnapshot;
+import com.opengamma.sesame.Environment;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
@@ -26,6 +28,8 @@ public class SnapshotCreditCurveDataProviderFnTest {
   
   private SnapshotCreditCurveDataProviderFn _fnWithBadLink;
   private SnapshotCreditCurveDataProviderFn _fnWithUSDCurve;
+  private Environment _env;
+  private static final LocalDate VALUATION_DATE = LocalDate.of(2014, 3, 27);
   
   private final CreditCurveDataKey _goodKey = CreditCurveDataKey.builder().curveName("USD").currency(Currency.USD).build();
   private final CreditCurveDataKey _badKey = CreditCurveDataKey.builder().curveName("GBP").currency(Currency.GBP).build();
@@ -33,6 +37,9 @@ public class SnapshotCreditCurveDataProviderFnTest {
   @SuppressWarnings("unchecked")
   @BeforeClass
   public void beforeClass() {
+
+    _env = mock(Environment.class);
+    when(_env.getValuationDate()).thenReturn(VALUATION_DATE);
     
     SnapshotLink<CreditCurveDataSnapshot> badLink = mock(SnapshotLink.class);
     when(badLink.resolve()).thenThrow(new DataNotFoundException("test"));
@@ -50,7 +57,7 @@ public class SnapshotCreditCurveDataProviderFnTest {
   @Test(expectedExceptions = {DataNotFoundException.class})
   public void testFnWithBadLink() {
     
-    Result<CreditCurveData> result = _fnWithBadLink.retrieveCreditCurveData(_goodKey);
+    Result<CreditCurveData> result = _fnWithBadLink.retrieveCreditCurveData(_env,_goodKey);
     
     assertFalse("Link threw exception so function should fail.", result.isSuccess());
     
@@ -59,7 +66,7 @@ public class SnapshotCreditCurveDataProviderFnTest {
   @Test
   public void testFnMissingData() {
     
-    Result<CreditCurveData> result = _fnWithUSDCurve.retrieveCreditCurveData(_badKey);
+    Result<CreditCurveData> result = _fnWithUSDCurve.retrieveCreditCurveData(_env, _badKey);
     
     assertFalse(_badKey + " is missing so result should be failure.", result.isSuccess());
     
@@ -68,7 +75,7 @@ public class SnapshotCreditCurveDataProviderFnTest {
   @Test
   public void testFn() {
     
-    Result<CreditCurveData> result = _fnWithUSDCurve.retrieveCreditCurveData(_goodKey);
+    Result<CreditCurveData> result = _fnWithUSDCurve.retrieveCreditCurveData(_env, _goodKey);
     
     assertTrue(_goodKey + " present in snapshot so should succeed.", result.isSuccess());
     

@@ -11,6 +11,7 @@ import com.opengamma.core.link.SnapshotLink;
 import com.opengamma.financial.analytics.isda.credit.CreditCurveData;
 import com.opengamma.financial.analytics.isda.credit.CreditCurveDataKey;
 import com.opengamma.financial.analytics.isda.credit.CreditCurveDataSnapshot;
+import com.opengamma.sesame.Environment;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
@@ -31,7 +32,7 @@ public class SnapshotCreditCurveDataProviderFn implements CreditCurveDataProvide
   }
 
   @Override
-  public Result<CreditCurveData> retrieveCreditCurveData(CreditCurveDataKey key) {
+  public Result<CreditCurveData> retrieveCreditCurveData(Environment env, CreditCurveDataKey key) {
     CreditCurveDataSnapshot snapshotResult = _snapshotLink.resolve();
     
     Map<CreditCurveDataKey, CreditCurveData> creditCurveDataMap = snapshotResult.getCreditCurves();
