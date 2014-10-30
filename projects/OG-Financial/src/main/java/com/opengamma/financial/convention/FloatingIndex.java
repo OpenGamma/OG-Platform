@@ -135,6 +135,14 @@ public enum FloatingIndex implements NamedInstance {
    */
   NZD_BBR_TELERATE(Currency.NZD, "BBR", "NZD-BBR-Telerate"),
   /**
+   * The NZD-BKBM-FRA ISDA index.
+   */
+  NZD_BKBM_FRA(Currency.NZD, "BBR", "NZD-BBR-FRA"),
+  /**
+   * The NZD-BKBM-Telerate ISDA index.
+   */
+  NZD_BKBM_TELERATE(Currency.NZD, "BKBM", "NZD-BKBM-Telerate"),
+  /**
    * The PLN-WIBOR-WIBO ISDA index.
    */
   PLN_WIBOR_WIBO(Currency.of("PLN"), "WIBOR", "PLN-WIBOR-WIBO"),
