@@ -9,6 +9,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.OvernightIndexConvention;
 import com.opengamma.financial.convention.VanillaIborLegConvention;
 import com.opengamma.financial.security.index.IborIndex;
@@ -22,6 +23,7 @@ import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.SecurityMasterUtils;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.time.Tenor;
 
 /**
  * A tool that allows a convention master to be initialized.
@@ -104,7 +106,15 @@ public abstract class ConventionMasterInitializer {
 
   protected void addIborSecurity(final SecurityMaster securityMaster, final VanillaIborLegConvention convention) {
     ArgumentChecker.notEmpty(convention.getExternalIdBundle(), "externalIdBundle");
-    addSecurity(securityMaster, new IborIndex(convention.getName(), convention.getName(), convention.getResetTenor(), convention.getIborIndexConvention(), convention.getExternalIdBundle()));
+    addSecurity(securityMaster,
+        new IborIndex(convention.getName(), convention.getName(), convention.getResetTenor(),
+                      convention.getIborIndexConvention(), convention.getExternalIdBundle()));
+  }
+
+  protected void addIborSecurity(final SecurityMaster securityMaster, final IborIndexConvention convention, Tenor tenor) {
+    addSecurity(securityMaster,
+                new IborIndex(convention.getName(), convention.getName(), tenor,
+                              convention.getExternalIdBundle().iterator().next(), convention.getExternalIdBundle()));
   }
 
   protected void addOvernightSecurity(final SecurityMaster securityMaster, final OvernightIndexConvention convention) {
