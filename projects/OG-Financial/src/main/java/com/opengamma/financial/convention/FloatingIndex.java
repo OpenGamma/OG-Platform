@@ -137,7 +137,7 @@ public enum FloatingIndex implements NamedInstance {
   /**
    * The NZD-BKBM-FRA ISDA index.
    */
-  NZD_BKBM_FRA(Currency.NZD, "BBR", "NZD-BBR-FRA"),
+  NZD_BKBM_FRA(Currency.NZD, "BKBM", "NZD-BBR-FRA"),
   /**
    * The NZD-BKBM-Telerate ISDA index.
    */
