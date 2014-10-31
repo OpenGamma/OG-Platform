@@ -14,6 +14,8 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.commons.lang.ObjectUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
@@ -29,6 +31,8 @@ import com.opengamma.util.tuple.DoublesPair;
  * The forward rate are computed as the ratio of discount factors stored in {@link YieldAndDiscountCurve}.
  */
 public class MulticurveProviderDiscount implements MulticurveProviderInterface {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(MulticurveProviderDiscount.class);
 
   /**
    * A map with one (discounting) curve by currency.
@@ -454,8 +458,14 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
     if (!_discountingCurves.containsKey(ccy)) {
       _discountingCurves.put(ccy, curve);
       setAllCurves();
-    } else if (!_discountingCurves.get(ccy).equals(curve)) {
-      throw new IllegalArgumentException("Currency discounting curve already set: " + ccy.toString());
+    } else {
+      boolean curvesEqual = _discountingCurves.get(ccy).equals(curve);
+      s_logger.debug("Two {} discounting curves for {}: {} {}",
+                     curvesEqual ? "equal" : "unequal", ccy.getCode(), curve, _discountingCurves.get(ccy));
+
+      if (!curvesEqual) {
+        throw new IllegalArgumentException("Currency discounting curve already set: " + ccy.toString());
+      }
     }
   }
 
