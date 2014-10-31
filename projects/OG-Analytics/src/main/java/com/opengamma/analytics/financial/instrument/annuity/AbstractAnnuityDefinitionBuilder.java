@@ -22,6 +22,7 @@ import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.rolldate.RollDateAdjuster;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -346,9 +347,20 @@ public abstract class AbstractAnnuityDefinitionBuilder<T extends AbstractAnnuity
     return (T) this;
   }
 
+  /**
+   * Sets the stub type at the start of the series of coupons. This is optional and will default to StubType.NONE if unset.
+   * @param startStub the stub type at the end of the series of coupons.
+   * @return itself
+   */
   @SuppressWarnings("unchecked")
   public T startStub(CouponStub startStub) {
+    ArgumentChecker.isFalse(startStub.getStubType() == StubType.SHORT_END ||
+        startStub.getStubType() == StubType.LONG_END, "startStub should be start stub type, but {}",
+        startStub.getStubType());
     _startStub = startStub;
+    if (startStub.getStubType() != StubType.BOTH) {
+      _endStub = null; // reset end stub.
+    }
     return (T) this;
   }
   
@@ -359,7 +371,12 @@ public abstract class AbstractAnnuityDefinitionBuilder<T extends AbstractAnnuity
    */
   @SuppressWarnings("unchecked")
   public T endStub(CouponStub endStub) {
+    ArgumentChecker.isFalse(endStub.getStubType() == StubType.SHORT_START ||
+        endStub.getStubType() == StubType.LONG_START, "endStub should be end stub type, but {}", endStub.getStubType());
     _endStub = endStub;
+    if (endStub.getStubType() != StubType.BOTH) {
+      _startStub = null; // reset start stub.
+    }
     return (T) this;
   }
 
@@ -452,7 +469,7 @@ public abstract class AbstractAnnuityDefinitionBuilder<T extends AbstractAnnuity
   
   protected ZonedDateTime[] getAccrualEndDates(boolean adjusted) {
     StubType stubType = null;
-    if (_startStub != null) {
+    if (_startStub != null && _startStub.getStubType() != StubType.NONE) {
       stubType = _startStub.getStubType();
     } else if (_endStub != null) {
       stubType = _endStub.getStubType();

@@ -408,7 +408,7 @@ private static final PaymentDefinition[] PAYMENT_FIXED_STUB6 = new FixedAnnuityD
     payer(false).currency(USD6MLIBOR3M.getCurrency()).notional(NOTIONAL_PROVIDER).startDate(SPOT_DATE_STUB6.toLocalDate()).
     endDate(END_DATE_STUB6.toLocalDate()).dayCount(USD6MLIBOR3M.getFixedLegDayCount()).
     accrualPeriodFrequency(USD6MLIBOR3M.getFixedLegPeriod()).rate(FIXED_RATE_3M_STUB6).
-    accrualPeriodParameters(ADJUSTED_DATE_USDLIBOR).startStub(CPN_FIXED_STUB6).
+    accrualPeriodParameters(ADJUSTED_DATE_USDLIBOR).endStub(CPN_FIXED_STUB6).
     build().getPayments();
 private static final CouponFixedDefinition[] CPN_FIXED_STUB6_DEFINITION = new CouponFixedDefinition[PAYMENT_FIXED_STUB6.length];
 static {
@@ -416,7 +416,7 @@ static {
     CPN_FIXED_STUB6_DEFINITION[loopcpn] = (CouponFixedDefinition) PAYMENT_FIXED_STUB6[loopcpn];
   }
 }
-private static final CouponStub CPN_IBOR_STUB6 = new CouponStub(StubType.SHORT_START, USDLIBOR1M, USDLIBOR3M);
+private static final CouponStub CPN_IBOR_STUB6 = new CouponStub(StubType.SHORT_END, USDLIBOR1M, USDLIBOR3M);
 private static final AnnuityCouponFixedDefinition LEG_FIXED_STUB6 = 
     new AnnuityCouponFixedDefinition(CPN_FIXED_STUB6_DEFINITION, NYC);
 private static final AnnuityDefinition<? extends CouponDefinition> LEG_IBOR_STUB6 =
@@ -426,7 +426,7 @@ private static final AnnuityDefinition<? extends CouponDefinition> LEG_IBOR_STUB
     accrualPeriodFrequency(P6M).rollDateAdjuster(RollConvention.NONE.getRollDateAdjuster(0)).
     resetDateAdjustmentParameters(ADJUSTED_DATE_USDLIBOR).accrualPeriodParameters(ADJUSTED_DATE_USDLIBOR).
     dayCount(USDLIBOR6M.getDayCount()).fixingDateAdjustmentParameters(OFFSET_FIXING_USDLIBOR).
-    currency(USD).spread(0.0).startStub(CPN_IBOR_STUB6).build();
+    currency(USD).spread(0.0).endStub(CPN_IBOR_STUB6).build();
 private static final SwapCouponFixedCouponDefinition IRS_STUB6_DEFINITION = 
     new SwapCouponFixedCouponDefinition(LEG_FIXED_STUB6, LEG_IBOR_STUB6);
 public static final Swap<? extends Payment, ? extends Payment> IRS_STUB6 = 
