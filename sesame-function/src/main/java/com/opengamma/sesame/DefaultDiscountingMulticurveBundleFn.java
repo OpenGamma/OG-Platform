@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
@@ -89,6 +91,8 @@ import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
  */
 public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticurveBundleFn {
 
+  private static final Logger s_logger = LoggerFactory.getLogger(DefaultDiscountingMulticurveBundleFn.class);
+
   private static final ParSpreadMarketQuoteDiscountingCalculator DISCOUNTING_CALCULATOR =
       ParSpreadMarketQuoteDiscountingCalculator.getInstance();
 
@@ -140,6 +144,16 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
   public Result<MulticurveBundle> generateBundle(
       Environment env, CurveConstructionConfiguration curveConfig,
       Map<CurveConstructionConfiguration, Result<MulticurveBundle>> requiredCurves) {
+
+    if (s_logger.isDebugEnabled()) {
+      List<String> requiredCurveNames = new ArrayList<>(requiredCurves.size());
+
+      for (CurveConstructionConfiguration requiredCurveConfig : requiredCurves.keySet()) {
+        requiredCurveNames.add(requiredCurveConfig.getName());
+      }
+      s_logger.debug("Generating bundle '{}', requiredCurves {}, valuationTime {}",
+                     curveConfig.getName(), requiredCurveNames, env.getValuationTime());
+    }
 
     // Each curve config may have one or more exogenous requirements which basically should
     // point to another curve config (which may point to one or more configs ...)

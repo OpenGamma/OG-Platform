@@ -9,6 +9,9 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
@@ -26,6 +29,8 @@ import com.opengamma.util.tuple.Pairs;
  * selector, combining them into a single multicurve.
  */
 public class ExposureFunctionsDiscountingMulticurveCombinerFn implements DiscountingMulticurveCombinerFn {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(ExposureFunctionsDiscountingMulticurveCombinerFn.class);
 
   /**
    * Generates the market exposure selector. In turn this can be used to get
@@ -50,18 +55,6 @@ public class ExposureFunctionsDiscountingMulticurveCombinerFn implements Discoun
         ArgumentChecker.notNull(marketExposureSelectorFn, "marketExposureSelectorFn");
     _bundleResolver = ArgumentChecker.notNull(bundleResolver, "bundleResolver");
   }
-
-  //@Override
-  //public Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> createMergedMulticurveBundle(
-  //    Environment env, FinancialSecurity security, FXMatrix fxMatrix) {
-  //
-  //  Trade trade = new SimpleTrade(security,
-  //                                BigDecimal.ONE,
-  //                                new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "CPARTY")),
-  //                                LocalDate.now(),
-  //                                OffsetTime.now());
-  //  return createMergedMulticurveBundle(env, trade, fxMatrix);
-  //}
   
   @Override
   public Result<MulticurveBundle> getMulticurveBundle(Environment env, TradeWrapper trade, FXMatrix fxMatrix) {
@@ -76,6 +69,7 @@ public class ExposureFunctionsDiscountingMulticurveCombinerFn implements Discoun
       Set<CurveConstructionConfiguration> curveConfigs = selector.determineCurveConfigurations(trade.getTrade());
       for (CurveConstructionConfiguration curveConfig : curveConfigs) {
 
+        s_logger.debug("Generating bundle '{}', valuationTime {}", curveConfig.getName(), env.getValuationTime());
         Result<MulticurveBundle> bundleResult = _bundleResolver.generateBundle(env, curveConfig);
 
         if (bundleResult.isSuccess()) {
