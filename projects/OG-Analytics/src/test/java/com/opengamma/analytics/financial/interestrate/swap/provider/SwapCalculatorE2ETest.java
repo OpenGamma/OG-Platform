@@ -202,19 +202,19 @@ public class SwapCalculatorE2ETest {
         "IRS with STUB: present value - FF swap based curves");
   }
 
-  @Test(enabled=false) // TODO: reinstall the test when the stub problem [PLAT-6777]
+  @Test
   /**Tests present value for an IRS with stub - ibor leg / interpolated index  - long start.
    * IRS Fixed vs Libor3M - Stub Long Start 6M: Accrual period is 5M30D / fixing rate 6M*/
   public void presentValueStub5() {
-    presentValueTest(SwapInstrumentsDataSet.IRS_STUB5, MULTICURVE_FFS, USD, 0.0,
+    presentValueTest(SwapInstrumentsDataSet.IRS_STUB5, MULTICURVE_FFS, USD, -5492080.770903496,
         "IRS with STUB: present value - FF swap based curves");
   }
   
-  @Test(enabled=false) // TODO: reinstall the test when the stub problem [PLAT-6777]
+  @Test
   /**Tests present value for an IRS with stub - ibor leg / interpolated index  - short end.
    * IRS Fixed vs Libor3M - Short end Stub 2M: Accrual period is 2M / fixing rate average 1M and 3M*/
   public void presentValueStub6() {
-    presentValueTest(SwapInstrumentsDataSet.IRS_STUB6, MULTICURVE_FFS, USD, 0.0,
+    presentValueTest(SwapInstrumentsDataSet.IRS_STUB6, MULTICURVE_FFS, USD, -6372357.25938979,
         "IRS with STUB: present value - FF swap based curves");
   }
 

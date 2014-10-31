@@ -195,8 +195,8 @@ public class FixedAnnuityDefinitionBuilderTest {
           .rollDateAdjuster(RollConvention.NONE.getRollDateAdjuster(0)).accrualPeriodParameters(ADJUSTED_DATE_USDLIBOR)
           .dayCount(USDLIBOR6M.getDayCount()).currency(USD).startStub(CPN_STUB2).build();
   /* Short end */
-  private static final LocalDate START_DATE_STUB3 = LocalDate.of(2014, 3, 14);
-  private static final LocalDate END_DATE_STUB3 = LocalDate.of(2015, 4, 22);
+  private static final LocalDate START_DATE_STUB3 = LocalDate.of(2014, 3, 12);
+  private static final LocalDate END_DATE_STUB3 = LocalDate.of(2015, 5, 12);
   private static final CouponStub CPN_STUB3 = new CouponStub(StubType.SHORT_END);
   private static final AnnuityDefinition<CouponFixedDefinition> LEG_STUB3 = (AnnuityDefinition<CouponFixedDefinition>)
       new FixedAnnuityDefinitionBuilder().payer(true).notional(NOTIONAL_PROV_1).startDate(START_DATE_STUB3)
@@ -217,14 +217,13 @@ public class FixedAnnuityDefinitionBuilderTest {
    * short/long stub type CouponFixedDefinition
    */
   @Test
-  public void stubCouponFixedTest() {
+  public void test() {
     testStub("FixedAnnuityDefinitionBuilder - Stub - long start", LEG_STUB1, true, 5,
         START_DATE_STUB1, END_DATE_STUB1.minus(P1Y));
     testStub("FixedAnnuityDefinitionBuilder - Stub - short start", LEG_STUB2, true, 3,
         START_DATE_STUB2, END_DATE_STUB2.minus(P1Y));
     testStub("FixedAnnuityDefinitionBuilder - Stub - short end", LEG_STUB3, false, 3,
-        ADJUSTED_DATE_USDLIBOR.getBusinessDayConvention().adjustDate(ADJUSTED_DATE_USDLIBOR.getCalendar(),
-            START_DATE_STUB3.plus(P1Y)), END_DATE_STUB3);
+        START_DATE_STUB3.plus(P1Y), END_DATE_STUB3);
     testStub("FixedAnnuityDefinitionBuilder - Stub - long end", LEG_STUB4, false, 3,
         START_DATE_STUB4.plus(P1Y), END_DATE_STUB4);
   }
