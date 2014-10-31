@@ -10,6 +10,10 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
@@ -23,6 +27,8 @@ import com.opengamma.util.result.Result;
  */
 public class DefaultDiscountingMulticurveBundleResolverFn implements DiscountingMulticurveBundleResolverFn {
 
+  private static final Logger s_logger = LoggerFactory.getLogger(DefaultDiscountingMulticurveBundleResolverFn.class);
+
   /**
    * Generates a discounting multicurve bundle.
    */
@@ -35,7 +41,9 @@ public class DefaultDiscountingMulticurveBundleResolverFn implements Discounting
 
   @Override
   public Result<MulticurveBundle> generateBundle(Environment env, CurveConstructionConfiguration curveConfig) {
-    return _multicurveBundleProviderFunction.generateBundle(env, curveConfig, buildRequiredCurves(env, curveConfig));
+    s_logger.debug("Generating bundle '{}', valuationTime {}", curveConfig.getName(), env.getValuationTime());
+    Map<CurveConstructionConfiguration, Result<MulticurveBundle>> requiredCurves = buildRequiredCurves(env, curveConfig);
+    return _multicurveBundleProviderFunction.generateBundle(env, curveConfig, requiredCurves);
   }
 
   @Override
@@ -62,9 +70,9 @@ public class DefaultDiscountingMulticurveBundleResolverFn implements Discounting
     Map<CurveConstructionConfiguration, Result<MulticurveBundle>> builtCurves = new HashMap<>();
 
     for (CurveConstructionConfiguration config : orderedCurves) {
-      builtCurves.put(config, _multicurveBundleProviderFunction.generateBundle(env, config, builtCurves));
+      builtCurves.put(config, _multicurveBundleProviderFunction.generateBundle(env, config,
+                                                                               ImmutableMap.copyOf(builtCurves)));
     }
-
     return builtCurves;
   }
 
