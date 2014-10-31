@@ -53,7 +53,7 @@ public abstract class ErrorNode extends FunctionModelNode {
 
   //-------------------------------------------------------------------------
   @Override
-  protected Object doCreate(ComponentMap componentMap, List<Object> dependencies) {
+  protected Object doCreate(ComponentMap componentMap, List<Object> dependencies, FunctionIdProvider idProvider) {
     throw new OpenGammaRuntimeException("Can't build an invalid graph", _exception);
   }
 

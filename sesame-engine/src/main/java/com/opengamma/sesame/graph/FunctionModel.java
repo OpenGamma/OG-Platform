@@ -194,15 +194,15 @@ public final class FunctionModel {
     return new FunctionModel(functionNode, function);
   }
 
-  // functions built with this method will have a cache that's not shared with any other functions
-  // if that's required an overloaded version will be needed with a FunctionBuilder parameter
   /**
-   * Creates a {@link FunctionModelNode} for a function and its dependencies, builds it and returns the constructed function object.
-   * @param functionType The type of the function, can be an interface or implementation class
-   * @param config Configuration for building the function and its dependencies
-   * @param componentMap Components available for injecting into the function and its dependencies
-   * @param nodeDecorators For inserting nodes between functions to add functionality, e.g. caching,
-   * logging, tracing
+   * Creates a {@link FunctionModelNode} for a function and its dependencies, builds it and returns the constructed
+   * function object.
+   *
+   * @param functionType the type of the function, can be an interface or implementation class
+   * @param config configuration for building the function and its dependencies
+   * @param componentMap components available for injecting into the function and its dependencies
+   * @param nodeDecorators for inserting nodes between functions to add functionality, e.g. caching,
+   *   logging, tracing
    * @param <T> The type of the function
    * @return The constructed function, not null
    */
@@ -210,7 +210,27 @@ public final class FunctionModel {
                             FunctionModelConfig config,
                             ComponentMap componentMap,
                             NodeDecorator... nodeDecorators) {
-    FunctionBuilder functionBuilder = new FunctionBuilder();
+    return build(functionType, config, componentMap, new FunctionBuilder(), nodeDecorators);
+  }
+
+  /**
+   * Creates a {@link FunctionModelNode} for a function and its dependencies, builds it and returns the constructed
+   * function object.
+   *
+   * @param functionType the type of the function, can be an interface or implementation class
+   * @param config configuration for building the function and its dependencies
+   * @param componentMap components available for injecting into the function and its dependencies
+   * @param functionBuilder builds the function instances
+   * @param nodeDecorators for inserting nodes between functions to add functionality, e.g. caching,
+   *   logging, tracing
+   * @param <T> The type of the function
+   * @return The constructed function, not null
+   */
+  public static <T> T build(Class<T> functionType,
+                            FunctionModelConfig config,
+                            ComponentMap componentMap,
+                            FunctionBuilder functionBuilder,
+                            NodeDecorator... nodeDecorators) {
     NodeDecorator nodeDecorator = CompositeNodeDecorator.compose(nodeDecorators);
     FunctionModelNode node = FunctionModelNode.create(functionType,
                                                       config,

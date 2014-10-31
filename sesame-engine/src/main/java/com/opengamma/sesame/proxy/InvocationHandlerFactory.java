@@ -5,6 +5,7 @@
  */
 package com.opengamma.sesame.proxy;
 
+import com.opengamma.sesame.graph.FunctionIdProvider;
 import com.opengamma.sesame.graph.ProxyNode;
 
 /**
@@ -14,18 +15,15 @@ import com.opengamma.sesame.graph.ProxyNode;
  * provides a level of indirection that separates the node decoration from handler creation.
  */
 public interface InvocationHandlerFactory {
-// TODO this is fatally flawed. this is part of the node which means it must be serializable
-// but that's never going to work for any non-trivial proxy which needs to hook into the system (e.g. caching)
-// should the create() method take a ComponentMap?
-// could the proxy just have a ref to the type of the factory and get one from the component map?
 
   /**
    * Creates a handler for a proxy that sits in front of the delegate.
    *
    * @param delegate  the object being proxied, not null
    * @param node  the proxy node, not null
+   * @param functionIdProvider provides unique IDs for function instances
    * @return a handler that provides the proxy behaviour, not null
    */
-  ProxyInvocationHandler create(Object delegate, ProxyNode node);
+  ProxyInvocationHandler create(Object delegate, ProxyNode node, FunctionIdProvider functionIdProvider);
 
 }

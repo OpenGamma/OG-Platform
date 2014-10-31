@@ -664,10 +664,12 @@ public class ViewFactoryTest {
     ViewConfig viewConfig =
         configureView(
             "test view",
-            config(implementations(TestFn.class, Impl.class)),
+            config(implementations(CacheFn1.class, Impl1.class,
+                                   CacheFn2.class, Impl2.class,
+                                   RootFn.class, RootImpl.class)),
             column("Foo"));
 
-    ViewFactory viewFactory = createViewFactory(TestFn.class);
+    ViewFactory viewFactory = createViewFactory(RootFn.class);
     View view = viewFactory.createView(viewConfig, EquitySecurity.class);
     CycleMarketDataFactory cycleMarketDataFactory = mock(CycleMarketDataFactory.class);
     when(cycleMarketDataFactory.getPrimaryMarketDataSource()).thenReturn(mock(MarketDataSource.class));
@@ -697,10 +699,12 @@ public class ViewFactoryTest {
     ViewConfig viewConfig =
         configureView(
             "test view",
-            config(implementations(TestFn.class, Impl.class)),
+            config(implementations(CacheFn1.class, Impl1.class,
+                                   CacheFn2.class, Impl2.class,
+                                   RootFn.class, RootImpl.class)),
             column("Foo"));
 
-    ViewFactory viewFactory = createViewFactory(TestFn.class);
+    ViewFactory viewFactory = createViewFactory(RootFn.class);
     View view1 = viewFactory.createView(viewConfig, EquitySecurity.class);
     View view2 = viewFactory.createView(viewConfig, EquitySecurity.class);
 
@@ -733,7 +737,9 @@ public class ViewFactoryTest {
     ViewConfig viewConfig =
         configureView(
             "test view",
-            config(implementations(TestFn.class, Impl.class),
+            config(implementations(CacheFn1.class, Impl1.class,
+                                   CacheFn2.class, Impl2.class,
+                                   RootFn.class, RootImpl.class),
                    arguments(function(CacheClearingFn.class, argument("viewFactory", viewFactory)))),
             column("Bar"));
     View view = viewFactory.createView(viewConfig, EquitySecurity.class);
@@ -753,19 +759,38 @@ public class ViewFactoryTest {
     assertFalse(values1.get(0).equals(values2.get(0)));
   }
 
-  public interface TestFn {
+  public interface CacheFn1 {
 
     @Cacheable
-    @Output("Foo")
-    int foo(EquitySecurity arg);
+    int bar(EquitySecurity arg);
   }
 
-  public static class Impl implements TestFn {
+  public static class Impl1 implements CacheFn1 {
+
+    private final CacheFn2 _cacheFn2;
+
+    public Impl1(CacheFn2 cacheFn2) {
+      _cacheFn2 = cacheFn2;
+    }
+
+    @Override
+    public int bar(EquitySecurity arg) {
+      return _cacheFn2.bar(arg);
+    }
+  }
+
+  public interface CacheFn2 {
+
+    @Cacheable
+    int bar(EquitySecurity arg);
+  }
+
+  public static class Impl2 implements CacheFn2 {
 
     private static int i = 0;
 
     @Override
-    public int foo(EquitySecurity arg) {
+    public int bar(EquitySecurity arg) {
       return i++;
     }
   }
@@ -773,25 +798,45 @@ public class ViewFactoryTest {
   public static class CacheClearingFn {
 
     private final ViewFactory _viewFactory;
-    private final TestFn _testFn;
+    private final RootFn _rootFn;
 
-    public CacheClearingFn(ViewFactory viewFactory, TestFn testFn) {
+    public CacheClearingFn(ViewFactory viewFactory, RootFn rootFn) {
       _viewFactory = viewFactory;
-      _testFn = testFn;
+      _rootFn = rootFn;
     }
 
     /**
-     * Calls {@link TestFn#foo} twice, clearing the cache between the calls, and returns a list of the return values.
+     * Calls {@link CacheFn1#bar} twice, clearing the cache between the calls, and returns a list of the return values.
      * {@code foo()} returns a different value on each call, so the values will only be equal if the second one
      * is retrieved from the cache. This confirms that clearing the cache has no effect on a running cycle.
      */
     @Output("Bar")
     public List<Integer> getValues(EquitySecurity arg) {
       List<Integer> values = new ArrayList<>();
-      values.add(_testFn.foo(arg));
+      values.add(_rootFn.foo(arg));
       _viewFactory.clearCache();
-      values.add(_testFn.foo(arg));
+      values.add(_rootFn.foo(arg));
       return values;
+    }
+  }
+
+  public interface RootFn {
+
+    @Output("Foo")
+    int foo(EquitySecurity arg);
+  }
+
+  public static class RootImpl implements RootFn {
+
+    private final CacheFn1 _cacheFn1;
+
+    public RootImpl(CacheFn1 cacheFn1) {
+      _cacheFn1 = cacheFn1;
+    }
+
+    @Override
+    public int foo(EquitySecurity arg) {
+      return _cacheFn1.bar(arg);
     }
   }
 }

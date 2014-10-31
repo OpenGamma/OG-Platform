@@ -41,6 +41,8 @@ import com.opengamma.sesame.function.scenarios.AbstractScenarioArgument;
 import com.opengamma.sesame.function.scenarios.FilteredScenarioDefinition;
 import com.opengamma.sesame.function.scenarios.ScenarioFunction;
 import com.opengamma.sesame.graph.FunctionBuilder;
+import com.opengamma.sesame.graph.FunctionId;
+import com.opengamma.sesame.graph.FunctionIdProvider;
 import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.sesame.marketdata.FieldName;
 import com.opengamma.sesame.marketdata.MarketDataSource;
@@ -60,14 +62,16 @@ public class CachingProxyDecoratorTest {
   public void oneLookup() throws Exception {
     FunctionModelConfig config = config(implementations(TestFn.class, Impl.class),
                                         arguments(function(Impl.class, argument("s", "s"))));
+    FunctionBuilder functionBuilder = new FunctionBuilder();
     CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheProvider);
     FunctionMetadata metadata = EngineUtils.createMetadata(TestFn.class, "foo");
     FunctionModel functionModel = FunctionModel.forFunction(metadata, config, NO_COMPONENTS, cachingDecorator);
-    TestFn fn = (TestFn) functionModel.build(new FunctionBuilder(), ComponentMap.EMPTY).getReceiver();
+    TestFn fn = (TestFn) functionModel.build(functionBuilder, ComponentMap.EMPTY).getReceiver();
     Method foo = EngineUtils.getMethod(TestFn.class, "foo");
     CachingProxyDecorator.Handler invocationHandler = (CachingProxyDecorator.Handler) Proxy.getInvocationHandler(fn);
     Impl delegate = (Impl) invocationHandler.getDelegate();
-    MethodInvocationKey key = new MethodInvocationKey(delegate, foo, new Object[]{"bar"});
+    FunctionId functionId = functionBuilder.getFunctionId(delegate);
+    MethodInvocationKey key = new MethodInvocationKey(functionId, foo, new Object[]{"bar"});
 
     Object results = fn.foo("bar");
     Object value = _cacheProvider.get().getIfPresent(key);
@@ -80,9 +84,9 @@ public class CachingProxyDecoratorTest {
   public void multipleFunctions() {
     FunctionModelConfig config = config(implementations(TestFn.class, Impl.class),
                                         arguments(function(Impl.class, argument("s", "s"))));
+    FunctionBuilder functionBuilder = new FunctionBuilder();
     CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheProvider);
     FunctionMetadata metadata = EngineUtils.createMetadata(TestFn.class, "foo");
-    FunctionBuilder functionBuilder = new FunctionBuilder();
 
     FunctionModel functionModel1 = FunctionModel.forFunction(metadata, config, NO_COMPONENTS, cachingDecorator);
     TestFn fn1 = (TestFn) functionModel1.build(functionBuilder, ComponentMap.EMPTY).getReceiver();
@@ -101,10 +105,11 @@ public class CachingProxyDecoratorTest {
   public void multipleCalls() {
     FunctionModelConfig config = config(implementations(TestFn.class, Impl.class),
                                         arguments(function(Impl.class, argument("s", "s"))));
+    FunctionBuilder functionBuilder = new FunctionBuilder();
     CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheProvider);
     FunctionMetadata metadata = EngineUtils.createMetadata(TestFn.class, "foo");
     FunctionModel functionModel = FunctionModel.forFunction(metadata, config, NO_COMPONENTS, cachingDecorator);
-    TestFn fn = (TestFn) functionModel.build(new FunctionBuilder(), ComponentMap.EMPTY).getReceiver();
+    TestFn fn = (TestFn) functionModel.build(functionBuilder, ComponentMap.EMPTY).getReceiver();
     assertSame(fn.foo("bar"), fn.foo("bar"));
   }
 
@@ -115,9 +120,9 @@ public class CachingProxyDecoratorTest {
     FunctionModelConfig config2 = config(implementations(TestFn.class, Impl.class),
                                          arguments(function(Impl.class, argument("s", "a different string"))));
     FunctionMetadata metadata = EngineUtils.createMetadata(TestFn.class, "foo");
+    FunctionBuilder functionBuilder = new FunctionBuilder();
     CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheProvider);
 
-    FunctionBuilder functionBuilder = new FunctionBuilder();
     FunctionModel functionModel1 = FunctionModel.forFunction(metadata, config1, NO_COMPONENTS, cachingDecorator);
     TestFn fn1 = (TestFn) functionModel1.build(functionBuilder, ComponentMap.EMPTY).getReceiver();
     FunctionModel functionModel2 = FunctionModel.forFunction(metadata, config2, NO_COMPONENTS, cachingDecorator);
@@ -262,11 +267,12 @@ public class CachingProxyDecoratorTest {
     CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheProvider);
     FunctionMetadata metadata = EngineUtils.createMetadata(TestFn2.class, "foo");
     FunctionModel functionModel = FunctionModel.forFunction(metadata, config, NO_COMPONENTS, cachingDecorator);
-    TestFn2 fn = (TestFn2) functionModel.build(new FunctionBuilder(), ComponentMap.EMPTY).getReceiver();
+    FunctionBuilder functionBuilder = new FunctionBuilder();
+    TestFn2 fn = (TestFn2) functionModel.build(functionBuilder, ComponentMap.EMPTY).getReceiver();
     Method foo = EngineUtils.getMethod(TestFn2.class, "foo");
     CachingProxyDecorator.Handler invocationHandler = (CachingProxyDecorator.Handler) Proxy.getInvocationHandler(fn);
     Impl2 delegate = (Impl2) invocationHandler.getDelegate();
-    MethodInvocationKey key = new MethodInvocationKey(delegate, foo, new Object[]{"bar"});
+    MethodInvocationKey key = new MethodInvocationKey(functionBuilder.getFunctionId(delegate), foo, new Object[]{"bar"});
 
     Object results = fn.foo("bar");
     Object value = _cacheProvider.get().getIfPresent(key);
@@ -292,13 +298,19 @@ public class CachingProxyDecoratorTest {
   /** Check the expected cache keys are pushed onto a thread local stack while a cacheable method executes. */
   @Test
   public void executingMethods() {
+    FunctionBuilder functionBuilder = new FunctionBuilder();
     FunctionModelConfig config = config(implementations(ExecutingMethodsI1.class, ExecutingMethodsC1.class,
                                                         ExecutingMethodsI2.class, ExecutingMethodsC2.class));
     ExecutingMethodsThreadLocal executingMethods = new ExecutingMethodsThreadLocal();
-    ComponentMap components = ComponentMap.of(ImmutableMap.<Class<?>, Object>of(ExecutingMethodsThreadLocal.class,
-                                                                                executingMethods));
+    ImmutableMap<Class<?>, Object> components = ImmutableMap.of(ExecutingMethodsThreadLocal.class, executingMethods,
+                                                                FunctionIdProvider.class, functionBuilder);
+    ComponentMap componentMap = ComponentMap.of(components);
     CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheProvider, executingMethods);
-    ExecutingMethodsI1 i1 = FunctionModel.build(ExecutingMethodsI1.class, config, components, cachingDecorator);
+    ExecutingMethodsI1 i1 = FunctionModel.build(ExecutingMethodsI1.class,
+                                                config,
+                                                componentMap,
+                                                functionBuilder,
+                                                cachingDecorator);
     i1.fn("s", 1);
   }
 
@@ -312,10 +324,14 @@ public class CachingProxyDecoratorTest {
   public static class ExecutingMethodsC1 implements ExecutingMethodsI1 {
 
     private final ExecutingMethodsI2 _i2;
+    private final FunctionIdProvider _functionIdProvider;
     private final ExecutingMethodsThreadLocal _executingMethods;
 
-    public ExecutingMethodsC1(ExecutingMethodsI2 i2, ExecutingMethodsThreadLocal executingMethods) {
+    public ExecutingMethodsC1(ExecutingMethodsI2 i2,
+                              ExecutingMethodsThreadLocal executingMethods,
+                              FunctionIdProvider functionIdProvider) {
       _i2 = i2;
+      _functionIdProvider = functionIdProvider;
       // this is a bit grubby but necessary so the method keys can be checked
       CachingProxyDecorator.Handler handler = (CachingProxyDecorator.Handler) Proxy.getInvocationHandler(i2);
       ExecutingMethodsC2 c2 = (ExecutingMethodsC2) handler.getDelegate();
@@ -326,7 +342,8 @@ public class CachingProxyDecoratorTest {
     @Override
     public Object fn(String s, int i) {
       Method fn = EngineUtils.getMethod(ExecutingMethodsI1.class, "fn");
-      MethodInvocationKey key = new MethodInvocationKey(this, fn, new Object[]{s, i});
+      FunctionId functionId = _functionIdProvider.getFunctionId(this);
+      MethodInvocationKey key = new MethodInvocationKey(functionId, fn, new Object[]{s, i});
       LinkedList<MethodInvocationKey> expected = Lists.newLinkedList();
       expected.add(key);
       assertEquals(expected, _executingMethods.get());
@@ -345,19 +362,23 @@ public class CachingProxyDecoratorTest {
   public static class ExecutingMethodsC2 implements ExecutingMethodsI2 {
 
     private final ExecutingMethodsThreadLocal _executingMethods;
+    private final FunctionIdProvider _functionIdProvider;
 
     private ExecutingMethodsC1 _c1;
 
-    public ExecutingMethodsC2(ExecutingMethodsThreadLocal executingMethods) {
+    public ExecutingMethodsC2(ExecutingMethodsThreadLocal executingMethods, FunctionIdProvider functionIdProvider) {
       _executingMethods = executingMethods;
+      _functionIdProvider = functionIdProvider;
     }
 
     @Override
     public Object fn(String s, int i, String s2) {
       Method fn1 = EngineUtils.getMethod(ExecutingMethodsI1.class, "fn");
-      MethodInvocationKey key1 = new MethodInvocationKey(_c1, fn1, new Object[]{s, i});
+      FunctionId id1 = _functionIdProvider.getFunctionId(_c1);
+      MethodInvocationKey key1 = new MethodInvocationKey(id1, fn1, new Object[]{s, i});
       Method fn2 = EngineUtils.getMethod(ExecutingMethodsI2.class, "fn");
-      MethodInvocationKey key2 = new MethodInvocationKey(this, fn2, new Object[]{s, i, s2});
+      FunctionId thisId = _functionIdProvider.getFunctionId(this);
+      MethodInvocationKey key2 = new MethodInvocationKey(thisId, fn2, new Object[]{s, i, s2});
       LinkedList<MethodInvocationKey> expected = Lists.newLinkedList();
       expected.add(key2);
       expected.add(key1);
@@ -375,7 +396,8 @@ public class CachingProxyDecoratorTest {
     FunctionModelConfig config = config(implementations(Fn1.class, ScenarioImpl1.class,
                                                         Fn2.class, ScenarioImpl2.class));
     CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheProvider);
-    Fn1 i1 = FunctionModel.build(Fn1.class, config, ComponentMap.EMPTY, cachingDecorator);
+    FunctionBuilder functionBuilder = new FunctionBuilder();
+    Fn1 i1 = FunctionModel.build(Fn1.class, config, ComponentMap.EMPTY, functionBuilder, cachingDecorator);
     ZonedDateTime valuationTime = ZonedDateTime.now();
     MarketDataSource marketDataSource = new MarketDataSource() {
       @Override
@@ -401,13 +423,15 @@ public class CachingProxyDecoratorTest {
 
     ScenarioImpl1 c1 = (ScenarioImpl1) EngineUtils.getProxiedObject(i1);
     ScenarioImpl2 c2 = (ScenarioImpl2) EngineUtils.getProxiedObject(c1._fn2);
+    FunctionId id1 = functionBuilder.getFunctionId(c1);
+    FunctionId id2 = functionBuilder.getFunctionId(c2);
     Method method1 = EngineUtils.getMethod(Fn1.class, "fn");
     Method method2 = EngineUtils.getMethod(Fn2.class, "fn");
 
-    checkValueIsInCache(env1, "s1", 1, c1, method1, "S1 1");
-    checkValueIsInCache(env1, "s2", 2, c1, method1, "S2 2");
-    checkValueIsInCache(env2, "s1", 1, c2, method2, "s1 1");
-    checkValueIsInCache(env2, "s2", 2, c2, method2, "s2 2");
+    checkValueIsInCache(env1, "s1", 1, id1, method1, "S1 1");
+    checkValueIsInCache(env1, "s2", 2, id1, method1, "S2 2");
+    checkValueIsInCache(env2, "s1", 1, id2, method2, "s1 1");
+    checkValueIsInCache(env2, "s2", 2, id2, method2, "s2 2");
   }
 
   /**
@@ -418,17 +442,17 @@ public class CachingProxyDecoratorTest {
    * @param env  the environment argument to the method
    * @param stringArg  the string argument to the method
    * @param intArg  the int argument to the method
-   * @param receiver  the receiver of the method call
+   * @param functionId  the ID of the function receiving the method call
    * @param method  the method called
    * @param expectedValue  the value that should be in the cache
    */
   private void checkValueIsInCache(Environment env,
                                    String stringArg,
                                    int intArg,
-                                   Object receiver,
+                                   FunctionId functionId,
                                    Method method,
                                    String expectedValue) throws InterruptedException, ExecutionException {
-    MethodInvocationKey key = new MethodInvocationKey(receiver, method, new Object[]{env, stringArg, intArg});
+    MethodInvocationKey key = new MethodInvocationKey(functionId, method, new Object[]{env, stringArg, intArg});
     Object value = _cacheProvider.get().getIfPresent(key);
     assertNotNull(value);
     assertEquals(expectedValue, value);

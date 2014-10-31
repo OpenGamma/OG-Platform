@@ -30,7 +30,7 @@ public final class ComponentNode extends FunctionModelNode {
 
   //-------------------------------------------------------------------------
   @Override
-  protected Object doCreate(ComponentMap componentMap, List<Object> dependencies) {
+  protected Object doCreate(ComponentMap componentMap, List<Object> dependencies, FunctionIdProvider idProvider) {
     return componentMap.getComponent(getType());
   }
 

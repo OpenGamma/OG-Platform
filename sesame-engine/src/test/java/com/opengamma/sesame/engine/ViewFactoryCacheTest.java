@@ -59,8 +59,9 @@ public class ViewFactoryCacheTest {
             "view name",
             column(
                 "Foo",
-                config(implementations(TestFn.class, Impl.class),
-                       arguments(function(Impl.class, argument("s", "s"))))));
+                config(
+                    implementations(TestFn.class, Impl.class),
+                    arguments(function(Impl.class, argument("s", "s"))))));
     ViewFactory viewFactory = createViewFactory();
     View view = viewFactory.createView(viewConfig, String.class);
     ZonedDateTime now = ZonedDateTime.now();
@@ -81,22 +82,25 @@ public class ViewFactoryCacheTest {
   public void cacheIsNotSharedBetweenRunsWhenCapturingCycle() {
     ThreadLocalServiceContext.init(ServiceContext.of(ImmutableMap.<Class<?>, Object>of()));
     ViewConfig viewConfig =
-        configureView("view name",
-                      column("Foo",
-                             config(implementations(TestFn.class, Impl.class),
-                                    arguments(function(Impl.class, argument("s", "s"))))));
+        configureView(
+            "view name",
+            column(
+                "Foo",
+                config(
+                    implementations(TestFn.class, Impl.class),
+                    arguments(function(Impl.class, argument("s", "s"))))));
     ViewFactory viewFactory = createViewFactory();
     View view = viewFactory.createView(viewConfig, String.class);
     ZonedDateTime now = ZonedDateTime.now();
     CycleMarketDataFactory cycleMarketDataFactory = mock(CycleMarketDataFactory.class);
-    when(cycleMarketDataFactory.getPrimaryMarketDataSource()).thenReturn(new DefaultStrategyAwareMarketDataSource(
-        LiveMarketDataSpecification.LIVE_SPEC, MapMarketDataSource.of()));
+    when(cycleMarketDataFactory.getPrimaryMarketDataSource()).thenReturn(
+        new DefaultStrategyAwareMarketDataSource(LiveMarketDataSpecification.LIVE_SPEC, MapMarketDataSource.of()));
     CycleArguments cycleArguments = new CycleArguments(now, VersionCorrection.LATEST, cycleMarketDataFactory, true);
     Results results1 = view.run(cycleArguments, ImmutableList.of("bar"));
     Results results2 = view.run(cycleArguments, ImmutableList.of("bar"));
     assertNotSame(results1.get(0, 0).getResult().getValue(), results2.get(0, 0).getResult().getValue());
-    assertNotNull(results1.getViewInputs());
     assertNotNull(results2.getViewInputs());
+    assertNotNull(results1.getViewInputs());
   }
 
   /**
@@ -105,10 +109,13 @@ public class ViewFactoryCacheTest {
   @Test
   public void cacheIsSharedBetweenViews() {
     ViewConfig viewConfig =
-        configureView("view name",
-                      column("Foo",
-                             config(implementations(TestFn.class, Impl.class),
-                                    arguments(function(Impl.class, argument("s", "s"))))));
+        configureView(
+            "view name",
+            column(
+                "Foo",
+                config(
+                    implementations(TestFn.class, Impl.class),
+                    arguments(function(Impl.class, argument("s", "s"))))));
     ViewFactory viewFactory = createViewFactory();
     View view1 = viewFactory.createView(viewConfig, String.class);
     View view2 = viewFactory.createView(viewConfig, String.class);

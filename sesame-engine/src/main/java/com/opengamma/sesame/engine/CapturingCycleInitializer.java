@@ -83,7 +83,8 @@ class CapturingCycleInitializer implements CycleInitializer {
     // If we are capturing the inputs then we don't want to use
     // memoized functions from the normal cache as that would
     // prevent us hitting the sources
-    _graph = graphModel.build(wrappedComponents, new FunctionBuilder());
+    FunctionBuilder functionBuilder = new FunctionBuilder(false);
+    _graph = graphModel.build(wrappedComponents, functionBuilder);
 
     _cycleMarketDataFactory = proxiedCycleMarketData;
     _serviceContext = serviceContext.with(wrappedComponents.getComponents());
