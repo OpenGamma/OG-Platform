@@ -14,6 +14,7 @@ import com.opengamma.financial.convention.OvernightIndexConvention;
 import com.opengamma.financial.convention.VanillaIborLegConvention;
 import com.opengamma.financial.security.index.IborIndex;
 import com.opengamma.financial.security.index.OvernightIndex;
+import com.opengamma.id.ExternalId;
 import com.opengamma.master.convention.ConventionDocument;
 import com.opengamma.master.convention.ConventionMaster;
 import com.opengamma.master.convention.ConventionSearchRequest;
@@ -23,6 +24,7 @@ import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.SecurityMasterUtils;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 
 /**
@@ -36,8 +38,33 @@ import com.opengamma.util.time.Tenor;
  */
 public abstract class ConventionMasterInitializer {
 
+  /**
+   * Convention string reference.
+   */
+  protected static final String CONV = PerCurrencyConventionHelper.SCHEME_NAME;
+
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(ConventionMasterInitializer.class);
+
+  protected String liborConvention(Currency ccy) {
+    return ccy.getCode() + PerCurrencyConventionHelper.LIBOR_CONV;
+  }
+
+  protected ExternalId liborConventionId(Currency ccy, Tenor tenor) {
+    return ExternalId.of(CONV, liborConvention(ccy) + tenor.toFormattedString().substring(1));
+  }
+
+  protected ExternalId oisLegId(Currency ccy) {
+    return ExternalId.of(CONV, ccy.getCode() + PerCurrencyConventionHelper.OIS_ON_LEG);
+  }
+
+  protected ExternalId fixLegId(Currency ccy) {
+    return ExternalId.of(CONV, ccy.getCode() + PerCurrencyConventionHelper.IRS_FIXED_LEG);
+  }
+
+  protected ExternalId oisFixLegId(Currency ccy) {
+    return ExternalId.of(CONV, ccy.getCode() + PerCurrencyConventionHelper.OIS_FIXED_LEG);
+  }
 
   /**
    * Initializes the specified master.
