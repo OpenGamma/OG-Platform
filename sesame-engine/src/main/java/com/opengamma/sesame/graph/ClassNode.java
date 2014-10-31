@@ -59,7 +59,7 @@ public class ClassNode extends DependentNode {
 
   //-------------------------------------------------------------------------
   @Override
-  protected Object doCreate(ComponentMap componentMap, List<Object> dependencies) {
+  protected Object doCreate(ComponentMap componentMap, List<Object> dependencies, FunctionIdProvider idProvider) {
     try {
       return _constructor.newInstance(dependencies.toArray());
     } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {

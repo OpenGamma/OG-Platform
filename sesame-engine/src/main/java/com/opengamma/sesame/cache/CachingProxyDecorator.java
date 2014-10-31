@@ -20,6 +20,8 @@ import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.config.EngineUtils;
 import com.opengamma.sesame.function.scenarios.FilteredScenarioDefinition;
 import com.opengamma.sesame.graph.ClassNode;
+import com.opengamma.sesame.graph.FunctionId;
+import com.opengamma.sesame.graph.FunctionIdProvider;
 import com.opengamma.sesame.graph.FunctionModelNode;
 import com.opengamma.sesame.graph.InterfaceNode;
 import com.opengamma.sesame.graph.NodeDecorator;
@@ -131,7 +133,7 @@ public class CachingProxyDecorator extends NodeDecorator {
     }
 
     @Override
-    public ProxyInvocationHandler create(Object delegate, ProxyNode node) {
+    public ProxyInvocationHandler create(Object delegate, ProxyNode node, FunctionIdProvider functionIdProvider) {
       Set<Method> cachedMethods = Sets.newHashSet();
       for (Method method : _interfaceType.getMethods()) {
         if (method.getAnnotation(Cacheable.class) != null) {
@@ -153,7 +155,7 @@ public class CachingProxyDecorator extends NodeDecorator {
           }
         }
       }
-      return new Handler(delegate, cachedMethods, _cacheProvider, _executingMethods, _subtreeTypes);
+      return new Handler(delegate, cachedMethods, _cacheProvider, _executingMethods, _subtreeTypes, functionIdProvider);
     }
 
     @Override
@@ -189,24 +191,26 @@ public class CachingProxyDecorator extends NodeDecorator {
   /* package */ static final class Handler extends AbstractProxyInvocationHandler {
 
     private final Object _delegate;
-    private final Object _proxiedObject;
     private final Set<Method> _cachedMethods;
     private final CacheProvider _cacheProvider;
     private final ExecutingMethodsThreadLocal _executingMethods;
     private final Set<Class<?>> _subtreeTypes;
+    private final FunctionId _functionId;
 
     private Handler(Object delegate,
                     Set<Method> cachedMethods,
                     CacheProvider cacheProvider,
                     ExecutingMethodsThreadLocal executingMethods,
-                    Set<Class<?>> subtreeTypes) {
+                    Set<Class<?>> subtreeTypes,
+                    FunctionIdProvider functionIdProvider) {
       super(delegate);
       _subtreeTypes = ArgumentChecker.notNull(subtreeTypes, "subtreeTypes");
       _cacheProvider = ArgumentChecker.notNull(cacheProvider, "cache");
       _executingMethods = ArgumentChecker.notNull(executingMethods, "executingMethods");
       _delegate = ArgumentChecker.notNull(delegate, "delegate");
       _cachedMethods = ArgumentChecker.notNull(cachedMethods, "cachedMethods");
-      _proxiedObject = EngineUtils.getProxiedObject(delegate);
+      Object proxiedObject = EngineUtils.getProxiedObject(delegate);
+      _functionId = functionIdProvider.getFunctionId(proxiedObject);
     }
 
     /**
@@ -228,8 +232,8 @@ public class CachingProxyDecorator extends NodeDecorator {
       // check if the method is annotated with @Cacheable.
       if (_cachedMethods.contains(method)) { // the method is @Cacheable
         Object[] keyArgs = getArgumentsForCacheKey(args);
-        // create a key representing the method call - the receiver, the method and its arguments
-        MethodInvocationKey key = new MethodInvocationKey(_proxiedObject, method, keyArgs);
+        // create a key representing the method call - the receiver's ID, the method and its arguments
+        MethodInvocationKey key = new MethodInvocationKey(_functionId, method, keyArgs);
         // create a task to calculate the value if it's not in the cache - calls the underlying method
         CallableMethod calculationTask = new CallableMethod(key, method, args);
         // get the value from the cache - if it's not already present it's calculated

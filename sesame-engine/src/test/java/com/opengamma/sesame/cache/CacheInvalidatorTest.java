@@ -32,15 +32,22 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.sesame.EngineTestUtils;
 import com.opengamma.sesame.config.EngineUtils;
+import com.opengamma.sesame.graph.FunctionId;
 import com.opengamma.sesame.marketdata.MarketDataSource;
 import com.opengamma.util.test.TestGroup;
 
 @Test(groups = TestGroup.UNIT)
 public class CacheInvalidatorTest {
 
-  private static final MethodInvocationKey METHOD_KEY_1 = methodKey(new ArrayList<>(), "subList", new Object[]{1, 2});
-  private static final MethodInvocationKey METHOD_KEY_2 = methodKey(new LinkedList<>(), "set", new Object[]{3, "foo"});
-  private static final MethodInvocationKey METHOD_KEY_3 = methodKey(new ArrayList<>(), "size", null);
+  private static final MethodInvocationKey METHOD_KEY_1 =
+      methodKey(FunctionId.of(1), new ArrayList<>(), "subList", new Object[]{1, 2});
+
+  private static final MethodInvocationKey METHOD_KEY_2 =
+      methodKey(FunctionId.of(1), new LinkedList<>(), "set", new Object[]{3, "foo"});
+
+  private static final MethodInvocationKey METHOD_KEY_3 =
+      methodKey(FunctionId.of(1), new ArrayList<>(), "size", null);
+
   private static final Callable<Object> CALLABLE = Callables.returning(null);
 
   private final Cache<MethodInvocationKey, Object> _cache = EngineTestUtils.createCacheProvider().get();
@@ -52,9 +59,9 @@ public class CacheInvalidatorTest {
     _cache.put(METHOD_KEY_3, new FutureTask<>(CALLABLE));
   }
 
-  private static MethodInvocationKey methodKey(Object receiver, String methodName, Object[] args) {
+  private static MethodInvocationKey methodKey(FunctionId functionId, Object receiver, String methodName, Object[] args) {
     Method method = EngineUtils.getMethod(receiver.getClass(), methodName);
-    return new MethodInvocationKey(receiver, method, args);
+    return new MethodInvocationKey(functionId, method, args);
   }
 
   /**

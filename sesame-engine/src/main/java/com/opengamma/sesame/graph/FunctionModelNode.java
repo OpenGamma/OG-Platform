@@ -424,10 +424,11 @@ public abstract class FunctionModelNode {
    * 
    * @param componentMap  the map of infrastructure components, not null
    * @param dependencies  the dependencies of this node, not null
+   * @param functionIdProvider provides unique IDs for function instances
    * @return the object represented by this node, may be null
    */
-  public Object create(ComponentMap componentMap, List<Object> dependencies) {
-    Object object = doCreate(componentMap, dependencies);
+  public Object create(ComponentMap componentMap, List<Object> dependencies, FunctionIdProvider functionIdProvider) {
+    Object object = doCreate(componentMap, dependencies, functionIdProvider);
     if (object instanceof Provider) {
       // TODO some slightly more robust checking of compatibility of types
       // TODO what's the logic I actually need here?
@@ -449,9 +450,10 @@ public abstract class FunctionModelNode {
    * 
    * @param componentMap  the map of infrastructure components, not null
    * @param dependencies  the dependencies of this node, not null
+   * @param idProvider provides unique IDs for function instances
    * @return the object represented by this node, may be null
    */
-  protected abstract Object doCreate(ComponentMap componentMap, List<Object> dependencies);
+  protected abstract Object doCreate(ComponentMap componentMap, List<Object> dependencies, FunctionIdProvider idProvider);
 
   //-------------------------------------------------------------------------
   /**

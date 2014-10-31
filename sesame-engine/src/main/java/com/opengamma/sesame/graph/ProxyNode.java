@@ -83,12 +83,9 @@ public class ProxyNode extends DependentNode {
 
   //-------------------------------------------------------------------------
   @Override
-  protected Object doCreate(ComponentMap componentMap, List<Object> dependencies) {
-    // TODO can I use ProxyGenerator here? or extract its logic?
-    // TODO which class loader?
-    // TODO if delegate is a proxy need to drill down and get the real receiver
+  protected Object doCreate(ComponentMap componentMap, List<Object> dependencies, FunctionIdProvider idProvider) {
     Object delegate = dependencies.get(0);
-    InvocationHandler invocationHandler = _handlerFactory.create(delegate, this);
+    InvocationHandler invocationHandler = _handlerFactory.create(delegate, this, idProvider);
     return Proxy.newProxyInstance(getType().getClassLoader(), new Class<?>[]{getType()}, invocationHandler);
   }
 

@@ -47,7 +47,7 @@ public final class ArgumentNode extends FunctionModelNode {
 
   //-------------------------------------------------------------------------
   @Override
-  protected Object doCreate(ComponentMap componentMap, List<Object> dependencies) {
+  protected Object doCreate(ComponentMap componentMap, List<Object> dependencies, FunctionIdProvider idProvider) {
     return _value;
   }
 

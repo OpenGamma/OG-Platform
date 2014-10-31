@@ -8,6 +8,7 @@ package com.opengamma.sesame.proxy;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import com.opengamma.sesame.graph.FunctionIdProvider;
 import com.opengamma.sesame.graph.FunctionModelNode;
 import com.opengamma.sesame.graph.InterfaceNode;
 import com.opengamma.sesame.graph.NodeDecorator;
@@ -42,7 +43,7 @@ public abstract class ProxyNodeDecorator extends NodeDecorator implements Invoca
   }
 
   @Override
-  public ProxyInvocationHandler create(final Object delegate, ProxyNode node) {
+  public ProxyInvocationHandler create(final Object delegate, ProxyNode node, FunctionIdProvider functionIdProvider) {
     return new AbstractProxyInvocationHandler(delegate) {
       @Override
       public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
