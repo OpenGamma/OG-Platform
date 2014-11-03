@@ -217,7 +217,7 @@ public class FixedAnnuityDefinitionBuilderTest {
    * short/long stub type CouponFixedDefinition
    */
   @Test
-  public void test() {
+  public void stubCouponFixedTest() {
     testStub("FixedAnnuityDefinitionBuilder - Stub - long start", LEG_STUB1, true, 5,
         START_DATE_STUB1, END_DATE_STUB1.minus(P1Y));
     testStub("FixedAnnuityDefinitionBuilder - Stub - short start", LEG_STUB2, true, 3,
