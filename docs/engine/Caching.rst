@@ -214,11 +214,11 @@ all the details about the function's constructor arguments and dependencies. The
 equality semantics, so if the nodes for two functions are equal then the functions themselves are identical.
 
 This fact is used by the class ``FunctionBuilder`` when building function instances. A map is maintained whose
-keys are instances of ``FunctionModelNode`` and whose values are the IDs of the function instances. This map
-is checked whenever a function is requested from the builder. If the map contains an ID for the function's
-node it implies an identical function has already been built. In this case, the new function instance reuses
-the existing function's ID. If there is no entry in the map for the node, a new ID is allocated for the new
-function.
+keys are instances of ``FunctionModelNode`` and whose values are the automatically generated IDs of the function
+instances. This map is checked whenever a function is requested from the builder. If the map contains an ID 
+for the function's node it implies an identical function has already been built. In this case, the new 
+function instance reuses the existing function's ID. If there is no entry in the map for the node, a new 
+ID is allocated for the new function.
 
 When the caching mechanism creates a cache key for a method invocation it uses the ID of the receiver function
 as part of the key. This ensures that the cache key for two function calls can only be equal if their functions
