@@ -120,15 +120,7 @@ public class BondFutureOptionPremiumTransactionDefinition implements InstrumentD
   @Deprecated
   @Override
   public BondFutureOptionPremiumTransaction toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(date, "Reference date");
-    ArgumentChecker.notNull(yieldCurveNames, "Curve names");
-    ArgumentChecker.isTrue(yieldCurveNames.length > 1, "At least two curves required: credit and discounting");
-    final BondFutureOptionPremiumSecurity option = _underlyingOption.toDerivative(date, yieldCurveNames);
-    final double premiumTime = TimeCalculator.getTimeBetween(date, _premium.getPaymentDate());
-    if (premiumTime < 0) { // Premium payment in the past: it is represented by a 0 payment today.
-      return new BondFutureOptionPremiumTransaction(option, _quantity, new PaymentFixed(getCurrency(), 0, 0, yieldCurveNames[1]));
-    }
-    return new BondFutureOptionPremiumTransaction(option, _quantity, _premium.toDerivative(date, yieldCurveNames[1]));
+    throw new UnsupportedOperationException(this.getClass().getCanonicalName());
   }
 
   @Override
