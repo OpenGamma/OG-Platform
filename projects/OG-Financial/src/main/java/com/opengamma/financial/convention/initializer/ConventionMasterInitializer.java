@@ -143,6 +143,13 @@ public abstract class ConventionMasterInitializer {
                 new IborIndex(convention.getName(), convention.getName(), tenor,
                               convention.getExternalIdBundle().iterator().next(), convention.getExternalIdBundle()));
   }
+  
+  protected void addIborSecurity(final SecurityMaster securityMaster, final IborIndexConvention convention) {
+    ArgumentChecker.notEmpty(convention.getExternalIdBundle(), "externalIdBundle");
+    addSecurity(securityMaster,
+                new IborIndex(convention.getName(), convention.getName(), Tenor.ofMonths(3), convention.getExternalIdBundle().iterator().next(),
+                                   convention.getExternalIdBundle()));
+  }
 
   protected void addOvernightSecurity(final SecurityMaster securityMaster, final OvernightIndexConvention convention) {
     ArgumentChecker.notEmpty(convention.getExternalIdBundle(), "externalIdBundle");
@@ -150,11 +157,9 @@ public abstract class ConventionMasterInitializer {
                 new OvernightIndex(convention.getName(), convention.getName(), convention.getExternalIdBundle().iterator().next(),
                                    convention.getExternalIdBundle()));
   }
-
   //-------------------------------------------------------------------------
   @Override
   public String toString() {
     return getClass().getSimpleName();
   }
-
 }
