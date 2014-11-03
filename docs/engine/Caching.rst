@@ -61,7 +61,7 @@ Caching in the OpenGamma engine is based on the concept of memoization. That is,
 times with exactly the same set of arguments then the same value can be returned.
 
 When a cacheable method is invoked a key is constructed and used to query the cache. The cache key is based on the
-object receiving the method call, the method and the method arguments. If there is no cache entry for the key,
+ID of the object receiving the method call, the method and the method arguments. If there is no cache entry for the key,
 the method is run and the return value is cached.
 
 When the method is invoked again a key is constructed in the same way and used to query the cache. If a
@@ -148,7 +148,7 @@ handler performs the following steps:
 #. Create a cache key for the method call. Cache keys are of type ``MethodInvocationKey``. The key contains all
    the details of the method call:
 
-   * The underlying function instance that is the receiver of the call
+   * The ID of the underlying function instance that is the receiver of the call
    * The method that was invoked (an instance of ``java.lang.reflect.Method``)
    * The method arguments
 
@@ -180,7 +180,7 @@ engine can find the keys for all cached values calculated from the data and inva
 -----------------------
 This is the type used as the cache key. It contains all the data about a method call:
 
-* The function instance that is the underlying receiver of the call
+* The ID of the function instance that is the underlying receiver of the call
 * The method that was invoked (an instance of ``java.lang.reflect.Method``)
 * The method arguments
 
@@ -188,9 +188,7 @@ Two keys are considered equal if:
 
 * Their methods are equal
 * Their arguments are equal according to ``Arrays.deepEquals()``
-* Their receivers are the same object. This uses reference equality, not logical equality
-
-The final point is vital to understand and has important implications for the design of the whole engine.
+* Their receivers have the same ID
 
 Function equality
 -----------------
@@ -215,11 +213,13 @@ Individual function instances are represented as nodes in the model, where the n
 all the details about the function's constructor arguments and dependencies. These nodes have well defined
 equality semantics, so if the nodes for two functions are equal then the functions themselves are identical.
 
-This fact is used by the class ``FunctionBuilder`` when building function instances. Whenever a cacheable function
-is built, it is stored in a map keyed by its ``FunctionModelNode``. This map is checked whenever a function
-is requested from the builder, and if a function instance is found matching the requested node then it is reused.
+This fact is used by the class ``FunctionBuilder`` when building function instances. A map is maintained whose
+keys are instances of ``FunctionModelNode`` and whose values are the automatically generated IDs of the function
+instances. This map is checked whenever a function is requested from the builder. If the map contains an ID 
+for the function's node it implies an identical function has already been built. In this case, the new 
+function instance reuses the existing function's ID. If there is no entry in the map for the node, a new 
+ID is allocated for the new function.
 
-This means that cacheable function instances are shared between views - if two views have a function that is
-logically equal then they will actually be using the same function instance. It is therefore possible to
-use function reference equality in the cache key instead of logical equality. Similarly, the key's ``hashCode()``
-method uses ``System.identityHashCode()`` to generate the hash code of the function.
+When the caching mechanism creates a cache key for a method invocation it uses the ID of the receiver function
+as part of the key. This ensures that the cache key for two function calls can only be equal if their functions
+have the same ID. This ensures that two functions can only share values from the cache if they are identical.
