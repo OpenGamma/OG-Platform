@@ -119,20 +119,6 @@ public class CashDefinitionTest {
     assertEquals("CashDefinition: from", on, fromStartON);
   }
 
-  @SuppressWarnings("deprecation")
-  @Test
-  /**
-   * Tests toDerivative.
-   */
-  public void toDerivativeTradeDeprecated() {
-    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 12);
-    final Cash converted = DEPOSIT_DEFINITION.toDerivative(referenceDate, CURVE_NAME);
-    final double startTime = TimeCalculator.getTimeBetween(referenceDate, SPOT_DATE);
-    final double endTime = TimeCalculator.getTimeBetween(referenceDate, END_DATE);
-    final Cash expected = new Cash(EUR, startTime, endTime, NOTIONAL, RATE, DEPOSIT_AF, CURVE_NAME);
-    assertEquals("CashDefinition: toDerivative", expected, converted);
-  }
-
   @Test
   /**
    * Tests toDerivative.
