@@ -20,7 +20,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 
 /**
- * Populates the example database with ATM swaption volatility surfacde definitions and specifications.
+ * Populates the example database with ATM swaption volatility surface definitions and specifications.
  */
 public class ExampleATMSwaptionVolatilitySurfaceConfigPopulator {
   /** The separator */
