@@ -221,12 +221,7 @@ public class BillSecurityDefinition implements InstrumentDefinition<BillSecurity
   @Deprecated
   @Override
   public BillSecurity toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(date, "Reference date");
-    ArgumentChecker.notNull(yieldCurveNames, "Yield curve names");
-    ArgumentChecker.isTrue(!date.isAfter(_endDate), "Reference date {} is after end date {}", date, _endDate);
-    ZonedDateTime settlementDate = ScheduleCalculator.getAdjustedDate(date, _settlementDays, _calendar);
-    settlementDate = (settlementDate.isAfter(_endDate)) ? _endDate : settlementDate;
-    return toDerivative(date, settlementDate, yieldCurveNames);
+    throw new UnsupportedOperationException(this.getClass().getCanonicalName());
   }
 
   @Override
