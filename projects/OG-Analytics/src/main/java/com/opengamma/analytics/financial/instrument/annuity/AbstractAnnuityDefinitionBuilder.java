@@ -488,7 +488,7 @@ public abstract class AbstractAnnuityDefinitionBuilder<T extends AbstractAnnuity
     
     ZonedDateTime startDate;
     ZonedDateTime endDate;
-    if (StubType.BOTH == stubType) {
+    if (StubType.BOTH == stubType) { // not supported in AnnuityDefinitionBuilder
       startDate = ZonedDateTime.of(_startStub.getEffectiveDate(), LocalTime.of(0, 0), ZoneId.of("UTC"));
       endDate = ZonedDateTime.of(_endStub.getEffectiveDate(), LocalTime.of(0, 0), ZoneId.of("UTC"));
     } else {
