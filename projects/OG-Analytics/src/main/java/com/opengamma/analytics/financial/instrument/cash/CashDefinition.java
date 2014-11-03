@@ -215,12 +215,7 @@ public class CashDefinition implements InstrumentDefinition<Cash> {
   @Deprecated
   @Override
   public Cash toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    ArgumentChecker.isTrue(!date.isAfter(_endDate), "date {} is after end date {}", date, _endDate);
-    final double startTime = TimeCalculator.getTimeBetween(date, _startDate);
-    if (startTime < 0) {
-      return new Cash(_currency, 0, TimeCalculator.getTimeBetween(date, _endDate), _notional, 0, _rate, _accrualFactor, yieldCurveNames[0]);
-    }
-    return new Cash(_currency, startTime, TimeCalculator.getTimeBetween(date, _endDate), _notional, _rate, _accrualFactor, yieldCurveNames[0]);
+    throw new UnsupportedOperationException(this.getClass().getCanonicalName());
   }
 
   @Override
