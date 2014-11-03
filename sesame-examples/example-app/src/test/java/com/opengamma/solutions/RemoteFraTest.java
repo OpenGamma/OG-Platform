@@ -43,7 +43,6 @@ import static org.hamcrest.Matchers.closeTo;
 @Test(groups = TestGroup.INTEGRATION, enabled = true)
 public class RemoteFraTest {
 
-  private static final String URL = "http://localhost:8080/jax";
   private FunctionServer _functionServer;
   private IndividualCycleOptions _cycleOptions;
   private ConfigLink<ExposureFunctions> _exposureConfig;
@@ -55,7 +54,10 @@ public class RemoteFraTest {
   @BeforeClass
   public void setUp() {
 
-    _functionServer = new RemoteFunctionServer(URI.create(URL));
+    String property = System.getProperty("server.url");
+    String url = property == null ? "http://integration-lx-1:8080/jax" : property;
+
+    _functionServer = new RemoteFunctionServer(URI.create(url));
     _cycleOptions = IndividualCycleOptions.builder()
         .valuationTime(DateUtils.getUTCDate(2014, 1, 22))
         .marketDataSpec(UserMarketDataSpecification.of(UniqueId.of("DbSnp", "1000")))

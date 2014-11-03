@@ -47,16 +47,12 @@ import com.opengamma.util.time.DateUtils;
 @Test(groups = TestGroup.INTEGRATION, enabled = true)
 public class RemoteBondTest {
 
-  private static final String URL = "http://localhost:8080/jax";
   private FunctionServer _functionServer;
   private IndividualCycleOptions _cycleOptions;
   private ConfigLink<ExposureFunctions> _exposureConfigOis;
   private ConfigLink<ExposureFunctions> _exposureConfigUkGovt;
   private ConfigLink<CurrencyMatrix> _currencyMatrixLink;
   private Results _bondResults;
-
-  SecurityMaster _securityMaster;
-
 
   private static final double TOLERANCE_PV = 1.0E-3;
   private static final double TOLERANCE_PRICE = 1.0E-6;
@@ -65,10 +61,10 @@ public class RemoteBondTest {
   @BeforeClass
   public void setUp() {
 
-    ToolContext tc = ToolContextUtils.getToolContext(URL, IntegrationToolContext.class);
-    _securityMaster = tc.getSecurityMaster();
+    String property = System.getProperty("server.url");
+    String url = property == null ? "http://localhost:8080/jax" : property;
 
-    _functionServer = new RemoteFunctionServer(URI.create(URL));
+    _functionServer = new RemoteFunctionServer(URI.create(url));
     _cycleOptions = IndividualCycleOptions.builder()
         .valuationTime(DateUtils.getUTCDate(2014, 7, 11))
         .marketDataSpec(UserMarketDataSpecification.of(UniqueId.of("DbSnp", "1001")))
