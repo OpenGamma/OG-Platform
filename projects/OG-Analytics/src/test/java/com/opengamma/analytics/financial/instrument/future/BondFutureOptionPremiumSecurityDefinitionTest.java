@@ -82,19 +82,6 @@ public class BondFutureOptionPremiumSecurityDefinitionTest {
   /**
    * Tests the toDerivative method.
    */
-  @SuppressWarnings("deprecation")
-  @Test
-  public void toDerivativeDeprecated() {
-    final String[] curveNames = new String[] {"A", "B"};
-    final BondFutureOptionPremiumSecurity optionConverted = FVU1_C100_DEFINITION.toDerivative(REFERENCE_DATE, curveNames);
-    final BondFutureOptionPremiumSecurity optionExpected = new BondFutureOptionPremiumSecurity(FVU1_DEFINITION.toDerivative(REFERENCE_DATE, 0.0, curveNames), TimeCalculator.getTimeBetween(REFERENCE_DATE,
-        EXPIRATION_DATE), STRIKE, IS_CALL);
-    assertEquals("Bond future option premium security definition: toDerivative", optionExpected, optionConverted);
-  }
-
-  /**
-   * Tests the toDerivative method.
-   */
   @Test
   public void toDerivative() {
     final BondFutureOptionPremiumSecurity optionConverted = FVU1_C100_DEFINITION.toDerivative(REFERENCE_DATE);
