@@ -116,7 +116,7 @@ public abstract class FXDigitalCallSpreadBlackFunction extends AbstractFunction.
     }
     final ForexSecurityConverter converter = new ForexSecurityConverter(baseQuotePairs);
     final InstrumentDefinition<InstrumentDerivative> definition = (InstrumentDefinition<InstrumentDerivative>) security.accept(converter);
-    final InstrumentDerivative fxOption = definition.toDerivative(now, allCurveNames);
+    final InstrumentDerivative fxOption = definition.toDerivative(now);
     final YieldCurveBundle yieldCurves = new YieldCurveBundle(allCurveNames, curves);
     final Object spotObject = inputs.getValue(ValueRequirementNames.SPOT_RATE);
     if (spotObject == null) {
