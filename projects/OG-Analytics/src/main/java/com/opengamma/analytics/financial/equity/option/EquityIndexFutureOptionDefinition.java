@@ -175,7 +175,7 @@ public class EquityIndexFutureOptionDefinition implements InstrumentDefinition<E
   @Deprecated
   @Override
   public EquityIndexFutureOption toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    return toDerivative(date);
+    throw new UnsupportedOperationException(this.getClass().getCanonicalName());
   }
 
   @Override
