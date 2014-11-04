@@ -121,16 +121,6 @@ public class ForexInstrumentsDescriptionDataSet {
   /**
    * Creates a single-barrier FX option
    * @return A single-barrier FX option
-   * @deprecated Use the non-deprecated method that does not use yield curve names
-   */
-  @Deprecated
-  public static ForexOptionSingleBarrier createForexOptionSingleBarrierDeprecated() {
-    return createForexOptionSingleBarrierDefinition().toDerivative(REFERENCE_DATE, CURVES_NAME);
-  }
-
-  /**
-   * Creates a single-barrier FX option
-   * @return A single-barrier FX option
    */
   public static ForexOptionSingleBarrier createForexOptionSingleBarrier() {
     return createForexOptionSingleBarrierDefinition().toDerivative(REFERENCE_DATE);

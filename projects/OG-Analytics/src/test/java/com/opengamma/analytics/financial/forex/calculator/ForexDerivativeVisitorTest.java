@@ -157,7 +157,6 @@ import com.opengamma.util.test.TestGroup;
 public class ForexDerivativeVisitorTest {
 
   private static final ForexOptionVanilla FX_OPTION = ForexInstrumentsDescriptionDataSet.createForexOptionVanillaDeprecated();
-  private static final ForexOptionSingleBarrier FX_OPTION_SINGLE_BARRIER = ForexInstrumentsDescriptionDataSet.createForexOptionSingleBarrierDeprecated();
   private static final ForexNonDeliverableOption NDO = ForexInstrumentsDescriptionDataSet.createForexNonDeliverableOptionDeprecated();
   private static final ForexOptionDigital FX_OPTION_DIGITAL = ForexInstrumentsDescriptionDataSet.createForexOptionDigitalDeprecated();
 
@@ -172,8 +171,6 @@ public class ForexDerivativeVisitorTest {
     final Object o = "G";
     assertEquals(FX_OPTION.accept(VISITOR), "ForexOptionVanilla1");
     assertEquals(FX_OPTION.accept(VISITOR, o), "ForexOptionVanilla2");
-    assertEquals(FX_OPTION_SINGLE_BARRIER.accept(VISITOR), "ForexOptionSingleBarrier1");
-    assertEquals(FX_OPTION_SINGLE_BARRIER.accept(VISITOR, o), "ForexOptionSingleBarrier2");
     assertEquals(NDO.accept(VISITOR), "ForexNonDeliverableOption1");
     assertEquals(NDO.accept(VISITOR, o), "ForexNonDeliverableOption2");
   }
@@ -183,8 +180,6 @@ public class ForexDerivativeVisitorTest {
     final Object o = "G";
     testException(FX_OPTION);
     testException(FX_OPTION, o);
-    testException(FX_OPTION_SINGLE_BARRIER);
-    testException(FX_OPTION_SINGLE_BARRIER, o);
     testException(NDO);
     testException(NDO, o);
     testException(FX_OPTION_DIGITAL);
