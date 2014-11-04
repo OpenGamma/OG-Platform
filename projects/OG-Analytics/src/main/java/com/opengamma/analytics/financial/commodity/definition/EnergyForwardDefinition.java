@@ -100,7 +100,7 @@ public class EnergyForwardDefinition extends CommodityForwardDefinition<EnergyFo
 
   @Override
   public EnergyForward toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    return toDerivative(date);
+    throw new UnsupportedOperationException();
   }
 
   @Override

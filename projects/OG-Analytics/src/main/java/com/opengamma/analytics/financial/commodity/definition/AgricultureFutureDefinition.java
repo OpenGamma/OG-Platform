@@ -115,7 +115,7 @@ public class AgricultureFutureDefinition extends CommodityFutureDefinition<Agric
   @Deprecated
   @Override
   public AgricultureFuture toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    return toDerivative(date);
+    throw new UnsupportedOperationException();
   }
 
   @Override
