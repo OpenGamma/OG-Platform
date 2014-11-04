@@ -44,12 +44,9 @@ public class SwapCouponFixedCouponDefinition extends SwapDefinition {
    * @deprecated Use the method that does not take yield curve names
    */
   @Deprecated
-  @SuppressWarnings("unchecked")
   @Override
   public SwapFixedCoupon<Coupon> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    final Annuity<CouponFixed> fixedLeg = getFixedLeg().toDerivative(date, yieldCurveNames);
-    final Annuity<? extends Coupon> otherLeg = (Annuity<? extends Coupon>) getSecondLeg().toDerivative(date, yieldCurveNames);
-    return new SwapFixedCoupon<>(fixedLeg, (Annuity<Coupon>) otherLeg);
+    throw new UnsupportedOperationException();
   }
 
   /**

@@ -112,13 +112,10 @@ public class SwapFixedCompoundedONCompoundedDefinition extends SwapDefinition {
    * {@inheritDoc}
    * @deprecated Use the method that does not take yield curve names
    */
-  @SuppressWarnings("unchecked")
   @Deprecated
   @Override
   public Swap<CouponFixedAccruedCompounding, ? extends Payment> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    final Annuity<CouponFixedAccruedCompounding> fixedLeg = (Annuity<CouponFixedAccruedCompounding>) getFixedLeg().toDerivative(date, yieldCurveNames);
-    final Annuity<? extends Payment> iborLeg = getONLeg().toDerivative(date, yieldCurveNames);
-    return new Swap<>(fixedLeg, iborLeg);
+    throw new UnsupportedOperationException();
   }
 
   /**
@@ -130,7 +127,7 @@ public class SwapFixedCompoundedONCompoundedDefinition extends SwapDefinition {
   @Override
   public Swap<CouponFixedAccruedCompounding, ? extends Payment> toDerivative(final ZonedDateTime date, final ZonedDateTimeDoubleTimeSeries[] indexDataTS, final String... yieldCurveNames) {
     ArgumentChecker.notNull(indexDataTS, "index data time series array");
-    final Annuity<CouponFixedAccruedCompounding> fixedLeg = (Annuity<CouponFixedAccruedCompounding>) getFixedLeg().toDerivative(date, yieldCurveNames);
+    final Annuity<CouponFixedAccruedCompounding> fixedLeg = (Annuity<CouponFixedAccruedCompounding>) getFixedLeg().toDerivative(date);
     final Annuity<? extends Payment> iborLeg = getONLeg().toDerivative(date, indexDataTS[0], yieldCurveNames);
     return new Swap<>(fixedLeg, iborLeg);
   }

@@ -668,7 +668,7 @@ public class BondFixedSecurityDefinition extends BondSecurityDefinition<PaymentF
       settleTime = TimeCalculator.getTimeBetween(date, settlementDate);
       accruedInterestAtSettle = accruedInterest(settlementDate);
     }
-    final AnnuityPaymentFixed nominal = (AnnuityPaymentFixed) getNominal().toDerivative(date, creditCurveName);
+    final AnnuityPaymentFixed nominal = (AnnuityPaymentFixed) getNominal().toDerivative(date);
     AnnuityCouponFixedDefinition couponDefinition = getCoupons().trimBefore(settlementDate);
     final CouponFixedDefinition[] couponExPeriodArray = new CouponFixedDefinition[couponDefinition.getNumberOfPayments()];
     System.arraycopy(couponDefinition.getPayments(), 0, couponExPeriodArray, 0, couponDefinition.getNumberOfPayments());
@@ -680,7 +680,7 @@ public class BondFixedSecurityDefinition extends BondSecurityDefinition<PaymentF
       }
     }
     final AnnuityCouponFixedDefinition couponDefinitionExPeriod = new AnnuityCouponFixedDefinition(couponExPeriodArray, getCalendar());
-    final AnnuityCouponFixed couponStandard = couponDefinitionExPeriod.toDerivative(date, yieldCurveNames);
+    final AnnuityCouponFixed couponStandard = couponDefinitionExPeriod.toDerivative(date);
     final AnnuityPaymentFixed nominalStandard = nominal.trimBefore(settleTime);
     final double factorSpot = getDayCount().getAccruedInterest(couponDefinition.getNthPayment(0).getAccrualStartDate(), settlementDate,
         couponDefinition.getNthPayment(0).getAccrualEndDate(), 1.0, _couponPerYear);
