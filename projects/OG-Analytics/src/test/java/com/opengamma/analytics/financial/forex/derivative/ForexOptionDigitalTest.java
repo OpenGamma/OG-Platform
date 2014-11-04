@@ -83,30 +83,4 @@ public class ForexOptionDigitalTest {
     assertFalse(modifiedOption.equals(null));
   }
 
-  @SuppressWarnings("deprecation")
-  @Test
-  public void equalHashDeprecated() {
-    final String[] curveNames = new String[] {"a", "b"};
-    final Forex fx = FX_DEFINITION.toDerivative(REFERENCE_DATE, curveNames);
-    final ForexOptionDigital option = new ForexOptionDigital(fx, EXPIRATION_TIME, IS_CALL, IS_LONG, true);
-    final ForexOptionDigital otherOption = new ForexOptionDigital(fx, EXPIRATION_TIME, IS_CALL, IS_LONG, true);
-    assertTrue(otherOption.equals(option));
-    assertEquals(option.hashCode(), otherOption.hashCode());
-    final ForexOptionDigital otherOptionShort1 = new ForexOptionDigital(fx, EXPIRATION_TIME, IS_CALL, !IS_LONG, true);
-    final ForexOptionDigital otherOptionShort2 = new ForexOptionDigital(fx, EXPIRATION_TIME, IS_CALL, !IS_LONG, true);
-    assertTrue(otherOptionShort1.equals(otherOptionShort2));
-    assertEquals(otherOptionShort1.hashCode(), otherOptionShort2.hashCode());
-    ForexOptionDigital modifiedOption;
-    modifiedOption = new ForexOptionDigital(fx, EXPIRATION_TIME, !IS_CALL, IS_LONG, true);
-    assertFalse(modifiedOption.equals(option));
-    modifiedOption = new ForexOptionDigital(fx, EXPIRATION_TIME - 0.01, IS_CALL, IS_LONG, true);
-    assertFalse(modifiedOption.equals(option));
-    modifiedOption = new ForexOptionDigital(fx, EXPIRATION_TIME, IS_CALL, !IS_LONG, true);
-    assertFalse(modifiedOption.equals(option));
-    final ForexDefinition modifiedFxDefinition = new ForexDefinition(CUR_1, CUR_2, PAYMENT_DATE, NOMINAL_1 + 1.0, FX_RATE);
-    final Forex modifiedFx = modifiedFxDefinition.toDerivative(REFERENCE_DATE, curveNames);
-    modifiedOption = new ForexOptionDigital(modifiedFx, EXPIRATION_TIME, IS_CALL, IS_LONG, true);
-    assertFalse(modifiedOption.equals(option));
-    assertFalse(modifiedOption.equals(null));
-  }
 }

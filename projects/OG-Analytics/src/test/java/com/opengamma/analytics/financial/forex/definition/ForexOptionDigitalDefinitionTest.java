@@ -106,24 +106,6 @@ public class ForexOptionDigitalDefinitionTest {
     assertFalse("ForexOptionDigitalDefinition: equal/hash code", FX_OPTION_DEFINITION.equals(null));
   }
 
-  @SuppressWarnings("deprecation")
-  @Test
-  /**
-   * Tests the conversion to derivative.
-   */
-  public void toDerivativeDeprecated() {
-    final String discountingEUR = "Discounting EUR";
-    final String discountingUSD = "Discounting USD";
-    final String[] curves_name = new String[] {discountingEUR, discountingUSD};
-    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 5, 20);
-    final InstrumentDerivative optionConverted = FX_OPTION_DEFINITION.toDerivative(referenceDate, curves_name);
-    final Forex fx = FX_DEFINITION.toDerivative(referenceDate, curves_name);
-    final DayCount actAct = DayCounts.ACT_ACT_ISDA;
-    final double expirationTime = actAct.getDayCountFraction(referenceDate, EXPIRATION_DATE);
-    final ForexOptionDigital optionConstructed = new ForexOptionDigital(fx, expirationTime, IS_CALL, IS_LONG, PAY_DOM);
-    assertEquals("Convertion to derivative", optionConstructed, optionConverted);
-  }
-
   @Test
   /**
    * Tests the conversion to derivative.

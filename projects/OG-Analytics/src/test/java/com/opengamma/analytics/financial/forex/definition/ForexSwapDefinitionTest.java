@@ -109,21 +109,6 @@ public class ForexSwapDefinitionTest {
     assertFalse(FX_SWAP_DEFINITION_LEG.equals(null));
   }
 
-  @SuppressWarnings("deprecation")
-  @Test
-  /**
-   * Tests the conversion to derivative.
-   */
-  public void toDerivativeDeprecated() {
-    final String eur = "Discounting EUR";
-    final String usd = "Discounting USD";
-    final String[] names = new String[] {eur, usd};
-    final Forex fxNear = FX_NEAR_DEFINITION.toDerivative(REFERENCE_DATE, names);
-    final Forex fxFar = FX_FAR_DEFINITION.toDerivative(REFERENCE_DATE, names);
-    final ForexSwap fxSwapExpected = new ForexSwap(fxNear, fxFar);
-    final InstrumentDerivative fxSwap = FX_SWAP_DEFINITION_FIN.toDerivative(REFERENCE_DATE, names);
-    assertEquals(fxSwapExpected, fxSwap);
-  }
 
   @Test
   /**
