@@ -132,12 +132,7 @@ public class ForexOptionDigitalDefinition implements InstrumentDefinition<Instru
   @Deprecated
   @Override
   public ForexOptionDigital toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(date, "date");
-    ArgumentChecker.notNull(yieldCurveNames, "yieldCurveNames");
-    final Forex fx = _underlyingForex.toDerivative(date, yieldCurveNames);
-    final DayCount actAct = DayCounts.ACT_ACT_ISDA;
-    final double expirationTime = actAct.getDayCountFraction(date, _expirationDate);
-    return new ForexOptionDigital(fx, expirationTime, _isCall, _isLong, _payDomestic);
+    throw new UnsupportedOperationException(this.getClass().getCanonicalName());
   }
 
   /**

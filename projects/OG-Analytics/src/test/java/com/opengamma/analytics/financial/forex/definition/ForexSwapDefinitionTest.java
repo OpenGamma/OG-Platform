@@ -68,12 +68,6 @@ public class ForexSwapDefinitionTest {
     new ForexSwapDefinition(CUR_1, CUR_2, NEAR_DATE, null, NOMINAL_1, FX_RATE, FORWARD_POINTS);
   }
 
-  @SuppressWarnings("deprecation")
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void toDerivativeWrongDateDeprecated() {
-    FX_SWAP_DEFINITION_FIN.toDerivative(FAR_DATE.plusDays(1), "A", "B");
-  }
-
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void toDerivativeWrongDate() {
     FX_SWAP_DEFINITION_FIN.toDerivative(FAR_DATE.plusDays(1));

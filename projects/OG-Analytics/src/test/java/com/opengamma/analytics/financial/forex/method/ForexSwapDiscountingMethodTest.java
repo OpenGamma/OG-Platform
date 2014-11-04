@@ -59,7 +59,7 @@ public class ForexSwapDiscountingMethodTest {
   private static final Map<String, Currency> CCY_MAP = TestsDataSetsForex.curveCurrency();
   private static final YieldCurveBundle CURVES_FX = new YieldCurveBundle(CURVES.getCurvesMap(), FX_MATRIX, CCY_MAP);
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 5, 20);
-  private static final InstrumentDerivative FX_SWAP = FX_SWAP_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
+  private static final InstrumentDerivative FX_SWAP = FX_SWAP_DEFINITION.toDerivative(REFERENCE_DATE);
 
   private static final ForexSwapDiscountingMethod METHOD_FX_SWAP = ForexSwapDiscountingMethod.getInstance();
   private static final ForexDiscountingMethod METHOD_FX = ForexDiscountingMethod.getInstance();
@@ -133,70 +133,6 @@ public class ForexSwapDiscountingMethodTest {
     final MultipleCurrencyInterestRateCurveSensitivity pvcsMethod = METHOD_FX_SWAP.presentValueCurveSensitivity(FX_SWAP, CURVES);
     final MultipleCurrencyInterestRateCurveSensitivity pvcsCalculator = FX_SWAP.accept(PVCSC_FX, CURVES);
     assertEquals("Forex swap present value curve sensitivity: Method vs Calculator", pvcsMethod, pvcsCalculator);
-  }
-
-  @Test
-  /**
-   * Tests the TodayPaymentCalculator for forex transactions.
-   */
-  public void forexTodayPaymentBeforeNearDate() {
-    final InstrumentDerivative fx = FX_SWAP_DEFINITION.toDerivative(NEAR_DATE.minusDays(1), CURVES_NAME);
-    final MultipleCurrencyAmount cash = fx.accept(TPC);
-    assertEquals("TodayPaymentCalculator: forex", 0.0, cash.getAmount(FX_SWAP_DEFINITION.getNearLeg().getCurrency1()), TOLERANCE_PV);
-    assertEquals("TodayPaymentCalculator: forex", 0.0, cash.getAmount(FX_SWAP_DEFINITION.getNearLeg().getCurrency2()), TOLERANCE_PV);
-    assertEquals("TodayPaymentCalculator: forex", 2, cash.getCurrencyAmounts().length);
-  }
-
-  @Test
-  /**
-   * Tests the TodayPaymentCalculator for forex transactions.
-   */
-  public void forexTodayPaymentOnNearDate() {
-    final InstrumentDerivative fx = FX_SWAP_DEFINITION.toDerivative(NEAR_DATE, CURVES_NAME);
-    final MultipleCurrencyAmount cash = fx.accept(TPC);
-    assertEquals("TodayPaymentCalculator: forex", FX_SWAP_DEFINITION.getNearLeg().getPaymentCurrency1().getReferenceAmount(), cash.getAmount(FX_SWAP_DEFINITION.getNearLeg().getCurrency1()),
-        TOLERANCE_PV);
-    assertEquals("TodayPaymentCalculator: forex", FX_SWAP_DEFINITION.getNearLeg().getPaymentCurrency2().getReferenceAmount(), cash.getAmount(FX_SWAP_DEFINITION.getNearLeg().getCurrency2()),
-        TOLERANCE_PV);
-    assertEquals("TodayPaymentCalculator: forex", 2, cash.getCurrencyAmounts().length);
-  }
-
-  @Test
-  /**
-   * Tests the TodayPaymentCalculator for forex transactions.
-   */
-  public void forexTodayPaymentBeforeFarDate() {
-    final InstrumentDerivative fx = FX_SWAP_DEFINITION.toDerivative(FAR_DATE.minusDays(1), CURVES_NAME);
-    final MultipleCurrencyAmount cash = fx.accept(TPC);
-    assertEquals("TodayPaymentCalculator: forex", 0.0, cash.getAmount(FX_SWAP_DEFINITION.getFarLeg().getCurrency1()), TOLERANCE_PV);
-    assertEquals("TodayPaymentCalculator: forex", 0.0, cash.getAmount(FX_SWAP_DEFINITION.getFarLeg().getCurrency2()), TOLERANCE_PV);
-    assertEquals("TodayPaymentCalculator: forex", 2, cash.getCurrencyAmounts().length);
-  }
-
-  @Test
-  /**
-   * Tests the TodayPaymentCalculator for forex transactions.
-   */
-  public void forexTodayPaymentOnFarDate() {
-    final InstrumentDerivative fx = FX_SWAP_DEFINITION.toDerivative(FAR_DATE, CURVES_NAME);
-    final MultipleCurrencyAmount cash = fx.accept(TPC);
-    assertEquals("TodayPaymentCalculator: forex", FX_SWAP_DEFINITION.getFarLeg().getPaymentCurrency1().getReferenceAmount(), cash.getAmount(FX_SWAP_DEFINITION.getFarLeg().getCurrency1()),
-        TOLERANCE_PV);
-    assertEquals("TodayPaymentCalculator: forex", FX_SWAP_DEFINITION.getFarLeg().getPaymentCurrency2().getReferenceAmount(), cash.getAmount(FX_SWAP_DEFINITION.getFarLeg().getCurrency2()),
-        TOLERANCE_PV);
-    assertEquals("TodayPaymentCalculator: forex", 2, cash.getCurrencyAmounts().length);
-  }
-
-  @Test
-  /**
-   * Tests the parSpread method.
-   */
-  public void parSpread() {
-    final double parSpread = METHOD_FX_SWAP.parSpread((ForexSwap) FX_SWAP, CURVES_FX);
-    final ForexSwapDefinition fxSwap0Definition = new ForexSwapDefinition(CUR_1, CUR_2, NEAR_DATE, FAR_DATE, NOMINAL_1, FX_RATE, FORWARD_POINTS + parSpread);
-    final ForexSwap fxSwap0 = (ForexSwap) fxSwap0Definition.toDerivative(REFERENCE_DATE, CURVES_NAME);
-    final MultipleCurrencyAmount pv0 = METHOD_FX_SWAP.presentValue(fxSwap0, CURVES);
-    assertEquals("Forex swap: par spread", 0, FX_MATRIX.convert(pv0, CUR_1).getAmount(), TOLERANCE_PV);
   }
 
   @Test

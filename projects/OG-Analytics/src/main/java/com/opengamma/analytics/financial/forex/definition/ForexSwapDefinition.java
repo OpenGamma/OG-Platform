@@ -86,14 +86,7 @@ public class ForexSwapDefinition implements InstrumentDefinition<InstrumentDeriv
   @Deprecated
   @Override
   public InstrumentDerivative toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    ArgumentChecker.isTrue(!date.isAfter(_farLeg.getExchangeDate()), "date is after payment far date");
-    if (date.isAfter(_nearLeg.getExchangeDate())) { // Implementation note: only the far leg left.
-      return _farLeg.toDerivative(date, yieldCurveNames);
-    }
-    final Forex nearLeg = _nearLeg.toDerivative(date, yieldCurveNames);
-    final Forex farLeg = _farLeg.toDerivative(date, yieldCurveNames);
-    return new ForexSwap(nearLeg, farLeg);
-  }
+    throw new UnsupportedOperationException(this.getClass().getCanonicalName());  }
 
   /**
    * {@inheritDoc}
