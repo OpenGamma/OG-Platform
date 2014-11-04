@@ -6,6 +6,7 @@
 package com.opengamma.sesame.engine;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.threeten.bp.ZonedDateTime;
@@ -60,6 +61,9 @@ public final class CycleArguments {
   private final FunctionArguments _functionArguments;
   private final boolean _captureInputs;
 
+  /** Valuations times keyed by column name. If there is no value for a column {@link #_valuationTime} will be used. */
+  private final Map<String, ZonedDateTime> _columnValuationTime;
+
   /**
    * @deprecated this will be removed, use {@link #builder}
    */
@@ -105,7 +109,8 @@ public final class CycleArguments {
          functionArguments,
          traceCells,
          traceOutputs,
-         false);
+         false,
+         Collections.<String, ZonedDateTime>emptyMap());
   }
 
   /**
@@ -122,7 +127,8 @@ public final class CycleArguments {
          FunctionArguments.EMPTY,
          ImmutableMap.<Cell, TraceType>of(),
          ImmutableMap.<String, TraceType>of(),
-         captureInputs);
+         captureInputs,
+         Collections.<String, ZonedDateTime>emptyMap());
   }
 
   /**
@@ -140,7 +146,8 @@ public final class CycleArguments {
          functionArguments,
          ImmutableMap.<Cell, TraceType>of(),
          ImmutableMap.<String, TraceType>of(),
-         captureInputs);
+         captureInputs,
+         Collections.<String, ZonedDateTime>emptyMap());
   }
 
   /**
@@ -153,7 +160,9 @@ public final class CycleArguments {
                         FunctionArguments functionArguments,
                         Map<Cell, TraceType> traceCells,
                         Map<String, TraceType> traceOutputs,
-                        boolean captureInputs) {
+                        boolean captureInputs,
+                        Map<String, ZonedDateTime> columnValuationTime) {
+    _columnValuationTime = columnValuationTime;
     _functionArguments = ArgumentChecker.notNull(functionArguments, "functionArguments");
     _configVersionCorrection = ArgumentChecker.notNull(configVersionCorrection, "configVersionCorrection");
     _valuationTime = ArgumentChecker.notNull(valuationTime, "valuationTime");
@@ -165,6 +174,14 @@ public final class CycleArguments {
 
   ZonedDateTime getValuationTime() {
     return _valuationTime;
+  }
+
+  ZonedDateTime getValuationTime(String columnName) {
+    if (_columnValuationTime.containsKey(columnName)) {
+      return _columnValuationTime.get(columnName);
+    } else {
+      return _valuationTime;
+    }
   }
 
   CycleMarketDataFactory getCycleMarketDataFactory() {
@@ -249,6 +266,7 @@ public final class CycleArguments {
   public static final class Builder {
 
     private final CycleMarketDataFactory _cycleMarketDataFactory;
+    private final Map<String, ZonedDateTime> _columnValuationTime = new HashMap<>();
 
     private ZonedDateTime _valuationTime = ZonedDateTime.now();
     private Map<Cell, TraceType> _traceCells = Collections.emptyMap();
@@ -274,7 +292,8 @@ public final class CycleArguments {
                                 _functionArguments,
                                 _traceCells,
                                 _traceOutputs,
-                                _captureInputs);
+                                _captureInputs,
+                                _columnValuationTime);
     }
 
     /**
@@ -318,6 +337,23 @@ public final class CycleArguments {
      */
     public Builder valuationTime(ZonedDateTime valuationTime) {
       _valuationTime = ArgumentChecker.notNull(valuationTime, "valuationTime");
+      return this;
+    }
+
+    /**
+     * Sets the valuation time for the calculations in the cycle for a specific column.
+     * <p>
+     * If no value is specified for a column the default value from {@link #valuationTime(ZonedDateTime)} will be
+     * used.
+     *
+     * @param valuationTime the valuation time for the calculations in the cycle
+     * @return this builder
+     */
+    public Builder valuationTime(ZonedDateTime valuationTime, String columnName) {
+      ArgumentChecker.notNull(valuationTime, "valuationTime");
+      ArgumentChecker.notEmpty(columnName, "columnName");
+
+      _columnValuationTime.put(columnName, valuationTime);
       return this;
     }
 

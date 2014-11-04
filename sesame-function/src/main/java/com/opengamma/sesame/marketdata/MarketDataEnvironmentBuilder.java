@@ -8,6 +8,8 @@ package com.opengamma.sesame.marketdata;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.threeten.bp.ZonedDateTime;
+
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.sesame.MulticurveBundle;
 
@@ -35,7 +37,6 @@ public class MarketDataEnvironmentBuilder<T> {
     return this;
   }
 
-
   /**
    * Adds an FX rate to the market data environment
    *
@@ -46,6 +47,18 @@ public class MarketDataEnvironmentBuilder<T> {
    */
   public MarketDataEnvironmentBuilder<T> addFxRate(T scenarioId, CurrencyPair currencyPair, double rate) {
     bundle(scenarioId).add(FxRateId.of(currencyPair), rate);
+    return this;
+  }
+
+  /**
+   * Sets the valuation time for a scenario.
+   *
+   * @param scenarioId ID of the scenario
+   * @param valuationTime the valuation time for the scenario
+   * @return this builder
+   */
+  public MarketDataEnvironmentBuilder<T> valuationTime(T scenarioId, ZonedDateTime valuationTime) {
+    bundle(scenarioId).valuationTime(valuationTime);
     return this;
   }
 

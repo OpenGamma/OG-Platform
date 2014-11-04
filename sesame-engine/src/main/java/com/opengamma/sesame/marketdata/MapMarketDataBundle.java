@@ -53,13 +53,20 @@ public final class MapMarketDataBundle implements MarketDataBundle, ImmutableBea
   @PropertyDefinition(validate = "notNull", get = "private")
   private final Map<MarketDataId, DateTimeSeries<LocalDate, ?>> _timeSeries;
 
+  /** Valuation time used for the scenario. This may or may not be here in the longer term. */
+  @Deprecated
+  @PropertyDefinition(validate = "notNull")
+  private final ZonedDateTime _valuationTime;
+
   @ImmutableConstructor
   MapMarketDataBundle(MarketDataTime time,
                       Map<MarketDataRequirement, Object> marketData,
-                      Map<MarketDataId, DateTimeSeries<LocalDate, ?>> timeSeries) {
+                      Map<MarketDataId, DateTimeSeries<LocalDate, ?>> timeSeries,
+                      ZonedDateTime valuationTime) {
     _time = ArgumentChecker.notNull(time, "time");
     _marketData = ImmutableMap.copyOf(marketData);
     _timeSeries = ImmutableMap.copyOf(timeSeries);
+    _valuationTime = ArgumentChecker.notNull(valuationTime, "valuationTime");
   }
 
   @Override
@@ -104,13 +111,13 @@ public final class MapMarketDataBundle implements MarketDataBundle, ImmutableBea
   @Override
   public MarketDataBundle withTime(ZonedDateTime time) {
     ArgumentChecker.notNull(time, "time");
-    return new MapMarketDataBundle(MarketDataTime.of(time), _marketData, _timeSeries);
+    return new MapMarketDataBundle(MarketDataTime.of(time), _marketData, _timeSeries, _valuationTime);
   }
 
   @Override
   public MarketDataBundle withDate(LocalDate date) {
     ArgumentChecker.notNull(date, "date");
-    return new MapMarketDataBundle(MarketDataTime.of(date), _marketData, _timeSeries);
+    return new MapMarketDataBundle(MarketDataTime.of(date), _marketData, _timeSeries, _valuationTime);
   }
 
   /**
@@ -205,6 +212,16 @@ public final class MapMarketDataBundle implements MarketDataBundle, ImmutableBea
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Gets valuation time used for the scenario. This may or may not be here in the longer term.
+   * @return the value of the property, not null
+   */
+  @Deprecated
+  public ZonedDateTime getValuationTime() {
+    return _valuationTime;
+  }
+
+  //-----------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -214,7 +231,8 @@ public final class MapMarketDataBundle implements MarketDataBundle, ImmutableBea
       MapMarketDataBundle other = (MapMarketDataBundle) obj;
       return JodaBeanUtils.equal(getTime(), other.getTime()) &&
           JodaBeanUtils.equal(getMarketData(), other.getMarketData()) &&
-          JodaBeanUtils.equal(getTimeSeries(), other.getTimeSeries());
+          JodaBeanUtils.equal(getTimeSeries(), other.getTimeSeries()) &&
+          JodaBeanUtils.equal(getValuationTime(), other.getValuationTime());
     }
     return false;
   }
@@ -225,16 +243,18 @@ public final class MapMarketDataBundle implements MarketDataBundle, ImmutableBea
     hash += hash * 31 + JodaBeanUtils.hashCode(getTime());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMarketData());
     hash += hash * 31 + JodaBeanUtils.hashCode(getTimeSeries());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getValuationTime());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(128);
+    StringBuilder buf = new StringBuilder(160);
     buf.append("MapMarketDataBundle{");
     buf.append("time").append('=').append(getTime()).append(',').append(' ');
     buf.append("marketData").append('=').append(getMarketData()).append(',').append(' ');
-    buf.append("timeSeries").append('=').append(JodaBeanUtils.toString(getTimeSeries()));
+    buf.append("timeSeries").append('=').append(getTimeSeries()).append(',').append(' ');
+    buf.append("valuationTime").append('=').append(JodaBeanUtils.toString(getValuationTime()));
     buf.append('}');
     return buf.toString();
   }
@@ -267,13 +287,19 @@ public final class MapMarketDataBundle implements MarketDataBundle, ImmutableBea
     private final MetaProperty<Map<MarketDataId, DateTimeSeries<LocalDate, ?>>> _timeSeries = DirectMetaProperty.ofImmutable(
         this, "timeSeries", MapMarketDataBundle.class, (Class) Map.class);
     /**
+     * The meta-property for the {@code valuationTime} property.
+     */
+    private final MetaProperty<ZonedDateTime> _valuationTime = DirectMetaProperty.ofImmutable(
+        this, "valuationTime", MapMarketDataBundle.class, ZonedDateTime.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "time",
         "marketData",
-        "timeSeries");
+        "timeSeries",
+        "valuationTime");
 
     /**
      * Restricted constructor.
@@ -290,6 +316,8 @@ public final class MapMarketDataBundle implements MarketDataBundle, ImmutableBea
           return _marketData;
         case 779431844:  // timeSeries
           return _timeSeries;
+        case 113591406:  // valuationTime
+          return _valuationTime;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -334,6 +362,15 @@ public final class MapMarketDataBundle implements MarketDataBundle, ImmutableBea
       return _timeSeries;
     }
 
+    /**
+     * The meta-property for the {@code valuationTime} property.
+     * @return the meta-property, not null
+     */
+    @Deprecated
+    public MetaProperty<ZonedDateTime> valuationTime() {
+      return _valuationTime;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -344,6 +381,8 @@ public final class MapMarketDataBundle implements MarketDataBundle, ImmutableBea
           return ((MapMarketDataBundle) bean).getMarketData();
         case 779431844:  // timeSeries
           return ((MapMarketDataBundle) bean).getTimeSeries();
+        case 113591406:  // valuationTime
+          return ((MapMarketDataBundle) bean).getValuationTime();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -368,6 +407,7 @@ public final class MapMarketDataBundle implements MarketDataBundle, ImmutableBea
     private MarketDataTime _time;
     private Map<MarketDataRequirement, Object> _marketData = new HashMap<MarketDataRequirement, Object>();
     private Map<MarketDataId, DateTimeSeries<LocalDate, ?>> _timeSeries = new HashMap<MarketDataId, DateTimeSeries<LocalDate, ?>>();
+    private ZonedDateTime _valuationTime;
 
     /**
      * Restricted constructor.
@@ -385,6 +425,8 @@ public final class MapMarketDataBundle implements MarketDataBundle, ImmutableBea
           return _marketData;
         case 779431844:  // timeSeries
           return _timeSeries;
+        case 113591406:  // valuationTime
+          return _valuationTime;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -402,6 +444,9 @@ public final class MapMarketDataBundle implements MarketDataBundle, ImmutableBea
           break;
         case 779431844:  // timeSeries
           this._timeSeries = (Map<MarketDataId, DateTimeSeries<LocalDate, ?>>) newValue;
+          break;
+        case 113591406:  // valuationTime
+          this._valuationTime = (ZonedDateTime) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -438,17 +483,19 @@ public final class MapMarketDataBundle implements MarketDataBundle, ImmutableBea
       return new MapMarketDataBundle(
           _time,
           _marketData,
-          _timeSeries);
+          _timeSeries,
+          _valuationTime);
     }
 
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(128);
+      StringBuilder buf = new StringBuilder(160);
       buf.append("MapMarketDataBundle.Builder{");
       buf.append("time").append('=').append(JodaBeanUtils.toString(_time)).append(',').append(' ');
       buf.append("marketData").append('=').append(JodaBeanUtils.toString(_marketData)).append(',').append(' ');
-      buf.append("timeSeries").append('=').append(JodaBeanUtils.toString(_timeSeries));
+      buf.append("timeSeries").append('=').append(JodaBeanUtils.toString(_timeSeries)).append(',').append(' ');
+      buf.append("valuationTime").append('=').append(JodaBeanUtils.toString(_valuationTime));
       buf.append('}');
       return buf.toString();
     }
