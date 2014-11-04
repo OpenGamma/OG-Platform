@@ -101,11 +101,8 @@ public class InterestRateFutureOptionPremiumSecurityDefinition implements Instru
   @Deprecated
   @Override
   public InterestRateFutureOptionPremiumSecurity toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    ArgumentChecker.isTrue(!date.isAfter(_expirationDate), "Date is after expiration date");
-    final InterestRateFutureSecurity underlyingFuture = _underlyingFuture.toDerivative(date, yieldCurveNames);
-    final double expirationTime = TimeCalculator.getTimeBetween(date, _expirationDate);
-    return new InterestRateFutureOptionPremiumSecurity(underlyingFuture, expirationTime, _strike, _isCall);
-  }
+    throw new UnsupportedOperationException(this.getClass().getCanonicalName());
+ }
 
   @Override
   public InterestRateFutureOptionPremiumSecurity toDerivative(final ZonedDateTime date) {
