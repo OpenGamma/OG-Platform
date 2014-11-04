@@ -54,11 +54,14 @@ public class SimulationUtilsTest {
     assertTrue(matches("$%^", "$ABC^"));
   }
 
+  @SuppressWarnings("deprecation")
   private static boolean matches(String glob, String str) {
     return SimulationUtils.patternForGlob(glob).matcher(str).matches();
   }
 
+  @SuppressWarnings("deprecation")
   private static String patternFor(String glob) {
     return SimulationUtils.patternForGlob(glob).pattern();
   }
+
 }

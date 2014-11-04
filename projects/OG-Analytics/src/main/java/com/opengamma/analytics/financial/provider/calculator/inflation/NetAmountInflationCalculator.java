@@ -24,14 +24,15 @@ import com.opengamma.analytics.financial.interestrate.inflation.provider.CouponI
 import com.opengamma.analytics.financial.interestrate.inflation.provider.CouponInflationZeroCouponMonthlyDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.inflation.provider.CouponInflationZeroCouponMonthlyGearingDiscountingMethod;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
-import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
+import com.opengamma.analytics.financial.provider.description.inflation.ParameterInflationProviderInterface;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
  * Calculates the estimated net amount of an inflation (linear) instruments for a given InflationProvider.
  */
 
-public final class NetAmountInflationCalculator extends InstrumentDerivativeVisitorDelegate<InflationProviderInterface, MultipleCurrencyAmount> {
+public final class NetAmountInflationCalculator 
+  extends InstrumentDerivativeVisitorDelegate<ParameterInflationProviderInterface, MultipleCurrencyAmount> {
 
   /**
    * The unique instance of the calculator.
@@ -91,43 +92,43 @@ public final class NetAmountInflationCalculator extends InstrumentDerivativeVisi
       new CouponInflationYearOnYearInterpolationWithMarginDiscountingMethod();
 
   @Override
-  public MultipleCurrencyAmount visitCouponInflationZeroCouponMonthly(final CouponInflationZeroCouponMonthly coupon, final InflationProviderInterface market) {
-    return METHOD_ZC_MONTHLY.netAmount(coupon, market);
+  public MultipleCurrencyAmount visitCouponInflationZeroCouponMonthly(final CouponInflationZeroCouponMonthly coupon, final ParameterInflationProviderInterface market) {
+    return METHOD_ZC_MONTHLY.netAmount(coupon, market.getInflationProvider());
   }
 
   @Override
-  public MultipleCurrencyAmount visitCouponInflationZeroCouponInterpolation(final CouponInflationZeroCouponInterpolation coupon, final InflationProviderInterface market) {
-    return METHOD_ZC_INTERPOLATION.netAmount(coupon, market);
+  public MultipleCurrencyAmount visitCouponInflationZeroCouponInterpolation(final CouponInflationZeroCouponInterpolation coupon, final ParameterInflationProviderInterface market) {
+    return METHOD_ZC_INTERPOLATION.netAmount(coupon, market.getInflationProvider());
   }
 
   @Override
-  public MultipleCurrencyAmount visitCouponInflationZeroCouponMonthlyGearing(final CouponInflationZeroCouponMonthlyGearing coupon, final InflationProviderInterface market) {
-    return METHOD_ZC_MONTHLY_GEARING.netAmount(coupon, market);
+  public MultipleCurrencyAmount visitCouponInflationZeroCouponMonthlyGearing(final CouponInflationZeroCouponMonthlyGearing coupon, final ParameterInflationProviderInterface market) {
+    return METHOD_ZC_MONTHLY_GEARING.netAmount(coupon, market.getInflationProvider());
   }
 
   @Override
-  public MultipleCurrencyAmount visitCouponInflationZeroCouponInterpolationGearing(final CouponInflationZeroCouponInterpolationGearing coupon, final InflationProviderInterface market) {
-    return METHOD_ZC_INTERPOLATION_GEARING.netAmount(coupon, market);
+  public MultipleCurrencyAmount visitCouponInflationZeroCouponInterpolationGearing(final CouponInflationZeroCouponInterpolationGearing coupon, final ParameterInflationProviderInterface market) {
+    return METHOD_ZC_INTERPOLATION_GEARING.netAmount(coupon, market.getInflationProvider());
   }
 
   @Override
-  public MultipleCurrencyAmount visitCouponInflationYearOnYearMonthly(final CouponInflationYearOnYearMonthly coupon, final InflationProviderInterface market) {
-    return METHOD_YEAR_ON_YEAR_MONTHLY.netAmount(coupon, market);
+  public MultipleCurrencyAmount visitCouponInflationYearOnYearMonthly(final CouponInflationYearOnYearMonthly coupon, final ParameterInflationProviderInterface market) {
+    return METHOD_YEAR_ON_YEAR_MONTHLY.netAmount(coupon, market.getInflationProvider());
   }
 
   @Override
-  public MultipleCurrencyAmount visitCouponInflationYearOnYearInterpolation(final CouponInflationYearOnYearInterpolation coupon, final InflationProviderInterface market) {
-    return METHOD_YEAR_ON_YEAR_INTERPOLATION.netAmount(coupon, market);
+  public MultipleCurrencyAmount visitCouponInflationYearOnYearInterpolation(final CouponInflationYearOnYearInterpolation coupon, final ParameterInflationProviderInterface market) {
+    return METHOD_YEAR_ON_YEAR_INTERPOLATION.netAmount(coupon, market.getInflationProvider());
   }
 
   @Override
-  public MultipleCurrencyAmount visitCouponInflationYearOnYearMonthlyWithMargin(final CouponInflationYearOnYearMonthlyWithMargin coupon, final InflationProviderInterface inflation) {
-    return METHOD_YEAR_ON_YEAR_MONTHLY_WITH_MARGIN.netAmount(coupon, inflation);
+  public MultipleCurrencyAmount visitCouponInflationYearOnYearMonthlyWithMargin(final CouponInflationYearOnYearMonthlyWithMargin coupon, final ParameterInflationProviderInterface inflation) {
+    return METHOD_YEAR_ON_YEAR_MONTHLY_WITH_MARGIN.netAmount(coupon, inflation.getInflationProvider());
   }
 
   @Override
   public MultipleCurrencyAmount visitCouponInflationYearOnYearInterpolationWithMargin(final CouponInflationYearOnYearInterpolationWithMargin coupon,
-      final InflationProviderInterface inflation) {
-    return METHOD_YEAR_ON_YEAR_INTERPOLATION_WITH_MARGIN.netAmount(coupon, inflation);
+      final ParameterInflationProviderInterface inflation) {
+    return METHOD_YEAR_ON_YEAR_INTERPOLATION_WITH_MARGIN.netAmount(coupon, inflation.getInflationProvider());
   }
 }

@@ -32,7 +32,6 @@ import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivativ
 import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative.ForwardCommodityPhysicalSettle;
 import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative.MetalFutureSecurity;
 import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative.MetalFutureTransaction;
-import com.opengamma.analytics.financial.credit.cds.ISDACDSDerivative;
 import com.opengamma.analytics.financial.equity.Equity;
 import com.opengamma.analytics.financial.equity.future.derivative.CashSettledFuture;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityFuture;
@@ -433,10 +432,6 @@ public class InstrumentDerivativeVisitorTest {
       return getValue(bond, true);
     }
 
-    @Override
-    public String visitCDSDerivative(final ISDACDSDerivative cds, final T data) {
-      return getValue(cds, true);
-    }
 
     @Override
     public String visitBondFixedSecurity(final BondFixedSecurity bond) {
@@ -553,10 +548,6 @@ public class InstrumentDerivativeVisitorTest {
       return getValue(bond, false);
     }
 
-    @Override
-    public String visitCDSDerivative(final ISDACDSDerivative cds) {
-      return getValue(cds, false);
-    }
 
     @Override
     public String visitCouponFixed(final CouponFixed payment, final T data) {
@@ -1635,7 +1626,7 @@ public class InstrumentDerivativeVisitorTest {
 
     @Override
     public String visitCouponIborAverageFlatCompoundingSpread(CouponIborAverageFixingDatesCompoundingFlatSpread payment) {
-        return null;
+      return null;
     }
 
     @Override

@@ -19,6 +19,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.provider.calculator.inflation.NetAmountInflationCalculator;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
+import com.opengamma.analytics.financial.provider.description.inflation.ParameterInflationProviderInterface;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -39,7 +40,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
  */
 public class DiscountingInflationNetAmountFunction extends DiscountingInflationFunction {
   /** The net amount calculator */
-  private static final InstrumentDerivativeVisitor<InflationProviderInterface, MultipleCurrencyAmount> CALCULATOR =
+  private static final InstrumentDerivativeVisitor<ParameterInflationProviderInterface, MultipleCurrencyAmount> CALCULATOR =
       NetAmountInflationCalculator.getInstance();
 
   /**

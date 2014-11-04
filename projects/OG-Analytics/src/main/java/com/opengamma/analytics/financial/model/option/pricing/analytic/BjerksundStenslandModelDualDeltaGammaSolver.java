@@ -68,13 +68,13 @@ public class BjerksundStenslandModelDualDeltaGammaSolver {
     final double[] h2 = getHDualDeltaGamma(b, t, sigma, k, b0, bInfinity);
     final double[] x2 = getXDualDeltaGamma(b0, bInfinity, h2);
 
-    //    early exercise
-    //    if (s0 >= x2[0]) {
-    //      res[0] = s0 - k;
-    //      res[1] = -1.0;
-    //      res[2] = 0.0;
-    //      return res;
-    //    }
+    //        early exercise
+    if (s0 >= x2[0]) {
+      res[0] = s0 - k;
+      res[1] = -1.0;
+      res[2] = 0.0;
+      return res;
+    }
 
     final double[] kDual = {k, 1., 0. };
 

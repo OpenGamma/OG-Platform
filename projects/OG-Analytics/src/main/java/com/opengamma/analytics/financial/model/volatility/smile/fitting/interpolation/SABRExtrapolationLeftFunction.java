@@ -13,6 +13,7 @@ import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.B
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.SABRExtrapolationRightFunction;
+import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.analytics.financial.model.volatility.smile.function.VolatilityFunctionProvider;
 import com.opengamma.analytics.math.function.Function1D;
@@ -21,7 +22,7 @@ import com.opengamma.analytics.math.rootfinding.RidderSingleRootFinder;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Counterpart of {@link SABRExtrapolationRightFunction}. Note that several functionalities are absent in this class. 
+ * Counterpart of {@link SABRExtrapolationRightFunction}. Note that several functionalities are absent in this class.
  */
 public class SABRExtrapolationLeftFunction extends SABRExtrapolationLeftRightFunction {
 
@@ -51,8 +52,8 @@ public class SABRExtrapolationLeftFunction extends SABRExtrapolationLeftRightFun
    * @param mu The mu parameter.
    * @param volatilityFunction The SABR volatility function
    */
-  public SABRExtrapolationLeftFunction(final double forward, final SABRFormulaData sabrData, final double cutOffStrike,
-      final double timeToExpiry, final double mu, final VolatilityFunctionProvider<SABRFormulaData> volatilityFunction) {
+  public SABRExtrapolationLeftFunction(final double forward, final SABRFormulaData sabrData, final double cutOffStrike, final double timeToExpiry, final double mu,
+      final VolatilityFunctionProvider<SABRFormulaData> volatilityFunction) {
     super(volatilityFunction);
     Validate.notNull(sabrData, "SABR data");
     Validate.notNull(volatilityFunction, "volatilityFunction");
@@ -156,8 +157,9 @@ public class SABRExtrapolationLeftFunction extends SABRExtrapolationLeftRightFun
       final BlackFunctionData dataBlack = new BlackFunctionData(_forward, 1.0, _volatilityK);
       _priceK[0] = BLACK_FUNCTION.getPriceAdjoint2(option, dataBlack, bsD, bsD2);
     }
+    double volga = BlackFormulaRepository.volga(_forward, _cutOffStrike, _timeToExpiry, _volatilityK);
     _priceK[1] = bsD[2] + bsD[1] * vD[1];
-    _priceK[2] = bsD2[2][2] + bsD2[1][2] * vD[1] + (bsD2[2][1] + bsD2[1][1] * vD[1]) * vD[1] + bsD[1] * vD2[1][1];
+    _priceK[2] = bsD2[2][2] + bsD2[1][2] * vD[1] + (bsD2[2][1] + /* bsD2[1][1] * */volga * vD[1]) * vD[1] + bsD[1] * vD2[1][1];
     double eps = 1.0E-15;
     if (Math.abs(_priceK[0]) < eps && Math.abs(_priceK[1]) < eps && Math.abs(_priceK[2]) < eps) {
       return new double[] {-100.0, 0, 0 };
@@ -169,8 +171,7 @@ public class SABRExtrapolationLeftFunction extends SABRExtrapolationLeftRightFun
     final double[] range = bracketer.getBracketedPoints(toSolveC, -1.0, 1.0);
     param[2] = rootFinder.getRoot(toSolveC, range[0], range[1]);
     param[1] = -2 * param[2] * _cutOffStrike + _priceK[1] / _priceK[0] - _mu / _cutOffStrike;
-    param[0] = Math.log(_priceK[0] / Math.pow(_cutOffStrike, _mu)) - param[1] * _cutOffStrike - param[2] *
-        (_cutOffStrike * _cutOffStrike);
+    param[0] = Math.log(_priceK[0] / Math.pow(_cutOffStrike, _mu)) - param[1] * _cutOffStrike - param[2] * (_cutOffStrike * _cutOffStrike);
     return param;
   }
 
@@ -184,7 +185,7 @@ public class SABRExtrapolationLeftFunction extends SABRExtrapolationLeftRightFun
   }
 
   /**
-   * Inner class to solve the one dimension equation required to obtain c parameters. 
+   * Inner class to solve the one dimension equation required to obtain c parameters.
    */
   private static final class CFunction extends Function1D<Double, Double> {
     /**
@@ -201,7 +202,7 @@ public class SABRExtrapolationLeftFunction extends SABRExtrapolationLeftRightFun
     private final double _cMu;
 
     /**
-     * Constructor of the two dimension function. 
+     * Constructor of the two dimension function.
      * @param price The option price and its derivatives.
      * @param cutOffStrike The cut-off strike.
      * @param mu The tail thickness parameter.
@@ -216,9 +217,8 @@ public class SABRExtrapolationLeftFunction extends SABRExtrapolationLeftRightFun
     public Double evaluate(Double c) {
       double b = -2 * c * _cCutOffStrike + _cPriceK[1] / _cPriceK[0] - _cMu / _cCutOffStrike;
       double k2 = _cCutOffStrike * _cCutOffStrike;
-      double res = -_cPriceK[2] / _cPriceK[0] * k2 + _cMu * (_cMu - 1) + 2 * b * _cMu * _cCutOffStrike +
-          (2 * c * (2 * _cMu + 1) + b * b) * k2 + 4 * b * c * (k2 * _cCutOffStrike) + 4 * c * c
-          * (k2 * k2);
+      double res = -_cPriceK[2] / _cPriceK[0] * k2 + _cMu * (_cMu - 1) + 2 * b * _cMu * _cCutOffStrike + (2 * c * (2 * _cMu + 1) + b * b) * k2 + 4 * b * c * (k2 * _cCutOffStrike) + 4 * c * c *
+          (k2 * k2);
       return res;
     }
   }

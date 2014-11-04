@@ -24,7 +24,7 @@ import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle
 import com.opengamma.analytics.financial.provider.curve.MultiCurveBundle;
 import com.opengamma.analytics.financial.provider.curve.SingleCurveBundle;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderDiscount;
-import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
+import com.opengamma.analytics.financial.provider.description.inflation.ParameterInflationProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.InflationSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.ParameterSensitivityInflationMatrixCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.ParameterSensitivityInflationUnderlyingMatrixCalculator;
@@ -102,8 +102,8 @@ public class InflationDiscountBuildingRepository {
       final LinkedHashMap<String, Currency> discountingMap, final LinkedHashMap<String, IborIndex[]> forwardIborMap, 
       final LinkedHashMap<String, IndexON[]> forwardONMap, final LinkedHashMap<String, IndexPrice[]> inflationMap, 
       final LinkedHashMap<String, GeneratorCurve> generatorsMap,
-      final InstrumentDerivativeVisitor<InflationProviderInterface, Double> calculator,
-      final InstrumentDerivativeVisitor<InflationProviderInterface, InflationSensitivity> sensitivityCalculator) {
+      final InstrumentDerivativeVisitor<ParameterInflationProviderInterface, Double> calculator,
+      final InstrumentDerivativeVisitor<ParameterInflationProviderInterface, InflationSensitivity> sensitivityCalculator) {
     final GeneratorInflationProviderDiscount generator = 
         new GeneratorInflationProviderDiscount(knownData, discountingMap, forwardONMap, inflationMap, generatorsMap);
     final InflationDiscountBuildingData data = new InflationDiscountBuildingData(instruments, generator);
@@ -130,7 +130,7 @@ public class InflationDiscountBuildingRepository {
    */
   private void updateBlockBundle(final InstrumentDerivative[] instruments, final InflationProviderDiscount multicurves, 
       final List<String> currentCurvesList, final CurveBuildingBlockBundle blockBundle, 
-      final InstrumentDerivativeVisitor<InflationProviderInterface, InflationSensitivity> sensitivityCalculator) {
+      final InstrumentDerivativeVisitor<ParameterInflationProviderInterface, InflationSensitivity> sensitivityCalculator) {
     final ParameterSensitivityInflationUnderlyingMatrixCalculator parameterSensitivityCalculator = 
         new ParameterSensitivityInflationUnderlyingMatrixCalculator(sensitivityCalculator);
     int loopc;
@@ -275,8 +275,8 @@ public class InflationDiscountBuildingRepository {
       final InflationProviderDiscount knownData, 
       final LinkedHashMap<String, Currency> discountingMap, final LinkedHashMap<String, IndexON[]> forwardONMap, 
       final LinkedHashMap<String, IborIndex[]> forwardIborMap, final LinkedHashMap<String, IndexPrice[]> inflationMap,
-      final InstrumentDerivativeVisitor<InflationProviderInterface, Double> calculator,
-      final InstrumentDerivativeVisitor<InflationProviderInterface, InflationSensitivity> sensitivityCalculator) {
+      final InstrumentDerivativeVisitor<ParameterInflationProviderInterface, Double> calculator,
+      final InstrumentDerivativeVisitor<ParameterInflationProviderInterface, InflationSensitivity> sensitivityCalculator) {
     return makeCurvesFromDerivatives(curveBundles, knownData, new CurveBuildingBlockBundle(), discountingMap, 
         forwardONMap, forwardIborMap, inflationMap, calculator, sensitivityCalculator);
   }
@@ -298,8 +298,8 @@ public class InflationDiscountBuildingRepository {
       final MultiCurveBundle<? extends GeneratorCurve>[] curveBundles,
       final InflationProviderDiscount knownData, final CurveBuildingBlockBundle knownBlockBundle,
       final LinkedHashMap<String, IndexPrice[]> inflationMap,
-      final InstrumentDerivativeVisitor<InflationProviderInterface, Double> calculator,
-      final InstrumentDerivativeVisitor<InflationProviderInterface, InflationSensitivity> sensitivityCalculator) {
+      final InstrumentDerivativeVisitor<ParameterInflationProviderInterface, Double> calculator,
+      final InstrumentDerivativeVisitor<ParameterInflationProviderInterface, InflationSensitivity> sensitivityCalculator) {
     return makeCurvesFromDerivatives(curveBundles, knownData, knownBlockBundle, new LinkedHashMap<String, Currency>(), 
         new LinkedHashMap<String, IndexON[]>(), new LinkedHashMap<String, IborIndex[]>(), inflationMap, 
         calculator, sensitivityCalculator);
@@ -326,8 +326,8 @@ public class InflationDiscountBuildingRepository {
       final InflationProviderDiscount knownData, final CurveBuildingBlockBundle knownBlockBundle, 
       final LinkedHashMap<String, Currency> discountingMap, final LinkedHashMap<String, IndexON[]> forwardONMap,
       final LinkedHashMap<String, IborIndex[]> forwardIborMap, final LinkedHashMap<String, IndexPrice[]> inflationMap,
-      final InstrumentDerivativeVisitor<InflationProviderInterface, Double> calculator,
-      final InstrumentDerivativeVisitor<InflationProviderInterface, InflationSensitivity> sensitivityCalculator) {
+      final InstrumentDerivativeVisitor<ParameterInflationProviderInterface, Double> calculator,
+      final InstrumentDerivativeVisitor<ParameterInflationProviderInterface, InflationSensitivity> sensitivityCalculator) {
     ArgumentChecker.notNull(curveBundles, "curve bundles");
     ArgumentChecker.notNull(knownData, "known data");
     ArgumentChecker.notNull(inflationMap, "inflation map");

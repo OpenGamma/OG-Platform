@@ -23,7 +23,6 @@ import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZer
 import com.opengamma.analytics.financial.instrument.payment.CouponDefinition;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
-import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflation;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponMonthlyGearing;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
@@ -201,7 +200,7 @@ public class BondCapitalIndexedSecurityDefinitionTest {
     final ZonedDateTime settlementDate2 = spot;
     final double notional = 1.0;
     final CouponInflationDefinition settlementDefinition = nominalLast.with(settlementDate2, nominalLast.getAccrualStartDate(), settlementDate2, notional);
-    final CouponInflation settlement = (CouponInflation) settlementDefinition.toDerivative(pricingDate);
+    final Coupon settlement = settlementDefinition.toDerivative(pricingDate, ukRpi);
     final BondCapitalIndexedSecurity<Coupon> bondSecurityExpected = new BondCapitalIndexedSecurity<>(nominal, coupon, settleTime, accruedInterest,
         factorToNextCoupon, ratioPeriodToNextCoupon, YIELD_CONVENTION_GILT_1, COUPON_PER_YEAR_GILT_1, settlement, INDEX_START_GILT_1, 255.7,
         2.7397260273972606, 255.7 / INDEX_START_GILT_1, ISSUER_UK_NAME); //245.8 //1.410966389699828
@@ -268,8 +267,7 @@ public class BondCapitalIndexedSecurityDefinitionTest {
   private static final int SETTLEMENT_DAYS_TIPS_1 = 2;
   /** The issuer name */
   private static final String ISSUER_US = "US GOVT";
-
-  // TODO : fix this test, problem with date comparison.
+  
   /**
     * Tests the bond constructors for a TIPS.
     */

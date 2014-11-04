@@ -8,18 +8,20 @@ package com.opengamma.analytics.financial.provider.calculator.inflation;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorSameMethodAdapter;
-import com.opengamma.analytics.financial.provider.description.inflation.InflationIssuerProviderInterface;
-import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
+import com.opengamma.analytics.financial.provider.description.inflation.ParameterInflationIssuerProviderInterface;
+import com.opengamma.analytics.financial.provider.description.inflation.ParameterInflationProviderInterface;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
  * @param <RESULT_TYPE> The result-type for the provider.
  */
-public class InflationIssuerProviderAdapter<RESULT_TYPE> extends InstrumentDerivativeVisitorSameMethodAdapter<InflationIssuerProviderInterface, RESULT_TYPE> {
-  private final InstrumentDerivativeVisitor<InflationProviderInterface, RESULT_TYPE> _visitor;
+public class InflationIssuerProviderAdapter<RESULT_TYPE> 
+  extends InstrumentDerivativeVisitorSameMethodAdapter<ParameterInflationIssuerProviderInterface, RESULT_TYPE> {
+  
+  private final InstrumentDerivativeVisitor<ParameterInflationProviderInterface, RESULT_TYPE> _visitor;
 
-  public InflationIssuerProviderAdapter(final InstrumentDerivativeVisitor<InflationProviderInterface, RESULT_TYPE> visitor) {
+  public InflationIssuerProviderAdapter(final InstrumentDerivativeVisitor<ParameterInflationProviderInterface, RESULT_TYPE> visitor) {
     ArgumentChecker.notNull(visitor, "visitor");
     _visitor = visitor;
   }
@@ -30,7 +32,7 @@ public class InflationIssuerProviderAdapter<RESULT_TYPE> extends InstrumentDeriv
   }
 
   @Override
-  public RESULT_TYPE visit(final InstrumentDerivative derivative, final InflationIssuerProviderInterface data) {
+  public RESULT_TYPE visit(final InstrumentDerivative derivative, final ParameterInflationIssuerProviderInterface data) {
     return derivative.accept(_visitor, data.getInflationProvider());
   }
 }

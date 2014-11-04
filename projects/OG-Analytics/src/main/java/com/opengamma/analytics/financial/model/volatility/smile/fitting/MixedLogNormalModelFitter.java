@@ -57,7 +57,7 @@ public class MixedLogNormalModelFitter extends SmileModelFitter<MixedLogNormalMo
   }
 
   @Override
-  protected MixedLogNormalModelData toSmileModelData(final DoubleMatrix1D modelParameters) {
+  public MixedLogNormalModelData toSmileModelData(final DoubleMatrix1D modelParameters) {
     return new MixedLogNormalModelData(modelParameters.getData(), _useShiftedMean);
   }
 

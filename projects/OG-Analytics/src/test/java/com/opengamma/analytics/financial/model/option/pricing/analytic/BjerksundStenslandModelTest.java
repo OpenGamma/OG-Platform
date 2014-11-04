@@ -94,7 +94,7 @@ public class BjerksundStenslandModelTest {
 
   private static final Function1D<DoubleMatrix1D, DoubleMatrix1D> CALL_ADJOINT_FD = SCALAR_FIELD_DIFF.differentiate(CALL_PRICE_FUNC, DOMAIN);
   private static final Function1D<DoubleMatrix1D, DoubleMatrix1D> PUT_ADJOINT_FD = SCALAR_FIELD_DIFF.differentiate(PUT_PRICE_FUNC, DOMAIN);
-  
+
   @Test
   public void priceTest() {
     final double s0 = 120;

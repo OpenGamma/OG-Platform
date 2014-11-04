@@ -10,7 +10,7 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.FederalF
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.future.provider.FederalFundsFutureSecurityDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureSecurityDiscountingMethod;
-import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 
 /**
@@ -18,7 +18,8 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.Multicu
  * The notion of "rate" will depend of each instrument. The "market quote" will be used for most instruments. 
  * The exceptions are: STIR futures, Fed Funds futres,
  */
-public final class ParSpreadRateCurveSensitivityDiscountingCalculator extends InstrumentDerivativeVisitorDelegate<MulticurveProviderInterface, MulticurveSensitivity> {
+public final class ParSpreadRateCurveSensitivityDiscountingCalculator 
+  extends InstrumentDerivativeVisitorDelegate<ParameterProviderInterface, MulticurveSensitivity> {
 
   /**
    * The unique instance of the calculator.
@@ -49,12 +50,12 @@ public final class ParSpreadRateCurveSensitivityDiscountingCalculator extends In
   //     -----     Futures     -----
 
   @Override
-  public MulticurveSensitivity visitInterestRateFutureTransaction(final InterestRateFutureTransaction futures, final MulticurveProviderInterface multicurves) {
+  public MulticurveSensitivity visitInterestRateFutureTransaction(final InterestRateFutureTransaction futures, final ParameterProviderInterface multicurves) {
     return METHOD_STIR_FUT.priceCurveSensitivity(futures.getUnderlyingSecurity(), multicurves).multipliedBy(-1);
   }
 
   @Override
-  public MulticurveSensitivity visitFederalFundsFutureTransaction(final FederalFundsFutureTransaction future, final MulticurveProviderInterface multicurves) {
+  public MulticurveSensitivity visitFederalFundsFutureTransaction(final FederalFundsFutureTransaction future, final ParameterProviderInterface multicurves) {
     return METHOD_FED_FUNDS.priceCurveSensitivity(future.getUnderlyingSecurity(), multicurves).multipliedBy(-1);
   }
 

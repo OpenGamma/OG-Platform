@@ -9,16 +9,16 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorSameMethodAdapter;
 import com.opengamma.analytics.financial.provider.description.inflation.BlackSmileCapInflationZeroCouponProviderInterface;
-import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 
 /**
  *  @param <RESULT_TYPE> The result-type for the provider.
  */
 public class BlackSmileCapInflationZeroCouponProviderAdapter<RESULT_TYPE> extends InstrumentDerivativeVisitorSameMethodAdapter<BlackSmileCapInflationZeroCouponProviderInterface, RESULT_TYPE> {
 
-  private final InstrumentDerivativeVisitor<MulticurveProviderInterface, RESULT_TYPE> _visitor;
+  private final InstrumentDerivativeVisitor<ParameterProviderInterface, RESULT_TYPE> _visitor;
 
-  public BlackSmileCapInflationZeroCouponProviderAdapter(final InstrumentDerivativeVisitor<MulticurveProviderInterface, RESULT_TYPE> visitor) {
+  public BlackSmileCapInflationZeroCouponProviderAdapter(final InstrumentDerivativeVisitor<ParameterProviderInterface, RESULT_TYPE> visitor) {
     _visitor = visitor;
   }
 

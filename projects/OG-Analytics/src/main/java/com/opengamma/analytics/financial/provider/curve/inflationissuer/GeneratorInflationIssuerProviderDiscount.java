@@ -70,7 +70,7 @@ public class GeneratorInflationIssuerProviderDiscount extends Function1D<DoubleM
    * @param generatorsInflationMap The inflation generators map.
    */
   public GeneratorInflationIssuerProviderDiscount(final InflationIssuerProviderDiscount knownData, final LinkedHashMap<String, IndexPrice[]> inflationMap,
-      final LinkedHashMap<String, GeneratorPriceIndexCurve> generatorsInflationMap) {
+      final LinkedHashMap<String, GeneratorCurve> generatorsInflationMap) {
     ArgumentChecker.notNull(inflationMap, "Inflation curves names map");
     _knownData = knownData;
     _discountingMap = new LinkedHashMap<>();
@@ -127,10 +127,8 @@ public class GeneratorInflationIssuerProviderDiscount extends Function1D<DoubleM
     int indexParam = 0;
     for (final String name : nameSet) {
       final GeneratorCurve generator = _generatorsMap.get(name);
-
       final double[] paramCurve = Arrays.copyOfRange(x.getData(), indexParam, indexParam + generator.getNumberOfParameter());
       indexParam += generator.getNumberOfParameter();
-
       if (generator instanceof GeneratorYDCurve) {
         final GeneratorYDCurve discountGenerator = (GeneratorYDCurve) generator;
         final YieldAndDiscountCurve curve = discountGenerator.generateCurve(name, provider.getMulticurveProvider(), paramCurve);

@@ -242,6 +242,7 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
     
     ZonedDateTime[] adjustedAccrualEndDates = getAccrualEndDates();
     ZonedDateTime[] adjustedAccrualStartDates = ScheduleCalculator.getStartDates(startDate, adjustedAccrualEndDates);
+    resetNotionalProvider(adjustedAccrualStartDates);
         
     ZonedDateTime[] paymentDates;
     if (DateRelativeTo.START == getPaymentDateRelativeTo()) {

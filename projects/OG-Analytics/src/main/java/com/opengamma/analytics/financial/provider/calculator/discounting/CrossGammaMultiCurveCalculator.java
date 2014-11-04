@@ -15,7 +15,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
-import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
@@ -40,7 +40,7 @@ public class CrossGammaMultiCurveCalculator {
   private static final double BP1 = 1.0E-4;
 
   /** The sensitivity calculator to the curve parameters used for the delta computation */
-  private final ParameterSensitivityParameterCalculator<MulticurveProviderInterface> _psc;
+  private final ParameterSensitivityParameterCalculator<ParameterProviderInterface> _psc;
   /** The shift used for finite difference Gamma using two deltas. */
   private final double _shift;
 
@@ -50,7 +50,7 @@ public class CrossGammaMultiCurveCalculator {
    * @param curveSensitivityCalculator The delta (curve sensitivity) calculator.
    */
   public CrossGammaMultiCurveCalculator(final double shift,
-      final InstrumentDerivativeVisitor<MulticurveProviderInterface, MultipleCurrencyMulticurveSensitivity> curveSensitivityCalculator) {
+      final InstrumentDerivativeVisitor<ParameterProviderInterface, MultipleCurrencyMulticurveSensitivity> curveSensitivityCalculator) {
     ArgumentChecker.notNull(curveSensitivityCalculator, "sensitivity calculator");
     ArgumentChecker.isTrue(Math.abs(shift) > 1.0E-10, "shift should not be larger in absolute value than 1.0E-10");
     _psc = new ParameterSensitivityParameterCalculator<>(curveSensitivityCalculator);
@@ -62,7 +62,7 @@ public class CrossGammaMultiCurveCalculator {
    * The finite difference nump used is the default bump (1 basis point = 1.0E-4).
    * @param curveSensitivityCalculator The delta (curve sensitivity) calculator.
    */
-  public CrossGammaMultiCurveCalculator(final InstrumentDerivativeVisitor<MulticurveProviderInterface, MultipleCurrencyMulticurveSensitivity> curveSensitivityCalculator) {
+  public CrossGammaMultiCurveCalculator(final InstrumentDerivativeVisitor<ParameterProviderInterface, MultipleCurrencyMulticurveSensitivity> curveSensitivityCalculator) {
     ArgumentChecker.notNull(curveSensitivityCalculator, "sensitivity calculator");
     _psc = new ParameterSensitivityParameterCalculator<>(curveSensitivityCalculator);
     _shift = BP1;

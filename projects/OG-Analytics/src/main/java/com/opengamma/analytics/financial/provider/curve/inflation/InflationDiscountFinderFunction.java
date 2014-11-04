@@ -7,7 +7,7 @@ package com.opengamma.analytics.financial.provider.curve.inflation;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderDiscount;
-import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
+import com.opengamma.analytics.financial.provider.description.inflation.ParameterInflationProviderInterface;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.ArgumentChecker;
@@ -20,7 +20,7 @@ public class InflationDiscountFinderFunction extends Function1D<DoubleMatrix1D, 
   /**
   * The instrument value calculator.
   */
-  private final InstrumentDerivativeVisitor<InflationProviderInterface, Double> _calculator;
+  private final InstrumentDerivativeVisitor<ParameterInflationProviderInterface, Double> _calculator;
 
   /**
    * The data required for curve building.
@@ -32,7 +32,7 @@ public class InflationDiscountFinderFunction extends Function1D<DoubleMatrix1D, 
    * @param inflationCalculator The instrument value calculator.
    * @param data The data required for curve building.
    */
-  public InflationDiscountFinderFunction(final InstrumentDerivativeVisitor<InflationProviderInterface, Double> inflationCalculator, final InflationDiscountBuildingData data) {
+  public InflationDiscountFinderFunction(final InstrumentDerivativeVisitor<ParameterInflationProviderInterface, Double> inflationCalculator, final InflationDiscountBuildingData data) {
     ArgumentChecker.notNull(inflationCalculator, "Calculator");
     ArgumentChecker.notNull(data, "Data");
     _calculator = inflationCalculator;

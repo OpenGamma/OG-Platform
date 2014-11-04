@@ -13,7 +13,7 @@
   </parent>  
   <groupId>com.opengamma.platform</groupId>
   <artifactId>og-platform</artifactId>
-  <version>2.6.0-SNAPSHOT</version>
+  <version>2.7.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>OG-Platform</name>
   <description>OpenGamma Platform project</description>
@@ -1246,7 +1246,7 @@
     <jacoco-maven-plugin.version>0.7.0.201403182114</jacoco-maven-plugin.version>
     <joda-beans.version>1.1</joda-beans.version>
     <joda-convert.version>1.7</joda-convert.version>
-    <fudge-java.version>0.3.9.19</fudge-java.version>
+    <fudge-java.version>0.3.9.20</fudge-java.version>
     <fudge-proto.version>0.3.9.7</fudge-proto.version>
     <og.spring.version>3.2.3.RELEASE</og.spring.version>
     <jetty.version>8.1.11.v20130520</jetty.version>

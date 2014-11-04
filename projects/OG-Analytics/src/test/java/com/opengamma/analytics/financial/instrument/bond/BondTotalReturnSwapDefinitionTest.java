@@ -40,7 +40,7 @@ public class BondTotalReturnSwapDefinitionTest {
   private static final double NOTIONAL_TRS = 123456000;
   // Bond (UKT)
   private static final double NOTIONAL_BND = 100000000;
-  private static final BondFixedSecurityDefinition UKT14_DEFINITION = BondDataSets.bondUKT5_20140907();
+  private static final BondFixedSecurityDefinition UKT14_DEFINITION = BondDataSetsGbp.bondUKT5_20140907();
   // Funding: unique fixed coupon in GBP: pay TRS bond, receive funding
   private static final double RATE = 0.0043;
   private static final CouponFixedDefinition FUNDING_FIXED_CPN_REC_DEFINITION = new CouponFixedDefinition(UKT14_DEFINITION.getCurrency(),

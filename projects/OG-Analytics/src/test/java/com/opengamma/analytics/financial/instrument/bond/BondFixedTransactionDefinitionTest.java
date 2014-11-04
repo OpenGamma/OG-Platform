@@ -169,7 +169,7 @@ public class BondFixedTransactionDefinitionTest {
     assertEquals("Bond transaction: accrued", accrual101010, bond101010.getAccruedInterest() * notional, TOLERANCE_ACCRUED);
   }
 
-  private static final BondFixedSecurityDefinition BOND_UKT_500_20140907 = BondDataSets.bondUKT5_20140907();
+  private static final BondFixedSecurityDefinition BOND_UKT_500_20140907 = BondDataSetsGbp.bondUKT5_20140907();
 
   /** Test the constructor with settlement date in the ex-coupon period. */
   @Test

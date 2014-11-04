@@ -18,6 +18,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.provider.calculator.discounting.MarketQuoteDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
@@ -38,7 +39,7 @@ import com.opengamma.financial.security.future.InterestRateFutureSecurity;
  */
 public class DiscountingMarketQuoteFunction extends DiscountingFunction {
   /** The market quote calculator */
-  private static final InstrumentDerivativeVisitor<MulticurveProviderInterface, Double> CALCULATOR =
+  private static final InstrumentDerivativeVisitor<ParameterProviderInterface, Double> CALCULATOR =
       MarketQuoteDiscountingCalculator.getInstance();
 
   /**

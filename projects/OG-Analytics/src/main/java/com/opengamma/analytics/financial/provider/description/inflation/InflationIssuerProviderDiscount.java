@@ -39,14 +39,16 @@ import com.opengamma.util.tuple.Pair;
  */
 public class InflationIssuerProviderDiscount implements InflationIssuerProviderInterface {
   private static final Logger s_logger = LoggerFactory.getLogger(InflationIssuerProviderDiscount.class);
-  /**
-   * The multicurve provider.
-   */
+  
+  /** The inflation provider. */
   private final InflationProviderDiscount _inflationProvider;
+  /** The issuer provider. */
+  private final IssuerProviderDiscount _issuerProvider;
   /**
    * A map with issuer discounting curves.
    */
   private final Map<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> _issuerCurves;
+  
 
   /**
    * The set of names of all curves used in the inflation provider.
@@ -68,6 +70,7 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
   public InflationIssuerProviderDiscount() {
     _inflationProvider = new InflationProviderDiscount();
     _issuerCurves = new LinkedHashMap<>();
+    _issuerProvider = new IssuerProviderDiscount(this.getMulticurveProvider(), _issuerCurves);
     setAllCurves();
   }
 
@@ -78,6 +81,7 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
   public InflationIssuerProviderDiscount(final FXMatrix fxMatrix) {
     _inflationProvider = new InflationProviderDiscount(fxMatrix);
     _issuerCurves = new LinkedHashMap<>();
+    _issuerProvider = new IssuerProviderDiscount(this.getMulticurveProvider(), _issuerCurves);
     setAllCurves();
   }
 
@@ -95,6 +99,7 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
       final Map<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> issuerCurves, final FXMatrix fxMatrix) {
     _inflationProvider = new InflationProviderDiscount(discountingCurves, forwardIborCurves, forwardONCurves, priceIndexCurves, fxMatrix);
     _issuerCurves = issuerCurves;
+    _issuerProvider = new IssuerProviderDiscount(this.getMulticurveProvider(), _issuerCurves);
     setAllCurves();
   }
 
@@ -106,6 +111,7 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
   public InflationIssuerProviderDiscount(final InflationProviderDiscount inflation, final Map<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> issuerCurves) {
     _inflationProvider = inflation;
     _issuerCurves = issuerCurves;
+    _issuerProvider = new IssuerProviderDiscount(this.getMulticurveProvider(), _issuerCurves);
     setAllCurves();
   }
 
@@ -117,6 +123,7 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
   public InflationIssuerProviderDiscount(final InflationProviderDiscount inflation, final IssuerProviderDiscount issuerProvider) {
     _inflationProvider = inflation;
     _issuerCurves = issuerProvider.getIssuerCurves();
+    _issuerProvider = new IssuerProviderDiscount(this.getMulticurveProvider(), _issuerCurves);
     setAllCurves();
   }
 
@@ -128,6 +135,7 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
     _inflationProvider = new InflationProviderDiscount();
     _inflationProvider.setAll(new InflationProviderDiscount(issuerProvider.getMulticurveProvider()));
     _issuerCurves = issuerProvider.getIssuerCurves();
+    _issuerProvider = new IssuerProviderDiscount(this.getMulticurveProvider(), _issuerCurves);
     setAllCurves();
   }
 
@@ -203,6 +211,11 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
     return _inflationProvider;
   }
 
+  @Override
+  public IssuerProviderDiscount getIssuerProvider() {
+    return new IssuerProviderDiscount(this.getMulticurveProvider(), _issuerCurves);
+  }
+
   /**
    * Gets the curve for an identifier / filter pair.
    * @param issuer The issuer
@@ -253,6 +266,21 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
       return issuerCurve.getNumberOfParameters();
     }
     throw new UnsupportedOperationException("Cannot return the number of parameter for a null curve");
+  }
+
+  /**
+   * Return the number of intrinsic parameters for the definition of the curve. 
+   * Which is the total number of parameters minus the parameters of the curves in curvesNames (If they are in curves).
+   *  @param name the name of the curve.
+   *  @param curvesNames The list of curves names.
+   *  @return The number of parameters.
+   */
+  public Integer getNumberOfIntrinsicParameters(final String name, final Set<String> curvesNames) {
+    final YieldAndDiscountCurve issuerCurve = _issuerCurvesNames.get(name);
+    if (issuerCurve != null) {
+      return issuerCurve.getNumberOfIntrinsicParameters(curvesNames);
+    }
+    return _inflationProvider.getNumberOfIntrinsicParameters(name, curvesNames);
   }
 
   @Override
@@ -540,11 +568,6 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
       return false;
     }
     return true;
-  }
-
-  @Override
-  public IssuerProviderDiscount getIssuerProvider() {
-    return new IssuerProviderDiscount(this.getMulticurveProvider(), _issuerCurves);
   }
 
   @Override

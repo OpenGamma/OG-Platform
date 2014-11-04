@@ -11,8 +11,8 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlock;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.inflation.ParameterInflationProviderInterface;
+import com.opengamma.analytics.financial.provider.sensitivity.inflation.ParameterSensitivityInflationParameterAbstractCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
-import com.opengamma.analytics.financial.provider.sensitivity.parameter.AbstractParameterInflationSensitivityParameterCalculator;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.matrix.MatrixAlgebra;
@@ -38,13 +38,14 @@ public class MarketQuoteInflationSensitivityBlockCalculator<DATA_TYPE extends Pa
   /**
    * The parameter sensitivity calculator. The parameters are the parameters used to described the curve.
    */
-  private final AbstractParameterInflationSensitivityParameterCalculator<DATA_TYPE> _parameterInflationSensitivityCalculator;
+  private final ParameterSensitivityInflationParameterAbstractCalculator<DATA_TYPE> _parameterInflationSensitivityCalculator;
 
   /**
    * The constructor.
    * @param parameterInflationSensitivityCalculator The parameter sensitivity calculator.
    */
-  public MarketQuoteInflationSensitivityBlockCalculator(final AbstractParameterInflationSensitivityParameterCalculator<DATA_TYPE> parameterInflationSensitivityCalculator) {
+  public MarketQuoteInflationSensitivityBlockCalculator(
+      final ParameterSensitivityInflationParameterAbstractCalculator<DATA_TYPE> parameterInflationSensitivityCalculator) {
     _parameterInflationSensitivityCalculator = parameterInflationSensitivityCalculator;
   }
 
@@ -54,7 +55,8 @@ public class MarketQuoteInflationSensitivityBlockCalculator<DATA_TYPE extends Pa
    * @param units The curve building units data.
    * @return The market quote sensitivity.
    */
-  public MultipleCurrencyParameterSensitivity fromParameterSensitivity(final MultipleCurrencyParameterSensitivity parameterSensitivity, final CurveBuildingBlockBundle units) {
+  public MultipleCurrencyParameterSensitivity fromParameterSensitivity(
+      final MultipleCurrencyParameterSensitivity parameterSensitivity, final CurveBuildingBlockBundle units) {
     ArgumentChecker.notNull(parameterSensitivity, "Sensitivity");
     ArgumentChecker.notNull(units, "Units");
     MultipleCurrencyParameterSensitivity result = new MultipleCurrencyParameterSensitivity();
@@ -82,7 +84,8 @@ public class MarketQuoteInflationSensitivityBlockCalculator<DATA_TYPE extends Pa
    * @param units The curve building units data.
    * @return The market quote sensitivity.
    */
-  public MultipleCurrencyParameterSensitivity fromInstrument(final InstrumentDerivative instrument, final DATA_TYPE provider, final CurveBuildingBlockBundle units) {
+  public MultipleCurrencyParameterSensitivity fromInstrument(final InstrumentDerivative instrument, 
+      final DATA_TYPE provider, final CurveBuildingBlockBundle units) {
     final MultipleCurrencyParameterSensitivity parameterSensitivity = _parameterInflationSensitivityCalculator.calculateSensitivity(instrument, provider);
     return fromParameterSensitivity(parameterSensitivity, units);
   }

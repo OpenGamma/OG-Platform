@@ -29,7 +29,7 @@ import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
 
-@Test(groups = TestGroup.UNIT)
+@Test(groups = TestGroup.INTEGRATION)
 public class SpotRateShiftTest {
 
   private static final double DELTA = 0.00000001;
