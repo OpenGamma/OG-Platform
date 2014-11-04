@@ -61,16 +61,6 @@ public class ForexInstrumentsDescriptionDataSet {
   }
 
   /**
-   * Creates a FX definition
-   * @return A FX definition
-   * @deprecated Use the non-deprecated method that does not use yield curve names.
-   */
-  @Deprecated
-  public static Forex createForexDeprecated() {
-    return createForexDefinition().toDerivative(REFERENCE_DATE, CURVES_NAME);
-  }
-
-  /**
    * Creates a FX
    * @return A FX
    */

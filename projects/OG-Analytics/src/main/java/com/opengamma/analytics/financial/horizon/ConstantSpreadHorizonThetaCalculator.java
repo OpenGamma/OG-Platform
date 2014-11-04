@@ -290,10 +290,10 @@ public final class ConstantSpreadHorizonThetaCalculator {
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
     ArgumentChecker.notNull(data, "yield curve data");
     ArgumentChecker.isTrue(daysForward == 1 || daysForward == -1, "daysForward must be either 1 or -1");
-    final InstrumentDerivative instrumentToday = definition.toDerivative(date, yieldCurveNames);
+    final InstrumentDerivative instrumentToday = definition.toDerivative(date);
     final ZonedDateTime horizonDate = date.plusDays(daysForward);
     final double shiftTime = TimeCalculator.getTimeBetween(date, horizonDate);
-    final InstrumentDerivative instrumentTomorrow = definition.toDerivative(horizonDate, yieldCurveNames);
+    final InstrumentDerivative instrumentTomorrow = definition.toDerivative(horizonDate);
     final YieldCurveBundle tomorrowData = CURVE_ROLLDOWN.rollDown(data, shiftTime);
     final PresentValueMCACalculator pvCalculator = PresentValueMCACalculator.getInstance();
     return subtract(instrumentTomorrow.accept(pvCalculator, tomorrowData), instrumentToday.accept(pvCalculator, data));
