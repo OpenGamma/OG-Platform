@@ -127,7 +127,7 @@ public abstract class FXOptionBlackTermStructureFunction extends AbstractFunctio
       ccy2 = putCurrency;
       spot = 1. / (Double) spotObject;
     }
-    final InstrumentDerivative fxOption = definition.toDerivative(now, allCurveNames);
+    final InstrumentDerivative fxOption = definition.toDerivative(now);
     final YieldCurveBundle yieldCurves = new YieldCurveBundle(allCurveNames, curves);
     final Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolatorName, leftExtrapolatorName, rightExtrapolatorName);
     final ValueRequirement fxVolatilitySurfaceRequirement = getSurfaceRequirement(surfaceName, putCurrency, callCurrency, interpolatorName, leftExtrapolatorName, rightExtrapolatorName);

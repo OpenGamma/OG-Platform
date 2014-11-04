@@ -320,9 +320,9 @@ public class FixedIncomeConverterDataProvider {
         localDateTS = localDateTS.divide(100);
         final ZonedDateTimeDoubleTimeSeries indexTS = convertTimeSeries(localDateTS);
         // TODO: remove the zone
-        return brlDefinition.toDerivative(now, indexTS, curveNames);
+        return brlDefinition.toDerivative(now, indexTS);
       }
-      return definition.toDerivative(now, curveNames);
+      return definition.toDerivative(now);
     }
 
     @Override
@@ -1168,9 +1168,9 @@ public class FixedIncomeConverterDataProvider {
         final HistoricalTimeSeriesBundle timeSeries) {
       if (curveNames.length == 1) {
         final String[] singleCurve = new String[] {curveNames[0], curveNames[0] };
-        return definition.toDerivative(now, singleCurve);
+        return definition.toDerivative(now);
       }
-      return definition.toDerivative(now, curveNames);
+      return definition.toDerivative(now);
     }
 
     @Override
