@@ -83,7 +83,7 @@ public class ForexNonDeliverableOptionDefinition implements InstrumentDefinition
   @Deprecated
   @Override
   public ForexNonDeliverableOption toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    return new ForexNonDeliverableOption(_underlyingNDF.toDerivative(date, yieldCurveNames), _isCall, _isLong);
+    throw new UnsupportedOperationException(this.getClass().getCanonicalName());
   }
 
   /**

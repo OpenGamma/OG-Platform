@@ -158,7 +158,6 @@ public class ForexDerivativeVisitorTest {
 
   private static final ForexOptionVanilla FX_OPTION = ForexInstrumentsDescriptionDataSet.createForexOptionVanillaDeprecated();
   private static final ForexOptionSingleBarrier FX_OPTION_SINGLE_BARRIER = ForexInstrumentsDescriptionDataSet.createForexOptionSingleBarrierDeprecated();
-  private static final ForexNonDeliverableForward NDF = ForexInstrumentsDescriptionDataSet.createForexNonDeliverableForwardDeprecated();
   private static final ForexNonDeliverableOption NDO = ForexInstrumentsDescriptionDataSet.createForexNonDeliverableOptionDeprecated();
   private static final ForexOptionDigital FX_OPTION_DIGITAL = ForexInstrumentsDescriptionDataSet.createForexOptionDigitalDeprecated();
 
@@ -175,8 +174,6 @@ public class ForexDerivativeVisitorTest {
     assertEquals(FX_OPTION.accept(VISITOR, o), "ForexOptionVanilla2");
     assertEquals(FX_OPTION_SINGLE_BARRIER.accept(VISITOR), "ForexOptionSingleBarrier1");
     assertEquals(FX_OPTION_SINGLE_BARRIER.accept(VISITOR, o), "ForexOptionSingleBarrier2");
-    assertEquals(NDF.accept(VISITOR), "ForexNonDeliverableForward1");
-    assertEquals(NDF.accept(VISITOR, o), "ForexNonDeliverableForward2");
     assertEquals(NDO.accept(VISITOR), "ForexNonDeliverableOption1");
     assertEquals(NDO.accept(VISITOR, o), "ForexNonDeliverableOption2");
   }
@@ -188,8 +185,6 @@ public class ForexDerivativeVisitorTest {
     testException(FX_OPTION, o);
     testException(FX_OPTION_SINGLE_BARRIER);
     testException(FX_OPTION_SINGLE_BARRIER, o);
-    testException(NDF);
-    testException(NDF, o);
     testException(NDO);
     testException(NDO, o);
     testException(FX_OPTION_DIGITAL);
@@ -768,7 +763,6 @@ public class ForexDerivativeVisitorTest {
     public String visitCouponIborCompounding(final CouponIborCompounding payment, final T data) {
       return null;
     }
-
 
     @Override
     public String visitSwapFuturesPriceDeliverableSecurity(final SwapFuturesPriceDeliverableSecurity futures, final T data) {

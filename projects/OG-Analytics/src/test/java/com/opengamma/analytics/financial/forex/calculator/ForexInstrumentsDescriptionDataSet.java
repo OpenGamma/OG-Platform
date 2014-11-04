@@ -147,16 +147,6 @@ public class ForexInstrumentsDescriptionDataSet {
   /**
    * Creates a non-deliverable FX forward
    * @return A non-deliverable FX forward
-   * @deprecated Use the non-deprecated method that does not use yield curve names
-   */
-  @Deprecated
-  public static ForexNonDeliverableForward createForexNonDeliverableForwardDeprecated() {
-    return createForexNonDeliverableForwardDefinition().toDerivative(REFERENCE_DATE, CURVES_NAME);
-  }
-
-  /**
-   * Creates a non-deliverable FX forward
-   * @return A non-deliverable FX forward
    */
   public static ForexNonDeliverableForward createForexNonDeliverableForward() {
     return createForexNonDeliverableForwardDefinition().toDerivative(REFERENCE_DATE);
