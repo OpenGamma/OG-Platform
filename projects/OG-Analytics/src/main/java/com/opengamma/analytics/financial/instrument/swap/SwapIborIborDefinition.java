@@ -106,11 +106,7 @@ public class SwapIborIborDefinition extends SwapDefinition {
   @Deprecated
   @Override
   public Swap<Coupon, Coupon> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    final String[] firstLegCurveNames = new String[] {yieldCurveNames[0], yieldCurveNames[1] };
-    final String[] secondLegCurveNames = new String[] {yieldCurveNames[0], yieldCurveNames[2] };
-    final Annuity<Coupon> firstLeg = getFirstLeg().toDerivative(date, firstLegCurveNames);
-    final Annuity<Coupon> secondLeg = getSecondLeg().toDerivative(date, secondLegCurveNames);
-    return new Swap<>(firstLeg, secondLeg);
+    throw new UnsupportedOperationException();
   }
 
   /**
