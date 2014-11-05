@@ -225,12 +225,7 @@ public class FederalFundsFutureSecurityDefinition extends FuturesSecurityDefinit
   @Deprecated
   @Override
   public FederalFundsFutureSecurity toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(date, "Date");
-    ArgumentChecker.isTrue(!date.isAfter(_fixingPeriodDates[_index.getPublicationLag()]), "Date should not be after the fixing period start date");
-    final double lastTradingTime = TimeCalculator.getTimeBetween(date, getLastTradingDate());
-    final double[] fixingPeriodTime = TimeCalculator.getTimeBetween(date, _fixingPeriodDates);
-    return new FederalFundsFutureSecurity(_index, 0.0, fixingPeriodTime, lastTradingTime, _fixingPeriodAccrualFactor, _fixingTotalAccrualFactor, _notional,
-        _marginAccrualFactor, _name, yieldCurveNames[0]);
+    throw new UnsupportedOperationException();
   }
 
   /**
@@ -242,43 +237,7 @@ public class FederalFundsFutureSecurityDefinition extends FuturesSecurityDefinit
   @Deprecated
   @Override
   public FederalFundsFutureSecurity toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(date, "Date");
-    if (date.isBefore(_fixingPeriodDates[1])) { // Fixing period not started
-      return toDerivative(date, yieldCurveNames);
-    }
-    final double lastTradingTime = TimeCalculator.getTimeBetween(date, getLastTradingDate());
-    int fixedPeriod = 0;
-    double accruedInterest = 0.0;
-    while (date.isAfter(_fixingPeriodDates[fixedPeriod + _index.getPublicationLag()]) && fixedPeriod < _fixingPeriodDates.length - 1) {
-      // Fixing should have taken place already
-      final Double fixedRate = indexFixingTimeSeries.getValue(_fixingPeriodDates[fixedPeriod + _index.getPublicationLag()]);
-      if (fixedRate == null) {
-        throw new OpenGammaRuntimeException("Could not get fixing value for date " + _fixingPeriodDates[fixedPeriod]);
-      }
-      accruedInterest += _fixingPeriodAccrualFactor[fixedPeriod] * fixedRate;
-      fixedPeriod++;
-    }
-    if (fixedPeriod < _fixingPeriodDates.length - 1) { // Some FF period left
-      final Double fixedRate = indexFixingTimeSeries.getValue(_fixingPeriodDates[fixedPeriod + _index.getPublicationLag()]);
-      if (fixedRate != null) { // Fixed already
-        accruedInterest += _fixingPeriodAccrualFactor[fixedPeriod] * fixedRate;
-        fixedPeriod++;
-      }
-      if (fixedPeriod < _fixingPeriodDates.length - 1) { // Some FF period left
-        final double[] fixingPeriodTime = new double[_fixingPeriodDates.length - fixedPeriod];
-        final double[] fixingPeriodAccrualFactor = new double[_fixingPeriodDates.length - 1 - fixedPeriod];
-        for (int loopfix = 0; loopfix < _fixingPeriodDates.length - fixedPeriod; loopfix++) {
-          fixingPeriodTime[loopfix] = TimeCalculator.getTimeBetween(date, _fixingPeriodDates[loopfix + fixedPeriod]);
-        }
-        System.arraycopy(_fixingPeriodAccrualFactor, fixedPeriod, fixingPeriodAccrualFactor, 0, _fixingPeriodDates.length - 1 - fixedPeriod);
-        return new FederalFundsFutureSecurity(_index, accruedInterest, fixingPeriodTime, lastTradingTime, fixingPeriodAccrualFactor, _fixingTotalAccrualFactor, _notional,
-            _marginAccrualFactor, _name, yieldCurveNames[0]);
-      }
-      return new FederalFundsFutureSecurity(_index, accruedInterest, new double[] {TimeCalculator.getTimeBetween(date, _fixingPeriodDates[_fixingPeriodDates.length - 1]) },
-          lastTradingTime, new double[0], _fixingTotalAccrualFactor, _notional, _marginAccrualFactor, _name, yieldCurveNames[0]);
-    }
-    return new FederalFundsFutureSecurity(_index, accruedInterest, new double[] {TimeCalculator.getTimeBetween(date, _fixingPeriodDates[_fixingPeriodDates.length - 1]) },
-        lastTradingTime, new double[0], _fixingTotalAccrualFactor, _notional, _marginAccrualFactor, _name, yieldCurveNames[0]);
+    throw new UnsupportedOperationException();
   }
 
   @Override

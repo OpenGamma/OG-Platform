@@ -50,21 +50,7 @@ public class InterestRateFutureOptionMarginTransactionDefinition extends Futures
   @Deprecated
   @Override
   public InterestRateFutureOptionMarginTransaction toDerivative(final ZonedDateTime dateTime, final Double lastMarginPrice, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(dateTime, "date");
-    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
-    final LocalDate date = dateTime.toLocalDate();
-    ArgumentChecker.isTrue(!date.isAfter(getUnderlyingSecurity().getUnderlyingFuture().getFixingPeriodStartDate().toLocalDate()), "Date is after last margin date");
-    final LocalDate tradeDateLocal = getTradeDate().toLocalDate();
-    ArgumentChecker.isTrue(!date.isBefore(tradeDateLocal), "Valuation date {} is before the trade date {} ", date, tradeDateLocal);
-    final InterestRateFutureOptionMarginSecurity underlyingOption = getUnderlyingSecurity().toDerivative(dateTime, yieldCurveNames);
-    double referencePrice;
-    if (tradeDateLocal.isBefore(dateTime.toLocalDate())) { // Transaction was before last margining.
-      referencePrice = lastMarginPrice;
-    } else { // Transaction is today
-      referencePrice = getTradePrice();
-    }
-    final InterestRateFutureOptionMarginTransaction optionTransaction = new InterestRateFutureOptionMarginTransaction(underlyingOption, getQuantity(), referencePrice);
-    return optionTransaction;
+    throw new UnsupportedOperationException();
   }
 
   @Override

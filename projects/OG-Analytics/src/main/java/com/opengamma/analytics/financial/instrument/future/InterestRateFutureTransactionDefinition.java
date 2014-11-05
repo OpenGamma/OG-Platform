@@ -100,24 +100,7 @@ public class InterestRateFutureTransactionDefinition extends FuturesTransactionD
   @Deprecated
   @Override
   public InterestRateFutureTransaction toDerivative(final ZonedDateTime dateTime, final Double lastMarginPrice, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(dateTime, "date");
-    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
-    final LocalDate date = dateTime.toLocalDate();
-    ArgumentChecker.isTrue(yieldCurveNames.length > 1, "at least two curves required");
-    final LocalDate transactionDateLocal = getTradeDate().toLocalDate();
-    final LocalDate lastMarginDateLocal = getUnderlyingSecurity().getFixingPeriodStartDate().toLocalDate();
-    if (date.isAfter(lastMarginDateLocal)) {
-      throw new ExpiredException("Valuation date, " + date + ", is after last margin date, " + lastMarginDateLocal);
-    }
-    double referencePrice;
-    if (transactionDateLocal.isBefore(date)) { // Transaction was before last margining.
-      referencePrice = lastMarginPrice;
-    } else { // Transaction is today
-      referencePrice = getTradePrice();
-    }
-    final InterestRateFutureSecurity underlying = getUnderlyingSecurity().toDerivative(dateTime, yieldCurveNames);
-    final InterestRateFutureTransaction future = new InterestRateFutureTransaction(underlying, referencePrice, getQuantity());
-    return future;
+    throw new UnsupportedOperationException();
   }
 
   @Override

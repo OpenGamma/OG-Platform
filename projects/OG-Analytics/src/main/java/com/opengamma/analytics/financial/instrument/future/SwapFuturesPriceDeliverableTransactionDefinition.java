@@ -41,23 +41,7 @@ public class SwapFuturesPriceDeliverableTransactionDefinition extends FuturesTra
   @Deprecated
   @Override
   public SwapFuturesPriceDeliverableTransaction toDerivative(final ZonedDateTime dateTime, final Double lastMarginPrice, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(dateTime, "date");
-    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
-    final LocalDate date = dateTime.toLocalDate();
-    final LocalDate transactionDateLocal = getTradeDate().toLocalDate();
-    final LocalDate deliveryDateLocal = getUnderlyingSecurity().getDeliveryDate().toLocalDate();
-    if (date.isAfter(deliveryDateLocal)) {
-      throw new ExpiredException("Valuation date, " + date + ", is after last trading date, " + deliveryDateLocal);
-    }
-    double referencePrice;
-    if (transactionDateLocal.isBefore(date)) { // Transaction was before last margining.
-      referencePrice = lastMarginPrice;
-    } else { // Transaction is today
-      referencePrice = getTradePrice();
-    }
-    final SwapFuturesPriceDeliverableSecurity underlying = getUnderlyingSecurity().toDerivative(dateTime, yieldCurveNames);
-    final SwapFuturesPriceDeliverableTransaction future = new SwapFuturesPriceDeliverableTransaction(underlying, referencePrice, getQuantity());
-    return future;
+    throw new UnsupportedOperationException();
   }
 
   /**
