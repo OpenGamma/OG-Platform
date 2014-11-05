@@ -301,7 +301,7 @@ public class SwapInstrumentsDataSet {
       new SwapCouponFixedCouponDefinition(LEG_FIXED_STUB2, LEG_IBOR_STUB2);
   public static final Swap<? extends Payment, ? extends Payment> IRS_STUB2 = 
       IRS_STUB2_DEFINITION.toDerivative(VALUATION_DATE, TS_ARRAY_USDLIBOR3M_2X);
-  
+
   // Instrument description: IRS Fixed vs Libor6M - Stub 3M: Accrual period is 3M / fixing rate is based on 3M
   private static final ZonedDateTime TRADE_DATE_3M_STUB3 = DateUtils.getUTCDate(2014, 9, 10);
   private static final ZonedDateTime SPOT_DATE_STUB3 = 
