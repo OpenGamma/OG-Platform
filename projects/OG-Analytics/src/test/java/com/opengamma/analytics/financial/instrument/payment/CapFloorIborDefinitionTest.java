@@ -127,20 +127,8 @@ public class CapFloorIborDefinitionTest {
 
   @SuppressWarnings("deprecation")
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullDateInConversion1Deprecated() {
-    IBOR_CAP.toDerivative(null, new String[] {"A", "S" });
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDateInConversion2Deprecated() {
     IBOR_CAP.toDerivative(null, HIGH_FIXING_TS, new String[] {"A", "S" });
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullNamesInConversion1Deprecated() {
-    IBOR_CAP.toDerivative(REFERENCE_DATE, (String[]) null);
   }
 
   @SuppressWarnings("deprecation")
@@ -151,20 +139,8 @@ public class CapFloorIborDefinitionTest {
 
   @SuppressWarnings("deprecation")
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testInsufficientNamesInConversion1Deprecated() {
-    IBOR_CAP.toDerivative(REFERENCE_DATE, new String[0]);
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInsufficientNamesInConversion2Deprecated() {
     IBOR_CAP.toDerivative(REFERENCE_DATE, HIGH_FIXING_TS, new String[0]);
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testDateAfterFixingNoTSDeprecated() {
-    IBOR_CAP.toDerivative(FIXING_DATE.plusDays(3), new String[] {"A", "D" });
   }
 
   @SuppressWarnings("deprecation")
@@ -191,24 +167,6 @@ public class CapFloorIborDefinitionTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullTS() {
     IBOR_CAP.toDerivative(FIXING_DATE, (DoubleTimeSeries<ZonedDateTime>) null);
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test
-  public void testToDerivativeBeforeFixingDeprecated() {
-    final DayCount actAct = DayCounts.ACT_ACT_ISDA;
-    final double paymentTime = actAct.getDayCountFraction(REFERENCE_DATE, PAYMENT_DATE);
-    final double fixingTime = actAct.getDayCountFraction(REFERENCE_DATE, FIXING_DATE);
-    final double fixingPeriodStartTime = actAct.getDayCountFraction(REFERENCE_DATE, IBOR_CAP.getFixingPeriodStartDate());
-    final double fixingPeriodEndTime = actAct.getDayCountFraction(REFERENCE_DATE, IBOR_CAP.getFixingPeriodEndDate());
-    final String fundingCurve = "Funding";
-    final String forwardCurve = "Forward";
-    final String[] curves = {fundingCurve, forwardCurve };
-    final CapFloorIbor expectedCapIbor = new CapFloorIbor(CUR, paymentTime, fundingCurve, ACCRUAL_FACTOR, NOTIONAL, fixingTime, INDEX, fixingPeriodStartTime, fixingPeriodEndTime,
-        ACCRUAL_FACTOR_FIXING, forwardCurve, STRIKE, IS_CAP);
-    final CapFloorIbor convertedCapIborDefinition = (CapFloorIbor) IBOR_CAP.toDerivative(REFERENCE_DATE, curves);
-    assertEquals(expectedCapIbor, convertedCapIborDefinition);
-    assertEquals(expectedCapIbor, IBOR_CAP.toDerivative(REFERENCE_DATE, HIGH_FIXING_TS, curves));
   }
 
   @SuppressWarnings("deprecation")
