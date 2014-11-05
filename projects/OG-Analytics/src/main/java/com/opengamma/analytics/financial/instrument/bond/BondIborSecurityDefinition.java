@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.instrument.bond;
 
+import org.apache.commons.math.optimization.linear.UnboundedSolutionException;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
@@ -143,9 +144,7 @@ public class BondIborSecurityDefinition extends BondSecurityDefinition<PaymentFi
   @Deprecated
   @Override
   public BondIborSecurity toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(date, "date");
-    final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getSettlementDays(), getCalendar());
-    return toDerivative(date, ImmutableZonedDateTimeDoubleTimeSeries.of(DateUtils.getUTCDate(1800, 1, 1), 0.0), spot, yieldCurveNames);
+    throw new UnsupportedOperationException();
   }
 
   /**
@@ -155,9 +154,7 @@ public class BondIborSecurityDefinition extends BondSecurityDefinition<PaymentFi
   @Deprecated
   @Override
   public BondIborSecurity toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTS, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(date, "date");
-    final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getSettlementDays(), getCalendar());
-    return toDerivative(date, indexFixingTS, spot, yieldCurveNames);
+    throw new UnsupportedOperationException();
   }
 
   /**
@@ -171,23 +168,7 @@ public class BondIborSecurityDefinition extends BondSecurityDefinition<PaymentFi
   @Deprecated
   public BondIborSecurity toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTS, final ZonedDateTime settlementDate,
       final String... yieldCurveNames) {
-    // Implementation note: First yield curve used for coupon and notional (credit), the second for risk free settlement.
-    ArgumentChecker.notNull(date, "date");
-    ArgumentChecker.notNull(indexFixingTS, "fixing time series");
-    ArgumentChecker.notNull(settlementDate, "settlement date");
-    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
-    ArgumentChecker.isTrue(yieldCurveNames.length > 1, "at least two curves required");
-    final String creditCurveName = yieldCurveNames[0];
-    final String riskFreeCurveName = yieldCurveNames[1];
-    double settlementTime;
-    if (settlementDate.isBefore(date)) {
-      settlementTime = 0.0;
-    } else {
-      settlementTime = TimeCalculator.getTimeBetween(date, settlementDate);
-    }
-    final AnnuityPaymentFixed nominal = (AnnuityPaymentFixed) getNominal().toDerivative(date);
-    final Annuity<Coupon> coupon = (Annuity<Coupon>) getCoupons().toDerivative(date, indexFixingTS, yieldCurveNames);
-    return new BondIborSecurity(nominal.trimBefore(settlementTime), coupon.trimBefore(settlementTime), settlementTime, riskFreeCurveName);
+    throw new UnsupportedOperationException();
   }
 
   @Override

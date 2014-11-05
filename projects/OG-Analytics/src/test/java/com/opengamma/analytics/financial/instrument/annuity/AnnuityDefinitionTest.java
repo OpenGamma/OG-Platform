@@ -108,12 +108,6 @@ public class AnnuityDefinitionTest {
     FIXED_DEFINITION.toDerivative(null, FIXING_TS);
   }
 
-  @SuppressWarnings("deprecation")
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testConversionNullNames2() {
-    FIXED_DEFINITION.toDerivative(FIXING_DATE, FIXING_TS, (String[]) null);
-  }
-
   @Test
   public void testObject() {
     assertEquals(FIXED_PAYMENTS, FIXED_DEFINITION.getPayments());

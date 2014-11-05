@@ -103,30 +103,6 @@ public class AnnuityCouponONSpreadSimplifiedDefinitionTest {
     AnnuityCouponONSimplifiedDefinition.from(SETTLEMENT_DATE, END_FIXING_DATE, NOTIONAL, null, IS_PAYER);
   }
 
-  @SuppressWarnings("deprecation")
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNoIndexTSDeprecated() {
-    DEFINITION.toDerivative(DATE, "A", "B");
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullDateDeprecated() {
-    DEFINITION.toDerivative(null, FIXING_TS, "A", "B");
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullIndexTSDeprecated() {
-    DEFINITION.toDerivative(DATE, (DoubleTimeSeries<ZonedDateTime>) null, "A", "B");
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullNamesDeprecated() {
-    DEFINITION.toDerivative(DATE, FIXING_TS, (String[]) null);
-  }
-
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNoIndexTS() {
     DEFINITION.toDerivative(DATE);
