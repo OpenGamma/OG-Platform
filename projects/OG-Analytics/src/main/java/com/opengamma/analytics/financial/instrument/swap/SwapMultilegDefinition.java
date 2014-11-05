@@ -75,16 +75,6 @@ public class SwapMultilegDefinition implements InstrumentDefinitionWithData<Swap
    */
   @Override
   @Deprecated
-  public SwapMultileg toDerivative(ZonedDateTime date, String... yieldCurveNames) {
-    throw new UnsupportedOperationException("SwapMultileg does not support toDerivative with curve name.");
-  }
-
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Override
-  @Deprecated
   public SwapMultileg toDerivative(ZonedDateTime date, ZonedDateTimeDoubleTimeSeries[] data, String... yieldCurveNames) {
     throw new UnsupportedOperationException("SwapMultileg does not support toDerivative with curve name.");
   }

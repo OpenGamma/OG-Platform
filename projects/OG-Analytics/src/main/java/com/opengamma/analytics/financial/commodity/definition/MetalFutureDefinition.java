@@ -102,16 +102,6 @@ public class MetalFutureDefinition extends CommodityFutureDefinition<MetalFuture
    */
   @Deprecated
   @Override
-  public MetalFuture toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names.
-   */
-  @Deprecated
-  @Override
   public MetalFuture toDerivative(final ZonedDateTime date, final Double referencePrice, final String... yieldCurveNames) {
     throw new UnsupportedOperationException();
   }

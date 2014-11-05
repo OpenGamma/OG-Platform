@@ -42,11 +42,6 @@ public class MetalFutureSecurityDefinition extends CommodityFutureSecurityDefini
   }
 
   @Override
-  public MetalFutureSecurity toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public MetalFutureSecurity toDerivative(final ZonedDateTime date) {
     ArgumentChecker.inOrderOrEqual(date, getLastTradingDate(), "date", "expiry date");
     final double lastTradingTime = TimeCalculator.getTimeBetween(date, getLastTradingDate());

@@ -188,16 +188,6 @@ public class CouponONArithmeticAverageSpreadDefinition extends CouponDefinition 
    */
   @Deprecated
   @Override
-  public CouponONArithmeticAverageSpread toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
   public Coupon toDerivative(final ZonedDateTime valZdt, final DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries, final String... yieldCurveNames) {
     return toDerivative(valZdt, indexFixingTimeSeries);
   }

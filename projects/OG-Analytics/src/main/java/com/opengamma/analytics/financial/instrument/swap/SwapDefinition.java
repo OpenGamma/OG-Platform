@@ -113,17 +113,6 @@ public class SwapDefinition implements InstrumentDefinitionWithData<Swap<? exten
    * @deprecated Use the method that does not take yield curve names
    */
   @Deprecated
-  @SuppressWarnings({"unchecked", "rawtypes" })
-  @Override
-  public Swap<? extends Payment, ? extends Payment> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
   @Override
   public Swap<? extends Payment, ? extends Payment> toDerivative(final ZonedDateTime date, final ZonedDateTimeDoubleTimeSeries[] data, final String... yieldCurveNames) {
     ArgumentChecker.notNull(data, "index data time series array");

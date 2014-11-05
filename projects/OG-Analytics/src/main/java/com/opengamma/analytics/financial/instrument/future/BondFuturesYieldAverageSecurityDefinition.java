@@ -135,16 +135,6 @@ public class BondFuturesYieldAverageSecurityDefinition extends FuturesSecurityDe
     return _calendar;
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public BondFuturesYieldAverageSecurity toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    throw new NotImplementedException("toDerivative with curve names not implemented.");
-  }
-
   @Override
   public BondFuturesYieldAverageSecurity toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "date");

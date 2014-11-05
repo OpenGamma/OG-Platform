@@ -211,16 +211,6 @@ public class CouponONCompoundedDefinition extends CouponDefinition implements In
     return _fixingPeriodAccrualFactors;
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public CouponONCompounded toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException();
-  }
-
   @Override
   public CouponONCompounded toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "date");

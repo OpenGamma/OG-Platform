@@ -36,11 +36,6 @@ public class VolatilityIndexFutureDefinition extends IndexFutureDefinition {
   }
 
   @Override
-  public VolatilityIndexFuture toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public VolatilityIndexFuture toDerivative(final ZonedDateTime date, final Double referencePrice, final String... yieldCurveNames) {
     return toDerivative(date, referencePrice);
   }

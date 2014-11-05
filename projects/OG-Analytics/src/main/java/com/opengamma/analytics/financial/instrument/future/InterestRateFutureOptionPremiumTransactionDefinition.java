@@ -88,16 +88,6 @@ public class InterestRateFutureOptionPremiumTransactionDefinition implements Ins
     return _premium;
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public InterestRateFutureOptionPremiumTransaction toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException(this.getClass().getCanonicalName());
-  }
-
   @Override
   public InterestRateFutureOptionPremiumTransaction toDerivative(final ZonedDateTime date) {
     final InterestRateFutureOptionPremiumSecurity option = _underlyingOption.toDerivative(date);

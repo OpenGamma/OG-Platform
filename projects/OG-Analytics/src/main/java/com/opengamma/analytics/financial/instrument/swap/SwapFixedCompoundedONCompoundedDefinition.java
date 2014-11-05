@@ -112,16 +112,6 @@ public class SwapFixedCompoundedONCompoundedDefinition extends SwapDefinition {
    * {@inheritDoc}
    * @deprecated Use the method that does not take yield curve names
    */
-  @Deprecated
-  @Override
-  public Swap<CouponFixedAccruedCompounding, ? extends Payment> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
   @SuppressWarnings("unchecked")
   @Deprecated
   @Override

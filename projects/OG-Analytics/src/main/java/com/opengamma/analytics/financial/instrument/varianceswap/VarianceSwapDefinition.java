@@ -127,18 +127,6 @@ public class VarianceSwapDefinition implements InstrumentDefinitionWithData<Vari
    * {@inheritDoc} The definition is responsible for constructing a view of the variance swap as of a particular date.
    * An empty time series is used for the variance observations, and so this method should only be used
    * in the case where variance observation has not begun.
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public VarianceSwap toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    return toDerivative(date, ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES, yieldCurveNames);
-  }
-
-  /**
-   * {@inheritDoc} The definition is responsible for constructing a view of the variance swap as of a particular date.
-   * An empty time series is used for the variance observations, and so this method should only be used
-   * in the case where variance observation has not begun.
    */
   @Override
   public VarianceSwap toDerivative(final ZonedDateTime date) {

@@ -31,11 +31,6 @@ public class EquityIndexDividendFutureDefinition extends EquityFutureDefinition 
   }
 
   @Override
-  public EquityIndexDividendFuture toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitEquityIndexDividendFutureDefinition(this, data);

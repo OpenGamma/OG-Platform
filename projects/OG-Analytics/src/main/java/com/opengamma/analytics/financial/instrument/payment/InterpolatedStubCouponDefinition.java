@@ -77,11 +77,6 @@ public final class InterpolatedStubCouponDefinition extends CouponDefinition imp
   public double getSecondInterpolatedYearFraction() {
     return _secondInterpolatedYearFraction;
   }
-  
-  @Override
-  public Payment toDerivative(ZonedDateTime date, String... yieldCurveNames) {
-    throw new UnsupportedOperationException("InterpolatedStubCouponDefinition does not support toDerivative with yield curve name - deprecated method");
-  }
 
   @Override
   public Payment toDerivative(ZonedDateTime date, DoubleTimeSeries<ZonedDateTime> data, String... yieldCurveNames) {

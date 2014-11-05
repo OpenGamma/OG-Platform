@@ -193,30 +193,6 @@ public class CapFloorIborDefinition extends CouponFloatingDefinition implements 
    */
   @Deprecated
   @Override
-  public Coupon toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(date, "date");
-    ArgumentChecker.isTrue(!date.isAfter(getFixingDate()), "Do not have any fixing data but are asking for a derivative after the fixing date " + getFixingDate() + " " + date);
-    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
-    ArgumentChecker.isTrue(yieldCurveNames.length > 1, "at least one curve required");
-    ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date " + date + " " + getPaymentDate());
-    final String fundingCurveName = yieldCurveNames[0];
-    final String forwardCurveName = yieldCurveNames[1];
-    final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
-    // Ibor is not fixed yet, all the details are required.
-    final double fixingTime = TimeCalculator.getTimeBetween(date, getFixingDate());
-    final double fixingPeriodStartTime = TimeCalculator.getTimeBetween(date, getFixingPeriodStartDate());
-    final double fixingPeriodEndTime = TimeCalculator.getTimeBetween(date, getFixingPeriodEndDate());
-    //TODO: Definition has no spread and time version has one: to be standardized.
-    return new CapFloorIbor(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), fixingTime, getIndex(), fixingPeriodStartTime, fixingPeriodEndTime,
-        getFixingPeriodAccrualFactor(), forwardCurveName, _strike, _isCap);
-  }
-
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
   public Coupon toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTS, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "date");
     ArgumentChecker.notNull(indexFixingTS, "index fixing time series");

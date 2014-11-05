@@ -152,7 +152,6 @@ public class VarianceSwapDefinitionTest extends AnalyticsTestBase {
     assertEquals(VOL_NOTIONAL, varianceSwap.getVolNotional());
     assertEquals(VOL_STRIKE, varianceSwap.getVolStrike(), 0);
     assertEquals(varianceSwap, DEFINITION.toDerivative(NOW));
-    assertEquals(varianceSwap, DEFINITION.toDerivative(NOW, "A", "B"));
   }
 
   /**

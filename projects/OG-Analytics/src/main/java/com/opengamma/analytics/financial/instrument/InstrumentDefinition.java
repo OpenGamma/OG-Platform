@@ -18,16 +18,6 @@ public interface InstrumentDefinition<T extends InstrumentDerivative> {
   /**
    * Converts the definition to the time-dependent derivative form.
    * @param date The conversion date
-   * @param yieldCurveNames The yield curve names
-   * @return The derivative
-   * @deprecated Use the version that does not require yield curve names
-   */
-  @Deprecated
-  T toDerivative(ZonedDateTime date, String... yieldCurveNames);
-
-  /**
-   * Converts the definition to the time-dependent derivative form.
-   * @param date The conversion date
    * @return The derivative
    */
   T toDerivative(ZonedDateTime date);

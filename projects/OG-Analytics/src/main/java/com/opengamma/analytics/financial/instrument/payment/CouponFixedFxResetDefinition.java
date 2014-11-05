@@ -216,17 +216,6 @@ public class CouponFixedFxResetDefinition extends CouponDefinition
    */
   @Deprecated
   @Override
-  public Payment toDerivative(ZonedDateTime date, String... yieldCurveNames) {
-    throw new UnsupportedOperationException(
-        "CouponFixedFXResetDefinition does not support toDerivative with yield curve name - deprecated method");
-  }
-
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
   public Payment toDerivative(ZonedDateTime date, DoubleTimeSeries<ZonedDateTime> data, String... yieldCurveNames) {
     throw new UnsupportedOperationException(
         "CouponFixedFXResetDefinition does not support toDerivative with yield curve name - deprecated method");

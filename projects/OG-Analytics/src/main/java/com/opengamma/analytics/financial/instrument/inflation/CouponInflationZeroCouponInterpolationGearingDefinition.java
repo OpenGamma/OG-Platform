@@ -287,28 +287,6 @@ public class CouponInflationZeroCouponInterpolationGearingDefinition extends Cou
    */
   @Deprecated
   @Override
-  public CouponInflationZeroCouponInterpolationGearing toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(date, "date");
-    ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "Do not have any fixing data but are asking for a derivative after the payment date");
-    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
-    ArgumentChecker.isTrue(yieldCurveNames.length > 0, "at least one curve required");
-    ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
-    final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
-    final double[] referenceEndTime = new double[2];
-    referenceEndTime[0] = TimeCalculator.getTimeBetween(date, getReferenceEndDates()[0]);
-    referenceEndTime[1] = TimeCalculator.getTimeBetween(date, getReferenceEndDates()[1]);
-    final ZonedDateTime naturalPaymentDate = getPaymentDate().minusMonths(_monthLag - _conventionalMonthLag);
-    final double naturalPaymentTime = TimeCalculator.getTimeBetween(date, naturalPaymentDate);
-    return new CouponInflationZeroCouponInterpolationGearing(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), getPriceIndex(), _indexStartValue, referenceEndTime,
-        naturalPaymentTime, _weight, _payNotional, _factor);
-  }
-
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
   public Coupon toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> priceIndexTimeSeries, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "date");
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");

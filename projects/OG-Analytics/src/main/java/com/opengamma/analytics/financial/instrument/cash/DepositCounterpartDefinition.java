@@ -133,20 +133,6 @@ public class DepositCounterpartDefinition extends CashDefinition {
     return _name;
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public DepositCounterpart toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    ArgumentChecker.isTrue(!date.isAfter(getEndDate()), "date is after end date");
-    final double startTime = TimeCalculator.getTimeBetween(date, getStartDate());
-    if (startTime < 0) {
-      return new DepositCounterpart(getCurrency(), 0, TimeCalculator.getTimeBetween(date, getEndDate()), getNotional(), 0, getRate(), getAccrualFactor(), _name, yieldCurveNames[0]);
-    }
-    return new DepositCounterpart(getCurrency(), startTime, TimeCalculator.getTimeBetween(date, getEndDate()), getNotional(), getNotional(), getRate(), getAccrualFactor(), _name, yieldCurveNames[0]);
-  }
 
   @Override
   public DepositCounterpart toDerivative(final ZonedDateTime date) {

@@ -151,16 +151,6 @@ public final class SwaptionPhysicalFixedCompoundedONCompoundedDefinition impleme
     return null;
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public SwaptionPhysicalFixedCompoundedONCompounded toDerivative(final ZonedDateTime dateTime, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException();
-  }
-
   @Override
   public SwaptionPhysicalFixedCompoundedONCompounded toDerivative(final ZonedDateTime dateTime) {
     ArgumentChecker.notNull(dateTime, "date");

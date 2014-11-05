@@ -61,10 +61,6 @@ public class BlackFunctions extends AbstractFunctionConfigurationBean {
 
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
-    functions.add(functionConfiguration(FXOneLookBarrierOptionBlackGammaFunction.class));
-    functions.add(functionConfiguration(FXOneLookBarrierOptionBlackVannaFunction.class));
-    functions.add(functionConfiguration(FXOneLookBarrierOptionBlackVegaFunction.class));
-    functions.add(functionConfiguration(FXOneLookBarrierOptionBlackVommaFunction.class));
     functions.add(functionConfiguration(FXOptionBlackForwardDeltaFunction.class));
     functions.add(functionConfiguration(FXOptionBlackSpotDeltaFunction.class));
     functions.add(functionConfiguration(FXOptionBlackForwardGammaFunction.class));

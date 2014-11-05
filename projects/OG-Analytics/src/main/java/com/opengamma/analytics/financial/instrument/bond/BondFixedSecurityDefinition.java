@@ -632,20 +632,6 @@ public class BondFixedSecurityDefinition extends BondSecurityDefinition<PaymentF
 
   /**
    * @param date The valuation date
-   * @param yieldCurveNames The yield curve names
-   * @return A fixed-coupon bond security
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public BondFixedSecurity toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(date, "date");
-    final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getSettlementDays(), getCalendar());
-    return toDerivative(date, spot, yieldCurveNames);
-  }
-
-  /**
-   * @param date The valuation date
    * @param settlementDate The settlement date
    * @param yieldCurveNames The yield curve names
    * @return A fixed-coupon bond security

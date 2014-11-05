@@ -55,11 +55,6 @@ public class AgricultureFutureTransactionDefinition extends CommodityFutureTrans
   }
 
   @Override
-  public AgricultureFutureTransaction toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public AgricultureFutureTransaction toDerivative(final ZonedDateTime date) {
     throw new UnsupportedOperationException("The method toDerivative of " + this.getClass().getSimpleName() + " does not support the two argument method (without margin price data).");
   }

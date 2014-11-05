@@ -181,17 +181,6 @@ public class BondFutureDefinition implements InstrumentDefinitionWithData<BondFu
    */
   @Deprecated
   @Override
-  public BondFuture toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException("The method toDerivative of " + getClass().getSimpleName()
-        + " does not support the two argument method (without margin price data).");
-  }
-
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
   public BondFuture toDerivative(final ZonedDateTime valDate, final Double referencePrice, final String... yieldCurveNames) {
     ArgumentChecker.notNull(valDate, "valDate must always be provided to form a Derivative from a Definition");
     ArgumentChecker.isTrue(!valDate.isAfter(getDeliveryLastDate()), "Valuation date is after last delivery date");

@@ -43,20 +43,6 @@ public class SwapXCcyDefinition extends SwapDefinition {
    */
   @Deprecated
   @Override
-  public Swap<Payment, Payment> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * {@inheritDoc}
-   * Convert to derivative version.
-   * @param date The system date.
-   * @param yieldCurveNames The yield curve names. The first two curves are used for the first leg. The next two are used for the second leg.
-   * @return The derivative.
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
   public Swap<Payment, Payment> toDerivative(final ZonedDateTime date, final ZonedDateTimeDoubleTimeSeries[] indexDataTS, final String... yieldCurveNames) {
     ArgumentChecker.notNull(indexDataTS, "index data time series array");
     ArgumentChecker.isTrue(indexDataTS.length > 1, "index data time series must contain at least two elements");

@@ -140,16 +140,6 @@ public final class SwaptionPhysicalFixedIborSpreadDefinition implements Instrume
     return visitor.visitSwaptionPhysicalFixedIborSpreadDefinition(this);
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public SwaptionPhysicalFixedIbor toDerivative(final ZonedDateTime dateTime, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException(this.getClass().getCanonicalName());
-  }
-
   @Override
   public SwaptionPhysicalFixedIbor toDerivative(final ZonedDateTime dateTime) {
     ArgumentChecker.notNull(dateTime, "date");

@@ -263,16 +263,6 @@ public class AnnuityCouponIborDefinition extends AnnuityCouponDefinition<CouponI
     return new Annuity<>(resultList.toArray(new Coupon[resultList.size()]));
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public Annuity<? extends Coupon> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException();
-  }
-
   @Override
   public Annuity<? extends Coupon> toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTS) {
     ArgumentChecker.notNull(date, "date");
