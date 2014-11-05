@@ -218,22 +218,7 @@ public class CouponONCompoundedDefinition extends CouponDefinition implements In
   @Deprecated
   @Override
   public CouponONCompounded toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(date, "date");
-    final LocalDate firstPublicationDate = _fixingPeriodDates[_index.getPublicationLag()].toLocalDate(); // This is often one business day following the first fixing date
-    ArgumentChecker.isTrue(date.toLocalDate().isBefore(firstPublicationDate),
-        "toDerivative method without time series as argument is only valid at dates where the first fixing has not yet been published.");
-    ArgumentChecker.isTrue(yieldCurveNames.length > 1, "at least two curves required");
-    final double paymentTime = TimeCalculatorBUS252.getTimeBetween(date, getPaymentDate(), _calendar);
-    final double[] fixingPeriodStartTimes = new double[_fixingPeriodDates.length - 1];
-    final double[] fixingPeriodEndTimes = new double[_fixingPeriodDates.length - 1];
-    //    DayCount dayCount = _index.getDayCount();
-    for (int i = 0; i < _fixingPeriodDates.length - 1; i++) {
-      fixingPeriodStartTimes[i] = TimeCalculatorBUS252.getTimeBetween(date, _fixingPeriodDates[i], _calendar);
-      fixingPeriodEndTimes[i] = TimeCalculatorBUS252.getTimeBetween(date, _fixingPeriodDates[i + 1], _calendar);
-    }
-    final CouponONCompounded cpn = new CouponONCompounded(getCurrency(), paymentTime, yieldCurveNames[0], getPaymentYearFraction(), getNotional(), _index, fixingPeriodStartTimes,
-        fixingPeriodEndTimes, _fixingPeriodAccrualFactors, getNotional(), yieldCurveNames[1]);
-    return cpn;
+    throw new UnsupportedOperationException();
   }
 
   @Override

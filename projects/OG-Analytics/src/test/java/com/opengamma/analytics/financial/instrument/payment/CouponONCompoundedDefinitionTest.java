@@ -126,28 +126,6 @@ public class CouponONCompoundedDefinitionTest {
   /**
    * Tests the toDerivative method.
    */
-  public void toDerivativeNoFixingDeprecated() {
-    final String[] curveNames = new String[] {"a", "b" };
-    final CouponONCompounded cpnConverted = ON_COMPOUNDED_COUPON_DEFINITION.toDerivative(TRADE_DATE, curveNames);
-    final double paymentTime = TimeCalculatorBUS252.getTimeBetween(TRADE_DATE, EUR_PAYMENT_DATE, EUR_CALENDAR);
-    final double[] FIXING_PERIOD_START_TIMES = new double[ON_COMPOUNDED_COUPON_DEFINITION.getFixingPeriodDates().length - 1];
-    final double[] FIXING_PERIOD_END_TIMES = new double[ON_COMPOUNDED_COUPON_DEFINITION.getFixingPeriodDates().length - 1];
-    final double[] FIXING_PERIOD_ACCRUAL_FACTOR = new double[ON_COMPOUNDED_COUPON_DEFINITION.getFixingPeriodDates().length - 1];
-    for (int i = 0; i < ON_COMPOUNDED_COUPON_DEFINITION.getFixingPeriodDates().length - 1; i++) {
-      FIXING_PERIOD_START_TIMES[i] = EUR_DAY_COUNT.getDayCountFraction(TRADE_DATE, ON_COMPOUNDED_COUPON_DEFINITION.getFixingPeriodDates()[i], EUR_CALENDAR);
-      FIXING_PERIOD_END_TIMES[i] = EUR_DAY_COUNT.getDayCountFraction(TRADE_DATE, ON_COMPOUNDED_COUPON_DEFINITION.getFixingPeriodDates()[i + 1], EUR_CALENDAR);
-      FIXING_PERIOD_ACCRUAL_FACTOR[i] = EUR_DAY_COUNT.getDayCountFraction(ON_COMPOUNDED_COUPON_DEFINITION.getFixingPeriodDates()[i], ON_COMPOUNDED_COUPON_DEFINITION.getFixingPeriodDates()[i + 1],
-          EUR_CALENDAR);
-    }
-    final CouponONCompounded cpnExpected = new CouponONCompounded(EUR_CUR, paymentTime, curveNames[0], EUR_PAYMENT_YEAR_FRACTION, NOTIONAL, EUR_OIS, FIXING_PERIOD_START_TIMES,
-        FIXING_PERIOD_END_TIMES, FIXING_PERIOD_ACCRUAL_FACTOR, NOTIONAL, curveNames[1]);
-    assertEquals("CouponONCompounded definition: toDerivative", cpnExpected, cpnConverted);
-  }
-
-  @Test
-  /**
-   * Tests the toDerivative method.
-   */
   public void toDerivativeNoFixing() {
     final CouponONCompounded cpnConverted = ON_COMPOUNDED_COUPON_DEFINITION.toDerivative(TRADE_DATE);
     final double paymentTime = EUR_DAY_COUNT.getDayCountFraction(TRADE_DATE, EUR_PAYMENT_DATE, EUR_CALENDAR);
