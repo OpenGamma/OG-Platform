@@ -354,12 +354,16 @@ public abstract class AbstractAnnuityDefinitionBuilder<T extends AbstractAnnuity
    */
   @SuppressWarnings("unchecked")
   public T startStub(CouponStub startStub) {
-    ArgumentChecker.isFalse(startStub.getStubType() == StubType.SHORT_END ||
-        startStub.getStubType() == StubType.LONG_END, "startStub should be start stub type, but {}",
-        startStub.getStubType());
-    _startStub = startStub;
-    if (startStub.getStubType() != StubType.BOTH) {
-      _endStub = null; // reset end stub.
+    if (startStub == null) {
+      _startStub = null;
+    } else {
+      ArgumentChecker.isFalse(startStub.getStubType() == StubType.SHORT_END ||
+          startStub.getStubType() == StubType.LONG_END, "startStub should be start stub type, but {}",
+          startStub.getStubType());
+      _startStub = startStub;
+      if (startStub.getStubType() != StubType.BOTH && startStub.getStubType() != StubType.NONE) {
+        _endStub = null; // reset end stub.
+      }
     }
     return (T) this;
   }
@@ -371,11 +375,16 @@ public abstract class AbstractAnnuityDefinitionBuilder<T extends AbstractAnnuity
    */
   @SuppressWarnings("unchecked")
   public T endStub(CouponStub endStub) {
-    ArgumentChecker.isFalse(endStub.getStubType() == StubType.SHORT_START ||
-        endStub.getStubType() == StubType.LONG_START, "endStub should be end stub type, but {}", endStub.getStubType());
-    _endStub = endStub;
-    if (endStub.getStubType() != StubType.BOTH) {
-      _startStub = null; // reset start stub.
+    if (endStub == null) {
+      _endStub = null;
+    } else {
+      ArgumentChecker.isFalse(endStub.getStubType() == StubType.SHORT_START ||
+          endStub.getStubType() == StubType.LONG_START, "endStub should be end stub type, but {}",
+          endStub.getStubType());
+      _endStub = endStub;
+      if (endStub.getStubType() != StubType.BOTH && endStub.getStubType() != StubType.NONE) {
+        _startStub = null; // reset start stub.
+      }
     }
     return (T) this;
   }
@@ -484,7 +493,7 @@ public abstract class AbstractAnnuityDefinitionBuilder<T extends AbstractAnnuity
     
     ZonedDateTime startDate;
     ZonedDateTime endDate;
-    if (StubType.BOTH == stubType) { // not supported in AnnuityDefinitionBuilder
+    if (StubType.BOTH == stubType) {
       startDate = ZonedDateTime.of(_startStub.getEffectiveDate(), LocalTime.of(0, 0), ZoneId.of("UTC"));
       endDate = ZonedDateTime.of(_endStub.getEffectiveDate(), LocalTime.of(0, 0), ZoneId.of("UTC"));
     } else {
