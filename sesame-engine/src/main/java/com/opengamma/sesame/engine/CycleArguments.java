@@ -62,7 +62,7 @@ public final class CycleArguments {
   private final boolean _captureInputs;
 
   /** Valuations times keyed by column name. If there is no value for a column {@link #_valuationTime} will be used. */
-  private final Map<String, ZonedDateTime> _columnValuationTime;
+  private final Map<String, ZonedDateTime> _columnValuationTimes;
 
   /**
    * @deprecated this will be removed, use {@link #builder}
@@ -161,8 +161,8 @@ public final class CycleArguments {
                         Map<Cell, TraceType> traceCells,
                         Map<String, TraceType> traceOutputs,
                         boolean captureInputs,
-                        Map<String, ZonedDateTime> columnValuationTime) {
-    _columnValuationTime = columnValuationTime;
+                        Map<String, ZonedDateTime> columnValuationTimes) {
+    _columnValuationTimes = ImmutableMap.copyOf(ArgumentChecker.notNull(columnValuationTimes, "columnValuationTimes"));
     _functionArguments = ArgumentChecker.notNull(functionArguments, "functionArguments");
     _configVersionCorrection = ArgumentChecker.notNull(configVersionCorrection, "configVersionCorrection");
     _valuationTime = ArgumentChecker.notNull(valuationTime, "valuationTime");
@@ -177,8 +177,8 @@ public final class CycleArguments {
   }
 
   ZonedDateTime getValuationTime(String columnName) {
-    if (_columnValuationTime.containsKey(columnName)) {
-      return _columnValuationTime.get(columnName);
+    if (_columnValuationTimes.containsKey(columnName)) {
+      return _columnValuationTimes.get(columnName);
     } else {
       return _valuationTime;
     }
