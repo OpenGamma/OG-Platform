@@ -43,7 +43,7 @@ public class MetalFutureSecurityDefinition extends CommodityFutureSecurityDefini
 
   @Override
   public MetalFutureSecurity toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    return toDerivative(date);
+    throw new UnsupportedOperationException();
   }
 
   @Override
