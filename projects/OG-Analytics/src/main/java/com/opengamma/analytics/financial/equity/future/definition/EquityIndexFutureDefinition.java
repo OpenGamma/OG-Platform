@@ -36,7 +36,7 @@ public class EquityIndexFutureDefinition extends IndexFutureDefinition {
 
   @Override
   public EquityIndexFuture toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    return toDerivative(date);
+    throw new UnsupportedOperationException();
   }
 
   @Override
