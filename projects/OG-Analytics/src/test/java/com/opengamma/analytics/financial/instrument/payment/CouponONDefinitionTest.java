@@ -125,21 +125,6 @@ public class CouponONDefinitionTest {
   /**
    * Tests the toDerivative method.
    */
-  public void toDerivativeNoFixingDeprecated() {
-    final String[] curvesNames = new String[] {"Funding", "Forward" };
-    final CouponON cpnConverted = EONIA_COUPON_DEFINITION.toDerivative(TRADE_DATE, curvesNames);
-    final double paymentTime = TimeCalculator.getTimeBetween(TRADE_DATE, EUR_PAYMENT_DATE);
-    final double fixingStartTime = TimeCalculator.getTimeBetween(TRADE_DATE, START_ACCRUAL_DATE);
-    final double fixingEndTime = TimeCalculator.getTimeBetween(TRADE_DATE, EUR_END_ACCRUAL_DATE);
-    final CouponON cpnExpected = new CouponON(EUR_CUR, paymentTime, curvesNames[0], EUR_PAYMENT_YEAR_FRACTION, NOTIONAL, EUR_OIS, fixingStartTime, fixingEndTime, EUR_FIXING_YEAR_FRACTION,
-        NOTIONAL, curvesNames[1]);
-    assertEquals("CouponOISSimplified definition: toDerivative", cpnExpected, cpnConverted);
-  }
-
-  @Test
-  /**
-   * Tests the toDerivative method.
-   */
   public void toDerivativeFixingBeforeStartDeprecated() {
     final YieldCurveBundle curves = TestsDataSetsSABR.createCurves1();
     final String[] curvesNames = curves.getAllNames().toArray(new String[curves.size()]);
