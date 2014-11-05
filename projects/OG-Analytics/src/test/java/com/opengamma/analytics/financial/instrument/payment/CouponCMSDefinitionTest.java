@@ -163,19 +163,6 @@ public class CouponCMSDefinitionTest {
 
   @SuppressWarnings("deprecation")
   @Test
-  public void testToDerivativeBeforeFixingDeprecated() {
-    final DayCount actAct = DayCounts.ACT_ACT_ISDA;
-    final double paymentTime = actAct.getDayCountFraction(REFERENCE_DATE, PAYMENT_DATE);
-    final double fixingTime = actAct.getDayCountFraction(REFERENCE_DATE, FIXING_DATE);
-    final double settlementTime = actAct.getDayCountFraction(REFERENCE_DATE, SWAP_DEFINITION.getFixedLeg().getNthPayment(0).getAccrualStartDate());
-    final SwapFixedCoupon<? extends Payment> convertedSwap = SWAP_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
-    final CouponCMS couponCMS = new CouponCMS(CUR, paymentTime, CURVES_NAME[0], ACCRUAL_FACTOR, NOTIONAL, fixingTime, convertedSwap, settlementTime);
-    assertEquals(couponCMS, CMS_COUPON_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME));
-    assertEquals(couponCMS, CMS_COUPON_DEFINITION.toDerivative(REFERENCE_DATE, FIXING_TS, CURVES_NAME));
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test
   public void testToDerivativeAfterFixingDeprecated() {
     final ZonedDateTime date = FIXING_DATE.plusDays(2);
     final DayCount actAct = DayCounts.ACT_ACT_ISDA;
