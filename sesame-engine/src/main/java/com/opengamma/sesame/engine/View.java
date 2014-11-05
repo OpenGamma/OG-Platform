@@ -56,6 +56,7 @@ import com.opengamma.sesame.graph.Graph;
 import com.opengamma.sesame.graph.GraphBuilder;
 import com.opengamma.sesame.graph.GraphModel;
 import com.opengamma.sesame.graph.NodeDecorator;
+import com.opengamma.sesame.marketdata.CycleMarketDataFactory;
 import com.opengamma.sesame.proxy.ExceptionWrappingProxy;
 import com.opengamma.sesame.proxy.MetricsProxy;
 import com.opengamma.sesame.trace.CallGraph;
@@ -240,14 +241,11 @@ public class View {
                                       _graphModel, _viewConfig, inputs) :
         new StandardCycleInitializer(originalContext, cycleArguments.getCycleMarketDataFactory(), _graph);
 
-    Environment env = new EngineEnvironment(cycleArguments.getValuationTime(),
-                                            cycleInitializer.getCycleMarketDataFactory(),
-                                            _cacheInvalidator);
-
     List<Task> tasks = new ArrayList<>();
     Graph graph = cycleInitializer.getGraph();
-    tasks.addAll(portfolioTasks(env, cycleArguments, inputs, graph, _viewConfig.getScenarioDefinition()));
-    tasks.addAll(nonPortfolioTasks(env, cycleArguments, graph, _viewConfig.getScenarioDefinition()));
+    CycleMarketDataFactory marketDataFactory = cycleInitializer.getCycleMarketDataFactory();
+    tasks.addAll(portfolioTasks(marketDataFactory, cycleArguments, inputs, graph, _viewConfig.getScenarioDefinition()));
+    tasks.addAll(nonPortfolioTasks(marketDataFactory, cycleArguments, graph, _viewConfig.getScenarioDefinition()));
     List<Future<TaskResult>> futures;
 
     try {
@@ -300,7 +298,7 @@ public class View {
     return _graphModel.getFunctionModel(outputName);
   }
 
-  private List<Task> portfolioTasks(Environment env,
+  private List<Task> portfolioTasks(CycleMarketDataFactory marketDataFactory,
                                     CycleArguments cycleArguments,
                                     List<?> inputs,
                                     Graph graph,
@@ -310,6 +308,8 @@ public class View {
     List<Task> portfolioTasks = Lists.newArrayList();
     for (ViewColumn column : _viewConfig.getColumns()) {
       FilteredScenarioDefinition filteredDef = scenarioDefinition.filter(column.getName());
+      Environment env =
+          new EngineEnvironment(cycleArguments.getValuationTime(column.getName()), marketDataFactory, _cacheInvalidator);
       Environment columnEnv = env.withScenarioDefinition(filteredDef);
       Map<Class<?>, InvokableFunction> functions = graph.getFunctionsForColumn(column.getName());
 
@@ -369,7 +369,7 @@ public class View {
   }
 
   // create tasks for the non-portfolio outputs
-  private List<Task> nonPortfolioTasks(Environment env,
+  private List<Task> nonPortfolioTasks(CycleMarketDataFactory marketDataFactory,
                                        CycleArguments cycleArguments,
                                        Graph graph,
                                        ScenarioDefinition scenarioDefinition) {
@@ -389,6 +389,8 @@ public class View {
                                                            functionModelConfig.getFunctionArguments(declaringType));
       // create an environment with scenario arguments filtered for the output
       FilteredScenarioDefinition filteredDef = scenarioDefinition.filter(output.getName());
+      Environment env =
+          new EngineEnvironment(cycleArguments.getValuationTime(output.getName()), marketDataFactory, _cacheInvalidator);
       Environment outputEnv = env.withScenarioDefinition(filteredDef);
       tasks.add(new NonPortfolioTask(outputEnv, args, output.getName(), function, tracer));
     } return tasks;

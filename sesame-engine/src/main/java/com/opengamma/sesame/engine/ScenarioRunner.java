@@ -7,8 +7,6 @@ package com.opengamma.sesame.engine;
 
 import java.util.List;
 
-import org.threeten.bp.ZonedDateTime;
-
 import com.opengamma.sesame.config.ViewConfig;
 import com.opengamma.sesame.marketdata.MarketDataEnvironment;
 
@@ -29,12 +27,8 @@ public interface ScenarioRunner {
    *
    * @param viewConfig configuration of the view that performs the calculations
    * @param marketDataEnvironment contains the market data for the scenarios
-   * @param valuationTime the valuation time used in the calculations
    * @param portfolio the items in the portfolio
    * @return the results of running the calculations in the view for every item in the portfolio and every scenario
    */
-  Results runScenario(ViewConfig viewConfig,
-                      MarketDataEnvironment<?> marketDataEnvironment,
-                      ZonedDateTime valuationTime,
-                      List<?> portfolio);
+  Results runScenario(ViewConfig viewConfig, MarketDataEnvironment<?> marketDataEnvironment, List<?> portfolio);
 }

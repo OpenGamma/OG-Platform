@@ -28,6 +28,9 @@ public class MapMarketDataBundleBuilder {
   /** Time series of values, keyed by the ID of the value. */
   private final Map<MarketDataId, DateTimeSeries<LocalDate, ?>> _timeSeries = new HashMap<>();
 
+  /** The valuation time for calculations using the bundle's data. */
+  private ZonedDateTime _valuationTime;
+
   private MapMarketDataBundleBuilder(MarketDataTime time) {
     _time = ArgumentChecker.notNull(time, "time");
   }
@@ -159,6 +162,19 @@ public class MapMarketDataBundleBuilder {
   }
 
   /**
+   * Sets the valuation time that should be used for calculations using this bundle's data.
+   *
+   * @param valuationTime the valuation time for calculations using this bundle's data
+   * @return this builder
+   * @deprecated this method is not guaranteed to be permanent
+   */
+  @Deprecated
+  public MapMarketDataBundleBuilder valuationTime(ZonedDateTime valuationTime) {
+    _valuationTime = ArgumentChecker.notNull(valuationTime, "valuationTime");
+    return this;
+  }
+
+  /**
    * Builds a market data bundle from the data in this builder.
    * <p>
    * Changes to this builder after calling {@code build()} won't affect the data in the bundle. This builder
@@ -167,6 +183,6 @@ public class MapMarketDataBundleBuilder {
    * @return a market data bundle containing the data in this builder
    */
   public MapMarketDataBundle build() {
-    return new MapMarketDataBundle(_time, _marketData, _timeSeries);
+    return new MapMarketDataBundle(_time, _marketData, _timeSeries, _valuationTime);
   }
 }

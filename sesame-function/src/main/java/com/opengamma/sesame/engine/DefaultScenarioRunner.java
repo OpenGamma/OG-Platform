@@ -59,23 +59,21 @@ public class DefaultScenarioRunner implements ScenarioRunner {
    *
    * @param viewConfig configuration of the view that performs the calculations
    * @param marketDataEnvironment contains the market data for the scenarios
-   * @param valuationTime the valuation time used in the calculations
    * @param portfolio the items in the portfolio
    * @return the results of running the calculations in the view for every item in the portfolio and every scenario
    */
   @Override
-  public Results runScenario(ViewConfig viewConfig,
-                             MarketDataEnvironment<?> marketDataEnvironment,
-                             ZonedDateTime valuationTime,
-                             List<?> portfolio) {
+  public Results runScenario(ViewConfig viewConfig, MarketDataEnvironment<?> marketDataEnvironment, List<?> portfolio) {
     Map<?, MapMarketDataBundle> scenarioData = marketDataEnvironment.getData();
 
     if (scenarioData.size() == 1) {
-      return runSingleScenario(viewConfig, scenarioData.values().iterator().next(), valuationTime, portfolio);
+      return runSingleScenario(viewConfig, scenarioData.values().iterator().next(), portfolio);
     }
     List<ViewColumn> columns = new ArrayList<>();
     List<NonPortfolioOutput> outputs = new ArrayList<>();
     ScenarioDefinition scenarioDefinition = viewConfig.getScenarioDefinition();
+
+    CycleArguments.Builder cycleArgumentsBuilder = CycleArguments.builder(new EmptyMarketDataFactory());
 
     for (Map.Entry<?, MapMarketDataBundle> entry : scenarioData.entrySet()) {
       Object scenarioId = entry.getKey();
@@ -89,6 +87,7 @@ public class DefaultScenarioRunner implements ScenarioRunner {
         columns.add(copiedColumn);
         // add the scenario arg with this scenario's curve to the scenario definition for this column
         scenarioDefinition = scenarioDefinition.with(scenarioArgument, columnName);
+        cycleArgumentsBuilder.valuationTime(scenarioDataBundle.getValuationTime(), columnName);
       }
       for (NonPortfolioOutput output : viewConfig.getNonPortfolioOutputs()) {
         // add a copy of the output for this scenario, use a name created from the output and scenario names
@@ -97,6 +96,7 @@ public class DefaultScenarioRunner implements ScenarioRunner {
         outputs.add(copiedOutput);
         // add the scenario arg with this scenario's curve to the scenario definition for this output
         scenarioDefinition = scenarioDefinition.with(scenarioArgument, outputName);
+        cycleArgumentsBuilder.valuationTime(scenarioDataBundle.getValuationTime(), outputName);
       }
     }
     ViewConfig scenarioViewConfig = viewConfig.toBuilder()
@@ -105,8 +105,7 @@ public class DefaultScenarioRunner implements ScenarioRunner {
                                               .scenarioDefinition(scenarioDefinition)
                                               .build();
     View view = _viewFactory.createView(scenarioViewConfig, inputTypes(portfolio));
-    EmptyMarketDataFactory marketDataFactory = new EmptyMarketDataFactory();
-    CycleArguments cycleArguments = CycleArguments.builder(marketDataFactory).valuationTime(valuationTime).build();
+    CycleArguments cycleArguments = cycleArgumentsBuilder.build();
     return view.run(cycleArguments, portfolio);
   }
 
@@ -129,18 +128,15 @@ public class DefaultScenarioRunner implements ScenarioRunner {
    *
    * @param viewConfig the configuration that defines the calculations in the view
    * @param marketDataBundle the market data required by the calculation in the view
-   * @param valuationTime the valuation time to use in the calculations
    * @param portfolio the portfolio used as input to the calculations
    * @return the calculation results
    */
-  private Results runSingleScenario(ViewConfig viewConfig,
-                                    MapMarketDataBundle marketDataBundle,
-                                    ZonedDateTime valuationTime,
-                                    List<?> portfolio) {
+  private Results runSingleScenario(ViewConfig viewConfig, MapMarketDataBundle marketDataBundle, List<?> portfolio) {
     ScenarioDefinition scenarioDefinition = new ScenarioDefinition(getScenarioArguments(marketDataBundle));
     ViewConfig scenarioViewConfig = viewConfig.toBuilder().scenarioDefinition(scenarioDefinition).build();
     View view = _viewFactory.createView(scenarioViewConfig, inputTypes(portfolio));
     EmptyMarketDataFactory marketDataFactory = new EmptyMarketDataFactory();
+    ZonedDateTime valuationTime = marketDataBundle.getValuationTime();
     CycleArguments cycleArguments = CycleArguments.builder(marketDataFactory).valuationTime(valuationTime).build();
     return view.run(cycleArguments, portfolio);
   }

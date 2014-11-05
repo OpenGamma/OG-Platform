@@ -79,12 +79,14 @@ public class DefaultScenarioRunnerTest {
     ViewFactory viewFactory = createViewFactory();
     DefaultScenarioRunner scenarioRunner = new DefaultScenarioRunner(viewFactory);
     MarketDataEnvironmentBuilder<String> builder = new MarketDataEnvironmentBuilder<>();
+    ZonedDateTime valuationTime = ZonedDateTime.now();
     MarketDataEnvironment<String> marketDataEnvironment =
         builder.addMulticurve("base", BUNDLE1, createMulticurve(Currency.USD, 1))
                .addMulticurve("base", BUNDLE2, createMulticurve(Currency.EUR, 2))
+               .valuationTime("base", valuationTime)
                .build();
     List<?> trades = ImmutableList.of(createTrade());
-    Results results = scenarioRunner.runScenario(CONFIG, marketDataEnvironment, ZonedDateTime.now(), trades);
+    Results results = scenarioRunner.runScenario(CONFIG, marketDataEnvironment, trades);
 
     assertEquals(1, results.getRows().size());
     assertEquals(1, results.get(0).getItems().size());
@@ -97,16 +99,20 @@ public class DefaultScenarioRunnerTest {
     ViewFactory viewFactory = createViewFactory();
     DefaultScenarioRunner scenarioRunner = new DefaultScenarioRunner(viewFactory);
     MarketDataEnvironmentBuilder<String> builder = new MarketDataEnvironmentBuilder<>();
+    ZonedDateTime valuationTime = ZonedDateTime.now();
     MarketDataEnvironment<String> marketDataEnvironment =
         builder.addMulticurve("base", BUNDLE1, createMulticurve(Currency.USD, 1))
                .addMulticurve("base", BUNDLE2, createMulticurve(Currency.EUR, 2))
+               .valuationTime("base", valuationTime)
                .addMulticurve("s1", BUNDLE1, createMulticurve(Currency.USD, 3))
                .addMulticurve("s1", BUNDLE2, createMulticurve(Currency.EUR, 4))
+               .valuationTime("s1", valuationTime)
                .addMulticurve("s2", BUNDLE1, createMulticurve(Currency.USD, 5))
                .addMulticurve("s2", BUNDLE2, createMulticurve(Currency.EUR, 6))
+               .valuationTime("s2", valuationTime)
                .build();
     List<?> trades = ImmutableList.of(createTrade());
-    Results results = scenarioRunner.runScenario(CONFIG, marketDataEnvironment, ZonedDateTime.now(), trades);
+    Results results = scenarioRunner.runScenario(CONFIG, marketDataEnvironment, trades);
 
     assertEquals(1, results.getRows().size());
     assertEquals(3, results.get(0).getItems().size());
