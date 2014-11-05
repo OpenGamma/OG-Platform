@@ -188,16 +188,7 @@ public class CouponONSimplifiedDefinition extends CouponDefinition {
   @Deprecated
   @Override
   public CouponON toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(date, "date");
-    ArgumentChecker.isTrue(!date.isAfter(_fixingPeriodStartDate) || date.toLocalDate().equals(_fixingPeriodStartDate.toLocalDate()),
-        "Simplified Coupon OIS only valid for dates where the fixing has not taken place yet.");
-    ArgumentChecker.isTrue(yieldCurveNames.length > 1, "at least two curves required");
-    final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
-    final double fixingPeriodStartTime = TimeCalculator.getTimeBetween(date, _fixingPeriodStartDate);
-    final double fixingPeriodEndTime = TimeCalculator.getTimeBetween(date, _fixingPeriodEndDate);
-    final CouponON cpn = new CouponON(getCurrency(), paymentTime, yieldCurveNames[0], getPaymentYearFraction(), getNotional(), _index, fixingPeriodStartTime,
-        fixingPeriodEndTime, _fixingPeriodAccrualFactor, getNotional(), yieldCurveNames[1]);
-    return cpn;
+    throw new UnsupportedOperationException();
   }
 
   @Override

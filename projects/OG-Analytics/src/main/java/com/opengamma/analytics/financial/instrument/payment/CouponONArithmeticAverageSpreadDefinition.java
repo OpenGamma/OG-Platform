@@ -189,8 +189,7 @@ public class CouponONArithmeticAverageSpreadDefinition extends CouponDefinition 
   @Deprecated
   @Override
   public CouponONArithmeticAverageSpread toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    ArgumentChecker.isTrue(!_fixingPeriodDates[0].plusDays(_index.getPublicationLag()).isBefore(date), "First fixing publication strictly before reference date");
-    return toDerivative(date);
+    throw new UnsupportedOperationException();
   }
 
   /**

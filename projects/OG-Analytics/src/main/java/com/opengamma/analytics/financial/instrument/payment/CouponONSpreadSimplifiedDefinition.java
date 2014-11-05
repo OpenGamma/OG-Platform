@@ -227,7 +227,7 @@ public class CouponONSpreadSimplifiedDefinition extends CouponDefinition {
   @Deprecated
   @Override
   public CouponONSpread toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    return toDerivative(date);
+    throw new UnsupportedOperationException();
   }
 
   @Override
