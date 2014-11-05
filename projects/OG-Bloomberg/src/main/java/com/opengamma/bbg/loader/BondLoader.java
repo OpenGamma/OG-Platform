@@ -318,6 +318,9 @@ public class BondLoader extends SecurityLoader {
       if (dayCountString.equals("ACT/ACT") || dayCountString.equals("ACT/ACT NON-EOM")) {
         dayCountString = "Actual/Actual ICMA";
       }
+      if (dayCountString.equals("BUS DAYS/252")) {
+        dayCountString = "Business/252";
+      }
       final ZonedDateTime announcementDate = validateAndGetNullableDateField(fieldData, FIELD_ANNOUNCE_DT);
       final ZonedDateTime interestAccrualDate = validateAndGetNullableDateField(fieldData, FIELD_INT_ACC_DT);
       final ZonedDateTime settlementDate = validateAndGetNullableDateField(fieldData, FIELD_SETTLE_DT);
