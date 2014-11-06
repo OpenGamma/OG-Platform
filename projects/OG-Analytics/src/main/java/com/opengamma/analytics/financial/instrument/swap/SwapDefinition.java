@@ -116,9 +116,7 @@ public class SwapDefinition implements InstrumentDefinitionWithData<Swap<? exten
   @SuppressWarnings({"unchecked", "rawtypes" })
   @Override
   public Swap<? extends Payment, ? extends Payment> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    final Annuity<? extends Payment> firstLeg = getFirstLeg().toDerivative(date, yieldCurveNames);
-    final Annuity<? extends Payment> secondLeg = getSecondLeg().toDerivative(date, yieldCurveNames);
-    return new Swap(firstLeg, secondLeg);
+    throw new UnsupportedOperationException();
   }
 
   /**

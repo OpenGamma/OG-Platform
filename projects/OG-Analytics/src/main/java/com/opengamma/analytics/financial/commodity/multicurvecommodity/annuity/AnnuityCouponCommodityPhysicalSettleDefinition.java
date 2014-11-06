@@ -39,7 +39,7 @@ public class AnnuityCouponCommodityPhysicalSettleDefinition extends AnnuityCoupo
   @Deprecated
   @Override
   public Annuity<? extends Payment> toDerivative(final ZonedDateTime valZdt, final String... yieldCurveNames) {
-    return toDerivative(valZdt);
+    throw new UnsupportedOperationException();
   }
 
   @Override

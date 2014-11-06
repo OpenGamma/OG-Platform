@@ -185,7 +185,7 @@ public class BondIborSecurityDefinition extends BondSecurityDefinition<PaymentFi
     } else {
       settlementTime = TimeCalculator.getTimeBetween(date, settlementDate);
     }
-    final AnnuityPaymentFixed nominal = (AnnuityPaymentFixed) getNominal().toDerivative(date, creditCurveName);
+    final AnnuityPaymentFixed nominal = (AnnuityPaymentFixed) getNominal().toDerivative(date);
     final Annuity<Coupon> coupon = (Annuity<Coupon>) getCoupons().toDerivative(date, indexFixingTS, yieldCurveNames);
     return new BondIborSecurity(nominal.trimBefore(settlementTime), coupon.trimBefore(settlementTime), settlementTime, riskFreeCurveName);
   }

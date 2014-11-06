@@ -43,7 +43,7 @@ public class EnergyFutureSecurityDefinition extends CommodityFutureSecurityDefin
 
   @Override
   public EnergyFutureSecurity toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    return toDerivative(date);
+    throw new UnsupportedOperationException();
   }
 
   @Override

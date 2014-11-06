@@ -32,11 +32,7 @@ public class EquityIndexDividendFutureDefinition extends EquityFutureDefinition 
 
   @Override
   public EquityIndexDividendFuture toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    final double timeToFixing = TimeCalculator.getTimeBetween(date, getExpiryDate());
-    final double timeToDelivery = TimeCalculator.getTimeBetween(date, getSettlementDate());
-
-    final EquityIndexDividendFuture newDeriv = new EquityIndexDividendFuture(timeToFixing, timeToDelivery, getStrikePrice(), getCurrency(), getUnitAmount());
-    return newDeriv;
+    throw new UnsupportedOperationException();
   }
 
   @Override

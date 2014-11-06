@@ -175,9 +175,7 @@ public class SwapFixedIborSpreadDefinition extends SwapDefinition {
   @SuppressWarnings("unchecked")
   @Override
   public SwapFixedCoupon<Coupon> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    final Annuity<CouponFixed> fixedLeg = this.getFixedLeg().toDerivative(date, yieldCurveNames);
-    final Annuity<? extends Payment> iborLeg = this.getIborLeg().toDerivative(date, yieldCurveNames);
-    return new SwapFixedCoupon<>(fixedLeg, (Annuity<Coupon>) iborLeg);
+    throw new UnsupportedOperationException();
   }
 
   /**

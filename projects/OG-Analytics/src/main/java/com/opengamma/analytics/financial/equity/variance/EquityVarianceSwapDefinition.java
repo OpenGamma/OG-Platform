@@ -95,7 +95,7 @@ public class EquityVarianceSwapDefinition extends VarianceSwapDefinition {
 
   @Override
   public EquityVarianceSwap toDerivative(final ZonedDateTime valueDate, final String... yieldCurveNames) {
-    return toDerivative(valueDate, ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES, yieldCurveNames);
+    throw new UnsupportedOperationException();
   }
 
   /**

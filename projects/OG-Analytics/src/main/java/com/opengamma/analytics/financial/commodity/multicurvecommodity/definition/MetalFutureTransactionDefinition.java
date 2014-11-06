@@ -49,7 +49,7 @@ public class MetalFutureTransactionDefinition extends CommodityFutureTransaction
 
   @Override
   public MetalFutureTransaction toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    return toDerivative(date);
+    throw new UnsupportedOperationException();
   }
 
   @Override

@@ -99,7 +99,7 @@ public class ForexInstrumentsDescriptionDataSet {
    */
   @Deprecated
   public static ForexOptionVanilla createForexOptionVanillaDeprecated() {
-    return createForexOptionVanillaDefinition().toDerivative(REFERENCE_DATE, CURVES_NAME);
+    throw new UnsupportedOperationException();
   }
 
   /**
@@ -157,7 +157,7 @@ public class ForexInstrumentsDescriptionDataSet {
    */
   @Deprecated
   public static ForexNonDeliverableOption createForexNonDeliverableOptionDeprecated() {
-    return createForexNonDeliverableOptionDefinition().toDerivative(REFERENCE_DATE, CURVES_NAME);
+    throw new UnsupportedOperationException();
   }
 
   /**
@@ -183,7 +183,7 @@ public class ForexInstrumentsDescriptionDataSet {
    */
   @Deprecated
   public static ForexOptionDigital createForexOptionDigitalDeprecated() {
-    return createForexOptionDigitalDefinition().toDerivative(REFERENCE_DATE, CURVES_NAME);
+    throw new UnsupportedOperationException();
   }
 
   /**
