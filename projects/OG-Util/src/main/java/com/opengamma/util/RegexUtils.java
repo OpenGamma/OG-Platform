@@ -5,9 +5,12 @@
  */
 package com.opengamma.util;
 
+import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import com.google.common.collect.ImmutableMap;
 
 /**
  * Utility methods to simplify comparisons.
@@ -60,6 +63,43 @@ public final class RegexUtils {
     return Pattern.compile(buf.toString(), Pattern.CASE_INSENSITIVE);
   }
 
+  /**
+   * Creates a regular expression pattern from a simple glob string.
+   * <p>
+   * The special characters recognized in the glob string are {@code ?} (match any character),
+   * {@code *} (match any number of characters) and {@code %} (same as {@code *}.
+   * The other characters in the glob string are escaped before the pattern is created so
+   * it can safely contain regular expression characters. Escaping is not supported in
+   * the glob string, thus there is no way to match any of the special characters themselves.
+   * 
+   * @param glob  the glob string, not null
+   * @return a pattern for matching the glob, not null
+   */
+  public static Pattern globToPattern(String glob) {
+    ArgumentChecker.notNull(glob, "glob");
+    Map<Character, String> replacements = ImmutableMap.of('?', ".", '*', ".*?", '%', ".*?");
+    StringBuilder builder = new StringBuilder();
+    StringBuilder tokenBuilder = new StringBuilder();
+    for (int i = 0; i < glob.length(); i++) {
+      char c = glob.charAt(i);
+      if (!replacements.containsKey(c)) {
+        tokenBuilder.append(c);
+      } else {
+        if (tokenBuilder.length() != 0) {
+          String quotedToken = Pattern.quote(tokenBuilder.toString());
+          builder.append(quotedToken);
+          tokenBuilder.setLength(0);
+        }
+        builder.append(replacements.get(c));
+      }
+    }
+    if (tokenBuilder.length() != 0) {
+      builder.append(Pattern.quote(tokenBuilder.toString()));
+    }
+    return Pattern.compile(builder.toString());
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Checks if a string matches a potentially wildcard string.
    * <p>

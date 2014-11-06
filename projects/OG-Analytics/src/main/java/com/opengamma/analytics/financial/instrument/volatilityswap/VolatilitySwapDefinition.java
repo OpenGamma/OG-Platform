@@ -192,7 +192,7 @@ public class VolatilitySwapDefinition implements InstrumentDefinition<Volatility
   @Deprecated
   @Override
   public VolatilitySwap toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    return toDerivative(date);
+    throw new UnsupportedOperationException(this.getClass().getCanonicalName());
   }
 
   @Override

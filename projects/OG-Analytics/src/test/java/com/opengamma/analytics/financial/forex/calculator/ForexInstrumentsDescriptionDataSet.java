@@ -61,16 +61,6 @@ public class ForexInstrumentsDescriptionDataSet {
   }
 
   /**
-   * Creates a FX definition
-   * @return A FX definition
-   * @deprecated Use the non-deprecated method that does not use yield curve names.
-   */
-  @Deprecated
-  public static Forex createForexDeprecated() {
-    return createForexDefinition().toDerivative(REFERENCE_DATE, CURVES_NAME);
-  }
-
-  /**
    * Creates a FX
    * @return A FX
    */
@@ -84,16 +74,6 @@ public class ForexInstrumentsDescriptionDataSet {
    */
   public static ForexSwapDefinition createForexSwapDefinition() {
     return new ForexSwapDefinition(EUR, USD, NEAR_DATE, FAR_DATE, NOMINAL_1, FX_RATE_EUR_USD, FORWARD_POINTS);
-  }
-
-  /**
-   * Creates a FX swap
-   * @return A FX swap
-   * @deprecated Use the non-deprecated method that does not use yield curve names
-   */
-  @Deprecated
-  public static ForexSwap createForexSwapDeprecated() {
-    return (ForexSwap) createForexSwapDefinition().toDerivative(REFERENCE_DATE, CURVES_NAME);
   }
 
   /**
@@ -141,16 +121,6 @@ public class ForexInstrumentsDescriptionDataSet {
   /**
    * Creates a single-barrier FX option
    * @return A single-barrier FX option
-   * @deprecated Use the non-deprecated method that does not use yield curve names
-   */
-  @Deprecated
-  public static ForexOptionSingleBarrier createForexOptionSingleBarrierDeprecated() {
-    return createForexOptionSingleBarrierDefinition().toDerivative(REFERENCE_DATE, CURVES_NAME);
-  }
-
-  /**
-   * Creates a single-barrier FX option
-   * @return A single-barrier FX option
    */
   public static ForexOptionSingleBarrier createForexOptionSingleBarrier() {
     return createForexOptionSingleBarrierDefinition().toDerivative(REFERENCE_DATE);
@@ -162,16 +132,6 @@ public class ForexInstrumentsDescriptionDataSet {
    */
   public static ForexNonDeliverableForwardDefinition createForexNonDeliverableForwardDefinition() {
     return new ForexNonDeliverableForwardDefinition(KRW, USD, NOMINAL_1, FX_RATE_KRW_USD, NDF_FIXING_DATE, NDF_PAYMENT_DATE);
-  }
-
-  /**
-   * Creates a non-deliverable FX forward
-   * @return A non-deliverable FX forward
-   * @deprecated Use the non-deprecated method that does not use yield curve names
-   */
-  @Deprecated
-  public static ForexNonDeliverableForward createForexNonDeliverableForwardDeprecated() {
-    return createForexNonDeliverableForwardDefinition().toDerivative(REFERENCE_DATE, CURVES_NAME);
   }
 
   /**

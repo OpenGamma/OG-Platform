@@ -93,10 +93,7 @@ public class ForexOptionSingleBarrierDefinition implements InstrumentDefinition<
   @Deprecated
   @Override
   public ForexOptionSingleBarrier toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(date, "date");
-    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
-    final ForexOptionVanilla underlying = _underlyingOption.toDerivative(date, yieldCurveNames);
-    return new ForexOptionSingleBarrier(underlying, _barrier);
+    throw new UnsupportedOperationException(this.getClass().getCanonicalName());
   }
 
   @Override

@@ -98,7 +98,7 @@ public class MetalForwardDefinition extends CommodityForwardDefinition<MetalForw
 
   @Override
   public MetalForward toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    return toDerivative(date);
+    throw new UnsupportedOperationException();
   }
 
   @Override

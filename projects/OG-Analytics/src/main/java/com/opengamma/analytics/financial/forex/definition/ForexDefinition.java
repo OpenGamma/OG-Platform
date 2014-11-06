@@ -133,11 +133,7 @@ public class ForexDefinition implements InstrumentDefinition<InstrumentDerivativ
   @Deprecated
   @Override
   public Forex toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(date, "date");
-    ArgumentChecker.notNull(yieldCurveNames, "Curves");
-    final PaymentFixed payment1 = _paymentCurrency1.toDerivative(date, yieldCurveNames[0]);
-    final PaymentFixed payment2 = _paymentCurrency2.toDerivative(date, yieldCurveNames[1]);
-    return new Forex(payment1, payment2);
+    throw new UnsupportedOperationException(this.getClass().getCanonicalName());
   }
 
   @Override

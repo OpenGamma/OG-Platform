@@ -107,7 +107,7 @@ public abstract class FXOptionBlackFunction extends AbstractFunction.NonCompiled
     }
     final InstrumentDefinition<?> definition = security.accept(new ForexSecurityConverter(baseQuotePairs));
     final ZonedDateTime now = ZonedDateTime.now(executionContext.getValuationClock());
-    final InstrumentDerivative fxOption = definition.toDerivative(now, allCurveNames);
+    final InstrumentDerivative fxOption = definition.toDerivative(now);
 
     // Get market data
     final ForexOptionDataBundle<?> marketData = FXOptionFunctionUtils.buildMarketBundle(now, inputs, target, desiredValues);

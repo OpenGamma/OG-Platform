@@ -10,6 +10,7 @@ import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.NotionalProvider;
+import com.opengamma.analytics.financial.instrument.VariableNotionalProvider;
 import com.opengamma.analytics.financial.instrument.annuity.AbstractAnnuityDefinitionBuilder.CouponStub;
 import com.opengamma.analytics.financial.instrument.annuity.AdjustedDateParameters;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponFixedDefinition;
@@ -459,4 +460,48 @@ public static final Swap<? extends Payment, ? extends Payment> IRS_STUB6 =
   private static final SwapDefinition IRS_ZERO_CPN_DEFINITION = new SwapDefinition(LEG_FIXED, LEG_IBOR_3M);
   public static final Swap<? extends Payment, ? extends Payment> IRS_ZERO_CPN =
       IRS_ZERO_CPN_DEFINITION.toDerivative(VALUATION_DATE, TS_ARRAY_USDLIBOR3M_2X);
+
+  // Instrument description: Amortizing Swap, Fixed vs Libor3M
+  private static final LocalDate SPOT_DATE_AM = LocalDate.of(2014, 9, 12);
+  private static final LocalDate END_DATE_AM = LocalDate.of(2021, 9, 12);
+  private static final double FIXED_RATE_AM = 0.0160;
+  private static final NotionalProvider NOTIONAL_PROVIDER_AM_FLOATING;
+  static {
+    //    ZonedDateTime startDate = SPOT_DATE_AM.atTime(LocalTime.MIN).atZone(ZoneId.systemDefault());
+    //    ZonedDateTime[] accrualEndDates = ScheduleCalculator.getAdjustedDateSchedule(startDate,
+    //        END_DATE_AM.atTime(LocalTime.MIN).atZone(ZoneId.systemDefault()), P3M, StubType.NONE,
+    //        ADJUSTED_DATE_USDLIBOR.getBusinessDayConvention(), ADJUSTED_DATE_USDLIBOR.getCalendar(), null);
+    //    ZonedDateTime[] accrualStartDates = ScheduleCalculator.getStartDates(startDate, accrualEndDates);
+    //    int nDates = accrualStartDates.length;
+    //    LocalDate[] dates = new LocalDate[nDates];
+    //    double[] notionals = new double[nDates];
+    //    for (int i = 0; i < nDates; ++i) {
+    //      dates[i] = accrualStartDates[i].toLocalDate(); // notional is specified by accrual start date
+    //      notionals[i] = NOTIONAL * (1.0 - 0.03 * i);
+    //    }
+    //    NOTIONAL_PROVIDER_AM_FLOATING = new VariableNotionalProvider(dates, notionals);
+    /*
+     * If schedule is not known/computed, use new VariableNotionalProvider(notionals)
+     */
+    int nDates = 28;
+    double[] notionals = new double[nDates];
+    for (int i = 0; i < nDates; ++i) {
+      notionals[i] = NOTIONAL * (1.0 - 0.03 * i);
+    }
+    NOTIONAL_PROVIDER_AM_FLOATING = new VariableNotionalProvider(notionals);
+  }
+  private static final AnnuityDefinition<?> LEG_LIBOR_3M_AM = new FloatingAnnuityDefinitionBuilder()
+      .payer(true).startDate(SPOT_DATE_AM).endDate(END_DATE_AM).index(USDLIBOR3M).accrualPeriodFrequency(P3M)
+      .rollDateAdjuster(RollConvention.NONE.getRollDateAdjuster(0))
+      .resetDateAdjustmentParameters(ADJUSTED_DATE_USDLIBOR).accrualPeriodParameters(ADJUSTED_DATE_USDLIBOR).
+      dayCount(USDLIBOR3M.getDayCount()).fixingDateAdjustmentParameters(OFFSET_FIXING_USDLIBOR).currency(USD)
+      .spread(0.0).fixingDateAdjustmentParameters(OFFSET_FIXING_USDLIBOR).notional(NOTIONAL_PROVIDER_AM_FLOATING)
+      .build();
+  private static final AnnuityDefinition<?> LEG_FIXED_AM = new FixedAnnuityDefinitionBuilder().
+      payer(false).currency(USD).startDate(SPOT_DATE_AM).endDate(END_DATE_AM).
+      dayCount(DC_30U_360).accrualPeriodFrequency(P3M).rate(FIXED_RATE_AM)
+        .accrualPeriodParameters(ADJUSTED_DATE_USDLIBOR).notional(NOTIONAL_PROVIDER_AM_FLOATING).build();
+  private static final SwapDefinition SWAP_AMORTIZING_DEFINITION = new SwapDefinition(LEG_FIXED_AM, LEG_LIBOR_3M_AM);
+  public static final Swap<? extends Payment, ? extends Payment> SWAP_AMORTIZING =
+      SWAP_AMORTIZING_DEFINITION.toDerivative(VALUATION_DATE, TS_ARRAY_USDLIBOR3M_2X);
 }

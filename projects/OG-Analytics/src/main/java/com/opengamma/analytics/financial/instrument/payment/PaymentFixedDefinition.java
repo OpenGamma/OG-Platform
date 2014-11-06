@@ -74,13 +74,7 @@ public class PaymentFixedDefinition extends PaymentDefinition {
   @Deprecated
   @Override
   public PaymentFixed toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(date, "date");
-    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
-    ArgumentChecker.isTrue(yieldCurveNames.length > 0, "at least one curve required");
-    ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date {} is after payment date {}", date, getPaymentDate());
-    final String fundingCurveName = yieldCurveNames[0];
-    final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
-    return new PaymentFixed(getCurrency(), paymentTime, _amount, fundingCurveName);
+    throw new UnsupportedOperationException(this.getClass().getCanonicalName());
   }
 
   @Override

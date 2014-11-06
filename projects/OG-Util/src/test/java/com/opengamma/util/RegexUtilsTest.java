@@ -6,6 +6,8 @@
 package com.opengamma.util;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
@@ -69,6 +71,53 @@ public class RegexUtilsTest {
     assertEquals(false, RegexUtils.wildcardMatch("Hello*", "Hell on earth"));
     assertEquals(false, RegexUtils.wildcardMatch(null, "Hell on earth"));
     assertEquals(false, RegexUtils.wildcardMatch("Hello*", null));
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void globToPattern() {
+    assertEquals("\\Qfoo\\E.\\Qbar\\E", patternFor("foo?bar"));
+    assertEquals(".\\Qfoobar\\E", patternFor("?foobar"));
+    assertEquals("\\Qfoobar\\E.", patternFor("foobar?"));
+    assertEquals("\\Qfoo\\E..\\Qbar\\E", patternFor("foo??bar"));
+    assertEquals("..\\Qfoobar\\E", patternFor("??foobar"));
+    assertEquals("\\Qfoobar\\E..", patternFor("foobar??"));
+    assertEquals(".\\Qfoobar\\E.", patternFor("?foobar?"));
+
+    assertEquals(".*?\\Qfoobar\\E.*?", patternFor("*foobar%"));
+    assertEquals("\\Qfoo\\E.*?\\Qbar\\E", patternFor("foo*bar"));
+    assertEquals("\\Qf\\E.\\Qoo\\E.*?\\Qbar\\E", patternFor("f?oo*bar"));
+    assertEquals("\\Qf\\E.\\Qoo\\E.*?\\Qbar\\E", patternFor("f?oo%bar"));
+  }
+
+  @Test
+  public void globMatches() {
+    assertTrue(matches("foo?bar", "fooxbar"));
+    assertFalse(matches("foo?bar", "foobar"));
+    assertFalse(matches("foo?bar", "fooxxbar"));
+    assertTrue(matches("foo*bar", "fooxxbar"));
+    assertTrue(matches("foo*bar", "fooxbar"));
+    assertTrue(matches("foo*bar", "foobar"));
+    assertTrue(matches("foo%bar", "fooxxbar"));
+    assertTrue(matches("foo%bar", "fooxbar"));
+    assertTrue(matches("foo%bar", "foobar"));
+    assertFalse(matches("?foo%bar", "foobar"));
+    assertTrue(matches("?foo%bar", "xfoobar"));
+    assertTrue(matches("?foo%bar", "xfooxbar"));
+    assertTrue(matches("?foo%bar", "xfooxxbar"));
+    assertTrue(matches("f??oo%bar", "fxxooxxbar"));
+    assertFalse(matches("f??oo%bar", "fxooxxbar"));
+    assertTrue(matches("$?^", "$A^"));
+    assertTrue(matches("$*^", "$ABC^"));
+    assertTrue(matches("$%^", "$ABC^"));
+  }
+
+  private static boolean matches(String glob, String str) {
+    return RegexUtils.globToPattern(glob).matcher(str).matches();
+  }
+
+  private static String patternFor(String glob) {
+    return RegexUtils.globToPattern(glob).pattern();
   }
 
 }

@@ -128,10 +128,7 @@ public class ForexNonDeliverableForwardDefinition implements InstrumentDefinitio
   @Deprecated
   @Override
   public ForexNonDeliverableForward toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    ArgumentChecker.isTrue(!date.isAfter(_fixingDate), "Date is after fixing date");
-    ArgumentChecker.isTrue(yieldCurveNames.length > 1, "At least two curves required");
-    return new ForexNonDeliverableForward(_currency1, _currency2, _notional, _exchangeRate, TimeCalculator.getTimeBetween(date, _fixingDate),
-        TimeCalculator.getTimeBetween(date, _paymentDate), yieldCurveNames[0], yieldCurveNames[1]);
+    throw new UnsupportedOperationException(this.getClass().getCanonicalName());
   }
 
   @Override

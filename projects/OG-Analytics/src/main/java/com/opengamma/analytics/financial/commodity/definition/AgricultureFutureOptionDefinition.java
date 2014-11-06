@@ -35,7 +35,7 @@ public class AgricultureFutureOptionDefinition extends CommodityFutureOptionDefi
 
   @Override
   public AgricultureFutureOption toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    return toDerivative(date);
+    throw new UnsupportedOperationException();
   }
 
   @Override

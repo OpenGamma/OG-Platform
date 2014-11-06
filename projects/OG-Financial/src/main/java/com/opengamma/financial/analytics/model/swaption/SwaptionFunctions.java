@@ -11,7 +11,6 @@ import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
 import com.opengamma.engine.function.config.CombiningFunctionConfigurationSource;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
-import com.opengamma.financial.analytics.model.swaption.basicblack.BasicBlackFunctions;
 import com.opengamma.financial.analytics.model.swaption.black.BlackFunctions;
 
 /**
@@ -43,19 +42,9 @@ public class SwaptionFunctions extends AbstractFunctionConfigurationBean {
     return BlackFunctions.instance();
   }
 
-  /**
-   * Adds all swaption constant Black pricing functions.
-   * @return The configuration source populated with constant Black pricing functions
-   * @deprecated The functions that are added are deprecated
-   */
-  @Deprecated
-  protected FunctionConfigurationSource basicBlackFunctionConfiguration() {
-    return BasicBlackFunctions.instance();
-  }
-
   @Override
   protected FunctionConfigurationSource createObject() {
-    return CombiningFunctionConfigurationSource.of(super.createObject(), basicBlackFunctionConfiguration(), blackFunctionConfiguration());
+    return CombiningFunctionConfigurationSource.of(super.createObject(), blackFunctionConfiguration());
   }
 
 }

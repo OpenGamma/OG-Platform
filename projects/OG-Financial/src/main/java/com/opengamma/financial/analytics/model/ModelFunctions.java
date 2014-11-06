@@ -32,7 +32,6 @@ import com.opengamma.financial.analytics.model.future.FutureFunctions;
 import com.opengamma.financial.analytics.model.futureoption.FutureOptionFunctions;
 import com.opengamma.financial.analytics.model.fx.FXForwardPricingFunctions;
 import com.opengamma.financial.analytics.model.g2ppdiscounting.G2ppPricingFunctions;
-import com.opengamma.financial.analytics.model.horizon.HorizonFunctions;
 import com.opengamma.financial.analytics.model.hullwhitediscounting.HullWhitePricingFunctions;
 import com.opengamma.financial.analytics.model.irfutureoption.IRFutureOptionFunctions;
 import com.opengamma.financial.analytics.model.option.OptionFunctions;
@@ -218,14 +217,6 @@ public class ModelFunctions extends AbstractFunctionConfigurationBean {
   }
 
   /**
-   * Adds horizon functions.
-   * @return A configuration source containing horizon functions.
-   */
-  protected FunctionConfigurationSource horizonFunctionConfiguration() {
-    return HorizonFunctions.instance();
-  }
-
-  /**
    * Adds interest rate future-specific functions.
    * @return A configuration source containing the deprecated interest rate future functions.
    * @deprecated The current versions of these functions are added in {@link ModelFunctions#blackDiscountingFunctionConfiguration}
@@ -328,7 +319,6 @@ public class ModelFunctions extends AbstractFunctionConfigurationBean {
         forexFunctionConfiguration(),
         futureFunctionConfiguration(),
         futureOptionFunctionConfiguration(),
-        horizonFunctionConfiguration(),
         irFutureOptionFunctionConfiguration(),
         optionFunctionConfiguration(),
         pnlFunctionConfiguration(),

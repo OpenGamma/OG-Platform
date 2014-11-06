@@ -103,7 +103,7 @@ public class EnergyFutureDefinition extends CommodityFutureDefinition<EnergyFutu
   @Deprecated
   @Override
   public EnergyFuture toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    return toDerivative(date);
+    throw new UnsupportedOperationException();
   }
 
   /**

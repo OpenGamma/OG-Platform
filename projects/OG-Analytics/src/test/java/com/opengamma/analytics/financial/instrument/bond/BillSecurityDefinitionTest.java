@@ -226,31 +226,6 @@ public class BillSecurityDefinitionTest {
   /**
    * Tests the toDerivative methods.
    */
-  @SuppressWarnings("deprecation")
-  @Test
-  public void toDerivativeDeprecated() {
-    final String dsc = "EUR Discounting";
-    final String credit = "EUR BELGIUM GOVT";
-    final ZonedDateTime standardSettlementDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, SETTLEMENT_DAYS, CALENDAR);
-    final BillSecurity securityConverted1 = BILL_SEC_DEFINITION1.toDerivative(REFERENCE_DATE, standardSettlementDate, dsc, credit);
-    final double standardSettlementTime = TimeCalculator.getTimeBetween(REFERENCE_DATE, standardSettlementDate);
-    final double endTime = TimeCalculator.getTimeBetween(REFERENCE_DATE, END_DATE);
-    final double accrualFactorStandard = ACT360.getDayCountFraction(standardSettlementDate, END_DATE);
-    final BillSecurity securityExpected1 = new BillSecurity(EUR, standardSettlementTime, endTime, NOTIONAL, YIELD_CONVENTION, accrualFactorStandard, ISSUER_BEL_NAME, credit, dsc);
-    assertEquals("Bill Security Definition: toDerivative", securityExpected1, securityConverted1);
-    final BillSecurity securityConverted2 = BILL_SEC_DEFINITION1.toDerivative(REFERENCE_DATE, dsc, credit);
-    assertEquals("Bill Security Definition: toDerivative", securityExpected1, securityConverted2);
-    final ZonedDateTime otherSettlementDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, SETTLEMENT_DAYS + 1, CALENDAR);
-    final BillSecurity securityConverted3 = BILL_SEC_DEFINITION1.toDerivative(REFERENCE_DATE, otherSettlementDate, dsc, credit);
-    final double otherSettlementTime = TimeCalculator.getTimeBetween(REFERENCE_DATE, otherSettlementDate);
-    final double accrualFactorOther = ACT360.getDayCountFraction(otherSettlementDate, END_DATE);
-    final BillSecurity securityExpected3 = new BillSecurity(EUR, otherSettlementTime, endTime, NOTIONAL, YIELD_CONVENTION, accrualFactorOther, ISSUER_BEL_NAME, credit, dsc);
-    assertEquals("Bill Security Definition: toDerivative", securityExpected3, securityConverted3);
-  }
-
-  /**
-   * Tests the toDerivative methods.
-   */
   @Test
   public void toDerivative() {
     final ZonedDateTime standardSettlementDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, SETTLEMENT_DAYS, CALENDAR);

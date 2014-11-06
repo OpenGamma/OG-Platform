@@ -52,13 +52,7 @@ public class AnnuityPaymentFixedDefinition extends AnnuityDefinition<PaymentFixe
   @Deprecated
   @Override
   public AnnuityPaymentFixed toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    final List<PaymentFixed> resultList = new ArrayList<>();
-    for (int loopcoupon = 0; loopcoupon < getPayments().length; loopcoupon++) {
-      if (!date.isAfter(getNthPayment(loopcoupon).getPaymentDate())) {
-        resultList.add(getNthPayment(loopcoupon).toDerivative(date, yieldCurveNames));
-      }
-    }
-    return new AnnuityPaymentFixed(resultList.toArray(new PaymentFixed[resultList.size()]));
+    throw new UnsupportedOperationException(this.getClass().getCanonicalName());
   }
 
   @Override

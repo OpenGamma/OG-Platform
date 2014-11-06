@@ -136,7 +136,7 @@ public abstract class FXForwardPointsMethodFunction extends AbstractFunction.Non
     // Implementation note: The ForexSecurityConverter create the Forex with currency order pay/receive. The curve are passed in the same order.
     final ForexSecurityConverter converter = new ForexSecurityConverter(baseQuotePairs);
     final InstrumentDefinition<?> definition = security.accept(converter);
-    final Forex forex = (Forex) definition.toDerivative(now, allCurveNames);
+    final Forex forex = (Forex) definition.toDerivative(now);
     final FXForwardCurveInstrumentProvider provider = forwardCurveSpecification.getCurveInstrumentProvider();
     final ValueRequirement spotRequirement = new ValueRequirement(provider.getDataFieldName(), ComputationTargetType.PRIMITIVE, provider.getSpotInstrument());
     final double spotFX;
