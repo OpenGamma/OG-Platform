@@ -22,7 +22,6 @@ import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.rolldate.RollDateAdjuster;
-import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -349,17 +348,7 @@ public abstract class AbstractAnnuityDefinitionBuilder<T extends AbstractAnnuity
 
   @SuppressWarnings("unchecked")
   public T startStub(CouponStub startStub) {
-    if (startStub == null) {
-      _startStub = null;
-    } else {
-      ArgumentChecker.isFalse(startStub.getStubType() == StubType.SHORT_END ||
-          startStub.getStubType() == StubType.LONG_END, "startStub should be start stub type, but {}",
-          startStub.getStubType());
-      _startStub = startStub;
-      if (startStub.getStubType() != StubType.BOTH && startStub.getStubType() != StubType.NONE) {
-        _endStub = null; // reset end stub.
-      }
-    }
+    _startStub = startStub;
     return (T) this;
   }
   
@@ -370,17 +359,7 @@ public abstract class AbstractAnnuityDefinitionBuilder<T extends AbstractAnnuity
    */
   @SuppressWarnings("unchecked")
   public T endStub(CouponStub endStub) {
-    if (endStub == null) {
-      _endStub = null;
-    } else {
-      ArgumentChecker.isFalse(endStub.getStubType() == StubType.SHORT_START ||
-          endStub.getStubType() == StubType.LONG_START, "endStub should be end stub type, but {}",
-          endStub.getStubType());
-      _endStub = endStub;
-      if (endStub.getStubType() != StubType.BOTH && endStub.getStubType() != StubType.NONE) {
-        _startStub = null; // reset start stub.
-      }
-    }
+    _endStub = endStub;
     return (T) this;
   }
 
