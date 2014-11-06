@@ -61,7 +61,6 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.master.historicaltimeseries.impl.RemoteHistoricalTimeSeriesResolver;
-import com.opengamma.sesame.ConfigDbMarketExposureSelectorFn;
 import com.opengamma.sesame.CurrencyPairsFn;
 import com.opengamma.sesame.CurveDefinitionFn;
 import com.opengamma.sesame.CurveNodeConverterFn;
@@ -85,7 +84,7 @@ import com.opengamma.sesame.ExposureFunctionsDiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.FXMatrixFn;
 import com.opengamma.sesame.FXReturnSeriesFn;
 import com.opengamma.sesame.HistoricalTimeSeriesFn;
-import com.opengamma.sesame.MarketExposureSelectorFn;
+import com.opengamma.sesame.MarketExposureSelector;
 import com.opengamma.sesame.RootFinderConfiguration;
 import com.opengamma.sesame.SimpleEnvironment;
 import com.opengamma.sesame.TimeSeriesReturnConverterFactory;
@@ -206,8 +205,8 @@ public class FXForwardPnlSeriesFunctionTest {
         config(
             arguments(
                 function(
-                    ConfigDbMarketExposureSelectorFn.class,
-                    argument("exposureConfig", exposureConfig)),
+                    MarketExposureSelector.class,
+                    argument("exposureFunctions", exposureConfig)),
                 function(
                     DefaultHistoricalPnLFXConverterFn.class,
                     argument("periodBound", PnLPeriodBound.START)),
@@ -250,7 +249,6 @@ public class FXForwardPnlSeriesFunctionTest {
                 FXReturnSeriesFn.class, DefaultFXReturnSeriesFn.class,
                 FXForwardCalculatorFn.class, FXForwardDiscountingCalculatorFn.class,
                 DiscountingMulticurveCombinerFn.class, ExposureFunctionsDiscountingMulticurveCombinerFn.class,
-                MarketExposureSelectorFn.class, ConfigDbMarketExposureSelectorFn.class,
                 CurrencyPairsFn.class, DefaultCurrencyPairsFn.class,
                 FinancialSecurityVisitor.class, FXForwardSecurityConverter.class,
                 InstrumentExposuresProvider.class, ConfigDBInstrumentExposuresProvider.class,

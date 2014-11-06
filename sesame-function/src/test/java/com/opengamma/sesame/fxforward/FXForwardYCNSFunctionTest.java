@@ -61,7 +61,6 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.master.historicaltimeseries.impl.RemoteHistoricalTimeSeriesResolver;
-import com.opengamma.sesame.ConfigDbMarketExposureSelectorFn;
 import com.opengamma.sesame.CurrencyPairsFn;
 import com.opengamma.sesame.CurveDefinitionFn;
 import com.opengamma.sesame.CurveNodeConverterFn;
@@ -83,7 +82,7 @@ import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.ExposureFunctionsDiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.FXMatrixFn;
 import com.opengamma.sesame.HistoricalTimeSeriesFn;
-import com.opengamma.sesame.MarketExposureSelectorFn;
+import com.opengamma.sesame.MarketExposureSelector;
 import com.opengamma.sesame.RootFinderConfiguration;
 import com.opengamma.sesame.SimpleEnvironment;
 import com.opengamma.sesame.cache.CachingProxyDecorator;
@@ -192,8 +191,8 @@ public class FXForwardYCNSFunctionTest {
         config(
             arguments(
                 function(
-                    ConfigDbMarketExposureSelectorFn.class,
-                    argument("exposureConfig", ConfigLink.resolved(mock(ExposureFunctions.class)))),
+                    MarketExposureSelector.class,
+                    argument("exposureFunctions", ConfigLink.resolved(mock(ExposureFunctions.class)))),
                 function(
                     DiscountingFXForwardYieldCurveNodeSensitivitiesFn.class,
                     argument("curveDefinition", ConfigLink.resolved(mock(CurveDefinition.class)))),
@@ -220,7 +219,6 @@ public class FXForwardYCNSFunctionTest {
             implementations(
                 FXForwardYieldCurveNodeSensitivitiesFn.class, DiscountingFXForwardYieldCurveNodeSensitivitiesFn.class,
                 FXForwardCalculatorFn.class, FXForwardDiscountingCalculatorFn.class,
-                MarketExposureSelectorFn.class, ConfigDbMarketExposureSelectorFn.class,
                 CurrencyPairsFn.class, DefaultCurrencyPairsFn.class,
                 FinancialSecurityVisitor.class, FXForwardSecurityConverter.class,
                 InstrumentExposuresProvider.class, ConfigDBInstrumentExposuresProvider.class,

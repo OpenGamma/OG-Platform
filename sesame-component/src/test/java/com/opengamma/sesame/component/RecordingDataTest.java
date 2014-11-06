@@ -62,7 +62,6 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.service.ThreadLocalServiceContext;
 import com.opengamma.service.VersionCorrectionProvider;
-import com.opengamma.sesame.ConfigDbMarketExposureSelectorFn;
 import com.opengamma.sesame.DefaultCurrencyPairsFn;
 import com.opengamma.sesame.DefaultCurveDefinitionFn;
 import com.opengamma.sesame.DefaultCurveNodeConverterFn;
@@ -76,6 +75,7 @@ import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
 import com.opengamma.sesame.DiscountingMulticurveBundleResolverFn;
 import com.opengamma.sesame.EngineTestUtils;
 import com.opengamma.sesame.ExposureFunctionsDiscountingMulticurveCombinerFn;
+import com.opengamma.sesame.MarketExposureSelector;
 import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.RootFinderConfiguration;
 import com.opengamma.sesame.config.ViewConfig;
@@ -376,36 +376,45 @@ public class RecordingDataTest {
 
   private ViewConfig createIrsPricerConfig() {
 
-    return configureView("IRS Pricer",
-        config(
-            arguments(
-                function(ConfigDbMarketExposureSelectorFn.class,
-                         argument("exposureConfig",
-                                  ConfigLink.resolved(InterestRateMockSources.mockExposureFunctions()))),
-                function(RootFinderConfiguration.class,
-                         argument("rootFinderAbsoluteTolerance", 1e-10),
-                         argument("rootFinderRelativeTolerance", 1e-10),
-                         argument("rootFinderMaxIterations", 5000)),
-                function(DefaultCurrencyPairsFn.class,
-                         argument("currencyPairs", ImmutableSet.of(/*no pairs*/))),
-                function(DefaultHistoricalTimeSeriesFn.class,
-                         argument("resolutionKey", "DEFAULT_TSS"),
-                         argument("htsRetrievalPeriod",  RetrievalPeriod.of(Period.ofYears(1)))),
-                function(DefaultCurveNodeConverterFn.class,
-                         argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofYears(1)))),
-                function(DefaultHistoricalMarketDataFn.class,
-                         argument("dataSource", "BLOOMBERG"),
-                         argument("currencyMatrix", _currencyMatrixLink)),
-                function(DefaultMarketDataFn.class,
-                         argument("currencyMatrix", _currencyMatrixLink)),
-                function(DefaultDiscountingMulticurveBundleFn.class,
-                         argument("impliedCurveNames", StringSet.of())))),
-        column(
-            "Present Value",
-            output(OutputNames.PRESENT_VALUE, InterestRateSwapSecurity.class)),
-        column(
-            "PV01",
-            output(OutputNames.PV01, InterestRateSwapSecurity.class)));
+    return
+        configureView(
+            "IRS Pricer",
+            config(
+                arguments(
+                    function(
+                        MarketExposureSelector.class,
+                        argument("exposureFunctions", ConfigLink.resolved(InterestRateMockSources.mockExposureFunctions()))),
+                    function(
+                        RootFinderConfiguration.class,
+                        argument("rootFinderAbsoluteTolerance", 1e-10),
+                        argument("rootFinderRelativeTolerance", 1e-10),
+                        argument("rootFinderMaxIterations", 5000)),
+                    function(
+                        DefaultCurrencyPairsFn.class,
+                        argument("currencyPairs", ImmutableSet.of(/*no pairs*/))),
+                    function(
+                        DefaultHistoricalTimeSeriesFn.class,
+                        argument("resolutionKey", "DEFAULT_TSS"),
+                        argument("htsRetrievalPeriod", RetrievalPeriod.of(Period.ofYears(1)))),
+                    function(
+                        DefaultCurveNodeConverterFn.class,
+                        argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofYears(1)))),
+                    function(
+                        DefaultHistoricalMarketDataFn.class,
+                        argument("dataSource", "BLOOMBERG"),
+                        argument("currencyMatrix", _currencyMatrixLink)),
+                    function(
+                        DefaultMarketDataFn.class,
+                        argument("currencyMatrix", _currencyMatrixLink)),
+                    function(
+                        DefaultDiscountingMulticurveBundleFn.class,
+                        argument("impliedCurveNames", StringSet.of())))),
+            column(
+                "Present Value",
+                output(OutputNames.PRESENT_VALUE, InterestRateSwapSecurity.class)),
+            column(
+                "PV01",
+                output(OutputNames.PV01, InterestRateSwapSecurity.class)));
   }
 
 
@@ -455,7 +464,6 @@ public class RecordingDataTest {
         ConfigDBCurveConstructionConfigurationSource.class,
         DefaultHistoricalTimeSeriesFn.class,
         FXForwardDiscountingCalculatorFn.class,
-        ConfigDbMarketExposureSelectorFn.class,
         ExposureFunctionsDiscountingMulticurveCombinerFn.class,
         FixedHistoricalMarketDataFactory.class,
         DefaultMarketDataFn.class,

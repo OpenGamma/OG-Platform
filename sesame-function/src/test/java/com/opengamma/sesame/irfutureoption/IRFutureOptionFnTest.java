@@ -62,7 +62,6 @@ import com.opengamma.master.security.impl.MasterSecuritySource;
 import com.opengamma.service.ServiceContext;
 import com.opengamma.service.ThreadLocalServiceContext;
 import com.opengamma.service.VersionCorrectionProvider;
-import com.opengamma.sesame.ConfigDbMarketExposureSelectorFn;
 import com.opengamma.sesame.CurveDefinitionFn;
 import com.opengamma.sesame.CurveNodeConverterFn;
 import com.opengamma.sesame.CurveSpecificationFn;
@@ -82,7 +81,7 @@ import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.ExposureFunctionsDiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.FXMatrixFn;
 import com.opengamma.sesame.HistoricalTimeSeriesFn;
-import com.opengamma.sesame.MarketExposureSelectorFn;
+import com.opengamma.sesame.MarketExposureSelector;
 import com.opengamma.sesame.RootFinderConfiguration;
 import com.opengamma.sesame.SimpleEnvironment;
 import com.opengamma.sesame.component.RetrievalPeriod;
@@ -106,7 +105,7 @@ import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 /**
- * Tests for interest rate future options analytics funcitons using the black calculator.
+ * Tests for interest rate future options analytics functions using the black calculator.
  */
 @Test(groups = TestGroup.UNIT)
 public class IRFutureOptionFnTest {
@@ -128,8 +127,8 @@ public class IRFutureOptionFnTest {
         config(
             arguments(
                 function(
-                    ConfigDbMarketExposureSelectorFn.class,
-                    argument("exposureConfig", ConfigLink.resolved(InterestRateMockSources.mockExposureFunctions()))),
+                    MarketExposureSelector.class,
+                    argument("exposureFunctions", ConfigLink.resolved(InterestRateMockSources.mockExposureFunctions()))),
                 function(
                     RootFinderConfiguration.class,
                     argument("rootFinderAbsoluteTolerance", 1e-9),
@@ -163,7 +162,6 @@ public class IRFutureOptionFnTest {
                 CurveNodeConverterFn.class, DefaultCurveNodeConverterFn.class,
                 HistoricalMarketDataFn.class, DefaultHistoricalMarketDataFn.class,
                 HistoricalTimeSeriesFn.class, DefaultHistoricalTimeSeriesFn.class,
-                MarketExposureSelectorFn.class, ConfigDbMarketExposureSelectorFn.class,
                 MarketDataFn.class, DefaultMarketDataFn.class));
 
     ImmutableMap<Class<?>, Object> components = generateComponents();

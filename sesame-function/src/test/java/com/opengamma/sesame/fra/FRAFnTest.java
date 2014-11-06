@@ -47,7 +47,6 @@ import com.opengamma.financial.security.fra.ForwardRateAgreementSecurity;
 import com.opengamma.service.ServiceContext;
 import com.opengamma.service.ThreadLocalServiceContext;
 import com.opengamma.service.VersionCorrectionProvider;
-import com.opengamma.sesame.ConfigDbMarketExposureSelectorFn;
 import com.opengamma.sesame.CurrencyPairsFn;
 import com.opengamma.sesame.CurveDefinitionFn;
 import com.opengamma.sesame.CurveNodeConverterFn;
@@ -69,12 +68,11 @@ import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.ExposureFunctionsDiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.FXMatrixFn;
 import com.opengamma.sesame.HistoricalTimeSeriesFn;
-import com.opengamma.sesame.MarketExposureSelectorFn;
+import com.opengamma.sesame.MarketExposureSelector;
 import com.opengamma.sesame.RootFinderConfiguration;
 import com.opengamma.sesame.SimpleEnvironment;
 import com.opengamma.sesame.component.RetrievalPeriod;
 import com.opengamma.sesame.component.StringSet;
-import com.opengamma.sesame.config.ConfigBuilder;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.engine.FixedInstantVersionCorrectionProvider;
@@ -168,41 +166,48 @@ public class FRAFnTest {
 
   @BeforeClass
   public void setUpClass() throws IOException {
-    FunctionModelConfig config = config(
-        arguments(
-            function(ConfigDbMarketExposureSelectorFn.class,
-                     argument("exposureConfig", ConfigLink.resolved(InterestRateMockSources.mockExposureFunctions()))),
-            function(RootFinderConfiguration.class,
-                     argument("rootFinderAbsoluteTolerance", 1e-9),
-                     argument("rootFinderRelativeTolerance", 1e-9),
-                     argument("rootFinderMaxIterations", 1000)),
-            function(DefaultCurveNodeConverterFn.class,
-                     argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofYears(1)))),
-            function(DefaultHistoricalMarketDataFn.class,
-                     argument("dataSource", "BLOOMBERG")),
-            function(DefaultHistoricalTimeSeriesFn.class,
-                     argument("resolutionKey", "DEFAULT_TSS"),
-                     argument("htsRetrievalPeriod", RetrievalPeriod.of(Period.ofYears(1)))),
-            function(DefaultDiscountingMulticurveBundleFn.class,
-                     argument("impliedCurveNames", StringSet.of()))),
-        implementations(FRAFn.class, DiscountingFRAFn.class,
-                        CurrencyPairsFn.class, DefaultCurrencyPairsFn.class,
-                        InstrumentExposuresProvider.class, ConfigDBInstrumentExposuresProvider.class,
-                        FRACalculatorFactory.class, DiscountingFRACalculatorFactory.class,
-                        FRACalculator.class, DiscountingFRACalculator.class,
-                        CurveSpecificationMarketDataFn.class, DefaultCurveSpecificationMarketDataFn.class,
-                        FXMatrixFn.class, DefaultFXMatrixFn.class,
-                        DiscountingMulticurveCombinerFn.class, ExposureFunctionsDiscountingMulticurveCombinerFn.class,
-                        CurveNodeConverterFn.class, DefaultCurveNodeConverterFn.class,
-                        CurveDefinitionFn.class, DefaultCurveDefinitionFn.class,
-                        DiscountingMulticurveBundleFn.class, DefaultDiscountingMulticurveBundleFn.class,
-                        DiscountingMulticurveBundleResolverFn.class, DefaultDiscountingMulticurveBundleResolverFn.class,
-                        CurveSpecificationFn.class, DefaultCurveSpecificationFn.class,
-                        HistoricalMarketDataFn.class, DefaultHistoricalMarketDataFn.class,
-                        HistoricalTimeSeriesFn.class, DefaultHistoricalTimeSeriesFn.class,
-                        CurveConstructionConfigurationSource.class, ConfigDBCurveConstructionConfigurationSource.class,
-                        MarketExposureSelectorFn.class, ConfigDbMarketExposureSelectorFn.class,
-                        MarketDataFn.class, DefaultMarketDataFn.class));
+    FunctionModelConfig config =
+        config(
+            arguments(
+                function(
+                    MarketExposureSelector.class,
+                    argument("exposureFunctions", ConfigLink.resolved(InterestRateMockSources.mockExposureFunctions()))),
+                function(
+                    RootFinderConfiguration.class,
+                    argument("rootFinderAbsoluteTolerance", 1e-9),
+                    argument("rootFinderRelativeTolerance", 1e-9),
+                    argument("rootFinderMaxIterations", 1000)),
+                function(
+                    DefaultCurveNodeConverterFn.class,
+                    argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofYears(1)))),
+                function(
+                    DefaultHistoricalMarketDataFn.class,
+                    argument("dataSource", "BLOOMBERG")),
+                function(
+                    DefaultHistoricalTimeSeriesFn.class,
+                    argument("resolutionKey", "DEFAULT_TSS"),
+                    argument("htsRetrievalPeriod", RetrievalPeriod.of(Period.ofYears(1)))),
+                function(
+                    DefaultDiscountingMulticurveBundleFn.class,
+                    argument("impliedCurveNames", StringSet.of()))),
+            implementations(
+                FRAFn.class, DiscountingFRAFn.class,
+                CurrencyPairsFn.class, DefaultCurrencyPairsFn.class,
+                InstrumentExposuresProvider.class, ConfigDBInstrumentExposuresProvider.class,
+                FRACalculatorFactory.class, DiscountingFRACalculatorFactory.class,
+                FRACalculator.class, DiscountingFRACalculator.class,
+                CurveSpecificationMarketDataFn.class, DefaultCurveSpecificationMarketDataFn.class,
+                FXMatrixFn.class, DefaultFXMatrixFn.class,
+                DiscountingMulticurveCombinerFn.class, ExposureFunctionsDiscountingMulticurveCombinerFn.class,
+                CurveNodeConverterFn.class, DefaultCurveNodeConverterFn.class,
+                CurveDefinitionFn.class, DefaultCurveDefinitionFn.class,
+                DiscountingMulticurveBundleFn.class, DefaultDiscountingMulticurveBundleFn.class,
+                DiscountingMulticurveBundleResolverFn.class, DefaultDiscountingMulticurveBundleResolverFn.class,
+                CurveSpecificationFn.class, DefaultCurveSpecificationFn.class,
+                HistoricalMarketDataFn.class, DefaultHistoricalMarketDataFn.class,
+                HistoricalTimeSeriesFn.class, DefaultHistoricalTimeSeriesFn.class,
+                CurveConstructionConfigurationSource.class, ConfigDBCurveConstructionConfigurationSource.class,
+                MarketDataFn.class, DefaultMarketDataFn.class));
 
     Map<Class<?>, Object> components = InterestRateMockSources.generateBaseComponents();
     VersionCorrectionProvider vcProvider = new FixedInstantVersionCorrectionProvider(Instant.now());
