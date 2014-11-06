@@ -166,36 +166,6 @@ public class BondFuturesSecurityDefinitionTest {
     assertFalse(FUTURE_DEFINITION_1.equals(null));
   }
 
-  @SuppressWarnings("deprecation")
-  @Test
-  /**
-   * Tests the toDerivative method.
-   */
-  public void toDerivativeDeprecated() {
-    final ZonedDateTime firstDeliveryDate = ScheduleCalculator.getAdjustedDate(FIRST_NOTICE_DATE, SETTLEMENT_DAYS, CALENDAR);
-    final ZonedDateTime lastDeliveryDate = ScheduleCalculator.getAdjustedDate(LAST_NOTICE_DATE, SETTLEMENT_DAYS, CALENDAR);
-    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 6, 17);
-    final DayCount actAct = DayCounts.ACT_ACT_ISDA;
-    final double lastTradingTime = actAct.getDayCountFraction(referenceDate, LAST_TRADING_DATE);
-    final double firstNoticeTime = actAct.getDayCountFraction(referenceDate, FIRST_NOTICE_DATE);
-    final double lastNoticeTime = actAct.getDayCountFraction(referenceDate, LAST_NOTICE_DATE);
-    final double firstDeliveryTime = actAct.getDayCountFraction(referenceDate, firstDeliveryDate);
-    final double lastDeliveryTime = actAct.getDayCountFraction(referenceDate, lastDeliveryDate);
-    final String creditCruveName = "Credit";
-    final String repoCurveName = "Repo";
-    final String[] curvesName = {creditCruveName, repoCurveName };
-    final BondFixedSecurity[] basketAtDeliveryDate = new BondFixedSecurity[NB_BOND];
-    final BondFixedSecurity[] basketAtSpotDate = new BondFixedSecurity[NB_BOND];
-    for (int loopbasket = 0; loopbasket < NB_BOND; loopbasket++) {
-      basketAtDeliveryDate[loopbasket] = BASKET_DEFINITION[loopbasket].toDerivative(referenceDate, lastDeliveryDate, curvesName);
-      basketAtSpotDate[loopbasket] = BASKET_DEFINITION[loopbasket].toDerivative(referenceDate, curvesName);
-    }
-    final BondFuturesSecurity futureConverted = FUTURE_DEFINITION_1.toDerivative(referenceDate, curvesName);
-    final BondFuturesSecurity futureExpected = new BondFuturesSecurity(lastTradingTime, firstNoticeTime, lastNoticeTime, firstDeliveryTime, lastDeliveryTime, NOTIONAL,
-        basketAtDeliveryDate, basketAtSpotDate, CONVERSION_FACTOR);
-    assertEquals("Bond future security definition: future conversion", futureExpected, futureConverted);
-  }
-
   @Test
   /**
    * Tests the toDerivative method.

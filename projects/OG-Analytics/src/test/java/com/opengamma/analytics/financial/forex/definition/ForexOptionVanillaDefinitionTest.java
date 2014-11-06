@@ -54,13 +54,6 @@ public class ForexOptionVanillaDefinitionTest {
     new ForexOptionVanillaDefinition(FX_DEFINITION, expirationDateWrong, IS_CALL, IS_LONG);
   }
 
-  @SuppressWarnings("deprecation")
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullConversionDateDeprecated() {
-    final ForexOptionVanillaDefinition option = new ForexOptionVanillaDefinition(FX_DEFINITION, EXPIRATION_DATE, IS_CALL, IS_LONG);
-    option.toDerivative(EXPIRATION_DATE.plusDays(10), "A", "B");
-  }
-
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullConversionDate() {
     final ForexOptionVanillaDefinition option = new ForexOptionVanillaDefinition(FX_DEFINITION, EXPIRATION_DATE, IS_CALL, IS_LONG);
@@ -99,24 +92,6 @@ public class ForexOptionVanillaDefinitionTest {
     assertFalse(modifiedOption.equals(FX_OPTION_DEFINITION));
     assertFalse(FX_OPTION_DEFINITION.equals(CUR_1));
     assertFalse(FX_OPTION_DEFINITION.equals(null));
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test
-  /**
-   * Tests the conversion to derivative.
-   */
-  public void toDerivativeDeprecated() {
-    final String discountingEUR = "Discounting EUR";
-    final String discountingUSD = "Discounting USD";
-    final String[] curves_name = new String[] {discountingEUR, discountingUSD};
-    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 5, 20);
-    final InstrumentDerivative optionConverted = FX_OPTION_DEFINITION.toDerivative(referenceDate, curves_name);
-    final Forex fx = FX_DEFINITION.toDerivative(referenceDate, curves_name);
-    final DayCount actAct = DayCounts.ACT_ACT_ISDA;
-    final double expirationTime = actAct.getDayCountFraction(referenceDate, EXPIRATION_DATE);
-    final ForexOptionVanilla optionConstructed = new ForexOptionVanilla(fx, expirationTime, IS_CALL, IS_LONG);
-    assertEquals("Convertion to derivative", optionConstructed, optionConverted);
   }
 
   @Test

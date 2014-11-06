@@ -95,48 +95,6 @@ public class InterestRateFutureOptionPremiumTransactionDefinitionTest {
     assertFalse(OPTION_TRANSACTION.equals(modifidOption));
   }
 
-  @SuppressWarnings("deprecation")
-  @Test
-  /**
-   * Tests the toDerivative method when the reference date is before the premium settlement.
-   */
-  public void toDerivativeBeforeSettlementDeprecated() {
-    final InterestRateFutureOptionPremiumTransaction transactionConverted = OPTION_TRANSACTION.toDerivative(REFERENCE_DATE, CURVES);
-    final InterestRateFutureOptionPremiumSecurity security = OPTION_EDU2.toDerivative(REFERENCE_DATE, CURVES);
-    final double premiumTime = TimeCalculator.getTimeBetween(REFERENCE_DATE, PREMIUM_DATE);
-    final InterestRateFutureOptionPremiumTransaction transaction = new InterestRateFutureOptionPremiumTransaction(security, QUANTITY, premiumTime, TRADE_PRICE);
-    assertEquals("Option on future: to derivative", transaction, transactionConverted);
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test
-  /**
-   * Tests the toDerivative method when the reference date is on the premium settlement.
-   */
-  public void toDerivativeOnSettlementDeprecated() {
-    final ZonedDateTime referenceDate = PREMIUM_DATE;
-    final InterestRateFutureOptionPremiumTransaction transactionConverted = OPTION_TRANSACTION.toDerivative(referenceDate, CURVES);
-    final InterestRateFutureOptionPremiumSecurity security = OPTION_EDU2.toDerivative(referenceDate, CURVES);
-    final double premiumTime = 0.0;
-    final InterestRateFutureOptionPremiumTransaction transaction = new InterestRateFutureOptionPremiumTransaction(security, QUANTITY, premiumTime, TRADE_PRICE);
-    assertEquals("Option on future: to derivative", transaction, transactionConverted);
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test
-  /**
-   * Tests the toDerivative method when the reference date is after the premium settlement.
-   */
-  public void toDerivativeAfterSettlementDeprecated() {
-    final ZonedDateTime referenceDate = PREMIUM_DATE.plusDays(1);
-    final InterestRateFutureOptionPremiumTransaction transactionConverted = OPTION_TRANSACTION.toDerivative(referenceDate, CURVES);
-    final InterestRateFutureOptionPremiumSecurity security = OPTION_EDU2.toDerivative(referenceDate, CURVES);
-    final double premiumTime = 0.0;
-    final double price = 0.0; // The payment is in the past and is represented by a 0 payment today.
-    final InterestRateFutureOptionPremiumTransaction transaction = new InterestRateFutureOptionPremiumTransaction(security, QUANTITY, premiumTime, price);
-    assertEquals("Option on future: to derivative", transaction, transactionConverted);
-  }
-
   @Test
   /**
    * Tests the toDerivative method when the reference date is before the premium settlement.

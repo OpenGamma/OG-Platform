@@ -133,10 +133,7 @@ public class BlackFunctions extends AbstractFunctionConfigurationBean {
 
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
-    functions.add(functionConfiguration(SwaptionBlackPresentValueFunction.class));
     functions.add(functionConfiguration(SwaptionBlackVolatilitySensitivityFunction.class));
-    functions.add(functionConfiguration(SwaptionBlackPV01Function.class));
-    functions.add(functionConfiguration(SwaptionBlackYieldCurveNodeSensitivitiesFunction.class));
     functions.add(functionConfiguration(SwaptionBlackImpliedVolatilityFunction.class));
     functions.add(functionConfiguration(SwaptionBlackTheoreticaForwardDeltaFunction.class));
     functions.add(functionConfiguration(SwaptionBlackTheoreticalForwardGammaFunction.class));
@@ -147,7 +144,6 @@ public class BlackFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(SwaptionBlackValueGammaFunction.class));
     functions.add(functionConfiguration(SwaptionBlackValueThetaFunction.class));
     functions.add(functionConfiguration(SwaptionBlackForwardFunction.class));
-    functions.add(functionConfiguration(SwaptionBlackGammaPV01Function.class));
   }
 
 }

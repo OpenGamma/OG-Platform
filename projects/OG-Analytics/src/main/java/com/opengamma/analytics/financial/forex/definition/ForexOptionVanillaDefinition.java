@@ -98,12 +98,7 @@ public class ForexOptionVanillaDefinition implements InstrumentDefinition<Instru
   @Deprecated
   @Override
   public ForexOptionVanilla toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(date, "date");
-    ArgumentChecker.notNull(yieldCurveNames, "yieldCurveNames");
-    final Forex fx = _underlyingForex.toDerivative(date, yieldCurveNames);
-    final double expirationTime = TimeCalculator.getTimeBetween(date, _expirationDate);
-    return new ForexOptionVanilla(fx, expirationTime, _isCall, _isLong);
-  }
+    throw new UnsupportedOperationException(this.getClass().getCanonicalName());  }
 
   /**
    * {@inheritDoc}

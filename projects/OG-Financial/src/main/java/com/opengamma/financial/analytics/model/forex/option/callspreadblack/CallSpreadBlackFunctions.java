@@ -11,7 +11,6 @@ import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.financial.analytics.model.forex.defaultproperties.FXDigitalCallSpreadBlackDefaults;
-import com.opengamma.financial.analytics.model.horizon.FXDigitalCallSpreadBlackConstantSpreadThetaFunction;
 
 /**
  * Function repository configuration source for the functions contained in this package.
@@ -51,15 +50,12 @@ public class CallSpreadBlackFunctions extends AbstractFunctionConfigurationBean 
 
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
-    functions.add(functionConfiguration(FXDigitalCallSpreadBlackConstantSpreadThetaFunction.class));
-    functions.add(functionConfiguration(FXDigitalCallSpreadBlackCurrencyExposureFunction.class));
     //    functions.add(functionConfiguration(FXDigitalCallSpreadBlackFXPresentValueFunction.class));
     //    functions.add(functionConfiguration(FXDigitalCallSpreadBlackDeltaFunction.class));
     functions.add(functionConfiguration(FXDigitalCallSpreadBlackGammaFunction.class));
     functions.add(functionConfiguration(FXDigitalCallSpreadBlackGammaSpotFunction.class));
     //functions.add(functionConfiguration(FXDigitalCallSpreadBlackImpliedVolatilityFunction.class));
     //functions.add(functionConfiguration(FXDigitalCallSpreadBlackPresentValueCurveSensitivityFunction.class));
-    functions.add(functionConfiguration(FXDigitalCallSpreadBlackPresentValueFunction.class));
     functions.add(functionConfiguration(FXDigitalCallSpreadBlackPV01Function.class));
     //functions.add(functionConfiguration(FXDigitalCallSpreadBlackTermStructureCurrencyExposureFunction.class));
     //functions.add(functionConfiguration(FXDigitalCallSpreadBlackThetaFunction.class));

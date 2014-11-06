@@ -134,36 +134,6 @@ public class BondIborSecurityDefinitionTest {
     }
   }
 
-  @SuppressWarnings("deprecation")
-  @Test
-  public void toDerivativeSettleBeforeFirstFixingDeprecated() {
-    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 7, 7);
-    final ZonedDateTime settlementDate = ScheduleCalculator.getAdjustedDate(referenceDate, SETTLEMENT_DAYS, CALENDAR);
-    final BondIborSecurity frn = FRN_DEFINITION.toDerivative(referenceDate, CURVES_NAME);
-    final AnnuityPaymentFixed nominal = ((AnnuityPaymentFixedDefinition) FRN_DEFINITION.getNominal()).toDerivative(referenceDate, CURVES_NAME[0]);
-    final Annuity<Coupon> coupon = (Annuity<Coupon>) FRN_DEFINITION.getCoupons().toDerivative(referenceDate, CURVES_NAME);
-    final double settlementTime = TimeCalculator.getTimeBetween(referenceDate, settlementDate);
-    final BondIborSecurity frnExpected = new BondIborSecurity(nominal, coupon, settlementTime, DSC_CURVE_NAME);
-    assertEquals("FRN: toDerivative", frnExpected, frn);
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test
-  public void toDerivativeSettleMiddleFirstCouponDeprecated() {
-    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 8, 16);
-    final ZonedDateTime settlementDate = ScheduleCalculator.getAdjustedDate(referenceDate, SETTLEMENT_DAYS, CALENDAR);
-    final DoubleTimeSeries<ZonedDateTime> fixingUSDLibor3M = ImmutableZonedDateTimeDoubleTimeSeries.of(
-        new ZonedDateTime[] {DateUtils.getUTCDate(2011, 7, 11),
-            DateUtils.getUTCDate(2011, 7, 12), DateUtils.getUTCDate(2011, 7, 13), DateUtils.getUTCDate(2011, 8, 16) },
-            new double[] {0.01, 0.05, 0.05, 0.05 }, ZoneOffset.UTC);
-    final BondIborSecurity frn = FRN_DEFINITION.toDerivative(referenceDate, fixingUSDLibor3M, CURVES_NAME);
-    final AnnuityPaymentFixed nominal = ((AnnuityPaymentFixedDefinition) FRN_DEFINITION.getNominal()).toDerivative(referenceDate, CURVES_NAME[0]);
-    final Annuity<Coupon> coupon = (Annuity<Coupon>) FRN_DEFINITION.getCoupons().toDerivative(referenceDate, fixingUSDLibor3M, CURVES_NAME);
-    final double settlementTime = TimeCalculator.getTimeBetween(referenceDate, settlementDate);
-    final BondIborSecurity frnExpected = new BondIborSecurity(nominal, coupon, settlementTime, DSC_CURVE_NAME);
-    assertEquals("FRN: toDerivative", frnExpected, frn);
-  }
-
   @Test
   public void toDerivativeSettleBeforeFirstFixing() {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 7, 7);
