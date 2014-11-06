@@ -70,7 +70,8 @@ public class MulticurveBuildingDiscountingBrazilianONTest {
 
   private static final double NOTIONAL = 1.0;
 
-  private static final GeneratorSwapFixedCompoundedONCompounded GENERATOR_OIS_BRL = GeneratorSwapFixedCompoundedONCompoundedMaster.getInstance().getGenerator("BRLCDI", NYC);
+  private static final GeneratorSwapFixedCompoundedONCompounded GENERATOR_OIS_BRL = 
+      GeneratorSwapFixedCompoundedONCompoundedMaster.getInstance().getGenerator("BRLCDI", NYC);
   private static final IndexON INDEX_ON_BRL = GENERATOR_OIS_BRL.getIndex();
   private static final GeneratorDepositON GENERATOR_DEPOSIT_ON_BRL = new GeneratorDepositON("BRL Deposit ON", BRL, NYC, INDEX_ON_BRL.getDayCount());
 

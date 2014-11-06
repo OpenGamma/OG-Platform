@@ -152,6 +152,10 @@ public class SimpleYieldConvention implements YieldConvention, Serializable {
    * Mexican Government bonds.
    */
   public static final YieldConvention MEXICAN_BONOS = new SimpleYieldConvention("fix bonos");
+  /**
+   * Brazil Inflation-linked bonds.
+   */
+  public static final YieldConvention BRAZIL_IL_BOND = new SimpleYieldConvention("BRAZIL I/L BOND");
 
   /**
    * The convention name.
