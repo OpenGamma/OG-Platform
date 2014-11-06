@@ -117,12 +117,7 @@ public class BillTransactionDefinition implements InstrumentDefinition<BillTrans
   @Deprecated
   @Override
   public BillTransaction toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(date, "Reference date");
-    ArgumentChecker.notNull(yieldCurveNames, "Yield curve names");
-    final BillSecurity purchased = _underlying.toDerivative(date, _settlementDate, yieldCurveNames);
-    final BillSecurity standard = _underlying.toDerivative(date, yieldCurveNames);
-    final double amount = (_settlementDate.isBefore(date)) ? 0.0 : _settlementAmount;
-    return new BillTransaction(purchased, _quantity, amount, standard);
+    throw new UnsupportedOperationException(this.getClass().getCanonicalName());
   }
 
   @Override

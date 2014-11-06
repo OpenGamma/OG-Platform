@@ -158,7 +158,7 @@ public class EquityIndexOptionDefinition implements InstrumentDefinition<EquityI
   @Deprecated
   @Override
   public EquityIndexOption toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    return toDerivative(date);
+    throw new UnsupportedOperationException(this.getClass().getCanonicalName());
   }
 
   @Override
