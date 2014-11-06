@@ -26,7 +26,6 @@ import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.security.SecurityDescription;
-import com.opengamma.util.time.Tenor;
 
 /**
  *  A standard (i.e post big bang) credit default swap.
