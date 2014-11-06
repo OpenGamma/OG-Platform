@@ -100,20 +100,19 @@ public class BondCapitalIndexedTransactionDiscountingMethodBrazilTest {
   
   @Test
   public void presentValue() {
-    MultipleCurrencyAmount pvStdComputed = METHOD_TRA.presentValue(NTNB_TRANSACTION_STD, MARKET);
     MultipleCurrencyAmount pvPasComputed = METHOD_TRA.presentValue(NTNB_TRANSACTION_PAS, MARKET);
+    MultipleCurrencyAmount pvStdComputed = METHOD_TRA.presentValue(NTNB_TRANSACTION_STD, MARKET);
     MultipleCurrencyAmount pvFwdComputed = METHOD_TRA.presentValue(NTNB_TRANSACTION_FWD, MARKET);
     Coupon settleStd = NTNB_TRANSACTION_STD.getBondTransaction().getSettlement();
     Coupon settleFwd = NTNB_TRANSACTION_FWD.getBondTransaction().getSettlement();
     MultipleCurrencyAmount settleStdPv = settleStd.accept(PVDC, MARKET).multipliedBy(TRADE_PRICE * QUANTITY);
     MultipleCurrencyAmount settleFwdPv = settleFwd.accept(PVDC, MARKET).multipliedBy(TRADE_PRICE * QUANTITY);
     assertEquals("BondCapitalIndexedTransactionDiscountingMethodBrazil: present Value", 
-        pvStdComputed.getAmount(BRL) - settleStdPv.getAmount(BRL), 
-        pvFwdComputed.getAmount(BRL) - settleFwdPv.getAmount(BRL), TOLERANCE_PV);
+        pvStdComputed.getAmount(BRL) + settleStdPv.getAmount(BRL), 
+        pvFwdComputed.getAmount(BRL) + settleFwdPv.getAmount(BRL), TOLERANCE_PV);
     assertEquals("BondCapitalIndexedTransactionDiscountingMethodBrazil: present Value", 
-        pvStdComputed.getAmount(BRL) - settleStdPv.getAmount(BRL), 
+        pvStdComputed.getAmount(BRL) + settleStdPv.getAmount(BRL), 
         pvPasComputed.getAmount(BRL), TOLERANCE_PV);
-    
   }
   
 }

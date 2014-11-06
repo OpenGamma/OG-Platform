@@ -528,15 +528,12 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
    * @param data The index time series
    * @return The derivative form
    */
-  public BondCapitalIndexedSecurity<Coupon> toDerivative(final ZonedDateTime date, final ZonedDateTime settlementDate, final DoubleTimeSeries<ZonedDateTime> data) {
+  public BondCapitalIndexedSecurity<Coupon> toDerivative(final ZonedDateTime date, final ZonedDateTime settlementDate, 
+      final DoubleTimeSeries<ZonedDateTime> data) {
     ArgumentChecker.notNull(date, "date");
     ArgumentChecker.notNull(settlementDate, "settlement date");
-    double settlementTime;
-    if (settlementDate.isBefore(date)) {
-      settlementTime = 0.0;
-    } else {
-      settlementTime = TimeCalculator.getTimeBetween(date, settlementDate);
-    }
+    boolean settlementIsPast = settlementDate.toLocalDate().isBefore(date.toLocalDate());
+    double settlementTime = settlementIsPast ? 0.0 : TimeCalculator.getTimeBetween(date, settlementDate);
     double lasKnownFixingTime = 0;
     double lasKnownIndexFixing = 0;
 
@@ -581,13 +578,14 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
     Coupon settlement;
     if (_yieldConvention == SimpleYieldConvention.BRAZIL_IL_BOND) {
       CouponFixedDefinition settlementDefinition = new CouponFixedDefinition(getCurrency(), settlementDate2, 
-          settlementDate2, settlementDate2, 1.0d, 1.0d, 1.0d); // Brazil bonds are quoted in dirty nominal note price
+          settlementDate2, settlementDate2, 1.0d, settlementIsPast ? 0.0d : 1.0d, 1.0d); 
+      // Brazil bonds are quoted in dirty nominal note price
       settlement = settlementDefinition.toDerivative(date);
       accruedInterest = 0; // Brazil bonds do not use accrued to compute settlement from price
     } else {
       accruedInterest = accruedInterest(settlementDate);
       CouponInflationDefinition nominalLast = getNominal().getNthPayment(getNominal().getNumberOfPayments() - 1);
-      double notional = nominalLast.getNotional() * (settlementDate.isBefore(date) ? 0.0 : 1.0);
+      double notional = nominalLast.getNotional() * (settlementIsPast ? 0.0 : 1.0);
       CouponInflationDefinition settlementDefinition = nominalLast.with(settlementDate2, nominalLast.getAccrualStartDate(), settlementDate2, notional);
       settlement = settlementDefinition.toDerivative(date, data);
       if (settlementDefinition instanceof CouponInflationZeroCouponInterpolationGearingDefinition) {
