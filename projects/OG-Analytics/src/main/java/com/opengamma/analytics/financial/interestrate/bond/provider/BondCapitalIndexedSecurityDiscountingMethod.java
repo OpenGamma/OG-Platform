@@ -115,6 +115,12 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
     final double dirtyPriceNominal = cleanPriceNominal + nominalAccruedInterest.getAmount(bond.getCurrency());
     return MultipleCurrencyAmount.of(bond.getCurrency(), dirtyPriceNominal);
   }
+  
+  public MultipleCurrencyAmount presentValueFromRealYield(final BondCapitalIndexedSecurity<?> bond, 
+      final InflationIssuerProviderInterface market, final double realYield) {
+    // TODO: Write relevant code. Only for API
+    return null;
+  }
 
   /**
    * Calculates the accrued interest for a fixed-coupon bond using the clean price. The accrued interest is defined
