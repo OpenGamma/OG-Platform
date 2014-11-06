@@ -89,5 +89,21 @@ public final class BondCapitalIndexedTransactionDiscountingMethod {
         accept(PVCSIC, provider.getInflationProvider()).multipliedBy(-bond.getQuantity() * bond.getTransactionPrice());
     return sensitivityBond.multipliedBy(bond.getQuantity()).plus(sensitivitySettlement);
   }
+  
+  public MultipleCurrencyAmount presentValueFromDirtyNominalNotePrice(final BondCapitalIndexedTransaction<Coupon> bond, 
+      final InflationIssuerProviderInterface provider, final double dirtyNotePriceNominal) {
+    Validate.notNull(bond, "Coupon");
+    Validate.notNull(provider, "Provider");
+    // TODO: Write relevant code. Only for API
+    return null;
+  }
+  
+  public MultipleCurrencyAmount presentValueFromRealYield(final BondCapitalIndexedTransaction<Coupon> bond, 
+      final InflationIssuerProviderInterface provider, final double realYield) {
+    Validate.notNull(bond, "Coupon");
+    Validate.notNull(provider, "Provider");
+    // TODO: Write relevant code. Only for API
+    return null;
+  }
 
 }
