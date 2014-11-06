@@ -98,7 +98,7 @@ public class AgricultureForwardDefinition extends CommodityForwardDefinition<Agr
 
   @Override
   public AgricultureForward toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    return toDerivative(date);
+    throw new UnsupportedOperationException();
   }
 
   @Override

@@ -103,7 +103,7 @@ public class MetalFutureDefinition extends CommodityFutureDefinition<MetalFuture
   @Deprecated
   @Override
   public MetalFuture toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    return toDerivative(date);
+    throw new UnsupportedOperationException();
   }
 
   /**

@@ -147,14 +147,7 @@ public final class SwaptionPhysicalFixedIborSpreadDefinition implements Instrume
   @Deprecated
   @Override
   public SwaptionPhysicalFixedIbor toDerivative(final ZonedDateTime dateTime, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(dateTime, "date");
-    final LocalDate dayConversion = dateTime.toLocalDate();
-    ArgumentChecker.isTrue(!dayConversion.isAfter(getExpiry().getExpiry().toLocalDate()), "date is after expiry date");
-    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
-    final double expiryTime = TimeCalculator.getTimeBetween(dateTime, _expiry.getExpiry());
-    final double settlementTime = TimeCalculator.getTimeBetween(dateTime, _underlyingSwap.getFixedLeg().getNthPayment(0).getAccrualStartDate());
-    final SwapFixedCoupon<? extends Payment> underlyingSwap = _underlyingSwap.toDerivative(dateTime, yieldCurveNames);
-    return SwaptionPhysicalFixedIbor.from(expiryTime, underlyingSwap, settlementTime, _isCall, _isLong);
+    throw new UnsupportedOperationException(this.getClass().getCanonicalName());
   }
 
   @Override
