@@ -5,7 +5,6 @@
  */
 package com.opengamma.analytics.financial.instrument.bond;
 
-import org.apache.commons.math.optimization.linear.UnboundedSolutionException;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
