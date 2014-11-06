@@ -116,10 +116,7 @@ public class SwapFixedCompoundedONCompoundedDefinition extends SwapDefinition {
   @Deprecated
   @Override
   public Swap<CouponFixedAccruedCompounding, ? extends Payment> toDerivative(final ZonedDateTime date, final ZonedDateTimeDoubleTimeSeries[] indexDataTS, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(indexDataTS, "index data time series array");
-    final Annuity<CouponFixedAccruedCompounding> fixedLeg = (Annuity<CouponFixedAccruedCompounding>) getFixedLeg().toDerivative(date);
-    final Annuity<? extends Payment> iborLeg = getONLeg().toDerivative(date, indexDataTS[0], yieldCurveNames);
-    return new Swap<>(fixedLeg, iborLeg);
+    throw new UnsupportedOperationException();
   }
 
   @Override

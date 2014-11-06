@@ -25,7 +25,7 @@ public class EnergyFutureTransactionDefinition extends CommodityFutureTransactio
 
   @Override
   public EnergyFutureTransaction toDerivative(final ZonedDateTime date, final Double data, final String... yieldCurveNames) {
-    return toDerivative(date, data);
+    throw new UnsupportedOperationException();
   }
 
   @Override

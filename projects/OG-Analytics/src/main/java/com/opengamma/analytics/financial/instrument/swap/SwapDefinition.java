@@ -115,11 +115,7 @@ public class SwapDefinition implements InstrumentDefinitionWithData<Swap<? exten
   @Deprecated
   @Override
   public Swap<? extends Payment, ? extends Payment> toDerivative(final ZonedDateTime date, final ZonedDateTimeDoubleTimeSeries[] data, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(data, "index data time series array");
-    ArgumentChecker.isTrue(data.length >= 2, "Generic swaps require two time series");
-    final Annuity<? extends Payment> firstLeg = getFirstLeg().toDerivative(date, data[0], yieldCurveNames);
-    final Annuity<? extends Payment> secondLeg = getSecondLeg().toDerivative(date, data[1], yieldCurveNames);
-    return new Swap<>(firstLeg, secondLeg);
+    throw new UnsupportedOperationException();
   }
 
   @Override

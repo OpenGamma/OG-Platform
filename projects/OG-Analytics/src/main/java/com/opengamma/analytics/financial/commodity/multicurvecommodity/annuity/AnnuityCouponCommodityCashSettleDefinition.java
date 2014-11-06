@@ -40,7 +40,7 @@ public class AnnuityCouponCommodityCashSettleDefinition extends AnnuityCouponCom
   @Deprecated
   @Override
   public Annuity<? extends Payment> toDerivative(final ZonedDateTime valZdt, final DoubleTimeSeries<ZonedDateTime> indexFixingTS, final String... yieldCurveNames) {
-    return toDerivative(valZdt, indexFixingTS);
+    throw new UnsupportedOperationException();
   }
 
   @Override

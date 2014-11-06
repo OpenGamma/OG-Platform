@@ -32,7 +32,7 @@ public class AgricultureFutureTransactionDefinition extends CommodityFutureTrans
 
   @Override
   public AgricultureFutureTransaction toDerivative(final ZonedDateTime date, final Double data, final String... yieldCurveNames) {
-    return toDerivative(date, data);
+    throw new UnsupportedOperationException();
   }
 
   @Override
