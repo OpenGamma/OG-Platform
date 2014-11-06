@@ -39,38 +39,23 @@ public class PreCalibratedMulticurveFn implements DiscountingMulticurveCombinerF
   }
 
   /**
-   * Not supported, throws {@code UnsupportedOperationException}.
+   * Delegates to {@link #getMulticurveBundle(Environment, TradeWrapper)}.
    *
-   * @param env not used
-   * @param trade not used
+   * @param env the environment used for calculations
+   * @param trade the trade
    * @param fxMatrix not used
-   * @return never returns
-   * @throws UnsupportedOperationException always
+   * @return the multicurve bundle for the trade
    */
   @Override
   public Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> createMergedMulticurveBundle(
       Environment env, TradeWrapper trade, FXMatrix fxMatrix) {
-    Result<MulticurveBundle> result = getMulticurveBundle(env, trade, fxMatrix);
+    Result<MulticurveBundle> result = getMulticurveBundle(env, trade);
 
     if (!result.isSuccess()) {
       return Result.failure(result);
     }
     MulticurveBundle multicurve = result.getValue();
     return Result.success(Pairs.of(multicurve.getMulticurveProvider(), multicurve.getCurveBuildingBlockBundle()));
-  }
-
-  /**
-   * Not supported, throws {@code UnsupportedOperationException}.
-   *
-   * @param env not used
-   * @param trade not used
-   * @param fxMatrix not used
-   * @return never returns
-   * @throws UnsupportedOperationException always
-   */
-  @Override
-  public Result<MulticurveBundle> getMulticurveBundle(Environment env, TradeWrapper trade, FXMatrix fxMatrix) {
-    throw new UnsupportedOperationException("getMulticurveBundle not supported");
   }
 
   @Override

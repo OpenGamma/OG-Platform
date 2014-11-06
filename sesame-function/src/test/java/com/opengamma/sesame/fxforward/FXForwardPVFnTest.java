@@ -87,7 +87,6 @@ import com.opengamma.master.historicaltimeseries.impl.RemoteHistoricalTimeSeries
 import com.opengamma.service.ServiceContext;
 import com.opengamma.service.ThreadLocalServiceContext;
 import com.opengamma.service.VersionCorrectionProvider;
-import com.opengamma.sesame.ConfigDbMarketExposureSelectorFn;
 import com.opengamma.sesame.CurrencyPairsFn;
 import com.opengamma.sesame.CurveDefinitionFn;
 import com.opengamma.sesame.CurveNodeConverterFn;
@@ -109,7 +108,7 @@ import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.ExposureFunctionsDiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.FXMatrixFn;
 import com.opengamma.sesame.MarketDataResourcesLoader;
-import com.opengamma.sesame.MarketExposureSelectorFn;
+import com.opengamma.sesame.MarketExposureSelector;
 import com.opengamma.sesame.MulticurveBundle;
 import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.RootFinderConfiguration;
@@ -312,7 +311,6 @@ public class FXForwardPVFnTest {
                                       ConfigDBCurveConstructionConfigurationSource.class,
                                       DefaultHistoricalTimeSeriesFn.class,
                                       FXForwardDiscountingCalculatorFn.class,
-                                      ConfigDbMarketExposureSelectorFn.class,
                                       DefaultMarketDataFn.class,
                                       DefaultHistoricalMarketDataFn.class);
 
@@ -377,8 +375,8 @@ public class FXForwardPVFnTest {
                     config(
                         arguments(
                             function(
-                                ConfigDbMarketExposureSelectorFn.class,
-                                argument("exposureConfig", exposureConfig)),
+                                MarketExposureSelector.class,
+                                argument("exposureFunctions", exposureConfig)),
                             function(
                                 RootFinderConfiguration.class,
                                 argument("rootFinderAbsoluteTolerance", 1e-9),
@@ -421,8 +419,7 @@ public class FXForwardPVFnTest {
                                       DefaultCurveSpecificationFn.class,
                                       ConfigDBCurveConstructionConfigurationSource.class,
                                       DefaultHistoricalTimeSeriesFn.class,
-                                      FXForwardDiscountingCalculatorFn.class,
-                                      ConfigDbMarketExposureSelectorFn.class);
+                                      FXForwardDiscountingCalculatorFn.class);
     long startEngine = System.currentTimeMillis();
     VersionCorrectionProvider vcProvider = new FixedInstantVersionCorrectionProvider();
     ServiceContext serviceContext =
@@ -521,35 +518,40 @@ public class FXForwardPVFnTest {
     return
         config(
             arguments(
-                function(ConfigDbMarketExposureSelectorFn.class,
-                         argument("exposureConfig", ConfigLink.resolved( mock(ExposureFunctions.class)))),
-                function(RootFinderConfiguration.class,
-                         argument("rootFinderAbsoluteTolerance", 1e-9),
-                         argument("rootFinderRelativeTolerance", 1e-9),
-                         argument("rootFinderMaxIterations", 1000)),
-                function(DefaultCurveNodeConverterFn.class,
-                         argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofYears(1)))),
-                function(DefaultCurrencyPairsFn.class,
-                         argument("currencyPairs", ImmutableSet.of(CurrencyPair.of(USD, JPY),
-                                                                   CurrencyPair.of(EUR, USD),
-                                                                   CurrencyPair.of(GBP, USD)))),
-                function(DefaultDiscountingMulticurveBundleFn.class,
-                         argument("impliedCurveNames", StringSet.of()))),
-            implementations(FXForwardPVFn.class, DiscountingFXForwardPVFn.class,
-                            FXForwardCalculatorFn.class, FXForwardDiscountingCalculatorFn.class,
-                            MarketExposureSelectorFn.class, ConfigDbMarketExposureSelectorFn.class,
-                            CurrencyPairsFn.class, DefaultCurrencyPairsFn.class,
-                            FinancialSecurityVisitor.class, FXForwardSecurityConverter.class,
-                            InstrumentExposuresProvider.class, ConfigDBInstrumentExposuresProvider.class,
-                            CurveSpecificationMarketDataFn.class, DefaultCurveSpecificationMarketDataFn.class,
-                            FXMatrixFn.class, DefaultFXMatrixFn.class,
-                            CurveDefinitionFn.class, DefaultCurveDefinitionFn.class,
-                            DiscountingMulticurveBundleFn.class, DefaultDiscountingMulticurveBundleFn.class,
-                            DiscountingMulticurveBundleResolverFn.class, DefaultDiscountingMulticurveBundleResolverFn.class,
-                            DiscountingMulticurveCombinerFn.class, ExposureFunctionsDiscountingMulticurveCombinerFn.class,
-                            CurveSpecificationFn.class, DefaultCurveSpecificationFn.class,
-                            CurveConstructionConfigurationSource.class, ConfigDBCurveConstructionConfigurationSource.class,
-                            CurveNodeConverterFn.class, DefaultCurveNodeConverterFn.class));
+                function(
+                    MarketExposureSelector.class,
+                    argument("exposureFunctions", ConfigLink.resolved(mock(ExposureFunctions.class)))),
+                function(
+                    RootFinderConfiguration.class,
+                    argument("rootFinderAbsoluteTolerance", 1e-9),
+                    argument("rootFinderRelativeTolerance", 1e-9),
+                    argument("rootFinderMaxIterations", 1000)),
+                function(
+                    DefaultCurveNodeConverterFn.class,
+                    argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofYears(1)))),
+                function(
+                    DefaultCurrencyPairsFn.class,
+                    argument("currencyPairs", ImmutableSet.of(CurrencyPair.of(USD, JPY),
+                                                              CurrencyPair.of(EUR, USD),
+                                                              CurrencyPair.of(GBP, USD)))),
+                function(
+                    DefaultDiscountingMulticurveBundleFn.class,
+                    argument("impliedCurveNames", StringSet.of()))),
+            implementations(
+                FXForwardPVFn.class, DiscountingFXForwardPVFn.class,
+                FXForwardCalculatorFn.class, FXForwardDiscountingCalculatorFn.class,
+                CurrencyPairsFn.class, DefaultCurrencyPairsFn.class,
+                FinancialSecurityVisitor.class, FXForwardSecurityConverter.class,
+                InstrumentExposuresProvider.class, ConfigDBInstrumentExposuresProvider.class,
+                CurveSpecificationMarketDataFn.class, DefaultCurveSpecificationMarketDataFn.class,
+                FXMatrixFn.class, DefaultFXMatrixFn.class,
+                CurveDefinitionFn.class, DefaultCurveDefinitionFn.class,
+                DiscountingMulticurveBundleFn.class, DefaultDiscountingMulticurveBundleFn.class,
+                DiscountingMulticurveBundleResolverFn.class, DefaultDiscountingMulticurveBundleResolverFn.class,
+                DiscountingMulticurveCombinerFn.class, ExposureFunctionsDiscountingMulticurveCombinerFn.class,
+                CurveSpecificationFn.class, DefaultCurveSpecificationFn.class,
+                CurveConstructionConfigurationSource.class, ConfigDBCurveConstructionConfigurationSource.class,
+                CurveNodeConverterFn.class, DefaultCurveNodeConverterFn.class));
   }
 
   private static ComponentMap componentMap(Class<?>... componentTypes) {

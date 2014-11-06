@@ -2,7 +2,6 @@ package com.opengamma.sesame.irfutureoption;
 
 import org.threeten.bp.Period;
 
-import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackSTIRFuturesProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackSTIRFuturesSmileProvider;
@@ -39,8 +38,7 @@ public final class TestBlackSTIRFuturesProviderFn implements BlackSTIRFuturesPro
   @Override
   public Result<BlackSTIRFuturesProviderInterface> getBlackSTIRFuturesProvider(Environment env, IRFutureOptionTrade trade) {
     
-    Result<MulticurveBundle> bundleResult =
-        _discountingMulticurveCombinerFn.getMulticurveBundle(env, trade, new FXMatrix());
+    Result<MulticurveBundle> bundleResult = _discountingMulticurveCombinerFn.getMulticurveBundle(env, trade);
     
     if (bundleResult.isSuccess()) {
 
@@ -58,11 +56,11 @@ public final class TestBlackSTIRFuturesProviderFn implements BlackSTIRFuturesPro
     return Result.failure(bundleResult);
   }
 
-  private static final Interpolator1D LINEAR_FLAT = CombinedInterpolatorExtrapolatorFactory.getInterpolator(
-                                                                                                            Interpolator1DFactory.LINEAR,
-                                                                                                            Interpolator1DFactory.FLAT_EXTRAPOLATOR,
-                                                                                                            Interpolator1DFactory.FLAT_EXTRAPOLATOR);
-  
+  private static final Interpolator1D LINEAR_FLAT =
+      CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR,
+                                                              Interpolator1DFactory.FLAT_EXTRAPOLATOR,
+                                                              Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+
   private static final GridInterpolator2D INTERPOLATOR_2D = new GridInterpolator2D(LINEAR_FLAT, LINEAR_FLAT);
   
   private final InterpolatedDoublesSurface testSurface = InterpolatedDoublesSurface.from(

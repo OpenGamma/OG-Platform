@@ -44,12 +44,12 @@ public class MarketExposureSelector implements CurveSelectorFn {
   private final List<ExposureFunction> _exposureFunctions;
   private final Map<ExternalId, String> _idsToNames;
 
-  public MarketExposureSelector(ExposureFunctions exposure, SecuritySource securitySource) {
+  public MarketExposureSelector(ExposureFunctions exposureFunctions, SecuritySource securitySource) {
     _securitySource = securitySource;
-    ArgumentChecker.notNull(exposure, "exposure");
+    ArgumentChecker.notNull(exposureFunctions, "exposure");
 
-    _exposureFunctions = extractFunctions(exposure.getExposureFunctions());
-    _idsToNames = exposure.getIdsToNames();
+    _exposureFunctions = extractFunctions(exposureFunctions.getExposureFunctions());
+    _idsToNames = exposureFunctions.getIdsToNames();
   }
 
   private List<ExposureFunction> extractFunctions(List<String> exposureFunctions) {

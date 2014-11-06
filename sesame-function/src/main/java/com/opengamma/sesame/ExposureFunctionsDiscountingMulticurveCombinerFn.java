@@ -12,13 +12,18 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.ProviderUtils;
+import com.opengamma.core.security.Security;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
+import com.opengamma.financial.security.CurrenciesVisitor;
+import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.sesame.trade.TradeWrapper;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.tuple.Pair;
@@ -36,79 +41,87 @@ public class ExposureFunctionsDiscountingMulticurveCombinerFn implements Discoun
    * Generates the market exposure selector. In turn this can be used to get
    * an ExposureFunction.
    */
-  private final MarketExposureSelectorFn _marketExposureSelectorFn;
+  private final MarketExposureSelector _marketExposureSelector;
 
   /**
    * Generates a discounting multicurve bundle.
    */
   private final DiscountingMulticurveBundleResolverFn _bundleResolver;
 
+  /** Generates a matrix of FX rates. */
+  private final FXMatrixFn _fxMatrixFn;
+
   /**
    * Constructor for a multicurve function that selects the multicurves by either trade or security.
-   *
-   * @param marketExposureSelectorFn  the exposure function selector.
+   *  @param marketExposureSelector  the exposure function selector.
    * @param bundleResolver  the function used to resolve the multicurves.
+   * @param fxMatrixFn for generating a matrix of FX rates
    */
-  public ExposureFunctionsDiscountingMulticurveCombinerFn(MarketExposureSelectorFn marketExposureSelectorFn,
-                                                          DiscountingMulticurveBundleResolverFn bundleResolver) {
-    _marketExposureSelectorFn =
-        ArgumentChecker.notNull(marketExposureSelectorFn, "marketExposureSelectorFn");
+  public ExposureFunctionsDiscountingMulticurveCombinerFn(MarketExposureSelector marketExposureSelector,
+                                                          DiscountingMulticurveBundleResolverFn bundleResolver,
+                                                          FXMatrixFn fxMatrixFn) {
+    _fxMatrixFn = ArgumentChecker.notNull(fxMatrixFn, "fxMatrixFn");
+    _marketExposureSelector = ArgumentChecker.notNull(marketExposureSelector, "marketExposureSelector");
     _bundleResolver = ArgumentChecker.notNull(bundleResolver, "bundleResolver");
   }
   
   @Override
-  public Result<MulticurveBundle> getMulticurveBundle(Environment env, TradeWrapper trade, FXMatrix fxMatrix) {
-    Result<MarketExposureSelector> mesResult = _marketExposureSelectorFn.getMarketExposureSelector();
+  public Result<MulticurveBundle> getMulticurveBundle(Environment env, TradeWrapper trade) {
+    Set<Result<?>> incompleteBundles = new HashSet<>();
+    Set<MulticurveProviderDiscount> bundles = new HashSet<>();
+    CurveBuildingBlockBundle mergedJacobianBundle = new CurveBuildingBlockBundle();
 
-    if (mesResult.isSuccess()) {
-      Set<Result<?>> incompleteBundles = new HashSet<>();
-      Set<MulticurveProviderDiscount> bundles = new HashSet<>();
-      CurveBuildingBlockBundle mergedJacobianBundle = new CurveBuildingBlockBundle();
+    Set<CurveConstructionConfiguration> curveConfigs =
+        _marketExposureSelector.determineCurveConfigurations(trade.getTrade());
+    for (CurveConstructionConfiguration curveConfig : curveConfigs) {
 
-      MarketExposureSelector selector = mesResult.getValue();
-      Set<CurveConstructionConfiguration> curveConfigs = selector.determineCurveConfigurations(trade.getTrade());
-      for (CurveConstructionConfiguration curveConfig : curveConfigs) {
+      s_logger.debug("Generating bundle '{}', valuationTime {}", curveConfig.getName(), env.getValuationTime());
+      Result<MulticurveBundle> bundleResult = _bundleResolver.generateBundle(env, curveConfig);
 
-        s_logger.debug("Generating bundle '{}', valuationTime {}", curveConfig.getName(), env.getValuationTime());
-        Result<MulticurveBundle> bundleResult = _bundleResolver.generateBundle(env, curveConfig);
-
-        if (bundleResult.isSuccess()) {
-          MulticurveBundle result = bundleResult.getValue();
-          bundles.add(result.getMulticurveProvider());
-          mergedJacobianBundle.addAll(result.getCurveBuildingBlockBundle());
-        } else {
-          incompleteBundles.add(bundleResult);
-        }
-      }
-
-      // TODO this can be cleaned up
-      if (!curveConfigs.isEmpty() && incompleteBundles.isEmpty()) {
-        return Result.success(new MulticurveBundle(mergeBundlesAndMatrix(bundles, fxMatrix), mergedJacobianBundle));
-      } else if (curveConfigs.isEmpty()) {
-        return Result.failure(FailureStatus.MISSING_DATA, "No matching curves found for trade: {}", trade);
+      if (bundleResult.isSuccess()) {
+        MulticurveBundle result = bundleResult.getValue();
+        bundles.add(result.getMulticurveProvider());
+        mergedJacobianBundle.addAll(result.getCurveBuildingBlockBundle());
       } else {
-        return Result.failure(incompleteBundles);
+        incompleteBundles.add(bundleResult);
       }
+    }
+
+    if (!curveConfigs.isEmpty() && incompleteBundles.isEmpty()) {
+      Security security = trade.getSecurity();
+      Result<FXMatrix> fxMatrixResult;
+
+      if (security instanceof FinancialSecurity) {
+        Collection<Currency> currencies = ((FinancialSecurity) security).accept(new CurrenciesVisitor());
+        fxMatrixResult = _fxMatrixFn.getFXMatrix(env, ImmutableSet.copyOf(currencies));
+      } else {
+        fxMatrixResult = Result.failure(FailureStatus.CALCULATION_FAILED,
+                                        "Security {} isn't a FinancialSecurity, can't get currencies for FX matrix",
+                                        security);
+      }
+      if (fxMatrixResult.isSuccess()) {
+        FXMatrix fxMatrix = fxMatrixResult.getValue();
+        return Result.success(new MulticurveBundle(mergeBundlesAndMatrix(bundles, fxMatrix), mergedJacobianBundle));
+      } else {
+        return Result.failure(fxMatrixResult);
+      }
+    } else if (curveConfigs.isEmpty()) {
+      return Result.failure(FailureStatus.MISSING_DATA, "No matching curves found for trade: {}", trade);
     } else {
-      return Result.failure(mesResult);
+      return Result.failure(incompleteBundles);
     }
   }
 
   @Override
   public Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> createMergedMulticurveBundle(
       Environment env, TradeWrapper trade, FXMatrix fxMatrix) {
-    Result<MulticurveBundle> result = getMulticurveBundle(env, trade, fxMatrix);
+    Result<MulticurveBundle> result = getMulticurveBundle(env, trade);
 
     if (!result.isSuccess()) {
       return Result.failure(result);
     }
     MulticurveBundle multicurve = result.getValue();
     return Result.success(Pairs.of(multicurve.getMulticurveProvider(), multicurve.getCurveBuildingBlockBundle()));
-  }
-
-  @Override
-  public Result<MulticurveBundle> getMulticurveBundle(Environment env, TradeWrapper<?> trade) {
-    return getMulticurveBundle(env, trade, new FXMatrix());
   }
 
 

@@ -24,22 +24,11 @@ public interface DiscountingMulticurveCombinerFn {
    * @param trade the trade to merge the multicurve bundle for.
    * @param fxMatrix the FX matrix to include inside the multicurve bundle.
    * @return the merged multicurve bundle.
-   * @deprecated use {@link #getMulticurveBundle(Environment, TradeWrapper)} or
-   *   {@link #getMulticurveBundle(Environment, TradeWrapper, FXMatrix)}
+   * @deprecated use {@link #getMulticurveBundle(Environment, TradeWrapper)}
    */
   @Deprecated
   Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> createMergedMulticurveBundle(
       Environment env, TradeWrapper trade, FXMatrix fxMatrix);
-
-  /**
-   * Returns the merged multicurve bundle for a specified environment, trade and FX matrix.
-   *
-   * @param env the environment to merge the multicurve bundle for.
-   * @param trade the trade to merge the multicurve bundle for.
-   * @param fxMatrix the FX matrix to include inside the multicurve bundle.
-   * @return the merged multicurve bundle.
-   */
-  Result<MulticurveBundle> getMulticurveBundle(Environment env, TradeWrapper<?> trade, FXMatrix fxMatrix);
 
   /**
    * Returns the multicurve bundle for a trade.

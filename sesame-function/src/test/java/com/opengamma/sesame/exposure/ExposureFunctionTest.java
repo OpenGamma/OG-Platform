@@ -28,7 +28,6 @@ import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.link.ConfigLink;
@@ -44,7 +43,6 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.service.ServiceContext;
 import com.opengamma.service.ThreadLocalServiceContext;
 import com.opengamma.service.VersionCorrectionProvider;
-import com.opengamma.sesame.ConfigDbMarketExposureSelectorFn;
 import com.opengamma.sesame.CurveDefinitionFn;
 import com.opengamma.sesame.CurveNodeConverterFn;
 import com.opengamma.sesame.CurveSpecificationFn;
@@ -62,7 +60,7 @@ import com.opengamma.sesame.DiscountingMulticurveBundleResolverFn;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.ExposureFunctionsDiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.FXMatrixFn;
-import com.opengamma.sesame.MarketExposureSelectorFn;
+import com.opengamma.sesame.MarketExposureSelector;
 import com.opengamma.sesame.MulticurveBundle;
 import com.opengamma.sesame.RootFinderConfiguration;
 import com.opengamma.sesame.SimpleEnvironment;
@@ -92,7 +90,6 @@ import com.opengamma.util.time.Expiry;
 @Test(groups = TestGroup.UNIT)
 public class ExposureFunctionTest {
 
-  private static FXMatrix _emptyFxMatrix = new FXMatrix();
   private static SimpleEnvironment _environment;
   private static ImmutableMap<Class<?>, Object> _components = InterestRateMockSources.generateBaseComponents();
 
@@ -115,8 +112,8 @@ public class ExposureFunctionTest {
     return config(
             arguments(
                 function(
-                    ConfigDbMarketExposureSelectorFn.class,
-                    argument("exposureConfig", ConfigLink.resolved(exposureFunctions))),
+                    MarketExposureSelector.class,
+                    argument("exposureFunctions", ConfigLink.resolved(exposureFunctions))),
                 function(
                     RootFinderConfiguration.class,
                     argument("rootFinderAbsoluteTolerance", 1e-9),
@@ -134,11 +131,9 @@ public class ExposureFunctionTest {
                     argument("htsRetrievalPeriod", RetrievalPeriod.of((Period.ofYears(1))))),
                 function(
                     DefaultDiscountingMulticurveBundleFn.class,
-                    argument("impliedCurveNames", StringSet.of()))
-            ),
+                    argument("impliedCurveNames", StringSet.of()))),
             implementations(
                 DiscountingMulticurveCombinerFn.class, ExposureFunctionsDiscountingMulticurveCombinerFn.class,
-                MarketExposureSelectorFn.class, ConfigDbMarketExposureSelectorFn.class,
                 DiscountingMulticurveBundleFn.class, DefaultDiscountingMulticurveBundleFn.class,
                 DiscountingMulticurveBundleResolverFn.class, DefaultDiscountingMulticurveBundleResolverFn.class,
                 CurveDefinitionFn.class, DefaultCurveDefinitionFn.class,
@@ -148,9 +143,7 @@ public class ExposureFunctionTest {
                 CurveNodeConverterFn.class, DefaultCurveNodeConverterFn.class,
                 MarketDataFn.class, DefaultMarketDataFn.class,
                 FXMatrixFn.class, DefaultFXMatrixFn.class,
-                HistoricalMarketDataFn.class, DefaultHistoricalMarketDataFn.class
-            )
-        );
+                HistoricalMarketDataFn.class, DefaultHistoricalMarketDataFn.class));
   }
 
   @Test
@@ -166,8 +159,7 @@ public class ExposureFunctionTest {
 
     InterestRateFutureTrade trade = createInterestRateFutureTrade(true);
 
-    Result<MulticurveBundle> result =
-        multicurveCombinerFunction.getMulticurveBundle(_environment, trade, _emptyFxMatrix);
+    Result<MulticurveBundle> result = multicurveCombinerFunction.getMulticurveBundle(_environment, trade);
 
     assertThat(result.isSuccess(), is((true)));
 
@@ -192,8 +184,7 @@ public class ExposureFunctionTest {
 
     InterestRateFutureTrade trade = createInterestRateFutureTrade(false);
 
-    Result<MulticurveBundle> result =
-        multicurveCombinerFunction.getMulticurveBundle(_environment, trade, _emptyFxMatrix);
+    Result<MulticurveBundle> result = multicurveCombinerFunction.getMulticurveBundle(_environment, trade);
 
     //There are no curves for this trade defined in the exposure function, so the result should fail
     assertThat(result.isSuccess(), is((false)));
@@ -216,8 +207,7 @@ public class ExposureFunctionTest {
     SimpleCounterparty counterparty = new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "PASS"));
     InterestRateFutureTrade trade = createInterestRateFutureTrade(security, counterparty, true);
 
-    Result<MulticurveBundle> result =
-        multicurveCombinerFunction.getMulticurveBundle(_environment, trade, _emptyFxMatrix);
+    Result<MulticurveBundle> result = multicurveCombinerFunction.getMulticurveBundle(_environment, trade);
 
     assertThat(result.isSuccess(), is((true)));
 
@@ -244,8 +234,7 @@ public class ExposureFunctionTest {
     SimpleCounterparty counterparty = new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "FAIL"));
     InterestRateFutureTrade trade = createInterestRateFutureTrade(security, counterparty, true);
 
-    Result<MulticurveBundle> result =
-        multicurveCombinerFunction.getMulticurveBundle(_environment, trade, _emptyFxMatrix);
+    Result<MulticurveBundle> result = multicurveCombinerFunction.getMulticurveBundle(_environment, trade);
 
     //There are no curves for this counterparty defined in the exposure function, so the result should fail
     assertThat(result.isSuccess(), is((false)));
@@ -271,8 +260,7 @@ public class ExposureFunctionTest {
                                   OffsetTime.now());
     FraTrade tradeWrapper = new FraTrade(trade);
 
-    Result<MulticurveBundle> result =
-        multicurveCombinerFunction.getMulticurveBundle(_environment, tradeWrapper, _emptyFxMatrix);
+    Result<MulticurveBundle> result = multicurveCombinerFunction.getMulticurveBundle(_environment, tradeWrapper);
 
     assertThat(result.isSuccess(), is((true)));
 
@@ -298,8 +286,7 @@ public class ExposureFunctionTest {
     InterestRateFutureSecurity security = createInterestRateFutureSecurity(Currency.USD);
     InterestRateFutureTrade trade = createInterestRateFutureTrade(security, true);
 
-    Result<MulticurveBundle> result =
-        multicurveCombinerFunction.getMulticurveBundle(_environment, trade, _emptyFxMatrix);
+    Result<MulticurveBundle> result = multicurveCombinerFunction.getMulticurveBundle(_environment, trade);
     assertThat(result.isSuccess(), is((true)));
 
     MulticurveProviderDiscount multicurveProviderDiscount = result.getValue().getMulticurveProvider();
@@ -324,8 +311,7 @@ public class ExposureFunctionTest {
     InterestRateFutureSecurity security = createInterestRateFutureSecurity(Currency.GBP);
     InterestRateFutureTrade trade = createInterestRateFutureTrade(security, true);
 
-    Result<MulticurveBundle> result =
-        multicurveCombinerFunction.getMulticurveBundle(_environment, trade, _emptyFxMatrix);
+    Result<MulticurveBundle> result = multicurveCombinerFunction.getMulticurveBundle(_environment, trade);
 
     //There are no GBP curves in the defined exposure function, so the result should fail
     assertThat(result.isSuccess(), is((false)));
