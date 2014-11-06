@@ -96,4 +96,16 @@ public class BRConventions {
         swapFloatingLegPaymentFrequency, swapFloatingLegSettlementDays, swapFloatingLegCompoundingFrequency, swapFloatingLegCompoundingType, swapFloatingLegInitialRate, swapFloatingLegRegion, isEOM);
   }
 
+
+  /**
+   * Adds conventions for BRL inflation government bonds.
+   * @param conventionMaster The convention master, not null
+   */
+  public static void addInflationBondConvention(final ConventionBundleMaster conventionMaster) {
+    ArgumentChecker.notNull(conventionMaster, "convention master");
+    final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
+    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("BR_INFLATION_BOND_CONVENTION")), "BR_INFLATION_BOND_CONVENTION", false,
+        true, 0, 1, true);
+  }
+
 }

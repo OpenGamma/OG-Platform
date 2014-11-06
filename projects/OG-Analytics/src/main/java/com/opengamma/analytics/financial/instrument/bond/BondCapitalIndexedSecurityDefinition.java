@@ -35,6 +35,8 @@ import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.AccruedInterestCalculator;
 import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.daycount.DayCounts;
+import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
@@ -556,36 +558,54 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
     final AnnuityDefinition<PaymentDefinition> couponDefinitionExPeriod = new AnnuityDefinition<PaymentDefinition>(couponExPeriodArray, getCalendar());
     final Annuity<Coupon> couponStandard = (Annuity<Coupon>) couponDefinitionExPeriod.toDerivative(date, data);
     final Annuity<Coupon> nominalStandard = nominal.trimBefore(settlementTime);
-    final double accruedInterest = accruedInterest(settlementDate);
-    final double factorSpot = getDayCount().getAccruedInterest(couponDefinition.getNthPayment(0).getAccrualStartDate(), settlementDate, couponDefinition.getNthPayment(0).getAccrualEndDate(), 1.0,
+    double factorSpot;
+    double factorPeriod;
+    if (getDayCount() == DayCounts.BUSINESS_252) {
+      factorSpot = getDayCount().getDayCountFraction(couponDefinition.getNthPayment(0).getAccrualStartDate(), 
+          settlementDate, getCalendar());
+      factorPeriod = getDayCount().getDayCountFraction(couponDefinition.getNthPayment(0).getAccrualStartDate(), 
+          couponDefinition.getNthPayment(0).getAccrualEndDate(), getCalendar());
+    } else {
+      factorSpot = getDayCount().getAccruedInterest(couponDefinition.getNthPayment(0).getAccrualStartDate(), settlementDate, couponDefinition.getNthPayment(0).getAccrualEndDate(), 1.0,
         _couponPerYear);
-    final double factorPeriod = getDayCount().getAccruedInterest(couponDefinition.getNthPayment(0).getAccrualStartDate(), couponDefinition.getNthPayment(0).getAccrualEndDate(),
+      factorPeriod = getDayCount().getAccruedInterest(couponDefinition.getNthPayment(0).getAccrualStartDate(), couponDefinition.getNthPayment(0).getAccrualEndDate(),
         couponDefinition.getNthPayment(0).getAccrualEndDate(), 1.0, _couponPerYear);
+    }
     final double factorToNextCoupon = (factorPeriod - factorSpot) / factorPeriod;
     final double nbDayToSpot = couponDefinition.getNthPayment(0).getAccrualEndDate().getDayOfYear() - settlementDate.getDayOfYear();
     final double nbDaysPeriod = couponDefinition.getNthPayment(0).getAccrualEndDate().getDayOfYear() - couponDefinition.getNthPayment(0).getAccrualStartDate().getDayOfYear();
     final double ratioPeriodToNextCoupon = nbDayToSpot / nbDaysPeriod;
-    final CouponInflationDefinition nominalLast = getNominal().getNthPayment(getNominal().getNumberOfPayments() - 1);
-    final ZonedDateTime settlementDate2 = settlementDate.isBefore(date) ? date : settlementDate;
-    final double notional = nominalLast.getNotional() * (settlementDate.isBefore(date) ? 0.0 : 1.0);
-    final CouponInflationDefinition settlementDefinition = nominalLast.with(settlementDate2, nominalLast.getAccrualStartDate(), settlementDate2, notional);
-    final Coupon settlement = settlementDefinition.toDerivative(date, data); // TODO: use hts
+    ZonedDateTime settlementDate2 = settlementDate.isBefore(date) ? date : settlementDate;
+    double accruedInterest;
     double indexRatio = 1;
-    if (settlementDefinition instanceof CouponInflationZeroCouponInterpolationGearingDefinition) {
-      final int monthLag = ((CouponInflationZeroCouponInterpolationGearingDefinition) settlementDefinition).getMonthLag();
-      final ZonedDateTime[] referenceStartDates = new ZonedDateTime[2];
-      final ZonedDateTime refInterpolatedStartDate = settlementDate2.minusMonths(monthLag);
-      referenceStartDates[0] = refInterpolatedStartDate.with(TemporalAdjusters.lastDayOfMonth()).withHour(0).withMinute(0).withSecond(0).withNano(0);
-      referenceStartDates[1] = referenceStartDates[0].plusMonths(1).with(TemporalAdjusters.lastDayOfMonth()).withHour(0).withMinute(0).withSecond(0).withNano(0);
-      final double indexEnd0 = data.getValue(referenceStartDates[0]);
-      final double indexEnd1 = data.getValue(referenceStartDates[1]);
-      final double weight = 1.0 - (settlementDate2.getDayOfMonth() - 1.0) / settlementDate2.toLocalDate().lengthOfMonth();
-      final double indexEndValue = weight * indexEnd0 + (1 - weight) * indexEnd1;
-      indexRatio = indexEndValue / _indexStartValue;
-    } else if (settlementDefinition instanceof CouponInflationZeroCouponMonthlyGearingDefinition) {
-      indexRatio = lasKnownIndexFixing / _indexStartValue;
+    Coupon settlement;
+    if (_yieldConvention == SimpleYieldConvention.BRAZIL_IL_BOND) {
+      CouponFixedDefinition settlementDefinition = new CouponFixedDefinition(getCurrency(), settlementDate2, 
+          settlementDate2, settlementDate2, 1.0d, 1.0d, 1.0d); // Brazil bonds are quoted in dirty nominal note price
+      settlement = settlementDefinition.toDerivative(date);
+      accruedInterest = 0; // Brazil bonds do not use accrued to compute settlement from price
     } else {
-      throw new OpenGammaRuntimeException("Unsupported coupon type " + getNominal().getNthPayment(0).getClass());
+      accruedInterest = accruedInterest(settlementDate);
+      CouponInflationDefinition nominalLast = getNominal().getNthPayment(getNominal().getNumberOfPayments() - 1);
+      double notional = nominalLast.getNotional() * (settlementDate.isBefore(date) ? 0.0 : 1.0);
+      CouponInflationDefinition settlementDefinition = nominalLast.with(settlementDate2, nominalLast.getAccrualStartDate(), settlementDate2, notional);
+      settlement = settlementDefinition.toDerivative(date, data);
+      if (settlementDefinition instanceof CouponInflationZeroCouponInterpolationGearingDefinition) {
+        final int monthLag = ((CouponInflationZeroCouponInterpolationGearingDefinition) settlementDefinition).getMonthLag();
+        final ZonedDateTime[] referenceStartDates = new ZonedDateTime[2];
+        final ZonedDateTime refInterpolatedStartDate = settlementDate2.minusMonths(monthLag);
+        referenceStartDates[0] = refInterpolatedStartDate.with(TemporalAdjusters.lastDayOfMonth()).withHour(0).withMinute(0).withSecond(0).withNano(0);
+        referenceStartDates[1] = referenceStartDates[0].plusMonths(1).with(TemporalAdjusters.lastDayOfMonth()).withHour(0).withMinute(0).withSecond(0).withNano(0);
+        final double indexEnd0 = data.getValue(referenceStartDates[0]);
+        final double indexEnd1 = data.getValue(referenceStartDates[1]);
+        final double weight = 1.0 - (settlementDate2.getDayOfMonth() - 1.0) / settlementDate2.toLocalDate().lengthOfMonth();
+        final double indexEndValue = weight * indexEnd0 + (1 - weight) * indexEnd1;
+        indexRatio = indexEndValue / _indexStartValue;
+      } else if (settlementDefinition instanceof CouponInflationZeroCouponMonthlyGearingDefinition) {
+        indexRatio = lasKnownIndexFixing / _indexStartValue;
+      } else {
+        throw new OpenGammaRuntimeException("Unsupported coupon type " + getNominal().getNthPayment(0).getClass());
+      }
     }
     return new BondCapitalIndexedSecurity<>(nominalStandard, couponStandard, settlementTime, accruedInterest, 
         factorToNextCoupon, ratioPeriodToNextCoupon, _yieldConvention, _couponPerYear,
@@ -610,8 +630,14 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
     final ZonedDateTime previousAccrualDate = getCoupons().getNthPayment(couponIndex).getAccrualStartDate();
     final ZonedDateTime nextAccrualDate = getCoupons().getNthPayment(couponIndex).getAccrualEndDate();
     final CouponInflationGearing currentCoupon = ((CouponInflationGearing) getCoupons().getNthPayment(couponIndex));
-    final double accruedInterest = AccruedInterestCalculator.getAccruedInterest(getDayCount(), couponIndex, nbCoupon, previousAccrualDate, date, nextAccrualDate,
+    double accruedInterest;
+    if (getDayCount() == DayCounts.BUSINESS_252) {
+      accruedInterest = getDayCount().getDayCountFraction(previousAccrualDate, date, getCalendar()) 
+          * currentCoupon.getFactor() * getCouponPerYear();
+    } else {
+      accruedInterest = AccruedInterestCalculator.getAccruedInterest(getDayCount(), couponIndex, nbCoupon, previousAccrualDate, date, nextAccrualDate,
         currentCoupon.getFactor() * getCouponPerYear(), getCouponPerYear(), isEOM()) * getCoupons().getNthPayment(couponIndex).getNotional();
+    }
     // The factor contains the amount, i.e. the coupon rate over the period (not annualized)
     if (getExCouponDays() != 0 && nextAccrualDate.minusDays(getExCouponDays()).isBefore(date)) {
       result = accruedInterest - currentCoupon.getFactor();

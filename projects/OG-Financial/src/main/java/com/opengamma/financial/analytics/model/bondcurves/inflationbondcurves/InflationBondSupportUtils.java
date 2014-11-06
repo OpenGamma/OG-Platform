@@ -30,6 +30,7 @@ public class InflationBondSupportUtils {
     s_supportedYieldConventions.add(SimpleYieldConvention.ITALY_TREASURY_BONDS);
     s_supportedYieldConventions.add(SimpleYieldConvention.INDEX_LINKED_FLOAT);
     s_supportedYieldConventions.add(SimpleYieldConvention.UK_IL_BOND);
+    s_supportedYieldConventions.add(SimpleYieldConvention.BRAZIL_IL_BOND);
     s_supportedCouponTypes.add("FIXED");
   }
 

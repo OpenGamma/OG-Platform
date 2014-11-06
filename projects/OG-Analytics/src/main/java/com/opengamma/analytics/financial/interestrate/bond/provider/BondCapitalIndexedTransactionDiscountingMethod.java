@@ -56,7 +56,7 @@ public final class BondCapitalIndexedTransactionDiscountingMethod {
     final MultipleCurrencyAmount pvBond = METHOD_SECURITY.presentValue(bond.getBondTransaction(), provider);
     final MultipleCurrencyAmount pvSettlement = bond.getBondTransaction().getSettlement().
         accept(PVIC, provider.getInflationProvider()).multipliedBy(-bond.getQuantity() * (bond.getTransactionPrice() 
-            + bond.getBondStandard().getAccruedInterest() / notional));
+            + bond.getBondTransaction().getAccruedInterest() / notional));
     return pvBond.multipliedBy(bond.getQuantity()).plus(pvSettlement);
   }
 

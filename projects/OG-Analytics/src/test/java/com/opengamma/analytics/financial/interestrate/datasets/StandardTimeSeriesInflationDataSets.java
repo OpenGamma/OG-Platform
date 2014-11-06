@@ -82,5 +82,46 @@ public class StandardTimeSeriesInflationDataSets {
     return USCPI_TIME_SERIES.subSeries(startDate, endDate);
   }
 
+  /** ===== BRL IPCA Index ===== */ /** BZPIIPCA Index */
+  private static final double[] BRIPCA_VALUE_2013 = new double[] {
+    3633.44, 3655.24, 3672.42, 3692.62, 3706.28, 3715.92, 3717.03, 3725.95, 3738.99, 3760.3, 3780.61, 3815.39 };
+  private static final double[] BRIPCA_VALUE_2014 = new double[] {
+    3836.38, 3862.84, 3898.38, 3924.50, 3655.24, 3942.55, 3958.32, 3958.72, 3968.62, 3991.24 };
+  private static final double[] BRIPCA_VALUE = new double[1 * 12 + BRIPCA_VALUE_2014.length];
+  static {
+    System.arraycopy(BRIPCA_VALUE_2013, 0, USCPI_VALUE, 0, 12);
+    System.arraycopy(BRIPCA_VALUE_2014, 0, USCPI_VALUE, 12, BRIPCA_VALUE_2014.length);
+  }
+  private static final ZonedDateTime BRIPCA_START_DATE = DateUtils.getUTCDate(2013, 1, 31);
+  private static final ZonedDateTime[] BRIPCA_DATES = new ZonedDateTime[BRIPCA_VALUE.length];
+  static
+  {
+    for (int i=0; i<BRIPCA_VALUE.length; i++) {
+      BRIPCA_DATES[i] = BRIPCA_START_DATE.plusMonths(i);
+    }
+  }
+  
+  private static final ZonedDateTimeDoubleTimeSeries BRIPCA_TIME_SERIES = 
+      ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(BRIPCA_DATES, BRIPCA_VALUE);
+  
+  /**
+   * Returns the Brazil IPCA index time series from January 2013 up to the endDate (exclusive).
+   * @param endDate The end date.
+   * @return The time series.
+   */
+  public static ZonedDateTimeDoubleTimeSeries timeSeriesBrCpi(ZonedDateTime endDate) {
+    return BRIPCA_TIME_SERIES.subSeries(DateUtils.getUTCDate(2013, 1, 1), endDate);
+  }
+  
+  /**
+   * Returns the Brazil IPCA index time series from startDate (inclusive) up to the endDate (exclusive).
+   * @param startDate The start date.
+   * @param endDate The end date.
+   * @return The time series.
+   */
+  public static ZonedDateTimeDoubleTimeSeries timeSeriesBrCpi(ZonedDateTime startDate, ZonedDateTime endDate) {
+    return BRIPCA_TIME_SERIES.subSeries(startDate, endDate);
+  }
+
 
 }

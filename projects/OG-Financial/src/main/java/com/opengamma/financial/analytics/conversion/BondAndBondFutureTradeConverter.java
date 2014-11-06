@@ -56,6 +56,7 @@ import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
@@ -395,7 +396,7 @@ public class BondAndBondFutureTradeConverter extends FinancialSecurityVisitorAda
 
         final Security sec = _securitySource.getSingle(indexId.toBundle());
         if (sec == null) {
-          throw new OpenGammaRuntimeException("Ibor index with id " + indexId + " was null");
+          throw new OpenGammaRuntimeException("Price index with id " + indexId + " was null");
         }
         final com.opengamma.financial.security.index.PriceIndex indexSecurity = (com.opengamma.financial.security.index.PriceIndex) sec;
 
@@ -427,12 +428,15 @@ public class BondAndBondFutureTradeConverter extends FinancialSecurityVisitorAda
         final double baseCPI = Double.parseDouble(bond.attributes().get().get("BaseCPI"));
         final ZonedDateTime firstCouponDate = ZonedDateTime.of(bond.getFirstCouponDate().toLocalDate().atStartOfDay(), zone);
         final String interpolationMethod = bond.attributes().get().get("interpolationMethod");
-        if ("Monthly".equals(interpolationMethod)) {
-          return BondCapitalIndexedSecurityDefinition.fromMonthly(priceIndex, monthLag, firstAccrualDate, baseCPI, firstCouponDate, maturityDate, paymentPeriod, rate, businessDay, settlementDays,
-              calendar, dayCount, yieldConvention, isEOM, legalEntity);
+        if ("Monthly".equals(interpolationMethod) || 
+            ("Daily".equals(interpolationMethod) && yieldConvention.equals(SimpleYieldConvention.BRAZIL_IL_BOND))) {
+          return BondCapitalIndexedSecurityDefinition.fromMonthly(priceIndex, monthLag, firstAccrualDate, baseCPI, 
+              firstCouponDate, maturityDate, paymentPeriod, rate, businessDay, settlementDays, calendar, dayCount, 
+              yieldConvention, isEOM, legalEntity);
         } else if ("Daily".equals(interpolationMethod)) {
-          return BondCapitalIndexedSecurityDefinition.fromInterpolation(priceIndex, monthLag, firstAccrualDate, baseCPI, maturityDate, paymentPeriod, 1.0, rate, businessDay, settlementDays, calendar,
-              dayCount, yieldConvention, isEOM, legalEntity);
+          return BondCapitalIndexedSecurityDefinition.fromInterpolation(priceIndex, monthLag, firstAccrualDate, baseCPI, 
+              maturityDate, paymentPeriod, 1.0, rate, businessDay, settlementDays, calendar, dayCount, yieldConvention, 
+              isEOM, legalEntity);
         } else {
           throw new OpenGammaRuntimeException("Bond interpolation method is not valid");
         }
