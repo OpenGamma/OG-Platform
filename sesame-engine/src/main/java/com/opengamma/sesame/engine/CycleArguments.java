@@ -274,7 +274,7 @@ public final class CycleArguments {
     // TODO this is correct, enable it
     //private Map<Class<?>, FunctionArguments> _functionArguments = Collections.emptyMap();
     private FunctionArguments _functionArguments = FunctionArguments.EMPTY;
-    private boolean _captureInputs = false;
+    private boolean _captureInputs;
     private VersionCorrection _versionCorrection = VersionCorrection.LATEST;
     private ScenarioDefinition _scenarioDefinition = ScenarioDefinition.EMPTY;
 
