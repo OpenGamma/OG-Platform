@@ -178,14 +178,7 @@ public class AnnuityDefinition<P extends PaymentDefinition> implements Instrumen
   @Deprecated
   @Override
   public Annuity<? extends Payment> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(date, "date");
-    final List<Payment> resultList = new ArrayList<>();
-    for (int loopcoupon = 0; loopcoupon < _payments.length; loopcoupon++) {
-      if (!date.isAfter(_payments[loopcoupon].getPaymentDate())) {
-        resultList.add(_payments[loopcoupon].toDerivative(date, yieldCurveNames));
-      }
-    }
-    return new Annuity<>(resultList.toArray(new Payment[resultList.size()]));
+    throw new UnsupportedOperationException();
   }
 
   /**
@@ -193,24 +186,9 @@ public class AnnuityDefinition<P extends PaymentDefinition> implements Instrumen
    * @deprecated Use the method that does not take yield curve names
    */
   @Deprecated
-  @SuppressWarnings("unchecked")
   @Override
   public Annuity<? extends Payment> toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTS, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(date, "date");
-    ArgumentChecker.notNull(indexFixingTS, "index fixing time series");
-    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
-    final List<Payment> resultList = new ArrayList<>();
-    for (final P payment : _payments) {
-      //TODO check this
-      if (!date.isAfter(payment.getPaymentDate())) {
-        if (payment instanceof InstrumentDefinitionWithData) {
-          resultList.add(((InstrumentDefinitionWithData<? extends Payment, DoubleTimeSeries<ZonedDateTime>>) payment).toDerivative(date, indexFixingTS, yieldCurveNames));
-        } else {
-          resultList.add(payment.toDerivative(date, yieldCurveNames));
-        }
-      }
-    }
-    return new Annuity<>(resultList.toArray(new Payment[resultList.size()]));
+    throw new UnsupportedOperationException();
   }
 
   @Override

@@ -152,12 +152,6 @@ public class AnnuityCouponONDefinitionTest {
   public void testNullGenerator2() {
     AnnuityCouponONDefinition.from(SETTLEMENT_DATE, MATURITY_DATE, NOTIONAL, (GeneratorSwapFixedON) null, IS_PAYER);
   }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNoIndexTSDeprecated() {
-    DEFINITION.toDerivative(DATE, "A", "B");
-  }
-
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNoIndexTS() {
     DEFINITION.toDerivative(DATE);

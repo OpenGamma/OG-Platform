@@ -340,13 +340,7 @@ public class AnnuityCouponFixedDefinition extends AnnuityDefinition<CouponFixedD
   @Deprecated
   @Override
   public AnnuityCouponFixed toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    final List<CouponFixed> resultList = new ArrayList<>();
-    for (int loopcoupon = 0; loopcoupon < getPayments().length; loopcoupon++) {
-      if (!date.isAfter(getNthPayment(loopcoupon).getPaymentDate())) {
-        resultList.add(getNthPayment(loopcoupon).toDerivative(date, yieldCurveNames));
-      }
-    }
-    return new AnnuityCouponFixed(resultList.toArray(new CouponFixed[resultList.size()]));
+    throw new UnsupportedOperationException();
   }
 
   @Override

@@ -136,28 +136,6 @@ public class AnnuityCouponFixedDefinitionTest {
 
   }
 
-  @SuppressWarnings("deprecation")
-  @Test
-  public void testToDerivativeDeprecated() {
-    final double sign = IS_PAYER ? -1.0 : 1.0;
-    final CouponFixedDefinition[] coupons = new CouponFixedDefinition[PAYMENT_DATES.length];
-    //First coupon uses settlement date
-    coupons[0] = new CouponFixedDefinition(CUR, PAYMENT_DATES[0], SETTLEMENT_DATE, PAYMENT_DATES[0], DAY_COUNT.getDayCountFraction(SETTLEMENT_DATE, PAYMENT_DATES[0]), sign * NOTIONAL, RATE);
-    for (int loopcpn = 1; loopcpn < PAYMENT_DATES.length; loopcpn++) {
-      coupons[loopcpn] = new CouponFixedDefinition(CUR, PAYMENT_DATES[loopcpn], PAYMENT_DATES[loopcpn - 1], PAYMENT_DATES[loopcpn], DAY_COUNT.getDayCountFraction(PAYMENT_DATES[loopcpn - 1],
-          PAYMENT_DATES[loopcpn]), sign * NOTIONAL, RATE);
-    }
-    final AnnuityCouponFixedDefinition fixedAnnuity = new AnnuityCouponFixedDefinition(coupons, CALENDAR);
-    final String fundingCurve = "Funding";
-    final CouponFixed[] couponFixedConverted = new CouponFixed[PAYMENT_DATES.length];
-    for (int loopcpn = 0; loopcpn < PAYMENT_DATES.length; loopcpn++) {
-      couponFixedConverted[loopcpn] = fixedAnnuity.getNthPayment(loopcpn).toDerivative(REFERENCE_DATE, fundingCurve);
-    }
-    final AnnuityCouponFixed referenceAnnuity = new AnnuityCouponFixed(couponFixedConverted);
-    final AnnuityCouponFixed convertedDefinition = fixedAnnuity.toDerivative(REFERENCE_DATE, fundingCurve);
-    assertEquals(referenceAnnuity, convertedDefinition);
-  }
-
   @Test
   public void testToDerivative() {
     final double sign = IS_PAYER ? -1.0 : 1.0;

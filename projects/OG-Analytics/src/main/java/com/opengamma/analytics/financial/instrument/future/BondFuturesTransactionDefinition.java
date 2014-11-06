@@ -46,10 +46,7 @@ public class BondFuturesTransactionDefinition extends FuturesTransactionDefiniti
   @Deprecated
   @Override
   public BondFuturesTransaction toDerivative(final ZonedDateTime dateTime, final Double lastMarginPrice, final String... yieldCurveNames) {
-    final double referencePrice = referencePrice(dateTime, lastMarginPrice);
-    final BondFuturesSecurity underlyingFuture = getUnderlyingSecurity().toDerivative(dateTime, yieldCurveNames);
-    final BondFuturesTransaction futureTransaction = new BondFuturesTransaction(underlyingFuture, getQuantity(), referencePrice);
-    return futureTransaction;
+    throw new UnsupportedOperationException();
   }
 
   @Override
