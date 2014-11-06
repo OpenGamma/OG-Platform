@@ -215,15 +215,7 @@ public class AnnuityCouponIborSpreadDefinition extends AnnuityCouponDefinition<C
   @Deprecated
   @Override
   public Annuity<Coupon> toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTS, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(date, "date");
-    final List<Coupon> resultList = new ArrayList<>();
-    final CouponIborSpreadDefinition[] payments = getPayments();
-    for (int loopcoupon = 0; loopcoupon < payments.length; loopcoupon++) {
-      if (!date.isAfter(payments[loopcoupon].getPaymentDate())) {
-        resultList.add(payments[loopcoupon].toDerivative(date, indexFixingTS, yieldCurveNames));
-      }
-    }
-    return new Annuity<>(resultList.toArray(new Coupon[resultList.size()]));
+    throw new UnsupportedOperationException();
   }
 
   @Override

@@ -169,7 +169,7 @@ public class AnnuityCouponArithmeticAverageONDefinition extends AnnuityCouponDef
   @Deprecated
   @Override
   public Annuity<? extends Coupon> toDerivative(final ZonedDateTime valZdt, final DoubleTimeSeries<ZonedDateTime> indexFixingTS, final String... yieldCurveNames) {
-    return toDerivative(valZdt, indexFixingTS);
+    throw new UnsupportedOperationException();
   }
 
   @Override
