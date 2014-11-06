@@ -434,7 +434,7 @@ public class BondInterestIndexedSecurityDefinition<N extends PaymentFixedDefinit
 
   @Override
   public BondInterestIndexedSecurity<PaymentFixed, Coupon> toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> data, final String... yieldCurveNames) {
-    return toDerivative(date);
+    throw new UnsupportedOperationException();
   }
 
   @Override

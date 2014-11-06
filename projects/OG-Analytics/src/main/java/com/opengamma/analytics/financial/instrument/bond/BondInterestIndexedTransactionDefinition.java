@@ -57,7 +57,7 @@ public class BondInterestIndexedTransactionDefinition<N extends PaymentFixedDefi
   @Deprecated
   @Override
   public BondInterestIndexedTransaction<PaymentFixed, Coupon> toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> data, final String... yieldCurveNames) {
-    return toDerivative(date, data);
+    throw new UnsupportedOperationException();
   }
 
   @Override

@@ -492,7 +492,7 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
   @Deprecated
   @Override
   public BondCapitalIndexedSecurity<Coupon> toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> data, final String... yieldCurveNames) {
-    return toDerivative(date, data);
+    throw new UnsupportedOperationException();
   }
 
   @Override
