@@ -112,16 +112,13 @@ public class ExposureFunctionsDiscountingMulticurveCombinerFn implements Discoun
    * @return an {@code FXMatrix} containing FX rates for all the currencies in the security.
    */
   private Result<FXMatrix> getFxMatrix(Environment env, Security security) {
-    Result<FXMatrix> fxMatrixResult;
     if (security instanceof FinancialSecurity) {
       Collection<Currency> currencies = ((FinancialSecurity) security).accept(new CurrenciesVisitor());
-      fxMatrixResult = _fxMatrixFn.getFXMatrix(env, ImmutableSet.copyOf(currencies));
+      return _fxMatrixFn.getFXMatrix(env, ImmutableSet.copyOf(currencies));
     } else {
-      fxMatrixResult = Result.failure(FailureStatus.CALCULATION_FAILED,
-                                      "Security {} isn't a FinancialSecurity, can't get currencies for FX matrix",
-                                      security);
+      return Result.failure(FailureStatus.CALCULATION_FAILED,
+                            "Security {} isn't a FinancialSecurity, can't get currencies for FX matrix", security);
     }
-    return fxMatrixResult;
   }
 
   @Override
