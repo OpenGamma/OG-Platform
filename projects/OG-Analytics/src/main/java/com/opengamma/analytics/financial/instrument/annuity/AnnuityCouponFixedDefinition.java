@@ -333,16 +333,6 @@ public class AnnuityCouponFixedDefinition extends AnnuityDefinition<CouponFixedD
     return new AnnuityCouponFixedDefinition(list.toArray(new CouponFixedDefinition[list.size()]), getCalendar());
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public AnnuityCouponFixed toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException();
-  }
-
   @Override
   public AnnuityCouponFixed toDerivative(final ZonedDateTime date) {
     final List<CouponFixed> resultList = new ArrayList<>();

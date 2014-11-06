@@ -81,16 +81,6 @@ public class ForexSwapDefinition implements InstrumentDefinition<InstrumentDeriv
   /**
    * {@inheritDoc}
    * The first curve is the discounting curve for the first currency and the second curve is the discounting curve for the second currency.
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public InstrumentDerivative toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException(this.getClass().getCanonicalName());  }
-
-  /**
-   * {@inheritDoc}
-   * The first curve is the discounting curve for the first currency and the second curve is the discounting curve for the second currency.
    */
   @Override
   public InstrumentDerivative toDerivative(final ZonedDateTime date) {

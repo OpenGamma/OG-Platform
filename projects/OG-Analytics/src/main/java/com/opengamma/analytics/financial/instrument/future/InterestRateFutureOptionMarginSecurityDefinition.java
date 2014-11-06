@@ -85,16 +85,6 @@ public class InterestRateFutureOptionMarginSecurityDefinition extends FuturesSec
     return _strike;
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public InterestRateFutureOptionMarginSecurity toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException();
-  }
-
   @Override
   public InterestRateFutureOptionMarginSecurity toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "date");

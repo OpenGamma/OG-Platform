@@ -153,21 +153,6 @@ public class CouponONArithmeticAverageDefinitionTest {
   /**
    * Tests the toDerivative method.
    */
-  public void toDerivativeNoFixing() {
-    final String[] curvesNames = new String[] {"Funding", "Forward" };
-    final CouponONArithmeticAverage cpnConverted = FEDFUND_CPN_3M_DEF.toDerivative(TRADE_DATE, curvesNames);
-    final double paymentTime = TimeCalculator.getTimeBetween(TRADE_DATE, PAYMENT_DATE_3M);
-    final double[] fixingPeriodStartTimes = TimeCalculator.getTimeBetween(TRADE_DATE, FEDFUND_CPN_3M_DEF.getFixingPeriodStartDates());
-    final double[] fixingPeriodEndTimes = TimeCalculator.getTimeBetween(TRADE_DATE, FEDFUND_CPN_3M_DEF.getFixingPeriodEndDates());
-    final CouponONArithmeticAverage cpnExpected = CouponONArithmeticAverage.from(paymentTime, ACCURAL_FACTOR_3M, NOTIONAL, FEDFUND, fixingPeriodStartTimes, fixingPeriodEndTimes,
-        FEDFUND_CPN_3M_DEF.getFixingPeriodAccrualFactors(), 0.0);
-    assertEquals("CouponArithmeticAverageON definition: toDerivative", cpnExpected, cpnConverted);
-  }
-
-  @Test
-  /**
-   * Tests the toDerivative method.
-   */
   public void toDerivativeFixingBeforeStart() {
     final ZonedDateTime referenceDate = ScheduleCalculator.getAdjustedDate(TRADE_DATE, 1, NYC);
     final DoubleTimeSeries<ZonedDateTime> fixingTS = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 7) }, new double[] {0.01 });

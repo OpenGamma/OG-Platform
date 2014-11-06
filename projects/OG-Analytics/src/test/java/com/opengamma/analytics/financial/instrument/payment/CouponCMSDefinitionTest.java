@@ -132,12 +132,6 @@ public class CouponCMSDefinitionTest {
     CouponCMSDefinition.from(FLOAT_COUPON, null, CALENDAR);
   }
 
-  @SuppressWarnings("deprecation")
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testConversionNullFixingDataDeprecated() {
-    CMS_COUPON_DEFINITION.toDerivative(FIXING_DATE, null, new String[] {"A", "S" });
-  }
-
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testConversionNullFixingData() {
     CMS_COUPON_DEFINITION.toDerivative(FIXING_DATE, (DoubleTimeSeries<ZonedDateTime>) null);
@@ -159,19 +153,6 @@ public class CouponCMSDefinitionTest {
     assertEquals(CMS_COUPON_2.getNotional(), COUPON.getNotional(), 1E-2);
     assertEquals(CMS_COUPON_2.getFixingDate(), FIXING_DATE);
     assertEquals(CMS_COUPON_2.getUnderlyingSwap(), SWAP_DEFINITION);
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test
-  public void testToDerivativeAfterFixingDeprecated() {
-    final ZonedDateTime date = FIXING_DATE.plusDays(2);
-    final DayCount actAct = DayCounts.ACT_ACT_ISDA;
-    double paymentTime = actAct.getDayCountFraction(date, PAYMENT_DATE);
-    CouponFixed couponFixed = new CouponFixed(CUR, paymentTime, CURVES_NAME[0], ACCRUAL_FACTOR, NOTIONAL, FIXING_RATE);
-    assertEquals(couponFixed, CMS_COUPON_DEFINITION.toDerivative(date, FIXING_TS, CURVES_NAME));
-    paymentTime = actAct.getDayCountFraction(FIXING_DATE, PAYMENT_DATE);
-    couponFixed = new CouponFixed(CUR, paymentTime, CURVES_NAME[0], ACCRUAL_FACTOR, NOTIONAL, FIXING_RATE);
-    assertEquals(couponFixed, CMS_COUPON_DEFINITION.toDerivative(FIXING_DATE, FIXING_TS, CURVES_NAME));
   }
 
   @Test

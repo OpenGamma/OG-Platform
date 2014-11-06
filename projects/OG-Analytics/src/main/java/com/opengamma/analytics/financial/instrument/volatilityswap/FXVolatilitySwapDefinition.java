@@ -80,16 +80,6 @@ public class FXVolatilitySwapDefinition extends VolatilitySwapDefinition {
     return visitor.visitFXVolatilitySwapDefinition(this);
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Yield curve names are no longer stored in {@link InstrumentDerivative}
-   */
-  @Deprecated
-  @Override
-  public FXVolatilitySwap toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    return toDerivative(date);
-  }
-
   @Override
   public FXVolatilitySwap toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "date");

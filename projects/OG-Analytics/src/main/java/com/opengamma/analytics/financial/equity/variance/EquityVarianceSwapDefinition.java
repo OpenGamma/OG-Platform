@@ -93,11 +93,6 @@ public class EquityVarianceSwapDefinition extends VarianceSwapDefinition {
     return _correctForDividends;
   }
 
-  @Override
-  public EquityVarianceSwap toDerivative(final ZonedDateTime valueDate, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException();
-  }
-
   /**
    * {@inheritDoc} The definition is responsible for constructing a view of the variance swap as of a particular date.
    * In particular, it resolves calendars. The VarianceSwap needs an array of observations, as well as its *expected* length.

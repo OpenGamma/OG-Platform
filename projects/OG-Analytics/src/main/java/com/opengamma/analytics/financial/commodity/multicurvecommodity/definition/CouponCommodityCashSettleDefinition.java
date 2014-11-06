@@ -78,11 +78,6 @@ public class CouponCommodityCashSettleDefinition extends CouponCommodityDefiniti
   }
 
   @Override
-  public Payment toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public Payment toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "date");
     ArgumentChecker.inOrderOrEqual(date, getFixingDate(), "date", "expiry date");

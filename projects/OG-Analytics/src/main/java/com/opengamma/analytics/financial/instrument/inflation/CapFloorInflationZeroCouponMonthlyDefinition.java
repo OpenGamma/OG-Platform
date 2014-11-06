@@ -259,16 +259,6 @@ public class CapFloorInflationZeroCouponMonthlyDefinition extends CouponInflatio
    */
   @Deprecated
   @Override
-  public CapFloorInflationZeroCouponMonthly toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException("Must supply a price index time series");
-  }
-
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
   public Coupon toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> priceIndexTimeSeries, final String... yieldCurveNames) {
     return toDerivative(date, priceIndexTimeSeries);
   }

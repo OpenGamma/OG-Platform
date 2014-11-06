@@ -94,19 +94,6 @@ public class SwapFuturesPriceDeliverableSecurityDefinition extends FuturesSecuri
     return _notional;
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public SwapFuturesPriceDeliverableSecurity toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    final double lastTradingTime = TimeCalculator.getTimeBetween(date, getLastTradingDate());
-    final double deliveryTime = TimeCalculator.getTimeBetween(date, _deliveryDate);
-    final SwapFixedCoupon<? extends Coupon> underlyingSwap = _underlyingSwap.toDerivative(date, yieldCurveNames);
-    return new SwapFuturesPriceDeliverableSecurity(lastTradingTime, deliveryTime, underlyingSwap, _notional);
-  }
-
   @Override
   public SwapFuturesPriceDeliverableSecurity toDerivative(final ZonedDateTime date) {
     final double lastTradingTime = TimeCalculator.getTimeBetween(date, getLastTradingDate());

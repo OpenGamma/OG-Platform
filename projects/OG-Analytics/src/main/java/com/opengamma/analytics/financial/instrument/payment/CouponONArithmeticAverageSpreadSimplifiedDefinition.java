@@ -124,17 +124,6 @@ public class CouponONArithmeticAverageSpreadSimplifiedDefinition extends CouponD
     return _spreadAmount;
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public CouponONArithmeticAverageSpreadSimplified toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    ArgumentChecker.isTrue(!getAccrualStartDate().plusDays(_index.getPublicationLag()).isBefore(date), "First fixing publication strictly before reference date");
-    return toDerivative(date);
-  }
-
   @Override
   public CouponONArithmeticAverageSpreadSimplified toDerivative(final ZonedDateTime date) {
     ArgumentChecker.isTrue(!getAccrualStartDate().plusDays(_index.getPublicationLag()).isBefore(date), "First fixing publication strictly before reference date");

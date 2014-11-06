@@ -156,16 +156,6 @@ public class SwapIborONDefinition extends SwapDefinition {
    * @deprecated Use the method that does not take yield curve names
    */
   @Deprecated
-  @Override
-  public Swap<Coupon, Coupon> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
   @SuppressWarnings("unchecked")
   @Override
   public Swap<Coupon, Coupon> toDerivative(final ZonedDateTime date, final ZonedDateTimeDoubleTimeSeries[] indexDataTS, final String... yieldCurveNames) {

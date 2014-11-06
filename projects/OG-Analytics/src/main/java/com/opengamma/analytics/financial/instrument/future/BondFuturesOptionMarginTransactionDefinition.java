@@ -37,16 +37,6 @@ public class BondFuturesOptionMarginTransactionDefinition extends FuturesTransac
    */
   @Deprecated
   @Override
-  public BondFuturesOptionMarginTransaction toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException("toDerivative not implemented with yield curve names for bond futures options.");
-  }
-
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
   public BondFuturesOptionMarginTransaction toDerivative(final ZonedDateTime dateTime, final Double lastMarginPrice, final String... yieldCurveNames) {
     throw new UnsupportedOperationException("toDerivative not implemented with yield curve names for bond futures options.");
   }

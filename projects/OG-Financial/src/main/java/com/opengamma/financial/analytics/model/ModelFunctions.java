@@ -39,7 +39,6 @@ import com.opengamma.financial.analytics.model.pnl.PNLFunctions;
 import com.opengamma.financial.analytics.model.sabr.SABRDiscountingPricingFunctions;
 import com.opengamma.financial.analytics.model.sabrcube.SABRCubeFunctions;
 import com.opengamma.financial.analytics.model.sensitivities.SensitivitiesFunctions;
-import com.opengamma.financial.analytics.model.simpleinstrument.SimpleInstrumentFunctions;
 import com.opengamma.financial.analytics.model.swaption.SwaptionFunctions;
 import com.opengamma.financial.analytics.model.timeseries.TimeSeriesFunctions;
 import com.opengamma.financial.analytics.model.trs.TotalReturnSwapFunctions;
@@ -267,10 +266,6 @@ public class ModelFunctions extends AbstractFunctionConfigurationBean {
     return SensitivitiesFunctions.instance();
   }
 
-  protected FunctionConfigurationSource simpleInstrumentFunctionConfiguration() {
-    return SimpleInstrumentFunctions.instance();
-  }
-
   protected FunctionConfigurationSource swaptionFunctionConfiguration() {
     return SwaptionFunctions.instance();
   }
@@ -325,7 +320,6 @@ public class ModelFunctions extends AbstractFunctionConfigurationBean {
         riskFactorFunctionConfiguration(),
         sabrCubeFunctionConfiguration(),
         sensitivitiesFunctionConfiguration(),
-        simpleInstrumentFunctionConfiguration(),
         swaptionFunctionConfiguration(),
         varFunctionConfiguration(),
         volatilityFunctionConfiguration(),

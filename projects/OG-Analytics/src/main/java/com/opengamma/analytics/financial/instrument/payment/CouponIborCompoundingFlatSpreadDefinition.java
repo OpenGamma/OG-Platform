@@ -491,16 +491,6 @@ public class CouponIborCompoundingFlatSpreadDefinition extends CouponDefinition 
     throw new UnsupportedOperationException("CouponIborCompoundingFlatSpreadDefinition does not support toDerivative with yield curve name - deprecated method");
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public CouponIborCompoundingSpread toDerivative(final ZonedDateTime dateTime, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException("CouponIborCompoundingFlatSpreadDefinition does not support toDerivative with yield curve name - deprecated method");
-  }
-
   @Override
   public CouponIborCompoundingFlatSpread toDerivative(final ZonedDateTime dateTime) {
     final LocalDate dateConversion = dateTime.toLocalDate();

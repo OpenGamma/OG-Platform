@@ -110,16 +110,6 @@ public class BillTransactionDefinition implements InstrumentDefinition<BillTrans
     return "Transaction: " + _quantity + " of " + _underlying.toString();
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public BillTransaction toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException(this.getClass().getCanonicalName());
-  }
-
   @Override
   public BillTransaction toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "Reference date");

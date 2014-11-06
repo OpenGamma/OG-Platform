@@ -79,37 +79,10 @@ public class CapFloorCMSDefinitionTest {
   private static final CapFloorCMSDefinition CMS_CAP_DEFINITION = CapFloorCMSDefinition.from(CMS_COUPON_DEFINITION, STRIKE, IS_CAP);
   // to derivatives
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 8, 18);
-  private static final String FUNDING_CURVE_NAME = " Funding";
-  private static final String FORWARD_CURVE_NAME = " Forward";
-  private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME };
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCoupon() {
     CapFloorCMSDefinition.from(null, STRIKE, IS_CAP);
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testConversionNullDate2Deprecated() {
-    CMS_CAP_DEFINITION.toDerivative(null, HIGH_FIXING_TS, CURVES_NAME);
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testConversionNullNames2Deprecated() {
-    CMS_CAP_DEFINITION.toDerivative(REFERENCE_DATE, HIGH_FIXING_TS, (String[]) null);
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testConversionInsufficientNames2Deprecated() {
-    CMS_CAP_DEFINITION.toDerivative(REFERENCE_DATE, HIGH_FIXING_TS, CURVES_NAME[0]);
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testConversionNullTSDeprecated() {
-    CMS_CAP_DEFINITION.toDerivative(FIXING_DATE.plusDays(1), null, CURVES_NAME);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

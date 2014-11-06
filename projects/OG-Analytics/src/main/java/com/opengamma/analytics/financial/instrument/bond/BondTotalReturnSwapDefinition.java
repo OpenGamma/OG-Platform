@@ -89,11 +89,6 @@ public class BondTotalReturnSwapDefinition extends TotalReturnSwapDefinition {
   }
 
   @Override
-  public BondTotalReturnSwap toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    return toDerivative(date);
-  }
-
-  @Override
   public BondTotalReturnSwap toDerivative(final ZonedDateTime date) {
     final double effectiveTime = TimeCalculator.getTimeBetween(date, getEffectiveDate());
     final double terminationTime = TimeCalculator.getTimeBetween(date, getTerminationDate());

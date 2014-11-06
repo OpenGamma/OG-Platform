@@ -103,11 +103,6 @@ public class CouponCommodityPhysicalSettleDefinition extends CouponCommodityDefi
     return getNotional();
   }
 
-  @Override
-  public CouponCommodity toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException();
-  }
-
   /**
    * {@inheritDoc}
    * @deprecated Use the method that does not take yield curve names

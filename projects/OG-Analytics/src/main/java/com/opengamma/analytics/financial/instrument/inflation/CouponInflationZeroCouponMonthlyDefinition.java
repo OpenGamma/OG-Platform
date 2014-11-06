@@ -168,16 +168,6 @@ public class CouponInflationZeroCouponMonthlyDefinition extends CouponInflationD
    */
   @Deprecated
   @Override
-  public CouponInflationZeroCouponMonthly toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    return toDerivative(date);
-  }
-
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
   public Coupon toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> priceIndexTimeSeries, final String... yieldCurveNames) {
     return toDerivative(date, priceIndexTimeSeries);
   }

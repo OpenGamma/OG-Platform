@@ -86,16 +86,6 @@ public class ForexOptionSingleBarrierDefinition implements InstrumentDefinition<
     return _rebate;
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public ForexOptionSingleBarrier toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException(this.getClass().getCanonicalName());
-  }
-
   @Override
   public ForexOptionSingleBarrier toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "date");

@@ -62,12 +62,6 @@ public class EquityDefinition implements InstrumentDefinition<Equity> {
     return _numberOfShares;
   }
 
-  @Deprecated
-  @Override
-  public Equity toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException(this.getClass().getCanonicalName());
-  }
-
   @Override
   public Equity toDerivative(final ZonedDateTime date) {
     return new Equity(_entity, _currency, _numberOfShares);

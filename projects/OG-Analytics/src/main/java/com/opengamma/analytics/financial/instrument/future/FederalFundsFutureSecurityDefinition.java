@@ -219,16 +219,6 @@ public class FederalFundsFutureSecurityDefinition extends FuturesSecurityDefinit
   }
 
   /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public FederalFundsFutureSecurity toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
    * @param indexFixingTimeSeries The time series of the ON index. It is used if the date is in the future month.
    * The date of the time series is the publication date (for Fed Funds, it is the end date of the period).
    * {@inheritDoc}

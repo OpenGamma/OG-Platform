@@ -296,31 +296,6 @@ public class ForwardRateAgreementDefinition extends CouponFloatingDefinition {
    */
   @Deprecated
   @Override
-  public Payment toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(date, "date");
-    ArgumentChecker.isTrue(date.isBefore(getFixingDate()), "Do not have any fixing data but are asking for a derivative after the fixing date " + getFixingDate() + " "
-        + date);
-    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
-    ArgumentChecker.isTrue(yieldCurveNames.length > 1, "at least two curve names are required");
-    ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
-    final String fundingCurveName = yieldCurveNames[0];
-    final String forwardCurveName = yieldCurveNames[1];
-    final ZonedDateTime zonedDate = date.toLocalDate().atStartOfDay(ZoneOffset.UTC);
-    double paymentTime = TimeCalculator.getTimeBetween(zonedDate, getPaymentDate());
-    // Ibor is not fixed yet, all the details are required.
-    double fixingTime = TimeCalculator.getTimeBetween(zonedDate, getFixingDate());
-    double fixingPeriodStartTime = TimeCalculator.getTimeBetween(zonedDate, getFixingPeriodStartDate());
-    double fixingPeriodEndTime = TimeCalculator.getTimeBetween(zonedDate, getFixingPeriodEndDate());
-    return new ForwardRateAgreement(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), _index, fixingTime, fixingPeriodStartTime,
-        fixingPeriodEndTime, getFixingPeriodAccrualFactor(), _rate, forwardCurveName);
-  }
-
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
   public Payment toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "date");
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");

@@ -48,11 +48,6 @@ public class MetalFutureTransactionDefinition extends CommodityFutureTransaction
   }
 
   @Override
-  public MetalFutureTransaction toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public MetalFutureTransaction toDerivative(final ZonedDateTime date) {
     throw new UnsupportedOperationException("The method toDerivative of " + this.getClass().getSimpleName() + " does not support the two argument method (without margin price data).");
   }

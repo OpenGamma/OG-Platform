@@ -145,10 +145,6 @@ public class BondFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(BondMarketCleanPriceFunction.class));
     functions.add(functionConfiguration(BondMarketDirtyPriceFunction.class));
     functions.add(functionConfiguration(BondMarketYieldFunction.class));
-    functions.add(functionConfiguration(BondZSpreadFromCurveCleanPriceFunction.class));
-    functions.add(functionConfiguration(BondZSpreadFromMarketCleanPriceFunction.class));
-    functions.add(functionConfiguration(BondZSpreadPresentValueSensitivityFromCurveCleanPriceFunction.class));
-    functions.add(functionConfiguration(BondZSpreadPresentValueSensitivityFromMarketCleanPriceFunction.class));
     functions.add(functionConfiguration(NelsonSiegelSvenssonBondCurveFunction.class));
   }
 
