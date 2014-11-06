@@ -105,26 +105,7 @@ public class EquityVarianceSwapDefinition extends VarianceSwapDefinition {
    */
   @Override
   public EquityVarianceSwap toDerivative(final ZonedDateTime valueDate, final DoubleTimeSeries<LocalDate> underlyingTimeSeries, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(valueDate, "date");
-    ArgumentChecker.notNull(underlyingTimeSeries, "A TimeSeries of observations must be provided. If observations have not begun, please pass an empty series.");
-    final double timeToObsStart = TimeCalculator.getTimeBetween(valueDate, getObsStartDate());
-    final double timeToObsEnd = TimeCalculator.getTimeBetween(valueDate, getObsEndDate());
-    final double timeToSettlement = TimeCalculator.getTimeBetween(valueDate, getSettlementDate());
-    DoubleTimeSeries<LocalDate> realizedTS;
-    if (timeToObsStart > 0) {
-      realizedTS = ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES;
-    } else {
-      realizedTS = underlyingTimeSeries.subSeries(getObsStartDate().toLocalDate(), true, valueDate.toLocalDate(), false);
-    }
-    final double[] observations = realizedTS.valuesArrayFast();
-    final double[] observationWeights = {}; // TODO Case 2011-06-29 Calendar Add functionality for non-trivial weighting of observations
-    // if we view this option on some date between the observation start and end dates, then the observation on that particular
-    // date will not have been made (observations are closing levels)
-    final int nObservations = valueDate.isAfter(getObsEndDate()) ? getObsExpected() : (valueDate.isBefore(getObsStartDate()) ? 0 : getDaysBetween(getObsStartDate(), valueDate, getCalendar()));
-    final int nObsDisrupted = nObservations - observations.length;
-    ArgumentChecker.isTrue(nObsDisrupted >= 0, "Have more observations {} than good business days {}", observations.length, nObservations);
-    return new EquityVarianceSwap(timeToObsStart, timeToObsEnd, timeToSettlement, getVarStrike(), getVarNotional(), getCurrency(), getAnnualizationFactor(), getObsExpected(), nObsDisrupted,
-        observations, observationWeights, correctForDividends());
+    throw new UnsupportedOperationException();
   }
 
   @Override

@@ -183,7 +183,7 @@ public class IndexFutureDefinition implements InstrumentDefinitionWithData<Index
 
   @Override
   public IndexFuture toDerivative(ZonedDateTime date, Double referencePrice, String... yieldCurveNames) {
-    return toDerivative(date, referencePrice);
+    throw new UnsupportedOperationException();
   }
 
   @Override

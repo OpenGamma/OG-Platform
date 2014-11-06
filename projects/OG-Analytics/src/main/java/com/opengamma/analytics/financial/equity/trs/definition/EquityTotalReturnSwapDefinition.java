@@ -92,7 +92,7 @@ public class EquityTotalReturnSwapDefinition extends TotalReturnSwapDefinition {
 
   @Override
   public EquityTotalReturnSwap toDerivative(final ZonedDateTime date, final ZonedDateTimeDoubleTimeSeries data, final String... yieldCurveNames) {
-    return toDerivative(date, data);
+    throw new UnsupportedOperationException();
   }
 
   @Override
