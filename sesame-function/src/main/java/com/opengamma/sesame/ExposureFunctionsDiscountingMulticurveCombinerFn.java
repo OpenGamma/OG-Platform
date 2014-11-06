@@ -53,7 +53,8 @@ public class ExposureFunctionsDiscountingMulticurveCombinerFn implements Discoun
 
   /**
    * Constructor for a multicurve function that selects the multicurves by either trade or security.
-   *  @param marketExposureSelector  the exposure function selector.
+   *
+   * @param marketExposureSelector  the exposure function selector.
    * @param bundleResolver  the function used to resolve the multicurves.
    * @param fxMatrixFn for generating a matrix of FX rates
    */
@@ -88,17 +89,8 @@ public class ExposureFunctionsDiscountingMulticurveCombinerFn implements Discoun
     }
 
     if (!curveConfigs.isEmpty() && incompleteBundles.isEmpty()) {
-      Security security = trade.getSecurity();
-      Result<FXMatrix> fxMatrixResult;
+      Result<FXMatrix> fxMatrixResult = getFxMatrix(env, trade.getSecurity());
 
-      if (security instanceof FinancialSecurity) {
-        Collection<Currency> currencies = ((FinancialSecurity) security).accept(new CurrenciesVisitor());
-        fxMatrixResult = _fxMatrixFn.getFXMatrix(env, ImmutableSet.copyOf(currencies));
-      } else {
-        fxMatrixResult = Result.failure(FailureStatus.CALCULATION_FAILED,
-                                        "Security {} isn't a FinancialSecurity, can't get currencies for FX matrix",
-                                        security);
-      }
       if (fxMatrixResult.isSuccess()) {
         FXMatrix fxMatrix = fxMatrixResult.getValue();
         return Result.success(new MulticurveBundle(mergeBundlesAndMatrix(bundles, fxMatrix), mergedJacobianBundle));
@@ -110,6 +102,26 @@ public class ExposureFunctionsDiscountingMulticurveCombinerFn implements Discoun
     } else {
       return Result.failure(incompleteBundles);
     }
+  }
+
+  /**
+   * Returns an {@link FXMatrix} containing FX rates for all the currencies in the security.
+   *
+   * @param env the environment used in calculations
+   * @param security a security
+   * @return an {@code FXMatrix} containing FX rates for all the currencies in the security.
+   */
+  private Result<FXMatrix> getFxMatrix(Environment env, Security security) {
+    Result<FXMatrix> fxMatrixResult;
+    if (security instanceof FinancialSecurity) {
+      Collection<Currency> currencies = ((FinancialSecurity) security).accept(new CurrenciesVisitor());
+      fxMatrixResult = _fxMatrixFn.getFXMatrix(env, ImmutableSet.copyOf(currencies));
+    } else {
+      fxMatrixResult = Result.failure(FailureStatus.CALCULATION_FAILED,
+                                      "Security {} isn't a FinancialSecurity, can't get currencies for FX matrix",
+                                      security);
+    }
+    return fxMatrixResult;
   }
 
   @Override
