@@ -81,7 +81,6 @@ public class BlackFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(FXOptionBlackVegaMatrixFunction.class));
     functions.add(functionConfiguration(FXOptionBlackVegaQuoteMatrixFunction.class));
     functions.add(functionConfiguration(FXOptionBlackVommaFunction.class));
-    functions.add(functionConfiguration(FXOptionBlackYCNSFunction.class));
     functions.add(functionConfiguration(FXOptionVannaVolgaPresentValueFunction.class));
   }
 
