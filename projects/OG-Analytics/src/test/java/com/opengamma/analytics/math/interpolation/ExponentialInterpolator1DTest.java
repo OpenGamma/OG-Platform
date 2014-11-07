@@ -98,7 +98,7 @@ public class ExponentialInterpolator1DTest {
   }
 
   /**
-   * Recover flat data
+   * Recover flat curve
    */
   @Test
   public void strightLineTest() {
