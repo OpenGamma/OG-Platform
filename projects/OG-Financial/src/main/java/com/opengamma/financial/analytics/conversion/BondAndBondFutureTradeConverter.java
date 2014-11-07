@@ -26,6 +26,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BillSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BillTransactionDefinition;
+import com.opengamma.analytics.financial.instrument.bond.BondCapitalIndexSecurityDefinitionUtils;
 import com.opengamma.analytics.financial.instrument.bond.BondCapitalIndexedSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BondCapitalIndexedTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefinition;
@@ -163,7 +164,7 @@ public class BondAndBondFutureTradeConverter extends FinancialSecurityVisitorAda
     if (tradeDate == null) {
       throw new OpenGammaRuntimeException("Trade date should not be null");
     }
-    final double quantity = trade.getQuantity().doubleValue(); // MH - 9-May-2013: changed from 1. // TODO REVIEW: The quantity mechanism should be reviewed.
+    final double quantity = trade.getQuantity().doubleValue();
     if (trade.getPremium() == null) {
       throw new OpenGammaRuntimeException("Trade premium should not be null.");
     }
@@ -190,9 +191,12 @@ public class BondAndBondFutureTradeConverter extends FinancialSecurityVisitorAda
       final InflationBondSecurity bondSecurity = (InflationBondSecurity) security;
       final Calendar calendar;
       calendar = getBondCalendar(bondSecurity);
-      final ZonedDateTime settlementDateTime = ScheduleCalculator.getAdjustedDate(tradeDateTime, Integer.parseInt(bondSecurity.attributes().get().get("daysToSettle")), calendar);
+      final ZonedDateTime settlementDateTime = ScheduleCalculator.getAdjustedDate(tradeDateTime, 
+          Integer.parseInt(bondSecurity.attributes().get().get("daysToSettle")), calendar);
       final LegalEntity legalEntity = LegalEntityUtils.getLegalEntityForBond(trade.getAttributes(), bondSecurity);
-      final BondCapitalIndexedSecurityDefinition bond = (BondCapitalIndexedSecurityDefinition) getInflationBond(bondSecurity, legalEntity);
+      final BondCapitalIndexedSecurityDefinition<?> bond = 
+          (BondCapitalIndexedSecurityDefinition<?>) getInflationBond(bondSecurity, legalEntity);
+      // Note: For Brazilian inflation, the quantity should be the number of certificate (not the total notional).
       return new BondCapitalIndexedTransactionDefinition(bond, quantity, settlementDateTime, price);
     }
 
@@ -398,7 +402,8 @@ public class BondAndBondFutureTradeConverter extends FinancialSecurityVisitorAda
         if (sec == null) {
           throw new OpenGammaRuntimeException("Price index with id " + indexId + " was null");
         }
-        final com.opengamma.financial.security.index.PriceIndex indexSecurity = (com.opengamma.financial.security.index.PriceIndex) sec;
+        final com.opengamma.financial.security.index.PriceIndex indexSecurity = 
+            (com.opengamma.financial.security.index.PriceIndex) sec;
 
         final IndexPrice priceIndex = new IndexPrice(indexSecurity.getName(), currency);
         final Calendar calendar = getBondCalendar(bond);
@@ -411,7 +416,8 @@ public class BondAndBondFutureTradeConverter extends FinancialSecurityVisitorAda
         final int monthLag = Integer.parseInt(bond.attributes().get().get("InflationLag"));
         final double rate = bond.getCouponRate() / 100;
         final DayCount dayCount = bond.getDayCount();
-        final BusinessDayConvention businessDay = BusinessDayConventions.FOLLOWING; //bond.getBusinessDayConvention();
+        final BusinessDayConvention businessDay = BusinessDayConventions.FOLLOWING; 
+        // The bond.getBusinessDayConvention() is not alway populated. 
         if (convention.isEOMConvention() == null) {
           throw new OpenGammaRuntimeException("Could not get EOM convention information from " + conventionName);
         }
@@ -428,8 +434,14 @@ public class BondAndBondFutureTradeConverter extends FinancialSecurityVisitorAda
         final double baseCPI = Double.parseDouble(bond.attributes().get().get("BaseCPI"));
         final ZonedDateTime firstCouponDate = ZonedDateTime.of(bond.getFirstCouponDate().toLocalDate().atStartOfDay(), zone);
         final String interpolationMethod = bond.attributes().get().get("interpolationMethod");
-        if ("Monthly".equals(interpolationMethod) || 
-            ("Daily".equals(interpolationMethod) && yieldConvention.equals(SimpleYieldConvention.BRAZIL_IL_BOND))) {
+        if (yieldConvention.equals(SimpleYieldConvention.BRAZIL_IL_BOND)) {
+          double notional = bond.getParAmount(); 
+          // The Brazilian inflation bond are quoted on a "per certificate" price
+          return BondCapitalIndexSecurityDefinitionUtils.fromBrazilType(priceIndex, firstAccrualDate, baseCPI, 
+              firstCouponDate, maturityDate, paymentPeriod, notional, rate, businessDay, settlementDays, calendar, 
+              dayCount, legalEntity);
+        }
+        if ("Monthly".equals(interpolationMethod)) {
           return BondCapitalIndexedSecurityDefinition.fromMonthly(priceIndex, monthLag, firstAccrualDate, baseCPI, 
               firstCouponDate, maturityDate, paymentPeriod, rate, businessDay, settlementDays, calendar, dayCount, 
               yieldConvention, isEOM, legalEntity);
