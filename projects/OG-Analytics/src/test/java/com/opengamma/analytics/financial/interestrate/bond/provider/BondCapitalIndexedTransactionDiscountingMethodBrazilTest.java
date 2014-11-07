@@ -21,7 +21,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.analytics.financial.legalentity.LegalEntityFilter;
 import com.opengamma.analytics.financial.legalentity.LegalEntityShortName;
-import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurveSimple;
+import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
@@ -90,7 +90,7 @@ public class BondCapitalIndexedTransactionDiscountingMethodBrazilTest {
       Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
   private static final InterpolatedDoublesCurve PRICE_CURVE_BR = 
       InterpolatedDoublesCurve.from(TIME_VALUE_BR, INDEX_VALUE_BR, LINEAR_FLAT, BRL_IPCA_NAME);
-  private static final PriceIndexCurveSimple PRICE_INDEX_CURVE_BR = new PriceIndexCurveSimple(PRICE_CURVE_BR);
+  private static final PriceIndexCurve PRICE_INDEX_CURVE_BR = new PriceIndexCurve(PRICE_CURVE_BR);
   private static final InflationIssuerProviderDiscount MARKET = new InflationIssuerProviderDiscount();
   static {
     MARKET.setCurve(Currency.BRL, CURVE_DSC);
@@ -105,8 +105,8 @@ public class BondCapitalIndexedTransactionDiscountingMethodBrazilTest {
     MultipleCurrencyAmount pvFwdComputed = METHOD_TRA.presentValue(NTNB_TRANSACTION_FWD, MARKET);
     Coupon settleStd = NTNB_TRANSACTION_STD.getBondTransaction().getSettlement();
     Coupon settleFwd = NTNB_TRANSACTION_FWD.getBondTransaction().getSettlement();
-    MultipleCurrencyAmount settleStdPv = settleStd.accept(PVDC, MARKET).multipliedBy(TRADE_PRICE * QUANTITY);
-    MultipleCurrencyAmount settleFwdPv = settleFwd.accept(PVDC, MARKET).multipliedBy(TRADE_PRICE * QUANTITY);
+    MultipleCurrencyAmount settleStdPv = settleStd.accept(PVDC, MARKET.getMulticurveProvider()).multipliedBy(TRADE_PRICE * QUANTITY);
+    MultipleCurrencyAmount settleFwdPv = settleFwd.accept(PVDC, MARKET.getMulticurveProvider()).multipliedBy(TRADE_PRICE * QUANTITY);
     assertEquals("BondCapitalIndexedTransactionDiscountingMethodBrazil: present Value", 
         pvStdComputed.getAmount(BRL) + settleStdPv.getAmount(BRL), 
         pvFwdComputed.getAmount(BRL) + settleFwdPv.getAmount(BRL), TOLERANCE_PV);
