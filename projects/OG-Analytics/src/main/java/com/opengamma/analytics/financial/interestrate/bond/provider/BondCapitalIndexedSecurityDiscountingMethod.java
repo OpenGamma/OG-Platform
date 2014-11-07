@@ -239,6 +239,20 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
   }
 
   /**
+   * Compute the dirty price of one note or certificate, i.e. the price is in line with the notional of the security.
+   * @param bond The bond security.
+   * @param issuerMulticurves The issuer and multi-curves provider.
+   * @return The dirty nominal note price.
+   */
+  public double dirtyNominalNotePriceFromCurves(final BondCapitalIndexedSecurity<?> bond, 
+      final InflationIssuerProviderInterface issuerMulticurves) {
+    ArgumentChecker.notNull(bond, "Bond");
+    ArgumentChecker.notNull(issuerMulticurves, "Issuer and multi-curves provider");
+    // TODO: Write relevant code. Only for API
+    return 0.0;
+  }
+
+  /**
    * Compute the dirty price of a bond security from curves.
    * @param bond The bond security.
    * @param issuerMulticurves The issuer and multi-curves provider.
