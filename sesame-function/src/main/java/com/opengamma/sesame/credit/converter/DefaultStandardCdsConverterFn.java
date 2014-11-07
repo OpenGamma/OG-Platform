@@ -5,12 +5,17 @@
  */
 package com.opengamma.sesame.credit.converter;
 
+import static com.opengamma.analytics.financial.credit.isdastandardmodel.IMMDateLogic.getPrevIMMDate;
+
+import org.threeten.bp.LocalDate;
+
 import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalytic;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalyticFactory;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.financial.analytics.conversion.CalendarUtils;
 import com.opengamma.financial.analytics.isda.credit.CreditCurveData;
+import com.opengamma.financial.analytics.model.credit.IMMDateGenerator;
 import com.opengamma.financial.convention.IsdaCreditCurveConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
@@ -51,7 +56,8 @@ public class DefaultStandardCdsConverterFn implements StandardCdsConverterFn {
     } else {
       calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, regionId);
     }
-    
+
+    LocalDate prevImm = convention.getBusinessDayConvention().adjustDate(calendar, getPrevIMMDate(cds.getTradeDate()));
     CDSAnalyticFactory factory = new CDSAnalyticFactory()
                                       .with(convention.getBusinessDayConvention())
                                       .with(calendar)
@@ -64,7 +70,7 @@ public class DefaultStandardCdsConverterFn implements StandardCdsConverterFn {
                                       .withProtectionStart(convention.isProtectFromStartOfDay())
                                       .withRecoveryRate(curveData.getRecoveryRate())
                                       .withStepIn(convention.getStepIn());
-    CDSAnalytic cdsAnalytic = factory.makeIMMCDS(cds.getTradeDate(), cds.getTenor().getPeriod());
+    CDSAnalytic cdsAnalytic = factory.makeCDS(cds.getTradeDate(), prevImm, cds.getMaturityDate());
     return Result.success(cdsAnalytic);
   }
 
