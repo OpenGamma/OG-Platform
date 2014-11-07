@@ -143,7 +143,7 @@ public class VarianceSwapDefinition implements InstrumentDefinitionWithData<Vari
   @Deprecated
   @Override
   public VarianceSwap toDerivative(final ZonedDateTime valueDate, final DoubleTimeSeries<LocalDate> underlyingTimeSeries, final String... yieldCurveNames) {
-    return toDerivative(valueDate, underlyingTimeSeries);
+    throw new UnsupportedOperationException();
   }
 
   /**
