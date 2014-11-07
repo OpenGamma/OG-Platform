@@ -163,16 +163,6 @@ public final class SwaptionPhysicalFixedCompoundedONCompoundedDefinition impleme
     return SwaptionPhysicalFixedCompoundedONCompounded.from(expiryTime, underlyingSwap, settlementTime, _isCall, _isLong);
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public SwaptionPhysicalFixedCompoundedONCompounded toDerivative(final ZonedDateTime dateTime, final ZonedDateTimeDoubleTimeSeries ts, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException();
-  }
-
   @Override
   public SwaptionPhysicalFixedCompoundedONCompounded toDerivative(final ZonedDateTime dateTime, final ZonedDateTimeDoubleTimeSeries ts) {
     ArgumentChecker.notNull(dateTime, "date");

@@ -257,16 +257,6 @@ public class CouponIborAverageFixingDatesDefinition extends CouponDefinition imp
         getIndex(), fixingTime, weightLeft, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactorLeft, amountAccrued);
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Override
-  @Deprecated
-  public Coupon toDerivative(ZonedDateTime date, DoubleTimeSeries<ZonedDateTime> data, String... yieldCurveNames) {
-    throw new UnsupportedOperationException();
-  }
-
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     ArgumentChecker.notNull(visitor, "visitor");

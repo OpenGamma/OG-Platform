@@ -91,11 +91,6 @@ public class EquityTotalReturnSwapDefinition extends TotalReturnSwapDefinition {
   }
 
   @Override
-  public EquityTotalReturnSwap toDerivative(final ZonedDateTime date, final ZonedDateTimeDoubleTimeSeries data, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public EquityTotalReturnSwap toDerivative(final ZonedDateTime date, final ZonedDateTimeDoubleTimeSeries data) {
     final double effectiveTime = TimeCalculator.getTimeBetween(date, getEffectiveDate());
     final double terminationTime = TimeCalculator.getTimeBetween(date, getTerminationDate());

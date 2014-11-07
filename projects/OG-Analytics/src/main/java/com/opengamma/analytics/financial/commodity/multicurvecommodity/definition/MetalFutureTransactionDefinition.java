@@ -24,11 +24,6 @@ public class MetalFutureTransactionDefinition extends CommodityFutureTransaction
   }
 
   @Override
-  public MetalFutureTransaction toDerivative(final ZonedDateTime date, final Double data, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public MetalFutureTransaction toDerivative(final ZonedDateTime date, final Double lastMarginPrice) {
     ArgumentChecker.notNull(date, "date");
     final LocalDate dateLocal = date.toLocalDate();

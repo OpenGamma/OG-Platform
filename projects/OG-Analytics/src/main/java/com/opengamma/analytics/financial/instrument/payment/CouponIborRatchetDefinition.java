@@ -214,16 +214,6 @@ public class CouponIborRatchetDefinition extends CouponFloatingDefinition {
     return true;
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public Payment toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> data, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException();
-  }
-
   @Override
   public CouponIborRatchet toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "date");

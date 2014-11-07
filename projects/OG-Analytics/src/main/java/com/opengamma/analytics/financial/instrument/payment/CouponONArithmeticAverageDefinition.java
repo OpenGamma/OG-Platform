@@ -311,16 +311,6 @@ public final class CouponONArithmeticAverageDefinition extends CouponDefinition 
     return _fixingPeriodAccrualFactors;
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public Coupon toDerivative(final ZonedDateTime valZdt, final DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException();
-  }
-
   @Override
   public CouponONArithmeticAverage toDerivative(final ZonedDateTime date) {
     ArgumentChecker.isTrue(!_fixingPeriodStartDates[0].plusDays(_index.getPublicationLag()).isBefore(date), "First fixing publication strictly before reference date");

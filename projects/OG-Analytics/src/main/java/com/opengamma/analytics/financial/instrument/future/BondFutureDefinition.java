@@ -175,16 +175,6 @@ public class BondFutureDefinition implements InstrumentDefinitionWithData<BondFu
     return _deliveryBasket[0].getCurrency();
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public BondFuture toDerivative(final ZonedDateTime valDate, final Double referencePrice, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException();
-  }
-
   @Override
   public BondFuture toDerivative(final ZonedDateTime date) {
     throw new UnsupportedOperationException("The method toDerivative of " + getClass().getSimpleName()

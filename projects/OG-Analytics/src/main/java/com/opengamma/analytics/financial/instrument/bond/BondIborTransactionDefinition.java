@@ -42,16 +42,6 @@ public class BondIborTransactionDefinition extends BondTransactionDefinition<Pay
     super(underlyingBond, quantity, settlementDate, price);
   }
 
-   /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public BondIborTransaction toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTS, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException();
-  }
-
   @Override
   public BondIborTransaction toDerivative(final ZonedDateTime date) {
     // TODO: review this implementation using the Security toDerivative.

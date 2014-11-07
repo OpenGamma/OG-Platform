@@ -253,16 +253,6 @@ public class CapFloorInflationZeroCouponMonthlyDefinition extends CouponInflatio
     return Math.max(omega * (fixing - Math.pow(1 + _strike, _maturity)), 0);
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public Coupon toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> priceIndexTimeSeries, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException();
-  }
-
   @Override
   public CapFloorInflationZeroCouponMonthly toDerivative(final ZonedDateTime date) {
     throw new OpenGammaRuntimeException("a time serie is needed");

@@ -290,16 +290,6 @@ public class ForwardRateAgreementDefinition extends CouponFloatingDefinition {
     return visitor.visitForwardRateAgreementDefinition(this);
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public Payment toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException();
-  }
-
   @Override
   public Payment toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "date");

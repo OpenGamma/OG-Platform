@@ -242,16 +242,6 @@ public class CouponInflationYearOnYearInterpolationWithMarginDefinition extends 
     return from(_factor, accrualStartDate, paymentDate, notional, getPriceIndex(), _conventionalMonthLag, _monthLag, _payNotional);
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public Coupon toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> priceIndexTimeSeries, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException();
-  }
-
   @Override
   public CouponInflationYearOnYearInterpolationWithMargin toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "date");

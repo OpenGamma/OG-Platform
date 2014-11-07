@@ -33,16 +33,6 @@ public class AnnuityCouponCommodityCashSettleDefinition extends AnnuityCouponCom
     super(payments, calendar);
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public Annuity<? extends Payment> toDerivative(final ZonedDateTime valZdt, final DoubleTimeSeries<ZonedDateTime> indexFixingTS, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException();
-  }
-
   @Override
   public Annuity<? extends Payment> toDerivative(final ZonedDateTime valZdt, final DoubleTimeSeries<ZonedDateTime> indexFixingTS) {
     ArgumentChecker.notNull(valZdt, "date");

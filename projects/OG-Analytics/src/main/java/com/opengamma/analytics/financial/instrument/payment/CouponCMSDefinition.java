@@ -148,16 +148,6 @@ public class CouponCMSDefinition extends CouponFloatingDefinition {
     return super.toString() + ", Swap = " + _underlyingSwap.toString();
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public Coupon toDerivative(final ZonedDateTime dateTime, final DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException();
-  }
-
   @Override
   public Coupon toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "date");

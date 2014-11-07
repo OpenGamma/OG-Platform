@@ -218,18 +218,6 @@ public class SwapFixedIborDefinition extends SwapDefinition {
     return new SwapFixedIborDefinition(fixedLegTrimmed, iborLegTrimmed);
   }
 
-
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @SuppressWarnings("unchecked")
-  @Override
-  public SwapFixedCoupon<Coupon> toDerivative(final ZonedDateTime date, final ZonedDateTimeDoubleTimeSeries[] indexDataTS, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException();
-  }
-
   @SuppressWarnings("unchecked")
   @Override
   public SwapFixedCoupon<Coupon> toDerivative(final ZonedDateTime date) {

@@ -162,16 +162,6 @@ public class CouponInflationZeroCouponMonthlyDefinition extends CouponInflationD
     return from(accrualStartDate, paymentDate, notional, getPriceIndex(), _conventionalMonthLag, _monthLag, _payNotional);
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public Coupon toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> priceIndexTimeSeries, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException();
-  }
-
   @Override
   public CouponInflationZeroCouponMonthly toDerivative(final ZonedDateTime date) {
     throw new OpenGammaRuntimeException("a time serie is needed");

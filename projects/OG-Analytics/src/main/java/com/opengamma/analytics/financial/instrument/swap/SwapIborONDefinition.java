@@ -151,17 +151,6 @@ public class SwapIborONDefinition extends SwapDefinition {
     return (AnnuityCouponONDefinition) getSecondLeg();
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @SuppressWarnings("unchecked")
-  @Override
-  public Swap<Coupon, Coupon> toDerivative(final ZonedDateTime date, final ZonedDateTimeDoubleTimeSeries[] indexDataTS, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException();
-  }
-
   @SuppressWarnings("unchecked")
   @Override
   public Swap<Coupon, Coupon> toDerivative(final ZonedDateTime date) {

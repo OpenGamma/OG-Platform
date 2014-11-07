@@ -99,16 +99,6 @@ public class SwapIborIborDefinition extends SwapDefinition {
     return visitor.visitSwapIborIborDefinition(this);
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public Swap<Coupon, Coupon> toDerivative(final ZonedDateTime date, final ZonedDateTimeDoubleTimeSeries[] indexDataTS, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException();
-  }
-
   @Override
   public Swap<Coupon, Coupon> toDerivative(final ZonedDateTime date) {
     final Annuity<Coupon> firstLeg = getFirstLeg().toDerivative(date);

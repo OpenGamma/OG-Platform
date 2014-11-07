@@ -93,21 +93,6 @@ public class EquityVarianceSwapDefinition extends VarianceSwapDefinition {
     return _correctForDividends;
   }
 
-  /**
-   * {@inheritDoc} The definition is responsible for constructing a view of the variance swap as of a particular date.
-   * In particular, it resolves calendars. The VarianceSwap needs an array of observations, as well as its *expected* length.
-   * The actual number of observations may be less than that expected at trade inception because of a market disruption event.
-   * ( For an example of a market disruption event, see http://cfe.cboe.com/Products/Spec_VT.aspx )
-   * @param valueDate Date at which valuation will occur, not null
-   * @param underlyingTimeSeries Time series of underlying observations, not null
-   * @param yieldCurveNames Not used
-   * @return VarianceSwap derivative as of date
-   */
-  @Override
-  public EquityVarianceSwap toDerivative(final ZonedDateTime valueDate, final DoubleTimeSeries<LocalDate> underlyingTimeSeries, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException();
-  }
-
   @Override
   public EquityVarianceSwap toDerivative(final ZonedDateTime valueDate) {
     return toDerivative(valueDate, ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES);

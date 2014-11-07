@@ -91,11 +91,6 @@ public class CouponFloatingDefinitionTest {
     }
 
     @Override
-    public Payment toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> data, final String... yieldCurveNames) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
     public Payment toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> data) {
       throw new NotImplementedException();
     }

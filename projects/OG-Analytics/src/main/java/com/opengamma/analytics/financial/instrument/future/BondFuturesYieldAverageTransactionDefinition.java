@@ -40,11 +40,6 @@ public class BondFuturesYieldAverageTransactionDefinition extends FuturesTransac
   }
 
   @Override
-  public BondFuturesYieldAverageTransaction toDerivative(ZonedDateTime date, Double data, String... yieldCurveNames) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public BondFuturesYieldAverageTransaction toDerivative(ZonedDateTime date) {
     throw new UnsupportedOperationException("The method toDerivative of YieldAverageBondFuturesTransactionDefinition does not support the one argument method (without margin price data).");
   }

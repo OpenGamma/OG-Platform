@@ -281,16 +281,6 @@ public class CouponInflationZeroCouponInterpolationGearingDefinition extends Cou
     return _factor;
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public Coupon toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> priceIndexTimeSeries, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException();
-  }
-
   @Override
   public CouponInflationZeroCouponInterpolationGearing toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "date");

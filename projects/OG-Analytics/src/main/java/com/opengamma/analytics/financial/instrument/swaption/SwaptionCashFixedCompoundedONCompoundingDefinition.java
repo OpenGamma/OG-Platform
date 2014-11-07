@@ -124,16 +124,6 @@ public final class SwaptionCashFixedCompoundedONCompoundingDefinition implements
     return SwaptionCashFixedCompoundedONCompounded.from(expiryTime, underlyingSwap, settlementTime, _isLong, _strike, _isCall);
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public SwaptionCashFixedCompoundedONCompounded toDerivative(final ZonedDateTime dateTime, final ZonedDateTimeDoubleTimeSeries ts, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException();
-  }
-
   @Override
   public SwaptionCashFixedCompoundedONCompounded toDerivative(final ZonedDateTime dateTime, final ZonedDateTimeDoubleTimeSeries ts) {
     ArgumentChecker.notNull(dateTime, "date");

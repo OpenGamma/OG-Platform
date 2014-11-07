@@ -108,17 +108,6 @@ public class SwapFixedCompoundedONCompoundedDefinition extends SwapDefinition {
     return getFirstLeg().getCurrency();
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @SuppressWarnings("unchecked")
-  @Deprecated
-  @Override
-  public Swap<CouponFixedAccruedCompounding, ? extends Payment> toDerivative(final ZonedDateTime date, final ZonedDateTimeDoubleTimeSeries[] indexDataTS, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException();
-  }
-
   @Override
   public Swap<? extends Payment, ? extends Payment> toDerivative(final ZonedDateTime date) {
     final Annuity<? extends Payment> fixedLeg = getFixedLeg().toDerivative(date);

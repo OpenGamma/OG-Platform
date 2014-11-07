@@ -678,15 +678,4 @@ public class CouponIborFxResetDefinitionTest {
     CPN_SAME_FIXING_DATES.toDerivative(valuationDate, htsArray);
   }
 
- 
-  /**
-   * confirm deprecation
-   */
-  @SuppressWarnings("deprecation")
-  @Test(expectedExceptions = UnsupportedOperationException.class)
-  public void toDerivativeDeprecated2() {
-    DoubleTimeSeries<ZonedDateTime>[] htsArray = new DoubleTimeSeries[] {
-        INDEX_FIXING_TS_AFTER_FX, FX_FIXING_TS_0 };
-    CPN_INDEX_FIXED_FIRST.toDerivative(PAYMENT_DATE, htsArray, "curve-name");
-  }
 }

@@ -202,16 +202,6 @@ public class AnnuityCouponONSpreadDefinition extends AnnuityCouponDefinition<Cou
     return new AnnuityCouponONSpreadDefinition(coupons, generator.getOvernightCalendar());
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public Annuity<? extends Coupon> toDerivative(final ZonedDateTime valZdt, final DoubleTimeSeries<ZonedDateTime> indexFixingTS, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException();
-  }
-
   @Override
   public Annuity<? extends Coupon> toDerivative(final ZonedDateTime valZdt, final DoubleTimeSeries<ZonedDateTime> indexFixingTS) {
     ArgumentChecker.notNull(valZdt, "date");

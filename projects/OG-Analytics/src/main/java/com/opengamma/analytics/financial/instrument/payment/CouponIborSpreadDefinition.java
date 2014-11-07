@@ -259,20 +259,6 @@ public class CouponIborSpreadDefinition extends CouponFloatingDefinition {
     return true;
   }
 
-  /**
-   * {@inheritDoc}
-   * If the fixing date is strictly before the conversion date and the fixing rate is not available, an exception is thrown; if the fixing rate is available a fixed coupon is returned.
-   * If the fixing date is equal to the conversion date, if the fixing rate is available a fixed coupon is returned, if not a coupon Ibor with spread is returned.
-   * If the fixing date is strictly after the conversion date, a coupon Ibor with spread is returned.
-   * All the comparisons are between dates without time.
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public Coupon toDerivative(final ZonedDateTime dateTime, final DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException();
-  }
-
   @Override
   public Coupon toDerivative(final ZonedDateTime dateTime) {
     ArgumentChecker.notNull(dateTime, "date");

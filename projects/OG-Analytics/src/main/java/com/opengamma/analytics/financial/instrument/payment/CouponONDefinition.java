@@ -151,16 +151,6 @@ public class CouponONDefinition extends CouponDefinition implements InstrumentDe
     return _fixingPeriodAccrualFactor;
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public Coupon toDerivative(final ZonedDateTime valZdt, final DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException();
-  }
-
   @Override
   public CouponON toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "date");
