@@ -44,10 +44,10 @@ public class BondCapitalIndexSecurityDefinitionUtils {
     CouponInflationZeroCouponMonthlyGearingDefinition[] coupons = 
         new CouponInflationZeroCouponMonthlyGearingDefinition[paymentDates.length + 1];
     ZonedDateTime firstCouponAdjusted = businessDay.adjustDate(calendar, firstCouponDate);
-    double couponPaid = Math.pow(1.0d + realRate, 1.0d / couponPerYear); // Coupon is quoted on a period rate basis.
+    double couponPaid = Math.pow(1.0d + realRate, 1.0d / couponPerYear) - 1.0d; // Coupon is quoted on a period rate basis.
     coupons[0] = CouponInflationZeroCouponMonthlyGearingDefinition.from(firstCouponAdjusted, startDate, firstCouponDate, 
         notional, priceIndex, indexStartValue, 1, 1, true, couponPaid);
-    // FIXME: coupon for short period should be adapted?
+    // The coupon for short periods is not adapted; a full coupon is paid.
     coupons[1] = CouponInflationZeroCouponMonthlyGearingDefinition.from(paymentDates[0], firstCouponDate, 
         paymentDatesUnadjusted[0], notional, priceIndex, indexStartValue, 1, 1, true, couponPaid);
     for (int loopcpn = 1; loopcpn < paymentDates.length; loopcpn++) {
