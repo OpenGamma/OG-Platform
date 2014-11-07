@@ -171,16 +171,6 @@ public class AnnuityDefinition<P extends PaymentDefinition> implements Instrumen
     return true;
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public Annuity<? extends Payment> toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTS, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException();
-  }
-
   @Override
   public Annuity<? extends Payment> toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "date");

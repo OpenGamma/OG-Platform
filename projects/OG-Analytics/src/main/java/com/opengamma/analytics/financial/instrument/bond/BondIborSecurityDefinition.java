@@ -137,16 +137,6 @@ public class BondIborSecurityDefinition extends BondSecurityDefinition<PaymentFi
   }
 
   /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public BondIborSecurity toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTS, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
    * @param date The valuation date, not null
    * @param indexFixingTS The index fixing time series, not null
    * @param settlementDate The settlement date, not null

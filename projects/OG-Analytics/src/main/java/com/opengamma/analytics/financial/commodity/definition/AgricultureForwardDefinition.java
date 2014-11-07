@@ -97,11 +97,6 @@ public class AgricultureForwardDefinition extends CommodityForwardDefinition<Agr
   }
 
   @Override
-  public AgricultureForward toDerivative(final ZonedDateTime date, final Double referencePrice, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public AgricultureForward toDerivative(final ZonedDateTime date) {
     ArgumentChecker.inOrderOrEqual(date, this.getExpiryDate(), "date", "expiry date");
     final double timeToFixing = TimeCalculator.getTimeBetween(date, this.getExpiryDate());

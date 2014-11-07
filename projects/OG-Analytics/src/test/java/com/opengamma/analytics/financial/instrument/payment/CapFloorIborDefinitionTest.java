@@ -125,30 +125,6 @@ public class CapFloorIborDefinitionTest {
     CapFloorIborDefinition.from(null, STRIKE, IS_CAP);
   }
 
-  @SuppressWarnings("deprecation")
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullDateInConversion2Deprecated() {
-    IBOR_CAP.toDerivative(null, HIGH_FIXING_TS, new String[] {"A", "S" });
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullNamesInConversion2Deprecated() {
-    IBOR_CAP.toDerivative(REFERENCE_DATE, HIGH_FIXING_TS, (String[]) null);
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testInsufficientNamesInConversion2Deprecated() {
-    IBOR_CAP.toDerivative(REFERENCE_DATE, HIGH_FIXING_TS, new String[0]);
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullTSDeprecated() {
-    IBOR_CAP.toDerivative(FIXING_DATE, null, new String[] {"E", "R" });
-  }
-
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDateInConversion1() {
     IBOR_CAP.toDerivative(null);
@@ -167,34 +143,6 @@ public class CapFloorIborDefinitionTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullTS() {
     IBOR_CAP.toDerivative(FIXING_DATE, (DoubleTimeSeries<ZonedDateTime>) null);
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test
-  public void testToDerivativeAfterFixingDeprecated() {
-    final ZonedDateTime date = FIXING_DATE.plusDays(3);
-    final DayCount actAct = DayCounts.ACT_ACT_ISDA;
-    double paymentTime = actAct.getDayCountFraction(date, PAYMENT_DATE);
-    final String fundingCurve = "Funding";
-    final String forwardCurve = "Forward";
-    final String[] curves = {fundingCurve, forwardCurve };
-    CouponFixed expectedFixedCoupon = new CouponFixed(CUR, paymentTime, fundingCurve, ACCRUAL_FACTOR, NOTIONAL, HIGH_FIXING_RATE - STRIKE);
-    assertEquals(expectedFixedCoupon, IBOR_CAP.toDerivative(date, HIGH_FIXING_TS, curves));
-    expectedFixedCoupon = new CouponFixed(CUR, paymentTime, fundingCurve, ACCRUAL_FACTOR, NOTIONAL, 0);
-    assertEquals(expectedFixedCoupon, IBOR_CAP.toDerivative(date, LOW_FIXING_TS, curves));
-    expectedFixedCoupon = new CouponFixed(CUR, paymentTime, fundingCurve, ACCRUAL_FACTOR, NOTIONAL, 0);
-    assertEquals(expectedFixedCoupon, IBOR_FLOOR.toDerivative(date, HIGH_FIXING_TS, curves));
-    expectedFixedCoupon = new CouponFixed(CUR, paymentTime, fundingCurve, ACCRUAL_FACTOR, NOTIONAL, STRIKE - LOW_FIXING_RATE);
-    assertEquals(expectedFixedCoupon, IBOR_FLOOR.toDerivative(date, LOW_FIXING_TS, curves));
-    paymentTime = actAct.getDayCountFraction(FIXING_DATE, PAYMENT_DATE);
-    expectedFixedCoupon = new CouponFixed(CUR, paymentTime, fundingCurve, ACCRUAL_FACTOR, NOTIONAL, HIGH_FIXING_RATE - STRIKE);
-    assertEquals(expectedFixedCoupon, IBOR_CAP.toDerivative(FIXING_DATE, HIGH_FIXING_TS, curves));
-    expectedFixedCoupon = new CouponFixed(CUR, paymentTime, fundingCurve, ACCRUAL_FACTOR, NOTIONAL, 0);
-    assertEquals(expectedFixedCoupon, IBOR_CAP.toDerivative(FIXING_DATE, LOW_FIXING_TS, curves));
-    expectedFixedCoupon = new CouponFixed(CUR, paymentTime, fundingCurve, ACCRUAL_FACTOR, NOTIONAL, 0);
-    assertEquals(expectedFixedCoupon, IBOR_FLOOR.toDerivative(FIXING_DATE, HIGH_FIXING_TS, curves));
-    expectedFixedCoupon = new CouponFixed(CUR, paymentTime, fundingCurve, ACCRUAL_FACTOR, NOTIONAL, STRIKE - LOW_FIXING_RATE);
-    assertEquals(expectedFixedCoupon, IBOR_FLOOR.toDerivative(FIXING_DATE, LOW_FIXING_TS, curves));
   }
 
   @Test

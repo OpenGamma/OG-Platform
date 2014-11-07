@@ -47,16 +47,6 @@ public class BondCapitalIndexedTransactionDefinition<C extends CouponDefinition>
 
   //TODO: from clean price adjusted monthly (for UK linked-gilts pre-2005).
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public BondCapitalIndexedTransaction<Coupon> toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> data, final String... yieldCurveNames) {
-    return toDerivative(date, data);
-  }
-
   @Override
   public BondCapitalIndexedTransaction<Coupon> toDerivative(final ZonedDateTime date) {
     final ImmutableZonedDateTimeDoubleTimeSeries series = ImmutableZonedDateTimeDoubleTimeSeries.ofEmpty(ZoneOffset.UTC);

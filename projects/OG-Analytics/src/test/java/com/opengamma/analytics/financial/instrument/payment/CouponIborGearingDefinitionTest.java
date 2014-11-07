@@ -216,20 +216,4 @@ public class CouponIborGearingDefinitionTest {
     assertEquals("CouponIborGearingDefinition: toDerivative", coupon2, couponConverted3);
   }
 
-  @SuppressWarnings("deprecation")
-  @Test
-  /**
-   * Tests the toDerivative method where the fixing date before the current date.
-   */
-  public void testToDerivativeAfterFixingDeprecated() {
-    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 5, 23);
-    final double paymentTime = TimeCalculator.getTimeBetween(referenceDate, ACCRUAL_END_DATE);
-    final String fundingCurve = "Funding";
-    final String forwardCurve = "Forward";
-    final String[] curves = {fundingCurve, forwardCurve };
-    final CouponFixed coupon = new CouponFixed(CUR, paymentTime, fundingCurve, ACCRUAL_FACTOR, NOTIONAL, FIXING_RATE * FACTOR + SPREAD);
-    final Payment couponConverted = COUPON_DEFINITION.toDerivative(referenceDate, FIXING_TS, curves);
-    assertEquals("CouponIborGearingDefinition: toDerivative", coupon, couponConverted);
-  }
-
 }

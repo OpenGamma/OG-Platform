@@ -32,17 +32,6 @@ public class InterestRateFutureOptionMarginTransactionDefinition extends Futures
     super(underlyingOption, quantity, tradeDate, tradePrice);
   }
 
-  /**
-   * The lastMarginPrice is the last closing price used for margining. It is usually the official closing price of the previous business day.
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public InterestRateFutureOptionMarginTransaction toDerivative(final ZonedDateTime dateTime, final Double lastMarginPrice, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException();
-  }
-
   @Override
   public InterestRateFutureOptionMarginTransaction toDerivative(final ZonedDateTime date) {
     throw new UnsupportedOperationException("The method toDerivative of InterestRateTransactionDefinition does not support the two argument method (without margin price data).");

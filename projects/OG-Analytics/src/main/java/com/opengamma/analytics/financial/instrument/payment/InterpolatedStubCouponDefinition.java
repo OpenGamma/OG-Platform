@@ -79,11 +79,6 @@ public final class InterpolatedStubCouponDefinition extends CouponDefinition imp
   }
 
   @Override
-  public Payment toDerivative(ZonedDateTime date, DoubleTimeSeries<ZonedDateTime> data, String... yieldCurveNames) {
-    throw new UnsupportedOperationException("InterpolatedStubCouponDefinition does not support toDerivative with yield curve name - deprecated method");
-  }
-
-  @Override
   public Payment toDerivative(ZonedDateTime date) {
     Payment fullCoupon = _fullCoupon.toDerivative(date);
     

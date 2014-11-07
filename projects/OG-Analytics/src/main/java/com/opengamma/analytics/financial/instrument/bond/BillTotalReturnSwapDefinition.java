@@ -92,8 +92,4 @@ public class BillTotalReturnSwapDefinition extends TotalReturnSwapDefinition {
     return new BillTotalReturnSwap(effectiveTime, terminationTime, fundingLeg, bill, _quantity);
   }
 
-  @Override
-  public BondTotalReturnSwap toDerivative(final ZonedDateTime date, final ZonedDateTimeDoubleTimeSeries data, final String... yieldCurveNames) {
-    throw new NotImplementedException("toDerivative with curve name not implemented for Bill TRS.");
-  }
 }

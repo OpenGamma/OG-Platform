@@ -114,16 +114,6 @@ public class AnnuityCouponIborRatchetDefinition extends AnnuityCouponDefinition<
     return new AnnuityCouponIborRatchetDefinition(coupons, calendar);
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public AnnuityCouponIborRatchet toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTS, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException();
-  }
-
   @Override
   public AnnuityCouponIborRatchet toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTS) {
     ArgumentChecker.notNull(date, "date");

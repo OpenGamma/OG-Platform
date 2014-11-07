@@ -170,9 +170,6 @@ public class FutureFunctions extends AbstractFunctionConfigurationBean {
 
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
-    functions.add(functionConfiguration(BondFutureGrossBasisFromCurvesFunction.class));
-    functions.add(functionConfiguration(BondFutureNetBasisFromCurvesFunction.class));
-
     functions.add(functionConfiguration(FutureSecurityDeltaFunction.class));
     functions.add(functionConfiguration(FutureSecurityValueDeltaFunction.class));
     // TODO: add functions from package

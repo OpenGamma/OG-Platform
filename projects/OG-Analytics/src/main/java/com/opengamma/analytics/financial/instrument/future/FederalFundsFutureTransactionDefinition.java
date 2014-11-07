@@ -40,30 +40,6 @@ public class FederalFundsFutureTransactionDefinition extends FuturesTransactionD
   }
 
   /**
-   * @param date The reference date.
-   * @param data Two time series. The first one with the ON index fixing; the second one with the future closing (margining) prices.
-   * @param yieldCurveNames The yield curve names
-   * The last closing price at a date strictly before "date" is used as last closing.
-   * @return The derivative form
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public FederalFundsFutureTransaction toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime>[] data, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(date, "Date");
-    ArgumentChecker.isTrue(data.length >= 2, "At least two time series: ON index and future closing");
-    final FederalFundsFutureSecurity underlying = getUnderlyingSecurity().toDerivative(date, data[0], yieldCurveNames);
-    if (getTradeDate().equals(date)) {
-      return new FederalFundsFutureTransaction(underlying, getQuantity(), getTradePrice());
-    }
-    final DoubleTimeSeries<ZonedDateTime> pastClosing = data[1].subSeries(date.minusMonths(1), date);
-    ArgumentChecker.isTrue(!pastClosing.isEmpty(), "No closing price"); // There should be at least one recent margining.
-    final double lastMargin = pastClosing.getLatestValue();
-    return new FederalFundsFutureTransaction(underlying, getQuantity(), lastMargin);
-  }
-
-  /**
    * {@inheritDoc}
    * @param dateTime The reference date and time.
    * @param data One or two time series. The first one is mandatory (not null) and contains with the ON index fixing.

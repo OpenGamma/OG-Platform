@@ -99,22 +99,6 @@ public class SwapIborIborDefinition extends SwapDefinition {
     return visitor.visitSwapIborIborDefinition(this);
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public Swap<Coupon, Coupon> toDerivative(final ZonedDateTime date, final ZonedDateTimeDoubleTimeSeries[] indexDataTS, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(indexDataTS, "index data time series array");
-    ArgumentChecker.isTrue(indexDataTS.length > 1, "index data time series must contain at least two elements");
-    final String[] firstLegCurveNames = new String[] {yieldCurveNames[0], yieldCurveNames[1] };
-    final String[] secondLegCurveNames = new String[] {yieldCurveNames[0], yieldCurveNames[2] };
-    final Annuity<Coupon> firstLeg = getFirstLeg().toDerivative(date, indexDataTS[0], firstLegCurveNames);
-    final Annuity<Coupon> secondLeg = getSecondLeg().toDerivative(date, indexDataTS[1], secondLegCurveNames);
-    return new Swap<>(firstLeg, secondLeg);
-  }
-
   @Override
   public Swap<Coupon, Coupon> toDerivative(final ZonedDateTime date) {
     final Annuity<Coupon> firstLeg = getFirstLeg().toDerivative(date);

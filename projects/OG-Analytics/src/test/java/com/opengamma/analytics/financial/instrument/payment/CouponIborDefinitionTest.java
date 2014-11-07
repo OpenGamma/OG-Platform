@@ -116,12 +116,6 @@ public class CouponIborDefinitionTest {
     CouponIborDefinition.from(FIXING_DATE.minusDays(1), ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE, INDEX, CALENDAR);
   }
 
-  @SuppressWarnings("deprecation")
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testConversionNullFixingDataDeprecated() {
-    IBOR_COUPON_DEFINITION.toDerivative(FIXING_DATE, null, new String[] {"A", "S" });
-  }
-
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testConversionAfterFixingNoData() {
     IBOR_COUPON_DEFINITION.toDerivative(FIXING_DATE.plusDays(3));
@@ -231,22 +225,6 @@ public class CouponIborDefinitionTest {
     assertEquals("CouponIborDefinition: toDerivative", coupon2, couponConverted2);
     final Payment couponConverted3 = IBOR_COUPON_DEFINITION.toDerivative(referenceDate);
     assertEquals("CouponIborDefinition: toDerivative", coupon2, couponConverted3);
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test
-  /**
-   * Tests the toDerivative method where the fixing date before the current date.
-   */
-  public void testToDerivativeAfterFixingDeprecated() {
-    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 1, 10, 12, 0);
-    final double paymentTime = TimeCalculator.getTimeBetween(referenceDate, IBOR_COUPON_DEFINITION.getPaymentDate());
-    final String fundingCurve = "Funding";
-    final String forwardCurve = "Forward";
-    final String[] curves = {fundingCurve, forwardCurve };
-    final CouponFixed coupon = new CouponFixed(CUR, paymentTime, fundingCurve, ACCRUAL_FACTOR, NOTIONAL, FIXING_RATE);
-    final Payment couponConverted = IBOR_COUPON_DEFINITION.toDerivative(referenceDate, FIXING_TS, curves);
-    assertEquals("CouponIborDefinition: toDerivative", coupon, couponConverted);
   }
 
 }

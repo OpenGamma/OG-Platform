@@ -35,11 +35,6 @@ public class EquityIndexFutureDefinition extends IndexFutureDefinition {
   }
 
   @Override
-  public EquityIndexFuture toDerivative(final ZonedDateTime date, final Double referencePrice, final String... yieldCurveNames) {
-    return toDerivative(date, referencePrice);
-  }
-
-  @Override
   public EquityIndexFuture toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "date");
     final double timeToFixing = TimeCalculator.getTimeBetween(date, getExpiryDate());

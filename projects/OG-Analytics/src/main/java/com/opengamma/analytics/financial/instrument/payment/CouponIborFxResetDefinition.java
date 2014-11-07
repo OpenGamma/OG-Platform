@@ -270,18 +270,6 @@ public class CouponIborFxResetDefinition extends CouponDefinition implements
 
   /**
    * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Override
-  @Deprecated
-  public Payment toDerivative(ZonedDateTime dateTime, DoubleTimeSeries<ZonedDateTime>[] timeSeries,
-      String... yieldCurveNames) {
-    throw new UnsupportedOperationException(
-        "CouponIborFxResetDefinition does not support toDerivative with yield curve name - deprecated method");
-  }
-
-  /**
-   * {@inheritDoc}
    * @param timeSeries Array of timeSeries: timeSeries[0] is index fixing time series, timeSeries[1] is fx fixing time series
    */
   @Override

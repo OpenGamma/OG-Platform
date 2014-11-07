@@ -184,58 +184,6 @@ public class AnnuityCouponIborDefinitionTest {
     assertFalse(iborAnnuity.equals(modifiedIborAnnuity));
   }
 
-  @SuppressWarnings("deprecation")
-  @Test
-  public void testToDerivativeAfterFixingDeprecated() {
-    final String fundingCurve = "Funding";
-    final String forwardCurve = "Forward";
-    final String[] curves = {fundingCurve, forwardCurve };
-    final Payment[] couponIborConverted = new Payment[PAYMENT_DATES.length];
-    ZonedDateTime date = REFERENCE_DATE.plusMonths(1);
-    for (int loopcpn = 0; loopcpn < PAYMENT_DATES.length; loopcpn++) {
-      couponIborConverted[loopcpn] = IBOR_ANNUITY.getNthPayment(loopcpn).toDerivative(date, FIXING_TS, curves);
-    }
-    Annuity<Payment> referenceAnnuity = new Annuity<>(couponIborConverted);
-    Annuity<? extends Payment> convertedDefinition = IBOR_ANNUITY.toDerivative(date, FIXING_TS, curves);
-    assertEquals(referenceAnnuity, convertedDefinition);
-    assertTrue(convertedDefinition.getNthPayment(0) instanceof CouponFixed);
-    assertEquals(((CouponFixed) convertedDefinition.getNthPayment(0)).getFixedRate(), FIXING_RATE, 0);
-    for (int i = 1; i < PAYMENT_DATES.length; i++) {
-      assertTrue(convertedDefinition.getNthPayment(i) instanceof CouponIbor);
-    }
-    date = REFERENCE_DATE;
-    for (int loopcpn = 0; loopcpn < PAYMENT_DATES.length; loopcpn++) {
-      couponIborConverted[loopcpn] = IBOR_ANNUITY.getNthPayment(loopcpn).toDerivative(date, FIXING_TS, curves);
-    }
-    referenceAnnuity = new Annuity<>(couponIborConverted);
-    convertedDefinition = IBOR_ANNUITY.toDerivative(date, FIXING_TS, curves);
-    assertEquals(referenceAnnuity, convertedDefinition);
-    assertTrue(convertedDefinition.getNthPayment(0) instanceof CouponFixed);
-    assertEquals(((CouponFixed) convertedDefinition.getNthPayment(0)).getFixedRate(), FIXING_RATE, 0);
-    for (int i = 1; i < PAYMENT_DATES.length; i++) {
-      assertTrue(convertedDefinition.getNthPayment(i) instanceof CouponIbor);
-    }
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test
-  public void testToDerivativeBeforeFixingDeprecated() {
-    final String fundingCurve = "Funding";
-    final String forwardCurve = "Forward";
-    final String[] curves = {fundingCurve, forwardCurve };
-    final Payment[] couponIborConverted = new Payment[PAYMENT_DATES.length];
-    final ZonedDateTime date = REFERENCE_DATE.minusDays(1);
-    for (int loopcpn = 0; loopcpn < PAYMENT_DATES.length; loopcpn++) {
-      couponIborConverted[loopcpn] = IBOR_ANNUITY.getNthPayment(loopcpn).toDerivative(date, FIXING_TS, curves);
-    }
-    final Annuity<Payment> referenceAnnuity = new Annuity<>(couponIborConverted);
-    final Annuity<? extends Payment> convertedDefinition = IBOR_ANNUITY.toDerivative(date, FIXING_TS, curves);
-    assertEquals(referenceAnnuity, convertedDefinition);
-    for (int i = 0; i < PAYMENT_DATES.length; i++) {
-      assertTrue(convertedDefinition.getNthPayment(i) instanceof CouponIbor);
-    }
-  }
-
   @Test
   public void testToDerivativeAfterFixing() {
     final Payment[] couponIborConverted = new Payment[PAYMENT_DATES.length];

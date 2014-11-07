@@ -17,7 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
-import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
@@ -365,7 +364,7 @@ public class FixedIncomeConverterDataProvider {
         final HistoricalTimeSeriesBundle timeSeries) {
       // TODO [PLAT-5402] Change to security/transaction object.
       final Double referencePrice = 0.0;
-      return definition.toDerivative(now, referencePrice, curveNames);
+      return definition.toDerivative(now, referencePrice);
     }
 
     @Override
@@ -405,7 +404,7 @@ public class FixedIncomeConverterDataProvider {
       localDateTS = localDateTS.divide(100);
       final ZonedDateTimeDoubleTimeSeries indexTS = convertTimeSeries(localDateTS);
       // TODO: remove the zone
-      return definition.toDerivative(now, indexTS, curveNames);
+      return definition.toDerivative(now, indexTS);
     }
 
     @SuppressWarnings("synthetic-access")
@@ -453,7 +452,7 @@ public class FixedIncomeConverterDataProvider {
       localDateTS = localDateTS.divide(100);
       final ZonedDateTimeDoubleTimeSeries indexTS = convertTimeSeries(localDateTS);
       // TODO: remove the zone
-      return definition.toDerivative(now, indexTS, curveNames);
+      return definition.toDerivative(now, indexTS);
     }
 
     @SuppressWarnings("synthetic-access")
@@ -499,7 +498,7 @@ public class FixedIncomeConverterDataProvider {
       localDateTS = localDateTS.divide(100);
       @SuppressWarnings("synthetic-access")
       final ZonedDateTimeDoubleTimeSeries indexTS = convertTimeSeries(localDateTS);
-      return definition.toDerivative(now, indexTS, curveNames);
+      return definition.toDerivative(now, indexTS);
     }
 
     @Override
@@ -540,7 +539,7 @@ public class FixedIncomeConverterDataProvider {
         final HistoricalTimeSeriesBundle timeSeries) {
       final ExternalId id = security.getUnderlyingId();
       final ZonedDateTimeDoubleTimeSeries indexTS = getIndexTimeSeries(getIndexSwapIdBundle(id), timeSeries);
-      return definition.toDerivative(now, indexTS, curveNames);
+      return definition.toDerivative(now, indexTS);
     }
 
     @SuppressWarnings("synthetic-access")
@@ -569,10 +568,9 @@ public class FixedIncomeConverterDataProvider {
         final HistoricalTimeSeriesBundle timeSeries) {
       final double lastMarginPrice = getLatestMarketValue(timeSeries, security);
       if (curveNames.length == 1) {
-        final String[] singleCurve = new String[] {curveNames[0], curveNames[0] };
-        return definition.toDerivative(now, lastMarginPrice, singleCurve);
+        return definition.toDerivative(now, lastMarginPrice);
       }
-      return definition.toDerivative(now, lastMarginPrice, curveNames);
+      return definition.toDerivative(now, lastMarginPrice);
     }
 
     @Override
@@ -712,7 +710,7 @@ public class FixedIncomeConverterDataProvider {
         final ZonedDateTime valuationTime,
         final String[] curveNames, final HistoricalTimeSeriesBundle timeSeries) {
       double lastMarginPrice = getLastMarginPrice(security, definition, valuationTime, timeSeries);
-      return definition.toDerivative(valuationTime, lastMarginPrice, curveNames);
+      return definition.toDerivative(valuationTime, lastMarginPrice);
     }
 
     @Override
@@ -779,7 +777,7 @@ public class FixedIncomeConverterDataProvider {
       if (payLegTS != null) {
         if (receiveLegTS != null) {
           try {
-            return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {payLegTS, receiveLegTS }, curveNames);
+            return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {payLegTS, receiveLegTS });
           } catch (final OpenGammaRuntimeException e) {
             final ExternalId id = ((FloatingInterestRateLeg) payLeg).getFloatingReferenceRateId();
             throw new OpenGammaRuntimeException("Could not get fixing value for series with identifier " + id +
@@ -788,10 +786,10 @@ public class FixedIncomeConverterDataProvider {
         }
         if ((InterestRateInstrumentType.getInstrumentTypeFromSecurity(security) == InterestRateInstrumentType.SWAP_FIXED_CMS)
             || (InterestRateInstrumentType.getInstrumentTypeFromSecurity(security) == InterestRateInstrumentType.SWAP_CROSS_CURRENCY)) {
-          return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {payLegTS, payLegTS }, curveNames);
+          return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {payLegTS, payLegTS });
         }
         try {
-          return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {payLegTS }, curveNames);
+          return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {payLegTS });
         } catch (final OpenGammaRuntimeException e) {
           final ExternalId id = ((FloatingInterestRateLeg) payLeg).getFloatingReferenceRateId();
           throw new OpenGammaRuntimeException("Could not get fixing value for series with identifier " + id +
@@ -802,7 +800,7 @@ public class FixedIncomeConverterDataProvider {
         if ((InterestRateInstrumentType.getInstrumentTypeFromSecurity(security) == InterestRateInstrumentType.SWAP_FIXED_CMS)
             || (InterestRateInstrumentType.getInstrumentTypeFromSecurity(security) == InterestRateInstrumentType.SWAP_CROSS_CURRENCY)) {
           try {
-            return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {receiveLegTS, receiveLegTS }, curveNames);
+            return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {receiveLegTS, receiveLegTS });
           } catch (final OpenGammaRuntimeException e) {
             final ExternalId id = ((FloatingInterestRateLeg) payLeg).getFloatingReferenceRateId();
             throw new OpenGammaRuntimeException("Could not get fixing value for series with identifier " + id +
@@ -810,7 +808,7 @@ public class FixedIncomeConverterDataProvider {
           }
         }
         try {
-          return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {receiveLegTS }, curveNames);
+          return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {receiveLegTS });
         } catch (final OpenGammaRuntimeException e) {
           final ExternalId id = ((FloatingInterestRateLeg) receiveLeg).getFloatingReferenceRateId();
           throw new OpenGammaRuntimeException("Could not get fixing value for series with identifier " + id +
@@ -913,7 +911,7 @@ public class FixedIncomeConverterDataProvider {
       final ZonedDateTimeDoubleTimeSeries indexLongTS = getIndexTimeSeries(getIndexSwapIdBundle(longId), timeSeries);
       final ZonedDateTimeDoubleTimeSeries indexShortTS = getIndexTimeSeries(getIndexSwapIdBundle(shortId), timeSeries);
       final ZonedDateTimeDoubleTimeSeries indexSpreadTS = indexLongTS.subtract(indexShortTS);
-      return definition.toDerivative(now, indexSpreadTS, curveNames);
+      return definition.toDerivative(now, indexSpreadTS);
     }
 
     @SuppressWarnings("synthetic-access")
@@ -967,7 +965,7 @@ public class FixedIncomeConverterDataProvider {
           if (payLegTS != null) {
             if (receiveLegTS != null) {
               try {
-                return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {payLegTS, receiveLegTS }, curveNames);
+                return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {payLegTS, receiveLegTS });
               } catch (final OpenGammaRuntimeException e) {
                 final ExternalId id = ((InflationIndexSwapLeg) payLeg).getIndexId();
                 throw new OpenGammaRuntimeException("Could not get fixing value for series with identifier " + id +
@@ -975,7 +973,7 @@ public class FixedIncomeConverterDataProvider {
               }
             }
             try {
-              return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {payLegTS }, curveNames);
+              return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {payLegTS });
             } catch (final OpenGammaRuntimeException e) {
               final ExternalId id = ((InflationIndexSwapLeg) payLeg).getIndexId();
               throw new OpenGammaRuntimeException("Could not get fixing value for series with identifier " + id +
@@ -984,7 +982,7 @@ public class FixedIncomeConverterDataProvider {
           }
           if (receiveLegTS != null) {
             try {
-              return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {receiveLegTS }, curveNames);
+              return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {receiveLegTS });
             } catch (final OpenGammaRuntimeException e) {
               final ExternalId id = ((InflationIndexSwapLeg) receiveLeg).getIndexId();
               throw new OpenGammaRuntimeException("Could not get fixing value for series with identifier " + id +
@@ -1080,7 +1078,7 @@ public class FixedIncomeConverterDataProvider {
           if (payLegTS != null) {
             if (receiveLegTS != null) {
               try {
-                return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {payLegTS, receiveLegTS }, curveNames);
+                return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {payLegTS, receiveLegTS });
               } catch (final OpenGammaRuntimeException e) {
                 final ExternalId id = ((InflationIndexSwapLeg) payLeg).getIndexId();
                 throw new OpenGammaRuntimeException("Could not get fixing value for series with identifier " + id +
@@ -1088,7 +1086,7 @@ public class FixedIncomeConverterDataProvider {
               }
             }
             try {
-              return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {payLegTS }, curveNames);
+              return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {payLegTS });
             } catch (final OpenGammaRuntimeException e) {
               final ExternalId id = ((InflationIndexSwapLeg) payLeg).getIndexId();
               throw new OpenGammaRuntimeException("Could not get fixing value for series with identifier " + id +
@@ -1097,7 +1095,7 @@ public class FixedIncomeConverterDataProvider {
           }
           if (receiveLegTS != null) {
             try {
-              return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {receiveLegTS }, curveNames);
+              return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {receiveLegTS });
             } catch (final OpenGammaRuntimeException e) {
               final ExternalId id = ((InflationIndexSwapLeg) receiveLeg).getIndexId();
               throw new OpenGammaRuntimeException("Could not get fixing value for series with identifier " + id +
@@ -1163,7 +1161,6 @@ public class FixedIncomeConverterDataProvider {
     public InstrumentDerivative convert(final Security security, final InstrumentDefinition<?> definition, final ZonedDateTime now, final String[] curveNames,
         final HistoricalTimeSeriesBundle timeSeries) {
       if (curveNames.length == 1) {
-        final String[] singleCurve = new String[] {curveNames[0], curveNames[0] };
         return definition.toDerivative(now);
       }
       return definition.toDerivative(now);
@@ -1332,7 +1329,7 @@ public class FixedIncomeConverterDataProvider {
       if (payLegTS != null) {
         if (receiveLegTS != null) {
           try {
-            return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {payLegTS, receiveLegTS }, curveNames);
+            return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {payLegTS, receiveLegTS });
           } catch (final OpenGammaRuntimeException e) {
             final ExternalId id = ((FloatingInterestRateSwapLeg) payLeg).getFloatingReferenceRateId();
             throw new OpenGammaRuntimeException("Could not get fixing value for series with identifier " + id +
@@ -1341,10 +1338,10 @@ public class FixedIncomeConverterDataProvider {
         }
         if ((InterestRateInstrumentType.getInstrumentTypeFromSecurity(security) == InterestRateInstrumentType.SWAP_FIXED_CMS)
             || (InterestRateInstrumentType.getInstrumentTypeFromSecurity(security) == InterestRateInstrumentType.SWAP_CROSS_CURRENCY)) {
-          return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {payLegTS, payLegTS }, curveNames);
+          return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {payLegTS, payLegTS });
         }
         try {
-          return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {payLegTS, payLegTS }, curveNames);
+          return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {payLegTS, payLegTS });
         } catch (final OpenGammaRuntimeException e) {
           final ExternalId id = ((FloatingInterestRateSwapLeg) payLeg).getFloatingReferenceRateId();
           throw new OpenGammaRuntimeException("Could not get fixing value for series with identifier " + id +
@@ -1355,7 +1352,7 @@ public class FixedIncomeConverterDataProvider {
         if ((InterestRateInstrumentType.getInstrumentTypeFromSecurity(security) == InterestRateInstrumentType.SWAP_FIXED_CMS)
             || (InterestRateInstrumentType.getInstrumentTypeFromSecurity(security) == InterestRateInstrumentType.SWAP_CROSS_CURRENCY)) {
           try {
-            return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {receiveLegTS, receiveLegTS }, curveNames);
+            return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {receiveLegTS, receiveLegTS });
           } catch (final OpenGammaRuntimeException e) {
             final ExternalId id = ((FloatingInterestRateSwapLeg) payLeg).getFloatingReferenceRateId();
             throw new OpenGammaRuntimeException("Could not get fixing value for series with identifier " + id +
@@ -1363,7 +1360,7 @@ public class FixedIncomeConverterDataProvider {
           }
         }
         try {
-          return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {receiveLegTS, receiveLegTS }, curveNames);
+          return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {receiveLegTS, receiveLegTS });
         } catch (final OpenGammaRuntimeException e) {
           final ExternalId id = ((FloatingInterestRateSwapLeg) receiveLeg).getFloatingReferenceRateId();
           throw new OpenGammaRuntimeException("Could not get fixing value for series with identifier " + id +
@@ -1478,7 +1475,7 @@ public class FixedIncomeConverterDataProvider {
       if (payLegTS != null) {
         if (receiveLegTS != null) {
           try {
-            return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {payLegTS, receiveLegTS }, curveNames);
+            return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {payLegTS, receiveLegTS });
           } catch (final OpenGammaRuntimeException e) {
             final ExternalId id = ((FloatingInterestRateSwapLeg) payLeg).getFloatingReferenceRateId();
             throw new OpenGammaRuntimeException("Could not get fixing value for series with identifier " + id +
@@ -1487,10 +1484,10 @@ public class FixedIncomeConverterDataProvider {
         }
         if ((InterestRateInstrumentType.getInstrumentTypeFromSecurity(security) == InterestRateInstrumentType.SWAP_FIXED_CMS)
             || (InterestRateInstrumentType.getInstrumentTypeFromSecurity(security) == InterestRateInstrumentType.SWAP_CROSS_CURRENCY)) {
-          return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {payLegTS, payLegTS }, curveNames);
+          return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {payLegTS, payLegTS });
         }
         try {
-          return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {payLegTS, payLegTS }, curveNames);
+          return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {payLegTS, payLegTS });
         } catch (final OpenGammaRuntimeException e) {
           final ExternalId id = ((FloatingInterestRateSwapLeg) payLeg).getFloatingReferenceRateId();
           throw new OpenGammaRuntimeException("Could not get fixing value for series with identifier " + id +
@@ -1501,7 +1498,7 @@ public class FixedIncomeConverterDataProvider {
         if ((InterestRateInstrumentType.getInstrumentTypeFromSecurity(security) == InterestRateInstrumentType.SWAP_FIXED_CMS)
             || (InterestRateInstrumentType.getInstrumentTypeFromSecurity(security) == InterestRateInstrumentType.SWAP_CROSS_CURRENCY)) {
           try {
-            return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {receiveLegTS, receiveLegTS }, curveNames);
+            return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {receiveLegTS, receiveLegTS });
           } catch (final OpenGammaRuntimeException e) {
             final ExternalId id = ((FloatingInterestRateSwapLeg) payLeg).getFloatingReferenceRateId();
             throw new OpenGammaRuntimeException("Could not get fixing value for series with identifier " + id +
@@ -1509,7 +1506,7 @@ public class FixedIncomeConverterDataProvider {
           }
         }
         try {
-          return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {receiveLegTS, receiveLegTS }, curveNames);
+          return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {receiveLegTS, receiveLegTS });
         } catch (final OpenGammaRuntimeException e) {
           final ExternalId id = ((FloatingInterestRateSwapLeg) receiveLeg).getFloatingReferenceRateId();
           throw new OpenGammaRuntimeException("Could not get fixing value for series with identifier " + id +
@@ -1650,9 +1647,9 @@ public class FixedIncomeConverterDataProvider {
           final double lastMarginPrice = getLatestMarketValue(timeSeries, security);
           if (curveNames.length == 1) {
             final String[] singleCurve = new String[] {curveNames[0], curveNames[0] };
-            return definition.toDerivative(now, lastMarginPrice, singleCurve);
+            return definition.toDerivative(now, lastMarginPrice);
           }
-          return definition.toDerivative(now, lastMarginPrice, curveNames);
+          return definition.toDerivative(now, lastMarginPrice);
         }
 
         @Override

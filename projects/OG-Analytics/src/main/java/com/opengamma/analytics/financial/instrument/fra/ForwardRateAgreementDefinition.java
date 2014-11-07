@@ -290,51 +290,6 @@ public class ForwardRateAgreementDefinition extends CouponFloatingDefinition {
     return visitor.visitForwardRateAgreementDefinition(this);
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public Payment toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(date, "date");
-    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
-    ArgumentChecker.isTrue(yieldCurveNames.length > 1, "at least one curve required");
-    ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
-    final String fundingCurveName = yieldCurveNames[0];
-    final String forwardCurveName = yieldCurveNames[1];
-    final ZonedDateTime zonedDate = date.toLocalDate().atStartOfDay(ZoneOffset.UTC);
-    double paymentTime = TimeCalculator.getTimeBetween(zonedDate, getPaymentDate());
-    if (date.isAfter(getFixingDate()) || (date.equals(getFixingDate()))) {
-      Double fixedRate = indexFixingTimeSeries.getValue(getFixingDate());
-      //TODO remove me when times are sorted out in the swap definitions or we work out how to deal with this another way
-      if (fixedRate == null) {
-        final ZonedDateTime fixingDateAtLiborFixingTime = getFixingDate().with(LocalTime.of(11, 0));
-        fixedRate = indexFixingTimeSeries.getValue(fixingDateAtLiborFixingTime);
-      }
-      if (fixedRate == null) {
-        final ZonedDateTime previousBusinessDay = PRECEDING_BDC.adjustDate(_calendar, getFixingDate().minusDays(1));
-        fixedRate = indexFixingTimeSeries.getValue(previousBusinessDay);
-        //TODO remove me when times are sorted out in the swap definitions or we work out how to deal with this another way
-        if (fixedRate == null) {
-          final ZonedDateTime previousBusinessDayAtLiborFixingTime = previousBusinessDay.with(LocalTime.of(11, 0));
-          fixedRate = indexFixingTimeSeries.getValue(previousBusinessDayAtLiborFixingTime);
-        }
-        if (fixedRate == null) {
-          throw new OpenGammaRuntimeException("Could not get fixing value for date " + getFixingDate());
-        }
-      }
-      return new CouponFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), fixedRate - _rate);
-    }
-
-    // Ibor is not fixed yet, all the details are required.
-    double fixingTime = TimeCalculator.getTimeBetween(zonedDate, getFixingDate());
-    double fixingPeriodStartTime = TimeCalculator.getTimeBetween(zonedDate, getFixingPeriodStartDate());
-    double fixingPeriodEndTime = TimeCalculator.getTimeBetween(zonedDate, getFixingPeriodEndDate());
-    return new ForwardRateAgreement(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), _index, fixingTime, fixingPeriodStartTime,
-        fixingPeriodEndTime, getFixingPeriodAccrualFactor(), _rate, forwardCurveName);
-  }
-
   @Override
   public Payment toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "date");

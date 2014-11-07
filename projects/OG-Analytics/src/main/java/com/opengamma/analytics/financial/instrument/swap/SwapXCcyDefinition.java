@@ -37,27 +37,6 @@ public class SwapXCcyDefinition extends SwapDefinition {
    * {@inheritDoc}
    * Convert to derivative version.
    * @param date The system date.
-   * @param yieldCurveNames The yield curve names. The first two curves are used for the first leg. The next two are used for the second leg.
-   * @return The derivative.
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public Swap<Payment, Payment> toDerivative(final ZonedDateTime date, final ZonedDateTimeDoubleTimeSeries[] indexDataTS, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(indexDataTS, "index data time series array");
-    ArgumentChecker.isTrue(indexDataTS.length > 1, "index data time series must contain at least two elements");
-    ArgumentChecker.isTrue(yieldCurveNames.length >= 4, "Should have at least 4 curve names");
-    final String[] firstLegCurveNames = new String[] {yieldCurveNames[0], yieldCurveNames[1] };
-    final String[] secondLegCurveNames = new String[] {yieldCurveNames[2], yieldCurveNames[3] };
-    final Annuity<Payment> firstLeg = (Annuity<Payment>) getFirstLeg().toDerivative(date, indexDataTS[0], firstLegCurveNames);
-    final Annuity<Payment> secondLeg = (Annuity<Payment>) getSecondLeg().toDerivative(date, indexDataTS[1], secondLegCurveNames);
-    return new Swap<>(firstLeg, secondLeg);
-  }
-
-  /**
-   * {@inheritDoc}
-   * Convert to derivative version.
-   * @param date The system date.
    * @return The derivative.
    */
   @Override
