@@ -116,12 +116,6 @@ public class CouponIborDefinitionTest {
     CouponIborDefinition.from(FIXING_DATE.minusDays(1), ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE, INDEX, CALENDAR);
   }
 
-  @SuppressWarnings("deprecation")
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testConversionNullFixingDataDeprecated() {
-    IBOR_COUPON_DEFINITION.toDerivative(FIXING_DATE, null, new String[] {"A", "S" });
-  }
-
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testConversionAfterFixingNoData() {
     IBOR_COUPON_DEFINITION.toDerivative(FIXING_DATE.plusDays(3));
