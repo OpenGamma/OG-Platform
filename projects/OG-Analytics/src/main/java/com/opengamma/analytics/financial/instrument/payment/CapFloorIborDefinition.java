@@ -194,43 +194,7 @@ public class CapFloorIborDefinition extends CouponFloatingDefinition implements 
   @Deprecated
   @Override
   public Coupon toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTS, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(date, "date");
-    ArgumentChecker.notNull(indexFixingTS, "index fixing time series");
-    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
-    ArgumentChecker.isTrue(yieldCurveNames.length > 1, "at least one curve required");
-    ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date " + date + " " + getPaymentDate());
-    final String fundingCurveName = yieldCurveNames[0];
-    final String forwardCurveName = yieldCurveNames[1];
-    final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
-    if (date.isAfter(getFixingDate()) || date.equals(getFixingDate())) { // The Ibor cap/floor has already fixed, it is now a fixed coupon.
-      Double fixedRate = indexFixingTS.getValue(getFixingDate());
-      //TODO remove me when times are sorted out in the swap definitions or we work out how to deal with this another way
-      if (fixedRate == null) {
-        final ZonedDateTime fixingDateAtLiborFixingTime = getFixingDate().with(LocalTime.of(11, 0));
-        fixedRate = indexFixingTS.getValue(fixingDateAtLiborFixingTime);
-      }
-      if (fixedRate == null) {
-        final ZonedDateTime previousBusinessDay = BusinessDayConventions.PRECEDING.adjustDate(_calendar, getFixingDate().minusDays(1));
-        fixedRate = indexFixingTS.getValue(previousBusinessDay);
-        //TODO remove me when times are sorted out in the swap definitions or we work out how to deal with this another way
-        if (fixedRate == null) {
-          final ZonedDateTime previousBusinessDayAtLiborFixingTime = previousBusinessDay.with(LocalTime.of(11, 0));
-          fixedRate = indexFixingTS.getValue(previousBusinessDayAtLiborFixingTime);
-        }
-        if (fixedRate == null) {
-          fixedRate = indexFixingTS.getLatestValue(); //TODO remove me as soon as possible
-          //throw new OpenGammaRuntimeException("Could not get fixing value for date " + getFixingDate());
-        }
-      }
-      return new CouponFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), payOff(fixedRate));
-    }
-    // Ibor is not fixed yet, all the details are required.
-    final double fixingTime = TimeCalculator.getTimeBetween(date, getFixingDate());
-    final double fixingPeriodStartTime = TimeCalculator.getTimeBetween(date, getFixingPeriodStartDate());
-    final double fixingPeriodEndTime = TimeCalculator.getTimeBetween(date, getFixingPeriodEndDate());
-    //TODO: Definition has no spread and time version has one: to be standardized.
-    return new CapFloorIbor(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), fixingTime, getIndex(), fixingPeriodStartTime, fixingPeriodEndTime,
-        getFixingPeriodAccrualFactor(), forwardCurveName, _strike, _isCap);
+    throw new UnsupportedOperationException();
   }
 
   @Override

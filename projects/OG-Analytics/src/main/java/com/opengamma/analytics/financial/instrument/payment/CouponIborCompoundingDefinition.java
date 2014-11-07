@@ -476,54 +476,7 @@ public class CouponIborCompoundingDefinition extends CouponDefinition implements
   @Deprecated
   @Override
   public Coupon toDerivative(final ZonedDateTime dateTime, final DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries, final String... yieldCurveNames) {
-    final LocalDate dateConversion = dateTime.toLocalDate();
-    ArgumentChecker.notNull(indexFixingTimeSeries, "Index fixing time series");
-    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
-    ArgumentChecker.isTrue(yieldCurveNames.length > 1, "at least two curves required");
-    ArgumentChecker.isTrue(!dateConversion.isAfter(getPaymentDate().toLocalDate()), "date is after payment date");
-    final String discountingCurveName = yieldCurveNames[0];
-    final String forwardCurveName = yieldCurveNames[1];
-    final double paymentTime = TimeCalculator.getTimeBetween(dateTime, getPaymentDate());
-    final int nbSubPeriods = _fixingDates.length;
-    int nbFixed = 0;
-    double ratioAccrued = 1.0;
-    while ((nbFixed < nbSubPeriods) && (dateConversion.isAfter(_fixingDates[nbFixed].toLocalDate()))) {
-      final ZonedDateTime rezonedFixingDate = _fixingDates[nbFixed].toLocalDate().atStartOfDay(ZoneOffset.UTC);
-      final Double fixedRate = indexFixingTimeSeries.getValue(rezonedFixingDate);
-      if (fixedRate == null) {
-        throw new OpenGammaRuntimeException("Could not get fixing value for date " + rezonedFixingDate);
-      }
-      ratioAccrued *= 1.0 + _paymentAccrualFactors[nbFixed] * fixedRate;
-      nbFixed++;
-    }
-    if ((nbFixed < nbSubPeriods) && dateConversion.equals(_fixingDates[nbFixed].toLocalDate())) {
-      final ZonedDateTime rezonedFixingDate = _fixingDates[nbFixed].toLocalDate().atStartOfDay(ZoneOffset.UTC);
-      final Double fixedRate = indexFixingTimeSeries.getValue(rezonedFixingDate);
-      if (fixedRate != null) {
-        // Implementation note: on the fixing date and fixing already known.
-        ratioAccrued *= 1.0 + _paymentAccrualFactors[nbFixed] * fixedRate;
-        nbFixed++;
-      }
-    }
-    if (nbFixed == nbSubPeriods) {
-      // Implementation note: all dates already fixed: CouponFixed
-      final double rate = (ratioAccrued - 1.0) / getPaymentYearFraction();
-      return new CouponFixed(getCurrency(), paymentTime, discountingCurveName, getPaymentYearFraction(), getNotional(), rate, getAccrualStartDate(), getAccrualEndDate());
-    }
-    final double notionalAccrued = getNotional() * ratioAccrued;
-    final int nbSubPeriodLeft = nbSubPeriods - nbFixed;
-    final double[] paymentAccrualFactorsLeft = new double[nbSubPeriodLeft];
-    System.arraycopy(_paymentAccrualFactors, nbFixed, paymentAccrualFactorsLeft, 0, nbSubPeriodLeft);
-    final double[] fixingTimesLeft = new double[nbSubPeriodLeft];
-    System.arraycopy(TimeCalculator.getTimeBetween(dateTime, _fixingDates), nbFixed, fixingTimesLeft, 0, nbSubPeriodLeft);
-    final double[] fixingPeriodStartTimesLeft = new double[nbSubPeriodLeft];
-    System.arraycopy(TimeCalculator.getTimeBetween(dateTime, _fixingPeriodStartDates), nbFixed, fixingPeriodStartTimesLeft, 0, nbSubPeriodLeft);
-    final double[] fixingPeriodEndTimesLeft = new double[nbSubPeriodLeft];
-    System.arraycopy(TimeCalculator.getTimeBetween(dateTime, _fixingPeriodEndDates), nbFixed, fixingPeriodEndTimesLeft, 0, nbSubPeriodLeft);
-    final double[] fixingPeriodAccrualFactorsLeft = new double[nbSubPeriodLeft];
-    System.arraycopy(_fixingPeriodAccrualFactors, nbFixed, fixingPeriodAccrualFactorsLeft, 0, nbSubPeriodLeft);
-    return new CouponIborCompounding(getCurrency(), paymentTime, discountingCurveName, getPaymentYearFraction(), getNotional(), notionalAccrued, _index,
-        paymentAccrualFactorsLeft, fixingTimesLeft, fixingPeriodStartTimesLeft, fixingPeriodEndTimesLeft, fixingPeriodAccrualFactorsLeft, forwardCurveName);
+    throw new UnsupportedOperationException();
   }
 
   @Override

@@ -548,7 +548,7 @@ public class CouponIborCompoundingSpreadDefinition extends CouponDefinition impl
   @Deprecated
   @Override
   public Coupon toDerivative(final ZonedDateTime dateTime, final DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries, final String... yieldCurveNames) {
-    return toDerivative(dateTime, indexFixingTimeSeries);
+    throw new UnsupportedOperationException();
   }
 
   @Override

@@ -221,8 +221,7 @@ public class CouponIborRatchetDefinition extends CouponFloatingDefinition {
   @Deprecated
   @Override
   public Payment toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> data, final String... yieldCurveNames) {
-    return null;
-    //TODO: coupon with fixing!
+    throw new UnsupportedOperationException();
   }
 
   @Override

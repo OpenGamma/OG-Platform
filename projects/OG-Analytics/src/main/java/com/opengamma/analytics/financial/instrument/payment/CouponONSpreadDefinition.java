@@ -184,7 +184,7 @@ public class CouponONSpreadDefinition extends CouponDefinition
   @Override
   public Coupon toDerivative(final ZonedDateTime valZdt, final DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries, 
       final String... yieldCurveNames) {
-    return toDerivative(valZdt, indexFixingTimeSeries);
+    throw new UnsupportedOperationException();
   }
 
   @Override

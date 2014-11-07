@@ -264,7 +264,7 @@ public class CouponIborAverageFixingDatesDefinition extends CouponDefinition imp
   @Override
   @Deprecated
   public Coupon toDerivative(ZonedDateTime date, DoubleTimeSeries<ZonedDateTime> data, String... yieldCurveNames) {
-    throw new NotImplementedException("toDerivative not implemented with yield curve names.");
+    throw new UnsupportedOperationException();
   }
 
   @Override
