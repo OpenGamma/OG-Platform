@@ -327,7 +327,7 @@ public class CapFloorInflationYearOnYearInterpolationDefinition extends CouponIn
   @Deprecated
   @Override
   public Coupon toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> priceIndexTimeSeries, final String... yieldCurveNames) {
-    return toDerivative(date, priceIndexTimeSeries);
+    throw new UnsupportedOperationException();
   }
 
   @Override

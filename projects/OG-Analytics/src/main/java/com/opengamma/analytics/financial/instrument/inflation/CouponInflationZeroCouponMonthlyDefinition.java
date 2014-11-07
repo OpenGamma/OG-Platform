@@ -169,7 +169,7 @@ public class CouponInflationZeroCouponMonthlyDefinition extends CouponInflationD
   @Deprecated
   @Override
   public Coupon toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> priceIndexTimeSeries, final String... yieldCurveNames) {
-    return toDerivative(date, priceIndexTimeSeries);
+    throw new UnsupportedOperationException();
   }
 
   @Override
