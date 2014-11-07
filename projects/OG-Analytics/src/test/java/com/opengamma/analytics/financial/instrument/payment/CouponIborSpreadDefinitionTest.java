@@ -65,12 +65,6 @@ public class CouponIborSpreadDefinitionTest {
     CouponIborSpreadDefinition.from(null, SPREAD);
   }
 
-  @SuppressWarnings("deprecation")
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testConversionNullTSDeprecated() {
-    IBOR_COUPON_SPREAD_DEFINITION.toDerivative(FIXING_DATE, null, new String[] {"A", "B" });
-  }
-
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testConversionAfterFixingNoData() {
     IBOR_COUPON_SPREAD_DEFINITION.toDerivative(FIXING_DATE.plusDays(3));
@@ -201,23 +195,6 @@ public class CouponIborSpreadDefinitionTest {
     assertEquals("CouponIborGearingDefinition: toDerivative", coupon2, couponConverted2);
     final Payment couponConverted3 = IBOR_COUPON_SPREAD_DEFINITION.toDerivative(referenceDate);
     assertEquals("CouponIborGearingDefinition: toDerivative", coupon2, couponConverted3);
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test
-  public void testToDerivativeAfterFixingDeprecated() {
-    final ZonedDateTime date = FIXING_DATE.plusDays(2);
-    double paymentTime = TimeCalculator.getTimeBetween(date, PAYMENT_DATE);
-    final String fundingCurve = "Funding";
-    final String forwardCurve = "Forward";
-    final String[] curves = {fundingCurve, forwardCurve };
-    CouponFixed couponFixed = new CouponFixed(CUR, paymentTime, fundingCurve, IBOR_COUPON_SPREAD_DEFINITION.getPaymentYearFraction(), NOTIONAL, FIXING_RATE + SPREAD);
-    CouponFixed convertedDefinition = (CouponFixed) IBOR_COUPON_SPREAD_DEFINITION.toDerivative(date, FIXING_TS, curves);
-    assertEquals(couponFixed, convertedDefinition);
-    paymentTime = TimeCalculator.getTimeBetween(FIXING_DATE, PAYMENT_DATE);
-    couponFixed = new CouponFixed(CUR, paymentTime, fundingCurve, IBOR_COUPON_SPREAD_DEFINITION.getPaymentYearFraction(), NOTIONAL, FIXING_RATE + SPREAD);
-    convertedDefinition = (CouponFixed) IBOR_COUPON_SPREAD_DEFINITION.toDerivative(FIXING_DATE, FIXING_TS, curves);
-    assertEquals(couponFixed, convertedDefinition);
   }
 
 }
