@@ -41,7 +41,7 @@ public class BondFuturesYieldAverageTransactionDefinition extends FuturesTransac
 
   @Override
   public BondFuturesYieldAverageTransaction toDerivative(ZonedDateTime date, Double data, String... yieldCurveNames) {
-    throw new NotImplementedException("The method toDerivative of YieldAverageBondFuturesTransactionDefinition is not implemented with curve names.");
+    throw new UnsupportedOperationException();
   }
 
   @Override
