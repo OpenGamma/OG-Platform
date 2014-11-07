@@ -203,7 +203,7 @@ public class BondCapitalIndexedSecurityDefinitionTest {
     final BondCapitalIndexedSecurity<Coupon> bondSecurityExpected = new BondCapitalIndexedSecurity<>(nominal, coupon, settleTime, accruedInterest,
         factorToNextCoupon, ratioPeriodToNextCoupon, YIELD_CONVENTION_GILT_1, COUPON_PER_YEAR_GILT_1, settlement, INDEX_START_GILT_1, 245.8, 1.410966389699828, 245.8 / INDEX_START_GILT_1,
         ISSUER_UK_NAME);
-    assertEquals("Capital Index Bond: toDerivative", bondSecurityExpected, bond);
+    assertEquals("Capital Index Bond: toDerivative", bondSecurityExpected.getCoupon(), bond.getCoupon());
   }
 
   /**

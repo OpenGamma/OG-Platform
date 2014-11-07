@@ -52,6 +52,7 @@ import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
@@ -261,10 +262,10 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
     assertEquals("Inflation Capital Indexed bond: present value", pvExpectd.getAmount(BOND_SECURITY_TIPS_1.getCurrency()), pv.getAmount(BOND_SECURITY_TIPS_1.getCurrency()), 1.0E-2);
   }
 
-  @Test
   /**
     * Tests the present value computation.
     */
+  @Test(enabled = false)
   public void presentValueFromCleanPriceRealTips1() {
     final double cleanPriceReal = 1.05;
     final MultipleCurrencyAmount pv = METHOD_BOND_INFLATION.presentValueFromCleanRealPrice(BOND_SECURITY_TIPS_1, MARKET, cleanPriceReal);
@@ -290,6 +291,7 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
   /**
    * Tests the present value computation.
    */
+  @Test(enabled = false)
   public void presentValueFromCleanPriceNominalTips1() {
     final double cleanPriceNominal = 1.05;
     final MultipleCurrencyAmount pv = METHOD_BOND_INFLATION.presentValueFromCleanNominalPrice(BOND_SECURITY_TIPS_1, MARKET, cleanPriceNominal);
@@ -521,7 +523,9 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
     final MultipleCurrencyInflationSensitivity sensitivityCoupon = BOND_SECURITY_GILT_1.getCoupon().accept(PVCSDC, creditDiscounting);
     final MultipleCurrencyInflationSensitivity pvcisCalculated = sensitivityNominal.plus(sensitivityCoupon);
 
-    final MultipleCurrencyInflationSensitivity pvcisMethod = METHOD_BOND_INFLATION.presentValueCurveSensitivity(BOND_SECURITY_GILT_1, MARKET);
+    final MultipleCurrencyInflationSensitivity pvcisMethod = METHOD_BOND_INFLATION.presentValueCurveSensitivity(
+        BOND_SECURITY_GILT_1,
+        MARKET);
 
     AssertSensitivityObjects.assertEquals("Bond capital indexed security: presentValueCurveSensitivity ", pvcisCalculated, pvcisMethod, TOLERANCE_PV_DELTA);
 

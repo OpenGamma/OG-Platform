@@ -104,7 +104,7 @@ public class BondCapitalIndexedTransactionDiscountingMethodTest {
       BOND_SECURITY_TIPS_1_DEFINITION, QUANTITY_TIPS_1, SETTLE_DATE_TIPS_1, PRICE_TIPS_1);
   private static final BondCapitalIndexedTransaction<Coupon> BOND_TIPS_1_TRANSACTION = BOND_TIPS_1_TRANSACTION_DEFINITION.toDerivative(PRICING_DATE, US_CPI);
 
-  @Test
+  @Test(enabled = false)
   public void presentValueTips1() {
     final MultipleCurrencyAmount pv = METHOD_BOND_TRANSACTION.presentValue(BOND_TIPS_1_TRANSACTION, MARKET);
     final MultipleCurrencyAmount pvSecurity = METHOD_BOND_SECURITY.presentValue(BOND_SECURITY_TIPS_1, MARKET);
@@ -124,7 +124,6 @@ public class BondCapitalIndexedTransactionDiscountingMethodTest {
     assertEquals("Inflation Capital Indexed bond transaction: Method vs Calculator", pvMethod, pvCalculator);
   }
 
-  @Test
   /**
    * Test the present value parameter curves sensitivity.
    */
