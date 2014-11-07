@@ -16,7 +16,7 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Two points are interpolated by an exponential function y = a * exp( b * x ), where a, b are real constants.
- * Note that all of {y_i} should have the same sign.
+ * Note that all of y data should have the same sign.
  */
 public class ExponentialInterpolator1D extends Interpolator1D {
   private static final long serialVersionUID = 1L;
