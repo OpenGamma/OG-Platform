@@ -7,12 +7,14 @@ package com.opengamma.analytics.math.interpolation;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.util.Arrays;
 import java.util.Collections;
-import java.util.TreeMap;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.data.ArrayInterpolator1DDataBundle;
+import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.util.test.TestGroup;
 
 /**
@@ -22,6 +24,7 @@ import com.opengamma.util.test.TestGroup;
 public class ExponentialInterpolator1DTest {
   private static final Interpolator1D INTERPOLATOR = new ExponentialInterpolator1D();
   private static final double EPS = 1e-4;
+  private static final double REL_TOL = 1.0e-10;
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDataBundle() {
@@ -53,15 +56,200 @@ public class ExponentialInterpolator1DTest {
     assertEquals(INTERPOLATOR.getDataBundleFromSortedArrays(new double[] {1, 2, 3}, new double[] {1, 2, 3}).getClass(), ArrayInterpolator1DDataBundle.class);
   }
 
+  /**
+   * Recover exponential function
+   */
   @Test
-  public void test() {
-    final TreeMap<Double, Double> data = new TreeMap<>();
-    final double t1 = 3;
-    final double t2 = 4;
-    final double df1 = 0.8325;
-    final double df2 = 0.7572;
-    data.put(t1, df1);
-    data.put(t2, df2);
-    assertEquals(0.7957, INTERPOLATOR.interpolate(INTERPOLATOR.getDataBundle(data), 3.5), EPS);
+  public void exponentialFunctionTest() {
+    /* positive */
+    double a1 = 3.5;
+    double b1 = 1.4;
+    Function1D<Double, Double> func1 = createExpFunction(a1, b1);
+    double[] xData1 = new double[] {-2.2, -3.0 / 11.0, 0.0, 0.01, 3.0, 9.5 };
+    double[] keys1 = new double[] {-2.05, -2.1, -1.8, -1.0 / 11.0, 0.05, 0.5, 4.5, 8.25, 9.2 };
+    int dataSize1 = xData1.length;
+    double[] yData1 = new double[dataSize1];
+    for (int i = 0; i < dataSize1; ++i) {
+      yData1[i] = func1.evaluate(xData1[i]);
+    }
+    int keySize1 = keys1.length;
+    double[] expectedValues1 = new double[keySize1];
+    for (int i = 0; i < keySize1; ++i) {
+      expectedValues1[i] = func1.evaluate(keys1[i]);
+    }
+    testInterpolation(xData1, yData1, keys1, expectedValues1, false);
+    /* negative */
+    double a2 = -1.82;
+    double b2 = 0.2;
+    Function1D<Double, Double> func2 = createExpFunction(a2, b2);
+    double[] xData2 = new double[] {-2.2, -3.0 / 11.0, 0.0, 0.01, 3.0, 12.5 };
+    double[] keys2 = new double[] {-2.1, -1.8, -1.0 / 11.0, 0.05, 0.5, 4.5, 8.25 };
+    int dataSize2 = xData2.length;
+    double[] yData2 = new double[dataSize2];
+    for (int i = 0; i < dataSize2; ++i) {
+      yData2[i] = func2.evaluate(xData2[i]);
+    }
+    int keySize2 = keys2.length;
+    double[] expectedValues2 = new double[keySize2];
+    for (int i = 0; i < keySize2; ++i) {
+      expectedValues2[i] = func2.evaluate(keys2[i]);
+    }
+    testInterpolation(xData2, yData2, keys2, expectedValues2, false);
+  }
+
+  /**
+   * Recover flat data
+   */
+  @Test
+  public void strightLineTest() {
+    /* positive */
+    double a1 = 2.5;
+    double b1 = 0.0;
+    Function1D<Double, Double> func1 = createExpFunction(a1, b1);
+    double[] xData1 = new double[] {-2.2, -1.1, -0.5, -3.0 / 11.0, 0.0, 0.01, 1.05, 2.6, 3.4, 5.1 };
+    double[] keys1 = new double[] {-2.1, -1.8, -1.0 / 11.0, 0.05, 0.5, 4.5 };
+    int dataSize1 = xData1.length;
+    double[] yData1 = new double[dataSize1];
+    for (int i = 0; i < dataSize1; ++i) {
+      yData1[i] = func1.evaluate(xData1[i]);
+    }
+    int keySize1 = keys1.length;
+    double[] expectedValues1 = new double[keySize1];
+    for (int i = 0; i < keySize1; ++i) {
+      expectedValues1[i] = func1.evaluate(keys1[i]);
+    }
+    testInterpolation(xData1, yData1, keys1, expectedValues1, false);
+    /* negative */
+    double a2 = -3.82;
+    double b2 = 0.0;
+    Function1D<Double, Double> func2 = createExpFunction(a2, b2);
+    double[] xData2 = new double[] {-12.0, 0.15, 1.1, 3.0, 9.2, 12.5 };
+    double[] keys2 = new double[] {-11.0, -5.41, 0.5, 2.22, 4.5, 5.78, 7.4, 10.1, 11.25 };
+    int dataSize2 = xData2.length;
+    double[] yData2 = new double[dataSize2];
+    for (int i = 0; i < dataSize2; ++i) {
+      yData2[i] = func2.evaluate(xData2[i]);
+    }
+    int keySize2 = keys2.length;
+    double[] expectedValues2 = new double[keySize2];
+    for (int i = 0; i < keySize2; ++i) {
+      expectedValues2[i] = func2.evaluate(keys2[i]);
+    }
+    testInterpolation(xData2, yData2, keys2, expectedValues2, false);
+  }
+
+  /**
+   * Node point is treated as a point in the right interval, except the rightmost node point.
+   */
+  @Test
+  public void nodePointsTest() {
+    /* positive */
+    double[] xData1 = new double[] {-7.2, -4.4, -2.1, -0.1, 5.0, 5.87 };
+    double[] yData1 = new double[] {3.0, 28.0, 31.2, 13.2, 19.3, 20.9 };
+    int dataSize1 = xData1.length;
+    double[] keys1 = Arrays.copyOf(xData1, dataSize1 - 1);
+    double[] expectedValues1 = Arrays.copyOf(yData1, dataSize1 - 1);
+    testInterpolation(xData1, yData1, keys1, expectedValues1, true);
+    testInterpolation(xData1, yData1, new double[] {xData1[dataSize1 - 1] }, new double[] {yData1[dataSize1 - 1] },
+        false);
+    /* negative */
+    double[] xData2 = new double[] {-12.2, -3.4, -1.2, 0.26, 11.0, 25.22 };
+    double[] yData2 = new double[] {-2.0, -13.0, -2.2, -3.5, -9.7, -16.6 };
+    int dataSize2 = xData2.length;
+    double[] keys2 = Arrays.copyOf(xData2, dataSize2 - 1);
+    double[] expectedValues2 = Arrays.copyOf(yData2, dataSize2 - 1);
+    testInterpolation(xData2, yData2, keys2, expectedValues2, true);
+    testInterpolation(xData2, yData2, new double[] {xData2[dataSize2 - 1] }, new double[] {yData2[dataSize2 - 1] },
+        false);
+  }
+
+  /**
+   * sign is not the same
+   */
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void illegalYDataTest1() {
+    double[] xData = new double[] {-6.2, -3.4, -2.1, 0.15, 5.0, 5.87 };
+    double[] yData = new double[] {3.0, 2.0, 1.2, -2.2, 1.3, 2.9 };
+    Interpolator1DDataBundle data = INTERPOLATOR.getDataBundle(xData, yData);
+    INTERPOLATOR.interpolate(data, 1.0);
+  }
+
+  /**
+   * sign is not the same
+   */
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void illegalYDataTest2() {
+    double[] xData = new double[] {-6.2, -3.4, -2.1, 0.15, 5.0, 5.87 };
+    double[] yData = new double[] {-3.0, -2.0, 1.2, -2.2, -1.3, -2.9 };
+    Interpolator1DDataBundle data = INTERPOLATOR.getDataBundleFromSortedArrays(xData, yData);
+    INTERPOLATOR.interpolate(data, 1.0);
+  }
+
+  /**
+   * test instances via factory
+   */
+  @Test
+  public void factoryTest() {
+    Interpolator1D interp1 = new ExponentialInterpolator1D();
+    Interpolator1D interp2 = Interpolator1DFactory.EXPONENTIAL_INSTANCE;
+    Interpolator1D interp3 = Interpolator1DFactory.getInterpolator(Interpolator1DFactory.EXPONENTIAL);
+    Interpolator1D interp4 = Interpolator1DFactory.getInterpolator("Exponential");
+    assertEquals(interp1, interp2);
+    assertEquals(interp1, interp3);
+    assertEquals(interp1, interp4);
+  }
+
+  private void testInterpolation(double[] xData, double[] yData, double[] keys, double[] expectedValues, boolean isNode) {
+    Interpolator1DDataBundle data = INTERPOLATOR.getDataBundleFromSortedArrays(xData, yData);
+    int dataSize = xData.length;
+    int keySize = keys.length;
+    for (int i = 0; i < keySize; ++i) {
+      /* Test interpolant value at key */
+      double result = INTERPOLATOR.interpolate(data, keys[i]);
+      assertEqualsRelative(expectedValues[i], result, REL_TOL);
+      /* Test gradient at key */
+      double expectedGrad = 0.0;
+      if (keys[i] + EPS > xData[dataSize - 1]) {
+        double downDown = INTERPOLATOR.interpolate(data, keys[i] - 2.0 * EPS);
+        double down = INTERPOLATOR.interpolate(data, keys[i] - EPS);
+        expectedGrad = 0.5 * (3.0 * result + downDown - 4.0 * down) / EPS;
+      } else if (keys[i] - EPS < xData[0] || isNode) {
+        double up = INTERPOLATOR.interpolate(data, keys[i] + EPS);
+        double upUp = INTERPOLATOR.interpolate(data, keys[i] + 2.0 * EPS);
+        expectedGrad = 0.5 * (4.0 * up - 3.0 * result - upUp) / EPS;
+      } else {
+      double up = INTERPOLATOR.interpolate(data, keys[i] + EPS);
+      double down = INTERPOLATOR.interpolate(data, keys[i] - EPS);
+        expectedGrad = 0.5 * (up - down) / EPS;
+      }
+      assertEqualsRelative(expectedGrad, INTERPOLATOR.firstDerivative(data, keys[i]), EPS);
+      /* Test node sensitivities at key */
+      double[] sense = INTERPOLATOR.getNodeSensitivitiesForValue(data, keys[i]);
+      for (int j = 0; j < dataSize; ++j) {
+        double[] yDataUp = Arrays.copyOf(yData, dataSize);
+        double[] yDataDw = Arrays.copyOf(yData, dataSize);
+        yDataUp[j] += EPS;
+        yDataDw[j] -= EPS;
+        Interpolator1DDataBundle dataUp = INTERPOLATOR.getDataBundleFromSortedArrays(xData, yDataUp);
+        Interpolator1DDataBundle dataDw = INTERPOLATOR.getDataBundleFromSortedArrays(xData, yDataDw);
+        double valueUp = INTERPOLATOR.interpolate(dataUp, keys[i]);
+        double valueDw = INTERPOLATOR.interpolate(dataDw, keys[i]);
+        double expectedSense = 0.5 * (valueUp - valueDw) / EPS;
+        assertEquals(expectedSense, sense[j], EPS);
+      }
+    }
+  }
+
+  private void assertEqualsRelative(double expected, double obtained, double relativeTol) {
+    assertEquals(expected, obtained, Math.max(Math.abs(expected), 1.0) * relativeTol);
+  }
+
+  private Function1D<Double, Double> createExpFunction(final double a, final double b) {
+    return new Function1D<Double, Double>() {
+      @Override
+      public Double evaluate(Double value) {
+        return a * Math.exp(b * value);
+      }
+    };
   }
 }
