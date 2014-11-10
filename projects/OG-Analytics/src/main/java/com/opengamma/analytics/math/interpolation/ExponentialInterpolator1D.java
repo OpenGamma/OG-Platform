@@ -33,10 +33,7 @@ public class ExponentialInterpolator1D extends Interpolator1D {
     }
     Double x2 = boundedValues.getHigherBoundKey();
     Double y2 = boundedValues.getHigherBoundValue();
-    double xDiffInv = 1.0 / (x2 - x1);
-    double a = Math.pow(y1 / y2, x1 * xDiffInv) * y1;
-    double b = Math.log(y2 / y1) * xDiffInv;
-    return a * Math.exp(b * value);
+    return Math.pow(y2 / y1, (value - x1) / (x2 - x1)) * y1;
   }
 
   @Override
@@ -52,9 +49,8 @@ public class ExponentialInterpolator1D extends Interpolator1D {
     Double x2 = data.getKeys()[lowerIndex + 1];
     Double y2 = data.getValues()[lowerIndex + 1];
     double xDiffInv = 1.0 / (x2 - x1);
-    double a = Math.pow(y1 / y2, x1 * xDiffInv) * y1;
-    double b = Math.log(y2 / y1) * xDiffInv;
-    return a * b * Math.exp(b * value);
+    double y2ovy1 = y2 / y1;
+    return Math.pow(y2ovy1, (value - x1) * xDiffInv) * y1 * xDiffInv * Math.log(y2ovy1);
   }
 
   @Override
@@ -90,18 +86,11 @@ public class ExponentialInterpolator1D extends Interpolator1D {
     Double x2 = data.getKeys()[lowerIndex + 1];
     Double y2 = data.getValues()[lowerIndex + 1];
     double diffInv = 1.0 / (x2 - x1);
-    double x1diffInv = x1 * diffInv;
-    double x2diffInv = x2 * diffInv;
+    double x1diffInv = (value - x1) * diffInv;
+    double x2diffInv = (x2 - value) * diffInv;
     double y1ovy2 = y1 / y2;
-    double a = Math.pow(y1ovy2, x1diffInv) * y1;
-    double expbValue = Math.pow(y1ovy2, -value * diffInv);
-    double a1 = x2diffInv * Math.pow(y1ovy2, x1diffInv);
-    double a2 = -x1diffInv * Math.pow(y1ovy2, x2diffInv);
-    double b1 = -diffInv / y1;
-    double b2 = diffInv / y2;
-    res[lowerIndex] = (a1 + a * value * b1) * expbValue;
-    res[lowerIndex + 1] = (a2 + a * value * b2) * expbValue;
-
+    res[lowerIndex] = Math.pow(y1ovy2, -x1diffInv) * x2diffInv;
+    res[lowerIndex + 1] = Math.pow(y1ovy2, x2diffInv) * x1diffInv;
     return res;
   }
 
