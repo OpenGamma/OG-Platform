@@ -15,14 +15,12 @@ import com.opengamma.sesame.MulticurveBundle;
 
 /**
  * Builder for creating a {@link MarketDataEnvironment}.
- *
- * @param <T> the type used to identify different scenarios in the environment
  */
-public class MarketDataEnvironmentBuilder<T> {
+public class MarketDataEnvironmentBuilder {
 
   // linked map so the scenarios are stored in insertion order. do we need to offer other ordering strategies?
   /** Builders for the market data bundle for each scenario. */
-  private final Map<T, MapMarketDataBundleBuilder> _builders = new LinkedHashMap<>();
+  private final Map<String, MapMarketDataBundleBuilder> _builders = new LinkedHashMap<>();
 
   /**
    * Adds a multicurve to the market data environment
@@ -32,7 +30,7 @@ public class MarketDataEnvironmentBuilder<T> {
    * @param multicurve the multicurve
    * @return this builder
    */
-  public MarketDataEnvironmentBuilder<T> addMulticurve(T scenarioId, String name, MulticurveBundle multicurve) {
+  public MarketDataEnvironmentBuilder addMulticurve(String scenarioId, String name, MulticurveBundle multicurve) {
     bundle(scenarioId).add(MulticurveId.of(name), multicurve);
     return this;
   }
@@ -45,7 +43,7 @@ public class MarketDataEnvironmentBuilder<T> {
    * @param rate the FX rate for the currency pair
    * @return this builder
    */
-  public MarketDataEnvironmentBuilder<T> addFxRate(T scenarioId, CurrencyPair currencyPair, double rate) {
+  public MarketDataEnvironmentBuilder addFxRate(String scenarioId, CurrencyPair currencyPair, double rate) {
     bundle(scenarioId).add(FxRateId.of(currencyPair), rate);
     return this;
   }
@@ -57,7 +55,7 @@ public class MarketDataEnvironmentBuilder<T> {
    * @param valuationTime the valuation time for the scenario
    * @return this builder
    */
-  public MarketDataEnvironmentBuilder<T> valuationTime(T scenarioId, ZonedDateTime valuationTime) {
+  public MarketDataEnvironmentBuilder valuationTime(String scenarioId, ZonedDateTime valuationTime) {
     bundle(scenarioId).valuationTime(valuationTime);
     return this;
   }
@@ -68,7 +66,7 @@ public class MarketDataEnvironmentBuilder<T> {
    * @param scenarioId ID of the scenario
    * @return the bundle builder for a scenario
    */
-  private MapMarketDataBundleBuilder bundle(T scenarioId) {
+  private MapMarketDataBundleBuilder bundle(String scenarioId) {
     MapMarketDataBundleBuilder builder = _builders.get(scenarioId);
 
     if (builder != null) {
@@ -84,15 +82,15 @@ public class MarketDataEnvironmentBuilder<T> {
    *
    * @return a market data environment built from the data in this builder
    */
-  public MarketDataEnvironment<T> build() {
+  public MarketDataEnvironment build() {
     // TODO change the value type to MarketDataBundle when the API allows it
-    LinkedHashMap<T, MapMarketDataBundle> bundles = new LinkedHashMap<>(_builders.size());
+    LinkedHashMap<String, MapMarketDataBundle> bundles = new LinkedHashMap<>(_builders.size());
 
-    for (Map.Entry<T, MapMarketDataBundleBuilder> entry : _builders.entrySet()) {
-      T scenarioId = entry.getKey();
+    for (Map.Entry<String, MapMarketDataBundleBuilder> entry : _builders.entrySet()) {
+      String scenarioId = entry.getKey();
       MapMarketDataBundleBuilder bundleBuilder = entry.getValue();
       bundles.put(scenarioId, bundleBuilder.build());
     }
-    return new MapMarketDataEnvironment<>(bundles);
+    return new MapMarketDataEnvironment(bundles);
   }
 }
