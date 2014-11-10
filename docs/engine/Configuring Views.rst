@@ -1,6 +1,6 @@
-=====================================================
-Configuring Views in the OpenGamma Calculation Engine
-=====================================================
+=================
+Configuring Views
+=================
 
 View Basics
 ===========
@@ -100,7 +100,7 @@ Examples
 
 The simplest configuration that can produce a usable view is:
 
-.. code:: java
+.. code-block:: java
 
     ViewConfig viewConfig = configureView("Example View", column(OutputNames.PRESENT_VALUE));
 
@@ -116,14 +116,14 @@ If there are multiple implementations of a function available the user must spec
 In this example the default configuration for the view is provided. It specifies that ``DiscountingInterestRateSwapFn``
 should be used wherever an instance of ``InterestRateSwapFn`` is required.
 
-.. code:: java
+.. code-block:: java
 
     FunctionModelConfig defaultConfig = config(implementations(InterestRateSwapFn.class, DiscountingInterestRateSwapFn.class));
     ViewConfig viewConfig = configureView("Example View", defaultConfig, column("PV", OutputNames.PRESENT_VALUE));
 
 In this example there are three implementation types specified for three functions.
 
-.. code:: java
+.. code-block:: java
 
     FunctionModelConfig defaultConfig =
         config(
@@ -145,7 +145,7 @@ These can be one of three types:
 
 Users arguments are provided in the configuration:
 
-.. code:: java
+.. code-block:: java
 
     FunctionModelConfig defaultConfig =
         config(
@@ -168,7 +168,7 @@ Multiple columns
 ^^^^^^^^^^^^^^^^
 In this example the view has multiple columns.
 
-.. code:: java
+.. code-block:: java
 
     FunctionModelConfig defaultConfig = config(...);
 
@@ -187,7 +187,7 @@ a column requires different configuration from the default view config, it can d
 Values specified in the column configuration override those in the default view configuration.
 Any values not specified in the column configuration are inherited from the view configuration.
 
-.. code:: java
+.. code-block:: java
 
     ViewConfig viewConfig =
         configureView(
@@ -218,7 +218,7 @@ If these functions need different configuration, it can be specified at the leve
 this defines a PV column where the swap and swaption calculations use a different root finder configuration
 but inherit the rest of their configuration from the view.
 
-.. code:: java
+.. code-block:: java
 
     FunctionModelConfig defaultConfig = config(...);
 
@@ -252,7 +252,7 @@ It is possible to show different outputs in the same column depending on the tra
 defines a PV column where the output ``OutputNames.PRESENT_VALUE`` is used for swaps and
 ``OutputNames.FX_PRESENT_VALUE`` is used for FX forwards:
 
-.. code:: java
+.. code-block:: java
 
     FunctionModelConfig defaultConfig =
 
@@ -267,7 +267,7 @@ defines a PV column where the output ``OutputNames.PRESENT_VALUE`` is used for s
 This could also be achieved using the following configuration, which uses ``OutputNames.PRESENT_VALUE`` for
 all trade types except FX forward, for which an override is specified:
 
-.. code:: java
+.. code-block:: java
 
     FunctionModelConfig defaultConfig =
 

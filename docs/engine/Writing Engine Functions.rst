@@ -1,6 +1,6 @@
-======================================================
-Writing Functions for the OpenGamma Calculation Engine
-======================================================
+========================
+Writing Engine Functions
+========================
 
 Function Basics
 ^^^^^^^^^^^^^^^
@@ -9,7 +9,7 @@ Functions are the basic building block of calculations in the OpenGamma calculat
 a Java object whose methods are invoked by the OpenGamma engine. For example, the following class could be used
 as a very simple function:
 
-.. code:: java
+.. code-block:: java
 
     public class HelloWorldFn {
 
@@ -33,7 +33,7 @@ The OpenGamma engine transparently provides services to functions such as cachin
 calculations. These services can only be provided if the function implements an interface. For example, the function
 above should be written as follows:
 
-.. code:: java
+.. code-block:: java
 
     public interface HelloWorldFn {
 
@@ -76,7 +76,7 @@ A function, like any other Java type, can define any number of methods. Methods 
 will often be defined on the same function. For example, the following are methods on OpenGamma's standard function
 for interest rate swaps:
 
-.. code:: java
+.. code-block:: java
 
     Result<Double> calculateParRate(Environment env, InterestRateSwapSecurity security);
 
@@ -123,7 +123,7 @@ to provide all the method arguments. Typically a method that produces an output 
 ``Environment`` and the trade which is the subject of the calculation. For example, a method capable of calculating
 the present value of an equity trade might have the following signature:
 
-.. code:: java
+.. code-block:: java
 
     @Output("Present Value")
     Result<Double> calculatePresentValue(Environment env, EquityTrade trade);
@@ -176,7 +176,7 @@ Function interface
 The first task is to define an interface for the function. We only need one method which calculates the present value.
 Assume the following definition of an equity trade:
 
-.. code:: java
+.. code-block:: java
 
     public class EquityTrade {
 
@@ -199,7 +199,7 @@ The method must have an annotation to specify the output it produces and paramet
 the trade. The calculated value is a double (ignoring currency for simplicity), so the return type should be
 ``Result<Double>``. The method can have any name, so we can choose a descriptive one:
 
-.. code:: java
+.. code-block:: java
 
     public interface EquityPresentValueFn {
 
@@ -222,7 +222,7 @@ The present value of an equity depends on two things:
 In order to request market data, the function needs a reference to ``MarketDataFn``. Therefore it must declare
 a constructor parameter.
 
-.. code:: java
+.. code-block:: java
 
     public class DefaultEquityPresentValueFn implements EquityPresentValueFn {
 
@@ -249,7 +249,7 @@ Functions are normal Java classes which can be unit tested outside of the OpenGa
 provided by the OpenGamma platform (e.g. market data functions) are also normal Java types which can be created
 or mocked independently of the engine.
 
-.. code:: java
+.. code-block:: java
 
     @Test
     public void equityPresentValue() {

@@ -30,7 +30,7 @@ automatically disable the caching for the cycle.
 
 Where a call is currently made to set up and run a view:
 
-.. code:: java
+.. code-block:: java
 
     View view = _viewFactory.createView(...);
     CycleMarketDataFactory cycleMarketDataFactory = ...;
@@ -42,7 +42,7 @@ Where a call is currently made to set up and run a view:
 
 The ``CycleArguments`` constructor call should be replaced with:
 
-.. code:: java
+.. code-block:: java
 
     CycleArguments cycleArguments =
         new CycleArguments(valuationTime, VersionCorrection.LATEST, cycleMarketDataFactory, true);
@@ -50,7 +50,7 @@ The ``CycleArguments`` constructor call should be replaced with:
 Doing this means that the ``Results`` object returned can now be queried
 for its inputs:
 
-.. code:: java
+.. code-block:: java
 
     ViewInputs inputs = results.getViewInputs();
 
@@ -58,7 +58,7 @@ This object contains methods for accessing all the input data, but for regressio
 testing we need to store the input data and the results. The following code
 will do this:
 
-.. code:: java
+.. code-block:: java
 
     ViewResultsSerializer serializer = new ViewResultsSerializer(results);
     OutputStream vios = new FileOutputStream("/path/to/output/inputs_file.xml");
@@ -77,7 +77,7 @@ of the code base. This ensures that even if code is changed to enable
 new functionality, an existing configuration will still calculate the same
 results. First load in the data from the previously saved file:
 
-.. code:: java
+.. code-block:: java
 
     ViewResultsDeserializer deserializer =
         new ViewResultsDeserializer(new FileInputStream("/path/to/output/inputs_file.xml"));
@@ -86,7 +86,7 @@ results. First load in the data from the previously saved file:
 The view inputs can then be used with the ``CapturedResultsLoader``
 to run the view:
 
-.. code:: java
+.. code-block:: java
 
     CapturedResultsLoader loader =
         new CapturedResultsLoader(viewInputs, availableOutputs, availableImplementations);
@@ -98,7 +98,7 @@ links being resolved before the data capture takes place and will be
 corrected in a future release. For the time being the additional config data
 can be added as follows:
 
-.. code:: java
+.. code-block:: java
 
     CapturedResultsLoader loader =
     new CapturedResultsLoader(viewInputs, availableOutputs, availableImplementations);
@@ -112,7 +112,7 @@ The above steps mean that automatically testing for regressions is
 straightforward. The following code can easily be run as part of
 a CI environment:
 
-.. code:: java
+.. code-block:: java
 
   @Test
   public void testViewRunsAsExpected() throws FileNotFoundException {
