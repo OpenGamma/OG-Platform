@@ -17,7 +17,6 @@ import org.threeten.bp.temporal.TemporalAdjuster;
 import org.threeten.bp.temporal.TemporalAdjusters;
 
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
 import com.opengamma.financial.analytics.ircurve.NextExpiryAdjuster;
 import com.opengamma.util.time.Tenor;
 
@@ -48,13 +47,6 @@ public class IMMDateGenerator {
       }
     };
     return date.with(adjuster);
-  }
-
-  public static LegacyVanillaCreditDefaultSwapDefinition cdsModifiedForIMM(final ZonedDateTime now, LegacyVanillaCreditDefaultSwapDefinition cds) {
-    if (!isIMMDate(cds.getMaturityDate())) {
-      cds = cds.withStartDate(now);
-    }
-    return cds;
   }
 
   public static boolean isIMMDate(final ZonedDateTime date) {
