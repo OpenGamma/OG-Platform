@@ -31,11 +31,11 @@ import com.google.common.collect.ImmutableMap;
  * A market data environment backed by a map.
  */
 @BeanDefinition(builderScope = "private")
-public class MapMarketDataEnvironment<T> implements MarketDataEnvironment<T>, ImmutableBean {
+public class MapMarketDataEnvironment implements MarketDataEnvironment, ImmutableBean {
 
   // TODO change the value type to MarketDataBundle when the MarketDataEnvironment changes are merged
   @PropertyDefinition(validate = "notNull", get = "private")
-  private final Map<T, MapMarketDataBundle> _scenarioBundles;
+  private final Map<String, MapMarketDataBundle> _scenarioBundles;
 
   /**
    * Creates a new environment backed by a map.
@@ -43,12 +43,12 @@ public class MapMarketDataEnvironment<T> implements MarketDataEnvironment<T>, Im
    * @param scenarioBundles a map of market data bundles keyed by scenario ID. Bundles are stored in the map in the order
    *   the scenarios were added
    */
-  MapMarketDataEnvironment(LinkedHashMap<T, MapMarketDataBundle> scenarioBundles) {
+  MapMarketDataEnvironment(LinkedHashMap<String, MapMarketDataBundle> scenarioBundles) {
     _scenarioBundles = Collections.unmodifiableMap(new LinkedHashMap<>(scenarioBundles));
   }
 
   @Override
-  public Map<T, MapMarketDataBundle> getData() {
+  public Map<String, MapMarketDataBundle> getData() {
     return _scenarioBundles;
   }
 
@@ -58,19 +58,7 @@ public class MapMarketDataEnvironment<T> implements MarketDataEnvironment<T>, Im
    * The meta-bean for {@code MapMarketDataEnvironment}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("rawtypes")
   public static MapMarketDataEnvironment.Meta meta() {
-    return MapMarketDataEnvironment.Meta.INSTANCE;
-  }
-
-  /**
-   * The meta-bean for {@code MapMarketDataEnvironment}.
-   * @param <R>  the bean's generic type
-   * @param cls  the bean's generic type
-   * @return the meta-bean, not null
-   */
-  @SuppressWarnings("unchecked")
-  public static <R> MapMarketDataEnvironment.Meta<R> metaMapMarketDataEnvironment(Class<R> cls) {
     return MapMarketDataEnvironment.Meta.INSTANCE;
   }
 
@@ -82,14 +70,13 @@ public class MapMarketDataEnvironment<T> implements MarketDataEnvironment<T>, Im
    * Restricted constructor.
    * @param builder  the builder to copy from, not null
    */
-  protected MapMarketDataEnvironment(MapMarketDataEnvironment.Builder<T> builder) {
+  protected MapMarketDataEnvironment(MapMarketDataEnvironment.Builder builder) {
     JodaBeanUtils.notNull(builder._scenarioBundles, "scenarioBundles");
     this._scenarioBundles = ImmutableMap.copyOf(builder._scenarioBundles);
   }
 
-  @SuppressWarnings("unchecked")
   @Override
-  public MapMarketDataEnvironment.Meta<T> metaBean() {
+  public MapMarketDataEnvironment.Meta metaBean() {
     return MapMarketDataEnvironment.Meta.INSTANCE;
   }
 
@@ -108,7 +95,7 @@ public class MapMarketDataEnvironment<T> implements MarketDataEnvironment<T>, Im
    * Gets the scenarioBundles.
    * @return the value of the property, not null
    */
-  private Map<T, MapMarketDataBundle> getScenarioBundles() {
+  private Map<String, MapMarketDataBundle> getScenarioBundles() {
     return _scenarioBundles;
   }
 
@@ -119,7 +106,7 @@ public class MapMarketDataEnvironment<T> implements MarketDataEnvironment<T>, Im
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      MapMarketDataEnvironment<?> other = (MapMarketDataEnvironment<?>) obj;
+      MapMarketDataEnvironment other = (MapMarketDataEnvironment) obj;
       return JodaBeanUtils.equal(getScenarioBundles(), other.getScenarioBundles());
     }
     return false;
@@ -152,20 +139,18 @@ public class MapMarketDataEnvironment<T> implements MarketDataEnvironment<T>, Im
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code MapMarketDataEnvironment}.
-   * @param <T>  the type
    */
-  public static class Meta<T> extends DirectMetaBean {
+  public static class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
-    @SuppressWarnings("rawtypes")
     static final Meta INSTANCE = new Meta();
 
     /**
      * The meta-property for the {@code scenarioBundles} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Map<T, MapMarketDataBundle>> _scenarioBundles = DirectMetaProperty.ofImmutable(
+    private final MetaProperty<Map<String, MapMarketDataBundle>> _scenarioBundles = DirectMetaProperty.ofImmutable(
         this, "scenarioBundles", MapMarketDataEnvironment.class, (Class) Map.class);
     /**
      * The meta-properties.
@@ -190,14 +175,13 @@ public class MapMarketDataEnvironment<T> implements MarketDataEnvironment<T>, Im
     }
 
     @Override
-    public BeanBuilder<? extends MapMarketDataEnvironment<T>> builder() {
-      return new MapMarketDataEnvironment.Builder<T>();
+    public BeanBuilder<? extends MapMarketDataEnvironment> builder() {
+      return new MapMarketDataEnvironment.Builder();
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes" })
     @Override
-    public Class<? extends MapMarketDataEnvironment<T>> beanType() {
-      return (Class) MapMarketDataEnvironment.class;
+    public Class<? extends MapMarketDataEnvironment> beanType() {
+      return MapMarketDataEnvironment.class;
     }
 
     @Override
@@ -210,7 +194,7 @@ public class MapMarketDataEnvironment<T> implements MarketDataEnvironment<T>, Im
      * The meta-property for the {@code scenarioBundles} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Map<T, MapMarketDataBundle>> scenarioBundles() {
+    public final MetaProperty<Map<String, MapMarketDataBundle>> scenarioBundles() {
       return _scenarioBundles;
     }
 
@@ -219,7 +203,7 @@ public class MapMarketDataEnvironment<T> implements MarketDataEnvironment<T>, Im
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -1649679743:  // scenarioBundles
-          return ((MapMarketDataEnvironment<?>) bean).getScenarioBundles();
+          return ((MapMarketDataEnvironment) bean).getScenarioBundles();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -238,11 +222,10 @@ public class MapMarketDataEnvironment<T> implements MarketDataEnvironment<T>, Im
   //-----------------------------------------------------------------------
   /**
    * The bean-builder for {@code MapMarketDataEnvironment}.
-   * @param <T>  the type
    */
-  private static class Builder<T> extends DirectFieldsBeanBuilder<MapMarketDataEnvironment<T>> {
+  private static class Builder extends DirectFieldsBeanBuilder<MapMarketDataEnvironment> {
 
-    private Map<T, MapMarketDataBundle> _scenarioBundles = new HashMap<T, MapMarketDataBundle>();
+    private Map<String, MapMarketDataBundle> _scenarioBundles = new HashMap<String, MapMarketDataBundle>();
 
     /**
      * Restricted constructor.
@@ -263,10 +246,10 @@ public class MapMarketDataEnvironment<T> implements MarketDataEnvironment<T>, Im
 
     @SuppressWarnings("unchecked")
     @Override
-    public Builder<T> set(String propertyName, Object newValue) {
+    public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case -1649679743:  // scenarioBundles
-          this._scenarioBundles = (Map<T, MapMarketDataBundle>) newValue;
+          this._scenarioBundles = (Map<String, MapMarketDataBundle>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -275,32 +258,32 @@ public class MapMarketDataEnvironment<T> implements MarketDataEnvironment<T>, Im
     }
 
     @Override
-    public Builder<T> set(MetaProperty<?> property, Object value) {
+    public Builder set(MetaProperty<?> property, Object value) {
       super.set(property, value);
       return this;
     }
 
     @Override
-    public Builder<T> setString(String propertyName, String value) {
+    public Builder setString(String propertyName, String value) {
       setString(meta().metaProperty(propertyName), value);
       return this;
     }
 
     @Override
-    public Builder<T> setString(MetaProperty<?> property, String value) {
+    public Builder setString(MetaProperty<?> property, String value) {
       super.setString(property, value);
       return this;
     }
 
     @Override
-    public Builder<T> setAll(Map<String, ? extends Object> propertyValueMap) {
+    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
       super.setAll(propertyValueMap);
       return this;
     }
 
     @Override
-    public MapMarketDataEnvironment<T> build() {
-      return new MapMarketDataEnvironment<T>(this);
+    public MapMarketDataEnvironment build() {
+      return new MapMarketDataEnvironment(this);
     }
 
     //-----------------------------------------------------------------------
