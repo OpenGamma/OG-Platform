@@ -1,6 +1,6 @@
-===========================================
-Caching in the OpenGamma calculation engine
-===========================================
+=======
+Caching
+=======
 Caching of values calculated by functions is one of the most important services provided by the OpenGamma
 calculation engine. The goal of the caching system is twofold:
 
