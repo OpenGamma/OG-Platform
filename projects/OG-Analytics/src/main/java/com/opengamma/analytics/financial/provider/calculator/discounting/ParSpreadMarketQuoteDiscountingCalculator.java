@@ -103,7 +103,6 @@ public final class ParSpreadMarketQuoteDiscountingCalculator
   public Double visitSwap(final Swap<?, ?> swap, final ParameterProviderInterface multicurves) {
     ArgumentChecker.notNull(multicurves, "Market");
     ArgumentChecker.notNull(swap, "Swap");
-
     // Implementation note: if the swap is an On compounded (ie Brazilian like), the parspread formula is not the same.
     if (swap.getSecondLeg().getNthPayment(0) instanceof CouponONCompounded && swap.getFirstLeg().getNthPayment(0) instanceof CouponFixedAccruedCompounding &&
         swap.getFirstLeg().getNumberOfPayments() == 1) {

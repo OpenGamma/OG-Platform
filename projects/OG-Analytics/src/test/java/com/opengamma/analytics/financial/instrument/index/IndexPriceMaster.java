@@ -40,9 +40,7 @@ public final class IndexPriceMaster {
   private IndexPriceMaster() {
 
     _priceIndex = new HashMap<>();
-    _priceIndex.put(
-        "EURHICP",
-        new IndexPrice("EUR HICP", Currency.EUR));
+    _priceIndex.put("EURHICP", new IndexPrice("EUR HICP", Currency.EUR));
     _priceIndex.put(
         "UKRPI",
         new IndexPrice("UK RPI", Currency.GBP));
@@ -52,6 +50,7 @@ public final class IndexPriceMaster {
     _priceIndex.put(
         "USCPI",
         new IndexPrice("US CPI", Currency.USD));
+    _priceIndex.put("BRIPCA", new IndexPrice("BR IPCA", Currency.BRL));
   }
 
   public IndexPrice getIndex(final String name) {

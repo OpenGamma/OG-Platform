@@ -90,4 +90,19 @@ public class GeneratorPriceIndexCurveInterpolatedAnchorNode extends GeneratorPri
     return generateCurve(name, parameters);
   }
 
+  /**
+   * Returns the initial guess for the index. It is (1+rate*node) rescaled by the _anchorValue.
+   * @param rates The data rates.
+   * @return The initial guess for the index.
+   */
+  @Override
+  public double[] initialGuess(double[] rates) {
+    double anchorRatio = _anchorValue / (1 + rates[0] * _anchorNode); 
+    double[] index = new double[rates.length];
+    for (int looprate = 0; looprate < rates.length; looprate++) {
+      index[looprate] = anchorRatio * (1 + rates[looprate] * _nodePoints[looprate]);
+    }
+    return index;
+  }
+
 }

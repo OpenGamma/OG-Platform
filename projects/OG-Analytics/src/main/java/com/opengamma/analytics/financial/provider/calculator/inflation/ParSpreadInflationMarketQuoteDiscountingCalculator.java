@@ -18,7 +18,9 @@ import com.opengamma.analytics.financial.interestrate.fra.provider.ForwardRateAg
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureSecurityDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflation;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedAccruedCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedCompounding;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONCompounded;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
@@ -57,7 +59,7 @@ public final class ParSpreadInflationMarketQuoteDiscountingCalculator
    * The methods and calculators.
    */
   private static final PresentValueDiscountingInflationCalculator PVIC = PresentValueDiscountingInflationCalculator.getInstance();
-  private static final PresentValueDiscountingCalculator PVMC = PresentValueDiscountingCalculator.getInstance();
+  private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
   private static final PresentValueMarketQuoteSensitivityDiscountingCalculator PVMQSC = PresentValueMarketQuoteSensitivityDiscountingCalculator.getInstance();
   private static final CashDiscountingMethod METHOD_DEPOSIT = CashDiscountingMethod.getInstance();
   private static final DepositIborDiscountingMethod METHOD_DEPOSIT_IBOR = DepositIborDiscountingMethod.getInstance();
@@ -98,6 +100,19 @@ public final class ParSpreadInflationMarketQuoteDiscountingCalculator
   public Double visitSwap(final Swap<?, ?> swap, final ParameterInflationProviderInterface inflation) {
     ArgumentChecker.notNull(inflation, "Market");
     ArgumentChecker.notNull(swap, "Swap");
+    // Implementation note: if the swap is an On compounded (ie Brazilian like), the par spread formula is not the same.
+    if (swap.getSecondLeg().getNthPayment(0) instanceof CouponONCompounded && 
+        swap.getFirstLeg().getNthPayment(0) instanceof CouponFixedAccruedCompounding &&
+        swap.getFirstLeg().getNumberOfPayments() == 1) {
+      // Implementation note: check if the swap is a Brazilian swap. 
+      MulticurveProviderInterface multicurve =  inflation.getMulticurveProvider();
+      final CouponFixedAccruedCompounding cpnFixed = (CouponFixedAccruedCompounding) swap.getFirstLeg().getNthPayment(0);
+      final double pvONLeg = swap.getSecondLeg().accept(PVDC, multicurve).getAmount(swap.getSecondLeg().getCurrency());
+      final double discountFactor = multicurve.getMulticurveProvider().getDiscountFactor(swap.getFirstLeg().getCurrency(), cpnFixed.getPaymentTime());
+      final double paymentYearFraction = cpnFixed.getPaymentYearFraction();
+      final double notional = ((CouponONCompounded) swap.getSecondLeg().getNthPayment(0)).getNotional();
+      return Math.pow(pvONLeg / discountFactor / notional, 1 / paymentYearFraction) - 1 - cpnFixed.getFixedRate();
+    }
     if (swap.getFirstLeg().getNumberOfPayments() == 1 && swap.getFirstLeg().getNthPayment(0) instanceof CouponFixedCompounding) {
       final CouponFixedCompounding cpn = (CouponFixedCompounding) swap.getFirstLeg().getNthPayment(0);
       final double pvInflationLeg = swap.getSecondLeg().accept(PVIC, inflation).getAmount(swap.getSecondLeg().getCurrency());
@@ -107,7 +122,7 @@ public final class ParSpreadInflationMarketQuoteDiscountingCalculator
       return Math.pow(pvInflationLeg / discountFactor / notional + 1, 1 / tenor) - 1 - cpn.getFixedRate();
     }
     final MulticurveProviderInterface multicurves = inflation.getMulticurveProvider();
-    return -multicurves.getFxRates().convert(swap.accept(PVMC, multicurves), swap.getFirstLeg().getCurrency()).getAmount() 
+    return -multicurves.getFxRates().convert(swap.accept(PVDC, multicurves), swap.getFirstLeg().getCurrency()).getAmount() 
         / swap.getFirstLeg().accept(PVMQSC, multicurves);
   }
 

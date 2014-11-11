@@ -29,7 +29,7 @@ import com.opengamma.util.ArgumentChecker;
  * Computes the present value change when the market quote changes by 1 (it is not rescaled to 1 basis point).
  * The meaning of "market quote" will change for each instrument.
  * For PaymentFixed, it is 0 (there is no rate).
- * For coupons, it is the discounted notional times the accrual factor.
+ * For coupons, it is usually the discounted notional times the accrual factor (except compoding.
  * For annuities, it is the sum of sensitivities of all payments.
  * For swaps it is the pvbp of the first leg.
  */
