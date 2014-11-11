@@ -30,9 +30,12 @@ import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurv
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurveSimple;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.analytics.financial.provider.calculator.discounting.GammaPV01CurveParametersCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
+import com.opengamma.analytics.financial.provider.calculator.inflation.GammaPV01CurveParametersInflationCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflation.MarketQuoteInflationSensitivityBlockCalculator;
+import com.opengamma.analytics.financial.provider.calculator.inflation.PV01CurveParametersInflationCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflationissuer.PresentValueCurveSensitivityDiscountingInflationIssuerCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflationissuer.PresentValueDiscountingInflationIssuerCalculator;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
@@ -50,6 +53,7 @@ import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolat
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -109,29 +113,31 @@ public class BondCapitalIndexedTransactionDiscountingMethodBrazilTest {
   
   private static final double TOLERANCE_PV = 1.0E-4;
   private static final double TOLERANCE_PV_DELTA = 1.0E-2;
+  private static final double TOLERANCE_PV_GAMMA = 1.0E-2;
   private static final double BP1 = 1.0E-4;
   
   /** Curves */
+  private static final Interpolator1D EXP_FLAT = CombinedInterpolatorExtrapolatorFactory.getInterpolator(
+      Interpolator1DFactory.EXPONENTIAL, Interpolator1DFactory.FLAT_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+  private static final Interpolator1D LINEAR_FLAT = CombinedInterpolatorExtrapolatorFactory.getInterpolator(
+      Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
   private static final LegalEntityFilter<LegalEntity> META = new LegalEntityShortName();
   private static final String BR_GOVT_NAME = NTNB_SECURITY_DEFINITION.getIssuer();
   private static final Pair<Object, LegalEntityFilter<LegalEntity>> ISSUER_BR_GOVT = Pairs.of((Object) BR_GOVT_NAME, META);
   private static final String BRL_DSC_NAME = "BRL-DSC";
-  private static final YieldAndDiscountCurve CURVE_DSC = 
-      new YieldCurve(BRL_DSC_NAME, ConstantDoublesCurve.from(0.10, BRL_DSC_NAME));
+  private static final YieldAndDiscountCurve CURVE_DSC = new YieldCurve(BRL_DSC_NAME, 
+      new InterpolatedDoublesCurve(new double[] {0.0, 40.0}, new double[] {0.10, 0.10}, LINEAR_FLAT, true, BRL_DSC_NAME));
   private static final String BRL_GOVT_NAME = "BRL-GOVT";
-  private static final YieldAndDiscountCurve CURVE_GOVT = 
-      new YieldCurve(BRL_GOVT_NAME, ConstantDoublesCurve.from(0.11, BRL_GOVT_NAME));
+  private static final YieldAndDiscountCurve CURVE_GOVT = new YieldCurve(BRL_GOVT_NAME, 
+      new InterpolatedDoublesCurve(new double[] {0.0, 40.0}, new double[] {0.11, 0.11}, LINEAR_FLAT, true, BRL_GOVT_NAME));
   private static final String BRL_IPCA_NAME = "BRL-ZCINFL-IPCA";
   private static final double PRICE_INDEX_SEPTEMBER = 3991.24;
   private static final double[] INDEX_VALUE_BR = new double[] {PRICE_INDEX_SEPTEMBER, PRICE_INDEX_SEPTEMBER * (1+0.07), 
     PRICE_INDEX_SEPTEMBER * Math.pow(1.07, 10), PRICE_INDEX_SEPTEMBER * Math.pow(1.07, 40) };
   private static final double[] TIME_VALUE_BR = new double[] {-33.0d/360.0d, 1.0d-33.0d/360.0d, 10.0d-33.0d/360.0d, 40.0d-33.0d/360.0d };
-  private static final Interpolator1D LINEAR_FLAT = CombinedInterpolatorExtrapolatorFactory.getInterpolator(
-      Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
-  // TODO: replace by exponential interpolator.
   private static final InterpolatedDoublesCurve PRICE_CURVE_BR = 
-      InterpolatedDoublesCurve.from(TIME_VALUE_BR, INDEX_VALUE_BR, LINEAR_FLAT, BRL_IPCA_NAME);
-  private static final PriceIndexCurve PRICE_INDEX_CURVE_BR = new PriceIndexCurveSimple(PRICE_CURVE_BR);
+      InterpolatedDoublesCurve.from(TIME_VALUE_BR, INDEX_VALUE_BR, EXP_FLAT, BRL_IPCA_NAME);
+  private static final PriceIndexCurveSimple PRICE_INDEX_CURVE_BR = new PriceIndexCurveSimple(PRICE_CURVE_BR);
   private static final InflationIssuerProviderDiscount MARKET = new InflationIssuerProviderDiscount();
   static {
     MARKET.setCurve(Currency.BRL, CURVE_DSC);
@@ -229,7 +235,6 @@ public class BondCapitalIndexedTransactionDiscountingMethodBrazilTest {
     }
     assertTrue("BondCapitalIndexedTransactionDiscountingMethodBrazil: present Value curve sensitivity", 
         pvcsInfTotal > 0); // Long bond: positive sensitivity to inflation
-    //TODO: Full curve calibration + sensi to market quotes.
   }
   
   /** Brazil inflation bond are quoted as dirty nominal note or certificate price, i.e. the total price paid
@@ -258,17 +263,47 @@ public class BondCapitalIndexedTransactionDiscountingMethodBrazilTest {
     for(int loopinfl = 0; loopinfl < mqsInfl.getNumberOfElements() ; loopinfl++) {
       pvcsInfTotal += mqsInfl.getEntry(loopinfl);
     }
-    double quickEstimate = 10 * Math.pow(1.06, 9) / Math.pow(1.12, 10) * 1_000_000 / 10_000;
-    // nbYears * inflation cmp * df * notional / bp
-    for(int loopcpn = 0; loopcpn < 10 ; loopcpn++) { // 10Y bond
-      quickEstimate += 0.06 * (loopcpn+1) * Math.pow(1.06, loopcpn) / Math.pow(1.12, loopcpn+1) * 1_000_000 / 10_000;
+    double quickEstimate = 10 * Math.pow(1.06, 9) / Math.pow(1.12, 10) * 1_000_000 / 10_000 * 2.5; // Notional
+    // nbYears * inflation cmp * df * notional / bp * index ratio ~ 2.5
+    for(int loopcpn = 0; loopcpn < 10 ; loopcpn++) { // 10Y bond coupons
+      quickEstimate += 0.06 * (loopcpn+1) * Math.pow(1.06, loopcpn) / Math.pow(1.12, loopcpn+1) * 1_000_000 / 10_000 * 2.5;
     }
     assertTrue("BondCapitalIndexedTransactionDiscountingMethodBrazil: market quote sensitivity", 
-        pvcsInfTotal > quickEstimate * 0.5); 
+        pvcsInfTotal > quickEstimate * 0.75); 
     assertTrue("BondCapitalIndexedTransactionDiscountingMethodBrazil: market quote sensitivity", 
-        pvcsInfTotal > quickEstimate * 3.0);  // TODO: change to 2 when exponential
+        pvcsInfTotal < quickEstimate * 1.5);
     @SuppressWarnings("unused")
     int t=0;
   }
+
+  private static final GammaPV01CurveParametersInflationCalculator<ParameterInflationIssuerProviderInterface> GAMMA01_CAL = 
+      new GammaPV01CurveParametersInflationCalculator<>(PVCSDIIC);
+  private static final PV01CurveParametersInflationCalculator<ParameterInflationIssuerProviderInterface> PV01_CAL = 
+      new PV01CurveParametersInflationCalculator<>(PVCSDIIC);
+
+  @Test
+  public void gammaPV01() {
+    double gammaComputed = GAMMA01_CAL.visit(NTNB_TRANSACTION_STD, MARKET);
+    double shift = BP1;
+    YieldAndDiscountCurve curveDscShifted =  new YieldCurve(BRL_DSC_NAME, new InterpolatedDoublesCurve(new double[] {0.0, 40.0}, 
+        new double[] {0.10 + shift, 0.10 + shift}, LINEAR_FLAT, true, BRL_DSC_NAME));
+    YieldAndDiscountCurve curveGovShifted =  new YieldCurve(BRL_GOVT_NAME, new InterpolatedDoublesCurve(new double[] {0.0, 40.0}, 
+        new double[] {0.11 + shift, 0.11 + shift}, LINEAR_FLAT, true, BRL_GOVT_NAME));
+    InflationIssuerProviderDiscount marketShifted = new InflationIssuerProviderDiscount();
+    marketShifted.setCurve(Currency.BRL, curveDscShifted);
+    marketShifted.setCurve(ISSUER_BR_GOVT, curveGovShifted);
+    marketShifted.setCurve(PRICE_INDEX_IPCA, PRICE_INDEX_CURVE_BR);
+    ReferenceAmount<Pair<String, Currency>> pv01Start = PV01_CAL.visit(NTNB_TRANSACTION_STD, MARKET);
+    ReferenceAmount<Pair<String, Currency>> pv01Up = PV01_CAL.visit(NTNB_TRANSACTION_STD, marketShifted);
+    double gammaExpected = 0.0;
+    Pair<String, Currency> dscBrl = Pairs.of(BRL_DSC_NAME, BRL);
+    Pair<String, Currency> govBrl = Pairs.of(BRL_GOVT_NAME, BRL);
+    gammaExpected += (pv01Up.getMap().get(dscBrl) - pv01Start.getMap().get(dscBrl)) / BP1;
+    gammaExpected += (pv01Up.getMap().get(govBrl) - pv01Start.getMap().get(govBrl)) / BP1;
+    assertEquals("BondCapitalIndexedTransactionDiscountingMethodBrazil: gamma 01", 
+        gammaExpected, gammaComputed, TOLERANCE_PV_GAMMA);
+  }
+  
+  // TODO: theta
   
 }

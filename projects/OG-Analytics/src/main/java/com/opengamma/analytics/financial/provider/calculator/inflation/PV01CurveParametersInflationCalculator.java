@@ -19,19 +19,16 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Returns the change in present value of an instrument due to a parallel move of all the curve's parameters, scaled so that the move is one basis point (0.0001).
+ * Returns the change in present value of an instrument due to a parallel move of all the curve's parameters, 
+ * scaled so that the move is one basis point (0.0001).
  * @param <T> The type of the multi-curve provider
  */
 public final class PV01CurveParametersInflationCalculator<T extends ParameterInflationProviderInterface> extends
     InstrumentDerivativeVisitorSameMethodAdapter<T, ReferenceAmount<Pair<String, Currency>>> {
 
-  /**
-   * The size of the scaling: 1 basis point.
-   */
+  /** The size of the scaling: 1 basis point. */
   private static final double BP1 = 1.0E-4;
-  /**
-   * The present value curve sensitivity calculator.
-   */
+  /** The present value curve sensitivity calculator. */
   private final ParameterSensitivityInflationParameterCalculator<T> _parameterSensitivityCalculator;
 
   /**
