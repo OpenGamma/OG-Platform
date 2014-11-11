@@ -214,39 +214,6 @@ public class CouponIborRatchetDefinition extends CouponFloatingDefinition {
     return true;
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public CouponIborRatchet toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(date, "date");
-    ArgumentChecker.isTrue(!date.isAfter(getFixingDate()), "Do not have any fixing data but are asking for a derivative after the fixing date " + getFixingDate() + " " + date);
-    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
-    ArgumentChecker.isTrue(yieldCurveNames.length > 1, "at least two curves required");
-    ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
-    final String discountingCurveName = yieldCurveNames[0];
-    final String forwardCurveName = yieldCurveNames[1];
-    final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
-    final double fixingTime = TimeCalculator.getTimeBetween(date, getFixingDate());
-    final double fixingPeriodStartTime = TimeCalculator.getTimeBetween(date, getFixingPeriodStartDate());
-    final double fixingPeriodEndTime = TimeCalculator.getTimeBetween(date, getFixingPeriodEndDate());
-    return new CouponIborRatchet(getCurrency(), paymentTime, discountingCurveName, getPaymentYearFraction(), getNotional(), fixingTime, fixingPeriodStartTime, fixingPeriodEndTime,
-        getFixingPeriodAccrualFactor(), forwardCurveName, getIndex(), _mainCoefficients, _floorCoefficients, _capCoefficients);
-  }
-
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public Payment toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> data, final String... yieldCurveNames) {
-    return null;
-    //TODO: coupon with fixing!
-  }
-
   @Override
   public CouponIborRatchet toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "date");

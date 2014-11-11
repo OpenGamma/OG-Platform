@@ -167,8 +167,7 @@ public class CouponONArithmeticAverageSpreadDefinitionTest {
    * Tests the toDerivative method.
    */
   public void toDerivativeNoFixing() {
-    final String[] curvesNames = new String[] {"Funding", "Forward" };
-    final CouponONArithmeticAverageSpread cpnConverted = FEDFUND_CPN_3M_DEF.toDerivative(TRADE_DATE, curvesNames);
+    final CouponONArithmeticAverageSpread cpnConverted = FEDFUND_CPN_3M_DEF.toDerivative(TRADE_DATE);
     final double paymentTime = TimeCalculator.getTimeBetween(TRADE_DATE, PAYMENT_DATE_3M);
     final double[] fixingPeriodTimes = TimeCalculator.getTimeBetween(TRADE_DATE, FEDFUND_CPN_3M_DEF.getFixingPeriodDates());
     final CouponONArithmeticAverageSpread cpnExpected = CouponONArithmeticAverageSpread.from(paymentTime, ACCURAL_FACTOR_3M, NOTIONAL, FEDFUND, fixingPeriodTimes,

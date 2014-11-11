@@ -101,23 +101,6 @@ public final class SwaptionCashFixedIborDefinition implements InstrumentDefiniti
     return new SwaptionCashFixedIborDefinition(expiryDate, underlyingSwap, isCall, isLong);
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public SwaptionCashFixedIbor toDerivative(final ZonedDateTime dateTime, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(dateTime, "date");
-    final LocalDate dayConversion = dateTime.toLocalDate();
-    ArgumentChecker.isTrue(!dayConversion.isAfter(getExpiry().getExpiry().toLocalDate()), "date is after expiry date");
-    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
-    final double expiryTime = TimeCalculator.getTimeBetween(dateTime, _expiry.getExpiry());
-    final double settlementTime = TimeCalculator.getTimeBetween(dateTime, _settlementDate);
-    final SwapFixedCoupon<? extends Payment> underlyingSwap = _underlyingSwap.toDerivative(dateTime, yieldCurveNames);
-    return SwaptionCashFixedIbor.from(expiryTime, underlyingSwap, settlementTime, _isCall, _isLong);
-  }
-
   @Override
   public SwaptionCashFixedIbor toDerivative(final ZonedDateTime dateTime) {
     ArgumentChecker.notNull(dateTime, "date");

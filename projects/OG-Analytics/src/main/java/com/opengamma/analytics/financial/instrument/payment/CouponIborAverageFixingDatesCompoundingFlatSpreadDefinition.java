@@ -416,26 +416,6 @@ public class CouponIborAverageFixingDatesCompoundingFlatSpreadDefinition extends
         fixingPeriodStartTimeLeft, fixingPeriodEndTimeLeft, fixingPeriodAccrualFactorLeft, amountAccruedSubPeriod, sumCpa, getSpread());
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Override
-  @Deprecated
-  public Coupon toDerivative(ZonedDateTime date, DoubleTimeSeries<ZonedDateTime> data, String... yieldCurveNames) {
-    throw new NotImplementedException("toDerivative not implemented with yield curve names.");
-  }
-
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Override
-  @Deprecated
-  public CouponIborAverageFixingDatesCompoundingFlatSpread toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    throw new NotImplementedException("toDerivative not implemented with yield curve names.");
-  }
-
   @Override
   public int hashCode() {
     final int prime = 31;

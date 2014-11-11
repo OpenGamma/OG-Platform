@@ -194,15 +194,7 @@ public class BillSecurityDefinition implements InstrumentDefinition<BillSecurity
    */
   @Deprecated
   public BillSecurity toDerivative(final ZonedDateTime date, final ZonedDateTime settlementDate, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(date, "Reference date");
-    ArgumentChecker.notNull(settlementDate, "Settlement date");
-    ArgumentChecker.notNull(yieldCurveNames, "Yield curve names");
-    ArgumentChecker.isTrue(!date.isAfter(_endDate), "Reference date {} is after end date {}", date, _endDate);
-    double settlementTime = TimeCalculator.getTimeBetween(date, settlementDate);
-    settlementTime = Math.max(settlementTime, 0.0);
-    final double endTime = TimeCalculator.getTimeBetween(date, _endDate);
-    final double accrualFactor = _dayCount.getDayCountFraction(settlementDate, _endDate, _calendar);
-    return new BillSecurity(_currency, settlementTime, endTime, _notional, _yieldConvention, accrualFactor, _issuer, yieldCurveNames[1], yieldCurveNames[0]);
+    throw new UnsupportedOperationException(this.getClass().getCanonicalName());
   }
 
   /**
@@ -220,21 +212,6 @@ public class BillSecurityDefinition implements InstrumentDefinition<BillSecurity
     final double endTime = TimeCalculator.getTimeBetween(date, _endDate);
     final double accrualFactor = _dayCount.getDayCountFraction(settlementDate, _endDate, _calendar);
     return new BillSecurity(_currency, settlementTime, endTime, _notional, _yieldConvention, accrualFactor, _issuer);
-  }
-
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public BillSecurity toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(date, "Reference date");
-    ArgumentChecker.notNull(yieldCurveNames, "Yield curve names");
-    ArgumentChecker.isTrue(!date.isAfter(_endDate), "Reference date {} is after end date {}", date, _endDate);
-    ZonedDateTime settlementDate = ScheduleCalculator.getAdjustedDate(date, _settlementDays, _calendar);
-    settlementDate = (settlementDate.isAfter(_endDate)) ? _endDate : settlementDate;
-    return toDerivative(date, settlementDate, yieldCurveNames);
   }
 
   @Override

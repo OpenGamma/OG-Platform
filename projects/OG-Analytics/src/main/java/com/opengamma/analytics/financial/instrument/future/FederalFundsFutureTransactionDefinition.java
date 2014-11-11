@@ -34,43 +34,9 @@ public class FederalFundsFutureTransactionDefinition extends FuturesTransactionD
     super(underlyingFuture, quantity, tradeDate, tradePrice);
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public FederalFundsFutureTransaction toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException("The method toDerivative of FederalFundsFutureTransactionDefinition does not support the two argument method (without ON fixing and margin price data).");
-  }
-
   @Override
   public FederalFundsFutureTransaction toDerivative(final ZonedDateTime date) {
     throw new UnsupportedOperationException("The method toDerivative of FederalFundsFutureTransactionDefinition does not support the two argument method (without ON fixing and margin price data).");
-  }
-
-  /**
-   * @param date The reference date.
-   * @param data Two time series. The first one with the ON index fixing; the second one with the future closing (margining) prices.
-   * @param yieldCurveNames The yield curve names
-   * The last closing price at a date strictly before "date" is used as last closing.
-   * @return The derivative form
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public FederalFundsFutureTransaction toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime>[] data, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(date, "Date");
-    ArgumentChecker.isTrue(data.length >= 2, "At least two time series: ON index and future closing");
-    final FederalFundsFutureSecurity underlying = getUnderlyingSecurity().toDerivative(date, data[0], yieldCurveNames);
-    if (getTradeDate().equals(date)) {
-      return new FederalFundsFutureTransaction(underlying, getQuantity(), getTradePrice());
-    }
-    final DoubleTimeSeries<ZonedDateTime> pastClosing = data[1].subSeries(date.minusMonths(1), date);
-    ArgumentChecker.isTrue(!pastClosing.isEmpty(), "No closing price"); // There should be at least one recent margining.
-    final double lastMargin = pastClosing.getLatestValue();
-    return new FederalFundsFutureTransaction(underlying, getQuantity(), lastMargin);
   }
 
   /**

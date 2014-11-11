@@ -182,27 +182,6 @@ public class CouponONArithmeticAverageSpreadDefinition extends CouponDefinition 
     return _spreadAmount;
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public CouponONArithmeticAverageSpread toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    ArgumentChecker.isTrue(!_fixingPeriodDates[0].plusDays(_index.getPublicationLag()).isBefore(date), "First fixing publication strictly before reference date");
-    return toDerivative(date);
-  }
-
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public Coupon toDerivative(final ZonedDateTime valZdt, final DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries, final String... yieldCurveNames) {
-    return toDerivative(valZdt, indexFixingTimeSeries);
-  }
-
   @Override
   public CouponONArithmeticAverageSpread toDerivative(final ZonedDateTime date) {
     ArgumentChecker.isTrue(!_fixingPeriodDates[0].plusDays(_index.getPublicationLag()).isBefore(date), "First fixing publication strictly before reference date");

@@ -487,26 +487,6 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
     return _priceIndex;
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public BondCapitalIndexedSecurity<Coupon> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    return toDerivative(date);
-  }
-
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public BondCapitalIndexedSecurity<Coupon> toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> data, final String... yieldCurveNames) {
-    return toDerivative(date, data);
-  }
-
   @Override
   public BondCapitalIndexedSecurity<Coupon> toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "date");

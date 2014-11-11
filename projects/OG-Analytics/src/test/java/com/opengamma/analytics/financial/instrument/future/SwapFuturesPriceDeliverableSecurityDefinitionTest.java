@@ -80,24 +80,6 @@ public class SwapFuturesPriceDeliverableSecurityDefinitionTest {
     assertEquals("DeliverableSwapFuturesSecurityDefinition: from", SWAP_FUTURES_SECURITY_DEFINITION, futuresDefinition);
   }
 
-  @SuppressWarnings("deprecation")
-  @Test
-  /**
-   * Tests the toDerivative method.
-   */
-  public void toDerivativeDeprecated() {
-    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 9, 21);
-    final String dscName = "USD Discounting";
-    final String fwd3Name = "USD Forward 3M";
-    final String[] curveNames = {dscName, fwd3Name };
-    final SwapFixedCoupon<? extends Coupon> underlying = SWAP_DEFINITION.toDerivative(referenceDate, curveNames);
-    final double expiryTime = TimeCalculator.getTimeBetween(referenceDate, LAST_TRADING_DATE);
-    final double deliveryTime = TimeCalculator.getTimeBetween(referenceDate, EFFECTIVE_DATE);
-    final SwapFuturesPriceDeliverableSecurity futuresExpected = new SwapFuturesPriceDeliverableSecurity(expiryTime, deliveryTime, underlying, NOTIONAL);
-    final SwapFuturesPriceDeliverableSecurity futuresConverted = SWAP_FUTURES_SECURITY_DEFINITION.toDerivative(referenceDate, curveNames);
-    assertEquals("DeliverableSwapFuturesSecurityDefinition: toDerivative", futuresExpected, futuresConverted);
-  }
-
   @Test
   /**
    * Tests the toDerivative method.

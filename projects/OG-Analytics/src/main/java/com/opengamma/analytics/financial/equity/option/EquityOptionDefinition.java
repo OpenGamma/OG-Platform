@@ -151,11 +151,6 @@ public class EquityOptionDefinition implements InstrumentDefinition<EquityOption
   }
 
   @Override
-  public EquityOption toDerivative(ZonedDateTime date, final String... yieldCurveNames) {
-    return toDerivative(date);
-  }
-
-  @Override
   public EquityOption toDerivative(final ZonedDateTime date) {
     ArgumentChecker.inOrderOrEqual(date.toLocalDate(), getExpiryDate().toLocalDate(), "valuation date", "expiry");
     double timeToExpiry = TimeCalculator.getTimeBetween(date, getExpiryDate());

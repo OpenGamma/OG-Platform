@@ -176,64 +176,6 @@ public class CouponInflationYearOnYearMonthlyWithMarginDefinition extends Coupon
     return from(_factor, accrualStartDate, paymentDate, notional, getPriceIndex(), _conventionalMonthLag, _monthLag, _payNotional);
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public CouponInflationYearOnYearMonthlyWithMargin toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(date, "date");
-    ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "Do not have any fixing data but are asking for a derivative after the payment date");
-    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
-    ArgumentChecker.isTrue(yieldCurveNames.length > 0, "at least one curve required");
-    ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
-    final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
-    final double referenceEndTime = TimeCalculator.getTimeBetween(date, getReferenceEndDate());
-    final double referenceStartTime = TimeCalculator.getTimeBetween(date, getReferenceStartDate());
-    final ZonedDateTime naturalPaymentEndDate = getPaymentDate().minusMonths(_monthLag - _conventionalMonthLag);
-    final double naturalPaymentEndTime = TimeCalculator.getTimeBetween(date, naturalPaymentEndDate);
-    final ZonedDateTime naturalPaymentstartDate = naturalPaymentEndDate.minusMonths(12);
-    final double naturalPaymentStartTime = TimeCalculator.getTimeBetween(date, naturalPaymentstartDate);
-    return new CouponInflationYearOnYearMonthlyWithMargin(_factor, getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), getPriceIndex(), referenceStartTime, naturalPaymentStartTime,
-        referenceEndTime, naturalPaymentEndTime, _payNotional);
-  }
-
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public Coupon toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> priceIndexTimeSeries, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(date, "date");
-    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
-    ArgumentChecker.isTrue(yieldCurveNames.length > 0, "at least one curve required");
-    ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
-    final LocalDate dayConversion = date.toLocalDate();
-    final String discountingCurveName = yieldCurveNames[0];
-    final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
-    final LocalDate dayFixing = getReferenceEndDate().toLocalDate();
-    if (dayConversion.isAfter(dayFixing)) {
-      final Double fixedEndIndex = priceIndexTimeSeries.getValue(getReferenceEndDate());
-      if (fixedEndIndex != null) {
-        final Double fixedStartIndex = priceIndexTimeSeries.getValue(getReferenceStartDate());
-        final Double fixedRate = (fixedEndIndex / fixedStartIndex - (payNotional() ? 0.0 : 1.0)) + _factor;
-        return new CouponFixed(getCurrency(), paymentTime, discountingCurveName, getPaymentYearFraction(), getNotional(), fixedRate);
-      }
-    }
-    double referenceEndTime = 0.0;
-    double referenceStartTime = 0.0;
-    referenceEndTime = TimeCalculator.getTimeBetween(date, _referenceEndDate);
-    referenceStartTime = TimeCalculator.getTimeBetween(date, _referenceStartDate);
-    final ZonedDateTime naturalPaymentEndDate = getPaymentDate().minusMonths(_monthLag - _conventionalMonthLag);
-    final double naturalPaymentEndTime = TimeCalculator.getTimeBetween(date, naturalPaymentEndDate);
-    final ZonedDateTime naturalPaymentstartDate = naturalPaymentEndDate.minusMonths(12);
-    final double naturalPaymentStartTime = TimeCalculator.getTimeBetween(date, naturalPaymentstartDate);
-    return new CouponInflationYearOnYearMonthlyWithMargin(_factor, getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), getPriceIndex(), referenceStartTime, naturalPaymentStartTime,
-        referenceEndTime, naturalPaymentEndTime, _payNotional);
-  }
-
   @Override
   public CouponInflationYearOnYearMonthlyWithMargin toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "date");

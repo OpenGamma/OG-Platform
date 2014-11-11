@@ -218,33 +218,6 @@ public class SwapFixedIborDefinition extends SwapDefinition {
     return new SwapFixedIborDefinition(fixedLegTrimmed, iborLegTrimmed);
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @SuppressWarnings("unchecked")
-  @Override
-  public SwapFixedCoupon<Coupon> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    final Annuity<CouponFixed> fixedLeg = getFixedLeg().toDerivative(date, yieldCurveNames);
-    final Annuity<? extends Coupon> iborLeg = getIborLeg().toDerivative(date, yieldCurveNames);
-    return new SwapFixedCoupon<>(fixedLeg, (Annuity<Coupon>) iborLeg);
-  }
-
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @SuppressWarnings("unchecked")
-  @Override
-  public SwapFixedCoupon<Coupon> toDerivative(final ZonedDateTime date, final ZonedDateTimeDoubleTimeSeries[] indexDataTS, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(indexDataTS, "index data time series array");
-    final Annuity<CouponFixed> fixedLeg = getFixedLeg().toDerivative(date, yieldCurveNames);
-    final Annuity<? extends Coupon> iborLeg = getIborLeg().toDerivative(date, indexDataTS[0], yieldCurveNames);
-    return new SwapFixedCoupon<>(fixedLeg, (Annuity<Coupon>) iborLeg);
-  }
-
   @SuppressWarnings("unchecked")
   @Override
   public SwapFixedCoupon<Coupon> toDerivative(final ZonedDateTime date) {

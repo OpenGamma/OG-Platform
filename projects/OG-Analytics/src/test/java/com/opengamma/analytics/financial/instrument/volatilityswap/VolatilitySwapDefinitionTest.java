@@ -122,7 +122,6 @@ public class VolatilitySwapDefinitionTest extends AnalyticsTestBase {
   /**
    * Tests creation of a forward-starting volatility swap derivative
    */
-  @SuppressWarnings("deprecation")
   @Test
   public void testForwardStarting() {
     final VolatilitySwap volatilitySwap = DEFINITION.toDerivative(NOW);
@@ -135,13 +134,11 @@ public class VolatilitySwapDefinitionTest extends AnalyticsTestBase {
     assertEquals(VOL_NOTIONAL, volatilitySwap.getVolatilityNotional(), 0);
     assertEquals(VOL_STRIKE, volatilitySwap.getVolatilityStrike());
     assertEquals(volatilitySwap, DEFINITION.toDerivative(NOW));
-    assertEquals(volatilitySwap, DEFINITION.toDerivative(NOW, "A", "B"));
   }
 
   /**
    * Tests creation of a seasoned volatility swap derivative
    */
-  @SuppressWarnings("deprecation")
   @Test
   public void testSeasoned() {
     final VolatilitySwapDefinition definition = new VolatilitySwapDefinition(CCY, VOL_STRIKE, VOL_NOTIONAL, T_PLUS_2D, T_PLUS_5Y,
@@ -155,7 +152,6 @@ public class VolatilitySwapDefinitionTest extends AnalyticsTestBase {
     assertEquals(4, volatilitySwap.getTimeToMaturity(), 0);
     assertEquals(VOL_NOTIONAL, volatilitySwap.getVolatilityNotional());
     assertEquals(VOL_STRIKE, volatilitySwap.getVolatilityStrike(), 0);
-    assertEquals(volatilitySwap, definition.toDerivative(NOW.plusYears(1), "A", "B"));
   }
 
   /**

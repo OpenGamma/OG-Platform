@@ -177,19 +177,6 @@ public class CapFloorCMSSpreadDefinitionTest {
     assertEquals(cmsSpreadModified.equals(CMS_SPREAD_DEFINITION), false);
   }
 
-  @SuppressWarnings("deprecation")
-  @Test
-  public void testToDerivativeDeprecated() {
-    final SwapFixedCoupon<? extends Payment> swap1 = SWAP_DEFINITION_1.toDerivative(REFERENCE_DATE, CURVES_2_NAME);
-    final SwapFixedCoupon<? extends Payment> swap2 = SWAP_DEFINITION_2.toDerivative(REFERENCE_DATE, CURVES_2_NAME);
-    final CapFloorCMSSpread cmsSpread = (CapFloorCMSSpread) CMS_SPREAD_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_2_NAME);
-    assertEquals(swap1, cmsSpread.getUnderlyingSwap1());
-    assertEquals(swap2, cmsSpread.getUnderlyingSwap2());
-    final CapFloorCMSSpread cmsSpreadExpected = new CapFloorCMSSpread(CUR, PAYMENT_TIME, PAYMENT_ACCRUAL_FACTOR, NOTIONAL, FIXING_TIME, swap1, CMS_INDEX_1, swap2, CMS_INDEX_2, SETTLEMENT_TIME,
-        STRIKE, IS_CAP, FUNDING_CURVE_NAME);
-    assertEquals("CMS Spread to derivatives", cmsSpreadExpected, cmsSpread);
-  }
-
   @Test
   public void testToDerivative() {
     final SwapFixedCoupon<? extends Payment> swap1 = SWAP_DEFINITION_1.toDerivative(REFERENCE_DATE);

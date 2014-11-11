@@ -94,19 +94,6 @@ public class InterestRateFutureOptionPremiumSecurityDefinition implements Instru
     return _underlyingFuture.getCurrency();
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public InterestRateFutureOptionPremiumSecurity toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    ArgumentChecker.isTrue(!date.isAfter(_expirationDate), "Date is after expiration date");
-    final InterestRateFutureSecurity underlyingFuture = _underlyingFuture.toDerivative(date, yieldCurveNames);
-    final double expirationTime = TimeCalculator.getTimeBetween(date, _expirationDate);
-    return new InterestRateFutureOptionPremiumSecurity(underlyingFuture, expirationTime, _strike, _isCall);
-  }
-
   @Override
   public InterestRateFutureOptionPremiumSecurity toDerivative(final ZonedDateTime date) {
     ArgumentChecker.isTrue(!date.isAfter(_expirationDate), "Date is after expiration date");
