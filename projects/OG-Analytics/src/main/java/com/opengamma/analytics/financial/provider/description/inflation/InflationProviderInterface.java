@@ -40,7 +40,7 @@ public interface InflationProviderInterface extends ParameterInflationProviderIn
   // TODO: Do we need a method which returns the inflation rate over a period?
 
   /**
-   * Return the name associated to a price index.
+   * Return the name of the curve associated to a price index.
    * @param index The price index.
    * @return The name.
    */

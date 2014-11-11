@@ -91,8 +91,8 @@ public class StandardDataSetsGovtBrInflationBRL {
   private static final Interpolator1D INTERPOLATOR_STEP_FLAT =
       CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.STEP,
           Interpolator1DFactory.FLAT_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
-  private static final Interpolator1D INTERPOLATOR_LINEAR = 
-      CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, 
+  private static final Interpolator1D INTERPOLATOR_EXP = 
+      CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.EXPONENTIAL, 
           Interpolator1DFactory.FLAT_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
   private static final LastFixingEndTimeCalculator LAST_FIXING_END_CALCULATOR = LastFixingEndTimeCalculator.getInstance();
   
@@ -190,10 +190,10 @@ public class StandardDataSetsGovtBrInflationBRL {
     }
     InterpolatedDoublesCurve startCurve = new InterpolatedDoublesCurve(times, values, INTERPOLATOR_STEP_FLAT, true);
     DoublesCurve adjustmentCurve = startCurve;
-    GeneratorPriceIndexCurve generatorFixLinAnchor = new GeneratorPriceIndexCurveInterpolatedAnchor(
-        LAST_FIXING_END_CALCULATOR, INTERPOLATOR_LINEAR, times[nbTimes-1], 1.0);
+    GeneratorPriceIndexCurve generatorFixExpAnchor = new GeneratorPriceIndexCurveInterpolatedAnchor(
+        LAST_FIXING_END_CALCULATOR, INTERPOLATOR_EXP, times[nbTimes-1], 1.0);
     GeneratorPriceIndexCurve genAdjustment = 
-        new GeneratorPriceIndexCurveMultiplyFixedCurve(generatorFixLinAnchor, adjustmentCurve);
+        new GeneratorPriceIndexCurveMultiplyFixedCurve(generatorFixExpAnchor, adjustmentCurve);
     InstrumentDefinition<?>[] oisDefinition = CurveCalibrationTestsUtils.getDefinitions(calibrationDate, NOTIONAL,
         OIS_MARKET_QUOTES, OIS_GENERATORS, OIS_ATTR);
     InstrumentDefinition<?>[] inflDefinition = CurveCalibrationTestsUtils.getDefinitions(calibrationDate, NOTIONAL,
