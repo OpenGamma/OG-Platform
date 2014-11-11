@@ -65,6 +65,10 @@ public final class IndexIborMaster {
    */
   public static final String EURIBOR12M = "EURIBOR12M";
 
+  /** Reference to the GBP LIBOR 1M index.
+   */
+  public static final String GBPLIBOR1M = "GBPLIBOR1M";
+
   /**
    * Reference to the GBP LIBOR 3M index.
    */
@@ -176,6 +180,10 @@ public final class IndexIborMaster {
         USDLIBOR12M,
         new IborIndex(Currency.USD, Period.ofMonths(12), 2, DayCounts.ACT_360, BusinessDayConventions.MODIFIED_FOLLOWING,
             true, USDLIBOR12M));
+    _ibor.put(
+        GBPLIBOR1M,
+        new IborIndex(Currency.GBP, Period.ofMonths(1), 0, DayCounts.ACT_365, BusinessDayConventions.MODIFIED_FOLLOWING,
+            true, GBPLIBOR1M));
     _ibor.put(
         GBPLIBOR3M,
         new IborIndex(Currency.GBP, Period.ofMonths(3), 0, DayCounts.ACT_365, BusinessDayConventions.MODIFIED_FOLLOWING,
