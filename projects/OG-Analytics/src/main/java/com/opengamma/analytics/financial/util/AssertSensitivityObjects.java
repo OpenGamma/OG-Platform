@@ -129,15 +129,18 @@ public class AssertSensitivityObjects {
    * @param tolerance The tolerance.
    * @return True if the difference is below the tolerance and False if not. If the curves are not the same it returns False.
    */
-  public static boolean assertEquals(final String msg, final InflationSensitivity sensi1, final InflationSensitivity sensi2, final double tolerance) {
+  public static boolean assertEquals(final String msg, final InflationSensitivity sensi1, 
+      final InflationSensitivity sensi2, final double tolerance) {
     boolean cmp = true;
-    if (!InterestRateCurveSensitivityUtils.compare(sensi1.getYieldDiscountingSensitivities(), sensi2.getYieldDiscountingSensitivities(), tolerance)) {
+    if (!InterestRateCurveSensitivityUtils.compare(sensi1.getYieldDiscountingSensitivities(), 
+        sensi2.getYieldDiscountingSensitivities(), tolerance)) {
       cmp = false;
     }
     if (!compareFwd(sensi1.getForwardSensitivities(), sensi2.getForwardSensitivities(), tolerance)) {
       cmp = false;
     }
-    if (!InterestRateCurveSensitivityUtils.compare(sensi1.getPriceCurveSensitivities(), sensi2.getPriceCurveSensitivities(), tolerance)) {
+    if (!InterestRateCurveSensitivityUtils.compare(sensi1.getPriceCurveSensitivities(), 
+        sensi2.getPriceCurveSensitivities(), tolerance)) {
       cmp = false;
     }
     assertTrue(msg, cmp);
@@ -177,7 +180,8 @@ public class AssertSensitivityObjects {
    * @param tolerance The tolerance.
    * @return True if the difference is below the tolerance and False if not. If the currencies or the curves are not the same it returns False.
    */
-  public static boolean assertEquals(final String msg, final MultipleCurrencyInflationSensitivity sensi1, final MultipleCurrencyInflationSensitivity sensi2, final double tolerance) {
+  public static boolean assertEquals(final String msg, final MultipleCurrencyInflationSensitivity sensi1, 
+      final MultipleCurrencyInflationSensitivity sensi2, final double tolerance) {
     boolean cmp = true;
     final boolean keycmp = sensi1.getCurrencies().equals(sensi2.getCurrencies());
     if (!keycmp) {

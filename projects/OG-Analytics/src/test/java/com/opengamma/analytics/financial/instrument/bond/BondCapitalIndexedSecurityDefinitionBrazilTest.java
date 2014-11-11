@@ -8,16 +8,21 @@ package com.opengamma.analytics.financial.instrument.bond;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.testng.annotations.Test;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
+import com.opengamma.analytics.financial.instrument.index.IndexPriceMaster;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponMonthlyGearingDefinition;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
 import com.opengamma.analytics.financial.interestrate.datasets.StandardTimeSeriesInflationDataSets;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
+import com.opengamma.analytics.financial.legalentity.CreditRating;
 import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
@@ -40,12 +45,14 @@ import com.opengamma.util.time.DateUtils;
 public class BondCapitalIndexedSecurityDefinitionBrazilTest {
   
   /** Notas do Tesouro Nacional, B - ISIN: BRSTNCNTB096 - 15-Aug-2024 */
-  private static final Currency BRL = Currency.BRL;
-  private static final String PRICE_INDEX_NAME = "ICPA";
-  private static final IndexPrice PRICE_INDEX = new IndexPrice(PRICE_INDEX_NAME, BRL);
+  private static final IndexPrice PRICE_INDEX = IndexPriceMaster.getInstance().getIndex("BRIPCA");
   private static final Calendar CALENDAR_BR = new MondayToFridayCalendar("Brazil");
-  private static final String ISSUER_BRAZIL_NAME = "BRAZIL GOVT";
-  private static final LegalEntity ISSUER_BRAZIL_LEGAL_ENTITY = new LegalEntity(null, ISSUER_BRAZIL_NAME, null, null, null);;
+  private static final String BR_GOVT_NAME = "BR GOVT";
+  private static final Set<CreditRating> RATING = new HashSet<>();
+  static {
+    RATING.add(CreditRating.of("BBB", "OG_RATING", true));
+  }
+  private static final LegalEntity BR_GOVT_LEGAL_ENTITY = new LegalEntity("BRGOVT", BR_GOVT_NAME, RATING, null, null);
   private static final DayCount DAY_COUNT_BR = DayCounts.BUSINESS_252;
   private static final ZonedDateTime INTEREST_ACCRUED_DATE = DateUtils.getUTCDate(2010, 1, 15);
   private static final ZonedDateTime FIRST_COUPON_DATE = DateUtils.getUTCDate(2010, 2, 15);
@@ -60,7 +67,7 @@ public class BondCapitalIndexedSecurityDefinitionBrazilTest {
   public static final BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponMonthlyGearingDefinition> 
       NTNB_SECURITY_DEFINITION = BondCapitalIndexSecurityDefinitionUtils.fromBrazilType(PRICE_INDEX, 
           INTEREST_ACCRUED_DATE, INDEX_START, FIRST_COUPON_DATE, MATURITY_DATE, COUPON_PERIOD, NOTIONAL_NOTE, REAL_RATE, 
-          BUSINESS_DAY, SETTLEMENT_DAYS, CALENDAR_BR, DAY_COUNT_BR, ISSUER_BRAZIL_LEGAL_ENTITY);
+          BUSINESS_DAY, SETTLEMENT_DAYS, CALENDAR_BR, DAY_COUNT_BR, BR_GOVT_LEGAL_ENTITY);
   public static final ZonedDateTime VALUATION_DATE = DateUtils.getUTCDate(2014, 11, 3);
   public static final DoubleTimeSeries<ZonedDateTime> BR_IPCA = StandardTimeSeriesInflationDataSets.timeSeriesBrCpi(VALUATION_DATE);
   

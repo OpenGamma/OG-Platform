@@ -89,8 +89,8 @@ public class StandardTimeSeriesInflationDataSets {
     3836.38, 3862.84, 3898.38, 3924.50, 3655.24, 3942.55, 3958.32, 3958.72, 3968.62, 3991.24 };
   private static final double[] BRIPCA_VALUE = new double[1 * 12 + BRIPCA_VALUE_2014.length];
   static {
-    System.arraycopy(BRIPCA_VALUE_2013, 0, USCPI_VALUE, 0, 12);
-    System.arraycopy(BRIPCA_VALUE_2014, 0, USCPI_VALUE, 12, BRIPCA_VALUE_2014.length);
+    System.arraycopy(BRIPCA_VALUE_2013, 0, BRIPCA_VALUE, 0, 12);
+    System.arraycopy(BRIPCA_VALUE_2014, 0, BRIPCA_VALUE, 12, BRIPCA_VALUE_2014.length);
   }
   private static final ZonedDateTime BRIPCA_START_DATE = DateUtils.getUTCDate(2013, 1, 31);
   private static final ZonedDateTime[] BRIPCA_DATES = new ZonedDateTime[BRIPCA_VALUE.length];

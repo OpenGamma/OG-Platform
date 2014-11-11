@@ -19,7 +19,9 @@ import com.opengamma.analytics.financial.interestrate.cash.provider.DepositIborD
 import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.fra.provider.ForwardRateAgreementDiscountingProviderMethod;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflation;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedAccruedCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedCompounding;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONCompounded;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueCurveSensitivityDiscountingCalculator;
@@ -27,6 +29,8 @@ import com.opengamma.analytics.financial.provider.calculator.discounting.Present
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueMarketQuoteSensitivityCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueMarketQuoteSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.inflation.ParameterInflationProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.InflationSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
@@ -64,8 +68,8 @@ public final class ParSpreadInflationMarketQuoteCurveSensitivityDiscountingCalcu
   /**
    * The methods and calculators.
    */
-  private static final PresentValueDiscountingCalculator PVMC = PresentValueDiscountingCalculator.getInstance();
-  private static final PresentValueCurveSensitivityDiscountingCalculator PVCSMC = PresentValueCurveSensitivityDiscountingCalculator.getInstance();
+  private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
+  private static final PresentValueCurveSensitivityDiscountingCalculator PVCSDC = PresentValueCurveSensitivityDiscountingCalculator.getInstance();
   private static final PresentValueMarketQuoteSensitivityDiscountingCalculator PVMQSMC = PresentValueMarketQuoteSensitivityDiscountingCalculator.getInstance();
   private static final PresentValueMarketQuoteSensitivityCurveSensitivityDiscountingCalculator PVMQSCSMC = PresentValueMarketQuoteSensitivityCurveSensitivityDiscountingCalculator.getInstance();
   private static final CashDiscountingMethod METHOD_DEPOSIT = CashDiscountingMethod.getInstance();
@@ -87,6 +91,24 @@ public final class ParSpreadInflationMarketQuoteCurveSensitivityDiscountingCalcu
   public InflationSensitivity visitSwap(final Swap<?, ?> swap, final ParameterInflationProviderInterface inflation) {
     ArgumentChecker.notNull(inflation, "Market");
     ArgumentChecker.notNull(swap, "Swap");
+    // if the swap is an On compounded (ie Brazilian like), the parspread formula is not the same.
+    if (swap.getSecondLeg().getNthPayment(0) instanceof CouponONCompounded && 
+        swap.getFirstLeg().getNthPayment(0) instanceof CouponFixedAccruedCompounding &&
+        swap.getFirstLeg().getNumberOfPayments() == 1) {
+      // Implementation note: check if the swap is a Brazilian swap.
+      MulticurveProviderInterface multicurve =  inflation.getMulticurveProvider();
+      final MulticurveSensitivity pvcsFirstLeg = swap.getFirstLeg().accept(PVCSDC, multicurve.getMulticurveProvider()).getSensitivity(swap.getFirstLeg().getCurrency());
+      final MulticurveSensitivity pvcsSecondLeg = swap.getSecondLeg().accept(PVCSDC, multicurve.getMulticurveProvider()).getSensitivity(swap.getSecondLeg().getCurrency());
+      final CouponFixedAccruedCompounding cpnFixed = (CouponFixedAccruedCompounding) swap.getFirstLeg().getNthPayment(0);
+      final double pvONCompoundedLeg = swap.getSecondLeg().accept(PVDC, multicurve).getAmount(swap.getSecondLeg().getCurrency());
+      final double discountFactor = multicurve.getMulticurveProvider().getDiscountFactor(swap.getFirstLeg().getCurrency(), cpnFixed.getPaymentTime());
+      final double paymentYearFraction = cpnFixed.getPaymentYearFraction();
+      final double notional = ((CouponONCompounded) swap.getSecondLeg().getNthPayment(0)).getNotional();
+      final double intermediateVariable = (1 / paymentYearFraction) * Math.pow(pvONCompoundedLeg / discountFactor / notional, 1 / paymentYearFraction - 1) / (discountFactor * notional);
+      final MulticurveSensitivity modifiedpvcsFirstLeg = pvcsFirstLeg.multipliedBy(pvONCompoundedLeg * intermediateVariable / discountFactor);
+      final MulticurveSensitivity modifiedpvcsSecondLeg = pvcsSecondLeg.multipliedBy(-intermediateVariable);
+      return InflationSensitivity.of(modifiedpvcsFirstLeg.plus(modifiedpvcsSecondLeg));
+    }
     if (swap.getFirstLeg().getNumberOfPayments() == 1 && swap.getFirstLeg().getNthPayment(0) instanceof CouponFixedCompounding) {
       // Implementation note: check if the swap is an inflation swap.
 
@@ -101,11 +123,11 @@ public final class ParSpreadInflationMarketQuoteCurveSensitivityDiscountingCalcu
       return InflationSensitivity.ofPriceIndex(modifiedpvcis.getPriceCurveSensitivities());
     }
     final Currency ccy1 = swap.getFirstLeg().getCurrency();
-    final MultipleCurrencyMulticurveSensitivity pvcs = swap.accept(PVCSMC, inflation.getMulticurveProvider());
+    final MultipleCurrencyMulticurveSensitivity pvcs = swap.accept(PVCSDC, inflation.getMulticurveProvider());
     final MulticurveSensitivity pvcs1 = pvcs.converted(ccy1, inflation.getInflationProvider().getFxRates()).getSensitivity(ccy1);
     final MulticurveSensitivity pvmqscs = swap.getFirstLeg().accept(PVMQSCSMC, inflation.getMulticurveProvider());
     final double pvmqs = swap.getFirstLeg().accept(PVMQSMC, inflation.getMulticurveProvider());
-    final double pv = inflation.getInflationProvider().getFxRates().convert(swap.accept(PVMC, inflation.getMulticurveProvider()), ccy1).getAmount();
+    final double pv = inflation.getInflationProvider().getFxRates().convert(swap.accept(PVDC, inflation.getMulticurveProvider()), ccy1).getAmount();
     // Implementation note: Total pv in currency 1.
 
     final Map<String, List<DoublesPair>> sensitivityPriceCurve = new HashMap<>();

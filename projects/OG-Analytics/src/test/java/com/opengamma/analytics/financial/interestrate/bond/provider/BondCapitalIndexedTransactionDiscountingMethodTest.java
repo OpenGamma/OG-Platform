@@ -20,7 +20,7 @@ import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapita
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.provider.calculator.inflation.PresentValueCurveSensitivityDiscountingInflationCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflation.PresentValueDiscountingInflationCalculator;
-import com.opengamma.analytics.financial.provider.calculator.inflationissuer.PresentValueCurveSensitivityIssuerInflationCalculator;
+import com.opengamma.analytics.financial.provider.calculator.inflationissuer.PresentValueCurveSensitivityDiscountingInflationIssuerCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflationissuer.PresentValueDiscountingInflationIssuerCalculator;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationIssuerProviderDiscount;
@@ -65,8 +65,8 @@ public class BondCapitalIndexedTransactionDiscountingMethodTest {
   private static final PresentValueDiscountingInflationIssuerCalculator PVDIIC = PresentValueDiscountingInflationIssuerCalculator.getInstance();
   private static final PresentValueCurveSensitivityDiscountingInflationCalculator PVCSIC = 
       PresentValueCurveSensitivityDiscountingInflationCalculator.getInstance();
-  private static final PresentValueCurveSensitivityIssuerInflationCalculator PVCSIIC =
-      PresentValueCurveSensitivityIssuerInflationCalculator.getInstance();
+  private static final PresentValueCurveSensitivityDiscountingInflationIssuerCalculator PVCSIIC =
+      PresentValueCurveSensitivityDiscountingInflationIssuerCalculator.getInstance();
   private static final ParameterSensitivityInflationParameterCalculator<ParameterInflationProviderInterface> PSC = new ParameterSensitivityInflationParameterCalculator<>(PVCSIC);
   private static final ParameterSensitivityInflationMulticurveDiscountInterpolatedFDCalculator PS_PV_FDC = new ParameterSensitivityInflationMulticurveDiscountInterpolatedFDCalculator(PVDIC, SHIFT_FD);
 

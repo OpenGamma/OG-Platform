@@ -17,7 +17,7 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.provider.calculator.inflation.MarketQuoteInflationSensitivityBlockCalculator;
-import com.opengamma.analytics.financial.provider.calculator.inflationissuer.PresentValueCurveSensitivityIssuerInflationCalculator;
+import com.opengamma.analytics.financial.provider.calculator.inflationissuer.PresentValueCurveSensitivityDiscountingInflationIssuerCalculator;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationIssuerProviderInterface;
 import com.opengamma.analytics.financial.provider.description.inflation.ParameterInflationIssuerProviderInterface;
@@ -41,7 +41,7 @@ import com.opengamma.util.async.AsynchronousExecution;
 public class InflationBondBCSFunction extends InflationBondFromCurvesFunction<InflationIssuerProviderInterface, MultipleCurrencyInflationSensitivity> {
   /** The curve sensitivity calculator */
   private static final InstrumentDerivativeVisitor<ParameterInflationIssuerProviderInterface, MultipleCurrencyInflationSensitivity> PVCSIIC =
-      PresentValueCurveSensitivityIssuerInflationCalculator.getInstance();
+      PresentValueCurveSensitivityDiscountingInflationIssuerCalculator.getInstance();
   /** The parameter sensitivity calculator */
   private static final ParameterSensitivityInflationParameterCalculator<ParameterInflationIssuerProviderInterface> PSC =
       new ParameterSensitivityInflationParameterCalculator<>(PVCSIIC);

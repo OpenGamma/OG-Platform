@@ -193,7 +193,8 @@ public class InterestRateCurveSensitivityUtils {
   }
 
   /**
-   * Compare two lists of sensitivities with a given tolerance. The tolerance is used for both the time and the value. The two sensitivities are suppose to be in the same time order.
+   * Compare two lists of sensitivities with a given tolerance. The tolerance is used for both the time and the value. 
+   * The two sensitivities are suppose to be in the same time order.
    * @param sensi1 The first sensitivity (as a list).
    * @param sensi2 The second sensitivity (as a list).
    * @param tolerance The tolerance.
@@ -204,7 +205,9 @@ public class InterestRateCurveSensitivityUtils {
       return false;
     }
     for (int looptime = 0; looptime < sensi1.size(); looptime++) {
-      if ((Math.abs(sensi1.get(looptime).first - sensi2.get(looptime).first) > tolerance) || (Math.abs(sensi1.get(looptime).second - sensi2.get(looptime).second) > tolerance)) {
+      if (((Math.abs(sensi1.get(looptime).first - sensi2.get(looptime).first) > tolerance) && 
+          (((Math.abs(sensi1.get(looptime).second) > tolerance || Math.abs(sensi2.get(looptime).second) > tolerance))))
+          || (Math.abs(sensi1.get(looptime).second - sensi2.get(looptime).second) > tolerance)) {
         return false;
       }
     }
@@ -212,13 +215,15 @@ public class InterestRateCurveSensitivityUtils {
   }
 
   /**
-   * Compare two maps of sensitivities with a given tolerance. The tolerance is used for both the time and the value. The two sensitivities are suppose to be in the same time order.
+   * Compare two maps of sensitivities with a given tolerance. The tolerance is used for both the time and the value. 
+   * The two sensitivities are suppose to be in the same time order.
    * @param sensi1 The first sensitivity (as a map).
    * @param sensi2 The second sensitivity (as a map).
    * @param tolerance The tolerance.
    * @return True if the difference is below the tolerance and False if not. If the curves are not the same it returns False.
    */
-  public static boolean compare(final Map<String, List<DoublesPair>> sensi1, final Map<String, List<DoublesPair>> sensi2, final double tolerance) {
+  public static boolean compare(final Map<String, List<DoublesPair>> sensi1, 
+      final Map<String, List<DoublesPair>> sensi2, final double tolerance) {
     ArgumentChecker.notNull(sensi1, "sensitivity");
     ArgumentChecker.notNull(sensi2, "sensitivity");
     for (final Map.Entry<String, List<DoublesPair>> entry : sensi1.entrySet()) {

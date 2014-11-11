@@ -164,7 +164,7 @@ public class BondAndBondFutureTradeConverter extends FinancialSecurityVisitorAda
     if (tradeDate == null) {
       throw new OpenGammaRuntimeException("Trade date should not be null");
     }
-    final double quantity = trade.getQuantity().doubleValue();
+    double quantity = trade.getQuantity().doubleValue();
     if (trade.getPremium() == null) {
       throw new OpenGammaRuntimeException("Trade premium should not be null.");
     }
@@ -204,7 +204,11 @@ public class BondAndBondFutureTradeConverter extends FinancialSecurityVisitorAda
       final LegalEntity legalEntity = LegalEntityUtils.getLegalEntityForBond(trade.getAttributes(), bondSecurity);
       final BondCapitalIndexedSecurityDefinition<?> bond = 
           (BondCapitalIndexedSecurityDefinition<?>) getInflationBond(bondSecurity, legalEntity);
-      // Note: For Brazilian inflation, the quantity should be the number of certificate (not the total notional).
+      // Note: For Brazilian inflation, the bond security has a fixed notional (not 1); the quantity has to be divided 
+      // by the notional to get the correct total notional.
+      if (bond.getYieldConvention().equals(SimpleYieldConvention.BRAZIL_IL_BOND)) {
+        quantity /= bondSecurity.getParAmount();
+      }
       return new BondCapitalIndexedTransactionDefinition(bond, quantity, settlementDateTime, price);
     }
 

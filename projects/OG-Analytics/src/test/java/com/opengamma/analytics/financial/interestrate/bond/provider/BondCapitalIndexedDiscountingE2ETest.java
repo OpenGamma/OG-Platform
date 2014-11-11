@@ -33,7 +33,7 @@ import com.opengamma.analytics.financial.interestrate.datasets.StandardDataSetsI
 import com.opengamma.analytics.financial.interestrate.datasets.StandardTimeSeriesInflationDataSets;
 import com.opengamma.analytics.financial.provider.calculator.inflation.MarketQuoteInflationSensitivityBlockCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflation.PresentValueDiscountingInflationCalculator;
-import com.opengamma.analytics.financial.provider.calculator.inflationissuer.PresentValueCurveSensitivityIssuerInflationCalculator;
+import com.opengamma.analytics.financial.provider.calculator.inflationissuer.PresentValueCurveSensitivityDiscountingInflationIssuerCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflationissuer.PresentValueDiscountingInflationIssuerCalculator;
 import com.opengamma.analytics.financial.provider.calculator.issuer.PresentValueIssuerCalculator;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
@@ -82,8 +82,8 @@ public class BondCapitalIndexedDiscountingE2ETest {
       PresentValueDiscountingInflationCalculator.getInstance();
   private static final PresentValueDiscountingInflationIssuerCalculator PVInflIssuerC =
       PresentValueDiscountingInflationIssuerCalculator.getInstance();
-  private static final PresentValueCurveSensitivityIssuerInflationCalculator PVCSInflIssuerC =
-      PresentValueCurveSensitivityIssuerInflationCalculator.getInstance();
+  private static final PresentValueCurveSensitivityDiscountingInflationIssuerCalculator PVCSInflIssuerC =
+      PresentValueCurveSensitivityDiscountingInflationIssuerCalculator.getInstance();
 
   private static final ParameterSensitivityInflationParameterCalculator<ParameterInflationIssuerProviderInterface> PSIC = 
       new ParameterSensitivityInflationParameterCalculator<>(PVCSInflIssuerC);
