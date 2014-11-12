@@ -7,22 +7,37 @@ package com.opengamma.sesame.marketdata;
 
 import java.util.Map;
 
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
+
+import com.opengamma.timeseries.date.DateTimeSeries;
+
 /**
- * A market data environment contains all the data required for a single calculation cycle.
+ * Contains market data for use in a set of calculations.
  * <p>
- * An environment can contain multiple sets of data, one for each scenario in the calculations.
- *
- * @param <T> the type of the ID used to identify data for different scenarios in the environment.
+ * A {@code MarketDataEnvironment} can only contain a single instance of a piece of market data. e.g. it can
+ * only contain one curve with a particular name or one time series for a particular ticker.
+ * Use {@link ScenarioMarketDataEnvironment} to hold multiple copies of data for use when running multiple scenarios.
  */
-public interface MarketDataEnvironment<T> {
+public interface MarketDataEnvironment {
 
   /**
-   * Returns the data for each scenario, keyed by scenario ID.
-   *
-   * @return the data for each scenario, keyed by scenario ID
-   * @deprecated this method is temporary and will be removed as soon as the engine supports {@code MarketDataBundle}.
-   *   At the very least it will be changed to return a map with {@link MarketDataBundle} keys.
+   * @return single market data values, keyed by the requirement used to request them
    */
-  @Deprecated
-  Map<T, MapMarketDataBundle> getData();
+  Map<MarketDataRequirement, Object> getData();
+
+  /**
+   * @return time series of market data values, keyed by the ID of the values in the time series.
+   */
+  Map<MarketDataId, DateTimeSeries<LocalDate, ?>> getTimeSeries();
+
+  /**
+   * @return the valuation time of the market data
+   */
+  ZonedDateTime getValuationTime();
+
+  /**
+   * @return a builder created from the data in this environment
+   */
+  MarketDataEnvironmentBuilder toBuilder();
 }

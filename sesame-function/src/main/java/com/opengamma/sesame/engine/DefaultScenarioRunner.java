@@ -24,18 +24,19 @@ import com.opengamma.sesame.config.ViewConfig;
 import com.opengamma.sesame.function.scenarios.ScenarioDefinition;
 import com.opengamma.sesame.marketdata.CycleMarketDataFactory;
 import com.opengamma.sesame.marketdata.FieldName;
-import com.opengamma.sesame.marketdata.MapMarketDataBundle;
 import com.opengamma.sesame.marketdata.MarketDataEnvironment;
 import com.opengamma.sesame.marketdata.MarketDataId;
 import com.opengamma.sesame.marketdata.MarketDataRequirement;
 import com.opengamma.sesame.marketdata.MarketDataSource;
 import com.opengamma.sesame.marketdata.MulticurveId;
+import com.opengamma.sesame.marketdata.ScenarioMarketDataEnvironment;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
 
 /**
  * Default implementation of {@link ScenarioRunner}.
+ * TODO move everything to DefaultEngine and delegate to an Engine
  */
 public class DefaultScenarioRunner implements ScenarioRunner {
 
@@ -63,8 +64,8 @@ public class DefaultScenarioRunner implements ScenarioRunner {
    * @return the results of running the calculations in the view for every item in the portfolio and every scenario
    */
   @Override
-  public Results runScenario(ViewConfig viewConfig, MarketDataEnvironment<?> marketDataEnvironment, List<?> portfolio) {
-    Map<?, MapMarketDataBundle> scenarioData = marketDataEnvironment.getData();
+  public Results runScenario(ViewConfig viewConfig, ScenarioMarketDataEnvironment marketDataEnvironment, List<?> portfolio) {
+    Map<String, MarketDataEnvironment> scenarioData = marketDataEnvironment.getData();
 
     if (scenarioData.size() == 1) {
       return runSingleScenario(viewConfig, scenarioData.values().iterator().next(), portfolio);
@@ -75,9 +76,9 @@ public class DefaultScenarioRunner implements ScenarioRunner {
 
     CycleArguments.Builder cycleArgumentsBuilder = CycleArguments.builder(new EmptyMarketDataFactory());
 
-    for (Map.Entry<?, MapMarketDataBundle> entry : scenarioData.entrySet()) {
+    for (Map.Entry<String, MarketDataEnvironment> entry : scenarioData.entrySet()) {
       Object scenarioId = entry.getKey();
-      MapMarketDataBundle scenarioDataBundle = entry.getValue();
+      MarketDataEnvironment scenarioDataBundle = entry.getValue();
       PreCalibratedMulticurveArguments scenarioArgument = getScenarioArguments(scenarioDataBundle);
 
       for (ViewColumn column : viewConfig.getColumns()) {
@@ -100,10 +101,10 @@ public class DefaultScenarioRunner implements ScenarioRunner {
       }
     }
     ViewConfig scenarioViewConfig = viewConfig.toBuilder()
-                                              .columns(columns)
-                                              .nonPortfolioOutputs(outputs)
-                                              .scenarioDefinition(scenarioDefinition)
-                                              .build();
+        .columns(columns)
+        .nonPortfolioOutputs(outputs)
+        .scenarioDefinition(scenarioDefinition)
+        .build();
     View view = _viewFactory.createView(scenarioViewConfig, inputTypes(portfolio));
     CycleArguments cycleArguments = cycleArgumentsBuilder.build();
     return view.run(cycleArguments, portfolio);
@@ -121,22 +122,22 @@ public class DefaultScenarioRunner implements ScenarioRunner {
   }
 
   /**
-   * Creates and runs a view for a single scenario using the data in {@code marketDataBundle}.
+   * Creates and runs a view for a single scenario using the data in {@code marketData}.
    * <p>
    * This only handles one very specific use case: views whose calculations require curves and no other market data.
-   * The pre-calibrated multicurve bundles must be in {@code marketDataBundle}.
+   * The pre-calibrated multicurve bundles must be in {@code marketData}.
    *
    * @param viewConfig the configuration that defines the calculations in the view
-   * @param marketDataBundle the market data required by the calculation in the view
+   * @param marketData the market data required by the calculation in the view
    * @param portfolio the portfolio used as input to the calculations
    * @return the calculation results
    */
-  private Results runSingleScenario(ViewConfig viewConfig, MapMarketDataBundle marketDataBundle, List<?> portfolio) {
-    ScenarioDefinition scenarioDefinition = new ScenarioDefinition(getScenarioArguments(marketDataBundle));
+  private Results runSingleScenario(ViewConfig viewConfig, MarketDataEnvironment marketData, List<?> portfolio) {
+    ScenarioDefinition scenarioDefinition = new ScenarioDefinition(getScenarioArguments(marketData));
     ViewConfig scenarioViewConfig = viewConfig.toBuilder().scenarioDefinition(scenarioDefinition).build();
     View view = _viewFactory.createView(scenarioViewConfig, inputTypes(portfolio));
     EmptyMarketDataFactory marketDataFactory = new EmptyMarketDataFactory();
-    ZonedDateTime valuationTime = marketDataBundle.getValuationTime();
+    ZonedDateTime valuationTime = marketData.getValuationTime();
     CycleArguments cycleArguments = CycleArguments.builder(marketDataFactory).valuationTime(valuationTime).build();
     return view.run(cycleArguments, portfolio);
   }
@@ -144,13 +145,13 @@ public class DefaultScenarioRunner implements ScenarioRunner {
   /**
    * Creates the scenario arguments to feed the pre-calibrated curves into the curve function.
    *
-   * @param marketDataBundle the market data bundle for a scenario containing pre-calibrated curves
+   * @param marketData the market data bundle for a scenario containing pre-calibrated curves
    * @return the scenario arguments that pass the curves into the engine
    */
-  private PreCalibratedMulticurveArguments getScenarioArguments(MapMarketDataBundle marketDataBundle) {
+  private PreCalibratedMulticurveArguments getScenarioArguments(MarketDataEnvironment marketData) {
     Map<String, MulticurveBundle> multicurves = new HashMap<>();
 
-    for (Map.Entry<MarketDataRequirement, Object> entry : marketDataBundle.getMarketData().entrySet()) {
+    for (Map.Entry<MarketDataRequirement, Object> entry : marketData.getData().entrySet()) {
       MarketDataId<?> id = entry.getKey().getMarketDataId();
       Object marketDataItem = entry.getValue();
 
