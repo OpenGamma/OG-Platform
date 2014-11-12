@@ -15,12 +15,12 @@ import com.opengamma.timeseries.date.DateTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Builder for constructing instances of {@link MapMarketDataBundle}.
+ * Builder for constructing instances of {@link MarketDataEnvironment}.
  */
-public class MapMarketDataBundleBuilder {
+public class MarketDataEnvironmentBuilder {
 
   /** The time for which the market data is valid. */
-  private final MarketDataTime _time;
+  private MarketDataTime _time = MarketDataTime.VALUATION_TIME;
 
   /** Single market data values, keyed by their requirement. */
   private final Map<MarketDataRequirement, Object> _marketData = new HashMap<>();
@@ -28,19 +28,20 @@ public class MapMarketDataBundleBuilder {
   /** Time series of values, keyed by the ID of the value. */
   private final Map<MarketDataId, DateTimeSeries<LocalDate, ?>> _timeSeries = new HashMap<>();
 
+  // TODO is it sensible to have a default value?
   /** The valuation time for calculations using the bundle's data. */
   private ZonedDateTime _valuationTime;
 
-  private MapMarketDataBundleBuilder(MarketDataTime time) {
+  private MarketDataEnvironmentBuilder(MarketDataTime time) {
     _time = ArgumentChecker.notNull(time, "time");
   }
 
-  MapMarketDataBundleBuilder(MarketDataTime time,
-                             Map<MarketDataRequirement, Object> marketData,
-                             Map<MarketDataId, DateTimeSeries<LocalDate, ?>> timeSeries) {
+  MarketDataEnvironmentBuilder(ZonedDateTime valuationTime,
+                               Map<MarketDataRequirement, Object> marketData,
+                               Map<MarketDataId, DateTimeSeries<LocalDate, ?>> timeSeries) {
     ArgumentChecker.notNull(marketData, "marketData");
     ArgumentChecker.notNull(timeSeries, "timeSeries");
-    _time = ArgumentChecker.notNull(time, "time");
+    _valuationTime = ArgumentChecker.notNull(valuationTime, "valuationTime");
     _marketData.putAll(marketData);
     _timeSeries.putAll(timeSeries);
   }
@@ -48,26 +49,8 @@ public class MapMarketDataBundleBuilder {
   /**
    * Creates an instance whose single data values are valid indefinitely.
    */
-  public MapMarketDataBundleBuilder() {
+  public MarketDataEnvironmentBuilder() {
     this(MarketDataTime.VALUATION_TIME);
-  }
-
-  /**
-   * Creates an instance whose single data values are valid on a specific date.
-   *
-   * @param date the date on which the data is valid
-   */
-  public MapMarketDataBundleBuilder(LocalDate date) {
-    this(MarketDataTime.of(date));
-  }
-
-  /**
-   * Creates an instance whose single data values are valid at a specific time.
-   *
-   * @param time the time at which the data is valid
-   */
-  public MapMarketDataBundleBuilder(ZonedDateTime time) {
-    this(MarketDataTime.of(time));
   }
 
   // TODO rename add -> addSingleValue and addTimeSeries
@@ -79,7 +62,7 @@ public class MapMarketDataBundleBuilder {
    * @param marketDataItem the data
    * @return this builder
    */
-  public MapMarketDataBundleBuilder add(MarketDataId id, Object marketDataItem) {
+  public MarketDataEnvironmentBuilder add(MarketDataId id, Object marketDataItem) {
     ArgumentChecker.notNull(id, "id");
     ArgumentChecker.notNull(marketDataItem, "marketDataItem");
 
@@ -96,7 +79,7 @@ public class MapMarketDataBundleBuilder {
    * @param marketDataDate the date for which the data is valid
    * @return this builder
    */
-  public MapMarketDataBundleBuilder add(MarketDataId id, Object marketDataItem, LocalDate marketDataDate) {
+  public MarketDataEnvironmentBuilder add(MarketDataId id, Object marketDataItem, LocalDate marketDataDate) {
     ArgumentChecker.notNull(id, "id");
     ArgumentChecker.notNull(marketDataItem, "marketDataItem");
     ArgumentChecker.notNull(marketDataDate, "marketDataDate");
@@ -113,7 +96,7 @@ public class MapMarketDataBundleBuilder {
    * @param marketDataTime the time at which the data is valid
    * @return this builder
    */
-  public MapMarketDataBundleBuilder add(MarketDataId id, Object marketDataItem, ZonedDateTime marketDataTime) {
+  public MarketDataEnvironmentBuilder add(MarketDataId id, Object marketDataItem, ZonedDateTime marketDataTime) {
     ArgumentChecker.notNull(id, "id");
     ArgumentChecker.notNull(marketDataItem, "marketDataItem");
     ArgumentChecker.notNull(marketDataTime, "marketDataTime");
@@ -129,7 +112,7 @@ public class MapMarketDataBundleBuilder {
    * @param timeSeries the data
    * @return this builder
    */
-  public MapMarketDataBundleBuilder add(MarketDataId id, DateTimeSeries<LocalDate, ?> timeSeries) {
+  public MarketDataEnvironmentBuilder add(MarketDataId id, DateTimeSeries<LocalDate, ?> timeSeries) {
     ArgumentChecker.notNull(id, "id");
     ArgumentChecker.notNull(timeSeries, "timeSeries");
 
@@ -143,7 +126,7 @@ public class MapMarketDataBundleBuilder {
    * @param items the data
    * @return this builder
    */
-  public MapMarketDataBundleBuilder addSingleValues(Map<SingleValueRequirement, Object> items) {
+  public MarketDataEnvironmentBuilder addSingleValues(Map<SingleValueRequirement, Object> items) {
     ArgumentChecker.notNull(items, "items");
     _marketData.putAll(items);
     return this;
@@ -155,7 +138,7 @@ public class MapMarketDataBundleBuilder {
    * @param timeSeries the time series
    * @return this builder
    */
-  public MapMarketDataBundleBuilder addTimeSeries(Map<MarketDataId, DateTimeSeries<LocalDate, ?>> timeSeries) {
+  public MarketDataEnvironmentBuilder addTimeSeries(Map<MarketDataId, DateTimeSeries<LocalDate, ?>> timeSeries) {
     ArgumentChecker.notNull(timeSeries, "timeSeries");
     _timeSeries.putAll(timeSeries);
     return this;
@@ -166,10 +149,8 @@ public class MapMarketDataBundleBuilder {
    *
    * @param valuationTime the valuation time for calculations using this bundle's data
    * @return this builder
-   * @deprecated this method is not guaranteed to be permanent
    */
-  @Deprecated
-  public MapMarketDataBundleBuilder valuationTime(ZonedDateTime valuationTime) {
+  public MarketDataEnvironmentBuilder valuationTime(ZonedDateTime valuationTime) {
     _valuationTime = ArgumentChecker.notNull(valuationTime, "valuationTime");
     return this;
   }
@@ -182,7 +163,7 @@ public class MapMarketDataBundleBuilder {
    *
    * @return a market data bundle containing the data in this builder
    */
-  public MapMarketDataBundle build() {
-    return new MapMarketDataBundle(_time, _marketData, _timeSeries, _valuationTime);
+  public MarketDataEnvironment build() {
+    return new MapMarketDataEnvironment(_marketData, _timeSeries, _valuationTime);
   }
 }

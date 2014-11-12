@@ -10,17 +10,18 @@ import java.util.Map;
 
 import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.sesame.MulticurveBundle;
 
 /**
- * Builder for creating a {@link MarketDataEnvironment}.
+ * Builder for creating a {@link ScenarioMarketDataEnvironment}.
  */
-public class MarketDataEnvironmentBuilder {
+public class ScenarioDataBuilder {
 
   // linked map so the scenarios are stored in insertion order. do we need to offer other ordering strategies?
   /** Builders for the market data bundle for each scenario. */
-  private final Map<String, MapMarketDataBundleBuilder> _builders = new LinkedHashMap<>();
+  private final Map<String, MarketDataEnvironmentBuilder> _builders = new LinkedHashMap<>();
 
   /**
    * Adds a multicurve to the market data environment
@@ -30,7 +31,7 @@ public class MarketDataEnvironmentBuilder {
    * @param multicurve the multicurve
    * @return this builder
    */
-  public MarketDataEnvironmentBuilder addMulticurve(String scenarioId, String name, MulticurveBundle multicurve) {
+  public ScenarioDataBuilder addMulticurve(String scenarioId, String name, MulticurveBundle multicurve) {
     bundle(scenarioId).add(MulticurveId.of(name), multicurve);
     return this;
   }
@@ -43,7 +44,7 @@ public class MarketDataEnvironmentBuilder {
    * @param rate the FX rate for the currency pair
    * @return this builder
    */
-  public MarketDataEnvironmentBuilder addFxRate(String scenarioId, CurrencyPair currencyPair, double rate) {
+  public ScenarioDataBuilder addFxRate(String scenarioId, CurrencyPair currencyPair, double rate) {
     bundle(scenarioId).add(FxRateId.of(currencyPair), rate);
     return this;
   }
@@ -55,7 +56,7 @@ public class MarketDataEnvironmentBuilder {
    * @param valuationTime the valuation time for the scenario
    * @return this builder
    */
-  public MarketDataEnvironmentBuilder valuationTime(String scenarioId, ZonedDateTime valuationTime) {
+  public ScenarioDataBuilder valuationTime(String scenarioId, ZonedDateTime valuationTime) {
     bundle(scenarioId).valuationTime(valuationTime);
     return this;
   }
@@ -66,13 +67,13 @@ public class MarketDataEnvironmentBuilder {
    * @param scenarioId ID of the scenario
    * @return the bundle builder for a scenario
    */
-  private MapMarketDataBundleBuilder bundle(String scenarioId) {
-    MapMarketDataBundleBuilder builder = _builders.get(scenarioId);
+  private MarketDataEnvironmentBuilder bundle(String scenarioId) {
+    MarketDataEnvironmentBuilder builder = _builders.get(scenarioId);
 
     if (builder != null) {
       return builder;
     }
-    MapMarketDataBundleBuilder newBuilder = new MapMarketDataBundleBuilder();
+    MarketDataEnvironmentBuilder newBuilder = new MarketDataEnvironmentBuilder();
     _builders.put(scenarioId, newBuilder);
     return newBuilder;
   }
@@ -82,15 +83,14 @@ public class MarketDataEnvironmentBuilder {
    *
    * @return a market data environment built from the data in this builder
    */
-  public MarketDataEnvironment build() {
-    // TODO change the value type to MarketDataBundle when the API allows it
-    LinkedHashMap<String, MapMarketDataBundle> bundles = new LinkedHashMap<>(_builders.size());
+  public ScenarioMarketDataEnvironment build() {
+    ImmutableMap.Builder<String, MarketDataEnvironment> scenarioData = ImmutableMap.builder();
 
-    for (Map.Entry<String, MapMarketDataBundleBuilder> entry : _builders.entrySet()) {
+    for (Map.Entry<String, MarketDataEnvironmentBuilder> entry : _builders.entrySet()) {
       String scenarioId = entry.getKey();
-      MapMarketDataBundleBuilder bundleBuilder = entry.getValue();
-      bundles.put(scenarioId, bundleBuilder.build());
+      MarketDataEnvironmentBuilder bundleBuilder = entry.getValue();
+      scenarioData.put(scenarioId, bundleBuilder.build());
     }
-    return new MapMarketDataEnvironment(bundles);
+    return new MapScenarioMarketDataEnvironment(scenarioData.build());
   }
 }

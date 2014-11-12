@@ -48,8 +48,8 @@ import com.opengamma.sesame.function.AvailableOutputs;
 import com.opengamma.sesame.function.AvailableOutputsImpl;
 import com.opengamma.sesame.function.Output;
 import com.opengamma.sesame.function.scenarios.curvedata.FunctionTestUtils;
-import com.opengamma.sesame.marketdata.MarketDataEnvironment;
-import com.opengamma.sesame.marketdata.MarketDataEnvironmentBuilder;
+import com.opengamma.sesame.marketdata.ScenarioDataBuilder;
+import com.opengamma.sesame.marketdata.ScenarioMarketDataEnvironment;
 import com.opengamma.sesame.sources.BondMockSources;
 import com.opengamma.sesame.trade.BondTrade;
 import com.opengamma.util.money.Currency;
@@ -78,9 +78,9 @@ public class DefaultScenarioRunnerTest {
   public void oneScenario() {
     ViewFactory viewFactory = createViewFactory();
     DefaultScenarioRunner scenarioRunner = new DefaultScenarioRunner(viewFactory);
-    MarketDataEnvironmentBuilder builder = new MarketDataEnvironmentBuilder();
+    ScenarioDataBuilder builder = new ScenarioDataBuilder();
     ZonedDateTime valuationTime = ZonedDateTime.now();
-    MarketDataEnvironment marketDataEnvironment =
+    ScenarioMarketDataEnvironment marketDataEnvironment =
         builder.addMulticurve("base", BUNDLE1, createMulticurve(Currency.USD, 1))
                .addMulticurve("base", BUNDLE2, createMulticurve(Currency.EUR, 2))
                .valuationTime("base", valuationTime)
@@ -98,9 +98,9 @@ public class DefaultScenarioRunnerTest {
   public void multipleScenarios() {
     ViewFactory viewFactory = createViewFactory();
     DefaultScenarioRunner scenarioRunner = new DefaultScenarioRunner(viewFactory);
-    MarketDataEnvironmentBuilder builder = new MarketDataEnvironmentBuilder();
+    ScenarioDataBuilder builder = new ScenarioDataBuilder();
     ZonedDateTime valuationTime = ZonedDateTime.now();
-    MarketDataEnvironment marketDataEnvironment =
+    ScenarioMarketDataEnvironment marketDataEnvironment =
         builder.addMulticurve("base", BUNDLE1, createMulticurve(Currency.USD, 1))
                .addMulticurve("base", BUNDLE2, createMulticurve(Currency.EUR, 2))
                .valuationTime("base", valuationTime)

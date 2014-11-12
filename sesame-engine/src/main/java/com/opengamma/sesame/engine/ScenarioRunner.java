@@ -8,7 +8,7 @@ package com.opengamma.sesame.engine;
 import java.util.List;
 
 import com.opengamma.sesame.config.ViewConfig;
-import com.opengamma.sesame.marketdata.MarketDataEnvironment;
+import com.opengamma.sesame.marketdata.ScenarioMarketDataEnvironment;
 
 /**
  * Runs the calculations in a view multiple times, once for each scenario defined in a set of market data.
@@ -30,5 +30,5 @@ public interface ScenarioRunner {
    * @param portfolio the items in the portfolio
    * @return the results of running the calculations in the view for every item in the portfolio and every scenario
    */
-  Results runScenario(ViewConfig viewConfig, MarketDataEnvironment<?> marketDataEnvironment, List<?> portfolio);
+  Results runScenario(ViewConfig viewConfig, ScenarioMarketDataEnvironment marketDataEnvironment, List<?> portfolio);
 }
