@@ -40,7 +40,7 @@ public final class MapMarketDataBundle implements MarketDataBundle, ImmutableBea
   @PropertyDefinition(validate = "notNull", get = "private")
   private final MarketDataTime _time;
 
-  /** The time for which this market data is valid. */
+  /** The market data environment that provides data for this bundle. */
   @PropertyDefinition(validate = "notNull", get = "private")
   private final MarketDataEnvironment _env;
 
