@@ -97,8 +97,10 @@ public class View {
   private final GraphModel _graphModel;
 
   /**
-   * Provider that supplies caches to this view. A new cache is requested at the start of each calculation
-   * cycle and used for the duration of the cycle.
+   * Provider that supplies caches to this view. A cache is requested at the start of each calculation
+   * cycle and used for the duration of the cycle. Normally the factory will return the same cache each
+   * cycle. However if the cache is cleared the factory will create a new, empty cache which will be
+   * returned at the start of the next calculation cycle.
    */
   private final CacheProvider _cacheFactory;
 
@@ -224,12 +226,12 @@ public class View {
    * Runs a single calculation cycle, blocking until the results are available.
    *
    * @param cycleArguments settings for running the calculations
-   * @param portfolio the inputs to the calculation, e.g. trades, positions, securities
+   * @param inputs the inputs to the calculation, e.g. trades, positions, securities
    * @return the calculation results
    */
-  public Results run(CycleArguments cycleArguments, List<?> portfolio) {
+  public Results run(CycleArguments cycleArguments, List<?> inputs) {
     try {
-      return runAsync(cycleArguments, portfolio).get();
+      return runAsync(cycleArguments, inputs).get();
     } catch (InterruptedException | ExecutionException e) {
       throw new OpenGammaRuntimeException("Failed to run view", e);
     }
@@ -249,29 +251,28 @@ public class View {
    * Runs a single calculation cycle asynchronously, returning a future representing the pending results.
    *
    * @param cycleArguments settings for running the calculations
-   * @param portfolio the inputs to the calculation, e.g. trades, positions, securities
+   * @param inputs the inputs to the calculation, e.g. trades, positions, securities
    * @return a future representing the calculation results
    */
-  public ListenableFuture<Results> runAsync(CycleArguments cycleArguments, final List<?> portfolio) {
+  public ListenableFuture<Results> runAsync(CycleArguments cycleArguments, final List<?> inputs) {
     final Instant start = Instant.now();
     final long startInitialization = System.nanoTime();
     final long startExecution;
-    final long startResultsBuild;
 
     /*
-     * get a cache from the factory that will be used for the duration of this calculation cycle.
+     * Get a cache from the factory that will be used for the duration of this calculation cycle.
      * the same cache must be used for all calculations in a cycle to ensure consistency in the results.
      *
-     * the cache is never cleared during a cycle, if the user requests a clean cache then an empty cache is
+     * The cache is never cleared during a cycle, if the user requests a clean cache then an empty cache is
      * created and returned by the factory at the start of the next cycle.
      *
-     * therefore it is possible that two cycles can be executing concurrently in the same view using a different cache.
-     * it is essential to ensure that the correct cache is used for each cycle even though the caching proxy
+     * Therefore it is possible that two cycles can be executing concurrently in the same view using a different cache.
+     * It is essential to ensure that the correct cache is used for each cycle even though the caching proxy
      * might receive invocations for different cycles interleaved with each other.
      *
-     * to achieve this, a thread local is used to hold the cache. there is one ThreadLocalWrapper for each cycle
-     * which contains the cache for that cycle. it also contains the thread local that will hold the cache to allow
-     * the caching proxy to retrieve it. the tasks that perform the calculations set the thread local with
+     * To achieve this, a thread local is used to hold the cache. there is one ThreadLocalWrapper for each cycle
+     * which contains the cache for that cycle. It also contains the thread local that will hold the cache to allow
+     * the caching proxy to retrieve it. The tasks that perform the calculations set the thread local with
      * the cycle's cache before executing the calculations and clearing the thread local afterwards.
      */
     Cache<MethodInvocationKey, Object> cache = _cacheFactory.get();
@@ -285,7 +286,7 @@ public class View {
         // an empty cache that's only used for this cycle.
         // would need to create a new graph builder and model instead of reusing _graphModel
         new CapturingCycleInitializer(originalContext, _componentMap, cycleArguments,
-                                      _graphModel, _viewConfig, portfolio) :
+                                      _graphModel, _viewConfig, inputs) :
         new StandardCycleInitializer(originalContext, cycleArguments.getCycleMarketDataFactory(), _graph);
 
     List<Task> tasks = new ArrayList<>();
@@ -295,21 +296,19 @@ public class View {
     ServiceContext cycleContext = cycleInitializer.getServiceContext();
     ThreadLocalWrapper threadLocalWrapper =
         new ThreadLocalWrapper(cycleContext, originalContext, cache, _cacheThreadLocal);
-    tasks.addAll(portfolioTasks(marketDataFactory, cycleArguments, portfolio, graph, scenario, threadLocalWrapper));
+    tasks.addAll(portfolioTasks(marketDataFactory, cycleArguments, inputs, graph, scenario, threadLocalWrapper));
     tasks.addAll(nonPortfolioTasks(marketDataFactory, cycleArguments, graph, scenario, threadLocalWrapper));
     final List<ListenableFuture<TaskResult>> resultFutures;
 
     startExecution = System.nanoTime();
     resultFutures = invokeTasks(tasks);
-    startResultsBuild = System.nanoTime();
     ListenableFuture<List<TaskResult>> tasksFuture = Futures.allAsList(resultFutures);
 
     return Futures.transform(tasksFuture, new Function<List<TaskResult>, Results>() {
       @Nullable
       @Override
       public Results apply(List<TaskResult> input) {
-        return buildResults(portfolio, resultFutures, start, startInitialization,
-                            startExecution, startResultsBuild, cycleInitializer);
+        return buildResults(inputs, resultFutures, start, startInitialization, startExecution, cycleInitializer);
       }
     });
   }
@@ -322,7 +321,6 @@ public class View {
    * @param start the start time of the calculation cycle
    * @param startInitialization the start time of the cycle (system nano time)
    * @param startExecution the start time of the calculations (system nano time)
-   * @param startResultsBuild the start time of building the results (system nano time)
    * @param cycleInitializer for post-processing the results
    * @return the results of the calculations
    */
@@ -331,7 +329,6 @@ public class View {
                                Instant start,
                                long startInitialization,
                                long startExecution,
-                               long startResultsBuild,
                                CycleInitializer cycleInitializer) {
 
     ResultBuilder resultsBuilder = Results.builder(portfolio, _columnNames);
@@ -344,6 +341,7 @@ public class View {
         s_logger.warn("Failed to get result from task", e);
       }
     }
+    long startResultsBuild = System.nanoTime();
     Results results = resultsBuilder.build(start, startExecution, startInitialization, startResultsBuild);
     return cycleInitializer.complete(results);
   }
