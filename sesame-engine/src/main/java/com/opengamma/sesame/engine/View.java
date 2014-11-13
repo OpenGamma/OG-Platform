@@ -16,16 +16,23 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
+import javax.annotation.Nullable;
+
 import org.apache.shiro.authz.AuthorizationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
 
 import com.codahale.metrics.MetricRegistry;
+import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.cache.Cache;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.PositionOrTrade;
 import com.opengamma.core.security.Security;
@@ -67,6 +74,16 @@ import com.opengamma.util.result.Result;
 
 /**
  * View is the main class for running calculations over a portfolio and producing results.
+ * <p>
+ * A view is created by a {@link ViewFactory}. It defines a set of calculations used to populate a
+ * table of results when the view is run. The columns in the table are defined by a {@link ViewConfig}
+ * and there is one row in the table of results for each item in the portfolio.
+ * <p>
+ * A view can also define a set of outputs which are calculations that are performed independently of
+ * the portfolio. For example an output could be defined to return the curve used in the calculations.
+ * <p>
+ * A view is executed by calling one of the {@code run} or {@code runAsync} methods. A view can be run
+ * repeatedly and can execute multiple runs concurrently.
  */
 public class View {
 
@@ -74,16 +91,16 @@ public class View {
 
   private final Graph _graph;
   private final ViewConfig _viewConfig;
-  private final ExecutorService _executor;
+  private final ListeningExecutorService _executor;
   private final FunctionModelConfig _systemDefaultConfig;
   private final List<String> _columnNames;
   private final GraphModel _graphModel;
 
   /**
-   * Provider that supplies a cache to this view. A new cache is requested at the start of each calculation
+   * Provider that supplies caches to this view. A new cache is requested at the start of each calculation
    * cycle and used for the duration of the cycle.
    */
-  private final CacheProvider _factoryCacheProvider;
+  private final CacheProvider _cacheFactory;
 
   private final Optional<MetricRegistry> _metricRegistry;
   private final ComponentMap _componentMap;
@@ -108,16 +125,16 @@ public class View {
        Set<Class<?>> inputTypes,
        AvailableOutputs availableOutputs,
        AvailableImplementations availableImplementations,
-       CacheProvider factoryCacheProvider,
+       CacheProvider cacheFactory,
        CacheInvalidator cacheInvalidator,
        Optional<MetricRegistry> metricRegistry) {
 
     _cacheInvalidator = ArgumentChecker.notNull(cacheInvalidator, "cacheInvalidator");
     _componentMap = ArgumentChecker.notNull(componentMap, "componentMap");
     _viewConfig = ArgumentChecker.notNull(viewConfig, "viewConfig");
-    _executor = ArgumentChecker.notNull(executor, "executor");
+    _executor = MoreExecutors.listeningDecorator(executor);
     _systemDefaultConfig = ArgumentChecker.notNull(systemDefaultConfig, "systemDefaultConfig");
-    _factoryCacheProvider = ArgumentChecker.notNull(factoryCacheProvider, "factoryCacheProvider");
+    _cacheFactory = ArgumentChecker.notNull(cacheFactory, "cacheFactory");
     _metricRegistry = ArgumentChecker.notNull(metricRegistry, "metricRegistry");
     _columnNames = columnNames(_viewConfig);
 
@@ -196,7 +213,7 @@ public class View {
   /**
    * Runs a single calculation cycle, blocking until the results are available.
    *
-   * @param cycleArguments settings for running the cycle including valuation time and market data source
+   * @param cycleArguments settings for running the calculations
    * @return the calculation results
    */
   public Results run(CycleArguments cycleArguments) {
@@ -206,23 +223,61 @@ public class View {
   /**
    * Runs a single calculation cycle, blocking until the results are available.
    *
-   * @param cycleArguments settings for running the cycle including valuation time and market data source
-   * @param inputs the inputs to the calculation, e.g. trades, positions, securities
+   * @param cycleArguments settings for running the calculations
+   * @param portfolio the inputs to the calculation, e.g. trades, positions, securities
    * @return the calculation results
    */
-  public Results run(CycleArguments cycleArguments, List<?> inputs) {
-    Instant start = Instant.now();
-    long startInitialization = System.nanoTime();
-    long startExecution;
-    long startResultsBuild;
+  public Results run(CycleArguments cycleArguments, List<?> portfolio) {
+    try {
+      return runAsync(cycleArguments, portfolio).get();
+    } catch (InterruptedException | ExecutionException e) {
+      throw new OpenGammaRuntimeException("Failed to run view", e);
+    }
+  }
 
-    // get a cache from the factory that will be used for the duration of this calculation cycle.
-    // store it in a field so it's available to the caching decorators via the provider
-    Cache<MethodInvocationKey, Object> cache = _factoryCacheProvider.get();
-    ThreadLocalCache threadLocalCache = new ThreadLocalCache(_cacheThreadLocal, cache);
+  /**
+   * Runs a single calculation cycle asynchronously, returning a future representing the pending results.
+   *
+   * @param cycleArguments settings for running the calculations
+   * @return a future representing the calculation results
+   */
+  public ListenableFuture<Results> runAsync(CycleArguments cycleArguments) {
+    return runAsync(cycleArguments, Collections.emptyList());
+  }
 
+  /**
+   * Runs a single calculation cycle asynchronously, returning a future representing the pending results.
+   *
+   * @param cycleArguments settings for running the calculations
+   * @param portfolio the inputs to the calculation, e.g. trades, positions, securities
+   * @return a future representing the calculation results
+   */
+  public ListenableFuture<Results> runAsync(CycleArguments cycleArguments, final List<?> portfolio) {
+    final Instant start = Instant.now();
+    final long startInitialization = System.nanoTime();
+    final long startExecution;
+    final long startResultsBuild;
+
+    /*
+     * get a cache from the factory that will be used for the duration of this calculation cycle.
+     * the same cache must be used for all calculations in a cycle to ensure consistency in the results.
+     *
+     * the cache is never cleared during a cycle, if the user requests a clean cache then an empty cache is
+     * created and returned by the factory at the start of the next cycle.
+     *
+     * therefore it is possible that two cycles can be executing concurrently in the same view using a different cache.
+     * it is essential to ensure that the correct cache is used for each cycle even though the caching proxy
+     * might receive invocations for different cycles interleaved with each other.
+     *
+     * to achieve this, a thread local is used to hold the cache. there is one ThreadLocalWrapper for each cycle
+     * which contains the cache for that cycle. it also contains the thread local that will hold the cache to allow
+     * the caching proxy to retrieve it. the tasks that perform the calculations set the thread local with
+     * the cycle's cache before executing the calculations and clearing the thread local afterwards.
+     */
+    Cache<MethodInvocationKey, Object> cache = _cacheFactory.get();
     ServiceContext originalContext = ThreadLocalServiceContext.getInstance();
-    CycleInitializer cycleInitializer = cycleArguments.isCaptureInputs() ?
+
+    final CycleInitializer cycleInitializer = cycleArguments.isCaptureInputs() ?
         // this uses the shared cache but creates a new graph with a new FunctionBuilder and therefore will never
         // share any entries with any other views. effectively this fills up the shared cache with rubbish entries
         // that will never be used after this cycle completes.
@@ -230,34 +285,57 @@ public class View {
         // an empty cache that's only used for this cycle.
         // would need to create a new graph builder and model instead of reusing _graphModel
         new CapturingCycleInitializer(originalContext, _componentMap, cycleArguments,
-                                      _graphModel, _viewConfig, inputs) :
+                                      _graphModel, _viewConfig, portfolio) :
         new StandardCycleInitializer(originalContext, cycleArguments.getCycleMarketDataFactory(), _graph);
 
     List<Task> tasks = new ArrayList<>();
     Graph graph = cycleInitializer.getGraph();
     CycleMarketDataFactory marketDataFactory = cycleInitializer.getCycleMarketDataFactory();
     ScenarioDefinition scenario = _viewConfig.getScenarioDefinition();
-    tasks.addAll(portfolioTasks(marketDataFactory, cycleArguments, inputs, graph, scenario, threadLocalCache));
-    tasks.addAll(nonPortfolioTasks(marketDataFactory, cycleArguments, graph, scenario, threadLocalCache));
-    List<Future<TaskResult>> futures;
+    ServiceContext cycleContext = cycleInitializer.getServiceContext();
+    ThreadLocalWrapper threadLocalWrapper =
+        new ThreadLocalWrapper(cycleContext, originalContext, cache, _cacheThreadLocal);
+    tasks.addAll(portfolioTasks(marketDataFactory, cycleArguments, portfolio, graph, scenario, threadLocalWrapper));
+    tasks.addAll(nonPortfolioTasks(marketDataFactory, cycleArguments, graph, scenario, threadLocalWrapper));
+    final List<ListenableFuture<TaskResult>> resultFutures;
 
-    try {
-      // Create a new version of the context with our wrapped components
-      // Using the with method means we don't need to provide other
-      // items e.g. VersionCorrectionProvider
-      // TODO - ultimately we will want to set VersionCorrection here
-      ThreadLocalServiceContext.init(cycleInitializer.getServiceContext());
-      startExecution = System.nanoTime();
-      futures = _executor.invokeAll(tasks);
-    } catch (InterruptedException e) {
-      throw new OpenGammaRuntimeException("Interrupted", e);
-    } finally {
-      startResultsBuild = System.nanoTime();
-      // Switch the service context back now all the work is done
-      ThreadLocalServiceContext.init(originalContext);
-    }
+    startExecution = System.nanoTime();
+    resultFutures = invokeTasks(tasks);
+    startResultsBuild = System.nanoTime();
+    ListenableFuture<List<TaskResult>> tasksFuture = Futures.allAsList(resultFutures);
 
-    ResultBuilder resultsBuilder = Results.builder(inputs, _columnNames);
+    return Futures.transform(tasksFuture, new Function<List<TaskResult>, Results>() {
+      @Nullable
+      @Override
+      public Results apply(List<TaskResult> input) {
+        return buildResults(portfolio, resultFutures, start, startInitialization,
+                            startExecution, startResultsBuild, cycleInitializer);
+      }
+    });
+  }
+
+  /**
+   * Builds a set of results from a list of futures representing the individual pending calculation results.
+   *
+   * @param portfolio the inputs to the trade calculations, e.g. trades, securities
+   * @param futures futures representing the results of the individual calculations
+   * @param start the start time of the calculation cycle
+   * @param startInitialization the start time of the cycle (system nano time)
+   * @param startExecution the start time of the calculations (system nano time)
+   * @param startResultsBuild the start time of building the results (system nano time)
+   * @param cycleInitializer for post-processing the results
+   * @return the results of the calculations
+   */
+  private Results buildResults(List<?> portfolio,
+                               List<ListenableFuture<TaskResult>> futures,
+                               Instant start,
+                               long startInitialization,
+                               long startExecution,
+                               long startResultsBuild,
+                               CycleInitializer cycleInitializer) {
+
+    ResultBuilder resultsBuilder = Results.builder(portfolio, _columnNames);
+
     for (Future<TaskResult> future : futures) {
       try {
         TaskResult result = future.get();
@@ -266,8 +344,24 @@ public class View {
         s_logger.warn("Failed to get result from task", e);
       }
     }
-    return cycleInitializer.complete(
-        resultsBuilder.build(start, startExecution, startInitialization, startResultsBuild));
+    Results results = resultsBuilder.build(start, startExecution, startInitialization, startResultsBuild);
+    return cycleInitializer.complete(results);
+  }
+
+  /**
+   * Submits all the tasks to the executor and returns the futures. This only exists because the {@code invokeAll}
+   * method of {@code ListeningExecutorService} returns {@code Future} and not {@code ListenableFuture}.
+   *
+   * @param tasks the tasks to execute
+   * @return futures representing the pending results of the tasks
+   */
+  private List<ListenableFuture<TaskResult>> invokeTasks(List<Task> tasks) {
+    List<ListenableFuture<TaskResult>> results = new ArrayList<>(tasks.size());
+
+    for (Task task : tasks) {
+      results.add(_executor.submit(task));
+    }
+    return results;
   }
 
   /**
@@ -296,7 +390,7 @@ public class View {
                                     List<?> inputs,
                                     Graph graph,
                                     ScenarioDefinition scenarioDefinition,
-                                    ThreadLocalCache cache) {
+                                    ThreadLocalWrapper threadLocalWrapper) {
     // create tasks for the portfolio outputs
     int colIndex = 0;
     List<Task> portfolioTasks = Lists.newArrayList();
@@ -356,7 +450,7 @@ public class View {
             cycleArguments.getFunctionArguments().mergedWith(functionModelConfig.getFunctionArguments(implType),
                                                              functionModelConfig.getFunctionArguments(declaringType));
         portfolioTasks.add(new PortfolioTask(columnEnv, functionInput, args, rowIndex++,
-                                             colIndex, function, tracer, cache));
+                                             colIndex, function, tracer, threadLocalWrapper));
       }
       colIndex++;
     }
@@ -368,7 +462,7 @@ public class View {
                                        CycleArguments cycleArguments,
                                        Graph graph,
                                        ScenarioDefinition scenarioDefinition,
-                                       ThreadLocalCache cache) {
+                                       ThreadLocalWrapper cache) {
     List<Task> tasks = Lists.newArrayList();
     for (NonPortfolioOutput output : _viewConfig.getNonPortfolioOutputs()) {
       InvokableFunction function = graph.getNonPortfolioFunction(output.getName());
@@ -401,11 +495,6 @@ public class View {
     return columnNames;
   }
 
-  // TODO run() variants that take:
-  //   1) cycle and listener (for multiple execution)
-  //   2) listener (for single async or infinite execution)
-  //   3) new list of inputs
-
   //----------------------------------------------------------
   private interface TaskResult {
 
@@ -420,20 +509,20 @@ public class View {
     private final InvokableFunction _invokableFunction;
     private final Tracer _tracer;
     private final FunctionArguments _args;
-    private final ThreadLocalCache _cache;
+    private final ThreadLocalWrapper _threadLocalWrapper;
 
     private Task(Environment env,
                  Object input,
                  FunctionArguments args,
                  InvokableFunction invokableFunction,
                  Tracer tracer,
-                 ThreadLocalCache cache) {
+                 ThreadLocalWrapper threadLocalWrapper) {
       _env = env;
       _input = input;
       _args = args;
       _invokableFunction = invokableFunction;
       _tracer = tracer;
-      _cache = cache;
+      _threadLocalWrapper = threadLocalWrapper;
     }
 
     @Override
@@ -446,7 +535,7 @@ public class View {
 
     private Result<?> invokeFunction() {
       // try-with-resources requires the declaration of variable even if it's not used in the body of the block
-      try (ThreadLocalCache ignore = _cache.set()) {
+      try (ThreadLocalWrapper ignore = _threadLocalWrapper.bindToThread()) {
         Object retVal = _invokableFunction.invoke(_env, _input, _args);
         return retVal instanceof Result ? (Result<?>) retVal : Result.success(retVal);
       } catch (Exception e) {
@@ -471,8 +560,8 @@ public class View {
                           int columnIndex,
                           InvokableFunction invokableFunction,
                           Tracer tracer,
-                          ThreadLocalCache cache) {
-      super(env, input, args, invokableFunction, tracer, cache);
+                          ThreadLocalWrapper threadLocalWrapper) {
+      super(env, input, args, invokableFunction, tracer, threadLocalWrapper);
       _rowIndex = rowIndex;
       _columnIndex = columnIndex;
     }
@@ -498,8 +587,8 @@ public class View {
                              String outputValueName,
                              InvokableFunction invokableFunction,
                              Tracer tracer,
-                             ThreadLocalCache cache) {
-      super(env, null, args, invokableFunction, tracer, cache);
+                             ThreadLocalWrapper threadLocalWrapper) {
+      super(env, null, args, invokableFunction, tracer, threadLocalWrapper);
       _outputValueName = ArgumentChecker.notEmpty(outputValueName, "outputValueName");
     }
 
@@ -515,39 +604,52 @@ public class View {
   }
 
   /**
-   * Auto-closable wrapper around a cache and a thread local variable that holds it.
+   * Auto-closable wrapper around state that needs to be bound to a thread before the calculations are performed
+   * and cleared when the calculations are complete.
    * <p>
-   * When {@link #set()} is called the cache is assigned to the thread local value and when {@link #close()}
-   * is called it is removed. The intention is that tasks which execute functions should set the cache in a
-   * try-with-resources block and execute the function in the body of the block.
+   * When {@link #bindToThread()} is called the values are bound to the current thread and when {@link #close()}
+   * is called they are removed.
+   * <p>
+   * The values need to be bound to the thread which will execute the functions, which is likely to be a
+   * thread from the pool and not the one that initializes the view. The intention is that
+   * tasks which execute functions should bind the values in a try-with-resources block and execute the
+   * function in the body of the block.
    */
-  private static class ThreadLocalCache implements AutoCloseable {
+  private static class ThreadLocalWrapper implements AutoCloseable {
 
-    private final ThreadLocal<Cache<MethodInvocationKey, Object>> _threadLocal;
+    private final ServiceContext _cycleServiceContext;
+    private final ServiceContext _originalServiceContext;
+    private final ThreadLocal<Cache<MethodInvocationKey, Object>> _cacheThreadLocal;
     private final Cache<MethodInvocationKey, Object> _cache;
 
-    private ThreadLocalCache(ThreadLocal<Cache<MethodInvocationKey, Object>> threadLocal,
-                             Cache<MethodInvocationKey, Object> cache) {
-      _threadLocal = threadLocal;
+    private ThreadLocalWrapper(ServiceContext cycleServiceContext,
+                               ServiceContext originalServiceContext,
+                               Cache<MethodInvocationKey, Object> cache,
+                               ThreadLocal<Cache<MethodInvocationKey, Object>> cacheThreadLocal) {
+      _cycleServiceContext = cycleServiceContext;
+      _originalServiceContext = originalServiceContext;
       _cache = cache;
+      _cacheThreadLocal = cacheThreadLocal;
     }
 
     /**
-     * Assigns the cache to the thread local variable.
+     * Binds the thread local state to the current thread.
      *
-     * @return this
+     * @return this, so it can be used in a try-with-resources block
      */
-    private ThreadLocalCache set() {
-      _threadLocal.set(_cache);
+    private ThreadLocalWrapper bindToThread() {
+      _cacheThreadLocal.set(_cache);
+      ThreadLocalServiceContext.init(_cycleServiceContext);
       return this;
     }
 
     /**
-     * Removes the cache from the thread local variable.
+     * Removes the thread local bindings.
      */
     @Override
     public void close() {
-      _threadLocal.remove();
+      _cacheThreadLocal.remove();
+      ThreadLocalServiceContext.init(_originalServiceContext);
     }
   }
 }
