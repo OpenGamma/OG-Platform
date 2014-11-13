@@ -43,9 +43,11 @@ import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
+import com.opengamma.analytics.math.interpolation.ProductInterpolator1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.MatrixAlgebra;
 import com.opengamma.analytics.math.matrix.OGMatrixAlgebra;
@@ -140,18 +142,22 @@ public class GBPSwapSmartPVTest {
   private static final ZonedDateTimeDoubleTimeSeries TS_GBPLIBOR6M = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(FIXING_DATES, new double[] {0.0069775, 0.0071144 });
   private static final Map<IborIndex, ZonedDateTimeDoubleTimeSeries> FIXINGS;
   // private static final ZonedDateTimeDoubleTimeSeries[] FIXINGS = new ZonedDateTimeDoubleTimeSeries[] {TS_GBPLIBOR3M, TS_GBPLIBOR6M };
-  private static final Interpolator1D interpolator;
+  private static final Interpolator1D IM_INTERPOLATOR;
+  private static final Interpolator1D VM_INTERPOLATOR;
   static {
     FIXINGS = new HashMap<IborIndex, ZonedDateTimeDoubleTimeSeries>(4);
-    FIXINGS.put(GBPLIBOR3M,TS_GBPLIBOR3M );
-    FIXINGS.put(GBPLIBOR6M,TS_GBPLIBOR6M );
-    interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
-    GBP_LIBOR_CURVE = new YieldCurve("GBP Libor", new InterpolatedDoublesCurve(GBP_LIBOR_KNOT_TIMES, GBP_LIBOR_ZERO_RATES, interpolator, true));
-    GBP_SONIA_CURVE = new YieldCurve("GBP Sonia", new InterpolatedDoublesCurve(GBP_SONIA_KNOT_TIMES, GBP_SONIA_ZERO_RATES, interpolator, true));
-    GBP_LIBOR1M_CURVE = new YieldCurve("GBP Libor 1M", new InterpolatedDoublesCurve(GBP_LIBOR1M_KNOT_TIMES, GBP_LIBOR1M_ZERO_RATES, interpolator, true));
-    GBP_LIBOR3M_CURVE = new YieldCurve("GBP Libor 3M", new InterpolatedDoublesCurve(GBP_LIBOR3M_KNOT_TIMES, GBP_LIBOR3M_ZERO_RATES, interpolator, true));
-    GBP_LIBOR6M_CURVE = new YieldCurve("GBP Libor 6M", new InterpolatedDoublesCurve(GBP_LIBOR6M_KNOT_TIMES, GBP_LIBOR6M_ZERO_RATES, interpolator, true));
+    FIXINGS.put(GBPLIBOR3M, TS_GBPLIBOR3M);
+    FIXINGS.put(GBPLIBOR6M, TS_GBPLIBOR6M);
+    IM_INTERPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+    CombinedInterpolatorExtrapolator base = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.NATURAL_CUBIC_SPLINE, Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
+    VM_INTERPOLATOR = new ProductInterpolator1D(base, false);
+    GBP_LIBOR_CURVE = new YieldCurve("GBP Libor", new InterpolatedDoublesCurve(GBP_LIBOR_KNOT_TIMES, GBP_LIBOR_ZERO_RATES, IM_INTERPOLATOR, true));
+    GBP_SONIA_CURVE = new YieldCurve("GBP Sonia", new InterpolatedDoublesCurve(GBP_SONIA_KNOT_TIMES, GBP_SONIA_ZERO_RATES, VM_INTERPOLATOR, true));
+    GBP_LIBOR1M_CURVE = new YieldCurve("GBP Libor 1M", new InterpolatedDoublesCurve(GBP_LIBOR1M_KNOT_TIMES, GBP_LIBOR1M_ZERO_RATES, VM_INTERPOLATOR, true));
+    GBP_LIBOR3M_CURVE = new YieldCurve("GBP Libor 3M", new InterpolatedDoublesCurve(GBP_LIBOR3M_KNOT_TIMES, GBP_LIBOR3M_ZERO_RATES, VM_INTERPOLATOR, true));
+    GBP_LIBOR6M_CURVE = new YieldCurve("GBP Libor 6M", new InterpolatedDoublesCurve(GBP_LIBOR6M_KNOT_TIMES, GBP_LIBOR6M_ZERO_RATES, VM_INTERPOLATOR, true));
 
+    @SuppressWarnings("unused")
     YieldCurve zero = new YieldCurve("zero", ConstantDoublesCurve.from(0.0));
     SINGLE_CURVE = new MulticurveProviderDiscount();
     SINGLE_CURVE.setOrReplaceCurve(CCY, GBP_LIBOR_CURVE);
@@ -162,7 +168,7 @@ public class GBPSwapSmartPVTest {
     MULTI_CURVE.setOrReplaceCurve(CCY, GBP_SONIA_CURVE);
     MULTI_CURVE.setOrReplaceCurve(GBPLIBOR1M, GBP_LIBOR1M_CURVE);
     MULTI_CURVE.setOrReplaceCurve(GBPLIBOR3M, GBP_LIBOR3M_CURVE);
-    MULTI_CURVE.setOrReplaceCurve(GBPLIBOR3M, GBP_LIBOR6M_CURVE);
+    MULTI_CURVE.setOrReplaceCurve(GBPLIBOR6M, GBP_LIBOR6M_CURVE);
 
     AnalyticsEnvironment.setInstance(AnalyticsEnvironment.getInstance().toBuilder().modelDayCount(DayCounts.ACT_365).build());
   }
@@ -190,11 +196,15 @@ public class GBPSwapSmartPVTest {
 
     // these number come from the SMART API
     double expImNpv = -2.012506863816616E7;
+    double expVmNpv = -2.92490786938425E7;
     DoubleMatrix1D expDelta = new DoubleMatrix1D(0, 0, -13295.06565595203, -10166.814913375081, 192.18569490757258, 500.95144492207777, 737.1719141579288, 1610.7473112728212, 2960.684803071864,
         5797.798336051921, 12428.744989705048, 517803.6258600666, 304194.28278619424, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
     DoubleMatrix1D expGamma = new DoubleMatrix1D(0, 0, 0.1566268008783391, 0.11977343596578863, -0.007108238030828089, -0.02635626715757221, -0.056885092021793426, -0.1787119119364074,
         -0.45267430946650566, -1.3767795332248913, -3.8464351748222136, -225.74022089673812, -132.8577895249877, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
     testImPriceAndDelta(swapDef, TRADE_DATE, expImNpv, expDelta, expGamma);
+
+    //TODO why is the VM value incorrect for a seasoned swap? 
+    // testVmNpv(swapDef, TRADE_DATE, expVmNpv);
   }
 
   /**
@@ -212,11 +222,13 @@ public class GBPSwapSmartPVTest {
 
     // these number come from the SMART API
     double expImNpv = 1.1050631904386938E7;
+    double expVmNpv =  -75412.71316513419;
     DoubleMatrix1D expDelta = new DoubleMatrix1D(0, 0, 0, 0, -49632.4255084524, 976.208958972902, -2026.74477030921, 3065.41427124944, 2656.9664567835, 5701.96379992345, 9906.05728427153,
         15976.3010680254, 909245.758217927, 7433.36153796299, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
     DoubleMatrix1D expGamma = new DoubleMatrix1D(0, 0, 0, 0, 1.25100908130893, -0.0894835162024819, 0.125063124838612, -0.239876495266289, -0.403875990484971, -1.25711576707553, -3.11758912386388,
         -6.5416697665622, -454.865666666857, -3.6581303462374, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
     testImPriceAndDelta(swapDef, TRADE_DATE, expImNpv, expDelta, expGamma);
+    testVmNpv(swapDef, TRADE_DATE, expVmNpv);
   }
 
   /**
@@ -240,6 +252,8 @@ public class GBPSwapSmartPVTest {
     DoubleMatrix1D expGamma = new DoubleMatrix1D(0, 0, 0, 0, 0, 4.84622451300801, 0.0538469390334223, -0.161052818155604, -0.719393713339903, -2.0834698170384, -5.22254635716672, -10.1242640156405,
         -11.3974801071293, -20.2488639790105, -25.2621973392004, -32.0024263476015, -43.2417411211072, -1587.05920064115, -10.7314585575958, 0, 0, 0, 0, 0, 0, 0, 0);
     testImPriceAndDelta(swapDef, TRADE_DATE, expImNpv, expDelta, expGamma);
+
+    testVmNpv(swapDef, TRADE_DATE, expVmNpv);
   }
 
   private void testImPriceAndDelta(SwapFixedIborDefinition swapDef, ZonedDateTime tradeDate, double expImNpv, DoubleMatrix1D expDelta, DoubleMatrix1D expGamma) {
@@ -247,16 +261,14 @@ public class GBPSwapSmartPVTest {
     double oneBpsSqr = 1e-8;
     IborIndex index = swapDef.getIborLeg().getIborIndex();
     ZonedDateTimeDoubleTimeSeries fixings = FIXINGS.get(index);
-    SwapFixedCoupon<Coupon> swap = swapDef.toDerivative(tradeDate, new  ZonedDateTimeDoubleTimeSeries[] {fixings});
+    SwapFixedCoupon<Coupon> swap = swapDef.toDerivative(tradeDate, new ZonedDateTimeDoubleTimeSeries[] {fixings });
     MultipleCurrencyAmount price = swap.accept(PVDC, SINGLE_CURVE);
     assertEquals(expImNpv, price.getAmount(CCY), 1e-15 * NOTIONAL);
 
     MultipleCurrencyAmount fixLegPrice = swap.getFixedLeg().accept(PVDC, SINGLE_CURVE);
     System.out.println(fixLegPrice.getAmount(CCY) / swap.getFixedLeg().getCouponRate());
 
-
-
-    Function1D<DoubleMatrix1D, DoubleMatrix1D> func = getDeltaFunction(swap, index, GBP_LIBOR_KNOT_TIMES, interpolator);
+    Function1D<DoubleMatrix1D, DoubleMatrix1D> func = getDeltaFunction(swap, index, GBP_LIBOR_KNOT_TIMES, IM_INTERPOLATOR);
     DoubleMatrix1D delta = func.evaluate(new DoubleMatrix1D(GBP_LIBOR_ZERO_RATES));
     // scale to be in bps
     delta = (DoubleMatrix1D) MA.scale(delta, oneBps);
@@ -266,7 +278,7 @@ public class GBPSwapSmartPVTest {
       System.out.println("Calcualted delta: " + delta);
     }
 
-    DoubleMatrix1D gamma = getColumnGamma(swap, index, GBP_LIBOR_KNOT_TIMES, GBP_LIBOR_ZERO_RATES, interpolator);
+    DoubleMatrix1D gamma = getColumnGamma(swap, index, GBP_LIBOR_KNOT_TIMES, GBP_LIBOR_ZERO_RATES, IM_INTERPOLATOR);
     // scale to be in bps^2
     gamma = (DoubleMatrix1D) MA.scale(gamma, oneBpsSqr);
     // gamma is calculated by finite-difference (on the delta) so the accuracy will not be as high
@@ -275,6 +287,14 @@ public class GBPSwapSmartPVTest {
     } else {
       System.out.println("Calcualted gamma: " + gamma);
     }
+  }
+
+  private void testVmNpv(SwapFixedIborDefinition swapDef, ZonedDateTime tradeDate, double expVmNpv) {
+    IborIndex index = swapDef.getIborLeg().getIborIndex();
+    ZonedDateTimeDoubleTimeSeries fixings = FIXINGS.get(index);
+    SwapFixedCoupon<Coupon> swap = swapDef.toDerivative(tradeDate, new ZonedDateTimeDoubleTimeSeries[] {fixings });
+    MultipleCurrencyAmount price = swap.accept(PVDC, MULTI_CURVE);
+    assertEquals(expVmNpv, price.getAmount(CCY), 1e-15 * NOTIONAL);
   }
 
   private SwapFixedIborDefinition makeSwapDef(IborIndex index, ZonedDateTime effDate, Period swapTenor, double coupon, double notional) {
