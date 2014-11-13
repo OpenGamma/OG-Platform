@@ -90,7 +90,7 @@ public class ProductInterpolator1DTest {
   }
 
   @Test
-  void testGradiant() {
+  void testGradient() {
     final Interpolator1D prodInterpolator = new ProductInterpolator1D(NATURAL_CUBIC_SPLINE, true);
     final Interpolator1DDataBundle db = prodInterpolator.getDataBundleFromSortedArrays(X, Y);
     Function1D<Double, Double> func = new Function1D<Double, Double>() {
