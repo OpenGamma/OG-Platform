@@ -67,16 +67,6 @@ import com.opengamma.util.result.Result;
 
 /**
  * View is the main class for running calculations over a portfolio and producing results.
- *
- * TODO scenarios - at what level should the arguments be supplied? there are several obvious options
- *   1) when the view is created, apply to all calculations
- *   2) when the view is created, different sets for different columns (maybe with a set that applies to all)
- *   3) when the view is run, apply to all calculations
- *   4) when the view is run, different sets for different columns (maybe with a set that applies to all)
- *   5) something else?
- * which ones do we need to support? all of them?
- * TODO same question for method arguments for the top level functions
- * see [SSM-182] and [SSM-185]
  */
 public class View {
 
@@ -100,11 +90,14 @@ public class View {
   private final CacheInvalidator _cacheInvalidator;
 
   /**
-   * Cache passed to the cache decorators via a cache provider. The decorators use the provider every time
-   * they need to use the cache. This field is updated with a new cache from {@link #_factoryCacheProvider} at
-   * the start of each calculation cycle.
+   * Thread local variable used to expose the cache for the current cycle to the caching proxy.
+   * In order to ensure consistency in the calculations, the same cache must be used for the whole
+   * of a calculation cycle. Therefore the caching proxy must have a way to get hold of the correct
+   * cache when it is handling a method call. There is no way to communicate an ID for the cycle
+   * between the view and the proxy, so the cache is stored in a thread local which is used by
+   * the cache provider.
    */
-  private Cache<MethodInvocationKey, Object> _cache;
+  private final ThreadLocal<Cache<MethodInvocationKey, Object>> _cacheThreadLocal = new ThreadLocal<>();
 
   View(ViewConfig viewConfig,
        ExecutorService executor,
@@ -135,7 +128,7 @@ public class View {
     CacheProvider cacheProvider = new CacheProvider() {
       @Override
       public Cache<MethodInvocationKey, Object> get() {
-        return _cache;
+        return _cacheThreadLocal.get();
       }
     };
     NodeDecorator decorator = createNodeDecorator(services, cacheProvider, executingMethods);
@@ -202,24 +195,22 @@ public class View {
 
   /**
    * Runs a single calculation cycle, blocking until the results are available.
-   * @param cycleArguments Settings for running the cycle including valuation time and market data source
-   * @return The calculation results, not null
+   *
+   * @param cycleArguments settings for running the cycle including valuation time and market data source
+   * @return the calculation results
    */
-  public synchronized Results run(CycleArguments cycleArguments) {
+  public Results run(CycleArguments cycleArguments) {
     return run(cycleArguments, Collections.emptyList());
   }
 
   /**
    * Runs a single calculation cycle, blocking until the results are available.
-   * @param cycleArguments Settings for running the cycle including valuation time and market data source
+   *
+   * @param cycleArguments settings for running the cycle including valuation time and market data source
    * @param inputs the inputs to the calculation, e.g. trades, positions, securities
-   * @return The calculation results, not null
-   * TODO this should be re-entrant for non-live views that can be run in parallel (e.g. multiple scenarios)
-   * would need a different (no-op?) cache invalidator. the view factory needs to know whether a view is live
-   * (and therefore sequential) or can be run in parallel.
+   * @return the calculation results
    */
-  public synchronized Results run(CycleArguments cycleArguments, List<?> inputs) {
-
+  public Results run(CycleArguments cycleArguments, List<?> inputs) {
     Instant start = Instant.now();
     long startInitialization = System.nanoTime();
     long startExecution;
@@ -227,7 +218,8 @@ public class View {
 
     // get a cache from the factory that will be used for the duration of this calculation cycle.
     // store it in a field so it's available to the caching decorators via the provider
-    _cache = _factoryCacheProvider.get();
+    Cache<MethodInvocationKey, Object> cache = _factoryCacheProvider.get();
+    ThreadLocalCache threadLocalCache = new ThreadLocalCache(_cacheThreadLocal, cache);
 
     ServiceContext originalContext = ThreadLocalServiceContext.getInstance();
     CycleInitializer cycleInitializer = cycleArguments.isCaptureInputs() ?
@@ -244,8 +236,9 @@ public class View {
     List<Task> tasks = new ArrayList<>();
     Graph graph = cycleInitializer.getGraph();
     CycleMarketDataFactory marketDataFactory = cycleInitializer.getCycleMarketDataFactory();
-    tasks.addAll(portfolioTasks(marketDataFactory, cycleArguments, inputs, graph, _viewConfig.getScenarioDefinition()));
-    tasks.addAll(nonPortfolioTasks(marketDataFactory, cycleArguments, graph, _viewConfig.getScenarioDefinition()));
+    ScenarioDefinition scenario = _viewConfig.getScenarioDefinition();
+    tasks.addAll(portfolioTasks(marketDataFactory, cycleArguments, inputs, graph, scenario, threadLocalCache));
+    tasks.addAll(nonPortfolioTasks(marketDataFactory, cycleArguments, graph, scenario, threadLocalCache));
     List<Future<TaskResult>> futures;
 
     try {
@@ -302,7 +295,8 @@ public class View {
                                     CycleArguments cycleArguments,
                                     List<?> inputs,
                                     Graph graph,
-                                    ScenarioDefinition scenarioDefinition) {
+                                    ScenarioDefinition scenarioDefinition,
+                                    ThreadLocalCache cache) {
     // create tasks for the portfolio outputs
     int colIndex = 0;
     List<Task> portfolioTasks = Lists.newArrayList();
@@ -361,7 +355,8 @@ public class View {
         FunctionArguments args =
             cycleArguments.getFunctionArguments().mergedWith(functionModelConfig.getFunctionArguments(implType),
                                                              functionModelConfig.getFunctionArguments(declaringType));
-        portfolioTasks.add(new PortfolioTask(columnEnv, functionInput, args, rowIndex++, colIndex, function, tracer));
+        portfolioTasks.add(new PortfolioTask(columnEnv, functionInput, args, rowIndex++,
+                                             colIndex, function, tracer, cache));
       }
       colIndex++;
     }
@@ -372,7 +367,8 @@ public class View {
   private List<Task> nonPortfolioTasks(CycleMarketDataFactory marketDataFactory,
                                        CycleArguments cycleArguments,
                                        Graph graph,
-                                       ScenarioDefinition scenarioDefinition) {
+                                       ScenarioDefinition scenarioDefinition,
+                                       ThreadLocalCache cache) {
     List<Task> tasks = Lists.newArrayList();
     for (NonPortfolioOutput output : _viewConfig.getNonPortfolioOutputs()) {
       InvokableFunction function = graph.getNonPortfolioFunction(output.getName());
@@ -392,7 +388,7 @@ public class View {
       Environment env =
           new EngineEnvironment(cycleArguments.getValuationTime(output.getName()), marketDataFactory, _cacheInvalidator);
       Environment outputEnv = env.withScenarioDefinition(filteredDef);
-      tasks.add(new NonPortfolioTask(outputEnv, args, output.getName(), function, tracer));
+      tasks.add(new NonPortfolioTask(outputEnv, args, output.getName(), function, tracer, cache));
     } return tasks;
   }
 
@@ -424,17 +420,20 @@ public class View {
     private final InvokableFunction _invokableFunction;
     private final Tracer _tracer;
     private final FunctionArguments _args;
+    private final ThreadLocalCache _cache;
 
     private Task(Environment env,
                  Object input,
                  FunctionArguments args,
                  InvokableFunction invokableFunction,
-                 Tracer tracer) {
+                 Tracer tracer,
+                 ThreadLocalCache cache) {
       _env = env;
       _input = input;
       _args = args;
       _invokableFunction = invokableFunction;
       _tracer = tracer;
+      _cache = cache;
     }
 
     @Override
@@ -446,7 +445,8 @@ public class View {
     }
 
     private Result<?> invokeFunction() {
-      try {
+      // try-with-resources requires the declaration of variable even if it's not used in the body of the block
+      try (ThreadLocalCache ignore = _cache.set()) {
         Object retVal = _invokableFunction.invoke(_env, _input, _args);
         return retVal instanceof Result ? (Result<?>) retVal : Result.success(retVal);
       } catch (Exception e) {
@@ -470,8 +470,9 @@ public class View {
                           int rowIndex,
                           int columnIndex,
                           InvokableFunction invokableFunction,
-                          Tracer tracer) {
-      super(env, input, args, invokableFunction, tracer);
+                          Tracer tracer,
+                          ThreadLocalCache cache) {
+      super(env, input, args, invokableFunction, tracer, cache);
       _rowIndex = rowIndex;
       _columnIndex = columnIndex;
     }
@@ -496,8 +497,9 @@ public class View {
                              FunctionArguments args,
                              String outputValueName,
                              InvokableFunction invokableFunction,
-                             Tracer tracer) {
-      super(env, null, args, invokableFunction, tracer);
+                             Tracer tracer,
+                             ThreadLocalCache cache) {
+      super(env, null, args, invokableFunction, tracer, cache);
       _outputValueName = ArgumentChecker.notEmpty(outputValueName, "outputValueName");
     }
 
@@ -509,6 +511,43 @@ public class View {
           resultBuilder.add(_outputValueName, result, callGraph);
         }
       };
+    }
+  }
+
+  /**
+   * Auto-closable wrapper around a cache and a thread local variable that holds it.
+   * <p>
+   * When {@link #set()} is called the cache is assigned to the thread local value and when {@link #close()}
+   * is called it is removed. The intention is that tasks which execute functions should set the cache in a
+   * try-with-resources block and execute the function in the body of the block.
+   */
+  private static class ThreadLocalCache implements AutoCloseable {
+
+    private final ThreadLocal<Cache<MethodInvocationKey, Object>> _threadLocal;
+    private final Cache<MethodInvocationKey, Object> _cache;
+
+    private ThreadLocalCache(ThreadLocal<Cache<MethodInvocationKey, Object>> threadLocal,
+                             Cache<MethodInvocationKey, Object> cache) {
+      _threadLocal = threadLocal;
+      _cache = cache;
+    }
+
+    /**
+     * Assigns the cache to the thread local variable.
+     *
+     * @return this
+     */
+    private ThreadLocalCache set() {
+      _threadLocal.set(_cache);
+      return this;
+    }
+
+    /**
+     * Removes the cache from the thread local variable.
+     */
+    @Override
+    public void close() {
+      _threadLocal.remove();
     }
   }
 }
