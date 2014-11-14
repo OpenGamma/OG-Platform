@@ -13,6 +13,7 @@ import java.util.Set;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.ImmutableConstructor;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -30,12 +31,14 @@ import com.google.common.collect.ImmutableMap;
 @BeanDefinition
 public final class ScenarioResults implements ImmutableBean {
 
+  /** The calculation results for each scenario, keyed by scenario name. */
   @PropertyDefinition(validate = "notNull")
   private final ImmutableMap<String, Results> _results;
 
   /**
    * @param results the calculation results for each scenario, keyed by scenario name
    */
+  @ImmutableConstructor
   public ScenarioResults(Map<String, Results> results) {
     _results = ImmutableMap.copyOf(results);
   }
@@ -79,7 +82,7 @@ public final class ScenarioResults implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the results.
+   * Gets the calculation results for each scenario, keyed by scenario name.
    * @return the value of the property, not null
    */
   public ImmutableMap<String, Results> getResults() {
