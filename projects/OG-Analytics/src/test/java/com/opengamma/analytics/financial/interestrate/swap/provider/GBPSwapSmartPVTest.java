@@ -74,7 +74,6 @@ public class GBPSwapSmartPVTest {
   private static final MatrixAlgebra MA = new OGMatrixAlgebra();
 
   private static final double NOTIONAL = 2e9;
-  private static final double COUPON = 0.02;
   private static final Calendar baseCalendar = new CalendarGBP("GBP");
   // private static final Calendar baseCalendar = new CalendarNoHoliday("No Holidays");
   private static final DayCount ACT365 = DayCounts.ACT_365;
@@ -201,10 +200,10 @@ public class GBPSwapSmartPVTest {
         5797.798336051921, 12428.744989705048, 517803.6258600666, 304194.28278619424, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
     DoubleMatrix1D expGamma = new DoubleMatrix1D(0, 0, 0.1566268008783391, 0.11977343596578863, -0.007108238030828089, -0.02635626715757221, -0.056885092021793426, -0.1787119119364074,
         -0.45267430946650566, -1.3767795332248913, -3.8464351748222136, -225.74022089673812, -132.8577895249877, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-    testImPriceAndDelta(swapDef, TRADE_DATE, expImNpv, expDelta, expGamma);
+    //  testImPriceAndDelta(swapDef, TRADE_DATE, expImNpv, expDelta, expGamma);
 
     //TODO why is the VM value incorrect for a seasoned swap? 
-    // testVmNpv(swapDef, TRADE_DATE, expVmNpv);
+    testVmNpv(swapDef, TRADE_DATE, expVmNpv);
   }
 
   /**

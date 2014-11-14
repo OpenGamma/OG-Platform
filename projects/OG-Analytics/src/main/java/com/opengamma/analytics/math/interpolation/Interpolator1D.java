@@ -12,6 +12,9 @@ import java.util.SortedMap;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.math.differentiation.FiniteDifferenceType;
+import com.opengamma.analytics.math.differentiation.ScalarFirstOrderDifferentiator;
+import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 
 /**
@@ -26,27 +29,60 @@ public abstract class Interpolator1D implements Interpolator<Interpolator1DDataB
   public abstract Double interpolate(Interpolator1DDataBundle data, Double value);
 
   /**
-   * Computes the gradient of the interpolant at the value
+   * Computes the gradient of the interpolant at the value.
+   * <p>
+   * Note: this is computed by finite difference - this method is expected to be overridden for concrete classes with an analytical calculation
    * @param data Interpolation Data
    * @param value The value for which the gradient is computed
    * @return The gradient
    */
   public double firstDerivative(final Interpolator1DDataBundle data, final Double value) {
-    final double vm = value - EPS;
-    final double vp = value + EPS;
+    double range = data.lastKey() - data.firstKey();
+    Function1D<Double, Boolean> domain = new Function1D<Double, Boolean>() {
+      @Override
+      public Boolean evaluate(Double x) {
+        return x >= data.firstKey() && x <= data.lastKey();
+      }
+    };
 
-    if (vm < data.firstKey()) {
-      final double up = interpolate(data, value + EPS);
-      final double mid = interpolate(data, value);
-      return (up - mid) / EPS;
-    } else if (vp > data.lastKey()) {
-      final double down = interpolate(data, vm);
-      final double mid = interpolate(data, value);
-      return (mid - down) / EPS;
-    }
-    final double up = interpolate(data, value + EPS);
-    final double down = interpolate(data, vm);
-    return (up - down) / 2 / EPS;
+    ScalarFirstOrderDifferentiator diff = new ScalarFirstOrderDifferentiator(FiniteDifferenceType.CENTRAL, range * EPS);
+    Function1D<Double, Double> func = getFunction(data);
+    Function1D<Double, Double> gradFunc = diff.differentiate(func, domain);
+    return gradFunc.evaluate(value);
+  }
+
+  /**
+   * Generate a 1D function of the interpolant from the interpolator and the data bundle
+   * @param data The knots and computed values used by the interpolator
+   * @return a 1D function
+   */
+  public Function1D<Double, Double> getFunction(final Interpolator1DDataBundle data) {
+    return new Function1D<Double, Double>() {
+      @Override
+      public Double evaluate(Double x) {
+        return interpolate(data, x);
+      }
+    };
+  }
+
+  /**
+   * Generate a 1D function representing the gradient of the interpolant from the interpolator and the data bundle
+   * @param The knots and computed values used by the interpolator
+   * @return a 1D function of the gradient
+   */
+  public Function1D<Double, Double> getGradientFunction(final Interpolator1DDataBundle data) {
+    /*
+     * Implementation note: It would be more efficient to have the finite difference mechanism (found in firstDerivative)
+     * here and have firstDerivative call this rather than the other way round. However firstDerivative is overridden in
+     * concrete implementations (with an analytic calculation), which would mean calls to getGradientFunction would be
+     * computed by FD even if firstDerivative was over ridden.
+     */
+    return new Function1D<Double, Double>() {
+      @Override
+      public Double evaluate(Double x) {
+        return firstDerivative(data, x);
+      }
+    };
   }
 
   /**
@@ -82,6 +118,7 @@ public abstract class Interpolator1D implements Interpolator<Interpolator1DDataB
     final double[] result = new double[n];
     final Interpolator1DDataBundle dataUp = getDataBundleFromSortedArrays(x, y);
     final Interpolator1DDataBundle dataDown = getDataBundleFromSortedArrays(x, y);
+
     for (int i = 0; i < n; i++) {
       if (i != 0) {
         dataUp.setYValueAtIndex(i - 1, y[i - 1]);

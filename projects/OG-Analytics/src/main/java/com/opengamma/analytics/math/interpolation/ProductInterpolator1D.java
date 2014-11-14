@@ -14,11 +14,10 @@ import com.opengamma.util.ArgumentChecker;
  * Financial applications include interpolating on the product of the zero rates and time (equivalent to interpolation
  * on the log of the discount factors) and interpolating on the total variance (sigma-squared multiplied by time).
  * <p>
- * Knot values are supplied as y (i.e. <b>not</b> multiplied by x) and results from the interpolate method also also not
- *  Multiplied by x - i.e. the details of actually interpolating on xy are hidden from the user.
+ * Knot values are supplied as y (i.e. <b>not</b> multiplied by x) and results from the interpolate method also also not Multiplied by x - i.e. the details of actually interpolating on xy are hidden
+ * from the user.
  * <p>
- * One limitation is that is you supply a knot pair {0,y_0} the value y_0 will not necessarily be recovered at x=0 (the
- *  value returned is equal to the gradient of the underlying (i.e. base)
+ * One limitation is that is you supply a knot pair {0,y_0} the value y_0 will not necessarily be recovered at x=0 (the value returned is equal to the gradient of the underlying (i.e. base)
  * interpolated function at x=0)
  */
 public class ProductInterpolator1D extends Interpolator1D {
@@ -53,8 +52,11 @@ public class ProductInterpolator1D extends Interpolator1D {
     ArgumentChecker.isTrue(value >= 0.0, "Negative value not allowed for this interpolator");
     // for x close to zero the xy (base) function can be expanded as bx + cx^2 +.... (there is no constant term since xy
     // must equal 0 for x = 0) so have y = b + cx + ...., hence y(0) = b - the gradient of the base function at x = 0
-    if (value < SMALL) {
-      return _base.firstDerivative(data, value);
+    // if (value < SMALL) {
+    // return _base.firstDerivative(data, value);
+    // }
+    if (value < data.firstKey()) {
+      return data.firstValue() / data.firstKey();
     }
     double xy = _base.interpolate(data, value);
     return xy / value;
