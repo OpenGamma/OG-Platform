@@ -5,7 +5,6 @@
  */
 package com.opengamma.sesame.engine;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -18,8 +17,6 @@ import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.sesame.MulticurveBundle;
 import com.opengamma.sesame.PreCalibratedMulticurveArguments;
-import com.opengamma.sesame.config.NonPortfolioOutput;
-import com.opengamma.sesame.config.ViewColumn;
 import com.opengamma.sesame.config.ViewConfig;
 import com.opengamma.sesame.function.scenarios.ScenarioDefinition;
 import com.opengamma.sesame.marketdata.CycleMarketDataFactory;
@@ -52,9 +49,6 @@ public class DefaultScenarioRunner implements ScenarioRunner {
   /**
    * Performs the calculations defined in a view multiple times, using data from a different scenario each time.
    * <p>
-   * If the view configuration contains {@code m} columns and the market data environment contains {@code n}
-   * scenarios, the results will contain {@code m x n} values for each item in the portfolio.
-   * <p>
    * This only handles one very specific use case: views whose calculations require curves and no other market data.
    * The pre-calibrated multicurve bundles must be in the market data environment.
    *
@@ -64,82 +58,28 @@ public class DefaultScenarioRunner implements ScenarioRunner {
    * @return the results of running the calculations in the view for every item in the portfolio and every scenario
    */
   @Override
-  public Results runScenario(ViewConfig viewConfig, ScenarioMarketDataEnvironment marketDataEnvironment, List<?> portfolio) {
+  public ScenarioResults runScenario(ViewConfig viewConfig,
+                                     ScenarioMarketDataEnvironment marketDataEnvironment,
+                                     List<?> portfolio) {
+
     Map<String, MarketDataEnvironment> scenarioData = marketDataEnvironment.getData();
-
-    if (scenarioData.size() == 1) {
-      return runSingleScenario(viewConfig, scenarioData.values().iterator().next(), portfolio);
-    }
-    List<ViewColumn> columns = new ArrayList<>();
-    List<NonPortfolioOutput> outputs = new ArrayList<>();
-    ScenarioDefinition scenarioDefinition = viewConfig.getScenarioDefinition();
-
-    CycleArguments.Builder cycleArgumentsBuilder = CycleArguments.builder(new EmptyMarketDataFactory());
+    Map<String, Results> resultsMap = new HashMap<>();
 
     for (Map.Entry<String, MarketDataEnvironment> entry : scenarioData.entrySet()) {
-      Object scenarioId = entry.getKey();
-      MarketDataEnvironment scenarioDataBundle = entry.getValue();
-      PreCalibratedMulticurveArguments scenarioArgument = getScenarioArguments(scenarioDataBundle);
-
-      for (ViewColumn column : viewConfig.getColumns()) {
-        // add a copy of the column for this scenario, use a name created from the column and scenario names
-        String columnName = mungeName(column.getName(), scenarioId);
-        ViewColumn copiedColumn = column.toBuilder().name(columnName).build();
-        columns.add(copiedColumn);
-        // add the scenario arg with this scenario's curve to the scenario definition for this column
-        scenarioDefinition = scenarioDefinition.with(scenarioArgument, columnName);
-        cycleArgumentsBuilder.valuationTime(scenarioDataBundle.getValuationTime(), columnName);
-      }
-      for (NonPortfolioOutput output : viewConfig.getNonPortfolioOutputs()) {
-        // add a copy of the output for this scenario, use a name created from the output and scenario names
-        String outputName = mungeName(output.getName(), scenarioId);
-        NonPortfolioOutput copiedOutput = output.toBuilder().name(outputName).build();
-        outputs.add(copiedOutput);
-        // add the scenario arg with this scenario's curve to the scenario definition for this output
-        scenarioDefinition = scenarioDefinition.with(scenarioArgument, outputName);
-        cycleArgumentsBuilder.valuationTime(scenarioDataBundle.getValuationTime(), outputName);
-      }
+      String scenarioName = entry.getKey();
+      MarketDataEnvironment scenarioMarketData = entry.getValue();
+      PreCalibratedMulticurveArguments scenarioArgument = getScenarioArguments(scenarioMarketData);
+      ScenarioDefinition scenarioDefinition =
+          new ScenarioDefinition(scenarioArgument).mergedWith(viewConfig.getScenarioDefinition());
+      ViewConfig scenarioViewConfig = viewConfig.toBuilder().scenarioDefinition(scenarioDefinition).build();
+      View view = _viewFactory.createView(scenarioViewConfig, inputTypes(portfolio));
+      CycleArguments cycleArguments = CycleArguments.builder(new EmptyMarketDataFactory())
+                                                    .valuationTime(scenarioMarketData.getValuationTime())
+                                                    .build();
+      Results results = view.run(cycleArguments, portfolio);
+      resultsMap.put(scenarioName, results);
     }
-    ViewConfig scenarioViewConfig = viewConfig.toBuilder()
-        .columns(columns)
-        .nonPortfolioOutputs(outputs)
-        .scenarioDefinition(scenarioDefinition)
-        .build();
-    View view = _viewFactory.createView(scenarioViewConfig, inputTypes(portfolio));
-    CycleArguments cycleArguments = cycleArgumentsBuilder.build();
-    return view.run(cycleArguments, portfolio);
-  }
-
-  /**
-   * Creates a unique name for a column or non-portfolio output by combining the name with the scenario ID.
-   *
-   * @param name the column or output name
-   * @param scenarioId the scenario ID
-   * @return a name derived from the original name and the scenario ID
-   */
-  private static String mungeName(String name, Object scenarioId) {
-    return scenarioId.toString() + " / " + name;
-  }
-
-  /**
-   * Creates and runs a view for a single scenario using the data in {@code marketData}.
-   * <p>
-   * This only handles one very specific use case: views whose calculations require curves and no other market data.
-   * The pre-calibrated multicurve bundles must be in {@code marketData}.
-   *
-   * @param viewConfig the configuration that defines the calculations in the view
-   * @param marketData the market data required by the calculation in the view
-   * @param portfolio the portfolio used as input to the calculations
-   * @return the calculation results
-   */
-  private Results runSingleScenario(ViewConfig viewConfig, MarketDataEnvironment marketData, List<?> portfolio) {
-    ScenarioDefinition scenarioDefinition = new ScenarioDefinition(getScenarioArguments(marketData));
-    ViewConfig scenarioViewConfig = viewConfig.toBuilder().scenarioDefinition(scenarioDefinition).build();
-    View view = _viewFactory.createView(scenarioViewConfig, inputTypes(portfolio));
-    EmptyMarketDataFactory marketDataFactory = new EmptyMarketDataFactory();
-    ZonedDateTime valuationTime = marketData.getValuationTime();
-    CycleArguments cycleArguments = CycleArguments.builder(marketDataFactory).valuationTime(valuationTime).build();
-    return view.run(cycleArguments, portfolio);
+    return new ScenarioResults(resultsMap);
   }
 
   /**

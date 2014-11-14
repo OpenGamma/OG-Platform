@@ -395,7 +395,7 @@ public class View {
     for (ViewColumn column : _viewConfig.getColumns()) {
       FilteredScenarioDefinition filteredDef = scenarioDefinition.filter(column.getName());
       Environment env =
-          new EngineEnvironment(cycleArguments.getValuationTime(column.getName()), marketDataFactory, _cacheInvalidator);
+          new EngineEnvironment(cycleArguments.getValuationTime(), marketDataFactory, _cacheInvalidator);
       Environment columnEnv = env.withScenarioDefinition(filteredDef);
       Map<Class<?>, InvokableFunction> functions = graph.getFunctionsForColumn(column.getName());
 
@@ -478,7 +478,7 @@ public class View {
       // create an environment with scenario arguments filtered for the output
       FilteredScenarioDefinition filteredDef = scenarioDefinition.filter(output.getName());
       Environment env =
-          new EngineEnvironment(cycleArguments.getValuationTime(output.getName()), marketDataFactory, _cacheInvalidator);
+          new EngineEnvironment(cycleArguments.getValuationTime(), marketDataFactory, _cacheInvalidator);
       Environment outputEnv = env.withScenarioDefinition(filteredDef);
       tasks.add(new NonPortfolioTask(outputEnv, args, output.getName(), function, tracer, cache));
     } return tasks;

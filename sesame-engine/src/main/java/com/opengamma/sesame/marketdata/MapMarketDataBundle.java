@@ -153,7 +153,7 @@ public final class MapMarketDataBundle implements MarketDataBundle, ImmutableBea
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the time for which this market data is valid.
+   * Gets the market data environment that provides data for this bundle.
    * @return the value of the property, not null
    */
   private MarketDataEnvironment getEnv() {

@@ -6,7 +6,6 @@
 package com.opengamma.sesame.engine;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.threeten.bp.ZonedDateTime;
@@ -51,8 +50,6 @@ public final class CycleArguments {
     FULL
   }
 
-  // TODO sort out function arguments
-
   private final ZonedDateTime _valuationTime;
   private final CycleMarketDataFactory _cycleMarketDataFactory;
   private final VersionCorrection _configVersionCorrection;
@@ -60,9 +57,6 @@ public final class CycleArguments {
   private final Map<String, TraceType> _traceOutputs;
   private final FunctionArguments _functionArguments;
   private final boolean _captureInputs;
-
-  /** Valuations times keyed by column name. If there is no value for a column {@link #_valuationTime} will be used. */
-  private final Map<String, ZonedDateTime> _columnValuationTimes;
 
   /**
    * @deprecated this will be removed, use {@link #builder}
@@ -109,8 +103,8 @@ public final class CycleArguments {
          functionArguments,
          traceCells,
          traceOutputs,
-         false,
-         Collections.<String, ZonedDateTime>emptyMap());
+         false
+    );
   }
 
   /**
@@ -127,8 +121,8 @@ public final class CycleArguments {
          FunctionArguments.EMPTY,
          ImmutableMap.<Cell, TraceType>of(),
          ImmutableMap.<String, TraceType>of(),
-         captureInputs,
-         Collections.<String, ZonedDateTime>emptyMap());
+         captureInputs
+    );
   }
 
   /**
@@ -146,8 +140,8 @@ public final class CycleArguments {
          functionArguments,
          ImmutableMap.<Cell, TraceType>of(),
          ImmutableMap.<String, TraceType>of(),
-         captureInputs,
-         Collections.<String, ZonedDateTime>emptyMap());
+         captureInputs
+    );
   }
 
   /**
@@ -160,9 +154,7 @@ public final class CycleArguments {
                         FunctionArguments functionArguments,
                         Map<Cell, TraceType> traceCells,
                         Map<String, TraceType> traceOutputs,
-                        boolean captureInputs,
-                        Map<String, ZonedDateTime> columnValuationTimes) {
-    _columnValuationTimes = ImmutableMap.copyOf(ArgumentChecker.notNull(columnValuationTimes, "columnValuationTimes"));
+                        boolean captureInputs) {
     _functionArguments = ArgumentChecker.notNull(functionArguments, "functionArguments");
     _configVersionCorrection = ArgumentChecker.notNull(configVersionCorrection, "configVersionCorrection");
     _valuationTime = ArgumentChecker.notNull(valuationTime, "valuationTime");
@@ -174,14 +166,6 @@ public final class CycleArguments {
 
   ZonedDateTime getValuationTime() {
     return _valuationTime;
-  }
-
-  ZonedDateTime getValuationTime(String columnName) {
-    if (_columnValuationTimes.containsKey(columnName)) {
-      return _columnValuationTimes.get(columnName);
-    } else {
-      return _valuationTime;
-    }
   }
 
   CycleMarketDataFactory getCycleMarketDataFactory() {
@@ -266,13 +250,10 @@ public final class CycleArguments {
   public static final class Builder {
 
     private final CycleMarketDataFactory _cycleMarketDataFactory;
-    private final Map<String, ZonedDateTime> _columnValuationTime = new HashMap<>();
 
     private ZonedDateTime _valuationTime = ZonedDateTime.now();
     private Map<Cell, TraceType> _traceCells = Collections.emptyMap();
     private Map<String, TraceType> _traceOutputs = Collections.emptyMap();
-    // TODO this is correct, enable it
-    //private Map<Class<?>, FunctionArguments> _functionArguments = Collections.emptyMap();
     private FunctionArguments _functionArguments = FunctionArguments.EMPTY;
     private boolean _captureInputs;
     private VersionCorrection _versionCorrection = VersionCorrection.LATEST;
@@ -292,8 +273,7 @@ public final class CycleArguments {
                                 _functionArguments,
                                 _traceCells,
                                 _traceOutputs,
-                                _captureInputs,
-                                _columnValuationTime);
+                                _captureInputs);
     }
 
     /**
@@ -339,30 +319,6 @@ public final class CycleArguments {
       _valuationTime = ArgumentChecker.notNull(valuationTime, "valuationTime");
       return this;
     }
-
-    /**
-     * Sets the valuation time for the calculations in the cycle for a specific column.
-     * <p>
-     * If no value is specified for a column the default value from {@link #valuationTime(ZonedDateTime)} will be
-     * used.
-     *
-     * @param valuationTime the valuation time for the calculations in the cycle
-     * @return this builder
-     */
-    public Builder valuationTime(ZonedDateTime valuationTime, String columnName) {
-      ArgumentChecker.notNull(valuationTime, "valuationTime");
-      ArgumentChecker.notEmpty(columnName, "columnName");
-
-      _columnValuationTime.put(columnName, valuationTime);
-      return this;
-    }
-
-    // TODO this is the correct version
-    // TODO but what if we want to provide different arguments for different columns?
-    /* public Builder functionArguments(Map<Class<?>, FunctionArguments> arguments) {
-      _functionArguments = ArgumentChecker.notNull(arguments, "arguments");
-      return this;
-    }*/
 
     /**
      * Sets the version correction used to load from the data store
