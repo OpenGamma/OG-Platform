@@ -120,8 +120,6 @@ public class DiscountingFRACalculatorFactory implements FRACalculatorFactory {
   
   @Override
   public Result<FRACalculator> createCalculator(Environment env, ForwardRateAgreementSecurity security) {
-    Result<HistoricalTimeSeriesBundle> fixings = _htsFn.getFixingsForSecurity(env, security);
-
     Trade trade = new SimpleTrade(security,
                                   BigDecimal.ONE,
                                   new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "CPARTY")),
@@ -129,7 +127,14 @@ public class DiscountingFRACalculatorFactory implements FRACalculatorFactory {
                                   OffsetTime.now());
     ForwardRateAgreementTrade tradeWrapper = new ForwardRateAgreementTrade(trade);
 
-    Result<MulticurveBundle> bundleResult = _discountingMulticurveCombinerFn.getMulticurveBundle(env, tradeWrapper);
+    return createCalculator(env, tradeWrapper);
+  }
+
+  @Override
+  public Result<FRACalculator> createCalculator(Environment env, ForwardRateAgreementTrade trade) {
+    Result<MulticurveBundle> bundleResult = _discountingMulticurveCombinerFn.getMulticurveBundle(env, trade);
+    ForwardRateAgreementSecurity security = trade.getSecurity();
+    Result<HistoricalTimeSeriesBundle> fixings = _htsFn.getFixingsForSecurity(env, security);
 
     if (Result.allSuccessful(bundleResult, fixings)) {
 
