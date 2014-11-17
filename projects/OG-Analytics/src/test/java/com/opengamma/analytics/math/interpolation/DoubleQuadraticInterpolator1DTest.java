@@ -97,7 +97,10 @@ public class DoubleQuadraticInterpolator1DTest {
     final double[] y = new double[] {0.34, 0.56 };
     Interpolator1DDataBundle dataBundle = INTERPOLATOR.getDataBundleFromSortedArrays(x, y);
     double value = INTERPOLATOR.firstDerivative(dataBundle, 1.5);
-    assertEquals((y[1] - y[0]) / (x[1] - x[0]), value, 0.0);
+    double m = (y[1] - y[0]) / (x[1] - x[0]);
+    assertEquals(m, value, 0.0);
+    value = INTERPOLATOR.firstDerivative(dataBundle, x[1]);
+    assertEquals(m, value, 0.0);
   }
 
   @Test
