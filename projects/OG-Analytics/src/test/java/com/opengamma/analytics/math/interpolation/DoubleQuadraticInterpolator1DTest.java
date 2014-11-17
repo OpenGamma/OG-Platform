@@ -97,7 +97,10 @@ public class DoubleQuadraticInterpolator1DTest {
     final double[] y = new double[] {0.34, 0.56 };
     Interpolator1DDataBundle dataBundle = INTERPOLATOR.getDataBundleFromSortedArrays(x, y);
     double value = INTERPOLATOR.firstDerivative(dataBundle, 1.5);
-    assertEquals((y[1] - y[0]) / (x[1] - x[0]), value, 0.0);
+    double m = (y[1] - y[0]) / (x[1] - x[0]);
+    assertEquals(m, value, 0.0);
+    value = INTERPOLATOR.firstDerivative(dataBundle, x[1]);
+    assertEquals(m, value, 0.0);
   }
 
   @Test
@@ -113,5 +116,21 @@ public class DoubleQuadraticInterpolator1DTest {
       double y = INTERPOLATOR.firstDerivative(data, xKeys[i]);
       assertEquals(0.5 * (INTERPOLATOR.interpolate(data, xKeys[i] + eps) - INTERPOLATOR.interpolate(data, xKeys[i] - eps)) / eps, y, eps);
     }
+  }
+
+  @Test
+  public void firstDerivativeTest() {
+    double a = 1.0;
+    double b = 1.5;
+    double c = -0.5;
+    double[] x = new double[] {0., 2., 5. };
+    int n = x.length;
+    double[] y = new double[n];
+    for (int i = 0; i < n; i++) {
+      y[i] = a + b * x[i] + c * x[i] * x[i];
+    }
+    Interpolator1DDataBundle db = INTERPOLATOR.getDataBundle(x, y);
+    Double grad = INTERPOLATOR.firstDerivative(db, x[n - 1]);
+    assertEquals(b + 2 * c * x[n - 1], grad, 1e-15);
   }
 }
