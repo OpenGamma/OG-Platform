@@ -10,10 +10,12 @@ import static com.opengamma.sesame.config.ConfigBuilder.config;
 import static com.opengamma.sesame.config.ConfigBuilder.configureView;
 import static com.opengamma.sesame.config.ConfigBuilder.implementations;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
 
 import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.testng.annotations.Test;
@@ -86,8 +88,11 @@ public class DefaultScenarioRunnerTest {
                .valuationTime("base", valuationTime)
                .build();
     List<?> trades = ImmutableList.of(createTrade());
-    Results results = scenarioRunner.runScenario(CONFIG, marketDataEnvironment, trades);
-
+    ScenarioResults scenarioResults = scenarioRunner.runScenario(CONFIG, marketDataEnvironment, trades);
+    Map<String, Results> resultsMap = scenarioResults.getResults();
+    assertEquals(1, resultsMap.size());
+    Results results = resultsMap.get("base");
+    assertNotNull(results);
     assertEquals(1, results.getRows().size());
     assertEquals(1, results.get(0).getItems().size());
     assertEquals("col1", results.getColumnNames().get(0));
@@ -112,16 +117,20 @@ public class DefaultScenarioRunnerTest {
                .valuationTime("s2", valuationTime)
                .build();
     List<?> trades = ImmutableList.of(createTrade());
-    Results results = scenarioRunner.runScenario(CONFIG, marketDataEnvironment, trades);
+    ScenarioResults scenarioResults = scenarioRunner.runScenario(CONFIG, marketDataEnvironment, trades);
+    Map<String, Results> resultsMap = scenarioResults.getResults();
+    assertEquals(3, resultsMap.size());
+    Results baseResults = resultsMap.get("base");
+    Results s1Results = resultsMap.get("s1");
+    Results s2Results = resultsMap.get("s2");
 
-    assertEquals(1, results.getRows().size());
-    assertEquals(3, results.get(0).getItems().size());
-    assertEquals("base / col1", results.getColumnNames().get(0));
-    assertEquals("s1 / col1", results.getColumnNames().get(1));
-    assertEquals("s2 / col1", results.getColumnNames().get(2));
-    assertEquals(Pairs.of(1.0, 2.0), results.get(0, 0).getResult().getValue());
-    assertEquals(Pairs.of(3.0, 4.0), results.get(0, 1).getResult().getValue());
-    assertEquals(Pairs.of(5.0, 6.0), results.get(0, 2).getResult().getValue());
+    assertNotNull(baseResults);
+    assertNotNull(s1Results);
+    assertNotNull(s2Results);
+
+    assertEquals(Pairs.of(1.0, 2.0), baseResults.get(0, 0).getResult().getValue());
+    assertEquals(Pairs.of(3.0, 4.0), s1Results.get(0, 0).getResult().getValue());
+    assertEquals(Pairs.of(5.0, 6.0), s2Results.get(0, 0).getResult().getValue());
   }
 
   private ViewFactory createViewFactory() {

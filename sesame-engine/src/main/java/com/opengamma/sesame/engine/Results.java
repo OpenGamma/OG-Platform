@@ -33,10 +33,7 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * The results from the execution of a view cycle.
- *
-   TODO Iterable<Row>?
-   TODO column types
-  */
+ */
 @BeanDefinition
 public final class Results implements ImmutableBean {
 

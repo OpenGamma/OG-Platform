@@ -30,5 +30,7 @@ public interface ScenarioRunner {
    * @param portfolio the items in the portfolio
    * @return the results of running the calculations in the view for every item in the portfolio and every scenario
    */
-  Results runScenario(ViewConfig viewConfig, ScenarioMarketDataEnvironment marketDataEnvironment, List<?> portfolio);
+  ScenarioResults runScenario(ViewConfig viewConfig,
+                              ScenarioMarketDataEnvironment marketDataEnvironment,
+                              List<?> portfolio);
 }
