@@ -32,7 +32,6 @@ public interface MulticurveProviderInterface extends ParameterProviderInterface 
    * @param time The time.
    * @return The discount factor.
    */
-  // TODO: extend it to a more general unique reference to include issuer/currency curves? UniqueIdentifiable?
   double getDiscountFactor(Currency ccy, Double time);
 
   /**

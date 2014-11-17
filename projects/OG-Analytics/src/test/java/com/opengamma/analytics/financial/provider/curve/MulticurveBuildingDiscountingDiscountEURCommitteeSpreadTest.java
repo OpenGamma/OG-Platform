@@ -72,6 +72,8 @@ import com.opengamma.util.tuple.Pair;
  */
 @Test(groups = TestGroup.UNIT)
 public class MulticurveBuildingDiscountingDiscountEURCommitteeSpreadTest {
+  
+  private static final String TEMP_DIR = "";
 
   /** Curve calibration date */
   private static final ZonedDateTime CALIBRATION_DATE = DateUtils.getUTCDate(2012, 11, 14);
@@ -180,8 +182,10 @@ public class MulticurveBuildingDiscountingDiscountEURCommitteeSpreadTest {
     DEFINITIONS_UNITS[1][1] = new InstrumentDefinition<?>[][] {DEFINITIONS_FWD6_EUR };
     final int nbNode1 = 2;
     final GeneratorYDCurve genIntLin = new GeneratorCurveYieldInterpolated(MATURITY_CALCULATOR, INTERPOLATOR_LINEAR);
-    final GeneratorYDCurve genIntNumDFLL = new GeneratorCurveDiscountFactorInterpolatedNumber(MATURITY_CALCULATOR, nbNode1, INTERPOLATOR_LL);
-    final GeneratorYDCurve genInt0DFLL = new GeneratorCurveDiscountFactorInterpolatedAnchorNode(MEETING_ECB_TIME, TimeCalculator.getTimeBetween(CALIBRATION_DATE,
+    final GeneratorYDCurve genIntNumDFLL = 
+        new GeneratorCurveDiscountFactorInterpolatedNumber(MATURITY_CALCULATOR, nbNode1, INTERPOLATOR_LL);
+    final GeneratorYDCurve genInt0DFLL = 
+        new GeneratorCurveDiscountFactorInterpolatedAnchorNode(MEETING_ECB_TIME, TimeCalculator.getTimeBetween(CALIBRATION_DATE,
         ScheduleCalculator.getAdjustedDate(CALIBRATION_DATE, GENERATOR_OIS_EUR.getSpotLag(), TARGET)), INTERPOLATOR_LL);
     final GeneratorYDCurve genInt0DQ = new GeneratorCurveYieldInterpolatedAnchor(MATURITY_CALCULATOR, INTERPOLATOR_DQ);
     final GeneratorYDCurve[] genCompArray = new GeneratorYDCurve[] {genIntNumDFLL, genInt0DFLL, genInt0DQ };
@@ -209,8 +213,9 @@ public class MulticurveBuildingDiscountingDiscountEURCommitteeSpreadTest {
 
     //    final GeneratorYDCurve genIntDQ = CurveCalibrationConventionDataSets.generatorYDMatDq();
     //    final GeneratorYDCurve genIntNCS = CurveCalibrationConventionDataSets.generatorYDMatNcs();
-    final GeneratorYDCurve genIntCCS = CurveCalibrationConventionDataSets.generatorYDMatCcs();
-    final GeneratorYDCurve genAddExistDsc = new GeneratorCurveAddYieldExisiting(genIntCCS, false, CURVE_NAME_DSC_EUR);
+    final GeneratorYDCurve genIntCCS = CurveCalibrationConventionDataSets.generatorYDMatLin(); // TODO: Training - change here
+    final GeneratorYDCurve genAddExistDsc = 
+        new GeneratorCurveAddYieldExisiting(genIntCCS, false, CURVE_NAME_DSC_EUR);
 
     GENERATORS_UNITS[0][0] = new GeneratorYDCurve[] {genComp };
     GENERATORS_UNITS[0][1] = new GeneratorYDCurve[] {genIntLin };
@@ -310,52 +315,26 @@ public class MulticurveBuildingDiscountingDiscountEURCommitteeSpreadTest {
     }
   }
 
-  @Test(enabled = false)
+  @Test(enabled = true)
   /** Exports the ON rates computed from the EONIA and EURIBOR6M curves. */
   /** Exports the Ibor rates computed from the EURIBOR6M curve. */
   public void exportForwardRates() {
     int indexBlock = 1;
-    CurveCalibrationTestsUtils.exportONForwardONCurve(
-        CALIBRATION_DATE,
-        CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(indexBlock).getFirst(),
-        EONIA,
-        TARGET,
-        new File(FileUtils.TEMP_DIR, "demo-test-fwd-eur-committee-on-eonia-" + indexBlock + ".csv"),
-        500,
-        1);
-    CurveCalibrationTestsUtils.exportONForwardIborCurve(
-        CALIBRATION_DATE,
-        CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(indexBlock).getFirst(),
-        EURIBOR6M,
-        TARGET,
-        new File(FileUtils.TEMP_DIR, "demo-test-fwd-eur-committee-on-euribor-" + indexBlock + ".csv"),
-        500,
-        1);
-    CurveCalibrationTestsUtils.exportIborForwardIborCurve(
-        CALIBRATION_DATE,
-        CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(indexBlock).getFirst(),
-        EURIBOR6M,
-        TARGET,
-        new File(FileUtils.TEMP_DIR, "demo-test-fwd-eur-committee-ibor-euribor-" + indexBlock + ".csv"),
-        0,
-        500,
-        1);
-    CurveCalibrationTestsUtils.exportZCRatesONCurve(
-        CALIBRATION_DATE,
-        CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(indexBlock).getFirst(),
-        EONIA,
-        TARGET,
-        new File(FileUtils.TEMP_DIR, "demo-test-fwd-eur-committee-zc-eonia-" + indexBlock + ".csv"),
-        500,
-        1);
-    CurveCalibrationTestsUtils.exportZCRatesIborCurve(
-        CALIBRATION_DATE,
-        CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(indexBlock).getFirst(),
-        EURIBOR6M,
-        TARGET,
-        new File(FileUtils.TEMP_DIR, "demo-test-fwd-eur-committee-zc-euribor-" + indexBlock + ".csv"),
-        500,
-        1);
+    CurveCalibrationTestsUtils.exportONForwardONCurve(CALIBRATION_DATE,
+        CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(indexBlock).getFirst(), EONIA, TARGET,
+        new File(TEMP_DIR + "demo-test-fwd-eur-committee-on-eonia-" + indexBlock + ".csv"), 500, 1);
+    CurveCalibrationTestsUtils.exportONForwardIborCurve(CALIBRATION_DATE,
+        CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(indexBlock).getFirst(), EURIBOR6M, TARGET,
+        new File(TEMP_DIR + "demo-test-fwd-eur-committee-on-euribor-" + indexBlock + ".csv"), 500, 1);
+    CurveCalibrationTestsUtils.exportIborForwardIborCurve(CALIBRATION_DATE,
+        CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(indexBlock).getFirst(), EURIBOR6M, TARGET,
+        new File(TEMP_DIR + "demo-test-fwd-eur-committee-ibor-euribor-" + indexBlock + ".csv"), 0, 500, 1);
+    CurveCalibrationTestsUtils.exportZCRatesONCurve(CALIBRATION_DATE,
+        CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(indexBlock).getFirst(), EONIA, TARGET,
+        new File(TEMP_DIR + "demo-test-fwd-eur-committee-zc-eonia-" + indexBlock + ".csv"), 500, 1);
+    CurveCalibrationTestsUtils.exportZCRatesIborCurve(CALIBRATION_DATE,
+        CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(indexBlock).getFirst(), EURIBOR6M, TARGET,
+        new File(TEMP_DIR + "demo-test-fwd-eur-committee-zc-euribor-" + indexBlock + ".csv"), 500, 1);
   }
 
   private static InstrumentDerivative[][] convert(final InstrumentDefinition<?>[][] definitions, final boolean withToday) {
@@ -388,7 +367,7 @@ public class MulticurveBuildingDiscountingDiscountEURCommitteeSpreadTest {
     return withToday ? TS_FIXED_OIS_EUR_WITH_TODAY : TS_FIXED_OIS_EUR_WITHOUT_TODAY;
   }
 
-  private static ZonedDateTimeDoubleTimeSeries[] getTSSwapFixedIbor(final Boolean withToday) { // TODO: different fixing for 3 and 6 m
+  private static ZonedDateTimeDoubleTimeSeries[] getTSSwapFixedIbor(final Boolean withToday) {
     return withToday ? TS_FIXED_IBOR_EUR6M_WITH_TODAY : TS_FIXED_IBOR_EUR6M_WITHOUT_TODAY;
   }
 

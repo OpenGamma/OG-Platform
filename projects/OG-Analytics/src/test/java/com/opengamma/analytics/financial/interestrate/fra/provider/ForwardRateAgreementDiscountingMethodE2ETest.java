@@ -55,7 +55,8 @@ public class ForwardRateAgreementDiscountingMethodE2ETest {
   /** The valuation date */
   private static final ZonedDateTime VALUATION_DATE = DateUtils.getUTCDate(2014, 1, 22);
   /** Curves and indexes. */
-  private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_PAIR = StandardDataSetsMulticurveUSD.getCurvesUSDOisL3();
+  private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_PAIR = 
+      StandardDataSetsMulticurveUSD.getCurvesUSDOisL3();
   private static final MulticurveProviderDiscount MULTICURVE = MULTICURVE_PAIR.getFirst();
   private static final CurveBuildingBlockBundle BLOCK = MULTICURVE_PAIR.getSecond();
   private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_FF_PAIR =

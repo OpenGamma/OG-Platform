@@ -50,7 +50,8 @@ public final class CouponFixedDiscountingMethod {
    * @param multicurves The multi-curve provider.
    * @return The present value.
    */
-  public MultipleCurrencyAmount presentValue(final CouponFixed coupon, final MulticurveProviderInterface multicurves) {
+  public MultipleCurrencyAmount presentValue(final CouponFixed coupon, 
+      final MulticurveProviderInterface multicurves) {
     Validate.notNull(coupon, "Coupon");
     Validate.notNull(multicurves, "multicurve");
     final double df = multicurves.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
@@ -78,7 +79,8 @@ public final class CouponFixedDiscountingMethod {
    * @param multicurve The multi-curve provider.
    * @return The sensitivity.
    */
-  public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final CouponFixed cpn, final MulticurveProviderInterface multicurve) {
+  public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final CouponFixed cpn, 
+      final MulticurveProviderInterface multicurve) {
     final double time = cpn.getPaymentTime();
     final Map<String, List<DoublesPair>> mapDsc = new HashMap<>();
     final DoublesPair s = DoublesPair.of(time, -time * cpn.getAmount() * multicurve.getDiscountFactor(cpn.getCurrency(), time));

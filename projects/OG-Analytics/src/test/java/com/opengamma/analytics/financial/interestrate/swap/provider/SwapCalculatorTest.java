@@ -378,7 +378,7 @@ public class SwapCalculatorTest {
     assertEquals("TodayPaymentCalculator: fixed-coupon swap", 1, cash.getCurrencyAmounts().length);
   }
 
-  @Test(enabled = false)
+  @Test(enabled = true)
   public void presentValuePerformance() {
 
     long startTime, endTime;
@@ -405,6 +405,58 @@ public class SwapCalculatorTest {
           SwapFixedIborDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, USD6MLIBOR3M, NOTIONAL, rate, true);
       swap[loops] = swapDefinition.toDerivative(referenceDate);
     }
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      for (int loops = 0; loops < nbSwap; loops++) {
+        pv[loops] = swap[loops].accept(pvdCalculator, MULTICURVES);
+      }
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println("SwapCalculatorTest: " + nbTest + " x " + nbSwap + " swaps (5Y/Q) - present value " + (endTime - startTime) + " ms");
+    // Performance note: Discounting price: 11-Jun-2014: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 225 ms for 100x100 swaps.
+
+    startTime = System.currentTimeMillis(); // Swap construction + PV
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      for (int loops = 0; loops < nbSwap; loops++) {
+        final double rate = RATE_FIXED - 0.0050 + loops * BP1;
+        final SwapFixedIborDefinition swapDefinition = 
+            SwapFixedIborDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, USD6MLIBOR3M, NOTIONAL, rate, true);
+        swap[loops] = swapDefinition.toDerivative(referenceDate);
+      }
+      for (int loops = 0; loops < nbSwap; loops++) {
+        pv[loops] = swap[loops].accept(pvdCalculator, MULTICURVES);
+      }
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println("SwapCalculatorTest: " + nbTest + " x " + nbSwap + 
+        " swaps (5Y/Q) - construction + present value " + (endTime - startTime) + " ms");
+    // Performance note: Discounting price: 11-Jun-2014: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 1280 ms for 100x100 swaps.
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      for (int loops = 0; loops < nbSwap; loops++) {
+        pv[loops] = swap[loops].accept(pvdCalculator, MULTICURVES);
+        pvcs[loops] = swap[loops].accept(pvcsdCalculator, MULTICURVES);
+
+      }
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println("SwapCalculatorTest: " + nbTest + " x " + nbSwap + 
+        " swaps (5Y/Q) - present value + present value curve sensitivity " + (endTime - startTime) + " ms");
+    // Performance note: Discounting price: 11-Jun-2014: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 930 ms for 100x100 swaps.
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      for (int loops = 0; loops < nbSwap; loops++) {
+        pv[loops] = swap[loops].accept(pvdCalculator, MULTICURVES);
+        ps[loops] = psCalculator.calculateSensitivity(swap[loops], MULTICURVES, MULTICURVES.getAllNames());
+      }
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println("SwapCalculatorTest: " + nbTest + " x " + nbSwap + 
+        " swaps (5Y/Q) - present value + present value parameters sensitivity " + (endTime - startTime) + " ms");
+    // Performance note: Discounting price: 11-Jun-2014: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 1325 ms for 100x100 swaps.
 
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {

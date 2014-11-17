@@ -68,7 +68,8 @@ public class MulticurveBuildingDiscountingDiscountUSDFFSDemoTest {
     0.0010, 0.0010, 0.0012, 0.0012, 0.0014, 0.0016,
     0.0015, 0.0016, 0.0017, 0.0018, 0.0019 };
   /** Generators for the dsc USD curve */
-  private static final GeneratorInstrument<? extends GeneratorAttribute>[] DSC_USD_GENERATORS = CurveCalibrationConventionDataSets.generatorUsdOnOisFfs(1, 6, 5);
+  private static final GeneratorInstrument<? extends GeneratorAttribute>[] DSC_USD_GENERATORS = 
+      CurveCalibrationConventionDataSets.generatorUsdOnOisFfs(1, 6, 5);
   /** Tenors for the dsc USD curve */
   private static final Period[] DSC_USD_TENOR = new Period[] {Period.ofDays(0),
     Period.ofMonths(1), Period.ofMonths(2), Period.ofMonths(3), Period.ofMonths(6), Period.ofMonths(9), Period.ofYears(1),
@@ -83,7 +84,8 @@ public class MulticurveBuildingDiscountingDiscountUSDFFSDemoTest {
   /** Market values for the Fwd 3M USD curve */
   private static final double[] FWD3_USD_MARKET_QUOTES = new double[] {0.0025, 0.0025, 0.0030, 0.0065, 0.0110, 0.0180, 0.0225, 0.0260 };
   /** Generators for the Fwd 3M USD curve */
-  private static final GeneratorInstrument<? extends GeneratorAttribute>[] FWD3_USD_GENERATORS = CurveCalibrationConventionDataSets.generatorUsdIbor3Fra3Irs3(1, 0, 7);
+  private static final GeneratorInstrument<? extends GeneratorAttribute>[] FWD3_USD_GENERATORS = 
+      CurveCalibrationConventionDataSets.generatorUsdIbor3Fra3Irs3(1, 0, 7);
   /** Tenors for the Fwd 3M USD curve */
   private static final Period[] FWD3_USD_TENOR = new Period[] {Period.ofMonths(0),
     Period.ofMonths(6), Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(5), Period.ofYears(7), Period.ofYears(10) };

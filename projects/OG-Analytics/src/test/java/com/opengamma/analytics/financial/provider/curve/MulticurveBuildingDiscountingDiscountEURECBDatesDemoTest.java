@@ -18,6 +18,7 @@ import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorCurveDiscountFactorInterpolatedNode;
+import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorCurveYieldInterpolatedNode;
 import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorYDCurve;
 import com.opengamma.analytics.financial.datasets.CalendarTarget;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
@@ -48,7 +49,6 @@ import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
-import com.opengamma.util.FileUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
@@ -60,6 +60,8 @@ import com.opengamma.util.tuple.Pair;
  */
 @Test(groups = TestGroup.UNIT)
 public class MulticurveBuildingDiscountingDiscountEURECBDatesDemoTest {
+  
+  private static final String TEMP_DIR = "";
 
   /** Curve calibration date */
   private static final ZonedDateTime CALIBRATION_DATE = DateUtils.getUTCDate(2013, 2, 4);
@@ -73,8 +75,12 @@ public class MulticurveBuildingDiscountingDiscountEURECBDatesDemoTest {
   private static final String CURVE_NAME_DSC_EUR = "EUR Dsc";
   private static final String CURVE_NAME_FWD6_EUR = "EUR Fwd 6M";
 
-  private static final Interpolator1D INTERPOLATOR_LL = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LOG_LINEAR, Interpolator1DFactory.EXPONENTIAL_EXTRAPOLATOR,
+  private static final Interpolator1D INTERPOLATOR_LL = CombinedInterpolatorExtrapolatorFactory.getInterpolator(
+      Interpolator1DFactory.LOG_LINEAR, Interpolator1DFactory.EXPONENTIAL_EXTRAPOLATOR,
       Interpolator1DFactory.EXPONENTIAL_EXTRAPOLATOR); // Log-linear on the discount factor = step on the instantaneous rates
+  private static final Interpolator1D INTERPOLATOR_LINEAR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(
+      Interpolator1DFactory.LINEAR, Interpolator1DFactory.LINEAR_EXTRAPOLATOR,
+      Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
 
   // Test note: Curve building date selected such that ECB dates are in the same OIS month: 7-Mar and 4-Apr
   // Test note: Total of 12 dates
@@ -139,7 +145,9 @@ public class MulticurveBuildingDiscountingDiscountEURECBDatesDemoTest {
     DEFINITIONS_UNITS[0][0] = new InstrumentDefinition<?>[][] {getDefinitions(DSC_EUR_MARKET_QUOTES, DSC_EUR_GENERATORS, DSC_EUR_ATTR) };
     DEFINITIONS_UNITS[0][1] = new InstrumentDefinition<?>[][] {getDefinitions(FWD6_EUR_MARKET_QUOTES, FWD6_EUR_GENERATORS, FWD6_EUR_ATTR) };
     final GeneratorYDCurve genIntLinMat = CurveCalibrationConventionDataSets.generatorYDMatLin();
-    final GeneratorYDCurve genIntDFLL = new GeneratorCurveDiscountFactorInterpolatedNode(MEETING_ECB_TIME, INTERPOLATOR_LL);
+    final GeneratorYDCurve genIntDFLL = new GeneratorCurveDiscountFactorInterpolatedNode(MEETING_ECB_TIME, INTERPOLATOR_LL); //TODO: training: change here
+    // new GeneratorCurveDiscountFactorInterpolatedNode(MEETING_ECB_TIME, INTERPOLATOR_LL); // 
+    // new GeneratorCurveYieldInterpolatedNode(MEETING_ECB_TIME, INTERPOLATOR_LINEAR); // Linear on zero rates
     GENERATORS_UNITS[0][0] = new GeneratorYDCurve[] {genIntDFLL };
     GENERATORS_UNITS[0][1] = new GeneratorYDCurve[] {genIntLinMat };
     NAMES_UNITS[0][0] = new String[] {CURVE_NAME_DSC_EUR };
@@ -200,17 +208,12 @@ public class MulticurveBuildingDiscountingDiscountEURECBDatesDemoTest {
     }
   }
 
-  @Test(enabled = false)
+  @Test(enabled = true)
   /** Export the forward ON curve to a csv file. */
   public void forwardAnalysis() {
-    CurveCalibrationTestsUtils.exportONForwardONCurve(
-        CALIBRATION_DATE,
-        CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(0).getFirst(),
-        EONIA,
-        TARGET,
-        new File(FileUtils.TEMP_DIR, "demo-test-fwd-eur-eonia.csv"),
-        500,
-        1);
+    CurveCalibrationTestsUtils.exportONForwardONCurve(CALIBRATION_DATE,
+        CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(0).getFirst(), EONIA, TARGET,
+        new File(TEMP_DIR + "demo-test-fwd-eur-eonia.csv"), 500, 1);
   }
 
   @SuppressWarnings("unchecked")

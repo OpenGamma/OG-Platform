@@ -356,4 +356,44 @@ public class SwapRiskUsdAnalysis {
 
   }
 
+  @SuppressWarnings("unused")
+  @Test(enabled = true)
+  public void bucketedPv01Performance() {
+
+    long startTime, endTime;
+    final int nbTest = 10000;
+    
+    MulticurveProviderDiscount multicurve = MULTICURVE_IMM; // TODO: training: change to IMM
+    CurveBuildingBlockBundle block = BLOCK_IMM;
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      MultipleCurrencyAmount pvSwap1Std = IRS_1.accept(PVDC, multicurve);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println("SwapCalculatorTest: " + nbTest + " swaps (10Y/Q) - present value " + (endTime - startTime) + " ms");
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      MultipleCurrencyParameterSensitivity pvmqs1Std = MQSBC.fromInstrument(IRS_1, multicurve, block);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println("SwapCalculatorTest: " + nbTest + " swaps (10Y/Q) - market quote sensitivity " + (endTime - startTime) + " ms");
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      MultipleCurrencyAmount pvSwap1Std = IRS_1.accept(PVDC, multicurve);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println("SwapCalculatorTest: " + nbTest + " swaps (10Y/Q) - present value " + (endTime - startTime) + " ms");
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      MultipleCurrencyParameterSensitivity pvmqs1Std = MQSBC.fromInstrument(IRS_1, multicurve, block);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println("SwapCalculatorTest: " + nbTest + " swaps (10Y/Q) - market quote sensitivity " + (endTime - startTime) + " ms");
+    
+  }
+
 }

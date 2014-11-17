@@ -66,7 +66,8 @@ public class MulticurveBuildingDiscountingDiscountUSD2DemoTest {
   /** Market values for the dsc USD curve */
   private static final double[] DSC_USD_MARKET_QUOTES = new double[] {0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400 };
   /** Generators for the dsc USD curve */
-  private static final GeneratorInstrument<? extends GeneratorAttribute>[] DSC_USD_GENERATORS = CurveCalibrationConventionDataSets.generatorUsdOnOisFfs(1, 11, 0);
+  private static final GeneratorInstrument<? extends GeneratorAttribute>[] DSC_USD_GENERATORS = 
+      CurveCalibrationConventionDataSets.generatorUsdOnOisFfs(1, 11, 0);
   /** Tenors for the dsc USD curve */
   private static final Period[] DSC_USD_TENOR = new Period[] {Period.ofDays(0),
     Period.ofMonths(1), Period.ofMonths(2), Period.ofMonths(3), Period.ofMonths(6), Period.ofMonths(9), Period.ofYears(1),
@@ -81,7 +82,8 @@ public class MulticurveBuildingDiscountingDiscountUSD2DemoTest {
   /** Market values for the Fwd 3M USD curve */
   private static final double[] FWD3_USD_MARKET_QUOTES = new double[] {0.0420, 0.0420, 0.0420, 0.0430, 0.0470, 0.0540, 0.0570, 0.0600 };
   /** Generators for the Fwd 3M USD curve */
-  private static final GeneratorInstrument<? extends GeneratorAttribute>[] FWD3_USD_GENERATORS = CurveCalibrationConventionDataSets.generatorUsdIbor3Fra3Irs3(1, 0, 7);
+  private static final GeneratorInstrument<? extends GeneratorAttribute>[] FWD3_USD_GENERATORS = 
+      CurveCalibrationConventionDataSets.generatorUsdIbor3Fra3Irs3(1, 0, 7);
   /** Tenors for the Fwd 3M USD curve */
   private static final Period[] FWD3_USD_TENOR = new Period[] {Period.ofMonths(0),
     Period.ofMonths(6), Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(5), Period.ofYears(7), Period.ofYears(10) };
@@ -190,6 +192,39 @@ public class MulticurveBuildingDiscountingDiscountUSD2DemoTest {
         0,
         350,
         7);
+  }
+
+  @Test(enabled = true)
+  public void performance() {
+    long startTime, endTime;
+    final int nbTest = 100;
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      CurveCalibrationTestsUtils.makeCurvesFromDefinitionsMulticurve(CALIBRATION_DATE,
+          DEFINITIONS_UNITS[0], GENERATORS_UNITS[0],
+          NAMES_UNITS[0], KNOWN_DATA, PSMQDC, PSMQCSDC, false,
+          DSC_MAP, FWD_ON_MAP, FWD_IBOR_MAP, CURVE_BUILDING_REPOSITORY,
+          TS_FIXED_OIS_USD_WITH_TODAY, TS_FIXED_OIS_USD_WITHOUT_TODAY,
+          TS_FIXED_IBOR_USD3M_WITH_TODAY, TS_FIXED_IBOR_USD3M_WITHOUT_TODAY);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println("MulticurveBuildingDiscountingDiscountUSD2DemoTest - " + nbTest + " curve construction / 2 units: " + (endTime - startTime) + " ms");
+    // Performance note: Curve construction 2 units: 11-Nov-2014: On Mac Book Pro 2.6 GHz Intel Core i7: 325 ms for 100 sets.
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      CurveCalibrationTestsUtils.makeCurvesFromDefinitionsMulticurve(CALIBRATION_DATE,
+          DEFINITIONS_UNITS[0], GENERATORS_UNITS[0],
+          NAMES_UNITS[0], KNOWN_DATA, PSMQDC, PSMQCSDC, false,
+          DSC_MAP, FWD_ON_MAP, FWD_IBOR_MAP, CURVE_BUILDING_REPOSITORY,
+          TS_FIXED_OIS_USD_WITH_TODAY, TS_FIXED_OIS_USD_WITHOUT_TODAY,
+          TS_FIXED_IBOR_USD3M_WITH_TODAY, TS_FIXED_IBOR_USD3M_WITHOUT_TODAY);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println("MulticurveBuildingDiscountingDiscountUSD2DemoTest - " + nbTest + " curve construction / 2 units: " + (endTime - startTime) + " ms");
+    // Performance note: Curve construction 2 units: 11-Nov-2014: On Mac Book Pro 2.6 GHz Intel Core i7: xx ms for 100 sets.
+
   }
 
   private static InstrumentDerivative[][] convert(final InstrumentDefinition<?>[][] definitions, final int unit, final boolean withToday) {
