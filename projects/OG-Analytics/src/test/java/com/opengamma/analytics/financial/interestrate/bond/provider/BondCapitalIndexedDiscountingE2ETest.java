@@ -169,7 +169,7 @@ public class BondCapitalIndexedDiscountingE2ETest {
   
   @Test
   public void presentValueTips() {
-    double pvExpected = 471980.9359;
+    double pvExpected = 471329.0602;
     MultipleCurrencyAmount pv1 = TIPS_16_TRA.accept(PVInflIssuerC, INFL_ISSUER_GOVT);
     assertEquals("BondCapitalIndexedDiscountingE2E: present value TIPS", 
         pvExpected, pv1.getAmount(USD), TOLERANCE_PV);
@@ -177,7 +177,7 @@ public class BondCapitalIndexedDiscountingE2ETest {
   
   @Test
   public void presentValueTipsSeasonalityCurrent() {
-    double pvExpected = 431401.1262;
+    double pvExpected = 430749.2505;
     MultipleCurrencyAmount pv1 = TIPS_16_TRA.accept(PVInflIssuerC, INFL_ISSUER_GOVT_2);
     assertEquals("BondCapitalIndexedDiscountingE2E: present value TIPS", 
         pvExpected, pv1.getAmount(USD), TOLERANCE_PV);
