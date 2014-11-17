@@ -52,26 +52,31 @@ import com.opengamma.util.time.DateUtils;
  * 
  */
 public class SwapVariationMarginE2ETest {
+  private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
+  private static final double EPS = 1.0e-6;
+  /* curve names */
   private static final String DSC_CURVE_NAME = "DSC";
   private static final String FWD_ON_CURVE_NAME = "FWD-ON";
   private static final String FWD_LIBOR_CURVE_NAME = "FWD-LIBOR";
-
-  private static final ZonedDateTime TRADE_DATE_US2 = DateUtils.getUTCDate(2014, 7, 3); // Thur
-  private static final ZonedDateTime TRADE_DATE_US3 = DateUtils.getUTCDate(2014, 7, 7); // Mon (Fri is US holiday)
-
-  private static final IndexON FEDFUND = IndexONMaster.getInstance().getIndex("FED FUND");
-  private static final IborIndex USDLIBOR3M = IndexIborMaster.getInstance().getIndex("USDLIBOR3M");
-  private static final Currency USD = USDLIBOR3M.getCurrency();
-
-  private static final double FF_RATE1 = 0.0009;
-  private static final double FF_RATE2 = 0.0009;
-
-  private static final MulticurveProviderDiscount MULTICURVES_USD1 = new MulticurveProviderDiscount();
-  private static final MulticurveProviderDiscount MULTICURVES_USD2 = new MulticurveProviderDiscount();
-  private static final MulticurveProviderDiscount MULTICURVES_USD3 = new MulticurveProviderDiscount();
+  /* curve interpolator */
   private static final Interpolator1D INTERPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(
       Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.LINEAR_EXTRAPOLATOR,
       Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
+
+  /**
+   * USD multi-curves
+   */
+  private static final Calendar NYC = new CalendarUSD("NYC");
+  private static final ZonedDateTime TRADE_DATE_US2 = DateUtils.getUTCDate(2014, 7, 3); // Thur
+  private static final ZonedDateTime TRADE_DATE_US3 = DateUtils.getUTCDate(2014, 7, 7); // Mon (Fri is US holiday)
+  private static final IndexON FEDFUND = IndexONMaster.getInstance().getIndex("FED FUND");
+  private static final IborIndex USDLIBOR3M = IndexIborMaster.getInstance().getIndex("USDLIBOR3M");
+  private static final Currency USD = USDLIBOR3M.getCurrency();
+  private static final double FF_RATE1 = 0.0009; // ON rate on 2014/7/2, previous business day of TRADE_DATE_US2
+  private static final double FF_RATE2 = 0.0009; // ON rate on 2014/7/3, previous business day of TRADE_DATE_US3
+  private static final MulticurveProviderDiscount MULTICURVES_USD1 = new MulticurveProviderDiscount(); // curves on 2014/7/2
+  private static final MulticurveProviderDiscount MULTICURVES_USD2 = new MulticurveProviderDiscount(); // curves on 2014/7/3
+  private static final MulticurveProviderDiscount MULTICURVES_USD3 = new MulticurveProviderDiscount(); // curves on 2014/7/7
   static {
     /* 02/July/2014 */
     double[] dscTimes1 = new double[] {0.01095842925, 0.01369815984, 0.03287747535, 0.09863333227, 0.18356909953,
@@ -201,7 +206,9 @@ public class SwapVariationMarginE2ETest {
     MULTICURVES_USD3.setCurve(USDLIBOR3M, lbrCurve3);
   }
 
-  private static final Calendar NYC = new CalendarUSD("NYC");
+  /**
+   * Swaps, USD
+   */
   private static final DayCount DC_30U_360 = DayCounts.THIRTY_U_360;
   private static final double NOTIONAL = 100000000; //100 m
   private static final NotionalProvider NOTIONAL_PROVIDER = new NotionalProvider() {
@@ -210,7 +217,6 @@ public class SwapVariationMarginE2ETest {
       return NOTIONAL;
     }
   };
-
   private static final AdjustedDateParameters ADJUSTED_DATE_USDLIBOR = new AdjustedDateParameters(NYC,
       USDLIBOR3M.getBusinessDayConvention());
   private static final OffsetAdjustedDateParameters OFFSET_FIXING_USDLIBOR =
@@ -220,7 +226,6 @@ public class SwapVariationMarginE2ETest {
   private static final Period P3M = Period.ofMonths(3);
   private static final double FIXED_RATE = 0.015;
   private static final RollDateAdjuster ROLL_DATE_ADJUSTER = RollConvention.NONE.getRollDateAdjuster(0);
-
   // Swap Fixed vs Libor3M, USD
   private static final LocalDate START_DATE1 = LocalDate.of(2014, 6, 12);
   private static final LocalDate END_DATE1 = LocalDate.of(2021, 6, 12);
@@ -243,7 +248,6 @@ public class SwapVariationMarginE2ETest {
           new double[] {0.0023185, 0.0023285 });
   private static final ZonedDateTimeDoubleTimeSeries[] TS_ARRAY_USDLIBOR3M_2X1 =
       new ZonedDateTimeDoubleTimeSeries[] {TS_USDLIBOR3M1, TS_USDLIBOR3M1 };
-
   // Swap Fixed vs Libor3M, USD - fixing between two business days
   private static final LocalDate START_DATE2 = LocalDate.of(2014, 7, 8);
   private static final LocalDate END_DATE2 = LocalDate.of(2021, 7, 8);
@@ -272,7 +276,6 @@ public class SwapVariationMarginE2ETest {
           new double[] {0.0023145 });
   private static final ZonedDateTimeDoubleTimeSeries[] TS_ARRAY_USDLIBOR3M_2X2_PREV =
       new ZonedDateTimeDoubleTimeSeries[] {TS_USDLIBOR3M2_PREV, TS_USDLIBOR3M2_PREV };
-
   // Swap Fixed vs Libor3M, USD - Coupon payment between two business days
   private static final LocalDate START_DATE3 = LocalDate.of(2014, 4, 3);
   private static final LocalDate END_DATE3 = LocalDate.of(2021, 4, 3);
@@ -296,14 +299,11 @@ public class SwapVariationMarginE2ETest {
   private static final ZonedDateTimeDoubleTimeSeries[] TS_ARRAY_USDLIBOR3M_2X3 =
       new ZonedDateTimeDoubleTimeSeries[] {TS_USDLIBOR3M3, TS_USDLIBOR3M3 };
 
-  private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
-  private static final double EPS = 1.0e-6;
-
   /**
    * Yesterday is the previous business day
    */
   @Test
-  public void noNonBusinessDayTest() {
+  public void noNonBusinessDaySwapUsdTest() {
     ZonedDateTime tradeDate = TRADE_DATE_US2;
     ZonedDateTime prevDate = ScheduleCalculator.getAdjustedDate(tradeDate, -1, NYC);
     Swap<? extends Payment, ? extends Payment> irsToday = IRS_DEFINITION1.toDerivative(tradeDate,
@@ -312,6 +312,7 @@ public class SwapVariationMarginE2ETest {
         .toDerivative(prevDate, TS_ARRAY_USDLIBOR3M_2X1);
     double pvToday = irsToday.accept(PVDC, MULTICURVES_USD2).getAmount(USD);
     double pvPrev = irsPrev.accept(PVDC, MULTICURVES_USD1).getAmount(USD);
+    // Year fraction should be calculated based on day count of ON index
     double pai = -pvPrev * FF_RATE1 *
         FEDFUND.getDayCount().getDayCountFraction(prevDate.toLocalDate(), tradeDate.toLocalDate());
     double vm = pvToday - pvPrev + pai;
@@ -323,7 +324,7 @@ public class SwapVariationMarginE2ETest {
    * 
    */
   @Test
-  public void NonBusinessDayTest() {
+  public void NonBusinessDaySwapUsdTest() {
     ZonedDateTime tradeDate = TRADE_DATE_US3;
     ZonedDateTime prevDate = ScheduleCalculator.getAdjustedDate(tradeDate, -1, NYC);
     Swap<? extends Payment, ? extends Payment> irsToday = IRS_DEFINITION1.toDerivative(tradeDate,
@@ -332,6 +333,7 @@ public class SwapVariationMarginE2ETest {
         .toDerivative(prevDate, TS_ARRAY_USDLIBOR3M_2X1);
     double pvToday = irsToday.accept(PVDC, MULTICURVES_USD3).getAmount(USD);
     double pvPrev = irsPrev.accept(PVDC, MULTICURVES_USD2).getAmount(USD);
+    // Year fraction should be calculated based on day count of ON index
     double pai = -pvPrev * FF_RATE2 *
         FEDFUND.getDayCount().getDayCountFraction(prevDate.toLocalDate(), tradeDate.toLocalDate());
     double vm = pvToday - pvPrev + pai;
@@ -343,7 +345,7 @@ public class SwapVariationMarginE2ETest {
    * Trade date is equal to fixing date. index rate is not necessarily available, thus we have two cases.
    */
   @Test
-  public void fixingBetweenBusinessDaysTest() {
+  public void fixingBetweenBusinessDaysSwapUsdTest() {
     ZonedDateTime tradeDate = TRADE_DATE_US2;
     ZonedDateTime prevDate = ScheduleCalculator.getAdjustedDate(tradeDate, -1, NYC);
     Swap<? extends Payment, ? extends Payment> irsFixed = IRS_DEFINITION2.toDerivative(tradeDate,
@@ -355,6 +357,7 @@ public class SwapVariationMarginE2ETest {
     double pvTodayFixed = irsFixed.accept(PVDC, MULTICURVES_USD2).getAmount(USD);
     double pvToday = irs.accept(PVDC, MULTICURVES_USD2).getAmount(USD);
     double pvPrev = irsPrev.accept(PVDC, MULTICURVES_USD1).getAmount(USD);
+    // Year fraction should be calculated based on day count of ON index
     double pai = -pvPrev * FF_RATE1 *
         FEDFUND.getDayCount().getDayCountFraction(prevDate.toLocalDate(), tradeDate.toLocalDate());
     double vmFixed = pvTodayFixed - pvPrev + pai;
@@ -370,7 +373,7 @@ public class SwapVariationMarginE2ETest {
    * Thus the coupons are included in the previous PV, but not included in the current PV. 
    */
   @Test
-  public void paymentBetweenBusinessDaysTest() {
+  public void paymentBetweenBusinessDaysSwapUsdTest() {
     ZonedDateTime tradeDate = TRADE_DATE_US2;
     ZonedDateTime prevDate = ScheduleCalculator.getAdjustedDate(tradeDate, -1, NYC);
     Swap<? extends Payment, ? extends Payment> irsToday = IRS_DEFINITION3.toDerivative(tradeDate,
@@ -379,6 +382,7 @@ public class SwapVariationMarginE2ETest {
         .toDerivative(prevDate, TS_ARRAY_USDLIBOR3M_2X3);
     double pvToday = irsToday.accept(PVDC, MULTICURVES_USD2).getAmount(USD);
     double pvPrev = irsPrev.accept(PVDC, MULTICURVES_USD1).getAmount(USD);
+    // Year fraction should be calculated based on day count of ON index
     double pai = -pvPrev * FF_RATE1 *
         FEDFUND.getDayCount().getDayCountFraction(prevDate.toLocalDate(), tradeDate.toLocalDate());
     double vm = pvToday - pvPrev + pai;
@@ -386,13 +390,17 @@ public class SwapVariationMarginE2ETest {
     assertRelative("IBOR3M vs FIXED, USD", expected, vm, EPS);
   }
 
+  /**
+   * GBP multi-curves
+   */
+  private static final Calendar LON = new CalendarGBP("LON");
   private static final IndexON SONIA = IndexONMaster.getInstance().getIndex("SONIA");
   private static final IborIndex GBPLIBOR3M = IndexIborMaster.getInstance().getIndex("GBPLIBOR3M");
   private static final Currency GBP = GBPLIBOR3M.getCurrency();
-
   private static final ZonedDateTime TRADE_DATE_GB2 = DateUtils.getUTCDate(2014, 7, 4); // Fri
   private static final ZonedDateTime TRADE_DATE_GB3 = DateUtils.getUTCDate(2014, 7, 7); // Mon 
-  
+  private static final double SN_RATE1 = 0.0042; // ON rate on 2014/7/3, previous business day of TRADE_DATE_GB2
+  private static final double SN_RATE2 = 0.0042; // ON rate on 2014/7/4, previous business day of TRADE_DATE_GB3
   private static final MulticurveProviderDiscount MULTICURVES_GBP1 = new MulticurveProviderDiscount();
   private static final MulticurveProviderDiscount MULTICURVES_GBP2 = new MulticurveProviderDiscount();
   private static final MulticurveProviderDiscount MULTICURVES_GBP3 = new MulticurveProviderDiscount();
@@ -520,17 +528,16 @@ public class SwapVariationMarginE2ETest {
     MULTICURVES_GBP3.setCurve(GBPLIBOR3M, lbrCurve3);
   }
 
-  private static final double SN_RATE1 = 0.0042;
-  private static final double SN_RATE2 = 0.0042;
-
-  private static final Calendar LON = new CalendarGBP("LON");
+  /**
+   * Swap, GBP
+   */
   private static final AdjustedDateParameters ADJUSTED_DATE_GBPLIBOR = new AdjustedDateParameters(LON,
       GBPLIBOR3M.getBusinessDayConvention());
   private static final OffsetAdjustedDateParameters OFFSET_FIXING_GBPLIBOR =
       new OffsetAdjustedDateParameters(-2, OffsetType.BUSINESS, LON, GBPLIBOR3M.getBusinessDayConvention());
   private static final OffsetAdjustedDateParameters OFFSET_PAYMENT_GBPLIBOR =
       new OffsetAdjustedDateParameters(0, OffsetType.BUSINESS, LON, GBPLIBOR3M.getBusinessDayConvention());
-
+  // Swap Fixed vs Libor3M, GBP
   private static final LocalDate START_DATE4 = LocalDate.of(2014, 6, 12);
   private static final LocalDate END_DATE4 = LocalDate.of(2021, 6, 12);
   private static final AnnuityDefinition<?> LEG_FIXED4 = new FixedAnnuityDefinitionBuilder().payer(true).currency(GBP)
@@ -557,7 +564,7 @@ public class SwapVariationMarginE2ETest {
    * trade date and previous business day are two consecutive days
    */
   @Test
-  public void gbpTest1() {
+  public void noNonBusinessDaySwapGbpTest1() {
     ZonedDateTime tradeDate = TRADE_DATE_GB2;
     ZonedDateTime prevDate = ScheduleCalculator.getAdjustedDate(tradeDate, -1, LON);
     Swap<? extends Payment, ? extends Payment> irsToday = IRS_DEFINITION4.toDerivative(tradeDate,
@@ -566,6 +573,7 @@ public class SwapVariationMarginE2ETest {
         TS_ARRAY_USDLIBOR3M_2X4);
     double pvToday = irsToday.accept(PVDC, MULTICURVES_GBP2).getAmount(GBP);
     double pvPrev = irsPrev.accept(PVDC, MULTICURVES_GBP1).getAmount(GBP);
+    // Year fraction should be calculated based on day count of ON index
     double pai = -pvPrev * SN_RATE1 *
         SONIA.getDayCount().getDayCountFraction(prevDate.toLocalDate(), tradeDate.toLocalDate());
     double vm = pvToday - pvPrev + pai;
@@ -577,7 +585,7 @@ public class SwapVariationMarginE2ETest {
    * Weekend between the two business days
    */
   @Test
-  public void gbpTest() {
+  public void nonBusinessDaySwapGbpTest() {
     ZonedDateTime tradeDate = TRADE_DATE_GB3;
     ZonedDateTime prevDate = ScheduleCalculator.getAdjustedDate(tradeDate, -1, LON);
     Swap<? extends Payment, ? extends Payment> irsToday = IRS_DEFINITION4.toDerivative(tradeDate,
@@ -586,6 +594,7 @@ public class SwapVariationMarginE2ETest {
         TS_ARRAY_USDLIBOR3M_2X4);
     double pvToday = irsToday.accept(PVDC, MULTICURVES_GBP3).getAmount(GBP);
     double pvPrev = irsPrev.accept(PVDC, MULTICURVES_GBP2).getAmount(GBP);
+    // Year fraction should be calculated based on day count of ON index
     double pai = -pvPrev * SN_RATE2 *
         SONIA.getDayCount().getDayCountFraction(prevDate.toLocalDate(), tradeDate.toLocalDate());
     double vm = pvToday - pvPrev + pai;
