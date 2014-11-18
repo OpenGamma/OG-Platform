@@ -5,6 +5,12 @@
  */
 package com.opengamma.analytics.financial.interestrate.swap.provider;
 
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.testng.annotations.Test;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
@@ -17,6 +23,7 @@ import com.opengamma.analytics.financial.instrument.index.GeneratorLegIbor;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexIborMaster;
 import com.opengamma.analytics.financial.instrument.payment.CouponFloatingDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
@@ -26,7 +33,6 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
@@ -42,13 +48,12 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
 
 /**
- * debug the Baker St. JPY swap pricing difference
+ * JPY swap pricing example
  */
-public class DebugTest {
+public class JPYSwapExampleTest {
   private static final double NOTIONAL = 1e10;
   private static final double SPREAD = 5.625e-4;
   private static final Calendar baseCalendar = new CalendarGBP("GBP");
-  // private static final Calendar baseCalendar = new CalendarNoHoliday("No Holidays");
   private static final DayCount ACT360 = DayCounts.ACT_360;
   private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
   private static final ZonedDateTime TRADE_DATE = DateUtils.getUTCDate(2014, 9, 25);
@@ -109,7 +114,6 @@ public class DebugTest {
     JPY_LIBOR1M_CURVE = new YieldCurve("JPY Libor 1M", new InterpolatedDoublesCurve(JPY_LIBOR1M_KNOT_TIMES, JPY_LIBOR1M_ZERO_RATES, interpolator, true));
     JPY_LIBOR3M_CURVE = new YieldCurve("JPY Libor 3M", new InterpolatedDoublesCurve(JPY_LIBOR3M_KNOT_TIMES, JPY_LIBOR3M_ZERO_RATES, interpolator, true));
 
-    YieldCurve zero = new YieldCurve("zero", ConstantDoublesCurve.from(0.0));
     SINGLE_CURVE = new MulticurveProviderDiscount();
     SINGLE_CURVE.setOrReplaceCurve(CCY, JPY_LIBOR_CURVE);
     SINGLE_CURVE.setOrReplaceCurve(JPYLIBOR1M, JPY_LIBOR_CURVE);
@@ -120,52 +124,165 @@ public class DebugTest {
     TRIPLE_CURVE.setOrReplaceCurve(JPYLIBOR3M, JPY_LIBOR3M_CURVE);
   }
 
+  private static final double EPS = 1.0e-13; //TODO need to be relaxed, before push
+
+  private void assertRelative(String message, double expected, double obtained, double relTol) {
+    double ref = Math.max(Math.abs(obtained), 1.0);
+    assertEquals(message, expected, obtained, ref * relTol);
+  }
+
+  /**
+   * Test swap definition, pv and principal
+   */
   @Test
-  public void testMulticurve() {
+  public void testSwap() {
+    boolean print = false;
+
+    /* Build swap */
+    Period swapTenor = Period.ofYears(5);
+    AnalyticsEnvironment.setInstance(AnalyticsEnvironment.getInstance().toBuilder().modelDayCount(DayCounts.ACT_365)
+        .build());
+    GeneratorAttributeIR att = new GeneratorAttributeIR(swapTenor);
+    GeneratorLegIbor leg1Gen = new GeneratorLegIbor("1M", CCY, JPYLIBOR1M, JPYLIBOR1M.getTenor(),
+        JPYLIBOR1M.getSpotLag(), 0, JPYLIBOR1M.getBusinessDayConvention(), JPYLIBOR1M.isEndOfMonth(),
+        StubType.SHORT_START, false, baseCalendar, baseCalendar);
+    GeneratorLegIbor leg2Gen = new GeneratorLegIbor("3M", CCY, JPYLIBOR3M, JPYLIBOR3M.getTenor(),
+        JPYLIBOR3M.getSpotLag(), 0, JPYLIBOR3M.getBusinessDayConvention(), JPYLIBOR3M.isEndOfMonth(),
+        StubType.SHORT_START, false, baseCalendar, baseCalendar);
+    AnnuityDefinition<?> leg1 = leg1Gen.generateInstrument(REF_DATE, SPREAD, -NOTIONAL, att);
+    AnnuityDefinition<?> leg2 = leg2Gen.generateInstrument(REF_DATE, 0, NOTIONAL, att);
+    SwapDefinition swapDef = new SwapDefinition(leg1, leg2);
+    if (print) {
+      System.out.println(swapDef);
+    }
+
+    /* Check swap definition */
+    AnnuityDefinition<? extends PaymentDefinition> firstLeg = swapDef.getFirstLeg();
+    int nFirst = firstLeg.getNumberOfPayments();
+    double[] expectedFirstFixingPeriod = new double[] {0.08611111111111111, 0.08888888888888889, 0.08611111111111111,
+        0.08611111111111111, 0.08611111111111111, 0.08611111111111111, 0.08333333333333333, 0.08611111111111111,
+        0.08611111111111111, 0.07777777777777778, 0.08888888888888889, 0.08333333333333333, 0.08611111111111111,
+        0.08611111111111111, 0.08611111111111111, 0.09166666666666666, 0.08333333333333333, 0.08611111111111111,
+        0.08888888888888889, 0.08611111111111111, 0.08611111111111111, 0.07777777777777778, 0.08611111111111111,
+        0.08333333333333333, 0.09166666666666666, 0.08333333333333333, 0.08611111111111111, 0.08888888888888889,
+        0.08333333333333333, 0.08611111111111111, 0.08611111111111111, 0.08611111111111111, 0.08333333333333333,
+        0.07777777777777778, 0.08611111111111111, 0.08333333333333333, 0.08888888888888889, 0.08333333333333333,
+        0.08611111111111111, 0.08611111111111111, 0.08333333333333333, 0.09166666666666666, 0.08333333333333333,
+        0.08611111111111111, 0.08888888888888889, 0.08055555555555556, 0.08611111111111111, 0.09166666666666666,
+        0.08333333333333333, 0.08333333333333333, 0.09166666666666666, 0.08611111111111111, 0.08333333333333333,
+        0.08611111111111111, 0.08333333333333333, 0.09166666666666666, 0.08055555555555556, 0.07777777777777778,
+        0.08611111111111111, 0.08888888888888889 };
+    double[] expectedFirstPaymentPeriod = new double[] {0.08611111111111111, 0.08888888888888889, 0.08055555555555556,
+        0.08611111111111111, 0.08611111111111111, 0.08333333333333333, 0.08333333333333333, 0.08611111111111111,
+        0.08611111111111111, 0.07777777777777778, 0.08888888888888889, 0.08055555555555556, 0.08611111111111111,
+        0.08611111111111111, 0.08333333333333333, 0.09166666666666666, 0.07777777777777778, 0.08611111111111111,
+        0.08888888888888889, 0.08055555555555556, 0.08611111111111111, 0.07777777777777778, 0.08611111111111111,
+        0.08333333333333333, 0.09166666666666666, 0.07777777777777778, 0.08611111111111111, 0.08888888888888889,
+        0.08055555555555556, 0.08611111111111111, 0.08611111111111111, 0.08333333333333333, 0.08333333333333333,
+        0.08611111111111111, 0.08055555555555556, 0.08333333333333333, 0.08888888888888889, 0.08055555555555556,
+        0.08611111111111111, 0.08611111111111111, 0.08333333333333333, 0.09166666666666666, 0.08055555555555556,
+        0.08333333333333333, 0.08888888888888889, 0.08055555555555556, 0.08333333333333333, 0.09166666666666666,
+        0.07777777777777778, 0.08333333333333333, 0.09166666666666666, 0.08055555555555556, 0.08333333333333333,
+        0.08611111111111111, 0.08333333333333333, 0.09166666666666666, 0.08055555555555556, 0.07777777777777778,
+        0.08611111111111111, 0.08888888888888889 };
+    double[] expectedFirstSpreadAmounts = new double[] {-484375, -500000, -453125, -484375, -484375, -468750, -468750,
+        -484375, -484375, -437500, -500000, -453125, -484375, -484375, -468750, -515625, -437500, -484375, -500000,
+        -453125, -484375, -437500, -484375, -468750, -515625, -437500, -484375, -500000, -453125, -484375, -484375,
+        -468750, -468750, -484375, -453125, -468750, -500000, -453125, -484375, -484375, -468750, -515625, -453125,
+        -468750, -500000, -453125, -468750, -515625, -437500, -468750, -515625, -453125, -468750, -484375, -468750,
+        -515625, -453125, -437500, -484375, -500000 };
+    for (int i = 0; i < nFirst; ++i) {
+      assertTrue(firstLeg.getNthPayment(i) instanceof CouponIborSpreadDefinition);
+      CouponIborSpreadDefinition coupon = (CouponIborSpreadDefinition) firstLeg.getNthPayment(i);
+      assertRelative("testSwap, first leg", expectedFirstFixingPeriod[i], coupon.getFixingPeriodAccrualFactor(), EPS);
+      assertRelative("testSwap, first leg", expectedFirstPaymentPeriod[i], coupon.getPaymentYearFraction(), EPS);
+      assertRelative("testSwap, first leg", expectedFirstSpreadAmounts[i], coupon.getSpreadAmount(), EPS);
+    }
+    AnnuityDefinition<? extends PaymentDefinition> secondLeg = swapDef.getSecondLeg();
+    int nSecond = secondLeg.getNumberOfPayments();
+    double[] expectedSecondFixingPeriod = new double[] {0.25555555555555554, 0.25555555555555554, 0.25555555555555554,
+        0.24722222222222223, 0.25555555555555554, 0.25555555555555554, 0.25555555555555554, 0.24722222222222223,
+        0.25555555555555554, 0.25555555555555554, 0.25277777777777777, 0.24722222222222223, 0.25555555555555554,
+        0.2611111111111111, 0.25277777777777777, 0.25555555555555554, 0.25555555555555554, 0.25555555555555554,
+        0.25555555555555554, 0.25277777777777777 };
+    double[] expectedSecondPaymentPeriod = new double[] {0.25555555555555554, 0.25555555555555554, 0.25555555555555554,
+        0.24722222222222223, 0.25555555555555554, 0.25555555555555554, 0.25555555555555554, 0.24722222222222223,
+        0.25555555555555554, 0.25555555555555554, 0.25277777777777777, 0.25, 0.25555555555555554, 0.2611111111111111,
+        0.25277777777777777, 0.25555555555555554, 0.25277777777777777, 0.25, 0.25555555555555554, 0.25277777777777777 };
+    double expectedSecondSpreadAmounts = 0.0;
+    for (int i = 0; i < nSecond; ++i) {
+      assertTrue(secondLeg.getNthPayment(i) instanceof CouponIborSpreadDefinition);
+      CouponIborSpreadDefinition coupon = (CouponIborSpreadDefinition) secondLeg.getNthPayment(i);
+      assertRelative("testSwap, second leg", expectedSecondFixingPeriod[i], coupon.getFixingPeriodAccrualFactor(), EPS);
+      assertRelative("testSwap, second leg", expectedSecondPaymentPeriod[i], coupon.getPaymentYearFraction(), EPS);
+      assertRelative("testSwap, second leg", expectedSecondSpreadAmounts, coupon.getSpreadAmount(), EPS);
+    }
+
+    /* Check PV and principal */
+    SwapDefinition swapMd = removeUnclearedCoupon(swapDef, TRADE_DATE, baseCalendar, baseCalendar);
+    Swap<? extends Payment, ? extends Payment> swap = swapMd.toDerivative(TRADE_DATE, TS_ARRAY_JPYLIBOR1M_JPYLIBOR3M);
+    MultipleCurrencyAmount pv1 = swap.accept(PVDC, SINGLE_CURVE);
+    assertRelative("testSwap, single curve PV", -1.370494358316157E7, pv1.getAmount(CCY), EPS);
+    if (print) {
+      System.out.println("single curve PV: " + pv1);
+    }
+    MultipleCurrencyAmount pv2 = swap.accept(PVDC, TRIPLE_CURVE);
+    assertRelative("testSwap, Multi-curve PV", -5988005.581088446, pv2.getAmount(CCY), EPS);
+    if (print) {
+      System.out.println("Multi-curve PV: " + pv2);
+    }
+    ZonedDateTime fixingDate1M = getLastFixing(leg1, TRADE_DATE);
+    ZonedDateTime fixingDate3M = getLastFixing(leg2, TRADE_DATE);
+    if (fixingDate1M.isBefore(TRADE_DATE) && fixingDate3M.isBefore(TRADE_DATE)) {
+      double fixed1M = TS_JPYLIBOR1M.getValue(fixingDate1M);
+      double fixed3M = TS_JPYLIBOR3M.getValue(fixingDate3M);
+      double accrued1M = -ACT360.getDayCountFraction(fixingDate1M, TRADE_DATE) * NOTIONAL * (fixed1M + SPREAD);
+      double accrued3M = ACT360.getDayCountFraction(fixingDate3M, TRADE_DATE) * NOTIONAL * (fixed3M);
+      if (print) {
+        System.out.println("accrued1M: " + accrued1M);
+        System.out.println("accrued3M: " + accrued3M);
+      }
+      double pricipal = pv2.getAmount(CCY) - (accrued1M + accrued3M);
+      if (print) {
+        System.out.println("pricipal: " + pricipal);
+      }
+      assertRelative("testSwap, Principal", -5834755.581088446, pricipal, EPS);
+    }
+    AnalyticsEnvironment.setInstance(AnalyticsEnvironment.DEFAULT);
+  }
+
+  private SwapDefinition removeUnclearedCoupon(SwapDefinition swap, ZonedDateTime data, Calendar firstLegCalendar,
+      Calendar secondLegCalendar) {
+    AnnuityDefinition<? extends PaymentDefinition> firstLeg = removeUnclearedCoupon(swap.getFirstLeg(), data,
+        firstLegCalendar);
+    AnnuityDefinition<? extends PaymentDefinition> secondLeg = removeUnclearedCoupon(swap.getSecondLeg(), data,
+        secondLegCalendar);
+    return new SwapDefinition(firstLeg, secondLeg);
+  }
+
+  private AnnuityDefinition<PaymentDefinition> removeUnclearedCoupon(
+      AnnuityDefinition<? extends PaymentDefinition> annuity, ZonedDateTime date, Calendar calendar) {
+    PaymentDefinition[] payments = annuity.getPayments();
+    final List<PaymentDefinition> resultList = new ArrayList<>();
+    ZonedDateTime adjDate = ScheduleCalculator.getAdjustedDate(date, 3, calendar);
+    for (final PaymentDefinition payment : payments) {
+      if (!adjDate.isAfter(payment.getPaymentDate())) {
+        resultList.add(payment);
+      }
+    }
+    return new AnnuityDefinition<>(resultList.toArray(new PaymentDefinition[resultList.size()]), calendar);
+  }
+
+  /**
+   * Print multicurve test, for debugging
+   */
+  @Test(enabled = false)
+  public void printMulticurve() {
     System.out.println(SINGLE_CURVE);
     System.out.println(CCY);
     System.out.println(JPYLIBOR1M.getDayCount() + "\t" + JPYLIBOR1M.getTenor() + "\t" + JPYLIBOR1M.getSpotLag());
     System.out.println(JPYLIBOR3M.getDayCount() + "\t" + JPYLIBOR3M.getTenor() + "\t" + JPYLIBOR3M.getSpotLag());
     System.out.println(JPYLIBOR3M);
-  }
-
-  @Test
-  public void testSwap() {
-    // Period swapTenor = Period.of(2, 8, 3);
-    Period swapTenor = Period.ofYears(5);
-
-    AnalyticsEnvironment.setInstance(AnalyticsEnvironment.getInstance().toBuilder().modelDayCount(DayCounts.ACT_365).build());
-
-    GeneratorAttributeIR att = new GeneratorAttributeIR(swapTenor);
-
-    GeneratorLegIbor leg1Gen = new GeneratorLegIbor("1M", CCY, JPYLIBOR1M, JPYLIBOR1M.getTenor(), JPYLIBOR1M.getSpotLag(), 0, JPYLIBOR1M.getBusinessDayConvention(), JPYLIBOR1M.isEndOfMonth(),
-        StubType.SHORT_START, false, baseCalendar, baseCalendar);
-    GeneratorLegIbor leg2Gen = new GeneratorLegIbor("3M", CCY, JPYLIBOR3M, JPYLIBOR3M.getTenor(), JPYLIBOR3M.getSpotLag(), 0, JPYLIBOR3M.getBusinessDayConvention(), JPYLIBOR3M.isEndOfMonth(),
-        StubType.SHORT_START, false, baseCalendar, baseCalendar);
-    AnnuityDefinition<?> leg1 = leg1Gen.generateInstrument(REF_DATE, SPREAD, -NOTIONAL, att);
-    AnnuityDefinition<?> leg2 = leg2Gen.generateInstrument(REF_DATE, 0, NOTIONAL, att);
-
-    SwapDefinition swapDef = new SwapDefinition(leg1, leg2);
-    System.out.println(swapDef);
-
-    Swap<? extends Payment, ? extends Payment> swap = swapDef.toDerivative(TRADE_DATE, TS_ARRAY_JPYLIBOR1M_JPYLIBOR3M);
-
-    MultipleCurrencyAmount pv = swap.accept(PVDC, SINGLE_CURVE);
-    System.out.println("single curve PV : " + pv);
-    pv = swap.accept(PVDC, TRIPLE_CURVE);
-    System.out.println("Multi-curve PV : " + pv);
-
-    //    ZonedDateTime fixingDate1M = getLastFixing(leg1, TRADE_DATE);
-    //    ZonedDateTime fixingDate3M = getLastFixing(leg2, TRADE_DATE);
-    //    if (fixingDate1M.isBefore(TRADE_DATE) && fixingDate3M.isBefore(TRADE_DATE)) {
-    //      double fixed1M = TS_JPYLIBOR1M.getValue(fixingDate1M);
-    //      double fixed3M = TS_JPYLIBOR3M.getValue(fixingDate3M);
-    //      double accrued1M = -ACT360.getDayCountFraction(fixingDate1M, TRADE_DATE) * NOTIONAL * (fixed1M + SPREAD);
-    //      double accrued3M = ACT360.getDayCountFraction(fixingDate3M, TRADE_DATE) * NOTIONAL * (fixed3M);
-    //      System.out.println("accrued: " + accrued1M + "\t" + accrued3M);
-    //      double priciple = pv.getAmount(CCY) - (accrued1M + accrued3M);
-    //      System.out.println("Principle: " + priciple);
-    //    }
   }
 
   private ZonedDateTime getLastFixing(AnnuityDefinition<?> leg, ZonedDateTime now) {

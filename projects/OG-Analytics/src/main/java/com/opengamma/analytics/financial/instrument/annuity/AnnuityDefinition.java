@@ -16,7 +16,6 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData
 import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
-import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
@@ -232,10 +231,10 @@ public class AnnuityDefinition<P extends PaymentDefinition> implements Instrumen
     ArgumentChecker.notNull(date, "date");
     ArgumentChecker.notNull(indexFixingTS, "index fixing time series");
     final List<Payment> resultList = new ArrayList<>();
-    ZonedDateTime adjDate = ScheduleCalculator.getAdjustedDate(date, 3, _calendar);
+    //    ZonedDateTime adjDate = ScheduleCalculator.getAdjustedDate(date, 3, _calendar);
     for (final P payment : _payments) {
       // TODO check this
-      if (!adjDate.isAfter(payment.getPaymentDate())) {
+      if (!date.isAfter(payment.getPaymentDate())) {
         if (payment instanceof InstrumentDefinitionWithData) {
           resultList.add(((InstrumentDefinitionWithData<? extends Payment, DoubleTimeSeries<ZonedDateTime>>) payment).toDerivative(date, indexFixingTS));
         } else {
