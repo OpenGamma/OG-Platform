@@ -43,7 +43,7 @@ public class MulticurveProviderForward implements MulticurveProviderInterface {
   /**
    * A map with one (forward) curve by Ibor/OIS index.
    */
-  // TODO: Replace the DoublesCurve by a more flexible object, similar to yieldAndDiscountCurve
+  // TODO: Replace the DoublesCurve by a more specific object.
   private final Map<IborIndex, DoublesCurve> _forwardIborCurves;
   /**
    * The matrix containing the exchange rates.

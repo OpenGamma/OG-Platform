@@ -14,6 +14,8 @@ import java.util.Map;
 import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.analytics.financial.horizon.BondCapitalIndexedConstantSpreadHorizonCalculator;
+import com.opengamma.analytics.financial.horizon.CurveProviderConstantSpreadRolldownFunction;
 import com.opengamma.analytics.financial.instrument.bond.BondCapitalIndexedSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BondCapitalIndexedSecurityDefinitionBrazilTest;
 import com.opengamma.analytics.financial.instrument.bond.BondCapitalIndexedTransactionDefinition;
@@ -29,7 +31,6 @@ import com.opengamma.analytics.financial.legalentity.LegalEntityShortName;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurveSimple;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.analytics.financial.provider.calculator.discounting.GammaPV01CurveParametersCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflation.GammaPV01CurveParametersInflationCalculator;
@@ -46,13 +47,13 @@ import com.opengamma.analytics.financial.provider.sensitivity.inflation.Paramete
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
-import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.util.amount.ReferenceAmount;
+import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -274,7 +275,8 @@ public class BondCapitalIndexedTransactionDiscountingMethodBrazilTest {
     @SuppressWarnings("unused")
     int t=0;
   }
-
+  
+  /** Gamma computation. */
   private static final GammaPV01CurveParametersInflationCalculator<ParameterInflationIssuerProviderInterface> GAMMA01_CAL = 
       new GammaPV01CurveParametersInflationCalculator<>(PVCSDIIC);
   private static final PV01CurveParametersInflationCalculator<ParameterInflationIssuerProviderInterface> PV01_CAL = 
@@ -303,6 +305,28 @@ public class BondCapitalIndexedTransactionDiscountingMethodBrazilTest {
         gammaExpected, gammaComputed, TOLERANCE_PV_GAMMA);
   }
   
-  // TODO: theta
+  /** Theta computation. */
+  private static final CurveProviderConstantSpreadRolldownFunction ROLLDOWN_PROVIDER = 
+      CurveProviderConstantSpreadRolldownFunction.getInstance();
+  
+  @Test
+  public void theta() {
+    int dayForward = 1;
+    ZonedDateTime valuationDateForward = VALUATION_DATE.plusDays(dayForward);
+    double timeShift = TimeCalculator.getTimeBetween(VALUATION_DATE, valuationDateForward);
+    InflationIssuerProviderDiscount marketForward = 
+        (InflationIssuerProviderDiscount) ROLLDOWN_PROVIDER.rollDown(MARKET, timeShift);
+    BondCapitalIndexedTransaction<Coupon> bondToday = 
+        NTNB_TRANSACTION_STD_DEFINITION.toDerivative(VALUATION_DATE, BR_IPCA);  
+    BondCapitalIndexedTransaction<Coupon> bondForward = 
+        NTNB_TRANSACTION_STD_DEFINITION.toDerivative(valuationDateForward, BR_IPCA);
+    MultipleCurrencyAmount pvToday = bondToday.accept(PVDIIC, MARKET);
+    MultipleCurrencyAmount pvForward = bondForward.accept(PVDIIC, marketForward);
+    MultipleCurrencyAmount thetaExpected = pvForward.plus(pvToday.multipliedBy(-1.0d));
+    MultipleCurrencyAmount thetaComputed = BondCapitalIndexedConstantSpreadHorizonCalculator.getTheta(
+        NTNB_TRANSACTION_STD_DEFINITION, VALUATION_DATE, dayForward, MARKET, BR_IPCA);
+    assertEquals("BondCapitalIndexedTransactionDiscountingMethodBrazil: theta", 
+        thetaExpected.getAmount(BRL), thetaComputed.getAmount(BRL), TOLERANCE_PV);
+  }
   
 }
