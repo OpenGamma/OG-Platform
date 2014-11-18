@@ -28,7 +28,6 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.analytics.financial.legalentity.LegalEntityFilter;
 import com.opengamma.analytics.financial.legalentity.LegalEntityShortName;
-import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurveSimple;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;

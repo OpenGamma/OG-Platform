@@ -33,7 +33,7 @@ import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedInfl
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
-import com.opengamma.analytics.financial.instrument.index.IndexPriceMaster;
+import com.opengamma.analytics.financial.instrument.index.PriceIndexMaster;
 import com.opengamma.analytics.financial.legalentity.CreditRating;
 import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.analytics.financial.legalentity.LegalEntityFilter;
@@ -85,7 +85,7 @@ public class StandardDataSetsGovtBrInflationBRL {
   private static final String CURVE_NAME_OIS = "USD-OIS";
   private static final String CURVE_NAME_CPI = "USD-ZCIPCA";
   
-  private static final IndexPrice BRIPCA = IndexPriceMaster.getInstance().getIndex("BRIPCA");
+  private static final IndexPrice BRIPCA = PriceIndexMaster.getInstance().getIndex("BRIPCA");
   private static final GeneratorYDCurve GENERATOR_YD_MAT_LIN = 
       CurveCalibrationConventionDataSets.generatorYDMatLin();
   private static final Interpolator1D INTERPOLATOR_STEP_FLAT =

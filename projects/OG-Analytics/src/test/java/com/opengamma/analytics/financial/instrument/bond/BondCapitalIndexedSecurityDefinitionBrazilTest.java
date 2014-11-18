@@ -16,7 +16,7 @@ import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
-import com.opengamma.analytics.financial.instrument.index.IndexPriceMaster;
+import com.opengamma.analytics.financial.instrument.index.PriceIndexMaster;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponMonthlyGearingDefinition;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
 import com.opengamma.analytics.financial.interestrate.datasets.StandardTimeSeriesInflationDataSets;
@@ -36,7 +36,6 @@ import com.opengamma.financial.convention.rolldate.EndOfMonthTemporalAdjuster;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.timeseries.DoubleTimeSeries;
-import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 
 /**
@@ -45,7 +44,7 @@ import com.opengamma.util.time.DateUtils;
 public class BondCapitalIndexedSecurityDefinitionBrazilTest {
   
   /** Notas do Tesouro Nacional, B - ISIN: BRSTNCNTB096 - 15-Aug-2024 */
-  private static final IndexPrice PRICE_INDEX = IndexPriceMaster.getInstance().getIndex("BRIPCA");
+  private static final IndexPrice PRICE_INDEX = PriceIndexMaster.getInstance().getIndex("BRIPCA");
   private static final Calendar CALENDAR_BR = new MondayToFridayCalendar("Brazil");
   private static final String BR_GOVT_NAME = "BR GOVT";
   private static final Set<CreditRating> RATING = new HashSet<>();
