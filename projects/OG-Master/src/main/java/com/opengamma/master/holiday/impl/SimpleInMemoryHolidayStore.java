@@ -5,13 +5,13 @@
  */
 package com.opengamma.master.holiday.impl;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.threeten.bp.LocalDate;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.opengamma.core.holiday.Holiday;
 import com.opengamma.core.holiday.HolidaySource;
@@ -66,7 +66,7 @@ public class SimpleInMemoryHolidayStore implements HolidaySource {
 
   @Override
   public Collection<Holiday> get(HolidayType holidayType, ExternalIdBundle regionOrExchangeIds) {
-    ArrayList<Holiday> holidays = Lists.newArrayList();
+    Set<Holiday> holidays = new HashSet<>();
     
     for (ExternalId id : regionOrExchangeIds.getExternalIds()) {
       if (_calendarHolidays.containsKey(id) && (_calendarHolidays.get(id).getType().compareTo(holidayType) == 0)) {
