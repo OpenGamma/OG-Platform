@@ -58,7 +58,6 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
   /**
    * The present value inflation calculator (for the different parts of the bond transaction).
    */
-  private static final IndexRatioInflationCalculator IRIC = IndexRatioInflationCalculator.getInstance();
   private static final PresentValueDiscountingInflationCalculator PVIC = PresentValueDiscountingInflationCalculator.getInstance();
   private static final NetAmountInflationCalculator NAIC = NetAmountInflationCalculator.getInstance();
   private static final PresentValueCurveSensitivityDiscountingInflationCalculator PVCSIC = PresentValueCurveSensitivityDiscountingInflationCalculator.getInstance();
@@ -266,7 +265,7 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
     ArgumentChecker.notNull(bond, "Bond");
     ArgumentChecker.notNull(issuerMulticurves, "Issuer and multi-curves provider");
     final MultipleCurrencyAmount pv = presentValue(bond, issuerMulticurves);
-    final double settlement = bond.getSettlement().accept(IRIC, issuerMulticurves.getInflationProvider());
+    final double settlement = bond.getIndexRatio();
     final double notional = bond.getCoupon().getNthPayment(0).getNotional();
     return pv.getAmount(bond.getCurrency()) / settlement / notional;
   }
