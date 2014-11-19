@@ -115,7 +115,15 @@ public class SimpleInMemoryHolidayStore implements HolidaySource {
 
   @Override
   public boolean isHoliday(LocalDate dateToCheck, HolidayType holidayType, ExternalId regionOrExchangeId) {
-    return _calendarHolidays.get(Pairs.of(regionOrExchangeId, holidayType)).getHolidayDates().contains(dateToCheck);
+    return isHoliday(dateToCheck, Pairs.of(regionOrExchangeId, holidayType));
+  }
+  
+  private boolean isHoliday(LocalDate dateToCheck, Pair<ExternalId, HolidayType> key) {
+    if (_calendarHolidays.containsKey(key)) {
+      return _calendarHolidays.get(key).getHolidayDates().contains(dateToCheck);
+    } else {
+      return false;
+    }
   }
 
 }
