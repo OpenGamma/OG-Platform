@@ -8,6 +8,7 @@ package com.opengamma.master.holiday.impl;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.threeten.bp.LocalDate;
@@ -22,6 +23,8 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Simple implementation of a container of holidays per calendar relying on a map. The putAll method can be used to
@@ -33,13 +36,17 @@ import com.opengamma.util.money.Currency;
  */
 public class SimpleInMemoryHolidayStore implements HolidaySource {
 
-  private Map<UniqueId, Holiday> _calendarHolidays = Maps.newHashMap();
+  private Map<Pair<UniqueId, HolidayType>, Holiday> _calendarHolidays = Maps.newHashMap();
  
   /**
    * @param calendarHolidays a map from a calendar or region id to a holiday that will be added to the store
    */
   public void putAll(Map<UniqueId, Holiday> calendarHolidays) {
-    _calendarHolidays.putAll(calendarHolidays);
+    for (Entry<UniqueId, Holiday> entry : calendarHolidays.entrySet()) {
+      Holiday holiday = entry.getValue();
+      
+      _calendarHolidays.put(Pairs.of(entry.getKey(), holiday.getType()), holiday);
+    }
   }
   
   @Override
@@ -77,8 +84,10 @@ public class SimpleInMemoryHolidayStore implements HolidaySource {
     Set<Holiday> holidays = new HashSet<>();
     
     for (ExternalId id : regionOrExchangeIds.getExternalIds()) {
-      if (_calendarHolidays.containsKey(id) && (_calendarHolidays.get(id).getType().compareTo(holidayType) == 0)) {
-        holidays.add(_calendarHolidays.get(id));
+      Pair<ExternalId, HolidayType> key = Pairs.of(id, holidayType);
+      
+      if (_calendarHolidays.containsKey(key)) {
+        holidays.add(_calendarHolidays.get(key));
       }
     }
     return holidays;
@@ -96,10 +105,8 @@ public class SimpleInMemoryHolidayStore implements HolidaySource {
 
   @Override
   public boolean isHoliday(LocalDate dateToCheck, HolidayType holidayType, ExternalIdBundle regionOrExchangeIds) {
-    Collection<Holiday> holidays = get(holidayType, regionOrExchangeIds);
-
-    for (Holiday holiday : holidays) {
-      if (holiday.getHolidayDates().contains(dateToCheck)) {
+    for (ExternalId id : regionOrExchangeIds.getExternalIds()) {
+      if (isHoliday(dateToCheck, holidayType, id)) {
         return true;
       }
     }
@@ -108,14 +115,7 @@ public class SimpleInMemoryHolidayStore implements HolidaySource {
 
   @Override
   public boolean isHoliday(LocalDate dateToCheck, HolidayType holidayType, ExternalId regionOrExchangeId) {
-    Collection<Holiday> holidays = get(holidayType, ExternalIdBundle.of(regionOrExchangeId));
-
-    for (Holiday holiday : holidays) {
-      if (holiday.getHolidayDates().contains(dateToCheck)) {
-        return true;
-      }
-    }
-    return false;
+    return _calendarHolidays.get(Pairs.of(regionOrExchangeId, holidayType)).getHolidayDates().contains(dateToCheck);
   }
 
 }
