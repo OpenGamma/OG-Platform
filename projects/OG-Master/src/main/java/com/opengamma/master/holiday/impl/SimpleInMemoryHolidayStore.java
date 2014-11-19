@@ -24,12 +24,20 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.money.Currency;
 
 /**
+ * Simmple implementation of a container of holidays per calendar relying on a map. The putAll method can be used to
+ * add calendars and their corresponding holidays to the store. The other methods are part of the {@link HolidaySource}
+ * interface and allow to check whether a date is a holiday for a calendar or region.
  * 
+ * The methods to get a collection of holidays for a currency or to check with a date is a holiday for a currency 
+ * (rather than a calendar) are not implemented.
  */
 public class SimpleInMemoryHolidayStore implements HolidaySource {
 
   private Map<UniqueId, Holiday> _calendarHolidays = Maps.newHashMap();
  
+  /**
+   * @param calendarHolidays a map from a calendar or region id to a holiday that will be added to the store
+   */
   public void putAll(Map<UniqueId, Holiday> calendarHolidays) {
     _calendarHolidays.putAll(calendarHolidays);
   }
