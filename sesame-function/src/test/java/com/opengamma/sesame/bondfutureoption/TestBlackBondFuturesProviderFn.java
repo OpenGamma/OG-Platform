@@ -2,7 +2,6 @@ package com.opengamma.sesame.bondfutureoption;
 
 import org.testng.internal.annotations.Sets;
 
-import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.legalentity.CreditRating;
 import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.analytics.financial.legalentity.Region;
@@ -41,7 +40,7 @@ public final class TestBlackBondFuturesProviderFn implements BlackBondFuturesPro
                                                                                BondFutureOptionTrade tradeWrapper) {
     
     Result<IssuerProviderBundle> bundleResult =
-        _discountingMulticurveCombinerFn.createBundle(env, tradeWrapper.getTrade(), new FXMatrix());
+        _discountingMulticurveCombinerFn.getMulticurveBundle(env, tradeWrapper.getTrade());
     
     if (bundleResult.isSuccess()) {
 
