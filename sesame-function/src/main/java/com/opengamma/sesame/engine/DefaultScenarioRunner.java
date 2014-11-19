@@ -157,5 +157,15 @@ public class DefaultScenarioRunner implements ScenarioRunner {
     public Result<?> get(ExternalIdBundle id, FieldName fieldName) {
       return Result.failure(FailureStatus.MISSING_DATA, "No market data is available");
     }
+
+    @Override
+    public boolean equals(Object obj) {
+      return obj != null && (obj == this || obj.getClass() == getClass());
+    }
+
+    @Override
+    public int hashCode() {
+      return getClass().hashCode();
+    }
   }
 }

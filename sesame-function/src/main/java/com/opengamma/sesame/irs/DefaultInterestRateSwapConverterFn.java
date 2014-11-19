@@ -16,8 +16,11 @@ import com.opengamma.financial.analytics.conversion.InterestRateSwapSecurityConv
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.sesame.Environment;
+import com.opengamma.sesame.HistoricalTimeSeriesFn;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
+import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Converts an {@link InterestRateSwapSecurity} into an {@link InstrumentDefinition} and {@link InstrumentDerivative}.
@@ -28,32 +31,32 @@ public class DefaultInterestRateSwapConverterFn implements InterestRateSwapConve
 
   private final InterestRateSwapSecurityConverter _secToDefnConverter;
   private final FixedIncomeConverterDataProvider _defnToDerivConverter;
+  private final HistoricalTimeSeriesFn _htsFn;
 
   /**
    * @param secToDefnConverter converts an {@link InterestRateSwapSecurity} to a {@link SwapDefinition}
    * @param defnToDerivConverter converts a {@link SwapDefinition} to a {@link InstrumentDerivative}
+   * @param htsFn provides time series of fixings for the security
    */
   public DefaultInterestRateSwapConverterFn(InterestRateSwapSecurityConverter secToDefnConverter,
-                                            FixedIncomeConverterDataProvider defnToDerivConverter) {
+                                            FixedIncomeConverterDataProvider defnToDerivConverter,
+                                            HistoricalTimeSeriesFn htsFn) {
     _secToDefnConverter = ArgumentChecker.notNull(secToDefnConverter, "secToDefnConverter");
     _defnToDerivConverter = ArgumentChecker.notNull(defnToDerivConverter, "defnToDerivConverter");
+    _htsFn = ArgumentChecker.notNull(htsFn, "htsFn");
   }
 
   @Override
-  public Result<SwapDefinition> createDefinition(Environment env, InterestRateSwapSecurity security) {
-    SwapDefinition swapDefinition = (SwapDefinition) security.accept(_secToDefnConverter);
-    s_logger.debug("Created definition {} for security {}", swapDefinition, security);
-    return Result.success(swapDefinition);
-  }
+  public Result<Pair<SwapDefinition, InstrumentDerivative>> convert(Environment env, InterestRateSwapSecurity security) {
+    Result<HistoricalTimeSeriesBundle> fixingsResult = _htsFn.getFixingsForSecurity(env, security);
 
-  @Override
-  public Result<InstrumentDerivative> createDerivative(Environment env,
-                                                       InterestRateSwapSecurity security,
-                                                       SwapDefinition definition,
-                                                       HistoricalTimeSeriesBundle fixings) {
+    if (!fixingsResult.isSuccess()) {
+      return Result.failure(fixingsResult);
+    }
+    HistoricalTimeSeriesBundle fixings = fixingsResult.getValue();
+    SwapDefinition definition = (SwapDefinition) security.accept(_secToDefnConverter);
     InstrumentDerivative derivative = _defnToDerivConverter.convert(security, definition, env.getValuationTime(), fixings);
-    s_logger.debug("Created derivative {} for security {}", derivative, security);
-    return Result.success(derivative);
+    s_logger.debug("Created definition {} and derivative {} for security {}", definition, derivative, security);
+    return Result.success(Pairs.of(definition, derivative));
   }
-
 }
