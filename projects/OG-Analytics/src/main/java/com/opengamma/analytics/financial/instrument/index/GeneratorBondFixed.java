@@ -15,7 +15,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public class GeneratorBondFixed extends GeneratorInstrument<GeneratorAttribute> {
+public class GeneratorBondFixed extends GeneratorInstrument<GeneratorAttributeET> {
 
   /**
    * The underlying fixed bond security.
@@ -37,13 +37,15 @@ public class GeneratorBondFixed extends GeneratorInstrument<GeneratorAttribute> 
   /**
    * Generate a fixed bond transaction from the fixed bond marquetQuote  which is clean price .
    */
-  public BondFixedTransactionDefinition generateInstrument(final ZonedDateTime date, final double marketQuote, final double notional, final GeneratorAttribute attribute) {
+  public BondFixedTransactionDefinition generateInstrument(final ZonedDateTime date, final double marketQuote, 
+      final double notional, final GeneratorAttributeET attribute) {
     ArgumentChecker.notNull(date, "Reference date");
-    final int quantity = (int) Math.round(notional / _security.getNominal().getNthPayment(0).getReferenceAmount());
-    final ZonedDateTime settleDate = ScheduleCalculator.getAdjustedDate(date, _security.getSettlementDays(), _security.getCalendar());
-    final double accruedIntrerest = _security.accruedInterest(settleDate);
-    final double dirtyPrice = marketQuote + accruedIntrerest;
-    return new BondFixedTransactionDefinition(_security, quantity, settleDate, dirtyPrice);
+    int quantity = (int) Math.round(notional / _security.getNominal().getNthPayment(0).getReferenceAmount());
+    ZonedDateTime settleDate = ScheduleCalculator.getAdjustedDate(date, _security.getSettlementDays(), _security.getCalendar());
+    if (attribute.isPrice()) {
+      return new BondFixedTransactionDefinition(_security, quantity, settleDate, marketQuote);
+    }
+    return BondFixedTransactionDefinition.fromYield(_security, quantity, settleDate, marketQuote);    
   }
 
 }
