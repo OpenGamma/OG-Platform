@@ -63,8 +63,8 @@ public class ModelInterestRateCurveTest extends AnalyticsTestBase {
     map.put(1., 0.03);
     map.put(2., 0.04);
     map.put(3., 0.05);
-    final PriceIndexCurve curve = new PriceIndexCurveSimple(InterpolatedDoublesCurve.from(map, Interpolator1DFactory.getInterpolator("Linear")));
-    assertEquals(curve, cycleObject(PriceIndexCurve.class, curve));
+    final PriceIndexCurveSimple curve = new PriceIndexCurveSimple(InterpolatedDoublesCurve.from(map, Interpolator1DFactory.getInterpolator("Linear")));
+    assertEquals(curve, cycleObject(PriceIndexCurveSimple.class, curve));
   }
 
   @Test

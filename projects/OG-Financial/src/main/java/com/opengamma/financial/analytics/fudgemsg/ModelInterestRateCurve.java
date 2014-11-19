@@ -123,9 +123,9 @@ import com.opengamma.analytics.math.curve.DoublesCurve;
   }
 
   /**
-   * Fudge builder for {@link PriceIndexCurve}
-   */
-  @FudgeBuilderFor(PriceIndexCurve.class)
+  * Fudge builder for {@link PriceIndexCurveSimple}
+  */
+  @FudgeBuilderFor(PriceIndexCurveSimple.class)
   public static final class PriceIndexCurveBuilder extends AbstractFudgeBuilder<PriceIndexCurveSimple> {
     /** The curve field */
     private static final String CURVE_FIELD = "curve";
@@ -140,7 +140,6 @@ import com.opengamma.analytics.math.curve.DoublesCurve;
     protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final PriceIndexCurveSimple object) {
       serializer.addToMessageWithClassHeaders(message, CURVE_FIELD, null, object.getCurve(), DoublesCurve.class);
     }
-
   }
 
   /**
