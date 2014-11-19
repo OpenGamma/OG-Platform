@@ -27,9 +27,9 @@ import com.opengamma.analytics.financial.provider.sensitivity.parameter.Paramete
 import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.conversion.InterestRateFutureTradeConverter;
-import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.model.fixedincome.BucketedCurveSensitivities;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
+import com.opengamma.sesame.CurveMatrixLabeller;
 import com.opengamma.sesame.ZeroIRDeltaBucketingUtils;
 import com.opengamma.sesame.trade.InterestRateFutureTrade;
 import com.opengamma.util.ArgumentChecker;
@@ -86,9 +86,9 @@ public class InterestRateFutureDiscountingCalculator implements InterestRateFutu
   private final MulticurveProviderInterface _bundle;
 
   /**
-   * Map containing the per curve setup - building blocks.
+   * Map containing the per curve labellers.
    */
-  private final Map<String, CurveDefinition> _curveDefinitions;
+  private final Map<String, CurveMatrixLabeller> _curveLabellers;
 
   /**
    * Provides scaling to/from basis points.
@@ -102,18 +102,20 @@ public class InterestRateFutureDiscountingCalculator implements InterestRateFutu
 
   public InterestRateFutureDiscountingCalculator(InterestRateFutureTrade irFutureTrade,
                                                  MulticurveProviderInterface bundle,
-                                                 Map<String, CurveDefinition> curveDefinitions,
+                                                 Map<String, CurveMatrixLabeller> curveLabellers,
                                                  InterestRateFutureTradeConverter tradeConverter,
                                                  ZonedDateTime valuationTime,
                                                  FixedIncomeConverterDataProvider definitionToDerivativeConverter,
                                                  HistoricalTimeSeriesBundle fixings) {
+
     _derivative = createInstrumentDerivative(irFutureTrade, 
                                               tradeConverter, 
                                               valuationTime, 
                                               definitionToDerivativeConverter, 
                                               fixings);
+
     _bundle = ArgumentChecker.notNull(bundle, "bundle");
-    _curveDefinitions = ArgumentChecker.notNull(curveDefinitions, "curveDefinitionFn");
+    _curveLabellers = ArgumentChecker.notNull(curveLabellers, "curveLabellers");
   }
 
   @Override
@@ -150,7 +152,7 @@ public class InterestRateFutureDiscountingCalculator implements InterestRateFutu
                                   .multipliedBy(FUTURES_EQUIV_FACTOR);
 
     BucketedCurveSensitivities bucketedSensitivities = 
-          ZeroIRDeltaBucketingUtils.getBucketedCurveSensitivities(sensitivity, _curveDefinitions);
+          ZeroIRDeltaBucketingUtils.getBucketedCurveSensitivities(sensitivity, _curveLabellers);
     return Result.success(bucketedSensitivities);
   }
 

@@ -69,7 +69,9 @@ import com.opengamma.master.security.impl.MasterSecuritySource;
 import com.opengamma.service.ServiceContext;
 import com.opengamma.service.ThreadLocalServiceContext;
 import com.opengamma.service.VersionCorrectionProvider;
+import com.opengamma.sesame.CurveDefinitionCurveLabellingFn;
 import com.opengamma.sesame.CurveDefinitionFn;
+import com.opengamma.sesame.CurveLabellingFn;
 import com.opengamma.sesame.CurveNodeConverterFn;
 import com.opengamma.sesame.CurveSpecificationFn;
 import com.opengamma.sesame.CurveSpecificationMarketDataFn;
@@ -164,6 +166,7 @@ public class DeliverableSwapFutureFnTest {
                 DiscountingMulticurveCombinerFn.class,
                 ExposureFunctionsDiscountingMulticurveCombinerFn.class,
                 CurveDefinitionFn.class, DefaultCurveDefinitionFn.class,
+                CurveLabellingFn.class, CurveDefinitionCurveLabellingFn.class,
                 DiscountingMulticurveBundleFn.class, DefaultDiscountingMulticurveBundleFn.class,
                 CurveSpecificationFn.class, DefaultCurveSpecificationFn.class,
                 CurveConstructionConfigurationSource.class,

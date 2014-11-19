@@ -5,7 +5,6 @@
  */
 package com.opengamma.sesame.irs;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,16 +39,15 @@ import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.conversion.InterestRateSwapSecurityConverter;
 import com.opengamma.financial.analytics.conversion.TradeFeeConverter;
-import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.model.fixedincome.BucketedCrossSensitivities;
 import com.opengamma.financial.analytics.model.fixedincome.BucketedCurveSensitivities;
 import com.opengamma.financial.analytics.model.fixedincome.CashFlowDetailsCalculator;
 import com.opengamma.financial.analytics.model.fixedincome.CashFlowDetailsProvider;
 import com.opengamma.financial.analytics.model.fixedincome.SwapLegCashFlows;
-import com.opengamma.financial.analytics.model.multicurve.MultiCurveUtils;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.financial.security.irs.PayReceiveType;
+import com.opengamma.sesame.CurveMatrixLabeller;
 import com.opengamma.sesame.trade.ImmutableTrade;
 import com.opengamma.sesame.trade.InterestRateSwapTrade;
 import com.opengamma.util.ArgumentChecker;
@@ -155,22 +153,20 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
   private final ZonedDateTime _valuationTime;
 
   /**
-   * The curve definitions
+   * The curve labellers.
    */
-  private final Map<String, CurveDefinition> _curveDefinitions;
-
+  private final Map<String, CurveMatrixLabeller> _curveLabellers;
 
   /**
    * Creates a calculator for a InterestRateSwapSecurity.
-   *
-   * @param security the swap to calculate values for
+   *  @param security the swap to calculate values for
    * @param bundle the multicurve bundle, including the curves
    * @param curveBuildingBlockBundle the curve block building bundle
    * @param swapConverter the InterestRateSwapSecurityConverter
    * @param valuationTime the ZonedDateTime
    * @param definitionConverter the FixedIncomeConverterDataProvider
    * @param fixings the HistoricalTimeSeriesBundle, a collection of historical time-series objects
-   * @param curveDefinitions the curve definitions
+   * @param curveLabellers the curve labellers
    */
   public DiscountingInterestRateSwapCalculator(InterestRateSwapSecurity security,
                                                MulticurveProviderInterface bundle,
@@ -179,7 +175,7 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
                                                ZonedDateTime valuationTime,
                                                FixedIncomeConverterDataProvider definitionConverter,
                                                HistoricalTimeSeriesBundle fixings,
-                                               Map<String, CurveDefinition> curveDefinitions) {
+                                               Map<String, CurveMatrixLabeller> curveLabellers) {
     _security = ArgumentChecker.notNull(security, "security");
     ArgumentChecker.notNull(swapConverter, "swapConverter");
     _valuationTime = ArgumentChecker.notNull(valuationTime, "valuationTime");
@@ -190,11 +186,11 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
     _derivative = createInstrumentDerivative(security, valuationTime, definitionConverter, fixings);
     _bundle = ArgumentChecker.notNull(bundle, "bundle");
     _curveBuildingBlockBundle = ArgumentChecker.notNull(curveBuildingBlockBundle, "curveBuildingBlockBundle");
-    _curveDefinitions = ArgumentChecker.notNull(curveDefinitions, "curveDefinitions");
-    ArgumentChecker.isTrue(curveDefinitions.size() == curveBuildingBlockBundle.getData().size(),
-                           "Require same number of curves & definitions");
+    _curveLabellers = ArgumentChecker.notNull(curveLabellers, "curveLabellers");
+    ArgumentChecker.isTrue(curveLabellers.size() == curveBuildingBlockBundle.getData().size(),
+                           "Require same number of curve labellers & definitions");
     for (String curveName : curveBuildingBlockBundle.getData().keySet()) {
-      ArgumentChecker.isTrue(curveDefinitions.containsKey(curveName), "curve definition not present {}", curveName);
+      ArgumentChecker.isTrue(curveLabellers.containsKey(curveName), "curve labellers not present {}", curveName);
     }
 
   }
@@ -209,7 +205,7 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
    * @param valuationTime the ZonedDateTime
    * @param definitionConverter the FixedIncomeConverterDataProvider
    * @param fixings the HistoricalTimeSeriesBundle, a collection of historical time-series objects
-   * @param curveDefinitions the curve definitions
+   * @param curveLabellers the curve labellers
    */
   public DiscountingInterestRateSwapCalculator(InterestRateSwapTrade interestRateSwapTrade,
                                                MulticurveProviderInterface bundle,
@@ -218,7 +214,7 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
                                                ZonedDateTime valuationTime,
                                                FixedIncomeConverterDataProvider definitionConverter,
                                                HistoricalTimeSeriesBundle fixings,
-                                               Map<String, CurveDefinition> curveDefinitions) {
+                                               Map<String, CurveMatrixLabeller> curveLabellers) {
     ArgumentChecker.notNull(interestRateSwapTrade, "interestRateSwapTrade");
     ArgumentChecker.notNull(swapConverter, "swapConverter");
     _valuationTime = ArgumentChecker.notNull(valuationTime, "valuationTime");
@@ -230,12 +226,12 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
     _derivative = createInstrumentDerivative(_security, valuationTime, definitionConverter, fixings);
     _bundle = ArgumentChecker.notNull(bundle, "bundle");
     _curveBuildingBlockBundle = ArgumentChecker.notNull(curveBuildingBlockBundle, "curveBuildingBlockBundle");
-    _curveDefinitions = ArgumentChecker.notNull(curveDefinitions, "curveDefinitions");
+    _curveLabellers = ArgumentChecker.notNull(curveLabellers, "curveLabellers");
 
-    ArgumentChecker.isTrue(curveDefinitions.size() == curveBuildingBlockBundle.getData().size(),
-                           "Require same number of curves & definitions");
+    ArgumentChecker.isTrue(curveLabellers.size() == curveBuildingBlockBundle.getData().size(),
+                           "Require same number of curve labellers & definitions");
     for (String curveName : curveBuildingBlockBundle.getData().keySet()) {
-      ArgumentChecker.isTrue(curveDefinitions.containsKey(curveName), "curve definition not present {}", curveName);
+      ArgumentChecker.isTrue(curveLabellers.containsKey(curveName), "curve labellers not present {}", curveName);
     }
   }
 
@@ -283,8 +279,8 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
         .multipliedBy(BASIS_POINT_FACTOR);
     Map<Pair<String, Currency>, DoubleLabelledMatrix1D> labelledMatrix1DMap = new HashMap<>();
     for (Map.Entry<Pair<String, Currency>, DoubleMatrix1D> entry : sensitivity.getSensitivities().entrySet()) {
-      CurveDefinition curveDefinition = _curveDefinitions.get(entry.getKey().getFirst());
-      DoubleLabelledMatrix1D matrix = MultiCurveUtils.getLabelledMatrix(entry.getValue(), curveDefinition);
+      CurveMatrixLabeller curveMatrixLabeller = _curveLabellers.get(entry.getKey().getFirst());
+      DoubleLabelledMatrix1D matrix = curveMatrixLabeller.labelMatrix(entry.getValue());
       labelledMatrix1DMap.put(entry.getKey(), matrix);
     }
     return Result.success(BucketedCurveSensitivities.of(labelledMatrix1DMap));
@@ -296,10 +292,10 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
     Map<String, DoubleLabelledMatrix2D> labelledMatrix2DMap = new HashMap<>();
     
     for (Map.Entry<String, DoubleMatrix2D> entry : crossGammas.entrySet()) {
-      CurveDefinition curveDefinition = _curveDefinitions.get(entry.getKey());
       //Values returned from analytics need to be scaled appropriately: multiplied by 1 bp ^ 1bp
       DoubleMatrix2D scaledValues = (DoubleMatrix2D) MA.scale(entry.getValue(), BASIS_POINT_FACTOR * BASIS_POINT_FACTOR);
-      DoubleLabelledMatrix2D matrix = MultiCurveUtils.getLabelledMatrix2D(scaledValues, curveDefinition);
+      CurveMatrixLabeller curveMatrixLabeller = _curveLabellers.get(entry.getKey());
+      DoubleLabelledMatrix2D matrix = curveMatrixLabeller.labelMatrix(scaledValues);
       labelledMatrix2DMap.put(entry.getKey(), matrix);
     }
     return Result.success(BucketedCrossSensitivities.of(labelledMatrix2DMap));

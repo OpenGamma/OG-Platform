@@ -62,6 +62,7 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.service.ThreadLocalServiceContext;
 import com.opengamma.service.VersionCorrectionProvider;
+import com.opengamma.sesame.CurveDefinitionCurveLabellingFn;
 import com.opengamma.sesame.DefaultCurrencyPairsFn;
 import com.opengamma.sesame.DefaultCurveDefinitionFn;
 import com.opengamma.sesame.DefaultCurveNodeConverterFn;
@@ -458,6 +459,7 @@ public class RecordingDataTest {
         DefaultCurveSpecificationMarketDataFn.class,
         DefaultFXMatrixFn.class,
         DefaultCurveDefinitionFn.class,
+        CurveDefinitionCurveLabellingFn.class,
         DefaultDiscountingMulticurveBundleFn.class,
         DefaultDiscountingMulticurveBundleResolverFn.class,
         DefaultCurveSpecificationFn.class,
