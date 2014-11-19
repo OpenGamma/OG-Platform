@@ -80,7 +80,7 @@ public class SimpleInMemoryHolidayStore implements HolidaySource {
   }
 
   @Override
-  public Collection<Holiday> get(HolidayType holidayType, ExternalIdBundle regionOrExchangeIds) {
+  public Set<Holiday> get(HolidayType holidayType, ExternalIdBundle regionOrExchangeIds) {
     Set<Holiday> holidays = new HashSet<>();
     
     for (ExternalId id : regionOrExchangeIds.getExternalIds()) {
