@@ -105,6 +105,10 @@ public class SimpleInMemoryHolidayStore implements HolidaySource {
 
   @Override
   public boolean isHoliday(LocalDate dateToCheck, HolidayType holidayType, ExternalIdBundle regionOrExchangeIds) {
+    if (isWeekend(dateToCheck)) {
+      return true;
+    }
+    
     for (ExternalId id : regionOrExchangeIds.getExternalIds()) {
       if (isHoliday(dateToCheck, holidayType, id)) {
         return true;
@@ -115,7 +119,7 @@ public class SimpleInMemoryHolidayStore implements HolidaySource {
 
   @Override
   public boolean isHoliday(LocalDate dateToCheck, HolidayType holidayType, ExternalId regionOrExchangeId) {
-    return isHoliday(dateToCheck, Pairs.of(regionOrExchangeId, holidayType));
+    return isWeekend(dateToCheck) || isHoliday(dateToCheck, Pairs.of(regionOrExchangeId, holidayType));
   }
   
   private boolean isHoliday(LocalDate dateToCheck, Pair<ExternalId, HolidayType> key) {
@@ -124,6 +128,17 @@ public class SimpleInMemoryHolidayStore implements HolidaySource {
     } else {
       return false;
     }
+  }
+  
+  /**
+   * Checks if the date is at the weekend, defined as a Saturday or Sunday.
+   * 
+   * @param date the date to check, not null
+   * @return true if it is a weekend
+   */
+  private boolean isWeekend(LocalDate date) {
+    // avoids calling date.getDayOfWeek() twice
+    return date.getDayOfWeek().getValue() >= 6;
   }
 
 }
