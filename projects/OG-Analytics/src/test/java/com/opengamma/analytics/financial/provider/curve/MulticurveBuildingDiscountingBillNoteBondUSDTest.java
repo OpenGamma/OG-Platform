@@ -27,6 +27,7 @@ import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefini
 import com.opengamma.analytics.financial.instrument.cash.CashDefinition;
 import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.analytics.financial.instrument.index.GeneratorAttribute;
+import com.opengamma.analytics.financial.instrument.index.GeneratorAttributeET;
 import com.opengamma.analytics.financial.instrument.index.GeneratorAttributeIR;
 import com.opengamma.analytics.financial.instrument.index.GeneratorBill;
 import com.opengamma.analytics.financial.instrument.index.GeneratorBondFixed;
@@ -177,17 +178,27 @@ public class MulticurveBuildingDiscountingBillNoteBondUSDTest {
   }
 
   /** Market values for the govt USD bill curve */
-  private static final double[] GOVTUS_USD_MARKET_QUOTES = new double[] {0.0010, 0.0015, 0.0020, 0.0015, 0.99642, 0.9981, 0.99587, 0.99466, 0.99496, 0.98489 };
+  private static final double[] GOVTUS_USD_MARKET_QUOTES =
+      new double[] {0.0010, 0.0015, 0.0020, 0.0015, 0.99642, 0.9981, 0.99587, 0.99466, 0.99496, 0.98489 };
   /** Generators for the govt USD curve */
-  private static final GeneratorInstrument<? extends GeneratorAttribute>[] GOVTUS_USD_GENERATORS = new GeneratorInstrument<?>[] {GENERATOR_DEPOSIT_ON_USGOVT, GENERATOR_BILL[0], GENERATOR_BILL[1],
-    GENERATOR_BILL[2], GENERATOR_BOND[0], GENERATOR_BOND[1], GENERATOR_BOND[2], GENERATOR_BOND[3], GENERATOR_BOND[4], GENERATOR_BOND[5] };
+  private static final int NB_ON_GOVT = 1;
+  private static final int NB_BILL_GOVT = 3;
+  private static final GeneratorInstrument<? extends GeneratorAttribute>[] GOVTUS_USD_GENERATORS =
+      new GeneratorInstrument<?>[] {GENERATOR_DEPOSIT_ON_USGOVT,
+        GENERATOR_BILL[0], GENERATOR_BILL[1], GENERATOR_BILL[2],
+        GENERATOR_BOND[0], GENERATOR_BOND[1], GENERATOR_BOND[2], GENERATOR_BOND[3], GENERATOR_BOND[4], GENERATOR_BOND[5] };
   /** Tenors for the govt USD curve */
-  private static final Period[] GOVTUS_USD_TENOR = new Period[] {Period.ofDays(0), Period.ofDays(0), Period.ofDays(0), Period.ofDays(0), Period.ofDays(0), Period.ofDays(0), Period.ofDays(0),
-    Period.ofDays(0), Period.ofDays(0), Period.ofDays(0), Period.ofDays(0) };
-  private static final GeneratorAttributeIR[] GOVTUS_USD_ATTR = new GeneratorAttributeIR[GOVTUS_USD_TENOR.length];
+  private static final Period[] GOVTUS_USD_TENOR = new Period[] {Period.ofDays(0) };
+  private static final GeneratorAttribute[] GOVTUS_USD_ATTR = new GeneratorAttribute[GOVTUS_USD_GENERATORS.length];
   static {
-    for (int loopins = 0; loopins < GOVTUS_USD_TENOR.length; loopins++) {
+    for (int loopins = 0; loopins < NB_ON_GOVT; loopins++) {
       GOVTUS_USD_ATTR[loopins] = new GeneratorAttributeIR(GOVTUS_USD_TENOR[loopins]);
+    }
+    for (int loopins = NB_ON_GOVT; loopins < NB_ON_GOVT + NB_BILL_GOVT; loopins++) {
+      GOVTUS_USD_ATTR[loopins] = new GeneratorAttributeET(false);
+    }
+    for (int loopins = NB_ON_GOVT + NB_BILL_GOVT; loopins < GOVTUS_USD_GENERATORS.length; loopins++) {
+      GOVTUS_USD_ATTR[loopins] = new GeneratorAttributeET(true);
     }
   }
 
