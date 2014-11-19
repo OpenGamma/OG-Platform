@@ -11,12 +11,12 @@ import java.util.Map;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.OffsetTime;
 
+import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.SimpleCounterparty;
 import com.opengamma.core.position.impl.SimpleTrade;
-import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
-import com.opengamma.financial.analytics.conversion.InterestRateSwapSecurityConverter;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
@@ -36,18 +36,10 @@ import com.opengamma.util.result.Result;
 public class DiscountingInterestRateSwapCalculatorFactory implements InterestRateSwapCalculatorFactory {
 
   /**
-   * Converter for a Swap
-   */
-  private final InterestRateSwapSecurityConverter _swapConverter;
-  /**
    * Function used to generate a combined multicurve bundle suitable
    * for use with a particular security.
    */
   private final DiscountingMulticurveCombinerFn _discountingMulticurveCombinerFn;
-  /**
-   * Definition to derivative converter
-   */
-  private final FixedIncomeConverterDataProvider _fixedIncomeConverterDataProvider;
 
   /**
    * HTS function for fixings
@@ -60,24 +52,26 @@ public class DiscountingInterestRateSwapCalculatorFactory implements InterestRat
   private final CurveDefinitionFn _curveDefinitionFn;
 
   /**
+   * Converts the swap into a definition and derivative
+   */
+  private final InterestRateSwapConverterFn _converterFn;
+
+  /**
    * Creates the factory.
    *
    * @param discountingMulticurveCombinerFn function for creating multicurve bundles, not null
-   * @param swapConverter converter for transforming a swap into its InstrumentDefinition form, not null
-   * @param definitionConverter converter for transforming a definition into a derivative, not null.
-   * @param htsFn hts function for providing fixing timeseries, not null.
+   * @param htsFn function for providing fixing timeseries, not null.
    * @param curveDefinitionFn the curve definition function, not null.
+   * @param converterFn converts the swap into a definition and derivative
    */
-  public DiscountingInterestRateSwapCalculatorFactory(InterestRateSwapSecurityConverter swapConverter,
-                                                      FixedIncomeConverterDataProvider definitionConverter,
-                                                      DiscountingMulticurveCombinerFn discountingMulticurveCombinerFn,
+  public DiscountingInterestRateSwapCalculatorFactory(DiscountingMulticurveCombinerFn discountingMulticurveCombinerFn,
                                                       HistoricalTimeSeriesFn htsFn,
-                                                      CurveDefinitionFn curveDefinitionFn) {
-    _swapConverter = ArgumentChecker.notNull(swapConverter, "swapConverter");
-    _fixedIncomeConverterDataProvider = ArgumentChecker.notNull(definitionConverter, "definitionConverter");
+                                                      CurveDefinitionFn curveDefinitionFn,
+                                                      InterestRateSwapConverterFn converterFn) {
     _discountingMulticurveCombinerFn = ArgumentChecker.notNull(discountingMulticurveCombinerFn, "discountingMulticurveCombinerFn");
     _htsFn = ArgumentChecker.notNull(htsFn, "htsFn");
-    _curveDefinitionFn = curveDefinitionFn;
+    _curveDefinitionFn = ArgumentChecker.notNull(curveDefinitionFn, "curveDefinitionFn");
+    _converterFn = ArgumentChecker.notNull(converterFn, "converterFn");
   }
 
   @Override
@@ -98,21 +92,30 @@ public class DiscountingInterestRateSwapCalculatorFactory implements InterestRat
 
     Result<HistoricalTimeSeriesBundle> fixings = _htsFn.getFixingsForSecurity(env, trade.getSecurity());
     Result<MulticurveBundle> bundleResult = _discountingMulticurveCombinerFn.getMulticurveBundle(env, trade);
+    Result<SwapDefinition> definitionResult = _converterFn.createDefinition(env, trade.getSecurity());
 
-    if (Result.allSuccessful(bundleResult, fixings)) {
+    if (Result.allSuccessful(bundleResult, fixings, definitionResult)) {
+
+      Result<InstrumentDerivative> derivativeResult = _converterFn.createDerivative(env,
+                                                                                    trade.getSecurity(),
+                                                                                    definitionResult.getValue(),
+                                                                                    fixings.getValue());
 
       Result<Map<String, CurveDefinition>> curveDefinitions =
           _curveDefinitionFn.getCurveDefinitions(bundleResult.getValue().getCurveBuildingBlockBundle().getData().keySet());
 
-      if (!curveDefinitions.isSuccess()) {
-        return Result.failure(curveDefinitions);
+      if (Result.anyFailures(curveDefinitions, derivativeResult)) {
+        return Result.failure(curveDefinitions, derivativeResult);
       }
 
       InterestRateSwapCalculator calculator =
-          new DiscountingInterestRateSwapCalculator(trade, bundleResult.getValue().getMulticurveProvider(),
-                                                    bundleResult.getValue().getCurveBuildingBlockBundle(), _swapConverter,
-                                                    env.getValuationTime(), _fixedIncomeConverterDataProvider,
-                                                    fixings.getValue(), curveDefinitions.getValue());
+          new DiscountingInterestRateSwapCalculator(trade,
+                                                    bundleResult.getValue().getMulticurveProvider(),
+                                                    bundleResult.getValue().getCurveBuildingBlockBundle(),
+                                                    env.getValuationTime(),
+                                                    curveDefinitions.getValue(),
+                                                    definitionResult.getValue(),
+                                                    derivativeResult.getValue());
       return Result.success(calculator);
     } else {
       return Result.failure(bundleResult, fixings);
