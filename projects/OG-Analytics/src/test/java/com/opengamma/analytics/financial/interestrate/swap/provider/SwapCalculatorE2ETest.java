@@ -191,7 +191,7 @@ public class SwapCalculatorE2ETest {
    */
   public void presentValue1M() {
     final MultipleCurrencyAmount pvComputed = SWAP_FIXED_1M.accept(PVDC, MULTICURVE);
-    final MultipleCurrencyAmount pvExpected = MultipleCurrencyAmount.of(Currency.USD, -1003685.179128858);
+    final MultipleCurrencyAmount pvExpected = MultipleCurrencyAmount.of(Currency.USD, -1003684.8402);
     assertEquals("ForwardRateAgreementDiscountingMethod: present value from standard curves", pvExpected.getAmount(USD), pvComputed.getAmount(USD), TOLERANCE_PV);
   }
 
@@ -210,15 +210,15 @@ public class SwapCalculatorE2ETest {
    * Test Bucketed PV01 with a standard set of data against hard-coded standard values for a swap fixed vs LIBOR3M. Can be used for platform testing or regression testing.
    */
   public void BucketedPV011M() {
-    final double[] deltaDsc = {0.30079551275104416, 0.30079572164276736, -9.585961874740465E-6, 1.2979495579621574E-4, 1.5085871713580485, 
-        -13.566109046684943, 0.09026843918435334, 45.96990975622252, 99.74522348776304, 104.85108270307225, -9.33773534893459E-11, -4.285397912505579E-12, 
-        0.00, 0.00, 0.00, 0.00, 0.00 };
-    final double[] deltaFwd1 = {-0.20863786628281816, 2887.648010427227, 3524.8181060609513, 54.75432367092116, -9894.416325570519, -16771.99913018682, 
-        -3.0220503938933227E-10, 3.729948495906336E-10, 1.6330782253589604E-10, -8.986191325519167E-11, 
-        0.00, 0.00, 0.00, 0.00, 0.00 };
-    final double[] deltaFwd3 = {-2597.896012855518, -2626.224124335432, -1187.3995581915851, -53.9916796422252, 9752.524496704595, 16503.81428148996, 
-        4.871798063348056E-10, -6.672030279745711E-10, -1.7934130597452707E-10, 1.7682040814394901E-10, 
-        0.00, 0.00, 0.00, 0.00, 0.00 };
+    final double[] deltaDsc =
+      {0.3008,0.3008,0.0000,0.0002,1.5114,-13.5657,0.0846,45.9662,99.7453,104.8512,
+      0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000 };
+      final double[] deltaFwd1 =
+      {-0.1666,2864.6265,3569.5692,33.0663,-9894.4160,-16771.9988,0.0000,0.0000,0.0000,0.0000,
+      0.0000,0.0000,0.0000,0.0000,0.0000 };
+      final double[] deltaFwd3 =
+      {-2601.2036,-2629.5677,-1202.4749,-32.6058,9752.5245,16503.8143,0.0000,0.0000,0.0000,0.0000,
+      0.0000,0.0000,0.0000,0.0000,0.0000 };
     final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> sensitivity = new LinkedHashMap<>();
     sensitivity.put(ObjectsPair.of(MULTICURVE.getName(USD), USD), new DoubleMatrix1D(deltaDsc));
     sensitivity.put(ObjectsPair.of(MULTICURVE.getName(USDLIBOR1M), USD), new DoubleMatrix1D(deltaFwd1));
