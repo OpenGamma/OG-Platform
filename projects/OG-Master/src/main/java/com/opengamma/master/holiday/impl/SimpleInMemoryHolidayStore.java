@@ -24,7 +24,7 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.money.Currency;
 
 /**
- * Simmple implementation of a container of holidays per calendar relying on a map. The putAll method can be used to
+ * Simple implementation of a container of holidays per calendar relying on a map. The putAll method can be used to
  * add calendars and their corresponding holidays to the store. The other methods are part of the {@link HolidaySource}
  * interface and allow to check whether a date is a holiday for a calendar or region.
  * 
