@@ -75,6 +75,11 @@ public class PreCalibratedMulticurveFn implements DiscountingMulticurveCombinerF
       return Result.failure(FailureStatus.MISSING_DATA, "No matching curves found for trade: {}", trade);
     }
     // TODO it's unclear whether there will ever be multiple curves for a trade - if not this can be simplified
+    
+    if (curveNames.size() == 1) {
+      return scenarioArguments.get(0).getMulticurveBundle(curveNames.iterator().next());
+    }
+    
     for (String curveName : curveNames) {
       Result<MulticurveBundle> multicurve = scenarioArguments.get(0).getMulticurveBundle(curveName);
 
