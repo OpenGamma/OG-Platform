@@ -36,6 +36,7 @@ public class ExposureFunctionsIssuerProviderFn implements IssuerProviderFn {
     _marketExposureSelectorFn = marketExposureSelectorFn;
     _issuerProviderBundleFn = issuerProviderBundleFn;
   }
+
   @Override
   public Result<IssuerProviderBundle> createBundle(Environment env, FinancialSecurity security, FXMatrix fxMatrix) {
     Trade tradeWrapper = new SimpleTrade(security,
@@ -43,13 +44,17 @@ public class ExposureFunctionsIssuerProviderFn implements IssuerProviderFn {
                                          new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "CPARTY")),
                                          LocalDate.now(),
                                          OffsetTime.now());
-    return createBundle(env, tradeWrapper, fxMatrix);
+    return getMulticurveBundle(env, tradeWrapper);
   }
 
   
   @Override
   public Result<IssuerProviderBundle> createBundle(Environment env, Trade trade, FXMatrix fxMatrix) {
+    return getMulticurveBundle(env, trade);
+  }
 
+  @Override
+  public Result<IssuerProviderBundle> getMulticurveBundle(Environment env, Trade trade) {
     Result<MarketExposureSelector> mesResult = _marketExposureSelectorFn.getMarketExposureSelector();
 
     if (mesResult.isSuccess()) {
@@ -74,5 +79,4 @@ public class ExposureFunctionsIssuerProviderFn implements IssuerProviderFn {
     }
   }
 
-  
 }

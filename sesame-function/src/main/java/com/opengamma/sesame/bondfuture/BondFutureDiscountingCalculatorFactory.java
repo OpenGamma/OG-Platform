@@ -5,7 +5,6 @@
  */
 package com.opengamma.sesame.bondfuture;
 
-import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.provider.description.interestrate.ParameterIssuerProviderInterface;
 import com.opengamma.financial.analytics.conversion.BondAndBondFutureTradeConverter;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
@@ -42,8 +41,7 @@ public class BondFutureDiscountingCalculatorFactory implements BondFutureCalcula
                                                BondFutureTrade bondFutureTrade) {
     FinancialSecurity security = bondFutureTrade.getSecurity();
 
-    Result<IssuerProviderBundle> bundleResult =
-        _issuerProviderFn.createBundle(env, bondFutureTrade.getTrade(), new FXMatrix());
+    Result<IssuerProviderBundle> bundleResult = _issuerProviderFn.getMulticurveBundle(env, bondFutureTrade.getTrade());
     
     Result<HistoricalTimeSeriesBundle> fixingsResult = _htsFn.getFixingsForSecurity(env, security);
     

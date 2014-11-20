@@ -7,7 +7,6 @@ package com.opengamma.sesame.bond;
 
 import java.util.Map;
 
-import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.ParameterIssuerProviderInterface;
 import com.opengamma.financial.analytics.conversion.BondAndBondFutureTradeConverter;
@@ -53,8 +52,7 @@ public class DiscountingBondCalculatorFactory implements BondCalculatorFactory {
   @Override
   public Result<BondCalculator> createCalculator(Environment env, BondTrade tradeWrapper) {
 
-    Result<IssuerProviderBundle> bundleResult =
-        _issuerProviderFn.createBundle(env, tradeWrapper.getTrade(), new FXMatrix());
+    Result<IssuerProviderBundle> bundleResult = _issuerProviderFn.getMulticurveBundle(env, tradeWrapper.getTrade());
 
     if (bundleResult.isSuccess()) {
       CurveBuildingBlockBundle blocks = bundleResult.getValue().getCurveBuildingBlockBundle();

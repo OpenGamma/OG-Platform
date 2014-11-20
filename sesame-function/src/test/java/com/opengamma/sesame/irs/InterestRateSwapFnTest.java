@@ -254,6 +254,7 @@ public class InterestRateSwapFnTest {
                 CurveConstructionConfigurationSource.class, ConfigDBCurveConstructionConfigurationSource.class,
                 HistoricalTimeSeriesFn.class, DefaultHistoricalTimeSeriesFn.class,
                 HistoricalMarketDataFn.class, DefaultHistoricalMarketDataFn.class,
+                InterestRateSwapConverterFn.class, DefaultInterestRateSwapConverterFn.class,
                 MarketDataFn.class, DefaultMarketDataFn.class));
 
     ImmutableMap<Class<?>, Object> components = InterestRateMockSources.generateBaseComponents();
