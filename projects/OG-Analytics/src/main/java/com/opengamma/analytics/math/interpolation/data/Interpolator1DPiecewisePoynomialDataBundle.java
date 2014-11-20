@@ -54,6 +54,26 @@ public class Interpolator1DPiecewisePoynomialDataBundle implements Interpolator1
   }
 
   /**
+   * @param underlyingData Contains sorted data (x,y)
+   * @param poly The result of piecewise polynomial interpolation with sensitivity
+   */
+  public Interpolator1DPiecewisePoynomialDataBundle(Interpolator1DDataBundle underlyingData,
+      PiecewisePolynomialResultsWithSensitivity poly) {
+    ArgumentChecker.notNull(underlyingData, "underlying data");
+    ArgumentChecker.notNull(poly, "poly");
+    _underlyingData = underlyingData;
+    _poly = poly;
+  }
+
+  /**
+   * Access underlyingData
+   * @return underlyingData
+   */
+  public Interpolator1DDataBundle getUnderlyingData() {
+    return _underlyingData;
+  }
+
+  /**
    * Access PiecewisePolynomialResultsWithSensitivity
    * @return PiecewisePolynomialResultsWithSensitivity
    */
