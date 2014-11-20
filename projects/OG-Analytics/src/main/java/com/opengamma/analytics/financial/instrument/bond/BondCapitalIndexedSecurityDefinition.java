@@ -594,13 +594,13 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
         final ZonedDateTime refInterpolatedStartDate = settlementDate2.minusMonths(monthLag);
         referenceStartDates[0] = refInterpolatedStartDate.with(TemporalAdjusters.lastDayOfMonth()).withHour(0).withMinute(0).withSecond(0).withNano(0);
         referenceStartDates[1] = referenceStartDates[0].plusMonths(1).with(TemporalAdjusters.lastDayOfMonth()).withHour(0).withMinute(0).withSecond(0).withNano(0);
-        final double indexEnd0 = data.getValue(referenceStartDates[0]);
+        final double indexEnd0 = data.getValue(referenceStartDates[0]); // FIXME Check availability
         final double indexEnd1 = data.getValue(referenceStartDates[1]);
         final double weight = 1.0 - (settlementDate2.getDayOfMonth() - 1.0) / settlementDate2.toLocalDate().lengthOfMonth();
         final double indexEndValue = weight * indexEnd0 + (1 - weight) * indexEnd1;
         indexRatio = indexEndValue / _indexStartValue;
       } else if (settlementDefinition instanceof CouponInflationZeroCouponMonthlyGearingDefinition) {
-        indexRatio = lasKnownIndexFixing / _indexStartValue;
+        indexRatio = lasKnownIndexFixing / _indexStartValue; // FIXME should come from reference dates
       } else {
         throw new OpenGammaRuntimeException("Unsupported coupon type " + getNominal().getNthPayment(0).getClass());
       }
