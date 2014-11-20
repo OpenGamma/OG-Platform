@@ -54,8 +54,8 @@ import com.opengamma.master.config.ConfigSearchResult;
   public static final String EXCHANGE_MASTER_DATA = "exchanges";
   /** Type identifier for MarketDataSnapshotMaster data. */
   public static final String MARKET_DATA_SNAPSHOT_MASTER_DATA = "snapshots";
-  /** Type identifier for OrganizationMaster data. */
-  public static final String ORGANIZATION_MASTER_DATA = "organizations";
+  /** Type identifier for LegalEntityMaster data. */
+  public static final String LEGAL_ENTITY_MASTER_DATA = "legalentities";
   /** Type identifier for ConventionMaster data. */
   public static final String CONVENTION_MASTER_DATA = "conventions";
 
