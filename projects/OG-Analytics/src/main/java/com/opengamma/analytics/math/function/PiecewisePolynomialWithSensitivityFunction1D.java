@@ -45,15 +45,16 @@ public class PiecewisePolynomialWithSensitivityFunction1D extends PiecewisePolyn
 
     final double s = xKey - knots[interval];
     final DoubleMatrix2D a = pp.getCoefficientSensitivity(interval);
-    final int nCoefs = a.getNumberOfRows();
-
-    DoubleMatrix1D res = a.getRowVector(0);
-    for (int i = 1; i < nCoefs; i++) {
-      res = (DoubleMatrix1D) MA.scale(res, s);
-      res = (DoubleMatrix1D) MA.add(res, a.getRowVector(i));
-    }
-
-    return res;
+    //    final int nCoefs = a.getNumberOfRows();
+    //
+    //    DoubleMatrix1D res = a.getRowVector(0);
+    //    for (int i = 1; i < nCoefs; i++) {
+    //      res = (DoubleMatrix1D) MA.scale(res, s);
+    //      res = (DoubleMatrix1D) MA.add(res, a.getRowVector(i));
+    //    }
+    //
+    //    return res;
+    return getSensitivity(a, s);
   }
 
   /** 
@@ -87,15 +88,32 @@ public class PiecewisePolynomialWithSensitivityFunction1D extends PiecewisePolyn
 
       final double s = xKey - knots[interval];
       final DoubleMatrix2D a = pp.getCoefficientSensitivity(interval);
-      final int nCoefs = a.getNumberOfRows();
-
-      res[j] = a.getRowVector(0);
-      for (int i = 1; i < nCoefs; i++) {
-        res[j] = (DoubleMatrix1D) MA.scale(res[j], s);
-        res[j] = (DoubleMatrix1D) MA.add(res[j], a.getRowVector(i));
-      }
+      res[j] = getSensitivity(a, s);
+      //      final int nCoefs = a.getNumberOfRows();
+      //
+      //      res[j] = a.getRowVector(0);
+      //      for (int i = 1; i < nCoefs; i++) {
+      //        res[j] = (DoubleMatrix1D) MA.scale(res[j], s);
+      //        res[j] = (DoubleMatrix1D) MA.add(res[j], a.getRowVector(i));
+      //      }
     }
 
+    return res;
+  }
+
+  /**
+   * Compute sensitivity from sensitivity coefficients for the interval
+   * @param coefficientSensitivity Coefficients for sensitivity function
+   * @param sValue (key value) - (lower bound knot)
+   * @return Sensitivity
+   */
+  protected DoubleMatrix1D getSensitivity(DoubleMatrix2D coefficientSensitivity, double sValue) {
+    int nCoefs = coefficientSensitivity.getNumberOfRows();
+    DoubleMatrix1D res = coefficientSensitivity.getRowVector(0);
+    for (int i = 1; i < nCoefs; i++) {
+      res = (DoubleMatrix1D) MA.scale(res, sValue);
+      res = (DoubleMatrix1D) MA.add(res, coefficientSensitivity.getRowVector(i));
+    }
     return res;
   }
 
@@ -114,24 +132,41 @@ public class PiecewisePolynomialWithSensitivityFunction1D extends PiecewisePolyn
     }
     final int nCoefs = pp.getOrder();
     ArgumentChecker.isFalse(nCoefs < 2, "Polynomial degree is too low");
+    final int nIntervals = pp.getNumberOfIntervals();
 
-    final double[] knots = pp.getKnots().getData();
-    final int nKnots = knots.length;
-    int interval = FunctionUtils.getLowerBoundIndex(knots, xKey);
-    if (interval == nKnots - 1) {
-      interval--; // there is 1 less interval that knots
+    final DoubleMatrix2D[] diffSense = new DoubleMatrix2D[nIntervals];
+    final DoubleMatrix2D[] senseMat = pp.getCoefficientSensitivityAll();
+    final int nData = senseMat[0].getNumberOfColumns();
+    for (int i = 0; i < nIntervals; ++i) {
+      final double[][] tmp = new double[nCoefs - 1][nData];
+      for (int j = 0; j < nCoefs - 1; ++j) {
+        for (int k = 0; k < nData; ++k) {
+          tmp[j][k] = (nCoefs - 1 - j) * senseMat[i].getData()[j][k];
+        }
+      }
+      diffSense[i] = new DoubleMatrix2D(tmp);
     }
 
-    final double s = xKey - knots[interval];
-    final DoubleMatrix2D a = pp.getCoefficientSensitivity(interval);
-
-    DoubleMatrix1D res = (DoubleMatrix1D) MA.scale(a.getRowVector(0), nCoefs - 1);
-    for (int i = 1; i < nCoefs - 1; i++) {
-      res = (DoubleMatrix1D) MA.scale(res, s);
-      res = (DoubleMatrix1D) MA.add(res, MA.scale(a.getRowVector(i), nCoefs - 1 - i));
-    }
-
-    return res;
+    PiecewisePolynomialResultsWithSensitivity ppDiff = new PiecewisePolynomialResultsWithSensitivity(pp.getKnots(),
+        pp.getCoefMatrix(), nCoefs - 1, pp.getDimensions(), diffSense);
+    return nodeSensitivity(ppDiff, xKey);
+    //    final double[] knots = pp.getKnots().getData();
+    //    final int nKnots = knots.length;
+    //    int interval = FunctionUtils.getLowerBoundIndex(knots, xKey);
+    //    if (interval == nKnots - 1) {
+    //      interval--; // there is 1 less interval that knots
+    //    }
+    //
+    //    final double s = xKey - knots[interval];
+    //    final DoubleMatrix2D a = pp.getCoefficientSensitivity(interval);
+    //
+    //    DoubleMatrix1D res = (DoubleMatrix1D) MA.scale(a.getRowVector(0), nCoefs - 1);
+    //    for (int i = 1; i < nCoefs - 1; i++) {
+    //      res = (DoubleMatrix1D) MA.scale(res, s);
+    //      res = (DoubleMatrix1D) MA.add(res, MA.scale(a.getRowVector(i), nCoefs - 1 - i));
+    //    }
+    //
+    //    return res;
   }
 
   /** 
@@ -181,24 +216,42 @@ public class PiecewisePolynomialWithSensitivityFunction1D extends PiecewisePolyn
     }
     final int nCoefs = pp.getOrder();
     ArgumentChecker.isFalse(nCoefs < 3, "Polynomial degree is too low");
+    final int nIntervals = pp.getNumberOfIntervals();
 
-    final double[] knots = pp.getKnots().getData();
-    final int nKnots = knots.length;
-    int interval = FunctionUtils.getLowerBoundIndex(knots, xKey);
-    if (interval == nKnots - 1) {
-      interval--; // there is 1 less interval that knots
+    final DoubleMatrix2D[] diffSense = new DoubleMatrix2D[nIntervals];
+    final DoubleMatrix2D[] senseMat = pp.getCoefficientSensitivityAll();
+    final int nData = senseMat[0].getNumberOfColumns();
+    for (int i = 0; i < nIntervals; ++i) {
+      final double[][] tmp = new double[nCoefs - 2][nData];
+      for (int j = 0; j < nCoefs - 2; ++j) {
+        for (int k = 0; k < nData; ++k) {
+          tmp[j][k] = (nCoefs - 1 - j) * (nCoefs - 2 - j) * senseMat[i].getData()[j][k];
+        }
+      }
+      diffSense[i] = new DoubleMatrix2D(tmp);
     }
 
-    final double s = xKey - knots[interval];
-    final DoubleMatrix2D a = pp.getCoefficientSensitivity(interval);
+    PiecewisePolynomialResultsWithSensitivity ppDiff = new PiecewisePolynomialResultsWithSensitivity(pp.getKnots(),
+        pp.getCoefMatrix(), nCoefs - 2, pp.getDimensions(), diffSense);
+    return nodeSensitivity(ppDiff, xKey);
 
-    DoubleMatrix1D res = (DoubleMatrix1D) MA.scale(a.getRowVector(0), (nCoefs - 1) * (nCoefs - 2));
-    for (int i = 1; i < nCoefs - 2; i++) {
-      res = (DoubleMatrix1D) MA.scale(res, s);
-      res = (DoubleMatrix1D) MA.add(res, MA.scale(a.getRowVector(i), (nCoefs - 1 - i) * (nCoefs - 2 - i)));
-    }
-
-    return res;
+    //    final double[] knots = pp.getKnots().getData();
+    //    final int nKnots = knots.length;
+    //    int interval = FunctionUtils.getLowerBoundIndex(knots, xKey);
+    //    if (interval == nKnots - 1) {
+    //      interval--; // there is 1 less interval that knots
+    //    }
+    //
+    //    final double s = xKey - knots[interval];
+    //    final DoubleMatrix2D a = pp.getCoefficientSensitivity(interval);
+    //
+    //    DoubleMatrix1D res = (DoubleMatrix1D) MA.scale(a.getRowVector(0), (nCoefs - 1) * (nCoefs - 2));
+    //    for (int i = 1; i < nCoefs - 2; i++) {
+    //      res = (DoubleMatrix1D) MA.scale(res, s);
+    //      res = (DoubleMatrix1D) MA.add(res, MA.scale(a.getRowVector(i), (nCoefs - 1 - i) * (nCoefs - 2 - i)));
+    //    }
+    //
+    //    return res;
   }
 
   /** 

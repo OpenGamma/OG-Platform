@@ -57,6 +57,34 @@ public class Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle implements
   }
 
   /**
+   * @param underlyingData Contains sorted data (x,y)
+   * @param poly The result of piecewise polynomial interpolation
+   * @param polyUp The results of piecewise polynomial interpolation with y values shifted upward
+   * @param polyDw The results of piecewise polynomial interpolation with y values shifted downward
+   */
+  public Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle(Interpolator1DDataBundle underlyingData,
+      PiecewisePolynomialResult poly, PiecewisePolynomialResult[] polyUp, PiecewisePolynomialResult[] polyDw) {
+    ArgumentChecker.notNull(underlyingData, "underlying data");
+    ArgumentChecker.notNull(poly, "poly");
+    ArgumentChecker.noNulls(polyUp, "polyUp");
+    ArgumentChecker.noNulls(polyDw, "polyDw");
+    int nData = polyUp.length;
+    ArgumentChecker.isTrue(polyDw.length == nData, "polyUp and polyDw should have the same length");
+    _underlyingData = underlyingData;
+    _poly = poly;
+    _polyUp = Arrays.copyOf(polyUp, nData);
+    _polyDw = Arrays.copyOf(polyUp, nData);
+  }
+
+  /**
+   * Access underlyingData
+   * @return underlyingData
+   */
+  public Interpolator1DDataBundle getUnderlyingData() {
+    return _underlyingData;
+  }
+
+  /**
    * Access PiecewisePolynomialResult
    * @return PiecewisePolynomialResult
    */
