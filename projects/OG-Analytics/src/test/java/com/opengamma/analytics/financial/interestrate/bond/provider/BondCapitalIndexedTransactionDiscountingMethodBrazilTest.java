@@ -114,6 +114,7 @@ public class BondCapitalIndexedTransactionDiscountingMethodBrazilTest {
   private static final double TOLERANCE_PV = 1.0E-4;
   private static final double TOLERANCE_PV_DELTA = 1.0E-2;
   private static final double TOLERANCE_PV_GAMMA = 1.0E-2;
+  private static final double TOLERANCE_YIELD = 1.0E-6;
   private static final double BP1 = 1.0E-4;
   
   /** Curves */
@@ -163,7 +164,17 @@ public class BondCapitalIndexedTransactionDiscountingMethodBrazilTest {
         pvPasComputed.getAmount(BRL), TOLERANCE_PV);
   }
   
-  //TODO: more precise valuation test
+  /** Brazil inflation bond are quoted as dirty nominal note or certificate price, i.e. the total price paid
+   *  for a given certificate, usually with a notional of BRL 1,000. Check that the PV from the price is the
+   *  same as the PV from curve when the price is the one computed from curve. */
+  @Test
+  public void presentValueFromNotePrice() {
+    double noteDirtyPrice = METHOD_SEC.dirtyNominalNotePriceFromCurves(NTNB_TRANSACTION_STD.getBondStandard(), MARKET);
+    MultipleCurrencyAmount pvPrice = METHOD_TRA.presentValueFromDirtyNominalNotePrice(NTNB_TRANSACTION_STD, MARKET, noteDirtyPrice);
+    MultipleCurrencyAmount pvCurve = METHOD_TRA.presentValue(NTNB_TRANSACTION_STD, MARKET);
+    assertEquals("BondCapitalIndexedTransactionDiscountingMethodBrazil: pv from note price", 
+        pvPrice.getAmount(BRL), pvCurve.getAmount(BRL), TOLERANCE_PV);
+  }
   
   @Test
   public void presentValueMethodVsCalculator() {
@@ -245,6 +256,18 @@ public class BondCapitalIndexedTransactionDiscountingMethodBrazilTest {
     double dirtyPrice = METHOD_SEC.dirtyNominalPriceFromCurves(NTNB_TRANSACTION_STD.getBondStandard(), MARKET);
     assertEquals("BondCapitalIndexedTransactionDiscountingMethodBrazil: note price", 
         dirtyPrice * NTNB_TRANSACTION_STD.getNotionalStandard(), noteDirtyPrice);
+  }
+  
+  @Test
+  public void realDirtyPriceFromyield() {
+    double yield = 0.058816;
+    double priceExpected = 1.02345;
+    double priceComputed = METHOD_SEC.dirtyPriceFromRealYield(NTNB_TRANSACTION_STD.getBondStandard(), yield);
+    assertEquals("BondCapitalIndexedTransactionDiscountingMethodBrazil: real price from real yield", 
+        priceExpected, priceComputed, 3.0E-3);
+    double yieldComputed = METHOD_SEC.yieldRealFromDirtyRealPrice(NTNB_TRANSACTION_STD.getBondStandard(), priceComputed);
+    assertEquals("BondCapitalIndexedTransactionDiscountingMethodBrazil: real price from real yield", 
+        yield, yieldComputed, TOLERANCE_YIELD);
   }
   
   /** Calibrated curves */
