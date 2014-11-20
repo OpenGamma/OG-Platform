@@ -16,12 +16,15 @@ import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.core.IsNull.notNullValue;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.Map;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.OffsetTime;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
@@ -31,6 +34,10 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.link.ConfigLink;
+import com.opengamma.core.position.Counterparty;
+import com.opengamma.core.position.Trade;
+import com.opengamma.core.position.impl.SimpleCounterparty;
+import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
 import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigurationSource;
@@ -44,6 +51,7 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.fra.ForwardRateAgreementSecurity;
+import com.opengamma.id.ExternalId;
 import com.opengamma.service.ServiceContext;
 import com.opengamma.service.ThreadLocalServiceContext;
 import com.opengamma.service.VersionCorrectionProvider;
@@ -83,6 +91,7 @@ import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataSource;
+import com.opengamma.sesame.trade.ForwardRateAgreementTrade;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
@@ -318,6 +327,65 @@ public class FRAFnTest {
     }
   }
 
+  @Test
+  public void tradeFunctions() {
+    MarketDataSource dataSource = InterestRateMockSources.createMarketDataSource();
+    Environment env = new SimpleEnvironment(VALUATION_TIME, dataSource);
+    ForwardRateAgreementTrade trade = getTrade(_forwardRateAgreementSecurity);
+    
+    Result<MultipleCurrencyAmount> resultPV = _fraFunction.calculatePV(env, trade);
+    assertThat(resultPV.isSuccess(), is((true)));
+    MultipleCurrencyAmount mca = resultPV.getValue();
+    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(EXPECTED_PV, STD_TOLERANCE_PV)));
+    
+    Result<Double> resultParRate = _fraFunction.calculateParRate(env, trade);
+    assertThat(resultParRate.isSuccess(), is((true)));
+    Double parRate = resultParRate.getValue();
+    assertThat(parRate, is(closeTo(EXPECTED_PAR_RATE, STD_TOLERANCE_RATE)));
+
+    Result<ReferenceAmount<Pair<String, Currency>>> pv01 = _fraFunction.calculatePV01(env, trade);
+    assertThat(pv01.isSuccess(), is((true)));
+
+    assertThat(pv01.getValue().getMap().size(), is(2));
+    assertThat(pv01.getValue().getMap().get(Pairs.of(InterestRateMockSources.USD_LIBOR3M_CURVE_NAME, Currency.USD)),
+               closeTo(-249.73451494798297, STD_TOLERANCE_PV));
+    assertThat(pv01.getValue().getMap().get(Pairs.of(InterestRateMockSources.USD_OIS_CURVE_NAME, Currency.USD)),
+               closeTo(-1.479871968614848, STD_TOLERANCE_PV));
+
+    Result<BucketedCurveSensitivities> pv01Bucketed = _fraFunction.calculateBucketedPV01(env, trade);
+    assertThat(pv01.isSuccess(), is((true)));
+    Map<Pair<String, Currency>, DoubleLabelledMatrix1D> pv01s = pv01Bucketed.getValue().getSensitivities();
+
+    assertThat(pv01s.size(), is(EXPECTED_BUCKETED_PV01.size()));
+    for (Map.Entry<Pair<String, Currency>, DoubleLabelledMatrix1D> sensitivity : pv01s.entrySet()) {
+      DoubleMatrix1D expectedSensitivities = EXPECTED_BUCKETED_PV01.get(sensitivity.getKey());
+      assertThat(sensitivity.getKey() + " not an expected sensitivity", expectedSensitivities, is(notNullValue()));
+      assertThat(sensitivity.getValue().size(), is(expectedSensitivities.getNumberOfElements()));
+      for (int i = 0; i < expectedSensitivities.getNumberOfElements(); i++) {
+        assertThat(sensitivity.getValue().getValues()[i],
+                   is(closeTo(expectedSensitivities.getEntry(i), STD_TOLERANCE_PV)));
+      }
+    }
+
+    Result<BucketedCrossSensitivities> resultCrossGamma = _fraFunction.calculateBucketedGamma(env,
+        trade);
+    assertThat(resultCrossGamma.isSuccess(), is(true));
+
+    Map<String, DoubleLabelledMatrix2D> bucketedGamma = resultCrossGamma.getValue().getCrossSensitivities();
+    assertThat(bucketedGamma.size(), is(EXPECTED_GAMMA_MATRICES.size()));
+    for (Map.Entry<String, DoubleLabelledMatrix2D> sensitivity : bucketedGamma.entrySet()) {
+      DoubleMatrix2D expectedSensitivities = new DoubleMatrix2D(EXPECTED_GAMMA_MATRICES.get(sensitivity.getKey()).getData());
+      assertThat(sensitivity.getValue().getXKeys().length, is(expectedSensitivities.getNumberOfColumns()));
+      assertThat(sensitivity.getValue().getYKeys().length, is(expectedSensitivities.getNumberOfRows()));
+      for (int i = 0; i < expectedSensitivities.getNumberOfColumns(); i++) {
+        for (int j = 0; j < expectedSensitivities.getNumberOfRows(); j++) {
+          assertThat(expectedSensitivities.getData()[i][j],
+                     is(closeTo(sensitivity.getValue().getValues()[i][j], STD_TOLERANCE_PV)));
+        }
+      }
+    }
+  }
+
   private FRASecurity createSingleFra() {
     return new FRASecurity(Currency.USD, ExternalSchemes.financialRegionId("US"), STD_ACCRUAL_START_DATE,
                            STD_ACCRUAL_END_DATE, 0.0125, -10000000, InterestRateMockSources.getLiborIndexId(),
@@ -340,4 +408,15 @@ public class FRAFnTest {
         2);
   }
 
+  private ForwardRateAgreementTrade getTrade(ForwardRateAgreementSecurity security)
+  {
+    Trade trade = new SimpleTrade(security,
+        BigDecimal.ONE,
+        new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "CPARTY")),
+        LocalDate.now(),
+        OffsetTime.now());
+ 
+    return new ForwardRateAgreementTrade(trade);
+  }
+  
 }

@@ -13,6 +13,7 @@ import com.opengamma.financial.security.fra.ForwardRateAgreementSecurity;
 import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.irs.InterestRateSwapCalculator;
+import com.opengamma.sesame.trade.ForwardRateAgreementTrade;
 import com.opengamma.sesame.trade.InterestRateSwapTrade;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -130,6 +131,51 @@ public class DiscountingFRAFn implements FRAFn {
   public Result<BucketedCrossSensitivities> calculateBucketedGamma(Environment env,
                                                                    ForwardRateAgreementSecurity security) {
     Result<FRACalculator> calculatorResult = _fraCalculatorFactory.createCalculator(env, security);
+    if (!calculatorResult.isSuccess()) {
+      return Result.failure(calculatorResult);
+    }
+    return calculatorResult.getValue().calculateBucketedGamma();
+  }
+
+  @Override
+  public Result<Double> calculateParRate(Environment env, ForwardRateAgreementTrade trade) {
+    Result<FRACalculator> calculatorResult = _fraCalculatorFactory.createCalculator(env, trade);
+    if (!calculatorResult.isSuccess()) {
+      return Result.failure(calculatorResult);
+    }
+    return calculatorResult.getValue().calculateRate();
+  }
+
+  @Override
+  public Result<MultipleCurrencyAmount> calculatePV(Environment env, ForwardRateAgreementTrade trade) {
+    Result<FRACalculator> calculatorResult = _fraCalculatorFactory.createCalculator(env, trade);
+    if (!calculatorResult.isSuccess()) {
+      return Result.failure(calculatorResult);
+    }
+    return calculatorResult.getValue().calculatePV();
+  }
+
+  @Override
+  public Result<ReferenceAmount<Pair<String, Currency>>> calculatePV01(Environment env, ForwardRateAgreementTrade trade) {
+    Result<FRACalculator> calculatorResult = _fraCalculatorFactory.createCalculator(env, trade);
+    if (!calculatorResult.isSuccess()) {
+      return Result.failure(calculatorResult);
+    }
+    return calculatorResult.getValue().calculatePV01();
+  }
+
+  @Override
+  public Result<BucketedCurveSensitivities> calculateBucketedPV01(Environment env, ForwardRateAgreementTrade trade) {
+    Result<FRACalculator> calculatorResult = _fraCalculatorFactory.createCalculator(env, trade);
+    if (!calculatorResult.isSuccess()) {
+      return Result.failure(calculatorResult);
+    }
+    return calculatorResult.getValue().calculateBucketedPV01();
+  }
+
+  @Override
+  public Result<BucketedCrossSensitivities> calculateBucketedGamma(Environment env, ForwardRateAgreementTrade trade) {
+    Result<FRACalculator> calculatorResult = _fraCalculatorFactory.createCalculator(env, trade);
     if (!calculatorResult.isSuccess()) {
       return Result.failure(calculatorResult);
     }
