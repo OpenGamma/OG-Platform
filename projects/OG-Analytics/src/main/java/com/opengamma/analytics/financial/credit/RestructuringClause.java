@@ -11,22 +11,39 @@ package com.opengamma.analytics.financial.credit;
  * Reference: https://www.markit.com/news/XMLGuide.pdf, 
  *            "XML User Guide - Markit Data",
  *            Version 10.3.8, November 2010.
+ * 2014 ISDA definitions - see http://www2.isda.org/attachment/NjU5Nw==/ISDA%202014%20Credit%20Definitions%20FAQ%20v12_Clean.pdf
  */
 public enum RestructuringClause {
   /**
-   * With Restructuring (Markit notation)
+   * Restructuring - ISDA 2014 definition (Markit notation)
+   */
+  CR14,
+  /**
+   * Modified-Modified Restructuring - ISDA 2014 definition (Markit notation)
+   */
+  MM14,
+  /**
+   * Modified Restructuring - ISDA 2014 definition (Markit notation)
+   */
+  MR14,
+  /**
+   * No-Restructuring - ISDA 2014 definition (Markit notation)
+   */
+  XR14,
+  /**
+   * Restructuring - ISDA 2003 definition (Markit notation)
    */
   CR,
   /**
-   * Modified-Modified Restructuring (Markit notation)
+   * Modified-Modified Restructuring - ISDA 2003 definition (Markit notation)
    */
   MM,
   /**
-   * Modified Restructuring (Markit notation)
+   * Modified Restructuring - ISDA 2003 definition (Markit notation)
    */
   MR,
   /**
-   * No-Restructuring (Markit notation)
+   * No-Restructuring - ISDA 2003 definition (Markit notation)
    */
   XR,
   /**
