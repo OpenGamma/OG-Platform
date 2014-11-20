@@ -71,8 +71,9 @@ public final class BondCapitalIndexedTransactionDiscountingMethod {
     Validate.notNull(bond, "Coupon");
     Validate.notNull(provider, "Provider");
     final MultipleCurrencyAmount pvBond = METHOD_SECURITY.presentValueFromCleanRealPrice(bond.getBondTransaction(), provider, cleanPriceReal);
-    final MultipleCurrencyAmount pvSettlement = bond.getBondTransaction().getSettlement().accept(PVIC, provider.getInflationProvider()).multipliedBy(
-        bond.getQuantity() * bond.getBondTransaction().getCoupon().getNthPayment(0).getNotional());
+    final MultipleCurrencyAmount pvSettlement = bond.getBondTransaction().getSettlement().
+        accept(PVIC, provider.getInflationProvider()).
+        multipliedBy(bond.getQuantity() * bond.getBondTransaction().getCoupon().getNthPayment(0).getNotional());
     return pvBond.plus(pvSettlement);
   }
   
@@ -88,28 +89,30 @@ public final class BondCapitalIndexedTransactionDiscountingMethod {
       final InflationIssuerProviderInterface provider, final double realYield) {
     Validate.notNull(bond, "Coupon");
     Validate.notNull(provider, "Provider");
-    // TODO: Write relevant code. Only for API
-    return null;
+    final MultipleCurrencyAmount pvBond = METHOD_SECURITY.presentValueFromRealYield(bond.getBondTransaction(), provider, realYield);
+    final MultipleCurrencyAmount pvSettlement = bond.getBondTransaction().getSettlement().
+        accept(PVIC, provider.getInflationProvider()).
+        multipliedBy(bond.getQuantity() * bond.getBondTransaction().getCoupon().getNthPayment(0).getNotional());
+    return pvBond.plus(pvSettlement);
   }
 
-  
-  /**
-   * Computes the present value of a capital indexed bond transaction from the real yield and the inflation
-   * assumption (and the curves for the discounting from spot). In particular used for Brazilian inflation bonds
-   * where a inflation assumption is used between the last published price index and the settlement date.
-   * @param bond The bond transaction.
-   * @param provider The provider.
-   * @param realYield The real yield.
-   * @param inflationAssumption The inflation assumption.
-   * @return The present value.
-   */
-  public MultipleCurrencyAmount presentValueFromRealYield(final BondCapitalIndexedTransaction<Coupon> bond, 
-      final InflationIssuerProviderInterface provider, final double realYield, double inflationAssumption) {
-    Validate.notNull(bond, "Coupon");
-    Validate.notNull(provider, "Provider");
-    // TODO: Write relevant code. Only for API
-    return null;
-  }
+//  /**
+//   * Computes the present value of a capital indexed bond transaction from the real yield and the inflation
+//   * assumption (and the curves for the discounting from spot). In particular used for Brazilian inflation bonds
+//   * where a inflation assumption is used between the last published price index and the settlement date.
+//   * @param bond The bond transaction.
+//   * @param provider The provider.
+//   * @param realYield The real yield.
+//   * @param inflationAssumption The inflation assumption.
+//   * @return The present value.
+//   */
+//  public MultipleCurrencyAmount presentValueFromRealYield(final BondCapitalIndexedTransaction<Coupon> bond, 
+//      final InflationIssuerProviderInterface provider, final double realYield, double inflationAssumption) {
+//    Validate.notNull(bond, "Coupon");
+//    Validate.notNull(provider, "Provider");
+//    // TODO: Write relevant code. Only for API
+//    return null;
+//  }
   
   /**
    * Computes the present value of a capital indexed bond transaction from the dirty nominal note price (and the 
@@ -120,12 +123,15 @@ public final class BondCapitalIndexedTransactionDiscountingMethod {
    * @param dirtyNotePriceNominal The dirty notional note price.
    * @return The present value.
    */
-  public MultipleCurrencyAmount presentValueFromDirtyNominalNotePrice(final BondCapitalIndexedTransaction<Coupon> bond, 
+  public MultipleCurrencyAmount presentValueFromDirtyNominalNotePrice(final BondCapitalIndexedTransaction<Coupon> bond,
       final InflationIssuerProviderInterface provider, final double dirtyNotePriceNominal) {
     Validate.notNull(bond, "Coupon");
     Validate.notNull(provider, "Provider");
-    // TODO: Write relevant code. Only for API
-    return null;
+    final MultipleCurrencyAmount pvBond = METHOD_SECURITY.presentValueFromDirtyNominalNotePrice(bond.getBondStandard(),
+        provider, dirtyNotePriceNominal);
+    final MultipleCurrencyAmount pvSettlement = bond.getBondTransaction().getSettlement().accept(PVIC,
+        provider.getInflationProvider()).multipliedBy(-bond.getTransactionPrice());
+    return pvBond.plus(pvSettlement).multipliedBy(bond.getQuantity());
   }
 
   /**

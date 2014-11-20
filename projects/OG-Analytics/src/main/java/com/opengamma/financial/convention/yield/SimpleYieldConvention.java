@@ -32,11 +32,11 @@ public class SimpleYieldConvention implements YieldConvention, Serializable {
    */
   public static final YieldConvention US_IL_REAL = new SimpleYieldConvention("US I/L real");
   /**
-   * The UK real yield convention. Used for inflation linked GILTS.
+   * The UK real yield convention. Used for inflation linked GILTS before 2005.
    */
   public static final YieldConvention INDEX_LINKED_FLOAT = new SimpleYieldConvention("index-linked float");
   /**
-   * The UK real yield convention. Used for UK inflation linked corporate bond.
+   * The UK real yield convention. Used for UK inflation linked government corporate bond. UK IL Gilts after 2005
    */
   public static final YieldConvention UK_IL_BOND = new SimpleYieldConvention("uk i/l bond");
 

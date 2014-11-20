@@ -8,10 +8,12 @@ package com.opengamma.analytics.financial.interestrate.bond.provider;
 import static com.opengamma.financial.convention.yield.SimpleYieldConvention.INDEX_LINKED_FLOAT;
 import static com.opengamma.financial.convention.yield.SimpleYieldConvention.UK_IL_BOND;
 import static com.opengamma.financial.convention.yield.SimpleYieldConvention.US_IL_REAL;
+import static com.opengamma.financial.convention.yield.SimpleYieldConvention.BRAZIL_IL_BOND;
 
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationGearing;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponInterpolationGearing;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponMonthlyGearing;
@@ -126,10 +128,48 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
     return nominalAccruedInterest.plus(ccy, pvPrice);
   }
   
+  /**
+   * The present value from the convention real yield.
+   * @param bond The bond security.
+   * @param market The market.
+   * @param realYield The real yield in the convention of the bond.
+   * @return The present value.
+   */
   public MultipleCurrencyAmount presentValueFromRealYield(final BondCapitalIndexedSecurity<?> bond, 
       final InflationIssuerProviderInterface market, final double realYield) {
-    // TODO: Write relevant code. Only for API
-    return null;
+    double dirtyRealPrice = dirtyPriceFromRealYield(bond, realYield);
+    return presentValueFromDirtyRealPrice(bond, market, dirtyRealPrice);
+  }
+  
+  /**
+   * Computes the security present value from a quoted dirty nominal note price. 
+   * The note price is the price for one note or one certificate. The price is already scaled to the bond notional.
+   * The present value is the present value of the settlement unit multiplied by the price.
+   * @param bond The bond security.
+   * @param market The market.
+   * @param notePrice The note price.
+   * @return The present value.
+   */
+  public MultipleCurrencyAmount presentValueFromDirtyNominalNotePrice(final BondCapitalIndexedSecurity<?> bond, 
+      final InflationIssuerProviderInterface market, final double notePrice) {
+    MultipleCurrencyAmount pvSettle = bond.getSettlement().accept(PVIC, market);
+    return pvSettle.multipliedBy(notePrice);
+  }
+  
+  /**
+   * Computes the security present value from a dirty real price. 
+   * The present value is the present value of the settlement unit multiplied by the price, the notional and the 
+   * index ratio (between bond start and bond settlement).
+   * @param bond The bond security.
+   * @param market The market.
+   * @param dirtyRealPrice The dirty real price.
+   * @return The present value.
+   */
+  public MultipleCurrencyAmount presentValueFromDirtyRealPrice(final BondCapitalIndexedSecurity<?> bond, 
+      final InflationIssuerProviderInterface market, final double dirtyRealPrice) {
+    final double notional = bond.getCoupon().getNthPayment(0).getNotional();
+    MultipleCurrencyAmount pvSettle = bond.getSettlement().accept(PVIC, market);
+    return pvSettle.multipliedBy(dirtyRealPrice * notional * bond.getIndexRatio());
   }
 
   /**
@@ -292,11 +332,10 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
     final double netAmountRealByUnit = cleanPriceReal + bond.getAccruedInterest() / notional;
     final MultipleCurrencyAmount netAmount = bond.getSettlement().accept(NAIC, market.getInflationProvider());
     return netAmount.multipliedBy(netAmountRealByUnit);
-
   }
 
   /**
-   * Computes the dirty (real or nominal depending of the convention) price from the conventional real yield.
+   * Computes the dirty real price from the conventional real yield.
    * @param bond  The bond security.
    * @param yield The bond yield.
    * @return The dirty price.
@@ -305,7 +344,7 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
     Validate.isTrue(bond.getNominal().getNumberOfPayments() == 1, "Yield: more than one nominal repayment.");
     final int nbCoupon = bond.getCoupon().getNumberOfPayments();
     final YieldConvention yieldConvention = bond.getYieldConvention();
-    if (yieldConvention.equals(US_IL_REAL)) {
+    if (yieldConvention.equals(US_IL_REAL)) { /** The US real yield convention. */
       // Coupon period rate to next coupon and simple rate from next coupon to settlement.
       double pvAtFirstCoupon;
       if (Math.abs(yield) > 1.0E-8) {
@@ -349,7 +388,7 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
         return pvAtFirstCoupon * Math.pow(u * v, bond.getRatioPeriodToNextCoupon());
       }
     }
-    if (yieldConvention.equals(UK_IL_BOND)) {
+    if (yieldConvention.equals(UK_IL_BOND)) { /** UK GILT after 2005 */
       final double firstYearFraction = bond.getCoupon().getNthPayment(0).getPaymentYearFraction();
       final double realRate = ((CouponInflationGearing) bond.getCoupon().getNthPayment(1)).getFactor();
       // Real rate adjusted by the number of coupons, i.e. annual rate / 2 for UK bonds
@@ -364,6 +403,25 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
         final double pvAtFirstCoupon = firstCashFlow + secondCashFlow * v + realRate * v * v * (1 - vn / v) / (1 - v) + vn;
         return pvAtFirstCoupon * Math.pow(v, bond.getAccrualFactorToNextCoupon());
       }
+    }
+    if (yieldConvention.equals(BRAZIL_IL_BOND)) { /** Brazil Inflation Linked bond. */
+      // TODO: To improve: Uses the internal time measurement and not the official day-count.
+      Annuity<?> cpns = bond.getCoupon();
+      double settleTime = bond.getSettlementTime();
+      double price = 0.0d;
+      double factor0 = 0.06; // Official coupon for Brazil bonds
+      if (cpns.getNthPayment(0) instanceof CouponInflationZeroCouponMonthlyGearing) { // First coupon can be fixed or inflation
+        factor0 = ((CouponInflationZeroCouponMonthlyGearing) cpns.getNthPayment(0)).getFactor();
+      }
+      price += factor0 / Math.pow(1.0d + yield, cpns.getNthPayment(0).getPaymentTime() - settleTime);
+      for (int loopcpn = 1; loopcpn < nbCoupon; loopcpn++) { // Coupons
+        ArgumentChecker.isTrue(cpns.getNthPayment(loopcpn) instanceof CouponInflationZeroCouponMonthlyGearing, 
+            "coupon should be of the type CouponInflationZeroCouponMonthlyGearing");
+        CouponInflationZeroCouponMonthlyGearing cpnInfl = (CouponInflationZeroCouponMonthlyGearing) cpns.getNthPayment(loopcpn);
+        price += cpnInfl.getFactor() / Math.pow(1.0d + yield, cpnInfl.getPaymentTime() - settleTime);
+      }
+      price += 1.0d / Math.pow(1.0d + yield, bond.getNominal().getNthPayment(0).getPaymentTime() - settleTime); // Notional
+      return price;
     }
     throw new UnsupportedOperationException("The convention " + bond.getYieldConvention().getName() + " is not supported.");
   }
@@ -384,7 +442,7 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
   }
 
   /**
-   * Compute the conventional yield from the dirty price.
+   * Compute the conventional yield from the dirty real price.
    * @param bond The bond security.
    * @param dirtyPrice The bond dirty price.
    * @return The yield.
@@ -497,7 +555,7 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
   }
 
   /**
-   * Computes the bill yield from the curves. The yield is in the bill yield convention.
+   * Computes the bond yield from the curves. The yield is in the bond yield convention.
    * @param bond The bond.
    * @param provider The inflation and multi-curves provider.
    * @return The yield.
@@ -695,7 +753,7 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
       }
     };
 
-    final double[] range = BRACKETER.getBracketedPoints(residual, -0.5, 0.5); // Starting range is [-1%, 1%]
+    final double[] range = BRACKETER.getBracketedPoints(residual, -0.5, 0.5);
     return ROOT_FINDER.getRoot(residual, range[0], range[1]);
   }
 
