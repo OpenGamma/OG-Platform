@@ -5,7 +5,6 @@
  */
 package com.opengamma.sesame.irs;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -205,29 +204,24 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
    * @param interestRateSwapTrade the swap to calculate values for
    * @param bundle the multicurve bundle, including the curves
    * @param curveBuildingBlockBundle the curve block building bundle
-   * @param swapConverter the InterestRateSwapSecurityConverter
    * @param valuationTime the ZonedDateTime
-   * @param definitionConverter the FixedIncomeConverterDataProvider
-   * @param fixings the HistoricalTimeSeriesBundle, a collection of historical time-series objects
    * @param curveDefinitions the curve definitions
+   * @param definition the definition built from the swap
+   * @param derivative the derivative built from the swap
    */
   public DiscountingInterestRateSwapCalculator(InterestRateSwapTrade interestRateSwapTrade,
                                                MulticurveProviderInterface bundle,
                                                CurveBuildingBlockBundle curveBuildingBlockBundle,
-                                               InterestRateSwapSecurityConverter swapConverter,
                                                ZonedDateTime valuationTime,
-                                               FixedIncomeConverterDataProvider definitionConverter,
-                                               HistoricalTimeSeriesBundle fixings,
-                                               Map<String, CurveDefinition> curveDefinitions) {
+                                               Map<String, CurveDefinition> curveDefinitions,
+                                               SwapDefinition definition,
+                                               InstrumentDerivative derivative) {
     ArgumentChecker.notNull(interestRateSwapTrade, "interestRateSwapTrade");
-    ArgumentChecker.notNull(swapConverter, "swapConverter");
     _valuationTime = ArgumentChecker.notNull(valuationTime, "valuationTime");
-    ArgumentChecker.notNull(definitionConverter, "definitionConverter");
-    ArgumentChecker.notNull(fixings, "fixings");
     _trade = interestRateSwapTrade.getTrade();
     _security = interestRateSwapTrade.getSecurity();
-    _definition = (SwapDefinition) _security.accept(swapConverter);
-    _derivative = createInstrumentDerivative(_security, valuationTime, definitionConverter, fixings);
+    _definition = ArgumentChecker.notNull(definition, "definition");
+    _derivative = ArgumentChecker.notNull(derivative, "derivative");
     _bundle = ArgumentChecker.notNull(bundle, "bundle");
     _curveBuildingBlockBundle = ArgumentChecker.notNull(curveBuildingBlockBundle, "curveBuildingBlockBundle");
     _curveDefinitions = ArgumentChecker.notNull(curveDefinitions, "curveDefinitions");

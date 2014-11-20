@@ -104,6 +104,7 @@ import com.opengamma.sesame.fxforward.FXForwardPnLSeriesFn;
 import com.opengamma.sesame.fxforward.FXForwardYCNSPnLSeriesFn;
 import com.opengamma.sesame.fxforward.FXForwardYieldCurveNodeSensitivitiesFn;
 import com.opengamma.sesame.interestrate.InterestRateMockSources;
+import com.opengamma.sesame.irs.DefaultInterestRateSwapConverterFn;
 import com.opengamma.sesame.irs.DiscountingInterestRateSwapCalculatorFactory;
 import com.opengamma.sesame.irs.DiscountingInterestRateSwapFn;
 import com.opengamma.sesame.irs.InterestRateSwapFn;
@@ -469,6 +470,7 @@ public class RecordingDataTest {
         DefaultMarketDataFn.class,
         DefaultHistoricalMarketDataFn.class,
         DefaultCurveNodeConverterFn.class,
+        DefaultInterestRateSwapConverterFn.class,
         DefaultHistoricalPnLFXConverterFn.class);
     return available;
   }
