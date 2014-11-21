@@ -5,6 +5,9 @@
  */
 package com.opengamma.analytics.math.interpolation;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.analytics.math.FunctionUtils;
 import com.opengamma.analytics.math.function.PiecewisePolynomialFunction1D;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
@@ -20,6 +23,8 @@ import com.opengamma.util.ArgumentChecker;
 public class ReciprocalExtrapolator1D extends ProductPolynomialExtrapolator1D {
   private static final long serialVersionUID = 1L;
   private static final PiecewisePolynomialFunction1D FUNC = new LinearlFunction1D();
+  private static final Logger s_logger = LoggerFactory.getLogger(ReciprocalExtrapolator1D.class);
+  private static final double SMALL = 1e-14;
 
   /**
    * Construct the extrapolator
@@ -31,16 +36,25 @@ public class ReciprocalExtrapolator1D extends ProductPolynomialExtrapolator1D {
 
   @Override
   public Double interpolate(final Interpolator1DDataBundle data, final Double value) {
+    if (Math.abs(value) < SMALL) {
+      s_logger.info("Result is divergent for this input, reference value will be returned");
+    }
     return super.interpolate(data, value);
   }
 
   @Override
   public double firstDerivative(final Interpolator1DDataBundle data, final Double value) {
+    if (Math.abs(value) < SMALL) {
+      s_logger.info("Result is divergent for this input, reference value will be returned");
+    }
     return super.firstDerivative(data, value);
   }
 
   @Override
   public double[] getNodeSensitivitiesForValue(final Interpolator1DDataBundle data, final Double value) {
+    if (Math.abs(value) < SMALL) {
+      s_logger.info("Result is divergent for this input, reference value will be returned");
+    }
     return super.getNodeSensitivitiesForValue(data, value);
   }
 
