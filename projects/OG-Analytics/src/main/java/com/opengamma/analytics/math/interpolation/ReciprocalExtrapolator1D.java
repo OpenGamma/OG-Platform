@@ -5,121 +5,103 @@
  */
 package com.opengamma.analytics.math.interpolation;
 
-import com.opengamma.analytics.math.function.PiecewisePolynomialWithSensitivityFunction1D;
+import com.opengamma.analytics.math.FunctionUtils;
+import com.opengamma.analytics.math.function.PiecewisePolynomialFunction1D;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
-import com.opengamma.analytics.math.matrix.MatrixAlgebra;
-import com.opengamma.analytics.math.matrix.OGMatrixAlgebra;
+import com.opengamma.util.ArgumentChecker;
 
 
 /**
- * Given a data set {x[i], y[i]}, extrapolate {x[i], x[i] * y[i]} by a linear function.  
+ * Given a data set {x[i], y[i]}, extrapolate {x[i], x[i] * y[i]} by a linear function by using polynomial coefficients 
+ * obtained in ProductPiecewisePolynomialInterpolator1D. 
  */
 public class ReciprocalExtrapolator1D extends ProductPolynomialExtrapolator1D {
   private static final long serialVersionUID = 1L;
-  private static final PiecewisePolynomialWithSensitivityFunction1D FUNC = new LinearlWithSensitivityFunction1D();
+  private static final PiecewisePolynomialFunction1D FUNC = new LinearlFunction1D();
 
-  //  private static final PiecewisePolynomialWithSensitivityFunction1D FUNC = new PiecewisePolynomialWithSensitivityFunction1D();
-
+  /**
+   * Construct the extrapolator
+   * @param interpolator The interpolator
+   */
   public ReciprocalExtrapolator1D(Interpolator1D interpolator) {
     super(interpolator, FUNC);
   }
 
   @Override
   public Double interpolate(final Interpolator1DDataBundle data, final Double value) {
-    //    Interpolator1DDataBundle modifiedBundle = getLinearExtrapolation(data);
-    //    return super.interpolate(modifiedBundle, value);
     return super.interpolate(data, value);
   }
 
   @Override
   public double firstDerivative(final Interpolator1DDataBundle data, final Double value) {
-    //    Interpolator1DDataBundle modifiedBundle = getLinearExtrapolation(data);
-    //    return super.firstDerivative(modifiedBundle, value);
     return super.firstDerivative(data, value);
   }
 
   @Override
   public double[] getNodeSensitivitiesForValue(final Interpolator1DDataBundle data, final Double value) {
-    //    Interpolator1DDataBundle modifiedBundle = getLinearExtrapolation(data);
-    //    return super.getNodeSensitivitiesForValue(modifiedBundle, value);
     return super.getNodeSensitivitiesForValue(data, value);
   }
 
-  //  private Interpolator1DDataBundle getLinearExtrapolation(Interpolator1DDataBundle data) {
-  //    Interpolator1DDataBundle newData;
-  //    if (data instanceof Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle) {
-  //      Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle polyData = (Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle) data;
-  //      PiecewisePolynomialResult originalResult = polyData.getPiecewisePolynomialResult();
-  //      PiecewisePolynomialResult[] originalResultUp = polyData.getPiecewisePolynomialResultUp();
-  //      PiecewisePolynomialResult[] originalResultDw = polyData.getPiecewisePolynomialResultDw();
-  //      int newOrder = 2;
-  //      DoubleMatrix2D newCoef = trimCoefMatrix(originalResult.getCoefMatrix());
-  //      PiecewisePolynomialResult newResult = new PiecewisePolynomialResult(originalResult.getKnots(), newCoef, newOrder,
-  //          1);
-  //      int nSense = originalResultUp.length;
-  //      PiecewisePolynomialResult[] newResultUp = new PiecewisePolynomialResult[nSense];
-  //      PiecewisePolynomialResult[] newResultDw = new PiecewisePolynomialResult[nSense];
-  //      for (int i = 0; i < nSense; ++i) {
-  //        DoubleMatrix2D newCoefUp = trimCoefMatrix(originalResultUp[i].getCoefMatrix());
-  //        newResultUp[i] = new PiecewisePolynomialResult(originalResultUp[i].getKnots(), newCoefUp, newOrder, 1);
-  //        DoubleMatrix2D newCoefDw = trimCoefMatrix(originalResultDw[i].getCoefMatrix());
-  //        newResultDw[i] = new PiecewisePolynomialResult(originalResultDw[i].getKnots(), newCoefDw, newOrder, 1);
-  //      }
-  //      newData = new Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle(polyData.getUnderlyingData(), newResult,
-  //          newResultUp, newResultDw);
-  //    } else if (data instanceof Interpolator1DPiecewisePoynomialDataBundle) {
-  //      Interpolator1DPiecewisePoynomialDataBundle polyData = (Interpolator1DPiecewisePoynomialDataBundle) data;
-  //      PiecewisePolynomialResultsWithSensitivity originalResult = polyData
-  //          .getPiecewisePolynomialResultsWithSensitivity();
-  //      DoubleMatrix2D[] coefSense = originalResult.getCoefficientSensitivityAll();
-  //      int nSense = coefSense.length;
-  //      DoubleMatrix2D[] newCoefSense = new DoubleMatrix2D[nSense];
-  //      for (int i = 0; i < nSense; ++i) {
-  //        newCoefSense[i] = trimCoefMatrix(coefSense[i]);
-  //      }
-  //      DoubleMatrix2D newCoef = trimCoefMatrix(originalResult.getCoefMatrix());
-  //      int newOrder = 2;
-  //      PiecewisePolynomialResultsWithSensitivity newResult = new PiecewisePolynomialResultsWithSensitivity(
-  //          originalResult.getKnots(), newCoef, newOrder, 1, newCoefSense);
-  //      newData = new Interpolator1DPiecewisePoynomialDataBundle(polyData.getUnderlyingData(), newResult);
-  //    } else {
-  //      throw new IllegalArgumentException(
-  //          "data should be Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle or Interpolator1DPiecewisePoynomialDataBundle");
-  //    }
-  //    return newData;
-  //  }
-  //
-  //  private DoubleMatrix2D trimCoefMatrix(DoubleMatrix2D matrix) {
-  //    int nColumn = matrix.getNumberOfColumns();
-  //    int nRows = matrix.getNumberOfRows();
-  //    double[][] res = new double[nRows][2];
-  //    DoubleMatrix1D firstCoef = matrix.getColumnVector(nColumn - 2);
-  //    DoubleMatrix1D zerothCoef = matrix.getColumnVector(nColumn - 1);
-  //    for (int i = 0; i < nRows; ++i) {
-  //      res[i][0] = firstCoef.getData()[i];
-  //      res[i][1] = zerothCoef.getData()[i];
-  //    }
-  //    return new DoubleMatrix2D(res);
-  //  }
+  private static class LinearlFunction1D extends PiecewisePolynomialFunction1D {
+    
+    @Override
+    public DoubleMatrix1D evaluate(final PiecewisePolynomialResult pp, final double xKey) {
+      ArgumentChecker.notNull(pp, "pp");
+      double[] knots = pp.getKnots().getData();
+      int nKnots = knots.length;
+      DoubleMatrix2D coefMatrix = pp.getCoefMatrix();
+      int dim = pp.getDimensions();
+      double[] res = new double[dim];
+      int indicator = FunctionUtils.getLowerBoundIndex(knots, xKey);
+      if (indicator == nKnots - 1) {
+        indicator--; //there is 1 less interval that knots 
+      }
+      for (int j = 0; j < dim; ++j) {
+        double[] coefs = coefMatrix.getRowVector(dim * indicator + j).getData();
+        res[j] = getValue(coefs, xKey, knots[indicator]);
 
-  private static class LinearlWithSensitivityFunction1D extends PiecewisePolynomialWithSensitivityFunction1D {
-    private static final MatrixAlgebra MA = new OGMatrixAlgebra();
+        ArgumentChecker.isFalse(Double.isInfinite(res[j]), "Too large input");
+        ArgumentChecker.isFalse(Double.isNaN(res[j]), "Too large input");
+      }
+
+      return new DoubleMatrix1D(res);
+    }
+
+    @Override
+    public DoubleMatrix1D differentiate(final PiecewisePolynomialResult pp, final double xKey) {
+      ArgumentChecker.notNull(pp, "pp");
+      double[] knots = pp.getKnots().getData();
+      int nKnots = pp.getNumberOfIntervals() + 1;
+      int nCoefs = pp.getOrder();
+      int dim = pp.getDimensions();
+      double[] res = new double[dim];
+      int indicator = FunctionUtils.getLowerBoundIndex(knots, xKey);
+      if (indicator == nKnots - 1) {
+        indicator--; //there is 1 less interval that knots 
+      }
+      DoubleMatrix2D coefMatrix = pp.getCoefMatrix();
+      for (int j = 0; j < dim; ++j) {
+        final double[] coefs = coefMatrix.getRowVector(dim * indicator + j).getData();
+        res[j] = coefs[nCoefs - 2];
+      }
+      return new DoubleMatrix1D(res);
+    }
+
+    @Override
+    public DoubleMatrix1D differentiateTwice(final PiecewisePolynomialResult pp, final double xKey) {
+      ArgumentChecker.notNull(pp, "pp");
+      int nKnots = pp.getNumberOfIntervals() + 1;
+      int dim = pp.getDimensions();
+      double[] result = new double[dim * (nKnots - 1)];
+      return new DoubleMatrix1D(result);
+    }
 
     @Override
     protected double getValue(final double[] coefs, final double x, final double leftknot) {
       int nCoefs = coefs.length;
       double res = coefs[nCoefs - 2] * (x - leftknot) + coefs[nCoefs - 1];
-      return res;
-    }
-
-    @Override
-    protected DoubleMatrix1D getSensitivity(DoubleMatrix2D coefficientSensitivity, double sValue) {
-      int nCoefs = coefficientSensitivity.getNumberOfRows();
-      DoubleMatrix1D res = coefficientSensitivity.getRowVector(nCoefs - 2);
-      res = (DoubleMatrix1D) MA.scale(res, sValue);
-      res = (DoubleMatrix1D) MA.add(res, coefficientSensitivity.getRowVector(nCoefs - 1));
       return res;
     }
   }

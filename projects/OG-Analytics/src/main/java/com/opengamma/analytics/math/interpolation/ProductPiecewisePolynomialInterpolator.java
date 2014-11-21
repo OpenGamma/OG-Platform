@@ -19,15 +19,19 @@ import com.opengamma.util.ParallelArrayBinarySort;
  * Given a data set {xValues[i], yValues[i]}, interpolate {xValues[i], xValues[i] * yValues[i]} by a piecewise polynomial function. 
  * The interpolation can be clamped at {xValuesClamped[j], xValuesClamped[j] * yValuesClamped[j]}, i.e., {xValuesClamped[j], yValuesClamped[j]}, 
  * where the extra points can be inside or outside the data range. 
+ * By default the right extrapolation is completed with a linear function. 
  */
 public class ProductPiecewisePolynomialInterpolator extends PiecewisePolynomialInterpolator {
   private final PiecewisePolynomialInterpolator _baseMethod;
   private final double[] _xValuesClamped;
   private final double[] _yValuesClamped;
   private static final PiecewisePolynomialWithSensitivityFunction1D FUNC = new PiecewisePolynomialWithSensitivityFunction1D();
-
   private static final double EPS = 1.0e-15;
 
+  /**
+   * Construct the interpolator without clamped points. 
+   * @param baseMethod The base interpolator must not be itself
+   */
   public ProductPiecewisePolynomialInterpolator(PiecewisePolynomialInterpolator baseMethod) {
     ArgumentChecker.notNull(baseMethod, "baseMethod");
     ArgumentChecker.isFalse(baseMethod instanceof ProductPiecewisePolynomialInterpolator,
@@ -37,6 +41,12 @@ public class ProductPiecewisePolynomialInterpolator extends PiecewisePolynomialI
     _yValuesClamped = null;
   }
   
+  /**
+   * Construct the interpolator with clamped points.
+   * @param baseMethod The base interpolator must be not be itself
+   * @param xValuesClamped X values of the clamped points
+   * @param yValuesClamped Y values of the clamped points
+   */
   public ProductPiecewisePolynomialInterpolator(PiecewisePolynomialInterpolator baseMethod, double[] xValuesClamped,
       double[] yValuesClamped) {
     ArgumentChecker.notNull(baseMethod, "method");
@@ -54,6 +64,9 @@ public class ProductPiecewisePolynomialInterpolator extends PiecewisePolynomialI
 
   @Override
   public PiecewisePolynomialResult interpolate(double[] xValues, double[] yValues) {
+    ArgumentChecker.notNull(xValues, "xValues");
+    ArgumentChecker.notNull(yValues, "yValues");
+    ArgumentChecker.isTrue(xValues.length == yValues.length, "xValues length = yValues length");
     PiecewisePolynomialResult result;
     if (isClamped()) {
       double[][] xyValuesAll = getDataTotal(xValues, yValues);
@@ -62,22 +75,28 @@ public class ProductPiecewisePolynomialInterpolator extends PiecewisePolynomialI
       double[] xyValues = getProduct(xValues, yValues);
       result = _baseMethod.interpolate(xValues, xyValues);
     }
+
     int nIntervalsAll = result.getNumberOfIntervals();
-    if (Math.abs(xValues[xValues.length - 1] - result.getKnots().getData()[nIntervalsAll]) < EPS) {
-      double extraDerivative = FUNC.differentiate(result, xValues[xValues.length - 1]).getEntry(0);
+    double[] nodes = result.getKnots().getData();
+    if (Math.abs(xValues[xValues.length - 1] - nodes[nIntervalsAll]) < EPS) {
+      double lastNodeX = nodes[nIntervalsAll];
+      double lastNodeY = FUNC.evaluate(result, lastNodeX).getEntry(0);
+      double extraNode = 2.0 * nodes[nIntervalsAll] - nodes[nIntervalsAll - 2];
+      double extraDerivative = FUNC.differentiate(result, lastNodeX).getEntry(0);
       double[] newKnots = new double[nIntervalsAll + 2];
       System.arraycopy(result.getKnots().getData(), 0, newKnots, 0, nIntervalsAll + 1);
-      newKnots[nIntervalsAll + 1] = xValues[xValues.length - 1];
+      newKnots[nIntervalsAll + 1] = extraNode; // dummy node, outside the data range
       double[][] newCoefMatrix = new double[nIntervalsAll + 1][];
       for (int i = 0; i < nIntervalsAll; ++i) {
         newCoefMatrix[i] = Arrays.copyOf(result.getCoefMatrix().getRowVector(i).getData(), result.getOrder());
       }
       newCoefMatrix[nIntervalsAll] = new double[result.getOrder()];
-      newCoefMatrix[nIntervalsAll][result.getOrder() - 1] = xValues[xValues.length - 1] * yValues[xValues.length - 1];
+      newCoefMatrix[nIntervalsAll][result.getOrder() - 1] = lastNodeY;
       newCoefMatrix[nIntervalsAll][result.getOrder() - 2] = extraDerivative;
       result = new PiecewisePolynomialResult(new DoubleMatrix1D(newKnots), new DoubleMatrix2D(newCoefMatrix),
           result.getOrder(), 1);
     }
+
     return result;
   }
 
@@ -88,6 +107,9 @@ public class ProductPiecewisePolynomialInterpolator extends PiecewisePolynomialI
 
   @Override
   public PiecewisePolynomialResultsWithSensitivity interpolateWithSensitivity(double[] xValues, double[] yValues) {
+    ArgumentChecker.notNull(xValues, "xValues");
+    ArgumentChecker.notNull(yValues, "yValues");
+    ArgumentChecker.isTrue(xValues.length == yValues.length, "xValues length = yValues length");
     PiecewisePolynomialResultsWithSensitivity result;
     if (isClamped()) {
       double[][] xyValuesAll = getDataTotal(xValues, yValues);
@@ -96,15 +118,19 @@ public class ProductPiecewisePolynomialInterpolator extends PiecewisePolynomialI
       double[] xyValues = getProduct(xValues, yValues);
       result = _baseMethod.interpolateWithSensitivity(xValues, xyValues);
     }
+
     int nIntervalsAll = result.getNumberOfIntervals();
-    if (Math.abs(xValues[xValues.length - 1] - result.getKnots().getData()[nIntervalsAll]) < EPS) {
-      double extraXValue = 2.0 * xValues[xValues.length - 1] - xValues[xValues.length - 2];
-      double extraDerivative = FUNC.differentiate(result, xValues[xValues.length - 1]).getEntry(0);
-      double[] extraSense = FUNC.nodeSensitivity(result, xValues[xValues.length - 1]).getData();
-      double[] extraSenseDer = FUNC.differentiateNodeSensitivity(result, xValues[xValues.length - 1]).getData();
+    double[] nodes = result.getKnots().getData();
+    if (Math.abs(xValues[xValues.length - 1] - nodes[nIntervalsAll]) < EPS) {
+      double lastNodeX = nodes[nIntervalsAll];
+      double lastNodeY = FUNC.evaluate(result, lastNodeX).getEntry(0);
+      double extraNode = 2.0 * nodes[nIntervalsAll] - nodes[nIntervalsAll - 2];
+      double extraDerivative = FUNC.differentiate(result, lastNodeX).getEntry(0);
+      double[] extraSense = FUNC.nodeSensitivity(result, lastNodeX).getData();
+      double[] extraSenseDer = FUNC.differentiateNodeSensitivity(result, lastNodeX).getData();
       double[] newKnots = new double[nIntervalsAll + 2];
       System.arraycopy(result.getKnots().getData(), 0, newKnots, 0, nIntervalsAll + 1);
-      newKnots[nIntervalsAll + 1] = extraXValue;
+      newKnots[nIntervalsAll + 1] = extraNode; // dummy node, outside the data range
       double[][] newCoefMatrix = new double[nIntervalsAll + 1][];
       DoubleMatrix2D[] newCoefSense = new DoubleMatrix2D[nIntervalsAll + 1];
       for (int i = 0; i < nIntervalsAll; ++i) {
@@ -112,22 +138,18 @@ public class ProductPiecewisePolynomialInterpolator extends PiecewisePolynomialI
         newCoefSense[i] = result.getCoefficientSensitivity(i);
       }
       newCoefMatrix[nIntervalsAll] = new double[result.getOrder()];
-      newCoefMatrix[nIntervalsAll][result.getOrder() - 1] = xValues[xValues.length - 1] * yValues[xValues.length - 1];
+      newCoefMatrix[nIntervalsAll][result.getOrder() - 1] = lastNodeY;
       newCoefMatrix[nIntervalsAll][result.getOrder() - 2] = extraDerivative;
       double[][] extraCoefSense = new double[result.getOrder()][extraSense.length];
       extraCoefSense[result.getOrder() - 1] = Arrays.copyOf(extraSense, extraSense.length);
       extraCoefSense[result.getOrder() - 2] = Arrays.copyOf(extraSenseDer, extraSenseDer.length);
       newCoefSense[nIntervalsAll] = new DoubleMatrix2D(extraCoefSense);
       result = new PiecewisePolynomialResultsWithSensitivity(new DoubleMatrix1D(newKnots), new DoubleMatrix2D(
-          newCoefMatrix),
-          result.getOrder(), 1, newCoefSense);
+          newCoefMatrix), result.getOrder(), 1, newCoefSense);
     }
     return result;
   }
 
-  /**
-   * @return True if the interpolation is clamped
-   */
   private boolean isClamped() {
     if (_xValuesClamped == null || _yValuesClamped == null) {
       return false;

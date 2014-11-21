@@ -7,8 +7,6 @@ package com.opengamma.analytics.math.interpolation;
 
 import java.util.Arrays;
 
-import org.apache.commons.lang.NotImplementedException;
-
 import com.google.common.primitives.Doubles;
 import com.opengamma.analytics.math.FunctionUtils;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
@@ -305,12 +303,12 @@ public class PiecewiseCubicHermiteSplineInterpolatorWithSensitivity extends Piec
 
   @Override
   public PiecewisePolynomialResult interpolate(final double[] xValues, final double[] yValues) {
-    throw new NotImplementedException();
+    return (new PiecewiseCubicHermiteSplineInterpolator()).interpolate(xValues, yValues);
   }
 
   @Override
   public PiecewisePolynomialResult interpolate(double[] xValues, double[][] yValuesMatrix) {
-    throw new NotImplementedException();
+    return (new PiecewiseCubicHermiteSplineInterpolator()).interpolate(xValues, yValuesMatrix);
   }
 
 }
