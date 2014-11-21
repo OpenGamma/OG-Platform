@@ -5,16 +5,15 @@
  */
 package com.opengamma.sesame.deliverableswapfuture;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
-import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.financial.analytics.conversion.DeliverableSwapFutureTradeConverter;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
-import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.security.future.DeliverableSwapFutureSecurity;
-import com.opengamma.sesame.CurveDefinitionFn;
+import com.opengamma.sesame.CurveLabellingFn;
+import com.opengamma.sesame.CurveMatrixLabeller;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.HistoricalTimeSeriesFn;
@@ -51,81 +50,67 @@ public class DeliverableSwapFutureDiscountingCalculatorFactory implements Delive
   private final HistoricalTimeSeriesFn _htsFn;
 
   /**
-  * Curve definition function
+  * Curve labelling function
   */
-  private final CurveDefinitionFn _curveDefinitionFn;
+  private final CurveLabellingFn _curveLabellingFn;
 
-
-
-/**
- * Constructs a discounting calculator factory for deliverable swap futures.
- *
- * @param deliverableSwapFutureTradeConverter the converter used to convert the OG-Financial deliverable swap future to
- *    the OG-Analytic definition.
- * @param definitionToDerivativeConverter the converter used to convert the definition to a derivative.
- * @param discountingMultiCurveCombinerFn the multicurve function.
- * @param htsFn the historical time series function.
- */
-
-public DeliverableSwapFutureDiscountingCalculatorFactory(DeliverableSwapFutureTradeConverter deliverableSwapFutureTradeConverter,
-                                                         FixedIncomeConverterDataProvider definitionToDerivativeConverter,
-                                                         DiscountingMulticurveCombinerFn discountingMultiCurveCombinerFn,
-                                                         HistoricalTimeSeriesFn htsFn,
-                                                         CurveDefinitionFn curveDefinitionFn) {
-  _deliverableSwapFutureTradeConverter =
-      ArgumentChecker.notNull(deliverableSwapFutureTradeConverter, "deliverableSwapFutureTradeConverter");
-  _definitionToDerivativeConverter =
-      ArgumentChecker.notNull(definitionToDerivativeConverter, "definitionToDerivativeConverter");
-  _discountingMultiCurveCombinerFn =
-      ArgumentChecker.notNull(discountingMultiCurveCombinerFn, "discountingMultiCurveCombinerFn");
-  _htsFn = ArgumentChecker.notNull(htsFn, "htsFn");
-  _curveDefinitionFn = ArgumentChecker.notNull(curveDefinitionFn, "curveDefinitionFn");
-}
-
-
+  /**
+   * Constructs a discounting calculator factory for deliverable swap futures.
+   *
+   * @param deliverableSwapFutureTradeConverter the converter used to convert the OG-Financial deliverable swap future to
+   *    the OG-Analytic definition.
+   * @param definitionToDerivativeConverter the converter used to convert the definition to a derivative.
+   * @param discountingMultiCurveCombinerFn the multicurve function.
+   * @param htsFn the historical time series function
+   * @param curveLabellingFn the curve labelling function
+   */
+  public DeliverableSwapFutureDiscountingCalculatorFactory(DeliverableSwapFutureTradeConverter deliverableSwapFutureTradeConverter,
+                                                           FixedIncomeConverterDataProvider definitionToDerivativeConverter,
+                                                           DiscountingMulticurveCombinerFn discountingMultiCurveCombinerFn,
+                                                           HistoricalTimeSeriesFn htsFn,
+                                                           CurveLabellingFn curveLabellingFn) {
+    _deliverableSwapFutureTradeConverter =
+        ArgumentChecker.notNull(deliverableSwapFutureTradeConverter, "deliverableSwapFutureTradeConverter");
+    _definitionToDerivativeConverter =
+        ArgumentChecker.notNull(definitionToDerivativeConverter, "definitionToDerivativeConverter");
+    _discountingMultiCurveCombinerFn =
+        ArgumentChecker.notNull(discountingMultiCurveCombinerFn, "discountingMultiCurveCombinerFn");
+    _htsFn = ArgumentChecker.notNull(htsFn, "htsFn");
+    _curveLabellingFn = ArgumentChecker.notNull(curveLabellingFn, "curveLabellingFn");
+  }
 
   @Override
   public Result<DeliverableSwapFutureCalculator> createCalculator(Environment env, DeliverableSwapFutureTrade trade) {
 
     DeliverableSwapFutureSecurity security = trade.getSecurity();
-    Result<Boolean> result = Result.success(true);
-
-    MulticurveProviderDiscount bundle = null;
-    HistoricalTimeSeriesBundle fixingBundle = null;
-    Map<String, CurveDefinition> curveDefinitions = new HashMap<String, CurveDefinition>();
 
     Result<MulticurveBundle> bundleResult = _discountingMultiCurveCombinerFn.getMulticurveBundle(env, trade);
-
     Result<HistoricalTimeSeriesBundle> fixings = _htsFn.getFixingsForSecurity(env, security);
 
     if (Result.anyFailures(bundleResult, fixings)) {
-      result = Result.failure(bundleResult, fixings);
+      return Result.failure(bundleResult, fixings);
     } else {
 
-      bundle = bundleResult.getValue().getMulticurveProvider();
-      fixingBundle = fixings.getValue();
+      MulticurveBundle multicurveBundle = bundleResult.getValue();
 
-      for (String curveName : bundleResult.getValue().getCurveBuildingBlockBundle().getData().keySet()) {
-        Result<CurveDefinition> curveDefinition = _curveDefinitionFn.getCurveDefinition(curveName);
-        if (curveDefinition.isSuccess()) {
-          curveDefinitions.put(curveName, curveDefinition.getValue());
-        } else {
-          result = Result.failure(result, Result.failure(curveDefinition));
-        }
+      Set<String> curveNames = multicurveBundle.getCurveBuildingBlockBundle().getData().keySet();
+      Result<Map<String, CurveMatrixLabeller>> curveLabellers = _curveLabellingFn.getCurveLabellers(curveNames);
+
+      if (curveLabellers.isSuccess()) {
+        DeliverableSwapFutureCalculator calculator =
+            new DeliverableSwapFutureDiscountingCalculator(
+                trade,
+                multicurveBundle.getMulticurveProvider(),
+                _deliverableSwapFutureTradeConverter,
+                env.getValuationTime(),
+                _definitionToDerivativeConverter,
+                fixings.getValue(),
+                curveLabellers.getValue());
+        return Result.success(calculator);
+      } else {
+        return Result.failure(curveLabellers);
       }
     }
-    if (result.isSuccess()) {
-      DeliverableSwapFutureCalculator calculator =
-          new DeliverableSwapFutureDiscountingCalculator(trade,
-                                                         bundle,
-                                                         _deliverableSwapFutureTradeConverter,
-                                                         env.getValuationTime(),
-                                                         _definitionToDerivativeConverter,
-                                                         fixingBundle,
-                                                         curveDefinitions);
-      return Result.success(calculator);
-    } else {
-      return Result.failure(result);
-    }
   }
+
 }

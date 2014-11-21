@@ -22,25 +22,24 @@ import com.opengamma.analytics.financial.provider.calculator.generic.MarketQuote
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
 import com.opengamma.analytics.math.matrix.CommonsMatrixAlgebra;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
-import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
 import com.opengamma.financial.analytics.conversion.FRASecurityConverter;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
-import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.model.fixedincome.BucketedCrossSensitivities;
 import com.opengamma.financial.analytics.model.fixedincome.BucketedCurveSensitivities;
-import com.opengamma.financial.analytics.model.multicurve.MultiCurveUtils;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.fra.ForwardRateAgreementSecurity;
+import com.opengamma.sesame.CurveMatrixLabeller;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -103,33 +102,32 @@ public class DiscountingFRACalculator implements FRACalculator {
   private final CurveBuildingBlockBundle _curveBuildingBlockBundle;
 
   /**
-   * The curve definitions
+   * The curve labellers.
    */
-  private final Map<String, CurveDefinition> _curveDefinitions;
+  private final Map<String, CurveMatrixLabeller> _curveLabellers;
 
   /**
    * Creates a calculator for a FRA.
-   *
-   * @param security the fra to calculate values for, not null
+   *  @param security the fra to calculate values for, not null
    * @param bundle the multicurve bundle, including the curves, not null
    * @param fraConverter converter for transforming a fra into its InstrumentDefinition form, not null
    * @param valuationTime the ZonedDateTime, not null
    * @param curveBuildingBlockBundle the curve block building bundle, not null
-   * @param curveDefinitions the curve definitions, not null
+   * @param curveLabellers the curve labellers, not null
    */
   public DiscountingFRACalculator(FRASecurity security,
                                   MulticurveProviderDiscount bundle,
                                   FRASecurityConverter fraConverter,
                                   ZonedDateTime valuationTime,
                                   CurveBuildingBlockBundle curveBuildingBlockBundle,
-                                  Map<String, CurveDefinition> curveDefinitions) {
+                                  Map<String, CurveMatrixLabeller> curveLabellers) {
     ArgumentChecker.notNull(security, "security");
     ArgumentChecker.notNull(fraConverter, "fraConverter");
     ArgumentChecker.notNull(valuationTime, "valuationTime");
     _derivative = createInstrumentDerivative(security, fraConverter, valuationTime);
     _bundle = ArgumentChecker.notNull(bundle, "bundle");
     _curveBuildingBlockBundle = ArgumentChecker.notNull(curveBuildingBlockBundle, "curveBuildingBlockBundle");
-    _curveDefinitions = ArgumentChecker.notNull(curveDefinitions, "curveDefinitions");
+    _curveLabellers = ArgumentChecker.notNull(curveLabellers, "curveLabellers");
   }
 
   /**
@@ -142,7 +140,7 @@ public class DiscountingFRACalculator implements FRACalculator {
    * @param definitionConverter converter for transforming the instrumentDefinition into the Derivative, not null
    * @param fixings the HistoricalTimeSeriesBundle, a collection of historical time-series objects
    * @param curveBuildingBlockBundle the curve block building bundle, not null
-   * @param curveDefinitions the curve definitions, not null
+   * @param curveLabellers the curve labellers, not null
    */
   public DiscountingFRACalculator(ForwardRateAgreementSecurity security,
                                   MulticurveProviderDiscount bundle,
@@ -151,7 +149,7 @@ public class DiscountingFRACalculator implements FRACalculator {
                                   FixedIncomeConverterDataProvider definitionConverter,
                                   HistoricalTimeSeriesBundle fixings,
                                   CurveBuildingBlockBundle curveBuildingBlockBundle,
-                                  Map<String, CurveDefinition> curveDefinitions) {
+                                  Map<String, CurveMatrixLabeller> curveLabellers) {
     ArgumentChecker.notNull(security, "security");
     ArgumentChecker.notNull(fraConverter, "fraConverter");
     ArgumentChecker.notNull(valuationTime, "valuationTime");
@@ -160,7 +158,7 @@ public class DiscountingFRACalculator implements FRACalculator {
     _derivative = createInstrumentDerivative(security, fraConverter, valuationTime, definitionConverter, fixings);
     _bundle = ArgumentChecker.notNull(bundle, "bundle");
     _curveBuildingBlockBundle = ArgumentChecker.notNull(curveBuildingBlockBundle, "curveBuildingBlockBundle");
-    _curveDefinitions = ArgumentChecker.notNull(curveDefinitions, "curveDefinitions");
+    _curveLabellers = ArgumentChecker.notNull(curveLabellers, "curveLabellers");
   }
 
   @Override
@@ -211,8 +209,8 @@ public class DiscountingFRACalculator implements FRACalculator {
         .multipliedBy(BASIS_POINT_FACTOR);
     Map<Pair<String, Currency>, DoubleLabelledMatrix1D> labelledMatrix1DMap = new HashMap<>();
     for (Map.Entry<Pair<String, Currency>, DoubleMatrix1D> entry : sensitivity.getSensitivities().entrySet()) {
-      CurveDefinition curveDefinition = _curveDefinitions.get(entry.getKey().getFirst());
-      DoubleLabelledMatrix1D matrix = MultiCurveUtils.getLabelledMatrix(entry.getValue(), curveDefinition);
+      CurveMatrixLabeller labeller = _curveLabellers.get(entry.getKey().getFirst());
+      DoubleLabelledMatrix1D matrix = labeller.labelMatrix(entry.getValue());
       labelledMatrix1DMap.put(entry.getKey(), matrix);
     }
     return Result.success(BucketedCurveSensitivities.of(labelledMatrix1DMap));
@@ -224,10 +222,10 @@ public class DiscountingFRACalculator implements FRACalculator {
     Map<String, DoubleLabelledMatrix2D> labelledMatrix2DMap = new HashMap<>();
 
     for (Map.Entry<String, DoubleMatrix2D> entry : crossGammas.entrySet()) {
-      CurveDefinition curveDefinition = _curveDefinitions.get(entry.getKey());
+      CurveMatrixLabeller labeller = _curveLabellers.get(entry.getKey());
       //Values returned from analytics need to be scaled appropriately: multiplied by 1 bp ^ 1bp
       DoubleMatrix2D scaledValues = (DoubleMatrix2D) MA.scale(entry.getValue(), BASIS_POINT_FACTOR * BASIS_POINT_FACTOR);
-      DoubleLabelledMatrix2D matrix = MultiCurveUtils.getLabelledMatrix2D(scaledValues, curveDefinition);
+      DoubleLabelledMatrix2D matrix = labeller.labelMatrix(scaledValues);
       labelledMatrix2DMap.put(entry.getKey(), matrix);
     }
     return Result.success(BucketedCrossSensitivities.of(labelledMatrix2DMap));

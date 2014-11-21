@@ -24,9 +24,9 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.Multipl
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.conversion.InterestRateFutureOptionTradeConverter;
-import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.model.fixedincome.BucketedCurveSensitivities;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
+import com.opengamma.sesame.CurveMatrixLabeller;
 import com.opengamma.sesame.ZeroIRDeltaBucketingUtils;
 import com.opengamma.sesame.trade.IRFutureOptionTrade;
 import com.opengamma.util.ArgumentChecker;
@@ -97,9 +97,9 @@ public class IRFutureOptionBlackCalculator implements IRFutureOptionCalculator {
   private final BlackSTIRFuturesProviderInterface _black;
 
   /**
-   * Map containing the curve definition for each curve in the multicurve.
+   * Map containing the curve labellers for each curve in the multicurve.
    */
-  private final Map<String, CurveDefinition> _curveDefinitions;
+  private final Map<String, CurveMatrixLabeller> _curveLabellers;
 
   /**
    * Constructs a calculator for interest rate future options using the Black model.
@@ -109,22 +109,24 @@ public class IRFutureOptionBlackCalculator implements IRFutureOptionCalculator {
    * @param valTime the valuation date time, not null.
    * @param definitionToDerivativeConverter the converter to create the derivative form of the future option, not null.
    * @param fixings the historical prices of the underlying interest rate future, not null.
-   * @param curveDefinitions map containing the per curve definition
+   * @param curveLabellers map containing the per curve labellers
    */
-  public IRFutureOptionBlackCalculator(IRFutureOptionTrade trade,
+  public IRFutureOptionBlackCalculator(
+      IRFutureOptionTrade trade,
       InterestRateFutureOptionTradeConverter converter,
       BlackSTIRFuturesProviderInterface black,
       ZonedDateTime valTime,
       FixedIncomeConverterDataProvider definitionToDerivativeConverter,
       HistoricalTimeSeriesBundle fixings,
-      Map<String, CurveDefinition> curveDefinitions) {
+      Map<String, CurveMatrixLabeller> curveLabellers) {
+
     _derivative = createInstrumentDerivative(ArgumentChecker.notNull(trade, "trade"),
         ArgumentChecker.notNull(converter, "converter"),
         ArgumentChecker.notNull(valTime, "valTime"),
         ArgumentChecker.notNull(definitionToDerivativeConverter, "definitionToDerivativeConverter"),
         ArgumentChecker.notNull(fixings, "fixings"));
     _black = ArgumentChecker.notNull(black, "black");
-    _curveDefinitions = ArgumentChecker.notNull(curveDefinitions, "curveDefinitions");
+    _curveLabellers = ArgumentChecker.notNull(curveLabellers, "curveLabellers");
   }
 
   private InstrumentDerivative createInstrumentDerivative(IRFutureOptionTrade tradeWrapper,
@@ -175,7 +177,7 @@ public class IRFutureOptionBlackCalculator implements IRFutureOptionCalculator {
   public Result<BucketedCurveSensitivities> calculateBucketedZeroIRDelta() {
     MultipleCurrencyParameterSensitivity sensitivities = PSSFC.calculateSensitivity(_derivative, _black);
     BucketedCurveSensitivities bucketedCurveSensitivities = 
-        ZeroIRDeltaBucketingUtils.getBucketedCurveSensitivities(sensitivities, _curveDefinitions);
+        ZeroIRDeltaBucketingUtils.getBucketedCurveSensitivities(sensitivities, _curveLabellers);
 
     return Result.success(bucketedCurveSensitivities);
   }

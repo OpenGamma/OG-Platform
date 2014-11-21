@@ -117,7 +117,9 @@ import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.impl.InMemorySecurityMaster;
 import com.opengamma.master.security.impl.MasterSecuritySource;
 import com.opengamma.sesame.ConfigDbMarketExposureSelectorFn;
+import com.opengamma.sesame.CurveDefinitionCurveLabellingFn;
 import com.opengamma.sesame.CurveDefinitionFn;
+import com.opengamma.sesame.CurveLabellingFn;
 import com.opengamma.sesame.CurveNodeConverterFn;
 import com.opengamma.sesame.CurveSpecificationFn;
 import com.opengamma.sesame.CurveSpecificationMarketDataFn;
@@ -304,27 +306,29 @@ public class BondMockSources {
                      argument("htsRetrievalPeriod", RetrievalPeriod.of(Period.ofYears(1)))
             )
         ),
-        implementations(CurveSpecificationMarketDataFn.class, DefaultCurveSpecificationMarketDataFn.class,
-                        FXMatrixFn.class, DefaultFXMatrixFn.class,
-                        IssuerProviderFn.class, ExposureFunctionsIssuerProviderFn.class,
-                        IssuerProviderBundleFn.class, InterpolatedIssuerBundleFn.class,
-                        CurveDefinitionFn.class, DefaultCurveDefinitionFn.class,
-                        DiscountingMulticurveBundleFn.class, DefaultDiscountingMulticurveBundleFn.class,
-                        CurveSpecificationFn.class, DefaultCurveSpecificationFn.class,
-                        CurveConstructionConfigurationSource.class, ConfigDBCurveConstructionConfigurationSource.class,
-                        HistoricalTimeSeriesFn.class, DefaultHistoricalTimeSeriesFn.class,
-                        MarketExposureSelectorFn.class, ConfigDbMarketExposureSelectorFn.class,
-                        MarketDataFn.class, DefaultMarketDataFn.class,
-                        /*Bond*/
-                        BondFn.class, DefaultBondFn.class,
-                        BondCalculatorFactory.class, DiscountingBondCalculatorFactory.class,
-                        /*Bond Future Option*/
-                        BondFutureOptionFn.class, DefaultBondFutureOptionFn.class,
-                        BondFutureOptionCalculatorFactory.class, BondFutureOptionBlackCalculatorFactory.class,
-                        BlackBondFuturesProviderFn.class, TestBlackBondFuturesProviderFn.class,
-                        /*Bond Future*/
-                        BondFutureFn.class, DefaultBondFutureFn.class,
-                        BondFutureCalculatorFactory.class, BondFutureDiscountingCalculatorFactory.class)
+        implementations(
+            CurveSpecificationMarketDataFn.class, DefaultCurveSpecificationMarketDataFn.class,
+            FXMatrixFn.class, DefaultFXMatrixFn.class,
+            IssuerProviderFn.class, ExposureFunctionsIssuerProviderFn.class,
+            IssuerProviderBundleFn.class, InterpolatedIssuerBundleFn.class,
+            CurveDefinitionFn.class, DefaultCurveDefinitionFn.class,
+            CurveLabellingFn.class, CurveDefinitionCurveLabellingFn.class,
+            DiscountingMulticurveBundleFn.class, DefaultDiscountingMulticurveBundleFn.class,
+            CurveSpecificationFn.class, DefaultCurveSpecificationFn.class,
+            CurveConstructionConfigurationSource.class, ConfigDBCurveConstructionConfigurationSource.class,
+            HistoricalTimeSeriesFn.class, DefaultHistoricalTimeSeriesFn.class,
+            MarketExposureSelectorFn.class, ConfigDbMarketExposureSelectorFn.class,
+            MarketDataFn.class, DefaultMarketDataFn.class,
+            /*Bond*/
+            BondFn.class, DefaultBondFn.class,
+            BondCalculatorFactory.class, DiscountingBondCalculatorFactory.class,
+            /*Bond Future Option*/
+            BondFutureOptionFn.class, DefaultBondFutureOptionFn.class,
+            BondFutureOptionCalculatorFactory.class, BondFutureOptionBlackCalculatorFactory.class,
+            BlackBondFuturesProviderFn.class, TestBlackBondFuturesProviderFn.class,
+            /*Bond Future*/
+            BondFutureFn.class, DefaultBondFutureFn.class,
+            BondFutureCalculatorFactory.class, BondFutureDiscountingCalculatorFactory.class)
     );
 
   }

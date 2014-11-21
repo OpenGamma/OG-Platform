@@ -23,9 +23,9 @@ import com.opengamma.analytics.financial.provider.sensitivity.parameter.Paramete
 import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.financial.analytics.conversion.DeliverableSwapFutureTradeConverter;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
-import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.model.fixedincome.BucketedCurveSensitivities;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
+import com.opengamma.sesame.CurveMatrixLabeller;
 import com.opengamma.sesame.ZeroIRDeltaBucketingUtils;
 import com.opengamma.sesame.trade.DeliverableSwapFutureTrade;
 import com.opengamma.util.ArgumentChecker;
@@ -72,9 +72,9 @@ public class DeliverableSwapFutureDiscountingCalculator implements DeliverableSw
   private final MulticurveProviderInterface _multicurveBundle;
 
   /**
-   * The curve definitions.
+   * The curve labellers.
    */
-  private final Map<String, CurveDefinition> _curveDefinitions;
+  private final Map<String, CurveMatrixLabeller> _curveLabellers;
   
   /**
    * Contract-specific scaling for the futures lot size.
@@ -100,7 +100,7 @@ public class DeliverableSwapFutureDiscountingCalculator implements DeliverableSw
    * @param valDateTime the valuation time.
    * @param definitionToDerivativeConverter the converter used to create the derivative form of the trade.
    * @param tsBundle the time series bundle containing the last margin price of the future.
-   * @param curveDefinitions a map comprising of the curves and definitions.
+   * @param curveLabellers a map comprising of the curve names and labellers.
    */  
   public DeliverableSwapFutureDiscountingCalculator(DeliverableSwapFutureTrade trade,
                                                     MulticurveProviderInterface multicurveBundle,
@@ -108,10 +108,10 @@ public class DeliverableSwapFutureDiscountingCalculator implements DeliverableSw
                                                     ZonedDateTime valDateTime,
                                                     FixedIncomeConverterDataProvider definitionToDerivativeConverter,
                                                     HistoricalTimeSeriesBundle tsBundle,
-                                                    Map<String, CurveDefinition> curveDefinitions) {
+                                                    Map<String, CurveMatrixLabeller> curveLabellers) {
     _derivative = createInstrumentDerivative(trade, converter, valDateTime, definitionToDerivativeConverter, tsBundle);
     _multicurveBundle = ArgumentChecker.notNull(multicurveBundle, "multicurveBundle");
-    _curveDefinitions = ArgumentChecker.notNull(curveDefinitions, "curveDefinitions");
+    _curveLabellers = ArgumentChecker.notNull(curveLabellers, "curveLabellers");
     _unitAmount = trade.getSecurity().getUnitAmount();
   } 
   
@@ -137,7 +137,7 @@ public class DeliverableSwapFutureDiscountingCalculator implements DeliverableSw
                                 .multipliedBy(_unitAmount);
     
     BucketedCurveSensitivities bucketedCurveSensitivities = 
-        ZeroIRDeltaBucketingUtils.getBucketedCurveSensitivities(sensitivities, _curveDefinitions);
+        ZeroIRDeltaBucketingUtils.getBucketedCurveSensitivities(sensitivities, _curveLabellers);
     
     return Result.success(bucketedCurveSensitivities);
   }
@@ -147,7 +147,7 @@ public class DeliverableSwapFutureDiscountingCalculator implements DeliverableSw
    * @param deliverableSwapFutureTrade the trade to convert to an OG-Analytics derivative.
    * @param converter the converter used to create the deliverable swap future definition.
    * @param valuationTime the valuation time at which to create the derivative.
-   * @param definitionToDerivativeConverter the converter used to convert from the definition to derivative.
+   * @param definitionToDerivConverter the converter used to convert from the definition to derivative.
    * @param tsBundle the time series bundle containing the last margin price of the future.
    * @return the derivative representation of the deliverable swap future trade.
    */

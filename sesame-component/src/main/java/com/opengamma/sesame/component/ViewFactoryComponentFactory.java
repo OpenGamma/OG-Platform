@@ -53,6 +53,7 @@ import com.opengamma.service.ServiceContext;
 import com.opengamma.service.ThreadLocalServiceContext;
 import com.opengamma.service.VersionCorrectionProvider;
 import com.opengamma.sesame.ConfigDbMarketExposureSelectorFn;
+import com.opengamma.sesame.CurveDefinitionCurveLabellingFn;
 import com.opengamma.sesame.DefaultCurrencyPairsFn;
 import com.opengamma.sesame.DefaultCurveDefinitionFn;
 import com.opengamma.sesame.DefaultCurveNodeConverterFn;
@@ -284,6 +285,7 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
         DefaultCurveSpecificationMarketDataFn.class,
         DefaultFXMatrixFn.class,
         DefaultCurveDefinitionFn.class,
+        CurveDefinitionCurveLabellingFn.class,
         DefaultDiscountingMulticurveBundleFn.class,
         DefaultDiscountingMulticurveBundleResolverFn.class,
         DefaultCurveSpecificationFn.class,

@@ -5,17 +5,17 @@
  */
 package com.opengamma.sesame.irfuture;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.conversion.InterestRateFutureTradeConverter;
-import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.security.FinancialSecurity;
-import com.opengamma.sesame.CurveDefinitionFn;
+import com.opengamma.sesame.CurveLabellingFn;
+import com.opengamma.sesame.CurveMatrixLabeller;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.HistoricalTimeSeriesFn;
@@ -38,7 +38,7 @@ public class InterestRateFutureDiscountingCalculatorFactory implements InterestR
 
   private final HistoricalTimeSeriesFn _htsFn;
 
-  private final CurveDefinitionFn _curveDefinitionFn;
+  private final CurveLabellingFn _curveLabellingFn;
 
   /**
    * Constructs a factory that creates discounting calculators for STIR futures.
@@ -46,79 +46,59 @@ public class InterestRateFutureDiscountingCalculatorFactory implements InterestR
    * @param converter the converter used to convert the OG-Financial STIR future to the OG-Analytics definition.
    * @param definitionToDerivativeConverter the converter used to convert the definition to derivative.
    * @param discountingMulticurveCombinerFn the multicurve function.
-   * @param curveDefinitionFn the curve definitionFn function.
+   * @param curveLabellingFn the curve labelling function.
    * @param htsFn the historical time series function.
    */
-
-
-  public InterestRateFutureDiscountingCalculatorFactory(InterestRateFutureTradeConverter converter,
+  public InterestRateFutureDiscountingCalculatorFactory(
+      InterestRateFutureTradeConverter converter,
       FixedIncomeConverterDataProvider definitionToDerivativeConverter,
       DiscountingMulticurveCombinerFn discountingMulticurveCombinerFn,
-      CurveDefinitionFn curveDefinitionFn,
+      CurveLabellingFn curveLabellingFn,
       HistoricalTimeSeriesFn htsFn) {
+
     _converter = ArgumentChecker.notNull(converter, "converter");
     _definitionToDerivativeConverter =
         ArgumentChecker.notNull(definitionToDerivativeConverter, "definitionToDerivativeConverter");
     _discountingMulticurveCombinerFn = 
         ArgumentChecker.notNull(discountingMulticurveCombinerFn, "discountingMulticurveCombinerFn");
-    _curveDefinitionFn = ArgumentChecker.notNull(curveDefinitionFn, "curveDefinitionFn");
+    _curveLabellingFn = ArgumentChecker.notNull(curveLabellingFn, "curveLabellingFn");
     _htsFn = ArgumentChecker.notNull(htsFn, "htsFn");
   }
 
   @Override
   public Result<InterestRateFutureCalculator> createCalculator(Environment env, InterestRateFutureTrade trade) {
 
-    Result<Boolean> result = Result.success(true);
-
-    MulticurveProviderDiscount multicurveBundle = null;
-    Map<String, CurveDefinition> curveDefinitions = new HashMap<>();
     FinancialSecurity security = trade.getSecurity();
 
     Result<MulticurveBundle> bundleResult = _discountingMulticurveCombinerFn.getMulticurveBundle(env, trade);
-
     Result<HistoricalTimeSeriesBundle> fixingsResult = _htsFn.getFixingsForSecurity(env, security);
 
     if (Result.allSuccessful(bundleResult, fixingsResult)) {
 
-      HistoricalTimeSeriesBundle fixings = fixingsResult.getValue();
-    
-      if (Result.anyFailures(bundleResult, fixingsResult)) {
+      MulticurveProviderDiscount multicurveBundle = bundleResult.getValue().getMulticurveProvider();
 
-        result = Result.failure(bundleResult, fixingsResult);
+      CurveBuildingBlockBundle buildingBlockBundle = bundleResult.getValue().getCurveBuildingBlockBundle();
+      Set<String> curveNames = buildingBlockBundle.getData().keySet();
+      Result<Map<String, CurveMatrixLabeller>> curveLabellers = _curveLabellingFn.getCurveLabellers(curveNames);
 
-      } else {
-
-        multicurveBundle = bundleResult.getValue().getMulticurveProvider();
-        fixings = fixingsResult.getValue();
-
-        CurveBuildingBlockBundle buildingBlockBundle = bundleResult.getValue().getCurveBuildingBlockBundle();
-        for (String curveName : buildingBlockBundle.getData().keySet()) {
-          Result<CurveDefinition> curveDefinition = _curveDefinitionFn.getCurveDefinition(curveName);
-
-          if (curveDefinition.isSuccess()) {
-            curveDefinitions.put(curveName, curveDefinition.getValue());
-          } else {
-            result = Result.failure(result, Result.failure(curveDefinition));
-          }
-        }
-      }
-      if (result.isSuccess()) {
+      if (curveLabellers.isSuccess()) {
         InterestRateFutureCalculator calculator =
-            new InterestRateFutureDiscountingCalculator(trade,
-                                                        multicurveBundle,
-                                                        curveDefinitions,
-                                                        _converter,
-                                                        env.getValuationTime(),
-                                                        _definitionToDerivativeConverter,
-                                                        fixings);
+            new InterestRateFutureDiscountingCalculator(
+                trade,
+                multicurveBundle,
+                curveLabellers.getValue(),
+                _converter,
+                env.getValuationTime(),
+                _definitionToDerivativeConverter,
+                fixingsResult.getValue());
 
         return Result.success(calculator);
       } else {
-        return Result.failure(result);
+        return Result.failure(curveLabellers);
       }
     } else {
-        return Result.failure(bundleResult, fixingsResult);
+      return Result.failure(bundleResult, fixingsResult);
     }
-
   }
+
 }

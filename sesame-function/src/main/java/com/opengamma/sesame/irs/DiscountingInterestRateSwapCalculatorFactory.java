@@ -7,6 +7,7 @@ package com.opengamma.sesame.irs;
 
 import java.math.BigDecimal;
 import java.util.Map;
+import java.util.Set;
 
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.OffsetTime;
@@ -17,10 +18,12 @@ import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.SimpleCounterparty;
 import com.opengamma.core.position.impl.SimpleTrade;
-import com.opengamma.financial.analytics.curve.CurveDefinition;
+import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
+import com.opengamma.financial.analytics.conversion.InterestRateSwapSecurityConverter;
 import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.id.ExternalId;
-import com.opengamma.sesame.CurveDefinitionFn;
+import com.opengamma.sesame.CurveLabellingFn;
+import com.opengamma.sesame.CurveMatrixLabeller;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.MulticurveBundle;
@@ -41,9 +44,9 @@ public class DiscountingInterestRateSwapCalculatorFactory implements InterestRat
   private final DiscountingMulticurveCombinerFn _discountingMulticurveCombinerFn;
 
   /**
-   * Curve definition function
+   * Converts the swap into a definition and derivative
    */
-  private final CurveDefinitionFn _curveDefinitionFn;
+  private final CurveLabellingFn _curveLabellingFn;
 
   /**
    * Converts the swap into a definition and derivative
@@ -53,15 +56,16 @@ public class DiscountingInterestRateSwapCalculatorFactory implements InterestRat
   /**
    * Creates the factory.
    *
-   * @param discountingMulticurveCombinerFn function for creating multicurve bundles, not null
-   * @param curveDefinitionFn the curve definition function, not null.
-   * @param converterFn converts the swap into a definition and derivative
+   * @param discountingMulticurveCombinerFn  function for creating multicurve bundles, not null
+   * @param curveLabellingFn  the curve labelling function, not null.
+   * @param converterFn  converts the swap into a definition and derivative
    */
-  public DiscountingInterestRateSwapCalculatorFactory(DiscountingMulticurveCombinerFn discountingMulticurveCombinerFn,
-                                                      CurveDefinitionFn curveDefinitionFn,
-                                                      InterestRateSwapConverterFn converterFn) {
+  public DiscountingInterestRateSwapCalculatorFactory(
+      DiscountingMulticurveCombinerFn discountingMulticurveCombinerFn,
+      CurveLabellingFn curveLabellingFn,
+      InterestRateSwapConverterFn converterFn) {
     _discountingMulticurveCombinerFn = ArgumentChecker.notNull(discountingMulticurveCombinerFn, "discountingMulticurveCombinerFn");
-    _curveDefinitionFn = ArgumentChecker.notNull(curveDefinitionFn, "curveDefinitionFn");
+    _curveLabellingFn = ArgumentChecker.notNull(curveLabellingFn, "curveLabellingFn");
     _converterFn = ArgumentChecker.notNull(converterFn, "converterFn");
   }
 
@@ -85,18 +89,25 @@ public class DiscountingInterestRateSwapCalculatorFactory implements InterestRat
 
     if (Result.allSuccessful(bundleResult, convertResult)) {
 
-      Result<Map<String, CurveDefinition>> curveDefinitions =
-          _curveDefinitionFn.getCurveDefinitions(bundleResult.getValue().getCurveBuildingBlockBundle().getData().keySet());
+      Set<String> curveNames = bundleResult.getValue().getCurveBuildingBlockBundle().getData().keySet();
+      Result<Map<String, CurveMatrixLabeller>> curveLabels =
+          _curveLabellingFn.getCurveLabellers(curveNames);
 
-      InterestRateSwapCalculator calculator =
-          new DiscountingInterestRateSwapCalculator(trade,
-                                                    bundleResult.getValue().getMulticurveProvider(),
-                                                    bundleResult.getValue().getCurveBuildingBlockBundle(),
-                                                    env.getValuationTime(),
-                                                    curveDefinitions.getValue(),
-                                                    convertResult.getValue().getFirst(),
-                                                    convertResult.getValue().getSecond());
-      return Result.success(calculator);
+      if (curveLabels.isSuccess()) {
+
+        InterestRateSwapCalculator calculator =
+            new DiscountingInterestRateSwapCalculator(
+                trade,
+                bundleResult.getValue().getMulticurveProvider(),
+                bundleResult.getValue().getCurveBuildingBlockBundle(),
+                env.getValuationTime(),
+                curveLabels.getValue(),
+                convertResult.getValue().getFirst(),
+                convertResult.getValue().getSecond());
+        return Result.success(calculator);
+      } else {
+        return Result.failure(curveLabels);
+      }
     } else {
       return Result.failure(bundleResult, convertResult);
     }

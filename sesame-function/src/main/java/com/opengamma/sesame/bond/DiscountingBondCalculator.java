@@ -31,9 +31,8 @@ import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
 import com.opengamma.financial.analytics.conversion.BondAndBondFutureTradeConverter;
-import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.model.fixedincome.BucketedCurveSensitivities;
-import com.opengamma.financial.analytics.model.multicurve.MultiCurveUtils;
+import com.opengamma.sesame.CurveMatrixLabeller;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.marketdata.FieldName;
 import com.opengamma.sesame.marketdata.MarketDataFn;
@@ -81,7 +80,7 @@ public class DiscountingBondCalculator implements BondCalculator {
 
   private final CurveBuildingBlockBundle _blocks;
 
-  private final Map<String, CurveDefinition> _curveDefinitions;
+  private final Map<String, CurveMatrixLabeller> _curveLabellers;
 
   private final MarketDataFn _marketDataFn;
 
@@ -91,13 +90,12 @@ public class DiscountingBondCalculator implements BondCalculator {
 
   /**
    * Creates a calculator for a InterestRateSwapSecurity.
-   *
-   * @param trade the bond trade to calculate values for
+   *  @param trade the bond trade to calculate values for
    * @param curves the ParameterIssuerProviderInterface
    * @param blocks the CurveBuildingBlockBundle
    * @param converter the BondAndBondFutureTradeConverter
    * @param env the Environment
-   * @param curveDefinitions the curve definitions
+   * @param curveLabellers the curve labellers
    * @param marketDataFn the Market Data Function
    */
   public DiscountingBondCalculator(BondTrade trade,
@@ -105,7 +103,7 @@ public class DiscountingBondCalculator implements BondCalculator {
                                    CurveBuildingBlockBundle blocks,
                                    BondAndBondFutureTradeConverter converter,
                                    Environment env,
-                                   Map<String, CurveDefinition> curveDefinitions,
+                                   Map<String, CurveMatrixLabeller> curveLabellers,
                                    MarketDataFn marketDataFn) {
 
     ArgumentChecker.notNull(converter, "converter");
@@ -115,7 +113,7 @@ public class DiscountingBondCalculator implements BondCalculator {
     _blocks = ArgumentChecker.notNull(blocks, "blocks");
     _curves = ArgumentChecker.notNull(curves, "curves");
     _marketDataFn = ArgumentChecker.notNull(marketDataFn, "marketDataFn");
-    _curveDefinitions = ArgumentChecker.notNull(curveDefinitions, "curveDefinitions");
+    _curveLabellers = ArgumentChecker.notNull(curveLabellers, "curveLabellers");
     _derivative = createInstrumentDerivative(trade, converter, env.getValuationTime());
 
   }
@@ -186,8 +184,9 @@ public class DiscountingBondCalculator implements BondCalculator {
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public Result<Double> calculateYieldToMaturityMarket() {
-    return (Result<Double>) _marketDataFn.getValue(_env, _trade.getSecurity().getExternalIdBundle(), 
+    return (Result<Double>) _marketDataFn.getValue(_env, _trade.getSecurity().getExternalIdBundle(),
         FieldName.of(MarketDataRequirementNames.YIELD_YIELD_TO_MATURITY_MID));
   }
 
@@ -198,8 +197,8 @@ public class DiscountingBondCalculator implements BondCalculator {
         .multipliedBy(BASIS_POINT_FACTOR);
     Map<Pair<String, Currency>, DoubleLabelledMatrix1D> labelledMatrix1DMap = new HashMap<>();
     for (Map.Entry<Pair<String, Currency>, DoubleMatrix1D> entry : sensitivity.getSensitivities().entrySet()) {
-      CurveDefinition curveDefinition = _curveDefinitions.get(entry.getKey().getFirst());
-      DoubleLabelledMatrix1D matrix = MultiCurveUtils.getLabelledMatrix(entry.getValue(), curveDefinition);
+      CurveMatrixLabeller labeller = _curveLabellers.get(entry.getKey().getFirst());
+      DoubleLabelledMatrix1D matrix = labeller.labelMatrix(entry.getValue());
       labelledMatrix1DMap.put(entry.getKey(), matrix);
     }
     return Result.success(BucketedCurveSensitivities.of(labelledMatrix1DMap));

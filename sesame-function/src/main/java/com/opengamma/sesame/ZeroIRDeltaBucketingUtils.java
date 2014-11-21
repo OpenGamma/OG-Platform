@@ -11,9 +11,7 @@ import java.util.Map;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
-import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.model.fixedincome.BucketedCurveSensitivities;
-import com.opengamma.financial.analytics.model.multicurve.MultiCurveUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
@@ -27,13 +25,15 @@ public final class ZeroIRDeltaBucketingUtils {
   
   public static BucketedCurveSensitivities getBucketedCurveSensitivities(
       MultipleCurrencyParameterSensitivity parameterSensitivities,
-      Map<String, CurveDefinition> curveDefinitions) {
+      Map<String, CurveMatrixLabeller> curveLabellers) {
 
     Map<Pair<String, Currency>, DoubleLabelledMatrix1D> labelledMatrix1DMap = new HashMap<>();
 
-    for (Map.Entry<Pair<String, Currency>, DoubleMatrix1D> entry : parameterSensitivities.getSensitivities().entrySet()) {
-      CurveDefinition curveDefinition = curveDefinitions.get(entry.getKey().getFirst());
-      DoubleLabelledMatrix1D matrix = MultiCurveUtils.getLabelledMatrix(entry.getValue(), curveDefinition);
+    for (Map.Entry<Pair<String, Currency>, DoubleMatrix1D> entry :
+        parameterSensitivities.getSensitivities().entrySet()) {
+
+      CurveMatrixLabeller curveLabeller = curveLabellers.get(entry.getKey().getFirst());
+      DoubleLabelledMatrix1D matrix = curveLabeller.labelMatrix(entry.getValue());
       labelledMatrix1DMap.put(entry.getKey(), matrix);
     }
     return BucketedCurveSensitivities.of(labelledMatrix1DMap);
