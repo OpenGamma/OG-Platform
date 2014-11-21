@@ -60,11 +60,16 @@ public class DefaultDiscountingIssuerProviderBundleFn implements IssuerProviderB
     Result<IssuerProviderDiscount> exogenousBundles = buildExogenousBundles(fxMatrixResult);
 
     if (Result.allSuccessful(fxMatrixResult, exogenousBundles)) {
-      Result<Pair<IssuerProviderDiscount, CurveBuildingBlockBundle>> calibratedCurves = _curveBundleProviderFn.getCurves(
-          env, curveConfig, exogenousBundles.getValue(), fxMatrixResult.getValue(), _impliedCurveNames, createBuilder());
-      IssuerProviderBundle bundle = new IssuerProviderBundle(calibratedCurves.getValue().getFirst(),
-                                                             calibratedCurves.getValue().getSecond());
-      return Result.success(bundle);
+      Result<Pair<IssuerProviderDiscount, CurveBuildingBlockBundle>> calibratedCurves =
+          _curveBundleProviderFn.getCurves(env, curveConfig, exogenousBundles.getValue(), fxMatrixResult.getValue(),
+                                           _impliedCurveNames, createBuilder());
+      if (calibratedCurves.isSuccess()) {
+        IssuerProviderBundle bundle = new IssuerProviderBundle(calibratedCurves.getValue().getFirst(),
+                                                               calibratedCurves.getValue().getSecond());
+        return Result.success(bundle);
+      } else {
+        return Result.failure(calibratedCurves);
+      }
     } else {
       return Result.failure(fxMatrixResult, exogenousBundles);
     }
