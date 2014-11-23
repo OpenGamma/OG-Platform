@@ -7,7 +7,6 @@ package com.opengamma.sesame.function.scenarios.curvedata;
 
 import com.google.common.cache.CacheBuilder;
 import com.opengamma.sesame.cache.CacheProvider;
-import com.opengamma.sesame.cache.MethodInvocationKey;
 import com.opengamma.sesame.engine.DefaultCacheProvider;
 
 /**
@@ -24,7 +23,7 @@ public class FunctionTestUtils {
    * @return a cache provider configured for use with the engine
    */
   public static CacheProvider createCacheProvider() {
-    return new DefaultCacheProvider(createCacheBuilder().<MethodInvocationKey, Object>build());
+    return new DefaultCacheProvider(createCacheBuilder().<Object, Object>build());
   }
 
   public static CacheBuilder<Object, Object> createCacheBuilder() {

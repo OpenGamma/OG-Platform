@@ -42,7 +42,6 @@ import com.opengamma.service.ServiceContext;
 import com.opengamma.service.ThreadLocalServiceContext;
 import com.opengamma.service.VersionCorrectionProvider;
 import com.opengamma.sesame.cache.CacheProvider;
-import com.opengamma.sesame.cache.MethodInvocationKey;
 import com.opengamma.sesame.cache.NoOpCacheInvalidator;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.engine.ComponentMap;
@@ -128,7 +127,7 @@ public class EngineTestUtils {
    * @return a cache provider configured for use with the engine
    */
   public static CacheProvider createCacheProvider() {
-    return new DefaultCacheProvider(createCacheBuilder().<MethodInvocationKey, Object>build());
+    return new DefaultCacheProvider(createCacheBuilder().<Object, Object>build());
   }
 
   public static CacheBuilder<Object, Object> createCacheBuilder() {

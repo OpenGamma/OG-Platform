@@ -50,7 +50,7 @@ public class CacheInvalidatorTest {
 
   private static final Callable<Object> CALLABLE = Callables.returning(null);
 
-  private final Cache<MethodInvocationKey, Object> _cache = EngineTestUtils.createCacheProvider().get();
+  private final Cache<Object, Object> _cache = EngineTestUtils.createCacheProvider().get();
 
   private void populateCache() {
     _cache.invalidateAll();

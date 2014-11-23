@@ -12,5 +12,5 @@ import com.google.common.cache.Cache;
  */
 public interface CacheProvider {
 
-  Cache<MethodInvocationKey, Object> get();
+  Cache<Object, Object> get();
 }

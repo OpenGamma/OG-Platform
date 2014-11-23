@@ -5,6 +5,7 @@
  */
 package com.opengamma.sesame.engine;
 
+import com.google.common.cache.Cache;
 import com.opengamma.service.ServiceContext;
 import com.opengamma.sesame.graph.Graph;
 import com.opengamma.sesame.marketdata.CycleMarketDataFactory;
@@ -18,21 +19,24 @@ class StandardCycleInitializer implements CycleInitializer {
   private final ServiceContext _originalContext;
   private final CycleMarketDataFactory _cycleMarketDataFactory;
   private final Graph _graph;
+  private final Cache<Object, Object> _cache;
 
   /**
    * Create the cycle initializer.
-   *
-   * @param originalContext the current service context
+   *  @param originalContext the current service context
    * @param cycleMarketDataFactory the current market data
    * source for the cycle
    * @param graph the current graph
+   * @param cache the cache that should be used by functions during the cycle
    */
   StandardCycleInitializer(ServiceContext originalContext,
                            CycleMarketDataFactory cycleMarketDataFactory,
-                           Graph graph) {
+                           Graph graph,
+                           Cache<Object, Object> cache) {
     _originalContext = originalContext;
     _cycleMarketDataFactory = cycleMarketDataFactory;
     _graph = graph;
+    _cache = cache;
   }
 
   @Override
@@ -48,6 +52,11 @@ class StandardCycleInitializer implements CycleInitializer {
   @Override
   public Graph getGraph() {
     return _graph;
+  }
+
+  @Override
+  public Cache<Object, Object> getCache() {
+    return _cache;
   }
 
   /**

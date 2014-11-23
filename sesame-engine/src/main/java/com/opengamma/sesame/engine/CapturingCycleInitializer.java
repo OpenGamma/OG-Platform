@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.cache.Cache;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.config.impl.NarrowingConfigSource;
 import com.opengamma.core.convention.ConventionSource;
@@ -108,6 +109,14 @@ class CapturingCycleInitializer implements CycleInitializer {
   @Override
   public Graph getGraph() {
     return _graph;
+  }
+
+  /**
+   * @return a {@link NoOpCache} that doesn't do any caching but always invokes the supplier to create a value
+   */
+  @Override
+  public Cache<Object, Object> getCache() {
+    return new NoOpCache();
   }
 
   @Override
