@@ -52,7 +52,8 @@ public class SimpleInMemoryHolidayStore implements HolidaySource {
   /**
    * Get the holiday series, null if not found. Ignores version of uniqueId
    * @param uniqueId  the unique identifier to search for, not null
-   * @return the series, null if not found
+   * @throws DataNotFoundException if the object could not be found
+   * @return the series
    */
   @Override
   public Holiday get(UniqueId uniqueId) {
@@ -67,7 +68,8 @@ public class SimpleInMemoryHolidayStore implements HolidaySource {
    * Get the holiday series, null if not found. Ignores version of uniqueId
    * @param objectId the objectid of the series
    * @param versionCorrection version correction, which is ignored
-   * @return the series, null if not found
+   * @throws DataNotFoundException if the object could not be found
+   * @return the series
    */
   @Override
   public Holiday get(ObjectId objectId, VersionCorrection versionCorrection) {
