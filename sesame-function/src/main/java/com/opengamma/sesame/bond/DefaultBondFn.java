@@ -17,7 +17,10 @@ import com.opengamma.util.tuple.Pair;
 
 /**
  * Default implementation for the bond function.
+ *
+ * @deprecated use {@link DiscountingBondFn}
  */
+@Deprecated
 public class DefaultBondFn implements BondFn {
 
   private final BondCalculatorFactory _bondCalculatorFactory;

@@ -22,7 +22,10 @@ import com.opengamma.util.result.Result;
 
 /**
  * Implementation of the BondCalculatorFactory that uses the discounting calculator to return values.
+ *
+ * @deprecated use {@link DiscountingBondFn} instead of {@link DefaultBondFn}, the calculator and factory
  */
+@Deprecated
 public class DiscountingBondCalculatorFactory implements BondCalculatorFactory {
 
   private final BondAndBondFutureTradeConverter _converter;
