@@ -5,8 +5,6 @@
  */
 package com.opengamma.analytics.math.interpolation;
 
-import static org.testng.AssertJUnit.assertEquals;
-
 import java.util.Arrays;
 
 import org.testng.annotations.Test;
@@ -57,18 +55,18 @@ public class ReciprocalExtrapolator1DTest {
         ReciprocalExtrapolator1D extrap1D = new ReciprocalExtrapolator1D(
             new ProductPiecewisePolynomialInterpolator1D(INTERP_SENSE[i]));
         Interpolator1DDataBundle data = extrap1D.getDataBundle(xValues, yValues);
-        assertArrayRelative("notClampedTest", xValues, data.getKeys(), EPS);
-        assertArrayRelative("notClampedTest", yValues, data.getValues(), EPS);
+        InterpolatorTestUtil.assertArrayRelative("notClampedTest", xValues, data.getKeys(), EPS);
+        InterpolatorTestUtil.assertArrayRelative("notClampedTest", yValues, data.getValues(), EPS);
         /* left extrapolation */
         double grad = FUNC.differentiate(result, xValues[0]).getEntry(0);
         for (int j = 1; j < nKeys; ++j) {
           double key = xValues[0] - interval * j;
           double ref = grad * (key - xValues[0]) + yValues[0] * xValues[0];
-          assertRelative("notClampedTest", ref / key, extrap1D.interpolate(data, key), EPS);
+          InterpolatorTestUtil.assertRelative("notClampedTest", ref / key, extrap1D.interpolate(data, key), EPS);
           double keyUp = key + DELTA;
           double keyDw = key - DELTA;
           double refDeriv = 0.5 * (extrap1D.interpolate(data, keyUp) - extrap1D.interpolate(data, keyDw)) / DELTA;
-          assertRelative("notClampedTest", refDeriv,
+          InterpolatorTestUtil.assertRelative("notClampedTest", refDeriv,
               extrap1D.firstDerivative(data, key), DELTA);
           double[] refSense = new double[nData];
           for (int l = 0; l < nData; ++l) {
@@ -80,18 +78,18 @@ public class ReciprocalExtrapolator1DTest {
             Interpolator1DDataBundle dataDw = extrap1D.getDataBundle(xValues, yValuesDw);
             refSense[l] = 0.5 * (extrap1D.interpolate(dataUp, key) - extrap1D.interpolate(dataDw, key)) / DELTA;
           }
-          assertArrayRelative("notClampedTest", extrap1D.getNodeSensitivitiesForValue(data, key), refSense,
-              DELTA * 10.0);
+          InterpolatorTestUtil.assertArrayRelative("notClampedTest", extrap1D.getNodeSensitivitiesForValue(data, key),
+              refSense, DELTA * 10.0);
         }
         /* right extrapolation */
         for (int j = 1; j < nKeys; ++j) {
           double key = xValues[nData - 1] + interval * j;
-          assertRelative("notClampedTest", FUNC.evaluate(result, key).getEntry(0) / key,
+          InterpolatorTestUtil.assertRelative("notClampedTest", FUNC.evaluate(result, key).getEntry(0) / key,
               extrap1D.interpolate(data, key), EPS);
           double keyUp = key + DELTA;
           double keyDw = key - DELTA;
           double refDeriv = 0.5 * (extrap1D.interpolate(data, keyUp) - extrap1D.interpolate(data, keyDw)) / DELTA;
-          assertRelative("notClampedTest", refDeriv,
+          InterpolatorTestUtil.assertRelative("notClampedTest", refDeriv,
               extrap1D.firstDerivative(data, key), DELTA);
           double[] refSense = new double[nData];
           for (int l = 0; l < nData; ++l) {
@@ -103,8 +101,8 @@ public class ReciprocalExtrapolator1DTest {
             Interpolator1DDataBundle dataDw = extrap1D.getDataBundle(xValues, yValuesDw);
             refSense[l] = 0.5 * (extrap1D.interpolate(dataUp, key) - extrap1D.interpolate(dataDw, key)) / DELTA;
           }
-          assertArrayRelative("notClampedTest", extrap1D.getNodeSensitivitiesForValue(data, key), refSense,
-              DELTA * 10.0);
+          InterpolatorTestUtil.assertArrayRelative("notClampedTest", extrap1D.getNodeSensitivitiesForValue(data, key),
+              refSense, DELTA * 10.0);
         }
       }
     }
@@ -136,18 +134,18 @@ public class ReciprocalExtrapolator1DTest {
         ReciprocalExtrapolator1D extrap1D = new ReciprocalExtrapolator1D(
             new ProductPiecewisePolynomialInterpolator1D(INTERP_SENSE[i], xValuesClamped, yValuesClamped));
         Interpolator1DDataBundle data = extrap1D.getDataBundleFromSortedArrays(xValues, yValues);
-        assertArrayRelative("notClampedTest", xValues, data.getKeys(), EPS);
-        assertArrayRelative("notClampedTest", yValues, data.getValues(), EPS);
+        InterpolatorTestUtil.assertArrayRelative("notClampedTest", xValues, data.getKeys(), EPS);
+        InterpolatorTestUtil.assertArrayRelative("notClampedTest", yValues, data.getValues(), EPS);
         double grad = FUNC.differentiate(result, xValues[0]).getEntry(0);
         /* left extrapolation */
         for (int j = 1; j < nKeys; ++j) {
           double key = xValues[0] - interval * j;
           double ref = grad * (key - xValues[0]) + yValues[0] * xValues[0];
-          assertRelative("notClampedTest", ref / key, extrap1D.interpolate(data, key), EPS);
+          InterpolatorTestUtil.assertRelative("notClampedTest", ref / key, extrap1D.interpolate(data, key), EPS);
           double keyUp = key + DELTA;
           double keyDw = key - DELTA;
           double refDeriv = 0.5 * (extrap1D.interpolate(data, keyUp) - extrap1D.interpolate(data, keyDw)) / DELTA;
-          assertRelative("notClampedTest", refDeriv,
+          InterpolatorTestUtil.assertRelative("notClampedTest", refDeriv,
               extrap1D.firstDerivative(data, key), DELTA * 10.0);
           double[] refSense = new double[nData];
           for (int l = 0; l < nData; ++l) {
@@ -159,18 +157,18 @@ public class ReciprocalExtrapolator1DTest {
             Interpolator1DDataBundle dataDw = extrap1D.getDataBundle(xValues, yValuesDw);
             refSense[l] = 0.5 * (extrap1D.interpolate(dataUp, key) - extrap1D.interpolate(dataDw, key)) / DELTA;
           }
-          assertArrayRelative("notClampedTest", extrap1D.getNodeSensitivitiesForValue(data, key), refSense,
-              DELTA * 10.0);
+          InterpolatorTestUtil.assertArrayRelative("notClampedTest", extrap1D.getNodeSensitivitiesForValue(data, key),
+              refSense, DELTA * 10.0);
         }
         /* right extrapolation */
         for (int j = 1; j < nKeys; ++j) {
           double key = xValues[nData - 1] + interval * j;
-          assertRelative("notClampedTest " + k, FUNC.evaluate(result, key).getEntry(0) / key,
+          InterpolatorTestUtil.assertRelative("notClampedTest " + k, FUNC.evaluate(result, key).getEntry(0) / key,
               extrap1D.interpolate(data, key), EPS);
           double keyUp = key + DELTA;
           double keyDw = key - DELTA;
           double refDeriv = 0.5 * (extrap1D.interpolate(data, keyUp) - extrap1D.interpolate(data, keyDw)) / DELTA;
-          assertRelative("notClampedTest", refDeriv,
+          InterpolatorTestUtil.assertRelative("notClampedTest", refDeriv,
               extrap1D.firstDerivative(data, key), DELTA * 10.0);
           double[] refSense = new double[nData];
           for (int l = 0; l < nData; ++l) {
@@ -182,8 +180,8 @@ public class ReciprocalExtrapolator1DTest {
             Interpolator1DDataBundle dataDw = extrap1D.getDataBundle(xValues, yValuesDw);
             refSense[l] = 0.5 * (extrap1D.interpolate(dataUp, key) - extrap1D.interpolate(dataDw, key)) / DELTA;
           }
-          assertArrayRelative("notClampedTest", extrap1D.getNodeSensitivitiesForValue(data, key), refSense,
-              DELTA * 10.0);
+          InterpolatorTestUtil.assertArrayRelative("notClampedTest", extrap1D.getNodeSensitivitiesForValue(data, key),
+              refSense, DELTA * 10.0);
         }
       }
     }
@@ -202,22 +200,112 @@ public class ReciprocalExtrapolator1DTest {
           new ProductPiecewisePolynomialInterpolator1D(INTERP_SENSE[i], new double[] {0.0 }, new double[] {0.0 }));
       Interpolator1DDataBundle data = extrap1D.getDataBundle(xValues, yValues);
       double eps = 1.0e-5;
-      assertRelative("closeToZeroTest", extrap1D.interpolate(data, eps), extrap1D.interpolate(data, 0.0), eps);
-      assertRelative("closeToZeroTest", extrap1D.firstDerivative(data, eps), extrap1D.firstDerivative(data, 0.0),
-          eps);
+      InterpolatorTestUtil.assertRelative("closeToZeroTest", extrap1D.interpolate(data, eps),
+          extrap1D.interpolate(data, 0.0), eps);
+      InterpolatorTestUtil.assertRelative("closeToZeroTest", extrap1D.firstDerivative(data, eps),
+          extrap1D.firstDerivative(data, 0.0), eps);
     }
   }
 
-  private void assertArrayRelative(String message, double[] expected, double[] obtained, double relativeTol) {
-    int nData = expected.length;
-    assertEquals(message, nData, obtained.length);
-    for (int i = 0; i < nData; ++i) {
-      assertRelative(message, expected[i], obtained[i], relativeTol);
-    }
+  /**
+   * value is within the data range
+   */
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void insideRangeTest() {
+    double[] xValues = new double[] {2.4, 3.2, 3.5, 7.6 };
+    double[] yValues = new double[] {1.1, 1.9, 2.3, -0.1 };
+    ReciprocalExtrapolator1D extrap1D = new ReciprocalExtrapolator1D(
+        new ProductPiecewisePolynomialInterpolator1D(INTERP_SENSE[1]));
+    Interpolator1DDataBundle data = extrap1D.getDataBundle(xValues, yValues);
+    extrap1D.interpolate(data, 5.2);
   }
 
-  private void assertRelative(String message, double expected, double obtained, double relativeTol) {
-    double ref = Math.max(Math.abs(expected), 1.0);
-    assertEquals(message, expected, obtained, ref * relativeTol);
+  /**
+   * value is within the data range
+   */
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void insideRangeDerivativeTest() {
+    double[] xValues = new double[] {2.4, 3.2, 3.5, 7.6 };
+    double[] yValues = new double[] {1.1, 1.9, 2.3, -0.1 };
+    ReciprocalExtrapolator1D extrap1D = new ReciprocalExtrapolator1D(
+        new ProductPiecewisePolynomialInterpolator1D(INTERP_SENSE[1]));
+    Interpolator1DDataBundle data = extrap1D.getDataBundle(xValues, yValues);
+    extrap1D.firstDerivative(data, 5.2);
+  }
+
+  /**
+   * value is within the data range
+   */
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void insideRangeSenseTest() {
+    double[] xValues = new double[] {2.4, 3.2, 3.5, 7.6 };
+    double[] yValues = new double[] {1.1, 1.9, 2.3, -0.1 };
+    ReciprocalExtrapolator1D extrap1D = new ReciprocalExtrapolator1D(
+        new ProductPiecewisePolynomialInterpolator1D(INTERP_SENSE[1]));
+    Interpolator1DDataBundle data = extrap1D.getDataBundle(xValues, yValues);
+    extrap1D.getNodeSensitivitiesForValue(data, 5.2);
+  }
+
+  private static final double[] S_ARR = new double[] {1., 2., 3., 4. };
+  private static final ProductPiecewisePolynomialInterpolator1D S_INTERP = new ProductPiecewisePolynomialInterpolator1D(
+      INTERP_SENSE[0]);
+  private static final ReciprocalExtrapolator1D S_EXTRAP = new ReciprocalExtrapolator1D(S_INTERP);
+  private static final Interpolator1DDataBundle S_DATA = S_EXTRAP.getDataBundle(S_ARR, S_ARR);
+
+  /**
+   * interpolator is null
+   */
+  @SuppressWarnings("unused")
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void nullInterpTest1() {
+    new ReciprocalExtrapolator1D(null);
+  }
+
+  /**
+   * data bundle is null
+   */
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void nullDataInterpTest() {
+    S_EXTRAP.interpolate(null, 5.0);
+  }
+
+  /**
+   * Double value is null
+   */
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void nullValueInterpTest() {
+    S_EXTRAP.interpolate(S_DATA, null);
+  }
+
+  /**
+   * data bundle is null
+   */
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void nullDataDerivTest() {
+    S_EXTRAP.firstDerivative(null, 5.0);
+  }
+
+  /**
+   * Double value is null
+   */
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void nullValueDerivTest() {
+    S_EXTRAP.firstDerivative(S_DATA, null);
+  }
+
+  /**
+   * data bundle is null
+   */
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void nullDataSenseTest() {
+    S_EXTRAP.getNodeSensitivitiesForValue(null, 5.0);
+  }
+
+  /**
+   * Double value is null
+   */
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void nullValueSenseTest() {
+    S_EXTRAP.getNodeSensitivitiesForValue(S_DATA, null);
   }
 }

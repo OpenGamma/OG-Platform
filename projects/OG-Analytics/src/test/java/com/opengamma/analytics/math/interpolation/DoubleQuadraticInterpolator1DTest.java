@@ -120,10 +120,10 @@ public class DoubleQuadraticInterpolator1DTest {
 
   @Test
   public void firstDerivativeTest() {
-    double a = 1.0;
-    double b = 1.5;
-    double c = -0.5;
-    double[] x = new double[] {0., 2., 5. };
+    double a = 1.34;
+    double b = 7.0 / 3.0;
+    double c = -0.52;
+    double[] x = new double[] {-11.0 / 2.3, 0.0, 0.01, 2.71, 17.0 / 3.2 };
     int n = x.length;
     double[] y = new double[n];
     for (int i = 0; i < n; i++) {

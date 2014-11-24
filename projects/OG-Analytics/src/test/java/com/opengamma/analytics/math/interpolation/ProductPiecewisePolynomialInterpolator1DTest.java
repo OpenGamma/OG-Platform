@@ -5,8 +5,6 @@
  */
 package com.opengamma.analytics.math.interpolation;
 
-import static org.testng.AssertJUnit.assertEquals;
-
 import java.util.Arrays;
 
 import org.testng.annotations.Test;
@@ -59,17 +57,17 @@ public class ProductPiecewisePolynomialInterpolator1DTest {
         ProductPiecewisePolynomialInterpolator1D interp1D = new ProductPiecewisePolynomialInterpolator1D(
             INTERP_SENSE[i]);
         Interpolator1DDataBundle data = interp1D.getDataBundle(xValues, yValues);
-        assertArrayRelative("notClampedTest", xValues, data.getKeys(), EPS);
-        assertArrayRelative("notClampedTest", yValues, data.getValues(), EPS);
+        InterpolatorTestUtil.assertArrayRelative("notClampedTest", xValues, data.getKeys(), EPS);
+        InterpolatorTestUtil.assertArrayRelative("notClampedTest", yValues, data.getValues(), EPS);
 
         for (int j = 0; j < nKeys; ++j) {
           double key = xValues[0] + interval * j;
-          assertRelative("notClampedTest", FUNC.evaluate(result, key).getEntry(0) / key,
+          InterpolatorTestUtil.assertRelative("notClampedTest", FUNC.evaluate(result, key).getEntry(0) / key,
               interp1D.interpolate(data, key), EPS);
           double keyUp = key + DELTA;
           double keyDw = key - DELTA;
           double refDeriv = 0.5 * (interp1D.interpolate(data, keyUp) - interp1D.interpolate(data, keyDw)) / DELTA;
-          assertRelative("notClampedTest", refDeriv,
+          InterpolatorTestUtil.assertRelative("notClampedTest", refDeriv,
               interp1D.firstDerivative(data, key), DELTA);
           double[] refSense = new double[nData];
           for (int l = 0; l < nData; ++l) {
@@ -81,8 +79,8 @@ public class ProductPiecewisePolynomialInterpolator1DTest {
             Interpolator1DDataBundle dataDw = interp1D.getDataBundle(xValues, yValuesDw);
             refSense[l] = 0.5 * (interp1D.interpolate(dataUp, key) - interp1D.interpolate(dataDw, key)) / DELTA;
           }
-          assertArrayRelative("notClampedTest", interp1D.getNodeSensitivitiesForValue(data, key), refSense,
-              DELTA * 10.0);
+          InterpolatorTestUtil.assertArrayRelative("notClampedTest", interp1D.getNodeSensitivitiesForValue(data, key),
+              refSense, DELTA * 10.0);
         }
       }
     }
@@ -114,17 +112,17 @@ public class ProductPiecewisePolynomialInterpolator1DTest {
         ProductPiecewisePolynomialInterpolator1D interp1D = new ProductPiecewisePolynomialInterpolator1D(
             INTERP_SENSE[i], xValuesClamped, yValuesClamped);
         Interpolator1DDataBundle data = interp1D.getDataBundleFromSortedArrays(xValues, yValues);
-        assertArrayRelative("notClampedTest", xValues, data.getKeys(), EPS);
-        assertArrayRelative("notClampedTest", yValues, data.getValues(), EPS);
+        InterpolatorTestUtil.assertArrayRelative("notClampedTest", xValues, data.getKeys(), EPS);
+        InterpolatorTestUtil.assertArrayRelative("notClampedTest", yValues, data.getValues(), EPS);
 
         for (int j = 0; j < nKeys; ++j) {
           double key = xValues[0] + interval * j;
-          assertRelative("notClampedTest", FUNC.evaluate(result, key).getEntry(0) / key,
+          InterpolatorTestUtil.assertRelative("notClampedTest", FUNC.evaluate(result, key).getEntry(0) / key,
               interp1D.interpolate(data, key), EPS);
           double keyUp = key + DELTA;
           double keyDw = key - DELTA;
           double refDeriv = 0.5 * (interp1D.interpolate(data, keyUp) - interp1D.interpolate(data, keyDw)) / DELTA;
-          assertRelative("notClampedTest", refDeriv,
+          InterpolatorTestUtil.assertRelative("notClampedTest", refDeriv,
               interp1D.firstDerivative(data, key), DELTA * 10.0);
           double[] refSense = new double[nData];
           for (int l = 0; l < nData; ++l) {
@@ -136,8 +134,8 @@ public class ProductPiecewisePolynomialInterpolator1DTest {
             Interpolator1DDataBundle dataDw = interp1D.getDataBundle(xValues, yValuesDw);
             refSense[l] = 0.5 * (interp1D.interpolate(dataUp, key) - interp1D.interpolate(dataDw, key)) / DELTA;
           }
-          assertArrayRelative("notClampedTest", interp1D.getNodeSensitivitiesForValue(data, key), refSense,
-              DELTA * 10.0);
+          InterpolatorTestUtil.assertArrayRelative("notClampedTest", interp1D.getNodeSensitivitiesForValue(data, key),
+              refSense, DELTA * 10.0);
         }
       }
     }
@@ -156,10 +154,11 @@ public class ProductPiecewisePolynomialInterpolator1DTest {
           INTERP_SENSE[i], new double[] {0.0 }, new double[] {0.0 });
       Interpolator1DDataBundle data = interp1D.getDataBundle(xValues, yValues);
       double eps = 1.0e-5;
-      assertRelative("closeToZeroTest", interp1D.interpolate(data, eps), interp1D.interpolate(data, 0.0), eps);
-      assertRelative("closeToZeroTest", interp1D.firstDerivative(data, eps), interp1D.firstDerivative(data, 0.0),
-          eps);
-      assertArrayRelative("closeToZeroTest ", interp1D.getNodeSensitivitiesForValue(data, eps),
+      InterpolatorTestUtil.assertRelative("closeToZeroTest", interp1D.interpolate(data, eps),
+          interp1D.interpolate(data, 0.0), eps);
+      InterpolatorTestUtil.assertRelative("closeToZeroTest", interp1D.firstDerivative(data, eps),
+          interp1D.firstDerivative(data, 0.0), eps);
+      InterpolatorTestUtil.assertArrayRelative("closeToZeroTest ", interp1D.getNodeSensitivitiesForValue(data, eps),
           interp1D.getNodeSensitivitiesForValue(data, 0.0), eps);
     }
   }
@@ -347,25 +346,101 @@ public class ProductPiecewisePolynomialInterpolator1DTest {
         n, tol);
   }
 
+  private static final double[] S_ARR = new double[] {1., 2., 3., 4. };
+  private static final ProductPiecewisePolynomialInterpolator1D S_INTERP = new ProductPiecewisePolynomialInterpolator1D(
+      INTERP_SENSE[0]);
+  private static final Interpolator1DDataBundle S_DATA = S_INTERP.getDataBundle(S_ARR, S_ARR);
+
+  /**
+   * base interpolator is null
+   */
+  @SuppressWarnings("unused")
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void nullBaseInterpTest1() {
+    new ProductPiecewisePolynomialInterpolator1D(null);
+  }
+
+  /**
+   * base interpolator is null
+   */
+  @SuppressWarnings("unused")
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void nullBaseInterpTest2() {
+    new ProductPiecewisePolynomialInterpolator1D(null, S_ARR, S_ARR);
+  }
+
+  /**
+   * clamped point is null
+   */
+  @SuppressWarnings("unused")
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void nullXClampedInterpTest() {
+    new ProductPiecewisePolynomialInterpolator1D(INTERP_SENSE[1], null, S_ARR);
+  }
+
+  /**
+   * clamped point is null
+   */
+  @SuppressWarnings("unused")
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void nullYClampedInterpTest() {
+    new ProductPiecewisePolynomialInterpolator1D(INTERP_SENSE[1], S_ARR, null);
+  }
+
+  /**
+   * data bundle is null
+   */
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void nullDataInterpTest() {
+    S_INTERP.interpolate(null, 1.5);
+  }
+
+  /**
+   * Double value is null
+   */
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void nullValueInterpTest() {
+    S_INTERP.interpolate(S_DATA, null);
+  }
+
+  /**
+   * data bundle is null
+   */
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void nullDataDerivTest() {
+    S_INTERP.firstDerivative(null, 1.5);
+  }
+
+  /**
+   * Double value is null
+   */
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void nullValueDerivTest() {
+    S_INTERP.firstDerivative(S_DATA, null);
+  }
+
+  /**
+   * data bundle is null
+   */
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void nullDataSenseTest() {
+    S_INTERP.getNodeSensitivitiesForValue(null, 1.5);
+  }
+
+  /**
+   * Double value is null
+   */
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void nullValueSenseTest() {
+    S_INTERP.getNodeSensitivitiesForValue(S_DATA, null);
+  }
+
   private void assertCurveInterpolation(String message, double[] expected, YieldAndDiscountCurve curve, double rebate,
       double interval, int nKeys, double relativeTol) {
     for (int i = 0; i < nKeys; ++i) {
       double key = rebate + interval * i;
       double res = curve.getInterestRate(key);
-      assertRelative(message, expected[i], res, relativeTol);
+      InterpolatorTestUtil.assertRelative(message, expected[i], res, relativeTol);
     }
-  }
-
-  private void assertArrayRelative(String message, double[] expected, double[] obtained, double relativeTol) {
-    int nData = expected.length;
-    assertEquals(message, nData, obtained.length);
-    for (int i = 0; i < nData; ++i) {
-      assertRelative(message, expected[i], obtained[i], relativeTol);
-    }
-  }
-
-  private void assertRelative(String message, double expected, double obtained, double relativeTol) {
-    double ref = Math.max(Math.abs(expected), 1.0);
-    assertEquals(message, expected, obtained, ref * relativeTol);
   }
 }
