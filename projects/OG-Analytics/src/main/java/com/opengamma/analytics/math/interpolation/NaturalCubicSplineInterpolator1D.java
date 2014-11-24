@@ -57,14 +57,18 @@ public class NaturalCubicSplineInterpolator1D extends Interpolator1D {
     Validate.notNull(data, "data bundle");
     Validate.isTrue(data instanceof Interpolator1DCubicSplineDataBundle);
     Interpolator1DCubicSplineDataBundle splineData = (Interpolator1DCubicSplineDataBundle) data;
-    final int low = data.getLowerBoundIndex(value);
-    final int high = low + 1;
+    int low = data.getLowerBoundIndex(value);
+    int high = low + 1;
     final int n = data.size() - 1;
     final double[] xData = data.getKeys();
     final double[] yData = data.getValues();
-    if (data.getLowerBoundIndex(value) == n) {
-      return yData[n];
+    if (low == n) {
+      low = n - 1;
+      high = n;
     }
+    // if (data.getLowerBoundIndex(value) == n) {
+    // return yData[n];
+    // }
     final double delta = xData[high] - xData[low];
     if (Math.abs(delta) < _eps) {
       throw new MathException("x data points were not distinct");
