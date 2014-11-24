@@ -59,7 +59,7 @@ public class SimpleInMemoryHolidayStore implements HolidaySource {
   public Holiday get(UniqueId uniqueId) {
     Holiday holiday = _calendarHolidays.get(ExternalId.of(uniqueId.getScheme(), uniqueId.getValue()));
     if (holiday == null) {
-      throw new DataNotFoundException("Holiday with id " + uniqueId + " not found");
+      throw new DataNotFoundException("Calendar with id " + uniqueId + " not found");
     }
     return holiday;
   }
@@ -75,7 +75,7 @@ public class SimpleInMemoryHolidayStore implements HolidaySource {
   public Holiday get(ObjectId objectId, VersionCorrection versionCorrection) {
     Holiday holiday = _calendarHolidays.get(ExternalId.of(objectId.getScheme(), objectId.getValue()));
     if (holiday == null) {
-      throw new DataNotFoundException("Holiday with id " + objectId + " not found");
+      throw new DataNotFoundException("Calendar with id " + objectId + " not found");
     }
     return holiday;
   }
