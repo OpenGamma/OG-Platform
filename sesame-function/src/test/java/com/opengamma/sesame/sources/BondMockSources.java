@@ -146,6 +146,7 @@ import com.opengamma.sesame.bond.BondCalculatorFactory;
 import com.opengamma.sesame.bond.BondFn;
 import com.opengamma.sesame.bond.DefaultBondFn;
 import com.opengamma.sesame.bond.DiscountingBondCalculatorFactory;
+import com.opengamma.sesame.bond.DiscountingBondFn;
 import com.opengamma.sesame.bondfuture.BondFutureCalculatorFactory;
 import com.opengamma.sesame.bondfuture.BondFutureDiscountingCalculatorFactory;
 import com.opengamma.sesame.bondfuture.BondFutureFn;
@@ -156,6 +157,8 @@ import com.opengamma.sesame.bondfutureoption.BondFutureOptionCalculatorFactory;
 import com.opengamma.sesame.bondfutureoption.BondFutureOptionFn;
 import com.opengamma.sesame.bondfutureoption.DefaultBondFutureOptionFn;
 import com.opengamma.sesame.bondfutureoption.TestBlackBondFuturesProviderFn;
+import com.opengamma.sesame.cache.FunctionCache;
+import com.opengamma.sesame.cache.NoOpFunctionCache;
 import com.opengamma.sesame.component.RetrievalPeriod;
 import com.opengamma.sesame.component.StringSet;
 import com.opengamma.sesame.config.FunctionModelConfig;
@@ -316,12 +319,12 @@ public class BondMockSources {
             DiscountingMulticurveBundleFn.class, DefaultDiscountingMulticurveBundleFn.class,
             CurveSpecificationFn.class, DefaultCurveSpecificationFn.class,
             CurveConstructionConfigurationSource.class, ConfigDBCurveConstructionConfigurationSource.class,
+            FunctionCache.class, NoOpFunctionCache.class,
             HistoricalTimeSeriesFn.class, DefaultHistoricalTimeSeriesFn.class,
             MarketExposureSelectorFn.class, ConfigDbMarketExposureSelectorFn.class,
             MarketDataFn.class, DefaultMarketDataFn.class,
             /*Bond*/
-            BondFn.class, DefaultBondFn.class,
-            BondCalculatorFactory.class, DiscountingBondCalculatorFactory.class,
+            BondFn.class, DiscountingBondFn.class,
             /*Bond Future Option*/
             BondFutureOptionFn.class, DefaultBondFutureOptionFn.class,
             BondFutureOptionCalculatorFactory.class, BondFutureOptionBlackCalculatorFactory.class,

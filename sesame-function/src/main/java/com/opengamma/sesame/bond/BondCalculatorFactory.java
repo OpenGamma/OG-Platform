@@ -11,7 +11,10 @@ import com.opengamma.util.result.Result;
 
 /**
  * Sesame engine function interface for creating calculators for bonds.
+ *
+ * @deprecated use {@link DiscountingBondFn} instead of {@link DefaultBondFn}, the calculator and factory
  */
+@Deprecated
 public interface BondCalculatorFactory {
 
   /**
