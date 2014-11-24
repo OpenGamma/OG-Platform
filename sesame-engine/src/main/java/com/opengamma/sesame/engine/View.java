@@ -27,6 +27,7 @@ import com.codahale.metrics.MetricRegistry;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.Futures;
@@ -105,6 +106,9 @@ public class View {
    */
   private final CacheProvider _cacheFactory;
 
+  /** For building new, empty caches that are only used for a single calculation cycle. */
+  private final CacheBuilder<Object, Object> _cacheBuilder;
+
   private final Optional<MetricRegistry> _metricRegistry;
   private final ComponentMap _componentMap;
   private final CacheInvalidator _cacheInvalidator;
@@ -132,6 +136,7 @@ public class View {
        AvailableOutputs availableOutputs,
        AvailableImplementations availableImplementations,
        CacheProvider cacheFactory,
+       CacheBuilder<Object, Object> cacheBuilder,
        CacheInvalidator cacheInvalidator,
        Optional<MetricRegistry> metricRegistry) {
 
@@ -143,11 +148,8 @@ public class View {
         return _cacheThreadLocal.get();
       }
     };
-    FunctionCache cache;
-
-    // TODO better to use the same FunctionCache but a different underlying cache when caching is disabled
-    // that will affect both types of caching
-    cache = new DefaultFunctionCache(cacheProvider);
+    FunctionCache cache = new DefaultFunctionCache(cacheProvider);
+    _cacheBuilder = ArgumentChecker.notNull(cacheBuilder, "cacheBuilder");
     _cachingEnabled = services.contains(FunctionService.CACHING);
     _cacheInvalidator = ArgumentChecker.notNull(cacheInvalidator, "cacheInvalidator");
     _componentMap = ArgumentChecker.notNull(componentMap, "componentMap").with(FunctionCache.class, cache);
@@ -285,24 +287,12 @@ public class View {
      * the caching proxy to retrieve it. The tasks that perform the calculations set the thread local with
      * the cycle's cache before executing the calculations and clearing the thread local afterwards.
      */
-    Cache<Object, Object> cache;
-
-    if (_cachingEnabled) {
-      cache = _cacheFactory.get();
-    } else {
-      cache = new NoOpCache();
-    }
+    Cache<Object, Object> cache = _cachingEnabled ? _cacheFactory.get() : new NoOpCache();
     ServiceContext originalContext = ThreadLocalServiceContext.getInstance();
 
     final CycleInitializer cycleInitializer = cycleArguments.isCaptureInputs() ?
-        // this uses the shared cache but creates a new graph with a new FunctionBuilder and therefore will never
-        // share any entries with any other views. effectively this fills up the shared cache with rubbish entries
-        // that will never be used after this cycle completes.
-        // if that turns out to be a problem the cache builder could be passed into this class and used to create
-        // an empty cache that's only used for this cycle.
-        // would need to create a new graph builder and model instead of reusing _graphModel
         new CapturingCycleInitializer(originalContext, _componentMap, cycleArguments,
-                                      _graphModel, _viewConfig, inputs) :
+                                      _graphModel, _viewConfig, _cacheBuilder, inputs) :
         new StandardCycleInitializer(originalContext, cycleArguments.getCycleMarketDataFactory(), _graph, cache);
 
     List<Task> tasks = new ArrayList<>();

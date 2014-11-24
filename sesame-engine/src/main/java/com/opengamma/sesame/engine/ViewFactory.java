@@ -147,8 +147,9 @@ public class ViewFactory implements ViewFactoryMonitor {
    * @return the view, not null
    */
   public View createView(ViewConfig viewConfig, EnumSet<FunctionService> services, Set<Class<?>> inputTypes) {
-    return new View(viewConfig, _executor, _defaultConfig, _functionBuilder, services, _componentMap, inputTypes,
-                    _availableOutputs, _availableImplementations, _cacheProvider, _cacheInvalidator, _metricRegistry);
+    return new View(viewConfig, _executor, _defaultConfig, _functionBuilder, services,
+                    _componentMap, inputTypes, _availableOutputs, _availableImplementations,
+                    _cacheProvider, _cacheBuilder, _cacheInvalidator, _metricRegistry);
   }
 
   /**

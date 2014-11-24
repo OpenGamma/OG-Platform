@@ -53,8 +53,7 @@ public final class CacheKey {
     ArgumentChecker.notNull(callerType, "callerType");
     ArgumentChecker.notNull(key, "key");
 
-    ImmutableList.Builder<Object> builder = ImmutableList.builder();
-    ImmutableList<Object> keyList = builder.add(key).add(keys).build();
+    ImmutableList<Object> keyList = ImmutableList.builder().add(key).add(keys).build();
     return new CacheKey(callerType, keyList);
   }
 
@@ -70,8 +69,7 @@ public final class CacheKey {
     ArgumentChecker.notNull(caller, "caller");
     ArgumentChecker.notNull(key, "key");
 
-    ImmutableList.Builder<Object> builder = ImmutableList.builder();
-    ImmutableList<Object> keyList = builder.add(key).add(keys).build();
+    ImmutableList<Object> keyList = ImmutableList.builder().add(key).add(keys).build();
     return new CacheKey(caller.getClass(), keyList);
   }
 

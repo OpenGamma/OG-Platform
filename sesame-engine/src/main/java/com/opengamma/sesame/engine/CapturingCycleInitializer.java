@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.config.impl.NarrowingConfigSource;
 import com.opengamma.core.convention.ConventionSource;
@@ -36,6 +37,7 @@ import com.opengamma.sesame.graph.Graph;
 import com.opengamma.sesame.graph.GraphModel;
 import com.opengamma.sesame.marketdata.CycleMarketDataFactory;
 import com.opengamma.sesame.marketdata.ProxiedCycleMarketData;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * A cycle initializer to be used  for capturing the
@@ -51,6 +53,7 @@ class CapturingCycleInitializer implements CycleInitializer {
   private final DefaultCycleRecorder _recorder;
   private final Graph _graph;
   private final CycleMarketDataFactory _cycleMarketDataFactory;
+  private final CacheBuilder<Object, Object> _cacheBuilder;
 
   /**
    * Creates cycle initializer for a capturing cycle.
@@ -59,6 +62,7 @@ class CapturingCycleInitializer implements CycleInitializer {
    * @param cycleArguments  the cycle arguments
    * @param graphModel  the graph model for the view
    * @param viewConfig  the config for the view
+   * @param cacheBuilder  for building an empty cache only used for a single run
    * @param inputs  the trade inputs
    */
   public CapturingCycleInitializer(ServiceContext serviceContext,
@@ -66,7 +70,10 @@ class CapturingCycleInitializer implements CycleInitializer {
                                    CycleArguments cycleArguments,
                                    GraphModel graphModel,
                                    ViewConfig viewConfig,
+                                   CacheBuilder<Object, Object> cacheBuilder,
                                    List<?> inputs) {
+
+    _cacheBuilder = ArgumentChecker.notNull(cacheBuilder, "cacheBuilder");
 
     ProxiedCycleMarketData proxiedCycleMarketData =
         new ProxiedCycleMarketData(cycleArguments.getCycleMarketDataFactory());
@@ -90,10 +97,10 @@ class CapturingCycleInitializer implements CycleInitializer {
     _cycleMarketDataFactory = proxiedCycleMarketData;
     _serviceContext = serviceContext.with(wrappedComponents.getComponents());
     _recorder = new DefaultCycleRecorder(viewConfig,
-                                        inputs,
-                                        cycleArguments,
-                                        proxiedCycleMarketData,
-                                        collector);
+                                         inputs,
+                                         cycleArguments,
+                                         proxiedCycleMarketData,
+                                         collector);
   }
 
   @Override
@@ -112,11 +119,11 @@ class CapturingCycleInitializer implements CycleInitializer {
   }
 
   /**
-   * @return a {@link NoOpCache} that doesn't do any caching but always invokes the supplier to create a value
+   * @return a new, empty cache.
    */
   @Override
   public Cache<Object, Object> getCache() {
-    return new NoOpCache();
+    return _cacheBuilder.build();
   }
 
   @Override
