@@ -25,6 +25,9 @@ import com.opengamma.util.ParallelArrayBinarySort;
  */
 public class PiecewiseCubicHermiteSplineInterpolatorWithSensitivity extends PiecewisePolynomialInterpolator {
 
+  /** interpolator without sensitivity **/
+  private static final PiecewiseCubicHermiteSplineInterpolator INTERP = new PiecewiseCubicHermiteSplineInterpolator();
+
   @Override
   public PiecewisePolynomialResultsWithSensitivity interpolateWithSensitivity(final double[] xValues, final double[] yValues) {
 
@@ -303,12 +306,12 @@ public class PiecewiseCubicHermiteSplineInterpolatorWithSensitivity extends Piec
 
   @Override
   public PiecewisePolynomialResult interpolate(final double[] xValues, final double[] yValues) {
-    return (new PiecewiseCubicHermiteSplineInterpolator()).interpolate(xValues, yValues);
+    return INTERP.interpolate(xValues, yValues);
   }
 
   @Override
   public PiecewisePolynomialResult interpolate(double[] xValues, double[][] yValuesMatrix) {
-    return (new PiecewiseCubicHermiteSplineInterpolator()).interpolate(xValues, yValuesMatrix);
+    return INTERP.interpolate(xValues, yValuesMatrix);
   }
 
 }

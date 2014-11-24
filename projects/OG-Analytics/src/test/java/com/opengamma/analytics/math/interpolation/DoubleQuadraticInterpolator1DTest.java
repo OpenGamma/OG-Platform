@@ -114,4 +114,20 @@ public class DoubleQuadraticInterpolator1DTest {
       assertEquals(0.5 * (INTERPOLATOR.interpolate(data, xKeys[i] + eps) - INTERPOLATOR.interpolate(data, xKeys[i] - eps)) / eps, y, eps);
     }
   }
+
+  @Test
+  public void firstDerivativeTest() {
+    double a = 1.34;
+    double b = 7.0 / 3.0;
+    double c = -0.52;
+    double[] x = new double[] {-11.0 / 2.3, 0.0, 0.01, 2.71, 17.0 / 3.2 };
+    int n = x.length;
+    double[] y = new double[n];
+    for (int i = 0; i < n; i++) {
+      y[i] = a + b * x[i] + c * x[i] * x[i];
+    }
+    Interpolator1DDataBundle db = INTERPOLATOR.getDataBundle(x, y);
+    Double grad = INTERPOLATOR.firstDerivative(db, x[n - 1]);
+    assertEquals(b + 2 * c * x[n - 1], grad, 1e-15);
+  }
 }

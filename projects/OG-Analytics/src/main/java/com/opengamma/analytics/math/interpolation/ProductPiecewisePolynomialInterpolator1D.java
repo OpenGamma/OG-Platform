@@ -5,20 +5,19 @@
  */
 package com.opengamma.analytics.math.interpolation;
 
-import org.apache.commons.lang.Validate;
-
-import com.opengamma.analytics.math.function.PiecewisePolynomialWithSensitivityFunction1D;
+import com.opengamma.analytics.math.function.PiecewisePolynomialFunction1D;
 import com.opengamma.analytics.math.interpolation.data.ArrayInterpolator1DDataBundle;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Wrapping {@link ProductPiecewisePolynomialInterpolator}
  */
 public class ProductPiecewisePolynomialInterpolator1D extends Interpolator1D {
   private static final long serialVersionUID = 1L;
-  private static final PiecewisePolynomialWithSensitivityFunction1D FUNC = new PiecewisePolynomialWithSensitivityFunction1D();
+  private static final PiecewisePolynomialFunction1D FUNC = new PiecewisePolynomialFunction1D();
   private final ProductPiecewisePolynomialInterpolator _interp;
   private static final double SMALL = 1e-14;
 
@@ -41,55 +40,112 @@ public class ProductPiecewisePolynomialInterpolator1D extends Interpolator1D {
     _interp = new ProductPiecewisePolynomialInterpolator(baseInterpolator, xValuesClamped, yValuesClamped);
   }
 
+  /**
+   * {@inheritDoc}
+   * For small Math.abs(value), this method returns the exact value if clamped at (0,0), 
+   * otherwise this returns a reference value
+   */
   @Override
   public Double interpolate(Interpolator1DDataBundle data, Double value) {
-    Validate.notNull(value, "value");
-    Validate.notNull(data, "data bundle");
-    Validate.isTrue(data instanceof Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle);
+    ArgumentChecker.notNull(value, "value");
+    ArgumentChecker.notNull(data, "data bundle");
+    ArgumentChecker.isTrue(data instanceof Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle,
+        "data should be instance of Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle");
     Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle polyData = (Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle) data;
-    if (Math.abs(value) < SMALL) { // this is exact if clamped at (0,0), otherwise this returns a reference value
-      return FUNC.differentiate(polyData.getPiecewisePolynomialResult(), value).getEntry(0);
+    return interpolate(polyData, value, FUNC, SMALL);
+  }
+
+  /**
+   * {@inheritDoc}
+   * For small Math.abs(value), this method returns the exact value if clamped at (0,0), 
+   * otherwise this returns a reference value
+   */
+  @Override
+  public double firstDerivative(final Interpolator1DDataBundle data, final Double value) {
+    ArgumentChecker.notNull(value, "value");
+    ArgumentChecker.notNull(data, "data bundle");
+    ArgumentChecker.isTrue(data instanceof Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle,
+        "data should be instance of Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle");
+    Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle polyData = (Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle) data;
+    return firstDerivative(polyData, value, FUNC, SMALL);
+  }
+
+  /**
+   * {@inheritDoc}
+   * For small Math.abs(value), this method returns the exact value if clamped at (0,0), 
+   * otherwise this returns a reference value
+   */
+  @Override
+  public double[] getNodeSensitivitiesForValue(final Interpolator1DDataBundle data, final Double value) {
+    ArgumentChecker.notNull(value, "value");
+    ArgumentChecker.notNull(data, "data bundle");
+    ArgumentChecker.isTrue(data instanceof Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle,
+        "data should be instance of Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle");
+    Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle polyData = (Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle) data;
+    return getNodeSensitivitiesForValue(polyData, value, FUNC, SMALL);
+  }
+
+  /**
+   * Compute interpolation for product piecewise polynomials
+   * @param data Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle
+   * @param value The key value
+   * @param function The piecewise polynomial function
+   * @param small Threshold around the origin
+   * @return The interpolation
+   */
+  Double interpolate(Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle data, Double value,
+      PiecewisePolynomialFunction1D function, double small) {
+    if (Math.abs(value) < small) {
+      return function.differentiate(data.getPiecewisePolynomialResult(), value).getEntry(0);
     }
-    DoubleMatrix1D res = FUNC.evaluate(polyData.getPiecewisePolynomialResult(), value);
+    DoubleMatrix1D res = function.evaluate(data.getPiecewisePolynomialResult(), value);
     return res.getEntry(0) / value;
   }
 
-  @Override
-  public double firstDerivative(final Interpolator1DDataBundle data, final Double value) {
-    Validate.notNull(value, "value");
-    Validate.notNull(data, "data bundle");
-    Validate.isTrue(data instanceof Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle);
-    Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle polyData = (Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle) data;
-    if (Math.abs(value) < SMALL) { // this is exact if clamped at (0,0), otherwise this returns a reference value
-      return 0.5 * FUNC.differentiateTwice(polyData.getPiecewisePolynomialResult(), value).getEntry(0);
+  /**
+   * Compute first derivative value for product piecewise polynomials
+   * @param data Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle
+   * @param value The key value
+   * @param function The piecewise polynomial function
+   * @param small Threshold around the origin
+   * @return The first derivative value
+   */
+  double firstDerivative(Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle data, Double value,
+      PiecewisePolynomialFunction1D function, double small) {
+    if (Math.abs(value) < small) {
+      return 0.5 * function.differentiateTwice(data.getPiecewisePolynomialResult(), value).getEntry(0);
     }
-    DoubleMatrix1D resValue = FUNC.evaluate(polyData.getPiecewisePolynomialResult(), value);
-    DoubleMatrix1D resDerivative = FUNC.differentiate(polyData.getPiecewisePolynomialResult(), value);
+    DoubleMatrix1D resValue = function.evaluate(data.getPiecewisePolynomialResult(), value);
+    DoubleMatrix1D resDerivative = function.differentiate(data.getPiecewisePolynomialResult(), value);
     return resDerivative.getEntry(0) / value - resValue.getEntry(0) / value / value;
   }
 
-  @Override
-  public double[] getNodeSensitivitiesForValue(final Interpolator1DDataBundle data, final Double value) {
-    Validate.notNull(value, "value");
-    Validate.notNull(data, "data bundle");
+  /**
+   * Compute node sensitivities for product piecewise polynomials
+   * @param data Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle
+   * @param value The key value
+   * @param function The piecewise polynomial function
+   * @param small Threshold around the origin
+   * @return The node sensitivities
+   */
+  double[] getNodeSensitivitiesForValue(Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle data, Double value,
+      PiecewisePolynomialFunction1D function, double small) {
     int nData = data.size();
     double[] res = new double[nData];
-    Validate.isTrue(data instanceof Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle);
-    Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle polyData = (Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle) data;
-    double eps = polyData.getEps();
-    double small = polyData.getSmall();
-    if (Math.abs(value) < SMALL) { // this is exact if clamped at (0,0), otherwise this returns a reference value
+    double eps = data.getEps();
+    double smallDiff = data.getSmall();
+    if (Math.abs(value) < small) {
       for (int i = 0; i < nData; ++i) {
-        double den = Math.abs(polyData.getValues()[i]) < small ? eps : polyData.getValues()[i] * eps;
-        double up = FUNC.differentiate(polyData.getPiecewisePolynomialResultUp()[i], value).getData()[0];
-        double dw = FUNC.differentiate(polyData.getPiecewisePolynomialResultDw()[i], value).getData()[0];
+        double den = Math.abs(data.getValues()[i]) < smallDiff ? eps : data.getValues()[i] * eps;
+        double up = function.differentiate(data.getPiecewisePolynomialResultUp()[i], value).getData()[0];
+        double dw = function.differentiate(data.getPiecewisePolynomialResultDw()[i], value).getData()[0];
         res[i] = 0.5 * (up - dw) / den;
       }
     } else {
       for (int i = 0; i < nData; ++i) {
-        double den = Math.abs(polyData.getValues()[i]) < small ? eps : polyData.getValues()[i] * eps;
-        double up = FUNC.evaluate(polyData.getPiecewisePolynomialResultUp()[i], value).getData()[0];
-        double dw = FUNC.evaluate(polyData.getPiecewisePolynomialResultDw()[i], value).getData()[0];
+        double den = Math.abs(data.getValues()[i]) < smallDiff ? eps : data.getValues()[i] * eps;
+        double up = function.evaluate(data.getPiecewisePolynomialResultUp()[i], value).getData()[0];
+        double dw = function.evaluate(data.getPiecewisePolynomialResultDw()[i], value).getData()[0];
         res[i] = 0.5 * (up - dw) / den / value;
       }
     }
