@@ -313,4 +313,36 @@ public class FixedAnnuityDefinitionBuilderTest {
     double ref = swapGnr.accept(pvCalculator, mCurvesOIS).getAmount(USD);
     assertEquals(ref, swapBld.accept(pvCalculator, mCurvesOIS).getAmount(USD), Math.abs(ref) * 1.0e-10);
   }
+
+  /**
+   * Plugging SHORT_END into startStub
+   */
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void shortEndForStartTest() {
+    new FixedAnnuityDefinitionBuilder().startStub(new CouponStub(StubType.SHORT_END));
+  }
+
+  /**
+   * Plugging LONG_END into startStub
+   */
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void longEndForStartTest() {
+    new FixedAnnuityDefinitionBuilder().startStub(new CouponStub(StubType.LONG_END));
+  }
+
+  /**
+   * Plugging SHORT_START into endStub
+   */
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void shortStartForEndTest() {
+    new FixedAnnuityDefinitionBuilder().endStub(new CouponStub(StubType.SHORT_START));
+  }
+
+  /**
+   * Plugging LONG_START into endStub
+   */
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void longStartForEndTest() {
+    new FixedAnnuityDefinitionBuilder().endStub(new CouponStub(StubType.LONG_START));
+  }
 }

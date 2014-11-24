@@ -902,4 +902,36 @@ public class FloatingAnnuityDefinitionBuilderTest {
     assertTrue(dfnCmpd1.equals(dfnCmpd5));
     assertTrue(dfnCmpd1.equals(dfnCmpd6));
   }
+
+  /**
+   * Plugging SHORT_END into startStub
+   */
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void shortEndForStartTest() {
+    new FloatingAnnuityDefinitionBuilder().startStub(new CouponStub(StubType.SHORT_END));
+  }
+
+  /**
+   * Plugging LONG_END into startStub
+   */
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void longEndForStartTest() {
+    new FloatingAnnuityDefinitionBuilder().startStub(new CouponStub(StubType.LONG_END));
+  }
+
+  /**
+   * Plugging SHORT_START into endStub
+   */
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void shortStartForEndTest() {
+    new FloatingAnnuityDefinitionBuilder().endStub(new CouponStub(StubType.SHORT_START));
+  }
+
+  /**
+   * Plugging LONG_START into endStub
+   */
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void longStartForEndTest() {
+    new FloatingAnnuityDefinitionBuilder().endStub(new CouponStub(StubType.LONG_START));
+  }
 }
