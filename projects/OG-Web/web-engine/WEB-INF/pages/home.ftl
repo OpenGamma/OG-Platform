@@ -15,8 +15,6 @@
       </#macro>
 <#if analyticsUri?has_content>
       <@link text="Analytics" uriObj=analyticsUri!""/>
-<#else>
-      <li><a href="/jax/bundles/fm/prototype/analytics.ftl">Analytics</a></li>
 </#if>
       <@link text="Configuration" uriObj=configUris!""/>
       <@link text="Conventions" uriObj=conventionUris!""/>

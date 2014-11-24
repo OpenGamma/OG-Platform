@@ -24,11 +24,6 @@ public class EnergyFutureTransactionDefinition extends CommodityFutureTransactio
   }
 
   @Override
-  public EnergyFutureTransaction toDerivative(final ZonedDateTime date, final Double data, final String... yieldCurveNames) {
-    return toDerivative(date, data);
-  }
-
-  @Override
   public EnergyFutureTransaction toDerivative(final ZonedDateTime date, final Double lastMarginPrice) {
     ArgumentChecker.notNull(date, "date");
     final LocalDate dateLocal = date.toLocalDate();
@@ -45,11 +40,6 @@ public class EnergyFutureTransactionDefinition extends CommodityFutureTransactio
     }
     final EnergyFutureSecurity underlying = (EnergyFutureSecurity) getUnderlying().toDerivative(date);
     return new EnergyFutureTransaction(underlying, getQuantity(), referencePrice);
-  }
-
-  @Override
-  public EnergyFutureTransaction toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    return toDerivative(date);
   }
 
   @Override

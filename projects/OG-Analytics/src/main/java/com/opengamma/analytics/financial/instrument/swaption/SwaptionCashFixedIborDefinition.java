@@ -101,16 +101,6 @@ public final class SwaptionCashFixedIborDefinition implements InstrumentDefiniti
     return new SwaptionCashFixedIborDefinition(expiryDate, underlyingSwap, isCall, isLong);
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public SwaptionCashFixedIbor toDerivative(final ZonedDateTime dateTime, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException(this.getClass().getCanonicalName());
-  }
-
   @Override
   public SwaptionCashFixedIbor toDerivative(final ZonedDateTime dateTime) {
     ArgumentChecker.notNull(dateTime, "date");

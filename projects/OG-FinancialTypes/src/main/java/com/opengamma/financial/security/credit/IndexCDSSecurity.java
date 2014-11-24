@@ -44,12 +44,17 @@ public class IndexCDSSecurity extends FinancialSecurity {
    */
   public static final String SECURITY_TYPE = "INDEX_CDS";
 
-  //optional??
   /**
    * The trade date, aka T.
    */
   @PropertyDefinition(validate = "notNull")
   private LocalDate _tradeDate;
+
+  /**
+   * The maturity date. Corresponds to the trade date plus a valid tenor listed in the index definition.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private LocalDate _maturityDate;
 
   /**
    * Is protection being bought?
@@ -62,12 +67,6 @@ public class IndexCDSSecurity extends FinancialSecurity {
    */
   @PropertyDefinition(validate = "notNull")
   private SecurityLink<IndexCDSDefinitionSecurity> _underlyingIndex;
-
-  /**
-   * The index tenor, must be listed in the index definition
-   */
-  @PropertyDefinition(validate = "notNull")
-  private Tenor _indexTenor;
 
   /**
    * The notional.
@@ -89,18 +88,19 @@ public class IndexCDSSecurity extends FinancialSecurity {
    * @param id identifier for this index cds, not null
    * @param buy is protection being bought, not null
    * @param underlyingIndex the underling index definition identifier, not null
-   * @param indexTenor the unerlying index tenor, not null
+   * @param maturityDate the maturity date, not null
    * @param tradeDate the trade date, not null
    * @param notional the notional, not null
    */
-  public IndexCDSSecurity(ExternalIdBundle id, final boolean buy, final SecurityLink<IndexCDSDefinitionSecurity> underlyingIndex, final Tenor indexTenor,
-                          final LocalDate tradeDate, final InterestRateNotional notional) {
+  public IndexCDSSecurity(ExternalIdBundle id, final boolean buy,
+                          final SecurityLink<IndexCDSDefinitionSecurity> underlyingIndex,
+                          final LocalDate tradeDate, LocalDate maturityDate, final InterestRateNotional notional) {
     super(SECURITY_TYPE);
     setExternalIdBundle(id);
     setBuyProtection(buy);
     setUnderlyingIndex(underlyingIndex);
-    setIndexTenor(indexTenor);
     setTradeDate(tradeDate);
+    setMaturityDate(maturityDate);
     setNotional(notional);
   }
 
@@ -110,18 +110,18 @@ public class IndexCDSSecurity extends FinancialSecurity {
    * @param id identifier for this index cds, not null
    * @param buy is protection being bought, not null
    * @param underlyingIndex the underling index definition identifier, not null
-   * @param indexTenor the unerlying index tenor, not null
+   * @param maturityDate the maturity date, not null
    * @param tradeDate the trade date, not null
    * @param notional the notional, not null
    */
-  public IndexCDSSecurity(ExternalIdBundle id, final boolean buy, final ExternalId underlyingIndex, final Tenor indexTenor,
-                          final LocalDate tradeDate, final InterestRateNotional notional) {
+  public IndexCDSSecurity(ExternalIdBundle id, final boolean buy, final ExternalId underlyingIndex,
+                          final LocalDate tradeDate, LocalDate maturityDate,  final InterestRateNotional notional) {
     super(SECURITY_TYPE);
     setExternalIdBundle(id);
     setBuyProtection(buy);
     setUnderlyingIndex(SecurityLink.<IndexCDSDefinitionSecurity>resolvable(underlyingIndex));
-    setIndexTenor(indexTenor);
     setTradeDate(tradeDate);
+    setMaturityDate(maturityDate);
     setNotional(notional);
   }
 
@@ -132,19 +132,20 @@ public class IndexCDSSecurity extends FinancialSecurity {
    * @param name the descriptive name for the security, not null
    * @param buy is protection being bought, not null
    * @param underlyingIndex the underling index definition (generally a RED code), not null
-   * @param indexTenor the unerlying index tenor, not null
+   * @param maturityDate the the maturity date, not null
    * @param tradeDate the trade date, not null
    * @param notional the notional, not null
    */
-  public IndexCDSSecurity(ExternalIdBundle id, String name, final boolean buy, final SecurityLink<IndexCDSDefinitionSecurity> underlyingIndex, final Tenor indexTenor,
-                          final LocalDate tradeDate, final InterestRateNotional notional) {
+  public IndexCDSSecurity(ExternalIdBundle id, String name, final boolean buy,
+                          final SecurityLink<IndexCDSDefinitionSecurity> underlyingIndex,
+                          final LocalDate tradeDate, LocalDate maturityDate, final InterestRateNotional notional) {
     super(SECURITY_TYPE);
     setExternalIdBundle(id);
     setName(name);
     setBuyProtection(buy);
     setUnderlyingIndex(underlyingIndex);
-    setIndexTenor(indexTenor);
     setTradeDate(tradeDate);
+    setMaturityDate(maturityDate);
     setNotional(notional);
   }
 
@@ -155,18 +156,18 @@ public class IndexCDSSecurity extends FinancialSecurity {
    * @param name the descriptive name for the security, not null
    * @param buy is protection being bought, not null
    * @param underlyingIndex the underling index definition (generally a RED code), not null
-   * @param indexTenor the unerlying index tenor, not null
+   * @param maturityDate the maturity date, not null
    * @param tradeDate the trade date, not null
    * @param notional the notional, not null
    */
-  public IndexCDSSecurity(ExternalIdBundle id, String name, final boolean buy, final ExternalId underlyingIndex, final Tenor indexTenor,
-                          final LocalDate tradeDate, final InterestRateNotional notional) {
+  public IndexCDSSecurity(ExternalIdBundle id, String name, final boolean buy, final ExternalId underlyingIndex,
+                          final LocalDate tradeDate, LocalDate maturityDate, final InterestRateNotional notional) {
     super(SECURITY_TYPE);
     setExternalIdBundle(id);
     setName(name);
     setBuyProtection(buy);
     setUnderlyingIndex(SecurityLink.<IndexCDSDefinitionSecurity>resolvable(underlyingIndex));
-    setIndexTenor(indexTenor);
+    setMaturityDate(maturityDate);
     setTradeDate(tradeDate);
     setNotional(notional);
   }
@@ -223,6 +224,32 @@ public class IndexCDSSecurity extends FinancialSecurity {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the maturity date. Corresponds to the trade date plus a valid tenor listed in the index definition.
+   * @return the value of the property, not null
+   */
+  public LocalDate getMaturityDate() {
+    return _maturityDate;
+  }
+
+  /**
+   * Sets the maturity date. Corresponds to the trade date plus a valid tenor listed in the index definition.
+   * @param maturityDate  the new value of the property, not null
+   */
+  public void setMaturityDate(LocalDate maturityDate) {
+    JodaBeanUtils.notNull(maturityDate, "maturityDate");
+    this._maturityDate = maturityDate;
+  }
+
+  /**
+   * Gets the the {@code maturityDate} property.
+   * @return the property, not null
+   */
+  public final Property<LocalDate> maturityDate() {
+    return metaBean().maturityDate().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets is protection being bought?
    * @return the value of the property, not null
    */
@@ -275,32 +302,6 @@ public class IndexCDSSecurity extends FinancialSecurity {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the index tenor, must be listed in the index definition
-   * @return the value of the property, not null
-   */
-  public Tenor getIndexTenor() {
-    return _indexTenor;
-  }
-
-  /**
-   * Sets the index tenor, must be listed in the index definition
-   * @param indexTenor  the new value of the property, not null
-   */
-  public void setIndexTenor(Tenor indexTenor) {
-    JodaBeanUtils.notNull(indexTenor, "indexTenor");
-    this._indexTenor = indexTenor;
-  }
-
-  /**
-   * Gets the the {@code indexTenor} property.
-   * @return the property, not null
-   */
-  public final Property<Tenor> indexTenor() {
-    return metaBean().indexTenor().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Gets the notional.
    * @return the value of the property, not null
    */
@@ -339,9 +340,9 @@ public class IndexCDSSecurity extends FinancialSecurity {
     if (obj != null && obj.getClass() == this.getClass()) {
       IndexCDSSecurity other = (IndexCDSSecurity) obj;
       return JodaBeanUtils.equal(getTradeDate(), other.getTradeDate()) &&
+          JodaBeanUtils.equal(getMaturityDate(), other.getMaturityDate()) &&
           (isBuyProtection() == other.isBuyProtection()) &&
           JodaBeanUtils.equal(getUnderlyingIndex(), other.getUnderlyingIndex()) &&
-          JodaBeanUtils.equal(getIndexTenor(), other.getIndexTenor()) &&
           JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
           super.equals(obj);
     }
@@ -352,9 +353,9 @@ public class IndexCDSSecurity extends FinancialSecurity {
   public int hashCode() {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getTradeDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMaturityDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(isBuyProtection());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingIndex());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIndexTenor());
     hash += hash * 31 + JodaBeanUtils.hashCode(getNotional());
     return hash ^ super.hashCode();
   }
@@ -376,9 +377,9 @@ public class IndexCDSSecurity extends FinancialSecurity {
   protected void toString(StringBuilder buf) {
     super.toString(buf);
     buf.append("tradeDate").append('=').append(JodaBeanUtils.toString(getTradeDate())).append(',').append(' ');
+    buf.append("maturityDate").append('=').append(JodaBeanUtils.toString(getMaturityDate())).append(',').append(' ');
     buf.append("buyProtection").append('=').append(JodaBeanUtils.toString(isBuyProtection())).append(',').append(' ');
     buf.append("underlyingIndex").append('=').append(JodaBeanUtils.toString(getUnderlyingIndex())).append(',').append(' ');
-    buf.append("indexTenor").append('=').append(JodaBeanUtils.toString(getIndexTenor())).append(',').append(' ');
     buf.append("notional").append('=').append(JodaBeanUtils.toString(getNotional())).append(',').append(' ');
   }
 
@@ -398,6 +399,11 @@ public class IndexCDSSecurity extends FinancialSecurity {
     private final MetaProperty<LocalDate> _tradeDate = DirectMetaProperty.ofReadWrite(
         this, "tradeDate", IndexCDSSecurity.class, LocalDate.class);
     /**
+     * The meta-property for the {@code maturityDate} property.
+     */
+    private final MetaProperty<LocalDate> _maturityDate = DirectMetaProperty.ofReadWrite(
+        this, "maturityDate", IndexCDSSecurity.class, LocalDate.class);
+    /**
      * The meta-property for the {@code buyProtection} property.
      */
     private final MetaProperty<Boolean> _buyProtection = DirectMetaProperty.ofReadWrite(
@@ -409,11 +415,6 @@ public class IndexCDSSecurity extends FinancialSecurity {
     private final MetaProperty<SecurityLink<IndexCDSDefinitionSecurity>> _underlyingIndex = DirectMetaProperty.ofReadWrite(
         this, "underlyingIndex", IndexCDSSecurity.class, (Class) SecurityLink.class);
     /**
-     * The meta-property for the {@code indexTenor} property.
-     */
-    private final MetaProperty<Tenor> _indexTenor = DirectMetaProperty.ofReadWrite(
-        this, "indexTenor", IndexCDSSecurity.class, Tenor.class);
-    /**
      * The meta-property for the {@code notional} property.
      */
     private final MetaProperty<InterestRateNotional> _notional = DirectMetaProperty.ofReadWrite(
@@ -424,9 +425,9 @@ public class IndexCDSSecurity extends FinancialSecurity {
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "tradeDate",
+        "maturityDate",
         "buyProtection",
         "underlyingIndex",
-        "indexTenor",
         "notional");
 
     /**
@@ -440,12 +441,12 @@ public class IndexCDSSecurity extends FinancialSecurity {
       switch (propertyName.hashCode()) {
         case 752419634:  // tradeDate
           return _tradeDate;
+        case -414641441:  // maturityDate
+          return _maturityDate;
         case 1154909695:  // buyProtection
           return _buyProtection;
         case -834075787:  // underlyingIndex
           return _underlyingIndex;
-        case 736548110:  // indexTenor
-          return _indexTenor;
         case 1585636160:  // notional
           return _notional;
       }
@@ -477,6 +478,14 @@ public class IndexCDSSecurity extends FinancialSecurity {
     }
 
     /**
+     * The meta-property for the {@code maturityDate} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<LocalDate> maturityDate() {
+      return _maturityDate;
+    }
+
+    /**
      * The meta-property for the {@code buyProtection} property.
      * @return the meta-property, not null
      */
@@ -493,14 +502,6 @@ public class IndexCDSSecurity extends FinancialSecurity {
     }
 
     /**
-     * The meta-property for the {@code indexTenor} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Tenor> indexTenor() {
-      return _indexTenor;
-    }
-
-    /**
      * The meta-property for the {@code notional} property.
      * @return the meta-property, not null
      */
@@ -514,12 +515,12 @@ public class IndexCDSSecurity extends FinancialSecurity {
       switch (propertyName.hashCode()) {
         case 752419634:  // tradeDate
           return ((IndexCDSSecurity) bean).getTradeDate();
+        case -414641441:  // maturityDate
+          return ((IndexCDSSecurity) bean).getMaturityDate();
         case 1154909695:  // buyProtection
           return ((IndexCDSSecurity) bean).isBuyProtection();
         case -834075787:  // underlyingIndex
           return ((IndexCDSSecurity) bean).getUnderlyingIndex();
-        case 736548110:  // indexTenor
-          return ((IndexCDSSecurity) bean).getIndexTenor();
         case 1585636160:  // notional
           return ((IndexCDSSecurity) bean).getNotional();
       }
@@ -533,14 +534,14 @@ public class IndexCDSSecurity extends FinancialSecurity {
         case 752419634:  // tradeDate
           ((IndexCDSSecurity) bean).setTradeDate((LocalDate) newValue);
           return;
+        case -414641441:  // maturityDate
+          ((IndexCDSSecurity) bean).setMaturityDate((LocalDate) newValue);
+          return;
         case 1154909695:  // buyProtection
           ((IndexCDSSecurity) bean).setBuyProtection((Boolean) newValue);
           return;
         case -834075787:  // underlyingIndex
           ((IndexCDSSecurity) bean).setUnderlyingIndex((SecurityLink<IndexCDSDefinitionSecurity>) newValue);
-          return;
-        case 736548110:  // indexTenor
-          ((IndexCDSSecurity) bean).setIndexTenor((Tenor) newValue);
           return;
         case 1585636160:  // notional
           ((IndexCDSSecurity) bean).setNotional((InterestRateNotional) newValue);
@@ -552,9 +553,9 @@ public class IndexCDSSecurity extends FinancialSecurity {
     @Override
     protected void validate(Bean bean) {
       JodaBeanUtils.notNull(((IndexCDSSecurity) bean)._tradeDate, "tradeDate");
+      JodaBeanUtils.notNull(((IndexCDSSecurity) bean)._maturityDate, "maturityDate");
       JodaBeanUtils.notNull(((IndexCDSSecurity) bean)._buyProtection, "buyProtection");
       JodaBeanUtils.notNull(((IndexCDSSecurity) bean)._underlyingIndex, "underlyingIndex");
-      JodaBeanUtils.notNull(((IndexCDSSecurity) bean)._indexTenor, "indexTenor");
       JodaBeanUtils.notNull(((IndexCDSSecurity) bean)._notional, "notional");
       super.validate(bean);
     }

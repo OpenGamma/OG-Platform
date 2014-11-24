@@ -214,16 +214,6 @@ public class BillSecurityDefinition implements InstrumentDefinition<BillSecurity
     return new BillSecurity(_currency, settlementTime, endTime, _notional, _yieldConvention, accrualFactor, _issuer);
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public BillSecurity toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException(this.getClass().getCanonicalName());
-  }
-
   @Override
   public BillSecurity toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "Reference date");

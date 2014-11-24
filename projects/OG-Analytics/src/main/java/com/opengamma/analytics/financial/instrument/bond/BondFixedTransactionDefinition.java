@@ -92,39 +92,6 @@ public class BondFixedTransactionDefinition extends BondTransactionDefinition<Pa
     return (BondFixedSecurityDefinition) super.getUnderlyingBond();
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public BondFixedTransaction toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    // Implementation note: First yield curve used for coupon and notional (credit), the second for risk free settlement.
-    ArgumentChecker.notNull(date, "date");
-    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
-    ArgumentChecker.isTrue(yieldCurveNames.length > 0, "at least one curve required");
-    final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getUnderlyingBond().getSettlementDays(), getUnderlyingBond().getCalendar());
-    final BondFixedSecurity bondPurchase = getUnderlyingBond().toDerivative(date, getSettlementDate(), yieldCurveNames);
-    final BondFixedSecurity bondStandard = getUnderlyingBond().toDerivative(date, yieldCurveNames);
-    final int nbCoupon = getUnderlyingBond().getCoupons().getNumberOfPayments();
-    int couponIndex = 0; // The index of the coupon of the spot date.
-    for (int loopcpn = 0; loopcpn < nbCoupon; loopcpn++) {
-      if (getUnderlyingBond().getCoupons().getNthPayment(loopcpn).getAccrualEndDate().isAfter(spot)) {
-        couponIndex = loopcpn;
-        break;
-      }
-    }
-    final double notionalStandard = getUnderlyingBond().getCoupons().getNthPayment(couponIndex).getNotional();
-    double price;
-    if (getSettlementDate().isBefore(date)) { // If settlement already took place, the price is set to 0.
-      price = 0.0;
-    } else {
-      price = getPrice();
-    }
-    final BondFixedTransaction result = new BondFixedTransaction(bondPurchase, getQuantity(), price, bondStandard, notionalStandard);
-    return result;
-  }
-
   @Override
   public BondFixedTransaction toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "date");

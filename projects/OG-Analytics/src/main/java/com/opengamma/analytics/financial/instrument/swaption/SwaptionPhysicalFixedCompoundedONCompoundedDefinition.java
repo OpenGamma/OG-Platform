@@ -151,24 +151,6 @@ public final class SwaptionPhysicalFixedCompoundedONCompoundedDefinition impleme
     return null;
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public SwaptionPhysicalFixedCompoundedONCompounded toDerivative(final ZonedDateTime dateTime, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(dateTime, "date");
-    final LocalDate dayConversion = dateTime.toLocalDate();
-    ArgumentChecker.isTrue(!dayConversion.isAfter(getExpiry().getExpiry().toLocalDate()), "date is after expiry date");
-    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
-    final double expiryTime = TimeCalculator.getTimeBetween(dateTime, _expiry.getExpiry());
-    final double settlementTime = TimeCalculator.getTimeBetween(dateTime, _settlementDate);
-    final Swap<CouponFixedAccruedCompounding, CouponONCompounded> underlyingSwap = (Swap<CouponFixedAccruedCompounding, CouponONCompounded>)
-        _underlyingSwap.toDerivative(dateTime, yieldCurveNames);
-    return SwaptionPhysicalFixedCompoundedONCompounded.from(expiryTime, underlyingSwap, settlementTime, _isCall, _isLong);
-  }
-
   @Override
   public SwaptionPhysicalFixedCompoundedONCompounded toDerivative(final ZonedDateTime dateTime) {
     ArgumentChecker.notNull(dateTime, "date");
@@ -178,24 +160,6 @@ public final class SwaptionPhysicalFixedCompoundedONCompoundedDefinition impleme
     final double settlementTime = TimeCalculator.getTimeBetween(dateTime, _settlementDate);
     final Swap<CouponFixedAccruedCompounding, CouponONCompounded> underlyingSwap = (Swap<CouponFixedAccruedCompounding, CouponONCompounded>)
         _underlyingSwap.toDerivative(dateTime);
-    return SwaptionPhysicalFixedCompoundedONCompounded.from(expiryTime, underlyingSwap, settlementTime, _isCall, _isLong);
-  }
-
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public SwaptionPhysicalFixedCompoundedONCompounded toDerivative(final ZonedDateTime dateTime, final ZonedDateTimeDoubleTimeSeries ts, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(dateTime, "date");
-    final LocalDate dayConversion = dateTime.toLocalDate();
-    ArgumentChecker.isTrue(!dayConversion.isAfter(getExpiry().getExpiry().toLocalDate()), "date is after expiry date");
-    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
-    final double expiryTime = TimeCalculator.getTimeBetween(dateTime, _expiry.getExpiry());
-    final double settlementTime = TimeCalculator.getTimeBetween(dateTime, _settlementDate);
-    final Swap<CouponFixedAccruedCompounding, CouponONCompounded> underlyingSwap = (Swap<CouponFixedAccruedCompounding, CouponONCompounded>)
-        _underlyingSwap.toDerivative(dateTime, new ZonedDateTimeDoubleTimeSeries[] {ts}, yieldCurveNames);
     return SwaptionPhysicalFixedCompoundedONCompounded.from(expiryTime, underlyingSwap, settlementTime, _isCall, _isLong);
   }
 

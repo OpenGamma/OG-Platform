@@ -12,13 +12,13 @@ import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedT
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.provider.BondSecurityDiscountingMethod;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderInterface;
-import com.opengamma.util.tuple.ObjectsPair;
+import com.opengamma.util.tuple.Pair;
 
 /**
 * Calculates the z-spread of instruments using issuer-specific curves.
 */
 public final class ZSpreadIssuerCalculator extends
-    InstrumentDerivativeVisitorAdapter<ObjectsPair<IssuerProviderInterface, Double>, Double> {
+    InstrumentDerivativeVisitorAdapter<Pair<IssuerProviderInterface, Double>, Double> {
 
   private static final ZSpreadIssuerCalculator INSTANCE = new ZSpreadIssuerCalculator();
 
@@ -37,7 +37,7 @@ public final class ZSpreadIssuerCalculator extends
   }
 
   /** necessary to scale twice, to scale up for the input price and the calculator output */
-  private Double getBondZSpreadPrice(BondSecurity bond, ObjectsPair<IssuerProviderInterface, Double> data) {
+  private Double getBondZSpreadPrice(BondSecurity bond, Pair<IssuerProviderInterface, Double> data) {
     return SCALING_FACTOR * SCALING_FACTOR * METHOD_BOND_SEC.zSpreadFromCurvesAndClean(bond,
                                                                                        data.getFirst(),
                                                                                        data.getSecond());
@@ -46,18 +46,18 @@ public final class ZSpreadIssuerCalculator extends
   //TODO add BondIborSecurity, BondInterestIndexedSecurity when clean price is supported
 
   @Override
-  public Double visitBondFixedSecurity(BondFixedSecurity bond, ObjectsPair<IssuerProviderInterface, Double> data) {
+  public Double visitBondFixedSecurity(BondFixedSecurity bond, Pair<IssuerProviderInterface, Double> data) {
     return getBondZSpreadPrice(bond, data);
   }
 
   @Override
-  public Double visitBondFixedTransaction(BondFixedTransaction bond, ObjectsPair<IssuerProviderInterface, Double> data) {
+  public Double visitBondFixedTransaction(BondFixedTransaction bond, Pair<IssuerProviderInterface, Double> data) {
     return getBondZSpreadPrice(bond.getBondStandard(), data);
   }
 
   @Override
   public Double visitBondCapitalIndexedTransaction(BondCapitalIndexedTransaction<?> bond,
-                                                   ObjectsPair<IssuerProviderInterface, Double> data) {
+                                                   Pair<IssuerProviderInterface, Double> data) {
     return getBondZSpreadPrice(bond.getBondStandard(), data);
   }
 

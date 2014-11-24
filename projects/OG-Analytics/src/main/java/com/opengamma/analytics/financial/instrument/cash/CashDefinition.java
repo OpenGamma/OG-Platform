@@ -208,16 +208,6 @@ public class CashDefinition implements InstrumentDefinition<Cash> {
     return "Deposit " + _currency + " [" + _startDate + " - " + _endDate + "] - notional: " + _notional + " - rate: " + _rate;
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public Cash toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException(this.getClass().getCanonicalName());
-  }
-
   @Override
   public Cash toDerivative(final ZonedDateTime date) {
 //    return toDerivative(date, new String[] {""});

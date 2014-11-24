@@ -100,19 +100,6 @@ public class InterestRateFuturesSecurityDefinitionTest {
     assertFalse(ERU2_DEFINITION.equals(null));
   }
 
-  @SuppressWarnings("deprecation")
-  @Test
-  public void toDerivativeDeprecated() {
-    final double LAST_TRADING_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, LAST_TRADING_DATE);
-    final double FIXING_START_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, SPOT_LAST_TRADING_DATE);
-    final double FIXING_END_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, FIXING_END_DATE);
-    final double FIXING_ACCRUAL = IBOR_INDEX.getDayCount().getDayCountFraction(SPOT_LAST_TRADING_DATE, FIXING_END_DATE);
-    final InterestRateFutureSecurity ERU2 = new InterestRateFutureSecurity(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, NOTIONAL, FUTURE_FACTOR, NAME,
-        DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME);
-    final InterestRateFutureSecurity convertedERU2 = ERU2_DEFINITION.toDerivative(REFERENCE_DATE, CURVES);
-    assertTrue("Rate future security converter", ERU2.equals(convertedERU2));
-  }
-
   @Test
   public void toDerivative() {
     final double LAST_TRADING_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, LAST_TRADING_DATE);

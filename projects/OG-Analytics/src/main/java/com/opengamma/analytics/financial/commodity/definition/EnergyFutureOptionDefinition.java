@@ -33,11 +33,6 @@ public class EnergyFutureOptionDefinition extends CommodityFutureOptionDefinitio
   }
 
   @Override
-  public EnergyFutureOption toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public EnergyFutureOption toDerivative(final ZonedDateTime date) {
     ArgumentChecker.inOrderOrEqual(date, this.getExpiryDate(), "date", "expiry date");
     final double timeToFixing = TimeCalculator.getTimeBetween(date, this.getExpiryDate());

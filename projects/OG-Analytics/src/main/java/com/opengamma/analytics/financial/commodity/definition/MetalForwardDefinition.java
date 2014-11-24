@@ -97,16 +97,6 @@ public class MetalForwardDefinition extends CommodityForwardDefinition<MetalForw
   }
 
   @Override
-  public MetalForward toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public MetalForward toDerivative(final ZonedDateTime date, final Double referencePrice, final String... yieldCurveNames) {
-    return toDerivative(date, referencePrice);
-  }
-
-  @Override
   public MetalForward toDerivative(final ZonedDateTime date) {
     ArgumentChecker.inOrderOrEqual(date, this.getExpiryDate(), "date", "expiry date");
     final double timeToFixing = TimeCalculator.getTimeBetween(date, this.getExpiryDate());

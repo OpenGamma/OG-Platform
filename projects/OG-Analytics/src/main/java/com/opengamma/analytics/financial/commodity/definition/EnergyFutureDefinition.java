@@ -96,26 +96,6 @@ public class EnergyFutureDefinition extends CommodityFutureDefinition<EnergyFutu
     return new EnergyFutureDefinition(expiryDate, underlying, unitAmount, firstDeliveryDate, lastDeliveryDate, amount, unitName, SettlementType.PHYSICAL, referencePrice, currency, settlementDate);
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names.
-   */
-  @Deprecated
-  @Override
-  public EnergyFuture toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names.
-   */
-  @Deprecated
-  @Override
-  public EnergyFuture toDerivative(final ZonedDateTime date, final Double referencePrice, final String... yieldCurveNames) {
-    return toDerivative(date, referencePrice);
-  }
-
   @Override
   public EnergyFuture toDerivative(final ZonedDateTime date) {
     ArgumentChecker.inOrderOrEqual(date, this.getExpiryDate(), "date", "expiry date");

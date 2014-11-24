@@ -150,12 +150,6 @@ public class EquityOptionDefinition implements InstrumentDefinition<EquityOption
     return _settlementType;
   }
 
-  @Deprecated
-  @Override
-  public EquityOption toDerivative(ZonedDateTime date, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException(this.getClass().getCanonicalName());
-  }
-
   @Override
   public EquityOption toDerivative(final ZonedDateTime date) {
     ArgumentChecker.inOrderOrEqual(date.toLocalDate(), getExpiryDate().toLocalDate(), "valuation date", "expiry");

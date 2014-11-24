@@ -92,16 +92,6 @@ public class EquityFutureDefinition implements InstrumentDefinitionWithData<Equi
   }
 
   @Override
-  public EquityFuture toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    return toDerivative(date);
-  }
-
-  @Override
-  public EquityFuture toDerivative(final ZonedDateTime date, final Double referencePrice, final String... yieldCurveNames) {
-    return toDerivative(date, referencePrice);
-  }
-
-  @Override
   public EquityFuture toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "date");
     final double timeToFixing = TimeCalculator.getTimeBetween(date, _expiryDate);

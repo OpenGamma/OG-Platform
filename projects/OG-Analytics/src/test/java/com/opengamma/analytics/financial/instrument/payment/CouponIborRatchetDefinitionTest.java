@@ -113,22 +113,6 @@ public class CouponIborRatchetDefinitionTest {
     assertFalse("Ratchet Ibor Coupon: equal/hash", RATCHET_IBOR_DEFINITION.equals(modified));
   }
 
-  @SuppressWarnings("deprecation")
-  @Test
-  /**
-   * Test the toDerivative of Ratchet coupon with no fixing rate available.
-   */
-  public void toDerivativesNoFixingDeprecated() {
-    final CouponIborRatchet cpnConverted = RATCHET_IBOR_DEFINITION.toDerivative(REFERENCE_DATE, CURVES);
-    final double paymentTime = TimeCalculator.getTimeBetween(REFERENCE_DATE, PAYMENT_DATE);
-    final double fixingTime = TimeCalculator.getTimeBetween(REFERENCE_DATE, RATCHET_IBOR_DEFINITION.getFixingDate());
-    final double fixingPeriodStartTime = TimeCalculator.getTimeBetween(REFERENCE_DATE, RATCHET_IBOR_DEFINITION.getFixingPeriodStartDate());
-    final double fixingPeriodEndTime = TimeCalculator.getTimeBetween(REFERENCE_DATE, RATCHET_IBOR_DEFINITION.getFixingPeriodEndDate());
-    final CouponIborRatchet cpnExpected = new CouponIborRatchet(CUR, paymentTime, DISCOUNTING_CURVE_NAME, ACCRUAL_FACTOR, NOTIONAL, fixingTime, fixingPeriodStartTime, fixingPeriodEndTime,
-        RATCHET_IBOR_DEFINITION.getFixingPeriodAccrualFactor(), FORWARD_CURVE_NAME, INDEX_IBOR, MAIN_COEF, FLOOR_COEF, CAP_COEF);
-    assertEquals("Ratchet Ibor Coupon: toDerivatives", cpnExpected, cpnConverted);
-  }
-
   @Test
   /**
    * Test the toDerivative of Ratchet coupon with no fixing rate available.

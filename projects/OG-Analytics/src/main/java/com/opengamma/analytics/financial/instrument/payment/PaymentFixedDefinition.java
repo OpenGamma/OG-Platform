@@ -67,16 +67,6 @@ public class PaymentFixedDefinition extends PaymentDefinition {
     return super.toString() + "Amount = " + _amount;
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public PaymentFixed toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException(this.getClass().getCanonicalName());
-  }
-
   @Override
   public PaymentFixed toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "date");

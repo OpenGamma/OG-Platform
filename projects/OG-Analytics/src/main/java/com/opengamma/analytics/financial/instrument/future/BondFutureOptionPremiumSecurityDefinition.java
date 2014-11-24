@@ -102,16 +102,6 @@ public class BondFutureOptionPremiumSecurityDefinition implements InstrumentDefi
     return _underlyingFuture.getCurrency();
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public BondFutureOptionPremiumSecurity toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException(this.getClass().getCanonicalName());
-  }
-
   @Override
   public BondFutureOptionPremiumSecurity toDerivative(final ZonedDateTime date) {
     ArgumentChecker.isTrue(!date.isAfter(_expirationDate), "Date is after expiration date");

@@ -98,26 +98,6 @@ public class AgricultureFutureDefinition extends CommodityFutureDefinition<Agric
         SettlementType.PHYSICAL, referencePrice, currency, settlementDate);
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names.
-   */
-  @Deprecated
-  @Override
-  public AgricultureFuture toDerivative(final ZonedDateTime date, final Double referencePrice, final String... yieldCurveNames) {
-    return toDerivative(date, referencePrice);
-  }
-
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names.
-   */
-  @Deprecated
-  @Override
-  public AgricultureFuture toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException();
-  }
-
   @Override
   public AgricultureFuture toDerivative(final ZonedDateTime date, final Double referencePrice) {
     ArgumentChecker.inOrderOrEqual(date, this.getExpiryDate(), "date", "expiry date");

@@ -94,45 +94,6 @@ public class EquityVarianceSwapDefinition extends VarianceSwapDefinition {
   }
 
   @Override
-  public EquityVarianceSwap toDerivative(final ZonedDateTime valueDate, final String... yieldCurveNames) {
-    return toDerivative(valueDate, ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES, yieldCurveNames);
-  }
-
-  /**
-   * {@inheritDoc} The definition is responsible for constructing a view of the variance swap as of a particular date.
-   * In particular, it resolves calendars. The VarianceSwap needs an array of observations, as well as its *expected* length.
-   * The actual number of observations may be less than that expected at trade inception because of a market disruption event.
-   * ( For an example of a market disruption event, see http://cfe.cboe.com/Products/Spec_VT.aspx )
-   * @param valueDate Date at which valuation will occur, not null
-   * @param underlyingTimeSeries Time series of underlying observations, not null
-   * @param yieldCurveNames Not used
-   * @return VarianceSwap derivative as of date
-   */
-  @Override
-  public EquityVarianceSwap toDerivative(final ZonedDateTime valueDate, final DoubleTimeSeries<LocalDate> underlyingTimeSeries, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(valueDate, "date");
-    ArgumentChecker.notNull(underlyingTimeSeries, "A TimeSeries of observations must be provided. If observations have not begun, please pass an empty series.");
-    final double timeToObsStart = TimeCalculator.getTimeBetween(valueDate, getObsStartDate());
-    final double timeToObsEnd = TimeCalculator.getTimeBetween(valueDate, getObsEndDate());
-    final double timeToSettlement = TimeCalculator.getTimeBetween(valueDate, getSettlementDate());
-    DoubleTimeSeries<LocalDate> realizedTS;
-    if (timeToObsStart > 0) {
-      realizedTS = ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES;
-    } else {
-      realizedTS = underlyingTimeSeries.subSeries(getObsStartDate().toLocalDate(), true, valueDate.toLocalDate(), false);
-    }
-    final double[] observations = realizedTS.valuesArrayFast();
-    final double[] observationWeights = {}; // TODO Case 2011-06-29 Calendar Add functionality for non-trivial weighting of observations
-    // if we view this option on some date between the observation start and end dates, then the observation on that particular
-    // date will not have been made (observations are closing levels)
-    final int nObservations = valueDate.isAfter(getObsEndDate()) ? getObsExpected() : (valueDate.isBefore(getObsStartDate()) ? 0 : getDaysBetween(getObsStartDate(), valueDate, getCalendar()));
-    final int nObsDisrupted = nObservations - observations.length;
-    ArgumentChecker.isTrue(nObsDisrupted >= 0, "Have more observations {} than good business days {}", observations.length, nObservations);
-    return new EquityVarianceSwap(timeToObsStart, timeToObsEnd, timeToSettlement, getVarStrike(), getVarNotional(), getCurrency(), getAnnualizationFactor(), getObsExpected(), nObsDisrupted,
-        observations, observationWeights, correctForDividends());
-  }
-
-  @Override
   public EquityVarianceSwap toDerivative(final ZonedDateTime valueDate) {
     return toDerivative(valueDate, ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES);
   }

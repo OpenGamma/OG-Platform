@@ -31,11 +31,6 @@ public class AgricultureFutureTransactionDefinition extends CommodityFutureTrans
   }
 
   @Override
-  public AgricultureFutureTransaction toDerivative(final ZonedDateTime date, final Double data, final String... yieldCurveNames) {
-    return toDerivative(date, data);
-  }
-
-  @Override
   public AgricultureFutureTransaction toDerivative(final ZonedDateTime date, final Double lastMarginPrice) {
     ArgumentChecker.notNull(date, "date");
     final LocalDate dateLocal = date.toLocalDate();
@@ -52,11 +47,6 @@ public class AgricultureFutureTransactionDefinition extends CommodityFutureTrans
     }
     final AgricultureFutureSecurity underlying = (AgricultureFutureSecurity) getUnderlying().toDerivative(date);
     return new AgricultureFutureTransaction(underlying, getQuantity(), referencePrice);
-  }
-
-  @Override
-  public AgricultureFutureTransaction toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    return toDerivative(date);
   }
 
   @Override

@@ -91,22 +91,12 @@ public class EquityTotalReturnSwapDefinition extends TotalReturnSwapDefinition {
   }
 
   @Override
-  public EquityTotalReturnSwap toDerivative(final ZonedDateTime date, final ZonedDateTimeDoubleTimeSeries data, final String... yieldCurveNames) {
-    return toDerivative(date, data);
-  }
-
-  @Override
   public EquityTotalReturnSwap toDerivative(final ZonedDateTime date, final ZonedDateTimeDoubleTimeSeries data) {
     final double effectiveTime = TimeCalculator.getTimeBetween(date, getEffectiveDate());
     final double terminationTime = TimeCalculator.getTimeBetween(date, getTerminationDate());
     final Annuity<? extends Payment> fundingLeg = getFundingLeg().toDerivative(date, data);
     final Equity equity = (Equity) getAsset().toDerivative(date);
     return new EquityTotalReturnSwap(effectiveTime, terminationTime, fundingLeg, equity, _notionalAmount, _notionalCurrency, _dividendPercentage);
-  }
-
-  @Override
-  public EquityTotalReturnSwap toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    return toDerivative(date);
   }
 
   @Override
