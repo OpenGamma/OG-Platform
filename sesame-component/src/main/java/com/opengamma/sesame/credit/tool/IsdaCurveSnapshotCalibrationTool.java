@@ -56,7 +56,6 @@ import com.opengamma.service.VersionCorrectionProvider;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.SimpleEnvironment;
 import com.opengamma.sesame.cache.CachingProxyDecorator;
-import com.opengamma.sesame.cache.MethodInvocationKey;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.credit.DefaultIsdaCompliantYieldCurveFn;
 import com.opengamma.sesame.credit.IsdaCompliantCreditCurveFn;
@@ -126,7 +125,7 @@ public class IsdaCurveSnapshotCalibrationTool extends AbstractTool<ToolContext> 
     ComponentMap componentMap = getComponentMap();
     
     FunctionModelConfig functionModelConfig = initGraph(ccSnapshot, ycSnapshot, componentMap);
-    Cache<MethodInvocationKey, Object> cache = buildCache();
+    Cache<Object, Object> cache = buildCache();
     CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(new DefaultCacheProvider(cache));
     
     IsdaCompliantYieldCurveFn ycFn = FunctionModel.build(DefaultIsdaCompliantYieldCurveFn.class, 
@@ -208,7 +207,7 @@ public class IsdaCurveSnapshotCalibrationTool extends AbstractTool<ToolContext> 
   /**
    * Builds a basic cache.
    */
-  private Cache<MethodInvocationKey, Object> buildCache() {
+  private Cache<Object, Object> buildCache() {
     int concurrencyLevel = Runtime.getRuntime().availableProcessors() + 2;
     return CacheBuilder.newBuilder()
         .maximumSize(50000)

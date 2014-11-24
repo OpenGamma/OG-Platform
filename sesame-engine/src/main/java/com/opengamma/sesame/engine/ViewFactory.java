@@ -24,7 +24,6 @@ import com.opengamma.core.position.PositionOrTrade;
 import com.opengamma.core.security.Security;
 import com.opengamma.sesame.cache.CacheInvalidator;
 import com.opengamma.sesame.cache.CacheProvider;
-import com.opengamma.sesame.cache.MethodInvocationKey;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.config.ViewConfig;
 import com.opengamma.sesame.function.AvailableImplementations;
@@ -59,7 +58,7 @@ public class ViewFactory implements ViewFactoryMonitor {
    * to a new, empty cache. This means the new cache will be provided to views through {@link #_cacheProvider}
    * at the start of their next calculation cycle but any views using the existing cache wil be unaffected.
    */
-  private final AtomicReference<Cache<MethodInvocationKey, Object>> _cacheRef;
+  private final AtomicReference<Cache<Object, Object>> _cacheRef;
 
   /**
    * Provides a cache to views. Views request a cache at the start of each calculation cycle and use it for
@@ -68,7 +67,7 @@ public class ViewFactory implements ViewFactoryMonitor {
    */
   private final CacheProvider _cacheProvider = new CacheProvider() {
     @Override
-    public Cache<MethodInvocationKey, Object> get() {
+    public Cache<Object, Object> get() {
       return _cacheRef.get();
     }
   };
@@ -97,7 +96,7 @@ public class ViewFactory implements ViewFactoryMonitor {
     _componentMap = ArgumentChecker.notNull(componentMap, "componentMap");
     _cacheInvalidator = ArgumentChecker.notNull(cacheInvalidator, "cacheInvalidator");
     // create an initial empty cache
-    _cacheRef = new AtomicReference<>(_cacheBuilder.<MethodInvocationKey, Object>build());
+    _cacheRef = new AtomicReference<>(_cacheBuilder.<Object, Object>build());
     _metricRegistry = ArgumentChecker.notNull(metricRegistry, "metricRegistry");
   }
 
@@ -148,8 +147,9 @@ public class ViewFactory implements ViewFactoryMonitor {
    * @return the view, not null
    */
   public View createView(ViewConfig viewConfig, EnumSet<FunctionService> services, Set<Class<?>> inputTypes) {
-    return new View(viewConfig, _executor, _defaultConfig, _functionBuilder, services, _componentMap, inputTypes,
-                    _availableOutputs, _availableImplementations, _cacheProvider, _cacheInvalidator, _metricRegistry);
+    return new View(viewConfig, _executor, _defaultConfig, _functionBuilder, services,
+                    _componentMap, inputTypes, _availableOutputs, _availableImplementations,
+                    _cacheProvider, _cacheBuilder, _cacheInvalidator, _metricRegistry);
   }
 
   /**
@@ -160,7 +160,7 @@ public class ViewFactory implements ViewFactoryMonitor {
    */
   public void clearCache() {
     s_logger.info("Clearing cache");
-    _cacheRef.set(_cacheBuilder.<MethodInvocationKey, Object>build());
+    _cacheRef.set(_cacheBuilder.<Object, Object>build());
   }
 
   @Override

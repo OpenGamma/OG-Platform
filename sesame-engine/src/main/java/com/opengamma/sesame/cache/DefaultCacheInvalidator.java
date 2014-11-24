@@ -36,7 +36,7 @@ public class DefaultCacheInvalidator implements CacheInvalidator {
   private final SetMultimap<ObjectId, MethodInvocationKey> _objectIdsToKeys = HashMultimap.create();
   private final SetMultimap<ExternalId, MethodInvocationKey> _externalIdsToKeys = HashMultimap.create();
   private final List<Pair<MethodInvocationKey, ValuationTimeCacheEntry>> _valuationTimeEntries = Lists.newArrayList();
-  private final Cache<MethodInvocationKey, Object> _cache;
+  private final Cache<Object, Object> _cache;
 
   private MarketDataSource _marketDataSource;
   private VersionCorrection _configVersionCorrection;
@@ -46,7 +46,7 @@ public class DefaultCacheInvalidator implements CacheInvalidator {
    * @param cache the cache whose entries should be invalidated when data changes
    */
   public DefaultCacheInvalidator(Provider<Collection<MethodInvocationKey>> executingMethods,
-                                 Cache<MethodInvocationKey, Object> cache) {
+                                 Cache<Object, Object> cache) {
     _cache = ArgumentChecker.notNull(cache, "cache");
     _executingMethods = ArgumentChecker.notNull(executingMethods, "executingMethods");
   }

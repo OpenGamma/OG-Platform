@@ -27,6 +27,7 @@ import com.codahale.metrics.MetricRegistry;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.Futures;
@@ -42,8 +43,9 @@ import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.cache.CacheInvalidator;
 import com.opengamma.sesame.cache.CacheProvider;
 import com.opengamma.sesame.cache.CachingProxyDecorator;
+import com.opengamma.sesame.cache.DefaultFunctionCache;
 import com.opengamma.sesame.cache.ExecutingMethodsThreadLocal;
-import com.opengamma.sesame.cache.MethodInvocationKey;
+import com.opengamma.sesame.cache.FunctionCache;
 import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.config.NonPortfolioOutput;
@@ -104,6 +106,9 @@ public class View {
    */
   private final CacheProvider _cacheFactory;
 
+  /** For building new, empty caches that are only used for a single calculation cycle. */
+  private final CacheBuilder<Object, Object> _cacheBuilder;
+
   private final Optional<MetricRegistry> _metricRegistry;
   private final ComponentMap _componentMap;
   private final CacheInvalidator _cacheInvalidator;
@@ -116,7 +121,10 @@ public class View {
    * between the view and the proxy, so the cache is stored in a thread local which is used by
    * the cache provider.
    */
-  private final ThreadLocal<Cache<MethodInvocationKey, Object>> _cacheThreadLocal = new ThreadLocal<>();
+  private final ThreadLocal<Cache<Object, Object>> _cacheThreadLocal = new ThreadLocal<>();
+
+  /** Whether caching is enabled. */
+  private final boolean _cachingEnabled;
 
   View(ViewConfig viewConfig,
        ExecutorService executor,
@@ -128,11 +136,23 @@ public class View {
        AvailableOutputs availableOutputs,
        AvailableImplementations availableImplementations,
        CacheProvider cacheFactory,
+       CacheBuilder<Object, Object> cacheBuilder,
        CacheInvalidator cacheInvalidator,
        Optional<MetricRegistry> metricRegistry) {
 
+    // Provider that supplies the cache to the caching decorators
+    // the field is updated with a cache from _cacheFactory at the start of each cycle
+    CacheProvider cacheProvider = new CacheProvider() {
+      @Override
+      public Cache<Object, Object> get() {
+        return _cacheThreadLocal.get();
+      }
+    };
+    FunctionCache cache = new DefaultFunctionCache(cacheProvider);
+    _cacheBuilder = ArgumentChecker.notNull(cacheBuilder, "cacheBuilder");
+    _cachingEnabled = services.contains(FunctionService.CACHING);
     _cacheInvalidator = ArgumentChecker.notNull(cacheInvalidator, "cacheInvalidator");
-    _componentMap = ArgumentChecker.notNull(componentMap, "componentMap");
+    _componentMap = ArgumentChecker.notNull(componentMap, "componentMap").with(FunctionCache.class, cache);
     _viewConfig = ArgumentChecker.notNull(viewConfig, "viewConfig");
     _executor = MoreExecutors.listeningDecorator(executor);
     _systemDefaultConfig = ArgumentChecker.notNull(systemDefaultConfig, "systemDefaultConfig");
@@ -142,25 +162,17 @@ public class View {
 
     ExecutingMethodsThreadLocal executingMethods = new ExecutingMethodsThreadLocal();
 
-    // Provider that supplies the _cache field to the caching decorators
-    // the field is updated with a cache from _factoryCacheProvider at the start of each cycle
-    CacheProvider cacheProvider = new CacheProvider() {
-      @Override
-      public Cache<MethodInvocationKey, Object> get() {
-        return _cacheThreadLocal.get();
-      }
-    };
     NodeDecorator decorator = createNodeDecorator(services, cacheProvider, executingMethods);
 
     s_logger.debug("building graph model");
     GraphBuilder graphBuilder = new GraphBuilder(availableOutputs,
                                                  availableImplementations,
-                                                 componentMap.getComponentTypes(),
+                                                 _componentMap.getComponentTypes(),
                                                  systemDefaultConfig,
                                                  decorator);
     _graphModel = graphBuilder.build(viewConfig, inputTypes);
     s_logger.debug("graph model complete, building graph");
-    _graph = _graphModel.build(componentMap, functionBuilder);
+    _graph = _graphModel.build(_componentMap, functionBuilder);
     s_logger.debug("graph complete");
   }
 
@@ -275,19 +287,13 @@ public class View {
      * the caching proxy to retrieve it. The tasks that perform the calculations set the thread local with
      * the cycle's cache before executing the calculations and clearing the thread local afterwards.
      */
-    Cache<MethodInvocationKey, Object> cache = _cacheFactory.get();
+    Cache<Object, Object> cache = _cachingEnabled ? _cacheFactory.get() : new NoOpCache();
     ServiceContext originalContext = ThreadLocalServiceContext.getInstance();
 
     final CycleInitializer cycleInitializer = cycleArguments.isCaptureInputs() ?
-        // this uses the shared cache but creates a new graph with a new FunctionBuilder and therefore will never
-        // share any entries with any other views. effectively this fills up the shared cache with rubbish entries
-        // that will never be used after this cycle completes.
-        // if that turns out to be a problem the cache builder could be passed into this class and used to create
-        // an empty cache that's only used for this cycle.
-        // would need to create a new graph builder and model instead of reusing _graphModel
         new CapturingCycleInitializer(originalContext, _componentMap, cycleArguments,
-                                      _graphModel, _viewConfig, inputs) :
-        new StandardCycleInitializer(originalContext, cycleArguments.getCycleMarketDataFactory(), _graph);
+                                      _graphModel, _viewConfig, _cacheBuilder, inputs) :
+        new StandardCycleInitializer(originalContext, cycleArguments.getCycleMarketDataFactory(), _graph, cache);
 
     List<Task> tasks = new ArrayList<>();
     Graph graph = cycleInitializer.getGraph();
@@ -295,7 +301,7 @@ public class View {
     ScenarioDefinition scenario = _viewConfig.getScenarioDefinition();
     ServiceContext cycleContext = cycleInitializer.getServiceContext();
     ThreadLocalWrapper threadLocalWrapper =
-        new ThreadLocalWrapper(cycleContext, originalContext, cache, _cacheThreadLocal);
+        new ThreadLocalWrapper(cycleContext, originalContext, cycleInitializer.getCache(), _cacheThreadLocal);
     tasks.addAll(portfolioTasks(marketDataFactory, cycleArguments, inputs, graph, scenario, threadLocalWrapper));
     tasks.addAll(nonPortfolioTasks(marketDataFactory, cycleArguments, graph, scenario, threadLocalWrapper));
     final List<ListenableFuture<TaskResult>> resultFutures;
@@ -617,13 +623,13 @@ public class View {
 
     private final ServiceContext _cycleServiceContext;
     private final ServiceContext _originalServiceContext;
-    private final ThreadLocal<Cache<MethodInvocationKey, Object>> _cacheThreadLocal;
-    private final Cache<MethodInvocationKey, Object> _cache;
+    private final ThreadLocal<Cache<Object, Object>> _cacheThreadLocal;
+    private final Cache<Object, Object> _cache;
 
     private ThreadLocalWrapper(ServiceContext cycleServiceContext,
                                ServiceContext originalServiceContext,
-                               Cache<MethodInvocationKey, Object> cache,
-                               ThreadLocal<Cache<MethodInvocationKey, Object>> cacheThreadLocal) {
+                               Cache<Object, Object> cache,
+                               ThreadLocal<Cache<Object, Object>> cacheThreadLocal) {
       _cycleServiceContext = cycleServiceContext;
       _originalServiceContext = originalServiceContext;
       _cache = cache;

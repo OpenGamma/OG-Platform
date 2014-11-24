@@ -5,6 +5,7 @@
  */
 package com.opengamma.sesame.engine;
 
+import com.google.common.cache.Cache;
 import com.opengamma.service.ServiceContext;
 import com.opengamma.sesame.graph.Graph;
 import com.opengamma.sesame.marketdata.CycleMarketDataFactory;
@@ -44,4 +45,10 @@ interface CycleInitializer {
    */
   CycleMarketDataFactory getCycleMarketDataFactory();
 
+  /**
+   * Get the cache that should be used by functions during the cycle.
+   *
+   * @return the cache that should be used by functions during the cycle
+   */
+  Cache<Object, Object> getCache();
 }
