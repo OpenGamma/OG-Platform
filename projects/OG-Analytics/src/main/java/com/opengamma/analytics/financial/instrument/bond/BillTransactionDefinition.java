@@ -110,21 +110,6 @@ public class BillTransactionDefinition implements InstrumentDefinition<BillTrans
     return "Transaction: " + _quantity + " of " + _underlying.toString();
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public BillTransaction toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(date, "Reference date");
-    ArgumentChecker.notNull(yieldCurveNames, "Yield curve names");
-    final BillSecurity purchased = _underlying.toDerivative(date, _settlementDate, yieldCurveNames);
-    final BillSecurity standard = _underlying.toDerivative(date, yieldCurveNames);
-    final double amount = (_settlementDate.isBefore(date)) ? 0.0 : _settlementAmount;
-    return new BillTransaction(purchased, _quantity, amount, standard);
-  }
-
   @Override
   public BillTransaction toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "Reference date");

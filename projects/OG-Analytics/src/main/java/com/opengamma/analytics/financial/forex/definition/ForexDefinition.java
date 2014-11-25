@@ -125,21 +125,6 @@ public class ForexDefinition implements InstrumentDefinition<InstrumentDerivativ
     return _paymentCurrency2.getPaymentDate();
   }
 
-  /**
-   * {@inheritDoc}
-   * The first curve is the discounting curve for the first currency and the second curve is the discounting curve for the second currency.
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public Forex toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(date, "date");
-    ArgumentChecker.notNull(yieldCurveNames, "Curves");
-    final PaymentFixed payment1 = _paymentCurrency1.toDerivative(date, yieldCurveNames[0]);
-    final PaymentFixed payment2 = _paymentCurrency2.toDerivative(date, yieldCurveNames[1]);
-    return new Forex(payment1, payment2);
-  }
-
   @Override
   public Forex toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "date");

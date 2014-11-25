@@ -16,17 +16,12 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.StandardCDSQuotingConvention;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalytic;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSQuoteConvention;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.MarketQuoteConverter;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ParSpread;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.PointsUpFront;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.PriceType;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.QuotedSpread;
 import com.opengamma.analytics.math.curve.NodalTenorDoubleCurve;
-import com.opengamma.financial.analytics.model.credit.isdanew.CDSAnalyticConverter;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.Tenor;
 
@@ -108,81 +103,6 @@ public class SpreadCurveFunctions {
       }
     }
     return tenors.toArray(new Tenor[tenors.size()]);
-  }
-
- 
-
-  /**
-   * Format the spread curve for a given cds.
-   * For IMM dates set all spreads to bucket maturity is in.
-   * For non-IMM dates take subset of spreads that correspond to buckets.
-   *
-   * Doesn't handle PUF and non-IMM.
-   *
-   * @param cds the cds security
-   * @param spreadCurve the spread curve
-   * @param bucketDates the bucket dates
-   * @param quoteConvention the quote convention (e.g Spread, points upfront etc)
-   * @return the spread curve for the given cds
-   */
-  @Deprecated
-  public static double[] getSpreadCurve(final LegacyVanillaCreditDefaultSwapDefinition cds, final NodalTenorDoubleCurve spreadCurve, final ZonedDateTime[] bucketDates,
-      final StandardCDSQuotingConvention quoteConvention, final ZonedDateTime valuationDate, final ISDACompliantYieldCurve isdaCurve, final ZonedDateTime startDate) {
-    ArgumentChecker.notNull(spreadCurve, "spread curve");
-    ArgumentChecker.notNull(bucketDates, "bucket dates");
-    ArgumentChecker.isTrue(spreadCurve.size() > 0, "spread curve had no values");
-    final double[] spreads = new double[bucketDates.length];
-
-    // if IMM date take flat spread from imm curve (all values set to single bucket spread)
-    if (IMMDateGenerator.isIMMDate((cds.getMaturityDate()))) {
-      // find index of bucket this cds maturity is in - should really implement a custom comparator and do a binary search
-      Double spreadRate = spreadCurve.getYData()[0];
-
-      for (final Tenor tenor : spreadCurve.getXData()) {
-        final ZonedDateTime bucketDate = startDate.plus(tenor.getPeriod());
-        if (!bucketDate.isAfter(cds.getMaturityDate())) {
-          spreadRate = spreadCurve.getYValue(tenor);
-        } else {
-          break; // stop when we find desired bucket
-        }
-      }
-      // If IMM and points upfront calculate spread
-      switch (quoteConvention) {
-        case SPREAD:
-          break;
-        case POINTS_UPFRONT:
-          // can price type vary?
-          //FIXME: Conversion to percentage should happen upstream or in analytics
-          final CDSAnalytic analytic = CDSAnalyticConverter.create(cds, valuationDate.toLocalDate());
-          spreadRate = PUF_converter.pufToQuotedSpread(analytic, cds.getParSpread() * s_tenminus4, isdaCurve, spreadRate / 100.0);
-          break;
-        default:
-          throw new OpenGammaRuntimeException("Unknown quote convention " + quoteConvention);
-      }
-      // set all spreads to desired spread
-      Arrays.fill(spreads, spreadRate.doubleValue() * s_tenminus4);
-      return spreads;
-    }
-
-    // non-IMM date take spread from subset of dates that we want
-    int i = 0;
-    for (final Tenor tenor : spreadCurve.getXData()) {
-      final ZonedDateTime bucketDate = startDate.plus(tenor.getPeriod());
-      final int index = Arrays.binarySearch(bucketDates, bucketDate);
-      if (index >= 0) {
-        spreads[i++] = spreadCurve.getYValue(tenor) * s_tenminus4;
-      }
-    }
-    // if spread curve ends before required buckets take last spread entry
-    for (int j = spreads.length - 1; j >= 0; j--) {
-      final double lastspread = spreadCurve.getYData()[spreadCurve.getYData().length - 1] * s_tenminus4;
-      if (spreads[j] == 0) {
-        spreads[j] = lastspread;
-      } else {
-        break;
-      }
-    }
-    return spreads;
   }
 
   /**

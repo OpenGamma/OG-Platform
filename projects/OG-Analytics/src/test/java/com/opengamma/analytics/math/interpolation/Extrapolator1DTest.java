@@ -108,7 +108,7 @@ public class Extrapolator1DTest {
   @Test
   public void testLinearExtrapolation() {
     for (int i = 0; i < X_TEST.length; i++) {
-      assertEquals(LINEAR_EXTRAPOLATOR.interpolate(DATA, X_TEST[i]), Y_TEST[i], 1e-6);
+      assertEquals(Y_TEST[i], LINEAR_EXTRAPOLATOR.interpolate(DATA, X_TEST[i]), 1e-6);
     }
   }
 

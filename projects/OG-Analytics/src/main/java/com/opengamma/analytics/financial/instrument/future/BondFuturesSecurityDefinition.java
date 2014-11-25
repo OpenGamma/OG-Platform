@@ -192,32 +192,6 @@ public class BondFuturesSecurityDefinition extends FuturesSecurityDefinition<Bon
     return _deliveryBasket[0].getCurrency();
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public BondFuturesSecurity toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(date, "date");
-    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
-    ArgumentChecker.isTrue(yieldCurveNames.length > 1, "at least two curves required");
-    ArgumentChecker.isTrue(!date.isAfter(getNoticeLastDate()), "Date is after last notice date");
-    final double lastTradingTime = TimeCalculator.getTimeBetween(date, getLastTradingDate());
-    final double firstNoticeTime = TimeCalculator.getTimeBetween(date, getNoticeFirstDate());
-    final double lastNoticeTime = TimeCalculator.getTimeBetween(date, getNoticeLastDate());
-    final double firstDeliveryTime = TimeCalculator.getTimeBetween(date, getDeliveryFirstDate());
-    final double lastDeliveryTime = TimeCalculator.getTimeBetween(date, getDeliveryLastDate());
-    final BondFixedSecurity[] basketAtDeliveryDate = new BondFixedSecurity[_deliveryBasket.length];
-    final BondFixedSecurity[] basketAtSpotDate = new BondFixedSecurity[_deliveryBasket.length];
-    for (int loopbasket = 0; loopbasket < _deliveryBasket.length; loopbasket++) {
-      basketAtDeliveryDate[loopbasket] = _deliveryBasket[loopbasket].toDerivative(date, _deliveryLastDate, yieldCurveNames);
-      basketAtSpotDate[loopbasket] = _deliveryBasket[loopbasket].toDerivative(date, yieldCurveNames);
-    }
-    return new BondFuturesSecurity(lastTradingTime, firstNoticeTime, lastNoticeTime, firstDeliveryTime, lastDeliveryTime, _notional,
-        basketAtDeliveryDate, basketAtSpotDate, _conversionFactor);
-  }
-
   @Override
   public BondFuturesSecurity toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "date");

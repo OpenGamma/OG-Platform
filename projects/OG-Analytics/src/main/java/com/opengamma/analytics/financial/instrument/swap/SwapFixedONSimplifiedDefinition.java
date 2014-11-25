@@ -174,19 +174,6 @@ public class SwapFixedONSimplifiedDefinition extends SwapDefinition {
     return (AnnuityCouponONSimplifiedDefinition) getSecondLeg();
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @SuppressWarnings({"unchecked" })
-  @Override
-  public SwapFixedCoupon<Coupon> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    final Annuity<CouponFixed> fixedLeg = this.getFixedLeg().toDerivative(date, yieldCurveNames);
-    final Annuity<? extends Coupon> oisLeg = (Annuity<? extends Coupon>) this.getOISLeg().toDerivative(date, yieldCurveNames);
-    return new SwapFixedCoupon<>(fixedLeg, (Annuity<Coupon>) oisLeg);
-  }
-
   @SuppressWarnings({"unchecked" })
   @Override
   public SwapFixedCoupon<Coupon> toDerivative(final ZonedDateTime date) {

@@ -75,53 +75,6 @@ public class BondFutureTransactionDefinitionTest {
     assertFalse(FUTURE_TRANSACTION_DEFINITION.equals(null));
   }
 
-  @SuppressWarnings("deprecation")
-  @Test
-  /**
-   * Tests the toDerivative method.
-   */
-  public void toDerivativeOnTradeDateDeprecated() {
-    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 6, 21);
-    final String creditCruveName = "Credit";
-    final String repoCurveName = "Repo";
-    final String[] curvesName = {creditCruveName, repoCurveName };
-    final double lastMarginPrice = 1.0234;
-    final BondFuturesTransaction futureConverted = FUTURE_TRANSACTION_DEFINITION.toDerivative(referenceDate, lastMarginPrice, curvesName);
-    final BondFuturesSecurity security = FUTURE_DEFINITION.toDerivative(referenceDate, curvesName);
-    final BondFuturesTransaction futureConstructed = new BondFuturesTransaction(security, QUANTITY, TRADE_PRICE);
-    assertEquals("Bond future transaction definition: to derivative", futureConstructed, futureConverted);
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test
-  /**
-   * Tests the toDerivative method.
-   */
-  public void toDerivativeAfterTradeDateDeprecated() {
-    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 6, 22);
-    final String creditCruveName = "Credit";
-    final String repoCurveName = "Repo";
-    final String[] curvesName = {creditCruveName, repoCurveName };
-    final double lastMarginPrice = 1.0234;
-    final BondFuturesTransaction futureConverted = FUTURE_TRANSACTION_DEFINITION.toDerivative(referenceDate, lastMarginPrice, curvesName);
-    final BondFuturesSecurity security = FUTURE_DEFINITION.toDerivative(referenceDate, curvesName);
-    final BondFuturesTransaction futureConstructed = new BondFuturesTransaction(security, QUANTITY, lastMarginPrice);
-    assertEquals("Bond future transaction definition: to derivative", futureConstructed, futureConverted);
-  }
-
-  /**
-   * Tests the exception of to derivative method when no reference price is provided.
-   */
-  @SuppressWarnings("deprecation")
-  @Test(expectedExceptions = UnsupportedOperationException.class)
-  public void toDerivativeNoReferencePriceDeprecated() {
-    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 6, 22);
-    final String creditCruveName = "Credit";
-    final String repoCurveName = "Repo";
-    final String[] curvesName = {creditCruveName, repoCurveName };
-    FUTURE_TRANSACTION_DEFINITION.toDerivative(referenceDate, curvesName);
-  }
-
   @Test
   /**
    * Tests the toDerivative method.

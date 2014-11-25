@@ -7,8 +7,6 @@ package com.opengamma.analytics.math.interpolation;
 
 import java.util.Arrays;
 
-import org.apache.commons.lang.NotImplementedException;
-
 import com.google.common.primitives.Doubles;
 import com.opengamma.analytics.math.FunctionUtils;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
@@ -26,6 +24,9 @@ import com.opengamma.util.ParallelArrayBinarySort;
  * For interpolation without node sensitivity, use {@link PiecewiseCubicHermiteSplineInterpolator}
  */
 public class PiecewiseCubicHermiteSplineInterpolatorWithSensitivity extends PiecewisePolynomialInterpolator {
+
+  /** interpolator without sensitivity **/
+  private static final PiecewiseCubicHermiteSplineInterpolator INTERP = new PiecewiseCubicHermiteSplineInterpolator();
 
   @Override
   public PiecewisePolynomialResultsWithSensitivity interpolateWithSensitivity(final double[] xValues, final double[] yValues) {
@@ -305,12 +306,12 @@ public class PiecewiseCubicHermiteSplineInterpolatorWithSensitivity extends Piec
 
   @Override
   public PiecewisePolynomialResult interpolate(final double[] xValues, final double[] yValues) {
-    throw new NotImplementedException();
+    return INTERP.interpolate(xValues, yValues);
   }
 
   @Override
   public PiecewisePolynomialResult interpolate(double[] xValues, double[][] yValuesMatrix) {
-    throw new NotImplementedException();
+    return INTERP.interpolate(xValues, yValuesMatrix);
   }
 
 }

@@ -168,7 +168,7 @@ public abstract class FXOptionVannaVolgaFunction extends AbstractFunction.NonCom
 
   protected InstrumentDerivative getDerivative(final FinancialSecurity security, final String[] allCurveNames, final CurrencyPairs baseQuotePairs, final ZonedDateTime now) {
     final InstrumentDefinition<?> definition = security.accept(new ForexSecurityConverter(baseQuotePairs));
-    return definition.toDerivative(now, allCurveNames);
+    return definition.toDerivative(now);
   }
 
   protected SmileDeltaTermStructureVannaVolgaDataBundle getSmiles(final Currency putCurrency, final Currency callCurrency, final String[] allCurveNames,

@@ -333,22 +333,6 @@ public class AnnuityCouponFixedDefinition extends AnnuityDefinition<CouponFixedD
     return new AnnuityCouponFixedDefinition(list.toArray(new CouponFixedDefinition[list.size()]), getCalendar());
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public AnnuityCouponFixed toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    final List<CouponFixed> resultList = new ArrayList<>();
-    for (int loopcoupon = 0; loopcoupon < getPayments().length; loopcoupon++) {
-      if (!date.isAfter(getNthPayment(loopcoupon).getPaymentDate())) {
-        resultList.add(getNthPayment(loopcoupon).toDerivative(date, yieldCurveNames));
-      }
-    }
-    return new AnnuityCouponFixed(resultList.toArray(new CouponFixed[resultList.size()]));
-  }
-
   @Override
   public AnnuityCouponFixed toDerivative(final ZonedDateTime date) {
     final List<CouponFixed> resultList = new ArrayList<>();

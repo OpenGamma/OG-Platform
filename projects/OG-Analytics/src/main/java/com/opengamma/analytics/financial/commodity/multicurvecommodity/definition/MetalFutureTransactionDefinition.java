@@ -24,11 +24,6 @@ public class MetalFutureTransactionDefinition extends CommodityFutureTransaction
   }
 
   @Override
-  public MetalFutureTransaction toDerivative(final ZonedDateTime date, final Double data, final String... yieldCurveNames) {
-    return toDerivative(date, data);
-  }
-
-  @Override
   public MetalFutureTransaction toDerivative(final ZonedDateTime date, final Double lastMarginPrice) {
     ArgumentChecker.notNull(date, "date");
     final LocalDate dateLocal = date.toLocalDate();
@@ -45,11 +40,6 @@ public class MetalFutureTransactionDefinition extends CommodityFutureTransaction
     }
     final MetalFutureSecurity underlying = (MetalFutureSecurity) getUnderlying().toDerivative(date);
     return new MetalFutureTransaction(underlying, getQuantity(), referencePrice);
-  }
-
-  @Override
-  public MetalFutureTransaction toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    return toDerivative(date);
   }
 
   @Override

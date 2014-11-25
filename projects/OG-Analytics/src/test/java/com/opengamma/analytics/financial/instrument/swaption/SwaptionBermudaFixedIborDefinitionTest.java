@@ -135,26 +135,4 @@ public class SwaptionBermudaFixedIborDefinitionTest {
     assertEquals("Swaption Bermuda: to derivatives", swaptionBermuda, BERMUDA_SWAPTION_DEFINITION.toDerivative(REFERENCE_DATE));
   }
 
-  @SuppressWarnings("deprecation")
-  @Test
-  /**
-   * Tests the toDerivative method.
-   */
-  public void toDerivativesDeprecated() {
-    final DayCount actAct = DayCounts.ACT_ACT_ISDA;
-    final String FUNDING_CURVE_NAME = "Funding";
-    final String FORWARD_CURVE_NAME = "Forward";
-    final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME};
-    final double[] expiryTime = new double[NB_EXPIRY];
-    final double[] settleTime = new double[NB_EXPIRY];
-    @SuppressWarnings("unchecked")
-    final SwapFixedCoupon<Coupon>[] underlyingSwap = new SwapFixedCoupon[NB_EXPIRY];
-    for (int loopexp = 0; loopexp < NB_EXPIRY; loopexp++) {
-      expiryTime[loopexp] = actAct.getDayCountFraction(REFERENCE_DATE, EXPIRY_DATE[loopexp]);
-      underlyingSwap[loopexp] = EXPIRY_SWAP_DEFINITION[loopexp].toDerivative(REFERENCE_DATE, CURVES_NAME);
-      settleTime[loopexp] = actAct.getDayCountFraction(REFERENCE_DATE, EXPIRY_SWAP_DEFINITION[loopexp].getFixedLeg().getNthPayment(0).getAccrualStartDate());
-    }
-    final SwaptionBermudaFixedIbor swaptionBermuda = new SwaptionBermudaFixedIbor(underlyingSwap, IS_LONG, expiryTime, settleTime);
-    assertEquals("Swaption Bermuda: to derivatives", swaptionBermuda, BERMUDA_SWAPTION_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME));
-  }
 }

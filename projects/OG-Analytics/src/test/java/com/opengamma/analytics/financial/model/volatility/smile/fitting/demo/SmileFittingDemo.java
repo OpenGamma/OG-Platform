@@ -48,7 +48,7 @@ import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResultsWit
  * (nominal expiry is 20-Dec-2014, which is a Saturday)
  */
 public class SmileFittingDemo {
-  private static final double FORWORD = 1879.52;
+  private static final double FORWARD = 1879.52;
   @SuppressWarnings("unused")
   private static final double RATE = 0.00231;
   private static final double EXPIRY = 60.49514 / 365.;
@@ -87,10 +87,10 @@ public class SmileFittingDemo {
     double beta = 1.0;
     double rho = -0.9;
     double nu = 1.8;
-    double alpha = atmVol * Math.pow(FORWORD, 1 - beta);
+    double alpha = atmVol * Math.pow(FORWARD, 1 - beta);
 
     DoubleMatrix1D start = new DoubleMatrix1D(alpha, beta, rho, nu);
-    SmileModelFitter<SABRFormulaData> sabrFitter = new SABRModelFitter(FORWORD, STRIKES, EXPIRY, IMPLIED_VOLS, ERRORS, SABR);
+    SmileModelFitter<SABRFormulaData> sabrFitter = new SABRModelFitter(FORWARD, STRIKES, EXPIRY, IMPLIED_VOLS, ERRORS, SABR);
     Function1D<Double, Double> smile = fitSmile(sabrFitter, start, fixed);
     printSmile(smile);
   }
@@ -106,7 +106,7 @@ public class SmileFittingDemo {
   @Test(description = "Demo")
   public void globalSVIFitDemo() {
     SVIVolatilityFunction model = new SVIVolatilityFunction();
-    SVIModelFitter fitter = new SVIModelFitter(FORWORD, STRIKES, EXPIRY, IMPLIED_VOLS, ERRORS, model);
+    SVIModelFitter fitter = new SVIModelFitter(FORWARD, STRIKES, EXPIRY, IMPLIED_VOLS, ERRORS, model);
     DoubleMatrix1D start = new DoubleMatrix1D(0.015, 0.1, -0.3, 0.3, 0.0);
     BitSet fixed = new BitSet();
     Function1D<Double, Double> smile = fitSmile(fitter, start, fixed);
@@ -130,7 +130,7 @@ public class SmileFittingDemo {
   @Test(description = "Demo")
   public void globalHestonFitDemo() {
     HestonVolatilityFunction model = new HestonVolatilityFunction();
-    HestonModelFitter fitter = new HestonModelFitter(FORWORD, STRIKES, EXPIRY, IMPLIED_VOLS, ERRORS, model);
+    HestonModelFitter fitter = new HestonModelFitter(FORWARD, STRIKES, EXPIRY, IMPLIED_VOLS, ERRORS, model);
     DoubleMatrix1D start = new DoubleMatrix1D(0.1, 0.02, 0.02, 0.4, -0.5);
     BitSet fixed = new BitSet();
     Function1D<Double, Double> smile = fitSmile(fitter, start, fixed);
@@ -147,7 +147,7 @@ public class SmileFittingDemo {
     int nNorms = 2;
     boolean useShiftedMeans = true;
     MixedLogNormalVolatilityFunction model = MixedLogNormalVolatilityFunction.getInstance();
-    MixedLogNormalModelFitter fitter = new MixedLogNormalModelFitter(FORWORD, STRIKES, EXPIRY, IMPLIED_VOLS, ERRORS, model, nNorms, useShiftedMeans);
+    MixedLogNormalModelFitter fitter = new MixedLogNormalModelFitter(FORWARD, STRIKES, EXPIRY, IMPLIED_VOLS, ERRORS, model, nNorms, useShiftedMeans);
     DoubleMatrix1D start = new DoubleMatrix1D(0.1, 0.2, 1.5, 1.5);
     BitSet fixed = new BitSet();
     Function1D<Double, Double> smile = fitSmile(fitter, start, fixed);
@@ -172,10 +172,10 @@ public class SmileFittingDemo {
     double beta = 1.0;
     double rho = -0.9;
     double nu = 1.8;
-    double alpha = atmVol * Math.pow(FORWORD, 1 - beta);
+    double alpha = atmVol * Math.pow(FORWARD, 1 - beta);
 
     DoubleMatrix1D start = new DoubleMatrix1D(alpha, beta, rho, nu);
-    SmileModelFitter<SABRFormulaData> sabrFitter = new SABRModelFitter(FORWORD, STRIKES, EXPIRY, IMPLIED_VOLS, ERRORS, SABR);
+    SmileModelFitter<SABRFormulaData> sabrFitter = new SABRModelFitter(FORWARD, STRIKES, EXPIRY, IMPLIED_VOLS, ERRORS, SABR);
     Function1D<Double, Double> smile = fitSmile(sabrFitter, start, fixed, STRIKES[0], STRIKES[STRIKES.length - 1]);
     printSmile(smile);
   }
@@ -193,13 +193,13 @@ public class SmileFittingDemo {
     double beta = 1.0;
     double rho = -0.9;
     double nu = 1.8;
-    double alpha = atmVol * Math.pow(FORWORD, 1 - beta);
+    double alpha = atmVol * Math.pow(FORWARD, 1 - beta);
 
     double muLow = 1.0;
     double muHigh = 1.0;
 
     DoubleMatrix1D start = new DoubleMatrix1D(alpha, beta, rho, nu);
-    SABRModelFitter sabrFitter = new SABRModelFitter(FORWORD, STRIKES, EXPIRY, IMPLIED_VOLS, ERRORS, SABR);
+    SABRModelFitter sabrFitter = new SABRModelFitter(FORWARD, STRIKES, EXPIRY, IMPLIED_VOLS, ERRORS, SABR);
     Function1D<Double, Double> smile = fitSmile(sabrFitter, start, fixed, STRIKES[0], STRIKES[STRIKES.length - 1], muLow, muHigh);
     printSmile(smile);
   }
@@ -216,7 +216,7 @@ public class SmileFittingDemo {
   @Test(description = "Demo")
   void sabrInterpolationTest() {
     GeneralSmileInterpolator sabr_interpolator = new SmileInterpolatorSABR();
-    Function1D<Double, Double> smile = sabr_interpolator.getVolatilityFunction(FORWORD, STRIKES, EXPIRY, IMPLIED_VOLS);
+    Function1D<Double, Double> smile = sabr_interpolator.getVolatilityFunction(FORWARD, STRIKES, EXPIRY, IMPLIED_VOLS);
     printSmile(smile);
   }
 
@@ -227,7 +227,7 @@ public class SmileFittingDemo {
   @Test
   void splineInterpolatorTest() {
     GeneralSmileInterpolator spline = new SmileInterpolatorSpline();
-    Function1D<Double, Double> smile = spline.getVolatilityFunction(FORWORD, STRIKES, EXPIRY, IMPLIED_VOLS);
+    Function1D<Double, Double> smile = spline.getVolatilityFunction(FORWARD, STRIKES, EXPIRY, IMPLIED_VOLS);
     printSmile(smile);
   }
 
@@ -359,7 +359,7 @@ public class SmileFittingDemo {
     VolatilityFunctionProvider<?> model = fitter.getModel();
     SmileModelData data = fitter.toSmileModelData(res.getModelParameters());
 
-    return toSmileFunction(FORWORD, EXPIRY, data, model);
+    return toSmileFunction(FORWARD, EXPIRY, data, model);
   }
 
   /**
@@ -377,8 +377,8 @@ public class SmileFittingDemo {
     VolatilityFunctionProvider<?> model = fitter.getModel();
     SmileModelData data = fitter.toSmileModelData(res.getModelParameters());
 
-    Function1D<Double, Double> smile = toSmileFunction(FORWORD, EXPIRY, data, model);
-    return fitShiftedLogNormalTails(FORWORD, EXPIRY, smile, lowerStrike, upperStrike);
+    Function1D<Double, Double> smile = toSmileFunction(FORWARD, EXPIRY, data, model);
+    return fitShiftedLogNormalTails(FORWARD, EXPIRY, smile, lowerStrike, upperStrike);
   }
 
   /**
@@ -398,10 +398,10 @@ public class SmileFittingDemo {
     VolatilityFunctionProvider<SABRFormulaData> model = fitter.getModel();
     SABRFormulaData data = fitter.toSmileModelData(res.getModelParameters());
 
-    final Function1D<Double, Double> smile = toSmileFunction(FORWORD, EXPIRY, data, model);
+    final Function1D<Double, Double> smile = toSmileFunction(FORWARD, EXPIRY, data, model);
 
     BenaimDodgsonKainthExtrapolationFunctionProvider tailPro = new BenaimDodgsonKainthExtrapolationFunctionProvider(lowerMu, upperMu);
-    final Function1D<Double, Double> extrapFunc = tailPro.getExtrapolationFunction(data, data, model, FORWORD, EXPIRY, lowerStrike, upperStrike);
+    final Function1D<Double, Double> extrapFunc = tailPro.getExtrapolationFunction(data, data, model, FORWARD, EXPIRY, lowerStrike, upperStrike);
 
     return new Function1D<Double, Double>() {
       @Override

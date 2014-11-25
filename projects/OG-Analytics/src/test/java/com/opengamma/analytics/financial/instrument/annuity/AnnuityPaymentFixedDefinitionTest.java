@@ -44,32 +44,6 @@ public class AnnuityPaymentFixedDefinitionTest {
     assertEquals(CUR, annuity.getCurrency());
   }
 
-  @SuppressWarnings("deprecation")
-  @Test
-  public void testConverterDeprecated() {
-    final PaymentFixedDefinition[] annuityDefinitions = new PaymentFixedDefinition[PAYMENT_DATE.length];
-    PaymentFixed[] payment = new PaymentFixed[PAYMENT_DATE.length];
-    ZonedDateTime date = DateUtils.getUTCDate(2011, 6, 19);
-    final String name = "A";
-    for (int looppay = 0; looppay < PAYMENT_DATE.length; looppay++) {
-      annuityDefinitions[looppay] = new PaymentFixedDefinition(CUR, PAYMENT_DATE[looppay], PAYMENT_AMOUNT[looppay]);
-      payment[looppay] = annuityDefinitions[looppay].toDerivative(date, name);
-    }
-    final AnnuityPaymentFixedDefinition definition = new AnnuityPaymentFixedDefinition(annuityDefinitions, CALENDAR);
-    AnnuityPaymentFixed annuity = new AnnuityPaymentFixed(payment);
-    assertEquals(annuity, definition.toDerivative(date, name));
-    date = DateUtils.getUTCDate(2011, 8, 19);
-    payment = new PaymentFixed[PAYMENT_DATE.length - 1];
-    for (int looppay = 0; looppay < PAYMENT_DATE.length; looppay++) {
-      annuityDefinitions[looppay] = new PaymentFixedDefinition(CUR, PAYMENT_DATE[looppay], PAYMENT_AMOUNT[looppay]);
-      if (looppay > 0) {
-        payment[looppay - 1] = annuityDefinitions[looppay].toDerivative(date, name);
-      }
-    }
-    annuity = new AnnuityPaymentFixed(payment);
-    assertEquals(annuity, definition.toDerivative(date, name));
-  }
-
   @Test
   public void testConverter() {
     final PaymentFixedDefinition[] annuityDefinitions = new PaymentFixedDefinition[PAYMENT_DATE.length];

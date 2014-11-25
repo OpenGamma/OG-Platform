@@ -87,16 +87,6 @@ public class BondFuturesOptionMarginSecurityDefinition extends FuturesSecurityDe
     return _strike;
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public BondFuturesOptionMarginSecurity toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException("toDerivative not implemented with yield curve names for bond futures options.");
-  }
-
   @Override
   public BondFuturesOptionMarginSecurity toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "date");

@@ -80,17 +80,6 @@ public class CouponFixedDefinitionTest {
     assertFalse(FIXED_COUPON.equals(modifiedCoupon));
   }
 
-  @SuppressWarnings("deprecation")
-  @Test
-  public void testToDerivativeDeprecated() {
-    final DayCount actAct = DayCounts.ACT_ACT_ISDA;
-    final double paymentTime = actAct.getDayCountFraction(REFERENCE_DATE, PAYMENT_DATE);
-    final String fundingCurve = "Funding";
-    final CouponFixed couponFixed = new CouponFixed(CUR, paymentTime, fundingCurve, ACCRUAL_FACTOR, NOTIONAL, RATE, FIXED_COUPON.getAccrualStartDate(), FIXED_COUPON.getAccrualEndDate());
-    final CouponFixed convertedDefinition = FIXED_COUPON.toDerivative(REFERENCE_DATE, fundingCurve);
-    assertEquals(couponFixed, convertedDefinition);
-  }
-
   @Test
   public void testToDerivative() {
     final DayCount actAct = DayCounts.ACT_ACT_ISDA;

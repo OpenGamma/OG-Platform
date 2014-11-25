@@ -134,8 +134,7 @@ public class NelsonSiegelSvenssonBondCurveFunction extends AbstractFunction {
             throw new IllegalArgumentException("YTM should be a double");
           }
           final InstrumentDefinition<?> definition = converter.visitGovernmentBondSecurity(bondSec);
-          final String bondStringName = PROPERTY_PREFIX + "_" + CURRENCY.getCode();
-          final InstrumentDerivative bond = definition.toDerivative(now, bondStringName);
+          final InstrumentDerivative bond = definition.toDerivative(now);
           t[i] = bond.accept(LAST_DATE);
           ytm[i++] = ((Double) ytmObject / 100);
         }

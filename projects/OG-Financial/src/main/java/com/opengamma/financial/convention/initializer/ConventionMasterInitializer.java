@@ -9,10 +9,12 @@ import org.joda.beans.JodaBeanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.OvernightIndexConvention;
 import com.opengamma.financial.convention.VanillaIborLegConvention;
 import com.opengamma.financial.security.index.IborIndex;
 import com.opengamma.financial.security.index.OvernightIndex;
+import com.opengamma.id.ExternalId;
 import com.opengamma.master.convention.ConventionDocument;
 import com.opengamma.master.convention.ConventionMaster;
 import com.opengamma.master.convention.ConventionSearchRequest;
@@ -22,6 +24,8 @@ import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.SecurityMasterUtils;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.Tenor;
 
 /**
  * A tool that allows a convention master to be initialized.
@@ -34,8 +38,33 @@ import com.opengamma.util.ArgumentChecker;
  */
 public abstract class ConventionMasterInitializer {
 
+  /**
+   * Convention string reference.
+   */
+  protected static final String CONV = PerCurrencyConventionHelper.SCHEME_NAME;
+
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(ConventionMasterInitializer.class);
+
+  protected String liborConvention(Currency ccy) {
+    return ccy.getCode() + PerCurrencyConventionHelper.LIBOR_CONV;
+  }
+
+  protected ExternalId liborConventionId(Currency ccy, Tenor tenor) {
+    return ExternalId.of(CONV, liborConvention(ccy) + tenor.toFormattedString().substring(1));
+  }
+
+  protected ExternalId oisLegId(Currency ccy) {
+    return ExternalId.of(CONV, ccy.getCode() + PerCurrencyConventionHelper.OIS_ON_LEG);
+  }
+
+  protected ExternalId fixLegId(Currency ccy) {
+    return ExternalId.of(CONV, ccy.getCode() + PerCurrencyConventionHelper.IRS_FIXED_LEG);
+  }
+
+  protected ExternalId oisFixLegId(Currency ccy) {
+    return ExternalId.of(CONV, ccy.getCode() + PerCurrencyConventionHelper.OIS_FIXED_LEG);
+  }
 
   /**
    * Initializes the specified master.
@@ -104,7 +133,15 @@ public abstract class ConventionMasterInitializer {
 
   protected void addIborSecurity(final SecurityMaster securityMaster, final VanillaIborLegConvention convention) {
     ArgumentChecker.notEmpty(convention.getExternalIdBundle(), "externalIdBundle");
-    addSecurity(securityMaster, new IborIndex(convention.getName(), convention.getName(), convention.getResetTenor(), convention.getIborIndexConvention(), convention.getExternalIdBundle()));
+    addSecurity(securityMaster,
+        new IborIndex(convention.getName(), convention.getName(), convention.getResetTenor(),
+                      convention.getIborIndexConvention(), convention.getExternalIdBundle()));
+  }
+
+  protected void addIborSecurity(final SecurityMaster securityMaster, final IborIndexConvention convention, Tenor tenor) {
+    addSecurity(securityMaster,
+                new IborIndex(convention.getName(), convention.getName(), tenor,
+                              convention.getExternalIdBundle().iterator().next(), convention.getExternalIdBundle()));
   }
 
   protected void addOvernightSecurity(final SecurityMaster securityMaster, final OvernightIndexConvention convention) {

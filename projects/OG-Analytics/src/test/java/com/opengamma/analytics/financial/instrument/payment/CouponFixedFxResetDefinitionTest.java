@@ -192,18 +192,4 @@ public class CouponFixedFxResetDefinitionTest {
     assertEquals("CouponFixedFxResetDefinition: toDerivative", cpnExpected, cpnConverted);     
   }
   
-  @SuppressWarnings("deprecation")
-  @Test(expectedExceptions = UnsupportedOperationException.class)
-  public void toDerivativeDeprecated1() {
-    CPN.toDerivative(PAYMENT_DATE, "curve-name");
-  }
-  
-  @SuppressWarnings("deprecation")
-  @Test(expectedExceptions = UnsupportedOperationException.class)
-  public void toDerivativeDeprecated2() {
-    CPN.toDerivative(PAYMENT_DATE, FX_FIXING_TS0, "curve-name");
-  }
-  
-  
-  
 }

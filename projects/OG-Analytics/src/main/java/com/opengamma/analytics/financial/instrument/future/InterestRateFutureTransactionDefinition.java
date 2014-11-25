@@ -92,34 +92,6 @@ public class InterestRateFutureTransactionDefinition extends FuturesTransactionD
     return new InterestRateFutureTransactionDefinition(sec, getQuantity(), getTradeDate(), transactionPrice);
   }
 
-  /**
-   * {@inheritDoc}
-   * @param lastMarginPrice The price on which the last margining was done.
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public InterestRateFutureTransaction toDerivative(final ZonedDateTime dateTime, final Double lastMarginPrice, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(dateTime, "date");
-    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
-    final LocalDate date = dateTime.toLocalDate();
-    ArgumentChecker.isTrue(yieldCurveNames.length > 1, "at least two curves required");
-    final LocalDate transactionDateLocal = getTradeDate().toLocalDate();
-    final LocalDate lastMarginDateLocal = getUnderlyingSecurity().getFixingPeriodStartDate().toLocalDate();
-    if (date.isAfter(lastMarginDateLocal)) {
-      throw new ExpiredException("Valuation date, " + date + ", is after last margin date, " + lastMarginDateLocal);
-    }
-    double referencePrice;
-    if (transactionDateLocal.isBefore(date)) { // Transaction was before last margining.
-      referencePrice = lastMarginPrice;
-    } else { // Transaction is today
-      referencePrice = getTradePrice();
-    }
-    final InterestRateFutureSecurity underlying = getUnderlyingSecurity().toDerivative(dateTime, yieldCurveNames);
-    final InterestRateFutureTransaction future = new InterestRateFutureTransaction(underlying, referencePrice, getQuantity());
-    return future;
-  }
-
   @Override
   public InstrumentDerivative toDerivative(final ZonedDateTime date) {
     throw new UnsupportedOperationException("The method toDerivative of " + this.getClass().getSimpleName() + " does not support the two argument method (without margin price data).");
@@ -135,16 +107,6 @@ public class InterestRateFutureTransactionDefinition extends FuturesTransactionD
     final InterestRateFutureSecurity underlying = getUnderlyingSecurity().toDerivative(dateTime);
     final InterestRateFutureTransaction future = new InterestRateFutureTransaction(underlying, referencePrice, getQuantity());
     return future;
-  }
-
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public InstrumentDerivative toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException("The method toDerivative of " + this.getClass().getSimpleName() + " does not support the two argument method (without margin price data).");
   }
 
   @Override

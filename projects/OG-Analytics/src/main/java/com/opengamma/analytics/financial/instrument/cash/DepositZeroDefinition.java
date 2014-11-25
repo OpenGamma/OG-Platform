@@ -193,29 +193,6 @@ public class DepositZeroDefinition implements InstrumentDefinition<DepositZero> 
     return "DepositZero " + _currency + " [" + _startDate + " - " + _endDate + "] - notional: " + _notional + " - rate: " + _rate;
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public DepositZero toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    ArgumentChecker.isTrue(!date.isAfter(_endDate), "date is after end date");
-    double startTime;
-    if (date.toLocalDate().isBefore(_startDate.toLocalDate())) {
-      startTime = _dayCount.getDayCountFraction(date.toLocalDate(), _startDate.toLocalDate(), _calendar);
-    } else if (date.toLocalDate().equals(_startDate.toLocalDate())) {
-      startTime = 0;
-    } else {
-      startTime = _dayCount.getDayCountFraction(_startDate.toLocalDate(), date.toLocalDate(), _calendar);
-    }
-    final double endTime = _dayCount.getDayCountFraction(date.toLocalDate(), _endDate.toLocalDate(), _calendar);
-    if (startTime < 0) {
-      return new DepositZero(_currency, 0, endTime, 0, _notional, _paymentAccrualFactor, _rate, _interestAmount, yieldCurveNames[0]);
-    }
-    return new DepositZero(_currency, startTime, endTime, _notional, _notional, _paymentAccrualFactor, _rate, _interestAmount, yieldCurveNames[0]);
-  }
-
   @Override
   public DepositZero toDerivative(final ZonedDateTime date) {
     ArgumentChecker.isTrue(!date.isAfter(_endDate), "date is after end date");

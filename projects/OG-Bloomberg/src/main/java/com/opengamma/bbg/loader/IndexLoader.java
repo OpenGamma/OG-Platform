@@ -107,8 +107,8 @@ public class IndexLoader extends SecurityLoader {
     ExternalId conventionId = createConventionId(securityDes);
     ExternalId familyId = ExternalId.of(ExternalScheme.of(BLOOMBERG_INDEX_FAMILY), conventionId.getValue());
     
-    if (indexSource.toUpperCase().contains("STAT")) {
-      // guess it's a price index as source is STATistics agency.  Crude, but hopefully effective.
+    if (indexSource.toUpperCase().contains("STAT") || securityDes.toUpperCase().contains("CPI")) {
+      // guess it's a price index as source is STATistics agency or description contains CPI. Crude, but hopefully effective.
       index = new PriceIndex(name, conventionId);
       index.setIndexFamilyId(null);
     } else if (securityDes.toUpperCase().contains("ISDAFIX") && tenor != null) {
