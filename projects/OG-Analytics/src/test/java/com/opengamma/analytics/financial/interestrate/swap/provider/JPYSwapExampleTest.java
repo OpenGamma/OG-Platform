@@ -45,11 +45,13 @@ import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeri
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * JPY swap pricing example
  */
+@Test(groups = TestGroup.UNIT)
 public class JPYSwapExampleTest {
   private static final double NOTIONAL = 1e10;
   private static final double SPREAD = 5.625e-4;
@@ -124,7 +126,7 @@ public class JPYSwapExampleTest {
     TRIPLE_CURVE.setOrReplaceCurve(JPYLIBOR3M, JPY_LIBOR3M_CURVE);
   }
 
-  private static final double EPS = 1.0e-13; //TODO need to be relaxed, before push
+  private static final double EPS = 1.0e-12;
 
   private void assertRelative(String message, double expected, double obtained, double relTol) {
     double ref = Math.max(Math.abs(obtained), 1.0);

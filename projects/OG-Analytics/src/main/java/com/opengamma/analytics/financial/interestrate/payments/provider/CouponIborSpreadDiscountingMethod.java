@@ -77,7 +77,6 @@ public final class CouponIborSpreadDiscountingMethod {
         coupon.getFixingAccrualFactor());
     final double df = multicurves.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
     final double value = (coupon.getNotional() * coupon.getPaymentYearFraction() * forward + coupon.getSpreadAmount()) * df;
-    //final double value = coupon.getNotional() * coupon.getPaymentYearFraction() * (forward + coupon.getSpread()) * df;
     return MultipleCurrencyAmount.of(coupon.getCurrency(), value);
   }
 

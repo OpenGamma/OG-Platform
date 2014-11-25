@@ -189,7 +189,6 @@ public class AnnuityDefinition<P extends PaymentDefinition> implements Instrumen
     ArgumentChecker.notNull(date, "date");
     ArgumentChecker.notNull(indexFixingTS, "index fixing time series");
     final List<Payment> resultList = new ArrayList<>();
-    //    ZonedDateTime adjDate = ScheduleCalculator.getAdjustedDate(date, 3, _calendar);
     for (final P payment : _payments) {
       // TODO check this
       if (!date.isAfter(payment.getPaymentDate())) {
