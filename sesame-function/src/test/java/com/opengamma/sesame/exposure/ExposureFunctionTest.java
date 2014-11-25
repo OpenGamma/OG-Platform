@@ -15,6 +15,7 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -75,6 +76,7 @@ import com.opengamma.sesame.marketdata.DefaultHistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataFn;
+import com.opengamma.sesame.marketdata.MarketDataSource;
 import com.opengamma.sesame.marketdata.StrategyAwareMarketDataSource;
 import com.opengamma.sesame.trade.FraTrade;
 import com.opengamma.sesame.trade.InterestRateFutureTrade;
@@ -298,6 +300,46 @@ public class ExposureFunctionTest {
   }
 
   @Test
+  public void underlyingThenCurrencyUsdExposureViaTradePass() {
+    // Check we can have 2 exposure functions matching in order, allows matching a specific type e.g. OIS trade to a
+    // curve config and allowing all non matching trades to fall through to a standard curve config, e.g. vanilla
+    // USD swaps to generic USD curve config
+    FunctionModelConfig config = createFunctionModelConfig(InterestRateMockSources.mockUnderlyingThenCurrencyExposureFunctions());
+
+    ZonedDateTime valTime = LocalDate.of(2014, 4, 17).atStartOfDay(ZoneOffset.UTC);
+    MarketDataSource dataSource = InterestRateMockSources.createMarketDataSource(valTime.toLocalDate(), false);
+    //StrategyAwareMarketDataSource marketDataSource = InterestRateMockSources.createMarketDataFactory().create(
+    //    new FixedHistoricalMarketDataSpecification(valTime.toLocalDate()));
+
+    _environment = new SimpleEnvironment(valTime, dataSource);
+
+    ExposureFunctionsDiscountingMulticurveCombinerFn multicurveCombinerFunction =
+        FunctionModel.build(
+            ExposureFunctionsDiscountingMulticurveCombinerFn.class,
+            config,
+            ComponentMap.of(_components));
+
+    InterestRateFutureSecurity fedfundSecurity = createFedFundInterestRateFutureSecurity(Currency.USD);
+    InterestRateFutureSecurity security = createInterestRateFutureSecurity(Currency.USD);
+    InterestRateFutureTrade fedfundTrade = createInterestRateFutureTrade(fedfundSecurity, true);
+    InterestRateFutureTrade trade = createInterestRateFutureTrade(security, true);
+
+    Result<MulticurveBundle> result = multicurveCombinerFunction.getMulticurveBundle(_environment, trade);
+    assertThat(result.isSuccess(), is((true)));
+    MulticurveProviderDiscount multicurveProviderDiscount = result.getValue().getMulticurveProvider();
+    assertThat(multicurveProviderDiscount.getAllCurveNames(),
+               containsInAnyOrder(
+                   InterestRateMockSources.USD_LIBOR3M_CURVE_NAME,
+                   InterestRateMockSources.USD_OIS_CURVE_NAME));
+
+    Result<MulticurveBundle> resultFedFund = multicurveCombinerFunction.getMulticurveBundle(_environment, fedfundTrade);
+    assertThat(resultFedFund.isSuccess(), is((true)));
+    MulticurveProviderDiscount multicurveProviderDiscountFedFund = resultFedFund.getValue().getMulticurveProvider();
+    assertThat(multicurveProviderDiscountFedFund.getAllCurveNames(),
+               is(Collections.singleton(InterestRateMockSources.USD_FFF_CURVE_NAME)));
+  }
+
+  @Test
   public void currencyGbpExposureViaTradeFail() {
 
     FunctionModelConfig config = createFunctionModelConfig(InterestRateMockSources.mockCurrencyExposureFunctions());
@@ -367,6 +409,22 @@ public class ExposureFunctionTest {
     String settlementExchange = "";
     double unitAmount = 1000;
     ExternalId underlyingId = InterestRateMockSources.getLiborIndexId();
+    String category = "";
+    return new InterestRateFutureSecurity(expiry,
+                                          tradingExchange,
+                                          settlementExchange,
+                                          currency,
+                                          unitAmount,
+                                          underlyingId,
+                                          category);
+  }
+
+  private InterestRateFutureSecurity createFedFundInterestRateFutureSecurity(Currency currency) {
+    Expiry expiry = new Expiry(ZonedDateTime.of(LocalDate.of(2014, 6, 18), LocalTime.of(0, 0), ZoneId.systemDefault()));
+    String tradingExchange = "";
+    String settlementExchange = "";
+    double unitAmount = 1000;
+    ExternalId underlyingId = InterestRateMockSources.getOvernightIndexId();
     String category = "";
     return new InterestRateFutureSecurity(expiry,
                                           tradingExchange,

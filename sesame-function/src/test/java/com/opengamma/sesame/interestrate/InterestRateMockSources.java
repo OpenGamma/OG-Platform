@@ -71,8 +71,10 @@ import com.opengamma.financial.analytics.curve.exposure.CounterpartyExposureFunc
 import com.opengamma.financial.analytics.curve.exposure.CurrencyExposureFunction;
 import com.opengamma.financial.analytics.curve.exposure.ExposureFunctions;
 import com.opengamma.financial.analytics.curve.exposure.TradeAttributeExposureFunction;
+import com.opengamma.financial.analytics.curve.exposure.UnderlyingExposureFunction;
 import com.opengamma.financial.analytics.ircurve.BloombergFutureCurveInstrumentProvider;
 import com.opengamma.financial.analytics.ircurve.CurveInstrumentProvider;
+import com.opengamma.financial.analytics.ircurve.FutureMonthCodeCurveInstrumentProvider;
 import com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider;
 import com.opengamma.financial.analytics.ircurve.strips.CashNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
@@ -104,6 +106,7 @@ import com.opengamma.financial.security.index.OvernightIndex;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.convention.ConventionDocument;
@@ -171,7 +174,8 @@ public class InterestRateMockSources {
   public static final String USD_LIBOR3M_CURVE_NAME = "USD-LIBOR3M-FRAIRS";
   /** USD OIS curve name */
   public static final String USD_OIS_CURVE_NAME = "USD-ON-OIS";
-  private static final String USD_FFF_CURVE_NAME = "USD-ON-FFF";
+  /** USD FFF curve name */
+  public static final String USD_FFF_CURVE_NAME = "USD-ON-FFF";
 
   private static final String DISC_LEG_CONVENTION = "USD 1Y Pay Lag Fixed Leg";
   private static final String DISC_RECEIVE_LEG_CONVENTION = "USD OIS Overnight Leg";
@@ -307,6 +311,14 @@ public class InterestRateMockSources {
     Map<ExternalId, String> idsToNames = new HashMap<>();
     idsToNames.put(CURRENCY_USD, CURVE_CONSTRUCTION_CONFIGURATION_CURRENCY_USD);
     return new ExposureFunctions(EXPOSURE_FUNCTION_CURRENCY, exposureFunctions, idsToNames);
+  }
+
+  public static ExposureFunctions mockUnderlyingThenCurrencyExposureFunctions() {
+    List<String> exposureFunctions =  ImmutableList.of(UnderlyingExposureFunction.NAME, CurrencyExposureFunction.NAME);
+    Map<ExternalId, String> idsToNames = new HashMap<>();
+    idsToNames.put(CURRENCY_USD, CURVE_CONSTRUCTION_CONFIGURATION_CURRENCY_USD);
+    idsToNames.put(_onIndexId, CURVE_CONSTRUCTION_CONFIGURATION_USD_FFF);
+    return new ExposureFunctions("USD-Underlying-CCY", exposureFunctions, idsToNames);
   }
 
   public static ExposureFunctions mockTradeAttributeExposureFunctions() {

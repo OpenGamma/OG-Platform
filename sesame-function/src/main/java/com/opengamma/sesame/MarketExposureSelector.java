@@ -92,7 +92,9 @@ public class MarketExposureSelector implements CurveSelectorFn {
             break;
           }
         }
-        return curveNames;
+        if (!curveNames.isEmpty()) { // return first match
+          return curveNames;
+        }
       }
     }
     return ImmutableSet.of();
