@@ -118,14 +118,18 @@ public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
      * @param field the name of the value used to lookup.
      * @param id the external id of used to lookup the field values.
      * @param length the length of time to get values for.
-     * @param startDate the start date of time to get values for.
+     * @param date the date of time to get values for.
      * @return the time series result
      */
-    private Result<HistoricalTimeSeries> getPreviousPeriodValues(String field, ExternalIdBundle id, Period length, LocalDate startDate) {
+    private Result<HistoricalTimeSeries> getPreviousPeriodValues(String field, ExternalIdBundle id, Period length,
+                                                                 LocalDate date) {
       final boolean includeStart = true;
       final boolean includeEnd = true;
-      return getHistoricalTimeSeriesResult(field, id, _resolutionKey, startDate.minus(length), includeStart,
-                                           _valuationDate, includeEnd);
+      LocalDate periodStartDate = (date.isBefore(_valuationDate) ? date : _valuationDate).minus(length);
+      LocalDate periodEndDate = date.isAfter(_valuationDate) ? date : _valuationDate;
+      return getHistoricalTimeSeriesResult(field, id, _resolutionKey, periodStartDate,
+                                           includeStart, periodEndDate, includeEnd);
+
     }
 
     @Override

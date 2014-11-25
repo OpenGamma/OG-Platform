@@ -383,6 +383,8 @@ public class InterestRateSwapFnTest {
     payLeg.setAccrualPeriodFrequency(freq6m);
     payLeg.setAccrualPeriodBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
     payLeg.setAccrualPeriodCalendars(calendarUSNY);
+    payLeg.setMaturityDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
+    payLeg.setMaturityDateCalendars(calendarUSNY);
     payLeg.setRate(new Rate(0.0150));
     payLeg.setPayReceiveType(PayReceiveType.PAY);
     legs.add(payLeg);
@@ -396,6 +398,8 @@ public class InterestRateSwapFnTest {
     receiveLeg.setAccrualPeriodFrequency(freq3m);
     receiveLeg.setAccrualPeriodBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
     receiveLeg.setAccrualPeriodCalendars(calendarUSNY);
+    receiveLeg.setMaturityDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
+    receiveLeg.setMaturityDateCalendars(calendarUSNY);
     receiveLeg.setResetPeriodFrequency(freq3m);
     receiveLeg.setResetPeriodBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
     receiveLeg.setResetPeriodCalendars(calendarUSNY);
@@ -675,6 +679,19 @@ public class InterestRateSwapFnTest {
 
     MultipleCurrencyAmount mca = resultPv.getValue();
     assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(EXPECTED_FIXING_PV, STD_TOLERANCE_PV)));
+  }
+
+  @Test
+  public void fixedVsLibor3mForwardStarting() {  // check swaps starting far in the future price
+    // the number in this test has not been validated from first principles
+    InterestRateSwapSecurity swap = _fixedVsLibor3mSwapSecurity.clone();
+    swap.setEffectiveDate(VALUATION_TIME.toLocalDate().plusYears(10));
+    swap.setUnadjustedMaturityDate(VALUATION_TIME.toLocalDate().plusYears(20));
+    Result<MultipleCurrencyAmount> resultPv = _swapFunction.calculatePV(ENV, swap);
+    assertThat(resultPv.isSuccess(), is((true)));
+
+    MultipleCurrencyAmount mca = resultPv.getValue();
+    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(2.0014489075151995E7, STD_TOLERANCE_PV)));
   }
 
   @Test
