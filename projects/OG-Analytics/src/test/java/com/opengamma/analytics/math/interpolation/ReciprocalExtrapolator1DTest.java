@@ -11,10 +11,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.function.PiecewisePolynomialWithSensitivityFunction1D;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * 
  */
+@Test(groups = TestGroup.UNIT)
 public class ReciprocalExtrapolator1DTest {
   private static final PiecewisePolynomialInterpolator[] INTERP_SENSE;
   static {

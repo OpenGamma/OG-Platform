@@ -46,7 +46,6 @@ import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolat
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
-import com.opengamma.analytics.math.interpolation.ProductInterpolator1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.MatrixAlgebra;
 import com.opengamma.analytics.math.matrix.OGMatrixAlgebra;
@@ -139,8 +138,14 @@ public class GBPSwapPVTest {
     FIXINGS.put(GBPLIBOR3M, TS_GBPLIBOR3M);
     FIXINGS.put(GBPLIBOR6M, TS_GBPLIBOR6M);
     IM_INTERPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
-    CombinedInterpolatorExtrapolator base = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.NATURAL_CUBIC_SPLINE, Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
-    VM_INTERPOLATOR = new ProductInterpolator1D(base, false);
+    //    Interpolator1D interp = new ProductPiecewisePolynomialInterpolator1D(new NaturalSplineInterpolator());
+    //    CombinedInterpolatorExtrapolator combInterp = new CombinedInterpolatorExtrapolator(interp,
+    //        new FlatExtrapolator1D(), new ReciprocalExtrapolator1D(interp));
+    CombinedInterpolatorExtrapolator combInterp = CombinedInterpolatorExtrapolatorFactory.getInterpolator(
+        Interpolator1DFactory.PRODUCT_NATURAL_CUBIC, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
+        Interpolator1DFactory.RECIPROCAL_EXTRAPOLATOR);
+    //    CombinedInterpolatorExtrapolator base = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.NATURAL_CUBIC_SPLINE, Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
+    VM_INTERPOLATOR = combInterp;
     GBP_LIBOR_CURVE = new YieldCurve("GBP Libor", new InterpolatedDoublesCurve(GBP_LIBOR_KNOT_TIMES, GBP_LIBOR_ZERO_RATES, IM_INTERPOLATOR, true));
     GBP_SONIA_CURVE = new YieldCurve("GBP Sonia", new InterpolatedDoublesCurve(GBP_SONIA_KNOT_TIMES, GBP_SONIA_ZERO_RATES, VM_INTERPOLATOR, true));
     GBP_LIBOR1M_CURVE = new YieldCurve("GBP Libor 1M", new InterpolatedDoublesCurve(GBP_LIBOR1M_KNOT_TIMES, GBP_LIBOR1M_ZERO_RATES, VM_INTERPOLATOR, true));

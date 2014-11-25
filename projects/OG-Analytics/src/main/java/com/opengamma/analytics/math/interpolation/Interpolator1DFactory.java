@@ -202,6 +202,16 @@ public final class Interpolator1DFactory {
   /**Instance of log cubic spline with clamped endpoint conditions*/
   public static final LogClampedCubicSplineInterpolator1D LOG_CLAMPED_CUBIC_INSTANCE = new LogClampedCubicSplineInterpolator1D();
 
+  /**Product natural cubic spline*/
+  public static final String PRODUCT_NATURAL_CUBIC = "ProductNaturalCubic";
+  /**Instance of product cubic spline*/
+  public static final ProductPiecewisePolynomialInterpolator1D PRODUCT_NATURAL_CUBIC_INSTANCE = new ProductPiecewisePolynomialInterpolator1D(
+      new NaturalSplineInterpolator());
+  /** Product polynomial extrapolator */
+  public static final String PRODUCT_POLYNOMIAL_EXTRAPOLATOR = "ProductPolynomialExtrapolator";
+  /** Reciprocal extrapolator */
+  public static final String RECIPROCAL_EXTRAPOLATOR = "ReciprocalExtrapolator";
+
   private static final Map<String, Interpolator1D> s_staticInstances;
   private static final Map<Class<?>, String> s_instanceNames;
 
@@ -296,6 +306,9 @@ public final class Interpolator1DFactory {
     staticInstances.put(LOG_CLAMPED_CUBIC, LOG_CLAMPED_CUBIC_INSTANCE);
     instanceNames.put(LogClampedCubicSplineInterpolator1D.class, LOG_CLAMPED_CUBIC);
 
+    staticInstances.put(PRODUCT_NATURAL_CUBIC, PRODUCT_NATURAL_CUBIC_INSTANCE);
+    instanceNames.put(ProductPiecewisePolynomialInterpolator1D.class, PRODUCT_NATURAL_CUBIC);
+
     s_staticInstances = new HashMap<>(staticInstances);
     s_instanceNames = new HashMap<>(instanceNames);
   }
@@ -328,6 +341,12 @@ public final class Interpolator1DFactory {
     }
     if (interpolator instanceof QuadraticPolynomialLeftExtrapolator) {
       return QUADRATIC_LEFT_EXTRAPOLATOR;
+    }
+    if (interpolator instanceof ReciprocalExtrapolator1D) {
+      return RECIPROCAL_EXTRAPOLATOR;
+    }
+    if (interpolator instanceof ProductPolynomialExtrapolator1D) {
+      return PRODUCT_POLYNOMIAL_EXTRAPOLATOR;
     }
     return interpolatorName;
   }
