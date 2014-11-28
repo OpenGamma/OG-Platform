@@ -73,22 +73,22 @@ public final class SwaptionPhysicalFixedIborNormalMethod {
     ArgumentChecker.notNull(swaption, "Swaption");
     ArgumentChecker.notNull(multicurveParameters, "normal volatility for swaption and multicurve");
     MulticurveProviderInterface multicurve = multicurveParameters.getMulticurveProvider();
-    final GeneratorSwapFixedIbor generatorSwap = multicurveParameters.getGeneratorSwap();
+    GeneratorSwapFixedIbor generatorSwap = multicurveParameters.getGeneratorSwap();
     DayCount dayCountModification = generatorSwap.getFixedLegDayCount();
     Calendar calendar = generatorSwap.getCalendar();
-    final double pvbpModified = METHOD_SWAP.presentValueBasisPoint(swaption.getUnderlyingSwap(), dayCountModification,
+    double pvbpModified = METHOD_SWAP.presentValueBasisPoint(swaption.getUnderlyingSwap(), dayCountModification,
         calendar, multicurve);
-    final double forwardModified = PRDC.visitFixedCouponSwap(swaption.getUnderlyingSwap(), dayCountModification, multicurve);
-    final double strikeModified = METHOD_SWAP.couponEquivalent(swaption.getUnderlyingSwap(), pvbpModified, multicurve);
+    double forwardModified = PRDC.visitFixedCouponSwap(swaption.getUnderlyingSwap(), dayCountModification, multicurve);
+    double strikeModified = METHOD_SWAP.couponEquivalent(swaption.getUnderlyingSwap(), pvbpModified, multicurve);
     double expiry = swaption.getTimeToExpiry();
     double volatility = multicurveParameters.getVolatility(expiry, swaption.getMaturityTime(), strikeModified, 
         forwardModified);
     NormalFunctionData normalData = new NormalFunctionData(forwardModified, pvbpModified, volatility);
-    final EuropeanVanillaOption option = new EuropeanVanillaOption(strikeModified, expiry, swaption.isCall());
+    EuropeanVanillaOption option = new EuropeanVanillaOption(strikeModified, expiry, swaption.isCall());
     // Implementation note: option required to pass the strike (in case the swap has non-constant coupon).
     NormalPriceFunction normalFunction = new NormalPriceFunction();
-    final Function1D<NormalFunctionData, Double> func = normalFunction.getPriceFunction(option);
-    final double pv = func.evaluate(normalData) * (swaption.isLong() ? 1.0 : -1.0);
+    Function1D<NormalFunctionData, Double> func = normalFunction.getPriceFunction(option);
+    double pv = func.evaluate(normalData) * (swaption.isLong() ? 1.0 : -1.0);
     return MultipleCurrencyAmount.of(swaption.getCurrency(), pv);
   }
 
@@ -103,13 +103,13 @@ public final class SwaptionPhysicalFixedIborNormalMethod {
     ArgumentChecker.notNull(swaption, "Swaption");
     ArgumentChecker.notNull(multicurveParameters, "normal volatility for swaption and multicurve");
     MulticurveProviderInterface multicurve = multicurveParameters.getMulticurveProvider();
-    final GeneratorSwapFixedIbor generatorSwap = multicurveParameters.getGeneratorSwap();
+    GeneratorSwapFixedIbor generatorSwap = multicurveParameters.getGeneratorSwap();
     DayCount dayCountModification = generatorSwap.getFixedLegDayCount();
     Calendar calendar = generatorSwap.getCalendar();
-    final double pvbpModified = METHOD_SWAP.presentValueBasisPoint(swaption.getUnderlyingSwap(), dayCountModification,
+    double pvbpModified = METHOD_SWAP.presentValueBasisPoint(swaption.getUnderlyingSwap(), dayCountModification,
         calendar, multicurve);
-    final double forwardModified = PRDC.visitFixedCouponSwap(swaption.getUnderlyingSwap(), dayCountModification, multicurve);
-    final double strikeModified = METHOD_SWAP.couponEquivalent(swaption.getUnderlyingSwap(), pvbpModified, multicurve);
+    double forwardModified = PRDC.visitFixedCouponSwap(swaption.getUnderlyingSwap(), dayCountModification, multicurve);
+    double strikeModified = METHOD_SWAP.couponEquivalent(swaption.getUnderlyingSwap(), pvbpModified, multicurve);
     double expiry = swaption.getTimeToExpiry();
     double volatility = multicurveParameters.getVolatility(expiry, swaption.getMaturityTime(), strikeModified, 
         forwardModified);
@@ -127,25 +127,25 @@ public final class SwaptionPhysicalFixedIborNormalMethod {
     ArgumentChecker.notNull(swaption, "Swaption");
     ArgumentChecker.notNull(multicurveParameters, "normal volatility for swaption and multicurve");
     MulticurveProviderInterface multicurve = multicurveParameters.getMulticurveProvider();
-    final GeneratorSwapFixedIbor generatorSwap = multicurveParameters.getGeneratorSwap();
+    GeneratorSwapFixedIbor generatorSwap = multicurveParameters.getGeneratorSwap();
     DayCount dayCountModification = generatorSwap.getFixedLegDayCount();
     Calendar calendar = generatorSwap.getCalendar();
-    final double pvbpModified = METHOD_SWAP.presentValueBasisPoint(swaption.getUnderlyingSwap(), dayCountModification,
+    double pvbpModified = METHOD_SWAP.presentValueBasisPoint(swaption.getUnderlyingSwap(), dayCountModification,
         calendar, multicurve);
-    final double forwardModified = PRDC.visitFixedCouponSwap(swaption.getUnderlyingSwap(), dayCountModification, multicurve);
-    final double strikeModified = METHOD_SWAP.couponEquivalent(swaption.getUnderlyingSwap(), pvbpModified, multicurve);
+    double forwardModified = PRDC.visitFixedCouponSwap(swaption.getUnderlyingSwap(), dayCountModification, multicurve);
+    double strikeModified = METHOD_SWAP.couponEquivalent(swaption.getUnderlyingSwap(), pvbpModified, multicurve);
     double expiry = swaption.getTimeToExpiry();
     double volatility = multicurveParameters.getVolatility(expiry, swaption.getMaturityTime(), strikeModified, 
         forwardModified);
     NormalFunctionData normalData = new NormalFunctionData(forwardModified, 1.0, volatility);
-    final EuropeanVanillaOption option = new EuropeanVanillaOption(strikeModified, expiry, swaption.isCall());
+    EuropeanVanillaOption option = new EuropeanVanillaOption(strikeModified, expiry, swaption.isCall());
     // Strictly speaking, the strike equivalent is curve dependent; that dependency is ignored.
     // Option required to pass the strike (in case the swap has non-constant coupon).
     NormalPriceFunction normalFunction = new NormalPriceFunction();
     // Derivative of the forward and pvbp with respect to the rates.
-    final MulticurveSensitivity forwardModifiedDr = PRCSDC.visitFixedCouponSwap(swaption.getUnderlyingSwap(), 
+    MulticurveSensitivity forwardModifiedDr = PRCSDC.visitFixedCouponSwap(swaption.getUnderlyingSwap(), 
         dayCountModification, multicurve);
-    final MulticurveSensitivity pvbpModifiedDr = METHOD_SWAP.presentValueBasisPointCurveSensitivity(
+    MulticurveSensitivity pvbpModifiedDr = METHOD_SWAP.presentValueBasisPointCurveSensitivity(
         swaption.getUnderlyingSwap(), dayCountModification, calendar, multicurve);
     double[] normAdjoint = new double[3];
     double pv = normalFunction.getPriceAdjoint(option, normalData, normAdjoint);
@@ -169,25 +169,24 @@ public final class SwaptionPhysicalFixedIborNormalMethod {
     ArgumentChecker.notNull(swaption, "Swaption");
     ArgumentChecker.notNull(multicurveParameters, "normal volatility for swaption and multicurve");
     MulticurveProviderInterface multicurve = multicurveParameters.getMulticurveProvider();
-    final GeneratorSwapFixedIbor generatorSwap = multicurveParameters.getGeneratorSwap();
+    GeneratorSwapFixedIbor generatorSwap = multicurveParameters.getGeneratorSwap();
     DayCount dayCountModification = generatorSwap.getFixedLegDayCount();
     Calendar calendar = generatorSwap.getCalendar();
     final double pvbpModified = METHOD_SWAP.presentValueBasisPoint(swaption.getUnderlyingSwap(), dayCountModification,
         calendar, multicurve);
-    final double forwardModified = PRDC.visitFixedCouponSwap(swaption.getUnderlyingSwap(), dayCountModification, multicurve);
-    final double strikeModified = METHOD_SWAP.couponEquivalent(swaption.getUnderlyingSwap(), pvbpModified, multicurve);
+    double forwardModified = PRDC.visitFixedCouponSwap(swaption.getUnderlyingSwap(), dayCountModification, multicurve);
+    double strikeModified = METHOD_SWAP.couponEquivalent(swaption.getUnderlyingSwap(), pvbpModified, multicurve);
     double expiry = swaption.getTimeToExpiry();
     double tenor = swaption.getMaturityTime();
     double volatility = multicurveParameters.getVolatility(expiry, tenor, strikeModified, forwardModified);
     NormalFunctionData normalData = new NormalFunctionData(forwardModified, 1.0, volatility);
-    final EuropeanVanillaOption option = new EuropeanVanillaOption(strikeModified, expiry, swaption.isCall());
-    // Strictly speaking, the strike equivalent is curve dependent; that dependency is ignored.
+    EuropeanVanillaOption option = new EuropeanVanillaOption(strikeModified, expiry, swaption.isCall());
     // Option required to pass the strike (in case the swap has non-constant coupon).
     NormalPriceFunction normalFunction = new NormalPriceFunction();
     double[] normAdjoint = new double[3];
     normalFunction.getPriceAdjoint(option, normalData, normAdjoint);
-    final DoublesPair point = DoublesPair.of(expiry, tenor);
-    final Map<DoublesPair, Double> sensitivity = new HashMap<>();
+    DoublesPair point = DoublesPair.of(expiry, tenor);
+    Map<DoublesPair, Double> sensitivity = new HashMap<>();
     sensitivity.put(point, normAdjoint[1] * pvbpModified * (swaption.isLong() ? 1.0 : -1.0));
     return new PresentValueSwaptionSurfaceSensitivity(sensitivity, generatorSwap);
   }

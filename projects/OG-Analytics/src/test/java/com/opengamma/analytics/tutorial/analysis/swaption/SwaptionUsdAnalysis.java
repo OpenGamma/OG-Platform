@@ -109,7 +109,6 @@ public class SwaptionUsdAnalysis {
   private static final GeneratorSwapFixedIborMaster GENERATOR_IRS_MASTER = GeneratorSwapFixedIborMaster.getInstance();
   private static final GeneratorSwapFixedIbor USD6MLIBOR3M = GENERATOR_IRS_MASTER.getGenerator("USD6MLIBOR3M", NYC);
   private static final IborIndex USDLIBOR3M = USD6MLIBOR3M.getIborIndex();
-//  private static final Currency USD = USDLIBOR3M.getCurrency();
   private static final AdjustedDateParameters ADJUSTED_DATE_LIBOR = new AdjustedDateParameters(NYC, USD6MLIBOR3M.getBusinessDayConvention());
   private static final OffsetAdjustedDateParameters OFFSET_ADJ_LIBOR =
       new OffsetAdjustedDateParameters(-2, OffsetType.BUSINESS, NYC, USD6MLIBOR3M.getBusinessDayConvention());
@@ -196,7 +195,6 @@ private static final SwaptionPhysicalFixedIbor SWPT_R_L_1 = SWPT_R_L_1_DEFINITIO
     PresentValueSABRSensitivityDataBundle pvvsSwpt1StdSabr = SWPT_R_L_1.accept(PVSSSSC, MULTICURVE_STD_SABR);
     PresentValueSwaptionSurfaceSensitivity pvvsSwpt1StdNorm = 
         METHOD_SWPT_NORMAL.presentValueVolatilitySensitivity(SWPT_R_L_2, MULTICURVE_STD_NORMAL);
-    int t = 0;
   }
   
   @SuppressWarnings("unused")
@@ -216,12 +214,9 @@ private static final SwaptionPhysicalFixedIbor SWPT_R_L_1 = SWPT_R_L_1_DEFINITIO
     PresentValueSwaptionSurfaceSensitivity pvvs2NegNorm = 
         METHOD_SWPT_NORMAL.presentValueVolatilitySensitivity(SWPT_R_L_2, MULTICURVE_NEG_NORMAL);
     PresentValueSwaptionSurfaceSensitivity pvnns = SSSNC.calculateNodeSensitivities(pvvs2NegNorm, MULTICURVE_NEG_NORMAL);
-    int t = 0;
   }
   
-
-  
-  static SwapFixedIborDefinition swap(final LocalDate effectiveDate, final LocalDate maturityDate, final double rate, 
+  private static SwapFixedIborDefinition swap(final LocalDate effectiveDate, final LocalDate maturityDate, final double rate, 
       final double notional, final boolean payer) {
     NotionalProvider notionalProvider = new NotionalProvider() {
       @Override

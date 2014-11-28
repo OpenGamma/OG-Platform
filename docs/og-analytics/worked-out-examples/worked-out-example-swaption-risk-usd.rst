@@ -43,7 +43,7 @@ Two swaptions based on those swaps: Long swaption with standard exercise date (t
 Results
 ------
 
-**Swaption Standard **
+**Swaption Standard**
 
 Results using a standard set of curves (with realistic data).
 
@@ -57,7 +57,7 @@ The present value using the different models. The present value is represented b
 
 **Implied volatility**
 
-The implied volatility results depends on the type of model. For the SABR model, it the the Black implied volatility. For the normal model, it is the normal implied volatility.
+The implied volatility results depend on the type of model. For the SABR model, it the the Black implied volatility. For the normal model, it is the normal implied volatility.
 
 **Market Quotes Sensitivities**
 
@@ -65,4 +65,4 @@ The market quotes sensitivities are the sensitivity to the quotes used in the cu
 
 **Parameters sensitivity**
 
-The meaning of this result strongly depends on the type of model. For the SABR model it is the sensitivity to the interpolated SABR parameters used in the pricing (alpha, beta, rho and nu). For the normal model, it is the sensitivity to the implied volatility used . The last result is also called Vega in some places.
+The meaning of this result strongly depends on the type of model. For the SABR model it is the sensitivity to the interpolated SABR parameters used in the pricing (alpha, beta, rho and nu). For the normal model, it is the sensitivity to the implied volatility. The last result is also called Vega in some places.

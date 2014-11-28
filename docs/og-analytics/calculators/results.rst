@@ -35,7 +35,7 @@ The second step consists in projecting the above sensitivity to the internal par
 
 **Market quotes sensitivity**
 
-The third step consist in multiplying the sensitivity to the parameters by the Jacobian matrix to obtain the market quote sensitivity.
+The third step consists in multiplying the sensitivity to the parameters by the Jacobian matrix to obtain the market quote sensitivity.
 
 The (generalised) Jacobian matrices are stored in the **CurveBuildingBlockBundle**. It contains, fore each curve, the curve on which it depends and the transistion matrix between market quotes and curves parameters. In the above example the object look like:
 
