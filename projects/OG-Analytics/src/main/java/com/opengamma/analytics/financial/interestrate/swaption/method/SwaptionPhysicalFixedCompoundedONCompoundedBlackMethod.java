@@ -16,7 +16,7 @@ import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.method.PricingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedAccruedCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONCompounded;
-import com.opengamma.analytics.financial.interestrate.sensitivity.PresentValueBlackSwaptionSensitivity;
+import com.opengamma.analytics.financial.interestrate.sensitivity.PresentValueSwaptionSurfaceSensitivity;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.method.SwapFixedCompoundingONCompoundingDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedCompoundedONCompounded;
@@ -172,7 +172,7 @@ public final class SwaptionPhysicalFixedCompoundedONCompoundedBlackMethod implem
    * @param curveBlack The curves with Black volatility data.
    * @return The present value Black sensitivity.
    */
-  public PresentValueBlackSwaptionSensitivity presentValueBlackSensitivity(final SwaptionPhysicalFixedCompoundedONCompounded swaption, final YieldCurveWithBlackSwaptionBundle curveBlack) {
+  public PresentValueSwaptionSurfaceSensitivity presentValueBlackSensitivity(final SwaptionPhysicalFixedCompoundedONCompounded swaption, final YieldCurveWithBlackSwaptionBundle curveBlack) {
     ArgumentChecker.notNull(swaption, "Swaption");
     ArgumentChecker.notNull(curveBlack, "Curves with Black volatility");
     final Swap<CouponFixedAccruedCompounding, CouponONCompounded> swap = swaption.getUnderlyingSwap();
@@ -193,7 +193,7 @@ public final class SwaptionPhysicalFixedCompoundedONCompoundedBlackMethod implem
     final DoublesPair point = DoublesPair.of(swaption.getTimeToExpiry(), maturity);
     final Map<DoublesPair, Double> sensitivity = new HashMap<>();
     sensitivity.put(point, bsAdjoint[2] * numeraire * sign);
-    return new PresentValueBlackSwaptionSensitivity(sensitivity, curveBlack.getBlackParameters().getGeneratorSwap());
+    return new PresentValueSwaptionSurfaceSensitivity(sensitivity, curveBlack.getBlackParameters().getGeneratorSwap());
   }
 
   /**

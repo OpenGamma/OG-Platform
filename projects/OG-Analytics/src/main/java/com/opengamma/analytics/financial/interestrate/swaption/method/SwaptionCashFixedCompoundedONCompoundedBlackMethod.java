@@ -12,7 +12,7 @@ import com.opengamma.analytics.financial.interestrate.PresentValueCalculator;
 import com.opengamma.analytics.financial.interestrate.PresentValueCurveSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.method.PricingMethod;
-import com.opengamma.analytics.financial.interestrate.sensitivity.PresentValueBlackSwaptionSensitivity;
+import com.opengamma.analytics.financial.interestrate.sensitivity.PresentValueSwaptionSurfaceSensitivity;
 import com.opengamma.analytics.financial.interestrate.swap.method.SwapFixedCompoundingONCompoundingDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedCompoundedONCompounded;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
@@ -154,7 +154,7 @@ public final class SwaptionCashFixedCompoundedONCompoundedBlackMethod implements
    * @param curveBlack The curves with Black volatility data.
    * @return The present value Black sensitivity.
    */
-  public PresentValueBlackSwaptionSensitivity presentValueBlackSensitivity(final SwaptionCashFixedCompoundedONCompounded swaption, final YieldCurveWithBlackSwaptionBundle curveBlack) {
+  public PresentValueSwaptionSurfaceSensitivity presentValueBlackSensitivity(final SwaptionCashFixedCompoundedONCompounded swaption, final YieldCurveWithBlackSwaptionBundle curveBlack) {
     ArgumentChecker.isTrue(false, "Method not implemented");
     //    ArgumentChecker.notNull(swaption, "Swaption");
     //    ArgumentChecker.notNull(curveBlack, "Curves with Black volatility");
