@@ -28,7 +28,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
- * Computes par rate excluding accrued interest. <br> 
+ * Computes par rate (excluding accrued interests) and accrued interest. <br> 
  * <b>Use {@link ParRateDiscountingCalculator} for standard definition of par rate.<b>
  */
 public class SwapCleanDiscountingCalculator {
@@ -57,23 +57,13 @@ public class SwapCleanDiscountingCalculator {
     ArgumentChecker.notNull(indexTimeSeries, "indexTimeSeries");
     ArgumentChecker.notNull(multicurves, "multicurves");
 
-    //    AnnuityCouponIborDefinition iborLegDefinition = (AnnuityCouponIborDefinition) trimAnnuity(
-    //        swapDefinition.getIborLeg(), calendar, valuationDate);
-    //    Annuity<? extends Coupon> iborLeg = iborLegDefinition.toDerivative(valuationDate, indexTimeSeries);
     Annuity<? extends Coupon> iborLeg = swapDefinition.getIborLeg().toDerivative(valuationDate, indexTimeSeries);
     double dirtyIborLegPV = iborLeg.accept(PVDC, multicurves).getAmount(iborLeg.getCurrency()) *
         Math.signum(iborLeg.getNthPayment(0).getNotional());
-    //    CouponFixed firstCoupon = (CouponFixed) iborLeg.getNthPayment(0);
-    //    double iborLegAccruedInterest = getAccrued(iborLegDayCount, calendar, valuationDate,
-    //        iborLegDefinition.getNthPayment(0)) * firstCoupon.getFixedRate();
     double iborLegAccruedInterest = getAccrued(iborLegDayCount, calendar, valuationDate,
         swapDefinition.getIborLeg(), indexTimeSeries);
     double cleanFloatingPV = dirtyIborLegPV - iborLegAccruedInterest;
     
-    //    AnnuityCouponFixedDefinition fixedLegDefinition = (AnnuityCouponFixedDefinition) trimAnnuity(
-    //        swapDefinition.getFixedLeg(), calendar, valuationDate);
-    //    AnnuityCouponFixed fixedLeg = fixedLegDefinition.toDerivative(valuationDate);
-    //    double accruedAmount = getAccrued(fixedLegDayCount, calendar, valuationDate, fixedLegDefinition.getNthPayment(0));
     double accruedAmount = getAccrued(fixedLegDayCount, calendar, valuationDate, swapDefinition.getFixedLeg(),
         indexTimeSeries);
     AnnuityCouponFixed fixedLeg = swapDefinition.getFixedLeg().toDerivative(valuationDate);
@@ -107,88 +97,16 @@ public class SwapCleanDiscountingCalculator {
     ArgumentChecker.notNull(multicurves, "multicurves");
 
     Annuity<? extends Coupon> iborLeg = swapDefinition.getIborLeg().toDerivative(valuationDate, indexTimeSeries);
-    //    CouponFixed firstCoupon = (CouponFixed) iborLeg.getNthPayment(0);
-    //    double iborLegAccruedInterest = getAccrued(iborLegDayCount, calendar, valuationDate,
-    //        iborLegDefinition.getNthPayment(0)) * firstCoupon.getFixedRate();
     double iborLegAccruedInterest = getAccrued(iborLegDayCount, calendar, valuationDate,
         swapDefinition.getIborLeg(), indexTimeSeries) * Math.signum(iborLeg.getNthPayment(0).getNotional());
 
-    //    AnnuityCouponFixedDefinition fixedLegDefinition = (AnnuityCouponFixedDefinition) trimAnnuity(
-    //        swapDefinition.getFixedLeg(), calendar, valuationDate);
-    //    AnnuityCouponFixed fixedLeg = fixedLegDefinition.toDerivative(valuationDate);
-    //    double accruedAmount = getAccrued(fixedLegDayCount, calendar, valuationDate, fixedLegDefinition.getNthPayment(0));
     CouponFixedDefinition refFixed = swapDefinition.getFixedLeg().getNthPayment(0);
     double fixedLegAccruedInterest = getAccrued(fixedLegDayCount, calendar, valuationDate,
         swapDefinition.getFixedLeg(),
         indexTimeSeries) * Math.signum(refFixed.getNotional()) * refFixed.getRate();
 
-    //    AnnuityCouponIborDefinition iborLegDefinition = (AnnuityCouponIborDefinition) trimAnnuity(
-    //        swapDefinition.getIborLeg(), calendar, valuationDate);
-    //    CouponFixed firstCoupon = (CouponFixed) iborLegDefinition.getNthPayment(0).toDerivative(valuationDate,
-    //        indexTimeSeries);
-    //    double iborLegAccruedInterest = getAccrued(iborLegDayCount, calendar, valuationDate,
-    //        iborLegDefinition.getNthPayment(0)) * firstCoupon.getFixedRate() * firstCoupon.getNotional();
-    //
-    //    AnnuityCouponFixedDefinition fixedLegDefinition = (AnnuityCouponFixedDefinition) trimAnnuity(
-    //        swapDefinition.getFixedLeg(), calendar, valuationDate);
-    //    CouponFixedDefinition firstCouponDDefinition = fixedLegDefinition.getNthPayment(0);
-    //    double fixedLegAccruedInterest = getAccrued(fixedLegDayCount, calendar, valuationDate, firstCouponDDefinition) *
-    //        firstCouponDDefinition.getRate() * firstCouponDDefinition.getNotional();
-
     return MultipleCurrencyAmount.of(swapDefinition.getCurrency(), iborLegAccruedInterest + fixedLegAccruedInterest);
   }
-
-  //  private double getCleanPresentValue(AnnuityCouponIborDefinition floatingLegDefnition, DayCount floatingLegDayCount,
-  //      Calendar calendar, ZonedDateTime valuationDate, ZonedDateTimeDoubleTimeSeries indexTimeSeries,
-  //      MulticurveProviderDiscount multicurves) {
-  //    IborIndex index = floatingLegDefnition.getIborIndex();
-  //    CouponIborDefinition[] paymentsFloating = floatingLegDefnition.getPayments();
-  //    List<CouponIborDefinition> listFloating = new ArrayList<>();
-  //    for (CouponIborDefinition payment : paymentsFloating) {
-  //      if (!payment.getPaymentDate().isBefore(valuationDate)) {
-  //        listFloating.add(payment);
-  //      }
-  //    }
-  //    AnnuityCouponIborDefinition trimedFloatingLeg = new AnnuityCouponIborDefinition(
-  //        listFloating.toArray(new CouponIborDefinition[listFloating.size()]), index, calendar);
-  //    Annuity<? extends Coupon> floatingLegDerivative = trimedFloatingLeg.toDerivative(valuationDate, indexTimeSeries);
-  //    double accruedYearFractionFloating = floatingLegDayCount.getDayCountFraction(trimedFloatingLeg.getNthPayment(0)
-  //        .getAccrualStartDate(), valuationDate, calendar);
-  //    double dirtyFloatingPV = floatingLegDerivative.accept(PVDC, multicurves).getAmount(
-  //        floatingLegDerivative.getCurrency()) * Math.signum(floatingLegDerivative.getNthPayment(0).getNotional());
-  //    /* Cast is possible for standard instruments because fixing date is before accrual start date */
-  //    ArgumentChecker.isTrue(floatingLegDerivative.getNthPayment(0) instanceof CouponFixed,
-  //        "ibor rate for the first payment is not fixed yet, thus accrued interst is not computed");
-  //    CouponFixed firstCoupon = (CouponFixed) floatingLegDerivative.getNthPayment(0);
-  //    double accruedInterestFloating = firstCoupon.getFixedRate() * accruedYearFractionFloating *
-  //        firstCoupon.getNotional();
-  //    return dirtyFloatingPV - accruedInterestFloating;
-  //  }
-  
-  //  private double getAccruedIbor(DayCount dayCount, Calendar calendar, ZonedDateTime valuationDate,
-  //      AnnuityCouponIborDefinition annuity, ZonedDateTimeDoubleTimeSeries indexTimeSeries) {
-  //    double res = 0.0;
-  //    CouponIborDefinition[] payments = annuity.getPayments();
-  //    for (CouponIborDefinition payment : payments) {
-  //      if (payment.getAccrualStartDate().isBefore(valuationDate) && !payment.getPaymentDate().isBefore(valuationDate)) {
-  //        CouponFixed coupon = (CouponFixed) payment.toDerivative(valuationDate, indexTimeSeries);
-  //        res += getAccrued(dayCount, calendar, valuationDate, payment) * coupon.getFixedRate();
-  //      }
-  //    }
-  //    return res;
-  //  }
-  //
-  //  private double getAccruedFixed(DayCount dayCount, Calendar calendar, ZonedDateTime valuationDate,
-  //      AnnuityCouponFixedDefinition annuity) {
-  //    double res = 0.0;
-  //    CouponFixedDefinition[] payments = annuity.getPayments();
-  //    for (CouponFixedDefinition payment : payments) {
-  //      if (payment.getAccrualStartDate().isBefore(valuationDate) && !payment.getPaymentDate().isBefore(valuationDate)) {
-  //        res += getAccrued(dayCount, calendar, valuationDate, payment);
-  //      }
-  //    }
-  //    return res;
-  //  }
 
   private double getAccrued(DayCount dayCount, Calendar calendar, ZonedDateTime valuationDate,
       AnnuityDefinition<? extends CouponDefinition> annuity, ZonedDateTimeDoubleTimeSeries indexTimeSeries) {
@@ -216,23 +134,4 @@ public class SwapCleanDiscountingCalculator {
     double accruedYearFraction = dayCount.getDayCountFraction(coupon.getAccrualStartDate(), valuationDate, calendar);
     return accruedYearFraction * Math.abs(coupon.getNotional());
   }
-  
-  //  private AnnuityDefinition<?> trimAnnuity(AnnuityDefinition<?> annuity, Calendar calendar,
-  //      ZonedDateTime valuationDate) {
-  //    PaymentDefinition[] payments = annuity.getPayments();
-  //    List<PaymentDefinition> list = new ArrayList<>();
-  //    for (PaymentDefinition payment : payments) {
-  //      if (!payment.getPaymentDate().isBefore(valuationDate)) {
-  //        list.add(payment);
-  //      }
-  //    }
-  //    if (annuity instanceof AnnuityCouponIborDefinition) {
-  //      AnnuityCouponIborDefinition casted = (AnnuityCouponIborDefinition) annuity;
-  //      return new AnnuityCouponIborDefinition(list.toArray(new CouponIborDefinition[list.size()]),
-  //          casted.getIborIndex(), calendar);
-  //    } else if (annuity instanceof AnnuityCouponFixedDefinition) {
-  //      return new AnnuityCouponFixedDefinition(list.toArray(new CouponFixedDefinition[list.size()]), calendar);
-  //    }
-  //    throw new IllegalArgumentException("This annuity type is not supported");
-  //  }
 }

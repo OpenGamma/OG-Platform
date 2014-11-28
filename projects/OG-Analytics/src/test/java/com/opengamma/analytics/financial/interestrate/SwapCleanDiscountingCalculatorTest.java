@@ -57,7 +57,7 @@ public class SwapCleanDiscountingCalculatorTest {
       .getInstance();
   private static final GeneratorSwapFixedIbor USD6MLIBOR3M = GENERATOR_SWAP_FIXED_IBOR_MASTER.getGenerator(
       "USD6MLIBOR3M", NYC);
-  /** Instruments descriptions */
+
   private static final double NOTIONAL = 100000000; //100 m
   private static final ZonedDateTimeDoubleTimeSeries TS_USDLIBOR3M =
       ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(
@@ -67,7 +67,7 @@ public class SwapCleanDiscountingCalculatorTest {
   private static final ZonedDateTimeDoubleTimeSeries[] TS_ARRAY_USDLIBOR3M =
       new ZonedDateTimeDoubleTimeSeries[] {TS_USDLIBOR3M };
 
-  // Instrument description: Swap Fixed vs Libor3M Already started (with fixing) 
+  /* Instrument description: Swap Fixed vs Libor3M already started */
   private static final ZonedDateTime TRADE_DATE_3M_S = DateUtils.getUTCDate(2013, 9, 10);
   private static final Period TENOR_SWAP_3M_S = Period.ofYears(7);
   private static final double FIXED_RATE_3M_S = 0.0150;
