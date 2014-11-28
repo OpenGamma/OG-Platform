@@ -24,7 +24,6 @@ import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivativ
 import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative.ForwardCommodityPhysicalSettle;
 import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative.MetalFutureSecurity;
 import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative.MetalFutureTransaction;
-import com.opengamma.analytics.financial.credit.cds.ISDACDSDerivative;
 import com.opengamma.analytics.financial.equity.Equity;
 import com.opengamma.analytics.financial.equity.future.derivative.CashSettledFuture;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityFuture;
@@ -295,7 +294,7 @@ public interface InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> {
 
   RESULT_TYPE visitBondInterestIndexedTransaction(BondInterestIndexedTransaction<?, ?> bond, DATA_TYPE data);
 
-  RESULT_TYPE visitCDSDerivative(ISDACDSDerivative cds, DATA_TYPE data);
+
 
   // One argument
 
@@ -357,7 +356,7 @@ public interface InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> {
 
   RESULT_TYPE visitBondInterestIndexedSecurity(BondInterestIndexedSecurity<?, ?> bond, DATA_TYPE data);
 
-  RESULT_TYPE visitCDSDerivative(ISDACDSDerivative cds);
+
 
   // -----     Coupons     -----
 
@@ -376,11 +375,11 @@ public interface InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> {
   RESULT_TYPE visitInterpolatedStubCoupon(InterpolatedStubCoupon<? extends DepositIndexCoupon<? extends IndexDeposit>, ? extends IndexDeposit> payment, DATA_TYPE data);
 
   RESULT_TYPE visitInterpolatedStubCoupon(InterpolatedStubCoupon<? extends DepositIndexCoupon<? extends IndexDeposit>, ? extends IndexDeposit> payment);
-  
+
   RESULT_TYPE visitCouponFixedFxReset(CouponFixedFxReset payment, DATA_TYPE data);
 
   RESULT_TYPE visitCouponFixedFxReset(CouponFixedFxReset payment);
-  
+
   RESULT_TYPE visitCouponIborFxReset(CouponIborFxReset payment, DATA_TYPE data);
 
   RESULT_TYPE visitCouponIborFxReset(CouponIborFxReset payment);

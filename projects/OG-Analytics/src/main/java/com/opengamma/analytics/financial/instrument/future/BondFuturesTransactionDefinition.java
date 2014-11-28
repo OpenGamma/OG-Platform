@@ -29,29 +29,6 @@ public class BondFuturesTransactionDefinition extends FuturesTransactionDefiniti
     super(underlyingFuture, quantity, tradeDate, tradePrice);
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public BondFuturesTransaction toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException("The method toDerivative of BondFutureTransactionDefinition does not support the two argument method (without margin price data).");
-  }
-
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public BondFuturesTransaction toDerivative(final ZonedDateTime dateTime, final Double lastMarginPrice, final String... yieldCurveNames) {
-    final double referencePrice = referencePrice(dateTime, lastMarginPrice);
-    final BondFuturesSecurity underlyingFuture = getUnderlyingSecurity().toDerivative(dateTime, yieldCurveNames);
-    final BondFuturesTransaction futureTransaction = new BondFuturesTransaction(underlyingFuture, getQuantity(), referencePrice);
-    return futureTransaction;
-  }
-
   @Override
   public BondFuturesTransaction toDerivative(final ZonedDateTime date) {
     throw new UnsupportedOperationException("The method toDerivative of BondFutureTransactionDefinition does not support the one argument method (without margin price data).");

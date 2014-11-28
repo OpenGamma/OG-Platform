@@ -151,16 +151,6 @@ public class EquityIndexOptionDefinition implements InstrumentDefinition<EquityI
     return _settlementType;
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names.
-   */
-  @Deprecated
-  @Override
-  public EquityIndexOption toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    return toDerivative(date);
-  }
-
   @Override
   public EquityIndexOption toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "date");

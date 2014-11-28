@@ -106,13 +106,4 @@ public class InterestRateFutureOptionMarginSecurityDefinitionTest {
     assertTrue("Rate future option with margining security converter", security.equals(convertedSecurity));
   }
 
-  @SuppressWarnings("deprecation")
-  @Test
-  public void toDerivativeDeprecated() {
-    final double expirationTime = TimeCalculator.getTimeBetween(REFERENCE_DATE, EXPIRATION_DATE);
-    final InterestRateFutureSecurity underlyingFuture = ERU2.toDerivative(REFERENCE_DATE, CURVES_NAMES);
-    final InterestRateFutureOptionMarginSecurity security = new InterestRateFutureOptionMarginSecurity(underlyingFuture, expirationTime, STRIKE, IS_CALL);
-    final InterestRateFutureOptionMarginSecurity convertedSecurity = OPTION_ERU2.toDerivative(REFERENCE_DATE, CURVES_NAMES);
-    assertTrue("Rate future option with margining security converter", security.equals(convertedSecurity));
-  }
 }

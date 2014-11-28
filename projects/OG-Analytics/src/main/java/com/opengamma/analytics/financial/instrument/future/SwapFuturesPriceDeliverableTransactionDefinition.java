@@ -36,33 +36,6 @@ public class SwapFuturesPriceDeliverableTransactionDefinition extends FuturesTra
   /**
    * {@inheritDoc}
    * @param lastMarginPrice The price on which the last margining was done.
-   * @deprecated Use the method that does not take yield curve names {@link #toDerivative(ZonedDateTime, Double) toDerivative}
-   */
-  @Deprecated
-  @Override
-  public SwapFuturesPriceDeliverableTransaction toDerivative(final ZonedDateTime dateTime, final Double lastMarginPrice, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(dateTime, "date");
-    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
-    final LocalDate date = dateTime.toLocalDate();
-    final LocalDate transactionDateLocal = getTradeDate().toLocalDate();
-    final LocalDate deliveryDateLocal = getUnderlyingSecurity().getDeliveryDate().toLocalDate();
-    if (date.isAfter(deliveryDateLocal)) {
-      throw new ExpiredException("Valuation date, " + date + ", is after last trading date, " + deliveryDateLocal);
-    }
-    double referencePrice;
-    if (transactionDateLocal.isBefore(date)) { // Transaction was before last margining.
-      referencePrice = lastMarginPrice;
-    } else { // Transaction is today
-      referencePrice = getTradePrice();
-    }
-    final SwapFuturesPriceDeliverableSecurity underlying = getUnderlyingSecurity().toDerivative(dateTime, yieldCurveNames);
-    final SwapFuturesPriceDeliverableTransaction future = new SwapFuturesPriceDeliverableTransaction(underlying, referencePrice, getQuantity());
-    return future;
-  }
-
-  /**
-   * {@inheritDoc}
-   * @param lastMarginPrice The price on which the last margining was done.
    */
   @Override
   public SwapFuturesPriceDeliverableTransaction toDerivative(final ZonedDateTime dateTime, final Double lastMarginPrice) {
@@ -70,16 +43,6 @@ public class SwapFuturesPriceDeliverableTransactionDefinition extends FuturesTra
     final SwapFuturesPriceDeliverableSecurity underlying = getUnderlyingSecurity().toDerivative(dateTime);
     final SwapFuturesPriceDeliverableTransaction future = new SwapFuturesPriceDeliverableTransaction(underlying, referencePrice, getQuantity());
     return future;
-  }
-
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public SwapFuturesPriceDeliverableTransaction toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException("The method toDerivative of " + this.getClass().getSimpleName() + " does not support the two argument method (without margin price data).");
   }
 
   @Override

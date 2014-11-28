@@ -217,27 +217,20 @@ public class IRFutureOptionFunctions extends AbstractFunctionConfigurationBean {
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
     functions.add(functionConfiguration(InterestRateFutureOptionMarketUnderlyingPriceFunction.class));
-    functions.add(functionConfiguration(InterestRateFutureOptionBlackPresentValueFunction.class));
     functions.add(functionConfiguration(InterestRateFutureOptionBlackVolatilitySensitivityFunction.class));
     functions.add(functionConfiguration(InterestRateFutureOptionBlackImpliedVolatilityFunction.class));
-    functions.add(functionConfiguration(InterestRateFutureOptionBlackPV01Function.class));
-    functions.add(functionConfiguration(InterestRateFutureOptionBlackYieldCurveNodeSensitivitiesFunction.class));
     functions.add(functionConfiguration(InterestRateFutureOptionBlackGammaFunction.class));
     functions.add(functionConfiguration(InterestRateFutureOptionBlackPriceFunction.class));
     functions.add(functionConfiguration(InterestRateFutureOptionBlackDeltaFunction.class));
     functions.add(functionConfiguration(InterestRateFutureOptionBlackVegaFunction.class));
     functions.add(functionConfiguration(InterestRateFutureOptionBlackThetaFunction.class));
-    functions.add(functionConfiguration(InterestRateFutureOptionBlackPositionDeltaFunction.class));
     functions.add(functionConfiguration(InterestRateFutureOptionBlackPositionGammaFunction.class));
-    functions.add(functionConfiguration(InterestRateFutureOptionBlackPositionVegaFunction.class));
     functions.add(functionConfiguration(InterestRateFutureOptionBlackPositionWeightedVegaFunction.class));
-    functions.add(functionConfiguration(InterestRateFutureOptionBlackPositionRhoFunction.class));
     functions.add(functionConfiguration(InterestRateFutureOptionBlackForwardFunction.class));
     functions.add(functionConfiguration(InterestRateFutureOptionBlackValueDeltaFunction.class));
     functions.add(functionConfiguration(InterestRateFutureOptionBlackValueGammaFunction.class));
     functions.add(functionConfiguration(InterestRateFutureOptionBlackValueGammaPFunction.class));
     functions.add(functionConfiguration(InterestRateFutureOptionBlackValueThetaFunction.class));
-    functions.add(functionConfiguration(InterestRateFutureOptionBlackScenarioPnLFunction.class));
     functions.add(functionConfiguration(InterestRateFutureOptionHestonPresentValueFunction.class));
     functions.add(functionConfiguration(IRFutureOptionSABRPresentValueFunction.class));
     functions.add(functionConfiguration(IRFutureOptionSABRSensitivitiesFunction.class));

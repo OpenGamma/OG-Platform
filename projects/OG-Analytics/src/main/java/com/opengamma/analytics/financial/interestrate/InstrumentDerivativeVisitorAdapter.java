@@ -24,7 +24,6 @@ import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivativ
 import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative.ForwardCommodityPhysicalSettle;
 import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative.MetalFutureSecurity;
 import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative.MetalFutureTransaction;
-import com.opengamma.analytics.financial.credit.cds.ISDACDSDerivative;
 import com.opengamma.analytics.financial.equity.Equity;
 import com.opengamma.analytics.financial.equity.future.derivative.CashSettledFuture;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityFuture;
@@ -244,10 +243,6 @@ public abstract class InstrumentDerivativeVisitorAdapter<DATA_TYPE, RESULT_TYPE>
     return getException(payment, data);
   }
 
-  @Override
-  public RESULT_TYPE visitCDSDerivative(final ISDACDSDerivative cds, final DATA_TYPE data) {
-    return getException(cds, data);
-  }
 
   @Override
   public RESULT_TYPE visitBondFixedSecurity(final BondFixedSecurity bond) {
@@ -372,11 +367,6 @@ public abstract class InstrumentDerivativeVisitorAdapter<DATA_TYPE, RESULT_TYPE>
   @Override
   public RESULT_TYPE visitFixedPayment(final PaymentFixed payment) {
     return getException(payment);
-  }
-
-  @Override
-  public RESULT_TYPE visitCDSDerivative(final ISDACDSDerivative cds) {
-    return getException(cds);
   }
 
   // -----     Payment and coupon     -----

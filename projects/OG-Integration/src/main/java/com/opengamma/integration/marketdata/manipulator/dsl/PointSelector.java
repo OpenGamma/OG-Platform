@@ -26,6 +26,7 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.RegexUtils;
 
 /**
  * Selects raw market data points that will be manipulated.
@@ -342,7 +343,7 @@ public class PointSelector implements DistinctMarketDataSelector {
         throw new IllegalStateException("idLike can only be called once");
       }
       _idLikeScheme = ExternalScheme.of(scheme);
-      _idLikePattern = SimulationUtils.patternForGlob(valueGlob);
+      _idLikePattern = RegexUtils.globToPattern(valueGlob);
       return this;
     }
 

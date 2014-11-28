@@ -185,16 +185,6 @@ public class VolatilitySwapDefinition implements InstrumentDefinition<Volatility
     return visitor.visitVolatilitySwapDefinition(this);
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Yield curve names are no longer stored in {@link InstrumentDerivative}
-   */
-  @Deprecated
-  @Override
-  public VolatilitySwap toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    return toDerivative(date);
-  }
-
   @Override
   public VolatilitySwap toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "date");

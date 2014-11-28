@@ -58,53 +58,6 @@ public class ForexOptionVanillaTest {
     assertEquals(IS_LONG, FX_OPTION.isLong());
   }
 
-  @SuppressWarnings("deprecation")
-  @Test
-  /**
-   * Tests the call/put description.
-   */
-  public void callPutDeprecated() {
-    final Forex fx = FX_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
-    final ForexOptionVanilla optPositiveCall = new ForexOptionVanilla(fx, EXPIRATION_TIME, IS_CALL, IS_LONG);
-    assertTrue("Forex vanilla option call/put: Positive amount / call", optPositiveCall.isCall());
-    final ForexOptionVanilla optPositivePut = new ForexOptionVanilla(fx, EXPIRATION_TIME, !IS_CALL, IS_LONG);
-    assertTrue("Forex vanilla option call/put: Positive amount / put", !optPositivePut.isCall());
-    final ForexDefinition fxNegativeDefinition = new ForexDefinition(CUR_1, CUR_2, PAYMENT_DATE, -NOMINAL_1, FX_RATE);
-    final Forex fxNegative = fxNegativeDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
-    final ForexOptionVanilla optNegativePut = new ForexOptionVanilla(fxNegative, EXPIRATION_TIME, !IS_CALL, IS_LONG);
-    assertTrue("Forex vanilla option call/put: Negative amount / put", optNegativePut.isCall());
-    final ForexOptionVanilla optNegativeCall = new ForexOptionVanilla(fxNegative, EXPIRATION_TIME, IS_CALL, IS_LONG);
-    assertTrue("Forex vanilla option call/put: Negative amount / call", !optNegativeCall.isCall());
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test
-  public void equalHashDeprecated() {
-    final Forex fx = FX_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
-    final ForexOptionVanilla fxOption = new ForexOptionVanilla(fx, EXPIRATION_TIME, IS_CALL, IS_LONG);
-    assertTrue(fxOption.equals(fxOption));
-    final ForexOptionVanilla otherOption = new ForexOptionVanilla(fx, EXPIRATION_TIME, IS_CALL, IS_LONG);
-    assertTrue(otherOption.equals(fxOption));
-    assertEquals(fxOption.hashCode(), otherOption.hashCode());
-    final ForexOptionVanilla otherOptionShort1 = new ForexOptionVanilla(fx, EXPIRATION_TIME, IS_CALL, !IS_LONG);
-    final ForexOptionVanilla otherOptionShort2 = new ForexOptionVanilla(fx, EXPIRATION_TIME, IS_CALL, !IS_LONG);
-    assertTrue(otherOptionShort1.equals(otherOptionShort2));
-    assertEquals(otherOptionShort1.hashCode(), otherOptionShort2.hashCode());
-    ForexOptionVanilla modifiedOption;
-    modifiedOption = new ForexOptionVanilla(fx, EXPIRATION_TIME, !IS_CALL, IS_LONG);
-    assertFalse(modifiedOption.equals(fxOption));
-    modifiedOption = new ForexOptionVanilla(fx, EXPIRATION_TIME - 0.01, IS_CALL, IS_LONG);
-    assertFalse(modifiedOption.equals(fxOption));
-    modifiedOption = new ForexOptionVanilla(fx, EXPIRATION_TIME, IS_CALL, !IS_LONG);
-    assertFalse(modifiedOption.equals(fxOption));
-    final ForexDefinition modifiedFxDefinition = new ForexDefinition(CUR_1, CUR_2, PAYMENT_DATE, NOMINAL_1 + 1.0, FX_RATE);
-    final Forex modifiedFx = modifiedFxDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
-    modifiedOption = new ForexOptionVanilla(modifiedFx, EXPIRATION_TIME, IS_CALL, IS_LONG);
-    assertFalse(modifiedOption.equals(fxOption));
-    final EuropeanVanillaOption option = new EuropeanVanillaOption(fxOption.getStrike(), fxOption.getTimeToExpiry(), fxOption.isCall());
-    assertFalse(fxOption.equals(option));
-    assertFalse(modifiedOption.equals(null));
-  }
 
   @Test
   /**

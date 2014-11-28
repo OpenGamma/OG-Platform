@@ -28,14 +28,15 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Paymen
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
-import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
+import com.opengamma.analytics.financial.provider.description.inflation.ParameterInflationProviderInterface;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
  * Calculates the present value of an inflation instruments by discounting for a given MarketBundle
  */
-public final class PresentValueDiscountingInflationCalculator extends InstrumentDerivativeVisitorDelegate<InflationProviderInterface, MultipleCurrencyAmount> {
+public final class PresentValueDiscountingInflationCalculator extends 
+  InstrumentDerivativeVisitorDelegate<ParameterInflationProviderInterface, MultipleCurrencyAmount> {
 
   /**
    * The unique instance of the calculator.
@@ -93,50 +94,50 @@ public final class PresentValueDiscountingInflationCalculator extends Instrument
       new CouponInflationYearOnYearInterpolationWithMarginDiscountingMethod();
 
   @Override
-  public MultipleCurrencyAmount visitCouponInflationZeroCouponMonthly(final CouponInflationZeroCouponMonthly coupon, final InflationProviderInterface market) {
-    return METHOD_ZC_MONTHLY.presentValue(coupon, market);
+  public MultipleCurrencyAmount visitCouponInflationZeroCouponMonthly(final CouponInflationZeroCouponMonthly coupon, final ParameterInflationProviderInterface market) {
+    return METHOD_ZC_MONTHLY.presentValue(coupon, market.getInflationProvider());
   }
 
   @Override
-  public MultipleCurrencyAmount visitCouponInflationZeroCouponInterpolation(final CouponInflationZeroCouponInterpolation coupon, final InflationProviderInterface market) {
-    return METHOD_ZC_INTERPOLATION.presentValue(coupon, market);
+  public MultipleCurrencyAmount visitCouponInflationZeroCouponInterpolation(final CouponInflationZeroCouponInterpolation coupon, final ParameterInflationProviderInterface market) {
+    return METHOD_ZC_INTERPOLATION.presentValue(coupon, market.getInflationProvider());
   }
 
   @Override
-  public MultipleCurrencyAmount visitCouponInflationZeroCouponMonthlyGearing(final CouponInflationZeroCouponMonthlyGearing coupon, final InflationProviderInterface market) {
-    return METHOD_ZC_MONTHLY_GEARING.presentValue(coupon, market);
+  public MultipleCurrencyAmount visitCouponInflationZeroCouponMonthlyGearing(final CouponInflationZeroCouponMonthlyGearing coupon, final ParameterInflationProviderInterface market) {
+    return METHOD_ZC_MONTHLY_GEARING.presentValue(coupon, market.getInflationProvider());
   }
 
   @Override
-  public MultipleCurrencyAmount visitCouponInflationZeroCouponInterpolationGearing(final CouponInflationZeroCouponInterpolationGearing coupon, final InflationProviderInterface market) {
-    return METHOD_ZC_INTERPOLATION_GEARING.presentValue(coupon, market);
+  public MultipleCurrencyAmount visitCouponInflationZeroCouponInterpolationGearing(final CouponInflationZeroCouponInterpolationGearing coupon, final ParameterInflationProviderInterface market) {
+    return METHOD_ZC_INTERPOLATION_GEARING.presentValue(coupon, market.getInflationProvider());
   }
 
   @Override
-  public MultipleCurrencyAmount visitCouponInflationYearOnYearMonthly(final CouponInflationYearOnYearMonthly coupon, final InflationProviderInterface market) {
-    return METHOD_YEAR_ON_YEAR_MONTHLY.presentValue(coupon, market);
+  public MultipleCurrencyAmount visitCouponInflationYearOnYearMonthly(final CouponInflationYearOnYearMonthly coupon, final ParameterInflationProviderInterface market) {
+    return METHOD_YEAR_ON_YEAR_MONTHLY.presentValue(coupon, market.getInflationProvider());
   }
 
   @Override
-  public MultipleCurrencyAmount visitCouponInflationYearOnYearInterpolation(final CouponInflationYearOnYearInterpolation coupon, final InflationProviderInterface market) {
-    return METHOD_YEAR_ON_YEAR_INTERPOLATION.presentValue(coupon, market);
+  public MultipleCurrencyAmount visitCouponInflationYearOnYearInterpolation(final CouponInflationYearOnYearInterpolation coupon, final ParameterInflationProviderInterface market) {
+    return METHOD_YEAR_ON_YEAR_INTERPOLATION.presentValue(coupon, market.getInflationProvider());
   }
 
   @Override
-  public MultipleCurrencyAmount visitCouponInflationYearOnYearMonthlyWithMargin(final CouponInflationYearOnYearMonthlyWithMargin coupon, final InflationProviderInterface inflation) {
-    return METHOD_YEAR_ON_YEAR_MONTHLY_WITH_MARGIN.presentValue(coupon, inflation);
+  public MultipleCurrencyAmount visitCouponInflationYearOnYearMonthlyWithMargin(final CouponInflationYearOnYearMonthlyWithMargin coupon, final ParameterInflationProviderInterface inflation) {
+    return METHOD_YEAR_ON_YEAR_MONTHLY_WITH_MARGIN.presentValue(coupon, inflation.getInflationProvider());
   }
 
   @Override
   public MultipleCurrencyAmount visitCouponInflationYearOnYearInterpolationWithMargin(final CouponInflationYearOnYearInterpolationWithMargin coupon,
-      final InflationProviderInterface inflation) {
-    return METHOD_YEAR_ON_YEAR_INTERPOLATION_WITH_MARGIN.presentValue(coupon, inflation);
+      final ParameterInflationProviderInterface inflation) {
+    return METHOD_YEAR_ON_YEAR_INTERPOLATION_WITH_MARGIN.presentValue(coupon, inflation.getInflationProvider());
   }
 
   // -----     Annuity     ------
 
   @Override
-  public MultipleCurrencyAmount visitGenericAnnuity(final Annuity<? extends Payment> annuity, final InflationProviderInterface market) {
+  public MultipleCurrencyAmount visitGenericAnnuity(final Annuity<? extends Payment> annuity, final ParameterInflationProviderInterface market) {
     ArgumentChecker.notNull(annuity, "Annuity");
     ArgumentChecker.notNull(market, "market");
     MultipleCurrencyAmount pv = annuity.getNthPayment(0).accept(this, market);
@@ -147,21 +148,21 @@ public final class PresentValueDiscountingInflationCalculator extends Instrument
   }
 
   @Override
-  public MultipleCurrencyAmount visitFixedCouponAnnuity(final AnnuityCouponFixed annuity, final InflationProviderInterface multicurve) {
+  public MultipleCurrencyAmount visitFixedCouponAnnuity(final AnnuityCouponFixed annuity, final ParameterInflationProviderInterface multicurve) {
     return visitGenericAnnuity(annuity, multicurve);
   }
 
   // -----     Swap     ------
 
   @Override
-  public MultipleCurrencyAmount visitSwap(final Swap<?, ?> swap, final InflationProviderInterface market) {
+  public MultipleCurrencyAmount visitSwap(final Swap<?, ?> swap, final ParameterInflationProviderInterface market) {
     final MultipleCurrencyAmount pv1 = swap.getFirstLeg().accept(this, market);
     final MultipleCurrencyAmount pv2 = swap.getSecondLeg().accept(this, market);
     return pv1.plus(pv2);
   }
 
   @Override
-  public MultipleCurrencyAmount visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final InflationProviderInterface market) {
+  public MultipleCurrencyAmount visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final ParameterInflationProviderInterface market) {
     return visitSwap(swap, market);
   }
 

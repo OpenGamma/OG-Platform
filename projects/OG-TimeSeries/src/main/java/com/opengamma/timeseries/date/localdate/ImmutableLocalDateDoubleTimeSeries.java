@@ -163,13 +163,7 @@ public final class ImmutableLocalDateDoubleTimeSeries
    * @param values  the values, not null
    */
   private static void validate(int[] times, double[] values) {
-    if (times == null || values == null) {
-      throw new NullPointerException("Array must not be null");
-    }
-    // check lengths
-    if (times.length != values.length) {
-      throw new IllegalArgumentException("Arrays are of different sizes: " + times.length + ", " + values.length);
-    }
+    validateLength(times, values);
     // check dates are ordered
     int maxTime = Integer.MIN_VALUE;
     for (int time : times) {
@@ -178,6 +172,22 @@ public final class ImmutableLocalDateDoubleTimeSeries
         throw new IllegalArgumentException("dates must be ordered");
       }
       maxTime = time;
+    }
+  }
+
+  /**
+   * Validates the data but not the content of the dates.
+   *
+   * @param times  the times, not null
+   * @param values  the values, not null
+   */
+  private static void validateLength(int[] times, double[] values) {
+    if (times == null || values == null) {
+      throw new NullPointerException("Array must not be null");
+    }
+    // check lengths
+    if (times.length != values.length) {
+      throw new IllegalArgumentException("Arrays are of different sizes: " + times.length + ", " + values.length);
     }
   }
 
@@ -382,6 +392,17 @@ public final class ImmutableLocalDateDoubleTimeSeries
   @Override
   public LocalDateDoubleTimeSeriesBuilder toBuilder() {
     return builder().putAll(this);
+  }
+
+  /**
+   * Obtain a new time-series with the same times and new values
+   *
+   * @param values the new values, not null
+   * @return time series, not null
+   */
+  public LocalDateDoubleTimeSeries withValues(double[] values) {
+    validateLength(_times, values);
+    return new ImmutableLocalDateDoubleTimeSeries(_times, values.clone()); // immutable, so can share times
   }
 
 }

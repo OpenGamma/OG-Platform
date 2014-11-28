@@ -32,16 +32,6 @@ public class AnnuityCouponCommodityPhysicalSettleDefinition extends AnnuityCoupo
     super(payments, calendar);
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public Annuity<? extends Payment> toDerivative(final ZonedDateTime valZdt, final String... yieldCurveNames) {
-    return toDerivative(valZdt);
-  }
-
   @Override
   public Annuity<? extends Payment> toDerivative(final ZonedDateTime valZdt) {
     ArgumentChecker.notNull(valZdt, "date");

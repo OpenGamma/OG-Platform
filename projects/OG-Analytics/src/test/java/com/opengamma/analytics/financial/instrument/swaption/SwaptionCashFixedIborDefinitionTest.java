@@ -115,23 +115,6 @@ public class SwaptionCashFixedIborDefinitionTest {
     assertEquals(SWAPTION.getUnderlyingSwap().toDerivative(REFERENCE_DATE), convertedSwaption.getUnderlyingSwap());
   }
 
-  @SuppressWarnings("deprecation")
-  @Test
-  public void testToDerivativeDeprecated() {
-    final DayCount actAct = DayCounts.ACT_ACT_ISDA;
-    final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.of(REFERENCE_DATE.toLocalDate(), LocalTime.MIDNIGHT), ZoneOffset.UTC);
-    final double expiryTime = actAct.getDayCountFraction(zonedDate, EXPIRY_DATE);
-    final String fundingCurve = "Funding";
-    final String forwardCurve = "Forward";
-    final String[] curves = {fundingCurve, forwardCurve};
-    SwaptionCashFixedIbor convertedSwaption = SWAPTION_DEPRECATED.toDerivative(REFERENCE_DATE, curves);
-    assertEquals(expiryTime, convertedSwaption.getTimeToExpiry(), 1E-10);
-    assertEquals(SWAPTION_DEPRECATED.getUnderlyingSwap().toDerivative(REFERENCE_DATE, curves), convertedSwaption.getUnderlyingSwap());
-    convertedSwaption = SWAPTION.toDerivative(REFERENCE_DATE, curves);
-    assertEquals(expiryTime, convertedSwaption.getTimeToExpiry(), 1E-10);
-    assertEquals(SWAPTION.getUnderlyingSwap().toDerivative(REFERENCE_DATE, curves), convertedSwaption.getUnderlyingSwap());
-  }
-
   /**
    * Tests the equal and hashCode methods.
    */

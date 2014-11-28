@@ -184,48 +184,6 @@ public class ForwardRateAgreementDefinitionTest {
     assertFalse(FRA_DEFINITION_1.equals(null));
   }
 
-  @SuppressWarnings("deprecation")
-  @Test
-  public void toDerivativeNotFixedDeprecated() {
-    final DayCount actAct = DayCounts.ACT_ACT_ISDA;
-    final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.of(REFERENCE_DATE.toLocalDate(), LocalTime.MIDNIGHT), ZoneOffset.UTC);
-    final double paymentTime = actAct.getDayCountFraction(zonedDate, PAYMENT_DATE);
-    final double fixingTime = actAct.getDayCountFraction(zonedDate, FIXING_DATE);
-    final double fixingPeriodStartTime = actAct.getDayCountFraction(zonedDate, FRA_DEFINITION_1.getFixingPeriodStartDate());
-    final double fixingPeriodEndTime = actAct.getDayCountFraction(zonedDate, FRA_DEFINITION_1.getFixingPeriodEndDate());
-    final String fundingCurve = "Funding";
-    final String forwardCurve = "Forward";
-    final String[] curves = {fundingCurve, forwardCurve };
-    final ForwardRateAgreement fra = new ForwardRateAgreement(CUR, paymentTime, fundingCurve, ACCRUAL_FACTOR_PAYMENT, NOTIONAL, INDEX, fixingTime, fixingPeriodStartTime, fixingPeriodEndTime,
-        FRA_DEFINITION_1.getFixingPeriodAccrualFactor(), FRA_RATE, forwardCurve);
-    final ForwardRateAgreement convertedFra = (ForwardRateAgreement) FRA_DEFINITION_1.toDerivative(REFERENCE_DATE, curves);
-    assertEquals(convertedFra, fra);
-    assertEquals(fra, convertedFra);
-    final double shift = 0.01;
-    final DoubleTimeSeries<ZonedDateTime> fixingTS = ImmutableZonedDateTimeDoubleTimeSeries.of(FIXING_DATE, FRA_RATE + shift);
-    final ForwardRateAgreement convertedFra2 = (ForwardRateAgreement) FRA_DEFINITION_3.toDerivative(REFERENCE_DATE, fixingTS, curves);
-    assertEquals(fra, convertedFra2);
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test
-  public void toDerivativeFixedDeprecated() {
-    final ZonedDateTime referenceFixed = DateUtils.getUTCDate(2011, 1, 4);
-    final ForwardRateAgreementDefinition fraFixed = new ForwardRateAgreementDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR_PAYMENT, NOTIONAL, FIXING_DATE, INDEX,
-        FRA_RATE, CALENDAR);
-    final double shift = 0.01;
-    final DoubleTimeSeries<ZonedDateTime> fixingTS = ImmutableZonedDateTimeDoubleTimeSeries.of(FIXING_DATE, FRA_RATE + shift);
-    final DayCount actAct = DayCounts.ACT_ACT_ISDA;
-    final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.of(referenceFixed.toLocalDate(), LocalTime.MIDNIGHT), ZoneOffset.UTC);
-    final double paymentTime = actAct.getDayCountFraction(zonedDate, PAYMENT_DATE);
-    final String fundingCurve = "Funding";
-    final String forwardCurve = "Forward";
-    final String[] curves = {fundingCurve, forwardCurve };
-    final CouponFixed fra = new CouponFixed(CUR, paymentTime, fundingCurve, ACCRUAL_FACTOR_PAYMENT, NOTIONAL, (FRA_RATE + shift) - FRA_RATE);
-    final Payment convertedFra = fraFixed.toDerivative(referenceFixed, fixingTS, curves);
-    assertEquals(convertedFra.equals(fra), true);
-  }
-
   @Test
   public void toDerivativeNotFixed() {
     final DayCount actAct = DayCounts.ACT_ACT_ISDA;

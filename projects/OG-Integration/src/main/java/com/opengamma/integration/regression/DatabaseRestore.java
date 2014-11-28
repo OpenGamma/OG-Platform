@@ -111,7 +111,7 @@ public class DatabaseRestore {
     ArgumentChecker.notNull(holidayMaster, "holidayMaster");
     ArgumentChecker.notNull(exchangeMaster, "exchangeMaster");
     ArgumentChecker.notNull(snapshotMaster, "snapshotMaster");
-    //ArgumentChecker.notNull(legalEntityMaster, "legalEntityMaster");
+    ArgumentChecker.notNull(legalEntityMaster, "legalEntityMaster");
     _io = io;
     _securityMaster = securityMaster;
     _positionMaster = positionMaster;
@@ -170,7 +170,7 @@ public class DatabaseRestore {
       loadHolidays();
       loadExchanges();
       loadSnapshots();
-      loadOrganizations();
+      loadLegalEntities();
       loadConventions();
       _io.endRead();
       s_logger.info("Successfully restored database");
@@ -330,11 +330,11 @@ public class DatabaseRestore {
     }
   }
 
-  private void loadOrganizations() throws IOException {
-    List<ManageableLegalEntity> organizations = readAll(RegressionUtils.ORGANIZATION_MASTER_DATA);
-    for (ManageableLegalEntity organization : organizations) {
-      organization.setUniqueId(null);
-      _legalEntityMaster.add(new LegalEntityDocument(organization));
+  private void loadLegalEntities() throws IOException {
+    List<ManageableLegalEntity> legalEntities = readAll(RegressionUtils.LEGAL_ENTITY_MASTER_DATA);
+    for (ManageableLegalEntity legalEntity : legalEntities) {
+      legalEntity.setUniqueId(null);
+      _legalEntityMaster.add(new LegalEntityDocument(legalEntity));
     }
   }
 

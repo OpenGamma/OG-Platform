@@ -23,7 +23,7 @@ import com.opengamma.engine.marketdata.manipulator.DistinctMarketDataSelector;
 import com.opengamma.engine.marketdata.manipulator.ScenarioDefinition;
 import com.opengamma.util.test.TestGroup;
 
-@Test(groups = TestGroup.UNIT)
+@Test(groups = TestGroup.INTEGRATION)
 public class BucketedShiftTest {
 
   @Test

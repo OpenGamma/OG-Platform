@@ -70,21 +70,6 @@ public class BondInterestIndexedTransactionDefinitionTest {
     assertEquals("Capital Index Bond", QUANTITY, BOND_GILT_1_TRANSACTION_DEFINITION.getQuantity());
   }
 
-  @SuppressWarnings("deprecation")
-  @Test
-  public void toDerivativeDeprecated() {
-    final DoubleTimeSeries<ZonedDateTime> ukRpi = MulticurveProviderDiscountDataSets.ukRpiFrom2010();
-    final ZonedDateTime pricingDate = DateUtils.getUTCDate(2011, 8, 3); // One coupon fixed
-    final BondInterestIndexedTransaction<PaymentFixed, Coupon> bondTransactionConverted = BOND_GILT_1_TRANSACTION_DEFINITION.toDerivative(pricingDate, ukRpi, "Not used");
-    final BondInterestIndexedSecurity<PaymentFixed, Coupon> purchase = BOND_GILT_1_SECURITY_DEFINITION.toDerivative(pricingDate, SETTLE_DATE_GILT_1, ukRpi);
-    assertEquals("Capital Index Bond: toDerivative", purchase, bondTransactionConverted.getBondTransaction());
-    final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(pricingDate, SETTLEMENT_DAYS_GILT_1, CALENDAR_GBP);
-    final BondInterestIndexedSecurity<PaymentFixed, Coupon> standard = BOND_GILT_1_SECURITY_DEFINITION.toDerivative(pricingDate, spot, ukRpi);
-    assertEquals("Capital Index Bond: toDerivative", standard, bondTransactionConverted.getBondStandard());
-    final BondInterestIndexedTransaction<PaymentFixed, Coupon> expected = new BondInterestIndexedTransaction<>(purchase, QUANTITY, PRICE_GILT_1, standard, NOTIONAL_GILT_1);
-    assertEquals("Capital Index Bond: toDerivative", expected, bondTransactionConverted);
-  }
-
   @Test
   public void toDerivative() {
     final DoubleTimeSeries<ZonedDateTime> ukRpi = MulticurveProviderDiscountDataSets.ukRpiFrom2010();

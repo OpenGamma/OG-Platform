@@ -26,14 +26,15 @@ import com.opengamma.analytics.financial.provider.calculator.inflation.PresentVa
 import com.opengamma.analytics.financial.provider.calculator.inflation.PresentValueDiscountingInflationCalculator;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderDiscount;
-import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
+import com.opengamma.analytics.financial.provider.description.inflation.ParameterInflationProviderInterface;
+import com.opengamma.analytics.financial.provider.sensitivity.inflation.ParameterSensitivityInflationParameterCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
-import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterInflationSensitivityParameterCalculator;
 import com.opengamma.analytics.financial.util.AssertSensitivityObjects;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
@@ -41,9 +42,10 @@ import com.opengamma.util.tuple.Pair;
 /**
  * End-to-end tests for inflation curve calibration and pricing of inflation zero-coupon swaps.
  */
+@Test(groups = TestGroup.UNIT)
 public class SwapZeroCouponInflationDiscountingUsdE2ETest {
 
-  private static final ZonedDateTime CAlIBRATION_DATE = DateUtils.getUTCDate(2014, 10, 9);
+  private static final ZonedDateTime CALIBRATION_DATE = DateUtils.getUTCDate(2014, 10, 9);
   private static final Currency USD = Currency.USD;
 
   /** Calculators **/
@@ -51,26 +53,34 @@ public class SwapZeroCouponInflationDiscountingUsdE2ETest {
       PresentValueDiscountingInflationCalculator.getInstance();
   private static final PresentValueCurveSensitivityDiscountingInflationCalculator PVCSDIC = 
       PresentValueCurveSensitivityDiscountingInflationCalculator.getInstance();
-  private static final ParameterInflationSensitivityParameterCalculator<InflationProviderInterface> PSC = 
-      new ParameterInflationSensitivityParameterCalculator<>(PVCSDIC);
-  private static final MarketQuoteInflationSensitivityBlockCalculator<InflationProviderInterface> MQSBC = 
+  private static final ParameterSensitivityInflationParameterCalculator<ParameterInflationProviderInterface> PSC = 
+      new ParameterSensitivityInflationParameterCalculator<>(PVCSDIC);
+  private static final MarketQuoteInflationSensitivityBlockCalculator<ParameterInflationProviderInterface> MQSBC = 
       new MarketQuoteInflationSensitivityBlockCalculator<>(PSC);
   
   /** Curves */
   private static final Pair<InflationProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_INFL_1_PAIR = 
-      StandardDataSetsInflationUSD.getCurvesUsdOisUsCpi(CAlIBRATION_DATE);
+      StandardDataSetsInflationUSD.getCurvesUsdOisUsCpi(CALIBRATION_DATE);
   private static final InflationProviderDiscount MULTICURVE_INFL_1 = MULTICURVE_INFL_1_PAIR.getFirst();
   private static final CurveBuildingBlockBundle BLOCK_INFL_1 = MULTICURVE_INFL_1_PAIR.getSecond();
   private static final Pair<InflationProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_INFL_2_PAIR = 
-      StandardDataSetsInflationUSD.getCurvesUsdOisUsCpi2(CAlIBRATION_DATE);
+      StandardDataSetsInflationUSD.getCurvesUsdOisUsCpi2(CALIBRATION_DATE);
   private static final InflationProviderDiscount MULTICURVE_INFL_2 = MULTICURVE_INFL_2_PAIR.getFirst();
   private static final CurveBuildingBlockBundle BLOCK_INFL_2 = MULTICURVE_INFL_2_PAIR.getSecond();
   private static final Pair<InflationProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_INFL_3_PAIR = 
-      StandardDataSetsInflationUSD.getCurvesUsdOisUsCpi3(CAlIBRATION_DATE);
+      StandardDataSetsInflationUSD.getCurvesUsdOisUsCpi3(CALIBRATION_DATE);
   private static final InflationProviderDiscount MULTICURVE_INFL_3 = MULTICURVE_INFL_3_PAIR.getFirst();
   private static final CurveBuildingBlockBundle BLOCK_INFL_3 = MULTICURVE_INFL_3_PAIR.getSecond();
+  private static final Pair<InflationProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_INFL_4_PAIR = 
+      StandardDataSetsInflationUSD.getCurvesUsdOisUsCpiSeasonality(CALIBRATION_DATE);
+  private static final InflationProviderDiscount MULTICURVE_INFL_4 = MULTICURVE_INFL_4_PAIR.getFirst();
+  private static final CurveBuildingBlockBundle BLOCK_INFL_4 = MULTICURVE_INFL_4_PAIR.getSecond();
+  private static final Pair<InflationProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_INFL_5_PAIR = 
+      StandardDataSetsInflationUSD.getCurvesUsdOisUsCpiCurrent(CALIBRATION_DATE);
+  private static final InflationProviderDiscount MULTICURVE_INFL_5 = MULTICURVE_INFL_5_PAIR.getFirst();
+  private static final CurveBuildingBlockBundle BLOCK_INFL_5 = MULTICURVE_INFL_5_PAIR.getSecond();
   private static final ZonedDateTimeDoubleTimeSeries HTS_CPI = 
-      StandardTimeSeriesInflationDataSets.timeSeriesUsCpi(CAlIBRATION_DATE);
+      StandardTimeSeriesInflationDataSets.timeSeriesUsCpi(CALIBRATION_DATE);
 
   private static final GeneratorSwapFixedInflationZeroCoupon GENERATOR_ZCINFLATION_US = 
       GeneratorSwapFixedInflationMaster.getInstance().getGenerator("USCPI");
@@ -83,7 +93,7 @@ public class SwapZeroCouponInflationDiscountingUsdE2ETest {
   private static final double RATE_FIXED_1 = 0.0200;
   private static final SwapFixedInflationZeroCouponDefinition ZCI_1_DEFINITION = 
       GENERATOR_ZCINFLATION_US.generateInstrument(ACCRUAL_START_DATE_1, RATE_FIXED_1, NOTIONAL, ZCI_1_ATTR);
-  private static final InstrumentDerivative ZCI_1 = ZCI_1_DEFINITION.toDerivative(ACCRUAL_START_DATE_1, 
+  private static final InstrumentDerivative ZCI_1 = ZCI_1_DEFINITION.toDerivative(CALIBRATION_DATE, 
       new ZonedDateTimeDoubleTimeSeries[] {HTS_CPI, HTS_CPI});
   
   /** Zero-coupon Inflation US (linear interpolation of Price Index). 5Y aged. */
@@ -92,8 +102,8 @@ public class SwapZeroCouponInflationDiscountingUsdE2ETest {
   private static final double RATE_FIXED_2 = 0.0100;
   private static final SwapFixedInflationZeroCouponDefinition ZCI_2_DEFINITION = 
       GENERATOR_ZCINFLATION_US.generateInstrument(ACCRUAL_START_DATE_2, RATE_FIXED_2, NOTIONAL, ZCI_2_ATTR);
-  private static final InstrumentDerivative ZCI_2 = ZCI_2_DEFINITION.toDerivative(ACCRUAL_START_DATE_1, 
-      new ZonedDateTimeDoubleTimeSeries[] {HTS_CPI, HTS_CPI}); // TODO: empty hts
+  private static final InstrumentDerivative ZCI_2 = ZCI_2_DEFINITION.toDerivative(CALIBRATION_DATE, 
+      new ZonedDateTimeDoubleTimeSeries[] {HTS_CPI, HTS_CPI});
   
   private static final double TOLERANCE_PV = 1.0E-3;
   private static final double TOLERANCE_PV_DELTA = 1.0E-1;
@@ -129,16 +139,16 @@ public class SwapZeroCouponInflationDiscountingUsdE2ETest {
   
   @Test
   public void presentValueAgedSeasonality() {
-    double pvExpectd = 557423.3817;
-    MultipleCurrencyAmount pv1 = ZCI_2.accept(PVDIC, MULTICURVE_INFL_1);
+    double pvExpectd = 515419.8416;
+    MultipleCurrencyAmount pv1 = ZCI_2.accept(PVDIC, MULTICURVE_INFL_4);
     assertEquals("SwapZeroCouponInflationUsdDiscountingE2ETest: present value", 
         pvExpectd, pv1.getAmount(USD), TOLERANCE_PV);
   }
   
   @Test
   public void presentValueAgedStart() {
-    double pvExpectd = 557423.3817;
-    MultipleCurrencyAmount pv1 = ZCI_2.accept(PVDIC, MULTICURVE_INFL_1);
+    double pvExpectd = 557421.1232;
+    MultipleCurrencyAmount pv1 = ZCI_2.accept(PVDIC, MULTICURVE_INFL_5);
     assertEquals("SwapZeroCouponInflationUsdDiscountingE2ETest: present value", 
         pvExpectd, pv1.getAmount(USD), TOLERANCE_PV);
   }

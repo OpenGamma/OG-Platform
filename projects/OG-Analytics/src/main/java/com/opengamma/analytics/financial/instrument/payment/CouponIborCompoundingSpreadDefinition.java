@@ -541,16 +541,6 @@ public class CouponIborCompoundingSpreadDefinition extends CouponDefinition impl
     return _initialRate;
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public Coupon toDerivative(final ZonedDateTime dateTime, final DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries, final String... yieldCurveNames) {
-    return toDerivative(dateTime, indexFixingTimeSeries);
-  }
-
   @Override
   public CouponIborCompoundingSpread toDerivative(final ZonedDateTime dateTime) {
     final LocalDate dateConversion = dateTime.toLocalDate();
@@ -616,16 +606,6 @@ public class CouponIborCompoundingSpreadDefinition extends CouponDefinition impl
     System.arraycopy(_fixingPeriodAccrualFactors, nbFixed, fixingPeriodAccrualFactorsLeft, 0, nbSubPeriodLeft);
     return new CouponIborCompoundingSpread(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), notionalAccrued, _index, paymentAccrualFactorsLeft,
         fixingTimesLeft, fixingPeriodStartTimesLeft, fixingPeriodEndTimesLeft, fixingPeriodAccrualFactorsLeft, _spread);
-  }
-
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public CouponIborCompoundingSpread toDerivative(final ZonedDateTime dateTime, final String... yieldCurveNames) {
-    return toDerivative(dateTime);
   }
 
   @Override

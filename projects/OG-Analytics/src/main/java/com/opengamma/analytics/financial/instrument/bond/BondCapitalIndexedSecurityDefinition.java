@@ -26,9 +26,6 @@ import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondSecurity;
-import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflation;
-import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponInterpolationGearing;
-import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponMonthlyGearing;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.legalentity.LegalEntity;
@@ -488,26 +485,6 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
     return _priceIndex;
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public BondCapitalIndexedSecurity<Coupon> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    return toDerivative(date);
-  }
-
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public BondCapitalIndexedSecurity<Coupon> toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> data, final String... yieldCurveNames) {
-    return toDerivative(date, data);
-  }
-
   @Override
   public BondCapitalIndexedSecurity<Coupon> toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "date");
@@ -572,9 +549,9 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
     final ZonedDateTime settlementDate2 = settlementDate.isBefore(date) ? date : settlementDate;
     final double notional = nominalLast.getNotional() * (settlementDate.isBefore(date) ? 0.0 : 1.0);
     final CouponInflationDefinition settlementDefinition = nominalLast.with(settlementDate2, nominalLast.getAccrualStartDate(), settlementDate2, notional);
-    final CouponInflation settlement = (CouponInflation) settlementDefinition.toDerivative(date);
+    final Coupon settlement = settlementDefinition.toDerivative(date, data); // TODO: use hts
     double indexRatio = 1;
-    if (settlement instanceof CouponInflationZeroCouponInterpolationGearing) {
+    if (settlementDefinition instanceof CouponInflationZeroCouponInterpolationGearingDefinition) {
       final int monthLag = ((CouponInflationZeroCouponInterpolationGearingDefinition) settlementDefinition).getMonthLag();
       final ZonedDateTime[] referenceStartDates = new ZonedDateTime[2];
       final ZonedDateTime refInterpolatedStartDate = settlementDate2.minusMonths(monthLag);
@@ -585,12 +562,13 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
       final double weight = 1.0 - (settlementDate2.getDayOfMonth() - 1.0) / settlementDate2.toLocalDate().lengthOfMonth();
       final double indexEndValue = weight * indexEnd0 + (1 - weight) * indexEnd1;
       indexRatio = indexEndValue / _indexStartValue;
-    } else if (settlement instanceof CouponInflationZeroCouponMonthlyGearing) {
+    } else if (settlementDefinition instanceof CouponInflationZeroCouponMonthlyGearingDefinition) {
       indexRatio = lasKnownIndexFixing / _indexStartValue;
     } else {
       throw new OpenGammaRuntimeException("Unsupported coupon type " + getNominal().getNthPayment(0).getClass());
     }
-    return new BondCapitalIndexedSecurity<>(nominalStandard, couponStandard, settlementTime, accruedInterest, factorToNextCoupon, ratioPeriodToNextCoupon, _yieldConvention, _couponPerYear,
+    return new BondCapitalIndexedSecurity<>(nominalStandard, couponStandard, settlementTime, accruedInterest, 
+        factorToNextCoupon, ratioPeriodToNextCoupon, _yieldConvention, _couponPerYear,
         settlement, _indexStartValue, lasKnownIndexFixing, lasKnownFixingTime, indexRatio, getIssuerEntity());
   }
 

@@ -9,3 +9,4 @@ Platform
    HowTos/*
    Product types/*
    Market data/*
+   og-financial/*

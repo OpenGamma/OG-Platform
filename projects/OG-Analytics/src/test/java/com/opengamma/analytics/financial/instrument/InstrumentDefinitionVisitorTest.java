@@ -71,7 +71,6 @@ import com.opengamma.analytics.financial.instrument.cash.CashDefinition;
 import com.opengamma.analytics.financial.instrument.cash.DepositCounterpartDefinition;
 import com.opengamma.analytics.financial.instrument.cash.DepositIborDefinition;
 import com.opengamma.analytics.financial.instrument.cash.DepositZeroDefinition;
-import com.opengamma.analytics.financial.instrument.cds.ISDACDSDefinition;
 import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumSecurityDefinition;
@@ -854,15 +853,6 @@ public class InstrumentDefinitionVisitorTest {
       return getValue(bond, false);
     }
 
-    @Override
-    public String visitCDSDefinition(final ISDACDSDefinition cds, final T data) {
-      return getValue(cds, true);
-    }
-
-    @Override
-    public String visitCDSDefinition(final ISDACDSDefinition cds) {
-      return getValue(cds, false);
-    }
 
     @Override
     public String visitForexDefinition(final ForexDefinition fx, final T data) {

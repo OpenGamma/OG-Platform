@@ -249,17 +249,6 @@ public class CouponIborFxResetDefinition extends CouponDefinition implements
     return _fxDeliveryDate;
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Override
-  @Deprecated()
-  public CouponIborFxReset toDerivative(ZonedDateTime dateTime, String... yieldCurveNames) {
-    throw new UnsupportedOperationException(
-        "CouponIborFxResetDefinition does not support toDerivative with yield curve name - deprecated method");
-  }
-
   @Override
   public CouponIborFxReset toDerivative(ZonedDateTime dateTime) {
     ArgumentChecker.notNull(dateTime, "dateTime");
@@ -277,18 +266,6 @@ public class CouponIborFxResetDefinition extends CouponDefinition implements
     return new CouponIborFxReset(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), fixingTime,
         getIndex(), fixingPeriodStartTime, fixingPeriodEndTime, getIborIndexFixingPeriodAccrualFactor(), _spread,
         getReferenceCurrency(), fxFixingTime, fxDeliveryTime);
-  }
-
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Override
-  @Deprecated
-  public Payment toDerivative(ZonedDateTime dateTime, DoubleTimeSeries<ZonedDateTime>[] timeSeries,
-      String... yieldCurveNames) {
-    throw new UnsupportedOperationException(
-        "CouponIborFxResetDefinition does not support toDerivative with yield curve name - deprecated method");
   }
 
   /**

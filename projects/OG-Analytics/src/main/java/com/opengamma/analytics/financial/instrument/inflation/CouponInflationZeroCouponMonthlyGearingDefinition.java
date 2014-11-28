@@ -218,56 +218,6 @@ public class CouponInflationZeroCouponMonthlyGearingDefinition extends CouponInf
     return from(paymentDate, accrualStartDate, accrualEndDate, notional, getPriceIndex(), _indexStartValue, _conventionalMonthLag, _monthLag, _payNotional, _factor);
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public CouponInflationZeroCouponMonthlyGearing toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(date, "date");
-    ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "Do not have any fixing data but are asking for a derivative after the payment date");
-    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
-    ArgumentChecker.isTrue(yieldCurveNames.length > 0, "at least one curve required");
-    ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
-    final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
-    final double referenceEndTime = TimeCalculator.getTimeBetween(date, getReferenceEndDate());
-    final ZonedDateTime naturalPaymentDate = getPaymentDate().minusMonths(_monthLag - _conventionalMonthLag);
-    final double naturalPaymentTime = TimeCalculator.getTimeBetween(date, naturalPaymentDate);
-    return new CouponInflationZeroCouponMonthlyGearing(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), getPriceIndex(), _indexStartValue, referenceEndTime, naturalPaymentTime,
-        _payNotional, _factor);
-  }
-
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public Coupon toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> priceIndexTimeSeries, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(date, "date");
-    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
-    ArgumentChecker.isTrue(yieldCurveNames.length > 0, "at least one curve required");
-    ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
-    final LocalDate dayConversion = date.toLocalDate();
-    final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
-    final LocalDate dayFixing = getReferenceEndDate().toLocalDate();
-    final String discountingCurveName = yieldCurveNames[0];
-    if (dayConversion.isAfter(dayFixing)) {
-      final Double fixedEndIndex = priceIndexTimeSeries.getValue(getReferenceEndDate());
-      if (fixedEndIndex != null) {
-        final Double fixedRate = _factor * (fixedEndIndex / getIndexStartValue() - (payNotional() ? 0.0 : 1.0));
-        return new CouponFixed(getCurrency(), paymentTime, discountingCurveName, getPaymentYearFraction(), getNotional(), fixedRate);
-      }
-    }
-    double referenceEndTime = 0.0;
-    referenceEndTime = TimeCalculator.getTimeBetween(date, _referenceEndDate);
-    final ZonedDateTime naturalPaymentDate = getPaymentDate().minusMonths(_monthLag - _conventionalMonthLag);
-    final double naturalPaymentTime = TimeCalculator.getTimeBetween(date, naturalPaymentDate);
-    return new CouponInflationZeroCouponMonthlyGearing(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), getPriceIndex(), _indexStartValue, referenceEndTime, naturalPaymentTime,
-        _payNotional, _factor);
-  }
-
   @Override
   public CouponInflationZeroCouponMonthlyGearing toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "date");

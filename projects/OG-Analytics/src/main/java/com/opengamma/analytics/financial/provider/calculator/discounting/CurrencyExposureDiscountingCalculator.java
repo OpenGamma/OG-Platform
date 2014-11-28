@@ -19,7 +19,7 @@ import com.opengamma.analytics.financial.interestrate.payments.provider.CouponIb
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapMultileg;
-import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmountPricer;
@@ -27,7 +27,8 @@ import com.opengamma.util.money.MultipleCurrencyAmountPricer;
 /**
  * Calculates the present value of an inflation instruments by discounting for a given MarketBundle
  */
-public final class CurrencyExposureDiscountingCalculator extends InstrumentDerivativeVisitorDelegate<MulticurveProviderInterface, MultipleCurrencyAmount> {
+public final class CurrencyExposureDiscountingCalculator 
+  extends InstrumentDerivativeVisitorDelegate<ParameterProviderInterface, MultipleCurrencyAmount> {
 
   /**
    * The unique instance of the calculator.
@@ -64,33 +65,33 @@ public final class CurrencyExposureDiscountingCalculator extends InstrumentDeriv
 
   @Override
   public MultipleCurrencyAmount visitCouponFixedFxReset(final CouponFixedFxReset coupon, 
-      final MulticurveProviderInterface multicurve) {
-    return METHOD_CPN_FIXED_FXRESET.currencyExposure(coupon, multicurve);
+      final ParameterProviderInterface multicurve) {
+    return METHOD_CPN_FIXED_FXRESET.currencyExposure(coupon, multicurve.getMulticurveProvider());
   }
 
   @Override
   public MultipleCurrencyAmount visitCouponIborFxReset(final CouponIborFxReset coupon,
-      final MulticurveProviderInterface multicurve) {
-    return METHOD_CPN_IBOR_FXRESET.currencyExposure(coupon, multicurve);
+      final ParameterProviderInterface multicurve) {
+    return METHOD_CPN_IBOR_FXRESET.currencyExposure(coupon, multicurve.getMulticurveProvider());
   }
 
   // -----     Forex     ------
 
   @Override
-  public MultipleCurrencyAmount visitForex(final Forex derivative, final MulticurveProviderInterface multicurves) {
-    return METHOD_FOREX.currencyExposure(derivative, multicurves);
+  public MultipleCurrencyAmount visitForex(final Forex derivative, final ParameterProviderInterface multicurves) {
+    return METHOD_FOREX.currencyExposure(derivative, multicurves.getMulticurveProvider());
   }
 
   @Override
   public MultipleCurrencyAmount visitForexNonDeliverableForward(final ForexNonDeliverableForward derivative, 
-      final MulticurveProviderInterface multicurves) {
-    return METHOD_FOREX_NDF.currencyExposure(derivative, multicurves);
+      final ParameterProviderInterface multicurves) {
+    return METHOD_FOREX_NDF.currencyExposure(derivative, multicurves.getMulticurveProvider());
   }
 
   // -----     Annuity     ------
 
   @Override
-  public MultipleCurrencyAmount visitGenericAnnuity(final Annuity<? extends Payment> annuity, final MulticurveProviderInterface multicurve) {
+  public MultipleCurrencyAmount visitGenericAnnuity(final Annuity<? extends Payment> annuity, final ParameterProviderInterface multicurve) {
     ArgumentChecker.notNull(annuity, "Annuity");
     ArgumentChecker.notNull(multicurve, "multicurve");
     MultipleCurrencyAmount pv = annuity.getNthPayment(0).accept(this, multicurve);
@@ -104,19 +105,19 @@ public final class CurrencyExposureDiscountingCalculator extends InstrumentDeriv
   // -----     Swap     ------
 
   @Override
-  public MultipleCurrencyAmount visitSwap(final Swap<?, ?> swap, final MulticurveProviderInterface multicurve) {
+  public MultipleCurrencyAmount visitSwap(final Swap<?, ?> swap, final ParameterProviderInterface multicurve) {
     final MultipleCurrencyAmount ce1 = swap.getFirstLeg().accept(this, multicurve);
     final MultipleCurrencyAmount ce2 = swap.getSecondLeg().accept(this, multicurve);
     return ce1.plus(ce2);
   }
 
   @Override
-  public MultipleCurrencyAmount visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final MulticurveProviderInterface multicurves) {
+  public MultipleCurrencyAmount visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final ParameterProviderInterface multicurves) {
     return visitSwap(swap, multicurves);
   }
 
   @Override
-  public MultipleCurrencyAmount visitSwapMultileg(final SwapMultileg swap, final MulticurveProviderInterface multicurve) {
+  public MultipleCurrencyAmount visitSwapMultileg(final SwapMultileg swap, final ParameterProviderInterface multicurve) {
     final int nbLegs = swap.getLegs().length;
     MultipleCurrencyAmount ce = swap.getLegs()[0].accept(this, multicurve);
     for (int loopleg = 1; loopleg < nbLegs; loopleg++) {

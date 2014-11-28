@@ -17,7 +17,7 @@ import com.opengamma.analytics.financial.datasets.CalendarGBP;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BillSecurityDefinition;
-import com.opengamma.analytics.financial.instrument.bond.BondDataSets;
+import com.opengamma.analytics.financial.instrument.bond.BondDataSetsGbp;
 import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.index.GeneratorAttribute;
 import com.opengamma.analytics.financial.instrument.index.GeneratorAttributeET;
@@ -118,7 +118,7 @@ public class StandardDataSetsBondCurveGBP {
   private static final GeneratorBill[] GENERATOR_BILL = new GeneratorBill[NB_BILL];
   static {
     for (int loopbill = 0; loopbill < BILL_MATURITY.length; loopbill++) {
-      BILL_SECURITY[loopbill] = BondDataSets.billUK(NOTIONAL, BILL_MATURITY[loopbill]);
+      BILL_SECURITY[loopbill] = BondDataSetsGbp.billUK(NOTIONAL, BILL_MATURITY[loopbill]);
       GENERATOR_BILL[loopbill] = new GeneratorBill("GeneratorBill" + loopbill, BILL_SECURITY[loopbill]);
     }
   }
@@ -127,9 +127,9 @@ public class StandardDataSetsBondCurveGBP {
   private static final BondFixedSecurityDefinition[] BOND_SECURITY = new BondFixedSecurityDefinition[NB_BOND];
   private static final GeneratorBondFixed[] GENERATOR_BOND = new GeneratorBondFixed[NB_BOND];
   static {
-    BOND_SECURITY[0] = BondDataSets.bondUKT2_20160122(NOTIONAL);
-    BOND_SECURITY[1] = BondDataSets.bondUKT175_20190722(NOTIONAL);
-    BOND_SECURITY[2] = BondDataSets.bondUKT225_20230907(NOTIONAL);
+    BOND_SECURITY[0] = BondDataSetsGbp.bondUKT2_20160122(NOTIONAL);
+    BOND_SECURITY[1] = BondDataSetsGbp.bondUKT175_20190722(NOTIONAL);
+    BOND_SECURITY[2] = BondDataSetsGbp.bondUKT225_20230907(NOTIONAL);
     for (int loopbnd = 0; loopbnd < NB_BOND; loopbnd++) {
       GENERATOR_BOND[loopbnd] = new GeneratorBondFixed("GeneratorBond" + loopbnd, BOND_SECURITY[loopbnd]);
     }

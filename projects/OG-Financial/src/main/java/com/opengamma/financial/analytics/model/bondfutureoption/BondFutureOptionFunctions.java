@@ -108,13 +108,7 @@ public class BondFutureOptionFunctions extends AbstractFunctionConfigurationBean
 
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
-    functions.add(functionConfiguration(BondFutureOptionBlackPresentValueFunction.class));
-    functions.add(functionConfiguration(BondFutureOptionBlackDeltaFunction.class));
     functions.add(functionConfiguration(BondFutureOptionBlackGammaFunction.class));
-    functions.add(functionConfiguration(BondFutureOptionBlackPV01Function.class));
-    functions.add(functionConfiguration(BondFutureOptionBlackYCNSFunction.class));
-    functions.add(functionConfiguration(BondFutureOptionBlackVegaFunction.class));
-    functions.add(functionConfiguration(BondFutureOptionBlackFromFuturePresentValueFunction.class));
   }
 
 }

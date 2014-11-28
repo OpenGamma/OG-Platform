@@ -12,6 +12,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.testng.annotations.Test;
 import org.testng.internal.junit.ArrayAsserts;
 
+import com.google.common.primitives.Doubles;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurveSimple;
 import com.opengamma.analytics.math.curve.DoublesCurveInterpolatedAnchor;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
@@ -60,7 +61,8 @@ public class GeneratorPriceIndexCurveInterpolatedAnchorNodeTest {
   public void getter() {
     assertEquals("GeneratorPriceIndexCurveInterpolatedAnchor: getter", ANCHOR_NODE, GENERATOR.getAnchorNode());
     assertEquals("GeneratorPriceIndexCurveInterpolatedAnchor: getter", ANCHOR_VALUE, GENERATOR.getAnchorValue());
-    assertEquals("GeneratorPriceIndexCurveInterpolatedAnchor: getter", NODES, GENERATOR.getNodePoints());
+    assertEquals("GeneratorPriceIndexCurveInterpolatedAnchor: getter",
+        Doubles.asList(NODES), Doubles.asList(GENERATOR.getNodePoints()));
   }
 
   @Test

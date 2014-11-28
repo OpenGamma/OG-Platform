@@ -85,21 +85,6 @@ public class InterestRateFutureOptionMarginSecurityDefinition extends FuturesSec
     return _strike;
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public InterestRateFutureOptionMarginSecurity toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(date, "date");
-    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
-    final double expirationTime = TimeCalculator.getTimeBetween(date, _expirationDate);
-    final InterestRateFutureSecurity underlyingFuture = _underlyingFuture.toDerivative(date, yieldCurveNames);
-    final InterestRateFutureOptionMarginSecurity option = new InterestRateFutureOptionMarginSecurity(underlyingFuture, expirationTime, _strike, _isCall);
-    return option;
-  }
-
   @Override
   public InterestRateFutureOptionMarginSecurity toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "date");

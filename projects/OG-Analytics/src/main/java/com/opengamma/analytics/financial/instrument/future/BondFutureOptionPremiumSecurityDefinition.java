@@ -102,20 +102,6 @@ public class BondFutureOptionPremiumSecurityDefinition implements InstrumentDefi
     return _underlyingFuture.getCurrency();
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public BondFutureOptionPremiumSecurity toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    ArgumentChecker.isTrue(!date.isAfter(_expirationDate), "Date is after expiration date");
-    final Double referencePrice = 0.0; // FIXME Bond future should have a "Security" version, without transaction price.
-    final BondFuture underlyingFuture = _underlyingFuture.toDerivative(date, referencePrice, yieldCurveNames);
-    final double expirationTime = TimeCalculator.getTimeBetween(date, _expirationDate);
-    return new BondFutureOptionPremiumSecurity(underlyingFuture, expirationTime, _strike, _isCall);
-  }
-
   @Override
   public BondFutureOptionPremiumSecurity toDerivative(final ZonedDateTime date) {
     ArgumentChecker.isTrue(!date.isAfter(_expirationDate), "Date is after expiration date");

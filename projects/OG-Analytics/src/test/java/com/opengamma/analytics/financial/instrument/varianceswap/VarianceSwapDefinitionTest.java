@@ -152,13 +152,11 @@ public class VarianceSwapDefinitionTest extends AnalyticsTestBase {
     assertEquals(VOL_NOTIONAL, varianceSwap.getVolNotional());
     assertEquals(VOL_STRIKE, varianceSwap.getVolStrike(), 0);
     assertEquals(varianceSwap, DEFINITION.toDerivative(NOW));
-    assertEquals(varianceSwap, DEFINITION.toDerivative(NOW, "A", "B"));
   }
 
   /**
    * Tests creation of a seasoned variance swap derivative
    */
-  @SuppressWarnings("deprecation")
   @Test
   public void testSeasoned() {
     final VarianceSwapDefinition definition = new VarianceSwapDefinition(NOW, PLUS_5Y, PLUS_5Y,  CCY,
@@ -186,7 +184,6 @@ public class VarianceSwapDefinitionTest extends AnalyticsTestBase {
     assertEquals(VOL_STRIKE * VOL_STRIKE, varianceSwap.getVarStrike());
     assertEquals(VOL_NOTIONAL, varianceSwap.getVolNotional());
     assertEquals(VOL_STRIKE, varianceSwap.getVolStrike(), 0);
-    assertEquals(varianceSwap, definition.toDerivative(NOW.plusYears(1), ts, "A", "B"));
   }
 
 }

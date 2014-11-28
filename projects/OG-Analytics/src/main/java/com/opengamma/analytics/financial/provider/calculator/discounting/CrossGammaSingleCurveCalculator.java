@@ -12,7 +12,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
-import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
@@ -35,7 +35,7 @@ public class CrossGammaSingleCurveCalculator {
   private static final double BP1 = 1.0E-4;
 
   /** The sensitivity calculator to the curve parameters used for the delta computation */
-  private final ParameterSensitivityParameterCalculator<MulticurveProviderInterface> _psc;
+  private final ParameterSensitivityParameterCalculator<ParameterProviderInterface> _psc;
   /** The shift used for finite difference Gamma using two deltas. */
   private final double _shift;
 
@@ -45,7 +45,7 @@ public class CrossGammaSingleCurveCalculator {
    * @param curveSensitivityCalculator The delta (curve sensitivity) calculator.
    */
   public CrossGammaSingleCurveCalculator(final double shift,
-      final InstrumentDerivativeVisitor<MulticurveProviderInterface, MultipleCurrencyMulticurveSensitivity> curveSensitivityCalculator) {
+      final InstrumentDerivativeVisitor<ParameterProviderInterface, MultipleCurrencyMulticurveSensitivity> curveSensitivityCalculator) {
     _psc = new ParameterSensitivityParameterCalculator<>(curveSensitivityCalculator);
     _shift = shift;
   }
@@ -54,7 +54,7 @@ public class CrossGammaSingleCurveCalculator {
    * Constructor.
    * @param curveSensitivityCalculator The delta (curve sensitivity) calculator.
    */
-  public CrossGammaSingleCurveCalculator(final InstrumentDerivativeVisitor<MulticurveProviderInterface, MultipleCurrencyMulticurveSensitivity> curveSensitivityCalculator) {
+  public CrossGammaSingleCurveCalculator(final InstrumentDerivativeVisitor<ParameterProviderInterface, MultipleCurrencyMulticurveSensitivity> curveSensitivityCalculator) {
     _psc = new ParameterSensitivityParameterCalculator<>(curveSensitivityCalculator);
     _shift = BP1;
   }

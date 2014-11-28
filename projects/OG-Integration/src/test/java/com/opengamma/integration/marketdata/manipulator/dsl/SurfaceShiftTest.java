@@ -37,7 +37,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.integration.marketdata.manipulator.dsl.volsurface.VolatilitySurfaceIndexShifts;
 import com.opengamma.util.test.TestGroup;
 
-@Test(groups = TestGroup.UNIT)
+@Test(groups = TestGroup.INTEGRATION)
 public class SurfaceShiftTest {
 
   private static final double DELTA = 0.000001;

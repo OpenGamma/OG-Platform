@@ -48,20 +48,6 @@ public class ForexNonDeliverableOptionDefinitionTest {
   /**
    * Tests the class toDerivative method.
    */
-  @SuppressWarnings("deprecation")
-  public void toDerivativeDeprecated() {
-    final String krw = "Discounting KRW";
-    final String usd = "Discounting USD";
-    final String[] curveNames = new String[] {krw, usd};
-    final ForexNonDeliverableOption ndoConverted = NDO_DEFINITION.toDerivative(REFERENCE_DATE, curveNames);
-    final ForexNonDeliverableOption ndoExpected = new ForexNonDeliverableOption(NDF_DEFINITION.toDerivative(REFERENCE_DATE, curveNames), IS_CALL, IS_LONG);
-    assertEquals("Forex NDO - toDerivatives", ndoExpected, ndoConverted);
-  }
-
-  @Test
-  /**
-   * Tests the class toDerivative method.
-   */
   public void toDerivative() {
     final ForexNonDeliverableOption ndoConverted = NDO_DEFINITION.toDerivative(REFERENCE_DATE);
     final ForexNonDeliverableOption ndoExpected = new ForexNonDeliverableOption(NDF_DEFINITION.toDerivative(REFERENCE_DATE), IS_CALL, IS_LONG);

@@ -34,7 +34,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.test.TestGroup;
 
-@Test(groups = TestGroup.UNIT)
+@Test(groups = TestGroup.INTEGRATION)
 public class SimulationScriptTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(SimulationScriptTest.class);

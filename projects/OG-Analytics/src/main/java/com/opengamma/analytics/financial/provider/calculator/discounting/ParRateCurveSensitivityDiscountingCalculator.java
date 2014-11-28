@@ -11,6 +11,7 @@ import com.opengamma.analytics.financial.interestrate.payments.provider.CouponIb
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.interestrate.swap.provider.SwapFixedCouponDiscountingMethod;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.util.money.Currency;
@@ -18,7 +19,8 @@ import com.opengamma.util.money.Currency;
 /**
  * Get the single fixed rate that makes the PV of the instrument zero.
  */
-public final class ParRateCurveSensitivityDiscountingCalculator extends InstrumentDerivativeVisitorAdapter<MulticurveProviderInterface, MulticurveSensitivity> {
+public final class ParRateCurveSensitivityDiscountingCalculator 
+  extends InstrumentDerivativeVisitorAdapter<ParameterProviderInterface, MulticurveSensitivity> {
 
   /**
    * The unique instance of the calculator.
@@ -53,13 +55,13 @@ public final class ParRateCurveSensitivityDiscountingCalculator extends Instrume
    * @return The par swap rate. If the fixed leg has been set up with some fixed payments these are ignored for the purposes of finding the swap rate
    */
   @Override
-  public MulticurveSensitivity visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final MulticurveProviderInterface multicurves) {
+  public MulticurveSensitivity visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final ParameterProviderInterface multicurves) {
     final Currency ccy = swap.getSecondLeg().getCurrency();
     final double pvSecond = swap.getSecondLeg().accept(PVDC, multicurves).getAmount(ccy) * Math.signum(swap.getSecondLeg().getNthPayment(0).getNotional());
-    final double pvbp = METHOD_SWAP.presentValueBasisPoint(swap, multicurves);
+    final double pvbp = METHOD_SWAP.presentValueBasisPoint(swap, multicurves.getMulticurveProvider());
     final double pvbpBar = -pvSecond / (pvbp * pvbp);
     final double pvSecondBar = 1.0 / pvbp;
-    final MulticurveSensitivity pvbpDr = METHOD_SWAP.presentValueBasisPointCurveSensitivity(swap, multicurves);
+    final MulticurveSensitivity pvbpDr = METHOD_SWAP.presentValueBasisPointCurveSensitivity(swap, multicurves.getMulticurveProvider());
     final MulticurveSensitivity pvSecondDr = swap.getSecondLeg().accept(PVCSDC, multicurves).getSensitivity(ccy).multipliedBy(Math.signum(swap.getSecondLeg().getNthPayment(0).getNotional()));
     final MulticurveSensitivity result = pvSecondDr.multipliedBy(pvSecondBar).plus(pvbpDr.multipliedBy(pvbpBar));
     return result;

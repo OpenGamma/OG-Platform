@@ -14,6 +14,7 @@ import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscountingDecoratedIssuer;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.util.ArgumentChecker;
@@ -37,6 +38,8 @@ public class InflationProviderDecoratedIssuer implements InflationProviderInterf
    * The issuer for which the associated discounting curve will replace the currency discounting curve.
    */
   private final LegalEntity _decoratingIssuer;
+  private final MulticurveProviderInterface _multicurveDecorated;
+  private final InflationProviderInterface _inflationDecorated;
 
   /**
    * Constructor.
@@ -51,11 +54,14 @@ public class InflationProviderDecoratedIssuer implements InflationProviderInterf
     _inflationIssuerProvider = inflationIssuerProvider;
     _decoratedCurrency = decoratedCurrency;
     _decoratingIssuer = decoratingIssuer;
+    _multicurveDecorated = new MulticurveProviderDiscountingDecoratedIssuer(inflationIssuerProvider.getIssuerProvider(), 
+        decoratedCurrency, decoratingIssuer);
+    _inflationDecorated = new InflationProviderDecoratedMulticurve(inflationIssuerProvider.getInflationProvider(), _multicurveDecorated);
   }
 
   @Override
   public MulticurveProviderInterface getMulticurveProvider() {
-    return _inflationIssuerProvider.getMulticurveProvider();
+    return _multicurveDecorated;
   }
 
   @Override
@@ -65,15 +71,12 @@ public class InflationProviderDecoratedIssuer implements InflationProviderInterf
 
   @Override
   public double getDiscountFactor(final Currency ccy, final Double time) {
-    if (ccy.equals(_decoratedCurrency)) {
-      return _inflationIssuerProvider.getDiscountFactor(_decoratingIssuer, time);
-    }
-    return _inflationIssuerProvider.getMulticurveProvider().getDiscountFactor(ccy, time);
+    return _multicurveDecorated.getDiscountFactor(ccy, time);
   }
 
   @Override
   public Set<String> getAllNames() {
-    return _inflationIssuerProvider.getAllNames();
+    return _inflationDecorated.getAllNames();
   }
 
   @Override
@@ -102,7 +105,7 @@ public class InflationProviderDecoratedIssuer implements InflationProviderInterf
   }
 
   @Override
-  public InflationProviderInterface getInflationProvider() {
+  public InflationProviderInterface getInflationProvider() { // TODO: correct
     return _inflationIssuerProvider.getInflationProvider();
   }
 

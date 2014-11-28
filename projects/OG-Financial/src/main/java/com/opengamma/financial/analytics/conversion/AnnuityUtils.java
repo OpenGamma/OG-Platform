@@ -204,6 +204,7 @@ public class AnnuityUtils {
         startDate(startDate).
         endDate(endDate).
         endDateAdjustmentParameters(maturityDateParameters).
+        startDateAdjustmentParameters(accrualPeriodParameters).
         dayCount(leg.getDayCountConvention()).
         rollDateAdjuster(rollDateAdjuster).
         exchangeInitialNotional(notionalExchange.isExchangeInitialNotional()).

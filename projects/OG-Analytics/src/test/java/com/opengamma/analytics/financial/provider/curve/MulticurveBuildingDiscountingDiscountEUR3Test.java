@@ -54,6 +54,7 @@ import com.opengamma.analytics.financial.provider.calculator.generic.LastTimeCal
 import com.opengamma.analytics.financial.provider.curve.multicurve.MulticurveDiscountBuildingRepository;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
@@ -512,8 +513,8 @@ public class MulticurveBuildingDiscountingDiscountEUR3Test {
   private static Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> makeCurvesFromDefinitions(
       InstrumentDefinition<?>[][][] definitions, GeneratorYDCurve[][] curveGenerators,
       String[][] curveNames, MulticurveProviderDiscount knownData, CurveBuildingBlockBundle knownBlockBundle,
-      InstrumentDerivativeVisitor<MulticurveProviderInterface, Double> calculator,
-      InstrumentDerivativeVisitor<MulticurveProviderInterface, MulticurveSensitivity> sensitivityCalculator,
+      InstrumentDerivativeVisitor<ParameterProviderInterface, Double> calculator,
+      InstrumentDerivativeVisitor<ParameterProviderInterface, MulticurveSensitivity> sensitivityCalculator,
       boolean withToday) {
     int nUnits = definitions.length;
     MultiCurveBundle<GeneratorYDCurve>[] curveBundles = new MultiCurveBundle[nUnits];

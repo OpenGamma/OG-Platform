@@ -10,6 +10,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorSameMethodAdapter;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.ParameterIssuerProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -20,12 +21,12 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class IssuerProviderAdapter<RESULT_TYPE> extends InstrumentDerivativeVisitorSameMethodAdapter<ParameterIssuerProviderInterface, RESULT_TYPE> {
   /** The underlying visitor */
-  private final InstrumentDerivativeVisitor<MulticurveProviderInterface, RESULT_TYPE> _visitor;
+  private final InstrumentDerivativeVisitor<ParameterProviderInterface, RESULT_TYPE> _visitor;
 
   /**
    * @param visitor The underlying visitor, not null
    */
-  public IssuerProviderAdapter(final InstrumentDerivativeVisitor<MulticurveProviderInterface, RESULT_TYPE> visitor) {
+  public IssuerProviderAdapter(final InstrumentDerivativeVisitor<ParameterProviderInterface, RESULT_TYPE> visitor) {
     ArgumentChecker.notNull(visitor, "visitor");
     _visitor = visitor;
   }

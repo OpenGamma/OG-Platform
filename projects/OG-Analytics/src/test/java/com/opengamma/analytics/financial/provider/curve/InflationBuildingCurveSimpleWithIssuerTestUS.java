@@ -18,6 +18,7 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.curve.inflation.generator.GeneratorPriceIndexCurve;
 import com.opengamma.analytics.financial.curve.inflation.generator.GeneratorPriceIndexCurveInterpolated;
+import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorCurve;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.cash.CashDefinition;
 import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefinition;
@@ -38,13 +39,13 @@ import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.provider.calculator.generic.LastTimeCalculator;
-import com.opengamma.analytics.financial.provider.calculator.inflation.PresentValueDiscountingInflationIssuerCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflationissuer.ParSpreadInflationMarketQuoteCurveSensitivityIssuerDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflationissuer.ParSpreadInflationMarketQuoteIssuerDiscountingCalculator;
+import com.opengamma.analytics.financial.provider.calculator.inflationissuer.PresentValueDiscountingInflationIssuerCalculator;
 import com.opengamma.analytics.financial.provider.curve.inflationissuer.InflationIssuerDiscountBuildingRepository;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationIssuerProviderDiscount;
-import com.opengamma.analytics.financial.provider.description.inflation.InflationIssuerProviderInterface;
+import com.opengamma.analytics.financial.provider.description.inflation.ParameterInflationIssuerProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderDiscount;
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.InflationSensitivity;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
@@ -198,14 +199,14 @@ public class InflationBuildingCurveSimpleWithIssuerTestUS {
 
   @SuppressWarnings("unchecked")
   private static Pair<InflationIssuerProviderDiscount, CurveBuildingBlockBundle> makeCurvesFromDefinitions(final InstrumentDefinition<?>[][][] definitions,
-      final GeneratorPriceIndexCurve[][] curveGenerators,
-      final String[][] curveNames, final InflationIssuerProviderDiscount knownData, final InstrumentDerivativeVisitor<InflationIssuerProviderInterface, Double> calculator,
-      final InstrumentDerivativeVisitor<InflationIssuerProviderInterface, InflationSensitivity> sensitivityCalculator) {
+      final GeneratorCurve[][] curveGenerators,
+      final String[][] curveNames, final InflationIssuerProviderDiscount knownData, final InstrumentDerivativeVisitor<ParameterInflationIssuerProviderInterface, Double> calculator,
+      final InstrumentDerivativeVisitor<ParameterInflationIssuerProviderInterface, InflationSensitivity> sensitivityCalculator) {
     final int nUnits = definitions.length;
-    final MultiCurveBundle<GeneratorPriceIndexCurve>[] curveBundles = new MultiCurveBundle[nUnits];
+    final MultiCurveBundle<GeneratorCurve>[] curveBundles = new MultiCurveBundle[nUnits];
     for (int i = 0; i < nUnits; i++) {
       final int nCurves = definitions[i].length;
-      final SingleCurveBundle<GeneratorPriceIndexCurve>[] singleCurves = new SingleCurveBundle[nCurves];
+      final SingleCurveBundle<GeneratorCurve>[] singleCurves = new SingleCurveBundle[nCurves];
       for (int j = 0; j < nCurves; j++) {
         final int nInstruments = definitions[i][j].length;
         final InstrumentDerivative[] derivatives = new InstrumentDerivative[nInstruments];
@@ -214,7 +215,7 @@ public class InflationBuildingCurveSimpleWithIssuerTestUS {
           derivatives[k] = convert(definitions[i][j][k]);
           initialGuess[k] = initialGuess(definitions[i][j][k]);
         }
-        final GeneratorPriceIndexCurve generator = curveGenerators[i][j].finalGenerator(derivatives);
+        final GeneratorCurve generator = curveGenerators[i][j].finalGenerator(derivatives);
         singleCurves[j] = new SingleCurveBundle<>(curveNames[i][j], derivatives, initialGuess, generator);
       }
       curveBundles[i] = new MultiCurveBundle<>(singleCurves);

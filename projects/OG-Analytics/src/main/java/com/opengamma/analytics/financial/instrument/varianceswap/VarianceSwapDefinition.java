@@ -127,35 +127,10 @@ public class VarianceSwapDefinition implements InstrumentDefinitionWithData<Vari
    * {@inheritDoc} The definition is responsible for constructing a view of the variance swap as of a particular date.
    * An empty time series is used for the variance observations, and so this method should only be used
    * in the case where variance observation has not begun.
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public VarianceSwap toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    return toDerivative(date, ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES, yieldCurveNames);
-  }
-
-  /**
-   * {@inheritDoc} The definition is responsible for constructing a view of the variance swap as of a particular date.
-   * An empty time series is used for the variance observations, and so this method should only be used
-   * in the case where variance observation has not begun.
    */
   @Override
   public VarianceSwap toDerivative(final ZonedDateTime date) {
     return toDerivative(date, ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES);
-  }
-
-  /**
-   * {@inheritDoc} The definition is responsible for constructing a view of the variance swap as of a particular date.
-   * In particular, it resolves calendars. The VarianceSwap needs an array of observations, as well as its *expected* length.
-   * The actual number of observations may be less than that expected at trade inception because of a market disruption event.
-   * ( For an example of a market disruption event, see http://cfe.cboe.com/Products/Spec_VT.aspx )
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public VarianceSwap toDerivative(final ZonedDateTime valueDate, final DoubleTimeSeries<LocalDate> underlyingTimeSeries, final String... yieldCurveNames) {
-    return toDerivative(valueDate, underlyingTimeSeries);
   }
 
   /**

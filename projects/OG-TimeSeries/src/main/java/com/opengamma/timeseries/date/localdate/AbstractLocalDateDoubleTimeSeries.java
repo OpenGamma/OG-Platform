@@ -31,6 +31,7 @@ import java.util.NoSuchElementException;
 import org.threeten.bp.LocalDate;
 
 import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.DoubleTimeSeriesOperators;
 import com.opengamma.timeseries.DoubleTimeSeriesOperators.BinaryOperator;
 import com.opengamma.timeseries.date.AbstractDateDoubleTimeSeries;
 import com.opengamma.timeseries.date.DateDoubleTimeSeries;
@@ -260,6 +261,11 @@ abstract class AbstractLocalDateDoubleTimeSeries
 
   public LocalDateDoubleTimeSeries operate(DateDoubleTimeSeries<?> other, BinaryOperator operator) {
     int[] aTimes = timesArrayFast0();
+    // if the series share a common set of times use the common series
+    if (other instanceof AbstractLocalDateDoubleTimeSeries &&
+        aTimes == ((AbstractLocalDateDoubleTimeSeries) other).timesArrayFast0()) {
+      return operateWithSameTimes(other, operator);
+    }
     double[] aValues = valuesArrayFast0();
     int aCount = 0;
     int[] bTimes = other.timesArrayFast();
@@ -297,6 +303,11 @@ abstract class AbstractLocalDateDoubleTimeSeries
 
   public LocalDateDoubleTimeSeries unionOperate(DateDoubleTimeSeries<?> other, BinaryOperator operator) {
     int[] aTimes = timesArrayFast0();
+    // if the series share a common set of times use the common series
+    if (other instanceof AbstractLocalDateDoubleTimeSeries &&
+        aTimes == ((AbstractLocalDateDoubleTimeSeries) other).timesArrayFast0()) {
+      return operateWithSameTimes(other, operator);
+    }
     double[] aValues = valuesArrayFast0();
     int aCount = 0;
     int[] bTimes = other.timesArrayFast();
@@ -589,6 +600,17 @@ abstract class AbstractLocalDateDoubleTimeSeries
   @Override
   public int hashCode() {
     return Arrays.hashCode(timesArrayFast0()) ^ Arrays.hashCode(valuesArrayFast0());
+  }
+
+  private LocalDateDoubleTimeSeries operateWithSameTimes(DateDoubleTimeSeries<?> other, BinaryOperator operator) {
+    // series share a common set of times so use the common series
+    int[] aTimes = timesArrayFast0();
+    double[] aValues = valuesArrayFast0();
+    double[] resValues = new double[aTimes.length];
+    for (int i = 0; i < aTimes.length; i++) {
+      resValues[i] = operator.operate(aValues[i], other.getValueAtIndexFast(i));
+    }
+    return newInstanceFast(aTimes, resValues);
   }
 
 }

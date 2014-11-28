@@ -98,18 +98,6 @@ public class AnnuityDefinitionTest {
     new AnnuityDefinition<>(payments, null);
   }
 
-  @SuppressWarnings("deprecation")
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testConversionNullDate1Deprecated() {
-    FIXED_DEFINITION.toDerivative(null, new String[] {"E", "F" });
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testConversionNullDate2Deprecated() {
-    FIXED_DEFINITION.toDerivative(null, FIXING_TS, new String[] {"E", "F" });
-  }
-
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testConversionNullDate1() {
     FIXED_DEFINITION.toDerivative(null);
@@ -118,18 +106,6 @@ public class AnnuityDefinitionTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testConversionNullDate2() {
     FIXED_DEFINITION.toDerivative(null, FIXING_TS);
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testConversionNullNames1Deprecated() {
-    FIXED_DEFINITION.toDerivative(FIXING_DATE, (String[]) null);
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testConversionNullNames2() {
-    FIXED_DEFINITION.toDerivative(FIXING_DATE, FIXING_TS, (String[]) null);
   }
 
   @Test
@@ -160,39 +136,6 @@ public class AnnuityDefinitionTest {
     payments = Arrays.copyOf(FIXED_PAYMENTS, FIXED_PAYMENTS.length);
     payments[0] = new PaymentFixedDefinition(CCY, DateUtils.getUTCDate(2011, 1, 1), 0);
     assertFalse(FIXED_DEFINITION.isPayer());
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test
-  public void testConversionFixedDeprecated() {
-    final ZonedDateTime date = DateUtils.getUTCDate(2011, 5, 10);
-    final Annuity<? extends Payment> annuity1 = FIXED_DEFINITION.toDerivative(date, "A");
-    final Annuity<? extends Payment> annuity2 = FIXED_DEFINITION.toDerivative(date, FIXING_TS, "A");
-    assertEquals(FIXED_DEFINITION.getNumberOfPayments(), 10);
-    assertEquals(annuity1.getNumberOfPayments(), 5);
-    for (int i = 0; i < annuity1.getNumberOfPayments(); i++) {
-      assertTrue(annuity1.getNthPayment(i) instanceof PaymentFixed);
-      assertEquals(annuity1.getNthPayment(i), FIXED_DEFINITION.getNthPayment(i + 5).toDerivative(date, "A"));
-      assertEquals(annuity2.getNthPayment(i), FIXED_DEFINITION.getNthPayment(i + 5).toDerivative(date, "A"));
-    }
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test
-  public void testConversionFixedFloatDeprecated() {
-    final ZonedDateTime date = DateUtils.getUTCDate(2011, 5, 10);
-    final Annuity<? extends Payment> annuity = FIXED_FLOAT_DEFINITION.toDerivative(date, FIXING_TS, "A", "N");
-    assertEquals(FIXED_DEFINITION.getNumberOfPayments(), 10);
-    assertEquals(annuity.getNumberOfPayments(), 5);
-    for (int i = 0; i < annuity.getNumberOfPayments(); i++) {
-      if (i < 3) {
-        assertTrue(annuity.getNthPayment(i) instanceof CouponFixed);
-        assertEquals(annuity.getNthPayment(i), FIXED_FLOAT_DEFINITION.getNthPayment(i + 5).toDerivative(date, "A", "N"));
-      } else {
-        assertTrue(annuity.getNthPayment(i) instanceof CouponFloating);
-        assertEquals(annuity.getNthPayment(i), FIXED_FLOAT_DEFINITION.getNthPayment(i + 5).toDerivative(date, "A", "N"));
-      }
-    }
   }
 
   @Test

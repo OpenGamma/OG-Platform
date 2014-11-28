@@ -139,7 +139,7 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
 
   protected abstract NonLinearParameterTransforms getTransform(final DoubleMatrix1D start, final BitSet fixed);
 
-  protected abstract T toSmileModelData(final DoubleMatrix1D modelParameters);
+  public abstract T toSmileModelData(final DoubleMatrix1D modelParameters);
 
   protected Function1D<DoubleMatrix1D, Boolean> getConstraintFunction(@SuppressWarnings("unused") final NonLinearParameterTransforms t) {
     return UNCONSTRAINED;

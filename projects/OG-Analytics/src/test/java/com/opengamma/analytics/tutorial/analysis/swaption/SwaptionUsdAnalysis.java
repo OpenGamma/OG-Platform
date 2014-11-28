@@ -49,9 +49,9 @@ import com.opengamma.analytics.financial.provider.calculator.sabrswaption.Presen
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.NormalDataSets;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
-import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.NormalSwaptionExpiryTenorProvider;
 import com.opengamma.analytics.financial.provider.description.interestrate.NormalSwaptionProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.SABRSwaptionProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.SABRSwaptionProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
@@ -88,13 +88,13 @@ public class SwaptionUsdAnalysis {
   private static final PresentValueNormalSwaptionCalculator PVNSC = PresentValueNormalSwaptionCalculator.getInstance();
   private static final PresentValueCurveSensitivityNormalSwaptionCalculator PVCSNSC = 
       PresentValueCurveSensitivityNormalSwaptionCalculator.getInstance();
-  private static final ParameterSensitivityParameterCalculator<MulticurveProviderInterface> PSDC = 
+  private static final ParameterSensitivityParameterCalculator<ParameterProviderInterface> PSDC = 
       new ParameterSensitivityParameterCalculator<>(PVCSDC);
   private static final ParameterSensitivityParameterCalculator<NormalSwaptionProviderInterface> PSNSC = 
       new ParameterSensitivityParameterCalculator<>(PVCSNSC);
       private static final ParameterSensitivityParameterCalculator<SABRSwaptionProviderInterface> PSSSC = 
           new ParameterSensitivityParameterCalculator<>(PVCSSSC);
-  private static final MarketQuoteSensitivityBlockCalculator<MulticurveProviderInterface> MQSBDC = 
+  private static final MarketQuoteSensitivityBlockCalculator<ParameterProviderInterface> MQSBDC = 
       new MarketQuoteSensitivityBlockCalculator<>(PSDC);
   private static final MarketQuoteSensitivityBlockCalculator<NormalSwaptionProviderInterface> MQSBNSC = 
       new MarketQuoteSensitivityBlockCalculator<>(PSNSC);

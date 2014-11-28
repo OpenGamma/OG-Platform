@@ -42,11 +42,6 @@ public class EnergyFutureSecurityDefinition extends CommodityFutureSecurityDefin
   }
 
   @Override
-  public EnergyFutureSecurity toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    return toDerivative(date);
-  }
-
-  @Override
   public EnergyFutureSecurity toDerivative(final ZonedDateTime date) {
     ArgumentChecker.inOrderOrEqual(date, getLastTradingDate(), "date", "expiry date");
     final double lastTradingTime = TimeCalculator.getTimeBetween(date, getLastTradingDate());

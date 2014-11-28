@@ -101,16 +101,6 @@ public class AnnuityCouponArithmeticAverageONSpreadDefinition extends AnnuityCou
     return new AnnuityCouponArithmeticAverageONSpreadDefinition(coupons, indexCalendar);
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public Annuity<? extends Coupon> toDerivative(final ZonedDateTime valZdt, final DoubleTimeSeries<ZonedDateTime> indexFixingTS, final String... yieldCurveNames) {
-    return toDerivative(valZdt, indexFixingTS);
-  }
-
   @Override
   public Annuity<? extends Coupon> toDerivative(final ZonedDateTime valZdt, final DoubleTimeSeries<ZonedDateTime> indexFixingTS) {
     ArgumentChecker.notNull(valZdt, "date");

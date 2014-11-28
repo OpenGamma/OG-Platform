@@ -63,11 +63,6 @@ public class EquityDefinition implements InstrumentDefinition<Equity> {
   }
 
   @Override
-  public Equity toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    return toDerivative(date);
-  }
-
-  @Override
   public Equity toDerivative(final ZonedDateTime date) {
     return new Equity(_entity, _currency, _numberOfShares);
   }

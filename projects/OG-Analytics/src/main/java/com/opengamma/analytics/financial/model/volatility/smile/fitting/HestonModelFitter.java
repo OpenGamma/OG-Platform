@@ -51,7 +51,7 @@ public class HestonModelFitter extends SmileModelFitter<HestonModelData> {
   }
 
   @Override
-  protected HestonModelData toSmileModelData(final DoubleMatrix1D modelParameters) {
+  public HestonModelData toSmileModelData(final DoubleMatrix1D modelParameters) {
     return new HestonModelData(modelParameters.getData());
   }
 

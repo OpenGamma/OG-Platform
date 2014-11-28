@@ -433,16 +433,6 @@ public class BondInterestIndexedSecurityDefinition<N extends PaymentFixedDefinit
   }
 
   @Override
-  public BondInterestIndexedSecurity<PaymentFixed, Coupon> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    return toDerivative(date);
-  }
-
-  @Override
-  public BondInterestIndexedSecurity<PaymentFixed, Coupon> toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> data, final String... yieldCurveNames) {
-    return toDerivative(date);
-  }
-
-  @Override
   public BondInterestIndexedSecurity<PaymentFixed, Coupon> toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "date");
     final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getSettlementDays(), getCalendar());

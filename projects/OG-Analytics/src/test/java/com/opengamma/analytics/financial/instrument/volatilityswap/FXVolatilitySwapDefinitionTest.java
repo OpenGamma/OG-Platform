@@ -147,7 +147,6 @@ public class FXVolatilitySwapDefinitionTest extends AnalyticsTestBase {
     assertEquals(VOL_NOTIONAL, volatilitySwap.getVolatilityNotional(), 1.e-12);
     assertEquals(VOL_STRIKE, volatilitySwap.getVolatilityStrike());
     assertEquals(volatilitySwap, DEFINITION.toDerivative(NOW));
-    assertEquals(volatilitySwap, DEFINITION.toDerivative(NOW, "A", "B"));
     assertEquals(BASE, volatilitySwap.getBaseCurrency());
     assertEquals(COUNTER, volatilitySwap.getCounterCurrency());
   }
@@ -169,7 +168,6 @@ public class FXVolatilitySwapDefinitionTest extends AnalyticsTestBase {
     assertEquals(5.7976190476190474, volatilitySwap.getTimeToMaturity(), 1.e-12);
     assertEquals(VOL_NOTIONAL, volatilitySwap.getVolatilityNotional());
     assertEquals(VOL_STRIKE, volatilitySwap.getVolatilityStrike(), 0);
-    assertEquals(volatilitySwap, definition.toDerivative(NOW.plusYears(1), "A", "B"));
     assertEquals(BASE, volatilitySwap.getBaseCurrency());
     assertEquals(COUNTER, volatilitySwap.getCounterCurrency());
   }

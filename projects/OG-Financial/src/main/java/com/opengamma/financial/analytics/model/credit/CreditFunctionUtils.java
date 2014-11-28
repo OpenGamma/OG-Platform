@@ -10,9 +10,6 @@ import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyCreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.standard.StandardCreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
 import com.opengamma.util.time.Tenor;
 
 /**
@@ -39,16 +36,6 @@ public class CreditFunctionUtils {
       spreads[i] = (Double) ys[i];
     }
     return spreads;
-  }
-
-  public static double getCoupon(final CreditDefaultSwapDefinition definition) {
-    if (definition instanceof StandardCreditDefaultSwapDefinition) {
-      return ((StandardCreditDefaultSwapDefinition) definition).getPremiumLegCoupon();
-    } else if (definition instanceof LegacyCreditDefaultSwapDefinition) {
-      return 1e-4 * ((LegacyCreditDefaultSwapDefinition) definition).getParSpread();
-    } else {
-      throw new OpenGammaRuntimeException("Unexpected security type: " + definition);
-    }
   }
 
   public static String[] getFormattedBucketedXAxis(final LocalDate[] dates, final ZonedDateTime valuationDateTime) {

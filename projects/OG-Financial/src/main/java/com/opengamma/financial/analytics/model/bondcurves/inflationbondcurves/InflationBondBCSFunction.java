@@ -20,9 +20,10 @@ import com.opengamma.analytics.financial.provider.calculator.inflation.MarketQuo
 import com.opengamma.analytics.financial.provider.calculator.inflationissuer.PresentValueCurveSensitivityIssuerInflationCalculator;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationIssuerProviderInterface;
+import com.opengamma.analytics.financial.provider.description.inflation.ParameterInflationIssuerProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.MultipleCurrencyInflationSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.inflation.ParameterSensitivityInflationParameterCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
-import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterInflationSensitivityParameterCalculator;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
@@ -39,13 +40,13 @@ import com.opengamma.util.async.AsynchronousExecution;
  */
 public class InflationBondBCSFunction extends InflationBondFromCurvesFunction<InflationIssuerProviderInterface, MultipleCurrencyInflationSensitivity> {
   /** The curve sensitivity calculator */
-  private static final InstrumentDerivativeVisitor<InflationIssuerProviderInterface, MultipleCurrencyInflationSensitivity> PVCSIIC =
+  private static final InstrumentDerivativeVisitor<ParameterInflationIssuerProviderInterface, MultipleCurrencyInflationSensitivity> PVCSIIC =
       PresentValueCurveSensitivityIssuerInflationCalculator.getInstance();
   /** The parameter sensitivity calculator */
-  private static final ParameterInflationSensitivityParameterCalculator<InflationIssuerProviderInterface> PSC =
-      new ParameterInflationSensitivityParameterCalculator<>(PVCSIIC);
+  private static final ParameterSensitivityInflationParameterCalculator<ParameterInflationIssuerProviderInterface> PSC =
+      new ParameterSensitivityInflationParameterCalculator<>(PVCSIIC);
   /** The market quote sensitivity calculator */
-  private static final MarketQuoteInflationSensitivityBlockCalculator<InflationIssuerProviderInterface> CALCULATOR =
+  private static final MarketQuoteInflationSensitivityBlockCalculator<ParameterInflationIssuerProviderInterface> CALCULATOR =
       new MarketQuoteInflationSensitivityBlockCalculator<>(PSC);
 
   /**

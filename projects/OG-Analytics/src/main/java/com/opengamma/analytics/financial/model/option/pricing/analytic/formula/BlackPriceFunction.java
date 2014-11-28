@@ -176,7 +176,7 @@ public class BlackPriceFunction implements OptionPriceFunction<BlackFunctionData
     double kappaKappaBar2 = d1KappaKappa * d1Bar + d2KappaKappa * d2Bar;
     double kappaV = -Math.log(forward / strike) / (volblack * volblack) - 0.5;
     double kappaVV = 2 * Math.log(forward / strike) / (volblack * volblack * volblack);
-    double d1TotVV = density1 * (-(kappa + volblack) * (kappaV + 1) * (kappaV + 1) + kappaVV);
+    double d1TotVV = density1 * omega * (-(kappa + volblack) * (kappaV + 1) * (kappaV + 1) + kappaVV);
     double d2TotVV = d2KappaKappa * kappaV * kappaV + d2Kappa * kappaVV;
     double vVbar2 = d1Bar * d1TotVV + d2Bar * d2TotVV;
     double volVolBar2 = vVbar2 * timeToExpiry;

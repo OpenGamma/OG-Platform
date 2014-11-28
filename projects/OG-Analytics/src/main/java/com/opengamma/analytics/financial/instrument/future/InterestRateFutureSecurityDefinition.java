@@ -225,30 +225,6 @@ public class InterestRateFutureSecurityDefinition extends FuturesSecurityDefinit
     return _calendar;
   }
 
-  /**
-   * {@inheritDoc}
-   * @deprecated Use the method that does not take yield curve names
-   */
-  @Deprecated
-  @Override
-  public InterestRateFutureSecurity toDerivative(final ZonedDateTime dateTime, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(dateTime, "date");
-    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
-    final LocalDate date = dateTime.toLocalDate();
-    final LocalDate lastMarginDateLocal = getFixingPeriodStartDate().toLocalDate();
-    if (date.isAfter(lastMarginDateLocal)) {
-      throw new ExpiredException("Valuation date, " + date + ", is after last margin date, " + lastMarginDateLocal);
-    }
-    final String discountingCurveName = yieldCurveNames[0];
-    final String forwardCurveName = yieldCurveNames[yieldCurveNames.length > 1 ? 1 : 0];
-    final double lastTradingTime = TimeCalculator.getTimeBetween(dateTime, getLastTradingDate());
-    final double fixingPeriodStartTime = TimeCalculator.getTimeBetween(dateTime, getFixingPeriodStartDate());
-    final double fixingPeriodEndTime = TimeCalculator.getTimeBetween(dateTime, getFixingPeriodEndDate());
-    final InterestRateFutureSecurity future = new InterestRateFutureSecurity(lastTradingTime, _iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, _fixingPeriodAccrualFactor, _notional,
-        _paymentAccrualFactor, _name, discountingCurveName, forwardCurveName);
-    return future;
-  }
-
   @Override
   public InterestRateFutureSecurity toDerivative(final ZonedDateTime dateTime) {
     ArgumentChecker.notNull(dateTime, "date");

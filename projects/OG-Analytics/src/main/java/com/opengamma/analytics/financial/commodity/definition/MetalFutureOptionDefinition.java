@@ -33,11 +33,6 @@ public class MetalFutureOptionDefinition extends CommodityFutureOptionDefinition
   }
 
   @Override
-  public MetalFutureOption toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    return toDerivative(date);
-  }
-
-  @Override
   public MetalFutureOption toDerivative(final ZonedDateTime date) {
     ArgumentChecker.inOrderOrEqual(date, this.getExpiryDate(), "date", "expiry date");
     final double timeToFixing = TimeCalculator.getTimeBetween(date, this.getExpiryDate());

@@ -79,61 +79,10 @@ public class CapFloorCMSDefinitionTest {
   private static final CapFloorCMSDefinition CMS_CAP_DEFINITION = CapFloorCMSDefinition.from(CMS_COUPON_DEFINITION, STRIKE, IS_CAP);
   // to derivatives
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 8, 18);
-  private static final String FUNDING_CURVE_NAME = " Funding";
-  private static final String FORWARD_CURVE_NAME = " Forward";
-  private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME };
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCoupon() {
     CapFloorCMSDefinition.from(null, STRIKE, IS_CAP);
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testConversionNullDate1Deprecated() {
-    CMS_CAP_DEFINITION.toDerivative(null, CURVES_NAME);
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testConversionNullDate2Deprecated() {
-    CMS_CAP_DEFINITION.toDerivative(null, HIGH_FIXING_TS, CURVES_NAME);
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testConversionNullNames1Deprecated() {
-    CMS_CAP_DEFINITION.toDerivative(REFERENCE_DATE, (String[]) null);
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testConversionNullNames2Deprecated() {
-    CMS_CAP_DEFINITION.toDerivative(REFERENCE_DATE, HIGH_FIXING_TS, (String[]) null);
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testConversionInsufficientNames1Deprecated() {
-    CMS_CAP_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME[0]);
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testConversionInsufficientNames2Deprecated() {
-    CMS_CAP_DEFINITION.toDerivative(REFERENCE_DATE, HIGH_FIXING_TS, CURVES_NAME[0]);
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testConversionNoTSDeprecated() {
-    CMS_CAP_DEFINITION.toDerivative(FIXING_DATE.plusDays(1), CURVES_NAME);
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testConversionNullTSDeprecated() {
-    CMS_CAP_DEFINITION.toDerivative(FIXING_DATE.plusDays(1), null, CURVES_NAME);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -163,30 +112,12 @@ public class CapFloorCMSDefinitionTest {
     assertEquals(IS_CAP, cmsCap.isCap());
   }
 
-  @SuppressWarnings("deprecation")
-  @Test
-  public void testGetterDeprecated() {
-    final CapFloorCMS cmsCap = (CapFloorCMS) CMS_CAP_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
-    assertEquals(STRIKE, cmsCap.getStrike(), 1E-10);
-    assertEquals(IS_CAP, cmsCap.isCap());
-  }
-
   @Test
   public void testEqual() {
     final CapFloorCMSDefinition floor = CapFloorCMSDefinition.from(CMS_COUPON_DEFINITION, STRIKE, !IS_CAP);
     assertEquals(floor == CMS_CAP_DEFINITION, false);
     final CapFloorCMSDefinition capPlus = CapFloorCMSDefinition.from(CMS_COUPON_DEFINITION, STRIKE + 0.01, IS_CAP);
     assertEquals(capPlus == CMS_CAP_DEFINITION, false);
-  }
-
-  //TODO test
-  @SuppressWarnings("deprecation")
-  @Test
-  public void testToDerivativeDeprecated() {
-    final CapFloorCMS cmsCap = (CapFloorCMS) CMS_CAP_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
-    final CouponCMS cmsCoupon = (CouponCMS) CMS_COUPON_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
-    final CapFloorCMS capDirect = CapFloorCMS.from(cmsCoupon, STRIKE, IS_CAP);
-    assertEquals(capDirect, cmsCap);
   }
 
   //TODO test

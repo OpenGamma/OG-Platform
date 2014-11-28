@@ -26,6 +26,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.analytics.financial.provider.calculator.inflation.PV01CurveParametersInflationCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflation.PresentValueCurveSensitivityDiscountingInflationCalculator;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
+import com.opengamma.analytics.financial.provider.description.inflation.ParameterInflationProviderInterface;
 import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
@@ -47,7 +48,7 @@ public class DiscountingInflationPV01Function extends DiscountingInflationFuncti
   /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(DiscountingInflationPV01Function.class);
   /** The PV01 calculator */
-  private static final InstrumentDerivativeVisitor<InflationProviderInterface, ReferenceAmount<Pair<String, Currency>>> CALCULATOR = new PV01CurveParametersInflationCalculator<>(
+  private static final InstrumentDerivativeVisitor<ParameterInflationProviderInterface, ReferenceAmount<Pair<String, Currency>>> CALCULATOR = new PV01CurveParametersInflationCalculator<>(
       PresentValueCurveSensitivityDiscountingInflationCalculator.getInstance());
 
   /**

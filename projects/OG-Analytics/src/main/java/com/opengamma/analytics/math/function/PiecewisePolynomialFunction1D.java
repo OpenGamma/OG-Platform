@@ -423,7 +423,7 @@ public class PiecewisePolynomialFunction1D {
    * @param leftknot Knot specifying underlying interpolation function
    * @return Value of the underlying interpolation function at the value of x
    */
-  private double getValue(final double[] coefs, final double x, final double leftknot) {
+  protected double getValue(final double[] coefs, final double x, final double leftknot) {
 
     final int nCoefs = coefs.length;
 

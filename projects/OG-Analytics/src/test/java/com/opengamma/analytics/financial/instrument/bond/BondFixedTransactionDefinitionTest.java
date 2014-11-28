@@ -109,18 +109,6 @@ public class BondFixedTransactionDefinitionTest {
     assertEquals("Bond transaction: ofYield", cleanPrice, bondOfYieldTransactionDefinition.getPrice(), TOLERANCE_PRICE);
   }
 
-  @SuppressWarnings("deprecation")
-  @Test
-  public void toDerivativesDeprecated() {
-    final BondFixedSecurity bondSecurityStandard = BOND_SECURITY_DEFINITION.toDerivative(REFERENCE_DATE_1, CURVES_NAME);
-    final BondFixedTransaction bondTransaction = BOND_TRANSACTION_DEFINITION.toDerivative(REFERENCE_DATE_1, CURVES_NAME);
-    assertEquals("Bond transaction: toDerivative", bondSecurityStandard, bondTransaction.getBondStandard());
-    final BondFixedSecurity bondSecurityPurchase = BOND_SECURITY_DEFINITION.toDerivative(REFERENCE_DATE_1, SETTLEMENT_DATE, CURVES_NAME);
-    assertEquals("Bond transaction: toDerivative", bondSecurityPurchase.getAccruedInterest(), bondTransaction.getBondTransaction().getAccruedInterest());
-    assertEquals("Bond transaction: toDerivative", bondSecurityPurchase.getCouponPerYear(), bondTransaction.getBondTransaction().getCouponPerYear());
-    assertEquals("Bond transaction: toDerivative", bondSecurityPurchase.getYieldConvention(), bondTransaction.getBondTransaction().getYieldConvention());
-  }
-
   @Test
   public void toDerivatives() {
     final BondFixedSecurity bondSecurityStandard = BOND_SECURITY_DEFINITION.toDerivative(REFERENCE_DATE_1);
@@ -169,7 +157,7 @@ public class BondFixedTransactionDefinitionTest {
     assertEquals("Bond transaction: accrued", accrual101010, bond101010.getAccruedInterest() * notional, TOLERANCE_ACCRUED);
   }
 
-  private static final BondFixedSecurityDefinition BOND_UKT_500_20140907 = BondDataSets.bondUKT5_20140907();
+  private static final BondFixedSecurityDefinition BOND_UKT_500_20140907 = BondDataSetsGbp.bondUKT5_20140907();
 
   /** Test the constructor with settlement date in the ex-coupon period. */
   @Test

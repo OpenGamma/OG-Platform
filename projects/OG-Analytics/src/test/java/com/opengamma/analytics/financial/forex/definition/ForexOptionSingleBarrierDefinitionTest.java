@@ -51,21 +51,9 @@ public class ForexOptionSingleBarrierDefinitionTest {
     new ForexOptionSingleBarrierDefinition(UNDERLYING, null);
   }
 
-  @SuppressWarnings("deprecation")
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullDateDeprecated() {
-    OPTION.toDerivative(null, "A", "B");
-  }
-
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDate() {
     OPTION.toDerivative(null);
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullNames() {
-    OPTION.toDerivative(DATE, (String[]) null);
   }
 
   @Test
@@ -90,15 +78,6 @@ public class ForexOptionSingleBarrierDefinitionTest {
     assertFalse(OPTION_REBATE.equals(OPTION));
     assertFalse(OPTION_REBATE.equals(BARRIER));
     assertFalse(OPTION_REBATE.equals(null));
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test
-  public void testToDerivativeDeprecated() {
-    final String[] names = new String[] {"USD", "EUR"};
-    final ForexOptionSingleBarrier derivative = OPTION.toDerivative(DATE, names);
-    assertEquals(derivative.getUnderlyingOption(), UNDERLYING.toDerivative(DATE, names));
-    assertEquals(derivative.getBarrier(), BARRIER);
   }
 
   @Test

@@ -142,19 +142,4 @@ public class CouponONSimplifiedDefinitionTest {
     assertEquals("CouponOISSimplified definition: toDerivative", cpnExpected, cpnConverted);
   }
 
-  @SuppressWarnings("deprecation")
-  @Test
-  /**
-   * Tests the toDerivative method.
-   */
-  public void toDerivativeDeprecated() {
-    final String[] curveNames = new String[] {"Funding", "Forward"};
-    final CouponON cpnConverted = EONIA_COUPON_DEFINITION.toDerivative(TRADE_DATE, curveNames);
-    final double paymentTime = TimeCalculator.getTimeBetween(TRADE_DATE, PAYMENT_DATE);
-    final double fixingStartTime = TimeCalculator.getTimeBetween(TRADE_DATE, START_ACCRUAL_DATE);
-    final double fixingEndTime = TimeCalculator.getTimeBetween(TRADE_DATE, END_ACCRUAL_DATE);
-    final CouponON cpnExpected = new CouponON(EUR_CUR, paymentTime, curveNames[0], PAYMENT_YEAR_FRACTION, NOTIONAL, EUR_OIS, fixingStartTime, fixingEndTime, FIXING_YEAR_FRACTION, NOTIONAL,
-        curveNames[1]);
-    assertEquals("CouponOISSimplified definition: toDerivative", cpnExpected, cpnConverted);
-  }
 }

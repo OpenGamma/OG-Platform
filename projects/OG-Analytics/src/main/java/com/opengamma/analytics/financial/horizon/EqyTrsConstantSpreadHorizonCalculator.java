@@ -12,6 +12,7 @@ import com.opengamma.analytics.financial.equity.trs.definition.EquityTotalReturn
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
@@ -30,7 +31,7 @@ public final class EqyTrsConstantSpreadHorizonCalculator extends HorizonCalculat
   /** Rolls down a yield curve provider */
   private static final CurveProviderConstantSpreadRolldownFunction CURVE_ROLLDOWN = CurveProviderConstantSpreadRolldownFunction.getInstance();
   /** The present value calculator */
-  private static final InstrumentDerivativeVisitor<MulticurveProviderInterface, MultipleCurrencyAmount> PV_CALCULATOR =
+  private static final InstrumentDerivativeVisitor<ParameterProviderInterface, MultipleCurrencyAmount> PV_CALCULATOR =
       PresentValueDiscountingCalculator.getInstance();
   /** The singleton instance */
   private static final HorizonCalculator<EquityTotalReturnSwapDefinition, MulticurveProviderInterface, ZonedDateTimeDoubleTimeSeries> INSTANCE =

@@ -66,18 +66,6 @@ public class PaymentFixedDefinitionTest {
     assertFalse(FIXED_PAYMENT.equals(modifiedPayment));
   }
 
-  @SuppressWarnings("deprecation")
-  @Test
-  public void testToDerivativeDeprecated() {
-    final DayCount actAct = DayCounts.ACT_ACT_ISDA;
-    final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.of(REFERENCE_DATE.toLocalDate(), LocalTime.MIDNIGHT), ZoneOffset.UTC);
-    final double paymentTime = actAct.getDayCountFraction(zonedDate, PAYMENT_DATE);
-    final String fundingCurve = "Funding";
-    final PaymentFixed paymentFixed = new PaymentFixed(CUR, paymentTime, AMOUNT, fundingCurve);
-    final PaymentFixed convertedDefinition = FIXED_PAYMENT.toDerivative(REFERENCE_DATE, fundingCurve);
-    assertEquals(paymentFixed, convertedDefinition);
-  }
-
   @Test
   public void testToDerivative() {
     final DayCount actAct = DayCounts.ACT_ACT_ISDA;
