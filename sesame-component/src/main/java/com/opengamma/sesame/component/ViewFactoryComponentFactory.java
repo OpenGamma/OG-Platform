@@ -63,7 +63,7 @@ import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleResolverFn;
 import com.opengamma.sesame.DefaultFXMatrixFn;
 import com.opengamma.sesame.DefaultFXReturnSeriesFn;
-import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
+import com.opengamma.sesame.DefaultFixingsFn;
 import com.opengamma.sesame.DiscountingMulticurveBundleResolverFn;
 import com.opengamma.sesame.ExposureFunctionsDiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.FXMatrixFn;
@@ -105,7 +105,6 @@ import com.opengamma.sesame.irs.DiscountingInterestRateSwapFn;
 import com.opengamma.sesame.irs.InterestRateSwapFn;
 import com.opengamma.sesame.marketdata.DefaultHistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
-import com.opengamma.sesame.marketdata.FixedHistoricalMarketDataFactory;
 import com.opengamma.sesame.pnl.DefaultHistoricalPnLFXConverterFn;
 import com.opengamma.sesame.trade.TradeWrapper;
 import com.opengamma.util.auth.AuthUtils;
@@ -196,6 +195,7 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
     repo.registerComponent(ViewFactory.class, getClassifier(), viewFactory);
     repo.registerComponent(AvailableOutputs.class, getClassifier(), availableOutputs);
     repo.registerComponent(AvailableImplementations.class, getClassifier(), availableImplementations);
+    repo.registerComponent(ComponentMap.class, getClassifier(), componentMap);
   }
 
   private Map<Class<?>, Object> getComponents(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
@@ -290,11 +290,10 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
         DefaultDiscountingMulticurveBundleResolverFn.class,
         DefaultCurveSpecificationFn.class,
         ConfigDBCurveConstructionConfigurationSource.class,
-        DefaultHistoricalTimeSeriesFn.class,
+        DefaultFixingsFn.class,
         FXForwardDiscountingCalculatorFn.class,
         ConfigDbMarketExposureSelectorFn.class,
         ExposureFunctionsDiscountingMulticurveCombinerFn.class,
-        FixedHistoricalMarketDataFactory.class,
         DefaultMarketDataFn.class,
         DefaultHistoricalMarketDataFn.class,
         DefaultCurveNodeConverterFn.class,

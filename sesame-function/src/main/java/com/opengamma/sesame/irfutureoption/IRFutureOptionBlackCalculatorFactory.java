@@ -16,7 +16,7 @@ import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.sesame.CurveLabellingFn;
 import com.opengamma.sesame.CurveMatrixLabeller;
 import com.opengamma.sesame.Environment;
-import com.opengamma.sesame.HistoricalTimeSeriesFn;
+import com.opengamma.sesame.FixingsFn;
 import com.opengamma.sesame.trade.IRFutureOptionTrade;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
@@ -44,7 +44,7 @@ public class IRFutureOptionBlackCalculatorFactory implements IRFutureOptionCalcu
   /**
    * Function used to retrieve the historical prices of the underlying interest rate future.
    */
-  private final HistoricalTimeSeriesFn _htsFn;
+  private final FixingsFn _fixingsFn;
 
   /**
    * Function used to retrieve the curve labellers for curves in a multicurve bundle.
@@ -56,20 +56,19 @@ public class IRFutureOptionBlackCalculatorFactory implements IRFutureOptionCalcu
    * @param converter converter used to create the definition of the interest rate future option, not null.
    * @param blackProviderFn function used to generate a Black volatility provider, not null.
    * @param definitionToDerivativeConverter converter used to create the derivative of the future option, not null.
-   * @param htsFn function used to retrieve the historical prices of the underlying interest rate future.
+   * @param fixingsFn function used to retrieve the historical prices of the underlying interest rate future.
    * @param curveLabellingFn function used to retrieve curve labellers for the multicurve
    */
   public IRFutureOptionBlackCalculatorFactory(InterestRateFutureOptionTradeConverter converter,
-      BlackSTIRFuturesProviderFn blackProviderFn,
-      FixedIncomeConverterDataProvider definitionToDerivativeConverter,
-      HistoricalTimeSeriesFn htsFn,
-      CurveLabellingFn curveLabellingFn) {
-
+                                              BlackSTIRFuturesProviderFn blackProviderFn,
+                                              FixedIncomeConverterDataProvider definitionToDerivativeConverter,
+                                              FixingsFn fixingsFn,
+                                              CurveLabellingFn curveLabellingFn) {
     _converter = ArgumentChecker.notNull(converter, "converter");
     _blackProviderFn = ArgumentChecker.notNull(blackProviderFn, "blackProviderFn");
     _definitionToDerivativeConverter =
         ArgumentChecker.notNull(definitionToDerivativeConverter, "definitionToDerivativeConverter");
-    _htsFn = ArgumentChecker.notNull(htsFn, "htsFn");
+    _fixingsFn = ArgumentChecker.notNull(fixingsFn, "fixingsFn");
     _curveLabellingFn = ArgumentChecker.notNull(curveLabellingFn, "curveLabellingFn");
   }
 
@@ -79,7 +78,7 @@ public class IRFutureOptionBlackCalculatorFactory implements IRFutureOptionCalcu
     IRFutureOptionSecurity security = trade.getSecurity();
 
     Result<BlackSTIRFuturesProviderInterface> blackResult = _blackProviderFn.getBlackSTIRFuturesProvider(env, trade);
-    Result<HistoricalTimeSeriesBundle> fixingsResult = _htsFn.getFixingsForSecurity(env, security);
+    Result<HistoricalTimeSeriesBundle> fixingsResult = _fixingsFn.getFixingsForSecurity(env, security);
 
     if (Result.anyFailures(blackResult, fixingsResult)) {
       return Result.failure(blackResult, fixingsResult);

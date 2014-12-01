@@ -24,11 +24,11 @@ import java.util.concurrent.ExecutionException;
 import javax.annotation.Nullable;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.sesame.EngineTestUtils;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.SimpleEnvironment;
@@ -44,10 +44,12 @@ import com.opengamma.sesame.graph.FunctionBuilder;
 import com.opengamma.sesame.graph.FunctionId;
 import com.opengamma.sesame.graph.FunctionIdProvider;
 import com.opengamma.sesame.graph.FunctionModel;
-import com.opengamma.sesame.marketdata.FieldName;
-import com.opengamma.sesame.marketdata.MarketDataSource;
+import com.opengamma.sesame.marketdata.MarketDataBundle;
+import com.opengamma.sesame.marketdata.MarketDataId;
+import com.opengamma.timeseries.date.DateTimeSeries;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
+import com.opengamma.util.time.LocalDateRange;
 
 @SuppressWarnings("unchecked")
 @Test(groups = TestGroup.UNIT)
@@ -399,10 +401,32 @@ public class CachingProxyDecoratorTest {
     FunctionBuilder functionBuilder = new FunctionBuilder();
     Fn1 i1 = FunctionModel.build(Fn1.class, config, ComponentMap.EMPTY, functionBuilder, cachingDecorator);
     ZonedDateTime valuationTime = ZonedDateTime.now();
-    MarketDataSource marketDataSource = new MarketDataSource() {
+
+    MarketDataBundle marketDataBundle = new MarketDataBundle() {
       @Override
-      public Result<?> get(ExternalIdBundle id, FieldName fieldName) {
+      public <T> Result<T> get(MarketDataId<?> id, Class<T> dataType) {
+        // TODO implement get()
         throw new UnsupportedOperationException("get not implemented");
+      }
+
+      @Override
+      public <T> Result<DateTimeSeries<LocalDate, T>> get(MarketDataId<?> id,
+                                                          Class<T> dataType,
+                                                          LocalDateRange dateRange) {
+        // TODO implement get()
+        throw new UnsupportedOperationException("get not implemented");
+      }
+
+      @Override
+      public MarketDataBundle withTime(ZonedDateTime time) {
+        // TODO implement withTime()
+        throw new UnsupportedOperationException("withTime not implemented");
+      }
+
+      @Override
+      public MarketDataBundle withDate(LocalDate date) {
+        // TODO implement withDate()
+        throw new UnsupportedOperationException("withDate not implemented");
       }
     };
     // for calls to ScenarioArgumentsC1 the args for ScenarioArgumentsC2 will be included in the key
@@ -414,10 +438,10 @@ public class CachingProxyDecoratorTest {
     FilteredScenarioDefinition scenarioDef2 = new FilteredScenarioDefinition(new Args2());
 
     // env1 is passed to the functions. it contains scenario arguments for all classes
-    SimpleEnvironment env1 = new SimpleEnvironment(valuationTime, marketDataSource, scenarioDef1);
+    SimpleEnvironment env1 = new SimpleEnvironment(valuationTime, marketDataBundle, scenarioDef1);
     // env2 is the environment that should be passed to ScenarioArgumentsC2 - its scenario arguments have been
     // filtered to only include the ones applicable to ScenarioArgumentsC2 and its dependencies
-    SimpleEnvironment env2 = new SimpleEnvironment(valuationTime, marketDataSource, scenarioDef2);
+    SimpleEnvironment env2 = new SimpleEnvironment(valuationTime, marketDataBundle, scenarioDef2);
     i1.fn(env1, "s1", 1);
     i1.fn(env1, "s2", 2);
 

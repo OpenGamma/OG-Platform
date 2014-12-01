@@ -8,7 +8,6 @@ package com.opengamma.sesame.engine;
 import com.google.common.cache.Cache;
 import com.opengamma.service.ServiceContext;
 import com.opengamma.sesame.graph.Graph;
-import com.opengamma.sesame.marketdata.CycleMarketDataFactory;
 
 /**
  * Initializes a set of classes to be used when running a cycle.
@@ -37,13 +36,6 @@ interface CycleInitializer {
    * @return the complete set of results
    */
   Results complete(Results results);
-
-  /**
-   * Get the market data factory to be used for this cycle.
-   *
-   * @return the cycle market data factory
-   */
-  CycleMarketDataFactory getCycleMarketDataFactory();
 
   /**
    * Get the cache that should be used by functions during the cycle.

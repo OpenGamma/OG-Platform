@@ -89,9 +89,11 @@ import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
-import com.opengamma.sesame.marketdata.MapMarketDataSource;
+import com.opengamma.sesame.marketdata.MapMarketDataBundle;
+import com.opengamma.sesame.marketdata.MarketDataBundle;
+import com.opengamma.sesame.marketdata.MarketDataEnvironmentBuilder;
 import com.opengamma.sesame.marketdata.MarketDataFn;
-import com.opengamma.sesame.marketdata.MarketDataSource;
+import com.opengamma.sesame.marketdata.RawId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
@@ -119,16 +121,19 @@ public class SwapNodeTest {
     Map<ExternalId, Double> swapMarketDataSource = buildDataForFxSwapCurve();
     Map<ExternalId, Double> usdMarketDataSource = buildDataForUsdCurve();
 
-    MapMarketDataSource.Builder msdBuilder = MapMarketDataSource.builder();
+    ZonedDateTime valuationDate = ZonedDateTime.of(2014, 1, 10, 11, 0, 0, 0, ZoneId.of("America/Chicago"));
+
+    MarketDataEnvironmentBuilder marketDataBuilder = new MarketDataEnvironmentBuilder();
 
     for (Map.Entry<ExternalId, Double> entry : swapMarketDataSource.entrySet()) {
-      msdBuilder.add(entry.getKey(), entry.getValue());
+      marketDataBuilder.add(RawId.of(entry.getKey().toBundle()), entry.getValue());
     }
     for (Map.Entry<ExternalId, Double> entry : usdMarketDataSource.entrySet()) {
-      msdBuilder.add(entry.getKey(), entry.getValue());
+      marketDataBuilder.add(RawId.of(entry.getKey().toBundle()), entry.getValue());
     }
+    marketDataBuilder.valuationTime(valuationDate);
 
-    MarketDataSource marketDataSource = msdBuilder.build();
+    MarketDataBundle marketDataBundle = new MapMarketDataBundle(marketDataBuilder.build());
 
     List<? extends CurveTypeConfiguration> eurCurveTypes = ImmutableList.of(
         new DiscountingCurveTypeConfiguration("EUR"));
@@ -192,9 +197,7 @@ public class SwapNodeTest {
 
     _curveFunction = FunctionModel.build(DiscountingMulticurveBundleResolverFn.class, config, components);
 
-    ZonedDateTime valuationDate = ZonedDateTime.of(2014, 1, 10, 11, 0, 0, 0, ZoneId.of("America/Chicago"));
-
-    _env = new SimpleEnvironment(valuationDate, marketDataSource);
+    _env = new SimpleEnvironment(valuationDate, marketDataBundle);
 
     VersionCorrectionProvider vcProvider = new VersionCorrectionProvider() {
       @Override

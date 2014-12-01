@@ -24,12 +24,12 @@ public interface MarketDataEnvironment {
   /**
    * @return single market data values, keyed by the requirement used to request them
    */
-  Map<MarketDataRequirement, Object> getData();
+  Map<SingleValueRequirement, Object> getData();
 
   /**
    * @return time series of market data values, keyed by the ID of the values in the time series.
    */
-  Map<MarketDataId, DateTimeSeries<LocalDate, ?>> getTimeSeries();
+  Map<MarketDataId<?>, DateTimeSeries<LocalDate, ?>> getTimeSeries();
 
   /**
    * @return the valuation time of the market data
@@ -40,4 +40,9 @@ public interface MarketDataEnvironment {
    * @return a builder created from the data in this environment
    */
   MarketDataEnvironmentBuilder toBuilder();
+
+  /**
+   * @return a {@code MarketDataBundle} created from the data in this environment
+   */
+  MarketDataBundle toBundle();
 }

@@ -16,7 +16,6 @@ import static org.testng.AssertJUnit.assertTrue;
 import java.util.EnumSet;
 
 import org.testng.annotations.Test;
-import org.threeten.bp.ZonedDateTime;
 
 import com.codahale.metrics.MetricRegistry;
 import com.google.common.base.Optional;
@@ -24,7 +23,6 @@ import com.google.common.collect.Lists;
 import com.opengamma.core.position.Trade;
 import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
-import com.opengamma.id.VersionCorrection;
 import com.opengamma.sesame.DirectExecutorService;
 import com.opengamma.sesame.EngineTestUtils;
 import com.opengamma.sesame.Environment;
@@ -35,8 +33,8 @@ import com.opengamma.sesame.function.AvailableImplementationsImpl;
 import com.opengamma.sesame.function.AvailableOutputs;
 import com.opengamma.sesame.function.AvailableOutputsImpl;
 import com.opengamma.sesame.function.Output;
-import com.opengamma.sesame.marketdata.CycleMarketDataFactory;
-import com.opengamma.sesame.marketdata.StrategyAwareMarketDataSource;
+import com.opengamma.sesame.marketdata.MarketDataBundle;
+import com.opengamma.sesame.marketdata.MarketDataEnvironment;
 import com.opengamma.util.test.TestGroup;
 /**
  * Test that demonstrates functions that take something other than a trade, position or security as their input.
@@ -65,8 +63,11 @@ public class InputTypesTest {
                                               Optional.<MetricRegistry>absent());
 
     View view = viewFactory.createView(viewConfig, EquityTradeWithSecurity.class, CashFlowTradeWithSecurity.class);
-    CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST,
-                                                       mockCycleMarketDataFactory());
+    MarketDataEnvironment marketDataEnvironment = mock(MarketDataEnvironment.class);
+    MarketDataBundle marketDataBundle = mock(MarketDataBundle.class);
+    when(marketDataEnvironment.toBundle()).thenReturn(marketDataBundle);
+    CycleArguments cycleArguments = CycleArguments.builder(marketDataEnvironment).build();
+
     Trade equityTrade = EngineTestUtils.createEquityTrade();
     Trade cashFlowTrade = EngineTestUtils.createCashFlowTrade();
     EquityTradeWithSecurity equityTradeWithSecurity =
@@ -85,12 +86,6 @@ public class InputTypesTest {
     assertNotNull(cashFlowItem);
     assertTrue(cashFlowItem.getResult().isSuccess());
     assertEquals("1 x " + EngineTestUtils.CASH_FLOW_NAME, cashFlowItem.getResult().getValue());
-  }
-
-  private CycleMarketDataFactory mockCycleMarketDataFactory() {
-    CycleMarketDataFactory cycleMarketDataFactory = mock(CycleMarketDataFactory.class);
-    when(cycleMarketDataFactory.getPrimaryMarketDataSource()).thenReturn(mock(StrategyAwareMarketDataSource.class));
-    return cycleMarketDataFactory;
   }
 
   /**

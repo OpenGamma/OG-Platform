@@ -33,9 +33,11 @@ import com.opengamma.sesame.function.Output;
 import com.opengamma.sesame.function.scenarios.FilteredScenarioDefinition;
 import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
-import com.opengamma.sesame.marketdata.MapMarketDataSource;
+import com.opengamma.sesame.marketdata.MapMarketDataBundle;
+import com.opengamma.sesame.marketdata.MarketDataBundle;
+import com.opengamma.sesame.marketdata.MarketDataEnvironmentBuilder;
 import com.opengamma.sesame.marketdata.MarketDataFn;
-import com.opengamma.sesame.marketdata.MarketDataSource;
+import com.opengamma.sesame.marketdata.RawId;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Tenor;
@@ -43,13 +45,15 @@ import com.opengamma.util.time.Tenor;
 @Test(groups = TestGroup.UNIT)
 public class CurveDataPointShiftsDecoratorTest {
 
-  private static final MarketDataSource MARKET_DATA_SOURCE =
-      MapMarketDataSource.builder()
-          .add(CurveTestUtils.ID1, 0.1)
-          .add(CurveTestUtils.ID2, 0.2)
-          .add(CurveTestUtils.ID3, 0.7)
-          .add(CurveTestUtils.ID4, 0.4)
-          .build();
+  private static final ZonedDateTime VALUATION_TIME = ZonedDateTime.now();
+  private static final MarketDataBundle MARKET_DATA_BUNDLE =
+      new MapMarketDataBundle(new MarketDataEnvironmentBuilder()
+                                  .add(RawId.of(CurveTestUtils.ID1.toBundle()), 0.1)
+                                  .add(RawId.of(CurveTestUtils.ID2.toBundle()), 0.2)
+                                  .add(RawId.of(CurveTestUtils.ID3.toBundle()), 0.7)
+                                  .add(RawId.of(CurveTestUtils.ID4.toBundle()), 0.4)
+                                  .valuationTime(ZonedDateTime.now())
+                                  .build());
 
   private static final List<PointShift> SHIFT_LIST = Lists.newArrayList(PointShift.of(Tenor.ofMonths(3), 0.1),
                                                                         PointShift.of(Tenor.ofMonths(6), 0.2),
@@ -70,7 +74,7 @@ public class CurveDataPointShiftsDecoratorTest {
   public void absolute() {
     CurveDataPointShifts pointShifts = CurveDataPointShifts.absolute(MATCHER, SHIFT_LIST);
     FilteredScenarioDefinition scenarioDef = new FilteredScenarioDefinition(pointShifts);
-    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), MARKET_DATA_SOURCE, scenarioDef);
+    SimpleEnvironment env = new SimpleEnvironment(VALUATION_TIME, MARKET_DATA_BUNDLE, scenarioDef);
 
     Result<Map<ExternalIdBundle, Double>> result = FN.foo(env, CurveTestUtils.CURVE_SPEC);
     assertTrue(result.isSuccess());
@@ -81,7 +85,7 @@ public class CurveDataPointShiftsDecoratorTest {
   public void relative() {
     CurveDataPointShifts pointShifts = CurveDataPointShifts.relative(MATCHER, SHIFT_LIST);
     FilteredScenarioDefinition scenarioDef = new FilteredScenarioDefinition(pointShifts);
-    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), MARKET_DATA_SOURCE, scenarioDef);
+    SimpleEnvironment env = new SimpleEnvironment(VALUATION_TIME, MARKET_DATA_BUNDLE, scenarioDef);
 
     Result<Map<ExternalIdBundle, Double>> result = FN.foo(env, CurveTestUtils.CURVE_SPEC);
     assertTrue(result.isSuccess());
@@ -92,7 +96,7 @@ public class CurveDataPointShiftsDecoratorTest {
   public void noMatch() {
     CurveDataPointShifts pointShifts = CurveDataPointShifts.absolute(MATCHER, SHIFT_LIST);
     FilteredScenarioDefinition scenarioDef = new FilteredScenarioDefinition(pointShifts);
-    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), MARKET_DATA_SOURCE, scenarioDef);
+    SimpleEnvironment env = new SimpleEnvironment(VALUATION_TIME, MARKET_DATA_BUNDLE, scenarioDef);
 
     CurveSpecification curveSpec = new CurveSpecification(LocalDate.now(), "a different name", CurveTestUtils.NODES);
     Result<Map<ExternalIdBundle, Double>> result = FN.foo(env, curveSpec);
@@ -105,7 +109,7 @@ public class CurveDataPointShiftsDecoratorTest {
     CurveDataPointShifts pointShifts1 = CurveDataPointShifts.absolute(MATCHER, SHIFT_LIST);
     CurveDataPointShifts pointShifts2 = CurveDataPointShifts.absolute(MATCHER, SHIFT_LIST);
     FilteredScenarioDefinition scenarioDef = new FilteredScenarioDefinition(pointShifts1, pointShifts2);
-    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), MARKET_DATA_SOURCE, scenarioDef);
+    SimpleEnvironment env = new SimpleEnvironment(VALUATION_TIME, MARKET_DATA_BUNDLE, scenarioDef);
 
     Result<Map<ExternalIdBundle, Double>> result = FN.foo(env, CurveTestUtils.CURVE_SPEC);
     assertTrue(result.isSuccess());
@@ -118,7 +122,7 @@ public class CurveDataPointShiftsDecoratorTest {
     CurveDataPointShifts abs = CurveDataPointShifts.absolute(MATCHER, SHIFT_LIST);
     CurveDataPointShifts rel = CurveDataPointShifts.relative(MATCHER, SHIFT_LIST);
     FilteredScenarioDefinition scenarioDef = new FilteredScenarioDefinition(abs, rel);
-    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), MARKET_DATA_SOURCE, scenarioDef);
+    SimpleEnvironment env = new SimpleEnvironment(VALUATION_TIME, MARKET_DATA_BUNDLE, scenarioDef);
 
     Result<Map<ExternalIdBundle, Double>> result = FN.foo(env, CurveTestUtils.CURVE_SPEC);
     assertTrue(result.isSuccess());
@@ -131,7 +135,7 @@ public class CurveDataPointShiftsDecoratorTest {
     CurveDataPointShifts rel = CurveDataPointShifts.relative(MATCHER, SHIFT_LIST);
     CurveDataPointShifts abs = CurveDataPointShifts.absolute(MATCHER, SHIFT_LIST);
     FilteredScenarioDefinition scenarioDef = new FilteredScenarioDefinition(rel, abs);
-    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), MARKET_DATA_SOURCE, scenarioDef);
+    SimpleEnvironment env = new SimpleEnvironment(VALUATION_TIME, MARKET_DATA_BUNDLE, scenarioDef);
 
     Result<Map<ExternalIdBundle, Double>> result = FN.foo(env, CurveTestUtils.CURVE_SPEC);
     assertTrue(result.isSuccess());

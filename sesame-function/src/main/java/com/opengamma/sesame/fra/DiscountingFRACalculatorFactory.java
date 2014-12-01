@@ -26,7 +26,7 @@ import com.opengamma.sesame.CurveLabellingFn;
 import com.opengamma.sesame.CurveMatrixLabeller;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.Environment;
-import com.opengamma.sesame.HistoricalTimeSeriesFn;
+import com.opengamma.sesame.FixingsFn;
 import com.opengamma.sesame.MulticurveBundle;
 import com.opengamma.sesame.trade.ForwardRateAgreementTrade;
 import com.opengamma.sesame.trade.FraTrade;
@@ -57,7 +57,7 @@ public class DiscountingFRACalculatorFactory implements FRACalculatorFactory {
   /**
    * HTS function for fixings.
    */
-  private final HistoricalTimeSeriesFn _htsFn;
+  private final FixingsFn _htsFn;
 
   /**
    * Curve labelling function.
@@ -76,7 +76,7 @@ public class DiscountingFRACalculatorFactory implements FRACalculatorFactory {
   public DiscountingFRACalculatorFactory(FRASecurityConverter fraConverter,
                                          FixedIncomeConverterDataProvider fixedIncomeConverterDataProvider,
                                          DiscountingMulticurveCombinerFn discountingMulticurveCombinerFn,
-                                         HistoricalTimeSeriesFn htsFn,
+                                         FixingsFn htsFn,
                                          CurveLabellingFn curveLabellingFn) {
     _fraConverter = ArgumentChecker.notNull(fraConverter, "fraConverter");
     _fixedIncomeConverterDataProvider = 
@@ -90,12 +90,11 @@ public class DiscountingFRACalculatorFactory implements FRACalculatorFactory {
   @Override
   public Result<FRACalculator> createCalculator(Environment env, FRASecurity security) {
 
-    Trade trade = new SimpleTrade(
-        security,
-        BigDecimal.ONE,
-        new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "CPARTY")),
-        LocalDate.now(),
-        OffsetTime.now());
+    Trade trade = new SimpleTrade(security,
+                                  BigDecimal.ONE,
+                                  new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "CPARTY")),
+                                  LocalDate.now(),
+                                  OffsetTime.now());
     FraTrade tradeWrapper = new FraTrade(trade);
 
     Result<MulticurveBundle> bundleResult = _discountingMulticurveCombinerFn.getMulticurveBundle(env, tradeWrapper);
@@ -148,7 +147,8 @@ public class DiscountingFRACalculatorFactory implements FRACalculatorFactory {
 
       if (curveLabellers.isSuccess()) {
 
-        FRACalculator calculator = new DiscountingFRACalculator(security,
+        FRACalculator calculator = new DiscountingFRACalculator(
+            security,
             bundleResult.getValue().getMulticurveProvider(),
             _fraConverter,
             env.getValuationTime(),
@@ -161,7 +161,7 @@ public class DiscountingFRACalculatorFactory implements FRACalculatorFactory {
         return Result.failure(curveLabellers);
       }
     } else {
-      return Result.failure(bundleResult);
+      return Result.failure(bundleResult, fixings);
     }
   }
 

@@ -18,7 +18,7 @@ import com.opengamma.sesame.CurveLabellingFn;
 import com.opengamma.sesame.CurveMatrixLabeller;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.Environment;
-import com.opengamma.sesame.HistoricalTimeSeriesFn;
+import com.opengamma.sesame.FixingsFn;
 import com.opengamma.sesame.MulticurveBundle;
 import com.opengamma.sesame.trade.InterestRateFutureTrade;
 import com.opengamma.util.ArgumentChecker;
@@ -36,7 +36,7 @@ public class InterestRateFutureDiscountingCalculatorFactory implements InterestR
 
   private final DiscountingMulticurveCombinerFn _discountingMulticurveCombinerFn;
 
-  private final HistoricalTimeSeriesFn _htsFn;
+  private final FixingsFn _fixingsFn;
 
   private final CurveLabellingFn _curveLabellingFn;
 
@@ -47,14 +47,14 @@ public class InterestRateFutureDiscountingCalculatorFactory implements InterestR
    * @param definitionToDerivativeConverter the converter used to convert the definition to derivative.
    * @param discountingMulticurveCombinerFn the multicurve function.
    * @param curveLabellingFn the curve labelling function.
-   * @param htsFn the historical time series function.
+   * @param fixingsFn for looking up fixings
    */
   public InterestRateFutureDiscountingCalculatorFactory(
       InterestRateFutureTradeConverter converter,
       FixedIncomeConverterDataProvider definitionToDerivativeConverter,
       DiscountingMulticurveCombinerFn discountingMulticurveCombinerFn,
       CurveLabellingFn curveLabellingFn,
-      HistoricalTimeSeriesFn htsFn) {
+      FixingsFn fixingsFn) {
 
     _converter = ArgumentChecker.notNull(converter, "converter");
     _definitionToDerivativeConverter =
@@ -62,7 +62,7 @@ public class InterestRateFutureDiscountingCalculatorFactory implements InterestR
     _discountingMulticurveCombinerFn = 
         ArgumentChecker.notNull(discountingMulticurveCombinerFn, "discountingMulticurveCombinerFn");
     _curveLabellingFn = ArgumentChecker.notNull(curveLabellingFn, "curveLabellingFn");
-    _htsFn = ArgumentChecker.notNull(htsFn, "htsFn");
+    _fixingsFn = ArgumentChecker.notNull(fixingsFn, "htsFn");
   }
 
   @Override
@@ -71,7 +71,7 @@ public class InterestRateFutureDiscountingCalculatorFactory implements InterestR
     FinancialSecurity security = trade.getSecurity();
 
     Result<MulticurveBundle> bundleResult = _discountingMulticurveCombinerFn.getMulticurveBundle(env, trade);
-    Result<HistoricalTimeSeriesBundle> fixingsResult = _htsFn.getFixingsForSecurity(env, security);
+    Result<HistoricalTimeSeriesBundle> fixingsResult = _fixingsFn.getFixingsForSecurity(env, security);
 
     if (Result.allSuccessful(bundleResult, fixingsResult)) {
 

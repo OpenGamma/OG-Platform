@@ -10,6 +10,7 @@ import static com.opengamma.sesame.config.ConfigBuilder.arguments;
 import static com.opengamma.sesame.config.ConfigBuilder.config;
 import static com.opengamma.sesame.config.ConfigBuilder.function;
 import static com.opengamma.sesame.config.ConfigBuilder.implementations;
+import static com.opengamma.util.result.ResultTestUtils.assertSuccess;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
@@ -70,6 +71,7 @@ import com.opengamma.sesame.DefaultCurveSpecificationMarketDataFn;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleResolverFn;
 import com.opengamma.sesame.DefaultFXMatrixFn;
+import com.opengamma.sesame.DefaultFixingsFn;
 import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
 import com.opengamma.sesame.DiscountingMulticurveBundleFn;
 import com.opengamma.sesame.DiscountingMulticurveBundleResolverFn;
@@ -77,7 +79,7 @@ import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.ExposureFunctionsDiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.FXMatrixFn;
-import com.opengamma.sesame.HistoricalTimeSeriesFn;
+import com.opengamma.sesame.FixingsFn;
 import com.opengamma.sesame.MarketExposureSelector;
 import com.opengamma.sesame.RootFinderConfiguration;
 import com.opengamma.sesame.SimpleEnvironment;
@@ -91,8 +93,11 @@ import com.opengamma.sesame.interestrate.InterestRateMockSources;
 import com.opengamma.sesame.marketdata.DefaultHistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
+import com.opengamma.sesame.marketdata.MapMarketDataBundle;
+import com.opengamma.sesame.marketdata.MarketDataBundle;
+import com.opengamma.sesame.marketdata.MarketDataEnvironmentBuilder;
 import com.opengamma.sesame.marketdata.MarketDataFn;
-import com.opengamma.sesame.marketdata.MarketDataSource;
+import com.opengamma.sesame.marketdata.RawId;
 import com.opengamma.sesame.trade.ForwardRateAgreementTrade;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -174,6 +179,7 @@ public class FRAFnTest {
   private FRAFn _fraFunction;
   private FRASecurity _fraSecurity = createSingleFra();
   private ForwardRateAgreementSecurity _forwardRateAgreementSecurity = createSingleForwardRateAgreement();
+  public static final Environment ENV = new SimpleEnvironment(VALUATION_TIME, createMarketDataBundle());
 
   @BeforeClass
   public void setUpClass() throws IOException {
@@ -215,9 +221,9 @@ public class FRAFnTest {
                 CurveLabellingFn.class, CurveDefinitionCurveLabellingFn.class,
                 DiscountingMulticurveBundleFn.class, DefaultDiscountingMulticurveBundleFn.class,
                 DiscountingMulticurveBundleResolverFn.class, DefaultDiscountingMulticurveBundleResolverFn.class,
-                CurveSpecificationFn.class, DefaultCurveSpecificationFn.class,
                 HistoricalMarketDataFn.class, DefaultHistoricalMarketDataFn.class,
-                HistoricalTimeSeriesFn.class, DefaultHistoricalTimeSeriesFn.class,
+                FixingsFn.class, DefaultFixingsFn.class,
+                CurveSpecificationFn.class, DefaultCurveSpecificationFn.class,
                 CurveConstructionConfigurationSource.class, ConfigDBCurveConstructionConfigurationSource.class,
                 MarketDataFn.class, DefaultMarketDataFn.class));
 
@@ -229,12 +235,17 @@ public class FRAFnTest {
     _fraFunction = FunctionModel.build(FRAFn.class, config, ComponentMap.of(components));
   }
 
+  private static MarketDataBundle createMarketDataBundle() {
+    MarketDataEnvironmentBuilder builder = InterestRateMockSources.createMarketDataEnvironment().toBuilder();
+    RawId liborId = RawId.of(InterestRateMockSources.LIBOR_INDEX_ID.toBundle());
+    builder.add(liborId, InterestRateMockSources.FLAT_TIME_SERIES);
+    return new MapMarketDataBundle(builder.build());
+  }
+
   @Test
   public void discountingFRAPV() {
-    MarketDataSource dataSource = InterestRateMockSources.createMarketDataSource();
-    Environment env = new SimpleEnvironment(VALUATION_TIME, dataSource);
-    Result<MultipleCurrencyAmount> resultPV = _fraFunction.calculatePV(env, _fraSecurity);
-    assertThat(resultPV.isSuccess(), is((true)));
+    Result<MultipleCurrencyAmount> resultPV = _fraFunction.calculatePV(ENV, _fraSecurity);
+    assertSuccess(resultPV);
 
     MultipleCurrencyAmount mca = resultPV.getValue();
     assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(EXPECTED_PV, STD_TOLERANCE_PV)));
@@ -242,10 +253,8 @@ public class FRAFnTest {
 
   @Test
   public void parRateFRA() {
-    MarketDataSource dataSource = InterestRateMockSources.createMarketDataSource();
-    Environment env = new SimpleEnvironment(VALUATION_TIME, dataSource);
-    Result<Double> resultParRate = _fraFunction.calculateParRate(env, _fraSecurity);
-    assertThat(resultParRate.isSuccess(), is((true)));
+    Result<Double> resultParRate = _fraFunction.calculateParRate(ENV, _fraSecurity);
+    assertSuccess(resultParRate);
 
     Double parRate = resultParRate.getValue();
     assertThat(parRate, is(closeTo(EXPECTED_PAR_RATE, STD_TOLERANCE_RATE)));
@@ -253,10 +262,8 @@ public class FRAFnTest {
 
   @Test
   public void discountingForwardRateAgreementPV() {
-    MarketDataSource dataSource = InterestRateMockSources.createMarketDataSource();
-    Environment env = new SimpleEnvironment(VALUATION_TIME, dataSource);
-    Result<MultipleCurrencyAmount> resultPV = _fraFunction.calculatePV(env, _forwardRateAgreementSecurity);
-    assertThat(resultPV.isSuccess(), is((true)));
+    Result<MultipleCurrencyAmount> resultPV = _fraFunction.calculatePV(ENV, _forwardRateAgreementSecurity);
+    assertSuccess(resultPV);
 
     MultipleCurrencyAmount mca = resultPV.getValue();
     assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(EXPECTED_PV, STD_TOLERANCE_PV)));
@@ -264,10 +271,8 @@ public class FRAFnTest {
 
   @Test
   public void parRateForwardRateAgreement() {
-    MarketDataSource dataSource = InterestRateMockSources.createMarketDataSource();
-    Environment env = new SimpleEnvironment(VALUATION_TIME, dataSource);
-    Result<Double> resultParRate = _fraFunction.calculateParRate(env, _forwardRateAgreementSecurity);
-    assertThat(resultParRate.isSuccess(), is((true)));
+    Result<Double> resultParRate = _fraFunction.calculateParRate(ENV, _forwardRateAgreementSecurity);
+    assertSuccess(resultParRate);
 
     Double parRate = resultParRate.getValue();
     assertThat(parRate, is(closeTo(EXPECTED_PAR_RATE, STD_TOLERANCE_RATE)));
@@ -275,10 +280,9 @@ public class FRAFnTest {
 
   @Test
   public void discountingForwardRateAgreementPV01() {
-    MarketDataSource dataSource = InterestRateMockSources.createMarketDataSource();
-    Environment env = new SimpleEnvironment(VALUATION_TIME, dataSource);
-    Result<ReferenceAmount<Pair<String, Currency>>> pv01 = _fraFunction.calculatePV01(env, _forwardRateAgreementSecurity);
-    assertThat(pv01.isSuccess(), is((true)));
+    Result<ReferenceAmount<Pair<String, Currency>>> pv01 = _fraFunction.calculatePV01(ENV,
+                                                                                      _forwardRateAgreementSecurity);
+    assertSuccess(pv01);
 
     assertThat(pv01.getValue().getMap().size(), is(2));
     assertThat(pv01.getValue().getMap().get(Pairs.of(InterestRateMockSources.USD_LIBOR3M_CURVE_NAME, Currency.USD)),
@@ -289,9 +293,7 @@ public class FRAFnTest {
 
   @Test
   public void discountingForwardRateAgreementBucketedPV01() {
-    MarketDataSource dataSource = InterestRateMockSources.createMarketDataSource();
-    Environment env = new SimpleEnvironment(VALUATION_TIME, dataSource);
-    Result<BucketedCurveSensitivities> pv01 = _fraFunction.calculateBucketedPV01(env, _forwardRateAgreementSecurity);
+    Result<BucketedCurveSensitivities> pv01 = _fraFunction.calculateBucketedPV01(ENV, _forwardRateAgreementSecurity);
     assertThat(pv01.isSuccess(), is((true)));
     Map<Pair<String, Currency>, DoubleLabelledMatrix1D> pv01s = pv01.getValue().getSensitivities();
 
@@ -309,11 +311,9 @@ public class FRAFnTest {
 
   @Test
   public void interestRateSwapBucketedGamma() {
-    MarketDataSource dataSource = InterestRateMockSources.createMarketDataSource();
-    Environment env = new SimpleEnvironment(VALUATION_TIME, dataSource);
-    Result<BucketedCrossSensitivities> resultCrossGamma = _fraFunction.calculateBucketedGamma(env,
-        _forwardRateAgreementSecurity);
-    assertThat(resultCrossGamma.isSuccess(), is(true));
+    Result<BucketedCrossSensitivities> resultCrossGamma = 
+        _fraFunction.calculateBucketedGamma(ENV, _forwardRateAgreementSecurity);
+    assertSuccess(resultCrossGamma);
 
     Map<String, DoubleLabelledMatrix2D> bucketedGamma = resultCrossGamma.getValue().getCrossSensitivities();
     assertThat(bucketedGamma.size(), is(EXPECTED_GAMMA_MATRICES.size()));
@@ -332,8 +332,8 @@ public class FRAFnTest {
 
   @Test
   public void tradeFunctions() {
-    MarketDataSource dataSource = InterestRateMockSources.createMarketDataSource();
-    Environment env = new SimpleEnvironment(VALUATION_TIME, dataSource);
+    MarketDataBundle marketData = InterestRateMockSources.createMarketDataEnvironment().toBundle();
+    Environment env = new SimpleEnvironment(VALUATION_TIME, marketData);
     ForwardRateAgreementTrade trade = getTrade(_forwardRateAgreementSecurity);
     
     Result<MultipleCurrencyAmount> resultPV = _fraFunction.calculatePV(env, trade);
@@ -370,8 +370,7 @@ public class FRAFnTest {
       }
     }
 
-    Result<BucketedCrossSensitivities> resultCrossGamma = _fraFunction.calculateBucketedGamma(env,
-        trade);
+    Result<BucketedCrossSensitivities> resultCrossGamma = _fraFunction.calculateBucketedGamma(env, trade);
     assertThat(resultCrossGamma.isSuccess(), is(true));
 
     Map<String, DoubleLabelledMatrix2D> bucketedGamma = resultCrossGamma.getValue().getCrossSensitivities();
@@ -411,8 +410,7 @@ public class FRAFnTest {
         2);
   }
 
-  private ForwardRateAgreementTrade getTrade(ForwardRateAgreementSecurity security)
-  {
+  private ForwardRateAgreementTrade getTrade(ForwardRateAgreementSecurity security) {
     Trade trade = new SimpleTrade(security,
         BigDecimal.ONE,
         new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "CPARTY")),
@@ -421,5 +419,4 @@ public class FRAFnTest {
  
     return new ForwardRateAgreementTrade(trade);
   }
-  
 }

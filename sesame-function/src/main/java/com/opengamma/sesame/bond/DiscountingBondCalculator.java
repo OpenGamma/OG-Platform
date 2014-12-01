@@ -90,7 +90,8 @@ public class DiscountingBondCalculator implements BondCalculator {
 
   /**
    * Creates a calculator for a InterestRateSwapSecurity.
-   *  @param trade the bond trade to calculate values for
+   *
+   * @param trade the bond trade to calculate values for
    * @param curves the ParameterIssuerProviderInterface
    * @param blocks the CurveBuildingBlockBundle
    * @param converter the BondAndBondFutureTradeConverter
@@ -149,7 +150,7 @@ public class DiscountingBondCalculator implements BondCalculator {
 
   @Override
   public Result<Double> calculateCleanPriceMarket() {
-    return _marketDataFn.getMarketValue(_env, _trade.getSecurity().getExternalIdBundle());
+    return _marketDataFn.getMarketValue(_env, _trade.getSecurity());
   }
 
   @Override
@@ -171,8 +172,8 @@ public class DiscountingBondCalculator implements BondCalculator {
   public Result<Double> calculateYieldToMaturityFromCleanPrice() {
     Result<Double> marketCleanPrice = calculateCleanPriceMarket();
     if (marketCleanPrice.isSuccess()) {
-      return Result.success(BSDM.yieldFromCleanPrice(_derivative.getBondStandard(), 
-          marketCleanPrice.getValue()));
+      return Result.success(BSDM.yieldFromCleanPrice(_derivative.getBondStandard(),
+                                                     marketCleanPrice.getValue()));
     } else {
       return Result.failure(marketCleanPrice);
     }
@@ -184,10 +185,9 @@ public class DiscountingBondCalculator implements BondCalculator {
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   public Result<Double> calculateYieldToMaturityMarket() {
-    return (Result<Double>) _marketDataFn.getValue(_env, _trade.getSecurity().getExternalIdBundle(),
-        FieldName.of(MarketDataRequirementNames.YIELD_YIELD_TO_MATURITY_MID));
+    FieldName fieldName = FieldName.of(MarketDataRequirementNames.YIELD_YIELD_TO_MATURITY_MID);
+    return _marketDataFn.getValue(_env, _trade.getSecurity(), fieldName, Double.class);
   }
 
   @Override

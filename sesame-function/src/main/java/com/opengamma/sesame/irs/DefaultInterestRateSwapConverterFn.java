@@ -16,7 +16,7 @@ import com.opengamma.financial.analytics.conversion.InterestRateSwapSecurityConv
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.sesame.Environment;
-import com.opengamma.sesame.HistoricalTimeSeriesFn;
+import com.opengamma.sesame.FixingsFn;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.tuple.Pair;
@@ -31,24 +31,24 @@ public class DefaultInterestRateSwapConverterFn implements InterestRateSwapConve
 
   private final InterestRateSwapSecurityConverter _secToDefnConverter;
   private final FixedIncomeConverterDataProvider _defnToDerivConverter;
-  private final HistoricalTimeSeriesFn _htsFn;
+  private final FixingsFn _fixingsFn;
 
   /**
    * @param secToDefnConverter converts an {@link InterestRateSwapSecurity} to a {@link SwapDefinition}
    * @param defnToDerivConverter converts a {@link SwapDefinition} to a {@link InstrumentDerivative}
-   * @param htsFn provides time series of fixings for the security
+   * @param fixingsFn provides time series of fixings for the security
    */
   public DefaultInterestRateSwapConverterFn(InterestRateSwapSecurityConverter secToDefnConverter,
                                             FixedIncomeConverterDataProvider defnToDerivConverter,
-                                            HistoricalTimeSeriesFn htsFn) {
+                                            FixingsFn fixingsFn) {
     _secToDefnConverter = ArgumentChecker.notNull(secToDefnConverter, "secToDefnConverter");
     _defnToDerivConverter = ArgumentChecker.notNull(defnToDerivConverter, "defnToDerivConverter");
-    _htsFn = ArgumentChecker.notNull(htsFn, "htsFn");
+    _fixingsFn = ArgumentChecker.notNull(fixingsFn, "htsFn");
   }
 
   @Override
   public Result<Pair<SwapDefinition, InstrumentDerivative>> convert(Environment env, InterestRateSwapSecurity security) {
-    Result<HistoricalTimeSeriesBundle> fixingsResult = _htsFn.getFixingsForSecurity(env, security);
+    Result<HistoricalTimeSeriesBundle> fixingsResult = _fixingsFn.getFixingsForSecurity(env, security);
 
     if (!fixingsResult.isSuccess()) {
       return Result.failure(fixingsResult);

@@ -74,14 +74,14 @@ import com.opengamma.sesame.DefaultCurveSpecificationMarketDataFn;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleResolverFn;
 import com.opengamma.sesame.DefaultFXMatrixFn;
-import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
+import com.opengamma.sesame.DefaultFixingsFn;
 import com.opengamma.sesame.DiscountingMulticurveBundleFn;
 import com.opengamma.sesame.DiscountingMulticurveBundleResolverFn;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.ExposureFunctionsDiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.FXMatrixFn;
-import com.opengamma.sesame.HistoricalTimeSeriesFn;
+import com.opengamma.sesame.FixingsFn;
 import com.opengamma.sesame.MarketExposureSelector;
 import com.opengamma.sesame.RootFinderConfiguration;
 import com.opengamma.sesame.SimpleEnvironment;
@@ -95,8 +95,8 @@ import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.function.scenarios.curvedata.FunctionTestUtils;
 import com.opengamma.sesame.graph.FunctionBuilder;
 import com.opengamma.sesame.graph.FunctionModel;
-import com.opengamma.sesame.marketdata.FixedHistoricalMarketDataSource;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
+import com.opengamma.sesame.marketdata.MarketDataBundle;
 import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.sesame.trace.TracingProxy;
 import com.opengamma.util.result.Result;
@@ -150,12 +150,14 @@ public class FXForwardYCNSFunctionTest {
     assertThat(ycns.getStatus(), is((ResultStatus) SUCCESS));
   }
 
+  // TODO adaptor to create a MarketDataEnvironment backed by a HistoricalTimeSeriesSource? in the test root?
   private Result<DoubleLabelledMatrix1D> executeAgainstRemoteServer() {
     String serverUrl = "http://localhost:8080";
     ComponentMap serverComponents = ComponentMap.loadComponents(serverUrl);
     HistoricalTimeSeriesSource timeSeriesSource = serverComponents.getComponent(HistoricalTimeSeriesSource.class);
     LocalDate date = LocalDate.of(2013, 11, 7);
-    FixedHistoricalMarketDataSource dataSource = new FixedHistoricalMarketDataSource(timeSeriesSource, date, "BLOOMBERG", null);
+    // TODO need a bundle backed by historical data
+    MarketDataBundle marketDataBundle = null;
 
     URI htsResolverUri = URI.create(serverUrl + "/jax/components/HistoricalTimeSeriesResolver/shared");
     HistoricalTimeSeriesResolver htsResolver = new RemoteHistoricalTimeSeriesResolver(htsResolverUri);
@@ -175,7 +177,7 @@ public class FXForwardYCNSFunctionTest {
     security.setUniqueId(UniqueId.of("sec", "123"));
     //TracingProxy.start(new FullTracer());
     Result<DoubleLabelledMatrix1D> result = null;
-    Environment env = new SimpleEnvironment(s_valuationTime, dataSource);
+    Environment env = new SimpleEnvironment(s_valuationTime, marketDataBundle);
 
     for (int i = 0; i < 100; i++) {
       result = ycnsFunction.calculateYieldCurveNodeSensitivities(env, security);
@@ -207,10 +209,6 @@ public class FXForwardYCNSFunctionTest {
                                                               CurrencyPair.of(EUR, USD),
                                                               CurrencyPair.of(GBP, USD)))),
                 function(
-                    DefaultHistoricalTimeSeriesFn.class,
-                    argument("resolutionKey", "DEFAULT_TSS"),
-                    argument("htsRetrievalPeriod", RetrievalPeriod.of(Period.ofYears(1)))),
-                function(
                     DefaultCurveNodeConverterFn.class,
                     argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofYears(1)))),
                 function(
@@ -231,7 +229,7 @@ public class FXForwardYCNSFunctionTest {
                 CurveSpecificationFn.class, DefaultCurveSpecificationFn.class,
                 CurveConstructionConfigurationSource.class, ConfigDBCurveConstructionConfigurationSource.class,
                 CurveNodeConverterFn.class, DefaultCurveNodeConverterFn.class,
-                HistoricalTimeSeriesFn.class, DefaultHistoricalTimeSeriesFn.class));
+                FixingsFn.class, DefaultFixingsFn.class));
   }
 
   private static ComponentMap componentMap(Map<Class<?>, Object> components) {

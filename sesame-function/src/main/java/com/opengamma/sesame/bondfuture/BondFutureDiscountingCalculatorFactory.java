@@ -10,7 +10,7 @@ import com.opengamma.financial.analytics.conversion.BondAndBondFutureTradeConver
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.sesame.Environment;
-import com.opengamma.sesame.HistoricalTimeSeriesFn;
+import com.opengamma.sesame.FixingsFn;
 import com.opengamma.sesame.IssuerProviderBundle;
 import com.opengamma.sesame.IssuerProviderFn;
 import com.opengamma.sesame.trade.BondFutureTrade;
@@ -26,14 +26,14 @@ public class BondFutureDiscountingCalculatorFactory implements BondFutureCalcula
   
   private final IssuerProviderFn _issuerProviderFn;
   
-  private final HistoricalTimeSeriesFn _htsFn;
+  private final FixingsFn _fixingsFn;
   
   public BondFutureDiscountingCalculatorFactory(BondAndBondFutureTradeConverter converter,
                                                 IssuerProviderFn issuerProviderFn,
-                                                HistoricalTimeSeriesFn htsFn) {
+                                                FixingsFn fixingsFn) {
     _converter = ArgumentChecker.notNull(converter, "converter");
     _issuerProviderFn = ArgumentChecker.notNull(issuerProviderFn, "issuerProviderFn");
-    _htsFn = htsFn;
+    _fixingsFn = ArgumentChecker.notNull(fixingsFn, "fixingsFn");
   }
   
   @Override
@@ -43,7 +43,7 @@ public class BondFutureDiscountingCalculatorFactory implements BondFutureCalcula
 
     Result<IssuerProviderBundle> bundleResult = _issuerProviderFn.getMulticurveBundle(env, bondFutureTrade.getTrade());
     
-    Result<HistoricalTimeSeriesBundle> fixingsResult = _htsFn.getFixingsForSecurity(env, security);
+    Result<HistoricalTimeSeriesBundle> fixingsResult = _fixingsFn.getFixingsForSecurity(env, security);
     
     if (Result.allSuccessful(bundleResult, fixingsResult)) {
       ParameterIssuerProviderInterface curves = bundleResult.getValue().getParameterIssuerProvider();

@@ -17,7 +17,7 @@ import com.opengamma.integration.regression.EqualityChecker;
 import com.opengamma.sesame.FXMatrixFn;
 import com.opengamma.sesame.SimpleEnvironment;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
-import com.opengamma.sesame.marketdata.MarketDataSource;
+import com.opengamma.sesame.marketdata.MarketDataBundle;
 import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
@@ -43,7 +43,7 @@ public class DefaultHistoricalPnLFXConverterFnTest {
   private HistoricalMarketDataFn _mdFn;
   
   private final CurrencyPair _ccyPair = CurrencyPair.of(Currency.GBP, Currency.USD);
-  private final SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), mock(MarketDataSource.class));
+  private final SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), mock(MarketDataBundle.class));
   
   private final FXMatrix fxMatrix = new FXMatrix(_ccyPair.getBase());
 

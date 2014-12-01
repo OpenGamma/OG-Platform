@@ -14,7 +14,7 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.sesame.function.scenarios.FilteredScenarioDefinition;
 import com.opengamma.sesame.function.scenarios.ScenarioArgument;
 import com.opengamma.sesame.function.scenarios.ScenarioFunction;
-import com.opengamma.sesame.marketdata.MarketDataSource;
+import com.opengamma.sesame.marketdata.MarketDataBundle;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -36,21 +36,21 @@ public final class SimpleEnvironment implements Environment {
   private final ZonedDateTime _valuationTime;
 
   /** The function that provides market data. */
-  private final MarketDataSource _marketDataSource;
+  private final MarketDataBundle _marketDataBundle;
 
   /** Scenario definition. */
   private final FilteredScenarioDefinition _scenarioDefinition;
 
   public SimpleEnvironment(ZonedDateTime valuationTime,
-                           MarketDataSource marketDataSource) {
-    this(valuationTime, marketDataSource, FilteredScenarioDefinition.EMPTY);
+                           MarketDataBundle marketDataBundle) {
+    this(valuationTime, marketDataBundle, FilteredScenarioDefinition.EMPTY);
   }
 
   public SimpleEnvironment(ZonedDateTime valuationTime,
-                           MarketDataSource marketDataSource,
+                           MarketDataBundle marketDataBundle,
                            FilteredScenarioDefinition scenarioDefinition) {
     _valuationTime = ArgumentChecker.notNull(valuationTime, "valuationTime");
-    _marketDataSource = ArgumentChecker.notNull(marketDataSource, "marketDataSource");
+    _marketDataBundle = ArgumentChecker.notNull(marketDataBundle, "marketDataSource");
     _scenarioDefinition = ArgumentChecker.notNull(scenarioDefinition, "scenarioDefinition");
   }
 
@@ -65,8 +65,8 @@ public final class SimpleEnvironment implements Environment {
   }
 
   @Override
-  public MarketDataSource getMarketDataSource() {
-    return _marketDataSource;
+  public MarketDataBundle getMarketDataBundle() {
+    return _marketDataBundle;
   }
 
   @Override
@@ -83,28 +83,28 @@ public final class SimpleEnvironment implements Environment {
   @Override
   public Environment withValuationTime(ZonedDateTime valuationTime) {
     return new SimpleEnvironment(
-        ArgumentChecker.notNull(valuationTime, "valuationTime"), _marketDataSource, _scenarioDefinition);
+        ArgumentChecker.notNull(valuationTime, "valuationTime"), _marketDataBundle, _scenarioDefinition);
   }
 
   @Override
   public Environment withValuationTimeAndFixedMarketData(ZonedDateTime valuationTime) {
     return new SimpleEnvironment(
-        ArgumentChecker.notNull(valuationTime, "valuationTime"), _marketDataSource, _scenarioDefinition);
+        ArgumentChecker.notNull(valuationTime, "valuationTime"), _marketDataBundle, _scenarioDefinition);
   }
 
   @Override
-  public Environment withMarketData(MarketDataSource marketData) {
+  public Environment withMarketData(MarketDataBundle marketData) {
     return new SimpleEnvironment(_valuationTime, ArgumentChecker.notNull(marketData, "marketData"), _scenarioDefinition);
   }
 
   @Override
   public Environment withScenarioDefinition(FilteredScenarioDefinition scenarioDefinition) {
-    return new SimpleEnvironment(_valuationTime, _marketDataSource, scenarioDefinition);
+    return new SimpleEnvironment(_valuationTime, _marketDataBundle, scenarioDefinition);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(_valuationTime, _marketDataSource, _scenarioDefinition);
+    return Objects.hash(_valuationTime, _marketDataBundle, _scenarioDefinition);
   }
 
   @Override
@@ -117,7 +117,7 @@ public final class SimpleEnvironment implements Environment {
     }
     final SimpleEnvironment other = (SimpleEnvironment) obj;
     return Objects.equals(this._valuationTime, other._valuationTime) &&
-           Objects.equals(this._marketDataSource, other._marketDataSource) &&
+           Objects.equals(this._marketDataBundle, other._marketDataBundle) &&
            Objects.equals(this._scenarioDefinition, other._scenarioDefinition);
   }
 
@@ -125,7 +125,7 @@ public final class SimpleEnvironment implements Environment {
   public String toString() {
     return "SimpleEnvironment [" +
         "_valuationTime=" + _valuationTime +
-        ", _marketDataSource=" + _marketDataSource +
+        ", _marketDataSource=" + _marketDataBundle +
         ", _scenarioArguments=" + _scenarioDefinition +
         "]";
   }
