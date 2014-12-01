@@ -10,6 +10,7 @@ import static org.testng.AssertJUnit.assertFalse;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.Period;
+import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
@@ -169,6 +170,25 @@ public class CouponIborSpreadDefinitionTest {
     paymentTime = TimeCalculator.getTimeBetween(FIXING_DATE, PAYMENT_DATE);
     couponFixed = new CouponFixed(CUR, paymentTime, IBOR_COUPON_SPREAD_DEFINITION.getPaymentYearFraction(), NOTIONAL, FIXING_RATE + SPREAD);
     convertedDefinition = (CouponFixed) IBOR_COUPON_SPREAD_DEFINITION.toDerivative(FIXING_DATE, FIXING_TS);
+    assertEquals(couponFixed, convertedDefinition);
+  }
+
+  /**
+   * Check timezone on fixing dates does not stop fixings from loading
+   */
+  @Test
+  public void testToDerivativeOnFixingDiffTimeZones() {
+    final ZonedDateTime fixingDate = FIXING_DATE.withZoneSameInstant(ZoneId.of("UTC+1"));
+    final ZonedDateTime date = FIXING_DATE.plusDays(2).withZoneSameInstant(ZoneId.of("UTC-3"));
+    CouponIborDefinition def = CouponIborDefinition.from(NOTIONAL, fixingDate, INDEX, CALENDAR);
+    final CouponIborSpreadDefinition spreadDef = CouponIborSpreadDefinition.from(def, SPREAD);
+    double paymentTime = TimeCalculator.getTimeBetween(date, PAYMENT_DATE);
+    CouponFixed couponFixed = new CouponFixed(CUR, paymentTime, spreadDef.getPaymentYearFraction(), NOTIONAL, FIXING_RATE + SPREAD);
+    CouponFixed convertedDefinition = (CouponFixed) spreadDef.toDerivative(date, FIXING_TS);
+    assertEquals(couponFixed, convertedDefinition);
+    paymentTime = TimeCalculator.getTimeBetween(date, PAYMENT_DATE);
+    couponFixed = new CouponFixed(CUR, paymentTime, spreadDef.getPaymentYearFraction(), NOTIONAL, FIXING_RATE + SPREAD);
+    convertedDefinition = (CouponFixed) spreadDef.toDerivative(date, FIXING_TS);
     assertEquals(couponFixed, convertedDefinition);
   }
 
