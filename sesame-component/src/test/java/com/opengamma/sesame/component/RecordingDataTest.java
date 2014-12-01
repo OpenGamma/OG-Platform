@@ -16,8 +16,6 @@ import static com.opengamma.sesame.config.ConfigBuilder.output;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.testng.Assert.fail;
 
 import java.io.ByteArrayInputStream;
@@ -29,8 +27,6 @@ import java.util.Set;
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
-import org.threeten.bp.ZoneOffset;
-import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -39,7 +35,6 @@ import com.google.common.collect.Sets;
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.link.ConfigLink;
-import com.opengamma.engine.marketdata.spec.FixedHistoricalMarketDataSpecification;
 import com.opengamma.financial.analytics.conversion.FXForwardSecurityConverter;
 import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
@@ -72,7 +67,7 @@ import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleResolverFn;
 import com.opengamma.sesame.DefaultFXMatrixFn;
 import com.opengamma.sesame.DefaultFXReturnSeriesFn;
-import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
+import com.opengamma.sesame.DefaultFixingsFn;
 import com.opengamma.sesame.DiscountingMulticurveBundleResolverFn;
 import com.opengamma.sesame.EngineTestUtils;
 import com.opengamma.sesame.ExposureFunctionsDiscountingMulticurveCombinerFn;
@@ -109,11 +104,8 @@ import com.opengamma.sesame.irs.DefaultInterestRateSwapConverterFn;
 import com.opengamma.sesame.irs.DiscountingInterestRateSwapCalculatorFactory;
 import com.opengamma.sesame.irs.DiscountingInterestRateSwapFn;
 import com.opengamma.sesame.irs.InterestRateSwapFn;
-import com.opengamma.sesame.marketdata.CycleMarketDataFactory;
 import com.opengamma.sesame.marketdata.DefaultHistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
-import com.opengamma.sesame.marketdata.FixedHistoricalMarketDataFactory;
-import com.opengamma.sesame.marketdata.StrategyAwareMarketDataSource;
 import com.opengamma.sesame.pnl.DefaultHistoricalPnLFXConverterFn;
 import com.opengamma.util.GUIDGenerator;
 import com.opengamma.util.money.Currency;
@@ -145,18 +137,15 @@ public class RecordingDataTest {
 
     View view = viewFactory.createView(createCurveBundleConfig("TEST"));
 
-    ZonedDateTime valTime = LocalDate.of(2014, 6, 1).atStartOfDay(ZoneOffset.UTC);
-
-    StrategyAwareMarketDataSource marketDataSource =
-        InterestRateMockSources.createMarketDataFactory().create(
-            new FixedHistoricalMarketDataSpecification(valTime.toLocalDate()));
-
-    CycleMarketDataFactory cycleMarketDataFactory = mock(CycleMarketDataFactory.class);
-    when(cycleMarketDataFactory.getPrimaryMarketDataSource()).thenReturn(marketDataSource);
+    //ZonedDateTime valTime = LocalDate.of(2014, 6, 1).atStartOfDay(ZoneOffset.UTC);
 
     VersionCorrection versionCorrection =
         ThreadLocalServiceContext.getInstance().get(VersionCorrectionProvider.class).getConfigVersionCorrection();
-    CycleArguments cycleArguments = new CycleArguments(valTime, versionCorrection, cycleMarketDataFactory, true);
+    CycleArguments cycleArguments = CycleArguments.builder(InterestRateMockSources.createMarketDataEnvironment())
+                                                  //.valuationTime(valTime)
+                                                  .versionCorrection(versionCorrection)
+                                                  .captureInputs(true)
+                                                  .build();
 
     Results run = view.run(cycleArguments);
     Result<Object> result = run.getNonPortfolioResults().get("TEST").getResult();
@@ -218,18 +207,15 @@ public class RecordingDataTest {
     // Run view
     View view = viewFactory.createView(createIrsPricerConfig(), InterestRateSwapSecurity.class);
 
-    ZonedDateTime valTime = LocalDate.of(2014, 6, 1).atStartOfDay(ZoneOffset.UTC);
-
-    StrategyAwareMarketDataSource marketDataSource =
-        InterestRateMockSources.createMarketDataFactory().create(
-            new FixedHistoricalMarketDataSpecification(valTime.toLocalDate()));
-
-    CycleMarketDataFactory cycleMarketDataFactory = mock(CycleMarketDataFactory.class);
-    when(cycleMarketDataFactory.getPrimaryMarketDataSource()).thenReturn(marketDataSource);
+    //ZonedDateTime valTime = LocalDate.of(2014, 6, 1).atStartOfDay(ZoneOffset.UTC);
 
     VersionCorrection versionCorrection =
         ThreadLocalServiceContext.getInstance().get(VersionCorrectionProvider.class).getConfigVersionCorrection();
-    CycleArguments cycleArguments = new CycleArguments(valTime, versionCorrection, cycleMarketDataFactory, true);
+    CycleArguments cycleArguments = CycleArguments.builder(InterestRateMockSources.createMarketDataEnvironment())
+                                                  //.valuationTime(valTime)
+                                                  .versionCorrection(versionCorrection)
+                                                  .captureInputs(true)
+                                                  .build();
 
     Results run = view.run(cycleArguments, ImmutableList.of(createFixedVsLibor3mSwap()));
     Result<Object> pvResult = run.get(0, 0).getResult();
@@ -274,12 +260,6 @@ public class RecordingDataTest {
     if (!pv01Result2.isSuccess()) {
       fail(pv01Result2.toString());
     }
-
-    ViewOutputs view2Outputs = ViewOutputs.builder()
-        .nonPortfolioResults(run2.getNonPortfolioResults())
-        .columnNames(run2.getColumnNames())
-        .rows(run2.getRows())
-        .build();
 
     // Check results are same as original ones
     assertThat(pvResult2.getValue(), is(pvResult.getValue()));
@@ -346,34 +326,36 @@ public class RecordingDataTest {
     CurveConstructionConfiguration curveConstructionConfiguration =
         ConfigLink.resolvable("USD_ON-OIS_LIBOR3M-FRAIRS_1U", CurveConstructionConfiguration.class).resolve();
 
-    return configureView("Curve Bundle only",
-                         nonPortfolioOutput(curveBundleOutputName,
-                                            output(OutputNames.DISCOUNTING_MULTICURVE_BUNDLE,
-                                                   config(
-                                                       arguments(
-                                                           function(
-                                                               RootFinderConfiguration.class,
-                                                               argument("rootFinderAbsoluteTolerance", 1e-9),
-                                                               argument("rootFinderRelativeTolerance", 1e-9),
-                                                               argument("rootFinderMaxIterations", 1000)),
-                                                           function(DefaultCurveNodeConverterFn.class,
-                                                                    argument("timeSeriesDuration", RetrievalPeriod.of(
-                                                                        Period.ofYears(1)))),
-                                                           function(DefaultMarketDataFn.class,
-                                                                    argument("currencyMatrix", _currencyMatrixLink)),
-                                                           function(DefaultHistoricalMarketDataFn.class,
-                                                                    argument("dataSource", "BLOOMBERG"),
-                                                                    argument("currencyMatrix", _currencyMatrixLink)),
-                                                           function(
-                                                               DefaultHistoricalTimeSeriesFn.class,
-                                                               argument("resolutionKey", "DEFAULT_TSS"),
-                                                               argument("htsRetrievalPeriod", RetrievalPeriod.of((Period.ofYears(1))))),
-                                                           function(
-                                                               DefaultDiscountingMulticurveBundleResolverFn.class,
-                                                               argument("curveConfig", curveConstructionConfiguration)),
-                                                           function(
-                                                               DefaultDiscountingMulticurveBundleFn.class,
-                                                               argument("impliedCurveNames", StringSet.of())))))));
+    return
+        configureView(
+            "Curve Bundle only",
+            nonPortfolioOutput(
+                curveBundleOutputName,
+                output(
+                    OutputNames.DISCOUNTING_MULTICURVE_BUNDLE,
+                    config(
+                        arguments(
+                            function(
+                                RootFinderConfiguration.class,
+                                argument("rootFinderAbsoluteTolerance", 1e-9),
+                                argument("rootFinderRelativeTolerance", 1e-9),
+                                argument("rootFinderMaxIterations", 1000)),
+                            function(
+                                DefaultCurveNodeConverterFn.class,
+                                argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofYears(1)))),
+                            function(
+                                DefaultMarketDataFn.class,
+                                argument("currencyMatrix", _currencyMatrixLink)),
+                            function(
+                                DefaultHistoricalMarketDataFn.class,
+                                argument("dataSource", "BLOOMBERG"),
+                                argument("currencyMatrix", _currencyMatrixLink)),
+                            function(
+                                DefaultDiscountingMulticurveBundleResolverFn.class,
+                                argument("curveConfig", curveConstructionConfiguration)),
+                            function(
+                                DefaultDiscountingMulticurveBundleFn.class,
+                                argument("impliedCurveNames", StringSet.of())))))));
   }
 
   private ViewConfig createIrsPricerConfig() {
@@ -394,10 +376,6 @@ public class RecordingDataTest {
                     function(
                         DefaultCurrencyPairsFn.class,
                         argument("currencyPairs", ImmutableSet.of(/*no pairs*/))),
-                    function(
-                        DefaultHistoricalTimeSeriesFn.class,
-                        argument("resolutionKey", "DEFAULT_TSS"),
-                        argument("htsRetrievalPeriod", RetrievalPeriod.of(Period.ofYears(1)))),
                     function(
                         DefaultCurveNodeConverterFn.class,
                         argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofYears(1)))),
@@ -465,10 +443,9 @@ public class RecordingDataTest {
         DefaultDiscountingMulticurveBundleResolverFn.class,
         DefaultCurveSpecificationFn.class,
         ConfigDBCurveConstructionConfigurationSource.class,
-        DefaultHistoricalTimeSeriesFn.class,
+        DefaultFixingsFn.class,
         FXForwardDiscountingCalculatorFn.class,
         ExposureFunctionsDiscountingMulticurveCombinerFn.class,
-        FixedHistoricalMarketDataFactory.class,
         DefaultMarketDataFn.class,
         DefaultHistoricalMarketDataFn.class,
         DefaultCurveNodeConverterFn.class,

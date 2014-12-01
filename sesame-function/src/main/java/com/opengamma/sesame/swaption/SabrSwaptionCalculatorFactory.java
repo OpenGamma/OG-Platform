@@ -27,7 +27,7 @@ import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.Environment;
-import com.opengamma.sesame.HistoricalTimeSeriesFn;
+import com.opengamma.sesame.FixingsFn;
 import com.opengamma.sesame.MulticurveBundle;
 import com.opengamma.sesame.sabr.SabrParametersConfiguration;
 import com.opengamma.sesame.sabr.SabrParametersProviderFn;
@@ -60,7 +60,7 @@ public class SabrSwaptionCalculatorFactory implements SwaptionCalculatorFactory 
    * Function used to retrieve time series data.
    */
   // todo - the method for fixings should be moving from this function as per JIRA - SSM-215
-  private final HistoricalTimeSeriesFn _htsFn;
+  private final FixingsFn _fixingsFn;
 
   /**
    * Function used to retrieve SABR parameter data.
@@ -76,21 +76,21 @@ public class SabrSwaptionCalculatorFactory implements SwaptionCalculatorFactory 
    * bundles, not null
    * @param swaptionSecurityConverter converter for transforming a swaption into
    * its InstrumentDefinition form, not null
-   * @param htsFn function used to retrieve time series data, not null
+   * @param fixingsFn function used to retrieve time series data, not null
    * @param sabrParametersProviderFn function used to retrieve SABR parameter
    * data, not null
    */
   public SabrSwaptionCalculatorFactory(FixedIncomeConverterDataProvider definitionToDerivativeConverter,
                                        DiscountingMulticurveCombinerFn discountingMulticurveCombinerFn,
                                        SwaptionSecurityConverter swaptionSecurityConverter,
-                                       HistoricalTimeSeriesFn htsFn,
+                                       FixingsFn fixingsFn,
                                        SabrParametersProviderFn sabrParametersProviderFn) {
     _definitionToDerivativeConverter =
         ArgumentChecker.notNull(definitionToDerivativeConverter, "definitionToDerivativeConverter");
     _discountingMulticurveCombinerFn =
         ArgumentChecker.notNull(discountingMulticurveCombinerFn, "discountingMulticurveCombinerFn");
     _swaptionSecurityConverter = ArgumentChecker.notNull(swaptionSecurityConverter, "swaptionSecurityConverter");
-    _htsFn = ArgumentChecker.notNull(htsFn, "htsFn");
+    _fixingsFn = ArgumentChecker.notNull(fixingsFn, "htsFn");
     _sabrParametersProviderFn =
         ArgumentChecker.notNull(sabrParametersProviderFn, "sabrParametersProviderFn");
   }
@@ -108,7 +108,7 @@ public class SabrSwaptionCalculatorFactory implements SwaptionCalculatorFactory 
 
     Result<MulticurveBundle> bundleResult = _discountingMulticurveCombinerFn.getMulticurveBundle(env, tradeWrapper);
 
-    Result<HistoricalTimeSeriesBundle> fixingsResult = _htsFn.getFixingsForSecurity(env, security);
+    Result<HistoricalTimeSeriesBundle> fixingsResult = _fixingsFn.getFixingsForSecurity(env, security);
 
     Result<SabrParametersConfiguration> sabrResult = _sabrParametersProviderFn.getSabrParameters(env, security);
 

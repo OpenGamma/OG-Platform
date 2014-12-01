@@ -39,7 +39,6 @@ import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.security.impl.SimpleSecurityLink;
-import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
@@ -55,7 +54,6 @@ import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.cache.NoOpCacheInvalidator;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.config.ViewConfig;
-import com.opengamma.sesame.engine.CycleArguments.TraceType;
 import com.opengamma.sesame.example.CashFlowDescriptionFn;
 import com.opengamma.sesame.example.CashFlowIdDescriptionFn;
 import com.opengamma.sesame.example.DefaultCashFlowDescriptionFn;
@@ -71,13 +69,12 @@ import com.opengamma.sesame.function.AvailableImplementationsImpl;
 import com.opengamma.sesame.function.AvailableOutputs;
 import com.opengamma.sesame.function.AvailableOutputsImpl;
 import com.opengamma.sesame.function.Output;
-import com.opengamma.sesame.marketdata.CycleMarketDataFactory;
 import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
-import com.opengamma.sesame.marketdata.DefaultStrategyAwareMarketDataSource;
-import com.opengamma.sesame.marketdata.MapMarketDataSource;
+import com.opengamma.sesame.marketdata.MarketDataBundle;
+import com.opengamma.sesame.marketdata.MarketDataEnvironment;
+import com.opengamma.sesame.marketdata.MarketDataEnvironmentBuilder;
 import com.opengamma.sesame.marketdata.MarketDataFn;
-import com.opengamma.sesame.marketdata.MarketDataSource;
-import com.opengamma.sesame.marketdata.StrategyAwareMarketDataSource;
+import com.opengamma.sesame.marketdata.SecurityId;
 import com.opengamma.sesame.trace.CallGraph;
 import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
@@ -119,14 +116,10 @@ public class ViewFactoryTest {
   }
 
   private CycleArguments createCycleArguments(ZonedDateTime valuationTime) {
-    CycleMarketDataFactory cycleMarketDataFactory = mockCycleMarketDataFactory();
-    return CycleArguments.builder(cycleMarketDataFactory).valuationTime(valuationTime).build();
-  }
-
-  private CycleMarketDataFactory mockCycleMarketDataFactory() {
-    CycleMarketDataFactory cycleMarketDataFactory = mock(CycleMarketDataFactory.class);
-    when(cycleMarketDataFactory.getPrimaryMarketDataSource()).thenReturn(mock(StrategyAwareMarketDataSource.class));
-    return cycleMarketDataFactory;
+    MarketDataEnvironment marketDataEnvironment = mock(MarketDataEnvironment.class);
+    MarketDataBundle marketDataBundle = mock(MarketDataBundle.class);
+    when(marketDataEnvironment.toBundle()).thenReturn(marketDataBundle);
+    return CycleArguments.builder(marketDataEnvironment).valuationTime(valuationTime).build();
   }
 
   private CycleArguments createCycleArguments() {
@@ -216,14 +209,13 @@ public class ViewFactoryTest {
     Trade trade = EngineTestUtils.createEquityTrade();
     List<Trade> trades = ImmutableList.of(trade);
 
-    ExternalIdBundle securityId = trade.getSecurity().getExternalIdBundle();
-    MarketDataSource dataSource = MapMarketDataSource.of(securityId, 123.45);
-    CycleMarketDataFactory cycleMarketDataFactory = mock(CycleMarketDataFactory.class);
-    when(cycleMarketDataFactory.getPrimaryMarketDataSource()).thenReturn(new DefaultStrategyAwareMarketDataSource(mock(
-        MarketDataSpecification.class), dataSource));
+    MarketDataEnvironment marketDataEnvironment =
+        new MarketDataEnvironmentBuilder().add(SecurityId.of(trade.getSecurity()), 123.45)
+                                          .valuationTime(ZonedDateTime.now())
+                                          .build();
 
     View view = viewFactory.createView(viewConfig, EquitySecurity.class);
-    CycleArguments cycleArguments = CycleArguments.builder(cycleMarketDataFactory).build();
+    CycleArguments cycleArguments = CycleArguments.builder(marketDataEnvironment).build();
     Results results = view.run(cycleArguments, trades);
     assertEquals(123.45, results.get(0, 0).getResult().getValue());
     System.out.println(results);
@@ -344,10 +336,15 @@ public class ViewFactoryTest {
     List<SimpleTrade> trades = ImmutableList.of(EngineTestUtils.createEquityTrade());
     View view = viewFactory.createView(viewConfig, EquitySecurity.class);
 
-    Map<CycleArguments.Cell, TraceType> traceCells =
-        ImmutableMap.of(new CycleArguments.Cell(0, 0), TraceType.FULL_AS_STRING);
+    Map<Cell, TraceType> traceCells =
+        ImmutableMap.of(Cell.of(0, 0), TraceType.FULL_AS_STRING);
 
-    CycleArguments cycleArguments = CycleArguments.builder(mockCycleMarketDataFactory()).traceCells(traceCells).build();
+    MarketDataEnvironment marketDataEnvironment = mock(MarketDataEnvironment.class);
+    MarketDataBundle marketDataBundle = mock(MarketDataBundle.class);
+    when(marketDataEnvironment.toBundle()).thenReturn(marketDataBundle);
+    CycleArguments cycleArguments = CycleArguments.builder(marketDataEnvironment)
+                                                  .traceCells(traceCells)
+                                                  .build();
     Results results = view.run(cycleArguments, trades);
     CallGraph trace = results.get(0, 0).getCallGraph();
     assertNotNull(trace);
@@ -444,8 +441,13 @@ public class ViewFactoryTest {
                                               new NoOpCacheInvalidator(),
                                               Optional.<MetricRegistry>absent());
     View view = viewFactory.createView(viewConfig);
-    CycleArguments cycleArguments = CycleArguments.builder(mockCycleMarketDataFactory())
-                                                  .traceOutputs(ImmutableMap.of(name, TraceType.FULL_AS_STRING))
+    ImmutableMap<String, TraceType> traceOutputs = ImmutableMap.of(name, TraceType.FULL_AS_STRING);
+
+    MarketDataEnvironment marketDataEnvironment = mock(MarketDataEnvironment.class);
+    MarketDataBundle marketDataBundle = mock(MarketDataBundle.class);
+    when(marketDataEnvironment.toBundle()).thenReturn(marketDataBundle);
+    CycleArguments cycleArguments = CycleArguments.builder(marketDataEnvironment)
+                                                  .traceOutputs(traceOutputs)
                                                   .build();
     Results results = view.run(cycleArguments);
     ResultItem item = results.get(name);
@@ -607,7 +609,9 @@ public class ViewFactoryTest {
     ThreadLocalServiceContext.init(serviceContext);
 
     View view = viewFactory.createView(viewConfig, EquitySecurity.class, CashFlowSecurity.class);
-    CycleArguments cycleArguments = createCycleArguments(now);
+    CycleArguments cycleArguments = CycleArguments.builder(mock(MarketDataEnvironment.class))
+                                                  .valuationTime(now)
+                                                  .build();
     Results results = view.run(cycleArguments, trades);
 
     // equity results should be ok as the user has permission to see the security

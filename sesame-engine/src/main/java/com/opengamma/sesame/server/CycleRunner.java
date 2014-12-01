@@ -11,18 +11,15 @@ import java.util.List;
 import org.threeten.bp.Duration;
 
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
-import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.sesame.engine.CycleArguments;
 import com.opengamma.sesame.engine.Results;
 import com.opengamma.sesame.engine.View;
 import com.opengamma.sesame.marketdata.CycleMarketDataFactory;
-import com.opengamma.sesame.marketdata.FieldName;
 import com.opengamma.sesame.marketdata.MarketDataFactory;
 import com.opengamma.sesame.marketdata.StrategyAwareMarketDataSource;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.result.Result;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
 
@@ -41,7 +38,7 @@ public class CycleRunner {
    * It is not expected to be used to access market data but merely
    * provides a suitable initial value.
    */
-  public static final StrategyAwareMarketDataSource INITIAL_MARKET_DATA_SOURCE = new InitialMarketDataSource();
+  public static final StrategyAwareMarketDataSource INITIAL_MARKET_DATA_SOURCE = null;//new InitialMarketDataSource();
 
   /**
    * The view to be executed, not null.
@@ -148,8 +145,8 @@ public class CycleRunner {
 
     // We keep track of the market data being used so that when required we can
     // track the changes in market data between cycles
-    CycleMarketDataFactory cycleMarketDataFactory =
-        new DefaultCycleMarketDataFactory(_marketDataFactory, INITIAL_MARKET_DATA_SOURCE);
+    CycleMarketDataFactory cycleMarketDataFactory = null;
+        //new DefaultCycleMarketDataFactory(_marketDataFactory, INITIAL_MARKET_DATA_SOURCE);
 
     // Iterate over the cycle options. As they may be infinite (e.g. streaming),
     // we need to check the terminator to see if external events mean we should stop.
@@ -186,8 +183,8 @@ public class CycleRunner {
     // live data), then we will not need to do anything more and can just
     // return the results we have
 
-    CycleMarketDataFactory factory =
-        createPrimedCycleMarketDataFactory(previousFactory, cycleOptions.getMarketDataSpec());
+    CycleMarketDataFactory factory = null;
+        //createPrimedCycleMarketDataFactory(previousFactory, cycleOptions.getMarketDataSpec());
 
     Results result = executeCycle(cycleOptions, factory);
 
@@ -237,11 +234,15 @@ public class CycleRunner {
     FunctionArguments functionArguments = FunctionArguments.EMPTY;
     VersionCorrection configVersionCorrection = VersionCorrection.LATEST;
 
+    // this class will be deleted in a follow-up PR
+    throw new UnsupportedOperationException();
+    /*
     return new CycleArguments(cycleOptions.getValuationTime(),
                               configVersionCorrection,
                               cycleMarketDataFactory,
                               functionArguments,
                               cycleOptions.isCaptureInputs());
+    */
   }
 
   /**
@@ -249,7 +250,7 @@ public class CycleRunner {
    * expected to be used to access market data but merely provides a
    * suitable initial value.
    */
-  private static class InitialMarketDataSource implements StrategyAwareMarketDataSource {
+  /*private static class InitialMarketDataSource implements StrategyAwareMarketDataSource {
 
     @Override
     public Result<?> get(ExternalIdBundle id, FieldName fieldName) {
@@ -270,6 +271,6 @@ public class CycleRunner {
     @Override
     public void dispose() {
     }
-  }
+  }*/
 
 }

@@ -7,8 +7,6 @@ import static com.opengamma.sesame.config.ConfigBuilder.config;
 import static com.opengamma.sesame.config.ConfigBuilder.configureView;
 import static com.opengamma.sesame.config.ConfigBuilder.function;
 import static com.opengamma.sesame.config.ConfigBuilder.implementations;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNotSame;
 import static org.testng.AssertJUnit.assertEquals;
@@ -21,13 +19,13 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.ZonedDateTime;
 
 import com.codahale.metrics.MetricRegistry;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.core.position.Trade;
-import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.service.ServiceContext;
 import com.opengamma.service.ThreadLocalServiceContext;
@@ -44,11 +42,8 @@ import com.opengamma.sesame.function.AvailableImplementationsImpl;
 import com.opengamma.sesame.function.AvailableOutputs;
 import com.opengamma.sesame.function.AvailableOutputsImpl;
 import com.opengamma.sesame.function.Output;
-import com.opengamma.sesame.marketdata.CycleMarketDataFactory;
-import com.opengamma.sesame.marketdata.DefaultStrategyAwareMarketDataSource;
-import com.opengamma.sesame.marketdata.MapMarketDataSource;
-import com.opengamma.sesame.marketdata.MarketDataSource;
-import com.opengamma.sesame.marketdata.StrategyAwareMarketDataSource;
+import com.opengamma.sesame.marketdata.MarketDataEnvironment;
+import com.opengamma.sesame.marketdata.MarketDataEnvironmentBuilder;
 import com.opengamma.util.test.TestGroup;
 
 /**
@@ -71,11 +66,10 @@ public class ViewFactoryCacheTest {
                     arguments(function(implClass, argument("s", "s"))))));
     ViewFactory viewFactory = createViewFactory(TestFn.class);
     View view = viewFactory.createView(viewConfig, String.class);
-    CycleMarketDataFactory cycleMarketDataFactory = mock(CycleMarketDataFactory.class);
-    when(cycleMarketDataFactory.getPrimaryMarketDataSource()).thenReturn(mock(StrategyAwareMarketDataSource.class));
-    CycleArguments cycleArguments = CycleArguments.builder(cycleMarketDataFactory).build();
-    Results results1 = view.run(cycleArguments, ImmutableList.of("bar"));
-    Results results2 = view.run(cycleArguments, ImmutableList.of("bar"));
+    CalculationArguments calculationArguments = CalculationArguments.builder().build();
+    MarketDataEnvironment marketDataEnvironment = MarketDataEnvironmentBuilder.empty();
+    Results results1 = view.run(calculationArguments, marketDataEnvironment, ImmutableList.of("bar"));
+    Results results2 = view.run(calculationArguments, marketDataEnvironment, ImmutableList.of("bar"));
     assertSame(results1.get(0, 0).getResult().getValue(), results2.get(0, 0).getResult().getValue());
   }
 
@@ -109,11 +103,10 @@ public class ViewFactoryCacheTest {
                     arguments(function(implClass, argument("s", "s"))))));
     ViewFactory viewFactory = createViewFactory(TestFn.class);
     View view = viewFactory.createView(viewConfig, FunctionService.NONE, String.class);
-    CycleMarketDataFactory cycleMarketDataFactory = mock(CycleMarketDataFactory.class);
-    when(cycleMarketDataFactory.getPrimaryMarketDataSource()).thenReturn(mock(StrategyAwareMarketDataSource.class));
-    CycleArguments cycleArguments = CycleArguments.builder(cycleMarketDataFactory).build();
-    Results results1 = view.run(cycleArguments, ImmutableList.of("bar"));
-    Results results2 = view.run(cycleArguments, ImmutableList.of("bar"));
+    CalculationArguments calculationArguments = CalculationArguments.builder().build();
+    MarketDataEnvironment marketDataEnvironment = MarketDataEnvironmentBuilder.empty();
+    Results results1 = view.run(calculationArguments, marketDataEnvironment, ImmutableList.of("bar"));
+    Results results2 = view.run(calculationArguments, marketDataEnvironment, ImmutableList.of("bar"));
     assertNotSame(results1.get(0, 0).getResult().getValue(), results2.get(0, 0).getResult().getValue());
   }
 
@@ -144,12 +137,13 @@ public class ViewFactoryCacheTest {
                     arguments(function(implClass, argument("s", "s"))))));
     ViewFactory viewFactory = createViewFactory(TestFn.class);
     View view = viewFactory.createView(viewConfig, String.class);
-    CycleMarketDataFactory cycleMarketDataFactory = mock(CycleMarketDataFactory.class);
-    when(cycleMarketDataFactory.getPrimaryMarketDataSource()).thenReturn(
-        new DefaultStrategyAwareMarketDataSource(LiveMarketDataSpecification.LIVE_SPEC, MapMarketDataSource.of()));
-    CycleArguments cycleArguments = CycleArguments.builder(cycleMarketDataFactory).captureInputs(true).build();
-    Results results1 = view.run(cycleArguments, ImmutableList.of("bar"));
-    Results results2 = view.run(cycleArguments, ImmutableList.of("bar"));
+    CalculationArguments calculationArguments =
+        CalculationArguments.builder()
+            .valuationTime(ZonedDateTime.now())
+            .captureInputs(true).build();
+    MarketDataEnvironment marketDataEnvironment = MarketDataEnvironmentBuilder.empty();
+    Results results1 = view.run(calculationArguments, marketDataEnvironment, ImmutableList.of("bar"));
+    Results results2 = view.run(calculationArguments, marketDataEnvironment, ImmutableList.of("bar"));
     assertNotSame(results1.get(0, 0).getResult().getValue(), results2.get(0, 0).getResult().getValue());
     assertNotNull(results2.getViewInputs());
     assertNotNull(results1.getViewInputs());
@@ -190,11 +184,10 @@ public class ViewFactoryCacheTest {
     ViewFactory viewFactory = createViewFactory(TestFn.class);
     View view1 = viewFactory.createView(viewConfig, String.class);
     View view2 = viewFactory.createView(viewConfig, String.class);
-    CycleMarketDataFactory cycleMarketDataFactory = mock(CycleMarketDataFactory.class);
-    when(cycleMarketDataFactory.getPrimaryMarketDataSource()).thenReturn(mock(StrategyAwareMarketDataSource.class));
-    CycleArguments cycleArguments = CycleArguments.builder(cycleMarketDataFactory).build();
-    Results results1 = view1.run(cycleArguments, ImmutableList.of("bar"));
-    Results results2 = view2.run(cycleArguments, ImmutableList.of("bar"));
+    CalculationArguments calculationArguments = CalculationArguments.builder().build();
+    MarketDataEnvironment marketDataEnvironment = MarketDataEnvironmentBuilder.empty();
+    Results results1 = view1.run(calculationArguments, marketDataEnvironment, ImmutableList.of("bar"));
+    Results results2 = view2.run(calculationArguments, marketDataEnvironment, ImmutableList.of("bar"));
     assertSame(results1.get(0, 0).getResult().getValue(), results2.get(0, 0).getResult().getValue());
   }
 
@@ -229,21 +222,20 @@ public class ViewFactoryCacheTest {
 
     ViewFactory viewFactory = createViewFactory(RootFn.class);
     View view = viewFactory.createView(viewConfig, EquitySecurity.class);
-    CycleMarketDataFactory cycleMarketDataFactory = mock(CycleMarketDataFactory.class);
-    when(cycleMarketDataFactory.getPrimaryMarketDataSource()).thenReturn(mock(MarketDataSource.class));
-    CycleArguments cycleArguments = CycleArguments.builder(cycleMarketDataFactory).build();
+    CalculationArguments calculationArguments = CalculationArguments.builder().build();
+    MarketDataEnvironment marketDataEnvironment = MarketDataEnvironmentBuilder.empty();
     Trade equityTrade = EngineTestUtils.createEquityTrade();
 
-    Results results1 = view.run(cycleArguments, ImmutableList.of(equityTrade));
+    Results results1 = view.run(calculationArguments, marketDataEnvironment, ImmutableList.of(equityTrade));
     Object value1 = results1.get(0, 0).getResult().getValue();
 
-    Results results2 = view.run(cycleArguments, ImmutableList.of(equityTrade));
+    Results results2 = view.run(calculationArguments, marketDataEnvironment, ImmutableList.of(equityTrade));
     Object value2 = results2.get(0, 0).getResult().getValue();
 
     assertEquals(value1, value2);
 
     viewFactory.clearCache();
-    Results results3 = view.run(cycleArguments, ImmutableList.of(equityTrade));
+    Results results3 = view.run(calculationArguments, marketDataEnvironment, ImmutableList.of(equityTrade));
     Object value3 = results3.get(0, 0).getResult().getValue();
     assertFalse(value1.equals(value3));
   }
@@ -266,22 +258,22 @@ public class ViewFactoryCacheTest {
     View view1 = viewFactory.createView(viewConfig, EquitySecurity.class);
     View view2 = viewFactory.createView(viewConfig, EquitySecurity.class);
 
-    CycleMarketDataFactory cycleMarketDataFactory = mock(CycleMarketDataFactory.class);
-    when(cycleMarketDataFactory.getPrimaryMarketDataSource()).thenReturn(mock(MarketDataSource.class));
-    CycleArguments cycleArguments = CycleArguments.builder(cycleMarketDataFactory).build();
+
+    CalculationArguments calculationArguments = CalculationArguments.builder().build();
+    MarketDataEnvironment marketDataEnvironment = MarketDataEnvironmentBuilder.empty();
     Trade equityTrade = EngineTestUtils.createEquityTrade();
 
-    Results results1 = view1.run(cycleArguments, ImmutableList.of(equityTrade));
+    Results results1 = view1.run(calculationArguments, marketDataEnvironment, ImmutableList.of(equityTrade));
     Object value1 = results1.get(0, 0).getResult().getValue();
 
-    Results results2 = view2.run(cycleArguments, ImmutableList.of(equityTrade));
+    Results results2 = view2.run(calculationArguments, marketDataEnvironment, ImmutableList.of(equityTrade));
     Object value2 = results2.get(0, 0).getResult().getValue();
 
     assertEquals(value1, value2);
 
     viewFactory.clearCache();
 
-    Results results3 = view2.run(cycleArguments, ImmutableList.of(equityTrade));
+    Results results3 = view2.run(calculationArguments, marketDataEnvironment, ImmutableList.of(equityTrade));
     Object value3 = results3.get(0, 0).getResult().getValue();
     assertFalse(value1.equals(value3));
   }
@@ -301,18 +293,17 @@ public class ViewFactoryCacheTest {
                    arguments(function(CacheClearingFn.class, argument("viewFactory", viewFactory)))),
             column("Bar"));
     View view = viewFactory.createView(viewConfig, EquitySecurity.class);
-    CycleMarketDataFactory cycleMarketDataFactory = mock(CycleMarketDataFactory.class);
-    when(cycleMarketDataFactory.getPrimaryMarketDataSource()).thenReturn(mock(MarketDataSource.class));
-    CycleArguments cycleArguments = CycleArguments.builder(cycleMarketDataFactory).build();
+    CalculationArguments calculationArguments = CalculationArguments.builder().build();
+    MarketDataEnvironment marketDataEnvironment = MarketDataEnvironmentBuilder.empty();
     Trade equityTrade = EngineTestUtils.createEquityTrade();
 
     // check that the same result is return from 2 calls to TestFn.foo() even if the cache is cleared between
-    Results results1 = view.run(cycleArguments, ImmutableList.of(equityTrade));
+    Results results1 = view.run(calculationArguments, marketDataEnvironment, ImmutableList.of(equityTrade));
     List<?> values1 = (List<?>) results1.get(0, 0).getResult().getValue();
     assertEquals(values1.get(0), values1.get(1));
 
     // check that the result is different on the second run as a result of the cache being cleared on the first
-    Results results2 = view.run(cycleArguments, ImmutableList.of(equityTrade));
+    Results results2 = view.run(calculationArguments, marketDataEnvironment, ImmutableList.of(equityTrade));
     List<?> values2 = (List<?>) results2.get(0, 0).getResult().getValue();
     assertFalse(values1.get(0).equals(values2.get(0)));
   }

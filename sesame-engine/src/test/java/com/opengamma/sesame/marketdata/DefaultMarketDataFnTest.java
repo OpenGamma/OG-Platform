@@ -39,7 +39,7 @@ public class DefaultMarketDataFnTest {
     SimpleCurrencyMatrix matrix = new SimpleCurrencyMatrix();
     matrix.setFixedConversion(Currency.GBP, Currency.USD, GBPUSD_RATE);
     DefaultMarketDataFn fn = new DefaultMarketDataFn(matrix);
-    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), mock(MarketDataSource.class));
+    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), mock(MarketDataBundle.class));
 
     Double spotRate = fn.getFxRate(env, CurrencyPair.parse("GBP/USD")).getValue();
     assertEquals(GBPUSD_RATE, spotRate, DELTA);
@@ -54,10 +54,11 @@ public class DefaultMarketDataFnTest {
     ExternalId rateId = ExternalId.of("x", "GBPUSD");
     ValueRequirement valueReq = new ValueRequirement(MARKET_VALUE.getName(), ComputationTargetType.PRIMITIVE, rateId);
     matrix.setLiveData(Currency.GBP, Currency.USD, valueReq);
-    MarketDataSource dataSource = mock(MarketDataSource.class);
-    Object value = GBPUSD_RATE;
-    when(dataSource.get(rateId.toBundle(), MARKET_VALUE)).thenAnswer(new Returns(Result.success(value)));
-    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), dataSource);
+    MarketDataBundle marketDataBundle = mock(MarketDataBundle.class);
+    double value = GBPUSD_RATE;
+    when(marketDataBundle.get(RawId.of(rateId.toBundle(), MARKET_VALUE), Double.class))
+        .thenAnswer(new Returns(Result.success(value)));
+    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), marketDataBundle);
     DefaultMarketDataFn fn = new DefaultMarketDataFn(matrix);
 
     Double spotRate = fn.getFxRate(env, CurrencyPair.parse("GBP/USD")).getValue();
@@ -73,7 +74,7 @@ public class DefaultMarketDataFnTest {
     matrix.setFixedConversion(Currency.USD, Currency.CHF, USDCHF_RATE);
     matrix.setFixedConversion(Currency.EUR, Currency.USD, EURUSD_RATE);
     matrix.setCrossConversion(Currency.EUR, Currency.CHF, Currency.USD);
-    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), mock(MarketDataSource.class));
+    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), mock(MarketDataBundle.class));
     DefaultMarketDataFn fn = new DefaultMarketDataFn(matrix);
 
     Double spotRate = fn.getFxRate(env, CurrencyPair.parse("EUR/CHF")).getValue();
@@ -90,19 +91,21 @@ public class DefaultMarketDataFnTest {
     ExternalId usdchfRateId = ExternalId.of("x", "USDCHF");
     ValueRequirement usdchfReq = new ValueRequirement(MARKET_VALUE.getName(), ComputationTargetType.PRIMITIVE, usdchfRateId);
     matrix.setLiveData(Currency.USD, Currency.CHF, usdchfReq);
-    Object usdchfValue = USDCHF_RATE;
+    double usdchfValue = USDCHF_RATE;
 
     ExternalId eurusdRateId = ExternalId.of("x", "EURUSD");
     ValueRequirement eurusdReq = new ValueRequirement(MARKET_VALUE.getName(), ComputationTargetType.PRIMITIVE, eurusdRateId);
     matrix.setLiveData(Currency.EUR, Currency.USD, eurusdReq);
-    Object eurusdValue = EURUSD_RATE;
+    double eurusdValue = EURUSD_RATE;
 
     matrix.setCrossConversion(Currency.EUR, Currency.CHF, Currency.USD);
     DefaultMarketDataFn fn = new DefaultMarketDataFn(matrix);
 
-    MarketDataSource dataSource = mock(MarketDataSource.class);
-    when(dataSource.get(ExternalIdBundle.of(usdchfRateId), MARKET_VALUE)).thenAnswer(new Returns(Result.success(usdchfValue)));
-    when(dataSource.get(ExternalIdBundle.of(eurusdRateId), MARKET_VALUE)).thenAnswer(new Returns(Result.success(eurusdValue)));
+    MarketDataBundle dataSource = mock(MarketDataBundle.class);
+    when(dataSource.get(RawId.of(ExternalIdBundle.of(usdchfRateId)), Double.class))
+        .thenAnswer(new Returns(Result.success(usdchfValue)));
+    when(dataSource.get(RawId.of(ExternalIdBundle.of(eurusdRateId)), Double.class))
+        .thenAnswer(new Returns(Result.success(eurusdValue)));
     SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), dataSource);
 
     Double spotRate = fn.getFxRate(env, CurrencyPair.parse("EUR/CHF")).getValue();

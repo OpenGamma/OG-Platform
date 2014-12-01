@@ -10,7 +10,6 @@ import static com.opengamma.sesame.config.ConfigBuilder.arguments;
 import static com.opengamma.sesame.config.ConfigBuilder.config;
 import static com.opengamma.sesame.config.ConfigBuilder.function;
 import static com.opengamma.sesame.config.ConfigBuilder.implementations;
-import static com.opengamma.sesame.engine.CycleArguments.TraceType;
 import static com.opengamma.util.money.Currency.EUR;
 import static com.opengamma.util.money.Currency.GBP;
 import static com.opengamma.util.money.Currency.JPY;
@@ -75,7 +74,7 @@ import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleResolverFn;
 import com.opengamma.sesame.DefaultFXMatrixFn;
 import com.opengamma.sesame.DefaultFXReturnSeriesFn;
-import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
+import com.opengamma.sesame.DefaultFixingsFn;
 import com.opengamma.sesame.DiscountingMulticurveBundleFn;
 import com.opengamma.sesame.DiscountingMulticurveBundleResolverFn;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
@@ -83,7 +82,7 @@ import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.ExposureFunctionsDiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.FXMatrixFn;
 import com.opengamma.sesame.FXReturnSeriesFn;
-import com.opengamma.sesame.HistoricalTimeSeriesFn;
+import com.opengamma.sesame.FixingsFn;
 import com.opengamma.sesame.MarketExposureSelector;
 import com.opengamma.sesame.RootFinderConfiguration;
 import com.opengamma.sesame.SimpleEnvironment;
@@ -95,14 +94,15 @@ import com.opengamma.sesame.component.StringSet;
 import com.opengamma.sesame.config.EngineUtils;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.engine.ComponentMap;
+import com.opengamma.sesame.engine.TraceType;
 import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.function.scenarios.curvedata.FunctionTestUtils;
 import com.opengamma.sesame.graph.FunctionBuilder;
 import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.sesame.marketdata.DefaultHistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
-import com.opengamma.sesame.marketdata.FixedHistoricalMarketDataSource;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
+import com.opengamma.sesame.marketdata.MarketDataBundle;
 import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.sesame.pnl.DefaultHistoricalPnLFXConverterFn;
 import com.opengamma.sesame.pnl.HistoricalPnLFXConverterFn;
@@ -158,6 +158,7 @@ public class FXForwardPnlSeriesFunctionTest {
     assertThat(pnl.getStatus(), is((ResultStatus) SUCCESS));
   }
 
+  // TODO this will probably have to be completely rewritten to use the new API that drives 2-stage execution
   private Result<LocalDateDoubleTimeSeries> executeAgainstRemoteServer() {
     String serverUrl = "http://devsvr-lx-2:8080";
     //String serverUrl = "http://localhost:8080";
@@ -165,7 +166,8 @@ public class FXForwardPnlSeriesFunctionTest {
     ConfigSource configSource = serverComponents.getComponent(ConfigSource.class);
     HistoricalTimeSeriesSource timeSeriesSource = serverComponents.getComponent(HistoricalTimeSeriesSource.class);
     LocalDate date = LocalDate.of(2013, 11, 7);
-    FixedHistoricalMarketDataSource dataSource = new FixedHistoricalMarketDataSource(timeSeriesSource, date, "BLOOMBERG", null);
+    // TODO need a bundle backed by historical data
+    MarketDataBundle marketDataBundle = null;
     // TODO set up a service context and do this with a link
     CurrencyMatrix currencyMatrix = configSource.getLatestByName(CurrencyMatrix.class, "BloombergLiveData");
 
@@ -188,7 +190,7 @@ public class FXForwardPnlSeriesFunctionTest {
     Result<LocalDateDoubleTimeSeries> result = null;
     int nRuns = 100;
     //int nRuns = 1;
-    Environment env = new SimpleEnvironment(s_valuationTime, dataSource);
+    Environment env = new SimpleEnvironment(s_valuationTime, marketDataBundle);
 
     for (int i = 0; i < nRuns; i++) {
       result = pvFunction.calculatePnlSeries(env, security);
@@ -227,10 +229,6 @@ public class FXForwardPnlSeriesFunctionTest {
                                                                  CurrencyPair.of(EUR, USD),
                                                                  CurrencyPair.of(GBP, USD)))),
                 function(
-                    DefaultHistoricalTimeSeriesFn.class,
-                    argument("resolutionKey", "DEFAULT_TSS"),
-                    argument("htsRetrievalPeriod", RetrievalPeriod.of(Period.ofYears(1)))),
-                function(
                     DefaultDiscountingMulticurveBundleFn.class,
                     argument("impliedCurveNames", StringSet.of())),
                 function(
@@ -260,7 +258,7 @@ public class FXForwardPnlSeriesFunctionTest {
                 CurveSpecificationFn.class, DefaultCurveSpecificationFn.class,
                 CurveConstructionConfigurationSource.class, ConfigDBCurveConstructionConfigurationSource.class,
                 CurveNodeConverterFn.class, DefaultCurveNodeConverterFn.class,
-                HistoricalTimeSeriesFn.class, DefaultHistoricalTimeSeriesFn.class,
+                FixingsFn.class, DefaultFixingsFn.class,
                 MarketDataFn.class, DefaultMarketDataFn.class,
                 HistoricalMarketDataFn.class, DefaultHistoricalMarketDataFn.class,
                 HistoricalPnLFXConverterFn.class, DefaultHistoricalPnLFXConverterFn.class));

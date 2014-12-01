@@ -101,10 +101,10 @@ public final class GlobalCycleOptions implements ImmutableBean, CycleOptions {
 
         if (hasNext()) {
 
-          IndividualCycleOptions cycleOptions = IndividualCycleOptions.builder()
+          IndividualCycleOptions cycleOptions = null;/*IndividualCycleOptions.builder()
               .marketDataSpec(_marketDataSpec)
               .valuationTime(_valuationTimeProvider.get())
-              .build();
+              .build();*/
           _index++;
           return cycleOptions;
         } else {

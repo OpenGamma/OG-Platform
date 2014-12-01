@@ -22,6 +22,7 @@ import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.base.Function;
@@ -48,7 +49,6 @@ import com.opengamma.financial.analytics.isda.credit.CreditCurveDataSnapshot;
 import com.opengamma.financial.analytics.isda.credit.YieldCurveData;
 import com.opengamma.financial.analytics.isda.credit.YieldCurveDataSnapshot;
 import com.opengamma.financial.tool.ToolContext;
-import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.service.ServiceContext;
 import com.opengamma.service.ThreadLocalServiceContext;
@@ -73,12 +73,14 @@ import com.opengamma.sesame.function.AvailableImplementationsImpl;
 import com.opengamma.sesame.function.AvailableOutputs;
 import com.opengamma.sesame.function.AvailableOutputsImpl;
 import com.opengamma.sesame.graph.FunctionModel;
-import com.opengamma.sesame.marketdata.FieldName;
-import com.opengamma.sesame.marketdata.MarketDataSource;
+import com.opengamma.sesame.marketdata.MarketDataBundle;
+import com.opengamma.sesame.marketdata.MarketDataId;
 import com.opengamma.sesame.proxy.ExceptionWrappingProxy;
+import com.opengamma.timeseries.date.DateTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
+import com.opengamma.util.time.LocalDateRange;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
@@ -90,11 +92,25 @@ import com.opengamma.util.tuple.Pairs;
 public class IsdaCurveSnapshotCalibrationTool extends AbstractTool<ToolContext> {
 
   private static final Logger s_logger = LoggerFactory.getLogger(IsdaCurveSnapshotCalibrationTool.class);
-  private static final MarketDataSource s_noOpMarketDataSource = new MarketDataSource() {
-    
+  private static final MarketDataBundle s_noOpMarketDataSource = new MarketDataBundle() {
     @Override
-    public Result<?> get(ExternalIdBundle id, FieldName fieldName) {
+    public <T> Result<T> get(MarketDataId<?> id, Class<T> dataType) {
       return Result.failure(FailureStatus.ERROR, "Not implemented");
+    }
+
+    @Override
+    public <T> Result<DateTimeSeries<LocalDate, T>> get(MarketDataId<?> id, Class<T> dataType, LocalDateRange dateRange) {
+      return Result.failure(FailureStatus.ERROR, "Not implemented");
+    }
+
+    @Override
+    public MarketDataBundle withTime(ZonedDateTime time) {
+      return this;
+    }
+
+    @Override
+    public MarketDataBundle withDate(LocalDate date) {
+      return this;
     }
   };
   

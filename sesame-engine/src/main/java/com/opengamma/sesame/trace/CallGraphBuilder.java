@@ -5,8 +5,6 @@
  */
 package com.opengamma.sesame.trace;
 
-import static com.opengamma.sesame.engine.CycleArguments.TraceType;
-
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,6 +18,7 @@ import org.threeten.bp.Duration;
 import com.google.common.base.Function;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
+import com.opengamma.sesame.engine.TraceType;
 
 /**
  * Graph representing the calls made to calculate a single result.

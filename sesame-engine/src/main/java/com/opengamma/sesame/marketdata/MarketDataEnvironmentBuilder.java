@@ -11,6 +11,7 @@ import java.util.Map;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.timeseries.date.DateTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 
@@ -23,12 +24,11 @@ public class MarketDataEnvironmentBuilder {
   private MarketDataTime _time = MarketDataTime.VALUATION_TIME;
 
   /** Single market data values, keyed by their requirement. */
-  private final Map<MarketDataRequirement, Object> _marketData = new HashMap<>();
+  private final Map<SingleValueRequirement, Object> _marketData = new HashMap<>();
 
   /** Time series of values, keyed by the ID of the value. */
-  private final Map<MarketDataId, DateTimeSeries<LocalDate, ?>> _timeSeries = new HashMap<>();
+  private final Map<MarketDataId<?>, DateTimeSeries<LocalDate, ?>> _timeSeries = new HashMap<>();
 
-  // TODO is it sensible to have a default value?
   /** The valuation time for calculations using the bundle's data. */
   private ZonedDateTime _valuationTime;
 
@@ -37,8 +37,8 @@ public class MarketDataEnvironmentBuilder {
   }
 
   MarketDataEnvironmentBuilder(ZonedDateTime valuationTime,
-                               Map<MarketDataRequirement, Object> marketData,
-                               Map<MarketDataId, DateTimeSeries<LocalDate, ?>> timeSeries) {
+                               Map<SingleValueRequirement, Object> marketData,
+                               Map<MarketDataId<?>, DateTimeSeries<LocalDate, ?>> timeSeries) {
     ArgumentChecker.notNull(marketData, "marketData");
     ArgumentChecker.notNull(timeSeries, "timeSeries");
     _valuationTime = ArgumentChecker.notNull(valuationTime, "valuationTime");
@@ -62,11 +62,11 @@ public class MarketDataEnvironmentBuilder {
    * @param marketDataItem the data
    * @return this builder
    */
-  public MarketDataEnvironmentBuilder add(MarketDataId id, Object marketDataItem) {
+  public MarketDataEnvironmentBuilder add(MarketDataId<?> id, Object marketDataItem) {
     ArgumentChecker.notNull(id, "id");
     ArgumentChecker.notNull(marketDataItem, "marketDataItem");
 
-    MarketDataRequirement requirement = SingleValueRequirement.of(id, _time);
+    SingleValueRequirement requirement = SingleValueRequirement.of(id, _time);
     _marketData.put(requirement, marketDataItem);
     return this;
   }
@@ -79,7 +79,7 @@ public class MarketDataEnvironmentBuilder {
    * @param marketDataDate the date for which the data is valid
    * @return this builder
    */
-  public MarketDataEnvironmentBuilder add(MarketDataId id, Object marketDataItem, LocalDate marketDataDate) {
+  public MarketDataEnvironmentBuilder add(MarketDataId<?> id, Object marketDataItem, LocalDate marketDataDate) {
     ArgumentChecker.notNull(id, "id");
     ArgumentChecker.notNull(marketDataItem, "marketDataItem");
     ArgumentChecker.notNull(marketDataDate, "marketDataDate");
@@ -96,7 +96,7 @@ public class MarketDataEnvironmentBuilder {
    * @param marketDataTime the time at which the data is valid
    * @return this builder
    */
-  public MarketDataEnvironmentBuilder add(MarketDataId id, Object marketDataItem, ZonedDateTime marketDataTime) {
+  public MarketDataEnvironmentBuilder add(MarketDataId<?> id, Object marketDataItem, ZonedDateTime marketDataTime) {
     ArgumentChecker.notNull(id, "id");
     ArgumentChecker.notNull(marketDataItem, "marketDataItem");
     ArgumentChecker.notNull(marketDataTime, "marketDataTime");
@@ -112,7 +112,7 @@ public class MarketDataEnvironmentBuilder {
    * @param timeSeries the data
    * @return this builder
    */
-  public MarketDataEnvironmentBuilder add(MarketDataId id, DateTimeSeries<LocalDate, ?> timeSeries) {
+  public MarketDataEnvironmentBuilder add(MarketDataId<?> id, DateTimeSeries<LocalDate, ?> timeSeries) {
     ArgumentChecker.notNull(id, "id");
     ArgumentChecker.notNull(timeSeries, "timeSeries");
 
@@ -138,7 +138,7 @@ public class MarketDataEnvironmentBuilder {
    * @param timeSeries the time series
    * @return this builder
    */
-  public MarketDataEnvironmentBuilder addTimeSeries(Map<MarketDataId, DateTimeSeries<LocalDate, ?>> timeSeries) {
+  public MarketDataEnvironmentBuilder addTimeSeries(Map<MarketDataId<?>, DateTimeSeries<LocalDate, ?>> timeSeries) {
     ArgumentChecker.notNull(timeSeries, "timeSeries");
     _timeSeries.putAll(timeSeries);
     return this;
@@ -165,5 +165,39 @@ public class MarketDataEnvironmentBuilder {
    */
   public MarketDataEnvironment build() {
     return new MapMarketDataEnvironment(_marketData, _timeSeries, _valuationTime);
+  }
+
+  /**
+   * Merges two market data environments with non-overlapping data and the same valuation time.
+   * <p>
+   * This method will fail if any market data requirement or ID appears in both environments or if they
+   * have different valuation times.
+   *
+   * @param env1 a market data environment
+   * @param env2 a market data environment
+   * @return a market data environment containing the data from both environments
+   */
+  public static MarketDataEnvironment merge(MarketDataEnvironment env1, MarketDataEnvironment env2) {
+    ArgumentChecker.notNull(env1, "env1");
+    ArgumentChecker.notNull(env2, "env2");
+
+    ImmutableMap.Builder<SingleValueRequirement, Object> dataBuilder = ImmutableMap.builder();
+    Map<SingleValueRequirement, Object> data = dataBuilder.putAll(env1.getData()).putAll(env2.getData()).build();
+
+    ImmutableMap.Builder<MarketDataId<?>, DateTimeSeries<LocalDate, ?>> timeSeriesBuilder = ImmutableMap.builder();
+    Map<MarketDataId<?>, DateTimeSeries<LocalDate, ?>> timeSeries = timeSeriesBuilder.putAll(env1.getTimeSeries())
+                                                                                     .putAll(env2.getTimeSeries())
+                                                                                     .build();
+    return new MapMarketDataEnvironment(data, timeSeries, env1.getValuationTime());
+  }
+
+  /**
+   * @return an empty market data environment
+   */
+  public static MarketDataEnvironment empty() {
+    return new MapMarketDataEnvironment(
+        ImmutableMap.<SingleValueRequirement, Object>of(),
+        ImmutableMap.<MarketDataId<?>, DateTimeSeries<LocalDate, ?>>of(),
+        ZonedDateTime.now());
   }
 }

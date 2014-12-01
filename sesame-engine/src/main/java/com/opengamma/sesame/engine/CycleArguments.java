@@ -6,6 +6,7 @@
 package com.opengamma.sesame.engine;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.threeten.bp.ZonedDateTime;
@@ -15,133 +16,102 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.sesame.function.scenarios.ScenarioArgument;
 import com.opengamma.sesame.function.scenarios.ScenarioDefinition;
-import com.opengamma.sesame.marketdata.CycleMarketDataFactory;
+import com.opengamma.sesame.marketdata.MarketDataEnvironment;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * Arguments used to drive the calculations in a single calculation cycle.
+ *
+ * @deprecated use {@link CalculationArguments}
  */
+@Deprecated
 public final class CycleArguments {
 
-  /**
-   * The type of information to be captured by a trace.
-   */
-  public enum TraceType {
-    /**
-     * Do not capture any trace information.
-     */
-    NONE,
-    /**
-     * Capture method timings for all calls.
-     */
-    TIMINGS_ONLY,
-    /**
-     * Capture timings, arguments and return values but
-     * convert to strings before returning. This means
-     * trace information can be serialized and sent to
-     * remote processes.
-     */
-    FULL_AS_STRING,
-    /**
-     * Capture timings, arguments and return values. This means
-     * trace information cannot necessarily be serialized and
-     * sent to remote processes.
-     */
-    FULL
-  }
+  // TODO sort out function arguments
 
   private final ZonedDateTime _valuationTime;
-  private final CycleMarketDataFactory _cycleMarketDataFactory;
+  private final MarketDataEnvironment _marketDataEnvironment;
   private final VersionCorrection _configVersionCorrection;
   private final Map<Cell, TraceType> _traceCells;
   private final Map<String, TraceType> _traceOutputs;
+  // TODO this should be Map<Class, FunctionArguments>
   private final FunctionArguments _functionArguments;
   private final boolean _captureInputs;
 
-  /**
-   * @deprecated this will be removed, use {@link #builder}
-   */
+  /** @deprecated use a {@link #builder(MarketDataEnvironment) builder} instead. */
+  /** Valuations times keyed by column name. If there is no value for a column {@link #_valuationTime} will be used. */
+  private final Map<String, ZonedDateTime> _columnValuationTimes;
+
+  /** @deprecated this will be removed, use {@link #builder} */
   @Deprecated
   public CycleArguments(ZonedDateTime valuationTime,
-                        VersionCorrection configVersionCorrection,
-                        CycleMarketDataFactory cycleMarketDataFactory) {
-    this(valuationTime,
-         configVersionCorrection,
-         cycleMarketDataFactory,
-         FunctionArguments.EMPTY);
+                        MarketDataEnvironment marketDataEnvironment,
+                        VersionCorrection configVersionCorrection) {
+    this(valuationTime, marketDataEnvironment, configVersionCorrection, FunctionArguments.EMPTY);
   }
 
-  /**
-   * @deprecated this will be removed, use {@link #builder}
-   */
+  /** @deprecated use a {@link #builder(MarketDataEnvironment) builder} instead. */
   @Deprecated
   public CycleArguments(ZonedDateTime valuationTime,
+                        MarketDataEnvironment marketDataEnvironment,
                         VersionCorrection configVersionCorrection,
-                        CycleMarketDataFactory cycleMarketDataFactory,
                         FunctionArguments functionArguments) {
     this(valuationTime,
+         marketDataEnvironment,
          configVersionCorrection,
-         cycleMarketDataFactory,
          functionArguments,
          ImmutableMap.<Cell, TraceType>of(),
          ImmutableMap.<String, TraceType>of());
   }
 
-  /**
-   * @deprecated this will be removed, use {@link #builder}
-   */
+  /** @deprecated use a {@link #builder(MarketDataEnvironment) builder} instead. */
   @Deprecated
-  public CycleArguments(ZonedDateTime valuationTime,
+  public CycleArguments(ZonedDateTime valuationTime, MarketDataEnvironment marketDataEnvironment,
                         VersionCorrection configVersionCorrection,
-                        CycleMarketDataFactory cycleMarketDataFactory,
                         FunctionArguments functionArguments,
                         Map<Cell, TraceType> traceCells,
                         Map<String, TraceType> traceOutputs) {
     this(valuationTime,
+         marketDataEnvironment,
          configVersionCorrection,
-         cycleMarketDataFactory,
          functionArguments,
          traceCells,
          traceOutputs,
-         false
-    );
+         false,
+         Collections.<String, ZonedDateTime>emptyMap());
   }
 
-  /**
-   * @deprecated this will be removed, use {@link #builder}
-   */
+  /** @deprecated use a {@link #builder(MarketDataEnvironment) builder} instead. */
   @Deprecated
   public CycleArguments(ZonedDateTime valuationTime,
+                        MarketDataEnvironment marketDataEnvironment,
                         VersionCorrection configVersionCorrection,
-                        CycleMarketDataFactory cycleMarketDataFactory,
                         boolean captureInputs) {
     this(valuationTime,
+         marketDataEnvironment,
          configVersionCorrection,
-         cycleMarketDataFactory,
          FunctionArguments.EMPTY,
          ImmutableMap.<Cell, TraceType>of(),
          ImmutableMap.<String, TraceType>of(),
-         captureInputs
-    );
+         captureInputs,
+         Collections.<String, ZonedDateTime>emptyMap());
   }
 
-  /**
-   * @deprecated this will be removed, use {@link #builder}
-   */
+  /** @deprecated use a {@link #builder(MarketDataEnvironment) builder} instead. */
   @Deprecated
   public CycleArguments(ZonedDateTime valuationTime,
+                        MarketDataEnvironment marketDataEnvironment,
                         VersionCorrection configVersionCorrection,
-                        CycleMarketDataFactory cycleMarketDataFactory,
                         FunctionArguments functionArguments,
                         boolean captureInputs) {
     this(valuationTime,
+         marketDataEnvironment,
          configVersionCorrection,
-         cycleMarketDataFactory,
          functionArguments,
          ImmutableMap.<Cell, TraceType>of(),
          ImmutableMap.<String, TraceType>of(),
-         captureInputs
-    );
+         captureInputs,
+         Collections.<String, ZonedDateTime>emptyMap());
   }
 
   /**
@@ -149,16 +119,18 @@ public final class CycleArguments {
    */
   @Deprecated
   public CycleArguments(ZonedDateTime valuationTime,
+                        MarketDataEnvironment marketDataEnvironment,
                         VersionCorrection configVersionCorrection,
-                        CycleMarketDataFactory cycleMarketDataFactory,
                         FunctionArguments functionArguments,
                         Map<Cell, TraceType> traceCells,
                         Map<String, TraceType> traceOutputs,
-                        boolean captureInputs) {
+                        boolean captureInputs,
+                        Map<String, ZonedDateTime> columnValuationTimes) {
+    _marketDataEnvironment = ArgumentChecker.notNull(marketDataEnvironment, "marketDataBundle");
+    _columnValuationTimes = ImmutableMap.copyOf(ArgumentChecker.notNull(columnValuationTimes, "columnValuationTimes"));
     _functionArguments = ArgumentChecker.notNull(functionArguments, "functionArguments");
     _configVersionCorrection = ArgumentChecker.notNull(configVersionCorrection, "configVersionCorrection");
     _valuationTime = ArgumentChecker.notNull(valuationTime, "valuationTime");
-    _cycleMarketDataFactory = ArgumentChecker.notNull(cycleMarketDataFactory, "cycleMarketDataFactory");
     _traceCells = ImmutableMap.copyOf(ArgumentChecker.notNull(traceCells, "traceCells"));
     _traceOutputs = ImmutableMap.copyOf(ArgumentChecker.notNull(traceOutputs, "traceOutputs"));
     _captureInputs = captureInputs;
@@ -168,8 +140,12 @@ public final class CycleArguments {
     return _valuationTime;
   }
 
-  CycleMarketDataFactory getCycleMarketDataFactory() {
-    return _cycleMarketDataFactory;
+  ZonedDateTime getValuationTime(String columnName) {
+    if (_columnValuationTimes.containsKey(columnName)) {
+      return _columnValuationTimes.get(columnName);
+    } else {
+      return _valuationTime;
+    }
   }
 
   TraceType traceType(String output) {
@@ -187,7 +163,7 @@ public final class CycleArguments {
   }
 
   TraceType traceType(int rowIndex, int colIndex) {
-    Cell cell = new Cell(rowIndex, colIndex);
+    Cell cell = Cell.of(rowIndex, colIndex);
     return _traceCells.containsKey(cell) ?
       _traceCells.get(cell) :
       TraceType.NONE;
@@ -197,70 +173,41 @@ public final class CycleArguments {
     return _captureInputs;
   }
 
-  /**
-   * Creates a builder for building up cycle arguments.
-   *
-   * @param marketDataFactory the market data factory for the cycle
-   * @return a builder for building up cycle arguments
-   */
-  public static Builder builder(CycleMarketDataFactory marketDataFactory) {
-    return new Builder(marketDataFactory);
+  MarketDataEnvironment getMarketDataEnvironment() {
+    return _marketDataEnvironment;
   }
 
-  /**
-   * Represents a single cell in the grid of {@link Results}.
-   */
-  public static class Cell {
-
-    private final int _row;
-    private final int _col;
-
-    /**
-     * @param row the index of the cell's row (zero based)
-     * @param col the index of the cell's column (zero based)
-     */
-    public Cell(int row, int col) {
-      _row = ArgumentChecker.notNegative(row, "row");
-      _col = ArgumentChecker.notNegative(col, "col");
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      if (this == o) {
-        return true;
-      }
-      if (o == null || getClass() != o.getClass()) {
-        return false;
-      }
-      Cell cell = (Cell) o;
-      return _row == cell._row && _col == cell._col;
-    }
-
-    @Override
-    public int hashCode() {
-      int result = _row;
-      result = 31 * result + _col;
-      return result;
-    }
+  Map<Cell, TraceType> getTraceCells() {
+    return _traceCells;
   }
 
-  /**
-   * Builder for constructing instances of {@link CycleArguments}.
-   */
+  Map<String, TraceType> getTraceOutputs() {
+    return _traceOutputs;
+  }
+
+  // TODO maybe marketDataEnvironment could be a normal method too. default behaviour is to gather all requirements
+  // and use functions to populate
+  public static Builder builder(MarketDataEnvironment marketDataBundle) {
+    return new Builder(marketDataBundle);
+  }
+
   public static final class Builder {
 
-    private final CycleMarketDataFactory _cycleMarketDataFactory;
+    private final MarketDataEnvironment _marketDataBundle;
+    private final Map<String, ZonedDateTime> _columnValuationTime = new HashMap<>();
 
     private ZonedDateTime _valuationTime = ZonedDateTime.now();
     private Map<Cell, TraceType> _traceCells = Collections.emptyMap();
     private Map<String, TraceType> _traceOutputs = Collections.emptyMap();
+    // TODO this is correct, enable it
+    //private Map<Class<?>, FunctionArguments> _functionArguments = Collections.emptyMap();
     private FunctionArguments _functionArguments = FunctionArguments.EMPTY;
-    private boolean _captureInputs;
+    private boolean _captureInputs = false;
     private VersionCorrection _versionCorrection = VersionCorrection.LATEST;
     private ScenarioDefinition _scenarioDefinition = ScenarioDefinition.EMPTY;
 
-    private Builder(CycleMarketDataFactory cycleMarketDataFactory) {
-      _cycleMarketDataFactory = ArgumentChecker.notNull(cycleMarketDataFactory, "cycleMarketDataFactory");
+    private Builder(MarketDataEnvironment marketDataBundle) {
+      _marketDataBundle = ArgumentChecker.notNull(marketDataBundle, "marketDataBundle");
     }
 
     /**
@@ -268,12 +215,13 @@ public final class CycleArguments {
      */
     public CycleArguments build() {
       return new CycleArguments(_valuationTime,
+                                _marketDataBundle,
                                 _versionCorrection,
-                                _cycleMarketDataFactory,
                                 _functionArguments,
                                 _traceCells,
                                 _traceOutputs,
-                                _captureInputs);
+                                _captureInputs,
+                                _columnValuationTime);
     }
 
     /**
@@ -319,6 +267,30 @@ public final class CycleArguments {
       _valuationTime = ArgumentChecker.notNull(valuationTime, "valuationTime");
       return this;
     }
+
+    /**
+     * Sets the valuation time for the calculations in the cycle for a specific column.
+     * <p>
+     * If no value is specified for a column the default value from {@link #valuationTime(ZonedDateTime)} will be
+     * used.
+     *
+     * @param valuationTime the valuation time for the calculations in the cycle
+     * @return this builder
+     */
+    public Builder valuationTime(ZonedDateTime valuationTime, String columnName) {
+      ArgumentChecker.notNull(valuationTime, "valuationTime");
+      ArgumentChecker.notEmpty(columnName, "columnName");
+
+      _columnValuationTime.put(columnName, valuationTime);
+      return this;
+    }
+
+    // TODO this is the correct version
+    // TODO but what if we want to provide different arguments for different columns?
+    /* public Builder functionArguments(Map<Class<?>, FunctionArguments> arguments) {
+      _functionArguments = ArgumentChecker.notNull(arguments, "arguments");
+      return this;
+    }*/
 
     /**
      * Sets the version correction used to load from the data store

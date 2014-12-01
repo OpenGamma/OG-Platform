@@ -21,8 +21,9 @@ import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.SimpleEnvironment;
 import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
-import com.opengamma.sesame.marketdata.MapMarketDataSource;
-import com.opengamma.sesame.marketdata.MarketDataSource;
+import com.opengamma.sesame.marketdata.MarketDataEnvironment;
+import com.opengamma.sesame.marketdata.MarketDataEnvironmentBuilder;
+import com.opengamma.sesame.marketdata.SecurityId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.result.ResultStatus;
@@ -42,7 +43,9 @@ public class DefaultEquityPresentValueFnTest {
   public void testMarketDataUnavailable() {
     EquitySecurity security = new EquitySecurity("LSE", "LSE", "BloggsCo", Currency.GBP);
     security.setExternalIdBundle(ExternalSchemes.bloombergTickerSecurityId("BLGG").toBundle());
-    Environment env = new SimpleEnvironment(ZonedDateTime.now(), MapMarketDataSource.of());
+    ZonedDateTime valuationTime = ZonedDateTime.now();
+    MarketDataEnvironment emptyEnvironment = new MarketDataEnvironmentBuilder().valuationTime(valuationTime).build();
+    Environment env = new SimpleEnvironment(valuationTime, emptyEnvironment.toBundle());
     Result<Double> result = _equityPresentValueFn.presentValue(env, security);
     assertThat(result.getStatus(), is((ResultStatus) MISSING_DATA));
   }
@@ -51,8 +54,12 @@ public class DefaultEquityPresentValueFnTest {
   public void testMarketDataAvailable() {
     EquitySecurity security = new EquitySecurity("LSE", "LSE", "BloggsCo", Currency.GBP);
     security.setExternalIdBundle(ExternalSchemes.bloombergTickerSecurityId("BLGG").toBundle());
-    MarketDataSource dataSource = MapMarketDataSource.of(security.getExternalIdBundle(), 123.45);
-    Environment env = new SimpleEnvironment(ZonedDateTime.now(), dataSource);
+    ZonedDateTime valuationTime = ZonedDateTime.now();
+    MarketDataEnvironmentBuilder builder = new MarketDataEnvironmentBuilder();
+    MarketDataEnvironment marketDataEnvironment = builder.add(SecurityId.of(security), 123.45)
+                                                         .valuationTime(ZonedDateTime.now())
+                                                         .build();
+    Environment env = new SimpleEnvironment(valuationTime, marketDataEnvironment.toBundle());
     Result<Double> result = _equityPresentValueFn.presentValue(env, security);
     assertThat(result.getStatus(), is((ResultStatus) SUCCESS));
     assertThat(result.getValue(), is(123.45));

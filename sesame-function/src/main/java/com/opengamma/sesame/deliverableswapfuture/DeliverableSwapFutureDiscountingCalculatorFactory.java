@@ -16,7 +16,7 @@ import com.opengamma.sesame.CurveLabellingFn;
 import com.opengamma.sesame.CurveMatrixLabeller;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.Environment;
-import com.opengamma.sesame.HistoricalTimeSeriesFn;
+import com.opengamma.sesame.FixingsFn;
 import com.opengamma.sesame.MulticurveBundle;
 import com.opengamma.sesame.trade.DeliverableSwapFutureTrade;
 import com.opengamma.util.ArgumentChecker;
@@ -45,39 +45,43 @@ public class DeliverableSwapFutureDiscountingCalculatorFactory implements Delive
   private final DiscountingMulticurveCombinerFn _discountingMultiCurveCombinerFn;
   
   /**
-   * HTS function for fixings
+   * Function for fixings
    */
-  private final HistoricalTimeSeriesFn _htsFn;
+  private final FixingsFn _fixingsFn;
 
   /**
   * Curve labelling function
   */
   private final CurveLabellingFn _curveLabellingFn;
 
-  /**
-   * Constructs a discounting calculator factory for deliverable swap futures.
-   *
-   * @param deliverableSwapFutureTradeConverter the converter used to convert the OG-Financial deliverable swap future to
-   *    the OG-Analytic definition.
-   * @param definitionToDerivativeConverter the converter used to convert the definition to a derivative.
-   * @param discountingMultiCurveCombinerFn the multicurve function.
-   * @param htsFn the historical time series function
-   * @param curveLabellingFn the curve labelling function
-   */
-  public DeliverableSwapFutureDiscountingCalculatorFactory(DeliverableSwapFutureTradeConverter deliverableSwapFutureTradeConverter,
-                                                           FixedIncomeConverterDataProvider definitionToDerivativeConverter,
-                                                           DiscountingMulticurveCombinerFn discountingMultiCurveCombinerFn,
-                                                           HistoricalTimeSeriesFn htsFn,
-                                                           CurveLabellingFn curveLabellingFn) {
-    _deliverableSwapFutureTradeConverter =
-        ArgumentChecker.notNull(deliverableSwapFutureTradeConverter, "deliverableSwapFutureTradeConverter");
-    _definitionToDerivativeConverter =
-        ArgumentChecker.notNull(definitionToDerivativeConverter, "definitionToDerivativeConverter");
-    _discountingMultiCurveCombinerFn =
-        ArgumentChecker.notNull(discountingMultiCurveCombinerFn, "discountingMultiCurveCombinerFn");
-    _htsFn = ArgumentChecker.notNull(htsFn, "htsFn");
-    _curveLabellingFn = ArgumentChecker.notNull(curveLabellingFn, "curveLabellingFn");
-  }
+
+
+/**
+ * Constructs a discounting calculator factory for deliverable swap futures.
+ *
+ * @param deliverableSwapFutureTradeConverter the converter used to convert the OG-Financial deliverable swap future to
+ *    the OG-Analytic definition.
+ * @param definitionToDerivativeConverter the converter used to convert the definition to a derivative.
+ * @param discountingMultiCurveCombinerFn the multicurve function.
+ * @param fixingsFn function for looking up security fixings
+ */
+
+public DeliverableSwapFutureDiscountingCalculatorFactory(DeliverableSwapFutureTradeConverter deliverableSwapFutureTradeConverter,
+                                                         FixedIncomeConverterDataProvider definitionToDerivativeConverter,
+                                                         DiscountingMulticurveCombinerFn discountingMultiCurveCombinerFn,
+                                                         FixingsFn fixingsFn,
+                                                         CurveLabellingFn curveLabellingFn) {
+  _deliverableSwapFutureTradeConverter =
+      ArgumentChecker.notNull(deliverableSwapFutureTradeConverter, "deliverableSwapFutureTradeConverter");
+  _definitionToDerivativeConverter =
+      ArgumentChecker.notNull(definitionToDerivativeConverter, "definitionToDerivativeConverter");
+  _discountingMultiCurveCombinerFn =
+      ArgumentChecker.notNull(discountingMultiCurveCombinerFn, "discountingMultiCurveCombinerFn");
+  _fixingsFn = ArgumentChecker.notNull(fixingsFn, "fixingsFn");
+  _curveLabellingFn = ArgumentChecker.notNull(curveLabellingFn, "curveLabellingFn");
+}
+
+
 
   @Override
   public Result<DeliverableSwapFutureCalculator> createCalculator(Environment env, DeliverableSwapFutureTrade trade) {
@@ -85,7 +89,8 @@ public class DeliverableSwapFutureDiscountingCalculatorFactory implements Delive
     DeliverableSwapFutureSecurity security = trade.getSecurity();
 
     Result<MulticurveBundle> bundleResult = _discountingMultiCurveCombinerFn.getMulticurveBundle(env, trade);
-    Result<HistoricalTimeSeriesBundle> fixings = _htsFn.getFixingsForSecurity(env, security);
+
+    Result<HistoricalTimeSeriesBundle> fixings = _fixingsFn.getFixingsForSecurity(env, security);
 
     if (Result.anyFailures(bundleResult, fixings)) {
       return Result.failure(bundleResult, fixings);

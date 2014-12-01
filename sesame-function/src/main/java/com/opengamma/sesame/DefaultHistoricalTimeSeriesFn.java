@@ -36,7 +36,9 @@ import com.opengamma.util.result.Result;
 
 /**
  * Function implementation that provides a historical time-series bundle.
+ * @deprecated use {@link DefaultFixingsFn}
  */
+@Deprecated
 public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
 
   private static final HistoricalTimeSeriesBundle EMPTY_TIME_SERIES_BUNDLE = new HistoricalTimeSeriesBundle();

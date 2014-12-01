@@ -41,6 +41,7 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.link.ConfigLink;
 import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
+import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.financial.analytics.conversion.FXForwardSecurityConverter;
 import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfigurationSource;
@@ -55,7 +56,6 @@ import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
-import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.sesame.ConfigDbMarketExposureSelectorFn;
 import com.opengamma.sesame.CurrencyPairsFn;
 import com.opengamma.sesame.CurveDefinitionFn;
@@ -193,10 +193,11 @@ public class WebAnalyticsViewsResource extends AbstractWebAnalyticsResource {
                            argument("useHistoricalSpot", useHistoricalSpot),
                            argument("endDate", valuationTime.toLocalDate()),
                            argument("timeSeriesConverter", spotVWConverter)))))));
-    
+
+    MarketDataSpecification bloomberg = LiveMarketDataSpecification.of("Bloomberg");
     IndividualCycleOptions cycleOptions = IndividualCycleOptions.builder()
         .valuationTime(valuationTime)
-        .marketDataSpec(LiveMarketDataSpecification.of("Bloomberg"))
+        .marketDataSpecs(ImmutableList.of(bloomberg))
 //        .marketDataSpec(new FixedHistoricalMarketDataSpecification(LocalDate.now().minusDays(2)))
         .build();
     

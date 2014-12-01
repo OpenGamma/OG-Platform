@@ -25,6 +25,7 @@ import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -68,14 +69,14 @@ import com.opengamma.sesame.DefaultCurveSpecificationMarketDataFn;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleResolverFn;
 import com.opengamma.sesame.DefaultFXMatrixFn;
-import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
+import com.opengamma.sesame.DefaultFixingsFn;
 import com.opengamma.sesame.DiscountingMulticurveBundleFn;
 import com.opengamma.sesame.DiscountingMulticurveBundleResolverFn;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.ExposureFunctionsDiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.FXMatrixFn;
-import com.opengamma.sesame.HistoricalTimeSeriesFn;
+import com.opengamma.sesame.FixingsFn;
 import com.opengamma.sesame.MarketExposureSelector;
 import com.opengamma.sesame.RootFinderConfiguration;
 import com.opengamma.sesame.SimpleEnvironment;
@@ -89,6 +90,7 @@ import com.opengamma.sesame.interestrate.InterestRateMockSources;
 import com.opengamma.sesame.marketdata.DefaultHistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
+import com.opengamma.sesame.marketdata.MarketDataEnvironment;
 import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.sesame.sabr.DefaultSabrParametersProviderFn;
 import com.opengamma.sesame.sabr.SabrParametersProviderFn;
@@ -113,13 +115,18 @@ public class SwaptionFnTest {
 
   private static final double TOLERANCE_PV = 1.0E-3;
 
-  private static final Environment ENV =
-      new SimpleEnvironment(DateUtils.getUTCDate(2014, 1, 22),
-                            InterestRateMockSources.createMarketDataSource(LocalDate.of(2014, 2, 18)));
+  private static final ZonedDateTime VALUATION_DATE = DateUtils.getUTCDate(2014, 1, 22);
+  private static final Environment ENV;
 
   private SwaptionFn _swaptionFn;
 
   private SwaptionSecurity _swaptionSecurity = createSingleSwaption();
+
+  static {
+    LocalDate marketDataDate = LocalDate.of(2014, 2, 18);
+    MarketDataEnvironment marketDataEnvironment = InterestRateMockSources.createMarketDataEnvironment(marketDataDate);
+    ENV = new SimpleEnvironment(VALUATION_DATE, marketDataEnvironment.toBundle());
+  }
 
   @BeforeClass
   public void setUp() {
@@ -134,10 +141,6 @@ public class SwaptionFnTest {
                     argument("rootFinderAbsoluteTolerance", 1e-12),
                     argument("rootFinderRelativeTolerance", 1e-12),
                     argument("rootFinderMaxIterations", 5000)),
-                function(
-                    DefaultHistoricalTimeSeriesFn.class,
-                    argument("resolutionKey", "DEFAULT_TSS"),
-                    argument("htsRetrievalPeriod", RetrievalPeriod.of(Period.ofYears(1)))),
                 function(
                     DefaultSabrParametersProviderFn.class,
                     argument("configurationName", "TEST_SABR")),
@@ -165,8 +168,8 @@ public class SwaptionFnTest {
                 CurveSpecificationFn.class, DefaultCurveSpecificationFn.class,
                 CurveNodeConverterFn.class, DefaultCurveNodeConverterFn.class,
                 CurveConstructionConfigurationSource.class, ConfigDBCurveConstructionConfigurationSource.class,
+                FixingsFn.class, DefaultFixingsFn.class,
                 HistoricalMarketDataFn.class, DefaultHistoricalMarketDataFn.class,
-                HistoricalTimeSeriesFn.class, DefaultHistoricalTimeSeriesFn.class,
                 MarketDataFn.class, DefaultMarketDataFn.class));
 
     ImmutableMap<Class<?>, Object> components = InterestRateMockSources.generateBaseComponents();
