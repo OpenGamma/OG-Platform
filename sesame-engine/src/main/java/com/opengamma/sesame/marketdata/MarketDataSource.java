@@ -26,6 +26,6 @@ public interface MarketDataSource {
    * @return a response containing success results containing the market data value,
    *  or failure results with a status explaining why data was not returned
    */
-  MarketDataResponse get(Set<MarketDataRequest> requests);
+  MarketDataResults get(Set<MarketDataRequest> requests);
 
 }

@@ -347,7 +347,7 @@ public class FRAFnTest {
     assertThat(parRate, is(closeTo(EXPECTED_PAR_RATE, STD_TOLERANCE_RATE)));
 
     Result<ReferenceAmount<Pair<String, Currency>>> pv01 = _fraFunction.calculatePV01(env, trade);
-    assertThat(pv01.isSuccess(), is((true)));
+    assertSuccess(pv01);
 
     assertThat(pv01.getValue().getMap().size(), is(2));
     assertThat(pv01.getValue().getMap().get(Pairs.of(InterestRateMockSources.USD_LIBOR3M_CURVE_NAME, Currency.USD)),

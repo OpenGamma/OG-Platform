@@ -24,29 +24,34 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.sesame.marketdata.builders.MarketDataBuilder;
-import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.LocalDateRange;
 
 /**
- * TODO property for the expected type of the data
+ * A requirement for a time series of market data.
  */
 @BeanDefinition
-public class TimeSeriesRequirement extends MarketDataRequirement implements ImmutableBean {
+public final class TimeSeriesRequirement extends MarketDataRequirement implements ImmutableBean {
 
+  /** ID of the market data in the time series. */
   @PropertyDefinition(validate = "notNull")
   private final MarketDataId _marketDataId;
 
+  /** Time of the market data. This always has a type of {@code MARKET_DATA} and contains a {@code LocalDateRange}. */
   @PropertyDefinition(validate = "notNull")
   private final MarketDataTime _marketDataTime;
 
-  private TimeSeriesRequirement(MarketDataId marketDataId, LocalDateRange dateRange) {
-    ArgumentChecker.notNull(dateRange, "dateRange");
-
-    _marketDataId = ArgumentChecker.notNull(marketDataId, "marketDataId");
-    _marketDataTime = MarketDataTime.of(dateRange);
+  private TimeSeriesRequirement(MarketDataId<?> marketDataId, LocalDateRange dateRange) {
+    this(marketDataId, MarketDataTime.of(dateRange));
   }
 
-  public static TimeSeriesRequirement of(MarketDataId marketDataId, LocalDateRange dateRange) {
+  /**
+   * Creates a requirement for a time series of market data.
+   *
+   * @param marketDataId ID of the market data in the time series
+   * @param dateRange date range of the time series
+   * @return a requirement for a time series of market data
+   */
+  public static TimeSeriesRequirement of(MarketDataId<?> marketDataId, LocalDateRange dateRange) {
     return new TimeSeriesRequirement(marketDataId, dateRange);
   }
 
@@ -86,15 +91,13 @@ public class TimeSeriesRequirement extends MarketDataRequirement implements Immu
     return new TimeSeriesRequirement.Builder();
   }
 
-  /**
-   * Restricted constructor.
-   * @param builder  the builder to copy from, not null
-   */
-  protected TimeSeriesRequirement(TimeSeriesRequirement.Builder builder) {
-    JodaBeanUtils.notNull(builder._marketDataId, "marketDataId");
-    JodaBeanUtils.notNull(builder._marketDataTime, "marketDataTime");
-    this._marketDataId = builder._marketDataId;
-    this._marketDataTime = builder._marketDataTime;
+  private TimeSeriesRequirement(
+      MarketDataId marketDataId,
+      MarketDataTime marketDataTime) {
+    JodaBeanUtils.notNull(marketDataId, "marketDataId");
+    JodaBeanUtils.notNull(marketDataTime, "marketDataTime");
+    this._marketDataId = marketDataId;
+    this._marketDataTime = marketDataTime;
     validate();
   }
 
@@ -115,7 +118,7 @@ public class TimeSeriesRequirement extends MarketDataRequirement implements Immu
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the marketDataId.
+   * Gets iD of the market data in the time series.
    * @return the value of the property, not null
    */
   public MarketDataId getMarketDataId() {
@@ -124,7 +127,7 @@ public class TimeSeriesRequirement extends MarketDataRequirement implements Immu
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the marketDataTime.
+   * Gets time of the market data. This always has a type of {@code MARKET_DATA} and contains a {@code LocalDateRange}.
    * @return the value of the property, not null
    */
   public MarketDataTime getMarketDataTime() {
@@ -165,25 +168,17 @@ public class TimeSeriesRequirement extends MarketDataRequirement implements Immu
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("TimeSeriesRequirement{");
-    int len = buf.length();
-    toString(buf);
-    if (buf.length() > len) {
-      buf.setLength(buf.length() - 2);
-    }
+    buf.append("marketDataId").append('=').append(getMarketDataId()).append(',').append(' ');
+    buf.append("marketDataTime").append('=').append(JodaBeanUtils.toString(getMarketDataTime()));
     buf.append('}');
     return buf.toString();
-  }
-
-  protected void toString(StringBuilder buf) {
-    buf.append("marketDataId").append('=').append(JodaBeanUtils.toString(getMarketDataId())).append(',').append(' ');
-    buf.append("marketDataTime").append('=').append(JodaBeanUtils.toString(getMarketDataTime())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code TimeSeriesRequirement}.
    */
-  public static class Meta extends DirectMetaBean {
+  public static final class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -210,7 +205,7 @@ public class TimeSeriesRequirement extends MarketDataRequirement implements Immu
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -244,7 +239,7 @@ public class TimeSeriesRequirement extends MarketDataRequirement implements Immu
      * The meta-property for the {@code marketDataId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<MarketDataId> marketDataId() {
+    public MetaProperty<MarketDataId> marketDataId() {
       return _marketDataId;
     }
 
@@ -252,7 +247,7 @@ public class TimeSeriesRequirement extends MarketDataRequirement implements Immu
      * The meta-property for the {@code marketDataTime} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<MarketDataTime> marketDataTime() {
+    public MetaProperty<MarketDataTime> marketDataTime() {
       return _marketDataTime;
     }
 
@@ -283,7 +278,7 @@ public class TimeSeriesRequirement extends MarketDataRequirement implements Immu
   /**
    * The bean-builder for {@code TimeSeriesRequirement}.
    */
-  public static class Builder extends DirectFieldsBeanBuilder<TimeSeriesRequirement> {
+  public static final class Builder extends DirectFieldsBeanBuilder<TimeSeriesRequirement> {
 
     private MarketDataId _marketDataId;
     private MarketDataTime _marketDataTime;
@@ -291,14 +286,14 @@ public class TimeSeriesRequirement extends MarketDataRequirement implements Immu
     /**
      * Restricted constructor.
      */
-    protected Builder() {
+    private Builder() {
     }
 
     /**
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    protected Builder(TimeSeriesRequirement beanToCopy) {
+    private Builder(TimeSeriesRequirement beanToCopy) {
       this._marketDataId = beanToCopy.getMarketDataId();
       this._marketDataTime = beanToCopy.getMarketDataTime();
     }
@@ -357,7 +352,9 @@ public class TimeSeriesRequirement extends MarketDataRequirement implements Immu
 
     @Override
     public TimeSeriesRequirement build() {
-      return new TimeSeriesRequirement(this);
+      return new TimeSeriesRequirement(
+          _marketDataId,
+          _marketDataTime);
     }
 
     //-----------------------------------------------------------------------
@@ -388,18 +385,10 @@ public class TimeSeriesRequirement extends MarketDataRequirement implements Immu
     public String toString() {
       StringBuilder buf = new StringBuilder(96);
       buf.append("TimeSeriesRequirement.Builder{");
-      int len = buf.length();
-      toString(buf);
-      if (buf.length() > len) {
-        buf.setLength(buf.length() - 2);
-      }
+      buf.append("marketDataId").append('=').append(JodaBeanUtils.toString(_marketDataId)).append(',').append(' ');
+      buf.append("marketDataTime").append('=').append(JodaBeanUtils.toString(_marketDataTime));
       buf.append('}');
       return buf.toString();
-    }
-
-    protected void toString(StringBuilder buf) {
-      buf.append("marketDataId").append('=').append(JodaBeanUtils.toString(_marketDataId)).append(',').append(' ');
-      buf.append("marketDataTime").append('=').append(JodaBeanUtils.toString(_marketDataTime)).append(',').append(' ');
     }
 
   }

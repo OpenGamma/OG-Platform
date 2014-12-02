@@ -36,7 +36,6 @@ import com.opengamma.util.time.LocalDateRange;
 @BeanDefinition(builderScope = "private")
 public final class MapMarketDataBundle implements MarketDataBundle, ImmutableBean {
 
-  // TODO should this be replaced with valuation time? how will that work for historical data where there's only a date?
   /** The time for which this market data is valid. */
   @PropertyDefinition(validate = "notNull", get = "private")
   private final MarketDataTime _time;
@@ -55,11 +54,11 @@ public final class MapMarketDataBundle implements MarketDataBundle, ImmutableBea
   }
 
   @Override
-  public <T> Result<T> get(MarketDataId<?> id, Class<T> dataType) {
+  public <T> Result<T> get(MarketDataId<T> id, Class<T> dataType) {
     ArgumentChecker.notNull(id, "id");
     ArgumentChecker.notNull(dataType, "dataType");
 
-    MarketDataRequirement requirement = SingleValueRequirement.of(id, _time);
+    SingleValueRequirement requirement = SingleValueRequirement.of(id, _time);
     Object item = _env.getData().get(requirement);
 
     if (item != null) {

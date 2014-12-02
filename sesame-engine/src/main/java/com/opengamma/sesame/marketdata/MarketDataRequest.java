@@ -15,7 +15,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * A request for a single item or market data.
  */
-public class MarketDataRequest {
+public final class MarketDataRequest {
 
   private final ExternalIdBundle _id;
   private final FieldName _fieldName;

@@ -13,6 +13,7 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import com.opengamma.timeseries.date.DateTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.FailureStatus;
@@ -25,11 +26,16 @@ import com.opengamma.util.time.LocalDateRange;
  * All of the data lookup methods always return a failure result. Requests are recorded if the data
  * isn't available in the bundle of supplied data passed to the constructor.
  *
- * TODO make this an environment? that won't really work
  * TODO move to the engine package and make package-private
  */
 public final class GatheringMarketDataBundle implements MarketDataBundle {
 
+  /**
+   * This class is only used during the first phase of execution while the engine is gathering market
+   * data requirements. Every result returned by this class will be a failure and it would be expensive
+   * to construct a stack trace every time. It would also be pointless as the results from the first
+   * phase of execution are ignored and therefore the stack traces would never be seen.
+   */
   private static final Result<?> FAILURE = Result.failure(FailureStatus.PENDING_DATA,
                                                           "Gathering requirements - no data available");
 
@@ -69,7 +75,7 @@ public final class GatheringMarketDataBundle implements MarketDataBundle {
 
   // TODO should probably store dataType somewhere. in the requirement? seems sensible
   @Override
-  public <T> Result<T> get(MarketDataId<?> id, Class<T> dataType) {
+  public <T> Result<T> get(MarketDataId<T> id, Class<T> dataType) {
     // only gather requirements for data that hasn't been supplied
     if (_suppliedData.get(id, dataType).isSuccess()) {
       return failure();
@@ -92,31 +98,24 @@ public final class GatheringMarketDataBundle implements MarketDataBundle {
 
   @Override
   public MarketDataBundle withTime(ZonedDateTime time) {
-    return new GatheringMarketDataBundle(MarketDataTime.of(time),
-                                           _suppliedData,
-                                           _requirements,
-                                           _timeSeriesRequirements);
+    return new GatheringMarketDataBundle(MarketDataTime.of(time), _suppliedData, _requirements, _timeSeriesRequirements);
   }
 
   @Override
   public MarketDataBundle withDate(LocalDate date) {
-    return new GatheringMarketDataBundle(MarketDataTime.of(date),
-                                           _suppliedData,
-                                           _requirements,
-                                           _timeSeriesRequirements);
+    return new GatheringMarketDataBundle(MarketDataTime.of(date), _suppliedData, _requirements, _timeSeriesRequirements);
+  }
+
+  /**
+   * @return the gathered requirements
+   */
+  public Set<MarketDataRequirement> getRequirements() {
+    return Sets.<MarketDataRequirement>union(ImmutableSet.copyOf(_requirements),
+                                             ImmutableSet.copyOf(_timeSeriesRequirements));
   }
 
   @SuppressWarnings("unchecked") // this is safe, the type is never used in a failure result
   private static <T> Result<T> failure() {
     return (Result<T>) FAILURE;
-  }
-
-  // TODO everything seems to want a set<ExternalIdBundle>
-  public Set<SingleValueRequirement> getRequirements() {
-    return ImmutableSet.copyOf(_requirements);
-  }
-
-  public Set<TimeSeriesRequirement> getTimeSeriesRequirements() {
-    return ImmutableSet.copyOf(_timeSeriesRequirements);
   }
 }

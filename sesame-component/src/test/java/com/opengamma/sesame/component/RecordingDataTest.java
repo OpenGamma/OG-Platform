@@ -137,12 +137,9 @@ public class RecordingDataTest {
 
     View view = viewFactory.createView(createCurveBundleConfig("TEST"));
 
-    //ZonedDateTime valTime = LocalDate.of(2014, 6, 1).atStartOfDay(ZoneOffset.UTC);
-
     VersionCorrection versionCorrection =
         ThreadLocalServiceContext.getInstance().get(VersionCorrectionProvider.class).getConfigVersionCorrection();
     CycleArguments cycleArguments = CycleArguments.builder(InterestRateMockSources.createMarketDataEnvironment())
-                                                  //.valuationTime(valTime)
                                                   .versionCorrection(versionCorrection)
                                                   .captureInputs(true)
                                                   .build();
@@ -207,12 +204,9 @@ public class RecordingDataTest {
     // Run view
     View view = viewFactory.createView(createIrsPricerConfig(), InterestRateSwapSecurity.class);
 
-    //ZonedDateTime valTime = LocalDate.of(2014, 6, 1).atStartOfDay(ZoneOffset.UTC);
-
     VersionCorrection versionCorrection =
         ThreadLocalServiceContext.getInstance().get(VersionCorrectionProvider.class).getConfigVersionCorrection();
     CycleArguments cycleArguments = CycleArguments.builder(InterestRateMockSources.createMarketDataEnvironment())
-                                                  //.valuationTime(valTime)
                                                   .versionCorrection(versionCorrection)
                                                   .captureInputs(true)
                                                   .build();

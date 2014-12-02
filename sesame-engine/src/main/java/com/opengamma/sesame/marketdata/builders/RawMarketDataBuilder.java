@@ -7,7 +7,6 @@ package com.opengamma.sesame.marketdata.builders;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -24,7 +23,7 @@ import com.opengamma.sesame.marketdata.MarketDataBundle;
 import com.opengamma.sesame.marketdata.MarketDataId;
 import com.opengamma.sesame.marketdata.MarketDataRequest;
 import com.opengamma.sesame.marketdata.MarketDataRequirement;
-import com.opengamma.sesame.marketdata.MarketDataResponse;
+import com.opengamma.sesame.marketdata.MarketDataResults;
 import com.opengamma.sesame.marketdata.MarketDataSource;
 import com.opengamma.sesame.marketdata.MarketDataTime;
 import com.opengamma.sesame.marketdata.RawId;
@@ -79,8 +78,6 @@ public class RawMarketDataBuilder implements MarketDataBuilder {
                                                                   ZonedDateTime valuationTime,
                                                                   Set<SingleValueRequirement> marketDataRequirements,
                                                                   MarketDataSource marketDataSource) {
-    // set of requests for querying the market data source
-    Set<MarketDataRequest> requests = new HashSet<>();
     // map of request->requirement so we can build the results
     Map<MarketDataRequest, SingleValueRequirement> requirementMap = new HashMap<>();
     Map<SingleValueRequirement, Result<?>> results = new HashMap<>();
@@ -97,7 +94,6 @@ public class RawMarketDataBuilder implements MarketDataBuilder {
           FieldName fieldName = marketDataId.getFieldName();
           ExternalIdBundle id = marketDataId.getId();
           MarketDataRequest request = MarketDataRequest.of(id, fieldName);
-          requests.add(request);
           requirementMap.put(request, requirement);
           break;
         case DATE:
@@ -121,7 +117,7 @@ public class RawMarketDataBuilder implements MarketDataBuilder {
           break;
       }
     }
-    MarketDataResponse response = marketDataSource.get(requests);
+    MarketDataResults response = marketDataSource.get(requirementMap.keySet());
 
     for (Map.Entry<MarketDataRequest, Result<?>> entry : response.getData().entrySet()) {
       MarketDataRequest request = entry.getKey();

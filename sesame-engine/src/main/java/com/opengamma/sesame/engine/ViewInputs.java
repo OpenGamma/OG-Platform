@@ -55,13 +55,12 @@ public final class ViewInputs implements ImmutableBean {
   @PropertyDefinition(validate = "notNull")
   private final ViewConfig _viewConfig;
 
-  /**
-   * @deprecated use {@link #_functionArgs}
-   */
+  /** @deprecated use {@link #_functionArgs} */
   @Deprecated
   @PropertyDefinition(validate = "notNull")
   private final FunctionArguments _functionArguments;
 
+  /** Arguments passed to the top level functions, keyed by the function type. */
   @PropertyDefinition(validate = "notNull")
   private final Map<Class<?>, FunctionArguments> _functionArgs;
 
@@ -213,7 +212,7 @@ public final class ViewInputs implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the functionArgs.
+   * Gets arguments passed to the top level functions, keyed by the function type.
    * @return the value of the property, not null
    */
   public Map<Class<?>, FunctionArguments> getFunctionArgs() {

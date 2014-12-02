@@ -97,8 +97,8 @@ public class SnapshotMarketDataFactory
 
 
     @Override
-    public MarketDataResponse get(Set<MarketDataRequest> requests) {
-      MarketDataResponse.Builder builder = MarketDataResponse.builder();
+    public MarketDataResults get(Set<MarketDataRequest> requests) {
+      MarketDataResults.Builder builder = MarketDataResults.builder();
 
       for (MarketDataRequest request : requests) {
         for (ExternalId id : request.getId()) {

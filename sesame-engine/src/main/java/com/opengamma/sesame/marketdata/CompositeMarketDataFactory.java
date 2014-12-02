@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.util.ArgumentChecker;
 
@@ -18,15 +19,18 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class CompositeMarketDataFactory implements MarketDataFactory<MarketDataSpecification> {
 
-  private final Map<Class<? extends MarketDataSpecification>, MarketDataFactory<?>> _factories = new HashMap<>();
+  private final Map<Class<? extends MarketDataSpecification>, MarketDataFactory<?>> _factories;
 
   public CompositeMarketDataFactory(MarketDataFactory<?>... factories) {
+    Map<Class<? extends MarketDataSpecification>, MarketDataFactory<?>> factoryMap = new HashMap<>();
+
     for (MarketDataFactory<?> factory : factories) {
-      _factories.put(factory.getSpecificationType(), factory);
+      factoryMap.put(factory.getSpecificationType(), factory);
     }
-    if (!_factories.containsKey(EmptyMarketDataSpec.class)) {
-      _factories.put(EmptyMarketDataSpec.class, new EmptyMarketDataFactory());
+    if (!factoryMap.containsKey(EmptyMarketDataSpec.class)) {
+      factoryMap.put(EmptyMarketDataSpec.class, new EmptyMarketDataFactory());
     }
+    _factories = ImmutableMap.copyOf(factoryMap);
   }
 
   @Override
