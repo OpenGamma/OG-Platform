@@ -126,7 +126,7 @@ import com.opengamma.sesame.holidays.UsdHolidaySource;
 import com.opengamma.sesame.marketdata.MarketDataEnvironment;
 import com.opengamma.sesame.marketdata.MarketDataEnvironmentBuilder;
 import com.opengamma.sesame.marketdata.MarketDataRequest;
-import com.opengamma.sesame.marketdata.MarketDataResponse;
+import com.opengamma.sesame.marketdata.MarketDataResults;
 import com.opengamma.sesame.marketdata.MarketDataSource;
 import com.opengamma.sesame.marketdata.RawId;
 import com.opengamma.sesame.sabr.SabrConfigSelector;
@@ -274,8 +274,8 @@ public class InterestRateMockSources {
 
     return new MarketDataSource() {
       @Override
-      public MarketDataResponse get(Set<MarketDataRequest> requests) {
-        MarketDataResponse.Builder builder = MarketDataResponse.builder();
+      public MarketDataResults get(Set<MarketDataRequest> requests) {
+        MarketDataResults.Builder builder = MarketDataResults.builder();
 
         for (MarketDataRequest request : requests) {
           if (marketData.containsKey(request.getId())) {

@@ -5,12 +5,10 @@
  */
 package com.opengamma.sesame.marketdata;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.opengamma.util.ArgumentChecker;
+import com.google.common.collect.ImmutableList;
 
 /**
  * Market data source that gets data from multiple underlying sources.
@@ -19,17 +17,21 @@ public class CompositeMarketDataSource implements MarketDataSource {
 
   private final List<MarketDataSource> _dataSources;
 
+  /**
+   * @param dataSources the underlying data sources that provide the data
+   */
   public CompositeMarketDataSource(List<MarketDataSource> dataSources) {
-    _dataSources = new ArrayList<>(ArgumentChecker.notNull(dataSources, "dataSources"));
+    _dataSources = ImmutableList.copyOf(dataSources);
   }
 
   @Override
-  public MarketDataResponse get(Set<MarketDataRequest> requests) {
-    MarketDataResponse.Builder builder = MarketDataResponse.builder();
-    Set<MarketDataRequest> outstandingRequests = new HashSet<>(ArgumentChecker.notNull(requests, "requests"));
+  public MarketDataResults get(Set<MarketDataRequest> requests) {
+    MarketDataResults.Builder builder = MarketDataResults.builder();
+    Set<MarketDataRequest> outstandingRequests = requests;
 
     for (MarketDataSource dataSource : _dataSources) {
-      MarketDataResponse response = dataSource.get(outstandingRequests);
+      MarketDataResults response = dataSource.get(outstandingRequests);
+      outstandingRequests = response.getUnavailableRequests();
       builder.addAll(response);
     }
     return builder.build();

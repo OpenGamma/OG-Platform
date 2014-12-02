@@ -404,7 +404,7 @@ public class CachingProxyDecoratorTest {
 
     MarketDataBundle marketDataBundle = new MarketDataBundle() {
       @Override
-      public <T> Result<T> get(MarketDataId<?> id, Class<T> dataType) {
+      public <T> Result<T> get(MarketDataId<T> id, Class<T> dataType) {
         // TODO implement get()
         throw new UnsupportedOperationException("get not implemented");
       }

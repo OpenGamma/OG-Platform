@@ -76,7 +76,7 @@ public class LiveMarketDataFactory implements MarketDataFactory<LiveMarketDataSp
     }
 
     @Override
-    public MarketDataResponse get(Set<MarketDataRequest> requests) {
+    public MarketDataResults get(Set<MarketDataRequest> requests) {
       Set<ExternalIdBundle> requestIds = new HashSet<>();
 
       for (MarketDataRequest request : requests) {
@@ -85,7 +85,7 @@ public class LiveMarketDataFactory implements MarketDataFactory<LiveMarketDataSp
       _liveDataClient.subscribe(requestIds);
       _liveDataClient.waitForSubscriptions();
       ImmutableLiveDataResults results = _liveDataClient.retrieveLatestData();
-      MarketDataResponse.Builder builder = MarketDataResponse.builder();
+      MarketDataResults.Builder builder = MarketDataResults.builder();
 
       for (MarketDataRequest request : requests) {
         LiveDataResult liveDataResult = results.get(request.getId());

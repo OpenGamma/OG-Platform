@@ -13,7 +13,6 @@ import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
-import org.joda.beans.ImmutableConstructor;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -25,7 +24,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.util.ArgumentChecker;
 
 /**
  * Key for requesting market data that has no associated metadata, only an ID.
@@ -37,9 +35,6 @@ import com.opengamma.util.ArgumentChecker;
  */
 @BeanDefinition(builderScope = "private")
 public final class RawId<T> implements MarketDataId, ImmutableBean {
-
-  // TODO there are multiple versions of this, merge them
-  private static final FieldName MARKET_VALUE = FieldName.of(MarketDataRequirementNames.MARKET_VALUE);
 
   /** The ID of the market data. */
   @PropertyDefinition(validate = "notNull")
@@ -54,13 +49,6 @@ public final class RawId<T> implements MarketDataId, ImmutableBean {
   @PropertyDefinition(validate = "notNull")
   private final FieldName _fieldName;
 
-  @ImmutableConstructor
-  private RawId(ExternalIdBundle id, Class<T> marketDataType, FieldName fieldName) {
-    _id = ArgumentChecker.notNull(id, "id");
-    _marketDataType = ArgumentChecker.notNull(marketDataType, "marketDataType");
-    _fieldName = ArgumentChecker.notNull(fieldName, "fieldName");
-  }
-
   /**
    * Creates a key for requesting the market value of an ID.
    * <p>
@@ -70,7 +58,7 @@ public final class RawId<T> implements MarketDataId, ImmutableBean {
    * @return a key for looking up the data
    */
   public static RawId<Double> of(ExternalIdBundle id) {
-    return new RawId<>(id, Double.class, MARKET_VALUE);
+    return new RawId<>(id, Double.class, MarketDataUtils.MARKET_VALUE);
   }
 
   /**
@@ -92,9 +80,10 @@ public final class RawId<T> implements MarketDataId, ImmutableBean {
    * @param id ID of the market data
    * @param marketDataType the type of the market data
    * @return a key for looking up the data
+   * @param <U> the type of the market data
    */
   public static <U> RawId<U> of(ExternalIdBundle id, Class<U> marketDataType) {
-    return new RawId<>(id, marketDataType, MARKET_VALUE);
+    return new RawId<>(id, marketDataType, MarketDataUtils.MARKET_VALUE);
   }
 
   /**
@@ -104,6 +93,7 @@ public final class RawId<T> implements MarketDataId, ImmutableBean {
    * @param fieldName the field name of the required market data in the record
    * @param marketDataType the type of the market data
    * @return a key for looking up the data
+   * @param <U> the type of the market data
    */
   public static <U> RawId<U> of(ExternalIdBundle id, Class<U> marketDataType, FieldName fieldName) {
     return new RawId<>(id, marketDataType, fieldName);
@@ -133,6 +123,18 @@ public final class RawId<T> implements MarketDataId, ImmutableBean {
 
   static {
     JodaBeanUtils.registerMetaBean(RawId.Meta.INSTANCE);
+  }
+
+  private RawId(
+      ExternalIdBundle id,
+      Class<T> marketDataType,
+      FieldName fieldName) {
+    JodaBeanUtils.notNull(id, "id");
+    JodaBeanUtils.notNull(marketDataType, "marketDataType");
+    JodaBeanUtils.notNull(fieldName, "fieldName");
+    this._id = id;
+    this._marketDataType = marketDataType;
+    this._fieldName = fieldName;
   }
 
   @SuppressWarnings("unchecked")

@@ -98,41 +98,37 @@ public class MarketDataEnvironmentFactory {
                                      MarketDataSpecification marketDataSpec,
                                      ZonedDateTime valuationTime) {
 
-    // build a tree representing the market data and the data required to build it
-    MarketDataNode root = buildDependencyRoot(requirements, valuationTime, suppliedData);
-
     // create a data source to provide low-level data from market data providers
     @SuppressWarnings("unchecked")
     MarketDataSource marketDataSource = _marketDataFactory.create(marketDataSpec);
+    // build the data
+    MarketDataEnvironment builtData = buildEnvironment(suppliedData, requirements, valuationTime, marketDataSource);
+    // filter the single values to only include the ones in the requirements, not the intermediate values that
+    // were only used to build other values
+    Map<SingleValueRequirement, Object> singleValues = requestedSingleValues(requirements, builtData);
+    // filter the time series to only include the ones in the requirements, not the intermediate values that
+    // were only used to build other values
+    Map<MarketDataId<?>, DateTimeSeries<LocalDate, ?>> timeSeries = requestedTimeSeries(requirements, builtData);
+    return
+        new MarketDataEnvironmentBuilder()
+            .addSingleValues(singleValues)
+            .addTimeSeries(timeSeries)
+            .valuationTime(valuationTime)
+            .build();
+  }
 
-    // the data built so far, including data that isn't in the requirements but is needed to build the required data
-    MarketDataEnvironment builtData = new MarketDataEnvironmentBuilder().valuationTime(valuationTime).build();
-
-    // market data is built in multiple passes over the dependency tree
-    // in each iteration the leaves are removed from the tree and market data is built to satisfy the leaf dependencies
-    // the built market data is accumulated and passed to the builders each iteration
-    // the process ends when only the root node remains
-    while (!root.isLeaf()) {
-      Set<MarketDataRequirement> leafRequirements = new HashSet<>();
-      removeLeaves(root, leafRequirements);
-      List<PartitionedRequirements> partitionedRequirements = PartitionedRequirements.partition(leafRequirements);
-      builtData = buildMarketData(suppliedData, builtData, partitionedRequirements, marketDataSource, valuationTime);
-    }
-
-    // the single market data values that were built
-    Map<SingleValueRequirement, Object> singleValues = new HashMap<>(builtData.getData());
-    // single value requirements in the original requirements
-    Set<SingleValueRequirement> singleValueRequirements = singleValueRequirements(requirements);
-    // only want to return the data in the original requirements, not the intermediate data that was only used
-    // for building the requirements and their dependencies
-    singleValues.keySet().retainAll(singleValueRequirements);
-    // the difference between the original requirements and the ones that have been built
-    Set<SingleValueRequirement> missingRequirements = Sets.difference(singleValueRequirements, singleValues.keySet());
-
-    if (!missingRequirements.isEmpty()) {
-      s_logger.warn("Unable to satisfy requirements for market data {}", missingRequirements);
-    }
-
+  /**
+   * Filters the time series in the built data to only include the time series in the original requirements.
+   * <p>
+   * The built data also includes any time series that was used to build other values but wasn't explicitly requested.
+   *
+   * @param requirements requirements for the market data needed to perform the calculations
+   * @param builtData all the market data that was built, including the values needed for the calculations and
+   *   also the intermediate values that were used to build other market data
+   * @return the time series that were requested in the original requirements
+   */
+  private Map<MarketDataId<?>, DateTimeSeries<LocalDate, ?>> requestedTimeSeries(Set<MarketDataRequirement> requirements,
+                                                                                 MarketDataEnvironment builtData) {
     // the time series that have been built
     Map<MarketDataId<?>, DateTimeSeries<LocalDate, ?>> timeSeries = new HashMap<>(builtData.getTimeSeries());
     // time series IDs in the original requirements
@@ -146,11 +142,89 @@ public class MarketDataEnvironmentFactory {
     if (!missingTimeSeries.isEmpty()) {
       s_logger.warn("Unable to satisfy requirements for time series {}", missingTimeSeries);
     }
+    return timeSeries;
+  }
 
-    return new MarketDataEnvironmentBuilder().addSingleValues(singleValues)
-                                             .addTimeSeries(timeSeries)
-                                             .valuationTime(valuationTime)
-                                             .build();
+  /**
+   * Filters the single values in the built data to only include the data in the original requirements.
+   * <p>
+   * The built data also includes any value that was used to build other values but wasn't explicitly requested.
+   *
+   * @param requirements requirements for the market data needed to perform the calculations
+   * @param builtData all the market data that was built, including the values needed for the calculations and
+   *   also the intermediate values that were used to build other market data
+   * @return the single values that were requested in the original requirements
+   */
+  private Map<SingleValueRequirement, Object> requestedSingleValues(Set<MarketDataRequirement> requirements,
+                                                                    MarketDataEnvironment builtData) {
+    // the single market data values that were built
+    Map<SingleValueRequirement, Object> singleValues = new HashMap<>(builtData.getData());
+    // single value requirements in the original requirements
+    Set<SingleValueRequirement> singleValueRequirements = singleValueRequirements(requirements);
+    // only want to return the data in the original requirements, not the intermediate data that was only used
+    // for building the requirements and their dependencies
+    singleValues.keySet().retainAll(singleValueRequirements);
+    // the difference between the original requirements and the ones that have been built
+    Set<SingleValueRequirement> missingRequirements = Sets.difference(singleValueRequirements, singleValues.keySet());
+
+    if (!missingRequirements.isEmpty()) {
+      s_logger.warn("Unable to satisfy requirements for market data {}", missingRequirements);
+    }
+    return singleValues;
+  }
+
+  /**
+   * Builds a market data environment to satisfy the requirements.
+   *
+   * @param suppliedData the market data that was supplied by the user. The engine won't attempt to build market
+   *   data if it was supplied
+   * @param requirements requirements for the market data needed to perform the calculations
+   * @param valuationTime the valuation time used for building the market data
+   * @param marketDataSource source of raw market data
+   * @return a market data environment containing the data specified by the requirements
+   */
+  private MarketDataEnvironment buildEnvironment(MarketDataEnvironment suppliedData,
+                                                 Set<MarketDataRequirement> requirements,
+                                                 ZonedDateTime valuationTime,
+                                                 MarketDataSource marketDataSource) {
+    // the data built so far, including data that isn't in the requirements but is needed to build the required data
+    MarketDataEnvironment builtData = new MarketDataEnvironmentBuilder().valuationTime(valuationTime).build();
+
+    // build a tree representing the market data and the data required to build it
+    MarketDataNode root = buildDependencyRoot(requirements, valuationTime, suppliedData);
+    // market data is built in multiple passes over the dependency tree
+    // in each iteration the leaves are removed from the tree and market data is built to satisfy the leaf dependencies
+    // the built market data is accumulated and passed to the builders each iteration
+    // the process ends when only the root node remains
+    while (!root.isLeaf()) {
+      Set<MarketDataRequirement> leafRequirements = new HashSet<>();
+      removeLeaves(root, leafRequirements);
+      List<PartitionedRequirements> partitionedRequirements = PartitionedRequirements.partition(leafRequirements);
+      builtData = buildMarketData(suppliedData, builtData, partitionedRequirements, marketDataSource, valuationTime);
+    }
+    return builtData;
+  }
+
+  /**
+   * Recursively removes the leaf nodes from a node and all nodes below it in the tree, adding their
+   * requirements to {@code requirementAccumulator}.
+   *
+   * @param node a node
+   * @param requirementAccumulator mutable set to which requirements are added from leaf nodes
+   */
+  static void removeLeaves(MarketDataNode node, Set<MarketDataRequirement> requirementAccumulator) {
+    List<MarketDataNode> children = node.getChildren();
+
+    for (Iterator<MarketDataNode> it = children.iterator(); it.hasNext(); ) {
+      MarketDataNode childNode = it.next();
+
+      if (childNode.isLeaf()) {
+        it.remove();
+        requirementAccumulator.add(childNode.getRequirement());
+      } else {
+        removeLeaves(childNode, requirementAccumulator);
+      }
+    }
   }
 
   /**
@@ -170,6 +244,7 @@ public class MarketDataEnvironmentFactory {
                                                 ZonedDateTime valuationTime) {
 
     MarketDataEnvironment newData = builtData;
+    MarketDataEnvironmentBuilder environmentBuilder = builtData.toBuilder();
 
     // submit the requirements to the appropriate builder in bulk
     for (PartitionedRequirements partitionedRequirement : partitionedRequirements) {
@@ -192,39 +267,67 @@ public class MarketDataEnvironmentFactory {
       Map<TimeSeriesRequirement, Result<DateTimeSeries<LocalDate, ?>>> timeSeriesData =
           dataBuilder.buildTimeSeries(marketDataBundle, timeSeriesReqsForKey, marketDataSource);
 
-      // maps which are populated with the data as it is built
-      Map<SingleValueRequirement, Object> singleValues = new HashMap<>();
-      Map<MarketDataId<?>, DateTimeSeries<LocalDate, ?>> timeSeries = new HashMap<>();
+      // the single values that were successfully built
+      Map<SingleValueRequirement, Object> singleValues = successfulSingleValues(singleValueData);
+      // the time series that were successfully built
+      Map<MarketDataId<?>, DateTimeSeries<LocalDate, ?>> timeSeries = successfulTimeSeries(timeSeriesData);
 
-      // accumulate the successful single market data value
-      for (Map.Entry<SingleValueRequirement, Result<?>> entry : singleValueData.entrySet()) {
-        Result<?> result = entry.getValue();
-
-        if (result.isSuccess()) {
-          singleValues.put(entry.getKey(), result.getValue());
-        } else {
-          s_logger.warn("Failed to build market data {}, {}", entry.getKey(), result);
-        }
-      }
-      // accumulate the successful time series values
-      for (Map.Entry<TimeSeriesRequirement, Result<DateTimeSeries<LocalDate, ?>>> entry : timeSeriesData.entrySet()) {
-        Result<DateTimeSeries<LocalDate, ?>> result = entry.getValue();
-
-        if (result.isSuccess()) {
-          MarketDataId id = entry.getKey().getMarketDataId();
-          timeSeries.put(id, mergeTimeSeries(id, timeSeries, result.getValue()));
-        } else {
-          s_logger.warn("Failed to build time series {}, {}", entry.getKey(), result);
-        }
-      }
       // environment contains the passed in data, plus all the data built so far
-      newData = newData.toBuilder()
-          .addSingleValues(singleValues)
-          .addTimeSeries(timeSeries)
-          .valuationTime(valuationTime)
-          .build();
+      newData =
+          environmentBuilder
+              .addSingleValues(singleValues)
+              .addTimeSeries(timeSeries)
+              .valuationTime(valuationTime)
+              .build();
     }
     return newData;
+  }
+
+  /**
+   * Collects and returns the time series that were successfully built and logs warnings for any failures.
+   *
+   * @param timeSeriesData the results of building the time series
+   * @return the time series that were successfully built
+   */
+  private static Map<MarketDataId<?>, DateTimeSeries<LocalDate, ?>> successfulTimeSeries(
+      Map<TimeSeriesRequirement, Result<DateTimeSeries<LocalDate, ?>>> timeSeriesData) {
+
+    Map<MarketDataId<?>, DateTimeSeries<LocalDate, ?>> timeSeries = new HashMap<>();
+
+    for (Map.Entry<TimeSeriesRequirement, Result<DateTimeSeries<LocalDate, ?>>> entry : timeSeriesData.entrySet()) {
+      Result<DateTimeSeries<LocalDate, ?>> result = entry.getValue();
+
+      if (result.isSuccess()) {
+        MarketDataId id = entry.getKey().getMarketDataId();
+        timeSeries.put(id, mergeTimeSeries(id, timeSeries, result.getValue()));
+      } else {
+        s_logger.warn("Failed to build time series {}, {}", entry.getKey(), result);
+      }
+    }
+    return timeSeries;
+  }
+
+  /**
+   * Collects and returns the market data values that were successfully built and logs warnings for any failures.
+   *
+   * @param singleValueData the results of building the single market data values
+   * @return the market data values that were successfully built
+   */
+  private static Map<SingleValueRequirement, Object> successfulSingleValues(
+      Map<SingleValueRequirement, Result<?>> singleValueData) {
+
+    Map<SingleValueRequirement, Object> singleValues = new HashMap<>();
+
+    for (Map.Entry<SingleValueRequirement, Result<?>> entry : singleValueData.entrySet()) {
+      Result<?> result = entry.getValue();
+
+      if (result.isSuccess()) {
+        singleValues.put(entry.getKey(), result.getValue());
+      } else {
+        s_logger.warn("Failed to build market data {}, {}", entry.getKey(), result);
+      }
+    }
+    return singleValues;
   }
 
   /**
@@ -237,9 +340,10 @@ public class MarketDataEnvironmentFactory {
    * @throws IllegalArgumentException if the time series have different types. This should never happen unless
    *   there's a bug in the {@code MarketDataBuilder} that created them
    */
-  private DateTimeSeries<LocalDate, ?> mergeTimeSeries(MarketDataId<?> marketDataId,
-                                                       Map<MarketDataId<?>, DateTimeSeries<LocalDate, ?>> builtData,
-                                                       DateTimeSeries<LocalDate, ?> timeSeries) {
+  private static DateTimeSeries<LocalDate, ?> mergeTimeSeries(
+      MarketDataId<?> marketDataId,
+      Map<MarketDataId<?>, DateTimeSeries<LocalDate, ?>> builtData,
+      DateTimeSeries<LocalDate, ?> timeSeries) {
 
     DateTimeSeries<LocalDate, ?> existingTimeSeries = builtData.get(marketDataId);
 
@@ -395,28 +499,6 @@ public class MarketDataEnvironmentFactory {
   }
 
   /**
-   * Recursively removes the leaf nodes from a node and all nodes below it in the tree, adding their
-   * requirements to {@code requirementAccumulator}.
-   *
-   * @param node a node
-   * @param requirementAccumulator mutable set to which requirements are added from leaf nodes
-   */
-  static void removeLeaves(MarketDataNode node, Set<MarketDataRequirement> requirementAccumulator) {
-    List<MarketDataNode> children = node.getChildren();
-
-    for (Iterator<MarketDataNode> it = children.iterator(); it.hasNext(); ) {
-      MarketDataNode childNode = it.next();
-
-      if (childNode.isLeaf()) {
-        it.remove();
-        requirementAccumulator.add(childNode.getRequirement());
-      } else {
-        removeLeaves(childNode, requirementAccumulator);
-      }
-    }
-  }
-
-  /**
    * Sets of requirements for a single type of {@link MarketDataId}.
    */
   private static class PartitionedRequirements {
@@ -505,7 +587,9 @@ public class MarketDataEnvironmentFactory {
 
     @Override
     public int hashCode() {
-      return Objects.hash(_requirement, _children);
+      // deriving the hash code from the fields is dangerous because they're mutable.
+      // strictly speaking this is correct, if a bit unusual
+      return 42;
     }
 
     @Override

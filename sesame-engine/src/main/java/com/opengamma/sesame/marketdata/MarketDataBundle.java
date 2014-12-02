@@ -47,10 +47,8 @@ public interface MarketDataBundle {
    * @param dataType the expected type of the market data
    * @return a successful result containing the market data, or a failure result if it is unavailable or not
    *   compatible with the requested type
-   *
-   * TODO is the dataType arg necessary? shouldn't the id's type be enough?
    */
-  <T> Result<T> get(MarketDataId<?> id, Class<T> dataType);
+  <T> Result<T> get(MarketDataId<T> id, Class<T> dataType);
 
   /**
    * Returns a time series of market data values.

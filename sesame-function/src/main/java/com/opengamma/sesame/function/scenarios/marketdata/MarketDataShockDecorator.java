@@ -109,7 +109,7 @@ public class MarketDataShockDecorator
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> Result<T> get(MarketDataId<?> id, Class<T> dataType) {
+    public <T> Result<T> get(MarketDataId<T> id, Class<T> dataType) {
       Result<T> result = _delegate.get(id, dataType);
 
       if (!result.isSuccess()) {

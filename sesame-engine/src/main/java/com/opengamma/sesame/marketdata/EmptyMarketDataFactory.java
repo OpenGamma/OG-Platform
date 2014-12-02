@@ -28,8 +28,8 @@ public class EmptyMarketDataFactory implements MarketDataFactory<EmptyMarketData
   private static class DataSource implements MarketDataSource {
 
     @Override
-    public MarketDataResponse get(Set<MarketDataRequest> requests) {
-      MarketDataResponse.Builder builder = MarketDataResponse.builder();
+    public MarketDataResults get(Set<MarketDataRequest> requests) {
+      MarketDataResults.Builder builder = MarketDataResults.builder();
 
       for (MarketDataRequest request : requests) {
         builder.missing(request);

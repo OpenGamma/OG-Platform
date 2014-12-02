@@ -19,7 +19,7 @@ import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
 
 /**
- *
+ * Market data factory backed by a historical time series source.
  */
 public class HistoricalMarketDataFactory implements MarketDataFactory<FixedHistoricalMarketDataSpecification> {
 
@@ -27,6 +27,11 @@ public class HistoricalMarketDataFactory implements MarketDataFactory<FixedHisto
   private final String _dataSource;
   private final String _dataProvider;
 
+  /**
+   * @param timeSeriesSource a source of historical time series
+   * @param dataSource the data source name used when looking up time series
+   * @param dataProvider the data provider name used when looking up time series, possibly null
+   */
   public HistoricalMarketDataFactory(HistoricalTimeSeriesSource timeSeriesSource,
                                      String dataSource,
                                      @Nullable String dataProvider) {
@@ -60,8 +65,8 @@ public class HistoricalMarketDataFactory implements MarketDataFactory<FixedHisto
     }
 
     @Override
-    public MarketDataResponse get(Set<MarketDataRequest> requests) {
-      MarketDataResponse.Builder builder = MarketDataResponse.builder();
+    public MarketDataResults get(Set<MarketDataRequest> requests) {
+      MarketDataResults.Builder builder = MarketDataResults.builder();
 
       for (MarketDataRequest request : requests) {
         HistoricalTimeSeries timeSeries =

@@ -181,13 +181,18 @@ public class MarketDataEnvironmentBuilder {
     ArgumentChecker.notNull(env1, "env1");
     ArgumentChecker.notNull(env2, "env2");
 
-    ImmutableMap.Builder<SingleValueRequirement, Object> dataBuilder = ImmutableMap.builder();
-    Map<SingleValueRequirement, Object> data = dataBuilder.putAll(env1.getData()).putAll(env2.getData()).build();
+    Map<SingleValueRequirement, Object> data =
+        ImmutableMap.<SingleValueRequirement, Object>builder()
+            .putAll(env1.getData())
+            .putAll(env2.getData())
+            .build();
 
-    ImmutableMap.Builder<MarketDataId<?>, DateTimeSeries<LocalDate, ?>> timeSeriesBuilder = ImmutableMap.builder();
-    Map<MarketDataId<?>, DateTimeSeries<LocalDate, ?>> timeSeries = timeSeriesBuilder.putAll(env1.getTimeSeries())
-                                                                                     .putAll(env2.getTimeSeries())
-                                                                                     .build();
+    Map<MarketDataId<?>, DateTimeSeries<LocalDate, ?>> timeSeries =
+        ImmutableMap.<MarketDataId<?>, DateTimeSeries<LocalDate, ?>>builder()
+            .putAll(env1.getTimeSeries())
+            .putAll(env2.getTimeSeries())
+            .build();
+
     return new MapMarketDataEnvironment(data, timeSeries, env1.getValuationTime());
   }
 

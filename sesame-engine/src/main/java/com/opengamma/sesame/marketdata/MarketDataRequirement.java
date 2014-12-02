@@ -30,7 +30,11 @@ public abstract class MarketDataRequirement {
   public abstract MarketDataTime getMarketDataTime();
 
   /**
-   * Queries the builder to get the requirements this requirement depends on.
+   * Queries the builder to get requirements for the data this requirement depends on.
+   * <p>
+   * This method exists because different subclasses need to make different method calls on the builder
+   * to get the requirements. If this method didn't exist there would need to be an {@code instanceof} check
+   * at the call site with different logic for each subtype of this class.
    *
    * @param builder a builder to build this market data
    * @param valuationTime the valuation time of the calculations

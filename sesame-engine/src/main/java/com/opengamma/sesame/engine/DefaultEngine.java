@@ -6,7 +6,6 @@
 package com.opengamma.sesame.engine;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -15,7 +14,7 @@ import java.util.concurrent.ExecutionException;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.base.Function;
-import com.google.common.collect.Sets;
+import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.opengamma.OpenGammaRuntimeException;
@@ -53,15 +52,15 @@ public class DefaultEngine implements Engine {
 
   @Override
   public Results runView(ViewConfig viewConfig,
-                         final CalculationArguments calculationArguments,
+                         CalculationArguments calculationArguments,
                          MarketDataEnvironment suppliedData,
-                         final List<?> portfolio) {
+                         List<?> portfolio) {
 
     View view = _viewFactory.createView(viewConfig, EngineUtils.getInputTypes(portfolio));
     try {
       return runAsync(view, calculationArguments, suppliedData, portfolio).get();
     } catch (InterruptedException | ExecutionException e) {
-      // this won't happen
+      // this won't happen unless there's a bug in the engine or a function interrupts its thread, which it shouldn't
       throw new OpenGammaRuntimeException("Failed to run view", e);
     }
   }
@@ -80,7 +79,10 @@ public class DefaultEngine implements Engine {
       final String scenarioName = entry.getKey();
       MarketDataEnvironment scenarioMarketData = entry.getValue();
       CalculationArguments calcArgs = calculationArguments.argumentsForScenario(scenarioName);
+      // the future represents the results for a single scenario, which might not have finished calculating yet
+      // the futures are executed asynchronously using the view's thread pool
       ListenableFuture<Results> future = view.runAsync(calcArgs, scenarioMarketData, portfolio);
+      // creates a new future that wraps the original future so it returns the scenario name along with its results
       ListenableFuture<Pair<String, Results>> futureWithName =
           Futures.transform(future, new Function<Results, Pair<String, Results>>() {
         @Override
@@ -90,11 +92,14 @@ public class DefaultEngine implements Engine {
       });
       resultFutures.add(futureWithName);
     }
+    // combine the futures for all scenarios into one future that holds a list of the scenario results.
+    // the results will only be available from the combined futures when all the underlying futures have finished
     ListenableFuture<List<Pair<String, Results>>> combinedFuture = Futures.allAsList(resultFutures);
     List<Pair<String, Results>> scenarioNamesAndResults;
     try {
+      // get the calculation results for all scenarios. this will block until all the calculations complete
       scenarioNamesAndResults = combinedFuture.get();
-      Map<String, Results> resultsMap = new HashMap<>(scenarioNamesAndResults.size());
+      Map<String, Results> resultsMap = Maps.newHashMapWithExpectedSize(scenarioNamesAndResults.size());
 
       for (Pair<String, Results> scenarioNameAndResults : scenarioNamesAndResults) {
         String scenarioName = scenarioNameAndResults.getFirst();
@@ -103,7 +108,7 @@ public class DefaultEngine implements Engine {
       }
       return new ScenarioResults(resultsMap);
     } catch (InterruptedException | ExecutionException e) {
-      // this won't happen
+      // this won't happen unless there's a bug in the engine or a function interrupts its thread, which it shouldn't
       throw new OpenGammaRuntimeException("Failed to run scenarios", e);
     }
   }
@@ -116,9 +121,7 @@ public class DefaultEngine implements Engine {
     GatheringMarketDataBundle gatheringBundle = GatheringMarketDataBundle.create(suppliedData.toBundle());
     ZonedDateTime valuationTime = valuationTime(calculationArguments, suppliedData);
     view.run(calculationArguments, new GatheringMarketDataEnvironment(gatheringBundle, valuationTime), inputs);
-    Set<MarketDataRequirement> requirements =
-        Sets.<MarketDataRequirement>union(gatheringBundle.getRequirements(),
-                                          gatheringBundle.getTimeSeriesRequirements());
+    Set<MarketDataRequirement> requirements = gatheringBundle.getRequirements();
     MarketDataEnvironment populatedEnvironment =
         _environmentFactory.build(suppliedData,
                                   requirements,

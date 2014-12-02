@@ -560,19 +560,8 @@ public class View {
                                                      Class<?> implType,
                                                      Class<?> declType,
                                                      FunctionModelConfig config) {
-    FunctionArguments implArgs;
-    FunctionArguments declArgs;
-
-    if (argMap.containsKey(implType)) {
-      implArgs = argMap.get(implType);
-    } else {
-      implArgs = FunctionArguments.EMPTY;
-    }
-    if (argMap.containsKey(declType)) {
-      declArgs = argMap.get(declType);
-    } else {
-      declArgs = FunctionArguments.EMPTY;
-    }
+    FunctionArguments implArgs = argMap.containsKey(implType) ? argMap.get(implType) : FunctionArguments.EMPTY;
+    FunctionArguments declArgs = argMap.containsKey(declType) ? argMap.get(declType) : FunctionArguments.EMPTY;
     return implArgs.mergedWith(declArgs, config.getFunctionArguments(implType), config.getFunctionArguments(declType));
   }
 

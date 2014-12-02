@@ -37,11 +37,9 @@ public class DefaultMarketDataFn implements MarketDataFn {
   public Result<Double> getCurveNodeValue(Environment env, CurveNodeWithIdentifier node) {
     FieldName fieldName = FieldName.of(node.getDataField());
     ExternalIdBundle id = node.getIdentifier().toBundle();
-    // TODO should this use a security link?
-    // what about nodes that refer to IDs with no corresponding securities? are they any that refer to conventions?
-    // is it practical to change nodes to refer to links? ideally they should
+    // this should use a link but that requires changes to the curve configuration classes.
+    // CurveNodeWithIdentifier should refer to its data using a link (probably a SecurityLink) instead of an ID
     return env.getMarketDataBundle().get(RawId.of(id, Double.class, fieldName), Double.class);
-    //return env.getMarketDataEnvironment().get(SecurityMarketDataKey.of(id, Double.class, fieldName));
   }
 
   @Override

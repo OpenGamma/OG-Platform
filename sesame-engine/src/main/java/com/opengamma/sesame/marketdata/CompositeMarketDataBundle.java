@@ -33,7 +33,7 @@ public class CompositeMarketDataBundle implements MarketDataBundle {
   }
 
   @Override
-  public <T> Result<T> get(MarketDataId<?> id, Class<T> dataType) {
+  public <T> Result<T> get(MarketDataId<T> id, Class<T> dataType) {
     Result<T> result = _bundle1.get(id, dataType);
     return result.isSuccess() ? result : _bundle2.get(id, dataType);
   }
