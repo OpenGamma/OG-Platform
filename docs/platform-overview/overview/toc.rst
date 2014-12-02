@@ -71,21 +71,8 @@ The calculation engine allows to bring together a data environment (live or snap
 
 The client facing REST endpoint exposing the pricing functions as callable services are implemented on top of the Engine API
 
-The calculation engine uses function graph dependency analysis and memoization of function calls to remove duplicate calculations, automatically multi thread and distribute the calculation path.
-
 Calculations are fully distributed, and intelligent caching strategies allow very fast computations.
 
-.. image:: ../images/calc-engine.png
-
-Comprehensive logging allows to show
-
-* Developer-level error , all errors returned to teh client (no server side only logging)
-* Indicates config problem
-* No backtracking, so any error can be reported
-* Logs dependency graph with failures highlighted
-
-
-.. image:: ../images/logging.png
 
 See [OpenGamma Engine] for more information.
 
