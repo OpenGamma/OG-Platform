@@ -5,6 +5,8 @@ Platform
    :maxdepth: 6
    :glob:
 
+   platform-overview/*
+   getting-started/*
    og-analytics/*
    HowTos/*
    Product types/*
