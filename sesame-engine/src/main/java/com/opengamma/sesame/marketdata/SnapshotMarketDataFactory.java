@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.common.collect.ImmutableBiMap;
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.core.marketdatasnapshot.CurveKey;
 import com.opengamma.core.marketdatasnapshot.CurveSnapshot;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
@@ -20,6 +22,8 @@ import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.result.FailureStatus;
+import com.opengamma.util.result.Result;
 
 /**
  * Market data factory that creates a data source backed by a {@link StructuredMarketDataSnapshot}.
@@ -97,8 +101,8 @@ public class SnapshotMarketDataFactory
 
 
     @Override
-    public MarketDataResults get(Set<MarketDataRequest> requests) {
-      MarketDataResults.Builder builder = MarketDataResults.builder();
+    public Map<MarketDataRequest, Result<?>> get(Set<MarketDataRequest> requests) {
+      ImmutableMap.Builder<MarketDataRequest, Result<?>> builder = ImmutableBiMap.builder();
 
       for (MarketDataRequest request : requests) {
         for (ExternalId id : request.getId()) {
@@ -106,10 +110,10 @@ public class SnapshotMarketDataFactory
           Object value = _marketData.get(singleIdRequest);
 
           if (value != null) {
-            builder.add(request, value);
+            builder.put(request, Result.success(value));
             break;
           } else {
-            builder.missing(request);
+            builder.put(request, Result.failure(FailureStatus.MISSING_DATA, "No data available for {}", request));
           }
         }
       }

@@ -15,6 +15,7 @@ import javax.annotation.Nullable;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.id.ExternalIdBundle;
@@ -23,7 +24,6 @@ import com.opengamma.sesame.marketdata.MarketDataBundle;
 import com.opengamma.sesame.marketdata.MarketDataId;
 import com.opengamma.sesame.marketdata.MarketDataRequest;
 import com.opengamma.sesame.marketdata.MarketDataRequirement;
-import com.opengamma.sesame.marketdata.MarketDataResults;
 import com.opengamma.sesame.marketdata.MarketDataSource;
 import com.opengamma.sesame.marketdata.MarketDataTime;
 import com.opengamma.sesame.marketdata.RawId;
@@ -80,7 +80,7 @@ public class RawMarketDataBuilder implements MarketDataBuilder {
                                                                   MarketDataSource marketDataSource) {
     // map of request->requirement so we can build the results
     Map<MarketDataRequest, SingleValueRequirement> requirementMap = new HashMap<>();
-    Map<SingleValueRequirement, Result<?>> results = new HashMap<>();
+    ImmutableMap.Builder<SingleValueRequirement, Result<?>> results = ImmutableMap.builder();
 
     for (SingleValueRequirement requirement : marketDataRequirements) {
       // builders are keyed by type in the engine and requirements are dispatched to builders based on their key type
@@ -117,15 +117,14 @@ public class RawMarketDataBuilder implements MarketDataBuilder {
           break;
       }
     }
-    MarketDataResults response = marketDataSource.get(requirementMap.keySet());
+    Map<MarketDataRequest, Result<?>> data = marketDataSource.get(requirementMap.keySet());
 
-    for (Map.Entry<MarketDataRequest, Result<?>> entry : response.getData().entrySet()) {
+    for (Map.Entry<MarketDataRequest, Result<?>> entry : data.entrySet()) {
       MarketDataRequest request = entry.getKey();
-      Result<?> result = entry.getValue();
       SingleValueRequirement requirement = requirementMap.get(request);
-      results.put(requirement, result);
+      results.put(requirement, Result.success(entry.getValue()));
     }
-    return results;
+    return results.build();
   }
 
   @Override

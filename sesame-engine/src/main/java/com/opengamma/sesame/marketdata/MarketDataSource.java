@@ -5,9 +5,11 @@
  */
 package com.opengamma.sesame.marketdata;
 
+import java.util.Map;
 import java.util.Set;
 
 import com.opengamma.util.result.FailureStatus;
+import com.opengamma.util.result.Result;
 
 /**
  * A source of market data.
@@ -26,6 +28,6 @@ public interface MarketDataSource {
    * @return a response containing success results containing the market data value,
    *  or failure results with a status explaining why data was not returned
    */
-  MarketDataResults get(Set<MarketDataRequest> requests);
+  Map<MarketDataRequest, Result<?>> get(Set<MarketDataRequest> requests);
 
 }

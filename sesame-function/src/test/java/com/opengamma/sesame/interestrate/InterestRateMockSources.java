@@ -32,6 +32,7 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.ZoneOffset;
 
+import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -126,7 +127,6 @@ import com.opengamma.sesame.holidays.UsdHolidaySource;
 import com.opengamma.sesame.marketdata.MarketDataEnvironment;
 import com.opengamma.sesame.marketdata.MarketDataEnvironmentBuilder;
 import com.opengamma.sesame.marketdata.MarketDataRequest;
-import com.opengamma.sesame.marketdata.MarketDataResults;
 import com.opengamma.sesame.marketdata.MarketDataSource;
 import com.opengamma.sesame.marketdata.RawId;
 import com.opengamma.sesame.sabr.SabrConfigSelector;
@@ -274,15 +274,16 @@ public class InterestRateMockSources {
 
     return new MarketDataSource() {
       @Override
-      public MarketDataResults get(Set<MarketDataRequest> requests) {
-        MarketDataResults.Builder builder = MarketDataResults.builder();
+      public Map<MarketDataRequest, Result<?>> get(Set<MarketDataRequest> requests) {
+        ImmutableMap.Builder<MarketDataRequest, Result<?>> builder = ImmutableBiMap.builder();
 
         for (MarketDataRequest request : requests) {
           if (marketData.containsKey(request.getId())) {
             Double value = marketData.get(request.getId());
-            builder.add(request, Result.success(value));
+            builder.put(request, Result.success(value));
           } else {
-            builder.add(request, Result.failure(FailureStatus.MISSING_DATA, "No data available for {}", request.getId()));
+            builder.put(request,
+                        Result.failure(FailureStatus.MISSING_DATA, "No data available for {}", request.getId()));
           }
         }
         return builder.build();
