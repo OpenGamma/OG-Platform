@@ -114,7 +114,6 @@ public class SwapCleanDiscountingCalculatorTest {
   /**
    * Test consistency between accrued interest and par rate
    */
-  @SuppressWarnings("rawtypes")
   @Test
   public void consistencyTest() {
     for (ZonedDateTime valuationDate : VALUATION_DATE_SET) {
@@ -159,7 +158,7 @@ public class SwapCleanDiscountingCalculatorTest {
         double accruedYearFractionFixed = dayCountFixed.getDayCountFraction(trimedFixedLeg.getNthPayment(0)
             .getAccrualStartDate(), valuationDate, calendarFixed);
         AnnuityCouponFixed fixedLegDerivative = trimedFixedLeg.toDerivative(valuationDate);
-        SwapFixedCoupon<Coupon> fixedCouponSwap = new SwapFixedCoupon(fixedLegDerivative, floatingLegDerivative);
+        SwapFixedCoupon<?> fixedCouponSwap = new SwapFixedCoupon<>(fixedLegDerivative, floatingLegDerivative);
         double dirtyAnnuity = METHOD_SWAP.presentValueBasisPoint(fixedCouponSwap, multicurve);
         double accruedFixed = accruedYearFractionFixed * Math.abs(trimedFixedLeg.getNthPayment(0).getNotional());
         double cleanAnnuity = dirtyAnnuity - accruedFixed;
