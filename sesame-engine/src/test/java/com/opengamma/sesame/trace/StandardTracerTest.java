@@ -7,7 +7,6 @@ package com.opengamma.sesame.trace;
 
 import static com.opengamma.sesame.config.ConfigBuilder.config;
 import static com.opengamma.sesame.config.ConfigBuilder.implementations;
-import static com.opengamma.sesame.engine.CycleArguments.TraceType;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.fail;
@@ -18,6 +17,7 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.engine.ComponentMap;
+import com.opengamma.sesame.engine.TraceType;
 import com.opengamma.sesame.function.Output;
 import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.util.test.TestGroup;

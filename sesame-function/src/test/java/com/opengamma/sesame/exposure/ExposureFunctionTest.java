@@ -35,7 +35,6 @@ import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.SimpleCounterparty;
 import com.opengamma.core.position.impl.SimpleTrade;
-import com.opengamma.engine.marketdata.spec.FixedHistoricalMarketDataSpecification;
 import com.opengamma.financial.analytics.curve.exposure.ExposureFunctions;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
@@ -54,7 +53,6 @@ import com.opengamma.sesame.DefaultCurveSpecificationMarketDataFn;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleResolverFn;
 import com.opengamma.sesame.DefaultFXMatrixFn;
-import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
 import com.opengamma.sesame.DiscountingMulticurveBundleFn;
 import com.opengamma.sesame.DiscountingMulticurveBundleResolverFn;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
@@ -74,8 +72,9 @@ import com.opengamma.sesame.interestrate.InterestRateMockSources;
 import com.opengamma.sesame.marketdata.DefaultHistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
+import com.opengamma.sesame.marketdata.MapMarketDataBundle;
+import com.opengamma.sesame.marketdata.MarketDataBundle;
 import com.opengamma.sesame.marketdata.MarketDataFn;
-import com.opengamma.sesame.marketdata.StrategyAwareMarketDataSource;
 import com.opengamma.sesame.trade.FraTrade;
 import com.opengamma.sesame.trade.InterestRateFutureTrade;
 import com.opengamma.util.money.Currency;
@@ -97,11 +96,8 @@ public class ExposureFunctionTest {
   private void setUpClass() {
 
     ZonedDateTime valTime = LocalDate.of(2014, 6, 1).atStartOfDay(ZoneOffset.UTC);
-    StrategyAwareMarketDataSource marketDataSource = InterestRateMockSources.createMarketDataFactory().create(
-            new FixedHistoricalMarketDataSpecification(valTime.toLocalDate()));
-
-     _environment = new SimpleEnvironment(valTime, marketDataSource);
-
+    MarketDataBundle marketDataBundle = new MapMarketDataBundle(InterestRateMockSources.createMarketDataEnvironment());
+    _environment = new SimpleEnvironment(valTime, marketDataBundle);
     VersionCorrectionProvider vcProvider = new FixedInstantVersionCorrectionProvider(Instant.now());
     ServiceContext serviceContext = ServiceContext.of(_components).with(VersionCorrectionProvider.class, vcProvider);
     ThreadLocalServiceContext.init(serviceContext);
@@ -125,10 +121,6 @@ public class ExposureFunctionTest {
                 function(
                     DefaultHistoricalMarketDataFn.class,
                     argument("dataSource", "BLOOMBERG")),
-                function(
-                    DefaultHistoricalTimeSeriesFn.class,
-                    argument("resolutionKey", "DEFAULT_TSS"),
-                    argument("htsRetrievalPeriod", RetrievalPeriod.of((Period.ofYears(1))))),
                 function(
                     DefaultDiscountingMulticurveBundleFn.class,
                     argument("impliedCurveNames", StringSet.of()))),

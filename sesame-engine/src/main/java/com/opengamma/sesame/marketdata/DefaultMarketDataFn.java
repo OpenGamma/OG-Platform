@@ -5,7 +5,7 @@
  */
 package com.opengamma.sesame.marketdata;
 
-import com.opengamma.core.value.MarketDataRequirementNames;
+import com.opengamma.core.security.Security;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.strips.PointsCurveNodeWithIdentifier;
@@ -29,34 +29,36 @@ public class DefaultMarketDataFn implements MarketDataFn {
 
   private final CurrencyMatrix _currencyMatrix;
 
-  private static final FieldName MARKET_VALUE = FieldName.of(MarketDataRequirementNames.MARKET_VALUE);
-
   public DefaultMarketDataFn(CurrencyMatrix currencyMatrix) {
     _currencyMatrix = ArgumentChecker.notNull(currencyMatrix, "currencyMatrix");
   }
 
   @Override
   public Result<Double> getCurveNodeValue(Environment env, CurveNodeWithIdentifier node) {
-    Result<?> result = env.getMarketDataSource().get(node.getIdentifier().toBundle(), FieldName.of(node.getDataField()));
-    return (Result<Double>) result;
+    FieldName fieldName = FieldName.of(node.getDataField());
+    ExternalIdBundle id = node.getIdentifier().toBundle();
+    // this should use a link but that requires changes to the curve configuration classes.
+    // CurveNodeWithIdentifier should refer to its data using a link (probably a SecurityLink) instead of an ID
+    return env.getMarketDataBundle().get(RawId.of(id, Double.class, fieldName), Double.class);
   }
 
   @Override
   public Result<Double> getCurveNodeUnderlyingValue(Environment env, PointsCurveNodeWithIdentifier node) {
     ExternalIdBundle id = node.getUnderlyingIdentifier().toBundle();
     FieldName fieldName = FieldName.of(node.getUnderlyingDataField());
-    Result<?> result = env.getMarketDataSource().get(id, fieldName);
-    return (Result<Double>) result;
+    return env.getMarketDataBundle().get(RawId.of(id, fieldName), Double.class);
   }
 
   @Override
-  public Result<Double> getMarketValue(Environment env, ExternalIdBundle id) {
-    return (Result<Double>) env.getMarketDataSource().get(id, MARKET_VALUE);
+  public Result<Double> getMarketValue(Environment env, Security security) {
+    MarketDataId key = SecurityId.of(security);
+    return env.getMarketDataBundle().get(key, Double.class);
   }
 
   @Override
-  public Result<?> getValue(Environment env, ExternalIdBundle id, FieldName fieldName) {
-    return env.getMarketDataSource().get(id, fieldName);
+  public <T> Result<T> getValue(Environment env, Security security, FieldName fieldName, Class<T> valueType) {
+    MarketDataId key = SecurityId.of(security, valueType, fieldName);
+    return env.getMarketDataBundle().get(key, valueType);
   }
 
   @Override
@@ -80,10 +82,11 @@ public class DefaultMarketDataFn implements MarketDataFn {
         ValueRequirement valueRequirement = req.getValueRequirement();
         ExternalIdBundle id = valueRequirement.getTargetReference().getRequirement().getIdentifiers();
         String dataField = valueRequirement.getValueName();
-        Result<?> result = env.getMarketDataSource().get(id, FieldName.of(dataField));
+        Result<Double> result =
+            env.getMarketDataBundle().get(RawId.of(id, FieldName.of(dataField)), Double.class);
 
         if (result.isSuccess()) {
-          Double spotRate = (Double) result.getValue();
+          Double spotRate = result.getValue();
           return Result.success(req.isReciprocal() ? 1 / spotRate : spotRate);
         } else {
           return Result.failure(result);

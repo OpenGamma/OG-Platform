@@ -26,7 +26,6 @@ import org.fudgemsg.FudgeMsg;
 import org.springframework.jms.core.JmsTemplate;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.threeten.bp.Period;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
@@ -36,12 +35,10 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.ComponentServer;
 import com.opengamma.component.rest.RemoteComponentServer;
 import com.opengamma.core.link.ConfigLink;
-import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.exposure.ConfigDBInstrumentExposuresProvider;
 import com.opengamma.financial.currency.CurrencyMatrix;
-import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.LiveDataClient;
 import com.opengamma.livedata.client.JmsLiveDataClient;
 import com.opengamma.provider.livedata.LiveDataMetaData;
@@ -58,13 +55,12 @@ import com.opengamma.sesame.DefaultCurveSpecificationFn;
 import com.opengamma.sesame.DefaultCurveSpecificationMarketDataFn;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
 import com.opengamma.sesame.DefaultFXMatrixFn;
-import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
 import com.opengamma.sesame.DirectExecutorService;
 import com.opengamma.sesame.DiscountingMulticurveBundleFn;
+import com.opengamma.sesame.FixingsFn;
 import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.RootFinderConfiguration;
 import com.opengamma.sesame.cache.NoOpCacheInvalidator;
-import com.opengamma.sesame.component.RetrievalPeriod;
 import com.opengamma.sesame.component.StringSet;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.config.ViewConfig;
@@ -81,7 +77,6 @@ import com.opengamma.sesame.function.AvailableImplementationsImpl;
 import com.opengamma.sesame.function.AvailableOutputs;
 import com.opengamma.sesame.function.AvailableOutputsImpl;
 import com.opengamma.sesame.function.scenarios.curvedata.FunctionTestUtils;
-import com.opengamma.sesame.server.DefaultCycleMarketDataFactory;
 import com.opengamma.transport.ByteArrayFudgeRequestSender;
 import com.opengamma.transport.jms.JmsByteArrayMessageSender;
 import com.opengamma.transport.jms.JmsByteArrayRequestSender;
@@ -104,6 +99,7 @@ public class CurveBuildingIntegrationTest {
     s_testUtils = new RemoteProviderTestUtils();
   }
 
+  // TODO this doesn't work ATM, needs porting to use MarketDataEnvironment
   // Create a view with known curve and try to get market data
   // from the market data server
   //@Test(groups = TestGroup.INTEGRATION)
@@ -119,10 +115,6 @@ public class CurveBuildingIntegrationTest {
                     argument("rootFinderAbsoluteTolerance", 1e-9),
                     argument("rootFinderRelativeTolerance", 1e-9),
                     argument("rootFinderMaxIterations", 1000)),
-                function(
-                    DefaultHistoricalTimeSeriesFn.class,
-                    argument("resolutionKey", "DEFAULT_TSS"),
-                    argument("htsRetrievalPeriod", RetrievalPeriod.of(Period.ofYears(1)))),
                 function(
                     DefaultDiscountingMulticurveBundleFn.class,
                     argument("impliedCurveNames", StringSet.of())),
@@ -159,7 +151,7 @@ public class CurveBuildingIntegrationTest {
                                       DefaultDiscountingMulticurveBundleFn.class,
                                       DefaultCurveSpecificationFn.class,
                                       ConfigDBCurveConstructionConfigurationSource.class,
-                                      DefaultHistoricalTimeSeriesFn.class,
+                                      FixingsFn.class,
                                       ConfigDbMarketExposureSelectorFn.class,
                                       DefaultMarketDataFn.class,
                                       DefaultHistoricalMarketDataFn.class);
@@ -185,11 +177,12 @@ public class CurveBuildingIntegrationTest {
     LiveDataManager liveDataManager = new DefaultLiveDataManager(buildLiveDataClient());
     // TODO provide appropriate mock values
     LDClient liveDataClient = new LDClient(liveDataManager);
-    StrategyAwareMarketDataSource liveDataSource = new ResettableLiveMarketDataSource(MarketData.live(), liveDataClient);
-    CycleMarketDataFactory cycleMarketDataFactory = new DefaultCycleMarketDataFactory(mock(MarketDataFactory.class), liveDataSource);
+    //CycleMarketDataFactory cycleMarketDataFactory = new DefaultCycleMarketDataFactory(mock(MarketDataFactory.class), liveDataSource);
 
-    CycleArguments cycleArguments = new CycleArguments(valuationTime, VersionCorrection.LATEST, cycleMarketDataFactory);
-    Results initialResults = view.run(cycleArguments);
+    CycleArguments cycleArguments = CycleArguments.builder(mock(MarketDataEnvironment.class))
+                                                  .valuationTime(valuationTime)
+                                                  .build();
+        Results initialResults = view.run(cycleArguments);
     System.out.println(initialResults);
 
     // First time through we're waiting for market data so expect failure
@@ -200,7 +193,7 @@ public class CurveBuildingIntegrationTest {
 
     // Now try again, resetting the market data first (which should pick up bloomberg data)
     System.out.println("Waiting for market data to catch up");
-    cycleArguments = new CycleArguments(valuationTime, VersionCorrection.LATEST, cycleMarketDataFactory.withPrimedMarketDataSource());
+    //cycleArguments = new CycleArguments(valuationTime, VersionCorrection.LATEST, cycleMarketDataFactory.withPrimedMarketDataSource());
 
     Results results = view.run(cycleArguments);
     System.out.println(results);

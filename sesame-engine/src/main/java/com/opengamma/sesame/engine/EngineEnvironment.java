@@ -11,18 +11,14 @@ import java.util.Objects;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.cache.CacheInvalidator;
 import com.opengamma.sesame.cache.ValuationTimeCacheEntry;
 import com.opengamma.sesame.function.scenarios.FilteredScenarioDefinition;
 import com.opengamma.sesame.function.scenarios.ScenarioArgument;
 import com.opengamma.sesame.function.scenarios.ScenarioFunction;
-import com.opengamma.sesame.marketdata.CycleMarketDataFactory;
-import com.opengamma.sesame.marketdata.FieldName;
-import com.opengamma.sesame.marketdata.MarketDataSource;
+import com.opengamma.sesame.marketdata.MarketDataBundle;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.result.Result;
 
 /**
  * {@link Environment} implementation created and managed by the engine.
@@ -30,19 +26,21 @@ import com.opengamma.util.result.Result;
  * by each function and invalidate cache entries when the data changes. This
  * class is package-private because it is only intended to be used by the
  * engine itself, not user code.
+ *
+ * TODO can this be retired? might not need a cache or any cache invalidation after MarketDataEnvironment
+ * could use SimpleEnvironment for everything
  */
 final class EngineEnvironment implements Environment {
 
   // TODO an inner class used by all environment impls that is used for hashCode and equals
   // makes it explicit which parts of the environment are part of the cache key and which ones are ignored
+  // TODO how should equality of MarketDataEnvironment be handled? requires some thought.
 
   /** The valuation time. */
   private final ZonedDateTime _valuationTime;
 
-  private final CycleMarketDataFactory _cycleMarketDataFactory;
-
   /** The source of market data. */
-  private final MarketDataSource _marketDataSource;
+  private final MarketDataBundle _marketDataBundle;
 
   /** Scenario arguments, keyed by the type of function implementation that uses them. */
   private final FilteredScenarioDefinition _scenarioDefinition;
@@ -50,25 +48,18 @@ final class EngineEnvironment implements Environment {
   private final CacheInvalidator _cacheInvalidator;
 
   EngineEnvironment(ZonedDateTime valuationTime,
-                    CycleMarketDataFactory cycleMarketDataFactory,
+                    MarketDataBundle marketDataBundle,
                     CacheInvalidator cacheInvalidator) {
-    this(valuationTime,
-         cycleMarketDataFactory,
-         cycleMarketDataFactory.getPrimaryMarketDataSource(),
-         FilteredScenarioDefinition.EMPTY,
-         cacheInvalidator);
+    this(valuationTime, marketDataBundle, FilteredScenarioDefinition.EMPTY, cacheInvalidator);
   }
 
   private EngineEnvironment(ZonedDateTime valuationTime,
-                            CycleMarketDataFactory cycleMarketDataFactory,
-                            MarketDataSource marketDataSource,
+                            MarketDataBundle marketDataBundle,
                             FilteredScenarioDefinition scenarioDefinition,
                             CacheInvalidator cacheInvalidator) {
-
     _valuationTime = ArgumentChecker.notNull(valuationTime, "valuationTime");
-    _cycleMarketDataFactory = ArgumentChecker.notNull(cycleMarketDataFactory, "cycleMarketDataFactory");
     _scenarioDefinition = ArgumentChecker.notNull(scenarioDefinition, "scenarioDefinition");
-    _marketDataSource = ArgumentChecker.notNull(marketDataSource, "marketDataSource");
+    _marketDataBundle = ArgumentChecker.notNull(marketDataBundle, "marketDataBundle");
     _cacheInvalidator = ArgumentChecker.notNull(cacheInvalidator, "cacheInvalidator");
   }
 
@@ -85,15 +76,10 @@ final class EngineEnvironment implements Environment {
     return _valuationTime;
   }
 
+  // TODO wrap bundle to do cache invalidation?
   @Override
-  public MarketDataSource getMarketDataSource() {
-    return new MarketDataSource() {
-      @Override
-      public Result<?> get(ExternalIdBundle id, FieldName fieldName) {
-        _cacheInvalidator.register(id);
-        return _marketDataSource.get(id, fieldName);
-      }
-    };
+  public MarketDataBundle getMarketDataBundle() {
+    return _marketDataBundle;
   }
 
   @Override
@@ -109,30 +95,27 @@ final class EngineEnvironment implements Environment {
 
   @Override
   public Environment withValuationTime(ZonedDateTime valuationTime) {
-    MarketDataSource marketDataSource = _cycleMarketDataFactory.getMarketDataSourceForDate(valuationTime);
-    return new EngineEnvironment(valuationTime, _cycleMarketDataFactory, marketDataSource,
-                                 _scenarioDefinition, _cacheInvalidator);
+    return new EngineEnvironment(valuationTime,
+                                 _marketDataBundle.withTime(valuationTime),
+                                 _scenarioDefinition,
+                                 _cacheInvalidator);
   }
 
   @Override
   public Environment withValuationTimeAndFixedMarketData(ZonedDateTime valuationTime) {
-    return new EngineEnvironment(valuationTime, _cycleMarketDataFactory, _marketDataSource,
-                                 _scenarioDefinition, _cacheInvalidator);
+    return new EngineEnvironment(valuationTime, _marketDataBundle, _scenarioDefinition, _cacheInvalidator);
   }
 
+  // TODO do we still need this?
   @Override
-  public Environment withMarketData(MarketDataSource marketDataSource) {
-    return new EngineEnvironment(_valuationTime, _cycleMarketDataFactory, marketDataSource,
-                                 _scenarioDefinition, _cacheInvalidator);
+  public Environment withMarketData(MarketDataBundle marketDataBundle) {
+    return new EngineEnvironment(_valuationTime, _marketDataBundle, _scenarioDefinition, _cacheInvalidator);
   }
 
+  // TODO do we still need this?
   @Override
   public Environment withScenarioDefinition(FilteredScenarioDefinition scenarioDefinition) {
-    return new EngineEnvironment(_valuationTime,
-                                 _cycleMarketDataFactory,
-                                 _marketDataSource,
-                                 scenarioDefinition,
-                                 _cacheInvalidator);
+    return new EngineEnvironment(_valuationTime, _marketDataBundle, scenarioDefinition, _cacheInvalidator);
   }
 
   @Override
@@ -146,13 +129,13 @@ final class EngineEnvironment implements Environment {
 
     EngineEnvironment that = (EngineEnvironment) o;
     return _valuationTime.equals(that._valuationTime) &&
-        _marketDataSource.equals(that._marketDataSource) &&
+        _marketDataBundle.equals(that._marketDataBundle) &&
         _scenarioDefinition.equals(that._scenarioDefinition);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(_valuationTime, _marketDataSource, _scenarioDefinition);
+    return Objects.hash(_valuationTime, _marketDataBundle, _scenarioDefinition);
   }
 
 }

@@ -27,10 +27,12 @@ import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.link.ConfigLink;
 import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
+import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.exposure.ExposureFunctions;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
@@ -47,12 +49,10 @@ import com.opengamma.financial.security.irs.Rate;
 import com.opengamma.financial.security.swap.FloatingRateType;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.sesame.ConfigDbMarketExposureSelectorFn;
 import com.opengamma.sesame.DefaultCurveNodeConverterFn;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleResolverFn;
-import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
 import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.RootFinderConfiguration;
 import com.opengamma.sesame.component.RetrievalPeriod;
@@ -105,9 +105,10 @@ public class RemoteInterestRateSwapTest {
     /* Single cycle options containing the market data specification and valuation time.
        The captureInputs flag (false by default) will return the data used to calculate
        the result. Note this can be a very large object. */
+    MarketDataSpecification bloomberg = LiveMarketDataSpecification.of("Bloomberg");
     _cycleOptions = IndividualCycleOptions.builder()
         .valuationTime(DateUtils.getUTCDate(2014, 1, 22))
-        .marketDataSpec(LiveMarketDataSpecification.of("Bloomberg"))
+        .marketDataSpecs(ImmutableList.of(bloomberg))
         .captureInputs(false)
         .build();
 
@@ -263,71 +264,72 @@ public class RemoteInterestRateSwapTest {
 
   /* Shared column configuration */
   private ViewColumn createViewColumn(String output) {
-    return column(output,
-                  config(
-                      arguments(
-                          function(ConfigDbMarketExposureSelectorFn.class, argument("exposureConfig", _exposureConfig)),
-                          function(
-                              RootFinderConfiguration.class,
-                              argument("rootFinderAbsoluteTolerance", 1e-9),
-                              argument("rootFinderRelativeTolerance", 1e-9),
-                              argument("rootFinderMaxIterations", 1000)),
-                          function(DefaultCurveNodeConverterFn.class,
-                                   argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofYears(1)))),
-                          function(DefaultHistoricalMarketDataFn.class,
-                                   argument("dataSource", "BLOOMBERG"),
-                                   argument("currencyMatrix", _currencyMatrixLink)),
-                          function(DefaultMarketDataFn.class,
-                                   argument("dataSource", "BLOOMBERG"),
-                                   argument("currencyMatrix", _currencyMatrixLink)),
-                          function(
-                              DefaultHistoricalTimeSeriesFn.class,
-                              argument("resolutionKey", "DEFAULT_TSS"),
-                              argument("htsRetrievalPeriod", RetrievalPeriod.of((Period.ofYears(1))))),
-                          function(
-                              DefaultDiscountingMulticurveBundleFn.class,
-                              argument("impliedCurveNames", StringSet.of()))),
-                      implementations(InterestRateSwapFn.class, DiscountingInterestRateSwapFn.class,
-                                      InterestRateSwapCalculatorFactory.class, DiscountingInterestRateSwapCalculatorFactory.class)
-                  ),
-                  output(output, InterestRateSwapSecurity.class)
-    );
+    return
+        column(
+            output,
+            config(
+                arguments(
+                    function(
+                        ConfigDbMarketExposureSelectorFn.class, argument("exposureConfig", _exposureConfig)),
+                    function(
+                        RootFinderConfiguration.class,
+                        argument("rootFinderAbsoluteTolerance", 1e-9),
+                        argument("rootFinderRelativeTolerance", 1e-9),
+                        argument("rootFinderMaxIterations", 1000)),
+                    function(
+                        DefaultCurveNodeConverterFn.class,
+                        argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofYears(1)))),
+                    function(
+                        DefaultHistoricalMarketDataFn.class,
+                        argument("dataSource", "BLOOMBERG"),
+                        argument("currencyMatrix", _currencyMatrixLink)),
+                    function(
+                        DefaultMarketDataFn.class,
+                        argument("dataSource", "BLOOMBERG"),
+                        argument("currencyMatrix", _currencyMatrixLink)),
+                    function(
+                        DefaultDiscountingMulticurveBundleFn.class,
+                        argument("impliedCurveNames", StringSet.of()))),
+                implementations(
+                    InterestRateSwapFn.class, DiscountingInterestRateSwapFn.class,
+                    InterestRateSwapCalculatorFactory.class, DiscountingInterestRateSwapCalculatorFactory.class)),
+            output(output, InterestRateSwapSecurity.class));
   }
 
   /* A non portfolio output view configuration to capture the build curves */
   private ViewConfig createCurveBundleConfig() {
 
-    return configureView(
-             "Curve Bundle only",
-             nonPortfolioOutput(
-                 CURVE_RESULT,
-                  output(OutputNames.DISCOUNTING_MULTICURVE_BUNDLE,
-                         config(
-                             arguments(
-                                 function(
-                                     RootFinderConfiguration.class,
-                                     argument("rootFinderAbsoluteTolerance", 1e-9),
-                                     argument("rootFinderRelativeTolerance", 1e-9),
-                                     argument("rootFinderMaxIterations", 1000)),
-                                 function(DefaultCurveNodeConverterFn.class,
-                                          argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofYears(1)))),
-                                 function(DefaultHistoricalMarketDataFn.class,
-                                          argument("dataSource", "BLOOMBERG"),
-                                          argument("currencyMatrix", _currencyMatrixLink)),
-                                 function(DefaultMarketDataFn.class,
-                                          argument("dataSource", "BLOOMBERG"),
-                                          argument("currencyMatrix", _currencyMatrixLink)),
-                                 function(
-                                     DefaultHistoricalTimeSeriesFn.class,
-                                     argument("resolutionKey", "DEFAULT_TSS"),
-                                     argument("htsRetrievalPeriod", RetrievalPeriod.of((Period.ofYears(1))))),
-                                 function(
-                                     DefaultDiscountingMulticurveBundleResolverFn.class,
-                                     argument("curveConfig", _curveConstructionConfiguration)),
-                                 function(
-                                     DefaultDiscountingMulticurveBundleFn.class,
-                                     argument("impliedCurveNames", StringSet.of())))))
-             ));
+    return
+        configureView(
+            "Curve Bundle only",
+            nonPortfolioOutput(
+                CURVE_RESULT,
+                output(
+                    OutputNames.DISCOUNTING_MULTICURVE_BUNDLE,
+                    config(
+                        arguments(
+                            function(
+                                RootFinderConfiguration.class,
+                                argument("rootFinderAbsoluteTolerance", 1e-9),
+                                argument("rootFinderRelativeTolerance", 1e-9),
+                                argument("rootFinderMaxIterations", 1000)),
+                            function(
+                                DefaultCurveNodeConverterFn.class,
+                                argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofYears(1)))),
+                            function(
+                                DefaultHistoricalMarketDataFn.class,
+                                argument("dataSource", "BLOOMBERG"),
+                                argument("currencyMatrix", _currencyMatrixLink)),
+                            function(
+                                DefaultMarketDataFn.class,
+                                argument("dataSource", "BLOOMBERG"),
+                                argument("currencyMatrix", _currencyMatrixLink)),
+                            function(
+                                DefaultDiscountingMulticurveBundleResolverFn.class,
+                                argument("curveConfig", _curveConstructionConfiguration)),
+                            function(
+                                DefaultDiscountingMulticurveBundleFn.class,
+                                argument("impliedCurveNames", StringSet.of())))))));
   }
 
   private InterestRateSwapSecurity createFixedVsLibor3mSwap(double rate) {

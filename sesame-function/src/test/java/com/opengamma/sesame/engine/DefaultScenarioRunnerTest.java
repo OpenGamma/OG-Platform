@@ -37,11 +37,11 @@ import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.core.security.impl.SimpleSecurityLink;
 import com.opengamma.sesame.CurveSelectorFn;
+import com.opengamma.sesame.CurveSelectorMulticurveBundleFn;
 import com.opengamma.sesame.DirectExecutorService;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.MulticurveBundle;
-import com.opengamma.sesame.PreCalibratedMulticurveFn;
 import com.opengamma.sesame.cache.NoOpCacheInvalidator;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.config.ViewConfig;
@@ -50,8 +50,10 @@ import com.opengamma.sesame.function.AvailableOutputs;
 import com.opengamma.sesame.function.AvailableOutputsImpl;
 import com.opengamma.sesame.function.Output;
 import com.opengamma.sesame.function.scenarios.curvedata.FunctionTestUtils;
+import com.opengamma.sesame.marketdata.EmptyMarketDataFactory;
 import com.opengamma.sesame.marketdata.ScenarioDataBuilder;
 import com.opengamma.sesame.marketdata.ScenarioMarketDataEnvironment;
+import com.opengamma.sesame.marketdata.builders.MarketDataEnvironmentFactory;
 import com.opengamma.sesame.sources.BondMockSources;
 import com.opengamma.sesame.trade.BondTrade;
 import com.opengamma.util.money.Currency;
@@ -72,14 +74,16 @@ public class DefaultScenarioRunnerTest {
           config(
               implementations(
                   CurveSelectorFn.class, TestSelectorFn.class,
-                  DiscountingMulticurveCombinerFn.class, PreCalibratedMulticurveFn.class,
+                  DiscountingMulticurveCombinerFn.class, CurveSelectorMulticurveBundleFn.class,
                   TestFn.class, TestImpl.class)),
           column("col1", "Foo"));
 
   @Test
   public void oneScenario() {
     ViewFactory viewFactory = createViewFactory();
-    DefaultScenarioRunner scenarioRunner = new DefaultScenarioRunner(viewFactory);
+    MarketDataEnvironmentFactory environmentFactory = new MarketDataEnvironmentFactory(new EmptyMarketDataFactory());
+    DefaultEngine engine = new DefaultEngine(viewFactory, environmentFactory);
+    DefaultScenarioRunner scenarioRunner = new DefaultScenarioRunner(engine);
     ScenarioDataBuilder builder = new ScenarioDataBuilder();
     ZonedDateTime valuationTime = ZonedDateTime.now();
     ScenarioMarketDataEnvironment marketDataEnvironment =
@@ -102,7 +106,9 @@ public class DefaultScenarioRunnerTest {
   @Test
   public void multipleScenarios() {
     ViewFactory viewFactory = createViewFactory();
-    DefaultScenarioRunner scenarioRunner = new DefaultScenarioRunner(viewFactory);
+    MarketDataEnvironmentFactory environmentFactory = new MarketDataEnvironmentFactory(new EmptyMarketDataFactory());
+    DefaultEngine engine = new DefaultEngine(viewFactory, environmentFactory);
+    DefaultScenarioRunner scenarioRunner = new DefaultScenarioRunner(engine);
     ScenarioDataBuilder builder = new ScenarioDataBuilder();
     ZonedDateTime valuationTime = ZonedDateTime.now();
     ScenarioMarketDataEnvironment marketDataEnvironment =

@@ -54,11 +54,11 @@ public final class MapMarketDataBundle implements MarketDataBundle, ImmutableBea
   }
 
   @Override
-  public <T> Result<T> get(MarketDataId id, Class<T> dataType) {
+  public <T> Result<T> get(MarketDataId<T> id, Class<T> dataType) {
     ArgumentChecker.notNull(id, "id");
     ArgumentChecker.notNull(dataType, "dataType");
 
-    MarketDataRequirement requirement = SingleValueRequirement.of(id, _time);
+    SingleValueRequirement requirement = SingleValueRequirement.of(id, _time);
     Object item = _env.getData().get(requirement);
 
     if (item != null) {
@@ -74,7 +74,7 @@ public final class MapMarketDataBundle implements MarketDataBundle, ImmutableBea
   }
 
   @Override
-  public <T> Result<DateTimeSeries<LocalDate, T>> get(MarketDataId id,
+  public <T> Result<DateTimeSeries<LocalDate, T>> get(MarketDataId<?> id,
                                                       Class<T> dataType,
                                                       LocalDateRange dateRange) {
     DateTimeSeries<LocalDate, ?> timeSeries = _env.getTimeSeries().get(id);

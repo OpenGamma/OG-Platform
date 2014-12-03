@@ -13,12 +13,16 @@ import java.io.Reader;
 import java.util.Map;
 import java.util.Properties;
 
+import org.threeten.bp.ZonedDateTime;
+
 import com.google.common.collect.Maps;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalScheme;
-import com.opengamma.sesame.marketdata.MapMarketDataSource;
-import com.opengamma.sesame.marketdata.MarketDataSource;
+import com.opengamma.sesame.marketdata.MapMarketDataBundle;
+import com.opengamma.sesame.marketdata.MarketDataBundle;
+import com.opengamma.sesame.marketdata.MarketDataEnvironmentBuilder;
+import com.opengamma.sesame.marketdata.RawId;
 
 /**
  * Load key/value pair market data resources as a map of {@link ExternalIdBundle} to double.
@@ -50,11 +54,12 @@ public class MarketDataResourcesLoader {
     return data;
   }
 
-  public static MarketDataSource getPreloadedSource(String path, String scheme) throws IOException {
-    MapMarketDataSource.Builder builder = MapMarketDataSource.builder();
+  public static MarketDataBundle getPreloadedBundle(String path, String scheme) throws IOException {
+    MarketDataEnvironmentBuilder builder = new MarketDataEnvironmentBuilder();
     for (Map.Entry<ExternalIdBundle, Double> entry : getData(path, scheme).entrySet()) {
-      builder.add(entry.getKey(), entry.getValue());
+      builder.add(RawId.of(entry.getKey()), entry.getValue());
     }
-    return builder.build();
+    builder.valuationTime(ZonedDateTime.now());
+    return new MapMarketDataBundle(builder.build());
   }
 }

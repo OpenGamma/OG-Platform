@@ -10,8 +10,7 @@ import static com.opengamma.sesame.config.ConfigBuilder.arguments;
 import static com.opengamma.sesame.config.ConfigBuilder.config;
 import static com.opengamma.sesame.config.ConfigBuilder.function;
 import static com.opengamma.sesame.config.ConfigBuilder.implementations;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static com.opengamma.util.result.ResultTestUtils.assertSuccess;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -63,14 +62,14 @@ import com.opengamma.sesame.DefaultCurveSpecificationMarketDataFn;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleResolverFn;
 import com.opengamma.sesame.DefaultFXMatrixFn;
-import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
+import com.opengamma.sesame.DefaultFixingsFn;
 import com.opengamma.sesame.DiscountingMulticurveBundleFn;
 import com.opengamma.sesame.DiscountingMulticurveBundleResolverFn;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.ExposureFunctionsDiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.FXMatrixFn;
-import com.opengamma.sesame.HistoricalTimeSeriesFn;
+import com.opengamma.sesame.FixingsFn;
 import com.opengamma.sesame.MarketExposureSelector;
 import com.opengamma.sesame.RootFinderConfiguration;
 import com.opengamma.sesame.SimpleEnvironment;
@@ -84,7 +83,12 @@ import com.opengamma.sesame.interestrate.InterestRateMockSources;
 import com.opengamma.sesame.marketdata.DefaultHistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
+import com.opengamma.sesame.marketdata.MapMarketDataBundle;
+import com.opengamma.sesame.marketdata.MarketDataBundle;
+import com.opengamma.sesame.marketdata.MarketDataEnvironmentBuilder;
 import com.opengamma.sesame.marketdata.MarketDataFn;
+import com.opengamma.sesame.marketdata.MarketDataId;
+import com.opengamma.sesame.marketdata.RawId;
 import com.opengamma.sesame.trade.FedFundsFutureTrade;
 import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
@@ -102,13 +106,25 @@ public class FedFundsFutureFnTest {
 
   private static final ZonedDateTime VALUATION_TIME = DateUtils.getUTCDate(2014, 1, 22);
   
-  private static final Environment ENV =
-      new SimpleEnvironment(VALUATION_TIME,
-                            InterestRateMockSources.createMarketDataSource(LocalDate.of(2014, 2, 18)));
-  
+  private static final Environment ENV = new SimpleEnvironment(VALUATION_TIME, createMarketDataBundle());
+
   private FedFundsFutureFn _fedFundsFutureFn;
   
   private FedFundsFutureTrade _fedFundsFutureTrade = createFedFundsFutureTrade();
+
+  private static MarketDataBundle createMarketDataBundle() {
+    LocalDate dataDate = LocalDate.of(2014, 2, 18);
+    MarketDataEnvironmentBuilder builder = InterestRateMockSources.createMarketDataEnvironment(dataDate).toBuilder();
+
+    LocalDate[] dates = {VALUATION_TIME.toLocalDate().minusDays(1), VALUATION_TIME.toLocalDate()};
+    double[] values = {0.995, 0.995};
+    ImmutableLocalDateDoubleTimeSeries timeSeries = ImmutableLocalDateDoubleTimeSeries.of(dates, values);
+    MarketDataId futureId = RawId.of(ExternalSchemes.syntheticSecurityId("Test future").toBundle());
+    RawId fedFundsId = RawId.of(InterestRateMockSources.getOvernightIndexId().toBundle());
+    builder.add(futureId, timeSeries);
+    builder.add(fedFundsId, InterestRateMockSources.FLAT_TIME_SERIES);
+    return new MapMarketDataBundle(builder.build());
+  }
 
   @BeforeClass
   public void setUpClass() throws IOException {
@@ -130,10 +146,6 @@ public class FedFundsFutureFnTest {
                     DefaultHistoricalMarketDataFn.class,
                     argument("dataSource", "BLOOMBERG")),
                 function(
-                    DefaultHistoricalTimeSeriesFn.class,
-                    argument("resolutionKey", "DEFAULT_TSS"),
-                    argument("htsRetrievalPeriod", RetrievalPeriod.of(Period.ofYears(1)))),
-                function(
                     DefaultCurveNodeConverterFn.class,
                     argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofYears(1))))),
             implementations(
@@ -141,11 +153,11 @@ public class FedFundsFutureFnTest {
                 FedFundsFutureCalculatorFactory.class, FedFundsFutureDiscountingCalculatorFactory.class,
                 CurveSpecificationMarketDataFn.class, DefaultCurveSpecificationMarketDataFn.class,
                 FXMatrixFn.class, DefaultFXMatrixFn.class,
+                FixingsFn.class, DefaultFixingsFn.class,
                 DiscountingMulticurveCombinerFn.class, ExposureFunctionsDiscountingMulticurveCombinerFn.class,
                 CurveDefinitionFn.class, DefaultCurveDefinitionFn.class,
                 DiscountingMulticurveBundleFn.class, DefaultDiscountingMulticurveBundleFn.class,
                 DiscountingMulticurveBundleResolverFn.class, DefaultDiscountingMulticurveBundleResolverFn.class,
-                HistoricalTimeSeriesFn.class, DefaultHistoricalTimeSeriesFn.class,
                 HistoricalMarketDataFn.class, DefaultHistoricalMarketDataFn.class,
                 CurveNodeConverterFn.class, DefaultCurveNodeConverterFn.class,
                 CurveSpecificationFn.class, DefaultCurveSpecificationFn.class,
@@ -191,7 +203,7 @@ public class FedFundsFutureFnTest {
   @Test
   public void testPresentValue() {
     Result<MultipleCurrencyAmount> pvComputed = _fedFundsFutureFn.calculatePV(ENV, _fedFundsFutureTrade);
-    assertThat(pvComputed.isSuccess(), is(true));
+    assertSuccess(pvComputed);
   }
   
   private FedFundsFutureTrade createFedFundsFutureTrade() {

@@ -35,8 +35,7 @@ import com.opengamma.sesame.config.ViewConfig;
 import com.opengamma.sesame.graph.FunctionBuilder;
 import com.opengamma.sesame.graph.Graph;
 import com.opengamma.sesame.graph.GraphModel;
-import com.opengamma.sesame.marketdata.CycleMarketDataFactory;
-import com.opengamma.sesame.marketdata.ProxiedCycleMarketData;
+import com.opengamma.sesame.marketdata.MarketDataEnvironment;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -52,14 +51,13 @@ class CapturingCycleInitializer implements CycleInitializer {
   private final ServiceContext _serviceContext;
   private final DefaultCycleRecorder _recorder;
   private final Graph _graph;
-  private final CycleMarketDataFactory _cycleMarketDataFactory;
   private final CacheBuilder<Object, Object> _cacheBuilder;
 
   /**
    * Creates cycle initializer for a capturing cycle.
    *
    * @param serviceContext  the current service context
-   * @param cycleArguments  the cycle arguments
+   * @param calculationArguments  the cycle arguments
    * @param graphModel  the graph model for the view
    * @param viewConfig  the config for the view
    * @param cacheBuilder  for building an empty cache only used for a single run
@@ -67,16 +65,14 @@ class CapturingCycleInitializer implements CycleInitializer {
    */
   public CapturingCycleInitializer(ServiceContext serviceContext,
                                    ComponentMap componentMap,
-                                   CycleArguments cycleArguments,
+                                   CalculationArguments calculationArguments,
+                                   MarketDataEnvironment marketDataEnvironment,
                                    GraphModel graphModel,
                                    ViewConfig viewConfig,
                                    CacheBuilder<Object, Object> cacheBuilder,
                                    List<?> inputs) {
 
     _cacheBuilder = ArgumentChecker.notNull(cacheBuilder, "cacheBuilder");
-
-    ProxiedCycleMarketData proxiedCycleMarketData =
-        new ProxiedCycleMarketData(cycleArguments.getCycleMarketDataFactory());
 
     ProxiedComponentMap collector = new DefaultProxiedComponentMap();
 
@@ -94,18 +90,8 @@ class CapturingCycleInitializer implements CycleInitializer {
     FunctionBuilder functionBuilder = new FunctionBuilder(false);
     _graph = graphModel.build(wrappedComponents, functionBuilder);
 
-    _cycleMarketDataFactory = proxiedCycleMarketData;
     _serviceContext = serviceContext.with(wrappedComponents.getComponents());
-    _recorder = new DefaultCycleRecorder(viewConfig,
-                                         inputs,
-                                         cycleArguments,
-                                         proxiedCycleMarketData,
-                                         collector);
-  }
-
-  @Override
-  public CycleMarketDataFactory getCycleMarketDataFactory() {
-    return _cycleMarketDataFactory;
+    _recorder = new DefaultCycleRecorder(viewConfig, inputs, calculationArguments, marketDataEnvironment, collector);
   }
 
   @Override
