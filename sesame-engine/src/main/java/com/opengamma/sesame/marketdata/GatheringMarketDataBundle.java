@@ -12,7 +12,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.opengamma.timeseries.date.DateTimeSeries;
 import com.opengamma.util.ArgumentChecker;
@@ -110,8 +109,7 @@ public final class GatheringMarketDataBundle implements MarketDataBundle {
    * @return the gathered requirements
    */
   public Set<MarketDataRequirement> getRequirements() {
-    return Sets.<MarketDataRequirement>union(ImmutableSet.copyOf(_requirements),
-                                             ImmutableSet.copyOf(_timeSeriesRequirements));
+    return Sets.<MarketDataRequirement>union(_requirements, _timeSeriesRequirements);
   }
 
   @SuppressWarnings("unchecked") // this is safe, the type is never used in a failure result

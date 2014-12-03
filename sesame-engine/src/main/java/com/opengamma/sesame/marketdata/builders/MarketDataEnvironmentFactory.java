@@ -21,6 +21,7 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Sets;
@@ -56,7 +57,7 @@ public class MarketDataEnvironmentFactory {
   private static final Logger s_logger = LoggerFactory.getLogger(MarketDataEnvironmentFactory.class);
 
   // might need to make this a multimap and offer a requirement to each applicable builder in turn
-  private final Map<Class<? extends MarketDataId>, MarketDataBuilder> _builders = new HashMap<>();
+  private final Map<Class<? extends MarketDataId>, MarketDataBuilder> _builders;
   private final MarketDataFactory _marketDataFactory;
 
   /**
@@ -74,10 +75,13 @@ public class MarketDataEnvironmentFactory {
   public MarketDataEnvironmentFactory(MarketDataFactory marketDataFactory, List<MarketDataBuilder> builders) {
     ArgumentChecker.notNull(builders, "builders");
     _marketDataFactory = ArgumentChecker.notNull(marketDataFactory, "marketDataFactory");
+    ImmutableMap.Builder<Class<? extends MarketDataId>, MarketDataBuilder> mapBuilder =
+        ImmutableMap.builder();
 
     for (MarketDataBuilder builder : builders) {
-      _builders.put(builder.getKeyType(), builder);
+      mapBuilder.put(builder.getKeyType(), builder);
     }
+    _builders = mapBuilder.build();
   }
 
   /**
