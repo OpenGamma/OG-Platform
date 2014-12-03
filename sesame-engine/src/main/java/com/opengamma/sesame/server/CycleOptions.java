@@ -5,10 +5,14 @@
  */
 package com.opengamma.sesame.server;
 
+import com.opengamma.sesame.engine.CalculationArguments;
+
 /**
  * This is a marker interface for the cycle options to be run.
+ *
+ * @deprecated use {@link CalculationArguments}
  */
- // todo - we could just use Iterable<IndividualCycleOptions> rather than this interface
+@Deprecated
 public interface CycleOptions extends Iterable<IndividualCycleOptions> {
 
 }

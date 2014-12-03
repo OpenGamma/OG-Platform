@@ -65,7 +65,7 @@ public class AvailableImplementationsImpl implements AvailableImplementations {
   public synchronized void register(Class<?>... types) {
     for (Class<?> type : types) {
       if (type.isInterface() || type.isPrimitive()) {
-        return;
+        continue;
       }
       Set<Class<?>> interfaces = EngineUtils.getInterfaces(type);
       for (Class<?> iface : interfaces) {

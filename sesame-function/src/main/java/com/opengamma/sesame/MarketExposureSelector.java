@@ -46,7 +46,7 @@ public class MarketExposureSelector implements CurveSelectorFn {
 
   public MarketExposureSelector(ExposureFunctions exposureFunctions, SecuritySource securitySource) {
     _securitySource = securitySource;
-    ArgumentChecker.notNull(exposureFunctions, "exposure");
+    ArgumentChecker.notNull(exposureFunctions, "exposureFunctions");
 
     _exposureFunctions = extractFunctions(exposureFunctions.getExposureFunctions());
     _idsToNames = exposureFunctions.getIdsToNames();

@@ -122,7 +122,7 @@ public class RawMarketDataBuilder implements MarketDataBuilder {
     for (Map.Entry<MarketDataRequest, Result<?>> entry : data.entrySet()) {
       MarketDataRequest request = entry.getKey();
       SingleValueRequirement requirement = requirementMap.get(request);
-      results.put(requirement, Result.success(entry.getValue()));
+      results.put(requirement, entry.getValue());
     }
     return results.build();
   }

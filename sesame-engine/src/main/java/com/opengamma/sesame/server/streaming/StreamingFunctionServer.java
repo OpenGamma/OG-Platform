@@ -22,6 +22,16 @@ public interface StreamingFunctionServer extends FunctionServer {
    * @param request the details of the view to be run and how to run it, not null
    * @return a new streaming client which will stream the results
    * of the underlying view, not null
+   * @deprecated use {@link #createStreamingClient()}
    */
   StreamingClient createStreamingClient(FunctionServerRequest<GlobalCycleOptions> request);
+
+  /**
+   * Creates a new streaming client which will stream the results
+   * of the underlying view to a listener. The request contains the
+   * details of the view to be run and how to run it.
+   *
+   * @return a new streaming client which will stream results from the underlying view
+   */
+  //StreamingClient createStreamingClient();
 }

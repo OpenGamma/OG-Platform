@@ -13,10 +13,10 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.sesame.marketdata.MarketDataSource;
+import com.opengamma.sesame.marketdata.MarketDataId;
 
 /**
- * TODO bulk register methods?
+ * TODO review which of the register methods are still needed with MarketDataBundle
  */
 public interface CacheInvalidator {
 
@@ -26,10 +26,13 @@ public interface CacheInvalidator {
 
   void register(ObjectId id);
 
+  // TODO can this work in the general case? where people add their own implementations?
+  // could it be made to work if MarketDataKey had more methods?
+  void register(MarketDataId marketDataId);
+
   void register(ValuationTimeCacheEntry entry);
 
-  void invalidate(MarketDataSource marketDataSource,
-                  ZonedDateTime valuationTime,
+  void invalidate(ZonedDateTime valuationTime,
                   VersionCorrection configVersionCorrection,
                   Collection<ExternalId> marketData,
                   Collection<ObjectId> dbData);

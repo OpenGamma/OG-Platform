@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
+import com.opengamma.sesame.marketdata.MulticurveMarketDataBuilder;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
 
@@ -24,6 +25,8 @@ import com.opengamma.util.result.Result;
  * of them. This ensures that a particular curve only needs to get built once.
  * Once the required curves have been built the function delegates to a
  * DiscountingMulticurveBundleFn to calculate the required result.
+ *
+ * @deprecated curves are built using {@link MulticurveMarketDataBuilder}.
  */
 public class DefaultDiscountingMulticurveBundleResolverFn implements DiscountingMulticurveBundleResolverFn {
 

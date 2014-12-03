@@ -7,6 +7,7 @@ package com.opengamma.sesame.server;
 
 import java.util.List;
 
+import com.opengamma.sesame.engine.Engine;
 import com.opengamma.sesame.engine.Results;
 
 /**
@@ -14,7 +15,10 @@ import com.opengamma.sesame.engine.Results;
  * <p>
  * This is a convenient entry point that wraps up desirable single and multiple cycle behavior.
  * For single cycles, this includes waiting for market data to become available.
+ *
+ * @deprecated use {@link Engine}
  */
+@Deprecated
 public interface FunctionServer {
 
   /**
@@ -36,5 +40,4 @@ public interface FunctionServer {
    * @return the results of the execution
    */
   List<Results> executeMultipleCycles(FunctionServerRequest<GlobalCycleOptions> request);
-
 }
