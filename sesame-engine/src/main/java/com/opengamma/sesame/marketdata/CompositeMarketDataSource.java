@@ -38,10 +38,15 @@ public class CompositeMarketDataSource implements MarketDataSource {
     for (MarketDataSource dataSource : _dataSources) {
       Map<MarketDataRequest, Result<?>> data = dataSource.get(outstandingRequests);
       PartitionedResults results = new PartitionedResults(data);
-      dataBuilder.putAll(results._data);
+      dataBuilder.putAll(results._available);
       outstandingRequests = results._unavailable;
     }
     for (MarketDataRequest unavailable : outstandingRequests) {
+      // we're not using the failure status from the result because there's no way of knowing whether it's relevant.
+      // the failure status that we have is the result from the last source, and there's nothing to say that that's
+      // the source where it should have been available. if the data isn't available the user knows it isn't
+      // available from any of the sources. the user is also in the best position to know which source should be
+      // able to provide the data. this class doesn't have any way of knowing that
       dataBuilder.put(unavailable, Result.failure(FailureStatus.MISSING_DATA, "No data available for {}", unavailable));
     }
     return dataBuilder.build();
@@ -53,7 +58,7 @@ public class CompositeMarketDataSource implements MarketDataSource {
   private static class PartitionedResults {
     
     /** Data that was successfully requested from the data source. */
-    private final Map<MarketDataRequest, Result<?>> _data;
+    private final Map<MarketDataRequest, Result<?>> _available;
     
     /** Requests for that that weren't satisfied. */
     private final Set<MarketDataRequest> _unavailable;
@@ -72,7 +77,7 @@ public class CompositeMarketDataSource implements MarketDataSource {
           unavailable.add(request);
         }
       }
-      _data = data;
+      _available = data;
       _unavailable = unavailable;
     }
   }

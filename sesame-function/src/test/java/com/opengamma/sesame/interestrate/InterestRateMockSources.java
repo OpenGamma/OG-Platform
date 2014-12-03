@@ -32,7 +32,6 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.ZoneOffset;
 
-import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -275,7 +274,7 @@ public class InterestRateMockSources {
     return new MarketDataSource() {
       @Override
       public Map<MarketDataRequest, Result<?>> get(Set<MarketDataRequest> requests) {
-        ImmutableMap.Builder<MarketDataRequest, Result<?>> builder = ImmutableBiMap.builder();
+        ImmutableMap.Builder<MarketDataRequest, Result<?>> builder = ImmutableMap.builder();
 
         for (MarketDataRequest request : requests) {
           if (marketData.containsKey(request.getId())) {

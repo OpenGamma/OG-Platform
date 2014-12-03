@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.core.marketdatasnapshot.CurveKey;
 import com.opengamma.core.marketdatasnapshot.CurveSnapshot;
@@ -102,7 +101,7 @@ public class SnapshotMarketDataFactory
 
     @Override
     public Map<MarketDataRequest, Result<?>> get(Set<MarketDataRequest> requests) {
-      ImmutableMap.Builder<MarketDataRequest, Result<?>> builder = ImmutableBiMap.builder();
+      ImmutableMap.Builder<MarketDataRequest, Result<?>> builder = ImmutableMap.builder();
 
       for (MarketDataRequest request : requests) {
         for (ExternalId id : request.getId()) {
