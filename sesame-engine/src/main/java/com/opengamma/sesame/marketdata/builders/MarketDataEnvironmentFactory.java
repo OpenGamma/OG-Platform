@@ -247,7 +247,6 @@ public class MarketDataEnvironmentFactory {
                                                 MarketDataSource marketDataSource,
                                                 ZonedDateTime valuationTime) {
 
-    MarketDataEnvironment newData = builtData;
     MarketDataEnvironmentBuilder environmentBuilder = builtData.toBuilder();
 
     // submit the requirements to the appropriate builder in bulk
@@ -277,14 +276,9 @@ public class MarketDataEnvironmentFactory {
       Map<MarketDataId<?>, DateTimeSeries<LocalDate, ?>> timeSeries = successfulTimeSeries(timeSeriesData);
 
       // environment contains the passed in data, plus all the data built so far
-      newData =
-          environmentBuilder
-              .addSingleValues(singleValues)
-              .addTimeSeries(timeSeries)
-              .valuationTime(valuationTime)
-              .build();
+      environmentBuilder.addSingleValues(singleValues).addTimeSeries(timeSeries).valuationTime(valuationTime).build();
     }
-    return newData;
+    return environmentBuilder.build();
   }
 
   /**
