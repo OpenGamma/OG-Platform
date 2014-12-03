@@ -5,12 +5,14 @@
  */
 package com.opengamma.sesame.marketdata;
 
+import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Nullable;
 
 import org.threeten.bp.LocalDate;
 
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.engine.marketdata.spec.FixedHistoricalMarketDataSpecification;
@@ -65,8 +67,8 @@ public class HistoricalMarketDataFactory implements MarketDataFactory<FixedHisto
     }
 
     @Override
-    public MarketDataResults get(Set<MarketDataRequest> requests) {
-      MarketDataResults.Builder builder = MarketDataResults.builder();
+    public Map<MarketDataRequest, Result<?>> get(Set<MarketDataRequest> requests) {
+      ImmutableMap.Builder<MarketDataRequest, Result<?>> builder = ImmutableMap.builder();
 
       for (MarketDataRequest request : requests) {
         HistoricalTimeSeries timeSeries =
@@ -76,9 +78,9 @@ public class HistoricalMarketDataFactory implements MarketDataFactory<FixedHisto
           Double value = timeSeries.getTimeSeries().getValue(_date);
 
           if (value != null) {
-            builder.add(request, Result.success(value));
+            builder.put(request, Result.success(value));
           } else {
-            builder.add(request, Result.failure(FailureStatus.MISSING_DATA, "No data available for {}/{}/{}",
+            builder.put(request, Result.failure(FailureStatus.MISSING_DATA, "No data available for {}/{}/{}",
                                                 request.getId(), request.getFieldName().getName(), _date));
           }
         }
