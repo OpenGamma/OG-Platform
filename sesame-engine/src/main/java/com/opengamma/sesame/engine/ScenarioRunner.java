@@ -12,7 +12,10 @@ import com.opengamma.sesame.marketdata.ScenarioMarketDataEnvironment;
 
 /**
  * Runs the calculations in a view multiple times, once for each scenario defined in a set of market data.
+ *
+ * @deprecated use {@link Engine#runScenarios(ViewConfig, ScenarioCalculationArguments, ScenarioMarketDataEnvironment, List)}
  */
+@Deprecated
 public interface ScenarioRunner {
 
   /**
@@ -29,7 +32,10 @@ public interface ScenarioRunner {
    * @param marketDataEnvironment contains the market data for the scenarios
    * @param portfolio the items in the portfolio
    * @return the results of running the calculations in the view for every item in the portfolio and every scenario
+   *
+   * @deprecated use {@link Engine#runScenarios(ViewConfig, ScenarioCalculationArguments, ScenarioMarketDataEnvironment, List)}
    */
+  @Deprecated
   ScenarioResults runScenario(ViewConfig viewConfig,
                               ScenarioMarketDataEnvironment marketDataEnvironment,
                               List<?> portfolio);

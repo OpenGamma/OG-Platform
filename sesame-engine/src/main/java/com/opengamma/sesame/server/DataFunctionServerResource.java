@@ -12,13 +12,18 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.UriBuilder;
 
+import com.opengamma.sesame.engine.DataEngineResource;
+import com.opengamma.sesame.engine.Engine;
 import com.opengamma.sesame.engine.Results;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
 
 /**
  * RESTful resource for a FunctionServer.
+ *
+ * @deprecated use {@link Engine} and {@link DataEngineResource}
  */
+@Deprecated
 @Path("functionServer")
 public class DataFunctionServerResource extends AbstractDataResource {
 

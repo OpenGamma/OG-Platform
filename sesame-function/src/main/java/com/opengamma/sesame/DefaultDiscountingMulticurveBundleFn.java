@@ -78,6 +78,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.security.index.OvernightIndex;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.sesame.component.StringSet;
+import com.opengamma.sesame.marketdata.MulticurveMarketDataBuilder;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
@@ -88,7 +89,10 @@ import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
 /**
  * Function implementation that provides a discounting multi-curve bundle.
+ *
+ * @deprecated curves are built using {@link MulticurveMarketDataBuilder}.
  */
+@Deprecated
 public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticurveBundleFn {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DefaultDiscountingMulticurveBundleFn.class);
@@ -390,6 +394,8 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
     if (Result.allSuccessful(exogenousBundle, curveBundleResult)) {
 
       MulticurveProviderDiscount exogenousCurves = adjustMulticurveBundle(curvesToRemove, exogenousBundle.getValue());
+      // TODO does the scenario framework need to get involved in this method call (deep inside the analytics)?
+      // if so, can it be split up into multiple analytics calls?
       Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> calibratedCurves =
           createBuilder().makeCurvesFromDerivatives(
               curveBundles, exogenousCurves, discountingMap, forwardIborMap,

@@ -5,20 +5,20 @@
  */
 package com.opengamma.sesame;
 
-import java.util.List;
 import java.util.Map;
 
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.sesame.cache.CacheLifetime;
 import com.opengamma.sesame.cache.Cacheable;
+import com.opengamma.sesame.marketdata.MulticurveMarketDataBuilder;
 import com.opengamma.util.result.Result;
-import com.opengamma.util.time.Tenor;
-import com.opengamma.util.tuple.Triple;
 
 /**
  * Function capable of providing a discounting multi-curve bundle.
+ *
+ * @deprecated curves are built using {@link MulticurveMarketDataBuilder}.
  */
+@Deprecated
 public interface DiscountingMulticurveBundleFn {
 
   /**
@@ -46,6 +46,8 @@ public interface DiscountingMulticurveBundleFn {
    * supplied curve (i.e. exogenous curves). If the map does not contain all
    * the curves required, a failure will be returned
    * @return result containing the implied deposit curve data, if successful
+   *
+   * TODO this should be moved to its own function
    */
   @Cacheable(CacheLifetime.FOREVER)
   Result<ImpliedDepositCurveData> extractImpliedDepositCurveData(

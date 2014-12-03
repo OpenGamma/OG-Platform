@@ -10,11 +10,8 @@ import com.opengamma.financial.analytics.model.fixedincome.BucketedCrossSensitiv
 import com.opengamma.financial.analytics.model.fixedincome.BucketedCurveSensitivities;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.fra.ForwardRateAgreementSecurity;
-import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.sesame.Environment;
-import com.opengamma.sesame.irs.InterestRateSwapCalculator;
 import com.opengamma.sesame.trade.ForwardRateAgreementTrade;
-import com.opengamma.sesame.trade.InterestRateSwapTrade;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;

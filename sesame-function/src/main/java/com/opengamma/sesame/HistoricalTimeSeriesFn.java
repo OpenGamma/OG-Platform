@@ -11,7 +11,9 @@ import com.opengamma.util.result.Result;
 
 /**
  * The functionality on this interface will move. see SSM-215
+ * @deprecated use {@link FixingsFn}
  */
+@Deprecated
 public interface HistoricalTimeSeriesFn {
   /**
    * Finds the fixing requirements for the security.

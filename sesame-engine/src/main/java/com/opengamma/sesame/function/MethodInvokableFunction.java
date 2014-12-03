@@ -96,7 +96,7 @@ import com.opengamma.util.result.Result;
       return _method.invoke(_receiver, argArray);
     } catch (IllegalAccessException e) {
       throw new OpenGammaRuntimeException("Unable to access method", e);
-    } catch (InvocationTargetException e) {
+    } catch (InvocationTargetException | IllegalArgumentException e) {
       Exception cause = EngineUtils.getCause(e);
       String methodName = _method.getDeclaringClass().getSimpleName() + "." + _method.getName() + "()";
       s_logger.warn("Exception invoking " + methodName, cause);

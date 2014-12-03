@@ -69,6 +69,7 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
   private final FXForwardCalculatorFn _calculatorProvider;
 
   private final CurveDefinition _curveDefinition;
+  private final Currency _curveCurrency;
   private final CurveConstructionConfiguration _curveConfig;
 
   /**
@@ -95,6 +96,7 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
   @Inject
   public DiscountingFXForwardYCNSPnLSeriesFn(FXForwardCalculatorFn calculatorProvider,
                                              CurveDefinition curveDefinition,
+                                             Currency curveCurrency,
                                              CurveConstructionConfiguration curveConfig,
                                              Optional<Currency> outputCurrency,
                                              FXReturnSeriesFn fxReturnSeriesProvider,
@@ -108,6 +110,7 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
                                              LocalDateRange dateRange) {
     _calculatorProvider = calculatorProvider;
     _curveDefinition = curveDefinition;
+    _curveCurrency = curveCurrency;
     _curveConfig = curveConfig;
     _outputCurrency = outputCurrency;
     _fxReturnSeriesProvider = fxReturnSeriesProvider;
@@ -150,104 +153,113 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
                                                                                           Result<CurrencyPair> cpResult) {
 
     // We need the calculator so we can get the block curve sensitivities
-    final Result<FXForwardCalculator> calculatorResult = _calculatorProvider.generateCalculator(env, security);
+    Result<FXForwardCalculator> calculatorResult = _calculatorProvider.generateCalculator(env, security);
 
-    if (calculatorResult.isSuccess() && cpResult.isSuccess()) {
+    LocalDate priceSeriesEnd = _dateRange.getEndDateInclusive();
+    LocalDate priceSeriesStart = _dateRange.getStartDateInclusive().minusWeeks(1);
+    LocalDateRange priceSeriesRange = LocalDateRange.of(priceSeriesStart, priceSeriesEnd, true);
+    LocalDateDoubleTimeSeries conversionSeries = generateConversionSeries(env, _curveCurrency, priceSeriesRange);
+    Result<FXMatrix> fxMatrixResult = getFxMatrix(env);
 
-      final MultipleCurrencyParameterSensitivity bcs = calculatorResult.getValue().generateBlockCurveSensitivities(env);
-      LocalDate priceSeriesEnd = _dateRange.getEndDateInclusive();
-      LocalDate priceSeriesStart = _dateRange.getStartDateInclusive().minusWeeks(1);
-      LocalDateRange priceSeriesRange = LocalDateRange.of(priceSeriesStart, priceSeriesEnd, true);
-      
-      // Generate our version of an HTS Bundle
-      ImpliedCurveHtsBundleBuilder builder = new ImpliedCurveHtsBundleBuilder();
+    // Generate our version of an HTS Bundle
+    ImpliedCurveHtsBundleBuilder builder = new ImpliedCurveHtsBundleBuilder();
 
-      // todo - how do we adjust for holidays?
-      for (LocalDate date = priceSeriesStart; !date.isAfter(priceSeriesEnd); date = date.plusDays(1)) {
+    // todo - how do we adjust for holidays?
+    for (LocalDate date = priceSeriesStart; !date.isAfter(priceSeriesEnd); date = date.plusDays(1)) {
 
-        // Shifting the date will automatically shift the market data as well
-        Environment envForDate = env.withValuationTime(date.atStartOfDay(ZoneOffset.UTC));
+      // Shifting the date will automatically shift the market data as well
+      Environment envForDate = env.withValuationTime(date.atStartOfDay(ZoneOffset.UTC));
 
-        // build multicurve for the date
-        Result<ImpliedDepositCurveData> result =
-            _bundleResolver.extractImpliedDepositCurveData(envForDate, _curveConfig);
+      // build multicurve for the date
+      Result<ImpliedDepositCurveData> result =
+          _bundleResolver.extractImpliedDepositCurveData(envForDate, _curveConfig);
 
-        // TODO consider how to report failures. either log (as here),
-        // fail entire calc in all or nothing approach, somewhere in between?
-        // [SSM-234]
-        if (result.isSuccess()) {
-          ImpliedDepositCurveData impliedCurveData = result.getValue();
-          List<Tenor> tenors = impliedCurveData.getTenors();
-          List<Double> parRates = impliedCurveData.getParRates();
+      // TODO consider how to report failures. either log (as here),
+      // fail entire calc in all or nothing approach, somewhere in between?
+      // [SSM-234]
+      if (result.isSuccess()) {
+        ImpliedDepositCurveData impliedCurveData = result.getValue();
+        List<Tenor> tenors = impliedCurveData.getTenors();
+        List<Double> parRates = impliedCurveData.getParRates();
 
-          for (int i = 0; i < tenors.size(); i++) {
-            builder.add(date, tenors.get(i), parRates.get(i));
-          }
-        } else {
-          //TODO use actual calendars here. [SSM-233]
-          if (isWorkingDay(date)) {
-            s_logger.warn("Failed to build curve for date {}. Reason: {}", date, result.getFailureMessage());
-          }
+        for (int i = 0; i < tenors.size(); i++) {
+          builder.add(date, tenors.get(i), parRates.get(i));
+        }
+      } else {
+        //TODO use actual calendars here. [SSM-233]
+        if (isWorkingDay(date)) {
+          s_logger.warn("Failed to build curve for date {}. Reason: {}", date, result.getFailureMessage());
         }
       }
-      
-      TenorLabelledLocalDateDoubleTimeSeriesMatrix1D series = builder.toTimeSeries();
-      
-      final String curveName = _curveDefinition.getName();
-      final Map<Currency, DoubleMatrix1D> sensitivities = bcs.getSensitivityByName(curveName);
+    }
+
+    TenorLabelledLocalDateDoubleTimeSeriesMatrix1D series = builder.toTimeSeries();
+    String curveName = _curveDefinition.getName();
+
+    if (calculatorResult.isSuccess() && cpResult.isSuccess() && fxMatrixResult.isSuccess()) {
+      MultipleCurrencyParameterSensitivity bcs = calculatorResult.getValue().generateBlockCurveSensitivities(env);
+      Map<Currency, DoubleMatrix1D> sensitivities = bcs.getSensitivityByName(curveName);
+      // TODO this is wrong, don't exit early
       if (sensitivities.isEmpty()) {
         return Result.failure(FailureStatus.MISSING_DATA, "No sensitivities for curve: {} were found", curveName);
       }
 
       Map.Entry<Currency, DoubleMatrix1D> match = sensitivities.entrySet().iterator().next();
       DoubleMatrix1D sensitivity = match.getValue();
-      Currency curveCurrency = match.getKey();
 
       if (sensitivities.size() > 1) {
-        s_logger.warn("Curve name: {} is used multiple times - using one for currency: {}", curveName, curveCurrency);
+        s_logger.warn("Curve name: {} is used multiple times - using one for currency: {}", curveName, _curveCurrency);
       }
 
-      final Tenor[] tenors = series.getKeys();
-      final int sensitivitySize = sensitivity.getNumberOfElements();
-      final int tenorsSize = tenors.length;
+      int sensitivitySize = sensitivity.getNumberOfElements();
+
+      // TODO curveCurrency and sensitivity are used outside here even if the results aren't successful
+      // that's big a problem because curveCurrency comes from a Result that depends on market data
+      // everything above here depends on the calculator result being successful ---------------------------------------
+
+      Tenor[] tenors = series.getKeys();
+      int tenorsSize = tenors.length;
 
       if (sensitivitySize != tenorsSize) {
         return Result.failure(FailureStatus.ERROR,
-                              "Unequal number of sensitivities ({}) and curve tenors ({})", sensitivitySize, tenorsSize);
+                              "Unequal number of sensitivities ({}) and curve tenors ({})",
+                              sensitivitySize,
+                              tenorsSize);
       }
-
-      LocalDateDoubleTimeSeries conversionSeries = generateConversionSeries(env, curveCurrency, priceSeriesRange);
-
-      final LocalDateDoubleTimeSeries[] values = new LocalDateDoubleTimeSeries[tenorsSize];
+      LocalDateDoubleTimeSeries[] values = new LocalDateDoubleTimeSeries[tenorsSize];
 
       for (int i = 0; i < tenorsSize; i++) {
 
         Series seriesForTenor = builder.getSeriesForTenor(tenors[i]);
-        LocalDateDoubleTimeSeries ts = trimSeries(ImmutableLocalDateDoubleTimeSeries.of(seriesForTenor._dates, seriesForTenor._values));
-        final LocalDateDoubleTimeSeries returnSeries = calculateConvertedReturnSeries(env, ts, null);
+        LocalDateDoubleTimeSeries ts = trimSeries(ImmutableLocalDateDoubleTimeSeries.of(seriesForTenor._dates,
+                                                                                        seriesForTenor._values));
+        LocalDateDoubleTimeSeries returnSeries = calculateConvertedReturnSeries(env, ts, null);
         LocalDateDoubleTimeSeries pnlSeries = returnSeries.multiply(sensitivity.getEntry(i));
-        
-        if (!conversionIsRequired(curveCurrency)) {
+
+        if (!conversionIsRequired(_curveCurrency)) {
           values[i] = pnlSeries;
           continue;
         }
-        
+
         //else - do appropriate conversion
         if (_useHistoricalSpot) {
           values[i] = pnlSeries.multiply(conversionSeries.reciprocal());
         } else {
-          Currency srcCcy = curveCurrency;
-          Currency tgtCcy = _outputCurrency.get();
-          FXMatrix fxMatrix = _fxMatrixFn.getFXMatrix(env, Sets.newHashSet(srcCcy, tgtCcy)).getValue();
-          double fxRate = fxMatrix.getFxRate(srcCcy, tgtCcy);
+          double fxRate = fxMatrixResult.getValue().getFxRate(_curveCurrency, _outputCurrency.get());
           values[i] = pnlSeries.multiply(fxRate);
         }
-        
       }
-
       return Result.success(new TenorLabelledLocalDateDoubleTimeSeriesMatrix1D(tenors, tenors, values));
     } else {
       return Result.failure(calculatorResult, cpResult);
+    }
+  }
+
+  private Result<FXMatrix> getFxMatrix(Environment env) {
+    if (!conversionIsRequired(_curveCurrency)) {
+      return Result.success(new FXMatrix());
+    } else {
+      return _fxMatrixFn.getFXMatrix(env, Sets.newHashSet(_curveCurrency, _outputCurrency.get()));
     }
   }
 
