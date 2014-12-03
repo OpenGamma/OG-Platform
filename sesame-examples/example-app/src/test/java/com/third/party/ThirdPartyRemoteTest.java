@@ -1,12 +1,39 @@
 package com.third.party;
 
+import static com.opengamma.sesame.config.ConfigBuilder.argument;
+import static com.opengamma.sesame.config.ConfigBuilder.arguments;
+import static com.opengamma.sesame.config.ConfigBuilder.column;
+import static com.opengamma.sesame.config.ConfigBuilder.config;
+import static com.opengamma.sesame.config.ConfigBuilder.configureView;
+import static com.opengamma.sesame.config.ConfigBuilder.function;
+import static com.opengamma.sesame.config.ConfigBuilder.implementations;
+import static com.opengamma.sesame.config.ConfigBuilder.nonPortfolioOutput;
+import static com.opengamma.sesame.config.ConfigBuilder.output;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
+
+import java.net.URI;
+import java.util.List;
+
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+
+import com.google.common.collect.ImmutableList;
 import com.opengamma.core.link.ConfigLink;
 import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
+import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.exposure.ExposureFunctions;
 import com.opengamma.financial.currency.CurrencyMatrix;
-import com.opengamma.financial.security.irs.*;
-import com.opengamma.sesame.*;
+import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
+import com.opengamma.sesame.ConfigDbMarketExposureSelectorFn;
+import com.opengamma.sesame.DefaultCurveNodeConverterFn;
+import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
+import com.opengamma.sesame.DefaultDiscountingMulticurveBundleResolverFn;
+import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
+import com.opengamma.sesame.OutputNames;
+import com.opengamma.sesame.RootFinderConfiguration;
 import com.opengamma.sesame.component.RetrievalPeriod;
 import com.opengamma.sesame.component.StringSet;
 import com.opengamma.sesame.config.ViewConfig;
@@ -24,16 +51,6 @@ import com.opengamma.solutions.RemoteViewSwapUtils;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
-import org.threeten.bp.Period;
-
-import java.net.URI;
-import java.util.List;
-
-import static com.opengamma.sesame.config.ConfigBuilder.*;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
 
 /**
  * Tests that a view can be run against a remote server.
@@ -62,9 +79,11 @@ public class ThirdPartyRemoteTest {
         _functionServer = new RemoteFunctionServer(URI.create(URL));
 
         /* Single cycle options containing the market data specification and valuation time */
-        _cycleOptions = IndividualCycleOptions.builder()
+      MarketDataSpecification marketDataSpecification = LiveMarketDataSpecification.of("Bloomberg");
+
+      _cycleOptions = IndividualCycleOptions.builder()
                 .valuationTime(DateUtils.getUTCDate(2014, 1, 22))
-                .marketDataSpec(LiveMarketDataSpecification.of("Bloomberg"))
+                .marketDataSpecs(ImmutableList.of(marketDataSpecification))
                 .build();
 
         /* Configuration links matching the curve exposure function, currency matrix and curve bundle

@@ -5,99 +5,95 @@
  */
 package com.opengamma.solutions;
 
+import static com.opengamma.sesame.config.ConfigBuilder.configureView;
+import static com.opengamma.util.result.ResultTestUtils.assertSuccess;
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.closeTo;
+
+import java.net.URI;
+import java.util.List;
+
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
 import com.opengamma.core.link.ConfigLink;
+import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
 import com.opengamma.financial.analytics.curve.exposure.ExposureFunctions;
 import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.id.UniqueId;
 import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.config.ViewConfig;
+import com.opengamma.sesame.engine.CalculationArguments;
+import com.opengamma.sesame.engine.Engine;
+import com.opengamma.sesame.engine.RemoteEngine;
 import com.opengamma.sesame.engine.Results;
-import com.opengamma.sesame.server.FunctionServer;
-import com.opengamma.sesame.server.FunctionServerRequest;
-import com.opengamma.sesame.server.IndividualCycleOptions;
-import com.opengamma.sesame.server.RemoteFunctionServer;
+import com.opengamma.sesame.marketdata.MarketDataEnvironment;
+import com.opengamma.sesame.marketdata.MarketDataEnvironmentBuilder;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
-import com.opengamma.util.result.SuccessResult;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
-
-import java.net.URI;
-
-import static com.opengamma.sesame.config.ConfigBuilder.configureView;
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.closeTo;
 
 /**
  * Integration tests run against a remote server
  * Input: Vanilla Interest Rate Swaps, Snapshot Market Data
  * Output: Present Value
  */
-
-@Test(groups = TestGroup.INTEGRATION, enabled = true)
+@Test(groups = TestGroup.INTEGRATION)
 public class RemoteFraTest {
 
-  private FunctionServer _functionServer;
-  private IndividualCycleOptions _cycleOptions;
+  private static final double STD_TOLERANCE_PV = 1.0E-3;
+
   private ConfigLink<ExposureFunctions> _exposureConfig;
   private ConfigLink<CurrencyMatrix> _currencyMatrixLink;
   private Results _results;
 
-  private static final double STD_TOLERANCE_PV = 1.0E-3;
-
   @BeforeClass
   public void setUp() {
-
     String property = System.getProperty("server.url");
-    String url = property == null ? "http://integration-lx-1:8080/jax" : property;
+    String url = property == null ? "http://localhost:8080/jax" : property;
+    Engine engine = new RemoteEngine(URI.create(url));
+    UniqueId snapshotId = UniqueId.of("DbSnp", "1000");
+    MarketDataSpecification marketDataSpecification = UserMarketDataSpecification.of(snapshotId);
 
-    _functionServer = new RemoteFunctionServer(URI.create(url));
-    _cycleOptions = IndividualCycleOptions.builder()
-        .valuationTime(DateUtils.getUTCDate(2014, 1, 22))
-        .marketDataSpec(UserMarketDataSpecification.of(UniqueId.of("DbSnp", "1000")))
-        .build();
+    CalculationArguments calculationArguments =
+        CalculationArguments.builder()
+            .valuationTime(DateUtils.getUTCDate(2014, 1, 22))
+            .marketDataSpecification(marketDataSpecification)
+            .build();
 
     _exposureConfig = ConfigLink.resolvable("USD-GBP-FF-1", ExposureFunctions.class);
     _currencyMatrixLink = ConfigLink.resolvable("BBG-Matrix", CurrencyMatrix.class);
 
-    FunctionServerRequest<IndividualCycleOptions> request =
-        FunctionServerRequest.<IndividualCycleOptions>builder()
-            .viewConfig(createViewConfig())
-            .inputs(RemoteViewFraUtils.INPUTS)
-            .cycleOptions(_cycleOptions)
-            .build();
+    // don't want to provide any data, let the server source it
+    MarketDataEnvironment marketDataEnvironment = MarketDataEnvironmentBuilder.empty();
+    ViewConfig viewConfig = createViewConfig();
+    List<Object> trades = RemoteViewFraUtils.INPUTS;
 
-    _results = _functionServer.executeSingleCycle(request);
-
+    _results = engine.runView(viewConfig, calculationArguments, marketDataEnvironment, trades);
   }
 
   private ViewConfig createViewConfig() {
-
     return
         configureView(
             "FRA Remote view",
             RemoteViewFraUtils.createFraViewColumn(
                 OutputNames.PRESENT_VALUE,
                 _exposureConfig,
-                _currencyMatrixLink)
-        );
+                _currencyMatrixLink));
   }
 
   @Test(enabled = true)
   public void testForwardRateAgreementPV() {
 
     Result result = _results.get(0, 0).getResult();
-    assertThat(result.isSuccess(), is(true));
+    assertSuccess(result);
     assertThat(result.getValue(), is(instanceOf(MultipleCurrencyAmount.class)));
     MultipleCurrencyAmount mca = (MultipleCurrencyAmount) result.getValue();
     assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(21750.76254296188, STD_TOLERANCE_PV)));
-
   }
-
 }

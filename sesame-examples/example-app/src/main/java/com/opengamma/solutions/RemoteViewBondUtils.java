@@ -40,18 +40,15 @@ import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.sesame.ConfigDbMarketExposureSelectorFn;
 import com.opengamma.sesame.DefaultCurveNodeConverterFn;
 import com.opengamma.sesame.DefaultDiscountingIssuerProviderBundleFn;
-import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
 import com.opengamma.sesame.ExposureFunctionsIssuerProviderFn;
 import com.opengamma.sesame.IssuerProviderBundleFn;
 import com.opengamma.sesame.IssuerProviderFn;
+import com.opengamma.sesame.MarketExposureSelector;
 import com.opengamma.sesame.RootFinderConfiguration;
-import com.opengamma.sesame.bond.BondCalculatorFactory;
 import com.opengamma.sesame.bond.BondFn;
-import com.opengamma.sesame.bond.DefaultBondFn;
-import com.opengamma.sesame.bond.DiscountingBondCalculatorFactory;
+import com.opengamma.sesame.bond.DiscountingBondFn;
 import com.opengamma.sesame.component.RetrievalPeriod;
 import com.opengamma.sesame.component.StringSet;
 import com.opengamma.sesame.config.ViewColumn;
@@ -87,36 +84,36 @@ public final class RemoteViewBondUtils {
     ArgumentChecker.notNull(currencyMatrixLink, "currencyMatrixLink");
 
     return
-        column(columnName, output,
-               config(
-                   arguments(
-                       function(ConfigDbMarketExposureSelectorFn.class,
-                                argument("exposureConfig", exposureConfig)),
-                       function(
-                           RootFinderConfiguration.class,
-                           argument("rootFinderAbsoluteTolerance", 1e-10),
-                           argument("rootFinderRelativeTolerance", 1e-10),
-                           argument("rootFinderMaxIterations", 1000)),
-                       function(DefaultCurveNodeConverterFn.class,
-                                argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofYears(1)))),
-                       function(DefaultHistoricalMarketDataFn.class,
-                                argument("dataSource", "BLOOMBERG"),
-                                argument("currencyMatrix", currencyMatrixLink)),
-                       function(DefaultMarketDataFn.class,
-                                argument("dataSource", "BLOOMBERG"),
-                                argument("currencyMatrix", currencyMatrixLink)),
-                       function(
-                           DefaultHistoricalTimeSeriesFn.class,
-                           argument("resolutionKey", "DEFAULT_TSS"),
-                           argument("htsRetrievalPeriod", RetrievalPeriod.of((Period.ofYears(1))))),
-                       function(
-                           DefaultDiscountingIssuerProviderBundleFn.class,
-                           argument("impliedCurveNames", StringSet.of()))),
-                   implementations(
-                       BondFn.class, DefaultBondFn.class,
-                       BondCalculatorFactory.class, DiscountingBondCalculatorFactory.class,
-                       IssuerProviderBundleFn.class, DefaultDiscountingIssuerProviderBundleFn.class,
-                       IssuerProviderFn.class, ExposureFunctionsIssuerProviderFn.class)));
+        column(
+            columnName, output,
+            config(
+                arguments(
+                    function(
+                        MarketExposureSelector.class,
+                        argument("exposureFunctions", exposureConfig)),
+                    function(
+                        RootFinderConfiguration.class,
+                        argument("rootFinderAbsoluteTolerance", 1e-10),
+                        argument("rootFinderRelativeTolerance", 1e-10),
+                        argument("rootFinderMaxIterations", 1000)),
+                    function(
+                        DefaultCurveNodeConverterFn.class,
+                        argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofYears(1)))),
+                    function(
+                        DefaultHistoricalMarketDataFn.class,
+                        argument("dataSource", "BLOOMBERG"),
+                        argument("currencyMatrix", currencyMatrixLink)),
+                    function(
+                        DefaultMarketDataFn.class,
+                        argument("dataSource", "BLOOMBERG"),
+                        argument("currencyMatrix", currencyMatrixLink)),
+                    function(
+                        DefaultDiscountingIssuerProviderBundleFn.class,
+                        argument("impliedCurveNames", StringSet.of()))),
+                implementations(
+                    BondFn.class, DiscountingBondFn.class,
+                    IssuerProviderBundleFn.class, DefaultDiscountingIssuerProviderBundleFn.class,
+                    IssuerProviderFn.class, ExposureFunctionsIssuerProviderFn.class)));
   }
 
 
