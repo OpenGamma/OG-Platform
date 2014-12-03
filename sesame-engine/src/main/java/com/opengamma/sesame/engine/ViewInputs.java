@@ -25,7 +25,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.threeten.bp.ZonedDateTime;
 
-import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
@@ -50,7 +50,7 @@ import com.opengamma.util.tuple.Pair;
 public final class ViewInputs implements ImmutableBean {
 
   @PropertyDefinition
-  private final List<Object> _tradeInputs;
+  private final ImmutableList<Object> _tradeInputs;
 
   @PropertyDefinition(validate = "notNull")
   private final ViewConfig _viewConfig;
@@ -62,7 +62,7 @@ public final class ViewInputs implements ImmutableBean {
 
   /** Arguments passed to the top level functions, keyed by the function type. */
   @PropertyDefinition(validate = "notNull")
-  private final Map<Class<?>, FunctionArguments> _functionArgs;
+  private final ImmutableMap<Class<?>, FunctionArguments> _functionArgs;
 
   @PropertyDefinition(validate = "notNull")
   private final ZonedDateTime _valuationTime;
@@ -73,13 +73,13 @@ public final class ViewInputs implements ImmutableBean {
    */
   @Deprecated
   @PropertyDefinition(validate = "notNull")
-  private final Map<ZonedDateTime, Map<Pair<ExternalIdBundle, FieldName>, Result<?>>> _marketData;
+  private final ImmutableMap<ZonedDateTime, Map<Pair<ExternalIdBundle, FieldName>, Result<?>>> _marketData;
 
   @PropertyDefinition(validate = "notNull")
-  private final Multimap<Class<?>, UniqueIdentifiable> _configData;
+  private final ImmutableMultimap<Class<?>, UniqueIdentifiable> _configData;
 
   @PropertyDefinition
-  private final Multimap<HtsRequestKey, LocalDateDoubleTimeSeries> _htsData;
+  private final ImmutableMultimap<HtsRequestKey, LocalDateDoubleTimeSeries> _htsData;
 
   @PropertyDefinition
   private final MarketDataEnvironment _marketDataEnvironment;
@@ -107,14 +107,14 @@ public final class ViewInputs implements ImmutableBean {
 
     // We have to copy to keep the type checking happy - if the input
     // was already an immutable list then this will be a no op
-    _tradeInputs = ImmutableList.copyOf(ArgumentChecker.notNull(tradeInputs, "tradeInputs"));
+    _tradeInputs = ImmutableList.copyOf(tradeInputs);
     _viewConfig = ArgumentChecker.notNull(viewConfig, "viewConfig");
     _functionArguments = FunctionArguments.EMPTY;
-    _functionArgs = ArgumentChecker.notNull(functionArgs, "functionArgs");
+    _functionArgs = ImmutableMap.copyOf(functionArgs);
     _valuationTime = ArgumentChecker.notNull(valuationTime, "valuationTime");
-    _marketData = ImmutableMap.copyOf(ArgumentChecker.notNull(marketData, "marketData"));
-    _configData = ImmutableMultimap.copyOf(ArgumentChecker.notNull(configData, "configData"));
-    _htsData = ImmutableMultimap.copyOf(ArgumentChecker.notNull(htsData, "htsData"));
+    _marketData = ImmutableMap.copyOf(marketData);
+    _configData = ImmutableMultimap.copyOf(configData);
+    _htsData = ImmutableMultimap.copyOf(htsData);
     _marketDataEnvironment = marketDataEnvironment;
   }
 
@@ -187,7 +187,7 @@ public final class ViewInputs implements ImmutableBean {
    * Gets the tradeInputs.
    * @return the value of the property
    */
-  public List<Object> getTradeInputs() {
+  public ImmutableList<Object> getTradeInputs() {
     return _tradeInputs;
   }
 
@@ -215,7 +215,7 @@ public final class ViewInputs implements ImmutableBean {
    * Gets arguments passed to the top level functions, keyed by the function type.
    * @return the value of the property, not null
    */
-  public Map<Class<?>, FunctionArguments> getFunctionArgs() {
+  public ImmutableMap<Class<?>, FunctionArguments> getFunctionArgs() {
     return _functionArgs;
   }
 
@@ -235,7 +235,7 @@ public final class ViewInputs implements ImmutableBean {
    * @return the value of the property, not null
    */
   @Deprecated
-  public Map<ZonedDateTime, Map<Pair<ExternalIdBundle, FieldName>, Result<?>>> getMarketData() {
+  public ImmutableMap<ZonedDateTime, Map<Pair<ExternalIdBundle, FieldName>, Result<?>>> getMarketData() {
     return _marketData;
   }
 
@@ -244,7 +244,7 @@ public final class ViewInputs implements ImmutableBean {
    * Gets the configData.
    * @return the value of the property, not null
    */
-  public Multimap<Class<?>, UniqueIdentifiable> getConfigData() {
+  public ImmutableMultimap<Class<?>, UniqueIdentifiable> getConfigData() {
     return _configData;
   }
 
@@ -253,7 +253,7 @@ public final class ViewInputs implements ImmutableBean {
    * Gets the htsData.
    * @return the value of the property
    */
-  public Multimap<HtsRequestKey, LocalDateDoubleTimeSeries> getHtsData() {
+  public ImmutableMultimap<HtsRequestKey, LocalDateDoubleTimeSeries> getHtsData() {
     return _htsData;
   }
 
@@ -341,8 +341,8 @@ public final class ViewInputs implements ImmutableBean {
      * The meta-property for the {@code tradeInputs} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<Object>> _tradeInputs = DirectMetaProperty.ofImmutable(
-        this, "tradeInputs", ViewInputs.class, (Class) List.class);
+    private final MetaProperty<ImmutableList<Object>> _tradeInputs = DirectMetaProperty.ofImmutable(
+        this, "tradeInputs", ViewInputs.class, (Class) ImmutableList.class);
     /**
      * The meta-property for the {@code viewConfig} property.
      */
@@ -357,8 +357,8 @@ public final class ViewInputs implements ImmutableBean {
      * The meta-property for the {@code functionArgs} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Map<Class<?>, FunctionArguments>> _functionArgs = DirectMetaProperty.ofImmutable(
-        this, "functionArgs", ViewInputs.class, (Class) Map.class);
+    private final MetaProperty<ImmutableMap<Class<?>, FunctionArguments>> _functionArgs = DirectMetaProperty.ofImmutable(
+        this, "functionArgs", ViewInputs.class, (Class) ImmutableMap.class);
     /**
      * The meta-property for the {@code valuationTime} property.
      */
@@ -368,20 +368,20 @@ public final class ViewInputs implements ImmutableBean {
      * The meta-property for the {@code marketData} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Map<ZonedDateTime, Map<Pair<ExternalIdBundle, FieldName>, Result<?>>>> _marketData = DirectMetaProperty.ofImmutable(
-        this, "marketData", ViewInputs.class, (Class) Map.class);
+    private final MetaProperty<ImmutableMap<ZonedDateTime, Map<Pair<ExternalIdBundle, FieldName>, Result<?>>>> _marketData = DirectMetaProperty.ofImmutable(
+        this, "marketData", ViewInputs.class, (Class) ImmutableMap.class);
     /**
      * The meta-property for the {@code configData} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Multimap<Class<?>, UniqueIdentifiable>> _configData = DirectMetaProperty.ofImmutable(
-        this, "configData", ViewInputs.class, (Class) Multimap.class);
+    private final MetaProperty<ImmutableMultimap<Class<?>, UniqueIdentifiable>> _configData = DirectMetaProperty.ofImmutable(
+        this, "configData", ViewInputs.class, (Class) ImmutableMultimap.class);
     /**
      * The meta-property for the {@code htsData} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Multimap<HtsRequestKey, LocalDateDoubleTimeSeries>> _htsData = DirectMetaProperty.ofImmutable(
-        this, "htsData", ViewInputs.class, (Class) Multimap.class);
+    private final MetaProperty<ImmutableMultimap<HtsRequestKey, LocalDateDoubleTimeSeries>> _htsData = DirectMetaProperty.ofImmutable(
+        this, "htsData", ViewInputs.class, (Class) ImmutableMultimap.class);
     /**
      * The meta-property for the {@code marketDataEnvironment} property.
      */
@@ -453,7 +453,7 @@ public final class ViewInputs implements ImmutableBean {
      * The meta-property for the {@code tradeInputs} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<List<Object>> tradeInputs() {
+    public MetaProperty<ImmutableList<Object>> tradeInputs() {
       return _tradeInputs;
     }
 
@@ -478,7 +478,7 @@ public final class ViewInputs implements ImmutableBean {
      * The meta-property for the {@code functionArgs} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Map<Class<?>, FunctionArguments>> functionArgs() {
+    public MetaProperty<ImmutableMap<Class<?>, FunctionArguments>> functionArgs() {
       return _functionArgs;
     }
 
@@ -496,7 +496,7 @@ public final class ViewInputs implements ImmutableBean {
      * @return the meta-property, not null
      */
     @Deprecated
-    public MetaProperty<Map<ZonedDateTime, Map<Pair<ExternalIdBundle, FieldName>, Result<?>>>> marketData() {
+    public MetaProperty<ImmutableMap<ZonedDateTime, Map<Pair<ExternalIdBundle, FieldName>, Result<?>>>> marketData() {
       return _marketData;
     }
 
@@ -504,7 +504,7 @@ public final class ViewInputs implements ImmutableBean {
      * The meta-property for the {@code configData} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Multimap<Class<?>, UniqueIdentifiable>> configData() {
+    public MetaProperty<ImmutableMultimap<Class<?>, UniqueIdentifiable>> configData() {
       return _configData;
     }
 
@@ -512,7 +512,7 @@ public final class ViewInputs implements ImmutableBean {
      * The meta-property for the {@code htsData} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Multimap<HtsRequestKey, LocalDateDoubleTimeSeries>> htsData() {
+    public MetaProperty<ImmutableMultimap<HtsRequestKey, LocalDateDoubleTimeSeries>> htsData() {
       return _htsData;
     }
 
@@ -573,7 +573,7 @@ public final class ViewInputs implements ImmutableBean {
     private Map<Class<?>, FunctionArguments> _functionArgs = new HashMap<Class<?>, FunctionArguments>();
     private ZonedDateTime _valuationTime;
     private Map<ZonedDateTime, Map<Pair<ExternalIdBundle, FieldName>, Result<?>>> _marketData = new HashMap<ZonedDateTime, Map<Pair<ExternalIdBundle, FieldName>, Result<?>>>();
-    private Multimap<Class<?>, UniqueIdentifiable> _configData = ArrayListMultimap.create();
+    private Multimap<Class<?>, UniqueIdentifiable> _configData = HashMultimap.create();
     private Multimap<HtsRequestKey, LocalDateDoubleTimeSeries> _htsData;
     private MarketDataEnvironment _marketDataEnvironment;
 
@@ -594,8 +594,8 @@ public final class ViewInputs implements ImmutableBean {
       this._functionArgs = new HashMap<Class<?>, FunctionArguments>(beanToCopy.getFunctionArgs());
       this._valuationTime = beanToCopy.getValuationTime();
       this._marketData = new HashMap<ZonedDateTime, Map<Pair<ExternalIdBundle, FieldName>, Result<?>>>(beanToCopy.getMarketData());
-      this._configData = ArrayListMultimap.create(beanToCopy.getConfigData());
-      this._htsData = (beanToCopy.getHtsData() != null ? ArrayListMultimap.create(beanToCopy.getHtsData()) : null);
+      this._configData = HashMultimap.create(beanToCopy.getConfigData());
+      this._htsData = (beanToCopy.getHtsData() != null ? HashMultimap.create(beanToCopy.getHtsData()) : null);
       this._marketDataEnvironment = beanToCopy.getMarketDataEnvironment();
     }
 

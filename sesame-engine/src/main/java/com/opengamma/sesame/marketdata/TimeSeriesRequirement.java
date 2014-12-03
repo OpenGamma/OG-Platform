@@ -32,17 +32,13 @@ import com.opengamma.util.time.LocalDateRange;
 @BeanDefinition
 public final class TimeSeriesRequirement extends MarketDataRequirement implements ImmutableBean {
 
-  /** ID of the market data in the time series. */
+  /** The ID of the market data in the time series. */
   @PropertyDefinition(validate = "notNull")
   private final MarketDataId _marketDataId;
 
   /** Time of the market data. This always has a type of {@code MARKET_DATA} and contains a {@code LocalDateRange}. */
   @PropertyDefinition(validate = "notNull")
   private final MarketDataTime _marketDataTime;
-
-  private TimeSeriesRequirement(MarketDataId<?> marketDataId, LocalDateRange dateRange) {
-    this(marketDataId, MarketDataTime.of(dateRange));
-  }
 
   /**
    * Creates a requirement for a time series of market data.
@@ -52,7 +48,7 @@ public final class TimeSeriesRequirement extends MarketDataRequirement implement
    * @return a requirement for a time series of market data
    */
   public static TimeSeriesRequirement of(MarketDataId<?> marketDataId, LocalDateRange dateRange) {
-    return new TimeSeriesRequirement(marketDataId, dateRange);
+    return new TimeSeriesRequirement(marketDataId, MarketDataTime.of(dateRange));
   }
 
   @ImmutableValidator
@@ -118,7 +114,7 @@ public final class TimeSeriesRequirement extends MarketDataRequirement implement
 
   //-----------------------------------------------------------------------
   /**
-   * Gets iD of the market data in the time series.
+   * Gets the ID of the market data in the time series.
    * @return the value of the property, not null
    */
   public MarketDataId getMarketDataId() {
