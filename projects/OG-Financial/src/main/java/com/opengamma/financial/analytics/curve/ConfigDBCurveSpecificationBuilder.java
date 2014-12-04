@@ -10,6 +10,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.inject.Inject;
+
 import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDate;
 
@@ -50,6 +52,7 @@ public class ConfigDBCurveSpecificationBuilder implements CurveSpecificationBuil
    * @param configSource the config source, not null
    * @param versionCorrection the version/correction timestamp, not null
    */
+  @Inject
   public ConfigDBCurveSpecificationBuilder(final ConfigSource configSource, final VersionCorrection versionCorrection) {
     this(new ConfigSourceQuery<>(configSource, CurveNodeIdMapper.class, versionCorrection), new ConfigDBCurveDefinitionSource(configSource, versionCorrection));
   }
