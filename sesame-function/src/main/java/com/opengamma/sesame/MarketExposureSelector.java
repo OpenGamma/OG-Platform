@@ -38,7 +38,7 @@ import com.opengamma.util.ArgumentChecker;
  * Note that this functionality should really be provided by the ExposureFunctions config
  * object i.e. obeying tell, don't ask.
  */
-public class MarketExposureSelector implements CurveSelectorFn {
+public class MarketExposureSelector implements CurveSelector {
 
   private final SecuritySource _securitySource;
   private final List<ExposureFunction> _exposureFunctions;

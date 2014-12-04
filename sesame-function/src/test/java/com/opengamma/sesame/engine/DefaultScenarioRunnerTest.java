@@ -36,7 +36,7 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.core.security.impl.SimpleSecurityLink;
-import com.opengamma.sesame.CurveSelectorFn;
+import com.opengamma.sesame.CurveSelector;
 import com.opengamma.sesame.CurveSelectorMulticurveBundleFn;
 import com.opengamma.sesame.DirectExecutorService;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
@@ -73,7 +73,7 @@ public class DefaultScenarioRunnerTest {
           "view name",
           config(
               implementations(
-                  CurveSelectorFn.class, TestSelectorFn.class,
+                  CurveSelector.class, TestSelector.class,
                   DiscountingMulticurveCombinerFn.class, CurveSelectorMulticurveBundleFn.class,
                   TestFn.class, TestImpl.class)),
           column("col1", "Foo"));
@@ -205,7 +205,7 @@ public class DefaultScenarioRunnerTest {
     }
   }
 
-  public static class TestSelectorFn implements CurveSelectorFn {
+  public static class TestSelector implements CurveSelector {
 
     @Override
     public Set<String> getMulticurveNames(Trade trade) {

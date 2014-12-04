@@ -394,8 +394,6 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
     if (Result.allSuccessful(exogenousBundle, curveBundleResult)) {
 
       MulticurveProviderDiscount exogenousCurves = adjustMulticurveBundle(curvesToRemove, exogenousBundle.getValue());
-      // TODO does the scenario framework need to get involved in this method call (deep inside the analytics)?
-      // if so, can it be split up into multiple analytics calls?
       Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> calibratedCurves =
           createBuilder().makeCurvesFromDerivatives(
               curveBundles, exogenousCurves, discountingMap, forwardIborMap,

@@ -71,7 +71,7 @@ import com.opengamma.sesame.CurrencyPairsFn;
 import com.opengamma.sesame.CurveDefinitionCurveLabellingFn;
 import com.opengamma.sesame.CurveDefinitionFn;
 import com.opengamma.sesame.CurveLabellingFn;
-import com.opengamma.sesame.CurveSelectorFn;
+import com.opengamma.sesame.CurveSelector;
 import com.opengamma.sesame.CurveSelectorMulticurveBundleFn;
 import com.opengamma.sesame.DefaultCurrencyPairsFn;
 import com.opengamma.sesame.DefaultCurveDefinitionFn;
@@ -223,7 +223,7 @@ public class SwapPricingTest {
                 CurrencyPairsFn.class, DefaultCurrencyPairsFn.class,
                 InterestRateSwapCalculatorFactory.class, DiscountingInterestRateSwapCalculatorFactory.class,
                 InterestRateSwapCalculator.class, DiscountingInterestRateSwapCalculator.class,
-                CurveSelectorFn.class, MarketExposureSelector.class,
+                CurveSelector.class, MarketExposureSelector.class,
                 CurveDefinitionFn.class, DefaultCurveDefinitionFn.class,
                 FXMatrixFn.class, DefaultFXMatrixFn.class,
                 CurveLabellingFn.class, CurveDefinitionCurveLabellingFn.class,

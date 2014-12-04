@@ -55,7 +55,7 @@ public class PreCalibratedMulticurveFnTest {
 
   @Test
   public void noCurvesForTrade() {
-    CurveSelectorFn curveSelector = mock(CurveSelectorFn.class);
+    CurveSelector curveSelector = mock(CurveSelector.class);
     when(curveSelector.getMulticurveNames(TRADE.getTrade())).thenReturn(Collections.<String>emptySet());
     PreCalibratedMulticurveFn fn = new PreCalibratedMulticurveFn(curveSelector);
     assertFalse(fn.getMulticurveBundle(ENV, TRADE).isSuccess());
@@ -69,7 +69,7 @@ public class PreCalibratedMulticurveFnTest {
     FilteredScenarioDefinition scenarioDefinition = new FilteredScenarioDefinition(args1, args2);
     SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), mock(MarketDataBundle.class), scenarioDefinition);
     Set<String> curveNames = ImmutableSet.of("a curve");
-    CurveSelectorFn curveSelector = mock(CurveSelectorFn.class);
+    CurveSelector curveSelector = mock(CurveSelector.class);
     when(curveSelector.getMulticurveNames(TRADE.getTrade())).thenReturn(curveNames);
 
     PreCalibratedMulticurveFn fn = new PreCalibratedMulticurveFn(curveSelector);
@@ -87,7 +87,7 @@ public class PreCalibratedMulticurveFnTest {
     FilteredScenarioDefinition scenarioDefinition = new FilteredScenarioDefinition(args);
     SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), mock(MarketDataBundle.class), scenarioDefinition);
     Set<String> curveNames = ImmutableSet.of("a different curve");
-    CurveSelectorFn curveSelector = mock(CurveSelectorFn.class);
+    CurveSelector curveSelector = mock(CurveSelector.class);
     when(curveSelector.getMulticurveNames(TRADE.getTrade())).thenReturn(curveNames);
 
     PreCalibratedMulticurveFn fn = new PreCalibratedMulticurveFn(curveSelector);
@@ -105,7 +105,7 @@ public class PreCalibratedMulticurveFnTest {
     FilteredScenarioDefinition scenarioDefinition = new FilteredScenarioDefinition(args);
     SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), mock(MarketDataBundle.class), scenarioDefinition);
     Set<String> curveNames = ImmutableSet.of("a curve");
-    CurveSelectorFn curveSelector = mock(CurveSelectorFn.class);
+    CurveSelector curveSelector = mock(CurveSelector.class);
     when(curveSelector.getMulticurveNames(TRADE.getTrade())).thenReturn(curveNames);
 
     PreCalibratedMulticurveFn fn = new PreCalibratedMulticurveFn(curveSelector);
@@ -128,7 +128,7 @@ public class PreCalibratedMulticurveFnTest {
     FilteredScenarioDefinition scenarioDefinition = new FilteredScenarioDefinition(args);
     SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), mock(MarketDataBundle.class), scenarioDefinition);
     Set<String> curveNames = ImmutableSet.of("curve1", "curve2");
-    CurveSelectorFn curveSelector = mock(CurveSelectorFn.class);
+    CurveSelector curveSelector = mock(CurveSelector.class);
     when(curveSelector.getMulticurveNames(TRADE.getTrade())).thenReturn(curveNames);
 
     PreCalibratedMulticurveFn fn = new PreCalibratedMulticurveFn(curveSelector);
