@@ -20,6 +20,7 @@ import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.id.ExternalId;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
 
@@ -33,8 +34,8 @@ public class ExposureFunctionsIssuerProviderFn implements IssuerProviderFn {
   
   public ExposureFunctionsIssuerProviderFn(MarketExposureSelector marketExposureSelector,
                                            IssuerProviderBundleFn issuerProviderBundleFn) {
-    _marketExposureSelector = marketExposureSelector;
-    _issuerProviderBundleFn = issuerProviderBundleFn;
+    _marketExposureSelector = ArgumentChecker.notNull(marketExposureSelector, "marketExposureSelector");
+    _issuerProviderBundleFn = ArgumentChecker.notNull(issuerProviderBundleFn, "issuerProviderBundleFn");
   }
   @Override
   public Result<IssuerProviderBundle> createBundle(Environment env, FinancialSecurity security, FXMatrix fxMatrix) {
@@ -56,18 +57,19 @@ public class ExposureFunctionsIssuerProviderFn implements IssuerProviderFn {
   public Result<IssuerProviderBundle> getMulticurveBundle(Environment env, Trade trade) {
     Set<CurveConstructionConfiguration> curveConfigs = _marketExposureSelector.determineCurveConfigurations(trade);
 
-    if (curveConfigs.size() == 1) {
-      Result<IssuerProviderBundle> bundle =
-          _issuerProviderBundleFn.generateBundle(env, Iterables.getOnlyElement(curveConfigs));
-      if (bundle.isSuccess()) {
-        return Result.success(bundle.getValue());
-      } else {
-        return Result.failure(bundle);
-      }
-    } else if (curveConfigs.isEmpty()) {
-      return Result.failure(FailureStatus.MISSING_DATA, "No curve construction configs found for {}", trade);
-    } else {
-      return Result.failure(FailureStatus.MULTIPLE, "Found {} configs, expected one", curveConfigs.size());
+    switch (curveConfigs.size()) {
+      case 0:
+        return Result.failure(FailureStatus.MISSING_DATA, "No curve construction configs found for {}", trade);
+      case 1:
+        Result<IssuerProviderBundle> bundle =
+            _issuerProviderBundleFn.generateBundle(env, Iterables.getOnlyElement(curveConfigs));
+        if (bundle.isSuccess()) {
+          return Result.success(bundle.getValue());
+        } else {
+          return Result.failure(bundle);
+        }
+      default:
+        return Result.failure(FailureStatus.MULTIPLE, "Found {} configs, expected one", curveConfigs.size());
     }
   }
 }

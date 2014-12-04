@@ -27,10 +27,10 @@ import com.opengamma.util.tuple.Pairs;
  */
 public class CurveSelectorMulticurveBundleFn implements DiscountingMulticurveCombinerFn {
 
-  private final CurveSelectorFn _curveSelectorFn;
+  private final CurveSelector _curveSelector;
 
-  public CurveSelectorMulticurveBundleFn(CurveSelectorFn curveSelectorFn) {
-    _curveSelectorFn = ArgumentChecker.notNull(curveSelectorFn, "curveSelectorFn");
+  public CurveSelectorMulticurveBundleFn(CurveSelector curveSelector) {
+    _curveSelector = ArgumentChecker.notNull(curveSelector, "curveSelectorFn");
   }
 
   @Override
@@ -50,7 +50,7 @@ public class CurveSelectorMulticurveBundleFn implements DiscountingMulticurveCom
 
   @Override
   public Result<MulticurveBundle> getMulticurveBundle(Environment env, TradeWrapper<?> trade) {
-    Set<String> multicurveNames = _curveSelectorFn.getMulticurveNames(trade.getTrade());
+    Set<String> multicurveNames = _curveSelector.getMulticurveNames(trade.getTrade());
     List<MulticurveBundle> bundleResults = new ArrayList<>();
     List<Result<MulticurveBundle>> failures = new ArrayList<>();
 

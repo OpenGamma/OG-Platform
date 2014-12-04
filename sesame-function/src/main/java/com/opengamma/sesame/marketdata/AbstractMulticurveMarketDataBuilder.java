@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -20,6 +19,8 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorCurveYieldInterpolated;
@@ -88,9 +89,9 @@ abstract class AbstractMulticurveMarketDataBuilder<T> implements MarketDataBuild
   AbstractMulticurveMarketDataBuilder(CurveSpecificationBuilder curveSpecBuilder,
                                       CurveNodeConverterFn curveNodeConverter,
                                       CurveNodeInstrumentDefinitionFactory definitionFactory) {
-    _definitionFactory = ArgumentChecker.notNull(definitionFactory, "definitionFactory");
-    _curveNodeConverter = ArgumentChecker.notNull(curveNodeConverter, "curveNodeConverter");
     _curveSpecBuilder = ArgumentChecker.notNull(curveSpecBuilder, "curveSpecBuilder");
+    _curveNodeConverter = ArgumentChecker.notNull(curveNodeConverter, "curveNodeConverter");
+    _definitionFactory = ArgumentChecker.notNull(definitionFactory, "definitionFactory");
   }
 
   @Override
@@ -100,7 +101,7 @@ abstract class AbstractMulticurveMarketDataBuilder<T> implements MarketDataBuild
     CurveConstructionConfiguration curveConfig = getCurveConfig(requirement);
     Set<MarketDataRequirement> parentBundleRequirements = getParentBundleRequirements(requirement, curveConfig);
 
-    Set<MarketDataRequirement> requirements = new HashSet<>();
+    ImmutableSet.Builder<MarketDataRequirement> requirements = ImmutableSet.builder();
     requirements.addAll(parentBundleRequirements);
     // TODO this can go into a shared method
     Set<CurveNodeWithIdentifier> curveNodes = getBundleNodes(curveConfig, valuationTime);
@@ -109,11 +110,30 @@ abstract class AbstractMulticurveMarketDataBuilder<T> implements MarketDataBuild
     Set<Currency> currencies = getCurrencies(curveConfig, valuationTime);
     FxMatrixId fxMatrixId = FxMatrixId.of(currencies);
     requirements.add(SingleValueRequirement.of(fxMatrixId, requirement.getMarketDataTime()));
-    return requirements;
+    return requirements.build();
   }
 
+  /**
+   * Extracts the curve configuration from the curve bundle requirement.
+   * <p>
+   * This is necessary because there are multiple types of market data IDs for curves and they don't share an
+   * interface. The {@code getConfig()} methods on the ID classes are package-private and would have to be public if
+   * they were defined on a common interface.
+   *
+   * @param requirement the requirement for the curve bundle
+   * @return the configuration for building the curve bundle
+   */
   abstract CurveConstructionConfiguration getCurveConfig(SingleValueRequirement requirement);
 
+  /**
+   * Returns the requirements for all the curve bundles that the curve configuration depends on.
+   * <p>
+   * This recursively includes the bundles it depends on directly and any dependencies of the parent bundles
+   *
+   * @param requirement the requirement for the curve bundle
+   * @param curveConfig the curve bundle configuration
+   * @return the requirements for all the curve bundles that the curve configuration depends on
+   */
   abstract Set<MarketDataRequirement> getParentBundleRequirements(SingleValueRequirement requirement,
                                                                   CurveConstructionConfiguration curveConfig);
 
@@ -146,14 +166,14 @@ abstract class AbstractMulticurveMarketDataBuilder<T> implements MarketDataBuild
    */
   private Set<CurveNodeWithIdentifier> getBundleNodes(CurveConstructionConfiguration curveConfig,
                                                       ZonedDateTime valuationTime) {
-    Set<CurveNodeWithIdentifier> curveNodes = new HashSet<>();
+    ImmutableSet.Builder<CurveNodeWithIdentifier> curveNodes = ImmutableSet.builder();
 
     for (CurveGroupConfiguration group : curveConfig.getCurveGroups()) {
       for (AbstractCurveDefinition curveDefinition : group.resolveTypesForCurves().keySet()) {
         curveNodes.addAll(getCurveNodes(curveDefinition, valuationTime));
       }
     }
-    return curveNodes;
+    return curveNodes.build();
   }
 
   /**
@@ -181,7 +201,7 @@ abstract class AbstractMulticurveMarketDataBuilder<T> implements MarketDataBuild
    */
   private Set<MarketDataRequirement> getRequirementsForCurveNodes(MarketDataRequirement curveBundleRequirement,
                                                                   Set<CurveNodeWithIdentifier> curveNodes) {
-    Set<MarketDataRequirement> requirements = new HashSet<>();
+    ImmutableSet.Builder<MarketDataRequirement> requirements = ImmutableSet.builder();
 
     // loop through the curve nodes, create a requirement for each node's market data
     for (CurveNodeWithIdentifier node : curveNodes) {
@@ -195,7 +215,7 @@ abstract class AbstractMulticurveMarketDataBuilder<T> implements MarketDataBuild
         requirements.add(SingleValueRequirement.of(RawId.of(underlyingId), curveBundleRequirement.getMarketDataTime()));
       }
     }
-    return requirements;
+    return requirements.build();
   }
 
   /**
@@ -224,22 +244,22 @@ abstract class AbstractMulticurveMarketDataBuilder<T> implements MarketDataBuild
     List<MultiCurveBundle<GeneratorYDCurve>> curveBundles = new ArrayList<>();
 
     for (CurveGroupConfiguration groupConfig : bundleConfig.getCurveGroups()) {
-      Map<AbstractCurveDefinition, List<? extends CurveTypeConfiguration>> configTypesByCurveDef =
-          groupConfig.resolveTypesForCurves();
-
       List<SingleCurveBundle<GeneratorYDCurve>> singleCurveBundles = new ArrayList<>();
 
-      for (AbstractCurveDefinition curveDefinition : configTypesByCurveDef.keySet()) {
+      for (Map.Entry<AbstractCurveDefinition, List<? extends CurveTypeConfiguration>> entry :
+          groupConfig.resolveTypesForCurves().entrySet()) {
+
+        AbstractCurveDefinition curveDefinition = entry.getKey();
+        List<? extends CurveTypeConfiguration> curveConfigTypes = entry.getValue();
         Set<CurveNodeWithIdentifier> curveNodes = getCurveNodes(curveDefinition, valuationTime);
         SnapshotDataBundle dataBundle = createDataBundle(marketDataBundle, bundleRequirement, curveNodes);
         List<InstrumentDerivative> derivatives =
             createInstrumentDerivatives(marketDataBundle, dataBundle, fxMatrix, valuationTime, curveNodes);
         String curveName = curveDefinition.getName();
-        List<? extends CurveTypeConfiguration> curveConfigTypes = configTypesByCurveDef.get(curveDefinition);
         configTypes.putAll(curveName, curveConfigTypes);
 
         iborIndexByCurveName.putAll(curveName, createIborIndices(curveConfigTypes));
-        onIndexByCurveName.putAll(curveName, createOnIndices(curveConfigTypes));
+        onIndexByCurveName.putAll(curveName, createOvernightIndices(curveConfigTypes));
         Currency currency = getCurrency(curveConfigTypes);
 
         if (currency != null) {
@@ -283,6 +303,8 @@ abstract class AbstractMulticurveMarketDataBuilder<T> implements MarketDataBuild
   /**
    * Creates a {@link SnapshotDataBundle} containing the market data for all nodes in the curve bundle.
    *
+   * TODO this is required by the legacy curve code but should be replaced when the curves are overhauled
+   *
    * @param marketDataBundle the market data
    * @return a bundle of market data for the curve nodes
    */
@@ -320,8 +342,10 @@ abstract class AbstractMulticurveMarketDataBuilder<T> implements MarketDataBuild
                                                                  FXMatrix fxMatrix,
                                                                  ZonedDateTime valuationTime,
                                                                  Set<CurveNodeWithIdentifier> nodes) {
-    List<InstrumentDerivative> derivativesForCurve = new ArrayList<>(nodes.size());
-    // TODO this smells bad. should MarketDataBuilders take Environment? maybe if the scenario stuff has goes
+    ImmutableList.Builder<InstrumentDerivative> derivativesForCurve = ImmutableList.builder();
+
+    // TODO this is required because the definition factory and converter were originally engine functions
+    // they could be migrated away from using environment now they're not used in the engine
     SimpleEnvironment env = new SimpleEnvironment(valuationTime, marketDataBundle);
 
     for (CurveNodeWithIdentifier node : nodes) {
@@ -331,7 +355,7 @@ abstract class AbstractMulticurveMarketDataBuilder<T> implements MarketDataBuild
           _curveNodeConverter.getDerivative(env, node, instrumentDefn, valuationTime);
       derivativesForCurve.add(derivativeResult.getValue());
     }
-    return derivativesForCurve;
+    return derivativesForCurve.build();
   }
 
   /**
@@ -345,11 +369,7 @@ abstract class AbstractMulticurveMarketDataBuilder<T> implements MarketDataBuild
     for (CurveTypeConfiguration configType : configTypes) {
       if (configType instanceof DiscountingCurveTypeConfiguration) {
         String reference = ((DiscountingCurveTypeConfiguration) configType).getReference();
-        try {
-          return Currency.of(reference);
-        } catch (IllegalArgumentException e) {
-          throw new OpenGammaRuntimeException("Cannot handle reference type " + reference + " for discounting curves");
-        }
+        return Currency.of(reference);
       }
     }
     return null;
@@ -361,8 +381,8 @@ abstract class AbstractMulticurveMarketDataBuilder<T> implements MarketDataBuild
    * @param configTypes the curve config types
    * @return overnight indices for any of the config types that are overnight
    */
-  private List<IndexON> createOnIndices(List<? extends CurveTypeConfiguration> configTypes) {
-    List<IndexON> indices = new ArrayList<>();
+  private List<IndexON> createOvernightIndices(List<? extends CurveTypeConfiguration> configTypes) {
+    ImmutableList.Builder<IndexON> indices = ImmutableList.builder();
 
     for (CurveTypeConfiguration configType : configTypes) {
       if (configType instanceof OvernightCurveTypeConfiguration) {
@@ -374,7 +394,7 @@ abstract class AbstractMulticurveMarketDataBuilder<T> implements MarketDataBuild
         indices.add(indexON);
       }
     }
-    return indices;
+    return indices.build();
   }
 
   /**
@@ -384,7 +404,7 @@ abstract class AbstractMulticurveMarketDataBuilder<T> implements MarketDataBuild
    * @return IBOR indices for any of the config types that are IBOR
    */
   private List<IborIndex> createIborIndices(List<? extends CurveTypeConfiguration> configTypes) {
-    List<IborIndex> indices = new ArrayList<>();
+    ImmutableList.Builder<IborIndex> indices = ImmutableList.builder();
 
     for (CurveTypeConfiguration configType : configTypes) {
       if (configType instanceof IborCurveTypeConfiguration) {
@@ -402,7 +422,7 @@ abstract class AbstractMulticurveMarketDataBuilder<T> implements MarketDataBuild
         indices.add(iborIndex);
       }
     }
-    return indices;
+    return indices.build();
   }
 
   /**
@@ -443,7 +463,7 @@ abstract class AbstractMulticurveMarketDataBuilder<T> implements MarketDataBuild
    * @return the currencies used by the curve bundle and all its ancestor bundles
    */
   Set<Currency> getCurrencies(CurveConstructionConfiguration curveConfig, ZonedDateTime valuationTime) {
-    Set<Currency> currencies = new HashSet<>();
+    ImmutableSet.Builder<Currency> currencies = ImmutableSet.builder();
     CurveNodeCurrencyVisitor currencyVisitor = new CurveNodeCurrencyVisitor();
 
     for (final CurveGroupConfiguration group : curveConfig.getCurveGroups()) {
@@ -457,11 +477,11 @@ abstract class AbstractMulticurveMarketDataBuilder<T> implements MarketDataBuild
         }
       }
     }
-    return currencies;
+    return currencies.build();
   }
 
   /**
-   *
+   * A set of intermediate values used for building curves.
    */
   static class IntermediateResults {
 

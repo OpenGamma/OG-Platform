@@ -22,13 +22,13 @@ import com.opengamma.util.result.Result;
 public class LookupIssuerProviderFn implements IssuerProviderFn {
 
   /** Specifies which curve should be used for a trade. */
-  private final CurveSelectorFn _curveSelectorFn;
+  private final CurveSelector _curveSelector;
 
   /**
-   * @param curveSelectorFn specifies which curve should be used for a trade
+   * @param curveSelector specifies which curve should be used for a trade
    */
-  public LookupIssuerProviderFn(CurveSelectorFn curveSelectorFn) {
-    _curveSelectorFn = ArgumentChecker.notNull(curveSelectorFn, "curveSelectorFn");
+  public LookupIssuerProviderFn(CurveSelector curveSelector) {
+    _curveSelector = ArgumentChecker.notNull(curveSelector, "curveSelectorFn");
   }
 
   @Override
@@ -43,17 +43,19 @@ public class LookupIssuerProviderFn implements IssuerProviderFn {
 
   @Override
   public Result<IssuerProviderBundle> getMulticurveBundle(Environment env, Trade trade) {
-    Set<String> multicurveNames = _curveSelectorFn.getMulticurveNames(trade);
+    Set<String> multicurveNames = _curveSelector.getMulticurveNames(trade);
 
-    if (multicurveNames.isEmpty()) {
-      return Result.failure(FailureStatus.CALCULATION_FAILED, "No curves configured for trade {}", trade);
-    } else if (multicurveNames.size() > 1) {
-      // TODO confirm the status of merging issuer bundles
-      return Result.failure(FailureStatus.CALCULATION_FAILED, "Only one issuer curve bundle is supported per trade. " +
-          "Bundle names: {}, trade: {}", multicurveNames, trade);
-    } else {
-      String multicurveName = multicurveNames.iterator().next();
-      return env.getMarketDataBundle().get(IssuerMulticurveId.of(multicurveName), IssuerProviderBundle.class);
+    switch (multicurveNames.size()) {
+      case 0:
+        return Result.failure(FailureStatus.CALCULATION_FAILED, "No curves configured for trade {}", trade);
+      case 1:
+        String multicurveName = multicurveNames.iterator().next();
+        IssuerMulticurveId multicurveId = IssuerMulticurveId.of(multicurveName);
+        return env.getMarketDataBundle().get(multicurveId, IssuerProviderBundle.class);
+      default:
+        return Result.failure(FailureStatus.CALCULATION_FAILED,
+                              "Only one issuer curve bundle is supported per trade. Bundle names: {}, trade: {}",
+                              multicurveNames, trade);
     }
   }
 }

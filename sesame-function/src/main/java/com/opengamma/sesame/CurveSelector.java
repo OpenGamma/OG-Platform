@@ -12,7 +12,7 @@ import com.opengamma.core.position.Trade;
 /**
  * Returns the names of the multicurve bundles that should be used in calculations for a trade.
  */
-public interface CurveSelectorFn {
+public interface CurveSelector {
 
   /**
    * Returns the names of the multicurve bundles that should be used in calculations for the trade.

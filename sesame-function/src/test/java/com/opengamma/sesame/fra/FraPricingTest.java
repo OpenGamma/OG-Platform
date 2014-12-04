@@ -57,7 +57,7 @@ import com.opengamma.service.VersionCorrectionProvider;
 import com.opengamma.sesame.CurveDefinitionCurveLabellingFn;
 import com.opengamma.sesame.CurveDefinitionFn;
 import com.opengamma.sesame.CurveLabellingFn;
-import com.opengamma.sesame.CurveSelectorFn;
+import com.opengamma.sesame.CurveSelector;
 import com.opengamma.sesame.CurveSelectorMulticurveBundleFn;
 import com.opengamma.sesame.DefaultCurveDefinitionFn;
 import com.opengamma.sesame.DefaultFXMatrixFn;
@@ -187,7 +187,7 @@ public class FraPricingTest {
                 DiscountingMulticurveCombinerFn.class, CurveSelectorMulticurveBundleFn.class,
                 HistoricalMarketDataFn.class, DefaultHistoricalMarketDataFn.class,
                 FixingsFn.class, DefaultFixingsFn.class,
-                CurveSelectorFn.class, MarketExposureSelector.class,
+                CurveSelector.class, MarketExposureSelector.class,
                 MarketDataFn.class, DefaultMarketDataFn.class));
 
     Map<Class<?>, Object> components = InterestRateMockSources.generateBaseComponents();

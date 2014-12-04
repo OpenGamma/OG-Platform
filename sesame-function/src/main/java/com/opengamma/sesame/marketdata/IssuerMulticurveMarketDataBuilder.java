@@ -6,14 +6,14 @@
 package com.opengamma.sesame.marketdata;
 
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
@@ -79,21 +79,15 @@ public class IssuerMulticurveMarketDataBuilder
                                                                   ZonedDateTime valuationTime,
                                                                   Set<SingleValueRequirement> requirements,
                                                                   MarketDataSource marketDataSource) {
-    Map<SingleValueRequirement, Result<?>> results = new HashMap<>();
+    ImmutableMap.Builder<SingleValueRequirement, Result<?>> results = ImmutableMap.builder();
 
     for (SingleValueRequirement requirement : requirements) {
       IssuerMulticurveId marketDataId = (IssuerMulticurveId) requirement.getMarketDataId();
       CurveConstructionConfiguration curveConfig = marketDataId.getConfig();
-      Result<IssuerProviderBundle> bundleResult;
-      try {
-        IssuerProviderBundle bundle = buildBundle(marketDataBundle, valuationTime, curveConfig, requirement);
-        bundleResult = Result.success(bundle);
-      } catch (Exception e) {
-        bundleResult = Result.failure(e);
-      }
-      results.put(requirement, bundleResult);
+      IssuerProviderBundle bundle = buildBundle(marketDataBundle, valuationTime, curveConfig, requirement);
+      results.put(requirement, Result.success(bundle));
     }
-    return results;
+    return results.build();
   }
 
   @Override
@@ -121,13 +115,13 @@ public class IssuerMulticurveMarketDataBuilder
   Set<MarketDataRequirement> getParentBundleRequirements(SingleValueRequirement requirement,
                                                          CurveConstructionConfiguration curveConfig) {
 
-    Set<MarketDataRequirement> parentBundleRequirements = new HashSet<>();
+    ImmutableSet.Builder<MarketDataRequirement> parentBundleRequirements = ImmutableSet.builder();
 
     for (String parentBundleName : curveConfig.getExogenousConfigurations()) {
       IssuerMulticurveId curveBundleId = IssuerMulticurveId.of(parentBundleName);
       parentBundleRequirements.add(SingleValueRequirement.of(curveBundleId, requirement.getMarketDataTime()));
     }
-    return parentBundleRequirements;
+    return parentBundleRequirements.build();
   }
 
   /**
@@ -154,15 +148,15 @@ public class IssuerMulticurveMarketDataBuilder
                                                                        bundleConfig,
                                                                        bundleRequirement);
 
-    Pair<IssuerProviderDiscount, CurveBuildingBlockBundle> calibratedCurves = _curveBuilder.makeCurvesFromDerivatives(
-        intermediateResults.getCurveBundles(),
-        parentBundle,
-        intermediateResults.getCurrenciesByCurveName(),
-        intermediateResults.getIborIndexByCurveName(),
-        intermediateResults.getOnIndexByCurveName(),
-        createIssuerMap(intermediateResults.getConfigTypes()),
-        DISCOUNTING_CALCULATOR,
-        CURVE_SENSITIVITY_CALCULATOR);
+    Pair<IssuerProviderDiscount, CurveBuildingBlockBundle> calibratedCurves =
+        _curveBuilder.makeCurvesFromDerivatives(intermediateResults.getCurveBundles(),
+                                                parentBundle,
+                                                intermediateResults.getCurrenciesByCurveName(),
+                                                intermediateResults.getIborIndexByCurveName(),
+                                                intermediateResults.getOnIndexByCurveName(),
+                                                createIssuerMap(intermediateResults.getConfigTypes()),
+                                                DISCOUNTING_CALCULATOR,
+                                                CURVE_SENSITIVITY_CALCULATOR);
 
     return new IssuerProviderBundle(calibratedCurves.getFirst(), calibratedCurves.getSecond());
   }

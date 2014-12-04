@@ -29,12 +29,12 @@ import com.opengamma.util.tuple.Pairs;
 public class PreCalibratedMulticurveFn implements DiscountingMulticurveCombinerFn,
     ScenarioFunction<PreCalibratedMulticurveArguments, PreCalibratedMulticurveFn> {
 
-  private final CurveSelectorFn _curveSelector;
+  private final CurveSelector _curveSelector;
 
   /**
    * @param curveSelector provides the names of curves that should be used for a trade
    */
-  public PreCalibratedMulticurveFn(CurveSelectorFn curveSelector) {
+  public PreCalibratedMulticurveFn(CurveSelector curveSelector) {
     _curveSelector = ArgumentChecker.notNull(curveSelector, "exposureSelector");
   }
 
