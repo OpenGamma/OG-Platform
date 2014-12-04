@@ -5,8 +5,11 @@
  */
 package com.opengamma.analytics.financial.interestrate;
 
+import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponFixedDefinition;
+import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponIborDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
@@ -56,17 +59,18 @@ public class SwapCleanDiscountingCalculator {
     ArgumentChecker.notNull(valuationDate, "valuationDate");
     ArgumentChecker.notNull(indexTimeSeries, "indexTimeSeries");
     ArgumentChecker.notNull(multicurves, "multicurves");
+    checkNotionalAndFixedRate(swapDefinition);
 
     Annuity<? extends Coupon> iborLeg = swapDefinition.getIborLeg().toDerivative(valuationDate, indexTimeSeries);
-    double dirtyIborLegPV = iborLeg.accept(PVDC, multicurves).getAmount(iborLeg.getCurrency()) *
-        Math.signum(iborLeg.getNthPayment(0).getNotional());
+    double dirtyIborLegPV = iborLeg.accept(PVDC, multicurves).getAmount(iborLeg.getCurrency());
     double iborLegAccruedInterest = getAccrued(iborLegDayCount, calendar, valuationDate,
         swapDefinition.getIborLeg(), indexTimeSeries);
-    double cleanFloatingPV = dirtyIborLegPV - iborLegAccruedInterest;
+    double cleanFloatingPV = (dirtyIborLegPV - iborLegAccruedInterest) *
+        Math.signum(iborLeg.getNthPayment(0).getNotional());
     
-    double accruedAmount = getAccrued(fixedLegDayCount, calendar, valuationDate, swapDefinition.getFixedLeg(),
-        indexTimeSeries);
     AnnuityCouponFixed fixedLeg = swapDefinition.getFixedLeg().toDerivative(valuationDate);
+    double accruedAmount = getAccrued(fixedLegDayCount, calendar, valuationDate, swapDefinition.getFixedLeg(),
+        indexTimeSeries) * Math.signum(fixedLeg.getNthPayment(0).getNotional());
     double dirtyAnnuity = METHOD_SWAP.presentValueBasisPoint(new SwapFixedCoupon<>(fixedLeg, iborLeg),
         multicurves);
     double cleanAnnuity = dirtyAnnuity - accruedAmount;
@@ -95,30 +99,34 @@ public class SwapCleanDiscountingCalculator {
     ArgumentChecker.notNull(valuationDate, "valuationDate");
     ArgumentChecker.notNull(indexTimeSeries, "indexTimeSeries");
     ArgumentChecker.notNull(multicurves, "multicurves");
+    checkNotionalAndFixedRate(swapDefinition);
 
-    Annuity<? extends Coupon> iborLeg = swapDefinition.getIborLeg().toDerivative(valuationDate, indexTimeSeries);
-    double iborLegAccruedInterest = getAccrued(iborLegDayCount, calendar, valuationDate,
-        swapDefinition.getIborLeg(), indexTimeSeries) * Math.signum(iborLeg.getNthPayment(0).getNotional());
+    double iborLegAccruedInterest = getAccrued(iborLegDayCount, calendar, valuationDate, swapDefinition.getIborLeg(),
+        indexTimeSeries);
 
     CouponFixedDefinition refFixed = swapDefinition.getFixedLeg().getNthPayment(0);
     double fixedLegAccruedInterest = getAccrued(fixedLegDayCount, calendar, valuationDate,
-        swapDefinition.getFixedLeg(),
-        indexTimeSeries) * Math.signum(refFixed.getNotional()) * refFixed.getRate();
+        swapDefinition.getFixedLeg(), indexTimeSeries) * refFixed.getRate();
 
     return MultipleCurrencyAmount.of(swapDefinition.getCurrency(), iborLegAccruedInterest + fixedLegAccruedInterest);
   }
 
   private double getAccrued(DayCount dayCount, Calendar calendar, ZonedDateTime valuationDate,
       AnnuityDefinition<? extends CouponDefinition> annuity, ZonedDateTimeDoubleTimeSeries indexTimeSeries) {
+    LocalDate date = valuationDate.toLocalDate();
     double res = 0.0;
     CouponDefinition[] payments = annuity.getPayments();
     for (CouponDefinition payment : payments) {
-      if (payment.getAccrualStartDate().isBefore(valuationDate) && !payment.getPaymentDate().isBefore(valuationDate)) {
+      if (payment.getAccrualStartDate().toLocalDate().isBefore(date) &&
+          !payment.getPaymentDate().toLocalDate().isBefore(date)) {
         double rate;
         if (payment instanceof CouponIborDefinition) {
           CouponIborDefinition casted = (CouponIborDefinition) payment;
-          CouponFixed coupon = (CouponFixed) casted.toDerivative(valuationDate, indexTimeSeries);
-          rate = coupon.getFixedRate();
+          Coupon coupon = casted.toDerivative(valuationDate, indexTimeSeries);
+          ArgumentChecker.isTrue(coupon instanceof CouponFixed,
+              "index should be fixed before accrual starts for standard vanilla swap");
+          CouponFixed couponFixed = (CouponFixed) coupon;
+          rate = couponFixed.getFixedRate();
         } else if (payment instanceof CouponFixedDefinition) {
           rate = 1.0;
         } else {
@@ -132,6 +140,27 @@ public class SwapCleanDiscountingCalculator {
 
   private double getAccrued(DayCount dayCount, Calendar calendar, ZonedDateTime valuationDate, CouponDefinition coupon) {
     double accruedYearFraction = dayCount.getDayCountFraction(coupon.getAccrualStartDate(), valuationDate, calendar);
-    return accruedYearFraction * Math.abs(coupon.getNotional());
+    return accruedYearFraction * coupon.getNotional();
+  }
+
+  private void checkNotionalAndFixedRate(SwapFixedIborDefinition swapDefinition) {
+    AnnuityCouponIborDefinition iborLeg = swapDefinition.getIborLeg();
+    int nIbor = iborLeg.getNumberOfPayments();
+    double notioanl = iborLeg.getNthPayment(0).getNotional();
+    for (int i = 1; i < nIbor; ++i) {
+      ArgumentChecker.isTrue(notioanl == iborLeg.getNthPayment(i).getNotional(),
+          "Notional should be constant in both the legs");
+    }
+    AnnuityCouponFixedDefinition fixedLeg = swapDefinition.getFixedLeg();
+    int nFixed = fixedLeg.getNumberOfPayments();
+    double rate = fixedLeg.getNthPayment(0).getRate();
+    notioanl *= -1.0; // payer/receiver conversion
+    ArgumentChecker.isTrue(notioanl == fixedLeg.getNthPayment(0).getNotional(),
+        "Notional should be constant in both the legs");
+    for (int i = 1; i < nFixed; ++i) {
+      ArgumentChecker.isTrue(rate == fixedLeg.getNthPayment(i).getRate(), "Fixed rate should be constant");
+      ArgumentChecker.isTrue(notioanl == fixedLeg.getNthPayment(i).getNotional(),
+          "Notional should be constant in both the legs");
+    }
   }
 }

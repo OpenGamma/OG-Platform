@@ -72,8 +72,12 @@ public class SwapCleanDiscountingCalculatorTest {
   private static final Period TENOR_SWAP_3M_S = Period.ofYears(7);
   private static final double FIXED_RATE_3M_S = 0.0150;
   private static final GeneratorAttributeIR ATTRIBUTE_3M_S = new GeneratorAttributeIR(TENOR_SWAP_3M_S);
-  private static final SwapFixedIborDefinition SWAP_FIXED_3M_S_DEFINITION =
+  // Fixed payer 
+  private static final SwapFixedIborDefinition SWAP_FIXED_3M_PAY_DEFINITION =
       USD6MLIBOR3M.generateInstrument(TRADE_DATE_3M_S, FIXED_RATE_3M_S, NOTIONAL, ATTRIBUTE_3M_S);
+  // Fixed receiver
+  private static final SwapFixedIborDefinition SWAP_FIXED_3M_REC_DEFINITION_ =
+      USD6MLIBOR3M.generateInstrument(TRADE_DATE_3M_S, FIXED_RATE_3M_S, NOTIONAL, ATTRIBUTE_3M_S, false);
 
   private static final MulticurveProviderDiscount[] MULTICURVE_SET;
   static {
@@ -101,12 +105,14 @@ public class SwapCleanDiscountingCalculatorTest {
     ZonedDateTime valuationDate = VALUATION_DATE_SET[0]; // 2014, 1, 22
 
     MulticurveProviderDiscount multicurve = MULTICURVE_SET[0]; // MULTICURVE_OIS
-    double parRate = CPRC.parRate(SWAP_FIXED_3M_S_DEFINITION, USD6MLIBOR3M.getFixedLegDayCount(), USD6MLIBOR3M
+    // Calendar and DayCount should be taken from GeneratorSwapFixedIbor
+    double parRate = CPRC.parRate(SWAP_FIXED_3M_PAY_DEFINITION, USD6MLIBOR3M.getFixedLegDayCount(), USD6MLIBOR3M
         .getIborIndex().getDayCount(), USD6MLIBOR3M.getCalendar(), valuationDate, TS_USDLIBOR3M, multicurve);
     assertRelative("consistencyTest", 0.021442847215148938, parRate, TOL);
 
     multicurve = MULTICURVE_SET[1]; // MULTICURVE_FFS
-    parRate = CPRC.parRate(SWAP_FIXED_3M_S_DEFINITION, USD6MLIBOR3M.getFixedLegDayCount(), USD6MLIBOR3M
+    // Calendar and DayCount should be taken from GeneratorSwapFixedIbor
+    parRate = CPRC.parRate(SWAP_FIXED_3M_PAY_DEFINITION, USD6MLIBOR3M.getFixedLegDayCount(), USD6MLIBOR3M
         .getIborIndex().getDayCount(), USD6MLIBOR3M.getCalendar(), valuationDate, TS_USDLIBOR3M, multicurve);
     assertRelative("consistencyTest", 0.0208613981377012, parRate, TOL);
   }
@@ -116,67 +122,81 @@ public class SwapCleanDiscountingCalculatorTest {
    */
   @Test
   public void consistencyTest() {
+    SwapFixedIborDefinition[] swapSet = new SwapFixedIborDefinition[] {SWAP_FIXED_3M_PAY_DEFINITION,
+        SWAP_FIXED_3M_REC_DEFINITION_ };
+    int n = swapSet.length;
     for (ZonedDateTime valuationDate : VALUATION_DATE_SET) {
       for (MulticurveProviderDiscount multicurve : MULTICURVE_SET) {
+        double[] accruedInterest = new double[n];
+        double[] parRate = new double[n];
+        for (int i = 0; i < n; ++i) {
+          SwapFixedIborDefinition swapDefinition = swapSet[i];
 
-        /* Compute "clean" par rate manually */
-        AnnuityCouponIborDefinition floatingLeg = (AnnuityCouponIborDefinition) SWAP_FIXED_3M_S_DEFINITION
-            .getSecondLeg();
-        IborIndex index = floatingLeg.getIborIndex();
-        DayCount dayCountFloating = index.getDayCount();
-        Calendar calendarFloating = SWAP_FIXED_3M_S_DEFINITION.getFirstLeg().getCalendar();
-        CouponIborDefinition[] paymentsFloating = floatingLeg.getPayments();
-        final List<CouponIborDefinition> listFloating = new ArrayList<>();
-        for (final CouponIborDefinition payment : paymentsFloating) {
-          if (!payment.getPaymentDate().isBefore(valuationDate)) {
-            listFloating.add(payment);
+          /* Compute "clean" par rate manually */
+          AnnuityCouponIborDefinition floatingLeg = (AnnuityCouponIborDefinition) swapDefinition
+              .getSecondLeg();
+          IborIndex index = floatingLeg.getIborIndex();
+          DayCount dayCountFloating = index.getDayCount();
+          Calendar calendarFloating = swapDefinition.getFirstLeg().getCalendar();
+          CouponIborDefinition[] paymentsFloating = floatingLeg.getPayments();
+          final List<CouponIborDefinition> listFloating = new ArrayList<>();
+          for (final CouponIborDefinition payment : paymentsFloating) {
+            if (!payment.getPaymentDate().isBefore(valuationDate)) {
+              listFloating.add(payment);
+            }
           }
-        }
-        AnnuityCouponIborDefinition trimedFloatingLeg = new AnnuityCouponIborDefinition(
-            listFloating.toArray(new CouponIborDefinition[listFloating.size()]), index, calendarFloating);
-        Annuity<? extends Coupon> floatingLegDerivative = trimedFloatingLeg.toDerivative(valuationDate, TS_USDLIBOR3M);
-        double accruedYearFractionFloating = dayCountFloating.getDayCountFraction(trimedFloatingLeg.getNthPayment(0)
-            .getAccrualStartDate(), valuationDate, calendarFloating);
-        double dirtyFloatingPV = floatingLegDerivative.accept(PVDC, multicurve).getAmount(
-            floatingLegDerivative.getCurrency()) * Math.signum(floatingLegDerivative.getNthPayment(0).getNotional());
-        CouponFixed firstCoupon = (CouponFixed) floatingLegDerivative.getNthPayment(0);
-        double accruedInterestFloating = firstCoupon.getFixedRate() * accruedYearFractionFloating *
-            Math.abs(firstCoupon.getNotional());
-        double cleanFloatingPV = dirtyFloatingPV - accruedInterestFloating;
-        AnnuityCouponFixedDefinition fixedLeg = (AnnuityCouponFixedDefinition) SWAP_FIXED_3M_S_DEFINITION.getFirstLeg();
-        DayCount dayCountFixed = USD6MLIBOR3M.getFixedLegDayCount();
-        Calendar calendarFixed = USD6MLIBOR3M.getCalendar();
-        CouponFixedDefinition[] paymentsFixed = fixedLeg.getPayments();
-        final List<CouponFixedDefinition> listFixed = new ArrayList<>();
-        for (final CouponFixedDefinition payment : paymentsFixed) {
-          if (!payment.getPaymentDate().isBefore(valuationDate)) {
-            listFixed.add(payment);
+          AnnuityCouponIborDefinition trimedFloatingLeg = new AnnuityCouponIborDefinition(
+              listFloating.toArray(new CouponIborDefinition[listFloating.size()]), index, calendarFloating);
+          Annuity<? extends Coupon> floatingLegDerivative = trimedFloatingLeg
+              .toDerivative(valuationDate, TS_USDLIBOR3M);
+          double accruedYearFractionFloating = dayCountFloating.getDayCountFraction(trimedFloatingLeg.getNthPayment(0)
+              .getAccrualStartDate(), valuationDate, calendarFloating);
+          double dirtyFloatingPV = floatingLegDerivative.accept(PVDC, multicurve).getAmount(
+              floatingLegDerivative.getCurrency()) * Math.signum(floatingLegDerivative.getNthPayment(0).getNotional());
+          CouponFixed firstCoupon = (CouponFixed) floatingLegDerivative.getNthPayment(0);
+          double accruedInterestFloating = firstCoupon.getFixedRate() * accruedYearFractionFloating *
+              Math.abs(firstCoupon.getNotional());
+          double cleanFloatingPV = dirtyFloatingPV - accruedInterestFloating;
+          AnnuityCouponFixedDefinition fixedLeg = (AnnuityCouponFixedDefinition) swapDefinition.getFirstLeg();
+          DayCount dayCountFixed = USD6MLIBOR3M.getFixedLegDayCount();
+          Calendar calendarFixed = USD6MLIBOR3M.getCalendar();
+          CouponFixedDefinition[] paymentsFixed = fixedLeg.getPayments();
+          final List<CouponFixedDefinition> listFixed = new ArrayList<>();
+          for (final CouponFixedDefinition payment : paymentsFixed) {
+            if (!payment.getPaymentDate().isBefore(valuationDate)) {
+              listFixed.add(payment);
+            }
           }
-        }
-        AnnuityCouponFixedDefinition trimedFixedLeg = new AnnuityCouponFixedDefinition(
-            listFixed.toArray(new CouponFixedDefinition[listFixed.size()]), calendarFixed);
-        double accruedYearFractionFixed = dayCountFixed.getDayCountFraction(trimedFixedLeg.getNthPayment(0)
-            .getAccrualStartDate(), valuationDate, calendarFixed);
-        AnnuityCouponFixed fixedLegDerivative = trimedFixedLeg.toDerivative(valuationDate);
-        SwapFixedCoupon<?> fixedCouponSwap = new SwapFixedCoupon<>(fixedLegDerivative, floatingLegDerivative);
-        double dirtyAnnuity = METHOD_SWAP.presentValueBasisPoint(fixedCouponSwap, multicurve);
-        double accruedFixed = accruedYearFractionFixed * Math.abs(trimedFixedLeg.getNthPayment(0).getNotional());
-        double cleanAnnuity = dirtyAnnuity - accruedFixed;
-        double refParRate = cleanFloatingPV / cleanAnnuity;
-        double parRate = CPRC.parRate(SWAP_FIXED_3M_S_DEFINITION, USD6MLIBOR3M.getFixedLegDayCount(), USD6MLIBOR3M
-            .getIborIndex().getDayCount(), USD6MLIBOR3M.getCalendar(), valuationDate, TS_USDLIBOR3M, multicurve);
-        assertRelative("consistencyTest", refParRate, parRate, TOL);
+          AnnuityCouponFixedDefinition trimedFixedLeg = new AnnuityCouponFixedDefinition(
+              listFixed.toArray(new CouponFixedDefinition[listFixed.size()]), calendarFixed);
+          double accruedYearFractionFixed = dayCountFixed.getDayCountFraction(trimedFixedLeg.getNthPayment(0)
+              .getAccrualStartDate(), valuationDate, calendarFixed);
+          AnnuityCouponFixed fixedLegDerivative = trimedFixedLeg.toDerivative(valuationDate);
+          SwapFixedCoupon<?> fixedCouponSwap = new SwapFixedCoupon<>(fixedLegDerivative, floatingLegDerivative);
+          double dirtyAnnuity = METHOD_SWAP.presentValueBasisPoint(fixedCouponSwap, multicurve);
+          double accruedFixed = accruedYearFractionFixed * Math.abs(trimedFixedLeg.getNthPayment(0).getNotional());
+          double cleanAnnuity = dirtyAnnuity - accruedFixed;
+          double refParRate = cleanFloatingPV / cleanAnnuity;
+          parRate[i] = CPRC.parRate(swapDefinition, USD6MLIBOR3M.getFixedLegDayCount(), USD6MLIBOR3M
+              .getIborIndex().getDayCount(), USD6MLIBOR3M.getCalendar(), valuationDate, TS_USDLIBOR3M, multicurve);
+          assertRelative("consistencyTest", refParRate, parRate[i], TOL);
 
-        /* Check the par rate produces zero clean PV */
-        SwapFixedIborDefinition swapWithParRateDfn = USD6MLIBOR3M.generateInstrument(TRADE_DATE_3M_S,
-            parRate, NOTIONAL, ATTRIBUTE_3M_S);
-        Swap<? extends Payment, ? extends Payment> swapWithParRate = swapWithParRateDfn.toDerivative(valuationDate,
-            TS_ARRAY_USDLIBOR3M);
-        double accruedInterest = CPRC.accruedInterest(swapWithParRateDfn, USD6MLIBOR3M.getFixedLegDayCount(),
-            USD6MLIBOR3M.getIborIndex().getDayCount(), USD6MLIBOR3M.getCalendar(), valuationDate, TS_USDLIBOR3M,
-            multicurve).getAmount(Currency.USD);
-        double dirtyPV = swapWithParRate.accept(PVDC, multicurve).getAmount(Currency.USD);
-        assertRelative("consistencyTest", 0.0, dirtyPV - accruedInterest, Math.abs(dirtyPV) * TOL);
+          /* Check the par rate produces zero clean PV */
+          SwapFixedIborDefinition swapWithParRateDfn = USD6MLIBOR3M.generateInstrument(TRADE_DATE_3M_S,
+              parRate[i], NOTIONAL, ATTRIBUTE_3M_S);
+          Swap<? extends Payment, ? extends Payment> swapWithParRate = swapWithParRateDfn.toDerivative(valuationDate,
+              TS_ARRAY_USDLIBOR3M);
+          double accruedInterestPar = CPRC.accruedInterest(swapWithParRateDfn, USD6MLIBOR3M.getFixedLegDayCount(),
+              USD6MLIBOR3M.getIborIndex().getDayCount(), USD6MLIBOR3M.getCalendar(), valuationDate, TS_USDLIBOR3M,
+              multicurve).getAmount(Currency.USD);
+          double dirtyPV = swapWithParRate.accept(PVDC, multicurve).getAmount(Currency.USD);
+          assertRelative("consistencyTest", 0.0, dirtyPV - accruedInterestPar, Math.abs(dirtyPV) * TOL);
+          accruedInterest[i] = CPRC.accruedInterest(swapDefinition, USD6MLIBOR3M.getFixedLegDayCount(), USD6MLIBOR3M
+              .getIborIndex().getDayCount(), USD6MLIBOR3M.getCalendar(), valuationDate, TS_USDLIBOR3M, multicurve)
+              .getAmount(Currency.USD);
+        }
+        assertRelative("consistencyTest", parRate[0], parRate[1], TOL);
+        assertRelative("consistencyTest", accruedInterest[0], -accruedInterest[1], TOL);
       }
     }
   }
@@ -265,7 +285,38 @@ public class SwapCleanDiscountingCalculatorTest {
     double annuity = METHOD_SWAP.presentValueBasisPoint(fixedCouponSwap, multicurve);
     double refParRate = Math.abs((pvIborLeg - accIbor) / (annuity - accFixed));
     assertRelative("paidAfterPeriodEndTest", refParRate, parRate, TOL);
+  }
 
+  /**
+   * valuation date is equal to payment date
+   */
+  @Test
+  public void paymentDateTest() {
+    ZonedDateTime valuationDate = DateUtils.getUTCDate(2014, 3, 12); // before start date
+    for (SwapFixedIborDefinition swapDefinition : new SwapFixedIborDefinition[] {SWAP_FIXED_3M_PAY_DEFINITION,
+        SWAP_FIXED_3M_REC_DEFINITION_ }) {
+      SwapFixedCoupon<Coupon> fixedCouponSwap = swapDefinition.toDerivative(valuationDate,
+          TS_ARRAY_USDLIBOR3M);
+      MulticurveProviderDiscount multicurve = MULTICURVE_SET[1];
+      Calendar calendar = USD6MLIBOR3M.getCalendar();
+      DayCount dcIbor = USD6MLIBOR3M.getIborIndex().getDayCount();
+      DayCount dcFixed = USD6MLIBOR3M.getFixedLegDayCount();
+
+      double parRate = CPRC.parRate(swapDefinition, dcFixed, dcIbor, calendar, valuationDate, TS_USDLIBOR3M,
+          multicurve);
+      double accruedInterest = CPRC.accruedInterest(swapDefinition, dcFixed, dcIbor, calendar, valuationDate,
+          TS_USDLIBOR3M, multicurve).getAmount(Currency.USD);
+      double pvFirstLibor = fixedCouponSwap.getSecondLeg().getNthPayment(0).accept(PVDC, multicurve)
+          .getAmount(Currency.USD);
+      double pvFirstFixed = fixedCouponSwap.getFirstLeg().getNthPayment(0).accept(PVDC, multicurve)
+          .getAmount(Currency.USD);
+      double pvLibor = fixedCouponSwap.getSecondLeg().accept(PVDC, multicurve).getAmount(Currency.USD);
+      double pvFixed = fixedCouponSwap.getFirstLeg().accept(PVDC, multicurve).getAmount(Currency.USD);
+      double refAccruedInterest = pvFirstLibor + pvFirstFixed;
+      double refParRate = Math.abs((pvLibor - pvFirstLibor) * FIXED_RATE_3M_S / (pvFixed - pvFirstFixed));
+      assertRelative("notAccruedTest", refParRate, parRate, TOL);
+      assertRelative("notAccruedTest", refAccruedInterest, accruedInterest, TOL);
+    }
   }
 
   /**
@@ -274,20 +325,23 @@ public class SwapCleanDiscountingCalculatorTest {
   @Test
   public void notAccruedTest() {
     ZonedDateTime valuationDate = DateUtils.getUTCDate(2013, 8, 10); // before start date
-    SwapFixedCoupon<Coupon> fixedCouponSwap = SWAP_FIXED_3M_S_DEFINITION.toDerivative(valuationDate,
-        TS_ARRAY_USDLIBOR3M);
-    MulticurveProviderDiscount multicurve = MULTICURVE_SET[1];
-    Calendar calendar = USD6MLIBOR3M.getCalendar();
-    DayCount dcIbor = USD6MLIBOR3M.getIborIndex().getDayCount();
-    DayCount dcFixed = USD6MLIBOR3M.getFixedLegDayCount();
+    for (SwapFixedIborDefinition swapDefinition : new SwapFixedIborDefinition[] {SWAP_FIXED_3M_PAY_DEFINITION,
+        SWAP_FIXED_3M_REC_DEFINITION_ }) {
+      SwapFixedCoupon<Coupon> fixedCouponSwap = swapDefinition.toDerivative(valuationDate,
+          TS_ARRAY_USDLIBOR3M);
+      MulticurveProviderDiscount multicurve = MULTICURVE_SET[1];
+      Calendar calendar = USD6MLIBOR3M.getCalendar();
+      DayCount dcIbor = USD6MLIBOR3M.getIborIndex().getDayCount();
+      DayCount dcFixed = USD6MLIBOR3M.getFixedLegDayCount();
 
-    double parRate = CPRC.parRate(SWAP_FIXED_3M_S_DEFINITION, dcFixed, dcIbor, calendar, valuationDate, TS_USDLIBOR3M,
-        multicurve);
-    double accruedInterest = CPRC.accruedInterest(SWAP_FIXED_3M_S_DEFINITION, dcFixed, dcIbor, calendar, valuationDate,
-        TS_USDLIBOR3M, multicurve).getAmount(Currency.USD);
-    double refParRate = fixedCouponSwap.accept(PRDC, multicurve);
-    assertRelative("", refParRate, parRate, TOL);
-    assertRelative("", 0.0, accruedInterest, TOL);
+      double parRate = CPRC.parRate(swapDefinition, dcFixed, dcIbor, calendar, valuationDate, TS_USDLIBOR3M,
+          multicurve);
+      double accruedInterest = CPRC.accruedInterest(swapDefinition, dcFixed, dcIbor, calendar, valuationDate,
+          TS_USDLIBOR3M, multicurve).getAmount(Currency.USD);
+      double refParRate = fixedCouponSwap.accept(PRDC, multicurve);
+      assertRelative("notAccruedTest", refParRate, parRate, TOL);
+      assertRelative("notAccruedTest", 0.0, accruedInterest, TOL);
+    }
   }
 
   /**
@@ -348,8 +402,8 @@ public class SwapCleanDiscountingCalculatorTest {
     double accruedInterest = CPRC.accruedInterest(swapDefinition, dcFixed, dcIbor, calendar, valuationDate,
         timeSeries, multicurve).getAmount(usd);
     double refParRate = fixedCouponSwap.accept(PRDC, multicurve);
-    assertRelative("", refParRate, parRate, TOL);
-    assertRelative("", 0.0, accruedInterest, TOL);
+    assertRelative("afterStartNotAccruedTest", refParRate, parRate, TOL);
+    assertRelative("afterStartNotAccruedTest", 0.0, accruedInterest, TOL);
   }
 
   private void assertRelative(String message, double expected, double obtained, double relativeTol) {
