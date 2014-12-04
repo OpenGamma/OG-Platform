@@ -5,13 +5,13 @@
  */
 package com.opengamma.sesame.marketdata.builders;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.sesame.marketdata.MarketDataBundle;
 import com.opengamma.sesame.marketdata.MarketDataId;
@@ -53,13 +53,13 @@ public class SecurityMarketDataBuilder implements MarketDataBuilder {
                                                                   ZonedDateTime valuationTime,
                                                                   Set<SingleValueRequirement> requirements,
                                                                   MarketDataSource marketDataSource) {
-    Map<SingleValueRequirement, Result<?>> results = new HashMap<>();
+    ImmutableMap.Builder<SingleValueRequirement, Result<?>> results = ImmutableMap.builder();
 
     for (SingleValueRequirement requirement : requirements) {
       RawId<?> rawId = rawId(requirement);
       results.put(requirement, marketDataBundle.get(rawId, rawId.getMarketDataType()));
     }
-    return results;
+    return results.build();
   }
 
   @Override
@@ -68,7 +68,7 @@ public class SecurityMarketDataBuilder implements MarketDataBuilder {
       Set<TimeSeriesRequirement> requirements,
       MarketDataSource marketDataSource) {
 
-    Map<TimeSeriesRequirement, Result<DateTimeSeries<LocalDate, ?>>> results = new HashMap<>();
+    ImmutableMap.Builder<TimeSeriesRequirement, Result<DateTimeSeries<LocalDate, ?>>> results = ImmutableMap.builder();
 
     for (TimeSeriesRequirement requirement : requirements) {
       RawId<?> rawId = rawId(requirement);
@@ -78,7 +78,7 @@ public class SecurityMarketDataBuilder implements MarketDataBuilder {
           (Result<DateTimeSeries<LocalDate, ?>>) marketDataBundle.get(rawId, rawId.getMarketDataType(), dateRange);
       results.put(requirement, result);
     }
-    return results;
+    return results.build();
   }
 
   @Override

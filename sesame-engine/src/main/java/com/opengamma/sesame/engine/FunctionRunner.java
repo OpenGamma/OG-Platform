@@ -86,6 +86,8 @@ public class FunctionRunner {
     Environment env1 = new SimpleEnvironment(valuationTime,
                                              gatheringEnvironment.toBundle(),
                                              FilteredScenarioDefinition.EMPTY);
+    // The purpose of the first run is gathering market data requirements and no market data is provided.
+    // Therefore the results of the first run are likely to be all failures and are ignored
     fn.apply(env1);
     Set<MarketDataRequirement> requirements = gatheringBundle.getRequirements();
     MarketDataEnvironment populatedEnvironment =

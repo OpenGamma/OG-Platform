@@ -83,7 +83,7 @@ public class MarketDataEnvironmentComponentFactory extends AbstractComponentFact
 
   /** Name of the currency matrix for creating FX rates. */
   @PropertyDefinition(validate = "notEmpty")
-  private String _currencyMatrix;
+  private String _currencyMatrixName;
 
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
@@ -91,23 +91,25 @@ public class MarketDataEnvironmentComponentFactory extends AbstractComponentFact
         new CompositeMarketDataFactory(
             new HistoricalMarketDataFactory(_timeSeriesSource, _timeSeriesDataSource, null),
             new SnapshotMarketDataFactory(_snapshotSource));
-    MarketDataEnvironmentFactory environmentFactory = new MarketDataEnvironmentFactory(marketDataFactory,
-                                                                                       rawBuilder(_componentMap),
-                                                                                       multicurveBuilder(_componentMap),
-                                                                                       issuerCurveBuilder(_componentMap),
-                                                                                       securityBuilder(_componentMap),
-                                                                                       fxMatrixBuilder(_componentMap),
-                                                                                       fxRateBuilder(_componentMap));
+
+    MarketDataEnvironmentFactory environmentFactory =
+        new MarketDataEnvironmentFactory(marketDataFactory,
+                                         rawBuilder(),
+                                         multicurveBuilder(),
+                                         issuerCurveBuilder(),
+                                         securityBuilder(),
+                                         fxMatrixBuilder(),
+                                         fxRateBuilder());
+
     repo.registerComponent(MarketDataEnvironmentFactory.class, _classifier, environmentFactory);
   }
 
   /**
    * Creates a builder that provides raw market data (tickers and values).
    *
-   * @param componentMap components used for constructing the builder
    * @return a builder that provides raw market data (tickers and values).
    */
-  protected RawMarketDataBuilder rawBuilder(ComponentMap componentMap) {
+  protected RawMarketDataBuilder rawBuilder() {
     FunctionModelConfig config =
         config(
             arguments(
@@ -115,16 +117,15 @@ public class MarketDataEnvironmentComponentFactory extends AbstractComponentFact
                     RawMarketDataBuilder.class,
                     argument("dataSource", _timeSeriesDataSource))));
 
-    return FunctionModel.build(RawMarketDataBuilder.class, config, componentMap);
+    return FunctionModel.build(RawMarketDataBuilder.class, config, _componentMap);
   }
 
   /**
    * Creates a builder that provides multicurve bundles.
    *
-   * @param componentMap components used for constructing the builder
    * @return a builder that provides multicurve bundles.
    */
-  protected MulticurveMarketDataBuilder multicurveBuilder(ComponentMap componentMap) {
+  protected MulticurveMarketDataBuilder multicurveBuilder() {
     FunctionModelConfig config =
         config(
             arguments(
@@ -138,7 +139,7 @@ public class MarketDataEnvironmentComponentFactory extends AbstractComponentFact
                     argument("stepMaximum", 1000)),
                 function(
                     DefaultHistoricalMarketDataFn.class,
-                    argument("currencyMatrix", ConfigLink.resolvable(_currencyMatrix, CurrencyMatrix.class))),
+                    argument("currencyMatrix", ConfigLink.resolvable(_currencyMatrixName, CurrencyMatrix.class))),
                 function(
                     ConfigDBCurveSpecificationBuilder.class,
                     argument("versionCorrection", VersionCorrection.LATEST))),
@@ -147,36 +148,33 @@ public class MarketDataEnvironmentComponentFactory extends AbstractComponentFact
                 CurveNodeConverterFn.class, DefaultCurveNodeConverterFn.class,
                 HistoricalMarketDataFn.class, DefaultHistoricalMarketDataFn.class));
 
-    return FunctionModel.build(MulticurveMarketDataBuilder.class, config, componentMap);
+    return FunctionModel.build(MulticurveMarketDataBuilder.class, config, _componentMap);
   }
 
   /**
    * Creates a builder that provides FX matrices.
    *
-   * @param componentMap components used for constructing the builder
    * @return a builder that provides FX matrices.
    */
-  protected FxMatrixMarketDataBuilder fxMatrixBuilder(ComponentMap componentMap) {
+  protected FxMatrixMarketDataBuilder fxMatrixBuilder() {
     return new FxMatrixMarketDataBuilder();
   }
 
   /**
    * Creates a builder that provides FX rates.
    *
-   * @param componentMap components used for constructing the builder
    * @return a builder that provides FX rates.
    */
-  protected FxRateMarketDataBuilder fxRateBuilder(ComponentMap componentMap) {
-    return new FxRateMarketDataBuilder(ConfigLink.resolvable(_currencyMatrix, CurrencyMatrix.class).resolve());
+  protected FxRateMarketDataBuilder fxRateBuilder() {
+    return new FxRateMarketDataBuilder(ConfigLink.resolvable(_currencyMatrixName, CurrencyMatrix.class).resolve());
   }
 
   /**
    * Creates a builder that provides issuer curves.
    *
-   * @param componentMap components used for constructing the builder
    * @return a builder that provides issuer curves.
    */
-  protected IssuerMulticurveMarketDataBuilder issuerCurveBuilder(ComponentMap componentMap) {
+  protected IssuerMulticurveMarketDataBuilder issuerCurveBuilder() {
     FunctionModelConfig config =
         config(
             arguments(
@@ -185,7 +183,7 @@ public class MarketDataEnvironmentComponentFactory extends AbstractComponentFact
                     argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofYears(1)))),
                 function(
                     DefaultHistoricalMarketDataFn.class,
-                    argument("currencyMatrix", ConfigLink.resolvable(_currencyMatrix, CurrencyMatrix.class))),
+                    argument("currencyMatrix", ConfigLink.resolvable(_currencyMatrixName, CurrencyMatrix.class))),
                 function(
                     IssuerDiscountBuildingRepository.class,
                     argument("toleranceAbs", 1e-9),
@@ -199,16 +197,15 @@ public class MarketDataEnvironmentComponentFactory extends AbstractComponentFact
                 CurveNodeConverterFn.class, DefaultCurveNodeConverterFn.class,
                 HistoricalMarketDataFn.class, DefaultHistoricalMarketDataFn.class));
 
-    return FunctionModel.build(IssuerMulticurveMarketDataBuilder.class, config, componentMap);
+    return FunctionModel.build(IssuerMulticurveMarketDataBuilder.class, config, _componentMap);
   }
 
   /**
    * Creates a builder that provides raw data for securities.
    *
-   * @param componentMap components used for constructing the builder
    * @return a builder that provides raw data for securities.
    */
-  protected SecurityMarketDataBuilder securityBuilder(ComponentMap componentMap) {
+  protected SecurityMarketDataBuilder securityBuilder() {
     return new SecurityMarketDataBuilder();
   }
 
@@ -366,25 +363,25 @@ public class MarketDataEnvironmentComponentFactory extends AbstractComponentFact
    * Gets name of the currency matrix for creating FX rates.
    * @return the value of the property, not empty
    */
-  public String getCurrencyMatrix() {
-    return _currencyMatrix;
+  public String getCurrencyMatrixName() {
+    return _currencyMatrixName;
   }
 
   /**
    * Sets name of the currency matrix for creating FX rates.
-   * @param currencyMatrix  the new value of the property, not empty
+   * @param currencyMatrixName  the new value of the property, not empty
    */
-  public void setCurrencyMatrix(String currencyMatrix) {
-    JodaBeanUtils.notEmpty(currencyMatrix, "currencyMatrix");
-    this._currencyMatrix = currencyMatrix;
+  public void setCurrencyMatrixName(String currencyMatrixName) {
+    JodaBeanUtils.notEmpty(currencyMatrixName, "currencyMatrixName");
+    this._currencyMatrixName = currencyMatrixName;
   }
 
   /**
-   * Gets the the {@code currencyMatrix} property.
+   * Gets the the {@code currencyMatrixName} property.
    * @return the property, not null
    */
-  public final Property<String> currencyMatrix() {
-    return metaBean().currencyMatrix().createProperty(this);
+  public final Property<String> currencyMatrixName() {
+    return metaBean().currencyMatrixName().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -405,7 +402,7 @@ public class MarketDataEnvironmentComponentFactory extends AbstractComponentFact
           JodaBeanUtils.equal(getTimeSeriesSource(), other.getTimeSeriesSource()) &&
           JodaBeanUtils.equal(getTimeSeriesDataSource(), other.getTimeSeriesDataSource()) &&
           JodaBeanUtils.equal(getSnapshotSource(), other.getSnapshotSource()) &&
-          JodaBeanUtils.equal(getCurrencyMatrix(), other.getCurrencyMatrix()) &&
+          JodaBeanUtils.equal(getCurrencyMatrixName(), other.getCurrencyMatrixName()) &&
           super.equals(obj);
     }
     return false;
@@ -419,7 +416,7 @@ public class MarketDataEnvironmentComponentFactory extends AbstractComponentFact
     hash += hash * 31 + JodaBeanUtils.hashCode(getTimeSeriesSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getTimeSeriesDataSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSnapshotSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrencyMatrix());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrencyMatrixName());
     return hash ^ super.hashCode();
   }
 
@@ -444,7 +441,7 @@ public class MarketDataEnvironmentComponentFactory extends AbstractComponentFact
     buf.append("timeSeriesSource").append('=').append(JodaBeanUtils.toString(getTimeSeriesSource())).append(',').append(' ');
     buf.append("timeSeriesDataSource").append('=').append(JodaBeanUtils.toString(getTimeSeriesDataSource())).append(',').append(' ');
     buf.append("snapshotSource").append('=').append(JodaBeanUtils.toString(getSnapshotSource())).append(',').append(' ');
-    buf.append("currencyMatrix").append('=').append(JodaBeanUtils.toString(getCurrencyMatrix())).append(',').append(' ');
+    buf.append("currencyMatrixName").append('=').append(JodaBeanUtils.toString(getCurrencyMatrixName())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -483,10 +480,10 @@ public class MarketDataEnvironmentComponentFactory extends AbstractComponentFact
     private final MetaProperty<MarketDataSnapshotSource> _snapshotSource = DirectMetaProperty.ofReadWrite(
         this, "snapshotSource", MarketDataEnvironmentComponentFactory.class, MarketDataSnapshotSource.class);
     /**
-     * The meta-property for the {@code currencyMatrix} property.
+     * The meta-property for the {@code currencyMatrixName} property.
      */
-    private final MetaProperty<String> _currencyMatrix = DirectMetaProperty.ofReadWrite(
-        this, "currencyMatrix", MarketDataEnvironmentComponentFactory.class, String.class);
+    private final MetaProperty<String> _currencyMatrixName = DirectMetaProperty.ofReadWrite(
+        this, "currencyMatrixName", MarketDataEnvironmentComponentFactory.class, String.class);
     /**
      * The meta-properties.
      */
@@ -497,7 +494,7 @@ public class MarketDataEnvironmentComponentFactory extends AbstractComponentFact
         "timeSeriesSource",
         "timeSeriesDataSource",
         "snapshotSource",
-        "currencyMatrix");
+        "currencyMatrixName");
 
     /**
      * Restricted constructor.
@@ -518,8 +515,8 @@ public class MarketDataEnvironmentComponentFactory extends AbstractComponentFact
           return _timeSeriesDataSource;
         case -1862154497:  // snapshotSource
           return _snapshotSource;
-        case -506174670:  // currencyMatrix
-          return _currencyMatrix;
+        case 1305503965:  // currencyMatrixName
+          return _currencyMatrixName;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -581,11 +578,11 @@ public class MarketDataEnvironmentComponentFactory extends AbstractComponentFact
     }
 
     /**
-     * The meta-property for the {@code currencyMatrix} property.
+     * The meta-property for the {@code currencyMatrixName} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<String> currencyMatrix() {
-      return _currencyMatrix;
+    public final MetaProperty<String> currencyMatrixName() {
+      return _currencyMatrixName;
     }
 
     //-----------------------------------------------------------------------
@@ -602,8 +599,8 @@ public class MarketDataEnvironmentComponentFactory extends AbstractComponentFact
           return ((MarketDataEnvironmentComponentFactory) bean).getTimeSeriesDataSource();
         case -1862154497:  // snapshotSource
           return ((MarketDataEnvironmentComponentFactory) bean).getSnapshotSource();
-        case -506174670:  // currencyMatrix
-          return ((MarketDataEnvironmentComponentFactory) bean).getCurrencyMatrix();
+        case 1305503965:  // currencyMatrixName
+          return ((MarketDataEnvironmentComponentFactory) bean).getCurrencyMatrixName();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -626,8 +623,8 @@ public class MarketDataEnvironmentComponentFactory extends AbstractComponentFact
         case -1862154497:  // snapshotSource
           ((MarketDataEnvironmentComponentFactory) bean).setSnapshotSource((MarketDataSnapshotSource) newValue);
           return;
-        case -506174670:  // currencyMatrix
-          ((MarketDataEnvironmentComponentFactory) bean).setCurrencyMatrix((String) newValue);
+        case 1305503965:  // currencyMatrixName
+          ((MarketDataEnvironmentComponentFactory) bean).setCurrencyMatrixName((String) newValue);
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
@@ -640,7 +637,7 @@ public class MarketDataEnvironmentComponentFactory extends AbstractComponentFact
       JodaBeanUtils.notNull(((MarketDataEnvironmentComponentFactory) bean)._timeSeriesSource, "timeSeriesSource");
       JodaBeanUtils.notEmpty(((MarketDataEnvironmentComponentFactory) bean)._timeSeriesDataSource, "timeSeriesDataSource");
       JodaBeanUtils.notNull(((MarketDataEnvironmentComponentFactory) bean)._snapshotSource, "snapshotSource");
-      JodaBeanUtils.notEmpty(((MarketDataEnvironmentComponentFactory) bean)._currencyMatrix, "currencyMatrix");
+      JodaBeanUtils.notEmpty(((MarketDataEnvironmentComponentFactory) bean)._currencyMatrixName, "currencyMatrixName");
       super.validate(bean);
     }
 
