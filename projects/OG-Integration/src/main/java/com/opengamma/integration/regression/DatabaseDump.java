@@ -23,7 +23,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.opengamma.core.config.impl.ConfigItem;
-import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
+import com.opengamma.core.marketdatasnapshot.NamedSnapshot;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.VersionCorrection;
@@ -350,10 +350,10 @@ import com.opengamma.util.ArgumentChecker;
     }
   }
 
-  private class SnapshotTransformer implements Function<MarketDataSnapshotDocument, ManageableMarketDataSnapshot> {
+  private class SnapshotTransformer implements Function<MarketDataSnapshotDocument, NamedSnapshot> {
     @Override
-    public ManageableMarketDataSnapshot apply(MarketDataSnapshotDocument input) {
-      return input.getSnapshot();
+    public NamedSnapshot apply(MarketDataSnapshotDocument input) {
+      return input.getNamedSnapshot();
     }
   }
 
