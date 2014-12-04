@@ -87,7 +87,7 @@ public class DefaultHistoricalMarketDataFn implements HistoricalMarketDataFn {
     LocalDateDoubleTimeSeries timeSeries = MarketDataUtils.asLocalDateDoubleTimeSeries(timeSeriesResult.getValue());
 
     if (timeSeries.isEmpty()) {
-      return Result.failure(FailureStatus.MISSING_DATA, "No data found for {}/{}", id, fieldName);
+      return Result.failure(FailureStatus.MISSING_DATA, "Empty time series found for {}/{}", id, fieldName);
     } else {
       return Result.success(timeSeries);
     }

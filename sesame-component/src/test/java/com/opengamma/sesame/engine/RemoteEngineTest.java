@@ -53,7 +53,7 @@ public class RemoteEngineTest {
   private Engine _remoteEngine;
 
   @BeforeClass
-  public void setUp() throws Exception {
+  public void startServer() throws Exception {
     int port = 49152 + RandomUtils.nextInt(65535 - 49152);
     String serverUrl = "http://localhost:" + port + "/jax";
     SelectChannelConnector connector = new SelectChannelConnector();
@@ -79,7 +79,7 @@ public class RemoteEngineTest {
   }
 
   @AfterClass
-  public void tearDown() throws Exception {
+  public void stopServer() throws Exception {
     if (_jettyServer != null) {
       _jettyServer.stop();
     }

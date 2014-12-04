@@ -5,14 +5,13 @@
  */
 package com.opengamma.sesame.marketdata.builders;
 
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.currency.CurrencyMatrix;
@@ -26,6 +25,7 @@ import com.opengamma.sesame.marketdata.MarketDataBundle;
 import com.opengamma.sesame.marketdata.MarketDataId;
 import com.opengamma.sesame.marketdata.MarketDataRequirement;
 import com.opengamma.sesame.marketdata.MarketDataSource;
+import com.opengamma.sesame.marketdata.MarketDataTime;
 import com.opengamma.sesame.marketdata.RawId;
 import com.opengamma.sesame.marketdata.SingleValueRequirement;
 import com.opengamma.sesame.marketdata.TimeSeriesRequirement;
@@ -37,7 +37,13 @@ import com.opengamma.util.result.Function2;
 import com.opengamma.util.result.Result;
 
 /**
- *
+ * Creates market data for the FX rates for currency pairs.
+ * <p>
+ * FX rates are requested using {@link FxRateId} instances which specify the currency pair. This builder
+ * hides the tickers used for looking up the rates from a market data provider and derives cross rates
+ * from directly quoted rates.
+ * <p>
+ * The underlying market data tickers and cross rate configuration comes from a {@link CurrencyMatrix}.
  */
 public class FxRateMarketDataBuilder implements MarketDataBuilder {
 
@@ -57,21 +63,18 @@ public class FxRateMarketDataBuilder implements MarketDataBuilder {
                                                                Set<? extends MarketDataRequirement> suppliedData) {
     FxRateId rateId = (FxRateId) requirement.getMarketDataId();
     CurrencyPair currencyPair = rateId.getCurrencyPair();
-    // if the supplied data contains the inverse rate we can use that 
+    // If the supplied data already contains the rate then it won't be in the requirements at all.
+    // If the supplied data contains the inverse rate we can use that instead of looking up the market rate
     FxRateId inverseRateId = FxRateId.of(currencyPair.inverse());
     MarketDataRequirement inverseRateRequirement =
         SingleValueRequirement.of(inverseRateId, requirement.getMarketDataTime());
 
     if (suppliedData.contains(inverseRateRequirement)) {
+      // don't need to return any requirements because the inverse rate is in the supplied data and we can use
+      // that to calculate the rate we need
       return ImmutableSet.of();
     }
-    Set<RawId<Double>> requiredIds = getRequirements(currencyPair.getBase(), currencyPair.getCounter());
-    Set<MarketDataRequirement> requirements = new HashSet<>();
-
-    for (RawId<Double> requiredId : requiredIds) {
-      requirements.add(SingleValueRequirement.of(requiredId, requirement.getMarketDataTime()));
-    }
-    return requirements;
+    return getRequirements(currencyPair.getBase(), currencyPair.getCounter(), requirement.getMarketDataTime());
   }
 
   @Override
@@ -86,7 +89,7 @@ public class FxRateMarketDataBuilder implements MarketDataBuilder {
                                                                   ZonedDateTime valuationTime,
                                                                   Set<SingleValueRequirement> requirements,
                                                                   MarketDataSource marketDataSource) {
-    Map<SingleValueRequirement, Result<?>> results = new HashMap<>();
+    ImmutableMap.Builder<SingleValueRequirement, Result<?>> results = ImmutableMap.builder();
 
     for (SingleValueRequirement requirement : requirements) {
       FxRateId rateId = (FxRateId) requirement.getMarketDataId();
@@ -102,7 +105,7 @@ public class FxRateMarketDataBuilder implements MarketDataBuilder {
         results.put(requirement, getRate(marketDataBundle, currencyPair.getBase(), currencyPair.getCounter()));
       }
     }
-    return results;
+    return results.build();
   }
 
   @Override
@@ -166,31 +169,36 @@ public class FxRateMarketDataBuilder implements MarketDataBuilder {
     }
     return value.accept(visitor);
   }
-  
-  private Set<RawId<Double>> getRequirements(final Currency base, final Currency counter) {
-    CurrencyMatrixValueVisitor<Set<RawId<Double>>> visitor = new CurrencyMatrixValueVisitor<Set<RawId<Double>>>() {
+
+  private Set<MarketDataRequirement> getRequirements(final Currency base,
+                                                     final Currency counter,
+                                                     final MarketDataTime marketDataTime) {
+
+    CurrencyMatrixValueVisitor<Set<MarketDataRequirement>> visitor =
+        new CurrencyMatrixValueVisitor<Set<MarketDataRequirement>>() {
+
       @Override
-      public Set<RawId<Double>> visitFixed(CurrencyMatrixValue.CurrencyMatrixFixed fixedValue) {
+      public Set<MarketDataRequirement> visitFixed(CurrencyMatrixValue.CurrencyMatrixFixed fixedValue) {
         // if the rate is fixed there's no market data required
         return ImmutableSet.of();
       }
 
       @SuppressWarnings("unchecked")
       @Override
-      public Set<RawId<Double>> visitValueRequirement(CurrencyMatrixValue.CurrencyMatrixValueRequirement req) {
+      public Set<MarketDataRequirement> visitValueRequirement(CurrencyMatrixValue.CurrencyMatrixValueRequirement req) {
         ValueRequirement valueRequirement = req.getValueRequirement();
         ExternalIdBundle id = valueRequirement.getTargetReference().getRequirement().getIdentifiers();
         String dataField = valueRequirement.getValueName();
         RawId<Double> marketDataId = RawId.of(id, FieldName.of(dataField));
-        return ImmutableSet.of(marketDataId);
+        return ImmutableSet.<MarketDataRequirement>of(SingleValueRequirement.of(marketDataId, marketDataTime));
       }
 
       @Override
-      public Set<RawId<Double>> visitCross(CurrencyMatrixValue.CurrencyMatrixCross cross) {
+      public Set<MarketDataRequirement> visitCross(CurrencyMatrixValue.CurrencyMatrixCross cross) {
         return
-            ImmutableSet.<RawId<Double>>builder()
-                .addAll(getRequirements(base, cross.getCrossCurrency()))
-                .addAll(getRequirements(cross.getCrossCurrency(), counter))
+            ImmutableSet.<MarketDataRequirement>builder()
+                .addAll(getRequirements(base, cross.getCrossCurrency(), marketDataTime))
+                .addAll(getRequirements(cross.getCrossCurrency(), counter, marketDataTime))
                 .build();
       }
     };

@@ -13,7 +13,7 @@ import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.util.money.Currency;
 
 /**
- *
+ * Market data ID identifying an FX matrix for a particular set of currencies.
  */
 public final class FxMatrixId implements MarketDataId<FXMatrix> {
 
@@ -23,14 +23,29 @@ public final class FxMatrixId implements MarketDataId<FXMatrix> {
     _currencies = ImmutableSet.copyOf(currencies);
   }
 
+  /**
+   * Returns an FX matrix for the specified set of currencies.
+   *
+   * @param currencies the currencies in the matrix
+   * @return an FX matrix for the specified set of currencies
+   */
   public static FxMatrixId of(Set<Currency> currencies) {
     return new FxMatrixId(currencies);
   }
 
+  /**
+   * Returns an FX matrix for the specified currencies.
+   *
+   * @param currencies the currencies in the matrix
+   * @return an FX matrix for the specified currencies
+   */
   public static FxMatrixId of(Currency... currencies) {
     return new FxMatrixId(ImmutableSet.copyOf(currencies));
   }
 
+  /**
+   * @return the currencies in the FX matrix
+   */
   Set<Currency> getCurrencies() {
     return _currencies;
   }

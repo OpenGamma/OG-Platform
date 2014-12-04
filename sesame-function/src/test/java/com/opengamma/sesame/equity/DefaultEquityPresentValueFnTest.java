@@ -9,14 +9,12 @@ import static com.opengamma.util.result.FailureStatus.MISSING_DATA;
 import static com.opengamma.util.result.SuccessStatus.SUCCESS;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Mockito.mock;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.core.id.ExternalSchemes;
-import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.SimpleEnvironment;
@@ -36,7 +34,7 @@ public class DefaultEquityPresentValueFnTest {
 
   @BeforeMethod
   public void setUp() {
-    _equityPresentValueFn = new DefaultEquityPresentValueFn(new DefaultMarketDataFn(mock(CurrencyMatrix.class)));
+    _equityPresentValueFn = new DefaultEquityPresentValueFn(new DefaultMarketDataFn());
   }
 
   @Test

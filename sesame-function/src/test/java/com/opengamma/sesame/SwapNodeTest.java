@@ -88,6 +88,7 @@ import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
+import com.opengamma.sesame.marketdata.FxRateId;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.MapMarketDataBundle;
 import com.opengamma.sesame.marketdata.MarketDataBundle;
@@ -121,6 +122,7 @@ public class SwapNodeTest {
     Map<ExternalId, Double> swapMarketDataSource = buildDataForFxSwapCurve();
     Map<ExternalId, Double> usdMarketDataSource = buildDataForUsdCurve();
 
+    Double spotRate = swapMarketDataSource.get(ExternalId.of("TICKER", "SPOT"));
     ZonedDateTime valuationDate = ZonedDateTime.of(2014, 1, 10, 11, 0, 0, 0, ZoneId.of("America/Chicago"));
 
     MarketDataEnvironmentBuilder marketDataBuilder = new MarketDataEnvironmentBuilder();
@@ -131,6 +133,7 @@ public class SwapNodeTest {
     for (Map.Entry<ExternalId, Double> entry : usdMarketDataSource.entrySet()) {
       marketDataBuilder.add(RawId.of(entry.getKey().toBundle()), entry.getValue());
     }
+    marketDataBuilder.add(FxRateId.of(Currency.EUR, Currency.USD), spotRate);
     marketDataBuilder.valuationTime(valuationDate);
 
     MarketDataBundle marketDataBundle = new MapMarketDataBundle(marketDataBuilder.build());
