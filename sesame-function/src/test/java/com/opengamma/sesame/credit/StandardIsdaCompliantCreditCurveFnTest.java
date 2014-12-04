@@ -52,10 +52,11 @@ public class StandardIsdaCompliantCreditCurveFnTest {
 
   private static final double DELTA = 10e-15; 
   
-  private static final IsdaYieldCurve YIELD_CURVE = IsdaYieldCurve.builder()
-                                                                          .calibratedCurve(CreditTestData.createYieldCurve())
-                                                                          .curveData(CreditTestData.createYieldCurveData())
-                                                                          .build();
+  private static final IsdaYieldCurve YIELD_CURVE =
+      IsdaYieldCurve.builder()
+          .calibratedCurve(CreditCurveCalibrationSampleData.createYieldCurve())
+          .curveData(CreditCurveCalibrationSampleData.createYieldCurveData())
+          .build();
   private static final LocalDate VALUATION_DATE = LocalDate.of(2014, 3, 27);
   
   private StandardIsdaCompliantCreditCurveFn _fn;
