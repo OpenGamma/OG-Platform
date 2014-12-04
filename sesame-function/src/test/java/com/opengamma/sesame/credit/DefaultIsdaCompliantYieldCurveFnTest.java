@@ -79,7 +79,7 @@ public class DefaultIsdaCompliantYieldCurveFnTest {
                                                mock(RegionSource.class), 
                                                mock(HolidaySource.class));
     
-    YieldCurveData ycData = CreditTestData.createYieldCurveData();
+    YieldCurveData ycData = CreditCurveCalibrationSampleData.createYieldCurveData();
     
     when(providerFn.retrieveYieldCurveData(Currency.USD)).thenReturn(Result.success(ycData));
     
