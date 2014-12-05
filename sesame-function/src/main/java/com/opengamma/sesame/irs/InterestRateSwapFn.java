@@ -33,7 +33,7 @@ public interface InterestRateSwapFn {
    * @param security the InterestRateSwapSecurity to calculate the rate for
    * @return result containing the rate if successful, a Failure otherwise
    */
-  @Output(value = OutputNames.PAR_RATE)
+  @Output(OutputNames.PAR_RATE)
   Result<Double> calculateParRate(Environment env, InterestRateSwapSecurity security);
 
   /**
@@ -44,7 +44,7 @@ public interface InterestRateSwapFn {
    * @param security the InterestRateSwapSecurity to calculate the rate for
    * @return result containing the rate if successful, a Failure otherwise
    */
-  @Output(value = OutputNames.PAR_SPREAD)
+  @Output(OutputNames.PAR_SPREAD)
   Result<Double> calculateParSpread(Environment env, InterestRateSwapSecurity security);
 
   /**
@@ -54,7 +54,7 @@ public interface InterestRateSwapFn {
    * @param security the InterestRateSwapSecurity to calculate the PV for
    * @return result containing the present value if successful, a Failure otherwise
    */
-  @Output(value = OutputNames.PRESENT_VALUE)
+  @Output(OutputNames.PRESENT_VALUE)
   Result<MultipleCurrencyAmount> calculatePV(Environment env, InterestRateSwapSecurity security);
 
   /**
@@ -64,7 +64,7 @@ public interface InterestRateSwapFn {
    * @param security the InterestRateSwapSecurity to calculate the PV01 for
    * @return result containing the PV01 if successful, a Failure otherwise
    */
-  @Output(value = OutputNames.PV01)
+  @Output(OutputNames.PV01)
   Result<ReferenceAmount<Pair<String, Currency>>> calculatePV01(Environment env, InterestRateSwapSecurity security);
 
   /**
@@ -74,7 +74,7 @@ public interface InterestRateSwapFn {
    * @param security the InterestRateSwapSecurity to calculate the cash flows for
    * @return result containing the fixed cash flows if successful, a Failure otherwise
    */
-  @Output(value = OutputNames.RECEIVE_LEG_CASH_FLOWS)
+  @Output(OutputNames.RECEIVE_LEG_CASH_FLOWS)
   Result<SwapLegCashFlows> calculateReceiveLegCashFlows(Environment env, InterestRateSwapSecurity security);
 
   /**
@@ -84,7 +84,7 @@ public interface InterestRateSwapFn {
    * @param security the InterestRateSwapSecurity to calculate the cash flows for
    * @return result containing the fixed cash flows if successful, a Failure otherwise
    */
-  @Output(value = OutputNames.PAY_LEG_CASH_FLOWS)
+  @Output(OutputNames.PAY_LEG_CASH_FLOWS)
   Result<SwapLegCashFlows> calculatePayLegCashFlows(Environment env, InterestRateSwapSecurity security);
 
   /**
@@ -94,7 +94,7 @@ public interface InterestRateSwapFn {
    * @param security the InterestRateSwapSecurity to calculate the present value for
    * @return result containing the fixed cash flows if successful, a Failure otherwise
    */
-  @Output(value = OutputNames.RECEIVE_LEG_PRESENT_VALUE)
+  @Output(OutputNames.RECEIVE_LEG_PRESENT_VALUE)
   Result<MultipleCurrencyAmount> calculateReceiveLegPv(Environment env, InterestRateSwapSecurity security);
 
   /**
@@ -104,7 +104,7 @@ public interface InterestRateSwapFn {
    * @param security the InterestRateSwapSecurity to calculate the present value for
    * @return result containing the fixed cash flows if successful, a Failure otherwise
    */
-  @Output(value = OutputNames.PAY_LEG_PRESENT_VALUE)
+  @Output(OutputNames.PAY_LEG_PRESENT_VALUE)
   Result<MultipleCurrencyAmount> calculatePayLegPv(Environment env, InterestRateSwapSecurity security);
 
   /**
@@ -136,7 +136,7 @@ public interface InterestRateSwapFn {
    * @param trade the InterestRateSwapTrade to calculate the rate for
    * @return result containing the rate if successful, a Failure otherwise
    */
-  @Output(value = OutputNames.PAR_RATE)
+  @Output(OutputNames.PAR_RATE)
   Result<Double> calculateParRate(Environment env, InterestRateSwapTrade trade);
 
   /**
@@ -146,7 +146,7 @@ public interface InterestRateSwapFn {
    * @param trade the InterestRateSwapTrade to calculate the PV for
    * @return result containing the present value if successful, a Failure otherwise
    */
-  @Output(value = OutputNames.PRESENT_VALUE)
+  @Output(OutputNames.PRESENT_VALUE)
   Result<MultipleCurrencyAmount> calculatePV(Environment env, InterestRateSwapTrade trade);
 
   /**
@@ -156,7 +156,7 @@ public interface InterestRateSwapFn {
    * @param trade the InterestRateSwapTrade to calculate the PV01 for
    * @return result containing the PV01 if successful, a Failure otherwise
    */
-  @Output(value = OutputNames.PV01)
+  @Output(OutputNames.PV01)
   Result<ReferenceAmount<Pair<String, Currency>>> calculatePV01(Environment env, InterestRateSwapTrade trade);
 
   /**
@@ -166,7 +166,7 @@ public interface InterestRateSwapFn {
    * @param trade the InterestRateSwapTrade to calculate the cash flows for
    * @return result containing the fixed cash flows if successful, a Failure otherwise
    */
-  @Output(value = OutputNames.RECEIVE_LEG_CASH_FLOWS)
+  @Output(OutputNames.RECEIVE_LEG_CASH_FLOWS)
   Result<SwapLegCashFlows> calculateReceiveLegCashFlows(Environment env, InterestRateSwapTrade trade);
 
   /**
@@ -176,7 +176,7 @@ public interface InterestRateSwapFn {
    * @param trade the InterestRateSwapTrade to calculate the cash flows for
    * @return result containing the fixed cash flows if successful, a Failure otherwise
    */
-  @Output(value = OutputNames.PAY_LEG_CASH_FLOWS)
+  @Output(OutputNames.PAY_LEG_CASH_FLOWS)
   Result<SwapLegCashFlows> calculatePayLegCashFlows(Environment env, InterestRateSwapTrade trade);
 
   /**
@@ -186,7 +186,7 @@ public interface InterestRateSwapFn {
    * @param security the InterestRateSwapTrade to calculate the present value for
    * @return result containing the fixed cash flows if successful, a Failure otherwise
    */
-  @Output(value = OutputNames.RECEIVE_LEG_PRESENT_VALUE)
+  @Output(OutputNames.RECEIVE_LEG_PRESENT_VALUE)
   Result<MultipleCurrencyAmount> calculateReceiveLegPv(Environment env, InterestRateSwapTrade security);
 
   /**
@@ -196,7 +196,7 @@ public interface InterestRateSwapFn {
    * @param security the InterestRateSwapTrade to calculate the present value for
    * @return result containing the fixed cash flows if successful, a Failure otherwise
    */
-  @Output(value = OutputNames.PAY_LEG_PRESENT_VALUE)
+  @Output(OutputNames.PAY_LEG_PRESENT_VALUE)
   Result<MultipleCurrencyAmount> calculatePayLegPv(Environment env, InterestRateSwapTrade security);
 
   /**
