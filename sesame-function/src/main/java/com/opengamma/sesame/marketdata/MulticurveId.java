@@ -74,6 +74,14 @@ public final class MulticurveId implements MarketDataId<MulticurveBundle>, Immut
     return new MulticurveId(config);
   }
 
+  /**
+   * Resolves and returns the configuration for the curve.
+   * <p>
+   * Resolution needs to be done lazily as an ID can be created outside the engine when pre-populating a
+   * {@code MarketDataEnvironment}. If resolution were done eagerly it would fail.
+   *
+   * @return the configuration for the curve
+   */
   CurveConstructionConfiguration getConfig() {
     return _curveConfigLink.resolve();
   }

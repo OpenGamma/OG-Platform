@@ -23,6 +23,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.financial.currency.CurrencyPair;
+import com.opengamma.util.money.Currency;
 
 /**
  * Identifies the market data for an FX rate.
@@ -42,6 +43,17 @@ public final class FxRateId implements MarketDataId<Double>, ImmutableBean {
    */
   public static FxRateId of(CurrencyPair currencyPair) {
     return new FxRateId(currencyPair);
+  }
+
+  /**
+   * Creates an ID for the FX rate for a currency pair.
+   *
+   * @param base the base currency of the pair
+   * @param counter the counter currency of the pair
+   * @return an ID for the FX rate for the currency pair
+   */
+  public static FxRateId of(Currency base, Currency counter) {
+    return new FxRateId(CurrencyPair.of(base, counter));
   }
 
   @Override

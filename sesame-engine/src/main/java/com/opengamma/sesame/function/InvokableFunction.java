@@ -5,6 +5,8 @@
  */
 package com.opengamma.sesame.function;
 
+import javax.annotation.Nullable;
+
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.config.FunctionArguments;
 
@@ -20,7 +22,7 @@ public interface InvokableFunction {
    * @param args contains any other function arguments
    * @return the function's return value
    */
-  Object invoke(Environment env, Object input, FunctionArguments args);
+  Object invoke(Environment env, @Nullable Object input, FunctionArguments args);
 
   /**
    * @return the object that implements the function

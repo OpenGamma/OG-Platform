@@ -21,7 +21,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.sesame.marketdata.MarketDataSource;
+import com.opengamma.sesame.marketdata.MarketDataId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
@@ -29,6 +29,7 @@ import com.opengamma.util.tuple.Pairs;
 /**
  * TODO if this turns out to be a point of contention will need to remove the locking and make thread safe
  * or have multiple thread local copies and merge them at the end of the cycle before the invalidation step
+ * TODO review which of the register methods are still needed with MarketDataBundle
  */
 public class DefaultCacheInvalidator implements CacheInvalidator {
 
@@ -38,7 +39,6 @@ public class DefaultCacheInvalidator implements CacheInvalidator {
   private final List<Pair<MethodInvocationKey, ValuationTimeCacheEntry>> _valuationTimeEntries = Lists.newArrayList();
   private final Cache<Object, Object> _cache;
 
-  private MarketDataSource _marketDataSource;
   private VersionCorrection _configVersionCorrection;
 
   /**
@@ -78,24 +78,20 @@ public class DefaultCacheInvalidator implements CacheInvalidator {
   }
 
   @Override
-  public synchronized void invalidate(MarketDataSource marketDataSource,
-                                      ZonedDateTime valuationTime,
+  public void register(MarketDataId marketDataId) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public synchronized void invalidate(ZonedDateTime valuationTime,
                                       VersionCorrection configVersionCorrection,
                                       // TODO should this be Collection<MarketDataRequirement>?
                                       Collection<ExternalId> marketData,
                                       Collection<ObjectId> dbIds) {
-    ArgumentChecker.notNull(marketDataSource, "marketDataSource");
     ArgumentChecker.notNull(valuationTime, "valuationTime");
     ArgumentChecker.notNull(configVersionCorrection, "configVersionCorrection");
     ArgumentChecker.notNull(marketData, "marketData");
     ArgumentChecker.notNull(dbIds, "dbIds");
-
-    // if the market data provider has changed every value that uses market data is potentially invalid
-    if (!marketDataSource.equals(_marketDataSource)) {
-      _marketDataSource = marketDataSource;
-      _cache.invalidateAll(_externalIdsToKeys.values());
-      _objectIdsToKeys.clear();
-    }
 
     invalidateValuationTime(valuationTime);
 

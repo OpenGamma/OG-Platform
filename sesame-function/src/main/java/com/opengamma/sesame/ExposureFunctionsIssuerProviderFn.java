@@ -20,6 +20,7 @@ import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.id.ExternalId;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
 
@@ -28,15 +29,14 @@ import com.opengamma.util.result.Result;
  */
 public class ExposureFunctionsIssuerProviderFn implements IssuerProviderFn {
   
-  private final MarketExposureSelectorFn _marketExposureSelectorFn;
+  private final MarketExposureSelector _marketExposureSelector;
   private final IssuerProviderBundleFn _issuerProviderBundleFn;
   
-  public ExposureFunctionsIssuerProviderFn(MarketExposureSelectorFn marketExposureSelectorFn,
+  public ExposureFunctionsIssuerProviderFn(MarketExposureSelector marketExposureSelector,
                                            IssuerProviderBundleFn issuerProviderBundleFn) {
-    _marketExposureSelectorFn = marketExposureSelectorFn;
-    _issuerProviderBundleFn = issuerProviderBundleFn;
+    _marketExposureSelector = ArgumentChecker.notNull(marketExposureSelector, "marketExposureSelector");
+    _issuerProviderBundleFn = ArgumentChecker.notNull(issuerProviderBundleFn, "issuerProviderBundleFn");
   }
-
   @Override
   public Result<IssuerProviderBundle> createBundle(Environment env, FinancialSecurity security, FXMatrix fxMatrix) {
     Trade tradeWrapper = new SimpleTrade(security,
@@ -44,7 +44,7 @@ public class ExposureFunctionsIssuerProviderFn implements IssuerProviderFn {
                                          new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "CPARTY")),
                                          LocalDate.now(),
                                          OffsetTime.now());
-    return getMulticurveBundle(env, tradeWrapper);
+    return createBundle(env, tradeWrapper, fxMatrix);
   }
 
   
@@ -55,28 +55,15 @@ public class ExposureFunctionsIssuerProviderFn implements IssuerProviderFn {
 
   @Override
   public Result<IssuerProviderBundle> getMulticurveBundle(Environment env, Trade trade) {
-    Result<MarketExposureSelector> mesResult = _marketExposureSelectorFn.getMarketExposureSelector();
+    Set<CurveConstructionConfiguration> curveConfigs = _marketExposureSelector.determineCurveConfigurations(trade);
 
-    if (mesResult.isSuccess()) {
-      MarketExposureSelector selector = mesResult.getValue();
-      Set<CurveConstructionConfiguration> curveConfigs = selector.determineCurveConfigurations(trade);
-      
-      if (curveConfigs.size() == 1) {
-        Result<IssuerProviderBundle> bundle =
-            _issuerProviderBundleFn.generateBundle(env, Iterables.getOnlyElement(curveConfigs));
-        if (bundle.isSuccess()) {
-          return Result.success(bundle.getValue());
-        } else {
-          return Result.failure(bundle);
-        }
-      } else if (curveConfigs.isEmpty()) {
+    switch (curveConfigs.size()) {
+      case 0:
         return Result.failure(FailureStatus.MISSING_DATA, "No curve construction configs found for {}", trade);
-      } else {
+      case 1:
+        return _issuerProviderBundleFn.generateBundle(env, Iterables.getOnlyElement(curveConfigs));
+      default:
         return Result.failure(FailureStatus.MULTIPLE, "Found {} configs, expected one", curveConfigs.size());
-      }
-    } else {
-      return Result.failure(mesResult);
     }
   }
-
 }

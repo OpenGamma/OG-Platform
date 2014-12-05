@@ -25,9 +25,6 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.commons.lang.math.RandomUtils;
@@ -79,10 +76,6 @@ import com.opengamma.sesame.server.FunctionServerRequest;
 import com.opengamma.sesame.server.GlobalCycleOptions;
 import com.opengamma.sesame.server.IndividualCycleOptions;
 import com.opengamma.sesame.server.RemoteFunctionServer;
-import com.opengamma.sesame.server.streaming.RemoteStreamingFunctionServer;
-import com.opengamma.sesame.server.streaming.StreamingClient;
-import com.opengamma.sesame.server.streaming.StreamingClientResultListener;
-import com.opengamma.sesame.server.streaming.StreamingFunctionServer;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.jms.JmsConnector;
 import com.opengamma.util.jms.JmsConnectorFactoryBean;
@@ -239,131 +232,6 @@ public class RemotingTest {
 
     checkCurveBundleResult(curveBundleOutputName, results.get(0));
     checkCurveBundleResult(curveBundleOutputName, results.get(1));
-  }
-
-  // streaming isn't supported from v2.8
-  @Test(enabled = false)
-  public void testStreamingExecution() throws InterruptedException {
-
-    final String curveBundleOutputName = "Curve Bundle";
-    ViewConfig viewConfig = createCurveBundleConfig(curveBundleOutputName);
-
-    // Send the config to the server, along with version
-    // correction, MD requirements, valuation date and
-    // cycle specifics (once/multiple/infinite)
-    // Proxy options?
-
-    StreamingFunctionServer functionServer = new RemoteStreamingFunctionServer(
-        URI.create(_serverUrl),
-        createJmsConnector(),
-        Executors.newSingleThreadScheduledExecutor());
-
-    GlobalCycleOptions cycleOptions = GlobalCycleOptions.builder()
-        .valuationTime(ZonedDateTime.now())
-        .marketDataSpec(new FixedHistoricalMarketDataSpecification(LocalDate.now().minusDays(2)))
-        .numCycles(2)
-        .build();
-
-    FunctionServerRequest<GlobalCycleOptions> request =
-        FunctionServerRequest.<GlobalCycleOptions>builder()
-            .viewConfig(viewConfig)
-                //.withVersionCorrection(...)
-                //.withSecurities(...)
-            .cycleOptions(cycleOptions)
-            .build();
-
-    StreamingClient streamingClient = functionServer.createStreamingClient(request);
-    assertThat(streamingClient.getUniqueId(), is(not(nullValue())));
-    assertThat(streamingClient.isRunning(), is(true));
-    assertThat(streamingClient.isStopped(), is(false));
-
-    final CountDownLatch resultsLatch = new CountDownLatch(2);
-    final CountDownLatch completedLatch = new CountDownLatch(1);
-
-    streamingClient.registerListener(new StreamingClientResultListener() {
-
-      @Override
-      public void resultsReceived(Results results) {
-        checkCurveBundleResult(curveBundleOutputName, results);
-        resultsLatch.countDown();
-      }
-
-      @Override
-      public void processCompleted() {
-        completedLatch.countDown();
-      }
-
-      @Override
-      public void serverConnectionFailed(Exception e) {
-      }
-    });
-    assertThat(resultsLatch.await(10, TimeUnit.SECONDS), is(true));
-    assertThat(completedLatch.await(10, TimeUnit.SECONDS), is(true));
-
-    assertThat(streamingClient.isRunning(), is(false));
-    assertThat(streamingClient.isStopped(), is(true));
-  }
-
-  // streaming isn't supported from v2.8
-  @Test(enabled = false)
-  public void testStreamingExecutionCanBeStopped() throws InterruptedException {
-
-    final String curveBundleOutputName = "Curve Bundle";
-    ViewConfig viewConfig = createCurveBundleConfig(curveBundleOutputName);
-
-    // Send the config to the server, along with version
-    // correction, MD requirements, valuation date and
-    // cycle specifics (once/multiple/infinite)
-    // Proxy options?
-
-    StreamingFunctionServer functionServer = new RemoteStreamingFunctionServer(
-        URI.create(_serverUrl),
-        createJmsConnector(),
-        Executors.newSingleThreadScheduledExecutor());
-
-    GlobalCycleOptions cycleOptions = GlobalCycleOptions.builder()
-        .valuationTime(ZonedDateTime.now())
-        .marketDataSpec(new FixedHistoricalMarketDataSpecification(LocalDate.now().minusDays(2)))
-        .numCycles(0)
-        .build();
-
-    FunctionServerRequest<GlobalCycleOptions> request =
-        FunctionServerRequest.<GlobalCycleOptions>builder()
-            .viewConfig(viewConfig)
-                //.withVersionCorrection(...)
-                //.withSecurities(...)
-            .cycleOptions(cycleOptions)
-            .build();
-
-    StreamingClient streamingClient = functionServer.createStreamingClient(request);
-
-    // Get some results first
-    final CountDownLatch resultsLatch = new CountDownLatch(5);
-
-    streamingClient.registerListener(new StreamingClientResultListener() {
-      @Override
-      public void resultsReceived(Results results) {
-        checkCurveBundleResult(curveBundleOutputName, results);
-        resultsLatch.countDown();
-      }
-
-      @Override
-      public void processCompleted() { }
-
-      @Override
-      public void serverConnectionFailed(Exception e) { }
-    });
-
-    // We have a 1s between each cycle so we need to give
-    // it enough time to finish
-    assertThat(resultsLatch.await(10, TimeUnit.SECONDS), is(true));
-
-    streamingClient.stop();
-
-    Thread.sleep(1000);
-
-    assertThat(streamingClient.isRunning(), is(false));
-    assertThat(streamingClient.isStopped(), is(true));
   }
 
   @Test(enabled = false)

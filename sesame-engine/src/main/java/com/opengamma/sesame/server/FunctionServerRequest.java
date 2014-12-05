@@ -35,7 +35,10 @@ import com.opengamma.sesame.config.ViewConfig;
  * is possible to specify a view which contains only non-portfolio outputs.
  * 
  * @param <T> the cycle option type
+ * @deprecated only used by the deprecated {@link FunctionServer} {@code execute} methods, the replacement methods
+ *   use individual arguments instead of a request object
  */
+@Deprecated
 @BeanDefinition
 public final class FunctionServerRequest<T extends CycleOptions>
     implements ImmutableBean {

@@ -281,8 +281,7 @@ public class InterestRateMockSources {
             Double value = marketData.get(request.getId());
             builder.put(request, Result.success(value));
           } else {
-            builder.put(request,
-                        Result.failure(FailureStatus.MISSING_DATA, "No data available for {}", request.getId()));
+            builder.put(request, Result.failure(FailureStatus.MISSING_DATA, "No data available for {}", request.getId()));
           }
         }
         return builder.build();
