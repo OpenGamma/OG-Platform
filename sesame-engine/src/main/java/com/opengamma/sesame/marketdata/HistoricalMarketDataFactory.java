@@ -80,8 +80,9 @@ public class HistoricalMarketDataFactory implements MarketDataFactory<FixedHisto
           if (value != null) {
             builder.put(request, Result.success(value));
           } else {
-            builder.put(request, Result.failure(FailureStatus.MISSING_DATA, "No data available for {}/{}/{}",
-                                                request.getId(), request.getFieldName().getName(), _date));
+            builder.put(request, Result.failure(FailureStatus.MISSING_DATA, "No data available for {}/{}/{}/{}/{}",
+                                                request.getId(), request.getFieldName().getName(),
+                                                _date, _dataSource, _dataProvider));
           }
         }
       }
