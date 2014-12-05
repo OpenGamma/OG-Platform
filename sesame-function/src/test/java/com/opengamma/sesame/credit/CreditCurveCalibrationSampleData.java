@@ -30,7 +30,7 @@ import com.opengamma.util.time.Tenor;
  * 
  * Objects here are based on those in /sesame-function/src/test/resources/credit/YC Test Data.xls
  */
-public final class CreditTestData {
+public final class CreditCurveCalibrationSampleData {
 
   private static final LocalDate VALUATION_DATE = LocalDate.of(2014, 3, 27);
   private static final LocalDate SPOT_DATE = LocalDate.of(2014, 4, 1);
@@ -79,7 +79,7 @@ public final class CreditTestData {
                                                        0.03411,
                                                        0.03412);
 
-  private CreditTestData() {}
+  private CreditCurveCalibrationSampleData() {}
   
   public static ISDACompliantYieldCurve createYieldCurve() {
     
@@ -114,8 +114,7 @@ public final class CreditTestData {
         .put(Tenor.NINE_MONTHS, 0.01935)
         .put(Tenor.ONE_YEAR, 0.020838)
         .build();
-
-    @SuppressWarnings("deprecation")
+    
     SortedMap<Tenor, Double> swapData = ImmutableSortedMap.<Tenor, Double>naturalOrder()
         .put(Tenor.TWO_YEARS, 0.01652)
         .put(Tenor.THREE_YEARS, 0.02018)
@@ -126,15 +125,15 @@ public final class CreditTestData {
         .put(Tenor.EIGHT_YEARS, 0.02931)
         .put(Tenor.NINE_YEARS, 0.03017)
         .put(Tenor.TEN_YEARS, 0.03092)
-        .put(new Tenor(Period.ofYears(11)), 0.0316)
-        .put(new Tenor(Period.ofYears(12)), 0.03231)
-        .put(new Tenor(Period.ofYears(15)), 0.03367)
-        .put(new Tenor(Period.ofYears(20)), 0.03419)
-        .put(new Tenor(Period.ofYears(25)), 0.03411)
-        .put(new Tenor(Period.ofYears(30)), 0.03412)
+        .put(Tenor.ofYears(11), 0.0316)
+        .put(Tenor.ofYears(12), 0.03231)
+        .put(Tenor.ofYears(15), 0.03367)
+        .put(Tenor.ofYears(20), 0.03419)
+        .put(Tenor.ofYears(25), 0.03411)
+        .put(Tenor.ofYears(30), 0.03412)
         .build();
 
-    YieldCurveData ycData = YieldCurveData.builder()
+    return YieldCurveData.builder()
         .cashData(cashData)
         .swapData(swapData)
         .cashDayCount(DayCounts.ACT_360)
@@ -146,7 +145,6 @@ public final class CreditTestData {
         .swapDayCount(DayCounts.THIRTY_360)
         .swapFixedLegInterval(Tenor.ONE_YEAR)
         .build();
-    return ycData;
   }
 
 }
