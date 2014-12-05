@@ -25,7 +25,7 @@ import com.opengamma.util.result.Result;
 public class DefaultCreditCs01Fn extends AbstractCreditRiskMeasureFn<CurrencyAmount> implements CreditCs01Fn {
 
   /**
-   * The fraction bump amount, so a 1pb bump is 1e-4
+   * The fraction bump amount, so a 1bp bump is 1e-4
    */
   private static final double SCALE = 1e-4;
   /**
