@@ -13,7 +13,6 @@ import static com.opengamma.sesame.sabr.SabrSurfaceSelector.SabrSurfaceName;
 import static com.opengamma.util.money.Currency.GBP;
 import static com.opengamma.util.money.Currency.USD;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -22,30 +21,28 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.mockito.Matchers;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalTime;
+import org.threeten.bp.ZoneOffset;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.convention.ConventionSource;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
-import com.opengamma.core.historicaltimeseries.impl.SimpleHistoricalTimeSeries;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.legalentity.LegalEntitySource;
@@ -57,8 +54,6 @@ import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.region.impl.SimpleRegion;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.value.MarketDataRequirementNames;
-import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
-import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveGroupConfiguration;
 import com.opengamma.financial.analytics.curve.CurveNodeIdMapper;
@@ -104,13 +99,20 @@ import com.opengamma.financial.security.index.OvernightIndex;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ExternalIdBundleWithDates;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.convention.ConventionDocument;
 import com.opengamma.master.convention.ConventionMaster;
 import com.opengamma.master.convention.impl.InMemoryConventionMaster;
 import com.opengamma.master.convention.impl.MasterConventionSource;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesSelector;
+import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
+import com.opengamma.master.historicaltimeseries.impl.DefaultHistoricalTimeSeriesResolver;
+import com.opengamma.master.historicaltimeseries.impl.InMemoryHistoricalTimeSeriesMaster;
+import com.opengamma.master.historicaltimeseries.impl.MasterHistoricalTimeSeriesSource;
 import com.opengamma.master.region.RegionDocument;
 import com.opengamma.master.region.RegionMaster;
 import com.opengamma.master.region.impl.InMemoryRegionMaster;
@@ -121,10 +123,11 @@ import com.opengamma.master.security.impl.InMemorySecurityMaster;
 import com.opengamma.master.security.impl.MasterSecuritySource;
 import com.opengamma.sesame.MarketDataResourcesLoader;
 import com.opengamma.sesame.holidays.UsdHolidaySource;
-import com.opengamma.sesame.marketdata.DefaultStrategyAwareMarketDataSource;
-import com.opengamma.sesame.marketdata.MapMarketDataSource;
-import com.opengamma.sesame.marketdata.MarketDataFactory;
+import com.opengamma.sesame.marketdata.MarketDataEnvironment;
+import com.opengamma.sesame.marketdata.MarketDataEnvironmentBuilder;
+import com.opengamma.sesame.marketdata.MarketDataRequest;
 import com.opengamma.sesame.marketdata.MarketDataSource;
+import com.opengamma.sesame.marketdata.RawId;
 import com.opengamma.sesame.sabr.SabrConfigSelector;
 import com.opengamma.sesame.sabr.SabrExpiryTenorSurface;
 import com.opengamma.sesame.sabr.SabrNode;
@@ -136,6 +139,8 @@ import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSerie
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeriesBuilder;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.result.FailureStatus;
+import com.opengamma.util.result.Result;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Tenor;
 
@@ -193,9 +198,8 @@ public class InterestRateMockSources {
   private static final ExternalId _onConventionId = ExternalId.of("CONVENTION", USD_OVERNIGHT_CONVENTION);
   private static final ExternalId _fffConventionId = ExternalId.of("CONVENTION", USD_FEDFUNDFUTURES_CONVENTION);
 
-  private static final ExternalId _liborIndexId = ExternalId.of("SEC", LIBOR_INDEX);
-  private static final ExternalId _onIndexId = ExternalId.of(OG_TICKER, USD_FEDFUND_INDEX);
-  private static final UniqueId _onIndexUniqueId = UniqueId.of(OG_TICKER, USD_FEDFUND_INDEX);
+  public static final ExternalId LIBOR_INDEX_ID = ExternalId.of("SEC", LIBOR_INDEX);
+  public static final ExternalId ON_INDEX_ID = ExternalId.of(OG_TICKER, USD_FEDFUND_INDEX);
   private static final String TICKER = "Ticker";
 
   private static final ExternalId s_USID = ExternalSchemes.financialRegionId("US");
@@ -205,6 +209,8 @@ public class InterestRateMockSources {
 
   private static final SwapFixedLegConvention LIBOR_PAY_LEG_CONVENTION =
       createLiborFixedLegConvention();
+
+  public static final LocalDateDoubleTimeSeries FLAT_TIME_SERIES = createFlatTimeSeries();
 
   private static SwapFixedLegConvention createLiborFixedLegConvention() {
     SwapFixedLegConvention legConvention =
@@ -216,11 +222,11 @@ public class InterestRateMockSources {
   }
 
   public static ExternalId getLiborIndexId() {
-    return _liborIndexId;
+    return LIBOR_INDEX_ID;
   }
   
   public static ExternalId getOvernightIndexId() {
-    return _onIndexId;
+    return ON_INDEX_ID;
   }
 
   public static ImmutableMap<Class<?>, Object> generateBaseComponents() {
@@ -237,48 +243,71 @@ public class InterestRateMockSources {
                                 mock(CurrencyMatrix.class));
   }
 
-  public static MarketDataFactory createMarketDataFactory() {
-    MarketDataFactory mock = mock(MarketDataFactory.class);
-    when(mock.create(Matchers.<MarketDataSpecification>any())).thenReturn(new DefaultStrategyAwareMarketDataSource(
-        LiveMarketDataSpecification.LIVE_SPEC, createMarketDataSource()));
-    return mock;
-  }
-
-  public static MarketDataSource createMarketDataSource() {
-    return createMarketDataSource(LocalDate.of(2014, 1, 22));
+  public static MarketDataEnvironment createMarketDataEnvironment() {
+    return createMarketDataEnvironment(LocalDate.of(2014, 1, 22));
   }
   
-  public static MarketDataSource createMarketDataSource(LocalDate date) {
-    return createMarketDataSource(date, true);
+  public static MarketDataEnvironment createMarketDataEnvironment(LocalDate marketDataDate) {
+    return createMarketDataEnvironment(marketDataDate, true);
   }
 
-  public static MarketDataSource createMarketDataSource(LocalDate date, boolean generateTicker) {
+  public static MarketDataEnvironment createMarketDataEnvironment(LocalDate marketDataDate, boolean generateTicker) {
+    MarketDataEnvironmentBuilder builder = new MarketDataEnvironmentBuilder();
+    Map<ExternalIdBundle, Double> marketData = loadMarketData(marketDataDate, generateTicker);
+
+    for (Map.Entry<ExternalIdBundle, Double> entry : marketData.entrySet()) {
+      builder.add(RawId.of(entry.getKey()), entry.getValue());
+    }
+
+    RawId<Double> onIndexId = RawId.of(ON_INDEX_ID.toBundle());
+    builder.add(onIndexId, FLAT_TIME_SERIES);
+
+    RawId<Double> liborId = RawId.of(LIBOR_INDEX_ID.toBundle());
+    builder.add(liborId, FLAT_TIME_SERIES);
+    builder.valuationTime(marketDataDate.atTime(11, 0).atZone(ZoneOffset.UTC));
+    return builder.build();
+  }
+
+  public static MarketDataSource createMarketDataSource(LocalDate marketDataDate, boolean generateTicker) {
+    final Map<ExternalIdBundle, Double> marketData = loadMarketData(marketDataDate, generateTicker);
+
+    return new MarketDataSource() {
+      @Override
+      public Map<MarketDataRequest, Result<?>> get(Set<MarketDataRequest> requests) {
+        ImmutableMap.Builder<MarketDataRequest, Result<?>> builder = ImmutableMap.builder();
+
+        for (MarketDataRequest request : requests) {
+          if (marketData.containsKey(request.getId())) {
+            Double value = marketData.get(request.getId());
+            builder.put(request, Result.success(value));
+          } else {
+            builder.put(request, Result.failure(FailureStatus.MISSING_DATA, "No data available for {}", request.getId()));
+          }
+        }
+        return builder.build();
+      }
+    };
+  }
+
+  private static Map<ExternalIdBundle, Double> loadMarketData(LocalDate marketDataDate, boolean generateTicker) {
     String filename;
-    if (date.equals(LocalDate.of(2014,1,22))) {
+    if (marketDataDate.equals(LocalDate.of(2014,1,22))) {
       filename = "/usdMarketQuotes-20140122.properties";
-    } else if (date.equals(LocalDate.of(2014,2,18))) {
+    } else if (marketDataDate.equals(LocalDate.of(2014,2,18))) {
       filename = "/usdMarketQuotes-20140218.properties";
-    } else if (date.equals(LocalDate.of(2014,4,17))) {
+    } else if (marketDataDate.equals(LocalDate.of(2014,4,17))) {
       filename = "/usdMarketQuotes-20140417.properties";
     } else {
-      throw new OpenGammaRuntimeException("No data available for date: " + date);
+      throw new OpenGammaRuntimeException("No data available for date: " + marketDataDate);
     }
 
     try {
-      Map<ExternalIdBundle, Double> marketData = MarketDataResourcesLoader.getData(filename,
-                                                                                   generateTicker ?
-                                                                                       TICKER :
-                                                                                       null);
-      MapMarketDataSource.Builder builder = MapMarketDataSource.builder();
-      for (Map.Entry<ExternalIdBundle, Double> entry : marketData.entrySet()) {
-        builder.add(entry.getKey(), entry.getValue());
-      }
-      return builder.build();
+      String scheme = generateTicker ? TICKER : null;
+      return MarketDataResourcesLoader.getData(filename, scheme);
     } catch (IOException e) {
-      throw new OpenGammaRuntimeException("Exception whilst loading file", e);
+      throw new OpenGammaRuntimeException("Exception loading market data from file", e);
     }
   }
-
 
   public static ExposureFunctions mockExposureFunctions() {
     List<String> exposureFunctions =  ImmutableList.of(CurrencyExposureFunction.NAME);
@@ -436,9 +465,9 @@ public class InterestRateMockSources {
 
   private static InterpolatedCurveDefinition get3MLiborCurveDefinition() {
     Set<CurveNode> nodes = new TreeSet<>();
-    nodes.add(new CashNode(Tenor.ofDays(0), Tenor.THREE_MONTHS, _liborIndexId, USD_LIBOR3M_MAPPER));
-    nodes.add(new FRANode(Tenor.THREE_MONTHS, Tenor.SIX_MONTHS, _liborIndexId, USD_LIBOR3M_MAPPER));
-    nodes.add(new FRANode(Tenor.SIX_MONTHS, Tenor.NINE_MONTHS, _liborIndexId, USD_LIBOR3M_MAPPER));
+    nodes.add(new CashNode(Tenor.ofDays(0), Tenor.THREE_MONTHS, LIBOR_INDEX_ID, USD_LIBOR3M_MAPPER));
+    nodes.add(new FRANode(Tenor.THREE_MONTHS, Tenor.SIX_MONTHS, LIBOR_INDEX_ID, USD_LIBOR3M_MAPPER));
+    nodes.add(new FRANode(Tenor.SIX_MONTHS, Tenor.NINE_MONTHS, LIBOR_INDEX_ID, USD_LIBOR3M_MAPPER));
     nodes.add(new SwapNode(Tenor.ofDays(0), Tenor.ONE_YEAR,
                            _liborPayLegConventionId, _liborReceiveLegConventionId, USD_LIBOR3M_MAPPER));
     nodes.add(new SwapNode(Tenor.ofDays(0), Tenor.TWO_YEARS,
@@ -474,48 +503,42 @@ public class InterestRateMockSources {
     return builder.build();
   }
 
+  private static LocalDateDoubleTimeSeries createFlatTimeSeries() {
+    LocalDate end = LocalDate.of(2014, 1, 22);
+    LocalDateDoubleTimeSeriesBuilder seriesBuilder = ImmutableLocalDateDoubleTimeSeries.builder();
+
+    for (LocalDate date = LocalDate.now(); date.isAfter(end.minusYears(5)); date = DateUtils.previousWeekDay(date)) {
+      seriesBuilder.put(date, 0.01);
+    }
+    return seriesBuilder.build();
+  }
 
   private static HistoricalTimeSeriesSource mockHistoricalTimeSeriesSource() {
-    // return 5 years of flat data.
-    final LocalDate now = LocalDate.now();
-    final LocalDateDoubleTimeSeriesBuilder series = ImmutableLocalDateDoubleTimeSeries.builder();
-    for (LocalDate date = LocalDate.now(); date.isAfter(now.minusYears(5)); date = DateUtils.previousWeekDay(date)) {
-      series.put(date, 0.01);
-    }
-    final HistoricalTimeSeriesSource mock = mock(HistoricalTimeSeriesSource.class);
-    when(mock.changeManager()).thenReturn(MOCK_CHANGE_MANAGER);
-    final LocalDate[] dateFixing = new LocalDate[] {LocalDate.of(2014, 4, 1), LocalDate.of(2014, 4, 2), LocalDate.of(2014, 4, 3), LocalDate.of(2014, 4, 4),
-      LocalDate.of(2014, 4, 7), LocalDate.of(2014, 4, 8), LocalDate.of(2014, 4, 9), LocalDate.of(2014, 4, 10), LocalDate.of(2014, 4, 11),
-      LocalDate.of(2014, 4, 14), LocalDate.of(2014, 4, 15) };
-    final double[] rateFixing = new double[] {0.0010, 0.0011, 0.0012, 0.0013,
-      0.0014, 0.0015, 0.0015, 0.0015, 0.0015,
-      0.0014, 0.0015 };
-    final LocalDateDoubleTimeSeries fixingFedFund = ImmutableLocalDateDoubleTimeSeries.of(dateFixing, rateFixing);
-    final HistoricalTimeSeries hts = new SimpleHistoricalTimeSeries(_onIndexUniqueId, fixingFedFund);
-    when(mock.getHistoricalTimeSeries(eq(MarketDataRequirementNames.MARKET_VALUE), eq(_onIndexId.toBundle()), eq("DEFAULT_TSS"),
-        any(LocalDate.class), eq(true), any(LocalDate.class), eq(true))).thenReturn(hts);
-    when(mock.getHistoricalTimeSeries(anyString(), eq(getLiborIndexId().toBundle()), anyString(),
-                                      any(LocalDate.class), anyBoolean(), any(LocalDate.class), anyBoolean()))
-          .thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-              Object[] args = invocationOnMock.getArguments();
-              // return series truncated to required date range
-              return new SimpleHistoricalTimeSeries(UniqueId.of("HTSid", LIBOR_INDEX),
-                  series.build().subSeries(((LocalDate) args[3]), (boolean) args[4],
-                                           (LocalDate) args[5], (boolean) args[6]));
-            }
-          });
-    when(mock.getHistoricalTimeSeries(anyString(), eq(getOvernightIndexId().toBundle()), anyString(),
-                                      any(LocalDate.class), anyBoolean(), any(LocalDate.class), anyBoolean()))
-        .thenReturn(new SimpleHistoricalTimeSeries(UniqueId.of("HTSid", USD_OVERNIGHT_CONVENTION), series.build()));
+    InMemoryHistoricalTimeSeriesMaster master = new InMemoryHistoricalTimeSeriesMaster();
+    TestHistoricalTimeSeriesSelector selector = new TestHistoricalTimeSeriesSelector();
+    DefaultHistoricalTimeSeriesResolver resolver = new DefaultHistoricalTimeSeriesResolver(selector, master);
+    HistoricalTimeSeriesSource source = new MasterHistoricalTimeSeriesSource(master, resolver);
 
-    // TODO this is because DefaultHistoricalMarketDataFn uses a different method on the TS source from DefaultHistoricalTimeSeriesFn
-    when(mock.getHistoricalTimeSeries(eq(getOvernightIndexId().toBundle()), anyString(), anyString(),
-                                      anyString(), any(LocalDate.class), anyBoolean(), any(LocalDate.class), anyBoolean()))
-        .thenReturn(new SimpleHistoricalTimeSeries(UniqueId.of("HTSid", USD_OVERNIGHT_CONVENTION), series.build()));
+    // fed fund fixing series
+    ManageableHistoricalTimeSeriesInfo fedFundFixingInfo = new ManageableHistoricalTimeSeriesInfo();
+    fedFundFixingInfo.setExternalIdBundle(ExternalIdBundleWithDates.of(ON_INDEX_ID.toBundle()));
+    fedFundFixingInfo.setDataField(MarketDataRequirementNames.MARKET_VALUE);
+    fedFundFixingInfo.setDataSource("dataSource");
+    fedFundFixingInfo.setDataProvider("dataProvider");
+    fedFundFixingInfo.setObservationTime("observationTime");
+    HistoricalTimeSeriesInfoDocument fixingFedFundDoc = master.add(new HistoricalTimeSeriesInfoDocument(fedFundFixingInfo));
+    master.updateTimeSeriesDataPoints(fixingFedFundDoc.getObjectId(), FLAT_TIME_SERIES);
 
-    return mock;
+    // libor series
+    ManageableHistoricalTimeSeriesInfo liborInfo = new ManageableHistoricalTimeSeriesInfo();
+    liborInfo.setExternalIdBundle(ExternalIdBundleWithDates.of(LIBOR_INDEX_ID.toBundle()));
+    liborInfo.setDataField(MarketDataRequirementNames.MARKET_VALUE);
+    liborInfo.setDataSource("dataSource");
+    liborInfo.setDataProvider("dataProvider");
+    liborInfo.setObservationTime("observationTime");
+    HistoricalTimeSeriesInfoDocument liborDoc = master.add(new HistoricalTimeSeriesInfoDocument(liborInfo));
+    master.updateTimeSeriesDataPoints(liborDoc.getObjectId(), FLAT_TIME_SERIES);
+    return source;
   }
 
   private static HolidaySource mockHolidaySource() {
@@ -563,13 +586,13 @@ public class InterestRateMockSources {
     FederalFundsFutureConvention fffConvention =
         new FederalFundsFutureConvention(USD_FEDFUNDFUTURES_CONVENTION, _fffConventionId.toBundle(), 
             ExternalId.of("EXPIRY_CONVENTION", FedFundFutureAndFutureOptionMonthlyExpiryCalculator.NAME), 
-            s_USID, _onIndexId, 5000000);
+            s_USID, ON_INDEX_ID, 5000000);
     fffConvention.setUniqueId(UniqueId.of("CONV", "3"));
     master.add(new ConventionDocument(fffConvention));
 
     OISLegConvention descReceiveLegConvention =
         new OISLegConvention(DISC_RECEIVE_LEG_CONVENTION, _discReceiveLegConventionId.toBundle(),
-                             _onIndexId, Tenor.ONE_YEAR,
+                             ON_INDEX_ID, Tenor.ONE_YEAR,
                              BusinessDayConventions.MODIFIED_FOLLOWING, 2, true, noStub, false, 2);
     descReceiveLegConvention.setUniqueId(UniqueId.of("CONV", "4"));
     master.add(new ConventionDocument(descReceiveLegConvention));
@@ -584,7 +607,7 @@ public class InterestRateMockSources {
 
     VanillaIborLegConvention liborReceiveLegConvention =
         new VanillaIborLegConvention(LIBOR_RECEIVE_LEG_CONVENTION_NAME, _liborReceiveLegConventionId.toBundle(),
-                                     _liborIndexId, true, "Linear", Tenor.THREE_MONTHS, 2, true,
+                                     LIBOR_INDEX_ID, true, "Linear", Tenor.THREE_MONTHS, 2, true,
                                      StubType.SHORT_START, false, 0);
     liborReceiveLegConvention.setUniqueId(UniqueId.of("CONV", "6"));
     master.add(new ConventionDocument(liborReceiveLegConvention));
@@ -605,7 +628,7 @@ public class InterestRateMockSources {
                                          ExternalIdBundle.of(ExternalId.of(SCHEME_NAME, FED_FUNDS_FUTURE)),
                                          ExternalId.of(ExchangeTradedInstrumentExpiryCalculator.SCHEME, FedFundFutureAndFutureOptionMonthlyExpiryCalculator.NAME),
                                          s_USID,
-                                         _onIndexId,
+                                         ON_INDEX_ID,
                                          5000000);
     fedFundsFutureConvention.setUniqueId(UniqueId.of("CONV", "8"));
     master.add(new ConventionDocument(fedFundsFutureConvention));
@@ -619,13 +642,13 @@ public class InterestRateMockSources {
 
     OvernightIndex onIndex = new OvernightIndex(USD_FEDFUND_INDEX, _onConventionId);
     onIndex.setUniqueId(UniqueId.of("SEC", "1"));
-    onIndex.setExternalIdBundle(_onIndexId.toBundle());
+    onIndex.setExternalIdBundle(ON_INDEX_ID.toBundle());
 
     securityMaster.add(new SecurityDocument(onIndex));
 
     IborIndex iIndex = new IborIndex(LIBOR_INDEX, Tenor.THREE_MONTHS, _liborConventionId);
     iIndex.setUniqueId(UniqueId.of("SEC", "2"));
-    iIndex.setExternalIdBundle(_liborIndexId.toBundle());
+    iIndex.setExternalIdBundle(LIBOR_INDEX_ID.toBundle());
 
     securityMaster.add(new SecurityDocument(iIndex));
 
@@ -637,8 +660,8 @@ public class InterestRateMockSources {
     //Config source mock
     ConfigSource mock = mock(ConfigSource.class);
 
-    IborCurveTypeConfiguration liborCurveTypeConfig = new IborCurveTypeConfiguration(_liborIndexId, Tenor.THREE_MONTHS);
-    OvernightCurveTypeConfiguration onCurveTypeConfig = new OvernightCurveTypeConfiguration(_onIndexId);
+    IborCurveTypeConfiguration liborCurveTypeConfig = new IborCurveTypeConfiguration(LIBOR_INDEX_ID, Tenor.THREE_MONTHS);
+    OvernightCurveTypeConfiguration onCurveTypeConfig = new OvernightCurveTypeConfiguration(ON_INDEX_ID);
     DiscountingCurveTypeConfiguration discCurveTypeConfig = new DiscountingCurveTypeConfiguration("USD");
 
     Map<String, List<? extends CurveTypeConfiguration>> curveNameTypeMap = Maps.newHashMap();
@@ -836,6 +859,15 @@ public class InterestRateMockSources {
       nodes.add(SabrNode.builder().x(xs[i]).y(ys[i]).z(zs[i]).build());
     }
     return new SabrExpiryTenorSurface(name, nodes);
+  }
+
+  private static class TestHistoricalTimeSeriesSelector implements HistoricalTimeSeriesSelector {
+
+    @Override
+    public ManageableHistoricalTimeSeriesInfo select(Collection<ManageableHistoricalTimeSeriesInfo> candidates,
+                                                     String selectionKey) {
+      return Iterables.getFirst(candidates, null);
+    }
   }
 
 }

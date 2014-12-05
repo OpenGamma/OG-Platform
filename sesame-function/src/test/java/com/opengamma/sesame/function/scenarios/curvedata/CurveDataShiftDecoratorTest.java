@@ -10,7 +10,7 @@ import static com.opengamma.sesame.config.ConfigBuilder.arguments;
 import static com.opengamma.sesame.config.ConfigBuilder.config;
 import static com.opengamma.sesame.config.ConfigBuilder.function;
 import static com.opengamma.sesame.config.ConfigBuilder.implementations;
-import static org.testng.AssertJUnit.assertTrue;
+import static com.opengamma.util.result.ResultTestUtils.assertSuccess;
 
 import java.util.Map;
 
@@ -30,9 +30,11 @@ import com.opengamma.sesame.function.Output;
 import com.opengamma.sesame.function.scenarios.FilteredScenarioDefinition;
 import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
-import com.opengamma.sesame.marketdata.MapMarketDataSource;
+import com.opengamma.sesame.marketdata.MapMarketDataBundle;
+import com.opengamma.sesame.marketdata.MarketDataBundle;
+import com.opengamma.sesame.marketdata.MarketDataEnvironmentBuilder;
 import com.opengamma.sesame.marketdata.MarketDataFn;
-import com.opengamma.sesame.marketdata.MarketDataSource;
+import com.opengamma.sesame.marketdata.RawId;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
 
@@ -40,13 +42,15 @@ import com.opengamma.util.test.TestGroup;
 @SuppressWarnings("unchecked")
 public class CurveDataShiftDecoratorTest {
 
-  private static final MarketDataSource MARKET_DATA_SOURCE =
-      MapMarketDataSource.builder()
-          .add(CurveTestUtils.ID1, 0.1)
-          .add(CurveTestUtils.ID2, 0.2)
-          .add(CurveTestUtils.ID3, 0.7)
-          .add(CurveTestUtils.ID4, 0.4)
-          .build();
+  private static final ZonedDateTime VALUATION_TIME = ZonedDateTime.now();
+  private static final MarketDataBundle MARKET_DATA_BUNDLE =
+      new MapMarketDataBundle(new MarketDataEnvironmentBuilder()
+                                  .add(RawId.of(CurveTestUtils.ID1.toBundle()), 0.1)
+                                  .add(RawId.of(CurveTestUtils.ID2.toBundle()), 0.2)
+                                  .add(RawId.of(CurveTestUtils.ID3.toBundle()), 0.7)
+                                  .add(RawId.of(CurveTestUtils.ID4.toBundle()), 0.4)
+                                  .valuationTime(ZonedDateTime.now())
+                                  .build());
 
   private static final FunctionModelConfig CONFIG =
       config(implementations(Fn.class, Impl.class,
@@ -62,10 +66,10 @@ public class CurveDataShiftDecoratorTest {
   public void absolute() {
     CurveDataParallelShift shift = new CurveDataParallelShift(0.1, MATCHER);
     FilteredScenarioDefinition scenarioDef = new FilteredScenarioDefinition(shift);
-    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), MARKET_DATA_SOURCE, scenarioDef);
+    SimpleEnvironment env = new SimpleEnvironment(VALUATION_TIME, MARKET_DATA_BUNDLE, scenarioDef);
 
     Result<Map<ExternalIdBundle, Double>> result = FN.foo(env, CurveTestUtils.CURVE_SPEC);
-    assertTrue(result.isSuccess());
+    assertSuccess(result);
     Map<ExternalIdBundle, Double> shiftedValues = result.getValue();
     CurveTestUtils.checkValues(shiftedValues, 0.2, 0.3, 0.6, 0.5);
   }
@@ -74,10 +78,10 @@ public class CurveDataShiftDecoratorTest {
   public void relative() {
     CurveDataRelativeShift shift = new CurveDataRelativeShift(0.1, MATCHER);
     FilteredScenarioDefinition scenarioDef = new FilteredScenarioDefinition(shift);
-    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), MARKET_DATA_SOURCE, scenarioDef);
+    SimpleEnvironment env = new SimpleEnvironment(VALUATION_TIME, MARKET_DATA_BUNDLE, scenarioDef);
 
     Result<Map<ExternalIdBundle, Double>> result = FN.foo(env, CurveTestUtils.CURVE_SPEC);
-    assertTrue(result.isSuccess());
+    assertSuccess(result);
     Map<ExternalIdBundle, Double> shiftedValues = result.getValue();
     CurveTestUtils.checkValues(shiftedValues, 0.11, 0.22, 0.67, 0.44);
   }
@@ -86,11 +90,11 @@ public class CurveDataShiftDecoratorTest {
   public void noMatch() {
     CurveDataParallelShift shift = new CurveDataParallelShift(0.1, MATCHER);
     FilteredScenarioDefinition scenarioDef = new FilteredScenarioDefinition(shift);
-    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), MARKET_DATA_SOURCE, scenarioDef);
+    SimpleEnvironment env = new SimpleEnvironment(VALUATION_TIME, MARKET_DATA_BUNDLE, scenarioDef);
 
     CurveSpecification curveSpec = new CurveSpecification(LocalDate.now(), "a different name", CurveTestUtils.NODES);
     Result<Map<ExternalIdBundle, Double>> result = FN.foo(env, curveSpec);
-    assertTrue(result.isSuccess());
+    assertSuccess(result);
     Map<ExternalIdBundle, Double> shiftedValues = result.getValue();
     CurveTestUtils.checkValues(shiftedValues, 0.1, 0.2, 0.7, 0.4);
   }
@@ -100,10 +104,10 @@ public class CurveDataShiftDecoratorTest {
     CurveDataParallelShift shift1 = new CurveDataParallelShift(0.1, MATCHER);
     CurveDataParallelShift shift2 = new CurveDataParallelShift(0.2, MATCHER);
     FilteredScenarioDefinition scenarioDef = new FilteredScenarioDefinition(shift1, shift2);
-    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), MARKET_DATA_SOURCE, scenarioDef);
+    SimpleEnvironment env = new SimpleEnvironment(VALUATION_TIME, MARKET_DATA_BUNDLE, scenarioDef);
 
     Result<Map<ExternalIdBundle, Double>> result = FN.foo(env, CurveTestUtils.CURVE_SPEC);
-    assertTrue(result.isSuccess());
+    assertSuccess(result);
     Map<ExternalIdBundle, Double> shiftedValues = result.getValue();
     CurveTestUtils.checkValues(shiftedValues, 0.4, 0.5, 0.4, 0.7);
   }
@@ -113,10 +117,10 @@ public class CurveDataShiftDecoratorTest {
     CurveDataParallelShift abs = new CurveDataParallelShift(0.1, MATCHER);
     CurveDataRelativeShift rel = new CurveDataRelativeShift(0.1, MATCHER);
     FilteredScenarioDefinition scenarioDef = new FilteredScenarioDefinition(abs, rel);
-    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), MARKET_DATA_SOURCE, scenarioDef);
+    SimpleEnvironment env = new SimpleEnvironment(VALUATION_TIME, MARKET_DATA_BUNDLE, scenarioDef);
 
     Result<Map<ExternalIdBundle, Double>> result = FN.foo(env, CurveTestUtils.CURVE_SPEC);
-    assertTrue(result.isSuccess());
+    assertSuccess(result);
     Map<ExternalIdBundle, Double> shiftedValues = result.getValue();
     CurveTestUtils.checkValues(shiftedValues, 0.22, 0.33, 0.56, 0.55);
   }
@@ -126,10 +130,10 @@ public class CurveDataShiftDecoratorTest {
     CurveDataRelativeShift rel = new CurveDataRelativeShift(0.1, MATCHER);
     CurveDataParallelShift abs = new CurveDataParallelShift(0.1, MATCHER);
     FilteredScenarioDefinition scenarioDef = new FilteredScenarioDefinition(rel, abs);
-    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), MARKET_DATA_SOURCE, scenarioDef);
+    SimpleEnvironment env = new SimpleEnvironment(VALUATION_TIME, MARKET_DATA_BUNDLE, scenarioDef);
 
     Result<Map<ExternalIdBundle, Double>> result = FN.foo(env, CurveTestUtils.CURVE_SPEC);
-    assertTrue(result.isSuccess());
+    assertSuccess(result);
     Map<ExternalIdBundle, Double> shiftedValues = result.getValue();
     CurveTestUtils.checkValues(shiftedValues, 0.21, 0.32, 0.57, 0.54);
   }

@@ -22,6 +22,7 @@ import org.apache.shiro.authz.AuthorizationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
+import org.threeten.bp.ZonedDateTime;
 
 import com.codahale.metrics.MetricRegistry;
 import com.google.common.base.Function;
@@ -65,7 +66,7 @@ import com.opengamma.sesame.graph.Graph;
 import com.opengamma.sesame.graph.GraphBuilder;
 import com.opengamma.sesame.graph.GraphModel;
 import com.opengamma.sesame.graph.NodeDecorator;
-import com.opengamma.sesame.marketdata.CycleMarketDataFactory;
+import com.opengamma.sesame.marketdata.MarketDataEnvironment;
 import com.opengamma.sesame.proxy.ExceptionWrappingProxy;
 import com.opengamma.sesame.proxy.MetricsProxy;
 import com.opengamma.sesame.trace.CallGraph;
@@ -229,7 +230,9 @@ public class View {
    *
    * @param cycleArguments settings for running the calculations
    * @return the calculation results
+   * @deprecated use {@link #run(CalculationArguments, MarketDataEnvironment)}
    */
+  @Deprecated
   public Results run(CycleArguments cycleArguments) {
     return run(cycleArguments, Collections.emptyList());
   }
@@ -240,10 +243,45 @@ public class View {
    * @param cycleArguments settings for running the calculations
    * @param inputs the inputs to the calculation, e.g. trades, positions, securities
    * @return the calculation results
+   * @deprecated use {@link #run(CalculationArguments, MarketDataEnvironment, List)}
    */
+  @Deprecated
   public Results run(CycleArguments cycleArguments, List<?> inputs) {
     try {
-      return runAsync(cycleArguments, inputs).get();
+      CalculationArguments calculationArguments =
+          CalculationArguments.builder()
+              .valuationTime(cycleArguments.getValuationTime())
+              .captureInputs(cycleArguments.isCaptureInputs())
+              .configVersionCorrection(cycleArguments.getConfigVersionCorrection())
+              .traceCells(cycleArguments.getTraceCells())
+              .traceOutputs(cycleArguments.getTraceOutputs())
+              .build();
+      return runAsync(calculationArguments, cycleArguments.getMarketDataEnvironment(), inputs).get();
+    } catch (InterruptedException | ExecutionException e) {
+      throw new OpenGammaRuntimeException("Failed to run view", e);
+    }
+  }
+
+  /**
+   * Runs a single calculation cycle, blocking until the results are available.
+   *
+   * @param cycleArguments settings for running the calculations
+   * @return the calculation results
+   */
+  public Results run(CalculationArguments cycleArguments, MarketDataEnvironment marketData) {
+    return run(cycleArguments, marketData, Collections.emptyList());
+  }
+
+  /**
+   * Runs a single calculation cycle, blocking until the results are available.
+   *
+   * @param calculationArguments settings for running the calculations
+   * @param inputs the inputs to the calculation, e.g. trades, positions, securities
+   * @return the calculation results
+   */
+  public Results run(CalculationArguments calculationArguments, MarketDataEnvironment marketData, List<?> inputs) {
+    try {
+      return runAsync(calculationArguments, marketData, inputs).get();
     } catch (InterruptedException | ExecutionException e) {
       throw new OpenGammaRuntimeException("Failed to run view", e);
     }
@@ -252,21 +290,23 @@ public class View {
   /**
    * Runs a single calculation cycle asynchronously, returning a future representing the pending results.
    *
-   * @param cycleArguments settings for running the calculations
+   * @param calculationArguments settings for running the calculations
    * @return a future representing the calculation results
    */
-  public ListenableFuture<Results> runAsync(CycleArguments cycleArguments) {
-    return runAsync(cycleArguments, Collections.emptyList());
+  public ListenableFuture<Results> runAsync(CalculationArguments calculationArguments, MarketDataEnvironment marketData) {
+    return runAsync(calculationArguments, marketData, Collections.emptyList());
   }
 
   /**
    * Runs a single calculation cycle asynchronously, returning a future representing the pending results.
    *
-   * @param cycleArguments settings for running the calculations
+   * @param calculationArguments settings for running the calculations
    * @param inputs the inputs to the calculation, e.g. trades, positions, securities
    * @return a future representing the calculation results
    */
-  public ListenableFuture<Results> runAsync(CycleArguments cycleArguments, final List<?> inputs) {
+  public ListenableFuture<Results> runAsync(CalculationArguments calculationArguments,
+                                            MarketDataEnvironment marketData,
+                                            final List<?> inputs) {
     final Instant start = Instant.now();
     final long startInitialization = System.nanoTime();
     final long startExecution;
@@ -290,20 +330,19 @@ public class View {
     Cache<Object, Object> cache = _cachingEnabled ? _cacheFactory.get() : new NoOpCache();
     ServiceContext originalContext = ThreadLocalServiceContext.getInstance();
 
-    final CycleInitializer cycleInitializer = cycleArguments.isCaptureInputs() ?
-        new CapturingCycleInitializer(originalContext, _componentMap, cycleArguments,
-                                      _graphModel, _viewConfig, _cacheBuilder, inputs) :
-        new StandardCycleInitializer(originalContext, cycleArguments.getCycleMarketDataFactory(), _graph, cache);
+    final CycleInitializer cycleInitializer = calculationArguments.isCaptureInputs() ?
+        new CapturingCycleInitializer(originalContext, _componentMap, calculationArguments, 
+                                      marketData, _graphModel, _viewConfig, _cacheBuilder, inputs) :
+        new StandardCycleInitializer(originalContext, _graph, cache);
 
     List<Task> tasks = new ArrayList<>();
     Graph graph = cycleInitializer.getGraph();
-    CycleMarketDataFactory marketDataFactory = cycleInitializer.getCycleMarketDataFactory();
     ScenarioDefinition scenario = _viewConfig.getScenarioDefinition();
     ServiceContext cycleContext = cycleInitializer.getServiceContext();
     ThreadLocalWrapper threadLocalWrapper =
         new ThreadLocalWrapper(cycleContext, originalContext, cycleInitializer.getCache(), _cacheThreadLocal);
-    tasks.addAll(portfolioTasks(marketDataFactory, cycleArguments, inputs, graph, scenario, threadLocalWrapper));
-    tasks.addAll(nonPortfolioTasks(marketDataFactory, cycleArguments, graph, scenario, threadLocalWrapper));
+    tasks.addAll(portfolioTasks(calculationArguments, marketData, inputs, graph, scenario, threadLocalWrapper));
+    tasks.addAll(nonPortfolioTasks(calculationArguments, marketData, graph, scenario, threadLocalWrapper));
     final List<ListenableFuture<TaskResult>> resultFutures;
 
     startExecution = System.nanoTime();
@@ -389,8 +428,8 @@ public class View {
     return _graphModel.getFunctionModel(outputName);
   }
 
-  private List<Task> portfolioTasks(CycleMarketDataFactory marketDataFactory,
-                                    CycleArguments cycleArguments,
+  private List<Task> portfolioTasks(CalculationArguments calculationArguments,
+                                    MarketDataEnvironment marketDataEnvironment,
                                     List<?> inputs,
                                     Graph graph,
                                     ScenarioDefinition scenarioDefinition,
@@ -401,7 +440,9 @@ public class View {
     for (ViewColumn column : _viewConfig.getColumns()) {
       FilteredScenarioDefinition filteredDef = scenarioDefinition.filter(column.getName());
       Environment env =
-          new EngineEnvironment(cycleArguments.getValuationTime(), marketDataFactory, _cacheInvalidator);
+          new EngineEnvironment(valuationTime(calculationArguments, marketDataEnvironment),
+                                marketDataEnvironment.toBundle(),
+                                _cacheInvalidator);
       Environment columnEnv = env.withScenarioDefinition(filteredDef);
       Map<Class<?>, InvokableFunction> functions = graph.getFunctionsForColumn(column.getName());
 
@@ -442,7 +483,7 @@ public class View {
               "No function found for input, column: " + column + " type: " + input.getClass().getName());
           functionInput = input;
         }
-        Tracer tracer = Tracer.create(cycleArguments.traceType(rowIndex, colIndex));
+        Tracer tracer = Tracer.create(calculationArguments.traceType(rowIndex, colIndex));
 
         FunctionModelConfig columnConfig = column.getFunctionConfig(functionInput.getClass());
         FunctionModelConfig functionModelConfig =
@@ -450,9 +491,8 @@ public class View {
 
         Class<?> implType = function.getUnderlyingReceiver().getClass();
         Class<?> declaringType = function.getDeclaringClass();
-        FunctionArguments args =
-            cycleArguments.getFunctionArguments().mergedWith(functionModelConfig.getFunctionArguments(implType),
-                                                             functionModelConfig.getFunctionArguments(declaringType));
+        Map<Class<?>, FunctionArguments> functionArguments = calculationArguments.getFunctionArguments();
+        FunctionArguments args = functionArguments(functionArguments, implType, declaringType, functionModelConfig);
         portfolioTasks.add(new PortfolioTask(columnEnv, functionInput, args, rowIndex++,
                                              colIndex, function, tracer, threadLocalWrapper));
       }
@@ -462,15 +502,15 @@ public class View {
   }
 
   // create tasks for the non-portfolio outputs
-  private List<Task> nonPortfolioTasks(CycleMarketDataFactory marketDataFactory,
-                                       CycleArguments cycleArguments,
+  private List<Task> nonPortfolioTasks(CalculationArguments calculationArguments,
+                                       MarketDataEnvironment marketDataEnvironment,
                                        Graph graph,
                                        ScenarioDefinition scenarioDefinition,
                                        ThreadLocalWrapper cache) {
     List<Task> tasks = Lists.newArrayList();
     for (NonPortfolioOutput output : _viewConfig.getNonPortfolioOutputs()) {
       InvokableFunction function = graph.getNonPortfolioFunction(output.getName());
-      Tracer tracer = Tracer.create(cycleArguments.traceType(output.getName()));
+      Tracer tracer = Tracer.create(calculationArguments.traceType(output.getName()));
 
       FunctionModelConfig outputConfig = output.getOutput().getFunctionModelConfig();
       FunctionModelConfig functionModelConfig =
@@ -478,13 +518,13 @@ public class View {
 
       Class<?> implType = function.getUnderlyingReceiver().getClass();
       Class<?> declaringType = function.getDeclaringClass();
-      FunctionArguments args =
-          cycleArguments.getFunctionArguments().mergedWith(functionModelConfig.getFunctionArguments(implType),
-                                                           functionModelConfig.getFunctionArguments(declaringType));
+      Map<Class<?>, FunctionArguments> functionArguments = calculationArguments.getFunctionArguments();
+      FunctionArguments args = functionArguments(functionArguments, implType, declaringType, functionModelConfig);
       // create an environment with scenario arguments filtered for the output
       FilteredScenarioDefinition filteredDef = scenarioDefinition.filter(output.getName());
-      Environment env =
-          new EngineEnvironment(cycleArguments.getValuationTime(), marketDataFactory, _cacheInvalidator);
+      Environment env = new EngineEnvironment(valuationTime(calculationArguments, marketDataEnvironment), 
+                                              marketDataEnvironment.toBundle(),
+                                              _cacheInvalidator);
       Environment outputEnv = env.withScenarioDefinition(filteredDef);
       tasks.add(new NonPortfolioTask(outputEnv, args, output.getName(), function, tracer, cache));
     } return tasks;
@@ -497,6 +537,40 @@ public class View {
       columnNames.add(columnName);
     }
     return columnNames;
+  }
+
+  /**
+   * Returns the function arguments created by merging the arguments in the map with the arguments in the
+   * function model configuration. Arguments are merged in the following order
+   * <ol>
+   *   <li>Function implementation type arguments from the map</li>
+   *   <li>Function declaration type arguments from the map</li>
+   *   <li>Function implementation type arguments from the configuration</li>
+   *   <li>Function declaration type arguments from the configuration</li>
+   * </ol>
+   *
+   * @param argMap function arguments keyed by function type
+   * @param implType the type of the function implementation class
+   * @param declType the type of the function interface
+   * @param config the function configuration
+   * @return the function arguments created by merging the arguments in the map with the arguments in the
+   *   function model configuration
+   */
+  private static FunctionArguments functionArguments(Map<Class<?>, FunctionArguments> argMap,
+                                                     Class<?> implType,
+                                                     Class<?> declType,
+                                                     FunctionModelConfig config) {
+    FunctionArguments implArgs = argMap.containsKey(implType) ? argMap.get(implType) : FunctionArguments.EMPTY;
+    FunctionArguments declArgs = argMap.containsKey(declType) ? argMap.get(declType) : FunctionArguments.EMPTY;
+    return implArgs.mergedWith(declArgs, config.getFunctionArguments(implType), config.getFunctionArguments(declType));
+  }
+
+  private static ZonedDateTime valuationTime(CalculationArguments calcArgs, MarketDataEnvironment marketData) {
+    if (calcArgs.getValuationTime() != null) {
+      return calcArgs.getValuationTime();
+    } else {
+      return marketData.getValuationTime();
+    }
   }
 
   //----------------------------------------------------------
@@ -516,7 +590,7 @@ public class View {
     private final ThreadLocalWrapper _threadLocalWrapper;
 
     private Task(Environment env,
-                 Object input,
+                 @Nullable Object input,
                  FunctionArguments args,
                  InvokableFunction invokableFunction,
                  Tracer tracer,

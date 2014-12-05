@@ -23,7 +23,6 @@ import static com.opengamma.util.result.SuccessStatus.SUCCESS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
@@ -64,7 +63,6 @@ import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.security.impl.SimpleSecurityLink;
 import com.opengamma.core.value.MarketDataRequirementNames;
-import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.financial.analytics.CurrencyLabelledMatrix1D;
 import com.opengamma.financial.analytics.conversion.FXForwardSecurityConverter;
 import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigurationSource;
@@ -100,13 +98,13 @@ import com.opengamma.sesame.DefaultCurveSpecificationMarketDataFn;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleResolverFn;
 import com.opengamma.sesame.DefaultFXMatrixFn;
-import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
 import com.opengamma.sesame.DirectExecutorService;
 import com.opengamma.sesame.DiscountingMulticurveBundleFn;
 import com.opengamma.sesame.DiscountingMulticurveBundleResolverFn;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.ExposureFunctionsDiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.FXMatrixFn;
+import com.opengamma.sesame.FixingsFn;
 import com.opengamma.sesame.MarketDataResourcesLoader;
 import com.opengamma.sesame.MarketExposureSelector;
 import com.opengamma.sesame.MulticurveBundle;
@@ -136,15 +134,14 @@ import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.function.scenarios.curvedata.FunctionTestUtils;
 import com.opengamma.sesame.graph.FunctionBuilder;
 import com.opengamma.sesame.graph.FunctionModel;
-import com.opengamma.sesame.marketdata.CycleMarketDataFactory;
 import com.opengamma.sesame.marketdata.DefaultHistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
-import com.opengamma.sesame.marketdata.DefaultStrategyAwareMarketDataSource;
 import com.opengamma.sesame.marketdata.FieldName;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
-import com.opengamma.sesame.marketdata.MapMarketDataSource;
+import com.opengamma.sesame.marketdata.MarketDataEnvironment;
+import com.opengamma.sesame.marketdata.MarketDataEnvironmentBuilder;
 import com.opengamma.sesame.marketdata.MarketDataFn;
-import com.opengamma.sesame.marketdata.MarketDataSource;
+import com.opengamma.sesame.marketdata.RawId;
 import com.opengamma.sesame.trace.TracingProxy;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
@@ -196,7 +193,7 @@ public class FXForwardPVFnTest {
     assertThat(pv.getStatus(), is((ResultStatus) SUCCESS));
   }
 
-  private Result<CurrencyLabelledMatrix1D> executeAgainstRemoteServer(Map<ExternalIdBundle, Double> marketData) {
+  private Result<CurrencyLabelledMatrix1D> executeAgainstRemoteServer(Map<ExternalIdBundle, Double> marketDataMap) {
     String serverUrl = "http://localhost:8080";
     URI htsResolverUri = URI.create(serverUrl + "/jax/components/HistoricalTimeSeriesResolver/shared");
     HistoricalTimeSeriesResolver htsResolver = new RemoteHistoricalTimeSeriesResolver(htsResolverUri);
@@ -217,8 +214,8 @@ public class FXForwardPVFnTest {
 
     ZonedDateTime valuationTime = ZonedDateTime.of(2013, 11, 1, 9, 0, 0, 0, ZoneOffset.UTC);
     FieldName fieldName = FieldName.of(MarketDataRequirementNames.MARKET_VALUE);
-    MarketDataSource dataSource = createMarketDataSource(marketData, fieldName);
-    SimpleEnvironment env = new SimpleEnvironment(valuationTime, dataSource);
+    MarketDataEnvironment marketData = createMarketDataEnvironment(marketDataMap, fieldName);
+    SimpleEnvironment env = new SimpleEnvironment(valuationTime, marketData.toBundle());
 
     for (int i = 0; i < 100; i++) {
       result = pvFunction.calculatePV(env, security);
@@ -237,9 +234,9 @@ public class FXForwardPVFnTest {
     URI htsResolverUri = URI.create(serverUrl + "/jax/components/HistoricalTimeSeriesResolver/shared");
     HistoricalTimeSeriesResolver htsResolver = new RemoteHistoricalTimeSeriesResolver(htsResolverUri);
     ZonedDateTime valuationTime = ZonedDateTime.of(2013, 11, 1, 9, 0, 0, 0, ZoneOffset.UTC);
-    Map<ExternalIdBundle, Double> marketData = MarketDataResourcesLoader.getData("yield-curve-marketdata.properties",
+    Map<ExternalIdBundle, Double> marketDataMap = MarketDataResourcesLoader.getData("yield-curve-marketdata.properties",
                                                                                  ExternalSchemes.BLOOMBERG_TICKER);
-    marketData.put(ExternalIdBundle.of(ExternalSchemes.BLOOMBERG_TICKER, "JPY Curncy"), 98.86);
+    marketDataMap.put(ExternalIdBundle.of(ExternalSchemes.BLOOMBERG_TICKER, "JPY Curncy"), 98.86);
     Map<Class<?>, Object> comps = ImmutableMap.<Class<?>, Object>of(HistoricalTimeSeriesResolver.class, htsResolver);
     ComponentMap componentMap = ComponentMap.loadComponents(serverUrl).with(comps);
 
@@ -248,12 +245,13 @@ public class FXForwardPVFnTest {
 
 
     ConfigSource configSource = componentMap.getComponent(ConfigSource.class);
-    CurveConstructionConfiguration curveConfig = configSource.get(CurveConstructionConfiguration.class, "Z-Marc JPY Dsc - FX USD", VersionCorrection.LATEST)
+    CurveConstructionConfiguration curveConfig =
+        configSource.get(CurveConstructionConfiguration.class, "Z-Marc JPY Dsc - FX USD", VersionCorrection.LATEST)
         .iterator().next().getValue();
 
     FieldName fieldName = FieldName.of(MarketDataRequirementNames.MARKET_VALUE);
-    MarketDataSource dataSource = createMarketDataSource(marketData, fieldName);
-    SimpleEnvironment env = new SimpleEnvironment(valuationTime, dataSource);
+    MarketDataEnvironment marketData = createMarketDataEnvironment(marketDataMap, fieldName);
+    SimpleEnvironment env = new SimpleEnvironment(valuationTime, marketData.toBundle());
     Result<MulticurveBundle> result = bundleProvider.generateBundle(env, curveConfig);
 
     assertNotNull(result);
@@ -269,31 +267,35 @@ public class FXForwardPVFnTest {
     ConfigLink<CurrencyMatrix> currencyMatrixLink = ConfigLink.resolvable("BloombergLiveData", CurrencyMatrix.class);
 
     ViewConfig viewConfig =
-        configureView("Curve Bundle only",
-                  nonPortfolioOutput("Curve Bundle",
-                       output(OutputNames.DISCOUNTING_MULTICURVE_BUNDLE,
-                              config(
-                                  arguments(
-                                      function(RootFinderConfiguration.class,
-                                               argument("rootFinderAbsoluteTolerance", 1e-9),
-                                               argument("rootFinderRelativeTolerance", 1e-9),
-                                               argument("rootFinderMaxIterations", 1000)),
-                                      function(DefaultCurrencyPairsFn.class,
-                                               argument("currencyPairs", ImmutableSet.of(CurrencyPair.of(USD, JPY),
-                                                                                         CurrencyPair.of(EUR, USD),
-                                                                                         CurrencyPair.of(GBP, USD)))),
-                                      function(DefaultHistoricalTimeSeriesFn.class,
-                                               argument("resolutionKey", "DEFAULT_TSS"),
-                                               argument("htsRetrievalPeriod", RetrievalPeriod.of(Period.ofYears(1)))),
-                                      function(DefaultDiscountingMulticurveBundleFn.class,
-                                               argument("impliedCurveNames", StringSet.of()),
-                                               argument("curveConfig", ConfigLink.resolvable("USD",
-                                                                                     CurveConstructionConfiguration.class))),
-                                      function(DefaultMarketDataFn.class,
-                                               argument("currencyMatrix", currencyMatrixLink)),
-                                      function(DefaultHistoricalMarketDataFn.class,
-                                               argument("currencyMatrix", currencyMatrixLink),
-                                               argument("dataSource", "BLOOMBERG")))))));
+        configureView(
+            "Curve Bundle only",
+            nonPortfolioOutput(
+                "Curve Bundle",
+                output(OutputNames.DISCOUNTING_MULTICURVE_BUNDLE,
+                       config(
+                           arguments(
+                               function(
+                                   RootFinderConfiguration.class,
+                                   argument("rootFinderAbsoluteTolerance", 1e-9),
+                                   argument("rootFinderRelativeTolerance", 1e-9),
+                                   argument("rootFinderMaxIterations", 1000)),
+                               function(
+                                   DefaultCurrencyPairsFn.class,
+                                   argument("currencyPairs", ImmutableSet.of(CurrencyPair.of(USD, JPY),
+                                                                             CurrencyPair.of(EUR, USD),
+                                                                             CurrencyPair.of(GBP, USD)))),
+                               function(
+                                   DefaultDiscountingMulticurveBundleFn.class,
+                                   argument("impliedCurveNames", StringSet.of()),
+                                   argument("curveConfig", ConfigLink.resolvable("USD",
+                                                                                 CurveConstructionConfiguration.class))),
+                               function(
+                                   DefaultMarketDataFn.class,
+                                   argument("currencyMatrix", currencyMatrixLink)),
+                               function(
+                                   DefaultHistoricalMarketDataFn.class,
+                                   argument("currencyMatrix", currencyMatrixLink),
+                                   argument("dataSource", "BLOOMBERG")))))));
 
     AvailableOutputs availableOutputs = new AvailableOutputsImpl();
     availableOutputs.register(DiscountingMulticurveBundleFn.class);
@@ -309,7 +311,7 @@ public class FXForwardPVFnTest {
                                       DefaultDiscountingMulticurveBundleFn.class,
                                       DefaultCurveSpecificationFn.class,
                                       ConfigDBCurveConstructionConfigurationSource.class,
-                                      DefaultHistoricalTimeSeriesFn.class,
+                                      FixingsFn.class,
                                       FXForwardDiscountingCalculatorFn.class,
                                       DefaultMarketDataFn.class,
                                       DefaultHistoricalMarketDataFn.class);
@@ -334,11 +336,11 @@ public class FXForwardPVFnTest {
                                               new NoOpCacheInvalidator(),
                                               Optional.<MetricRegistry>absent());
     View view = viewFactory.createView(viewConfig);
-    Map<ExternalIdBundle, Double> marketData = MarketDataResourcesLoader.getData("/marketdata.properties",
-                                                                                 ExternalSchemes.BLOOMBERG_TICKER);
+    Map<ExternalIdBundle, Double> marketDataMap =
+        MarketDataResourcesLoader.getData("/marketdata.properties", ExternalSchemes.BLOOMBERG_TICKER);
     FieldName fieldName = FieldName.of(MarketDataRequirementNames.MARKET_VALUE);
-    CycleMarketDataFactory dataSource = createCycleMarketDataFactory(marketData, fieldName);
-    CycleArguments cycleArguments = new CycleArguments(valuationTime, VersionCorrection.LATEST, dataSource);
+    MarketDataEnvironment marketData = createMarketDataEnvironment(marketDataMap, fieldName);
+    CycleArguments cycleArguments = CycleArguments.builder(marketData).valuationTime(valuationTime).build();
     Results results = view.run(cycleArguments);
     System.out.println(results);
     ResultItem resultItem = results.get("Curve Bundle");
@@ -389,10 +391,6 @@ public class FXForwardPVFnTest {
                                                                      CurrencyPair.of(EUR, USD),
                                                                      CurrencyPair.of(GBP, USD)))),
                             function(
-                                DefaultHistoricalTimeSeriesFn.class,
-                                argument("resolutionKey", "DEFAULT_TSS"),
-                                argument("htsRetrievalPeriod", RetrievalPeriod.of(Period.ofYears(1)))),
-                            function(
                                 DefaultDiscountingMulticurveBundleFn.class,
                                 argument("impliedCurveNames", StringSet.of())))))));
 
@@ -418,7 +416,7 @@ public class FXForwardPVFnTest {
                                       ExposureFunctionsDiscountingMulticurveCombinerFn.class,
                                       DefaultCurveSpecificationFn.class,
                                       ConfigDBCurveConstructionConfigurationSource.class,
-                                      DefaultHistoricalTimeSeriesFn.class,
+                                      FixingsFn.class,
                                       FXForwardDiscountingCalculatorFn.class);
     long startEngine = System.currentTimeMillis();
     VersionCorrectionProvider vcProvider = new FixedInstantVersionCorrectionProvider();
@@ -443,11 +441,11 @@ public class FXForwardPVFnTest {
     //Set<Pair<Integer, Integer>> traceFunctions = Sets.newHashSet(Pairs.of(0, 0), Pairs.of(1, 0));
     //CycleArguments cycleArguments = new CycleArguments(valuationTime, marketDataFactory, traceFunctions);
     ZonedDateTime valuationTime = ZonedDateTime.of(2013, 11, 1, 9, 0, 0, 0, ZoneOffset.UTC);
-    Map<ExternalIdBundle, Double> marketData = MarketDataResourcesLoader.getData("marketdata.properties",
+    Map<ExternalIdBundle, Double> marketDataMap = MarketDataResourcesLoader.getData("marketdata.properties",
                                                                                  ExternalSchemes.BLOOMBERG_TICKER);
     FieldName fieldName = FieldName.of(MarketDataRequirementNames.MARKET_VALUE);
-    CycleMarketDataFactory cycleMarketDataFactory = createCycleMarketDataFactory(marketData, fieldName);
-    CycleArguments cycleArguments = new CycleArguments(valuationTime, VersionCorrection.LATEST, cycleMarketDataFactory);
+    MarketDataEnvironment marketData = createMarketDataEnvironment(marketDataMap, fieldName);
+    CycleArguments cycleArguments = CycleArguments.builder(marketData).valuationTime(valuationTime).build();
     //int nRuns = 1;
     int nRuns = 20;
     for (int i = 0; i < nRuns; i++) {
@@ -462,22 +460,12 @@ public class FXForwardPVFnTest {
     }
   }
 
-  private CycleMarketDataFactory createCycleMarketDataFactory(Map<ExternalIdBundle, Double> marketData,
-                                                              FieldName fieldName) {
-    MarketDataSource source = createMarketDataSource(marketData, fieldName);
+  private MarketDataEnvironment createMarketDataEnvironment(Map<ExternalIdBundle, Double> marketData,
+                                                            FieldName fieldName) {
+    MarketDataEnvironmentBuilder builder = new MarketDataEnvironmentBuilder();
 
-    CycleMarketDataFactory mock = mock(CycleMarketDataFactory.class);
-    when(mock.getPrimaryMarketDataSource()).thenReturn(
-        new DefaultStrategyAwareMarketDataSource(mock(MarketDataSpecification.class), source));
-
-    return mock;
-  }
-
-  private MarketDataSource createMarketDataSource(Map<ExternalIdBundle, Double> marketData,
-                                                  FieldName fieldName) {
-    MapMarketDataSource.Builder builder = MapMarketDataSource.builder();
     for (Map.Entry<ExternalIdBundle, Double> entry : marketData.entrySet()) {
-      builder.add(entry.getKey(), fieldName, entry.getValue());
+      builder.add(RawId.of(entry.getKey(), fieldName), entry.getValue());
     }
     return builder.build();
   }

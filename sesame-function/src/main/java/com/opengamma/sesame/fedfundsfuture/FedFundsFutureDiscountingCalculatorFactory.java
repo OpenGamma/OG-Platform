@@ -12,7 +12,7 @@ import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.Environment;
-import com.opengamma.sesame.HistoricalTimeSeriesFn;
+import com.opengamma.sesame.FixingsFn;
 import com.opengamma.sesame.MulticurveBundle;
 import com.opengamma.sesame.trade.FedFundsFutureTrade;
 import com.opengamma.util.ArgumentChecker;
@@ -29,7 +29,7 @@ public class FedFundsFutureDiscountingCalculatorFactory implements FedFundsFutur
   
   private final DiscountingMulticurveCombinerFn _discountingMulticurveCombinerFn;
   
-  private final HistoricalTimeSeriesFn _htsFn;
+  private final FixingsFn _fixingsFn;
   
   /**
    * Constructs a factory that creates discounting calculators for federal funds futures.
@@ -37,19 +37,18 @@ public class FedFundsFutureDiscountingCalculatorFactory implements FedFundsFutur
    * @param converter the converter used to convert the OG-Financial federal funds future to the OG-Analytics definition.
    * @param definitionToDerivativeConverter the converter used to convert the definition to derivative.
    * @param discountingMulticurveCombinerFn the multicurve function.
-   * @param htsFn the historical time series function, not null.
+   * @param fixingsFn the historical time series function, not null.
    */
   public FedFundsFutureDiscountingCalculatorFactory(FederalFundsFutureTradeConverter converter,
                                                     FixedIncomeConverterDataProvider definitionToDerivativeConverter,
                                                     DiscountingMulticurveCombinerFn discountingMulticurveCombinerFn,
-                                                    HistoricalTimeSeriesFn htsFn) {
+                                                    FixingsFn fixingsFn) {
     _converter = ArgumentChecker.notNull(converter, "converter");
     _definitionToDerivativeConverter =
         ArgumentChecker.notNull(definitionToDerivativeConverter, "definitionToDerivativeConverter");
     _discountingMulticurveCombinerFn =
         ArgumentChecker.notNull(discountingMulticurveCombinerFn, "discountingMulticurveCombinerFn");
-    _htsFn =
-        ArgumentChecker.notNull(htsFn, "htsFn");
+    _fixingsFn = ArgumentChecker.notNull(fixingsFn, "htsFn");
   }
   
   @Override
@@ -59,7 +58,7 @@ public class FedFundsFutureDiscountingCalculatorFactory implements FedFundsFutur
     
     Result<MulticurveBundle> bundleResult = _discountingMulticurveCombinerFn.getMulticurveBundle(env, trade);
 
-    Result<HistoricalTimeSeriesBundle> fixingsResult = _htsFn.getFixingsForSecurity(env, security);
+    Result<HistoricalTimeSeriesBundle> fixingsResult = _fixingsFn.getFixingsForSecurity(env, security);
     
     if (Result.allSuccessful(bundleResult, fixingsResult)) {
     

@@ -29,7 +29,7 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.core.security.impl.SimpleSecurityLink;
 import com.opengamma.sesame.function.scenarios.FilteredScenarioDefinition;
-import com.opengamma.sesame.marketdata.MarketDataSource;
+import com.opengamma.sesame.marketdata.MarketDataBundle;
 import com.opengamma.sesame.sources.BondMockSources;
 import com.opengamma.sesame.trade.BondTrade;
 import com.opengamma.sesame.trade.TradeWrapper;
@@ -40,7 +40,7 @@ import com.opengamma.util.tuple.Pair;
 @Test(groups = TestGroup.UNIT)
 public class PreCalibratedMulticurveFnTest {
 
-  private static final Environment ENV = new SimpleEnvironment(ZonedDateTime.now(), mock(MarketDataSource.class));
+  private static final Environment ENV = new SimpleEnvironment(ZonedDateTime.now(), mock(MarketDataBundle.class));
   private static final TradeWrapper<?> TRADE = createTrade();
 
   private static TradeWrapper<?> createTrade() {
@@ -55,7 +55,7 @@ public class PreCalibratedMulticurveFnTest {
 
   @Test
   public void noCurvesForTrade() {
-    CurveSelectorFn curveSelector = mock(CurveSelectorFn.class);
+    CurveSelector curveSelector = mock(CurveSelector.class);
     when(curveSelector.getMulticurveNames(TRADE.getTrade())).thenReturn(Collections.<String>emptySet());
     PreCalibratedMulticurveFn fn = new PreCalibratedMulticurveFn(curveSelector);
     assertFalse(fn.getMulticurveBundle(ENV, TRADE).isSuccess());
@@ -67,9 +67,9 @@ public class PreCalibratedMulticurveFnTest {
     PreCalibratedMulticurveArguments args1 = new PreCalibratedMulticurveArguments(emptyCurves);
     PreCalibratedMulticurveArguments args2 = new PreCalibratedMulticurveArguments(emptyCurves);
     FilteredScenarioDefinition scenarioDefinition = new FilteredScenarioDefinition(args1, args2);
-    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), mock(MarketDataSource.class), scenarioDefinition);
+    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), mock(MarketDataBundle.class), scenarioDefinition);
     Set<String> curveNames = ImmutableSet.of("a curve");
-    CurveSelectorFn curveSelector = mock(CurveSelectorFn.class);
+    CurveSelector curveSelector = mock(CurveSelector.class);
     when(curveSelector.getMulticurveNames(TRADE.getTrade())).thenReturn(curveNames);
 
     PreCalibratedMulticurveFn fn = new PreCalibratedMulticurveFn(curveSelector);
@@ -85,9 +85,9 @@ public class PreCalibratedMulticurveFnTest {
     curves.put("a curve", multicurveBundle);
     PreCalibratedMulticurveArguments args = new PreCalibratedMulticurveArguments(curves);
     FilteredScenarioDefinition scenarioDefinition = new FilteredScenarioDefinition(args);
-    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), mock(MarketDataSource.class), scenarioDefinition);
+    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), mock(MarketDataBundle.class), scenarioDefinition);
     Set<String> curveNames = ImmutableSet.of("a different curve");
-    CurveSelectorFn curveSelector = mock(CurveSelectorFn.class);
+    CurveSelector curveSelector = mock(CurveSelector.class);
     when(curveSelector.getMulticurveNames(TRADE.getTrade())).thenReturn(curveNames);
 
     PreCalibratedMulticurveFn fn = new PreCalibratedMulticurveFn(curveSelector);
@@ -103,9 +103,9 @@ public class PreCalibratedMulticurveFnTest {
     curves.put("a curve", multicurveBundle);
     PreCalibratedMulticurveArguments args = new PreCalibratedMulticurveArguments(curves);
     FilteredScenarioDefinition scenarioDefinition = new FilteredScenarioDefinition(args);
-    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), mock(MarketDataSource.class), scenarioDefinition);
+    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), mock(MarketDataBundle.class), scenarioDefinition);
     Set<String> curveNames = ImmutableSet.of("a curve");
-    CurveSelectorFn curveSelector = mock(CurveSelectorFn.class);
+    CurveSelector curveSelector = mock(CurveSelector.class);
     when(curveSelector.getMulticurveNames(TRADE.getTrade())).thenReturn(curveNames);
 
     PreCalibratedMulticurveFn fn = new PreCalibratedMulticurveFn(curveSelector);
@@ -126,9 +126,9 @@ public class PreCalibratedMulticurveFnTest {
 
     PreCalibratedMulticurveArguments args = new PreCalibratedMulticurveArguments(curves);
     FilteredScenarioDefinition scenarioDefinition = new FilteredScenarioDefinition(args);
-    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), mock(MarketDataSource.class), scenarioDefinition);
+    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), mock(MarketDataBundle.class), scenarioDefinition);
     Set<String> curveNames = ImmutableSet.of("curve1", "curve2");
-    CurveSelectorFn curveSelector = mock(CurveSelectorFn.class);
+    CurveSelector curveSelector = mock(CurveSelector.class);
     when(curveSelector.getMulticurveNames(TRADE.getTrade())).thenReturn(curveNames);
 
     PreCalibratedMulticurveFn fn = new PreCalibratedMulticurveFn(curveSelector);

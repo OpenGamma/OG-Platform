@@ -34,7 +34,7 @@ public class DefaultEquityPresentValueFn implements EquityPresentValueFn {
   //-------------------------------------------------------------------------
   @Override
   public Result<Double> presentValue(Environment env, EquitySecurity security) {
-    return _marketDataFn.getMarketValue(env, security.getExternalIdBundle());
+    return _marketDataFn.getMarketValue(env, security);
   }
 
 }

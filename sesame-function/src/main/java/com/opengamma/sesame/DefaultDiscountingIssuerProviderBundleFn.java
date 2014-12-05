@@ -13,12 +13,15 @@ import com.opengamma.analytics.financial.provider.curve.issuer.IssuerDiscountBui
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderDiscount;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.sesame.component.StringSet;
+import com.opengamma.sesame.marketdata.IssuerMulticurveMarketDataBuilder;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.tuple.Pair;
 
 /**
  * Function implementation that provides a discounting issuer provider curve bundle.
+ *
+ * @deprecated issuer curves are built using {@link IssuerMulticurveMarketDataBuilder}.
  */
 public class DefaultDiscountingIssuerProviderBundleFn implements IssuerProviderBundleFn {
 

@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import javax.annotation.Nullable;
+
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
@@ -65,9 +67,9 @@ public final class MarketDataTime implements ImmutableBean {
   private final Type _type;
 
   @ImmutableConstructor
-  private MarketDataTime(ZonedDateTime time,
-                         LocalDate date,
-                         LocalDateRange dateRange,
+  private MarketDataTime(@Nullable ZonedDateTime time,
+                         @Nullable LocalDate date,
+                         @Nullable LocalDateRange dateRange,
                          Type type) {
     _time = time;
     _date = date;

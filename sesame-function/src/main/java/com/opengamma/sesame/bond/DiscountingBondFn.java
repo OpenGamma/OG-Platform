@@ -137,7 +137,7 @@ public class DiscountingBondFn implements BondFn {
 
   @Override
   public Result<Double> calculateCleanPriceMarket(Environment env, BondTrade trade) {
-    return _marketDataFn.getMarketValue(env, trade.getSecurity().getExternalIdBundle());
+    return _marketDataFn.getMarketValue(env, trade.getSecurity());
   }
 
   @Override
@@ -194,13 +194,7 @@ public class DiscountingBondFn implements BondFn {
   @Override
   public Result<Double> calculateYieldToMaturityMarket(Environment env, BondTrade trade) {
     FieldName fieldName = FieldName.of(MarketDataRequirementNames.YIELD_YIELD_TO_MATURITY_MID);
-    Result<?> result = _marketDataFn.getValue(env, trade.getSecurity().getExternalIdBundle(), fieldName);
-
-    if (!result.isSuccess()) {
-      return Result.failure(result);
-    } else {
-      return Result.success((Double) result.getValue());
-    }
+    return _marketDataFn.getValue(env, trade.getSecurity(), fieldName, Double.class);
   }
 
   @Override
@@ -257,7 +251,9 @@ public class DiscountingBondFn implements BondFn {
   }
 
   private BondFixedTransactionDefinition definition(final BondTrade trade) {
-    return _cache.get(CacheKey.of(this, trade), new Callable<BondFixedTransactionDefinition>() {
+    // the definition only depends on the trade so that's the only thing in the cache key
+    CacheKey cacheKey = CacheKey.of(this, trade);
+    return _cache.get(cacheKey, new Callable<BondFixedTransactionDefinition>() {
       @Override
       public BondFixedTransactionDefinition call() throws Exception {
         return (BondFixedTransactionDefinition) _converter.convert(trade.getTrade());
@@ -269,7 +265,9 @@ public class DiscountingBondFn implements BondFn {
     final BondFixedTransactionDefinition definition = definition(trade);
     final ZonedDateTime valuationTime = env.getValuationTime();
 
-    return _cache.get(CacheKey.of(this, valuationTime, trade), new Callable<BondFixedTransaction>() {
+    // the derivative depends on the trade and the valuation time, so both are included in the cache key
+    CacheKey cacheKey = CacheKey.of(this, valuationTime, trade);
+    return _cache.get(cacheKey, new Callable<BondFixedTransaction>() {
       @Override
       public BondFixedTransaction call() throws Exception {
         return definition.toDerivative(valuationTime);

@@ -5,14 +5,13 @@
  */
 package com.opengamma.sesame.trace;
 
-import static com.opengamma.sesame.engine.CycleArguments.TraceType;
-
 import java.lang.reflect.Method;
 import java.util.Deque;
 import java.util.LinkedList;
 
 import org.threeten.bp.Duration;
 
+import com.opengamma.sesame.engine.TraceType;
 import com.opengamma.util.ArgumentChecker;
 
 /**

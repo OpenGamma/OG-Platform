@@ -13,7 +13,7 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.sesame.function.scenarios.FilteredScenarioDefinition;
 import com.opengamma.sesame.function.scenarios.ScenarioArgument;
 import com.opengamma.sesame.function.scenarios.ScenarioFunction;
-import com.opengamma.sesame.marketdata.MarketDataSource;
+import com.opengamma.sesame.marketdata.MarketDataBundle;
 
 /**
  * The execution environment for functions, includes the valuation time and market data.
@@ -39,11 +39,11 @@ public interface Environment {
   ZonedDateTime getValuationTime();
 
   /**
-   * Gets the source used to access market data.
+   * Gets the bundle containing market data.
    *
-   * @return the market data source, not null
+   * @return the market data bundle, not null
    */
-  MarketDataSource getMarketDataSource();
+  MarketDataBundle getMarketDataBundle();
 
   /**
    * Returns the scenario arguments for the specified function.
@@ -77,6 +77,7 @@ public interface Environment {
    */
   Environment withValuationTime(ZonedDateTime valuationTime);
 
+  // TODO do we need this method?
   /**
    * Returns a new environment copied from this environment but with a different
    * valuation time. Unlike {@link #withValuationTime(ZonedDateTime)}, this method
@@ -97,7 +98,7 @@ public interface Environment {
    * @param marketData  the market data for the new environment, not null
    * @return a new environment copied from this environment but with the specified market data, not null
    */
-  Environment withMarketData(MarketDataSource marketData);
+  Environment withMarketData(MarketDataBundle marketData);
 
   /**
    * Returns a new environment copied from this one but with a different scenario definition.

@@ -61,6 +61,7 @@ import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.OvernightIndexConvention;
 import com.opengamma.financial.security.index.OvernightIndex;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.sesame.marketdata.IssuerMulticurveMarketDataBuilder;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
@@ -71,8 +72,9 @@ import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
 /**
  * Utility class for building elements of curve bundles
+ *
+ * @deprecated issuer curves are built using {@link IssuerMulticurveMarketDataBuilder}.
  */
-//TODO PLT-458 this provider is currently only working for Issue Provider curves, not Multicurve
 public final class CurveBundleProviderFn {
 
   private final CurveNodeConverterFn _curveNodeConverter;

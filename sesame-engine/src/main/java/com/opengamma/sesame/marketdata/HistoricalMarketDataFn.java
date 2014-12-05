@@ -29,7 +29,6 @@ public interface HistoricalMarketDataFn {
    * @param dateRange  the range of dates to return, not null
    * @return the rates for the currency pair, not null
    */
-  // TODO this should return an object with the rate and pair (FxRate?)
   Result<LocalDateDoubleTimeSeries> getFxRates(Environment env, CurrencyPair currencyPair, LocalDateRange dateRange);
 
   /**
@@ -40,8 +39,9 @@ public interface HistoricalMarketDataFn {
    * @param dateRange  the range of dates to return, not null
    * @return the rate for the node, not null
    */
-  // TODO this needs to return a time series bundle
-  Result<LocalDateDoubleTimeSeries> getCurveNodeValues(Environment env, CurveNodeWithIdentifier node, LocalDateRange dateRange);
+  Result<LocalDateDoubleTimeSeries> getCurveNodeValues(Environment env,
+                                                       CurveNodeWithIdentifier node,
+                                                       LocalDateRange dateRange);
 
   /**
    * Returns a time series of the rate for the underlying of a node on a curve.
@@ -51,8 +51,9 @@ public interface HistoricalMarketDataFn {
    * @param dateRange  the range of dates to return, not null
    * @return the rate for the node's underlying, not null
    */
-  // TODO this needs to return a time series bundle
-  Result<LocalDateDoubleTimeSeries> getCurveNodeUnderlyingValue(Environment env, PointsCurveNodeWithIdentifier node, LocalDateRange dateRange);
+  Result<LocalDateDoubleTimeSeries> getCurveNodeUnderlyingValue(Environment env,
+                                                                PointsCurveNodeWithIdentifier node,
+                                                                LocalDateRange dateRange);
 
   /**
    * Returns a time series of the value of the {@link MarketDataRequirementNames#MARKET_VALUE}
@@ -74,6 +75,9 @@ public interface HistoricalMarketDataFn {
    * @param dateRange  the range of dates to return, not null
    * @return the value of the field for the ID, not null
    */
-  Result<LocalDateDoubleTimeSeries> getValues(Environment env, ExternalIdBundle id, FieldName fieldName, LocalDateRange dateRange);
+  Result<LocalDateDoubleTimeSeries> getValues(Environment env,
+                                              ExternalIdBundle id,
+                                              FieldName fieldName,
+                                              LocalDateRange dateRange);
 
 }

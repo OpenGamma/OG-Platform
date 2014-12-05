@@ -5,11 +5,12 @@
  */
 package com.opengamma.sesame.trace;
 
-import static com.opengamma.sesame.engine.CycleArguments.TraceType;
 
 import java.lang.reflect.Method;
 
 import org.threeten.bp.Duration;
+
+import com.opengamma.sesame.engine.TraceType;
 
 /**
  * Provides the ability to handle tracing of function calls.

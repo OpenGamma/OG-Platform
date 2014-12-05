@@ -28,7 +28,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.core.config.Config;
-import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.function.Parameter;
 import com.opengamma.sesame.proxy.ProxyInvocationHandler;
@@ -299,7 +298,7 @@ public final class EngineUtils {
    * @param inputs the collection of input securities/trades
    * @return a set of the types of the securities
    */
-  public static Set<Class<?>> getInputTypes(List<Object> inputs) {
+  public static Set<Class<?>> getInputTypes(List<?> inputs) {
     Set<Class<?>> inputTypes = new HashSet<>();
 
     for (Object input : ArgumentChecker.notNull(inputs, "inputs")) {

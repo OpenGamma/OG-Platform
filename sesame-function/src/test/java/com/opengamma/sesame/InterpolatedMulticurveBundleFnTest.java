@@ -32,7 +32,6 @@ import org.fudgemsg.wire.xml.FudgeXMLStreamReader;
 import org.springframework.core.io.ClassPathResource;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.threeten.bp.Period;
 import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZonedDateTime;
 
@@ -50,7 +49,6 @@ import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.holiday.impl.WeekendHolidaySource;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.analytics.curve.AbstractCurveDefinition;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveGroupConfiguration;
@@ -70,15 +68,14 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.service.ServiceContext;
 import com.opengamma.service.ThreadLocalServiceContext;
 import com.opengamma.service.VersionCorrectionProvider;
-import com.opengamma.sesame.component.RetrievalPeriod;
 import com.opengamma.sesame.component.StringSet;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
-import com.opengamma.sesame.marketdata.FieldName;
+import com.opengamma.sesame.marketdata.MarketDataBundle;
 import com.opengamma.sesame.marketdata.MarketDataFn;
-import com.opengamma.sesame.marketdata.MarketDataSource;
+import com.opengamma.sesame.marketdata.RawId;
 import com.opengamma.util.JodaBeanSerialization;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.money.Currency;
@@ -98,8 +95,6 @@ public class InterpolatedMulticurveBundleFnTest {
     s_tenors = new Tenor[] {Tenor.ONE_WEEK, Tenor.ONE_MONTH, Tenor.THREE_MONTHS, Tenor.SIX_MONTHS, Tenor.ONE_YEAR,
     Tenor.TWO_YEARS, Tenor.THREE_YEARS, Tenor.FIVE_YEARS, Tenor.TEN_YEARS};
   }
-
-  private static final FieldName MARKET_VALUE = FieldName.of(MarketDataRequirementNames.MARKET_VALUE);
 
   private final class TestVersionCorrectionProvider implements VersionCorrectionProvider {
     @Override
@@ -143,31 +138,30 @@ public class InterpolatedMulticurveBundleFnTest {
     
     ComponentMap components = ComponentMap.of(mocks);
     
-    FunctionModelConfig config = config(
-        arguments(
-            function(DefaultHistoricalTimeSeriesFn.class,
-                     argument("resolutionKey", "DEFAULT_TSS_CONFIG"),
-                     argument("htsRetrievalPeriod", RetrievalPeriod.of(Period.ofDays(1)))),
-            function(DefaultDiscountingMulticurveBundleFn.class,
-                     argument("impliedCurveNames", StringSet.of()))),
-         implementations(CurveDefinitionFn.class, DefaultCurveDefinitionFn.class,
-             CurveSpecificationFn.class, DefaultCurveSpecificationFn.class, 
-             CurveSpecificationMarketDataFn.class, DefaultCurveSpecificationMarketDataFn.class,
-             HistoricalTimeSeriesFn.class, DefaultHistoricalTimeSeriesFn.class,
-             FXMatrixFn.class, DefaultFXMatrixFn.class,
-             DiscountingMulticurveBundleFn.class, InterpolatedMulticurveBundleFn.class,
-             MarketDataFn.class, DefaultMarketDataFn.class)
-           );
+    FunctionModelConfig config =
+        config(
+            arguments(
+                function(
+                    DefaultDiscountingMulticurveBundleFn.class,
+                    argument("impliedCurveNames", StringSet.of()))),
+            implementations(
+                CurveDefinitionFn.class, DefaultCurveDefinitionFn.class,
+                CurveSpecificationFn.class, DefaultCurveSpecificationFn.class,
+                CurveSpecificationMarketDataFn.class, DefaultCurveSpecificationMarketDataFn.class,
+                FixingsFn.class, DefaultFixingsFn.class,
+                FXMatrixFn.class, DefaultFXMatrixFn.class,
+                DiscountingMulticurveBundleFn.class, InterpolatedMulticurveBundleFn.class,
+             MarketDataFn.class, DefaultMarketDataFn.class));
 
     _multicurveBundleFn = FunctionModel.build(DiscountingMulticurveBundleFn.class, config, components);
     
     ZonedDateTime valuationDate = ZonedDateTime.of(2014, 1, 10, 11, 0, 0, 0, ZoneId.of("America/Chicago"));
-    MarketDataSource marketDataSource =
-        MarketDataResourcesLoader.getPreloadedSource(
+    MarketDataBundle marketDataBundle =
+        MarketDataResourcesLoader.getPreloadedBundle(
             "/regression/curve_testing/usdMarketQuotes.discountFactors.properties",
             "Ticker");
 
-    _environment = new SimpleEnvironment(valuationDate, marketDataSource);
+    _environment = new SimpleEnvironment(valuationDate, marketDataBundle);
     
     VersionCorrectionProvider vcProvider = new TestVersionCorrectionProvider();
     
@@ -191,7 +185,11 @@ public class InterpolatedMulticurveBundleFnTest {
     double expectedDF = 1.0;
     for (Tenor tenor : s_tenors) {
       double time = TimeCalculator.getTimeBetween(_environment.getValuationTime(), _environment.getValuationTime().plus(tenor.getPeriod()));
-      expectedDF = (Double) _environment.getMarketDataSource().get(ExternalIdBundle.of("Ticker", tenor.toFormattedString().substring(1)), MARKET_VALUE).getValue();
+      ExternalIdBundle id = ExternalIdBundle.of("Ticker", tenor.toFormattedString().substring(1));
+      RawId<Double> marketDataId = RawId.of(id);
+      Result<Double> result = _environment.getMarketDataBundle().get(marketDataId, Double.class);
+      expectedDF = result.getValue();
+      //expectedDF = (double) _environment.getMarketDataEnvironment().get(marketDataId).getValue();
       double actualDF = multicurve.getDiscountFactor(Currency.USD, time);
       // simple check that market data values are being returned as discount factors
       assertEquals("USD DF for tenor " + tenor + " (" + tenor.toFormattedString() + ")  mismatch", expectedDF, actualDF, 10E-6);

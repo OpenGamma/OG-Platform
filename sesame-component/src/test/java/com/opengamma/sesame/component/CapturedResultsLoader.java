@@ -11,17 +11,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.config.impl.ConfigItem;
@@ -33,16 +31,12 @@ import com.opengamma.core.legalentity.LegalEntitySource;
 import com.opengamma.core.region.Region;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
-import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.DefaultConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
-import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalIdBundleWithDates;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueIdentifiable;
-import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.impl.InMemoryConfigMaster;
@@ -53,7 +47,9 @@ import com.opengamma.master.convention.ManageableConvention;
 import com.opengamma.master.convention.impl.InMemoryConventionMaster;
 import com.opengamma.master.convention.impl.MasterConventionSource;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesSelector;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
 import com.opengamma.master.historicaltimeseries.impl.DefaultHistoricalTimeSeriesResolver;
 import com.opengamma.master.historicaltimeseries.impl.DefaultHistoricalTimeSeriesSelector;
@@ -72,26 +68,25 @@ import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.impl.InMemorySecurityMaster;
 import com.opengamma.master.security.impl.MasterSecuritySource;
-import com.opengamma.service.ThreadLocalServiceContext;
-import com.opengamma.service.VersionCorrectionProvider;
 import com.opengamma.sesame.EngineTestUtils;
-import com.opengamma.sesame.engine.CycleArguments;
+import com.opengamma.sesame.config.ViewConfig;
+import com.opengamma.sesame.engine.CalculationArguments;
+import com.opengamma.sesame.engine.DefaultEngine;
+import com.opengamma.sesame.engine.Engine;
 import com.opengamma.sesame.engine.Results;
-import com.opengamma.sesame.engine.View;
 import com.opengamma.sesame.engine.ViewFactory;
 import com.opengamma.sesame.engine.ViewInputs;
 import com.opengamma.sesame.function.AvailableImplementations;
 import com.opengamma.sesame.function.AvailableOutputs;
-import com.opengamma.sesame.marketdata.CycleMarketDataFactory;
-import com.opengamma.sesame.marketdata.DefaultStrategyAwareMarketDataSource;
-import com.opengamma.sesame.marketdata.FieldName;
+import com.opengamma.sesame.marketdata.CompositeMarketDataFactory;
+import com.opengamma.sesame.marketdata.HistoricalMarketDataFactory;
 import com.opengamma.sesame.marketdata.HtsRequestKey;
-import com.opengamma.sesame.marketdata.MapMarketDataSource;
-import com.opengamma.sesame.marketdata.MarketDataSource;
+import com.opengamma.sesame.marketdata.builders.MarketDataEnvironmentFactory;
+import com.opengamma.sesame.marketdata.builders.RawMarketDataBuilder;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeriesBuilder;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.result.Result;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * Enables the running of a view using the data captured from a
@@ -128,7 +123,6 @@ public class CapturedResultsLoader {
    * @return the results of running the view
    */
   public Results runViewFromInputs() {
-
     // Now build the config source, market data sources etc
     Multimap<Class<?>, UniqueIdentifiable> configData = _viewInputs.getConfigData();
 
@@ -137,54 +131,52 @@ public class CapturedResultsLoader {
     ViewFactory viewFactory =
         EngineTestUtils.createViewFactory(components, _availableOutputs, _availableImplementations);
 
-    Set<Class<?>> inputTypes = extractInputTypes(_viewInputs.getTradeInputs());
-    View view = viewFactory.createView(_viewInputs.getViewConfig(), inputTypes);
-
     ZonedDateTime valTime = _viewInputs.getValuationTime();
 
-    final Map<ZonedDateTime, Map<Pair<ExternalIdBundle, FieldName>, Result<?>>> marketData =
-        _viewInputs.getMarketData();
-
-    // Create a cycle market data factory that returns the market data from
-    // the previously captured data
-    CycleMarketDataFactory cycleMarketDataFactory = new CycleMarketDataFactory() {
-      @Override
-      public MarketDataSource getPrimaryMarketDataSource() {
-        MarketDataSource marketDataSource = MapMarketDataSource.of(marketData.get(LocalDate.MAX.atStartOfDay(
-            ZoneOffset.UTC)));
-        // LiveSpec as good as any - won't actually be used for anything
-        return new DefaultStrategyAwareMarketDataSource(LiveMarketDataSpecification.LIVE_SPEC, marketDataSource);
-      }
-
-      @Override
-      public MarketDataSource getMarketDataSourceForDate(ZonedDateTime valuationDate) {
-        return MapMarketDataSource.of(marketData.get(valuationDate));
-      }
-
-      @Override
-      public CycleMarketDataFactory withMarketDataSpecification(MarketDataSpecification marketDataSpec) {
-        throw new UnsupportedOperationException();
-      }
-
-      @Override
-      public CycleMarketDataFactory withPrimedMarketDataSource() {
-        throw new UnsupportedOperationException();
-      }
-    };
-
-    VersionCorrection versionCorrection =
-        ThreadLocalServiceContext.getInstance().get(VersionCorrectionProvider.class).getConfigVersionCorrection();
-
-    CycleArguments cycleArguments = new CycleArguments(valTime, versionCorrection, cycleMarketDataFactory);
-    return view.run(cycleArguments, _viewInputs.getTradeInputs());
+    HistoricalTimeSeriesSource timeSeriesSource = createTimeSeriesSource();
+    HistoricalMarketDataFactory historicalMarketDataFactory =
+        new HistoricalMarketDataFactory(timeSeriesSource, "dataSource", null);
+    CompositeMarketDataFactory marketDataFactory = new CompositeMarketDataFactory(historicalMarketDataFactory);
+    RawMarketDataBuilder rawMarketDataBuilder = new RawMarketDataBuilder(timeSeriesSource, "dataSource", null);
+    Engine engine = new DefaultEngine(viewFactory, new MarketDataEnvironmentFactory(marketDataFactory, rawMarketDataBuilder));
+    CalculationArguments calculationArguments = CalculationArguments.builder().valuationTime(valTime).build();
+    ViewConfig viewConfig = _viewInputs.getViewConfig();
+    List<Object> trades = _viewInputs.getTradeInputs();
+    return engine.runView(viewConfig, calculationArguments, _viewInputs.getMarketDataEnvironment(), trades);
   }
 
-  private Set<Class<?>> extractInputTypes(List<Object> tradeInputs) {
-    Set<Class<?>> inputTypes = new HashSet<>();
-    for (Object tradeInput : tradeInputs) {
-      inputTypes.add(tradeInput.getClass());
+  private HistoricalTimeSeriesSource createTimeSeriesSource() {
+    HistoricalTimeSeriesMaster master = new InMemoryHistoricalTimeSeriesMaster();
+    HistoricalTimeSeriesSelector timeSeriesSelector = new TimeSeriesSelector();
+    HistoricalTimeSeriesResolver timeSeriesResolver =
+        new DefaultHistoricalTimeSeriesResolver(timeSeriesSelector, master);
+    Set<Map.Entry<HtsRequestKey, Collection<LocalDateDoubleTimeSeries>>> entries =
+        _viewInputs.getHtsData().asMap().entrySet();
+
+    for (Map.Entry<HtsRequestKey, Collection<LocalDateDoubleTimeSeries>> entry : entries) {
+      HtsRequestKey request = entry.getKey();
+      Collection<LocalDateDoubleTimeSeries> series = entry.getValue();
+      LocalDateDoubleTimeSeries timeSeries = mergeTimeSeries(series);
+      ManageableHistoricalTimeSeriesInfo info = new ManageableHistoricalTimeSeriesInfo();
+      info.setExternalIdBundle(ExternalIdBundleWithDates.of(request.getIdentifierBundle()));
+      info.setDataField(request.getDataField());
+      info.setDataSource("dataSource");
+      info.setDataProvider("dataProvider");
+      info.setObservationTime("observationTime");
+      HistoricalTimeSeriesInfoDocument infoDoc = new HistoricalTimeSeriesInfoDocument(info);
+      HistoricalTimeSeriesInfoDocument fixingFedFundDoc = master.add(infoDoc);
+      master.updateTimeSeriesDataPoints(fixingFedFundDoc.getObjectId(), timeSeries);
     }
-    return inputTypes;
+    return new MasterHistoricalTimeSeriesSource(master, timeSeriesResolver);
+  }
+
+  private LocalDateDoubleTimeSeries mergeTimeSeries(Collection<LocalDateDoubleTimeSeries> timeSeries) {
+    LocalDateDoubleTimeSeriesBuilder builder = ImmutableLocalDateDoubleTimeSeries.builder();
+
+    for (LocalDateDoubleTimeSeries series : timeSeries) {
+      builder.putAll(series);
+    }
+    return builder.build();
   }
 
   private ImmutableMap<Class<?>, Object> createComponents(Multimap<Class<?>, UniqueIdentifiable> configData) {
@@ -316,5 +308,14 @@ public class CapturedResultsLoader {
    */
   public void addExtraConfigData(String name, ConfigItem<?> data) {
     additionalConfigData.put(ArgumentChecker.notEmpty(name, "name"), ArgumentChecker.notNull(data, "data"));
+  }
+
+  private static class TimeSeriesSelector implements HistoricalTimeSeriesSelector {
+
+    @Override
+    public ManageableHistoricalTimeSeriesInfo select(Collection<ManageableHistoricalTimeSeriesInfo> candidates,
+                                                     String selectionKey) {
+      return Iterables.getFirst(candidates, null);
+    }
   }
 }

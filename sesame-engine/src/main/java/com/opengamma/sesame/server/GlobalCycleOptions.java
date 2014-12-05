@@ -26,12 +26,16 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.base.Supplier;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
+import com.opengamma.sesame.engine.CalculationArguments;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * Contains cycle options that can be used to execute a view across multiple
  * cycles (potentially infinite).
+ *
+ * @deprecated use {@link CalculationArguments}
  */
+@Deprecated
 @BeanDefinition
 public final class GlobalCycleOptions implements ImmutableBean, CycleOptions {
 
@@ -101,10 +105,10 @@ public final class GlobalCycleOptions implements ImmutableBean, CycleOptions {
 
         if (hasNext()) {
 
-          IndividualCycleOptions cycleOptions = IndividualCycleOptions.builder()
-              .marketDataSpec(_marketDataSpec)
+          IndividualCycleOptions cycleOptions = null;/*IndividualCycleOptions.builder()
+              .marketDataSpecs(ImmutableList.of(_marketDataSpec))
               .valuationTime(_valuationTimeProvider.get())
-              .build();
+              .build();*/
           _index++;
           return cycleOptions;
         } else {

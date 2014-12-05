@@ -15,7 +15,6 @@ import java.util.Set;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
-import org.joda.beans.ImmutableConstructor;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -26,7 +25,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.threeten.bp.ZonedDateTime;
 
-import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
@@ -37,8 +36,8 @@ import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.sesame.config.ViewConfig;
 import com.opengamma.sesame.marketdata.FieldName;
 import com.opengamma.sesame.marketdata.HtsRequestKey;
+import com.opengamma.sesame.marketdata.MarketDataEnvironment;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
-import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.tuple.Pair;
 
@@ -50,49 +49,64 @@ import com.opengamma.util.tuple.Pair;
 public final class ViewInputs implements ImmutableBean {
 
   @PropertyDefinition
-  private final List<Object> _tradeInputs;
+  private final ImmutableList<Object> _tradeInputs;
+
   @PropertyDefinition(validate = "notNull")
   private final ViewConfig _viewConfig;
+
+  /** @deprecated use {@link #_functionArgs} */
+  @Deprecated
   @PropertyDefinition(validate = "notNull")
   private final FunctionArguments _functionArguments;
+
+  /** Arguments passed to the top level functions, keyed by the function type. */
+  @PropertyDefinition(validate = "notNull")
+  private final ImmutableMap<Class<?>, FunctionArguments> _functionArgs;
+
   @PropertyDefinition(validate = "notNull")
   private final ZonedDateTime _valuationTime;
+
+  /**
+   * The market data used in the calculations.
+   * @deprecated use {@link #_marketDataEnvironment}
+   */
+  @Deprecated
   @PropertyDefinition(validate = "notNull")
-  private final Map<ZonedDateTime, Map<Pair<ExternalIdBundle, FieldName>, Result<?>>> _marketData;
+  private final ImmutableMap<ZonedDateTime, Map<Pair<ExternalIdBundle, FieldName>, Result<?>>> _marketData;
+
   @PropertyDefinition(validate = "notNull")
-  private final Multimap<Class<?>, UniqueIdentifiable> _configData;
+  private final ImmutableMultimap<Class<?>, UniqueIdentifiable> _configData;
+
   @PropertyDefinition
-  private final Multimap<HtsRequestKey, LocalDateDoubleTimeSeries> _htsData;
+  private final ImmutableMultimap<HtsRequestKey, LocalDateDoubleTimeSeries> _htsData;
+
+  @PropertyDefinition
+  private final MarketDataEnvironment _marketDataEnvironment;
 
   /**
    * Create the view inputs associated with a cycle.
    *
    * @param tradeInputs the  trades/securities used for the cycle
    * @param viewConfig  the view config used for the cycle
-   * @param functionArguments  the function arguments use for the cycle
+   * @param functionArgs  the function arguments use for the cycle
    * @param valuationTime  the valuation time for the cycle
    * @param marketData  all the market data used for the cycle
    * @param configData  all the other data (config, conventions etc)
    * @param htsData  the historical timeseries data used for the cycle
+   * @param marketDataEnvironment  the market data used for the cycle
    */
-  @ImmutableConstructor
+  @SuppressWarnings("unchecked")
   public ViewInputs(List<?> tradeInputs,
                     ViewConfig viewConfig,
-                    FunctionArguments functionArguments,
+                    Map<Class<?>, FunctionArguments> functionArgs,
                     ZonedDateTime valuationTime,
                     Map<ZonedDateTime, Map<Pair<ExternalIdBundle, FieldName>, Result<?>>> marketData,
                     Multimap<Class<?>, UniqueIdentifiable> configData,
-                    Multimap<HtsRequestKey, LocalDateDoubleTimeSeries> htsData) {
+                    Multimap<HtsRequestKey, LocalDateDoubleTimeSeries> htsData,
+                    MarketDataEnvironment marketDataEnvironment) {
 
-    // We have to copy to keep the type checking happy - if the input
-    // was already an immutable list then this will be a no op
-    _tradeInputs = ImmutableList.copyOf(ArgumentChecker.notNull(tradeInputs, "tradeInputs"));
-    _viewConfig = ArgumentChecker.notNull(viewConfig, "viewConfig");
-    _functionArguments = ArgumentChecker.notNull(functionArguments, "functionArguments");
-    _valuationTime = ArgumentChecker.notNull(valuationTime, "valuationTime");
-    _marketData = ImmutableMap.copyOf(ArgumentChecker.notNull(marketData, "marketData"));
-    _configData = ImmutableMultimap.copyOf(ArgumentChecker.notNull(configData, "configData"));
-    _htsData = ImmutableMultimap.copyOf(ArgumentChecker.notNull(htsData, "htsData"));
+    this((List<Object>) tradeInputs, viewConfig, FunctionArguments.EMPTY, functionArgs,
+         valuationTime, marketData, configData, htsData, marketDataEnvironment);
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -117,6 +131,33 @@ public final class ViewInputs implements ImmutableBean {
     return new ViewInputs.Builder();
   }
 
+  private ViewInputs(
+      List<Object> tradeInputs,
+      ViewConfig viewConfig,
+      FunctionArguments functionArguments,
+      Map<Class<?>, FunctionArguments> functionArgs,
+      ZonedDateTime valuationTime,
+      Map<ZonedDateTime, Map<Pair<ExternalIdBundle, FieldName>, Result<?>>> marketData,
+      Multimap<Class<?>, UniqueIdentifiable> configData,
+      Multimap<HtsRequestKey, LocalDateDoubleTimeSeries> htsData,
+      MarketDataEnvironment marketDataEnvironment) {
+    JodaBeanUtils.notNull(viewConfig, "viewConfig");
+    JodaBeanUtils.notNull(functionArguments, "functionArguments");
+    JodaBeanUtils.notNull(functionArgs, "functionArgs");
+    JodaBeanUtils.notNull(valuationTime, "valuationTime");
+    JodaBeanUtils.notNull(marketData, "marketData");
+    JodaBeanUtils.notNull(configData, "configData");
+    this._tradeInputs = (tradeInputs != null ? ImmutableList.copyOf(tradeInputs) : null);
+    this._viewConfig = viewConfig;
+    this._functionArguments = functionArguments;
+    this._functionArgs = ImmutableMap.copyOf(functionArgs);
+    this._valuationTime = valuationTime;
+    this._marketData = ImmutableMap.copyOf(marketData);
+    this._configData = ImmutableMultimap.copyOf(configData);
+    this._htsData = (htsData != null ? ImmutableMultimap.copyOf(htsData) : null);
+    this._marketDataEnvironment = marketDataEnvironment;
+  }
+
   @Override
   public ViewInputs.Meta metaBean() {
     return ViewInputs.Meta.INSTANCE;
@@ -137,7 +178,7 @@ public final class ViewInputs implements ImmutableBean {
    * Gets the tradeInputs.
    * @return the value of the property
    */
-  public List<Object> getTradeInputs() {
+  public ImmutableList<Object> getTradeInputs() {
     return _tradeInputs;
   }
 
@@ -152,11 +193,21 @@ public final class ViewInputs implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the functionArguments.
+   * Gets @deprecated use {@link #_functionArgs}
    * @return the value of the property, not null
    */
+  @Deprecated
   public FunctionArguments getFunctionArguments() {
     return _functionArguments;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets arguments passed to the top level functions, keyed by the function type.
+   * @return the value of the property, not null
+   */
+  public ImmutableMap<Class<?>, FunctionArguments> getFunctionArgs() {
+    return _functionArgs;
   }
 
   //-----------------------------------------------------------------------
@@ -170,10 +221,12 @@ public final class ViewInputs implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the marketData.
+   * Gets the market data used in the calculations.
+   * @deprecated use {@link #_marketDataEnvironment}
    * @return the value of the property, not null
    */
-  public Map<ZonedDateTime, Map<Pair<ExternalIdBundle, FieldName>, Result<?>>> getMarketData() {
+  @Deprecated
+  public ImmutableMap<ZonedDateTime, Map<Pair<ExternalIdBundle, FieldName>, Result<?>>> getMarketData() {
     return _marketData;
   }
 
@@ -182,7 +235,7 @@ public final class ViewInputs implements ImmutableBean {
    * Gets the configData.
    * @return the value of the property, not null
    */
-  public Multimap<Class<?>, UniqueIdentifiable> getConfigData() {
+  public ImmutableMultimap<Class<?>, UniqueIdentifiable> getConfigData() {
     return _configData;
   }
 
@@ -191,8 +244,17 @@ public final class ViewInputs implements ImmutableBean {
    * Gets the htsData.
    * @return the value of the property
    */
-  public Multimap<HtsRequestKey, LocalDateDoubleTimeSeries> getHtsData() {
+  public ImmutableMultimap<HtsRequestKey, LocalDateDoubleTimeSeries> getHtsData() {
     return _htsData;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the marketDataEnvironment.
+   * @return the value of the property
+   */
+  public MarketDataEnvironment getMarketDataEnvironment() {
+    return _marketDataEnvironment;
   }
 
   //-----------------------------------------------------------------------
@@ -214,10 +276,12 @@ public final class ViewInputs implements ImmutableBean {
       return JodaBeanUtils.equal(getTradeInputs(), other.getTradeInputs()) &&
           JodaBeanUtils.equal(getViewConfig(), other.getViewConfig()) &&
           JodaBeanUtils.equal(getFunctionArguments(), other.getFunctionArguments()) &&
+          JodaBeanUtils.equal(getFunctionArgs(), other.getFunctionArgs()) &&
           JodaBeanUtils.equal(getValuationTime(), other.getValuationTime()) &&
           JodaBeanUtils.equal(getMarketData(), other.getMarketData()) &&
           JodaBeanUtils.equal(getConfigData(), other.getConfigData()) &&
-          JodaBeanUtils.equal(getHtsData(), other.getHtsData());
+          JodaBeanUtils.equal(getHtsData(), other.getHtsData()) &&
+          JodaBeanUtils.equal(getMarketDataEnvironment(), other.getMarketDataEnvironment());
     }
     return false;
   }
@@ -228,24 +292,28 @@ public final class ViewInputs implements ImmutableBean {
     hash += hash * 31 + JodaBeanUtils.hashCode(getTradeInputs());
     hash += hash * 31 + JodaBeanUtils.hashCode(getViewConfig());
     hash += hash * 31 + JodaBeanUtils.hashCode(getFunctionArguments());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFunctionArgs());
     hash += hash * 31 + JodaBeanUtils.hashCode(getValuationTime());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMarketData());
     hash += hash * 31 + JodaBeanUtils.hashCode(getConfigData());
     hash += hash * 31 + JodaBeanUtils.hashCode(getHtsData());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataEnvironment());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(256);
+    StringBuilder buf = new StringBuilder(320);
     buf.append("ViewInputs{");
     buf.append("tradeInputs").append('=').append(getTradeInputs()).append(',').append(' ');
     buf.append("viewConfig").append('=').append(getViewConfig()).append(',').append(' ');
     buf.append("functionArguments").append('=').append(getFunctionArguments()).append(',').append(' ');
+    buf.append("functionArgs").append('=').append(getFunctionArgs()).append(',').append(' ');
     buf.append("valuationTime").append('=').append(getValuationTime()).append(',').append(' ');
     buf.append("marketData").append('=').append(getMarketData()).append(',').append(' ');
     buf.append("configData").append('=').append(getConfigData()).append(',').append(' ');
-    buf.append("htsData").append('=').append(JodaBeanUtils.toString(getHtsData()));
+    buf.append("htsData").append('=').append(getHtsData()).append(',').append(' ');
+    buf.append("marketDataEnvironment").append('=').append(JodaBeanUtils.toString(getMarketDataEnvironment()));
     buf.append('}');
     return buf.toString();
   }
@@ -264,8 +332,8 @@ public final class ViewInputs implements ImmutableBean {
      * The meta-property for the {@code tradeInputs} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<Object>> _tradeInputs = DirectMetaProperty.ofImmutable(
-        this, "tradeInputs", ViewInputs.class, (Class) List.class);
+    private final MetaProperty<ImmutableList<Object>> _tradeInputs = DirectMetaProperty.ofImmutable(
+        this, "tradeInputs", ViewInputs.class, (Class) ImmutableList.class);
     /**
      * The meta-property for the {@code viewConfig} property.
      */
@@ -277,6 +345,12 @@ public final class ViewInputs implements ImmutableBean {
     private final MetaProperty<FunctionArguments> _functionArguments = DirectMetaProperty.ofImmutable(
         this, "functionArguments", ViewInputs.class, FunctionArguments.class);
     /**
+     * The meta-property for the {@code functionArgs} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<ImmutableMap<Class<?>, FunctionArguments>> _functionArgs = DirectMetaProperty.ofImmutable(
+        this, "functionArgs", ViewInputs.class, (Class) ImmutableMap.class);
+    /**
      * The meta-property for the {@code valuationTime} property.
      */
     private final MetaProperty<ZonedDateTime> _valuationTime = DirectMetaProperty.ofImmutable(
@@ -285,20 +359,25 @@ public final class ViewInputs implements ImmutableBean {
      * The meta-property for the {@code marketData} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Map<ZonedDateTime, Map<Pair<ExternalIdBundle, FieldName>, Result<?>>>> _marketData = DirectMetaProperty.ofImmutable(
-        this, "marketData", ViewInputs.class, (Class) Map.class);
+    private final MetaProperty<ImmutableMap<ZonedDateTime, Map<Pair<ExternalIdBundle, FieldName>, Result<?>>>> _marketData = DirectMetaProperty.ofImmutable(
+        this, "marketData", ViewInputs.class, (Class) ImmutableMap.class);
     /**
      * The meta-property for the {@code configData} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Multimap<Class<?>, UniqueIdentifiable>> _configData = DirectMetaProperty.ofImmutable(
-        this, "configData", ViewInputs.class, (Class) Multimap.class);
+    private final MetaProperty<ImmutableMultimap<Class<?>, UniqueIdentifiable>> _configData = DirectMetaProperty.ofImmutable(
+        this, "configData", ViewInputs.class, (Class) ImmutableMultimap.class);
     /**
      * The meta-property for the {@code htsData} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Multimap<HtsRequestKey, LocalDateDoubleTimeSeries>> _htsData = DirectMetaProperty.ofImmutable(
-        this, "htsData", ViewInputs.class, (Class) Multimap.class);
+    private final MetaProperty<ImmutableMultimap<HtsRequestKey, LocalDateDoubleTimeSeries>> _htsData = DirectMetaProperty.ofImmutable(
+        this, "htsData", ViewInputs.class, (Class) ImmutableMultimap.class);
+    /**
+     * The meta-property for the {@code marketDataEnvironment} property.
+     */
+    private final MetaProperty<MarketDataEnvironment> _marketDataEnvironment = DirectMetaProperty.ofImmutable(
+        this, "marketDataEnvironment", ViewInputs.class, MarketDataEnvironment.class);
     /**
      * The meta-properties.
      */
@@ -307,10 +386,12 @@ public final class ViewInputs implements ImmutableBean {
         "tradeInputs",
         "viewConfig",
         "functionArguments",
+        "functionArgs",
         "valuationTime",
         "marketData",
         "configData",
-        "htsData");
+        "htsData",
+        "marketDataEnvironment");
 
     /**
      * Restricted constructor.
@@ -327,6 +408,8 @@ public final class ViewInputs implements ImmutableBean {
           return _viewConfig;
         case -260573090:  // functionArguments
           return _functionArguments;
+        case -211743531:  // functionArgs
+          return _functionArgs;
         case 113591406:  // valuationTime
           return _valuationTime;
         case 1116764678:  // marketData
@@ -335,6 +418,8 @@ public final class ViewInputs implements ImmutableBean {
           return _configData;
         case 1240411441:  // htsData
           return _htsData;
+        case -1196163027:  // marketDataEnvironment
+          return _marketDataEnvironment;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -359,7 +444,7 @@ public final class ViewInputs implements ImmutableBean {
      * The meta-property for the {@code tradeInputs} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<List<Object>> tradeInputs() {
+    public MetaProperty<ImmutableList<Object>> tradeInputs() {
       return _tradeInputs;
     }
 
@@ -375,8 +460,17 @@ public final class ViewInputs implements ImmutableBean {
      * The meta-property for the {@code functionArguments} property.
      * @return the meta-property, not null
      */
+    @Deprecated
     public MetaProperty<FunctionArguments> functionArguments() {
       return _functionArguments;
+    }
+
+    /**
+     * The meta-property for the {@code functionArgs} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<ImmutableMap<Class<?>, FunctionArguments>> functionArgs() {
+      return _functionArgs;
     }
 
     /**
@@ -389,9 +483,11 @@ public final class ViewInputs implements ImmutableBean {
 
     /**
      * The meta-property for the {@code marketData} property.
+     * @deprecated use {@link #_marketDataEnvironment}
      * @return the meta-property, not null
      */
-    public MetaProperty<Map<ZonedDateTime, Map<Pair<ExternalIdBundle, FieldName>, Result<?>>>> marketData() {
+    @Deprecated
+    public MetaProperty<ImmutableMap<ZonedDateTime, Map<Pair<ExternalIdBundle, FieldName>, Result<?>>>> marketData() {
       return _marketData;
     }
 
@@ -399,7 +495,7 @@ public final class ViewInputs implements ImmutableBean {
      * The meta-property for the {@code configData} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Multimap<Class<?>, UniqueIdentifiable>> configData() {
+    public MetaProperty<ImmutableMultimap<Class<?>, UniqueIdentifiable>> configData() {
       return _configData;
     }
 
@@ -407,8 +503,16 @@ public final class ViewInputs implements ImmutableBean {
      * The meta-property for the {@code htsData} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Multimap<HtsRequestKey, LocalDateDoubleTimeSeries>> htsData() {
+    public MetaProperty<ImmutableMultimap<HtsRequestKey, LocalDateDoubleTimeSeries>> htsData() {
       return _htsData;
+    }
+
+    /**
+     * The meta-property for the {@code marketDataEnvironment} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<MarketDataEnvironment> marketDataEnvironment() {
+      return _marketDataEnvironment;
     }
 
     //-----------------------------------------------------------------------
@@ -421,6 +525,8 @@ public final class ViewInputs implements ImmutableBean {
           return ((ViewInputs) bean).getViewConfig();
         case -260573090:  // functionArguments
           return ((ViewInputs) bean).getFunctionArguments();
+        case -211743531:  // functionArgs
+          return ((ViewInputs) bean).getFunctionArgs();
         case 113591406:  // valuationTime
           return ((ViewInputs) bean).getValuationTime();
         case 1116764678:  // marketData
@@ -429,6 +535,8 @@ public final class ViewInputs implements ImmutableBean {
           return ((ViewInputs) bean).getConfigData();
         case 1240411441:  // htsData
           return ((ViewInputs) bean).getHtsData();
+        case -1196163027:  // marketDataEnvironment
+          return ((ViewInputs) bean).getMarketDataEnvironment();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -453,10 +561,12 @@ public final class ViewInputs implements ImmutableBean {
     private List<Object> _tradeInputs;
     private ViewConfig _viewConfig;
     private FunctionArguments _functionArguments;
+    private Map<Class<?>, FunctionArguments> _functionArgs = new HashMap<Class<?>, FunctionArguments>();
     private ZonedDateTime _valuationTime;
     private Map<ZonedDateTime, Map<Pair<ExternalIdBundle, FieldName>, Result<?>>> _marketData = new HashMap<ZonedDateTime, Map<Pair<ExternalIdBundle, FieldName>, Result<?>>>();
-    private Multimap<Class<?>, UniqueIdentifiable> _configData = ArrayListMultimap.create();
+    private Multimap<Class<?>, UniqueIdentifiable> _configData = HashMultimap.create();
     private Multimap<HtsRequestKey, LocalDateDoubleTimeSeries> _htsData;
+    private MarketDataEnvironment _marketDataEnvironment;
 
     /**
      * Restricted constructor.
@@ -472,10 +582,12 @@ public final class ViewInputs implements ImmutableBean {
       this._tradeInputs = (beanToCopy.getTradeInputs() != null ? new ArrayList<Object>(beanToCopy.getTradeInputs()) : null);
       this._viewConfig = beanToCopy.getViewConfig();
       this._functionArguments = beanToCopy.getFunctionArguments();
+      this._functionArgs = new HashMap<Class<?>, FunctionArguments>(beanToCopy.getFunctionArgs());
       this._valuationTime = beanToCopy.getValuationTime();
       this._marketData = new HashMap<ZonedDateTime, Map<Pair<ExternalIdBundle, FieldName>, Result<?>>>(beanToCopy.getMarketData());
-      this._configData = ArrayListMultimap.create(beanToCopy.getConfigData());
-      this._htsData = (beanToCopy.getHtsData() != null ? ArrayListMultimap.create(beanToCopy.getHtsData()) : null);
+      this._configData = HashMultimap.create(beanToCopy.getConfigData());
+      this._htsData = (beanToCopy.getHtsData() != null ? HashMultimap.create(beanToCopy.getHtsData()) : null);
+      this._marketDataEnvironment = beanToCopy.getMarketDataEnvironment();
     }
 
     //-----------------------------------------------------------------------
@@ -488,6 +600,8 @@ public final class ViewInputs implements ImmutableBean {
           return _viewConfig;
         case -260573090:  // functionArguments
           return _functionArguments;
+        case -211743531:  // functionArgs
+          return _functionArgs;
         case 113591406:  // valuationTime
           return _valuationTime;
         case 1116764678:  // marketData
@@ -496,6 +610,8 @@ public final class ViewInputs implements ImmutableBean {
           return _configData;
         case 1240411441:  // htsData
           return _htsData;
+        case -1196163027:  // marketDataEnvironment
+          return _marketDataEnvironment;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -514,6 +630,9 @@ public final class ViewInputs implements ImmutableBean {
         case -260573090:  // functionArguments
           this._functionArguments = (FunctionArguments) newValue;
           break;
+        case -211743531:  // functionArgs
+          this._functionArgs = (Map<Class<?>, FunctionArguments>) newValue;
+          break;
         case 113591406:  // valuationTime
           this._valuationTime = (ZonedDateTime) newValue;
           break;
@@ -525,6 +644,9 @@ public final class ViewInputs implements ImmutableBean {
           break;
         case 1240411441:  // htsData
           this._htsData = (Multimap<HtsRequestKey, LocalDateDoubleTimeSeries>) newValue;
+          break;
+        case -1196163027:  // marketDataEnvironment
+          this._marketDataEnvironment = (MarketDataEnvironment) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -562,10 +684,12 @@ public final class ViewInputs implements ImmutableBean {
           _tradeInputs,
           _viewConfig,
           _functionArguments,
+          _functionArgs,
           _valuationTime,
           _marketData,
           _configData,
-          _htsData);
+          _htsData,
+          _marketDataEnvironment);
     }
 
     //-----------------------------------------------------------------------
@@ -595,9 +719,21 @@ public final class ViewInputs implements ImmutableBean {
      * @param functionArguments  the new value, not null
      * @return this, for chaining, not null
      */
+    @Deprecated
     public Builder functionArguments(FunctionArguments functionArguments) {
       JodaBeanUtils.notNull(functionArguments, "functionArguments");
       this._functionArguments = functionArguments;
+      return this;
+    }
+
+    /**
+     * Sets the {@code functionArgs} property in the builder.
+     * @param functionArgs  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder functionArgs(Map<Class<?>, FunctionArguments> functionArgs) {
+      JodaBeanUtils.notNull(functionArgs, "functionArgs");
+      this._functionArgs = functionArgs;
       return this;
     }
 
@@ -616,7 +752,9 @@ public final class ViewInputs implements ImmutableBean {
      * Sets the {@code marketData} property in the builder.
      * @param marketData  the new value, not null
      * @return this, for chaining, not null
+     * @deprecated use {@link #_marketDataEnvironment}
      */
+    @Deprecated
     public Builder marketData(Map<ZonedDateTime, Map<Pair<ExternalIdBundle, FieldName>, Result<?>>> marketData) {
       JodaBeanUtils.notNull(marketData, "marketData");
       this._marketData = marketData;
@@ -644,18 +782,30 @@ public final class ViewInputs implements ImmutableBean {
       return this;
     }
 
+    /**
+     * Sets the {@code marketDataEnvironment} property in the builder.
+     * @param marketDataEnvironment  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder marketDataEnvironment(MarketDataEnvironment marketDataEnvironment) {
+      this._marketDataEnvironment = marketDataEnvironment;
+      return this;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(256);
+      StringBuilder buf = new StringBuilder(320);
       buf.append("ViewInputs.Builder{");
       buf.append("tradeInputs").append('=').append(JodaBeanUtils.toString(_tradeInputs)).append(',').append(' ');
       buf.append("viewConfig").append('=').append(JodaBeanUtils.toString(_viewConfig)).append(',').append(' ');
       buf.append("functionArguments").append('=').append(JodaBeanUtils.toString(_functionArguments)).append(',').append(' ');
+      buf.append("functionArgs").append('=').append(JodaBeanUtils.toString(_functionArgs)).append(',').append(' ');
       buf.append("valuationTime").append('=').append(JodaBeanUtils.toString(_valuationTime)).append(',').append(' ');
       buf.append("marketData").append('=').append(JodaBeanUtils.toString(_marketData)).append(',').append(' ');
       buf.append("configData").append('=').append(JodaBeanUtils.toString(_configData)).append(',').append(' ');
-      buf.append("htsData").append('=').append(JodaBeanUtils.toString(_htsData));
+      buf.append("htsData").append('=').append(JodaBeanUtils.toString(_htsData)).append(',').append(' ');
+      buf.append("marketDataEnvironment").append('=').append(JodaBeanUtils.toString(_marketDataEnvironment));
       buf.append('}');
       return buf.toString();
     }

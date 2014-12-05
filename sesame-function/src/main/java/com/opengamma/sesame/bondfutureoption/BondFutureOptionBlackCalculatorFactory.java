@@ -10,7 +10,7 @@ import com.opengamma.financial.analytics.conversion.BondFutureOptionTradeConvert
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.sesame.Environment;
-import com.opengamma.sesame.HistoricalTimeSeriesFn;
+import com.opengamma.sesame.FixingsFn;
 import com.opengamma.sesame.trade.BondFutureOptionTrade;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
@@ -24,14 +24,14 @@ public class BondFutureOptionBlackCalculatorFactory implements BondFutureOptionC
   
   private final BlackBondFuturesProviderFn _blackBondFuturesProviderFn;
   
-  private final HistoricalTimeSeriesFn _htsFn;
+  private final FixingsFn _fixingsFn;
   
   public BondFutureOptionBlackCalculatorFactory(BondFutureOptionTradeConverter converter,
                                                 BlackBondFuturesProviderFn blackBondFuturesProviderFn,
-                                                HistoricalTimeSeriesFn htsFn) {
+                                                FixingsFn fixingsFn) {
     _converter = ArgumentChecker.notNull(converter, "converter");
     _blackBondFuturesProviderFn = ArgumentChecker.notNull(blackBondFuturesProviderFn, "blackBondFuturesProviderFn");
-    _htsFn = ArgumentChecker.notNull(htsFn, "htsFn");
+    _fixingsFn = ArgumentChecker.notNull(fixingsFn, "htsFn");
   }
 
   @Override
@@ -41,7 +41,7 @@ public class BondFutureOptionBlackCalculatorFactory implements BondFutureOptionC
     
     Result<BlackBondFuturesProviderInterface> blackResult = _blackBondFuturesProviderFn.getBlackBondFuturesProvider(env, trade);
     
-    Result<HistoricalTimeSeriesBundle> fixingsResult = _htsFn.getFixingsForSecurity(env, security);
+    Result<HistoricalTimeSeriesBundle> fixingsResult = _fixingsFn.getFixingsForSecurity(env, security);
     
     if (Result.allSuccessful(blackResult, fixingsResult)) {
     

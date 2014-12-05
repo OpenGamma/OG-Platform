@@ -5,8 +5,7 @@ import static com.opengamma.sesame.config.ConfigBuilder.arguments;
 import static com.opengamma.sesame.config.ConfigBuilder.config;
 import static com.opengamma.sesame.config.ConfigBuilder.function;
 import static com.opengamma.sesame.config.ConfigBuilder.implementations;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static com.opengamma.util.result.ResultTestUtils.assertSuccess;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -82,14 +81,14 @@ import com.opengamma.sesame.DefaultCurveSpecificationMarketDataFn;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleResolverFn;
 import com.opengamma.sesame.DefaultFXMatrixFn;
-import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
+import com.opengamma.sesame.DefaultFixingsFn;
 import com.opengamma.sesame.DiscountingMulticurveBundleFn;
 import com.opengamma.sesame.DiscountingMulticurveBundleResolverFn;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.ExposureFunctionsDiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.FXMatrixFn;
-import com.opengamma.sesame.HistoricalTimeSeriesFn;
+import com.opengamma.sesame.FixingsFn;
 import com.opengamma.sesame.MarketExposureSelector;
 import com.opengamma.sesame.RootFinderConfiguration;
 import com.opengamma.sesame.SimpleEnvironment;
@@ -103,9 +102,14 @@ import com.opengamma.sesame.interestrate.InterestRateMockSources;
 import com.opengamma.sesame.marketdata.DefaultHistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
+import com.opengamma.sesame.marketdata.MapMarketDataBundle;
+import com.opengamma.sesame.marketdata.MarketDataBundle;
+import com.opengamma.sesame.marketdata.MarketDataEnvironmentBuilder;
 import com.opengamma.sesame.marketdata.MarketDataFn;
+import com.opengamma.sesame.marketdata.RawId;
 import com.opengamma.sesame.trade.DeliverableSwapFutureTrade;
 import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
@@ -119,15 +123,25 @@ import com.opengamma.util.time.Expiry;
 public class DeliverableSwapFutureFnTest {
 
   private static final ZonedDateTime VALUATION_TIME = DateUtils.getUTCDate(2014, 1, 22);
-  
-  private static final Environment ENV =
-      new SimpleEnvironment(VALUATION_TIME, InterestRateMockSources.createMarketDataSource(LocalDate.of(2014, 2, 18)));
 
   private DeliverableSwapFutureFn _deliverableSwapFutureFn;
+
+  private static final InterestRateSwapSecurity UNDERLYING_SWAP = createUnderlyingSwap();
   
-  private InterestRateSwapSecurity _underlyingSwap = createUnderlyingSwap();
-  
-  private DeliverableSwapFutureTrade _deliverableSwapFutureTrade = createDeliverableSwapFutureTrade();  
+  private static final DeliverableSwapFutureTrade TRADE = createDeliverableSwapFutureTrade();
+
+  private static final Environment ENV = new SimpleEnvironment(VALUATION_TIME, createMarketDataBundle());
+
+  private static MarketDataBundle createMarketDataBundle() {
+    LocalDate dataDate = LocalDate.of(2014, 2, 18);
+    MarketDataEnvironmentBuilder builder = InterestRateMockSources.createMarketDataEnvironment(dataDate).toBuilder();
+
+    LocalDate valuationDate = VALUATION_TIME.toLocalDate();
+    LocalDateDoubleTimeSeries priceSeries = ImmutableLocalDateDoubleTimeSeries.of(valuationDate, 0.975);
+    RawId<Double> id = RawId.of(TRADE.getTrade().getSecurity().getExternalIdBundle());
+    builder.add(id, priceSeries);
+    return new MapMarketDataBundle(builder.build());
+  }
     
   @BeforeClass
   public void setUpClass() throws IOException {
@@ -150,11 +164,7 @@ public class DeliverableSwapFutureFnTest {
                     argument("dataSource", "BLOOMBERG")),
                 function(
                     DefaultCurveNodeConverterFn.class,
-                    argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofYears(1)))),
-                function(
-                    DefaultHistoricalTimeSeriesFn.class,
-                    argument("resolutionKey", "DEFAULT_TSS"),
-                    argument("htsRetrievalPeriod", RetrievalPeriod.of(Period.ofYears(1))))),
+                    argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofYears(1))))),
             implementations(
                 DeliverableSwapFutureFn.class, DefaultDeliverableSwapFutureFn.class,
                 DeliverableSwapFutureCalculatorFactory.class,
@@ -172,7 +182,7 @@ public class DeliverableSwapFutureFnTest {
                 CurveConstructionConfigurationSource.class,
                 ConfigDBCurveConstructionConfigurationSource.class,
                 HistoricalMarketDataFn.class, DefaultHistoricalMarketDataFn.class,
-                HistoricalTimeSeriesFn.class, DefaultHistoricalTimeSeriesFn.class,
+                FixingsFn.class, DefaultFixingsFn.class,
                 MarketDataFn.class, DefaultMarketDataFn.class));
 
     ImmutableMap<Class<?>, Object> components = generateComponents();
@@ -184,7 +194,7 @@ public class DeliverableSwapFutureFnTest {
   }
   
   
-  private InterestRateSwapSecurity createUnderlyingSwap() {
+  private static InterestRateSwapSecurity createUnderlyingSwap() {
     InterestRateSwapNotional notional = new InterestRateSwapNotional(Currency.USD, 1);
     Rate rate = new Rate(0.01);        
     BusinessDayConvention rollConv = BusinessDayConventions.MODIFIED_FOLLOWING;
@@ -229,17 +239,15 @@ public class DeliverableSwapFutureFnTest {
     
     String swapId = Currency.USD + "_UnderlyingSwap";
     ExternalIdBundle externalSwapBundleId = ExternalSchemes.syntheticSecurityId(swapId).toBundle();
-    
-    InterestRateSwapSecurity irs = new InterestRateSwapSecurity(externalSwapBundleId, 
-                                                                swapId, 
-                                                                LocalDate.of(2014, 6, 18), 
-                                                                LocalDate.of(2016, 6, 18), 
-                                                                legs);        
-                     
-    return irs;
+
+    return new InterestRateSwapSecurity(externalSwapBundleId,
+                                        swapId,
+                                        LocalDate.of(2014, 6, 18),
+                                        LocalDate.of(2016, 6, 18),
+                                        legs);
   }
 
-  private DeliverableSwapFutureTrade createDeliverableSwapFutureTrade() {
+  private static DeliverableSwapFutureTrade createDeliverableSwapFutureTrade() {
         
     Expiry expiry = new Expiry(ZonedDateTime.of(LocalDateTime.of(LocalDate.of(2014, 6, 15), 
                                                                  LocalTime.of(0, 0)), 
@@ -251,7 +259,7 @@ public class DeliverableSwapFutureFnTest {
                                                                           Currency.USD, 
                                                                           1000,
                                                                           "DSF", 
-                                                                          _underlyingSwap.getExternalIdBundle().
+                                                                          UNDERLYING_SWAP.getExternalIdBundle().
                                                                             getExternalIds().first(), 
                                                                           1);
     
@@ -281,8 +289,7 @@ public class DeliverableSwapFutureFnTest {
       }
     }
     builder.put(HistoricalTimeSeriesSource.class, mockHistoricalTimeSeriesSource());
-    ImmutableMap<Class<?>, Object> components = builder.build();
-    return components;
+    return builder.build();
   }
   
   private HistoricalTimeSeriesSource mockHistoricalTimeSeriesSource() {
@@ -305,19 +312,19 @@ public class DeliverableSwapFutureFnTest {
   
   private void appendSecuritySourceMock(SecuritySource mock) {
     SecurityMaster master = ((MasterSecuritySource) mock).getMaster();
-    master.add(new SecurityDocument(_underlyingSwap));
+    master.add(new SecurityDocument(UNDERLYING_SWAP));
   }
   
   @Test
   public void testPresentValue() {
-    Result<Double> pvComputed = _deliverableSwapFutureFn.calculateSecurityModelPrice(ENV, _deliverableSwapFutureTrade);
-    assertThat(pvComputed.isSuccess(), is(true));    
+    Result<Double> pvComputed = _deliverableSwapFutureFn.calculateSecurityModelPrice(ENV, TRADE);
+    assertSuccess(pvComputed);
   }
   
   @Test
   public void testBucketedZeroDelta() {
     Result<BucketedCurveSensitivities> bucketedZeroDelta = 
-        _deliverableSwapFutureFn.calculateBucketedZeroIRDelta(ENV, _deliverableSwapFutureTrade);    
-    assertThat(bucketedZeroDelta.isSuccess(), is(true));
+        _deliverableSwapFutureFn.calculateBucketedZeroIRDelta(ENV, TRADE);
+    assertSuccess(bucketedZeroDelta);
   }
 }

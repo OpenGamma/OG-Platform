@@ -5,11 +5,11 @@
  */
 package com.opengamma.sesame.marketdata;
 
+import com.opengamma.core.security.Security;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.strips.PointsCurveNodeWithIdentifier;
 import com.opengamma.financial.currency.CurrencyPair;
-import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.sesame.Environment;
 import com.opengamma.util.result.Result;
 
@@ -51,21 +51,22 @@ public interface MarketDataFn {
 
   /**
    * Returns the value of the {@link MarketDataRequirementNames#MARKET_VALUE} field for an ID.
+   * TODO is a dependency on security a good idea?
    *
    * @param env  the function execution environment, not null
-   * @param id  the external identifier for the values required, not null
+   * @param security  the security whose market value is required
    * @return the value of {@link MarketDataRequirementNames#MARKET_VALUE} for the ID, not null
    */
-  Result<Double> getMarketValue(Environment env, ExternalIdBundle id);
+  Result<Double> getMarketValue(Environment env, Security security);
 
   /**
    * Returns the value of an arbitrary field of market data for an ID.
    *
    * @param env  the function execution environment, not null
-   * @param id  the external identifier for the values required, not null
+   * @param security  the security whose market data is required
    * @param fieldName  the name of the field in the market data record, not null
    * @return the value of the field for the ID, not null
    */
-  Result<?> getValue(Environment env, ExternalIdBundle id, FieldName fieldName);
+  <T> Result<T> getValue(Environment env, Security security, FieldName fieldName, Class<T> valueType);
 
 }

@@ -84,14 +84,14 @@ import com.opengamma.sesame.DefaultCurveSpecificationMarketDataFn;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleResolverFn;
 import com.opengamma.sesame.DefaultFXMatrixFn;
-import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
+import com.opengamma.sesame.DefaultFixingsFn;
 import com.opengamma.sesame.DiscountingMulticurveBundleFn;
 import com.opengamma.sesame.DiscountingMulticurveBundleResolverFn;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.ExposureFunctionsDiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.FXMatrixFn;
-import com.opengamma.sesame.HistoricalTimeSeriesFn;
+import com.opengamma.sesame.FixingsFn;
 import com.opengamma.sesame.MarketExposureSelector;
 import com.opengamma.sesame.RootFinderConfiguration;
 import com.opengamma.sesame.SimpleEnvironment;
@@ -105,6 +105,7 @@ import com.opengamma.sesame.interestrate.InterestRateMockSources;
 import com.opengamma.sesame.marketdata.DefaultHistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
+import com.opengamma.sesame.marketdata.MarketDataEnvironment;
 import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.util.GUIDGenerator;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
@@ -135,77 +136,82 @@ public class InterestRateSwapFnTest {
   private static final double EXPECTED_3M_PAR_SPREAD = 0.01089471566819499;
   private static final Map<Pair<String, Currency>, DoubleMatrix1D> EXPECTED_3M_BUCKETED_PV01 =
       ImmutableMap.<Pair<String, Currency>, DoubleMatrix1D>builder().
-        put(Pairs.of(InterestRateMockSources.USD_OIS_CURVE_NAME, Currency.USD),
-            new DoubleMatrix1D(-2.006128288990294, -2.0061296821289525, -8.674474462036337E-5, 0.0011745459584018116,
-                               1.4847039748268902, -56.94910798756204, 1.1272953905008014, -86.07354103199485,
-                               -166.96224130769323, -242.22201141057718, -314.1940601301674, -385.90291779006617,
-                               -463.27621838407424, -979.7315579072819, -243.35533454746522, 243.5314116731397,
-                               139.99052668955744)
-        ).
-        put(Pairs.of(InterestRateMockSources.USD_LIBOR3M_CURVE_NAME, Currency.USD),
-            new DoubleMatrix1D(-2604.935862485561, -2632.099517240145, -1176.1264079088776, 27.132459445836727,
-                               -34.13622855060674, -8.299063014960922, -10.516911339441654, 0.5088197267155414,
-                               56648.04062946332, 15520.134985387911, 1.1803422588258187E-10, -2.746886018748557E-10,
-                               1.2282414271537867E-10, 2.5897954580662176E-11, -1.309540899491159E-10)
-        ).
+          put(Pairs.of(InterestRateMockSources.USD_OIS_CURVE_NAME, Currency.USD),
+              new DoubleMatrix1D(-2.006128288990294, -2.0061296821289525, -8.674474462036337E-5, 0.0011745459584018116,
+                                 1.4847039748268902, -56.94910798756204, 1.1272953905008014, -86.07354103199485,
+                                 -166.96224130769323, -242.22201141057718, -314.1940601301674, -385.90291779006617,
+                                 -463.27621838407424, -979.7315579072819, -243.35533454746522, 243.5314116731397,
+                                 139.99052668955744)
+          ).
+                      put(Pairs.of(InterestRateMockSources.USD_LIBOR3M_CURVE_NAME, Currency.USD),
+                          new DoubleMatrix1D(-2604.935862485561, -2632.099517240145, -1176.1264079088776, 27.132459445836727,
+                                             -34.13622855060674, -8.299063014960922, -10.516911339441654, 0.5088197267155414,
+                                             56648.04062946332, 15520.134985387911, 1.1803422588258187E-10, -2.746886018748557E-10,
+                                             1.2282414271537867E-10, 2.5897954580662176E-11, -1.309540899491159E-10)
+                      ).
 
-        build();
-  
-  private static final Map<String, DoubleMatrix2D> EXPECTED_GAMMA_MATRICES = 
+                      build();
+
+  private static final Map<String, DoubleMatrix2D> EXPECTED_GAMMA_MATRICES =
       ImmutableMap.<String, DoubleMatrix2D>builder().
-      put(InterestRateMockSources.USD_OIS_CURVE_NAME,
-          new DoubleMatrix2D(new Double[][] {
-              {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
-              {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
-              {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
-              {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
-              {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
-              {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
-              {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.470280338813609E-4, 1.4077152180252598E-4, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
-              {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.4077165762500955E-4, -0.007456320513703395, -0.0033097195258364083, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
-              {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0033097164901555514, -0.01355057176372502, 1.615302160847932E-4, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
-              {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.612358005018905E-4, 0.026413837803015486, 0.020029691934678705, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
-              {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.020028590691415594, 0.1374526014545001, 0.0583700166426599, 0.0, 0.0, 0.0, 0.0, 0.0},
-              {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.058367602225206795, 0.30006630666088313, 0.10196047788131982, 0.0, 0.0, 0.0, 0.0},
-              {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.10195677781384438, 0.5120836880965158, 0.17673465215992182, 0.0, 0.0, 0.0},
-              {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.17672831718735396, 0.7511702746618539, 0.1515385192984715, 0.0, 0.0},
-              {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.15154896985031666, 0.11752356408755295, 0.0, 0.0},
-              {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
-              {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}
-          }))
-          .put(InterestRateMockSources.USD_LIBOR3M_CURVE_NAME, 
+          put(InterestRateMockSources.USD_OIS_CURVE_NAME,
               new DoubleMatrix2D(new Double[][] {
-              {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
-              {0.0, 0.08491699237264692, -0.022732929956167935, -0.13483121754825114, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
-              {0.0, -0.022733349884301424, 0.1865955676935613, -0.1897421255119145, -0.05941171474568546, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
-              {0.0, -0.1348363017704338, -0.1897522333882749, 0.7758628909118473, -0.3919226937150583, -0.0626560432035476, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
-              {0.0, 0.0, -0.05941339259296656, -0.39194367357343435, 1.7776091872775928, -1.1804905211776495, -0.13879084831327201, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
-              {0.0, 0.0, 0.0, -0.0626576256632805, -1.1805700485050679, 3.753088279853389, -2.2627387903124094, -0.23516786169409754, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
-              {0.0, 0.0, 0.0, 0.0, -0.13879608166217805, -2.2629449343800547, 6.434090918292106, -3.8289437281906604, -0.17787922930717467, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
-              {0.0, 0.0, 0.0, 0.0, 0.0, -0.23517950696945192, -3.8293765265464783, 7.782344527318329, -3.550780664610863, -0.10705596312582492, 0.0, 0.0, 0.0, 0.0, 0.0},
-              {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.17788728263378142, -3.5510713120937347, 5.467482300460339, -0.36894027436971666, 0.0, 0.0, 0.0, 0.0, 0.0},
-              {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.10705980734825135, -0.3689649176836014, 0.8297389947146178, 0.0, 0.0, 0.0, 0.0, 0.0},
-              {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
-              {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
-              {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
-              {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
-              {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}}))
-          .build();
+                  {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                  {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                  {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                  {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                  {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                  {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                  {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.470280338813609E-4, 1.4077152180252598E-4, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                  {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.4077165762500955E-4, -0.007456320513703395, -0.0033097195258364083, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                  {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0033097164901555514, -0.01355057176372502, 1.615302160847932E-4, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                  {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.612358005018905E-4, 0.026413837803015486, 0.020029691934678705, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                  {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.020028590691415594, 0.1374526014545001, 0.0583700166426599, 0.0, 0.0, 0.0, 0.0, 0.0},
+                  {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.058367602225206795, 0.30006630666088313, 0.10196047788131982, 0.0, 0.0, 0.0, 0.0},
+                  {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.10195677781384438, 0.5120836880965158, 0.17673465215992182, 0.0, 0.0, 0.0},
+                  {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.17672831718735396, 0.7511702746618539, 0.1515385192984715, 0.0, 0.0},
+                  {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.15154896985031666, 0.11752356408755295, 0.0, 0.0},
+                  {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                  {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}
+              }))
+                  .put(InterestRateMockSources.USD_LIBOR3M_CURVE_NAME,
+                       new DoubleMatrix2D(new Double[][] {
+                           {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                           {0.0, 0.08491699237264692, -0.022732929956167935, -0.13483121754825114, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                           {0.0, -0.022733349884301424, 0.1865955676935613, -0.1897421255119145, -0.05941171474568546, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                           {0.0, -0.1348363017704338, -0.1897522333882749, 0.7758628909118473, -0.3919226937150583, -0.0626560432035476, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                           {0.0, 0.0, -0.05941339259296656, -0.39194367357343435, 1.7776091872775928, -1.1804905211776495, -0.13879084831327201, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                           {0.0, 0.0, 0.0, -0.0626576256632805, -1.1805700485050679, 3.753088279853389, -2.2627387903124094, -0.23516786169409754, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                           {0.0, 0.0, 0.0, 0.0, -0.13879608166217805, -2.2629449343800547, 6.434090918292106, -3.8289437281906604, -0.17787922930717467, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                           {0.0, 0.0, 0.0, 0.0, 0.0, -0.23517950696945192, -3.8293765265464783, 7.782344527318329, -3.550780664610863, -0.10705596312582492, 0.0, 0.0, 0.0, 0.0, 0.0},
+                           {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.17788728263378142, -3.5510713120937347, 5.467482300460339, -0.36894027436971666, 0.0, 0.0, 0.0, 0.0, 0.0},
+                           {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.10705980734825135, -0.3689649176836014, 0.8297389947146178, 0.0, 0.0, 0.0, 0.0, 0.0},
+                           {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                           {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                           {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                           {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                           {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}}))
+                  .build();
 
   private static final double EXPECTED_FIXING_PV = -2434639.5774440686;
 
-  private static final double NOTIONAL = 100000000; //100m
+  private static final double NOTIONAL = 100_000_000;
 
   private static final ZonedDateTime VALUATION_TIME = DateUtils.getUTCDate(2014, 1, 22);
 
-  private static final Environment ENV = new SimpleEnvironment(VALUATION_TIME,
-                                                               InterestRateMockSources.createMarketDataSource(
-                                                                   LocalDate.of(2014, 2, 18)));
+  private static final Environment ENV;
+
   private InterestRateSwapFn _swapFunction;
   private InterestRateSwapSecurity _fixedVsOnCompoundedSwapSecurity = createFixedVsOnCompoundedSwap();
   private InterestRateSwapSecurity _fixedVsLibor3mSwapSecurity = createFixedVsLibor3mSwap();
   private InterestRateSwapSecurity _fixedVsLiborWithFixingSwapSecurity = createFixedVsLiborWithFixingSwap();
   private InterestRateSwapSecurity _fixedVsLibor3mZcSwapSecurity = createFixedVsLibor3mZcSwap();
+
+  static {
+    LocalDate marketDataDate = LocalDate.of(2014, 2, 18);
+    MarketDataEnvironment marketDataEnvironment = InterestRateMockSources.createMarketDataEnvironment(marketDataDate);
+    ENV = new SimpleEnvironment(VALUATION_TIME, marketDataEnvironment.toBundle());
+  }
 
   @BeforeClass
   public void setUpClass() throws IOException {
@@ -223,10 +229,6 @@ public class InterestRateSwapFnTest {
                 function(
                     DefaultCurrencyPairsFn.class,
                     argument("currencyPairs", ImmutableSet.of(/*no pairs*/))),
-                function(
-                    DefaultHistoricalTimeSeriesFn.class,
-                    argument("resolutionKey", "DEFAULT_TSS"),
-                    argument("htsRetrievalPeriod", RetrievalPeriod.of(Period.ofYears(1)))),
                 function(
                     DefaultCurveNodeConverterFn.class,
                     argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofYears(1)))),
@@ -250,9 +252,9 @@ public class InterestRateSwapFnTest {
                 CurveLabellingFn.class, CurveDefinitionCurveLabellingFn.class,
                 DiscountingMulticurveBundleFn.class, DefaultDiscountingMulticurveBundleFn.class,
                 DiscountingMulticurveBundleResolverFn.class, DefaultDiscountingMulticurveBundleResolverFn.class,
+                FixingsFn.class, DefaultFixingsFn.class,
                 CurveSpecificationFn.class, DefaultCurveSpecificationFn.class,
                 CurveConstructionConfigurationSource.class, ConfigDBCurveConstructionConfigurationSource.class,
-                HistoricalTimeSeriesFn.class, DefaultHistoricalTimeSeriesFn.class,
                 HistoricalMarketDataFn.class, DefaultHistoricalMarketDataFn.class,
                 InterestRateSwapConverterFn.class, DefaultInterestRateSwapConverterFn.class,
                 MarketDataFn.class, DefaultMarketDataFn.class));
@@ -745,7 +747,7 @@ public class InterestRateSwapFnTest {
       }
     }
   }
-  
+
   @Test
   public void interestRateSwapBucketedGamma() {
     Result<BucketedCrossSensitivities> resultCrossGamma = _swapFunction.calculateBucketedGamma(ENV, _fixedVsLibor3mSwapSecurity);

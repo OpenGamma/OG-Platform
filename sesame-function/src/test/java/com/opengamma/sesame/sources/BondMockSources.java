@@ -10,7 +10,6 @@ import static com.opengamma.sesame.config.ConfigBuilder.arguments;
 import static com.opengamma.sesame.config.ConfigBuilder.config;
 import static com.opengamma.sesame.config.ConfigBuilder.function;
 import static com.opengamma.sesame.config.ConfigBuilder.implementations;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -45,9 +44,7 @@ import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.convention.ConventionSource;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
-import com.opengamma.core.historicaltimeseries.impl.SimpleHistoricalTimeSeries;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.holiday.impl.WeekendHolidaySource;
 import com.opengamma.core.id.ExternalSchemes;
@@ -101,12 +98,15 @@ import com.opengamma.financial.security.option.ExerciseType;
 import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.impl.InMemoryConfigMaster;
 import com.opengamma.master.config.impl.MasterConfigSource;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesSelector;
+import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
+import com.opengamma.master.historicaltimeseries.impl.DefaultHistoricalTimeSeriesResolver;
+import com.opengamma.master.historicaltimeseries.impl.InMemoryHistoricalTimeSeriesMaster;
+import com.opengamma.master.historicaltimeseries.impl.MasterHistoricalTimeSeriesSource;
 import com.opengamma.master.legalentity.LegalEntityDocument;
 import com.opengamma.master.legalentity.LegalEntityMaster;
 import com.opengamma.master.legalentity.ManageableLegalEntity;
@@ -116,7 +116,6 @@ import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.impl.InMemorySecurityMaster;
 import com.opengamma.master.security.impl.MasterSecuritySource;
-import com.opengamma.sesame.ConfigDbMarketExposureSelectorFn;
 import com.opengamma.sesame.CurveDefinitionCurveLabellingFn;
 import com.opengamma.sesame.CurveDefinitionFn;
 import com.opengamma.sesame.CurveLabellingFn;
@@ -130,22 +129,19 @@ import com.opengamma.sesame.DefaultCurveSpecificationMarketDataFn;
 import com.opengamma.sesame.DefaultDiscountingIssuerProviderBundleFn;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
 import com.opengamma.sesame.DefaultFXMatrixFn;
-import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
+import com.opengamma.sesame.DefaultFixingsFn;
 import com.opengamma.sesame.DiscountingMulticurveBundleFn;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.ExposureFunctionsIssuerProviderFn;
 import com.opengamma.sesame.FXMatrixFn;
-import com.opengamma.sesame.HistoricalTimeSeriesFn;
+import com.opengamma.sesame.FixingsFn;
 import com.opengamma.sesame.InterpolatedIssuerBundleFn;
 import com.opengamma.sesame.IssuerProviderBundleFn;
 import com.opengamma.sesame.IssuerProviderFn;
-import com.opengamma.sesame.MarketExposureSelectorFn;
+import com.opengamma.sesame.MarketExposureSelector;
 import com.opengamma.sesame.RootFinderConfiguration;
 import com.opengamma.sesame.SimpleEnvironment;
-import com.opengamma.sesame.bond.BondCalculatorFactory;
 import com.opengamma.sesame.bond.BondFn;
-import com.opengamma.sesame.bond.DefaultBondFn;
-import com.opengamma.sesame.bond.DiscountingBondCalculatorFactory;
 import com.opengamma.sesame.bond.DiscountingBondFn;
 import com.opengamma.sesame.bondfuture.BondFutureCalculatorFactory;
 import com.opengamma.sesame.bondfuture.BondFutureDiscountingCalculatorFactory;
@@ -162,16 +158,21 @@ import com.opengamma.sesame.cache.NoOpFunctionCache;
 import com.opengamma.sesame.component.RetrievalPeriod;
 import com.opengamma.sesame.component.StringSet;
 import com.opengamma.sesame.config.FunctionModelConfig;
+import com.opengamma.sesame.marketdata.DefaultHistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
 import com.opengamma.sesame.marketdata.FieldName;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
-import com.opengamma.sesame.marketdata.MapMarketDataSource;
+import com.opengamma.sesame.marketdata.MarketDataBundle;
+import com.opengamma.sesame.marketdata.MarketDataEnvironment;
+import com.opengamma.sesame.marketdata.MarketDataEnvironmentBuilder;
 import com.opengamma.sesame.marketdata.MarketDataFn;
-import com.opengamma.sesame.marketdata.MarketDataSource;
+import com.opengamma.sesame.marketdata.RawId;
+import com.opengamma.sesame.marketdata.SecurityId;
 import com.opengamma.sesame.trade.BondFutureOptionTrade;
 import com.opengamma.sesame.trade.BondFutureTrade;
 import com.opengamma.sesame.trade.BondTrade;
 import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
@@ -189,7 +190,7 @@ public class BondMockSources {
   private static final String GOVERNMENT_BOND_ISSUER_KEY = "UK GOVERNMENT";
   private static final String CORPORATE_BOND_ISSUER_KEY = "TELECOM ITALIA SPA";
   private static final String BOND_PRE_CALIBRATED_EXPOSURE_FUNCTIONS = "Test Bond Exposure Functions for pre-calibrated curves";
-  private static final String BOND_EXPOSURE_FUNCTIONS = "Test Bond Exposure Functions";
+  public static final String BOND_EXPOSURE_FUNCTIONS = "Test Bond Exposure Functions";
   private static final ExternalId GB_ID = ExternalSchemes.financialRegionId("GB");
   private static final ExternalId US_ID = ExternalSchemes.financialRegionId("US");
   private static final ExternalId IT_ID = ExternalSchemes.financialRegionId("IT");
@@ -218,9 +219,8 @@ public class BondMockSources {
   public static final BondFutureOptionTrade BOND_FUTURE_OPTION_TRADE = createBondFutureOptionTrade();
 
   /*Environment*/
-  private static final ZonedDateTime VALUATION_TIME = DateUtils.getUTCDate(2014, 7, 22);
-  public static final Environment ENV = new SimpleEnvironment(BondMockSources.VALUATION_TIME,
-                                                              BondMockSources.createMarketDataSource());
+  public static final ZonedDateTime VALUATION_TIME = DateUtils.getUTCDate(2014, 7, 22);
+  public static final Environment ENV = new SimpleEnvironment(VALUATION_TIME, createMarketDataBundle());
 
   private static CurveNodeIdMapper getBondPreCalibratedCurveNodeIdMapper() {
     Map<Tenor, CurveInstrumentProvider> nodes = Maps.newHashMap();
@@ -292,94 +292,85 @@ public class BondMockSources {
   }
 
   public static FunctionModelConfig getPreCalibratedConfig() {
+    ConfigLink<ExposureFunctions> exposureLink =
+        ConfigLink.resolvable(BondMockSources.BOND_PRE_CALIBRATED_EXPOSURE_FUNCTIONS, ExposureFunctions.class);
 
-    return config(
-        arguments(
-            function(ConfigDbMarketExposureSelectorFn.class,
-                     argument("exposureConfig", ConfigLink.resolvable(BondMockSources.BOND_PRE_CALIBRATED_EXPOSURE_FUNCTIONS,
-                                                                      ExposureFunctions.class))),
-            function(RootFinderConfiguration.class,
-                     argument("rootFinderAbsoluteTolerance", 1e-9),
-                     argument("rootFinderRelativeTolerance", 1e-9),
-                     argument("rootFinderMaxIterations", 1000)),
-            function(DefaultDiscountingMulticurveBundleFn.class,
-                     argument("impliedCurveNames", StringSet.of())),
-            function(DefaultHistoricalTimeSeriesFn.class,
-                     argument("resolutionKey", "DEFAULT_TSS"),
-                     argument("htsRetrievalPeriod", RetrievalPeriod.of(Period.ofYears(1)))
-            )
-        ),
-        implementations(
-            CurveSpecificationMarketDataFn.class, DefaultCurveSpecificationMarketDataFn.class,
-            FXMatrixFn.class, DefaultFXMatrixFn.class,
-            IssuerProviderFn.class, ExposureFunctionsIssuerProviderFn.class,
-            IssuerProviderBundleFn.class, InterpolatedIssuerBundleFn.class,
-            CurveDefinitionFn.class, DefaultCurveDefinitionFn.class,
-            CurveLabellingFn.class, CurveDefinitionCurveLabellingFn.class,
-            DiscountingMulticurveBundleFn.class, DefaultDiscountingMulticurveBundleFn.class,
-            CurveSpecificationFn.class, DefaultCurveSpecificationFn.class,
-            CurveConstructionConfigurationSource.class, ConfigDBCurveConstructionConfigurationSource.class,
-            FunctionCache.class, NoOpFunctionCache.class,
-            HistoricalTimeSeriesFn.class, DefaultHistoricalTimeSeriesFn.class,
-            MarketExposureSelectorFn.class, ConfigDbMarketExposureSelectorFn.class,
-            MarketDataFn.class, DefaultMarketDataFn.class,
-            /*Bond*/
-            BondFn.class, DiscountingBondFn.class,
-            /*Bond Future Option*/
-            BondFutureOptionFn.class, DefaultBondFutureOptionFn.class,
-            BondFutureOptionCalculatorFactory.class, BondFutureOptionBlackCalculatorFactory.class,
-            BlackBondFuturesProviderFn.class, TestBlackBondFuturesProviderFn.class,
-            /*Bond Future*/
-            BondFutureFn.class, DefaultBondFutureFn.class,
-            BondFutureCalculatorFactory.class, BondFutureDiscountingCalculatorFactory.class)
-    );
-
+    return
+        config(
+            arguments(
+                function(
+                    MarketExposureSelector.class,
+                    argument("exposureFunctions", exposureLink)),
+                function(
+                    RootFinderConfiguration.class,
+                    argument("rootFinderAbsoluteTolerance", 1e-9),
+                    argument("rootFinderRelativeTolerance", 1e-9),
+                    argument("rootFinderMaxIterations", 1000)),
+                function(
+                    DefaultDiscountingMulticurveBundleFn.class,
+                    argument("impliedCurveNames", StringSet.of()))),
+            implementations(
+                CurveSpecificationMarketDataFn.class, DefaultCurveSpecificationMarketDataFn.class,
+                FXMatrixFn.class, DefaultFXMatrixFn.class,
+                IssuerProviderFn.class, ExposureFunctionsIssuerProviderFn.class,
+                IssuerProviderBundleFn.class, InterpolatedIssuerBundleFn.class,
+                CurveDefinitionFn.class, DefaultCurveDefinitionFn.class,
+                CurveLabellingFn.class, CurveDefinitionCurveLabellingFn.class,
+                DiscountingMulticurveBundleFn.class, DefaultDiscountingMulticurveBundleFn.class,
+                CurveSpecificationFn.class, DefaultCurveSpecificationFn.class,
+                CurveConstructionConfigurationSource.class, ConfigDBCurveConstructionConfigurationSource.class,
+                FixingsFn.class, DefaultFixingsFn.class,
+                MarketDataFn.class, DefaultMarketDataFn.class,
+                FunctionCache.class, NoOpFunctionCache.class,
+                BondFn.class, DiscountingBondFn.class,
+                BondFutureOptionFn.class, DefaultBondFutureOptionFn.class,
+                BondFutureOptionCalculatorFactory.class, BondFutureOptionBlackCalculatorFactory.class,
+                BlackBondFuturesProviderFn.class, TestBlackBondFuturesProviderFn.class,
+                BondFutureFn.class, DefaultBondFutureFn.class,
+                HistoricalMarketDataFn.class, DefaultHistoricalMarketDataFn.class,
+                BondFutureCalculatorFactory.class, BondFutureDiscountingCalculatorFactory.class));
   }
 
   public static FunctionModelConfig getConfig() {
-
-    return config(
-        arguments(
-            function(ConfigDbMarketExposureSelectorFn.class,
-                     argument("exposureConfig", ConfigLink.resolvable(BondMockSources.BOND_EXPOSURE_FUNCTIONS,
-                                                                      ExposureFunctions.class))),
-            function(RootFinderConfiguration.class,
-                     argument("rootFinderAbsoluteTolerance", 1e-9),
-                     argument("rootFinderRelativeTolerance", 1e-9),
-                     argument("rootFinderMaxIterations", 1000)),
-            function(DefaultDiscountingIssuerProviderBundleFn.class,
-                     argument("impliedCurveNames", StringSet.of())),
-            function(DefaultCurveNodeConverterFn.class,
-                     argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofYears(1)))),
-            function(DefaultHistoricalTimeSeriesFn.class,
-                     argument("resolutionKey", "DEFAULT_TSS"),
-                     argument("htsRetrievalPeriod", RetrievalPeriod.of(Period.ofYears(1)))
-            )
-        ),
-        implementations(CurveSpecificationMarketDataFn.class, DefaultCurveSpecificationMarketDataFn.class,
-                        FXMatrixFn.class, DefaultFXMatrixFn.class,
-                        IssuerProviderFn.class, ExposureFunctionsIssuerProviderFn.class,
-                        IssuerProviderBundleFn.class, DefaultDiscountingIssuerProviderBundleFn.class,
-                        CurveDefinitionFn.class, DefaultCurveDefinitionFn.class,
-                        DiscountingMulticurveBundleFn.class, DefaultDiscountingMulticurveBundleFn.class,
-                        CurveSpecificationFn.class, DefaultCurveSpecificationFn.class,
-                        CurveConstructionConfigurationSource.class, ConfigDBCurveConstructionConfigurationSource.class,
-                        HistoricalTimeSeriesFn.class, DefaultHistoricalTimeSeriesFn.class,
-                        MarketExposureSelectorFn.class, ConfigDbMarketExposureSelectorFn.class,
-                        MarketDataFn.class, DefaultMarketDataFn.class,
-                        CurveNodeConverterFn.class, DefaultCurveNodeConverterFn.class,
-                        /*Bond*/
-                        BondFn.class, DefaultBondFn.class,
-                        BondCalculatorFactory.class, DiscountingBondCalculatorFactory.class,
-                        /*Bond Future Option*/
-                        BondFutureOptionFn.class, DefaultBondFutureOptionFn.class,
-                        BondFutureOptionCalculatorFactory.class, BondFutureOptionBlackCalculatorFactory.class,
-                        BlackBondFuturesProviderFn.class, TestBlackBondFuturesProviderFn.class,
-                        /*Bond Future*/
-                        BondFutureFn.class, DefaultBondFutureFn.class,
-                        BondFutureCalculatorFactory.class, BondFutureDiscountingCalculatorFactory.class)
-    );
-
+    ConfigLink<ExposureFunctions> exposureLink =
+        ConfigLink.resolvable(BondMockSources.BOND_EXPOSURE_FUNCTIONS, ExposureFunctions.class);
+    return
+        config(
+            arguments(
+                function(
+                    MarketExposureSelector.class,
+                    argument("exposureFunctions", exposureLink)),
+                function(
+                    RootFinderConfiguration.class,
+                    argument("rootFinderAbsoluteTolerance", 1e-9),
+                    argument("rootFinderRelativeTolerance", 1e-9),
+                    argument("rootFinderMaxIterations", 1000)),
+                function(
+                    DefaultDiscountingIssuerProviderBundleFn.class,
+                    argument("impliedCurveNames", StringSet.of())),
+                function(
+                    DefaultCurveNodeConverterFn.class,
+                    argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofYears(1))))),
+            implementations(
+                CurveSpecificationMarketDataFn.class, DefaultCurveSpecificationMarketDataFn.class,
+                FXMatrixFn.class, DefaultFXMatrixFn.class,
+                IssuerProviderFn.class, ExposureFunctionsIssuerProviderFn.class,
+                IssuerProviderBundleFn.class, DefaultDiscountingIssuerProviderBundleFn.class,
+                CurveDefinitionFn.class, DefaultCurveDefinitionFn.class,
+                DiscountingMulticurveBundleFn.class, DefaultDiscountingMulticurveBundleFn.class,
+                CurveSpecificationFn.class, DefaultCurveSpecificationFn.class,
+                CurveConstructionConfigurationSource.class, ConfigDBCurveConstructionConfigurationSource.class,
+                FixingsFn.class, DefaultFixingsFn.class,
+                CurveLabellingFn.class, CurveDefinitionCurveLabellingFn.class,
+                MarketDataFn.class, DefaultMarketDataFn.class,
+                CurveNodeConverterFn.class, DefaultCurveNodeConverterFn.class,
+                BondFn.class, DiscountingBondFn.class,
+                BondFutureOptionFn.class, DefaultBondFutureOptionFn.class,
+                BondFutureOptionCalculatorFactory.class, BondFutureOptionBlackCalculatorFactory.class,
+                BlackBondFuturesProviderFn.class, TestBlackBondFuturesProviderFn.class,
+                BondFutureFn.class, DefaultBondFutureFn.class,
+                HistoricalMarketDataFn.class, DefaultHistoricalMarketDataFn.class,
+                BondFutureCalculatorFactory.class, BondFutureDiscountingCalculatorFactory.class));
   }
 
   public static CurveConstructionConfiguration getBondCurveConfig() {
@@ -398,7 +389,7 @@ public class BondMockSources {
 
     return new CurveConstructionConfiguration(BOND_CURVE_CONFIG_NAME,
                                               Lists.newArrayList(new CurveGroupConfiguration(0, curveTypes)),
-                                              Collections.EMPTY_LIST);
+                                              Collections.<String>emptyList());
   }
 
   private static CurveConstructionConfiguration getBondPreCalibratedCurveConfig() {
@@ -420,7 +411,7 @@ public class BondMockSources {
     
     return new CurveConstructionConfiguration(BOND_PRE_CALIBRATED_CURVE_CONFIG_NAME,
                                               Lists.newArrayList(new CurveGroupConfiguration(0, curveTypes)),
-                                              Collections.EMPTY_LIST);
+                                              Collections.<String>emptyList());
   }
   
   private static ExposureFunctions getPreCalibratedExposureFunctions() {
@@ -437,27 +428,41 @@ public class BondMockSources {
     return new ExposureFunctions(BOND_EXPOSURE_FUNCTIONS, exposureFunctions, idsToNames);
   }
 
-  public static MarketDataSource createMarketDataSource() {
-    return MapMarketDataSource.builder()
-          .add(createId("B1"), 0.009154010130285646)
-          .add(createId("B2"), 0.013529850844352658)
-          .add(createId("B3"), 0.0172583393761524)
-          .add(createId("B4"), 0.020001507249248547)
-          .add(createId("B5"), 0.022004447649196877)
-          .add(createId("B6"), 0.023628241845802613)
-          .add(createId("B7"), 0.025005300419649393)
-          .add(createId("B8"), 0.02619214367588991)
-          .add(createId("B9"), 0.02719250291972944)
-          .add(createId("B10"), 0.02808602151907749)
-          .add(ExternalId.of("ISIN", "Test Corp bond"), 1.08672)
-          .add(ExternalId.of("ISIN", "Test Gov bond"), 1.36375)
-          .add(ExternalId.of("ISIN", "Test Corp bond"), 
-              FieldName.of(MarketDataRequirementNames.YIELD_YIELD_TO_MATURITY_MID), 0.043)
-          .add(ExternalId.of("ISIN", "Test Gov bond"), 
-              FieldName.of(MarketDataRequirementNames.YIELD_YIELD_TO_MATURITY_MID), 0.0225)
-          .add(createId("Bond1"), 0.01) //Yield
-          .add(createId("Bill1"), 0.01) //Yield
-          .build();
+  public static MarketDataBundle createMarketDataBundle() {
+    return createMarketDataEnvironment().toBundle();
+  }
+
+  public static MarketDataEnvironment createMarketDataEnvironment() {
+    LocalDate valuationDate = VALUATION_TIME.toLocalDate();
+    LocalDateDoubleTimeSeries futurePrices = ImmutableLocalDateDoubleTimeSeries.of(valuationDate, 0.975);
+
+    FieldName ytmMidField = FieldName.of(MarketDataRequirementNames.YIELD_YIELD_TO_MATURITY_MID);
+    MarketDataEnvironmentBuilder builder = new MarketDataEnvironmentBuilder();
+
+    ExternalIdBundle bondFutureId = ExternalSchemes.isinSecurityId("Test bond future").toBundle();
+    ExternalIdBundle bondFutureOptionId = ExternalSchemes.isinSecurityId("Test bond future option").toBundle();
+
+    return builder
+        .add(RawId.of(createId("B1").toBundle()), 0.009154010130285646)
+        .add(RawId.of(createId("B2").toBundle()), 0.013529850844352658)
+        .add(RawId.of(createId("B3").toBundle()), 0.0172583393761524)
+        .add(RawId.of(createId("B4").toBundle()), 0.020001507249248547)
+        .add(RawId.of(createId("B5").toBundle()), 0.022004447649196877)
+        .add(RawId.of(createId("B6").toBundle()), 0.023628241845802613)
+        .add(RawId.of(createId("B7").toBundle()), 0.025005300419649393)
+        .add(RawId.of(createId("B8").toBundle()), 0.02619214367588991)
+        .add(RawId.of(createId("B9").toBundle()), 0.02719250291972944)
+        .add(RawId.of(createId("B10").toBundle()), 0.02808602151907749)
+        .add(SecurityId.of(CORPORATE_BOND_SECURITY), 1.08672)
+        .add(SecurityId.of(GOVERNMENT_BOND_SECURITY), 1.36375)
+        .add(SecurityId.of(CORPORATE_BOND_SECURITY, Double.class, ytmMidField), 0.043)
+        .add(SecurityId.of(GOVERNMENT_BOND_SECURITY, Double.class, ytmMidField), 0.0225)
+        .add(RawId.of(createId("Bond1").toBundle()), 0.01) //Yield
+        .add(RawId.of(createId("Bill1").toBundle()), 0.01) //Yield
+        .add(RawId.of(bondFutureId), futurePrices)
+        .add(RawId.of(bondFutureOptionId), futurePrices)
+        .valuationTime(ZonedDateTime.now())
+        .build();
   }
 
   private static ExternalId createId(String ticker) {
@@ -474,6 +479,13 @@ public class BondMockSources {
 
   private static HolidaySource mockHolidaySource() {
     return new WeekendHolidaySource();
+  }
+
+  private static HistoricalTimeSeriesSource mockHistoricalTimeSeriesSource() {
+    InMemoryHistoricalTimeSeriesMaster master = new InMemoryHistoricalTimeSeriesMaster();
+    TestHistoricalTimeSeriesSelector selector = new TestHistoricalTimeSeriesSelector();
+    DefaultHistoricalTimeSeriesResolver resolver = new DefaultHistoricalTimeSeriesResolver(selector, master);
+    return new MasterHistoricalTimeSeriesSource(master, resolver);
   }
 
   private static RegionSource mockRegionSource() {
@@ -572,23 +584,6 @@ public class BondMockSources {
     return new MasterSecuritySource(master);
   }
 
-  private static HistoricalTimeSeriesSource mockHistoricalTimeSeriesSource() {
-    HistoricalTimeSeriesSource mock =  mock(HistoricalTimeSeriesSource.class);
-
-    HistoricalTimeSeries irFuturePrices = new SimpleHistoricalTimeSeries(UniqueId.of("Blah", "1"),
-                                                                         ImmutableLocalDateDoubleTimeSeries.of(
-                                                                         VALUATION_TIME.toLocalDate(),
-                                                                         0.975));
-    when(mock.getHistoricalTimeSeries(eq(MarketDataRequirementNames.MARKET_VALUE),
-                                      any(ExternalIdBundle.class),
-                                      eq("DEFAULT_TSS"),
-                                      any(LocalDate.class),
-                                      eq(true),
-                                      any(LocalDate.class),
-                                      eq(true))).thenReturn(irFuturePrices);
-    return mock;
-  }
-
   public static ImmutableMap<Class<?>, Object> generateBaseComponents() {
     return generateComponentMap(mockHolidaySource(),
                                 mockRegionSource(),
@@ -596,11 +591,9 @@ public class BondMockSources {
                                 mockConventionBundleSource(),
                                 mockConfigSource(),
                                 mockSecuritySource(),
-                                mockHistoricalTimeSeriesSource(),
-                                mock(HistoricalTimeSeriesResolver.class),
-                                mock(HistoricalMarketDataFn.class),
                                 mock(CurrencyMatrix.class),
-                                mockLegalEntitySource());
+                                mockLegalEntitySource(),
+                                mockHistoricalTimeSeriesSource());
   }
 
   private static BondSecurity createGovernmentBondSecurity() {
@@ -776,4 +769,12 @@ public class BondMockSources {
     return new BondFutureOptionTrade(trade);
   }
 
+  private static class TestHistoricalTimeSeriesSelector implements HistoricalTimeSeriesSelector {
+
+    @Override
+    public ManageableHistoricalTimeSeriesInfo select(Collection<ManageableHistoricalTimeSeriesInfo> candidates,
+                                                     String selectionKey) {
+      return Iterables.getFirst(candidates, null);
+    }
+  }
 }

@@ -17,11 +17,8 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProvider;
-import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderInterface;
-import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveGroupConfiguration;
 import com.opengamma.id.VersionCorrection;
@@ -31,7 +28,6 @@ import com.opengamma.service.VersionCorrectionProvider;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.sesame.sources.BondMockSources;
-import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
 
