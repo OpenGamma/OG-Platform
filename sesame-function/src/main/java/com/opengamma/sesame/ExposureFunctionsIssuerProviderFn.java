@@ -61,13 +61,7 @@ public class ExposureFunctionsIssuerProviderFn implements IssuerProviderFn {
       case 0:
         return Result.failure(FailureStatus.MISSING_DATA, "No curve construction configs found for {}", trade);
       case 1:
-        Result<IssuerProviderBundle> bundle =
-            _issuerProviderBundleFn.generateBundle(env, Iterables.getOnlyElement(curveConfigs));
-        if (bundle.isSuccess()) {
-          return Result.success(bundle.getValue());
-        } else {
-          return Result.failure(bundle);
-        }
+        return _issuerProviderBundleFn.generateBundle(env, Iterables.getOnlyElement(curveConfigs));
       default:
         return Result.failure(FailureStatus.MULTIPLE, "Found {} configs, expected one", curveConfigs.size());
     }
