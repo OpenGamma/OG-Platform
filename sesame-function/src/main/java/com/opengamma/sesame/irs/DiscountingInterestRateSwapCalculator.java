@@ -354,18 +354,12 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
   }
 
   private boolean isFirstLegPay() {
-    boolean payFirstLeg;
-    int numberOfPayments = _definition.getFirstLeg().getNumberOfPayments();
     /* There is no information on the definition or derivative to tell us if the leg is pay or
        receive other than the sign of the notionals, but the first payment may be an exchange of notional,
        so if there are more than one payments we should take the second payment.
      */
-    if (numberOfPayments > 1) {
-      payFirstLeg = _definition.getFirstLeg().getNthPayment(1).getReferenceAmount() < 0;
-    } else {
-      payFirstLeg = _definition.getFirstLeg().getNthPayment(0).getReferenceAmount() < 0;
-    }
-    return payFirstLeg;
+    int paymentToCheck = _definition.getFirstLeg().getNumberOfPayments() > 1 ? 1 : 0;
+    return _definition.getFirstLeg().getNthPayment(paymentToCheck).getReferenceAmount() < 0;
   }
 
 }
