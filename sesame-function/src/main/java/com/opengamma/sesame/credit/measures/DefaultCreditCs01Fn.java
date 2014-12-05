@@ -24,8 +24,8 @@ import com.opengamma.util.result.Result;
  */
 public class DefaultCreditCs01Fn extends AbstractCreditRiskMeasureFn<CurrencyAmount> implements CreditCs01Fn {
 
-  private FiniteDifferenceSpreadSensitivityCalculator _calculator;
   private static final double SCALE = 1e-4;
+  private final FiniteDifferenceSpreadSensitivityCalculator _calculator;
 
   /**
    * Creates an instance.
@@ -62,8 +62,8 @@ public class DefaultCreditCs01Fn extends AbstractCreditRiskMeasureFn<CurrencyAmo
                                                           cdsAnalytics,
                                                           curve.getYieldCurve().getCalibratedCurve(),
                                                           curve.getCalibratedCurve(),
-                                                          1e-4);
-    final int sign = cdsData.isBuy() ? 1 : -1;
+                                                          SCALE);
+    int sign = cdsData.isBuy() ? 1 : -1;
     double adjusted = cs01 * sign * cdsData.getInterestRateNotional().getAmount() * SCALE;
     CurrencyAmount currencyAmount =  CurrencyAmount.of(cdsData.getInterestRateNotional().getCurrency(), adjusted);
     return Result.success(currencyAmount);

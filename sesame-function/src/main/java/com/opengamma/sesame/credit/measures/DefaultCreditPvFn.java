@@ -23,9 +23,9 @@ import com.opengamma.util.result.Result;
 /**
  * Default implementation of the credit PV function
  */
-public class DefaultCreditPvFn extends AbstractCreditRiskMeasureFn<CurrencyAmount>  implements CreditPvFn {
+public class DefaultCreditPvFn extends AbstractCreditRiskMeasureFn<CurrencyAmount> implements CreditPvFn {
 
-  private AnalyticCDSPricer _calculator;
+  private final AnalyticCDSPricer _calculator;
   private final PriceType _priceType;
 
   /**
@@ -59,7 +59,6 @@ public class DefaultCreditPvFn extends AbstractCreditRiskMeasureFn<CurrencyAmoun
 
   @Override
   protected Result<CurrencyAmount> price(CdsData cdsData, CDSAnalytic cds, IsdaCreditCurve curve) {
-    curve.getCurveData().getCdsQuotes();
     double pv = _calculator.pv(cds,
                                curve.getYieldCurve().getCalibratedCurve(),
                                curve.getCalibratedCurve(),

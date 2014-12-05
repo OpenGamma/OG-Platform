@@ -10,6 +10,7 @@ import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.core.Is.is;
 
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
 import org.threeten.bp.ZonedDateTime;
@@ -37,6 +38,8 @@ import com.opengamma.util.time.DateUtils;
 @Test(groups = TestGroup.UNIT)
 public class CreditCs01FnTest {
 
+  /* Expected results validated external to OG */
+  public static final double EXPECTED_CS01 = 4884.4636;
   private static final double STD_TOLERANCE_PV = 1.0E-3;
   private static final ZonedDateTime VALUATION_TIME = DateUtils.getUTCDate(2014, 10, 16);
   private static final Environment ENV = new SimpleEnvironment(VALUATION_TIME,
@@ -44,7 +47,7 @@ public class CreditCs01FnTest {
   private FunctionModelConfig _config;
   private ComponentMap _componentMap;
 
-  @BeforeClass
+  @BeforeMethod
   public void setUpClass()  {
     _config = CreditPricingSampleData.createFunctionModelConfig();
     _componentMap = ComponentMap.of(CreditPricingSampleData.generateBaseComponents());
@@ -63,7 +66,7 @@ public class CreditCs01FnTest {
     assertThat(result.isSuccess(), is(true));
     CurrencyAmount ca = result.getValue();
     assertThat(ca.getCurrency(), is(Currency.USD));
-    assertThat(ca.getAmount(), is(closeTo(4884.4636, STD_TOLERANCE_PV)));
+    assertThat(ca.getAmount(), is(closeTo(EXPECTED_CS01, STD_TOLERANCE_PV)));
   }
 
   @Test
@@ -75,7 +78,7 @@ public class CreditCs01FnTest {
     assertThat(result.isSuccess(), is(true));
     CurrencyAmount ca = result.getValue();
     assertThat(ca.getCurrency(), is(Currency.USD));
-    assertThat(ca.getAmount(), is(closeTo(4884.4636, STD_TOLERANCE_PV)));
+    assertThat(ca.getAmount(), is(closeTo(EXPECTED_CS01, STD_TOLERANCE_PV)));
   }
 
 }
