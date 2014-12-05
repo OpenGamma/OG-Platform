@@ -25,7 +25,13 @@ import com.opengamma.util.result.Result;
  */
 public class DefaultCreditPvFn extends AbstractCreditRiskMeasureFn<CurrencyAmount> implements CreditPvFn {
 
+  /**
+   * Calculator for CDS measures
+   */
   private final AnalyticCDSPricer _calculator;
+  /**
+   * Enumerate the types of PV that can be returned (usually clean or dirty)
+   */
   private final PriceType _priceType;
 
   /**
@@ -65,7 +71,7 @@ public class DefaultCreditPvFn extends AbstractCreditRiskMeasureFn<CurrencyAmoun
                                cdsData.getCoupon(),
                                _priceType);
 
-    final int sign = cdsData.isBuy() ? 1 : -1;
+    int sign = cdsData.isBuy() ? 1 : -1;
     double adjusted = pv * cdsData.getInterestRateNotional().getAmount() * sign;
     CurrencyAmount currencyAmount =  CurrencyAmount.of(cdsData.getInterestRateNotional().getCurrency(), adjusted);
     return Result.success(currencyAmount);

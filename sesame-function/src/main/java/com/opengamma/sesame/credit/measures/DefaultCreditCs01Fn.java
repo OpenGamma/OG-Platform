@@ -24,7 +24,13 @@ import com.opengamma.util.result.Result;
  */
 public class DefaultCreditCs01Fn extends AbstractCreditRiskMeasureFn<CurrencyAmount> implements CreditCs01Fn {
 
+  /**
+   * The fraction bump amount, so a 1pb bump is 1e-4
+   */
   private static final double SCALE = 1e-4;
+  /**
+   * Calculator for CDS measures
+   */
   private final FiniteDifferenceSpreadSensitivityCalculator _calculator;
 
   /**
