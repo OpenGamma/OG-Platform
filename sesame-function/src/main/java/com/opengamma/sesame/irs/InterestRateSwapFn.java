@@ -30,7 +30,7 @@ public interface InterestRateSwapFn {
    * Calculate the par rate for a Swap security.
    *
    * @param env the environment used for calculation
-   * @param security the Swap to calculate the rate for
+   * @param security the InterestRateSwapSecurity to calculate the rate for
    * @return result containing the rate if successful, a Failure otherwise
    */
   @Output(value = OutputNames.PAR_RATE)
@@ -41,7 +41,7 @@ public interface InterestRateSwapFn {
    * which the present value of the instrument is zero.
    *
    * @param env the environment used for calculation
-   * @param security the Swap to calculate the rate for
+   * @param security the InterestRateSwapSecurity to calculate the rate for
    * @return result containing the rate if successful, a Failure otherwise
    */
   @Output(value = OutputNames.PAR_SPREAD)
@@ -51,7 +51,7 @@ public interface InterestRateSwapFn {
    * Calculate the present value for a Swap security.
    *
    * @param env the environment used for calculation
-   * @param security the Swap to calculate the PV for
+   * @param security the InterestRateSwapSecurity to calculate the PV for
    * @return result containing the present value if successful, a Failure otherwise
    */
   @Output(value = OutputNames.PRESENT_VALUE)
@@ -61,7 +61,7 @@ public interface InterestRateSwapFn {
    * Calculate the PV01 for a Swap security.
    *
    * @param env the environment used for calculation
-   * @param security the Swap to calculate the PV01 for
+   * @param security the InterestRateSwapSecurity to calculate the PV01 for
    * @return result containing the PV01 if successful, a Failure otherwise
    */
   @Output(value = OutputNames.PV01)
@@ -88,10 +88,30 @@ public interface InterestRateSwapFn {
   Result<SwapLegCashFlows> calculatePayLegCashFlows(Environment env, InterestRateSwapSecurity security);
 
   /**
+   * Calculate the receive leg present value.
+   *
+   * @param env the environment used for calculation
+   * @param security the InterestRateSwapSecurity to calculate the present value for
+   * @return result containing the fixed cash flows if successful, a Failure otherwise
+   */
+  @Output(value = OutputNames.RECEIVE_LEG_PRESENT_VALUE)
+  Result<MultipleCurrencyAmount> calculateReceiveLegPv(Environment env, InterestRateSwapSecurity security);
+
+  /**
+   * Calculate the pay leg cash present value.
+   *
+   * @param env the environment used for calculation
+   * @param security the InterestRateSwapSecurity to calculate the present value for
+   * @return result containing the fixed cash flows if successful, a Failure otherwise
+   */
+  @Output(value = OutputNames.PAY_LEG_PRESENT_VALUE)
+  Result<MultipleCurrencyAmount> calculatePayLegPv(Environment env, InterestRateSwapSecurity security);
+
+  /**
    * Calculate the bucketed PV01 for a swap security.
    *
    * @param env the environment used for calculation
-   * @param security the swap to calculate the bucketed PV01 for
+   * @param security the InterestRateSwapSecurity to calculate the bucketed PV01 for
    * @return result containing the bucketed PV01 if successful, a Failure otherwise
    */
   @Output(OutputNames.BUCKETED_PV01)
@@ -101,7 +121,7 @@ public interface InterestRateSwapFn {
    * Calculate the bucketed Gamma for a swap security.
    *
    * @param env the environment used for calculation
-   * @param security the swap to calculate the bucketed Gamma for
+   * @param security the InterestRateSwapSecurity to calculate the bucketed Gamma for
    * @return result containing the bucketed Gamma, full matrix, if successful, a Failure otherwise
    */
   @Output(OutputNames.BUCKETED_GAMMA)
@@ -113,7 +133,7 @@ public interface InterestRateSwapFn {
    * Calculate the par rate for a Swap trade.
    *
    * @param env the environment used for calculation
-   * @param trade the Swap to calculate the rate for
+   * @param trade the InterestRateSwapTrade to calculate the rate for
    * @return result containing the rate if successful, a Failure otherwise
    */
   @Output(value = OutputNames.PAR_RATE)
@@ -123,7 +143,7 @@ public interface InterestRateSwapFn {
    * Calculate the present value for a Swap trade.
    *
    * @param env the environment used for calculation
-   * @param trade the Swap to calculate the PV for
+   * @param trade the InterestRateSwapTrade to calculate the PV for
    * @return result containing the present value if successful, a Failure otherwise
    */
   @Output(value = OutputNames.PRESENT_VALUE)
@@ -133,7 +153,7 @@ public interface InterestRateSwapFn {
    * Calculate the PV01 for a Swap trade.
    *
    * @param env the environment used for calculation
-   * @param trade the Swap to calculate the PV01 for
+   * @param trade the InterestRateSwapTrade to calculate the PV01 for
    * @return result containing the PV01 if successful, a Failure otherwise
    */
   @Output(value = OutputNames.PV01)
@@ -160,10 +180,30 @@ public interface InterestRateSwapFn {
   Result<SwapLegCashFlows> calculatePayLegCashFlows(Environment env, InterestRateSwapTrade trade);
 
   /**
+   * Calculate the receive leg present value.
+   *
+   * @param env the environment used for calculation
+   * @param security the InterestRateSwapTrade to calculate the present value for
+   * @return result containing the fixed cash flows if successful, a Failure otherwise
+   */
+  @Output(value = OutputNames.RECEIVE_LEG_PRESENT_VALUE)
+  Result<MultipleCurrencyAmount> calculateReceiveLegPv(Environment env, InterestRateSwapTrade security);
+
+  /**
+   * Calculate the pay leg cash present value.
+   *
+   * @param env the environment used for calculation
+   * @param security the InterestRateSwapTrade to calculate the present value for
+   * @return result containing the fixed cash flows if successful, a Failure otherwise
+   */
+  @Output(value = OutputNames.PAY_LEG_PRESENT_VALUE)
+  Result<MultipleCurrencyAmount> calculatePayLegPv(Environment env, InterestRateSwapTrade security);
+
+  /**
    * Calculate the bucketed PV01 for a swap trade.
    *
    * @param env the environment used for calculation
-   * @param trade the swap to calculate the bucketed PV01 for
+   * @param trade the InterestRateSwapTrade to calculate the bucketed PV01 for
    * @return result containing the bucketed PV01 if successful, a Failure otherwise
    */
   @Output(OutputNames.BUCKETED_PV01)
@@ -173,7 +213,7 @@ public interface InterestRateSwapFn {
    * Calculate the bucketed Gamma (full matrix) for a swap trade.
    *
    * @param env the environment used for calculation
-   * @param trade the swap to calculate the bucketed Gamma for
+   * @param trade the InterestRateSwapTrade to calculate the bucketed Gamma for
    * @return result containing the bucketed Gamma if successful, a Failure otherwise
    */
   @Output(OutputNames.BUCKETED_GAMMA)

@@ -131,7 +131,35 @@ public class DiscountingInterestRateSwapFn implements InterestRateSwapFn {
     }
     return Result.success(legResult.getValue());
   }
-  
+
+  @Override
+  public Result<MultipleCurrencyAmount> calculateReceiveLegPv(Environment env, InterestRateSwapSecurity security) {
+    Result<InterestRateSwapCalculator> calculatorResult = _interestRateSwapCalculatorFactory.createCalculator(env, security);
+
+    if (!calculatorResult.isSuccess()) {
+      return Result.failure(calculatorResult);
+    }
+    Result<MultipleCurrencyAmount> pvResult = calculatorResult.getValue().calculateReceiveLegPv();
+    if (!pvResult.isSuccess()) {
+      return Result.failure(pvResult);
+    }
+    return Result.success(pvResult.getValue());
+  }
+
+  @Override
+  public Result<MultipleCurrencyAmount> calculatePayLegPv(Environment env, InterestRateSwapSecurity security) {
+    Result<InterestRateSwapCalculator> calculatorResult = _interestRateSwapCalculatorFactory.createCalculator(env, security);
+
+    if (!calculatorResult.isSuccess()) {
+      return Result.failure(calculatorResult);
+    }
+    Result<MultipleCurrencyAmount> pvResult = calculatorResult.getValue().calculatePayLegPv();
+    if (!pvResult.isSuccess()) {
+      return Result.failure(pvResult);
+    }
+    return Result.success(pvResult.getValue());
+  }
+
   @Override
   public Result<BucketedCrossSensitivities> calculateBucketedGamma(Environment env, InterestRateSwapSecurity security) {
     Result<InterestRateSwapCalculator> calculatorResult = _interestRateSwapCalculatorFactory.createCalculator(env, security);
@@ -220,6 +248,34 @@ public class DiscountingInterestRateSwapFn implements InterestRateSwapFn {
       return Result.failure(legResult);
     }
     return Result.success(legResult.getValue());
+  }
+
+  @Override
+  public Result<MultipleCurrencyAmount> calculateReceiveLegPv(Environment env, InterestRateSwapTrade trade) {
+    Result<InterestRateSwapCalculator> calculatorResult = _interestRateSwapCalculatorFactory.createCalculator(env, trade);
+
+    if (!calculatorResult.isSuccess()) {
+      return Result.failure(calculatorResult);
+    }
+    Result<MultipleCurrencyAmount> pvResult = calculatorResult.getValue().calculateReceiveLegPv();
+    if (!pvResult.isSuccess()) {
+      return Result.failure(pvResult);
+    }
+    return Result.success(pvResult.getValue());
+  }
+
+  @Override
+  public Result<MultipleCurrencyAmount> calculatePayLegPv(Environment env, InterestRateSwapTrade trade) {
+    Result<InterestRateSwapCalculator> calculatorResult = _interestRateSwapCalculatorFactory.createCalculator(env, trade);
+
+    if (!calculatorResult.isSuccess()) {
+      return Result.failure(calculatorResult);
+    }
+    Result<MultipleCurrencyAmount> pvResult = calculatorResult.getValue().calculatePayLegPv();
+    if (!pvResult.isSuccess()) {
+      return Result.failure(pvResult);
+    }
+    return Result.success(pvResult.getValue());
   }
 
   @Override
