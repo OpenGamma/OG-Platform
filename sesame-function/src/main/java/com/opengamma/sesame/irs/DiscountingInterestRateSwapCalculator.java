@@ -312,12 +312,9 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
   public Result<MultipleCurrencyAmount> calculatePayLegPv() {
     /* We are not interested in fees here */
     Swap<? extends Payment, ? extends Payment> swap = (Swap<? extends Payment, ? extends Payment>) _derivative;
-    InstrumentDerivative payLeg;
-    if (isFirstLegPay()) {
-      payLeg = swap.getFirstLeg();
-    } else {
-      payLeg = swap.getSecondLeg();
-    }
+    InstrumentDerivative payLeg = isFirstLegPay() ?
+        swap.getFirstLeg() :
+        swap.getSecondLeg();
     return Result.success(payLeg.accept(PVDC, _bundle));
   }
 
@@ -325,12 +322,9 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
   public Result<MultipleCurrencyAmount> calculateReceiveLegPv() {
     /* We are not interested in fees here */
     Swap<? extends Payment, ? extends Payment> swap = (Swap<? extends Payment, ? extends Payment>) _derivative;
-    InstrumentDerivative receiveLeg;
-    if (isFirstLegPay()) {
-      receiveLeg = swap.getSecondLeg();
-    } else {
-      receiveLeg = swap.getFirstLeg();
-    }
+    InstrumentDerivative receiveLeg = isFirstLegPay() ?
+        swap.getSecondLeg() :
+        swap.getFirstLeg();
     return Result.success(receiveLeg.accept(PVDC, _bundle));
   }
 
@@ -354,10 +348,9 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
   }
 
   private boolean isFirstLegPay() {
-    /* There is no information on the definition or derivative to tell us if the leg is pay or
-       receive other than the sign of the notionals, but the first payment may be an exchange of notional,
-       so if there are more than one payments we should take the second payment.
-     */
+    // There is no information on the definition or derivative to tell us if the leg is pay or
+    // receive other than the sign of the notionals, but the first payment may be an exchange of notional,
+    // so if there are more than one payments we should take the second payment.
     int paymentToCheck = _definition.getFirstLeg().getNumberOfPayments() > 1 ? 1 : 0;
     return _definition.getFirstLeg().getNthPayment(paymentToCheck).getReferenceAmount() < 0;
   }
