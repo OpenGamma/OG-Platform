@@ -18,6 +18,7 @@ import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.core.IsNull.notNullValue;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +29,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDate;
+import org.threeten.bp.OffsetTime;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
@@ -40,6 +42,10 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.link.ConfigLink;
+import com.opengamma.core.position.Counterparty;
+import com.opengamma.core.position.Trade;
+import com.opengamma.core.position.impl.SimpleCounterparty;
+import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
@@ -98,6 +104,7 @@ import com.opengamma.sesame.marketdata.MarketDataSource;
 import com.opengamma.sesame.marketdata.builders.MarketDataBuilder;
 import com.opengamma.sesame.marketdata.builders.MarketDataBuilders;
 import com.opengamma.sesame.marketdata.builders.MarketDataEnvironmentFactory;
+import com.opengamma.sesame.trade.InterestRateSwapTrade;
 import com.opengamma.util.GUIDGenerator;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.function.Function;
@@ -112,10 +119,6 @@ import com.opengamma.util.tuple.Pairs;
 
 /**
  * Tests pricing of an interest rate swap.
- * <p>
- * TODO This is a direct replacement for {@link InterestRateSwapFnTest}.
- * That should be deleted once the market data environment changes have been merged.
- * TODO this must be kept in sync when tests are added to that class
  */
 @Test(groups = TestGroup.UNIT)
 public class SwapPricingTest {
@@ -131,6 +134,8 @@ public class SwapPricingTest {
   private static final double EXPECTED_ON_PAR_SPREAD = -5.739276118599975E-4;
 
   private static final double EXPECTED_3M_PV = 7170391.798257509;
+  private static final double EXPECTED_3M_PAY_LEG_PV = -9872297.749650199;
+  private static final double EXPECTED_3M_RECEIVE_LEG_PV = 1.70426895485912E7;
   private static final double EXPECTED_3M_PAR_RATE = 0.025894715668195054;
   private static final double EXPECTED_3M_PAR_SPREAD = 0.01089471566819499;
   private static final Map<Pair<String, Currency>, DoubleMatrix1D> EXPECTED_3M_BUCKETED_PV01 =
@@ -453,6 +458,17 @@ public class SwapPricingTest {
         legs);
   }
 
+
+  private InterestRateSwapTrade wrapInTrade(InterestRateSwapSecurity security) {
+    Trade trade = new SimpleTrade(security,
+                                  BigDecimal.ONE,
+                                  new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "CPARTY")),
+                                  LocalDate.now(),
+                                  OffsetTime.now());
+    return new InterestRateSwapTrade(trade);
+  }
+
+
   @Test
   public void fixedVsLibor3mSwapLegDetails() {
     Result<SwapLegCashFlows> payResult = _functionRunner.runFunction(ARGS, new Function<Environment, Result<SwapLegCashFlows>>() {
@@ -666,6 +682,60 @@ public class SwapPricingTest {
 
     MultipleCurrencyAmount mca = resultPv.getValue();
     assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(EXPECTED_3M_PV, STD_TOLERANCE_PV)));
+  }
+
+  @Test
+  public void fixedVsLibor3mSwapSecurityLegPv() {
+    Result<MultipleCurrencyAmount> payLegPv = _functionRunner.runFunction(
+        ARGS, new Function<Environment, Result<MultipleCurrencyAmount>>() {
+          @Override
+          public Result<MultipleCurrencyAmount> apply(Environment env) {
+            return _swapFunction.calculatePayLegPv(env, _fixedVsLibor3mSwapSecurity);
+          }
+        });
+    assertSuccess(payLegPv);
+    double payLeg = payLegPv.getValue().getCurrencyAmount(Currency.USD).getAmount();
+    assertThat(payLeg, is(closeTo(EXPECTED_3M_PAY_LEG_PV, STD_TOLERANCE_PV)));
+
+    Result<MultipleCurrencyAmount> recLegPv = _functionRunner.runFunction(
+        ARGS, new Function<Environment, Result<MultipleCurrencyAmount>>() {
+          @Override
+          public Result<MultipleCurrencyAmount> apply(Environment env) {
+            return _swapFunction.calculateReceiveLegPv(env, _fixedVsLibor3mSwapSecurity);
+          }
+        });
+    assertSuccess(recLegPv);
+    double recLeg = recLegPv.getValue().getCurrencyAmount(Currency.USD).getAmount();
+    assertThat(recLeg, is(closeTo(EXPECTED_3M_RECEIVE_LEG_PV, STD_TOLERANCE_PV)));
+
+    assertThat(payLeg + recLeg, is(closeTo(EXPECTED_3M_PV, STD_TOLERANCE_PV)));
+  }
+
+  @Test
+  public void fixedVsLibor3mSwapTradeLegPv() {
+    Result<MultipleCurrencyAmount> payLegPv = _functionRunner.runFunction(
+        ARGS, new Function<Environment, Result<MultipleCurrencyAmount>>() {
+          @Override
+          public Result<MultipleCurrencyAmount> apply(Environment env) {
+            return _swapFunction.calculatePayLegPv(env, wrapInTrade(_fixedVsLibor3mSwapSecurity));
+          }
+        });
+    assertSuccess(payLegPv);
+    double payLeg = payLegPv.getValue().getCurrencyAmount(Currency.USD).getAmount();
+    assertThat(payLeg, is(closeTo(EXPECTED_3M_PAY_LEG_PV, STD_TOLERANCE_PV)));
+
+    Result<MultipleCurrencyAmount> recLegPv = _functionRunner.runFunction(
+        ARGS, new Function<Environment, Result<MultipleCurrencyAmount>>() {
+          @Override
+          public Result<MultipleCurrencyAmount> apply(Environment env) {
+            return _swapFunction.calculateReceiveLegPv(env, wrapInTrade(_fixedVsLibor3mSwapSecurity));
+          }
+        });
+    assertSuccess(recLegPv);
+    double recLeg = recLegPv.getValue().getCurrencyAmount(Currency.USD).getAmount();
+    assertThat(recLeg, is(closeTo(EXPECTED_3M_RECEIVE_LEG_PV, STD_TOLERANCE_PV)));
+
+    assertThat(payLeg + recLeg, is(closeTo(EXPECTED_3M_PV, STD_TOLERANCE_PV)));
   }
 
   @Test

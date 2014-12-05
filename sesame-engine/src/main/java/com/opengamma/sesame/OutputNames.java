@@ -160,6 +160,14 @@ public final class OutputNames {
    */
   public static final String RECEIVE_LEG_CASH_FLOWS = "Receive Leg Cash Flow Details";
   /**
+   * The present value of the swap pay leg.
+   */
+  public static final String PAY_LEG_PRESENT_VALUE = "Pay Leg Present Value";
+  /**
+   * The present value of the swap receive leg.
+   */
+  public static final String RECEIVE_LEG_PRESENT_VALUE = "Receive Leg Present Value";
+  /**
    *  The FX matrix 
    */
   public static final String FX_MATRIX = "FX Matrix";

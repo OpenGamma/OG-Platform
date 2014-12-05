@@ -73,6 +73,20 @@ public interface InterestRateSwapCalculator {
   Result<SwapLegCashFlows> calculateReceiveLegCashFlows();
 
   /**
+   * Calculate the swap pay leg present value.
+   *
+   * @return result containing the present value if successful, a Failure otherwise
+   */
+  Result<MultipleCurrencyAmount> calculatePayLegPv();
+
+  /**
+   * Calculate the swap receive leg present value.
+   *
+   * @return result containing the present value if successful, a Failure otherwise
+   */
+  Result<MultipleCurrencyAmount> calculateReceiveLegPv();
+
+  /**
    * Calculates the bucketed PV01 for the security
    *
    * @return the bucketed PV01

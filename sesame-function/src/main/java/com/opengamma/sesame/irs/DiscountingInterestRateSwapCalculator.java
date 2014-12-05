@@ -15,6 +15,8 @@ import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
+import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.provider.calculator.discounting.CrossGammaMultiCurveCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PV01CurveParametersCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParRateDiscountingCalculator;
@@ -306,6 +308,26 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
     return Result.success(_derivative.accept(CFDC, createCashFlowDetailsProvider(PayReceiveType.RECEIVE)));
   }
 
+  @Override
+  public Result<MultipleCurrencyAmount> calculatePayLegPv() {
+    /* We are not interested in fees here */
+    Swap<? extends Payment, ? extends Payment> swap = (Swap<? extends Payment, ? extends Payment>) _derivative;
+    InstrumentDerivative payLeg = isFirstLegPay() ?
+        swap.getFirstLeg() :
+        swap.getSecondLeg();
+    return Result.success(payLeg.accept(PVDC, _bundle));
+  }
+
+  @Override
+  public Result<MultipleCurrencyAmount> calculateReceiveLegPv() {
+    /* We are not interested in fees here */
+    Swap<? extends Payment, ? extends Payment> swap = (Swap<? extends Payment, ? extends Payment>) _derivative;
+    InstrumentDerivative receiveLeg = isFirstLegPay() ?
+        swap.getSecondLeg() :
+        swap.getFirstLeg();
+    return Result.success(receiveLeg.accept(PVDC, _bundle));
+  }
+
   private <T> T calculateResult(InstrumentDerivativeVisitorAdapter<ParameterProviderInterface, T> calculator) {
     return _derivative.accept(calculator, _bundle);
   }
@@ -323,6 +345,14 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
 
   private CashFlowDetailsProvider createCashFlowDetailsProvider(PayReceiveType type) {
     return new CashFlowDetailsProvider(_bundle, _valuationTime, _definition, _security, type);
+  }
+
+  private boolean isFirstLegPay() {
+    // There is no information on the definition or derivative to tell us if the leg is pay or
+    // receive other than the sign of the notionals, but the first payment may be an exchange of notional,
+    // so if there are more than one payments we should take the second payment.
+    int paymentToCheck = _definition.getFirstLeg().getNumberOfPayments() > 1 ? 1 : 0;
+    return _definition.getFirstLeg().getNthPayment(paymentToCheck).getReferenceAmount() < 0;
   }
 
 }
