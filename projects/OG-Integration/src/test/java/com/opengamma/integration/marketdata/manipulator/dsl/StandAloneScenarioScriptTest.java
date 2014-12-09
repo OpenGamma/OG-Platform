@@ -5,7 +5,10 @@
  */
 package com.opengamma.integration.marketdata.manipulator.dsl;
 
-import static com.opengamma.integration.marketdata.manipulator.dsl.MarketDataDelegate.MarketDataType.*;
+import static com.opengamma.integration.marketdata.manipulator.dsl.MarketDataDelegate.MarketDataType.FIXED_HISTORICAL;
+import static com.opengamma.integration.marketdata.manipulator.dsl.MarketDataDelegate.MarketDataType.LATEST_HISTORICAL;
+import static com.opengamma.integration.marketdata.manipulator.dsl.MarketDataDelegate.MarketDataType.LIVE;
+import static com.opengamma.integration.marketdata.manipulator.dsl.MarketDataDelegate.MarketDataType.SNAPSHOT;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 
@@ -18,6 +21,7 @@ import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.Period;
+import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
 
@@ -29,7 +33,6 @@ import com.opengamma.engine.function.StructureManipulationFunction;
 import com.opengamma.engine.marketdata.manipulator.DistinctMarketDataSelector;
 import com.opengamma.engine.marketdata.manipulator.ScenarioDefinition;
 import com.opengamma.id.ExternalId;
-import com.opengamma.util.OpenGammaClock;
 import com.opengamma.util.test.TestGroup;
 
 import groovy.lang.Binding;
@@ -207,7 +210,7 @@ public class StandAloneScenarioScriptTest {
     Instant valuationInstant;
     if (valuationTime != null) {
       LocalDateTime localTime = LocalDateTime.parse(valuationTime, s_dateFormatter);
-      valuationInstant = ZonedDateTime.of(localTime, OpenGammaClock.getZone()).toInstant();
+      valuationInstant = ZonedDateTime.of(localTime, ZoneOffset.UTC).toInstant();
     } else {
       valuationInstant = null;
     }

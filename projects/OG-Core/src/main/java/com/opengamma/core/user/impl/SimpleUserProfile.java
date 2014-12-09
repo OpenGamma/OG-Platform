@@ -23,12 +23,12 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZoneOffset;
 
 import com.opengamma.core.user.DateStyle;
 import com.opengamma.core.user.TimeStyle;
 import com.opengamma.core.user.UserProfile;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.OpenGammaClock;
 
 /**
  * Simple implementation of {@code UserProfile}.
@@ -59,7 +59,7 @@ public class SimpleUserProfile implements Bean, UserProfile, Serializable {
    * The time-zone used to display local times.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
-  private ZoneId _zone = OpenGammaClock.getZone();
+  private ZoneId _zone = ZoneOffset.UTC;
   /**
    * The date format style that the user prefers.
    */

@@ -27,12 +27,12 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZoneOffset;
 
 import com.opengamma.core.user.DateStyle;
 import com.opengamma.core.user.TimeStyle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.OpenGammaClock;
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -311,7 +311,7 @@ public class UserForm implements Bean {
       }
     }
     // time zone
-    ZoneId zoneId = OpenGammaClock.getZone();
+    ZoneId zoneId = ZoneOffset.UTC;
     if (zoneStr != null) {
       try {
         zoneId = ZoneId.of(zoneStr);

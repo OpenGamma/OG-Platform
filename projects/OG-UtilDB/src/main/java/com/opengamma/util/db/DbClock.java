@@ -15,9 +15,8 @@ import org.slf4j.LoggerFactory;
 import org.threeten.bp.Clock;
 import org.threeten.bp.Instant;
 import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.temporal.TemporalUnit;
-
-import com.opengamma.util.OpenGammaClock;
 
 /**
  * A database-backed clock.
@@ -63,7 +62,7 @@ class DbClock extends Clock {
    * @param connector the connector, not null
    */
   DbClock(DbConnector connector) {
-    this(connector, OpenGammaClock.getZone());
+    this(connector, ZoneOffset.UTC);
   }
 
   /**
