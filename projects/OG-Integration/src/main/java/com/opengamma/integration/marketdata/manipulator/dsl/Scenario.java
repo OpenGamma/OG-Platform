@@ -13,7 +13,6 @@ import java.util.Set;
 
 import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDateTime;
-import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
 import org.threeten.bp.format.DateTimeParseException;
@@ -30,6 +29,7 @@ import com.opengamma.engine.marketdata.manipulator.ScenarioDefinition;
 import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.OpenGammaClock;
 
 /**
  * Encapsulates a set of transformations to apply to market data when a calculation cycle is run.
@@ -131,7 +131,7 @@ public class Scenario {
   public Scenario valuationTime(String valuationTime) {
     try {
       LocalDateTime localTime = LocalDateTime.parse(valuationTime, s_dateFormatter);
-      _valuationTime = ZonedDateTime.of(localTime, ZoneOffset.UTC).toInstant();
+      _valuationTime = ZonedDateTime.of(localTime, OpenGammaClock.getZone()).toInstant();
     } catch (DateTimeParseException e) {
       throw new IllegalArgumentException("Valuation time isn't in a valid format. Expected format " +
                                              "'yyyy-MM-dd HH:mm', value: " + valuationTime);

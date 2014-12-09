@@ -21,7 +21,6 @@ import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.Period;
-import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
 
@@ -33,6 +32,7 @@ import com.opengamma.engine.function.StructureManipulationFunction;
 import com.opengamma.engine.marketdata.manipulator.DistinctMarketDataSelector;
 import com.opengamma.engine.marketdata.manipulator.ScenarioDefinition;
 import com.opengamma.id.ExternalId;
+import com.opengamma.util.OpenGammaClock;
 import com.opengamma.util.test.TestGroup;
 
 import groovy.lang.Binding;
@@ -210,7 +210,7 @@ public class StandAloneScenarioScriptTest {
     Instant valuationInstant;
     if (valuationTime != null) {
       LocalDateTime localTime = LocalDateTime.parse(valuationTime, s_dateFormatter);
-      valuationInstant = ZonedDateTime.of(localTime, ZoneOffset.UTC).toInstant();
+      valuationInstant = ZonedDateTime.of(localTime, OpenGammaClock.getZone()).toInstant();
     } else {
       valuationInstant = null;
     }
