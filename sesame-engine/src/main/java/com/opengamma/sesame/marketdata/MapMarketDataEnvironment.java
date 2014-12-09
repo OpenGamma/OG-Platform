@@ -24,6 +24,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableMap;
@@ -57,7 +58,7 @@ public final class MapMarketDataEnvironment implements MarketDataEnvironment, Im
     ArgumentChecker.notNull(valuationTime, "valuationTime");
     _data = ImmutableMap.copyOf(data);
     _timeSeries = ImmutableMap.copyOf(timeSeries);
-    _valuationTime = valuationTime;
+    _valuationTime = valuationTime.withZoneSameInstant(ZoneOffset.UTC);
   }
 
   @Override

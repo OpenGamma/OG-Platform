@@ -20,7 +20,6 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.OffsetTime;
 import org.threeten.bp.Period;
-import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
@@ -244,7 +243,7 @@ public class FedFundFutureCurveTest {
   } 
   
   private FedFundsFutureTrade createFFTrade(LocalDate expiryDate, double tradePrice) {    
-    Expiry expiry = new Expiry(ZonedDateTime.of(expiryDate, LocalTime.of(0, 0), ZoneId.systemDefault()));
+    Expiry expiry = new Expiry(ZonedDateTime.of(expiryDate, LocalTime.of(0, 0), ZoneOffset.UTC));
     FederalFundsFutureSecurity fedFundsFuture = 
         new FederalFundsFutureSecurity(expiry, TRADING_EX, SETTLE_EX, CCY, UNIT_AMOUNT, FED_FUND_INDEX_ID, CATEGORY);
     fedFundsFuture.setExternalIdBundle(ExternalSchemes.syntheticSecurityId("Test future").toBundle());

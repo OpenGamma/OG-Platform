@@ -9,9 +9,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.sesame.function.scenarios.ScenarioArgument;
@@ -127,13 +130,22 @@ public final class CycleArguments {
                         boolean captureInputs,
                         Map<String, ZonedDateTime> columnValuationTimes) {
     _marketDataEnvironment = ArgumentChecker.notNull(marketDataEnvironment, "marketDataBundle");
-    _columnValuationTimes = ImmutableMap.copyOf(ArgumentChecker.notNull(columnValuationTimes, "columnValuationTimes"));
+    _columnValuationTimes = convertColumnTimes(ArgumentChecker.notNull(columnValuationTimes, "columnValuationTimes"));
     _functionArguments = ArgumentChecker.notNull(functionArguments, "functionArguments");
     _configVersionCorrection = ArgumentChecker.notNull(configVersionCorrection, "configVersionCorrection");
-    _valuationTime = ArgumentChecker.notNull(valuationTime, "valuationTime");
+    _valuationTime = ArgumentChecker.notNull(valuationTime, "valuationTime").withZoneSameInstant(ZoneOffset.UTC);
     _traceCells = ImmutableMap.copyOf(ArgumentChecker.notNull(traceCells, "traceCells"));
     _traceOutputs = ImmutableMap.copyOf(ArgumentChecker.notNull(traceOutputs, "traceOutputs"));
     _captureInputs = captureInputs;
+  }
+
+  private Map<String, ZonedDateTime> convertColumnTimes(Map<String, ZonedDateTime> valuationTimes) {
+    return Maps.transformValues(valuationTimes, new Function<ZonedDateTime, ZonedDateTime>() {
+      @Override
+      public ZonedDateTime apply(ZonedDateTime input) {
+        return input.withZoneSameInstant(ZoneOffset.UTC);
+      }
+    });
   }
 
   ZonedDateTime getValuationTime() {

@@ -26,7 +26,6 @@ import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.OffsetTime;
 import org.threeten.bp.Period;
-import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
@@ -250,8 +249,8 @@ public class DeliverableSwapFutureFnTest {
   private static DeliverableSwapFutureTrade createDeliverableSwapFutureTrade() {
         
     Expiry expiry = new Expiry(ZonedDateTime.of(LocalDateTime.of(LocalDate.of(2014, 6, 15), 
-                                                                 LocalTime.of(0, 0)), 
-                                                                 ZoneId.systemDefault()));
+                                                                 LocalTime.of(0, 0)),
+                                                                 ZoneOffset.UTC));
     
     DeliverableSwapFutureSecurity dsf = new DeliverableSwapFutureSecurity(expiry, 
                                                                           Currency.USD + "DSF",
