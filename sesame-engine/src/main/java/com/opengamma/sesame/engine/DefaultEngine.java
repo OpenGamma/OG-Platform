@@ -81,7 +81,7 @@ public class DefaultEngine implements Engine {
       CalculationArguments calcArgs = calculationArguments.argumentsForScenario(scenarioName);
       // the future represents the results for a single scenario, which might not have finished calculating yet
       // the futures are executed asynchronously using the view's thread pool
-      ListenableFuture<Results> future = view.runAsync(calcArgs, scenarioMarketData, portfolio);
+      ListenableFuture<Results> future = runAsync(view, calcArgs, scenarioMarketData, portfolio);
       // creates a new future that wraps the original future so it returns the scenario name along with its results
       ListenableFuture<Pair<String, Results>> futureWithName =
           Futures.transform(future, new Function<Results, Pair<String, Results>>() {
