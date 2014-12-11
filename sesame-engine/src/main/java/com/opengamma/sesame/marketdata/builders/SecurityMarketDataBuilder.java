@@ -73,9 +73,9 @@ public class SecurityMarketDataBuilder implements MarketDataBuilder {
     for (TimeSeriesRequirement requirement : requirements) {
       RawId<?> rawId = rawId(requirement);
       LocalDateRange dateRange = requirement.getMarketDataTime().getDateRange();
-      @SuppressWarnings("unchecked")
+      @SuppressWarnings({"unchecked", "rawtypes" })
       Result<DateTimeSeries<LocalDate, ?>> result =
-          (Result<DateTimeSeries<LocalDate, ?>>) marketDataBundle.get(rawId, rawId.getMarketDataType(), dateRange);
+          (Result) marketDataBundle.get(rawId, rawId.getMarketDataType(), dateRange);
       results.put(requirement, result);
     }
     return results.build();
